@@ -2,43 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E7F9489160
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:32:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61E194890E3
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:28:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239508AbiAJHbf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:31:35 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38798 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240238AbiAJH3c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:29:32 -0500
+        id S239736AbiAJH0i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:26:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48272 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239408AbiAJHZd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:25:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4966BC06118C;
+        Sun,  9 Jan 2022 23:24:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 607AA611B7;
-        Mon, 10 Jan 2022 07:29:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43978C36AE9;
-        Mon, 10 Jan 2022 07:29:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E68C7B81202;
+        Mon, 10 Jan 2022 07:24:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CECAAC36AE9;
+        Mon, 10 Jan 2022 07:24:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799771;
-        bh=C3+AgHOGPU/JduDV9eThrDNKId/d6U1n4jEsZ2VuWJI=;
+        s=korg; t=1641799489;
+        bh=s7rnVr5OME000+dtzOD1eD/jS3lCf4zVfsB22ELGaOE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bCd6g9REulTuB5NyjytX/3iyEOzjBJK1bYspdDUam1PhNrrkehRyGZaq+R8pvRgfI
-         egkv6Bs/Kej4eEBKqiRzDjpZnYe3v8ZBalOBgp+FWOE9baN2ejI9IY+s3BK07e0giX
-         oybqnISVMClTVk6ICTxtkws63K3a4NEMk6Owhk/Q=
+        b=f5griIuruvzbymli3YEFbUkNnRwj31gvutQ08hFHs8KG7BoEbmZgQ+pg7B9byWbAL
+         xQJBdKuRA5zibVJ8xMXxqyb6tmSkuHyZ34KaK9k7k9uXbyXepdIpwCDfX3xCqY5rtO
+         N4xDLhtophZ/hBM0oxxyvsrWWFjJOychlSlxIUag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yi Zhuang <zhuangyi1@huawei.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.10 01/43] f2fs: quota: fix potential deadlock
+        stable@vger.kernel.org, Ian Abbott <abbotti@mev.co.uk>,
+        Michal Nazarewicz <mina86@mina86.com>,
+        Kees Cook <keescook@chromium.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 4.9 11/21] bug: split BUILD_BUG stuff out into <linux/build_bug.h>
 Date:   Mon, 10 Jan 2022 08:22:58 +0100
-Message-Id: <20220110071817.386947432@linuxfoundation.org>
+Message-Id: <20220110071813.184161884@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071817.337619922@linuxfoundation.org>
-References: <20220110071817.337619922@linuxfoundation.org>
+In-Reply-To: <20220110071812.806606886@linuxfoundation.org>
+References: <20220110071812.806606886@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -46,60 +55,214 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-commit a5c0042200b28fff3bde6fa128ddeaef97990f8d upstream.
+commit bc6245e5efd70c41eaf9334b1b5e646745cb0fb3 upstream.
 
-As Yi Zhuang reported in bugzilla:
+Including <linux/bug.h> pulls in a lot of bloat from <asm/bug.h> and
+<asm-generic/bug.h> that is not needed to call the BUILD_BUG() family of
+macros.  Split them out into their own header, <linux/build_bug.h>.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=214299
+Also correct some checkpatch.pl errors for the BUILD_BUG_ON_ZERO() and
+BUILD_BUG_ON_NULL() macros by adding parentheses around the bitfield
+widths that begin with a minus sign.
 
-There is potential deadlock during quota data flush as below:
-
-Thread A:			Thread B:
-f2fs_dquot_acquire
-down_read(&sbi->quota_sem)
-				f2fs_write_checkpoint
-				block_operations
-				f2fs_look_all
-				down_write(&sbi->cp_rwsem)
-f2fs_quota_write
-f2fs_write_begin
-__do_map_lock
-f2fs_lock_op
-down_read(&sbi->cp_rwsem)
-				__need_flush_qutoa
-				down_write(&sbi->quota_sem)
-
-This patch changes block_operations() to use trylock, if it fails,
-it means there is potential quota data updater, in this condition,
-let's flush quota data first and then trylock again to check dirty
-status of quota data.
-
-The side effect is: in heavy race condition (e.g. multi quota data
-upaters vs quota data flusher), it may decrease the probability of
-synchronizing quota data successfully in checkpoint() due to limited
-retry time of quota flush.
-
-Reported-by: Yi Zhuang <zhuangyi1@huawei.com>
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Link: http://lkml.kernel.org/r/20170525120316.24473-6-abbotti@mev.co.uk
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Acked-by: Michal Nazarewicz <mina86@mina86.com>
+Acked-by: Kees Cook <keescook@chromium.org>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Jakub Kicinski <jakub.kicinski@netronome.com>
+Cc: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+[nathan: Just take this patch, not the checkpatch.pl patches before it]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/checkpoint.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/linux/bug.h       |   72 ---------------------------------------
+ include/linux/build_bug.h |   84 ++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 85 insertions(+), 71 deletions(-)
+ create mode 100644 include/linux/build_bug.h
 
---- a/fs/f2fs/checkpoint.c
-+++ b/fs/f2fs/checkpoint.c
-@@ -1147,7 +1147,8 @@ static bool __need_flush_quota(struct f2
- 	if (!is_journalled_quota(sbi))
- 		return false;
+--- a/include/linux/bug.h
++++ b/include/linux/bug.h
+@@ -3,6 +3,7 @@
  
--	down_write(&sbi->quota_sem);
-+	if (!down_write_trylock(&sbi->quota_sem))
-+		return true;
- 	if (is_sbi_flag_set(sbi, SBI_QUOTA_SKIP_FLUSH)) {
- 		ret = false;
- 	} else if (is_sbi_flag_set(sbi, SBI_QUOTA_NEED_REPAIR)) {
+ #include <asm/bug.h>
+ #include <linux/compiler.h>
++#include <linux/build_bug.h>
+ 
+ enum bug_trap_type {
+ 	BUG_TRAP_TYPE_NONE = 0,
+@@ -13,80 +14,9 @@ enum bug_trap_type {
+ struct pt_regs;
+ 
+ #ifdef __CHECKER__
+-#define __BUILD_BUG_ON_NOT_POWER_OF_2(n) (0)
+-#define BUILD_BUG_ON_NOT_POWER_OF_2(n) (0)
+-#define BUILD_BUG_ON_ZERO(e) (0)
+-#define BUILD_BUG_ON_NULL(e) ((void*)0)
+-#define BUILD_BUG_ON_INVALID(e) (0)
+-#define BUILD_BUG_ON_MSG(cond, msg) (0)
+-#define BUILD_BUG_ON(condition) (0)
+-#define BUILD_BUG() (0)
+ #define MAYBE_BUILD_BUG_ON(cond) (0)
+ #else /* __CHECKER__ */
+ 
+-/* Force a compilation error if a constant expression is not a power of 2 */
+-#define __BUILD_BUG_ON_NOT_POWER_OF_2(n)	\
+-	BUILD_BUG_ON(((n) & ((n) - 1)) != 0)
+-#define BUILD_BUG_ON_NOT_POWER_OF_2(n)			\
+-	BUILD_BUG_ON((n) == 0 || (((n) & ((n) - 1)) != 0))
+-
+-/* Force a compilation error if condition is true, but also produce a
+-   result (of value 0 and type size_t), so the expression can be used
+-   e.g. in a structure initializer (or where-ever else comma expressions
+-   aren't permitted). */
+-#define BUILD_BUG_ON_ZERO(e) (sizeof(struct { int:-!!(e); }))
+-#define BUILD_BUG_ON_NULL(e) ((void *)sizeof(struct { int:-!!(e); }))
+-
+-/*
+- * BUILD_BUG_ON_INVALID() permits the compiler to check the validity of the
+- * expression but avoids the generation of any code, even if that expression
+- * has side-effects.
+- */
+-#define BUILD_BUG_ON_INVALID(e) ((void)(sizeof((__force long)(e))))
+-
+-/**
+- * BUILD_BUG_ON_MSG - break compile if a condition is true & emit supplied
+- *		      error message.
+- * @condition: the condition which the compiler should know is false.
+- *
+- * See BUILD_BUG_ON for description.
+- */
+-#define BUILD_BUG_ON_MSG(cond, msg) compiletime_assert(!(cond), msg)
+-
+-/**
+- * BUILD_BUG_ON - break compile if a condition is true.
+- * @condition: the condition which the compiler should know is false.
+- *
+- * If you have some code which relies on certain constants being equal, or
+- * some other compile-time-evaluated condition, you should use BUILD_BUG_ON to
+- * detect if someone changes it.
+- *
+- * The implementation uses gcc's reluctance to create a negative array, but gcc
+- * (as of 4.4) only emits that error for obvious cases (e.g. not arguments to
+- * inline functions).  Luckily, in 4.3 they added the "error" function
+- * attribute just for this type of case.  Thus, we use a negative sized array
+- * (should always create an error on gcc versions older than 4.4) and then call
+- * an undefined function with the error attribute (should always create an
+- * error on gcc 4.3 and later).  If for some reason, neither creates a
+- * compile-time error, we'll still have a link-time error, which is harder to
+- * track down.
+- */
+-#ifndef __OPTIMIZE__
+-#define BUILD_BUG_ON(condition) ((void)sizeof(char[1 - 2*!!(condition)]))
+-#else
+-#define BUILD_BUG_ON(condition) \
+-	BUILD_BUG_ON_MSG(condition, "BUILD_BUG_ON failed: " #condition)
+-#endif
+-
+-/**
+- * BUILD_BUG - break compile if used.
+- *
+- * If you have some code that you expect the compiler to eliminate at
+- * build time, you should use BUILD_BUG to detect if it is
+- * unexpectedly used.
+- */
+-#define BUILD_BUG() BUILD_BUG_ON_MSG(1, "BUILD_BUG failed")
+-
+ #define MAYBE_BUILD_BUG_ON(cond)			\
+ 	do {						\
+ 		if (__builtin_constant_p((cond)))       \
+--- /dev/null
++++ b/include/linux/build_bug.h
+@@ -0,0 +1,84 @@
++#ifndef _LINUX_BUILD_BUG_H
++#define _LINUX_BUILD_BUG_H
++
++#include <linux/compiler.h>
++
++#ifdef __CHECKER__
++#define __BUILD_BUG_ON_NOT_POWER_OF_2(n) (0)
++#define BUILD_BUG_ON_NOT_POWER_OF_2(n) (0)
++#define BUILD_BUG_ON_ZERO(e) (0)
++#define BUILD_BUG_ON_NULL(e) ((void *)0)
++#define BUILD_BUG_ON_INVALID(e) (0)
++#define BUILD_BUG_ON_MSG(cond, msg) (0)
++#define BUILD_BUG_ON(condition) (0)
++#define BUILD_BUG() (0)
++#else /* __CHECKER__ */
++
++/* Force a compilation error if a constant expression is not a power of 2 */
++#define __BUILD_BUG_ON_NOT_POWER_OF_2(n)	\
++	BUILD_BUG_ON(((n) & ((n) - 1)) != 0)
++#define BUILD_BUG_ON_NOT_POWER_OF_2(n)			\
++	BUILD_BUG_ON((n) == 0 || (((n) & ((n) - 1)) != 0))
++
++/*
++ * Force a compilation error if condition is true, but also produce a
++ * result (of value 0 and type size_t), so the expression can be used
++ * e.g. in a structure initializer (or where-ever else comma expressions
++ * aren't permitted).
++ */
++#define BUILD_BUG_ON_ZERO(e) (sizeof(struct { int:(-!!(e)); }))
++#define BUILD_BUG_ON_NULL(e) ((void *)sizeof(struct { int:(-!!(e)); }))
++
++/*
++ * BUILD_BUG_ON_INVALID() permits the compiler to check the validity of the
++ * expression but avoids the generation of any code, even if that expression
++ * has side-effects.
++ */
++#define BUILD_BUG_ON_INVALID(e) ((void)(sizeof((__force long)(e))))
++
++/**
++ * BUILD_BUG_ON_MSG - break compile if a condition is true & emit supplied
++ *		      error message.
++ * @condition: the condition which the compiler should know is false.
++ *
++ * See BUILD_BUG_ON for description.
++ */
++#define BUILD_BUG_ON_MSG(cond, msg) compiletime_assert(!(cond), msg)
++
++/**
++ * BUILD_BUG_ON - break compile if a condition is true.
++ * @condition: the condition which the compiler should know is false.
++ *
++ * If you have some code which relies on certain constants being equal, or
++ * some other compile-time-evaluated condition, you should use BUILD_BUG_ON to
++ * detect if someone changes it.
++ *
++ * The implementation uses gcc's reluctance to create a negative array, but gcc
++ * (as of 4.4) only emits that error for obvious cases (e.g. not arguments to
++ * inline functions).  Luckily, in 4.3 they added the "error" function
++ * attribute just for this type of case.  Thus, we use a negative sized array
++ * (should always create an error on gcc versions older than 4.4) and then call
++ * an undefined function with the error attribute (should always create an
++ * error on gcc 4.3 and later).  If for some reason, neither creates a
++ * compile-time error, we'll still have a link-time error, which is harder to
++ * track down.
++ */
++#ifndef __OPTIMIZE__
++#define BUILD_BUG_ON(condition) ((void)sizeof(char[1 - 2*!!(condition)]))
++#else
++#define BUILD_BUG_ON(condition) \
++	BUILD_BUG_ON_MSG(condition, "BUILD_BUG_ON failed: " #condition)
++#endif
++
++/**
++ * BUILD_BUG - break compile if used.
++ *
++ * If you have some code that you expect the compiler to eliminate at
++ * build time, you should use BUILD_BUG to detect if it is
++ * unexpectedly used.
++ */
++#define BUILD_BUG() BUILD_BUG_ON_MSG(1, "BUILD_BUG failed")
++
++#endif	/* __CHECKER__ */
++
++#endif	/* _LINUX_BUILD_BUG_H */
 
 
