@@ -2,77 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A976A4895F6
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 11:07:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5288B489601
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 11:10:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243607AbiAJKHL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 05:07:11 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:59314 "EHLO
+        id S243661AbiAJKKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 05:10:25 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:59572 "EHLO
         jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234093AbiAJKHL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 05:07:11 -0500
+        with ESMTP id S243669AbiAJKKD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 05:10:03 -0500
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 8E2651C0B76; Mon, 10 Jan 2022 11:07:08 +0100 (CET)
-Date:   Mon, 10 Jan 2022 11:07:08 +0100
+        id 541331C0B76; Mon, 10 Jan 2022 11:10:02 +0100 (CET)
+Date:   Mon, 10 Jan 2022 11:10:01 +0100
 From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH 5.10 09/43] netrom: fix copying in user data in
- nr_setsockopt
-Message-ID: <20220110100708.GA5588@duo.ucw.cz>
-References: <20220110071817.337619922@linuxfoundation.org>
- <20220110071817.669190550@linuxfoundation.org>
+        Di Zhu <zhudi2@huawei.com>, Rui Zhang <zhangrui182@huawei.com>,
+        Gurucharan G <gurucharanx.g@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: Re: [PATCH 4.19 06/21] i40e: fix use-after-free in
+ i40e_sync_filters_subtask()
+Message-ID: <20220110101001.GB5588@duo.ucw.cz>
+References: <20220110071813.967414697@linuxfoundation.org>
+ <20220110071814.172190135@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
+        protocol="application/pgp-signature"; boundary="+g7M9IMkV8truYOl"
 Content-Disposition: inline
-In-Reply-To: <20220110071817.669190550@linuxfoundation.org>
+In-Reply-To: <20220110071814.172190135@linuxfoundation.org>
 User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---pf9I7BMVVzbSWLtt
+--+g7M9IMkV8truYOl
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi!
 
-> From: Christoph Hellwig <hch@lst.de>
+> commit 3116f59c12bd24c513194cd3acb3ec1f7d468954 upstream.
 >=20
-> commit 3087a6f36ee028ec095c04a8531d7d33899b7fed upstream.
->=20
-> This code used to copy in an unsigned long worth of data before
-> the sockptr_t conversion, so restore that.
+> Using ifconfig command to delete the ipv6 address will cause
+> the i40e network card driver to delete its internal mac_filter and
+> i40e_service_task kernel thread will concurrently access the mac_filter.
+> These two processes are not protected by lock
+> so causing the following use-after-free problems.
 
-Maybe, but then	the size checks	need to	be updated, too.
+Ok, but...
 
-> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
->  net/netrom/af_netrom.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
->=20
-> --- a/net/netrom/af_netrom.c
-> +++ b/net/netrom/af_netrom.c
-> @@ -306,7 +306,7 @@ static int nr_setsockopt(struct socket *
->  	if (optlen < sizeof(unsigned int))
+> +static void netdev_hw_addr_refcnt(struct i40e_mac_filter *f,
+> +				  struct net_device *netdev, int delta)
+> +{
+> +	struct netdev_hw_addr *ha;
+> +
+> +	if (!f || !netdev)
+> +		return;
+> +
+> +	netdev_for_each_mc_addr(ha, netdev) {
+> +		if (ether_addr_equal(ha->addr, f->macaddr)) {
+> +			ha->refcount +=3D delta;
+> +			if (ha->refcount <=3D 0)
+> +				ha->refcount =3D 1;
+> +			break;
+> +		}
+> +	}
+> +}
 
-This should   be   < sizeof(unsigned long)) ... AFAICT.
-
->  		return -EINVAL;
-> =20
-> -	if (copy_from_sockptr(&opt, optval, sizeof(unsigned int)))
-> +	if (copy_from_sockptr(&opt, optval, sizeof(unsigned long)))
->  		return -EFAULT;
-> =20
+What is going on here? Is refcount expected to underflow under normal
+operation? Should we at least have WARN_ON there?
 
 Best regards,
 								Pavel
@@ -80,14 +80,14 @@ Best regards,
 DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
 HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
---pf9I7BMVVzbSWLtt
+--+g7M9IMkV8truYOl
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYdwFTAAKCRAw5/Bqldv6
-8vfBAJ0RhsWD/rzFW3orbWdDzc4TZzvGTgCgrVp1cMAZ+2WFDCPjok5cxZxbg6s=
-=kxTY
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYdwF+QAKCRAw5/Bqldv6
+8iEWAJ9TS2tZGkkz6lQwYF8uHAi9aLjdjgCeIFvO0NVkfgv43yHGabJsTCvUfD4=
+=isAm
 -----END PGP SIGNATURE-----
 
---pf9I7BMVVzbSWLtt--
+--+g7M9IMkV8truYOl--
