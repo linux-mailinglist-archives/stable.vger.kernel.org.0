@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8116D48927F
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:46:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA09C489282
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:46:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241784AbiAJHnw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:43:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51194 "EHLO
+        id S240238AbiAJHoG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:44:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241603AbiAJHlv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:41:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9E0DC03327E;
-        Sun,  9 Jan 2022 23:34:55 -0800 (PST)
+        with ESMTP id S240774AbiAJHmF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:42:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F3EDC03327F;
+        Sun,  9 Jan 2022 23:35:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 47BE161194;
-        Mon, 10 Jan 2022 07:34:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 302E6C36AED;
-        Mon, 10 Jan 2022 07:34:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CFE05B81161;
+        Mon, 10 Jan 2022 07:34:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 047D4C36AE9;
+        Mon, 10 Jan 2022 07:34:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641800094;
-        bh=NZv5gSNC3MtaZrP/A7651LQm0HtR/srezfufRg09D5k=;
+        s=korg; t=1641800097;
+        bh=DpE+ZbuBDo/t28HF6sDMgSkYPiIXAr3H/aodqo04HhQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bNVGrboA3ABpYiBgXiAF2ic8K2Uhy6rlEsaN3oZSFvE1ZBIaSljuTR2v4RC2Ry2EE
-         wiAGNEaaAw1xBOB6vAZ4v37uYzr8oINVeCpcuRWIyqF3LgxnisN9fCkSlZeob1OHgz
-         utZT16FF1TcPpzOepxZgxjgpgGhY490rlHmwl4Iw=
+        b=Mf+gBc9GXVUVqfckkrAqR1qY4js1q6s3QrGawTJ8nzXhDIrh7NI6lSxndPN0dsmGd
+         SAYuQf5YsY5DXT3EyDeKaiHvxsf0gqN/LGync/wieY1UyT0dqrOvOVA7enOQZrhcFv
+         8CHiLqQ8DVUNlvPeJuHe355XuAaPR/5Wwl3dajxo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Nikita Travkin <nikita@trvn.ru>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 70/72] Input: zinitix - make sure the IRQ is allocated before it gets enabled
-Date:   Mon, 10 Jan 2022 08:23:47 +0100
-Message-Id: <20220110071823.930427846@linuxfoundation.org>
+        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
+        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
+        Christian Koenig <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Len Brown <len.brown@intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.15 71/72] Revert "drm/amdgpu: stop scheduler when calling hw_fini (v2)"
+Date:   Mon, 10 Jan 2022 08:23:48 +0100
+Message-Id: <20220110071823.961031554@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
 References: <20220110071821.500480371@linuxfoundation.org>
@@ -49,65 +51,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikita Travkin <nikita@trvn.ru>
+From: Len Brown <len.brown@intel.com>
 
-[ Upstream commit cf73ed894ee939d6706d65e0cd186e4a64e3af6d ]
+commit df5bc0aa7ff6e2e14cb75182b4eda20253c711d4 upstream.
 
-Since irq request is the last thing in the driver probe, it happens
-later than the input device registration. This means that there is a
-small time window where if the open method is called the driver will
-attempt to enable not yet available irq.
+This reverts commit f7d6779df642720e22bffd449e683bb8690bd3bf.
 
-Fix that by moving the irq request before the input device registration.
+This bisected regression has impacted suspend-resume stability
+since 5.15-rc1. It regressed -stable via 5.14.10.
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Fixes: 26822652c85e ("Input: add zinitix touchscreen driver")
-Signed-off-by: Nikita Travkin <nikita@trvn.ru>
-Link: https://lore.kernel.org/r/20220106072840.36851-2-nikita@trvn.ru
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215315
+Fixes: f7d6779df64 ("drm/amdgpu: stop scheduler when calling hw_fini (v2)")
+Cc: Guchun Chen <guchun.chen@amd.com>
+Cc: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
+Cc: Christian Koenig <christian.koenig@amd.com>
+Cc: Alex Deucher <alexander.deucher@amd.com>
+Cc: <stable@vger.kernel.org> # 5.14+
+Signed-off-by: Len Brown <len.brown@intel.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/touchscreen/zinitix.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c |    8 --------
+ 1 file changed, 8 deletions(-)
 
-diff --git a/drivers/input/touchscreen/zinitix.c b/drivers/input/touchscreen/zinitix.c
-index b8d901099378d..1e70b8d2a8d79 100644
---- a/drivers/input/touchscreen/zinitix.c
-+++ b/drivers/input/touchscreen/zinitix.c
-@@ -488,6 +488,15 @@ static int zinitix_ts_probe(struct i2c_client *client)
- 		return error;
- 	}
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fence.c
+@@ -552,9 +552,6 @@ void amdgpu_fence_driver_hw_fini(struct
+ 		if (!ring || !ring->fence_drv.initialized)
+ 			continue;
  
-+	error = devm_request_threaded_irq(&client->dev, client->irq,
-+					  NULL, zinitix_ts_irq_handler,
-+					  IRQF_ONESHOT | IRQF_NO_AUTOEN,
-+					  client->name, bt541);
-+	if (error) {
-+		dev_err(&client->dev, "Failed to request IRQ: %d\n", error);
-+		return error;
-+	}
-+
- 	error = zinitix_init_input_dev(bt541);
- 	if (error) {
- 		dev_err(&client->dev,
-@@ -513,15 +522,6 @@ static int zinitix_ts_probe(struct i2c_client *client)
- 		return -EINVAL;
- 	}
- 
--	error = devm_request_threaded_irq(&client->dev, client->irq,
--					  NULL, zinitix_ts_irq_handler,
--					  IRQF_ONESHOT | IRQF_NO_AUTOEN,
--					  client->name, bt541);
--	if (error) {
--		dev_err(&client->dev, "Failed to request IRQ: %d\n", error);
--		return error;
--	}
+-		if (!ring->no_scheduler)
+-			drm_sched_stop(&ring->sched, NULL);
 -
- 	return 0;
- }
+ 		/* You can't wait for HW to signal if it's gone */
+ 		if (!drm_dev_is_unplugged(&adev->ddev))
+ 			r = amdgpu_fence_wait_empty(ring);
+@@ -614,11 +611,6 @@ void amdgpu_fence_driver_hw_init(struct
+ 		if (!ring || !ring->fence_drv.initialized)
+ 			continue;
  
--- 
-2.34.1
-
+-		if (!ring->no_scheduler) {
+-			drm_sched_resubmit_jobs(&ring->sched);
+-			drm_sched_start(&ring->sched, true);
+-		}
+-
+ 		/* enable the interrupt */
+ 		if (ring->fence_drv.irq_src)
+ 			amdgpu_irq_get(adev, ring->fence_drv.irq_src,
 
 
