@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D48BF48921C
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:43:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4472489102
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:29:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232553AbiAJHiy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:38:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50762 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240801AbiAJHgg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:36:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2B9AC0251A7;
-        Sun,  9 Jan 2022 23:32:07 -0800 (PST)
+        id S239657AbiAJH2a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:28:30 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:36500 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239406AbiAJH03 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:26:29 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5AA2AB81212;
-        Mon, 10 Jan 2022 07:32:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B9FBC36AF2;
-        Mon, 10 Jan 2022 07:32:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA957611B7;
+        Mon, 10 Jan 2022 07:26:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD51FC36AE9;
+        Mon, 10 Jan 2022 07:26:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799926;
-        bh=1RZ0kPZl9KxI1zgPVbZnXcBRIz2Lcdn7bViV5huftKM=;
+        s=korg; t=1641799588;
+        bh=mHH+XNkD+3G/e3NHKbEc90kLnPAfFdQ5w4ollboxixw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0uVAu2PKZzayeQe30RXBr7nKW0JhyRaZY8R/ZXb6kDraKVDQEoK9jJUNkPqPt5zvv
-         gy2iOPSfUNTfwudbvJ5YbzoeusQTsGQvq3qe8Vw2pBqSHnLNish9fXQ1ODtd+NBIOa
-         7i2ATuXfZm7BTIk3J9NZKsogKlKoV0/ev4bC4J6I=
+        b=mZxKUszjT3YK1RaBMMZkGEPFJO+KnEK5qscowId2X2vo6+TcSkw/TVm6qgfENTKLG
+         i2hHAV/LfzxDFs7BOUjLgt2BejeVI7yiml5hP8BVFEzDutxmARbL2MhHofWWOv75KL
+         AxjY9Yd9ejaThhB74FfSpOiHkyMnKsJR8rg3o71w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Steven Rostedt <rostedt@goodmis.org>
-Subject: [PATCH 5.15 19/72] ftrace/samples: Add missing prototypes direct functions
-Date:   Mon, 10 Jan 2022 08:22:56 +0100
-Message-Id: <20220110071822.221527797@linuxfoundation.org>
+        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Yang Wei <yang.wei@linux.alibaba.com>
+Subject: [PATCH 4.14 04/22] virtio_pci: Support surprise removal of virtio pci device
+Date:   Mon, 10 Jan 2022 08:22:57 +0100
+Message-Id: <20220110071814.411993808@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
-References: <20220110071821.500480371@linuxfoundation.org>
+In-Reply-To: <20220110071814.261471354@linuxfoundation.org>
+References: <20220110071814.261471354@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,76 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@redhat.com>
+From: Parav Pandit <parav@nvidia.com>
 
-commit 0daf5cb217a9ca8ae91b8f966ddae322699fb71d upstream.
+commit 43bb40c5b92659966bdf4bfe584fde0a3575a049 upstream.
 
-There's another compilation fail (first here [1]) reported by kernel
-test robot for W=1 clang build:
+When a virtio pci device undergo surprise removal (aka async removal in
+PCIe spec), mark the device as broken so that any upper layer drivers can
+abort any outstanding operation.
 
-  >> samples/ftrace/ftrace-direct-multi-modify.c:7:6: warning: no previous
-  prototype for function 'my_direct_func1' [-Wmissing-prototypes]
-     void my_direct_func1(unsigned long ip)
+When a virtio net pci device undergo surprise removal which is used by a
+NetworkManager, a below call trace was observed.
 
-Direct functions in ftrace direct sample modules need to have prototypes
-defined. They are already global in order to be visible for the inline
-assembly, so there's no problem.
+kernel:watchdog: BUG: soft lockup - CPU#1 stuck for 26s! [kworker/1:1:27059]
+watchdog: BUG: soft lockup - CPU#1 stuck for 52s! [kworker/1:1:27059]
+CPU: 1 PID: 27059 Comm: kworker/1:1 Tainted: G S      W I  L    5.13.0-hotplug+ #8
+Hardware name: Dell Inc. PowerEdge R640/0H28RR, BIOS 2.9.4 11/06/2020
+Workqueue: events linkwatch_event
+RIP: 0010:virtnet_send_command+0xfc/0x150 [virtio_net]
+Call Trace:
+ virtnet_set_rx_mode+0xcf/0x2a7 [virtio_net]
+ ? __hw_addr_create_ex+0x85/0xc0
+ __dev_mc_add+0x72/0x80
+ igmp6_group_added+0xa7/0xd0
+ ipv6_mc_up+0x3c/0x60
+ ipv6_find_idev+0x36/0x80
+ addrconf_add_dev+0x1e/0xa0
+ addrconf_dev_config+0x71/0x130
+ addrconf_notify+0x1f5/0xb40
+ ? rtnl_is_locked+0x11/0x20
+ ? __switch_to_asm+0x42/0x70
+ ? finish_task_switch+0xaf/0x2c0
+ ? raw_notifier_call_chain+0x3e/0x50
+ raw_notifier_call_chain+0x3e/0x50
+ netdev_state_change+0x67/0x90
+ linkwatch_do_dev+0x3c/0x50
+ __linkwatch_run_queue+0xd2/0x220
+ linkwatch_event+0x21/0x30
+ process_one_work+0x1c8/0x370
+ worker_thread+0x30/0x380
+ ? process_one_work+0x370/0x370
+ kthread+0x118/0x140
+ ? set_kthread_struct+0x40/0x40
+ ret_from_fork+0x1f/0x30
 
-The kernel test robot reported just error for ftrace-direct-multi-modify,
-but I got same errors also for the rest of the modules touched by this patch.
+Hence, add the ability to abort the command on surprise removal
+which prevents infinite loop and system lockup.
 
-[1] 67d4f6e3bf5d ftrace/samples: Add missing prototype for my_direct_func
-
-Link: https://lkml.kernel.org/r/20211219135317.212430-1-jolsa@kernel.org
-
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: e1067a07cfbc ("ftrace/samples: Add module to test multi direct modify interface")
-Fixes: ae0cc3b7e7f5 ("ftrace/samples: Add a sample module that implements modify_ftrace_direct()")
-Fixes: 156473a0ff4f ("ftrace: Add another example of register_ftrace_direct() use case")
-Fixes: b06457c83af6 ("ftrace: Add sample module that uses register_ftrace_direct()")
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+Signed-off-by: Parav Pandit <parav@nvidia.com>
+Link: https://lore.kernel.org/r/20210721142648.1525924-5-parav@nvidia.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Yang Wei <yang.wei@linux.alibaba.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- samples/ftrace/ftrace-direct-modify.c |    3 +++
- samples/ftrace/ftrace-direct-too.c    |    3 +++
- samples/ftrace/ftrace-direct.c        |    2 ++
- 3 files changed, 8 insertions(+)
+ drivers/virtio/virtio_pci_common.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/samples/ftrace/ftrace-direct-modify.c
-+++ b/samples/ftrace/ftrace-direct-modify.c
-@@ -3,6 +3,9 @@
- #include <linux/kthread.h>
- #include <linux/ftrace.h>
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -575,6 +575,13 @@ static void virtio_pci_remove(struct pci
+ 	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
+ 	struct device *dev = get_device(&vp_dev->vdev.dev);
  
-+extern void my_direct_func1(void);
-+extern void my_direct_func2(void);
++	/*
++	 * Device is marked broken on surprise removal so that virtio upper
++	 * layers can abort any ongoing operation.
++	 */
++	if (!pci_device_is_present(pci_dev))
++		virtio_break_device(&vp_dev->vdev);
 +
- void my_direct_func1(void)
- {
- 	trace_printk("my direct func1\n");
---- a/samples/ftrace/ftrace-direct-too.c
-+++ b/samples/ftrace/ftrace-direct-too.c
-@@ -4,6 +4,9 @@
- #include <linux/mm.h> /* for handle_mm_fault() */
- #include <linux/ftrace.h>
+ 	unregister_virtio_device(&vp_dev->vdev);
  
-+extern void my_direct_func(struct vm_area_struct *vma,
-+			   unsigned long address, unsigned int flags);
-+
- void my_direct_func(struct vm_area_struct *vma,
- 			unsigned long address, unsigned int flags)
- {
---- a/samples/ftrace/ftrace-direct.c
-+++ b/samples/ftrace/ftrace-direct.c
-@@ -4,6 +4,8 @@
- #include <linux/sched.h> /* for wake_up_process() */
- #include <linux/ftrace.h>
- 
-+extern void my_direct_func(struct task_struct *p);
-+
- void my_direct_func(struct task_struct *p)
- {
- 	trace_printk("waking up %s-%d\n", p->comm, p->pid);
+ 	if (vp_dev->ioaddr)
 
 
