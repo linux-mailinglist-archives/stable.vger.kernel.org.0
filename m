@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 059314891EC
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:43:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11B054891B9
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:42:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241055AbiAJHhM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:37:12 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:41718 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239828AbiAJHdN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:33:13 -0500
+        id S240153AbiAJHgS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:36:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49454 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240044AbiAJHaa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:30:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64891C028BA2;
+        Sun,  9 Jan 2022 23:27:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF692611C0;
-        Mon, 10 Jan 2022 07:33:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97598C36AED;
-        Mon, 10 Jan 2022 07:33:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 058D3611AD;
+        Mon, 10 Jan 2022 07:27:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBEFFC36AED;
+        Mon, 10 Jan 2022 07:27:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799992;
-        bh=twezZ0T1oF934WqErVlqXAgbsR0+9X2fsgYIG7ynZOo=;
+        s=korg; t=1641799650;
+        bh=AYGIfW94MQBnAGeV9cDSaBI/rEOKwJdLO5F0GReZ6KA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AzhUsT1myRIkUkcDr/S3b+o6IA0JSh91OpzPLA8hFG9GPtb3/UT7b8ol6iUoDRP7n
-         ipE8eNXV6Z4mYh4i7GuReOJX2lBGnNjlOV81tfaIZ7nKIoEm2aZOJjduVX+E7x7dxl
-         G/mlOMgACXWu4zUtwK8NYJI/OxRjkOjCjHF7BVhM=
+        b=nGiuBvn5GewwGZrxRLtzxaqQlVZ89vbJ7TYt8wV7NmecTZPJbIFmtQ3xu3ZVOalW4
+         xREh4K+fCKAPAv4dnzyQuKSW19LmxYkt7qDaiNMWFae/4FeltKmhp5Y/Q/EUItsJ5k
+         e0b9x1PKx3SvvrYKJ63HhsuD9Lh+kFhskFYsPRog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasant Hegde <vasant.hegde@amd.com>,
-        Nikunj A Dadhania <nikunj@amd.com>,
-        Peter Xu <peterx@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 34/72] KVM: x86: Check for rmaps allocation
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 10/21] sch_qfq: prevent shift-out-of-bounds in qfq_init_qdisc
 Date:   Mon, 10 Jan 2022 08:23:11 +0100
-Message-Id: <20220110071822.706749841@linuxfoundation.org>
+Message-Id: <20220110071814.294402969@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
-References: <20220110071821.500480371@linuxfoundation.org>
+In-Reply-To: <20220110071813.967414697@linuxfoundation.org>
+References: <20220110071813.967414697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,59 +48,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikunj A Dadhania <nikunj@amd.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit fffb5323780786c81ba005f8b8603d4a558aad28 upstream.
+commit 7d18a07897d07495ee140dd319b0e9265c0f68ba upstream.
 
-With TDP MMU being the default now, access to mmu_rmaps_stat debugfs
-file causes following oops:
+tx_queue_len can be set to ~0U, we need to be more
+careful about overflows.
 
-BUG: kernel NULL pointer dereference, address: 0000000000000000
-PGD 0 P4D 0
-Oops: 0000 [#1] PREEMPT SMP NOPTI
-CPU: 7 PID: 3185 Comm: cat Not tainted 5.16.0-rc4+ #204
-RIP: 0010:pte_list_count+0x6/0x40
- Call Trace:
-  <TASK>
-  ? kvm_mmu_rmaps_stat_show+0x15e/0x320
-  seq_read_iter+0x126/0x4b0
-  ? aa_file_perm+0x124/0x490
-  seq_read+0xf5/0x140
-  full_proxy_read+0x5c/0x80
-  vfs_read+0x9f/0x1a0
-  ksys_read+0x67/0xe0
-  __x64_sys_read+0x19/0x20
-  do_syscall_64+0x3b/0xc0
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x7fca6fc13912
+__fls(0) is undefined, as this report shows:
 
-Return early when rmaps are not present.
+UBSAN: shift-out-of-bounds in net/sched/sch_qfq.c:1430:24
+shift exponent 51770272 is too large for 32-bit type 'int'
+CPU: 0 PID: 25574 Comm: syz-executor.0 Not tainted 5.16.0-rc7-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0x201/0x2d8 lib/dump_stack.c:106
+ ubsan_epilogue lib/ubsan.c:151 [inline]
+ __ubsan_handle_shift_out_of_bounds+0x494/0x530 lib/ubsan.c:330
+ qfq_init_qdisc+0x43f/0x450 net/sched/sch_qfq.c:1430
+ qdisc_create+0x895/0x1430 net/sched/sch_api.c:1253
+ tc_modify_qdisc+0x9d9/0x1e20 net/sched/sch_api.c:1660
+ rtnetlink_rcv_msg+0x934/0xe60 net/core/rtnetlink.c:5571
+ netlink_rcv_skb+0x200/0x470 net/netlink/af_netlink.c:2496
+ netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+ netlink_unicast+0x814/0x9f0 net/netlink/af_netlink.c:1345
+ netlink_sendmsg+0xaea/0xe60 net/netlink/af_netlink.c:1921
+ sock_sendmsg_nosec net/socket.c:704 [inline]
+ sock_sendmsg net/socket.c:724 [inline]
+ ____sys_sendmsg+0x5b9/0x910 net/socket.c:2409
+ ___sys_sendmsg net/socket.c:2463 [inline]
+ __sys_sendmsg+0x280/0x370 net/socket.c:2492
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Reported-by: Vasant Hegde <vasant.hegde@amd.com>
-Tested-by: Vasant Hegde <vasant.hegde@amd.com>
-Signed-off-by: Nikunj A Dadhania <nikunj@amd.com>
-Reviewed-by: Peter Xu <peterx@redhat.com>
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20220105040337.4234-1-nikunj@amd.com>
-Cc: stable@vger.kernel.org
-Fixes: 3bcd0662d66f ("KVM: X86: Introduce mmu_rmaps_stat per-vm debugfs file")
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: 462dbc9101ac ("pkt_sched: QFQ Plus: fair-queueing service at DRR cost")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/debugfs.c |    3 +++
- 1 file changed, 3 insertions(+)
+ net/sched/sch_qfq.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/arch/x86/kvm/debugfs.c
-+++ b/arch/x86/kvm/debugfs.c
-@@ -95,6 +95,9 @@ static int kvm_mmu_rmaps_stat_show(struc
- 	unsigned int *log[KVM_NR_PAGE_SIZES], *cur;
- 	int i, j, k, l, ret;
+--- a/net/sched/sch_qfq.c
++++ b/net/sched/sch_qfq.c
+@@ -1430,10 +1430,8 @@ static int qfq_init_qdisc(struct Qdisc *
+ 	if (err < 0)
+ 		return err;
  
-+	if (!kvm_memslots_have_rmaps(kvm))
-+		return 0;
-+
- 	ret = -ENOMEM;
- 	memset(log, 0, sizeof(log));
- 	for (i = 0; i < KVM_NR_PAGE_SIZES; i++) {
+-	if (qdisc_dev(sch)->tx_queue_len + 1 > QFQ_MAX_AGG_CLASSES)
+-		max_classes = QFQ_MAX_AGG_CLASSES;
+-	else
+-		max_classes = qdisc_dev(sch)->tx_queue_len + 1;
++	max_classes = min_t(u64, (u64)qdisc_dev(sch)->tx_queue_len + 1,
++			    QFQ_MAX_AGG_CLASSES);
+ 	/* max_cl_shift = floor(log_2(max_classes)) */
+ 	max_cl_shift = __fls(max_classes);
+ 	q->max_agg_classes = 1<<max_cl_shift;
 
 
