@@ -2,120 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60AFD4895E5
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 11:01:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A976A4895F6
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 11:07:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243557AbiAJKBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 05:01:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56820 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243540AbiAJKBV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 05:01:21 -0500
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B02FC06173F
-        for <stable@vger.kernel.org>; Mon, 10 Jan 2022 02:01:21 -0800 (PST)
-Received: by mail-pl1-x633.google.com with SMTP id z3so11354402plg.8
-        for <stable@vger.kernel.org>; Mon, 10 Jan 2022 02:01:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=CdF6DjGgBF3/uAxI6i6FZtc6+qO9owboo4qasTYodTs=;
-        b=7VPuJs0Sl61dL+3moAwwwgoM6lWrPsOgu9gCf6JE4OaHRvHMbTKEqO8Ir4gED+fPrB
-         kDCnjevAo9ITCaziWTwuoXG5i4bTaRytTP49Rro/sWQXHxPPxGFLm5fYFO6F2vqQkJ82
-         KuNtyzjk/De6IoGAjVO63XP+bb4x8kCzSAdEnWsjBFrKKI+sYTJHRhPWplb++7IC/Pmj
-         UhaBjdGOhLLqXQujFTzF5JPTLXl+A0dW1aj3td7YibO75Ll394g8qiUxwsYTO+sjlyCJ
-         mJWzqtOpZkniozUAjm8FcIeHhI3/Ou65e0dBLrbGdA60AlFcKlyuD4TpNWjcPFMSKjwu
-         0FPg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=CdF6DjGgBF3/uAxI6i6FZtc6+qO9owboo4qasTYodTs=;
-        b=7f14eLqnJPLqgc+ugieV2A+YgKWCDVqtEQBEjN0nlLQDdQQMPIzh+TJJXGCM3l5rfS
-         q5kzd/oYBSsI9R9yPcMedAHQZWFGJgVIaIVwEBbjp9Phdr4sghN935uhHFBbcbzA2vLB
-         FY1/CT1sucjNHXvDuvURhRDYcQ1v8gjfddu03+gXxHeXEEwO7ri4V6O/GOHrjsqrv5us
-         deAGduD4xZaxYXreM03JPLsPosYYFfEp6jXK2WSfWDCxbPW0jHiYUcX0EFLm+zOVm5GL
-         LRWReX/vmR4/gGUJl7+4wXdtQ9RJLyNcUvWhyWYRvZlBXvBbeJ6Rv+M78Kme6+hTww4I
-         PFxQ==
-X-Gm-Message-State: AOAM531yQRoXH+NjSt1APrAdkze0mT7HHUtFz1xrxzbid+OS5JSxo6UP
-        3ZSoIcQv2koWGNcuaaeVlwzg3CfMOFyir/fA
-X-Google-Smtp-Source: ABdhPJzEOr83FmOxF+YhqQDbUyqP8wn0nPLUJoKIq4xMD4qjOggUeO2bxMQuImW4kv0xw9PQs0f7Iw==
-X-Received: by 2002:a17:902:b201:b0:149:4b25:332d with SMTP id t1-20020a170902b20100b001494b25332dmr76336156plr.17.1641808880382;
-        Mon, 10 Jan 2022 02:01:20 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id om3sm8726648pjb.49.2022.01.10.02.01.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 Jan 2022 02:01:20 -0800 (PST)
-Message-ID: <61dc03f0.1c69fb81.1b3f4.6769@mx.google.com>
-Date:   Mon, 10 Jan 2022 02:01:20 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S243607AbiAJKHL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 05:07:11 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:59314 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234093AbiAJKHL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 05:07:11 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 8E2651C0B76; Mon, 10 Jan 2022 11:07:08 +0100 (CET)
+Date:   Mon, 10 Jan 2022 11:07:08 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: Re: [PATCH 5.10 09/43] netrom: fix copying in user data in
+ nr_setsockopt
+Message-ID: <20220110100708.GA5588@duo.ucw.cz>
+References: <20220110071817.337619922@linuxfoundation.org>
+ <20220110071817.669190550@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.15.13-70-g916d1894bcce
-X-Kernelci-Branch: queue/5.15
-Subject: stable-rc/queue/5.15 baseline: 163 runs,
- 1 regressions (v5.15.13-70-g916d1894bcce)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="pf9I7BMVVzbSWLtt"
+Content-Disposition: inline
+In-Reply-To: <20220110071817.669190550@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 163 runs, 1 regressions (v5.15.13-70-g916d18=
-94bcce)
 
-Regressions Summary
--------------------
+--pf9I7BMVVzbSWLtt
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-platform | arch | lab          | compiler | defconfig      | regressions
----------+------+--------------+----------+----------------+------------
-hsdk     | arc  | lab-baylibre | gcc-10   | hsdk_defconfig | 1          =
+Hi!
 
+> From: Christoph Hellwig <hch@lst.de>
+>=20
+> commit 3087a6f36ee028ec095c04a8531d7d33899b7fed upstream.
+>=20
+> This code used to copy in an unsigned long worth of data before
+> the sockptr_t conversion, so restore that.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.13-70-g916d1894bcce/plan/baseline/
+Maybe, but then	the size checks	need to	be updated, too.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.13-70-g916d1894bcce
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      916d1894bcced3b7f2e191f03b5456ce9a86026c =
+> Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+>  net/netrom/af_netrom.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>=20
+> --- a/net/netrom/af_netrom.c
+> +++ b/net/netrom/af_netrom.c
+> @@ -306,7 +306,7 @@ static int nr_setsockopt(struct socket *
+>  	if (optlen < sizeof(unsigned int))
 
+This should   be   < sizeof(unsigned long)) ... AFAICT.
 
+>  		return -EINVAL;
+> =20
+> -	if (copy_from_sockptr(&opt, optval, sizeof(unsigned int)))
+> +	if (copy_from_sockptr(&opt, optval, sizeof(unsigned long)))
+>  		return -EFAULT;
+> =20
 
-Test Regressions
----------------- =
+Best regards,
+								Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
+--pf9I7BMVVzbSWLtt
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
 
-platform | arch | lab          | compiler | defconfig      | regressions
----------+------+--------------+----------+----------------+------------
-hsdk     | arc  | lab-baylibre | gcc-10   | hsdk_defconfig | 1          =
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYdwFTAAKCRAw5/Bqldv6
+8vfBAJ0RhsWD/rzFW3orbWdDzc4TZzvGTgCgrVp1cMAZ+2WFDCPjok5cxZxbg6s=
+=kxTY
+-----END PGP SIGNATURE-----
 
-
-  Details:     https://kernelci.org/test/plan/id/61dbce467dc74663a1ef674a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: hsdk_defconfig
-  Compiler:    gcc-10 (arc-elf32-gcc (ARCompact/ARCv2 ISA elf32 toolchain -=
- build 581) 10.2.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.13-=
-70-g916d1894bcce/arc/hsdk_defconfig/gcc-10/lab-baylibre/baseline-hsdk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.13-=
-70-g916d1894bcce/arc/hsdk_defconfig/gcc-10/lab-baylibre/baseline-hsdk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/arc/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61dbce467dc74663a1ef6=
-74b
-        new failure (last pass: v5.15.13-50-g3941bf6c6d13) =
-
- =20
+--pf9I7BMVVzbSWLtt--
