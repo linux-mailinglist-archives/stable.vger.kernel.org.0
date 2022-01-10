@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B07248914F
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:31:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F293489133
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:31:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240106AbiAJHay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:30:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48510 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239653AbiAJH2a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:28:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A4EBC034001;
-        Sun,  9 Jan 2022 23:26:36 -0800 (PST)
+        id S239539AbiAJHaL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:30:11 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:37832 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240032AbiAJH2N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:28:13 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 39CDAB81216;
-        Mon, 10 Jan 2022 07:26:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CEA3C36AED;
-        Mon, 10 Jan 2022 07:26:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 84D0D611CE;
+        Mon, 10 Jan 2022 07:28:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63C91C36AE9;
+        Mon, 10 Jan 2022 07:28:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799594;
-        bh=Yn7GtUs7DsPd4d07fED1+VVCMgIR7orx/KphQ4FnTNE=;
+        s=korg; t=1641799692;
+        bh=zYOViBaeQac9uI/6TZQx4gCOlnBtp2iyHYxWdNRXJF0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EbG2CdDwmiQT/RLTQUj5yIe7WZPq4j3ecxx+6DQWMyWnHWRp66ABl+Pa+stZ8Jgzv
-         fYT5aKM3Ry6+yFKNiblMvgJUZb7w+8iBB8xqKvkxI7cyrhp0KREUdO0b08FkqC+kwx
-         edwp/CwEnyM52Or9mCT8vViMpYeDBPIM2M5H8Q+M=
+        b=jpkb2pk68BXBVP1vHffQAP7RZE3iHFLF+aaxcF0FC6G+jcBts2HLoVj9fxPRnsW7k
+         tiE9R/c5Kc3mhiKTLrxgjIjdH1eFS/epoBRk8hUXnVzUDde0lhCqXzrr9sA2j7MguM
+         znPYbEzpkoEHXn+nBpXX6SjLtHiTPsldGxE5bsxY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+6d532fa8f9463da290bc@syzkaller.appspotmail.com,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 4.14 06/22] RDMA/core: Dont infoleak GRH fields
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Steven Rostedt <rostedt@goodmis.org>
+Subject: [PATCH 5.4 04/34] tracing: Fix check for trace_percpu_buffer validity in get_trace_buf()
 Date:   Mon, 10 Jan 2022 08:22:59 +0100
-Message-Id: <20220110071814.479057237@linuxfoundation.org>
+Message-Id: <20220110071815.802408688@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071814.261471354@linuxfoundation.org>
-References: <20220110071814.261471354@linuxfoundation.org>
+In-Reply-To: <20220110071815.647309738@linuxfoundation.org>
+References: <20220110071815.647309738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,64 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-commit b35a0f4dd544eaa6162b6d2f13a2557a121ae5fd upstream.
+commit 823e670f7ed616d0ce993075c8afe0217885f79d upstream.
 
-If dst->is_global field is not set, the GRH fields are not cleared
-and the following infoleak is reported.
+With the new osnoise tracer, we are seeing the below splat:
+    Kernel attempted to read user page (c7d880000) - exploit attempt? (uid: 0)
+    BUG: Unable to handle kernel data access on read at 0xc7d880000
+    Faulting instruction address: 0xc0000000002ffa10
+    Oops: Kernel access of bad area, sig: 11 [#1]
+    LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA pSeries
+    ...
+    NIP [c0000000002ffa10] __trace_array_vprintk.part.0+0x70/0x2f0
+    LR [c0000000002ff9fc] __trace_array_vprintk.part.0+0x5c/0x2f0
+    Call Trace:
+    [c0000008bdd73b80] [c0000000001c49cc] put_prev_task_fair+0x3c/0x60 (unreliable)
+    [c0000008bdd73be0] [c000000000301430] trace_array_printk_buf+0x70/0x90
+    [c0000008bdd73c00] [c0000000003178b0] trace_sched_switch_callback+0x250/0x290
+    [c0000008bdd73c90] [c000000000e70d60] __schedule+0x410/0x710
+    [c0000008bdd73d40] [c000000000e710c0] schedule+0x60/0x130
+    [c0000008bdd73d70] [c000000000030614] interrupt_exit_user_prepare_main+0x264/0x270
+    [c0000008bdd73de0] [c000000000030a70] syscall_exit_prepare+0x150/0x180
+    [c0000008bdd73e10] [c00000000000c174] system_call_vectored_common+0xf4/0x278
 
-=====================================================
-BUG: KMSAN: kernel-infoleak in instrument_copy_to_user include/linux/instrumented.h:121 [inline]
-BUG: KMSAN: kernel-infoleak in _copy_to_user+0x1c9/0x270 lib/usercopy.c:33
- instrument_copy_to_user include/linux/instrumented.h:121 [inline]
- _copy_to_user+0x1c9/0x270 lib/usercopy.c:33
- copy_to_user include/linux/uaccess.h:209 [inline]
- ucma_init_qp_attr+0x8c7/0xb10 drivers/infiniband/core/ucma.c:1242
- ucma_write+0x637/0x6c0 drivers/infiniband/core/ucma.c:1732
- vfs_write+0x8ce/0x2030 fs/read_write.c:588
- ksys_write+0x28b/0x510 fs/read_write.c:643
- __do_sys_write fs/read_write.c:655 [inline]
- __se_sys_write fs/read_write.c:652 [inline]
- __ia32_sys_write+0xdb/0x120 fs/read_write.c:652
- do_syscall_32_irqs_on arch/x86/entry/common.c:114 [inline]
- __do_fast_syscall_32+0x96/0xf0 arch/x86/entry/common.c:180
- do_fast_syscall_32+0x34/0x70 arch/x86/entry/common.c:205
- do_SYSENTER_32+0x1b/0x20 arch/x86/entry/common.c:248
- entry_SYSENTER_compat_after_hwframe+0x4d/0x5c
+osnoise tracer on ppc64le is triggering osnoise_taint() for negative
+duration in get_int_safe_duration() called from
+trace_sched_switch_callback()->thread_exit().
 
-Local variable resp created at:
- ucma_init_qp_attr+0xa4/0xb10 drivers/infiniband/core/ucma.c:1214
- ucma_write+0x637/0x6c0 drivers/infiniband/core/ucma.c:1732
+The problem though is that the check for a valid trace_percpu_buffer is
+incorrect in get_trace_buf(). The check is being done after calculating
+the pointer for the current cpu, rather than on the main percpu pointer.
+Fix the check to be against trace_percpu_buffer.
 
-Bytes 40-59 of 144 are uninitialized
-Memory access of size 144 starts at ffff888167523b00
-Data copied to user address 0000000020000100
+Link: https://lkml.kernel.org/r/a920e4272e0b0635cf20c444707cbce1b2c8973d.1640255304.git.naveen.n.rao@linux.vnet.ibm.com
 
-CPU: 1 PID: 25910 Comm: syz-executor.1 Not tainted 5.16.0-rc5-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-=====================================================
-
-Fixes: 4ba66093bdc6 ("IB/core: Check for global flag when using ah_attr")
-Link: https://lore.kernel.org/r/0e9dd51f93410b7b2f4f5562f52befc878b71afa.1641298868.git.leonro@nvidia.com
-Reported-by: syzbot+6d532fa8f9463da290bc@syzkaller.appspotmail.com
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Cc: stable@vger.kernel.org
+Fixes: e2ace001176dc9 ("tracing: Choose static tp_printk buffer by explicit nesting count")
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/core/uverbs_marshall.c |    2 +-
+ kernel/trace/trace.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/infiniband/core/uverbs_marshall.c
-+++ b/drivers/infiniband/core/uverbs_marshall.c
-@@ -66,7 +66,7 @@ void ib_copy_ah_attr_to_user(struct ib_d
- 	struct rdma_ah_attr *src = ah_attr;
- 	struct rdma_ah_attr conv_ah;
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -3017,7 +3017,7 @@ static char *get_trace_buf(void)
+ {
+ 	struct trace_buffer_struct *buffer = this_cpu_ptr(trace_percpu_buffer);
  
--	memset(&dst->grh.reserved, 0, sizeof(dst->grh.reserved));
-+	memset(&dst->grh, 0, sizeof(dst->grh));
+-	if (!buffer || buffer->nesting >= 4)
++	if (!trace_percpu_buffer || buffer->nesting >= 4)
+ 		return NULL;
  
- 	if ((ah_attr->type == RDMA_AH_ATTR_TYPE_OPA) &&
- 	    (rdma_ah_get_dlid(ah_attr) >=
+ 	buffer->nesting++;
 
 
