@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E5D54891A1
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:34:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6145E489136
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:31:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240206AbiAJHeN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:34:13 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:40974 "EHLO
+        id S239941AbiAJHaP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:30:15 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:36182 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239902AbiAJHcN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:32:13 -0500
+        with ESMTP id S240012AbiAJH2I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:28:08 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F04F611B7;
-        Mon, 10 Jan 2022 07:32:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57312C36AED;
-        Mon, 10 Jan 2022 07:32:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D05A0611AA;
+        Mon, 10 Jan 2022 07:28:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6E91C36AED;
+        Mon, 10 Jan 2022 07:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799931;
-        bh=VbNmRcpihmGSCFw+x/pGX2jqtKCrQZWhDtyNFbDRR/E=;
+        s=korg; t=1641799687;
+        bh=iiwAMT1Wz0s8M/2Kfjrbib1DKw7Qzm0d8p/EiP5o7YY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sDx6HtMjy5baJsUiBSp8wtq4YypaHCCnH9Ozf/YgpFUqSyXfBNhblBNgbXkHhANhM
-         JB7NOrSfm18IIxULWLoGEbDsfMPkN36jBR1TUT23hOWQVbm0g4K+O2GT6FtMLvx5XJ
-         7CF6c+fgzMJpGr1XQyX54Md/IM6fC1VbvSxIKbcc=
+        b=tca9mFyEOR+X9pbf6kHQela3sw4fa3hGbjUrVFwxhOpIsznJ9tvVwKQVmk7yQlPDq
+         /pzlIZh42Dr5iygAoyBtLGHleOi7ZKCGQA5oAtOj0eH0WPRzdZe6MP5EUO8uX14SdN
+         6MC36Ix3yELsyqd+sR2i0wF+LBdB4TCopNNj3rYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+d4b9a2851cc3ce998741@syzkaller.appspotmail.com,
-        David Ahern <dsahern@kernel.org>, Thomas Graf <tgraf@suug.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 20/72] ipv4: Check attribute length for RTA_GATEWAY in multipath route
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 5.4 02/34] Input: touchscreen - Fix backport of a02dcde595f7cbd240ccd64de96034ad91cffc40
 Date:   Mon, 10 Jan 2022 08:22:57 +0100
-Message-Id: <20220110071822.260222128@linuxfoundation.org>
+Message-Id: <20220110071815.735904662@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
-References: <20220110071821.500480371@linuxfoundation.org>
+In-Reply-To: <20220110071815.647309738@linuxfoundation.org>
+References: <20220110071815.647309738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,93 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@kernel.org>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 7a3429bace0e08d94c39245631ea6bc109dafa49 upstream.
+Upstream commit a02dcde595f7 ("Input: touchscreen - avoid bitwise vs
+logical OR warning") was applied as commit f6e9e7be9b80 ("Input:
+touchscreen - avoid bitwise vs logical OR warning") in linux-5.4.y but
+it did not properly account for commit d9265e8a878a ("Input:
+of_touchscreen - add support for touchscreen-min-x|y"), which means the
+warning mentioned in the commit message is not fully fixed:
 
-syzbot reported uninit-value:
-============================================================
-  BUG: KMSAN: uninit-value in fib_get_nhs+0xac4/0x1f80
-  net/ipv4/fib_semantics.c:708
-   fib_get_nhs+0xac4/0x1f80 net/ipv4/fib_semantics.c:708
-   fib_create_info+0x2411/0x4870 net/ipv4/fib_semantics.c:1453
-   fib_table_insert+0x45c/0x3a10 net/ipv4/fib_trie.c:1224
-   inet_rtm_newroute+0x289/0x420 net/ipv4/fib_frontend.c:886
+drivers/input/touchscreen/of_touchscreen.c:78:17: warning: use of bitwise '|' with boolean operands [-Wbitwise-instead-of-logical]
+        data_present = touchscreen_get_prop_u32(dev, "touchscreen-min-x",
+                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/input/touchscreen/of_touchscreen.c:78:17: note: cast one or both operands to int to silence this warning
+drivers/input/touchscreen/of_touchscreen.c:92:17: warning: use of bitwise '|' with boolean operands [-Wbitwise-instead-of-logical]
+        data_present = touchscreen_get_prop_u32(dev, "touchscreen-min-y",
+                       ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/input/touchscreen/of_touchscreen.c:92:17: note: cast one or both operands to int to silence this warning
+2 warnings generated.
 
-Add helper to validate RTA_GATEWAY length before using the attribute.
+It seems like the 4.19 backport was applied to the 5.4 tree, which did
+not have any conflicts so no issue was noticed at that point.
 
-Fixes: 4e902c57417c ("[IPv4]: FIB configuration using struct fib_config")
-Reported-by: syzbot+d4b9a2851cc3ce998741@syzkaller.appspotmail.com
-Signed-off-by: David Ahern <dsahern@kernel.org>
-Cc: Thomas Graf <tgraf@suug.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix up the backport to bring it more in line with the upstream version
+so that there is no warning.
+
+Fixes: f6e9e7be9b80 ("Input: touchscreen - avoid bitwise vs logical OR warning")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/fib_semantics.c |   29 ++++++++++++++++++++++++++---
- 1 file changed, 26 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/of_touchscreen.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/net/ipv4/fib_semantics.c
-+++ b/net/ipv4/fib_semantics.c
-@@ -662,6 +662,19 @@ static int fib_count_nexthops(struct rtn
- 	return nhs;
- }
- 
-+static int fib_gw_from_attr(__be32 *gw, struct nlattr *nla,
-+			    struct netlink_ext_ack *extack)
-+{
-+	if (nla_len(nla) < sizeof(*gw)) {
-+		NL_SET_ERR_MSG(extack, "Invalid IPv4 address in RTA_GATEWAY");
-+		return -EINVAL;
-+	}
-+
-+	*gw = nla_get_in_addr(nla);
-+
-+	return 0;
-+}
-+
- /* only called when fib_nh is integrated into fib_info */
- static int fib_get_nhs(struct fib_info *fi, struct rtnexthop *rtnh,
- 		       int remaining, struct fib_config *cfg,
-@@ -704,7 +717,11 @@ static int fib_get_nhs(struct fib_info *
- 				return -EINVAL;
- 			}
- 			if (nla) {
--				fib_cfg.fc_gw4 = nla_get_in_addr(nla);
-+				ret = fib_gw_from_attr(&fib_cfg.fc_gw4, nla,
-+						       extack);
-+				if (ret)
-+					goto errout;
-+
- 				if (fib_cfg.fc_gw4)
- 					fib_cfg.fc_gw_family = AF_INET;
- 			} else if (nlav) {
-@@ -902,6 +919,7 @@ int fib_nh_match(struct net *net, struct
- 		attrlen = rtnh_attrlen(rtnh);
- 		if (attrlen > 0) {
- 			struct nlattr *nla, *nlav, *attrs = rtnh_attrs(rtnh);
-+			int err;
- 
- 			nla = nla_find(attrs, attrlen, RTA_GATEWAY);
- 			nlav = nla_find(attrs, attrlen, RTA_VIA);
-@@ -912,12 +930,17 @@ int fib_nh_match(struct net *net, struct
- 			}
- 
- 			if (nla) {
-+				__be32 gw;
-+
-+				err = fib_gw_from_attr(&gw, nla, extack);
-+				if (err)
-+					return err;
-+
- 				if (nh->fib_nh_gw_family != AF_INET ||
--				    nla_get_in_addr(nla) != nh->fib_nh_gw4)
-+				    gw != nh->fib_nh_gw4)
- 					return 1;
- 			} else if (nlav) {
- 				struct fib_config cfg2;
--				int err;
- 
- 				err = fib_gw_from_via(&cfg2, nlav, extack);
- 				if (err)
+--- a/drivers/input/touchscreen/of_touchscreen.c
++++ b/drivers/input/touchscreen/of_touchscreen.c
+@@ -77,8 +77,8 @@ void touchscreen_parse_properties(struct
+ 	axis = multitouch ? ABS_MT_POSITION_X : ABS_X;
+ 	data_present = touchscreen_get_prop_u32(dev, "touchscreen-min-x",
+ 						input_abs_get_min(input, axis),
+-						&minimum) |
+-		       touchscreen_get_prop_u32(dev, "touchscreen-size-x",
++						&minimum);
++	data_present |= touchscreen_get_prop_u32(dev, "touchscreen-size-x",
+ 						input_abs_get_max(input,
+ 								  axis) + 1,
+ 						&maximum);
+@@ -91,8 +91,8 @@ void touchscreen_parse_properties(struct
+ 	axis = multitouch ? ABS_MT_POSITION_Y : ABS_Y;
+ 	data_present = touchscreen_get_prop_u32(dev, "touchscreen-min-y",
+ 						input_abs_get_min(input, axis),
+-						&minimum) |
+-		       touchscreen_get_prop_u32(dev, "touchscreen-size-y",
++						&minimum);
++	data_present |= touchscreen_get_prop_u32(dev, "touchscreen-size-y",
+ 						input_abs_get_max(input,
+ 								  axis) + 1,
+ 						&maximum);
 
 
