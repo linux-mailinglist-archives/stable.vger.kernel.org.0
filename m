@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36EA14890E8
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:28:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99C67489107
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:29:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233859AbiAJH0q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:26:46 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:55802 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239278AbiAJHZb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:25:31 -0500
+        id S239719AbiAJH2j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:28:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48296 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239427AbiAJH0e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:26:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 865E0C02982D;
+        Sun,  9 Jan 2022 23:25:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B4DC1B81202;
-        Mon, 10 Jan 2022 07:25:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9C59C36AED;
-        Mon, 10 Jan 2022 07:25:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2AC5DB81216;
+        Mon, 10 Jan 2022 07:25:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CDDBC36AED;
+        Mon, 10 Jan 2022 07:25:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799529;
-        bh=k1pkdxJYuZfLin3wMDyj9JxHBcrS/bsXfkra77hIsEE=;
+        s=korg; t=1641799548;
+        bh=ZK44A1gY48TEv126Zen5tXB46e9kSXs7YxZx5++EcT8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0S9T3vzHQ9xi2iTOBoACclJvXEv4SCwZQZAMsi88YOddDcwUNTcPLealOT7ZTsrOF
-         zpdqNfawD4/Bz/Ri1itHGZTSBu7OXD8SHbMUm6iuartwSJND1COMa3Rv0OhT26Hp+7
-         XQUH/61xcPb/hRMNGE1nzmYQEY/bhoUV82EAFN4I=
+        b=UshnnMonHUSFkFCkGiO2radO3/xNe9ADArolvgT3gcPk/oxuJ+IQylj4/nh4Gw4I3
+         J/uur1ABHat0NfBwMyoQevFZuM/eILp20bFle4tTiLyHnnSCbVwrf7D8yaXNDExQ2s
+         i9IpsGlkBG8lND9BshSK/SttAvX5PjlIDeDInurg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 08/21] sch_qfq: prevent shift-out-of-bounds in qfq_init_qdisc
+        stable@vger.kernel.org,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Steven Rostedt <rostedt@goodmis.org>
+Subject: [PATCH 4.14 02/22] tracing: Fix check for trace_percpu_buffer validity in get_trace_buf()
 Date:   Mon, 10 Jan 2022 08:22:55 +0100
-Message-Id: <20220110071813.084706313@linuxfoundation.org>
+Message-Id: <20220110071814.345627921@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071812.806606886@linuxfoundation.org>
-References: <20220110071812.806606886@linuxfoundation.org>
+In-Reply-To: <20220110071814.261471354@linuxfoundation.org>
+References: <20220110071814.261471354@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,65 +48,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-commit 7d18a07897d07495ee140dd319b0e9265c0f68ba upstream.
+commit 823e670f7ed616d0ce993075c8afe0217885f79d upstream.
 
-tx_queue_len can be set to ~0U, we need to be more
-careful about overflows.
+With the new osnoise tracer, we are seeing the below splat:
+    Kernel attempted to read user page (c7d880000) - exploit attempt? (uid: 0)
+    BUG: Unable to handle kernel data access on read at 0xc7d880000
+    Faulting instruction address: 0xc0000000002ffa10
+    Oops: Kernel access of bad area, sig: 11 [#1]
+    LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA pSeries
+    ...
+    NIP [c0000000002ffa10] __trace_array_vprintk.part.0+0x70/0x2f0
+    LR [c0000000002ff9fc] __trace_array_vprintk.part.0+0x5c/0x2f0
+    Call Trace:
+    [c0000008bdd73b80] [c0000000001c49cc] put_prev_task_fair+0x3c/0x60 (unreliable)
+    [c0000008bdd73be0] [c000000000301430] trace_array_printk_buf+0x70/0x90
+    [c0000008bdd73c00] [c0000000003178b0] trace_sched_switch_callback+0x250/0x290
+    [c0000008bdd73c90] [c000000000e70d60] __schedule+0x410/0x710
+    [c0000008bdd73d40] [c000000000e710c0] schedule+0x60/0x130
+    [c0000008bdd73d70] [c000000000030614] interrupt_exit_user_prepare_main+0x264/0x270
+    [c0000008bdd73de0] [c000000000030a70] syscall_exit_prepare+0x150/0x180
+    [c0000008bdd73e10] [c00000000000c174] system_call_vectored_common+0xf4/0x278
 
-__fls(0) is undefined, as this report shows:
+osnoise tracer on ppc64le is triggering osnoise_taint() for negative
+duration in get_int_safe_duration() called from
+trace_sched_switch_callback()->thread_exit().
 
-UBSAN: shift-out-of-bounds in net/sched/sch_qfq.c:1430:24
-shift exponent 51770272 is too large for 32-bit type 'int'
-CPU: 0 PID: 25574 Comm: syz-executor.0 Not tainted 5.16.0-rc7-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0x201/0x2d8 lib/dump_stack.c:106
- ubsan_epilogue lib/ubsan.c:151 [inline]
- __ubsan_handle_shift_out_of_bounds+0x494/0x530 lib/ubsan.c:330
- qfq_init_qdisc+0x43f/0x450 net/sched/sch_qfq.c:1430
- qdisc_create+0x895/0x1430 net/sched/sch_api.c:1253
- tc_modify_qdisc+0x9d9/0x1e20 net/sched/sch_api.c:1660
- rtnetlink_rcv_msg+0x934/0xe60 net/core/rtnetlink.c:5571
- netlink_rcv_skb+0x200/0x470 net/netlink/af_netlink.c:2496
- netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
- netlink_unicast+0x814/0x9f0 net/netlink/af_netlink.c:1345
- netlink_sendmsg+0xaea/0xe60 net/netlink/af_netlink.c:1921
- sock_sendmsg_nosec net/socket.c:704 [inline]
- sock_sendmsg net/socket.c:724 [inline]
- ____sys_sendmsg+0x5b9/0x910 net/socket.c:2409
- ___sys_sendmsg net/socket.c:2463 [inline]
- __sys_sendmsg+0x280/0x370 net/socket.c:2492
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+The problem though is that the check for a valid trace_percpu_buffer is
+incorrect in get_trace_buf(). The check is being done after calculating
+the pointer for the current cpu, rather than on the main percpu pointer.
+Fix the check to be against trace_percpu_buffer.
 
-Fixes: 462dbc9101ac ("pkt_sched: QFQ Plus: fair-queueing service at DRR cost")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lkml.kernel.org/r/a920e4272e0b0635cf20c444707cbce1b2c8973d.1640255304.git.naveen.n.rao@linux.vnet.ibm.com
+
+Cc: stable@vger.kernel.org
+Fixes: e2ace001176dc9 ("tracing: Choose static tp_printk buffer by explicit nesting count")
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_qfq.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ kernel/trace/trace.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/sched/sch_qfq.c
-+++ b/net/sched/sch_qfq.c
-@@ -1439,10 +1439,8 @@ static int qfq_init_qdisc(struct Qdisc *
- 	if (err < 0)
- 		return err;
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -2820,7 +2820,7 @@ static char *get_trace_buf(void)
+ {
+ 	struct trace_buffer_struct *buffer = this_cpu_ptr(trace_percpu_buffer);
  
--	if (qdisc_dev(sch)->tx_queue_len + 1 > QFQ_MAX_AGG_CLASSES)
--		max_classes = QFQ_MAX_AGG_CLASSES;
--	else
--		max_classes = qdisc_dev(sch)->tx_queue_len + 1;
-+	max_classes = min_t(u64, (u64)qdisc_dev(sch)->tx_queue_len + 1,
-+			    QFQ_MAX_AGG_CLASSES);
- 	/* max_cl_shift = floor(log_2(max_classes)) */
- 	max_cl_shift = __fls(max_classes);
- 	q->max_agg_classes = 1<<max_cl_shift;
+-	if (!buffer || buffer->nesting >= 4)
++	if (!trace_percpu_buffer || buffer->nesting >= 4)
+ 		return NULL;
+ 
+ 	buffer->nesting++;
 
 
