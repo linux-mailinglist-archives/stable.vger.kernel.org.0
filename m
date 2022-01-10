@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 638F3489193
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:34:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DABF489158
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:32:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240512AbiAJHdj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:33:39 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38798 "EHLO
+        id S239793AbiAJHbL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:31:11 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38554 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240604AbiAJHbf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:31:35 -0500
+        with ESMTP id S239837AbiAJH3K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:29:10 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AB0BB60B63;
-        Mon, 10 Jan 2022 07:31:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92A7BC36AED;
-        Mon, 10 Jan 2022 07:31:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B78856112C;
+        Mon, 10 Jan 2022 07:29:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0455C36AED;
+        Mon, 10 Jan 2022 07:29:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799894;
-        bh=P1oPJQi72S+id//DCwOvy9Y0UmJY2fU1Yn/2BHi5B4g=;
+        s=korg; t=1641799749;
+        bh=LdRVj9U1Q7raK3+ObByonpixbYpKgLaY3Ae1V00Q6L4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uAQdIChRukaHRjsL+b0KhmYWfIvFZxz+iXJnynyhtOxAtEo7JwviNL7eXmhbace2A
-         D7lxhcWl5NKFR8ssOKWKQPyaFfb9QWuhDbQKywx7dw/rO2GrQebhc0H0EUqXeWFchu
-         FO9WaeZeCPBGk0FhV2Vzo5h0kqtl39DKYxwcvKTo=
+        b=N27erKm4gOqYpiVtaSWy6k5MPpbn7pSU01A2WtXUZI2X2Yr1OqZ1PNmOJArAiYUTN
+         3jXoIb9YkJ6EU5F77jd+eXu6THXvSzF9lYW1W+1F9jCcGY+pmsT4u5vLlOhplPXnrN
+         +kQvGo+PK+Lu9hK55ekcKuf1JKxSWeBLO108Vg7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lukasz Cieplicki <lukaszx.cieplicki@intel.com>,
-        Jedrzej Jagielski <jedrzej.jagielski@intel.com>,
-        Gurucharan G <gurucharanx.g@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.10 15/43] i40e: Fix incorrect netdevs real number of RX/TX queues
+        stable@vger.kernel.org, David Ahern <dsahern@kernel.org>,
+        Roopa Prabhu <roopa@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 17/34] ipv6: Check attribute length for RTA_GATEWAY when deleting multipath route
 Date:   Mon, 10 Jan 2022 08:23:12 +0100
-Message-Id: <20220110071817.865559537@linuxfoundation.org>
+Message-Id: <20220110071816.234285432@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071817.337619922@linuxfoundation.org>
-References: <20220110071817.337619922@linuxfoundation.org>
+In-Reply-To: <20220110071815.647309738@linuxfoundation.org>
+References: <20220110071815.647309738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,86 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+From: David Ahern <dsahern@kernel.org>
 
-commit e738451d78b2f8a9635d66c6a87f304b4d965f7a upstream.
+commit 1ff15a710a862db1101b97810af14aedc835a86a upstream.
 
-There was a wrong queues representation in sysfs during
-driver's reinitialization in case of online cpus number is
-less than combined queues. It was caused by stopped
-NetworkManager, which is responsible for calling vsi_open
-function during driver's initialization.
-In specific situation (ex. 12 cpus online) there were 16 queues
-in /sys/class/net/<iface>/queues. In case of modifying queues with
-value higher, than number of online cpus, then it caused write
-errors and other errors.
-Add updating of sysfs's queues representation during driver
-initialization.
+Make sure RTA_GATEWAY for IPv6 multipath route has enough bytes to hold
+an IPv6 address.
 
-Fixes: 41c445ff0f48 ("i40e: main driver core")
-Signed-off-by: Lukasz Cieplicki <lukaszx.cieplicki@intel.com>
-Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 6b9ea5a64ed5 ("ipv6: fix multipath route replace error recovery")
+Signed-off-by: David Ahern <dsahern@kernel.org>
+Cc: Roopa Prabhu <roopa@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c |   32 +++++++++++++++++++++-------
- 1 file changed, 25 insertions(+), 7 deletions(-)
+ net/ipv6/route.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -8382,6 +8382,27 @@ int i40e_open(struct net_device *netdev)
- }
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -5307,7 +5307,11 @@ static int ip6_route_multipath_del(struc
  
- /**
-+ * i40e_netif_set_realnum_tx_rx_queues - Update number of tx/rx queues
-+ * @vsi: vsi structure
-+ *
-+ * This updates netdev's number of tx/rx queues
-+ *
-+ * Returns status of setting tx/rx queues
-+ **/
-+static int i40e_netif_set_realnum_tx_rx_queues(struct i40e_vsi *vsi)
-+{
-+	int ret;
+ 			nla = nla_find(attrs, attrlen, RTA_GATEWAY);
+ 			if (nla) {
+-				nla_memcpy(&r_cfg.fc_gateway, nla, 16);
++				err = fib6_gw_from_attr(&r_cfg.fc_gateway, nla,
++							extack);
++				if (err)
++					return err;
 +
-+	ret = netif_set_real_num_rx_queues(vsi->netdev,
-+					   vsi->num_queue_pairs);
-+	if (ret)
-+		return ret;
-+
-+	return netif_set_real_num_tx_queues(vsi->netdev,
-+					    vsi->num_queue_pairs);
-+}
-+
-+/**
-  * i40e_vsi_open -
-  * @vsi: the VSI to open
-  *
-@@ -8417,13 +8438,7 @@ int i40e_vsi_open(struct i40e_vsi *vsi)
- 			goto err_setup_rx;
- 
- 		/* Notify the stack of the actual queue counts. */
--		err = netif_set_real_num_tx_queues(vsi->netdev,
--						   vsi->num_queue_pairs);
--		if (err)
--			goto err_set_queues;
--
--		err = netif_set_real_num_rx_queues(vsi->netdev,
--						   vsi->num_queue_pairs);
-+		err = i40e_netif_set_realnum_tx_rx_queues(vsi);
- 		if (err)
- 			goto err_set_queues;
- 
-@@ -13712,6 +13727,9 @@ struct i40e_vsi *i40e_vsi_setup(struct i
- 		ret = i40e_config_netdev(vsi);
- 		if (ret)
- 			goto err_netdev;
-+		ret = i40e_netif_set_realnum_tx_rx_queues(vsi);
-+		if (ret)
-+			goto err_netdev;
- 		ret = register_netdev(vsi->netdev);
- 		if (ret)
- 			goto err_netdev;
+ 				r_cfg.fc_flags |= RTF_GATEWAY;
+ 			}
+ 		}
 
 
