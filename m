@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 999D0489179
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:34:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E76D4891D4
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:42:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239973AbiAJHca (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:32:30 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:39458 "EHLO
+        id S240004AbiAJHgl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:36:41 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:41982 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239582AbiAJHa2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:30:28 -0500
+        with ESMTP id S239857AbiAJHdd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:33:33 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB723611DA;
-        Mon, 10 Jan 2022 07:30:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CED47C36AE9;
-        Mon, 10 Jan 2022 07:30:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A76E861193;
+        Mon, 10 Jan 2022 07:33:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87390C36AE9;
+        Mon, 10 Jan 2022 07:33:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799825;
-        bh=AWkoo0UJSVGidasizP+wqQC4M68bJulON4pKMzqYRps=;
+        s=korg; t=1641800012;
+        bh=o6nv9/Tyj/hIo8Msvl8jf2YXPBM04YwucowcgRwdQXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1z/4HvDNAzar3qn2zazSWwPdlBWifx7Lcs7gzBEG1AdeJt1Yr5Zsru6BR61PFJdin
-         pr414xUjfByy8gqCuwPvbb0vQLVyJyKeIlGX57EMcX8kgUOcMqwFm/3aK5sYugUbSJ
-         e6yq124WZb1Zgn6lgtN3o0/rIn4PU78s+9RCbhWw=
+        b=1WJazGq4GCmg+1uceW+asQWZQF+l2AdjARu4HaZ03477vkdV+2y4FZjY7Tqk9FI9S
+         GWPoFaYsUuo899CY8eF5Bz9YAkSGSo2krcvdu4Xm1L905E3M/Fhhg2hAcfU+kfrRPc
+         As/z1m3coTfQixyxXxgUItPl6a1a0+xJLmIFf0lg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: [PATCH 5.10 28/43] power: reset: ltc2952: Fix use of floating point literals
-Date:   Mon, 10 Jan 2022 08:23:25 +0100
-Message-Id: <20220110071818.293128380@linuxfoundation.org>
+        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.15 49/72] drm/amdgpu: disable runpm if we are the primary adapter
+Date:   Mon, 10 Jan 2022 08:23:26 +0100
+Message-Id: <20220110071823.203140239@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071817.337619922@linuxfoundation.org>
-References: <20220110071817.337619922@linuxfoundation.org>
+In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
+References: <20220110071821.500480371@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +43,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit 644106cdb89844be2496b21175b7c0c2e0fab381 upstream.
+commit b95dc06af3e683d6b7ddbbae178b2b2a21ee8b2b upstream.
 
-A new commit in LLVM causes an error on the use of 'long double' when
-'-mno-x87' is used, which the kernel does through an alias,
-'-mno-80387' (see the LLVM commit below for more details around why it
-does this).
+If we are the primary adapter (i.e., the one used by the firwmare
+framebuffer), disable runtime pm.  This fixes a regression caused
+by commit 55285e21f045 which results in the displays waking up
+shortly after they go to sleep due to the device coming out of
+runtime suspend and sending a hotplug uevent.
 
-drivers/power/reset/ltc2952-poweroff.c:162:28: error: expression requires  'long double' type support, but target 'x86_64-unknown-linux-gnu' does not support it
-        data->wde_interval = 300L * 1E6L;
-                                  ^
-drivers/power/reset/ltc2952-poweroff.c:162:21: error: expression requires  'long double' type support, but target 'x86_64-unknown-linux-gnu' does not support it
-        data->wde_interval = 300L * 1E6L;
-                           ^
-drivers/power/reset/ltc2952-poweroff.c:163:41: error: expression requires  'long double' type support, but target 'x86_64-unknown-linux-gnu' does not support it
-        data->trigger_delay = ktime_set(2, 500L*1E6L);
-                                               ^
-3 errors generated.
+v2: squash in reworked fix from Evan
 
-This happens due to the use of a 'long double' literal. The 'E6' part of
-'1E6L' causes the literal to be a 'double' then the 'L' suffix promotes
-it to 'long double'.
-
-There is no visible reason for floating point values in this driver, as
-the values are only assigned to integer types. Use NSEC_PER_MSEC, which
-is the same integer value as '1E6L', to avoid changing functionality but
-fix the error.
-
-Fixes: 6647156c00cc ("power: reset: add LTC2952 poweroff driver")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1497
-Link: https://github.com/llvm/llvm-project/commit/a8083d42b1c346e21623a1d36d1f0cadd7801d83
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes: 55285e21f045 ("fbdev/efifb: Release PCI device's runtime PM ref during FB destroy")
+Bug: https://bugzilla.kernel.org/show_bug.cgi?id=215203
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1840
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/power/reset/ltc2952-poweroff.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu.h     |    1 +
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |   28 ++++++++++++++++++++++++++++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c |    6 ++++++
+ 3 files changed, 35 insertions(+)
 
---- a/drivers/power/reset/ltc2952-poweroff.c
-+++ b/drivers/power/reset/ltc2952-poweroff.c
-@@ -159,8 +159,8 @@ static void ltc2952_poweroff_kill(void)
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
+@@ -1069,6 +1069,7 @@ struct amdgpu_device {
+ 	bool                            runpm;
+ 	bool                            in_runpm;
+ 	bool                            has_pr3;
++	bool                            is_fw_fb;
  
- static void ltc2952_poweroff_default(struct ltc2952_poweroff *data)
+ 	bool                            pm_sysfs_en;
+ 	bool                            ucode_sysfs_en;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -38,6 +38,7 @@
+ #include <drm/drm_probe_helper.h>
+ #include <linux/mmu_notifier.h>
+ #include <linux/suspend.h>
++#include <linux/fb.h>
+ 
+ #include "amdgpu.h"
+ #include "amdgpu_irq.h"
+@@ -1246,6 +1247,26 @@ MODULE_DEVICE_TABLE(pci, pciidlist);
+ 
+ static const struct drm_driver amdgpu_kms_driver;
+ 
++static bool amdgpu_is_fw_framebuffer(resource_size_t base,
++				     resource_size_t size)
++{
++	bool found = false;
++#if IS_REACHABLE(CONFIG_FB)
++	struct apertures_struct *a;
++
++	a = alloc_apertures(1);
++	if (!a)
++		return false;
++
++	a->ranges[0].base = base;
++	a->ranges[0].size = size;
++
++	found = is_firmware_framebuffer(a);
++	kfree(a);
++#endif
++	return found;
++}
++
+ static int amdgpu_pci_probe(struct pci_dev *pdev,
+ 			    const struct pci_device_id *ent)
  {
--	data->wde_interval = 300L * 1E6L;
--	data->trigger_delay = ktime_set(2, 500L*1E6L);
-+	data->wde_interval = 300L * NSEC_PER_MSEC;
-+	data->trigger_delay = ktime_set(2, 500L * NSEC_PER_MSEC);
+@@ -1254,6 +1275,8 @@ static int amdgpu_pci_probe(struct pci_d
+ 	unsigned long flags = ent->driver_data;
+ 	int ret, retry = 0;
+ 	bool supports_atomic = false;
++	bool is_fw_fb;
++	resource_size_t base, size;
  
- 	hrtimer_init(&data->timer_trigger, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
- 	data->timer_trigger.function = ltc2952_poweroff_timer_trigger;
+ 	if (amdgpu_virtual_display ||
+ 	    amdgpu_device_asic_has_dc_support(flags & AMD_ASIC_MASK))
+@@ -1310,6 +1333,10 @@ static int amdgpu_pci_probe(struct pci_d
+ 	}
+ #endif
+ 
++	base = pci_resource_start(pdev, 0);
++	size = pci_resource_len(pdev, 0);
++	is_fw_fb = amdgpu_is_fw_framebuffer(base, size);
++
+ 	/* Get rid of things like offb */
+ 	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, &amdgpu_kms_driver);
+ 	if (ret)
+@@ -1322,6 +1349,7 @@ static int amdgpu_pci_probe(struct pci_d
+ 	adev->dev  = &pdev->dev;
+ 	adev->pdev = pdev;
+ 	ddev = adev_to_drm(adev);
++	adev->is_fw_fb = is_fw_fb;
+ 
+ 	if (!supports_atomic)
+ 		ddev->driver_features &= ~DRIVER_ATOMIC;
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
+@@ -206,6 +206,12 @@ int amdgpu_driver_load_kms(struct amdgpu
+ 			adev->runpm = true;
+ 			break;
+ 		}
++		/* XXX: disable runtime pm if we are the primary adapter
++		 * to avoid displays being re-enabled after DPMS.
++		 * This needs to be sorted out and fixed properly.
++		 */
++		if (adev->is_fw_fb)
++			adev->runpm = false;
+ 		if (adev->runpm)
+ 			dev_info(adev->dev, "Using BACO for runtime pm\n");
+ 	}
 
 
