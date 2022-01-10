@@ -2,106 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 496E1489085
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:06:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBB7E489097
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:15:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237921AbiAJHG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:06:56 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49886 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235008AbiAJHG4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:06:56 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5CC5EB80E86;
-        Mon, 10 Jan 2022 07:06:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63E04C36AE9;
-        Mon, 10 Jan 2022 07:06:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1641798414;
-        bh=IDSLWMBRPTW+QPK5RFdFWFvyU2BK4SFonxsYZFRkU3E=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=OJOXT+SwIF+bptrKESa017VwLQADElDl1NuJEtjouRQHPUmvNwqvqTabcaUR9S/vh
-         Dj8YCceNYAmWtCyYwr8bW+BPB9eG5r7SNL4JpcJ0YRPVBySnn8sQa+7mlwzGTEhIlZ
-         O5NBoNq4sKN+1HtjB1V2bp26ru5UP+FXpZuLu9hRK08GczwEMI+fHE/dFwxcbtISjs
-         ZVhruXPBze4y2kmepdVsr0IZLgQJGYWq+Koi0zy3hSEAks2PoXSBwUf+Nt776arUei
-         Ww+IAkOFILecgFy/Rsx8/cZs4nlZMfIY10UZNsqKYXqRUHj6Gh279Vqn/IcCSCGN4/
-         Y02exmCRNdlpw==
-Date:   Mon, 10 Jan 2022 16:06:49 +0900
-From:   Masami Hiramatsu <mhiramat@kernel.org>
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     linux-kernel@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Tom Zanussi <zanussi@kernel.org>, stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] tracing: Have syscall trace events use
- trace_event_buffer_lock_reserve()
-Message-Id: <20220110160649.996b79e9153ab8add26f7fc6@kernel.org>
-In-Reply-To: <20220107225839.823118570@goodmis.org>
-References: <20220107225655.647376947@goodmis.org>
-        <20220107225839.823118570@goodmis.org>
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        id S232935AbiAJHPb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:15:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45982 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230433AbiAJHPa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:15:30 -0500
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80409C06173F
+        for <stable@vger.kernel.org>; Sun,  9 Jan 2022 23:15:30 -0800 (PST)
+Received: by mail-pg1-x52a.google.com with SMTP id 201so1899084pge.1
+        for <stable@vger.kernel.org>; Sun, 09 Jan 2022 23:15:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=j4VOrwYKtUSeX23pSTipPCLOYVVA0deA1r4S4hu+ycc=;
+        b=sJNMPAPtVAhlhGK0oFpJL3QXcO1G/IW08PuaVsifbG1GhsH3Yy01qreOFN31IbYS1Z
+         CPO8P4uePjCbOKEd2m0vHpBLXJu9FvW4XLmzvgu7Wqi/PNC7iSZZQsKNPf3HUyinf5x7
+         F+DMkvMnu1rKGOtuZ1YQAHKKiLrnDj/C5ieS7+i6b1BGkd7PVdtBt5fOOn3Cxhn36oIm
+         UgUn3UFBOI19wjBaWL9az6VBuWXI2fuaGHkGbQS1whXxmz22vlYETHNR4Ts5SH+L+jr8
+         TDesNtiFGz6uyKJWdBMV1v4UV9ZgNeqOZ2h7OBqmGfCFQe2anCabPJBw7VB+FAjgNXy/
+         qgfw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=j4VOrwYKtUSeX23pSTipPCLOYVVA0deA1r4S4hu+ycc=;
+        b=YCL1nttXryzgw0H5PtFPpHmAPQV/C7FEdrKL03Zig7fmdjB0zuP2PyK0rUt/gzkF8G
+         TAXXdzgrkjoLzE5YYPR8S9iny+sq0NUqdJLK8hFN0F3m7lDcfdO70f7WBtK1Zx97pLhH
+         etHc8p3sJwGdKb4QocxdRuswC1ZzXoYsiHxhDKZ8Gm/rEZXia7lhS7Ou/SZ7rej1ezX/
+         07Z00g3NueCMJZMFifSzScklwkoVjpTCnbWHUe8rYSG/rRvWrp50ciC/oxl+leChfDvJ
+         Q/gzeQ1jiHegoYdsZdr2gNePwBIoZJXoNR39tCxXQMYDvAyF+EWL2n/PrLwQ3dZ7zQy6
+         jiww==
+X-Gm-Message-State: AOAM532U+kuma5YouEPX2aBNE+16WwxYGH8QdG7GgtzicyYn7wHSaBBS
+        vRqrEa54NSsH/4q1d2OlfnZB5NQgIfshq0qU
+X-Google-Smtp-Source: ABdhPJwmOZIuVyToq3fnVbP1wpBeBm6FJdQtxdZHyf5L5wBqwQi9mKbKJlKytJbMWDb+tP5hEwigug==
+X-Received: by 2002:a05:6a00:1ac6:b0:4bd:1ad:5658 with SMTP id f6-20020a056a001ac600b004bd01ad5658mr13105855pfv.48.1641798929888;
+        Sun, 09 Jan 2022 23:15:29 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id gm2sm1508680pjb.21.2022.01.09.23.15.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 09 Jan 2022 23:15:29 -0800 (PST)
+Message-ID: <61dbdd11.1c69fb81.1e69d.4525@mx.google.com>
+Date:   Sun, 09 Jan 2022 23:15:29 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.298-13-g45579b4281d3
+X-Kernelci-Branch: queue/4.4
+Subject: stable-rc/queue/4.4 baseline: 116 runs,
+ 1 regressions (v4.4.298-13-g45579b4281d3)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 07 Jan 2022 17:56:56 -0500
-Steven Rostedt <rostedt@goodmis.org> wrote:
+stable-rc/queue/4.4 baseline: 116 runs, 1 regressions (v4.4.298-13-g45579b4=
+281d3)
 
-> From: Steven Rostedt <rostedt@goodmis.org>
-> 
-> Currently, the syscall trace events call trace_buffer_lock_reserve()
-> directly, which means that it misses out on some of the filtering
-> optimizations provided by the helper function
-> trace_event_buffer_lock_reserve(). Have the syscall trace events call that
-> instead, as it was missed when adding the update to use the temp buffer
-> when filtering.
+Regressions Summary
+-------------------
 
-Looks good to me.
-
-Reviewed-by: Masami Hiramatsu <mhiramat@kernel.org>
-
-Thank you,
-
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 0fc1b09ff1ff4 ("tracing: Use temp buffer when filtering events")
-> Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
-> ---
->  kernel/trace/trace_syscalls.c | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
-> 
-> diff --git a/kernel/trace/trace_syscalls.c b/kernel/trace/trace_syscalls.c
-> index 8bfcd3b09422..f755bde42fd0 100644
-> --- a/kernel/trace/trace_syscalls.c
-> +++ b/kernel/trace/trace_syscalls.c
-> @@ -323,8 +323,7 @@ static void ftrace_syscall_enter(void *data, struct pt_regs *regs, long id)
->  
->  	trace_ctx = tracing_gen_ctx();
->  
-> -	buffer = tr->array_buffer.buffer;
-> -	event = trace_buffer_lock_reserve(buffer,
-> +	event = trace_event_buffer_lock_reserve(&buffer, trace_file,
->  			sys_data->enter_event->event.type, size, trace_ctx);
->  	if (!event)
->  		return;
-> @@ -367,8 +366,7 @@ static void ftrace_syscall_exit(void *data, struct pt_regs *regs, long ret)
->  
->  	trace_ctx = tracing_gen_ctx();
->  
-> -	buffer = tr->array_buffer.buffer;
-> -	event = trace_buffer_lock_reserve(buffer,
-> +	event = trace_event_buffer_lock_reserve(&buffer, trace_file,
->  			sys_data->exit_event->event.type, sizeof(*entry),
->  			trace_ctx);
->  	if (!event)
-> -- 
-> 2.33.0
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
 
--- 
-Masami Hiramatsu <mhiramat@kernel.org>
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
+el/v4.4.298-13-g45579b4281d3/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.4
+  Describe: v4.4.298-13-g45579b4281d3
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      45579b4281d32f851fd84b14c852e3b584a7e615 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61dba8e234745e4cf5ef675c
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.298-1=
+3-g45579b4281d3/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.298-1=
+3-g45579b4281d3/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61dba8e234745e4=
+cf5ef675f
+        failing since 20 days (last pass: v4.4.295-12-gd8298cd08f0d, first =
+fail: v4.4.295-23-gcec9bc2aa5d3)
+        2 lines
+
+    2022-01-10T03:32:30.597231  [   19.463348] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2022-01-10T03:32:30.640162  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/115
+    2022-01-10T03:32:30.649484  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+25c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    2022-01-10T03:32:30.665751  [   19.531829] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =20
