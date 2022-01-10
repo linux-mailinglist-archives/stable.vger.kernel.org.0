@@ -2,249 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47A464897B4
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 12:42:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01E854897E6
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 12:50:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244866AbiAJLmt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 06:42:49 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:56854 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S244920AbiAJLln (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 06:41:43 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1641814901;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=SsWQC8aTb+0uRe3yU+LwCtHB9iia3Osu0BBlRAz4Dj0=;
-        b=futY8jD0bx8u3ZSMnv4xgVIkFqrhmEe+8+MLM0VPZ3PsOL/6dk0pboyomFGeZd1a74uiu0
-        m+FwRJZPjaSuc8phiWgxZo3dFjL4tLc7fKpsb2qqPFc6SubbUA9M7f3crgEtNdlRCHF1ei
-        tNY8L593iJCCbF0goOuMUNWzHjTpnEA=
-Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
- [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-484-2PKsCgLsNBeRZ005B52PnA-1; Mon, 10 Jan 2022 06:41:40 -0500
-X-MC-Unique: 2PKsCgLsNBeRZ005B52PnA-1
-Received: by mail-ed1-f70.google.com with SMTP id y10-20020a056402358a00b003f88b132849so9917750edc.0
-        for <stable@vger.kernel.org>; Mon, 10 Jan 2022 03:41:40 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=SsWQC8aTb+0uRe3yU+LwCtHB9iia3Osu0BBlRAz4Dj0=;
-        b=DGe4bmLuR6TEc3gz/AQ2F3dlvhL1U/E6aScr/Wh05wRyA433+aQJ8NQl9E/8ZpqvWs
-         tUW49dxFvcmtfm5hlCbFinyTzrW30vEeBpmZuRP52CkeefaK1aVHGowLN20VSg68YxId
-         X7Kd2OqtprXAzN/zkeF1fpOuk2YX/z57MQKRmU4tevOjM2aAzfS4nDleHtNsSpGRIz6i
-         Qqr3irlexEFnc8qydUYQwhvXe3JkALcF5EawE4Wp/P5rgSGm5UOaDA4q7XYXFNUvqwYB
-         aNewK9d2scgcRcAl6w2sP17TY0azevy6NpPlG8NdaP4qMJ57nDMU+H7pGd30855O66FL
-         aRew==
-X-Gm-Message-State: AOAM531hi3UO0yRBUct7zH7o+sdvpLOu/j/wTY5ZOFTYYmi/XDVP5H7Q
-        tQyMfjwj7jTZQRHeHrDLHjXhNyUujAEABwnFqufouVxXfcE8Bxq8mJkR2YHP6SnTf/15l1SmsEC
-        sj2I0Rt/Sf0C7um3N
-X-Received: by 2002:a17:907:a420:: with SMTP id sg32mr1390942ejc.310.1641814899128;
-        Mon, 10 Jan 2022 03:41:39 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwa47UJCAu9cZOZqhb8987Jy+Gr9KRUjqDbs/oRBNFOeATkg186ylFpwptic1AlmBR/yUCuXg==
-X-Received: by 2002:a17:907:a420:: with SMTP id sg32mr1390927ejc.310.1641814898923;
-        Mon, 10 Jan 2022 03:41:38 -0800 (PST)
-Received: from ?IPV6:2001:1c00:c1e:bf00:1db8:22d3:1bc9:8ca1? (2001-1c00-0c1e-bf00-1db8-22d3-1bc9-8ca1.cable.dynamic.v6.ziggo.nl. [2001:1c00:c1e:bf00:1db8:22d3:1bc9:8ca1])
-        by smtp.gmail.com with ESMTPSA id j21sm2321879ejj.133.2022.01.10.03.41.38
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 10 Jan 2022 03:41:38 -0800 (PST)
-Message-ID: <c992ece7-6878-a39e-0386-5a499265c4cb@redhat.com>
-Date:   Mon, 10 Jan 2022 12:41:37 +0100
+        id S245036AbiAJLu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 06:50:28 -0500
+Received: from mail-dm6nam12on2046.outbound.protection.outlook.com ([40.107.243.46]:21900
+        "EHLO NAM12-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S245019AbiAJLtX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 10 Jan 2022 06:49:23 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=a0hD/cBMryYEUbNk2yTmhS0WVN6TvFWprW5GvFRj5c1g4VdmZaYEKrj7d2WQFnDEPkLxNpHpelsMNK5pb9uaX2IzHhGDh4iwd2hdQ0eLIrVakDQQh3NaqdVPA7nZWhym5A1Iume2k8VZJT7CjJRMYTGJE1ANCkJw4o278X92o2PBKwSefuSuXArAxeJAxmOUDz/FnsIqbzHos8rdIRJUHnzQOAWLUPIW9WT3vLhfqa1DYlUr6foHinnXBMjn39yH2LnuJWv4W3Vg9MdRG8PwJRfrUds0Nbq9ap8a68K/982g97fs3EZDMCwUbaD0w6Dyp+W/Vpy+Vz0udxg3Z0t4Ww==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ma86d1hcA8VFUjS7bQXMgG6JqQuOHkK0gqd7qFyn2EQ=;
+ b=G20OPF404pHJFqVRp8zRkLe12odSrvJTj0zlEs+OqA/tQv7+x99EZk1x1EtuGzMl1MMwML7CWUwhg9t63A519HieasPutAgnW5XT0SjjbDdaBo/iDgxntFHR3CZrvg27XfjZ6Ah1lPuSsBgmTQDzkPTvA3uEVbBt82LA3UEgAUiseGORY/5DyNpkJNiqsTSlcMCbqridnZXejVWZsPl8EtAM5NC7lg34/v7mfU6EIZB7k8axqDYNq7LTo1H/fPbGbDvyriAGPhRmHBpPiWw/NgmjTlYiKedAHTXCVB906fCDHyhe3P30LGBC1NW/rIVtyp6SjnQBpohTceEv1BFmhw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 12.22.5.238) smtp.rcpttodomain=linuxfoundation.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ma86d1hcA8VFUjS7bQXMgG6JqQuOHkK0gqd7qFyn2EQ=;
+ b=cBl4DoMl3QVf8SZretHxExAOUjK2NoO1uEryEi+cB9TlUBLgzVWWi8zKh7VayrafM6GlpeqsbFnNzwhoNmK6sBMLMxZRwMInyaaDV1zbP5KIYkNfl0NVfh4VbhNAq12B4ci2gH/uyV7PwL7TGmA2mV5J5R6Vd8jczDWLozXBHueLIGDOEiHzzCxyJcqDGuzZpY8dL4NmGbxAq1TUVcgeHbP7LeqcDMxz6vllp0k+T1Ach5D6Ft1SERAD2H8KoWjrgYO7vG57WejfFmORZhlhCGtj8fZ19JUXLq+VNtOPuiFiEOQBD4r3BdgOKB3a7QikYFyUQK+tEwD8zzxAYSL88Q==
+Received: from MW4PR04CA0075.namprd04.prod.outlook.com (2603:10b6:303:6b::20)
+ by MN2PR12MB3567.namprd12.prod.outlook.com (2603:10b6:208:c9::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4867.7; Mon, 10 Jan
+ 2022 11:49:20 +0000
+Received: from CO1NAM11FT028.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:303:6b:cafe::5) by MW4PR04CA0075.outlook.office365.com
+ (2603:10b6:303:6b::20) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4867.7 via Frontend
+ Transport; Mon, 10 Jan 2022 11:49:20 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 12.22.5.238)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 12.22.5.238 as permitted sender) receiver=protection.outlook.com;
+ client-ip=12.22.5.238; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (12.22.5.238) by
+ CO1NAM11FT028.mail.protection.outlook.com (10.13.175.214) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4867.7 via Frontend Transport; Mon, 10 Jan 2022 11:49:19 +0000
+Received: from HQMAIL105.nvidia.com (172.20.187.12) by DRHQMAIL105.nvidia.com
+ (10.27.9.14) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Mon, 10 Jan
+ 2022 11:49:19 +0000
+Received: from HQMAIL107.nvidia.com (172.20.187.13) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Mon, 10 Jan
+ 2022 11:49:19 +0000
+Received: from jonathanh-vm-01.nvidia.com (10.127.8.9) by mail.nvidia.com
+ (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.18 via Frontend
+ Transport; Mon, 10 Jan 2022 11:49:19 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 4.4 00/14] 4.4.299-rc1 review
+In-Reply-To: <20220110071811.779189823@linuxfoundation.org>
+References: <20220110071811.779189823@linuxfoundation.org>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.0
-Subject: Re: [PATCH v6] x86/PCI: Ignore E820 reservations for bridge windows
- on newer systems
-Content-Language: en-US
-To:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        =?UTF-8?Q?Krzysztof_Wilczy=c5=84ski?= <kw@linux.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Myron Stowe <myron.stowe@redhat.com>,
-        Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H . Peter Anvin" <hpa@zytor.com>
-Cc:     linux-acpi@vger.kernel.org, linux-pci@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org,
-        =?UTF-8?Q?Benoit_Gr=c3=a9goire?= <benoitg@coeus.ca>,
-        Hui Wang <hui.wang@canonical.com>, stable@vger.kernel.org,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
-References: <20211217141348.379461-1-hdegoede@redhat.com>
-From:   Hans de Goede <hdegoede@redhat.com>
-In-Reply-To: <20211217141348.379461-1-hdegoede@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Message-ID: <ec89a3d944bc4c5c8e61a31621656289@HQMAIL107.nvidia.com>
+Date:   Mon, 10 Jan 2022 11:49:19 +0000
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: e9e0a56a-e449-4159-6ff4-08d9d42f3cea
+X-MS-TrafficTypeDiagnostic: MN2PR12MB3567:EE_
+X-Microsoft-Antispam-PRVS: <MN2PR12MB356796CE398416F4D178246CD9509@MN2PR12MB3567.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: y1vQdNu1xOivePwBoWPILnDBFmh0bqn51HdTvCUMAVTY5TT6NFFALoHFcb/1dDwtO0TLGIHzvK6M+Z+mIF9Jy1G39Wz/HrkLTV4scHhwwxwtMIrOR856sGvXTykNcWUZIWpGTPPnKXFwVfSnv9n5UtV1fDxySDang4h8zyeh2KvrVy+X7Ds7z/UuiAgFiA9d5Q0hakdVVcAfTOsyGSv5LztDz41wqUyBc53esboIE+DPJGYy6Z4qVmpPJVakAuYVn4+xM1ccgUPm0AW3TOo1W4fyMFFjz3fvIcsMF/5Cz9HLzolt7DwLaJXIXVCpneprw6MOONjw6mZqHx+NLYS2e91W/gL8d6M7SriKqVni1+TZnU8YP6l+fBplCDVv9f6EwHlNiaquqeAISKOwjleExGhCKXkkmcp9pq7zB998ZfvClpiBCT04lrqrvZWV1M1C/D2ANO6k6zuvNxkycGkzqwfz2eyB5mHTYAXhOfpLytwsnQ+vTI0oy6nK/CpmLZLDtovF5A99HOXu8YgfD2zfH7IbgzklbS9Q1hgGOzCcq17Hn1kf5X2WgwNtC3rwZLazxSA/rQeLind1OT34shP5kTUh7J6aQrJ8yWGQBOqXFz0GP4LKoAHs/8S6OMK6r3PHktyTz7w1e6zcKlZAfd3m5Sg4jHMPEExBSOkVIBffAHy7JIkxgkMDK6sHeZwqePAq1gdDyeSYySaIABzHmmUSQ+Jc/1bawwa65LtwWfMAJwKM3Oh14cfon3Yui4/kq9JzpjUbKC8QH2l0uKYCFZLIZRsD0IraGEcPzH8xKapOExshlzIFnUW7SUe+jJ4mOfZ6xQMrnR3+QwsTJXI263PlgqjpquV4rZHWDePiMLMUIags+n8HznUGUo7fjkHBo6gv
+X-Forefront-Antispam-Report: CIP:12.22.5.238;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:mail.nvidia.com;PTR:InfoNoRecords;CAT:NONE;SFS:(4636009)(46966006)(36840700001)(40470700002)(86362001)(426003)(5660300002)(7416002)(316002)(966005)(40460700001)(26005)(8676002)(336012)(108616005)(24736004)(6916009)(186003)(82310400004)(2906002)(81166007)(70586007)(70206006)(54906003)(356005)(4326008)(8936002)(47076005)(36860700001)(508600001)(36900700001);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Jan 2022 11:49:19.8934
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: e9e0a56a-e449-4159-6ff4-08d9d42f3cea
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[12.22.5.238];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT028.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB3567
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi All,
+On Mon, 10 Jan 2022 08:22:39 +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.299 release.
+> There are 14 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 12 Jan 2022 07:18:05 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.299-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-On 12/17/21 15:13, Hans de Goede wrote:
-> Some BIOS-es contain a bug where they add addresses which map to system
-> RAM in the PCI host bridge window returned by the ACPI _CRS method, see
-> commit 4dc2287c1805 ("x86: avoid E820 regions when allocating address
-> space").
-> 
-> To work around this bug Linux excludes E820 reserved addresses when
-> allocating addresses from the PCI host bridge window since 2010.
-> 
-> Recently (2019) some systems have shown-up with E820 reservations which
-> cover the entire _CRS returned PCI bridge memory window, causing all
-> attempts to assign memory to PCI BARs which have not been setup by the
-> BIOS to fail. For example here are the relevant dmesg bits from a
-> Lenovo IdeaPad 3 15IIL 81WE:
-> 
->  [mem 0x000000004bc50000-0x00000000cfffffff] reserved
->  pci_bus 0000:00: root bus resource [mem 0x65400000-0xbfffffff window]
-> 
-> The ACPI specifications appear to allow this new behavior:
-> 
-> The relationship between E820 and ACPI _CRS is not really very clear.
-> ACPI v6.3, sec 15, table 15-374, says AddressRangeReserved means:
-> 
->   This range of addresses is in use or reserved by the system and is
->   not to be included in the allocatable memory pool of the operating
->   system's memory manager.
-> 
-> and it may be used when:
-> 
->   The address range is in use by a memory-mapped system device.
-> 
-> Furthermore, sec 15.2 says:
-> 
->   Address ranges defined for baseboard memory-mapped I/O devices, such
->   as APICs, are returned as reserved.
-> 
-> A PCI host bridge qualifies as a baseboard memory-mapped I/O device,
-> and its apertures are in use and certainly should not be included in
-> the general allocatable pool, so the fact that some BIOS-es reports
-> the PCI aperture as "reserved" in E820 doesn't seem like a BIOS bug.
-> 
-> So it seems that the excluding of E820 reserved addresses is a mistake.
-> 
-> Ideally Linux would fully stop excluding E820 reserved addresses,
-> but then the old systems this was added for will regress.
-> Instead keep the old behavior for old systems, while ignoring
-> the E820 reservations for any systems from now on.
-> 
-> Old systems are defined here as BIOS year < 2018, this was chosen to make
-> sure that E820 reservations will not be used on the currently affected
-> systems, while at the same time also taking into account that the systems
-> for which the E820 checking was originally added may have received BIOS
-> updates for quite a while (esp. CVE related ones), giving them a more
-> recent BIOS year then 2010.
-> 
-> BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206459
-> BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1868899
-> BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1871793
-> BugLink: https://bugs.launchpad.net/bugs/1878279
-> BugLink: https://bugs.launchpad.net/bugs/1931715
-> BugLink: https://bugs.launchpad.net/bugs/1932069
-> BugLink: https://bugs.launchpad.net/bugs/1921649
-> Cc: Benoit Grégoire <benoitg@coeus.ca>
-> Cc: Hui Wang <hui.wang@canonical.com>
-> Cc: stable@vger.kernel.org
-> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> ---
-> Changes in v6:
-> - Remove the possibility to change the behavior from the commandline
->   because of worries that users may use this to paper over other problems
+All tests passing for Tegra ...
 
-ping ?
+Test results for stable-v4.4:
+    6 builds:	6 pass, 0 fail
+    12 boots:	12 pass, 0 fail
+    30 tests:	30 pass, 0 fail
 
-Regards,
+Linux version:	4.4.299-rc1-g039b69cc9b15
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra30-cardhu-a04
 
-Hans
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
 
-
-
-
-
-
-
-> Changes in v5:
-> - Drop mention of Windows behavior from the commit msg, replace with a
->   reference to the specs
-> - Improve documentation in Documentation/admin-guide/kernel-parameters.txt
-> - Reword the big comment added, use "PCI host bridge window" in it and drop
->   all refences to Windows
-> 
-> Changes in v4:
-> - Rewrap the big comment block to fit in 80 columns
-> - Add Rafael's Acked-by
-> - Add Cc: stable@vger.kernel.org
-> 
-> Changes in v3:
-> - Commit msg tweaks (drop dmesg timestamps, typo fix)
-> - Use "defined(CONFIG_...)" instead of "defined CONFIG_..."
-> - Add Mika's Reviewed-by
-> 
-> Changes in v2:
-> - Replace the per model DMI quirk approach with disabling E820 reservations
->   checking for all systems with a BIOS year >= 2018
-> - Add documentation for the new kernel-parameters to
->   Documentation/admin-guide/kernel-parameters.txt
-> ---
-> Other patches trying to address the same issue:
-> https://lore.kernel.org/r/20210624095324.34906-1-hui.wang@canonical.com
-> https://lore.kernel.org/r/20200617164734.84845-1-mika.westerberg@linux.intel.com
-> V1 patch:
-> https://lore.kernel.org/r/20211005150956.303707-1-hdegoede@redhat.com
-> ---
->  arch/x86/kernel/resource.c | 23 ++++++++++++++++++++++-
->  1 file changed, 22 insertions(+), 1 deletion(-)
-> 
-> diff --git a/arch/x86/kernel/resource.c b/arch/x86/kernel/resource.c
-> index 9b9fb7882c20..9ae64f9af956 100644
-> --- a/arch/x86/kernel/resource.c
-> +++ b/arch/x86/kernel/resource.c
-> @@ -1,4 +1,5 @@
->  // SPDX-License-Identifier: GPL-2.0
-> +#include <linux/dmi.h>
->  #include <linux/ioport.h>
->  #include <asm/e820/api.h>
->  
-> @@ -23,11 +24,31 @@ static void resource_clip(struct resource *res, resource_size_t start,
->  		res->start = end + 1;
->  }
->  
-> +/*
-> + * Some BIOS-es contain a bug where they add addresses which map to
-> + * system RAM in the PCI host bridge window returned by the ACPI _CRS
-> + * method, see commit 4dc2287c1805 ("x86: avoid E820 regions when
-> + * allocating address space"). To avoid this Linux by default excludes
-> + * E820 reservations when allocating addresses since 2010.
-> + * In 2019 some systems have shown-up with E820 reservations which cover
-> + * the entire _CRS returned PCI host bridge window, causing all attempts
-> + * to assign memory to PCI BARs to fail if Linux uses E820 reservations.
-> + *
-> + * Ideally Linux would fully stop using E820 reservations, but then
-> + * the old systems this was added for will regress.
-> + * Instead keep the old behavior for old systems, while ignoring the
-> + * E820 reservations for any systems from now on.
-> + */
->  static void remove_e820_regions(struct resource *avail)
->  {
-> -	int i;
-> +	int i, year = dmi_get_bios_year();
->  	struct e820_entry *entry;
->  
-> +	if (year >= 2018)
-> +		return;
-> +
-> +	pr_info_once("PCI: Removing E820 reservations from host bridge windows\n");
-> +
->  	for (i = 0; i < e820_table->nr_entries; i++) {
->  		entry = &e820_table->entries[i];
->  
-> 
-
+Jon
