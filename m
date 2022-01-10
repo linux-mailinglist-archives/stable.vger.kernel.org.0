@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9B8E489132
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:31:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69719489253
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:46:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239880AbiAJHaK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:30:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48906 "EHLO
+        id S241454AbiAJHl6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:41:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240038AbiAJH2O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:28:14 -0500
+        with ESMTP id S241748AbiAJHiS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:38:18 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8699C028C15;
-        Sun,  9 Jan 2022 23:26:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0FBEC028BB1;
+        Sun,  9 Jan 2022 23:32:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F003B811F5;
-        Mon, 10 Jan 2022 07:26:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2481C36AED;
-        Mon, 10 Jan 2022 07:25:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B5C6BB81213;
+        Mon, 10 Jan 2022 07:32:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FAF0C36AED;
+        Mon, 10 Jan 2022 07:32:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799560;
-        bh=CBugiHPHZg6lZpps82R7WUuao6slXg+9R6CaYlQp5g8=;
+        s=korg; t=1641799963;
+        bh=5ucqwL7Dxkwj99euF0edW3rqp3iP71cRd2u/ZGk/uBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WYz0XAQ9mSpDC/IiaRQv4H3HMSHBpOXtkq5vb00029VRN8IJdmtrVUloI1o8fEsd6
-         G79aFlh46UtQofgisRhRTyRxcrkpbbH9PldNgkaVBWegMUUv8mlphR4LXljyOB259b
-         VxNpGpF2jzs3q+YaKyDzQcFjeuPUomG/menhh2IQ=
+        b=Joj5pbsBMUEXkr2g6F/IyqexB9vdYtZsk2oJZUFmBRoZWXlcRF/UnIW8jnce2nvfR
+         OpPyn5uVUj5j75sKuXNEfcLUBm81xgK9568XFc01KpeTO31ayqzVPNJZryBPdUK2aN
+         mRWdsyK4GRdvwfq3owvFNbPGQfUCZ4Qby/fRLrZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: [PATCH 4.14 14/22] power: reset: ltc2952: Fix use of floating point literals
+        stable@vger.kernel.org, Arthur Kiyanovski <akiyano@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 30/72] net: ena: Fix wrong rx request id by resetting device
 Date:   Mon, 10 Jan 2022 08:23:07 +0100
-Message-Id: <20220110071814.738855790@linuxfoundation.org>
+Message-Id: <20220110071822.580753572@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071814.261471354@linuxfoundation.org>
-References: <20220110071814.261471354@linuxfoundation.org>
+In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
+References: <20220110071821.500480371@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,58 +47,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Arthur Kiyanovski <akiyano@amazon.com>
 
-commit 644106cdb89844be2496b21175b7c0c2e0fab381 upstream.
+commit cb3d4f98f0b26eafa0b913ac3716e4714254a747 upstream.
 
-A new commit in LLVM causes an error on the use of 'long double' when
-'-mno-x87' is used, which the kernel does through an alias,
-'-mno-80387' (see the LLVM commit below for more details around why it
-does this).
+A wrong request id received from the device is a sign that
+something is wrong with it, therefore trigger a device reset.
 
-drivers/power/reset/ltc2952-poweroff.c:162:28: error: expression requires  'long double' type support, but target 'x86_64-unknown-linux-gnu' does not support it
-        data->wde_interval = 300L * 1E6L;
-                                  ^
-drivers/power/reset/ltc2952-poweroff.c:162:21: error: expression requires  'long double' type support, but target 'x86_64-unknown-linux-gnu' does not support it
-        data->wde_interval = 300L * 1E6L;
-                           ^
-drivers/power/reset/ltc2952-poweroff.c:163:41: error: expression requires  'long double' type support, but target 'x86_64-unknown-linux-gnu' does not support it
-        data->trigger_delay = ktime_set(2, 500L*1E6L);
-                                               ^
-3 errors generated.
+Also add some debug info to the "Page is NULL" print to make
+it easier to debug.
 
-This happens due to the use of a 'long double' literal. The 'E6' part of
-'1E6L' causes the literal to be a 'double' then the 'L' suffix promotes
-it to 'long double'.
-
-There is no visible reason for floating point values in this driver, as
-the values are only assigned to integer types. Use NSEC_PER_MSEC, which
-is the same integer value as '1E6L', to avoid changing functionality but
-fix the error.
-
-Fixes: 6647156c00cc ("power: reset: add LTC2952 poweroff driver")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1497
-Link: https://github.com/llvm/llvm-project/commit/a8083d42b1c346e21623a1d36d1f0cadd7801d83
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Fixes: 1738cd3ed342 ("net: ena: Add a driver for Amazon Elastic Network Adapters (ENA)")
+Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/power/reset/ltc2952-poweroff.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/amazon/ena/ena_netdev.c |   11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
---- a/drivers/power/reset/ltc2952-poweroff.c
-+++ b/drivers/power/reset/ltc2952-poweroff.c
-@@ -169,8 +169,8 @@ static void ltc2952_poweroff_kill(void)
- 
- static void ltc2952_poweroff_default(struct ltc2952_poweroff *data)
+--- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
++++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+@@ -1428,6 +1428,7 @@ static struct sk_buff *ena_rx_skb(struct
+ 				  u16 *next_to_clean)
  {
--	data->wde_interval = 300L * 1E6L;
--	data->trigger_delay = ktime_set(2, 500L*1E6L);
-+	data->wde_interval = 300L * NSEC_PER_MSEC;
-+	data->trigger_delay = ktime_set(2, 500L * NSEC_PER_MSEC);
+ 	struct ena_rx_buffer *rx_info;
++	struct ena_adapter *adapter;
+ 	u16 len, req_id, buf = 0;
+ 	struct sk_buff *skb;
+ 	void *page_addr;
+@@ -1440,8 +1441,14 @@ static struct sk_buff *ena_rx_skb(struct
+ 	rx_info = &rx_ring->rx_buffer_info[req_id];
  
- 	hrtimer_init(&data->timer_trigger, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
- 	data->timer_trigger.function = ltc2952_poweroff_timer_trigger;
+ 	if (unlikely(!rx_info->page)) {
+-		netif_err(rx_ring->adapter, rx_err, rx_ring->netdev,
+-			  "Page is NULL\n");
++		adapter = rx_ring->adapter;
++		netif_err(adapter, rx_err, rx_ring->netdev,
++			  "Page is NULL. qid %u req_id %u\n", rx_ring->qid, req_id);
++		ena_increase_stat(&rx_ring->rx_stats.bad_req_id, 1, &rx_ring->syncp);
++		adapter->reset_reason = ENA_REGS_RESET_INV_RX_REQ_ID;
++		/* Make sure reset reason is set before triggering the reset */
++		smp_mb__before_atomic();
++		set_bit(ENA_FLAG_TRIGGER_RESET, &adapter->flags);
+ 		return NULL;
+ 	}
+ 
 
 
