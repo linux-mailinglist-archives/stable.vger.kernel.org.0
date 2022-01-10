@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64B4648913F
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:31:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCBEA489200
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:43:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240420AbiAJHaf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:30:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48532 "EHLO
+        id S241291AbiAJHhb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:37:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240133AbiAJH2c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:28:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCF21C028BEE;
-        Sun,  9 Jan 2022 23:26:54 -0800 (PST)
+        with ESMTP id S240959AbiAJHeb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:34:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1983C025398;
+        Sun,  9 Jan 2022 23:30:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D8B3611B9;
-        Mon, 10 Jan 2022 07:26:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6097FC36AE9;
-        Mon, 10 Jan 2022 07:26:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E162B81161;
+        Mon, 10 Jan 2022 07:30:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85905C36AED;
+        Mon, 10 Jan 2022 07:29:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799613;
-        bh=S9W/8WK5YYTdkSikU45bTJwgwBshs9fphhTu09tAU8w=;
+        s=korg; t=1641799800;
+        bh=0FUZhdHdVFKJrJzvgVA+DV9XJpaKZoIrD4J9MFjxH2A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mIAozLQChIpb2hVYO6J/skzJiIaPvwzi9AqnHdBrZFdopHwvabYMcrTdEmOFfxWpY
-         TPTxN+O5il8Hl89t+Mm01ijP9X6ys8wIzEzx765PgMZjHJegSH+bkRYVTSgxHS8DbH
-         vmF7rJboq/rlIjENeCKelmdvQZN0ELag0RQ6ZUCg=
+        b=EburqUk/+dGbOzU2gEbZgsmhLvcW3taC/xXafQ10eJNoLyHZdJiE+/o295OAzTl2O
+         DgQkJJtm8P0KtW4bZzBgMxSYtuDFSyiILVus91uGTV4NsckQD+p/AIlcCBYEYdkTnA
+         dXtKoIyLlt3U4aP0zv4FU8ci9MNGdclinGojGWvA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Steven Rostedt <rostedt@goodmis.org>
-Subject: [PATCH 4.19 02/21] tracing: Tag trace_percpu_buffer as a percpu pointer
+        stable@vger.kernel.org,
+        Grzegorz Szczurek <grzegorzx.szczurek@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>,
+        Aleksandr Loktionov <aleksandr.loktionov@intel.com>,
+        Tony Brelinski <tony.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>
+Subject: [PATCH 5.10 06/43] i40e: Fix to not show opcode msg on unsuccessful VF MAC change
 Date:   Mon, 10 Jan 2022 08:23:03 +0100
-Message-Id: <20220110071814.047265306@linuxfoundation.org>
+Message-Id: <20220110071817.559412877@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071813.967414697@linuxfoundation.org>
-References: <20220110071813.967414697@linuxfoundation.org>
+In-Reply-To: <20220110071817.337619922@linuxfoundation.org>
+References: <20220110071817.337619922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,50 +52,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+From: Mateusz Palczewski <mateusz.palczewski@intel.com>
 
-commit f28439db470cca8b6b082239314e9fd10bd39034 upstream.
+commit 01cbf50877e602e2376af89e4a51c30bc574c618 upstream.
 
-Tag trace_percpu_buffer as a percpu pointer to resolve warnings
-reported by sparse:
-  /linux/kernel/trace/trace.c:3218:46: warning: incorrect type in initializer (different address spaces)
-  /linux/kernel/trace/trace.c:3218:46:    expected void const [noderef] __percpu *__vpp_verify
-  /linux/kernel/trace/trace.c:3218:46:    got struct trace_buffer_struct *
-  /linux/kernel/trace/trace.c:3234:9: warning: incorrect type in initializer (different address spaces)
-  /linux/kernel/trace/trace.c:3234:9:    expected void const [noderef] __percpu *__vpp_verify
-  /linux/kernel/trace/trace.c:3234:9:    got int *
+Hide i40e opcode information sent during response to VF in case when
+untrusted VF tried to change MAC on the VF interface.
 
-Link: https://lkml.kernel.org/r/ebabd3f23101d89cb75671b68b6f819f5edc830b.1640255304.git.naveen.n.rao@linux.vnet.ibm.com
+This is implemented by adding an additional parameter 'hide' to the
+response sent to VF function that hides the display of error
+information, but forwards the error code to VF.
 
-Cc: stable@vger.kernel.org
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: 07d777fe8c398 ("tracing: Add percpu buffers for trace_printk()")
-Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+Previously it was not possible to send response with some error code
+to VF without displaying opcode information.
+
+Fixes: 5c3c48ac6bf5 ("i40e: implement virtual device interface")
+Signed-off-by: Grzegorz Szczurek <grzegorzx.szczurek@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Reviewed-by: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
+Reviewed-by: Aleksandr Loktionov <aleksandr.loktionov@intel.com>
+Tested-by: Tony Brelinski <tony.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c |   40 ++++++++++++++++-----
+ 1 file changed, 32 insertions(+), 8 deletions(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -2812,7 +2812,7 @@ struct trace_buffer_struct {
- 	char buffer[4][TRACE_BUF_SIZE];
- };
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -1824,17 +1824,19 @@ sriov_configure_out:
+ /***********************virtual channel routines******************/
  
--static struct trace_buffer_struct *trace_percpu_buffer;
-+static struct trace_buffer_struct __percpu *trace_percpu_buffer;
- 
- /*
-  * Thise allows for lockless recording.  If we're nested too deeply, then
-@@ -2841,7 +2841,7 @@ static void put_trace_buf(void)
- 
- static int alloc_percpu_trace_buffer(void)
+ /**
+- * i40e_vc_send_msg_to_vf
++ * i40e_vc_send_msg_to_vf_ex
+  * @vf: pointer to the VF info
+  * @v_opcode: virtual channel opcode
+  * @v_retval: virtual channel return value
+  * @msg: pointer to the msg buffer
+  * @msglen: msg length
++ * @is_quiet: true for not printing unsuccessful return values, false otherwise
+  *
+  * send msg to VF
+  **/
+-static int i40e_vc_send_msg_to_vf(struct i40e_vf *vf, u32 v_opcode,
+-				  u32 v_retval, u8 *msg, u16 msglen)
++static int i40e_vc_send_msg_to_vf_ex(struct i40e_vf *vf, u32 v_opcode,
++				     u32 v_retval, u8 *msg, u16 msglen,
++				     bool is_quiet)
  {
--	struct trace_buffer_struct *buffers;
-+	struct trace_buffer_struct __percpu *buffers;
+ 	struct i40e_pf *pf;
+ 	struct i40e_hw *hw;
+@@ -1850,7 +1852,7 @@ static int i40e_vc_send_msg_to_vf(struct
+ 	abs_vf_id = vf->vf_id + hw->func_caps.vf_base_id;
  
- 	buffers = alloc_percpu(struct trace_buffer_struct);
- 	if (WARN(!buffers, "Could not allocate percpu trace_printk buffer"))
+ 	/* single place to detect unsuccessful return values */
+-	if (v_retval) {
++	if (v_retval && !is_quiet) {
+ 		vf->num_invalid_msgs++;
+ 		dev_info(&pf->pdev->dev, "VF %d failed opcode %d, retval: %d\n",
+ 			 vf->vf_id, v_opcode, v_retval);
+@@ -1881,6 +1883,23 @@ static int i40e_vc_send_msg_to_vf(struct
+ }
+ 
+ /**
++ * i40e_vc_send_msg_to_vf
++ * @vf: pointer to the VF info
++ * @v_opcode: virtual channel opcode
++ * @v_retval: virtual channel return value
++ * @msg: pointer to the msg buffer
++ * @msglen: msg length
++ *
++ * send msg to VF
++ **/
++static int i40e_vc_send_msg_to_vf(struct i40e_vf *vf, u32 v_opcode,
++				  u32 v_retval, u8 *msg, u16 msglen)
++{
++	return i40e_vc_send_msg_to_vf_ex(vf, v_opcode, v_retval,
++					 msg, msglen, false);
++}
++
++/**
+  * i40e_vc_send_resp_to_vf
+  * @vf: pointer to the VF info
+  * @opcode: operation code
+@@ -2641,6 +2660,7 @@ error_param:
+  * i40e_check_vf_permission
+  * @vf: pointer to the VF info
+  * @al: MAC address list from virtchnl
++ * @is_quiet: set true for printing msg without opcode info, false otherwise
+  *
+  * Check that the given list of MAC addresses is allowed. Will return -EPERM
+  * if any address in the list is not valid. Checks the following conditions:
+@@ -2655,13 +2675,15 @@ error_param:
+  * addresses might not be accurate.
+  **/
+ static inline int i40e_check_vf_permission(struct i40e_vf *vf,
+-					   struct virtchnl_ether_addr_list *al)
++					   struct virtchnl_ether_addr_list *al,
++					   bool *is_quiet)
+ {
+ 	struct i40e_pf *pf = vf->pf;
+ 	struct i40e_vsi *vsi = pf->vsi[vf->lan_vsi_idx];
+ 	int mac2add_cnt = 0;
+ 	int i;
+ 
++	*is_quiet = false;
+ 	for (i = 0; i < al->num_elements; i++) {
+ 		struct i40e_mac_filter *f;
+ 		u8 *addr = al->list[i].addr;
+@@ -2685,6 +2707,7 @@ static inline int i40e_check_vf_permissi
+ 		    !ether_addr_equal(addr, vf->default_lan_addr.addr)) {
+ 			dev_err(&pf->pdev->dev,
+ 				"VF attempting to override administratively set MAC address, bring down and up the VF interface to resume normal operation\n");
++			*is_quiet = true;
+ 			return -EPERM;
+ 		}
+ 
+@@ -2721,6 +2744,7 @@ static int i40e_vc_add_mac_addr_msg(stru
+ 	    (struct virtchnl_ether_addr_list *)msg;
+ 	struct i40e_pf *pf = vf->pf;
+ 	struct i40e_vsi *vsi = NULL;
++	bool is_quiet = false;
+ 	i40e_status ret = 0;
+ 	int i;
+ 
+@@ -2737,7 +2761,7 @@ static int i40e_vc_add_mac_addr_msg(stru
+ 	 */
+ 	spin_lock_bh(&vsi->mac_filter_hash_lock);
+ 
+-	ret = i40e_check_vf_permission(vf, al);
++	ret = i40e_check_vf_permission(vf, al, &is_quiet);
+ 	if (ret) {
+ 		spin_unlock_bh(&vsi->mac_filter_hash_lock);
+ 		goto error_param;
+@@ -2775,8 +2799,8 @@ static int i40e_vc_add_mac_addr_msg(stru
+ 
+ error_param:
+ 	/* send the response to the VF */
+-	return i40e_vc_send_resp_to_vf(vf, VIRTCHNL_OP_ADD_ETH_ADDR,
+-				       ret);
++	return i40e_vc_send_msg_to_vf_ex(vf, VIRTCHNL_OP_ADD_ETH_ADDR,
++				       ret, NULL, 0, is_quiet);
+ }
+ 
+ /**
 
 
