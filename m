@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 572A04890CC
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:26:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C940489197
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:34:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239345AbiAJHZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:25:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48082 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239357AbiAJHYn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:24:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE447C061748;
-        Sun,  9 Jan 2022 23:24:25 -0800 (PST)
+        id S240895AbiAJHdr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:33:47 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:40590 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233849AbiAJHbn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:31:43 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 647B0B811FE;
-        Mon, 10 Jan 2022 07:24:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90B86C36AED;
-        Mon, 10 Jan 2022 07:24:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 267E360B9F;
+        Mon, 10 Jan 2022 07:31:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0956DC36AEF;
+        Mon, 10 Jan 2022 07:31:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799464;
-        bh=LnLFJ+xIVJsUkFhZjuXEDQOZzQIYa+delUwR5pPXtiI=;
+        s=korg; t=1641799902;
+        bh=lcHfSChScLvyGOU8GsHzTVoEVeZZVhOFXm8cepE1HTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N/O1UQ3ZNqur5dVpvLPBzjGsA3QfZc4CwS33xrd7WYyGXh9euZSRV9cgPlHzrXxrh
-         E3pJjCaqfUdfEp3p2lRytXu7fkJ1kX1z304J8FwgWl62YvX9NhGvdIIE5EdhWce3KE
-         tzHLBBJ+ORR8rThMVLJZaqaTwxn9cg80g13TxCFk=
+        b=BM0rmaF/mdPSM3kmb9dnLnogb1jsxnnsHkxCrE1WD9ec6hLm9V2Ja1+SZ+pmBzW6C
+         tbfZ5Wbs7NhwVQk7oOGUqJPB7zMqG2n1XleTD3iA6+jPvkGvfjsNw2zsMvn+fXKUvn
+         rKSr2uiswp9acKkJJR7hE0Az54HjefQM2xhCnRIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Toye <thomas@toye.io>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Christoph Hellwig <hch@lst.de>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 08/14] rndis_host: support Hytera digital radios
-Date:   Mon, 10 Jan 2022 08:22:47 +0100
-Message-Id: <20220110071812.051326366@linuxfoundation.org>
+Subject: [PATCH 5.15 11/72] netrom: fix copying in user data in nr_setsockopt
+Date:   Mon, 10 Jan 2022 08:22:48 +0100
+Message-Id: <20220110071821.925775387@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071811.779189823@linuxfoundation.org>
-References: <20220110071811.779189823@linuxfoundation.org>
+In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
+References: <20220110071821.500480371@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,51 +45,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Toye <thomas@toye.io>
+From: Christoph Hellwig <hch@lst.de>
 
-commit 29262e1f773b4b6a43711120be564c57fca07cfb upstream.
+commit 3087a6f36ee028ec095c04a8531d7d33899b7fed upstream.
 
-Hytera makes a range of digital (DMR) radios. These radios can be
-programmed to a allow a computer to control them over Ethernet over USB,
-either using NCM or RNDIS.
+This code used to copy in an unsigned long worth of data before
+the sockptr_t conversion, so restore that.
 
-This commit adds support for RNDIS for Hytera radios. I tested with a
-Hytera PD785 and a Hytera MD785G. When these radios are programmed to
-set up a Radio to PC Network using RNDIS, an USB interface will be added
-with class 2 (Communications), subclass 2 (Abstract Modem Control) and
-an interface protocol of 255 ("vendor specific" - lsusb even hints "MSFT
-RNDIS?").
-
-This patch is similar to the solution of this StackOverflow user, but
-that only works for the Hytera MD785:
-https://stackoverflow.com/a/53550858
-
-To use the "Radio to PC Network" functionality of Hytera DMR radios, the
-radios need to be programmed correctly in CPS (Hytera's Customer
-Programming Software). "Forward to PC" should be checked in "Network"
-(under "General Setting" in "Conventional") and the "USB Network
-Communication Protocol" should be set to RNDIS.
-
-Signed-off-by: Thomas Toye <thomas@toye.io>
+Fixes: a7b75c5a8c41 ("net: pass a sockptr_t into ->setsockopt")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/rndis_host.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ net/netrom/af_netrom.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/usb/rndis_host.c
-+++ b/drivers/net/usb/rndis_host.c
-@@ -616,6 +616,11 @@ static const struct usb_device_id	produc
- 				      USB_CLASS_COMM, 2 /* ACM */, 0x0ff),
- 	.driver_info = (unsigned long) &rndis_poll_status_info,
- }, {
-+	/* Hytera Communications DMR radios' "Radio to PC Network" */
-+	USB_VENDOR_AND_INTERFACE_INFO(0x238b,
-+				      USB_CLASS_COMM, 2 /* ACM */, 0x0ff),
-+	.driver_info = (unsigned long)&rndis_info,
-+}, {
- 	/* RNDIS is MSFT's un-official variant of CDC ACM */
- 	USB_INTERFACE_INFO(USB_CLASS_COMM, 2 /* ACM */, 0x0ff),
- 	.driver_info = (unsigned long) &rndis_info,
+--- a/net/netrom/af_netrom.c
++++ b/net/netrom/af_netrom.c
+@@ -306,7 +306,7 @@ static int nr_setsockopt(struct socket *
+ 	if (optlen < sizeof(unsigned int))
+ 		return -EINVAL;
+ 
+-	if (copy_from_sockptr(&opt, optval, sizeof(unsigned int)))
++	if (copy_from_sockptr(&opt, optval, sizeof(unsigned long)))
+ 		return -EFAULT;
+ 
+ 	switch (optname) {
 
 
