@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F293489133
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:31:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEA9E489165
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:32:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239539AbiAJHaL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:30:11 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:37832 "EHLO
+        id S240625AbiAJHbj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:31:39 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38958 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240032AbiAJH2N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:28:13 -0500
+        with ESMTP id S240287AbiAJH3w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:29:52 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 84D0D611CE;
-        Mon, 10 Jan 2022 07:28:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63C91C36AE9;
-        Mon, 10 Jan 2022 07:28:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DEC1611B9;
+        Mon, 10 Jan 2022 07:29:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12F78C36AED;
+        Mon, 10 Jan 2022 07:29:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799692;
-        bh=zYOViBaeQac9uI/6TZQx4gCOlnBtp2iyHYxWdNRXJF0=;
+        s=korg; t=1641799791;
+        bh=GqWQxPWk02utLlyyVmTZ6EM+cy42VaDZDb+7b6voeU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jpkb2pk68BXBVP1vHffQAP7RZE3iHFLF+aaxcF0FC6G+jcBts2HLoVj9fxPRnsW7k
-         tiE9R/c5Kc3mhiKTLrxgjIjdH1eFS/epoBRk8hUXnVzUDde0lhCqXzrr9sA2j7MguM
-         znPYbEzpkoEHXn+nBpXX6SjLtHiTPsldGxE5bsxY=
+        b=BYRjVrbKrwN6bdNU+Xx9fSAhWxnJIwIhFKa88Q5OjDX9wgkd5dcqNcc001rzER7mf
+         dzbdYFLC6LS5auNO4wMCO3vWfprCPcJDG2WMeyHD+DUibbrPoIe43fq7SVFLPNw3TG
+         r4LOan3zb8QbdMwSeh3tyYetzCR6xzhI1xlgJFyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
         Steven Rostedt <rostedt@goodmis.org>
-Subject: [PATCH 5.4 04/34] tracing: Fix check for trace_percpu_buffer validity in get_trace_buf()
-Date:   Mon, 10 Jan 2022 08:22:59 +0100
-Message-Id: <20220110071815.802408688@linuxfoundation.org>
+Subject: [PATCH 5.10 03/43] tracing: Fix check for trace_percpu_buffer validity in get_trace_buf()
+Date:   Mon, 10 Jan 2022 08:23:00 +0100
+Message-Id: <20220110071817.449633154@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071815.647309738@linuxfoundation.org>
-References: <20220110071815.647309738@linuxfoundation.org>
+In-Reply-To: <20220110071817.337619922@linuxfoundation.org>
+References: <20220110071817.337619922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -90,7 +90,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/kernel/trace/trace.c
 +++ b/kernel/trace/trace.c
-@@ -3017,7 +3017,7 @@ static char *get_trace_buf(void)
+@@ -3144,7 +3144,7 @@ static char *get_trace_buf(void)
  {
  	struct trace_buffer_struct *buffer = this_cpu_ptr(trace_percpu_buffer);
  
