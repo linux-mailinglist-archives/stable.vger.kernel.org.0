@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B97D4891FD
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:43:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2711489154
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:32:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241279AbiAJHh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:37:29 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42468 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239920AbiAJHeQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:34:16 -0500
+        id S239594AbiAJHbC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:31:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48492 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239651AbiAJH23 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:28:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7608BC028BDC;
+        Sun,  9 Jan 2022 23:26:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC6C6611C5;
-        Mon, 10 Jan 2022 07:34:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A48C5C36AED;
-        Mon, 10 Jan 2022 07:34:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41E9DB81214;
+        Mon, 10 Jan 2022 07:26:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8437AC36AED;
+        Mon, 10 Jan 2022 07:26:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641800055;
-        bh=vNuGco9DER8VjRictqFzW5vPwjcsKAXL6CcG9CMtQeQ=;
+        s=korg; t=1641799577;
+        bh=QyEdKKKCLfqLkT9uNEGvzANi09tnLa5PEEacqi6uv10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O1B2FtExJXQPDttR7MsAyBcdE1cU56Kjg6AYSi4WvwQ1nC/VtVAGm4whY2vXQwldD
-         h3RDkX80W8soE5wXE/frSVwwHrZPUJyxNX6x8eg3vB5wvy6Ie3JX2HEmUPNqwg2SMT
-         59gymE2u1kDzqrGltAeLIVpPMVEGZTgbLD6Ht1/Q=
+        b=uURFbpTkN8J2iUWHwzsgS9xatawPVrxsVlToaIf6cJZQ/39qhuiiQ9ECTGqxz02lj
+         zAvGNJ3NQ+E2AeiCsAvShizv6fPlrZSSqRiCV9u49BHhroLcHGw6f9Sy2kSzO/qf17
+         kkGFVL36vU33Z3EZ/Cn7Qb8ZzDj54FM8NrTzbz2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        =?UTF-8?q?Michal=20Koutn=C3=BD?= <mkoutny@suse.com>
-Subject: [PATCH 5.15 36/72] cgroup: Allocate cgroup_file_ctx for kernfs_open_file->priv
+        stable@vger.kernel.org, William Zhao <wizhao@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 20/22] ip6_vti: initialize __ip6_tnl_parm struct in vti6_siocdevprivate
 Date:   Mon, 10 Jan 2022 08:23:13 +0100
-Message-Id: <20220110071822.780524268@linuxfoundation.org>
+Message-Id: <20220110071814.933014379@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
-References: <20220110071821.500480371@linuxfoundation.org>
+In-Reply-To: <20220110071814.261471354@linuxfoundation.org>
+References: <20220110071814.261471354@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,254 +48,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: William Zhao <wizhao@redhat.com>
 
-commit 0d2b5955b36250a9428c832664f2079cbf723bec upstream.
+[ Upstream commit c1833c3964d5bd8c163bd4e01736a38bc473cb8a ]
 
-of->priv is currently used by each interface file implementation to store
-private information. This patch collects the current two private data usages
-into struct cgroup_file_ctx which is allocated and freed by the common path.
-This allows generic private data which applies to multiple files, which will
-be used to in the following patch.
+The "__ip6_tnl_parm" struct was left uninitialized causing an invalid
+load of random data when the "__ip6_tnl_parm" struct was used elsewhere.
+As an example, in the function "ip6_tnl_xmit_ctl()", it tries to access
+the "collect_md" member. With "__ip6_tnl_parm" being uninitialized and
+containing random data, the UBSAN detected that "collect_md" held a
+non-boolean value.
 
-Note that cgroup_procs iterator is now embedded as procs.iter in the new
-cgroup_file_ctx so that it doesn't need to be allocated and freed
-separately.
+The UBSAN issue is as follows:
+===============================================================
+UBSAN: invalid-load in net/ipv6/ip6_tunnel.c:1025:14
+load of value 30 is not a valid value for type '_Bool'
+CPU: 1 PID: 228 Comm: kworker/1:3 Not tainted 5.16.0-rc4+ #8
+Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+Workqueue: ipv6_addrconf addrconf_dad_work
+Call Trace:
+<TASK>
+dump_stack_lvl+0x44/0x57
+ubsan_epilogue+0x5/0x40
+__ubsan_handle_load_invalid_value+0x66/0x70
+? __cpuhp_setup_state+0x1d3/0x210
+ip6_tnl_xmit_ctl.cold.52+0x2c/0x6f [ip6_tunnel]
+vti6_tnl_xmit+0x79c/0x1e96 [ip6_vti]
+? lock_is_held_type+0xd9/0x130
+? vti6_rcv+0x100/0x100 [ip6_vti]
+? lock_is_held_type+0xd9/0x130
+? rcu_read_lock_bh_held+0xc0/0xc0
+? lock_acquired+0x262/0xb10
+dev_hard_start_xmit+0x1e6/0x820
+__dev_queue_xmit+0x2079/0x3340
+? mark_lock.part.52+0xf7/0x1050
+? netdev_core_pick_tx+0x290/0x290
+? kvm_clock_read+0x14/0x30
+? kvm_sched_clock_read+0x5/0x10
+? sched_clock_cpu+0x15/0x200
+? find_held_lock+0x3a/0x1c0
+? lock_release+0x42f/0xc90
+? lock_downgrade+0x6b0/0x6b0
+? mark_held_locks+0xb7/0x120
+? neigh_connected_output+0x31f/0x470
+? lockdep_hardirqs_on+0x79/0x100
+? neigh_connected_output+0x31f/0x470
+? ip6_finish_output2+0x9b0/0x1d90
+? rcu_read_lock_bh_held+0x62/0xc0
+? ip6_finish_output2+0x9b0/0x1d90
+ip6_finish_output2+0x9b0/0x1d90
+? ip6_append_data+0x330/0x330
+? ip6_mtu+0x166/0x370
+? __ip6_finish_output+0x1ad/0xfb0
+? nf_hook_slow+0xa6/0x170
+ip6_output+0x1fb/0x710
+? nf_hook.constprop.32+0x317/0x430
+? ip6_finish_output+0x180/0x180
+? __ip6_finish_output+0xfb0/0xfb0
+? lock_is_held_type+0xd9/0x130
+ndisc_send_skb+0xb33/0x1590
+? __sk_mem_raise_allocated+0x11cf/0x1560
+? dst_output+0x4a0/0x4a0
+? ndisc_send_rs+0x432/0x610
+addrconf_dad_completed+0x30c/0xbb0
+? addrconf_rs_timer+0x650/0x650
+? addrconf_dad_work+0x73c/0x10e0
+addrconf_dad_work+0x73c/0x10e0
+? addrconf_dad_completed+0xbb0/0xbb0
+? rcu_read_lock_sched_held+0xaf/0xe0
+? rcu_read_lock_bh_held+0xc0/0xc0
+process_one_work+0x97b/0x1740
+? pwq_dec_nr_in_flight+0x270/0x270
+worker_thread+0x87/0xbf0
+? process_one_work+0x1740/0x1740
+kthread+0x3ac/0x490
+? set_kthread_struct+0x100/0x100
+ret_from_fork+0x22/0x30
+</TASK>
+===============================================================
 
-v2: union dropped from cgroup_file_ctx and the procs iterator is embedded in
-    cgroup_file_ctx as suggested by Linus.
+The solution is to initialize "__ip6_tnl_parm" struct to zeros in the
+"vti6_siocdevprivate()" function.
 
-v3: Michal pointed out that cgroup1's procs pidlist uses of->priv too.
-    Converted. Didn't change to embedded allocation as cgroup1 pidlists get
-    stored for caching.
-
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Reviewed-by: Michal Koutný <mkoutny@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: William Zhao <wizhao@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/cgroup-internal.h |   17 ++++++++++++
- kernel/cgroup/cgroup-v1.c       |   26 ++++++++++---------
- kernel/cgroup/cgroup.c          |   53 +++++++++++++++++++++++++---------------
- 3 files changed, 65 insertions(+), 31 deletions(-)
+ net/ipv6/ip6_vti.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/cgroup/cgroup-internal.h
-+++ b/kernel/cgroup/cgroup-internal.h
-@@ -65,6 +65,23 @@ static inline struct cgroup_fs_context *
- 	return container_of(kfc, struct cgroup_fs_context, kfc);
- }
+diff --git a/net/ipv6/ip6_vti.c b/net/ipv6/ip6_vti.c
+index 299226b57ba50..a4ba470186482 100644
+--- a/net/ipv6/ip6_vti.c
++++ b/net/ipv6/ip6_vti.c
+@@ -775,6 +775,8 @@ vti6_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+ 	struct net *net = dev_net(dev);
+ 	struct vti6_net *ip6n = net_generic(net, vti6_net_id);
  
-+struct cgroup_pidlist;
++	memset(&p1, 0, sizeof(p1));
 +
-+struct cgroup_file_ctx {
-+	struct {
-+		void			*trigger;
-+	} psi;
-+
-+	struct {
-+		bool			started;
-+		struct css_task_iter	iter;
-+	} procs;
-+
-+	struct {
-+		struct cgroup_pidlist	*pidlist;
-+	} procs1;
-+};
-+
- /*
-  * A cgroup can be associated with multiple css_sets as different tasks may
-  * belong to different cgroups on different hierarchies.  In the other
---- a/kernel/cgroup/cgroup-v1.c
-+++ b/kernel/cgroup/cgroup-v1.c
-@@ -397,6 +397,7 @@ static void *cgroup_pidlist_start(struct
- 	 * next pid to display, if any
- 	 */
- 	struct kernfs_open_file *of = s->private;
-+	struct cgroup_file_ctx *ctx = of->priv;
- 	struct cgroup *cgrp = seq_css(s)->cgroup;
- 	struct cgroup_pidlist *l;
- 	enum cgroup_filetype type = seq_cft(s)->private;
-@@ -406,25 +407,24 @@ static void *cgroup_pidlist_start(struct
- 	mutex_lock(&cgrp->pidlist_mutex);
- 
- 	/*
--	 * !NULL @of->priv indicates that this isn't the first start()
--	 * after open.  If the matching pidlist is around, we can use that.
--	 * Look for it.  Note that @of->priv can't be used directly.  It
--	 * could already have been destroyed.
-+	 * !NULL @ctx->procs1.pidlist indicates that this isn't the first
-+	 * start() after open. If the matching pidlist is around, we can use
-+	 * that. Look for it. Note that @ctx->procs1.pidlist can't be used
-+	 * directly. It could already have been destroyed.
- 	 */
--	if (of->priv)
--		of->priv = cgroup_pidlist_find(cgrp, type);
-+	if (ctx->procs1.pidlist)
-+		ctx->procs1.pidlist = cgroup_pidlist_find(cgrp, type);
- 
- 	/*
- 	 * Either this is the first start() after open or the matching
- 	 * pidlist has been destroyed inbetween.  Create a new one.
- 	 */
--	if (!of->priv) {
--		ret = pidlist_array_load(cgrp, type,
--					 (struct cgroup_pidlist **)&of->priv);
-+	if (!ctx->procs1.pidlist) {
-+		ret = pidlist_array_load(cgrp, type, &ctx->procs1.pidlist);
- 		if (ret)
- 			return ERR_PTR(ret);
- 	}
--	l = of->priv;
-+	l = ctx->procs1.pidlist;
- 
- 	if (pid) {
- 		int end = l->length;
-@@ -452,7 +452,8 @@ static void *cgroup_pidlist_start(struct
- static void cgroup_pidlist_stop(struct seq_file *s, void *v)
- {
- 	struct kernfs_open_file *of = s->private;
--	struct cgroup_pidlist *l = of->priv;
-+	struct cgroup_file_ctx *ctx = of->priv;
-+	struct cgroup_pidlist *l = ctx->procs1.pidlist;
- 
- 	if (l)
- 		mod_delayed_work(cgroup_pidlist_destroy_wq, &l->destroy_dwork,
-@@ -463,7 +464,8 @@ static void cgroup_pidlist_stop(struct s
- static void *cgroup_pidlist_next(struct seq_file *s, void *v, loff_t *pos)
- {
- 	struct kernfs_open_file *of = s->private;
--	struct cgroup_pidlist *l = of->priv;
-+	struct cgroup_file_ctx *ctx = of->priv;
-+	struct cgroup_pidlist *l = ctx->procs1.pidlist;
- 	pid_t *p = v;
- 	pid_t *end = l->list + l->length;
- 	/*
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -3630,6 +3630,7 @@ static int cgroup_cpu_pressure_show(stru
- static ssize_t cgroup_pressure_write(struct kernfs_open_file *of, char *buf,
- 					  size_t nbytes, enum psi_res res)
- {
-+	struct cgroup_file_ctx *ctx = of->priv;
- 	struct psi_trigger *new;
- 	struct cgroup *cgrp;
- 	struct psi_group *psi;
-@@ -3648,7 +3649,7 @@ static ssize_t cgroup_pressure_write(str
- 		return PTR_ERR(new);
- 	}
- 
--	psi_trigger_replace(&of->priv, new);
-+	psi_trigger_replace(&ctx->psi.trigger, new);
- 
- 	cgroup_put(cgrp);
- 
-@@ -3679,12 +3680,16 @@ static ssize_t cgroup_cpu_pressure_write
- static __poll_t cgroup_pressure_poll(struct kernfs_open_file *of,
- 					  poll_table *pt)
- {
--	return psi_trigger_poll(&of->priv, of->file, pt);
-+	struct cgroup_file_ctx *ctx = of->priv;
-+
-+	return psi_trigger_poll(&ctx->psi.trigger, of->file, pt);
- }
- 
- static void cgroup_pressure_release(struct kernfs_open_file *of)
- {
--	psi_trigger_replace(&of->priv, NULL);
-+	struct cgroup_file_ctx *ctx = of->priv;
-+
-+	psi_trigger_replace(&ctx->psi.trigger, NULL);
- }
- 
- bool cgroup_psi_enabled(void)
-@@ -3811,18 +3816,31 @@ static ssize_t cgroup_kill_write(struct
- static int cgroup_file_open(struct kernfs_open_file *of)
- {
- 	struct cftype *cft = of_cft(of);
-+	struct cgroup_file_ctx *ctx;
-+	int ret;
- 
--	if (cft->open)
--		return cft->open(of);
--	return 0;
-+	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
-+	if (!ctx)
-+		return -ENOMEM;
-+	of->priv = ctx;
-+
-+	if (!cft->open)
-+		return 0;
-+
-+	ret = cft->open(of);
-+	if (ret)
-+		kfree(ctx);
-+	return ret;
- }
- 
- static void cgroup_file_release(struct kernfs_open_file *of)
- {
- 	struct cftype *cft = of_cft(of);
-+	struct cgroup_file_ctx *ctx = of->priv;
- 
- 	if (cft->release)
- 		cft->release(of);
-+	kfree(ctx);
- }
- 
- static ssize_t cgroup_file_write(struct kernfs_open_file *of, char *buf,
-@@ -4751,21 +4769,21 @@ void css_task_iter_end(struct css_task_i
- 
- static void cgroup_procs_release(struct kernfs_open_file *of)
- {
--	if (of->priv) {
--		css_task_iter_end(of->priv);
--		kfree(of->priv);
--	}
-+	struct cgroup_file_ctx *ctx = of->priv;
-+
-+	if (ctx->procs.started)
-+		css_task_iter_end(&ctx->procs.iter);
- }
- 
- static void *cgroup_procs_next(struct seq_file *s, void *v, loff_t *pos)
- {
- 	struct kernfs_open_file *of = s->private;
--	struct css_task_iter *it = of->priv;
-+	struct cgroup_file_ctx *ctx = of->priv;
- 
- 	if (pos)
- 		(*pos)++;
- 
--	return css_task_iter_next(it);
-+	return css_task_iter_next(&ctx->procs.iter);
- }
- 
- static void *__cgroup_procs_start(struct seq_file *s, loff_t *pos,
-@@ -4773,21 +4791,18 @@ static void *__cgroup_procs_start(struct
- {
- 	struct kernfs_open_file *of = s->private;
- 	struct cgroup *cgrp = seq_css(s)->cgroup;
--	struct css_task_iter *it = of->priv;
-+	struct cgroup_file_ctx *ctx = of->priv;
-+	struct css_task_iter *it = &ctx->procs.iter;
- 
- 	/*
- 	 * When a seq_file is seeked, it's always traversed sequentially
- 	 * from position 0, so we can simply keep iterating on !0 *pos.
- 	 */
--	if (!it) {
-+	if (!ctx->procs.started) {
- 		if (WARN_ON_ONCE((*pos)))
- 			return ERR_PTR(-EINVAL);
--
--		it = kzalloc(sizeof(*it), GFP_KERNEL);
--		if (!it)
--			return ERR_PTR(-ENOMEM);
--		of->priv = it;
- 		css_task_iter_start(&cgrp->self, iter_flags, it);
-+		ctx->procs.started = true;
- 	} else if (!(*pos)) {
- 		css_task_iter_end(it);
- 		css_task_iter_start(&cgrp->self, iter_flags, it);
+ 	switch (cmd) {
+ 	case SIOCGETTUNNEL:
+ 		if (dev == ip6n->fb_tnl_dev) {
+-- 
+2.34.1
+
 
 
