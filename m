@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4627D4890B6
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:24:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6D374891CB
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:42:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239245AbiAJHYN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:24:13 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:55636 "EHLO
+        id S239764AbiAJHgg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:36:36 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:60910 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239254AbiAJHYM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:24:12 -0500
+        with ESMTP id S239640AbiAJHc5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:32:57 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5396AB811F5;
-        Mon, 10 Jan 2022 07:24:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E71BC36AE9;
-        Mon, 10 Jan 2022 07:24:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E28F2B81204;
+        Mon, 10 Jan 2022 07:32:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F5D1C36AE9;
+        Mon, 10 Jan 2022 07:32:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799450;
-        bh=9r2A8WlLetcgizz0yX7vtwUz1UQH3QL0Lf2iy3NZnzA=;
+        s=korg; t=1641799974;
+        bh=9P1dIeqwCnSv4LDOwZYrLDkkin9SJBgZd7H6EHhP9hc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NksqMBVntnljogKyY93B8dLDy4R6x5m3ZtDA0OHPmEgMn/Kl8zgPGCXcGyZOc3cBw
-         qyRX6K1cn4jvSt8w6M16kgLVffwKMWXcFXZ+M5rBJFolsgpfv3R5AMr4jHXoszMoGB
-         ycoRJhpO135s9yYmgN4U8JERfw74v1bhiTyFjZDc=
+        b=Zrgf6psjfNoLYEI+NL1bOuQPV+rUX1ibYeqIyHKz4mYLfAh4FwNQapnSv8+N9PUPT
+         78ep22UcL4ae8hRAnerfVEuLUfQ9KrBK6YFZ+Ncb90QM/ZmxQC0cHLMA31+lrflmjU
+         Uc9UCA1Lvwp+/qjoYQIn+BI2it/vd/JJXLgPdTxU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ivan Levshin <ivan.levshin@microfocus.com>,
-        Takashi Iwai <tiwai@suse.de>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 4.4 02/14] Bluetooth: btusb: Apply QCA Rome patches for some ATH3012 models
-Date:   Mon, 10 Jan 2022 08:22:41 +0100
-Message-Id: <20220110071811.857533585@linuxfoundation.org>
+        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.15 05/72] Revert "RDMA/mlx5: Fix releasing unallocated memory in dereg MR flow"
+Date:   Mon, 10 Jan 2022 08:22:42 +0100
+Message-Id: <20220110071821.695096216@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071811.779189823@linuxfoundation.org>
-References: <20220110071811.779189823@linuxfoundation.org>
+In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
+References: <20220110071821.500480371@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,138 +45,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Maor Gottlieb <maorg@nvidia.com>
 
-commit 803cdb8ce584198cd45825822910cac7de6378cb upstream.
+commit 4163cb3d1980383220ad7043002b930995dcba33 upstream.
 
-In commit f44cb4b19ed4 ("Bluetooth: btusb: Fix quirk for Atheros
-1525/QCA6174") we tried to address the non-working Atheros BT devices
-by changing the quirk from BTUSB_ATH3012 to BTUSB_QCA_ROME.  This made
-such devices working while it turned out to break other existing chips
-with the very same USB ID, hence it was reverted afterwards.
+This patch is not the full fix and still causes to call traces
+during mlx5_ib_dereg_mr().
 
-This is another attempt to tackle the issue.  The essential point to
-use BTUSB_QCA_ROME is to apply the btusb_setup_qca() and do RAM-
-patching.  And the previous attempt failed because btusb_setup_qca()
-returns -ENODEV if the ROM version doesn't match with the expected
-ones.  For some devices that have already the "correct" ROM versions,
-we may just skip the setup procedure and continue the rest.
+This reverts commit f0ae4afe3d35e67db042c58a52909e06262b740f.
 
-So, the first fix we'll need is to add a check of the ROM version in
-the function to skip the setup if the ROM version looks already sane,
-so that it can be applied for all ath devices.
-
-However, the world is a bit more complex than that simple solution.
-Since BTUSB_ATH3012 quirk checks the bcdDevice and bails out when it's
-0x0001 at the beginning of probing, so the device probe always aborts
-here.
-
-In this patch, we add another check of ROM version again, and if the
-device needs patching, the probe continues.  For that, a slight
-refactoring of btusb_qca_send_vendor_req() was required so that the
-probe function can pass usb_device pointer directly before allocating
-hci_dev stuff.
-
-Fixes: commit f44cb4b19ed4 ("Bluetooth: btusb: Fix quirk for Atheros 1525/QCA6174")
-Bugzilla: http://bugzilla.opensuse.org/show_bug.cgi?id=1082504
-Tested-by: Ivan Levshin <ivan.levshin@microfocus.com>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: f0ae4afe3d35 ("RDMA/mlx5: Fix releasing unallocated memory in dereg MR flow")
+Link: https://lore.kernel.org/r/20211222101312.1358616-1-maorg@nvidia.com
+Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
+Acked-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bluetooth/btusb.c |   32 +++++++++++++++++++++++++-------
- 1 file changed, 25 insertions(+), 7 deletions(-)
+ drivers/infiniband/hw/mlx5/mlx5_ib.h |    6 +++---
+ drivers/infiniband/hw/mlx5/mr.c      |   28 +++++++++++++++-------------
+ 2 files changed, 18 insertions(+), 16 deletions(-)
 
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -2489,11 +2489,9 @@ static const struct qca_device_info qca_
- 	{ 0x00000302, 28, 4, 18 }, /* Rome 3.2 */
- };
+--- a/drivers/infiniband/hw/mlx5/mlx5_ib.h
++++ b/drivers/infiniband/hw/mlx5/mlx5_ib.h
+@@ -641,6 +641,7 @@ struct mlx5_ib_mr {
  
--static int btusb_qca_send_vendor_req(struct hci_dev *hdev, u8 request,
-+static int btusb_qca_send_vendor_req(struct usb_device *udev, u8 request,
- 				     void *data, u16 size)
- {
--	struct btusb_data *btdata = hci_get_drvdata(hdev);
--	struct usb_device *udev = btdata->udev;
- 	int pipe, err;
- 	u8 *buf;
+ 	/* User MR data */
+ 	struct mlx5_cache_ent *cache_ent;
++	struct ib_umem *umem;
  
-@@ -2508,7 +2506,7 @@ static int btusb_qca_send_vendor_req(str
- 	err = usb_control_msg(udev, pipe, request, USB_TYPE_VENDOR | USB_DIR_IN,
- 			      0, 0, buf, size, USB_CTRL_SET_TIMEOUT);
- 	if (err < 0) {
--		BT_ERR("%s: Failed to access otp area (%d)", hdev->name, err);
-+		dev_err(&udev->dev, "Failed to access otp area (%d)", err);
- 		goto done;
- 	}
+ 	/* This is zero'd when the MR is allocated */
+ 	union {
+@@ -652,7 +653,7 @@ struct mlx5_ib_mr {
+ 			struct list_head list;
+ 		};
  
-@@ -2664,20 +2662,38 @@ static int btusb_setup_qca_load_nvm(stru
- 	return err;
+-		/* Used only by kernel MRs */
++		/* Used only by kernel MRs (umem == NULL) */
+ 		struct {
+ 			void *descs;
+ 			void *descs_alloc;
+@@ -674,9 +675,8 @@ struct mlx5_ib_mr {
+ 			int data_length;
+ 		};
+ 
+-		/* Used only by User MRs */
++		/* Used only by User MRs (umem != NULL) */
+ 		struct {
+-			struct ib_umem *umem;
+ 			unsigned int page_shift;
+ 			/* Current access_flags */
+ 			int access_flags;
+--- a/drivers/infiniband/hw/mlx5/mr.c
++++ b/drivers/infiniband/hw/mlx5/mr.c
+@@ -1911,18 +1911,19 @@ err:
+ 	return ret;
  }
  
-+/* identify the ROM version and check whether patches are needed */
-+static bool btusb_qca_need_patch(struct usb_device *udev)
-+{
-+	struct qca_version ver;
-+
-+	if (btusb_qca_send_vendor_req(udev, QCA_GET_TARGET_VERSION, &ver,
-+				      sizeof(ver)) < 0)
-+		return false;
-+	/* only low ROM versions need patches */
-+	return !(le32_to_cpu(ver.rom_version) & ~0xffffU);
-+}
-+
- static int btusb_setup_qca(struct hci_dev *hdev)
+-static void mlx5_free_priv_descs(struct mlx5_ib_mr *mr)
++static void
++mlx5_free_priv_descs(struct mlx5_ib_mr *mr)
  {
-+	struct btusb_data *btdata = hci_get_drvdata(hdev);
-+	struct usb_device *udev = btdata->udev;
- 	const struct qca_device_info *info = NULL;
- 	struct qca_version ver;
- 	u32 ver_rom;
- 	u8 status;
- 	int i, err;
- 
--	err = btusb_qca_send_vendor_req(hdev, QCA_GET_TARGET_VERSION, &ver,
-+	err = btusb_qca_send_vendor_req(udev, QCA_GET_TARGET_VERSION, &ver,
- 					sizeof(ver));
- 	if (err < 0)
- 		return err;
- 
- 	ver_rom = le32_to_cpu(ver.rom_version);
-+	/* Don't care about high ROM versions */
-+	if (ver_rom & ~0xffffU)
-+		return 0;
+-	struct mlx5_ib_dev *dev = to_mdev(mr->ibmr.device);
+-	int size = mr->max_descs * mr->desc_size;
+-
+-	if (!mr->descs)
+-		return;
+-
+-	dma_unmap_single(&dev->mdev->pdev->dev, mr->desc_map, size,
+-			 DMA_TO_DEVICE);
+-	kfree(mr->descs_alloc);
+-	mr->descs = NULL;
++	if (!mr->umem && mr->descs) {
++		struct ib_device *device = mr->ibmr.device;
++		int size = mr->max_descs * mr->desc_size;
++		struct mlx5_ib_dev *dev = to_mdev(device);
 +
- 	for (i = 0; i < ARRAY_SIZE(qca_devices_table); i++) {
- 		if (ver_rom == qca_devices_table[i].rom_version)
- 			info = &qca_devices_table[i];
-@@ -2688,7 +2704,7 @@ static int btusb_setup_qca(struct hci_de
- 		return -ENODEV;
++		dma_unmap_single(&dev->mdev->pdev->dev, mr->desc_map, size,
++				 DMA_TO_DEVICE);
++		kfree(mr->descs_alloc);
++		mr->descs = NULL;
++	}
+ }
+ 
+ int mlx5_ib_dereg_mr(struct ib_mr *ibmr, struct ib_udata *udata)
+@@ -1998,8 +1999,7 @@ int mlx5_ib_dereg_mr(struct ib_mr *ibmr,
+ 	if (mr->cache_ent) {
+ 		mlx5_mr_cache_free(dev, mr);
+ 	} else {
+-		if (!udata)
+-			mlx5_free_priv_descs(mr);
++		mlx5_free_priv_descs(mr);
+ 		kfree(mr);
+ 	}
+ 	return 0;
+@@ -2086,6 +2086,7 @@ static struct mlx5_ib_mr *mlx5_ib_alloc_
+ 	if (err)
+ 		goto err_free_in;
+ 
++	mr->umem = NULL;
+ 	kfree(in);
+ 
+ 	return mr;
+@@ -2212,6 +2213,7 @@ static struct ib_mr *__mlx5_ib_alloc_mr(
  	}
  
--	err = btusb_qca_send_vendor_req(hdev, QCA_CHECK_STATUS, &status,
-+	err = btusb_qca_send_vendor_req(udev, QCA_CHECK_STATUS, &status,
- 					sizeof(status));
- 	if (err < 0)
- 		return err;
-@@ -2834,7 +2850,8 @@ static int btusb_probe(struct usb_interf
+ 	mr->ibmr.device = pd->device;
++	mr->umem = NULL;
  
- 		/* Old firmware would otherwise let ath3k driver load
- 		 * patch and sysconfig files */
--		if (le16_to_cpu(udev->descriptor.bcdDevice) <= 0x0001)
-+		if (le16_to_cpu(udev->descriptor.bcdDevice) <= 0x0001 &&
-+		    !btusb_qca_need_patch(udev))
- 			return -ENODEV;
- 	}
- 
-@@ -2981,6 +2998,7 @@ static int btusb_probe(struct usb_interf
- 	}
- 
- 	if (id->driver_info & BTUSB_ATH3012) {
-+		data->setup_on_usb = btusb_setup_qca;
- 		hdev->set_bdaddr = btusb_set_bdaddr_ath3012;
- 		set_bit(HCI_QUIRK_SIMULTANEOUS_DISCOVERY, &hdev->quirks);
- 		set_bit(HCI_QUIRK_STRICT_DUPLICATE_FILTER, &hdev->quirks);
+ 	switch (mr_type) {
+ 	case IB_MR_TYPE_MEM_REG:
 
 
