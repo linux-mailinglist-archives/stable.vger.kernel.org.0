@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 540CB489183
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:34:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6295B489278
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:46:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239735AbiAJHcx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:32:53 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:39764 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239437AbiAJHan (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:30:43 -0500
+        id S241016AbiAJHn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:43:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51724 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241989AbiAJHkH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:40:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6237C0251BD;
+        Sun,  9 Jan 2022 23:33:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D5AEB611D3;
-        Mon, 10 Jan 2022 07:30:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9B7EC36AED;
-        Mon, 10 Jan 2022 07:30:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 75A5F60B63;
+        Mon, 10 Jan 2022 07:33:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B1DBC36AE9;
+        Mon, 10 Jan 2022 07:33:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799842;
-        bh=3Kq81HcSQasASCNb5NFstY6j6bWs7/XfjGJJgHndI0Y=;
+        s=korg; t=1641800031;
+        bh=miwMnJgVOnR+9E9/tWDy+mlTU5eoEgWYT3bcqx54edA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WKFYXEuvkML+vBpE0m57JIpfYMMbFok7A3slvWkb1yREQcXBiICSXiDjDUCo/1Y/G
-         1EgZVF688lRL5gOTt9JxxlpIb13M0vD6IaaKGavA79krLDMHAdvG/snS7bN0QLjfqP
-         08MHctWNoR/GNFT7Dw1xg9QxI/pyrgceVFkTBGDs=
+        b=sMObtAg1IjmerI1bPycudQJIwTFHLH9aY0on+dc4OBKX6uLmaqNVwEvA5SKI+el7A
+         NZI+ELaW369UhSgWecq161e70oYH9kpgj1RsEak54xF2Fw++6CbXnqgtv7MBE/Uigt
+         S9N0Rr12sGPHG9+AbaDvD8V09Xwe/jEvLAUbnWl8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        stable@vger.kernel.org, Lijo Lazar <lijo.lazar@amd.com>,
+        Hawking Zhang <Hawking.Zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 34/43] usb: mtu3: fix interval value for intr and isoc
-Date:   Mon, 10 Jan 2022 08:23:31 +0100
-Message-Id: <20220110071818.499255035@linuxfoundation.org>
+Subject: [PATCH 5.15 55/72] drm/amd/pm: Fix xgmi link control on aldebaran
+Date:   Mon, 10 Jan 2022 08:23:32 +0100
+Message-Id: <20220110071823.419565546@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071817.337619922@linuxfoundation.org>
-References: <20220110071817.337619922@linuxfoundation.org>
+In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
+References: <20220110071821.500480371@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,45 +49,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Lijo Lazar <lijo.lazar@amd.com>
 
-[ Upstream commit e3d4621c22f90c33321ae6a6baab60cdb8e5a77c ]
+[ Upstream commit 19e66d512e4182a0461530fa3159638e0f55d97e ]
 
-Use the Interval value from isoc/intr endpoint descriptor, no need
-minus one. The original code doesn't cause transfer error for
-normal cases, but it may have side effect with respond time of ERDY
-or tPingTimeout.
+Fix the message argument.
+	0: Allow power down
+	1: Disallow power down
 
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/20211218095749.6250-1-chunfeng.yun@mediatek.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Lijo Lazar <lijo.lazar@amd.com>
+Reviewed-by: Hawking Zhang <Hawking.Zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/mtu3/mtu3_gadget.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/mtu3/mtu3_gadget.c b/drivers/usb/mtu3/mtu3_gadget.c
-index a3e1105c5c662..b7a6363f387aa 100644
---- a/drivers/usb/mtu3/mtu3_gadget.c
-+++ b/drivers/usb/mtu3/mtu3_gadget.c
-@@ -77,7 +77,7 @@ static int mtu3_ep_enable(struct mtu3_ep *mep)
- 		if (usb_endpoint_xfer_int(desc) ||
- 				usb_endpoint_xfer_isoc(desc)) {
- 			interval = desc->bInterval;
--			interval = clamp_val(interval, 1, 16) - 1;
-+			interval = clamp_val(interval, 1, 16);
- 			if (usb_endpoint_xfer_isoc(desc) && comp_desc)
- 				mult = comp_desc->bmAttributes;
- 		}
-@@ -89,7 +89,7 @@ static int mtu3_ep_enable(struct mtu3_ep *mep)
- 		if (usb_endpoint_xfer_isoc(desc) ||
- 				usb_endpoint_xfer_int(desc)) {
- 			interval = desc->bInterval;
--			interval = clamp_val(interval, 1, 16) - 1;
-+			interval = clamp_val(interval, 1, 16);
- 			mult = usb_endpoint_maxp_mult(desc) - 1;
- 		}
- 		break;
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c
+index 5019903db492a..c9cfeb094750d 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu13/aldebaran_ppt.c
+@@ -1619,7 +1619,7 @@ static int aldebaran_allow_xgmi_power_down(struct smu_context *smu, bool en)
+ {
+ 	return smu_cmn_send_smc_msg_with_param(smu,
+ 					       SMU_MSG_GmiPwrDnControl,
+-					       en ? 1 : 0,
++					       en ? 0 : 1,
+ 					       NULL);
+ }
+ 
 -- 
 2.34.1
 
