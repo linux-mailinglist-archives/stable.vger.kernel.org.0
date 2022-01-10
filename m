@@ -2,48 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31FBD48920A
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:43:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34DD84891DA
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:42:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241128AbiAJHhr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:37:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50752 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241510AbiAJHfy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:35:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19356C028BF4;
-        Sun,  9 Jan 2022 23:31:10 -0800 (PST)
+        id S239713AbiAJHgn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:36:43 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:40974 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239360AbiAJHeN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:34:13 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF6E1B81205;
-        Mon, 10 Jan 2022 07:31:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26C78C36AED;
-        Mon, 10 Jan 2022 07:31:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F1FC3611B7;
+        Mon, 10 Jan 2022 07:34:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D164EC36AEF;
+        Mon, 10 Jan 2022 07:34:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799867;
-        bh=nbDOWtRTOobu4zr4WWANoM0fHIMn9fEz4m8CnbDXrd0=;
+        s=korg; t=1641800052;
+        bh=pU364gwTipAGmNVJZzf1xKh13FbSWd0RN/HkMR0i3PU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bm3z1sMCYEyK1dg3ebfn2KbvWlEx2611EseJW+eyg627WF8m/rvZT/BxkN2VWFBnj
-         BX2/j7eJ08FZw8PAfXXgePnf25rHhxdukBw5hR0tjC1t5XB+mVOUn8j/ADuZ0Fnpjb
-         YMU9S0UHHSHVhTIULW9hO5hqRGJzhsvG4GgH1P8Q=
+        b=mXD/yjH0YaI+/Y++TiFpq9M+/F+bZ0zRf3xD8KWksCU51pfuharhyIUf0Dj/aUGZM
+         0wdSGkHVoEJCagNF12TBPORvt6iYL39yvoqQ/oHNlomb1Vx9O7I2i+1Is3aBx6TRoL
+         6AfaDi4SJR0mla5t28DSBwKAUspft5Q18Pof8CIM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Wahren <stefan.wahren@i2se.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jan Kiszka <jan.kiszka@web.de>,
-        Phil Elwell <phil@raspberrypi.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Olof Johansson <olof@lixom.net>,
+        stable@vger.kernel.org, Luben Tuikov <luben.tuikov@amd.com>,
+        Evan Quan <evan.quan@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 42/43] ARM: dts: gpio-ranges property is now required
+Subject: [PATCH 5.15 62/72] drm/amdgpu: always reset the asic in suspend (v2)
 Date:   Mon, 10 Jan 2022 08:23:39 +0100
-Message-Id: <20220110071818.764625175@linuxfoundation.org>
+Message-Id: <20220110071823.658590687@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071817.337619922@linuxfoundation.org>
-References: <20220110071817.337619922@linuxfoundation.org>
+In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
+References: <20220110071821.500480371@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,62 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Elwell <phil@raspberrypi.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit c8013355ead68dce152cf426686f8a5f80d88b40 ]
+[ Upstream commit daf8de0874ab5b74b38a38726fdd3d07ef98a7ee ]
 
-Since [1], added in 5.7, the absence of a gpio-ranges property has
-prevented GPIOs from being restored to inputs when released.
-Add those properties for BCM283x and BCM2711 devices.
+If the platform suspend happens to fail and the power rail
+is not turned off, the GPU will be in an unknown state on
+resume, so reset the asic so that it will be in a known
+good state on resume even if the platform suspend failed.
 
-[1] commit 2ab73c6d8323 ("gpio: Support GPIO controllers without
-    pin-ranges")
+v2: handle s0ix
 
-Link: https://lore.kernel.org/r/20220104170247.956760-1-linus.walleij@linaro.org
-Fixes: 2ab73c6d8323 ("gpio: Support GPIO controllers without pin-ranges")
-Fixes: 266423e60ea1 ("pinctrl: bcm2835: Change init order for gpio hogs")
-Reported-by: Stefan Wahren <stefan.wahren@i2se.com>
-Reported-by: Florian Fainelli <f.fainelli@gmail.com>
-Reported-by: Jan Kiszka <jan.kiszka@web.de>
-Signed-off-by: Phil Elwell <phil@raspberrypi.com>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Link: https://lore.kernel.org/r/20211206092237.4105895-3-phil@raspberrypi.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Olof Johansson <olof@lixom.net>
+Acked-by: Luben Tuikov <luben.tuikov@amd.com>
+Acked-by: Evan Quan <evan.quan@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/bcm2711.dtsi | 2 ++
- arch/arm/boot/dts/bcm283x.dtsi | 2 ++
- 2 files changed, 4 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/bcm2711.dtsi b/arch/arm/boot/dts/bcm2711.dtsi
-index 4ade854bdcdaf..55ec83bde5a61 100644
---- a/arch/arm/boot/dts/bcm2711.dtsi
-+++ b/arch/arm/boot/dts/bcm2711.dtsi
-@@ -555,6 +555,8 @@
- 		     <GIC_SPI 115 IRQ_TYPE_LEVEL_HIGH>,
- 		     <GIC_SPI 116 IRQ_TYPE_LEVEL_HIGH>;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+index 70e8a86c3a69f..9dfd9d70812cb 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
+@@ -1526,7 +1526,10 @@ static int amdgpu_pmops_suspend(struct device *dev)
+ 	adev->in_s3 = true;
+ 	r = amdgpu_device_suspend(drm_dev, true);
+ 	adev->in_s3 = false;
+-
++	if (r)
++		return r;
++	if (!adev->in_s0ix)
++		r = amdgpu_asic_reset(adev);
+ 	return r;
+ }
  
-+	gpio-ranges = <&gpio 0 0 58>;
-+
- 	gpclk0_gpio49: gpclk0_gpio49 {
- 		pin-gpclk {
- 			pins = "gpio49";
-diff --git a/arch/arm/boot/dts/bcm283x.dtsi b/arch/arm/boot/dts/bcm283x.dtsi
-index 0f3be55201a5b..ffdf7c4fba465 100644
---- a/arch/arm/boot/dts/bcm283x.dtsi
-+++ b/arch/arm/boot/dts/bcm283x.dtsi
-@@ -126,6 +126,8 @@
- 			interrupt-controller;
- 			#interrupt-cells = <2>;
- 
-+			gpio-ranges = <&gpio 0 0 54>;
-+
- 			/* Defines common pin muxing groups
- 			 *
- 			 * While each pin can have its mux selected
 -- 
 2.34.1
 
