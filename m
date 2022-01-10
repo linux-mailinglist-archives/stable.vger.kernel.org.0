@@ -2,173 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E2DB48910D
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:29:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6B084890E9
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:28:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239700AbiAJH2q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:28:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47994 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239688AbiAJH0a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:26:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8A4DC029821;
-        Sun,  9 Jan 2022 23:25:48 -0800 (PST)
+        id S239772AbiAJH0s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:26:48 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:35638 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239273AbiAJHZY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:25:24 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6461CB81216;
-        Mon, 10 Jan 2022 07:25:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91EA9C36AE9;
-        Mon, 10 Jan 2022 07:25:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 64C2E611BC;
+        Mon, 10 Jan 2022 07:25:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47931C36AED;
+        Mon, 10 Jan 2022 07:25:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799546;
-        bh=ZAgLAmrry1ip1BnZV4fPnhQyXBilOKhMHc0ZLVSW27Y=;
-        h=From:To:Cc:Subject:Date:From;
-        b=mUdsSnhnYSbZSNmEHledNFO05QnTNyZxQbAIso+vPY9vZOblFLgY8R0YL2fTPoPk8
-         BqHlCQpDNij1vOSsjRQCDiJCpl/4b82ZUQTGFIy0pr9yAEP78p8w+gKkm/Fljyd3EN
-         OQWFID+gxXm4fx6A3y5VqEPP3xFEkQoHI5h450Ts=
+        s=korg; t=1641799523;
+        bh=7fe28n9qt6453jcIrqeOZVXWam3/hE5nOqhxsljTte8=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=JYBXbTdCAPB96nzna8GU5JB7PFPWxTNS0JMIDBvAhMC/USO1TdBVQIL8uNDff/KN8
+         RE1jveJD1hqQFUd9XUQRZ5Bln5nfyaIyDkcY5SMZSI3GF8DvSwdiq1YwL60IvWcFMU
+         gf9WP+leXGqIw9y+EwqaGRpt8dsKHZVizvajIzDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.14 00/22] 4.14.262-rc1 review
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.9 06/21] mac80211: initialize variable have_higher_than_11mbit
 Date:   Mon, 10 Jan 2022 08:22:53 +0100
-Message-Id: <20220110071814.261471354@linuxfoundation.org>
+Message-Id: <20220110071813.022371698@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-MIME-Version: 1.0
+In-Reply-To: <20220110071812.806606886@linuxfoundation.org>
+References: <20220110071812.806606886@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.262-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.262-rc1
-X-KernelTest-Deadline: 2022-01-12T07:18+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.262 release.
-There are 22 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Tom Rix <trix@redhat.com>
 
-Responses should be made by Wed, 12 Jan 2022 07:18:05 +0000.
-Anything received after that time might be too late.
+commit 68a18ad71378a56858141c4449e02a30c829763e upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.262-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-and the diffstat can be found below.
+Clang static analysis reports this warnings
 
-thanks,
+mlme.c:5332:7: warning: Branch condition evaluates to a
+  garbage value
+    have_higher_than_11mbit)
+    ^~~~~~~~~~~~~~~~~~~~~~~
 
-greg k-h
+have_higher_than_11mbit is only set to true some of the time in
+ieee80211_get_rates() but is checked all of the time.  So
+have_higher_than_11mbit needs to be initialized to false.
 
--------------
-Pseudo-Shortlog of commits:
+Fixes: 5d6a1b069b7f ("mac80211: set basic rates earlier")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/r/20211223162848.3243702-1-trix@redhat.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ net/mac80211/mlme.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.262-rc1
-
-wolfgang huang <huangjinhui@kylinos.cn>
-    mISDN: change function names to avoid conflicts
-
-yangxingwu <xingwu.yang@gmail.com>
-    net: udp: fix alignment problem in udp4_seq_show()
-
-William Zhao <wizhao@redhat.com>
-    ip6_vti: initialize __ip6_tnl_parm struct in vti6_siocdevprivate
-
-Lixiaokeng <lixiaokeng@huawei.com>
-    scsi: libiscsi: Fix UAF in iscsi_conn_get_param()/iscsi_conn_teardown()
-
-David Ahern <dsahern@kernel.org>
-    ipv6: Do cleanup if attribute validation fails in multipath route
-
-David Ahern <dsahern@kernel.org>
-    ipv6: Continue processing multipath route even if gateway attribute is invalid
-
-Hangyu Hua <hbh25y@gmail.com>
-    phonet: refcount leak in pep_sock_accep
-
-Thomas Toye <thomas@toye.io>
-    rndis_host: support Hytera digital radios
-
-Nathan Chancellor <nathan@kernel.org>
-    power: reset: ltc2952: Fix use of floating point literals
-
-Darrick J. Wong <djwong@kernel.org>
-    xfs: map unwritten blocks in XFS_IOC_{ALLOC,FREE}SP just like fallocate
-
-Eric Dumazet <edumazet@google.com>
-    sch_qfq: prevent shift-out-of-bounds in qfq_init_qdisc
-
-David Ahern <dsahern@kernel.org>
-    ipv6: Check attribute length for RTA_GATEWAY when deleting multipath route
-
-David Ahern <dsahern@kernel.org>
-    ipv6: Check attribute length for RTA_GATEWAY in multipath route
-
-Jedrzej Jagielski <jedrzej.jagielski@intel.com>
-    i40e: Fix incorrect netdev's real number of RX/TX queues
-
-Di Zhu <zhudi2@huawei.com>
-    i40e: fix use-after-free in i40e_sync_filters_subtask()
-
-Tom Rix <trix@redhat.com>
-    mac80211: initialize variable have_higher_than_11mbit
-
-Leon Romanovsky <leonro@nvidia.com>
-    RDMA/core: Don't infoleak GRH fields
-
-Pavel Skripkin <paskripkin@gmail.com>
-    ieee802154: atusb: fix uninit value in atusb_set_extended_addr
-
-Parav Pandit <parav@nvidia.com>
-    virtio_pci: Support surprise removal of virtio pci device
-
-Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-    tracing: Tag trace_percpu_buffer as a percpu pointer
-
-Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-    tracing: Fix check for trace_percpu_buffer validity in get_trace_buf()
-
-Takashi Iwai <tiwai@suse.de>
-    Bluetooth: btusb: Apply QCA Rome patches for some ATH3012 models
-
-
--------------
-
-Diffstat:
-
- Makefile                                    |  4 +--
- drivers/bluetooth/btusb.c                   | 32 +++++++++++++----
- drivers/infiniband/core/uverbs_marshall.c   |  2 +-
- drivers/isdn/mISDN/core.c                   |  6 ++--
- drivers/isdn/mISDN/core.h                   |  4 +--
- drivers/isdn/mISDN/layer1.c                 |  4 +--
- drivers/net/ethernet/intel/i40e/i40e_main.c | 56 +++++++++++++++++++++++++----
- drivers/net/ieee802154/atusb.c              | 10 +++---
- drivers/net/usb/rndis_host.c                |  5 +++
- drivers/power/reset/ltc2952-poweroff.c      |  4 +--
- drivers/scsi/libiscsi.c                     |  6 ++--
- drivers/virtio/virtio_pci_common.c          |  7 ++++
- fs/xfs/xfs_ioctl.c                          |  3 +-
- kernel/trace/trace.c                        |  6 ++--
- net/ipv4/udp.c                              |  2 +-
- net/ipv6/ip6_vti.c                          |  2 ++
- net/ipv6/route.c                            | 28 +++++++++++++--
- net/mac80211/mlme.c                         |  2 +-
- net/phonet/pep.c                            |  1 +
- net/sched/sch_qfq.c                         |  6 ++--
- 20 files changed, 146 insertions(+), 44 deletions(-)
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -4450,7 +4450,7 @@ static int ieee80211_prep_connection(str
+ 
+ 	if (new_sta) {
+ 		u32 rates = 0, basic_rates = 0;
+-		bool have_higher_than_11mbit;
++		bool have_higher_than_11mbit = false;
+ 		int min_rate = INT_MAX, min_rate_index = -1;
+ 		struct ieee80211_chanctx_conf *chanctx_conf;
+ 		const struct cfg80211_bss_ies *ies;
 
 
