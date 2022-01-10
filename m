@@ -2,219 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D91D48914B
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:31:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 36EA14890E8
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:28:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240124AbiAJHav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:30:51 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:36500 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240119AbiAJH2b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:28:31 -0500
+        id S233859AbiAJH0q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:26:46 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:55802 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239278AbiAJHZb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:25:31 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C48A611D3;
-        Mon, 10 Jan 2022 07:28:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42F8AC36AE9;
-        Mon, 10 Jan 2022 07:28:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B4DC1B81202;
+        Mon, 10 Jan 2022 07:25:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9C59C36AED;
+        Mon, 10 Jan 2022 07:25:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799709;
-        bh=D8LBidOLjBzdTIhwKiHL1SfhnvOMGjFNjh2z2ukCbBo=;
-        h=From:To:Cc:Subject:Date:From;
-        b=ZsoPszEOWsKZQR76SDvDFgcf8kC8H2YiuJd2eP5ssSA84B0osYQNFvItT0gn2ukay
-         4uqovqd7/R2rxXtFc7ZiwqDu5C0ueqRvUk2qHu0lbeVElHZoKK06JbK6ScG/sTNMmS
-         VZECPOwKoY/vI4fGQRXOlbf1Hm1PUCtrrUNF7KMc=
+        s=korg; t=1641799529;
+        bh=k1pkdxJYuZfLin3wMDyj9JxHBcrS/bsXfkra77hIsEE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=0S9T3vzHQ9xi2iTOBoACclJvXEv4SCwZQZAMsi88YOddDcwUNTcPLealOT7ZTsrOF
+         zpdqNfawD4/Bz/Ri1itHGZTSBu7OXD8SHbMUm6iuartwSJND1COMa3Rv0OhT26Hp+7
+         XQUH/61xcPb/hRMNGE1nzmYQEY/bhoUV82EAFN4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 5.4 00/34] 5.4.171-rc1 review
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 08/21] sch_qfq: prevent shift-out-of-bounds in qfq_init_qdisc
 Date:   Mon, 10 Jan 2022 08:22:55 +0100
-Message-Id: <20220110071815.647309738@linuxfoundation.org>
+Message-Id: <20220110071813.084706313@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-MIME-Version: 1.0
+In-Reply-To: <20220110071812.806606886@linuxfoundation.org>
+References: <20220110071812.806606886@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.171-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.4.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.4.171-rc1
-X-KernelTest-Deadline: 2022-01-12T07:18+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.4.171 release.
-There are 34 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Eric Dumazet <edumazet@google.com>
 
-Responses should be made by Wed, 12 Jan 2022 07:18:05 +0000.
-Anything received after that time might be too late.
+commit 7d18a07897d07495ee140dd319b0e9265c0f68ba upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.171-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
-and the diffstat can be found below.
+tx_queue_len can be set to ~0U, we need to be more
+careful about overflows.
 
-thanks,
+__fls(0) is undefined, as this report shows:
 
-greg k-h
+UBSAN: shift-out-of-bounds in net/sched/sch_qfq.c:1430:24
+shift exponent 51770272 is too large for 32-bit type 'int'
+CPU: 0 PID: 25574 Comm: syz-executor.0 Not tainted 5.16.0-rc7-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0x201/0x2d8 lib/dump_stack.c:106
+ ubsan_epilogue lib/ubsan.c:151 [inline]
+ __ubsan_handle_shift_out_of_bounds+0x494/0x530 lib/ubsan.c:330
+ qfq_init_qdisc+0x43f/0x450 net/sched/sch_qfq.c:1430
+ qdisc_create+0x895/0x1430 net/sched/sch_api.c:1253
+ tc_modify_qdisc+0x9d9/0x1e20 net/sched/sch_api.c:1660
+ rtnetlink_rcv_msg+0x934/0xe60 net/core/rtnetlink.c:5571
+ netlink_rcv_skb+0x200/0x470 net/netlink/af_netlink.c:2496
+ netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+ netlink_unicast+0x814/0x9f0 net/netlink/af_netlink.c:1345
+ netlink_sendmsg+0xaea/0xe60 net/netlink/af_netlink.c:1921
+ sock_sendmsg_nosec net/socket.c:704 [inline]
+ sock_sendmsg net/socket.c:724 [inline]
+ ____sys_sendmsg+0x5b9/0x910 net/socket.c:2409
+ ___sys_sendmsg net/socket.c:2463 [inline]
+ __sys_sendmsg+0x280/0x370 net/socket.c:2492
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
--------------
-Pseudo-Shortlog of commits:
+Fixes: 462dbc9101ac ("pkt_sched: QFQ Plus: fair-queueing service at DRR cost")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ net/sched/sch_qfq.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.4.171-rc1
-
-wolfgang huang <huangjinhui@kylinos.cn>
-    mISDN: change function names to avoid conflicts
-
-Zekun Shen <bruceshenzk@gmail.com>
-    atlantic: Fix buff_ring OOB in aq_ring_rx_clean
-
-yangxingwu <xingwu.yang@gmail.com>
-    net: udp: fix alignment problem in udp4_seq_show()
-
-William Zhao <wizhao@redhat.com>
-    ip6_vti: initialize __ip6_tnl_parm struct in vti6_siocdevprivate
-
-Lixiaokeng <lixiaokeng@huawei.com>
-    scsi: libiscsi: Fix UAF in iscsi_conn_get_param()/iscsi_conn_teardown()
-
-Chunfeng Yun <chunfeng.yun@mediatek.com>
-    usb: mtu3: fix interval value for intr and isoc
-
-David Ahern <dsahern@kernel.org>
-    ipv6: Do cleanup if attribute validation fails in multipath route
-
-David Ahern <dsahern@kernel.org>
-    ipv6: Continue processing multipath route even if gateway attribute is invalid
-
-Hangyu Hua <hbh25y@gmail.com>
-    phonet: refcount leak in pep_sock_accep
-
-Thomas Toye <thomas@toye.io>
-    rndis_host: support Hytera digital radios
-
-Nathan Chancellor <nathan@kernel.org>
-    power: reset: ltc2952: Fix use of floating point literals
-
-Linus Walleij <linus.walleij@linaro.org>
-    power: supply: core: Break capacity loop
-
-Darrick J. Wong <djwong@kernel.org>
-    xfs: map unwritten blocks in XFS_IOC_{ALLOC,FREE}SP just like fallocate
-
-Christian Melki <christian.melki@t2data.com>
-    net: phy: micrel: set soft_reset callback to genphy_soft_reset for KSZ8081
-
-Eric Dumazet <edumazet@google.com>
-    sch_qfq: prevent shift-out-of-bounds in qfq_init_qdisc
-
-Linus Lüssing <linus.luessing@c0d3.blue>
-    batman-adv: mcast: don't send link-local multicast to mcast routers
-
-David Ahern <dsahern@kernel.org>
-    lwtunnel: Validate RTA_ENCAP_TYPE attribute length
-
-David Ahern <dsahern@kernel.org>
-    ipv6: Check attribute length for RTA_GATEWAY when deleting multipath route
-
-David Ahern <dsahern@kernel.org>
-    ipv6: Check attribute length for RTA_GATEWAY in multipath route
-
-David Ahern <dsahern@kernel.org>
-    ipv4: Check attribute length for RTA_FLOW in multipath route
-
-David Ahern <dsahern@kernel.org>
-    ipv4: Check attribute length for RTA_GATEWAY in multipath route
-
-Jedrzej Jagielski <jedrzej.jagielski@intel.com>
-    i40e: Fix incorrect netdev's real number of RX/TX queues
-
-Mateusz Palczewski <mateusz.palczewski@intel.com>
-    i40e: Fix for displaying message regarding NVM version
-
-Di Zhu <zhudi2@huawei.com>
-    i40e: fix use-after-free in i40e_sync_filters_subtask()
-
-Tom Rix <trix@redhat.com>
-    mac80211: initialize variable have_higher_than_11mbit
-
-Jiasheng Jiang <jiasheng@iscas.ac.cn>
-    RDMA/uverbs: Check for null return of kmalloc_array
-
-Leon Romanovsky <leonro@nvidia.com>
-    RDMA/core: Don't infoleak GRH fields
-
-Karen Sornek <karen.sornek@intel.com>
-    iavf: Fix limit of total number of queues to active queues of VF
-
-Pavel Skripkin <paskripkin@gmail.com>
-    ieee802154: atusb: fix uninit value in atusb_set_extended_addr
-
-Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-    tracing: Tag trace_percpu_buffer as a percpu pointer
-
-Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-    tracing: Fix check for trace_percpu_buffer validity in get_trace_buf()
-
-Shuah Khan <skhan@linuxfoundation.org>
-    selftests: x86: fix [-Wstringop-overread] warn in test_process_vm_readv()
-
-Nathan Chancellor <nathan@kernel.org>
-    Input: touchscreen - Fix backport of a02dcde595f7cbd240ccd64de96034ad91cffc40
-
-Chao Yu <chao@kernel.org>
-    f2fs: quota: fix potential deadlock
-
-
--------------
-
-Diffstat:
-
- Makefile                                         |  4 +-
- drivers/infiniband/core/uverbs_marshall.c        |  2 +-
- drivers/infiniband/core/uverbs_uapi.c            |  3 ++
- drivers/input/touchscreen/of_touchscreen.c       |  8 ++--
- drivers/isdn/mISDN/core.c                        |  6 +--
- drivers/isdn/mISDN/core.h                        |  4 +-
- drivers/isdn/mISDN/layer1.c                      |  4 +-
- drivers/net/ethernet/aquantia/atlantic/aq_ring.c |  8 ++++
- drivers/net/ethernet/intel/i40e/i40e_main.c      | 60 ++++++++++++++++++++----
- drivers/net/ethernet/intel/iavf/iavf_main.c      |  5 +-
- drivers/net/ieee802154/atusb.c                   | 10 ++--
- drivers/net/phy/micrel.c                         |  1 +
- drivers/net/usb/rndis_host.c                     |  5 ++
- drivers/power/reset/ltc2952-poweroff.c           |  4 +-
- drivers/power/supply/power_supply_core.c         |  4 ++
- drivers/scsi/libiscsi.c                          |  6 ++-
- drivers/usb/mtu3/mtu3_gadget.c                   |  4 +-
- fs/f2fs/checkpoint.c                             |  3 +-
- fs/xfs/xfs_ioctl.c                               |  3 +-
- kernel/trace/trace.c                             |  6 +--
- net/batman-adv/multicast.c                       | 15 ++++--
- net/batman-adv/multicast.h                       | 10 ++--
- net/batman-adv/soft-interface.c                  |  7 ++-
- net/core/lwtunnel.c                              |  4 ++
- net/ipv4/fib_semantics.c                         | 49 ++++++++++++++++---
- net/ipv4/udp.c                                   |  2 +-
- net/ipv6/ip6_vti.c                               |  2 +
- net/ipv6/route.c                                 | 32 ++++++++++++-
- net/mac80211/mlme.c                              |  2 +-
- net/phonet/pep.c                                 |  1 +
- net/sched/sch_qfq.c                              |  6 +--
- tools/testing/selftests/x86/test_vsyscall.c      |  2 +-
- 32 files changed, 217 insertions(+), 65 deletions(-)
+--- a/net/sched/sch_qfq.c
++++ b/net/sched/sch_qfq.c
+@@ -1439,10 +1439,8 @@ static int qfq_init_qdisc(struct Qdisc *
+ 	if (err < 0)
+ 		return err;
+ 
+-	if (qdisc_dev(sch)->tx_queue_len + 1 > QFQ_MAX_AGG_CLASSES)
+-		max_classes = QFQ_MAX_AGG_CLASSES;
+-	else
+-		max_classes = qdisc_dev(sch)->tx_queue_len + 1;
++	max_classes = min_t(u64, (u64)qdisc_dev(sch)->tx_queue_len + 1,
++			    QFQ_MAX_AGG_CLASSES);
+ 	/* max_cl_shift = floor(log_2(max_classes)) */
+ 	max_cl_shift = __fls(max_classes);
+ 	q->max_agg_classes = 1<<max_cl_shift;
 
 
