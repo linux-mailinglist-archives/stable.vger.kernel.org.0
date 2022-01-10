@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5EDC48915F
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:32:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D23EA48916A
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:32:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239361AbiAJHba (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:31:30 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38784 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240230AbiAJH33 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:29:29 -0500
+        id S239288AbiAJHbo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:31:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49310 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240355AbiAJH3z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:29:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAF8AC028BFA;
+        Sun,  9 Jan 2022 23:27:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A727611B8;
-        Mon, 10 Jan 2022 07:29:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D2BBC36AE9;
-        Mon, 10 Jan 2022 07:29:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8178CB81161;
+        Mon, 10 Jan 2022 07:27:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F24F0C36AE9;
+        Mon, 10 Jan 2022 07:27:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799769;
-        bh=12lybpMKHhawVt8MCae9nzetMzfc8flqHe6kQ8r7dZc=;
+        s=korg; t=1641799630;
+        bh=SpT8iyIODNYO93lTTSNKXblLyQcmyZA84JzizvJXAyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OEQ53VrR8YXH4XESK6T9xkPdUEKSC3LJoJLBuPgJyiVl0LFjsDMOWtOVuypYN1YM4
-         4OO/1ACjofbBibGQ6l2O5VFqtiecYe+6AHp3C0Z4S80R5TLZd1e9I7XL9kriFdyCym
-         9LqiyhswQuLFUbGvcOwLaSXL9SDGDTuSAEd1Mv6g=
+        b=0obQkCDJvVfALmWNJNFcC30JXtc48AuSYuONLo/dqH3z6yKJXkPWG0H5mCCIfc+gm
+         Ygc6dl5ebAdk4u4UCjsp0eb4ybhyRaKLe0aScdkXnO0W7Ey1kaNPVd03Yrzjqi6l79
+         q4TZ7aXQP4SVSdMbZQvCXN7U0ErwssXbGdgCqWQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+d4b9a2851cc3ce998741@syzkaller.appspotmail.com,
-        David Ahern <dsahern@kernel.org>, Thomas Graf <tgraf@suug.ch>,
+        stable@vger.kernel.org, David Ahern <dsahern@kernel.org>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 14/34] ipv4: Check attribute length for RTA_GATEWAY in multipath route
+Subject: [PATCH 4.19 08/21] ipv6: Check attribute length for RTA_GATEWAY in multipath route
 Date:   Mon, 10 Jan 2022 08:23:09 +0100
-Message-Id: <20220110071816.131748180@linuxfoundation.org>
+Message-Id: <20220110071814.232226952@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071815.647309738@linuxfoundation.org>
-References: <20220110071815.647309738@linuxfoundation.org>
+In-Reply-To: <20220110071813.967414697@linuxfoundation.org>
+References: <20220110071813.967414697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,91 +50,58 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: David Ahern <dsahern@kernel.org>
 
-commit 7a3429bace0e08d94c39245631ea6bc109dafa49 upstream.
+commit 4619bcf91399f00a40885100fb61d594d8454033 upstream.
 
-syzbot reported uninit-value:
-============================================================
-  BUG: KMSAN: uninit-value in fib_get_nhs+0xac4/0x1f80
-  net/ipv4/fib_semantics.c:708
-   fib_get_nhs+0xac4/0x1f80 net/ipv4/fib_semantics.c:708
-   fib_create_info+0x2411/0x4870 net/ipv4/fib_semantics.c:1453
-   fib_table_insert+0x45c/0x3a10 net/ipv4/fib_trie.c:1224
-   inet_rtm_newroute+0x289/0x420 net/ipv4/fib_frontend.c:886
+Commit referenced in the Fixes tag used nla_memcpy for RTA_GATEWAY as
+does the current nla_get_in6_addr. nla_memcpy protects against accessing
+memory greater than what is in the attribute, but there is no check
+requiring the attribute to have an IPv6 address. Add it.
 
-Add helper to validate RTA_GATEWAY length before using the attribute.
-
-Fixes: 4e902c57417c ("[IPv4]: FIB configuration using struct fib_config")
-Reported-by: syzbot+d4b9a2851cc3ce998741@syzkaller.appspotmail.com
+Fixes: 51ebd3181572 ("ipv6: add support of equal cost multipath (ECMP)")
 Signed-off-by: David Ahern <dsahern@kernel.org>
-Cc: Thomas Graf <tgraf@suug.ch>
+Cc: Nicolas Dichtel <nicolas.dichtel@6wind.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/fib_semantics.c |   29 ++++++++++++++++++++++++++---
- 1 file changed, 26 insertions(+), 3 deletions(-)
+ net/ipv6/route.c |   21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
---- a/net/ipv4/fib_semantics.c
-+++ b/net/ipv4/fib_semantics.c
-@@ -654,6 +654,19 @@ static int fib_count_nexthops(struct rtn
- 	return nhs;
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -4413,6 +4413,19 @@ static void ip6_route_mpath_notify(struc
+ 		inet6_rt_notify(RTM_NEWROUTE, rt, info, nlflags);
  }
  
-+static int fib_gw_from_attr(__be32 *gw, struct nlattr *nla,
-+			    struct netlink_ext_ack *extack)
++static int fib6_gw_from_attr(struct in6_addr *gw, struct nlattr *nla,
++			     struct netlink_ext_ack *extack)
 +{
 +	if (nla_len(nla) < sizeof(*gw)) {
-+		NL_SET_ERR_MSG(extack, "Invalid IPv4 address in RTA_GATEWAY");
++		NL_SET_ERR_MSG(extack, "Invalid IPv6 address in RTA_GATEWAY");
 +		return -EINVAL;
 +	}
 +
-+	*gw = nla_get_in_addr(nla);
++	*gw = nla_get_in6_addr(nla);
 +
 +	return 0;
 +}
 +
- /* only called when fib_nh is integrated into fib_info */
- static int fib_get_nhs(struct fib_info *fi, struct rtnexthop *rtnh,
- 		       int remaining, struct fib_config *cfg,
-@@ -696,7 +709,11 @@ static int fib_get_nhs(struct fib_info *
- 				return -EINVAL;
- 			}
- 			if (nla) {
--				fib_cfg.fc_gw4 = nla_get_in_addr(nla);
-+				ret = fib_gw_from_attr(&fib_cfg.fc_gw4, nla,
-+						       extack);
-+				if (ret)
-+					goto errout;
-+
- 				if (fib_cfg.fc_gw4)
- 					fib_cfg.fc_gw_family = AF_INET;
- 			} else if (nlav) {
-@@ -894,6 +911,7 @@ int fib_nh_match(struct fib_config *cfg,
- 		attrlen = rtnh_attrlen(rtnh);
- 		if (attrlen > 0) {
- 			struct nlattr *nla, *nlav, *attrs = rtnh_attrs(rtnh);
-+			int err;
+ static int ip6_route_multipath_add(struct fib6_config *cfg,
+ 				   struct netlink_ext_ack *extack)
+ {
+@@ -4453,7 +4466,13 @@ static int ip6_route_multipath_add(struc
  
  			nla = nla_find(attrs, attrlen, RTA_GATEWAY);
- 			nlav = nla_find(attrs, attrlen, RTA_VIA);
-@@ -904,12 +922,17 @@ int fib_nh_match(struct fib_config *cfg,
- 			}
- 
  			if (nla) {
-+				__be32 gw;
+-				r_cfg.fc_gateway = nla_get_in6_addr(nla);
++				int ret;
 +
-+				err = fib_gw_from_attr(&gw, nla, extack);
-+				if (err)
-+					return err;
++				ret = fib6_gw_from_attr(&r_cfg.fc_gateway, nla,
++							extack);
++				if (ret)
++					return ret;
 +
- 				if (nh->fib_nh_gw_family != AF_INET ||
--				    nla_get_in_addr(nla) != nh->fib_nh_gw4)
-+				    gw != nh->fib_nh_gw4)
- 					return 1;
- 			} else if (nlav) {
- 				struct fib_config cfg2;
--				int err;
- 
- 				err = fib_gw_from_via(&cfg2, nlav, extack);
- 				if (err)
+ 				r_cfg.fc_flags |= RTF_GATEWAY;
+ 			}
+ 			r_cfg.fc_encap = nla_find(attrs, attrlen, RTA_ENCAP);
 
 
