@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37C6748920C
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:43:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BC9A489274
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:46:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241183AbiAJHhv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:37:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50206 "EHLO
+        id S241675AbiAJHnG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:43:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241680AbiAJHgD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:36:03 -0500
+        with ESMTP id S242370AbiAJHkl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:40:41 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEC94C02526E;
-        Sun,  9 Jan 2022 23:31:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94E6BC033275;
+        Sun,  9 Jan 2022 23:34:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FFA960B03;
-        Mon, 10 Jan 2022 07:31:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 761B7C36AE9;
-        Mon, 10 Jan 2022 07:31:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 35DE861192;
+        Mon, 10 Jan 2022 07:34:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AC4CC36AEF;
+        Mon, 10 Jan 2022 07:34:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799879;
-        bh=t7Z2+dfN4OfS200aJliZHc8nz+GbnPFmXESIXqKvsrk=;
+        s=korg; t=1641800080;
+        bh=Zml5vsmKBW934+KJOkwoCv9DpISaKkxpPTFMp2BHLQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zNszAUl/+TyHXBVn4UiIYvq2cVCA8yvoQUU5fEfr7Y8VBiGSgd3SaQQSzHwmBswF9
-         XBxBQ3wgnee8kk2NKxy6Hhk1mE4y3WY6EJOQ40w9dXVt6r03AUtvZgodR1t2OOHIHI
-         zAZ6tnhGo1YaQV1/Km1FIUouUbvDE/qSZO7WjF4E=
+        b=gPC7VmEpGfZbnxNRbZ1sYzcOIw37E/epxXO/PSNE0neDmFqQLHGbfmhsYdI21kRV7
+         bO6ihlb2X1x8nsV3+m0usbizoRX2LvjuL7+lZ7Q5rlXu2Q++xcndpwH+Y0r4PhlH7M
+         MrGj7kFEMMMenUz1fAhhT609xv0xfsFjsp9gyJMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Ahern <dsahern@kernel.org>,
-        Roopa Prabhu <roopa@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 20/43] ipv6: Check attribute length for RTA_GATEWAY when deleting multipath route
+        stable@vger.kernel.org, Kirill Tkhai <ktkhai@virtuozzo.com>,
+        "Darrick J. Wong" <djwong@kernel.org>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Dave Chinner <dchinner@redhat.com>,
+        Eric Sandeen <sandeen@redhat.com>
+Subject: [PATCH 5.15 40/72] xfs: map unwritten blocks in XFS_IOC_{ALLOC,FREE}SP just like fallocate
 Date:   Mon, 10 Jan 2022 08:23:17 +0100
-Message-Id: <20220110071818.027417725@linuxfoundation.org>
+Message-Id: <20220110071822.914334103@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071817.337619922@linuxfoundation.org>
-References: <20220110071817.337619922@linuxfoundation.org>
+In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
+References: <20220110071821.500480371@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,36 +50,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@kernel.org>
+From: Darrick J. Wong <djwong@kernel.org>
 
-commit 1ff15a710a862db1101b97810af14aedc835a86a upstream.
+commit 983d8e60f50806f90534cc5373d0ce867e5aaf79 upstream.
 
-Make sure RTA_GATEWAY for IPv6 multipath route has enough bytes to hold
-an IPv6 address.
+The old ALLOCSP/FREESP ioctls in XFS can be used to preallocate space at
+the end of files, just like fallocate and RESVSP.  Make the behavior
+consistent with the other ioctls.
 
-Fixes: 6b9ea5a64ed5 ("ipv6: fix multipath route replace error recovery")
-Signed-off-by: David Ahern <dsahern@kernel.org>
-Cc: Roopa Prabhu <roopa@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Kirill Tkhai <ktkhai@virtuozzo.com>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Eric Sandeen <sandeen@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/route.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/xfs/xfs_ioctl.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -5342,7 +5342,11 @@ static int ip6_route_multipath_del(struc
+--- a/fs/xfs/xfs_ioctl.c
++++ b/fs/xfs/xfs_ioctl.c
+@@ -687,7 +687,8 @@ xfs_ioc_space(
  
- 			nla = nla_find(attrs, attrlen, RTA_GATEWAY);
- 			if (nla) {
--				nla_memcpy(&r_cfg.fc_gateway, nla, 16);
-+				err = fib6_gw_from_attr(&r_cfg.fc_gateway, nla,
-+							extack);
-+				if (err)
-+					return err;
-+
- 				r_cfg.fc_flags |= RTF_GATEWAY;
- 			}
- 		}
+ 	if (bf->l_start > XFS_ISIZE(ip)) {
+ 		error = xfs_alloc_file_space(ip, XFS_ISIZE(ip),
+-				bf->l_start - XFS_ISIZE(ip), 0);
++				bf->l_start - XFS_ISIZE(ip),
++				XFS_BMAPI_PREALLOC);
+ 		if (error)
+ 			goto out_unlock;
+ 	}
 
 
