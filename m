@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A35C489141
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:31:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD26D4890ED
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:28:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240455AbiAJHaj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:30:39 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:57920 "EHLO
+        id S239397AbiAJH1N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:27:13 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56374 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239998AbiAJH2E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:28:04 -0500
+        with ESMTP id S239355AbiAJHZl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:25:41 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CFF62B81205;
-        Mon, 10 Jan 2022 07:28:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F9B2C36AE9;
-        Mon, 10 Jan 2022 07:28:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F03EFB811FE;
+        Mon, 10 Jan 2022 07:25:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 461FBC36AED;
+        Mon, 10 Jan 2022 07:25:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799681;
-        bh=/UEPMbtShXn5pcYLecF9tRLU9B6bfwJpFLPXCUE1fes=;
+        s=korg; t=1641799537;
+        bh=zmfqkjRv2inCV6030DusFTVgg7tQKcUyuxImduqerds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mwbw8H3r/3Fl69O57dAvj88O3VBkzVXykrJx0t3ibsh9i+dLMeVpKHkmALVAlHSbk
-         K+D1EXN2lqclATNksjmCfuujlzFJuIZp9+ExnYWrazq8XQIaxw1IFkV4HXCDFJKNYV
-         h0cAt4XsTbC1rmD6kkid0vFp2CnOUraO84mhiNto=
+        b=aujijaAizNuML6IhOXHXBre3glRIQ+xQrndy56ZRpVDy+xcacU1vqsFj1RA6RVT/l
+         Jj42V7AaQKugkeiYJRaF4ICBOzL+y5pPS29zaGVtCxt0mC3VwZifvkfo+Ap23QMAWN
+         3c1sLSTLl2czvJGYLvZw+ftsKD352pow9iyeFmr0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Gurucharan G <gurucharanx.g@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 5.4 12/34] i40e: Fix for displaying message regarding NVM version
+        stable@vger.kernel.org, wolfgang huang <huangjinhui@kylinos.cn>,
+        k2ci <kernel-bot@kylinos.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 20/21] mISDN: change function names to avoid conflicts
 Date:   Mon, 10 Jan 2022 08:23:07 +0100
-Message-Id: <20220110071816.059667607@linuxfoundation.org>
+Message-Id: <20220110071813.484662589@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071815.647309738@linuxfoundation.org>
-References: <20220110071815.647309738@linuxfoundation.org>
+In-Reply-To: <20220110071812.806606886@linuxfoundation.org>
+References: <20220110071812.806606886@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,39 +46,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mateusz Palczewski <mateusz.palczewski@intel.com>
+From: wolfgang huang <huangjinhui@kylinos.cn>
 
-commit 40feded8a247f95957a0de9abd100085fb320a2f upstream.
+[ Upstream commit 8b5fdfc57cc2471179d1c51081424ded833c16c8 ]
 
-When loading the i40e driver, it prints a message like: 'The driver for the
-device detected a newer version of the NVM image v1.x than expected v1.y.
-Please install the most recent version of the network driver.' This is
-misleading as the driver is working as expected.
+As we build for mips, we meet following error. l1_init error with
+multiple definition. Some architecture devices usually marked with
+l1, l2, lxx as the start-up phase. so we change the mISDN function
+names, align with Isdnl2_xxx.
 
-Fix that by removing the second part of message and changing it from
-dev_info to dev_dbg.
+mips-linux-gnu-ld: drivers/isdn/mISDN/layer1.o: in function `l1_init':
+(.text+0x890): multiple definition of `l1_init'; \
+arch/mips/kernel/bmips_5xxx_init.o:(.text+0xf0): first defined here
+make[1]: *** [home/mips/kernel-build/linux/Makefile:1161: vmlinux] Error 1
 
-Fixes: 4fb29bddb57f ("i40e: The driver now prints the API version in error message")
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: wolfgang huang <huangjinhui@kylinos.cn>
+Reported-by: k2ci <kernel-bot@kylinos.cn>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/isdn/mISDN/core.c   | 6 +++---
+ drivers/isdn/mISDN/core.h   | 4 ++--
+ drivers/isdn/mISDN/layer1.c | 4 ++--
+ 3 files changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -15036,8 +15036,8 @@ static int i40e_probe(struct pci_dev *pd
+diff --git a/drivers/isdn/mISDN/core.c b/drivers/isdn/mISDN/core.c
+index faf505462a4f5..f5a06a6fb297f 100644
+--- a/drivers/isdn/mISDN/core.c
++++ b/drivers/isdn/mISDN/core.c
+@@ -390,7 +390,7 @@ mISDNInit(void)
+ 	err = mISDN_inittimer(&debug);
+ 	if (err)
+ 		goto error2;
+-	err = l1_init(&debug);
++	err = Isdnl1_Init(&debug);
+ 	if (err)
+ 		goto error3;
+ 	err = Isdnl2_Init(&debug);
+@@ -404,7 +404,7 @@ mISDNInit(void)
+ error5:
+ 	Isdnl2_cleanup();
+ error4:
+-	l1_cleanup();
++	Isdnl1_cleanup();
+ error3:
+ 	mISDN_timer_cleanup();
+ error2:
+@@ -417,7 +417,7 @@ static void mISDN_cleanup(void)
+ {
+ 	misdn_sock_cleanup();
+ 	Isdnl2_cleanup();
+-	l1_cleanup();
++	Isdnl1_cleanup();
+ 	mISDN_timer_cleanup();
+ 	class_unregister(&mISDN_class);
  
- 	if (hw->aq.api_maj_ver == I40E_FW_API_VERSION_MAJOR &&
- 	    hw->aq.api_min_ver > I40E_FW_MINOR_VERSION(hw))
--		dev_info(&pdev->dev,
--			 "The driver for the device detected a newer version of the NVM image v%u.%u than expected v%u.%u. Please install the most recent version of the network driver.\n",
-+		dev_dbg(&pdev->dev,
-+			"The driver for the device detected a newer version of the NVM image v%u.%u than v%u.%u.\n",
- 			 hw->aq.api_maj_ver,
- 			 hw->aq.api_min_ver,
- 			 I40E_FW_API_VERSION_MAJOR,
+diff --git a/drivers/isdn/mISDN/core.h b/drivers/isdn/mISDN/core.h
+index 52695bb81ee7a..3c039b6ade2e1 100644
+--- a/drivers/isdn/mISDN/core.h
++++ b/drivers/isdn/mISDN/core.h
+@@ -69,8 +69,8 @@ struct Bprotocol	*get_Bprotocol4id(u_int);
+ extern int	mISDN_inittimer(u_int *);
+ extern void	mISDN_timer_cleanup(void);
+ 
+-extern int	l1_init(u_int *);
+-extern void	l1_cleanup(void);
++extern int	Isdnl1_Init(u_int *);
++extern void	Isdnl1_cleanup(void);
+ extern int	Isdnl2_Init(u_int *);
+ extern void	Isdnl2_cleanup(void);
+ 
+diff --git a/drivers/isdn/mISDN/layer1.c b/drivers/isdn/mISDN/layer1.c
+index bebc57b72138e..94d7cc58da648 100644
+--- a/drivers/isdn/mISDN/layer1.c
++++ b/drivers/isdn/mISDN/layer1.c
+@@ -407,7 +407,7 @@ create_l1(struct dchannel *dch, dchannel_l1callback *dcb) {
+ EXPORT_SYMBOL(create_l1);
+ 
+ int
+-l1_init(u_int *deb)
++Isdnl1_Init(u_int *deb)
+ {
+ 	debug = deb;
+ 	l1fsm_s.state_count = L1S_STATE_COUNT;
+@@ -419,7 +419,7 @@ l1_init(u_int *deb)
+ }
+ 
+ void
+-l1_cleanup(void)
++Isdnl1_cleanup(void)
+ {
+ 	mISDN_FsmFree(&l1fsm_s);
+ }
+-- 
+2.34.1
+
 
 
