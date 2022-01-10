@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63C014891C0
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:42:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14D554891EF
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:43:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240831AbiAJHgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:36:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49918 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240757AbiAJHca (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:32:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84236C029818;
-        Sun,  9 Jan 2022 23:28:50 -0800 (PST)
+        id S239899AbiAJHhP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:37:15 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:33970 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240186AbiAJHdd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:33:33 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2603D611BC;
-        Mon, 10 Jan 2022 07:28:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11199C36AE9;
-        Mon, 10 Jan 2022 07:28:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6B172B8120C;
+        Mon, 10 Jan 2022 07:33:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD818C36AED;
+        Mon, 10 Jan 2022 07:33:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799729;
-        bh=Nh+ZX6DpgLsEZsAZkNl4PXQbvAL4hXHFEs5ivU3Zt/U=;
+        s=korg; t=1641800009;
+        bh=nV4sVNXe+91kbTnlCc0Bt4RlIYFySXGdtdmIaZEf19Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M7NFG2ZdbpVKaQJc9aUHLVI1VSLnvoABK3Zel7OUHJQpf7jII1p38twIVG25gYNt1
-         dF9NAhZ59Og5QSI9UJfb/RHs0en6nIItwPQXXN79Ta0b5p5m3eAGd3IUT7x31JKw/9
-         poTL45CeeLXmDrbjK+UNvP7AJYUcg8JwDpCvhjdQ=
+        b=tn3pmHAqkXKOEtfVHjoKHNz8Ck8J5Cfulpf56ohXbFDLctU2TjJ6yCOkJu0WTSo/Z
+         BsJZo8UKhifKGvE2U6kLV6HjJl4U0SgdacVc91tqlVp6Wp4YbwbAiWQHRbuygNTYsY
+         x6Ustfp6RWiE1/QCGWVVF2qw7KcjFoJWt90upUBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 29/34] usb: mtu3: fix interval value for intr and isoc
-Date:   Mon, 10 Jan 2022 08:23:24 +0100
-Message-Id: <20220110071816.656375417@linuxfoundation.org>
+        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.15 48/72] fbdev: fbmem: add a helper to determine if an aperture is used by a fw fb
+Date:   Mon, 10 Jan 2022 08:23:25 +0100
+Message-Id: <20220110071823.172955307@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071815.647309738@linuxfoundation.org>
-References: <20220110071815.647309738@linuxfoundation.org>
+In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
+References: <20220110071821.500480371@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,47 +43,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit e3d4621c22f90c33321ae6a6baab60cdb8e5a77c ]
+commit 9a45ac2320d0a6ae01880a30d4b86025fce4061b upstream.
 
-Use the Interval value from isoc/intr endpoint descriptor, no need
-minus one. The original code doesn't cause transfer error for
-normal cases, but it may have side effect with respond time of ERDY
-or tPingTimeout.
+Add a function for drivers to check if the a firmware initialized
+fb is corresponds to their aperture.  This allows drivers to check if the
+device corresponds to what the firmware set up as the display device.
 
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/20211218095749.6250-1-chunfeng.yun@mediatek.com
+Bug: https://bugzilla.kernel.org/show_bug.cgi?id=215203
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1840
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/mtu3/mtu3_gadget.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/core/fbmem.c |   47 +++++++++++++++++++++++++++++++++++++++
+ include/linux/fb.h               |    1 
+ 2 files changed, 48 insertions(+)
 
-diff --git a/drivers/usb/mtu3/mtu3_gadget.c b/drivers/usb/mtu3/mtu3_gadget.c
-index 253c8b71d3c49..061da9b82b967 100644
---- a/drivers/usb/mtu3/mtu3_gadget.c
-+++ b/drivers/usb/mtu3/mtu3_gadget.c
-@@ -85,7 +85,7 @@ static int mtu3_ep_enable(struct mtu3_ep *mep)
- 		if (usb_endpoint_xfer_int(desc) ||
- 				usb_endpoint_xfer_isoc(desc)) {
- 			interval = desc->bInterval;
--			interval = clamp_val(interval, 1, 16) - 1;
-+			interval = clamp_val(interval, 1, 16);
- 			if (usb_endpoint_xfer_isoc(desc) && comp_desc)
- 				mult = comp_desc->bmAttributes;
- 		}
-@@ -97,7 +97,7 @@ static int mtu3_ep_enable(struct mtu3_ep *mep)
- 		if (usb_endpoint_xfer_isoc(desc) ||
- 				usb_endpoint_xfer_int(desc)) {
- 			interval = desc->bInterval;
--			interval = clamp_val(interval, 1, 16) - 1;
-+			interval = clamp_val(interval, 1, 16);
- 			mult = usb_endpoint_maxp_mult(desc) - 1;
- 		}
- 		break;
--- 
-2.34.1
-
+--- a/drivers/video/fbdev/core/fbmem.c
++++ b/drivers/video/fbdev/core/fbmem.c
+@@ -1760,6 +1760,53 @@ int remove_conflicting_framebuffers(stru
+ EXPORT_SYMBOL(remove_conflicting_framebuffers);
+ 
+ /**
++ * is_firmware_framebuffer - detect if firmware-configured framebuffer matches
++ * @a: memory range, users of which are to be checked
++ *
++ * This function checks framebuffer devices (initialized by firmware/bootloader)
++ * which use memory range described by @a. If @a matchesm the function returns
++ * true, otherwise false.
++ */
++bool is_firmware_framebuffer(struct apertures_struct *a)
++{
++	bool do_free = false;
++	bool found = false;
++	int i;
++
++	if (!a) {
++		a = alloc_apertures(1);
++		if (!a)
++			return false;
++
++		a->ranges[0].base = 0;
++		a->ranges[0].size = ~0;
++		do_free = true;
++	}
++
++	mutex_lock(&registration_lock);
++	/* check all firmware fbs and kick off if the base addr overlaps */
++	for_each_registered_fb(i) {
++		struct apertures_struct *gen_aper;
++
++		if (!(registered_fb[i]->flags & FBINFO_MISC_FIRMWARE))
++			continue;
++
++		gen_aper = registered_fb[i]->apertures;
++		if (fb_do_apertures_overlap(gen_aper, a)) {
++			found = true;
++			break;
++		}
++	}
++	mutex_unlock(&registration_lock);
++
++	if (do_free)
++		kfree(a);
++
++	return found;
++}
++EXPORT_SYMBOL(is_firmware_framebuffer);
++
++/**
+  * remove_conflicting_pci_framebuffers - remove firmware-configured framebuffers for PCI devices
+  * @pdev: PCI device
+  * @name: requesting driver name
+--- a/include/linux/fb.h
++++ b/include/linux/fb.h
+@@ -610,6 +610,7 @@ extern int remove_conflicting_pci_frameb
+ 					       const char *name);
+ extern int remove_conflicting_framebuffers(struct apertures_struct *a,
+ 					   const char *name, bool primary);
++extern bool is_firmware_framebuffer(struct apertures_struct *a);
+ extern int fb_prepare_logo(struct fb_info *fb_info, int rotate);
+ extern int fb_show_logo(struct fb_info *fb_info, int rotate);
+ extern char* fb_get_buffer_offset(struct fb_info *info, struct fb_pixmap *buf, u32 size);
 
 
