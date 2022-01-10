@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6641C4891DE
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:42:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A704248913D
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:31:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240462AbiAJHgq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:36:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50400 "EHLO
+        id S240118AbiAJHab (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:30:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240574AbiAJHea (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:34:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72B0DC0253FE;
-        Sun,  9 Jan 2022 23:29:38 -0800 (PST)
+        with ESMTP id S239614AbiAJH21 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:28:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 866E5C028C39;
+        Sun,  9 Jan 2022 23:26:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 10E39611B9;
-        Mon, 10 Jan 2022 07:29:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E87FEC36AE9;
-        Mon, 10 Jan 2022 07:29:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2AE27B811F5;
+        Mon, 10 Jan 2022 07:26:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BD0CC36AE9;
+        Mon, 10 Jan 2022 07:26:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799777;
-        bh=JYszoI4w8EG/f+eoMv21Wl7Zb0swvHUpwQCPoozk21E=;
+        s=korg; t=1641799565;
+        bh=h+RDHigZyBNMfYVop5KsSMfjlhHiJUgj+VK3fo/isNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pXO+l76xOIk9fmPgQX5eQzvwB7Ez82CvvJBujGMyGY+QBk+aGgYFM5Ho11nQQQtoV
-         rp3R0YWVS+FXF+U7BCyurPRlQmDZLTWrPYwE2RfWCh+Mg3sjGCVdHfnFjMfvMbcShb
-         Jm8z8t00lm+ozhuvkgfPAzKAKKrIyDdcvpcxgjqI=
+        b=lssHXyOCBIsoSFRNt/8y7u/fn0nLB6wQSJbRmeF9oKZtjsVq/iQROpChThCCUXB2J
+         jyGza1W7onfT8L6fdnLIrKZWgtqiyBF7TpuIPgJa8wV0c4Z4BNjFW9zOsjAxe8QYHt
+         up6Y0xDciNqGJJa+ArloZQGasH15onVHUuc51dEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.10 11/43] mac80211: initialize variable have_higher_than_11mbit
-Date:   Mon, 10 Jan 2022 08:23:08 +0100
-Message-Id: <20220110071817.734448998@linuxfoundation.org>
+        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Aayush Agarwal <aayush.a.agarwal@oracle.com>
+Subject: [PATCH 4.14 16/22] phonet: refcount leak in pep_sock_accep
+Date:   Mon, 10 Jan 2022 08:23:09 +0100
+Message-Id: <20220110071814.802902429@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071817.337619922@linuxfoundation.org>
-References: <20220110071817.337619922@linuxfoundation.org>
+In-Reply-To: <20220110071814.261471354@linuxfoundation.org>
+References: <20220110071814.261471354@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,41 +48,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-commit 68a18ad71378a56858141c4449e02a30c829763e upstream.
+commit bcd0f93353326954817a4f9fa55ec57fb38acbb0 upstream.
 
-Clang static analysis reports this warnings
+sock_hold(sk) is invoked in pep_sock_accept(), but __sock_put(sk) is not
+invoked in subsequent failure branches(pep_accept_conn() != 0).
 
-mlme.c:5332:7: warning: Branch condition evaluates to a
-  garbage value
-    have_higher_than_11mbit)
-    ^~~~~~~~~~~~~~~~~~~~~~~
-
-have_higher_than_11mbit is only set to true some of the time in
-ieee80211_get_rates() but is checked all of the time.  So
-have_higher_than_11mbit needs to be initialized to false.
-
-Fixes: 5d6a1b069b7f ("mac80211: set basic rates earlier")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lore.kernel.org/r/20211223162848.3243702-1-trix@redhat.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Link: https://lore.kernel.org/r/20211209082839.33985-1-hbh25y@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Aayush Agarwal <aayush.a.agarwal@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/mlme.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/phonet/pep.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -5194,7 +5194,7 @@ static int ieee80211_prep_connection(str
- 	 */
- 	if (new_sta) {
- 		u32 rates = 0, basic_rates = 0;
--		bool have_higher_than_11mbit;
-+		bool have_higher_than_11mbit = false;
- 		int min_rate = INT_MAX, min_rate_index = -1;
- 		const struct cfg80211_bss_ies *ies;
- 		int shift = ieee80211_vif_get_shift(&sdata->vif);
+--- a/net/phonet/pep.c
++++ b/net/phonet/pep.c
+@@ -881,6 +881,7 @@ static struct sock *pep_sock_accept(stru
+ 
+ 	err = pep_accept_conn(newsk, skb);
+ 	if (err) {
++		__sock_put(sk);
+ 		sock_put(newsk);
+ 		newsk = NULL;
+ 		goto drop;
 
 
