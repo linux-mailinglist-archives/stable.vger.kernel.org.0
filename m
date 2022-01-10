@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E76D4891D4
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:42:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C61B489151
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:32:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240004AbiAJHgl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:36:41 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:41982 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239857AbiAJHdd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:33:33 -0500
+        id S240481AbiAJHbA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:31:00 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:58456 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239591AbiAJH26 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:28:58 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A76E861193;
-        Mon, 10 Jan 2022 07:33:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87390C36AE9;
-        Mon, 10 Jan 2022 07:33:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6C083B81212;
+        Mon, 10 Jan 2022 07:28:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98BDEC36AED;
+        Mon, 10 Jan 2022 07:28:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641800012;
-        bh=o6nv9/Tyj/hIo8Msvl8jf2YXPBM04YwucowcgRwdQXo=;
+        s=korg; t=1641799735;
+        bh=k8/0gSeOtbpFZsSQqYVrOzLWhspV25uzPH5QsskH6i8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1WJazGq4GCmg+1uceW+asQWZQF+l2AdjARu4HaZ03477vkdV+2y4FZjY7Tqk9FI9S
-         GWPoFaYsUuo899CY8eF5Bz9YAkSGSo2krcvdu4Xm1L905E3M/Fhhg2hAcfU+kfrRPc
-         As/z1m3coTfQixyxXxgUItPl6a1a0+xJLmIFf0lg=
+        b=td284CsbOtl0u4gWXnbrT8+sXuLb02TlWM4xHo6FJat8iC6Swn9F2xr6sIytRaB9r
+         yLSMb8rYy3j5FoDQpJEiWmZWiXfMsMrI7VQn3Hv9bjannDo9GN4DPbauRkgTFeKXVP
+         ekGlKOv6cez7tmhBsykPh4gXTzQ3eqCPv2qdxtKc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.15 49/72] drm/amdgpu: disable runpm if we are the primary adapter
+        stable@vger.kernel.org, William Zhao <wizhao@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 31/34] ip6_vti: initialize __ip6_tnl_parm struct in vti6_siocdevprivate
 Date:   Mon, 10 Jan 2022 08:23:26 +0100
-Message-Id: <20220110071823.203140239@linuxfoundation.org>
+Message-Id: <20220110071816.726259750@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
-References: <20220110071821.500480371@linuxfoundation.org>
+In-Reply-To: <20220110071815.647309738@linuxfoundation.org>
+References: <20220110071815.647309738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,118 +45,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: William Zhao <wizhao@redhat.com>
 
-commit b95dc06af3e683d6b7ddbbae178b2b2a21ee8b2b upstream.
+[ Upstream commit c1833c3964d5bd8c163bd4e01736a38bc473cb8a ]
 
-If we are the primary adapter (i.e., the one used by the firwmare
-framebuffer), disable runtime pm.  This fixes a regression caused
-by commit 55285e21f045 which results in the displays waking up
-shortly after they go to sleep due to the device coming out of
-runtime suspend and sending a hotplug uevent.
+The "__ip6_tnl_parm" struct was left uninitialized causing an invalid
+load of random data when the "__ip6_tnl_parm" struct was used elsewhere.
+As an example, in the function "ip6_tnl_xmit_ctl()", it tries to access
+the "collect_md" member. With "__ip6_tnl_parm" being uninitialized and
+containing random data, the UBSAN detected that "collect_md" held a
+non-boolean value.
 
-v2: squash in reworked fix from Evan
+The UBSAN issue is as follows:
+===============================================================
+UBSAN: invalid-load in net/ipv6/ip6_tunnel.c:1025:14
+load of value 30 is not a valid value for type '_Bool'
+CPU: 1 PID: 228 Comm: kworker/1:3 Not tainted 5.16.0-rc4+ #8
+Hardware name: Red Hat KVM, BIOS 0.5.1 01/01/2011
+Workqueue: ipv6_addrconf addrconf_dad_work
+Call Trace:
+<TASK>
+dump_stack_lvl+0x44/0x57
+ubsan_epilogue+0x5/0x40
+__ubsan_handle_load_invalid_value+0x66/0x70
+? __cpuhp_setup_state+0x1d3/0x210
+ip6_tnl_xmit_ctl.cold.52+0x2c/0x6f [ip6_tunnel]
+vti6_tnl_xmit+0x79c/0x1e96 [ip6_vti]
+? lock_is_held_type+0xd9/0x130
+? vti6_rcv+0x100/0x100 [ip6_vti]
+? lock_is_held_type+0xd9/0x130
+? rcu_read_lock_bh_held+0xc0/0xc0
+? lock_acquired+0x262/0xb10
+dev_hard_start_xmit+0x1e6/0x820
+__dev_queue_xmit+0x2079/0x3340
+? mark_lock.part.52+0xf7/0x1050
+? netdev_core_pick_tx+0x290/0x290
+? kvm_clock_read+0x14/0x30
+? kvm_sched_clock_read+0x5/0x10
+? sched_clock_cpu+0x15/0x200
+? find_held_lock+0x3a/0x1c0
+? lock_release+0x42f/0xc90
+? lock_downgrade+0x6b0/0x6b0
+? mark_held_locks+0xb7/0x120
+? neigh_connected_output+0x31f/0x470
+? lockdep_hardirqs_on+0x79/0x100
+? neigh_connected_output+0x31f/0x470
+? ip6_finish_output2+0x9b0/0x1d90
+? rcu_read_lock_bh_held+0x62/0xc0
+? ip6_finish_output2+0x9b0/0x1d90
+ip6_finish_output2+0x9b0/0x1d90
+? ip6_append_data+0x330/0x330
+? ip6_mtu+0x166/0x370
+? __ip6_finish_output+0x1ad/0xfb0
+? nf_hook_slow+0xa6/0x170
+ip6_output+0x1fb/0x710
+? nf_hook.constprop.32+0x317/0x430
+? ip6_finish_output+0x180/0x180
+? __ip6_finish_output+0xfb0/0xfb0
+? lock_is_held_type+0xd9/0x130
+ndisc_send_skb+0xb33/0x1590
+? __sk_mem_raise_allocated+0x11cf/0x1560
+? dst_output+0x4a0/0x4a0
+? ndisc_send_rs+0x432/0x610
+addrconf_dad_completed+0x30c/0xbb0
+? addrconf_rs_timer+0x650/0x650
+? addrconf_dad_work+0x73c/0x10e0
+addrconf_dad_work+0x73c/0x10e0
+? addrconf_dad_completed+0xbb0/0xbb0
+? rcu_read_lock_sched_held+0xaf/0xe0
+? rcu_read_lock_bh_held+0xc0/0xc0
+process_one_work+0x97b/0x1740
+? pwq_dec_nr_in_flight+0x270/0x270
+worker_thread+0x87/0xbf0
+? process_one_work+0x1740/0x1740
+kthread+0x3ac/0x490
+? set_kthread_struct+0x100/0x100
+ret_from_fork+0x22/0x30
+</TASK>
+===============================================================
 
-Fixes: 55285e21f045 ("fbdev/efifb: Release PCI device's runtime PM ref during FB destroy")
-Bug: https://bugzilla.kernel.org/show_bug.cgi?id=215203
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1840
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The solution is to initialize "__ip6_tnl_parm" struct to zeros in the
+"vti6_siocdevprivate()" function.
+
+Signed-off-by: William Zhao <wizhao@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu.h     |    1 +
- drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c |   28 ++++++++++++++++++++++++++++
- drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c |    6 ++++++
- 3 files changed, 35 insertions(+)
+ net/ipv6/ip6_vti.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu.h
-@@ -1069,6 +1069,7 @@ struct amdgpu_device {
- 	bool                            runpm;
- 	bool                            in_runpm;
- 	bool                            has_pr3;
-+	bool                            is_fw_fb;
+diff --git a/net/ipv6/ip6_vti.c b/net/ipv6/ip6_vti.c
+index 12ab6605d9617..8b44d3b53844e 100644
+--- a/net/ipv6/ip6_vti.c
++++ b/net/ipv6/ip6_vti.c
+@@ -795,6 +795,8 @@ vti6_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+ 	struct net *net = dev_net(dev);
+ 	struct vti6_net *ip6n = net_generic(net, vti6_net_id);
  
- 	bool                            pm_sysfs_en;
- 	bool                            ucode_sysfs_en;
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-@@ -38,6 +38,7 @@
- #include <drm/drm_probe_helper.h>
- #include <linux/mmu_notifier.h>
- #include <linux/suspend.h>
-+#include <linux/fb.h>
- 
- #include "amdgpu.h"
- #include "amdgpu_irq.h"
-@@ -1246,6 +1247,26 @@ MODULE_DEVICE_TABLE(pci, pciidlist);
- 
- static const struct drm_driver amdgpu_kms_driver;
- 
-+static bool amdgpu_is_fw_framebuffer(resource_size_t base,
-+				     resource_size_t size)
-+{
-+	bool found = false;
-+#if IS_REACHABLE(CONFIG_FB)
-+	struct apertures_struct *a;
++	memset(&p1, 0, sizeof(p1));
 +
-+	a = alloc_apertures(1);
-+	if (!a)
-+		return false;
-+
-+	a->ranges[0].base = base;
-+	a->ranges[0].size = size;
-+
-+	found = is_firmware_framebuffer(a);
-+	kfree(a);
-+#endif
-+	return found;
-+}
-+
- static int amdgpu_pci_probe(struct pci_dev *pdev,
- 			    const struct pci_device_id *ent)
- {
-@@ -1254,6 +1275,8 @@ static int amdgpu_pci_probe(struct pci_d
- 	unsigned long flags = ent->driver_data;
- 	int ret, retry = 0;
- 	bool supports_atomic = false;
-+	bool is_fw_fb;
-+	resource_size_t base, size;
- 
- 	if (amdgpu_virtual_display ||
- 	    amdgpu_device_asic_has_dc_support(flags & AMD_ASIC_MASK))
-@@ -1310,6 +1333,10 @@ static int amdgpu_pci_probe(struct pci_d
- 	}
- #endif
- 
-+	base = pci_resource_start(pdev, 0);
-+	size = pci_resource_len(pdev, 0);
-+	is_fw_fb = amdgpu_is_fw_framebuffer(base, size);
-+
- 	/* Get rid of things like offb */
- 	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, &amdgpu_kms_driver);
- 	if (ret)
-@@ -1322,6 +1349,7 @@ static int amdgpu_pci_probe(struct pci_d
- 	adev->dev  = &pdev->dev;
- 	adev->pdev = pdev;
- 	ddev = adev_to_drm(adev);
-+	adev->is_fw_fb = is_fw_fb;
- 
- 	if (!supports_atomic)
- 		ddev->driver_features &= ~DRIVER_ATOMIC;
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_kms.c
-@@ -206,6 +206,12 @@ int amdgpu_driver_load_kms(struct amdgpu
- 			adev->runpm = true;
- 			break;
- 		}
-+		/* XXX: disable runtime pm if we are the primary adapter
-+		 * to avoid displays being re-enabled after DPMS.
-+		 * This needs to be sorted out and fixed properly.
-+		 */
-+		if (adev->is_fw_fb)
-+			adev->runpm = false;
- 		if (adev->runpm)
- 			dev_info(adev->dev, "Using BACO for runtime pm\n");
- 	}
+ 	switch (cmd) {
+ 	case SIOCGETTUNNEL:
+ 		if (dev == ip6n->fb_tnl_dev) {
+-- 
+2.34.1
+
 
 
