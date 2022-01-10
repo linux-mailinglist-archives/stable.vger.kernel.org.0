@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EA3348918B
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:34:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7097D48918A
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:34:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239839AbiAJHdV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:33:21 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:59722 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239770AbiAJHbE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:31:04 -0500
+        id S240502AbiAJHdS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:33:18 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:40088 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240501AbiAJHbI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:31:08 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 33878B8121A;
-        Mon, 10 Jan 2022 07:31:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F3F2C36AED;
-        Mon, 10 Jan 2022 07:31:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 68B6160B29;
+        Mon, 10 Jan 2022 07:31:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 505AAC36AE9;
+        Mon, 10 Jan 2022 07:31:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799862;
-        bh=VFsMEDFi2et/sw+n4+sEQCpcZOafJvKtFXe8OymcemI=;
+        s=korg; t=1641799864;
+        bh=l7CVo2z3VIAukLP5OI+M20kymgqAuMyHZpmtDAElU0w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ffgk2llh5OLsqb+RpmajVWvgdNZNt8Eu8VU4raaQG9rGNKPCxfDoAcE1K+rEJxo+Y
-         FqOmP18cbxv5tMZbNVefdBOKn8HACu4befET8TE2+jcNBk0+UTFf/h/6GRFL/LbQ9g
-         5rm/R8Fd6v4AeWw/YL8Qq01ASIOsT2s9wMh9InG4=
+        b=ITR7U1HdFl+gtQhKd8055obIh1qWM3q7wa9asiV/8yfBXZDKSPrTnWjyXue8Wchr2
+         YooMILUMqCoD6sw1JsPYFwyGhVpeb7NM6FcXX7L/X/li5nyvcrJPGAjjz4xluc2ZYg
+         T/WxgwDKQ5u0EhplIbxSV9OyDKQANgc3objob9XE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Wheeler <daniel.wheeler@amd.com>,
-        Anthony Koo <Anthony.Koo@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Derek Lai <Derek.Lai@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Tamir Duberstein <tamird@gmail.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 40/43] drm/amd/display: Added power down for DCN10
-Date:   Mon, 10 Jan 2022 08:23:37 +0100
-Message-Id: <20220110071818.701348709@linuxfoundation.org>
+Subject: [PATCH 5.10 41/43] ipv6: raw: check passed optlen before reading
+Date:   Mon, 10 Jan 2022 08:23:38 +0100
+Message-Id: <20220110071818.731814848@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220110071817.337619922@linuxfoundation.org>
 References: <20220110071817.337619922@linuxfoundation.org>
@@ -48,39 +46,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lai, Derek <Derek.Lai@amd.com>
+From: Tamir Duberstein <tamird@gmail.com>
 
-[ Upstream commit d97e631af2db84c8c9d63abf68d487d0bb559e4c ]
+[ Upstream commit fb7bc9204095090731430c8921f9e629740c110a ]
 
-[Why]
-The change of setting a timer callback on boot for 10 seconds is still
-working, just lacked power down for DCN10.
+Add a check that the user-provided option is at least as long as the
+number of bytes we intend to read. Before this patch we would blindly
+read sizeof(int) bytes even in cases where the user passed
+optlen<sizeof(int), which would potentially read garbage or fault.
 
-[How]
-Added power down for DCN10.
+Discovered by new tests in https://github.com/google/gvisor/pull/6957 .
 
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Reviewed-by: Anthony Koo <Anthony.Koo@amd.com>
-Acked-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Derek Lai <Derek.Lai@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+The original get_user call predates history in the git repo.
+
+Signed-off-by: Tamir Duberstein <tamird@gmail.com>
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/r/20211229200947.2862255-1-willemdebruijn.kernel@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn10/dcn10_init.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv6/raw.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_init.c b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_init.c
-index b24c8ae8b1ece..7e228c181b298 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_init.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn10/dcn10_init.c
-@@ -77,6 +77,7 @@ static const struct hw_sequencer_funcs dcn10_funcs = {
- 	.get_clock = dcn10_get_clock,
- 	.get_vupdate_offset_from_vsync = dcn10_get_vupdate_offset_from_vsync,
- 	.calc_vupdate_position = dcn10_calc_vupdate_position,
-+	.power_down = dce110_power_down,
- 	.set_backlight_level = dce110_set_backlight_level,
- 	.set_abm_immediate_disable = dce110_set_abm_immediate_disable,
- 	.set_pipe = dce110_set_pipe,
+diff --git a/net/ipv6/raw.c b/net/ipv6/raw.c
+index 00f133a55ef7c..38349054e361e 100644
+--- a/net/ipv6/raw.c
++++ b/net/ipv6/raw.c
+@@ -1020,6 +1020,9 @@ static int do_rawv6_setsockopt(struct sock *sk, int level, int optname,
+ 	struct raw6_sock *rp = raw6_sk(sk);
+ 	int val;
+ 
++	if (optlen < sizeof(val))
++		return -EINVAL;
++
+ 	if (copy_from_sockptr(&val, optval, sizeof(val)))
+ 		return -EFAULT;
+ 
 -- 
 2.34.1
 
