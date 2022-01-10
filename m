@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7B994891F9
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:43:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63C014891C0
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:42:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241240AbiAJHh0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:37:26 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:59278 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239995AbiAJHa2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:30:28 -0500
+        id S240831AbiAJHgZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:36:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49918 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240757AbiAJHca (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:32:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84236C029818;
+        Sun,  9 Jan 2022 23:28:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B2208B811FE;
-        Mon, 10 Jan 2022 07:30:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 098FEC36AED;
-        Mon, 10 Jan 2022 07:30:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2603D611BC;
+        Mon, 10 Jan 2022 07:28:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11199C36AE9;
+        Mon, 10 Jan 2022 07:28:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799822;
-        bh=tEkYWwadlxmsxg6ZaSbG9c94MNse80UX241m1dtluq8=;
+        s=korg; t=1641799729;
+        bh=Nh+ZX6DpgLsEZsAZkNl4PXQbvAL4hXHFEs5ivU3Zt/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h3Sn8FFes0+W6MPllJ6i+nlmi9fFzIDWtn+HWBwzWpi7y3lEtD4yvvdu4Bn0lAvNf
-         vOfrgEyaxTqB43twV7rDO0ma9HPCx9xfjR7IRu9M8NALiVlKf3FEhjvKbDC/weX0oG
-         Ir/feLaThYGjA97VnS8xrpbjMZuH6FbNGpIzjxOg=
+        b=M7NFG2ZdbpVKaQJc9aUHLVI1VSLnvoABK3Zel7OUHJQpf7jII1p38twIVG25gYNt1
+         dF9NAhZ59Og5QSI9UJfb/RHs0en6nIItwPQXXN79Ta0b5p5m3eAGd3IUT7x31JKw/9
+         poTL45CeeLXmDrbjK+UNvP7AJYUcg8JwDpCvhjdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunyan Zhang <chunyan.zhang@unisoc.com>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>
-Subject: [PATCH 5.10 27/43] power: supply: core: Break capacity loop
+        stable@vger.kernel.org, Chunfeng Yun <chunfeng.yun@mediatek.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 29/34] usb: mtu3: fix interval value for intr and isoc
 Date:   Mon, 10 Jan 2022 08:23:24 +0100
-Message-Id: <20220110071818.259990777@linuxfoundation.org>
+Message-Id: <20220110071816.656375417@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071817.337619922@linuxfoundation.org>
-References: <20220110071817.337619922@linuxfoundation.org>
+In-Reply-To: <20220110071815.647309738@linuxfoundation.org>
+References: <20220110071815.647309738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,37 +47,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Walleij <linus.walleij@linaro.org>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-commit 51c7b6a0398f54b9120795796a4cff4fc9634f7d upstream.
+[ Upstream commit e3d4621c22f90c33321ae6a6baab60cdb8e5a77c ]
 
-We should not go on looking for more capacity tables after
-we realize we have looked at the last one in
-power_supply_find_ocv2cap_table().
+Use the Interval value from isoc/intr endpoint descriptor, no need
+minus one. The original code doesn't cause transfer error for
+normal cases, but it may have side effect with respond time of ERDY
+or tPingTimeout.
 
-Fixes: 3afb50d7125b ("power: supply: core: Add some helpers to use the battery OCV capacity table")
-Cc: Chunyan Zhang <chunyan.zhang@unisoc.com>
-Cc: Baolin Wang <baolin.wang@linux.alibaba.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Reviewed-by: Baolin Wang <baolin.wang@linux.alibaba.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/20211218095749.6250-1-chunfeng.yun@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/power_supply_core.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/mtu3/mtu3_gadget.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/power/supply/power_supply_core.c
-+++ b/drivers/power/supply/power_supply_core.c
-@@ -834,6 +834,10 @@ power_supply_find_ocv2cap_table(struct p
- 		return NULL;
- 
- 	for (i = 0; i < POWER_SUPPLY_OCV_TEMP_MAX; i++) {
-+		/* Out of capacity tables */
-+		if (!info->ocv_table[i])
-+			break;
-+
- 		temp_diff = abs(info->ocv_temp[i] - temp);
- 
- 		if (temp_diff < best_temp_diff) {
+diff --git a/drivers/usb/mtu3/mtu3_gadget.c b/drivers/usb/mtu3/mtu3_gadget.c
+index 253c8b71d3c49..061da9b82b967 100644
+--- a/drivers/usb/mtu3/mtu3_gadget.c
++++ b/drivers/usb/mtu3/mtu3_gadget.c
+@@ -85,7 +85,7 @@ static int mtu3_ep_enable(struct mtu3_ep *mep)
+ 		if (usb_endpoint_xfer_int(desc) ||
+ 				usb_endpoint_xfer_isoc(desc)) {
+ 			interval = desc->bInterval;
+-			interval = clamp_val(interval, 1, 16) - 1;
++			interval = clamp_val(interval, 1, 16);
+ 			if (usb_endpoint_xfer_isoc(desc) && comp_desc)
+ 				mult = comp_desc->bmAttributes;
+ 		}
+@@ -97,7 +97,7 @@ static int mtu3_ep_enable(struct mtu3_ep *mep)
+ 		if (usb_endpoint_xfer_isoc(desc) ||
+ 				usb_endpoint_xfer_int(desc)) {
+ 			interval = desc->bInterval;
+-			interval = clamp_val(interval, 1, 16) - 1;
++			interval = clamp_val(interval, 1, 16);
+ 			mult = usb_endpoint_maxp_mult(desc) - 1;
+ 		}
+ 		break;
+-- 
+2.34.1
+
 
 
