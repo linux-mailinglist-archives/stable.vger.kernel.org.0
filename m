@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 578DC4890F1
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:28:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87F1E489116
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:29:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239484AbiAJH10 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:27:26 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:56732 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239511AbiAJH0C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:26:02 -0500
+        id S239795AbiAJH3D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:29:03 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:35794 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239438AbiAJH1D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:27:03 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 999DEB8120F;
-        Mon, 10 Jan 2022 07:25:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E06D3C36AE9;
-        Mon, 10 Jan 2022 07:25:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB9146112C;
+        Mon, 10 Jan 2022 07:27:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0768C36AED;
+        Mon, 10 Jan 2022 07:27:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799557;
-        bh=wQ1WCzMal2S1hciuudYxmTYIjbmHf5KuRMCyHTnif3A=;
+        s=korg; t=1641799622;
+        bh=ABb9HQYoH/NUN601GUG7xf/rxAOJub+ZNfbG40KpJXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NcNGnm7uADAlj0gjpymSU7Fc2ycLgoZEAS9COPTwC+/P7KTMqjRDCG4s8OlpKmP+U
-         8EgvWcM2ItOo+FThCPLwT8eZw2NYIjRfdaMwuD+89ZbXeEcnZ/Kui6V0Cf9BwYEirW
-         P6ZjiAmcynkG+l2bHMls6+ln9PuGSvP0BkXufqD0=
+        b=m6u1AikpcHJmspOV/eIgmnCJ+eLDf1si/Hsp5IMum5yPijTsRY61M4rxIL6mGIWQh
+         O5DB0yJEgqCK+PCk4rNB8MzPrOh246DB1NIXQOk5bQLe8bofz8tAQPvupOb4oLK4yL
+         NMd3FCCiWaEsZrgYk1lujIIbRcmTpnzK/RiCHQOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kirill Tkhai <ktkhai@virtuozzo.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        Eric Sandeen <sandeen@redhat.com>
-Subject: [PATCH 4.14 13/22] xfs: map unwritten blocks in XFS_IOC_{ALLOC,FREE}SP just like fallocate
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 05/21] mac80211: initialize variable have_higher_than_11mbit
 Date:   Mon, 10 Jan 2022 08:23:06 +0100
-Message-Id: <20220110071814.707995874@linuxfoundation.org>
+Message-Id: <20220110071814.142173470@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071814.261471354@linuxfoundation.org>
-References: <20220110071814.261471354@linuxfoundation.org>
+In-Reply-To: <20220110071813.967414697@linuxfoundation.org>
+References: <20220110071813.967414697@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,35 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrick J. Wong <djwong@kernel.org>
+From: Tom Rix <trix@redhat.com>
 
-commit 983d8e60f50806f90534cc5373d0ce867e5aaf79 upstream.
+commit 68a18ad71378a56858141c4449e02a30c829763e upstream.
 
-The old ALLOCSP/FREESP ioctls in XFS can be used to preallocate space at
-the end of files, just like fallocate and RESVSP.  Make the behavior
-consistent with the other ioctls.
+Clang static analysis reports this warnings
 
-Reported-by: Kirill Tkhai <ktkhai@virtuozzo.com>
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Eric Sandeen <sandeen@redhat.com>
+mlme.c:5332:7: warning: Branch condition evaluates to a
+  garbage value
+    have_higher_than_11mbit)
+    ^~~~~~~~~~~~~~~~~~~~~~~
+
+have_higher_than_11mbit is only set to true some of the time in
+ieee80211_get_rates() but is checked all of the time.  So
+have_higher_than_11mbit needs to be initialized to false.
+
+Fixes: 5d6a1b069b7f ("mac80211: set basic rates earlier")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/r/20211223162848.3243702-1-trix@redhat.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_ioctl.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/mac80211/mlme.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/xfs/xfs_ioctl.c
-+++ b/fs/xfs/xfs_ioctl.c
-@@ -715,7 +715,8 @@ xfs_ioc_space(
- 		flags |= XFS_PREALLOC_CLEAR;
- 		if (bf->l_start > XFS_ISIZE(ip)) {
- 			error = xfs_alloc_file_space(ip, XFS_ISIZE(ip),
--					bf->l_start - XFS_ISIZE(ip), 0);
-+					bf->l_start - XFS_ISIZE(ip),
-+					XFS_BMAPI_PREALLOC);
- 			if (error)
- 				goto out_unlock;
- 		}
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -4788,7 +4788,7 @@ static int ieee80211_prep_connection(str
+ 	 */
+ 	if (new_sta) {
+ 		u32 rates = 0, basic_rates = 0;
+-		bool have_higher_than_11mbit;
++		bool have_higher_than_11mbit = false;
+ 		int min_rate = INT_MAX, min_rate_index = -1;
+ 		const struct cfg80211_bss_ies *ies;
+ 		int shift = ieee80211_vif_get_shift(&sdata->vif);
 
 
