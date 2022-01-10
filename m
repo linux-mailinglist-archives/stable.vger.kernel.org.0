@@ -2,180 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C79E489F10
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 19:19:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3A94489F56
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 19:38:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239008AbiAJSTc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 13:19:32 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:59740 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239002AbiAJSTb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 13:19:31 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 8BDD61F380;
-        Mon, 10 Jan 2022 18:19:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1641838770; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=Tc6uSLPqv62h4JI1ptGbmPdCKWGxhmbcPM9/hq73LKg=;
-        b=WXWn6ovnn62O+AKmwKyp1zCVlOJWK4Qvg4vFVMfhNTvtivwtBVtnojRNVz+oD70RyFkmT0
-        +03Mbimxxd64R8ljcsgArqAEzFziVn1niWTstd124DH0FUcsXuN9q3c6MyL3Zy7BXVqPJB
-        a+0V70kuWiEa84Fqti+7TlYIAU5xNpk=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1641838770;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=Tc6uSLPqv62h4JI1ptGbmPdCKWGxhmbcPM9/hq73LKg=;
-        b=4+LwV5fDiwutxbus7lpsrmWy4qKYKzpTsfsHP3FnyKyUIlFQ6GsdQDC4oAmBNIJoQPkvDj
-        mbd61UN7Cnjs+RAg==
-Received: from quack3.suse.cz (unknown [10.100.224.230])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 7CCC3A3B88;
-        Mon, 10 Jan 2022 18:19:30 +0000 (UTC)
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id 265BDA05A2; Mon, 10 Jan 2022 19:19:27 +0100 (CET)
-From:   Jan Kara <jack@suse.cz>
-To:     <linux-fsdevel@vger.kernel.org>
-Cc:     Al Viro <viro@ZenIV.linux.org.uk>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Jan Kara <jack@suse.cz>, stable@vger.kernel.org
-Subject: [PATCH v2] select: Fix indefinitely sleeping task in poll_schedule_timeout()
-Date:   Mon, 10 Jan 2022 19:19:23 +0100
-Message-Id: <20220110181923.5340-1-jack@suse.cz>
-X-Mailer: git-send-email 2.31.1
+        id S241421AbiAJSir (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 13:38:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36282 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238734AbiAJSir (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 13:38:47 -0500
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D284C06173F
+        for <stable@vger.kernel.org>; Mon, 10 Jan 2022 10:38:47 -0800 (PST)
+Received: by mail-pl1-x62f.google.com with SMTP id z3so13259113plg.8
+        for <stable@vger.kernel.org>; Mon, 10 Jan 2022 10:38:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=EswMbeiRZDu8+tLg++NfWYisElt/1RYbyiHE2/15diA=;
+        b=PKzMIqOutfLrE88vVdrGlt2oD9exXIyXpqtyJaZ8ms+7kb0SZTkwFGQp99KeGqzGbO
+         TrwgPI9Ihh194tJMSH5koclNsv0UXIukAwyB/Zg5WrL99JieFwos+Qn4xZp8QA4peDS7
+         eT6M4RqyY/MFxQ7obOJeCEkM66EA1f9anY3mIEqLfao8TvLj1fTmwWvDakGIU5S6UyQ+
+         XKeGSFK4QY+AX+OLU7q6R7g7gS3XXvyPLGTELzK1vPFEdKND7dxqTCc4vM7gwbvdKB4G
+         VaYrw3SIp2MTV9d2KrCsNB62xzaMkc7SaXqtHDvpdEn/qqHFaHl0kU3VogtrgA+9szQz
+         B4eQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=EswMbeiRZDu8+tLg++NfWYisElt/1RYbyiHE2/15diA=;
+        b=WFGA3ry8VdjF9Pv6diNPgDmGxmmkqAp+pSy5h6A0CEzdCKYBUL/2wTrN+p4IxF+Hen
+         ZEArojzj1y+/B0xiIQm3kR887cU1/AHJ3gRpbSj16ohi35TmIcKCuHkkGrlZ2btJHNUM
+         XpUJRANKlIBgwqhRtPQTRi3mipjyv+g/ooF+F/CD8TWJ3EHV9/RIlobdc6R5116fj2VI
+         PmjJ3kV2OMUIoxzYrjVVzZH92brs5yhcXhJFB2rTEqBUeu+tJ8oNHqUaNLSpwxCWrXkp
+         h5/aTAoDDhXbs/PytB1ReBeQPoq1D4bo5eyYH8y3ZmeqL4p8d2M7ml8BxHDKULjC+HRG
+         dHMQ==
+X-Gm-Message-State: AOAM530NiUHp3uFG6HlylUoe2GNhVcnFvJUXFKiRi76UKnla+szTOuGH
+        zTOUVZPgBlVUtHn2s3KpWjmB/IpHKqb2jEyL
+X-Google-Smtp-Source: ABdhPJxbe6IsCYQ2JYvh++mKrkvMgWc38BJ32wGlrV7gaP9AXRUitvqW0TRLXYm6x43HIGsRnkctdg==
+X-Received: by 2002:a17:902:7105:b0:149:e08a:b31b with SMTP id a5-20020a170902710500b00149e08ab31bmr896500pll.171.1641839926624;
+        Mon, 10 Jan 2022 10:38:46 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id j8sm8260438pfc.11.2022.01.10.10.38.46
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 Jan 2022 10:38:46 -0800 (PST)
+Message-ID: <61dc7d36.1c69fb81.db4ee.397d@mx.google.com>
+Date:   Mon, 10 Jan 2022 10:38:46 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3997; h=from:subject; bh=lnTSGez6Q9eImCh8FdjJFqJchZTtgEYbqvsPKds/zgY=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBh3HiqiV0DU4uw6pew4XLkDsl6GTheYha3jjbCcxtr FaChu/aJATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCYdx4qgAKCRCcnaoHP2RA2azqB/ 43htG4GA3mcQSeADLe+MmvELA7tb0mgy6vgcdZB8HdS+/8C7YRackdNf9zP2seujMd8BtYdUBC1Xpf s4bN9duKCihjnNl3eO5ab8lA8TtdLi3Cu7z+vyYpLranaNUkd9CyYtfiiIi1IBvRGj8YJH2xd2qIYH xB3AnlxB8iLywgL7vKixRgEf2zq8dacG7pC+kueGvs3IRofFTryuhpg0+MA7XiQJQ7LRLtMytH4SJM WvUwXeF+25mU0CgLsqIHtRzvgknfC6nxsNZv/snckwovfWnTerpfxLh1oZ3ZzT/mtAQ83/31Sj9Bb3 aLA8sOKi6mMFi5oY1L6hVWGrKMpcyx
-X-Developer-Key: i=jack@suse.cz; a=openpgp; fpr=93C6099A142276A28BBE35D815BC833443038D8C
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.296-22-g166c7a334704
+X-Kernelci-Branch: linux-4.9.y
+Subject: stable-rc/linux-4.9.y baseline: 103 runs,
+ 1 regressions (v4.9.296-22-g166c7a334704)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A task can end up indefinitely sleeping in do_select() ->
-poll_schedule_timeout() when the following race happens:
+stable-rc/linux-4.9.y baseline: 103 runs, 1 regressions (v4.9.296-22-g166c7=
+a334704)
 
-TASK1 (thread1)             TASK2                   TASK1 (thread2)
-do_select()
-  setup poll_wqueues table
-  with 'fd'
-                            write data to 'fd'
-                              pollwake()
-                                table->triggered = 1
-                                                    closes 'fd' thread1 is
-                                                      waiting for
-  poll_schedule_timeout()
-    - sees table->triggered
-    table->triggered = 0
-    return -EINTR
-  loop back in do_select() but fdget() in the setup of poll_wqueues
-fails now so we never find 'fd' is ready for reading and sleep in
-poll_schedule_timeout() indefinitely.
+Regressions Summary
+-------------------
 
-Treat fd that got closed as a fd on which some event happened. This
-makes sure cannot block indefinitely in do_select().
-
-Another option would be to return -EBADF in this case but that has a
-potential of subtly breaking applications that excercise this behavior
-and it happens to work for them. So returning fd as active seems like a
-safer choice.
-
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
 ---
- fs/select.c | 63 ++++++++++++++++++++++++++++-------------------------
- 1 file changed, 33 insertions(+), 30 deletions(-)
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-diff --git a/fs/select.c b/fs/select.c
-index 945896d0ac9e..5edffee1162c 100644
---- a/fs/select.c
-+++ b/fs/select.c
-@@ -458,9 +458,11 @@ static int max_select_fd(unsigned long n, fd_set_bits *fds)
- 	return max;
- }
- 
--#define POLLIN_SET (EPOLLRDNORM | EPOLLRDBAND | EPOLLIN | EPOLLHUP | EPOLLERR)
--#define POLLOUT_SET (EPOLLWRBAND | EPOLLWRNORM | EPOLLOUT | EPOLLERR)
--#define POLLEX_SET (EPOLLPRI)
-+#define POLLIN_SET (EPOLLRDNORM | EPOLLRDBAND | EPOLLIN | EPOLLHUP | EPOLLERR |\
-+			EPOLLNVAL)
-+#define POLLOUT_SET (EPOLLWRBAND | EPOLLWRNORM | EPOLLOUT | EPOLLERR |\
-+			 EPOLLNVAL)
-+#define POLLEX_SET (EPOLLPRI | EPOLLNVAL)
- 
- static inline void wait_key_set(poll_table *wait, unsigned long in,
- 				unsigned long out, unsigned long bit,
-@@ -527,6 +529,7 @@ static int do_select(int n, fd_set_bits *fds, struct timespec64 *end_time)
- 					break;
- 				if (!(bit & all_bits))
- 					continue;
-+				mask = EPOLLNVAL;
- 				f = fdget(i);
- 				if (f.file) {
- 					wait_key_set(wait, in, out, bit,
-@@ -534,34 +537,34 @@ static int do_select(int n, fd_set_bits *fds, struct timespec64 *end_time)
- 					mask = vfs_poll(f.file, wait);
- 
- 					fdput(f);
--					if ((mask & POLLIN_SET) && (in & bit)) {
--						res_in |= bit;
--						retval++;
--						wait->_qproc = NULL;
--					}
--					if ((mask & POLLOUT_SET) && (out & bit)) {
--						res_out |= bit;
--						retval++;
--						wait->_qproc = NULL;
--					}
--					if ((mask & POLLEX_SET) && (ex & bit)) {
--						res_ex |= bit;
--						retval++;
--						wait->_qproc = NULL;
--					}
--					/* got something, stop busy polling */
--					if (retval) {
--						can_busy_loop = false;
--						busy_flag = 0;
--
--					/*
--					 * only remember a returned
--					 * POLL_BUSY_LOOP if we asked for it
--					 */
--					} else if (busy_flag & mask)
--						can_busy_loop = true;
--
- 				}
-+				if ((mask & POLLIN_SET) && (in & bit)) {
-+					res_in |= bit;
-+					retval++;
-+					wait->_qproc = NULL;
-+				}
-+				if ((mask & POLLOUT_SET) && (out & bit)) {
-+					res_out |= bit;
-+					retval++;
-+					wait->_qproc = NULL;
-+				}
-+				if ((mask & POLLEX_SET) && (ex & bit)) {
-+					res_ex |= bit;
-+					retval++;
-+					wait->_qproc = NULL;
-+				}
-+				/* got something, stop busy polling */
-+				if (retval) {
-+					can_busy_loop = false;
-+					busy_flag = 0;
-+
-+				/*
-+				 * only remember a returned
-+				 * POLL_BUSY_LOOP if we asked for it
-+				 */
-+				} else if (busy_flag & mask)
-+					can_busy_loop = true;
-+
- 			}
- 			if (res_in)
- 				*rinp = res_in;
--- 
-2.31.1
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
+el/v4.9.296-22-g166c7a334704/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.9.y
+  Describe: v4.9.296-22-g166c7a334704
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      166c7a334704473e72e891612b8ffa513e43754d =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61dc48f4a939d87738ef673d
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.296=
+-22-g166c7a334704/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
+da.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.296=
+-22-g166c7a334704/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
+da.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61dc48f4a939d87=
+738ef6740
+        failing since 7 days (last pass: v4.9.295, first fail: v4.9.295-14-=
+g584e15b1cb05)
+        2 lines
+
+    2022-01-10T14:55:31.101127  [   19.993041] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2022-01-10T14:55:31.146579  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/125
+    2022-01-10T14:55:31.155643  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+230 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =20
