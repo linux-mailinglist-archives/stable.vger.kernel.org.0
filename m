@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89652489145
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:31:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 212164891E1
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:43:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239691AbiAJHap (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:30:45 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38236 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239692AbiAJH2o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:28:44 -0500
+        id S240437AbiAJHhA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:37:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49938 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240991AbiAJHeb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:34:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF190C0253BA;
+        Sun,  9 Jan 2022 23:30:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C5D8611D9;
-        Mon, 10 Jan 2022 07:28:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B740C36B05;
-        Mon, 10 Jan 2022 07:28:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DB86611CE;
+        Mon, 10 Jan 2022 07:30:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54D2FC36AED;
+        Mon, 10 Jan 2022 07:30:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799724;
-        bh=jkEXWI9Pmo/l/YUG1s/FNZV4BToj0sgLXf6XuL/YJzs=;
+        s=korg; t=1641799816;
+        bh=3dspLntcUy2ueE+BT3e4HrJZXKrmVmN8PqhoofAlJkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I72a7uVeI/odY3hEp451dQ5mnTlfWt3yoVIfx+Y0JBgX+3If2+zIEYKHujBN4uRZx
-         guLmcAGzBytLbS4mASqqIM2b8zcBgX63Oz9MXpdvg9Je0Qe5CAiN7sm2U4FTsTV5w3
-         AFdpk6yBTPF9bc/vccqvE2UjDxEu+Qb6PH/uhD4U=
+        b=ML+EJA95DcR8kTwla1pN1ahKJt7hWTZRtZmplNvlHs2S0brN/1gXxlsNHWOjVOiAn
+         /bMiUuSgHTAHJSJ6mKmyFNg/kTkDomxxnndq2eZOJsLzJw+Izkm+1RsFQ26S4kN87X
+         goBzTfSZU0VEvOtGoM8RF3Nn6gBYHO18iuu7vXqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Ahern <dsahern@kernel.org>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 27/34] ipv6: Continue processing multipath route even if gateway attribute is invalid
+        stable@vger.kernel.org, Shay Agroskin <shayagr@amazon.com>,
+        Arthur Kiyanovski <akiyano@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 25/43] net: ena: Fix error handling when calculating max IO queues number
 Date:   Mon, 10 Jan 2022 08:23:22 +0100
-Message-Id: <20220110071816.582688860@linuxfoundation.org>
+Message-Id: <20220110071818.195583561@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071815.647309738@linuxfoundation.org>
-References: <20220110071815.647309738@linuxfoundation.org>
+In-Reply-To: <20220110071817.337619922@linuxfoundation.org>
+References: <20220110071817.337619922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ahern <dsahern@kernel.org>
+From: Arthur Kiyanovski <akiyano@amazon.com>
 
-[ Upstream commit e30a845b0376eb51c9c94f56bbd53b2e08ba822f ]
+commit 5055dc0348b8b7c168e3296044bccd724e1ae6cd upstream.
 
-ip6_route_multipath_del loop continues processing the multipath
-attribute even if delete of a nexthop path fails. For consistency,
-do the same if the gateway attribute is invalid.
+The role of ena_calc_max_io_queue_num() is to return the number
+of queues supported by the device, which means the return value
+should be >=0.
 
-Fixes: 1ff15a710a86 ("ipv6: Check attribute length for RTA_GATEWAY when deleting multipath route")
-Signed-off-by: David Ahern <dsahern@kernel.org>
-Acked-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Link: https://lore.kernel.org/r/20220103171911.94739-1-dsahern@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The function that calls ena_calc_max_io_queue_num(), checks
+the return value. If it is 0, it means the device reported
+it supports 0 IO queues. This case is considered an error
+and is handled by the calling function accordingly.
+
+However the current implementation of ena_calc_max_io_queue_num()
+is wrong, since when it detects the device supports 0 IO queues,
+it returns -EFAULT.
+
+In such a case the calling function doesn't detect the error,
+and therefore doesn't handle it.
+
+This commit changes ena_calc_max_io_queue_num() to return 0
+in case the device reported it supports 0 queues, allowing the
+calling function to properly handle the error case.
+
+Fixes: 736ce3f414cc ("net: ena: make ethtool -l show correct max number of queues")
+Signed-off-by: Shay Agroskin <shayagr@amazon.com>
+Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/route.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/amazon/ena/ena_netdev.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/net/ipv6/route.c b/net/ipv6/route.c
-index 53861f9c8ce0a..56f0783df5896 100644
---- a/net/ipv6/route.c
-+++ b/net/ipv6/route.c
-@@ -5313,8 +5313,10 @@ static int ip6_route_multipath_del(struct fib6_config *cfg,
- 			if (nla) {
- 				err = fib6_gw_from_attr(&r_cfg.fc_gateway, nla,
- 							extack);
--				if (err)
--					return err;
-+				if (err) {
-+					last_err = err;
-+					goto next_rtnh;
-+				}
+--- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
++++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
+@@ -3927,10 +3927,6 @@ static u32 ena_calc_max_io_queue_num(str
+ 	max_num_io_queues = min_t(u32, max_num_io_queues, io_tx_cq_num);
+ 	/* 1 IRQ for for mgmnt and 1 IRQs for each IO direction */
+ 	max_num_io_queues = min_t(u32, max_num_io_queues, pci_msix_vec_count(pdev) - 1);
+-	if (unlikely(!max_num_io_queues)) {
+-		dev_err(&pdev->dev, "The device doesn't have io queues\n");
+-		return -EFAULT;
+-	}
  
- 				r_cfg.fc_flags |= RTF_GATEWAY;
- 			}
-@@ -5323,6 +5325,7 @@ static int ip6_route_multipath_del(struct fib6_config *cfg,
- 		if (err)
- 			last_err = err;
- 
-+next_rtnh:
- 		rtnh = rtnh_next(rtnh, &remaining);
- 	}
- 
--- 
-2.34.1
-
+ 	return max_num_io_queues;
+ }
 
 
