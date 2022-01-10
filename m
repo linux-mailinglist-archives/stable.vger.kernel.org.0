@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A01C4890D2
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:28:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A617A48913B
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:31:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239385AbiAJH0D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:26:03 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:35438 "EHLO
+        id S240284AbiAJHaa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:30:30 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38028 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239287AbiAJHZK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:25:10 -0500
+        with ESMTP id S240081AbiAJH22 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:28:28 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DCAB611A3;
-        Mon, 10 Jan 2022 07:25:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34174C36AED;
-        Mon, 10 Jan 2022 07:25:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B23C8611C9;
+        Mon, 10 Jan 2022 07:28:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97EF9C36AE9;
+        Mon, 10 Jan 2022 07:28:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799506;
-        bh=SuaPqRIS/EoDXtFwglhRwh+gMYjrD0lXCeGpCJ9cAKU=;
+        s=korg; t=1641799707;
+        bh=WLcjkDH0MA5Ws7HBfmZfW8Pr+NSz5/fPbxZShZIadus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z8XP/IAjnz0BLNeL+07MgVw8HjY7RlpNFU1yGSfqk1XNiC9Qp0VDEctJaqX4nqtcm
-         TEKUgjXE4YHsd/ZlexJdcLU3f4z5umOwcNwxsIytbNXdas9sEwFw4xLKhIBq47j8bh
-         BDEwDTaE2RWPu3/wr0Nd2Q4UpwOPA59e0PemHBlA=
+        b=y6ylJ21a726y9kFRVTpyhQHT6A7NfAzw/eGdxuhF4gWpe2zyNYmWA7TeGnN/ydd1/
+         YyE2ptOchsJjT5QXiffXY7HKJEt7hUFByFD5DMIsftr375MrtKOHpxniDrT71zc3BB
+         0Kh+Wv0rSAxqLN0j9ZvtwLO9TcJww5ueGlsxGJpg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lu Tixiong <lutianxiong@huawei.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        Lee Duncan <lduncan@suse.com>,
-        Lixiaokeng <lixiaokeng@huawei.com>,
-        Linfeilong <linfeilong@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 17/21] scsi: libiscsi: Fix UAF in iscsi_conn_get_param()/iscsi_conn_teardown()
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.4 09/34] RDMA/uverbs: Check for null return of kmalloc_array
 Date:   Mon, 10 Jan 2022 08:23:04 +0100
-Message-Id: <20220110071813.390730855@linuxfoundation.org>
+Message-Id: <20220110071815.967327967@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071812.806606886@linuxfoundation.org>
-References: <20220110071812.806606886@linuxfoundation.org>
+In-Reply-To: <20220110071815.647309738@linuxfoundation.org>
+References: <20220110071815.647309738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,68 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lixiaokeng <lixiaokeng@huawei.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 1b8d0300a3e9f216ae4901bab886db7299899ec6 ]
+commit 7694a7de22c53a312ea98960fcafc6ec62046531 upstream.
 
-|- iscsi_if_destroy_conn            |-dev_attr_show
- |-iscsi_conn_teardown
-  |-spin_lock_bh                     |-iscsi_sw_tcp_conn_get_param
+Because of the possible failure of the allocation, data might be NULL
+pointer and will cause the dereference of the NULL pointer later.
+Therefore, it might be better to check it and return -ENOMEM.
 
-  |-kfree(conn->persistent_address)   |-iscsi_conn_get_param
-  |-kfree(conn->local_ipaddr)
-                                       ==>|-read persistent_address
-                                       ==>|-read local_ipaddr
-  |-spin_unlock_bh
-
-When iscsi_conn_teardown() and iscsi_conn_get_param() happen in parallel, a
-UAF may be triggered.
-
-Link: https://lore.kernel.org/r/046ec8a0-ce95-d3fc-3235-666a7c65b224@huawei.com
-Reported-by: Lu Tixiong <lutianxiong@huawei.com>
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Lixiaokeng <lixiaokeng@huawei.com>
-Signed-off-by: Linfeilong <linfeilong@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6884c6c4bd09 ("RDMA/verbs: Store the write/write_ex uapi entry points in the uverbs_api")
+Link: https://lore.kernel.org/r/20211231093315.1917667-1-jiasheng@iscas.ac.cn
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/libiscsi.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/infiniband/core/uverbs_uapi.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
-index 30e954bb6c81e..8d1a05d5eb4dd 100644
---- a/drivers/scsi/libiscsi.c
-+++ b/drivers/scsi/libiscsi.c
-@@ -2991,6 +2991,8 @@ void iscsi_conn_teardown(struct iscsi_cls_conn *cls_conn)
- {
- 	struct iscsi_conn *conn = cls_conn->dd_data;
- 	struct iscsi_session *session = conn->session;
-+	char *tmp_persistent_address = conn->persistent_address;
-+	char *tmp_local_ipaddr = conn->local_ipaddr;
- 
- 	del_timer_sync(&conn->transport_timer);
- 
-@@ -3012,8 +3014,6 @@ void iscsi_conn_teardown(struct iscsi_cls_conn *cls_conn)
- 	spin_lock_bh(&session->frwd_lock);
- 	free_pages((unsigned long) conn->data,
- 		   get_order(ISCSI_DEF_MAX_RECV_SEG_LEN));
--	kfree(conn->persistent_address);
--	kfree(conn->local_ipaddr);
- 	/* regular RX path uses back_lock */
- 	spin_lock_bh(&session->back_lock);
- 	kfifo_in(&session->cmdpool.queue, (void*)&conn->login_task,
-@@ -3025,6 +3025,8 @@ void iscsi_conn_teardown(struct iscsi_cls_conn *cls_conn)
- 	mutex_unlock(&session->eh_mutex);
- 
- 	iscsi_destroy_conn(cls_conn);
-+	kfree(tmp_persistent_address);
-+	kfree(tmp_local_ipaddr);
- }
- EXPORT_SYMBOL_GPL(iscsi_conn_teardown);
- 
--- 
-2.34.1
-
+--- a/drivers/infiniband/core/uverbs_uapi.c
++++ b/drivers/infiniband/core/uverbs_uapi.c
+@@ -450,6 +450,9 @@ static int uapi_finalize(struct uverbs_a
+ 	uapi->num_write_ex = max_write_ex + 1;
+ 	data = kmalloc_array(uapi->num_write + uapi->num_write_ex,
+ 			     sizeof(*uapi->write_methods), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++
+ 	for (i = 0; i != uapi->num_write + uapi->num_write_ex; i++)
+ 		data[i] = &uapi->notsupp_method;
+ 	uapi->write_methods = data;
 
 
