@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4472489102
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:29:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E5D54891A1
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:34:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239657AbiAJH2a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:28:30 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:36500 "EHLO
+        id S240206AbiAJHeN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:34:13 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:40974 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239406AbiAJH03 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:26:29 -0500
+        with ESMTP id S239902AbiAJHcN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:32:13 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA957611B7;
-        Mon, 10 Jan 2022 07:26:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD51FC36AE9;
-        Mon, 10 Jan 2022 07:26:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F04F611B7;
+        Mon, 10 Jan 2022 07:32:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57312C36AED;
+        Mon, 10 Jan 2022 07:32:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799588;
-        bh=mHH+XNkD+3G/e3NHKbEc90kLnPAfFdQ5w4ollboxixw=;
+        s=korg; t=1641799931;
+        bh=VbNmRcpihmGSCFw+x/pGX2jqtKCrQZWhDtyNFbDRR/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mZxKUszjT3YK1RaBMMZkGEPFJO+KnEK5qscowId2X2vo6+TcSkw/TVm6qgfENTKLG
-         i2hHAV/LfzxDFs7BOUjLgt2BejeVI7yiml5hP8BVFEzDutxmARbL2MhHofWWOv75KL
-         AxjY9Yd9ejaThhB74FfSpOiHkyMnKsJR8rg3o71w=
+        b=sDx6HtMjy5baJsUiBSp8wtq4YypaHCCnH9Ozf/YgpFUqSyXfBNhblBNgbXkHhANhM
+         JB7NOrSfm18IIxULWLoGEbDsfMPkN36jBR1TUT23hOWQVbm0g4K+O2GT6FtMLvx5XJ
+         7CF6c+fgzMJpGr1XQyX54Md/IM6fC1VbvSxIKbcc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Yang Wei <yang.wei@linux.alibaba.com>
-Subject: [PATCH 4.14 04/22] virtio_pci: Support surprise removal of virtio pci device
+        stable@vger.kernel.org,
+        syzbot+d4b9a2851cc3ce998741@syzkaller.appspotmail.com,
+        David Ahern <dsahern@kernel.org>, Thomas Graf <tgraf@suug.ch>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 20/72] ipv4: Check attribute length for RTA_GATEWAY in multipath route
 Date:   Mon, 10 Jan 2022 08:22:57 +0100
-Message-Id: <20220110071814.411993808@linuxfoundation.org>
+Message-Id: <20220110071822.260222128@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071814.261471354@linuxfoundation.org>
-References: <20220110071814.261471354@linuxfoundation.org>
+In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
+References: <20220110071821.500480371@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,76 +46,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@nvidia.com>
+From: David Ahern <dsahern@kernel.org>
 
-commit 43bb40c5b92659966bdf4bfe584fde0a3575a049 upstream.
+commit 7a3429bace0e08d94c39245631ea6bc109dafa49 upstream.
 
-When a virtio pci device undergo surprise removal (aka async removal in
-PCIe spec), mark the device as broken so that any upper layer drivers can
-abort any outstanding operation.
+syzbot reported uninit-value:
+============================================================
+  BUG: KMSAN: uninit-value in fib_get_nhs+0xac4/0x1f80
+  net/ipv4/fib_semantics.c:708
+   fib_get_nhs+0xac4/0x1f80 net/ipv4/fib_semantics.c:708
+   fib_create_info+0x2411/0x4870 net/ipv4/fib_semantics.c:1453
+   fib_table_insert+0x45c/0x3a10 net/ipv4/fib_trie.c:1224
+   inet_rtm_newroute+0x289/0x420 net/ipv4/fib_frontend.c:886
 
-When a virtio net pci device undergo surprise removal which is used by a
-NetworkManager, a below call trace was observed.
+Add helper to validate RTA_GATEWAY length before using the attribute.
 
-kernel:watchdog: BUG: soft lockup - CPU#1 stuck for 26s! [kworker/1:1:27059]
-watchdog: BUG: soft lockup - CPU#1 stuck for 52s! [kworker/1:1:27059]
-CPU: 1 PID: 27059 Comm: kworker/1:1 Tainted: G S      W I  L    5.13.0-hotplug+ #8
-Hardware name: Dell Inc. PowerEdge R640/0H28RR, BIOS 2.9.4 11/06/2020
-Workqueue: events linkwatch_event
-RIP: 0010:virtnet_send_command+0xfc/0x150 [virtio_net]
-Call Trace:
- virtnet_set_rx_mode+0xcf/0x2a7 [virtio_net]
- ? __hw_addr_create_ex+0x85/0xc0
- __dev_mc_add+0x72/0x80
- igmp6_group_added+0xa7/0xd0
- ipv6_mc_up+0x3c/0x60
- ipv6_find_idev+0x36/0x80
- addrconf_add_dev+0x1e/0xa0
- addrconf_dev_config+0x71/0x130
- addrconf_notify+0x1f5/0xb40
- ? rtnl_is_locked+0x11/0x20
- ? __switch_to_asm+0x42/0x70
- ? finish_task_switch+0xaf/0x2c0
- ? raw_notifier_call_chain+0x3e/0x50
- raw_notifier_call_chain+0x3e/0x50
- netdev_state_change+0x67/0x90
- linkwatch_do_dev+0x3c/0x50
- __linkwatch_run_queue+0xd2/0x220
- linkwatch_event+0x21/0x30
- process_one_work+0x1c8/0x370
- worker_thread+0x30/0x380
- ? process_one_work+0x370/0x370
- kthread+0x118/0x140
- ? set_kthread_struct+0x40/0x40
- ret_from_fork+0x1f/0x30
-
-Hence, add the ability to abort the command on surprise removal
-which prevents infinite loop and system lockup.
-
-Signed-off-by: Parav Pandit <parav@nvidia.com>
-Link: https://lore.kernel.org/r/20210721142648.1525924-5-parav@nvidia.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Yang Wei <yang.wei@linux.alibaba.com>
+Fixes: 4e902c57417c ("[IPv4]: FIB configuration using struct fib_config")
+Reported-by: syzbot+d4b9a2851cc3ce998741@syzkaller.appspotmail.com
+Signed-off-by: David Ahern <dsahern@kernel.org>
+Cc: Thomas Graf <tgraf@suug.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/virtio/virtio_pci_common.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ net/ipv4/fib_semantics.c |   29 ++++++++++++++++++++++++++---
+ 1 file changed, 26 insertions(+), 3 deletions(-)
 
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -575,6 +575,13 @@ static void virtio_pci_remove(struct pci
- 	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
- 	struct device *dev = get_device(&vp_dev->vdev.dev);
+--- a/net/ipv4/fib_semantics.c
++++ b/net/ipv4/fib_semantics.c
+@@ -662,6 +662,19 @@ static int fib_count_nexthops(struct rtn
+ 	return nhs;
+ }
  
-+	/*
-+	 * Device is marked broken on surprise removal so that virtio upper
-+	 * layers can abort any ongoing operation.
-+	 */
-+	if (!pci_device_is_present(pci_dev))
-+		virtio_break_device(&vp_dev->vdev);
++static int fib_gw_from_attr(__be32 *gw, struct nlattr *nla,
++			    struct netlink_ext_ack *extack)
++{
++	if (nla_len(nla) < sizeof(*gw)) {
++		NL_SET_ERR_MSG(extack, "Invalid IPv4 address in RTA_GATEWAY");
++		return -EINVAL;
++	}
 +
- 	unregister_virtio_device(&vp_dev->vdev);
++	*gw = nla_get_in_addr(nla);
++
++	return 0;
++}
++
+ /* only called when fib_nh is integrated into fib_info */
+ static int fib_get_nhs(struct fib_info *fi, struct rtnexthop *rtnh,
+ 		       int remaining, struct fib_config *cfg,
+@@ -704,7 +717,11 @@ static int fib_get_nhs(struct fib_info *
+ 				return -EINVAL;
+ 			}
+ 			if (nla) {
+-				fib_cfg.fc_gw4 = nla_get_in_addr(nla);
++				ret = fib_gw_from_attr(&fib_cfg.fc_gw4, nla,
++						       extack);
++				if (ret)
++					goto errout;
++
+ 				if (fib_cfg.fc_gw4)
+ 					fib_cfg.fc_gw_family = AF_INET;
+ 			} else if (nlav) {
+@@ -902,6 +919,7 @@ int fib_nh_match(struct net *net, struct
+ 		attrlen = rtnh_attrlen(rtnh);
+ 		if (attrlen > 0) {
+ 			struct nlattr *nla, *nlav, *attrs = rtnh_attrs(rtnh);
++			int err;
  
- 	if (vp_dev->ioaddr)
+ 			nla = nla_find(attrs, attrlen, RTA_GATEWAY);
+ 			nlav = nla_find(attrs, attrlen, RTA_VIA);
+@@ -912,12 +930,17 @@ int fib_nh_match(struct net *net, struct
+ 			}
+ 
+ 			if (nla) {
++				__be32 gw;
++
++				err = fib_gw_from_attr(&gw, nla, extack);
++				if (err)
++					return err;
++
+ 				if (nh->fib_nh_gw_family != AF_INET ||
+-				    nla_get_in_addr(nla) != nh->fib_nh_gw4)
++				    gw != nh->fib_nh_gw4)
+ 					return 1;
+ 			} else if (nlav) {
+ 				struct fib_config cfg2;
+-				int err;
+ 
+ 				err = fib_gw_from_via(&cfg2, nlav, extack);
+ 				if (err)
 
 
