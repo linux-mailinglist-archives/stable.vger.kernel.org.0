@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73D234890C4
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:25:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B8C448921E
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:44:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239425AbiAJHZf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:25:35 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:55904 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239345AbiAJHYk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:24:40 -0500
+        id S241002AbiAJHjE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:39:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50434 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240330AbiAJHgf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:36:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8EB4C02519B;
+        Sun,  9 Jan 2022 23:31:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 88613B811F9;
-        Mon, 10 Jan 2022 07:24:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7131C36AE9;
-        Mon, 10 Jan 2022 07:24:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F58E60B64;
+        Mon, 10 Jan 2022 07:31:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54C3FC36AEF;
+        Mon, 10 Jan 2022 07:31:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799478;
-        bh=zmfqkjRv2inCV6030DusFTVgg7tQKcUyuxImduqerds=;
+        s=korg; t=1641799914;
+        bh=ozMljWCXRk0xRH33Ws1uj19s4rejF6ZOu7s6mtdRefk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sHDpSq8xt02X+VqER+vMmxtr4BKR/JZx5ONmG9SUBpifUGE+n8hjPI3CYEawi7Mrl
-         vi2Z2GOrrLdmrShWEmoEfihqbUggXgEtOeeSDUU/yhZpvkB5553Hc6EvegnyGfwXZ2
-         Lt7EUrQJDwslGgal+QFxQ2e6MjsXsk4NDME4I/1A=
+        b=P//3iS7FWIkKYEM3bgLJ5zqW3M/vSjQnHj0H+Pz8peYenOEi7Be7uTxCVl4zOECg2
+         yJM7NsMAW3CQk4buaMaMYWhAv/Z+C9UXK6/CFMkahCFlwgkVr1QXCJaTHRLm7U5k6c
+         0F8fywyP1s00f93MSDNiMOVCn4hxEB05P3oQro4c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, wolfgang huang <huangjinhui@kylinos.cn>,
-        k2ci <kernel-bot@kylinos.cn>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 13/14] mISDN: change function names to avoid conflicts
+        stable@vger.kernel.org, Martin Habets <habetsm.xilinx@gmail.com>,
+        Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 15/72] sfc: The RX page_ring is optional
 Date:   Mon, 10 Jan 2022 08:22:52 +0100
-Message-Id: <20220110071812.204259489@linuxfoundation.org>
+Message-Id: <20220110071822.069210729@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071811.779189823@linuxfoundation.org>
-References: <20220110071811.779189823@linuxfoundation.org>
+In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
+References: <20220110071821.500480371@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,100 +48,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: wolfgang huang <huangjinhui@kylinos.cn>
+From: Martin Habets <habetsm.xilinx@gmail.com>
 
-[ Upstream commit 8b5fdfc57cc2471179d1c51081424ded833c16c8 ]
+commit 1d5a474240407c38ca8c7484a656ee39f585399c upstream.
 
-As we build for mips, we meet following error. l1_init error with
-multiple definition. Some architecture devices usually marked with
-l1, l2, lxx as the start-up phase. so we change the mISDN function
-names, align with Isdnl2_xxx.
+The RX page_ring is an optional feature that improves
+performance. When allocation fails the driver can still
+function, but possibly with a lower bandwidth.
+Guard against dereferencing a NULL page_ring.
 
-mips-linux-gnu-ld: drivers/isdn/mISDN/layer1.o: in function `l1_init':
-(.text+0x890): multiple definition of `l1_init'; \
-arch/mips/kernel/bmips_5xxx_init.o:(.text+0xf0): first defined here
-make[1]: *** [home/mips/kernel-build/linux/Makefile:1161: vmlinux] Error 1
-
-Signed-off-by: wolfgang huang <huangjinhui@kylinos.cn>
-Reported-by: k2ci <kernel-bot@kylinos.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2768935a4660 ("sfc: reuse pages to avoid DMA mapping/unmapping costs")
+Signed-off-by: Martin Habets <habetsm.xilinx@gmail.com>
+Reported-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/164111288276.5798.10330502993729113868.stgit@palantir17.mph.net
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/isdn/mISDN/core.c   | 6 +++---
- drivers/isdn/mISDN/core.h   | 4 ++--
- drivers/isdn/mISDN/layer1.c | 4 ++--
- 3 files changed, 7 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/sfc/falcon/rx.c |    5 +++++
+ drivers/net/ethernet/sfc/rx_common.c |    5 +++++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/drivers/isdn/mISDN/core.c b/drivers/isdn/mISDN/core.c
-index faf505462a4f5..f5a06a6fb297f 100644
---- a/drivers/isdn/mISDN/core.c
-+++ b/drivers/isdn/mISDN/core.c
-@@ -390,7 +390,7 @@ mISDNInit(void)
- 	err = mISDN_inittimer(&debug);
- 	if (err)
- 		goto error2;
--	err = l1_init(&debug);
-+	err = Isdnl1_Init(&debug);
- 	if (err)
- 		goto error3;
- 	err = Isdnl2_Init(&debug);
-@@ -404,7 +404,7 @@ mISDNInit(void)
- error5:
- 	Isdnl2_cleanup();
- error4:
--	l1_cleanup();
-+	Isdnl1_cleanup();
- error3:
- 	mISDN_timer_cleanup();
- error2:
-@@ -417,7 +417,7 @@ static void mISDN_cleanup(void)
+--- a/drivers/net/ethernet/sfc/falcon/rx.c
++++ b/drivers/net/ethernet/sfc/falcon/rx.c
+@@ -110,6 +110,8 @@ static struct page *ef4_reuse_page(struc
+ 	struct ef4_rx_page_state *state;
+ 	unsigned index;
+ 
++	if (unlikely(!rx_queue->page_ring))
++		return NULL;
+ 	index = rx_queue->page_remove & rx_queue->page_ptr_mask;
+ 	page = rx_queue->page_ring[index];
+ 	if (page == NULL)
+@@ -293,6 +295,9 @@ static void ef4_recycle_rx_pages(struct
  {
- 	misdn_sock_cleanup();
- 	Isdnl2_cleanup();
--	l1_cleanup();
-+	Isdnl1_cleanup();
- 	mISDN_timer_cleanup();
- 	class_unregister(&mISDN_class);
+ 	struct ef4_rx_queue *rx_queue = ef4_channel_get_rx_queue(channel);
  
-diff --git a/drivers/isdn/mISDN/core.h b/drivers/isdn/mISDN/core.h
-index 52695bb81ee7a..3c039b6ade2e1 100644
---- a/drivers/isdn/mISDN/core.h
-+++ b/drivers/isdn/mISDN/core.h
-@@ -69,8 +69,8 @@ struct Bprotocol	*get_Bprotocol4id(u_int);
- extern int	mISDN_inittimer(u_int *);
- extern void	mISDN_timer_cleanup(void);
++	if (unlikely(!rx_queue->page_ring))
++		return;
++
+ 	do {
+ 		ef4_recycle_rx_page(channel, rx_buf);
+ 		rx_buf = ef4_rx_buf_next(rx_queue, rx_buf);
+--- a/drivers/net/ethernet/sfc/rx_common.c
++++ b/drivers/net/ethernet/sfc/rx_common.c
+@@ -45,6 +45,8 @@ static struct page *efx_reuse_page(struc
+ 	unsigned int index;
+ 	struct page *page;
  
--extern int	l1_init(u_int *);
--extern void	l1_cleanup(void);
-+extern int	Isdnl1_Init(u_int *);
-+extern void	Isdnl1_cleanup(void);
- extern int	Isdnl2_Init(u_int *);
- extern void	Isdnl2_cleanup(void);
- 
-diff --git a/drivers/isdn/mISDN/layer1.c b/drivers/isdn/mISDN/layer1.c
-index bebc57b72138e..94d7cc58da648 100644
---- a/drivers/isdn/mISDN/layer1.c
-+++ b/drivers/isdn/mISDN/layer1.c
-@@ -407,7 +407,7 @@ create_l1(struct dchannel *dch, dchannel_l1callback *dcb) {
- EXPORT_SYMBOL(create_l1);
- 
- int
--l1_init(u_int *deb)
-+Isdnl1_Init(u_int *deb)
++	if (unlikely(!rx_queue->page_ring))
++		return NULL;
+ 	index = rx_queue->page_remove & rx_queue->page_ptr_mask;
+ 	page = rx_queue->page_ring[index];
+ 	if (page == NULL)
+@@ -114,6 +116,9 @@ void efx_recycle_rx_pages(struct efx_cha
  {
- 	debug = deb;
- 	l1fsm_s.state_count = L1S_STATE_COUNT;
-@@ -419,7 +419,7 @@ l1_init(u_int *deb)
- }
+ 	struct efx_rx_queue *rx_queue = efx_channel_get_rx_queue(channel);
  
- void
--l1_cleanup(void)
-+Isdnl1_cleanup(void)
- {
- 	mISDN_FsmFree(&l1fsm_s);
- }
--- 
-2.34.1
-
++	if (unlikely(!rx_queue->page_ring))
++		return;
++
+ 	do {
+ 		efx_recycle_rx_page(channel, rx_buf);
+ 		rx_buf = efx_rx_buf_next(rx_queue, rx_buf);
 
 
