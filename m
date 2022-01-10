@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF9394891F5
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:43:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37C6748920C
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:43:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240931AbiAJHhW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:37:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49462 "EHLO
+        id S241183AbiAJHhv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:37:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240058AbiAJHaa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:30:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25A23C028BB7;
-        Sun,  9 Jan 2022 23:27:47 -0800 (PST)
+        with ESMTP id S241680AbiAJHgD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:36:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEC94C02526E;
+        Sun,  9 Jan 2022 23:31:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E2B63B81205;
-        Mon, 10 Jan 2022 07:27:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B44BC36AE9;
-        Mon, 10 Jan 2022 07:27:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FFA960B03;
+        Mon, 10 Jan 2022 07:31:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 761B7C36AE9;
+        Mon, 10 Jan 2022 07:31:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799664;
-        bh=ldemisgRMwXP+iN87RvpgDewWLe8tBYlf7SosR+KaLA=;
+        s=korg; t=1641799879;
+        bh=t7Z2+dfN4OfS200aJliZHc8nz+GbnPFmXESIXqKvsrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AUXaAhxkUqVUytXfA64Y7N8UU7cTCgrEnmuwenvUu0HL0xe9Gt8Exw1uBkmfMmYZB
-         JjcB+BNdqOcfF6BqijQc32E6kfAmz6yZ9ZhZKbHDLwej7lufpBtbEtggjvSnxZiyVf
-         OhpcK0FpDrqNt+G0Ukm81T5jvJ549+hWe2dJgapI=
+        b=zNszAUl/+TyHXBVn4UiIYvq2cVCA8yvoQUU5fEfr7Y8VBiGSgd3SaQQSzHwmBswF9
+         XBxBQ3wgnee8kk2NKxy6Hhk1mE4y3WY6EJOQ40w9dXVt6r03AUtvZgodR1t2OOHIHI
+         zAZ6tnhGo1YaQV1/Km1FIUouUbvDE/qSZO7WjF4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, David Ahern <dsahern@kernel.org>,
-        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 15/21] ipv6: Continue processing multipath route even if gateway attribute is invalid
-Date:   Mon, 10 Jan 2022 08:23:16 +0100
-Message-Id: <20220110071814.448271281@linuxfoundation.org>
+        Roopa Prabhu <roopa@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 20/43] ipv6: Check attribute length for RTA_GATEWAY when deleting multipath route
+Date:   Mon, 10 Jan 2022 08:23:17 +0100
+Message-Id: <20220110071818.027417725@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071813.967414697@linuxfoundation.org>
-References: <20220110071813.967414697@linuxfoundation.org>
+In-Reply-To: <20220110071817.337619922@linuxfoundation.org>
+References: <20220110071817.337619922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,49 +50,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: David Ahern <dsahern@kernel.org>
 
-[ Upstream commit e30a845b0376eb51c9c94f56bbd53b2e08ba822f ]
+commit 1ff15a710a862db1101b97810af14aedc835a86a upstream.
 
-ip6_route_multipath_del loop continues processing the multipath
-attribute even if delete of a nexthop path fails. For consistency,
-do the same if the gateway attribute is invalid.
+Make sure RTA_GATEWAY for IPv6 multipath route has enough bytes to hold
+an IPv6 address.
 
-Fixes: 1ff15a710a86 ("ipv6: Check attribute length for RTA_GATEWAY when deleting multipath route")
+Fixes: 6b9ea5a64ed5 ("ipv6: fix multipath route replace error recovery")
 Signed-off-by: David Ahern <dsahern@kernel.org>
-Acked-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
-Link: https://lore.kernel.org/r/20220103171911.94739-1-dsahern@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Roopa Prabhu <roopa@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/route.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/ipv6/route.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv6/route.c b/net/ipv6/route.c
-index 1bc81be07ccda..8a437c20eeccd 100644
 --- a/net/ipv6/route.c
 +++ b/net/ipv6/route.c
-@@ -4608,8 +4608,10 @@ static int ip6_route_multipath_del(struct fib6_config *cfg,
- 			if (nla) {
- 				err = fib6_gw_from_attr(&r_cfg.fc_gateway, nla,
- 							extack);
--				if (err)
--					return err;
-+				if (err) {
-+					last_err = err;
-+					goto next_rtnh;
-+				}
+@@ -5342,7 +5342,11 @@ static int ip6_route_multipath_del(struc
  
+ 			nla = nla_find(attrs, attrlen, RTA_GATEWAY);
+ 			if (nla) {
+-				nla_memcpy(&r_cfg.fc_gateway, nla, 16);
++				err = fib6_gw_from_attr(&r_cfg.fc_gateway, nla,
++							extack);
++				if (err)
++					return err;
++
  				r_cfg.fc_flags |= RTF_GATEWAY;
  			}
-@@ -4618,6 +4620,7 @@ static int ip6_route_multipath_del(struct fib6_config *cfg,
- 		if (err)
- 			last_err = err;
- 
-+next_rtnh:
- 		rtnh = rtnh_next(rtnh, &remaining);
- 	}
- 
--- 
-2.34.1
-
+ 		}
 
 
