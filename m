@@ -2,135 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBE2B489DE6
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 17:54:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39D78489E12
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 18:11:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237795AbiAJQyx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 11:54:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39674 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237774AbiAJQyx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 11:54:53 -0500
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 584BEC06173F
-        for <stable@vger.kernel.org>; Mon, 10 Jan 2022 08:54:53 -0800 (PST)
-Received: by mail-pl1-x635.google.com with SMTP id p14so12764507plf.3
-        for <stable@vger.kernel.org>; Mon, 10 Jan 2022 08:54:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=4DjKzPSaPLVnrRfVNe9J7Qq8iml9PMHN2hGWapiC1+U=;
-        b=6S6fd5BEhDqCg1CEAOX/IvoillPqVGxFutyslYIGJvZsOLXCIH9Th57AOunzLZ5J4E
-         MYlof5i9oPzjg1QQWjbIpvHvV2zI4nALBNrN1wVDGkGeRVEP1fewP71f3M5RcK4ofF9D
-         9bWvPGcN9T0ZfUkWyKS6W4ODkWpV7t7ZJ75ZMPXTeTINgsQAoNv4db27DvvulxVufcpC
-         p2cWJR7JT0jbJGTicMi/B2rq2VQN8yKgyycC2COtep7X4MGHDH/m9uBC4VSMi/NrXPh0
-         fKiiWI2UQYFBjXRPKGsI7EEw/NCQFpMpMk1KneZj+Bh3RWmQgRvoX783kALi8z2Q7HcC
-         l6Bg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=4DjKzPSaPLVnrRfVNe9J7Qq8iml9PMHN2hGWapiC1+U=;
-        b=r8tYf2JGigi9IDm666FlFgIjUuPyBIsy7kZRq0nM3q5NKSPByckNtraYRZP/7QlQ83
-         lHldcPVUSo/SFhJKjDDuW3uwiIGytNUjCxFCviOeX5W1cK9Wse7gQq//4YFJm9TgJV3U
-         r/EfFR2RfrPmPHlsCXFXAilnUv6adwe5BEhp2VPcX2W9NdPzHbjrFVvSWb16YbU0/5ht
-         P/yaRjcnrJcRcAfYuhYFtCGduKwqHoRu3CHgkcWPDZ8VoJIqd2PiHQIh6KuuuraRp3al
-         jKCw5N0wR53nFM6ieE+wCdRwIA/wGDxYbNeSQRumRxAvb3oGONxfuhxKxpMoLV2tuThc
-         f+IQ==
-X-Gm-Message-State: AOAM533xeBL+niF8zxCQKlSQo+0ldU/+2a3wYUpw+MMYsv3IooJDFyA1
-        jjGsUbaIiZ5Ua+IReP2tetvksS+mb8ZFPb+1
-X-Google-Smtp-Source: ABdhPJw3ziJgK9vtF4ZI5mVIp1CiZOm8xPyKT82fmMokwOS/3iQXy1cS2YQzyJjObAfjKdPzXKD0rg==
-X-Received: by 2002:a63:f16:: with SMTP id e22mr495697pgl.221.1641833692684;
-        Mon, 10 Jan 2022 08:54:52 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c11sm7986839pfv.85.2022.01.10.08.54.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 Jan 2022 08:54:52 -0800 (PST)
-Message-ID: <61dc64dc.1c69fb81.74c27.289e@mx.google.com>
-Date:   Mon, 10 Jan 2022 08:54:52 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S237961AbiAJRL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 12:11:29 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:49110 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232637AbiAJRL3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 12:11:29 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D620CCE1677;
+        Mon, 10 Jan 2022 17:11:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 069ADC36AE3;
+        Mon, 10 Jan 2022 17:11:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1641834685;
+        bh=X4tXoAGC6EqJ6PYEuG6VCZ/OpyF8blgVmWjeySllZjQ=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:From;
+        b=empKVpZSr2IPSLiNwSMhcQyNj0YdWaPaD1kHUE2YOI95Bc0/xHllJHIJ2w1eEzItk
+         /Ag9iEjQ3tvNVUjQAshIVIgB45mBrjIjVtKRi8YNTDjz+bQBRZ5zhIrAEbIfK2cl/O
+         nV/x3qj6KAdajx7F49Vj2GjPUATphHfNsrWBQDLX+v9iT6ERZGqZAYtL/h0G7KN8d2
+         rNnds4Y5qmTQl76eEdPBPUi5zK+i2Wv/Vrn1khMtXibf5x9NkOZuT+e5ti4YCF7yAT
+         V2HXSP8zsyVFd650EoK0kLpV1tLdSy+ICmWVXJYdIw1fKPjUe886ijAQihynoApjBy
+         jEAvK1ta7unvg==
+Date:   Mon, 10 Jan 2022 11:11:23 -0600
+From:   Bjorn Helgaas <helgaas@kernel.org>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     "Rafael J . Wysocki" <rjw@rjwysocki.net>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Krzysztof =?utf-8?Q?Wilczy=C5=84ski?= <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Myron Stowe <myron.stowe@redhat.com>,
+        Juha-Pekka Heikkila <juhapekka.heikkila@gmail.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        "H . Peter Anvin" <hpa@zytor.com>, linux-acpi@vger.kernel.org,
+        linux-pci@vger.kernel.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org,
+        Benoit =?iso-8859-1?Q?Gr=E9goire?= <benoitg@coeus.ca>,
+        Hui Wang <hui.wang@canonical.com>, stable@vger.kernel.org,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
+Subject: Re: [PATCH v6] x86/PCI: Ignore E820 reservations for bridge windows
+ on newer systems
+Message-ID: <20220110171123.GA60297@bhelgaas>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.261-22-g21eed7b761de
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 baseline: 115 runs,
- 1 regressions (v4.14.261-22-g21eed7b761de)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <c992ece7-6878-a39e-0386-5a499265c4cb@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 115 runs, 1 regressions (v4.14.261-22-g21eed=
-7b761de)
+On Mon, Jan 10, 2022 at 12:41:37PM +0100, Hans de Goede wrote:
+> Hi All,
+> 
+> On 12/17/21 15:13, Hans de Goede wrote:
+> > Some BIOS-es contain a bug where they add addresses which map to system
+> > RAM in the PCI host bridge window returned by the ACPI _CRS method, see
+> > commit 4dc2287c1805 ("x86: avoid E820 regions when allocating address
+> > space").
+> > 
+> > To work around this bug Linux excludes E820 reserved addresses when
+> > allocating addresses from the PCI host bridge window since 2010.
+> > 
+> > Recently (2019) some systems have shown-up with E820 reservations which
+> > cover the entire _CRS returned PCI bridge memory window, causing all
+> > attempts to assign memory to PCI BARs which have not been setup by the
+> > BIOS to fail. For example here are the relevant dmesg bits from a
+> > Lenovo IdeaPad 3 15IIL 81WE:
+> > 
+> >  [mem 0x000000004bc50000-0x00000000cfffffff] reserved
+> >  pci_bus 0000:00: root bus resource [mem 0x65400000-0xbfffffff window]
+> > 
+> > The ACPI specifications appear to allow this new behavior:
+> > 
+> > The relationship between E820 and ACPI _CRS is not really very clear.
+> > ACPI v6.3, sec 15, table 15-374, says AddressRangeReserved means:
+> > 
+> >   This range of addresses is in use or reserved by the system and is
+> >   not to be included in the allocatable memory pool of the operating
+> >   system's memory manager.
+> > 
+> > and it may be used when:
+> > 
+> >   The address range is in use by a memory-mapped system device.
+> > 
+> > Furthermore, sec 15.2 says:
+> > 
+> >   Address ranges defined for baseboard memory-mapped I/O devices, such
+> >   as APICs, are returned as reserved.
+> > 
+> > A PCI host bridge qualifies as a baseboard memory-mapped I/O device,
+> > and its apertures are in use and certainly should not be included in
+> > the general allocatable pool, so the fact that some BIOS-es reports
+> > the PCI aperture as "reserved" in E820 doesn't seem like a BIOS bug.
+> > 
+> > So it seems that the excluding of E820 reserved addresses is a mistake.
+> > 
+> > Ideally Linux would fully stop excluding E820 reserved addresses,
+> > but then the old systems this was added for will regress.
+> > Instead keep the old behavior for old systems, while ignoring
+> > the E820 reservations for any systems from now on.
+> > 
+> > Old systems are defined here as BIOS year < 2018, this was chosen to make
+> > sure that E820 reservations will not be used on the currently affected
+> > systems, while at the same time also taking into account that the systems
+> > for which the E820 checking was originally added may have received BIOS
+> > updates for quite a while (esp. CVE related ones), giving them a more
+> > recent BIOS year then 2010.
+> > 
+> > BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206459
+> > BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1868899
+> > BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1871793
+> > BugLink: https://bugs.launchpad.net/bugs/1878279
+> > BugLink: https://bugs.launchpad.net/bugs/1931715
+> > BugLink: https://bugs.launchpad.net/bugs/1932069
+> > BugLink: https://bugs.launchpad.net/bugs/1921649
+> > Cc: Benoit Grégoire <benoitg@coeus.ca>
+> > Cc: Hui Wang <hui.wang@canonical.com>
+> > Cc: stable@vger.kernel.org
+> > Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> > Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+> > Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+> > Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> > ---
+> > Changes in v6:
+> > - Remove the possibility to change the behavior from the commandline
+> >   because of worries that users may use this to paper over other problems
+> 
+> ping ?
 
-Regressions Summary
--------------------
+Thanks, Hans.  Maybe I'm quixotic, but I'm still hoping for an
+approach based on firmware behavior instead of firmware date.  If
+nobody else tries, I will eventually try myself, but I don't have any
+ETA.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.261-22-g21eed7b761de/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.261-22-g21eed7b761de
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      21eed7b761dec354f10e20710cbf7461fa231dc1 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61dc312fa47557aef3ef6743
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.261=
--22-g21eed7b761de/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.261=
--22-g21eed7b761de/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61dc312fa47557a=
-ef3ef6746
-        failing since 7 days (last pass: v4.14.260-5-g5ba2b1f2b4df, first f=
-ail: v4.14.260-9-gb7bb5018400c)
-        2 lines
-
-    2022-01-10T13:14:07.822188  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/97
-    2022-01-10T13:14:07.831794  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
+Bjorn
