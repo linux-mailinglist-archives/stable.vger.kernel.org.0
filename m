@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF0EE48924D
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:44:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17BA84891A8
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:36:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239585AbiAJHlv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:41:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51256 "EHLO
+        id S240321AbiAJHeZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:34:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240771AbiAJHiL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:38:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ABC0C028B9E;
-        Sun,  9 Jan 2022 23:32:31 -0800 (PST)
+        with ESMTP id S240278AbiAJHbi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:31:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E4BDC0254AD;
+        Sun,  9 Jan 2022 23:28:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DF091B811FE;
-        Mon, 10 Jan 2022 07:32:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38CD6C36AED;
-        Mon, 10 Jan 2022 07:32:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2C4E611B8;
+        Mon, 10 Jan 2022 07:28:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C60FDC36AE9;
+        Mon, 10 Jan 2022 07:28:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799948;
-        bh=BYFkaeZVeRf3DcpiRNxRe4CMYuNGnpx0GLf8LTcbRvo=;
+        s=korg; t=1641799704;
+        bh=Z+zCmTEq1nUUaLCcSgs4oup25kLMn11yeAWlNCsjOKs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PkZfh8yLyATs3AtanSYAJnTaFpGaJxws+O1x3dMlCF19ob/j7aBOYQkW+GK9lyegY
-         x4gJDVeqXWWadJf0gkdE2B1Z7fRLbECb7u6VaJpe5+r9vzou+VGKRAyHTX90mXF/p+
-         AtY3SsST6To6Fc+bsjlAQcjBdmPRHcD8ot2SwXuE=
+        b=YI1DkmmY3/7daHgqrBC8UAn63C8Rb5lcThW1RXsiwmYlRLZ5Ynb9EMXA3aLNfcgxq
+         UyxG9H1zSovK2umpGAUmvJH7mime1A08FezHEDis68XDtUTmMrNhR3Tv4tKLmCU4Qv
+         3THOETya/QWJr3TPT35XSTDw0vjLks4VG3DwkDEI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 26/72] sctp: hold endpoint before calling cb in sctp_transport_lookup_process
+        stable@vger.kernel.org,
+        syzbot+6d532fa8f9463da290bc@syzkaller.appspotmail.com,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 5.4 08/34] RDMA/core: Dont infoleak GRH fields
 Date:   Mon, 10 Jan 2022 08:23:03 +0100
-Message-Id: <20220110071822.454728244@linuxfoundation.org>
+Message-Id: <20220110071815.928781935@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
-References: <20220110071821.500480371@linuxfoundation.org>
+In-Reply-To: <20220110071815.647309738@linuxfoundation.org>
+References: <20220110071815.647309738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,172 +49,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-commit f9d31c4cf4c11ff10317f038b9c6f7c3bda6cdd4 upstream.
+commit b35a0f4dd544eaa6162b6d2f13a2557a121ae5fd upstream.
 
-The same fix in commit 5ec7d18d1813 ("sctp: use call_rcu to free endpoint")
-is also needed for dumping one asoc and sock after the lookup.
+If dst->is_global field is not set, the GRH fields are not cleared
+and the following infoleak is reported.
 
-Fixes: 86fdb3448cc1 ("sctp: ensure ep is not destroyed before doing the dump")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+=====================================================
+BUG: KMSAN: kernel-infoleak in instrument_copy_to_user include/linux/instrumented.h:121 [inline]
+BUG: KMSAN: kernel-infoleak in _copy_to_user+0x1c9/0x270 lib/usercopy.c:33
+ instrument_copy_to_user include/linux/instrumented.h:121 [inline]
+ _copy_to_user+0x1c9/0x270 lib/usercopy.c:33
+ copy_to_user include/linux/uaccess.h:209 [inline]
+ ucma_init_qp_attr+0x8c7/0xb10 drivers/infiniband/core/ucma.c:1242
+ ucma_write+0x637/0x6c0 drivers/infiniband/core/ucma.c:1732
+ vfs_write+0x8ce/0x2030 fs/read_write.c:588
+ ksys_write+0x28b/0x510 fs/read_write.c:643
+ __do_sys_write fs/read_write.c:655 [inline]
+ __se_sys_write fs/read_write.c:652 [inline]
+ __ia32_sys_write+0xdb/0x120 fs/read_write.c:652
+ do_syscall_32_irqs_on arch/x86/entry/common.c:114 [inline]
+ __do_fast_syscall_32+0x96/0xf0 arch/x86/entry/common.c:180
+ do_fast_syscall_32+0x34/0x70 arch/x86/entry/common.c:205
+ do_SYSENTER_32+0x1b/0x20 arch/x86/entry/common.c:248
+ entry_SYSENTER_compat_after_hwframe+0x4d/0x5c
+
+Local variable resp created at:
+ ucma_init_qp_attr+0xa4/0xb10 drivers/infiniband/core/ucma.c:1214
+ ucma_write+0x637/0x6c0 drivers/infiniband/core/ucma.c:1732
+
+Bytes 40-59 of 144 are uninitialized
+Memory access of size 144 starts at ffff888167523b00
+Data copied to user address 0000000020000100
+
+CPU: 1 PID: 25910 Comm: syz-executor.1 Not tainted 5.16.0-rc5-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+=====================================================
+
+Fixes: 4ba66093bdc6 ("IB/core: Check for global flag when using ah_attr")
+Link: https://lore.kernel.org/r/0e9dd51f93410b7b2f4f5562f52befc878b71afa.1641298868.git.leonro@nvidia.com
+Reported-by: syzbot+6d532fa8f9463da290bc@syzkaller.appspotmail.com
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/sctp/sctp.h |    3 +--
- net/sctp/diag.c         |   48 ++++++++++++++++++++++--------------------------
- net/sctp/socket.c       |   22 +++++++++++++++-------
- 3 files changed, 38 insertions(+), 35 deletions(-)
+ drivers/infiniband/core/uverbs_marshall.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/net/sctp/sctp.h
-+++ b/include/net/sctp/sctp.h
-@@ -112,8 +112,7 @@ struct sctp_transport *sctp_transport_ge
- 			struct rhashtable_iter *iter);
- struct sctp_transport *sctp_transport_get_idx(struct net *net,
- 			struct rhashtable_iter *iter, int pos);
--int sctp_transport_lookup_process(int (*cb)(struct sctp_transport *, void *),
--				  struct net *net,
-+int sctp_transport_lookup_process(sctp_callback_t cb, struct net *net,
- 				  const union sctp_addr *laddr,
- 				  const union sctp_addr *paddr, void *p);
- int sctp_transport_traverse_process(sctp_callback_t cb, sctp_callback_t cb_done,
---- a/net/sctp/diag.c
-+++ b/net/sctp/diag.c
-@@ -245,48 +245,44 @@ static size_t inet_assoc_attr_size(struc
- 		+ 64;
- }
+--- a/drivers/infiniband/core/uverbs_marshall.c
++++ b/drivers/infiniband/core/uverbs_marshall.c
+@@ -66,7 +66,7 @@ void ib_copy_ah_attr_to_user(struct ib_d
+ 	struct rdma_ah_attr *src = ah_attr;
+ 	struct rdma_ah_attr conv_ah;
  
--static int sctp_tsp_dump_one(struct sctp_transport *tsp, void *p)
-+static int sctp_sock_dump_one(struct sctp_endpoint *ep, struct sctp_transport *tsp, void *p)
- {
- 	struct sctp_association *assoc = tsp->asoc;
--	struct sock *sk = tsp->asoc->base.sk;
- 	struct sctp_comm_param *commp = p;
--	struct sk_buff *in_skb = commp->skb;
-+	struct sock *sk = ep->base.sk;
- 	const struct inet_diag_req_v2 *req = commp->r;
--	const struct nlmsghdr *nlh = commp->nlh;
--	struct net *net = sock_net(in_skb->sk);
-+	struct sk_buff *skb = commp->skb;
- 	struct sk_buff *rep;
- 	int err;
+-	memset(&dst->grh.reserved, 0, sizeof(dst->grh.reserved));
++	memset(&dst->grh, 0, sizeof(dst->grh));
  
- 	err = sock_diag_check_cookie(sk, req->id.idiag_cookie);
- 	if (err)
--		goto out;
-+		return err;
- 
--	err = -ENOMEM;
- 	rep = nlmsg_new(inet_assoc_attr_size(assoc), GFP_KERNEL);
- 	if (!rep)
--		goto out;
-+		return -ENOMEM;
- 
- 	lock_sock(sk);
--	if (sk != assoc->base.sk) {
--		release_sock(sk);
--		sk = assoc->base.sk;
--		lock_sock(sk);
--	}
--	err = inet_sctp_diag_fill(sk, assoc, rep, req,
--				  sk_user_ns(NETLINK_CB(in_skb).sk),
--				  NETLINK_CB(in_skb).portid,
--				  nlh->nlmsg_seq, 0, nlh,
--				  commp->net_admin);
--	release_sock(sk);
-+	if (ep != assoc->ep) {
-+		err = -EAGAIN;
-+		goto out;
-+	}
-+
-+	err = inet_sctp_diag_fill(sk, assoc, rep, req, sk_user_ns(NETLINK_CB(skb).sk),
-+				  NETLINK_CB(skb).portid, commp->nlh->nlmsg_seq, 0,
-+				  commp->nlh, commp->net_admin);
- 	if (err < 0) {
- 		WARN_ON(err == -EMSGSIZE);
--		kfree_skb(rep);
- 		goto out;
- 	}
-+	release_sock(sk);
- 
--	err = nlmsg_unicast(net->diag_nlsk, rep, NETLINK_CB(in_skb).portid);
-+	return nlmsg_unicast(sock_net(skb->sk)->diag_nlsk, rep, NETLINK_CB(skb).portid);
- 
- out:
-+	release_sock(sk);
-+	kfree_skb(rep);
- 	return err;
- }
- 
-@@ -429,15 +425,15 @@ static void sctp_diag_get_info(struct so
- static int sctp_diag_dump_one(struct netlink_callback *cb,
- 			      const struct inet_diag_req_v2 *req)
- {
--	struct sk_buff *in_skb = cb->skb;
--	struct net *net = sock_net(in_skb->sk);
-+	struct sk_buff *skb = cb->skb;
-+	struct net *net = sock_net(skb->sk);
- 	const struct nlmsghdr *nlh = cb->nlh;
- 	union sctp_addr laddr, paddr;
- 	struct sctp_comm_param commp = {
--		.skb = in_skb,
-+		.skb = skb,
- 		.r = req,
- 		.nlh = nlh,
--		.net_admin = netlink_net_capable(in_skb, CAP_NET_ADMIN),
-+		.net_admin = netlink_net_capable(skb, CAP_NET_ADMIN),
- 	};
- 
- 	if (req->sdiag_family == AF_INET) {
-@@ -460,7 +456,7 @@ static int sctp_diag_dump_one(struct net
- 		paddr.v6.sin6_family = AF_INET6;
- 	}
- 
--	return sctp_transport_lookup_process(sctp_tsp_dump_one,
-+	return sctp_transport_lookup_process(sctp_sock_dump_one,
- 					     net, &laddr, &paddr, &commp);
- }
- 
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -5317,23 +5317,31 @@ int sctp_for_each_endpoint(int (*cb)(str
- }
- EXPORT_SYMBOL_GPL(sctp_for_each_endpoint);
- 
--int sctp_transport_lookup_process(int (*cb)(struct sctp_transport *, void *),
--				  struct net *net,
-+int sctp_transport_lookup_process(sctp_callback_t cb, struct net *net,
- 				  const union sctp_addr *laddr,
- 				  const union sctp_addr *paddr, void *p)
- {
- 	struct sctp_transport *transport;
--	int err;
-+	struct sctp_endpoint *ep;
-+	int err = -ENOENT;
- 
- 	rcu_read_lock();
- 	transport = sctp_addrs_lookup_transport(net, laddr, paddr);
-+	if (!transport) {
-+		rcu_read_unlock();
-+		return err;
-+	}
-+	ep = transport->asoc->ep;
-+	if (!sctp_endpoint_hold(ep)) { /* asoc can be peeled off */
-+		sctp_transport_put(transport);
-+		rcu_read_unlock();
-+		return err;
-+	}
- 	rcu_read_unlock();
--	if (!transport)
--		return -ENOENT;
- 
--	err = cb(transport, p);
-+	err = cb(ep, transport, p);
-+	sctp_endpoint_put(ep);
- 	sctp_transport_put(transport);
--
- 	return err;
- }
- EXPORT_SYMBOL_GPL(sctp_transport_lookup_process);
+ 	if ((ah_attr->type == RDMA_AH_ATTR_TYPE_OPA) &&
+ 	    (rdma_ah_get_dlid(ah_attr) > be16_to_cpu(IB_LID_PERMISSIVE)) &&
 
 
