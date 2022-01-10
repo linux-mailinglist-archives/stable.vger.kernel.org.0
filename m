@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DCD748910E
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:29:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59C3248914C
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:31:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239430AbiAJH2r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:28:47 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:57246 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239761AbiAJH0q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:26:46 -0500
+        id S240159AbiAJHaw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:30:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47992 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240120AbiAJH2b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:28:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAF07C028BE8;
+        Sun,  9 Jan 2022 23:26:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CAD3AB8121F;
-        Mon, 10 Jan 2022 07:26:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F612C36AED;
-        Mon, 10 Jan 2022 07:26:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3BE6B8120C;
+        Mon, 10 Jan 2022 07:26:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E648DC36AED;
+        Mon, 10 Jan 2022 07:26:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799602;
-        bh=Wldz8UjcKZnAtHovDBU/1qsaosdEB3xAIvPbnIahNks=;
+        s=korg; t=1641799605;
+        bh=8djHihGT1fBxPDb4dfGke7sE406ckoNNOuXvoUFQ+UI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fNiDRLcP+npnyiVjczWXf7RAJnYUUcOThu19Nj7rQNZ9me7FWWw0wpWzTgoqy1dwS
-         yIvW0KWx7GoIkHzFcwc2YXSgQ0wXboeDW2rz+LWzV7CcvFEMwHAjH2p5zD3+vMmQIa
-         MvoN3cLiuqNchJkiMAdH2BB6fPs76p+LDD52I0JI=
+        b=iTGP3jSwR64GwtN2CXWXo6LLuEG+r/RY58nOIpWCNvxmaxXuqMllX4TA9z1wrUkwt
+         8zus5+1NHtpZGO6zsoZ4DmXj2s/V/GyYfRvDslRa3m+N+85i2Th1Xu+otGRmhc3oLV
+         Anuz3hTj/oAga80FfTzhkdBNCFDstnUvuDhciudk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lukasz Cieplicki <lukaszx.cieplicki@intel.com>,
-        Jedrzej Jagielski <jedrzej.jagielski@intel.com>,
-        Gurucharan G <gurucharanx.g@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>
-Subject: [PATCH 4.14 09/22] i40e: Fix incorrect netdevs real number of RX/TX queues
-Date:   Mon, 10 Jan 2022 08:23:02 +0100
-Message-Id: <20220110071814.574227520@linuxfoundation.org>
+        stable@vger.kernel.org, David Ahern <dsahern@kernel.org>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 10/22] ipv6: Check attribute length for RTA_GATEWAY in multipath route
+Date:   Mon, 10 Jan 2022 08:23:03 +0100
+Message-Id: <20220110071814.607679301@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220110071814.261471354@linuxfoundation.org>
 References: <20220110071814.261471354@linuxfoundation.org>
@@ -47,86 +48,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+From: David Ahern <dsahern@kernel.org>
 
-commit e738451d78b2f8a9635d66c6a87f304b4d965f7a upstream.
+commit 4619bcf91399f00a40885100fb61d594d8454033 upstream.
 
-There was a wrong queues representation in sysfs during
-driver's reinitialization in case of online cpus number is
-less than combined queues. It was caused by stopped
-NetworkManager, which is responsible for calling vsi_open
-function during driver's initialization.
-In specific situation (ex. 12 cpus online) there were 16 queues
-in /sys/class/net/<iface>/queues. In case of modifying queues with
-value higher, than number of online cpus, then it caused write
-errors and other errors.
-Add updating of sysfs's queues representation during driver
-initialization.
+Commit referenced in the Fixes tag used nla_memcpy for RTA_GATEWAY as
+does the current nla_get_in6_addr. nla_memcpy protects against accessing
+memory greater than what is in the attribute, but there is no check
+requiring the attribute to have an IPv6 address. Add it.
 
-Fixes: 41c445ff0f48 ("i40e: main driver core")
-Signed-off-by: Lukasz Cieplicki <lukaszx.cieplicki@intel.com>
-Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 51ebd3181572 ("ipv6: add support of equal cost multipath (ECMP)")
+Signed-off-by: David Ahern <dsahern@kernel.org>
+Cc: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c |   32 +++++++++++++++++++++-------
- 1 file changed, 25 insertions(+), 7 deletions(-)
+ net/ipv6/route.c |   21 ++++++++++++++++++++-
+ 1 file changed, 20 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -5730,6 +5730,27 @@ int i40e_open(struct net_device *netdev)
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -3183,6 +3183,19 @@ static void ip6_route_mpath_notify(struc
+ 		inet6_rt_notify(RTM_NEWROUTE, rt, info, nlflags);
  }
  
- /**
-+ * i40e_netif_set_realnum_tx_rx_queues - Update number of tx/rx queues
-+ * @vsi: vsi structure
-+ *
-+ * This updates netdev's number of tx/rx queues
-+ *
-+ * Returns status of setting tx/rx queues
-+ **/
-+static int i40e_netif_set_realnum_tx_rx_queues(struct i40e_vsi *vsi)
++static int fib6_gw_from_attr(struct in6_addr *gw, struct nlattr *nla,
++			     struct netlink_ext_ack *extack)
 +{
-+	int ret;
++	if (nla_len(nla) < sizeof(*gw)) {
++		NL_SET_ERR_MSG(extack, "Invalid IPv6 address in RTA_GATEWAY");
++		return -EINVAL;
++	}
 +
-+	ret = netif_set_real_num_rx_queues(vsi->netdev,
-+					   vsi->num_queue_pairs);
-+	if (ret)
-+		return ret;
++	*gw = nla_get_in6_addr(nla);
 +
-+	return netif_set_real_num_tx_queues(vsi->netdev,
-+					    vsi->num_queue_pairs);
++	return 0;
 +}
 +
-+/**
-  * i40e_vsi_open -
-  * @vsi: the VSI to open
-  *
-@@ -5765,13 +5786,7 @@ int i40e_vsi_open(struct i40e_vsi *vsi)
- 			goto err_setup_rx;
+ static int ip6_route_multipath_add(struct fib6_config *cfg,
+ 				   struct netlink_ext_ack *extack)
+ {
+@@ -3223,7 +3236,13 @@ static int ip6_route_multipath_add(struc
  
- 		/* Notify the stack of the actual queue counts. */
--		err = netif_set_real_num_tx_queues(vsi->netdev,
--						   vsi->num_queue_pairs);
--		if (err)
--			goto err_set_queues;
--
--		err = netif_set_real_num_rx_queues(vsi->netdev,
--						   vsi->num_queue_pairs);
-+		err = i40e_netif_set_realnum_tx_rx_queues(vsi);
- 		if (err)
- 			goto err_set_queues;
- 
-@@ -10455,6 +10470,9 @@ struct i40e_vsi *i40e_vsi_setup(struct i
- 		ret = i40e_config_netdev(vsi);
- 		if (ret)
- 			goto err_netdev;
-+		ret = i40e_netif_set_realnum_tx_rx_queues(vsi);
-+		if (ret)
-+			goto err_netdev;
- 		ret = register_netdev(vsi->netdev);
- 		if (ret)
- 			goto err_netdev;
+ 			nla = nla_find(attrs, attrlen, RTA_GATEWAY);
+ 			if (nla) {
+-				r_cfg.fc_gateway = nla_get_in6_addr(nla);
++				int ret;
++
++				ret = fib6_gw_from_attr(&r_cfg.fc_gateway, nla,
++							extack);
++				if (ret)
++					return ret;
++
+ 				r_cfg.fc_flags |= RTF_GATEWAY;
+ 			}
+ 			r_cfg.fc_encap = nla_find(attrs, attrlen, RTA_ENCAP);
 
 
