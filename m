@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC4FE4890CF
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:26:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5DBC489167
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:32:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239481AbiAJHZs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:25:48 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:35358 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239370AbiAJHY7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:24:59 -0500
+        id S240630AbiAJHbk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:31:40 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56806 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240360AbiAJH34 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:29:56 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BDADE61194;
-        Mon, 10 Jan 2022 07:24:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A074EC36AED;
-        Mon, 10 Jan 2022 07:24:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93FA1B81202;
+        Mon, 10 Jan 2022 07:29:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9FB5C36AE9;
+        Mon, 10 Jan 2022 07:29:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799498;
-        bh=5AycrP6fhzyZWUTosB32ZZVjaR3QhOE2NrfcmR2OBgM=;
+        s=korg; t=1641799794;
+        bh=IsNMZc8RKQRSTDpyDsA1lnZ9piQv3Yrxyp9sRVEBJlk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yy+8zGmFtgBn25kOEN92gjvDe4WCcmnKfizXADfwfoNStC8SCOTjIK4Wv8BjSxGo7
-         tLMiKYwj+tV7CviYjwf09kESPkMm/yJaQCvUqPe3mfQK41URMWIkO70SIXn6lvPFMA
-         g+AYq74/JaP+5BBEwnLp/sYfOnu1vlC63pbNo4cE=
+        b=1nrJhzfmzjbtD/bT14DnXuV/3JjOQtStMJH2J3r5p19uzFPN2Gas/+2JfYAA72Tgc
+         4m4Rc5W/AZ/cFhO0nuGo+5ClHEgxvuk/Uf1qkdzaF12yJ/BNbSDDT7XjproFnZsbJ8
+         Kd5ziiUHRQ30eHusinSQmF0yS2ksvvTaS4jVg8R8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Zyngier <marc.zyngier@arm.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 4.9 14/21] arm64: move !VHE work to end of el2_setup
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Steven Rostedt <rostedt@goodmis.org>
+Subject: [PATCH 5.10 04/43] tracing: Tag trace_percpu_buffer as a percpu pointer
 Date:   Mon, 10 Jan 2022 08:23:01 +0100
-Message-Id: <20220110071813.280605016@linuxfoundation.org>
+Message-Id: <20220110071817.479474258@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071812.806606886@linuxfoundation.org>
-References: <20220110071812.806606886@linuxfoundation.org>
+In-Reply-To: <20220110071817.337619922@linuxfoundation.org>
+References: <20220110071817.337619922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,80 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 
-commit d61c97a7773d0848b4bf5c4697855c7ce117362c upstream.
+commit f28439db470cca8b6b082239314e9fd10bd39034 upstream.
 
-We only need to initialise sctlr_el1 if we're installing an EL2 stub, so
-we may as well defer this until we're doing so. Similarly, we can defer
-intialising CPTR_EL2 until then, as we do not access any trapped
-functionality as part of el2_setup.
+Tag trace_percpu_buffer as a percpu pointer to resolve warnings
+reported by sparse:
+  /linux/kernel/trace/trace.c:3218:46: warning: incorrect type in initializer (different address spaces)
+  /linux/kernel/trace/trace.c:3218:46:    expected void const [noderef] __percpu *__vpp_verify
+  /linux/kernel/trace/trace.c:3218:46:    got struct trace_buffer_struct *
+  /linux/kernel/trace/trace.c:3234:9: warning: incorrect type in initializer (different address spaces)
+  /linux/kernel/trace/trace.c:3234:9:    expected void const [noderef] __percpu *__vpp_verify
+  /linux/kernel/trace/trace.c:3234:9:    got int *
 
-This patch modified el2_setup accordingly, allowing us to remove a
-branch and simplify the code flow.
+Link: https://lkml.kernel.org/r/ebabd3f23101d89cb75671b68b6f819f5edc830b.1640255304.git.naveen.n.rao@linux.vnet.ibm.com
 
-Acked-by: Marc Zyngier <marc.zyngier@arm.com>
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 07d777fe8c398 ("tracing: Add percpu buffers for trace_printk()")
+Signed-off-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kernel/head.S |   37 +++++++++++++++++--------------------
- 1 file changed, 17 insertions(+), 20 deletions(-)
+ kernel/trace/trace.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/arm64/kernel/head.S
-+++ b/arch/arm64/kernel/head.S
-@@ -553,26 +553,6 @@ set_hcr:
- 	msr	vpidr_el2, x0
- 	msr	vmpidr_el2, x1
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -3134,7 +3134,7 @@ struct trace_buffer_struct {
+ 	char buffer[4][TRACE_BUF_SIZE];
+ };
  
--	/*
--	 * When VHE is not in use, early init of EL2 and EL1 needs to be
--	 * done here.
--	 * When VHE _is_ in use, EL1 will not be used in the host and
--	 * requires no configuration, and all non-hyp-specific EL2 setup
--	 * will be done via the _EL1 system register aliases in __cpu_setup.
--	 */
--	cbnz	x2, 1f
--
--	/* sctlr_el1 */
--	mov	x0, #0x0800			// Set/clear RES{1,0} bits
--CPU_BE(	movk	x0, #0x33d0, lsl #16	)	// Set EE and E0E on BE systems
--CPU_LE(	movk	x0, #0x30d0, lsl #16	)	// Clear EE and E0E on LE systems
--	msr	sctlr_el1, x0
--
--	/* Coprocessor traps. */
--	mov	x0, #0x33ff
--	msr	cptr_el2, x0			// Disable copro. traps to EL2
--1:
--
- #ifdef CONFIG_COMPAT
- 	msr	hstr_el2, xzr			// Disable CP15 traps to EL2
- #endif
-@@ -598,6 +578,23 @@ CPU_LE(	movk	x0, #0x30d0, lsl #16	)	// C
- 	ret
+-static struct trace_buffer_struct *trace_percpu_buffer;
++static struct trace_buffer_struct __percpu *trace_percpu_buffer;
  
- install_el2_stub:
-+	/*
-+	 * When VHE is not in use, early init of EL2 and EL1 needs to be
-+	 * done here.
-+	 * When VHE _is_ in use, EL1 will not be used in the host and
-+	 * requires no configuration, and all non-hyp-specific EL2 setup
-+	 * will be done via the _EL1 system register aliases in __cpu_setup.
-+	 */
-+	/* sctlr_el1 */
-+	mov	x0, #0x0800			// Set/clear RES{1,0} bits
-+CPU_BE(	movk	x0, #0x33d0, lsl #16	)	// Set EE and E0E on BE systems
-+CPU_LE(	movk	x0, #0x30d0, lsl #16	)	// Clear EE and E0E on LE systems
-+	msr	sctlr_el1, x0
-+
-+	/* Coprocessor traps. */
-+	mov	x0, #0x33ff
-+	msr	cptr_el2, x0			// Disable copro. traps to EL2
-+
- 	/* Hypervisor stub */
- 	adrp	x0, __hyp_stub_vectors
- 	add	x0, x0, #:lo12:__hyp_stub_vectors
+ /*
+  * Thise allows for lockless recording.  If we're nested too deeply, then
+@@ -3163,7 +3163,7 @@ static void put_trace_buf(void)
+ 
+ static int alloc_percpu_trace_buffer(void)
+ {
+-	struct trace_buffer_struct *buffers;
++	struct trace_buffer_struct __percpu *buffers;
+ 
+ 	if (trace_percpu_buffer)
+ 		return 0;
 
 
