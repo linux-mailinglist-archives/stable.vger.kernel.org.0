@@ -2,48 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7C98489262
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:46:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 185F3489185
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:34:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240182AbiAJHmN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:42:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50722 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242045AbiAJHkM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:40:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92796C022593;
-        Sun,  9 Jan 2022 23:33:58 -0800 (PST)
+        id S239664AbiAJHdB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:33:01 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:59634 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240101AbiAJHa5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:30:57 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 325A660B63;
-        Mon, 10 Jan 2022 07:33:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 166D2C36AE9;
-        Mon, 10 Jan 2022 07:33:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6775B811E3;
+        Mon, 10 Jan 2022 07:30:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D698C36AE9;
+        Mon, 10 Jan 2022 07:30:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641800037;
-        bh=rZiBSD5jjfvjzm16SGoi+rwrP4CW+3Dqtg3dV9jQBCM=;
+        s=korg; t=1641799853;
+        bh=JnLfpKarmaeJnfgtZqGxuI+wJOGE1vIwrpQ8HcTQ8Zs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TI1hyMSYZPw8SChEgNmTo5mzD7bhHvlE8HzbmEP4d1i8Bgt/hiLg0K7eQJTC/BNne
-         40DDWamNRKTPd2kDqBSBX8I9Rg2yk/vQbUMfNStSW0K0OLeBgtYr4QKoSNvirbISup
-         ReSNa6/aJWxbnl6Sn3rSwbesylaS2RrMdRoe1kV8=
+        b=V4RrvqrHlgyS/5isuTulnuyUTBJzRRLCdoBjzglsAJCqVOE45n1o7PCY6+KW/yf9G
+         mlerRYacuDMjbg1Auf1pplyXQx2/wF7we7PeyA5mdod2TS06l1+KS/xwEod50BAEaP
+         uMTa8Gcyrc8oLduK8+EDy9wzWdgUWpSmV6EDV9vo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lu Tixiong <lutianxiong@huawei.com>,
-        Mike Christie <michael.christie@oracle.com>,
-        Lee Duncan <lduncan@suse.com>,
-        Lixiaokeng <lixiaokeng@huawei.com>,
-        Linfeilong <linfeilong@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, yangxingwu <xingwu.yang@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 57/72] scsi: libiscsi: Fix UAF in iscsi_conn_get_param()/iscsi_conn_teardown()
+Subject: [PATCH 5.10 37/43] net: udp: fix alignment problem in udp4_seq_show()
 Date:   Mon, 10 Jan 2022 08:23:34 +0100
-Message-Id: <20220110071823.489587869@linuxfoundation.org>
+Message-Id: <20220110071818.595913164@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
-References: <20220110071821.500480371@linuxfoundation.org>
+In-Reply-To: <20220110071817.337619922@linuxfoundation.org>
+References: <20220110071817.337619922@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,66 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lixiaokeng <lixiaokeng@huawei.com>
+From: yangxingwu <xingwu.yang@gmail.com>
 
-[ Upstream commit 1b8d0300a3e9f216ae4901bab886db7299899ec6 ]
+[ Upstream commit 6c25449e1a32c594d743df8e8258e8ef870b6a77 ]
 
-|- iscsi_if_destroy_conn            |-dev_attr_show
- |-iscsi_conn_teardown
-  |-spin_lock_bh                     |-iscsi_sw_tcp_conn_get_param
+$ cat /pro/net/udp
 
-  |-kfree(conn->persistent_address)   |-iscsi_conn_get_param
-  |-kfree(conn->local_ipaddr)
-                                       ==>|-read persistent_address
-                                       ==>|-read local_ipaddr
-  |-spin_unlock_bh
+before:
 
-When iscsi_conn_teardown() and iscsi_conn_get_param() happen in parallel, a
-UAF may be triggered.
+  sl  local_address rem_address   st tx_queue rx_queue tr tm->when
+26050: 0100007F:0035 00000000:0000 07 00000000:00000000 00:00000000
+26320: 0100007F:0143 00000000:0000 07 00000000:00000000 00:00000000
+27135: 00000000:8472 00000000:0000 07 00000000:00000000 00:00000000
 
-Link: https://lore.kernel.org/r/046ec8a0-ce95-d3fc-3235-666a7c65b224@huawei.com
-Reported-by: Lu Tixiong <lutianxiong@huawei.com>
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Reviewed-by: Lee Duncan <lduncan@suse.com>
-Signed-off-by: Lixiaokeng <lixiaokeng@huawei.com>
-Signed-off-by: Linfeilong <linfeilong@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+after:
+
+   sl  local_address rem_address   st tx_queue rx_queue tr tm->when
+26050: 0100007F:0035 00000000:0000 07 00000000:00000000 00:00000000
+26320: 0100007F:0143 00000000:0000 07 00000000:00000000 00:00000000
+27135: 00000000:8472 00000000:0000 07 00000000:00000000 00:00000000
+
+Signed-off-by: yangxingwu <xingwu.yang@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libiscsi.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/ipv4/udp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
-index 5bc91d34df634..cbc263ec9d661 100644
---- a/drivers/scsi/libiscsi.c
-+++ b/drivers/scsi/libiscsi.c
-@@ -3101,6 +3101,8 @@ void iscsi_conn_teardown(struct iscsi_cls_conn *cls_conn)
+diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
+index 86ed2afbee302..ef2068a60d4ad 100644
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -3006,7 +3006,7 @@ int udp4_seq_show(struct seq_file *seq, void *v)
  {
- 	struct iscsi_conn *conn = cls_conn->dd_data;
- 	struct iscsi_session *session = conn->session;
-+	char *tmp_persistent_address = conn->persistent_address;
-+	char *tmp_local_ipaddr = conn->local_ipaddr;
- 
- 	del_timer_sync(&conn->transport_timer);
- 
-@@ -3122,8 +3124,6 @@ void iscsi_conn_teardown(struct iscsi_cls_conn *cls_conn)
- 	spin_lock_bh(&session->frwd_lock);
- 	free_pages((unsigned long) conn->data,
- 		   get_order(ISCSI_DEF_MAX_RECV_SEG_LEN));
--	kfree(conn->persistent_address);
--	kfree(conn->local_ipaddr);
- 	/* regular RX path uses back_lock */
- 	spin_lock_bh(&session->back_lock);
- 	kfifo_in(&session->cmdpool.queue, (void*)&conn->login_task,
-@@ -3135,6 +3135,8 @@ void iscsi_conn_teardown(struct iscsi_cls_conn *cls_conn)
- 	mutex_unlock(&session->eh_mutex);
- 
- 	iscsi_destroy_conn(cls_conn);
-+	kfree(tmp_persistent_address);
-+	kfree(tmp_local_ipaddr);
- }
- EXPORT_SYMBOL_GPL(iscsi_conn_teardown);
- 
+ 	seq_setwidth(seq, 127);
+ 	if (v == SEQ_START_TOKEN)
+-		seq_puts(seq, "  sl  local_address rem_address   st tx_queue "
++		seq_puts(seq, "   sl  local_address rem_address   st tx_queue "
+ 			   "rx_queue tr tm->when retrnsmt   uid  timeout "
+ 			   "inode ref pointer drops");
+ 	else {
 -- 
 2.34.1
 
