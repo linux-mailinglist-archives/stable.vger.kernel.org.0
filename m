@@ -2,149 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0911B4895C9
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 10:56:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60AFD4895E5
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 11:01:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243470AbiAJJ4f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 04:56:35 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:32520 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S243455AbiAJJ4d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 04:56:33 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1641808592;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=wJr2+TRe6SBb1BM5UDY1ejbky83MU/0sD3dvYedx6MA=;
-        b=J4ZOZtmCIds8/MwCUrWz/SS2nQNAVJ5EeyzV5uefZMGGOa6nEnmxSdx/2ed2b+3Ve2ZoFI
-        qbSn1IrqtEtqURijjBDdZSpf4hOw5wjit6pAN0ZxpNkdz/3/a67bx99MnduDj5rSdk2nrC
-        rU1EALk8oYxYKasYPAbPU15Q8OPsyac=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-269-yCLKsr1xMg28DmaA4_Kw2Q-1; Mon, 10 Jan 2022 04:56:31 -0500
-X-MC-Unique: yCLKsr1xMg28DmaA4_Kw2Q-1
-Received: by mail-wr1-f69.google.com with SMTP id k14-20020adfb34e000000b001a5d060e1edso2406491wrd.7
-        for <stable@vger.kernel.org>; Mon, 10 Jan 2022 01:56:31 -0800 (PST)
+        id S243557AbiAJKBY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 05:01:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56820 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243540AbiAJKBV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 05:01:21 -0500
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B02FC06173F
+        for <stable@vger.kernel.org>; Mon, 10 Jan 2022 02:01:21 -0800 (PST)
+Received: by mail-pl1-x633.google.com with SMTP id z3so11354402plg.8
+        for <stable@vger.kernel.org>; Mon, 10 Jan 2022 02:01:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=CdF6DjGgBF3/uAxI6i6FZtc6+qO9owboo4qasTYodTs=;
+        b=7VPuJs0Sl61dL+3moAwwwgoM6lWrPsOgu9gCf6JE4OaHRvHMbTKEqO8Ir4gED+fPrB
+         kDCnjevAo9ITCaziWTwuoXG5i4bTaRytTP49Rro/sWQXHxPPxGFLm5fYFO6F2vqQkJ82
+         KuNtyzjk/De6IoGAjVO63XP+bb4x8kCzSAdEnWsjBFrKKI+sYTJHRhPWplb++7IC/Pmj
+         UhaBjdGOhLLqXQujFTzF5JPTLXl+A0dW1aj3td7YibO75Ll394g8qiUxwsYTO+sjlyCJ
+         mJWzqtOpZkniozUAjm8FcIeHhI3/Ou65e0dBLrbGdA60AlFcKlyuD4TpNWjcPFMSKjwu
+         0FPg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=wJr2+TRe6SBb1BM5UDY1ejbky83MU/0sD3dvYedx6MA=;
-        b=qVXcOMNdzAudPpYW8f3/rWrNdmz6Fl0Jai66HA2qMczz2QasvRy85VzwnJIDOFRnO6
-         4LsrzABfeXBuTUMdc8dr4p9kwmUz9vwHq3epgVXqmTjxre3hnBdfD7AVhu//4pvKsaHk
-         gowXsofx+KA/xC8JepmBGdbjU9JW3t3ZbLqRxboN4GBTosBG5+jQq/UVAid488mNgCnP
-         nIwTXrfj4TExtWwYsa/bup/NviVj+sbwjWHR8pwfTSEAjB91uF1z7LujvY0kLiYXyidQ
-         TPulPrGTVItgjRSDKKHTTR0Drp7x9YjSus4Jzs+lutMF2g6wvvA9fWkI40XDDP7r11I2
-         x5Bg==
-X-Gm-Message-State: AOAM5321wjhdiEoz8PaT8nyKjqMSME+PeKiPNMVgq8sySpFn6iYBUj8i
-        4Ny11w9+wEVuFMxTGXeMNmLxEsLooIKwctAbnuHSjhocyMKMk4Leqe/vk9vmOfo2Ay7lytmgiaQ
-        FhoP5/UqoxYkTo6oO
-X-Received: by 2002:a05:6000:11c9:: with SMTP id i9mr6134109wrx.544.1641808590195;
-        Mon, 10 Jan 2022 01:56:30 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzvF1fUNv4N+g4L82v97FbltLNWdtemC8wnOpy3eswOBvCDx6S9Wvq2C8LmHTKllcM2hylVhA==
-X-Received: by 2002:a05:6000:11c9:: with SMTP id i9mr6134090wrx.544.1641808589966;
-        Mon, 10 Jan 2022 01:56:29 -0800 (PST)
-Received: from minerva.home ([92.176.231.205])
-        by smtp.gmail.com with ESMTPSA id b13sm6315167wrf.64.2022.01.10.01.56.29
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=CdF6DjGgBF3/uAxI6i6FZtc6+qO9owboo4qasTYodTs=;
+        b=7f14eLqnJPLqgc+ugieV2A+YgKWCDVqtEQBEjN0nlLQDdQQMPIzh+TJJXGCM3l5rfS
+         q5kzd/oYBSsI9R9yPcMedAHQZWFGJgVIaIVwEBbjp9Phdr4sghN935uhHFBbcbzA2vLB
+         FY1/CT1sucjNHXvDuvURhRDYcQ1v8gjfddu03+gXxHeXEEwO7ri4V6O/GOHrjsqrv5us
+         deAGduD4xZaxYXreM03JPLsPosYYFfEp6jXK2WSfWDCxbPW0jHiYUcX0EFLm+zOVm5GL
+         LRWReX/vmR4/gGUJl7+4wXdtQ9RJLyNcUvWhyWYRvZlBXvBbeJ6Rv+M78Kme6+hTww4I
+         PFxQ==
+X-Gm-Message-State: AOAM531yQRoXH+NjSt1APrAdkze0mT7HHUtFz1xrxzbid+OS5JSxo6UP
+        3ZSoIcQv2koWGNcuaaeVlwzg3CfMOFyir/fA
+X-Google-Smtp-Source: ABdhPJzEOr83FmOxF+YhqQDbUyqP8wn0nPLUJoKIq4xMD4qjOggUeO2bxMQuImW4kv0xw9PQs0f7Iw==
+X-Received: by 2002:a17:902:b201:b0:149:4b25:332d with SMTP id t1-20020a170902b20100b001494b25332dmr76336156plr.17.1641808880382;
+        Mon, 10 Jan 2022 02:01:20 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id om3sm8726648pjb.49.2022.01.10.02.01.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 10 Jan 2022 01:56:29 -0800 (PST)
-From:   Javier Martinez Canillas <javierm@redhat.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Kris Karas <bugs-a21@moonlit-rail.com>,
-        Peter Robinson <pbrobinson@gmail.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Javier Martinez Canillas <javierm@redhat.com>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
-Subject: [PATCH v2 2/2] video: vga16fb: Only probe for EGA and VGA 16 color graphic cards
-Date:   Mon, 10 Jan 2022 10:56:25 +0100
-Message-Id: <20220110095625.278836-3-javierm@redhat.com>
-X-Mailer: git-send-email 2.33.1
-In-Reply-To: <20220110095625.278836-1-javierm@redhat.com>
-References: <20220110095625.278836-1-javierm@redhat.com>
+        Mon, 10 Jan 2022 02:01:20 -0800 (PST)
+Message-ID: <61dc03f0.1c69fb81.1b3f4.6769@mx.google.com>
+Date:   Mon, 10 Jan 2022 02:01:20 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.15.13-70-g916d1894bcce
+X-Kernelci-Branch: queue/5.15
+Subject: stable-rc/queue/5.15 baseline: 163 runs,
+ 1 regressions (v5.15.13-70-g916d1894bcce)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The vga16fb framebuffer driver only supports Enhanced Graphics Adapter
-(EGA) and Video Graphics Array (VGA) 16 color graphic cards.
+stable-rc/queue/5.15 baseline: 163 runs, 1 regressions (v5.15.13-70-g916d18=
+94bcce)
 
-But it doesn't check if the adapter is one of those or if a VGA16 mode
-is used. This means that the driver will be probed even if a VESA BIOS
-Extensions (VBE) or Graphics Output Protocol (GOP) interface is used.
+Regressions Summary
+-------------------
 
-This issue has been present for a long time but it was only exposed by
-commit d391c5827107 ("drivers/firmware: move x86 Generic System
-Framebuffers support") since the platform device registration to match
-the {vesa,efi}fb drivers is done later as a consequence of that change.
+platform | arch | lab          | compiler | defconfig      | regressions
+---------+------+--------------+----------+----------------+------------
+hsdk     | arc  | lab-baylibre | gcc-10   | hsdk_defconfig | 1          =
 
-All non-x86 architectures though treat orig_video_isVGA as a boolean so
-only do the supported video mode check for x86 and not for other arches.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=215001
-Fixes: d391c5827107 ("drivers/firmware: move x86 Generic System Framebuffers support")
-Reported-by: Kris Karas <bugs-a21@moonlit-rail.com>
-Cc: <stable@vger.kernel.org> # 5.15.x
-Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
-Tested-by: Kris Karas <bugs-a21@moonlit-rail.com>
----
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.13-70-g916d1894bcce/plan/baseline/
 
-Changes in v2:
-- Only check the suppported video mode for x86 (Geert Uytterhoeven).
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.13-70-g916d1894bcce
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      916d1894bcced3b7f2e191f03b5456ce9a86026c =
 
- drivers/video/fbdev/vga16fb.c | 24 ++++++++++++++++++++++++
- 1 file changed, 24 insertions(+)
 
-diff --git a/drivers/video/fbdev/vga16fb.c b/drivers/video/fbdev/vga16fb.c
-index 8c464409eb99..d21f68f3ee44 100644
---- a/drivers/video/fbdev/vga16fb.c
-+++ b/drivers/video/fbdev/vga16fb.c
-@@ -184,6 +184,25 @@ static inline void setindex(int index)
- 	vga_io_w(VGA_GFX_I, index);
- }
- 
-+/* Check if the video mode is supported by the driver */
-+static inline int check_mode_supported(void)
-+{
-+	/* non-x86 architectures treat orig_video_isVGA as a boolean flag */
-+#if defined(CONFIG_X86)
-+	/* only EGA and VGA in 16 color graphic mode are supported */
-+	if (screen_info.orig_video_isVGA != VIDEO_TYPE_EGAC &&
-+	    screen_info.orig_video_isVGA != VIDEO_TYPE_VGAC)
-+		return -ENODEV;
-+
-+	if (screen_info.orig_video_mode != 0x0D &&	/* 320x200/4 (EGA) */
-+	    screen_info.orig_video_mode != 0x0E &&	/* 640x200/4 (EGA) */
-+	    screen_info.orig_video_mode != 0x10 &&	/* 640x350/4 (EGA) */
-+	    screen_info.orig_video_mode != 0x12)	/* 640x480/4 (VGA) */
-+		return -ENODEV;
-+#endif
-+	return 0;
-+}
-+
- static void vga16fb_pan_var(struct fb_info *info, 
- 			    struct fb_var_screeninfo *var)
- {
-@@ -1427,6 +1446,11 @@ static int __init vga16fb_init(void)
- 
- 	vga16fb_setup(option);
- #endif
-+
-+	ret = check_mode_supported();
-+	if (ret)
-+		return ret;
-+
- 	ret = platform_driver_register(&vga16fb_driver);
- 
- 	if (!ret) {
--- 
-2.33.1
 
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab          | compiler | defconfig      | regressions
+---------+------+--------------+----------+----------------+------------
+hsdk     | arc  | lab-baylibre | gcc-10   | hsdk_defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61dbce467dc74663a1ef674a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: hsdk_defconfig
+  Compiler:    gcc-10 (arc-elf32-gcc (ARCompact/ARCv2 ISA elf32 toolchain -=
+ build 581) 10.2.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.13-=
+70-g916d1894bcce/arc/hsdk_defconfig/gcc-10/lab-baylibre/baseline-hsdk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.13-=
+70-g916d1894bcce/arc/hsdk_defconfig/gcc-10/lab-baylibre/baseline-hsdk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/arc/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61dbce467dc74663a1ef6=
+74b
+        new failure (last pass: v5.15.13-50-g3941bf6c6d13) =
+
+ =20
