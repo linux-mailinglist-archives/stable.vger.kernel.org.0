@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F607489252
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:46:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22A28489110
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:29:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241623AbiAJHl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:41:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50404 "EHLO
+        id S239738AbiAJH2v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:28:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240572AbiAJHiS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:38:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EA80C028BA8;
-        Sun,  9 Jan 2022 23:32:36 -0800 (PST)
+        with ESMTP id S239798AbiAJH0w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:26:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79B62C02983D;
+        Sun,  9 Jan 2022 23:25:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AADCFB81204;
-        Mon, 10 Jan 2022 07:32:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAE43C36AED;
-        Mon, 10 Jan 2022 07:32:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 19F3E611CB;
+        Mon, 10 Jan 2022 07:25:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02FF7C36AED;
+        Mon, 10 Jan 2022 07:25:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799954;
-        bh=ITblwZ2ADn0VPZZJdOsjLdDtAN52vSlPSF1hbAWXnMk=;
+        s=korg; t=1641799554;
+        bh=oRuKsWuXd7rWSTaW3hc33NOCyZXi5lLLPnILt8k0u/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iqRWYAzBAKM9yXlU7Nr0IWj/UDayTi6QdZMybUw+yvgAx/IzpZ7Fk8qbFzMueJzEf
-         gi0j+NUArSlsisTkEJKairACp1Iqkx6eVKG+4kMZjIKa0FGyKlMROlM+ICdjTNwBe8
-         p31rpc74oIKB/K5fNleqRdEZj0z8UuMARKNsYuAM=
+        b=wvuSO7etq4NCkDpMgRtWQ4wxuEJvXXGArzzIO/l0c30ER7xVzqwh8vlzH2oFzqVp5
+         Wwz4icJbdlnp1C7SELjqCOOrszFjntTINBpV3YmxrNR82WvdeZrx6/e5c9sPiwaNhJ
+         0ewpK81RcvNyGA/fsSeUmKjgss4QR9LSdCsfai78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
         syzbot <syzkaller@googlegroups.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 28/72] sch_qfq: prevent shift-out-of-bounds in qfq_init_qdisc
+Subject: [PATCH 4.14 12/22] sch_qfq: prevent shift-out-of-bounds in qfq_init_qdisc
 Date:   Mon, 10 Jan 2022 08:23:05 +0100
-Message-Id: <20220110071822.517882112@linuxfoundation.org>
+Message-Id: <20220110071814.676562253@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
-References: <20220110071821.500480371@linuxfoundation.org>
+In-Reply-To: <20220110071814.261471354@linuxfoundation.org>
+References: <20220110071814.261471354@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -95,7 +95,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/sched/sch_qfq.c
 +++ b/net/sched/sch_qfq.c
-@@ -1422,10 +1422,8 @@ static int qfq_init_qdisc(struct Qdisc *
+@@ -1425,10 +1425,8 @@ static int qfq_init_qdisc(struct Qdisc *
  	if (err < 0)
  		return err;
  
