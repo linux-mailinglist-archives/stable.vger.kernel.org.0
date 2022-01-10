@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E10B448919E
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:34:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 134044890DD
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:28:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239802AbiAJHeH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:34:07 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:60286 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232553AbiAJHbv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:31:51 -0500
+        id S239659AbiAJH03 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:26:29 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:35584 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232342AbiAJHZV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:25:21 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8234FB811F5;
-        Mon, 10 Jan 2022 07:31:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA410C36AEF;
-        Mon, 10 Jan 2022 07:31:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A2F4F611B7;
+        Mon, 10 Jan 2022 07:25:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AE40C36AED;
+        Mon, 10 Jan 2022 07:25:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799909;
-        bh=khURfKpZ4jnfWxYaCKjSklf5rGn3G4A+XcYST7Hp+K8=;
+        s=korg; t=1641799518;
+        bh=SB57O05NTKkZm3HYnhc5xLKDkKUlPkmDtYi0bmKCFWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YG8W8rlq6nTmtR8wl5HpSk9nVwtKuaLdX0Zm1jIQ2/wA34XKXt/Zv/KW4iY6klv3C
-         ZWuSgAHf49V9PdI3jELt3a6F3cHounAGmz/aEKpkjzCBcAU/5IJ4Ri+e6nog8abv9b
-         E+RORAN3rMLtrVeiEnnVyCW/wc9CrnFXL+19Z+MQ=
+        b=EJeOf9fwtbEikZsmY3TYKvKhOXw9Kqg0gQnDlkWxR2GJ2lCc03hYJT2Gtm4+MjAoW
+         RQeTrZ18CVT2N35sioW0jcG+ClEDhE42BHPVxwEXr54UScEiPJBChSqW3OXE4pBQO7
+         mp/GC2QEUpWDrBwTzaOOoQManZKFQVqeUhjd53Gg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.15 13/72] mac80211: initialize variable have_higher_than_11mbit
-Date:   Mon, 10 Jan 2022 08:22:50 +0100
-Message-Id: <20220110071821.996398773@linuxfoundation.org>
+        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Yang Wei <yang.wei@linux.alibaba.com>
+Subject: [PATCH 4.9 04/21] virtio_pci: Support surprise removal of virtio pci device
+Date:   Mon, 10 Jan 2022 08:22:51 +0100
+Message-Id: <20220110071812.958307759@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
-References: <20220110071821.500480371@linuxfoundation.org>
+In-Reply-To: <20220110071812.806606886@linuxfoundation.org>
+References: <20220110071812.806606886@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +45,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Parav Pandit <parav@nvidia.com>
 
-commit 68a18ad71378a56858141c4449e02a30c829763e upstream.
+commit 43bb40c5b92659966bdf4bfe584fde0a3575a049 upstream.
 
-Clang static analysis reports this warnings
+When a virtio pci device undergo surprise removal (aka async removal in
+PCIe spec), mark the device as broken so that any upper layer drivers can
+abort any outstanding operation.
 
-mlme.c:5332:7: warning: Branch condition evaluates to a
-  garbage value
-    have_higher_than_11mbit)
-    ^~~~~~~~~~~~~~~~~~~~~~~
+When a virtio net pci device undergo surprise removal which is used by a
+NetworkManager, a below call trace was observed.
 
-have_higher_than_11mbit is only set to true some of the time in
-ieee80211_get_rates() but is checked all of the time.  So
-have_higher_than_11mbit needs to be initialized to false.
+kernel:watchdog: BUG: soft lockup - CPU#1 stuck for 26s! [kworker/1:1:27059]
+watchdog: BUG: soft lockup - CPU#1 stuck for 52s! [kworker/1:1:27059]
+CPU: 1 PID: 27059 Comm: kworker/1:1 Tainted: G S      W I  L    5.13.0-hotplug+ #8
+Hardware name: Dell Inc. PowerEdge R640/0H28RR, BIOS 2.9.4 11/06/2020
+Workqueue: events linkwatch_event
+RIP: 0010:virtnet_send_command+0xfc/0x150 [virtio_net]
+Call Trace:
+ virtnet_set_rx_mode+0xcf/0x2a7 [virtio_net]
+ ? __hw_addr_create_ex+0x85/0xc0
+ __dev_mc_add+0x72/0x80
+ igmp6_group_added+0xa7/0xd0
+ ipv6_mc_up+0x3c/0x60
+ ipv6_find_idev+0x36/0x80
+ addrconf_add_dev+0x1e/0xa0
+ addrconf_dev_config+0x71/0x130
+ addrconf_notify+0x1f5/0xb40
+ ? rtnl_is_locked+0x11/0x20
+ ? __switch_to_asm+0x42/0x70
+ ? finish_task_switch+0xaf/0x2c0
+ ? raw_notifier_call_chain+0x3e/0x50
+ raw_notifier_call_chain+0x3e/0x50
+ netdev_state_change+0x67/0x90
+ linkwatch_do_dev+0x3c/0x50
+ __linkwatch_run_queue+0xd2/0x220
+ linkwatch_event+0x21/0x30
+ process_one_work+0x1c8/0x370
+ worker_thread+0x30/0x380
+ ? process_one_work+0x370/0x370
+ kthread+0x118/0x140
+ ? set_kthread_struct+0x40/0x40
+ ret_from_fork+0x1f/0x30
 
-Fixes: 5d6a1b069b7f ("mac80211: set basic rates earlier")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lore.kernel.org/r/20211223162848.3243702-1-trix@redhat.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Hence, add the ability to abort the command on surprise removal
+which prevents infinite loop and system lockup.
+
+Signed-off-by: Parav Pandit <parav@nvidia.com>
+Link: https://lore.kernel.org/r/20210721142648.1525924-5-parav@nvidia.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Yang Wei <yang.wei@linux.alibaba.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/mlme.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/virtio/virtio_pci_common.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -5216,7 +5216,7 @@ static int ieee80211_prep_connection(str
- 	 */
- 	if (new_sta) {
- 		u32 rates = 0, basic_rates = 0;
--		bool have_higher_than_11mbit;
-+		bool have_higher_than_11mbit = false;
- 		int min_rate = INT_MAX, min_rate_index = -1;
- 		const struct cfg80211_bss_ies *ies;
- 		int shift = ieee80211_vif_get_shift(&sdata->vif);
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -547,6 +547,13 @@ static void virtio_pci_remove(struct pci
+ 	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
+ 	struct device *dev = get_device(&vp_dev->vdev.dev);
+ 
++	/*
++	 * Device is marked broken on surprise removal so that virtio upper
++	 * layers can abort any ongoing operation.
++	 */
++	if (!pci_device_is_present(pci_dev))
++		virtio_break_device(&vp_dev->vdev);
++
+ 	unregister_virtio_device(&vp_dev->vdev);
+ 
+ 	if (vp_dev->ioaddr)
 
 
