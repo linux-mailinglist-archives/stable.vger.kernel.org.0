@@ -2,38 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 526354890C1
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:25:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E025D4890C9
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:25:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239313AbiAJHZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:25:31 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:55802 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239317AbiAJHYa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:24:30 -0500
+        id S239286AbiAJHZi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:25:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47994 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239236AbiAJHYp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:24:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32DEBC061212;
+        Sun,  9 Jan 2022 23:24:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1883DB811F5;
-        Mon, 10 Jan 2022 07:24:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 614D5C36AED;
-        Mon, 10 Jan 2022 07:24:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8AF4B81205;
+        Mon, 10 Jan 2022 07:24:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38EA6C36AF2;
+        Mon, 10 Jan 2022 07:24:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799466;
-        bh=pcw/Sg/w0E9cf2w+sEgUp/zOjqIvw3IKwr7bxLEonhY=;
+        s=korg; t=1641799469;
+        bh=4EGK0cupgO/Up7OJsS5Gs0mvmW5A5oCJMYw8CH+TD0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wqqBotNswcHAXruaHM5F0jZDfChOPoaVknaVP5L2UCO66GKAZtupKywS/3ZrjXeAE
-         dxP/OQzTUt7jEG6rHKKI9hRd6shB+4BdTghC89H/h+e63D+q9mwh8dEewwlH/DjFer
-         WI4UhOm9Xk61TWHOynnkKrscpt6iLD4S6hVHswJs=
+        b=v6+zHn9hm4fmK+X1fB5fXSYFJlahHOY21oBgFng9kSBQdWfBUm5hTRrp2Y6ubWZj5
+         XzKJNnlxxyDNFpcwkd5t2sS8hBNJARQlkLwSiv7+Ao6+MYKGRNpL4vQCmwk683td9W
+         zhisXmINtYHjH9c88dJpNJVAKY+xawvU0x25nA20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangyu Hua <hbh25y@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Aayush Agarwal <aayush.a.agarwal@oracle.com>
-Subject: [PATCH 4.4 09/14] phonet: refcount leak in pep_sock_accep
-Date:   Mon, 10 Jan 2022 08:22:48 +0100
-Message-Id: <20220110071812.079686737@linuxfoundation.org>
+        stable@vger.kernel.org, Lu Tixiong <lutianxiong@huawei.com>,
+        Mike Christie <michael.christie@oracle.com>,
+        Lee Duncan <lduncan@suse.com>,
+        Lixiaokeng <lixiaokeng@huawei.com>,
+        Linfeilong <linfeilong@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 10/14] scsi: libiscsi: Fix UAF in iscsi_conn_get_param()/iscsi_conn_teardown()
+Date:   Mon, 10 Jan 2022 08:22:49 +0100
+Message-Id: <20220110071812.111657061@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220110071811.779189823@linuxfoundation.org>
 References: <20220110071811.779189823@linuxfoundation.org>
@@ -45,31 +52,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hangyu Hua <hbh25y@gmail.com>
+From: Lixiaokeng <lixiaokeng@huawei.com>
 
-commit bcd0f93353326954817a4f9fa55ec57fb38acbb0 upstream.
+[ Upstream commit 1b8d0300a3e9f216ae4901bab886db7299899ec6 ]
 
-sock_hold(sk) is invoked in pep_sock_accept(), but __sock_put(sk) is not
-invoked in subsequent failure branches(pep_accept_conn() != 0).
+|- iscsi_if_destroy_conn            |-dev_attr_show
+ |-iscsi_conn_teardown
+  |-spin_lock_bh                     |-iscsi_sw_tcp_conn_get_param
 
-Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
-Link: https://lore.kernel.org/r/20211209082839.33985-1-hbh25y@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Aayush Agarwal <aayush.a.agarwal@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  |-kfree(conn->persistent_address)   |-iscsi_conn_get_param
+  |-kfree(conn->local_ipaddr)
+                                       ==>|-read persistent_address
+                                       ==>|-read local_ipaddr
+  |-spin_unlock_bh
+
+When iscsi_conn_teardown() and iscsi_conn_get_param() happen in parallel, a
+UAF may be triggered.
+
+Link: https://lore.kernel.org/r/046ec8a0-ce95-d3fc-3235-666a7c65b224@huawei.com
+Reported-by: Lu Tixiong <lutianxiong@huawei.com>
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Signed-off-by: Lixiaokeng <lixiaokeng@huawei.com>
+Signed-off-by: Linfeilong <linfeilong@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/phonet/pep.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/libiscsi.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/phonet/pep.c
-+++ b/net/phonet/pep.c
-@@ -878,6 +878,7 @@ static struct sock *pep_sock_accept(stru
+diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
+index 0713d02cf1126..b1ef1aa4dd44b 100644
+--- a/drivers/scsi/libiscsi.c
++++ b/drivers/scsi/libiscsi.c
+@@ -2994,6 +2994,8 @@ void iscsi_conn_teardown(struct iscsi_cls_conn *cls_conn)
+ {
+ 	struct iscsi_conn *conn = cls_conn->dd_data;
+ 	struct iscsi_session *session = conn->session;
++	char *tmp_persistent_address = conn->persistent_address;
++	char *tmp_local_ipaddr = conn->local_ipaddr;
  
- 	err = pep_accept_conn(newsk, skb);
- 	if (err) {
-+		__sock_put(sk);
- 		sock_put(newsk);
- 		newsk = NULL;
- 		goto drop;
+ 	del_timer_sync(&conn->transport_timer);
+ 
+@@ -3015,8 +3017,6 @@ void iscsi_conn_teardown(struct iscsi_cls_conn *cls_conn)
+ 	spin_lock_bh(&session->frwd_lock);
+ 	free_pages((unsigned long) conn->data,
+ 		   get_order(ISCSI_DEF_MAX_RECV_SEG_LEN));
+-	kfree(conn->persistent_address);
+-	kfree(conn->local_ipaddr);
+ 	/* regular RX path uses back_lock */
+ 	spin_lock_bh(&session->back_lock);
+ 	kfifo_in(&session->cmdpool.queue, (void*)&conn->login_task,
+@@ -3028,6 +3028,8 @@ void iscsi_conn_teardown(struct iscsi_cls_conn *cls_conn)
+ 	mutex_unlock(&session->eh_mutex);
+ 
+ 	iscsi_destroy_conn(cls_conn);
++	kfree(tmp_persistent_address);
++	kfree(tmp_local_ipaddr);
+ }
+ EXPORT_SYMBOL_GPL(iscsi_conn_teardown);
+ 
+-- 
+2.34.1
+
 
 
