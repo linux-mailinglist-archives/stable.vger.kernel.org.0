@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BE9A489106
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:29:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17B95489135
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:31:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239435AbiAJH2e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:28:34 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:36558 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239699AbiAJH0c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:26:32 -0500
+        id S233789AbiAJHaM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:30:12 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56806 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239546AbiAJH2M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:28:12 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C64D1611A3;
-        Mon, 10 Jan 2022 07:26:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE4C3C36AE9;
-        Mon, 10 Jan 2022 07:26:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 71DE2B8120F;
+        Mon, 10 Jan 2022 07:28:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 905F1C36AE9;
+        Mon, 10 Jan 2022 07:28:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799591;
-        bh=Tn7anRuI2Fi4tOE4Jkif5lONx/xoo0b3eLURrn0YZIQ=;
+        s=korg; t=1641799690;
+        bh=9z4vPHpad6g3b7hVkTRWbqTSuWEc35ZyzvS9vo3vfAs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D6BP3R57TBwVvSyQjm18rHGNYNmofzZ82+NnFUjVajwXn0PNvEbBFT2/Yl+l1ehxp
-         9fUFlyhIFqgu9+9eAtlel/mNAVGZouoY3hNC8qygyoSdKeZdjEjuaYq5QjxRjoQ6eX
-         Tlpn2cPwFkMX0ydQ0C4s8I6EXAKsKHXHW/duyeHw=
+        b=nqE01NNCQp1+Ku4vmOnvTvG/ryKLrMCd+aXHVcpK9xWhfOkb8w1Jnh1hyFBcKmk2M
+         PEAlZefE+0djqqmDod7PI3Hl/E7UQYnblxrX8Tbr87XjFg+uFJ1C1NtY8lpxnT1nJr
+         G/WG9R+CV/PNPZSEDGzaqPjeu8969dy31/UzDprw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Potapenko <glider@google.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>
-Subject: [PATCH 4.14 05/22] ieee802154: atusb: fix uninit value in atusb_set_extended_addr
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>
+Subject: [PATCH 5.4 03/34] selftests: x86: fix [-Wstringop-overread] warn in test_process_vm_readv()
 Date:   Mon, 10 Jan 2022 08:22:58 +0100
-Message-Id: <20220110071814.444218979@linuxfoundation.org>
+Message-Id: <20220110071815.771538163@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071814.261471354@linuxfoundation.org>
-References: <20220110071814.261471354@linuxfoundation.org>
+In-Reply-To: <20220110071815.647309738@linuxfoundation.org>
+References: <20220110071815.647309738@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,65 +44,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-commit 754e4382354f7908923a1949d8dc8d05f82f09cb upstream.
+commit dd40f44eabe1e122c6852fabb298aac05b083fce upstream.
 
-Alexander reported a use of uninitialized value in
-atusb_set_extended_addr(), that is caused by reading 0 bytes via
-usb_control_msg().
+Fix the following [-Wstringop-overread] by passing in the variable
+instead of the value.
 
-Fix it by validating if the number of bytes transferred is actually
-correct, since usb_control_msg() may read less bytes, than was requested
-by caller.
+test_vsyscall.c: In function ‘test_process_vm_readv’:
+test_vsyscall.c:500:22: warning: ‘__builtin_memcmp_eq’ specified bound 4096 exceeds source size 0 [-Wstringop-overread]
+  500 |                 if (!memcmp(buf, (const void *)0xffffffffff600000, 4096)) {
+      |                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Fail log:
-
-BUG: KASAN: uninit-cmp in ieee802154_is_valid_extended_unicast_addr include/linux/ieee802154.h:310 [inline]
-BUG: KASAN: uninit-cmp in atusb_set_extended_addr drivers/net/ieee802154/atusb.c:1000 [inline]
-BUG: KASAN: uninit-cmp in atusb_probe.cold+0x29f/0x14db drivers/net/ieee802154/atusb.c:1056
-Uninit value used in comparison: 311daa649a2003bd stack handle: 000000009a2003bd
- ieee802154_is_valid_extended_unicast_addr include/linux/ieee802154.h:310 [inline]
- atusb_set_extended_addr drivers/net/ieee802154/atusb.c:1000 [inline]
- atusb_probe.cold+0x29f/0x14db drivers/net/ieee802154/atusb.c:1056
- usb_probe_interface+0x314/0x7f0 drivers/usb/core/driver.c:396
-
-Fixes: 7490b008d123 ("ieee802154: add support for atusb transceiver")
-Reported-by: Alexander Potapenko <glider@google.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: https://lore.kernel.org/r/20220104182806.7188-1-paskripkin@gmail.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Cc: Naresh Kamboju <naresh.kamboju@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ieee802154/atusb.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ tools/testing/selftests/x86/test_vsyscall.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ieee802154/atusb.c
-+++ b/drivers/net/ieee802154/atusb.c
-@@ -84,7 +84,9 @@ static int atusb_control_msg(struct atus
+--- a/tools/testing/selftests/x86/test_vsyscall.c
++++ b/tools/testing/selftests/x86/test_vsyscall.c
+@@ -480,7 +480,7 @@ static int test_process_vm_readv(void)
+ 	}
  
- 	ret = usb_control_msg(usb_dev, pipe, request, requesttype,
- 			      value, index, data, size, timeout);
--	if (ret < 0) {
-+	if (ret < size) {
-+		ret = ret < 0 ? ret : -ENODATA;
-+
- 		atusb->err = ret;
- 		dev_err(&usb_dev->dev,
- 			"atusb_control_msg: req 0x%02x val 0x%x idx 0x%x, error %d\n",
-@@ -656,9 +658,9 @@ static int atusb_get_and_show_build(stru
- 	if (!build)
- 		return -ENOMEM;
- 
--	ret = atusb_control_msg(atusb, usb_rcvctrlpipe(usb_dev, 0),
--				ATUSB_BUILD, ATUSB_REQ_FROM_DEV, 0, 0,
--				build, ATUSB_BUILD_SIZE, 1000);
-+	/* We cannot call atusb_control_msg() here, since this request may read various length data */
-+	ret = usb_control_msg(atusb->usb_dev, usb_rcvctrlpipe(usb_dev, 0), ATUSB_BUILD,
-+			      ATUSB_REQ_FROM_DEV, 0, 0, build, ATUSB_BUILD_SIZE, 1000);
- 	if (ret >= 0) {
- 		build[ret] = 0;
- 		dev_info(&usb_dev->dev, "Firmware: build %s\n", build);
+ 	if (vsyscall_map_r) {
+-		if (!memcmp(buf, (const void *)0xffffffffff600000, 4096)) {
++		if (!memcmp(buf, remote.iov_base, sizeof(buf))) {
+ 			printf("[OK]\tIt worked and read correct data\n");
+ 		} else {
+ 			printf("[FAIL]\tIt worked but returned incorrect data\n");
 
 
