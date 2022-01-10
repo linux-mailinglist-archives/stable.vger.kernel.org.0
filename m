@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 212164891E1
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:43:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E8FC489259
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 08:46:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240437AbiAJHhA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 02:37:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49938 "EHLO
+        id S240457AbiAJHmF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 02:42:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240991AbiAJHeb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:34:31 -0500
+        with ESMTP id S239977AbiAJHio (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 02:38:44 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF190C0253BA;
-        Sun,  9 Jan 2022 23:30:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B350C0258D2;
+        Sun,  9 Jan 2022 23:33:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DB86611CE;
-        Mon, 10 Jan 2022 07:30:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54D2FC36AED;
-        Mon, 10 Jan 2022 07:30:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D05B60BA2;
+        Mon, 10 Jan 2022 07:33:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23443C36AE9;
+        Mon, 10 Jan 2022 07:33:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641799816;
-        bh=3dspLntcUy2ueE+BT3e4HrJZXKrmVmN8PqhoofAlJkA=;
+        s=korg; t=1641800000;
+        bh=+jzjg/PzAo7Yfk7QGyIdftfXX9dnjhS3pvZKkENn7Xc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ML+EJA95DcR8kTwla1pN1ahKJt7hWTZRtZmplNvlHs2S0brN/1gXxlsNHWOjVOiAn
-         /bMiUuSgHTAHJSJ6mKmyFNg/kTkDomxxnndq2eZOJsLzJw+Izkm+1RsFQ26S4kN87X
-         goBzTfSZU0VEvOtGoM8RF3Nn6gBYHO18iuu7vXqs=
+        b=ssewCUj1vLt8xr58l7KE3sGie/50pIZFCSwvbYf8sZuHETvRb6EDRj7qjeAQ0Fa3d
+         systYTqfGF5Npu0dv9n5R3XHi1QeZ4RpQafdYMkjJD9iTs7d2E0EdOe+kx0eH/S+Io
+         4KyZ46EFb1lifXG9J1aPaFK4RDRP4fDU+IRgz4EU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shay Agroskin <shayagr@amazon.com>,
-        Arthur Kiyanovski <akiyano@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 25/43] net: ena: Fix error handling when calculating max IO queues number
+        stable@vger.kernel.org, Steven Lee <steven_lee@aspeedtech.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PATCH 5.15 45/72] gpio: gpio-aspeed-sgpio: Fix wrong hwirq base in irq handler
 Date:   Mon, 10 Jan 2022 08:23:22 +0100
-Message-Id: <20220110071818.195583561@linuxfoundation.org>
+Message-Id: <20220110071823.079201751@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220110071817.337619922@linuxfoundation.org>
-References: <20220110071817.337619922@linuxfoundation.org>
+In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
+References: <20220110071821.500480371@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,51 +47,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arthur Kiyanovski <akiyano@amazon.com>
+From: Steven Lee <steven_lee@aspeedtech.com>
 
-commit 5055dc0348b8b7c168e3296044bccd724e1ae6cd upstream.
+commit e5a7431f5a2d6dcff7d516ee9d178a3254b17b87 upstream.
 
-The role of ena_calc_max_io_queue_num() is to return the number
-of queues supported by the device, which means the return value
-should be >=0.
+Each aspeed sgpio bank has 64 gpio pins(32 input pins and 32 output pins).
+The hwirq base for each sgpio bank should be multiples of 64 rather than
+multiples of 32.
 
-The function that calls ena_calc_max_io_queue_num(), checks
-the return value. If it is 0, it means the device reported
-it supports 0 IO queues. This case is considered an error
-and is handled by the calling function accordingly.
-
-However the current implementation of ena_calc_max_io_queue_num()
-is wrong, since when it detects the device supports 0 IO queues,
-it returns -EFAULT.
-
-In such a case the calling function doesn't detect the error,
-and therefore doesn't handle it.
-
-This commit changes ena_calc_max_io_queue_num() to return 0
-in case the device reported it supports 0 queues, allowing the
-calling function to properly handle the error case.
-
-Fixes: 736ce3f414cc ("net: ena: make ethtool -l show correct max number of queues")
-Signed-off-by: Shay Agroskin <shayagr@amazon.com>
-Signed-off-by: Arthur Kiyanovski <akiyano@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Steven Lee <steven_lee@aspeedtech.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/amazon/ena/ena_netdev.c |    4 ----
- 1 file changed, 4 deletions(-)
+ drivers/gpio/gpio-aspeed-sgpio.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/amazon/ena/ena_netdev.c
-+++ b/drivers/net/ethernet/amazon/ena/ena_netdev.c
-@@ -3927,10 +3927,6 @@ static u32 ena_calc_max_io_queue_num(str
- 	max_num_io_queues = min_t(u32, max_num_io_queues, io_tx_cq_num);
- 	/* 1 IRQ for for mgmnt and 1 IRQs for each IO direction */
- 	max_num_io_queues = min_t(u32, max_num_io_queues, pci_msix_vec_count(pdev) - 1);
--	if (unlikely(!max_num_io_queues)) {
--		dev_err(&pdev->dev, "The device doesn't have io queues\n");
--		return -EFAULT;
--	}
+--- a/drivers/gpio/gpio-aspeed-sgpio.c
++++ b/drivers/gpio/gpio-aspeed-sgpio.c
+@@ -395,7 +395,7 @@ static void aspeed_sgpio_irq_handler(str
+ 		reg = ioread32(bank_reg(data, bank, reg_irq_status));
  
- 	return max_num_io_queues;
- }
+ 		for_each_set_bit(p, &reg, 32)
+-			generic_handle_domain_irq(gc->irq.domain, i * 32 + p * 2);
++			generic_handle_domain_irq(gc->irq.domain, (i * 32 + p) * 2);
+ 	}
+ 
+ 	chained_irq_exit(ic, desc);
 
 
