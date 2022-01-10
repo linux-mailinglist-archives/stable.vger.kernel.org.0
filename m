@@ -2,97 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC15C489721
-	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 12:14:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 290C448972E
+	for <lists+stable@lfdr.de>; Mon, 10 Jan 2022 12:18:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244485AbiAJLO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 06:14:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45474 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244449AbiAJLOy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 06:14:54 -0500
-Received: from nautica.notk.org (ipv6.notk.org [IPv6:2001:41d0:1:7a93::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F962C06173F;
-        Mon, 10 Jan 2022 03:14:54 -0800 (PST)
-Received: by nautica.notk.org (Postfix, from userid 108)
-        id 51B50C009; Mon, 10 Jan 2022 12:14:52 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codewreck.org; s=2;
-        t=1641813292; bh=/0pUiq7KFM+daYGEUE294c0IR+pDHWltFcA11lI6wFI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=zci0CAI01UnYDfTTKu/Gesnzf/IXr0qPf+13clr5+FncGR4f9IPqQU/VIC4SO98As
-         xG1likKmvBAatcfkq2vGWLp4KBUELajCRoj+4pGBxCCe6Monfp9Xik7xkWNquyBhep
-         eCCze1JO6k0Z9Q0y9EYzMWTT0aYXPZ/CeIydVHjox6GnUxMd6/DtVb3eQ1IvKMWF89
-         vlcH5nOSRtboHs0DbfZVaaiaSDWRGDO8o/Bmr0xg+87WqMkRf+5aTq5Yl3F2XlbQ1m
-         VWJaxaL+OvdFJ9V64X9LCKcGzGHtC3Z//gfSPUc6bL1YMl8VpvrN5yHj5cfMDqDsvl
-         N1jJvOX1dXWUQ==
-X-Spam-Checker-Version: SpamAssassin 3.3.2 (2011-06-06) on nautica.notk.org
-X-Spam-Level: 
-X-Spam-Status: No, score=0.0 required=5.0 tests=UNPARSEABLE_RELAY
-        autolearn=unavailable version=3.3.2
-Received: from odin.codewreck.org (localhost [127.0.0.1])
-        by nautica.notk.org (Postfix) with ESMTPS id 9B56FC009;
-        Mon, 10 Jan 2022 12:14:49 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=codewreck.org; s=2;
-        t=1641813291; bh=/0pUiq7KFM+daYGEUE294c0IR+pDHWltFcA11lI6wFI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=I+zMu7zaOc9j0Y0BzuDbaY6ben6dzBtUQn7spawp62JEkXCPZoWknW/jKZ0y+1F1W
-         f7mWyaUHXNX/gDsd0oV+O2kvJ1Gm0AxbCS/wo0Xomevc+GvLk9hlnlwaMWX3GW9raJ
-         6gC1PiSmZ7QVh6Yy0glPIhHRsqbs0Ze8NhJWNkfVoddWBvhYYAUrsLEFivvOJVYj2s
-         A7ikFWUAy52udEc9jU1yx56c4kB3kvauGK0OCHQ1kfXE6Y7fqfSTWgZzpZIty/Jm7D
-         QXI0i/VumGbbLemp5fYlKOkBVKDVx+QB+5qs8UTH0BB1svbOQNiWbfZxdGLu8VuRai
-         avVyRz1FWEGnw==
-Received: from localhost (odin.codewreck.org [local])
-        by odin.codewreck.org (OpenSMTPD) with ESMTPA id ad3c41fc;
-        Mon, 10 Jan 2022 11:14:45 +0000 (UTC)
-From:   Dominique Martinet <asmadeus@codewreck.org>
-To:     dhowells@redhat.com, v9fs-developer@lists.sourceforge.net
-Cc:     linux-kernel@vger.kernel.org, lucho@ionkov.net, ericvh@gmail.com,
-        Dominique Martinet <asmadeus@codewreck.org>,
+        id S244568AbiAJLSx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 06:18:53 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:29790 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S244532AbiAJLSu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 06:18:50 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1641813529;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=a1mKixw3piLB47kAb+NgNKbQU1uo3Pje5s8quzB5jk0=;
+        b=EqaXD6pdaCfOOSB1dggh+mcmja7mdQvKdJG+AR+bsGJRVUX4MhZkt5KJVBiged528n88uk
+        xFdZQxTmqvXymi6sZQS4GctDtGTbuycR2l6DKsCa9wLtiUXblbWveDVEBAS59xfHtZxHXz
+        PLpMCtOYUN1KNQ6+ZksvVSiYrwjmYzc=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-367-wSmpKZGjN6GuPbqk0EwnZQ-1; Mon, 10 Jan 2022 06:18:46 -0500
+X-MC-Unique: wSmpKZGjN6GuPbqk0EwnZQ-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C87ED1017965;
+        Mon, 10 Jan 2022 11:18:44 +0000 (UTC)
+Received: from warthog.procyon.org.uk (unknown [10.33.36.165])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 742B77D4D0;
+        Mon, 10 Jan 2022 11:18:43 +0000 (UTC)
+Organization: Red Hat UK Ltd. Registered Address: Red Hat UK Ltd, Amberley
+        Place, 107-111 Peascod Street, Windsor, Berkshire, SI4 1TE, United
+        Kingdom.
+        Registered in England and Wales under Company Registration No. 3798903
+From:   David Howells <dhowells@redhat.com>
+In-Reply-To: <20220110111444.926753-1-asmadeus@codewreck.org>
+References: <20220110111444.926753-1-asmadeus@codewreck.org>
+To:     Dominique Martinet <asmadeus@codewreck.org>
+Cc:     dhowells@redhat.com, v9fs-developer@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org, lucho@ionkov.net, ericvh@gmail.com,
         stable@vger.kernel.org
-Subject: [PATCH] 9p: fix enodata when reading growing file
-Date:   Mon, 10 Jan 2022 20:14:44 +0900
-Message-Id: <20220110111444.926753-1-asmadeus@codewreck.org>
-X-Mailer: git-send-email 2.33.1
+Subject: Re: [PATCH] 9p: fix enodata when reading growing file
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <3730530.1641813522.1@warthog.procyon.org.uk>
+Content-Transfer-Encoding: quoted-printable
+Date:   Mon, 10 Jan 2022 11:18:42 +0000
+Message-ID: <3730531.1641813522@warthog.procyon.org.uk>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Reading from a file that was just extended by a write, but the write had
-not yet reached the server would return ENODATA as illustrated by this
-command:
-$ xfs_io -c 'open -ft test' -c 'w 4096 1000' -c 'r 0 1000'
-wrote 1000/1000 bytes at offset 4096
-1000.000000 bytes, 1 ops; 0.0001 sec (5.610 MiB/sec and 5882.3529 ops/sec)
-pread: No data available
+Dominique Martinet <asmadeus@codewreck.org> wrote:
 
-Fix this case by having netfs assume zeroes when reads from server come
-short like AFS and CEPH do
+> Reading from a file that was just extended by a write, but the write had
+> not yet reached the server would return ENODATA as illustrated by this
+> command:
+> $ xfs_io -c 'open -ft test' -c 'w 4096 1000' -c 'r 0 1000'
+> wrote 1000/1000 bytes at offset 4096
+> 1000.000000 bytes, 1 ops; 0.0001 sec (5.610 MiB/sec and 5882.3529 ops/se=
+c)
+> pread: No data available
+> =
 
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
-Co-authored-by: David Howells <dhowells@redhat.com>
-Cc: stable@vger.kernel.org
----
- fs/9p/vfs_addr.c | 5 +++++
- 1 file changed, 5 insertions(+)
+> Fix this case by having netfs assume zeroes when reads from server come
+> short like AFS and CEPH do
+> =
 
-diff --git a/fs/9p/vfs_addr.c b/fs/9p/vfs_addr.c
-index c72e9f8f5f32..9a10e68c5f30 100644
---- a/fs/9p/vfs_addr.c
-+++ b/fs/9p/vfs_addr.c
-@@ -43,6 +43,11 @@ static void v9fs_req_issue_op(struct netfs_read_subrequest *subreq)
- 	iov_iter_xarray(&to, READ, &rreq->mapping->i_pages, pos, len);
- 
- 	total = p9_client_read(fid, pos, &to, &err);
-+
-+	/* if we just extended the file size, any portion not in
-+	 * cache won't be on server and is zeroes */
-+	__set_bit(NETFS_SREQ_CLEAR_TAIL, &subreq->flags);
-+
- 	netfs_subreq_terminated(subreq, err ?: total, false);
- }
- 
--- 
-2.33.1
+> Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+> Co-authored-by: David Howells <dhowells@redhat.com>
+> Cc: stable@vger.kernel.org
+
+I think you want this also:
+
+Fixes: eb497943fa21 ("9p: Convert to using the netfs helper lib to do read=
+s and caching")
+
+Reviewed-by: David Howells <dhowells@redhat.com>
 
