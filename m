@@ -2,95 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10EE948B776
-	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 20:40:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE84B48B76E
+	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 20:38:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237077AbiAKTkg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jan 2022 14:40:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45826 "EHLO
+        id S236583AbiAKTiA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jan 2022 14:38:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45220 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236898AbiAKTkf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 14:40:35 -0500
-Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4141DC06173F
-        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 11:40:35 -0800 (PST)
-Received: by mail-lf1-x12d.google.com with SMTP id k21so538508lfu.0
-        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 11:40:35 -0800 (PST)
+        with ESMTP id S236751AbiAKTh7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 14:37:59 -0500
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEA72C06173F
+        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 11:37:59 -0800 (PST)
+Received: by mail-pj1-x1035.google.com with SMTP id l10-20020a17090a384a00b001b22190e075so7206108pjf.3
+        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 11:37:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=72nCaH0D5cVWOpCSRc18GR2eFwD5HF2lWhLZ438H8+E=;
-        b=IbI2Ue6xwevdXzForB3sPC7JLpGCLW4aJaiaqGPQM519ZpN4Iw53D7dK6TEvItwJQM
-         lU0w7yPNWbufVbo7aTy0WNF/06ot4HROv5RcW7EH+B/47POEIinAhzsJIzijm2pqH0rA
-         32W/JrQJcTgkaHK2M1qJ6iERelYscbkX2JYhs=
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=lz9yN1KPNpuxaGvZEC6t7cmIbR07Yrb1Xst/52aIv8M=;
+        b=M5q1TTtJD+R/SFslNwrAp2Mi5u+GjgbktU6b0EYDboYDxxC5PJb6FMH+IaoGbtV1j7
+         0KbGs181mpj1VLInV26jQKzm3CZfy6Sm03YuLaaYN5/tYtLWhPaZwjw0VFgCJ8fHNZNF
+         BKP4ow1q+rXwy7otD9PPTIjq0LYohdUspee+F05ZoH5Q7OiBNtzg3VeNX08w9JbzBfE+
+         8SQgtLACeyOa5n+kZSodmOnYnvoS0i/jWRyshFWimk4MT60K16dvQaobsTGXSr3uHUwX
+         KUi+pQVr4Boxve4RI86TJWnShVltCqVGWAiQcNidNq2OJEfr76gkYcPqH87xi+ngcbp6
+         F5GQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=72nCaH0D5cVWOpCSRc18GR2eFwD5HF2lWhLZ438H8+E=;
-        b=UIvwaFzP4Z4GyDFcgvg8hmzsSi8tC1+Rs5w1J4VSJHncXZFHK8ZZjpphMajvFprTpI
-         ExU1ONYiH8cWjzgr+F1Uv1+crBTXpxCjzJgdMe9MwEcJvQAGHHNbrFJKc4n/RqssP1Z6
-         7KOnYoT039sb9D8Uoua0lqSrQ+AwwmyJhE1TJ/uVSgGVmayIhgRgzjBWXWFFexK6gh9C
-         ODZZGiZLo6EE8Wxs2dRvMLsE606Wd9TQKoOD87VeABcwY2LXg+eVDUpT8fpXtgzxRas5
-         cY1ZKP9VETxQgNAf8ecGdUYJ3yseMEXuJwlfOynsznrVUTCxnK+CRrpiJ/daUoO1Lt+D
-         g6ZQ==
-X-Gm-Message-State: AOAM531STVtoqBBlDmeaDWPaGW8XHp7fgbRi+pOyw8g/akwavRVmixKC
-        BcKvYvUVQSA9H6EBFsYNveFlCgowko+BM3sKQYY=
-X-Google-Smtp-Source: ABdhPJw447/C4kNT1tgehEwRPkA6AKBpo2tNFbm7m1Scbx7YYWpm5G9euUO+WwZ5eUTi6Jmbmzu9uw==
-X-Received: by 2002:a05:6512:3311:: with SMTP id k17mr4373989lfe.392.1641930033458;
-        Tue, 11 Jan 2022 11:40:33 -0800 (PST)
-Received: from mail-lf1-f47.google.com (mail-lf1-f47.google.com. [209.85.167.47])
-        by smtp.gmail.com with ESMTPSA id j4sm1425976lfg.147.2022.01.11.11.40.33
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 11 Jan 2022 11:40:33 -0800 (PST)
-Received: by mail-lf1-f47.google.com with SMTP id j11so393534lfg.3
-        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 11:40:33 -0800 (PST)
-X-Received: by 2002:adf:c74e:: with SMTP id b14mr5117431wrh.97.1641929709117;
- Tue, 11 Jan 2022 11:35:09 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=lz9yN1KPNpuxaGvZEC6t7cmIbR07Yrb1Xst/52aIv8M=;
+        b=WFXd2TgsM3IFYZcGjfTH1VJmTWZGrkzXn144DXPMHuGSJsBbThOMZ5ojUEwCeFcq7l
+         4P5wczGeoEkIzekZMZODqGpo0j0fgXHQtJhbAtP2Ak6g6D0Wk3mozFrYF5QQ+WRaMhu2
+         cBIHAhFuZyl+jzGk7hgjby9XShSXe1TEq9RRxLiDLlnyHRXLpz42PEIDeX85TYq59MAF
+         j2ebZJC8/YYb6jBhI5jS4fucMZhzgRxebJO0wUF0pBFcZ9tyUrLzWUb5Fns7qsbwj29A
+         PDc0QqQN3+Z0YqvaVddbEpFWVsKMqC3tZu9wwJbhyBsETXkQgBXw+v+aFCaGoTAtLNYS
+         CoFA==
+X-Gm-Message-State: AOAM530iNvCK42UQGW5Gvzc+puxFBbVKHLHBo+qPGfE/pYyRchOitJ1o
+        XuDJaAC5qMXUDBDx8Q1jE+WSYIiMDEinhhpq
+X-Google-Smtp-Source: ABdhPJzjcsD0bhBxVHqzY0egwJ0XLCCDuTThKzY1kk/eQiX+3xot6a81+hSHSCSQix1DQOccnNBCiw==
+X-Received: by 2002:a62:5fc4:0:b0:4bb:2472:5147 with SMTP id t187-20020a625fc4000000b004bb24725147mr6085984pfb.74.1641929879281;
+        Tue, 11 Jan 2022 11:37:59 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a1sm11644502pfv.99.2022.01.11.11.37.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Jan 2022 11:37:59 -0800 (PST)
+Message-ID: <61dddc97.1c69fb81.11057.d097@mx.google.com>
+Date:   Tue, 11 Jan 2022 11:37:59 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20220111071212.1210124-1-surenb@google.com> <Yd3RClhoz24rrU04@sol.localdomain>
- <CAHk-=wgwb6pJjvHYmOMT-yp5RYvw0pbv810Wcxdm5S7dWc-s0g@mail.gmail.com> <CAJuCfpE3feNU=36qRUdCJsk41rxQBv1gRYy5R1dB1djMd0NLjg@mail.gmail.com>
-In-Reply-To: <CAJuCfpE3feNU=36qRUdCJsk41rxQBv1gRYy5R1dB1djMd0NLjg@mail.gmail.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Tue, 11 Jan 2022 11:34:53 -0800
-X-Gmail-Original-Message-ID: <CAHk-=wj9-9mFcoaD3rdHd+HKYpyTXkkE2iJkPoTTCrp-+sD=ew@mail.gmail.com>
-Message-ID: <CAHk-=wj9-9mFcoaD3rdHd+HKYpyTXkkE2iJkPoTTCrp-+sD=ew@mail.gmail.com>
-Subject: Re: [PATCH v2 1/1] psi: Fix uaf issue when psi trigger is destroyed
- while being polled
-To:     Suren Baghdasaryan <surenb@google.com>
-Cc:     Eric Biggers <ebiggers@kernel.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Tejun Heo <tj@kernel.org>, Zefan Li <lizefan.x@bytedance.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Cgroups <cgroups@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Android Kernel Team <kernel-team@android.com>,
-        syzbot <syzbot+cdb5dd11c97cc532efad@syzkaller.appspotmail.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.15.13-72-g7fb4d82fc369
+X-Kernelci-Branch: queue/5.15
+Subject: stable-rc/queue/5.15 baseline: 166 runs,
+ 1 regressions (v5.15.13-72-g7fb4d82fc369)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 11, 2022 at 11:27 AM Suren Baghdasaryan <surenb@google.com> wrote:
->
-> Thanks for the explanation!
-> So, it sounds like the best (semantically correct) option I have here
-> is smp_store_release() to set the pointer, and then smp_load_acquire()
-> to read it. Is my understanding correct?
+stable-rc/queue/5.15 baseline: 166 runs, 1 regressions (v5.15.13-72-g7fb4d8=
+2fc369)
 
-Yeah, that's the clearest one from a memory ordering standpoint, and
-is generally also cheap.
+Regressions Summary
+-------------------
 
-                Linus
+platform        | arch  | lab     | compiler | defconfig | regressions
+----------------+-------+---------+----------+-----------+------------
+fsl-ls1043a-rdb | arm64 | lab-nxp | gcc-10   | defconfig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.13-72-g7fb4d82fc369/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.13-72-g7fb4d82fc369
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      7fb4d82fc3691064cde6a2af41bf76ef0ba35678 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch  | lab     | compiler | defconfig | regressions
+----------------+-------+---------+----------+-----------+------------
+fsl-ls1043a-rdb | arm64 | lab-nxp | gcc-10   | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61ddadabda47da52bcef673d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.13-=
+72-g7fb4d82fc369/arm64/defconfig/gcc-10/lab-nxp/baseline-fsl-ls1043a-rdb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.13-=
+72-g7fb4d82fc369/arm64/defconfig/gcc-10/lab-nxp/baseline-fsl-ls1043a-rdb.ht=
+ml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61ddadabda47da52bcef6=
+73e
+        new failure (last pass: v5.15.11-127-g068f94fff545) =
+
+ =20
