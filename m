@@ -2,82 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A92E348AFF0
-	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 15:55:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11B7748B0D3
+	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 16:30:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242765AbiAKOzH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jan 2022 09:55:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34184 "EHLO
+        id S1343558AbiAKPaJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jan 2022 10:30:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242983AbiAKOzG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 09:55:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE9F5C06173F;
-        Tue, 11 Jan 2022 06:55:05 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        with ESMTP id S1343559AbiAKPaJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 10:30:09 -0500
+X-Greylist: delayed 568 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 11 Jan 2022 07:30:08 PST
+Received: from smtp1.rz.tu-harburg.de (smtp1.rz.tu-harburg.de [IPv6:2001:638:702:20aa::205:38])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AED4BC06173F;
+        Tue, 11 Jan 2022 07:30:08 -0800 (PST)
+Received: from mail.tu-harburg.de (mail4.rz.tu-harburg.de [134.28.202.83])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client CN "mail.tuhh.de", Issuer "DFN-Verein Global Issuing CA" (verified OK))
+        by smtp1.rz.tu-harburg.de (Postfix) with ESMTPS id 4JYDsb1h8QzxQq;
+        Tue, 11 Jan 2022 16:20:35 +0100 (CET)
+Received: from mailspring.rz.tuhh.de (mailspring.rz.tuhh.de [134.28.202.181])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5294616A7;
-        Tue, 11 Jan 2022 14:55:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C8D1C36AED;
-        Tue, 11 Jan 2022 14:55:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1641912904;
-        bh=rdtKFzk5rkjL2CZWYI4wv3pYeOQVX9D847F/Fb8v8Iw=;
-        h=From:To:Cc:Subject:Date:From;
-        b=MPn0zXl+8gwVJwRSd0q+l1incPABWS8960L8naJ1GcZ0OnU8/3pwzqiA/BiS94w+u
-         vlB5WlIzAOwSBzazOYqjbBmHKSsh7Jrhqe6oyxPMgIs0uk9OvTIRwR5T4995DlivgQ
-         z/wCEGanaHI8Jw4ipUa9+FhTTwQuIQR/oTGvKVPCqmdFfntOMeP2uoCTYOHii5La0v
-         wVdxa4cS9OWkrKJzJEHTp0Lfg8j8D0CPRYGfAUuiHyrhmsqPFRM8BKXhRRgeLsd37s
-         WJ0ag9giM8uGDpqxuQOmwqw7EBvlKG4D74628aVOHVKkwLf9vqkTw1LkFEfkroLJOG
-         hP6XrSpXPZ90g==
-From:   Mike Rapoport <rppt@kernel.org>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     Christian Dietrich <stettberger@dokucode.de>,
-        Mike Rapoport <rppt@kernel.org>,
+        (Authenticated sender: ccd5802@KERBEROS.TU-HARBURG.DE)
+        by mail.tu-harburg.de (Postfix) with ESMTPSA id 4JYDsZ6RY3zJrCR;
+        Tue, 11 Jan 2022 16:20:34 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tuhh.de; s=x2022-02;
+        t=1641914435; bh=8GuvIwBs7ovGVIvnquMsGzYMmOCEN4T5kbsYciLAS+Y=;
+        h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+         MIME-Version:Content-Type:Content-Transfer-Encoding;
+        b=FuAOuSwmlnwrXKTVZo/bcKXWg+sx55PM/WLJR9Gwr6qyfThnjjH0or3k/B+/caxXE
+         wvJD54juVxJ1dRfrkeF5MxzsZ4XWWmYeKIM2rR1swA6LrccbryUYXDGIP8wBNtEHrZ
+         k6EJ63Z3TA5Uh8iarOJRvNPHvQYyTQblDW8n+TaI=
+From:   Christian Dietrich <christian.dietrich@tuhh.de>
+To:     Mike Rapoport <rppt@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     Mike Rapoport <rppt@kernel.org>,
         Mike Rapoport <rppt@linux.ibm.com>, linux-mm@kvack.org,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] mm/pgtable: define pte_index so that preprocessor could recognize it
-Date:   Tue, 11 Jan 2022 16:54:57 +0200
-Message-Id: <20220111145457.20748-1-rppt@kernel.org>
-X-Mailer: git-send-email 2.28.0
+Subject: Re: [PATCH] mm/pgtable: define pte_index so that preprocessor could
+ recognize it
+In-Reply-To: <20220111145457.20748-1-rppt@kernel.org>
+Organization: Technische =?utf-8?Q?Universit=C3=A4t?= Hamburg
+References: <20220111145457.20748-1-rppt@kernel.org>
+X-Commit-Hash-org: be34895d941bc0bcda2c4fd2ee2635b1dff29854
+X-Commit-Hash-Maildir: 1f1ade09091bf6c540fef308030f9f5940906d6f
+Date:   Tue, 11 Jan 2022 16:20:34 +0100
+Message-ID: <s7bzgo2cn99.fsf@dokucode.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+Hello Mike!
 
-Since commit 974b9b2c68f3 ("mm: consolidate pte_index() and pte_offset_*()
-definitions") pte_index is a static inline and there is no define for it
-that can be recognized by the preprocessor. As the result,
-vm_insert_pages() uses slower loop over vm_insert_page() instead of
-insert_pages() that amortizes the cost of spinlock operations when
-inserting multiple pages.
+Mike Rapoport <rppt@kernel.org> [11. Januar 2022]:
 
-Fixes: 974b9b2c68f3 ("mm: consolidate pte_index() and pte_offset_*() definitions")
-Reported-by: Christian Dietrich <stettberger@dokucode.de>
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Cc: stable@vger.kernel.org
----
- include/linux/pgtable.h | 1 +
- 1 file changed, 1 insertion(+)
+> diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
+> index e24d2c992b11..d468efcf48f4 100644
+> --- a/include/linux/pgtable.h
+> +++ b/include/linux/pgtable.h
+> @@ -62,6 +62,7 @@ static inline unsigned long pte_index(unsigned long add=
+ress)
+>  {
+>  	return (address >> PAGE_SHIFT) & (PTRS_PER_PTE - 1);
+>  }
+> +#define pte_index pte_index
 
-diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-index e24d2c992b11..d468efcf48f4 100644
---- a/include/linux/pgtable.h
-+++ b/include/linux/pgtable.h
-@@ -62,6 +62,7 @@ static inline unsigned long pte_index(unsigned long address)
- {
- 	return (address >> PAGE_SHIFT) & (PTRS_PER_PTE - 1);
- }
-+#define pte_index pte_index
- 
- #ifndef pmd_index
- static inline unsigned long pmd_index(unsigned long address)
+Wouldn't it make sense to remove the dead CPP blocks (#ifdef pte_index)
+from mm/memory.c? Or is there a case were pte_index is not defined for
+an architecture?
 
-base-commit: 2585cf9dfaaddf00b069673f27bb3f8530e2039c
--- 
-2.28.0
+chris
+--=20
+Prof. Dr.-Ing. Christian Dietrich
+Operating System Group (E-EXK4)
+Technische Universit=C3=A4t Hamburg
+Am Schwarzenberg-Campus 3 (E), 4.092
+21073 Hamburg
 
+eMail:  christian.dietrich@tuhh.de
+Tel:    +49 40 42878 2188
+WWW:    https://osg.tuhh.de/
