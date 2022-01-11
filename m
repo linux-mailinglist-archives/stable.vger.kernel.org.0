@@ -2,232 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D92CD48BB6F
-	for <lists+stable@lfdr.de>; Wed, 12 Jan 2022 00:32:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B45DE48BB81
+	for <lists+stable@lfdr.de>; Wed, 12 Jan 2022 00:37:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346836AbiAKXcF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jan 2022 18:32:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43198 "EHLO
+        id S1346870AbiAKXhv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jan 2022 18:37:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346822AbiAKXcD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 18:32:03 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88846C06173F
-        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 15:32:03 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id rj2-20020a17090b3e8200b001b1944bad25so1496812pjb.5
-        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 15:32:03 -0800 (PST)
+        with ESMTP id S1346868AbiAKXht (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 18:37:49 -0500
+Received: from mail-yb1-xb32.google.com (mail-yb1-xb32.google.com [IPv6:2607:f8b0:4864:20::b32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DC22C061748
+        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 15:37:49 -0800 (PST)
+Received: by mail-yb1-xb32.google.com with SMTP id n68so1518855ybg.6
+        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 15:37:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=33He2hcxGWeVaSmMGERGICKiJ5YzBz9LnOJdcVfZkvc=;
-        b=PqqqCA+6++pd3PhtfQ4UVmLYNBJIz2GKu9q5vzdwC1M6CFRcb5pTMEPyLlvhTJlMa1
-         kBLLjynqS3EDa2QxKcTSsuO+iaS2n9EwH8q9pZ+jZXLsxnfWHRgN+5JMb4qHcKoDiLwK
-         A+9QCVNFpoxo4EGiPTgM4J4+1idwj+rg9IOxDA7j3QlR0WLxXKAWxUWjg3DI2K33zyp9
-         OvwwQQIYvpfcxf4tYM6DYJOnPec2hoAL4v88q4KfkQtVmog38ci142yjGYCSr/LHzls8
-         vVs/+tC2+8UxlV6O0PC+qaIpAIHU6xzZo+XIngUnALbeHRWkxUQ7i1/GKCAi+uFz3SGv
-         n+2Q==
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=y4s8SWu6oC0jBwQaJEtDME4KEjn8XnX1dHweILOZNLw=;
+        b=tSyF53acF27OqNgvWqbVMB4rrrAYr/G3ysoCmjIQ/DaL271SFRSP9RaoVkMOYsWjkG
+         ZAh/G8g1ZVadBZsGFH5qPak4LK4vm+smNDxvyfLbi93tZ18mFzO1F2hDPQMHLX5dBIsr
+         5d1kMzt3sJdE7pgOingjfcwZ+mEVWyW1qXaowK0H4IRT5I4jBEhjI3+h7nt/bjknrGED
+         gqlZPxyPkgn1taVWcOXcDy1aihgFYTIfS9B5uiZln7zNU/5M1LElC18H5MoMQC1Z6Jfb
+         serIeUcjt6cll+oqIu7J1g6Uh0ILigdyCTsbA81cViGAUm+Yvdjjz6KDrxShdp6XzC1I
+         hODQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=33He2hcxGWeVaSmMGERGICKiJ5YzBz9LnOJdcVfZkvc=;
-        b=ZpLo6plTF2SEb8asPjxqMOaNJ8CwI0tQDmbPRbO8H3b1H2RMci9aGtcTfFC5FfCxfP
-         GiVu4lNOFHZs5p4ce3IaEQ3hRljFZ5yFxoUY3Jy8FQyX6Y59YzgzYmS1HsNbQ453HF8K
-         XS0u7Wzm/0WirBVeRV1MzmTCTzpCGyEqlczU+vqYgT3aFnfNjpKNeBz7QytBE4Cwu5Ww
-         pgGHIwrS5aoH2HkZ07ERM5I+iUcgeEcHjO0rTPhwImVsaJQRyxPs3KPlvPMDr37m0SNz
-         fsg9YOkgicOoK77UrfWjYCut4zeF90P6XxLhAbPSPWlles33fDqdr9ylfCH4+WTszwvc
-         VKnw==
-X-Gm-Message-State: AOAM5301lb141jXIvedy7QFsi497yI6TSRRryubLx1dwbNAkmwF4IBpL
-        yJcvXLidn65XNDVyIKDJEKk/cORpYR3XAnBd
-X-Google-Smtp-Source: ABdhPJwY1SEJ/DlGOX7FZGqqFVPqXYKaBLpVrSjQqAY9ChHzZHKSRidstUJZEpXP/shJCtxn3tSvCQ==
-X-Received: by 2002:a62:e410:0:b0:4bd:bc02:fb52 with SMTP id r16-20020a62e410000000b004bdbc02fb52mr6644307pfh.40.1641943922749;
-        Tue, 11 Jan 2022 15:32:02 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f20sm5440669pfc.108.2022.01.11.15.32.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Jan 2022 15:32:02 -0800 (PST)
-Message-ID: <61de1372.1c69fb81.99b60.e5f6@mx.google.com>
-Date:   Tue, 11 Jan 2022 15:32:02 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=y4s8SWu6oC0jBwQaJEtDME4KEjn8XnX1dHweILOZNLw=;
+        b=T72pxFLUqf2R8JJm+P0bfLOUDzp5O6+XkLk0OYxxWdjVaFb2W1CgVD8YTyHb9Ugm5v
+         peXMQbM4NmA/WRLGii8LUZPp85UCf0osJE2PEO9ZUic/vW0qT6D7wGcDmGWs8Oq9zrCM
+         s0Eoe1ptbNvlHzsPLPzNAPy2Pq0X5jpWFvWqFXHYTtG9EtNYw/hQF0ZdMaIfIPxOSOUg
+         RI7x0W8xQvTMkpdcc1V30Z4Y8+iW2aOPD43AgRdFJDxs/5wDdJ0sXc3iBHyXrr7CVKZw
+         lPc+a1eUKVvv3zNeamccoyqPM4agDfDXo9hqo67eInzwxyfag9MfzIl7WtRXI0q1+5kv
+         VF0g==
+X-Gm-Message-State: AOAM531Uapjf+FIdfrLn1No1sWPb88Vl3f54e/4tn5z4JQNbTPT8LAwg
+        o6VKin7t0WZ9WszQOVIvzC/F5xFtFyJxeFuiTIn/HQ==
+X-Google-Smtp-Source: ABdhPJyqLXKJ6gdjLMc9e2tpdFFZizV6Y14c+znv0Z5ZDaav7clivseLS2LsVXah/dHpL9Qrebnu61t1tKCpI8Oex8w=
+X-Received: by 2002:a25:c3c4:: with SMTP id t187mr8315382ybf.634.1641944268131;
+ Tue, 11 Jan 2022 15:37:48 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v5.10.91
-X-Kernelci-Branch: linux-5.10.y
-Subject: stable/linux-5.10.y baseline: 197 runs, 4 regressions (v5.10.91)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20220111071212.1210124-1-surenb@google.com> <Yd3RClhoz24rrU04@sol.localdomain>
+ <CAHk-=wgwb6pJjvHYmOMT-yp5RYvw0pbv810Wcxdm5S7dWc-s0g@mail.gmail.com>
+ <Yd3dZklleDnJCQ46@gmail.com> <CAHk-=wiQ-qzKU8vyhgm8xsWE8DG6rR4jmbvOfBvbjVYq4SKQMA@mail.gmail.com>
+In-Reply-To: <CAHk-=wiQ-qzKU8vyhgm8xsWE8DG6rR4jmbvOfBvbjVYq4SKQMA@mail.gmail.com>
+From:   Suren Baghdasaryan <surenb@google.com>
+Date:   Tue, 11 Jan 2022 15:37:37 -0800
+Message-ID: <CAJuCfpGHgkgUVQY=FRGfpKDg1QbR2mMaYKbsF2RDiDkratwL_w@mail.gmail.com>
+Subject: Re: [PATCH v2 1/1] psi: Fix uaf issue when psi trigger is destroyed
+ while being polled
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Eric Biggers <ebiggers@kernel.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Tejun Heo <tj@kernel.org>, Zefan Li <lizefan.x@bytedance.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Cgroups <cgroups@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Android Kernel Team <kernel-team@android.com>,
+        syzbot <syzbot+cdb5dd11c97cc532efad@syzkaller.appspotmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.10.y baseline: 197 runs, 4 regressions (v5.10.91)
+On Tue, Jan 11, 2022 at 12:15 PM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+>
+> On Tue, Jan 11, 2022 at 11:41 AM Eric Biggers <ebiggers@kernel.org> wrote:
+> >
+> > This is yet another case of "one time init".
+>
+> Ehh. It's somewhat debatable.
+>
+> For a flag that sets a value once, the rules are somewhat different.
+> In that case, people may simply not care about memory ordering at all,
+> because all they care about is the actual flag value, and - thanks to
+> the one-time behavior - basically whether some transition had happened
+> or not. That's not all that unusual.
+>
+> But when you fetch a pointer, things are at least conceptually
+> slightly different.
+>
+> Of course, you may use the existence of the pointer itself as a flag
+> (ie just a "NULL or not"), in which case it's the same as any other
+> one-time flag thing.
+>
+> But if you use it to dereference something, then _by_definition_
+> you're not just fetching a one-time flag - even if the pointer is only
+> set once. At that point, at a minimum, you require that that thing has
+> been initialized.
+>
+> Now, it's then absolutely true that the stuff behind the pointer may
+> then have other reasons not to care about memory ordering again, and
+> you may be able to avoid memory ordering even then. If you're just
+> switching the pointer around between different objects that has been
+> statically allocated and initialized, then there is no memory ordering
+> required, for example. You might be back to the "I just want one or
+> the other of these two pointers".
+>
+> But if you have something that was initialized before the pointer was
+> assigned, you really do hit the problem we had on alpha, where even if
+> you order the pointer write side accesses, the dereferencing of the
+> pointer may not be ordered on the read side.
+>
+> Now, alpha is basically dead, and we probably don't really care. Even
+> on alpha, the whole "data dependency isn't a memory ordering" is
+> almost impossible to trigger.
+>
+> And in fact, to avoid too much pain we ended up saying "screw alpha"
+> and added a memory barrier to READ_ONCE(), so it turns out that
+> smp_store_release -> READ_ONCE() does work because we just couldn't be
+> bothered to try something more proper.
+>
+> So yeah, READ_ONCE() ends up making the "access through a pointer"
+> thing safe, but that's less of a "it should be safe" and more of a "we
+> can't waste time dealing with braindamage on platforms that don't
+> matter".
+>
+> In general, I think the rule should be that READ_ONCE() is for things
+> that simply don't care about memory ordering at all (or do whatever
+> ordering they want explicitly). And yes, one such very common case is
+> the "one-way flag" where once a certain state has been reached, it's
+> idempotent.
+>
+> Of course, then we have the fact that READ_ONCE() can be more
+> efficient than "smp_load_acquire()" on some platforms, so if something
+> is *hugely* performance-critical, you might use READ_ONCE() even if
+> it's not really technically the right thing.
+>
+> So it's complicated.
+>
+> A lot of READ_ONCE() users exist just for historical reasons because
+> they predated smp_store_release/smp_load_acquire. They may well have
+> been using ACCESS_ONCE() long ago.
+>
+> And some are there because it's a very critical piece of code, and
+> it's very intentional.
+>
+> But if you don't have some huge reasons, I really would prefer people
+> use "smp_store_release -> smp_load_acquire" as a very clear "handoff"
+> event.
 
-Regressions Summary
--------------------
+Posted v3 with smp_store_release/smp_load_acquire:
+https://lore.kernel.org/all/20220111232309.1786347-1-surenb@google.com
+Thanks!
 
-platform                 | arch  | lab          | compiler | defconfig     =
-      | regressions
--------------------------+-------+--------------+----------+---------------=
-------+------------
-beaglebone-black         | arm   | lab-cip      | gcc-10   | omap2plus_defc=
-onfig | 1          =
-
-imx6q-var-dt6customboard | arm   | lab-baylibre | gcc-10   | multi_v7_defco=
-nfig  | 2          =
-
-sun50i-a64-bananapi-m64  | arm64 | lab-clabbe   | gcc-10   | defconfig     =
-      | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.10.y/kernel=
-/v5.10.91/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.10.y
-  Describe: v5.10.91
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      df395c763ba08b8b4385481af07d5d1c658dd917 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch  | lab          | compiler | defconfig     =
-      | regressions
--------------------------+-------+--------------+----------+---------------=
-------+------------
-beaglebone-black         | arm   | lab-cip      | gcc-10   | omap2plus_defc=
-onfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61ddde8d079becad82ef6743
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.91/a=
-rm/omap2plus_defconfig/gcc-10/lab-cip/baseline-beaglebone-black.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.91/a=
-rm/omap2plus_defconfig/gcc-10/lab-cip/baseline-beaglebone-black.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61ddde8d079becad82ef6=
-744
-        new failure (last pass: v5.10.89) =
-
- =
-
-
-
-platform                 | arch  | lab          | compiler | defconfig     =
-      | regressions
--------------------------+-------+--------------+----------+---------------=
-------+------------
-imx6q-var-dt6customboard | arm   | lab-baylibre | gcc-10   | multi_v7_defco=
-nfig  | 2          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61dde29c77a10c1004ef6764
-
-  Results:     4 PASS, 2 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.91/a=
-rm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-imx6q-var-dt6customboard=
-.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.91/a=
-rm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-imx6q-var-dt6customboard=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.alert: https://kernelci.org/test/case/id/61dde29c77a10c1=
-004ef6768
-        new failure (last pass: v5.10.88)
-        4 lines
-
-    2022-01-11T20:03:14.661403  kern  :alert : 8<--- cut here ---
-    2022-01-11T20:03:14.661906  kern  :alert : Unable to handle kernel pagi=
-ng request at virtual address 752f7389
-    2022-01-11T20:03:14.662146  kern  :alert : pgd =3D (ptrval)
-    2022-01-11T20:03:14.662824  kern  :a<8>[   39.377042] <LAVA_SIGNAL_TEST=
-CASE TEST_CASE_ID=3Dalert RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D4>
-    2022-01-11T20:03:14.663086  lert : [752f7389] *pgd=3D00000000   =
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61dde29c77a10c1=
-004ef6769
-        new failure (last pass: v5.10.88)
-        46 lines
-
-    2022-01-11T20:03:14.715165  kern  :emerg : Internal error: Oops: 5 [#1]=
- SMP ARM
-    2022-01-11T20:03:14.715677  kern  :emerg : Process kworker/0:6 (pid: 56=
-, stack limit =3D 0x(ptrval))
-    2022-01-11T20:03:14.715924  kern  :emerg : Stack: (0xc2409d68 to 0xc240=
-a000)
-    2022-01-11T20:03:14.716153  kern  :emerg : 9d60:                   c39f=
-ddb0 c39fddb4 c39fdc00 c39fdc00 c1445cc0 c09e3b64
-    2022-01-11T20:03:14.716614  kern  :emerg : 9d80: c2408000 c2001e40 ef86=
-c620 c39fdc00 752f7369 c39fd800 c2001a80 ef86bf80
-    2022-01-11T20:03:14.717085  kern  :emerg : 9da0: c09f12cc c1445cc0 0000=
-000c c399d240 c19c7a10 79d2c3cf 00000001 c3a31fc0
-    2022-01-11T20:03:14.758158  kern  :emerg : 9dc0: c3a2f080 c39fdc00 c39f=
-dc14 c1445cc0 0000000c c399d240 c19c7a10 c09f12a0
-    2022-01-11T20:03:14.758670  kern  :emerg : 9de0: c14439e4 00000000 c39f=
-dc00 fffffdfb bf048000 c22d8c10 00000120 c09c7280
-    2022-01-11T20:03:14.758916  kern  :emerg : 9e00: c39fdc00 bf044120 c3a3=
-1480 c3a73708 c226e8c0 c19c7a2c 00000120 c0a23c70
-    2022-01-11T20:03:14.759402  kern  :emerg : 9e20: c3a31480 c3a31480 c223=
-2c00 c226e8c0 00000000 c3a31480 c19c7a24 bf0a60a8 =
-
-    ... (36 line(s) more)  =
-
- =
-
-
-
-platform                 | arch  | lab          | compiler | defconfig     =
-      | regressions
--------------------------+-------+--------------+----------+---------------=
-------+------------
-sun50i-a64-bananapi-m64  | arm64 | lab-clabbe   | gcc-10   | defconfig     =
-      | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61dde2ece7e3765e7cef673d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.10.y/v5.10.91/a=
-rm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bananapi-m64.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.10.y/v5.10.91/a=
-rm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bananapi-m64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61dde2ece7e3765e7cef6=
-73e
-        new failure (last pass: v5.10.90) =
-
- =20
+>
+>               Linus
