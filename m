@@ -2,914 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF27748ADFF
-	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 13:56:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BEBE48AE12
+	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 14:02:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235450AbiAKM4O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jan 2022 07:56:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34886 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240126AbiAKM4K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 07:56:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA0C2C061751;
-        Tue, 11 Jan 2022 04:56:10 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 497CA615D4;
-        Tue, 11 Jan 2022 12:56:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F236DC36AED;
-        Tue, 11 Jan 2022 12:56:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641905769;
-        bh=M9pZtnjh0pRcGaNSQtOXvsL7Smkw8X2AavO7b6jTie8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LvcdSk/9gLuPcCv5OgTOcrlivkk+xCngthZ5lzXR+rIlKAdlA3CTm3ELiVK7UQ7vP
-         jis/GmcjsEg8SaaBFAGA+mMzO6xaFm5FQHgyOf16oInXW26hyWGOvHry03W8UAmKaA
-         rCmlZ319V6OivnHk+QaK6+NJ3wL8oo8K4aKqmLgI=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        torvalds@linux-foundation.org, stable@vger.kernel.org
-Cc:     lwn@lwn.net, jslaby@suse.cz,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 4.9.297
-Date:   Tue, 11 Jan 2022 13:55:58 +0100
-Message-Id: <164190575861242@kroah.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <164190575871135@kroah.com>
-References: <164190575871135@kroah.com>
+        id S240207AbiAKNCl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jan 2022 08:02:41 -0500
+Received: from szxga02-in.huawei.com ([45.249.212.188]:17338 "EHLO
+        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239661AbiAKNCk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 08:02:40 -0500
+Received: from canpemm500006.china.huawei.com (unknown [172.30.72.57])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4JY9n722f7z9s7R;
+        Tue, 11 Jan 2022 21:01:31 +0800 (CST)
+Received: from [10.174.179.200] (10.174.179.200) by
+ canpemm500006.china.huawei.com (7.192.105.130) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.20; Tue, 11 Jan 2022 21:02:38 +0800
+Subject: Re: [PATCH net] can: bcm: switch timer to HRTIMER_MODE_SOFT and
+ remove hrtimer_tasklet
+To:     Oliver Hartkopp <socketcan@hartkopp.net>,
+        Greg KH <gregkh@linuxfoundation.org>
+CC:     <davem@davemloft.net>, <kuba@kernel.org>, <mkl@pengutronix.de>,
+        <netdev@vger.kernel.org>, <stable@vger.kernel.org>,
+        <linux-can@vger.kernel.org>, <tglx@linutronix.de>,
+        <anna-maria@linutronix.de>
+References: <20220110132322.1726106-1-william.xuanziyang@huawei.com>
+ <YdwxtqexaE75uCZ8@kroah.com>
+ <afcc8f0c-1aa7-9f43-bf50-b404c954db8b@huawei.com>
+ <ad8ed3db-b5aa-9c48-0bff-2c2623bd17fa@hartkopp.net>
+From:   "Ziyang Xuan (William)" <william.xuanziyang@huawei.com>
+Message-ID: <fc20454f-68ee-21f5-10a4-8100407aad53@huawei.com>
+Date:   Tue, 11 Jan 2022 21:02:37 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.11.0
 MIME-Version: 1.0
+In-Reply-To: <ad8ed3db-b5aa-9c48-0bff-2c2623bd17fa@hartkopp.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.174.179.200]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ canpemm500006.china.huawei.com (7.192.105.130)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 1ec880bcdb2d..70a11157b240 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,6 +1,6 @@
- VERSION = 4
- PATCHLEVEL = 9
--SUBLEVEL = 296
-+SUBLEVEL = 297
- EXTRAVERSION =
- NAME = Roaring Lionus
- 
-diff --git a/arch/arm64/include/asm/sysreg.h b/arch/arm64/include/asm/sysreg.h
-index 88bbe364b6ae..ae1b31d02784 100644
---- a/arch/arm64/include/asm/sysreg.h
-+++ b/arch/arm64/include/asm/sysreg.h
-@@ -20,6 +20,7 @@
- #ifndef __ASM_SYSREG_H
- #define __ASM_SYSREG_H
- 
-+#include <asm/compiler.h>
- #include <linux/stringify.h>
- 
- #include <asm/opcodes.h>
-@@ -88,25 +89,81 @@
- 
- /* Common SCTLR_ELx flags. */
- #define SCTLR_ELx_EE    (1 << 25)
-+#define SCTLR_ELx_WXN	(1 << 19)
- #define SCTLR_ELx_I	(1 << 12)
- #define SCTLR_ELx_SA	(1 << 3)
- #define SCTLR_ELx_C	(1 << 2)
- #define SCTLR_ELx_A	(1 << 1)
- #define SCTLR_ELx_M	1
- 
--#define SCTLR_EL2_RES1	((1 << 4)  | (1 << 5)  | (1 << 11) | (1 << 16) | \
--			 (1 << 16) | (1 << 18) | (1 << 22) | (1 << 23) | \
--			 (1 << 28) | (1 << 29))
--
- #define SCTLR_ELx_FLAGS	(SCTLR_ELx_M | SCTLR_ELx_A | SCTLR_ELx_C | \
- 			 SCTLR_ELx_SA | SCTLR_ELx_I)
- 
-+/* SCTLR_EL2 specific flags. */
-+#define SCTLR_EL2_RES1	((1 << 4)  | (1 << 5)  | (1 << 11) | (1 << 16) | \
-+			 (1 << 18) | (1 << 22) | (1 << 23) | (1 << 28) | \
-+			 (1 << 29))
-+#define SCTLR_EL2_RES0	((1 << 6)  | (1 << 7)  | (1 << 8)  | (1 << 9)  | \
-+			 (1 << 10) | (1 << 13) | (1 << 14) | (1 << 15) | \
-+			 (1 << 17) | (1 << 20) | (1 << 21) | (1 << 24) | \
-+			 (1 << 26) | (1 << 27) | (1 << 30) | (1 << 31))
-+
-+#ifdef CONFIG_CPU_BIG_ENDIAN
-+#define ENDIAN_SET_EL2		SCTLR_ELx_EE
-+#define ENDIAN_CLEAR_EL2	0
-+#else
-+#define ENDIAN_SET_EL2		0
-+#define ENDIAN_CLEAR_EL2	SCTLR_ELx_EE
-+#endif
-+
-+/* SCTLR_EL2 value used for the hyp-stub */
-+#define SCTLR_EL2_SET	(ENDIAN_SET_EL2   | SCTLR_EL2_RES1)
-+#define SCTLR_EL2_CLEAR	(SCTLR_ELx_M      | SCTLR_ELx_A    | SCTLR_ELx_C   | \
-+			 SCTLR_ELx_SA     | SCTLR_ELx_I    | SCTLR_ELx_WXN | \
-+			 ENDIAN_CLEAR_EL2 | SCTLR_EL2_RES0)
-+
-+/* Check all the bits are accounted for */
-+#define SCTLR_EL2_BUILD_BUG_ON_MISSING_BITS	BUILD_BUG_ON((SCTLR_EL2_SET ^ SCTLR_EL2_CLEAR) != ~0)
-+
-+
- /* SCTLR_EL1 specific flags. */
- #define SCTLR_EL1_UCI		(1 << 26)
-+#define SCTLR_EL1_E0E		(1 << 24)
- #define SCTLR_EL1_SPAN		(1 << 23)
-+#define SCTLR_EL1_NTWE		(1 << 18)
-+#define SCTLR_EL1_NTWI		(1 << 16)
- #define SCTLR_EL1_UCT		(1 << 15)
-+#define SCTLR_EL1_DZE		(1 << 14)
-+#define SCTLR_EL1_UMA		(1 << 9)
- #define SCTLR_EL1_SED		(1 << 8)
-+#define SCTLR_EL1_ITD		(1 << 7)
- #define SCTLR_EL1_CP15BEN	(1 << 5)
-+#define SCTLR_EL1_SA0		(1 << 4)
-+
-+#define SCTLR_EL1_RES1	((1 << 11) | (1 << 20) | (1 << 22) | (1 << 28) | \
-+			 (1 << 29))
-+#define SCTLR_EL1_RES0  ((1 << 6)  | (1 << 10) | (1 << 13) | (1 << 17) | \
-+			 (1 << 21) | (1 << 27) | (1 << 30) | (1 << 31))
-+
-+#ifdef CONFIG_CPU_BIG_ENDIAN
-+#define ENDIAN_SET_EL1		(SCTLR_EL1_E0E | SCTLR_ELx_EE)
-+#define ENDIAN_CLEAR_EL1	0
-+#else
-+#define ENDIAN_SET_EL1		0
-+#define ENDIAN_CLEAR_EL1	(SCTLR_EL1_E0E | SCTLR_ELx_EE)
-+#endif
-+
-+#define SCTLR_EL1_SET	(SCTLR_ELx_M    | SCTLR_ELx_C    | SCTLR_ELx_SA   |\
-+			 SCTLR_EL1_SA0  | SCTLR_EL1_SED  | SCTLR_ELx_I    |\
-+			 SCTLR_EL1_DZE  | SCTLR_EL1_UCT  | SCTLR_EL1_NTWI |\
-+			 SCTLR_EL1_NTWE | SCTLR_EL1_SPAN | ENDIAN_SET_EL1 |\
-+			 SCTLR_EL1_UCI  | SCTLR_EL1_RES1)
-+#define SCTLR_EL1_CLEAR	(SCTLR_ELx_A   | SCTLR_EL1_CP15BEN | SCTLR_EL1_ITD    |\
-+			 SCTLR_EL1_UMA | SCTLR_ELx_WXN     | ENDIAN_CLEAR_EL1 |\
-+			 SCTLR_EL1_RES0)
-+
-+/* Check all the bits are accounted for */
-+#define SCTLR_EL1_BUILD_BUG_ON_MISSING_BITS	BUILD_BUG_ON((SCTLR_EL1_SET ^ SCTLR_EL1_CLEAR) != ~0)
- 
- /* id_aa64isar0 */
- #define ID_AA64ISAR0_RDM_SHIFT		28
-@@ -244,6 +301,7 @@
- 
- #else
- 
-+#include <linux/build_bug.h>
- #include <linux/types.h>
- 
- asm(
-@@ -300,6 +358,9 @@ static inline void config_sctlr_el1(u32 clear, u32 set)
- {
- 	u32 val;
- 
-+	SCTLR_EL2_BUILD_BUG_ON_MISSING_BITS;
-+	SCTLR_EL1_BUILD_BUG_ON_MISSING_BITS;
-+
- 	val = read_sysreg(sctlr_el1);
- 	val &= ~clear;
- 	val |= set;
-diff --git a/arch/arm64/kernel/head.S b/arch/arm64/kernel/head.S
-index 387542383662..04f81675b6b3 100644
---- a/arch/arm64/kernel/head.S
-+++ b/arch/arm64/kernel/head.S
-@@ -489,21 +489,16 @@ ENTRY(el2_setup)
- 	msr	SPsel, #1			// We want to use SP_EL{1,2}
- 	mrs	x0, CurrentEL
- 	cmp	x0, #CurrentEL_EL2
--	b.ne	1f
--	mrs	x0, sctlr_el2
--CPU_BE(	orr	x0, x0, #(1 << 25)	)	// Set the EE bit for EL2
--CPU_LE(	bic	x0, x0, #(1 << 25)	)	// Clear the EE bit for EL2
--	msr	sctlr_el2, x0
--	b	2f
--1:	mrs	x0, sctlr_el1
--CPU_BE(	orr	x0, x0, #(3 << 24)	)	// Set the EE and E0E bits for EL1
--CPU_LE(	bic	x0, x0, #(3 << 24)	)	// Clear the EE and E0E bits for EL1
-+	b.eq	1f
-+	mov_q	x0, (SCTLR_EL1_RES1 | ENDIAN_SET_EL1)
- 	msr	sctlr_el1, x0
- 	mov	w0, #BOOT_CPU_MODE_EL1		// This cpu booted in EL1
- 	isb
- 	ret
- 
--2:
-+1:	mov_q	x0, (SCTLR_EL2_RES1 | ENDIAN_SET_EL2)
-+	msr	sctlr_el2, x0
-+
- #ifdef CONFIG_ARM64_VHE
- 	/*
- 	 * Check for VHE being present. For the rest of the EL2 setup,
-@@ -554,26 +549,6 @@ set_hcr:
- 	msr	vpidr_el2, x0
- 	msr	vmpidr_el2, x1
- 
--	/*
--	 * When VHE is not in use, early init of EL2 and EL1 needs to be
--	 * done here.
--	 * When VHE _is_ in use, EL1 will not be used in the host and
--	 * requires no configuration, and all non-hyp-specific EL2 setup
--	 * will be done via the _EL1 system register aliases in __cpu_setup.
--	 */
--	cbnz	x2, 1f
--
--	/* sctlr_el1 */
--	mov	x0, #0x0800			// Set/clear RES{1,0} bits
--CPU_BE(	movk	x0, #0x33d0, lsl #16	)	// Set EE and E0E on BE systems
--CPU_LE(	movk	x0, #0x30d0, lsl #16	)	// Clear EE and E0E on LE systems
--	msr	sctlr_el1, x0
--
--	/* Coprocessor traps. */
--	mov	x0, #0x33ff
--	msr	cptr_el2, x0			// Disable copro. traps to EL2
--1:
--
- #ifdef CONFIG_COMPAT
- 	msr	hstr_el2, xzr			// Disable CP15 traps to EL2
- #endif
-@@ -599,6 +574,20 @@ CPU_LE(	movk	x0, #0x30d0, lsl #16	)	// Clear EE and E0E on LE systems
- 	ret
- 
- install_el2_stub:
-+	/*
-+	 * When VHE is not in use, early init of EL2 and EL1 needs to be
-+	 * done here.
-+	 * When VHE _is_ in use, EL1 will not be used in the host and
-+	 * requires no configuration, and all non-hyp-specific EL2 setup
-+	 * will be done via the _EL1 system register aliases in __cpu_setup.
-+	 */
-+	mov_q	x0, (SCTLR_EL1_RES1 | ENDIAN_SET_EL1)
-+	msr	sctlr_el1, x0
-+
-+	/* Coprocessor traps. */
-+	mov	x0, #0x33ff
-+	msr	cptr_el2, x0			// Disable copro. traps to EL2
-+
- 	/* Hypervisor stub */
- 	adrp	x0, __hyp_stub_vectors
- 	add	x0, x0, #:lo12:__hyp_stub_vectors
-diff --git a/arch/arm64/mm/proc.S b/arch/arm64/mm/proc.S
-index 1b91b8c8999b..266211a0ecd6 100644
---- a/arch/arm64/mm/proc.S
-+++ b/arch/arm64/mm/proc.S
-@@ -413,11 +413,7 @@ ENTRY(__cpu_setup)
- 	/*
- 	 * Prepare SCTLR
- 	 */
--	adr	x5, crval
--	ldp	w5, w6, [x5]
--	mrs	x0, sctlr_el1
--	bic	x0, x0, x5			// clear bits
--	orr	x0, x0, x6			// set bits
-+	mov_q	x0, SCTLR_EL1_SET
- 	/*
- 	 * Set/prepare TCR and TTBR. We use 512GB (39-bit) address range for
- 	 * both user and kernel.
-@@ -453,21 +449,3 @@ ENTRY(__cpu_setup)
- 	msr	tcr_el1, x10
- 	ret					// return to head.S
- ENDPROC(__cpu_setup)
--
--	/*
--	 * We set the desired value explicitly, including those of the
--	 * reserved bits. The values of bits EE & E0E were set early in
--	 * el2_setup, which are left untouched below.
--	 *
--	 *                 n n            T
--	 *       U E      WT T UD     US IHBS
--	 *       CE0      XWHW CZ     ME TEEA S
--	 * .... .IEE .... NEAI TE.I ..AD DEN0 ACAM
--	 * 0011 0... 1101 ..0. ..0. 10.. .0.. .... < hardware reserved
--	 * .... .1.. .... 01.1 11.1 ..01 0.01 1101 < software settings
--	 */
--	.type	crval, #object
--crval:
--	.word	0xfcffffff			// clear
--	.word	0x34d5d91d			// set
--	.popsection
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index 30c09b9ddbf0..2069080191ee 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -2442,11 +2442,9 @@ static const struct qca_device_info qca_devices_table[] = {
- 	{ 0x00000302, 28, 4, 18 }, /* Rome 3.2 */
- };
- 
--static int btusb_qca_send_vendor_req(struct hci_dev *hdev, u8 request,
-+static int btusb_qca_send_vendor_req(struct usb_device *udev, u8 request,
- 				     void *data, u16 size)
- {
--	struct btusb_data *btdata = hci_get_drvdata(hdev);
--	struct usb_device *udev = btdata->udev;
- 	int pipe, err;
- 	u8 *buf;
- 
-@@ -2461,7 +2459,7 @@ static int btusb_qca_send_vendor_req(struct hci_dev *hdev, u8 request,
- 	err = usb_control_msg(udev, pipe, request, USB_TYPE_VENDOR | USB_DIR_IN,
- 			      0, 0, buf, size, USB_CTRL_SET_TIMEOUT);
- 	if (err < 0) {
--		BT_ERR("%s: Failed to access otp area (%d)", hdev->name, err);
-+		dev_err(&udev->dev, "Failed to access otp area (%d)", err);
- 		goto done;
- 	}
- 
-@@ -2617,20 +2615,38 @@ static int btusb_setup_qca_load_nvm(struct hci_dev *hdev,
- 	return err;
- }
- 
-+/* identify the ROM version and check whether patches are needed */
-+static bool btusb_qca_need_patch(struct usb_device *udev)
-+{
-+	struct qca_version ver;
-+
-+	if (btusb_qca_send_vendor_req(udev, QCA_GET_TARGET_VERSION, &ver,
-+				      sizeof(ver)) < 0)
-+		return false;
-+	/* only low ROM versions need patches */
-+	return !(le32_to_cpu(ver.rom_version) & ~0xffffU);
-+}
-+
- static int btusb_setup_qca(struct hci_dev *hdev)
- {
-+	struct btusb_data *btdata = hci_get_drvdata(hdev);
-+	struct usb_device *udev = btdata->udev;
- 	const struct qca_device_info *info = NULL;
- 	struct qca_version ver;
- 	u32 ver_rom;
- 	u8 status;
- 	int i, err;
- 
--	err = btusb_qca_send_vendor_req(hdev, QCA_GET_TARGET_VERSION, &ver,
-+	err = btusb_qca_send_vendor_req(udev, QCA_GET_TARGET_VERSION, &ver,
- 					sizeof(ver));
- 	if (err < 0)
- 		return err;
- 
- 	ver_rom = le32_to_cpu(ver.rom_version);
-+	/* Don't care about high ROM versions */
-+	if (ver_rom & ~0xffffU)
-+		return 0;
-+
- 	for (i = 0; i < ARRAY_SIZE(qca_devices_table); i++) {
- 		if (ver_rom == qca_devices_table[i].rom_version)
- 			info = &qca_devices_table[i];
-@@ -2641,7 +2657,7 @@ static int btusb_setup_qca(struct hci_dev *hdev)
- 		return -ENODEV;
- 	}
- 
--	err = btusb_qca_send_vendor_req(hdev, QCA_CHECK_STATUS, &status,
-+	err = btusb_qca_send_vendor_req(udev, QCA_CHECK_STATUS, &status,
- 					sizeof(status));
- 	if (err < 0)
- 		return err;
-@@ -2787,7 +2803,8 @@ static int btusb_probe(struct usb_interface *intf,
- 
- 		/* Old firmware would otherwise let ath3k driver load
- 		 * patch and sysconfig files */
--		if (le16_to_cpu(udev->descriptor.bcdDevice) <= 0x0001)
-+		if (le16_to_cpu(udev->descriptor.bcdDevice) <= 0x0001 &&
-+		    !btusb_qca_need_patch(udev))
- 			return -ENODEV;
- 	}
- 
-@@ -2937,6 +2954,7 @@ static int btusb_probe(struct usb_interface *intf,
- 	}
- 
- 	if (id->driver_info & BTUSB_ATH3012) {
-+		data->setup_on_usb = btusb_setup_qca;
- 		hdev->set_bdaddr = btusb_set_bdaddr_ath3012;
- 		set_bit(HCI_QUIRK_SIMULTANEOUS_DISCOVERY, &hdev->quirks);
- 		set_bit(HCI_QUIRK_STRICT_DUPLICATE_FILTER, &hdev->quirks);
-diff --git a/drivers/isdn/mISDN/core.c b/drivers/isdn/mISDN/core.c
-index faf505462a4f..f5a06a6fb297 100644
---- a/drivers/isdn/mISDN/core.c
-+++ b/drivers/isdn/mISDN/core.c
-@@ -390,7 +390,7 @@ mISDNInit(void)
- 	err = mISDN_inittimer(&debug);
- 	if (err)
- 		goto error2;
--	err = l1_init(&debug);
-+	err = Isdnl1_Init(&debug);
- 	if (err)
- 		goto error3;
- 	err = Isdnl2_Init(&debug);
-@@ -404,7 +404,7 @@ mISDNInit(void)
- error5:
- 	Isdnl2_cleanup();
- error4:
--	l1_cleanup();
-+	Isdnl1_cleanup();
- error3:
- 	mISDN_timer_cleanup();
- error2:
-@@ -417,7 +417,7 @@ static void mISDN_cleanup(void)
- {
- 	misdn_sock_cleanup();
- 	Isdnl2_cleanup();
--	l1_cleanup();
-+	Isdnl1_cleanup();
- 	mISDN_timer_cleanup();
- 	class_unregister(&mISDN_class);
- 
-diff --git a/drivers/isdn/mISDN/core.h b/drivers/isdn/mISDN/core.h
-index 52695bb81ee7..3c039b6ade2e 100644
---- a/drivers/isdn/mISDN/core.h
-+++ b/drivers/isdn/mISDN/core.h
-@@ -69,8 +69,8 @@ struct Bprotocol	*get_Bprotocol4id(u_int);
- extern int	mISDN_inittimer(u_int *);
- extern void	mISDN_timer_cleanup(void);
- 
--extern int	l1_init(u_int *);
--extern void	l1_cleanup(void);
-+extern int	Isdnl1_Init(u_int *);
-+extern void	Isdnl1_cleanup(void);
- extern int	Isdnl2_Init(u_int *);
- extern void	Isdnl2_cleanup(void);
- 
-diff --git a/drivers/isdn/mISDN/layer1.c b/drivers/isdn/mISDN/layer1.c
-index bebc57b72138..94d7cc58da64 100644
---- a/drivers/isdn/mISDN/layer1.c
-+++ b/drivers/isdn/mISDN/layer1.c
-@@ -407,7 +407,7 @@ create_l1(struct dchannel *dch, dchannel_l1callback *dcb) {
- EXPORT_SYMBOL(create_l1);
- 
- int
--l1_init(u_int *deb)
-+Isdnl1_Init(u_int *deb)
- {
- 	debug = deb;
- 	l1fsm_s.state_count = L1S_STATE_COUNT;
-@@ -419,7 +419,7 @@ l1_init(u_int *deb)
- }
- 
- void
--l1_cleanup(void)
-+Isdnl1_cleanup(void)
- {
- 	mISDN_FsmFree(&l1fsm_s);
- }
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index e7585f6c4665..104f8eb828a0 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -5429,6 +5429,27 @@ int i40e_open(struct net_device *netdev)
- 	return 0;
- }
- 
-+/**
-+ * i40e_netif_set_realnum_tx_rx_queues - Update number of tx/rx queues
-+ * @vsi: vsi structure
-+ *
-+ * This updates netdev's number of tx/rx queues
-+ *
-+ * Returns status of setting tx/rx queues
-+ **/
-+static int i40e_netif_set_realnum_tx_rx_queues(struct i40e_vsi *vsi)
-+{
-+	int ret;
-+
-+	ret = netif_set_real_num_rx_queues(vsi->netdev,
-+					   vsi->num_queue_pairs);
-+	if (ret)
-+		return ret;
-+
-+	return netif_set_real_num_tx_queues(vsi->netdev,
-+					    vsi->num_queue_pairs);
-+}
-+
- /**
-  * i40e_vsi_open -
-  * @vsi: the VSI to open
-@@ -5463,13 +5484,7 @@ int i40e_vsi_open(struct i40e_vsi *vsi)
- 			goto err_setup_rx;
- 
- 		/* Notify the stack of the actual queue counts. */
--		err = netif_set_real_num_tx_queues(vsi->netdev,
--						   vsi->num_queue_pairs);
--		if (err)
--			goto err_set_queues;
--
--		err = netif_set_real_num_rx_queues(vsi->netdev,
--						   vsi->num_queue_pairs);
-+		err = i40e_netif_set_realnum_tx_rx_queues(vsi);
- 		if (err)
- 			goto err_set_queues;
- 
-@@ -9908,6 +9923,9 @@ struct i40e_vsi *i40e_vsi_setup(struct i40e_pf *pf, u8 type,
- 	case I40E_VSI_VMDQ2:
- 	case I40E_VSI_FCOE:
- 		ret = i40e_config_netdev(vsi);
-+		if (ret)
-+			goto err_netdev;
-+		ret = i40e_netif_set_realnum_tx_rx_queues(vsi);
- 		if (ret)
- 			goto err_netdev;
- 		ret = register_netdev(vsi->netdev);
-diff --git a/drivers/net/ieee802154/atusb.c b/drivers/net/ieee802154/atusb.c
-index 0ee54fba0a23..92df7c2d5850 100644
---- a/drivers/net/ieee802154/atusb.c
-+++ b/drivers/net/ieee802154/atusb.c
-@@ -79,7 +79,9 @@ static int atusb_control_msg(struct atusb *atusb, unsigned int pipe,
- 
- 	ret = usb_control_msg(usb_dev, pipe, request, requesttype,
- 			      value, index, data, size, timeout);
--	if (ret < 0) {
-+	if (ret < size) {
-+		ret = ret < 0 ? ret : -ENODATA;
-+
- 		atusb->err = ret;
- 		dev_err(&usb_dev->dev,
- 			"atusb_control_msg: req 0x%02x val 0x%x idx 0x%x, error %d\n",
-@@ -637,9 +639,9 @@ static int atusb_get_and_show_build(struct atusb *atusb)
- 	if (!build)
- 		return -ENOMEM;
- 
--	ret = atusb_control_msg(atusb, usb_rcvctrlpipe(usb_dev, 0),
--				ATUSB_BUILD, ATUSB_REQ_FROM_DEV, 0, 0,
--				build, ATUSB_BUILD_SIZE, 1000);
-+	/* We cannot call atusb_control_msg() here, since this request may read various length data */
-+	ret = usb_control_msg(atusb->usb_dev, usb_rcvctrlpipe(usb_dev, 0), ATUSB_BUILD,
-+			      ATUSB_REQ_FROM_DEV, 0, 0, build, ATUSB_BUILD_SIZE, 1000);
- 	if (ret >= 0) {
- 		build[ret] = 0;
- 		dev_info(&usb_dev->dev, "Firmware: build %s\n", build);
-diff --git a/drivers/net/usb/rndis_host.c b/drivers/net/usb/rndis_host.c
-index dc5b8e69f8e8..9567bd00a814 100644
---- a/drivers/net/usb/rndis_host.c
-+++ b/drivers/net/usb/rndis_host.c
-@@ -619,6 +619,11 @@ static const struct usb_device_id	products [] = {
- 	USB_DEVICE_AND_INTERFACE_INFO(0x1630, 0x0042,
- 				      USB_CLASS_COMM, 2 /* ACM */, 0x0ff),
- 	.driver_info = (unsigned long) &rndis_poll_status_info,
-+}, {
-+	/* Hytera Communications DMR radios' "Radio to PC Network" */
-+	USB_VENDOR_AND_INTERFACE_INFO(0x238b,
-+				      USB_CLASS_COMM, 2 /* ACM */, 0x0ff),
-+	.driver_info = (unsigned long)&rndis_info,
- }, {
- 	/* RNDIS is MSFT's un-official variant of CDC ACM */
- 	USB_INTERFACE_INFO(USB_CLASS_COMM, 2 /* ACM */, 0x0ff),
-diff --git a/drivers/power/reset/ltc2952-poweroff.c b/drivers/power/reset/ltc2952-poweroff.c
-index 15fed9d8f871..ec54cff108b3 100644
---- a/drivers/power/reset/ltc2952-poweroff.c
-+++ b/drivers/power/reset/ltc2952-poweroff.c
-@@ -169,8 +169,8 @@ static void ltc2952_poweroff_kill(void)
- 
- static void ltc2952_poweroff_default(struct ltc2952_poweroff *data)
- {
--	data->wde_interval = ktime_set(0, 300L*1E6L);
--	data->trigger_delay = ktime_set(2, 500L*1E6L);
-+	data->wde_interval = ktime_set(0, 300L * NSEC_PER_MSEC);
-+	data->trigger_delay = ktime_set(2, 500L * NSEC_PER_MSEC);
- 
- 	hrtimer_init(&data->timer_trigger, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
- 	data->timer_trigger.function = ltc2952_poweroff_timer_trigger;
-diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
-index 30e954bb6c81..8d1a05d5eb4d 100644
---- a/drivers/scsi/libiscsi.c
-+++ b/drivers/scsi/libiscsi.c
-@@ -2991,6 +2991,8 @@ void iscsi_conn_teardown(struct iscsi_cls_conn *cls_conn)
- {
- 	struct iscsi_conn *conn = cls_conn->dd_data;
- 	struct iscsi_session *session = conn->session;
-+	char *tmp_persistent_address = conn->persistent_address;
-+	char *tmp_local_ipaddr = conn->local_ipaddr;
- 
- 	del_timer_sync(&conn->transport_timer);
- 
-@@ -3012,8 +3014,6 @@ void iscsi_conn_teardown(struct iscsi_cls_conn *cls_conn)
- 	spin_lock_bh(&session->frwd_lock);
- 	free_pages((unsigned long) conn->data,
- 		   get_order(ISCSI_DEF_MAX_RECV_SEG_LEN));
--	kfree(conn->persistent_address);
--	kfree(conn->local_ipaddr);
- 	/* regular RX path uses back_lock */
- 	spin_lock_bh(&session->back_lock);
- 	kfifo_in(&session->cmdpool.queue, (void*)&conn->login_task,
-@@ -3025,6 +3025,8 @@ void iscsi_conn_teardown(struct iscsi_cls_conn *cls_conn)
- 	mutex_unlock(&session->eh_mutex);
- 
- 	iscsi_destroy_conn(cls_conn);
-+	kfree(tmp_persistent_address);
-+	kfree(tmp_local_ipaddr);
- }
- EXPORT_SYMBOL_GPL(iscsi_conn_teardown);
- 
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index d9a905827967..37e3ba5dadf6 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -547,6 +547,13 @@ static void virtio_pci_remove(struct pci_dev *pci_dev)
- 	struct virtio_pci_device *vp_dev = pci_get_drvdata(pci_dev);
- 	struct device *dev = get_device(&vp_dev->vdev.dev);
- 
-+	/*
-+	 * Device is marked broken on surprise removal so that virtio upper
-+	 * layers can abort any ongoing operation.
-+	 */
-+	if (!pci_device_is_present(pci_dev))
-+		virtio_break_device(&vp_dev->vdev);
-+
- 	unregister_virtio_device(&vp_dev->vdev);
- 
- 	if (vp_dev->ioaddr)
-diff --git a/fs/xfs/xfs_ioctl.c b/fs/xfs/xfs_ioctl.c
-index 6c95812120eb..5e28a5225e3f 100644
---- a/fs/xfs/xfs_ioctl.c
-+++ b/fs/xfs/xfs_ioctl.c
-@@ -712,7 +712,8 @@ xfs_ioc_space(
- 		flags |= XFS_PREALLOC_CLEAR;
- 		if (bf->l_start > XFS_ISIZE(ip)) {
- 			error = xfs_alloc_file_space(ip, XFS_ISIZE(ip),
--					bf->l_start - XFS_ISIZE(ip), 0);
-+					bf->l_start - XFS_ISIZE(ip),
-+					XFS_BMAPI_PREALLOC);
- 			if (error)
- 				goto out_unlock;
- 		}
-diff --git a/include/linux/bug.h b/include/linux/bug.h
-index 0faae96302bd..eafb6213e582 100644
---- a/include/linux/bug.h
-+++ b/include/linux/bug.h
-@@ -3,6 +3,7 @@
- 
- #include <asm/bug.h>
- #include <linux/compiler.h>
-+#include <linux/build_bug.h>
- 
- enum bug_trap_type {
- 	BUG_TRAP_TYPE_NONE = 0,
-@@ -13,80 +14,9 @@ enum bug_trap_type {
- struct pt_regs;
- 
- #ifdef __CHECKER__
--#define __BUILD_BUG_ON_NOT_POWER_OF_2(n) (0)
--#define BUILD_BUG_ON_NOT_POWER_OF_2(n) (0)
--#define BUILD_BUG_ON_ZERO(e) (0)
--#define BUILD_BUG_ON_NULL(e) ((void*)0)
--#define BUILD_BUG_ON_INVALID(e) (0)
--#define BUILD_BUG_ON_MSG(cond, msg) (0)
--#define BUILD_BUG_ON(condition) (0)
--#define BUILD_BUG() (0)
- #define MAYBE_BUILD_BUG_ON(cond) (0)
- #else /* __CHECKER__ */
- 
--/* Force a compilation error if a constant expression is not a power of 2 */
--#define __BUILD_BUG_ON_NOT_POWER_OF_2(n)	\
--	BUILD_BUG_ON(((n) & ((n) - 1)) != 0)
--#define BUILD_BUG_ON_NOT_POWER_OF_2(n)			\
--	BUILD_BUG_ON((n) == 0 || (((n) & ((n) - 1)) != 0))
--
--/* Force a compilation error if condition is true, but also produce a
--   result (of value 0 and type size_t), so the expression can be used
--   e.g. in a structure initializer (or where-ever else comma expressions
--   aren't permitted). */
--#define BUILD_BUG_ON_ZERO(e) (sizeof(struct { int:-!!(e); }))
--#define BUILD_BUG_ON_NULL(e) ((void *)sizeof(struct { int:-!!(e); }))
--
--/*
-- * BUILD_BUG_ON_INVALID() permits the compiler to check the validity of the
-- * expression but avoids the generation of any code, even if that expression
-- * has side-effects.
-- */
--#define BUILD_BUG_ON_INVALID(e) ((void)(sizeof((__force long)(e))))
--
--/**
-- * BUILD_BUG_ON_MSG - break compile if a condition is true & emit supplied
-- *		      error message.
-- * @condition: the condition which the compiler should know is false.
-- *
-- * See BUILD_BUG_ON for description.
-- */
--#define BUILD_BUG_ON_MSG(cond, msg) compiletime_assert(!(cond), msg)
--
--/**
-- * BUILD_BUG_ON - break compile if a condition is true.
-- * @condition: the condition which the compiler should know is false.
-- *
-- * If you have some code which relies on certain constants being equal, or
-- * some other compile-time-evaluated condition, you should use BUILD_BUG_ON to
-- * detect if someone changes it.
-- *
-- * The implementation uses gcc's reluctance to create a negative array, but gcc
-- * (as of 4.4) only emits that error for obvious cases (e.g. not arguments to
-- * inline functions).  Luckily, in 4.3 they added the "error" function
-- * attribute just for this type of case.  Thus, we use a negative sized array
-- * (should always create an error on gcc versions older than 4.4) and then call
-- * an undefined function with the error attribute (should always create an
-- * error on gcc 4.3 and later).  If for some reason, neither creates a
-- * compile-time error, we'll still have a link-time error, which is harder to
-- * track down.
-- */
--#ifndef __OPTIMIZE__
--#define BUILD_BUG_ON(condition) ((void)sizeof(char[1 - 2*!!(condition)]))
--#else
--#define BUILD_BUG_ON(condition) \
--	BUILD_BUG_ON_MSG(condition, "BUILD_BUG_ON failed: " #condition)
--#endif
--
--/**
-- * BUILD_BUG - break compile if used.
-- *
-- * If you have some code that you expect the compiler to eliminate at
-- * build time, you should use BUILD_BUG to detect if it is
-- * unexpectedly used.
-- */
--#define BUILD_BUG() BUILD_BUG_ON_MSG(1, "BUILD_BUG failed")
--
- #define MAYBE_BUILD_BUG_ON(cond)			\
- 	do {						\
- 		if (__builtin_constant_p((cond)))       \
-diff --git a/include/linux/build_bug.h b/include/linux/build_bug.h
-new file mode 100644
-index 000000000000..b7d22d60008a
---- /dev/null
-+++ b/include/linux/build_bug.h
-@@ -0,0 +1,84 @@
-+#ifndef _LINUX_BUILD_BUG_H
-+#define _LINUX_BUILD_BUG_H
-+
-+#include <linux/compiler.h>
-+
-+#ifdef __CHECKER__
-+#define __BUILD_BUG_ON_NOT_POWER_OF_2(n) (0)
-+#define BUILD_BUG_ON_NOT_POWER_OF_2(n) (0)
-+#define BUILD_BUG_ON_ZERO(e) (0)
-+#define BUILD_BUG_ON_NULL(e) ((void *)0)
-+#define BUILD_BUG_ON_INVALID(e) (0)
-+#define BUILD_BUG_ON_MSG(cond, msg) (0)
-+#define BUILD_BUG_ON(condition) (0)
-+#define BUILD_BUG() (0)
-+#else /* __CHECKER__ */
-+
-+/* Force a compilation error if a constant expression is not a power of 2 */
-+#define __BUILD_BUG_ON_NOT_POWER_OF_2(n)	\
-+	BUILD_BUG_ON(((n) & ((n) - 1)) != 0)
-+#define BUILD_BUG_ON_NOT_POWER_OF_2(n)			\
-+	BUILD_BUG_ON((n) == 0 || (((n) & ((n) - 1)) != 0))
-+
-+/*
-+ * Force a compilation error if condition is true, but also produce a
-+ * result (of value 0 and type size_t), so the expression can be used
-+ * e.g. in a structure initializer (or where-ever else comma expressions
-+ * aren't permitted).
-+ */
-+#define BUILD_BUG_ON_ZERO(e) (sizeof(struct { int:(-!!(e)); }))
-+#define BUILD_BUG_ON_NULL(e) ((void *)sizeof(struct { int:(-!!(e)); }))
-+
-+/*
-+ * BUILD_BUG_ON_INVALID() permits the compiler to check the validity of the
-+ * expression but avoids the generation of any code, even if that expression
-+ * has side-effects.
-+ */
-+#define BUILD_BUG_ON_INVALID(e) ((void)(sizeof((__force long)(e))))
-+
-+/**
-+ * BUILD_BUG_ON_MSG - break compile if a condition is true & emit supplied
-+ *		      error message.
-+ * @condition: the condition which the compiler should know is false.
-+ *
-+ * See BUILD_BUG_ON for description.
-+ */
-+#define BUILD_BUG_ON_MSG(cond, msg) compiletime_assert(!(cond), msg)
-+
-+/**
-+ * BUILD_BUG_ON - break compile if a condition is true.
-+ * @condition: the condition which the compiler should know is false.
-+ *
-+ * If you have some code which relies on certain constants being equal, or
-+ * some other compile-time-evaluated condition, you should use BUILD_BUG_ON to
-+ * detect if someone changes it.
-+ *
-+ * The implementation uses gcc's reluctance to create a negative array, but gcc
-+ * (as of 4.4) only emits that error for obvious cases (e.g. not arguments to
-+ * inline functions).  Luckily, in 4.3 they added the "error" function
-+ * attribute just for this type of case.  Thus, we use a negative sized array
-+ * (should always create an error on gcc versions older than 4.4) and then call
-+ * an undefined function with the error attribute (should always create an
-+ * error on gcc 4.3 and later).  If for some reason, neither creates a
-+ * compile-time error, we'll still have a link-time error, which is harder to
-+ * track down.
-+ */
-+#ifndef __OPTIMIZE__
-+#define BUILD_BUG_ON(condition) ((void)sizeof(char[1 - 2*!!(condition)]))
-+#else
-+#define BUILD_BUG_ON(condition) \
-+	BUILD_BUG_ON_MSG(condition, "BUILD_BUG_ON failed: " #condition)
-+#endif
-+
-+/**
-+ * BUILD_BUG - break compile if used.
-+ *
-+ * If you have some code that you expect the compiler to eliminate at
-+ * build time, you should use BUILD_BUG to detect if it is
-+ * unexpectedly used.
-+ */
-+#define BUILD_BUG() BUILD_BUG_ON_MSG(1, "BUILD_BUG failed")
-+
-+#endif	/* __CHECKER__ */
-+
-+#endif	/* _LINUX_BUILD_BUG_H */
-diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
-index e8bd8de856de..01c646a1d9e7 100644
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -2354,7 +2354,7 @@ struct trace_buffer_struct {
- 	char buffer[4][TRACE_BUF_SIZE];
- };
- 
--static struct trace_buffer_struct *trace_percpu_buffer;
-+static struct trace_buffer_struct __percpu *trace_percpu_buffer;
- 
- /*
-  * Thise allows for lockless recording.  If we're nested too deeply, then
-@@ -2364,7 +2364,7 @@ static char *get_trace_buf(void)
- {
- 	struct trace_buffer_struct *buffer = this_cpu_ptr(trace_percpu_buffer);
- 
--	if (!buffer || buffer->nesting >= 4)
-+	if (!trace_percpu_buffer || buffer->nesting >= 4)
- 		return NULL;
- 
- 	buffer->nesting++;
-@@ -2383,7 +2383,7 @@ static void put_trace_buf(void)
- 
- static int alloc_percpu_trace_buffer(void)
- {
--	struct trace_buffer_struct *buffers;
-+	struct trace_buffer_struct __percpu *buffers;
- 
- 	buffers = alloc_percpu(struct trace_buffer_struct);
- 	if (WARN(!buffers, "Could not allocate percpu trace_printk buffer"))
-diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
-index 860ab2e6544c..8770966a564b 100644
---- a/net/ipv4/udp.c
-+++ b/net/ipv4/udp.c
-@@ -2435,7 +2435,7 @@ int udp4_seq_show(struct seq_file *seq, void *v)
- {
- 	seq_setwidth(seq, 127);
- 	if (v == SEQ_START_TOKEN)
--		seq_puts(seq, "  sl  local_address rem_address   st tx_queue "
-+		seq_puts(seq, "   sl  local_address rem_address   st tx_queue "
- 			   "rx_queue tr tm->when retrnsmt   uid  timeout "
- 			   "inode ref pointer drops");
- 	else {
-diff --git a/net/ipv6/ip6_vti.c b/net/ipv6/ip6_vti.c
-index f58d69216b61..ce5b55491942 100644
---- a/net/ipv6/ip6_vti.c
-+++ b/net/ipv6/ip6_vti.c
-@@ -773,6 +773,8 @@ vti6_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
- 	struct net *net = dev_net(dev);
- 	struct vti6_net *ip6n = net_generic(net, vti6_net_id);
- 
-+	memset(&p1, 0, sizeof(p1));
-+
- 	switch (cmd) {
- 	case SIOCGETTUNNEL:
- 		if (dev == ip6n->fb_tnl_dev) {
-diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
-index 3217c98f2b5a..56c58ff8ef74 100644
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -4450,7 +4450,7 @@ static int ieee80211_prep_connection(struct ieee80211_sub_if_data *sdata,
- 
- 	if (new_sta) {
- 		u32 rates = 0, basic_rates = 0;
--		bool have_higher_than_11mbit;
-+		bool have_higher_than_11mbit = false;
- 		int min_rate = INT_MAX, min_rate_index = -1;
- 		struct ieee80211_chanctx_conf *chanctx_conf;
- 		const struct cfg80211_bss_ies *ies;
-diff --git a/net/phonet/pep.c b/net/phonet/pep.c
-index 1e7945df3992..a734d47c5eb1 100644
---- a/net/phonet/pep.c
-+++ b/net/phonet/pep.c
-@@ -878,6 +878,7 @@ static struct sock *pep_sock_accept(struct sock *sk, int flags, int *errp)
- 
- 	err = pep_accept_conn(newsk, skb);
- 	if (err) {
-+		__sock_put(sk);
- 		sock_put(newsk);
- 		newsk = NULL;
- 		goto drop;
-diff --git a/net/sched/sch_qfq.c b/net/sched/sch_qfq.c
-index ca0516e6f743..fd48a1e327d6 100644
---- a/net/sched/sch_qfq.c
-+++ b/net/sched/sch_qfq.c
-@@ -1439,10 +1439,8 @@ static int qfq_init_qdisc(struct Qdisc *sch, struct nlattr *opt)
- 	if (err < 0)
- 		return err;
- 
--	if (qdisc_dev(sch)->tx_queue_len + 1 > QFQ_MAX_AGG_CLASSES)
--		max_classes = QFQ_MAX_AGG_CLASSES;
--	else
--		max_classes = qdisc_dev(sch)->tx_queue_len + 1;
-+	max_classes = min_t(u64, (u64)qdisc_dev(sch)->tx_queue_len + 1,
-+			    QFQ_MAX_AGG_CLASSES);
- 	/* max_cl_shift = floor(log_2(max_classes)) */
- 	max_cl_shift = __fls(max_classes);
- 	q->max_agg_classes = 1<<max_cl_shift;
+> On 11.01.22 03:02, Ziyang Xuan (William) wrote:
+>>> On Mon, Jan 10, 2022 at 09:23:22PM +0800, Ziyang Xuan wrote:
+>>>> From: Thomas Gleixner <tglx@linutronix.de>
+>>>>
+>>>> [ commit bf74aa86e111aa3b2fbb25db37e3a3fab71b5b68 upstream ]
+>>>>
+>>>> Stop tx/rx cycle rely on the active state of tasklet and hrtimer
+>>>> sequentially in bcm_remove_op(), the op object will be freed if they
+>>>> are all unactive. Assume the hrtimer timeout is short, the hrtimer
+>>>> cb has been excuted after tasklet conditional judgment which must be
+>>>> false after last round tasklet_kill() and before condition
+>>>> hrtimer_active(), it is false when execute to hrtimer_active(). Bug
+>>>> is triggerd, because the stopping action is end and the op object
+>>>> will be freed, but the tasklet is scheduled. The resources of the op
+>>>> object will occur UAF bug.
+>>>
+>>> That is not the changelog text of this commit.  Why modify it?
+>>
+>> Above statement is the reason why I want to backport the patch to
+>> stable tree. Maybe I could give an extra cover-letter to explain
+>> the details of the problem, but modify the original changelog. Is it?
+>>
+> 
+> If you backport the bcm HRTIMER_MODE_SOFT implementation to the 4.19 stable tree the problem is not fixed for 4.14, 4.4, etc.
+
+This backport patch does not fit lts 4.4 and 4.9. In addition,
+I backport patch to lts for the first time. So I am going to
+backport the patch one by one.
+
+> 
+> HRTIMER_MODE_SOFT has been introduced in 4.16
+> 
+> The issue of a race condition at bcm op removal has already been addressed before in commit a06393ed03167 ("can: bcm: fix hrtimer/tasklet termination in bcm op removal").
+> 
+> -       hrtimer_cancel(&op->timer);
+> -       hrtimer_cancel(&op->thrtimer);
+> -
+> -       if (op->tsklet.func)
+> -               tasklet_kill(&op->tsklet);
+> +       if (op->tsklet.func) {
+> +               while (test_bit(TASKLET_STATE_SCHED, &op->tsklet.state) ||
+> +                      test_bit(TASKLET_STATE_RUN, &op->tsklet.state) ||
+> +                      hrtimer_active(&op->timer)) {
+> +                       hrtimer_cancel(&op->timer);
+> +                       tasklet_kill(&op->tsklet);
+> +               }
+> +       }
+> 
+> IMO we should better try to improve this fix and enable it for older stable trees than fixing only the 4.19.
+
+The commit bf74aa86e111 can solve the op UAF nicely and enter mainline from v5.4.
+I prefer to backport the patch to lower lts, but other sewing and mending,
+for example move hrtimer_active() forward.
+
+> 
+> Best regards,
+> Oliver
+> 
+> 
+> 
+>>>
+>>>>
+>>>> ----------------------------------------------------------------------
+>>>>
+>>>> This patch switches the timer to HRTIMER_MODE_SOFT, which executed the
+>>>> timer callback in softirq context and removes the hrtimer_tasklet.
+>>>>
+>>>> Reported-by: syzbot+652023d5376450cc8516@syzkaller.appspotmail.com
+>>
+>> This is the public problem reporter. Do I need to move it to cover-letter
+>> but here?
+>>
+>>>> Cc: stable@vger.kernel.org # 4.19
+>>
+>> I want to backport the patch to linux-4.19.y stable tree. How do I need to
+>> modify?
+>>
+>>>> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+>>>> Signed-off-by: Anna-Maria Gleixner <anna-maria@linutronix.de>
+>>>> Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+>>>> Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+>>>> Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+>>>> ---
+>>>>   net/can/bcm.c | 156 +++++++++++++++++---------------------------------
+>>>>   1 file changed, 52 insertions(+), 104 deletions(-)
+>>>
+>>> What stable kernel tree(s) are you wanting this backported to?
+>>>
+>>> thanks,
+>>>
+>>> greg k-h
+>>> .
+>>>
+>>
+>> Thank you for your patient guidance.
+>>
+> .
