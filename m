@@ -2,121 +2,147 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE84B48B76E
-	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 20:38:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B08B848B77A
+	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 20:41:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236583AbiAKTiA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jan 2022 14:38:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45220 "EHLO
+        id S237158AbiAKTld (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jan 2022 14:41:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46044 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236751AbiAKTh7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 14:37:59 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEA72C06173F
-        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 11:37:59 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id l10-20020a17090a384a00b001b22190e075so7206108pjf.3
-        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 11:37:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=lz9yN1KPNpuxaGvZEC6t7cmIbR07Yrb1Xst/52aIv8M=;
-        b=M5q1TTtJD+R/SFslNwrAp2Mi5u+GjgbktU6b0EYDboYDxxC5PJb6FMH+IaoGbtV1j7
-         0KbGs181mpj1VLInV26jQKzm3CZfy6Sm03YuLaaYN5/tYtLWhPaZwjw0VFgCJ8fHNZNF
-         BKP4ow1q+rXwy7otD9PPTIjq0LYohdUspee+F05ZoH5Q7OiBNtzg3VeNX08w9JbzBfE+
-         8SQgtLACeyOa5n+kZSodmOnYnvoS0i/jWRyshFWimk4MT60K16dvQaobsTGXSr3uHUwX
-         KUi+pQVr4Boxve4RI86TJWnShVltCqVGWAiQcNidNq2OJEfr76gkYcPqH87xi+ngcbp6
-         F5GQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=lz9yN1KPNpuxaGvZEC6t7cmIbR07Yrb1Xst/52aIv8M=;
-        b=WFXd2TgsM3IFYZcGjfTH1VJmTWZGrkzXn144DXPMHuGSJsBbThOMZ5ojUEwCeFcq7l
-         4P5wczGeoEkIzekZMZODqGpo0j0fgXHQtJhbAtP2Ak6g6D0Wk3mozFrYF5QQ+WRaMhu2
-         cBIHAhFuZyl+jzGk7hgjby9XShSXe1TEq9RRxLiDLlnyHRXLpz42PEIDeX85TYq59MAF
-         j2ebZJC8/YYb6jBhI5jS4fucMZhzgRxebJO0wUF0pBFcZ9tyUrLzWUb5Fns7qsbwj29A
-         PDc0QqQN3+Z0YqvaVddbEpFWVsKMqC3tZu9wwJbhyBsETXkQgBXw+v+aFCaGoTAtLNYS
-         CoFA==
-X-Gm-Message-State: AOAM530iNvCK42UQGW5Gvzc+puxFBbVKHLHBo+qPGfE/pYyRchOitJ1o
-        XuDJaAC5qMXUDBDx8Q1jE+WSYIiMDEinhhpq
-X-Google-Smtp-Source: ABdhPJzjcsD0bhBxVHqzY0egwJ0XLCCDuTThKzY1kk/eQiX+3xot6a81+hSHSCSQix1DQOccnNBCiw==
-X-Received: by 2002:a62:5fc4:0:b0:4bb:2472:5147 with SMTP id t187-20020a625fc4000000b004bb24725147mr6085984pfb.74.1641929879281;
-        Tue, 11 Jan 2022 11:37:59 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a1sm11644502pfv.99.2022.01.11.11.37.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Jan 2022 11:37:59 -0800 (PST)
-Message-ID: <61dddc97.1c69fb81.11057.d097@mx.google.com>
-Date:   Tue, 11 Jan 2022 11:37:59 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S237090AbiAKTlb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 14:41:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ECCEC06173F;
+        Tue, 11 Jan 2022 11:41:31 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4FBABB81CB6;
+        Tue, 11 Jan 2022 19:41:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50798C36AE3;
+        Tue, 11 Jan 2022 19:41:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1641930089;
+        bh=jYNHzG1wbaAIyjZ88RuWPwTqUfCGhaT6PoqY/x5NTrA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=bZZke3cGP9qy6WgGCyY08pzem55ryUbgJmk9aZD8S8+kQu7J4Rl1tFen2RRoSBK/o
+         tU5b2w4Du6X5IakR895ZclgnQH5Q/QMn/EX3hHm7e2MnB+GJ1DVvgNfqLVW7wX7gi1
+         dwEV6C7KZxpcF0+hadCOauvl2vAuyAnHtgnddnlYqIKP8be+R56e8cLVtIIYbU8ovq
+         r9mAY4hX2j3Z5DMOkYw+nAGdJ0qUUwqCkR6y/XgY1NyhLzWwC6iH9aKgLMlRy3R7NP
+         KvfgqLQ9x5OK3wNNsIvnmsgRkS1mlnPgKX08lZ4wRKpY4CUjJSSL8sevoe1Eoc9Il0
+         Pb+X3dZ97KLAg==
+Date:   Tue, 11 Jan 2022 11:41:26 -0800
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Suren Baghdasaryan <surenb@google.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Tejun Heo <tj@kernel.org>, Zefan Li <lizefan.x@bytedance.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Cgroups <cgroups@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Android Kernel Team <kernel-team@android.com>,
+        syzbot <syzbot+cdb5dd11c97cc532efad@syzkaller.appspotmail.com>
+Subject: Re: [PATCH v2 1/1] psi: Fix uaf issue when psi trigger is destroyed
+ while being polled
+Message-ID: <Yd3dZklleDnJCQ46@gmail.com>
+References: <20220111071212.1210124-1-surenb@google.com>
+ <Yd3RClhoz24rrU04@sol.localdomain>
+ <CAHk-=wgwb6pJjvHYmOMT-yp5RYvw0pbv810Wcxdm5S7dWc-s0g@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.15.13-72-g7fb4d82fc369
-X-Kernelci-Branch: queue/5.15
-Subject: stable-rc/queue/5.15 baseline: 166 runs,
- 1 regressions (v5.15.13-72-g7fb4d82fc369)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHk-=wgwb6pJjvHYmOMT-yp5RYvw0pbv810Wcxdm5S7dWc-s0g@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 166 runs, 1 regressions (v5.15.13-72-g7fb4d8=
-2fc369)
+On Tue, Jan 11, 2022 at 11:11:32AM -0800, Linus Torvalds wrote:
+> On Tue, Jan 11, 2022 at 10:48 AM Eric Biggers <ebiggers@kernel.org> wrote:
+> >
+> > The write here needs to use smp_store_release(), since it is paired with the
+> > concurrent READ_ONCE() in psi_trigger_poll().
+> 
+> A smp_store_release() doesn't make sense pairing with a READ_ONCE().
+> 
+> Any memory ordering that the smp_store_release() does on the writing
+> side is entirely irrelevant, since the READ_ONCE() doesn't imply any
+> ordering on the reading side. Ordering one but not the other is
+> nonsensical.
+> 
+> So the proper pattern is to use a WRITE_ONCE() to pair with a
+> READ_ONCE() (when you don't care about memory ordering, or you handle
+> it explicitly), or a smp_load_acquire() with a smp_store_release() (in
+> which case writes before the smp_store_release() on the writing side
+> will be ordered wrt accesses after smp_load_acquire() on the reading
+> side).
+> 
+> Of course, in practice, for pointers, the whole "dereference off a
+> pointer" on the read side *does* imply a barrier in all relevant
+> situations. So yes, a smp_store_release() -> READ_ONCE() does work in
+> practice, although it's technically wrong (in particular, it's wrong
+> on alpha, because of the completely broken memory ordering that alpha
+> has that doesn't even honor data dependencies as read-side orderings)
+> 
+> But in this case, I do think that since there's some setup involved
+> with the trigger pointer, the proper serialization is to use
+> smp_store_release() to set the pointer, and then smp_load_acquire() on
+> the reading side.
+> 
+> Or just use the RCU primitives - they are even better optimized, and
+> handle exactly that case, and can be more efficient on some
+> architectures if release->acquire isn't already cheap.
+> 
+> That said, we've pretty much always accepted that normal word writes
+> are not going to tear, so we *have* also accepted just
+> 
+>  - do any normal store of a value on the write side
+> 
+>  - do a READ_ONCE() on the reading side
+> 
+> where the reading side doesn't actually care *what* value it gets, it
+> only cares that the value it gets is *stable* (ie no compiler reloads
+> that might show up as two different values on the reading side).
+> 
+> Of course, that has the same issue as WRITE_ONCE/READ_ONCE - you need
+> to worry about memory ordering separately.
+> 
+> > > +     seq->private = new;
+> >
+> > Likewise here.
+> 
+> Yeah, same deal, except here you can't even use the RCU ones, because
+> 'seq->private' isn't annotated for RCU.
+> 
+> Or you'd do the casting, of course.
+> 
 
-Regressions Summary
--------------------
+This is yet another case of "one time init".  There have been long discussions
+on this topic before:
+* https://lore.kernel.org/linux-fsdevel/20200713033330.205104-1-ebiggers@kernel.org/T/#u
+* https://lore.kernel.org/lkml/20200916233042.51634-1-ebiggers@kernel.org/T/#u
+* https://lwn.net/Articles/827180/
 
-platform        | arch  | lab     | compiler | defconfig | regressions
-----------------+-------+---------+----------+-----------+------------
-fsl-ls1043a-rdb | arm64 | lab-nxp | gcc-10   | defconfig | 1          =
+I even attempted to document the best practices:
+* https://lore.kernel.org/linux-fsdevel/20200717044427.68747-1-ebiggers@kernel.org/T/#u
 
+However, no one could agree on whether READ_ONCE() or smp_load_acquire() should
+be used.  smp_load_acquire() is always correct, so it remains my preference.
+However, READ_ONCE() is correct in some cases, and some people (including the
+primary LKMM maintainer) insist that it be used in all such cases, as well as in
+rcu_dereference() even though this places difficult-to-understand constraints on
+how rcu_dereference() can be used.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.13-72-g7fb4d82fc369/plan/baseline/
+My preference is that smp_load_acquire() be used.  But be aware that this risks
+the READ_ONCE() people coming out of the woodwork and arguing for READ_ONCE().
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.13-72-g7fb4d82fc369
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      7fb4d82fc3691064cde6a2af41bf76ef0ba35678 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab     | compiler | defconfig | regressions
-----------------+-------+---------+----------+-----------+------------
-fsl-ls1043a-rdb | arm64 | lab-nxp | gcc-10   | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61ddadabda47da52bcef673d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.13-=
-72-g7fb4d82fc369/arm64/defconfig/gcc-10/lab-nxp/baseline-fsl-ls1043a-rdb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.13-=
-72-g7fb4d82fc369/arm64/defconfig/gcc-10/lab-nxp/baseline-fsl-ls1043a-rdb.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61ddadabda47da52bcef6=
-73e
-        new failure (last pass: v5.15.11-127-g068f94fff545) =
-
- =20
+- Eric
