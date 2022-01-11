@@ -2,65 +2,240 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5795A48B627
-	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 19:54:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D3E948B636
+	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 19:56:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345719AbiAKSyK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jan 2022 13:54:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34882 "EHLO
+        id S245605AbiAKS4z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jan 2022 13:56:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245171AbiAKSyK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 13:54:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE494C06173F;
-        Tue, 11 Jan 2022 10:54:09 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A569B81D19;
-        Tue, 11 Jan 2022 18:54:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99385C36AE3;
-        Tue, 11 Jan 2022 18:54:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641927247;
-        bh=Oy/P53cZ10GPwI0alv0HEevmcdSYD8f8MCuQGIjjDZ8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Yi0luIRp9EJwDrDYG0QiFrswTXl9GFjwoAjkpmecPqYtbZ199TWlnnNg/Btk+DQZQ
-         Q3KNKJ2wpmbH04wmPgDad14Gl7o43x2hhxSphNhwSoQwMyHyDCQAw5Ku8dbkUSj7sV
-         +yEW7u9p5mlxjBOVJehuieITKUTT8VQ+0rAVYrH8=
-Date:   Tue, 11 Jan 2022 19:54:04 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Guillaume Morin <guillaume@morinfr.org>
-Cc:     linux-raid@vger.kernel.org, stable@vger.kernel.org,
-        guoqing.jiang@linux.dev, artur.paszkiewicz@intel.com
-Subject: Re: [md] Missing revert in 5.10
-Message-ID: <Yd3STJyOHVBz8zUo@kroah.com>
-References: <Yd3PDbLH4v5Ea682@bender.morinfr.org>
+        with ESMTP id S242717AbiAKS4y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 13:56:54 -0500
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9199CC06173F
+        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 10:56:54 -0800 (PST)
+Received: by mail-pj1-x102e.google.com with SMTP id c14-20020a17090a674e00b001b31e16749cso6985929pjm.4
+        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 10:56:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=AC6NtK5GPBsnHfh7acHQTbl+w6O9Cs58eaIeIJFL+4w=;
+        b=nCCtv4fJeimv3WFSk4AdHYE4Z0vlCLRRUkqWoc2r6OANp9NkFy2LOWQXHJhe0PxCXS
+         OtrqQ+q+97PJjvzYRgRThDOzzgtPRCb+hP2CVaCBhKKc8ul1YFpMYEiuMEEiedWNYe2j
+         SCb9P/EBZmn1qUpek15g4SVnEFKipKp0KrTYG+nfTHkQ6vst5BrQJ75UuXYfWoGvQqGj
+         V02DUPvErsWlRr2kiRizzS+CvhAqpBWlzH8XxNa1KYquDbzMivrH3YqSt6OLUh4XHUkR
+         G5KXdNtCQLSwWsbzWP9nlhPJCouBesSP82vD1jc/LiqlXWFKylByWsJQQ9A7qNuXOWyS
+         E42g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=AC6NtK5GPBsnHfh7acHQTbl+w6O9Cs58eaIeIJFL+4w=;
+        b=iMifHmhhbIwps6+5qhvmVg2MkJm0LRZpe7peKvYK2CwbXz7zkih0sbmkGaMtc3r9i+
+         IZgc2+Pj9x45R4H+/xa9U2hJ++M4QUlorzHxAZpoHfPPII6URGb1kJZ1W1bVcM6l+K6Z
+         HOPcIyWkSAc5gfkBIq2EtgvrwkS3vzzCRAfZNRQM2Pr/IOxx08yhKtQ5fPZ77gHXF/ac
+         av3gK12duK6hkwUAda5rsle97/zma2j9EKktNl+61X/maRolOUNRL7kHhMeYgxs1HyT9
+         YiG5oZzPjMMwjFBr0ZTW1QfuUxzDwYME0RhhYBnOP+Qy3XwaEj8Cqlj4nTjUcZFB+ktO
+         qTCQ==
+X-Gm-Message-State: AOAM531OweRbwRLmpT+wADefnOGlAvNk7jEmFnbh+fiCVEDxgxHOfDz7
+        PrigQCUmzz5SLkMS7gtTG8+2XrSJ+pRVuwZz
+X-Google-Smtp-Source: ABdhPJxAG+tabp/2xkAi7ILViNfC6WaEeSPhY9f3pYbhwsRn8OlOKpA3OLPCEMiWkhB0ZEvkUIOw8g==
+X-Received: by 2002:a17:90a:14f:: with SMTP id z15mr4548373pje.162.1641927413925;
+        Tue, 11 Jan 2022 10:56:53 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f13sm11860000pfv.98.2022.01.11.10.56.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Jan 2022 10:56:53 -0800 (PST)
+Message-ID: <61ddd2f5.1c69fb81.db520.d96d@mx.google.com>
+Date:   Tue, 11 Jan 2022 10:56:53 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Yd3PDbLH4v5Ea682@bender.morinfr.org>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.170-34-g0f6f6defc80e
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 182 runs,
+ 4 regressions (v5.4.170-34-g0f6f6defc80e)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 11, 2022 at 07:40:13PM +0100, Guillaume Morin wrote:
-> 41d2d848e5c0 ("md: improve io stats accounting") was added during the
-> 5.9 cycle and therefore is present in the 5.10 branch. This patch was
-> then reverted in mainline during the 5.14 cycle (ad3fc798800f) due to
-> report of double faults [1].
-> 
-> However the revert was not picked up for the 5.10 branch. I believe it
-> should be queued up.
-> 
-> Unfortunately, 41d2d848e5c0 in 5.10 cannot be reverted cleanly because
-> of the later changes in 00fe60eae94. The mainline 5.14 revert commit
-> also does not apply cleanly on 5.10 because 99dfc43ecbf6 is not in 5.10.
-> Manually merging the revert is trivial though (I could provide the patch
-> I've been testing if that's helpful).
+stable-rc/queue/5.4 baseline: 182 runs, 4 regressions (v5.4.170-34-g0f6f6de=
+fc80e)
 
-Please provide a working revert and we will be glad to queue it up.
+Regressions Summary
+-------------------
 
-thanks,
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-greg k-h
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.170-34-g0f6f6defc80e/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.170-34-g0f6f6defc80e
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      0f6f6defc80eac5fc2fd520b0399490af6d7af43 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61dd99e78298c67790ef6747
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-3=
+4-g0f6f6defc80e/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-3=
+4-g0f6f6defc80e/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61dd99e78298c67790ef6=
+748
+        failing since 26 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61dd9a098298c67790ef6762
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-3=
+4-g0f6f6defc80e/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-3=
+4-g0f6f6defc80e/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61dd9a098298c67790ef6=
+763
+        failing since 26 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61dd99fb985dc4a3cdef6751
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-3=
+4-g0f6f6defc80e/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-3=
+4-g0f6f6defc80e/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61dd99fb985dc4a3cdef6=
+752
+        failing since 26 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61dd9a082e696523a7ef6754
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-3=
+4-g0f6f6defc80e/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.170-3=
+4-g0f6f6defc80e/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61dd9a082e696523a7ef6=
+755
+        failing since 26 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =20
