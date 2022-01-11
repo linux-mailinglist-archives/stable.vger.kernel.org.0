@@ -2,84 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AEB8448B2F4
-	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 18:11:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09B6848B2F8
+	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 18:12:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244043AbiAKRLG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jan 2022 12:11:06 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:35170 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242530AbiAKRLB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 12:11:01 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4EF01B81C1F;
-        Tue, 11 Jan 2022 17:11:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02511C36AEB;
-        Tue, 11 Jan 2022 17:10:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1641921059;
-        bh=GhDvYFZGPRT80b9dqotfwgVnldQY1ncyLaPdagj1mBM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=XBiJhLA6JzUOHUpzbouhgmeQVRu+bwMItqkjG6cf0SxClEMTTly5zRh+oWRBl56Md
-         pyDu9y4JwuQU61iJ0U4TQZ8+VX1BIT78IfibtQeTyj1ubVQlc0iuS6SFiuIXIOsANK
-         nC8WJwG/1aFSvvUxsr8bdev/yCK/wSEr8Y/GTCyJNxsTJK4DVTSZnnSP9MTjg61TrX
-         tbJZOWozAUodS3Mfw4BKdKSgjCDNuFQgNRLmr5dFI7z4mgRRwK61AdkLrjGV1fmuw2
-         sukPzbZE+dg8Cc2EDdJpOKOREVNPPKbiE8M2LQrlfQJlqebaS8f17PF+bIPBxHUAfa
-         I5l11pCGl/+sA==
-Date:   Tue, 11 Jan 2022 19:10:52 +0200
-From:   Mike Rapoport <rppt@kernel.org>
-To:     Christian Dietrich <christian.dietrich@tuhh.de>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Mike Rapoport <rppt@linux.ibm.com>, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] mm/pgtable: define pte_index so that preprocessor could
- recognize it
-Message-ID: <Yd26HEL4PvKdSaTQ@kernel.org>
-References: <20220111145457.20748-1-rppt@kernel.org>
- <s7bzgo2cn99.fsf@dokucode.de>
+        id S243212AbiAKRM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jan 2022 12:12:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38214 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241342AbiAKRM1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 12:12:27 -0500
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB274C061748
+        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 09:12:26 -0800 (PST)
+Received: by mail-ed1-x535.google.com with SMTP id u25so69960755edf.1
+        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 09:12:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=Tfcv3LOjoZMWqQGvBmAf8nUIn5zyclnjzGnZnDfGdts=;
+        b=TGmlVsU/v1plmsnMbMvESAq6iFYnNyQSCyvTyifMIdhcWktJ+qmY/k87QFdEm6Rl5C
+         l9/fqQoIkUJ0wYCiiMnW4zVloQghqTegp8OkotI/wF560f27KyEbPdP5TAOaAzJj3ll1
+         4/NyjAvQG8ScYqBZ5paKSrhfgGmOyTt7rVkR8=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=Tfcv3LOjoZMWqQGvBmAf8nUIn5zyclnjzGnZnDfGdts=;
+        b=kkglvRPsuU9Eriu9A9EHegnF2eSS6TbKjhJJLgcmocu7Aim4TPXVmNPK71XzdrRBwU
+         lflMCOf9hyW3ootAqJPqoxNmnemPqDhzt+uEF0IFu+spHsf5q0fvtrikf1XSEh1yuYEc
+         H1DCmJwfyYkPtgCbzynMJGsKQF+52sB9YksDTEoS9WtPZ2O8Fs2I+Ma4httvi6VIPjZb
+         M0uvQza1HzVwisPqV6S3DwMo0MCWk3fojwQm4mKSClhlvH6YBzcTyS+oelOgzWnn2sE8
+         5rIqj2hs6ELuJVnbOT1ctN/Yu0yM2J72Umgx2oJrt/qqSh//tNIYdIAAQx6PHiHCjvym
+         rx1A==
+X-Gm-Message-State: AOAM532sY7dW7nFBZLHY8LJEowSyfJxZkPoJVXDNFIqABl6v+wtSCK3d
+        HJ2AA1eCfOh78ZAwjBSjIGJejF99LBpNvmV42no=
+X-Google-Smtp-Source: ABdhPJxCSXhkwU1bJO4fGSZTuxh4F25kM05QSOxw4epzBc+uXVSUyxzmUEqBO1ipQf0jfb0G2tXimw==
+X-Received: by 2002:a17:907:2a85:: with SMTP id fl5mr4677513ejc.595.1641921145147;
+        Tue, 11 Jan 2022 09:12:25 -0800 (PST)
+Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com. [209.85.221.43])
+        by smtp.gmail.com with ESMTPSA id j13sm5320830edw.89.2022.01.11.09.12.24
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 11 Jan 2022 09:12:24 -0800 (PST)
+Received: by mail-wr1-f43.google.com with SMTP id e9so32753138wra.2
+        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 09:12:24 -0800 (PST)
+X-Received: by 2002:adf:e3c9:: with SMTP id k9mr4589697wrm.193.1641921144246;
+ Tue, 11 Jan 2022 09:12:24 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <s7bzgo2cn99.fsf@dokucode.de>
+References: <20220110181923.5340-1-jack@suse.cz>
+In-Reply-To: <20220110181923.5340-1-jack@suse.cz>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Tue, 11 Jan 2022 09:12:08 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wj39rpqNZX99dJUpErT+yX9aZN-Z1Lyfx8tbUqFUFeEqw@mail.gmail.com>
+Message-ID: <CAHk-=wj39rpqNZX99dJUpErT+yX9aZN-Z1Lyfx8tbUqFUFeEqw@mail.gmail.com>
+Subject: Re: [PATCH v2] select: Fix indefinitely sleeping task in poll_schedule_timeout()
+To:     Jan Kara <jack@suse.cz>
+Cc:     linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Christian,
+On Mon, Jan 10, 2022 at 10:19 AM Jan Kara <jack@suse.cz> wrote:
+>
+> A task can end up indefinitely sleeping in do_select() ->
+> poll_schedule_timeout() when the following race happens:
+> {...]
 
-On Tue, Jan 11, 2022 at 04:20:34PM +0100, Christian Dietrich wrote:
-> Hello Mike!
-> 
-> Mike Rapoport <rppt@kernel.org> [11. Januar 2022]:
-> 
-> > diff --git a/include/linux/pgtable.h b/include/linux/pgtable.h
-> > index e24d2c992b11..d468efcf48f4 100644
-> > --- a/include/linux/pgtable.h
-> > +++ b/include/linux/pgtable.h
-> > @@ -62,6 +62,7 @@ static inline unsigned long pte_index(unsigned long address)
-> >  {
-> >  	return (address >> PAGE_SHIFT) & (PTRS_PER_PTE - 1);
-> >  }
-> > +#define pte_index pte_index
-> 
-> Wouldn't it make sense to remove the dead CPP blocks (#ifdef pte_index)
-> from mm/memory.c? 
+Ok, I decided to just take this as-is right now, and get it in early
+in the merge window, and see if anybody hollers.
 
-It does make sense to remove the dead code, but this cleanup does not need
-stable backporting so it'll be a separate patch.
+I don't think the stable people will try to apply it until after the
+merge window closes anyway, but it's worth pointing out that this
+change (commit 68514dacf271: "select: Fix indefinitely sleeping task
+in poll_schedule_timeout()" in my tree now) is very much a change of
+behavior, and we may have to revert it if it causes any issues.
 
-Care to send a patch? ;-)
+The most likely issue it would cause is that some program uses
+select() with an fd mask with extra garbage in it, and stale fd bits
+that pointed to closed file descriptors used to just be ignored. Now
+they'll cause select() to return immediately with those bits set.
 
-> Or is there a case were pte_index is not defined for an architecture?
+And that might then cause a program to perhaps still work, but
+busy-spin on select(), wasting CPU time. Or it will walk the result
+bits, see them set, try to read/write to them, get EBADF, and clear
+them. Or not clear them and just be very unhappy indeed.
 
-Nope, the fix in include/linux/pgtable.h covers MMU architectures and NOMMU
-do not compile mm/memory.c anyway.
+So while I think this version of the patch is still safer than the
+EBADF one - and I think better semantics that happen to match poll()
+too - I think this is a patch that could expose existing bad user
+space.
 
-> chris
-> -- 
+We'll see. I considered adding a WARN_ON_ONCE() just to make the
+change in behavior more visible, but ended up not really feeling it.
 
--- 
-Sincerely yours,
-Mike.
+End result: I took this patch eagerly not because I was happy to do
+it, but simply because the earlier we test this, the earlier we'll
+know of any problems.  Let's hope there are none.
+
+               Linus
