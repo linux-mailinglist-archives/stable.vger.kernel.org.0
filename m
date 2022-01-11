@@ -2,87 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5888348ADC1
-	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 13:41:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C110A48ADF9
+	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 13:56:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239056AbiAKMlI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jan 2022 07:41:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59684 "EHLO
+        id S239796AbiAKM4B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jan 2022 07:56:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236359AbiAKMlI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 07:41:08 -0500
-Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 158A9C06173F;
-        Tue, 11 Jan 2022 04:41:08 -0800 (PST)
-Received: by mail-wm1-x334.google.com with SMTP id q141-20020a1ca793000000b00347b48dfb53so1759539wme.0;
-        Tue, 11 Jan 2022 04:41:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=FdY3Uf05iOtULWJ08nJaAOMwfULFR6YgDx/ly0U0Ey4=;
-        b=HPNE981wB5nj3n9/K8iYo2iFaQgTCAhnOoHSODzLoztghDQgEn9/EWneISe7WblRpu
-         fJxalQM3H33FioqEEnDyDxboSSA5i2e6Tyad07gxiE5Smz3CE1vq2kWplef7aIXC4fza
-         UkWITtO/zp7MuXt8m3fTe8E1xYBVQ7nhPJ5A9IKmdRXNiolA194wI/IsZMlTJWbpaUve
-         Xva++NeWvbnyQvDM7QGCRP0fljxtd8yGZvxtY9RMt1zXChzGnfCThlXzUdEEQI35bsRR
-         8e6lLCEGRanugFIVkKY0tsaPPt6MNN/+XwTMR2m4k4lyLmIuhRoiwgknJUxKpdfPFa7j
-         45kQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=FdY3Uf05iOtULWJ08nJaAOMwfULFR6YgDx/ly0U0Ey4=;
-        b=lio7GE7R+aBsEr6QduUPzjbWBeKFOcNfYBnmRLynQ9XT7/llKgnHR+xqZ6u2VIpezn
-         v22ds55y3AzLM3PJad8cEBTVC2kP4jjH/hXH1GLSw7Ixu1iX1nnIePBHrMM/lOkA8iST
-         5FmMcNJwkUy9L90NxTf6UbzplmnMqoDwMCBNe/2aqg9oojmkZ1VIXFG34S1fRRJkpY2e
-         XIUbkZYNsPGvMwc8aH7roPCcIs82ciWAbi/3lAP1zyguqk0shdZwAbsAactw2SAGQRIt
-         lwbPhUilLdtlMpJYUU25UnvmBg6tOgkPQm1cG1GasAyMLFigc57W4hkNhMcJQamLgxnJ
-         unBw==
-X-Gm-Message-State: AOAM531cUde9/y+OOjmbfoSTBKU8Sa5VWFOXnFicB6MzG60byc59GQux
-        r4a9qPJqCRnOC8A6aSZQOng=
-X-Google-Smtp-Source: ABdhPJxMsVDVt9dxhfBzRNqnveeLZ6tpw06JqYVg7t1Cunrg1OHK+XsD1Ps8no/0szvbP+/fqkiRWg==
-X-Received: by 2002:a7b:c246:: with SMTP id b6mr2272509wmj.168.1641904866678;
-        Tue, 11 Jan 2022 04:41:06 -0800 (PST)
-Received: from debian (host-2-98-43-34.as13285.net. [2.98.43.34])
-        by smtp.gmail.com with ESMTPSA id o3sm10697113wry.98.2022.01.11.04.41.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Jan 2022 04:41:06 -0800 (PST)
-Date:   Tue, 11 Jan 2022 12:41:04 +0000
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.15 00/72] 5.15.14-rc1 review
-Message-ID: <Yd164ACQIDCb5ny3@debian>
-References: <20220110071821.500480371@linuxfoundation.org>
+        with ESMTP id S239039AbiAKMz7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 07:55:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0021FC06173F;
+        Tue, 11 Jan 2022 04:55:58 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AE5DDB81A90;
+        Tue, 11 Jan 2022 12:55:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCB45C36AED;
+        Tue, 11 Jan 2022 12:55:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1641905756;
+        bh=/kQFGb3JB12YMs/w1NS2hbSxAh0R73aXH0KuoXs7tJE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=gkdw4fC5tIO2mEVV9MOYUt5ANToANE+3F36CKV79NuuIncDEUOvNSauLo/XUt1fX5
+         H4ZB8U6Dlfa14KqiTgFCXlko00O5lvh7aH8kPR5xCE8vfKlMMfWyOoh56locOdO0Ao
+         5dg3qjNJ4gRUBwGQv6597H1U0F0V5xXZQzhuptvo=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
+        torvalds@linux-foundation.org, stable@vger.kernel.org
+Cc:     lwn@lwn.net, jslaby@suse.cz,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: Linux 4.4.299
+Date:   Tue, 11 Jan 2022 13:55:52 +0100
+Message-Id: <1641905752445@kroah.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+I'm announcing the release of the 4.4.299 kernel.
 
-On Mon, Jan 10, 2022 at 08:22:37AM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.14 release.
-> There are 72 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 12 Jan 2022 07:18:05 +0000.
-> Anything received after that time might be too late.
+All users of the 4.4 kernel series must upgrade.
 
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-mips: Booted on ci20 board. No regression.
+The updated 4.4.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.4.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 
+thanks,
 
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+greg k-h
 
---
-Regards
-Sudip
+------------
+
+ Makefile                                    |    2 -
+ drivers/bluetooth/btusb.c                   |   32 +++++++++++++++++++++-------
+ drivers/isdn/mISDN/core.c                   |    6 ++---
+ drivers/isdn/mISDN/core.h                   |    4 +--
+ drivers/isdn/mISDN/layer1.c                 |    4 +--
+ drivers/net/ethernet/intel/i40e/i40e_main.c |   32 +++++++++++++++++++++-------
+ drivers/net/ieee802154/atusb.c              |   10 +++++---
+ drivers/net/usb/rndis_host.c                |    5 ++++
+ drivers/power/reset/ltc2952-poweroff.c      |    4 +--
+ drivers/scsi/libiscsi.c                     |    6 +++--
+ fs/xfs/xfs_ioctl.c                          |    3 +-
+ lib/test_bpf.c                              |    2 -
+ net/ipv4/udp.c                              |    2 -
+ net/ipv6/ip6_vti.c                          |    2 +
+ net/mac80211/mlme.c                         |    2 -
+ net/phonet/pep.c                            |    1 
+ net/sched/sch_qfq.c                         |    6 +----
+ 17 files changed, 85 insertions(+), 38 deletions(-)
+
+Daniel Borkmann (1):
+      bpf, test: fix ld_abs + vlan push/pop stress test
+
+Darrick J. Wong (1):
+      xfs: map unwritten blocks in XFS_IOC_{ALLOC,FREE}SP just like fallocate
+
+Eric Dumazet (1):
+      sch_qfq: prevent shift-out-of-bounds in qfq_init_qdisc
+
+Greg Kroah-Hartman (1):
+      Linux 4.4.299
+
+Hangyu Hua (1):
+      phonet: refcount leak in pep_sock_accep
+
+Jedrzej Jagielski (1):
+      i40e: Fix incorrect netdev's real number of RX/TX queues
+
+Lixiaokeng (1):
+      scsi: libiscsi: Fix UAF in iscsi_conn_get_param()/iscsi_conn_teardown()
+
+Nathan Chancellor (1):
+      power: reset: ltc2952: Fix use of floating point literals
+
+Pavel Skripkin (1):
+      ieee802154: atusb: fix uninit value in atusb_set_extended_addr
+
+Takashi Iwai (1):
+      Bluetooth: btusb: Apply QCA Rome patches for some ATH3012 models
+
+Thomas Toye (1):
+      rndis_host: support Hytera digital radios
+
+Tom Rix (1):
+      mac80211: initialize variable have_higher_than_11mbit
+
+William Zhao (1):
+      ip6_vti: initialize __ip6_tnl_parm struct in vti6_siocdevprivate
+
+wolfgang huang (1):
+      mISDN: change function names to avoid conflicts
+
+yangxingwu (1):
+      net: udp: fix alignment problem in udp4_seq_show()
+
