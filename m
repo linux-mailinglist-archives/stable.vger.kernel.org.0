@@ -2,180 +2,955 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 084DC48AFBC
-	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 15:41:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EBF648AFBF
+	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 15:41:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242255AbiAKOlc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jan 2022 09:41:32 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:40402 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242201AbiAKOlb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 09:41:31 -0500
+        id S242332AbiAKOlk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jan 2022 09:41:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59370 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242201AbiAKOlj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 09:41:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87132C06173F;
+        Tue, 11 Jan 2022 06:41:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 44B566165C;
-        Tue, 11 Jan 2022 14:41:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01741C36AEB;
-        Tue, 11 Jan 2022 14:41:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9597B81B2F;
+        Tue, 11 Jan 2022 14:41:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04197C36AE3;
+        Tue, 11 Jan 2022 14:41:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641912090;
-        bh=ZXSbrtZsWxxU3DOIleGM4uec6BEW+n8q+VC4Kb5+1Ns=;
-        h=From:To:Cc:Subject:Date:From;
-        b=xHR0sPqUH0j45P8vq3Bc7jTQXAFPdFHNVo4ZlMXT2xq4WCkjJiYL+aJuTRXlUrgjh
-         BQSbI8O+fhxuDjWegSi8VRBhgV2QLlAsNeA9MawOaTNjIwe7pdVqY1f3iomM+a8DP+
-         Xaf1HmVxwT1NVdpSOIl9RA8c6miEm7lUnCxxnA+I=
+        s=korg; t=1641912096;
+        bh=yHyqSWTWD2IyYzrZJoNXYXQgip7bjE/tTf0lAqoozXY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=PILSdESOAmXg8qkzcigrDcTfmBE6Px2FJYCRdxKVkFF1x8/bjNt65bg7SJZedj/qa
+         ylMqmaF6H4sCEcogCPmUI8FXAdpccynG+1+DVq6Jr6BHpNXlW1Ikde1Fzz8MvWkWWT
+         JPuTND0ngKlJS118LtK9H8hEnv98gyxX6sQd2F6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 5.4.171
-Date:   Tue, 11 Jan 2022 15:41:26 +0100
-Message-Id: <164191208648227@kroah.com>
+Subject: Re: Linux 5.4.171
+Date:   Tue, 11 Jan 2022 15:41:27 +0100
+Message-Id: <164191208695@kroah.com>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <164191208648227@kroah.com>
+References: <164191208648227@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 5.4.171 kernel.
-
-All users of the 5.4 kernel series must upgrade.
-
-The updated 5.4.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                         |    2 
- drivers/infiniband/core/uverbs_marshall.c        |    2 
- drivers/infiniband/core/uverbs_uapi.c            |    3 +
- drivers/input/touchscreen/of_touchscreen.c       |    8 +--
- drivers/isdn/mISDN/core.c                        |    6 +-
- drivers/isdn/mISDN/core.h                        |    4 -
- drivers/isdn/mISDN/layer1.c                      |    4 -
- drivers/net/ethernet/aquantia/atlantic/aq_ring.c |    8 +++
- drivers/net/ethernet/intel/i40e/i40e_main.c      |   60 +++++++++++++++++++----
- drivers/net/ethernet/intel/iavf/iavf_main.c      |    5 +
- drivers/net/ieee802154/atusb.c                   |   10 ++-
- drivers/net/phy/micrel.c                         |    1 
- drivers/net/usb/rndis_host.c                     |    5 +
- drivers/power/reset/ltc2952-poweroff.c           |    4 -
- drivers/power/supply/power_supply_core.c         |    4 +
- drivers/scsi/libiscsi.c                          |    6 +-
- drivers/usb/mtu3/mtu3_gadget.c                   |    4 -
- fs/f2fs/checkpoint.c                             |    3 -
- fs/xfs/xfs_ioctl.c                               |    3 -
- kernel/trace/trace.c                             |    6 +-
- net/batman-adv/multicast.c                       |   15 +++--
- net/batman-adv/multicast.h                       |   10 ++-
- net/batman-adv/soft-interface.c                  |    7 +-
- net/core/lwtunnel.c                              |    4 +
- net/ipv4/fib_semantics.c                         |   49 ++++++++++++++++--
- net/ipv4/udp.c                                   |    2 
- net/ipv6/ip6_vti.c                               |    2 
- net/ipv6/route.c                                 |   32 +++++++++++-
- net/mac80211/mlme.c                              |    2 
- net/phonet/pep.c                                 |    1 
- net/sched/sch_qfq.c                              |    6 --
- tools/testing/selftests/x86/test_vsyscall.c      |    2 
- 32 files changed, 216 insertions(+), 64 deletions(-)
-
-Chao Yu (1):
-      f2fs: quota: fix potential deadlock
-
-Christian Melki (1):
-      net: phy: micrel: set soft_reset callback to genphy_soft_reset for KSZ8081
-
-Chunfeng Yun (1):
-      usb: mtu3: fix interval value for intr and isoc
-
-Darrick J. Wong (1):
-      xfs: map unwritten blocks in XFS_IOC_{ALLOC,FREE}SP just like fallocate
-
-David Ahern (7):
-      ipv4: Check attribute length for RTA_GATEWAY in multipath route
-      ipv4: Check attribute length for RTA_FLOW in multipath route
-      ipv6: Check attribute length for RTA_GATEWAY in multipath route
-      ipv6: Check attribute length for RTA_GATEWAY when deleting multipath route
-      lwtunnel: Validate RTA_ENCAP_TYPE attribute length
-      ipv6: Continue processing multipath route even if gateway attribute is invalid
-      ipv6: Do cleanup if attribute validation fails in multipath route
-
-Di Zhu (1):
-      i40e: fix use-after-free in i40e_sync_filters_subtask()
-
-Eric Dumazet (1):
-      sch_qfq: prevent shift-out-of-bounds in qfq_init_qdisc
-
-Greg Kroah-Hartman (1):
-      Linux 5.4.171
-
-Hangyu Hua (1):
-      phonet: refcount leak in pep_sock_accep
-
-Jedrzej Jagielski (1):
-      i40e: Fix incorrect netdev's real number of RX/TX queues
-
-Jiasheng Jiang (1):
-      RDMA/uverbs: Check for null return of kmalloc_array
-
-Karen Sornek (1):
-      iavf: Fix limit of total number of queues to active queues of VF
-
-Leon Romanovsky (1):
-      RDMA/core: Don't infoleak GRH fields
-
-Linus Lüssing (1):
-      batman-adv: mcast: don't send link-local multicast to mcast routers
-
-Linus Walleij (1):
-      power: supply: core: Break capacity loop
-
-Lixiaokeng (1):
-      scsi: libiscsi: Fix UAF in iscsi_conn_get_param()/iscsi_conn_teardown()
-
-Mateusz Palczewski (1):
-      i40e: Fix for displaying message regarding NVM version
-
-Nathan Chancellor (2):
-      Input: touchscreen - Fix backport of a02dcde595f7cbd240ccd64de96034ad91cffc40
-      power: reset: ltc2952: Fix use of floating point literals
-
-Naveen N. Rao (2):
-      tracing: Fix check for trace_percpu_buffer validity in get_trace_buf()
-      tracing: Tag trace_percpu_buffer as a percpu pointer
-
-Pavel Skripkin (1):
-      ieee802154: atusb: fix uninit value in atusb_set_extended_addr
-
-Shuah Khan (1):
-      selftests: x86: fix [-Wstringop-overread] warn in test_process_vm_readv()
-
-Thomas Toye (1):
-      rndis_host: support Hytera digital radios
-
-Tom Rix (1):
-      mac80211: initialize variable have_higher_than_11mbit
-
-William Zhao (1):
-      ip6_vti: initialize __ip6_tnl_parm struct in vti6_siocdevprivate
-
-Zekun Shen (1):
-      atlantic: Fix buff_ring OOB in aq_ring_rx_clean
-
-wolfgang huang (1):
-      mISDN: change function names to avoid conflicts
-
-yangxingwu (1):
-      net: udp: fix alignment problem in udp4_seq_show()
-
+diff --git a/Makefile b/Makefile
+index 7380354e4951..062052f71a97 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 5
+ PATCHLEVEL = 4
+-SUBLEVEL = 170
++SUBLEVEL = 171
+ EXTRAVERSION =
+ NAME = Kleptomaniac Octopus
+ 
+diff --git a/drivers/infiniband/core/uverbs_marshall.c b/drivers/infiniband/core/uverbs_marshall.c
+index b8d715c68ca4..11a080646916 100644
+--- a/drivers/infiniband/core/uverbs_marshall.c
++++ b/drivers/infiniband/core/uverbs_marshall.c
+@@ -66,7 +66,7 @@ void ib_copy_ah_attr_to_user(struct ib_device *device,
+ 	struct rdma_ah_attr *src = ah_attr;
+ 	struct rdma_ah_attr conv_ah;
+ 
+-	memset(&dst->grh.reserved, 0, sizeof(dst->grh.reserved));
++	memset(&dst->grh, 0, sizeof(dst->grh));
+ 
+ 	if ((ah_attr->type == RDMA_AH_ATTR_TYPE_OPA) &&
+ 	    (rdma_ah_get_dlid(ah_attr) > be16_to_cpu(IB_LID_PERMISSIVE)) &&
+diff --git a/drivers/infiniband/core/uverbs_uapi.c b/drivers/infiniband/core/uverbs_uapi.c
+index 00c547887132..818699b855c5 100644
+--- a/drivers/infiniband/core/uverbs_uapi.c
++++ b/drivers/infiniband/core/uverbs_uapi.c
+@@ -450,6 +450,9 @@ static int uapi_finalize(struct uverbs_api *uapi)
+ 	uapi->num_write_ex = max_write_ex + 1;
+ 	data = kmalloc_array(uapi->num_write + uapi->num_write_ex,
+ 			     sizeof(*uapi->write_methods), GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
++
+ 	for (i = 0; i != uapi->num_write + uapi->num_write_ex; i++)
+ 		data[i] = &uapi->notsupp_method;
+ 	uapi->write_methods = data;
+diff --git a/drivers/input/touchscreen/of_touchscreen.c b/drivers/input/touchscreen/of_touchscreen.c
+index 2962c3747adc..ed5fbcb40e3f 100644
+--- a/drivers/input/touchscreen/of_touchscreen.c
++++ b/drivers/input/touchscreen/of_touchscreen.c
+@@ -77,8 +77,8 @@ void touchscreen_parse_properties(struct input_dev *input, bool multitouch,
+ 	axis = multitouch ? ABS_MT_POSITION_X : ABS_X;
+ 	data_present = touchscreen_get_prop_u32(dev, "touchscreen-min-x",
+ 						input_abs_get_min(input, axis),
+-						&minimum) |
+-		       touchscreen_get_prop_u32(dev, "touchscreen-size-x",
++						&minimum);
++	data_present |= touchscreen_get_prop_u32(dev, "touchscreen-size-x",
+ 						input_abs_get_max(input,
+ 								  axis) + 1,
+ 						&maximum);
+@@ -91,8 +91,8 @@ void touchscreen_parse_properties(struct input_dev *input, bool multitouch,
+ 	axis = multitouch ? ABS_MT_POSITION_Y : ABS_Y;
+ 	data_present = touchscreen_get_prop_u32(dev, "touchscreen-min-y",
+ 						input_abs_get_min(input, axis),
+-						&minimum) |
+-		       touchscreen_get_prop_u32(dev, "touchscreen-size-y",
++						&minimum);
++	data_present |= touchscreen_get_prop_u32(dev, "touchscreen-size-y",
+ 						input_abs_get_max(input,
+ 								  axis) + 1,
+ 						&maximum);
+diff --git a/drivers/isdn/mISDN/core.c b/drivers/isdn/mISDN/core.c
+index 55891e420446..a41b4b264594 100644
+--- a/drivers/isdn/mISDN/core.c
++++ b/drivers/isdn/mISDN/core.c
+@@ -381,7 +381,7 @@ mISDNInit(void)
+ 	err = mISDN_inittimer(&debug);
+ 	if (err)
+ 		goto error2;
+-	err = l1_init(&debug);
++	err = Isdnl1_Init(&debug);
+ 	if (err)
+ 		goto error3;
+ 	err = Isdnl2_Init(&debug);
+@@ -395,7 +395,7 @@ mISDNInit(void)
+ error5:
+ 	Isdnl2_cleanup();
+ error4:
+-	l1_cleanup();
++	Isdnl1_cleanup();
+ error3:
+ 	mISDN_timer_cleanup();
+ error2:
+@@ -408,7 +408,7 @@ static void mISDN_cleanup(void)
+ {
+ 	misdn_sock_cleanup();
+ 	Isdnl2_cleanup();
+-	l1_cleanup();
++	Isdnl1_cleanup();
+ 	mISDN_timer_cleanup();
+ 	class_unregister(&mISDN_class);
+ 
+diff --git a/drivers/isdn/mISDN/core.h b/drivers/isdn/mISDN/core.h
+index 23b44d303327..42599f49c189 100644
+--- a/drivers/isdn/mISDN/core.h
++++ b/drivers/isdn/mISDN/core.h
+@@ -60,8 +60,8 @@ struct Bprotocol	*get_Bprotocol4id(u_int);
+ extern int	mISDN_inittimer(u_int *);
+ extern void	mISDN_timer_cleanup(void);
+ 
+-extern int	l1_init(u_int *);
+-extern void	l1_cleanup(void);
++extern int	Isdnl1_Init(u_int *);
++extern void	Isdnl1_cleanup(void);
+ extern int	Isdnl2_Init(u_int *);
+ extern void	Isdnl2_cleanup(void);
+ 
+diff --git a/drivers/isdn/mISDN/layer1.c b/drivers/isdn/mISDN/layer1.c
+index 98a3bc6c1700..7b31c25a550e 100644
+--- a/drivers/isdn/mISDN/layer1.c
++++ b/drivers/isdn/mISDN/layer1.c
+@@ -398,7 +398,7 @@ create_l1(struct dchannel *dch, dchannel_l1callback *dcb) {
+ EXPORT_SYMBOL(create_l1);
+ 
+ int
+-l1_init(u_int *deb)
++Isdnl1_Init(u_int *deb)
+ {
+ 	debug = deb;
+ 	l1fsm_s.state_count = L1S_STATE_COUNT;
+@@ -409,7 +409,7 @@ l1_init(u_int *deb)
+ }
+ 
+ void
+-l1_cleanup(void)
++Isdnl1_cleanup(void)
+ {
+ 	mISDN_FsmFree(&l1fsm_s);
+ }
+diff --git a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
+index 03821b46a8cb..4c22f119ac62 100644
+--- a/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
++++ b/drivers/net/ethernet/aquantia/atlantic/aq_ring.c
+@@ -305,6 +305,10 @@ int aq_ring_rx_clean(struct aq_ring_s *self,
+ 		if (!buff->is_eop) {
+ 			buff_ = buff;
+ 			do {
++				if (buff_->next >= self->size) {
++					err = -EIO;
++					goto err_exit;
++				}
+ 				next_ = buff_->next,
+ 				buff_ = &self->buff_ring[next_];
+ 				is_rsc_completed =
+@@ -327,6 +331,10 @@ int aq_ring_rx_clean(struct aq_ring_s *self,
+ 			if (buff->is_error || buff->is_cso_err) {
+ 				buff_ = buff;
+ 				do {
++					if (buff_->next >= self->size) {
++						err = -EIO;
++						goto err_exit;
++					}
+ 					next_ = buff_->next,
+ 					buff_ = &self->buff_ring[next_];
+ 
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index ce237da003dd..a2326683be17 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -107,6 +107,24 @@ MODULE_VERSION(DRV_VERSION);
+ 
+ static struct workqueue_struct *i40e_wq;
+ 
++static void netdev_hw_addr_refcnt(struct i40e_mac_filter *f,
++				  struct net_device *netdev, int delta)
++{
++	struct netdev_hw_addr *ha;
++
++	if (!f || !netdev)
++		return;
++
++	netdev_for_each_mc_addr(ha, netdev) {
++		if (ether_addr_equal(ha->addr, f->macaddr)) {
++			ha->refcount += delta;
++			if (ha->refcount <= 0)
++				ha->refcount = 1;
++			break;
++		}
++	}
++}
++
+ /**
+  * i40e_allocate_dma_mem_d - OS specific memory alloc for shared code
+  * @hw:   pointer to the HW structure
+@@ -2022,6 +2040,7 @@ static void i40e_undo_add_filter_entries(struct i40e_vsi *vsi,
+ 	hlist_for_each_entry_safe(new, h, from, hlist) {
+ 		/* We can simply free the wrapper structure */
+ 		hlist_del(&new->hlist);
++		netdev_hw_addr_refcnt(new->f, vsi->netdev, -1);
+ 		kfree(new);
+ 	}
+ }
+@@ -2369,6 +2388,10 @@ int i40e_sync_vsi_filters(struct i40e_vsi *vsi)
+ 						       &tmp_add_list,
+ 						       &tmp_del_list,
+ 						       vlan_filters);
++
++		hlist_for_each_entry(new, &tmp_add_list, hlist)
++			netdev_hw_addr_refcnt(new->f, vsi->netdev, 1);
++
+ 		if (retval)
+ 			goto err_no_memory_locked;
+ 
+@@ -2501,6 +2524,7 @@ int i40e_sync_vsi_filters(struct i40e_vsi *vsi)
+ 			if (new->f->state == I40E_FILTER_NEW)
+ 				new->f->state = new->state;
+ 			hlist_del(&new->hlist);
++			netdev_hw_addr_refcnt(new->f, vsi->netdev, -1);
+ 			kfree(new);
+ 		}
+ 		spin_unlock_bh(&vsi->mac_filter_hash_lock);
+@@ -8302,6 +8326,27 @@ int i40e_open(struct net_device *netdev)
+ 	return 0;
+ }
+ 
++/**
++ * i40e_netif_set_realnum_tx_rx_queues - Update number of tx/rx queues
++ * @vsi: vsi structure
++ *
++ * This updates netdev's number of tx/rx queues
++ *
++ * Returns status of setting tx/rx queues
++ **/
++static int i40e_netif_set_realnum_tx_rx_queues(struct i40e_vsi *vsi)
++{
++	int ret;
++
++	ret = netif_set_real_num_rx_queues(vsi->netdev,
++					   vsi->num_queue_pairs);
++	if (ret)
++		return ret;
++
++	return netif_set_real_num_tx_queues(vsi->netdev,
++					    vsi->num_queue_pairs);
++}
++
+ /**
+  * i40e_vsi_open -
+  * @vsi: the VSI to open
+@@ -8338,13 +8383,7 @@ int i40e_vsi_open(struct i40e_vsi *vsi)
+ 			goto err_setup_rx;
+ 
+ 		/* Notify the stack of the actual queue counts. */
+-		err = netif_set_real_num_tx_queues(vsi->netdev,
+-						   vsi->num_queue_pairs);
+-		if (err)
+-			goto err_set_queues;
+-
+-		err = netif_set_real_num_rx_queues(vsi->netdev,
+-						   vsi->num_queue_pairs);
++		err = i40e_netif_set_realnum_tx_rx_queues(vsi);
+ 		if (err)
+ 			goto err_set_queues;
+ 
+@@ -13766,6 +13805,9 @@ struct i40e_vsi *i40e_vsi_setup(struct i40e_pf *pf, u8 type,
+ 	case I40E_VSI_MAIN:
+ 	case I40E_VSI_VMDQ2:
+ 		ret = i40e_config_netdev(vsi);
++		if (ret)
++			goto err_netdev;
++		ret = i40e_netif_set_realnum_tx_rx_queues(vsi);
+ 		if (ret)
+ 			goto err_netdev;
+ 		ret = register_netdev(vsi->netdev);
+@@ -15012,8 +15054,8 @@ static int i40e_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 
+ 	if (hw->aq.api_maj_ver == I40E_FW_API_VERSION_MAJOR &&
+ 	    hw->aq.api_min_ver > I40E_FW_MINOR_VERSION(hw))
+-		dev_info(&pdev->dev,
+-			 "The driver for the device detected a newer version of the NVM image v%u.%u than expected v%u.%u. Please install the most recent version of the network driver.\n",
++		dev_dbg(&pdev->dev,
++			"The driver for the device detected a newer version of the NVM image v%u.%u than v%u.%u.\n",
+ 			 hw->aq.api_maj_ver,
+ 			 hw->aq.api_min_ver,
+ 			 I40E_FW_API_VERSION_MAJOR,
+diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
+index 449eb06e2c7d..309e953ed1e4 100644
+--- a/drivers/net/ethernet/intel/iavf/iavf_main.c
++++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
+@@ -2604,8 +2604,11 @@ static int iavf_validate_ch_config(struct iavf_adapter *adapter,
+ 		total_max_rate += tx_rate;
+ 		num_qps += mqprio_qopt->qopt.count[i];
+ 	}
+-	if (num_qps > IAVF_MAX_REQ_QUEUES)
++	if (num_qps > adapter->num_active_queues) {
++		dev_err(&adapter->pdev->dev,
++			"Cannot support requested number of queues\n");
+ 		return -EINVAL;
++	}
+ 
+ 	ret = iavf_validate_tx_bandwidth(adapter, total_max_rate);
+ 	return ret;
+diff --git a/drivers/net/ieee802154/atusb.c b/drivers/net/ieee802154/atusb.c
+index 23ee0b14cbfa..2f5e7b31032a 100644
+--- a/drivers/net/ieee802154/atusb.c
++++ b/drivers/net/ieee802154/atusb.c
+@@ -93,7 +93,9 @@ static int atusb_control_msg(struct atusb *atusb, unsigned int pipe,
+ 
+ 	ret = usb_control_msg(usb_dev, pipe, request, requesttype,
+ 			      value, index, data, size, timeout);
+-	if (ret < 0) {
++	if (ret < size) {
++		ret = ret < 0 ? ret : -ENODATA;
++
+ 		atusb->err = ret;
+ 		dev_err(&usb_dev->dev,
+ 			"%s: req 0x%02x val 0x%x idx 0x%x, error %d\n",
+@@ -861,9 +863,9 @@ static int atusb_get_and_show_build(struct atusb *atusb)
+ 	if (!build)
+ 		return -ENOMEM;
+ 
+-	ret = atusb_control_msg(atusb, usb_rcvctrlpipe(usb_dev, 0),
+-				ATUSB_BUILD, ATUSB_REQ_FROM_DEV, 0, 0,
+-				build, ATUSB_BUILD_SIZE, 1000);
++	/* We cannot call atusb_control_msg() here, since this request may read various length data */
++	ret = usb_control_msg(atusb->usb_dev, usb_rcvctrlpipe(usb_dev, 0), ATUSB_BUILD,
++			      ATUSB_REQ_FROM_DEV, 0, 0, build, ATUSB_BUILD_SIZE, 1000);
+ 	if (ret >= 0) {
+ 		build[ret] = 0;
+ 		dev_info(&usb_dev->dev, "Firmware: build %s\n", build);
+diff --git a/drivers/net/phy/micrel.c b/drivers/net/phy/micrel.c
+index 0b61d80ea3f8..18cc5e4280e8 100644
+--- a/drivers/net/phy/micrel.c
++++ b/drivers/net/phy/micrel.c
+@@ -1096,6 +1096,7 @@ static struct phy_driver ksphy_driver[] = {
+ 	.probe		= kszphy_probe,
+ 	.config_init	= ksz8081_config_init,
+ 	.ack_interrupt	= kszphy_ack_interrupt,
++	.soft_reset	= genphy_soft_reset,
+ 	.config_intr	= kszphy_config_intr,
+ 	.get_sset_count = kszphy_get_sset_count,
+ 	.get_strings	= kszphy_get_strings,
+diff --git a/drivers/net/usb/rndis_host.c b/drivers/net/usb/rndis_host.c
+index f9b359d4e293..1505fe3f87ed 100644
+--- a/drivers/net/usb/rndis_host.c
++++ b/drivers/net/usb/rndis_host.c
+@@ -608,6 +608,11 @@ static const struct usb_device_id	products [] = {
+ 	USB_DEVICE_AND_INTERFACE_INFO(0x1630, 0x0042,
+ 				      USB_CLASS_COMM, 2 /* ACM */, 0x0ff),
+ 	.driver_info = (unsigned long) &rndis_poll_status_info,
++}, {
++	/* Hytera Communications DMR radios' "Radio to PC Network" */
++	USB_VENDOR_AND_INTERFACE_INFO(0x238b,
++				      USB_CLASS_COMM, 2 /* ACM */, 0x0ff),
++	.driver_info = (unsigned long)&rndis_info,
+ }, {
+ 	/* RNDIS is MSFT's un-official variant of CDC ACM */
+ 	USB_INTERFACE_INFO(USB_CLASS_COMM, 2 /* ACM */, 0x0ff),
+diff --git a/drivers/power/reset/ltc2952-poweroff.c b/drivers/power/reset/ltc2952-poweroff.c
+index e4a0cc45b3d1..ec613bcc0a30 100644
+--- a/drivers/power/reset/ltc2952-poweroff.c
++++ b/drivers/power/reset/ltc2952-poweroff.c
+@@ -160,8 +160,8 @@ static void ltc2952_poweroff_kill(void)
+ 
+ static void ltc2952_poweroff_default(struct ltc2952_poweroff *data)
+ {
+-	data->wde_interval = 300L * 1E6L;
+-	data->trigger_delay = ktime_set(2, 500L*1E6L);
++	data->wde_interval = 300L * NSEC_PER_MSEC;
++	data->trigger_delay = ktime_set(2, 500L * NSEC_PER_MSEC);
+ 
+ 	hrtimer_init(&data->timer_trigger, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+ 	data->timer_trigger.function = ltc2952_poweroff_timer_trigger;
+diff --git a/drivers/power/supply/power_supply_core.c b/drivers/power/supply/power_supply_core.c
+index 5c36c430ce8b..a2f56a68c50d 100644
+--- a/drivers/power/supply/power_supply_core.c
++++ b/drivers/power/supply/power_supply_core.c
+@@ -742,6 +742,10 @@ power_supply_find_ocv2cap_table(struct power_supply_battery_info *info,
+ 		return NULL;
+ 
+ 	for (i = 0; i < POWER_SUPPLY_OCV_TEMP_MAX; i++) {
++		/* Out of capacity tables */
++		if (!info->ocv_table[i])
++			break;
++
+ 		temp_diff = abs(info->ocv_temp[i] - temp);
+ 
+ 		if (temp_diff < best_temp_diff) {
+diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
+index eeba6180711c..f3cee64c6d12 100644
+--- a/drivers/scsi/libiscsi.c
++++ b/drivers/scsi/libiscsi.c
+@@ -2948,6 +2948,8 @@ void iscsi_conn_teardown(struct iscsi_cls_conn *cls_conn)
+ {
+ 	struct iscsi_conn *conn = cls_conn->dd_data;
+ 	struct iscsi_session *session = conn->session;
++	char *tmp_persistent_address = conn->persistent_address;
++	char *tmp_local_ipaddr = conn->local_ipaddr;
+ 
+ 	del_timer_sync(&conn->transport_timer);
+ 
+@@ -2969,8 +2971,6 @@ void iscsi_conn_teardown(struct iscsi_cls_conn *cls_conn)
+ 	spin_lock_bh(&session->frwd_lock);
+ 	free_pages((unsigned long) conn->data,
+ 		   get_order(ISCSI_DEF_MAX_RECV_SEG_LEN));
+-	kfree(conn->persistent_address);
+-	kfree(conn->local_ipaddr);
+ 	/* regular RX path uses back_lock */
+ 	spin_lock_bh(&session->back_lock);
+ 	kfifo_in(&session->cmdpool.queue, (void*)&conn->login_task,
+@@ -2982,6 +2982,8 @@ void iscsi_conn_teardown(struct iscsi_cls_conn *cls_conn)
+ 	mutex_unlock(&session->eh_mutex);
+ 
+ 	iscsi_destroy_conn(cls_conn);
++	kfree(tmp_persistent_address);
++	kfree(tmp_local_ipaddr);
+ }
+ EXPORT_SYMBOL_GPL(iscsi_conn_teardown);
+ 
+diff --git a/drivers/usb/mtu3/mtu3_gadget.c b/drivers/usb/mtu3/mtu3_gadget.c
+index 253c8b71d3c4..061da9b82b96 100644
+--- a/drivers/usb/mtu3/mtu3_gadget.c
++++ b/drivers/usb/mtu3/mtu3_gadget.c
+@@ -85,7 +85,7 @@ static int mtu3_ep_enable(struct mtu3_ep *mep)
+ 		if (usb_endpoint_xfer_int(desc) ||
+ 				usb_endpoint_xfer_isoc(desc)) {
+ 			interval = desc->bInterval;
+-			interval = clamp_val(interval, 1, 16) - 1;
++			interval = clamp_val(interval, 1, 16);
+ 			if (usb_endpoint_xfer_isoc(desc) && comp_desc)
+ 				mult = comp_desc->bmAttributes;
+ 		}
+@@ -97,7 +97,7 @@ static int mtu3_ep_enable(struct mtu3_ep *mep)
+ 		if (usb_endpoint_xfer_isoc(desc) ||
+ 				usb_endpoint_xfer_int(desc)) {
+ 			interval = desc->bInterval;
+-			interval = clamp_val(interval, 1, 16) - 1;
++			interval = clamp_val(interval, 1, 16);
+ 			mult = usb_endpoint_maxp_mult(desc) - 1;
+ 		}
+ 		break;
+diff --git a/fs/f2fs/checkpoint.c b/fs/f2fs/checkpoint.c
+index f7d27cbbeb86..03dce3980d90 100644
+--- a/fs/f2fs/checkpoint.c
++++ b/fs/f2fs/checkpoint.c
+@@ -1144,7 +1144,8 @@ static bool __need_flush_quota(struct f2fs_sb_info *sbi)
+ 	if (!is_journalled_quota(sbi))
+ 		return false;
+ 
+-	down_write(&sbi->quota_sem);
++	if (!down_write_trylock(&sbi->quota_sem))
++		return true;
+ 	if (is_sbi_flag_set(sbi, SBI_QUOTA_SKIP_FLUSH)) {
+ 		ret = false;
+ 	} else if (is_sbi_flag_set(sbi, SBI_QUOTA_NEED_REPAIR)) {
+diff --git a/fs/xfs/xfs_ioctl.c b/fs/xfs/xfs_ioctl.c
+index b3021d9b34a5..7b7a009425e2 100644
+--- a/fs/xfs/xfs_ioctl.c
++++ b/fs/xfs/xfs_ioctl.c
+@@ -714,7 +714,8 @@ xfs_ioc_space(
+ 		flags |= XFS_PREALLOC_CLEAR;
+ 		if (bf->l_start > XFS_ISIZE(ip)) {
+ 			error = xfs_alloc_file_space(ip, XFS_ISIZE(ip),
+-					bf->l_start - XFS_ISIZE(ip), 0);
++					bf->l_start - XFS_ISIZE(ip),
++					XFS_BMAPI_PREALLOC);
+ 			if (error)
+ 				goto out_unlock;
+ 		}
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 5240ba9a82db..54f5b2f080f5 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -3007,7 +3007,7 @@ struct trace_buffer_struct {
+ 	char buffer[4][TRACE_BUF_SIZE];
+ };
+ 
+-static struct trace_buffer_struct *trace_percpu_buffer;
++static struct trace_buffer_struct __percpu *trace_percpu_buffer;
+ 
+ /*
+  * Thise allows for lockless recording.  If we're nested too deeply, then
+@@ -3017,7 +3017,7 @@ static char *get_trace_buf(void)
+ {
+ 	struct trace_buffer_struct *buffer = this_cpu_ptr(trace_percpu_buffer);
+ 
+-	if (!buffer || buffer->nesting >= 4)
++	if (!trace_percpu_buffer || buffer->nesting >= 4)
+ 		return NULL;
+ 
+ 	buffer->nesting++;
+@@ -3036,7 +3036,7 @@ static void put_trace_buf(void)
+ 
+ static int alloc_percpu_trace_buffer(void)
+ {
+-	struct trace_buffer_struct *buffers;
++	struct trace_buffer_struct __percpu *buffers;
+ 
+ 	buffers = alloc_percpu(struct trace_buffer_struct);
+ 	if (WARN(!buffers, "Could not allocate percpu trace_printk buffer"))
+diff --git a/net/batman-adv/multicast.c b/net/batman-adv/multicast.c
+index f5bf931252c4..09d81f9c2a64 100644
+--- a/net/batman-adv/multicast.c
++++ b/net/batman-adv/multicast.c
+@@ -1373,6 +1373,7 @@ batadv_mcast_forw_rtr_node_get(struct batadv_priv *bat_priv,
+  * @bat_priv: the bat priv with all the soft interface information
+  * @skb: The multicast packet to check
+  * @orig: an originator to be set to forward the skb to
++ * @is_routable: stores whether the destination is routable
+  *
+  * Return: the forwarding mode as enum batadv_forw_mode and in case of
+  * BATADV_FORW_SINGLE set the orig to the single originator the skb
+@@ -1380,17 +1381,16 @@ batadv_mcast_forw_rtr_node_get(struct batadv_priv *bat_priv,
+  */
+ enum batadv_forw_mode
+ batadv_mcast_forw_mode(struct batadv_priv *bat_priv, struct sk_buff *skb,
+-		       struct batadv_orig_node **orig)
++		       struct batadv_orig_node **orig, int *is_routable)
+ {
+ 	int ret, tt_count, ip_count, unsnoop_count, total_count;
+ 	bool is_unsnoopable = false;
+ 	unsigned int mcast_fanout;
+ 	struct ethhdr *ethhdr;
+-	int is_routable = 0;
+ 	int rtr_count = 0;
+ 
+ 	ret = batadv_mcast_forw_mode_check(bat_priv, skb, &is_unsnoopable,
+-					   &is_routable);
++					   is_routable);
+ 	if (ret == -ENOMEM)
+ 		return BATADV_FORW_NONE;
+ 	else if (ret < 0)
+@@ -1403,7 +1403,7 @@ batadv_mcast_forw_mode(struct batadv_priv *bat_priv, struct sk_buff *skb,
+ 	ip_count = batadv_mcast_forw_want_all_ip_count(bat_priv, ethhdr);
+ 	unsnoop_count = !is_unsnoopable ? 0 :
+ 			atomic_read(&bat_priv->mcast.num_want_all_unsnoopables);
+-	rtr_count = batadv_mcast_forw_rtr_count(bat_priv, is_routable);
++	rtr_count = batadv_mcast_forw_rtr_count(bat_priv, *is_routable);
+ 
+ 	total_count = tt_count + ip_count + unsnoop_count + rtr_count;
+ 
+@@ -1723,6 +1723,7 @@ batadv_mcast_forw_want_rtr(struct batadv_priv *bat_priv,
+  * @bat_priv: the bat priv with all the soft interface information
+  * @skb: the multicast packet to transmit
+  * @vid: the vlan identifier
++ * @is_routable: stores whether the destination is routable
+  *
+  * Sends copies of a frame with multicast destination to any node that signaled
+  * interest in it, that is either via the translation table or the according
+@@ -1735,7 +1736,7 @@ batadv_mcast_forw_want_rtr(struct batadv_priv *bat_priv,
+  * is neither IPv4 nor IPv6. NET_XMIT_SUCCESS otherwise.
+  */
+ int batadv_mcast_forw_send(struct batadv_priv *bat_priv, struct sk_buff *skb,
+-			   unsigned short vid)
++			   unsigned short vid, int is_routable)
+ {
+ 	int ret;
+ 
+@@ -1751,12 +1752,16 @@ int batadv_mcast_forw_send(struct batadv_priv *bat_priv, struct sk_buff *skb,
+ 		return ret;
+ 	}
+ 
++	if (!is_routable)
++		goto skip_mc_router;
++
+ 	ret = batadv_mcast_forw_want_rtr(bat_priv, skb, vid);
+ 	if (ret != NET_XMIT_SUCCESS) {
+ 		kfree_skb(skb);
+ 		return ret;
+ 	}
+ 
++skip_mc_router:
+ 	consume_skb(skb);
+ 	return ret;
+ }
+diff --git a/net/batman-adv/multicast.h b/net/batman-adv/multicast.h
+index 403929013ac4..fc1ffd22a671 100644
+--- a/net/batman-adv/multicast.h
++++ b/net/batman-adv/multicast.h
+@@ -44,7 +44,8 @@ enum batadv_forw_mode {
+ 
+ enum batadv_forw_mode
+ batadv_mcast_forw_mode(struct batadv_priv *bat_priv, struct sk_buff *skb,
+-		       struct batadv_orig_node **mcast_single_orig);
++		       struct batadv_orig_node **mcast_single_orig,
++		       int *is_routable);
+ 
+ int batadv_mcast_forw_send_orig(struct batadv_priv *bat_priv,
+ 				struct sk_buff *skb,
+@@ -52,7 +53,7 @@ int batadv_mcast_forw_send_orig(struct batadv_priv *bat_priv,
+ 				struct batadv_orig_node *orig_node);
+ 
+ int batadv_mcast_forw_send(struct batadv_priv *bat_priv, struct sk_buff *skb,
+-			   unsigned short vid);
++			   unsigned short vid, int is_routable);
+ 
+ void batadv_mcast_init(struct batadv_priv *bat_priv);
+ 
+@@ -71,7 +72,8 @@ void batadv_mcast_purge_orig(struct batadv_orig_node *orig_node);
+ 
+ static inline enum batadv_forw_mode
+ batadv_mcast_forw_mode(struct batadv_priv *bat_priv, struct sk_buff *skb,
+-		       struct batadv_orig_node **mcast_single_orig)
++		       struct batadv_orig_node **mcast_single_orig,
++		       int *is_routable)
+ {
+ 	return BATADV_FORW_ALL;
+ }
+@@ -88,7 +90,7 @@ batadv_mcast_forw_send_orig(struct batadv_priv *bat_priv,
+ 
+ static inline int
+ batadv_mcast_forw_send(struct batadv_priv *bat_priv, struct sk_buff *skb,
+-		       unsigned short vid)
++		       unsigned short vid, int is_routable)
+ {
+ 	kfree_skb(skb);
+ 	return NET_XMIT_DROP;
+diff --git a/net/batman-adv/soft-interface.c b/net/batman-adv/soft-interface.c
+index 7f209390069e..504e3cb67bed 100644
+--- a/net/batman-adv/soft-interface.c
++++ b/net/batman-adv/soft-interface.c
+@@ -200,6 +200,7 @@ static netdev_tx_t batadv_interface_tx(struct sk_buff *skb,
+ 	int gw_mode;
+ 	enum batadv_forw_mode forw_mode = BATADV_FORW_SINGLE;
+ 	struct batadv_orig_node *mcast_single_orig = NULL;
++	int mcast_is_routable = 0;
+ 	int network_offset = ETH_HLEN;
+ 	__be16 proto;
+ 
+@@ -302,7 +303,8 @@ static netdev_tx_t batadv_interface_tx(struct sk_buff *skb,
+ send:
+ 		if (do_bcast && !is_broadcast_ether_addr(ethhdr->h_dest)) {
+ 			forw_mode = batadv_mcast_forw_mode(bat_priv, skb,
+-							   &mcast_single_orig);
++							   &mcast_single_orig,
++							   &mcast_is_routable);
+ 			if (forw_mode == BATADV_FORW_NONE)
+ 				goto dropped;
+ 
+@@ -367,7 +369,8 @@ static netdev_tx_t batadv_interface_tx(struct sk_buff *skb,
+ 			ret = batadv_mcast_forw_send_orig(bat_priv, skb, vid,
+ 							  mcast_single_orig);
+ 		} else if (forw_mode == BATADV_FORW_SOME) {
+-			ret = batadv_mcast_forw_send(bat_priv, skb, vid);
++			ret = batadv_mcast_forw_send(bat_priv, skb, vid,
++						     mcast_is_routable);
+ 		} else {
+ 			if (batadv_dat_snoop_outgoing_arp_request(bat_priv,
+ 								  skb))
+diff --git a/net/core/lwtunnel.c b/net/core/lwtunnel.c
+index 2f9c0de533c7..0b64f015b3b0 100644
+--- a/net/core/lwtunnel.c
++++ b/net/core/lwtunnel.c
+@@ -190,6 +190,10 @@ int lwtunnel_valid_encap_type_attr(struct nlattr *attr, int remaining,
+ 			nla_entype = nla_find(attrs, attrlen, RTA_ENCAP_TYPE);
+ 
+ 			if (nla_entype) {
++				if (nla_len(nla_entype) < sizeof(u16)) {
++					NL_SET_ERR_MSG(extack, "Invalid RTA_ENCAP_TYPE");
++					return -EINVAL;
++				}
+ 				encap_type = nla_get_u16(nla_entype);
+ 
+ 				if (lwtunnel_valid_encap_type(encap_type,
+diff --git a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
+index c0b815420523..ce4b28f01148 100644
+--- a/net/ipv4/fib_semantics.c
++++ b/net/ipv4/fib_semantics.c
+@@ -654,6 +654,19 @@ static int fib_count_nexthops(struct rtnexthop *rtnh, int remaining,
+ 	return nhs;
+ }
+ 
++static int fib_gw_from_attr(__be32 *gw, struct nlattr *nla,
++			    struct netlink_ext_ack *extack)
++{
++	if (nla_len(nla) < sizeof(*gw)) {
++		NL_SET_ERR_MSG(extack, "Invalid IPv4 address in RTA_GATEWAY");
++		return -EINVAL;
++	}
++
++	*gw = nla_get_in_addr(nla);
++
++	return 0;
++}
++
+ /* only called when fib_nh is integrated into fib_info */
+ static int fib_get_nhs(struct fib_info *fi, struct rtnexthop *rtnh,
+ 		       int remaining, struct fib_config *cfg,
+@@ -696,7 +709,11 @@ static int fib_get_nhs(struct fib_info *fi, struct rtnexthop *rtnh,
+ 				return -EINVAL;
+ 			}
+ 			if (nla) {
+-				fib_cfg.fc_gw4 = nla_get_in_addr(nla);
++				ret = fib_gw_from_attr(&fib_cfg.fc_gw4, nla,
++						       extack);
++				if (ret)
++					goto errout;
++
+ 				if (fib_cfg.fc_gw4)
+ 					fib_cfg.fc_gw_family = AF_INET;
+ 			} else if (nlav) {
+@@ -706,10 +723,18 @@ static int fib_get_nhs(struct fib_info *fi, struct rtnexthop *rtnh,
+ 			}
+ 
+ 			nla = nla_find(attrs, attrlen, RTA_FLOW);
+-			if (nla)
++			if (nla) {
++				if (nla_len(nla) < sizeof(u32)) {
++					NL_SET_ERR_MSG(extack, "Invalid RTA_FLOW");
++					return -EINVAL;
++				}
+ 				fib_cfg.fc_flow = nla_get_u32(nla);
++			}
+ 
+ 			fib_cfg.fc_encap = nla_find(attrs, attrlen, RTA_ENCAP);
++			/* RTA_ENCAP_TYPE length checked in
++			 * lwtunnel_valid_encap_type_attr
++			 */
+ 			nla = nla_find(attrs, attrlen, RTA_ENCAP_TYPE);
+ 			if (nla)
+ 				fib_cfg.fc_encap_type = nla_get_u16(nla);
+@@ -894,6 +919,7 @@ int fib_nh_match(struct fib_config *cfg, struct fib_info *fi,
+ 		attrlen = rtnh_attrlen(rtnh);
+ 		if (attrlen > 0) {
+ 			struct nlattr *nla, *nlav, *attrs = rtnh_attrs(rtnh);
++			int err;
+ 
+ 			nla = nla_find(attrs, attrlen, RTA_GATEWAY);
+ 			nlav = nla_find(attrs, attrlen, RTA_VIA);
+@@ -904,12 +930,17 @@ int fib_nh_match(struct fib_config *cfg, struct fib_info *fi,
+ 			}
+ 
+ 			if (nla) {
++				__be32 gw;
++
++				err = fib_gw_from_attr(&gw, nla, extack);
++				if (err)
++					return err;
++
+ 				if (nh->fib_nh_gw_family != AF_INET ||
+-				    nla_get_in_addr(nla) != nh->fib_nh_gw4)
++				    gw != nh->fib_nh_gw4)
+ 					return 1;
+ 			} else if (nlav) {
+ 				struct fib_config cfg2;
+-				int err;
+ 
+ 				err = fib_gw_from_via(&cfg2, nlav, extack);
+ 				if (err)
+@@ -932,8 +963,14 @@ int fib_nh_match(struct fib_config *cfg, struct fib_info *fi,
+ 
+ #ifdef CONFIG_IP_ROUTE_CLASSID
+ 			nla = nla_find(attrs, attrlen, RTA_FLOW);
+-			if (nla && nla_get_u32(nla) != nh->nh_tclassid)
+-				return 1;
++			if (nla) {
++				if (nla_len(nla) < sizeof(u32)) {
++					NL_SET_ERR_MSG(extack, "Invalid RTA_FLOW");
++					return -EINVAL;
++				}
++				if (nla_get_u32(nla) != nh->nh_tclassid)
++					return 1;
++			}
+ #endif
+ 		}
+ 
+diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
+index a0016f05c4f8..3cdf011a8dd8 100644
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -2943,7 +2943,7 @@ int udp4_seq_show(struct seq_file *seq, void *v)
+ {
+ 	seq_setwidth(seq, 127);
+ 	if (v == SEQ_START_TOKEN)
+-		seq_puts(seq, "  sl  local_address rem_address   st tx_queue "
++		seq_puts(seq, "   sl  local_address rem_address   st tx_queue "
+ 			   "rx_queue tr tm->when retrnsmt   uid  timeout "
+ 			   "inode ref pointer drops");
+ 	else {
+diff --git a/net/ipv6/ip6_vti.c b/net/ipv6/ip6_vti.c
+index 12ab6605d961..8b44d3b53844 100644
+--- a/net/ipv6/ip6_vti.c
++++ b/net/ipv6/ip6_vti.c
+@@ -795,6 +795,8 @@ vti6_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+ 	struct net *net = dev_net(dev);
+ 	struct vti6_net *ip6n = net_generic(net, vti6_net_id);
+ 
++	memset(&p1, 0, sizeof(p1));
++
+ 	switch (cmd) {
+ 	case SIOCGETTUNNEL:
+ 		if (dev == ip6n->fb_tnl_dev) {
+diff --git a/net/ipv6/route.c b/net/ipv6/route.c
+index f36db3dd9734..5ef6e27e026e 100644
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -5092,6 +5092,19 @@ static void ip6_route_mpath_notify(struct fib6_info *rt,
+ 		inet6_rt_notify(RTM_NEWROUTE, rt, info, nlflags);
+ }
+ 
++static int fib6_gw_from_attr(struct in6_addr *gw, struct nlattr *nla,
++			     struct netlink_ext_ack *extack)
++{
++	if (nla_len(nla) < sizeof(*gw)) {
++		NL_SET_ERR_MSG(extack, "Invalid IPv6 address in RTA_GATEWAY");
++		return -EINVAL;
++	}
++
++	*gw = nla_get_in6_addr(nla);
++
++	return 0;
++}
++
+ static int ip6_route_multipath_add(struct fib6_config *cfg,
+ 				   struct netlink_ext_ack *extack)
+ {
+@@ -5133,10 +5146,18 @@ static int ip6_route_multipath_add(struct fib6_config *cfg,
+ 
+ 			nla = nla_find(attrs, attrlen, RTA_GATEWAY);
+ 			if (nla) {
+-				r_cfg.fc_gateway = nla_get_in6_addr(nla);
++				err = fib6_gw_from_attr(&r_cfg.fc_gateway, nla,
++							extack);
++				if (err)
++					goto cleanup;
++
+ 				r_cfg.fc_flags |= RTF_GATEWAY;
+ 			}
+ 			r_cfg.fc_encap = nla_find(attrs, attrlen, RTA_ENCAP);
++
++			/* RTA_ENCAP_TYPE length checked in
++			 * lwtunnel_valid_encap_type_attr
++			 */
+ 			nla = nla_find(attrs, attrlen, RTA_ENCAP_TYPE);
+ 			if (nla)
+ 				r_cfg.fc_encap_type = nla_get_u16(nla);
+@@ -5288,7 +5309,13 @@ static int ip6_route_multipath_del(struct fib6_config *cfg,
+ 
+ 			nla = nla_find(attrs, attrlen, RTA_GATEWAY);
+ 			if (nla) {
+-				nla_memcpy(&r_cfg.fc_gateway, nla, 16);
++				err = fib6_gw_from_attr(&r_cfg.fc_gateway, nla,
++							extack);
++				if (err) {
++					last_err = err;
++					goto next_rtnh;
++				}
++
+ 				r_cfg.fc_flags |= RTF_GATEWAY;
+ 			}
+ 		}
+@@ -5296,6 +5323,7 @@ static int ip6_route_multipath_del(struct fib6_config *cfg,
+ 		if (err)
+ 			last_err = err;
+ 
++next_rtnh:
+ 		rtnh = rtnh_next(rtnh, &remaining);
+ 	}
+ 
+diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
+index 5c727af01143..ad00f31e2002 100644
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -4953,7 +4953,7 @@ static int ieee80211_prep_connection(struct ieee80211_sub_if_data *sdata,
+ 	 */
+ 	if (new_sta) {
+ 		u32 rates = 0, basic_rates = 0;
+-		bool have_higher_than_11mbit;
++		bool have_higher_than_11mbit = false;
+ 		int min_rate = INT_MAX, min_rate_index = -1;
+ 		const struct cfg80211_bss_ies *ies;
+ 		int shift = ieee80211_vif_get_shift(&sdata->vif);
+diff --git a/net/phonet/pep.c b/net/phonet/pep.c
+index a07e13f63332..0c5d0f7b8b4b 100644
+--- a/net/phonet/pep.c
++++ b/net/phonet/pep.c
+@@ -868,6 +868,7 @@ static struct sock *pep_sock_accept(struct sock *sk, int flags, int *errp,
+ 
+ 	err = pep_accept_conn(newsk, skb);
+ 	if (err) {
++		__sock_put(sk);
+ 		sock_put(newsk);
+ 		newsk = NULL;
+ 		goto drop;
+diff --git a/net/sched/sch_qfq.c b/net/sched/sch_qfq.c
+index b046fd3cac2c..1eb339d224ae 100644
+--- a/net/sched/sch_qfq.c
++++ b/net/sched/sch_qfq.c
+@@ -1421,10 +1421,8 @@ static int qfq_init_qdisc(struct Qdisc *sch, struct nlattr *opt,
+ 	if (err < 0)
+ 		return err;
+ 
+-	if (qdisc_dev(sch)->tx_queue_len + 1 > QFQ_MAX_AGG_CLASSES)
+-		max_classes = QFQ_MAX_AGG_CLASSES;
+-	else
+-		max_classes = qdisc_dev(sch)->tx_queue_len + 1;
++	max_classes = min_t(u64, (u64)qdisc_dev(sch)->tx_queue_len + 1,
++			    QFQ_MAX_AGG_CLASSES);
+ 	/* max_cl_shift = floor(log_2(max_classes)) */
+ 	max_cl_shift = __fls(max_classes);
+ 	q->max_agg_classes = 1<<max_cl_shift;
+diff --git a/tools/testing/selftests/x86/test_vsyscall.c b/tools/testing/selftests/x86/test_vsyscall.c
+index a4f4d4cf22c3..d0752a0a8f36 100644
+--- a/tools/testing/selftests/x86/test_vsyscall.c
++++ b/tools/testing/selftests/x86/test_vsyscall.c
+@@ -480,7 +480,7 @@ static int test_process_vm_readv(void)
+ 	}
+ 
+ 	if (vsyscall_map_r) {
+-		if (!memcmp(buf, (const void *)0xffffffffff600000, 4096)) {
++		if (!memcmp(buf, remote.iov_base, sizeof(buf))) {
+ 			printf("[OK]\tIt worked and read correct data\n");
+ 		} else {
+ 			printf("[FAIL]\tIt worked but returned incorrect data\n");
