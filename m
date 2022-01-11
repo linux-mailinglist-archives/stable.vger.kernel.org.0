@@ -2,138 +2,531 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03CDA48AF42
-	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 15:15:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 865BB48AF43
+	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 15:15:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241427AbiAKOPL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jan 2022 09:15:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53312 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241443AbiAKOPI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 09:15:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6F30C061748;
-        Tue, 11 Jan 2022 06:15:07 -0800 (PST)
+        id S241482AbiAKOPN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jan 2022 09:15:13 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56704 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241503AbiAKOPL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 09:15:11 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6437EB81ACE;
-        Tue, 11 Jan 2022 14:15:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 994C7C36AE3;
-        Tue, 11 Jan 2022 14:15:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EAE2161669;
+        Tue, 11 Jan 2022 14:15:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C50B9C36AEB;
+        Tue, 11 Jan 2022 14:15:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641910505;
-        bh=QuUVScDZH4OKP0aj4rTImdi85Vyg1t60LmrOZXT5ZN8=;
-        h=From:To:Cc:Subject:Date:From;
-        b=kO8RW3rzVOdnpgK1PLeuZySMQWYWV2ktKKPAk1tBcb/IrqkOnODzheEi4sR96SVgG
-         zMFaYsuEMn6EGsGdcKEjS4L0P6R868SqArq4IhH8KxhxLVqOL5FZBV0knt7ipvcm++
-         qfWQ1jDoyA3Xy3rE8PH5zKqhiwyOEAiSTEr5AMM0=
+        s=korg; t=1641910510;
+        bh=nv3Ev6/CFZNJCNDM/ky/FUqPYVwnpbpmeB3ZfsLOi+k=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Jy5uAGSEi9noAluxicAmvKbvuNyKitQfGJDSIK5FUp+r6BVnaKaqs5lZUn6rKFjLx
+         y7Ip8Gji418BinC+Y8N3og/5jXMGzzJ6TYE7klIxe0ZmAdaXPzWr/EdAQrW6WOvrgp
+         +4XYEtjKs5BahoUuS+ogFIYCyo/KWGC5VvDwwSKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 4.19.225
-Date:   Tue, 11 Jan 2022 15:14:57 +0100
-Message-Id: <1641910498143174@kroah.com>
+Subject: Re: Linux 4.19.225
+Date:   Tue, 11 Jan 2022 15:14:58 +0100
+Message-Id: <164191049896249@kroah.com>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <1641910498143174@kroah.com>
+References: <1641910498143174@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 4.19.225 kernel.
-
-All users of the 4.19 kernel series must upgrade.
-
-The updated 4.19.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.19.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                    |    2 -
- drivers/infiniband/core/uverbs_marshall.c   |    2 -
- drivers/isdn/mISDN/core.c                   |    6 +--
- drivers/isdn/mISDN/core.h                   |    4 +-
- drivers/isdn/mISDN/layer1.c                 |    4 +-
- drivers/net/ethernet/intel/i40e/i40e_main.c |   56 ++++++++++++++++++++++++----
- drivers/net/ieee802154/atusb.c              |   10 +++--
- drivers/net/usb/rndis_host.c                |    5 ++
- drivers/power/reset/ltc2952-poweroff.c      |    4 +-
- drivers/scsi/libiscsi.c                     |    6 ++-
- drivers/usb/mtu3/mtu3_gadget.c              |    4 +-
- fs/xfs/xfs_ioctl.c                          |    3 +
- kernel/trace/trace.c                        |    6 +--
- net/ipv4/udp.c                              |    2 -
- net/ipv6/ip6_vti.c                          |    2 +
- net/ipv6/route.c                            |   28 +++++++++++++-
- net/mac80211/mlme.c                         |    2 -
- net/phonet/pep.c                            |    1 
- net/sched/sch_qfq.c                         |    6 +--
- 19 files changed, 115 insertions(+), 38 deletions(-)
-
-Chunfeng Yun (1):
-      usb: mtu3: fix interval value for intr and isoc
-
-Darrick J. Wong (1):
-      xfs: map unwritten blocks in XFS_IOC_{ALLOC,FREE}SP just like fallocate
-
-David Ahern (4):
-      ipv6: Check attribute length for RTA_GATEWAY in multipath route
-      ipv6: Check attribute length for RTA_GATEWAY when deleting multipath route
-      ipv6: Continue processing multipath route even if gateway attribute is invalid
-      ipv6: Do cleanup if attribute validation fails in multipath route
-
-Di Zhu (1):
-      i40e: fix use-after-free in i40e_sync_filters_subtask()
-
-Eric Dumazet (1):
-      sch_qfq: prevent shift-out-of-bounds in qfq_init_qdisc
-
-Greg Kroah-Hartman (1):
-      Linux 4.19.225
-
-Hangyu Hua (1):
-      phonet: refcount leak in pep_sock_accep
-
-Jedrzej Jagielski (1):
-      i40e: Fix incorrect netdev's real number of RX/TX queues
-
-Leon Romanovsky (1):
-      RDMA/core: Don't infoleak GRH fields
-
-Lixiaokeng (1):
-      scsi: libiscsi: Fix UAF in iscsi_conn_get_param()/iscsi_conn_teardown()
-
-Nathan Chancellor (1):
-      power: reset: ltc2952: Fix use of floating point literals
-
-Naveen N. Rao (2):
-      tracing: Fix check for trace_percpu_buffer validity in get_trace_buf()
-      tracing: Tag trace_percpu_buffer as a percpu pointer
-
-Pavel Skripkin (1):
-      ieee802154: atusb: fix uninit value in atusb_set_extended_addr
-
-Thomas Toye (1):
-      rndis_host: support Hytera digital radios
-
-Tom Rix (1):
-      mac80211: initialize variable have_higher_than_11mbit
-
-William Zhao (1):
-      ip6_vti: initialize __ip6_tnl_parm struct in vti6_siocdevprivate
-
-wolfgang huang (1):
-      mISDN: change function names to avoid conflicts
-
-yangxingwu (1):
-      net: udp: fix alignment problem in udp4_seq_show()
-
+diff --git a/Makefile b/Makefile
+index cfcecc33b4c1..891dcd4eadc5 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,7 +1,7 @@
+ # SPDX-License-Identifier: GPL-2.0
+ VERSION = 4
+ PATCHLEVEL = 19
+-SUBLEVEL = 224
++SUBLEVEL = 225
+ EXTRAVERSION =
+ NAME = "People's Front"
+ 
+diff --git a/drivers/infiniband/core/uverbs_marshall.c b/drivers/infiniband/core/uverbs_marshall.c
+index b8d715c68ca4..11a080646916 100644
+--- a/drivers/infiniband/core/uverbs_marshall.c
++++ b/drivers/infiniband/core/uverbs_marshall.c
+@@ -66,7 +66,7 @@ void ib_copy_ah_attr_to_user(struct ib_device *device,
+ 	struct rdma_ah_attr *src = ah_attr;
+ 	struct rdma_ah_attr conv_ah;
+ 
+-	memset(&dst->grh.reserved, 0, sizeof(dst->grh.reserved));
++	memset(&dst->grh, 0, sizeof(dst->grh));
+ 
+ 	if ((ah_attr->type == RDMA_AH_ATTR_TYPE_OPA) &&
+ 	    (rdma_ah_get_dlid(ah_attr) > be16_to_cpu(IB_LID_PERMISSIVE)) &&
+diff --git a/drivers/isdn/mISDN/core.c b/drivers/isdn/mISDN/core.c
+index faf505462a4f..f5a06a6fb297 100644
+--- a/drivers/isdn/mISDN/core.c
++++ b/drivers/isdn/mISDN/core.c
+@@ -390,7 +390,7 @@ mISDNInit(void)
+ 	err = mISDN_inittimer(&debug);
+ 	if (err)
+ 		goto error2;
+-	err = l1_init(&debug);
++	err = Isdnl1_Init(&debug);
+ 	if (err)
+ 		goto error3;
+ 	err = Isdnl2_Init(&debug);
+@@ -404,7 +404,7 @@ mISDNInit(void)
+ error5:
+ 	Isdnl2_cleanup();
+ error4:
+-	l1_cleanup();
++	Isdnl1_cleanup();
+ error3:
+ 	mISDN_timer_cleanup();
+ error2:
+@@ -417,7 +417,7 @@ static void mISDN_cleanup(void)
+ {
+ 	misdn_sock_cleanup();
+ 	Isdnl2_cleanup();
+-	l1_cleanup();
++	Isdnl1_cleanup();
+ 	mISDN_timer_cleanup();
+ 	class_unregister(&mISDN_class);
+ 
+diff --git a/drivers/isdn/mISDN/core.h b/drivers/isdn/mISDN/core.h
+index 52695bb81ee7..3c039b6ade2e 100644
+--- a/drivers/isdn/mISDN/core.h
++++ b/drivers/isdn/mISDN/core.h
+@@ -69,8 +69,8 @@ struct Bprotocol	*get_Bprotocol4id(u_int);
+ extern int	mISDN_inittimer(u_int *);
+ extern void	mISDN_timer_cleanup(void);
+ 
+-extern int	l1_init(u_int *);
+-extern void	l1_cleanup(void);
++extern int	Isdnl1_Init(u_int *);
++extern void	Isdnl1_cleanup(void);
+ extern int	Isdnl2_Init(u_int *);
+ extern void	Isdnl2_cleanup(void);
+ 
+diff --git a/drivers/isdn/mISDN/layer1.c b/drivers/isdn/mISDN/layer1.c
+index 3192b0eb3944..284d3a9c7df7 100644
+--- a/drivers/isdn/mISDN/layer1.c
++++ b/drivers/isdn/mISDN/layer1.c
+@@ -407,7 +407,7 @@ create_l1(struct dchannel *dch, dchannel_l1callback *dcb) {
+ EXPORT_SYMBOL(create_l1);
+ 
+ int
+-l1_init(u_int *deb)
++Isdnl1_Init(u_int *deb)
+ {
+ 	debug = deb;
+ 	l1fsm_s.state_count = L1S_STATE_COUNT;
+@@ -418,7 +418,7 @@ l1_init(u_int *deb)
+ }
+ 
+ void
+-l1_cleanup(void)
++Isdnl1_cleanup(void)
+ {
+ 	mISDN_FsmFree(&l1fsm_s);
+ }
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 51edc7fdc9b9..1fadc4991c48 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -96,6 +96,24 @@ MODULE_VERSION(DRV_VERSION);
+ 
+ static struct workqueue_struct *i40e_wq;
+ 
++static void netdev_hw_addr_refcnt(struct i40e_mac_filter *f,
++				  struct net_device *netdev, int delta)
++{
++	struct netdev_hw_addr *ha;
++
++	if (!f || !netdev)
++		return;
++
++	netdev_for_each_mc_addr(ha, netdev) {
++		if (ether_addr_equal(ha->addr, f->macaddr)) {
++			ha->refcount += delta;
++			if (ha->refcount <= 0)
++				ha->refcount = 1;
++			break;
++		}
++	}
++}
++
+ /**
+  * i40e_allocate_dma_mem_d - OS specific memory alloc for shared code
+  * @hw:   pointer to the HW structure
+@@ -2005,6 +2023,7 @@ static void i40e_undo_add_filter_entries(struct i40e_vsi *vsi,
+ 	hlist_for_each_entry_safe(new, h, from, hlist) {
+ 		/* We can simply free the wrapper structure */
+ 		hlist_del(&new->hlist);
++		netdev_hw_addr_refcnt(new->f, vsi->netdev, -1);
+ 		kfree(new);
+ 	}
+ }
+@@ -2341,6 +2360,10 @@ int i40e_sync_vsi_filters(struct i40e_vsi *vsi)
+ 						       &tmp_add_list,
+ 						       &tmp_del_list,
+ 						       vlan_filters);
++
++		hlist_for_each_entry(new, &tmp_add_list, hlist)
++			netdev_hw_addr_refcnt(new->f, vsi->netdev, 1);
++
+ 		if (retval)
+ 			goto err_no_memory_locked;
+ 
+@@ -2473,6 +2496,7 @@ int i40e_sync_vsi_filters(struct i40e_vsi *vsi)
+ 			if (new->f->state == I40E_FILTER_NEW)
+ 				new->f->state = new->state;
+ 			hlist_del(&new->hlist);
++			netdev_hw_addr_refcnt(new->f, vsi->netdev, -1);
+ 			kfree(new);
+ 		}
+ 		spin_unlock_bh(&vsi->mac_filter_hash_lock);
+@@ -7716,6 +7740,27 @@ int i40e_open(struct net_device *netdev)
+ 	return 0;
+ }
+ 
++/**
++ * i40e_netif_set_realnum_tx_rx_queues - Update number of tx/rx queues
++ * @vsi: vsi structure
++ *
++ * This updates netdev's number of tx/rx queues
++ *
++ * Returns status of setting tx/rx queues
++ **/
++static int i40e_netif_set_realnum_tx_rx_queues(struct i40e_vsi *vsi)
++{
++	int ret;
++
++	ret = netif_set_real_num_rx_queues(vsi->netdev,
++					   vsi->num_queue_pairs);
++	if (ret)
++		return ret;
++
++	return netif_set_real_num_tx_queues(vsi->netdev,
++					    vsi->num_queue_pairs);
++}
++
+ /**
+  * i40e_vsi_open -
+  * @vsi: the VSI to open
+@@ -7752,13 +7797,7 @@ int i40e_vsi_open(struct i40e_vsi *vsi)
+ 			goto err_setup_rx;
+ 
+ 		/* Notify the stack of the actual queue counts. */
+-		err = netif_set_real_num_tx_queues(vsi->netdev,
+-						   vsi->num_queue_pairs);
+-		if (err)
+-			goto err_set_queues;
+-
+-		err = netif_set_real_num_rx_queues(vsi->netdev,
+-						   vsi->num_queue_pairs);
++		err = i40e_netif_set_realnum_tx_rx_queues(vsi);
+ 		if (err)
+ 			goto err_set_queues;
+ 
+@@ -12785,6 +12824,9 @@ struct i40e_vsi *i40e_vsi_setup(struct i40e_pf *pf, u8 type,
+ 	case I40E_VSI_MAIN:
+ 	case I40E_VSI_VMDQ2:
+ 		ret = i40e_config_netdev(vsi);
++		if (ret)
++			goto err_netdev;
++		ret = i40e_netif_set_realnum_tx_rx_queues(vsi);
+ 		if (ret)
+ 			goto err_netdev;
+ 		ret = register_netdev(vsi->netdev);
+diff --git a/drivers/net/ieee802154/atusb.c b/drivers/net/ieee802154/atusb.c
+index a2b876abb03b..7abbf569ee7d 100644
+--- a/drivers/net/ieee802154/atusb.c
++++ b/drivers/net/ieee802154/atusb.c
+@@ -96,7 +96,9 @@ static int atusb_control_msg(struct atusb *atusb, unsigned int pipe,
+ 
+ 	ret = usb_control_msg(usb_dev, pipe, request, requesttype,
+ 			      value, index, data, size, timeout);
+-	if (ret < 0) {
++	if (ret < size) {
++		ret = ret < 0 ? ret : -ENODATA;
++
+ 		atusb->err = ret;
+ 		dev_err(&usb_dev->dev,
+ 			"%s: req 0x%02x val 0x%x idx 0x%x, error %d\n",
+@@ -864,9 +866,9 @@ static int atusb_get_and_show_build(struct atusb *atusb)
+ 	if (!build)
+ 		return -ENOMEM;
+ 
+-	ret = atusb_control_msg(atusb, usb_rcvctrlpipe(usb_dev, 0),
+-				ATUSB_BUILD, ATUSB_REQ_FROM_DEV, 0, 0,
+-				build, ATUSB_BUILD_SIZE, 1000);
++	/* We cannot call atusb_control_msg() here, since this request may read various length data */
++	ret = usb_control_msg(atusb->usb_dev, usb_rcvctrlpipe(usb_dev, 0), ATUSB_BUILD,
++			      ATUSB_REQ_FROM_DEV, 0, 0, build, ATUSB_BUILD_SIZE, 1000);
+ 	if (ret >= 0) {
+ 		build[ret] = 0;
+ 		dev_info(&usb_dev->dev, "Firmware: build %s\n", build);
+diff --git a/drivers/net/usb/rndis_host.c b/drivers/net/usb/rndis_host.c
+index d3f79a4067e2..ab41a63aa4aa 100644
+--- a/drivers/net/usb/rndis_host.c
++++ b/drivers/net/usb/rndis_host.c
+@@ -620,6 +620,11 @@ static const struct usb_device_id	products [] = {
+ 	USB_DEVICE_AND_INTERFACE_INFO(0x1630, 0x0042,
+ 				      USB_CLASS_COMM, 2 /* ACM */, 0x0ff),
+ 	.driver_info = (unsigned long) &rndis_poll_status_info,
++}, {
++	/* Hytera Communications DMR radios' "Radio to PC Network" */
++	USB_VENDOR_AND_INTERFACE_INFO(0x238b,
++				      USB_CLASS_COMM, 2 /* ACM */, 0x0ff),
++	.driver_info = (unsigned long)&rndis_info,
+ }, {
+ 	/* RNDIS is MSFT's un-official variant of CDC ACM */
+ 	USB_INTERFACE_INFO(USB_CLASS_COMM, 2 /* ACM */, 0x0ff),
+diff --git a/drivers/power/reset/ltc2952-poweroff.c b/drivers/power/reset/ltc2952-poweroff.c
+index c484584745bc..8a76ef84119b 100644
+--- a/drivers/power/reset/ltc2952-poweroff.c
++++ b/drivers/power/reset/ltc2952-poweroff.c
+@@ -170,8 +170,8 @@ static void ltc2952_poweroff_kill(void)
+ 
+ static void ltc2952_poweroff_default(struct ltc2952_poweroff *data)
+ {
+-	data->wde_interval = 300L * 1E6L;
+-	data->trigger_delay = ktime_set(2, 500L*1E6L);
++	data->wde_interval = 300L * NSEC_PER_MSEC;
++	data->trigger_delay = ktime_set(2, 500L * NSEC_PER_MSEC);
+ 
+ 	hrtimer_init(&data->timer_trigger, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+ 	data->timer_trigger.function = ltc2952_poweroff_timer_trigger;
+diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
+index 5607fe8541c3..cb314e3a0fc7 100644
+--- a/drivers/scsi/libiscsi.c
++++ b/drivers/scsi/libiscsi.c
+@@ -2986,6 +2986,8 @@ void iscsi_conn_teardown(struct iscsi_cls_conn *cls_conn)
+ {
+ 	struct iscsi_conn *conn = cls_conn->dd_data;
+ 	struct iscsi_session *session = conn->session;
++	char *tmp_persistent_address = conn->persistent_address;
++	char *tmp_local_ipaddr = conn->local_ipaddr;
+ 
+ 	del_timer_sync(&conn->transport_timer);
+ 
+@@ -3007,8 +3009,6 @@ void iscsi_conn_teardown(struct iscsi_cls_conn *cls_conn)
+ 	spin_lock_bh(&session->frwd_lock);
+ 	free_pages((unsigned long) conn->data,
+ 		   get_order(ISCSI_DEF_MAX_RECV_SEG_LEN));
+-	kfree(conn->persistent_address);
+-	kfree(conn->local_ipaddr);
+ 	/* regular RX path uses back_lock */
+ 	spin_lock_bh(&session->back_lock);
+ 	kfifo_in(&session->cmdpool.queue, (void*)&conn->login_task,
+@@ -3020,6 +3020,8 @@ void iscsi_conn_teardown(struct iscsi_cls_conn *cls_conn)
+ 	mutex_unlock(&session->eh_mutex);
+ 
+ 	iscsi_destroy_conn(cls_conn);
++	kfree(tmp_persistent_address);
++	kfree(tmp_local_ipaddr);
+ }
+ EXPORT_SYMBOL_GPL(iscsi_conn_teardown);
+ 
+diff --git a/drivers/usb/mtu3/mtu3_gadget.c b/drivers/usb/mtu3/mtu3_gadget.c
+index 07a6ee8db612..9f0c949820bf 100644
+--- a/drivers/usb/mtu3/mtu3_gadget.c
++++ b/drivers/usb/mtu3/mtu3_gadget.c
+@@ -82,7 +82,7 @@ static int mtu3_ep_enable(struct mtu3_ep *mep)
+ 		if (usb_endpoint_xfer_int(desc) ||
+ 				usb_endpoint_xfer_isoc(desc)) {
+ 			interval = desc->bInterval;
+-			interval = clamp_val(interval, 1, 16) - 1;
++			interval = clamp_val(interval, 1, 16);
+ 			if (usb_endpoint_xfer_isoc(desc) && comp_desc)
+ 				mult = comp_desc->bmAttributes;
+ 		}
+@@ -94,7 +94,7 @@ static int mtu3_ep_enable(struct mtu3_ep *mep)
+ 		if (usb_endpoint_xfer_isoc(desc) ||
+ 				usb_endpoint_xfer_int(desc)) {
+ 			interval = desc->bInterval;
+-			interval = clamp_val(interval, 1, 16) - 1;
++			interval = clamp_val(interval, 1, 16);
+ 			mult = usb_endpoint_maxp_mult(desc) - 1;
+ 		}
+ 		break;
+diff --git a/fs/xfs/xfs_ioctl.c b/fs/xfs/xfs_ioctl.c
+index 6ffb53edf1b4..f12308981608 100644
+--- a/fs/xfs/xfs_ioctl.c
++++ b/fs/xfs/xfs_ioctl.c
+@@ -701,7 +701,8 @@ xfs_ioc_space(
+ 		flags |= XFS_PREALLOC_CLEAR;
+ 		if (bf->l_start > XFS_ISIZE(ip)) {
+ 			error = xfs_alloc_file_space(ip, XFS_ISIZE(ip),
+-					bf->l_start - XFS_ISIZE(ip), 0);
++					bf->l_start - XFS_ISIZE(ip),
++					XFS_BMAPI_PREALLOC);
+ 			if (error)
+ 				goto out_unlock;
+ 		}
+diff --git a/kernel/trace/trace.c b/kernel/trace/trace.c
+index 8168403427a6..17e337a22c23 100644
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -2812,7 +2812,7 @@ struct trace_buffer_struct {
+ 	char buffer[4][TRACE_BUF_SIZE];
+ };
+ 
+-static struct trace_buffer_struct *trace_percpu_buffer;
++static struct trace_buffer_struct __percpu *trace_percpu_buffer;
+ 
+ /*
+  * Thise allows for lockless recording.  If we're nested too deeply, then
+@@ -2822,7 +2822,7 @@ static char *get_trace_buf(void)
+ {
+ 	struct trace_buffer_struct *buffer = this_cpu_ptr(trace_percpu_buffer);
+ 
+-	if (!buffer || buffer->nesting >= 4)
++	if (!trace_percpu_buffer || buffer->nesting >= 4)
+ 		return NULL;
+ 
+ 	buffer->nesting++;
+@@ -2841,7 +2841,7 @@ static void put_trace_buf(void)
+ 
+ static int alloc_percpu_trace_buffer(void)
+ {
+-	struct trace_buffer_struct *buffers;
++	struct trace_buffer_struct __percpu *buffers;
+ 
+ 	buffers = alloc_percpu(struct trace_buffer_struct);
+ 	if (WARN(!buffers, "Could not allocate percpu trace_printk buffer"))
+diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
+index fce32f3e42b5..b7acb6afdbce 100644
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -2845,7 +2845,7 @@ int udp4_seq_show(struct seq_file *seq, void *v)
+ {
+ 	seq_setwidth(seq, 127);
+ 	if (v == SEQ_START_TOKEN)
+-		seq_puts(seq, "  sl  local_address rem_address   st tx_queue "
++		seq_puts(seq, "   sl  local_address rem_address   st tx_queue "
+ 			   "rx_queue tr tm->when retrnsmt   uid  timeout "
+ 			   "inode ref pointer drops");
+ 	else {
+diff --git a/net/ipv6/ip6_vti.c b/net/ipv6/ip6_vti.c
+index 290badfe70e0..866ce815625e 100644
+--- a/net/ipv6/ip6_vti.c
++++ b/net/ipv6/ip6_vti.c
+@@ -799,6 +799,8 @@ vti6_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+ 	struct net *net = dev_net(dev);
+ 	struct vti6_net *ip6n = net_generic(net, vti6_net_id);
+ 
++	memset(&p1, 0, sizeof(p1));
++
+ 	switch (cmd) {
+ 	case SIOCGETTUNNEL:
+ 		if (dev == ip6n->fb_tnl_dev) {
+diff --git a/net/ipv6/route.c b/net/ipv6/route.c
+index d04f3951c5fb..7e3ab23fc995 100644
+--- a/net/ipv6/route.c
++++ b/net/ipv6/route.c
+@@ -4413,6 +4413,19 @@ static void ip6_route_mpath_notify(struct fib6_info *rt,
+ 		inet6_rt_notify(RTM_NEWROUTE, rt, info, nlflags);
+ }
+ 
++static int fib6_gw_from_attr(struct in6_addr *gw, struct nlattr *nla,
++			     struct netlink_ext_ack *extack)
++{
++	if (nla_len(nla) < sizeof(*gw)) {
++		NL_SET_ERR_MSG(extack, "Invalid IPv6 address in RTA_GATEWAY");
++		return -EINVAL;
++	}
++
++	*gw = nla_get_in6_addr(nla);
++
++	return 0;
++}
++
+ static int ip6_route_multipath_add(struct fib6_config *cfg,
+ 				   struct netlink_ext_ack *extack)
+ {
+@@ -4453,7 +4466,11 @@ static int ip6_route_multipath_add(struct fib6_config *cfg,
+ 
+ 			nla = nla_find(attrs, attrlen, RTA_GATEWAY);
+ 			if (nla) {
+-				r_cfg.fc_gateway = nla_get_in6_addr(nla);
++				err = fib6_gw_from_attr(&r_cfg.fc_gateway, nla,
++							extack);
++				if (err)
++					goto cleanup;
++
+ 				r_cfg.fc_flags |= RTF_GATEWAY;
+ 			}
+ 			r_cfg.fc_encap = nla_find(attrs, attrlen, RTA_ENCAP);
+@@ -4587,7 +4604,13 @@ static int ip6_route_multipath_del(struct fib6_config *cfg,
+ 
+ 			nla = nla_find(attrs, attrlen, RTA_GATEWAY);
+ 			if (nla) {
+-				nla_memcpy(&r_cfg.fc_gateway, nla, 16);
++				err = fib6_gw_from_attr(&r_cfg.fc_gateway, nla,
++							extack);
++				if (err) {
++					last_err = err;
++					goto next_rtnh;
++				}
++
+ 				r_cfg.fc_flags |= RTF_GATEWAY;
+ 			}
+ 		}
+@@ -4595,6 +4618,7 @@ static int ip6_route_multipath_del(struct fib6_config *cfg,
+ 		if (err)
+ 			last_err = err;
+ 
++next_rtnh:
+ 		rtnh = rtnh_next(rtnh, &remaining);
+ 	}
+ 
+diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
+index e5c4a72f8e57..8603168b70e4 100644
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -4788,7 +4788,7 @@ static int ieee80211_prep_connection(struct ieee80211_sub_if_data *sdata,
+ 	 */
+ 	if (new_sta) {
+ 		u32 rates = 0, basic_rates = 0;
+-		bool have_higher_than_11mbit;
++		bool have_higher_than_11mbit = false;
+ 		int min_rate = INT_MAX, min_rate_index = -1;
+ 		const struct cfg80211_bss_ies *ies;
+ 		int shift = ieee80211_vif_get_shift(&sdata->vif);
+diff --git a/net/phonet/pep.c b/net/phonet/pep.c
+index c0b4cc1e108b..fe01cc788448 100644
+--- a/net/phonet/pep.c
++++ b/net/phonet/pep.c
+@@ -881,6 +881,7 @@ static struct sock *pep_sock_accept(struct sock *sk, int flags, int *errp,
+ 
+ 	err = pep_accept_conn(newsk, skb);
+ 	if (err) {
++		__sock_put(sk);
+ 		sock_put(newsk);
+ 		newsk = NULL;
+ 		goto drop;
+diff --git a/net/sched/sch_qfq.c b/net/sched/sch_qfq.c
+index fa6ad95fb6fb..20dc1851d4ff 100644
+--- a/net/sched/sch_qfq.c
++++ b/net/sched/sch_qfq.c
+@@ -1430,10 +1430,8 @@ static int qfq_init_qdisc(struct Qdisc *sch, struct nlattr *opt,
+ 	if (err < 0)
+ 		return err;
+ 
+-	if (qdisc_dev(sch)->tx_queue_len + 1 > QFQ_MAX_AGG_CLASSES)
+-		max_classes = QFQ_MAX_AGG_CLASSES;
+-	else
+-		max_classes = qdisc_dev(sch)->tx_queue_len + 1;
++	max_classes = min_t(u64, (u64)qdisc_dev(sch)->tx_queue_len + 1,
++			    QFQ_MAX_AGG_CLASSES);
+ 	/* max_cl_shift = floor(log_2(max_classes)) */
+ 	max_cl_shift = __fls(max_classes);
+ 	q->max_agg_classes = 1<<max_cl_shift;
