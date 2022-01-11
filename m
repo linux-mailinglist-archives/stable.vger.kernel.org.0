@@ -2,247 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46A1248A76B
-	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 06:35:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB9ED48A775
+	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 06:52:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347257AbiAKFfl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jan 2022 00:35:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47858 "EHLO
+        id S1347334AbiAKFwr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jan 2022 00:52:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347212AbiAKFfk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 00:35:40 -0500
-Received: from mail-yb1-xb36.google.com (mail-yb1-xb36.google.com [IPv6:2607:f8b0:4864:20::b36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EA72C06173F
-        for <stable@vger.kernel.org>; Mon, 10 Jan 2022 21:35:40 -0800 (PST)
-Received: by mail-yb1-xb36.google.com with SMTP id j83so44259771ybg.2
-        for <stable@vger.kernel.org>; Mon, 10 Jan 2022 21:35:40 -0800 (PST)
+        with ESMTP id S1347288AbiAKFwq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 00:52:46 -0500
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A98CC06173F;
+        Mon, 10 Jan 2022 21:52:46 -0800 (PST)
+Received: by mail-pl1-x62e.google.com with SMTP id l8so13311010plt.6;
+        Mon, 10 Jan 2022 21:52:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=xXHC0oKFlfCWoiLwgClkJs4JUDvKCYDFmuE9q77eX5g=;
-        b=l39ZRDtln+aFId/Ikaq3OcEOTh3ChRjHrtDBh3DVDySgkC4eHYXnjgpz1NprvTm6IQ
-         sOuvrBdjohD2xBqmJZKcQBDH0a3mqQPPsQ9hsepNs04vimdvVwb7740dMNORE4ZmKc1S
-         jCqgK/Th5h+yTMU6EbVQ6lOiivlJzXNngfzehXuwAVtteodea+VFbDjUyj88XZKksqQP
-         RgPh/j2mU0ZdDNwdqiLh3clTtxumDErpSXFK6/50RLHIwsyrvKPY6qTOrbjlg6GYznBy
-         g6iDclzLX1P4YfZtSdszBLalN14TmQ2WfVWjocYMkd/dJN5RQDdWmokD8XnTEcMtrWCI
-         Fb0w==
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=jIfH09JLImJRHA4SgBVUlZIpfJTuCTHgSeKemIfbCRg=;
+        b=Q/te1YCCOtFEOLwx6H13j5toJEgwF1TWXHH8Liq8/o9KoZyG53yQX3Qq4BOTuHnrr2
+         lqvXmBJBSZSw1pJWmD9GcaqKnNY4ssLEjXRDDCVJ4uzP+cWN0QLktUhRqdopvcEjKyWv
+         g1X9NysdCj/V6r3NdKJia7WyR2jx6k84VUwjtLRrnFYllXe2B4ouSwQLNSzF+DvlGA1c
+         I3ht8TdIysMBgQp1W5nIKlRiqxCUyb96stoSDgziDQjlF4DVxKATgvH80PcXV1//ukyn
+         8nm3djvfCiGf9ch+GXiw0xJrC+sduY/6eWZ34NSDzLEXgcFSlFhVHPlJzBjPOFXMjnPd
+         h6hg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=xXHC0oKFlfCWoiLwgClkJs4JUDvKCYDFmuE9q77eX5g=;
-        b=RmjV05FlCfdz3KzKtyfQsdgGqrWYy61n0oHNQgP6bh+j2EwdFv2JuAa/ayY1ABfowN
-         Suygzju810g182gIe0m9gDpgvYnAYC7EgYZ0FwjULgw7Nmj5NegRNEk4oCOwSzOmKomf
-         5BOcrteH1DSSh6m5BDanw0M92AsPMYAam+XN/kGTS4ykzLOKvPuj9hFdAC+x2nRBD+ae
-         fi8+i6gnhZitsGjAhqPgYVKMpf88JIzS1Biz4wW+HEH3x6Qcndvx74E0df5zZBVyO46a
-         H8X2pUx/BR6Mfdj0A4BOTwv1TGFLkpEOG//VzY2fS3HkMBdetVx/GIg0o5VAaTGz3vkG
-         qHFg==
-X-Gm-Message-State: AOAM5328/mrHh+7CZz5DsR+4cO+SrnGm1cyS+sBQJA2HJoXyO09iZvyj
-        C5hguJBuX+wvPIYeGyMRQ+AYPMTJJlxmowUSQeRR7f8dgvuT5g==
-X-Google-Smtp-Source: ABdhPJzmhGpztsuzCaeZMwimY/lEKU7AqzJEZziH2hR6CPU7QA5D/1rEo2gggisquz9XdfsG25/LS7woPzvH5M/McHM=
-X-Received: by 2002:a25:414f:: with SMTP id o76mr4216589yba.146.1641879339575;
- Mon, 10 Jan 2022 21:35:39 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=jIfH09JLImJRHA4SgBVUlZIpfJTuCTHgSeKemIfbCRg=;
+        b=nThbzfPUW1rS46bE1W562BLa2lifPrJ46w4i2f//JEPx7V31kW2YgJNlKNY3r/uMpB
+         uATZ5Ov+9QTFfq2giqzRdtGRlSFyw14hPGyARz0+UTVOeBbmPoLJ9cYCmva2euqoJqH0
+         9M2LeQvuHZHQhIC0vORVlFD+LaF7N0rsTqSAIoC64tqc0hprWIOc5zDe7gLU8l0iXVOE
+         Ihgnn2/BhQWhRPdDSUuU+5sWAA0yL0QrLtVcNLfcTsW8VxCzdUuWN+YTh9o0Gh614JFN
+         ciLDwNj+L+twgl3Gt6L3eRJdoVcSmLQehtFerDpRc+bvnyuPOOYw+pEEnywa+OGFIRcu
+         95yQ==
+X-Gm-Message-State: AOAM533Epk9KYSyfnXI1w0/LUttRpTlr7NBoJHH+N7nWWBczPVsun07E
+        iVBQ/VVMzpA6AqcyzUkC+GAgC7ZgdbX8Hvf0gqI=
+X-Google-Smtp-Source: ABdhPJy6fG3APJEM65fde4H5vmIgSUFjPOR0m8oxa4fcMZqnTTcWVluDguIb3zsZkWUJHSxeULxxHA==
+X-Received: by 2002:a63:1d7:: with SMTP id 206mr2771722pgb.111.1641880365805;
+        Mon, 10 Jan 2022 21:52:45 -0800 (PST)
+Received: from localhost.localdomain ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id k3sm843254pjt.39.2022.01.10.21.52.45
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 10 Jan 2022 21:52:45 -0800 (PST)
+From:   Tadeusz Struk <tstruk@gmail.com>
+To:     jarkko@kernel.org
+Cc:     Tadeusz Struk <tstruk@gmail.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+        linux-integrity@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v3 1/2] tpm: Fix error handling in async work
+Date:   Mon, 10 Jan 2022 21:52:27 -0800
+Message-Id: <20220111055228.1830-1-tstruk@gmail.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-References: <20220110071815.647309738@linuxfoundation.org>
-In-Reply-To: <20220110071815.647309738@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 11 Jan 2022 11:05:28 +0530
-Message-ID: <CA+G9fYupkEbBW9KQwrPkZqp2hpq3oWA8XgS6yEo55o1zHVPOog@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/34] 5.4.171-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 10 Jan 2022 at 12:58, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.4.171 release.
-> There are 34 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 12 Jan 2022 07:18:05 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.171-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+When an invalid (non existing) handle is used in a TPM command,
+that uses the resource manager interface (/dev/tpmrm0) the resource
+manager tries to load it from its internal cache, but fails and
+the tpm_dev_transmit returns an -EINVAL error to the caller.
+The existing async handler doesn't handle these error cases
+currently and the condition in the poll handler never returns
+mask with EPOLLIN set.
+The result is that the poll call blocks and the application gets stuck
+until the user_read_timer wakes it up after 120 sec.
+Change the tpm_dev_async_work function to handle error conditions
+returned from tpm_dev_transmit they are also reflected in the poll mask
+and a correct error code could passed back to the caller.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Cc: Jarkko Sakkinen <jarkko@kernel.org>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: <linux-integrity@vger.kernel.org>
+Cc: <stable@vger.kernel.org>
+Cc: <linux-kernel@vger.kernel.org>
+Fixes: 9e1b74a63f77 ("tpm: add support for nonblocking operation")
+Signed-off-by: Tadeusz Struk <tstruk@gmail.com>
+---
+Changed in v2:
+- Updated commit message with better problem description
+- Fixed typeos.
+Changed in v3:
+- Added a comment to tpm_dev_async_work.
+- Updated commit message.
+---
+ drivers/char/tpm/tpm-dev-common.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+diff --git a/drivers/char/tpm/tpm-dev-common.c b/drivers/char/tpm/tpm-dev-common.c
+index c08cbb306636..50df8f09ff79 100644
+--- a/drivers/char/tpm/tpm-dev-common.c
++++ b/drivers/char/tpm/tpm-dev-common.c
+@@ -69,7 +69,13 @@ static void tpm_dev_async_work(struct work_struct *work)
+ 	ret = tpm_dev_transmit(priv->chip, priv->space, priv->data_buffer,
+ 			       sizeof(priv->data_buffer));
+ 	tpm_put_ops(priv->chip);
+-	if (ret > 0) {
++
++	/*
++	 * If ret is > 0 then tpm_dev_transmit returned the size of the
++	 * response. If ret is < 0 then tpm_dev_transmit failed and
++	 * returned a return code.
++	 */
++	if (ret != 0) {
+ 		priv->response_length = ret;
+ 		mod_timer(&priv->user_read_timer, jiffies + (120 * HZ));
+ 	}
+-- 
+2.30.2
 
-## Build
-* kernel: 5.4.171-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.4.y
-* git commit: 681e37e4e026f3e38040daf69869b507a40b60c3
-* git describe: v5.4.170-35-g681e37e4e026
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.1=
-70-35-g681e37e4e026
-
-## Test Regressions (compared to v5.4.169)
-No test regressions found.
-
-## Metric Regressions (compared to v5.4.169)
-No metric regressions found.
-
-## Test Fixes (compared to v5.4.169)
-No test fixes found.
-
-## Metric Fixes (compared to v5.4.169)
-No metric fixes found.
-
-## Test result summary
-total: 88836, pass: 73926, fail: 769, skip: 12722, xfail: 1419
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 258 total, 254 passed, 4 failed
-* arm64: 36 total, 31 passed, 5 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 20 total, 20 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 34 total, 34 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 52 total, 48 passed, 4 failed
-* riscv: 24 total, 24 passed, 0 failed
-* s390: 12 total, 12 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 36 total, 36 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-arm64/arm64.btitest.bti_c_func
-* kselftest-arm64/arm64.btitest.bti_j_func
-* kselftest-arm64/arm64.btitest.bti_jc_func
-* kselftest-arm64/arm64.btitest.bti_none_func
-* kselftest-arm64/arm64.btitest.nohint_func
-* kselftest-arm64/arm64.btitest.paciasp_func
-* kselftest-arm64/arm64.nobtitest.bti_c_func
-* kselftest-arm64/arm64.nobtitest.bti_j_func
-* kselftest-arm64/arm64.nobtitest.bti_jc_func
-* kselftest-arm64/arm64.nobtitest.bti_none_func
-* kselftest-arm64/arm64.nobtitest.nohint_func
-* kselftest-arm64/arm64.nobtitest.paciasp_func
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
