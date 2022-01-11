@@ -2,150 +2,231 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3B0248A90C
-	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 09:01:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5DFF48A9AD
+	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 09:39:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235803AbiAKIBK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jan 2022 03:01:10 -0500
-Received: from mo4-p01-ob.smtp.rzone.de ([85.215.255.54]:36187 "EHLO
-        mo4-p01-ob.smtp.rzone.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348793AbiAKIBI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 03:01:08 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; t=1641887872;
-    s=strato-dkim-0002; d=hartkopp.net;
-    h=In-Reply-To:Date:Message-ID:From:References:Cc:To:Subject:Cc:Date:
-    From:Subject:Sender;
-    bh=mYH9lkT+GwFnDOw9IKYwpC+Ah/WIwWlmTNiFmGgdIkA=;
-    b=GXR6V0q+Z3Xh+leOYC3SpC1EvyRJXrQI9LZtITL0tabILVvqacaKxfVlpV5B2k4kbf
-    F65oRGMqJSznYWyPINizUH2XF83ZMIHDhvHdb0G3TNHZ6DSTNnW8eD0lTjzSAkT4fB7G
-    guIuM7DOc8HJK/sMA29mrk7IvfgzEKj57WlGKyoEyzx3L3juW78xJshtbFqfidDZDKMC
-    Q69zk4tDPS03wjFOzCIaJgcnVCxoK7LXyw1ySJiZu+5HqNfRLn8T4Zf7vHEtoyNFwBTh
-    wpSmgku0xmCYFq/B+2FhKKtXQX668uFDvfGbOrXUQ5UTVhz+zB7/X160m+0mt0g8QE7p
-    jwcQ==
-Authentication-Results: strato.com;
-    dkim=none
-X-RZG-AUTH: ":P2MHfkW8eP4Mre39l357AZT/I7AY/7nT2yrDxb8mjG14FZxedJy6qgO1qCHSa1GLptZHusx3hdd0DIgVuBOfXW6v7w=="
-X-RZG-CLASS-ID: mo00
-Received: from [IPv6:2a00:6020:1cfa:f900::b82]
-    by smtp.strato.de (RZmta 47.37.6 AUTH)
-    with ESMTPSA id Rb080by0B7vpB3s
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256 bits))
-        (Client did not present a certificate);
-    Tue, 11 Jan 2022 08:57:51 +0100 (CET)
-Subject: Re: [PATCH net] can: bcm: switch timer to HRTIMER_MODE_SOFT and
- remove hrtimer_tasklet
-To:     "Ziyang Xuan (William)" <william.xuanziyang@huawei.com>,
-        Greg KH <gregkh@linuxfoundation.org>
-Cc:     davem@davemloft.net, kuba@kernel.org, mkl@pengutronix.de,
-        netdev@vger.kernel.org, stable@vger.kernel.org,
-        linux-can@vger.kernel.org, tglx@linutronix.de,
-        anna-maria@linutronix.de
-References: <20220110132322.1726106-1-william.xuanziyang@huawei.com>
- <YdwxtqexaE75uCZ8@kroah.com>
- <afcc8f0c-1aa7-9f43-bf50-b404c954db8b@huawei.com>
-From:   Oliver Hartkopp <socketcan@hartkopp.net>
-Message-ID: <ad8ed3db-b5aa-9c48-0bff-2c2623bd17fa@hartkopp.net>
-Date:   Tue, 11 Jan 2022 08:57:44 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        id S236373AbiAKIjo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jan 2022 03:39:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32774 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236356AbiAKIjo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 03:39:44 -0500
+Received: from mail-yb1-xb35.google.com (mail-yb1-xb35.google.com [IPv6:2607:f8b0:4864:20::b35])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CE89C06173F
+        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 00:39:44 -0800 (PST)
+Received: by mail-yb1-xb35.google.com with SMTP id e198so22447487ybf.7
+        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 00:39:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=T+/gfKVjd06ywoXi0uXiNGcjF1CBfh8OJNr7zztK3mY=;
+        b=H7q0OrNwN8ywepg390c76Ny7LvEqrBvzow5sqzpioSL8iG7EVTrENMnc4tgdDnOXPS
+         pIyn6L133CFu5kdvaLtoTTjpCejiAHC/gwlmCNtAEbOYRici/6JJebEqu2K8OVwNU+rv
+         rBpE6nUaWGjqpxgE49/zqZ0yfGqh2vfHwlBwr8fyKirvCd2oKoeu/w/dP9MGjUGvfpid
+         /8ciaV7Y/OoNL8bF11cpO2uWJCqiT/RgXXf3mnEv+lny33ZsY2keZleQWJwGxdxejDs0
+         pih+NIaXqMT8FBZsXs6YUnmbsMUek/zb19DFPSz0IEZduQ5rt/QcY/F/3sTffEMDnUKw
+         CPow==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=T+/gfKVjd06ywoXi0uXiNGcjF1CBfh8OJNr7zztK3mY=;
+        b=3GHN1D0hyWks1efGOSYZfV/dv+JMiNehinxvP/DYNGS4Pz1bin5fWhRJunarKPLaJQ
+         UUqSv9pLjrxKiMxYTfGApalkxYpvs9hvTsxvOmMSstPoGVo3s6GGf2IQqWYCZad2H0CB
+         xGvtiiTZoMnQafjPGjEcelfivGoRdCU8nZ8JTdxaLl3VSWdQpb3MIj+tAUAWnA+9wDeY
+         wrpMyL71a6t7PgqVUQ7CxKB1mc7/Ls0wl3g3zSI2QEdQ4ZJNhY8jcuKkMTTxw6I2FWyY
+         JVN0HG7CRZdBb2iceMQHtwrVmj/CiiLQp1K63bI6PdAxaBE/W37OLLrEZBXthZ6ozQlk
+         vwwg==
+X-Gm-Message-State: AOAM5321tq0XWSZJteP2RLc74qcssdDxFhCMUAtB42+UAei7ly3l5V90
+        InmpHM2T/mGPefW1JAXDcselVPJA+EDuTOYwdoIRCQ==
+X-Google-Smtp-Source: ABdhPJxK5LKRZx2tIsnqyw4lDSt0EBsiNA5l74rDzMBi0NXKXWoOfnwzy12JbkfIdXhpK4H5vQJJvf74SVRRWPlbdsI=
+X-Received: by 2002:a25:a04a:: with SMTP id x68mr4654632ybh.200.1641890383256;
+ Tue, 11 Jan 2022 00:39:43 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <afcc8f0c-1aa7-9f43-bf50-b404c954db8b@huawei.com>
-Content-Type: text/plain; charset=gbk; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+References: <20220110071812.806606886@linuxfoundation.org>
+In-Reply-To: <20220110071812.806606886@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 11 Jan 2022 14:09:32 +0530
+Message-ID: <CA+G9fYvZAs=c_e07eD8TusdVs=xjUbrVDCjPOK_rmbmm7MxCiA@mail.gmail.com>
+Subject: Re: [PATCH 4.9 00/21] 4.9.297-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, 10 Jan 2022 at 12:55, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.9.297 release.
+> There are 21 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 12 Jan 2022 07:18:05 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.9.297-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.9.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-On 11.01.22 03:02, Ziyang Xuan (William) wrote:
->> On Mon, Jan 10, 2022 at 09:23:22PM +0800, Ziyang Xuan wrote:
->>> From: Thomas Gleixner <tglx@linutronix.de>
->>>
->>> [ commit bf74aa86e111aa3b2fbb25db37e3a3fab71b5b68 upstream ]
->>>
->>> Stop tx/rx cycle rely on the active state of tasklet and hrtimer
->>> sequentially in bcm_remove_op(), the op object will be freed if they
->>> are all unactive. Assume the hrtimer timeout is short, the hrtimer
->>> cb has been excuted after tasklet conditional judgment which must be
->>> false after last round tasklet_kill() and before condition
->>> hrtimer_active(), it is false when execute to hrtimer_active(). Bug
->>> is triggerd, because the stopping action is end and the op object
->>> will be freed, but the tasklet is scheduled. The resources of the op
->>> object will occur UAF bug.
->>
->> That is not the changelog text of this commit.  Why modify it?
-> 
-> Above statement is the reason why I want to backport the patch to
-> stable tree. Maybe I could give an extra cover-letter to explain
-> the details of the problem, but modify the original changelog. Is it?
-> 
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-If you backport the bcm HRTIMER_MODE_SOFT implementation to the 4.19 
-stable tree the problem is not fixed for 4.14, 4.4, etc.
+## Build
+* kernel: 4.9.297-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-4.9.y
+* git commit: 166c7a334704473e72e891612b8ffa513e43754d
+* git describe: v4.9.296-22-g166c7a334704
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.9.y/build/v4.9.2=
+96-22-g166c7a334704
 
-HRTIMER_MODE_SOFT has been introduced in 4.16
+## Test Regressions (compared to v4.9.296)
+No test regressions found.
 
-The issue of a race condition at bcm op removal has already been 
-addressed before in commit a06393ed03167 ("can: bcm: fix hrtimer/tasklet 
-termination in bcm op removal").
+## Metric Regressions (compared to v4.9.296)
+No metric regressions found.
 
--       hrtimer_cancel(&op->timer);
--       hrtimer_cancel(&op->thrtimer);
--
--       if (op->tsklet.func)
--               tasklet_kill(&op->tsklet);
-+       if (op->tsklet.func) {
-+               while (test_bit(TASKLET_STATE_SCHED, &op->tsklet.state) ||
-+                      test_bit(TASKLET_STATE_RUN, &op->tsklet.state) ||
-+                      hrtimer_active(&op->timer)) {
-+                       hrtimer_cancel(&op->timer);
-+                       tasklet_kill(&op->tsklet);
-+               }
-+       }
+## Test Fixes (compared to v4.9.296)
+No test fixes found.
 
-IMO we should better try to improve this fix and enable it for older 
-stable trees than fixing only the 4.19.
+## Metric Fixes (compared to v4.9.296)
+No metric fixes found.
 
-Best regards,
-Oliver
+## Test result summary
+total: 61520, pass: 48909, fail: 438, skip: 10557, xfail: 1616
 
+## Build Summary
+* arm: 254 total, 226 passed, 28 failed
+* arm64: 32 total, 32 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 19 total, 19 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 22 total, 22 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 31 total, 31 passed, 0 failed
 
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* ssuite
+* v4l2-compliance
 
->>
->>>
->>> ----------------------------------------------------------------------
->>>
->>> This patch switches the timer to HRTIMER_MODE_SOFT, which executed the
->>> timer callback in softirq context and removes the hrtimer_tasklet.
->>>
->>> Reported-by: syzbot+652023d5376450cc8516@syzkaller.appspotmail.com
-> 
-> This is the public problem reporter. Do I need to move it to cover-letter
-> but here?
-> 
->>> Cc: stable@vger.kernel.org # 4.19
-> 
-> I want to backport the patch to linux-4.19.y stable tree. How do I need to
-> modify?
-> 
->>> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
->>> Signed-off-by: Anna-Maria Gleixner <anna-maria@linutronix.de>
->>> Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
->>> Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
->>> Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
->>> ---
->>>   net/can/bcm.c | 156 +++++++++++++++++---------------------------------
->>>   1 file changed, 52 insertions(+), 104 deletions(-)
->>
->> What stable kernel tree(s) are you wanting this backported to?
->>
->> thanks,
->>
->> greg k-h
->> .
->>
-> 
-> Thank you for your patient guidance.
-> 
+--
+Linaro LKFT
+https://lkft.linaro.org
