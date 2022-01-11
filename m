@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78ED748B117
-	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 16:41:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6906548B11F
+	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 16:42:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343649AbiAKPll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jan 2022 10:41:41 -0500
-Received: from esa3.mentor.iphmx.com ([68.232.137.180]:17127 "EHLO
+        id S242380AbiAKPmX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jan 2022 10:42:23 -0500
+Received: from esa3.mentor.iphmx.com ([68.232.137.180]:5191 "EHLO
         esa3.mentor.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240342AbiAKPll (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 10:41:41 -0500
-IronPort-SDR: hG1PM904GB6asTvTIAPqJ9vnSVyNwGeLgj4UcdzpDwjnjsGBKK1otmlh6AHKEQz3i22VbvPX42
- KW6lVyUhGq7HrvLYGDHZAMQsdklIPgm8P9lrOAJKMIGNjILytzbQpVt79sX8d6oeinHyvkuhIk
- 6h476GzIwnQJ2pFgtB+oGii81ZvcTohL/LTBIkaSEmlMu0Ui4aIBuA78bwPyCspNQrknsTYL49
- m1tvsfl5PW8cIknA+POBA8q8/HpChGAfS1C8CagB1njNrRDX8eakU166mYYEyicULTvmzZ70r/
- AEiI8AYurDrsRyrpy57JY0EV
+        with ESMTP id S242993AbiAKPmX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 10:42:23 -0500
+IronPort-SDR: uyKYY3sKhDPj8/sFiM/F04ZTdvv3vssMZSshMkFgHc1WCs2iOMUY7XPj348LbrbfS+f9fxpK9v
+ OkeKX/RjpReoWE7D+inxFZheRuHDpksfAD7WZWcaHQmihzVl53cMBAywAOC0EO6oC7D0Zi19xo
+ HzVOnTnc61DPfKxjx7tcwS0fCztfAmEALA8LkYhLyWrSNHO8uz8Bwv5hOrKXCmIRGNe0zhdruw
+ SQuzr4uU2uLj2K9Xggkcp3ugkPZkNy3ahYWxVK08L+Eb8eU/O9njpYnnLQWvcSr7HvPbHv00Nj
+ gVXSfvhV1WIi69Ltj4RGTHgE
 X-IronPort-AV: E=Sophos;i="5.88,279,1635235200"; 
-   d="scan'208,223";a="70495084"
+   d="scan'208,223";a="70495147"
 Received: from orw-gwy-02-in.mentorg.com ([192.94.38.167])
-  by esa3.mentor.iphmx.com with ESMTP; 11 Jan 2022 07:41:40 -0800
-IronPort-SDR: ORA/ZROzdBZpKBkBei7PHjdvnC5QjIuU1nWtBshiEbnRZanxYz+iUzIHlgtEo2iJKZ6k65Jfww
- iLGgS2U30Ewl3xygovIl7klcSn/XnIkoEm1LDDEbJePmR7l4n5aNNYlicqnrTvFkL05e8gFhP+
- Zm1+9UuwOgETONMnjShh5JinQVBX//EuJYzKxxhKyFQP+jLcPByG7+xqvakqvfZUH/2UOOSYlS
- MsMjyOyCotwLxVN+epICLqvaUPAnZB6lOIf62QjjXOUFDHOUpWHaK5oCOf00dnFwvxSlOzyaf3
- gbE=
-Date:   Tue, 11 Jan 2022 10:41:35 -0500
+  by esa3.mentor.iphmx.com with ESMTP; 11 Jan 2022 07:42:22 -0800
+IronPort-SDR: bnBmaf7jiab/T5s0VlsCfiX0uCk5+XM9nY5/RDORhX5bt8/2VOfrWeuwnwv5zF1k10KWCSze5c
+ s0pWYbxoonafqFIIIyh8SWq+af7FuBqiezqugBwF1W0jxtQh9fEtkdzjKUGR981F39K3Lue1Po
+ S2UZdW5blrq9Dw8WW3GqBixts7oJRA8pdStd5xTqbdPddJ1cb9Ggboin44f/mnP+NXJrgMb77A
+ P2WwaNg2WHFtJBSj4dg7iW6E6rRfTv0D8uJn8YHGI/9l6PLAm6kHCZhBjv8XqZU12A4bVf8dJV
+ Cds=
+Date:   Tue, 11 Jan 2022 10:42:17 -0500
 From:   Amy Fong <Amy_Fong@mentor.com>
 To:     <stable@vger.kernel.org>
 CC:     <davem@davemloft.net>
-Subject: Re: [PATCH 4.19 stable 4/5] Backport netfilter: nf_tables: autoload
+Subject: Re: [PATCH 4.19 stable 5/5] Backport netfilter: nf_tables: autoload
  modules from the abort path
-Message-ID: <Yd2lL+VK0FWqVmI6@cat>
+Message-ID: <Yd2lWWNFpHXPtnV1@cat>
 References: <Yd2kKZEWm6AdBYDE@cat>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="us-ascii"
@@ -43,71 +43,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From 791580bd2a8b75daddc0d110582198ab0ac854b2 Mon Sep 17 00:00:00 2001
-From: Florian Westphal <fw@strlen.de>
-Date: Thu, 5 Mar 2020 11:15:36 +0100
-Subject: [PATCH 4/5] netfilter: nf_tables: fix infinite loop when expr is not
- available
+From e6cec303e31d347aa44beb37876fa6763cc0430c Mon Sep 17 00:00:00 2001
+From: Pablo Neira Ayuso <pablo@netfilter.org>
+Date: Thu, 29 Oct 2020 13:50:03 +0100
+Subject: [PATCH 5/5] netfilter: nf_tables: missing validation from the abort
+ path
 
-nft will loop forever if the kernel doesn't support an expression:
+If userspace does not include the trailing end of batch message, then
+nfnetlink aborts the transaction. This allows to check that ruleset
+updates trigger no errors.
 
-1. nft_expr_type_get() appends the family specific name to the module list.
-2. -EAGAIN is returned to nfnetlink, nfnetlink calls abort path.
-3. abort path sets ->done to true and calls request_module for the
-   expression.
-4. nfnetlink replays the batch, we end up in nft_expr_type_get() again.
-5. nft_expr_type_get attempts to append family-specific name. This
-   one already exists on the list, so we continue
-6. nft_expr_type_get adds the generic expression name to the module
-   list. -EAGAIN is returned, nfnetlink calls abort path.
-7. abort path encounters the family-specific expression which
-   has 'done' set, so it gets removed.
-8. abort path requests the generic expression name, sets done to true.
-9. batch is replayed.
+After this patch, invoking this command from the prerouting chain:
 
-If the expression could not be loaded, then we will end up back at 1),
-because the family-specific name got removed and the cycle starts again.
+ # nft -c add rule x y fib saddr . oif type local
 
-Note that userspace can SIGKILL the nft process to stop the cycle, but
-the desired behaviour is to return an error after the generic expr name
-fails to load the expression.
+fails since oif is not supported there.
 
-Fixes: eb014de4fd418 ("netfilter: nf_tables: autoload modules from the abort path")
-Signed-off-by: Florian Westphal <fw@strlen.de>
+This patch fixes the lack of rule validation from the abort/check path
+to catch configuration errors such as the one above.
+
+Fixes: a654de8fdc18 ("netfilter: nf_tables: fix chain dependency validation")
 Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-(cherry picked from commit 1d305ba40eb8081ff21eeb8ca6ba5c70fd920934)
+(cherry picked from commit c0391b6ab810381df632677a1dcbbbbd63d05b6d)
 ---
- net/netfilter/nf_tables_api.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ include/linux/netfilter/nfnetlink.h |  9 ++++++++-
+ net/netfilter/nf_tables_api.c       | 15 ++++++++++-----
+ net/netfilter/nfnetlink.c           | 22 ++++++++++++++++++----
+ 3 files changed, 36 insertions(+), 10 deletions(-)
 
+diff --git a/include/linux/netfilter/nfnetlink.h b/include/linux/netfilter/nfnetlink.h
+index 89016d08f6a2..f6267e2883f2 100644
+--- a/include/linux/netfilter/nfnetlink.h
++++ b/include/linux/netfilter/nfnetlink.h
+@@ -24,6 +24,12 @@ struct nfnl_callback {
+ 	const u_int16_t attr_count;		/* number of nlattr's */
+ };
+ 
++enum nfnl_abort_action {
++	NFNL_ABORT_NONE		= 0,
++	NFNL_ABORT_AUTOLOAD,
++	NFNL_ABORT_VALIDATE,
++};
++
+ struct nfnetlink_subsystem {
+ 	const char *name;
+ 	__u8 subsys_id;			/* nfnetlink subsystem ID */
+@@ -31,7 +37,8 @@ struct nfnetlink_subsystem {
+ 	const struct nfnl_callback *cb;	/* callback for individual types */
+ 	struct module *owner;
+ 	int (*commit)(struct net *net, struct sk_buff *skb);
+-	int (*abort)(struct net *net, struct sk_buff *skb, bool autoload);
++	int (*abort)(struct net *net, struct sk_buff *skb,
++		     enum nfnl_abort_action action);
+ 	void (*cleanup)(struct net *net);
+ 	bool (*valid_genid)(struct net *net, u32 genid);
+ };
 diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 6329d23c8b35..54bf2ac44531 100644
+index 54bf2ac44531..e15e574f035d 100644
 --- a/net/netfilter/nf_tables_api.c
 +++ b/net/netfilter/nf_tables_api.c
-@@ -6698,13 +6698,8 @@ static void nf_tables_module_autoload(struct net *net)
- 	list_splice_init(&net->nft.module_list, &module_list);
- 	mutex_unlock(&net->nft.commit_mutex);
- 	list_for_each_entry_safe(req, next, &module_list, list) {
--		if (req->done) {
--			list_del(&req->list);
--			kfree(req);
--		} else {
--			request_module("%s", req->module);
--			req->done = true;
--		}
-+		request_module("%s", req->module);
-+		req->done = true;
+@@ -6734,11 +6734,15 @@ static void nf_tables_abort_release(struct nft_trans *trans)
+ 	kfree(trans);
+ }
+ 
+-static int __nf_tables_abort(struct net *net, bool autoload)
++static int __nf_tables_abort(struct net *net, enum nfnl_abort_action action)
+ {
+ 	struct nft_trans *trans, *next;
+ 	struct nft_trans_elem *te;
+ 
++	if (action == NFNL_ABORT_VALIDATE &&
++	    nf_tables_validate(net) < 0)
++		return -EAGAIN;
++
+ 	list_for_each_entry_safe_reverse(trans, next, &net->nft.commit_list,
+ 					 list) {
+ 		switch (trans->msg_type) {
+@@ -6851,7 +6855,7 @@ static int __nf_tables_abort(struct net *net, bool autoload)
+ 		nf_tables_abort_release(trans);
  	}
+ 
+-	if (autoload)
++	if (action == NFNL_ABORT_AUTOLOAD)
+ 		nf_tables_module_autoload(net);
+ 	else
+ 		nf_tables_module_autoload_cleanup(net);
+@@ -6864,9 +6868,10 @@ static void nf_tables_cleanup(struct net *net)
+ 	nft_validate_state_update(net, NFT_VALIDATE_SKIP);
+ }
+ 
+-static int nf_tables_abort(struct net *net, struct sk_buff *skb, bool autoload)
++static int nf_tables_abort(struct net *net, struct sk_buff *skb,
++			   enum nfnl_abort_action action)
+ {
+-	int ret = __nf_tables_abort(net, autoload);
++	int ret = __nf_tables_abort(net, action);
+ 
+ 	mutex_unlock(&net->nft.commit_mutex);
+ 
+@@ -7472,7 +7477,7 @@ static void __net_exit nf_tables_exit_net(struct net *net)
+ {
  	mutex_lock(&net->nft.commit_mutex);
- 	list_splice(&module_list, &net->nft.module_list);
-@@ -7481,6 +7476,7 @@ static void __net_exit nf_tables_exit_net(struct net *net)
+ 	if (!list_empty(&net->nft.commit_list))
+-		__nf_tables_abort(net, false);
++		__nf_tables_abort(net, NFNL_ABORT_NONE);
  	__nft_release_tables(net);
  	mutex_unlock(&net->nft.commit_mutex);
  	WARN_ON_ONCE(!list_empty(&net->nft.tables));
-+	WARN_ON_ONCE(!list_empty(&net->nft.module_list));
- }
- 
- static struct pernet_operations nf_tables_net_ops = {
+diff --git a/net/netfilter/nfnetlink.c b/net/netfilter/nfnetlink.c
+index 7454f135e19d..4f5dcdf1a39e 100644
+--- a/net/netfilter/nfnetlink.c
++++ b/net/netfilter/nfnetlink.c
+@@ -314,7 +314,7 @@ static void nfnetlink_rcv_batch(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 		return netlink_ack(skb, nlh, -EINVAL, NULL);
+ replay:
+ 	status = 0;
+-
++replay_abort:
+ 	skb = netlink_skb_clone(oskb, GFP_KERNEL);
+ 	if (!skb)
+ 		return netlink_ack(oskb, nlh, -ENOMEM, NULL);
+@@ -478,7 +478,7 @@ static void nfnetlink_rcv_batch(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 	}
+ done:
+ 	if (status & NFNL_BATCH_REPLAY) {
+-		ss->abort(net, oskb, true);
++		ss->abort(net, oskb, NFNL_ABORT_AUTOLOAD);
+ 		nfnl_err_reset(&err_list);
+ 		kfree_skb(skb);
+ 		module_put(ss->owner);
+@@ -489,11 +489,25 @@ static void nfnetlink_rcv_batch(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 			status |= NFNL_BATCH_REPLAY;
+ 			goto done;
+ 		} else if (err) {
+-			ss->abort(net, oskb, false);
++			ss->abort(net, oskb, NFNL_ABORT_NONE);
+ 			netlink_ack(oskb, nlmsg_hdr(oskb), err, NULL);
+ 		}
+ 	} else {
+-		ss->abort(net, oskb, false);
++		enum nfnl_abort_action abort_action;
++
++		if (status & NFNL_BATCH_FAILURE)
++			abort_action = NFNL_ABORT_NONE;
++		else
++			abort_action = NFNL_ABORT_VALIDATE;
++
++		err = ss->abort(net, oskb, abort_action);
++		if (err == -EAGAIN) {
++			nfnl_err_reset(&err_list);
++			kfree_skb(skb);
++			module_put(ss->owner);
++			status |= NFNL_BATCH_FAILURE;
++			goto replay_abort;
++		}
+ 	}
+ 	if (ss->cleanup)
+ 		ss->cleanup(net);
 -- 
 2.34.1
 
