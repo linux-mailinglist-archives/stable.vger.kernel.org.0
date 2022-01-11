@@ -2,132 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF2E748B741
-	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 20:21:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54DBA48B751
+	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 20:27:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243925AbiAKTVf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jan 2022 14:21:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41440 "EHLO
+        id S235686AbiAKT1L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jan 2022 14:27:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244124AbiAKTVe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 14:21:34 -0500
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C021DC06173F
-        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 11:21:34 -0800 (PST)
-Received: by mail-pj1-x1034.google.com with SMTP id pf13so713315pjb.0
-        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 11:21:34 -0800 (PST)
+        with ESMTP id S235553AbiAKT1L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 14:27:11 -0500
+Received: from mail-yb1-xb2c.google.com (mail-yb1-xb2c.google.com [IPv6:2607:f8b0:4864:20::b2c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A0F2C061751
+        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 11:27:11 -0800 (PST)
+Received: by mail-yb1-xb2c.google.com with SMTP id c10so60231ybb.2
+        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 11:27:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=glW6nMJJ8fXIpv53V14/lSID3RsSMeXaTiw7kNq/UJs=;
-        b=Eib1JwDV1iNKB3wUq/2x5Fph17UDVyAUx0S297m4hTtDQj/W5GIDbJrxnWxD2/dN3q
-         Ogje7abSUXGoukOrsxi+NYzj3Lu3/RR6+ZOfh+pGmkmJC/s1u0MdAT8FL8IUCoGjS19j
-         N+aH7skfnJjDVN/bu8ijboNIu6DqzwQGOl7Jy79jJGznqWG0cRP+FbLuEhPQ7ahPe0BM
-         yMM9Nih+Uo1m/yWNzhJP3ZXWfkAvq5g/y0FhXr2jx7E8kr1ZLWIkaJ4gsPrTOwWVkuHO
-         MnXhegh42AHqsy1v8jjULvXZG6Rja4OtTC5huK9FN+kofJmRItdM25EIJrqew46iYqcE
-         W4nA==
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=3SD2cpfSGkAK1w66aKc7m2NiJafQlutBqzxhSCCaOqc=;
+        b=TzjUw/oUevlONYTmUZCO+vFz1L3zQ1+crDuIuYltIcAJtHMwFDChmeLSs2gDl7mh06
+         Hlra3FtwWGyUTsMDlDaLAb8posIm2eML95P1zVTYG5i0Kwc3a/eguhrpIVIpgePSXbC5
+         PtDQuvSxp36wV1baRDzETqB6hGUFKD3dprwj+NaaVmpCpW9jt6m0heI/03r25028rGdp
+         /c9Ggm3fJnJpjw5fXgmXPM2SCNL04voZhaM2lMPF+HalxNmYzZgtyZndJ8kDRgq/FzGn
+         t7XhJTqNz9rg+46Z7gPIyNYoM/asGldtAU6O7WJizUqNjQtuq5OwTb/J8Pwz5dVoEPz1
+         hS+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=glW6nMJJ8fXIpv53V14/lSID3RsSMeXaTiw7kNq/UJs=;
-        b=j7M64ZAK4FD72A/ZBwILUPLoOvP+rrmvR5CaOaS5AkMspbN/i4sF6MB64bh1EK0ghh
-         PrXPztxbPO2E5peiCXSjgG2IhlaEATGhg265caTj6yWlLYF6nl7sgz3xtvElqhqvQkX9
-         bwCrlfmolvisVInc+uhWV8vzgtngRjl13DS2nE0c9mbqyjmr+w/dJsX6s3Fsyev+wCDV
-         oj5Cu4XmJq7Yoy1vdj8WwAqfQvF5RFmHsq4KwkV6ihIpxjCJ1W0F7qwNOA1hu4XmKmqF
-         JhwGPTQ0EEZFbr0OT4Lk8XOaSeZGswJol7Ogin5REHvBT2VhrEB9oldBrmvMszg494MH
-         CSAw==
-X-Gm-Message-State: AOAM530WjsgWvIwisX9FtnV2bUMNcrJxmlxFtzCjZWkTipX0wwFussip
-        1EddBH3vVBdI3gEKHN9qRZPVNStoeQSVVio2
-X-Google-Smtp-Source: ABdhPJyMkyg5nyg0lDbObN0enpJfHMfm0MBtx13wRqReHfTpbYDeUDOvtY+pY2IPCrb87oUhyKKcYg==
-X-Received: by 2002:a63:3341:: with SMTP id z62mr5298441pgz.99.1641928894148;
-        Tue, 11 Jan 2022 11:21:34 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 20sm3525476pfh.71.2022.01.11.11.21.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 11 Jan 2022 11:21:33 -0800 (PST)
-Message-ID: <61ddd8bd.1c69fb81.66e64.9c8e@mx.google.com>
-Date:   Tue, 11 Jan 2022 11:21:33 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=3SD2cpfSGkAK1w66aKc7m2NiJafQlutBqzxhSCCaOqc=;
+        b=Ib21FwS7Xv+t+vsadYgxGeEoXM7o4AtSvaEKPkV5cKaZJcQcgeJHdVKOVHbkqI7KfJ
+         rSAYtAPdTPc0bpBEYlHP0z7SYdlPWTeOa6PD1k1YySxuT3WvY8WPY6PyLrGVX+4lCYiv
+         CQD307S9CmWEGEr5nFSlDZOGIm/i+RdPP54qg5+FP1P7zx/5Tx04WOEQDGj+4SNmIXhP
+         ZqK7nogBc5+QtQ0zzwdK4hTZXCDSNyb7wI7nG0hiAEEzhOtRBt2nhC1Y6TKpoYfEBlHT
+         qjTdL8pHaJEHxFxcg+IAs4Ph76clpr9rVPkuBhKheLX+hX//7HmkuPR02cGYhSL//pox
+         q9mQ==
+X-Gm-Message-State: AOAM532sugI93Z4CaZFFM2HsJyPDqL7PEyNv9Vrt9xAGc18VP7/lKlxm
+        U5hytvqctXv21h4USkYeQthovhG7yHchuS9GU+lFfw==
+X-Google-Smtp-Source: ABdhPJzR10Lg59Rz3flnpSia+CuIS/sH/4KpKCWh6qV8L1k+909YdvTQ5IKNHKetfLMVJ+C2jyxmakngKkA/sslk15E=
+X-Received: by 2002:a25:c245:: with SMTP id s66mr8868519ybf.243.1641929230000;
+ Tue, 11 Jan 2022 11:27:10 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v4.14.262
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable/linux-4.14.y baseline: 129 runs, 1 regressions (v4.14.262)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20220111071212.1210124-1-surenb@google.com> <Yd3RClhoz24rrU04@sol.localdomain>
+ <CAHk-=wgwb6pJjvHYmOMT-yp5RYvw0pbv810Wcxdm5S7dWc-s0g@mail.gmail.com>
+In-Reply-To: <CAHk-=wgwb6pJjvHYmOMT-yp5RYvw0pbv810Wcxdm5S7dWc-s0g@mail.gmail.com>
+From:   Suren Baghdasaryan <surenb@google.com>
+Date:   Tue, 11 Jan 2022 11:26:59 -0800
+Message-ID: <CAJuCfpE3feNU=36qRUdCJsk41rxQBv1gRYy5R1dB1djMd0NLjg@mail.gmail.com>
+Subject: Re: [PATCH v2 1/1] psi: Fix uaf issue when psi trigger is destroyed
+ while being polled
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Eric Biggers <ebiggers@kernel.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Tejun Heo <tj@kernel.org>, Zefan Li <lizefan.x@bytedance.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Cgroups <cgroups@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Android Kernel Team <kernel-team@android.com>,
+        syzbot <syzbot+cdb5dd11c97cc532efad@syzkaller.appspotmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-4.14.y baseline: 129 runs, 1 regressions (v4.14.262)
+On Tue, Jan 11, 2022 at 11:11 AM Linus Torvalds
+<torvalds@linux-foundation.org> wrote:
+>
+> On Tue, Jan 11, 2022 at 10:48 AM Eric Biggers <ebiggers@kernel.org> wrote:
+> >
+> > The write here needs to use smp_store_release(), since it is paired with the
+> > concurrent READ_ONCE() in psi_trigger_poll().
+>
+> A smp_store_release() doesn't make sense pairing with a READ_ONCE().
+>
+> Any memory ordering that the smp_store_release() does on the writing
+> side is entirely irrelevant, since the READ_ONCE() doesn't imply any
+> ordering on the reading side. Ordering one but not the other is
+> nonsensical.
+>
+> So the proper pattern is to use a WRITE_ONCE() to pair with a
+> READ_ONCE() (when you don't care about memory ordering, or you handle
+> it explicitly), or a smp_load_acquire() with a smp_store_release() (in
+> which case writes before the smp_store_release() on the writing side
+> will be ordered wrt accesses after smp_load_acquire() on the reading
+> side).
+>
+> Of course, in practice, for pointers, the whole "dereference off a
+> pointer" on the read side *does* imply a barrier in all relevant
+> situations. So yes, a smp_store_release() -> READ_ONCE() does work in
+> practice, although it's technically wrong (in particular, it's wrong
+> on alpha, because of the completely broken memory ordering that alpha
+> has that doesn't even honor data dependencies as read-side orderings)
+>
+> But in this case, I do think that since there's some setup involved
+> with the trigger pointer, the proper serialization is to use
+> smp_store_release() to set the pointer, and then smp_load_acquire() on
+> the reading side.
+>
+> Or just use the RCU primitives - they are even better optimized, and
+> handle exactly that case, and can be more efficient on some
+> architectures if release->acquire isn't already cheap.
+>
+> That said, we've pretty much always accepted that normal word writes
+> are not going to tear, so we *have* also accepted just
+>
+>  - do any normal store of a value on the write side
+>
+>  - do a READ_ONCE() on the reading side
+>
+> where the reading side doesn't actually care *what* value it gets, it
+> only cares that the value it gets is *stable* (ie no compiler reloads
+> that might show up as two different values on the reading side).
+>
+> Of course, that has the same issue as WRITE_ONCE/READ_ONCE - you need
+> to worry about memory ordering separately.
+>
+> > > +     seq->private = new;
+> >
+> > Likewise here.
+>
+> Yeah, same deal, except here you can't even use the RCU ones, because
+> 'seq->private' isn't annotated for RCU.
+>
+> Or you'd do the casting, of course.
 
-Regressions Summary
--------------------
+Thanks for the explanation!
+So, it sounds like the best (semantically correct) option I have here
+is smp_store_release() to set the pointer, and then smp_load_acquire()
+to read it. Is my understanding correct?
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable/branch/linux-4.14.y/kernel=
-/v4.14.262/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-4.14.y
-  Describe: v4.14.262
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      4ba8e26127c393c32776dff6d79c5b82de6dc542 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61dda05aa22e6318e5ef675c
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable/linux-4.14.y/v4.14.262/=
-arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-4.14.y/v4.14.262/=
-arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61dda05aa22e631=
-8e5ef675f
-        failing since 28 days (last pass: v4.14.257, first fail: v4.14.258)
-        2 lines
-
-    2022-01-11T15:20:38.782322  [   19.989898] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2022-01-11T15:20:38.825135  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/98
-    2022-01-11T15:20:38.834134  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
+>
+>               Linus
