@@ -2,123 +2,461 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C110A48ADF9
-	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 13:56:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7289A48ADFA
+	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 13:56:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239796AbiAKM4B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jan 2022 07:56:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34834 "EHLO
+        id S240086AbiAKM4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jan 2022 07:56:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239039AbiAKMz7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 07:55:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0021FC06173F;
-        Tue, 11 Jan 2022 04:55:58 -0800 (PST)
+        with ESMTP id S240072AbiAKM4D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 07:56:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B65AEC06173F;
+        Tue, 11 Jan 2022 04:56:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE5DDB81A90;
-        Tue, 11 Jan 2022 12:55:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCB45C36AED;
-        Tue, 11 Jan 2022 12:55:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4525A615D4;
+        Tue, 11 Jan 2022 12:56:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 062BCC36AED;
+        Tue, 11 Jan 2022 12:56:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641905756;
-        bh=/kQFGb3JB12YMs/w1NS2hbSxAh0R73aXH0KuoXs7tJE=;
-        h=From:To:Cc:Subject:Date:From;
-        b=gkdw4fC5tIO2mEVV9MOYUt5ANToANE+3F36CKV79NuuIncDEUOvNSauLo/XUt1fX5
-         H4ZB8U6Dlfa14KqiTgFCXlko00O5lvh7aH8kPR5xCE8vfKlMMfWyOoh56locOdO0Ao
-         5dg3qjNJ4gRUBwGQv6597H1U0F0V5xXZQzhuptvo=
+        s=korg; t=1641905761;
+        bh=07m/dCIcvE7XUOfCWhG4Mel/l5DRcYnp9KcU+a57v7w=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=pxixc1KKNNySQGiz+Zpp8Z4gGrhZD8WMxSwdOVFICZjKqePp2HoM5Xzxm78MZ2TGB
+         gbw5HlpA2mSM6GLsNimi23fQ/kUQyMLr89nO2/zKmGX40bbWBbw0W2GkFlbeLycokG
+         aMrlKZ8gUhlrJa6EL31/XXlYAFdBZhnPmb5tD5Gs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Linux 4.4.299
-Date:   Tue, 11 Jan 2022 13:55:52 +0100
-Message-Id: <1641905752445@kroah.com>
+Subject: Re: Linux 4.4.299
+Date:   Tue, 11 Jan 2022 13:55:53 +0100
+Message-Id: <16419057525471@kroah.com>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <1641905752445@kroah.com>
+References: <1641905752445@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I'm announcing the release of the 4.4.299 kernel.
-
-All users of the 4.4 kernel series must upgrade.
-
-The updated 4.4.y git tree can be found at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.4.y
-and can be browsed at the normal kernel.org git web browser:
-	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-
-thanks,
-
-greg k-h
-
-------------
-
- Makefile                                    |    2 -
- drivers/bluetooth/btusb.c                   |   32 +++++++++++++++++++++-------
- drivers/isdn/mISDN/core.c                   |    6 ++---
- drivers/isdn/mISDN/core.h                   |    4 +--
- drivers/isdn/mISDN/layer1.c                 |    4 +--
- drivers/net/ethernet/intel/i40e/i40e_main.c |   32 +++++++++++++++++++++-------
- drivers/net/ieee802154/atusb.c              |   10 +++++---
- drivers/net/usb/rndis_host.c                |    5 ++++
- drivers/power/reset/ltc2952-poweroff.c      |    4 +--
- drivers/scsi/libiscsi.c                     |    6 +++--
- fs/xfs/xfs_ioctl.c                          |    3 +-
- lib/test_bpf.c                              |    2 -
- net/ipv4/udp.c                              |    2 -
- net/ipv6/ip6_vti.c                          |    2 +
- net/mac80211/mlme.c                         |    2 -
- net/phonet/pep.c                            |    1 
- net/sched/sch_qfq.c                         |    6 +----
- 17 files changed, 85 insertions(+), 38 deletions(-)
-
-Daniel Borkmann (1):
-      bpf, test: fix ld_abs + vlan push/pop stress test
-
-Darrick J. Wong (1):
-      xfs: map unwritten blocks in XFS_IOC_{ALLOC,FREE}SP just like fallocate
-
-Eric Dumazet (1):
-      sch_qfq: prevent shift-out-of-bounds in qfq_init_qdisc
-
-Greg Kroah-Hartman (1):
-      Linux 4.4.299
-
-Hangyu Hua (1):
-      phonet: refcount leak in pep_sock_accep
-
-Jedrzej Jagielski (1):
-      i40e: Fix incorrect netdev's real number of RX/TX queues
-
-Lixiaokeng (1):
-      scsi: libiscsi: Fix UAF in iscsi_conn_get_param()/iscsi_conn_teardown()
-
-Nathan Chancellor (1):
-      power: reset: ltc2952: Fix use of floating point literals
-
-Pavel Skripkin (1):
-      ieee802154: atusb: fix uninit value in atusb_set_extended_addr
-
-Takashi Iwai (1):
-      Bluetooth: btusb: Apply QCA Rome patches for some ATH3012 models
-
-Thomas Toye (1):
-      rndis_host: support Hytera digital radios
-
-Tom Rix (1):
-      mac80211: initialize variable have_higher_than_11mbit
-
-William Zhao (1):
-      ip6_vti: initialize __ip6_tnl_parm struct in vti6_siocdevprivate
-
-wolfgang huang (1):
-      mISDN: change function names to avoid conflicts
-
-yangxingwu (1):
-      net: udp: fix alignment problem in udp4_seq_show()
-
+diff --git a/Makefile b/Makefile
+index f35474e260f1..ad9236cc29e4 100644
+--- a/Makefile
++++ b/Makefile
+@@ -1,6 +1,6 @@
+ VERSION = 4
+ PATCHLEVEL = 4
+-SUBLEVEL = 298
++SUBLEVEL = 299
+ EXTRAVERSION =
+ NAME = Blurry Fish Butt
+ 
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index 3d62f17111cb..c3eaaa35185b 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -2489,11 +2489,9 @@ static const struct qca_device_info qca_devices_table[] = {
+ 	{ 0x00000302, 28, 4, 18 }, /* Rome 3.2 */
+ };
+ 
+-static int btusb_qca_send_vendor_req(struct hci_dev *hdev, u8 request,
++static int btusb_qca_send_vendor_req(struct usb_device *udev, u8 request,
+ 				     void *data, u16 size)
+ {
+-	struct btusb_data *btdata = hci_get_drvdata(hdev);
+-	struct usb_device *udev = btdata->udev;
+ 	int pipe, err;
+ 	u8 *buf;
+ 
+@@ -2508,7 +2506,7 @@ static int btusb_qca_send_vendor_req(struct hci_dev *hdev, u8 request,
+ 	err = usb_control_msg(udev, pipe, request, USB_TYPE_VENDOR | USB_DIR_IN,
+ 			      0, 0, buf, size, USB_CTRL_SET_TIMEOUT);
+ 	if (err < 0) {
+-		BT_ERR("%s: Failed to access otp area (%d)", hdev->name, err);
++		dev_err(&udev->dev, "Failed to access otp area (%d)", err);
+ 		goto done;
+ 	}
+ 
+@@ -2664,20 +2662,38 @@ static int btusb_setup_qca_load_nvm(struct hci_dev *hdev,
+ 	return err;
+ }
+ 
++/* identify the ROM version and check whether patches are needed */
++static bool btusb_qca_need_patch(struct usb_device *udev)
++{
++	struct qca_version ver;
++
++	if (btusb_qca_send_vendor_req(udev, QCA_GET_TARGET_VERSION, &ver,
++				      sizeof(ver)) < 0)
++		return false;
++	/* only low ROM versions need patches */
++	return !(le32_to_cpu(ver.rom_version) & ~0xffffU);
++}
++
+ static int btusb_setup_qca(struct hci_dev *hdev)
+ {
++	struct btusb_data *btdata = hci_get_drvdata(hdev);
++	struct usb_device *udev = btdata->udev;
+ 	const struct qca_device_info *info = NULL;
+ 	struct qca_version ver;
+ 	u32 ver_rom;
+ 	u8 status;
+ 	int i, err;
+ 
+-	err = btusb_qca_send_vendor_req(hdev, QCA_GET_TARGET_VERSION, &ver,
++	err = btusb_qca_send_vendor_req(udev, QCA_GET_TARGET_VERSION, &ver,
+ 					sizeof(ver));
+ 	if (err < 0)
+ 		return err;
+ 
+ 	ver_rom = le32_to_cpu(ver.rom_version);
++	/* Don't care about high ROM versions */
++	if (ver_rom & ~0xffffU)
++		return 0;
++
+ 	for (i = 0; i < ARRAY_SIZE(qca_devices_table); i++) {
+ 		if (ver_rom == qca_devices_table[i].rom_version)
+ 			info = &qca_devices_table[i];
+@@ -2688,7 +2704,7 @@ static int btusb_setup_qca(struct hci_dev *hdev)
+ 		return -ENODEV;
+ 	}
+ 
+-	err = btusb_qca_send_vendor_req(hdev, QCA_CHECK_STATUS, &status,
++	err = btusb_qca_send_vendor_req(udev, QCA_CHECK_STATUS, &status,
+ 					sizeof(status));
+ 	if (err < 0)
+ 		return err;
+@@ -2834,7 +2850,8 @@ static int btusb_probe(struct usb_interface *intf,
+ 
+ 		/* Old firmware would otherwise let ath3k driver load
+ 		 * patch and sysconfig files */
+-		if (le16_to_cpu(udev->descriptor.bcdDevice) <= 0x0001)
++		if (le16_to_cpu(udev->descriptor.bcdDevice) <= 0x0001 &&
++		    !btusb_qca_need_patch(udev))
+ 			return -ENODEV;
+ 	}
+ 
+@@ -2981,6 +2998,7 @@ static int btusb_probe(struct usb_interface *intf,
+ 	}
+ 
+ 	if (id->driver_info & BTUSB_ATH3012) {
++		data->setup_on_usb = btusb_setup_qca;
+ 		hdev->set_bdaddr = btusb_set_bdaddr_ath3012;
+ 		set_bit(HCI_QUIRK_SIMULTANEOUS_DISCOVERY, &hdev->quirks);
+ 		set_bit(HCI_QUIRK_STRICT_DUPLICATE_FILTER, &hdev->quirks);
+diff --git a/drivers/isdn/mISDN/core.c b/drivers/isdn/mISDN/core.c
+index faf505462a4f..f5a06a6fb297 100644
+--- a/drivers/isdn/mISDN/core.c
++++ b/drivers/isdn/mISDN/core.c
+@@ -390,7 +390,7 @@ mISDNInit(void)
+ 	err = mISDN_inittimer(&debug);
+ 	if (err)
+ 		goto error2;
+-	err = l1_init(&debug);
++	err = Isdnl1_Init(&debug);
+ 	if (err)
+ 		goto error3;
+ 	err = Isdnl2_Init(&debug);
+@@ -404,7 +404,7 @@ mISDNInit(void)
+ error5:
+ 	Isdnl2_cleanup();
+ error4:
+-	l1_cleanup();
++	Isdnl1_cleanup();
+ error3:
+ 	mISDN_timer_cleanup();
+ error2:
+@@ -417,7 +417,7 @@ static void mISDN_cleanup(void)
+ {
+ 	misdn_sock_cleanup();
+ 	Isdnl2_cleanup();
+-	l1_cleanup();
++	Isdnl1_cleanup();
+ 	mISDN_timer_cleanup();
+ 	class_unregister(&mISDN_class);
+ 
+diff --git a/drivers/isdn/mISDN/core.h b/drivers/isdn/mISDN/core.h
+index 52695bb81ee7..3c039b6ade2e 100644
+--- a/drivers/isdn/mISDN/core.h
++++ b/drivers/isdn/mISDN/core.h
+@@ -69,8 +69,8 @@ struct Bprotocol	*get_Bprotocol4id(u_int);
+ extern int	mISDN_inittimer(u_int *);
+ extern void	mISDN_timer_cleanup(void);
+ 
+-extern int	l1_init(u_int *);
+-extern void	l1_cleanup(void);
++extern int	Isdnl1_Init(u_int *);
++extern void	Isdnl1_cleanup(void);
+ extern int	Isdnl2_Init(u_int *);
+ extern void	Isdnl2_cleanup(void);
+ 
+diff --git a/drivers/isdn/mISDN/layer1.c b/drivers/isdn/mISDN/layer1.c
+index bebc57b72138..94d7cc58da64 100644
+--- a/drivers/isdn/mISDN/layer1.c
++++ b/drivers/isdn/mISDN/layer1.c
+@@ -407,7 +407,7 @@ create_l1(struct dchannel *dch, dchannel_l1callback *dcb) {
+ EXPORT_SYMBOL(create_l1);
+ 
+ int
+-l1_init(u_int *deb)
++Isdnl1_Init(u_int *deb)
+ {
+ 	debug = deb;
+ 	l1fsm_s.state_count = L1S_STATE_COUNT;
+@@ -419,7 +419,7 @@ l1_init(u_int *deb)
+ }
+ 
+ void
+-l1_cleanup(void)
++Isdnl1_cleanup(void)
+ {
+ 	mISDN_FsmFree(&l1fsm_s);
+ }
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 2137c4e7289e..e58db67495d7 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -5360,6 +5360,27 @@ int i40e_open(struct net_device *netdev)
+ 	return 0;
+ }
+ 
++/**
++ * i40e_netif_set_realnum_tx_rx_queues - Update number of tx/rx queues
++ * @vsi: vsi structure
++ *
++ * This updates netdev's number of tx/rx queues
++ *
++ * Returns status of setting tx/rx queues
++ **/
++static int i40e_netif_set_realnum_tx_rx_queues(struct i40e_vsi *vsi)
++{
++	int ret;
++
++	ret = netif_set_real_num_rx_queues(vsi->netdev,
++					   vsi->num_queue_pairs);
++	if (ret)
++		return ret;
++
++	return netif_set_real_num_tx_queues(vsi->netdev,
++					    vsi->num_queue_pairs);
++}
++
+ /**
+  * i40e_vsi_open -
+  * @vsi: the VSI to open
+@@ -5394,13 +5415,7 @@ int i40e_vsi_open(struct i40e_vsi *vsi)
+ 			goto err_setup_rx;
+ 
+ 		/* Notify the stack of the actual queue counts. */
+-		err = netif_set_real_num_tx_queues(vsi->netdev,
+-						   vsi->num_queue_pairs);
+-		if (err)
+-			goto err_set_queues;
+-
+-		err = netif_set_real_num_rx_queues(vsi->netdev,
+-						   vsi->num_queue_pairs);
++		err = i40e_netif_set_realnum_tx_rx_queues(vsi);
+ 		if (err)
+ 			goto err_set_queues;
+ 
+@@ -9413,6 +9428,9 @@ struct i40e_vsi *i40e_vsi_setup(struct i40e_pf *pf, u8 type,
+ 	case I40E_VSI_VMDQ2:
+ 	case I40E_VSI_FCOE:
+ 		ret = i40e_config_netdev(vsi);
++		if (ret)
++			goto err_netdev;
++		ret = i40e_netif_set_realnum_tx_rx_queues(vsi);
+ 		if (ret)
+ 			goto err_netdev;
+ 		ret = register_netdev(vsi->netdev);
+diff --git a/drivers/net/ieee802154/atusb.c b/drivers/net/ieee802154/atusb.c
+index 9b3ab60c3556..eb68a66538f7 100644
+--- a/drivers/net/ieee802154/atusb.c
++++ b/drivers/net/ieee802154/atusb.c
+@@ -77,7 +77,9 @@ static int atusb_control_msg(struct atusb *atusb, unsigned int pipe,
+ 
+ 	ret = usb_control_msg(usb_dev, pipe, request, requesttype,
+ 			      value, index, data, size, timeout);
+-	if (ret < 0) {
++	if (ret < size) {
++		ret = ret < 0 ? ret : -ENODATA;
++
+ 		atusb->err = ret;
+ 		dev_err(&usb_dev->dev,
+ 			"atusb_control_msg: req 0x%02x val 0x%x idx 0x%x, error %d\n",
+@@ -567,9 +569,9 @@ static int atusb_get_and_show_build(struct atusb *atusb)
+ 	if (!build)
+ 		return -ENOMEM;
+ 
+-	ret = atusb_control_msg(atusb, usb_rcvctrlpipe(usb_dev, 0),
+-				ATUSB_BUILD, ATUSB_REQ_FROM_DEV, 0, 0,
+-				build, ATUSB_BUILD_SIZE, 1000);
++	/* We cannot call atusb_control_msg() here, since this request may read various length data */
++	ret = usb_control_msg(atusb->usb_dev, usb_rcvctrlpipe(usb_dev, 0), ATUSB_BUILD,
++			      ATUSB_REQ_FROM_DEV, 0, 0, build, ATUSB_BUILD_SIZE, 1000);
+ 	if (ret >= 0) {
+ 		build[ret] = 0;
+ 		dev_info(&usb_dev->dev, "Firmware: build %s\n", build);
+diff --git a/drivers/net/usb/rndis_host.c b/drivers/net/usb/rndis_host.c
+index 2b57bd8f0d72..a53823720fb6 100644
+--- a/drivers/net/usb/rndis_host.c
++++ b/drivers/net/usb/rndis_host.c
+@@ -615,6 +615,11 @@ static const struct usb_device_id	products [] = {
+ 	USB_DEVICE_AND_INTERFACE_INFO(0x1630, 0x0042,
+ 				      USB_CLASS_COMM, 2 /* ACM */, 0x0ff),
+ 	.driver_info = (unsigned long) &rndis_poll_status_info,
++}, {
++	/* Hytera Communications DMR radios' "Radio to PC Network" */
++	USB_VENDOR_AND_INTERFACE_INFO(0x238b,
++				      USB_CLASS_COMM, 2 /* ACM */, 0x0ff),
++	.driver_info = (unsigned long)&rndis_info,
+ }, {
+ 	/* RNDIS is MSFT's un-official variant of CDC ACM */
+ 	USB_INTERFACE_INFO(USB_CLASS_COMM, 2 /* ACM */, 0x0ff),
+diff --git a/drivers/power/reset/ltc2952-poweroff.c b/drivers/power/reset/ltc2952-poweroff.c
+index 15fed9d8f871..ec54cff108b3 100644
+--- a/drivers/power/reset/ltc2952-poweroff.c
++++ b/drivers/power/reset/ltc2952-poweroff.c
+@@ -169,8 +169,8 @@ static void ltc2952_poweroff_kill(void)
+ 
+ static void ltc2952_poweroff_default(struct ltc2952_poweroff *data)
+ {
+-	data->wde_interval = ktime_set(0, 300L*1E6L);
+-	data->trigger_delay = ktime_set(2, 500L*1E6L);
++	data->wde_interval = ktime_set(0, 300L * NSEC_PER_MSEC);
++	data->trigger_delay = ktime_set(2, 500L * NSEC_PER_MSEC);
+ 
+ 	hrtimer_init(&data->timer_trigger, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
+ 	data->timer_trigger.function = ltc2952_poweroff_timer_trigger;
+diff --git a/drivers/scsi/libiscsi.c b/drivers/scsi/libiscsi.c
+index 0713d02cf112..b1ef1aa4dd44 100644
+--- a/drivers/scsi/libiscsi.c
++++ b/drivers/scsi/libiscsi.c
+@@ -2994,6 +2994,8 @@ void iscsi_conn_teardown(struct iscsi_cls_conn *cls_conn)
+ {
+ 	struct iscsi_conn *conn = cls_conn->dd_data;
+ 	struct iscsi_session *session = conn->session;
++	char *tmp_persistent_address = conn->persistent_address;
++	char *tmp_local_ipaddr = conn->local_ipaddr;
+ 
+ 	del_timer_sync(&conn->transport_timer);
+ 
+@@ -3015,8 +3017,6 @@ void iscsi_conn_teardown(struct iscsi_cls_conn *cls_conn)
+ 	spin_lock_bh(&session->frwd_lock);
+ 	free_pages((unsigned long) conn->data,
+ 		   get_order(ISCSI_DEF_MAX_RECV_SEG_LEN));
+-	kfree(conn->persistent_address);
+-	kfree(conn->local_ipaddr);
+ 	/* regular RX path uses back_lock */
+ 	spin_lock_bh(&session->back_lock);
+ 	kfifo_in(&session->cmdpool.queue, (void*)&conn->login_task,
+@@ -3028,6 +3028,8 @@ void iscsi_conn_teardown(struct iscsi_cls_conn *cls_conn)
+ 	mutex_unlock(&session->eh_mutex);
+ 
+ 	iscsi_destroy_conn(cls_conn);
++	kfree(tmp_persistent_address);
++	kfree(tmp_local_ipaddr);
+ }
+ EXPORT_SYMBOL_GPL(iscsi_conn_teardown);
+ 
+diff --git a/fs/xfs/xfs_ioctl.c b/fs/xfs/xfs_ioctl.c
+index e4a4f82ea13f..2e4f78d68b05 100644
+--- a/fs/xfs/xfs_ioctl.c
++++ b/fs/xfs/xfs_ioctl.c
+@@ -729,7 +729,8 @@ xfs_ioc_space(
+ 		flags |= XFS_PREALLOC_CLEAR;
+ 		if (bf->l_start > XFS_ISIZE(ip)) {
+ 			error = xfs_alloc_file_space(ip, XFS_ISIZE(ip),
+-					bf->l_start - XFS_ISIZE(ip), 0);
++					bf->l_start - XFS_ISIZE(ip),
++					XFS_BMAPI_PREALLOC);
+ 			if (error)
+ 				goto out_unlock;
+ 		}
+diff --git a/lib/test_bpf.c b/lib/test_bpf.c
+index cf2880d2ce3f..1a0d1e771e6c 100644
+--- a/lib/test_bpf.c
++++ b/lib/test_bpf.c
+@@ -4556,7 +4556,7 @@ static struct bpf_test tests[] = {
+ 		{ },
+ 		INTERNAL,
+ 		{ 0x34 },
+-		{ { 1, 0xbef } },
++		{ { ETH_HLEN, 0xbef } },
+ 		.fill_helper = bpf_fill_ld_abs_vlan_push_pop,
+ 	},
+ 	/*
+diff --git a/net/ipv4/udp.c b/net/ipv4/udp.c
+index 0d9f9d625124..aba49b23e65f 100644
+--- a/net/ipv4/udp.c
++++ b/net/ipv4/udp.c
+@@ -2463,7 +2463,7 @@ int udp4_seq_show(struct seq_file *seq, void *v)
+ {
+ 	seq_setwidth(seq, 127);
+ 	if (v == SEQ_START_TOKEN)
+-		seq_puts(seq, "  sl  local_address rem_address   st tx_queue "
++		seq_puts(seq, "   sl  local_address rem_address   st tx_queue "
+ 			   "rx_queue tr tm->when retrnsmt   uid  timeout "
+ 			   "inode ref pointer drops");
+ 	else {
+diff --git a/net/ipv6/ip6_vti.c b/net/ipv6/ip6_vti.c
+index 1ff29eba7df7..13f686253ae4 100644
+--- a/net/ipv6/ip6_vti.c
++++ b/net/ipv6/ip6_vti.c
+@@ -759,6 +759,8 @@ vti6_ioctl(struct net_device *dev, struct ifreq *ifr, int cmd)
+ 	struct net *net = dev_net(dev);
+ 	struct vti6_net *ip6n = net_generic(net, vti6_net_id);
+ 
++	memset(&p1, 0, sizeof(p1));
++
+ 	switch (cmd) {
+ 	case SIOCGETTUNNEL:
+ 		if (dev == ip6n->fb_tnl_dev) {
+diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
+index 7e2f0cd94e62..f6887a41f85b 100644
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -4431,7 +4431,7 @@ static int ieee80211_prep_connection(struct ieee80211_sub_if_data *sdata,
+ 
+ 	if (new_sta) {
+ 		u32 rates = 0, basic_rates = 0;
+-		bool have_higher_than_11mbit;
++		bool have_higher_than_11mbit = false;
+ 		int min_rate = INT_MAX, min_rate_index = -1;
+ 		struct ieee80211_chanctx_conf *chanctx_conf;
+ 		const struct cfg80211_bss_ies *ies;
+diff --git a/net/phonet/pep.c b/net/phonet/pep.c
+index 1e7945df3992..a734d47c5eb1 100644
+--- a/net/phonet/pep.c
++++ b/net/phonet/pep.c
+@@ -878,6 +878,7 @@ static struct sock *pep_sock_accept(struct sock *sk, int flags, int *errp)
+ 
+ 	err = pep_accept_conn(newsk, skb);
+ 	if (err) {
++		__sock_put(sk);
+ 		sock_put(newsk);
+ 		newsk = NULL;
+ 		goto drop;
+diff --git a/net/sched/sch_qfq.c b/net/sched/sch_qfq.c
+index 8dabd8257b49..d466fab84261 100644
+--- a/net/sched/sch_qfq.c
++++ b/net/sched/sch_qfq.c
+@@ -1479,10 +1479,8 @@ static int qfq_init_qdisc(struct Qdisc *sch, struct nlattr *opt)
+ 	if (err < 0)
+ 		return err;
+ 
+-	if (qdisc_dev(sch)->tx_queue_len + 1 > QFQ_MAX_AGG_CLASSES)
+-		max_classes = QFQ_MAX_AGG_CLASSES;
+-	else
+-		max_classes = qdisc_dev(sch)->tx_queue_len + 1;
++	max_classes = min_t(u64, (u64)qdisc_dev(sch)->tx_queue_len + 1,
++			    QFQ_MAX_AGG_CLASSES);
+ 	/* max_cl_shift = floor(log_2(max_classes)) */
+ 	max_cl_shift = __fls(max_classes);
+ 	q->max_agg_classes = 1<<max_cl_shift;
