@@ -2,117 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A740748B616
-	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 19:48:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5795A48B627
+	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 19:54:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345414AbiAKSss (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jan 2022 13:48:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33612 "EHLO
+        id S1345719AbiAKSyK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jan 2022 13:54:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243152AbiAKSsr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 13:48:47 -0500
+        with ESMTP id S245171AbiAKSyK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 13:54:10 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25A5BC06173F;
-        Tue, 11 Jan 2022 10:48:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE494C06173F;
+        Tue, 11 Jan 2022 10:54:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CC7BBB81CBC;
-        Tue, 11 Jan 2022 18:48:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2EBEC36AE3;
-        Tue, 11 Jan 2022 18:48:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1641926924;
-        bh=5nGYIYBRmlX498OYXLYdWFITJZwpiQZZoetGM7GB/fE=;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9A569B81D19;
+        Tue, 11 Jan 2022 18:54:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99385C36AE3;
+        Tue, 11 Jan 2022 18:54:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1641927247;
+        bh=Oy/P53cZ10GPwI0alv0HEevmcdSYD8f8MCuQGIjjDZ8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Wd7AZGPkge+6cI3FvoFCWSh82K8CVRceabYCdOCrTyvHKDLqB1Q9P2A2tba+RaQqw
-         POmUe9J82+/tMLueySgCXzzGAUtvrIwMxivx8KFmQCpZCdW+ViqxSNO8ghVbq7x7rk
-         9TZytphLIPVL5ayUv9kDm1o7LAoLdoPFw0ylo2ly+e6nR4IbrYxD1fVXSpGKRP9fGu
-         zZ1gsocbGXmFjqfEkfD41WGCEQQpmkzit5KYHDHmkGwTVOMZQDYhgSzMkrNaD9tO3m
-         g7Jkiij8SxNEBbWhKOmilIUU77Y3ES6H7fr7WvENO8Ux5hD+k2qYywSEZbtzAiYrW9
-         DPI6pWEz2c00w==
-Date:   Tue, 11 Jan 2022 10:48:42 -0800
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     Suren Baghdasaryan <surenb@google.com>
-Cc:     hannes@cmpxchg.org, torvalds@linux-foundation.org, tj@kernel.org,
-        lizefan.x@bytedance.com, mingo@redhat.com, peterz@infradead.org,
-        juri.lelli@redhat.com, vincent.guittot@linaro.org,
-        dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
-        mgorman@suse.de, bristot@redhat.com, corbet@lwn.net,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        cgroups@vger.kernel.org, stable@vger.kernel.org,
-        kernel-team@android.com,
-        syzbot+cdb5dd11c97cc532efad@syzkaller.appspotmail.com
-Subject: Re: [PATCH v2 1/1] psi: Fix uaf issue when psi trigger is destroyed
- while being polled
-Message-ID: <Yd3RClhoz24rrU04@sol.localdomain>
-References: <20220111071212.1210124-1-surenb@google.com>
+        b=Yi0luIRp9EJwDrDYG0QiFrswTXl9GFjwoAjkpmecPqYtbZ199TWlnnNg/Btk+DQZQ
+         Q3KNKJ2wpmbH04wmPgDad14Gl7o43x2hhxSphNhwSoQwMyHyDCQAw5Ku8dbkUSj7sV
+         +yEW7u9p5mlxjBOVJehuieITKUTT8VQ+0rAVYrH8=
+Date:   Tue, 11 Jan 2022 19:54:04 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Guillaume Morin <guillaume@morinfr.org>
+Cc:     linux-raid@vger.kernel.org, stable@vger.kernel.org,
+        guoqing.jiang@linux.dev, artur.paszkiewicz@intel.com
+Subject: Re: [md] Missing revert in 5.10
+Message-ID: <Yd3STJyOHVBz8zUo@kroah.com>
+References: <Yd3PDbLH4v5Ea682@bender.morinfr.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220111071212.1210124-1-surenb@google.com>
+In-Reply-To: <Yd3PDbLH4v5Ea682@bender.morinfr.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 10, 2022 at 11:12:12PM -0800, Suren Baghdasaryan wrote:
-> diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
-> index cafb8c114a21..93b51a2104f7 100644
-> --- a/kernel/cgroup/cgroup.c
-> +++ b/kernel/cgroup/cgroup.c
-> @@ -3642,6 +3642,12 @@ static ssize_t cgroup_pressure_write(struct kernfs_open_file *of, char *buf,
->  	cgroup_get(cgrp);
->  	cgroup_kn_unlock(of->kn);
->  
-> +	/* Allow only one trigger per file descriptor */
-> +	if (ctx->psi.trigger) {
-> +		cgroup_put(cgrp);
-> +		return -EBUSY;
-> +	}
-> +
->  	psi = cgroup_ino(cgrp) == 1 ? &psi_system : &cgrp->psi;
->  	new = psi_trigger_create(psi, buf, nbytes, res);
->  	if (IS_ERR(new)) {
-> @@ -3649,8 +3655,7 @@ static ssize_t cgroup_pressure_write(struct kernfs_open_file *of, char *buf,
->  		return PTR_ERR(new);
->  	}
->  
-> -	psi_trigger_replace(&ctx->psi.trigger, new);
-> -
-> +	ctx->psi.trigger = new;
->  	cgroup_put(cgrp);
+On Tue, Jan 11, 2022 at 07:40:13PM +0100, Guillaume Morin wrote:
+> 41d2d848e5c0 ("md: improve io stats accounting") was added during the
+> 5.9 cycle and therefore is present in the 5.10 branch. This patch was
+> then reverted in mainline during the 5.14 cycle (ad3fc798800f) due to
+> report of double faults [1].
+> 
+> However the revert was not picked up for the 5.10 branch. I believe it
+> should be queued up.
+> 
+> Unfortunately, 41d2d848e5c0 in 5.10 cannot be reverted cleanly because
+> of the later changes in 00fe60eae94. The mainline 5.14 revert commit
+> also does not apply cleanly on 5.10 because 99dfc43ecbf6 is not in 5.10.
+> Manually merging the revert is trivial though (I could provide the patch
+> I've been testing if that's helpful).
 
-The write here needs to use smp_store_release(), since it is paired with the
-concurrent READ_ONCE() in psi_trigger_poll().
+Please provide a working revert and we will be glad to queue it up.
 
-> @@ -1305,14 +1287,24 @@ static ssize_t psi_write(struct file *file, const char __user *user_buf,
->  
->  	buf[buf_size - 1] = '\0';
->  
-> -	new = psi_trigger_create(&psi_system, buf, nbytes, res);
-> -	if (IS_ERR(new))
-> -		return PTR_ERR(new);
-> -
->  	seq = file->private_data;
-> +
->  	/* Take seq->lock to protect seq->private from concurrent writes */
->  	mutex_lock(&seq->lock);
-> -	psi_trigger_replace(&seq->private, new);
-> +
-> +	/* Allow only one trigger per file descriptor */
-> +	if (seq->private) {
-> +		mutex_unlock(&seq->lock);
-> +		return -EBUSY;
-> +	}
-> +
-> +	new = psi_trigger_create(&psi_system, buf, nbytes, res);
-> +	if (IS_ERR(new)) {
-> +		mutex_unlock(&seq->lock);
-> +		return PTR_ERR(new);
-> +	}
-> +
-> +	seq->private = new;
+thanks,
 
-Likewise here.
-
-- Eric
+greg k-h
