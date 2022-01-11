@@ -2,100 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2286E48A664
-	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 04:36:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3347A48A699
+	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 04:48:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347177AbiAKDgE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 10 Jan 2022 22:36:04 -0500
-Received: from szxga01-in.huawei.com ([45.249.212.187]:34895 "EHLO
-        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347210AbiAKDei (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 22:34:38 -0500
-Received: from kwepemi100009.china.huawei.com (unknown [172.30.72.54])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4JXxBF3PSzzccKx;
-        Tue, 11 Jan 2022 11:33:57 +0800 (CST)
-Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
- kwepemi100009.china.huawei.com (7.221.188.242) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Tue, 11 Jan 2022 11:34:35 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Tue, 11 Jan 2022 11:34:34 +0800
-Subject: Re: [PATCH 5.10 00/43] 5.10.91-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20220110071817.337619922@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <afa9960a-079b-24ac-52ce-5f9a6c472200@huawei.com>
-Date:   Tue, 11 Jan 2022 11:34:33 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S1347339AbiAKDsv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 10 Jan 2022 22:48:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52114 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231165AbiAKDst (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 10 Jan 2022 22:48:49 -0500
+Received: from mail-io1-xd33.google.com (mail-io1-xd33.google.com [IPv6:2607:f8b0:4864:20::d33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DF45C06173F;
+        Mon, 10 Jan 2022 19:48:49 -0800 (PST)
+Received: by mail-io1-xd33.google.com with SMTP id y11so20590614iod.6;
+        Mon, 10 Jan 2022 19:48:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=WNQs6LbWcRmRmi0P34aqDM5w6SlKKEAW2g5xn1iLR7Q=;
+        b=hULUmVUCyUN+r0gT5RNapkHj3BeKk6Sb05aMMHFHU91rvBjqf3aSeXMEj8KGA2QeaG
+         G6+NT4mLzNrWLajbwwVqPLC3DgbUvEUV9EWW8M4K+mbWqGnSeJin68P4C3NZA5fb0h02
+         kW80//M6nKIYIz9w8xt4yYBr97JqGOHbz6F4uhydB5MW2sOJKE/WJB3GeAh3l1D7DMr5
+         oupmRzqDFtvkzqg4DF3TX2Ym1iR6cdsacr4aPZN+7ewjhHm/23+APhfJHqiXIp9GeDb7
+         Q4ZdFxqNIvzPza4Cg127QgqVemwdZRE6tNcMcBXHCfZS3YIR8ypjSuGfWQIrz29ajbOB
+         lzTQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=WNQs6LbWcRmRmi0P34aqDM5w6SlKKEAW2g5xn1iLR7Q=;
+        b=Nvhu5WK02+rSjCv1NuH0OqkxFIz1rbpC3IS2Qnirn3XdiSwtnHz9FPX0pDuonawLSi
+         Tc/grTUiiCmF8fQdBM6lBclGgCc9AmjXNtPofEDh0gwqSsGu0z7rMb1d4u2qpUbk2hY9
+         aaAtcjo45acvtLvn2yVw2tfBmUAKbmd3unAXxC+ya22u5Ix9h3setQ4MOz7XEI/rsRB+
+         ZLpmrmAF/QvHfmO7hQtXzsNI9RiIqlYDji343f/EKOP7DPfVkJCg0GRW1m/m4OB7auaZ
+         Ai6hdjp5GsPyV+vdUnYVZYkjxuPpsXbxRRWj3TGyd05a+T8NIpxWUCFGiJEFqSyaGP5j
+         d1Vg==
+X-Gm-Message-State: AOAM5318+K7g0ouoJ/QStWQ5yEUU3MvaKf9cynExGJ4K90+/PdxhLEET
+        JeeOmul0DdQXRn7hQjRfiHyzSvivGTA5SKQhldM=
+X-Google-Smtp-Source: ABdhPJwaUwZ+eVUMpv8w9NhE0GA+6kjJcHmOzy2iDhLiplpfrOuu6vmXU3KySSFQD777sbJ/TuSkWUceYlkq/ZIWyLE=
+X-Received: by 2002:a5d:888c:: with SMTP id d12mr1225891ioo.175.1641872928536;
+ Mon, 10 Jan 2022 19:48:48 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <20220110071817.337619922@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- kwepemm600013.china.huawei.com (7.193.23.68)
-X-CFilter-Loop: Reflected
+References: <20220110071821.500480371@linuxfoundation.org>
+In-Reply-To: <20220110071821.500480371@linuxfoundation.org>
+From:   Zan Aziz <zanaziz313@gmail.com>
+Date:   Mon, 10 Jan 2022 20:48:37 -0700
+Message-ID: <CAFU3qoaBJqnHwVONaJiFP-MvY+h2258h4w2EN2d=SqPN-+2SMA@mail.gmail.com>
+Subject: Re: [PATCH 5.15 00/72] 5.15.14-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 2022/1/10 15:22, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.91 release.
-> There are 43 patches in this series, all will be posted as a response
+On Mon, Jan 10, 2022 at 8:26 AM Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.15.14 release.
+> There are 72 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
-> 
+>
 > Responses should be made by Wed, 12 Jan 2022 07:18:05 +0000.
 > Anything received after that time might be too late.
-> 
+>
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.91-rc1.gz
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.14-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
 > and the diffstat can be found below.
-> 
 > thanks,
-> 
+>
 > greg k-h
-> 
+>
 
-Tested on arm64 and x86 for 5.10.91-rc1,
+Compiled and booted on my test system Lenovo P50s: Intel Core i7
+No emergency and critical messages in the dmesg
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.10.y
-Version: 5.10.91-rc1
-Commit: 83e826769db74cb48cb7063c726e75555a0e241f
-Compiler: gcc version 7.3.0 (GCC)
+Tested-by: Zan Aziz <zanaziz313@gmail.com>
 
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 9018
-passed: 9018
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 9018
-passed: 9018
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+Thanks
+-Zan
