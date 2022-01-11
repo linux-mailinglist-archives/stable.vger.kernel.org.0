@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0376448B46A
-	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 18:50:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD04248B494
+	for <lists+stable@lfdr.de>; Tue, 11 Jan 2022 18:52:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344061AbiAKRuo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jan 2022 12:50:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47680 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344022AbiAKRun (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 12:50:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38C9DC06173F
-        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 09:50:43 -0800 (PST)
+        id S1344709AbiAKRwh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jan 2022 12:52:37 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:52060 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344295AbiAKRwH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 12:52:07 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB7FC616FB
-        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 17:50:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8618CC36AE3;
-        Tue, 11 Jan 2022 17:50:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EE5F61708
+        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 17:52:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2ED1C36AE9;
+        Tue, 11 Jan 2022 17:52:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641923442;
-        bh=uxnffL6mtT/yv31+telqYg6YWVVyy0DzU4iUMt7T73c=;
+        s=korg; t=1641923526;
+        bh=ssLMbVAwWtQjsFy8iv3/fjkWlo2ZZGrDiLiqOLP2z5w=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=pRLhr+7+/Zce2aE04oKAlMSAjzy2eFTcgJ/oyAUHnFrRL0zbut6l7jLCLND1JBKec
-         9hW1ikKw8hV/bFJ0NihnvS/5lDvsbzR1LqqXUSN2bv9mBN5cvxeW1VRcwk/M/TgHQG
-         q+1IBjAkSatgj8PiMrLHYCmsB2LdskKSECAMzR2I=
-Date:   Tue, 11 Jan 2022 18:50:38 +0100
+        b=zt04b+ZixxQpSE3+aA+S4iU3Z+MEQJhNbNVAgQQY5bCGTIPe6CjLTaNAuoXcT4WsJ
+         w7XpJqvhQGxanEI3MnWa79nIMXhJgMM2spV6sUERyB8OjeyT1Lg6gcovc+FQa0TLin
+         HSReGx6huUVM848ljuFXhdbgdSpWndrqDLkgFY9A=
+Date:   Tue, 11 Jan 2022 18:52:03 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
 To:     Amy Fong <Amy_Fong@mentor.com>
 Cc:     stable@vger.kernel.org, davem@davemloft.net
 Subject: Re: [PATCH 4.19 stable 0/5] Backport netfilter: nf_tables: autoload
  modules from the abort path
-Message-ID: <Yd3DbmZ9kF6rY9bj@kroah.com>
+Message-ID: <Yd3DwxeKXDM2FMl8@kroah.com>
 References: <Yd2kKZEWm6AdBYDE@cat>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -49,11 +46,13 @@ On Tue, Jan 11, 2022 at 10:37:13AM -0500, Amy Fong wrote:
 > which fixes the bug mentioned in the following:
 > 
 >    https://syzkaller.appspot.com/bug?extid=437bf61d165c87bd40fb
-> 
 
-Please fix up the subject lines to match the subject lines of the
-patches you submited, and also properly sign off on the backport you did
-here so that they can be accepted.  As-is, we can not take them.
+Also, why is this bug special?  Can it be triggered by userspace?  What
+is the fallout from it?  Who is hitting this in real systems and why
+must just this one syzbot problem be backported, but others not?
+
+In other words, we need a lot more information here to judge if this is
+really needed, and if the backport is acceptable.
 
 thanks,
 
