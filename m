@@ -2,117 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C04448BECB
-	for <lists+stable@lfdr.de>; Wed, 12 Jan 2022 08:04:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82F6A48C0B4
+	for <lists+stable@lfdr.de>; Wed, 12 Jan 2022 10:06:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351097AbiALHDz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Jan 2022 02:03:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58618 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351092AbiALHDw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Jan 2022 02:03:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70506C06173F;
-        Tue, 11 Jan 2022 23:03:52 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 266E4B818BD;
-        Wed, 12 Jan 2022 07:03:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50AA4C36AE9;
-        Wed, 12 Jan 2022 07:03:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641971030;
-        bh=GMpGBehdAz9+K5BoERP8asUPg6bAWLb0QZ6i4XTmtbg=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vCDfe+/+If4bwLtCvdqRtlqWGSV58LuyFgB5/Togt3iUbgykndsswhuy1LjgSQJi8
-         gbqOFRtvzzN4DE7WaZtaPePC23Vjpg2kOM9D8Q85k1WuX1HIlsXyqBTZxv6EuzU51+
-         TX1qkLOEC8Rj80B+vfRS1b7lFJTOZqPV/hb63hdM=
-Date:   Wed, 12 Jan 2022 08:03:47 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Karl Kurbjun <kkurbjun@gmail.com>
-Cc:     linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] HID: Ignore battery for Elan touchscreen on HP Envy X360
- 15t-dr100
-Message-ID: <Yd59U8SbtPeWwRwM@kroah.com>
-References: <20220110034935.15623-1-kkurbjun@gmail.com>
- <YdvYVQub0+pu5ahg@kroah.com>
- <6735bf4f-b5e1-a982-6502-bd62c7715443@gmail.com>
+        id S1351938AbiALJGY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Jan 2022 04:06:24 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:34900 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1351922AbiALJGU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Jan 2022 04:06:20 -0500
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20C8pOBP029584;
+        Wed, 12 Jan 2022 09:06:19 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : cc :
+ subject : in-reply-to : in-reply-to : references : date : message-id :
+ mime-version : content-type; s=pp1;
+ bh=rFayo3zWIt8IBV+NQldKq4wgXu8k8OS3vTQgQUzk5bo=;
+ b=gOPbP8j+N8N0N7ykm6GxQR0pC+JD/wvgEQ/RAlZCW8LBFo0L7fXrs3gJeSx/yXdELbIM
+ U27Ru7lR8sT5rkLzg2am10FyMzAtpH9pZNlC8R9K6axXabGdP9fI/s3idxariuaLOu0q
+ wffEIG0xhTAbEybBDFHg9j7a9CpS2VAGNchQ+v5XjMBeY5UyRYmQgj6ZDFwqedU0VdWb
+ nmFkGOEeFQAPCYts3dNZAadixJgsitksk2mqDaud1xLzmkkn0U0/THrB5QNfOHmagoHf
+ 7pfMRablHVSKSgySmEcCG0CHwbGoqdHYOUsUGI4VJ1g9La/7L90cbXbwoBHrCvkkLfN3 Dw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dhuugr9ha-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 Jan 2022 09:06:19 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20C8pcGk030538;
+        Wed, 12 Jan 2022 09:06:18 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3dhuugr9gm-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 Jan 2022 09:06:18 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20C92H3k027925;
+        Wed, 12 Jan 2022 09:06:16 GMT
+Received: from b06cxnps4076.portsmouth.uk.ibm.com (d06relay13.portsmouth.uk.ibm.com [9.149.109.198])
+        by ppma04fra.de.ibm.com with ESMTP id 3df289nuxa-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 Jan 2022 09:06:16 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4076.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20C96E8G40174008
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 12 Jan 2022 09:06:14 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 74CFAAE04D;
+        Wed, 12 Jan 2022 09:06:14 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 5DC9FAE058;
+        Wed, 12 Jan 2022 09:06:14 +0000 (GMT)
+Received: from localhost (unknown [9.171.34.68])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 12 Jan 2022 09:06:14 +0000 (GMT)
+From:   Alexander Egorenkov <egorenar@linux.ibm.com>
+To:     gregkh@linuxfoundation.org, hca@linux.ibm.com, ltao@redhat.com,
+        prudo@redhat.com, stable@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] s390/kexec: handle R_390_PLT32DBL rela
+ in" failed to apply to 5.15-stable tree
+In-Reply-To: <1639748305210135@kroah.com>
+In-Reply-To: 
+References: <1639748305210135@kroah.com>
+Date:   Wed, 12 Jan 2022 10:06:14 +0100
+Message-ID: <8735lt8gs9.fsf@oc8242746057.ibm.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <6735bf4f-b5e1-a982-6502-bd62c7715443@gmail.com>
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: 23S9soUxiDQsrdcjCKUkzs6gz3f0NxKy
+X-Proofpoint-GUID: Ijwhn11sApVkbW51RUUtt1iyChm_Oz0N
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-12_03,2022-01-11_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 phishscore=0 adultscore=0
+ suspectscore=0 clxscore=1011 bulkscore=0 spamscore=0 priorityscore=1501
+ mlxscore=0 mlxlogscore=934 malwarescore=0 lowpriorityscore=0
+ impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2201120058
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 11, 2022 at 07:54:16PM -0700, Karl Kurbjun wrote:
-> On 1/9/22 23:55, Greg KH wrote:
-> > On Sun, Jan 09, 2022 at 08:49:35PM -0700, Karl Kurbjun wrote:
-> > > Battery status on Elan tablet driver is reported for the HP ENVY x360
-> > > 15t-dr100. There is no separate battery for the Elan controller resulting
-> > > in a battery level report of 0% or 1% depending on whether a stylus has
-> > > interacted with the screen. These low battery level reports causes a
-> > > variety of bad behavior in desktop environments. This patch adds the
-> > > appropriate quirk to indicate that the batery status is unused for this
-> > > target.
-> > > 
-> > > Signed-off-by: Karl Kurbjun <kkurbjun@gmail.com>
-> > > ---
-> > >   drivers/hid/hid-ids.h   | 1 +
-> > >   drivers/hid/hid-input.c | 2 ++
-> > >   2 files changed, 3 insertions(+)
-> > 
-> > 
-> > <formletter>
-> > 
-> > This is not the correct way to submit patches for inclusion in the
-> > stable kernel tree.  Please read:
-> >      https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> > for how to do this properly.
-> > 
-> > </formletter>
-> 
-> Thanks Greg,
-> 
-> Sorry for the mix-up on my side.  I read that page before I submitted the
-> patch but I went back and reread it.  I was trying to follow "option 1" but
-> I am guessing what I messed up was the cc in the signed-off area rather than
-> the cc through email?
+Hi Greg,
 
-Yes, please just put it in the signed-off-by area.
+<gregkh@linuxfoundation.org> writes:
 
-> I was looking for an example of that - I found these threads:
-> https://lore.kernel.org/lkml/20130618161238.626277186@linuxfoundation.org/
-> and this one was what I was originally modeling my submission off of:
-> https://lore.kernel.org/lkml/20210125183218.373193047@linuxfoundation.org/
-> 
-> Is there an example of how I should add the cc to the sign-off area.  As I
-> read those threads the stable list was added to the email cc?  Should I
-> resubmit it to the linux-input with the appropriate change or follow a
-> different flow now that the first email went out?
-> 
-> If I were going to resubmit I think I would need to to like so:
-> 
-> ...
-> > target.
-> >
-> Cc: stable@vger.kernel.org
-> > Signed-off-by: Karl Kurbjun <kkurbjun@gmail.com>
-> > ---
-> >  drivers/hid/hid-ids.h   | 1 +
-> >  drivers/hid/hid-input.c | 2 ++
-> >  2 files changed, 3 insertions(+)
-> >
-> > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-> > index 19da07777d62..a5a5a64c7abc 100644
-> ...
-> 
-> Is that correct?
+> The patch below does not apply to the 5.15-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
+>
+> thanks,
+>
+> greg k-h
+>
 
-Yes, that is correct.
+please apply the following upstream commits (in this order):
 
-thanks,
+1. edce10ee21f3916f5da34e55bbc03103c604ba70
+2. 41967a37b8eedfee15b81406a9f3015be90d3980
+3. abf0e8e4ef25478a4390115e6a953d589d1f9ffd (the failed commit)
 
-greg k-h
+Thanks!
+
+Regards
+Alex
