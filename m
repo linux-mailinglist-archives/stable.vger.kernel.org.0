@@ -2,132 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1313848CB31
-	for <lists+stable@lfdr.de>; Wed, 12 Jan 2022 19:45:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FC0B48CB3D
+	for <lists+stable@lfdr.de>; Wed, 12 Jan 2022 19:47:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356418AbiALSpP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Jan 2022 13:45:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50508 "EHLO
+        id S1356475AbiALSrm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Jan 2022 13:47:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356446AbiALSoz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Jan 2022 13:44:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 341D6C06173F;
-        Wed, 12 Jan 2022 10:44:55 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C816A61A35;
-        Wed, 12 Jan 2022 18:44:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9663BC36AE5;
-        Wed, 12 Jan 2022 18:44:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642013094;
-        bh=LW70gO4DLI9yvYy93v3QKw+URWyMDt50sXq2NeIJKtY=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=u9JyeUuGZinPYZac9f50ZGapw9lan1RmyRRYW6nsTq8Kzhkpsjl1QGkaz+oFRnqVN
-         7FZPmXLOZcqpo1pFn456eGEuQuqgkfk4cKrThZvQHIoq0gP0NWJrNg5bT9OYwgigh6
-         X1qxvJ8t2zZPtnNyGlI82cYsOlxgc4Wgw8nT4d1kKN5f91W3lGNeyPImjj7G/f9i+s
-         b0ygOn9p1x9rcOhj16ej7REyR+9FSy+AA1EubEkrfizXFPIwzk2t7/ocGMNuDUIHZu
-         ff6Aai615p5p8nnquDFEkpEwFQ+QQeofZvGLFKcPrV10stWyP4K/kieXrkhKZVwoGh
-         vdJBm2AYGVeEw==
-Date:   Wed, 12 Jan 2022 10:44:52 -0800
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     Suren Baghdasaryan <surenb@google.com>
-Cc:     Matthew Wilcox <willy@infradead.org>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Tejun Heo <tj@kernel.org>, Zefan Li <lizefan.x@bytedance.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Benjamin Segall <bsegall@google.com>,
-        Mel Gorman <mgorman@suse.de>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        cgroups mailinglist <cgroups@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        kernel-team <kernel-team@android.com>,
-        syzbot <syzbot+cdb5dd11c97cc532efad@syzkaller.appspotmail.com>
-Subject: Re: [PATCH v3 1/1] psi: Fix uaf issue when psi trigger is destroyed
- while being polled
-Message-ID: <Yd8hpPwsIT2pbKUN@gmail.com>
-References: <20220111232309.1786347-1-surenb@google.com>
- <Yd7oPlxCpnzNmFzc@cmpxchg.org>
- <CAJuCfpGHLXDvMU1GLMcgK_K72_ErPhbcFh1ZvEeHg025yinNuw@mail.gmail.com>
- <CAJuCfpEaM3KoPy3MUG7HW2yzcT6oJ5gdceyHPNpHrqTErq27eQ@mail.gmail.com>
- <Yd8a8TdThrGHsf2o@casper.infradead.org>
- <CAJuCfpF45VY_7esx7p2yEK+eK-ufSMsBETEdJPF=Mzxj+BTnLA@mail.gmail.com>
+        with ESMTP id S1356483AbiALSrb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Jan 2022 13:47:31 -0500
+Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 359F5C061751
+        for <stable@vger.kernel.org>; Wed, 12 Jan 2022 10:47:31 -0800 (PST)
+Received: by mail-pj1-x1031.google.com with SMTP id r16-20020a17090a0ad000b001b276aa3aabso14060096pje.0
+        for <stable@vger.kernel.org>; Wed, 12 Jan 2022 10:47:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=Ej6+dzQXYBNYBghW2L5wnTD1qTCyFwEQze4u8PLMM8c=;
+        b=k9T3MzlCu7qh8lbrZMe83Xi2hfmMkadDB+O1cBHpL7WOorRnSxHeHwXL9Ssk3f0wmd
+         hS+rh67RzV4VyThVS7uI3PzlZ5Y2TQ+CssEiAKxtGvTQP1rpm7OeHzduw3rRGnB8GzcO
+         cxzrrXYYYTYI32kxY3ywU9+MVbZP2M5NSd0pnY/1X3so+evKJxUfw6oBj1V+eYOEhofk
+         bWDDeZHW1s5meAJywrAU407L/RM6zu81HK8CzU6LdABFlX1qZXRAK6S9mG5Nx2t8cu9l
+         CLf772yfZwKv6neNpkSbSCyYLzTdrIAOv9dH8ag8PZiISwSSi6PU6uWLR1JH0y3xmxjM
+         0rHg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=Ej6+dzQXYBNYBghW2L5wnTD1qTCyFwEQze4u8PLMM8c=;
+        b=yGg40Q1L5FHuHJsaXbzo7VAXYrnXBUviSEZfwef8mXW2VJ9aXF8acfxx1Z8TfjwvD6
+         Xy7154m+tbXfVoHcIBY7kDIZzSXkZe2b/rY2i43TX26Gq1hRAFZR1+yIeGkxLdqjl1Sp
+         kETSCW9ZYxVXmSOlCPVo4wjPlUsZUlTSspN6eSgWwo54Du/7c+M54oA3VPRtedOfufNy
+         eFUybRVWHe37RH+uXTnhVrOCJEdKOUznSJuKmDZJi+I3ij2DUIAl8iG83D9sNErIfKV3
+         yzMF2Ekw3db2M4hu1dBQ8k9bQQOCN1hBfyiuuMFWYxSE8lYkIvgwcMvzqb82Fak7R9vO
+         19iQ==
+X-Gm-Message-State: AOAM531rRb1qSLZWT0dsk8f9knrbqHrhBWdr7dCPvPOwO1NF2HFTvsnY
+        tigU9xNCl8WXpKB5bUzqazZM1w==
+X-Google-Smtp-Source: ABdhPJzFpL8XksOuR6w6J5ddL6p8mmeC1OPP8IFYeXebroqx48h3ogwBFXpq6MS1gdcueN+4pULAKA==
+X-Received: by 2002:a17:90b:3910:: with SMTP id ob16mr10314729pjb.181.1642013250654;
+        Wed, 12 Jan 2022 10:47:30 -0800 (PST)
+Received: from [192.168.254.17] ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id gt22sm367722pjb.35.2022.01.12.10.47.30
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 12 Jan 2022 10:47:30 -0800 (PST)
+Message-ID: <3c2eeee7-0d3e-8000-67ad-3054f229cbe0@linaro.org>
+Date:   Wed, 12 Jan 2022 10:47:29 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAJuCfpF45VY_7esx7p2yEK+eK-ufSMsBETEdJPF=Mzxj+BTnLA@mail.gmail.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+Subject: Re: [PATCH v3 1/2] tpm: Fix error handling in async work
+Content-Language: en-US
+To:     Jarkko Sakkinen <jarkko@kernel.org>,
+        Tadeusz Struk <tstruk@gmail.com>
+Cc:     Jason Gunthorpe <jgg@ziepe.ca>, linux-integrity@vger.kernel.org,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20220111055228.1830-1-tstruk@gmail.com> <Yd8fY/wixkXhXEFH@iki.fi>
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+In-Reply-To: <Yd8fY/wixkXhXEFH@iki.fi>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 12, 2022 at 10:26:08AM -0800, Suren Baghdasaryan wrote:
-> On Wed, Jan 12, 2022 at 10:16 AM Matthew Wilcox <willy@infradead.org> wrote:
-> >
-> > On Wed, Jan 12, 2022 at 09:49:00AM -0800, Suren Baghdasaryan wrote:
-> > > > This happens with the following config:
-> > > >
-> > > > CONFIG_CGROUPS=n
-> > > > CONFIG_PSI=y
-> > > >
-> > > > With cgroups disabled these functions are defined as non-static but
-> > > > are not defined in the header
-> > > > (https://elixir.bootlin.com/linux/latest/source/include/linux/psi.h#L28)
-> > > > since the only external user cgroup.c is disabled. The cleanest way to
-> > > > fix these I think is by doing smth like this in psi.c:
-> >
-> > A cleaner way to solve these is simply:
-> >
-> > #ifndef CONFIG_CGROUPS
-> > static struct psi_trigger *psi_trigger_create(...);
-> > ...
-> > #endif
-> >
-> > I tested this works:
-> >
-> > $ cat foo5.c
-> > static int psi(void *);
-> >
-> > int psi(void *x)
-> > {
-> >         return (int)(long)x;
-> > }
-> >
-> > int bar(void *x)
-> > {
-> >         return psi(x);
-> > }
-> > $ gcc -W -Wall -O2 -c -o foo5.o foo5.c
-> > $ readelf -s foo5.o
-> >
-> > Symbol table '.symtab' contains 4 entries:
-> >    Num:    Value          Size Type    Bind   Vis      Ndx Name
-> >      0: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT  UND
-> >      1: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS foo5.c
-> >      2: 0000000000000000     0 SECTION LOCAL  DEFAULT    1 .text
-> >      3: 0000000000000000     3 FUNC    GLOBAL DEFAULT    1 bar
-> >
-> 
-> Thanks Matthew!
-> That looks much cleaner. I'll post a separate patch to fix these. My
-> main concern was whether it's worth adding more code to satisfy this
-> warning but with this approach the code changes are minimal, so I'll
-> go ahead and post it shortly.
+On 1/12/22 10:35, Jarkko Sakkinen wrote:
+> These look good to me! Thank you. I'm in process of compiling a test
+> kernel.
 
-Why not simply move the declarations of psi_trigger_create() and
-psi_trigger_destroy() in include/linux/psi.h outside of the
-'#ifdef CONFIG_CGROUPS' block, to match the .c file?
+Thanks Jarkko,
+You can run the new test before and after applying the change and see
+how it behaves. Also just noticed a mistake in the comment, sorry but
+it was quite late when I sent it.
 
-They *could* be static when !CONFIG_CGROUPS, but IMO it's not worth bothering.
++	/*
++	 * If ret is > 0 then tpm_dev_transmit returned the size of the
++	 * response. If ret is < 0 then tpm_dev_transmit failed and
++	 * returned a return code.
++	 */
 
-- Eric
+In the above could you please replace:
+
+s/returned a return code/returned an error code/
+
+before applying the patch. I would appreciate that.
+
+-- 
+Thanks,
+Tadeusz
