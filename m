@@ -2,132 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 410BB48BD72
-	for <lists+stable@lfdr.de>; Wed, 12 Jan 2022 03:54:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9834E48BDC7
+	for <lists+stable@lfdr.de>; Wed, 12 Jan 2022 04:56:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345525AbiALCyU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 11 Jan 2022 21:54:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60644 "EHLO
+        id S1350523AbiALD4F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 11 Jan 2022 22:56:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348956AbiALCyU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 21:54:20 -0500
-Received: from mail-il1-x12c.google.com (mail-il1-x12c.google.com [IPv6:2607:f8b0:4864:20::12c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15B80C06173F;
-        Tue, 11 Jan 2022 18:54:19 -0800 (PST)
-Received: by mail-il1-x12c.google.com with SMTP id o1so1019101ilo.6;
-        Tue, 11 Jan 2022 18:54:19 -0800 (PST)
+        with ESMTP id S1350520AbiALD4F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 11 Jan 2022 22:56:05 -0500
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDC8CC061751
+        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 19:56:04 -0800 (PST)
+Received: by mail-pl1-x62f.google.com with SMTP id w7so2118715plp.13
+        for <stable@vger.kernel.org>; Tue, 11 Jan 2022 19:56:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=fgeNXgYsb4D9aJu5WojhZDNDfNDiciRoqWK6eNj8jxY=;
-        b=R4+DJC81vvYpg1SvpPg/1yf09e1qZigjn48Bh7HRpsQAhliQ7qK2neIVY+k75coRtL
-         /eM5IkW6tqaKswU+yAEF8hKo2iYV/9Rq/5i2s/FtGabv5ACocCcZsZLt81N5cA/tljJO
-         5efS+oHiXYr9aOBDo0/gFJJ6R8KYjhh9VxuE8Uz2MmMg2VsTq7IeL+9KVBydHX6vFnK6
-         xypd9Z6MNBv4fPMnykADGJcysp1A0dRiwPITnUAfhEC9w6uM8BxzJyezTROdE44nTkKG
-         0rw2wyRj8OfdplDhDg4du1hm6CsO2QneOsFYkACFYJmx+QRKReY78Zy7zFzv/xQKIzFK
-         0pxQ==
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=lVcIHrZRwmWTRw2ZVy9SM+LddmUY7SxRVXVl2VyF3ZM=;
+        b=fy4M8tiTb+wDZhdf4JuBYs/4ufOPtDgTGmOORBUGsGU4SLpl6i3/J8euvO6DjNGCO2
+         7SP51hej1l9opkuEXNWS8cE3gAzLGQF79spjt/6lPtLh+7p48qgHQ1/9xjdwh/swqzH1
+         V5x/M0nOh0zkdrev+dWr9RQfKyMLS6DQcvb77EsUA0dOghlXTsZ7T81k8rNg6TLKvzLy
+         YuXj8wOJ6Q09oxc9oIXwjFvBDCw9BBmS5k4vprTraDRCuawd/gn9NRF4zeJL3b6RN7ZR
+         ebZ9wI/TdZBfQ/6Lo/NYcLPQe5m/ExTJT7ZlPBQvrHLSkgFV1n6l6t45MMM2rz921l9z
+         yLVA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
          :content-transfer-encoding;
-        bh=fgeNXgYsb4D9aJu5WojhZDNDfNDiciRoqWK6eNj8jxY=;
-        b=nNbrFII20sWjOYKtEzzJNXIYTdBzEqHC1OXlpV765WkxRJKB+ha0cPnL58mWQEK2wx
-         4eAwO4T5R8bWTr7SGn7GmrETVV4HRB1VmauUeyKRB84a4skbxy8kFriSmYceihHLTnGV
-         5oQGqmCWeD8fhNfnlHKd2BH4rivGEcAWPhvwv7TYWL9RNu89wURz+LA+yLVA/G1nuKKa
-         m7C9ubZr5CUEhuOojbdlWNLDAoefeeS2m7ursKMCZY7BLLOZ6aaNME+DlnvcR28bJEM9
-         xy+nWvwFrj6mKWedBI8IIlW+G/r7jkhWIUGtPVbl5cd0xGgDzyH2tjXacHcGz/HWmKR5
-         3cCg==
-X-Gm-Message-State: AOAM532Ors6qFVqmb2T6RKz3J1BaWsrHnhEifPjCJgDfI/AK6VRLxIQf
-        R2rK/vgpTAszfDthisOdiOk=
-X-Google-Smtp-Source: ABdhPJzJui0jZY6i8Cn4n9B4TEA10DVlpkaTHr8niM2ovhCyVvD8z/MDE5gyFidQM3eAgAMI1V6s2g==
-X-Received: by 2002:a05:6e02:1ba8:: with SMTP id n8mr3796154ili.235.1641956058506;
-        Tue, 11 Jan 2022 18:54:18 -0800 (PST)
-Received: from ?IPV6:2601:282:8100:7:fcb0:7ceb:152:3c49? ([2601:282:8100:7:fcb0:7ceb:152:3c49])
-        by smtp.gmail.com with ESMTPSA id q9sm6557588ils.79.2022.01.11.18.54.17
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 11 Jan 2022 18:54:17 -0800 (PST)
-Message-ID: <6735bf4f-b5e1-a982-6502-bd62c7715443@gmail.com>
-Date:   Tue, 11 Jan 2022 19:54:16 -0700
+        bh=lVcIHrZRwmWTRw2ZVy9SM+LddmUY7SxRVXVl2VyF3ZM=;
+        b=fDEEqJL634VyD6zp28aZ1Alr37WW9NrzcslPqTNnF+khNLgU60aFKlUTlVs/i9YN3e
+         pRHpc2xrb374sJu6UKdfj8vvaEXquPijjkoCiUROxqXEj833Qz4z59H5XGziAedT1p/g
+         yLkpPKkoBE7LT1rg8YRmijKG0VHb9pcySTVO7fFj+xIn6+GaTYNZMgrbTV5tDyaUGo1n
+         Q24tWaj9P9IXSySBNCA/jKL7HpoKusaKaq9NB/Hzhsepk/kOSR8YWuxhgBO7m71zkhpb
+         RmeIJxw4I0vdcSdoPyVtZNUdxJtdoHBXeceZlNhz8o2GfVUOHpJFmyu3SQuVwqS0WxKp
+         N0qw==
+X-Gm-Message-State: AOAM5308qZkzL1+Se9VsW6yoMu2p0+tTTmgUQdLyelF8Uepwbf/haxQb
+        /bGxdR1dP0ktt+OJLpO6WRUj
+X-Google-Smtp-Source: ABdhPJyTSBootufK4YPrKejqjZ/YePk0bzcLG6ZklPCMT8VwktRgk3JhXnkde3psz0Brbd/03ES3HQ==
+X-Received: by 2002:a17:902:d510:b0:149:3b5d:2b89 with SMTP id b16-20020a170902d51000b001493b5d2b89mr7227064plg.97.1641959764056;
+        Tue, 11 Jan 2022 19:56:04 -0800 (PST)
+Received: from localhost.localdomain ([117.193.208.172])
+        by smtp.gmail.com with ESMTPSA id b25sm775028pgs.56.2022.01.11.19.56.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 11 Jan 2022 19:56:03 -0800 (PST)
+From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+To:     bjorn.andersson@linaro.org
+Cc:     linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        dmitry.baryshkov@linaro.org,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        stable@vger.kernel.org, Jordan Crouse <jordan@cosmicpenguin.net>
+Subject: [PATCH] arm64: dts: qcom: sm8250: Fix MSI IRQ for PCIe1 and PCIe2
+Date:   Wed, 12 Jan 2022 09:25:56 +0530
+Message-Id: <20220112035556.5108-1-manivannan.sadhasivam@linaro.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [PATCH] HID: Ignore battery for Elan touchscreen on HP Envy X360
- 15t-dr100
-Content-Language: en-US
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     linux-input@vger.kernel.org, Jiri Kosina <jkosina@suse.cz>,
-        stable@vger.kernel.org
-References: <20220110034935.15623-1-kkurbjun@gmail.com>
- <YdvYVQub0+pu5ahg@kroah.com>
-From:   Karl Kurbjun <kkurbjun@gmail.com>
-In-Reply-To: <YdvYVQub0+pu5ahg@kroah.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/9/22 23:55, Greg KH wrote:
-> On Sun, Jan 09, 2022 at 08:49:35PM -0700, Karl Kurbjun wrote:
->> Battery status on Elan tablet driver is reported for the HP ENVY x360
->> 15t-dr100. There is no separate battery for the Elan controller resulting
->> in a battery level report of 0% or 1% depending on whether a stylus has
->> interacted with the screen. These low battery level reports causes a
->> variety of bad behavior in desktop environments. This patch adds the
->> appropriate quirk to indicate that the batery status is unused for this
->> target.
->>
->> Signed-off-by: Karl Kurbjun <kkurbjun@gmail.com>
->> ---
->>   drivers/hid/hid-ids.h   | 1 +
->>   drivers/hid/hid-input.c | 2 ++
->>   2 files changed, 3 insertions(+)
-> 
-> 
-> <formletter>
-> 
-> This is not the correct way to submit patches for inclusion in the
-> stable kernel tree.  Please read:
->      https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
-> for how to do this properly.
-> 
-> </formletter>
+Fix the MSI IRQ used for PCIe instances 1 and 2.
 
-Thanks Greg,
-
-Sorry for the mix-up on my side.  I read that page before I submitted 
-the patch but I went back and reread it.  I was trying to follow "option 
-1" but I am guessing what I messed up was the cc in the signed-off area 
-rather than the cc through email?
-
-I was looking for an example of that - I found these threads:
-https://lore.kernel.org/lkml/20130618161238.626277186@linuxfoundation.org/
-and this one was what I was originally modeling my submission off of:
-https://lore.kernel.org/lkml/20210125183218.373193047@linuxfoundation.org/
-
-Is there an example of how I should add the cc to the sign-off area.  As 
-I read those threads the stable list was added to the email cc?  Should 
-I resubmit it to the linux-input with the appropriate change or follow a 
-different flow now that the first email went out?
-
-If I were going to resubmit I think I would need to to like so:
-
-...
- > target.
- >
 Cc: stable@vger.kernel.org
- > Signed-off-by: Karl Kurbjun <kkurbjun@gmail.com>
- > ---
- >  drivers/hid/hid-ids.h   | 1 +
- >  drivers/hid/hid-input.c | 2 ++
- >  2 files changed, 3 insertions(+)
- >
- > diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
- > index 19da07777d62..a5a5a64c7abc 100644
-...
+Fixes: e53bdfc00977 ("arm64: dts: qcom: sm8250: Add PCIe support")
+Reported-by: Jordan Crouse <jordan@cosmicpenguin.net>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+---
+ arch/arm64/boot/dts/qcom/sm8250.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Is that correct?
+diff --git a/arch/arm64/boot/dts/qcom/sm8250.dtsi b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+index 6f6129b39c9c..8a3373c110fc 100644
+--- a/arch/arm64/boot/dts/qcom/sm8250.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8250.dtsi
+@@ -1487,7 +1487,7 @@ pcie1: pci@1c08000 {
+ 			ranges = <0x01000000 0x0 0x40200000 0x0 0x40200000 0x0 0x100000>,
+ 				 <0x02000000 0x0 0x40300000 0x0 0x40300000 0x0 0x1fd00000>;
+ 
+-			interrupts = <GIC_SPI 306 IRQ_TYPE_EDGE_RISING>;
++			interrupts = <GIC_SPI 307 IRQ_TYPE_LEVEL_HIGH>;
+ 			interrupt-names = "msi";
+ 			#interrupt-cells = <1>;
+ 			interrupt-map-mask = <0 0 0 0x7>;
+@@ -1593,7 +1593,7 @@ pcie2: pci@1c10000 {
+ 			ranges = <0x01000000 0x0 0x64200000 0x0 0x64200000 0x0 0x100000>,
+ 				 <0x02000000 0x0 0x64300000 0x0 0x64300000 0x0 0x3d00000>;
+ 
+-			interrupts = <GIC_SPI 236 IRQ_TYPE_EDGE_RISING>;
++			interrupts = <GIC_SPI 243 IRQ_TYPE_LEVEL_HIGH>;
+ 			interrupt-names = "msi";
+ 			#interrupt-cells = <1>;
+ 			interrupt-map-mask = <0 0 0 0x7>;
+-- 
+2.25.1
 
-Karl
