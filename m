@@ -2,96 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B9A148C472
-	for <lists+stable@lfdr.de>; Wed, 12 Jan 2022 14:12:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7F9748C486
+	for <lists+stable@lfdr.de>; Wed, 12 Jan 2022 14:15:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353391AbiALNMM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Jan 2022 08:12:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57452 "EHLO
+        id S1353430AbiALNNr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Jan 2022 08:13:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353396AbiALNMI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Jan 2022 08:12:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7A32C061748
-        for <stable@vger.kernel.org>; Wed, 12 Jan 2022 05:12:07 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F9EC61919
-        for <stable@vger.kernel.org>; Wed, 12 Jan 2022 13:12:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74292C36AEA;
-        Wed, 12 Jan 2022 13:12:05 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1641993126;
-        bh=t1BScziANUkYHYbQguI+65+Dv12n8Hb7sF1vMHkQC6w=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=RoryXVGedvvSdA2X04t0VSNkW42BYIpG4e+Oxlb1H1RTueN+gvPZcWqoGn/F4qamn
-         MXCF/pvf49hRIq3VqUiscL4k9xQL8sLHvd68cX3dbNy63psAKNDahl290XEkkhePFi
-         QeXOpp6ITAukPhPU3GF/70OAhaf63sl2ttqDKO6k=
-Date:   Wed, 12 Jan 2022 14:12:02 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Alexander Egorenkov <egorenar@linux.ibm.com>
-Cc:     hca@linux.ibm.com, ltao@redhat.com, prudo@redhat.com,
-        stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] s390/kexec: handle R_390_PLT32DBL rela
- in" failed to apply to 5.15-stable tree
-Message-ID: <Yd7TogdbfW6dcFyy@kroah.com>
-References: <1639748305210135@kroah.com>
- <8735lt8gs9.fsf@oc8242746057.ibm.com>
- <Yd6v5Ob3a883gCX+@kroah.com>
- <87tue96ruj.fsf@oc8242746057.ibm.com>
+        with ESMTP id S1353439AbiALNN0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Jan 2022 08:13:26 -0500
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6F21C034002;
+        Wed, 12 Jan 2022 05:13:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=K9qYdakio6i6nSysS/doW2LJOLUcCtqKh6YyRSh0/jE=; b=caQD6UaeVgCHokXJSxvWrX9Qt3
+        phEFylhKv3Ve77PlrZgeu0SaXe3N5hGI6+w8pSnsy0NUkv1nwCpVbCY3er5fKoBuQeQWBneucwMyA
+        8sl+uTpvFgJgY9RYPZqa8kBpYzPWgB4TgwSVUIjHqITAa2cLfOqXv7z4ibePr+ImhHWoldEb+AakH
+        4k0feyiJEoLkuD/jQUqtpcAF9epeRBuGh3ayZ+jr/TeZGLVpzg0dA98dnzM2NqUDkBIclKSGF8Spe
+        cTfsdEXXLCZq42b2hd1p6cQsuc8rqfns2eE2mrkbDCCUeMKLFm1dv7sTA7s1isiiBiuoKn6yyh07c
+        fnpMabNA==;
+Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:56672)
+        by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <linux@armlinux.org.uk>)
+        id 1n7dQu-000617-Ss; Wed, 12 Jan 2022 13:12:56 +0000
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
+        (envelope-from <linux@shell.armlinux.org.uk>)
+        id 1n7dQr-0006vZ-UR; Wed, 12 Jan 2022 13:12:53 +0000
+Date:   Wed, 12 Jan 2022 13:12:53 +0000
+From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
+To:     Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
+Cc:     Andrew Lunn <andrew@lunn.ch>,
+        "David S . Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Oleksij Rempel <linux@rempel-privat.de>,
+        Heiner Kallweit <hkallweit1@gmail.com>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH net v2] net: phy: marvell: add Marvell specific PHY
+ loopback
+Message-ID: <Yd7T1e/R9jGWMK2B@shell.armlinux.org.uk>
+References: <20220112093344.27894-1-mohammad.athari.ismail@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87tue96ruj.fsf@oc8242746057.ibm.com>
+In-Reply-To: <20220112093344.27894-1-mohammad.athari.ismail@intel.com>
+Sender: Russell King (Oracle) <linux@armlinux.org.uk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 12, 2022 at 01:50:12PM +0100, Alexander Egorenkov wrote:
-> Hi Greg,
-> 
-> Greg KH <gregkh@linuxfoundation.org> writes:
-> 
-> > On Wed, Jan 12, 2022 at 10:06:14AM +0100, Alexander Egorenkov wrote:
-> >> Hi Greg,
-> >> 
-> >> <gregkh@linuxfoundation.org> writes:
-> >> 
-> >> > The patch below does not apply to the 5.15-stable tree.
-> >> > If someone wants it applied there, or to any other stable or longterm
-> >> > tree, then please email the backport, including the original git commit
-> >> > id to <stable@vger.kernel.org>.
-> >> >
-> >> > thanks,
-> >> >
-> >> > greg k-h
-> >> >
-> >> 
-> >> please apply the following upstream commits (in this order):
-> >> 
-> >> 1. edce10ee21f3916f5da34e55bbc03103c604ba70
-> >
-> > This commit fails to apply.
-> >
-> >> 2. 41967a37b8eedfee15b81406a9f3015be90d3980
-> >> 3. abf0e8e4ef25478a4390115e6a953d589d1f9ffd (the failed commit)
-> >
-> > Can you please send a working set of backported patches that we can
-> > apply?
-> >
-> 
-> I tested the stable branch 5.15.y and discovered that
-> the fix 41967a37b8eedfee15b81406a9f3015be90d3980 is already present
-> there.
-> 
-> Please try to apply just abf0e8e4ef25478a4390115e6a953d589d1f9ffd again.
-> I think you probably tried to apply
-> abf0e8e4ef25478a4390115e6a953d589d1f9ffd before
-> 41967a37b8eedfee15b81406a9f3015be90d3980 was present ?
-> And now that is there, everything works.
+On Wed, Jan 12, 2022 at 05:33:44PM +0800, Mohammad Athari Bin Ismail wrote:
+> +static int marvell_loopback(struct phy_device *phydev, bool enable)
+> +{
+> +	if (enable) {
+> +		u16 bmcr_ctl = 0, mscr2_ctl = 0;
+> +
+> +		if (phydev->speed == SPEED_1000)
+> +			bmcr_ctl = BMCR_SPEED1000;
+> +		else if (phydev->speed == SPEED_100)
+> +			bmcr_ctl = BMCR_SPEED100;
+> +
+> +		if (phydev->duplex == DUPLEX_FULL)
+> +			bmcr_ctl |= BMCR_FULLDPLX;
+> +
+> +		phy_modify(phydev, MII_BMCR, ~0, bmcr_ctl);
 
-Ah, yes, I think that is what must have happened here, it now worked,
-thanks.
+Is there any point in doing a read-modify-write here if you're just
+setting all bits in the register? Wouldn't phy_write() be more
+appropriate? What about error handing?
 
-greg k-h
+> +
+> +		if (phydev->speed == SPEED_1000)
+> +			mscr2_ctl = BMCR_SPEED1000;
+> +		else if (phydev->speed == SPEED_100)
+> +			mscr2_ctl = BMCR_SPEED100;
+> +
+> +		phy_modify_paged(phydev, MII_MARVELL_MSCR_PAGE,
+> +				 MII_88E1510_MSCR_2, BMCR_SPEED1000 |
+> +				 BMCR_SPEED100, mscr2_ctl);
+> +
+> +		/* Need soft reset to have speed configuration takes effect */
+> +		genphy_soft_reset(phydev);
+> +
+> +		/* FIXME: Based on trial and error test, it seem 1G need to have
+> +		 * delay between soft reset and loopback enablement.
+> +		 */
+> +		if (phydev->speed == SPEED_1000)
+> +			msleep(1000);
+> +
+> +		return phy_modify(phydev, MII_BMCR, BMCR_LOOPBACK,
+> +				  BMCR_LOOPBACK);
+> +	} else {
+> +		phy_modify(phydev, MII_BMCR, BMCR_LOOPBACK, 0);
+
+Error handling?
+
+Thanks.
+
+-- 
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
