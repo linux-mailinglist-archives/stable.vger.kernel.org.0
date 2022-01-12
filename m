@@ -2,132 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6541D48CA69
-	for <lists+stable@lfdr.de>; Wed, 12 Jan 2022 18:53:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16A2548CAB8
+	for <lists+stable@lfdr.de>; Wed, 12 Jan 2022 19:12:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344021AbiALRxN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Jan 2022 12:53:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38394 "EHLO
+        id S240614AbiALSMn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Jan 2022 13:12:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344090AbiALRxM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Jan 2022 12:53:12 -0500
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C3CDC06173F
-        for <stable@vger.kernel.org>; Wed, 12 Jan 2022 09:53:12 -0800 (PST)
-Received: by mail-pj1-x1029.google.com with SMTP id y16-20020a17090a6c9000b001b13ffaa625so13659573pjj.2
-        for <stable@vger.kernel.org>; Wed, 12 Jan 2022 09:53:12 -0800 (PST)
+        with ESMTP id S1356245AbiALSK6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Jan 2022 13:10:58 -0500
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16EB0C034001
+        for <stable@vger.kernel.org>; Wed, 12 Jan 2022 10:10:57 -0800 (PST)
+Received: by mail-ed1-x535.google.com with SMTP id q25so13344395edb.2
+        for <stable@vger.kernel.org>; Wed, 12 Jan 2022 10:10:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Zov2gt7L/leOgWk8W+XhTGPhVZYtOo9cDQn/0bmGPLQ=;
-        b=nQ5ScZOr/4KFzWGWKNG2o4afyVTxS9wGGniML8RoZ+tOkGh9i/2O6fjaIc/uNcGdlh
-         moAOKSleg0uDBw89qpDz3AqPqtg9P4gsXxROS8oKF8y8y3RGWannhFYQC++4mdRcF0RP
-         ZhL3DIIED1D0RJ5l7YLhbrpHzDV3hNS9K7Ap5+PG3LrWNOAiTJ5W4ZYhFIt4Cy3W2BAW
-         hWm965Ej44JnNChq+mCXFEwqf1+bKeoTp8EcB5IvW1qU+0BQcd+yX/i/PEMNgJ3lhfmQ
-         Nq4rS8P77xhsIFHGHTlvpSDLrm++i/1i7lAshYJBhPttoDkNbkCiy3I1RXsmuNA7a2Ix
-         Nifg==
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=DhSCFec3TdzZgoMmjiOtfrqEeP0ETxz+5Dx8yofaKqk=;
+        b=ACYcmQYX22hOF9eHsSpz63wI3cG/WXMRlzAlN2whKAaJhPR9GPIxx9qzxyuqNMjA+7
+         rZivP0MyhKT2m5OXVlrJzc4KyBRcDy7L36J2mi7wYToYCPNHQweiy7y/QtQh9y37tYtS
+         Q95EMM11LnVKXAhQsE7YRBQZnsA8tqq/mJJvI=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Zov2gt7L/leOgWk8W+XhTGPhVZYtOo9cDQn/0bmGPLQ=;
-        b=Oq7u9BOPsywWlxNY2jY8vVRcSP+1WiRJuHT7lS43Nfrhva8Mje6NA8cuCH92u2LeJN
-         uyv5wcAavlSXah1rURM+7PyYaPws7bDDkYA6IBWKyDM0Om9kzJTgzo7Smt+D9iYsU5NE
-         XxkYRQFiW3LdiEBj01a1MMBotWCXaTBAnWGwYAUQoyz97lZu2aqeSQNALMPStBMs2erC
-         XOtxVw8TNVOVsCkH861GBTQtirPsnEpmLBFvPmreN0X0Kk7xVMi6jwy5PPaOxgUvP9CW
-         FbZxWGD8EJPVF02G0Ynjy7BoscrL+hj7PHVIs7tCF/QwDnJwVQo6zA1Hw/D/TOEFzLKd
-         C4Pg==
-X-Gm-Message-State: AOAM531FIdpiQJByex/eklxQSc9qwLiMG+t5MTyyix3UYKkqxDvPXC+V
-        W8VFoSW43nSbE2gfXGTnxrOH87qwKwlzFOjw/30=
-X-Google-Smtp-Source: ABdhPJxLPzfK0PyWwB5iIVKAKUCuqNLgzOuVnHOqRcgAUbx9S4bHtjfo91M5WgwM4KDl26AZWCW/wA==
-X-Received: by 2002:a17:90b:3802:: with SMTP id mq2mr745860pjb.63.1642009991781;
-        Wed, 12 Jan 2022 09:53:11 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s8sm230389pfu.190.2022.01.12.09.53.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 12 Jan 2022 09:53:11 -0800 (PST)
-Message-ID: <61df1587.1c69fb81.5b622.0c41@mx.google.com>
-Date:   Wed, 12 Jan 2022 09:53:11 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=DhSCFec3TdzZgoMmjiOtfrqEeP0ETxz+5Dx8yofaKqk=;
+        b=waH97nJin0uemrJzbeWCiAW65S1N/LtnFj2vMhz5LkG0h0QcTxPRj9szRXZq+VRZWg
+         HOm2oAEoyh948xdfdMzJzHKUI4m8PeVS8rJVyThzxfwqUQ7LbGVbj4jIoDX0QYAy7Uqf
+         r7iltKrFveF+Zc4hS1PTmLnxO0NwUeHtaAKbfIh6V33FcMnLCSE8ZBNKdOpD02mk7BV4
+         ZTImdtzTBYl/8lIO9kUFwfXH1Td+zQSYXoIpWxUkZkPHXhgZL0+HdFtxOYVsDkAZpQWc
+         sBwvlHESw9TSioW6DZbpk0tJCRjOhW1v0JAvUt6TwYXIT68k+uFkFkL37UV1qwaXzgUx
+         bxbA==
+X-Gm-Message-State: AOAM530gtpSd4vJlbIeBB6tQtcUL2wVKO6pNEtxqj1lSXnWfYBJDJD0K
+        i06r3DPVo/3S9pNBQWgXTnyXdJm9hq+HOU23Ork=
+X-Google-Smtp-Source: ABdhPJzNSNVexniFYg7NkOvfWeNoKOBRMfqE3HXBH1ahZC8LiLX7fTnO+cYDY0N6JBUV3IsMRL8BpQ==
+X-Received: by 2002:a50:f0da:: with SMTP id a26mr788916edm.37.1642011055472;
+        Wed, 12 Jan 2022 10:10:55 -0800 (PST)
+Received: from mail-wm1-f50.google.com (mail-wm1-f50.google.com. [209.85.128.50])
+        by smtp.gmail.com with ESMTPSA id p25sm197189edw.75.2022.01.12.10.10.55
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 12 Jan 2022 10:10:55 -0800 (PST)
+Received: by mail-wm1-f50.google.com with SMTP id c66so2184410wma.5
+        for <stable@vger.kernel.org>; Wed, 12 Jan 2022 10:10:55 -0800 (PST)
+X-Received: by 2002:a05:600c:4f13:: with SMTP id l19mr7775750wmq.152.1642010629913;
+ Wed, 12 Jan 2022 10:03:49 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.225
-X-Kernelci-Branch: queue/4.19
-Subject: stable-rc/queue/4.19 baseline: 171 runs, 1 regressions (v4.19.225)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20220111232309.1786347-1-surenb@google.com> <Yd6niK1gzKc5lIJ8@hirez.programming.kicks-ass.net>
+In-Reply-To: <Yd6niK1gzKc5lIJ8@hirez.programming.kicks-ass.net>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Wed, 12 Jan 2022 10:03:33 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wiNQD6o-REKoZv_5cHWrGmsT_KgduYCsLdLqbdHWUKcdw@mail.gmail.com>
+Message-ID: <CAHk-=wiNQD6o-REKoZv_5cHWrGmsT_KgduYCsLdLqbdHWUKcdw@mail.gmail.com>
+Subject: Re: [PATCH v3 1/1] psi: Fix uaf issue when psi trigger is destroyed
+ while being polled
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     Suren Baghdasaryan <surenb@google.com>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Eric Biggers <ebiggers@kernel.org>, Tejun Heo <tj@kernel.org>,
+        Zefan Li <lizefan.x@bytedance.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Cgroups <cgroups@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Android Kernel Team <kernel-team@android.com>,
+        syzbot <syzbot+cdb5dd11c97cc532efad@syzkaller.appspotmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 171 runs, 1 regressions (v4.19.225)
+On Wed, Jan 12, 2022 at 2:04 AM Peter Zijlstra <peterz@infradead.org> wrote:
+>
+> Thanks, I'll go stick this in sched/urgent unless Linus picks it up
+> himself.
 
-Regressions Summary
--------------------
+I'll let it go through the proper channels, it's not like a few days
+or whatever will make a difference.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.225/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.225
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      5e0cdb245b7c83cfa2939071bf0cb7a2ecd31abe =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61dedf2acd4df3bcbfef6785
-
-  Results:     5 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.225=
-/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.225=
-/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61dedf2acd4df3b=
-cbfef6788
-        new failure (last pass: v4.19.224-21-gaa8492ba4fad)
-        2 lines
-
-    2022-01-12T14:01:02.454278  <8>[   21.436035] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2022-01-12T14:01:02.498883  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/104
-    2022-01-12T14:01:02.508326  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
+               Linus
