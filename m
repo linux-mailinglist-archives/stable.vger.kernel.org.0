@@ -2,107 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EEB548CB12
-	for <lists+stable@lfdr.de>; Wed, 12 Jan 2022 19:35:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1313848CB31
+	for <lists+stable@lfdr.de>; Wed, 12 Jan 2022 19:45:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356296AbiALSf3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Jan 2022 13:35:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48342 "EHLO
+        id S1356418AbiALSpP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Jan 2022 13:45:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356295AbiALSf2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Jan 2022 13:35:28 -0500
+        with ESMTP id S1356446AbiALSoz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Jan 2022 13:44:55 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5DFFC06173F;
-        Wed, 12 Jan 2022 10:35:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 341D6C06173F;
+        Wed, 12 Jan 2022 10:44:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D4839619FF;
-        Wed, 12 Jan 2022 18:35:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADB3BC36AE5;
-        Wed, 12 Jan 2022 18:35:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C816A61A35;
+        Wed, 12 Jan 2022 18:44:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9663BC36AE5;
+        Wed, 12 Jan 2022 18:44:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642012526;
-        bh=tR5cYmecoyO98RJuj0F+0SYvT7MUWJ1IrdeUSbPm5c8=;
+        s=k20201202; t=1642013094;
+        bh=LW70gO4DLI9yvYy93v3QKw+URWyMDt50sXq2NeIJKtY=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=tVXkyMo44DPuThg3+etMdPiKtsHEgk5EW6REFoIazT6KtZjfaTMsYYHZGV2LLp5J0
-         PiAT8tOvCkp/Fhu2AfAzo3j5B2dPdFcWyZ47jQfXSrlS5DmDhPJd850uAPfUz0MaOB
-         f2ICKV9/TM/PXXTy26JULoMRlCD361wcNnmDSS/aGAJpj6tNaqR+bNLhYiDGcXzOQB
-         tyJfgFO6nyQenDbj92eww8zvFLjrBSo1DaPvVYPXD5imjt0fAniW3EX98r1RFfvKXL
-         KxD4GlWlCGepG3nSKK0VLVMSLQCqK9IiiPQ+hZSmjQGmYhzXsibhjdsZfhyr2t2tJC
-         JS8jm05kNnF2A==
-Date:   Wed, 12 Jan 2022 20:35:15 +0200
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Tadeusz Struk <tstruk@gmail.com>
-Cc:     Jason Gunthorpe <jgg@ziepe.ca>, linux-integrity@vger.kernel.org,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 1/2] tpm: Fix error handling in async work
-Message-ID: <Yd8fY/wixkXhXEFH@iki.fi>
-References: <20220111055228.1830-1-tstruk@gmail.com>
+        b=u9JyeUuGZinPYZac9f50ZGapw9lan1RmyRRYW6nsTq8Kzhkpsjl1QGkaz+oFRnqVN
+         7FZPmXLOZcqpo1pFn456eGEuQuqgkfk4cKrThZvQHIoq0gP0NWJrNg5bT9OYwgigh6
+         X1qxvJ8t2zZPtnNyGlI82cYsOlxgc4Wgw8nT4d1kKN5f91W3lGNeyPImjj7G/f9i+s
+         b0ygOn9p1x9rcOhj16ej7REyR+9FSy+AA1EubEkrfizXFPIwzk2t7/ocGMNuDUIHZu
+         ff6Aai615p5p8nnquDFEkpEwFQ+QQeofZvGLFKcPrV10stWyP4K/kieXrkhKZVwoGh
+         vdJBm2AYGVeEw==
+Date:   Wed, 12 Jan 2022 10:44:52 -0800
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     Suren Baghdasaryan <surenb@google.com>
+Cc:     Matthew Wilcox <willy@infradead.org>,
+        Johannes Weiner <hannes@cmpxchg.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Tejun Heo <tj@kernel.org>, Zefan Li <lizefan.x@bytedance.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Benjamin Segall <bsegall@google.com>,
+        Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        cgroups mailinglist <cgroups@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        kernel-team <kernel-team@android.com>,
+        syzbot <syzbot+cdb5dd11c97cc532efad@syzkaller.appspotmail.com>
+Subject: Re: [PATCH v3 1/1] psi: Fix uaf issue when psi trigger is destroyed
+ while being polled
+Message-ID: <Yd8hpPwsIT2pbKUN@gmail.com>
+References: <20220111232309.1786347-1-surenb@google.com>
+ <Yd7oPlxCpnzNmFzc@cmpxchg.org>
+ <CAJuCfpGHLXDvMU1GLMcgK_K72_ErPhbcFh1ZvEeHg025yinNuw@mail.gmail.com>
+ <CAJuCfpEaM3KoPy3MUG7HW2yzcT6oJ5gdceyHPNpHrqTErq27eQ@mail.gmail.com>
+ <Yd8a8TdThrGHsf2o@casper.infradead.org>
+ <CAJuCfpF45VY_7esx7p2yEK+eK-ufSMsBETEdJPF=Mzxj+BTnLA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220111055228.1830-1-tstruk@gmail.com>
+In-Reply-To: <CAJuCfpF45VY_7esx7p2yEK+eK-ufSMsBETEdJPF=Mzxj+BTnLA@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 10, 2022 at 09:52:27PM -0800, Tadeusz Struk wrote:
-> When an invalid (non existing) handle is used in a TPM command,
-> that uses the resource manager interface (/dev/tpmrm0) the resource
-> manager tries to load it from its internal cache, but fails and
-> the tpm_dev_transmit returns an -EINVAL error to the caller.
-> The existing async handler doesn't handle these error cases
-> currently and the condition in the poll handler never returns
-> mask with EPOLLIN set.
-> The result is that the poll call blocks and the application gets stuck
-> until the user_read_timer wakes it up after 120 sec.
-> Change the tpm_dev_async_work function to handle error conditions
-> returned from tpm_dev_transmit they are also reflected in the poll mask
-> and a correct error code could passed back to the caller.
+On Wed, Jan 12, 2022 at 10:26:08AM -0800, Suren Baghdasaryan wrote:
+> On Wed, Jan 12, 2022 at 10:16 AM Matthew Wilcox <willy@infradead.org> wrote:
+> >
+> > On Wed, Jan 12, 2022 at 09:49:00AM -0800, Suren Baghdasaryan wrote:
+> > > > This happens with the following config:
+> > > >
+> > > > CONFIG_CGROUPS=n
+> > > > CONFIG_PSI=y
+> > > >
+> > > > With cgroups disabled these functions are defined as non-static but
+> > > > are not defined in the header
+> > > > (https://elixir.bootlin.com/linux/latest/source/include/linux/psi.h#L28)
+> > > > since the only external user cgroup.c is disabled. The cleanest way to
+> > > > fix these I think is by doing smth like this in psi.c:
+> >
+> > A cleaner way to solve these is simply:
+> >
+> > #ifndef CONFIG_CGROUPS
+> > static struct psi_trigger *psi_trigger_create(...);
+> > ...
+> > #endif
+> >
+> > I tested this works:
+> >
+> > $ cat foo5.c
+> > static int psi(void *);
+> >
+> > int psi(void *x)
+> > {
+> >         return (int)(long)x;
+> > }
+> >
+> > int bar(void *x)
+> > {
+> >         return psi(x);
+> > }
+> > $ gcc -W -Wall -O2 -c -o foo5.o foo5.c
+> > $ readelf -s foo5.o
+> >
+> > Symbol table '.symtab' contains 4 entries:
+> >    Num:    Value          Size Type    Bind   Vis      Ndx Name
+> >      0: 0000000000000000     0 NOTYPE  LOCAL  DEFAULT  UND
+> >      1: 0000000000000000     0 FILE    LOCAL  DEFAULT  ABS foo5.c
+> >      2: 0000000000000000     0 SECTION LOCAL  DEFAULT    1 .text
+> >      3: 0000000000000000     3 FUNC    GLOBAL DEFAULT    1 bar
+> >
 > 
-> Cc: Jarkko Sakkinen <jarkko@kernel.org>
-> Cc: Jason Gunthorpe <jgg@ziepe.ca>
-> Cc: <linux-integrity@vger.kernel.org>
-> Cc: <stable@vger.kernel.org>
-> Cc: <linux-kernel@vger.kernel.org>
-> Fixes: 9e1b74a63f77 ("tpm: add support for nonblocking operation")
-> Signed-off-by: Tadeusz Struk <tstruk@gmail.com>
-> ---
-> Changed in v2:
-> - Updated commit message with better problem description
-> - Fixed typeos.
-> Changed in v3:
-> - Added a comment to tpm_dev_async_work.
-> - Updated commit message.
-> ---
->  drivers/char/tpm/tpm-dev-common.c | 8 +++++++-
->  1 file changed, 7 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/char/tpm/tpm-dev-common.c b/drivers/char/tpm/tpm-dev-common.c
-> index c08cbb306636..50df8f09ff79 100644
-> --- a/drivers/char/tpm/tpm-dev-common.c
-> +++ b/drivers/char/tpm/tpm-dev-common.c
-> @@ -69,7 +69,13 @@ static void tpm_dev_async_work(struct work_struct *work)
->  	ret = tpm_dev_transmit(priv->chip, priv->space, priv->data_buffer,
->  			       sizeof(priv->data_buffer));
->  	tpm_put_ops(priv->chip);
-> -	if (ret > 0) {
-> +
-> +	/*
-> +	 * If ret is > 0 then tpm_dev_transmit returned the size of the
-> +	 * response. If ret is < 0 then tpm_dev_transmit failed and
-> +	 * returned a return code.
-> +	 */
-> +	if (ret != 0) {
->  		priv->response_length = ret;
->  		mod_timer(&priv->user_read_timer, jiffies + (120 * HZ));
->  	}
-> -- 
-> 2.30.2
-> 
+> Thanks Matthew!
+> That looks much cleaner. I'll post a separate patch to fix these. My
+> main concern was whether it's worth adding more code to satisfy this
+> warning but with this approach the code changes are minimal, so I'll
+> go ahead and post it shortly.
 
-These look good to me! Thank you. I'm in process of compiling a test
-kernel.
+Why not simply move the declarations of psi_trigger_create() and
+psi_trigger_destroy() in include/linux/psi.h outside of the
+'#ifdef CONFIG_CGROUPS' block, to match the .c file?
 
-/Jarkko
+They *could* be static when !CONFIG_CGROUPS, but IMO it's not worth bothering.
+
+- Eric
