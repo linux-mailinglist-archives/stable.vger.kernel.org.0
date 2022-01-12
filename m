@@ -2,183 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A89848C94E
-	for <lists+stable@lfdr.de>; Wed, 12 Jan 2022 18:26:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFB9F48CA08
+	for <lists+stable@lfdr.de>; Wed, 12 Jan 2022 18:44:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355582AbiALR0x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Jan 2022 12:26:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60434 "EHLO
+        id S241185AbiALRoA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Jan 2022 12:44:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355578AbiALR0r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Jan 2022 12:26:47 -0500
-Received: from smtp1-g21.free.fr (smtp1-g21.free.fr [IPv6:2a01:e0c:1:1599::10])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4040AC06173F;
-        Wed, 12 Jan 2022 09:26:47 -0800 (PST)
-Received: from bender.morinfr.org (unknown [82.65.130.196])
-        by smtp1-g21.free.fr (Postfix) with ESMTPS id 97F4FB005A3;
-        Wed, 12 Jan 2022 18:26:45 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=morinfr.org
-        ; s=20170427; h=In-Reply-To:Content-Type:MIME-Version:References:Message-ID:
-        Subject:Cc:To:From:Date:Sender:Reply-To:Content-Transfer-Encoding:Content-ID:
-        Content-Description:Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc
-        :Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-        List-Post:List-Owner:List-Archive;
-        bh=bCR9f3y6Na/zZgiB1xxZdUKB4diqze6Tu0VOEOuV+5g=; b=nGK1e2QTco3m3U5FVoKFNrF1rU
-        1vWsd6WEMwY4Nv35jlZ8ytxXNbQ6n1R4/33uzmDpdHIvLKcdcDT+8vIMVdKiX/laX/bQWuFJb25zj
-        6yONC84KX3Gw9/Pu8qkO9eOxDewlS4OSYQxUeWBNS3feTrhSOGy5Qei5iVnS15ELf7V4=;
-Received: from guillaum by bender.morinfr.org with local (Exim 4.94.2)
-        (envelope-from <guillaume@morinfr.org>)
-        id 1n7hOW-00AvgO-Tv; Wed, 12 Jan 2022 18:26:44 +0100
-Date:   Wed, 12 Jan 2022 18:26:44 +0100
-From:   Guillaume Morin <guillaume@morinfr.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     linux-raid@vger.kernel.org, stable@vger.kernel.org,
-        guoqing.jiang@linux.dev, artur.paszkiewicz@intel.com,
-        song@kernel.org
-Subject: [PATCH backport for 5.10]: md: revert io stats accounting
-Message-ID: <Yd8PVH8rBepVYXwg@bender.morinfr.org>
-References: <Yd3PDbLH4v5Ea682@bender.morinfr.org>
- <Yd3STJyOHVBz8zUo@kroah.com>
+        with ESMTP id S242561AbiALRn4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Jan 2022 12:43:56 -0500
+Received: from mail-qk1-x72b.google.com (mail-qk1-x72b.google.com [IPv6:2607:f8b0:4864:20::72b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1042DC06173F
+        for <stable@vger.kernel.org>; Wed, 12 Jan 2022 09:43:56 -0800 (PST)
+Received: by mail-qk1-x72b.google.com with SMTP id j85so4027599qke.2
+        for <stable@vger.kernel.org>; Wed, 12 Jan 2022 09:43:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=eP5J8KdvwPTzx2Kh8QKLifNfox7/NjpkOpmG9av6VCk=;
+        b=KOnNi/erjJKDmXshSZZv7C3gKcJm3IwJxMouUmE8kJwjg35FNi2J3VpRJJE/XQaq+f
+         ouYLgnZDFAaNV/dqxDZDk6O3Fv6kndvxJTf9AH6O4akiYKs9CyjyX3pWSP26jU17VEXI
+         6ErUlQZ3+TUb2xsmk1ccCDw9ox3MzN4DbY+Gik5rJVQOkCfjDDk7H1g7Yf66gTgdMZ0B
+         xX7ItBjgp1QlQISrAdgTibHYblom3PdgqvpX8tr+VOTUf+X4TBASg+486PvrMw4KlZD7
+         CYY5L51LKMZK8LUaHHFZsldW3arkrea20wfWQ0cJ5wMJObXD8DPKu+feJ+i17rNp84mq
+         Jraw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=eP5J8KdvwPTzx2Kh8QKLifNfox7/NjpkOpmG9av6VCk=;
+        b=S8Dm8vGJQNlqlyzUOU0PkZnJu8JCBx1I5al3AHZnFUIHLym9X6rHRAcIVE2+oasSJF
+         JcoltjtLBWfLjKZXmnvweeTQQlzcXXgvDahn7V6aoSgHmWxe7qcXw87/JfP1BulehdmL
+         xLZOykx+HCrjA6MilAYxXxxaMUdzhJIfGLAtPzDG52ZGlGaBvRaa/tT2vaBirQW6caFW
+         ARhMyHqBJBNlrUyUyEhOHdMhsNe+zxqBcbLIrR9bp4WyAK1omrUK7Rg8YEKGb7ZL67b2
+         tinQvg2t91G6RZ3Wv+Th7iihRaRbNCZqz5RjusyKUZ78UYatZ3fMAqTDa961T4Gg3COx
+         mc4A==
+X-Gm-Message-State: AOAM5311X/L20kbDwh+V7G2cYZOC8PreJtc5/gLuMyWuiWdjx2mqNfZ7
+        xIvw7Xgmq+qgDuVEp2iNfb4ZZ1r6d8iv//xCgsaHOQ==
+X-Google-Smtp-Source: ABdhPJxLWwmyro/LoBJqQDlBZtRxFKL0M6eFBNtTxql56a0+Bl0VWjyjB5YOXPDVFGgaUWS7krAoLWZb5Bhs1xjIjtM=
+X-Received: by 2002:a05:6902:703:: with SMTP id k3mr987928ybt.225.1642009434832;
+ Wed, 12 Jan 2022 09:43:54 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Yd3STJyOHVBz8zUo@kroah.com>
+References: <20220111232309.1786347-1-surenb@google.com> <Yd7oPlxCpnzNmFzc@cmpxchg.org>
+In-Reply-To: <Yd7oPlxCpnzNmFzc@cmpxchg.org>
+From:   Suren Baghdasaryan <surenb@google.com>
+Date:   Wed, 12 Jan 2022 09:43:43 -0800
+Message-ID: <CAJuCfpGHLXDvMU1GLMcgK_K72_ErPhbcFh1ZvEeHg025yinNuw@mail.gmail.com>
+Subject: Re: [PATCH v3 1/1] psi: Fix uaf issue when psi trigger is destroyed
+ while being polled
+To:     Johannes Weiner <hannes@cmpxchg.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        Eric Biggers <ebiggers@kernel.org>, Tejun Heo <tj@kernel.org>,
+        Zefan Li <lizefan.x@bytedance.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Benjamin Segall <bsegall@google.com>,
+        Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        cgroups mailinglist <cgroups@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        kernel-team <kernel-team@android.com>,
+        syzbot <syzbot+cdb5dd11c97cc532efad@syzkaller.appspotmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit ad3fc798800fb7ca04c1dfc439dba946818048d8 upstream.
+)
 
-The commit 41d2d848e5c0 ("md: improve io stats accounting") could cause
-double fault problem per the report [1], and also it is not correct to
-change ->bi_end_io if md don't own it, so let's revert it.
+On Wed, Jan 12, 2022 at 6:40 AM Johannes Weiner <hannes@cmpxchg.org> wrote:
+>
+> On Tue, Jan 11, 2022 at 03:23:09PM -0800, Suren Baghdasaryan wrote:
+> > With write operation on psi files replacing old trigger with a new one,
+> > the lifetime of its waitqueue is totally arbitrary. Overwriting an
+> > existing trigger causes its waitqueue to be freed and pending poll()
+> > will stumble on trigger->event_wait which was destroyed.
+> > Fix this by disallowing to redefine an existing psi trigger. If a write
+> > operation is used on a file descriptor with an already existing psi
+> > trigger, the operation will fail with EBUSY error.
+> > Also bypass a check for psi_disabled in the psi_trigger_destroy as the
+> > flag can be flipped after the trigger is created, leading to a memory
+> > leak.
+> >
+> > Fixes: 0e94682b73bf ("psi: introduce psi monitor")
+> > Cc: stable@vger.kernel.org
+> > Reported-by: syzbot+cdb5dd11c97cc532efad@syzkaller.appspotmail.com
+> > Analyzed-by: Eric Biggers <ebiggers@kernel.org>
+> > Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+> > Signed-off-by: Suren Baghdasaryan <surenb@google.com>
+>
+> Acked-by: Johannes Weiner <hannes@cmpxchg.org>
 
-And io stats accounting will be replemented in later commits.
+Hmm. kernel test robot notified me of new (which are not really new)
+warnings but I don't think this patch specifically introduced them:
 
-[1]. https://lore.kernel.org/linux-raid/3bf04253-3fad-434a-63a7-20214e38cf26@gmail.com/T/#t
+kernel/sched/psi.c:1112:21: warning: no previous prototype for
+function 'psi_trigger_create' [-Wmissing-prototypes]
+   struct psi_trigger *psi_trigger_create(struct psi_group *group,
+                       ^
+   kernel/sched/psi.c:1112:1: note: declare 'static' if the function
+is not intended to be used outside of this translation unit
+   struct psi_trigger *psi_trigger_create(struct psi_group *group,
+   ^
+   static
+>> kernel/sched/psi.c:1182:6: warning: no previous prototype for function 'psi_trigger_destroy' [-Wmissing-prototypes]
+   void psi_trigger_destroy(struct psi_trigger *t)
+        ^
+   kernel/sched/psi.c:1182:1: note: declare 'static' if the function
+is not intended to be used outside of this translation unit
+   void psi_trigger_destroy(struct psi_trigger *t)
+   ^
+   static
+   kernel/sched/psi.c:1249:10: warning: no previous prototype for
+function 'psi_trigger_poll' [-Wmissing-prototypes]
+   __poll_t psi_trigger_poll(void **trigger_ptr,
+            ^
+   kernel/sched/psi.c:1249:1: note: declare 'static' if the function
+is not intended to be used outside of this translation unit
+   __poll_t psi_trigger_poll(void **trigger_ptr,
+   ^
 
-Fixes: 41d2d848e5c0 ("md: improve io stats accounting")
-Signed-off-by: Guoqing Jiang <jiangguoqing@kylinos.cn>
-Signed-off-by: Song Liu <song@kernel.org>
-[GM: backport to 5.10-stable]
-Signed-off-by: Guillaume Morin <guillaume@morinfr.org>
----
- drivers/md/md.c | 57 +++++++++++--------------------------------------
- drivers/md/md.h |  1 -
- 2 files changed, 12 insertions(+), 46 deletions(-)
+This happens with the following config:
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 2069b16b50ec..cc3876500c4b 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -459,34 +459,12 @@ void md_handle_request(struct mddev *mddev, struct bio *bio)
- }
- EXPORT_SYMBOL(md_handle_request);
- 
--struct md_io {
--	struct mddev *mddev;
--	bio_end_io_t *orig_bi_end_io;
--	void *orig_bi_private;
--	unsigned long start_time;
--	struct hd_struct *part;
--};
--
--static void md_end_io(struct bio *bio)
--{
--	struct md_io *md_io = bio->bi_private;
--	struct mddev *mddev = md_io->mddev;
--
--	part_end_io_acct(md_io->part, bio, md_io->start_time);
--
--	bio->bi_end_io = md_io->orig_bi_end_io;
--	bio->bi_private = md_io->orig_bi_private;
--
--	mempool_free(md_io, &mddev->md_io_pool);
--
--	if (bio->bi_end_io)
--		bio->bi_end_io(bio);
--}
--
- static blk_qc_t md_submit_bio(struct bio *bio)
- {
- 	const int rw = bio_data_dir(bio);
-+	const int sgrp = op_stat_group(bio_op(bio));
- 	struct mddev *mddev = bio->bi_disk->private_data;
-+	unsigned int sectors;
- 
- 	if (mddev == NULL || mddev->pers == NULL) {
- 		bio_io_error(bio);
-@@ -507,26 +485,21 @@ static blk_qc_t md_submit_bio(struct bio *bio)
- 		return BLK_QC_T_NONE;
- 	}
- 
--	if (bio->bi_end_io != md_end_io) {
--		struct md_io *md_io;
--
--		md_io = mempool_alloc(&mddev->md_io_pool, GFP_NOIO);
--		md_io->mddev = mddev;
--		md_io->orig_bi_end_io = bio->bi_end_io;
--		md_io->orig_bi_private = bio->bi_private;
--
--		bio->bi_end_io = md_end_io;
--		bio->bi_private = md_io;
--
--		md_io->start_time = part_start_io_acct(mddev->gendisk,
--						       &md_io->part, bio);
--	}
--
-+	/*
-+	 * save the sectors now since our bio can
-+	 * go away inside make_request
-+	 */
-+	sectors = bio_sectors(bio);
- 	/* bio could be mergeable after passing to underlayer */
- 	bio->bi_opf &= ~REQ_NOMERGE;
- 
- 	md_handle_request(mddev, bio);
- 
-+	part_stat_lock();
-+	part_stat_inc(&mddev->gendisk->part0, ios[sgrp]);
-+	part_stat_add(&mddev->gendisk->part0, sectors[sgrp], sectors);
-+	part_stat_unlock();
-+
- 	return BLK_QC_T_NONE;
- }
- 
-@@ -5636,7 +5609,6 @@ static void md_free(struct kobject *ko)
- 
- 	bioset_exit(&mddev->bio_set);
- 	bioset_exit(&mddev->sync_set);
--	mempool_exit(&mddev->md_io_pool);
- 	kfree(mddev);
- }
- 
-@@ -5732,11 +5704,6 @@ static int md_alloc(dev_t dev, char *name)
- 		 */
- 		mddev->hold_active = UNTIL_STOP;
- 
--	error = mempool_init_kmalloc_pool(&mddev->md_io_pool, BIO_POOL_SIZE,
--					  sizeof(struct md_io));
--	if (error)
--		goto abort;
--
- 	error = -ENOMEM;
- 	mddev->queue = blk_alloc_queue(NUMA_NO_NODE);
- 	if (!mddev->queue)
-diff --git a/drivers/md/md.h b/drivers/md/md.h
-index 2175a5ac4f7c..c94811cf2600 100644
---- a/drivers/md/md.h
-+++ b/drivers/md/md.h
-@@ -487,7 +487,6 @@ struct mddev {
- 	struct bio_set			sync_set; /* for sync operations like
- 						   * metadata and bitmap writes
- 						   */
--	mempool_t			md_io_pool;
- 
- 	/* Generic flush handling.
- 	 * The last to finish preflush schedules a worker to submit
--- 
-2.23.0
+CONFIG_CGROUPS=n
+CONFIG_PSI=y
 
--- 
-Guillaume Morin <guillaume@morinfr.org>
+With cgroups disabled these functions are defined as non-static but
+are not defined in the header
+(https://elixir.bootlin.com/linux/latest/source/include/linux/psi.h#L28)
+since the only external user cgroup.c is disabled. The cleanest way to
+fix these I think is by doing smth like this in psi.c:
+
+struct psi_trigger *_psi_trigger_create(struct psi_group *group, char
+*buf, size_t nbytes, enum psi_res res)
+{
+  // original psi_trigger_create code
+}
+
+#ifdef CONFIG_CGROUPS
+
+struct psi_trigger *psi_trigger_create(struct psi_group *group, char
+*buf, size_t nbytes, enum psi_res res)
+{
+    return _psi_trigger_create(group, buf, nbytes, res);
+}
+
+#else
+
+static struct psi_trigger *psi_trigger_create(struct psi_group *group,
+char *buf, size_t nbytes, enum psi_res res)
+{
+    return _psi_trigger_create(group, buf, nbytes, res);
+}
+
+#endif
+
+Two questions:
+1. Is this even worth fixing?
+2. If so, I would like to do that as a separate patch (these warnings
+are unrelated to the changes in this patch). Would that be ok?
+Thanks,
+Suren.
