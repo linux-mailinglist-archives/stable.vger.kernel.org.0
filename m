@@ -2,102 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A56B48C353
-	for <lists+stable@lfdr.de>; Wed, 12 Jan 2022 12:39:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FD6048C434
+	for <lists+stable@lfdr.de>; Wed, 12 Jan 2022 13:50:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240184AbiALLjd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Jan 2022 06:39:33 -0500
-Received: from smtp-out2.suse.de ([195.135.220.29]:42136 "EHLO
-        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239872AbiALLjd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 12 Jan 2022 06:39:33 -0500
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id B503C1F3BB;
-        Wed, 12 Jan 2022 11:39:31 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1641987571; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Pcw0Dz6qCaXjfiGIwaXI/xy2ZlOMa2tLvBlwHG3TYvw=;
-        b=onsstIQttVSLGgFpUSh3I8HnRDo/bROAbMlFewWB3U43RyYQ82nc4hoqFT161CX9+guIzd
-        Jms7ILfI8Y+NMgyYLx5CBZ1R7c+WbgueYVfCUSF8y6x2PnhHAnf12bloWEKM45dWRHQhdX
-        VXB4iTq5M+buNDopk2u4lDh9nWNytbw=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1641987571;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Pcw0Dz6qCaXjfiGIwaXI/xy2ZlOMa2tLvBlwHG3TYvw=;
-        b=qKNFZ6VjH57hsbem0RH8vQwYgBX3CXct42Clu9pZEGrwTOTZykyQM/60E9IMvf2k26d3+1
-        o8zALtEnkCuUtoCw==
-Received: from quack3.suse.cz (unknown [10.100.200.198])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id A1829A3B87;
-        Wed, 12 Jan 2022 11:39:31 +0000 (UTC)
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id C1000A05E1; Wed, 12 Jan 2022 12:39:28 +0100 (CET)
-From:   Jan Kara <jack@suse.cz>
-To:     <linux-block@vger.kernel.org>
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        Paolo Valente <paolo.valente@linaro.org>,
-        "yukuai (C)" <yukuai3@huawei.com>, Jan Kara <jack@suse.cz>,
+        id S240376AbiALMuS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Jan 2022 07:50:18 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:22080 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S232738AbiALMuS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Jan 2022 07:50:18 -0500
+Received: from pps.filterd (m0098414.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20CCH6La009461;
+        Wed, 12 Jan 2022 12:50:17 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : cc :
+ subject : in-reply-to : in-reply-to : references : date : message-id :
+ mime-version : content-type; s=pp1;
+ bh=84yMe6rRBfA52Z2j/OjzLDtqFnKfO03Ab7IOMM83A88=;
+ b=Mxd0t7rJ9NpDxHIFHdrOyfiEAhCzu0ialeyAJeLCsRwedRAIW4wgnYkZSIA9zwNPKx3K
+ creWC2Asm5K7q77pcALVzkE8Z4wU9Ii6OoAyDo4OHHXltLrnsJJ6K0Cp+e1Dm0QqExxV
+ IIxIWzJrCFD7FAcV1xcizkznAAckR6Lr/7JRi3Sgqxy2D9e4pp5XVQkI2nq+iJWTk3hX
+ 41JMqf+sE4gEuCadJUH1ky6eKXG5OeKVxsuZF05bX1ZAbdJ9hJrWqZbA8vWYwgiMW+Mc
+ xKXrUR1KouSv25jGPa1+rbj4WrAoj2LMqg1qUXHIBvzhSLF89RPnOaAAeJeygf6cimuz nw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3dhwkuuw38-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 Jan 2022 12:50:17 +0000
+Received: from m0098414.ppops.net (m0098414.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20CClYRd011777;
+        Wed, 12 Jan 2022 12:50:16 GMT
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 3dhwkuuw2t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 Jan 2022 12:50:16 +0000
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20CCgx5k019097;
+        Wed, 12 Jan 2022 12:50:14 GMT
+Received: from b06avi18626390.portsmouth.uk.ibm.com (b06avi18626390.portsmouth.uk.ibm.com [9.149.26.192])
+        by ppma04ams.nl.ibm.com with ESMTP id 3df289bpxp-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 12 Jan 2022 12:50:14 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06avi18626390.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20CCf9Wh37224888
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 12 Jan 2022 12:41:09 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 934D911C05E;
+        Wed, 12 Jan 2022 12:50:12 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 7262311C06E;
+        Wed, 12 Jan 2022 12:50:12 +0000 (GMT)
+Received: from localhost (unknown [9.171.34.68])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 12 Jan 2022 12:50:12 +0000 (GMT)
+From:   Alexander Egorenkov <egorenar@linux.ibm.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     hca@linux.ibm.com, ltao@redhat.com, prudo@redhat.com,
         stable@vger.kernel.org
-Subject: [PATCH 4/4] bfq: Update cgroup information before merging bio
-Date:   Wed, 12 Jan 2022 12:39:22 +0100
-Message-Id: <20220112113928.32349-4-jack@suse.cz>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20220112113529.6355-1-jack@suse.cz>
-References: <20220112113529.6355-1-jack@suse.cz>
+Subject: Re: FAILED: patch "[PATCH] s390/kexec: handle R_390_PLT32DBL rela
+ in" failed to apply to 5.15-stable tree
+In-Reply-To: <Yd6v5Ob3a883gCX+@kroah.com>
+In-Reply-To: 
+References: <1639748305210135@kroah.com>
+ <8735lt8gs9.fsf@oc8242746057.ibm.com> <Yd6v5Ob3a883gCX+@kroah.com>
+Date:   Wed, 12 Jan 2022 13:50:12 +0100
+Message-ID: <87tue96ruj.fsf@oc8242746057.ibm.com>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1409; h=from:subject; bh=P/+2SbEdiz2xvmkxw/cr+I4TuGV2AeuKw8OJviTNrjg=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBh3r3pQy/HX7G773Vd6m9ykG4cMcysm53jNa0NyqZ3 2jEOnyWJATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCYd696QAKCRCcnaoHP2RA2SMXB/ 9jRaHsj0cG/dgAOCCu6VA+421DnphVVT+iVOcNsSjpmRH7QvpRl58F+OkMmbSZDP1If4Xjl50txiIb 6RQqBlUkj95eBCT4ufcZlA1e/TGlVIvlB+MS9FGs/a9EYhe4vm4NUde+ihp2AfXGZCb1/v3UrcTHhu pS+DEv8gzxe+qpbvYfDf8Lt8fHyTDNibiYmgs1MqolBOYz9/65MVASylA+AuGLYMnhPpZhNnQ2ds6G efBH0ZiJG9zKeqmGHgirmbKoJqwEVeUWdh0JzKCPhITYMx/1e2esDgZp4aP9KO2VXAN//HibX3KxIY rZQlGH7YPWm42GtOMC7LtZNDbM67HD
-X-Developer-Key: i=jack@suse.cz; a=openpgp; fpr=93C6099A142276A28BBE35D815BC833443038D8C
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: aF6Le9drEodeP6J55-7W7y2lTbLReZ1i
+X-Proofpoint-GUID: bIWR4Rue-2Tw9jEtFScValiQyyMXLetc
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.790,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-12_04,2022-01-11_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 clxscore=1015
+ phishscore=0 bulkscore=0 priorityscore=1501 adultscore=0 spamscore=0
+ mlxlogscore=999 lowpriorityscore=0 impostorscore=0 mlxscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2201120082
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When the process is migrated to a different cgroup (or in case of
-writeback just starts submitting bios associated with a different
-cgroup) bfq_merge_bio() can operate with stale cgroup information in
-bic. Thus the bio can be merged to a request from a different cgroup or
-it can result in merging of bfqqs for different cgroups or bfqqs of
-already dead cgroups and causing possible use-after-free issues. Fix the
-problem by updating cgroup information in bfq_merge_bio().
+Hi Greg,
 
-CC: stable@vger.kernel.org
-Fixes: e21b7a0b9887 ("block, bfq: add full hierarchical scheduling and cgroups support")
-Signed-off-by: Jan Kara <jack@suse.cz>
----
- block/bfq-iosched.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+Greg KH <gregkh@linuxfoundation.org> writes:
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 361d321b012a..8a088d77a0b6 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -2337,10 +2337,17 @@ static bool bfq_bio_merge(struct request_queue *q, struct bio *bio,
+> On Wed, Jan 12, 2022 at 10:06:14AM +0100, Alexander Egorenkov wrote:
+>> Hi Greg,
+>> 
+>> <gregkh@linuxfoundation.org> writes:
+>> 
+>> > The patch below does not apply to the 5.15-stable tree.
+>> > If someone wants it applied there, or to any other stable or longterm
+>> > tree, then please email the backport, including the original git commit
+>> > id to <stable@vger.kernel.org>.
+>> >
+>> > thanks,
+>> >
+>> > greg k-h
+>> >
+>> 
+>> please apply the following upstream commits (in this order):
+>> 
+>> 1. edce10ee21f3916f5da34e55bbc03103c604ba70
+>
+> This commit fails to apply.
+>
+>> 2. 41967a37b8eedfee15b81406a9f3015be90d3980
+>> 3. abf0e8e4ef25478a4390115e6a953d589d1f9ffd (the failed commit)
+>
+> Can you please send a working set of backported patches that we can
+> apply?
+>
+
+I tested the stable branch 5.15.y and discovered that
+the fix 41967a37b8eedfee15b81406a9f3015be90d3980 is already present
+there.
+
+Please try to apply just abf0e8e4ef25478a4390115e6a953d589d1f9ffd again.
+I think you probably tried to apply
+abf0e8e4ef25478a4390115e6a953d589d1f9ffd before
+41967a37b8eedfee15b81406a9f3015be90d3980 was present ?
+And now that is there, everything works.
+
+Regards
+Alex
  
- 	spin_lock_irq(&bfqd->lock);
- 
--	if (bic)
-+	if (bic) {
-+		/*
-+		 * Make sure cgroup info is uptodate for current process before
-+		 * considering the merge.
-+		 */
-+		bfq_bic_update_cgroup(bic, bio);
-+
- 		bfqd->bio_bfqq = bic_to_bfqq(bic, op_is_sync(bio->bi_opf));
--	else
-+	} else {
- 		bfqd->bio_bfqq = NULL;
-+	}
- 	bfqd->bio_bic = bic;
- 
- 	ret = blk_mq_sched_try_merge(q, bio, nr_segs, &free);
--- 
-2.31.1
 
