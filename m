@@ -2,155 +2,253 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9A0848C734
-	for <lists+stable@lfdr.de>; Wed, 12 Jan 2022 16:28:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA8CA48C7F8
+	for <lists+stable@lfdr.de>; Wed, 12 Jan 2022 17:12:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232822AbiALP1g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 12 Jan 2022 10:27:36 -0500
-Received: from mga12.intel.com ([192.55.52.136]:18452 "EHLO mga12.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245740AbiALP1e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 12 Jan 2022 10:27:34 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1642001254; x=1673537254;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=IPzQ1seZQyyplo99PQB+zisMVjDJiAJoC4gSimmGlck=;
-  b=O280LJfQL6o9pM7XHRW9sSlvOUHxvjMXU6DGo9O+4dVMDWry6m4/LiCq
-   QjhMQHLzgrSDBEwsUDIPqWjnVGnWkPotHFKCGcEcbSRqADex6N2jRqlq7
-   KeOv1Iv0ky4z45bIEulcQpQdUReEEIZqy6QUfVptO0gKimOpI7jMgBIpb
-   od9dPtMDhr+u7H0+swfQSwzVWkl+8e2EGUz8NBk45QmhcGuDrK1wJcslo
-   hbDeAw7TmgmUzHjgixJoQlw7kK5C4pSEK7/sm+BMqrSfxLp7dH8ZkXdIo
-   GjBYKbiUJ3zxWaKAVSs4Bp40otU2txr0NOIRl5tWHU1jdTo5xpvA/MjLu
-   Q==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10224"; a="223738346"
-X-IronPort-AV: E=Sophos;i="5.88,282,1635231600"; 
-   d="scan'208";a="223738346"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 12 Jan 2022 07:26:41 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.88,282,1635231600"; 
-   d="scan'208";a="490764405"
-Received: from linux.intel.com ([10.54.29.200])
-  by orsmga002.jf.intel.com with ESMTP; 12 Jan 2022 07:26:41 -0800
-Received: from [10.212.251.158] (kliang2-MOBL.ccr.corp.intel.com [10.212.251.158])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-        (No client certificate requested)
-        by linux.intel.com (Postfix) with ESMTPS id 6201F58072B;
-        Wed, 12 Jan 2022 07:26:40 -0800 (PST)
-Message-ID: <abf04b7b-54c4-c82e-9a3b-53e97b73e90d@linux.intel.com>
-Date:   Wed, 12 Jan 2022 10:26:39 -0500
+        id S1355019AbiALQMD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 12 Jan 2022 11:12:03 -0500
+Received: from mail.efficios.com ([167.114.26.124]:59366 "EHLO
+        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1355024AbiALQLG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 12 Jan 2022 11:11:06 -0500
+Received: from localhost (localhost [127.0.0.1])
+        by mail.efficios.com (Postfix) with ESMTP id 74F892575AE;
+        Wed, 12 Jan 2022 11:11:05 -0500 (EST)
+Received: from mail.efficios.com ([127.0.0.1])
+        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id n6a4qlMlEoz8; Wed, 12 Jan 2022 11:11:04 -0500 (EST)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.efficios.com (Postfix) with ESMTP id D31042574B9;
+        Wed, 12 Jan 2022 11:11:04 -0500 (EST)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com D31042574B9
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
+        s=default; t=1642003864;
+        bh=CHSmDKIBS772E6jxc42t8yoSsngTNxSjPK0HHOUA5VA=;
+        h=Date:From:To:Message-ID:MIME-Version;
+        b=MslA3a46ckR2nV9LVnKj85R1OnbB+uazRPH19QB/LySc0eISWRVEySRMwsKTzK9Y5
+         8rFrndyVhIT+Dvw8/iZilkmb5I+PTe9Z2EOJ9u0ud9pedafqFNYfHjKf59LiaWolhm
+         FxtFTeFLsTRB/a2WCtALoUFIsTjsaNMBLVvw2MBzDVfWuwpALDEMAfaxXcNEYq+VlU
+         zyoFrRKgemGnS6WgHFM0glMU8lg0Uv8AmjlfUWg6rQN7EV9oRVglkM64gUwkORJHXv
+         HE5i5UVfJyjeQA9EfuyOqmtcNMcRVnahpK865MtjOTLRTQE24tEvvwLOB4P9cmbxzB
+         bdGmpJYRM9dsw==
+X-Virus-Scanned: amavisd-new at efficios.com
+Received: from mail.efficios.com ([127.0.0.1])
+        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id GGfJYmmZpaAh; Wed, 12 Jan 2022 11:11:04 -0500 (EST)
+Received: from mail03.efficios.com (mail03.efficios.com [167.114.26.124])
+        by mail.efficios.com (Postfix) with ESMTP id BB4B425734C;
+        Wed, 12 Jan 2022 11:11:04 -0500 (EST)
+Date:   Wed, 12 Jan 2022 11:11:04 -0500 (EST)
+From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+To:     Andy Lutomirski <luto@kernel.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        linux-mm <linux-mm@kvack.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Anton Blanchard <anton@ozlabs.org>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@ozlabs.org>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        linux-arch <linux-arch@vger.kernel.org>, x86 <x86@kernel.org>,
+        riel <riel@surriel.com>, Dave Hansen <dave.hansen@intel.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Nadav Amit <nadav.amit@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Paul Mackerras <paulus@samba.org>,
+        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        linux-arm-kernel <linux-arm-kernel@lists.infradead.org>,
+        stable <stable@vger.kernel.org>
+Message-ID: <1769209086.24770.1642003864649.JavaMail.zimbra@efficios.com>
+In-Reply-To: <d2f76c148fa039d2dea404c03e5fcd2f3dbf3750.1641659630.git.luto@kernel.org>
+References: <cover.1641659630.git.luto@kernel.org> <d2f76c148fa039d2dea404c03e5fcd2f3dbf3750.1641659630.git.luto@kernel.org>
+Subject: Re: [PATCH 07/23] membarrier: Rewrite sync_core_before_usermode()
+ and improve documentation
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.1
-Subject: Re: [PATCH] perf/x86/intel: Add a quirk for the calculation of the
- number of counters on Alder Lake
-Content-Language: en-US
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     mingo@kernel.org, linux-kernel@vger.kernel.org, ak@linux.intel.com,
-        damarion@cisco.com, edison_chan_gz@hotmail.com,
-        ray.kinsella@intel.com, stable@vger.kernel.org
-References: <1641925238-149288-1-git-send-email-kan.liang@linux.intel.com>
- <Yd6lSH41fqcpUS+P@hirez.programming.kicks-ass.net>
-From:   "Liang, Kan" <kan.liang@linux.intel.com>
-In-Reply-To: <Yd6lSH41fqcpUS+P@hirez.programming.kicks-ass.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 7bit
+X-Originating-IP: [167.114.26.124]
+X-Mailer: Zimbra 8.8.15_GA_4180 (ZimbraWebClient - FF96 (Linux)/8.8.15_GA_4177)
+Thread-Topic: membarrier: Rewrite sync_core_before_usermode() and improve documentation
+Thread-Index: COsoGErcEE/VA4sBucBykqi2Wwe69g==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+----- On Jan 8, 2022, at 11:43 AM, Andy Lutomirski luto@kernel.org wrote:
 
-
-On 1/12/2022 4:54 AM, Peter Zijlstra wrote:
-> On Tue, Jan 11, 2022 at 10:20:38AM -0800, kan.liang@linux.intel.com wrote:
->> From: Kan Liang <kan.liang@linux.intel.com>
->>
->> For some Alder Lake machine with all E-cores disabled in a BIOS, the
->> below warning may be triggered.
->>
->> [ 2.010766] hw perf events fixed 5 > max(4), clipping!
->>
->> Current perf code relies on the CPUID leaf 0xA and leaf 7.EDX[15] to
->> calculate the number of the counters and follow the below assumption.
->>
->> For a hybrid configuration, the leaf 7.EDX[15] (X86_FEATURE_HYBRID_CPU)
->> is set. The leaf 0xA only enumerate the common counters. Linux perf has
->> to manually add the extra GP counters and fixed counters for P-cores.
->> For a non-hybrid configuration, the X86_FEATURE_HYBRID_CPU should not
->> be set. The leaf 0xA enumerates all counters.
->>
->> However, that's not the case when all E-cores are disabled in a BIOS.
->> Although there are only P-cores in the system, the leaf 7.EDX[15]
->> (X86_FEATURE_HYBRID_CPU) is still set. But the leaf 0xA is updated
->> to enumerate all counters of P-cores. The inconsistency triggers the
->> warning.
->>
->> Several software ways were considered to handle the inconsistency.
->> - Drop the leaf 0xA and leaf 7.EDX[15] CPUID enumeration support.
->>    Hardcode the number of counters. This solution may be a problem for
->>    virtualization. A hypervisor cannot control the number of counters
->>    in a Linux guest via changing the guest CPUID enumeration anymore.
->> - Find another CPUID bit that is also updated with E-cores disabled.
->>    There may be a problem in the virtualization environment too. Because
->>    a hypervisor may disable the feature/CPUID bit.
->> - The P-cores have a maximum of 8 GP counters and 4 fixed counters on
->>    ADL. The maximum number can be used to detect the case.
->>    This solution is implemented in this patch.
+> The old sync_core_before_usermode() comments suggested that a
+> non-icache-syncing return-to-usermode instruction is x86-specific and that
+> all other architectures automatically notice cross-modified code on return
+> to userspace.
 > 
-> ARGH!! This is horrific :-(
+> This is misleading.  The incantation needed to modify code from one
+> CPU and execute it on another CPU is highly architecture dependent.
+> On x86, according to the SDM, one must modify the code, issue SFENCE
+> if the modification was WC or nontemporal, and then issue a "serializing
+> instruction" on the CPU that will execute the code.  membarrier() can do
+> the latter.
 > 
-> This is also the N-th problem with hybrid enumeration; is there a plan
-> to fix all that for the next generation or are we going to keep muddling
-> things?
-
-Yes, that's annoying. We are working on it for the future generation.
-The internal validation team is also enhancing the test case to test 
-different configurations.
-
+> On arm, arm64 and powerpc, one must flush the icache and then flush the
+> pipeline on the target CPU, although the CPU manuals don't necessarily use
+> this language.
 > 
->> Fixes: ee72a94ea4a6 ("perf/x86/intel: Fix fixed counter check warning for some Alder Lake")
->> Reported-by: Damjan Marion (damarion) <damarion@cisco.com>
->> Tested-by: Damjan Marion (damarion) <damarion@cisco.com>
->> Reported-by: Chan Edison <edison_chan_gz@hotmail.com>
->> Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
->> Cc: stable@vger.kernel.org
->> ---
->>   arch/x86/events/intel/core.c | 12 ++++++++++++
->>   1 file changed, 12 insertions(+)
->>
->> diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
->> index 187906e..f1201e8 100644
->> --- a/arch/x86/events/intel/core.c
->> +++ b/arch/x86/events/intel/core.c
->> @@ -6239,6 +6239,18 @@ __init int intel_pmu_init(void)
->>   			pmu->num_counters = x86_pmu.num_counters;
->>   			pmu->num_counters_fixed = x86_pmu.num_counters_fixed;
->>   		}
->> +
->> +		/* Quirk: For some Alder Lake machine, when all E-cores are disabled in
->> +		 * a BIOS, the leaf 0xA will enumerate all counters of P-cores. However,
->> +		 * the X86_FEATURE_HYBRID_CPU is still set. The above codes will
->> +		 * mistakenly add extra counters for P-cores. Correct the number of
->> +		 * counters here.
->> +		 */
+> So let's drop any pretense that we can have a generic way to define or
+> implement membarrier's SYNC_CORE operation and instead require all
+> architectures to define the helper and supply their own documentation as to
+> how to use it.  This means x86, arm64, and powerpc for now.  Let's also
+> rename the function from sync_core_before_usermode() to
+> membarrier_sync_core_before_usermode() because the precise flushing details
+> may very well be specific to membarrier, and even the concept of
+> "sync_core" in the kernel is mostly an x86-ism.
 > 
-> I fixed that comment style for you.
+> (It may well be the case that, on real x86 processors, synchronizing the
+> icache (which requires no action at all) and "flushing the pipeline" is
+> sufficient, but trying to use this language would be confusing at best.
+> LFENCE does something awfully like "flushing the pipeline", but the SDM
+> does not permit LFENCE as an alternative to a "serializing instruction"
+> for this purpose.)
 
-Ah, sorry for that. Thanks!
+A few comments below:
 
-Kan
+[...]
 
+> +# On powerpc, a program can use MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE
+> +# similarly to arm64.  It would be nice if the powerpc maintainers could
+> +# add a more clear explanantion.
+
+Any thoughts from ppc maintainers ?
+
+[...]
+
+> diff --git a/arch/x86/kernel/alternative.c b/arch/x86/kernel/alternative.c
+> index e9da3dc71254..b47cd22b2eb1 100644
+> --- a/arch/x86/kernel/alternative.c
+> +++ b/arch/x86/kernel/alternative.c
+> @@ -17,7 +17,7 @@
+> #include <linux/kprobes.h>
+> #include <linux/mmu_context.h>
+> #include <linux/bsearch.h>
+> -#include <linux/sync_core.h>
+> +#include <asm/sync_core.h>
+
+All this churn wrt move from linux/sync_core.h to asm/sync_core.h
+should probably be moved to a separate cleanup patch.
+
+> #include <asm/text-patching.h>
+> #include <asm/alternative.h>
+> #include <asm/sections.h>
+> diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
+> index 193204aee880..a2529e09f620 100644
+> --- a/arch/x86/kernel/cpu/mce/core.c
+> +++ b/arch/x86/kernel/cpu/mce/core.c
+> @@ -41,12 +41,12 @@
+> #include <linux/irq_work.h>
+> #include <linux/export.h>
+> #include <linux/set_memory.h>
+> -#include <linux/sync_core.h>
+> #include <linux/task_work.h>
+> #include <linux/hardirq.h>
 > 
->> +		if ((pmu->num_counters > 8) || (pmu->num_counters_fixed > 4)) {
->> +			pmu->num_counters = x86_pmu.num_counters;
->> +			pmu->num_counters_fixed = x86_pmu.num_counters_fixed;
->> +		}
->> +
->>   		pmu->max_pebs_events = min_t(unsigned, MAX_PEBS_EVENTS, pmu->num_counters);
->>   		pmu->unconstrained = (struct event_constraint)
->>   					__EVENT_CONSTRAINT(0, (1ULL << pmu->num_counters) - 1,
->> -- 
->> 2.7.4
->>
+> #include <asm/intel-family.h>
+> #include <asm/processor.h>
+> +#include <asm/sync_core.h>
+> #include <asm/traps.h>
+> #include <asm/tlbflush.h>
+> #include <asm/mce.h>
+
+[...]
+
+> diff --git a/drivers/misc/sgi-gru/grufault.c b/drivers/misc/sgi-gru/grufault.c
+> index d7ef61e602ed..462c667bd6c4 100644
+> --- a/drivers/misc/sgi-gru/grufault.c
+> +++ b/drivers/misc/sgi-gru/grufault.c
+> @@ -20,8 +20,8 @@
+> #include <linux/io.h>
+> #include <linux/uaccess.h>
+> #include <linux/security.h>
+> -#include <linux/sync_core.h>
+> #include <linux/prefetch.h>
+> +#include <asm/sync_core.h>
+> #include "gru.h"
+> #include "grutables.h"
+> #include "grulib.h"
+> diff --git a/drivers/misc/sgi-gru/gruhandles.c
+> b/drivers/misc/sgi-gru/gruhandles.c
+> index 1d75d5e540bc..c8cba1c1b00f 100644
+> --- a/drivers/misc/sgi-gru/gruhandles.c
+> +++ b/drivers/misc/sgi-gru/gruhandles.c
+> @@ -16,7 +16,7 @@
+> #define GRU_OPERATION_TIMEOUT	(((cycles_t) local_cpu_data->itc_freq)*10)
+> #define CLKS2NSEC(c)		((c) *1000000000 / local_cpu_data->itc_freq)
+> #else
+> -#include <linux/sync_core.h>
+> +#include <asm/sync_core.h>
+> #include <asm/tsc.h>
+> #define GRU_OPERATION_TIMEOUT	((cycles_t) tsc_khz*10*1000)
+> #define CLKS2NSEC(c)		((c) * 1000000 / tsc_khz)
+> diff --git a/drivers/misc/sgi-gru/grukservices.c
+> b/drivers/misc/sgi-gru/grukservices.c
+> index 0ea923fe6371..ce03ff3f7c3a 100644
+> --- a/drivers/misc/sgi-gru/grukservices.c
+> +++ b/drivers/misc/sgi-gru/grukservices.c
+> @@ -16,10 +16,10 @@
+> #include <linux/miscdevice.h>
+> #include <linux/proc_fs.h>
+> #include <linux/interrupt.h>
+> -#include <linux/sync_core.h>
+> #include <linux/uaccess.h>
+> #include <linux/delay.h>
+> #include <linux/export.h>
+> +#include <asm/sync_core.h>
+> #include <asm/io_apic.h>
+> #include "gru.h"
+> #include "grulib.h"
+> diff --git a/include/linux/sched/mm.h b/include/linux/sched/mm.h
+> index e8919995d8dd..e107f292fc42 100644
+> --- a/include/linux/sched/mm.h
+> +++ b/include/linux/sched/mm.h
+> @@ -7,7 +7,6 @@
+> #include <linux/sched.h>
+> #include <linux/mm_types.h>
+> #include <linux/gfp.h>
+> -#include <linux/sync_core.h>
+> 
+> /*
+>  * Routines for handling mm_structs
+> diff --git a/include/linux/sync_core.h b/include/linux/sync_core.h
+> deleted file mode 100644
+> index 013da4b8b327..000000000000
+> --- a/include/linux/sync_core.h
+> +++ /dev/null
+> @@ -1,21 +0,0 @@
+> -/* SPDX-License-Identifier: GPL-2.0 */
+> -#ifndef _LINUX_SYNC_CORE_H
+> -#define _LINUX_SYNC_CORE_H
+> -
+> -#ifdef CONFIG_ARCH_HAS_SYNC_CORE_BEFORE_USERMODE
+> -#include <asm/sync_core.h>
+> -#else
+> -/*
+> - * This is a dummy sync_core_before_usermode() implementation that can be used
+> - * on all architectures which return to user-space through core serializing
+> - * instructions.
+> - * If your architecture returns to user-space through non-core-serializing
+> - * instructions, you need to write your own functions.
+> - */
+> -static inline void sync_core_before_usermode(void)
+> -{
+> -}
+> -#endif
+> -
+> -#endif /* _LINUX_SYNC_CORE_H */
+> -
+
+Thanks,
+
+Mathieu
+
+-- 
+Mathieu Desnoyers
+EfficiOS Inc.
+http://www.efficios.com
