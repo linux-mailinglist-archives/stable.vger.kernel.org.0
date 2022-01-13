@@ -2,92 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2941548D60A
-	for <lists+stable@lfdr.de>; Thu, 13 Jan 2022 11:50:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81E4748D69A
+	for <lists+stable@lfdr.de>; Thu, 13 Jan 2022 12:18:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233352AbiAMKtl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jan 2022 05:49:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41832 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231657AbiAMKtk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jan 2022 05:49:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3668C06173F;
-        Thu, 13 Jan 2022 02:49:40 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5340661C32;
-        Thu, 13 Jan 2022 10:49:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 102BBC36AE9;
-        Thu, 13 Jan 2022 10:49:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642070979;
-        bh=bq34cJO8tc6pvcztKLeXrSKfQ9lyGLeFK6hHX8V4Mx0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=LctFIvkMb/rNFsgkcRSPWP7CLNeqnc13VZNL6ps9HHfrRFxbOEG3TU/CEs20A4QHH
-         1fzLXqoq5HkvbH//xrDKElXIZBzax4Dd5xBvPoQp/W023We1nZEO5x1hkqmw1q4fQM
-         hgQ4YNvUo3nej8PtFJ2fvV8KQ7SuMayS2mP7WVJk=
-Date:   Thu, 13 Jan 2022 11:49:36 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Ziyang Xuan (William)" <william.xuanziyang@huawei.com>
-Cc:     davem@davemloft.net, kuba@kernel.org, socketcan@hartkopp.net,
-        mkl@pengutronix.de, netdev@vger.kernel.org, stable@vger.kernel.org,
-        linux-can@vger.kernel.org, tglx@linutronix.de,
-        anna-maria@linutronix.de
-Subject: Re: [PATCH net] can: bcm: switch timer to HRTIMER_MODE_SOFT and
- remove hrtimer_tasklet
-Message-ID: <YeADwHa4blpQFCII@kroah.com>
-References: <20220110132322.1726106-1-william.xuanziyang@huawei.com>
- <YdwxtqexaE75uCZ8@kroah.com>
- <afcc8f0c-1aa7-9f43-bf50-b404c954db8b@huawei.com>
+        id S229670AbiAMLSU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jan 2022 06:18:20 -0500
+Received: from mga02.intel.com ([134.134.136.20]:8028 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231556AbiAMLSU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jan 2022 06:18:20 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1642072700; x=1673608700;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=RuY9306Z2ewEDs2u8dlv4z681hfE8TgqR1Bgfsa9k8Q=;
+  b=FH5u4khOkeQ8VqsUoqb3j69SGSsC/g7jOWVISADgniKG598aV1rrAGTN
+   JJN6EgQY2DQIA4y5lZmJt+bi57o5HGPnR09gzkHyUxpgHtNGN3UBD3kM2
+   13ZEvCnydwL8rBZvag3VOim3XSz2bXvBgzu1zKvg89bAvwPVc41x1N2BO
+   gnnOljClISOhtxMvzgegjyW346pL2OU6nTV0fKTME9TYpC3XGTOQjwxzh
+   vyG0wpkQv9bD5CQJWRSSUDSgvxjZoZZf8WlESazMGcohCHhHqD6fnMh4a
+   Z/VuLym32hiRv1hHvVdblPI6TV8qqPJaPX+OlxODu67g9Zeoa+3W8T/4L
+   w==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10225"; a="231331615"
+X-IronPort-AV: E=Sophos;i="5.88,284,1635231600"; 
+   d="scan'208";a="231331615"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jan 2022 03:18:19 -0800
+X-IronPort-AV: E=Sophos;i="5.88,284,1635231600"; 
+   d="scan'208";a="515888291"
+Received: from joneil3-mobl1.ger.corp.intel.com (HELO localhost) ([10.252.0.221])
+  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jan 2022 03:18:18 -0800
+From:   Jani Nikula <jani.nikula@intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     jani.nikula@intel.com, ville.syrjala@linux.intel.com,
+        stable@vger.kernel.org
+Subject: [PATCH 1/5] drm/i915/opregion: check port number bounds for SWSCI display power state
+Date:   Thu, 13 Jan 2022 13:18:03 +0200
+Message-Id: <2c18d26a7e6ceb025af7e91a56f8694de94fd3ee.1642072583.git.jani.nikula@intel.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <cover.1642072583.git.jani.nikula@intel.com>
+References: <cover.1642072583.git.jani.nikula@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <afcc8f0c-1aa7-9f43-bf50-b404c954db8b@huawei.com>
+Content-Type: text/plain; charset=UTF-8
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 11, 2022 at 10:02:09AM +0800, Ziyang Xuan (William) wrote:
-> > On Mon, Jan 10, 2022 at 09:23:22PM +0800, Ziyang Xuan wrote:
-> >> From: Thomas Gleixner <tglx@linutronix.de>
-> >>
-> >> [ commit bf74aa86e111aa3b2fbb25db37e3a3fab71b5b68 upstream ]
-> >>
-> >> Stop tx/rx cycle rely on the active state of tasklet and hrtimer
-> >> sequentially in bcm_remove_op(), the op object will be freed if they
-> >> are all unactive. Assume the hrtimer timeout is short, the hrtimer
-> >> cb has been excuted after tasklet conditional judgment which must be
-> >> false after last round tasklet_kill() and before condition
-> >> hrtimer_active(), it is false when execute to hrtimer_active(). Bug
-> >> is triggerd, because the stopping action is end and the op object
-> >> will be freed, but the tasklet is scheduled. The resources of the op
-> >> object will occur UAF bug.
-> > 
-> > That is not the changelog text of this commit.  Why modify it?
-> 
-> Above statement is the reason why I want to backport the patch to
-> stable tree. Maybe I could give an extra cover-letter to explain
-> the details of the problem, but modify the original changelog. Is it?
-> 
-> > 
-> >>
-> >> ----------------------------------------------------------------------
-> >>
-> >> This patch switches the timer to HRTIMER_MODE_SOFT, which executed the
-> >> timer callback in softirq context and removes the hrtimer_tasklet.
-> >>
-> >> Reported-by: syzbot+652023d5376450cc8516@syzkaller.appspotmail.com
-> 
-> This is the public problem reporter. Do I need to move it to cover-letter
-> but here?
-> 
-> >> Cc: stable@vger.kernel.org # 4.19
-> 
-> I want to backport the patch to linux-4.19.y stable tree. How do I need to
-> modify?
+The mapping from enum port to whatever port numbering scheme is used by
+the SWSCI Display Power State Notification is odd, and the memory of it
+has faded. In any case, the parameter only has space for ports numbered
+[0..4], and UBSAN reports bit shift beyond it when the platform has port
+F or more.
 
-No need, I can take it like this, thanks.
+Since the SWSCI functionality is supposed to be obsolete for new
+platforms (i.e. ones that might have port F or more), just bail out
+early if the mapped and mangled port number is beyond what the Display
+Power State Notification can support.
 
-greg k-h
+Fixes: 9c4b0a683193 ("drm/i915: add opregion function to notify bios of encoder enable/disable")
+Cc: <stable@vger.kernel.org> # v3.13+
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/4800
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+---
+ drivers/gpu/drm/i915/display/intel_opregion.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
+
+diff --git a/drivers/gpu/drm/i915/display/intel_opregion.c b/drivers/gpu/drm/i915/display/intel_opregion.c
+index af9d30f56cc1..ad1afe9df6c3 100644
+--- a/drivers/gpu/drm/i915/display/intel_opregion.c
++++ b/drivers/gpu/drm/i915/display/intel_opregion.c
+@@ -363,6 +363,21 @@ int intel_opregion_notify_encoder(struct intel_encoder *intel_encoder,
+ 		port++;
+ 	}
+ 
++	/*
++	 * The port numbering and mapping here is bizarre. The now-obsolete
++	 * swsci spec supports ports numbered [0..4]. Port E is handled as a
++	 * special case, but port F and beyond are not. The functionality is
++	 * supposed to be obsolete for new platforms. Just bail out if the port
++	 * number is out of bounds after mapping.
++	 */
++	if (port > 4) {
++		drm_dbg_kms(&dev_priv->drm,
++			    "[ENCODER:%d:%s] port %c (index %u) out of bounds for display power state notification\n",
++			    intel_encoder->base.base.id, intel_encoder->base.name,
++			    port_name(intel_encoder->port), port);
++		return -EINVAL;
++	}
++
+ 	if (!enable)
+ 		parm |= 4 << 8;
+ 
+-- 
+2.30.2
+
