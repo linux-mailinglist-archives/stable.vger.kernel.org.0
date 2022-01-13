@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE1D748D5FA
-	for <lists+stable@lfdr.de>; Thu, 13 Jan 2022 11:47:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31DCB48D5FB
+	for <lists+stable@lfdr.de>; Thu, 13 Jan 2022 11:47:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231693AbiAMKrR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jan 2022 05:47:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41278 "EHLO
+        id S230107AbiAMKr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jan 2022 05:47:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230107AbiAMKrR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jan 2022 05:47:17 -0500
+        with ESMTP id S229635AbiAMKrZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Jan 2022 05:47:25 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25D86C06173F
-        for <stable@vger.kernel.org>; Thu, 13 Jan 2022 02:47:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FFBBC06173F
+        for <stable@vger.kernel.org>; Thu, 13 Jan 2022 02:47:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A98961C32
-        for <stable@vger.kernel.org>; Thu, 13 Jan 2022 10:47:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CB1BC36AE3;
-        Thu, 13 Jan 2022 10:47:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E65661366
+        for <stable@vger.kernel.org>; Thu, 13 Jan 2022 10:47:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8881C36AE9;
+        Thu, 13 Jan 2022 10:47:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642070836;
-        bh=OaFY+gRbG+hfk1Su+ltgtDJQF3KkywI6DQ84AwjEI/Q=;
+        s=korg; t=1642070844;
+        bh=fsfwdmQfxUBGrA3CGqy564LboT6NIpRf386J57Xqfyo=;
         h=Subject:To:Cc:From:Date:From;
-        b=ElvG7x0NlmBqXFbmfLSJ024h/HOApteNx+ohXuxEwl6WP+aYHrKG4TrD9zn2a65dy
-         qyLFWpdU3AG5QuKzAXKp75RLrPOzjSKgJAoropkIbq9zP7oNATMiVYaLOqq0YGP1cK
-         CbnlF8Z5EteoCaM9I2nSeqtoRyQPUZR3eqgSojjQ=
-Subject: FAILED: patch "[PATCH] Bluetooth: add quirk disabling LE Read Transmit Power" failed to apply to 5.15-stable tree
+        b=zfVma9kC/0/YdVnmF6oq/ve2UZuD2OXcZhOw4x11SP0vKG4WCcO05smd9cXdOKWbY
+         iGT30dEmj6TmqOgcDS8iA7vcMOJ/66+QuP57Kx0BiFTusFKoes5gPJp+k7hxQ0i2j6
+         ILZbTWo8KwQ58K96pLNhFXe3XwKI++0xCa36rLQM=
+Subject: FAILED: patch "[PATCH] Bluetooth: add quirk disabling LE Read Transmit Power" failed to apply to 5.16-stable tree
 To:     gargaditya08@live.com, marcel@holtmann.org,
         redecorating@protonmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 13 Jan 2022 11:47:12 +0100
-Message-ID: <164207083253148@kroah.com>
+Date:   Thu, 13 Jan 2022 11:47:13 +0100
+Message-ID: <164207083324474@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
