@@ -2,66 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E584F48DAB5
-	for <lists+stable@lfdr.de>; Thu, 13 Jan 2022 16:34:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7102948DAC3
+	for <lists+stable@lfdr.de>; Thu, 13 Jan 2022 16:39:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236131AbiAMPeU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jan 2022 10:34:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50850 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232070AbiAMPeU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jan 2022 10:34:20 -0500
-Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30168C061574
-        for <stable@vger.kernel.org>; Thu, 13 Jan 2022 07:34:20 -0800 (PST)
-Received: by mail-lf1-x136.google.com with SMTP id m1so20861518lfq.4
-        for <stable@vger.kernel.org>; Thu, 13 Jan 2022 07:34:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=uIyGGl7K0UT6xNfDrNc2jMQ14wmAjPSA95qEnA7pUIY=;
-        b=SUaOWXFz19AkWmu2KXFMPU+M27nFVGleQaoamAbFuaKqppFG4vCvvqxJvczTKqcPc0
-         Gx5E4TKsWcXJo3TLQEYSYkFo6QshN8HBZUl9N+HM0AurqGOCiZvfoXZKF7700/sx8AjY
-         uhW9B6vSppbMwUGsIdNnm/VLXO9Iu/Lq8qFMglAVTH4Y6RcjNdtzfNlF8prlEfW7ngtj
-         QHbf/CNgzBNlEu96tYDPo7y6s0VopX6QGSWbowOJV+SfhowNJqLbpXnmeKyqso9+2I3D
-         JnV8aIFq46CMgepvHKVdosjVhPyPrW4jVUU0Gn11WqefmOpsgQGOCkb13n4S9sN7RWXM
-         Xofg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=uIyGGl7K0UT6xNfDrNc2jMQ14wmAjPSA95qEnA7pUIY=;
-        b=QqmUiVPlECSUjcvQsfZUDVIOg5V3gT7N0TftkEcMrrRYbb2I1yKahe+7UQ5BUU4bCH
-         uAYfdnWocLHzxsAXdGnXJ91M2IPIB4I+TNPgPibbU4hpe9L4ZHs6Ax3H70F7iP+f6MGM
-         roy2NI3ZPohChf7w/FQy5re9hG/c8uuwaVKW04zvaxyh0Npxe5dJawsfsc1AyDOZ3KSE
-         8qS5iMk/VKQSfSGYfdFCwsOom02CoN4PQvTTLKfLABqIM1inT/QM1wlJTMvZHEM95gHZ
-         /KrPsn5NFJwk5sz3YIu8CzWKAiRrmYx41fNWLZxyvDp69PgmeuOvKVD5yKI++7wEFYpg
-         lV5A==
-X-Gm-Message-State: AOAM5338B5o8x7cN0rX9VIWiXuO32Js/tHokqahQlTmvVgjwwFMeL4Cg
-        HOYK6dL3Jr4hkh9MBCz99li2I6yf3v6u/Wzytsc=
-X-Google-Smtp-Source: ABdhPJxUokfZs4sDgtKxjc56BIhGQAKWk6/CouW3OALvDR1bXObSA8sXkSd6V87lGmvZZFgM8aimdx94YgEGos7CABg=
-X-Received: by 2002:a05:6512:3ba1:: with SMTP id g33mr3614208lfv.166.1642088058497;
- Thu, 13 Jan 2022 07:34:18 -0800 (PST)
+        id S236162AbiAMPjy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jan 2022 10:39:54 -0500
+Received: from smtp-out1.suse.de ([195.135.220.28]:42638 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236160AbiAMPjx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Jan 2022 10:39:53 -0500
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id C2BBE21129;
+        Thu, 13 Jan 2022 15:39:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1642088392; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=RamtjMZmYeqrBKQKHp7tfhwMa3yuK1SmuUxjb3OJF60=;
+        b=Zdsw5mAME/ZeqwydUqClaAmejCFg1Diufxt8jJVlbprocdOT3/5atQv86F5iJArdObxokL
+        zg40Qfu5B47No00ab57EJ5QqNVsKjOpOgtXI73lYBTkr+m3YVbJmeK8UUXiUgAAnCMoX40
+        UdL2qmLmXdrlWjWgN1KcWHuqr7/yZtY=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1642088392;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=RamtjMZmYeqrBKQKHp7tfhwMa3yuK1SmuUxjb3OJF60=;
+        b=L/GFLxmj4uWfzgGd4p/XrtJzEfY4L7SaRZOlFeswhxz7BcGqdr/v9L22ZRiNnLHPe9f4p/
+        H5BJE38OSpXosgAw==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id ABDA41330C;
+        Thu, 13 Jan 2022 15:39:52 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id J0uoKMhH4GEBHQAAMHmgww
+        (envelope-from <bp@suse.de>); Thu, 13 Jan 2022 15:39:52 +0000
+Date:   Thu, 13 Jan 2022 16:40:00 +0100
+From:   Borislav Petkov <bp@suse.de>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable-commits@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: Patch "x86/mce: Remove noinstr annotation from mce_setup()" has
+ been added to the 5.15-stable tree
+Message-ID: <YeBH0Pui5SD0Tf3T@zn.tnic>
+References: <164207874020173@kroah.com>
+ <YeAnLb7OkkmTWtf/@zn.tnic>
+ <YeA31erBrPKu755G@kroah.com>
 MIME-Version: 1.0
-Received: by 2002:ac2:4db2:0:0:0:0:0 with HTTP; Thu, 13 Jan 2022 07:34:18
- -0800 (PST)
-Reply-To: mrsbillchantal2022@mail.com
-From:   "Mrs. bill Chantal" <chigoziechukwuekezie@gmail.com>
-Date:   Thu, 13 Jan 2022 16:34:18 +0100
-Message-ID: <CAPnr8ME4-yvuLh=FM1qE0OBXgrXa+k5SPqfjn7yNibBMPMm2QA@mail.gmail.com>
-Subject: Dear Friend
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <YeA31erBrPKu755G@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello my Dearest
-You have been compensated with the sum of 5.4 million dollars in this
-united nation the payment will be Issue into ATM visa card and send to
-you from the bank,we need your address, passport and your Whatsapp
-Number.
+On Thu, Jan 13, 2022 at 03:31:49PM +0100, Greg KH wrote:
+> Any hints on how to get rid of this?  More patches in the series this
+> one came from?
 
-Thanks
+Unfortunately, a whole series:
 
-Mrs.Bill Chantal
+https://lore.kernel.org/r/20211208111343.8130-1-bp@alien8.de
+
+and the 0day bot guys recently managed to trigger another warning there,
+which means even more fixes, even to generic code.
+
+So what that warning tells you is that you call into instrumentable
+context from non-instrumentable one. But that has relevance only when
+someone traces the MCE code - and up until now I haven't received a
+single sensible use case for why that would make any sense.
+
+So long story short, you can safely ignore it and if someone complains,
+ask her/him about the use case first and CC me.
+
+:-)
+
+-- 
+Regards/Gruss,
+    Boris.
+
+SUSE Software Solutions Germany GmbH, GF: Ivo Totev, HRB 36809, AG Nürnberg
