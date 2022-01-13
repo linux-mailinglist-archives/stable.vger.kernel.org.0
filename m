@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34F3A48D5FC
-	for <lists+stable@lfdr.de>; Thu, 13 Jan 2022 11:47:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FB5C48D5FE
+	for <lists+stable@lfdr.de>; Thu, 13 Jan 2022 11:47:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231773AbiAMKrg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jan 2022 05:47:36 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:39738 "EHLO
+        id S232959AbiAMKrk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jan 2022 05:47:40 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:39764 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229635AbiAMKrg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jan 2022 05:47:36 -0500
+        with ESMTP id S229635AbiAMKrj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Jan 2022 05:47:39 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5CFB3B81ECF
-        for <stable@vger.kernel.org>; Thu, 13 Jan 2022 10:47:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6838BC36AE9;
-        Thu, 13 Jan 2022 10:47:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A4BDAB81ECF
+        for <stable@vger.kernel.org>; Thu, 13 Jan 2022 10:47:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4D5FC36AE3;
+        Thu, 13 Jan 2022 10:47:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642070854;
-        bh=PHbFQY0lkJgLSB/Y13i36LJAgKpYylwTrcLSAu8afQ4=;
+        s=korg; t=1642070857;
+        bh=4LiXmJKsiSdX8SrRIOZrSaNiqEmlJHaHSlAGNfwKeBc=;
         h=Subject:To:Cc:From:Date:From;
-        b=H9uofjOn34xCUcpmUxKBwei9MsK4VYXe92Gn5bmRRkQEABrTJKaBOvNNlhTcNSTe1
-         pIC5CGPZgEiQ3QKzKP02woDYYckfO2cQWoJ1fHQ7bWaTBXimpdXUVvD5eKFBmOQ8Xu
-         nsiIXVexczZk8LgV8tMyJ5c6F7HgznyPcg72/7Vc=
-Subject: FAILED: patch "[PATCH] Bluetooth: btbcm: disable read tx power for some Macs with" failed to apply to 5.16-stable tree
+        b=xNjnC8FjEbZ0M039d37TGtLL9yEHvSfloXCUUWAXR7ySsdj7avTNAjMLtDbKdwTdv
+         gYO/ysI+5SqxxVE5+yb9VdxjX2H6jptDMk+heAqteo54qxIUipDVXEjvm1H2zLT+/D
+         Sj+JoyzYyOJZqcx932Btvqgt/hSEgaRIAGkXeZVA=
+Subject: FAILED: patch "[PATCH] Bluetooth: btbcm: disable read tx power for some Macs with" failed to apply to 5.15-stable tree
 To:     gargaditya08@live.com, marcel@holtmann.org,
         redecorating@protonmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Thu, 13 Jan 2022 11:47:23 +0100
-Message-ID: <164207084357101@kroah.com>
+Message-ID: <1642070843131209@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.16-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
