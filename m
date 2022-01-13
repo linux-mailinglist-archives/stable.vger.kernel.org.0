@@ -2,130 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6320048D2FA
-	for <lists+stable@lfdr.de>; Thu, 13 Jan 2022 08:39:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29C5348D33F
+	for <lists+stable@lfdr.de>; Thu, 13 Jan 2022 08:57:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231560AbiAMHht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jan 2022 02:37:49 -0500
-Received: from szxga02-in.huawei.com ([45.249.212.188]:17345 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230310AbiAMHhq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jan 2022 02:37:46 -0500
-Received: from dggpeml500020.china.huawei.com (unknown [172.30.72.53])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4JZGTJ2K6mz9s5d;
-        Thu, 13 Jan 2022 15:36:36 +0800 (CST)
-Received: from huawei.com (10.175.127.227) by dggpeml500020.china.huawei.com
- (7.185.36.88) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.20; Thu, 13 Jan
- 2022 15:37:44 +0800
-From:   Baokun Li <libaokun1@huawei.com>
-To:     <richard@nod.at>, <dwmw2@infradead.org>,
-        <linux-mtd@lists.infradead.org>, <linux-kernel@vger.kernel.org>
-CC:     <libaokun1@huawei.com>, <yukuai3@huawei.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH -next v2 2/2] jffs2: fix memory leak in jffs2_scan_medium
-Date:   Thu, 13 Jan 2022 15:48:48 +0800
-Message-ID: <20220113074848.1308414-3-libaokun1@huawei.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20220113074848.1308414-1-libaokun1@huawei.com>
-References: <20220113074848.1308414-1-libaokun1@huawei.com>
+        id S232855AbiAMHzF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jan 2022 02:55:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58240 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232849AbiAMHzE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Jan 2022 02:55:04 -0500
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93233C061751
+        for <stable@vger.kernel.org>; Wed, 12 Jan 2022 23:55:04 -0800 (PST)
+Received: by mail-pj1-x1032.google.com with SMTP id a1-20020a17090a688100b001b3fd52338eso8816423pjd.1
+        for <stable@vger.kernel.org>; Wed, 12 Jan 2022 23:55:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=ART6mChcRaBTPOdw4Uw1NRQaOClQpOziB1B27u8xfNE=;
+        b=nYWiWIKg/nVi8VfR+gG0iCaYOIxo38iFp/F1K4FphKugIVoZR/sQpiCyTIzvuxlDQn
+         PIRGruVO71yEFP73kb+1flbyKCrqIuUmnIPmxBNOjH7xMVQ2mLdpqLW4K0nZvK3JgPhm
+         PDPUBPeifa23/g59smCmTB92MEODa9vSozKb1rmPlN3kBAJBH5neWxtUl+DVEV+PsMvo
+         /KgwhAdcDLDxNP6rWyfdSwqueDlCYqm4z1/Q0FQSvLIwH4LLVPROtMgvJAcVm5nbVCQJ
+         f/A2r9UrvgLFle17KYhbAjzJULINVhf+NWbc2Z6Wyt9cxuwh6BJ0HzyjXKF47A8Pu4GH
+         vRYA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ART6mChcRaBTPOdw4Uw1NRQaOClQpOziB1B27u8xfNE=;
+        b=Dmg7yTqMl7R1+eOWkIB9xllMXOwI+ZhDVASghiC4x62XyDFLEEH/StZFxwuaxbCqT7
+         y1xRSBllzxR85wrrvi0EnxuquxSoVNa61GWH1ZQ8LInnrmQ9Ur9Nejypr3egw5FX9me8
+         hppzSqIzn0efDmGEDXMvKWsgm+Dr1JajgBCSRSKDPe8cHVf6de2q6SqJW7db26vZQhbe
+         Kw7egZbzPFkUhkBqpbaYnktkOtiP3zJfItkCmr9GnFb1z9YG6sxmZE4Mj0vobLFzMuc9
+         VgNd+RCbW66t7Crew+LlHPR/OZFWlNA5D3z5klRzBFEq5fV8t2+GVGcUwT8E+Ip5u2/m
+         r3Zw==
+X-Gm-Message-State: AOAM53275b1C2aSPwzdYESkfcxqUa6hb6jJqFXVMSEw9N2xfrK57jKS/
+        8i9cDj9SiNH1aj6gT+4+1Y55RMfN8Mz3fxciDdxd/g==
+X-Google-Smtp-Source: ABdhPJwM5gn08aUuzygROzs39EPlG4SL7oMN99ERLiPPxp08rpNtghsTcio9VCzaeuhLNOb1bMRdw3LFhy8bjGsLA50=
+X-Received: by 2002:a17:90a:cc0d:: with SMTP id b13mr13200915pju.236.1642060503539;
+ Wed, 12 Jan 2022 23:55:03 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.127.227]
-X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
- dggpeml500020.china.huawei.com (7.185.36.88)
-X-CFilter-Loop: Reflected
+References: <20211229112551.3483931-1-pumahsu@google.com> <Yd1tUKhyZf26OVNQ@kroah.com>
+In-Reply-To: <Yd1tUKhyZf26OVNQ@kroah.com>
+From:   Puma Hsu <pumahsu@google.com>
+Date:   Thu, 13 Jan 2022 15:54:27 +0800
+Message-ID: <CAGCq0LZb8nQDvcz=LswWi4qKd-65ys6iPjTKh=46dVtYLDEUVw@mail.gmail.com>
+Subject: Re: [PATCH v3] xhci: re-initialize the HC during resume if HCE was set
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     mathias.nyman@intel.com, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Albert Wang <albertccwang@google.com>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If an error is returned in jffs2_scan_eraseblock() and some memory
-has been added to the jffs2_summary *s, we can observe the following
-kmemleak report:
+On Tue, Jan 11, 2022 at 7:43 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Wed, Dec 29, 2021 at 07:25:51PM +0800, Puma Hsu wrote:
+> > When HCE(Host Controller Error) is set, it means an internal
+> > error condition has been detected. It needs to re-initialize
+> > the HC too.
+>
+> What is "It" in the last sentence?
 
---------------------------------------------
-unreferenced object 0xffff88812b889c40 (size 64):
-  comm "mount", pid 692, jiffies 4294838325 (age 34.288s)
-  hex dump (first 32 bytes):
-    40 48 b5 14 81 88 ff ff 01 e0 31 00 00 00 50 00  @H........1...P.
-    00 00 01 00 00 00 01 00 00 00 02 00 00 00 09 08  ................
-  backtrace:
-    [<ffffffffae93a3a3>] __kmalloc+0x613/0x910
-    [<ffffffffaf423b9c>] jffs2_sum_add_dirent_mem+0x5c/0xa0
-    [<ffffffffb0f3afa8>] jffs2_scan_medium.cold+0x36e5/0x4794
-    [<ffffffffb0f3dbe1>] jffs2_do_mount_fs.cold+0xa7/0x2267
-    [<ffffffffaf40acf3>] jffs2_do_fill_super+0x383/0xc30
-    [<ffffffffaf40c00a>] jffs2_fill_super+0x2ea/0x4c0
-    [<ffffffffb0315d64>] mtd_get_sb+0x254/0x400
-    [<ffffffffb0315f5f>] mtd_get_sb_by_nr+0x4f/0xd0
-    [<ffffffffb0316478>] get_tree_mtd+0x498/0x840
-    [<ffffffffaf40bd15>] jffs2_get_tree+0x25/0x30
-    [<ffffffffae9f358d>] vfs_get_tree+0x8d/0x2e0
-    [<ffffffffaea7a98f>] path_mount+0x50f/0x1e50
-    [<ffffffffaea7c3d7>] do_mount+0x107/0x130
-    [<ffffffffaea7c5c5>] __se_sys_mount+0x1c5/0x2f0
-    [<ffffffffaea7c917>] __x64_sys_mount+0xc7/0x160
-    [<ffffffffb10142f5>] do_syscall_64+0x45/0x70
-unreferenced object 0xffff888114b54840 (size 32):
-  comm "mount", pid 692, jiffies 4294838325 (age 34.288s)
-  hex dump (first 32 bytes):
-    c0 75 b5 14 81 88 ff ff 02 e0 02 00 00 00 02 00  .u..............
-    00 00 84 00 00 00 44 00 00 00 6b 6b 6b 6b 6b a5  ......D...kkkkk.
-  backtrace:
-    [<ffffffffae93be24>] kmem_cache_alloc_trace+0x584/0x880
-    [<ffffffffaf423b04>] jffs2_sum_add_inode_mem+0x54/0x90
-    [<ffffffffb0f3bd44>] jffs2_scan_medium.cold+0x4481/0x4794
-    [...]
-unreferenced object 0xffff888114b57280 (size 32):
-  comm "mount", pid 692, jiffies 4294838393 (age 34.357s)
-  hex dump (first 32 bytes):
-    10 d5 6c 11 81 88 ff ff 08 e0 05 00 00 00 01 00  ..l.............
-    00 00 38 02 00 00 28 00 00 00 6b 6b 6b 6b 6b a5  ..8...(...kkkkk.
-  backtrace:
-    [<ffffffffae93be24>] kmem_cache_alloc_trace+0x584/0x880
-    [<ffffffffaf423c34>] jffs2_sum_add_xattr_mem+0x54/0x90
-    [<ffffffffb0f3a24f>] jffs2_scan_medium.cold+0x298c/0x4794
-    [...]
-unreferenced object 0xffff8881116cd510 (size 16):
-  comm "mount", pid 692, jiffies 4294838395 (age 34.355s)
-  hex dump (first 16 bytes):
-    00 00 00 00 00 00 00 00 09 e0 60 02 00 00 6b a5  ..........`...k.
-  backtrace:
-    [<ffffffffae93be24>] kmem_cache_alloc_trace+0x584/0x880
-    [<ffffffffaf423cc4>] jffs2_sum_add_xref_mem+0x54/0x90
-    [<ffffffffb0f3b2e3>] jffs2_scan_medium.cold+0x3a20/0x4794
-    [...]
---------------------------------------------
+Maybe I can change "It" to "Software", xHCI specification uses
+"Software" when describing this.
 
-Therefore, when processing errors, it is necessary to determine whether
-s->sum_list_head is NULL. If not, call jffs2_sum_reset_collected(s) to
-release the memory added in s.
+>
+> >
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Puma Hsu <pumahsu@google.com>
+>
+> What commit id does this fix?
 
-Fixes: e631ddba5887 ("[JFFS2] Add erase block summary support (mount time improvement)")
-Cc: stable@vger.kernel.org
-Co-developed-with: Zhihao Cheng <chengzhihao1@huawei.com>
-Signed-off-by: Baokun Li <libaokun1@huawei.com>
----
-V1->V2:
-	Check whether s is NULL to prevent NULL pointer dereference
+This commit is not used to fix a specific commit. We find a condition
+that when XHCI runs the resume process but the HCE flag is set, then
+the Run/Stop bit of USBCMD cannot be set so that HC would not be
+enabled. In fact, HC may already meet a problem at this moment.
+Besides, in xHCI requirements specification revision 1.2, Table 5-21
+BIT(12) claims that Software should re-initialize the xHC when HCE is
+set. Therefore, I think this commit could be the error handling for
+HCE.
 
- fs/jffs2/scan.c | 2 ++
- 1 file changed, 2 insertions(+)
+>
+> > ---
+> > v2: Follow Sergey Shtylyov <s.shtylyov@omp.ru>'s comment.
+> > v3: Add stable@vger.kernel.org for stable release.
+> >
+> >  drivers/usb/host/xhci.c | 4 ++--
+> >  1 file changed, 2 insertions(+), 2 deletions(-)
+> >
+> > diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+> > index dc357cabb265..ab440ce8420f 100644
+> > --- a/drivers/usb/host/xhci.c
+> > +++ b/drivers/usb/host/xhci.c
+> > @@ -1146,8 +1146,8 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibernated)
+> >               temp = readl(&xhci->op_regs->status);
+> >       }
+> >
+> > -     /* If restore operation fails, re-initialize the HC during resume */
+> > -     if ((temp & STS_SRE) || hibernated) {
+> > +     /* If restore operation fails or HC error is detected, re-initialize the HC during resume */
+> > +     if ((temp & (STS_SRE | STS_HCE)) || hibernated) {
+>
+> But if STS_HCE is set on suspend, that means the suspend was broken so
+> you wouldn't get here, right?
 
-diff --git a/fs/jffs2/scan.c b/fs/jffs2/scan.c
-index b676056826be..e00a10661c44 100644
---- a/fs/jffs2/scan.c
-+++ b/fs/jffs2/scan.c
-@@ -281,6 +281,8 @@ int jffs2_scan_medium(struct jffs2_sb_info *c)
- 	else
- 		mtd_unpoint(c->mtd, 0, c->mtd->size);
- #endif
-+	if (s && s->sum_list_head)
-+		jffs2_sum_reset_collected(s);
- 	kfree(s);
- 	return ret;
- }
--- 
-2.31.1
+In xhci_suspend(), it seems doesn't really check whether STS_HCE is
+set and then break the suspend(The only case for checking HCE is when
+STS_SAVE setting failed). So suspend function may be still able to
+finish even if HCE is set? Then xhci_resume will still be called.
 
+> Or can the error happen between suspend and resume?
+>
+> This seems like a big hammer for when the host controller throws an
+> error.  Why is this the only place that it should be checked for?  What
+> caused the error that can now allow it to be fixed?
+
+I believe this is not the only place that the host controller may set
+HCE, the host controller may set HCE anytime it sees an error in my
+opinion, not only in suspend or resume.
+I think this could be a recovery if xhci finds HCE during the resume process.
+If someone finds HCE in other functions, it may also need to do the
+recovery too.
+
+
+> thanks,
+>
+> greg k-h
