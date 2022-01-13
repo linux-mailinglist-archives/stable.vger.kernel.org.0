@@ -2,118 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94ABF48DE6A
-	for <lists+stable@lfdr.de>; Thu, 13 Jan 2022 20:56:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EFCA48DE9A
+	for <lists+stable@lfdr.de>; Thu, 13 Jan 2022 21:05:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230395AbiAMT41 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jan 2022 14:56:27 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:44348 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229704AbiAMT4Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jan 2022 14:56:25 -0500
+        id S232517AbiAMUFN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jan 2022 15:05:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56292 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231193AbiAMUFK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Jan 2022 15:05:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F0A4C061574;
+        Thu, 13 Jan 2022 12:05:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC85761DBC;
-        Thu, 13 Jan 2022 19:56:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA04DC36AE9;
-        Thu, 13 Jan 2022 19:56:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1642103784;
-        bh=s4BZYYbYIg0vY4O1U1F/ONt+MlZ31qGaWEyLiAfFT/I=;
-        h=Date:From:To:Subject:From;
-        b=ErCOunhE+P+ogpH/IrMbu8yJ8ro2W1u8HDK6iKXfcKlwpT4EafNwRwZQLt9wR5kLF
-         XZN6cmniKHGfHBQdHcXQGUc3Qc4vX1ASQ3uG35IwdvYQnbQYXICxFWfbDB9MBuPMLF
-         GyU4HpQgNTH4le5BF3XE8Cl2VGJVsHFZQqrtcfRw=
-Date:   Thu, 13 Jan 2022 11:56:23 -0800
-From:   akpm@linux-foundation.org
-To:     andreyknvl@gmail.com, dvyukov@google.com, glider@google.com,
-        mm-commits@vger.kernel.org, pcc@google.com, ryabinin.a.a@gmail.com,
-        stable@vger.kernel.org, willy@infradead.org
-Subject:  +
- mm-use-compare-exchange-operation-to-set-kasan-page-tag.patch added to -mm
- tree
-Message-ID: <20220113195623.vITTcNluQ%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        by ams.source.kernel.org (Postfix) with ESMTPS id 30C93B8232B;
+        Thu, 13 Jan 2022 20:05:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4AF4C36AE9;
+        Thu, 13 Jan 2022 20:05:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1642104306;
+        bh=8Vf+iIeeZu4MFaBzEEPCVogN6kju/taexe/y383Lzqc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ViDsrCDb0oYI5aEJ6DYiprjTzNy43HcOHkdbg30hDiw8i+LyLwQNCpe8FgSxxpGR7
+         pzy21WBZvl/1S5LhVn4nbUuFcdyd0aKNXy2mZq1v26qMLd4aMI37JOEL6hEv37d+f3
+         21lr7umz3KffdTdLvLeEukEWeJsMieNdNb/CPE2ubViocudiYbOHQfOoEMad9CLeQQ
+         EfIai0V8Tf9U+0P1C3ff+B3q3oFbRN83LxJ5/euhRKbiLlPxsO/5pEWmu9IwiJZZUh
+         Fjj2ZkYAsXJNrMmi67hkL+8kWBqpwwqjfh8qie0y6Fo/5LXNSNCJB9QRcYQrji0pCu
+         B1Z8PW+qPSAKg==
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     keyrings@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Cc:     linux-crypto@vger.kernel.org,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Denis Kenzior <denkenz@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH] KEYS: fix length validation in keyctl_pkey_params_get_2()
+Date:   Thu, 13 Jan 2022 12:04:54 -0800
+Message-Id: <20220113200454.72609-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.34.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Eric Biggers <ebiggers@google.com>
 
-The patch titled
-     Subject: mm: use compare-exchange operation to set KASAN page tag
-has been added to the -mm tree.  Its filename is
-     mm-use-compare-exchange-operation-to-set-kasan-page-tag.patch
+In many cases, keyctl_pkey_params_get_2() is validating the user buffer
+lengths against the wrong algorithm properties.  Fix it to check against
+the correct properties.
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-use-compare-exchange-operation-to-set-kasan-page-tag.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-use-compare-exchange-operation-to-set-kasan-page-tag.patch
+Probably this wasn't noticed before because for all asymmetric keys of
+the "public_key" subtype, max_data_size == max_sig_size == max_enc_size
+== max_dec_size.  However, this isn't necessarily true for the
+"asym_tpm" subtype (it should be, but it's not strictly validated).  Of
+course, future key types could have different values as well.
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Peter Collingbourne <pcc@google.com>
-Subject: mm: use compare-exchange operation to set KASAN page tag
-
-It has been reported that the tag setting operation on newly-allocated
-pages can cause the page flags to be corrupted when performed concurrently
-with other flag updates as a result of the use of non-atomic operations. 
-Fix the problem by using a compare-exchange loop to update the tag.
-
-Link: https://lkml.kernel.org/r/20220113031434.464992-1-pcc@google.com
-Link: https://linux-review.googlesource.com/id/I456b24a2b9067d93968d43b4bb3351c0cec63101
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Fixes: 2813b9c02962 ("kasan, mm, arm64: tag non slab memory allocated via pagealloc")
-Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 00d60fd3b932 ("KEYS: Provide keyctls to drive the new key type ops for asymmetric keys [ver #2]")
+Cc: <stable@vger.kernel.org> # v4.20+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 ---
+ security/keys/keyctl_pkey.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
- include/linux/mm.h |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
-
---- a/include/linux/mm.h~mm-use-compare-exchange-operation-to-set-kasan-page-tag
-+++ a/include/linux/mm.h
-@@ -1524,11 +1524,17 @@ static inline u8 page_kasan_tag(const st
+diff --git a/security/keys/keyctl_pkey.c b/security/keys/keyctl_pkey.c
+index 5de0d599a274..97bc27bbf079 100644
+--- a/security/keys/keyctl_pkey.c
++++ b/security/keys/keyctl_pkey.c
+@@ -135,15 +135,23 @@ static int keyctl_pkey_params_get_2(const struct keyctl_pkey_params __user *_par
  
- static inline void page_kasan_tag_set(struct page *page, u8 tag)
- {
--	if (kasan_enabled()) {
--		tag ^= 0xff;
--		page->flags &= ~(KASAN_TAG_MASK << KASAN_TAG_PGSHIFT);
--		page->flags |= (tag & KASAN_TAG_MASK) << KASAN_TAG_PGSHIFT;
--	}
-+	unsigned long old_flags, flags;
-+
-+	if (!kasan_enabled())
-+		return;
-+
-+	tag ^= 0xff;
-+	do {
-+		old_flags = flags = page->flags;
-+		flags &= ~(KASAN_TAG_MASK << KASAN_TAG_PGSHIFT);
-+		flags |= (tag & KASAN_TAG_MASK) << KASAN_TAG_PGSHIFT;
-+	} while (unlikely(cmpxchg(&page->flags, old_flags, flags) != old_flags));
+ 	switch (op) {
+ 	case KEYCTL_PKEY_ENCRYPT:
++		if (uparams.in_len  > info.max_dec_size ||
++		    uparams.out_len > info.max_enc_size)
++			return -EINVAL;
++		break;
+ 	case KEYCTL_PKEY_DECRYPT:
+ 		if (uparams.in_len  > info.max_enc_size ||
+ 		    uparams.out_len > info.max_dec_size)
+ 			return -EINVAL;
+ 		break;
+ 	case KEYCTL_PKEY_SIGN:
++		if (uparams.in_len  > info.max_data_size ||
++		    uparams.out_len > info.max_sig_size)
++			return -EINVAL;
++		break;
+ 	case KEYCTL_PKEY_VERIFY:
+-		if (uparams.in_len  > info.max_sig_size ||
+-		    uparams.out_len > info.max_data_size)
++		if (uparams.in_len  > info.max_data_size ||
++		    uparams.in2_len > info.max_sig_size)
+ 			return -EINVAL;
+ 		break;
+ 	default:
+@@ -151,7 +159,7 @@ static int keyctl_pkey_params_get_2(const struct keyctl_pkey_params __user *_par
+ 	}
+ 
+ 	params->in_len  = uparams.in_len;
+-	params->out_len = uparams.out_len;
++	params->out_len = uparams.out_len; /* Note: same as in2_len */
+ 	return 0;
  }
  
- static inline void page_kasan_tag_reset(struct page *page)
-_
 
-Patches currently in -mm which might be from pcc@google.com are
-
-mm-use-compare-exchange-operation-to-set-kasan-page-tag.patch
+base-commit: feb7a43de5ef625ad74097d8fd3481d5dbc06a59
+-- 
+2.34.1
 
