@@ -2,150 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 340CC48E149
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 00:56:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EBDF48E154
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 00:59:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238256AbiAMX4d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jan 2022 18:56:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51716 "EHLO
+        id S235897AbiAMX7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jan 2022 18:59:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238300AbiAMX4d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jan 2022 18:56:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD8D6C061574;
-        Thu, 13 Jan 2022 15:56:32 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C027461CF1;
-        Thu, 13 Jan 2022 23:56:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF986C36AE3;
-        Thu, 13 Jan 2022 23:56:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642118191;
-        bh=Mp6gbaL894zOeNPb9/NhECPfC4xl3NlRjbmF7UoF8Pc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mPG0e1lMdt7gHmBTJttZearTWDJuRYa1IawM1GtNWyuoVQmqmZoOgsc6/+P1e5RxO
-         zXjV+i9zqOAscI/JKVulAAnUoi9Q9qcU+kIPHx6BMwL9sgL8Q+FgORgzHEN4EoEr+3
-         9NY32XWfjvV2FT11+COIyHdbbsTC6CXNPnGvE8UoZerhUtxoydHxlIpqdMTl8f5U58
-         3tThZhCce32q0Fvtql3TOKteDFsp1gEktdLR4nd5OKsiYOEVy8IaDMoxPeLYPRx4ey
-         USoPf9QaooiFZGi15ab1XuWnd0Y56+BLSrvRs/9UPsKSItI0oUm52OZie9GIY/N86m
-         cL1Nc7ufANswQ==
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     keyrings@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Cc:     Denis Kenzior <denkenz@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        James Morris <james.morris@microsoft.com>,
-        linux-crypto@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH 1/3] KEYS: asym_tpm: fix buffer overreads in extract_key_parameters()
-Date:   Thu, 13 Jan 2022 15:54:38 -0800
-Message-Id: <20220113235440.90439-2-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220113235440.90439-1-ebiggers@kernel.org>
-References: <20220113235440.90439-1-ebiggers@kernel.org>
+        with ESMTP id S235488AbiAMX7N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Jan 2022 18:59:13 -0500
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDD7DC061574
+        for <stable@vger.kernel.org>; Thu, 13 Jan 2022 15:59:12 -0800 (PST)
+Received: by mail-pl1-x62e.google.com with SMTP id f13so1530056plg.0
+        for <stable@vger.kernel.org>; Thu, 13 Jan 2022 15:59:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=5v8YTYQmvWsxuKWSYu0N3sW++/xkugPtctVQAxNQMEE=;
+        b=YgMKTAFfkS2QuYWL5XBQ9UZA+8hJySmtiYsfc2JsVpkuO2Pzfh9wHQ0ht+qGtWbIea
+         +g1J/9ebyScHL38AC1tIBBQGYpF7MpTTPW8lGiMWq0+s016PRvHVZqwlBEwK/zqR8fcB
+         mniPx8pZKXRZ1RSlmvnHk/aMzR+yaZuSFAy+lgcjmOiCSDTivieYMP8rIq+kEi2QjuGv
+         s8ZRioCFomA5M4IZf4u/Aw+yX3oT7MPHOXEOXiaz4lyDJmbi8/sbVbljS6PWaKpPfVF9
+         J0K+sRWlJBh6OXKAtPN2dTLxugjWuSvslE9ynGNVMOH7YjsCvWbbGs+fWG6fWRUZMti/
+         XyjA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=5v8YTYQmvWsxuKWSYu0N3sW++/xkugPtctVQAxNQMEE=;
+        b=5zsmh+Bcxa2MFyeqxWinva+gMrN2f8+J3uwhSD09y5hHFISnaqhbqPHR+PkwgDQ4Tl
+         4zkV5gQmn2yVWLL7n2W8DMfvgwyiyg/7UJ88nRjAadfLrWRUEGuSqxszxRFvjc4K0F3X
+         hSGSsOzyuSG9TchTjM5TjXid2MjUHJVwPFL0lC7HVGYYydqhFLMstLNhg+f+khz09B8G
+         NeaJ45kxRF4vlDKjW04DapImMEQkztd3FeeO8yqjQz2F5snVYOa7GoR/rkURpmi8syIW
+         i30IRo1vdZ1Iq1/KfA627ML+bUYHRcIwpz1uQZn9kDQE+3Cuh6kdNVfN9EzV71M8s5Pl
+         ODxQ==
+X-Gm-Message-State: AOAM533Yq9YcooK6mjoCyHI8JjcEk4iBzFl2Ixlp+2YNe8yB3+3Tz9so
+        YOi674yeofeVuMms3u2/8fkT/UpL1ihpxs9Eki4=
+X-Google-Smtp-Source: ABdhPJxdRBdScj2RhwXSiU2oRX00i48ZLUWCzCxXtuwUt0ryz8EKCm88GVC8jQ2Fm9GashsmjFE/SA==
+X-Received: by 2002:a17:90a:f193:: with SMTP id bv19mr16827476pjb.157.1642118352311;
+        Thu, 13 Jan 2022 15:59:12 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id p10sm3882366pfo.95.2022.01.13.15.59.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Jan 2022 15:59:12 -0800 (PST)
+Message-ID: <61e0bcd0.1c69fb81.19441.b0c2@mx.google.com>
+Date:   Thu, 13 Jan 2022 15:59:12 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.262-4-g79003afb4545
+X-Kernelci-Branch: queue/4.14
+Subject: stable-rc/queue/4.14 baseline: 133 runs,
+ 1 regressions (v4.14.262-4-g79003afb4545)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+stable-rc/queue/4.14 baseline: 133 runs, 1 regressions (v4.14.262-4-g79003a=
+fb4545)
 
-extract_key_parameters() can read past the end of the input buffer due
-to buggy and missing bounds checks.  Fix it as follows:
+Regressions Summary
+-------------------
 
-- Before reading each key length field, verify that there are at least 4
-  bytes remaining.
-
-- Avoid integer overflows when validating size fields; 'sz + 12' and
-  '4 + sz' overflowed if 'sz' is near U32_MAX.
-
-- Before saving the pointer to the public key, check that it doesn't run
-  past the end of the buffer.
-
-Fixes: f8c54e1ac4b8 ("KEYS: asym_tpm: extract key size & public key [ver #2]")
-Cc: <stable@vger.kernel.org> # v4.20+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
 ---
- crypto/asymmetric_keys/asym_tpm.c | 30 ++++++++++++++++++------------
- 1 file changed, 18 insertions(+), 12 deletions(-)
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-diff --git a/crypto/asymmetric_keys/asym_tpm.c b/crypto/asymmetric_keys/asym_tpm.c
-index 0959613560b9..60d20d44c885 100644
---- a/crypto/asymmetric_keys/asym_tpm.c
-+++ b/crypto/asymmetric_keys/asym_tpm.c
-@@ -814,7 +814,6 @@ static int extract_key_parameters(struct tpm_key *tk)
- {
- 	const void *cur = tk->blob;
- 	uint32_t len = tk->blob_len;
--	const void *pub_key;
- 	uint32_t sz;
- 	uint32_t key_len;
- 
-@@ -845,14 +844,14 @@ static int extract_key_parameters(struct tpm_key *tk)
- 		return -EBADMSG;
- 
- 	sz = get_unaligned_be32(cur + 8);
--	if (len < sz + 12)
--		return -EBADMSG;
- 
- 	/* Move to TPM_RSA_KEY_PARMS */
--	len -= 12;
- 	cur += 12;
-+	len -= 12;
- 
- 	/* Grab the RSA key length */
-+	if (len < 4)
-+		return -EBADMSG;
- 	key_len = get_unaligned_be32(cur);
- 
- 	switch (key_len) {
-@@ -866,29 +865,36 @@ static int extract_key_parameters(struct tpm_key *tk)
- 	}
- 
- 	/* Move just past TPM_KEY_PARMS */
-+	if (len < sz)
-+		return -EBADMSG;
- 	cur += sz;
- 	len -= sz;
- 
- 	if (len < 4)
- 		return -EBADMSG;
--
- 	sz = get_unaligned_be32(cur);
--	if (len < 4 + sz)
--		return -EBADMSG;
-+	cur += 4;
-+	len -= 4;
- 
- 	/* Move to TPM_STORE_PUBKEY */
--	cur += 4 + sz;
--	len -= 4 + sz;
-+	if (len < sz)
-+		return -EBADMSG;
-+	cur += sz;
-+	len -= sz;
- 
- 	/* Grab the size of the public key, it should jive with the key size */
-+	if (len < 4)
-+		return -EBADMSG;
- 	sz = get_unaligned_be32(cur);
-+	cur += 4;
-+	len -= 4;
- 	if (sz > 256)
- 		return -EINVAL;
--
--	pub_key = cur + 4;
-+	if (len < sz)
-+		return -EBADMSG;
- 
- 	tk->key_len = key_len;
--	tk->pub_key = pub_key;
-+	tk->pub_key = cur;
- 	tk->pub_key_len = sz;
- 
- 	return 0;
--- 
-2.34.1
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.262-4-g79003afb4545/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.262-4-g79003afb4545
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      79003afb4545d26189efaeebd7192940c4db94fe =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61e08a4c1712a0f7bdef6752
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.262=
+-4-g79003afb4545/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.262=
+-4-g79003afb4545/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61e08a4c1712a0f=
+7bdef6755
+        failing since 10 days (last pass: v4.14.260-5-g5ba2b1f2b4df, first =
+fail: v4.14.260-9-gb7bb5018400c)
+        2 lines
+
+    2022-01-13T20:23:24.321610  [   20.050384] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2022-01-13T20:23:24.363059  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/98
+    2022-01-13T20:23:24.372110  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+d3c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =20
