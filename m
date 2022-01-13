@@ -2,97 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DF8448D6F9
-	for <lists+stable@lfdr.de>; Thu, 13 Jan 2022 12:56:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6C9148D6FC
+	for <lists+stable@lfdr.de>; Thu, 13 Jan 2022 12:57:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232195AbiAML43 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jan 2022 06:56:29 -0500
-Received: from mail-bo1ind01olkn0149.outbound.protection.outlook.com ([104.47.101.149]:39356
-        "EHLO IND01-BO1-obe.outbound.protection.outlook.com"
+        id S232122AbiAML5e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jan 2022 06:57:34 -0500
+Received: from mail-ma1ind01olkn0155.outbound.protection.outlook.com ([104.47.100.155]:12292
+        "EHLO IND01-MA1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S231260AbiAML42 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jan 2022 06:56:28 -0500
+        id S232245AbiAML5d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jan 2022 06:57:33 -0500
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=YLMilBE2RURXos65+SC2+CXOW7tMwqicONn2be4IeKCZwzbqHcSVBT2Th51ckiccikDWQCfzacFXAcLw6QOuZWeAYKfYJ7P7tyV39kNrPAx4aQO//juOgWC2WN3x2NkGt/NmAKg0+0Psf093MzIkt5BRRxRLWOhELxa7dEY/2VRV08EitwFGKWE4xOhoMdXCixGXUpcTQ9sS6qmFTpqmkC5JrHNaR6nbVI7cLt8782H514ivTOhXHCPLcfj5zOpwnMoAOIwelN4TfEu7cvg048N9DVY81yYsMBqeDk8mm1POZc/VnYYmp6UAbEPmKR6gNZ551ldotkn3QPuEUoDzEA==
+ b=a9cURbOmMoQTz7gQHDosrNSWPCocaUq1uX9R6vF7K+SvBGaHFotFdmF/J55k7aqt0SmXyap/9G+T3ZGhacC0hgEi0CmMKhmEhhzwLLfOUOJyD9qVLxVxM1Wg/FeZBicBoM5gNWQvJWWnFG1ryecE1bo1WxUNpX8+kTKY87TDC8liKoAHiOzlmR1zY+10MHeZ7llDKmmaL/td7F3p08D3iREO7eazTAkaY5BUORXHVW9Is8Azd9Yv3vjKA0+XZZSr9u+AeIFp/T5CGeYVLKXLyigiL1i1kOkzg5BW+0sizf8dIa0p2oucpGT4Wp0VtOWPh64Wy89dHreHnlRwehR5yw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=DY0ZxhusX21liauug2tJ1c/r+Ut1Zpvg+uhR4T2OBXo=;
- b=HpHJ2T9crcZrMYTpQK7MzXX35cqyQRXKdPmDn/+6XG97zLfnwgeoFaPFoN2y2DbK+2nD55I+ka1Wo6AXZWGbGcfJIAtjgiK1ltJ8QnjTQQNlGHJxzvf3zWPkDx55TaO1iVDhcqLw+mXHpj3B3kqVe0FKpXaEeYsA3abLqCDUhRiOWoBTuUlNyS3G8OXCMlYM/n775FhPwGl8xKamCWNW8ClfVo97zsO3fvJ64CxYMyUWS5x+EccSq8xBz2FuTiaiUvmiSX7RZ3bOt1+1xRYBng/h94BxH5S/6zBzGaJpJqoNuxo5/HaTA8hFCAunl/OdwTOpTAoAV95vxwnxqL16yQ==
+ bh=oc/Tr2CQRRwPhdMJBI63KK7uhjiVihSoyEVkexnwfxM=;
+ b=ldrNE89f+3kOXb3UMXpLgw9Ay1GwDU4HI7JNtLPrFzV8wq99EhyKXiVHl1HBJDsE+PjuNMPjBBNNOu6haFUsZUAzCIq9xNWLTl2Rr48PewZ/A9YD4ZDg7fLN46vQs9D2C/lfw800ifhzZOLkYCSUiLLivjNhRKO+DiS56eRCq6pKgto7RGcisW0iMGmeyY0YtB79VzHQUCUAmjuNL3VbVc4WlQtRENADm7nlplyOHhDUVV4zHlhQFuOtPmMRWsJnVA/5gueD4jjvZ7mcGTbT6jaXmQ50Zp/1k6Uh1+ME+hTzTSJk5VuNPMX8x486EGEUyQW67TXH4WWGIT6iErAF3Q==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
  dkim=none; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=live.com; s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=DY0ZxhusX21liauug2tJ1c/r+Ut1Zpvg+uhR4T2OBXo=;
- b=lRjYeyJxif7F1v5gPce1gQLKpLBv8LORXfR91TaboSMPH4Xq/H8Dn2St2XNgriHiinHwf59RCd6ETqnXdUxWcD9aaDAcCZnuEujPEkum/Vc2v3ZvbypDxYmG62YkHs63BbQmDJzRoLpp1C9a1JJ5hLjiHjuA/ySfsoD63hChYPuKP11YEla/CIvLMuPmfIL1vO1lWhx1EmxrDreUmrRYN/UO+Z54hBgGpEkQpMl2l9fGrpkn9HNyCN7uvZDEyWVUmjkb9bvR8IfjpKZ2OFQl1H+qAwVyjaCX/Zd8ylQy9ynbp//6o8sHn5bTmFGsb7SEzmOIy1QldYDGxIhvvFOsBQ==
+ bh=oc/Tr2CQRRwPhdMJBI63KK7uhjiVihSoyEVkexnwfxM=;
+ b=j8NjQId0lQU85VCTM9zxwfomu0gteeA7ZqGTTNNTfmcYS0XxJwWnira26sCmTGb7mq9EmRvU2ovw4tj/GlTmN1CGciTQqWSqjhQ7yPIwvAsRa5FmzFm2O7dh8D52/zIgHiiXReWIk5gkxW0QoB6qKZmrLKy04pQGFMipnvthXUsXAxCiE2z1SvtkQUNudjUDZ98oHQp5j9AHvJkw39H0opK43tzo/80gTZkLX3p1ZJFtJSgu0JrB+SLug43zgWOFfgamjXBBIb0iZhZeImnbEXhk0DTnvQo1faQILsfUjlL55hqGZ2ZSOPYf+4Wyzb6v7gCq9xlMlhTrVdmPblE87w==
 Received: from PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c01:1b::13)
- by PN3PR01MB7502.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c01:cf::5) with
+ by PNZPR01MB4815.INDPRD01.PROD.OUTLOOK.COM (2603:1096:c01:30::20) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4888.11; Thu, 13 Jan
- 2022 11:56:24 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4867.11; Thu, 13 Jan
+ 2022 11:57:26 +0000
 Received: from PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
  ([fe80::7ca6:9165:19ec:4cd7]) by PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
  ([fe80::7ca6:9165:19ec:4cd7%8]) with mapi id 15.20.4867.012; Thu, 13 Jan 2022
- 11:56:24 +0000
+ 11:57:26 +0000
 From:   Aditya Garg <gargaditya08@live.com>
 To:     Greg KH <gregkh@linuxfoundation.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>
 CC:     Marcel Holtmann <marcel@holtmann.org>,
         Orlando Chamberlain <redecorating@protonmail.com>
 Subject: Re: FAILED: patch "[PATCH] Bluetooth: btbcm: disable read tx power
- for some Macs with" failed to apply to 5.15-stable tree
+ for some Macs with" failed to apply to 5.16-stable tree
 Thread-Topic: FAILED: patch "[PATCH] Bluetooth: btbcm: disable read tx power
- for some Macs with" failed to apply to 5.15-stable tree
-Thread-Index: AQHYCGr8d6dyw7RZYEubj9gBTQra56xg2FQA
-Date:   Thu, 13 Jan 2022 11:56:24 +0000
-Message-ID: <D9DBBB93-C43B-4062-A619-AFDB1DF8DD52@live.com>
-References: <1642070843131209@kroah.com>
-In-Reply-To: <1642070843131209@kroah.com>
+ for some Macs with" failed to apply to 5.16-stable tree
+Thread-Index: AQHYCGr8NSEl1UECm0GD52IQdpWIZaxg2J+A
+Date:   Thu, 13 Jan 2022 11:57:26 +0000
+Message-ID: <1DB980CD-C24C-457D-8557-73618007AA4A@live.com>
+References: <164207084357101@kroah.com>
+In-Reply-To: <164207084357101@kroah.com>
 Accept-Language: en-US
 Content-Language: en-US
 X-MS-Has-Attach: 
 X-MS-TNEF-Correlator: 
 x-ms-exchange-messagesentrepresentingtype: 1
-x-tmn:  [zz1RKs7EpCPyAI8IOLKZNHP73uvvZxAHVmiheCYYq8/dw+PxZ7xARsQKvMhI8MKp]
+x-tmn:  [11o3P26iiIDPapzSDV7grpYQC/WI7WPsdCY25bRiCY2kFqtKy+H8AgLtTYaKD6w4]
 x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 3eb22aff-d60c-4a31-617a-08d9d68bb93f
-x-ms-traffictypediagnostic: PN3PR01MB7502:EE_
+x-ms-office365-filtering-correlation-id: 6049166b-d094-4e20-8912-08d9d68bde38
+x-ms-traffictypediagnostic: PNZPR01MB4815:EE_
 x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: qu+oHugqJ12v5DFBLx2Ni95oj7og1J2xq8t1rdehMV4nceqNqqCwjI0700431RafcJbJtT2ql/VD4hsq7fecFvoJ7XiDXG9R28MvtfSpp723Trir7kvGo4u9ZRUxX+jwQZmpGDRiipwj0UUxzLEjQm+ncjSQxMnuul6ysihhkjyn8ZQXfsaGdgUhFfm7Y6xcnUJLmGrCSoqVcpDHdcDow6FWaXkEheb/2XBXcHA8Y2bzp7NWDJnWHGta2pM6BqKfq40yYAjPGtOyzNNV109/LBSdmdAoaqJI3XTGQN5M7x15X2RPV1G8nzt9adbgtvPM/FlqkWyP5Y24E2IZ6pVaf1GLLDyTx3jJ73LFTJ0KOx1j/IumjOLs6k03cLfkqSl9h8rNxCCt0RZP50WZTLRi04EIOL3qaGUCaCnmlyIdf0lUE5vbmoY3TFxWEfjutBojU2UenweZgpUWoCpE88ZGz4FwScAWyLg75MAdbmSr/uoARHBJjaDrm+dTc4I0DvMiHuL/anC9KLAAXo5vRxQhqOZNbxNfgQjCgGOYfp7fhaFOZyhaFxYs6iMxZRLGv6uO0WgeT960jDXdh88rV+V4CuXQIEdERTBQUthHjb6GD53tPTa0Szz+Ub6z5OVaanVn
+x-microsoft-antispam-message-info: zmt1djSYInVZyBz7sjnEP8KIFt3x7OFi2vjt32890niedxOQSvfaz8NAJuwiDStl9YF7Mk8dmnFsiQT/vz52Dpuwb8CgYFrC2crR2yszfgsqsUbv/TPGDGRK/C2H3mw3LNIGicKi4S1sI4LpBGAwsTWM4R2KxJ0jx07ih2fkhZDV4Iuw+wxhhsyzO/+u2iQtpGWxnZqNC9yjs3m3r7YioHS40eXKNP4IZDI+vOjcgLCEuJUnLwL1GXaMO//R2Jz7UazYVYb4r5ZKTNsNoNWy4U17IU0xBneWeTav1WWA1vbvNW2nkPxtWWhXTsKZFemF7syIgn960Hhw5Vy9BfnoIitMvNErN6IZwjDcbwngkKnnjjM4dAFvQhKyNHH7wUFrM9cH0ucQV8yrUy0/Gku55t+LwMQWC24obWSb8gYqbMm6FayzHsd287lnuez83wHPfXUXzYLHEYcF2zcoepxfuui5taYXbDQx9ulmwpeKOGvzFlCNjGSPO/B4kIo+Zjp1qU9hqKob5F51HhiumMJ9INF8lv00SEMEPJnYxkymjAUaqcxjP1tLUnZH/QPQFQAqb2UBUEMKqKpQErJkecHphy5YjsUa8hbFWBUq8SHWT6WJIQbeP+bxtLy/1NX/c2aa
 x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?qePvSZq7+lIIiwi+eSBIRZ89mth4EN1IuoeGsvG9dcQtp3hPI1hQBojt6yhm?=
- =?us-ascii?Q?PQo8+uam+J0hqXgRuitT4+Hx6I5jpFeSgvZJZnMEQuuESKRXwlIY6RLKKUX8?=
- =?us-ascii?Q?2qp+N+kaJXOKFuVz2MBDCys+PJY+8koX2Boylxx2WZiDXthRlvK9C+P6khin?=
- =?us-ascii?Q?XHk5z2QANLpFgAdpbFMNBvAlwoWqs+loV8P17s03dS91YJeIPu6mZf77hJza?=
- =?us-ascii?Q?BDRfzBTOd602xh4VReduqNqr42zZyW0kx60DkAvTahHqJ9RHKzoqgfHSl2mL?=
- =?us-ascii?Q?JwyWHTx7BFXHqjWem7DNpcDfYzhHpSbQBS3zdmzm4rIU8KZu5yinPooBdh4b?=
- =?us-ascii?Q?nbERWBT/GrhVLl1FcJexjrxrU5D3p90SwZmUrYBmI2cKQWmziUNPaJTGOEoS?=
- =?us-ascii?Q?WCAM9vjFzpkFuoXd7sozbSd1hK+YVOu2faHwZT0yLknVNhlb2VTEz4bOR73L?=
- =?us-ascii?Q?RVrb+Wa4vuA1RIfHBfuF16iJkT2tW+vStijxflWCXZ0DtfZQsJhJsZ6adpFd?=
- =?us-ascii?Q?SQSdlNeeW178xDQ9ue5ZMqzoVOajKHOjU9mFMJhWrZ4JuwzpXhxRh0MFt3Et?=
- =?us-ascii?Q?EWIVJWt9DoqO3r457ZEymO01ttnNq2L95Rx+ENlig7Cyw1mHPFb6cmGrIybK?=
- =?us-ascii?Q?KRJfEC3I10j8IjqFwz0HyD9EIBMlTT3T5iVqvDzAzJ8+QsFkIljhvkG5nT2z?=
- =?us-ascii?Q?5NI6+1v03nqRY94vtgrXJd9KfHsi+Uit+B08TRrdM2Qqje3tvH1MQ3+VGWLq?=
- =?us-ascii?Q?GGHwCaOfnAD/hMyWhigqmURuxEXYAUbQfKncn/xxJXqiWIx0u18qllRSPg0w?=
- =?us-ascii?Q?IEWGQVXaInMVE8LAHAQ6ku1WumZRI99hUbBh32iHoemFaS1BzdpH7dVKhmjb?=
- =?us-ascii?Q?H5Ki4uSlAOeou/PPRmY9R/uKUe8TqdUhqHJAVk4/wGFsCDLLHifWbjAbYytm?=
- =?us-ascii?Q?bcmKRfVkzK3b3Di2FmXtkKEfp4KWojlN8VWEZTmfHzr3p5/OsiEQM1dsVgbJ?=
- =?us-ascii?Q?PBLGCen2OEQ7S/lDp7wvKzZswQ=3D=3D?=
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?Goq5fpJNKZEFfdfMKBD9gz9O8Pr8s0S7PGP9GchvGjfDedZWk1FnA5GkFbis?=
+ =?us-ascii?Q?MFnCfZgSBBuJZL0UAKjT09TCQZU4KnwOZOJC56T21JPYi4bmqKMC1GJZIWHH?=
+ =?us-ascii?Q?paa4sdIL3Sx8gSOeoqOgyct8+vllHUFv8h0SrdgrVxTJaO0WT8PbVCevrqh6?=
+ =?us-ascii?Q?GLUGwcIziXTbI4753yW2qNCnpspuCknpzfgpq19DfvGMCHsmA/PR+IWWciqq?=
+ =?us-ascii?Q?k2QeXWbcFt7mEXGpW1oFh+ANqbJPuLeft9ScdsqVJcSxLda0CYTmEwgbyWGz?=
+ =?us-ascii?Q?50RQ6VS6EK09dzqAITc7T3RZ77mHytgG0D94yQ3yHaodLcY2uuNje7DOubwW?=
+ =?us-ascii?Q?nP0qzb40/4/HnIklWzxgsVtZfZits95DMXMlojyfn32hV6mE/5yebdHP2jmb?=
+ =?us-ascii?Q?DJPjXm6H6XqLGOpChIKGTd8F4E60xNy3vhsGAfLIRWkzP8+L2W6QfYOLEiao?=
+ =?us-ascii?Q?S+bKj5QX3H8TuMo6cvEd2SUjDiQRWAOxThuNIveWgRIFRiiH/IGZ37eB6gyd?=
+ =?us-ascii?Q?Rl2tERJusVsUT/oRroNNyUOxWBednq4YatSsSySIaaF1kFhYEJggxXLP/GIX?=
+ =?us-ascii?Q?qEiv9Jl8kgSE1xE/w84QIJxbozYt9IVGNXKH/k9zwt3MKT631LxhJmmnNLlR?=
+ =?us-ascii?Q?v7GTxxlILTW8U7aMfphYZRV29CoxfUkzcg2HvvecnuNiYMWCZ0sibUi44es9?=
+ =?us-ascii?Q?OAAqB/fl3GH5PbfE+6vWLOwAqkJNtmKrwLMH7ApDDHCGN3Wl+x2wqan2KHXJ?=
+ =?us-ascii?Q?3ARJLL3V06KEumIhpMjfTwghaOrQSwijre/t5XXUCmAQk4n6CG9kUadYyF3W?=
+ =?us-ascii?Q?1Ur5R+1eoKKNrWk6bVWoBH1utFA6zt1KBia9lkBztTHJS7EHwNe2Ghzr37Jz?=
+ =?us-ascii?Q?zgLw73CpNfIWPGQnNgfsTdVQsKjM++WkOjMtPo0HnqVmY3rzWPron/sO36Sl?=
+ =?us-ascii?Q?sp8a+txszdW2urrcuSlPoNkV2SHFzRNXwd/QZytzl92eccjmsP7yFBE+SWQB?=
+ =?us-ascii?Q?PTtWPWQPz2/6ccsxuWkEw3x39Q=3D=3D?=
 Content-Type: text/plain; charset="us-ascii"
-Content-ID: <31DB8A9C17CB1E44A03AE324D5227591@INDPRD01.PROD.OUTLOOK.COM>
+Content-ID: <982EB28F120B0546BE34AB49E77E0725@INDPRD01.PROD.OUTLOOK.COM>
 Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
 X-OriginatorOrg: sct-15-20-4755-11-msonline-outlook-42ed3.templateTenant
 X-MS-Exchange-CrossTenant-AuthAs: Internal
 X-MS-Exchange-CrossTenant-AuthSource: PNZPR01MB4415.INDPRD01.PROD.OUTLOOK.COM
 X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3eb22aff-d60c-4a31-617a-08d9d68bb93f
-X-MS-Exchange-CrossTenant-originalarrivaltime: 13 Jan 2022 11:56:24.5645
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6049166b-d094-4e20-8912-08d9d68bde38
+X-MS-Exchange-CrossTenant-originalarrivaltime: 13 Jan 2022 11:57:26.5984
  (UTC)
 X-MS-Exchange-CrossTenant-fromentityheader: Hosted
 X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
 X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PN3PR01MB7502
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PNZPR01MB4815
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
@@ -102,7 +102,7 @@ X-Mailing-List: stable@vger.kernel.org
 > On 13-Jan-2022, at 4:17 PM, gregkh@linuxfoundation.org wrote:
 >=20
 >=20
-> The patch below does not apply to the 5.15-stable tree.
+> The patch below does not apply to the 5.16-stable tree.
 > If someone wants it applied there, or to any other stable or longterm
 > tree, then please email the backport, including the original git commit
 > id to <stable@vger.kernel.org>.
