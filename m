@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DCC948E582
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:19:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4676D48E5C8
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:21:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230465AbiANISq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 03:18:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49430 "EHLO
+        id S239895AbiANIVD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 03:21:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49988 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239687AbiANISW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:18:22 -0500
+        with ESMTP id S239896AbiANIUN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:20:13 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10514C06175A;
-        Fri, 14 Jan 2022 00:18:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7435CC061775;
+        Fri, 14 Jan 2022 00:20:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A4EB461E06;
-        Fri, 14 Jan 2022 08:18:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69A0BC36AE9;
-        Fri, 14 Jan 2022 08:18:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1247C61E22;
+        Fri, 14 Jan 2022 08:20:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1702C36AEA;
+        Fri, 14 Jan 2022 08:20:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642148301;
-        bh=etBZ/Zm3JQWTYpbzDpQhx8B+oOgjW3fLaT6U3d46yak=;
+        s=korg; t=1642148411;
+        bh=mSpILCvNSI6hsV69h7+xbuxcENkMxGPeZv86P3OiMTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vKzUG4p9EHnMU8b6u6Q7XeaML1ncBqmINLMy1fgP531bdkiRM9B0Px4fOJ0omqjbd
-         GanQC7Z+eARstPkSV7q+LD3x/v/ejlIRXuSGTPZRU9hA5l5l1+4tpD9oVtVvfUILyf
-         w7LFwjnpIM6uQoR5H4lE9dX71CcIS993CXd2KCbU=
+        b=pJRDe5EF4Vwd+ARAc2d8FRItFDl50CdpEVVsOiTbCJ5gOhZutaxeouxAzYF7guOSm
+         FrGGuu176Y/XNIe6lOtuzep81tNfb0pQ7uUGA7Y8UZIGzIZNfi7x/OmuGQl2X/TzSX
+         hLUlWoqf2295wAf1RAgfUtNMuPtrYE4eOF/rlOro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Orlando Chamberlain <redecorating@protonmail.com>,
-        Aditya Garg <gargaditya08@live.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 5.10 15/25] mfd: intel-lpss: Fix too early PM enablement in the ACPI ->probe()
+        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
+        Kalle Valo <quic_kvalo@quicinc.com>
+Subject: [PATCH 5.15 23/41] ath11k: Fix buffer overflow when scanning with extraie
 Date:   Fri, 14 Jan 2022 09:16:23 +0100
-Message-Id: <20220114081543.228147960@linuxfoundation.org>
+Message-Id: <20220114081545.932563648@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220114081542.698002137@linuxfoundation.org>
-References: <20220114081542.698002137@linuxfoundation.org>
+In-Reply-To: <20220114081545.158363487@linuxfoundation.org>
+References: <20220114081545.158363487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,61 +47,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Sven Eckelmann <sven@narfation.org>
 
-commit c9e143084d1a602f829115612e1ec79df3727c8b upstream.
+commit a658c929ded7ea3aee324c8c2a9635a5e5a38e7f upstream.
 
-The runtime PM callback may be called as soon as the runtime PM facility
-is enabled and activated. It means that ->suspend() may be called before
-we finish probing the device in the ACPI case. Hence, NULL pointer
-dereference:
+If cfg80211 is providing extraie's for a scanning process then ath11k will
+copy that over to the firmware. The extraie.len is a 32 bit value in struct
+element_info and describes the amount of bytes for the vendor information
+elements.
 
-  intel-lpss INT34BA:00: IRQ index 0 not found
-  BUG: kernel NULL pointer dereference, address: 0000000000000030
-  ...
-  Workqueue: pm pm_runtime_work
-  RIP: 0010:intel_lpss_suspend+0xb/0x40 [intel_lpss]
+The WMI_TLV packet is having a special WMI_TAG_ARRAY_BYTE section. This
+section can have a (payload) length up to 65535 bytes because the
+WMI_TLV_LEN can store up to 16 bits. The code was missing such a check and
+could have created a scan request which cannot be parsed correctly by the
+firmware.
 
-To fix this, first try to register the device and only after that enable
-runtime PM facility.
+But the bigger problem was the allocation of the buffer. It has to align
+the TLV sections by 4 bytes. But the code was using an u8 to store the
+newly calculated length of this section (with alignment). And the new
+calculated length was then used to allocate the skbuff. But the actual code
+to copy in the data is using the extraie.len and not the calculated
+"aligned" length.
 
-Fixes: 4b45efe85263 ("mfd: Add support for Intel Sunrisepoint LPSS devices")
-Reported-by: Orlando Chamberlain <redecorating@protonmail.com>
-Reported-by: Aditya Garg <gargaditya08@live.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Aditya Garg <gargaditya08@live.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Link: https://lore.kernel.org/r/20211101190008.86473-1-andriy.shevchenko@linux.intel.com
+The length of extraie with IEEE80211_HW_SINGLE_SCAN_ON_ALL_BANDS enabled
+was 264 bytes during tests with a QCA Milan card. But it only allocated 8
+bytes (264 bytes % 256) for it. As consequence, the code to memcpy the
+extraie into the skb was then just overwriting data after skb->end. Things
+like shinfo were therefore corrupted. This could usually be seen by a crash
+in skb_zcopy_clear which tried to call a ubuf_info callback (using a bogus
+address).
+
+Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-02892.1-QCAHSPSWPL_V1_V2_SILICONZ_LITE-1
+
+Cc: stable@vger.kernel.org
+Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20211207142913.1734635-1-sven@narfation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mfd/intel-lpss-acpi.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath11k/wmi.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/mfd/intel-lpss-acpi.c
-+++ b/drivers/mfd/intel-lpss-acpi.c
-@@ -102,6 +102,7 @@ static int intel_lpss_acpi_probe(struct
- {
- 	struct intel_lpss_platform_info *info;
- 	const struct acpi_device_id *id;
-+	int ret;
+--- a/drivers/net/wireless/ath/ath11k/wmi.c
++++ b/drivers/net/wireless/ath/ath11k/wmi.c
+@@ -2051,7 +2051,7 @@ int ath11k_wmi_send_scan_start_cmd(struc
+ 	void *ptr;
+ 	int i, ret, len;
+ 	u32 *tmp_ptr;
+-	u8 extraie_len_with_pad = 0;
++	u16 extraie_len_with_pad = 0;
+ 	struct hint_short_ssid *s_ssid = NULL;
+ 	struct hint_bssid *hint_bssid = NULL;
  
- 	id = acpi_match_device(intel_lpss_acpi_ids, &pdev->dev);
- 	if (!id)
-@@ -115,10 +116,14 @@ static int intel_lpss_acpi_probe(struct
- 	info->mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	info->irq = platform_get_irq(pdev, 0);
+@@ -2070,7 +2070,7 @@ int ath11k_wmi_send_scan_start_cmd(struc
+ 		len += sizeof(*bssid) * params->num_bssid;
  
-+	ret = intel_lpss_probe(&pdev->dev, info);
-+	if (ret)
-+		return ret;
-+
- 	pm_runtime_set_active(&pdev->dev);
- 	pm_runtime_enable(&pdev->dev);
+ 	len += TLV_HDR_SIZE;
+-	if (params->extraie.len)
++	if (params->extraie.len && params->extraie.len <= 0xFFFF)
+ 		extraie_len_with_pad =
+ 			roundup(params->extraie.len, sizeof(u32));
+ 	len += extraie_len_with_pad;
+@@ -2177,7 +2177,7 @@ int ath11k_wmi_send_scan_start_cmd(struc
+ 		      FIELD_PREP(WMI_TLV_LEN, len);
+ 	ptr += TLV_HDR_SIZE;
  
--	return intel_lpss_probe(&pdev->dev, info);
-+	return 0;
- }
+-	if (params->extraie.len)
++	if (extraie_len_with_pad)
+ 		memcpy(ptr, params->extraie.ptr,
+ 		       params->extraie.len);
  
- static int intel_lpss_acpi_remove(struct platform_device *pdev)
 
 
