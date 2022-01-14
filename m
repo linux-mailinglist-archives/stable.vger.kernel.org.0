@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03EFC48E5BC
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:21:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8056248E600
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:22:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232747AbiANIUf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 03:20:35 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:58478 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237123AbiANITM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:19:12 -0500
+        id S240537AbiANIWo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 03:22:44 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:33208 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240254AbiANIV0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:21:26 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CFD561E03;
-        Fri, 14 Jan 2022 08:19:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03ECEC36AE9;
-        Fri, 14 Jan 2022 08:19:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 22713B82436;
+        Fri, 14 Jan 2022 08:21:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D3CAC36AE9;
+        Fri, 14 Jan 2022 08:21:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642148351;
-        bh=Uh/Bhv7AqgNt1MvA67kKhA3mQZvo44UFqagmaBRB8yc=;
+        s=korg; t=1642148484;
+        bh=gjGfHJiIeV7KvNpZ7lvn+o782xiLOMBLcdwsR8r31Vo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T0JBax1gjwBT0hvswuRKwKSth+ci194SEO1ZgrGd2WlaUc4Hp69a43uno8IFfcJKk
-         2O6UfXSOBg4TR0uSwEyoQsb+26PTE57BaxxAaoswlgEGh5fYOVfwCeYCqwtcyaOmWU
-         5+uxxDaw+/olgZe7W1Ih/liTJxvWcbwHd7fEVgWE=
+        b=VtamezizJMOR5ERjCwGmATUHPw5REIp9IwqD2ebFfZ1KZrfNqerVnsJL2itxwKZ1C
+         gn9RM7qid7abGc+meuAp5Xj6p7TEt1PRzhN5k6tlSFLMYw+lnOYk5isUbmnfu7NrON
+         wnS28C4xbbf5PQrJT6oIkN0F2jXNncQPGYnkiFvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 5.10 23/25] staging: wlan-ng: Avoid bitwise vs logical OR warning in hfa384x_usb_throttlefn()
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.15 31/41] can: gs_usb: fix use of uninitialized variable, detach device on reception of invalid USB data
 Date:   Fri, 14 Jan 2022 09:16:31 +0100
-Message-Id: <20220114081543.489065294@linuxfoundation.org>
+Message-Id: <20220114081546.197540711@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220114081542.698002137@linuxfoundation.org>
-References: <20220114081542.698002137@linuxfoundation.org>
+In-Reply-To: <20220114081545.158363487@linuxfoundation.org>
+References: <20220114081545.158363487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +43,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-commit 502408a61f4b7eb4713f44bd77f4a48e6cb1b59a upstream.
+commit 4a8737ff068724f509d583fef404d349adba80d6 upstream.
 
-A new warning in clang points out a place in this file where a bitwise
-OR is being used with boolean expressions:
+The received data contains the channel the received data is associated
+with. If the channel number is bigger than the actual number of
+channels assume broken or malicious USB device and shut it down.
 
-In file included from drivers/staging/wlan-ng/prism2usb.c:2:
-drivers/staging/wlan-ng/hfa384x_usb.c:3787:7: warning: use of bitwise '|' with boolean operands [-Wbitwise-instead-of-logical]
-            ((test_and_clear_bit(THROTTLE_RX, &hw->usb_flags) &&
-            ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/staging/wlan-ng/hfa384x_usb.c:3787:7: note: cast one or both operands to int to silence this warning
-1 warning generated.
+This fixes the error found by clang:
 
-The comment explains that short circuiting here is undesirable, as the
-calls to test_and_{clear,set}_bit() need to happen for both sides of the
-expression.
+| drivers/net/can/usb/gs_usb.c:386:6: error: variable 'dev' is used
+|                                     uninitialized whenever 'if' condition is true
+|         if (hf->channel >= GS_MAX_INTF)
+|             ^~~~~~~~~~~~~~~~~~~~~~~~~~
+| drivers/net/can/usb/gs_usb.c:474:10: note: uninitialized use occurs here
+|                           hf, dev->gs_hf_size, gs_usb_receive_bulk_callback,
+|                               ^~~
 
-Clang's suggestion would work to silence the warning but the readability
-of the expression would suffer even more. To clean up the warning and
-make the block more readable, use a variable for each side of the
-bitwise expression.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1478
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/20211014215703.3705371-1-nathan@kernel.org
+Link: https://lore.kernel.org/all/20211210091158.408326-1-mkl@pengutronix.de
+Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
+Cc: stable@vger.kernel.org
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/wlan-ng/hfa384x_usb.c |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/net/can/usb/gs_usb.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/staging/wlan-ng/hfa384x_usb.c
-+++ b/drivers/staging/wlan-ng/hfa384x_usb.c
-@@ -3779,18 +3779,18 @@ static void hfa384x_usb_throttlefn(struc
+--- a/drivers/net/can/usb/gs_usb.c
++++ b/drivers/net/can/usb/gs_usb.c
+@@ -321,7 +321,7 @@ static void gs_usb_receive_bulk_callback
  
- 	spin_lock_irqsave(&hw->ctlxq.lock, flags);
+ 	/* device reports out of range channel id */
+ 	if (hf->channel >= GS_MAX_INTF)
+-		goto resubmit_urb;
++		goto device_detach;
  
--	/*
--	 * We need to check BOTH the RX and the TX throttle controls,
--	 * so we use the bitwise OR instead of the logical OR.
--	 */
- 	pr_debug("flags=0x%lx\n", hw->usb_flags);
--	if (!hw->wlandev->hwremoved &&
--	    ((test_and_clear_bit(THROTTLE_RX, &hw->usb_flags) &&
--	      !test_and_set_bit(WORK_RX_RESUME, &hw->usb_flags)) |
--	     (test_and_clear_bit(THROTTLE_TX, &hw->usb_flags) &&
--	      !test_and_set_bit(WORK_TX_RESUME, &hw->usb_flags))
--	    )) {
--		schedule_work(&hw->usb_work);
-+	if (!hw->wlandev->hwremoved) {
-+		bool rx_throttle = test_and_clear_bit(THROTTLE_RX, &hw->usb_flags) &&
-+				   !test_and_set_bit(WORK_RX_RESUME, &hw->usb_flags);
-+		bool tx_throttle = test_and_clear_bit(THROTTLE_TX, &hw->usb_flags) &&
-+				   !test_and_set_bit(WORK_TX_RESUME, &hw->usb_flags);
-+		/*
-+		 * We need to check BOTH the RX and the TX throttle controls,
-+		 * so we use the bitwise OR instead of the logical OR.
-+		 */
-+		if (rx_throttle | tx_throttle)
-+			schedule_work(&hw->usb_work);
- 	}
+ 	dev = usbcan->canch[hf->channel];
  
- 	spin_unlock_irqrestore(&hw->ctlxq.lock, flags);
+@@ -406,6 +406,7 @@ static void gs_usb_receive_bulk_callback
+ 
+ 	/* USB failure take down all interfaces */
+ 	if (rc == -ENODEV) {
++ device_detach:
+ 		for (rc = 0; rc < GS_MAX_INTF; rc++) {
+ 			if (usbcan->canch[rc])
+ 				netif_device_detach(usbcan->canch[rc]->netdev);
 
 
