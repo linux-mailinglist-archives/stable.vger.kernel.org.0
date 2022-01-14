@@ -2,226 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70EEA48E646
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:25:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DE7748E611
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:23:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240287AbiANIZp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 03:25:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50304 "EHLO
+        id S237924AbiANIXC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 03:23:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237231AbiANIYM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:24:12 -0500
+        with ESMTP id S239770AbiANIVk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:21:40 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECDB1C06135B;
-        Fri, 14 Jan 2022 00:22:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B004C06176D;
+        Fri, 14 Jan 2022 00:21:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97B0FB82448;
-        Fri, 14 Jan 2022 08:22:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE01FC36AE9;
-        Fri, 14 Jan 2022 08:22:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 19892B823EB;
+        Fri, 14 Jan 2022 08:21:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 045D8C36AEA;
+        Fri, 14 Jan 2022 08:21:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642148570;
-        bh=NMkYOV7m1yBGUTFp2ummXBf0Rc3h+fSC5Swv2FjcldQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=FVgLXAJEITzQRhYr9QfESvpQGkesoe0F3jIBblXZHGPmq/03gMxAo+3svV+cd18aW
-         7S5Bcjp7F6g3TlrZ+juC7irsKkPTCt4t0kUJIAy82f5vCZhv3A+BTfq6XZBp3F8hDN
-         m1aNhv5YF8QOU6Z+L/N0Aq0rnNTJHrvVjuWexhS4=
+        s=korg; t=1642148496;
+        bh=/XyRly+7y2sPvMTKrZuvM4zw99DP2Ky0lkevHGyRWCs=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=wB9UF8RI5RUTzokAMA/BAgIxlcd/rJ9Hb/NJz5Vhhu2F/ZkA3YU0WSAMQOp/0sEvF
+         7yvJgjZQm5cYSMV5grueqXfFhvjoTwsEhgKsrRrtDzWhewZKqkqW8qCpvK4OqTNDwR
+         sRGrs+SyIaaVpJ5sq/tpjwI5ykPTW1quyz0J4X48=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 5.16 00/37] 5.16.1-rc1 review
-Date:   Fri, 14 Jan 2022 09:16:14 +0100
-Message-Id: <20220114081544.849748488@linuxfoundation.org>
+        stable@vger.kernel.org, Lai Jiangshan <jiangshanlai@gmail.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Tejun Heo <tj@kernel.org>
+Subject: [PATCH 5.16 01/37] workqueue: Fix unbind_workers() VS wq_worker_running() race
+Date:   Fri, 14 Jan 2022 09:16:15 +0100
+Message-Id: <20220114081544.899493450@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-MIME-Version: 1.0
+In-Reply-To: <20220114081544.849748488@linuxfoundation.org>
+References: <20220114081544.849748488@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.1-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.16.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.16.1-rc1
-X-KernelTest-Deadline: 2022-01-16T08:15+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.16.1 release.
-There are 37 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Frederic Weisbecker <frederic@kernel.org>
 
-Responses should be made by Sun, 16 Jan 2022 08:15:33 +0000.
-Anything received after that time might be too late.
+commit 07edfece8bcb0580a1828d939e6f8d91a8603eb2 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.1-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
-and the diffstat can be found below.
+At CPU-hotplug time, unbind_worker() may preempt a worker while it is
+waking up. In that case the following scenario can happen:
 
-thanks,
+        unbind_workers()                     wq_worker_running()
+        --------------                      -------------------
+        	                      if (!(worker->flags & WORKER_NOT_RUNNING))
+        	                          //PREEMPTED by unbind_workers
+        worker->flags |= WORKER_UNBOUND;
+        [...]
+        atomic_set(&pool->nr_running, 0);
+        //resume to worker
+		                              atomic_inc(&worker->pool->nr_running);
 
-greg k-h
+After unbind_worker() resets pool->nr_running, the value is expected to
+remain 0 until the pool ever gets rebound in case cpu_up() is called on
+the target CPU in the future. But here the race leaves pool->nr_running
+with a value of 1, triggering the following warning when the worker goes
+idle:
 
--------------
-Pseudo-Shortlog of commits:
+	WARNING: CPU: 3 PID: 34 at kernel/workqueue.c:1823 worker_enter_idle+0x95/0xc0
+	Modules linked in:
+	CPU: 3 PID: 34 Comm: kworker/3:0 Not tainted 5.16.0-rc1+ #34
+	Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-gc9ba527-rebuilt.opensuse.org 04/01/2014
+	Workqueue:  0x0 (rcu_par_gp)
+	RIP: 0010:worker_enter_idle+0x95/0xc0
+	Code: 04 85 f8 ff ff ff 39 c1 7f 09 48 8b 43 50 48 85 c0 74 1b 83 e2 04 75 99 8b 43 34 39 43 30 75 91 8b 83 00 03 00 00 85 c0 74 87 <0f> 0b 5b c3 48 8b 35 70 f1 37 01 48 8d 7b 48 48 81 c6 e0 93  0
+	RSP: 0000:ffff9b7680277ed0 EFLAGS: 00010086
+	RAX: 00000000ffffffff RBX: ffff93465eae9c00 RCX: 0000000000000000
+	RDX: 0000000000000000 RSI: ffff9346418a0000 RDI: ffff934641057140
+	RBP: ffff934641057170 R08: 0000000000000001 R09: ffff9346418a0080
+	R10: ffff9b768027fdf0 R11: 0000000000002400 R12: ffff93465eae9c20
+	R13: ffff93465eae9c20 R14: ffff93465eae9c70 R15: ffff934641057140
+	FS:  0000000000000000(0000) GS:ffff93465eac0000(0000) knlGS:0000000000000000
+	CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+	CR2: 0000000000000000 CR3: 000000001cc0c000 CR4: 00000000000006e0
+	DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+	DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+	Call Trace:
+	  <TASK>
+	  worker_thread+0x89/0x3d0
+	  ? process_one_work+0x400/0x400
+	  kthread+0x162/0x190
+	  ? set_kthread_struct+0x40/0x40
+	  ret_from_fork+0x22/0x30
+	  </TASK>
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.16.1-rc1
+Also due to this incorrect "nr_running == 1", further queued work may
+end up not being served, because no worker is awaken at work insert time.
+This raises rcutorture writer stalls for example.
 
-Helge Deller <deller@gmx.de>
-    parisc: Fix pdc_toc_pim_11 and pdc_toc_pim_20 definitions
+Fix this with disabling preemption in the right place in
+wq_worker_running().
 
-Arnd Bergmann <arnd@arndb.de>
-    staging: greybus: fix stack size warning with UBSAN
+It's worth noting that if the worker migrates and runs concurrently with
+unbind_workers(), it is guaranteed to see the WORKER_UNBOUND flag update
+due to set_cpus_allowed_ptr() acquiring/releasing rq->lock.
 
-Nathan Chancellor <nathan@kernel.org>
-    drm/i915: Avoid bitwise vs logical OR warning in snb_wm_latency_quirk()
+Fixes: 6d25be5782e4 ("sched/core, workqueues: Distangle worker accounting from rq lock")
+Reviewed-by: Lai Jiangshan <jiangshanlai@gmail.com>
+Tested-by: Paul E. McKenney <paulmck@kernel.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ kernel/workqueue.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-Ricardo Ribalda <ribalda@chromium.org>
-    media: Revert "media: uvcvideo: Set unique vdev name based in type"
-
-Alex Hung <alex.hung@canonical.com>
-    platform/x86/intel: hid: add quirk to support Surface Go 3
-
-Dominik Brodowski <linux@dominikbrodowski.net>
-    random: fix crash on multiple early calls to add_bootloader_randomness()
-
-Eric Biggers <ebiggers@google.com>
-    random: fix data race on crng init time
-
-Eric Biggers <ebiggers@google.com>
-    random: fix data race on crng_node_pool
-
-Brian Silverman <brian.silverman@bluerivertech.com>
-    can: gs_usb: gs_can_start_xmit(): zero-initialize hf->{flags,reserved}
-
-Marc Kleine-Budde <mkl@pengutronix.de>
-    can: isotp: convert struct tpcon::{idx,len} to unsigned int
-
-Marc Kleine-Budde <mkl@pengutronix.de>
-    can: gs_usb: fix use of uninitialized variable, detach device on reception of invalid USB data
-
-Orlando Chamberlain <redecorating@protonmail.com>
-    mfd: intel-lpss-pci: Fix clock speed for 38a8 UART
-
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-    mfd: intel-lpss: Fix too early PM enablement in the ACPI ->probe()
-
-Daniel Borkmann <daniel@iogearbox.net>
-    veth: Do not record rx queue hint in veth_xmit
-
-Aditya Garg <gargaditya08@live.com>
-    Bluetooth: btbcm: disable read tx power for MacBook Air 8,1 and 8,2
-
-Aditya Garg <gargaditya08@live.com>
-    Bluetooth: btbcm: disable read tx power for some Macs with the T2 Security chip
-
-Aditya Garg <gargaditya08@live.com>
-    Bluetooth: add quirk disabling LE Read Transmit Power
-
-Adrian Hunter <adrian.hunter@intel.com>
-    mmc: sdhci-pci: Add PCI ID for Intel ADL
-
-Sven Eckelmann <sven@narfation.org>
-    ath11k: Fix buffer overflow when scanning with extraie
-
-Alan Stern <stern@rowland.harvard.edu>
-    USB: Fix "slab-out-of-bounds Write" bug in usb_hcd_poll_rh_status
-
-Alan Stern <stern@rowland.harvard.edu>
-    USB: core: Fix bug in resuming hub's handling of wakeup requests
-
-Paul Cercueil <paul@crapouillou.net>
-    ARM: dts: exynos: Fix BCM4330 Bluetooth reset polarity in I9100
-
-Johan Hovold <johan@kernel.org>
-    Bluetooth: bfusb: fix division by zero in send path
-
-Aaron Ma <aaron.ma@canonical.com>
-    Bluetooth: btusb: Add support for Foxconn QCA 0xe0d0
-
-Tedd Ho-Jeong An <tedd.an@intel.com>
-    Bluetooth: btintel: Fix broken LED quirk for legacy ROM devices
-
-Aaron Ma <aaron.ma@canonical.com>
-    Bluetooth: btusb: Add support for Foxconn MT7922A
-
-Zijun Hu <quic_zijuhu@quicinc.com>
-    Bluetooth: btusb: Add two more Bluetooth parts for WCN6855
-
-Zijun Hu <quic_zijuhu@quicinc.com>
-    Bluetooth: btusb: Add one more Bluetooth part for WCN6855
-
-tjiang@codeaurora.org <tjiang@codeaurora.org>
-    Bluetooth: btusb: Add the new support IDs for WCN6855
-
-mark-yw.chen <mark-yw.chen@mediatek.com>
-    Bluetooth: btusb: enable Mediatek to support AOSP extension
-
-Mark-YW.Chen <mark-yw.chen@mediatek.com>
-    Bluetooth: btusb: fix memory leak in btusb_mtk_submit_wmt_recv_urb()
-
-David Yang <davidcomponentone@gmail.com>
-    Bluetooth: btusb: Fix application of sizeof to pointer
-
-Larry Finger <Larry.Finger@lwfinger.net>
-    Bluetooth: btusb: Add one more Bluetooth part for the Realtek RTL8852AE
-
-Daniel Borkmann <daniel@iogearbox.net>
-    bpf: Fix out of bounds access from invalid *_or_null type verification
-
-Martin Kaiser <martin@kaiser.cx>
-    staging: r8188eu: switch the led off during deinit
-
-Frederic Weisbecker <frederic@kernel.org>
-    workqueue: Fix unbind_workers() VS wq_worker_sleeping() race
-
-Frederic Weisbecker <frederic@kernel.org>
-    workqueue: Fix unbind_workers() VS wq_worker_running() race
-
-
--------------
-
-Diffstat:
-
- Makefile                                 |   4 +-
- arch/arm/boot/dts/exynos4210-i9100.dts   |   2 +-
- arch/parisc/include/uapi/asm/pdc.h       |  32 ++++++---
- drivers/bluetooth/bfusb.c                |   3 +
- drivers/bluetooth/btbcm.c                |  51 ++++++++++++++
- drivers/bluetooth/btintel.c              |  20 +++---
- drivers/bluetooth/btintel.h              |   2 +-
- drivers/bluetooth/btusb.c                |  49 +++++++++++--
- drivers/char/random.c                    | 117 ++++++++++++++++++-------------
- drivers/gpu/drm/i915/intel_pm.c          |   6 +-
- drivers/media/usb/uvc/uvc_driver.c       |   7 +-
- drivers/mfd/intel-lpss-acpi.c            |   7 +-
- drivers/mfd/intel-lpss-pci.c             |   2 +-
- drivers/mmc/host/sdhci-pci-core.c        |   1 +
- drivers/mmc/host/sdhci-pci.h             |   1 +
- drivers/net/can/usb/gs_usb.c             |   5 +-
- drivers/net/veth.c                       |   1 -
- drivers/net/wireless/ath/ath11k/wmi.c    |   6 +-
- drivers/platform/x86/intel/hid.c         |   7 ++
- drivers/staging/greybus/audio_topology.c |  92 ++++++++++++------------
- drivers/staging/r8188eu/core/rtw_led.c   |   1 +
- drivers/usb/core/hcd.c                   |   9 ++-
- drivers/usb/core/hub.c                   |   2 +-
- include/net/bluetooth/hci.h              |   9 +++
- kernel/bpf/verifier.c                    |   6 +-
- kernel/workqueue.c                       |  19 +++++
- net/bluetooth/hci_core.c                 |   3 +-
- net/can/isotp.c                          |   4 +-
- 28 files changed, 323 insertions(+), 145 deletions(-)
+--- a/kernel/workqueue.c
++++ b/kernel/workqueue.c
+@@ -868,8 +868,17 @@ void wq_worker_running(struct task_struc
+ 
+ 	if (!worker->sleeping)
+ 		return;
++
++	/*
++	 * If preempted by unbind_workers() between the WORKER_NOT_RUNNING check
++	 * and the nr_running increment below, we may ruin the nr_running reset
++	 * and leave with an unexpected pool->nr_running == 1 on the newly unbound
++	 * pool. Protect against such race.
++	 */
++	preempt_disable();
+ 	if (!(worker->flags & WORKER_NOT_RUNNING))
+ 		atomic_inc(&worker->pool->nr_running);
++	preempt_enable();
+ 	worker->sleeping = 0;
+ }
+ 
 
 
