@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0051D48E57B
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:19:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A299448E636
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:25:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233753AbiANIS0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 03:18:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49314 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239603AbiANISL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:18:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33AF9C061749;
-        Fri, 14 Jan 2022 00:18:11 -0800 (PST)
+        id S237751AbiANIYc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 03:24:32 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:33028 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239703AbiANIWg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:22:36 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E447FB8243B;
-        Fri, 14 Jan 2022 08:18:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F246DC36AE9;
-        Fri, 14 Jan 2022 08:18:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 02B6761E18;
+        Fri, 14 Jan 2022 08:22:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B56EDC36AE9;
+        Fri, 14 Jan 2022 08:22:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642148288;
-        bh=H17Xnnsx9bUNzRTd4XZiYuNbuQ+ZTEduKVlF/IISWFQ=;
+        s=korg; t=1642148554;
+        bh=NKR1/aM9tjbIQzch+C94FYmkyK0iTh6FQmszs7Y4E2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OxJBZBMlZiMmsQtepBJrCAGeQ1nnYn2rsR7MZwohK4jOs+Nk7NCspUlLYjCUIQo5A
-         Pz0DOEibxbzj1d9KPYL3sdK0h9lqAuBF+QhELkz2ZS8zcGnx+2nYN+6v0Cast+SdY2
-         CRFBlXg5txweh407H3wQnr5DyxtQKbJaW8NzOSd8=
+        b=TMGPH8HXj2zNq/pFamall+ncl9kujlvg0HW9mrSOkwHN7HswJqym/n6aRNiOCxEkb
+         h3OwF9jA0htzxMe+YsXYPy9+B0BGlJmYrkOnGtjlcRVfBrZfcdqjuKGRpk2mjo/JMV
+         /WpggBxNv2MQiOMIahHCDEhT7rnmYSBevXNqvFzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        syzbot+3ae6a2b06f131ab9849f@syzkaller.appspotmail.com
-Subject: [PATCH 5.10 11/25] USB: Fix "slab-out-of-bounds Write" bug in usb_hcd_poll_rh_status
+        stable@vger.kernel.org, Larry Finger <Larry.Finger@lwfinger.net>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 5.16 05/37] Bluetooth: btusb: Add one more Bluetooth part for the Realtek RTL8852AE
 Date:   Fri, 14 Jan 2022 09:16:19 +0100
-Message-Id: <20220114081543.075142856@linuxfoundation.org>
+Message-Id: <20220114081545.031459096@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220114081542.698002137@linuxfoundation.org>
-References: <20220114081542.698002137@linuxfoundation.org>
+In-Reply-To: <20220114081544.849748488@linuxfoundation.org>
+References: <20220114081544.849748488@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,65 +44,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Larry Finger <Larry.Finger@lwfinger.net>
 
-commit 1d7d4c07932e04355d6e6528d44a2f2c9e354346 upstream.
+commit 27fe097bc60a344ccd8107522184c2750f45df5c upstream.
 
-When the USB core code for getting root-hub status reports was
-originally written, it was assumed that the hub driver would be its
-only caller.  But this isn't true now; user programs can use usbfs to
-communicate with root hubs and get status reports.  When they do this,
-they may use a transfer_buffer that is smaller than the data returned
-by the HCD, which will lead to a buffer overflow error when
-usb_hcd_poll_rh_status() tries to store the status data.  This was
-discovered by syzbot:
+The Realtek RTL8852AE has both wifi and BT components. The latter reports
+a USB ID of 0bda:385a, which is not in the table.
 
-BUG: KASAN: slab-out-of-bounds in memcpy include/linux/fortify-string.h:225 [inline]
-BUG: KASAN: slab-out-of-bounds in usb_hcd_poll_rh_status+0x5f4/0x780 drivers/usb/core/hcd.c:776
-Write of size 2 at addr ffff88801da403c0 by task syz-executor133/4062
+The portion of /sys/kernel/debug/usb/devices pertaining to this device is
 
-This patch fixes the bug by reducing the amount of status data if it
-won't fit in the transfer_buffer.  If some data gets discarded then
-the URB's completion status is set to -EOVERFLOW rather than 0, to let
-the user know what happened.
+T:  Bus=01 Lev=01 Prnt=01 Port=03 Cnt=02 Dev#=  3 Spd=12   MxCh= 0
+D:  Ver= 1.00 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=0bda ProdID=385a Rev= 0.00
+S:  Manufacturer=Realtek
+S:  Product=Bluetooth Radio
+S:  SerialNumber=00e04c000001
+C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
 
-Reported-and-tested-by: syzbot+3ae6a2b06f131ab9849f@syzkaller.appspotmail.com
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/Yc+3UIQJ2STbxNua@rowland.harvard.edu
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Cc: Stable <stable@vger.kernel.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hcd.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/bluetooth/btusb.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/core/hcd.c
-+++ b/drivers/usb/core/hcd.c
-@@ -754,6 +754,7 @@ void usb_hcd_poll_rh_status(struct usb_h
- {
- 	struct urb	*urb;
- 	int		length;
-+	int		status;
- 	unsigned long	flags;
- 	char		buffer[6];	/* Any root hubs with > 31 ports? */
- 
-@@ -771,11 +772,17 @@ void usb_hcd_poll_rh_status(struct usb_h
- 		if (urb) {
- 			clear_bit(HCD_FLAG_POLL_PENDING, &hcd->flags);
- 			hcd->status_urb = NULL;
-+			if (urb->transfer_buffer_length >= length) {
-+				status = 0;
-+			} else {
-+				status = -EOVERFLOW;
-+				length = urb->transfer_buffer_length;
-+			}
- 			urb->actual_length = length;
- 			memcpy(urb->transfer_buffer, buffer, length);
- 
- 			usb_hcd_unlink_urb_from_ep(hcd, urb);
--			usb_hcd_giveback_urb(hcd, urb, 0);
-+			usb_hcd_giveback_urb(hcd, urb, status);
- 		} else {
- 			length = 0;
- 			set_bit(HCD_FLAG_POLL_PENDING, &hcd->flags);
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -384,6 +384,8 @@ static const struct usb_device_id blackl
+ 	/* Realtek 8852AE Bluetooth devices */
+ 	{ USB_DEVICE(0x0bda, 0xc852), .driver_info = BTUSB_REALTEK |
+ 						     BTUSB_WIDEBAND_SPEECH },
++	{ USB_DEVICE(0x0bda, 0x385a), .driver_info = BTUSB_REALTEK |
++						     BTUSB_WIDEBAND_SPEECH },
+ 	{ USB_DEVICE(0x0bda, 0x4852), .driver_info = BTUSB_REALTEK |
+ 						     BTUSB_WIDEBAND_SPEECH },
+ 	{ USB_DEVICE(0x04c5, 0x165c), .driver_info = BTUSB_REALTEK |
 
 
