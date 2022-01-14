@@ -2,240 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F51848E5E1
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:22:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BF4848E5C0
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:21:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237043AbiANIVr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 03:21:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49956 "EHLO
+        id S237164AbiANIUh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 03:20:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237178AbiANIUh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:20:37 -0500
+        with ESMTP id S239703AbiANIT2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:19:28 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1637EC061778;
-        Fri, 14 Jan 2022 00:20:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EA80C061753;
+        Fri, 14 Jan 2022 00:19:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AB494B8243E;
-        Fri, 14 Jan 2022 08:20:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE563C36AE9;
-        Fri, 14 Jan 2022 08:20:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43582B82434;
+        Fri, 14 Jan 2022 08:19:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 762B6C36AEA;
+        Fri, 14 Jan 2022 08:19:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642148434;
-        bh=zDn1/PJm2N69QrPPtAudaZAm4P2Jzkduh9gWsQsyqYM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=WWjmMoZ6QwbfHgkYi3FmX/i/+ur7d4yjwWe412f0pJd1OCg9SjZ97bIwNLpGvkyhE
-         aBj9loRoHwGiMP8mBFBUbdNOw7YgIc+pRvL1sPfbwO12lBnBGu89Asaz4YG5b+wcFW
-         Y3LK4X31zrJyRLfm2mYJ12ASnKrFT2eSyJqDMLUA=
+        s=korg; t=1642148366;
+        bh=1flfSfRoaivljG0UplxuwrG6XKUGJPjjvXsbdRvGmAk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=X/sIOMK23U+Kgsu5XDXqF/yoZMUeuLQ1wjs03kvcwQzoddaiZVKhI2ffI9i9OOnK2
+         fhOcRAAdIIa3ek+h5Bof5+aPdUxIhdQsWiZ9x1/kAOLs4Zg/xdJQ9U4u4DsYzKyRX9
+         Mpsmgyk7gSR35wbpy1+1ChBdNWcSmv3/jHOc828w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 5.15 00/41] 5.15.15-rc1 review
-Date:   Fri, 14 Jan 2022 09:16:00 +0100
-Message-Id: <20220114081545.158363487@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Tao Liu <ltao@redhat.com>, Philipp Rudo <prudo@redhat.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.15 01/41] s390/kexec: handle R_390_PLT32DBL rela in arch_kexec_apply_relocations_add()
+Date:   Fri, 14 Jan 2022 09:16:01 +0100
+Message-Id: <20220114081545.207536135@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-MIME-Version: 1.0
+In-Reply-To: <20220114081545.158363487@linuxfoundation.org>
+References: <20220114081545.158363487@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.15-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.15.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.15.15-rc1
-X-KernelTest-Deadline: 2022-01-16T08:15+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.15.15 release.
-There are 41 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Alexander Egorenkov <egorenar@linux.ibm.com>
 
-Responses should be made by Sun, 16 Jan 2022 08:15:33 +0000.
-Anything received after that time might be too late.
+commit abf0e8e4ef25478a4390115e6a953d589d1f9ffd upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.15-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-and the diffstat can be found below.
+Starting with gcc 11.3, the C compiler will generate PLT-relative function
+calls even if they are local and do not require it. Later on during linking,
+the linker will replace all PLT-relative calls to local functions with
+PC-relative ones. Unfortunately, the purgatory code of kexec/kdump is
+not being linked as a regular executable or shared library would have been,
+and therefore, all PLT-relative addresses remain in the generated purgatory
+object code unresolved. This leads to the situation where the purgatory
+code is being executed during kdump with all PLT-relative addresses
+unresolved. And this results in endless loops within the purgatory code.
 
-thanks,
+Furthermore, the clang C compiler has always behaved like described above
+and this commit should fix kdump for kernels built with the latter.
 
-greg k-h
+Because the purgatory code is no regular executable or shared library,
+contains only calls to local functions and has no PLT, all R_390_PLT32DBL
+relocation entries can be resolved just like a R_390_PC32DBL one.
 
--------------
-Pseudo-Shortlog of commits:
+* https://refspecs.linuxfoundation.org/ELF/zSeries/lzsabi0_zSeries/x1633.html#AEN1699
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.15.15-rc1
+Relocation entries of purgatory code generated with gcc 11.3
+------------------------------------------------------------
 
-Arnd Bergmann <arnd@arndb.de>
-    staging: greybus: fix stack size warning with UBSAN
+$ readelf -r linux/arch/s390/purgatory/purgatory.o
 
-Nathan Chancellor <nathan@kernel.org>
-    drm/i915: Avoid bitwise vs logical OR warning in snb_wm_latency_quirk()
+Relocation section '.rela.text' at offset 0x370 contains 5 entries:
+  Offset          Info           Type           Sym. Value    Sym. Name + Addend
+00000000005c  000c00000013 R_390_PC32DBL     0000000000000000 purgatory_sha_regions + 2
+00000000007a  000d00000014 R_390_PLT32DBL    0000000000000000 sha256_update + 2
+00000000008c  000e00000014 R_390_PLT32DBL    0000000000000000 sha256_final + 2
+000000000092  000800000013 R_390_PC32DBL     0000000000000000 .LC0 + 2
+0000000000a0  000f00000014 R_390_PLT32DBL    0000000000000000 memcmp + 2
 
-Nathan Chancellor <nathan@kernel.org>
-    staging: wlan-ng: Avoid bitwise vs logical OR warning in hfa384x_usb_throttlefn()
+Relocation entries of purgatory code generated with gcc 11.2
+------------------------------------------------------------
 
-Ricardo Ribalda <ribalda@chromium.org>
-    media: Revert "media: uvcvideo: Set unique vdev name based in type"
+$ readelf -r linux/arch/s390/purgatory/purgatory.o
 
-Alex Hung <alex.hung@canonical.com>
-    platform/x86/intel: hid: add quirk to support Surface Go 3
+Relocation section '.rela.text' at offset 0x368 contains 5 entries:
+  Offset          Info           Type           Sym. Value    Sym. Name + Addend
+00000000005c  000c00000013 R_390_PC32DBL     0000000000000000 purgatory_sha_regions + 2
+00000000007a  000d00000013 R_390_PC32DBL     0000000000000000 sha256_update + 2
+00000000008c  000e00000013 R_390_PC32DBL     0000000000000000 sha256_final + 2
+000000000092  000800000013 R_390_PC32DBL     0000000000000000 .LC0 + 2
+0000000000a0  000f00000013 R_390_PC32DBL     0000000000000000 memcmp + 2
 
-Dominik Brodowski <linux@dominikbrodowski.net>
-    random: fix crash on multiple early calls to add_bootloader_randomness()
+Signed-off-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Reported-by: Tao Liu <ltao@redhat.com>
+Suggested-by: Philipp Rudo <prudo@redhat.com>
+Reviewed-by: Philipp Rudo <prudo@redhat.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211209073817.82196-1-egorenar@linux.ibm.com
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ arch/s390/kernel/machine_kexec_file.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-Eric Biggers <ebiggers@google.com>
-    random: fix data race on crng init time
-
-Eric Biggers <ebiggers@google.com>
-    random: fix data race on crng_node_pool
-
-Brian Silverman <brian.silverman@bluerivertech.com>
-    can: gs_usb: gs_can_start_xmit(): zero-initialize hf->{flags,reserved}
-
-Marc Kleine-Budde <mkl@pengutronix.de>
-    can: isotp: convert struct tpcon::{idx,len} to unsigned int
-
-Marc Kleine-Budde <mkl@pengutronix.de>
-    can: gs_usb: fix use of uninitialized variable, detach device on reception of invalid USB data
-
-Borislav Petkov <bp@suse.de>
-    x86/mce: Remove noinstr annotation from mce_setup()
-
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-    mfd: intel-lpss: Fix too early PM enablement in the ACPI ->probe()
-
-Daniel Borkmann <daniel@iogearbox.net>
-    veth: Do not record rx queue hint in veth_xmit
-
-Aditya Garg <gargaditya08@live.com>
-    Bluetooth: btbcm: disable read tx power for MacBook Air 8,1 and 8,2
-
-Aditya Garg <gargaditya08@live.com>
-    Bluetooth: btbcm: disable read tx power for some Macs with the T2 Security chip
-
-Aditya Garg <gargaditya08@live.com>
-    Bluetooth: add quirk disabling LE Read Transmit Power
-
-Adrian Hunter <adrian.hunter@intel.com>
-    mmc: sdhci-pci: Add PCI ID for Intel ADL
-
-Sven Eckelmann <sven@narfation.org>
-    ath11k: Fix buffer overflow when scanning with extraie
-
-Alan Stern <stern@rowland.harvard.edu>
-    USB: Fix "slab-out-of-bounds Write" bug in usb_hcd_poll_rh_status
-
-Alan Stern <stern@rowland.harvard.edu>
-    USB: core: Fix bug in resuming hub's handling of wakeup requests
-
-Paul Cercueil <paul@crapouillou.net>
-    ARM: dts: exynos: Fix BCM4330 Bluetooth reset polarity in I9100
-
-Johan Hovold <johan@kernel.org>
-    Bluetooth: bfusb: fix division by zero in send path
-
-Aaron Ma <aaron.ma@canonical.com>
-    Bluetooth: btusb: Add support for Foxconn QCA 0xe0d0
-
-Tedd Ho-Jeong An <tedd.an@intel.com>
-    Bluetooth: btintel: Fix broken LED quirk for legacy ROM devices
-
-Aaron Ma <aaron.ma@canonical.com>
-    Bluetooth: btusb: Add support for Foxconn MT7922A
-
-Zijun Hu <quic_zijuhu@quicinc.com>
-    Bluetooth: btusb: Add two more Bluetooth parts for WCN6855
-
-Zijun Hu <quic_zijuhu@quicinc.com>
-    Bluetooth: btusb: Add one more Bluetooth part for WCN6855
-
-Linus Torvalds <torvalds@linux-foundation.org>
-    fget: clarify and improve __fget_files() implementation
-
-tjiang@codeaurora.org <tjiang@codeaurora.org>
-    Bluetooth: btusb: Add the new support IDs for WCN6855
-
-Larry Finger <Larry.Finger@lwfinger.net>
-    Bluetooth: btusb: Add one more Bluetooth part for the Realtek RTL8852AE
-
-mark-yw.chen <mark-yw.chen@mediatek.com>
-    Bluetooth: btusb: enable Mediatek to support AOSP extension
-
-Mark-YW.Chen <mark-yw.chen@mediatek.com>
-    Bluetooth: btusb: fix memory leak in btusb_mtk_submit_wmt_recv_urb()
-
-Larry Finger <Larry.Finger@lwfinger.net>
-    Bbluetooth: btusb: Add another Bluetooth part for Realtek 8852AE
-
-mark-yw.chen <mark-yw.chen@mediatek.com>
-    Bluetooth: btusb: Add support for IMC Networks Mediatek Chip(MT7921)
-
-Max Chou <max.chou@realtek.com>
-    Bluetooth: btusb: Add the new support ID for Realtek RTL8852A
-
-mark-yw.chen <mark-yw.chen@mediatek.com>
-    Bluetooth: btusb: Add protocol for MediaTek bluetooth devices(MT7922)
-
-Daniel Borkmann <daniel@iogearbox.net>
-    bpf: Fix out of bounds access from invalid *_or_null type verification
-
-Martin Kaiser <martin@kaiser.cx>
-    staging: r8188eu: switch the led off during deinit
-
-Frederic Weisbecker <frederic@kernel.org>
-    workqueue: Fix unbind_workers() VS wq_worker_running() race
-
-Alexander Egorenkov <egorenar@linux.ibm.com>
-    s390/kexec: handle R_390_PLT32DBL rela in arch_kexec_apply_relocations_add()
-
-
--------------
-
-Diffstat:
-
- Makefile                                 |   4 +-
- arch/arm/boot/dts/exynos4210-i9100.dts   |   2 +-
- arch/s390/kernel/machine_kexec_file.c    |   4 ++
- arch/x86/kernel/cpu/mce/core.c           |  26 +++++--
- drivers/bluetooth/bfusb.c                |   3 +
- drivers/bluetooth/btbcm.c                |  51 ++++++++++++++
- drivers/bluetooth/btintel.c              |  20 +++---
- drivers/bluetooth/btintel.h              |   2 +-
- drivers/bluetooth/btusb.c                |  61 ++++++++++++++--
- drivers/char/random.c                    | 117 ++++++++++++++++++-------------
- drivers/gpu/drm/i915/intel_pm.c          |   6 +-
- drivers/media/usb/uvc/uvc_driver.c       |   7 +-
- drivers/mfd/intel-lpss-acpi.c            |   7 +-
- drivers/mmc/host/sdhci-pci-core.c        |   1 +
- drivers/mmc/host/sdhci-pci.h             |   1 +
- drivers/net/can/usb/gs_usb.c             |   5 +-
- drivers/net/veth.c                       |   1 -
- drivers/net/wireless/ath/ath11k/wmi.c    |   6 +-
- drivers/platform/x86/intel/hid.c         |   7 ++
- drivers/staging/greybus/audio_topology.c |  92 ++++++++++++------------
- drivers/staging/r8188eu/core/rtw_led.c   |   1 +
- drivers/staging/wlan-ng/hfa384x_usb.c    |  22 +++---
- drivers/usb/core/hcd.c                   |   9 ++-
- drivers/usb/core/hub.c                   |   2 +-
- fs/file.c                                |  72 ++++++++++++++-----
- include/net/bluetooth/hci.h              |   9 +++
- kernel/bpf/verifier.c                    |   6 +-
- kernel/workqueue.c                       |   9 +++
- net/bluetooth/hci_core.c                 |   3 +-
- net/can/isotp.c                          |   4 +-
- 30 files changed, 389 insertions(+), 171 deletions(-)
+--- a/arch/s390/kernel/machine_kexec_file.c
++++ b/arch/s390/kernel/machine_kexec_file.c
+@@ -312,6 +312,10 @@ int arch_kexec_apply_relocations_add(str
+ 		addr = section->sh_addr + relas[i].r_offset;
+ 
+ 		r_type = ELF64_R_TYPE(relas[i].r_info);
++
++		if (r_type == R_390_PLT32DBL)
++			r_type = R_390_PC32DBL;
++
+ 		ret = arch_kexec_do_relocs(r_type, loc, val, addr);
+ 		if (ret) {
+ 			pr_err("Unknown rela relocation: %d\n", r_type);
 
 
