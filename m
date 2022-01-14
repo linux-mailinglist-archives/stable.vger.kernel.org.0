@@ -2,90 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38DE748F306
-	for <lists+stable@lfdr.de>; Sat, 15 Jan 2022 00:32:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5525C48F30B
+	for <lists+stable@lfdr.de>; Sat, 15 Jan 2022 00:38:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229734AbiANXce (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 18:32:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33452 "EHLO
+        id S230111AbiANXiG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 18:38:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229471AbiANXce (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 18:32:34 -0500
-Received: from mail-il1-x12d.google.com (mail-il1-x12d.google.com [IPv6:2607:f8b0:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 037F5C061574;
-        Fri, 14 Jan 2022 15:32:30 -0800 (PST)
-Received: by mail-il1-x12d.google.com with SMTP id a18so3284413ilq.6;
-        Fri, 14 Jan 2022 15:32:30 -0800 (PST)
+        with ESMTP id S230107AbiANXiG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 18:38:06 -0500
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57AF6C06161C
+        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 15:38:06 -0800 (PST)
+Received: by mail-pg1-x52a.google.com with SMTP id c5so3974592pgk.12
+        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 15:38:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=86UOOD+8jKmAIN2Sw05IJAEDZE16W4XSBxRW5tI83xI=;
-        b=EfhH8lzPipJcQTM3iI6WkVch96DC4C3MeV9m1VHug+5Tp5wBpr6bT+3lTcPH3jZ7jN
-         7f9HiooVePWPzA3uwO9iI31Iy55jTeHoVO1DS2ai/DGfblC1gKmdx5KTN75yLmMyd4xe
-         OR875TOtswy9fh92sVg3xxo1XpCu9XToGe2Gy9UKCp7cUqbObdJ3osrQsa7TEt0zEUEl
-         pdEe9woIXw9mqvtGKdv1OZUEKyBG+glUTMrC50ZVIOaNfPGOLIzGsKATH14gMtXUY1v1
-         JsqzhNIFxbnQpueXcGAe4zNgymSw03WKYAEn0s842RoSRpYG4zCXHeDy+FooohFDNbpO
-         Ho0Q==
+        d=google.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=5h5KW4o46F/BOoZ9jZiHOhEB91/Ng8hkHr0tKrKtw94=;
+        b=HrZNVbWCSC62vfwQ+kNKzyKNkkiKBkVik1c/H/BDuST+PVoX7iIosSZoxuodafUSTk
+         picPXmAlK0TpMvkRD7Zezg1T5w3BpnNROgqKP4zoCgD/8FLy0HJV/AcwCr0O7HrCDm2m
+         BLrv1hQJ4h1dwm0cb+6thk7ImhtToBe/e6CpNzAUuKUaNplxyC+4bIamatziLpzHTV0n
+         EasJfyUdfW0TMLk58kbafZB+GjHD//+d/8UHD4aof/Km6VZ5BgkMoQikm6yx8z97OI1d
+         6n6vCGVpTAUfH1HjV2IzPfaLcqwGxNawVptI19m/lteXB2jfZ8wmGr+lO1AbudB3unKd
+         9U+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=86UOOD+8jKmAIN2Sw05IJAEDZE16W4XSBxRW5tI83xI=;
-        b=SZ6aCrbzY4CfnzNqm/k2sUWYUA3GQzbUxrB4b8bdBr5BljeAQMseGAoc2zoFRU3DC0
-         OkPBi+IfNbqiNpd/lnqjICy95MQ+vvscFEq2RzgBXJNrypMN11hMAjigxhhHxXCanuRL
-         ybyMKtYTgaGs7NgPzCiRxqNzaP2xQn9rz4JmCR1FSr+rkRghv77QkPcURyBwUuasjJ0S
-         HOxYAhkdKsLbwgnqZ7UmtaQo5q6ydUi7ei6ndLYX5yhoPHP1kGebgIaRXjdURw5WLXe5
-         cxESngccZKat+oUd5t8dDqoZ3ClHe066osS9xy5uGVrcelvgHp72Ismg6TO3XAQnCUQ+
-         ZZ4Q==
-X-Gm-Message-State: AOAM530aIh1FrS/ebQtbBKru++v3uAgq1adi18AeTlRgDLgHmNQKj+k/
-        z2fGd3SYTSVBwrOOJfeWjZrq1lKz2rTGRn9LO08=
-X-Google-Smtp-Source: ABdhPJzj1Q13O8ozeYjz/R5TZhta2004hkGVv76WBiy2ghnttKv3DdVTGlZHezr0glIcLJRK73Aj+g==
-X-Received: by 2002:a05:6e02:1a24:: with SMTP id g4mr5732307ile.71.1642203149304;
-        Fri, 14 Jan 2022 15:32:29 -0800 (PST)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id h7sm4793816ior.53.2022.01.14.15.32.27
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=5h5KW4o46F/BOoZ9jZiHOhEB91/Ng8hkHr0tKrKtw94=;
+        b=lYKEaUzvKxq3O2juii6qabqNwj3r2STqmpe6xUjFuwqWdAKMpjmxJge7x3Yzs3HlEP
+         qK8wiooJNwMjO4WHSkAZoThb68XWY3SKGqykw303pBqUwuZadNEYdzdoSyE7mrhN75DD
+         COMsM2AXSzy/V0IcX+eaYKTbtcMCBjIRxNLb7/bv1yBpjMim6gm4WD7ojzLHlDC37/n1
+         jk/SafxVsz7OS7G3NlMVc/TfWoaUmzZaiPaWPwQ+C7z5bXR4HsMJj7SP1pZUQg17T+Hj
+         CZCxtYAqKE1C7EybyXCSa3MgYo7WNthLwqQQslOEl719roZ1Z5bPE2BVU4Y3riOPoYui
+         7MuQ==
+X-Gm-Message-State: AOAM531Fw7wwlRIb4jhsgEC8fGXY3osY1lgWuhPUVUdM/mkUZiy9Ast+
+        mZVpmoDWEjx0IaFr38iRry1zNw==
+X-Google-Smtp-Source: ABdhPJw2oo9z1vd4bGieGnAe3sYWNQyiVMVnSCncdpKDWqd/7Xz7QVkGQ8yxbFYi82YLI4Muzea0Tg==
+X-Received: by 2002:a63:3d8a:: with SMTP id k132mr9929412pga.577.1642203485565;
+        Fri, 14 Jan 2022 15:38:05 -0800 (PST)
+Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
+        by smtp.gmail.com with ESMTPSA id f13sm6790272pfv.98.2022.01.14.15.38.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Jan 2022 15:32:28 -0800 (PST)
-Message-ID: <61e2080c.1c69fb81.3439f.5eaa@mx.google.com>
-Date:   Fri, 14 Jan 2022 15:32:28 -0800 (PST)
-X-Google-Original-Date: Fri, 14 Jan 2022 23:32:27 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20220114081545.158363487@linuxfoundation.org>
-Subject: RE: [PATCH 5.15 00/41] 5.15.15-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
+        Fri, 14 Jan 2022 15:38:04 -0800 (PST)
+Date:   Fri, 14 Jan 2022 23:38:01 +0000
+From:   Sean Christopherson <seanjc@google.com>
+To:     David Matlack <dmatlack@google.com>
+Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Jim Mattson <jmattson@google.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Ben Gardon <bgardon@google.com>, kvm@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2 1/4] KVM: x86/mmu: Fix write-protection of PTs mapped
+ by the TDP MMU
+Message-ID: <YeIJWZ62q3rybAP2@google.com>
+References: <20220113233020.3986005-1-dmatlack@google.com>
+ <20220113233020.3986005-2-dmatlack@google.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220113233020.3986005-2-dmatlack@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 14 Jan 2022 09:16:00 +0100, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.15.15 release.
-> There are 41 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun, 16 Jan 2022 08:15:33 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.15-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+On Thu, Jan 13, 2022, David Matlack wrote:
+> When the TDP MMU is write-protection GFNs for page table protection (as
+                      ^^^^^^^^^^^^^^^^
+                      write-protecting
 
-5.15.15-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+> opposed to for dirty logging, or due to the HVA not being writable), it
+> checks if the SPTE is already write-protected and if so skips modifying
+> the SPTE and the TLB flush.
+> 
+> This behavior is incorrect because the SPTE may be write-protected for
+> dirty logging. This implies that the SPTE could be locklessly be made
 
+Spurious "be" between could and locklessly.
+
+Hmm, it doesn't imply anything, the behavior of MMU-writable is quite explicit.
+If the bug occurs, then _that_ implies the SPTE was write-protected for dirty
+logging, otherwise MMU-Writable would have been '0' due to HOST-Writable also
+being '0'.
+
+I think what you're trying to say is:
+
+  This behavior is incorrect because it fails to check if the SPTE is
+  write-protected for page table protection, i.e. fails to check that
+  MMU-writable is '0'.  If the SPTE was write-protected for dirty logging
+  but not page table protection, the SPTE could locklessly be made
+  writable, and vCPUs could still be running with writable mappings
+  cached in their TLB.
+
+> writable on the next write access, and that vCPUs could still be running
+> with writable SPTEs cached in their TLB.
+
+Nit, it's technically the mapping, not the SPTE itself, that's cached in the TLB.
+
+> Fix this by only skipping setting the SPTE if the SPTE is already
+> write-protected *and* MMU-writable is already clear.
+
+Might also be worth adding:
+
+  Note, technically checking only MMU-writable would suffice, as a SPTE
+  cannot be writable without MMU-writable being set, but check both to
+  be paranoid and because it arguably yields more readable code.
+
+Pedantry aside,
+
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+
+> Fixes: 46044f72c382 ("kvm: x86/mmu: Support write protection for nesting in tdp MMU")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: David Matlack <dmatlack@google.com>
+> ---
+>  arch/x86/kvm/mmu/tdp_mmu.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
+> 
+> diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
+> index 7b1bc816b7c3..bc9e3553fba2 100644
+> --- a/arch/x86/kvm/mmu/tdp_mmu.c
+> +++ b/arch/x86/kvm/mmu/tdp_mmu.c
+> @@ -1442,12 +1442,12 @@ static bool write_protect_gfn(struct kvm *kvm, struct kvm_mmu_page *root,
+>  		    !is_last_spte(iter.old_spte, iter.level))
+>  			continue;
+>  
+> -		if (!is_writable_pte(iter.old_spte))
+> -			break;
+> -
+>  		new_spte = iter.old_spte &
+>  			~(PT_WRITABLE_MASK | shadow_mmu_writable_mask);
+>  
+> +		if (new_spte == iter.old_spte)
+> +			break;
+> +
+>  		tdp_mmu_set_spte(kvm, &iter, new_spte);
+>  		spte_set = true;
+>  	}
+> 
+> base-commit: fea31d1690945e6dd6c3e89ec5591490857bc3d4
+> -- 
+> 2.34.1.703.g22d0c6ccf7-goog
+> 
