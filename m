@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F99548E61E
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:23:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B55F48E5A3
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:19:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240368AbiANIXn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 03:23:43 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:60854 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239950AbiANIWJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:22:09 -0500
+        id S237109AbiANIT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 03:19:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49698 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239600AbiANITU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:19:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1674EC06175B;
+        Fri, 14 Jan 2022 00:19:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5479361E22;
-        Fri, 14 Jan 2022 08:22:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65692C36AE9;
-        Fri, 14 Jan 2022 08:22:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CC697B82448;
+        Fri, 14 Jan 2022 08:19:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC406C36AEA;
+        Fri, 14 Jan 2022 08:19:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642148528;
-        bh=Oi2oClVJM5knELY+Fm+YVV6da2xCRCdQrg1wMOiurkc=;
+        s=korg; t=1642148357;
+        bh=NnOyuba6l82M94bGQAATXauFmTaOA9YOgogUdTNMgw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bOEb2WTUZ77C2Ivx4++1eq08K+aizrWPhg90yTYpO9H9S2GjgQqsMSS1V6fjD74tP
-         kP3tq1xWleiSr+CDkmpYWLtLWnvfKSDZaPCzTJmSVXQE8d3tP3H+xI3L2QblbEf8nn
-         ZJUhKq4PzL9KhN8ZF97nPxcBoBi0EumoedeGW3sc=
+        b=1IKRAnCLXl3m26xnqsqGtFtFx/pkBwNCnjsvz5GvlCdhpYTna4ZRFPb7W+uJZLfO6
+         Conq265BOdnBmmPxpJDG2eElEndXaQoOcujanmo6IDdqwfsgicy1B1QXiHG8jb66EE
+         mn5dUkT7U6G09F2VfdL1Xf6qJehIGuXflh30bEpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
-        Kalle Valo <quic_kvalo@quicinc.com>
-Subject: [PATCH 5.16 19/37] ath11k: Fix buffer overflow when scanning with extraie
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Alex Elder <elder@linaro.org>, Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 5.10 25/25] staging: greybus: fix stack size warning with UBSAN
 Date:   Fri, 14 Jan 2022 09:16:33 +0100
-Message-Id: <20220114081545.480201757@linuxfoundation.org>
+Message-Id: <20220114081543.553008185@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220114081544.849748488@linuxfoundation.org>
-References: <20220114081544.849748488@linuxfoundation.org>
+In-Reply-To: <20220114081542.698002137@linuxfoundation.org>
+References: <20220114081542.698002137@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +48,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit a658c929ded7ea3aee324c8c2a9635a5e5a38e7f upstream.
+commit 144779edf598e0896302c35a0926ef0b68f17c4b upstream.
 
-If cfg80211 is providing extraie's for a scanning process then ath11k will
-copy that over to the firmware. The extraie.len is a 32 bit value in struct
-element_info and describes the amount of bytes for the vendor information
-elements.
+clang warns about excessive stack usage in this driver when
+UBSAN is enabled:
 
-The WMI_TLV packet is having a special WMI_TAG_ARRAY_BYTE section. This
-section can have a (payload) length up to 65535 bytes because the
-WMI_TLV_LEN can store up to 16 bits. The code was missing such a check and
-could have created a scan request which cannot be parsed correctly by the
-firmware.
+drivers/staging/greybus/audio_topology.c:977:12: error: stack frame size of 1836 bytes in function 'gbaudio_tplg_create_widget' [-Werror,-Wframe-larger-than=]
 
-But the bigger problem was the allocation of the buffer. It has to align
-the TLV sections by 4 bytes. But the code was using an u8 to store the
-newly calculated length of this section (with alignment). And the new
-calculated length was then used to allocate the skbuff. But the actual code
-to copy in the data is using the extraie.len and not the calculated
-"aligned" length.
+Rework this code to no longer use compound literals for
+initializing the structure in each case, but instead keep
+the common bits in a preallocated constant array and copy
+them as needed.
 
-The length of extraie with IEEE80211_HW_SINGLE_SCAN_ON_ALL_BANDS enabled
-was 264 bytes during tests with a QCA Milan card. But it only allocated 8
-bytes (264 bytes % 256) for it. As consequence, the code to memcpy the
-extraie into the skb was then just overwriting data after skb->end. Things
-like shinfo were therefore corrupted. This could usually be seen by a crash
-in skb_zcopy_clear which tried to call a ubuf_info callback (using a bogus
-address).
-
-Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-02892.1-QCAHSPSWPL_V1_V2_SILICONZ_LITE-1
-
-Cc: stable@vger.kernel.org
-Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20211207142913.1734635-1-sven@narfation.org
+Link: https://github.com/ClangBuiltLinux/linux/issues/1535
+Link: https://lore.kernel.org/r/20210103223541.2790855-1-arnd@kernel.org/
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Reviewed-by: Alex Elder <elder@linaro.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+[nathan: Address review comments from v1]
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Link: https://lore.kernel.org/r/20211209195141.1165233-1-nathan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath11k/wmi.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/staging/greybus/audio_topology.c |   92 +++++++++++++++----------------
+ 1 file changed, 45 insertions(+), 47 deletions(-)
 
---- a/drivers/net/wireless/ath/ath11k/wmi.c
-+++ b/drivers/net/wireless/ath/ath11k/wmi.c
-@@ -2069,7 +2069,7 @@ int ath11k_wmi_send_scan_start_cmd(struc
- 	void *ptr;
- 	int i, ret, len;
- 	u32 *tmp_ptr;
--	u8 extraie_len_with_pad = 0;
-+	u16 extraie_len_with_pad = 0;
- 	struct hint_short_ssid *s_ssid = NULL;
- 	struct hint_bssid *hint_bssid = NULL;
+--- a/drivers/staging/greybus/audio_topology.c
++++ b/drivers/staging/greybus/audio_topology.c
+@@ -974,6 +974,44 @@ static int gbaudio_widget_event(struct s
+ 	return ret;
+ }
  
-@@ -2088,7 +2088,7 @@ int ath11k_wmi_send_scan_start_cmd(struc
- 		len += sizeof(*bssid) * params->num_bssid;
++static const struct snd_soc_dapm_widget gbaudio_widgets[] = {
++	[snd_soc_dapm_spk]	= SND_SOC_DAPM_SPK(NULL, gbcodec_event_spk),
++	[snd_soc_dapm_hp]	= SND_SOC_DAPM_HP(NULL, gbcodec_event_hp),
++	[snd_soc_dapm_mic]	= SND_SOC_DAPM_MIC(NULL, gbcodec_event_int_mic),
++	[snd_soc_dapm_output]	= SND_SOC_DAPM_OUTPUT(NULL),
++	[snd_soc_dapm_input]	= SND_SOC_DAPM_INPUT(NULL),
++	[snd_soc_dapm_switch]	= SND_SOC_DAPM_SWITCH_E(NULL, SND_SOC_NOPM,
++					0, 0, NULL,
++					gbaudio_widget_event,
++					SND_SOC_DAPM_PRE_PMU |
++					SND_SOC_DAPM_POST_PMD),
++	[snd_soc_dapm_pga]	= SND_SOC_DAPM_PGA_E(NULL, SND_SOC_NOPM,
++					0, 0, NULL, 0,
++					gbaudio_widget_event,
++					SND_SOC_DAPM_PRE_PMU |
++					SND_SOC_DAPM_POST_PMD),
++	[snd_soc_dapm_mixer]	= SND_SOC_DAPM_MIXER_E(NULL, SND_SOC_NOPM,
++					0, 0, NULL, 0,
++					gbaudio_widget_event,
++					SND_SOC_DAPM_PRE_PMU |
++					SND_SOC_DAPM_POST_PMD),
++	[snd_soc_dapm_mux]	= SND_SOC_DAPM_MUX_E(NULL, SND_SOC_NOPM,
++					0, 0, NULL,
++					gbaudio_widget_event,
++					SND_SOC_DAPM_PRE_PMU |
++					SND_SOC_DAPM_POST_PMD),
++	[snd_soc_dapm_aif_in]	= SND_SOC_DAPM_AIF_IN_E(NULL, NULL, 0,
++					SND_SOC_NOPM, 0, 0,
++					gbaudio_widget_event,
++					SND_SOC_DAPM_PRE_PMU |
++					SND_SOC_DAPM_POST_PMD),
++	[snd_soc_dapm_aif_out]	= SND_SOC_DAPM_AIF_OUT_E(NULL, NULL, 0,
++					SND_SOC_NOPM, 0, 0,
++					gbaudio_widget_event,
++					SND_SOC_DAPM_PRE_PMU |
++					SND_SOC_DAPM_POST_PMD),
++};
++
+ static int gbaudio_tplg_create_widget(struct gbaudio_module_info *module,
+ 				      struct snd_soc_dapm_widget *dw,
+ 				      struct gb_audio_widget *w, int *w_size)
+@@ -1052,77 +1090,37 @@ static int gbaudio_tplg_create_widget(st
  
- 	len += TLV_HDR_SIZE;
--	if (params->extraie.len)
-+	if (params->extraie.len && params->extraie.len <= 0xFFFF)
- 		extraie_len_with_pad =
- 			roundup(params->extraie.len, sizeof(u32));
- 	len += extraie_len_with_pad;
-@@ -2195,7 +2195,7 @@ int ath11k_wmi_send_scan_start_cmd(struc
- 		      FIELD_PREP(WMI_TLV_LEN, len);
- 	ptr += TLV_HDR_SIZE;
+ 	switch (w->type) {
+ 	case snd_soc_dapm_spk:
+-		*dw = (struct snd_soc_dapm_widget)
+-			SND_SOC_DAPM_SPK(w->name, gbcodec_event_spk);
++		*dw = gbaudio_widgets[w->type];
+ 		module->op_devices |= GBAUDIO_DEVICE_OUT_SPEAKER;
+ 		break;
+ 	case snd_soc_dapm_hp:
+-		*dw = (struct snd_soc_dapm_widget)
+-			SND_SOC_DAPM_HP(w->name, gbcodec_event_hp);
++		*dw = gbaudio_widgets[w->type];
+ 		module->op_devices |= (GBAUDIO_DEVICE_OUT_WIRED_HEADSET
+ 					| GBAUDIO_DEVICE_OUT_WIRED_HEADPHONE);
+ 		module->ip_devices |= GBAUDIO_DEVICE_IN_WIRED_HEADSET;
+ 		break;
+ 	case snd_soc_dapm_mic:
+-		*dw = (struct snd_soc_dapm_widget)
+-			SND_SOC_DAPM_MIC(w->name, gbcodec_event_int_mic);
++		*dw = gbaudio_widgets[w->type];
+ 		module->ip_devices |= GBAUDIO_DEVICE_IN_BUILTIN_MIC;
+ 		break;
+ 	case snd_soc_dapm_output:
+-		*dw = (struct snd_soc_dapm_widget)SND_SOC_DAPM_OUTPUT(w->name);
+-		break;
+ 	case snd_soc_dapm_input:
+-		*dw = (struct snd_soc_dapm_widget)SND_SOC_DAPM_INPUT(w->name);
+-		break;
+ 	case snd_soc_dapm_switch:
+-		*dw = (struct snd_soc_dapm_widget)
+-			SND_SOC_DAPM_SWITCH_E(w->name, SND_SOC_NOPM, 0, 0,
+-					      widget_kctls,
+-					      gbaudio_widget_event,
+-					      SND_SOC_DAPM_PRE_PMU |
+-					      SND_SOC_DAPM_POST_PMD);
+-		break;
+ 	case snd_soc_dapm_pga:
+-		*dw = (struct snd_soc_dapm_widget)
+-			SND_SOC_DAPM_PGA_E(w->name, SND_SOC_NOPM, 0, 0, NULL, 0,
+-					   gbaudio_widget_event,
+-					   SND_SOC_DAPM_PRE_PMU |
+-					   SND_SOC_DAPM_POST_PMD);
+-		break;
+ 	case snd_soc_dapm_mixer:
+-		*dw = (struct snd_soc_dapm_widget)
+-			SND_SOC_DAPM_MIXER_E(w->name, SND_SOC_NOPM, 0, 0, NULL,
+-					     0, gbaudio_widget_event,
+-					     SND_SOC_DAPM_PRE_PMU |
+-					     SND_SOC_DAPM_POST_PMD);
+-		break;
+ 	case snd_soc_dapm_mux:
+-		*dw = (struct snd_soc_dapm_widget)
+-			SND_SOC_DAPM_MUX_E(w->name, SND_SOC_NOPM, 0, 0,
+-					   widget_kctls, gbaudio_widget_event,
+-					   SND_SOC_DAPM_PRE_PMU |
+-					   SND_SOC_DAPM_POST_PMD);
++		*dw = gbaudio_widgets[w->type];
+ 		break;
+ 	case snd_soc_dapm_aif_in:
+-		*dw = (struct snd_soc_dapm_widget)
+-			SND_SOC_DAPM_AIF_IN_E(w->name, w->sname, 0,
+-					      SND_SOC_NOPM,
+-					      0, 0, gbaudio_widget_event,
+-					      SND_SOC_DAPM_PRE_PMU |
+-					      SND_SOC_DAPM_POST_PMD);
+-		break;
+ 	case snd_soc_dapm_aif_out:
+-		*dw = (struct snd_soc_dapm_widget)
+-			SND_SOC_DAPM_AIF_OUT_E(w->name, w->sname, 0,
+-					       SND_SOC_NOPM,
+-					       0, 0, gbaudio_widget_event,
+-					       SND_SOC_DAPM_PRE_PMU |
+-					       SND_SOC_DAPM_POST_PMD);
++		*dw = gbaudio_widgets[w->type];
++		dw->sname = w->sname;
+ 		break;
+ 	default:
+ 		ret = -EINVAL;
+ 		goto error;
+ 	}
++	dw->name = w->name;
  
--	if (params->extraie.len)
-+	if (extraie_len_with_pad)
- 		memcpy(ptr, params->extraie.ptr,
- 		       params->extraie.len);
- 
+ 	dev_dbg(module->dev, "%s: widget of type %d created\n", dw->name,
+ 		dw->id);
 
 
