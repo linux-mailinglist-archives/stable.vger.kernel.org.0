@@ -2,43 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53B9E48E567
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:18:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42CA748E581
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:19:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237035AbiANIR4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 03:17:56 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58810 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239582AbiANIRt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:17:49 -0500
+        id S237115AbiANISp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 03:18:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49366 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239753AbiANISU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:18:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46DF5C06176A;
+        Fri, 14 Jan 2022 00:18:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BA523B8243C;
-        Fri, 14 Jan 2022 08:17:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD377C36AE9;
-        Fri, 14 Jan 2022 08:17:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 134DAB8243B;
+        Fri, 14 Jan 2022 08:18:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2290BC36AEA;
+        Fri, 14 Jan 2022 08:18:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642148266;
-        bh=fkWBs+tHg381zRy0d/uSCHjtDaY/THjnHkR65O3vJXI=;
+        s=korg; t=1642148297;
+        bh=+cOo8apY43fOgecllxa7JZabLObKIkfDvrGtopPxYgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k3CY9pDoYZILfxHOLdfglYB+f6cJl70e7d3c1Q8BFzvPXqZ45ZE7vRHHlDzRB7br/
-         onvs5xvlM8sb8HSe4iCJVSDbU84yqrmzd9EgcvkqMYTjZZRP+/QOe402fkOoUYCzfd
-         CvURhaUabkXBc+F2Z1u+G2hLle5MCVr67Q7GXXc4=
+        b=Koo3x9Rd5uX547BuwdPZi1xEHG4XJ8HrY2TeK7M6sHOrZELfq2ib9nW+UZQyfNmJ7
+         rtwQTOx9sA/BkpLkSWlcE18o0ZJ6wDj9uG4tUyT/M/qgYM9s8PVj1pSatK2LI3Vklv
+         JQxNPHkCtIB5PK/HQ/GqY0v7ntUYXI+HiiuQVG+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Dufresne <nicolas@ndufresne.ca>,
-        Ricardo Ribalda <ribalda@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.4 15/18] media: Revert "media: uvcvideo: Set unique vdev name based in type"
+        stable@vger.kernel.org,
+        Laurent Bernaille <laurent.bernaille@datadoghq.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
+        Toshiaki Makita <toshiaki.makita1@gmail.com>,
+        Eric Dumazet <eric.dumazet@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 14/25] veth: Do not record rx queue hint in veth_xmit
 Date:   Fri, 14 Jan 2022 09:16:22 +0100
-Message-Id: <20220114081541.982054932@linuxfoundation.org>
+Message-Id: <20220114081543.188747209@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220114081541.465841464@linuxfoundation.org>
-References: <20220114081541.465841464@linuxfoundation.org>
+In-Reply-To: <20220114081542.698002137@linuxfoundation.org>
+References: <20220114081542.698002137@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,60 +56,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit f66dcb32af19faf49cc4a9222c3152b10c6ec84a upstream.
+commit 710ad98c363a66a0cd8526465426c5c5f8377ee0 upstream.
 
-A lot of userspace depends on a descriptive name for vdev. Without this
-patch, users have a hard time figuring out which camera shall they use
-for their video conferencing.
+Laurent reported that they have seen a significant amount of TCP retransmissions
+at high throughput from applications residing in network namespaces talking to
+the outside world via veths. The drops were seen on the qdisc layer (fq_codel,
+as per systemd default) of the phys device such as ena or virtio_net due to all
+traffic hitting a _single_ TX queue _despite_ multi-queue device. (Note that the
+setup was _not_ using XDP on veths as the issue is generic.)
 
-This reverts commit e3f60e7e1a2b451f538f9926763432249bcf39c4.
+More specifically, after edbea9220251 ("veth: Store queue_mapping independently
+of XDP prog presence") which made it all the way back to v4.19.184+,
+skb_record_rx_queue() would set skb->queue_mapping to 1 (given 1 RX and 1 TX
+queue by default for veths) instead of leaving at 0.
 
-Link: https://lore.kernel.org/linux-media/20211207003840.1212374-2-ribalda@chromium.org
-Cc: <stable@vger.kernel.org>
-Fixes: e3f60e7e1a2b ("media: uvcvideo: Set unique vdev name based in type")
-Reported-by: Nicolas Dufresne <nicolas@ndufresne.ca>
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+This is eventually retained and callbacks like ena_select_queue() will also pick
+single queue via netdev_core_pick_tx()'s ndo_select_queue() once all the traffic
+is forwarded to that device via upper stack or other means. Similarly, for others
+not implementing ndo_select_queue() if XPS is disabled, netdev_pick_tx() might
+call into the skb_tx_hash() and check for prior skb_rx_queue_recorded() as well.
+
+In general, it is a _bad_ idea for virtual devices like veth to mess around with
+queue selection [by default]. Given dev->real_num_tx_queues is by default 1,
+the skb->queue_mapping was left untouched, and so prior to edbea9220251 the
+netdev_core_pick_tx() could do its job upon __dev_queue_xmit() on the phys device.
+
+Unbreak this and restore prior behavior by removing the skb_record_rx_queue()
+from veth_xmit() altogether.
+
+If the veth peer has an XDP program attached, then it would return the first RX
+queue index in xdp_md->rx_queue_index (unless configured in non-default manner).
+However, this is still better than breaking the generic case.
+
+Fixes: edbea9220251 ("veth: Store queue_mapping independently of XDP prog presence")
+Fixes: 638264dc9022 ("veth: Support per queue XDP ring")
+Reported-by: Laurent Bernaille <laurent.bernaille@datadoghq.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
+Cc: Toshiaki Makita <toshiaki.makita1@gmail.com>
+Cc: Eric Dumazet <eric.dumazet@gmail.com>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Acked-by: Toshiaki Makita <toshiaki.makita1@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/uvc/uvc_driver.c |    7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/net/veth.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/media/usb/uvc/uvc_driver.c
-+++ b/drivers/media/usb/uvc/uvc_driver.c
-@@ -1972,7 +1972,6 @@ int uvc_register_video_device(struct uvc
- 			      const struct v4l2_file_operations *fops,
- 			      const struct v4l2_ioctl_ops *ioctl_ops)
- {
--	const char *name;
- 	int ret;
- 
- 	/* Initialize the video buffers queue. */
-@@ -2001,20 +2000,16 @@ int uvc_register_video_device(struct uvc
- 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
- 	default:
- 		vdev->device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_STREAMING;
--		name = "Video Capture";
- 		break;
- 	case V4L2_BUF_TYPE_VIDEO_OUTPUT:
- 		vdev->device_caps = V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_STREAMING;
--		name = "Video Output";
- 		break;
- 	case V4L2_BUF_TYPE_META_CAPTURE:
- 		vdev->device_caps = V4L2_CAP_META_CAPTURE | V4L2_CAP_STREAMING;
--		name = "Metadata";
- 		break;
+--- a/drivers/net/veth.c
++++ b/drivers/net/veth.c
+@@ -301,7 +301,6 @@ static netdev_tx_t veth_xmit(struct sk_b
+ 	if (rxq < rcv->real_num_rx_queues) {
+ 		rq = &rcv_priv->rq[rxq];
+ 		rcv_xdp = rcu_access_pointer(rq->xdp_prog);
+-		skb_record_rx_queue(skb, rxq);
  	}
  
--	snprintf(vdev->name, sizeof(vdev->name), "%s %u", name,
--		 stream->header.bTerminalLink);
-+	strscpy(vdev->name, dev->name, sizeof(vdev->name));
- 
- 	/*
- 	 * Set the driver data before calling video_register_device, otherwise
+ 	skb_tx_timestamp(skb);
 
 
