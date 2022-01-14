@@ -2,52 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42CA748E581
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:19:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0383E48E63D
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:25:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237115AbiANISp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 03:18:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49366 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239753AbiANISU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:18:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46DF5C06176A;
-        Fri, 14 Jan 2022 00:18:20 -0800 (PST)
+        id S234135AbiANIZg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 03:25:36 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:34084 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240239AbiANIWq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:22:46 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 134DAB8243B;
-        Fri, 14 Jan 2022 08:18:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2290BC36AEA;
-        Fri, 14 Jan 2022 08:18:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 80331B82436;
+        Fri, 14 Jan 2022 08:22:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 914E4C36AEA;
+        Fri, 14 Jan 2022 08:22:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642148297;
-        bh=+cOo8apY43fOgecllxa7JZabLObKIkfDvrGtopPxYgQ=;
+        s=korg; t=1642148564;
+        bh=2umMD07aAb2cIL1bLIQ6obfEYTptUCgi0c5F3wOPRv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Koo3x9Rd5uX547BuwdPZi1xEHG4XJ8HrY2TeK7M6sHOrZELfq2ib9nW+UZQyfNmJ7
-         rtwQTOx9sA/BkpLkSWlcE18o0ZJ6wDj9uG4tUyT/M/qgYM9s8PVj1pSatK2LI3Vklv
-         JQxNPHkCtIB5PK/HQ/GqY0v7ntUYXI+HiiuQVG+s=
+        b=Zh11WJ0elAB8iKAxDRTQidNyFn0UBMr7wtS+feLGnTyOuMSDY7TXWTnbBpvfkHhR6
+         HamoB0/NDKjLsNlZvgWM/ZJCLa7hRAdMnUxeAozHFuklyGHF9Fahh6ImF31H+qFNW7
+         2jiZT7/mGK8zJ/jTszOuKE4DmR59qdxCRQGMFoQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Laurent Bernaille <laurent.bernaille@datadoghq.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Toshiaki Makita <toshiaki.makita1@gmail.com>,
-        Eric Dumazet <eric.dumazet@gmail.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 14/25] veth: Do not record rx queue hint in veth_xmit
+        stable@vger.kernel.org, "mark-yw.chen" <mark-yw.chen@mediatek.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 5.16 08/37] Bluetooth: btusb: enable Mediatek to support AOSP extension
 Date:   Fri, 14 Jan 2022 09:16:22 +0100
-Message-Id: <20220114081543.188747209@linuxfoundation.org>
+Message-Id: <20220114081545.135045434@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220114081542.698002137@linuxfoundation.org>
-References: <20220114081542.698002137@linuxfoundation.org>
+In-Reply-To: <20220114081544.849748488@linuxfoundation.org>
+References: <20220114081544.849748488@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,68 +44,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: mark-yw.chen <mark-yw.chen@mediatek.com>
 
-commit 710ad98c363a66a0cd8526465426c5c5f8377ee0 upstream.
+commit 28491d7ef4af471841e454f8c1f77384f93c6fef upstream.
 
-Laurent reported that they have seen a significant amount of TCP retransmissions
-at high throughput from applications residing in network namespaces talking to
-the outside world via veths. The drops were seen on the qdisc layer (fq_codel,
-as per systemd default) of the phys device such as ena or virtio_net due to all
-traffic hitting a _single_ TX queue _despite_ multi-queue device. (Note that the
-setup was _not_ using XDP on veths as the issue is generic.)
+This patch enables AOSP extension for Mediatek Chip (MT7921 & MT7922).
 
-More specifically, after edbea9220251 ("veth: Store queue_mapping independently
-of XDP prog presence") which made it all the way back to v4.19.184+,
-skb_record_rx_queue() would set skb->queue_mapping to 1 (given 1 RX and 1 TX
-queue by default for veths) instead of leaving at 0.
-
-This is eventually retained and callbacks like ena_select_queue() will also pick
-single queue via netdev_core_pick_tx()'s ndo_select_queue() once all the traffic
-is forwarded to that device via upper stack or other means. Similarly, for others
-not implementing ndo_select_queue() if XPS is disabled, netdev_pick_tx() might
-call into the skb_tx_hash() and check for prior skb_rx_queue_recorded() as well.
-
-In general, it is a _bad_ idea for virtual devices like veth to mess around with
-queue selection [by default]. Given dev->real_num_tx_queues is by default 1,
-the skb->queue_mapping was left untouched, and so prior to edbea9220251 the
-netdev_core_pick_tx() could do its job upon __dev_queue_xmit() on the phys device.
-
-Unbreak this and restore prior behavior by removing the skb_record_rx_queue()
-from veth_xmit() altogether.
-
-If the veth peer has an XDP program attached, then it would return the first RX
-queue index in xdp_md->rx_queue_index (unless configured in non-default manner).
-However, this is still better than breaking the generic case.
-
-Fixes: edbea9220251 ("veth: Store queue_mapping independently of XDP prog presence")
-Fixes: 638264dc9022 ("veth: Support per queue XDP ring")
-Reported-by: Laurent Bernaille <laurent.bernaille@datadoghq.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Cc: Toshiaki Makita <toshiaki.makita1@gmail.com>
-Cc: Eric Dumazet <eric.dumazet@gmail.com>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Acked-by: Toshiaki Makita <toshiaki.makita1@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: mark-yw.chen <mark-yw.chen@mediatek.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/veth.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/bluetooth/btusb.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/veth.c
-+++ b/drivers/net/veth.c
-@@ -301,7 +301,6 @@ static netdev_tx_t veth_xmit(struct sk_b
- 	if (rxq < rcv->real_num_rx_queues) {
- 		rq = &rcv_priv->rq[rxq];
- 		rcv_xdp = rcu_access_pointer(rq->xdp_prog);
--		skb_record_rx_queue(skb, rxq);
- 	}
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -2884,6 +2884,7 @@ static int btusb_mtk_setup(struct hci_de
+ 		}
  
- 	skb_tx_timestamp(skb);
+ 		hci_set_msft_opcode(hdev, 0xFD30);
++		hci_set_aosp_capable(hdev);
+ 		goto done;
+ 	default:
+ 		bt_dev_err(hdev, "Unsupported hardware variant (%08x)",
 
 
