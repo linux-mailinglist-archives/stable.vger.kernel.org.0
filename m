@@ -2,116 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0F7348E5D6
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:22:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E23C448E55B
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:17:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239636AbiANIVa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 03:21:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50054 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237202AbiANIU0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:20:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCF58C06175A;
-        Fri, 14 Jan 2022 00:20:26 -0800 (PST)
+        id S236848AbiANIRe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 03:17:34 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56990 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239545AbiANIR3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:17:29 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B11B61E22;
-        Fri, 14 Jan 2022 08:20:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F2C1C36AE9;
-        Fri, 14 Jan 2022 08:20:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3387D61E0B;
+        Fri, 14 Jan 2022 08:17:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6993C36AEA;
+        Fri, 14 Jan 2022 08:17:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642148425;
-        bh=TpiZKGOS445mmpOD8IsqeQEQTXracvkzpF1u7YvPxnU=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I6mXix/q+82pT0wGtjxcl2TPDfjB3z3kqBKM94D9JOLGAfTUAMkHhjOfJbyo43UNw
-         3m1iRuJnwYUhu/HUeU+9JTLCStRZy6gbkA8UoDQTBe93nDRLHkYIS0SIytr5VTgJEs
-         TWZgPPxqYZZv0TDjE16R/k4EVzQ01K/F0Ifxo78M=
+        s=korg; t=1642148247;
+        bh=dIAyJ7ksfsYooApI+MjRUtMhL+KgNp2aLQ1inv/+wi4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=IiGUnBX7uf5wg3tMPxiZECFUjXHd4ShCDaQH4LsF/nIf0ATKWIfFSwfLvxIPPxZfM
+         kWEhCp1t+FuS2csstTZYzk09GC1rRgfJu2ziiskludA988R4PYYlcGHiZgFZ/2Eyhk
+         7ewEOZ70hB4EtWWbA1YprUvgzTeruU3x0m/9l7Vw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "mark-yw.chen" <mark-yw.chen@mediatek.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 5.15 07/41] Bluetooth: btusb: Add support for IMC Networks Mediatek Chip(MT7921)
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.4 00/18] 5.4.172-rc1 review
 Date:   Fri, 14 Jan 2022 09:16:07 +0100
-Message-Id: <20220114081545.408317210@linuxfoundation.org>
+Message-Id: <20220114081541.465841464@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220114081545.158363487@linuxfoundation.org>
-References: <20220114081545.158363487@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.172-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.172-rc1
+X-KernelTest-Deadline: 2022-01-16T08:15+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: mark-yw.chen <mark-yw.chen@mediatek.com>
+This is the start of the stable review cycle for the 5.4.172 release.
+There are 18 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 15957cab9db009c10925994b59a64410a707c17e upstream.
+Responses should be made by Sun, 16 Jan 2022 08:15:33 +0000.
+Anything received after that time might be too late.
 
-Add support for another IMC Networks Mediatek Chip(MT7921)
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.172-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
-* /sys/kernel/debug/usb/devices
-T:  Bus=05 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=480  MxCh= 0
-D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=13d3 ProdID=3564 Rev= 1.00
-S:  Manufacturer=MediaTek Inc.
-S:  Product=Wireless_Device
-S:  SerialNumber=000000000
-C:* #Ifs= 3 Cfg#= 1 Atr=e0 MxPwr=100mA
-A:  FirstIf#= 0 IfCount= 3 Cls=e0(wlcon) Sub=01 Prot=01
-I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=125us
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-I:  If#= 1 Alt= 6 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  63 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  63 Ivl=1ms
-I:* If#= 2 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=(none)
-E:  Ad=8a(I) Atr=03(Int.) MxPS=  64 Ivl=125us
-E:  Ad=0a(O) Atr=03(Int.) MxPS=  64 Ivl=125us
-I:  If#= 2 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=(none)
-E:  Ad=8a(I) Atr=03(Int.) MxPS=  64 Ivl=125us
-E:  Ad=0a(O) Atr=03(Int.) MxPS=  64 Ivl=125us
+thanks,
 
-Signed-off-by: mark-yw.chen <mark-yw.chen@mediatek.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/bluetooth/btusb.c |    3 +++
- 1 file changed, 3 insertions(+)
+greg k-h
 
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -412,6 +412,9 @@ static const struct usb_device_id blackl
- 	{ USB_DEVICE(0x13d3, 0x3563), .driver_info = BTUSB_MEDIATEK |
- 						     BTUSB_WIDEBAND_SPEECH |
- 						     BTUSB_VALID_LE_STATES },
-+	{ USB_DEVICE(0x13d3, 0x3564), .driver_info = BTUSB_MEDIATEK |
-+						     BTUSB_WIDEBAND_SPEECH |
-+						     BTUSB_VALID_LE_STATES },
- 	{ USB_DEVICE(0x0489, 0xe0cd), .driver_info = BTUSB_MEDIATEK |
- 						     BTUSB_WIDEBAND_SPEECH |
- 						     BTUSB_VALID_LE_STATES },
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.172-rc1
+
+Arnd Bergmann <arnd@arndb.de>
+    staging: greybus: fix stack size warning with UBSAN
+
+Nathan Chancellor <nathan@kernel.org>
+    drm/i915: Avoid bitwise vs logical OR warning in snb_wm_latency_quirk()
+
+Nathan Chancellor <nathan@kernel.org>
+    staging: wlan-ng: Avoid bitwise vs logical OR warning in hfa384x_usb_throttlefn()
+
+Ricardo Ribalda <ribalda@chromium.org>
+    media: Revert "media: uvcvideo: Set unique vdev name based in type"
+
+Dominik Brodowski <linux@dominikbrodowski.net>
+    random: fix crash on multiple early calls to add_bootloader_randomness()
+
+Eric Biggers <ebiggers@google.com>
+    random: fix data race on crng init time
+
+Eric Biggers <ebiggers@google.com>
+    random: fix data race on crng_node_pool
+
+Brian Silverman <brian.silverman@bluerivertech.com>
+    can: gs_usb: gs_can_start_xmit(): zero-initialize hf->{flags,reserved}
+
+Marc Kleine-Budde <mkl@pengutronix.de>
+    can: gs_usb: fix use of uninitialized variable, detach device on reception of invalid USB data
+
+Joe Perches <joe@perches.com>
+    drivers core: Use sysfs_emit and sysfs_emit_at for show(device *...) functions
+
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+    mfd: intel-lpss: Fix too early PM enablement in the ACPI ->probe()
+
+Daniel Borkmann <daniel@iogearbox.net>
+    veth: Do not record rx queue hint in veth_xmit
+
+Adrian Hunter <adrian.hunter@intel.com>
+    mmc: sdhci-pci: Add PCI ID for Intel ADL
+
+Alan Stern <stern@rowland.harvard.edu>
+    USB: Fix "slab-out-of-bounds Write" bug in usb_hcd_poll_rh_status
+
+Alan Stern <stern@rowland.harvard.edu>
+    USB: core: Fix bug in resuming hub's handling of wakeup requests
+
+Johan Hovold <johan@kernel.org>
+    Bluetooth: bfusb: fix division by zero in send path
+
+Mark-YW.Chen <mark-yw.chen@mediatek.com>
+    Bluetooth: btusb: fix memory leak in btusb_mtk_submit_wmt_recv_urb()
+
+Frederic Weisbecker <frederic@kernel.org>
+    workqueue: Fix unbind_workers() VS wq_worker_running() race
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                 |   4 +-
+ drivers/base/arch_topology.c             |   2 +-
+ drivers/base/cacheinfo.c                 |  18 ++---
+ drivers/base/core.c                      |   8 +--
+ drivers/base/cpu.c                       |  39 +++++-----
+ drivers/base/firmware_loader/fallback.c  |   2 +-
+ drivers/base/memory.c                    |  24 +++----
+ drivers/base/node.c                      |  28 ++++----
+ drivers/base/platform.c                  |   2 +-
+ drivers/base/power/sysfs.c               |  50 ++++++-------
+ drivers/base/power/wakeup_stats.c        |  12 ++--
+ drivers/base/soc.c                       |  10 +--
+ drivers/bluetooth/bfusb.c                |   3 +
+ drivers/bluetooth/btusb.c                |   5 ++
+ drivers/char/random.c                    | 118 ++++++++++++++++++-------------
+ drivers/gpu/drm/i915/intel_pm.c          |   6 +-
+ drivers/media/usb/uvc/uvc_driver.c       |   7 +-
+ drivers/mfd/intel-lpss-acpi.c            |   7 +-
+ drivers/mmc/host/sdhci-pci-core.c        |   1 +
+ drivers/mmc/host/sdhci-pci.h             |   1 +
+ drivers/net/can/usb/gs_usb.c             |   5 +-
+ drivers/net/veth.c                       |   1 -
+ drivers/staging/greybus/audio_topology.c |  92 ++++++++++++------------
+ drivers/staging/wlan-ng/hfa384x_usb.c    |  22 +++---
+ drivers/usb/core/hcd.c                   |   9 ++-
+ drivers/usb/core/hub.c                   |   2 +-
+ kernel/workqueue.c                       |   9 +++
+ 27 files changed, 265 insertions(+), 222 deletions(-)
 
 
