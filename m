@@ -2,137 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DEEA48EE24
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 17:32:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E724548EE57
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 17:39:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230382AbiANQcG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 11:32:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51556 "EHLO
+        id S243449AbiANQiv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 11:38:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229813AbiANQcG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 11:32:06 -0500
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0F2DC061574
-        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 08:32:05 -0800 (PST)
-Received: by mail-pj1-x1034.google.com with SMTP id a1-20020a17090a688100b001b3fd52338eso13480296pjd.1
-        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 08:32:05 -0800 (PST)
+        with ESMTP id S239265AbiANQiu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 11:38:50 -0500
+Received: from mail-ua1-x92d.google.com (mail-ua1-x92d.google.com [IPv6:2607:f8b0:4864:20::92d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A9C2C061574
+        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 08:38:50 -0800 (PST)
+Received: by mail-ua1-x92d.google.com with SMTP id x33so17840005uad.12
+        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 08:38:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ZnUHjGPl1/Q4mAmAPBABb5RzQ+QmRIBTvMI78EHhl7Q=;
-        b=YTcXVzCPdypSXJn2DImb7YdKzi2uB9cbs9GVHxAiH2vDgFuaL5homji5LwLX6vWH3m
-         rm9UPOVlIV9Y3YGD14piCea3JuMwyaszIGKk825j1uzjSATOqrsJM3mCJIPnGBWJG2s8
-         c5H1RyonV0EEbFZIdCKGcvirJUlsghjUePz3zplWoE98dHBjr07qiov+SUJkcsWil/JS
-         +QBebx8bV/95wuVtmmk4zQ5DOATLwcLHvUM4M0KazMya8e7sKL6fB0WQYYt90oEurf6f
-         CGjnFzsP0GX91rivmsP2mXERpBbZwMyqVfLY8VqNbX4hqfSVj7W3j0B155j4tnJtqbkw
-         zITQ==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=kqh5lKYwnkN37kX/95ffH9A9xkW766WBUrIjfUiOtBY=;
+        b=qYb0+aQJEJ0rzV5FWH45IVRX0rF7G6xG4H5zBgLJ5BQ0nYX8VUyDo1exod8NR+G70c
+         uUhCkJ1oPjPsyO7yF5Xh+a2x8aWliDLS7AQahujnGlxHXRypN4/MRZu99b7pyB3Rrg5b
+         eth+QoX5sOzDN8SgD3pxxH44+AK960G12fGA6WBa3UoXqRhf/9TgeD0hNVj1gNnkBMfz
+         8jGFnRU1nbOK5/NmPWgCO/S977btAOFBJy7GsekugUpkWpQqzt5UUUTnBciNQwSuEFMx
+         0qS7i4Vl7yHs4iKnthxTpjs3jdN1aJ2cr1k4+UtrielOfEPtCEM9NVxww1fD9eaeyqIj
+         EFhw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ZnUHjGPl1/Q4mAmAPBABb5RzQ+QmRIBTvMI78EHhl7Q=;
-        b=W/WVaq3BHdUCQwWt7IKizqx1P95W0d6BeM3CS+YUf2J6difsSsR4DYRtWAnap4ALDH
-         g7dmzAt6hjr8voIMyqWjZ1fb0QXWmk2sX4fQPv7K/iiWcF8nrKr5xoFc/JuNHCHHPEuT
-         CiwnQO6ajLndsV+LLUAI9QCBRKO08Rm6M704pMo+cGdpKMuw/dbAEk80X0V2dOfvlCgR
-         GpGKxt7ufjPqCP+zkc3Te6+Vqqo/JblzkXNx1L6nc0ZIqOwxQXcegnF9BYwqnU3b+PsL
-         fh6x7yGRH5wk/xoAwSH9wDUnwMYHLkUp+uvh/880qOoa5zaEm0pTFitjXQUKaJg0kXdA
-         sitw==
-X-Gm-Message-State: AOAM530aYP4GoC3EhszrxAyWotpHic4AWoD2PFfcDCKbI9iyaS7Qt7R2
-        qj10NjO7LeqlQhJQeqYn3f2sgWhUH4RGLtIb
-X-Google-Smtp-Source: ABdhPJwCDJyltk1/uWuMkvpbQN311EE/HKn/yruWY5Gl5raklp4hWufajEoVDRJM9l7zEXwBvtIoPQ==
-X-Received: by 2002:a17:902:7c0b:b0:149:711b:2588 with SMTP id x11-20020a1709027c0b00b00149711b2588mr10109620pll.65.1642177925385;
-        Fri, 14 Jan 2022 08:32:05 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t6sm5118323pgk.31.2022.01.14.08.32.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Jan 2022 08:32:05 -0800 (PST)
-Message-ID: <61e1a585.1c69fb81.d37c3.e42d@mx.google.com>
-Date:   Fri, 14 Jan 2022 08:32:05 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=kqh5lKYwnkN37kX/95ffH9A9xkW766WBUrIjfUiOtBY=;
+        b=g5ml/WsUsVaGzL5O0agl5KpIMSfhwMPG1R6GWlzlTZkEHH2vmdclDKOeCTQZ67/Y9u
+         4wMjMHg5bTucyPuGgl6ETX8F7JBq9ZN0LyeJH53p+DCh1XjM7SGGwCBn8jtd/I4UL+di
+         vbEvQmC3QCd5O45bypo8EMyrl2Ut7hzqTgAHk1ow8nPPXc8KtRz0ApfD2r+xiu/1fhG1
+         ovnHuOSMjLrzEewVEG7X3JpseTSXcxV1Bxnh7//ncXT2xZq4yltkyJb7DdUh+//w3mC/
+         LFgih7oXI4GT2A6LwEh5S+Gq3odt/YsMAFGpfnAh/qIn6x47UywBRWgVef+tk1Xu5nB3
+         04PQ==
+X-Gm-Message-State: AOAM531iLhFI8xGqxtNLzgZsNRiSExHky3vd88IlQuYD/5NVgeA4Jf45
+        dS6jMIhc95NddcuoRBBVzWrpcQ8B6suYU/fPx1KLOA==
+X-Google-Smtp-Source: ABdhPJyAOisMhvKMOns8BJKxp2lPM/5PjFuxHnM4pqpl5scSi2WoU18z/odQ7iI4CCAzffQuqDyyJOPkpKUdMicgwNc=
+X-Received: by 2002:a05:6102:108c:: with SMTP id s12mr4465397vsr.20.1642178329640;
+ Fri, 14 Jan 2022 08:38:49 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.297-10-g025a0022d327
-X-Kernelci-Branch: queue/4.9
-Subject: stable-rc/queue/4.9 baseline: 109 runs,
- 1 regressions (v4.9.297-10-g025a0022d327)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20220111201426.326777-1-krzysztof.kozlowski@canonical.com> <20220111201426.326777-2-krzysztof.kozlowski@canonical.com>
+In-Reply-To: <20220111201426.326777-2-krzysztof.kozlowski@canonical.com>
+From:   Sam Protsenko <semen.protsenko@linaro.org>
+Date:   Fri, 14 Jan 2022 18:38:37 +0200
+Message-ID: <CAPLW+4k18Gz8-CEX_YjgS9tOxMq8xHk9GaUvfHWnPXkOnkinqw@mail.gmail.com>
+Subject: Re: [PATCH v2 01/28] pinctrl: samsung: drop pin banks references on
+ error paths
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Cc:     Tomasz Figa <tomasz.figa@gmail.com>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org, linux-gpio@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Chanho Park <chanho61.park@samsung.com>,
+        Alim Akhtar <alim.akhtar@gmail.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 109 runs, 1 regressions (v4.9.297-10-g025a002=
-2d327)
+On Tue, 11 Jan 2022 at 22:15, Krzysztof Kozlowski
+<krzysztof.kozlowski@canonical.com> wrote:
+>
+> The driver iterates over its devicetree children with
+> for_each_child_of_node() and stores for later found node pointer.  This
+> has to be put in error paths to avoid leak during re-probing.
+>
+> Fixes: ab663789d697 ("pinctrl: samsung: Match pin banks with their device nodes")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+> ---
 
-Regressions Summary
--------------------
+Reviewed-by: Sam Protsenko <semen.protsenko@linaro.org>
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.297-10-g025a0022d327/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.297-10-g025a0022d327
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      025a0022d32719a1cf030232d3f29b57b6a2a65a =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e1718043d5fe2854ef675f
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.297-1=
-0-g025a0022d327/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
-.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.297-1=
-0-g025a0022d327/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
-.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61e1718043d5fe2=
-854ef6762
-        failing since 2 days (last pass: v4.9.296-21-ga5ed12cbefc0, first f=
-ail: v4.9.296-21-gd19aa36b7387)
-        2 lines
-
-    2022-01-14T12:49:47.475542  [   20.119903] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2022-01-14T12:49:47.526540  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, mmcqd/0/83
-    2022-01-14T12:49:47.535521  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-230 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
+>  drivers/pinctrl/samsung/pinctrl-samsung.c | 30 +++++++++++++++++------
+>  1 file changed, 23 insertions(+), 7 deletions(-)
+>
+> diff --git a/drivers/pinctrl/samsung/pinctrl-samsung.c b/drivers/pinctrl/samsung/pinctrl-samsung.c
+> index 8941f658e7f1..b19ebc43d886 100644
+> --- a/drivers/pinctrl/samsung/pinctrl-samsung.c
+> +++ b/drivers/pinctrl/samsung/pinctrl-samsung.c
+> @@ -1002,6 +1002,16 @@ samsung_pinctrl_get_soc_data_for_of_alias(struct platform_device *pdev)
+>         return &(of_data->ctrl[id]);
+>  }
+>
+> +static void samsung_banks_of_node_put(struct samsung_pinctrl_drv_data *d)
+> +{
+> +       struct samsung_pin_bank *bank;
+> +       unsigned int i;
+> +
+> +       bank = d->pin_banks;
+> +       for (i = 0; i < d->nr_banks; ++i, ++bank)
+> +               of_node_put(bank->of_node);
+> +}
+> +
+>  /* retrieve the soc specific data */
+>  static const struct samsung_pin_ctrl *
+>  samsung_pinctrl_get_soc_data(struct samsung_pinctrl_drv_data *d,
+> @@ -1116,19 +1126,19 @@ static int samsung_pinctrl_probe(struct platform_device *pdev)
+>         if (ctrl->retention_data) {
+>                 drvdata->retention_ctrl = ctrl->retention_data->init(drvdata,
+>                                                           ctrl->retention_data);
+> -               if (IS_ERR(drvdata->retention_ctrl))
+> -                       return PTR_ERR(drvdata->retention_ctrl);
+> +               if (IS_ERR(drvdata->retention_ctrl)) {
+> +                       ret = PTR_ERR(drvdata->retention_ctrl);
+> +                       goto err_put_banks;
+> +               }
+>         }
+>
+>         ret = samsung_pinctrl_register(pdev, drvdata);
+>         if (ret)
+> -               return ret;
+> +               goto err_put_banks;
+>
+>         ret = samsung_gpiolib_register(pdev, drvdata);
+> -       if (ret) {
+> -               samsung_pinctrl_unregister(pdev, drvdata);
+> -               return ret;
+> -       }
+> +       if (ret)
+> +               goto err_unregister;
+>
+>         if (ctrl->eint_gpio_init)
+>                 ctrl->eint_gpio_init(drvdata);
+> @@ -1138,6 +1148,12 @@ static int samsung_pinctrl_probe(struct platform_device *pdev)
+>         platform_set_drvdata(pdev, drvdata);
+>
+>         return 0;
+> +
+> +err_unregister:
+> +       samsung_pinctrl_unregister(pdev, drvdata);
+> +err_put_banks:
+> +       samsung_banks_of_node_put(drvdata);
+> +       return ret;
+>  }
+>
+>  /*
+> --
+> 2.32.0
+>
