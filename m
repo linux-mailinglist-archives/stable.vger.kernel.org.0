@@ -2,100 +2,240 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33AF148E520
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:00:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F51848E5E1
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:22:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234377AbiANH7l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 02:59:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45118 "EHLO
+        id S237043AbiANIVr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 03:21:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234249AbiANH7k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 02:59:40 -0500
+        with ESMTP id S237178AbiANIUh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:20:37 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E548C061574;
-        Thu, 13 Jan 2022 23:59:40 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1637EC061778;
+        Fri, 14 Jan 2022 00:20:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59F66B82429;
-        Fri, 14 Jan 2022 07:59:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F3B5C36AEA;
-        Fri, 14 Jan 2022 07:59:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB494B8243E;
+        Fri, 14 Jan 2022 08:20:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE563C36AE9;
+        Fri, 14 Jan 2022 08:20:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642147178;
-        bh=6gx+Rodw8cvBoMVxE+Y4vZD/tVT81r9J3THpcB3YR0Q=;
+        s=korg; t=1642148434;
+        bh=zDn1/PJm2N69QrPPtAudaZAm4P2Jzkduh9gWsQsyqYM=;
         h=From:To:Cc:Subject:Date:From;
-        b=ifG4g1Z5D8niC9jSd62XffyPrxPTPWZQa23pmX0b7EUOwK5MuPJjjSwh7Elt2kvRQ
-         3fss1wTzG2rCTGM9RQUhIij47guoFhdrvd1S5qhW9+8CaUQ+bf+j6JfWt0YQQTNPRw
-         8RnmbFTR6VdOszcDgaDHat7W8P3vZ4Y8kwU/6xlM=
+        b=WWjmMoZ6QwbfHgkYi3FmX/i/+ur7d4yjwWe412f0pJd1OCg9SjZ97bIwNLpGvkyhE
+         aBj9loRoHwGiMP8mBFBUbdNOw7YgIc+pRvL1sPfbwO12lBnBGu89Asaz4YG5b+wcFW
+         Y3LK4X31zrJyRLfm2mYJ12ASnKrFT2eSyJqDMLUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Xiong <xiongx18@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Yang Li <yang.lee@linux.alibaba.com>,
-        linux-mmc@vger.kernel.org, stable <stable@vger.kernel.org>,
-        whitehat002 <hackyzh002@gmail.com>
-Subject: [PATCH] moxart: fix potential use-after-free on remove path
-Date:   Fri, 14 Jan 2022 08:59:34 +0100
-Message-Id: <20220114075934.302464-1-gregkh@linuxfoundation.org>
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 5.15 00/41] 5.15.15-rc1 review
+Date:   Fri, 14 Jan 2022 09:16:00 +0100
+Message-Id: <20220114081545.158363487@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1710; h=from:subject; bh=6gx+Rodw8cvBoMVxE+Y4vZD/tVT81r9J3THpcB3YR0Q=; b=owGbwMvMwCRo6H6F97bub03G02pJDIkPdZM/TjgqdvP12rD3HOXWN4ojdmyKY6l4NeH1m7qIZ5Pc TXsjO2JZGASZGGTFFFm+bOM5ur/ikKKXoe1pmDmsTCBDGLg4BWAik50Y5mkfFwjVKqvWsYqqE+pRSf hVET1/NcNstugZ12/M77TJmZK1vab9wqQkl4VTAA==
-X-Developer-Key: i=gregkh@linuxfoundation.org; a=openpgp; fpr=F4B60CC5BF78C2214A313DCB3147D40DDB2DFB29
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.15-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.15.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.15.15-rc1
+X-KernelTest-Deadline: 2022-01-16T08:15+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It was reported that the mmc host structure could be accessed after it
-was freed in moxart_remove(), so fix this by saving the base register of
-the device and using it instead of the pointer dereference.
+This is the start of the stable review cycle for the 5.15.15 release.
+There are 41 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-Cc: Ulf Hansson <ulf.hansson@linaro.org>
-Cc: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Cc: Xin Xiong <xiongx18@fudan.edu.cn>
-Cc: Xin Tan <tanxin.ctf@gmail.com>
-Cc: Tony Lindgren <tony@atomide.com>
-Cc: Yang Li <yang.lee@linux.alibaba.com>
-Cc: linux-mmc@vger.kernel.org
-Cc: stable <stable@vger.kernel.org>
-Reported-by: whitehat002 <hackyzh002@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/mmc/host/moxart-mmc.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+Responses should be made by Sun, 16 Jan 2022 08:15:33 +0000.
+Anything received after that time might be too late.
 
-diff --git a/drivers/mmc/host/moxart-mmc.c b/drivers/mmc/host/moxart-mmc.c
-index 16d1c7a43d33..f5d96940a9b8 100644
---- a/drivers/mmc/host/moxart-mmc.c
-+++ b/drivers/mmc/host/moxart-mmc.c
-@@ -697,6 +697,7 @@ static int moxart_remove(struct platform_device *pdev)
- {
- 	struct mmc_host *mmc = dev_get_drvdata(&pdev->dev);
- 	struct moxart_host *host = mmc_priv(mmc);
-+	void __iomem *base = host->base;
- 
- 	dev_set_drvdata(&pdev->dev, NULL);
- 
-@@ -707,10 +708,10 @@ static int moxart_remove(struct platform_device *pdev)
- 	mmc_remove_host(mmc);
- 	mmc_free_host(mmc);
- 
--	writel(0, host->base + REG_INTERRUPT_MASK);
--	writel(0, host->base + REG_POWER_CONTROL);
--	writel(readl(host->base + REG_CLOCK_CONTROL) | CLK_OFF,
--	       host->base + REG_CLOCK_CONTROL);
-+	writel(0, base + REG_INTERRUPT_MASK);
-+	writel(0, base + REG_POWER_CONTROL);
-+	writel(readl(base + REG_CLOCK_CONTROL) | CLK_OFF,
-+	       base + REG_CLOCK_CONTROL);
- 
- 	return 0;
- }
--- 
-2.34.1
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.15-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+and the diffstat can be found below.
+
+thanks,
+
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.15.15-rc1
+
+Arnd Bergmann <arnd@arndb.de>
+    staging: greybus: fix stack size warning with UBSAN
+
+Nathan Chancellor <nathan@kernel.org>
+    drm/i915: Avoid bitwise vs logical OR warning in snb_wm_latency_quirk()
+
+Nathan Chancellor <nathan@kernel.org>
+    staging: wlan-ng: Avoid bitwise vs logical OR warning in hfa384x_usb_throttlefn()
+
+Ricardo Ribalda <ribalda@chromium.org>
+    media: Revert "media: uvcvideo: Set unique vdev name based in type"
+
+Alex Hung <alex.hung@canonical.com>
+    platform/x86/intel: hid: add quirk to support Surface Go 3
+
+Dominik Brodowski <linux@dominikbrodowski.net>
+    random: fix crash on multiple early calls to add_bootloader_randomness()
+
+Eric Biggers <ebiggers@google.com>
+    random: fix data race on crng init time
+
+Eric Biggers <ebiggers@google.com>
+    random: fix data race on crng_node_pool
+
+Brian Silverman <brian.silverman@bluerivertech.com>
+    can: gs_usb: gs_can_start_xmit(): zero-initialize hf->{flags,reserved}
+
+Marc Kleine-Budde <mkl@pengutronix.de>
+    can: isotp: convert struct tpcon::{idx,len} to unsigned int
+
+Marc Kleine-Budde <mkl@pengutronix.de>
+    can: gs_usb: fix use of uninitialized variable, detach device on reception of invalid USB data
+
+Borislav Petkov <bp@suse.de>
+    x86/mce: Remove noinstr annotation from mce_setup()
+
+Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+    mfd: intel-lpss: Fix too early PM enablement in the ACPI ->probe()
+
+Daniel Borkmann <daniel@iogearbox.net>
+    veth: Do not record rx queue hint in veth_xmit
+
+Aditya Garg <gargaditya08@live.com>
+    Bluetooth: btbcm: disable read tx power for MacBook Air 8,1 and 8,2
+
+Aditya Garg <gargaditya08@live.com>
+    Bluetooth: btbcm: disable read tx power for some Macs with the T2 Security chip
+
+Aditya Garg <gargaditya08@live.com>
+    Bluetooth: add quirk disabling LE Read Transmit Power
+
+Adrian Hunter <adrian.hunter@intel.com>
+    mmc: sdhci-pci: Add PCI ID for Intel ADL
+
+Sven Eckelmann <sven@narfation.org>
+    ath11k: Fix buffer overflow when scanning with extraie
+
+Alan Stern <stern@rowland.harvard.edu>
+    USB: Fix "slab-out-of-bounds Write" bug in usb_hcd_poll_rh_status
+
+Alan Stern <stern@rowland.harvard.edu>
+    USB: core: Fix bug in resuming hub's handling of wakeup requests
+
+Paul Cercueil <paul@crapouillou.net>
+    ARM: dts: exynos: Fix BCM4330 Bluetooth reset polarity in I9100
+
+Johan Hovold <johan@kernel.org>
+    Bluetooth: bfusb: fix division by zero in send path
+
+Aaron Ma <aaron.ma@canonical.com>
+    Bluetooth: btusb: Add support for Foxconn QCA 0xe0d0
+
+Tedd Ho-Jeong An <tedd.an@intel.com>
+    Bluetooth: btintel: Fix broken LED quirk for legacy ROM devices
+
+Aaron Ma <aaron.ma@canonical.com>
+    Bluetooth: btusb: Add support for Foxconn MT7922A
+
+Zijun Hu <quic_zijuhu@quicinc.com>
+    Bluetooth: btusb: Add two more Bluetooth parts for WCN6855
+
+Zijun Hu <quic_zijuhu@quicinc.com>
+    Bluetooth: btusb: Add one more Bluetooth part for WCN6855
+
+Linus Torvalds <torvalds@linux-foundation.org>
+    fget: clarify and improve __fget_files() implementation
+
+tjiang@codeaurora.org <tjiang@codeaurora.org>
+    Bluetooth: btusb: Add the new support IDs for WCN6855
+
+Larry Finger <Larry.Finger@lwfinger.net>
+    Bluetooth: btusb: Add one more Bluetooth part for the Realtek RTL8852AE
+
+mark-yw.chen <mark-yw.chen@mediatek.com>
+    Bluetooth: btusb: enable Mediatek to support AOSP extension
+
+Mark-YW.Chen <mark-yw.chen@mediatek.com>
+    Bluetooth: btusb: fix memory leak in btusb_mtk_submit_wmt_recv_urb()
+
+Larry Finger <Larry.Finger@lwfinger.net>
+    Bbluetooth: btusb: Add another Bluetooth part for Realtek 8852AE
+
+mark-yw.chen <mark-yw.chen@mediatek.com>
+    Bluetooth: btusb: Add support for IMC Networks Mediatek Chip(MT7921)
+
+Max Chou <max.chou@realtek.com>
+    Bluetooth: btusb: Add the new support ID for Realtek RTL8852A
+
+mark-yw.chen <mark-yw.chen@mediatek.com>
+    Bluetooth: btusb: Add protocol for MediaTek bluetooth devices(MT7922)
+
+Daniel Borkmann <daniel@iogearbox.net>
+    bpf: Fix out of bounds access from invalid *_or_null type verification
+
+Martin Kaiser <martin@kaiser.cx>
+    staging: r8188eu: switch the led off during deinit
+
+Frederic Weisbecker <frederic@kernel.org>
+    workqueue: Fix unbind_workers() VS wq_worker_running() race
+
+Alexander Egorenkov <egorenar@linux.ibm.com>
+    s390/kexec: handle R_390_PLT32DBL rela in arch_kexec_apply_relocations_add()
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                 |   4 +-
+ arch/arm/boot/dts/exynos4210-i9100.dts   |   2 +-
+ arch/s390/kernel/machine_kexec_file.c    |   4 ++
+ arch/x86/kernel/cpu/mce/core.c           |  26 +++++--
+ drivers/bluetooth/bfusb.c                |   3 +
+ drivers/bluetooth/btbcm.c                |  51 ++++++++++++++
+ drivers/bluetooth/btintel.c              |  20 +++---
+ drivers/bluetooth/btintel.h              |   2 +-
+ drivers/bluetooth/btusb.c                |  61 ++++++++++++++--
+ drivers/char/random.c                    | 117 ++++++++++++++++++-------------
+ drivers/gpu/drm/i915/intel_pm.c          |   6 +-
+ drivers/media/usb/uvc/uvc_driver.c       |   7 +-
+ drivers/mfd/intel-lpss-acpi.c            |   7 +-
+ drivers/mmc/host/sdhci-pci-core.c        |   1 +
+ drivers/mmc/host/sdhci-pci.h             |   1 +
+ drivers/net/can/usb/gs_usb.c             |   5 +-
+ drivers/net/veth.c                       |   1 -
+ drivers/net/wireless/ath/ath11k/wmi.c    |   6 +-
+ drivers/platform/x86/intel/hid.c         |   7 ++
+ drivers/staging/greybus/audio_topology.c |  92 ++++++++++++------------
+ drivers/staging/r8188eu/core/rtw_led.c   |   1 +
+ drivers/staging/wlan-ng/hfa384x_usb.c    |  22 +++---
+ drivers/usb/core/hcd.c                   |   9 ++-
+ drivers/usb/core/hub.c                   |   2 +-
+ fs/file.c                                |  72 ++++++++++++++-----
+ include/net/bluetooth/hci.h              |   9 +++
+ kernel/bpf/verifier.c                    |   6 +-
+ kernel/workqueue.c                       |   9 +++
+ net/bluetooth/hci_core.c                 |   3 +-
+ net/can/isotp.c                          |   4 +-
+ 30 files changed, 389 insertions(+), 171 deletions(-)
+
 
