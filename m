@@ -2,164 +2,170 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4678B48E81C
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 11:12:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2084A48E840
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 11:20:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240106AbiANKMm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 05:12:42 -0500
-Received: from mail-ua1-f48.google.com ([209.85.222.48]:35772 "EHLO
-        mail-ua1-f48.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236780AbiANKMm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 05:12:42 -0500
-Received: by mail-ua1-f48.google.com with SMTP id m90so16144712uam.2;
-        Fri, 14 Jan 2022 02:12:42 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Q0iNxqWG6KKW3gmatJQgzSgoTuWKZwlECTtaOguELtw=;
-        b=KLk0hiGeZc2VnSm5sNJl0Cjw8DrCk16mSk5l4BI0SEEM0BbSLJNapcFRBOdnNczpGA
-         qoxlZLy8EZfvMRBeDozgxiQ/AL0GbrvsrCI23bxzyBgWqOKQ4u5hulINjlzt2pMtR9ES
-         KmTiTou4FnDkdbSiYbSEMtW1f+Hcrl8VgLJo8U/h2jGKRPnNkWvx3AjwMKejMPKheOr6
-         eH3ZboZnWlV+J+EEg8fy/9M7bneb6T+OPBy0Xv7brZ3Vw4jcDJzCWOVg4FGtA9B2mC9n
-         YZvUzDt0wUkPePbwm/ILywGQI2Ge2ykaTl3nPnGdk4nJjC59uW25VyaJ8Dfzc3GoCJoS
-         eVWQ==
-X-Gm-Message-State: AOAM533vZJngrIE8Z5q6ZkpMsurVV+F4lbsrkJTW9OqE4SiEdIZtIo7/
-        a9hf8WYuB2pJzM/D4Z61zwSzuxxJOxvxlg==
-X-Google-Smtp-Source: ABdhPJzBe9w0yz3/ti5DwxQN0m8NYH63m7ldTdeqTxEBkzgCzTZUrILvptww9T1KCoQcv7XPKv6Gng==
-X-Received: by 2002:ab0:3ca1:: with SMTP id a33mr416914uax.4.1642155161727;
-        Fri, 14 Jan 2022 02:12:41 -0800 (PST)
-Received: from mail-ua1-f46.google.com (mail-ua1-f46.google.com. [209.85.222.46])
-        by smtp.gmail.com with ESMTPSA id j129sm1984239vkh.16.2022.01.14.02.12.39
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 14 Jan 2022 02:12:40 -0800 (PST)
-Received: by mail-ua1-f46.google.com with SMTP id p37so16051938uae.8;
-        Fri, 14 Jan 2022 02:12:39 -0800 (PST)
-X-Received: by 2002:a67:e985:: with SMTP id b5mr3532550vso.77.1642155159526;
- Fri, 14 Jan 2022 02:12:39 -0800 (PST)
+        id S237487AbiANKUF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 05:20:05 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:34056 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233263AbiANKUF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 05:20:05 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 342F9B82593;
+        Fri, 14 Jan 2022 10:20:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4D04C36AE5;
+        Fri, 14 Jan 2022 10:20:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1642155603;
+        bh=H2cwqX6hP/TTryeKSioq1szTFJyrpgVKfMYJ0fjXn34=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=UGGhrqVldk+09VVLl6OIP2pxUDg7sugmpHJA8Ski2ERPSJbT7Mh4btQfkgkaOMpze
+         yLfnsXM5v++g1rSF50zz+1DKtvlaKg+oMn0D3uJptBZb8oWM5a/lgknSIyNy82IGTt
+         mkpbAkSc+2tI4A3dxr1075z5Gfv3ssfWNtpeiU37xhXSpqfgnAh1BmzTI8F9Opd8a4
+         QzNDZ06INZCbtk0fUZJuS7SjNiMDndPFxZfEn8GOHVeE8OCigRu4+ENNsP3vkPbyiG
+         oQ61NjvLQ7vexK9/OyGQS1v8mX8RnHOjw4h192Rm0KaU4o0y13oNOymOVMOZ8KvVGG
+         j9O8xzHA5t23Q==
+From:   Masami Hiramatsu <mhiramat@kernel.org>
+To:     stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4.y] Revert "ia64: kprobes: Use generic kretprobe trampoline handler"
+Date:   Fri, 14 Jan 2022 19:19:59 +0900
+Message-Id: <164215559880.1662358.1475310445318313122.stgit@devnote2>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <YeEhuGXr2B9r7mer@kroah.com>
+References: <YeEhuGXr2B9r7mer@kroah.com>
+User-Agent: StGit/0.19
 MIME-Version: 1.0
-References: <20211119164413.29052-1-palmer@rivosinc.com> <20211119164413.29052-3-palmer@rivosinc.com>
- <CAMuHMdXQg942-DwDBJANsFiOCqyAwCt_GwW4HuC1nh0_DNmyEQ@mail.gmail.com> <aa05f467-efc2-ca66-3485-aa59ba72a730@ghiti.fr>
-In-Reply-To: <aa05f467-efc2-ca66-3485-aa59ba72a730@ghiti.fr>
-From:   Geert Uytterhoeven <geert@linux-m68k.org>
-Date:   Fri, 14 Jan 2022 11:12:28 +0100
-X-Gmail-Original-Message-ID: <CAMuHMdUpi7hJwDrcCyzrooJN=gQjmwShD073UwXp7UxghHeMSA@mail.gmail.com>
-Message-ID: <CAMuHMdUpi7hJwDrcCyzrooJN=gQjmwShD073UwXp7UxghHeMSA@mail.gmail.com>
-Subject: Re: [PATCH 02/12] RISC-V: MAXPHYSMEM_2GB doesn't depend on CMODEL_MEDLOW
-To:     Alexandre ghiti <alex@ghiti.fr>
-Cc:     Palmer Dabbelt <palmer@rivosinc.com>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Anup Patel <anup.patel@wdc.com>,
-        heinrich.schuchardt@canonical.com,
-        Atish Patra <atish.patra@wdc.com>,
-        Bin Meng <bin.meng@windriver.com>,
-        Sagar Kadam <sagar.kadam@sifive.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Alex,
+This reverts commit 77fa5e15c933a1ec812de61ad709c00aa51e96ae.
 
-On Tue, Jan 11, 2022 at 5:14 PM Alexandre ghiti <alex@ghiti.fr> wrote:
-> On 1/11/22 17:04, Geert Uytterhoeven wrote:
-> > On Fri, Nov 19, 2021 at 5:47 PM Palmer Dabbelt <palmer@rivosinc.com> wrote:
-> >> From: Palmer Dabbelt <palmer@rivosinc.com>
-> >>
-> >> For non-relocatable kernels we need to be able to link the kernel at
-> >> approximately PAGE_OFFSET, thus requiring medany (as medlow requires the
-> >> code to be linked within 2GiB of 0).  The inverse doesn't apply, though:
-> >> since medany code can be linked anywhere it's fine to link it close to
-> >> 0, so we can support the smaller memory config.
-> >>
-> >> Fixes: de5f4b8f634b ("RISC-V: Define MAXPHYSMEM_1GB only for RV32")
-> >> Cc: stable@vger.kernel.org
-> >> Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-> > Thanks for your patch, which is now commit 9f36b96bc70f9707 ("RISC-V:
-> > MAXPHYSMEM_2GB doesn't depend on CMODEL_MEDLOW").
-> >
-> >> I found this when going through the savedefconfig diffs for the K210
-> >> defconfigs.  I'm not entirely sure they're doing the right thing here
-> >> (they should probably be setting CMODEL_LOW to take advantage of the
-> >> better code generation), but I don't have any way to test those
-> >> platforms so I don't want to change too much.
-> > I can confirm MAXPHYSMEM_2GB works on K210 with CMODEL_MEDANY.
-> >
-> > As the Icicle has 1760 MiB of RAM, I gave it a try with MAXPHYSMEM_2GB
-> > (and CMODEL_MEDANY), too.  Unfortunately it crashes very early
-> > (needs earlycon to see):
-> >
-> >      OF: fdt: Ignoring memory range 0x80000000 - 0x80200000
-> >      Machine model: Microchip PolarFire-SoC Icicle Kit
-> >      printk: debug: ignoring loglevel setting.
-> >      earlycon: ns16550a0 at MMIO32 0x0000000020100000 (options '115200n8')
-> >      printk: bootconsole [ns16550a0] enabled
-> >      printk: debug: skip boot console de-registration.
-> >      efi: UEFI not found.
-> >      Unable to handle kernel paging request at virtual address ffffffff87e00001
-> >      Oops [#1]
-> >      Modules linked in:
-> >      CPU: 0 PID: 0 Comm: swapper Not tainted 5.16.0-08771-g85515233477d #56
-> >      Hardware name: Microchip PolarFire-SoC Icicle Kit (DT)
-> >      epc : fdt_check_header+0x14/0x208
-> >       ra : early_init_dt_verify+0x16/0x94
-> >      epc : ffffffff802ddacc ra : ffffffff8082415a sp : ffffffff81203ee0
-> >       gp : ffffffff812ec3a8 tp : ffffffff8120cd80 t0 : 0000000000000005
-> >       t1 : 0000001040000000 t2 : ffffffff80000000 s0 : ffffffff81203f00
-> >       s1 : ffffffff87e00000 a0 : ffffffff87e00000 a1 : 000000040ffffce7
-> >       a2 : 00000000000000e7 a3 : ffffffff8080394c a4 : 0000000000000000
-> >       a5 : 0000000000000000 a6 : 0000000000000000 a7 : 0000000000000000
-> >       s2 : ffffffff81203f98 s3 : 8000000a00006800 s4 : fffffffffffffff3
-> >       s5 : 0000000000000000 s6 : 0000000000000001 s7 : 0000000000000000
-> >       s8 : 0000000020236c20 s9 : 0000000000000000 s10: 0000000000000000
-> >       s11: 0000000000000000 t3 : 0000000000000018 t4 : 00ff000000000000
-> >       t5 : 0000000000000000 t6 : 0000000000000010
-> >      status: 0000000200000100 badaddr: ffffffff87e00001 cause: 000000000000000d
-> >      [<ffffffff802ddacc>] fdt_check_header+0x14/0x208
-> >      [<ffffffff8082415a>] early_init_dt_verify+0x16/0x94
-> >      [<ffffffff80802dee>] setup_arch+0xec/0x4ec
-> >      [<ffffffff80800700>] start_kernel+0x88/0x6d6
-> >      random: get_random_bytes called from
-> > print_oops_end_marker+0x22/0x44 with crng_init=0
-> >      ---[ end trace 903df1a0ade0b876 ]---
-> >      Kernel panic - not syncing: Attempted to kill the idle task!
-> >      ---[ end Kernel panic - not syncing: Attempted to kill the idle task! ]---
-> >
-> > So the FDT is at 0xffffffff87e00000, i.e. at 0x7e00000 from the start
-> > of virtual memory (CONFIG_PAGE_OFFSET=0xffffffff80000000), and thus
-> > within the 2 GiB range.
->
->
-> I think you have just encountered what I suspected and mentioned in [1]:
-> we recently moved the kernel to the PAGE_OFFSET address used with
-> MAXPHYSMEM_2GB.
->
-> I would try to cherry-pick [1] and see if that works better :)
->
-> Alex
->
-> [1]
-> https://patchwork.kernel.org/project/linux-riscv/patch/20211206104657.433304-6-alexandre.ghiti@canonical.com/
+Since the upstream commit e792ff804f49720ce003b3e4c618b5d996256a18
+depends on the generic kretprobe trampoline handler, which was
+introduced by commit 66ada2ccae4e ("kprobes: Add generic kretprobe
+trampoline handler") but that is not ported to the stable kernel
+because it is not a bugfix series.
+So revert this commit to fix a build error.
 
-Thanks, works fine with just that patch (needed small changes), or with
-the full series.
+NOTE: I keep commit a7fe2378454c ("ia64: kprobes: Fix to pass
+correct trampoline address to the handler") on the tree, that seems
+just a cleanup without the original reverted commit, but it would
+be better to use dereference_function_descriptor() macro instead
+of accessing descriptor's field directly.
 
-Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
 
-Gr{oetje,eeting}s,
+Fixes: 77fa5e15c933 ("ia64: kprobes: Use generic kretprobe trampoline handler")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+---
+ arch/ia64/kernel/kprobes.c |   78 ++++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 75 insertions(+), 3 deletions(-)
 
-                        Geert
+diff --git a/arch/ia64/kernel/kprobes.c b/arch/ia64/kernel/kprobes.c
+index 8a223d0e4918..5d2d58644378 100644
+--- a/arch/ia64/kernel/kprobes.c
++++ b/arch/ia64/kernel/kprobes.c
+@@ -396,10 +396,83 @@ static void kretprobe_trampoline(void)
+ {
+ }
+ 
++/*
++ * At this point the target function has been tricked into
++ * returning into our trampoline.  Lookup the associated instance
++ * and then:
++ *    - call the handler function
++ *    - cleanup by marking the instance as unused
++ *    - long jump back to the original return address
++ */
+ int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
+ {
+-	regs->cr_iip = __kretprobe_trampoline_handler(regs,
+-		dereference_function_descriptor(kretprobe_trampoline), NULL);
++	struct kretprobe_instance *ri = NULL;
++	struct hlist_head *head, empty_rp;
++	struct hlist_node *tmp;
++	unsigned long flags, orig_ret_address = 0;
++	unsigned long trampoline_address =
++		dereference_function_descriptor(kretprobe_trampoline);
++
++	INIT_HLIST_HEAD(&empty_rp);
++	kretprobe_hash_lock(current, &head, &flags);
++
++	/*
++	 * It is possible to have multiple instances associated with a given
++	 * task either because an multiple functions in the call path
++	 * have a return probe installed on them, and/or more than one return
++	 * return probe was registered for a target function.
++	 *
++	 * We can handle this because:
++	 *     - instances are always inserted at the head of the list
++	 *     - when multiple return probes are registered for the same
++	 *       function, the first instance's ret_addr will point to the
++	 *       real return address, and all the rest will point to
++	 *       kretprobe_trampoline
++	 */
++	hlist_for_each_entry_safe(ri, tmp, head, hlist) {
++		if (ri->task != current)
++			/* another task is sharing our hash bucket */
++			continue;
++
++		orig_ret_address = (unsigned long)ri->ret_addr;
++		if (orig_ret_address != trampoline_address)
++			/*
++			 * This is the real return address. Any other
++			 * instances associated with this task are for
++			 * other calls deeper on the call stack
++			 */
++			break;
++	}
++
++	regs->cr_iip = orig_ret_address;
++
++	hlist_for_each_entry_safe(ri, tmp, head, hlist) {
++		if (ri->task != current)
++			/* another task is sharing our hash bucket */
++			continue;
++
++		if (ri->rp && ri->rp->handler)
++			ri->rp->handler(ri, regs);
++
++		orig_ret_address = (unsigned long)ri->ret_addr;
++		recycle_rp_inst(ri, &empty_rp);
++
++		if (orig_ret_address != trampoline_address)
++			/*
++			 * This is the real return address. Any other
++			 * instances associated with this task are for
++			 * other calls deeper on the call stack
++			 */
++			break;
++	}
++	kretprobe_assert(ri, orig_ret_address, trampoline_address);
++
++	kretprobe_hash_unlock(current, &flags);
++
++	hlist_for_each_entry_safe(ri, tmp, &empty_rp, hlist) {
++		hlist_del(&ri->hlist);
++		kfree(ri);
++	}
+ 	/*
+ 	 * By returning a non-zero value, we are telling
+ 	 * kprobe_handler() that we don't want the post_handler
+@@ -412,7 +485,6 @@ void __kprobes arch_prepare_kretprobe(struct kretprobe_instance *ri,
+ 				      struct pt_regs *regs)
+ {
+ 	ri->ret_addr = (kprobe_opcode_t *)regs->b0;
+-	ri->fp = NULL;
+ 
+ 	/* Replace the return addr with trampoline addr */
+ 	regs->b0 = (unsigned long)dereference_function_descriptor(kretprobe_trampoline);
 
---
-Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
-
-In personal conversations with technical people, I call myself a hacker. But
-when I'm talking to journalists I just say "programmer" or something like that.
-                                -- Linus Torvalds
