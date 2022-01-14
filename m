@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4676D48E5C8
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:21:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D153E48E56D
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:18:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239895AbiANIVD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 03:21:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49988 "EHLO
+        id S239671AbiANISF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 03:18:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239896AbiANIUN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:20:13 -0500
+        with ESMTP id S239585AbiANIRy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:17:54 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7435CC061775;
-        Fri, 14 Jan 2022 00:20:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EE03C061760;
+        Fri, 14 Jan 2022 00:17:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1247C61E22;
-        Fri, 14 Jan 2022 08:20:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1702C36AEA;
-        Fri, 14 Jan 2022 08:20:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3803B61DDA;
+        Fri, 14 Jan 2022 08:17:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 042ECC36AEA;
+        Fri, 14 Jan 2022 08:17:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642148411;
-        bh=mSpILCvNSI6hsV69h7+xbuxcENkMxGPeZv86P3OiMTs=;
+        s=korg; t=1642148272;
+        bh=ba+H7bBkibL2cC9IUseT0bDAtE/T7QXeWE6qmhw5FSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pJRDe5EF4Vwd+ARAc2d8FRItFDl50CdpEVVsOiTbCJ5gOhZutaxeouxAzYF7guOSm
-         FrGGuu176Y/XNIe6lOtuzep81tNfb0pQ7uUGA7Y8UZIGzIZNfi7x/OmuGQl2X/TzSX
-         hLUlWoqf2295wAf1RAgfUtNMuPtrYE4eOF/rlOro=
+        b=DecgoRXO+b7LIZLWQEso4YqRt0H5zsv5yIkuu8D042RySArbUSh1JJoHB9zc0LSmo
+         9IcdMzvpGIDV8Fz1AMBUSOw1P2kH4M6xkjUJneCQOnLGST0YSMHxWDcGL6aOcC2yMJ
+         IEsoBJ9j9ZwxtWu0Eg1nD2AKJPsvb6MseiH8tw2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
-        Kalle Valo <quic_kvalo@quicinc.com>
-Subject: [PATCH 5.15 23/41] ath11k: Fix buffer overflow when scanning with extraie
-Date:   Fri, 14 Jan 2022 09:16:23 +0100
-Message-Id: <20220114081545.932563648@linuxfoundation.org>
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        =?UTF-8?q?D=C3=A1vid=20Bolvansk=C3=BD?= <david.bolvansky@gmail.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>
+Subject: [PATCH 5.4 17/18] drm/i915: Avoid bitwise vs logical OR warning in snb_wm_latency_quirk()
+Date:   Fri, 14 Jan 2022 09:16:24 +0100
+Message-Id: <20220114081542.044572798@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220114081545.158363487@linuxfoundation.org>
-References: <20220114081545.158363487@linuxfoundation.org>
+In-Reply-To: <20220114081541.465841464@linuxfoundation.org>
+References: <20220114081541.465841464@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,76 +50,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit a658c929ded7ea3aee324c8c2a9635a5e5a38e7f upstream.
+commit 2e70570656adfe1c5d9a29940faa348d5f132199 upstream.
 
-If cfg80211 is providing extraie's for a scanning process then ath11k will
-copy that over to the firmware. The extraie.len is a 32 bit value in struct
-element_info and describes the amount of bytes for the vendor information
-elements.
+A new warning in clang points out a place in this file where a bitwise
+OR is being used with boolean types:
 
-The WMI_TLV packet is having a special WMI_TAG_ARRAY_BYTE section. This
-section can have a (payload) length up to 65535 bytes because the
-WMI_TLV_LEN can store up to 16 bits. The code was missing such a check and
-could have created a scan request which cannot be parsed correctly by the
-firmware.
+drivers/gpu/drm/i915/intel_pm.c:3066:12: warning: use of bitwise '|' with boolean operands [-Wbitwise-instead-of-logical]
+        changed = ilk_increase_wm_latency(dev_priv, dev_priv->wm.pri_latency, 12) |
+                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-But the bigger problem was the allocation of the buffer. It has to align
-the TLV sections by 4 bytes. But the code was using an u8 to store the
-newly calculated length of this section (with alignment). And the new
-calculated length was then used to allocate the skbuff. But the actual code
-to copy in the data is using the extraie.len and not the calculated
-"aligned" length.
+This construct is intentional, as it allows every one of the calls to
+ilk_increase_wm_latency() to occur (instead of short circuiting with
+logical OR) while still caring about the result of each call.
 
-The length of extraie with IEEE80211_HW_SINGLE_SCAN_ON_ALL_BANDS enabled
-was 264 bytes during tests with a QCA Milan card. But it only allocated 8
-bytes (264 bytes % 256) for it. As consequence, the code to memcpy the
-extraie into the skb was then just overwriting data after skb->end. Things
-like shinfo were therefore corrupted. This could usually be seen by a crash
-in skb_zcopy_clear which tried to call a ubuf_info callback (using a bogus
-address).
+To make this clearer to the compiler, use the '|=' operator to assign
+the result of each ilk_increase_wm_latency() call to changed, which
+keeps the meaning of the code the same but makes it obvious that every
+one of these calls is expected to happen.
 
-Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-02892.1-QCAHSPSWPL_V1_V2_SILICONZ_LITE-1
-
-Cc: stable@vger.kernel.org
-Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20211207142913.1734635-1-sven@narfation.org
+Link: https://github.com/ClangBuiltLinux/linux/issues/1473
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Suggested-by: Dávid Bolvanský <david.bolvansky@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211014211916.3550122-1-nathan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath11k/wmi.c |    6 +++---
+ drivers/gpu/drm/i915/intel_pm.c |    6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/net/wireless/ath/ath11k/wmi.c
-+++ b/drivers/net/wireless/ath/ath11k/wmi.c
-@@ -2051,7 +2051,7 @@ int ath11k_wmi_send_scan_start_cmd(struc
- 	void *ptr;
- 	int i, ret, len;
- 	u32 *tmp_ptr;
--	u8 extraie_len_with_pad = 0;
-+	u16 extraie_len_with_pad = 0;
- 	struct hint_short_ssid *s_ssid = NULL;
- 	struct hint_bssid *hint_bssid = NULL;
+--- a/drivers/gpu/drm/i915/intel_pm.c
++++ b/drivers/gpu/drm/i915/intel_pm.c
+@@ -3017,9 +3017,9 @@ static void snb_wm_latency_quirk(struct
+ 	 * The BIOS provided WM memory latency values are often
+ 	 * inadequate for high resolution displays. Adjust them.
+ 	 */
+-	changed = ilk_increase_wm_latency(dev_priv, dev_priv->wm.pri_latency, 12) |
+-		ilk_increase_wm_latency(dev_priv, dev_priv->wm.spr_latency, 12) |
+-		ilk_increase_wm_latency(dev_priv, dev_priv->wm.cur_latency, 12);
++	changed = ilk_increase_wm_latency(dev_priv, dev_priv->wm.pri_latency, 12);
++	changed |= ilk_increase_wm_latency(dev_priv, dev_priv->wm.spr_latency, 12);
++	changed |= ilk_increase_wm_latency(dev_priv, dev_priv->wm.cur_latency, 12);
  
-@@ -2070,7 +2070,7 @@ int ath11k_wmi_send_scan_start_cmd(struc
- 		len += sizeof(*bssid) * params->num_bssid;
- 
- 	len += TLV_HDR_SIZE;
--	if (params->extraie.len)
-+	if (params->extraie.len && params->extraie.len <= 0xFFFF)
- 		extraie_len_with_pad =
- 			roundup(params->extraie.len, sizeof(u32));
- 	len += extraie_len_with_pad;
-@@ -2177,7 +2177,7 @@ int ath11k_wmi_send_scan_start_cmd(struc
- 		      FIELD_PREP(WMI_TLV_LEN, len);
- 	ptr += TLV_HDR_SIZE;
- 
--	if (params->extraie.len)
-+	if (extraie_len_with_pad)
- 		memcpy(ptr, params->extraie.ptr,
- 		       params->extraie.len);
- 
+ 	if (!changed)
+ 		return;
 
 
