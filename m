@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FF1548E5A2
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:19:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D262648E607
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:22:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237037AbiANITz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 03:19:55 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:59862 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239757AbiANITL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:19:11 -0500
+        id S237087AbiANIWy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 03:22:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50076 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239947AbiANIV2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:21:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3341C06174E;
+        Fri, 14 Jan 2022 00:21:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8AA76B823E6;
-        Fri, 14 Jan 2022 08:19:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDFBAC36AE9;
-        Fri, 14 Jan 2022 08:19:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4637961E36;
+        Fri, 14 Jan 2022 08:21:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C51BC36AE9;
+        Fri, 14 Jan 2022 08:21:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642148348;
-        bh=8S1hAOaCE0nuCTYKqPbrUYjfJ4XAy3sfQgAufqi6aas=;
+        s=korg; t=1642148480;
+        bh=zVUjk13QbjHnnbgJiUT99EkoDLe1UTJi0lqaOp0nuOA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o/KsCbZw+kvoRWjthJ/x3CyOcFxcGwfqTP9bvui4kXjzQIitbIT5zpAzss2jTa0pj
-         GF3VxQmE47FkgoFJPCt/DUyke7SxR1wIxnxdSkndKR9fWlih6XGogkgeFPi2OaS2vj
-         X3gNss/2xUAVZCIvl7qPf8dwjpItpSMtSJJZdjZY=
+        b=b0W2OPTofZHqY7Egv3AiNTEWm1vl/GM2i8joZ3P/eDM89BhKE/fNa99TzWN0BN4gc
+         7ZjN3tPCuHvYaXReqDbRmB1lc8jZAmSFPQn3DQw3RwzJzWSRlskmaRj+HrlOeOA/2j
+         7cYfFQBiEEM+iDBfTbwxRBOdWQxPyPlhg3ysC5Hw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Dufresne <nicolas@ndufresne.ca>,
-        Ricardo Ribalda <ribalda@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.10 22/25] media: Revert "media: uvcvideo: Set unique vdev name based in type"
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.15 30/41] x86/mce: Remove noinstr annotation from mce_setup()
 Date:   Fri, 14 Jan 2022 09:16:30 +0100
-Message-Id: <20220114081543.457330482@linuxfoundation.org>
+Message-Id: <20220114081546.160146929@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220114081542.698002137@linuxfoundation.org>
-References: <20220114081542.698002137@linuxfoundation.org>
+In-Reply-To: <20220114081545.158363487@linuxfoundation.org>
+References: <20220114081545.158363487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,60 +46,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Borislav Petkov <bp@suse.de>
 
-commit f66dcb32af19faf49cc4a9222c3152b10c6ec84a upstream.
+commit 487d654db3edacc31dee86b10258cc740640fad8 upstream.
 
-A lot of userspace depends on a descriptive name for vdev. Without this
-patch, users have a hard time figuring out which camera shall they use
-for their video conferencing.
+Instead, sandwitch around the call which is done in noinstr context and
+mark the caller - mce_gather_info() - as noinstr.
 
-This reverts commit e3f60e7e1a2b451f538f9926763432249bcf39c4.
+Also, document what the whole instrumentation strategy with #MC is going
+to be in the future and where it all is supposed to be going to.
 
-Link: https://lore.kernel.org/linux-media/20211207003840.1212374-2-ribalda@chromium.org
-Cc: <stable@vger.kernel.org>
-Fixes: e3f60e7e1a2b ("media: uvcvideo: Set unique vdev name based in type")
-Reported-by: Nicolas Dufresne <nicolas@ndufresne.ca>
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20211208111343.8130-5-bp@alien8.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/uvc/uvc_driver.c |    7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ arch/x86/kernel/cpu/mce/core.c |   26 ++++++++++++++++++++------
+ 1 file changed, 20 insertions(+), 6 deletions(-)
 
---- a/drivers/media/usb/uvc/uvc_driver.c
-+++ b/drivers/media/usb/uvc/uvc_driver.c
-@@ -2065,7 +2065,6 @@ int uvc_register_video_device(struct uvc
- 			      const struct v4l2_file_operations *fops,
- 			      const struct v4l2_ioctl_ops *ioctl_ops)
+--- a/arch/x86/kernel/cpu/mce/core.c
++++ b/arch/x86/kernel/cpu/mce/core.c
+@@ -130,7 +130,7 @@ static void (*quirk_no_way_out)(int bank
+ BLOCKING_NOTIFIER_HEAD(x86_mce_decoder_chain);
+ 
+ /* Do initial initialization of a struct mce */
+-noinstr void mce_setup(struct mce *m)
++void mce_setup(struct mce *m)
  {
--	const char *name;
- 	int ret;
+ 	memset(m, 0, sizeof(struct mce));
+ 	m->cpu = m->extcpu = smp_processor_id();
+@@ -479,9 +479,15 @@ static noinstr void mce_wrmsrl(u32 msr,
+  * check into our "mce" struct so that we can use it later to assess
+  * the severity of the problem as we read per-bank specific details.
+  */
+-static inline void mce_gather_info(struct mce *m, struct pt_regs *regs)
++static noinstr void mce_gather_info(struct mce *m, struct pt_regs *regs)
+ {
++	/*
++	 * Enable instrumentation around mce_setup() which calls external
++	 * facilities.
++	 */
++	instrumentation_begin();
+ 	mce_setup(m);
++	instrumentation_end();
  
- 	/* Initialize the video buffers queue. */
-@@ -2094,20 +2093,16 @@ int uvc_register_video_device(struct uvc
- 	case V4L2_BUF_TYPE_VIDEO_CAPTURE:
- 	default:
- 		vdev->device_caps = V4L2_CAP_VIDEO_CAPTURE | V4L2_CAP_STREAMING;
--		name = "Video Capture";
- 		break;
- 	case V4L2_BUF_TYPE_VIDEO_OUTPUT:
- 		vdev->device_caps = V4L2_CAP_VIDEO_OUTPUT | V4L2_CAP_STREAMING;
--		name = "Video Output";
- 		break;
- 	case V4L2_BUF_TYPE_META_CAPTURE:
- 		vdev->device_caps = V4L2_CAP_META_CAPTURE | V4L2_CAP_STREAMING;
--		name = "Metadata";
- 		break;
- 	}
+ 	m->mcgstatus = mce_rdmsrl(MSR_IA32_MCG_STATUS);
+ 	if (regs) {
+@@ -1327,11 +1333,11 @@ static void queue_task_work(struct mce *
+ }
  
--	snprintf(vdev->name, sizeof(vdev->name), "%s %u", name,
--		 stream->header.bTerminalLink);
-+	strscpy(vdev->name, dev->name, sizeof(vdev->name));
- 
- 	/*
- 	 * Set the driver data before calling video_register_device, otherwise
+ /*
+- * The actual machine check handler. This only handles real
+- * exceptions when something got corrupted coming in through int 18.
++ * The actual machine check handler. This only handles real exceptions when
++ * something got corrupted coming in through int 18.
+  *
+- * This is executed in NMI context not subject to normal locking rules. This
+- * implies that most kernel services cannot be safely used. Don't even
++ * This is executed in #MC context not subject to normal locking rules.
++ * This implies that most kernel services cannot be safely used. Don't even
+  * think about putting a printk in there!
+  *
+  * On Intel systems this is entered on all CPUs in parallel through
+@@ -1343,6 +1349,14 @@ static void queue_task_work(struct mce *
+  * issues: if the machine check was due to a failure of the memory
+  * backing the user stack, tracing that reads the user stack will cause
+  * potentially infinite recursion.
++ *
++ * Currently, the #MC handler calls out to a number of external facilities
++ * and, therefore, allows instrumentation around them. The optimal thing to
++ * have would be to do the absolutely minimal work required in #MC context
++ * and have instrumentation disabled only around that. Further processing can
++ * then happen in process context where instrumentation is allowed. Achieving
++ * that requires careful auditing and modifications. Until then, the code
++ * allows instrumentation temporarily, where required. *
+  */
+ noinstr void do_machine_check(struct pt_regs *regs)
+ {
 
 
