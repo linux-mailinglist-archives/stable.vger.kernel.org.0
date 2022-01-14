@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F137A48E589
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:19:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FD9348E552
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:17:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239667AbiANIS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 03:18:59 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:57912 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239627AbiANISb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:18:31 -0500
+        id S238991AbiANIRR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 03:17:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49070 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239516AbiANIRQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:17:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94141C06173F;
+        Fri, 14 Jan 2022 00:17:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6561D61E09;
-        Fri, 14 Jan 2022 08:18:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 380F2C36AE9;
-        Fri, 14 Jan 2022 08:18:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D336061E0B;
+        Fri, 14 Jan 2022 08:17:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9910C36AE9;
+        Fri, 14 Jan 2022 08:17:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642148310;
-        bh=xVyVq1eMSYL4IfDOUoFOpK98Wdd/hiA0GovqU1V4Lw4=;
+        s=korg; t=1642148235;
+        bh=ODmlybYA1X7PI5hQpMANYj3jMI3VYtYjGZ0QCd3yevE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EggK+rWwn+ccAktZ9aZFod8Be/O3Hsc34Mc5WX8pq0+F7ZaOEztwIUPaL+LOG0hZT
-         x+5919UcluTSpcBon+aEhTvSu7493wM/+F3sVmPob0/sElPE1NkGQ7jnMfUwD+vQKF
-         LbbJ8yBIQM5q5Hi37xq2ToD3pKU5VnNSvPxV06W8=
+        b=dUszUmzMB7rQGCC1TK+VXt2K16d75Ud3JHvHlUbmEB4/XGQ2sjPvxKGMQDinCU9gK
+         KncWWnRcGYkTNVfo1uzWBPazAPk9Xl368KNkXmrZHWdO02f6IIUN2D4EJ6+siNNbvK
+         acSd1DPGNFvXSxn+jilBQ7UxKRyT2fKwokU7hSY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Mark-YW.Chen" <mark-yw.chen@mediatek.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 5.10 04/25] Bluetooth: btusb: fix memory leak in btusb_mtk_submit_wmt_recv_urb()
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        syzbot+3ae6a2b06f131ab9849f@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 05/18] USB: Fix "slab-out-of-bounds Write" bug in usb_hcd_poll_rh_status
 Date:   Fri, 14 Jan 2022 09:16:12 +0100
-Message-Id: <20220114081542.845951314@linuxfoundation.org>
+Message-Id: <20220114081541.645093106@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220114081542.698002137@linuxfoundation.org>
-References: <20220114081542.698002137@linuxfoundation.org>
+In-Reply-To: <20220114081541.465841464@linuxfoundation.org>
+References: <20220114081541.465841464@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,77 +47,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark-YW.Chen <mark-yw.chen@mediatek.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 60c6a63a3d3080a62f3e0e20084f58dbeff16748 upstream.
+commit 1d7d4c07932e04355d6e6528d44a2f2c9e354346 upstream.
 
-Driver should free `usb->setup_packet` to avoid the leak.
+When the USB core code for getting root-hub status reports was
+originally written, it was assumed that the hub driver would be its
+only caller.  But this isn't true now; user programs can use usbfs to
+communicate with root hubs and get status reports.  When they do this,
+they may use a transfer_buffer that is smaller than the data returned
+by the HCD, which will lead to a buffer overflow error when
+usb_hcd_poll_rh_status() tries to store the status data.  This was
+discovered by syzbot:
 
-$ cat /sys/kernel/debug/kmemleak
-unreferenced object 0xffffffa564a58080 (size 128):
-    backtrace:
-        [<000000007eb8dd70>] kmem_cache_alloc_trace+0x22c/0x384
-        [<000000008a44191d>] btusb_mtk_hci_wmt_sync+0x1ec/0x994
-    [btusb]
-        [<00000000ca7189a3>] btusb_mtk_setup+0x6b8/0x13cc
-    [btusb]
-        [<00000000c6105069>] hci_dev_do_open+0x290/0x974
-    [bluetooth]
-        [<00000000a583f8b8>] hci_power_on+0xdc/0x3cc [bluetooth]
-        [<000000005d80e687>] process_one_work+0x514/0xc80
-        [<00000000f4d57637>] worker_thread+0x818/0xd0c
-        [<00000000dc7bdb55>] kthread+0x2f8/0x3b8
-        [<00000000f9999513>] ret_from_fork+0x10/0x30
+BUG: KASAN: slab-out-of-bounds in memcpy include/linux/fortify-string.h:225 [inline]
+BUG: KASAN: slab-out-of-bounds in usb_hcd_poll_rh_status+0x5f4/0x780 drivers/usb/core/hcd.c:776
+Write of size 2 at addr ffff88801da403c0 by task syz-executor133/4062
 
-Fixes: a1c49c434e150 ("Bluetooth: btusb: Add protocol support for MediaTek MT7668U USB devices")
-Signed-off-by: Mark-YW.Chen <mark-yw.chen@mediatek.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+This patch fixes the bug by reducing the amount of status data if it
+won't fit in the transfer_buffer.  If some data gets discarded then
+the URB's completion status is set to -EOVERFLOW rather than 0, to let
+the user know what happened.
+
+Reported-and-tested-by: syzbot+3ae6a2b06f131ab9849f@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/Yc+3UIQJ2STbxNua@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bluetooth/btusb.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/core/hcd.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -2845,6 +2845,7 @@ static void btusb_mtk_wmt_recv(struct ur
- 		skb = bt_skb_alloc(HCI_WMT_MAX_EVENT_SIZE, GFP_ATOMIC);
- 		if (!skb) {
- 			hdev->stat.err_rx++;
-+			kfree(urb->setup_packet);
- 			return;
- 		}
+--- a/drivers/usb/core/hcd.c
++++ b/drivers/usb/core/hcd.c
+@@ -753,6 +753,7 @@ void usb_hcd_poll_rh_status(struct usb_h
+ {
+ 	struct urb	*urb;
+ 	int		length;
++	int		status;
+ 	unsigned long	flags;
+ 	char		buffer[6];	/* Any root hubs with > 31 ports? */
  
-@@ -2865,6 +2866,7 @@ static void btusb_mtk_wmt_recv(struct ur
- 			data->evt_skb = skb_clone(skb, GFP_ATOMIC);
- 			if (!data->evt_skb) {
- 				kfree_skb(skb);
-+				kfree(urb->setup_packet);
- 				return;
- 			}
- 		}
-@@ -2873,6 +2875,7 @@ static void btusb_mtk_wmt_recv(struct ur
- 		if (err < 0) {
- 			kfree_skb(data->evt_skb);
- 			data->evt_skb = NULL;
-+			kfree(urb->setup_packet);
- 			return;
- 		}
+@@ -770,11 +771,17 @@ void usb_hcd_poll_rh_status(struct usb_h
+ 		if (urb) {
+ 			clear_bit(HCD_FLAG_POLL_PENDING, &hcd->flags);
+ 			hcd->status_urb = NULL;
++			if (urb->transfer_buffer_length >= length) {
++				status = 0;
++			} else {
++				status = -EOVERFLOW;
++				length = urb->transfer_buffer_length;
++			}
+ 			urb->actual_length = length;
+ 			memcpy(urb->transfer_buffer, buffer, length);
  
-@@ -2883,6 +2886,7 @@ static void btusb_mtk_wmt_recv(struct ur
- 			wake_up_bit(&data->flags,
- 				    BTUSB_TX_WAIT_VND_EVT);
- 		}
-+		kfree(urb->setup_packet);
- 		return;
- 	} else if (urb->status == -ENOENT) {
- 		/* Avoid suspend failed when usb_kill_urb */
-@@ -2903,6 +2907,7 @@ static void btusb_mtk_wmt_recv(struct ur
- 	usb_anchor_urb(urb, &data->ctrl_anchor);
- 	err = usb_submit_urb(urb, GFP_ATOMIC);
- 	if (err < 0) {
-+		kfree(urb->setup_packet);
- 		/* -EPERM: urb is being killed;
- 		 * -ENODEV: device got disconnected
- 		 */
+ 			usb_hcd_unlink_urb_from_ep(hcd, urb);
+-			usb_hcd_giveback_urb(hcd, urb, 0);
++			usb_hcd_giveback_urb(hcd, urb, status);
+ 		} else {
+ 			length = 0;
+ 			set_bit(HCD_FLAG_POLL_PENDING, &hcd->flags);
 
 
