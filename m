@@ -2,128 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E58848E6CA
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:47:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 373AD48E721
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 10:09:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229798AbiANIrW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 03:47:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56702 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237173AbiANIrV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:47:21 -0500
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BAA5C061574
-        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 00:47:21 -0800 (PST)
-Received: by mail-pj1-x1033.google.com with SMTP id ie23-20020a17090b401700b001b38a5318easo13528806pjb.2
-        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 00:47:21 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=41jGen8GVr8o6/6n+srry8PpaDEKXzzan5lUvnG5A2E=;
-        b=1svRA5yUQW9BBtW6PJcivrUSIGuZA0yBOoIAEy8sNRx/MuSx/A1zyWXTJRsd7pteLC
-         ihfjg8M5Vz5gbX+QlNlzNLfyi2tUE2CYa6TyqiyiGx19H1qudaNAJ1ulwIss5F0yhzjC
-         UzjPqRpOc+Ni2SfmpMsjyu5cdIOp13nNrUhJ2/og/xyCNoC35ZOpa12Qh0XH6xTtD3Uf
-         mQet3yLjslybaQ70pm7oIOCporRvZbObmeto//UspHNifbdGYcwEEmI6NpM+gR8gWNKJ
-         1kwduzfztbX7RyWfogBjsbwIkmdMLqI+BkclXbipR2T63scnKjoUe2zMbxtVoD/Q/C+X
-         rbrQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=41jGen8GVr8o6/6n+srry8PpaDEKXzzan5lUvnG5A2E=;
-        b=n7O/eUJ57YKRTdzuXJG9Tl2qNJu/L0vpONmc5Dx1BzXWOIgGZOwZsN+RNauug3RiVY
-         tky5oFnB+pO9Xn8knCosAnvC2Kj4xWlXuZ9tzqDIiLPu+r0Gt/+TOOJn6Ffm+kS+gFnY
-         Sa95MOhnPZdDhQo256nbSfzC0jIiG3yDtCWl9+iSttBp8UQYN52QCVK4T5EXepLHFAXX
-         8HLG8e/MS2oZL9wCr5lclopzEpxzokEbO/EeHo5l8CnNMhmcv+b36ttj4zK4qSnCrF5Z
-         pEpE9n6CmPUzf63A3Le0EwQMd+MPo64hO7fyTwnPBbietQFZ+UIGVss8SB4tThBE2+4n
-         is+A==
-X-Gm-Message-State: AOAM532MCKmF3E4WDTC9dHNV9D3IbrE92nTDKZdT1ctAfAJ8ZdvDy79r
-        FcuhgCU1Zhj/QM2+JZQ9CXZgn5te6J3Ck2kun3A=
-X-Google-Smtp-Source: ABdhPJynwp0HgWn0dD7OCc0Que0Hbt8wAR03m17dcCL2fuiRpGZGvfcA9420lwsI099myDez4ix3bA==
-X-Received: by 2002:a17:90b:4f4d:: with SMTP id pj13mr14053867pjb.30.1642150040755;
-        Fri, 14 Jan 2022 00:47:20 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p15sm4936459pfh.86.2022.01.14.00.47.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Jan 2022 00:47:20 -0800 (PST)
-Message-ID: <61e13898.1c69fb81.b769f.e2b4@mx.google.com>
-Date:   Fri, 14 Jan 2022 00:47:20 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S239656AbiANJJO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 04:09:14 -0500
+Received: from relay3-d.mail.gandi.net ([217.70.183.195]:53951 "EHLO
+        relay3-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239652AbiANJJL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 04:09:11 -0500
+Received: (Authenticated sender: alex@ghiti.fr)
+        by relay3-d.mail.gandi.net (Postfix) with ESMTPSA id B690460003;
+        Fri, 14 Jan 2022 09:09:04 +0000 (UTC)
+Message-ID: <d95094f8-2407-7e93-490d-94fce2af21a3@ghiti.fr>
+Date:   Fri, 14 Jan 2022 10:09:03 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.15.14-39-gc9df4d832e20
-X-Kernelci-Branch: linux-5.15.y
-Subject: stable-rc/linux-5.15.y baseline: 154 runs,
- 1 regressions (v5.15.14-39-gc9df4d832e20)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.1
+Subject: Re: [PATCH 02/12] RISC-V: MAXPHYSMEM_2GB doesn't depend on
+ CMODEL_MEDLOW
+Content-Language: en-US
+To:     Conor.Dooley@microchip.com, geert@linux-m68k.org,
+        palmer@rivosinc.com
+Cc:     linux-riscv@lists.infradead.org, paul.walmsley@sifive.com,
+        palmer@dabbelt.com, aou@eecs.berkeley.edu,
+        heinrich.schuchardt@canonical.com, bin.meng@windriver.com,
+        sagar.kadam@sifive.com, damien.lemoal@wdc.com, axboe@kernel.dk,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20211119164413.29052-1-palmer@rivosinc.com>
+ <20211119164413.29052-3-palmer@rivosinc.com>
+ <CAMuHMdXQg942-DwDBJANsFiOCqyAwCt_GwW4HuC1nh0_DNmyEQ@mail.gmail.com>
+ <232b8a0d-b25d-b942-eeec-9a67b66b81ce@microchip.com>
+From:   Alexandre ghiti <alex@ghiti.fr>
+In-Reply-To: <232b8a0d-b25d-b942-eeec-9a67b66b81ce@microchip.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.15.y baseline: 154 runs, 1 regressions (v5.15.14-39-gc9df=
-4d832e20)
+Hi Conor,
 
-Regressions Summary
--------------------
-
-platform            | arch  | lab          | compiler | defconfig | regress=
-ions
---------------------+-------+--------------+----------+-----------+--------=
-----
-r8a77950-salvator-x | arm64 | lab-baylibre | gcc-10   | defconfig | 1      =
-    =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
-nel/v5.15.14-39-gc9df4d832e20/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.15.y
-  Describe: v5.15.14-39-gc9df4d832e20
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      c9df4d832e2087ba1ddcdb5c8ea4857d1a89588f =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform            | arch  | lab          | compiler | defconfig | regress=
-ions
---------------------+-------+--------------+----------+-----------+--------=
-----
-r8a77950-salvator-x | arm64 | lab-baylibre | gcc-10   | defconfig | 1      =
-    =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e1045de2fe79f67eef674c
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
-4-39-gc9df4d832e20/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-sa=
-lvator-x.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
-4-39-gc9df4d832e20/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-sa=
-lvator-x.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/arm64/rootfs.cpio.gz =
+On 1/14/22 09:40, Conor.Dooley@microchip.com wrote:
+> On 11/01/2022 16:04, Geert Uytterhoeven wrote:
+>> EXTERNAL EMAIL: Do not click links or open attachments unless you know the content is safe
+>>
+>> Hi Palmer,
+>>
+>> On Fri, Nov 19, 2021 at 5:47 PM Palmer Dabbelt <palmer@rivosinc.com> wrote:
+>>> From: Palmer Dabbelt <palmer@rivosinc.com>
+>>>
+>>> For non-relocatable kernels we need to be able to link the kernel at
+>>> approximately PAGE_OFFSET, thus requiring medany (as medlow requires the
+>>> code to be linked within 2GiB of 0).  The inverse doesn't apply, though:
+>>> since medany code can be linked anywhere it's fine to link it close to
+>>> 0, so we can support the smaller memory config.
+>>>
+>>> Fixes: de5f4b8f634b ("RISC-V: Define MAXPHYSMEM_1GB only for RV32")
+>>> Cc: stable@vger.kernel.org
+>>> Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+>> Thanks for your patch, which is now commit 9f36b96bc70f9707 ("RISC-V:
+>> MAXPHYSMEM_2GB doesn't depend on CMODEL_MEDLOW").
+>>
+>>> I found this when going through the savedefconfig diffs for the K210
+>>> defconfigs.  I'm not entirely sure they're doing the right thing here
+>>> (they should probably be setting CMODEL_LOW to take advantage of the
+>>> better code generation), but I don't have any way to test those
+>>> platforms so I don't want to change too much.
+>> I can confirm MAXPHYSMEM_2GB works on K210 with CMODEL_MEDANY.
+>>
+>> As the Icicle has 1760 MiB of RAM, I gave it a try with MAXPHYSMEM_2GB
+>> (and CMODEL_MEDANY), too.  Unfortunately it crashes very early
+>> (needs earlycon to see):
+> Given you said 1760 MiB I assume you're not running the device tree
+> currently in the kernel?
+> But the defconfig is /arch/riscv/configs/defconfig?
+>
+> I tested it w/ my newer version of the dts, using both 1760 & 736 MiB
+> (ddrc_cache_lo only) w/ MAXPHYSMEM_2GB.
+> Enabling MAXPHYSMEM_2GB with either CMODEL_MEDANY or CMODEL_MEDLOW
+> lead to the same boot failure as you got.
 
 
+Any chance you can give a try to [1] so that I can extract it from my 
+sv48 patchset and propose it to fixes if it works?
 
-  * baseline.login: https://kernelci.org/test/case/id/61e1045de2fe79f67eef6=
-74d
-        new failure (last pass: v5.15.13-73-ge8d40b0a7738) =
+Thanks,
 
- =20
+Alex
+
+https://patchwork.kernel.org/project/linux-riscv/patch/20211206104657.433304-6-alexandre.ghiti@canonical.com/
+
+
+>>       OF: fdt: Ignoring memory range 0x80000000 - 0x80200000
+>>       Machine model: Microchip PolarFire-SoC Icicle Kit
+>>       printk: debug: ignoring loglevel setting.
+>>       earlycon: ns16550a0 at MMIO32 0x0000000020100000 (options '115200n8')
+>>       printk: bootconsole [ns16550a0] enabled
+>>       printk: debug: skip boot console de-registration.
+>>       efi: UEFI not found.
+>>       Unable to handle kernel paging request at virtual address ffffffff87e00001
+>>       Oops [#1]
+>>       Modules linked in:
+>>       CPU: 0 PID: 0 Comm: swapper Not tainted 5.16.0-08771-g85515233477d #56
+>>       Hardware name: Microchip PolarFire-SoC Icicle Kit (DT)
+>>       epc : fdt_check_header+0x14/0x208
+>>        ra : early_init_dt_verify+0x16/0x94
+>>       epc : ffffffff802ddacc ra : ffffffff8082415a sp : ffffffff81203ee0
+>>        gp : ffffffff812ec3a8 tp : ffffffff8120cd80 t0 : 0000000000000005
+>>        t1 : 0000001040000000 t2 : ffffffff80000000 s0 : ffffffff81203f00
+>>        s1 : ffffffff87e00000 a0 : ffffffff87e00000 a1 : 000000040ffffce7
+>>        a2 : 00000000000000e7 a3 : ffffffff8080394c a4 : 0000000000000000
+>>        a5 : 0000000000000000 a6 : 0000000000000000 a7 : 0000000000000000
+>>        s2 : ffffffff81203f98 s3 : 8000000a00006800 s4 : fffffffffffffff3
+>>        s5 : 0000000000000000 s6 : 0000000000000001 s7 : 0000000000000000
+>>        s8 : 0000000020236c20 s9 : 0000000000000000 s10: 0000000000000000
+>>        s11: 0000000000000000 t3 : 0000000000000018 t4 : 00ff000000000000
+>>        t5 : 0000000000000000 t6 : 0000000000000010
+>>       status: 0000000200000100 badaddr: ffffffff87e00001 cause: 000000000000000d
+>>       [<ffffffff802ddacc>] fdt_check_header+0x14/0x208
+>>       [<ffffffff8082415a>] early_init_dt_verify+0x16/0x94
+>>       [<ffffffff80802dee>] setup_arch+0xec/0x4ec
+>>       [<ffffffff80800700>] start_kernel+0x88/0x6d6
+>>       random: get_random_bytes called from
+>> print_oops_end_marker+0x22/0x44 with crng_init=0
+>>       ---[ end trace 903df1a0ade0b876 ]---
+>>       Kernel panic - not syncing: Attempted to kill the idle task!
+>>       ---[ end Kernel panic - not syncing: Attempted to kill the idle task! ]---
+>>
+>> So the FDT is at 0xffffffff87e00000, i.e. at 0x7e00000 from the start
+>> of virtual memory (CONFIG_PAGE_OFFSET=0xffffffff80000000), and thus
+>> within the 2 GiB range.
+>>
+>>> --- a/arch/riscv/Kconfig
+>>> +++ b/arch/riscv/Kconfig
+>>> @@ -280,7 +280,7 @@ choice
+>>>                   depends on 32BIT
+>>>                   bool "1GiB"
+>>>           config MAXPHYSMEM_2GB
+>>> -               depends on 64BIT && CMODEL_MEDLOW
+>>> +               depends on 64BIT
+>>>                   bool "2GiB"
+>>>           config MAXPHYSMEM_128GB
+>>>                   depends on 64BIT && CMODEL_MEDANY
+>> Gr{oetje,eeting}s,
+>>
+>>                           Geert
+>>
+>> --
+>> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+>>
+>> In personal conversations with technical people, I call myself a hacker. But
+>> when I'm talking to journalists I just say "programmer" or something like that.
+>>                                   -- Linus Torvalds
+>>
+>> _______________________________________________
+>> linux-riscv mailing list
+>> linux-riscv@lists.infradead.org
+>> http://lists.infradead.org/mailman/listinfo/linux-riscv
+>>
+> _______________________________________________
+> linux-riscv mailing list
+> linux-riscv@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-riscv
