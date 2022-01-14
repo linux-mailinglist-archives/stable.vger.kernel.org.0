@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59D5F48E631
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:25:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96E1748E60B
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:22:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240512AbiANIYS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 03:24:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50310 "EHLO
+        id S240233AbiANIW6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 03:22:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240515AbiANIW3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:22:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03ECCC061381;
-        Fri, 14 Jan 2022 00:22:05 -0800 (PST)
+        with ESMTP id S240318AbiANIVf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:21:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05E0EC06175A;
+        Fri, 14 Jan 2022 00:21:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B6B14B82432;
-        Fri, 14 Jan 2022 08:22:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE063C36AEA;
-        Fri, 14 Jan 2022 08:22:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BA3261E45;
+        Fri, 14 Jan 2022 08:21:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77D5BC36AEC;
+        Fri, 14 Jan 2022 08:21:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642148522;
-        bh=PqTjD/Nbf5u8y6yLhStG0y8yvB+cexBcboNJqtvmuLk=;
+        s=korg; t=1642148487;
+        bh=PWIEp0SwuyloDQYdOwsvlH39NhqCKMKAkhMQuOyesRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B5Bhp9Krnu3eiYlfnIVE8cuQrhonhWxBKxxYvMQ8Z3uGOai6ApUDUbrpaxKY4vGgQ
-         Yp6taBbnhKAmTzk20JSzcme/mcnQeihgaPQ8qiviAEk7b1xMmL/6+v1s2KKL95rN2v
-         z3qWAbyODg82Ov+6Dz0kpUNnUraxLmGdTxETiUW4=
+        b=ZLxuV/vUEuIMDN/sSpILI2/z86C6TpxH74xp+bLzYI5OI981qQLMs7JzLq+UXZ4fB
+         dlVlV+RCULhQTLc2fL21T2harWNNT+/7o9pxqJqUUuqZYM2cWLcQt2u/5v4gmE9Jvj
+         zZ9N1MBARpJPVePwG70NuBWj0eJP/My+U9uvOJ2k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan McDowell <noodles@earth.li>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 5.16 17/37] USB: core: Fix bug in resuming hubs handling of wakeup requests
-Date:   Fri, 14 Jan 2022 09:16:31 +0100
-Message-Id: <20220114081545.416350135@linuxfoundation.org>
+        stable@vger.kernel.org, Oliver Hartkopp <socketcan@hartkopp.net>,
+        syzbot+4c63f36709a642f801c5@syzkaller.appspotmail.com,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.15 32/41] can: isotp: convert struct tpcon::{idx,len} to unsigned int
+Date:   Fri, 14 Jan 2022 09:16:32 +0100
+Message-Id: <20220114081546.236665396@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220114081544.849748488@linuxfoundation.org>
-References: <20220114081544.849748488@linuxfoundation.org>
+In-Reply-To: <20220114081545.158363487@linuxfoundation.org>
+References: <20220114081545.158363487@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,69 +48,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-commit 0f663729bb4afc92a9986b66131ebd5b8a9254d1 upstream.
+commit 5f33a09e769a9da0482f20a6770a342842443776 upstream.
 
-Bugzilla #213839 reports a 7-port hub that doesn't work properly when
-devices are plugged into some of the ports; the kernel goes into an
-unending disconnect/reinitialize loop as shown in the bug report.
+In isotp_rcv_ff() 32 bit of data received over the network is assigned
+to struct tpcon::len. Later in that function the length is checked for
+the maximal supported length against MAX_MSG_LENGTH.
 
-This "7-port hub" comprises two four-port hubs with one plugged into
-the other; the failures occur when a device is plugged into one of the
-downstream hub's ports.  (These hubs have other problems too.  For
-example, they bill themselves as USB-2.0 compliant but they only run
-at full speed.)
+As struct tpcon::len is an "int" this check does not work, if the
+provided length overflows the "int".
 
-It turns out that the failures are caused by bugs in both the kernel
-and the hub.  The hub's bug is that it reports a different
-bmAttributes value in its configuration descriptor following a remote
-wakeup (0xe0 before, 0xc0 after -- the wakeup-support bit has
-changed).
+Later on struct tpcon::idx is compared against struct tpcon::len.
 
-The kernel's bug is inside the hub driver's resume handler.  When
-hub_activate() sees that one of the hub's downstream ports got a
-wakeup request from a child device, it notes this fact by setting the
-corresponding bit in the hub->change_bits variable.  But this variable
-is meant for connection changes, not wakeup events; setting it causes
-the driver to believe the downstream port has been disconnected and
-then connected again (in addition to having received a wakeup
-request).
+To fix this problem this patch converts both struct tpcon::{idx,len}
+to unsigned int.
 
-Because of this, the hub driver then tries to check whether the device
-currently plugged into the downstream port is the same as the device
-that had been attached there before.  Normally this check succeeds and
-wakeup handling continues with no harm done (which is why the bug
-remained undetected until now).  But with these dodgy hubs, the check
-fails because the config descriptor has changed.  This causes the hub
-driver to reinitialize the child device, leading to the
-disconnect/reinitialize loop described in the bug report.
-
-The proper way to note reception of a downstream wakeup request is
-to set a bit in the hub->event_bits variable instead of
-hub->change_bits.  That way the hub driver will realize that something
-has happened to the port but will not think the port and child device
-have been disconnected.  This patch makes that change.
-
-Cc: <stable@vger.kernel.org>
-Tested-by: Jonathan McDowell <noodles@earth.li>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/YdCw7nSfWYPKWQoD@rowland.harvard.edu
+Fixes: e057dd3fc20f ("can: add ISO 15765-2:2016 transport protocol")
+Link: https://lore.kernel.org/all/20220105132429.1170627-1-mkl@pengutronix.de
+Cc: stable@vger.kernel.org
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Reported-by: syzbot+4c63f36709a642f801c5@syzkaller.appspotmail.com
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hub.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/can/isotp.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -1225,7 +1225,7 @@ static void hub_activate(struct usb_hub
- 			 */
- 			if (portchange || (hub_is_superspeed(hub->hdev) &&
- 						port_resumed))
--				set_bit(port1, hub->change_bits);
-+				set_bit(port1, hub->event_bits);
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -119,8 +119,8 @@ enum {
+ };
  
- 		} else if (udev->persist_enabled) {
- #ifdef CONFIG_PM
+ struct tpcon {
+-	int idx;
+-	int len;
++	unsigned int idx;
++	unsigned int len;
+ 	u32 state;
+ 	u8 bs;
+ 	u8 sn;
 
 
