@@ -2,137 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D723048E211
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 02:17:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4A7F48E24B
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 02:53:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235888AbiANBQB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jan 2022 20:16:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41070 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230237AbiANBQA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jan 2022 20:16:00 -0500
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 352DDC061574
-        for <stable@vger.kernel.org>; Thu, 13 Jan 2022 17:16:00 -0800 (PST)
-Received: by mail-pj1-x1033.google.com with SMTP id o3so12086372pjs.1
-        for <stable@vger.kernel.org>; Thu, 13 Jan 2022 17:16:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=0alLbFEoGjw9tJtxOhvE2AI3s31uAuIl3q3ROcIj3xQ=;
-        b=2/bvrZstw5A9wx7OtT2TooWdCVFQfL33DX+qLeMkiq6lfsrPGJM0npA3i9D8vBatR1
-         5yXxNRdmoDcYSuB6CNADxUQSZmebFQcn7vg6BSH1FzKTeDOadlfNKu3qTu680rIpeU+1
-         miNWAvgUMkw+c4JkYmgzsQNEObnmpo5ekiUZMrMtmOQrBSgieYBFviT3pzOcc9wW+45i
-         orpMV6v+SsClyd0qwmEf6Im7AoIS6stnDWsiDZGCG2O3ncb6MB5TKhmsji8aqC68775I
-         e3rpTrTvbx5MXxd018PgJE6XEHVb73cgVGNHzdpel9tgUM1sMdhCGe7yvQJLxoMOVxKe
-         UWJA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=0alLbFEoGjw9tJtxOhvE2AI3s31uAuIl3q3ROcIj3xQ=;
-        b=LldZxHWrB6xGDSLZl2cBkhsEubTGI1TXYxIHWcg4W1Aj5xn+maoJGHFUMILCwaimz4
-         AG0tIPIOyC0x1vxru30O8wAv95UZaqjjE3BJpV4bYGuW5ySw/vZPIahZViamzrDE2u+l
-         1bJ++5hkvgbDsUcwRi7DVh8zTmUSaWrnyEUla5nTC7JxaXZPsqo0pMYh3CODy818OUM1
-         ou59Bj9UFk2wxDchrEnl6FbmFP0gfIq45a/4D+sO0tAC0YO4xELe0x3Jhbw5ZXj04ose
-         PyAu/uhF45ZKg4TNC/GMpHtOuBdUJMNqKnFGN5VcLGY3/ImWyKGpfWuGsgMTpUtVmbAt
-         1bcw==
-X-Gm-Message-State: AOAM532BiyyMTMhzUdTaSffy6z6D80xpBgwNa5PNfRSZqR80LFf+ggSG
-        xbyVz6AMjwUUnqAeKWLQXukr0Gvhm+PWbaL3mnY=
-X-Google-Smtp-Source: ABdhPJwFHaFJKMSNawlan71Zh5WKCDOIGNXC1aYb6c3Jt8igxwHdqtCmNcCoGS18zP0X2L8HHw94cw==
-X-Received: by 2002:a17:903:2352:b0:14a:b4a:4629 with SMTP id c18-20020a170903235200b0014a0b4a4629mr7151928plh.45.1642122959091;
-        Thu, 13 Jan 2022 17:15:59 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id ne14sm9043331pjb.19.2022.01.13.17.15.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Jan 2022 17:15:58 -0800 (PST)
-Message-ID: <61e0cece.1c69fb81.87803.82b4@mx.google.com>
-Date:   Thu, 13 Jan 2022 17:15:58 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.297-8-gf00efb3d95ae
-X-Kernelci-Branch: queue/4.9
-Subject: stable-rc/queue/4.9 baseline: 114 runs,
- 1 regressions (v4.9.297-8-gf00efb3d95ae)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+        id S238672AbiANBxP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jan 2022 20:53:15 -0500
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:53170 "EHLO
+        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229808AbiANBxP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Jan 2022 20:53:15 -0500
+Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20E1pbJZ006919;
+        Fri, 14 Jan 2022 01:53:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
+ from : to : cc : date : in-reply-to : references : content-type :
+ mime-version : content-transfer-encoding; s=pp1;
+ bh=JcIci3AxnUW4yvMJHng9Li4Rw+AsTCwVPvc5ny10ma4=;
+ b=j7PTJPEAUUFvDyVz3EWJScaPeAbWTgjN0UpVeEwo9PQBQZh+Wslf34zDi5K0v0EuygDZ
+ ZZmragRWVBUzjkluIpH7hU4NgnW6qnvh5KwKzWo9LjL1Y7cs3Iy6GVF51YF2GanGI7cV
+ JYrMSkMpTI+0so7iGsgECtWRJImlwR8DjuF0fAdNB5ahs2t+0za2d9LigfZFEzJRIATk
+ 3w/sGuiS1SbLy7QQNsh7Mvm3gs6sPHD4QkvGr4RBYspAC97fPUqN4m5MEMT5CdCyW9L1
+ /XeWZAkgCXNThbi0WUfpcKaP2363nZad0vACgZcpcEG4zAGwIHP6tMDV0KMtlHur/XCI Cg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3djyvr80n7-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 14 Jan 2022 01:53:06 +0000
+Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20E1pa54006783;
+        Fri, 14 Jan 2022 01:53:05 GMT
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 3djyvr80mt-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 14 Jan 2022 01:53:05 +0000
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20E1lVpR024026;
+        Fri, 14 Jan 2022 01:53:03 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma04fra.de.ibm.com with ESMTP id 3df28a7rnu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 14 Jan 2022 01:53:03 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20E1r1cH38732274
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 14 Jan 2022 01:53:01 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 6898211C058;
+        Fri, 14 Jan 2022 01:53:01 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 12BC111C05E;
+        Fri, 14 Jan 2022 01:53:00 +0000 (GMT)
+Received: from sig-9-65-76-253.ibm.com (unknown [9.65.76.253])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Fri, 14 Jan 2022 01:52:59 +0000 (GMT)
+Message-ID: <55c5576db2bb0f8a2b9d509f4d1160911388fa41.camel@linux.ibm.com>
+Subject: Re: [PATCH] ima: fix reference leak in asymmetric_verify()
+From:   Mimi Zohar <zohar@linux.ibm.com>
+To:     Eric Biggers <ebiggers@kernel.org>,
+        linux-integrity@vger.kernel.org,
+        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>
+Cc:     keyrings@vger.kernel.org, Vitaly Chikunov <vt@altlinux.org>,
+        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
+        Stefan Berger <stefanb@linux.ibm.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org
+Date:   Thu, 13 Jan 2022 20:52:59 -0500
+In-Reply-To: <20220113194438.69202-1-ebiggers@kernel.org>
+References: <20220113194438.69202-1-ebiggers@kernel.org>
+Content-Type: text/plain; charset="ISO-8859-15"
+X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
+Mime-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: WgYj4asX8fmvzEP5hTnXD2QokhNzji6-
+X-Proofpoint-GUID: afQ1f_8IqhHu0nCkg1aclmYtO7gg4L2y
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-13_10,2022-01-13_01,2021-12-02_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0
+ malwarescore=0 adultscore=0 lowpriorityscore=0 priorityscore=1501
+ mlxscore=0 suspectscore=0 phishscore=0 mlxlogscore=769 clxscore=1011
+ bulkscore=0 spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2110150000 definitions=main-2201140007
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 114 runs, 1 regressions (v4.9.297-8-gf00efb3d=
-95ae)
+Hi Eric,
 
-Regressions Summary
--------------------
+On Thu, 2022-01-13 at 11:44 -0800, Eric Biggers wrote:
+> From: Eric Biggers <ebiggers@google.com>
+> 
+> Don't leak a reference to the key if its algorithm is unknown.
+> 
+> Fixes: 947d70597236 ("ima: Support EC keys for signature verification")
+> Cc: <stable@vger.kernel.org> # v5.13+
+> Signed-off-by: Eric Biggers <ebiggers@google.com>
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
 
+thanks,
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.297-8-gf00efb3d95ae/plan/baseline/
+Mimi
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.297-8-gf00efb3d95ae
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      f00efb3d95ae25468c92925994874a10260c170a =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e09e00448091212bef676f
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.297-8=
--gf00efb3d95ae/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.297-8=
--gf00efb3d95ae/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61e09e004480912=
-12bef6772
-        failing since 2 days (last pass: v4.9.296-21-ga5ed12cbefc0, first f=
-ail: v4.9.296-21-gd19aa36b7387)
-        2 lines
-
-    2022-01-13T21:47:26.341690  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/122
-    2022-01-13T21:47:26.351091  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-230 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
-    2022-01-13T21:47:26.366332  [   20.202972] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
