@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2787C48E5DD
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:22:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A08B948E659
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:26:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239826AbiANIVl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 03:21:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50150 "EHLO
+        id S239935AbiANI0f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 03:26:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50060 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239834AbiANIUn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:20:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B481FC061771;
-        Fri, 14 Jan 2022 00:20:42 -0800 (PST)
+        with ESMTP id S240539AbiANIWo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:22:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10970C061774;
+        Fri, 14 Jan 2022 00:22:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7EB9BB8243E;
-        Fri, 14 Jan 2022 08:20:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C01FFC36AEA;
-        Fri, 14 Jan 2022 08:20:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A502861E32;
+        Fri, 14 Jan 2022 08:22:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DCCBC36AEA;
+        Fri, 14 Jan 2022 08:22:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642148440;
-        bh=nXA5uw1BJBunp6rPpvxLD5f0Asl2qjtB4n828pX/x0c=;
+        s=korg; t=1642148535;
+        bh=ecaxMAc/fJqvTWUS19QrS5lnt1Z0CANOujj/SmeoIA4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KDwyGfoAAubly9akiouucQpyRY6IYqCo60K+2qMD+sbZr8hPLgBzieinP0bb34Bej
-         4g/2OHnPgZcpYa9aGLSdKaYJKmBiog/DQ4Xv8TkFvGLY+EEH43x7ILRx36epfOeIN8
-         pU8OgOCOBdeVrigLZ6dLcM98ES0recjDwvMoeUuY=
+        b=p4A8pJqbQMCQq+0GoAzgGRY5Ogs9r+c6Yivnemmw6ox5JRwMfIuPOI/9JUbwKjzvK
+         uFCW8dPAfjNV/JxkLQ3p3qkhpxaXMNHrvZXi5iUBr9LEp3otbYz6CDr+MbNxfavflb
+         nGVNdOfeujZympHaGypgDcjIQOpgaedke3LkcazY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 5.15 34/41] random: fix data race on crng_node_pool
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.16 20/37] mmc: sdhci-pci: Add PCI ID for Intel ADL
 Date:   Fri, 14 Jan 2022 09:16:34 +0100
-Message-Id: <20220114081546.300941483@linuxfoundation.org>
+Message-Id: <20220114081545.511283966@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220114081545.158363487@linuxfoundation.org>
-References: <20220114081545.158363487@linuxfoundation.org>
+In-Reply-To: <20220114081544.849748488@linuxfoundation.org>
+References: <20220114081544.849748488@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,106 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit 5d73d1e320c3fd94ea15ba5f79301da9a8bcc7de upstream.
+commit e53e97f805cb1abeea000a61549d42f92cb10804 upstream.
 
-extract_crng() and crng_backtrack_protect() load crng_node_pool with a
-plain load, which causes undefined behavior if do_numa_crng_init()
-modifies it concurrently.
+Add PCI ID for Intel ADL eMMC host controller.
 
-Fix this by using READ_ONCE().  Note: as per the previous discussion
-https://lore.kernel.org/lkml/20211219025139.31085-1-ebiggers@kernel.org/T/#u,
-READ_ONCE() is believed to be sufficient here, and it was requested that
-it be used here instead of smp_load_acquire().
-
-Also change do_numa_crng_init() to set crng_node_pool using
-cmpxchg_release() instead of mb() + cmpxchg(), as the former is
-sufficient here but is more lightweight.
-
-Fixes: 1e7f583af67b ("random: make /dev/urandom scalable for silly userspace programs")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Link: https://lore.kernel.org/r/20211124094850.1783220-1-adrian.hunter@intel.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/random.c |   42 ++++++++++++++++++++++--------------------
- 1 file changed, 22 insertions(+), 20 deletions(-)
+ drivers/mmc/host/sdhci-pci-core.c |    1 +
+ drivers/mmc/host/sdhci-pci.h      |    1 +
+ 2 files changed, 2 insertions(+)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -843,8 +843,8 @@ static void do_numa_crng_init(struct wor
- 		crng_initialize_secondary(crng);
- 		pool[i] = crng;
- 	}
--	mb();
--	if (cmpxchg(&crng_node_pool, NULL, pool)) {
-+	/* pairs with READ_ONCE() in select_crng() */
-+	if (cmpxchg_release(&crng_node_pool, NULL, pool) != NULL) {
- 		for_each_node(i)
- 			kfree(pool[i]);
- 		kfree(pool);
-@@ -857,8 +857,26 @@ static void numa_crng_init(void)
- {
- 	schedule_work(&numa_crng_init_work);
- }
-+
-+static struct crng_state *select_crng(void)
-+{
-+	struct crng_state **pool;
-+	int nid = numa_node_id();
-+
-+	/* pairs with cmpxchg_release() in do_numa_crng_init() */
-+	pool = READ_ONCE(crng_node_pool);
-+	if (pool && pool[nid])
-+		return pool[nid];
-+
-+	return &primary_crng;
-+}
- #else
- static void numa_crng_init(void) {}
-+
-+static struct crng_state *select_crng(void)
-+{
-+	return &primary_crng;
-+}
- #endif
+--- a/drivers/mmc/host/sdhci-pci-core.c
++++ b/drivers/mmc/host/sdhci-pci-core.c
+@@ -1866,6 +1866,7 @@ static const struct pci_device_id pci_id
+ 	SDHCI_PCI_DEVICE(INTEL, JSL_SD,    intel_byt_sd),
+ 	SDHCI_PCI_DEVICE(INTEL, LKF_EMMC,  intel_glk_emmc),
+ 	SDHCI_PCI_DEVICE(INTEL, LKF_SD,    intel_byt_sd),
++	SDHCI_PCI_DEVICE(INTEL, ADL_EMMC,  intel_glk_emmc),
+ 	SDHCI_PCI_DEVICE(O2, 8120,     o2),
+ 	SDHCI_PCI_DEVICE(O2, 8220,     o2),
+ 	SDHCI_PCI_DEVICE(O2, 8221,     o2),
+--- a/drivers/mmc/host/sdhci-pci.h
++++ b/drivers/mmc/host/sdhci-pci.h
+@@ -59,6 +59,7 @@
+ #define PCI_DEVICE_ID_INTEL_JSL_SD	0x4df8
+ #define PCI_DEVICE_ID_INTEL_LKF_EMMC	0x98c4
+ #define PCI_DEVICE_ID_INTEL_LKF_SD	0x98f8
++#define PCI_DEVICE_ID_INTEL_ADL_EMMC	0x54c4
  
- /*
-@@ -1005,15 +1023,7 @@ static void _extract_crng(struct crng_st
- 
- static void extract_crng(__u8 out[CHACHA_BLOCK_SIZE])
- {
--	struct crng_state *crng = NULL;
--
--#ifdef CONFIG_NUMA
--	if (crng_node_pool)
--		crng = crng_node_pool[numa_node_id()];
--	if (crng == NULL)
--#endif
--		crng = &primary_crng;
--	_extract_crng(crng, out);
-+	_extract_crng(select_crng(), out);
- }
- 
- /*
-@@ -1042,15 +1052,7 @@ static void _crng_backtrack_protect(stru
- 
- static void crng_backtrack_protect(__u8 tmp[CHACHA_BLOCK_SIZE], int used)
- {
--	struct crng_state *crng = NULL;
--
--#ifdef CONFIG_NUMA
--	if (crng_node_pool)
--		crng = crng_node_pool[numa_node_id()];
--	if (crng == NULL)
--#endif
--		crng = &primary_crng;
--	_crng_backtrack_protect(crng, tmp, used);
-+	_crng_backtrack_protect(select_crng(), tmp, used);
- }
- 
- static ssize_t extract_crng_user(void __user *buf, size_t nbytes)
+ #define PCI_DEVICE_ID_SYSKONNECT_8000	0x8000
+ #define PCI_DEVICE_ID_VIA_95D0		0x95d0
 
 
