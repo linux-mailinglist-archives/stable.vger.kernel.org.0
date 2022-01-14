@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C7C448E579
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:19:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38D7A48E54C
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:17:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239755AbiANISV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 03:18:21 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:59010 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239655AbiANISE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:18:04 -0500
+        id S229515AbiANIRJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 03:17:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49022 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236783AbiANIRI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:17:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57354C061574;
+        Fri, 14 Jan 2022 00:17:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BB53B82439;
-        Fri, 14 Jan 2022 08:18:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9255C36AEA;
-        Fri, 14 Jan 2022 08:18:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1253CB82434;
+        Fri, 14 Jan 2022 08:17:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D60CC36AE9;
+        Fri, 14 Jan 2022 08:17:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642148282;
-        bh=qEKH8Hv6tCFOyHN7M0/KuxWJ4wmjMiLR2Q83GKs74Ec=;
+        s=korg; t=1642148225;
+        bh=iX52VoNb/VAL7lxVlwcWtZMByhicAo7V/IhRaNmpm4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hw8O/nUlLnbLLETkKpLQeao5PK8BFAH9wghbAPzcoefG8Ham2u3tbwAtU0g0dyr5C
-         Mm/3XkkmnjAejnO1m2bNwpupR97N2alKzSKfenPAewQJErM2cRFJzxp6awR/mNovTY
-         UR2k3w7Vy7xl0MhXyce73aoT1biL/6XvopKHc28U=
+        b=MpvCpDVxrJjhn55+vvboaTVvVRkYe32bTsCtgNtYlIEYCA4EkvyZ2s2fEwrkkbsN4
+         M6nH0A4XCfumd48CPL5HPvkPkVwul0PuldKotaAfvAE8tEP51RvkXazq6vMQGP6Nmi
+         RHloB5WWRqEw902yV6EUfwBvl+cyDtbI45nyc7i4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guoqing Jiang <jiangguoqing@kylinos.cn>,
-        Song Liu <song@kernel.org>,
-        Guillaume Morin <guillaume@morinfr.org>
-Subject: [PATCH 5.10 01/25] md: revert io stats accounting
+        stable@vger.kernel.org, "Mark-YW.Chen" <mark-yw.chen@mediatek.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 5.4 02/18] Bluetooth: btusb: fix memory leak in btusb_mtk_submit_wmt_recv_urb()
 Date:   Fri, 14 Jan 2022 09:16:09 +0100
-Message-Id: <20220114081542.746291845@linuxfoundation.org>
+Message-Id: <20220114081541.543510057@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220114081542.698002137@linuxfoundation.org>
-References: <20220114081542.698002137@linuxfoundation.org>
+In-Reply-To: <20220114081541.465841464@linuxfoundation.org>
+References: <20220114081541.465841464@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,134 +47,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guoqing Jiang <jgq516@gmail.com>
+From: Mark-YW.Chen <mark-yw.chen@mediatek.com>
 
-commit ad3fc798800fb7ca04c1dfc439dba946818048d8 upstream.
+commit 60c6a63a3d3080a62f3e0e20084f58dbeff16748 upstream.
 
-The commit 41d2d848e5c0 ("md: improve io stats accounting") could cause
-double fault problem per the report [1], and also it is not correct to
-change ->bi_end_io if md don't own it, so let's revert it.
+Driver should free `usb->setup_packet` to avoid the leak.
 
-And io stats accounting will be replemented in later commits.
+$ cat /sys/kernel/debug/kmemleak
+unreferenced object 0xffffffa564a58080 (size 128):
+    backtrace:
+        [<000000007eb8dd70>] kmem_cache_alloc_trace+0x22c/0x384
+        [<000000008a44191d>] btusb_mtk_hci_wmt_sync+0x1ec/0x994
+    [btusb]
+        [<00000000ca7189a3>] btusb_mtk_setup+0x6b8/0x13cc
+    [btusb]
+        [<00000000c6105069>] hci_dev_do_open+0x290/0x974
+    [bluetooth]
+        [<00000000a583f8b8>] hci_power_on+0xdc/0x3cc [bluetooth]
+        [<000000005d80e687>] process_one_work+0x514/0xc80
+        [<00000000f4d57637>] worker_thread+0x818/0xd0c
+        [<00000000dc7bdb55>] kthread+0x2f8/0x3b8
+        [<00000000f9999513>] ret_from_fork+0x10/0x30
 
-[1]. https://lore.kernel.org/linux-raid/3bf04253-3fad-434a-63a7-20214e38cf26@gmail.com/T/#t
-
-Fixes: 41d2d848e5c0 ("md: improve io stats accounting")
-Signed-off-by: Guoqing Jiang <jiangguoqing@kylinos.cn>
-Signed-off-by: Song Liu <song@kernel.org>
-[GM: backport to 5.10-stable]
-Signed-off-by: Guillaume Morin <guillaume@morinfr.org>
+Fixes: a1c49c434e150 ("Bluetooth: btusb: Add protocol support for MediaTek MT7668U USB devices")
+Signed-off-by: Mark-YW.Chen <mark-yw.chen@mediatek.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/md.c |   57 +++++++++++---------------------------------------------
- drivers/md/md.h |    1 
- 2 files changed, 12 insertions(+), 46 deletions(-)
+ drivers/bluetooth/btusb.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -459,34 +459,12 @@ check_suspended:
- }
- EXPORT_SYMBOL(md_handle_request);
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -2568,6 +2568,7 @@ static void btusb_mtk_wmt_recv(struct ur
+ 		skb = bt_skb_alloc(HCI_WMT_MAX_EVENT_SIZE, GFP_ATOMIC);
+ 		if (!skb) {
+ 			hdev->stat.err_rx++;
++			kfree(urb->setup_packet);
+ 			return;
+ 		}
  
--struct md_io {
--	struct mddev *mddev;
--	bio_end_io_t *orig_bi_end_io;
--	void *orig_bi_private;
--	unsigned long start_time;
--	struct hd_struct *part;
--};
--
--static void md_end_io(struct bio *bio)
--{
--	struct md_io *md_io = bio->bi_private;
--	struct mddev *mddev = md_io->mddev;
--
--	part_end_io_acct(md_io->part, bio, md_io->start_time);
--
--	bio->bi_end_io = md_io->orig_bi_end_io;
--	bio->bi_private = md_io->orig_bi_private;
--
--	mempool_free(md_io, &mddev->md_io_pool);
--
--	if (bio->bi_end_io)
--		bio->bi_end_io(bio);
--}
--
- static blk_qc_t md_submit_bio(struct bio *bio)
- {
- 	const int rw = bio_data_dir(bio);
-+	const int sgrp = op_stat_group(bio_op(bio));
- 	struct mddev *mddev = bio->bi_disk->private_data;
-+	unsigned int sectors;
+@@ -2588,6 +2589,7 @@ static void btusb_mtk_wmt_recv(struct ur
+ 			data->evt_skb = skb_clone(skb, GFP_ATOMIC);
+ 			if (!data->evt_skb) {
+ 				kfree_skb(skb);
++				kfree(urb->setup_packet);
+ 				return;
+ 			}
+ 		}
+@@ -2596,6 +2598,7 @@ static void btusb_mtk_wmt_recv(struct ur
+ 		if (err < 0) {
+ 			kfree_skb(data->evt_skb);
+ 			data->evt_skb = NULL;
++			kfree(urb->setup_packet);
+ 			return;
+ 		}
  
- 	if (mddev == NULL || mddev->pers == NULL) {
- 		bio_io_error(bio);
-@@ -507,26 +485,21 @@ static blk_qc_t md_submit_bio(struct bio
- 		return BLK_QC_T_NONE;
- 	}
- 
--	if (bio->bi_end_io != md_end_io) {
--		struct md_io *md_io;
--
--		md_io = mempool_alloc(&mddev->md_io_pool, GFP_NOIO);
--		md_io->mddev = mddev;
--		md_io->orig_bi_end_io = bio->bi_end_io;
--		md_io->orig_bi_private = bio->bi_private;
--
--		bio->bi_end_io = md_end_io;
--		bio->bi_private = md_io;
--
--		md_io->start_time = part_start_io_acct(mddev->gendisk,
--						       &md_io->part, bio);
--	}
--
-+	/*
-+	 * save the sectors now since our bio can
-+	 * go away inside make_request
-+	 */
-+	sectors = bio_sectors(bio);
- 	/* bio could be mergeable after passing to underlayer */
- 	bio->bi_opf &= ~REQ_NOMERGE;
- 
- 	md_handle_request(mddev, bio);
- 
-+	part_stat_lock();
-+	part_stat_inc(&mddev->gendisk->part0, ios[sgrp]);
-+	part_stat_add(&mddev->gendisk->part0, sectors[sgrp], sectors);
-+	part_stat_unlock();
-+
- 	return BLK_QC_T_NONE;
- }
- 
-@@ -5636,7 +5609,6 @@ static void md_free(struct kobject *ko)
- 
- 	bioset_exit(&mddev->bio_set);
- 	bioset_exit(&mddev->sync_set);
--	mempool_exit(&mddev->md_io_pool);
- 	kfree(mddev);
- }
- 
-@@ -5732,11 +5704,6 @@ static int md_alloc(dev_t dev, char *nam
+@@ -2606,6 +2609,7 @@ static void btusb_mtk_wmt_recv(struct ur
+ 			wake_up_bit(&data->flags,
+ 				    BTUSB_TX_WAIT_VND_EVT);
+ 		}
++		kfree(urb->setup_packet);
+ 		return;
+ 	} else if (urb->status == -ENOENT) {
+ 		/* Avoid suspend failed when usb_kill_urb */
+@@ -2626,6 +2630,7 @@ static void btusb_mtk_wmt_recv(struct ur
+ 	usb_anchor_urb(urb, &data->ctrl_anchor);
+ 	err = usb_submit_urb(urb, GFP_ATOMIC);
+ 	if (err < 0) {
++		kfree(urb->setup_packet);
+ 		/* -EPERM: urb is being killed;
+ 		 * -ENODEV: device got disconnected
  		 */
- 		mddev->hold_active = UNTIL_STOP;
- 
--	error = mempool_init_kmalloc_pool(&mddev->md_io_pool, BIO_POOL_SIZE,
--					  sizeof(struct md_io));
--	if (error)
--		goto abort;
--
- 	error = -ENOMEM;
- 	mddev->queue = blk_alloc_queue(NUMA_NO_NODE);
- 	if (!mddev->queue)
---- a/drivers/md/md.h
-+++ b/drivers/md/md.h
-@@ -487,7 +487,6 @@ struct mddev {
- 	struct bio_set			sync_set; /* for sync operations like
- 						   * metadata and bitmap writes
- 						   */
--	mempool_t			md_io_pool;
- 
- 	/* Generic flush handling.
- 	 * The last to finish preflush schedules a worker to submit
 
 
