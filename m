@@ -2,172 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09FEB48E16E
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 01:20:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C13C48E176
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 01:28:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238364AbiANAUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jan 2022 19:20:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56930 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232240AbiANAUP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 13 Jan 2022 19:20:15 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3F6EC061574
-        for <stable@vger.kernel.org>; Thu, 13 Jan 2022 16:20:15 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id l16-20020a17090a409000b001b2e9628c9cso12597015pjg.4
-        for <stable@vger.kernel.org>; Thu, 13 Jan 2022 16:20:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=99KYTpGrscNjobCZbIvOGhB+DdeJCwr/1Czl8yAELKU=;
-        b=qoDkt0un+XbT5DfIdy0fQZnz4hzDHpPsRxPxr30/h8h8km8eWOMwb8R5Khs/Dva42o
-         OsMMRtUemXUmjA+DylDS6Vmp4Y0quCE62Fn484kRAIkeqwRdzhv1MUCiFCT8ax3vV3Tl
-         pLIxsGqNQn/7jJoizH/EVANxtuQZOvR0/cYbfMy+wF/fCYfqD0Fl0uD2i+j+bnCKoPvI
-         msdw7B1q2TKXZ3kq4BPUyajFnWFu2foPDIAqxxfwBQ/JSe+rZndYW+QFmr1NTEtA3fIm
-         y0l5eUSvRC0TEtf5LujXXpVB1rtZUhryOkEEZE3K3O+p5qY/Q4Z5QNMp5nbn9iGmfBZu
-         c6tA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=99KYTpGrscNjobCZbIvOGhB+DdeJCwr/1Czl8yAELKU=;
-        b=URUIuKMP+FYuZKOhlYELKAtU08TVG2ycS3/G/boI1DkRZVCoSmAdl7GzvkMbN2fkM6
-         h2O6vg86SIrcXPRXo4kApRago7BGf9zH1YH+Ehv2N+RxotBkWCsFRJ7hdQX0AQobr5jv
-         YL7Z+8lDVdudJEFeZH9NiE8cz19XmjMhK68fMeC5utWZlPMmufjQClp/ZUhMHvvOaotB
-         LgSUcEJL+AHBTCMRshLzPa6se5HdDOV/ckMvmeTG9VQZB+grxeDgQHcHS2FoG7wOSYQP
-         yq3lbf1/ZFB1ADd6GZalO/zKE5KBTMc8JU7EydFluaDva0qUegR38nEp5FcRAdEAuPwv
-         bjdw==
-X-Gm-Message-State: AOAM531fEqIHYr3c7FK1RAyAhQNo757rcc6fDWPTsCW0Yzn/gn7pMHI4
-        c+5xMGIISbZ2VEF3/LUW+NxOMLXwDChjaZr6Mkc=
-X-Google-Smtp-Source: ABdhPJywyDqJXMzFt9lMVg6eqi5jn25JMkKTsqKhv+jyPlaeTquvqWHFfcRU7o7S+9CbqGnFhPGWig==
-X-Received: by 2002:a17:90b:4c0d:: with SMTP id na13mr11508683pjb.92.1642119614802;
-        Thu, 13 Jan 2022 16:20:14 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id h13sm3168185pgq.63.2022.01.13.16.20.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 13 Jan 2022 16:20:14 -0800 (PST)
-Message-ID: <61e0c1be.1c69fb81.5497d.93aa@mx.google.com>
-Date:   Thu, 13 Jan 2022 16:20:14 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S238372AbiANA2N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jan 2022 19:28:13 -0500
+Received: from mga04.intel.com ([192.55.52.120]:24454 "EHLO mga04.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230165AbiANA2N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 13 Jan 2022 19:28:13 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1642120093; x=1673656093;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=RRSc0fCF2gQ58MCLYJ6EBu3GpIJNYU365XBPjiNmmwU=;
+  b=aH2hmOTwwfKK+7xqAT3xwiRYnJPanp28ULfpIXa3JM2OtWPTBLRoceFs
+   EFYyGpJ5d6Mzc7XZ0yZW3h3RtCSdFsXlKFE6OcHnoHFlniUbU8dHct2z2
+   AKNVo+Hoih3KkW+Ub0sQ8kG+LtLGSiHERbH/pWmvojpRYPasSHOIxKuwC
+   5pXglXux9y+c80/thexk8jwphMFvCaEN3+lJMdUPP6vuJdsFm+aCubBmq
+   MjLJ5y9GiPyp4NbL27W9wrML9nmVSmKkJlTPk5+cn6Qh76DtNrD5FWeSf
+   BE7tby8VpvLxrfkx+FGiJg3+b4vFXwZH0pkdcj6Q6bQ9gER0YjkUxhxkj
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10226"; a="242964235"
+X-IronPort-AV: E=Sophos;i="5.88,287,1635231600"; 
+   d="scan'208";a="242964235"
+Received: from orsmga002.jf.intel.com ([10.7.209.21])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jan 2022 16:28:12 -0800
+X-IronPort-AV: E=Sophos;i="5.88,287,1635231600"; 
+   d="scan'208";a="491317600"
+Received: from lucas-s2600cw.jf.intel.com ([10.165.21.202])
+  by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jan 2022 16:28:12 -0800
+From:   Lucas De Marchi <lucas.demarchi@intel.com>
+To:     x86@kernel.org
+Cc:     Dave Hansen <dave.hansen@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
+        intel-gfx@lists.freedesktop.org,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Matt Roper <matthew.d.roper@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>, stable@vger.kernel.org
+Subject: [PATCH v5 1/5] x86/quirks: Fix stolen detection with integrated + discrete GPU
+Date:   Thu, 13 Jan 2022 16:28:39 -0800
+Message-Id: <20220114002843.2083382-1-lucas.demarchi@intel.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.299-6-g9a2aedb7dcf3
-X-Kernelci-Branch: queue/4.4
-Subject: stable-rc/queue/4.4 baseline: 102 runs,
- 2 regressions (v4.4.299-6-g9a2aedb7dcf3)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 102 runs, 2 regressions (v4.4.299-6-g9a2aedb7=
-dcf3)
+early_pci_scan_bus() does a depth-first traversal, possibly calling
+the quirk functions for each device based on vendor, device and class
+from early_qrk table. intel_graphics_quirks() however uses PCI_ANY_ID
+and does additional filtering in the quirk.
 
-Regressions Summary
--------------------
+If there is an Intel integrated + discrete GPU the quirk may be called
+first for the discrete GPU based on the PCI topology. Then we will fail
+to reserve the system stolen memory for the integrated GPU, because we
+will already have marked the quirk as "applied".
 
-platform         | arch   | lab           | compiler | defconfig           =
-         | regressions
------------------+--------+---------------+----------+---------------------=
----------+------------
-panda            | arm    | lab-collabora | gcc-10   | omap2plus_defconfig =
-         | 1          =
+This was reproduced in a setup with Alderlake-P (integrated) + DG2
+(discrete), with the following PCI topology:
 
-qemu_x86_64-uefi | x86_64 | lab-collabora | gcc-10   | x86_64_defcon...6-ch=
-romebook | 1          =
+	- 00:01.0 Bridge
+	  `- 03:00.0 DG2
+	- 00:02.0 Integrated GPU
 
+So, stop using the QFLAG_APPLY_ONCE flag, replacing it with a static
+local variable. We can set this variable in the right place, inside
+intel_graphics_quirks(), only when the quirk was actually applied, i.e.
+when we find the integrated GPU based on the intel_early_ids table.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.299-6-g9a2aedb7dcf3/plan/baseline/
+Cc: stable@vger.kernel.org
+Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
+---
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.299-6-g9a2aedb7dcf3
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      9a2aedb7dcf3df12df30ebbcc1b0015019b03ad0 =
+v5: apply fix before the refactor
 
+ arch/x86/kernel/early-quirks.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
+diff --git a/arch/x86/kernel/early-quirks.c b/arch/x86/kernel/early-quirks.c
+index 1ca3a56fdc2d..de9a76eb544e 100644
+--- a/arch/x86/kernel/early-quirks.c
++++ b/arch/x86/kernel/early-quirks.c
+@@ -589,10 +589,14 @@ intel_graphics_stolen(int num, int slot, int func,
+ 
+ static void __init intel_graphics_quirks(int num, int slot, int func)
+ {
++	static bool quirk_applied __initdata;
+ 	const struct intel_early_ops *early_ops;
+ 	u16 device;
+ 	int i;
+ 
++	if (quirk_applied)
++		return;
++
+ 	device = read_pci_config_16(num, slot, func, PCI_DEVICE_ID);
+ 
+ 	for (i = 0; i < ARRAY_SIZE(intel_early_ids); i++) {
+@@ -605,6 +609,8 @@ static void __init intel_graphics_quirks(int num, int slot, int func)
+ 
+ 		intel_graphics_stolen(num, slot, func, early_ops);
+ 
++		quirk_applied = true;
++
+ 		return;
+ 	}
+ }
+@@ -705,7 +711,7 @@ static struct chipset early_qrk[] __initdata = {
+ 	{ PCI_VENDOR_ID_INTEL, 0x3406, PCI_CLASS_BRIDGE_HOST,
+ 	  PCI_BASE_CLASS_BRIDGE, 0, intel_remapping_check },
+ 	{ PCI_VENDOR_ID_INTEL, PCI_ANY_ID, PCI_CLASS_DISPLAY_VGA, PCI_ANY_ID,
+-	  QFLAG_APPLY_ONCE, intel_graphics_quirks },
++	  0, intel_graphics_quirks },
+ 	/*
+ 	 * HPET on the current version of the Baytrail platform has accuracy
+ 	 * problems: it will halt in deep idle state - so we disable it.
+-- 
+2.34.1
 
-Test Regressions
----------------- =
-
-
-
-platform         | arch   | lab           | compiler | defconfig           =
-         | regressions
------------------+--------+---------------+----------+---------------------=
----------+------------
-panda            | arm    | lab-collabora | gcc-10   | omap2plus_defconfig =
-         | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e08d4451a9d0d5bdef6745
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.299-6=
--g9a2aedb7dcf3/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.299-6=
--g9a2aedb7dcf3/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61e08d4451a9d0d=
-5bdef674a
-        failing since 23 days (last pass: v4.4.295-12-gd8298cd08f0d, first =
-fail: v4.4.295-23-gcec9bc2aa5d3)
-        2 lines
-
-    2022-01-13T20:36:00.152484  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/110
-    2022-01-13T20:36:00.161208  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-25c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
-    2022-01-13T20:36:00.181691  [   18.919250] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =
-
-
-
-platform         | arch   | lab           | compiler | defconfig           =
-         | regressions
------------------+--------+---------------+----------+---------------------=
----------+------------
-qemu_x86_64-uefi | x86_64 | lab-collabora | gcc-10   | x86_64_defcon...6-ch=
-romebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e08bab5cb41575d3ef6776
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.299-6=
--g9a2aedb7dcf3/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/=
-baseline-qemu_x86_64-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.299-6=
--g9a2aedb7dcf3/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/=
-baseline-qemu_x86_64-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61e08bab5cb41575d3ef6=
-777
-        new failure (last pass: v4.4.299-3-gc3f2df517d8f) =
-
- =20
