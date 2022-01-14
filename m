@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A0EB48E55A
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:17:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 311AF48E594
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:19:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239533AbiANIRe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 03:17:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49160 "EHLO
+        id S237085AbiANITN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 03:19:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239560AbiANIRc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:17:32 -0500
+        with ESMTP id S237151AbiANISs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:18:48 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0932C061749;
-        Fri, 14 Jan 2022 00:17:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCD3AC061773;
+        Fri, 14 Jan 2022 00:18:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8EDCA61E06;
-        Fri, 14 Jan 2022 08:17:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57448C36AEA;
-        Fri, 14 Jan 2022 08:17:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7BDB961E18;
+        Fri, 14 Jan 2022 08:18:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B435C36AEA;
+        Fri, 14 Jan 2022 08:18:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642148251;
-        bh=D2T5KC7pIMXthySgIcc1beZzlYUCQFmw4bhDOk5jX38=;
+        s=korg; t=1642148326;
+        bh=NLfessbUmXe+ZF6y3fEFHiUKLlf2JiiygL3Uj94k/cE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iALFba12P0Nr7+FG73FyMy265V3K4ayTNTh/Fn9+5PTRY0HipZqKy0QWroSXsvVjO
-         ywXgJwv02Xm0cVAfNqWSBpm+rbC290GuzjFgEXOALd3BlH28mAQAa611BWP3JW5f8a
-         5rftWXa1ESv+bemJ1ElWe1IQl0YkwlikuXkHKAJs=
+        b=XT4uyCxr5XvW4n0f34ZC0W1jRUZ6JAfU0dLLDCZLZPjeM7l0t6fwTXSKWVRAdL3Yu
+         C9k02eRoQLerg3GRuf/sVejjy9xqFTAePqrPA2L+15uEBqU6Zi1fRKPOQkffxbOwow
+         1ajuC9FnDZq12LE8qUf7YDxifO+TSyke+wA9XKA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.4 10/18] can: gs_usb: fix use of uninitialized variable, detach device on reception of invalid USB data
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Subject: [PATCH 5.10 09/25] ARM: dts: exynos: Fix BCM4330 Bluetooth reset polarity in I9100
 Date:   Fri, 14 Jan 2022 09:16:17 +0100
-Message-Id: <20220114081541.816823670@linuxfoundation.org>
+Message-Id: <20220114081543.013327684@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220114081541.465841464@linuxfoundation.org>
-References: <20220114081541.465841464@linuxfoundation.org>
+In-Reply-To: <20220114081542.698002137@linuxfoundation.org>
+References: <20220114081542.698002137@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +47,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Paul Cercueil <paul@crapouillou.net>
 
-commit 4a8737ff068724f509d583fef404d349adba80d6 upstream.
+commit 9cb6de45a006a9799ec399bce60d64b6d4fcc4af upstream.
 
-The received data contains the channel the received data is associated
-with. If the channel number is bigger than the actual number of
-channels assume broken or malicious USB device and shut it down.
+The reset GPIO was marked active-high, which is against what's specified
+in the documentation. Mark the reset GPIO as active-low. With this
+change, Bluetooth can now be used on the i9100.
 
-This fixes the error found by clang:
-
-| drivers/net/can/usb/gs_usb.c:386:6: error: variable 'dev' is used
-|                                     uninitialized whenever 'if' condition is true
-|         if (hf->channel >= GS_MAX_INTF)
-|             ^~~~~~~~~~~~~~~~~~~~~~~~~~
-| drivers/net/can/usb/gs_usb.c:474:10: note: uninitialized use occurs here
-|                           hf, dev->gs_hf_size, gs_usb_receive_bulk_callback,
-|                               ^~~
-
-Link: https://lore.kernel.org/all/20211210091158.408326-1-mkl@pengutronix.de
-Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
+Fixes: 8620cc2f99b7 ("ARM: dts: exynos: Add devicetree file for the Galaxy S2")
 Cc: stable@vger.kernel.org
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Link: https://lore.kernel.org/r/20211031234137.87070-1-paul@crapouillou.net
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/gs_usb.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/exynos4210-i9100.dts |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/can/usb/gs_usb.c
-+++ b/drivers/net/can/usb/gs_usb.c
-@@ -320,7 +320,7 @@ static void gs_usb_receive_bulk_callback
+--- a/arch/arm/boot/dts/exynos4210-i9100.dts
++++ b/arch/arm/boot/dts/exynos4210-i9100.dts
+@@ -765,7 +765,7 @@
+ 		compatible = "brcm,bcm4330-bt";
  
- 	/* device reports out of range channel id */
- 	if (hf->channel >= GS_MAX_INTF)
--		goto resubmit_urb;
-+		goto device_detach;
- 
- 	dev = usbcan->canch[hf->channel];
- 
-@@ -405,6 +405,7 @@ static void gs_usb_receive_bulk_callback
- 
- 	/* USB failure take down all interfaces */
- 	if (rc == -ENODEV) {
-+ device_detach:
- 		for (rc = 0; rc < GS_MAX_INTF; rc++) {
- 			if (usbcan->canch[rc])
- 				netif_device_detach(usbcan->canch[rc]->netdev);
+ 		shutdown-gpios = <&gpl0 4 GPIO_ACTIVE_HIGH>;
+-		reset-gpios = <&gpl1 0 GPIO_ACTIVE_HIGH>;
++		reset-gpios = <&gpl1 0 GPIO_ACTIVE_LOW>;
+ 		device-wakeup-gpios = <&gpx3 1 GPIO_ACTIVE_HIGH>;
+ 		host-wakeup-gpios = <&gpx2 6 GPIO_ACTIVE_HIGH>;
+ 	};
 
 
