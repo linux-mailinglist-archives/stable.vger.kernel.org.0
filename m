@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6081D48E56A
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:18:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E2E248E648
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:25:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236925AbiANISC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 03:18:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49280 "EHLO
+        id S237868AbiANIZq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 03:25:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236951AbiANIRx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:17:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8176DC06175B;
-        Fri, 14 Jan 2022 00:17:50 -0800 (PST)
+        with ESMTP id S240646AbiANIYL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:24:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 105E9C061756;
+        Fri, 14 Jan 2022 00:22:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 21BA661E09;
-        Fri, 14 Jan 2022 08:17:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6086C36AEC;
-        Fri, 14 Jan 2022 08:17:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD87FB8243F;
+        Fri, 14 Jan 2022 08:22:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D53CBC36AE9;
+        Fri, 14 Jan 2022 08:22:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642148269;
-        bh=Uh/Bhv7AqgNt1MvA67kKhA3mQZvo44UFqagmaBRB8yc=;
+        s=korg; t=1642148567;
+        bh=VVfheN7Z1g2MM6wFrNFUj1NxCpfl1wgNFD1u1+I3bfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a2fORLKBpwZaXf/mrKz3E71SdTQXYfjiK/NPunAFpg1QcY3jVVkyXizWw52ry7fl7
-         v1vcQ9RPboWUhGNBreiTls4oIB1hY5AlM+bZgxfYny7UCXPA0G0ixpL1Sfi06ejOKL
-         IlLqrToeM7YbgtL1Go3VJy2nIeDtLW43YpK1cuq8=
+        b=mMaZz2iKXIEk88idfzV+SrgkliopH2gJRwhXTj3Q5uzDWQe/GcgQdNG45M/HvrBnV
+         4jc3pY9Th2Q+fzZCNxwCC5S7d3NgfIesVeZjnjbF5SrsA1SG+wI66dSHWVOASTXK9U
+         sOHWTf15+gSoOPPVlJscZr/HXp99l7PGSQraYR/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 5.4 16/18] staging: wlan-ng: Avoid bitwise vs logical OR warning in hfa384x_usb_throttlefn()
+        stable@vger.kernel.org, Tim Jiang <tjiang@codeaurora.org>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 5.16 09/37] Bluetooth: btusb: Add the new support IDs for WCN6855
 Date:   Fri, 14 Jan 2022 09:16:23 +0100
-Message-Id: <20220114081542.013458658@linuxfoundation.org>
+Message-Id: <20220114081545.165123226@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220114081541.465841464@linuxfoundation.org>
-References: <20220114081541.465841464@linuxfoundation.org>
+In-Reply-To: <20220114081544.849748488@linuxfoundation.org>
+References: <20220114081544.849748488@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,68 +47,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: tjiang@codeaurora.org <tjiang@codeaurora.org>
 
-commit 502408a61f4b7eb4713f44bd77f4a48e6cb1b59a upstream.
+commit 21a241b3bc153b346987a28cc132674646589e02 upstream.
 
-A new warning in clang points out a place in this file where a bitwise
-OR is being used with boolean expressions:
+Add the more IDs of HP to usb_device_id table for WCN6855.
 
-In file included from drivers/staging/wlan-ng/prism2usb.c:2:
-drivers/staging/wlan-ng/hfa384x_usb.c:3787:7: warning: use of bitwise '|' with boolean operands [-Wbitwise-instead-of-logical]
-            ((test_and_clear_bit(THROTTLE_RX, &hw->usb_flags) &&
-            ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/staging/wlan-ng/hfa384x_usb.c:3787:7: note: cast one or both operands to int to silence this warning
-1 warning generated.
+-Device(0489:e0cc) from /sys/kernel/debug/usb/devices
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
+D:  Ver= 1.10 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=0489 ProdID=e0cc Rev= 0.01
+C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=100mA
+I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+I:  If#= 1 Alt= 6 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  63 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  63 Ivl=1ms
+I:  If#= 1 Alt= 7 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  65 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  65 Ivl=1ms
 
-The comment explains that short circuiting here is undesirable, as the
-calls to test_and_{clear,set}_bit() need to happen for both sides of the
-expression.
+-Device(0489:e0d6) from /sys/kernel/debug/usb/devices
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=12   MxCh= 0
+D:  Ver= 1.10 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=0489 ProdID=e0d6 Rev= 0.01
+C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=100mA
+I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+I:  If#= 1 Alt= 6 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  63 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  63 Ivl=1ms
+I:  If#= 1 Alt= 7 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E:  Ad=83(I) Atr=01(Isoc) MxPS=  65 Ivl=1ms
+E:  Ad=03(O) Atr=01(Isoc) MxPS=  65 Ivl=1ms
 
-Clang's suggestion would work to silence the warning but the readability
-of the expression would suffer even more. To clean up the warning and
-make the block more readable, use a variable for each side of the
-bitwise expression.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1478
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/20211014215703.3705371-1-nathan@kernel.org
+Signed-off-by: Tim Jiang <tjiang@codeaurora.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/wlan-ng/hfa384x_usb.c |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/bluetooth/btusb.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/staging/wlan-ng/hfa384x_usb.c
-+++ b/drivers/staging/wlan-ng/hfa384x_usb.c
-@@ -3779,18 +3779,18 @@ static void hfa384x_usb_throttlefn(struc
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -295,6 +295,12 @@ static const struct usb_device_id blackl
+ 	{ USB_DEVICE(0x0cf3, 0xe600), .driver_info = BTUSB_QCA_WCN6855 |
+ 						     BTUSB_WIDEBAND_SPEECH |
+ 						     BTUSB_VALID_LE_STATES },
++	{ USB_DEVICE(0x0489, 0xe0cc), .driver_info = BTUSB_QCA_WCN6855 |
++						     BTUSB_WIDEBAND_SPEECH |
++						     BTUSB_VALID_LE_STATES },
++	{ USB_DEVICE(0x0489, 0xe0d6), .driver_info = BTUSB_QCA_WCN6855 |
++						     BTUSB_WIDEBAND_SPEECH |
++						     BTUSB_VALID_LE_STATES },
  
- 	spin_lock_irqsave(&hw->ctlxq.lock, flags);
- 
--	/*
--	 * We need to check BOTH the RX and the TX throttle controls,
--	 * so we use the bitwise OR instead of the logical OR.
--	 */
- 	pr_debug("flags=0x%lx\n", hw->usb_flags);
--	if (!hw->wlandev->hwremoved &&
--	    ((test_and_clear_bit(THROTTLE_RX, &hw->usb_flags) &&
--	      !test_and_set_bit(WORK_RX_RESUME, &hw->usb_flags)) |
--	     (test_and_clear_bit(THROTTLE_TX, &hw->usb_flags) &&
--	      !test_and_set_bit(WORK_TX_RESUME, &hw->usb_flags))
--	    )) {
--		schedule_work(&hw->usb_work);
-+	if (!hw->wlandev->hwremoved) {
-+		bool rx_throttle = test_and_clear_bit(THROTTLE_RX, &hw->usb_flags) &&
-+				   !test_and_set_bit(WORK_RX_RESUME, &hw->usb_flags);
-+		bool tx_throttle = test_and_clear_bit(THROTTLE_TX, &hw->usb_flags) &&
-+				   !test_and_set_bit(WORK_TX_RESUME, &hw->usb_flags);
-+		/*
-+		 * We need to check BOTH the RX and the TX throttle controls,
-+		 * so we use the bitwise OR instead of the logical OR.
-+		 */
-+		if (rx_throttle | tx_throttle)
-+			schedule_work(&hw->usb_work);
- 	}
- 
- 	spin_unlock_irqrestore(&hw->ctlxq.lock, flags);
+ 	/* Broadcom BCM2035 */
+ 	{ USB_DEVICE(0x0a5c, 0x2009), .driver_info = BTUSB_BCM92035 },
 
 
