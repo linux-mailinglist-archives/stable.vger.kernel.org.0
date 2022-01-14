@@ -2,137 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD9B748F0B4
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 20:57:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0E0348F0DE
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 21:20:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235188AbiANT5C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 14:57:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41214 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229471AbiANT5C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 14:57:02 -0500
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 725A1C061574
-        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 11:57:02 -0800 (PST)
-Received: by mail-pf1-x42a.google.com with SMTP id i65so3691590pfc.9
-        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 11:57:02 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=V2S6f7k4M30JwuUaSSF2c7h/l4IuywnyYe8Su0QALrI=;
-        b=pKz+rFJx1pShZZNGAwEPiWXTt+Zd6vK2wjoOtGpDzkoNRbye71ba5z75LNILn3mcp6
-         UfBXzo9flu+Jw59Cd+VJgRrlqW86431DmO/NNWx7mngYOYcsyrmJ2DEsoercxmOVrvZX
-         Q+r4o91P/UeOaPw771AqwZFvwQZ57OzkHgGNcSMLT88O1Wv4fLY61n8Iy/1/xoIqEYlx
-         z/fMfCfpOria6wl0KU35tAm8AHSK/MFpRbh2lU/X/IZA7AgU+oHMaKEi0u7NVwTFwhDL
-         H4QONVrxMt3oE2GwDCc7nB4SNHPnWYDPhaimMRQCO5txov8EPWCZ6sWQVNlvDb4ik0WZ
-         NYhA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=V2S6f7k4M30JwuUaSSF2c7h/l4IuywnyYe8Su0QALrI=;
-        b=aiAcvqcLGxnQFZ/tC5BqA12s/A/KKeL+uoa+BhQFaP8aDt+TNvv1e+7IrT/81whkt8
-         jAREKQJVtb2qQZg2/uRpdt5jLk0es/sjUaQX5aSk0ZFZrO45dJqo82MCSeGyRxMhWVIp
-         3yd/cpQuo5lrfplluiMCbKMqDqKU1zEC4fc9ZN45aa/UfYxbrLCk1Dj0Rpk20C26Sv+H
-         zo5JxLgZC/j7Q2axJImKe3Vhp1yJsYBiX1z0Tz246eubzVGjUrPiZK+/cq3czU0wyaVW
-         FxAZuz4HUtPry8gQs7fm0h42l2+2iO92G4vDOQhpPhe/U+F351YZuIUdJhrYKuzBIyuk
-         29Yw==
-X-Gm-Message-State: AOAM530ShMgSYiFmbKAiG/Iy9Fyxsa+JBuae+J3cy+Tj9rw6R1CrfZfY
-        AxqQBbyl0Z+kIirdfBekcuaSzQYwvlrDlCQF
-X-Google-Smtp-Source: ABdhPJwd5/zQvBvyMC76SHxXuUC+wAbxWNKpqbtaNxzS8kR5DDuvt7Rja8he4iIoPUMVYS9obSolog==
-X-Received: by 2002:a63:7c48:: with SMTP id l8mr9112683pgn.483.1642190221861;
-        Fri, 14 Jan 2022 11:57:01 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id o184sm6500186pfb.90.2022.01.14.11.57.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Jan 2022 11:57:01 -0800 (PST)
-Message-ID: <61e1d58d.1c69fb81.65d1d.290b@mx.google.com>
-Date:   Fri, 14 Jan 2022 11:57:01 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S240021AbiANUUc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 15:20:32 -0500
+Received: from qproxy5-pub.mail.unifiedlayer.com ([69.89.21.30]:57036 "EHLO
+        qproxy5-pub.mail.unifiedlayer.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232761AbiANUUb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 15:20:31 -0500
+X-Greylist: delayed 1230 seconds by postgrey-1.27 at vger.kernel.org; Fri, 14 Jan 2022 15:20:31 EST
+Received: from gproxy4-pub.mail.unifiedlayer.com (gproxy4-pub.mail.unifiedlayer.com [69.89.23.142])
+        by qproxy5.mail.unifiedlayer.com (Postfix) with ESMTP id 1EB4F8036AD5
+        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 20:00:01 +0000 (UTC)
+Received: from cmgw10.mail.unifiedlayer.com (unknown [10.0.90.125])
+        by progateway6.mail.pro1.eigbox.com (Postfix) with ESMTP id 68A7510047818
+        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 20:00:00 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id 8SjvnagrfnAlU8SjwnRlvh; Fri, 14 Jan 2022 20:00:00 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=QIOt+iHL c=1 sm=1 tr=0 ts=61e1d640
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=DghFqjY3_ZEA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=HGw1mVhBy2YoFkOnSw0A:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:In-Reply-To:From:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=3ZZ8Z3lXC4EgxEaTFM+fFaZa06WIHcyvU419ouZNh5A=; b=m79quRX1zeKrb4l7z7LrO+5slh
+        nd2+r1WjqvQCL2BP8Y0FuWUl6UycKd4bomXlyQtUEG5bufu2LzxkuLti/eCvvbFoZ2XJ6nEaj+B26
+        kI36JYbpGaooHyQ73q2VcjZyb;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:60958 helo=[10.0.1.23])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <re@w6rz.net>)
+        id 1n8Sjv-001Fm6-D5; Fri, 14 Jan 2022 12:59:59 -0700
+Subject: Re: [PATCH 5.15 00/41] 5.15.15-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+References: <20220114081545.158363487@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+In-Reply-To: <20220114081545.158363487@linuxfoundation.org>
+Message-ID: <b94bd7bd-0c8b-1697-f4af-27e99ca9e62f@w6rz.net>
+Date:   Fri, 14 Jan 2022 11:59:57 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.4.299-7-gb73cbd6cb212
-X-Kernelci-Branch: queue/4.4
-Subject: stable-rc/queue/4.4 baseline: 95 runs,
- 1 regressions (v4.4.299-7-gb73cbd6cb212)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1n8Sjv-001Fm6-D5
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.23]) [73.162.232.9]:60958
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 12
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.4 baseline: 95 runs, 1 regressions (v4.4.299-7-gb73cbd6cb=
-212)
+On 1/14/22 12:16 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.15 release.
+> There are 41 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sun, 16 Jan 2022 08:15:33 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.15-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Regressions Summary
--------------------
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+Warnings:
 
+fs/jffs2/xattr.c: In function 'jffs2_build_xattr_subsystem':
+fs/jffs2/xattr.c:887:1: warning: the frame size of 1104 bytes is larger 
+than 1024 bytes [-Wframe-larger-than=]
+   887 | }
+       | ^
+lib/crypto/curve25519-hacl64.c: In function 'ladder_cmult.constprop':
+lib/crypto/curve25519-hacl64.c:601:1: warning: the frame size of 1040 
+bytes is larger than 1024 bytes [-Wframe-larger-than=]
+   601 | }
+       | ^
+drivers/net/wireguard/allowedips.c: In function 'root_remove_peer_lists':
+drivers/net/wireguard/allowedips.c:77:1: warning: the frame size of 1040 
+bytes is larger than 1024 bytes [-Wframe-larger-than=]
+    77 | }
+       | ^
+drivers/net/wireguard/allowedips.c: In function 'root_free_rcu':
+drivers/net/wireguard/allowedips.c:64:1: warning: the frame size of 1040 
+bytes is larger than 1024 bytes [-Wframe-larger-than=]
+    64 | }
+       | ^
+drivers/vhost/scsi.c: In function 'vhost_scsi_flush':
+drivers/vhost/scsi.c:1444:1: warning: the frame size of 1040 bytes is 
+larger than 1024 bytes [-Wframe-larger-than=]
+  1444 | }
+       | ^
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.4/kern=
-el/v4.4.299-7-gb73cbd6cb212/plan/baseline/
+Tested-by: Ron Economos <re@w6rz.net>
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.4
-  Describe: v4.4.299-7-gb73cbd6cb212
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b73cbd6cb2121629cc6c77b1f673ff0651bf8c40 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e19b22ce435d9a10ef67ad
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.299-7=
--gb73cbd6cb212/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.4/v4.4.299-7=
--gb73cbd6cb212/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61e19b22ce435d9=
-a10ef67b0
-        failing since 24 days (last pass: v4.4.295-12-gd8298cd08f0d, first =
-fail: v4.4.295-23-gcec9bc2aa5d3)
-        2 lines
-
-    2022-01-14T15:47:22.281533  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/116
-    2022-01-14T15:47:22.291180  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-25c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2022-01-14T15:47:22.310339  [   19.538909] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
