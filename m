@@ -2,1029 +2,609 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C997848F1B8
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 21:53:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06FF348F1BB
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 21:54:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236940AbiANUxn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 15:53:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54476 "EHLO
+        id S229472AbiANUyM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 15:54:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240439AbiANUxm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 15:53:42 -0500
-Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1384C06173E
-        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 12:53:42 -0800 (PST)
-Received: by mail-pg1-x52e.google.com with SMTP id g2so3684864pgo.9
-        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 12:53:42 -0800 (PST)
+        with ESMTP id S229451AbiANUyM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 15:54:12 -0500
+Received: from mail-lf1-x133.google.com (mail-lf1-x133.google.com [IPv6:2a00:1450:4864:20::133])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B600C06173E
+        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 12:54:11 -0800 (PST)
+Received: by mail-lf1-x133.google.com with SMTP id p27so22424411lfa.1
+        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 12:54:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=jeQOAlN8aANqlLnmjrIgwevEaMB7r4OLGnGZS7pszuI=;
-        b=zjx7i4qgbmz51Ngcrt1DIMZISEMjO1YckMYghsuOMyL9OQ4CuCTWTMr7bmHpuLuNgf
-         fnNuZLfqgUg32YM8wTkdeRMyeMyeOLy0Xf14d7Sjjil0NOjUSn//1ZFo1gUzy7x5Sm3m
-         La7l9w7ELXzbkvE1tr03Q6P7opJE8j6MgnOzJDFpiB8YtCBc1EUOcVlTKlQb1zNzvEH0
-         eY10icNn9TNRWzCq7UmHBcvgwFMTmYjv6pumgGvBbD56uZTUM1h/3v755xJWQeRjpjDp
-         Ue60kZVfeZ+ze+th+NZtdw3m3yXMhGhjvNfvq4fLsm406VGBCq7OdUPNsFOXHU7L7ITZ
-         hG8Q==
+        d=embecosm.com; s=google;
+        h=date:from:to:cc:subject:message-id:user-agent:mime-version;
+        bh=yj+eYBaHeNHAfB17KcfcEFwuS8iSBPYgLsLaXghV7qI=;
+        b=VdXIL0dCpjQa6xTD3aBg5DG8bhutQaZ913KDd6+SixUStC5xVEzsqQ6Feb1veCLwbQ
+         VpB2zmjrfgLRsZKa4TD+DbGt5gmSwVRix7E6SSyi3c6v/KZhqMC4o0wSWH5V2bU2VE+v
+         iiAW21gtcAzRLOn629bhlMEAA0rsShq55Q7BqVFfLT5mA+3Gy0/YV/C/Rx7IzDRglu3n
+         koMcN+MGogJzJG22k321k8/1os/OheRwBcstzC2f1wSHyxnGGOysBF5QVlZGQ/jYmYeP
+         9fQzsbXAuTFwyzymf83qHg4PvGcnmnTBGEZjrzQbRgeTsfUP49P/77VE3ibLIVwq/IVT
+         M2BQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=jeQOAlN8aANqlLnmjrIgwevEaMB7r4OLGnGZS7pszuI=;
-        b=AuOZNIm76bSn4xmgBMdfcgFXxW0TSYPoN/cs2Bxhfi5ky7iWj3/pHH9JCSLOJ/0ipU
-         OsGKMPNVvmKM47aR8VFldx2Ak5A4jpr0EoTKQrYHHI+rmSZccQuC5jNirb8jleiiYYFC
-         A9n3998eitG0+uD6GuuTaAvzAw96Ut/65RFO3nGTdrzJm4rvh1c+H1lh57blqmIX05HM
-         Phth6wfP1tuyDyzmwIAPlu+wEt2u+DbIdxFXKTJ9i/PZMPDARLQ5c7/HrydW2kqFdwIl
-         vgB78rEw1C5sMIL2unoZALp28gynulvuvV5z5Kbln7pIaEn/KEMayJVBmqD5+xgaKVT9
-         PyJQ==
-X-Gm-Message-State: AOAM533c16TZZPki5WjLzl/XkUt7gEuaoTTDrC9KLha/Bnr3Xo6oRF+y
-        VQsNt4ooOJnO4eAstojVn6zvUxiD1+Xn2yvh
-X-Google-Smtp-Source: ABdhPJwMehecK78jhgwq6tYIN2SUTxpC8J/GCWIzidoscMBpPRuerj7curh+nFerdv7oe2gZUHAX5w==
-X-Received: by 2002:a05:6a00:1aca:b0:4c2:8d43:8539 with SMTP id f10-20020a056a001aca00b004c28d438539mr3578938pfv.37.1642193621605;
-        Fri, 14 Jan 2022 12:53:41 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t3sm6891727pfj.137.2022.01.14.12.53.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Jan 2022 12:53:40 -0800 (PST)
-Message-ID: <61e1e2d4.1c69fb81.c562a.34a6@mx.google.com>
-Date:   Fri, 14 Jan 2022 12:53:40 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:user-agent
+         :mime-version;
+        bh=yj+eYBaHeNHAfB17KcfcEFwuS8iSBPYgLsLaXghV7qI=;
+        b=nHP4GTv1HH5aknFFgbQfOFzdhTBNo1zrNSmLpw/06e48mbyuGIXD8BH+N549rUv93P
+         eLVUYDaVePfGzNlO3qHXfWtFvPNdvGcEBfhNYhLt+en19c27xJgtgCbOrFf5bgsUhlVW
+         xE/2ujil+jsWpKCWJURqNiSilLgpjiLYPwu3LzD2TEQvf1EuewU0qj7qejKx3COUcxW8
+         WNgrKSrMm3F5+rcctwjP4mDzvvxn7xcmOjuHesSUFj+sZ/z4xMsxIsKLHkI19++LZ5dr
+         Zo/2NalQFvzFwem2nDFCNyO8G6j77hKxj9nHAREX2HKrXVcxThwj3Im/7ylNXCWWIaZ3
+         ZtVA==
+X-Gm-Message-State: AOAM530PVDDEpeLEBAmGmssPOhw6NuNsFsEfLoH+x/MLRFCePI5eF5J6
+        BfTBuflDgo0Go+XvEP/eQBfAgA==
+X-Google-Smtp-Source: ABdhPJxL3zTJGkMopyK3IzxvOr1JvHXCCAovqjoykSJ1wh7LVE6/rmNGtybmjI4JpV1sqr4S385LQA==
+X-Received: by 2002:a19:7010:: with SMTP id h16mr8344935lfc.561.1642193649719;
+        Fri, 14 Jan 2022 12:54:09 -0800 (PST)
+Received: from [192.168.219.3] ([78.8.192.131])
+        by smtp.gmail.com with ESMTPSA id n15sm106375lfu.85.2022.01.14.12.54.07
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 14 Jan 2022 12:54:09 -0800 (PST)
+Date:   Fri, 14 Jan 2022 20:54:05 +0000 (GMT)
+From:   "Maciej W. Rozycki" <macro@embecosm.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>
+cc:     linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH] tty: Revert the removal of the Cyclades public API
+Message-ID: <alpine.DEB.2.20.2201141832330.11348@tpp.orcam.me.uk>
+User-Agent: Alpine 2.20 (DEB 67 2015-01-07)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: build
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.16-37-g62dffba25411
-X-Kernelci-Branch: queue/5.16
-Subject: stable-rc/queue/5.16 build: 163 builds: 4 failed, 159 passed,
- 12 errors, 4 warnings (v5.16-37-g62dffba25411)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.16 build: 163 builds: 4 failed, 159 passed, 12 errors, 4 =
-warnings (v5.16-37-g62dffba25411)
-
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.1=
-6/kernel/v5.16-37-g62dffba25411/
-
-Tree: stable-rc
-Branch: queue/5.16
-Git Describe: v5.16-37-g62dffba25411
-Git Commit: 62dffba25411dcb9c17006959258922a64d03bc9
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 7 unique architectures
-
-Build Failures Detected:
-
-arm:
-    qcom_defconfig: (gcc-10) FAIL
-    rpc_defconfig: (gcc-10) FAIL
-
-mips:
-    decstation_64_defconfig: (gcc-10) FAIL
-    ip28_defconfig: (gcc-10) FAIL
-
-Errors and Warnings Detected:
-
-arc:
-    tinyconfig (gcc-10): 1 warning
-
-arm64:
-
-arm:
-    qcom_defconfig (gcc-10): 1 error
-    rpc_defconfig (gcc-10): 2 errors
-
-i386:
-
-mips:
-    32r2el_defconfig (gcc-10): 1 warning
-    bigsur_defconfig (gcc-10): 1 error
-    cavium_octeon_defconfig (gcc-10): 1 error
-    ci20_defconfig (gcc-10): 1 warning
-    decstation_64_defconfig (gcc-10): 1 error
-    fuloong2e_defconfig (gcc-10): 1 error
-    ip32_defconfig (gcc-10): 1 error
-    lemote2f_defconfig (gcc-10): 1 error
-    loongson2k_defconfig (gcc-10): 1 error
-    loongson3_defconfig (gcc-10): 1 error
-    rm200_defconfig (gcc-10): 1 warning
-    sb1250_swarm_defconfig (gcc-10): 1 error
-
-riscv:
-
-x86_64:
-
-Errors summary:
-
-    8    expr: syntax error: unexpected argument =E2=80=980xffffffff8000000=
-0=E2=80=99
-    1    arch/arm/kernel/head.S:319: Error: missing expression -- `ldr r7,=
-=3D0x'
-    1    arch/arm/kernel/head.S:319: Error: missing expression -- `ldr r3,=
-=3D0x'
-    1    /tmp/kci/linux/build/../drivers/gpu/drm/panel/panel-edp.c:843: und=
-efined reference to `drm_panel_dp_aux_backlight'
-
-Warnings summary:
-
-    1    drivers/block/paride/bpck.c:32: warning: "PC" redefined
-    1    arch/mips/boot/dts/ingenic/jz4780.dtsi:473.33-475.6: Warning (unit=
-_address_format): /nemc@13410000/efuse@d0/eth-mac-addr@0x22: unit name shou=
-ld not have leading "0x"
-    1    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_devic=
-e_reg): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expec=
-ted "0,0"
-    1    arch/arc/Makefile:26: ** WARNING ** CONFIG_ARC_TUNE_MCPU flag '' i=
-s unknown, fallback to ''
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    arch/mips/boot/dts/img/boston.dts:128.19-178.5: Warning (pci_device_reg=
-): /pci@14000000/pci2_root@0,0,0: PCI unit address format error, expected "=
-0,0"
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-am200epdkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-ar7_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-at91_dt_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ath25_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ath79_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axm55xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-badge4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bcm47xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bcm63xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 sect=
-ion mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-capcella_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings,=
- 0 section mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
-
----------------------------------------------------------------------------=
------
-cerfcube_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-ci20_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    arch/mips/boot/dts/ingenic/jz4780.dtsi:473.33-475.6: Warning (unit_addr=
-ess_format): /nemc@13410000/efuse@d0/eth-mac-addr@0x22: unit name should no=
-t have leading "0x"
-
----------------------------------------------------------------------------=
------
-cobalt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-cu1000-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-cu1830-neo_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-db1xxx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-decstation_64_defconfig (mips, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings,=
- 0 section mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-decstation_r4k_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warn=
-ings, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-e55_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-exynos_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ezx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-footbridge_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 s=
-ection mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
-
----------------------------------------------------------------------------=
------
-gcw0_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-gemini_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-h5000_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-hackkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-haps_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-imote2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ip22_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip28_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 sectio=
-n mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
-
----------------------------------------------------------------------------=
------
-ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-jmr3927_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-jornada720_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 se=
-ction mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
-
----------------------------------------------------------------------------=
------
-loongson1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-loongson2k_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 =
-section mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
-
----------------------------------------------------------------------------=
------
-loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, 0 s=
-ection mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
-
----------------------------------------------------------------------------=
------
-lpc18xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-magician_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mainstone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-malta_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
-gs, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-moxart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-mpc30x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-multi_v4t_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-netwinder_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nommu_k210_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-nommu_k210_sdcard_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 war=
-nings, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-omega2p_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-pcm027_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-pleb_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-pxa168_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-qcom_defconfig (arm, gcc-10) =E2=80=94 FAIL, 1 error, 0 warnings, 0 section=
- mismatches
-
-Errors:
-    /tmp/kci/linux/build/../drivers/gpu/drm/panel/panel-edp.c:843: undefine=
-d reference to `drm_panel_dp_aux_backlight'
-
----------------------------------------------------------------------------=
------
-qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/block/paride/bpck.c:32: warning: "PC" redefined
-
----------------------------------------------------------------------------=
------
-rpc_defconfig (arm, gcc-10) =E2=80=94 FAIL, 2 errors, 0 warnings, 0 section=
- mismatches
-
-Errors:
-    arch/arm/kernel/head.S:319: Error: missing expression -- `ldr r7,=3D0x'
-    arch/arm/kernel/head.S:319: Error: missing expression -- `ldr r3,=3D0x'
-
----------------------------------------------------------------------------=
------
-rs90_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-rv32_defconfig (riscv, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-sama7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 1 error, 0 warnings, =
-0 section mismatches
-
-Errors:
-    expr: syntax error: unexpected argument =E2=80=980xffffffff80000000=E2=
-=80=99
-
----------------------------------------------------------------------------=
------
-shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-socfpga_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spear13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-spitz_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-stm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-tb0219_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tb0226_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tb0287_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
-matches
-
-Warnings:
-    arch/arc/Makefile:26: ** WARNING ** CONFIG_ARC_TUNE_MCPU flag '' is unk=
-nown, fallback to ''
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vf610m4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-workpad_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
-0 warnings, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
+Fix a user API regression introduced with commit f76edd8f7ce0 ("tty: 
+cyclades, remove this orphan"), which removed a part of the API and 
+caused compilation errors for user programs using said part, such as 
+GCC 9 in its libsanitizer component[1]:
+
+.../libsanitizer/sanitizer_common/sanitizer_platform_limits_posix.cc:160:10: fatal error: linux/cyclades.h: No such file or directory
+  160 | #include <linux/cyclades.h>
+      |          ^~~~~~~~~~~~~~~~~~
+compilation terminated.
+make[4]: *** [Makefile:664: sanitizer_platform_limits_posix.lo] Error 1
+
+Any part of the public API is a contract between the kernel and the 
+userland and therefore once there it must not be removed even if its 
+implementation side has gone and any relevant calls will now fail 
+unconditionally.
+
+Revert the part of the commit referred then that affects the user API, 
+bringing the most recent version of <linux/cyclades.h> back verbatim 
+modulo the removal of trailing whitespace which used to be there, and 
+updating <linux/major.h> accordingly.
+
+References:
+
+[1] GCC PR sanitizer/100379, "cyclades.h is removed from linux kernel 
+    header files", <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100379>
+
+Signed-off-by: Maciej W. Rozycki <macro@embecosm.com>
+Fixes: f76edd8f7ce0 ("tty: cyclades, remove this orphan")
+Cc: stable@vger.kernel.org # v5.13+
 ---
-For more info write to <info@kernelci.org>
+ include/uapi/linux/cyclades.h |  494 ++++++++++++++++++++++++++++++++++++++++++
+ include/uapi/linux/major.h    |    2 
+ 2 files changed, 496 insertions(+)
+
+linux-uapi-cyclades.diff
+Index: linux/include/uapi/linux/cyclades.h
+===================================================================
+--- /dev/null
++++ linux/include/uapi/linux/cyclades.h
+@@ -0,0 +1,494 @@
++/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
++/* $Revision: 3.0 $$Date: 1998/11/02 14:20:59 $
++ * linux/include/linux/cyclades.h
++ *
++ * This file was initially written by
++ * Randolph Bentson <bentson@grieg.seaslug.org> and is maintained by
++ * Ivan Passos <ivan@cyclades.com>.
++ *
++ * This file contains the general definitions for the cyclades.c driver
++ *$Log: cyclades.h,v $
++ *Revision 3.1  2002/01/29 11:36:16  henrique
++ *added throttle field on struct cyclades_port to indicate whether the
++ *port is throttled or not
++ *
++ *Revision 3.1  2000/04/19 18:52:52  ivan
++ *converted address fields to unsigned long and added fields for physical
++ *addresses on cyclades_card structure;
++ *
++ *Revision 3.0  1998/11/02 14:20:59  ivan
++ *added nports field on cyclades_card structure;
++ *
++ *Revision 2.5  1998/08/03 16:57:01  ivan
++ *added cyclades_idle_stats structure;
++ *
++ *Revision 2.4  1998/06/01 12:09:53  ivan
++ *removed closing_wait2 from cyclades_port structure;
++ *
++ *Revision 2.3  1998/03/16 18:01:12  ivan
++ *changes in the cyclades_port structure to get it closer to the
++ *standard serial port structure;
++ *added constants for new ioctls;
++ *
++ *Revision 2.2  1998/02/17 16:50:00  ivan
++ *changes in the cyclades_port structure (addition of shutdown_wait and
++ *chip_rev variables);
++ *added constants for new ioctls and for CD1400 rev. numbers.
++ *
++ *Revision 2.1	1997/10/24 16:03:00  ivan
++ *added rflow (which allows enabling the CD1400 special flow control
++ *feature) and rtsdtr_inv (which allows DTR/RTS pin inversion) to
++ *cyclades_port structure;
++ *added Alpha support
++ *
++ *Revision 2.0  1997/06/30 10:30:00  ivan
++ *added some new doorbell command constants related to IOCTLW and
++ *UART error signaling
++ *
++ *Revision 1.8  1997/06/03 15:30:00  ivan
++ *added constant ZFIRM_HLT
++ *added constant CyPCI_Ze_win ( = 2 * Cy_PCI_Zwin)
++ *
++ *Revision 1.7  1997/03/26 10:30:00  daniel
++ *new entries at the end of cyclades_port struct to reallocate
++ *variables illegally allocated within card memory.
++ *
++ *Revision 1.6  1996/09/09 18:35:30  bentson
++ *fold in changes for Cyclom-Z -- including structures for
++ *communicating with board as well modest changes to original
++ *structures to support new features.
++ *
++ *Revision 1.5  1995/11/13 21:13:31  bentson
++ *changes suggested by Michael Chastain <mec@duracef.shout.net>
++ *to support use of this file in non-kernel applications
++ *
++ *
++ */
++
++#ifndef _UAPI_LINUX_CYCLADES_H
++#define _UAPI_LINUX_CYCLADES_H
++
++#include <linux/types.h>
++
++struct cyclades_monitor {
++        unsigned long           int_count;
++        unsigned long           char_count;
++        unsigned long           char_max;
++        unsigned long           char_last;
++};
++
++/*
++ * These stats all reflect activity since the device was last initialized.
++ * (i.e., since the port was opened with no other processes already having it
++ * open)
++ */
++struct cyclades_idle_stats {
++    __kernel_old_time_t in_use;	/* Time device has been in use (secs) */
++    __kernel_old_time_t recv_idle; /* Time since last char received (secs) */
++    __kernel_old_time_t xmit_idle; /* Time since last char transmitted (secs) */
++    unsigned long  recv_bytes;	/* Bytes received */
++    unsigned long  xmit_bytes;	/* Bytes transmitted */
++    unsigned long  overruns;	/* Input overruns */
++    unsigned long  frame_errs;	/* Input framing errors */
++    unsigned long  parity_errs;	/* Input parity errors */
++};
++
++#define CYCLADES_MAGIC  0x4359
++
++#define CYGETMON                0x435901
++#define CYGETTHRESH             0x435902
++#define CYSETTHRESH             0x435903
++#define CYGETDEFTHRESH          0x435904
++#define CYSETDEFTHRESH          0x435905
++#define CYGETTIMEOUT            0x435906
++#define CYSETTIMEOUT            0x435907
++#define CYGETDEFTIMEOUT         0x435908
++#define CYSETDEFTIMEOUT         0x435909
++#define CYSETRFLOW		0x43590a
++#define CYGETRFLOW		0x43590b
++#define CYSETRTSDTR_INV		0x43590c
++#define CYGETRTSDTR_INV		0x43590d
++#define CYZSETPOLLCYCLE		0x43590e
++#define CYZGETPOLLCYCLE		0x43590f
++#define CYGETCD1400VER		0x435910
++#define	CYSETWAIT		0x435912
++#define	CYGETWAIT		0x435913
++
++/*************** CYCLOM-Z ADDITIONS ***************/
++
++#define CZIOC           ('M' << 8)
++#define CZ_NBOARDS      (CZIOC|0xfa)
++#define CZ_BOOT_START   (CZIOC|0xfb)
++#define CZ_BOOT_DATA    (CZIOC|0xfc)
++#define CZ_BOOT_END     (CZIOC|0xfd)
++#define CZ_TEST         (CZIOC|0xfe)
++
++#define CZ_DEF_POLL	(HZ/25)
++
++#define MAX_BOARD       4       /* Max number of boards */
++#define MAX_DEV         256     /* Max number of ports total */
++#define	CYZ_MAX_SPEED	921600
++
++#define	CYZ_FIFO_SIZE	16
++
++#define CYZ_BOOT_NWORDS 0x100
++struct CYZ_BOOT_CTRL {
++        unsigned short  nboard;
++        int             status[MAX_BOARD];
++        int             nchannel[MAX_BOARD];
++        int             fw_rev[MAX_BOARD];
++        unsigned long   offset;
++        unsigned long   data[CYZ_BOOT_NWORDS];
++};
++
++
++#ifndef DP_WINDOW_SIZE
++/*
++ *	Memory Window Sizes
++ */
++
++#define	DP_WINDOW_SIZE		(0x00080000)	/* window size 512 Kb */
++#define	ZE_DP_WINDOW_SIZE	(0x00100000)	/* window size 1 Mb (Ze and
++						  8Zo V.2 */
++#define	CTRL_WINDOW_SIZE	(0x00000080)	/* runtime regs 128 bytes */
++
++/*
++ *	CUSTOM_REG - Cyclom-Z/PCI Custom Registers Set. The driver
++ *	normally will access only interested on the fpga_id, fpga_version,
++ *	start_cpu and stop_cpu.
++ */
++
++struct	CUSTOM_REG {
++	__u32	fpga_id;		/* FPGA Identification Register */
++	__u32	fpga_version;		/* FPGA Version Number Register */
++	__u32	cpu_start;		/* CPU start Register (write) */
++	__u32	cpu_stop;		/* CPU stop Register (write) */
++	__u32	misc_reg;		/* Miscellaneous Register */
++	__u32	idt_mode;		/* IDT mode Register */
++	__u32	uart_irq_status;	/* UART IRQ status Register */
++	__u32	clear_timer0_irq;	/* Clear timer interrupt Register */
++	__u32	clear_timer1_irq;	/* Clear timer interrupt Register */
++	__u32	clear_timer2_irq;	/* Clear timer interrupt Register */
++	__u32	test_register;		/* Test Register */
++	__u32	test_count;		/* Test Count Register */
++	__u32	timer_select;		/* Timer select register */
++	__u32	pr_uart_irq_status;	/* Prioritized UART IRQ stat Reg */
++	__u32	ram_wait_state;		/* RAM wait-state Register */
++	__u32	uart_wait_state;	/* UART wait-state Register */
++	__u32	timer_wait_state;	/* timer wait-state Register */
++	__u32	ack_wait_state;		/* ACK wait State Register */
++};
++
++/*
++ *	RUNTIME_9060 - PLX PCI9060ES local configuration and shared runtime
++ *	registers. This structure can be used to access the 9060 registers
++ *	(memory mapped).
++ */
++
++struct RUNTIME_9060 {
++	__u32	loc_addr_range;	/* 00h - Local Address Range */
++	__u32	loc_addr_base;	/* 04h - Local Address Base */
++	__u32	loc_arbitr;	/* 08h - Local Arbitration */
++	__u32	endian_descr;	/* 0Ch - Big/Little Endian Descriptor */
++	__u32	loc_rom_range;	/* 10h - Local ROM Range */
++	__u32	loc_rom_base;	/* 14h - Local ROM Base */
++	__u32	loc_bus_descr;	/* 18h - Local Bus descriptor */
++	__u32	loc_range_mst;	/* 1Ch - Local Range for Master to PCI */
++	__u32	loc_base_mst;	/* 20h - Local Base for Master PCI */
++	__u32	loc_range_io;	/* 24h - Local Range for Master IO */
++	__u32	pci_base_mst;	/* 28h - PCI Base for Master PCI */
++	__u32	pci_conf_io;	/* 2Ch - PCI configuration for Master IO */
++	__u32	filler1;	/* 30h */
++	__u32	filler2;	/* 34h */
++	__u32	filler3;	/* 38h */
++	__u32	filler4;	/* 3Ch */
++	__u32	mail_box_0;	/* 40h - Mail Box 0 */
++	__u32	mail_box_1;	/* 44h - Mail Box 1 */
++	__u32	mail_box_2;	/* 48h - Mail Box 2 */
++	__u32	mail_box_3;	/* 4Ch - Mail Box 3 */
++	__u32	filler5;	/* 50h */
++	__u32	filler6;	/* 54h */
++	__u32	filler7;	/* 58h */
++	__u32	filler8;	/* 5Ch */
++	__u32	pci_doorbell;	/* 60h - PCI to Local Doorbell */
++	__u32	loc_doorbell;	/* 64h - Local to PCI Doorbell */
++	__u32	intr_ctrl_stat;	/* 68h - Interrupt Control/Status */
++	__u32	init_ctrl;	/* 6Ch - EEPROM control, Init Control, etc */
++};
++
++/* Values for the Local Base Address re-map register */
++
++#define	WIN_RAM		0x00000001L	/* set the sliding window to RAM */
++#define	WIN_CREG	0x14000001L	/* set the window to custom Registers */
++
++/* Values timer select registers */
++
++#define	TIMER_BY_1M	0x00		/* clock divided by 1M */
++#define	TIMER_BY_256K	0x01		/* clock divided by 256k */
++#define	TIMER_BY_128K	0x02		/* clock divided by 128k */
++#define	TIMER_BY_32K	0x03		/* clock divided by 32k */
++
++/****************** ****************** *******************/
++#endif
++
++#ifndef ZFIRM_ID
++/* #include "zfwint.h" */
++/****************** ****************** *******************/
++/*
++ *	This file contains the definitions for interfacing with the
++ *	Cyclom-Z ZFIRM Firmware.
++ */
++
++/* General Constant definitions */
++
++#define	MAX_CHAN	64		/* max number of channels per board */
++
++/* firmware id structure (set after boot) */
++
++#define ID_ADDRESS	0x00000180L	/* signature/pointer address */
++#define	ZFIRM_ID	0x5557465AL	/* ZFIRM/U signature */
++#define	ZFIRM_HLT	0x59505B5CL	/* ZFIRM needs external power supply */
++#define	ZFIRM_RST	0x56040674L	/* RST signal (due to FW reset) */
++
++#define	ZF_TINACT_DEF	1000		/* default inactivity timeout
++					   (1000 ms) */
++#define	ZF_TINACT	ZF_TINACT_DEF
++
++struct	FIRM_ID {
++	__u32	signature;		/* ZFIRM/U signature */
++	__u32	zfwctrl_addr;		/* pointer to ZFW_CTRL structure */
++};
++
++/* Op. System id */
++
++#define	C_OS_LINUX	0x00000030	/* generic Linux system */
++
++/* channel op_mode */
++
++#define	C_CH_DISABLE	0x00000000	/* channel is disabled */
++#define	C_CH_TXENABLE	0x00000001	/* channel Tx enabled */
++#define	C_CH_RXENABLE	0x00000002	/* channel Rx enabled */
++#define	C_CH_ENABLE	0x00000003	/* channel Tx/Rx enabled */
++#define	C_CH_LOOPBACK	0x00000004	/* Loopback mode */
++
++/* comm_parity - parity */
++
++#define	C_PR_NONE	0x00000000	/* None */
++#define	C_PR_ODD	0x00000001	/* Odd */
++#define C_PR_EVEN	0x00000002	/* Even */
++#define C_PR_MARK	0x00000004	/* Mark */
++#define C_PR_SPACE	0x00000008	/* Space */
++#define C_PR_PARITY	0x000000ff
++
++#define	C_PR_DISCARD	0x00000100	/* discard char with frame/par error */
++#define C_PR_IGNORE	0x00000200	/* ignore frame/par error */
++
++/* comm_data_l - data length and stop bits */
++
++#define C_DL_CS5	0x00000001
++#define C_DL_CS6	0x00000002
++#define C_DL_CS7	0x00000004
++#define C_DL_CS8	0x00000008
++#define	C_DL_CS		0x0000000f
++#define C_DL_1STOP	0x00000010
++#define C_DL_15STOP	0x00000020
++#define C_DL_2STOP	0x00000040
++#define	C_DL_STOP	0x000000f0
++
++/* interrupt enabling/status */
++
++#define	C_IN_DISABLE	0x00000000	/* zero, disable interrupts */
++#define	C_IN_TXBEMPTY	0x00000001	/* tx buffer empty */
++#define	C_IN_TXLOWWM	0x00000002	/* tx buffer below LWM */
++#define	C_IN_RXHIWM	0x00000010	/* rx buffer above HWM */
++#define	C_IN_RXNNDT	0x00000020	/* rx no new data timeout */
++#define	C_IN_MDCD	0x00000100	/* modem DCD change */
++#define	C_IN_MDSR	0x00000200	/* modem DSR change */
++#define	C_IN_MRI	0x00000400	/* modem RI change */
++#define	C_IN_MCTS	0x00000800	/* modem CTS change */
++#define	C_IN_RXBRK	0x00001000	/* Break received */
++#define	C_IN_PR_ERROR	0x00002000	/* parity error */
++#define	C_IN_FR_ERROR	0x00004000	/* frame error */
++#define C_IN_OVR_ERROR  0x00008000      /* overrun error */
++#define C_IN_RXOFL	0x00010000      /* RX buffer overflow */
++#define C_IN_IOCTLW	0x00020000      /* I/O control w/ wait */
++#define C_IN_MRTS	0x00040000	/* modem RTS drop */
++#define C_IN_ICHAR	0x00080000
++
++/* flow control */
++
++#define	C_FL_OXX	0x00000001	/* output Xon/Xoff flow control */
++#define	C_FL_IXX	0x00000002	/* output Xon/Xoff flow control */
++#define C_FL_OIXANY	0x00000004	/* output Xon/Xoff (any xon) */
++#define	C_FL_SWFLOW	0x0000000f
++
++/* flow status */
++
++#define	C_FS_TXIDLE	0x00000000	/* no Tx data in the buffer or UART */
++#define	C_FS_SENDING	0x00000001	/* UART is sending data */
++#define	C_FS_SWFLOW	0x00000002	/* Tx is stopped by received Xoff */
++
++/* rs_control/rs_status RS-232 signals */
++
++#define C_RS_PARAM	0x80000000	/* Indicates presence of parameter in
++					   IOCTLM command */
++#define	C_RS_RTS	0x00000001	/* RTS */
++#define	C_RS_DTR	0x00000004	/* DTR */
++#define	C_RS_DCD	0x00000100	/* CD */
++#define	C_RS_DSR	0x00000200	/* DSR */
++#define	C_RS_RI		0x00000400	/* RI */
++#define	C_RS_CTS	0x00000800	/* CTS */
++
++/* commands Host <-> Board */
++
++#define	C_CM_RESET	0x01		/* reset/flush buffers */
++#define	C_CM_IOCTL	0x02		/* re-read CH_CTRL */
++#define	C_CM_IOCTLW	0x03		/* re-read CH_CTRL, intr when done */
++#define	C_CM_IOCTLM	0x04		/* RS-232 outputs change */
++#define	C_CM_SENDXOFF	0x10		/* send Xoff */
++#define	C_CM_SENDXON	0x11		/* send Xon */
++#define C_CM_CLFLOW	0x12		/* Clear flow control (resume) */
++#define	C_CM_SENDBRK	0x41		/* send break */
++#define	C_CM_INTBACK	0x42		/* Interrupt back */
++#define	C_CM_SET_BREAK	0x43		/* Tx break on */
++#define	C_CM_CLR_BREAK	0x44		/* Tx break off */
++#define	C_CM_CMD_DONE	0x45		/* Previous command done */
++#define C_CM_INTBACK2	0x46		/* Alternate Interrupt back */
++#define	C_CM_TINACT	0x51		/* set inactivity detection */
++#define	C_CM_IRQ_ENBL	0x52		/* enable generation of interrupts */
++#define	C_CM_IRQ_DSBL	0x53		/* disable generation of interrupts */
++#define	C_CM_ACK_ENBL	0x54		/* enable acknowledged interrupt mode */
++#define	C_CM_ACK_DSBL	0x55		/* disable acknowledged intr mode */
++#define	C_CM_FLUSH_RX	0x56		/* flushes Rx buffer */
++#define	C_CM_FLUSH_TX	0x57		/* flushes Tx buffer */
++#define C_CM_Q_ENABLE	0x58		/* enables queue access from the
++					   driver */
++#define C_CM_Q_DISABLE  0x59            /* disables queue access from the
++					   driver */
++
++#define	C_CM_TXBEMPTY	0x60		/* Tx buffer is empty */
++#define	C_CM_TXLOWWM	0x61		/* Tx buffer low water mark */
++#define	C_CM_RXHIWM	0x62		/* Rx buffer high water mark */
++#define	C_CM_RXNNDT	0x63		/* rx no new data timeout */
++#define	C_CM_TXFEMPTY	0x64
++#define	C_CM_ICHAR	0x65
++#define	C_CM_MDCD	0x70		/* modem DCD change */
++#define	C_CM_MDSR	0x71		/* modem DSR change */
++#define	C_CM_MRI	0x72		/* modem RI change */
++#define	C_CM_MCTS	0x73		/* modem CTS change */
++#define C_CM_MRTS	0x74		/* modem RTS drop */
++#define	C_CM_RXBRK	0x84		/* Break received */
++#define	C_CM_PR_ERROR	0x85		/* Parity error */
++#define	C_CM_FR_ERROR	0x86		/* Frame error */
++#define C_CM_OVR_ERROR  0x87            /* Overrun error */
++#define C_CM_RXOFL	0x88            /* RX buffer overflow */
++#define	C_CM_CMDERROR	0x90		/* command error */
++#define	C_CM_FATAL	0x91		/* fatal error */
++#define	C_CM_HW_RESET	0x92		/* reset board */
++
++/*
++ *	CH_CTRL - This per port structure contains all parameters
++ *	that control an specific port. It can be seen as the
++ *	configuration registers of a "super-serial-controller".
++ */
++
++struct CH_CTRL {
++	__u32	op_mode;	/* operation mode */
++	__u32	intr_enable;	/* interrupt masking */
++	__u32	sw_flow;	/* SW flow control */
++	__u32	flow_status;	/* output flow status */
++	__u32	comm_baud;	/* baud rate  - numerically specified */
++	__u32	comm_parity;	/* parity */
++	__u32	comm_data_l;	/* data length/stop */
++	__u32	comm_flags;	/* other flags */
++	__u32	hw_flow;	/* HW flow control */
++	__u32	rs_control;	/* RS-232 outputs */
++	__u32	rs_status;	/* RS-232 inputs */
++	__u32	flow_xon;	/* xon char */
++	__u32	flow_xoff;	/* xoff char */
++	__u32	hw_overflow;	/* hw overflow counter */
++	__u32	sw_overflow;	/* sw overflow counter */
++	__u32	comm_error;	/* frame/parity error counter */
++	__u32 ichar;
++	__u32 filler[7];
++};
++
++
++/*
++ *	BUF_CTRL - This per channel structure contains
++ *	all Tx and Rx buffer control for a given channel.
++ */
++
++struct	BUF_CTRL	{
++	__u32	flag_dma;	/* buffers are in Host memory */
++	__u32	tx_bufaddr;	/* address of the tx buffer */
++	__u32	tx_bufsize;	/* tx buffer size */
++	__u32	tx_threshold;	/* tx low water mark */
++	__u32	tx_get;		/* tail index tx buf */
++	__u32	tx_put;		/* head index tx buf */
++	__u32	rx_bufaddr;	/* address of the rx buffer */
++	__u32	rx_bufsize;	/* rx buffer size */
++	__u32	rx_threshold;	/* rx high water mark */
++	__u32	rx_get;		/* tail index rx buf */
++	__u32	rx_put;		/* head index rx buf */
++	__u32	filler[5];	/* filler to align structures */
++};
++
++/*
++ *	BOARD_CTRL - This per board structure contains all global
++ *	control fields related to the board.
++ */
++
++struct BOARD_CTRL {
++
++	/* static info provided by the on-board CPU */
++	__u32	n_channel;	/* number of channels */
++	__u32	fw_version;	/* firmware version */
++
++	/* static info provided by the driver */
++	__u32	op_system;	/* op_system id */
++	__u32	dr_version;	/* driver version */
++
++	/* board control area */
++	__u32	inactivity;	/* inactivity control */
++
++	/* host to FW commands */
++	__u32	hcmd_channel;	/* channel number */
++	__u32	hcmd_param;	/* pointer to parameters */
++
++	/* FW to Host commands */
++	__u32	fwcmd_channel;	/* channel number */
++	__u32	fwcmd_param;	/* pointer to parameters */
++	__u32	zf_int_queue_addr; /* offset for INT_QUEUE structure */
++
++	/* filler so the structures are aligned */
++	__u32	filler[6];
++};
++
++/* Host Interrupt Queue */
++
++#define QUEUE_SIZE	(10*MAX_CHAN)
++
++struct	INT_QUEUE {
++	unsigned char	intr_code[QUEUE_SIZE];
++	unsigned long	channel[QUEUE_SIZE];
++	unsigned long	param[QUEUE_SIZE];
++	unsigned long	put;
++	unsigned long	get;
++};
++
++/*
++ *	ZFW_CTRL - This is the data structure that includes all other
++ *	data structures used by the Firmware.
++ */
++
++struct ZFW_CTRL {
++	struct BOARD_CTRL	board_ctrl;
++	struct CH_CTRL		ch_ctrl[MAX_CHAN];
++	struct BUF_CTRL		buf_ctrl[MAX_CHAN];
++};
++
++/****************** ****************** *******************/
++#endif
++
++#endif /* _UAPI_LINUX_CYCLADES_H */
+Index: linux/include/uapi/linux/major.h
+===================================================================
+--- linux.orig/include/uapi/linux/major.h
++++ linux/include/uapi/linux/major.h
+@@ -34,6 +34,8 @@
+ #define GOLDSTAR_CDROM_MAJOR	16
+ #define OPTICS_CDROM_MAJOR	17
+ #define SANYO_CDROM_MAJOR	18
++#define CYCLADES_MAJOR		19	/* Obsolete */
++#define CYCLADESAUX_MAJOR	20	/* Obsolete */
+ #define MITSUMI_X_CDROM_MAJOR	20
+ #define MFM_ACORN_MAJOR		21	/* ARM Linux /dev/mfm */
+ #define SCSI_GENERIC_MAJOR	21
