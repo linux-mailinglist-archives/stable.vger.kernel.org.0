@@ -2,140 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0796148F046
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 20:09:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06B5B48F065
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 20:20:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243873AbiANTJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 14:09:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58828 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231557AbiANTJG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 14:09:06 -0500
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 514FBC061574
-        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 11:09:06 -0800 (PST)
-Received: by mail-pj1-x1034.google.com with SMTP id i8-20020a17090a138800b001b3936fb375so23136910pja.1
-        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 11:09:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=KNzcwTVcOu0B+eitDszf9SY5tKLz21OTQg3PtTyUyQA=;
-        b=g36VcM92VfzpT3mqa5iVGkBFp3I1yMXrTGIOJmDMvmLaiFkLtHZvlBrZXLWMlDChiK
-         2oESVv60LotKdBZye2udkdY9tJD/A/XpU0NhTPEElHM5DXdBlbjmIIjjOZu6sj7Gct+M
-         a6qPgYF/NYZmH4hY6yLBN/iWgocLPK89oIXqDLL7XjmR2xsx9a4L4AMhA79OelKeQ+Ib
-         x7cJt2cPjgW2UJ3K75pWAbgUpSsZrFgSE/ZIhBztJEAVdvs2BQI93zluBLDcuN1uV8ve
-         FIoXyYVL1ZxkOwzg+40jfoVs/2/RgGBqvWfWaDod7acZiYoCW8gb0B31KB5HnP4F9dkV
-         ceVg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=KNzcwTVcOu0B+eitDszf9SY5tKLz21OTQg3PtTyUyQA=;
-        b=7Tmga7tRovPTJ7dauo1BXKqqdRHQG8Lf1zth9gJrCYOpp4nNHxrwZWe8HDjfWeXOMZ
-         5te5x3Gaq557me9eJmrYEvFxGid08Lih4GgUZC9CUQavmiJGRx3NWaWcUPlEDJy7e9nT
-         3xerJzddVY2sbkGgNg/i7XsgEyE8nU1Q6L8eer26rj8uNU+FYRFUQK8CC2uUsyDuXfDv
-         tX0v2Ntbxt+86PoHs0jF2989dTKfpgjOt561/ynp08GwF4b/mEoiu7wnY0fJ7+jc5dM7
-         cgFMZmjWFjb+Mua649yHEWQGJwPr/ShuuqG+J572ivLdNsubzoGfyqPKzfFNjZsTKuUC
-         Pj9Q==
-X-Gm-Message-State: AOAM532ucMEiSdE7EUO2ktxr6xCdnelZIci1QvhmWyGnPHTMifr2uMVu
-        CbvZ1r8P39NlG+8FYSpEPlXcf6N3QvwmYWrR
-X-Google-Smtp-Source: ABdhPJxGc9VD5512yp+9c5S6Lr/8sZ8zp6c6uyrWO4R+WhLcgKXh2uPyl0o2EReJIZ9V/hOMo68Akg==
-X-Received: by 2002:a17:902:c10c:b0:14a:8def:dc2f with SMTP id 12-20020a170902c10c00b0014a8defdc2fmr4869462pli.98.1642187345554;
-        Fri, 14 Jan 2022 11:09:05 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id ob12sm5768537pjb.17.2022.01.14.11.09.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Jan 2022 11:09:05 -0800 (PST)
-Message-ID: <61e1ca51.1c69fb81.de22e.fb40@mx.google.com>
-Date:   Fri, 14 Jan 2022 11:09:05 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S229803AbiANTUM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 14:20:12 -0500
+Received: from mout.gmx.net ([212.227.15.19]:44441 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229593AbiANTUM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Jan 2022 14:20:12 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1642188010;
+        bh=AwJriVkhrEJyTWPEHF7U9Vw0OZgHXSeka+zk5yPYvNM=;
+        h=X-UI-Sender-Class:Date:From:Subject:To:Cc;
+        b=db5BJlmfmuXEGcT6zxM5351vU6bFOmN97h0eanhdOpsSZP0mpBmtc/5iZJuTfRSjO
+         F29f1e90nfQ2mfSGW34tGEs5BlISG9sepc2ax037s6qDTi+J/flfiH0YHjwjBEQYYY
+         YIIzd5zB3C5wmN30mNSzHAnaPgSEOhNgkrOAb2Kc=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.100.20] ([46.142.32.222]) by mail.gmx.net (mrgmx005
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MplXz-1mXmVz2Vkj-00q8F2; Fri, 14
+ Jan 2022 20:20:10 +0100
+Message-ID: <58f0677b-4672-de44-06f6-09f74c285639@gmx.de>
+Date:   Fri, 14 Jan 2022 20:20:09 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.262-10-gc56e65e74670
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 baseline: 121 runs,
- 1 regressions (v4.14.262-10-gc56e65e74670)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+From:   Ronald Warsow <rwarsow@gmx.de>
+Subject: Re: [PATCH 5.16 00/37] 5.16.1-rc1 review
+To:     linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Content-Language: de-DE
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: V03:K1:xE4+NT0Q3LI0j5XTfHb5YSedxEm27RAaDVLJSqvrZZ1bS841myx
+ jIXZCzf6kEvp8Lo5LleC5SlndBvA5QbFYkMB6SEzsFROIFDrFkuPk/FS3JLrKfLR5/oJQo3
+ HOHJ6YOvELpGZ6zw8vcXqE3dH/tICl68IXJS0sfjVKJ5nwpmQkszIcLDPWIvIhTkpEBN0v5
+ 4+MU9cPafwSEFA/R1iF0w==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:2xPWyRpC09Y=:RuUDKNLKW/O/8Qx5crDvED
+ zIKqRuXnmV0xuibGsN55Bi7veJzAGlZd+TIrdLcORpo0UJtQdMcXhwGjxNshEEGRk1lt+6gdF
+ PYU85mtNmu0vpw960AxtuvpSHVfMdPMArkjCAzISS882RaUDLNqdOycRXKIdV/zSTPw1rMHKS
+ d4KQttOrpbejBxXe7dUvdyR+749eD2Pc+GymzXdZt9MXTsGyJkKAV5MET3q3vEdJp3fv0dl1q
+ 6ivjMmR8SWK1rVqBqnjUTn7QjK6ibAuPrVJZL+wrJ0h0owTejmB+qvJ0MScmPzn1NYur6ECa4
+ vIOepvWpZ/FIPuFGg+qOptySFYyXy8AaA0b6WaUtLO3SalHoCVRvddBdrFopVjT4Fc9n5ZEMv
+ zR24joeKXhNLjVuYmgp2PkHEmX5R5Q1JVrBTcuPUU3cKK9+xhzq3aoYwKbYXwZ5jTdfV+Smdz
+ Vrvjla3bptyDjRoAsRklNNhva5DUHIrpsaW8SGqbjCNikgDKlpYBaQI5xbTuTk4QufD4s6ArG
+ 8QlV2tblKhsJVYV9D3Pagsl5JFAgIcamfKNSab6bpEY6CPfBCkJc397B5sX6pFohHUwrGB4HY
+ 3KNkCSoUJKzE00vwX6vt8qrTcdbDlbxxDhWMahBZCoMu9UHBJlMMSHHsHczeKZOq0GWnO9CU0
+ wYUJE9tVzn26SO87k4LZQUkFhXPn2XkVsksFpy7HH4d2AOelkTwEpiNe+YnrdyxYGm8k/iaJj
+ t2sOKQOb5DH2SpmCw8rPAbFqArMDqw6h80sg4hlQxXIIdUjMTfdQTUWylX6tL8zhwalcVLGIQ
+ uXrXIajXZVKCZPuf+b/R1GvZ5GUNA/7C6raBGaiXUL5PElsPZaw/mHxS3k3Jhv9+KhuVvLpGM
+ edPnfkvLWkbnvQZRxqd416bb+FRv61josMs4U8vs6bhlvJLDaxB1sVWbTR0auS1nAQUGt6eQj
+ kF0FlRRdEa+OBUhbLKylhiqmAt5oIXZbD9Qwabth5qd/dujNJ3/FY66Bnmc690UR8pdZlbWJp
+ aq3EmcZtwlXnfC80MLPwmIif1dxkNd25xPFQJBHkRl1UF8ZmTKtTD5BCUdWC1QUTbqSTS43Rw
+ hw06Pm5k7Nkok4=
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 121 runs, 1 regressions (v4.14.262-10-gc56e6=
-5e74670)
+hallo Greg
 
-Regressions Summary
--------------------
+5.16.1-rc1  successfully compiled, booted and suspended on an x86_64
+(Intel i5-11400, Fedora 35)
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+Tested-by: Ronald Warsow <rwarsow@gmx.de>
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.262-10-gc56e65e74670/plan/baseline/
+Thanks
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.262-10-gc56e65e74670
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      c56e65e746706ec1e6d526f5fe08e23991e64261 =
+Ronald
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e19a8238346eca12ef675e
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.262=
--10-gc56e65e74670/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.262=
--10-gc56e65e74670/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61e19a8238346ec=
-a12ef6761
-        failing since 11 days (last pass: v4.14.260-5-g5ba2b1f2b4df, first =
-fail: v4.14.260-9-gb7bb5018400c)
-        2 lines
-
-    2022-01-14T15:44:53.556856  [   20.262969] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2022-01-14T15:44:53.569867  [   20.282775] smsc95xx v1.0.6
-    2022-01-14T15:44:53.604903  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/96
-    2022-01-14T15:44:53.613893  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2022-01-14T15:44:53.631184  [   20.337432] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
