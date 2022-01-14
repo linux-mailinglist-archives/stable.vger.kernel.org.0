@@ -2,166 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C69D48E8F5
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 12:13:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FC1E48E8FF
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 12:15:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233869AbiANLLo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 06:11:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33374 "EHLO
+        id S231856AbiANLPo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 06:15:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232218AbiANLLo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 06:11:44 -0500
-X-Greylist: delayed 5194 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 14 Jan 2022 03:11:43 PST
-Received: from relay8-d.mail.gandi.net (relay8-d.mail.gandi.net [IPv6:2001:4b98:dc4:8::228])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A80EC061574;
-        Fri, 14 Jan 2022 03:11:43 -0800 (PST)
-Received: (Authenticated sender: alex@ghiti.fr)
-        by relay8-d.mail.gandi.net (Postfix) with ESMTPSA id 6AD521BF217;
-        Fri, 14 Jan 2022 11:11:35 +0000 (UTC)
-Message-ID: <33d9a577-8e41-067e-2d21-472cd83ea2cb@ghiti.fr>
-Date:   Fri, 14 Jan 2022 12:11:34 +0100
+        with ESMTP id S229901AbiANLPn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 06:15:43 -0500
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1C67C061574
+        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 03:15:43 -0800 (PST)
+Received: by mail-pj1-x102f.google.com with SMTP id l16-20020a17090a409000b001b2e9628c9cso13787361pjg.4
+        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 03:15:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:from:date:message-id:subject:to;
+        bh=Vwgx737jtSGcQ8vuz+0c8vcM6ntAz9kD9YnH2tDSnSk=;
+        b=QOfcoSpbkNdBRc6S8PoLMEaoo2/J4CtH5nqL5DltXfVVn+UvMEBxhyF6aPXBsQODrY
+         QZDz8B7SGnFCiwzIpmJChe6KhIyzVQFzPDtklX84tQMvuzRp21r97uRBm8fn+j0HPDjT
+         uDQq2o8qSAKPEN4XYf3yvG29NkSBGXmaveD/rbKmBOaJoX0wk/XkqRQ0AUvx8HwVGeGO
+         CZ30hBOnUZAc1bjCpgLC8j9rLSn2fIYbFmtTH1ulYY9HMmhIldHBsehr6hOcBzn0gpM1
+         1XlPIh8scSfr+/mXYceITG7mtE7ZUEzS4hwd7ov6EmLXUqTi9FZ/gUAGlMIQ5Czsxd1i
+         N3kg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:from:date:message-id:subject:to;
+        bh=Vwgx737jtSGcQ8vuz+0c8vcM6ntAz9kD9YnH2tDSnSk=;
+        b=1WcfcjL/k0EJ+DUnHfKx9H79+vGueWsqW5SrJUdnbY540jJ4QuU4c44fRg1NlCjrAo
+         HGC1Wp8tf5K9cpVDMb5dMXwbbxK/MDIefvWaOsP3C0H4BTNw3HRXtFhDXx0q7Jin2u5I
+         EG6aD0KBUbBrwR/b3bvmOozH4YCE8TvUQ7dnZUU6MQFThnfY2k/TUyAMXwTnnT63JaKh
+         0dwO+RurDBfEpnD5prnuVKIpgGlPuKhBRWZjJwG67kToBj9MTem1a4mnXQ+WRQTZcISH
+         ZXWVrTqPcKj4pLANuFDL9cFTB+66E7wJC7sfbsjR+jyHXbL1IH47JN/IDZZfHM5i5EpF
+         2P/g==
+X-Gm-Message-State: AOAM531XjZFDYMmuBEIWXRnjephKAiB2EGJTqJ59ie6FXpsxHFTiv7Hc
+        1hrkZ2abG/PDVctddQSaOkuJyy/scPdxiWc5Zvk=
+X-Google-Smtp-Source: ABdhPJxgdJOacPGF4UULfiu/bS+LKE2eOBd9E7hEbS51yDa1u3wz7Tj0q3i+G27jEDFPTWqcPARi8lJ481Jrf1w98CU=
+X-Received: by 2002:a17:902:b58d:b0:149:9c02:6345 with SMTP id
+ a13-20020a170902b58d00b001499c026345mr9254869pls.21.1642158943163; Fri, 14
+ Jan 2022 03:15:43 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.3.1
-Subject: Re: [PATCH 02/12] RISC-V: MAXPHYSMEM_2GB doesn't depend on
- CMODEL_MEDLOW
-Content-Language: en-US
-To:     Geert Uytterhoeven <geert@linux-m68k.org>
-Cc:     Palmer Dabbelt <palmer@rivosinc.com>,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Albert Ou <aou@eecs.berkeley.edu>,
-        Anup Patel <anup.patel@wdc.com>,
-        heinrich.schuchardt@canonical.com,
-        Atish Patra <atish.patra@wdc.com>,
-        Bin Meng <bin.meng@windriver.com>,
-        Sagar Kadam <sagar.kadam@sifive.com>,
-        Damien Le Moal <damien.lemoal@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-References: <20211119164413.29052-1-palmer@rivosinc.com>
- <20211119164413.29052-3-palmer@rivosinc.com>
- <CAMuHMdXQg942-DwDBJANsFiOCqyAwCt_GwW4HuC1nh0_DNmyEQ@mail.gmail.com>
- <aa05f467-efc2-ca66-3485-aa59ba72a730@ghiti.fr>
- <CAMuHMdUpi7hJwDrcCyzrooJN=gQjmwShD073UwXp7UxghHeMSA@mail.gmail.com>
-From:   Alexandre Ghiti <alex@ghiti.fr>
-In-Reply-To: <CAMuHMdUpi7hJwDrcCyzrooJN=gQjmwShD073UwXp7UxghHeMSA@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Received: by 2002:a05:7300:c1b:b0:43:14a:e33d with HTTP; Fri, 14 Jan 2022
+ 03:15:42 -0800 (PST)
+From:   Loe Ouedraogo <loeouedrago1@gmail.com>
+Date:   Fri, 14 Jan 2022 03:15:42 -0800
+Message-ID: <CALoYja8qCGO6inExep3bGimOqMiho7oiokuXmqoqEwGJ4PC-FA@mail.gmail.com>
+Subject: Coca Cola Award,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Geert,
+Coca Cola Award,
 
-On 1/14/22 11:12, Geert Uytterhoeven wrote:
-> Hi Alex,
->
-> On Tue, Jan 11, 2022 at 5:14 PM Alexandre ghiti <alex@ghiti.fr> wrote:
->> On 1/11/22 17:04, Geert Uytterhoeven wrote:
->>> On Fri, Nov 19, 2021 at 5:47 PM Palmer Dabbelt <palmer@rivosinc.com> wrote:
->>>> From: Palmer Dabbelt <palmer@rivosinc.com>
->>>>
->>>> For non-relocatable kernels we need to be able to link the kernel at
->>>> approximately PAGE_OFFSET, thus requiring medany (as medlow requires the
->>>> code to be linked within 2GiB of 0).  The inverse doesn't apply, though:
->>>> since medany code can be linked anywhere it's fine to link it close to
->>>> 0, so we can support the smaller memory config.
->>>>
->>>> Fixes: de5f4b8f634b ("RISC-V: Define MAXPHYSMEM_1GB only for RV32")
->>>> Cc: stable@vger.kernel.org
->>>> Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
->>> Thanks for your patch, which is now commit 9f36b96bc70f9707 ("RISC-V:
->>> MAXPHYSMEM_2GB doesn't depend on CMODEL_MEDLOW").
->>>
->>>> I found this when going through the savedefconfig diffs for the K210
->>>> defconfigs.  I'm not entirely sure they're doing the right thing here
->>>> (they should probably be setting CMODEL_LOW to take advantage of the
->>>> better code generation), but I don't have any way to test those
->>>> platforms so I don't want to change too much.
->>> I can confirm MAXPHYSMEM_2GB works on K210 with CMODEL_MEDANY.
->>>
->>> As the Icicle has 1760 MiB of RAM, I gave it a try with MAXPHYSMEM_2GB
->>> (and CMODEL_MEDANY), too.  Unfortunately it crashes very early
->>> (needs earlycon to see):
->>>
->>>       OF: fdt: Ignoring memory range 0x80000000 - 0x80200000
->>>       Machine model: Microchip PolarFire-SoC Icicle Kit
->>>       printk: debug: ignoring loglevel setting.
->>>       earlycon: ns16550a0 at MMIO32 0x0000000020100000 (options '115200n8')
->>>       printk: bootconsole [ns16550a0] enabled
->>>       printk: debug: skip boot console de-registration.
->>>       efi: UEFI not found.
->>>       Unable to handle kernel paging request at virtual address ffffffff87e00001
->>>       Oops [#1]
->>>       Modules linked in:
->>>       CPU: 0 PID: 0 Comm: swapper Not tainted 5.16.0-08771-g85515233477d #56
->>>       Hardware name: Microchip PolarFire-SoC Icicle Kit (DT)
->>>       epc : fdt_check_header+0x14/0x208
->>>        ra : early_init_dt_verify+0x16/0x94
->>>       epc : ffffffff802ddacc ra : ffffffff8082415a sp : ffffffff81203ee0
->>>        gp : ffffffff812ec3a8 tp : ffffffff8120cd80 t0 : 0000000000000005
->>>        t1 : 0000001040000000 t2 : ffffffff80000000 s0 : ffffffff81203f00
->>>        s1 : ffffffff87e00000 a0 : ffffffff87e00000 a1 : 000000040ffffce7
->>>        a2 : 00000000000000e7 a3 : ffffffff8080394c a4 : 0000000000000000
->>>        a5 : 0000000000000000 a6 : 0000000000000000 a7 : 0000000000000000
->>>        s2 : ffffffff81203f98 s3 : 8000000a00006800 s4 : fffffffffffffff3
->>>        s5 : 0000000000000000 s6 : 0000000000000001 s7 : 0000000000000000
->>>        s8 : 0000000020236c20 s9 : 0000000000000000 s10: 0000000000000000
->>>        s11: 0000000000000000 t3 : 0000000000000018 t4 : 00ff000000000000
->>>        t5 : 0000000000000000 t6 : 0000000000000010
->>>       status: 0000000200000100 badaddr: ffffffff87e00001 cause: 000000000000000d
->>>       [<ffffffff802ddacc>] fdt_check_header+0x14/0x208
->>>       [<ffffffff8082415a>] early_init_dt_verify+0x16/0x94
->>>       [<ffffffff80802dee>] setup_arch+0xec/0x4ec
->>>       [<ffffffff80800700>] start_kernel+0x88/0x6d6
->>>       random: get_random_bytes called from
->>> print_oops_end_marker+0x22/0x44 with crng_init=0
->>>       ---[ end trace 903df1a0ade0b876 ]---
->>>       Kernel panic - not syncing: Attempted to kill the idle task!
->>>       ---[ end Kernel panic - not syncing: Attempted to kill the idle task! ]---
->>>
->>> So the FDT is at 0xffffffff87e00000, i.e. at 0x7e00000 from the start
->>> of virtual memory (CONFIG_PAGE_OFFSET=0xffffffff80000000), and thus
->>> within the 2 GiB range.
->>
->> I think you have just encountered what I suspected and mentioned in [1]:
->> we recently moved the kernel to the PAGE_OFFSET address used with
->> MAXPHYSMEM_2GB.
->>
->> I would try to cherry-pick [1] and see if that works better :)
->>
->> Alex
->>
->> [1]
->> https://patchwork.kernel.org/project/linux-riscv/patch/20211206104657.433304-6-alexandre.ghiti@canonical.com/
-> Thanks, works fine with just that patch (needed small changes), or with
-> the full series.
->
-> Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Your email account have emerged as one of the lucky winner for
+$3.5,000.000.00USD which you're to contact below person to enable him
+process the transfer to you through ATM card transfer.
 
+For more Inquiries Contact;
 
-Nice to know the full series works too, thank you, I'll add your Tested-by.
-
-Thanks!
-
-Alex
-
-
-> Gr{oetje,eeting}s,
->
->                          Geert
->
-> --
-> Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
->
-> In personal conversations with technical people, I call myself a hacker. But
-> when I'm talking to journalists I just say "programmer" or something like that.
->                                  -- Linus Torvalds
->
-> _______________________________________________
-> linux-riscv mailing list
-> linux-riscv@lists.infradead.org
-> http://lists.infradead.org/mailman/listinfo/linux-riscv
+Name: DR. Richardson Smith
+Email: info.coca@mail.com
