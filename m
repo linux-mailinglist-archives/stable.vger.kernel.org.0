@@ -2,134 +2,173 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0E0348F0DE
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 21:20:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3002E48F0C1
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 21:09:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240021AbiANUUc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 15:20:32 -0500
-Received: from qproxy5-pub.mail.unifiedlayer.com ([69.89.21.30]:57036 "EHLO
-        qproxy5-pub.mail.unifiedlayer.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232761AbiANUUb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 15:20:31 -0500
-X-Greylist: delayed 1230 seconds by postgrey-1.27 at vger.kernel.org; Fri, 14 Jan 2022 15:20:31 EST
-Received: from gproxy4-pub.mail.unifiedlayer.com (gproxy4-pub.mail.unifiedlayer.com [69.89.23.142])
-        by qproxy5.mail.unifiedlayer.com (Postfix) with ESMTP id 1EB4F8036AD5
-        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 20:00:01 +0000 (UTC)
-Received: from cmgw10.mail.unifiedlayer.com (unknown [10.0.90.125])
-        by progateway6.mail.pro1.eigbox.com (Postfix) with ESMTP id 68A7510047818
-        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 20:00:00 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id 8SjvnagrfnAlU8SjwnRlvh; Fri, 14 Jan 2022 20:00:00 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=QIOt+iHL c=1 sm=1 tr=0 ts=61e1d640
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=DghFqjY3_ZEA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=HGw1mVhBy2YoFkOnSw0A:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:In-Reply-To:From:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=3ZZ8Z3lXC4EgxEaTFM+fFaZa06WIHcyvU419ouZNh5A=; b=m79quRX1zeKrb4l7z7LrO+5slh
-        nd2+r1WjqvQCL2BP8Y0FuWUl6UycKd4bomXlyQtUEG5bufu2LzxkuLti/eCvvbFoZ2XJ6nEaj+B26
-        kI36JYbpGaooHyQ73q2VcjZyb;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:60958 helo=[10.0.1.23])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <re@w6rz.net>)
-        id 1n8Sjv-001Fm6-D5; Fri, 14 Jan 2022 12:59:59 -0700
-Subject: Re: [PATCH 5.15 00/41] 5.15.15-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-References: <20220114081545.158363487@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-In-Reply-To: <20220114081545.158363487@linuxfoundation.org>
-Message-ID: <b94bd7bd-0c8b-1697-f4af-27e99ca9e62f@w6rz.net>
-Date:   Fri, 14 Jan 2022 11:59:57 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        id S244167AbiANUJW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 15:09:22 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:29472 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229471AbiANUJV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 15:09:21 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1642190960;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+        bh=thU4qAN6AqgkO3iygUwszvm6XkxjVvqIM4JafM153Ro=;
+        b=VBu/tbUPLpDNyyBkzSerTHwYDuMEsoVOFBBzJb3iGhNlxxNwdEiEJI6FnY2klPsuZVNec9
+        JTJKG1Hgf4VOvWNK4Mme9VbpiyK2m0jP9Em5b3RCmiekoidP12YT0nhRm00aC5R+r17gfQ
+        Ve1RxEHI6ZjMHTQxNIYUmXqr1bGIlgc=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-340-PKNpu-2dPPSVlmgXUjuF0Q-1; Fri, 14 Jan 2022 15:09:19 -0500
+X-MC-Unique: PKNpu-2dPPSVlmgXUjuF0Q-1
+Received: by mail-wm1-f71.google.com with SMTP id v185-20020a1cacc2000000b0034906580813so8651224wme.1
+        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 12:09:19 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:mime-version
+         :content-disposition;
+        bh=thU4qAN6AqgkO3iygUwszvm6XkxjVvqIM4JafM153Ro=;
+        b=jz4tMbURNwHfrdn7Uwihf73T5IY90XXJIRfhKW6iPApnHzxKCdU6Qa1h5TSelN3jQL
+         ywDqdoK83YSQBo2/Wx8ovKN0be4l7tluVm1Zp4g7GqidwfOFjtTT1FfC7TDmTNkReh/l
+         Gf5tcB1EbQrKb4WFGq8fGrXYt2peIZsKlP/tCvm1YOVzQgHk6KItzJ/wK1sF1eW/vKtC
+         iJXEQaCsIa+K5L2Evos7qRR97HkE8t24KTuLbD9InBa0idQWS36zCSBdzc6J9dMLTylo
+         rhcDjGWuwsV3JCqdi4f8DF1DXR6MOpSu8dxW7q4zULetKHhLDM55a6+Mpm2chPKqv2H+
+         hK+A==
+X-Gm-Message-State: AOAM533so5JLT+LwTyLr85C/6tJzv6/fQhUHR2xW7eNcCUNJWP69PgWr
+        JNNpjSIXzrXVNqdu/pbS9s8c7sTkV0Hen8SXawNNKEWiIOMBK9nkKgZ4tLfvcZ5+Ezdlj3nnxZv
+        PdhET+JIx76d4rO1s
+X-Received: by 2002:a1c:f414:: with SMTP id z20mr9703382wma.17.1642190957957;
+        Fri, 14 Jan 2022 12:09:17 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJyEuXU7Zkd1anD16Nt37T1Zc+NsfqyKtrzn9R+BerhveX99jnGTLsev2YBwd+P+dVVUjg2/0A==
+X-Received: by 2002:a1c:f414:: with SMTP id z20mr9703360wma.17.1642190957631;
+        Fri, 14 Jan 2022 12:09:17 -0800 (PST)
+Received: from redhat.com ([2.55.154.210])
+        by smtp.gmail.com with ESMTPSA id h14sm6071433wrz.31.2022.01.14.12.09.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 14 Jan 2022 12:09:17 -0800 (PST)
+Date:   Fri, 14 Jan 2022 15:09:14 -0500
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH] virtio: acknowledge all features before access
+Message-ID: <20220114200744.150325-1-mst@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1n8Sjv-001Fm6-D5
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.23]) [73.162.232.9]:60958
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 12
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
+X-Mutt-Fcc: =sent
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/14/22 12:16 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.15 release.
-> There are 41 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sun, 16 Jan 2022 08:15:33 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.15-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+The feature negotiation was designed in a way that
+makes it possible for devices to know which config
+fields will be accessed by drivers.
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+This is broken since commit 404123c2db79 ("virtio: allow drivers to
+validate features") with fallout in at least block and net.
+We have a partial work-around in commit 2f9a174f918e ("virtio: write
+back F_VERSION_1 before validate") which at least lets devices
+find out which format should config space have, but this
+is a partial fix: guests should not access config space
+without acknowledging features since otherwise we'll never
+be able to change the config space format.
 
-Warnings:
+As a side effect, this also reduces the amount of hypervisor accesses -
+we now only acknowledge features once unless we are clearing any
+features when validating.
 
-fs/jffs2/xattr.c: In function 'jffs2_build_xattr_subsystem':
-fs/jffs2/xattr.c:887:1: warning: the frame size of 1104 bytes is larger 
-than 1024 bytes [-Wframe-larger-than=]
-   887 | }
-       | ^
-lib/crypto/curve25519-hacl64.c: In function 'ladder_cmult.constprop':
-lib/crypto/curve25519-hacl64.c:601:1: warning: the frame size of 1040 
-bytes is larger than 1024 bytes [-Wframe-larger-than=]
-   601 | }
-       | ^
-drivers/net/wireguard/allowedips.c: In function 'root_remove_peer_lists':
-drivers/net/wireguard/allowedips.c:77:1: warning: the frame size of 1040 
-bytes is larger than 1024 bytes [-Wframe-larger-than=]
-    77 | }
-       | ^
-drivers/net/wireguard/allowedips.c: In function 'root_free_rcu':
-drivers/net/wireguard/allowedips.c:64:1: warning: the frame size of 1040 
-bytes is larger than 1024 bytes [-Wframe-larger-than=]
-    64 | }
-       | ^
-drivers/vhost/scsi.c: In function 'vhost_scsi_flush':
-drivers/vhost/scsi.c:1444:1: warning: the frame size of 1040 bytes is 
-larger than 1024 bytes [-Wframe-larger-than=]
-  1444 | }
-       | ^
+Cc: stable@vger.kernel.org
+Fixes: 404123c2db79 ("virtio: allow drivers to validate features")
+Fixes: 2f9a174f918e ("virtio: write back F_VERSION_1 before validate")
+Cc: "Halil Pasic" <pasic@linux.ibm.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
 
-Tested-by: Ron Economos <re@w6rz.net>
+Halil, I thought hard about our situation with transitional and
+today I finally thought of something I am happy with.
+Pls let me know what you think. Testing on big endian would
+also be much appreciated!
+
+ drivers/virtio/virtio.c | 31 +++++++++++++++++--------------
+ 1 file changed, 17 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index d891b0a354b0..2ed6e2451fd8 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -168,12 +168,10 @@ EXPORT_SYMBOL_GPL(virtio_add_status);
+ 
+ static int virtio_finalize_features(struct virtio_device *dev)
+ {
+-	int ret = dev->config->finalize_features(dev);
+ 	unsigned status;
++	int ret;
+ 
+ 	might_sleep();
+-	if (ret)
+-		return ret;
+ 
+ 	ret = arch_has_restricted_virtio_memory_access();
+ 	if (ret) {
+@@ -244,17 +242,6 @@ static int virtio_dev_probe(struct device *_d)
+ 		driver_features_legacy = driver_features;
+ 	}
+ 
+-	/*
+-	 * Some devices detect legacy solely via F_VERSION_1. Write
+-	 * F_VERSION_1 to force LE config space accesses before FEATURES_OK for
+-	 * these when needed.
+-	 */
+-	if (drv->validate && !virtio_legacy_is_little_endian()
+-			  && device_features & BIT_ULL(VIRTIO_F_VERSION_1)) {
+-		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
+-		dev->config->finalize_features(dev);
+-	}
+-
+ 	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
+ 		dev->features = driver_features & device_features;
+ 	else
+@@ -265,10 +252,22 @@ static int virtio_dev_probe(struct device *_d)
+ 		if (device_features & (1ULL << i))
+ 			__virtio_set_bit(dev, i);
+ 
++	err = dev->config->finalize_features(dev);
++	if (err)
++		goto err;
++
+ 	if (drv->validate) {
++		u64 features = dev->features;
++
+ 		err = drv->validate(dev);
+ 		if (err)
+ 			goto err;
++
++		if (features != dev->features) {
++			err = dev->config->finalize_features(dev);
++			if (err)
++				goto err;
++		}
+ 	}
+ 
+ 	err = virtio_finalize_features(dev);
+@@ -495,6 +494,10 @@ int virtio_device_restore(struct virtio_device *dev)
+ 	/* We have a driver! */
+ 	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER);
+ 
++	ret = dev->config->finalize_features(dev);
++	if (ret)
++		goto err;
++
+ 	ret = virtio_finalize_features(dev);
+ 	if (ret)
+ 		goto err;
+-- 
+MST
 
