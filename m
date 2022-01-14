@@ -2,126 +2,240 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C13C48E176
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 01:28:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8556648E1CB
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 01:55:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238372AbiANA2N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 13 Jan 2022 19:28:13 -0500
-Received: from mga04.intel.com ([192.55.52.120]:24454 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230165AbiANA2N (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 13 Jan 2022 19:28:13 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1642120093; x=1673656093;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=RRSc0fCF2gQ58MCLYJ6EBu3GpIJNYU365XBPjiNmmwU=;
-  b=aH2hmOTwwfKK+7xqAT3xwiRYnJPanp28ULfpIXa3JM2OtWPTBLRoceFs
-   EFYyGpJ5d6Mzc7XZ0yZW3h3RtCSdFsXlKFE6OcHnoHFlniUbU8dHct2z2
-   AKNVo+Hoih3KkW+Ub0sQ8kG+LtLGSiHERbH/pWmvojpRYPasSHOIxKuwC
-   5pXglXux9y+c80/thexk8jwphMFvCaEN3+lJMdUPP6vuJdsFm+aCubBmq
-   MjLJ5y9GiPyp4NbL27W9wrML9nmVSmKkJlTPk5+cn6Qh76DtNrD5FWeSf
-   BE7tby8VpvLxrfkx+FGiJg3+b4vFXwZH0pkdcj6Q6bQ9gER0YjkUxhxkj
-   Q==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10226"; a="242964235"
-X-IronPort-AV: E=Sophos;i="5.88,287,1635231600"; 
-   d="scan'208";a="242964235"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jan 2022 16:28:12 -0800
-X-IronPort-AV: E=Sophos;i="5.88,287,1635231600"; 
-   d="scan'208";a="491317600"
-Received: from lucas-s2600cw.jf.intel.com ([10.165.21.202])
-  by orsmga002-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Jan 2022 16:28:12 -0800
-From:   Lucas De Marchi <lucas.demarchi@intel.com>
-To:     x86@kernel.org
-Cc:     Dave Hansen <dave.hansen@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
-        intel-gfx@lists.freedesktop.org,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>, stable@vger.kernel.org
-Subject: [PATCH v5 1/5] x86/quirks: Fix stolen detection with integrated + discrete GPU
-Date:   Thu, 13 Jan 2022 16:28:39 -0800
-Message-Id: <20220114002843.2083382-1-lucas.demarchi@intel.com>
-X-Mailer: git-send-email 2.34.1
+        id S232064AbiANAzQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 13 Jan 2022 19:55:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36492 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230040AbiANAzP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 13 Jan 2022 19:55:15 -0500
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99074C061574
+        for <stable@vger.kernel.org>; Thu, 13 Jan 2022 16:55:15 -0800 (PST)
+Received: by mail-pj1-x1035.google.com with SMTP id l16so2575859pjl.4
+        for <stable@vger.kernel.org>; Thu, 13 Jan 2022 16:55:15 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=z9y2GVOD8Y3CrSzVDTiWzubekA4HsEYaEOSiQWcSqX0=;
+        b=LbGqEBiAlFqKspcAX6H03NsMRZNlUtMzUf7Dbf55isKPrMLMnTsJySmilSwIdmpGxb
+         Sskl1m9JmhIutzM/coPBQTVoLbUuxbRrDCCnxWQH5WvcltXJWqFTkCst7zPvCHWz1lUg
+         o8r30ffN0C7irg7K2hQS5WiRiDTVUVZNyth/x/+nlGF+znp67SAcqrhWSCv4iuftMWjE
+         LRxZ76MVGDTuCdsLE8NWkj2YyNZYHYZo+3R2EbGBtLX92A1FYpVbj7LIP3HOQ4VZ288/
+         NNkx7x6TofYJWYwBzUJxLVhBscjlHy8T3dsFXZ1l+rrck/9DyCDfLUvJX+ketg4ENcjN
+         wFqg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=z9y2GVOD8Y3CrSzVDTiWzubekA4HsEYaEOSiQWcSqX0=;
+        b=73972Gl1J4zY1sn03Zz7Au0Ci+xdFzWzzQCyaaDgAfo0Fvl9Ha5t+rTZQ4GQnIZgmO
+         4Zp2AafA/QMqNFBzlwiM5OVpIz1YOknG9DPg+7pDCvxuXvin4hdSiIJ8htrmxf+QrrUS
+         mkNhhUfdT349F94dXvZ17Sg7Wi8MuORd8atinzT2xpp3RlBvim2EUwWR7WXXoHD1P8Ja
+         d1zkfE7EhOywcmURXzwDMT2auFKGTpYmPFYEcUCLMlY9rRhkXstvUP51yueahNZQNARm
+         AJLMparnC3V/5pwibMvf13QQYbJ+dLRv62FNOnYPdBzN8AO1T2+gFxqlWngzA7SwjCtT
+         OZ1g==
+X-Gm-Message-State: AOAM531ZAllq5Vby+KB0eEqSO0iAUZTTfQZTvsfREch9cdZyoaaXjTrr
+        Dsg/8tfWNZA6I14BQP3CFd5G1u3fAkrVdDpzdJA=
+X-Google-Smtp-Source: ABdhPJwkUopn8NTg7HqVJu+1V7dfYDLiEIiKozVBcZQao9LYcMhActY6giKFfY/mLkspLxqTTbE6Lw==
+X-Received: by 2002:a17:90a:cc0c:: with SMTP id b12mr7724723pju.103.1642121714482;
+        Thu, 13 Jan 2022 16:55:14 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id pc7sm1253992pjb.16.2022.01.13.16.55.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 13 Jan 2022 16:55:14 -0800 (PST)
+Message-ID: <61e0c9f2.1c69fb81.1d607.42d6@mx.google.com>
+Date:   Thu, 13 Jan 2022 16:55:14 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.171-15-g84235c8b1545
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 162 runs,
+ 4 regressions (v5.4.171-15-g84235c8b1545)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-early_pci_scan_bus() does a depth-first traversal, possibly calling
-the quirk functions for each device based on vendor, device and class
-from early_qrk table. intel_graphics_quirks() however uses PCI_ANY_ID
-and does additional filtering in the quirk.
+stable-rc/queue/5.4 baseline: 162 runs, 4 regressions (v5.4.171-15-g84235c8=
+b1545)
 
-If there is an Intel integrated + discrete GPU the quirk may be called
-first for the discrete GPU based on the PCI topology. Then we will fail
-to reserve the system stolen memory for the integrated GPU, because we
-will already have marked the quirk as "applied".
+Regressions Summary
+-------------------
 
-This was reproduced in a setup with Alderlake-P (integrated) + DG2
-(discrete), with the following PCI topology:
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-	- 00:01.0 Bridge
-	  `- 03:00.0 DG2
-	- 00:02.0 Integrated GPU
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-So, stop using the QFLAG_APPLY_ONCE flag, replacing it with a static
-local variable. We can set this variable in the right place, inside
-intel_graphics_quirks(), only when the quirk was actually applied, i.e.
-when we find the integrated GPU based on the intel_early_ids table.
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
----
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-v5: apply fix before the refactor
 
- arch/x86/kernel/early-quirks.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.171-15-g84235c8b1545/plan/baseline/
 
-diff --git a/arch/x86/kernel/early-quirks.c b/arch/x86/kernel/early-quirks.c
-index 1ca3a56fdc2d..de9a76eb544e 100644
---- a/arch/x86/kernel/early-quirks.c
-+++ b/arch/x86/kernel/early-quirks.c
-@@ -589,10 +589,14 @@ intel_graphics_stolen(int num, int slot, int func,
- 
- static void __init intel_graphics_quirks(int num, int slot, int func)
- {
-+	static bool quirk_applied __initdata;
- 	const struct intel_early_ops *early_ops;
- 	u16 device;
- 	int i;
- 
-+	if (quirk_applied)
-+		return;
-+
- 	device = read_pci_config_16(num, slot, func, PCI_DEVICE_ID);
- 
- 	for (i = 0; i < ARRAY_SIZE(intel_early_ids); i++) {
-@@ -605,6 +609,8 @@ static void __init intel_graphics_quirks(int num, int slot, int func)
- 
- 		intel_graphics_stolen(num, slot, func, early_ops);
- 
-+		quirk_applied = true;
-+
- 		return;
- 	}
- }
-@@ -705,7 +711,7 @@ static struct chipset early_qrk[] __initdata = {
- 	{ PCI_VENDOR_ID_INTEL, 0x3406, PCI_CLASS_BRIDGE_HOST,
- 	  PCI_BASE_CLASS_BRIDGE, 0, intel_remapping_check },
- 	{ PCI_VENDOR_ID_INTEL, PCI_ANY_ID, PCI_CLASS_DISPLAY_VGA, PCI_ANY_ID,
--	  QFLAG_APPLY_ONCE, intel_graphics_quirks },
-+	  0, intel_graphics_quirks },
- 	/*
- 	 * HPET on the current version of the Baytrail platform has accuracy
- 	 * problems: it will halt in deep idle state - so we disable it.
--- 
-2.34.1
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.171-15-g84235c8b1545
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      84235c8b1545b9437a45f11b8b0c05a096528d81 =
 
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61e098e18e0ccf2e15ef675b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-1=
+5-g84235c8b1545/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-1=
+5-g84235c8b1545/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61e098e18e0ccf2e15ef6=
+75c
+        failing since 28 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61e098e37441f5f284ef6753
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-1=
+5-g84235c8b1545/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-1=
+5-g84235c8b1545/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61e098e37441f5f284ef6=
+754
+        failing since 28 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61e098f1b167b032b6ef6759
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-1=
+5-g84235c8b1545/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-1=
+5-g84235c8b1545/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61e098f1b167b032b6ef6=
+75a
+        failing since 28 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61e098e4acae919d83ef6748
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-1=
+5-g84235c8b1545/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-1=
+5-g84235c8b1545/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20211210.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61e098e4acae919d83ef6=
+749
+        failing since 28 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =20
