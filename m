@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CDFC48E5CE
+	by mail.lfdr.de (Postfix) with ESMTP id 41A5848E5CD
 	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:21:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237167AbiANIVK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 03:21:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50014 "EHLO
+        id S237146AbiANIVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 03:21:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237285AbiANIUU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:20:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C900CC061574;
-        Fri, 14 Jan 2022 00:20:19 -0800 (PST)
+        with ESMTP id S237160AbiANIUV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:20:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DFD7C061748;
+        Fri, 14 Jan 2022 00:20:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8F5C3B8243F;
-        Fri, 14 Jan 2022 08:20:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAA17C36AEA;
-        Fri, 14 Jan 2022 08:20:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A0F0661E2B;
+        Fri, 14 Jan 2022 08:20:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 854DAC36AEA;
+        Fri, 14 Jan 2022 08:20:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642148417;
-        bh=ECff3ZRty7temCsLQUGgmomdJLdFaUXUtgGSk/VjTYA=;
+        s=korg; t=1642148420;
+        bh=1mtergpMkyF1SJOFz8kDHvEfLD8KcR/WpMTyzvRmAU8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i9YFfLnpniafYlLFadq7WGVMBg5IYNOZu090pftPm9e6ek/MsPBpEbcT1JNb6n3I5
-         gRA2X1cX2ZXTB8tCIBIH+w6/oU/5gSQYhAC0USfrzFmWhNUtky99w5B0j/ZY4yy6lk
-         nkD9SJY5jrklbPNP64+GLspOGtKuP9cP+h/927q8=
+        b=jRcvZzUETcQCtOFQfrvotQAaXuv/XjAgwr1NpQrCgIjwk6GiZFsZlrYVxXGnTAq2l
+         IvNYlg18pTeLNSPV5mw4pv0/yYlEZm5txaP6NAPwmXzhoWN8IaW1bU9tDJk19ZQB19
+         ZWcaDGQE2NQ7uTGhb68XslR/XWmJDcAc1lcsYH/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>
-Subject: [PATCH 5.15 04/41] bpf: Fix out of bounds access from invalid *_or_null type verification
-Date:   Fri, 14 Jan 2022 09:16:04 +0100
-Message-Id: <20220114081545.310308233@linuxfoundation.org>
+        stable@vger.kernel.org, "mark-yw.chen" <mark-yw.chen@mediatek.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 5.15 05/41] Bluetooth: btusb: Add protocol for MediaTek bluetooth devices(MT7922)
+Date:   Fri, 14 Jan 2022 09:16:05 +0100
+Message-Id: <20220114081545.340807848@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220114081545.158363487@linuxfoundation.org>
 References: <20220114081545.158363487@linuxfoundation.org>
@@ -46,102 +47,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: mark-yw.chen <mark-yw.chen@mediatek.com>
 
-[ no upstream commit given implicitly fixed through the larger refactoring
-  in c25b2ae136039ffa820c26138ed4a5e5f3ab3841 ]
+commit 09a19d6dd974c677669eff44a9044f65d7be359d upstream.
 
-While auditing some other code, I noticed missing checks inside the pointer
-arithmetic simulation, more specifically, adjust_ptr_min_max_vals(). Several
-*_OR_NULL types are not rejected whereas they are _required_ to be rejected
-given the expectation is that they get promoted into a 'real' pointer type
-for the success case, that is, after an explicit != NULL check.
+The information in /sys/kernel/debug/usb/devices about the MT7922U
+Bluetooth device is listed as the below.
 
-One case which stands out and is accessible from unprivileged (iff enabled
-given disabled by default) is BPF ring buffer. From crafting a PoC, the NULL
-check can be bypassed through an offset, and its id marking will then lead
-to promotion of mem_or_null to a mem type.
+T: Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 18 Spd=480 MxCh= 0
+D: Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs= 1
+P: Vendor=0e8d ProdID=7922 Rev= 1.00
+S: Manufacturer=MediaTek Inc.
+S: Product=Wireless_Device
+S: SerialNumber=000000000
+C:* #Ifs= 3 Cfg#= 1 Atr=e0 MxPwr=100mA
+A: FirstIf#= 0 IfCount= 3 Cls=e0(wlcon) Sub=01 Prot=01
+I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E: Ad=81(I) Atr=03(Int.) MxPS= 16 Ivl=125us
+E: Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E: Ad=83(I) Atr=01(Isoc) MxPS= 0 Ivl=1ms
+E: Ad=03(O) Atr=01(Isoc) MxPS= 0 Ivl=1ms
+I: If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E: Ad=83(I) Atr=01(Isoc) MxPS= 9 Ivl=1ms
+E: Ad=03(O) Atr=01(Isoc) MxPS= 9 Ivl=1ms
+I: If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E: Ad=83(I) Atr=01(Isoc) MxPS= 17 Ivl=1ms
+E: Ad=03(O) Atr=01(Isoc) MxPS= 17 Ivl=1ms
+I: If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E: Ad=83(I) Atr=01(Isoc) MxPS= 25 Ivl=1ms
+E: Ad=03(O) Atr=01(Isoc) MxPS= 25 Ivl=1ms
+I: If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E: Ad=83(I) Atr=01(Isoc) MxPS= 33 Ivl=1ms
+E: Ad=03(O) Atr=01(Isoc) MxPS= 33 Ivl=1ms
+I: If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E: Ad=83(I) Atr=01(Isoc) MxPS= 49 Ivl=1ms
+E: Ad=03(O) Atr=01(Isoc) MxPS= 49 Ivl=1ms
+I: If#= 1 Alt= 6 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E: Ad=83(I) Atr=01(Isoc) MxPS= 63 Ivl=1ms
+E: Ad=03(O) Atr=01(Isoc) MxPS= 63 Ivl=1ms
+I:* If#= 2 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=(none)
+E: Ad=8a(I) Atr=03(Int.) MxPS= 64 Ivl=125us
+E: Ad=0a(O) Atr=03(Int.) MxPS= 64 Ivl=125us
+I: If#= 2 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=(none)
+E: Ad=8a(I) Atr=03(Int.) MxPS= 512 Ivl=125us
+E: Ad=0a(O) Atr=03(Int.) MxPS= 512 Ivl=125us
 
-bpf_ringbuf_reserve() helper can trigger this case through passing of reserved
-flags, for example.
-
-  func#0 @0
-  0: R1=ctx(id=0,off=0,imm=0) R10=fp0
-  0: (7a) *(u64 *)(r10 -8) = 0
-  1: R1=ctx(id=0,off=0,imm=0) R10=fp0 fp-8_w=mmmmmmmm
-  1: (18) r1 = 0x0
-  3: R1_w=map_ptr(id=0,off=0,ks=0,vs=0,imm=0) R10=fp0 fp-8_w=mmmmmmmm
-  3: (b7) r2 = 8
-  4: R1_w=map_ptr(id=0,off=0,ks=0,vs=0,imm=0) R2_w=invP8 R10=fp0 fp-8_w=mmmmmmmm
-  4: (b7) r3 = 0
-  5: R1_w=map_ptr(id=0,off=0,ks=0,vs=0,imm=0) R2_w=invP8 R3_w=invP0 R10=fp0 fp-8_w=mmmmmmmm
-  5: (85) call bpf_ringbuf_reserve#131
-  6: R0_w=mem_or_null(id=2,ref_obj_id=2,off=0,imm=0) R10=fp0 fp-8_w=mmmmmmmm refs=2
-  6: (bf) r6 = r0
-  7: R0_w=mem_or_null(id=2,ref_obj_id=2,off=0,imm=0) R6_w=mem_or_null(id=2,ref_obj_id=2,off=0,imm=0) R10=fp0 fp-8_w=mmmmmmmm refs=2
-  7: (07) r0 += 1
-  8: R0_w=mem_or_null(id=2,ref_obj_id=2,off=1,imm=0) R6_w=mem_or_null(id=2,ref_obj_id=2,off=0,imm=0) R10=fp0 fp-8_w=mmmmmmmm refs=2
-  8: (15) if r0 == 0x0 goto pc+4
-   R0_w=mem(id=0,ref_obj_id=0,off=0,imm=0) R6_w=mem(id=0,ref_obj_id=2,off=0,imm=0) R10=fp0 fp-8_w=mmmmmmmm refs=2
-  9: R0_w=mem(id=0,ref_obj_id=0,off=0,imm=0) R6_w=mem(id=0,ref_obj_id=2,off=0,imm=0) R10=fp0 fp-8_w=mmmmmmmm refs=2
-  9: (62) *(u32 *)(r6 +0) = 0
-   R0_w=mem(id=0,ref_obj_id=0,off=0,imm=0) R6_w=mem(id=0,ref_obj_id=2,off=0,imm=0) R10=fp0 fp-8_w=mmmmmmmm refs=2
-  10: R0_w=mem(id=0,ref_obj_id=0,off=0,imm=0) R6_w=mem(id=0,ref_obj_id=2,off=0,imm=0) R10=fp0 fp-8_w=mmmmmmmm refs=2
-  10: (bf) r1 = r6
-  11: R0_w=mem(id=0,ref_obj_id=0,off=0,imm=0) R1_w=mem(id=0,ref_obj_id=2,off=0,imm=0) R6_w=mem(id=0,ref_obj_id=2,off=0,imm=0) R10=fp0 fp-8_w=mmmmmmmm refs=2
-  11: (b7) r2 = 0
-  12: R0_w=mem(id=0,ref_obj_id=0,off=0,imm=0) R1_w=mem(id=0,ref_obj_id=2,off=0,imm=0) R2_w=invP0 R6_w=mem(id=0,ref_obj_id=2,off=0,imm=0) R10=fp0 fp-8_w=mmmmmmmm refs=2
-  12: (85) call bpf_ringbuf_submit#132
-  13: R6=invP(id=0) R10=fp0 fp-8=mmmmmmmm
-  13: (b7) r0 = 0
-  14: R0_w=invP0 R6=invP(id=0) R10=fp0 fp-8=mmmmmmmm
-  14: (95) exit
-
-  from 8 to 13: safe
-  processed 15 insns (limit 1000000) max_states_per_insn 0 total_states 1 peak_states 1 mark_read 0
-  OK
-
-All three commits, that is b121b341e598 ("bpf: Add PTR_TO_BTF_ID_OR_NULL support"),
-457f44363a88 ("bpf: Implement BPF ring buffer and verifier support for it"), and the
-afbf21dce668 ("bpf: Support readonly/readwrite buffers in verifier") suffer the same
-cause and their *_OR_NULL type pendants must be rejected in adjust_ptr_min_max_vals().
-
-Make the test more robust by reusing reg_type_may_be_null() helper such that we catch
-all *_OR_NULL types we have today and in future.
-
-Note that pointer arithmetic on PTR_TO_BTF_ID, PTR_TO_RDONLY_BUF, and PTR_TO_RDWR_BUF
-is generally allowed.
-
-Fixes: b121b341e598 ("bpf: Add PTR_TO_BTF_ID_OR_NULL support")
-Fixes: 457f44363a88 ("bpf: Implement BPF ring buffer and verifier support for it")
-Fixes: afbf21dce668 ("bpf: Support readonly/readwrite buffers in verifier")
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: mark-yw.chen <mark-yw.chen@mediatek.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/verifier.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/bluetooth/btusb.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -7039,16 +7039,16 @@ static int adjust_ptr_min_max_vals(struc
- 		fallthrough;
- 	case PTR_TO_PACKET_END:
- 	case PTR_TO_SOCKET:
--	case PTR_TO_SOCKET_OR_NULL:
- 	case PTR_TO_SOCK_COMMON:
--	case PTR_TO_SOCK_COMMON_OR_NULL:
- 	case PTR_TO_TCP_SOCK:
--	case PTR_TO_TCP_SOCK_OR_NULL:
- 	case PTR_TO_XDP_SOCK:
-+reject:
- 		verbose(env, "R%d pointer arithmetic on %s prohibited\n",
- 			dst, reg_type_str[ptr_reg->type]);
- 		return -EACCES;
- 	default:
-+		if (reg_type_may_be_null(ptr_reg->type))
-+			goto reject;
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -2808,6 +2808,7 @@ static int btusb_mtk_setup(struct hci_de
+ 	case 0x7668:
+ 		fwname = FIRMWARE_MT7668;
  		break;
- 	}
- 
++	case 0x7922:
+ 	case 0x7961:
+ 		snprintf(fw_bin_name, sizeof(fw_bin_name),
+ 			"mediatek/BT_RAM_CODE_MT%04x_1_%x_hdr.bin",
 
 
