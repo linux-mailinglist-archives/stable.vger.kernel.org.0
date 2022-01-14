@@ -2,165 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C8D048EC32
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 16:07:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A12AD48EDA4
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 17:04:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238343AbiANPHL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 10:07:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59350 "EHLO
+        id S238931AbiANQEz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 11:04:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238270AbiANPHL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 10:07:11 -0500
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 577D8C061574
-        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 07:07:11 -0800 (PST)
-Received: by mail-pg1-x533.google.com with SMTP id f8so2998472pgf.8
-        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 07:07:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=IqztX1L7zZJzbgZ9N23VK9TVA/rmxLV4pDM8oScroU0=;
-        b=kw7YrDRwqSjXeDEnOVYEnTZqUSfk4RfUqhT9s7A2sccgSLQnRcsQm03xiflhyrM87J
-         5+XKsYwqvapBWc/hz8n0hec8e9aEPDAcX0uzi9/b4SE20RfkQhn83YNmHlmfkVrSfU99
-         T+R30bEIscEQ/tpYa2OR9DDiafy/Gl22da6TpbC95zUGE5rFGDHKbLJQBPsAwTsPEhNR
-         47D3n8R8N6LrupT7jj1PXLoZSVPBQZ9FYE1/y79kIGy8GsKFqURTUDUvePDinswdndru
-         jQIZc/mG8VLjWA3VcG6QtH9PYiIdByh7v6eHbSdFrIJCKjhhw2qoQEZgKa0hJThaW1+j
-         48uQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=IqztX1L7zZJzbgZ9N23VK9TVA/rmxLV4pDM8oScroU0=;
-        b=Unlv6uEmWvbCDVCkiVt0f7KhZlFT1U3xYhRYPgZJBcGa486BWg/9mNShHH2Jl0U0hK
-         lZFH9y/Pg6RAnjvm2jAtTfDliscY1Q4nqlg+NMybi3uQ1HXfVnrATIt6Qw58gBQXx70J
-         jTfEuuQpeuY27h7+nIzvEK4l+S5G8DS0ypSsXWKdNeAtu1rrngYpGlnqPRqK4/R+HNUN
-         wbgMl25SxUCZ3oREaxsr/+ORCybBbnqGlw1sT9Ncpzz9n3kAg4qYqhQG5QanUTLo06cn
-         bXXnKj/8TkD6JgKnJL6x6XnqeCPbcF6UVhDxwXaGPuG9x5VTxppE+EOp91CKRdafvkWg
-         6YCQ==
-X-Gm-Message-State: AOAM531f9hh6iB6e6xy45i1jXDVRHalZybhjIDinCLx7dTM8MNHN+/RA
-        51/jYlvwDdaQR8/yiTk6WisnDNJVQPDB88cY
-X-Google-Smtp-Source: ABdhPJxTNL7S+PGP2dyo9y4hfKKXFxzCBJLLF6g1B6dGiqQYaocVmRBfZml9tRkesfEdJaQTDPGo5Q==
-X-Received: by 2002:a05:6a00:114d:b0:4a2:89e6:659e with SMTP id b13-20020a056a00114d00b004a289e6659emr9292714pfm.38.1642172830113;
-        Fri, 14 Jan 2022 07:07:10 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id j8sm4822441pgf.21.2022.01.14.07.07.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 14 Jan 2022 07:07:09 -0800 (PST)
-Message-ID: <61e1919d.1c69fb81.91f04.d07f@mx.google.com>
-Date:   Fri, 14 Jan 2022 07:07:09 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S239106AbiANQEz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 11:04:55 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28C5BC061574
+        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 08:04:55 -0800 (PST)
+Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <mkl@pengutronix.de>)
+        id 1n8P4P-0006MD-MB
+        for stable@vger.kernel.org; Fri, 14 Jan 2022 17:04:53 +0100
+Received: from dspam.blackshift.org (localhost [127.0.0.1])
+        by bjornoya.blackshift.org (Postfix) with SMTP id D71E118C11
+        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 16:04:52 +0000 (UTC)
+Received: from hardanger.blackshift.org (unknown [172.20.34.65])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+        (Client did not present a certificate)
+        by bjornoya.blackshift.org (Postfix) with ESMTPS id A78ED18C07;
+        Fri, 14 Jan 2022 16:04:52 +0000 (UTC)
+Received: from blackshift.org (localhost [::1])
+        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id 2344bd82;
+        Fri, 14 Jan 2022 15:31:31 +0000 (UTC)
+From:   Marc Kleine-Budde <mkl@pengutronix.de>
+To:     linux-can@vger.kernel.org
+Cc:     Marc Kleine-Budde <mkl@pengutronix.de>, stable@vger.kernel.org,
+        Matt Kline <matt@bitbashing.io>,
+        Chandrasekar Ramakrishnan <rcsekar@samsung.com>,
+        Michael Anochin <anochin@photo-meter.com>
+Subject: [PATCH] can: m_can: m_can_fifo_{read,write}: don't read or write from/to FIFO if length is 0
+Date:   Fri, 14 Jan 2022 16:31:30 +0100
+Message-Id: <20220114153130.2647738-1-mkl@pengutronix.de>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.10.91-26-gfe11f2e0d63b
-X-Kernelci-Branch: linux-5.10.y
-Subject: stable-rc/linux-5.10.y baseline: 144 runs,
- 2 regressions (v5.10.91-26-gfe11f2e0d63b)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.10.y baseline: 144 runs, 2 regressions (v5.10.91-26-gfe11=
-f2e0d63b)
+In order to optimize FIFO access, especially on m_can cores attached
+to slow busses like SPI, in patch
 
-Regressions Summary
--------------------
+| e39381770ec9 ("can: m_can: Disable IRQs on FIFO bus errors")
 
-platform                | arch  | lab        | compiler | defconfig        =
-   | regressions
-------------------------+-------+------------+----------+------------------=
----+------------
-beaglebone-black        | arm   | lab-cip    | gcc-10   | omap2plus_defconf=
-ig | 1          =
+bulk read/write support has been added to the m_can_fifo_{read,write}
+functions.
 
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig        =
-   | 1          =
+That change leads to the tcan driver to call
+regmap_bulk_{read,write}() with a length of 0 (for CAN frames with 0
+data length). regmap treats this as an error:
 
+| tcan4x5x spi1.0 tcan4x5x0: FIFO write returned -22
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
-nel/v5.10.91-26-gfe11f2e0d63b/plan/baseline/
+This patch fixes the problem by not calling the
+cdev->ops->{read,write)_fifo() in case of a 0 length read/write.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.10.y
-  Describe: v5.10.91-26-gfe11f2e0d63b
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      fe11f2e0d63baa47c1e36b02721b4fd7a1157955 =
+Fixes: e39381770ec9 ("can: m_can: Disable IRQs on FIFO bus errors")
+Cc: stable@vger.kernel.org
+Cc: Matt Kline <matt@bitbashing.io>
+Cc: Chandrasekar Ramakrishnan <rcsekar@samsung.com>
+Reported-by: Michael Anochin <anochin@photo-meter.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+---
+ drivers/net/can/m_can/m_can.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform                | arch  | lab        | compiler | defconfig        =
-   | regressions
-------------------------+-------+------------+----------+------------------=
----+------------
-beaglebone-black        | arm   | lab-cip    | gcc-10   | omap2plus_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e1638e8bd8ae914cef6752
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.9=
-1-26-gfe11f2e0d63b/arm/omap2plus_defconfig/gcc-10/lab-cip/baseline-beaglebo=
-ne-black.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.9=
-1-26-gfe11f2e0d63b/arm/omap2plus_defconfig/gcc-10/lab-cip/baseline-beaglebo=
-ne-black.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/armel/rootfs.cpio.gz =
+diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
+index 5b47cd867783..1a4b56f6fa8c 100644
+--- a/drivers/net/can/m_can/m_can.c
++++ b/drivers/net/can/m_can/m_can.c
+@@ -336,6 +336,9 @@ m_can_fifo_read(struct m_can_classdev *cdev,
+ 	u32 addr_offset = cdev->mcfg[MRAM_RXF0].off + fgi * RXF0_ELEMENT_SIZE +
+ 		offset;
+ 
++	if (val_count == 0)
++		return 0;
++
+ 	return cdev->ops->read_fifo(cdev, addr_offset, val, val_count);
+ }
+ 
+@@ -346,6 +349,9 @@ m_can_fifo_write(struct m_can_classdev *cdev,
+ 	u32 addr_offset = cdev->mcfg[MRAM_TXB].off + fpi * TXB_ELEMENT_SIZE +
+ 		offset;
+ 
++	if (val_count == 0)
++		return 0;
++
+ 	return cdev->ops->write_fifo(cdev, addr_offset, val, val_count);
+ }
+ 
+-- 
+2.34.1
 
 
-
-  * baseline.login: https://kernelci.org/test/case/id/61e1638e8bd8ae914cef6=
-753
-        new failure (last pass: v5.10.91-23-ga333c5fa75fd) =
-
- =
-
-
-
-platform                | arch  | lab        | compiler | defconfig        =
-   | regressions
-------------------------+-------+------------+----------+------------------=
----+------------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e15c69e2b87ca3f6ef6742
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.9=
-1-26-gfe11f2e0d63b/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-ba=
-nanapi-m64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.9=
-1-26-gfe11f2e0d63b/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-ba=
-nanapi-m64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61e15c69e2b87ca3f6ef6=
-743
-        failing since 2 days (last pass: v5.10.90-44-g83e826769db7, first f=
-ail: v5.10.91) =
-
- =20
