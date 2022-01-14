@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E3E648E597
-	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:19:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B83DC48E59F
+	for <lists+stable@lfdr.de>; Fri, 14 Jan 2022 09:19:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239581AbiANITS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 03:19:18 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:59704 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239645AbiANIS6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:18:58 -0500
+        id S239830AbiANITf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 03:19:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49392 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239732AbiANITC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 03:19:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C808C06177B;
+        Fri, 14 Jan 2022 00:19:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74F90B82436;
-        Fri, 14 Jan 2022 08:18:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87F09C36AEC;
-        Fri, 14 Jan 2022 08:18:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F186161E1F;
+        Fri, 14 Jan 2022 08:18:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAFF0C36AE9;
+        Fri, 14 Jan 2022 08:18:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642148336;
-        bh=85Kcfw8vTwj+pY6QwdAIxIwot8i01a9g6DfIQWnDcjc=;
+        s=korg; t=1642148339;
+        bh=aQwWQG2dZCe/QnD746MOLbyMgXEjVFDmIcu6mhHzYas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SiYOgjTaL5PAp4XI5epaWevl8CZCeEBbA3b8dPh5wN0Erplrw0trVKyM1JUk5j4BM
-         Vnt+IGOVOekAKyQKHfB8jfIdZZA7HIhLxgv4oQH75NmMwu92IAR9+wmkyI0QhW+GAp
-         W/zu2iOJHJ5vwDqVYuq9g7d+9HG+4hSg6JwnWjD4=
+        b=dblnxaMejT5qktIA5IcOcWX4Z67W1i0f+MvnLjXuhfjOZvbsQ+HPQe/KjtrqLmRnv
+         hvOhihnuKPseawTej9dTUi21X7yGnc3FHjDWrecRMVvOYfqf61rF0JLEwG6ZWuqF4K
+         htHN+aZhLYIPE+jZ/6qrQrNG6y2VdQENrurYYeOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Brian Silverman <brian.silverman@bluerivertech.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 5.10 18/25] can: gs_usb: gs_can_start_xmit(): zero-initialize hf->{flags,reserved}
-Date:   Fri, 14 Jan 2022 09:16:26 +0100
-Message-Id: <20220114081543.321915062@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 5.10 19/25] random: fix data race on crng_node_pool
+Date:   Fri, 14 Jan 2022 09:16:27 +0100
+Message-Id: <20220114081543.352538528@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220114081542.698002137@linuxfoundation.org>
 References: <20220114081542.698002137@linuxfoundation.org>
@@ -45,39 +48,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Silverman <brian.silverman@bluerivertech.com>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 89d58aebe14a365c25ba6645414afdbf4e41cea4 upstream.
+commit 5d73d1e320c3fd94ea15ba5f79301da9a8bcc7de upstream.
 
-No information is deliberately sent in hf->flags in host -> device
-communications, but the open-source candleLight firmware echoes it
-back, which can result in the GS_CAN_FLAG_OVERFLOW flag being set and
-generating spurious ERRORFRAMEs.
+extract_crng() and crng_backtrack_protect() load crng_node_pool with a
+plain load, which causes undefined behavior if do_numa_crng_init()
+modifies it concurrently.
 
-While there also initialize the reserved member with 0.
+Fix this by using READ_ONCE().  Note: as per the previous discussion
+https://lore.kernel.org/lkml/20211219025139.31085-1-ebiggers@kernel.org/T/#u,
+READ_ONCE() is believed to be sufficient here, and it was requested that
+it be used here instead of smp_load_acquire().
 
-Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
-Link: https://lore.kernel.org/all/20220106002952.25883-1-brian.silverman@bluerivertech.com
-Link: https://github.com/candle-usb/candleLight_fw/issues/87
+Also change do_numa_crng_init() to set crng_node_pool using
+cmpxchg_release() instead of mb() + cmpxchg(), as the former is
+sufficient here but is more lightweight.
+
+Fixes: 1e7f583af67b ("random: make /dev/urandom scalable for silly userspace programs")
 Cc: stable@vger.kernel.org
-Signed-off-by: Brian Silverman <brian.silverman@bluerivertech.com>
-[mkl: initialize the reserved member, too]
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Acked-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/gs_usb.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/char/random.c |   42 ++++++++++++++++++++++--------------------
+ 1 file changed, 22 insertions(+), 20 deletions(-)
 
---- a/drivers/net/can/usb/gs_usb.c
-+++ b/drivers/net/can/usb/gs_usb.c
-@@ -507,6 +507,8 @@ static netdev_tx_t gs_can_start_xmit(str
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -853,8 +853,8 @@ static void do_numa_crng_init(struct wor
+ 		crng_initialize_secondary(crng);
+ 		pool[i] = crng;
+ 	}
+-	mb();
+-	if (cmpxchg(&crng_node_pool, NULL, pool)) {
++	/* pairs with READ_ONCE() in select_crng() */
++	if (cmpxchg_release(&crng_node_pool, NULL, pool) != NULL) {
+ 		for_each_node(i)
+ 			kfree(pool[i]);
+ 		kfree(pool);
+@@ -867,8 +867,26 @@ static void numa_crng_init(void)
+ {
+ 	schedule_work(&numa_crng_init_work);
+ }
++
++static struct crng_state *select_crng(void)
++{
++	struct crng_state **pool;
++	int nid = numa_node_id();
++
++	/* pairs with cmpxchg_release() in do_numa_crng_init() */
++	pool = READ_ONCE(crng_node_pool);
++	if (pool && pool[nid])
++		return pool[nid];
++
++	return &primary_crng;
++}
+ #else
+ static void numa_crng_init(void) {}
++
++static struct crng_state *select_crng(void)
++{
++	return &primary_crng;
++}
+ #endif
  
- 	hf->echo_id = idx;
- 	hf->channel = dev->channel;
-+	hf->flags = 0;
-+	hf->reserved = 0;
+ /*
+@@ -1015,15 +1033,7 @@ static void _extract_crng(struct crng_st
  
- 	cf = (struct can_frame *)skb->data;
+ static void extract_crng(__u8 out[CHACHA_BLOCK_SIZE])
+ {
+-	struct crng_state *crng = NULL;
+-
+-#ifdef CONFIG_NUMA
+-	if (crng_node_pool)
+-		crng = crng_node_pool[numa_node_id()];
+-	if (crng == NULL)
+-#endif
+-		crng = &primary_crng;
+-	_extract_crng(crng, out);
++	_extract_crng(select_crng(), out);
+ }
  
+ /*
+@@ -1052,15 +1062,7 @@ static void _crng_backtrack_protect(stru
+ 
+ static void crng_backtrack_protect(__u8 tmp[CHACHA_BLOCK_SIZE], int used)
+ {
+-	struct crng_state *crng = NULL;
+-
+-#ifdef CONFIG_NUMA
+-	if (crng_node_pool)
+-		crng = crng_node_pool[numa_node_id()];
+-	if (crng == NULL)
+-#endif
+-		crng = &primary_crng;
+-	_crng_backtrack_protect(crng, tmp, used);
++	_crng_backtrack_protect(select_crng(), tmp, used);
+ }
+ 
+ static ssize_t extract_crng_user(void __user *buf, size_t nbytes)
 
 
