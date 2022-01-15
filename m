@@ -2,96 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F7D548F67C
-	for <lists+stable@lfdr.de>; Sat, 15 Jan 2022 12:09:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4668848F6A8
+	for <lists+stable@lfdr.de>; Sat, 15 Jan 2022 13:13:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230465AbiAOLJY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Jan 2022 06:09:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43602 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229569AbiAOLJY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 15 Jan 2022 06:09:24 -0500
-Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAED2C061574;
-        Sat, 15 Jan 2022 03:09:23 -0800 (PST)
-Received: by mail-wm1-x336.google.com with SMTP id l12-20020a7bc34c000000b003467c58cbdfso12361721wmj.2;
-        Sat, 15 Jan 2022 03:09:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=wbtngQJLC1AXKVgmXqeSN04h1xtyl3WUPRPOVydw+k8=;
-        b=n5rhOUPcZYStYqN2IderhavLDac2yeTnQ2qpc7mx6lVoy54aY5DJtafiYOtF6Wrrx3
-         Hz4DSCheKQPYUfKQJScUovIh8H2KnTFJYSAcVKlQ69Wv6kRgoYI2X5YieKLIb6Bz5t+l
-         oA/jfbTdf39j77UzArDMEKsTt2nxrhqWF+jNNqRFYgG+q9Qiv1mDbGQMGNQ/3ZmYeH8u
-         dqns0Vf+DeLmahsW6R94A3bIWPeDFJBzR+O5SbcK5Abp9Fq+C7nV6xBehwIuJSE8DR0Z
-         VbVkdW5ZnMvTjv90Yv4QYG3MM/o1zuNWdq4vVD7BABq9L3+J5PF06BLWG4fFAqlMMq37
-         AbDg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=wbtngQJLC1AXKVgmXqeSN04h1xtyl3WUPRPOVydw+k8=;
-        b=0CSCV2BX+hqlmwNcE/dJL3/P58XZFSfF+hf6oCwyndqZSi0FPZKUK4iS+EUKrKJCCK
-         VF82xZvCFGlUxJeLxZJZONSsT/o/AQyye5jCldTX6YMAzTw04AeXa5oJr7f8tiZQQmzL
-         6ZwOLAv+Dm0KxeyUlqUtqJngreb+mlg/Aar6pxiy0HfBTKoktQPFus7kC8fAE1T9Bovh
-         9efUBU42mWV27d8ImA4KoOA547BE5jGTMSwwUwN9SUdwNJZ+XFp6Ak1I/JH7VU5shPDV
-         xWojtsjyI9eZdjhB/jhru3hqIgfyPLSx4pIq9EKlW5PCdx8dcOJ/jxeTDQgsFc0CZZcx
-         tD7g==
-X-Gm-Message-State: AOAM533w62W18UaTzdQPcZGWnTIQW1I5MElwpkmChXAaNV9Tv/7ERH4I
-        mx2xNipCnILFpybtERCiCKjXcbcfJPs=
-X-Google-Smtp-Source: ABdhPJxPD33H1ytFI+ReUajL78kwoPIPb75CbtKQHtbwo4aYG+YtbiW8AgdW6jkHcfP16ofpaYqBvQ==
-X-Received: by 2002:adf:f1cf:: with SMTP id z15mr11733427wro.134.1642244962477;
-        Sat, 15 Jan 2022 03:09:22 -0800 (PST)
-Received: from debian (host-2-98-43-34.as13285.net. [2.98.43.34])
-        by smtp.gmail.com with ESMTPSA id z14sm5035055wrh.39.2022.01.15.03.09.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 15 Jan 2022 03:09:22 -0800 (PST)
-Date:   Sat, 15 Jan 2022 11:09:20 +0000
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+        id S229941AbiAOMNl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Jan 2022 07:13:41 -0500
+Received: from qproxy4-pub.mail.unifiedlayer.com ([66.147.248.250]:47767 "EHLO
+        qproxy4-pub.mail.unifiedlayer.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229486AbiAOMNl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 15 Jan 2022 07:13:41 -0500
+X-Greylist: delayed 1233 seconds by postgrey-1.27 at vger.kernel.org; Sat, 15 Jan 2022 07:13:40 EST
+Received: from outbound-ss-761.bluehost.com (outbound-ss-761.bluehost.com [74.220.211.250])
+        by qproxy4.mail.unifiedlayer.com (Postfix) with ESMTP id B78FE802AD4C
+        for <stable@vger.kernel.org>; Sat, 15 Jan 2022 11:53:06 +0000 (UTC)
+Received: from cmgw13.mail.unifiedlayer.com (unknown [10.0.90.128])
+        by progateway8.mail.pro1.eigbox.com (Postfix) with ESMTP id 6BDD5100473F4
+        for <stable@vger.kernel.org>; Sat, 15 Jan 2022 11:52:36 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id 8hbon26omEaNC8hbonv73z; Sat, 15 Jan 2022 11:52:36 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=dJtjJMVb c=1 sm=1 tr=0 ts=61e2b584
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=DghFqjY3_ZEA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=AP5qsahKqJmy_V8YNR8A:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=epW9L7ShDsKW6zsYqLXc4ia52wbxBHVIIkKtVVafelU=; b=p3RINHvPdXCZBqADT1gBZ+D4Zk
+        hcl0DbyNrvtN/EMtUbmkX+lEz36kTlLC0yBbD+qfKsfiZtPcYtDTBB6MxG0Ky4WWCXIkVKXf253fu
+        EQdwICTtBurfxOdMomjPIV97N;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:32778 helo=[10.0.1.23])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <re@w6rz.net>)
+        id 1n8hbn-003OEW-L5; Sat, 15 Jan 2022 04:52:35 -0700
+Subject: Re: [PATCH 5.15 00/41] 5.15.15-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
         akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
         patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
         jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.4 00/18] 5.4.172-rc1 review
-Message-ID: <YeKrYJjt8R2Jp4Kn@debian>
-References: <20220114081541.465841464@linuxfoundation.org>
+References: <20220114081545.158363487@linuxfoundation.org>
+ <b94bd7bd-0c8b-1697-f4af-27e99ca9e62f@w6rz.net> <YeKCeIOd8v7vOpdE@kroah.com>
+In-Reply-To: <YeKCeIOd8v7vOpdE@kroah.com>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <6aa09e6a-9537-72d0-caf0-347038fe37b5@w6rz.net>
+Date:   Sat, 15 Jan 2022 03:52:34 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220114081541.465841464@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 8bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1n8hbn-003OEW-L5
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.23]) [73.162.232.9]:32778
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 12
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+On 1/15/22 12:14 AM, Greg Kroah-Hartman wrote:
+> On Fri, Jan 14, 2022 at 11:59:57AM -0800, Ron Economos wrote:
+>> On 1/14/22 12:16 AM, Greg Kroah-Hartman wrote:
+>>> This is the start of the stable review cycle for the 5.15.15 release.
+>>> There are 41 patches in this series, all will be posted as a response
+>>> to this one.  If anyone has any issues with these being applied, please
+>>> let me know.
+>>>
+>>> Responses should be made by Sun, 16 Jan 2022 08:15:33 +0000.
+>>> Anything received after that time might be too late.
+>>>
+>>> The whole patch series can be found in one patch at:
+>>> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.15-rc1.gz
+>>> or in the git tree and branch at:
+>>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+>>> and the diffstat can be found below.
+>>>
+>>> thanks,
+>>>
+>>> greg k-h
+>> Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+>>
+>> Warnings:
+>>
+>> fs/jffs2/xattr.c: In function 'jffs2_build_xattr_subsystem':
+>> fs/jffs2/xattr.c:887:1: warning: the frame size of 1104 bytes is larger than
+>> 1024 bytes [-Wframe-larger-than=]
+>>    887 | }
+>>        | ^
+>> lib/crypto/curve25519-hacl64.c: In function 'ladder_cmult.constprop':
+>> lib/crypto/curve25519-hacl64.c:601:1: warning: the frame size of 1040 bytes
+>> is larger than 1024 bytes [-Wframe-larger-than=]
+>>    601 | }
+>>        | ^
+>> drivers/net/wireguard/allowedips.c: In function 'root_remove_peer_lists':
+>> drivers/net/wireguard/allowedips.c:77:1: warning: the frame size of 1040
+>> bytes is larger than 1024 bytes [-Wframe-larger-than=]
+>>     77 | }
+>>        | ^
+>> drivers/net/wireguard/allowedips.c: In function 'root_free_rcu':
+>> drivers/net/wireguard/allowedips.c:64:1: warning: the frame size of 1040
+>> bytes is larger than 1024 bytes [-Wframe-larger-than=]
+>>     64 | }
+>>        | ^
+>> drivers/vhost/scsi.c: In function 'vhost_scsi_flush':
+>> drivers/vhost/scsi.c:1444:1: warning: the frame size of 1040 bytes is larger
+>> than 1024 bytes [-Wframe-larger-than=]
+>>   1444 | }
+>>        | ^
+> Are these new warnings with this release, or old ones?
+>
+> thanks,
+>
+> greg k-h
 
-On Fri, Jan 14, 2022 at 09:16:07AM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.172 release.
-> There are 18 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sun, 16 Jan 2022 08:15:33 +0000.
-> Anything received after that time might be too late.
+They are old ones.
 
-Build test:
-mips (gcc version 11.2.1 20220106): 65 configs -> no new failure
-arm (gcc version 11.2.1 20220106): 107 configs -> no new failure
-arm64 (gcc version 11.2.1 20220106): 2 configs -> no failure
-x86_64 (gcc version 11.2.1 20220106): 4 configs -> no failure
-
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression. [1]
-
-[1]. https://openqa.qa.codethink.co.uk/tests/625
-
-
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-
---
-Regards
-Sudip
+Ron
 
