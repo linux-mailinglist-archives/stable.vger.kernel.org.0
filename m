@@ -2,126 +2,247 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FA3B48F542
-	for <lists+stable@lfdr.de>; Sat, 15 Jan 2022 06:48:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0BCB48F55F
+	for <lists+stable@lfdr.de>; Sat, 15 Jan 2022 07:05:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231338AbiAOFsE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Jan 2022 00:48:04 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:35828 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231184AbiAOFsE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 15 Jan 2022 00:48:04 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D168B82668;
-        Sat, 15 Jan 2022 05:48:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E8AAC36AE3;
-        Sat, 15 Jan 2022 05:48:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642225681;
-        bh=s6YoHefLtqCOhAQXJ3KUCdfGdNsilqm6jK16QH0hGEI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=m9e55GKvgj1lE0KXjFK1lOAzEbpnb9zLwboWDq5BgjJr1xW+qy6iefLBwS6T6g/8E
-         KU8xnQouSqIB2PRAjVB6lf7AMm7qz4k0oYoTztNRB922VcKlrzy26C3KgRw9yW8cMe
-         uhzFQ64Fav6JfjZ9Jeqtq4nCRXgv47cW3g1wtFQnB1Zq8OjMR0GjA8XimALaKI18wM
-         ubwkvahXdfuO3rX927kXtpYEYx87F0OZJDB08RoX2djAXzoal2Ew8bsKs4cdUv7NYY
-         zp2cHh8e8vnfywabrq1DzaZK/dkQPunVihR/XyUTg2KkXlr+F4YgAyq0Dp6kWkTL6Z
-         uNgKV6iAYX+gg==
-Date:   Fri, 14 Jan 2022 21:47:59 -0800
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     Vitaly Chikunov <vt@altlinux.org>
-Cc:     linux-crypto@vger.kernel.org,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        keyrings@vger.kernel.org, Denis Kenzior <denkenz@gmail.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 1/3] crypto: rsa-pkcs1pad - correctly get hash from
- source scatterlist
-Message-ID: <YeJgDzSsSepEio6P@sol.localdomain>
-References: <20220114081939.218416-1-ebiggers@kernel.org>
- <20220114081939.218416-2-ebiggers@kernel.org>
- <20220115050812.q7o5ij7c3jhloru7@altlinux.org>
+        id S230228AbiAOGFf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Jan 2022 01:05:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34912 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229801AbiAOGFe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 15 Jan 2022 01:05:34 -0500
+Received: from mail-yb1-xb2e.google.com (mail-yb1-xb2e.google.com [IPv6:2607:f8b0:4864:20::b2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80939C061574
+        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 22:05:34 -0800 (PST)
+Received: by mail-yb1-xb2e.google.com with SMTP id j134so4129807ybj.6
+        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 22:05:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=MFKd1NMeRhJdc2PqUmcHN8SqvdFHWYCDyu0YQ8/dEjw=;
+        b=mCHBeW1CwQTUo2/6VUM+8FjEK1eN7XXaBIfoCGhPzVW3rbrrtstBFMP1nBEMP8MILI
+         Yu87oiohZlLIiRxIR2evP/ltkDjMs5R6k7RHMNJzZUB5hVwHi/NzNiP84WCjj/eHEFoY
+         Zh/QBGhKuV+fpF+P7sv7z4WJK+YSBTuBWVAFFuOeROOcxhSIWruxIkdoY0VgrzlN9uls
+         O3m8iVdShGvHWiKLdKufdkH3X+D10bus8hPh3bco9v7/fActPYz26SeaoOqYAWQch90s
+         3fCj4zsSNrpMlGUTTXtCyoLnZDGMENAyNFF/6JyI0WPW0SwNFlAUhMBf6A5+LUsWbHvl
+         +EjQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=MFKd1NMeRhJdc2PqUmcHN8SqvdFHWYCDyu0YQ8/dEjw=;
+        b=25dOPhydwXCl4lAzaS0M7tSY5dZY6QvrGvLFPrkbI1AhWuXAl2MlKac0ENEurrBe+t
+         LcXW70sZrQS+tGf0XNBzsRlAvhlkGpljJxnr1ALDS7UAtfcHB51r3P/uQxgz5D58ryQo
+         g3jMkm9VNY0FnXefiP0fD/TJ8w4kioSiXhbSBw7e4ghu0gaWYvA/1DdT9dPVrMQNlUT1
+         9cl5IdRAatXqIIHhCAxwaIjpFP3xLryL+H7N81xfGAOzu7L2sQ/UCupZ4NOF0txmOBqp
+         GduUY8Sdjo8cIFI+pqlqUoeOEJbiI1kme0svmvC9BfCYR2NKYmmb5p2KCKQ1zgpfgGiJ
+         Cwbg==
+X-Gm-Message-State: AOAM530MGp81vpPNmztwSnMX/aH9Gi7bafWhDyvmuujmcBHt3GdnGtkt
+        V2gih5xZ8MSWig8drnh3RajsP1yMcaTjcZpZBT/4yg==
+X-Google-Smtp-Source: ABdhPJw++Voqovz5F2UgwjIoWum4oSPfFjT+Rna6cpbVjw/FsCvq8WehmVOmJlyGeoGYGh4IcOpJGB4sQt8jdbn5Q2Q=
+X-Received: by 2002:a25:61d8:: with SMTP id v207mr13837804ybb.108.1642226733436;
+ Fri, 14 Jan 2022 22:05:33 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220115050812.q7o5ij7c3jhloru7@altlinux.org>
+References: <20220114081541.465841464@linuxfoundation.org>
+In-Reply-To: <20220114081541.465841464@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Sat, 15 Jan 2022 11:35:22 +0530
+Message-ID: <CA+G9fYttCE75au6-RePzyX5S_uTVNU7AX5r1RXu_v8cEAA8tMA@mail.gmail.com>
+Subject: Re: [PATCH 5.4 00/18] 5.4.172-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jan 15, 2022 at 08:08:12AM +0300, Vitaly Chikunov wrote:
-> Eric,
-> 
-> On Fri, Jan 14, 2022 at 12:19:37AM -0800, Eric Biggers wrote:
-> > From: Eric Biggers <ebiggers@google.com>
-> > 
-> > Commit c7381b012872 ("crypto: akcipher - new verify API for public key
-> > algorithms") changed akcipher_alg::verify to take in both the signature
-> > and the actual hash and do the signature verification, rather than just
-> > return the hash expected by the signature as was the case before.  To do
-> > this, it implemented a hack where the signature and hash are
-> > concatenated with each other in one scatterlist.
-> > 
-> > Obviously, for this to work correctly, akcipher_alg::verify needs to
-> > correctly extract the two items from the scatterlist it is given.
-> > Unfortunately, it doesn't correctly extract the hash in the case where
-> > the signature is longer than the RSA key size, as it assumes that the
-> > signature's length is equal to the RSA key size.  This causes a prefix
-> > of the hash, or even the entire hash, to be taken from the *signature*.
-> > 
-> > It is unclear whether the resulting scheme has any useful security
-> > properties.
-> > 
-> > Fix this by correctly extracting the hash from the scatterlist.
-> > 
-> > Fixes: c7381b012872 ("crypto: akcipher - new verify API for public key algorithms")
-> > Cc: <stable@vger.kernel.org> # v5.2+
-> > Signed-off-by: Eric Biggers <ebiggers@google.com>
-> > ---
-> >  crypto/rsa-pkcs1pad.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > 
-> > diff --git a/crypto/rsa-pkcs1pad.c b/crypto/rsa-pkcs1pad.c
-> > index 1b3545781425..7b223adebabf 100644
-> > --- a/crypto/rsa-pkcs1pad.c
-> > +++ b/crypto/rsa-pkcs1pad.c
-> > @@ -495,7 +495,7 @@ static int pkcs1pad_verify_complete(struct akcipher_request *req, int err)
-> >  			   sg_nents_for_len(req->src,
-> >  					    req->src_len + req->dst_len),
-> >  			   req_ctx->out_buf + ctx->key_size,
-> > -			   req->dst_len, ctx->key_size);
-> > +			   req->dst_len, req->src_len);
-> 
-> Reviewed-by: Vitaly Chikunov <vt@altlinux.org>
-> 
-> Reviewing this I noticed that while req->src_len is checked in
-> pkcs1pad_verify() to be not shorter than ctx->key_size it's never
-> checked to be not longer. Signatures longer than RSA modulus N (which is
-> ctx->key_size) are still invalid (RFC8017 8.2.2). (So, assumption they
-> are equal was in accord with the standard, but not with the current
-> codebase.)
-> 
-> I suggest to add this check too while we at it.
-> 
-> There was such check before, but it was removed in a49de377e051 ("crypto:
-> Add hash param to pkcs1pad") for an unknown reason:
-> 
->   -    if (!ctx->key_size || req->src_len != ctx->key_size)
->   +    if (!ctx->key_size || req->src_len < ctx->key_size)
->            return -EINVAL;
-> 
-> Thanks,
-> 
+On Fri, 14 Jan 2022 at 13:47, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.4.172 release.
+> There are 18 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sun, 16 Jan 2022 08:15:33 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.4.172-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.4.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Yes, after sending this out I was looking at the PKCS#1 v1.5 encoding
-specification, and I had noticed that too:
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-     "1.  Length checking: If the length of the signature S is not k
-          octets, output 'invalid signature' and stop."
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-I agree that we should enforce that too, although it's curious that commit
-a49de377e051 removed that check.  Hopefully that was just a mistake and not
-something that someone was actually relying on.  I'll send a separate patch for
-that; I think it should be separate from this patch.
+## Build
+* kernel: 5.4.172-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-5.4.y
+* git commit: 8821fbf93a8fcee78fd7c2bde7674bf0e34adbf7
+* git describe: v5.4.171-19-g8821fbf93a8f
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.1=
+71-19-g8821fbf93a8f
 
-- Eric
+## Test Regressions (compared to v5.4.171)
+No test regressions found.
+
+## Metric Regressions (compared to v5.4.171)
+No metric regressions found.
+
+## Test Fixes (compared to v5.4.171)
+No test fixes found.
+
+## Metric Fixes (compared to v5.4.171)
+No metric fixes found.
+
+## Test result summary
+total: 89637, pass: 74557, fail: 803, skip: 12819, xfail: 1458
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 258 total, 254 passed, 4 failed
+* arm64: 36 total, 31 passed, 5 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 20 total, 20 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 34 total, 34 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 52 total, 48 passed, 4 failed
+* riscv: 24 total, 24 passed, 0 failed
+* s390: 12 total, 12 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 36 total, 36 passed, 0 failed
+
+## Test suites summary
+* fwts
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
