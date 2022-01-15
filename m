@@ -2,142 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4668848F6A8
-	for <lists+stable@lfdr.de>; Sat, 15 Jan 2022 13:13:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8700B48F6AB
+	for <lists+stable@lfdr.de>; Sat, 15 Jan 2022 13:16:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229941AbiAOMNl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Jan 2022 07:13:41 -0500
-Received: from qproxy4-pub.mail.unifiedlayer.com ([66.147.248.250]:47767 "EHLO
-        qproxy4-pub.mail.unifiedlayer.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229486AbiAOMNl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 15 Jan 2022 07:13:41 -0500
-X-Greylist: delayed 1233 seconds by postgrey-1.27 at vger.kernel.org; Sat, 15 Jan 2022 07:13:40 EST
-Received: from outbound-ss-761.bluehost.com (outbound-ss-761.bluehost.com [74.220.211.250])
-        by qproxy4.mail.unifiedlayer.com (Postfix) with ESMTP id B78FE802AD4C
-        for <stable@vger.kernel.org>; Sat, 15 Jan 2022 11:53:06 +0000 (UTC)
-Received: from cmgw13.mail.unifiedlayer.com (unknown [10.0.90.128])
-        by progateway8.mail.pro1.eigbox.com (Postfix) with ESMTP id 6BDD5100473F4
-        for <stable@vger.kernel.org>; Sat, 15 Jan 2022 11:52:36 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id 8hbon26omEaNC8hbonv73z; Sat, 15 Jan 2022 11:52:36 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=dJtjJMVb c=1 sm=1 tr=0 ts=61e2b584
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=DghFqjY3_ZEA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=AP5qsahKqJmy_V8YNR8A:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=epW9L7ShDsKW6zsYqLXc4ia52wbxBHVIIkKtVVafelU=; b=p3RINHvPdXCZBqADT1gBZ+D4Zk
-        hcl0DbyNrvtN/EMtUbmkX+lEz36kTlLC0yBbD+qfKsfiZtPcYtDTBB6MxG0Ky4WWCXIkVKXf253fu
-        EQdwICTtBurfxOdMomjPIV97N;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:32778 helo=[10.0.1.23])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <re@w6rz.net>)
-        id 1n8hbn-003OEW-L5; Sat, 15 Jan 2022 04:52:35 -0700
-Subject: Re: [PATCH 5.15 00/41] 5.15.15-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+        id S230167AbiAOMP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Jan 2022 07:15:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57920 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229486AbiAOMP4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 15 Jan 2022 07:15:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2324BC061574;
+        Sat, 15 Jan 2022 04:15:56 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DB920B800E2;
+        Sat, 15 Jan 2022 12:15:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60C21C36AE7;
+        Sat, 15 Jan 2022 12:15:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1642248953;
+        bh=9D/1M0IN1K+yyBos/JhJyJTQtXFpKOg8pwstNDaj7MQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=LkX9l+X/v6NGFFe7MdVZeUqytfLgXax6JmT1Tg6QgUK5wWhhxXdJFuG2Gknhvfj2d
+         ich1dF5EddYOadwK0Kk/vfV6peYyQLZkNJ5JgEFGkdI7YTO3yLio1fFtF7sSvIkmBC
+         IQgjqfrUKa+AKMpTUQAxtOYqntlQuvO7kSa9K+D4=
+Date:   Sat, 15 Jan 2022 13:15:48 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Ron Economos <re@w6rz.net>
 Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
         akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
         patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
         jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.15 00/41] 5.15.15-rc1 review
+Message-ID: <YeK69MTpuiz0wqrU@kroah.com>
 References: <20220114081545.158363487@linuxfoundation.org>
- <b94bd7bd-0c8b-1697-f4af-27e99ca9e62f@w6rz.net> <YeKCeIOd8v7vOpdE@kroah.com>
-In-Reply-To: <YeKCeIOd8v7vOpdE@kroah.com>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <6aa09e6a-9537-72d0-caf0-347038fe37b5@w6rz.net>
-Date:   Sat, 15 Jan 2022 03:52:34 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+ <b94bd7bd-0c8b-1697-f4af-27e99ca9e62f@w6rz.net>
+ <YeKCeIOd8v7vOpdE@kroah.com>
+ <6aa09e6a-9537-72d0-caf0-347038fe37b5@w6rz.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1n8hbn-003OEW-L5
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.23]) [73.162.232.9]:32778
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 12
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
+In-Reply-To: <6aa09e6a-9537-72d0-caf0-347038fe37b5@w6rz.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/15/22 12:14 AM, Greg Kroah-Hartman wrote:
-> On Fri, Jan 14, 2022 at 11:59:57AM -0800, Ron Economos wrote:
->> On 1/14/22 12:16 AM, Greg Kroah-Hartman wrote:
->>> This is the start of the stable review cycle for the 5.15.15 release.
->>> There are 41 patches in this series, all will be posted as a response
->>> to this one.  If anyone has any issues with these being applied, please
->>> let me know.
->>>
->>> Responses should be made by Sun, 16 Jan 2022 08:15:33 +0000.
->>> Anything received after that time might be too late.
->>>
->>> The whole patch series can be found in one patch at:
->>> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.15-rc1.gz
->>> or in the git tree and branch at:
->>> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
->>> and the diffstat can be found below.
->>>
->>> thanks,
->>>
->>> greg k-h
->> Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
->>
->> Warnings:
->>
->> fs/jffs2/xattr.c: In function 'jffs2_build_xattr_subsystem':
->> fs/jffs2/xattr.c:887:1: warning: the frame size of 1104 bytes is larger than
->> 1024 bytes [-Wframe-larger-than=]
->>  Â  887 | }
->>  Â Â Â Â Â  | ^
->> lib/crypto/curve25519-hacl64.c: In function 'ladder_cmult.constprop':
->> lib/crypto/curve25519-hacl64.c:601:1: warning: the frame size of 1040 bytes
->> is larger than 1024 bytes [-Wframe-larger-than=]
->>  Â  601 | }
->>  Â Â Â Â Â  | ^
->> drivers/net/wireguard/allowedips.c: In function 'root_remove_peer_lists':
->> drivers/net/wireguard/allowedips.c:77:1: warning: the frame size of 1040
->> bytes is larger than 1024 bytes [-Wframe-larger-than=]
->>  Â Â  77 | }
->>  Â Â Â Â Â  | ^
->> drivers/net/wireguard/allowedips.c: In function 'root_free_rcu':
->> drivers/net/wireguard/allowedips.c:64:1: warning: the frame size of 1040
->> bytes is larger than 1024 bytes [-Wframe-larger-than=]
->>  Â Â  64 | }
->>  Â Â Â Â Â  | ^
->> drivers/vhost/scsi.c: In function 'vhost_scsi_flush':
->> drivers/vhost/scsi.c:1444:1: warning: the frame size of 1040 bytes is larger
->> than 1024 bytes [-Wframe-larger-than=]
->>  Â 1444 | }
->>  Â Â Â Â Â  | ^
-> Are these new warnings with this release, or old ones?
->
-> thanks,
->
-> greg k-h
+On Sat, Jan 15, 2022 at 03:52:34AM -0800, Ron Economos wrote:
+> On 1/15/22 12:14 AM, Greg Kroah-Hartman wrote:
+> > On Fri, Jan 14, 2022 at 11:59:57AM -0800, Ron Economos wrote:
+> > > On 1/14/22 12:16 AM, Greg Kroah-Hartman wrote:
+> > > > This is the start of the stable review cycle for the 5.15.15 release.
+> > > > There are 41 patches in this series, all will be posted as a response
+> > > > to this one.  If anyone has any issues with these being applied, please
+> > > > let me know.
+> > > > 
+> > > > Responses should be made by Sun, 16 Jan 2022 08:15:33 +0000.
+> > > > Anything received after that time might be too late.
+> > > > 
+> > > > The whole patch series can be found in one patch at:
+> > > > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.15-rc1.gz
+> > > > or in the git tree and branch at:
+> > > > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> > > > and the diffstat can be found below.
+> > > > 
+> > > > thanks,
+> > > > 
+> > > > greg k-h
+> > > Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+> > > 
+> > > Warnings:
+> > > 
+> > > fs/jffs2/xattr.c: In function 'jffs2_build_xattr_subsystem':
+> > > fs/jffs2/xattr.c:887:1: warning: the frame size of 1104 bytes is larger than
+> > > 1024 bytes [-Wframe-larger-than=]
+> > >    887 | }
+> > >        | ^
+> > > lib/crypto/curve25519-hacl64.c: In function 'ladder_cmult.constprop':
+> > > lib/crypto/curve25519-hacl64.c:601:1: warning: the frame size of 1040 bytes
+> > > is larger than 1024 bytes [-Wframe-larger-than=]
+> > >    601 | }
+> > >        | ^
+> > > drivers/net/wireguard/allowedips.c: In function 'root_remove_peer_lists':
+> > > drivers/net/wireguard/allowedips.c:77:1: warning: the frame size of 1040
+> > > bytes is larger than 1024 bytes [-Wframe-larger-than=]
+> > >     77 | }
+> > >        | ^
+> > > drivers/net/wireguard/allowedips.c: In function 'root_free_rcu':
+> > > drivers/net/wireguard/allowedips.c:64:1: warning: the frame size of 1040
+> > > bytes is larger than 1024 bytes [-Wframe-larger-than=]
+> > >     64 | }
+> > >        | ^
+> > > drivers/vhost/scsi.c: In function 'vhost_scsi_flush':
+> > > drivers/vhost/scsi.c:1444:1: warning: the frame size of 1040 bytes is larger
+> > > than 1024 bytes [-Wframe-larger-than=]
+> > >   1444 | }
+> > >        | ^
+> > Are these new warnings with this release, or old ones?
+> > 
+> > thanks,
+> > 
+> > greg k-h
+> 
+> They are old ones.
 
-They are old ones.
+Ok, that's good.  Are they fixed in 5.16?  Anyone planning on fixing
+them given that -Werror is now allowed to be set?
 
-Ron
+thanks,
 
+greg k-h
