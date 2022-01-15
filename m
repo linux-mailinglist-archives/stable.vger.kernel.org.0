@@ -2,79 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E3F648F98F
-	for <lists+stable@lfdr.de>; Sat, 15 Jan 2022 22:41:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B4E148F9B7
+	for <lists+stable@lfdr.de>; Sat, 15 Jan 2022 23:50:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233772AbiAOVlD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Jan 2022 16:41:03 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:47632 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229671AbiAOVlC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 15 Jan 2022 16:41:02 -0500
+        id S233860AbiAOWuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Jan 2022 17:50:13 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:48512 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231483AbiAOWuN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 15 Jan 2022 17:50:13 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B163760EFE;
-        Sat, 15 Jan 2022 21:41:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CB49C36AE7;
-        Sat, 15 Jan 2022 21:41:00 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 568F4CE0B1B;
+        Sat, 15 Jan 2022 22:50:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 481ACC36AEC;
+        Sat, 15 Jan 2022 22:50:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642282861;
-        bh=1MzPi0BXY8b13RSJb71FRfp5CNfpUxsORzKKV2hp2rw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=VZydSC4GsSbo545jx5E9CTMD/cBbwrLU5a9khdoy9ZYMHm3TGY+9P5KlE9x2BUSP2
-         43ZuvgL2eWI4w1UlbZhyp2AG80ukDWPRD3HHDmQAEoTYl5K/e9Y0M+aSowAC8Jcpa3
-         MF41d7oT4+OY9IniSltO1wloMv8ZIs1mqYhXhVpzFVCoAS7x8kFWxNiIKig0Bz55qa
-         3z13iCn0G978EyMQ1X2VY8qxc42ki96TCMh1C/AzRJ62t7s5GD06x8PqQn+Ql7b9QT
-         Vrrcvh8/ft0PJq+PW8pya2IVvcrv+YXnb/OawnGHpVAa8ILmnwJ7JDYVQl1YtEv7Qc
-         0UMXCj1j0icXw==
-Date:   Sat, 15 Jan 2022 23:40:48 +0200
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     keyrings@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Denis Kenzior <denkenz@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        James Morris <james.morris@microsoft.com>,
-        linux-crypto@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/3] KEYS: asym_tpm: fix buffer overreads in
- extract_key_parameters()
-Message-ID: <YeM/YIUTEwL4jNf3@iki.fi>
-References: <20220113235440.90439-1-ebiggers@kernel.org>
- <20220113235440.90439-2-ebiggers@kernel.org>
+        s=k20201202; t=1642287009;
+        bh=Z9gSvvip9m1oDvrqSPUEB1vi4702+JJ0Xru7hnKxTW0=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=nVN/8ROirvWBGT5QFqomdIV8cMRs3G98fLXe9ofq+JzW0qqYqkxBADnGSmTT4qBAO
+         GEzm/7ne8CQ0SrIinOqFOLmq2HTY0RVUpbrsXLYy4KAqw2H4nenhCSArOEWhFvLsQY
+         5lKYMlUSTCm2VRnhNgnTMQxxbmGNA4cYNSiRBanl8ieUO1/Wkg6bKOs8C9DghcetBk
+         12begki0YdNrQ4ehuXonch+bG3oiicQvFAa/WXMBoGA2dyrHWrjXmHhBaCeb2ljH/B
+         3m6ptMoIK6OM8MyeLjyUxzoI8Nrk7T0XDwzacQEg1BxeZzUxOAsPAEPZ+e9bP3Ddyy
+         y+c6T9HSRIc7Q==
+Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id 2C317F6079A;
+        Sat, 15 Jan 2022 22:50:09 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220113235440.90439-2-ebiggers@kernel.org>
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net v4] net: phy: marvell: add Marvell specific PHY loopback
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <164228700917.30034.60722406247180208.git-patchwork-notify@kernel.org>
+Date:   Sat, 15 Jan 2022 22:50:09 +0000
+References: <20220115092515.18143-1-mohammad.athari.ismail@intel.com>
+In-Reply-To: <20220115092515.18143-1-mohammad.athari.ismail@intel.com>
+To:     Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
+Cc:     andrew@lunn.ch, davem@davemloft.net, kuba@kernel.org,
+        linux@rempel-privat.de, hkallweit1@gmail.com,
+        linux@armlinux.org.uk, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 13, 2022 at 03:54:38PM -0800, Eric Biggers wrote:
-> From: Eric Biggers <ebiggers@google.com>
+Hello:
+
+This patch was applied to netdev/net.git (master)
+by David S. Miller <davem@davemloft.net>:
+
+On Sat, 15 Jan 2022 17:25:15 +0800 you wrote:
+> Existing genphy_loopback() is not applicable for Marvell PHY. Besides
+> configuring bit-6 and bit-13 in Page 0 Register 0 (Copper Control
+> Register), it is also required to configure same bits  in Page 2
+> Register 21 (MAC Specific Control Register 2) according to speed of
+> the loopback is operating.
 > 
-> extract_key_parameters() can read past the end of the input buffer due
-> to buggy and missing bounds checks.  Fix it as follows:
+> Tested working on Marvell88E1510 PHY for all speeds (1000/100/10Mbps).
 > 
-> - Before reading each key length field, verify that there are at least 4
->   bytes remaining.
+> [...]
 
-Maybe start with a "Key length is described as an unsigned 32-bit integer
-in the TPM header". Just for clarity.
+Here is the summary with links:
+  - [net,v4] net: phy: marvell: add Marvell specific PHY loopback
+    https://git.kernel.org/netdev/net/c/020a45aff119
 
-> 
-> - Avoid integer overflows when validating size fields; 'sz + 12' and
->   '4 + sz' overflowed if 'sz' is near U32_MAX.
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
-So we have a struct tpm_header in include/linux/tpm.h. It would be way
-more informative to use sizeof(struct tpm_header) than number 12, even
-if the patch does not otherwise use the struct. It tells what it is, 12
-does not.
 
-> - Before saving the pointer to the public key, check that it doesn't run
->   past the end of the buffer.
-> 
-> Fixes: f8c54e1ac4b8 ("KEYS: asym_tpm: extract key size & public key [ver #2]")
-> Cc: <stable@vger.kernel.org> # v4.20+
-> Signed-off-by: Eric Biggers <ebiggers@google.com>
-
-BR, Jarkko
