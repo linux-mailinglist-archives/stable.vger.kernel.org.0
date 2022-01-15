@@ -2,23 +2,23 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8795F48F9C3
-	for <lists+stable@lfdr.de>; Sun, 16 Jan 2022 00:02:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A402548F9C6
+	for <lists+stable@lfdr.de>; Sun, 16 Jan 2022 00:03:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232689AbiAOXCy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Jan 2022 18:02:54 -0500
-Received: from mail-sn1anam02on2111.outbound.protection.outlook.com ([40.107.96.111]:15494
+        id S233891AbiAOXC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Jan 2022 18:02:59 -0500
+Received: from mail-sn1anam02on2093.outbound.protection.outlook.com ([40.107.96.93]:33155
         "EHLO NAM02-SN1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S233870AbiAOXCy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 15 Jan 2022 18:02:54 -0500
+        id S233870AbiAOXC6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 15 Jan 2022 18:02:58 -0500
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ncb28DAgdCJw302Q4w3U59zbtMBcTXCXXFDoM8RjWG1R119Qi67rws21th+3+06zvZ2iZJ5irUMUne4XMKlP6Iefl5dAWE8NVVnoAPBsgJ64xC7pZQZ8BlKY8pfYyFfC+MOgDjb3CRNy28WyGGDUY6cio7YX0wIB3Lvgsvxs/WAcqTNMfvX/8DYCj+OS7205r5X8UkbGns3OFtGW42d/gnzOvz//Oku7NzvL3rV+smfQc3nnBfNArHX7yB+nPS0lnkfWEYv6PBsPnEeYzdAbhkNEAHlkyep3yDP/jIQ513bKhPKAjjIi0GJoIcsD1xnxGWUo/ZChXuvDQObpOplTHA==
+ b=Ty/F1h19RKbGc+U1LIb8gRr19MYCMlvBVbLjpGcdHw0QPgEdUlPlAzi8m7yijTMImud3Da2EIqSz8T2XpFzK/IO5/cBupAggYYaXdzPCVTxaP9KsSoR3kzE8KeRTsDS5z94PRfL6Q3P1lI5B2IQt3lvhuJyD15dz6eTnlgNQIJXmZwHWA57ZLO+Tg1EPYuJCvSyZEvfVq+mzbtWIs9tp5/etJM5Dbm7ViWMVL+w4nhujv8IPhTNWomCVevR3IBVQBFqsrbJ/jEfpVs45Vqu5dQdgbAGSzPgEydc/E+bK38DYqLWgTqeAyBKWkmAJ9MpxNilyt9eQkWBW7ziOnk1HvA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=MFaCisCEQcwCkTuPnNda1ENNEW13q+t3SkY0KWLAiwU=;
- b=ckoi+2swV8K4q4GQ+4vsEyAZqxDjESZ7piaFq7Zvxki/IOtPah6W1emPWpAD8sMiCcnwy0PXtjNqwjS5+5sROFMYDU6gjPMOCBlitwF6XL51dKB6RbMlWQcJffViYrqjtDLMxNJd/YYmLw1r+SVdKx/pbhsRPOgHSzzYh7NcD/u1T71MtfaJbn7FJn6gFSIp8dWoy+Xdwuvig/zZblQRKoXeCmF740nSqal6o3aOiAI6iRBZyMPWXG9Qa0OTNZ+JuU/VVnnK0sv8pFvmCIF6X4zEWCJt5BySNAKCneDUQ++aPd14ivjj9hlepTqXin+wFcnD+CSXRfQ8e9N6KT/ytg==
+ bh=7hDKk4IFo85fdT65LkGB72YBZl2QindArRfDEIUHsRg=;
+ b=JbcKEWMaVZ+tYdfOjXyYUTzrlilA51MCFaTS0AT14n4q65NirIkfL6r777xrBH45JY5QYCxUEzVnewIumWmRvHcELutstKZYr3XO8MgRQtYiZiINeKbIODwOEAPEkbfFQS+yj91p/+Mwjb9/bsc7nuPGDiTxa83fEo91bWgxHWyYcyqUtmqAcTxJ6FMqpHxfqF8vUfTsShG5DwcOpOGlD/TaY1hvVauFfOhKQmFaNXv7RwAirRigaqXkY4oLeuabMB13rSaVenRRnoRWyg89SeYfdAuHKaHz53cdF1JbOL2xx2igQ8qmrkjEHF+HUyf39u3RJcueI8PmvNdJBtV12A==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=cornelisnetworks.com; dmarc=pass action=none
  header.from=cornelisnetworks.com; dkim=pass header.d=cornelisnetworks.com;
@@ -26,26 +26,26 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cornelisnetworks.com;
  s=selector1;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=MFaCisCEQcwCkTuPnNda1ENNEW13q+t3SkY0KWLAiwU=;
- b=TwO1XfQ4nelV++pqxh/w9hYEAFcJR3wOkmZcnoypWGT7XZbmEaGPbXeGYHVlsACnJUNPYvwksFij60CP81Gdm0/l8WTWBjuzM/rgJpcAkZPO3BL7aB7OgbIdv7kKWGBsjN8LGnGBA1RHOAJtuG8P014By0ucdjFy5HmZDDH9cioGPaMoNgnWKqFurcp8WuyQ7Eu/UJHMryRWyXf6ppxUjIPgyTa6RyQLzx68Hl+S2Pdxf9eE2wEfyEXuYlssGbgazf8ZxNAK3y5GmpMOpPy2HX1LCHx4DppNDRcNBWNAXITgGeggV8PdodqgnH5Ac8JydMv8zyCVUXS59T/Bci66SQ==
+ bh=7hDKk4IFo85fdT65LkGB72YBZl2QindArRfDEIUHsRg=;
+ b=g6dqbelly//RDn5Oe/R7g2TH6Kkd8b6g1+r9I4HTkYkBiiOmFOH/mE9FVZN/3bZCbhyq3UUThG5kotqSLD/eviUau9AUdwYaCQYnB5euoZFMmkjLb2xRrIYTvcmlsKAO7xQaf9akaRvUron//K/c8NzqpTj5jdovk4e089B55lZSvsV8VET7XlJC/dZZjzFhiSbE+SaGY50EA0ePvXDjFKH1Tbdoh1fRWFQla+QDqFhkN7qna214U3k8gwVLIigSRgz47K3kSHXKDd2t2g2NscBxLKJsuClSi+ys/vO7Zqyn5eL5KrxpWSAjDAt3gWjwtrS+8JdWOqxhUkVzPnmAcg==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=cornelisnetworks.com;
 Received: from CH0PR01MB7153.prod.exchangelabs.com (2603:10b6:610:ea::7) by
  SA0PR01MB6140.prod.exchangelabs.com (2603:10b6:806:e4::12) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4888.11; Sat, 15 Jan 2022 23:02:53 +0000
+ 15.20.4888.11; Sat, 15 Jan 2022 23:02:57 +0000
 Received: from CH0PR01MB7153.prod.exchangelabs.com
  ([fe80::110:392e:efd1:88d0]) by CH0PR01MB7153.prod.exchangelabs.com
  ([fe80::110:392e:efd1:88d0%8]) with mapi id 15.20.4888.012; Sat, 15 Jan 2022
- 23:02:53 +0000
+ 23:02:56 +0000
 From:   mike.marciniszyn@cornelisnetworks.com
 To:     jgg@ziepe.ca
 Cc:     linux-rdma@vger.kernel.org,
         Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>,
         stable@vger.kernel.org
-Subject: [PATCH for-rc 1/4] IB/hfi1: Fix panic with larger ipoib send_queue_size
-Date:   Sat, 15 Jan 2022 18:02:33 -0500
-Message-Id: <1642287756-182313-2-git-send-email-mike.marciniszyn@cornelisnetworks.com>
+Subject: [PATCH for-rc 2/4] IB/hfi1: Fix alloc failure with larger txqueuelen
+Date:   Sat, 15 Jan 2022 18:02:34 -0500
+Message-Id: <1642287756-182313-3-git-send-email-mike.marciniszyn@cornelisnetworks.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1642287756-182313-1-git-send-email-mike.marciniszyn@cornelisnetworks.com>
 References: <1642287756-182313-1-git-send-email-mike.marciniszyn@cornelisnetworks.com>
@@ -55,56 +55,56 @@ X-ClientProxiedBy: BL1PR13CA0106.namprd13.prod.outlook.com
  (2603:10b6:610:ea::7)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 1cba2973-c16a-4d2b-9a39-08d9d87b290b
+X-MS-Office365-Filtering-Correlation-Id: 3bb418cc-55f6-4219-d5bd-08d9d87b2b2b
 X-MS-TrafficTypeDiagnostic: SA0PR01MB6140:EE_
-X-Microsoft-Antispam-PRVS: <SA0PR01MB6140695DF0BE2580012815B4F2559@SA0PR01MB6140.prod.exchangelabs.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:2000;
+X-Microsoft-Antispam-PRVS: <SA0PR01MB6140423789B1D690358D8F49F2559@SA0PR01MB6140.prod.exchangelabs.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:5516;
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: XGPONjfST9wmtuxbcHVyicTDOqQJO/e8poubmOd1gAotMs0QPSLOXUBwFrwpZQx+DTQ9BALBa45Ew1N77QY6zKFhRAzUZCgilxWV1WLhKCcIbYT8T2JpqvkXKskFk1+xqbzvzQnb/L6Gn7AisFvVrG+ORuN3QuyeUE1FWZ4uAwuxCyIh3Iawb4FHwlrPKgR+Ud52w0n7yIPsScdwQrv7Qz8NckT84VnCg2K+w5ec1BY/9j8Ye66FW4W3gLh3Kwkzpzwu67dCpnBoOleI9OENYLhy4GzVGEDgLf6xl/phQqXoSkfD3zNEKEFoR+TXFYkUITKyyOI7F6POxXUmf80LpcMblaqSErJ8ub3ghJ3S9hV+cZK0OzgJVt9XGoq5yTZtZ1MQW/IOSVEAWRB8xbkr/0fdziFJX5cm+BbTv8VWuzzJdQ5xQihYRH1OpB2kH+LWJTnHi/JDJBeyV4oP3tzfz6MuLBo0ZXHpagCmshSIL6YNkp7FXc+tYUU6FqzDI7/1+KqCCuxaziSDaXu+aDliy0teHicPrmOII04VmKufnVj4slZRPPgFeKRjX5wzwTUNH+ZbeAushQd6hZhXH2N9zUew0qMGHSg6E//ilJgW0qM3bIKSurQwJio3m3wFkNTDUHf7QoIQzduV41bhyNQm0ihZ9O52mqwG3Rh1X9Wu9muvHPl5iRou4V1bT3LmQrDwjUe2I8cBqRvv7mqgRmlzOA==
+X-Microsoft-Antispam-Message-Info: Bnr7tZlefjANoZMxRUL8aIB0Ll02tfa2bSdCM+9tRNg6s0MGAOVY6j8IJoWlwWKkX1nnqf8M0Q4LzCCQ16jtwd2Do7rihsKh0KVuzkYl219LnwhDHLY0Xvn9BHsQydbgP2g8/MmOV1V/TlblkAQwLTdLB0XWsRQ0P1LCLjQJwaDM/nynwWA9Qng9UdC+R2O+HsdStYOG390cgMj9wbsjIpZrKmQpTqCQMXMly47aEz1ssTz0DD7WSVWYEKpw2SBxLnREv9uyjObDw5We9VDH06Ab7PyXgPTUv83WyKZGl1ljKwcUciBZoy+vRDwW751wef+rNHpHTwukQaA1KZXczLh4G01FbQaUCCQPBRKJVPl/ttrGZ1bq7X3RwatHulpMtMlpKJqk7dJRkMbBez3gCIPFvrZY+i/gImjLFLzNMUGU6Cn+MX+JvRKdGDi6x20zmuCJLl8mMM5ri1yK1x7hCI93BQye8pHgavoHjYnu9aWug5MjxDmD2BOpk+eejwge3/ek4fJzVNEKI0mLU+4C94pSEGmvVuyjEBOiTCpOZEy0RJhwiIzt0pKZCi8C/e2JYCAWk8x3akJw4hEjDXuDL4s17j7KvLmLtliVvIG8uxHvxzRMQuItvS39oYksqNygvsLuCNXlV0MRcFPUy+nmj9nDPefn07W4tVYbAx4WpSXvjAKU9Sd00lDLczBZvUoPNvNjkxJcIVH1IWCQy2vTfQ==
 X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH0PR01MB7153.prod.exchangelabs.com;PTR:;CAT:NONE;SFS:(4636009)(39830400003)(396003)(376002)(136003)(346002)(366004)(36756003)(86362001)(508600001)(4326008)(26005)(52116002)(8936002)(6666004)(38350700002)(38100700002)(6916009)(8676002)(6486002)(66946007)(5660300002)(83380400001)(66556008)(66476007)(186003)(2906002)(316002)(2616005)(9686003)(6512007)(6506007);DIR:OUT;SFP:1102;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?xna8/OQRvnG+/ZTwCBaLswb7yBj5C0cltxegphNL0n7+pgqIFzDtrp/YfUKg?=
- =?us-ascii?Q?4SWcGPRHf6y3dg+gfZRZtXDU7quhYmFi1t9Rcp5WJQ1+S8ntO7Op/YdpXj0n?=
- =?us-ascii?Q?wlVFngDjuTnsnVJ+QFQqKuJ/XUJEDPyTn6r2C7tTUVGB7VUc6RQtBc1Cz4zh?=
- =?us-ascii?Q?hhKvocBRMPI4csQ6AUBEBfuDAYldKthe1F53yelT5lCQdatjTuotXg04UGlw?=
- =?us-ascii?Q?3bMzXBcLS0VPbS8zZaZiqWHOni2SQvaPe5vWw2NOGhM+DBwFqNFak/DsGM+H?=
- =?us-ascii?Q?3ZTOR3IzsOfDpGEmhlGoDQWLZHnzeS0wVqAWY2jyXkfOerScGJUwwQ/yXnnx?=
- =?us-ascii?Q?kzaSdVQooeDY63fJjkh4wLDlU7CWh3tfnoTzigM4UYkgIiovt8/mQp9W4FMc?=
- =?us-ascii?Q?Yq6N50BLzbwu9MhCgNCpNtLUKz7ncBiBDvQKhOdRYopnzU5pBifyFjNVOYuQ?=
- =?us-ascii?Q?6mX+RVEP+tMvvB96jH08tZJl3nik/IMaPMe3HZlIegDqQs8ahz70r76K4Lmh?=
- =?us-ascii?Q?tcVBuQAyhGo4qT+oF6L0WRM3nvuZS7pdZR1b9LN8XuvcuEo8d7KWT+KT9PiC?=
- =?us-ascii?Q?WiZjpzxCdKTjcWmv6tyRMQ1KOgx+zZvd2LXa2LUjp+i2LGs1PYNO8+DV5Ns8?=
- =?us-ascii?Q?ae0bXz/p98e6NMrehbtvgW2BCO/IG/lOwrKGJpxOKWP7bIS0gf3lgfkXi1Uo?=
- =?us-ascii?Q?o6tmQZqXx3Ih35H+Ff/QHB+I08cEHFDgpG2cdPcsLH2DtGmcd/cs5loqJ+BW?=
- =?us-ascii?Q?IdIhWfJ5dRigXm6gBZ0uX9oqn8/wmtwVK0W9UUk38jenaty0MC1+DVPWm/La?=
- =?us-ascii?Q?P1IAWHxnqQ2PrTAZCnLXQ9U5c5DGe6QHzF94wt8zDW2e8uncXCJbIBliLq2a?=
- =?us-ascii?Q?YQtqmIlrXZbWBmr/JefgYEox0GRvnbGOTLqaD3/RYj2XBXKbBStjKpKUBa6e?=
- =?us-ascii?Q?MOQ9ENwLhDynszTDhQJyl4dSJQ9VqyJNhCf1h7czCgdQO9rfwnSdm9aaLaSz?=
- =?us-ascii?Q?8yVmizdh3nP90MFaRHLztN8a16dr4StewXtoWpbV7aS+sVZnaZ3TTXCwuyxi?=
- =?us-ascii?Q?biJbQj2hbudtNCB3yjGrXpy5FIlB6fLP1TvTIkwMvGM0JTy0ZimaFJEaXXY0?=
- =?us-ascii?Q?aDP66miDo5sRbwfPDiKQDWmxyuaVnXZE1w+/7gkJc6fpcUmBVWMmE8vTgH4g?=
- =?us-ascii?Q?/unA4IaUFHuhxvFidiqNwxb3oTQFF+8b2JSPQ8+6ctaYqXDxn41xiGu0Mqu2?=
- =?us-ascii?Q?IxFbbdsR2K1gmW/HogSW4Bt3Qau+O45b31lPdT7659VZpEQtkKWlEu0Dl/sq?=
- =?us-ascii?Q?R9izW+0prAhBRK/ZcQLceQnocR3FS8Ze0c6QYIOsvKJxquYbnssjwqjEF8nk?=
- =?us-ascii?Q?D68snLYxAT0tqQHIRGoO/7Wy3X3ErT6Bw9LJSp7hreyoiYZc5hQ75yUZZpKU?=
- =?us-ascii?Q?cj0jCy7zs16G8qf8wAWKaUEUpR316QpkSc6b2bMk70lE2IQxapiMMQD0UbOJ?=
- =?us-ascii?Q?er/mjMmBVySmRvn+asrZQ45rreStSrEfUv51P+x2GfwO+f27Shi9NcxuU8c7?=
- =?us-ascii?Q?n0oMi+VcSSDG7+eidd/DCG38wG2AZTeB55AHZT83s5VMpuxTEu3clw8l6+2H?=
- =?us-ascii?Q?7+98PIp0JliqBZbq6AtLuVy54YQgreNSx/uxBodG2Tw2uEMqTcczbMrb0Upc?=
- =?us-ascii?Q?XmKtNrjy3OoRJIFdZen5hPlf9Qy0F8Ljf1IuxGg1dkwSp6IyK/rztCW9SBZf?=
- =?us-ascii?Q?469Eu+z6kw=3D=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?LXGQV5uP2UCYdkR7jtog+sBi59krvM/WHfGcTBjjcuRfJXV0MT+UlHxq45nJ?=
+ =?us-ascii?Q?//D0mCKMGqwSCNOtijIDmEfc62FK9yCSk74Np1Y/kVRNxRLcPr3yIYbpdI8x?=
+ =?us-ascii?Q?yIfDB4Jsd3xStBj2DaEOQZ48tEsOfDbYbp4tYyWF4Zl/fxXy2B8dYaTHr0eQ?=
+ =?us-ascii?Q?cGV8XHq5tJjDOFqscdFybQObjH5FGWrQCnHdJVBemtuBirUHwOZpPaa/OUFi?=
+ =?us-ascii?Q?rSdjFAD6XAJAVstwhcMAVcOhEwDALZQLvGvpALHDnTlFaoBkJoY+Kg+oqUQc?=
+ =?us-ascii?Q?IpyufpYDAMP10wZnxzvIfQhFII7EoUHi40DEmvHczuveL18VRlc/Z+jAYrkN?=
+ =?us-ascii?Q?riLwtE/o65w0SDFXXRAxuZLS1pVSYV/1aOcWXjzTThkm94pUFIbjffHeg1tj?=
+ =?us-ascii?Q?gICpN3tbKlFDoMonBsvghkNLjor0Y+t8jUrV5GILTGVOuKpOdNCAwIC9xxlG?=
+ =?us-ascii?Q?x9RiVd+ICbxD8BZ2unl7k1yS6YhoHr9hHRrcTeoFpcqPck8cheig2S1HShEF?=
+ =?us-ascii?Q?y2Lk9VlT9Gi0+7E0jSEZ7bcgnw5uBlTx7PIPH+tnXTTL3ONb6SNplsztVGQ+?=
+ =?us-ascii?Q?zTL/Pm6UBvBqp8IWpmso67c73GPQUCMAhiobVtMEzMgQS2CO+a0gF3yzlEZn?=
+ =?us-ascii?Q?r1YEvhqees4y26fYjSI0SGD++0fHdruXn82lLpXSVViU652lW8H1ey68fjS8?=
+ =?us-ascii?Q?YDMmLVcRiQAn/6K2YhcQiSGF2Cwo3bDnxkgsJQALMGKo1r1LluAaVhXtz8yY?=
+ =?us-ascii?Q?61zMauT0xnMxRuq8gBBfYGdHqeBOMy3CO3b3RuElhneARfbaMhKMb5LKVmcz?=
+ =?us-ascii?Q?x7KTkraKH59pZH+ePTOIxDeM+wte8oSDZoYoPVbozYfajCaPAZyK5eGcHXsn?=
+ =?us-ascii?Q?J1wTGzoNWLzAh/On80A5JBkdvKpV+ewcoKVvoJi4ah2ZJJW0rt626Su/e9EW?=
+ =?us-ascii?Q?XS1odV67YPDLSFGTteRaQyS30v/FS/VtQ7cKgNDADD4aYZSRdcRKA62Z8ub/?=
+ =?us-ascii?Q?PnFPAdazRtNIweOEaVZ6Ad7IHTE9AL0/+D+68k5uq5s60yt9JI3/fQx5iE7P?=
+ =?us-ascii?Q?KymoRTt2CRTb+LOD5cbs0dzvJIHCKQ+cSzueuXyc1jnlHkdgKsqvndVQ686K?=
+ =?us-ascii?Q?LoswFQpk6/cS6FOIOpNjM7MBeIqLsxQVH9zX6dxHIX4UuZfZljVN8efLgwpL?=
+ =?us-ascii?Q?n2z9B0f7s9sUmUL6Kub03U4zt2+iIbfBv2rqVgu2zd+0iFXvMdD6j0xq6kGR?=
+ =?us-ascii?Q?TUSSoPuKLhHJpCMq//otiykx80u+uZUw2jNyuSOZHAB9p7stL9SElTovPvWy?=
+ =?us-ascii?Q?UzI5yw9b82aGpLWEjp61DWqp/BTTZ8QQB20Ph9811e5CT2Dk1O8Sx6hbYiCr?=
+ =?us-ascii?Q?9E+mNvRF7W/0T03zugOfQBeU7tOznr76fczydtdB971xLTWSVgz6Mrqhysid?=
+ =?us-ascii?Q?kwxG91f/ztgvYl1XBKOuDxHwS/6MSj+6zFZS0q8guF88/Y+80CXYh5fgiaFs?=
+ =?us-ascii?Q?wYLPGKXkgG++GNQ42xI4L1/WDEBV1i6VO1CxtxsoZD0Cz3X+0895/+Da4yG8?=
+ =?us-ascii?Q?g5gZ06O+I4RhWBtqBjhZryIsg4CNCDGQBGOv48t2UkN2HL7npqFJF7hROW2A?=
+ =?us-ascii?Q?Y18EVsBIZLIHPmhWNyfqEta06OE2r8g30kwojQoX1Q6TjyyJIfBmQGkI4noT?=
+ =?us-ascii?Q?H0jiDPs/DZ/hhVdZEeHE7TARZGhX8XiB/olSqkgP7OHFW0oCqdKYL2IYn+C1?=
+ =?us-ascii?Q?Hvu66Y1pMQ=3D=3D?=
 X-OriginatorOrg: cornelisnetworks.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1cba2973-c16a-4d2b-9a39-08d9d87b290b
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3bb418cc-55f6-4219-d5bd-08d9d87b2b2b
 X-MS-Exchange-CrossTenant-AuthSource: CH0PR01MB7153.prod.exchangelabs.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jan 2022 23:02:53.2869
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Jan 2022 23:02:56.8536
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4dbdb7da-74ee-4b45-8747-ef5ce5ebe68a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: QPEueRN4kZws+JgG92P8+CL4/gW/9gb5m4desvCa0JbjEeapbIJRPHUZNpWesQK6n4OXXQkZiiuS96ziLyns34uPNd+pJPUvrVgM1FIICQG/Psp0b0phGv3ll+ccvS2q
+X-MS-Exchange-CrossTenant-UserPrincipalName: 7Vk0Cxu6mpeJLYy6oT9e8UPS3OjQ3r1R3fPndjWzNJBie7oxlF8fwmX9UO5TRWaoghVZ4nZ1vOTx/LlvVxjdrtgAqszNrD5FPG2FrrSgLY8C3+XVa2pp1q/Hst0ZZVbp
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR01MB6140
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -112,73 +112,191 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
 
-When the ipoib send_queue_size is increased from the default
-the following panic happens:
+The following allocation with large txqueuelen will result in the
+following warning:
 
-[  219.242960] RIP: 0010:hfi1_ipoib_drain_tx_ring+0x45/0xf0 [hfi1]
-[  219.250708] Code: 31 e4 eb 0f 8b 85 c8 02 00 00 41 83 c4 01 44 39 e0 76 60 8b 8d cc 02 00 00 44 89 e3 be 01 00 00 00 d3 e3 48 03 9d c0 02 00 00 <c7> 83 18 01 00 00 00 00 00 00 48 8b bb 30 01 00 00 e8 25 af a7 e0
-[  219.273764] RSP: 0018:ffffc9000798f4a0 EFLAGS: 00010286
-[  219.280740] RAX: 0000000000008000 RBX: ffffc9000aa0f000 RCX: 000000000000000f
-[  219.289842] RDX: 0000000000000000 RSI: 0000000000000001 RDI: 0000000000000000
-[  219.298864] RBP: ffff88810ff08000 R08: ffff88889476d900 R09: 0000000000000101
-[  219.307907] R10: 0000000000000000 R11: ffffc90006590ff8 R12: 0000000000000200
-[  219.317016] R13: ffffc9000798fba8 R14: 0000000000000000 R15: 0000000000000001
-[  219.326100] FS:  00007fd0f79cc3c0(0000) GS:ffff88885fb00000(0000) knlGS:0000000000000000
-[  219.336171] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  219.343639] CR2: ffffc9000aa0f118 CR3: 0000000889c84001 CR4: 00000000001706e0
-[  219.352589] Call Trace:
-[  219.356340]  <TASK>
-[  219.359804]  hfi1_ipoib_napi_tx_disable+0x45/0x60 [hfi1]
-[  219.366887]  hfi1_ipoib_dev_stop+0x18/0x80 [hfi1]
-[  219.373313]  ipoib_ib_dev_stop+0x1d/0x40 [ib_ipoib]
-[  219.379814]  ipoib_stop+0x48/0xc0 [ib_ipoib]
-[  219.385604]  __dev_close_many+0x9e/0x110
-[  219.391001]  __dev_change_flags+0xd9/0x210
-[  219.396618]  dev_change_flags+0x21/0x60
-[  219.401878]  do_setlink+0x31c/0x10f0
-[  219.406841]  ? __nla_validate_parse+0x12d/0x1a0
-[  219.412902]  ? __nla_parse+0x21/0x30
-[  219.417844]  ? inet6_validate_link_af+0x5e/0xf0
-[  219.423913]  ? cpumask_next+0x1f/0x20
-[  219.428914]  ? __snmp6_fill_stats64.isra.53+0xbb/0x140
-[  219.435648]  ? __nla_validate_parse+0x47/0x1a0
-[  219.441564]  __rtnl_newlink+0x530/0x910
-[  219.446818]  ? pskb_expand_head+0x73/0x300
-[  219.452198]  ? __kmalloc_node_track_caller+0x109/0x280
-[  219.458999]  ? __nla_put+0xc/0x20
-[  219.463733]  ? cpumask_next_and+0x20/0x30
-[  219.469166]  ? update_sd_lb_stats.constprop.144+0xd3/0x820
-[  219.476325]  ? _raw_spin_unlock_irqrestore+0x25/0x37
-[  219.482815]  ? __wake_up_common_lock+0x87/0xc0
-[  219.488761]  ? kmem_cache_alloc_trace+0x3d/0x3d0
-[  219.494917]  rtnl_newlink+0x43/0x60
+[  136.166367] Call Trace:
+[  136.169661]  __alloc_pages_nodemask+0x283/0x2c0
+[  136.175273]  kmalloc_large_node+0x3c/0xa0
+[  136.180289]  __kmalloc_node+0x22a/0x2f0
+[  136.185110]  ? __kmalloc_node+0x22a/0x2f0
+[  136.190169]  hfi1_ipoib_txreq_init+0x19f/0x330 [hfi1]
+[  136.196453]  hfi1_ipoib_setup_rn+0xd3/0x1a0 [hfi1]
+[  136.202396]  rdma_init_netdev+0x5a/0x80 [ib_core]
+[  136.208210]  ? hfi1_ipoib_set_id+0x30/0x30 [hfi1]
+[  136.213995]  ipoib_intf_init+0x6c/0x350 [ib_ipoib]
+[  136.219873]  ipoib_intf_alloc+0x5c/0xc0 [ib_ipoib]
+[  136.225751]  ipoib_add_one+0xbe/0x300 [ib_ipoib]
+[  136.231563]  add_client_context+0x12c/0x1a0 [ib_core]
+[  136.237739]  ib_register_client+0x147/0x190 [ib_core]
+[  136.243906]  ? 0xffffffffc0570000
+[  136.248123]  ipoib_init_module+0xdd/0x132 [ib_ipoib]
+[  136.254212]  do_one_initcall+0x46/0x1c3
+[  136.259136]  ? do_init_module+0x22/0x220
+[  136.264043]  ? kmem_cache_alloc_trace+0x131/0x270
+[  136.269813]  do_init_module+0x5a/0x220
+[  136.274547]  load_module+0x14c5/0x17f0
+[  136.279246]  ? __do_sys_init_module+0x13b/0x180
+[  136.284810]  __do_sys_init_module+0x13b/0x180
+[  136.290295]  do_syscall_64+0x5b/0x1a0
+[  136.294914]  entry_SYSCALL_64_after_hwframe+0x65/0xca
+[  136.301070] RIP: 0033:0x7f3eacd0d80e
 
-The issue happens when the shift that should have been a function of
-the txq item size mistakenly used the ring size.
+For ipoib, the txqueuelen is modified with the module parameter
+send_queue_size.
 
-Fix by using the item size.
+Fix by changing to use kv versions of the same allocator to handle
+the large allocations.  The allocation embeds a hdr struct that
+is dma mapped.  Change that struct to a pointer to a kzalloced struct.
 
-Fixes: d47dfc2b00e6 ("IB/hfi1: Remove cache and embed txreq in ring")
+Fixes: d99dc602e2a5 ("IB/hfi1: Add functions to transmit datagram ipoib packets")
 Cc: stable@vger.kernel.org
 Reviewed-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
 Signed-off-by: Mike Marciniszyn <mike.marciniszyn@cornelisnetworks.com>
 ---
- drivers/infiniband/hw/hfi1/ipoib_tx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/hfi1/ipoib.h    |  2 +-
+ drivers/infiniband/hw/hfi1/ipoib_tx.c | 36 ++++++++++++++++++++++++-----------
+ 2 files changed, 26 insertions(+), 12 deletions(-)
 
+diff --git a/drivers/infiniband/hw/hfi1/ipoib.h b/drivers/infiniband/hw/hfi1/ipoib.h
+index 9091229..aec60d4 100644
+--- a/drivers/infiniband/hw/hfi1/ipoib.h
++++ b/drivers/infiniband/hw/hfi1/ipoib.h
+@@ -55,7 +55,7 @@
+  */
+ struct ipoib_txreq {
+ 	struct sdma_txreq           txreq;
+-	struct hfi1_sdma_header     sdma_hdr;
++	struct hfi1_sdma_header     *sdma_hdr;
+ 	int                         sdma_status;
+ 	int                         complete;
+ 	struct hfi1_ipoib_dev_priv *priv;
 diff --git a/drivers/infiniband/hw/hfi1/ipoib_tx.c b/drivers/infiniband/hw/hfi1/ipoib_tx.c
-index f401089..bf62956 100644
+index bf62956..d6bbdb8 100644
 --- a/drivers/infiniband/hw/hfi1/ipoib_tx.c
 +++ b/drivers/infiniband/hw/hfi1/ipoib_tx.c
-@@ -731,7 +731,7 @@ int hfi1_ipoib_txreq_init(struct hfi1_ipoib_dev_priv *priv)
+@@ -122,7 +122,7 @@ static void hfi1_ipoib_free_tx(struct ipoib_txreq *tx, int budget)
+ 		dd_dev_warn(priv->dd,
+ 			    "%s: Status = 0x%x pbc 0x%llx txq = %d sde = %d\n",
+ 			    __func__, tx->sdma_status,
+-			    le64_to_cpu(tx->sdma_hdr.pbc), tx->txq->q_idx,
++			    le64_to_cpu(tx->sdma_hdr->pbc), tx->txq->q_idx,
+ 			    tx->txq->sde->this_idx);
+ 	}
+ 
+@@ -231,7 +231,7 @@ static int hfi1_ipoib_build_tx_desc(struct ipoib_txreq *tx,
+ {
+ 	struct hfi1_devdata *dd = txp->dd;
+ 	struct sdma_txreq *txreq = &tx->txreq;
+-	struct hfi1_sdma_header *sdma_hdr = &tx->sdma_hdr;
++	struct hfi1_sdma_header *sdma_hdr = tx->sdma_hdr;
+ 	u16 pkt_bytes =
+ 		sizeof(sdma_hdr->pbc) + (txp->hdr_dwords << 2) + tx->skb->len;
+ 	int ret;
+@@ -256,7 +256,7 @@ static void hfi1_ipoib_build_ib_tx_headers(struct ipoib_txreq *tx,
+ 					   struct ipoib_txparms *txp)
+ {
+ 	struct hfi1_ipoib_dev_priv *priv = tx->txq->priv;
+-	struct hfi1_sdma_header *sdma_hdr = &tx->sdma_hdr;
++	struct hfi1_sdma_header *sdma_hdr = tx->sdma_hdr;
+ 	struct sk_buff *skb = tx->skb;
+ 	struct hfi1_pportdata *ppd = ppd_from_ibp(txp->ibp);
+ 	struct rdma_ah_attr *ah_attr = txp->ah_attr;
+@@ -483,7 +483,7 @@ static int hfi1_ipoib_send_dma_single(struct net_device *dev,
+ 	if (likely(!ret)) {
+ tx_ok:
+ 		trace_sdma_output_ibhdr(txq->priv->dd,
+-					&tx->sdma_hdr.hdr,
++					&tx->sdma_hdr->hdr,
+ 					ib_is_sc5(txp->flow.sc5));
+ 		hfi1_ipoib_check_queue_depth(txq);
+ 		return NETDEV_TX_OK;
+@@ -547,7 +547,7 @@ static int hfi1_ipoib_send_dma_list(struct net_device *dev,
+ 	hfi1_ipoib_check_queue_depth(txq);
+ 
+ 	trace_sdma_output_ibhdr(txq->priv->dd,
+-				&tx->sdma_hdr.hdr,
++				&tx->sdma_hdr->hdr,
+ 				ib_is_sc5(txp->flow.sc5));
+ 
+ 	if (!netdev_xmit_more())
+@@ -683,7 +683,8 @@ int hfi1_ipoib_txreq_init(struct hfi1_ipoib_dev_priv *priv)
+ {
+ 	struct net_device *dev = priv->netdev;
+ 	u32 tx_ring_size, tx_item_size;
+-	int i;
++	struct hfi1_ipoib_circ_buf *tx_ring;
++	int i, j;
+ 
+ 	/*
+ 	 * Ring holds 1 less than tx_ring_size
+@@ -701,7 +702,9 @@ int hfi1_ipoib_txreq_init(struct hfi1_ipoib_dev_priv *priv)
+ 
+ 	for (i = 0; i < dev->num_tx_queues; i++) {
+ 		struct hfi1_ipoib_txq *txq = &priv->txqs[i];
++		struct ipoib_txreq *tx;
+ 
++		tx_ring = &txq->tx_ring;
+ 		iowait_init(&txq->wait,
+ 			    0,
+ 			    hfi1_ipoib_flush_txq,
+@@ -725,14 +728,19 @@ int hfi1_ipoib_txreq_init(struct hfi1_ipoib_dev_priv *priv)
+ 					     priv->dd->node);
+ 
+ 		txq->tx_ring.items =
+-			kcalloc_node(tx_ring_size, tx_item_size,
+-				     GFP_KERNEL, priv->dd->node);
++			kvzalloc_node(array_size(tx_ring_size, tx_item_size),
++				      GFP_KERNEL, priv->dd->node);
+ 		if (!txq->tx_ring.items)
  			goto free_txqs;
  
  		txq->tx_ring.max_items = tx_ring_size;
--		txq->tx_ring.shift = ilog2(tx_ring_size);
-+		txq->tx_ring.shift = ilog2(tx_item_size);
+ 		txq->tx_ring.shift = ilog2(tx_item_size);
  		txq->tx_ring.avail = hfi1_ipoib_ring_hwat(txq);
++		tx_ring = &txq->tx_ring;
++		for (j = 0; j < tx_ring_size; j++)
++			hfi1_txreq_from_idx(tx_ring, j)->sdma_hdr =
++				kzalloc_node(sizeof(*tx->sdma_hdr),
++					     GFP_KERNEL, priv->dd->node);
  
  		netif_tx_napi_add(dev, &txq->napi,
+ 				  hfi1_ipoib_poll_tx_ring,
+@@ -746,7 +754,10 @@ int hfi1_ipoib_txreq_init(struct hfi1_ipoib_dev_priv *priv)
+ 		struct hfi1_ipoib_txq *txq = &priv->txqs[i];
+ 
+ 		netif_napi_del(&txq->napi);
+-		kfree(txq->tx_ring.items);
++		tx_ring = &txq->tx_ring;
++		for (j = 0; j < tx_ring_size; j++)
++			kfree(hfi1_txreq_from_idx(tx_ring, j)->sdma_hdr);
++		kvfree(tx_ring->items);
+ 	}
+ 
+ 	kfree(priv->txqs);
+@@ -780,17 +791,20 @@ static void hfi1_ipoib_drain_tx_list(struct hfi1_ipoib_txq *txq)
+ 
+ void hfi1_ipoib_txreq_deinit(struct hfi1_ipoib_dev_priv *priv)
+ {
+-	int i;
++	int i, j;
+ 
+ 	for (i = 0; i < priv->netdev->num_tx_queues; i++) {
+ 		struct hfi1_ipoib_txq *txq = &priv->txqs[i];
++		struct hfi1_ipoib_circ_buf *tx_ring = &txq->tx_ring;
+ 
+ 		iowait_cancel_work(&txq->wait);
+ 		iowait_sdma_drain(&txq->wait);
+ 		hfi1_ipoib_drain_tx_list(txq);
+ 		netif_napi_del(&txq->napi);
+ 		hfi1_ipoib_drain_tx_ring(txq);
+-		kfree(txq->tx_ring.items);
++		for (j = 0; j < tx_ring->max_items; j++)
++			kfree(hfi1_txreq_from_idx(tx_ring, j)->sdma_hdr);
++		kvfree(tx_ring->items);
+ 	}
+ 
+ 	kfree(priv->txqs);
 -- 
 1.8.3.1
 
