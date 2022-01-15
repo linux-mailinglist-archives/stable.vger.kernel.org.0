@@ -2,700 +2,260 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3F5D48F3B9
-	for <lists+stable@lfdr.de>; Sat, 15 Jan 2022 02:01:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D247A48F41A
+	for <lists+stable@lfdr.de>; Sat, 15 Jan 2022 02:24:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231726AbiAOBB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 20:01:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53606 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231717AbiAOBB4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 20:01:56 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 915A0C061401
-        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 17:01:55 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AE6F3CE24BA
-        for <stable@vger.kernel.org>; Sat, 15 Jan 2022 01:01:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6127C36AE7;
-        Sat, 15 Jan 2022 01:01:51 +0000 (UTC)
-From:   Jaegeuk Kim <jaegeuk@google.com>
-To:     stable@vger.kernel.org
-Cc:     Waiman Long <longman@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Davidlohr Bueso <dbueso@suse.de>,
-        Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 7/7] locking/rwsem: Remove reader optimistic spinning
-Date:   Fri, 14 Jan 2022 16:59:46 -0800
-Message-Id: <20220115005945.2125174-8-jaegeuk@google.com>
-X-Mailer: git-send-email 2.34.1.703.g22d0c6ccf7-goog
-In-Reply-To: <20220115005945.2125174-1-jaegeuk@google.com>
-References: <20220115005945.2125174-1-jaegeuk@google.com>
+        id S229780AbiAOBYX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 20:24:23 -0500
+Received: from mga06.intel.com ([134.134.136.31]:3847 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229610AbiAOBYX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Jan 2022 20:24:23 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1642209863; x=1673745863;
+  h=from:to:cc:subject:date:message-id:references:
+   in-reply-to:content-transfer-encoding:mime-version;
+  bh=fMQPKDzvqSlU4Ft7jm3N7C31UhkH+LAQBcnjyWW4XeI=;
+  b=ILi9LCTAYaEVDvrzXuliOswXqxz9Zddod20he1FFsR3noX+PlJvZ5c4Z
+   J4SmWduyH3e8H89j3UNE64RTttV7ZTaB0Svh9Di37ygDuam7bfoJHszNi
+   o+S4Mce25zNKRJLsZLBwZ/xbTBjh4nrvL+UxBvdIrqoEmSQ7tw/MZ20qE
+   6VCSURDNjR2vkVedp5K/XVVBsLg0KAa7W3QkUNzJ2HdWRdhoxohNJflw+
+   K9OHi6YKYPqfqThJR+g31EgGPuA4OLpJoKrujbYijmsFjtt9WxnMCCM3D
+   jaf8Eph1r3fDaSNXybdxyT9TjEJBkB8rDeN7DlW3uGMkdmVS80bICZaPJ
+   w==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10227"; a="305093125"
+X-IronPort-AV: E=Sophos;i="5.88,290,1635231600"; 
+   d="scan'208";a="305093125"
+Received: from fmsmga006.fm.intel.com ([10.253.24.20])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Jan 2022 17:24:22 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,290,1635231600"; 
+   d="scan'208";a="763772333"
+Received: from orsmsx604.amr.corp.intel.com ([10.22.229.17])
+  by fmsmga006.fm.intel.com with ESMTP; 14 Jan 2022 17:24:22 -0800
+Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
+ ORSMSX604.amr.corp.intel.com (10.22.229.17) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.20; Fri, 14 Jan 2022 17:24:21 -0800
+Received: from orsmsx601.amr.corp.intel.com (10.22.229.14) by
+ ORSMSX610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.20; Fri, 14 Jan 2022 17:24:21 -0800
+Received: from orsedg603.ED.cps.intel.com (10.7.248.4) by
+ orsmsx601.amr.corp.intel.com (10.22.229.14) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.20 via Frontend Transport; Fri, 14 Jan 2022 17:24:21 -0800
+Received: from NAM11-DM6-obe.outbound.protection.outlook.com (104.47.57.168)
+ by edgegateway.intel.com (134.134.137.100) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2308.20; Fri, 14 Jan 2022 17:24:21 -0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=TDl41kcO6FV696a616Qr9GAhBOjOlGmxwoHCy9yJCkXMbUy6xQL/ol+QMYK5NWRYIj1pwINRP8c/wEy3o2Ob7KNR00EdQyrwwlwIScLnFs+wBRY755YDFJrul6eRfQi815KXppRSMN0RkcD5xm7tcFm7kme4EMy1lprtISLV6GjWRVknM9pU+gPNBk7Dh7l/i1dn6lBnNnujzrlxWpp5lobEt8GHDZjJUvIyIr/8nTXYGM+bGJKCReRXdPNNRlfReg6buP2pDfbPVjmNyxleMqeL4eg4+BUheCkGCpvx+yLx9YnC5H5PLipgqBWyinr0t2/ZoPASuoGpEtQS+hknSA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=fMQPKDzvqSlU4Ft7jm3N7C31UhkH+LAQBcnjyWW4XeI=;
+ b=hVgwrFKdgHF0xjFb2G3Phix7D0ZrwJTAlyMf+VvfMg5DjlSZihd0wi1yTgHrydcclCZLCoMi/tvoqm5H7Tlk6zN09+RWvq8VUxPnXbv2oQ2EU1DOOc0Gdyf6tYSb7/OAYJIX5OV4zWQ6PHj7UVOkRIANYgoeU7icd9DfdoYMFFmVVJrff1VZ+q1dt9Xh4Qu6vM86vtp3ayAYVHiOD537XNpyLfv6UoKydJKQ96xJZBydO22A8nf55GkDsHOJ4PImbuD8LnUD/QhrxmtPr8shRDw9JYVuznhIJ++jH9EWm8YqJ2aY+BJWr7GDdbRCewbRecfkTxu3rz3dRTAPws+m+A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Received: from CO1PR11MB4771.namprd11.prod.outlook.com (2603:10b6:303:9f::9)
+ by DM6PR11MB3468.namprd11.prod.outlook.com (2603:10b6:5:5c::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4867.11; Sat, 15 Jan
+ 2022 01:24:19 +0000
+Received: from CO1PR11MB4771.namprd11.prod.outlook.com
+ ([fe80::4843:15c6:62c1:d088]) by CO1PR11MB4771.namprd11.prod.outlook.com
+ ([fe80::4843:15c6:62c1:d088%3]) with mapi id 15.20.4888.012; Sat, 15 Jan 2022
+ 01:24:19 +0000
+From:   "Ismail, Mohammad Athari" <mohammad.athari.ismail@intel.com>
+To:     Heiner Kallweit <hkallweit1@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S . Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Oleksij Rempel <linux@rempel-privat.de>,
+        Russell King <linux@armlinux.org.uk>
+CC:     "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH net v3] net: phy: marvell: add Marvell specific PHY
+ loopback
+Thread-Topic: [PATCH net v3] net: phy: marvell: add Marvell specific PHY
+ loopback
+Thread-Index: AQHYCGPp94N5cs2TQUKXHHgRkeoabqxi+1uAgABQ1mA=
+Date:   Sat, 15 Jan 2022 01:24:19 +0000
+Message-ID: <CO1PR11MB4771EB057703E0B0982A8C97D5559@CO1PR11MB4771.namprd11.prod.outlook.com>
+References: <20220113095604.31827-1-mohammad.athari.ismail@intel.com>
+ <cdd16632-d9ea-3556-f7b4-6909289b593c@gmail.com>
+In-Reply-To: <cdd16632-d9ea-3556-f7b4-6909289b593c@gmail.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+dlp-version: 11.6.200.16
+dlp-product: dlpe-windows
+dlp-reaction: no-action
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 9dfc1775-ef29-46a4-dbc0-08d9d7c5c11b
+x-ms-traffictypediagnostic: DM6PR11MB3468:EE_
+x-microsoft-antispam-prvs: <DM6PR11MB3468FBEFBAB39AFEA229F8B5D5559@DM6PR11MB3468.namprd11.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:3513;
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: +1t2YWuCEWUp0zULi6cw3zND9hxF1itx1lU3qd9xMNVNMGfkgdNQwPU2rHXfXYk4irknJTdxq/t0rbSmmnrUXrqtmuG7xdMSVupGPRtAM6vlLLyEz1PDkf1E2T0ffBDZIPNkRzR4JpUe/c8Oij/S6cXFg/a7Ny3FJWeeMmpwVMbnP6LmiAe0hBAhyDHZsdO7VwNM6KTgE581SWdnHQFkjSWgFraG8nzUPHOG4rCb8vKjqK2xMvUKSHCtv81nxYY3PPMX27J4euAJLg/bX/6rRVRAwIh5NZSsjhvnygNm6fBL3xZl00NWs0D9j+h1q+roclSRl+364MYvTgoENvXjUIgHAJb29v5Fl0AqnI303uGn4nipc0/4R0AITZPKYv/A4QBonMbVzwGUUrJY3tog0fPLL0qFMeCpLq6B827y4THzsEqGJ9X5hGrhrOE4x6R+BlhfYZgwMB9+W51jFYPm//aGjarnTtIZRQGCt76Yvt2JIWcAm0KtPM899UYbYcQQpxTZr9PRUoqPU7ilpsLBRfSWbuOWXpdolEr6Q1iQ/FYDKy5vLGJvLGv9MAm0zcbJtJWTJIUfI6IFvHXACpwcmad8h463NMlCGza9PivCLoGrX1JNmzx+93Vkqv0mroOOEAS/gchc9PYVopu59gVIOQf/N6UszkuflLr4S/XUxsmJbNcfUyqOoKTKUc+8J+5ivDPHm/gXZJpDKMPpCAO3+A==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CO1PR11MB4771.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(366004)(110136005)(26005)(4326008)(55236004)(55016003)(9686003)(7696005)(6506007)(83380400001)(5660300002)(64756008)(66446008)(2906002)(53546011)(508600001)(316002)(66476007)(66946007)(76116006)(8936002)(38100700002)(186003)(122000001)(52536014)(54906003)(86362001)(66556008)(8676002)(33656002)(71200400001)(82960400001)(38070700005);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?utf-8?B?T3pPbE9pNDFoRmZtUjNsRWt5Zjd4YzkrcHAyM09vckFMMU1uTEh1Z3RxRW9Y?=
+ =?utf-8?B?TUxmQnZ4R1hJbG5qdU5kTnA1cjBZbWdOMHA0MkJQd0tJaUt2QnpFdE5FNjg3?=
+ =?utf-8?B?NzIwNFVFUHNZUlo5WmdORmFOMmRRM1hxbEZkMDRwcktZcmc2dEsyQWliTDFS?=
+ =?utf-8?B?RXppa2NVaG9pTzhKNFJHc0VMVXlBOGh6U1ZnQ09PM3JsYkdkaFp1aFNIN0hB?=
+ =?utf-8?B?SkJKbjh6SWZIRVVpWS91LzV5OXVDUnk2dzd0RWRwYXRLWkluSHpVNlVQSXZU?=
+ =?utf-8?B?dVFCL25wVit6ZC8yc0tMYm8wWGV3MlByZjE2dVRFeTZoemlZN3ZTc2Q5Vkt6?=
+ =?utf-8?B?VXF6RHpDUDBvYU4rN3hDU2dGTHF0b1dYR2Q5MXE5OHRoUFNldlhOSUxzR3JO?=
+ =?utf-8?B?MmlwRkF1emxRbTljZlZPRXlncHJaakpTeWpsTmx5Zkh5R0NDR2ErbUwzODMv?=
+ =?utf-8?B?SXVMMHc4KzEvbzhVTzhPYmg0eWNGVWVURHUyQlljODVzMVpaaXVyYjBHYWVV?=
+ =?utf-8?B?TndYc0U3dXdnVTB2UENCSDR6TUdiY29KRXpLM2lMSXZTVkI3S2FjOXJYU0U5?=
+ =?utf-8?B?RWl2ZU5HaHdYU1JRbGZkYyt4NThicUNVamVjNVdmcmhhTVpkdm44VEJTbjV3?=
+ =?utf-8?B?SmNYbDhzWUJBZkgwdkMycTdETGRlN3Q0R0dNUy9xakducURDVjdzUHhzU0hU?=
+ =?utf-8?B?ZW1tOFJLNWRaa0EzY2NyWkJqa1I2aThFMmtWVmJjTWRNMWc3Skw2bVNoL3pn?=
+ =?utf-8?B?RkVCbW1FUEVXNldKSUEvOXB4THp6N0M3UjNEKytvWnhYRlRWUlRTN0JDM2Yv?=
+ =?utf-8?B?b1dBUjNYN1QwL3RRWGMzbENnZkx3Qm1CK2VhUDhJZHhHdlptR1BGNWUyUldu?=
+ =?utf-8?B?aVQvanBBRzVCZVJ5MEEwWkF0Sm5QWWRrQUpUeXo1WUNITE54OFZ1MDYvaFBv?=
+ =?utf-8?B?TXVOaS94c0lzSDJvclNVcHg4T0kwbUp3UWF4RHRoNXdIeEJpSGZNZjBHZHJD?=
+ =?utf-8?B?VGoxdVBQZzJZTzdkSndxWkR4cUI2cW9HWU9rWGRvS0IveW51dnkvbXhTQ2Nw?=
+ =?utf-8?B?MkY0UTN5ZFBWcWRJRFpRUGJZVmFQaytuT0ViK3hlK2ZSREdVWDlJYTRJb1dh?=
+ =?utf-8?B?ZXI0QURRaThRUllMM3BiejdMWHUxZDNBalAxQW5aTHdDUnEvcy9nQ3VmVi9U?=
+ =?utf-8?B?UVNjdUo0TEtDR1dnb3FDM3JRRVc0THFuak9MZU5QSFR3Z2V2bkFibnFDTkxh?=
+ =?utf-8?B?NXVYT0lFU2RrMmNldUZHYTNoN00rN05SQ3JHSFExOUVvcWNtTFBwamg0eUsw?=
+ =?utf-8?B?QVp0aGtkdzdhc0tqK2FQMkFNS1llenJJWThQKzVZUUg5dzcrTEQvV2xpVEdU?=
+ =?utf-8?B?MGdYNjN2QmZ3NWdBODgzcTVITy8xUTRNVjJDQm01b01TOHFnR1ptMkc3b0lB?=
+ =?utf-8?B?L0V2V0t5Y2ZEdWpKYVJ5ZnU4ak5SaHVTTDZwc2VjUER3ZFhqbDFpMkJZTWlQ?=
+ =?utf-8?B?UTFGK0cxOG51L1V1dFBEOUVKYXlpUGZDZ3JIT2w4SXUycEFJSWNYMDQ1N2w2?=
+ =?utf-8?B?SE9WVHkyQTY5Q01UbURFdExLdjl6OXovNm9Kam0rTXUzV09nVElUM21aZVpD?=
+ =?utf-8?B?MnpqTTN5VU1DWjg4S1F2emtGWXAvdFVFK1V3dG5GdWlra08wTVdZc1gyRXo3?=
+ =?utf-8?B?b2taZHduNWhMSmlrbjJkQWZXaUF1L3ZnV2kwNjZ1YUVJRjU2dVRNRU94bnZL?=
+ =?utf-8?B?Zyt3aWxOaWdycEtzN3kwRWRqdW9mbk43ZStlNHpBa2lwSlQwRGZiUVdkQmZU?=
+ =?utf-8?B?dnpINmhsSXpGYmgxenlKb0p4Z1BzMzluSmh1SWJ0MzUzaFVieGt1SDZQQ0Nt?=
+ =?utf-8?B?UDBHZnp6QzV1R3IxWktpOFBXajdXazVEQ1pWM1J5TmJoVUtGWTRwbUxQQXBM?=
+ =?utf-8?B?anNReitWQ3FldjZxOExoSzZJSkhrSG8zaDgvc3p2TG85RlZsdC9WVzFuQXpE?=
+ =?utf-8?B?NlVqa1VwZ2ZQTEZJRGNWRldsRnQ0SnNtTE9BRm1ORGFhZStkVmUyYTZGd0Zq?=
+ =?utf-8?B?aHJkdlFLQ2tjYVcxM2xjczhYcjRiM0tuRkc1Mk9GMVIvaGx2NFNsMlNYREJa?=
+ =?utf-8?B?NjVyajVOV0JkamJQbHI1cTVjdCs1MFNaRWpCbWZ5NTVENkVBYnUwTUprY0hY?=
+ =?utf-8?B?aC84ZmNCakZTZC9ZT2ZRdlNzbGNxOERKK2hFRzNrVU8rL2NINkJBaEdKK01w?=
+ =?utf-8?B?akhQb1JqcGFlRFNvdzg3Tnpxc3d5TXZVT0dQVDlDM2Z6cmtBd1lvZVRwZlRr?=
+ =?utf-8?B?STV4SE9CWVVWZkZYT2NYaEo0b1FubEtac2IvY1pwT0E3a1JIZXkrZz09?=
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: CO1PR11MB4771.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 9dfc1775-ef29-46a4-dbc0-08d9d7c5c11b
+X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Jan 2022 01:24:19.6743
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: lf9G1qtZoIWTcGncdCeSxEAalKuVpnDpY/xUhJKttH0H3lGbuFFTbbm8SYWUPrPWoL8oPSASf2HA1ww5uOCqR+j7vsrdyHCxg8E83RVpQO+O+we4+rq2x8fOEUPyu7oV
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR11MB3468
+X-OriginatorOrg: intel.com
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
-
-commit 617f3ef95177840c77f59c2aec1029d27d5547d6 upstream.
-
-Reader optimistic spinning is helpful when the reader critical section
-is short and there aren't that many readers around. It also improves
-the chance that a reader can get the lock as writer optimistic spinning
-disproportionally favors writers much more than readers.
-
-Since commit d3681e269fff ("locking/rwsem: Wake up almost all readers
-in wait queue"), all the waiting readers are woken up so that they can
-all get the read lock and run in parallel. When the number of contending
-readers is large, allowing reader optimistic spinning will likely cause
-reader fragmentation where multiple smaller groups of readers can get
-the read lock in a sequential manner separated by writers. That reduces
-reader parallelism.
-
-One possible way to address that drawback is to limit the number of
-readers (preferably one) that can do optimistic spinning. These readers
-act as representatives of all the waiting readers in the wait queue as
-they will wake up all those waiting readers once they get the lock.
-
-Alternatively, as reader optimistic lock stealing has already enhanced
-fairness to readers, it may be easier to just remove reader optimistic
-spinning and simplifying the optimistic spinning code as a result.
-
-Performance measurements (locking throughput kops/s) using a locking
-microbenchmark with 50/50 reader/writer distribution and turbo-boost
-disabled was done on a 2-socket Cascade Lake system (48-core 96-thread)
-to see the impacts of these changes:
-
-  1) Vanilla     - 5.10-rc3 kernel
-  2) Before      - 5.10-rc3 kernel with previous patches in this series
-  2) limit-rspin - 5.10-rc3 kernel with limited reader spinning patch
-  3) no-rspin    - 5.10-rc3 kernel with reader spinning disabled
-
-  # of threads  CS Load   Vanilla  Before   limit-rspin   no-rspin
-  ------------  -------   -------  ------   -----------   --------
-       2            1      5,185    5,662      5,214       5,077
-       4            1      5,107    4,983      5,188       4,760
-       8            1      4,782    4,564      4,720       4,628
-      16            1      4,680    4,053      4,567       3,402
-      32            1      4,299    1,115      1,118       1,098
-      64            1      3,218      983      1,001         957
-      96            1      1,938      944        957         930
-
-       2           20      2,008    2,128      2,264       1,665
-       4           20      1,390    1,033      1,046       1,101
-       8           20      1,472    1,155      1,098       1,213
-      16           20      1,332    1,077      1,089       1,122
-      32           20        967      914        917         980
-      64           20        787      874        891         858
-      96           20        730      836        847         844
-
-       2          100        372      356        360         355
-       4          100        492      425        434         392
-       8          100        533      537        529         538
-      16          100        548      572        568         598
-      32          100        499      520        527         537
-      64          100        466      517        526         512
-      96          100        406      497        506         509
-
-The column "CS Load" represents the number of pause instructions issued
-in the locking critical section. A CS load of 1 is extremely short and
-is not likey in real situations. A load of 20 (moderate) and 100 (long)
-are more realistic.
-
-It can be seen that the previous patches in this series have reduced
-performance in general except in highly contended cases with moderate
-or long critical sections that performance improves a bit. This change
-is mostly caused by the "Prevent potential lock starvation" patch that
-reduce reader optimistic spinning and hence reduce reader fragmentation.
-
-The patch that further limit reader optimistic spinning doesn't seem to
-have too much impact on overall performance as shown in the benchmark
-data.
-
-The patch that disables reader optimistic spinning shows reduced
-performance at lightly loaded cases, but comparable or slightly better
-performance on with heavier contention.
-
-This patch just removes reader optimistic spinning for now. As readers
-are not going to do optimistic spinning anymore, we don't need to
-consider if the OSQ is empty or not when doing lock stealing.
-
-Cc: <stable@vger.kernel.org> # 5.10
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Davidlohr Bueso <dbueso@suse.de>
-Link: https://lkml.kernel.org/r/20201121041416.12285-6-longman@redhat.com
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
----
- kernel/locking/lock_events_list.h |   5 +-
- kernel/locking/rwsem.c            | 284 +++++-------------------------
- 2 files changed, 49 insertions(+), 240 deletions(-)
-
-diff --git a/kernel/locking/lock_events_list.h b/kernel/locking/lock_events_list.h
-index 270a0d351932..97fb6f3f840a 100644
---- a/kernel/locking/lock_events_list.h
-+++ b/kernel/locking/lock_events_list.h
-@@ -56,12 +56,9 @@ LOCK_EVENT(rwsem_sleep_reader)	/* # of reader sleeps			*/
- LOCK_EVENT(rwsem_sleep_writer)	/* # of writer sleeps			*/
- LOCK_EVENT(rwsem_wake_reader)	/* # of reader wakeups			*/
- LOCK_EVENT(rwsem_wake_writer)	/* # of writer wakeups			*/
--LOCK_EVENT(rwsem_opt_rlock)	/* # of opt-acquired read locks		*/
--LOCK_EVENT(rwsem_opt_wlock)	/* # of opt-acquired write locks	*/
-+LOCK_EVENT(rwsem_opt_lock)	/* # of opt-acquired write locks	*/
- LOCK_EVENT(rwsem_opt_fail)	/* # of failed optspins			*/
- LOCK_EVENT(rwsem_opt_nospin)	/* # of disabled optspins		*/
--LOCK_EVENT(rwsem_opt_norspin)	/* # of disabled reader-only optspins	*/
--LOCK_EVENT(rwsem_opt_rlock2)	/* # of opt-acquired 2ndary read locks	*/
- LOCK_EVENT(rwsem_rlock)		/* # of read locks acquired		*/
- LOCK_EVENT(rwsem_rlock_steal)	/* # of read locks by lock stealing	*/
- LOCK_EVENT(rwsem_rlock_fast)	/* # of fast read locks acquired	*/
-diff --git a/kernel/locking/rwsem.c b/kernel/locking/rwsem.c
-index ba5e239d08e7..ba67600c7b2c 100644
---- a/kernel/locking/rwsem.c
-+++ b/kernel/locking/rwsem.c
-@@ -31,19 +31,13 @@
- #include "lock_events.h"
- 
- /*
-- * The least significant 3 bits of the owner value has the following
-+ * The least significant 2 bits of the owner value has the following
-  * meanings when set.
-  *  - Bit 0: RWSEM_READER_OWNED - The rwsem is owned by readers
-- *  - Bit 1: RWSEM_RD_NONSPINNABLE - Readers cannot spin on this lock.
-- *  - Bit 2: RWSEM_WR_NONSPINNABLE - Writers cannot spin on this lock.
-+ *  - Bit 1: RWSEM_NONSPINNABLE - Cannot spin on a reader-owned lock
-  *
-- * When the rwsem is either owned by an anonymous writer, or it is
-- * reader-owned, but a spinning writer has timed out, both nonspinnable
-- * bits will be set to disable optimistic spinning by readers and writers.
-- * In the later case, the last unlocking reader should then check the
-- * writer nonspinnable bit and clear it only to give writers preference
-- * to acquire the lock via optimistic spinning, but not readers. Similar
-- * action is also done in the reader slowpath.
-+ * When the rwsem is reader-owned and a spinning writer has timed out,
-+ * the nonspinnable bit will be set to disable optimistic spinning.
- 
-  * When a writer acquires a rwsem, it puts its task_struct pointer
-  * into the owner field. It is cleared after an unlock.
-@@ -59,46 +53,14 @@
-  * is involved. Ideally we would like to track all the readers that own
-  * a rwsem, but the overhead is simply too big.
-  *
-- * Reader optimistic spinning is helpful when the reader critical section
-- * is short and there aren't that many readers around. It makes readers
-- * relatively more preferred than writers. When a writer times out spinning
-- * on a reader-owned lock and set the nospinnable bits, there are two main
-- * reasons for that.
-- *
-- *  1) The reader critical section is long, perhaps the task sleeps after
-- *     acquiring the read lock.
-- *  2) There are just too many readers contending the lock causing it to
-- *     take a while to service all of them.
-- *
-- * In the former case, long reader critical section will impede the progress
-- * of writers which is usually more important for system performance. In
-- * the later case, reader optimistic spinning tends to make the reader
-- * groups that contain readers that acquire the lock together smaller
-- * leading to more of them. That may hurt performance in some cases. In
-- * other words, the setting of nonspinnable bits indicates that reader
-- * optimistic spinning may not be helpful for those workloads that cause
-- * it.
-- *
-- * Therefore, any writers that had observed the setting of the writer
-- * nonspinnable bit for a given rwsem after they fail to acquire the lock
-- * via optimistic spinning will set the reader nonspinnable bit once they
-- * acquire the write lock. Similarly, readers that observe the setting
-- * of reader nonspinnable bit at slowpath entry will set the reader
-- * nonspinnable bits when they acquire the read lock via the wakeup path.
-- *
-- * Once the reader nonspinnable bit is on, it will only be reset when
-- * a writer is able to acquire the rwsem in the fast path or somehow a
-- * reader or writer in the slowpath doesn't observe the nonspinable bit.
-- *
-- * This is to discourage reader optmistic spinning on that particular
-- * rwsem and make writers more preferred. This adaptive disabling of reader
-- * optimistic spinning will alleviate the negative side effect of this
-- * feature.
-+ * A fast path reader optimistic lock stealing is supported when the rwsem
-+ * is previously owned by a writer and the following conditions are met:
-+ *  - OSQ is empty
-+ *  - rwsem is not currently writer owned
-+ *  - the handoff isn't set.
-  */
- #define RWSEM_READER_OWNED	(1UL << 0)
--#define RWSEM_RD_NONSPINNABLE	(1UL << 1)
--#define RWSEM_WR_NONSPINNABLE	(1UL << 2)
--#define RWSEM_NONSPINNABLE	(RWSEM_RD_NONSPINNABLE | RWSEM_WR_NONSPINNABLE)
-+#define RWSEM_NONSPINNABLE	(1UL << 1)
- #define RWSEM_OWNER_FLAGS_MASK	(RWSEM_READER_OWNED | RWSEM_NONSPINNABLE)
- 
- #ifdef CONFIG_DEBUG_RWSEMS
-@@ -203,7 +165,7 @@ static inline void __rwsem_set_reader_owned(struct rw_semaphore *sem,
- 					    struct task_struct *owner)
- {
- 	unsigned long val = (unsigned long)owner | RWSEM_READER_OWNED |
--		(atomic_long_read(&sem->owner) & RWSEM_RD_NONSPINNABLE);
-+		(atomic_long_read(&sem->owner) & RWSEM_NONSPINNABLE);
- 
- 	atomic_long_set(&sem->owner, val);
- }
-@@ -372,7 +334,6 @@ struct rwsem_waiter {
- 	struct task_struct *task;
- 	enum rwsem_waiter_type type;
- 	unsigned long timeout;
--	unsigned long last_rowner;
- };
- #define rwsem_first_waiter(sem) \
- 	list_first_entry(&sem->wait_list, struct rwsem_waiter, list)
-@@ -486,10 +447,6 @@ static void rwsem_mark_wake(struct rw_semaphore *sem,
- 		 * the reader is copied over.
- 		 */
- 		owner = waiter->task;
--		if (waiter->last_rowner & RWSEM_RD_NONSPINNABLE) {
--			owner = (void *)((unsigned long)owner | RWSEM_RD_NONSPINNABLE);
--			lockevent_inc(rwsem_opt_norspin);
--		}
- 		__rwsem_set_reader_owned(sem, owner);
- 	}
- 
-@@ -620,30 +577,6 @@ static inline bool rwsem_try_write_lock(struct rw_semaphore *sem,
- }
- 
- #ifdef CONFIG_RWSEM_SPIN_ON_OWNER
--/*
-- * Try to acquire read lock before the reader is put on wait queue.
-- * Lock acquisition isn't allowed if the rwsem is locked or a writer handoff
-- * is ongoing.
-- */
--static inline bool rwsem_try_read_lock_unqueued(struct rw_semaphore *sem)
--{
--	long count = atomic_long_read(&sem->count);
--
--	if (count & (RWSEM_WRITER_MASK | RWSEM_FLAG_HANDOFF))
--		return false;
--
--	count = atomic_long_fetch_add_acquire(RWSEM_READER_BIAS, &sem->count);
--	if (!(count & (RWSEM_WRITER_MASK | RWSEM_FLAG_HANDOFF))) {
--		rwsem_set_reader_owned(sem);
--		lockevent_inc(rwsem_opt_rlock);
--		return true;
--	}
--
--	/* Back out the change */
--	atomic_long_add(-RWSEM_READER_BIAS, &sem->count);
--	return false;
--}
--
- /*
-  * Try to acquire write lock before the writer has been put on wait queue.
-  */
-@@ -655,7 +588,7 @@ static inline bool rwsem_try_write_lock_unqueued(struct rw_semaphore *sem)
- 		if (atomic_long_try_cmpxchg_acquire(&sem->count, &count,
- 					count | RWSEM_WRITER_LOCKED)) {
- 			rwsem_set_owner(sem);
--			lockevent_inc(rwsem_opt_wlock);
-+			lockevent_inc(rwsem_opt_lock);
- 			return true;
- 		}
- 	}
-@@ -671,8 +604,7 @@ static inline bool owner_on_cpu(struct task_struct *owner)
- 	return owner->on_cpu && !vcpu_is_preempted(task_cpu(owner));
- }
- 
--static inline bool rwsem_can_spin_on_owner(struct rw_semaphore *sem,
--					   unsigned long nonspinnable)
-+static inline bool rwsem_can_spin_on_owner(struct rw_semaphore *sem)
- {
- 	struct task_struct *owner;
- 	unsigned long flags;
-@@ -689,7 +621,7 @@ static inline bool rwsem_can_spin_on_owner(struct rw_semaphore *sem,
- 	/*
- 	 * Don't check the read-owner as the entry may be stale.
- 	 */
--	if ((flags & nonspinnable) ||
-+	if ((flags & RWSEM_NONSPINNABLE) ||
- 	    (owner && !(flags & RWSEM_READER_OWNED) && !owner_on_cpu(owner)))
- 		ret = false;
- 	rcu_read_unlock();
-@@ -719,9 +651,9 @@ enum owner_state {
- #define OWNER_SPINNABLE		(OWNER_NULL | OWNER_WRITER | OWNER_READER)
- 
- static inline enum owner_state
--rwsem_owner_state(struct task_struct *owner, unsigned long flags, unsigned long nonspinnable)
-+rwsem_owner_state(struct task_struct *owner, unsigned long flags)
- {
--	if (flags & nonspinnable)
-+	if (flags & RWSEM_NONSPINNABLE)
- 		return OWNER_NONSPINNABLE;
- 
- 	if (flags & RWSEM_READER_OWNED)
-@@ -731,14 +663,14 @@ rwsem_owner_state(struct task_struct *owner, unsigned long flags, unsigned long
- }
- 
- static noinline enum owner_state
--rwsem_spin_on_owner(struct rw_semaphore *sem, unsigned long nonspinnable)
-+rwsem_spin_on_owner(struct rw_semaphore *sem)
- {
- 	struct task_struct *new, *owner;
- 	unsigned long flags, new_flags;
- 	enum owner_state state;
- 
- 	owner = rwsem_owner_flags(sem, &flags);
--	state = rwsem_owner_state(owner, flags, nonspinnable);
-+	state = rwsem_owner_state(owner, flags);
- 	if (state != OWNER_WRITER)
- 		return state;
- 
-@@ -752,7 +684,7 @@ rwsem_spin_on_owner(struct rw_semaphore *sem, unsigned long nonspinnable)
- 		 */
- 		new = rwsem_owner_flags(sem, &new_flags);
- 		if ((new != owner) || (new_flags != flags)) {
--			state = rwsem_owner_state(new, new_flags, nonspinnable);
-+			state = rwsem_owner_state(new, new_flags);
- 			break;
- 		}
- 
-@@ -801,14 +733,12 @@ static inline u64 rwsem_rspin_threshold(struct rw_semaphore *sem)
- 	return sched_clock() + delta;
- }
- 
--static bool rwsem_optimistic_spin(struct rw_semaphore *sem, bool wlock)
-+static bool rwsem_optimistic_spin(struct rw_semaphore *sem)
- {
- 	bool taken = false;
- 	int prev_owner_state = OWNER_NULL;
- 	int loop = 0;
- 	u64 rspin_threshold = 0;
--	unsigned long nonspinnable = wlock ? RWSEM_WR_NONSPINNABLE
--					   : RWSEM_RD_NONSPINNABLE;
- 
- 	preempt_disable();
- 
-@@ -825,15 +755,14 @@ static bool rwsem_optimistic_spin(struct rw_semaphore *sem, bool wlock)
- 	for (;;) {
- 		enum owner_state owner_state;
- 
--		owner_state = rwsem_spin_on_owner(sem, nonspinnable);
-+		owner_state = rwsem_spin_on_owner(sem);
- 		if (!(owner_state & OWNER_SPINNABLE))
- 			break;
- 
- 		/*
- 		 * Try to acquire the lock
- 		 */
--		taken = wlock ? rwsem_try_write_lock_unqueued(sem)
--			      : rwsem_try_read_lock_unqueued(sem);
-+		taken = rwsem_try_write_lock_unqueued(sem);
- 
- 		if (taken)
- 			break;
-@@ -841,7 +770,7 @@ static bool rwsem_optimistic_spin(struct rw_semaphore *sem, bool wlock)
- 		/*
- 		 * Time-based reader-owned rwsem optimistic spinning
- 		 */
--		if (wlock && (owner_state == OWNER_READER)) {
-+		if (owner_state == OWNER_READER) {
- 			/*
- 			 * Re-initialize rspin_threshold every time when
- 			 * the owner state changes from non-reader to reader.
-@@ -850,7 +779,7 @@ static bool rwsem_optimistic_spin(struct rw_semaphore *sem, bool wlock)
- 			 * the beginning of the 2nd reader phase.
- 			 */
- 			if (prev_owner_state != OWNER_READER) {
--				if (rwsem_test_oflags(sem, nonspinnable))
-+				if (rwsem_test_oflags(sem, RWSEM_NONSPINNABLE))
- 					break;
- 				rspin_threshold = rwsem_rspin_threshold(sem);
- 				loop = 0;
-@@ -926,89 +855,30 @@ static bool rwsem_optimistic_spin(struct rw_semaphore *sem, bool wlock)
- }
- 
- /*
-- * Clear the owner's RWSEM_WR_NONSPINNABLE bit if it is set. This should
-+ * Clear the owner's RWSEM_NONSPINNABLE bit if it is set. This should
-  * only be called when the reader count reaches 0.
-- *
-- * This give writers better chance to acquire the rwsem first before
-- * readers when the rwsem was being held by readers for a relatively long
-- * period of time. Race can happen that an optimistic spinner may have
-- * just stolen the rwsem and set the owner, but just clearing the
-- * RWSEM_WR_NONSPINNABLE bit will do no harm anyway.
-- */
--static inline void clear_wr_nonspinnable(struct rw_semaphore *sem)
--{
--	if (rwsem_test_oflags(sem, RWSEM_WR_NONSPINNABLE))
--		atomic_long_andnot(RWSEM_WR_NONSPINNABLE, &sem->owner);
--}
--
--/*
-- * This function is called when the reader fails to acquire the lock via
-- * optimistic spinning. In this case we will still attempt to do a trylock
-- * when comparing the rwsem state right now with the state when entering
-- * the slowpath indicates that the reader is still in a valid reader phase.
-- * This happens when the following conditions are true:
-- *
-- * 1) The lock is currently reader owned, and
-- * 2) The lock is previously not reader-owned or the last read owner changes.
-- *
-- * In the former case, we have transitioned from a writer phase to a
-- * reader-phase while spinning. In the latter case, it means the reader
-- * phase hasn't ended when we entered the optimistic spinning loop. In
-- * both cases, the reader is eligible to acquire the lock. This is the
-- * secondary path where a read lock is acquired optimistically.
-- *
-- * The reader non-spinnable bit wasn't set at time of entry or it will
-- * not be here at all.
-  */
--static inline bool rwsem_reader_phase_trylock(struct rw_semaphore *sem,
--					      unsigned long last_rowner)
-+static inline void clear_nonspinnable(struct rw_semaphore *sem)
- {
--	unsigned long owner = atomic_long_read(&sem->owner);
--
--	if (!(owner & RWSEM_READER_OWNED))
--		return false;
--
--	if (((owner ^ last_rowner) & ~RWSEM_OWNER_FLAGS_MASK) &&
--	    rwsem_try_read_lock_unqueued(sem)) {
--		lockevent_inc(rwsem_opt_rlock2);
--		lockevent_add(rwsem_opt_fail, -1);
--		return true;
--	}
--	return false;
--}
--
--static inline bool rwsem_no_spinners(struct rw_semaphore *sem)
--{
--	return !osq_is_locked(&sem->osq);
-+	if (rwsem_test_oflags(sem, RWSEM_NONSPINNABLE))
-+		atomic_long_andnot(RWSEM_NONSPINNABLE, &sem->owner);
- }
- 
- #else
--static inline bool rwsem_can_spin_on_owner(struct rw_semaphore *sem,
--					   unsigned long nonspinnable)
-+static inline bool rwsem_can_spin_on_owner(struct rw_semaphore *sem)
- {
- 	return false;
- }
- 
--static inline bool rwsem_optimistic_spin(struct rw_semaphore *sem, bool wlock)
-+static inline bool rwsem_optimistic_spin(struct rw_semaphore *sem)
- {
- 	return false;
- }
- 
--static inline void clear_wr_nonspinnable(struct rw_semaphore *sem) { }
--
--static inline bool rwsem_reader_phase_trylock(struct rw_semaphore *sem,
--					      unsigned long last_rowner)
--{
--	return false;
--}
--
--static inline bool rwsem_no_spinners(sem)
--{
--	return false;
--}
-+static inline void clear_nonspinnable(struct rw_semaphore *sem) { }
- 
- static inline int
--rwsem_spin_on_owner(struct rw_semaphore *sem, unsigned long nonspinnable)
-+rwsem_spin_on_owner(struct rw_semaphore *sem)
- {
- 	return 0;
- }
-@@ -1021,7 +891,7 @@ rwsem_spin_on_owner(struct rw_semaphore *sem, unsigned long nonspinnable)
- static struct rw_semaphore __sched *
- rwsem_down_read_slowpath(struct rw_semaphore *sem, long count, int state)
- {
--	long owner, adjustment = -RWSEM_READER_BIAS;
-+	long adjustment = -RWSEM_READER_BIAS;
- 	long rcnt = (count >> RWSEM_READER_SHIFT);
- 	struct rwsem_waiter waiter;
- 	DEFINE_WAKE_Q(wake_q);
-@@ -1029,54 +899,25 @@ rwsem_down_read_slowpath(struct rw_semaphore *sem, long count, int state)
- 
- 	/*
- 	 * To prevent a constant stream of readers from starving a sleeping
--	 * waiter, don't attempt optimistic spinning if the lock is currently
--	 * owned by readers.
-+	 * waiter, don't attempt optimistic lock stealing if the lock is
-+	 * currently owned by readers.
- 	 */
--	owner = atomic_long_read(&sem->owner);
--	if ((owner & RWSEM_READER_OWNED) && (rcnt > 1) &&
--	   !(count & RWSEM_WRITER_LOCKED))
-+	if ((atomic_long_read(&sem->owner) & RWSEM_READER_OWNED) &&
-+	    (rcnt > 1) && !(count & RWSEM_WRITER_LOCKED))
- 		goto queue;
- 
- 	/*
--	 * Reader optimistic lock stealing
--	 *
--	 * We can take the read lock directly without doing
--	 * rwsem_optimistic_spin() if the conditions are right.
--	 * Also wake up other readers if it is the first reader.
-+	 * Reader optimistic lock stealing.
- 	 */
--	if (!(count & (RWSEM_WRITER_LOCKED | RWSEM_FLAG_HANDOFF)) &&
--	    rwsem_no_spinners(sem)) {
-+	if (!(count & (RWSEM_WRITER_LOCKED | RWSEM_FLAG_HANDOFF))) {
- 		rwsem_set_reader_owned(sem);
- 		lockevent_inc(rwsem_rlock_steal);
--		if (rcnt == 1)
--			goto wake_readers;
--		return sem;
--	}
- 
--	/*
--	 * Save the current read-owner of rwsem, if available, and the
--	 * reader nonspinnable bit.
--	 */
--	waiter.last_rowner = owner;
--	if (!(waiter.last_rowner & RWSEM_READER_OWNED))
--		waiter.last_rowner &= RWSEM_RD_NONSPINNABLE;
--
--	if (!rwsem_can_spin_on_owner(sem, RWSEM_RD_NONSPINNABLE))
--		goto queue;
--
--	/*
--	 * Undo read bias from down_read() and do optimistic spinning.
--	 */
--	atomic_long_add(-RWSEM_READER_BIAS, &sem->count);
--	adjustment = 0;
--	if (rwsem_optimistic_spin(sem, false)) {
--		/* rwsem_optimistic_spin() implies ACQUIRE on success */
- 		/*
--		 * Wake up other readers in the wait list if the front
--		 * waiter is a reader.
-+		 * Wake up other readers in the wait queue if it is
-+		 * the first reader.
- 		 */
--wake_readers:
--		if ((atomic_long_read(&sem->count) & RWSEM_FLAG_WAITERS)) {
-+		if ((rcnt == 1) && (count & RWSEM_FLAG_WAITERS)) {
- 			raw_spin_lock_irq(&sem->wait_lock);
- 			if (!list_empty(&sem->wait_list))
- 				rwsem_mark_wake(sem, RWSEM_WAKE_READ_OWNED,
-@@ -1085,9 +926,6 @@ rwsem_down_read_slowpath(struct rw_semaphore *sem, long count, int state)
- 			wake_up_q(&wake_q);
- 		}
- 		return sem;
--	} else if (rwsem_reader_phase_trylock(sem, waiter.last_rowner)) {
--		/* rwsem_reader_phase_trylock() implies ACQUIRE on success */
--		return sem;
- 	}
- 
- queue:
-@@ -1103,7 +941,7 @@ rwsem_down_read_slowpath(struct rw_semaphore *sem, long count, int state)
- 		 * exit the slowpath and return immediately as its
- 		 * RWSEM_READER_BIAS has already been set in the count.
- 		 */
--		if (adjustment && !(atomic_long_read(&sem->count) &
-+		if (!(atomic_long_read(&sem->count) &
- 		     (RWSEM_WRITER_MASK | RWSEM_FLAG_HANDOFF))) {
- 			/* Provide lock ACQUIRE */
- 			smp_acquire__after_ctrl_dep();
-@@ -1117,10 +955,7 @@ rwsem_down_read_slowpath(struct rw_semaphore *sem, long count, int state)
- 	list_add_tail(&waiter.list, &sem->wait_list);
- 
- 	/* we're now waiting on the lock, but no longer actively locking */
--	if (adjustment)
--		count = atomic_long_add_return(adjustment, &sem->count);
--	else
--		count = atomic_long_read(&sem->count);
-+	count = atomic_long_add_return(adjustment, &sem->count);
- 
- 	/*
- 	 * If there are no active locks, wake the front queued process(es).
-@@ -1129,7 +964,7 @@ rwsem_down_read_slowpath(struct rw_semaphore *sem, long count, int state)
- 	 * wake our own waiter to join the existing active readers !
- 	 */
- 	if (!(count & RWSEM_LOCK_MASK)) {
--		clear_wr_nonspinnable(sem);
-+		clear_nonspinnable(sem);
- 		wake = true;
- 	}
- 	if (wake || (!(count & RWSEM_WRITER_MASK) &&
-@@ -1174,19 +1009,6 @@ rwsem_down_read_slowpath(struct rw_semaphore *sem, long count, int state)
- 	return ERR_PTR(-EINTR);
- }
- 
--/*
-- * This function is called by the a write lock owner. So the owner value
-- * won't get changed by others.
-- */
--static inline void rwsem_disable_reader_optspin(struct rw_semaphore *sem,
--						bool disable)
--{
--	if (unlikely(disable)) {
--		atomic_long_or(RWSEM_RD_NONSPINNABLE, &sem->owner);
--		lockevent_inc(rwsem_opt_norspin);
--	}
--}
--
- /*
-  * Wait until we successfully acquire the write lock
-  */
-@@ -1194,26 +1016,17 @@ static struct rw_semaphore *
- rwsem_down_write_slowpath(struct rw_semaphore *sem, int state)
- {
- 	long count;
--	bool disable_rspin;
- 	enum writer_wait_state wstate;
- 	struct rwsem_waiter waiter;
- 	struct rw_semaphore *ret = sem;
- 	DEFINE_WAKE_Q(wake_q);
- 
- 	/* do optimistic spinning and steal lock if possible */
--	if (rwsem_can_spin_on_owner(sem, RWSEM_WR_NONSPINNABLE) &&
--	    rwsem_optimistic_spin(sem, true)) {
-+	if (rwsem_can_spin_on_owner(sem) && rwsem_optimistic_spin(sem)) {
- 		/* rwsem_optimistic_spin() implies ACQUIRE on success */
- 		return sem;
- 	}
- 
--	/*
--	 * Disable reader optimistic spinning for this rwsem after
--	 * acquiring the write lock when the setting of the nonspinnable
--	 * bits are observed.
--	 */
--	disable_rspin = atomic_long_read(&sem->owner) & RWSEM_NONSPINNABLE;
--
- 	/*
- 	 * Optimistic spinning failed, proceed to the slowpath
- 	 * and block until we can acquire the sem.
-@@ -1282,7 +1095,7 @@ rwsem_down_write_slowpath(struct rw_semaphore *sem, int state)
- 		 * without sleeping.
- 		 */
- 		if (wstate == WRITER_HANDOFF &&
--		    rwsem_spin_on_owner(sem, RWSEM_NONSPINNABLE) == OWNER_NULL)
-+		    rwsem_spin_on_owner(sem) == OWNER_NULL)
- 			goto trylock_again;
- 
- 		/* Block until there are no active lockers. */
-@@ -1324,7 +1137,6 @@ rwsem_down_write_slowpath(struct rw_semaphore *sem, int state)
- 	}
- 	__set_current_state(TASK_RUNNING);
- 	list_del(&waiter.list);
--	rwsem_disable_reader_optspin(sem, disable_rspin);
- 	raw_spin_unlock_irq(&sem->wait_lock);
- 	lockevent_inc(rwsem_wlock);
- 
-@@ -1484,7 +1296,7 @@ static inline void __up_read(struct rw_semaphore *sem)
- 	DEBUG_RWSEMS_WARN_ON(tmp < 0, sem);
- 	if (unlikely((tmp & (RWSEM_LOCK_MASK|RWSEM_FLAG_WAITERS)) ==
- 		      RWSEM_FLAG_WAITERS)) {
--		clear_wr_nonspinnable(sem);
-+		clear_nonspinnable(sem);
- 		rwsem_wake(sem, tmp);
- 	}
- }
--- 
-2.34.1.703.g22d0c6ccf7-goog
-
+DQoNCj4gLS0tLS1PcmlnaW5hbCBNZXNzYWdlLS0tLS0NCj4gRnJvbTogSGVpbmVyIEthbGx3ZWl0
+IDxoa2FsbHdlaXQxQGdtYWlsLmNvbT4NCj4gU2VudDogU2F0dXJkYXksIEphbnVhcnkgMTUsIDIw
+MjIgNDozNCBBTQ0KPiBUbzogSXNtYWlsLCBNb2hhbW1hZCBBdGhhcmkgPG1vaGFtbWFkLmF0aGFy
+aS5pc21haWxAaW50ZWwuY29tPjsNCj4gQW5kcmV3IEx1bm4gPGFuZHJld0BsdW5uLmNoPjsgRGF2
+aWQgUyAuIE1pbGxlciA8ZGF2ZW1AZGF2ZW1sb2Z0Lm5ldD47DQo+IEpha3ViIEtpY2luc2tpIDxr
+dWJhQGtlcm5lbC5vcmc+OyBPbGVrc2lqIFJlbXBlbCA8bGludXhAcmVtcGVsLQ0KPiBwcml2YXQu
+ZGU+OyBSdXNzZWxsIEtpbmcgPGxpbnV4QGFybWxpbnV4Lm9yZy51az4NCj4gQ2M6IG5ldGRldkB2
+Z2VyLmtlcm5lbC5vcmc7IGxpbnV4LWtlcm5lbEB2Z2VyLmtlcm5lbC5vcmc7DQo+IHN0YWJsZUB2
+Z2VyLmtlcm5lbC5vcmcNCj4gU3ViamVjdDogUmU6IFtQQVRDSCBuZXQgdjNdIG5ldDogcGh5OiBt
+YXJ2ZWxsOiBhZGQgTWFydmVsbCBzcGVjaWZpYyBQSFkNCj4gbG9vcGJhY2sNCj4gDQo+IE9uIDEz
+LjAxLjIwMjIgMTA6NTYsIE1vaGFtbWFkIEF0aGFyaSBCaW4gSXNtYWlsIHdyb3RlOg0KPiA+IEV4
+aXN0aW5nIGdlbnBoeV9sb29wYmFjaygpIGlzIG5vdCBhcHBsaWNhYmxlIGZvciBNYXJ2ZWxsIFBI
+WS4gQmVzaWRlcw0KPiA+IGNvbmZpZ3VyaW5nIGJpdC02IGFuZCBiaXQtMTMgaW4gUGFnZSAwIFJl
+Z2lzdGVyIDAgKENvcHBlciBDb250cm9sDQo+ID4gUmVnaXN0ZXIpLCBpdCBpcyBhbHNvIHJlcXVp
+cmVkIHRvIGNvbmZpZ3VyZSBzYW1lIGJpdHMgIGluIFBhZ2UgMg0KPiA+IFJlZ2lzdGVyIDIxIChN
+QUMgU3BlY2lmaWMgQ29udHJvbCBSZWdpc3RlciAyKSBhY2NvcmRpbmcgdG8gc3BlZWQgb2YNCj4g
+PiB0aGUgbG9vcGJhY2sgaXMgb3BlcmF0aW5nLg0KPiA+DQo+ID4gVGVzdGVkIHdvcmtpbmcgb24g
+TWFydmVsbDg4RTE1MTAgUEhZIGZvciBhbGwgc3BlZWRzICgxMDAwLzEwMC8xME1icHMpLg0KPiA+
+DQo+ID4gRklYTUU6IEJhc2VkIG9uIHRyaWFsIGFuZCBlcnJvciB0ZXN0LCBpdCBzZWVtIDFHIG5l
+ZWQgdG8gaGF2ZSBkZWxheQ0KPiA+IGJldHdlZW4gc29mdCByZXNldCBhbmQgbG9vcGJhY2sgZW5h
+YmxlbWVudC4NCj4gPg0KPiA+IEZpeGVzOiAwMTQwNjhkY2I1YjEgKCJuZXQ6IHBoeTogZ2VucGh5
+X2xvb3BiYWNrOiBhZGQgbGluayBzcGVlZA0KPiA+IGNvbmZpZ3VyYXRpb24iKQ0KPiA+IENjOiA8
+c3RhYmxlQHZnZXIua2VybmVsLm9yZz4gIyA1LjE1LngNCj4gPiBTaWduZWQtb2ZmLWJ5OiBNb2hh
+bW1hZCBBdGhhcmkgQmluIElzbWFpbA0KPiA+IDxtb2hhbW1hZC5hdGhhcmkuaXNtYWlsQGludGVs
+LmNvbT4NCj4gPiAtLS0NCj4gPiB2MyBjaGFuZ2Vsb2c6DQo+ID4gLSBVc2UgcGh5X3dyaXRlKCkg
+dG8gY29uZmlndXJlIHNwZWVkIGZvciBCTUNSLg0KPiA+IC0gQWRkIGVycm9yIGhhbmRsaW5nLg0K
+PiA+IEFsbCBjb21tZW50ZWQgYnkgUnVzc2VsbCBLaW5nIDxsaW51eEBhcm1saW51eC5vcmcudWs+
+DQo+ID4NCj4gPiB2MiBjaGFuZ2Vsb2c6DQo+ID4gLSBGb3IgbG9vcGJhY2sgZW5hYmxlZCwgYWRk
+IGJpdC02IGFuZCBiaXQtMTMgY29uZmlndXJhdGlvbiBpbiBib3RoIFBhZ2UNCj4gPiAgIDAgUmVn
+aXN0ZXIgMCBhbmQgUGFnZSAyIFJlZ2lzdGVyIDIxLiBDb21tZW50ZWQgYnkgSGVpbmVyIEthbGx3
+ZWl0DQo+ID4gPGhrYWxsd2VpdDFAZ21haWwuY29tPi4NCj4gPiAtIEZvciBsb29wYmFjayBkaXNh
+YmxlZCwgZm9sbG93IGdlbnBoeV9sb29wYmFjaygpIGltcGxlbWVudGF0aW9uDQo+ID4gLS0tDQo+
+ID4gIGRyaXZlcnMvbmV0L3BoeS9tYXJ2ZWxsLmMgfCA1Ng0KPiA+ICsrKysrKysrKysrKysrKysr
+KysrKysrKysrKysrKysrKysrKysrLQ0KPiA+ICAxIGZpbGUgY2hhbmdlZCwgNTUgaW5zZXJ0aW9u
+cygrKSwgMSBkZWxldGlvbigtKQ0KPiA+DQo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3Bo
+eS9tYXJ2ZWxsLmMgYi9kcml2ZXJzL25ldC9waHkvbWFydmVsbC5jDQo+ID4gaW5kZXggNGZjZmNh
+NGUxNzAyLi41YzM3MWMyZGU5YTAgMTAwNjQ0DQo+ID4gLS0tIGEvZHJpdmVycy9uZXQvcGh5L21h
+cnZlbGwuYw0KPiA+ICsrKyBiL2RyaXZlcnMvbmV0L3BoeS9tYXJ2ZWxsLmMNCj4gPiBAQCAtMTg5
+LDYgKzE4OSw4IEBADQo+ID4gICNkZWZpbmUgTUlJXzg4RTE1MTBfR0VOX0NUUkxfUkVHXzFfTU9E
+RV9SR01JSV9TR01JSQkweDQNCj4gPiAgI2RlZmluZSBNSUlfODhFMTUxMF9HRU5fQ1RSTF9SRUdf
+MV9SRVNFVAkweDgwMDAJLyogU29mdCByZXNldA0KPiAqLw0KPiA+DQo+ID4gKyNkZWZpbmUgTUlJ
+Xzg4RTE1MTBfTVNDUl8yCQkweDE1DQo+ID4gKw0KPiA+ICAjZGVmaW5lIE1JSV9WQ1Q1X1RYX1JY
+X01ESTBfQ09VUExJTkcJMHgxMA0KPiA+ICAjZGVmaW5lIE1JSV9WQ1Q1X1RYX1JYX01ESTFfQ09V
+UExJTkcJMHgxMQ0KPiA+ICAjZGVmaW5lIE1JSV9WQ1Q1X1RYX1JYX01ESTJfQ09VUExJTkcJMHgx
+Mg0KPiA+IEBAIC0xOTMyLDYgKzE5MzQsNTggQEAgc3RhdGljIHZvaWQgbWFydmVsbF9nZXRfc3Rh
+dHMoc3RydWN0IHBoeV9kZXZpY2UNCj4gKnBoeWRldiwNCj4gPiAgCQlkYXRhW2ldID0gbWFydmVs
+bF9nZXRfc3RhdChwaHlkZXYsIGkpOyAgfQ0KPiA+DQo+ID4gK3N0YXRpYyBpbnQgbWFydmVsbF9s
+b29wYmFjayhzdHJ1Y3QgcGh5X2RldmljZSAqcGh5ZGV2LCBib29sIGVuYWJsZSkNCj4gDQo+IE1h
+cnZlbGwgUEhZJ3MgdXNlIGRpZmZlcmVudCBiaXRzIGZvciB0aGUgbG9vcGJhY2sgc3BlZWQsIGUu
+Zy46DQo+IA0KPiA4OEUxNTEwIGJpdHMgMTMsIDYNCj4gODhFMTU0NSBiaXRzIDIuLjANCg0KVGhh
+bmsgeW91IGZvciB0aGUgaW5mby4NCg0KPiANCj4gWW91ciBmdW5jdGlvbiBpcyB1c2FibGUgd2l0
+aCBjZXJ0YWluIE1hcnZlbGwgUEhZJ3Mgb25seSwgdGhlcmVmb3JlIHRoZQ0KPiBmdW5jdGlvbiBu
+YW1lIGlzIG1pc2xlYWRpbmcuIEF0IGEgZmlyc3QgZ2xhbmNlIEkgc2VlIHR3byBvcHRpb25zOg0K
+PiANCj4gMS4gTGVhdmUgdGhlIGZ1bmN0aW9uIG5hbWUgYW5kIGFkZCBhIHZlcnNpb24tc3BlY2lm
+aWMgc2VjdGlvbiB0aGF0IHJldHVybnMNCj4gICAgYW4gZXJyb3IgZm9yIChub3QgeWV0KSBzdXBw
+b3J0ZWQgdmVyc2lvbnMuDQo+IDIuIE5hbWUgaXQgbTg4ZTE1MTBfbG9vcGJhY2soKQ0KDQpJJ2xs
+IGdvIGZvciBvcHRpb24gMi4gVGhhbmsgeW91IGZvciB0aGUgc3VnZ2VzdGlvbi4NCg0KLUF0aGFy
+aS0NCg0KPiANCj4gPiArew0KPiA+ICsJaW50IGVycjsNCj4gPiArDQo+ID4gKwlpZiAoZW5hYmxl
+KSB7DQo+ID4gKwkJdTE2IGJtY3JfY3RsID0gMCwgbXNjcjJfY3RsID0gMDsNCj4gPiArDQo+ID4g
+KwkJaWYgKHBoeWRldi0+c3BlZWQgPT0gU1BFRURfMTAwMCkNCj4gPiArCQkJYm1jcl9jdGwgPSBC
+TUNSX1NQRUVEMTAwMDsNCj4gPiArCQllbHNlIGlmIChwaHlkZXYtPnNwZWVkID09IFNQRUVEXzEw
+MCkNCj4gPiArCQkJYm1jcl9jdGwgPSBCTUNSX1NQRUVEMTAwOw0KPiA+ICsNCj4gPiArCQlpZiAo
+cGh5ZGV2LT5kdXBsZXggPT0gRFVQTEVYX0ZVTEwpDQo+ID4gKwkJCWJtY3JfY3RsIHw9IEJNQ1Jf
+RlVMTERQTFg7DQo+ID4gKw0KPiA+ICsJCWVyciA9IHBoeV93cml0ZShwaHlkZXYsIE1JSV9CTUNS
+LCBibWNyX2N0bCk7DQo+ID4gKwkJaWYgKGVyciA8IDApDQo+ID4gKwkJCXJldHVybiBlcnI7DQo+
+ID4gKw0KPiA+ICsJCWlmIChwaHlkZXYtPnNwZWVkID09IFNQRUVEXzEwMDApDQo+ID4gKwkJCW1z
+Y3IyX2N0bCA9IEJNQ1JfU1BFRUQxMDAwOw0KPiA+ICsJCWVsc2UgaWYgKHBoeWRldi0+c3BlZWQg
+PT0gU1BFRURfMTAwKQ0KPiA+ICsJCQltc2NyMl9jdGwgPSBCTUNSX1NQRUVEMTAwOw0KPiA+ICsN
+Cj4gPiArCQllcnIgPSBwaHlfbW9kaWZ5X3BhZ2VkKHBoeWRldiwNCj4gTUlJX01BUlZFTExfTVND
+Ul9QQUdFLA0KPiA+ICsJCQkJICAgICAgIE1JSV84OEUxNTEwX01TQ1JfMiwgQk1DUl9TUEVFRDEw
+MDANCj4gfA0KPiA+ICsJCQkJICAgICAgIEJNQ1JfU1BFRUQxMDAsIG1zY3IyX2N0bCk7DQo+ID4g
+KwkJaWYgKGVyciA8IDApDQo+ID4gKwkJCXJldHVybiBlcnI7DQo+ID4gKw0KPiA+ICsJCS8qIE5l
+ZWQgc29mdCByZXNldCB0byBoYXZlIHNwZWVkIGNvbmZpZ3VyYXRpb24gdGFrZXMgZWZmZWN0DQo+
+ICovDQo+ID4gKwkJZXJyID0gZ2VucGh5X3NvZnRfcmVzZXQocGh5ZGV2KTsNCj4gPiArCQlpZiAo
+ZXJyIDwgMCkNCj4gPiArCQkJcmV0dXJuIGVycjsNCj4gPiArDQo+ID4gKwkJLyogRklYTUU6IEJh
+c2VkIG9uIHRyaWFsIGFuZCBlcnJvciB0ZXN0LCBpdCBzZWVtIDFHIG5lZWQgdG8NCj4gaGF2ZQ0K
+PiA+ICsJCSAqIGRlbGF5IGJldHdlZW4gc29mdCByZXNldCBhbmQgbG9vcGJhY2sgZW5hYmxlbWVu
+dC4NCj4gPiArCQkgKi8NCj4gPiArCQlpZiAocGh5ZGV2LT5zcGVlZCA9PSBTUEVFRF8xMDAwKQ0K
+PiA+ICsJCQltc2xlZXAoMTAwMCk7DQo+ID4gKw0KPiA+ICsJCXJldHVybiBwaHlfbW9kaWZ5KHBo
+eWRldiwgTUlJX0JNQ1IsIEJNQ1JfTE9PUEJBQ0ssDQo+ID4gKwkJCQkgIEJNQ1JfTE9PUEJBQ0sp
+Ow0KPiA+ICsJfSBlbHNlIHsNCj4gPiArCQllcnIgPSBwaHlfbW9kaWZ5KHBoeWRldiwgTUlJX0JN
+Q1IsIEJNQ1JfTE9PUEJBQ0ssIDApOw0KPiA+ICsJCWlmIChlcnIgPCAwKQ0KPiA+ICsJCQlyZXR1
+cm4gZXJyOw0KPiA+ICsNCj4gPiArCQlyZXR1cm4gcGh5X2NvbmZpZ19hbmVnKHBoeWRldik7DQo+
+ID4gKwl9DQo+ID4gK30NCj4gPiArDQo+ID4gIHN0YXRpYyBpbnQgbWFydmVsbF92Y3Q1X3dhaXRf
+Y29tcGxldGUoc3RydWN0IHBoeV9kZXZpY2UgKnBoeWRldikgIHsNCj4gPiAgCWludCBpOw0KPiA+
+IEBAIC0zMDc4LDcgKzMxMzIsNyBAQCBzdGF0aWMgc3RydWN0IHBoeV9kcml2ZXIgbWFydmVsbF9k
+cml2ZXJzW10gPSB7DQo+ID4gIAkJLmdldF9zc2V0X2NvdW50ID0gbWFydmVsbF9nZXRfc3NldF9j
+b3VudCwNCj4gPiAgCQkuZ2V0X3N0cmluZ3MgPSBtYXJ2ZWxsX2dldF9zdHJpbmdzLA0KPiA+ICAJ
+CS5nZXRfc3RhdHMgPSBtYXJ2ZWxsX2dldF9zdGF0cywNCj4gPiAtCQkuc2V0X2xvb3BiYWNrID0g
+Z2VucGh5X2xvb3BiYWNrLA0KPiA+ICsJCS5zZXRfbG9vcGJhY2sgPSBtYXJ2ZWxsX2xvb3BiYWNr
+LA0KPiA+ICAJCS5nZXRfdHVuYWJsZSA9IG04OGUxMDExX2dldF90dW5hYmxlLA0KPiA+ICAJCS5z
+ZXRfdHVuYWJsZSA9IG04OGUxMDExX3NldF90dW5hYmxlLA0KPiA+ICAJCS5jYWJsZV90ZXN0X3N0
+YXJ0ID0gbWFydmVsbF92Y3Q3X2NhYmxlX3Rlc3Rfc3RhcnQsDQoNCg==
