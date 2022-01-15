@@ -2,56 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC3B748F3B1
-	for <lists+stable@lfdr.de>; Sat, 15 Jan 2022 02:01:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5A4A48F3B6
+	for <lists+stable@lfdr.de>; Sat, 15 Jan 2022 02:01:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229643AbiAOBBt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 20:01:49 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38238 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229533AbiAOBBs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 20:01:48 -0500
+        id S229533AbiAOBBw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 20:01:52 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:34450 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231296AbiAOBBv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 20:01:51 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 91DF46208B
-        for <stable@vger.kernel.org>; Sat, 15 Jan 2022 01:01:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9320C36AEA;
-        Sat, 15 Jan 2022 01:01:47 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 29620CE24BA
+        for <stable@vger.kernel.org>; Sat, 15 Jan 2022 01:01:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83FECC36AE9;
+        Sat, 15 Jan 2022 01:01:48 +0000 (UTC)
 From:   Jaegeuk Kim <jaegeuk@google.com>
 To:     stable@vger.kernel.org
-Cc:     Jaegeuk Kim <jaegeuk@google.com>, timmurray@google.com,
-        longman@redhat.com, peterz@infradead.org
-Subject: [PATCH 0/7] rwsem enhancement patches for 5.10
-Date:   Fri, 14 Jan 2022 16:59:39 -0800
-Message-Id: <20220115005945.2125174-1-jaegeuk@google.com>
+Cc:     Peter Zijlstra <peterz@infradead.org>,
+        Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 1/7] locking/rwsem: Better collate rwsem_read_trylock()
+Date:   Fri, 14 Jan 2022 16:59:40 -0800
+Message-Id: <20220115005945.2125174-2-jaegeuk@google.com>
 X-Mailer: git-send-email 2.34.1.703.g22d0c6ccf7-goog
+In-Reply-To: <20220115005945.2125174-1-jaegeuk@google.com>
+References: <20220115005945.2125174-1-jaegeuk@google.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Per discussion [1], can we merge these patches in 5.10 first?
+From: Peter Zijlstra <peterz@infradead.org>
 
-[1] https://lore.kernel.org/linux-f2fs-devel/CAEe=Sx=6FCvrp_6x2Bqp3YTzep2s=aWdCmP29g7+sGCWkpNvkg@mail.gmail.com/T/#t
+commit 3379116a0ca965b00e6522c7ea3f16c9dbd8f9f9 upstream.
 
-Peter Zijlstra (3):
-  locking/rwsem: Better collate rwsem_read_trylock()
-  locking/rwsem: Introduce rwsem_write_trylock()
-  locking/rwsem: Fold __down_{read,write}*()
+All users of rwsem_read_trylock() do rwsem_set_reader_owned(sem) on
+success, move it into rwsem_read_trylock() proper.
 
-Waiman Long (4):
-  locking/rwsem: Pass the current atomic count to
-    rwsem_down_read_slowpath()
-  locking/rwsem: Prevent potential lock starvation
-  locking/rwsem: Enable reader optimistic lock stealing
-  locking/rwsem: Remove reader optimistic spinning
+Cc: <stable@vger.kernel.org> # 5.10
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20201207090243.GE3040@hirez.programming.kicks-ass.net
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+---
+ kernel/locking/rwsem.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
- kernel/locking/lock_events_list.h |   6 +-
- kernel/locking/rwsem.c            | 359 +++++++++---------------------
- 2 files changed, 106 insertions(+), 259 deletions(-)
-
+diff --git a/kernel/locking/rwsem.c b/kernel/locking/rwsem.c
+index a163542d178e..5c0dc7ebace9 100644
+--- a/kernel/locking/rwsem.c
++++ b/kernel/locking/rwsem.c
+@@ -273,9 +273,16 @@ static inline void rwsem_set_nonspinnable(struct rw_semaphore *sem)
+ static inline bool rwsem_read_trylock(struct rw_semaphore *sem)
+ {
+ 	long cnt = atomic_long_add_return_acquire(RWSEM_READER_BIAS, &sem->count);
++
+ 	if (WARN_ON_ONCE(cnt < 0))
+ 		rwsem_set_nonspinnable(sem);
+-	return !(cnt & RWSEM_READ_FAILED_MASK);
++
++	if (!(cnt & RWSEM_READ_FAILED_MASK)) {
++		rwsem_set_reader_owned(sem);
++		return true;
++	}
++
++	return false;
+ }
+ 
+ /*
+@@ -1340,8 +1347,6 @@ static inline void __down_read(struct rw_semaphore *sem)
+ 	if (!rwsem_read_trylock(sem)) {
+ 		rwsem_down_read_slowpath(sem, TASK_UNINTERRUPTIBLE);
+ 		DEBUG_RWSEMS_WARN_ON(!is_rwsem_reader_owned(sem), sem);
+-	} else {
+-		rwsem_set_reader_owned(sem);
+ 	}
+ }
+ 
+@@ -1351,8 +1356,6 @@ static inline int __down_read_interruptible(struct rw_semaphore *sem)
+ 		if (IS_ERR(rwsem_down_read_slowpath(sem, TASK_INTERRUPTIBLE)))
+ 			return -EINTR;
+ 		DEBUG_RWSEMS_WARN_ON(!is_rwsem_reader_owned(sem), sem);
+-	} else {
+-		rwsem_set_reader_owned(sem);
+ 	}
+ 	return 0;
+ }
+@@ -1363,8 +1366,6 @@ static inline int __down_read_killable(struct rw_semaphore *sem)
+ 		if (IS_ERR(rwsem_down_read_slowpath(sem, TASK_KILLABLE)))
+ 			return -EINTR;
+ 		DEBUG_RWSEMS_WARN_ON(!is_rwsem_reader_owned(sem), sem);
+-	} else {
+-		rwsem_set_reader_owned(sem);
+ 	}
+ 	return 0;
+ }
 -- 
 2.34.1.703.g22d0c6ccf7-goog
 
