@@ -2,133 +2,273 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76F6248F4BB
-	for <lists+stable@lfdr.de>; Sat, 15 Jan 2022 05:25:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C85548F4D6
+	for <lists+stable@lfdr.de>; Sat, 15 Jan 2022 05:59:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231346AbiAOEZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 14 Jan 2022 23:25:42 -0500
-Received: from qproxy5-pub.mail.unifiedlayer.com ([69.89.21.30]:38680 "EHLO
-        qproxy5-pub.mail.unifiedlayer.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231342AbiAOEZm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 14 Jan 2022 23:25:42 -0500
-Received: from outbound-ss-761.bluehost.com (outbound-ss-761.bluehost.com [74.220.211.250])
-        by qproxy5.mail.unifiedlayer.com (Postfix) with ESMTP id 950AE8032AE1
-        for <stable@vger.kernel.org>; Sat, 15 Jan 2022 04:25:39 +0000 (UTC)
-Received: from cmgw15.mail.unifiedlayer.com (unknown [10.0.90.130])
-        by progateway8.mail.pro1.eigbox.com (Postfix) with ESMTP id D1FE110047AB2
-        for <stable@vger.kernel.org>; Sat, 15 Jan 2022 04:25:08 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id 8acmnGZ2nikTn8acmns3sl; Sat, 15 Jan 2022 04:25:08 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=CeHNWJnl c=1 sm=1 tr=0 ts=61e24ca4
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=DghFqjY3_ZEA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=-Qcm0AZxhyoZnww38z8A:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=2ytazBcu1/WEpQe+c3RwgbycMvD43iurYN7PpL6wsLc=; b=fb0YPheNQsk8n8tjAuXrqr/8nq
-        d7f9/bFZmaSNLxsROFQ6ccY7wFIgPkQztrgC0qXfP7ljZtTA9Cn4eAAqoXFI0iS7X0wFJKRrbejC4
-        aeaNtpNAGUK9QisRV+b/LRJW5;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:60982 helo=[10.0.1.23])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <re@w6rz.net>)
-        id 1n8acl-000TEm-Us; Fri, 14 Jan 2022 21:25:08 -0700
-Subject: Re: [PATCH 5.16 00/37] 5.16.1-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-References: <20220114081544.849748488@linuxfoundation.org>
-In-Reply-To: <20220114081544.849748488@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <7da2da48-33a8-6448-6906-03e1661b50b4@w6rz.net>
-Date:   Fri, 14 Jan 2022 20:25:06 -0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        id S232294AbiAOE7n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 14 Jan 2022 23:59:43 -0500
+Received: from mga03.intel.com ([134.134.136.65]:52808 "EHLO mga03.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230197AbiAOE7n (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 14 Jan 2022 23:59:43 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1642222783; x=1673758783;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=Y7vHzljmhWmZs4NuLlIJ2mDabFIEbEZUNhxDv2TKE+A=;
+  b=iDlskJNoSubCGjXuTYxLbYn8utCqiRzbibbQFlNXCnxl9m5G5hOQl8aU
+   GDG5eSMEzyQy2PiJENDCKqMHB8pRxPaO60zXw51Fpe1aHQQeAsLyeS8JD
+   7Rwd7K/TwmOOiyYoNga0uM3q8YPqlKpWbxKVaID6MN33mmk48OdOe2q+7
+   2tuR6kf1hN6Dun3OLypKIJzeQXi9Y+kO8L16UGNLp2IB/GAWF+qVluUe2
+   e5WyUA6baNdylnZJkBlHJaWp44b6KSxXPvrcnpKMrCc85OnSI2RdCgQx5
+   XCUL4xKgErXYX9GGoTtVh8dslT5tAbLGJ0vsw8WR6yZk0anoQCYQN7Xeo
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10227"; a="244335390"
+X-IronPort-AV: E=Sophos;i="5.88,290,1635231600"; 
+   d="scan'208";a="244335390"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Jan 2022 20:59:42 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,290,1635231600"; 
+   d="scan'208";a="476013428"
+Received: from lkp-server01.sh.intel.com (HELO 276f1b88eecb) ([10.239.97.150])
+  by orsmga006.jf.intel.com with ESMTP; 14 Jan 2022 20:59:40 -0800
+Received: from kbuild by 276f1b88eecb with local (Exim 4.92)
+        (envelope-from <lkp@intel.com>)
+        id 1n8bAC-0009PD-9n; Sat, 15 Jan 2022 04:59:40 +0000
+Date:   Sat, 15 Jan 2022 12:58:46 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Masami Hiramatsu <mhiramat@kernel.org>, stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     kbuild-all@lists.01.org, linux-kernel@vger.kernel.org,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.4.y] Revert "ia64: kprobes: Use generic kretprobe
+ trampoline handler"
+Message-ID: <202201151231.g2sW8oWt-lkp@intel.com>
+References: <164215559880.1662358.1475310445318313122.stgit@devnote2>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1n8acl-000TEm-Us
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.23]) [73.162.232.9]:60982
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 12
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <164215559880.1662358.1475310445318313122.stgit@devnote2>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/14/22 12:16 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.16.1 release.
-> There are 37 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sun, 16 Jan 2022 08:15:33 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.1-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Hi Masami,
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+I love your patch! Perhaps something to improve:
 
-Warnings:
+[auto build test WARNING on stable/linux-5.4.y]
 
-fs/jffs2/xattr.c: In function ‘jffs2_build_xattr_subsystem’:
-fs/jffs2/xattr.c:887:1: warning: the frame size of 1104 bytes is larger 
-than 1024 bytes [-Wframe-larger-than=]
-   887 | }
-       | ^
-lib/crypto/curve25519-hacl64.c: In function ‘ladder_cmult.constprop’:
-lib/crypto/curve25519-hacl64.c:601:1: warning: the frame size of 1040 
-bytes is larger than 1024 bytes [-Wframe-larger-than=]
-   601 | }
-       | ^
-drivers/net/wireguard/allowedips.c: In function ‘root_remove_peer_lists’:
-drivers/net/wireguard/allowedips.c:77:1: warning: the frame size of 1040 
-bytes is larger than 1024 bytes [-Wframe-larger-than=]
-    77 | }
-       | ^
-drivers/net/wireguard/allowedips.c: In function ‘root_free_rcu’:
-drivers/net/wireguard/allowedips.c:64:1: warning: the frame size of 1040 
-bytes is larger than 1024 bytes [-Wframe-larger-than=]
-    64 | }
-       | ^
-drivers/vhost/scsi.c: In function ‘vhost_scsi_flush’:
-drivers/vhost/scsi.c:1444:1: warning: the frame size of 1040 bytes is 
-larger than 1024 bytes [-Wframe-larger-than=]
-  1444 | }
-       | ^
+url:    https://github.com/0day-ci/linux/commits/Masami-Hiramatsu/Revert-ia64-kprobes-Use-generic-kretprobe-trampoline-handler/20220114-182111
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
+config: ia64-allmodconfig (https://download.01.org/0day-ci/archive/20220115/202201151231.g2sW8oWt-lkp@intel.com/config)
+compiler: ia64-linux-gcc (GCC) 11.2.0
+reproduce (this is a W=1 build):
+        wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
+        chmod +x ~/bin/make.cross
+        # https://github.com/0day-ci/linux/commit/514059de80b018e0edcf434519ff6bf41b4a519b
+        git remote add linux-review https://github.com/0day-ci/linux
+        git fetch --no-tags linux-review Masami-Hiramatsu/Revert-ia64-kprobes-Use-generic-kretprobe-trampoline-handler/20220114-182111
+        git checkout 514059de80b018e0edcf434519ff6bf41b4a519b
+        # save the config file to linux build tree
+        mkdir build_dir
+        COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross O=build_dir ARCH=ia64 SHELL=/bin/bash
 
-Tested-by: Ron Economos <re@w6rz.net>
+If you fix the issue, kindly add following tag as appropriate
+Reported-by: kernel test robot <lkp@intel.com>
 
+All warnings (new ones prefixed by >>):
+
+   arch/ia64/kernel/kprobes.c: In function 'get_kprobe_inst':
+   arch/ia64/kernel/kprobes.c:325:22: warning: variable 'template' set but not used [-Wunused-but-set-variable]
+     325 |         unsigned int template;
+         |                      ^~~~~~~~
+   arch/ia64/kernel/kprobes.c: At top level:
+   arch/ia64/kernel/kprobes.c:407:15: warning: no previous prototype for 'trampoline_probe_handler' [-Wmissing-prototypes]
+     407 | int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
+         |               ^~~~~~~~~~~~~~~~~~~~~~~~
+   arch/ia64/kernel/kprobes.c: In function 'trampoline_probe_handler':
+>> arch/ia64/kernel/kprobes.c:414:17: warning: initialization of 'long unsigned int' from 'void *' makes integer from pointer without a cast [-Wint-conversion]
+     414 |                 dereference_function_descriptor(kretprobe_trampoline);
+         |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Kconfig warnings: (for reference only)
+   WARNING: unmet direct dependencies detected for FRAME_POINTER
+   Depends on DEBUG_KERNEL && (M68K || UML || SUPERH) || ARCH_WANT_FRAME_POINTERS
+   Selected by
+   - FAULT_INJECTION_STACKTRACE_FILTER && FAULT_INJECTION_DEBUG_FS && STACKTRACE_SUPPORT && !X86_64 && !MIPS && !PPC && !S390 && !MICROBLAZE && !ARM && !ARC && !X86
+
+
+vim +414 arch/ia64/kernel/kprobes.c
+
+   320	
+   321	static void __kprobes get_kprobe_inst(bundle_t *bundle, uint slot,
+   322		       	unsigned long *kprobe_inst, uint *major_opcode)
+   323	{
+   324		unsigned long kprobe_inst_p0, kprobe_inst_p1;
+ > 325		unsigned int template;
+   326	
+   327		template = bundle->quad0.template;
+   328	
+   329		switch (slot) {
+   330		  case 0:
+   331			*major_opcode = (bundle->quad0.slot0 >> SLOT0_OPCODE_SHIFT);
+   332			*kprobe_inst = bundle->quad0.slot0;
+   333			  break;
+   334		  case 1:
+   335			*major_opcode = (bundle->quad1.slot1_p1 >> SLOT1_p1_OPCODE_SHIFT);
+   336			kprobe_inst_p0 = bundle->quad0.slot1_p0;
+   337			kprobe_inst_p1 = bundle->quad1.slot1_p1;
+   338			*kprobe_inst = kprobe_inst_p0 | (kprobe_inst_p1 << (64-46));
+   339			break;
+   340		  case 2:
+   341			*major_opcode = (bundle->quad1.slot2 >> SLOT2_OPCODE_SHIFT);
+   342			*kprobe_inst = bundle->quad1.slot2;
+   343			break;
+   344		}
+   345	}
+   346	
+   347	/* Returns non-zero if the addr is in the Interrupt Vector Table */
+   348	static int __kprobes in_ivt_functions(unsigned long addr)
+   349	{
+   350		return (addr >= (unsigned long)__start_ivt_text
+   351			&& addr < (unsigned long)__end_ivt_text);
+   352	}
+   353	
+   354	static int __kprobes valid_kprobe_addr(int template, int slot,
+   355					       unsigned long addr)
+   356	{
+   357		if ((slot > 2) || ((bundle_encoding[template][1] == L) && slot > 1)) {
+   358			printk(KERN_WARNING "Attempting to insert unaligned kprobe "
+   359					"at 0x%lx\n", addr);
+   360			return -EINVAL;
+   361		}
+   362	
+   363		if (in_ivt_functions(addr)) {
+   364			printk(KERN_WARNING "Kprobes can't be inserted inside "
+   365					"IVT functions at 0x%lx\n", addr);
+   366			return -EINVAL;
+   367		}
+   368	
+   369		return 0;
+   370	}
+   371	
+   372	static void __kprobes save_previous_kprobe(struct kprobe_ctlblk *kcb)
+   373	{
+   374		unsigned int i;
+   375		i = atomic_add_return(1, &kcb->prev_kprobe_index);
+   376		kcb->prev_kprobe[i-1].kp = kprobe_running();
+   377		kcb->prev_kprobe[i-1].status = kcb->kprobe_status;
+   378	}
+   379	
+   380	static void __kprobes restore_previous_kprobe(struct kprobe_ctlblk *kcb)
+   381	{
+   382		unsigned int i;
+   383		i = atomic_read(&kcb->prev_kprobe_index);
+   384		__this_cpu_write(current_kprobe, kcb->prev_kprobe[i-1].kp);
+   385		kcb->kprobe_status = kcb->prev_kprobe[i-1].status;
+   386		atomic_sub(1, &kcb->prev_kprobe_index);
+   387	}
+   388	
+   389	static void __kprobes set_current_kprobe(struct kprobe *p,
+   390				struct kprobe_ctlblk *kcb)
+   391	{
+   392		__this_cpu_write(current_kprobe, p);
+   393	}
+   394	
+   395	static void kretprobe_trampoline(void)
+   396	{
+   397	}
+   398	
+   399	/*
+   400	 * At this point the target function has been tricked into
+   401	 * returning into our trampoline.  Lookup the associated instance
+   402	 * and then:
+   403	 *    - call the handler function
+   404	 *    - cleanup by marking the instance as unused
+   405	 *    - long jump back to the original return address
+   406	 */
+   407	int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
+   408	{
+   409		struct kretprobe_instance *ri = NULL;
+   410		struct hlist_head *head, empty_rp;
+   411		struct hlist_node *tmp;
+   412		unsigned long flags, orig_ret_address = 0;
+   413		unsigned long trampoline_address =
+ > 414			dereference_function_descriptor(kretprobe_trampoline);
+   415	
+   416		INIT_HLIST_HEAD(&empty_rp);
+   417		kretprobe_hash_lock(current, &head, &flags);
+   418	
+   419		/*
+   420		 * It is possible to have multiple instances associated with a given
+   421		 * task either because an multiple functions in the call path
+   422		 * have a return probe installed on them, and/or more than one return
+   423		 * return probe was registered for a target function.
+   424		 *
+   425		 * We can handle this because:
+   426		 *     - instances are always inserted at the head of the list
+   427		 *     - when multiple return probes are registered for the same
+   428		 *       function, the first instance's ret_addr will point to the
+   429		 *       real return address, and all the rest will point to
+   430		 *       kretprobe_trampoline
+   431		 */
+   432		hlist_for_each_entry_safe(ri, tmp, head, hlist) {
+   433			if (ri->task != current)
+   434				/* another task is sharing our hash bucket */
+   435				continue;
+   436	
+   437			orig_ret_address = (unsigned long)ri->ret_addr;
+   438			if (orig_ret_address != trampoline_address)
+   439				/*
+   440				 * This is the real return address. Any other
+   441				 * instances associated with this task are for
+   442				 * other calls deeper on the call stack
+   443				 */
+   444				break;
+   445		}
+   446	
+   447		regs->cr_iip = orig_ret_address;
+   448	
+   449		hlist_for_each_entry_safe(ri, tmp, head, hlist) {
+   450			if (ri->task != current)
+   451				/* another task is sharing our hash bucket */
+   452				continue;
+   453	
+   454			if (ri->rp && ri->rp->handler)
+   455				ri->rp->handler(ri, regs);
+   456	
+   457			orig_ret_address = (unsigned long)ri->ret_addr;
+   458			recycle_rp_inst(ri, &empty_rp);
+   459	
+   460			if (orig_ret_address != trampoline_address)
+   461				/*
+   462				 * This is the real return address. Any other
+   463				 * instances associated with this task are for
+   464				 * other calls deeper on the call stack
+   465				 */
+   466				break;
+   467		}
+   468		kretprobe_assert(ri, orig_ret_address, trampoline_address);
+   469	
+   470		kretprobe_hash_unlock(current, &flags);
+   471	
+   472		hlist_for_each_entry_safe(ri, tmp, &empty_rp, hlist) {
+   473			hlist_del(&ri->hlist);
+   474			kfree(ri);
+   475		}
+   476		/*
+   477		 * By returning a non-zero value, we are telling
+   478		 * kprobe_handler() that we don't want the post_handler
+   479		 * to run (and have re-enabled preemption)
+   480		 */
+   481		return 1;
+   482	}
+   483	
+
+---
+0-DAY CI Kernel Test Service, Intel Corporation
+https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
