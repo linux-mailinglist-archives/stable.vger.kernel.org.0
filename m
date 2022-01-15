@@ -2,249 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE57F48F52A
-	for <lists+stable@lfdr.de>; Sat, 15 Jan 2022 06:35:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FA3B48F542
+	for <lists+stable@lfdr.de>; Sat, 15 Jan 2022 06:48:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231370AbiAOFfo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Jan 2022 00:35:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56740 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230034AbiAOFfo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 15 Jan 2022 00:35:44 -0500
-Received: from mail-yb1-xb2a.google.com (mail-yb1-xb2a.google.com [IPv6:2607:f8b0:4864:20::b2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F88EC061574
-        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 21:35:44 -0800 (PST)
-Received: by mail-yb1-xb2a.google.com with SMTP id i68so14983364ybg.7
-        for <stable@vger.kernel.org>; Fri, 14 Jan 2022 21:35:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=xr5CoW233+ktKsC/jbnkLpzCBoSWMGWpWu2mHvuqTEo=;
-        b=Nevyn/sUtYqfb/2OKlRHlPwSzDQD+MNA+Oy6Ibl5a4AtqSUyC1u0sNviHMaYDUnvQH
-         myEi+5cuIh4vAYhb1H3EZ95Z+Df7ly2ohqr/CA2HjyxjLph039PMZJ1Inmo+Uu51Gjiu
-         AhJDc/UlC54/qdiC08xy3OhNfFYTS866RFg6mJf2D0AwqnwCgNAuVK6NF8xXuS/bm0iO
-         B8jcfdmtcUJBLHZaN6ghbyz5wXa+Owwa5ov0/91ULr+sK7omel7IN46CXvTi0Crvtcdt
-         7ZUq4xtDXLJ346Lsbx4KC+jS20xwoft8bMs1njeK+ATy3UrWI6H4Ot+SsmXKbqCwQkzn
-         H6Hw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=xr5CoW233+ktKsC/jbnkLpzCBoSWMGWpWu2mHvuqTEo=;
-        b=0IT+db7uOv9VYjFxG/yggjPMXppXdry+1LqSC8CXDhcoX2W9/lO5ALhsjOQFdGEHrn
-         s7jL/jZdfj4i6k1An9DNCN89miltinae+34GNVO/LCquFEVmrMrpMF9PPS1nR+23lTzW
-         1L5yHLO3GPUtv052ZGJ04q+xMQ/2HFFNKbDzK/q7Z6NNgr0HVFsmYG3w21bFJ5JD9EOr
-         HLCF6sEGzL6Lb1mUwV1ll2nZjiTN/HmvVU0L+mVZu9kopVDaegpo+FFJYMTEWhWgcKUx
-         1HcCAuYZj3KaVLh0Apqkw7T/WM3hpBRhr3SwMHz8kUu2l5gPhJReDzW0IY3Pr1VX0OFw
-         zQmA==
-X-Gm-Message-State: AOAM532GmVXBqiGO3ERqnc2G8GbvfPpU+fGsz4n21t1mDinZIoSnoVCu
-        2FEYf0g6qiNjNqHbDjmgj5ceWC+U2mpKoaE8NHp6/g==
-X-Google-Smtp-Source: ABdhPJyYjMw8wiXn4F1ryduX4HaSEsCIKcOrJNsZI0UL7PDtoBi/gwJZ2YVhYXxBdi5Mzq1TC93siD0HE7NhAmhilsQ=
-X-Received: by 2002:a5b:d09:: with SMTP id y9mr17779457ybp.146.1642224943016;
- Fri, 14 Jan 2022 21:35:43 -0800 (PST)
+        id S231338AbiAOFsE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Jan 2022 00:48:04 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:35828 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231184AbiAOFsE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 15 Jan 2022 00:48:04 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0D168B82668;
+        Sat, 15 Jan 2022 05:48:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E8AAC36AE3;
+        Sat, 15 Jan 2022 05:48:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1642225681;
+        bh=s6YoHefLtqCOhAQXJ3KUCdfGdNsilqm6jK16QH0hGEI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=m9e55GKvgj1lE0KXjFK1lOAzEbpnb9zLwboWDq5BgjJr1xW+qy6iefLBwS6T6g/8E
+         KU8xnQouSqIB2PRAjVB6lf7AMm7qz4k0oYoTztNRB922VcKlrzy26C3KgRw9yW8cMe
+         uhzFQ64Fav6JfjZ9Jeqtq4nCRXgv47cW3g1wtFQnB1Zq8OjMR0GjA8XimALaKI18wM
+         ubwkvahXdfuO3rX927kXtpYEYx87F0OZJDB08RoX2djAXzoal2Ew8bsKs4cdUv7NYY
+         zp2cHh8e8vnfywabrq1DzaZK/dkQPunVihR/XyUTg2KkXlr+F4YgAyq0Dp6kWkTL6Z
+         uNgKV6iAYX+gg==
+Date:   Fri, 14 Jan 2022 21:47:59 -0800
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     Vitaly Chikunov <vt@altlinux.org>
+Cc:     linux-crypto@vger.kernel.org,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        keyrings@vger.kernel.org, Denis Kenzior <denkenz@gmail.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 1/3] crypto: rsa-pkcs1pad - correctly get hash from
+ source scatterlist
+Message-ID: <YeJgDzSsSepEio6P@sol.localdomain>
+References: <20220114081939.218416-1-ebiggers@kernel.org>
+ <20220114081939.218416-2-ebiggers@kernel.org>
+ <20220115050812.q7o5ij7c3jhloru7@altlinux.org>
 MIME-Version: 1.0
-References: <20220114081542.698002137@linuxfoundation.org>
-In-Reply-To: <20220114081542.698002137@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 15 Jan 2022 11:05:31 +0530
-Message-ID: <CA+G9fYtFfsDLPAfsXjbHeEqe9NP59E13x_=7uzx_k+8UOXMing@mail.gmail.com>
-Subject: Re: [PATCH 5.10 00/25] 5.10.92-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220115050812.q7o5ij7c3jhloru7@altlinux.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 14 Jan 2022 at 13:48, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.10.92 release.
-> There are 25 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sun, 16 Jan 2022 08:15:33 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.10.92-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.10.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Sat, Jan 15, 2022 at 08:08:12AM +0300, Vitaly Chikunov wrote:
+> Eric,
+> 
+> On Fri, Jan 14, 2022 at 12:19:37AM -0800, Eric Biggers wrote:
+> > From: Eric Biggers <ebiggers@google.com>
+> > 
+> > Commit c7381b012872 ("crypto: akcipher - new verify API for public key
+> > algorithms") changed akcipher_alg::verify to take in both the signature
+> > and the actual hash and do the signature verification, rather than just
+> > return the hash expected by the signature as was the case before.  To do
+> > this, it implemented a hack where the signature and hash are
+> > concatenated with each other in one scatterlist.
+> > 
+> > Obviously, for this to work correctly, akcipher_alg::verify needs to
+> > correctly extract the two items from the scatterlist it is given.
+> > Unfortunately, it doesn't correctly extract the hash in the case where
+> > the signature is longer than the RSA key size, as it assumes that the
+> > signature's length is equal to the RSA key size.  This causes a prefix
+> > of the hash, or even the entire hash, to be taken from the *signature*.
+> > 
+> > It is unclear whether the resulting scheme has any useful security
+> > properties.
+> > 
+> > Fix this by correctly extracting the hash from the scatterlist.
+> > 
+> > Fixes: c7381b012872 ("crypto: akcipher - new verify API for public key algorithms")
+> > Cc: <stable@vger.kernel.org> # v5.2+
+> > Signed-off-by: Eric Biggers <ebiggers@google.com>
+> > ---
+> >  crypto/rsa-pkcs1pad.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/crypto/rsa-pkcs1pad.c b/crypto/rsa-pkcs1pad.c
+> > index 1b3545781425..7b223adebabf 100644
+> > --- a/crypto/rsa-pkcs1pad.c
+> > +++ b/crypto/rsa-pkcs1pad.c
+> > @@ -495,7 +495,7 @@ static int pkcs1pad_verify_complete(struct akcipher_request *req, int err)
+> >  			   sg_nents_for_len(req->src,
+> >  					    req->src_len + req->dst_len),
+> >  			   req_ctx->out_buf + ctx->key_size,
+> > -			   req->dst_len, ctx->key_size);
+> > +			   req->dst_len, req->src_len);
+> 
+> Reviewed-by: Vitaly Chikunov <vt@altlinux.org>
+> 
+> Reviewing this I noticed that while req->src_len is checked in
+> pkcs1pad_verify() to be not shorter than ctx->key_size it's never
+> checked to be not longer. Signatures longer than RSA modulus N (which is
+> ctx->key_size) are still invalid (RFC8017 8.2.2). (So, assumption they
+> are equal was in accord with the standard, but not with the current
+> codebase.)
+> 
+> I suggest to add this check too while we at it.
+> 
+> There was such check before, but it was removed in a49de377e051 ("crypto:
+> Add hash param to pkcs1pad") for an unknown reason:
+> 
+>   -    if (!ctx->key_size || req->src_len != ctx->key_size)
+>   +    if (!ctx->key_size || req->src_len < ctx->key_size)
+>            return -EINVAL;
+> 
+> Thanks,
+> 
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Yes, after sending this out I was looking at the PKCS#1 v1.5 encoding
+specification, and I had noticed that too:
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+     "1.  Length checking: If the length of the signature S is not k
+          octets, output 'invalid signature' and stop."
 
-## Build
-* kernel: 5.10.92-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.10.y
-* git commit: fe11f2e0d63baa47c1e36b02721b4fd7a1157955
-* git describe: v5.10.91-26-gfe11f2e0d63b
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
-.91-26-gfe11f2e0d63b
+I agree that we should enforce that too, although it's curious that commit
+a49de377e051 removed that check.  Hopefully that was just a mistake and not
+something that someone was actually relying on.  I'll send a separate patch for
+that; I think it should be separate from this patch.
 
-## Test Regressions (compared to v5.10.91)
-No test regressions found.
-
-## Metric Regressions (compared to v5.10.91)
-No metric regressions found.
-
-## Test Fixes (compared to v5.10.91)
-No test fixes found.
-
-## Metric Fixes (compared to v5.10.91)
-No metric fixes found.
-
-## Test result summary
-total: 94616, pass: 81315, fail: 544, skip: 11939, xfail: 818
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 259 total, 255 passed, 4 failed
-* arm64: 37 total, 37 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 36 total, 36 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 34 total, 30 passed, 4 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 52 total, 46 passed, 6 failed
-* riscv: 24 total, 22 passed, 2 failed
-* s390: 18 total, 18 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 37 total, 37 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-arm64/arm64.btitest.bti_c_func
-* kselftest-arm64/arm64.btitest.bti_j_func
-* kselftest-arm64/arm64.btitest.bti_jc_func
-* kselftest-arm64/arm64.btitest.bti_none_func
-* kselftest-arm64/arm64.btitest.nohint_func
-* kselftest-arm64/arm64.btitest.paciasp_func
-* kselftest-arm64/arm64.nobtitest.bti_c_func
-* kselftest-arm64/arm64.nobtitest.bti_j_func
-* kselftest-arm64/arm64.nobtitest.bti_jc_func
-* kselftest-arm64/arm64.nobtitest.bti_none_func
-* kselftest-arm64/arm64.nobtitest.nohint_func
-* kselftest-arm64/arm64.nobtitest.paciasp_func
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
+- Eric
