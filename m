@@ -2,287 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE1A248F64F
-	for <lists+stable@lfdr.de>; Sat, 15 Jan 2022 11:13:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E77A48F677
+	for <lists+stable@lfdr.de>; Sat, 15 Jan 2022 12:04:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231530AbiAOKNo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Jan 2022 05:13:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59868 "EHLO
+        id S229589AbiAOLEE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 15 Jan 2022 06:04:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42438 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230176AbiAOKNo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 15 Jan 2022 05:13:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43FE1C061574;
-        Sat, 15 Jan 2022 02:13:44 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 30CB360C1C;
-        Sat, 15 Jan 2022 10:13:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBAD3C36AE5;
-        Sat, 15 Jan 2022 10:13:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642241622;
-        bh=TiozH/cQ43dTeXuz/YPK84dMNS24ln72k/CGmjNWP4g=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=Q29/5n2GxtcqF18wfl/zSEEyI3YG4itO7kn7ky0u5siEeiMAXaekRBYjEo8DtmhSk
-         te+7TUMLHCf92FLCTOS0j+lG60OeBv/sER0fAjgae5UXPp2gkefZOs17NGp+7fcWRK
-         bf0RYqosnHAsVdQ94G1JvrFDrcE3sxRIkyztl7um6i8jGLYgP+hYuJwCQMmafstW52
-         jmq5d4zbPTgDyEUTQn9qWm0cUlG8pd1p9KmH5bFJPtK+ytSCPbhnXzlLcpcF3LW74t
-         13FtdZdyBcH8WbdTMKM3PYnYtmCS/HAL8ji4hFtKTi5MXpvUj/Uneav9a9VwmNEfRK
-         THknsawNIJTTw==
-Date:   Sat, 15 Jan 2022 19:13:38 +0900
-From:   Masami Hiramatsu <mhiramat@kernel.org>
-To:     kernel test robot <lkp@intel.com>
-Cc:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        kbuild-all@lists.01.org, linux-kernel@vger.kernel.org,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.4.y] Revert
- "ia64: kprobes: Use generic kretprobe trampoline handler"
-Message-Id: <20220115191338.b807796eb2bcf5b4c31e1314@kernel.org>
-In-Reply-To: <202201151231.g2sW8oWt-lkp@intel.com>
-References: <164215559880.1662358.1475310445318313122.stgit@devnote2>
-        <202201151231.g2sW8oWt-lkp@intel.com>
-X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S229569AbiAOLED (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 15 Jan 2022 06:04:03 -0500
+Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D593C061574;
+        Sat, 15 Jan 2022 03:04:03 -0800 (PST)
+Received: by mail-wm1-x32c.google.com with SMTP id f141-20020a1c1f93000000b003497aec3f86so10548943wmf.3;
+        Sat, 15 Jan 2022 03:04:03 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=Yw3PuBhpnWk465/slIz9ay5VHPk1ugQBdt25BvgmcbI=;
+        b=Bf3S07atOKuDgtWRLYnFPxERCLul1tVCkbGUop7qyyEA/kLUwwDmz0tigeSr9e64vB
+         iPLr6t0ph9b4mkTEKob+2EZ2Zlshb3pq0r3Vb3o1Y9o1cVh0pON6BqnjtDfz/H2tQe31
+         ojwL7gFsFnmU42DHcgMTNigxzRsGdKdQy+QGSYEuczjhayfI4Tl96t140feDoZ8UlKqQ
+         qYaZGWq+DXYLGjuZ1nytPZDxJUrFhDH35vJUDFuq+uzBz87hjYXQKHx2rbTfNsr3F990
+         2fMKOWDHgjNWYuGjCScO3YOdpLJWCd1z+yTfCm0neUyZG3d8X3XxcpvJfBDaBsXSdd5z
+         fk7w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=Yw3PuBhpnWk465/slIz9ay5VHPk1ugQBdt25BvgmcbI=;
+        b=LRXnAKXjSppwp3VWB/8DOnml0/vmmxkkpfnl+0/ncF1SovbO++Zco6chir89zsGhP6
+         Mckzq3KeOZ6wiFjU0LuXyNgl7Efd5+Kn4qwuYa1xkoyGHeQJUi/0L7BZaYOzZK6NnpSb
+         7B7tPTD5NxWY5pt5yDPg7KJScMU4T+wnDoC1qzCSyTv9hV85pnDjox2Iob6IAiMh1R6V
+         6BzGfGnERn0j5hQ4Kir2BALlRwqKBEkQI7vYAHLapRyzq6uUBT3OeyK+XT0u2zyNkK38
+         W81qBrcP6oieALlj/sRJW9SCI4eTa5snR3cn0OH3VD5nNgpC+G/RBLd3cjmu/9J5LlHx
+         weYA==
+X-Gm-Message-State: AOAM532qWg7chm/nQX6URlf0VNYPTHorZkG+uvDUh2f3b7HWw7fE1juq
+        EBkB632mJ/GWrbLqzRnHvD0=
+X-Google-Smtp-Source: ABdhPJy0THKGpNqKpNysTSoRafuptYoEqLMxvF86PX4JLb3YHTSklKX3M1NZHZchYpZpHaVXZ8zWEQ==
+X-Received: by 2002:adf:fac3:: with SMTP id a3mr12005953wrs.369.1642244642026;
+        Sat, 15 Jan 2022 03:04:02 -0800 (PST)
+Received: from debian (host-2-98-43-34.as13285.net. [2.98.43.34])
+        by smtp.gmail.com with ESMTPSA id j9sm8320092wms.0.2022.01.15.03.04.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 15 Jan 2022 03:04:01 -0800 (PST)
+Date:   Sat, 15 Jan 2022 11:03:59 +0000
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.15 00/41] 5.15.15-rc1 review
+Message-ID: <YeKqH0BTgf/P0ytf@debian>
+References: <20220114081545.158363487@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220114081545.158363487@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 15 Jan 2022 12:58:46 +0800
-kernel test robot <lkp@intel.com> wrote:
+Hi Greg,
 
-> Hi Masami,
+On Fri, Jan 14, 2022 at 09:16:00AM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.15 release.
+> There are 41 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> I love your patch! Perhaps something to improve:
-> 
-> [auto build test WARNING on stable/linux-5.4.y]
-> 
-> url:    https://github.com/0day-ci/linux/commits/Masami-Hiramatsu/Revert-ia64-kprobes-Use-generic-kretprobe-trampoline-handler/20220114-182111
-> base:   https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
-> config: ia64-allmodconfig (https://download.01.org/0day-ci/archive/20220115/202201151231.g2sW8oWt-lkp@intel.com/config)
-> compiler: ia64-linux-gcc (GCC) 11.2.0
-> reproduce (this is a W=1 build):
->         wget https://raw.githubusercontent.com/intel/lkp-tests/master/sbin/make.cross -O ~/bin/make.cross
->         chmod +x ~/bin/make.cross
->         # https://github.com/0day-ci/linux/commit/514059de80b018e0edcf434519ff6bf41b4a519b
->         git remote add linux-review https://github.com/0day-ci/linux
->         git fetch --no-tags linux-review Masami-Hiramatsu/Revert-ia64-kprobes-Use-generic-kretprobe-trampoline-handler/20220114-182111
->         git checkout 514059de80b018e0edcf434519ff6bf41b4a519b
->         # save the config file to linux build tree
->         mkdir build_dir
->         COMPILER_INSTALL_PATH=$HOME/0day COMPILER=gcc-11.2.0 make.cross O=build_dir ARCH=ia64 SHELL=/bin/bash
-> 
-> If you fix the issue, kindly add following tag as appropriate
-> Reported-by: kernel test robot <lkp@intel.com>
-> 
-> All warnings (new ones prefixed by >>):
-> 
->    arch/ia64/kernel/kprobes.c: In function 'get_kprobe_inst':
->    arch/ia64/kernel/kprobes.c:325:22: warning: variable 'template' set but not used [-Wunused-but-set-variable]
->      325 |         unsigned int template;
->          |                      ^~~~~~~~
+> Responses should be made by Sun, 16 Jan 2022 08:15:33 +0000.
+> Anything received after that time might be too late.
 
-This one is fixed by recent patch.
+Build test:
+mips (gcc version 11.2.1 20220106): 61 configs -> no new failure
+arm (gcc version 11.2.1 20220106): 99 configs -> no new failure
+arm64 (gcc version 11.2.1 20220106): 3 configs -> no failure
+x86_64 (gcc version 11.2.1 20220106): 4 configs -> no failure
 
-https://lore.kernel.org/all/164208575387.1590449.8278421820882450166.stgit@devnote2/T/#u
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
+mips: Booted on ci20 board. No regression. [2]
 
->    arch/ia64/kernel/kprobes.c: At top level:
->    arch/ia64/kernel/kprobes.c:407:15: warning: no previous prototype for 'trampoline_probe_handler' [-Wmissing-prototypes]
->      407 | int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
->          |               ^~~~~~~~~~~~~~~~~~~~~~~~
->    arch/ia64/kernel/kprobes.c: In function 'trampoline_probe_handler':
-> >> arch/ia64/kernel/kprobes.c:414:17: warning: initialization of 'long unsigned int' from 'void *' makes integer from pointer without a cast [-Wint-conversion]
->      414 |                 dereference_function_descriptor(kretprobe_trampoline);
->          |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Oops. I forgot to cast it. I'll resend the patch.
-
-Thank you,
+[1]. https://openqa.qa.codethink.co.uk/tests/627
+[2]. https://openqa.qa.codethink.co.uk/tests/630
 
 
-> 
-> Kconfig warnings: (for reference only)
->    WARNING: unmet direct dependencies detected for FRAME_POINTER
->    Depends on DEBUG_KERNEL && (M68K || UML || SUPERH) || ARCH_WANT_FRAME_POINTERS
->    Selected by
->    - FAULT_INJECTION_STACKTRACE_FILTER && FAULT_INJECTION_DEBUG_FS && STACKTRACE_SUPPORT && !X86_64 && !MIPS && !PPC && !S390 && !MICROBLAZE && !ARM && !ARC && !X86
-> 
-> 
-> vim +414 arch/ia64/kernel/kprobes.c
-> 
->    320	
->    321	static void __kprobes get_kprobe_inst(bundle_t *bundle, uint slot,
->    322		       	unsigned long *kprobe_inst, uint *major_opcode)
->    323	{
->    324		unsigned long kprobe_inst_p0, kprobe_inst_p1;
->  > 325		unsigned int template;
->    326	
->    327		template = bundle->quad0.template;
->    328	
->    329		switch (slot) {
->    330		  case 0:
->    331			*major_opcode = (bundle->quad0.slot0 >> SLOT0_OPCODE_SHIFT);
->    332			*kprobe_inst = bundle->quad0.slot0;
->    333			  break;
->    334		  case 1:
->    335			*major_opcode = (bundle->quad1.slot1_p1 >> SLOT1_p1_OPCODE_SHIFT);
->    336			kprobe_inst_p0 = bundle->quad0.slot1_p0;
->    337			kprobe_inst_p1 = bundle->quad1.slot1_p1;
->    338			*kprobe_inst = kprobe_inst_p0 | (kprobe_inst_p1 << (64-46));
->    339			break;
->    340		  case 2:
->    341			*major_opcode = (bundle->quad1.slot2 >> SLOT2_OPCODE_SHIFT);
->    342			*kprobe_inst = bundle->quad1.slot2;
->    343			break;
->    344		}
->    345	}
->    346	
->    347	/* Returns non-zero if the addr is in the Interrupt Vector Table */
->    348	static int __kprobes in_ivt_functions(unsigned long addr)
->    349	{
->    350		return (addr >= (unsigned long)__start_ivt_text
->    351			&& addr < (unsigned long)__end_ivt_text);
->    352	}
->    353	
->    354	static int __kprobes valid_kprobe_addr(int template, int slot,
->    355					       unsigned long addr)
->    356	{
->    357		if ((slot > 2) || ((bundle_encoding[template][1] == L) && slot > 1)) {
->    358			printk(KERN_WARNING "Attempting to insert unaligned kprobe "
->    359					"at 0x%lx\n", addr);
->    360			return -EINVAL;
->    361		}
->    362	
->    363		if (in_ivt_functions(addr)) {
->    364			printk(KERN_WARNING "Kprobes can't be inserted inside "
->    365					"IVT functions at 0x%lx\n", addr);
->    366			return -EINVAL;
->    367		}
->    368	
->    369		return 0;
->    370	}
->    371	
->    372	static void __kprobes save_previous_kprobe(struct kprobe_ctlblk *kcb)
->    373	{
->    374		unsigned int i;
->    375		i = atomic_add_return(1, &kcb->prev_kprobe_index);
->    376		kcb->prev_kprobe[i-1].kp = kprobe_running();
->    377		kcb->prev_kprobe[i-1].status = kcb->kprobe_status;
->    378	}
->    379	
->    380	static void __kprobes restore_previous_kprobe(struct kprobe_ctlblk *kcb)
->    381	{
->    382		unsigned int i;
->    383		i = atomic_read(&kcb->prev_kprobe_index);
->    384		__this_cpu_write(current_kprobe, kcb->prev_kprobe[i-1].kp);
->    385		kcb->kprobe_status = kcb->prev_kprobe[i-1].status;
->    386		atomic_sub(1, &kcb->prev_kprobe_index);
->    387	}
->    388	
->    389	static void __kprobes set_current_kprobe(struct kprobe *p,
->    390				struct kprobe_ctlblk *kcb)
->    391	{
->    392		__this_cpu_write(current_kprobe, p);
->    393	}
->    394	
->    395	static void kretprobe_trampoline(void)
->    396	{
->    397	}
->    398	
->    399	/*
->    400	 * At this point the target function has been tricked into
->    401	 * returning into our trampoline.  Lookup the associated instance
->    402	 * and then:
->    403	 *    - call the handler function
->    404	 *    - cleanup by marking the instance as unused
->    405	 *    - long jump back to the original return address
->    406	 */
->    407	int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
->    408	{
->    409		struct kretprobe_instance *ri = NULL;
->    410		struct hlist_head *head, empty_rp;
->    411		struct hlist_node *tmp;
->    412		unsigned long flags, orig_ret_address = 0;
->    413		unsigned long trampoline_address =
->  > 414			dereference_function_descriptor(kretprobe_trampoline);
->    415	
->    416		INIT_HLIST_HEAD(&empty_rp);
->    417		kretprobe_hash_lock(current, &head, &flags);
->    418	
->    419		/*
->    420		 * It is possible to have multiple instances associated with a given
->    421		 * task either because an multiple functions in the call path
->    422		 * have a return probe installed on them, and/or more than one return
->    423		 * return probe was registered for a target function.
->    424		 *
->    425		 * We can handle this because:
->    426		 *     - instances are always inserted at the head of the list
->    427		 *     - when multiple return probes are registered for the same
->    428		 *       function, the first instance's ret_addr will point to the
->    429		 *       real return address, and all the rest will point to
->    430		 *       kretprobe_trampoline
->    431		 */
->    432		hlist_for_each_entry_safe(ri, tmp, head, hlist) {
->    433			if (ri->task != current)
->    434				/* another task is sharing our hash bucket */
->    435				continue;
->    436	
->    437			orig_ret_address = (unsigned long)ri->ret_addr;
->    438			if (orig_ret_address != trampoline_address)
->    439				/*
->    440				 * This is the real return address. Any other
->    441				 * instances associated with this task are for
->    442				 * other calls deeper on the call stack
->    443				 */
->    444				break;
->    445		}
->    446	
->    447		regs->cr_iip = orig_ret_address;
->    448	
->    449		hlist_for_each_entry_safe(ri, tmp, head, hlist) {
->    450			if (ri->task != current)
->    451				/* another task is sharing our hash bucket */
->    452				continue;
->    453	
->    454			if (ri->rp && ri->rp->handler)
->    455				ri->rp->handler(ri, regs);
->    456	
->    457			orig_ret_address = (unsigned long)ri->ret_addr;
->    458			recycle_rp_inst(ri, &empty_rp);
->    459	
->    460			if (orig_ret_address != trampoline_address)
->    461				/*
->    462				 * This is the real return address. Any other
->    463				 * instances associated with this task are for
->    464				 * other calls deeper on the call stack
->    465				 */
->    466				break;
->    467		}
->    468		kretprobe_assert(ri, orig_ret_address, trampoline_address);
->    469	
->    470		kretprobe_hash_unlock(current, &flags);
->    471	
->    472		hlist_for_each_entry_safe(ri, tmp, &empty_rp, hlist) {
->    473			hlist_del(&ri->hlist);
->    474			kfree(ri);
->    475		}
->    476		/*
->    477		 * By returning a non-zero value, we are telling
->    478		 * kprobe_handler() that we don't want the post_handler
->    479		 * to run (and have re-enabled preemption)
->    480		 */
->    481		return 1;
->    482	}
->    483	
-> 
-> ---
-> 0-DAY CI Kernel Test Service, Intel Corporation
-> https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
 
-
--- 
-Masami Hiramatsu <mhiramat@kernel.org>
+--
+Regards
+Sudip
