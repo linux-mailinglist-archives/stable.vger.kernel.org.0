@@ -2,82 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A42B148FA2F
-	for <lists+stable@lfdr.de>; Sun, 16 Jan 2022 02:42:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4A3148FB8E
+	for <lists+stable@lfdr.de>; Sun, 16 Jan 2022 09:04:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234062AbiAPBmg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 15 Jan 2022 20:42:36 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:37340 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234061AbiAPBmf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 15 Jan 2022 20:42:35 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1642297354;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=h/3f7kB2h8aV7nsC2ViXyD2eXCxEUw2KZV4uopXk2LE=;
-        b=QfLEGcK9vRz9GQeaxop29c8d6dVz9KSiHlGjPg0AvQdlqJ9mPZ92E3mxn+WMOXX99qtDGT
-        sHY0AShE+pfpPpMd7qgnwrK41leo3iBm4tKwmwkl8QJQUQLsnHww4dLif41FZJtPMTRQ+X
-        yYBV0nSJUUbCFi0kgdU3iimGQ2HWrKs=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-230-OabrKOB1NOaFzXgSIUEmRQ-1; Sat, 15 Jan 2022 20:42:30 -0500
-X-MC-Unique: OabrKOB1NOaFzXgSIUEmRQ-1
-Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id D43511898291;
-        Sun, 16 Jan 2022 01:42:29 +0000 (UTC)
-Received: from [10.22.16.16] (unknown [10.22.16.16])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 37BF45DF21;
-        Sun, 16 Jan 2022 01:42:29 +0000 (UTC)
-Message-ID: <988fd9b5-8e89-03ae-3858-85320382792e@redhat.com>
-Date:   Sat, 15 Jan 2022 20:42:28 -0500
+        id S234583AbiAPIDz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 Jan 2022 03:03:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59894 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234581AbiAPIDz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 Jan 2022 03:03:55 -0500
+Received: from mail-ed1-x541.google.com (mail-ed1-x541.google.com [IPv6:2a00:1450:4864:20::541])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1594BC061574
+        for <stable@vger.kernel.org>; Sun, 16 Jan 2022 00:03:55 -0800 (PST)
+Received: by mail-ed1-x541.google.com with SMTP id 30so51828737edv.3
+        for <stable@vger.kernel.org>; Sun, 16 Jan 2022 00:03:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=8Ztj7EWQ5t5f1IAnCCOuXDpfbxmiXcehQ7Ei8yvyqMM=;
+        b=AQYdmCUyID/t6+GqHccdCLZKiBFwR6HaYfrBM2p2bPiCvE23SqE6CmuNETvwkMNaXX
+         d9jRxYnc6APN86/pCgUg5CNKfUs5jeKWaTNE2JaWfLjhiqL400HS/DGkqOIMovbprnDc
+         XdtalSCckqqN5aTPC3YgiwamCAMIwxt+4dZHYpvt6r6IqfIyTUBuRYTF9Gk0i2HFgr4m
+         EcvcX+19zg0QeJkn5vbYWN9HXKK0F1kzZ+1exIBb8Sb8PteoucDbo+isSwCuGoXzR+Q6
+         P9Mqic8+bqU7hmUhInP65cqkXcNM54b6b8xQ1TbumPW3UKbkY89TsyjEBtUk5RqaCBMd
+         xBVw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=8Ztj7EWQ5t5f1IAnCCOuXDpfbxmiXcehQ7Ei8yvyqMM=;
+        b=hMAYAOCsbm4xogd3f4HxBTp8vRu3yQPHIRJW0j6U5JEPBCbFoi9Dfid+PatOj7BNdB
+         eQWmSq1jHCj0BD4FdQe4M61znyKYekJSwvD0FTIUVqXJqXi99wPQe9JgMDWpT5tuOkeH
+         WR1km3RTtAdr78ntp0SvDs8Jj8SSbG+t6kf96ExOHQo7ZJk3IQKYxDp33YKY/Z259CQl
+         LQ4ML1VShFp2cDS/jlEi1sVAV3UK145dXB8rFf01cFBoPBiw4GAABUksW011Jyx9oPiT
+         ijZ5ZCWeEXeQFrmI3dN6bSFpWzFwIWXMcPysSzU1B+4QpIK70rs1rRBSDTh/SDl88Jb8
+         yj0w==
+X-Gm-Message-State: AOAM5300GgaM5wFGaUzZbYGw3POr0Aeau9UByJCMUddJlc4FXBddNXvT
+        tdCJPVSkuFjFbb7670EpTZ6cyjCB8mmtmmii2aU=
+X-Google-Smtp-Source: ABdhPJzZ3JD8CxviZYefe3LBt+nY9wJW4Rerv6Bn0jhutsX/L0+RwLH80oxo4WwLQDRmJUl1MTOBOr6v3rJq0TBxZeA=
+X-Received: by 2002:a05:6402:35d2:: with SMTP id z18mr15660511edc.100.1642320233161;
+ Sun, 16 Jan 2022 00:03:53 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [PATCH 0/7] rwsem enhancement patches for 5.10
-Content-Language: en-US
-To:     Jaegeuk Kim <jaegeuk@google.com>, stable@vger.kernel.org
-Cc:     timmurray@google.com, peterz@infradead.org
-References: <20220115005945.2125174-1-jaegeuk@google.com>
-From:   Waiman Long <longman@redhat.com>
-In-Reply-To: <20220115005945.2125174-1-jaegeuk@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.14
+Received: by 2002:a17:907:a424:0:0:0:0 with HTTP; Sun, 16 Jan 2022 00:03:51
+ -0800 (PST)
+Reply-To: dravasmith27@gmail.com
+From:   Dr Ava Smith <drwilliam48@gmail.com>
+Date:   Sun, 16 Jan 2022 00:03:51 -0800
+Message-ID: <CAFd1zB0ENfZY7dKWBpxmcV5J0MBtv+tRQHcgOWv_reoNQnDQ3w@mail.gmail.com>
+Subject: GREETINGS FROM DR AVA SMITH
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/14/22 19:59, Jaegeuk Kim wrote:
-> Per discussion [1], can we merge these patches in 5.10 first?
->
-> [1] https://lore.kernel.org/linux-f2fs-devel/CAEe=Sx=6FCvrp_6x2Bqp3YTzep2s=aWdCmP29g7+sGCWkpNvkg@mail.gmail.com/T/#t
->
-> Peter Zijlstra (3):
->    locking/rwsem: Better collate rwsem_read_trylock()
->    locking/rwsem: Introduce rwsem_write_trylock()
->    locking/rwsem: Fold __down_{read,write}*()
->
-> Waiman Long (4):
->    locking/rwsem: Pass the current atomic count to
->      rwsem_down_read_slowpath()
->    locking/rwsem: Prevent potential lock starvation
->    locking/rwsem: Enable reader optimistic lock stealing
->    locking/rwsem: Remove reader optimistic spinning
->
->   kernel/locking/lock_events_list.h |   6 +-
->   kernel/locking/rwsem.c            | 359 +++++++++---------------------
->   2 files changed, 106 insertions(+), 259 deletions(-)
-
-Have you actually tested it in your testing environment to verify that 
-these patches can address the problem? I suspect they will help, but it 
-will be nice if you also include your test results.
-
-Cheers,
-Longman
-
+-- 
+Hello Dear,
+My name is Dr Ava Smith from United States.I am a French and American national
+(dual)living in the U.S and sometimes in the U.K for the Purpose of Work.
+I hope you consider my friend request and consider me worthy to be your friend.
+I will share some of my pics and more details about my self when i get
+your response
+Thanks
+With love
+Ava
