@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD478490D21
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:01:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0251490D28
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:01:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241241AbiAQRBG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 12:01:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44916 "EHLO
+        id S241454AbiAQRBL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 12:01:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241615AbiAQRAV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:00:21 -0500
+        with ESMTP id S241647AbiAQRA0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:00:26 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E89A3C061774;
-        Mon, 17 Jan 2022 09:00:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B77AFC06177D;
+        Mon, 17 Jan 2022 09:00:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 885AC611C3;
-        Mon, 17 Jan 2022 17:00:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C22CC36AE7;
-        Mon, 17 Jan 2022 17:00:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 55B5D6119C;
+        Mon, 17 Jan 2022 17:00:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4C71C36AE3;
+        Mon, 17 Jan 2022 17:00:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642438820;
-        bh=GzbYbsXc5BwyTSbLqMt453HSpU4UrE4xgXx+YQpBbjc=;
+        s=k20201202; t=1642438823;
+        bh=JiOVbM2qS81Tf9TfdFeLSOmQd6su6h5Fdx5wlgaihSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s0cS+9bwYabGC70K1zId4iwtZODx/fifuH+ko9BN+94JtYMOmY9NTb3+xWJ7wHiER
-         miAlunUGCptbwry/rHfQzmARwqt8Kwq3UdoRVINBlh5mqzHegQLDz/Q9J1frzcsy1v
-         jQffY2a2Ce+eEpcbQviZewFRBaq3G+CB0Wa2pDZtbZmh8NMbGJe+UJrCTv+NJ/S3Zu
-         7DEiYM/WGL1G6TDp1cKV39S1hy/AQ2JS0OoTJ1uIk2atIofvfGyOE3HerxCdDieNSZ
-         U7L7PsZFNpP6Wde7kUO978Xpn/IICgmERRSBiiMcKx7DN9oDRsxLJLr01BNToGmn91
-         mGoVI7Bpb409Q==
+        b=siOq4t4lS0Ne6ISPPhFbqm8+kPDH0+Gyj04aQhpgdYd7obLO+UhrEnS+2pqrUPk0w
+         /pQjDalS/CgaJMOGRqJiy3u57MRFzAvbNMoHitCuzesHu4Gm8m/Kx6y3bXh5JBJiJD
+         /DR9k2vs2MqWezIjbjje4aVBu3jQw6Fb/wRIzYv3B0DKdTN0xb64Mnlu5xKrw8vpUm
+         i2Y9vVyR3Rh7axRFk5sRjP/kl2qYgSUMkjAqlIKALR/BYNAqW3OH37Zs5vZas+KaqG
+         o88gU49rRPhORWg5X/xTaMHFLOPB6kNi8QqxOLwi6zk2eLywSZYJlp64zt0v8VMl1e
+         A4yGcKxpuHwtQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Kara <jack@suse.cz>,
-        syzbot+9ca499bb57a2b9e4c652@syzkaller.appspotmail.com,
-        Sasha Levin <sashal@kernel.org>, jack@suse.com
-Subject: [PATCH AUTOSEL 5.16 32/52] udf: Fix error handling in udf_new_inode()
-Date:   Mon, 17 Jan 2022 11:58:33 -0500
-Message-Id: <20220117165853.1470420-32-sashal@kernel.org>
+Cc:     Ye Guojin <ye.guojin@zte.com.cn>, Zeal Robot <zealci@zte.com.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>, yangyingliang@huawei.com,
+        linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 33/52] MIPS: OCTEON: add put_device() after of_find_device_by_node()
+Date:   Mon, 17 Jan 2022 11:58:34 -0500
+Message-Id: <20220117165853.1470420-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220117165853.1470420-1-sashal@kernel.org>
 References: <20220117165853.1470420-1-sashal@kernel.org>
@@ -50,43 +51,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Ye Guojin <ye.guojin@zte.com.cn>
 
-[ Upstream commit f05f2429eec60851b98bdde213de31dab697c01b ]
+[ Upstream commit 858779df1c0787d3fec827fb705708df9ebdb15b ]
 
-When memory allocation of iinfo or block allocation fails, already
-allocated struct udf_inode_info gets freed with iput() and
-udf_evict_inode() may look at inode fields which are not properly
-initialized. Fix it by marking inode bad before dropping reference to it
-in udf_new_inode().
+This was found by coccicheck:
+./arch/mips/cavium-octeon/octeon-platform.c, 332, 1-7, ERROR missing
+put_device; call of_find_device_by_node on line 324, but without a
+corresponding object release within this function.
+./arch/mips/cavium-octeon/octeon-platform.c, 395, 1-7, ERROR missing
+put_device; call of_find_device_by_node on line 387, but without a
+corresponding object release within this function.
+./arch/mips/cavium-octeon/octeon-usb.c, 512, 3-9, ERROR missing
+put_device; call of_find_device_by_node on line 515, but without a
+corresponding object release within this function.
+./arch/mips/cavium-octeon/octeon-usb.c, 543, 1-7, ERROR missing
+put_device; call of_find_device_by_node on line 515, but without a
+corresponding object release within this function.
 
-Reported-by: syzbot+9ca499bb57a2b9e4c652@syzkaller.appspotmail.com
-Signed-off-by: Jan Kara <jack@suse.cz>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Ye Guojin <ye.guojin@zte.com.cn>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/ialloc.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/mips/cavium-octeon/octeon-platform.c | 2 ++
+ arch/mips/cavium-octeon/octeon-usb.c      | 1 +
+ 2 files changed, 3 insertions(+)
 
-diff --git a/fs/udf/ialloc.c b/fs/udf/ialloc.c
-index 2ecf0e87660e3..b5d611cee749c 100644
---- a/fs/udf/ialloc.c
-+++ b/fs/udf/ialloc.c
-@@ -77,6 +77,7 @@ struct inode *udf_new_inode(struct inode *dir, umode_t mode)
- 					GFP_KERNEL);
- 	}
- 	if (!iinfo->i_data) {
-+		make_bad_inode(inode);
- 		iput(inode);
- 		return ERR_PTR(-ENOMEM);
- 	}
-@@ -86,6 +87,7 @@ struct inode *udf_new_inode(struct inode *dir, umode_t mode)
- 			      dinfo->i_location.partitionReferenceNum,
- 			      start, &err);
- 	if (err) {
-+		make_bad_inode(inode);
- 		iput(inode);
- 		return ERR_PTR(err);
- 	}
+diff --git a/arch/mips/cavium-octeon/octeon-platform.c b/arch/mips/cavium-octeon/octeon-platform.c
+index d56e9b9d2e434..a994022e32c9f 100644
+--- a/arch/mips/cavium-octeon/octeon-platform.c
++++ b/arch/mips/cavium-octeon/octeon-platform.c
+@@ -328,6 +328,7 @@ static int __init octeon_ehci_device_init(void)
+ 
+ 	pd->dev.platform_data = &octeon_ehci_pdata;
+ 	octeon_ehci_hw_start(&pd->dev);
++	put_device(&pd->dev);
+ 
+ 	return ret;
+ }
+@@ -391,6 +392,7 @@ static int __init octeon_ohci_device_init(void)
+ 
+ 	pd->dev.platform_data = &octeon_ohci_pdata;
+ 	octeon_ohci_hw_start(&pd->dev);
++	put_device(&pd->dev);
+ 
+ 	return ret;
+ }
+diff --git a/arch/mips/cavium-octeon/octeon-usb.c b/arch/mips/cavium-octeon/octeon-usb.c
+index 6e4d3619137af..4df919d26b082 100644
+--- a/arch/mips/cavium-octeon/octeon-usb.c
++++ b/arch/mips/cavium-octeon/octeon-usb.c
+@@ -537,6 +537,7 @@ static int __init dwc3_octeon_device_init(void)
+ 			devm_iounmap(&pdev->dev, base);
+ 			devm_release_mem_region(&pdev->dev, res->start,
+ 						resource_size(res));
++			put_device(&pdev->dev);
+ 		}
+ 	} while (node != NULL);
+ 
 -- 
 2.34.1
 
