@@ -2,121 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 962164910F9
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 21:30:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C9E449114C
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 22:17:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242702AbiAQUaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 15:30:25 -0500
-Received: from mail.efficios.com ([167.114.26.124]:43262 "EHLO
-        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235244AbiAQUaZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 15:30:25 -0500
-Received: from localhost (localhost [127.0.0.1])
-        by mail.efficios.com (Postfix) with ESMTP id 40B2F3048DC;
-        Mon, 17 Jan 2022 15:30:24 -0500 (EST)
-Received: from mail.efficios.com ([127.0.0.1])
-        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id oWV3qCxQNE33; Mon, 17 Jan 2022 15:30:23 -0500 (EST)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.efficios.com (Postfix) with ESMTP id 9027A3046D7;
-        Mon, 17 Jan 2022 15:30:23 -0500 (EST)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com 9027A3046D7
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
-        s=default; t=1642451423;
-        bh=Fuss6rxEbY9C0XsqWjuiCNTFvR+z4EdHL0f9IdHH/Qc=;
-        h=From:To:Date:Message-Id;
-        b=eiYoObBNuJtLPqAAn8GfV9zXCA8p1raPikETP/ceWx6Zi8Tkt72JrvS6izhw+hZpM
-         g51LKd5gvyQ1U0hrlN7ii0hyUGsYoev0i97vBcp13sTV/8ZN6mMLYLc2Rphy62z1V9
-         BKlT4zt4ErtzOQ9unq+cV06De3BwEgTzZbAHQ0eoap5ONK/lm4WapYLpkLXkOPtAB8
-         bPdsCpoXtWVRAio5xJYfE997m+Xb60ktQQIaSsQxpF+y8j+Lutlr9MXDLV3TpoMmMb
-         4paQCrZ1l2QtCACCtJqgC3no7Zr6cRiYgWoLTd8v1z3HUbDe1hB9Mt000Q7J7YCZGP
-         /vE4IwB6Yrs0g==
-X-Virus-Scanned: amavisd-new at efficios.com
-Received: from mail.efficios.com ([127.0.0.1])
-        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id UcqkJhrEUucV; Mon, 17 Jan 2022 15:30:23 -0500 (EST)
-Received: from localhost.localdomain (192-222-180-24.qc.cable.ebox.net [192.222.180.24])
-        by mail.efficios.com (Postfix) with ESMTPSA id 0742A3048DB;
-        Mon, 17 Jan 2022 15:30:23 -0500 (EST)
-From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Ingo Molnar <mingo@kernel.org>, linux-kernel@vger.kernel.org,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        Oleg Nesterov <oleg@redhat.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Russell King - ARM Linux admin <linux@armlinux.org.uk>,
-        Chris Metcalf <cmetcalf@ezchip.com>,
-        Christoph Lameter <cl@linux.com>,
-        Kirill Tkhai <tkhai@yandex.ru>, Mike Galbraith <efault@gmx.de>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Peter Oskolkov <posk@google.com>, stable@vger.kernel.org
-Subject: [PATCH] sched/membarrier: Fix membarrier-rseq fence command missing from query bitmask
-Date:   Mon, 17 Jan 2022 15:30:10 -0500
-Message-Id: <20220117203010.30129-1-mathieu.desnoyers@efficios.com>
-X-Mailer: git-send-email 2.17.1
+        id S235773AbiAQVRW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 16:17:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46614 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232852AbiAQVRW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 16:17:22 -0500
+Received: from mail-vk1-xa2e.google.com (mail-vk1-xa2e.google.com [IPv6:2607:f8b0:4864:20::a2e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A647C061574
+        for <stable@vger.kernel.org>; Mon, 17 Jan 2022 13:17:22 -0800 (PST)
+Received: by mail-vk1-xa2e.google.com with SMTP id bj47so11159604vkb.13
+        for <stable@vger.kernel.org>; Mon, 17 Jan 2022 13:17:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=QCG68ObPoGQ126FjMJ8YjZpzkjBTmbsGv489REpxv3o=;
+        b=lLYg/B6kbz24BvXDWDTlXny+4wlW7l/Prq38b++Q+QaedMHxxlwDrLQ0H7l6ywW9Mt
+         xRfymM5Q6zYPq5PU1EhTOjCZM4IORfCE2u7jp3MMadoOgmlvGafExDK4NW/JW+Bz5rOJ
+         vjmwR3VhW0S0mb8UX7sHqD2KaW+xL5dOpvV/80inzmhF2pIC8J1iNBnZngJ9X/B2VBp3
+         s1iN5vFhKBZxwRhHy92omz3ReB1rtOcH5ttp+vk+Su3wyXihZpy2UdgN0AHCEqldJtX0
+         CKUAABnldgXQpB42EXMghRSdco5g/1fNwgRPTfMB++hxeHUcyiZZEb5T/6DogJsX/b1C
+         21hw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=QCG68ObPoGQ126FjMJ8YjZpzkjBTmbsGv489REpxv3o=;
+        b=uLvmHQ4y5n/F2I+Lv5tQcU4K9Pu7zxPeN4cNp+ILP82oI6EYiG/5oGq0sZThrWEAij
+         Hr6+snFTAyKaQ1IHRV9qI2y8Y6Nmgx2KZArP0epUVK9IzJKEeIhYS18m9hfIr/kS8Jk6
+         sPez4iGX9ZNFNUQcQel7S7g7/ck0ecqt9dQPoHHwAwNmS44oCOdfQcGp3WYyqIO/pOUC
+         YYm33lk8FKL/4zTetbW1p8FLRRrxZBRJQou6Ya5E6W6us0qnNT1bhPO1HV/imBB1ZJx8
+         YSXEAzWANPX//RNgXHdbvJb0viAvwRcmSZNLWKm3ciU53Xv6Vedf0NptVc9EAt+vcJAn
+         KNkw==
+X-Gm-Message-State: AOAM532NkNij4NK+ZQV4iclOdpUpTORqKddYF/beY6QA5M4ULlRRaDNQ
+        +zC/ID8hQDyI23PX/UQVuTLF17RbtoeoWx7lypI=
+X-Google-Smtp-Source: ABdhPJwK9dhqoSkBYjN7/0kXxDopMzf2v7Pw3Hhfo5XLIebCh7h8uZD+vpnUkzPAD7OL6yd24kp9GomVd7UMgT0RkHA=
+X-Received: by 2002:a05:6122:179c:: with SMTP id o28mr8962369vkf.9.1642454239639;
+ Mon, 17 Jan 2022 13:17:19 -0800 (PST)
+MIME-Version: 1.0
+Received: by 2002:a67:e44d:0:0:0:0:0 with HTTP; Mon, 17 Jan 2022 13:17:18
+ -0800 (PST)
+Reply-To: deborahkouassi011@gmail.com
+From:   Deborah Kouassi <mmzee0015@gmail.com>
+Date:   Mon, 17 Jan 2022 21:17:18 +0000
+Message-ID: <CAOgV-vPuVvr=fkiw7DGD+y7yxsHfLTTQXGfet8MQn_uNWsZ1Zg@mail.gmail.com>
+Subject: Hello Dear
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The membarrier command MEMBARRIER_CMD_QUERY allows querying the
-available membarrier commands. When the membarrier-rseq fence commands
-were added, a new MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ_BITMASK was
-introduced with the intent to expose them with the MEMBARRIER_CMD_QUERY
-command, the but it was never added to MEMBARRIER_CMD_BITMASK.
+.
+I will like to disclose something very important to you,
+get back to me for more details please.
 
-The membarrier-rseq fence commands are therefore not wired up with the
-query command.
-
-Rename MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ_BITMASK to
-MEMBARRIER_PRIVATE_EXPEDITED_RSEQ_BITMASK (the bitmask is not a command
-per-se), and change the erroneous
-MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ_BITMASK (which does not
-actually exist) to MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ.
-
-Wire up MEMBARRIER_PRIVATE_EXPEDITED_RSEQ_BITMASK in
-MEMBARRIER_CMD_BITMASK. Fixing this allows discovering availability of
-the membarrier-rseq fence feature.
-
-Fixes: 2a36ab717e8f ("rseq/membarrier: Add MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ")
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Peter Oskolkov <posk@google.com>
-Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: <stable@vger.kernel.org> # 5.10+
----
- kernel/sched/membarrier.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
-
-diff --git a/kernel/sched/membarrier.c b/kernel/sched/membarrier.c
-index b5add64d9698..3d2825408e3a 100644
---- a/kernel/sched/membarrier.c
-+++ b/kernel/sched/membarrier.c
-@@ -147,11 +147,11 @@
- #endif
- 
- #ifdef CONFIG_RSEQ
--#define MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ_BITMASK		\
-+#define MEMBARRIER_PRIVATE_EXPEDITED_RSEQ_BITMASK		\
- 	(MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ			\
--	| MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ_BITMASK)
-+	| MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ)
- #else
--#define MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ_BITMASK	0
-+#define MEMBARRIER_PRIVATE_EXPEDITED_RSEQ_BITMASK	0
- #endif
- 
- #define MEMBARRIER_CMD_BITMASK						\
-@@ -159,7 +159,8 @@
- 	| MEMBARRIER_CMD_REGISTER_GLOBAL_EXPEDITED			\
- 	| MEMBARRIER_CMD_PRIVATE_EXPEDITED				\
- 	| MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED			\
--	| MEMBARRIER_PRIVATE_EXPEDITED_SYNC_CORE_BITMASK)
-+	| MEMBARRIER_PRIVATE_EXPEDITED_SYNC_CORE_BITMASK		\
-+	| MEMBARRIER_PRIVATE_EXPEDITED_RSEQ_BITMASK)
- 
- static void ipi_mb(void *info)
- {
--- 
-2.17.1
-
+Regards.
+Mrs Deborah Kouassi.
