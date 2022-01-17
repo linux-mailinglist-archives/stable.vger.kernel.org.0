@@ -2,115 +2,187 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 499B74902FC
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 08:38:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50D124903BF
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 09:26:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237558AbiAQHiK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 02:38:10 -0500
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:46654 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S233071AbiAQHiJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 02:38:09 -0500
-Received: from pps.filterd (m0046661.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.16.1.2/8.16.1.2) with ESMTP id 20GMK1XY032410;
-        Mon, 17 Jan 2022 08:37:48 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=selector1;
- bh=/SNGdY3EQVSNuahotUyAeXgj55tr+Btw2r79mHMIAqs=;
- b=1n5+bzmuzkeFRtr/AHIYVezYaItONZpCk3sXbbJCAqqNMboi4El2Yq7X3PgS7AvNb3GU
- k2yOQ0w8dA1DCssdFBIxlxf0Vip4mftOdyOk5oN1h7kgZcYetaQstLa4Lmo8/+fMnUqf
- b6m1s8ceQzS9FaJBKYAxHKi7sTlznjkf6B+WCLSeRLN6vdn6vWmRIM+MJnIR+Mum5V9D
- m88IEaHa7IWtRCfykPkaP4w9Y20uB4G2ZkTtUQrxgXH/Y0333WuSh0VaNLODQzQ/gmgN
- uUrJWkBg9wtlR85nLKM0bg0abvthzetMYcs+hwU6G3nHcpuKWhJ7Y5xy7waEya6yAPDQ Tg== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3dmq5g2vph-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 17 Jan 2022 08:37:47 +0100
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 0FED7100034;
-        Mon, 17 Jan 2022 08:37:46 +0100 (CET)
-Received: from Webmail-eu.st.com (sfhdag2node1.st.com [10.75.127.4])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 5E0B820DD0E;
-        Mon, 17 Jan 2022 08:37:46 +0100 (CET)
-Received: from lmecxl0573.lme.st.com (10.75.127.44) by SFHDAG2NODE1.st.com
- (10.75.127.4) with Microsoft SMTP Server (TLS) id 15.0.1497.26; Mon, 17 Jan
- 2022 08:37:45 +0100
-Subject: Re: [PATCH v2] spi: stm32-qspi: Update spi registering
-To:     Lukas Wunner <lukas@wunner.de>
-CC:     Mark Brown <broonie@kernel.org>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        <linux-spi@vger.kernel.org>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <christophe.kerello@foss.st.com>,
-        <stable@vger.kernel.org>
-References: <20220112144424.5278-1-patrice.chotard@foss.st.com>
- <20220116125205.GA18267@wunner.de>
-From:   Patrice CHOTARD <patrice.chotard@foss.st.com>
-Message-ID: <b07ba47f-2709-6b10-2332-7a0d163401bc@foss.st.com>
-Date:   Mon, 17 Jan 2022 08:37:45 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        id S238088AbiAQI03 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 03:26:29 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:54606 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S238118AbiAQI02 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 03:26:28 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1642407988;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=DNQKbEtegSIWSosG5uGlKNCts0oURQOmirK/2YJ0xMQ=;
+        b=iX1TAAZNjHMfP/vuRE5cWqb2e7Y2531l04a/QiaN04BYU7aeAjwuVa8T2SB588g8ftnvFU
+        QMtXcRQZHc6I5864vE97a2LnV9Xekuzl5REkBieqlKwwoLnfCxT0McDBM9D+mfZnCbmuHY
+        9/HQo4EKhqCDpg15sPmn+osJwhU+uks=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-294-4iTbeMQgOOK9UlsFAqqoeA-1; Mon, 17 Jan 2022 03:26:26 -0500
+X-MC-Unique: 4iTbeMQgOOK9UlsFAqqoeA-1
+Received: by mail-wm1-f69.google.com with SMTP id s190-20020a1ca9c7000000b00347c6c39d9aso10528186wme.5
+        for <stable@vger.kernel.org>; Mon, 17 Jan 2022 00:26:26 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=DNQKbEtegSIWSosG5uGlKNCts0oURQOmirK/2YJ0xMQ=;
+        b=dgGeCo2AmshZ/orBfAjCkwt66ZN3aG+IFN8UCNWYkwblxUeJ9aAGNATXZ/Vn9NhuJu
+         pbmNOZVrnBmdX/XvTuC1ykWo4xG0iYoFuG/kTV3ZIHqjF3jKLydXBd7bBeUYUphIhQMx
+         Ot0kpkeEMpIoABAKo7HlIixgVF2hjSRkmggtx8aeQK6vojXp4JZ/V7xfJlzzUm3BdcJn
+         uRvmBMKkyzYsTe56zOo7DX+HYC1w/FH3x88RGxBNPsSLrLOhnmN1hcKOI+shJt4J/Csh
+         LYQfFZtVsq+f8IINYexK/H6F9b2LC8Ne+UIUTln0CzoNF4i53ys4No/lDhTiBDV8bdvQ
+         9A0A==
+X-Gm-Message-State: AOAM532aj9YT7AlC1vRc7iNliOYYk5rc1+jQoBD2qMqXsxVPK09Fvyjt
+        8SgBYiTVZHy4iINWZvAocxD56h4GsiRVChN26TUb3Mh93h3uJcSeoEQEDluBtfo5kPfTM+O1LPc
+        7Y6TBnCaLfmVTVgL4
+X-Received: by 2002:a7b:c386:: with SMTP id s6mr26121322wmj.132.1642407985554;
+        Mon, 17 Jan 2022 00:26:25 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzyGOrrGupepsSg3nWADHPX7L3TERLID7WqvxnbS25Vx07PFaNvht3nsEkdR5w3oAVH1VcL8g==
+X-Received: by 2002:a7b:c386:: with SMTP id s6mr26121303wmj.132.1642407985332;
+        Mon, 17 Jan 2022 00:26:25 -0800 (PST)
+Received: from redhat.com ([2.55.154.241])
+        by smtp.gmail.com with ESMTPSA id p10sm1776322wrr.10.2022.01.17.00.26.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 Jan 2022 00:26:24 -0800 (PST)
+Date:   Mon, 17 Jan 2022 03:26:21 -0500
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Jason Wang <jasowang@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Halil Pasic <pasic@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        virtualization@lists.linux-foundation.org
+Subject: Re: [PATCH] virtio: acknowledge all features before access
+Message-ID: <20220117032429-mutt-send-email-mst@kernel.org>
+References: <20220114200744.150325-1-mst@redhat.com>
+ <d6c4e521-1538-bbbf-30e6-f658a095b3ae@redhat.com>
 MIME-Version: 1.0
-In-Reply-To: <20220116125205.GA18267@wunner.de>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.75.127.44]
-X-ClientProxiedBy: SFHDAG2NODE2.st.com (10.75.127.5) To SFHDAG2NODE1.st.com
- (10.75.127.4)
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-01-17_02,2022-01-14_01,2021-12-02_01
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <d6c4e521-1538-bbbf-30e6-f658a095b3ae@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Lukas
+On Mon, Jan 17, 2022 at 02:31:49PM +0800, Jason Wang wrote:
+> 
+> 在 2022/1/15 上午4:09, Michael S. Tsirkin 写道:
+> > The feature negotiation was designed in a way that
+> > makes it possible for devices to know which config
+> > fields will be accessed by drivers.
+> > 
+> > This is broken since commit 404123c2db79 ("virtio: allow drivers to
+> > validate features") with fallout in at least block and net.
+> > We have a partial work-around in commit 2f9a174f918e ("virtio: write
+> > back F_VERSION_1 before validate") which at least lets devices
+> > find out which format should config space have, but this
+> > is a partial fix: guests should not access config space
+> > without acknowledging features since otherwise we'll never
+> > be able to change the config space format.
+> > 
+> > As a side effect, this also reduces the amount of hypervisor accesses -
+> > we now only acknowledge features once unless we are clearing any
+> > features when validating.
+> > 
+> > Cc: stable@vger.kernel.org
+> > Fixes: 404123c2db79 ("virtio: allow drivers to validate features")
+> > Fixes: 2f9a174f918e ("virtio: write back F_VERSION_1 before validate")
+> > Cc: "Halil Pasic" <pasic@linux.ibm.com>
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > ---
+> > 
+> > Halil, I thought hard about our situation with transitional and
+> > today I finally thought of something I am happy with.
+> > Pls let me know what you think. Testing on big endian would
+> > also be much appreciated!
+> > 
+> >   drivers/virtio/virtio.c | 31 +++++++++++++++++--------------
+> >   1 file changed, 17 insertions(+), 14 deletions(-)
+> > 
+> > diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> > index d891b0a354b0..2ed6e2451fd8 100644
+> > --- a/drivers/virtio/virtio.c
+> > +++ b/drivers/virtio/virtio.c
+> > @@ -168,12 +168,10 @@ EXPORT_SYMBOL_GPL(virtio_add_status);
+> >   static int virtio_finalize_features(struct virtio_device *dev)
+> >   {
+> > -	int ret = dev->config->finalize_features(dev);
+> >   	unsigned status;
+> > +	int ret;
+> >   	might_sleep();
+> > -	if (ret)
+> > -		return ret;
+> >   	ret = arch_has_restricted_virtio_memory_access();
+> >   	if (ret) {
+> > @@ -244,17 +242,6 @@ static int virtio_dev_probe(struct device *_d)
+> >   		driver_features_legacy = driver_features;
+> >   	}
+> > -	/*
+> > -	 * Some devices detect legacy solely via F_VERSION_1. Write
+> > -	 * F_VERSION_1 to force LE config space accesses before FEATURES_OK for
+> > -	 * these when needed.
+> > -	 */
+> > -	if (drv->validate && !virtio_legacy_is_little_endian()
+> > -			  && device_features & BIT_ULL(VIRTIO_F_VERSION_1)) {
+> > -		dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
+> > -		dev->config->finalize_features(dev);
+> > -	}
+> > -
+> >   	if (device_features & (1ULL << VIRTIO_F_VERSION_1))
+> >   		dev->features = driver_features & device_features;
+> >   	else
+> > @@ -265,10 +252,22 @@ static int virtio_dev_probe(struct device *_d)
+> >   		if (device_features & (1ULL << i))
+> >   			__virtio_set_bit(dev, i);
+> > +	err = dev->config->finalize_features(dev);
+> > +	if (err)
+> > +		goto err;
+> > +
+> >   	if (drv->validate) {
+> > +		u64 features = dev->features;
+> > +
+> >   		err = drv->validate(dev);
+> >   		if (err)
+> >   			goto err;
+> > +
+> > +		if (features != dev->features) {
+> > +			err = dev->config->finalize_features(dev);
+> > +			if (err)
+> > +				goto err;
+> > +		}
+> >   	}
+> >   	err = virtio_finalize_features(dev);
+> > @@ -495,6 +494,10 @@ int virtio_device_restore(struct virtio_device *dev)
+> >   	/* We have a driver! */
+> >   	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER);
+> > +	ret = dev->config->finalize_features(dev);
+> > +	if (ret)
+> > +		goto err;
+> 
+> 
+> Is this part of code related?
+> 
+> Thanks
+> 
 
-On 1/16/22 1:52 PM, Lukas Wunner wrote:
-> On Wed, Jan 12, 2022 at 03:44:24PM +0100, patrice.chotard@foss.st.com wrote:
->> diff --git a/drivers/spi/spi-stm32-qspi.c b/drivers/spi/spi-stm32-qspi.c
->> index 514337c86d2c..09839a3dbb26 100644
->> --- a/drivers/spi/spi-stm32-qspi.c
->> +++ b/drivers/spi/spi-stm32-qspi.c
->> @@ -688,7 +688,7 @@ static int stm32_qspi_probe(struct platform_device *pdev)
->>  	struct resource *res;
->>  	int ret, irq;
->>  
->> -	ctrl = spi_alloc_master(dev, sizeof(*qspi));
->> +	ctrl = devm_spi_alloc_master(dev, sizeof(*qspi));
->>  	if (!ctrl)
->>  		return -ENOMEM;
->>  
->> @@ -784,7 +784,7 @@ static int stm32_qspi_probe(struct platform_device *pdev)
->>  	pm_runtime_enable(dev);
->>  	pm_runtime_get_noresume(dev);
->>  
->> -	ret = devm_spi_register_master(dev, ctrl);
->> +	ret = spi_register_master(ctrl);
->>  	if (ret)
->>  		goto err_pm_runtime_free;
->>
-> 
-> Unfortunately this patch is still not correct:  It introduces a
-> double free in the probe error path.
+Yes. virtio_finalize_features no longer calls dev->config->finalize_features.
 
-Argh yes, my bad.
+I think the dev->config->finalize_features callback is actually
+a misnomer now, it just sends the features to device,
+finalize is FEATURES_OK. Renaming that is a bigger
+patch though, and I'd like this one to be cherry-pickable
+to stable.
 
-> 
-> You need to remove this...
-> 
-> err_master_put:
-> 	spi_master_put(qspi->ctrl);
-> 
-> ...and replace all the gotos in stm32_qspi_probe() which jump
-> to the err_master_put label with a return statement.
-> 
-> Thanks,
-> 
-> Lukas
-> 
-Thanks 
-Patrice
+> > +
+> >   	ret = virtio_finalize_features(dev);
+> >   	if (ret)
+> >   		goto err;
+
