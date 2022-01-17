@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EBE9A490E85
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:11:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75D09490E63
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:11:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241278AbiAQRLN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 12:11:13 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:53986 "EHLO
+        id S233133AbiAQRIr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 12:08:47 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:54014 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241509AbiAQRGn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:06:43 -0500
+        with ESMTP id S241721AbiAQRGq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:06:46 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F3F3B81131;
+        by ams.source.kernel.org (Postfix) with ESMTPS id D5197B81161;
+        Mon, 17 Jan 2022 17:06:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B940AC36AEC;
         Mon, 17 Jan 2022 17:06:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA9DEC36AE3;
-        Mon, 17 Jan 2022 17:06:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642439201;
-        bh=VXoP1pDXXdxKyJvKkkNho3VgJCeVldHfGQGr+ET3sW0=;
-        h=From:To:Cc:Subject:Date:From;
-        b=tTwzhv4QfSw1DeYHeyIooOso2eUlgzVBngVgeX90WsksSA9w7gwxD9ygGranhVAg/
-         Jvhb4PNV42AHddo3iVd2LXiV/qiitvkZbjwc/GRQv7Ee47z90xQcVTuosDACzBj0PR
-         F0HAfCfBDMBTnGJ9p9p1WOLnWa7iwu3AqywCXQUM1xRlSCElfkXbVjR0USgqgqPzUV
-         PhrWP4dJ6o1IhFjqApUENDsqsYd1xrzWaFzbCx0j0KVVF1+0vArK8nFbsnhIQHgEcB
-         gfHjqALvd1KpOjOzIpD8ll930ee0qMLtq4hSgUbM4SKNTUMpLyHlBUVnx79Fgiy0ZU
-         sNU8jGHHm1nVw==
+        s=k20201202; t=1642439203;
+        bh=qNILM1RdhmA5Zm0cLlQ79sNMcY7CTw2k9YHU8nTci04=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=gQAuAGKXD3/PpBxLOoD3pkbUIRj3etAh0xSE8sPb3qXvSBjNa46HCh7/hFE3Neo1z
+         LGXBm2TjmVSoGZawGM7SIyHhZi3lcsP/yijwN7dkwgygJEdLUSfUVB0aOxB1ihcsv6
+         XahYbygGn1hWS/7RPTyY9ca5yFk5VFlaARMjOVPz+xwCs63avKfRloRcmzphJoBNDm
+         LSWqeidMCxHPkirD+88p8uty+xALISWGP/xuk9BrYu99/w13GGd1fdOxGOyOoloDQS
+         2EDknFe4BjJqGxutiXN3OmXUtIKEMmqZ9qm34pqFMMUdlnF8rrDk7FgYHV4JTLfMKV
+         FzvUXdE/eKBjg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Changcheng Deng <deng.changcheng@zte.com.cn>,
-        Zeal Robot <zealci@zte.com.cn>, Abel Vesa <abel.vesa@nxp.com>,
-        Sasha Levin <sashal@kernel.org>, mturquette@baylibre.com,
-        sboyd@kernel.org, shawnguo@kernel.org, linux-clk@vger.kernel.org,
-        linux-imx@nxp.com, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 01/16] clk: imx: Use div64_ul instead of do_div
-Date:   Mon, 17 Jan 2022 12:06:23 -0500
-Message-Id: <20220117170638.1472900-1-sashal@kernel.org>
+Cc:     Julia Lawall <Julia.Lawall@lip6.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, maz@kernel.org,
+        nick.child@ibm.com, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 4.14 02/16] powerpc/6xx: add missing of_node_put
+Date:   Mon, 17 Jan 2022 12:06:24 -0500
+Message-Id: <20220117170638.1472900-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220117170638.1472900-1-sashal@kernel.org>
+References: <20220117170638.1472900-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -47,55 +48,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Changcheng Deng <deng.changcheng@zte.com.cn>
+From: Julia Lawall <Julia.Lawall@lip6.fr>
 
-[ Upstream commit c1b6ad9a902539f9c037b6b3c35cb134c5724022 ]
+[ Upstream commit f6e82647ff71d427d4148964b71f239fba9d7937 ]
 
-do_div() does a 64-by-32 division. Here the divisor is an unsigned long
-which on some platforms is 64 bit wide. So use div64_ul instead of do_div
-to avoid a possible truncation.
+for_each_compatible_node performs an of_node_get on each iteration, so
+a break out of the loop requires an of_node_put.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Changcheng Deng <deng.changcheng@zte.com.cn>
-Reviewed-by: Abel Vesa <abel.vesa@nxp.com>
-Link: https://lore.kernel.org/r/20211118080634.165275-1-deng.changcheng@zte.com.cn
-Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
+A simplified version of the semantic patch that fixes this problem is as
+follows (http://coccinelle.lip6.fr):
+
+// <smpl>
+@@
+expression e;
+local idexpression n;
+@@
+
+@@
+local idexpression n;
+expression e;
+@@
+
+ for_each_compatible_node(n,...) {
+   ...
+(
+   of_node_put(n);
+|
+   e = n
+|
++  of_node_put(n);
+?  break;
+)
+   ...
+ }
+... when != n
+// </smpl>
+
+Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1448051604-25256-2-git-send-email-Julia.Lawall@lip6.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/imx/clk-pllv3.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/powerpc/platforms/embedded6xx/hlwd-pic.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/clk/imx/clk-pllv3.c b/drivers/clk/imx/clk-pllv3.c
-index 9af62ee8f347a..325a03e89cf8d 100644
---- a/drivers/clk/imx/clk-pllv3.c
-+++ b/drivers/clk/imx/clk-pllv3.c
-@@ -252,7 +252,7 @@ static long clk_pllv3_av_round_rate(struct clk_hw *hw, unsigned long rate,
- 	div = rate / parent_rate;
- 	temp64 = (u64) (rate - div * parent_rate);
- 	temp64 *= mfd;
--	do_div(temp64, parent_rate);
-+	temp64 = div64_ul(temp64, parent_rate);
- 	mfn = temp64;
- 
- 	temp64 = (u64)parent_rate;
-@@ -282,7 +282,7 @@ static int clk_pllv3_av_set_rate(struct clk_hw *hw, unsigned long rate,
- 	div = rate / parent_rate;
- 	temp64 = (u64) (rate - div * parent_rate);
- 	temp64 *= mfd;
--	do_div(temp64, parent_rate);
-+	temp64 = div64_ul(temp64, parent_rate);
- 	mfn = temp64;
- 
- 	val = readl_relaxed(pll->base);
-@@ -339,7 +339,7 @@ static struct clk_pllv3_vf610_mf clk_pllv3_vf610_rate_to_mf(
- 		/* rate = parent_rate * (mfi + mfn/mfd) */
- 		temp64 = rate - parent_rate * mf.mfi;
- 		temp64 *= mf.mfd;
--		do_div(temp64, parent_rate);
-+		temp64 = div64_ul(temp64, parent_rate);
- 		mf.mfn = temp64;
+diff --git a/arch/powerpc/platforms/embedded6xx/hlwd-pic.c b/arch/powerpc/platforms/embedded6xx/hlwd-pic.c
+index bf4a125faec66..db2ea6b6889de 100644
+--- a/arch/powerpc/platforms/embedded6xx/hlwd-pic.c
++++ b/arch/powerpc/platforms/embedded6xx/hlwd-pic.c
+@@ -220,6 +220,7 @@ void hlwd_pic_probe(void)
+ 			irq_set_chained_handler(cascade_virq,
+ 						hlwd_pic_irq_cascade);
+ 			hlwd_irq_host = host;
++			of_node_put(np);
+ 			break;
+ 		}
  	}
- 
 -- 
 2.34.1
 
