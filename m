@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC4E3490E71
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:11:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBE9A490E85
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:11:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235980AbiAQRLL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 12:11:11 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:53900 "EHLO
+        id S241278AbiAQRLN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 12:11:13 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:53986 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242170AbiAQRGj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:06:39 -0500
+        with ESMTP id S241509AbiAQRGn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:06:43 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6A13BB81147;
-        Mon, 17 Jan 2022 17:06:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D86BDC36AE3;
-        Mon, 17 Jan 2022 17:06:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F3F3B81131;
+        Mon, 17 Jan 2022 17:06:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA9DEC36AE3;
+        Mon, 17 Jan 2022 17:06:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642439197;
-        bh=FpjEEp5qZAA2Ti4wiR35cwToImkcThW+7KWjliH3LY0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=txD10DxzgdUPqNXi9s1+/BZxeSOY5mn19OcCyCQ+eQhA1FGsbAkXHFDs3InWxQeqN
-         smxl5x0vNAHtbQIVOITL9E9zeUB7xZam/nQe+d9fQJGND3uOejdAkFv8JenFFk2VS8
-         dsq5kR20I2aYpUP/lueWRLFFHbzXgh++hbmGm1DTrehF8MibpK83bhhAeEhQhPCBod
-         L2qB660Tp/z+fPQ/L9ErKRPw3pwQl02ei29gJGzZCQeVF/qexu6qYNR11ovdVUjTFE
-         l+Qarpf+DLo174EZx9nik6Ku+QtN3pwDqN4Me2dgBZav9jhPF3AdFlICx8q2sWUMpc
-         jtAwqx46YZ5PQ==
+        s=k20201202; t=1642439201;
+        bh=VXoP1pDXXdxKyJvKkkNho3VgJCeVldHfGQGr+ET3sW0=;
+        h=From:To:Cc:Subject:Date:From;
+        b=tTwzhv4QfSw1DeYHeyIooOso2eUlgzVBngVgeX90WsksSA9w7gwxD9ygGranhVAg/
+         Jvhb4PNV42AHddo3iVd2LXiV/qiitvkZbjwc/GRQv7Ee47z90xQcVTuosDACzBj0PR
+         F0HAfCfBDMBTnGJ9p9p1WOLnWa7iwu3AqywCXQUM1xRlSCElfkXbVjR0USgqgqPzUV
+         PhrWP4dJ6o1IhFjqApUENDsqsYd1xrzWaFzbCx0j0KVVF1+0vArK8nFbsnhIQHgEcB
+         gfHjqALvd1KpOjOzIpD8ll930ee0qMLtq4hSgUbM4SKNTUMpLyHlBUVnx79Fgiy0ZU
+         sNU8jGHHm1nVw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tzung-Bi Shih <tzungbi@google.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, matthias.bgg@gmail.com,
-        jiaxin.yu@mediatek.com, angelogioacchino.delregno@collabora.com,
-        alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 17/17] ASoC: mediatek: mt8173: fix device_node leak
-Date:   Mon, 17 Jan 2022 12:05:51 -0500
-Message-Id: <20220117170551.1472640-17-sashal@kernel.org>
+Cc:     Changcheng Deng <deng.changcheng@zte.com.cn>,
+        Zeal Robot <zealci@zte.com.cn>, Abel Vesa <abel.vesa@nxp.com>,
+        Sasha Levin <sashal@kernel.org>, mturquette@baylibre.com,
+        sboyd@kernel.org, shawnguo@kernel.org, linux-clk@vger.kernel.org,
+        linux-imx@nxp.com, linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.14 01/16] clk: imx: Use div64_ul instead of do_div
+Date:   Mon, 17 Jan 2022 12:06:23 -0500
+Message-Id: <20220117170638.1472900-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220117170551.1472640-1-sashal@kernel.org>
-References: <20220117170551.1472640-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -51,75 +47,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tzung-Bi Shih <tzungbi@google.com>
+From: Changcheng Deng <deng.changcheng@zte.com.cn>
 
-[ Upstream commit 493433785df0075afc0c106ab65f10a605d0b35d ]
+[ Upstream commit c1b6ad9a902539f9c037b6b3c35cb134c5724022 ]
 
-Fixes the device_node leak.
+do_div() does a 64-by-32 division. Here the divisor is an unsigned long
+which on some platforms is 64 bit wide. So use div64_ul instead of do_div
+to avoid a possible truncation.
 
-Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
-Link: https://lore.kernel.org/r/20211224064719.2031210-2-tzungbi@google.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Changcheng Deng <deng.changcheng@zte.com.cn>
+Reviewed-by: Abel Vesa <abel.vesa@nxp.com>
+Link: https://lore.kernel.org/r/20211118080634.165275-1-deng.changcheng@zte.com.cn
+Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt8173/mt8173-max98090.c      | 3 +++
- sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c | 2 ++
- sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c | 2 ++
- sound/soc/mediatek/mt8173/mt8173-rt5650.c        | 2 ++
- 4 files changed, 9 insertions(+)
+ drivers/clk/imx/clk-pllv3.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/mediatek/mt8173/mt8173-max98090.c b/sound/soc/mediatek/mt8173/mt8173-max98090.c
-index 902d111016d6f..431ba3db17594 100644
---- a/sound/soc/mediatek/mt8173/mt8173-max98090.c
-+++ b/sound/soc/mediatek/mt8173/mt8173-max98090.c
-@@ -169,6 +169,9 @@ static int mt8173_max98090_dev_probe(struct platform_device *pdev)
- 	if (ret)
- 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
- 			__func__, ret);
-+
-+	of_node_put(codec_node);
-+	of_node_put(platform_node);
- 	return ret;
- }
+diff --git a/drivers/clk/imx/clk-pllv3.c b/drivers/clk/imx/clk-pllv3.c
+index 9af62ee8f347a..325a03e89cf8d 100644
+--- a/drivers/clk/imx/clk-pllv3.c
++++ b/drivers/clk/imx/clk-pllv3.c
+@@ -252,7 +252,7 @@ static long clk_pllv3_av_round_rate(struct clk_hw *hw, unsigned long rate,
+ 	div = rate / parent_rate;
+ 	temp64 = (u64) (rate - div * parent_rate);
+ 	temp64 *= mfd;
+-	do_div(temp64, parent_rate);
++	temp64 = div64_ul(temp64, parent_rate);
+ 	mfn = temp64;
  
-diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
-index 582174d98c6c9..cdb3940710379 100644
---- a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
-+++ b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
-@@ -217,6 +217,8 @@ static int mt8173_rt5650_rt5514_dev_probe(struct platform_device *pdev)
- 	if (ret)
- 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
- 			__func__, ret);
-+
-+	of_node_put(platform_node);
- 	return ret;
- }
+ 	temp64 = (u64)parent_rate;
+@@ -282,7 +282,7 @@ static int clk_pllv3_av_set_rate(struct clk_hw *hw, unsigned long rate,
+ 	div = rate / parent_rate;
+ 	temp64 = (u64) (rate - div * parent_rate);
+ 	temp64 *= mfd;
+-	do_div(temp64, parent_rate);
++	temp64 = div64_ul(temp64, parent_rate);
+ 	mfn = temp64;
  
-diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c
-index b3670c8a5b8de..242f99716c619 100644
---- a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c
-+++ b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c
-@@ -274,6 +274,8 @@ static int mt8173_rt5650_rt5676_dev_probe(struct platform_device *pdev)
- 	if (ret)
- 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
- 			__func__, ret);
-+
-+	of_node_put(platform_node);
- 	return ret;
- }
- 
-diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650.c b/sound/soc/mediatek/mt8173/mt8173-rt5650.c
-index 7a89b4aad182f..14011a70bcc41 100644
---- a/sound/soc/mediatek/mt8173/mt8173-rt5650.c
-+++ b/sound/soc/mediatek/mt8173/mt8173-rt5650.c
-@@ -301,6 +301,8 @@ static int mt8173_rt5650_dev_probe(struct platform_device *pdev)
- 	if (ret)
- 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
- 			__func__, ret);
-+
-+	of_node_put(platform_node);
- 	return ret;
- }
+ 	val = readl_relaxed(pll->base);
+@@ -339,7 +339,7 @@ static struct clk_pllv3_vf610_mf clk_pllv3_vf610_rate_to_mf(
+ 		/* rate = parent_rate * (mfi + mfn/mfd) */
+ 		temp64 = rate - parent_rate * mf.mfi;
+ 		temp64 *= mf.mfd;
+-		do_div(temp64, parent_rate);
++		temp64 = div64_ul(temp64, parent_rate);
+ 		mf.mfn = temp64;
+ 	}
  
 -- 
 2.34.1
