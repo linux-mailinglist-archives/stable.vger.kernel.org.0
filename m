@@ -2,129 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5FF8490FB9
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:36:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C70F490FF5
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:55:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237976AbiAQRgb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 12:36:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54046 "EHLO
+        id S241548AbiAQRzI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 12:55:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237896AbiAQRga (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:36:30 -0500
-Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76016C06161C
-        for <stable@vger.kernel.org>; Mon, 17 Jan 2022 09:36:30 -0800 (PST)
-Received: by mail-pf1-x42d.google.com with SMTP id 78so10792760pfu.10
-        for <stable@vger.kernel.org>; Mon, 17 Jan 2022 09:36:30 -0800 (PST)
+        with ESMTP id S238173AbiAQRzH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:55:07 -0500
+Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72F5CC061574
+        for <stable@vger.kernel.org>; Mon, 17 Jan 2022 09:55:07 -0800 (PST)
+Received: by mail-lf1-x134.google.com with SMTP id br17so60612791lfb.6
+        for <stable@vger.kernel.org>; Mon, 17 Jan 2022 09:55:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=NJY9XSUwJEoX9fe8tbjcO+KffdRiUvfZRp2c8uErS6o=;
-        b=pEcMq0DrFSqg63UmTFIbBl2faWMM2TOAIxTIk2Os4fwnfco5N3QhLyrA7t+XJGgxgh
-         6g1pCrfOIpJg6AIJd2n65lwU1D5h0Qs47LL9LFBWh09ZOI13JM7d7bS7aDFlgI1Z3Qph
-         6Ov6aRicC5N3GuagxOxizI/0lgt5yJoh8Xz6pD5A9OweCInNOq8h9GJLA7N3+thUpRSt
-         9O4lS66iMFEu6jF9yDN4Q2z4LcXGVo2t7wFFNsbj2zRGaoosYUeKmdMqC5uSTaW/mmMd
-         lBpV1Hy3BdVmPHMT3/jL4tX+3tpc12rgVx94Yu8TryKdXbH8DUQ+dv46CcijVUOvWXlI
-         VTBg==
+        d=embecosm.com; s=google;
+        h=date:from:to:cc:subject:in-reply-to:message-id:references
+         :user-agent:mime-version;
+        bh=cwLRKEGEpMI2ZE1H9bFkR9wzYdchQAM25oYHbDE2xJI=;
+        b=Z4uRl0MVRiirvaT9sJ1t9OkkLO3CHmIQ751lzUNYhxDx7ws/GTs5S/AZd0bN+BySCm
+         sHCN8MzJVc8iI5k2e2+EddfoXccN1yMRUhCYH59ncx2PDXEWyEYIHw+7c2dOaj0qNB3P
+         GOj+hBBdhVtdki2iaCxAQ+yuKM7iyJ4yL1e19IJTJLE6UIYY9IfWSeEQbC8wP940wkRV
+         zJBewdJ/7Kp02fYC4DiiOs+CnfRpwISGGu/+fTGOfjvcr3GEqSzuGwNcPom8k5eLLGOq
+         QZDfb/qb0XZdvcmEOqt8kU8GGJS4rkbc582DstuDCda8nODZj2cl7/hQ+U1LpgsR5bvi
+         8eDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=NJY9XSUwJEoX9fe8tbjcO+KffdRiUvfZRp2c8uErS6o=;
-        b=bl17ubCeKTJOR5CbsaXXMpP2P2XsoqqfQXBMhritbi6n18YIhGv3QJ4Wp7AQLStRKs
-         TezS+qtWj12tt4WpkB3YTTE5oJncXqBaJ4D0hcuLnfvvXF0OEKscqFuxkP5vPWCkzcXm
-         R5qqim91VVFgHDkZ/dLvPmT/Mi0W4r9bOdIZChYlTKsQ0JSg2KVBeovNR+qK22RKrsC6
-         +bvP11bCbVS3qQGtGN75+jK0No7NtUD6YpQLlFdFgDd1dp/iYyGEzxECZemFk00FJZI5
-         zx3+C4nWZAYGpbwQGinhcOsqQAAitF8JbAMZvUvthDS6baaJeMd7sHsvuO9q50LGOK0R
-         hXtA==
-X-Gm-Message-State: AOAM531tsWUh5yNxOo68VWmp1uhOlJ2IJXohVNjOKvX7lhwB7PLWeR82
-        Xg9nzK3OzZndbjhYN0jyARYshHvQbGts9UWu
-X-Google-Smtp-Source: ABdhPJw/Y1+rAcydls9O7w4JSWoADB4lPuXkEaAjHT1yH0EQPcN5Exff3iB4bIBuDjW8+zxRNZCtWQ==
-X-Received: by 2002:a05:6a00:a0b:b0:4c0:7703:2e8c with SMTP id p11-20020a056a000a0b00b004c077032e8cmr22565105pfh.38.1642440989907;
-        Mon, 17 Jan 2022 09:36:29 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id y79sm14326096pfb.116.2022.01.17.09.36.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Jan 2022 09:36:29 -0800 (PST)
-Message-ID: <61e5a91d.1c69fb81.106cb.7196@mx.google.com>
-Date:   Mon, 17 Jan 2022 09:36:29 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
+         :references:user-agent:mime-version;
+        bh=cwLRKEGEpMI2ZE1H9bFkR9wzYdchQAM25oYHbDE2xJI=;
+        b=uHoWdd4jVBpu4f22yvFNsEIvQpQ6utTicZbdr9SzMhrH6k01YfJZp+xHd0L99aF7FU
+         Vl5CMon0eu/EUkXkwnbwUAwmqVa9AurNWFb9lDTLqi3rSZ1MqPWi3yoVuOHxMKMIDuRw
+         8PpTmM66T8HxB7Zj7jNId1EZM4k86SG96xrpjwliNZiAeYdCfmqNfHkUlrGdKxHkXqtY
+         t/UgOD2B60yvU95Vg3OxXvp1ely/7oEZVdcBDT18zTwB8vPz3SG9CDBWP2izuOTUQgPd
+         GigQ15K3fDj5yr3o/PQR+gmDelqtXySlzYIHgLYAjLiXYsgKRiFJnpHg4dfWoueDKg+p
+         8DGg==
+X-Gm-Message-State: AOAM533P2o82hnnUa8GB476KelXUz2AXvcHX5vGUQWaavPOQa711fzbZ
+        tBIeU/SO6/8oYP42vOFdTUM47A==
+X-Google-Smtp-Source: ABdhPJy+LfZBkjXYa1Q5BuuXNEb0Ca47QVTVnKosBFub+2myWJLAzkrYXRRQbzGGN969EE+Zx/4Cgw==
+X-Received: by 2002:a05:6512:308c:: with SMTP id z12mr12242340lfd.35.1642442105820;
+        Mon, 17 Jan 2022 09:55:05 -0800 (PST)
+Received: from [192.168.219.3] ([78.8.192.131])
+        by smtp.gmail.com with ESMTPSA id i6sm756372lfb.76.2022.01.17.09.55.04
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 17 Jan 2022 09:55:05 -0800 (PST)
+Date:   Mon, 17 Jan 2022 17:55:02 +0000 (GMT)
+From:   "Maciej W. Rozycki" <macro@embecosm.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+cc:     Jiri Slaby <jirislaby@kernel.org>, linux-serial@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] tty: Revert the removal of the Cyclades public API
+In-Reply-To: <YeKDD6imTh1Y6GuN@kroah.com>
+Message-ID: <alpine.DEB.2.20.2201151231020.11348@tpp.orcam.me.uk>
+References: <alpine.DEB.2.20.2201141832330.11348@tpp.orcam.me.uk> <YeKDD6imTh1Y6GuN@kroah.com>
+User-Agent: Alpine 2.20 (DEB 67 2015-01-07)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.10.91-28-g7507400c81eb
-X-Kernelci-Branch: queue/5.10
-Subject: stable-rc/queue/5.10 baseline: 184 runs,
- 1 regressions (v5.10.91-28-g7507400c81eb)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 184 runs, 1 regressions (v5.10.91-28-g750740=
-0c81eb)
+On Sat, 15 Jan 2022, Greg Kroah-Hartman wrote:
 
-Regressions Summary
--------------------
+> On Fri, Jan 14, 2022 at 08:54:05PM +0000, Maciej W. Rozycki wrote:
+> > Fix a user API regression introduced with commit f76edd8f7ce0 ("tty: 
+> > cyclades, remove this orphan"), which removed a part of the API and 
+> > caused compilation errors for user programs using said part, such as 
+> > GCC 9 in its libsanitizer component[1]:
+> > 
+> > .../libsanitizer/sanitizer_common/sanitizer_platform_limits_posix.cc:160:10: fatal error: linux/cyclades.h: No such file or directory
+> >   160 | #include <linux/cyclades.h>
+> >       |          ^~~~~~~~~~~~~~~~~~
+> > compilation terminated.
+> > make[4]: *** [Makefile:664: sanitizer_platform_limits_posix.lo] Error 1
+> 
+> So all we need is an empty header file?  Why bring back all of the
+> unused structures?
 
-platform                | arch  | lab        | compiler | defconfig | regre=
-ssions
-------------------------+-------+------------+----------+-----------+------=
-------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
-      =
+ Because they have become a part of the published API.  Someone may even 
+use a system using headers from the most recent version of the Linux 
+kernel (though not necessarily running such a kernel) to build software 
+intended to run on an older version that still does implement the API.  
+Times where people individually built pefectly matching software from 
+sources to run on each system they looked after have largely long gone.
 
+> > Any part of the public API is a contract between the kernel and the 
+> > userland and therefore once there it must not be removed even if its 
+> > implementation side has gone and any relevant calls will now fail 
+> > unconditionally.
+> 
+> Does this code actually use any of these structures?
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.91-28-g7507400c81eb/plan/baseline/
+ Well, they have been exported, so they have become a part of the API.  
+This user program may not use them, another one will.  If you don't want 
+an API to become public, then do not export it in the first place.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.91-28-g7507400c81eb
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      7507400c81eb1b2d7c7a4f8908deeceb981cf942 =
+> > Revert the part of the commit referred then that affects the user API, 
+> > bringing the most recent version of <linux/cyclades.h> back verbatim 
+> > modulo the removal of trailing whitespace which used to be there, and 
+> > updating <linux/major.h> accordingly.
+> 
+> Why major.h?  What uses that?  No userspace code should care about that.
 
+ So it shouldn't have been a part of the user API in the first place.  
+Given that it has become a part of it it has to stay, that's the whole 
+point of having a user API.
 
+> Also, your text here is full of trailing whitespace, so I couldn't take
+> this commit as-is anyway :(
 
-Test Regressions
----------------- =
+ Well, `git' is supposed to sort it automatically.  I've been routinely 
+feeding my patches as posted to `git am' for other projects so as to push 
+them and any trailing whitespace (added automatically by my e-mail client, 
+I guess for presentation purposes; not to be confused with `format=flowed' 
+arrangement as indicated by `Content-Type:', which I know to avoid) does 
+get stripped as the command executes, clearly prepared for this situation.
 
+ The same must have happened for my earlier Linux kernel submissions ever 
+since the switch to `git' back in 2005 as they have been correctly applied 
+and no maintainer including you had an issue with it before.  And I have 
+been using the same e-mail client doing the same all over these years.
 
+ To double-check I have just fed my submission as it to `git am' and it 
+did strip all the unwanted trailing whitespace.  Does that not happen with 
+your setup now?  Odd.
 
-platform                | arch  | lab        | compiler | defconfig | regre=
-ssions
-------------------------+-------+------------+----------+-----------+------=
-------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
-      =
+ Or did you get confused with the formatting issues the header itself used 
+to have that I did not address as preexisting code?  If so, then I could 
+reformat the body of the change, however due to the original defects it 
+wouldn't be a trivial revert anymore (arguably in that case there ought to 
+be two changes in a series then, first a genuine revert, followed by the 
+style fix).  Let me know if that is what you desire and I'll adapt v2 
+accordingly.
 
+ Thank you for your review.
 
-  Details:     https://kernelci.org/test/plan/id/61e571d21498fd06a0ef675d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.91-=
-28-g7507400c81eb/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bana=
-napi-m64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.91-=
-28-g7507400c81eb/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bana=
-napi-m64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61e571d21498fd06a0ef6=
-75e
-        failing since 0 day (last pass: v5.10.91-25-g3eccd3159d8f, first fa=
-il: v5.10.91-27-gf01179c14c07) =
-
- =20
+  Maciej
