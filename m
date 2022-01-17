@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96D89490EB0
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:11:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8FAA490EB1
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:11:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241764AbiAQRLd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 12:11:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46358 "EHLO
+        id S243502AbiAQRLg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 12:11:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243058AbiAQRIZ (ORCPT
+        with ESMTP id S243059AbiAQRIZ (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:08:25 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E0D6C06161C;
-        Mon, 17 Jan 2022 09:04:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6AD8C061574;
+        Mon, 17 Jan 2022 09:04:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CFBA6611BE;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A706861278;
+        Mon, 17 Jan 2022 17:04:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5206C36AEF;
         Mon, 17 Jan 2022 17:04:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7DD8C36AE3;
-        Mon, 17 Jan 2022 17:04:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642439088;
-        bh=ZqzrJaiaGVNMXGWL+p/VujNjJlhpChX0ptTIT8Wsttc=;
+        s=k20201202; t=1642439090;
+        bh=zqxVLJAQDSMqLlm3O2uF0y8g2XadcjGY1EzyOllkM8s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LQ5br7MEbpARGWWkcTUkcqnM7Dqo53FRLNqc4x+dSeJd3iMHGDft6ShRq3P6tL3iM
-         srKBVRI3eeiX+zJtYAcdtA9nHW/NMWNi6a/4g+neHxilleckPQZSjY7g4I6sJ1XP9Z
-         n0g0cQfU2YYqepbSLL0jnvAEssnt3kJo0/tKDTxeh4anvs1220MTgcTywROL+Zk3MB
-         5bo2HxGENvA8Y1JJw+mqIwowyDgnVgHMw0cvSS7iyzOxT7stChAb9r7ZlBIVfuSFjR
-         ROWScPLnxmQpZ3zb0uZCThcYzHTBEGWquBEJp4Og/nY76OAONiIdzq2u/gMhSVBgR8
-         tQ72AoPHTzHBw==
+        b=aLlbxPOEs1E77MUZyICq9PH5P18U2qgG8emlrxLq51MwhTYGuuwMnsMHYjxxV4KHD
+         MrC9qsgEy3ID+HNTt94e0ZByeWRqolFDZCuP/upFPN2kg0M9mSbuLas1HoUum2tbQu
+         qwjc4DCRi676H3qtz4YQguuWSTHCExhtY5Llzss5U4IP8sZhxqn07l/a/HSJi6+oji
+         /i5C3DNJFw9f5FwkGqQpxDGFy3A7tdQFZfD4CbHl98mqKSqpGdKNMrajFHi3+PgIfo
+         LSx0TZqvICHydMn7ciBfSv6d0qO0b1QXaYnYPdYQuiFge3M6eZHS2rrlDxhXOsqRlu
+         UHBhWEnHYqYuw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tzung-Bi Shih <tzungbi@google.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, matthias.bgg@gmail.com,
-        jiaxin.yu@mediatek.com, rikard.falkeborn@gmail.com,
-        alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.10 32/34] ASoC: mediatek: mt8183: fix device_node leak
-Date:   Mon, 17 Jan 2022 12:03:22 -0500
-Message-Id: <20220117170326.1471712-32-sashal@kernel.org>
+Cc:     Miaoqian Lin <linmq006@gmail.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        chunkuang.hu@kernel.org, p.zabel@pengutronix.de, airlied@linux.ie,
+        daniel@ffwll.ch, matthias.bgg@gmail.com,
+        dri-devel@lists.freedesktop.org,
+        linux-mediatek@lists.infradead.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 33/34] phy: mediatek: Fix missing check in mtk_mipi_tx_probe
+Date:   Mon, 17 Jan 2022 12:03:23 -0500
+Message-Id: <20220117170326.1471712-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220117170326.1471712-1-sashal@kernel.org>
 References: <20220117170326.1471712-1-sashal@kernel.org>
@@ -54,56 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tzung-Bi Shih <tzungbi@google.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit cb006006fe6221f092fadaffd3f219288304c9ad ]
+[ Upstream commit 399c91c3f30531593e5ff6ca7b53f47092128669 ]
 
-Fixes the device_node leak.
+The of_device_get_match_data() function may return NULL.
+Add check to prevent potential null dereference.
 
-Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
-Link: https://lore.kernel.org/r/20211224064719.2031210-3-tzungbi@google.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20211224082103.7658-1-linmq006@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt8183/mt8183-da7219-max98357.c         | 6 +++++-
- sound/soc/mediatek/mt8183/mt8183-mt6358-ts3a227-max98357.c | 7 ++++++-
- 2 files changed, 11 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/mediatek/mtk_mipi_tx.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/mediatek/mt8183/mt8183-da7219-max98357.c b/sound/soc/mediatek/mt8183/mt8183-da7219-max98357.c
-index 20d31b69a5c00..9cc0f26b08fbc 100644
---- a/sound/soc/mediatek/mt8183/mt8183-da7219-max98357.c
-+++ b/sound/soc/mediatek/mt8183/mt8183-da7219-max98357.c
-@@ -787,7 +787,11 @@ static int mt8183_da7219_max98357_dev_probe(struct platform_device *pdev)
- 		return ret;
- 	}
+diff --git a/drivers/gpu/drm/mediatek/mtk_mipi_tx.c b/drivers/gpu/drm/mediatek/mtk_mipi_tx.c
+index 8cee2591e7284..ccc742dc78bd9 100644
+--- a/drivers/gpu/drm/mediatek/mtk_mipi_tx.c
++++ b/drivers/gpu/drm/mediatek/mtk_mipi_tx.c
+@@ -147,6 +147,8 @@ static int mtk_mipi_tx_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
  
--	return devm_snd_soc_register_card(&pdev->dev, card);
-+	ret = devm_snd_soc_register_card(&pdev->dev, card);
-+
-+	of_node_put(platform_node);
-+	of_node_put(hdmi_codec);
-+	return ret;
- }
+ 	mipi_tx->driver_data = of_device_get_match_data(dev);
++	if (!mipi_tx->driver_data)
++		return -ENODEV;
  
- #ifdef CONFIG_OF
-diff --git a/sound/soc/mediatek/mt8183/mt8183-mt6358-ts3a227-max98357.c b/sound/soc/mediatek/mt8183/mt8183-mt6358-ts3a227-max98357.c
-index 79ba2f2d84522..14ce8b93597f3 100644
---- a/sound/soc/mediatek/mt8183/mt8183-mt6358-ts3a227-max98357.c
-+++ b/sound/soc/mediatek/mt8183/mt8183-mt6358-ts3a227-max98357.c
-@@ -720,7 +720,12 @@ mt8183_mt6358_ts3a227_max98357_dev_probe(struct platform_device *pdev)
- 				 __func__, ret);
- 	}
- 
--	return devm_snd_soc_register_card(&pdev->dev, card);
-+	ret = devm_snd_soc_register_card(&pdev->dev, card);
-+
-+	of_node_put(platform_node);
-+	of_node_put(ec_codec);
-+	of_node_put(hdmi_codec);
-+	return ret;
- }
- 
- #ifdef CONFIG_OF
+ 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	mipi_tx->regs = devm_ioremap_resource(dev, mem);
 -- 
 2.34.1
 
