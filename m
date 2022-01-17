@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F657490D89
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:04:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FBEB490DB2
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:05:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242347AbiAQRDv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 12:03:51 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:51978 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241799AbiAQRCO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:02:14 -0500
+        id S241864AbiAQRFF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 12:05:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44998 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242120AbiAQRCj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:02:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD2FFC061756;
+        Mon, 17 Jan 2022 09:02:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AE4A6119F;
+        by ams.source.kernel.org (Postfix) with ESMTPS id A688CB8114A;
+        Mon, 17 Jan 2022 17:02:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 727FBC36AE7;
         Mon, 17 Jan 2022 17:02:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA9BFC36AED;
-        Mon, 17 Jan 2022 17:02:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642438932;
-        bh=Y4ZVPC9JgMkic69D/SYjuLk7XJOUJS7KtSR9xJSVSd8=;
+        s=k20201202; t=1642438934;
+        bh=Dljm0JLxqoS6+WUbeZQpJgjI3G48XZ/ZLXM72ksOx5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZlqYiDUhQIT+4m6A1zV31wcVHltE5Np7uuqmGm5BnAQZ+8WyzNXKtVwcS6SPbRY5H
-         irx2EhzWJnq0S9mSxl+GIojZOdCrodKoy6wfF2tJHahmf3njxkRBXo4/84bDC86ZAt
-         B9CsIpd6v6IO3zlQ5mKgKdtXz6nFvbrrnT5/MNSOB1EgjTcZJTIg/XIN9aN+kJS7j0
-         r8QkJgsKv70zxlsQaAAxADoRUDV5cFSNXyZMzucnWsjiDbzMAvo39sUIJGIIDW1I3+
-         QcM1JnZLxbZY0kpLsAprq9SuVGsPyllRHdwWO/8ieqPPgtxFMN1XfWfbXGyfWGNH6G
-         CShwsTeiV2S2A==
+        b=Nu3jIJVNafHKbmhsDD5EnffaAyOZgoT6U9xZtOqzBixgykpeU0CJGue45eA9Bfsmv
+         pFnQLqGk5d7qzRGimzMeUZSVysftCiIRFawBnU56u5uS4wm4yBf+Ldbq6FvqQptaBZ
+         j3qjev9PbrQB51XmXg274PXDvTJXN8Xx3Zi1tgyTf+WWQUpR2gcf91r2Sc2v5UaOyU
+         3/69iZw4kD9pQSmggWgRTkpCIljU59IKXoHV2XUGmAoyuaLb7JzoCs9dn6X+0CVCH5
+         PnjINKTV19C5ARcIhRhXAGdAlaoYrUN6qQIgkuAqAtvbWnCiegUWA1D2F+ZIJoOupl
+         PAd6+JQDBeXLw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     James Smart <jsmart2021@gmail.com>,
@@ -36,9 +39,9 @@ Cc:     James Smart <jsmart2021@gmail.com>,
         Sasha Levin <sashal@kernel.org>, james.smart@broadcom.com,
         dick.kennedy@broadcom.com, jejb@linux.ibm.com,
         linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 20/44] scsi: lpfc: Fix leaked lpfc_dmabuf mbox allocations with NPIV
-Date:   Mon, 17 Jan 2022 12:01:03 -0500
-Message-Id: <20220117170127.1471115-20-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 21/44] scsi: lpfc: Trigger SLI4 firmware dump before doing driver cleanup
+Date:   Mon, 17 Jan 2022 12:01:04 -0500
+Message-Id: <20220117170127.1471115-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220117170127.1471115-1-sashal@kernel.org>
 References: <20220117170127.1471115-1-sashal@kernel.org>
@@ -52,117 +55,184 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit f0d3919697492950f57a26a1093aee53880d669d ]
+[ Upstream commit 7dd2e2a923173d637c272e483966be8e96a72b64 ]
 
-During rmmod testing, messages appeared indicating lpfc_mbuf_pool entries
-were still busy. This situation was only seen doing rmmod after at least 1
-vport (NPIV) instance was created and destroyed. The number of messages
-scaled with the number of vports created.
+Extraneous teardown routines are present in the firmware dump path causing
+altered states in firmware captures.
 
-When a vport is created, it can receive a PLOGI from another initiator
-Nport.  When this happens, the driver prepares to ack the PLOGI and
-prepares an RPI for registration (via mbx cmd) which includes an mbuf
-allocation. During the unsolicited PLOGI processing and after the RPI
-preparation, the driver recognizes it is one of the vport instances and
-decides to reject the PLOGI. During the LS_RJT preparation for the PLOGI,
-the mailbox struct allocated for RPI registration is freed, but the mbuf
-that was also allocated is not released.
+When a firmware dump is requested via sysfs, trigger the dump immediately
+without tearing down structures and changing adapter state.
 
-Fix by freeing the mbuf with the mailbox struct in the LS_RJT path.
+The driver shall rely on pre-existing firmware error state clean up
+handlers to restore the adapter.
 
-As part of the code review to figure the issue out a couple of other areas
-where found that also would not have released the mbuf. Those are cleaned
-up as well.
-
-Link: https://lore.kernel.org/r/20211204002644.116455-2-jsmart2021@gmail.com
+Link: https://lore.kernel.org/r/20211204002644.116455-6-jsmart2021@gmail.com
 Co-developed-by: Justin Tee <justin.tee@broadcom.com>
 Signed-off-by: Justin Tee <justin.tee@broadcom.com>
 Signed-off-by: James Smart <jsmart2021@gmail.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/lpfc/lpfc_els.c       | 6 +++++-
- drivers/scsi/lpfc/lpfc_init.c      | 8 ++++++--
- drivers/scsi/lpfc/lpfc_nportdisc.c | 6 ++++++
- 3 files changed, 17 insertions(+), 3 deletions(-)
+ drivers/scsi/lpfc/lpfc.h         |  2 +-
+ drivers/scsi/lpfc/lpfc_attr.c    | 62 ++++++++++++++++++++------------
+ drivers/scsi/lpfc/lpfc_hbadisc.c |  8 ++++-
+ drivers/scsi/lpfc/lpfc_sli.c     |  6 ----
+ 4 files changed, 48 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
-index f7197b7161d52..6d7b9571f5c03 100644
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -6877,6 +6877,7 @@ static int
- lpfc_get_rdp_info(struct lpfc_hba *phba, struct lpfc_rdp_context *rdp_context)
- {
- 	LPFC_MBOXQ_t *mbox = NULL;
-+	struct lpfc_dmabuf *mp;
- 	int rc;
+diff --git a/drivers/scsi/lpfc/lpfc.h b/drivers/scsi/lpfc/lpfc.h
+index befeb7c342903..19fd9d263f47f 100644
+--- a/drivers/scsi/lpfc/lpfc.h
++++ b/drivers/scsi/lpfc/lpfc.h
+@@ -1022,7 +1022,6 @@ struct lpfc_hba {
+ #define HBA_DEVLOSS_TMO         0x2000 /* HBA in devloss timeout */
+ #define HBA_RRQ_ACTIVE		0x4000 /* process the rrq active list */
+ #define HBA_IOQ_FLUSH		0x8000 /* FCP/NVME I/O queues being flushed */
+-#define HBA_FW_DUMP_OP		0x10000 /* Skips fn reset before FW dump */
+ #define HBA_RECOVERABLE_UE	0x20000 /* Firmware supports recoverable UE */
+ #define HBA_FORCED_LINK_SPEED	0x40000 /*
+ 					 * Firmware supports Forced Link Speed
+@@ -1038,6 +1037,7 @@ struct lpfc_hba {
+ #define HBA_HBEAT_TMO		0x8000000 /* HBEAT initiated after timeout */
+ #define HBA_FLOGI_OUTSTANDING	0x10000000 /* FLOGI is outstanding */
  
- 	mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
-@@ -6892,8 +6893,11 @@ lpfc_get_rdp_info(struct lpfc_hba *phba, struct lpfc_rdp_context *rdp_context)
- 	mbox->mbox_cmpl = lpfc_mbx_cmpl_rdp_page_a0;
- 	mbox->ctx_ndlp = (struct lpfc_rdp_context *)rdp_context;
- 	rc = lpfc_sli_issue_mbox(phba, mbox, MBX_NOWAIT);
--	if (rc == MBX_NOT_FINISHED)
-+	if (rc == MBX_NOT_FINISHED) {
-+		mp = (struct lpfc_dmabuf *)mbox->ctx_buf;
-+		lpfc_mbuf_free(phba, mp->virt, mp->phys);
- 		goto issue_mbox_fail;
-+	}
++	struct completion *fw_dump_cmpl; /* cmpl event tracker for fw_dump */
+ 	uint32_t fcp_ring_in_use; /* When polling test if intr-hndlr active*/
+ 	struct lpfc_dmabuf slim2p;
  
- 	return 0;
+diff --git a/drivers/scsi/lpfc/lpfc_attr.c b/drivers/scsi/lpfc/lpfc_attr.c
+index ebe417921dac0..f20c4fe1fb8b9 100644
+--- a/drivers/scsi/lpfc/lpfc_attr.c
++++ b/drivers/scsi/lpfc/lpfc_attr.c
+@@ -1709,25 +1709,25 @@ lpfc_sli4_pdev_reg_request(struct lpfc_hba *phba, uint32_t opcode)
+ 	before_fc_flag = phba->pport->fc_flag;
+ 	sriov_nr_virtfn = phba->cfg_sriov_nr_virtfn;
  
-diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
-index 0fee8d590b0c4..2bbd1be6cc5d4 100644
---- a/drivers/scsi/lpfc/lpfc_init.c
-+++ b/drivers/scsi/lpfc/lpfc_init.c
-@@ -5314,8 +5314,10 @@ lpfc_sli4_async_link_evt(struct lpfc_hba *phba,
- 	 */
- 	if (!(phba->hba_flag & HBA_FCOE_MODE)) {
- 		rc = lpfc_sli_issue_mbox(phba, pmb, MBX_NOWAIT);
--		if (rc == MBX_NOT_FINISHED)
-+		if (rc == MBX_NOT_FINISHED) {
-+			lpfc_mbuf_free(phba, mp->virt, mp->phys);
- 			goto out_free_dmabuf;
+-	/* Disable SR-IOV virtual functions if enabled */
+-	if (phba->cfg_sriov_nr_virtfn) {
+-		pci_disable_sriov(pdev);
+-		phba->cfg_sriov_nr_virtfn = 0;
+-	}
++	if (opcode == LPFC_FW_DUMP) {
++		init_completion(&online_compl);
++		phba->fw_dump_cmpl = &online_compl;
++	} else {
++		/* Disable SR-IOV virtual functions if enabled */
++		if (phba->cfg_sriov_nr_virtfn) {
++			pci_disable_sriov(pdev);
++			phba->cfg_sriov_nr_virtfn = 0;
 +		}
- 		return;
- 	}
- 	/*
-@@ -6266,8 +6268,10 @@ lpfc_sli4_async_fc_evt(struct lpfc_hba *phba, struct lpfc_acqe_fc_la *acqe_fc)
+ 
+-	if (opcode == LPFC_FW_DUMP)
+-		phba->hba_flag |= HBA_FW_DUMP_OP;
++		status = lpfc_do_offline(phba, LPFC_EVT_OFFLINE);
+ 
+-	status = lpfc_do_offline(phba, LPFC_EVT_OFFLINE);
++		if (status != 0)
++			return status;
+ 
+-	if (status != 0) {
+-		phba->hba_flag &= ~HBA_FW_DUMP_OP;
+-		return status;
++		/* wait for the device to be quiesced before firmware reset */
++		msleep(100);
  	}
  
- 	rc = lpfc_sli_issue_mbox(phba, pmb, MBX_NOWAIT);
--	if (rc == MBX_NOT_FINISHED)
-+	if (rc == MBX_NOT_FINISHED) {
-+		lpfc_mbuf_free(phba, mp->virt, mp->phys);
- 		goto out_free_dmabuf;
+-	/* wait for the device to be quiesced before firmware reset */
+-	msleep(100);
+-
+ 	reg_val = readl(phba->sli4_hba.conf_regs_memmap_p +
+ 			LPFC_CTL_PDEV_CTL_OFFSET);
+ 
+@@ -1756,24 +1756,42 @@ lpfc_sli4_pdev_reg_request(struct lpfc_hba *phba, uint32_t opcode)
+ 		lpfc_printf_log(phba, KERN_ERR, LOG_SLI,
+ 				"3153 Fail to perform the requested "
+ 				"access: x%x\n", reg_val);
++		if (phba->fw_dump_cmpl)
++			phba->fw_dump_cmpl = NULL;
+ 		return rc;
+ 	}
+ 
+ 	/* keep the original port state */
+-	if (before_fc_flag & FC_OFFLINE_MODE)
+-		goto out;
+-
+-	init_completion(&online_compl);
+-	job_posted = lpfc_workq_post_event(phba, &status, &online_compl,
+-					   LPFC_EVT_ONLINE);
+-	if (!job_posted)
++	if (before_fc_flag & FC_OFFLINE_MODE) {
++		if (phba->fw_dump_cmpl)
++			phba->fw_dump_cmpl = NULL;
+ 		goto out;
 +	}
- 	return;
  
- out_free_dmabuf:
-diff --git a/drivers/scsi/lpfc/lpfc_nportdisc.c b/drivers/scsi/lpfc/lpfc_nportdisc.c
-index 27263f02ab9f6..7d717a4ac14d1 100644
---- a/drivers/scsi/lpfc/lpfc_nportdisc.c
-+++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
-@@ -322,6 +322,7 @@ lpfc_rcv_plogi(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
- {
- 	struct lpfc_hba    *phba = vport->phba;
- 	struct lpfc_dmabuf *pcmd;
-+	struct lpfc_dmabuf *mp;
- 	uint64_t nlp_portwwn = 0;
- 	uint32_t *lp;
- 	IOCB_t *icmd;
-@@ -571,6 +572,11 @@ lpfc_rcv_plogi(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
- 		 * a default RPI.
- 		 */
- 		if (phba->sli_rev == LPFC_SLI_REV4) {
-+			mp = (struct lpfc_dmabuf *)login_mbox->ctx_buf;
-+			if (mp) {
-+				lpfc_mbuf_free(phba, mp->virt, mp->phys);
-+				kfree(mp);
-+			}
- 			mempool_free(login_mbox, phba->mbox_mem_pool);
- 			login_mbox = NULL;
- 		} else {
+-	wait_for_completion(&online_compl);
++	/* Firmware dump will trigger an HA_ERATT event, and
++	 * lpfc_handle_eratt_s4 routine already handles bringing the port back
++	 * online.
++	 */
++	if (opcode == LPFC_FW_DUMP) {
++		wait_for_completion(phba->fw_dump_cmpl);
++	} else  {
++		init_completion(&online_compl);
++		job_posted = lpfc_workq_post_event(phba, &status, &online_compl,
++						   LPFC_EVT_ONLINE);
++		if (!job_posted)
++			goto out;
+ 
++		wait_for_completion(&online_compl);
++	}
+ out:
+ 	/* in any case, restore the virtual functions enabled as before */
+ 	if (sriov_nr_virtfn) {
++		/* If fw_dump was performed, first disable to clean up */
++		if (opcode == LPFC_FW_DUMP) {
++			pci_disable_sriov(pdev);
++			phba->cfg_sriov_nr_virtfn = 0;
++		}
++
+ 		sriov_err =
+ 			lpfc_sli_probe_sriov_nr_virtfn(phba, sriov_nr_virtfn);
+ 		if (!sriov_err)
+diff --git a/drivers/scsi/lpfc/lpfc_hbadisc.c b/drivers/scsi/lpfc/lpfc_hbadisc.c
+index 9ccb904e35fcf..3bb7c2aa949f7 100644
+--- a/drivers/scsi/lpfc/lpfc_hbadisc.c
++++ b/drivers/scsi/lpfc/lpfc_hbadisc.c
+@@ -869,10 +869,16 @@ lpfc_work_done(struct lpfc_hba *phba)
+ 	if (phba->pci_dev_grp == LPFC_PCI_DEV_OC)
+ 		lpfc_sli4_post_async_mbox(phba);
+ 
+-	if (ha_copy & HA_ERATT)
++	if (ha_copy & HA_ERATT) {
+ 		/* Handle the error attention event */
+ 		lpfc_handle_eratt(phba);
+ 
++		if (phba->fw_dump_cmpl) {
++			complete(phba->fw_dump_cmpl);
++			phba->fw_dump_cmpl = NULL;
++		}
++	}
++
+ 	if (ha_copy & HA_MBATT)
+ 		lpfc_sli_handle_mb_event(phba);
+ 
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 9c1f485952ef7..e5009f21d97e1 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -5043,12 +5043,6 @@ lpfc_sli4_brdreset(struct lpfc_hba *phba)
+ 	phba->fcf.fcf_flag = 0;
+ 	spin_unlock_irq(&phba->hbalock);
+ 
+-	/* SLI4 INTF 2: if FW dump is being taken skip INIT_PORT */
+-	if (phba->hba_flag & HBA_FW_DUMP_OP) {
+-		phba->hba_flag &= ~HBA_FW_DUMP_OP;
+-		return rc;
+-	}
+-
+ 	/* Now physically reset the device */
+ 	lpfc_printf_log(phba, KERN_INFO, LOG_INIT,
+ 			"0389 Performing PCI function reset!\n");
 -- 
 2.34.1
 
