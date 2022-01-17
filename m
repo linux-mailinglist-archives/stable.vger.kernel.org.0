@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08EDE490E24
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:08:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92422490E29
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:08:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242682AbiAQRH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 12:07:28 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:51416 "EHLO
+        id S242895AbiAQRHd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 12:07:33 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:52838 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242023AbiAQRF1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:05:27 -0500
+        with ESMTP id S242293AbiAQRF3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:05:29 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71784B8113A;
-        Mon, 17 Jan 2022 17:05:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FE3FC36AED;
-        Mon, 17 Jan 2022 17:05:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F3A7B8115B;
+        Mon, 17 Jan 2022 17:05:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D65C8C36AE7;
+        Mon, 17 Jan 2022 17:05:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642439125;
-        bh=eIli/jZZdbrp+7cIzVhZHbCgnb9mpafPIXG0izMYOVw=;
+        s=k20201202; t=1642439126;
+        bh=kH5gr8b1BThPsKuYxjw5b3QRMMbMoAjYI1p+XaHELZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N/COINfbZIxkCR2uVVwIMBSIiYUdWXhF+gkD/RoUtXuxtqGsBM5cBjfKWbTc6rfJQ
-         hXMoQF4dkjixjgZfGDdmx4uF5fSfVlIV9ToRffKe9sh4X/Xf/TqaF65rqXtpfsmSjQ
-         QfvjlDLcnoEzDaRx/1OTNLdxwLy/7IXbZDerwxjKzzc/uc1F6StlSrgCHAX+7ZibFJ
-         2Iz0G6LjZstBUDpvyfAk2+81FblfH9SZLOM+yy8s4KKJ3XnoQWuiZbMsJ0RO8WegT3
-         zc6fn2UqB8gQbdGsITJX5DfNLMCB2qfF+GjromPIAjQ4qfMtzglytQWVTOIzqd+eNf
-         rIvBWIfw4todA==
+        b=o3EDfMotIaFqv+OPaQZid53LfhEBSugtjvDUI09eLdPOUxqTu++4uJvwKAOIOTk44
+         8Lge5kkJMD4l7bucJtH00mnzV1FVGPOlw5sEJWWMy/w9xvIRi6Trmqg4eUQpJfPks/
+         /NsGV6+NUeUtEe/9TWP4adLWNYytV/0cRgr2BplaFgFx9NaG0pWAklA8Y6CqmvrTSj
+         7hPu7hSaSpndyQYEzGaMWowFrFzaF4vd2in7T0UpCoCKunUxCU5lDmEzhW5uNuk5/j
+         4bj1bd4Ji0abhatgcBKZuQ9Cugvj2HpJwO8npeGnHQJtxSPbWyOdyLEcF3PMRfdpFc
+         rat4AnrggVKwA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        kernel test robot <lkp@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, zbr@ioremap.net
-Subject: [PATCH AUTOSEL 5.4 13/21] w1: Misuse of get_user()/put_user() reported by sparse
-Date:   Mon, 17 Jan 2022 12:04:45 -0500
-Message-Id: <20220117170454.1472347-13-sashal@kernel.org>
+Cc:     James Smart <jsmart2021@gmail.com>,
+        Justin Tee <justin.tee@broadcom.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, james.smart@broadcom.com,
+        dick.kennedy@broadcom.com, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 14/21] scsi: lpfc: Trigger SLI4 firmware dump before doing driver cleanup
+Date:   Mon, 17 Jan 2022 12:04:46 -0500
+Message-Id: <20220117170454.1472347-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220117170454.1472347-1-sashal@kernel.org>
 References: <20220117170454.1472347-1-sashal@kernel.org>
@@ -48,84 +50,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 33dc3e3e99e626ce51f462d883b05856c6c30b1d ]
+[ Upstream commit 7dd2e2a923173d637c272e483966be8e96a72b64 ]
 
-sparse warnings: (new ones prefixed by >>)
->> drivers/w1/slaves/w1_ds28e04.c:342:13: sparse: sparse: incorrect type in initializer (different address spaces) @@     expected char [noderef] __user *_pu_addr @@     got char *buf @@
-   drivers/w1/slaves/w1_ds28e04.c:342:13: sparse:     expected char [noderef] __user *_pu_addr
-   drivers/w1/slaves/w1_ds28e04.c:342:13: sparse:     got char *buf
->> drivers/w1/slaves/w1_ds28e04.c:356:13: sparse: sparse: incorrect type in initializer (different address spaces) @@     expected char const [noderef] __user *_gu_addr @@     got char const *buf @@
-   drivers/w1/slaves/w1_ds28e04.c:356:13: sparse:     expected char const [noderef] __user *_gu_addr
-   drivers/w1/slaves/w1_ds28e04.c:356:13: sparse:     got char const *buf
+Extraneous teardown routines are present in the firmware dump path causing
+altered states in firmware captures.
 
-The buffer buf is a failsafe buffer in kernel space, it's not user
-memory hence doesn't deserve the use of get_user() or put_user().
+When a firmware dump is requested via sysfs, trigger the dump immediately
+without tearing down structures and changing adapter state.
 
-Access 'buf' content directly.
+The driver shall rely on pre-existing firmware error state clean up
+handlers to restore the adapter.
 
-Link: https://lore.kernel.org/lkml/202111190526.K5vb7NWC-lkp@intel.com/T/
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Link: https://lore.kernel.org/r/d14ed8d71ad4372e6839ae427f91441d3ba0e94d.1637946316.git.christophe.leroy@csgroup.eu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20211204002644.116455-6-jsmart2021@gmail.com
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/w1/slaves/w1_ds28e04.c | 26 ++++++--------------------
- 1 file changed, 6 insertions(+), 20 deletions(-)
+ drivers/scsi/lpfc/lpfc.h         |  2 +-
+ drivers/scsi/lpfc/lpfc_attr.c    | 62 ++++++++++++++++++++------------
+ drivers/scsi/lpfc/lpfc_hbadisc.c |  8 ++++-
+ drivers/scsi/lpfc/lpfc_sli.c     |  6 ----
+ 4 files changed, 48 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/w1/slaves/w1_ds28e04.c b/drivers/w1/slaves/w1_ds28e04.c
-index 8a640f1590784..06a9966f8c933 100644
---- a/drivers/w1/slaves/w1_ds28e04.c
-+++ b/drivers/w1/slaves/w1_ds28e04.c
-@@ -32,7 +32,7 @@ static int w1_strong_pullup = 1;
- module_param_named(strong_pullup, w1_strong_pullup, int, 0);
+diff --git a/drivers/scsi/lpfc/lpfc.h b/drivers/scsi/lpfc/lpfc.h
+index 8943d42fc406e..0b69f4f713778 100644
+--- a/drivers/scsi/lpfc/lpfc.h
++++ b/drivers/scsi/lpfc/lpfc.h
+@@ -735,7 +735,6 @@ struct lpfc_hba {
+ #define HBA_DEVLOSS_TMO         0x2000 /* HBA in devloss timeout */
+ #define HBA_RRQ_ACTIVE		0x4000 /* process the rrq active list */
+ #define HBA_IOQ_FLUSH		0x8000 /* FCP/NVME I/O queues being flushed */
+-#define HBA_FW_DUMP_OP		0x10000 /* Skips fn reset before FW dump */
+ #define HBA_RECOVERABLE_UE	0x20000 /* Firmware supports recoverable UE */
+ #define HBA_FORCED_LINK_SPEED	0x40000 /*
+ 					 * Firmware supports Forced Link Speed
+@@ -744,6 +743,7 @@ struct lpfc_hba {
+ #define HBA_FLOGI_ISSUED	0x100000 /* FLOGI was issued */
+ #define HBA_DEFER_FLOGI		0x800000 /* Defer FLOGI till read_sparm cmpl */
  
- /* enable/disable CRC checking on DS28E04-100 memory accesses */
--static char w1_enable_crccheck = 1;
-+static bool w1_enable_crccheck = true;
++	struct completion *fw_dump_cmpl; /* cmpl event tracker for fw_dump */
+ 	uint32_t fcp_ring_in_use; /* When polling test if intr-hndlr active*/
+ 	struct lpfc_dmabuf slim2p;
  
- #define W1_EEPROM_SIZE		512
- #define W1_PAGE_COUNT		16
-@@ -339,32 +339,18 @@ static BIN_ATTR_RW(pio, 1);
- static ssize_t crccheck_show(struct device *dev, struct device_attribute *attr,
- 			     char *buf)
- {
--	if (put_user(w1_enable_crccheck + 0x30, buf))
--		return -EFAULT;
+diff --git a/drivers/scsi/lpfc/lpfc_attr.c b/drivers/scsi/lpfc/lpfc_attr.c
+index f0ecfe565660a..1c541a600149b 100644
+--- a/drivers/scsi/lpfc/lpfc_attr.c
++++ b/drivers/scsi/lpfc/lpfc_attr.c
+@@ -1537,25 +1537,25 @@ lpfc_sli4_pdev_reg_request(struct lpfc_hba *phba, uint32_t opcode)
+ 	before_fc_flag = phba->pport->fc_flag;
+ 	sriov_nr_virtfn = phba->cfg_sriov_nr_virtfn;
+ 
+-	/* Disable SR-IOV virtual functions if enabled */
+-	if (phba->cfg_sriov_nr_virtfn) {
+-		pci_disable_sriov(pdev);
+-		phba->cfg_sriov_nr_virtfn = 0;
+-	}
++	if (opcode == LPFC_FW_DUMP) {
++		init_completion(&online_compl);
++		phba->fw_dump_cmpl = &online_compl;
++	} else {
++		/* Disable SR-IOV virtual functions if enabled */
++		if (phba->cfg_sriov_nr_virtfn) {
++			pci_disable_sriov(pdev);
++			phba->cfg_sriov_nr_virtfn = 0;
++		}
+ 
+-	if (opcode == LPFC_FW_DUMP)
+-		phba->hba_flag |= HBA_FW_DUMP_OP;
++		status = lpfc_do_offline(phba, LPFC_EVT_OFFLINE);
+ 
+-	status = lpfc_do_offline(phba, LPFC_EVT_OFFLINE);
++		if (status != 0)
++			return status;
+ 
+-	if (status != 0) {
+-		phba->hba_flag &= ~HBA_FW_DUMP_OP;
+-		return status;
++		/* wait for the device to be quiesced before firmware reset */
++		msleep(100);
+ 	}
+ 
+-	/* wait for the device to be quiesced before firmware reset */
+-	msleep(100);
 -
--	return sizeof(w1_enable_crccheck);
-+	return sysfs_emit(buf, "%d\n", w1_enable_crccheck);
- }
+ 	reg_val = readl(phba->sli4_hba.conf_regs_memmap_p +
+ 			LPFC_CTL_PDEV_CTL_OFFSET);
  
- static ssize_t crccheck_store(struct device *dev, struct device_attribute *attr,
- 			      const char *buf, size_t count)
- {
--	char val;
+@@ -1584,24 +1584,42 @@ lpfc_sli4_pdev_reg_request(struct lpfc_hba *phba, uint32_t opcode)
+ 		lpfc_printf_log(phba, KERN_ERR, LOG_SLI,
+ 				"3153 Fail to perform the requested "
+ 				"access: x%x\n", reg_val);
++		if (phba->fw_dump_cmpl)
++			phba->fw_dump_cmpl = NULL;
+ 		return rc;
+ 	}
+ 
+ 	/* keep the original port state */
+-	if (before_fc_flag & FC_OFFLINE_MODE)
+-		goto out;
 -
--	if (count != 1 || !buf)
--		return -EINVAL;
-+	int err = kstrtobool(buf, &w1_enable_crccheck);
+-	init_completion(&online_compl);
+-	job_posted = lpfc_workq_post_event(phba, &status, &online_compl,
+-					   LPFC_EVT_ONLINE);
+-	if (!job_posted)
++	if (before_fc_flag & FC_OFFLINE_MODE) {
++		if (phba->fw_dump_cmpl)
++			phba->fw_dump_cmpl = NULL;
+ 		goto out;
++	}
  
--	if (get_user(val, buf))
--		return -EFAULT;
-+	if (err)
-+		return err;
+-	wait_for_completion(&online_compl);
++	/* Firmware dump will trigger an HA_ERATT event, and
++	 * lpfc_handle_eratt_s4 routine already handles bringing the port back
++	 * online.
++	 */
++	if (opcode == LPFC_FW_DUMP) {
++		wait_for_completion(phba->fw_dump_cmpl);
++	} else  {
++		init_completion(&online_compl);
++		job_posted = lpfc_workq_post_event(phba, &status, &online_compl,
++						   LPFC_EVT_ONLINE);
++		if (!job_posted)
++			goto out;
  
--	/* convert to decimal */
--	val = val - 0x30;
--	if (val != 0 && val != 1)
--		return -EINVAL;
++		wait_for_completion(&online_compl);
++	}
+ out:
+ 	/* in any case, restore the virtual functions enabled as before */
+ 	if (sriov_nr_virtfn) {
++		/* If fw_dump was performed, first disable to clean up */
++		if (opcode == LPFC_FW_DUMP) {
++			pci_disable_sriov(pdev);
++			phba->cfg_sriov_nr_virtfn = 0;
++		}
++
+ 		sriov_err =
+ 			lpfc_sli_probe_sriov_nr_virtfn(phba, sriov_nr_virtfn);
+ 		if (!sriov_err)
+diff --git a/drivers/scsi/lpfc/lpfc_hbadisc.c b/drivers/scsi/lpfc/lpfc_hbadisc.c
+index 0dc1d56ff4709..0abce779fbb13 100644
+--- a/drivers/scsi/lpfc/lpfc_hbadisc.c
++++ b/drivers/scsi/lpfc/lpfc_hbadisc.c
+@@ -628,10 +628,16 @@ lpfc_work_done(struct lpfc_hba *phba)
+ 	if (phba->pci_dev_grp == LPFC_PCI_DEV_OC)
+ 		lpfc_sli4_post_async_mbox(phba);
+ 
+-	if (ha_copy & HA_ERATT)
++	if (ha_copy & HA_ERATT) {
+ 		/* Handle the error attention event */
+ 		lpfc_handle_eratt(phba);
+ 
++		if (phba->fw_dump_cmpl) {
++			complete(phba->fw_dump_cmpl);
++			phba->fw_dump_cmpl = NULL;
++		}
++	}
++
+ 	if (ha_copy & HA_MBATT)
+ 		lpfc_sli_handle_mb_event(phba);
+ 
+diff --git a/drivers/scsi/lpfc/lpfc_sli.c b/drivers/scsi/lpfc/lpfc_sli.c
+index 51bab0979527b..bd908dd273078 100644
+--- a/drivers/scsi/lpfc/lpfc_sli.c
++++ b/drivers/scsi/lpfc/lpfc_sli.c
+@@ -4498,12 +4498,6 @@ lpfc_sli4_brdreset(struct lpfc_hba *phba)
+ 	phba->fcf.fcf_flag = 0;
+ 	spin_unlock_irq(&phba->hbalock);
+ 
+-	/* SLI4 INTF 2: if FW dump is being taken skip INIT_PORT */
+-	if (phba->hba_flag & HBA_FW_DUMP_OP) {
+-		phba->hba_flag &= ~HBA_FW_DUMP_OP;
+-		return rc;
+-	}
 -
--	/* set the new value */
--	w1_enable_crccheck = val;
--
--	return sizeof(w1_enable_crccheck);
-+	return count;
- }
- 
- static DEVICE_ATTR_RW(crccheck);
+ 	/* Now physically reset the device */
+ 	lpfc_printf_log(phba, KERN_INFO, LOG_INIT,
+ 			"0389 Performing PCI function reset!\n");
 -- 
 2.34.1
 
