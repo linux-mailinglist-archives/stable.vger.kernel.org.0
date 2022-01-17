@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C3E8490D30
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:01:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38324490D32
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:01:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241697AbiAQRBT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 12:01:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44706 "EHLO
+        id S241847AbiAQRBV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 12:01:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44984 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237872AbiAQRAe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:00:34 -0500
+        with ESMTP id S241713AbiAQRAf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:00:35 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC26EC06175F;
-        Mon, 17 Jan 2022 09:00:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B93AC0613E3;
+        Mon, 17 Jan 2022 09:00:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5EEA2611C6;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BCB9B611CA;
+        Mon, 17 Jan 2022 17:00:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B445C36AED;
         Mon, 17 Jan 2022 17:00:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF52BC36AE3;
-        Mon, 17 Jan 2022 17:00:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642438827;
-        bh=NqR7yKJSns1WI91EqrzghJUPndY75hkCqkC8BO4I9k0=;
+        s=k20201202; t=1642438829;
+        bh=UAjvnhTZ2Yn5EHOvdWzEPrFzvMqBIFWTeR/luTOCF24=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o4wm9NDIDbswv0cW+zBTKvaQSrpTypW8Yi7pycn7Sy18MzafU2Nk4II9nr4p56buZ
-         f1TTiFl5NDGr8jsMnYqz8OLleBYgIN2lEaso3mD+RMrt3SMd5ZyDfnJVdB7k8UQ6si
-         aHrmDxMx9SRbcmBdCyWJYFGonWZBPR7D1Qyrxb6gjPfS8AFXi9k1q/VnRRQJeBCZMx
-         yOlqxWvvouMWLruvdQdGBk9kuRiWH5AlaTeCWNw41jYnIhTKdUHVQiKBIBnzeiFxgV
-         EMdoltz+cHVmkXhYWdPWnZzs3JMdm4UbGQvCcgjPxCiPnh4gwSlZknRY3/JHPZ21O/
-         dT1loM0nVjw9A==
+        b=g0U8L+Gom+mdi9kd2eqlr8nu5NvTRT1eOmsAjyzD+wzsrEYBj+9Srck6EMNpFAY1F
+         oqgmW3bfBeHFLsUr1Da9keAN/iUBk5eWMnMUqQXYrcybnJPcokbvs7Gv6r7L/y7G8v
+         KHgV6IsW2z8nCVIQeazUnd6+YvC8sz6VFkwr/4FsTnHENCubhzgNlUKLLp1xyC/dew
+         tPplOBQKIY6G+qi2GG0tdy4moPEbyKJbY37Q2xeBfQyut1yFYiNhlZ3RryoUgVJG4Q
+         l5mp+6+GOktGeEj5SaU24gNQDGIcwdKNygDItAxdSErnrnTTx9IkPnAidHXIIe9ifr
+         rls/cnZtJLNpw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>, Nishanth Menon <nm@ti.com>,
-        Michael Kelley <mikelley@microsoft.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, bhelgaas@google.com,
-        linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 36/52] PCI/MSI: Decouple MSI[-X] disable from pcim_release()
-Date:   Mon, 17 Jan 2022 11:58:37 -0500
-Message-Id: <20220117165853.1470420-36-sashal@kernel.org>
+Cc:     Qi Liu <liuqi115@huawei.com>, John Garry <john.garry@huawei.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 37/52] scsi: hisi_sas: Prevent parallel FLR and controller reset
+Date:   Mon, 17 Jan 2022 11:58:38 -0500
+Message-Id: <20220117165853.1470420-37-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220117165853.1470420-1-sashal@kernel.org>
 References: <20220117165853.1470420-1-sashal@kernel.org>
@@ -52,141 +51,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Qi Liu <liuqi115@huawei.com>
 
-[ Upstream commit 3f35d2cf9fbc656db82579d849cc69c373b1ad0d ]
+[ Upstream commit 16775db613c2bdea09705dcb876942c0641a1098 ]
 
-The MSI core will introduce runtime allocation of MSI related data. This
-data will be devres managed and has to be set up before enabling
-PCI/MSI[-X]. This would introduce an ordering issue vs. pcim_release().
+If we issue a controller reset command during executing a FLR a hung task
+may be found:
 
-The setup order is:
+ Call trace:
+  __switch_to+0x158/0x1cc
+  __schedule+0x2e8/0x85c
+  schedule+0x7c/0x110
+  schedule_timeout+0x190/0x1cc
+  __down+0x7c/0xd4
+  down+0x5c/0x7c
+  hisi_sas_task_exec+0x510/0x680 [hisi_sas_main]
+  hisi_sas_queue_command+0x24/0x30 [hisi_sas_main]
+  smp_execute_task_sg+0xf4/0x23c [libsas]
+  sas_smp_phy_control+0x110/0x1e0 [libsas]
+  transport_sas_phy_reset+0xc8/0x190 [libsas]
+  phy_reset_work+0x2c/0x40 [libsas]
+  process_one_work+0x1dc/0x48c
+  worker_thread+0x15c/0x464
+  kthread+0x160/0x170
+  ret_from_fork+0x10/0x18
 
-   pcim_enable_device()
-	devres_alloc(pcim_release...);
-	...
-	pci_irq_alloc()
-	  msi_setup_device_data()
-	     devres_alloc(msi_device_data_release, ...)
+This is a race condition which occurs when the FLR completes first.
 
-and once the device is released these release functions are invoked in the
-opposite order:
+Here the host HISI_SAS_RESETTING_BIT flag out gets of sync as
+HISI_SAS_RESETTING_BIT is not always cleared with the hisi_hba.sem held, so
+now only set/unset HISI_SAS_RESETTING_BIT under hisi_hba.sem .
 
-    msi_device_data_release()
-    ...
-    pcim_release()
-       pci_disable_msi[x]()
-
-which is obviously wrong, because pci_disable_msi[x]() requires the MSI
-data to be available to tear down the MSI[-X] interrupts.
-
-Remove the MSI[-X] teardown from pcim_release() and add an explicit action
-to be installed on the attempt of enabling PCI/MSI[-X].
-
-This allows the MSI core data allocation to be ordered correctly in a
-subsequent step.
-
-Reported-by: Nishanth Menon <nm@ti.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Michael Kelley <mikelley@microsoft.com>
-Tested-by: Nishanth Menon <nm@ti.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Link: https://lore.kernel.org/r/87tuf9rdoj.ffs@tglx
+Link: https://lore.kernel.org/r/1639579061-179473-7-git-send-email-john.garry@huawei.com
+Signed-off-by: Qi Liu <liuqi115@huawei.com>
+Signed-off-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/msi.c   | 33 +++++++++++++++++++++++++++++++++
- drivers/pci/pci.c   |  5 -----
- include/linux/pci.h |  3 ++-
- 3 files changed, 35 insertions(+), 6 deletions(-)
+ drivers/scsi/hisi_sas/hisi_sas_main.c  | 8 +++++---
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 1 +
+ 2 files changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
-index d84cf30bb2790..1093f099846eb 100644
---- a/drivers/pci/msi.c
-+++ b/drivers/pci/msi.c
-@@ -461,6 +461,31 @@ void pci_restore_msi_state(struct pci_dev *dev)
- }
- EXPORT_SYMBOL_GPL(pci_restore_msi_state);
- 
-+static void pcim_msi_release(void *pcidev)
-+{
-+	struct pci_dev *dev = pcidev;
-+
-+	dev->is_msi_managed = false;
-+	pci_free_irq_vectors(dev);
-+}
-+
-+/*
-+ * Needs to be separate from pcim_release to prevent an ordering problem
-+ * vs. msi_device_data_release() in the MSI core code.
-+ */
-+static int pcim_setup_msi_release(struct pci_dev *dev)
-+{
-+	int ret;
-+
-+	if (!pci_is_managed(dev) || dev->is_msi_managed)
-+		return 0;
-+
-+	ret = devm_add_action(&dev->dev, pcim_msi_release, dev);
-+	if (!ret)
-+		dev->is_msi_managed = true;
-+	return ret;
-+}
-+
- static struct msi_desc *
- msi_setup_entry(struct pci_dev *dev, int nvec, struct irq_affinity *affd)
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index f206c433de325..8a13bc08d6575 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -1581,7 +1581,6 @@ void hisi_sas_controller_reset_prepare(struct hisi_hba *hisi_hba)
  {
-@@ -1029,6 +1054,10 @@ static int __pci_enable_msi_range(struct pci_dev *dev, int minvec, int maxvec,
- 	if (nvec > maxvec)
- 		nvec = maxvec;
+ 	struct Scsi_Host *shost = hisi_hba->shost;
  
-+	rc = pcim_setup_msi_release(dev);
-+	if (rc)
-+		return rc;
-+
- 	for (;;) {
- 		if (affd) {
- 			nvec = irq_calc_affinity_vectors(minvec, nvec, affd);
-@@ -1072,6 +1101,10 @@ static int __pci_enable_msix_range(struct pci_dev *dev,
- 	if (WARN_ON_ONCE(dev->msix_enabled))
- 		return -EINVAL;
+-	down(&hisi_hba->sem);
+ 	hisi_hba->phy_state = hisi_hba->hw->get_phys_state(hisi_hba);
  
-+	rc = pcim_setup_msi_release(dev);
-+	if (rc)
-+		return rc;
-+
- 	for (;;) {
- 		if (affd) {
- 			nvec = irq_calc_affinity_vectors(minvec, nvec, affd);
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index 3d2fb394986a4..f3f606c232a8a 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -2024,11 +2024,6 @@ static void pcim_release(struct device *gendev, void *res)
- 	struct pci_devres *this = res;
- 	int i;
+ 	scsi_block_requests(shost);
+@@ -1606,9 +1605,9 @@ void hisi_sas_controller_reset_done(struct hisi_hba *hisi_hba)
+ 	if (hisi_hba->reject_stp_links_msk)
+ 		hisi_sas_terminate_stp_reject(hisi_hba);
+ 	hisi_sas_reset_init_all_devices(hisi_hba);
+-	up(&hisi_hba->sem);
+ 	scsi_unblock_requests(shost);
+ 	clear_bit(HISI_SAS_RESETTING_BIT, &hisi_hba->flags);
++	up(&hisi_hba->sem);
  
--	if (dev->msi_enabled)
--		pci_disable_msi(dev);
--	if (dev->msix_enabled)
--		pci_disable_msix(dev);
--
- 	for (i = 0; i < DEVICE_COUNT_RESOURCE; i++)
- 		if (this->region_mask & (1 << i))
- 			pci_release_region(dev, i);
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 18a75c8e615cd..e26000404e3c3 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -425,7 +425,8 @@ struct pci_dev {
- 	unsigned int	ats_enabled:1;		/* Address Translation Svc */
- 	unsigned int	pasid_enabled:1;	/* Process Address Space ID */
- 	unsigned int	pri_enabled:1;		/* Page Request Interface */
--	unsigned int	is_managed:1;
-+	unsigned int	is_managed:1;		/* Managed via devres */
-+	unsigned int	is_msi_managed:1;	/* MSI release via devres installed */
- 	unsigned int	needs_freset:1;		/* Requires fundamental reset */
- 	unsigned int	state_saved:1;
- 	unsigned int	is_physfn:1;
+ 	hisi_sas_rescan_topology(hisi_hba, hisi_hba->phy_state);
+ }
+@@ -1619,8 +1618,11 @@ static int hisi_sas_controller_prereset(struct hisi_hba *hisi_hba)
+ 	if (!hisi_hba->hw->soft_reset)
+ 		return -1;
+ 
+-	if (test_and_set_bit(HISI_SAS_RESETTING_BIT, &hisi_hba->flags))
++	down(&hisi_hba->sem);
++	if (test_and_set_bit(HISI_SAS_RESETTING_BIT, &hisi_hba->flags)) {
++		up(&hisi_hba->sem);
+ 		return -1;
++	}
+ 
+ 	if (hisi_sas_debugfs_enable && hisi_hba->debugfs_itct[0].itct)
+ 		hisi_hba->hw->debugfs_snapshot_regs(hisi_hba);
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+index 0ef6c21bf0811..11a44d9dd9b2d 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
+@@ -4848,6 +4848,7 @@ static void hisi_sas_reset_prepare_v3_hw(struct pci_dev *pdev)
+ 	int rc;
+ 
+ 	dev_info(dev, "FLR prepare\n");
++	down(&hisi_hba->sem);
+ 	set_bit(HISI_SAS_RESETTING_BIT, &hisi_hba->flags);
+ 	hisi_sas_controller_reset_prepare(hisi_hba);
+ 
 -- 
 2.34.1
 
