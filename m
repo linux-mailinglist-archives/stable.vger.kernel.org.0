@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06E4C490DE1
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:06:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1C9A490DE7
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:06:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238224AbiAQRGS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 12:06:18 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:54184 "EHLO
+        id S241826AbiAQRGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 12:06:25 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:54222 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242080AbiAQREQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:04:16 -0500
+        with ESMTP id S241694AbiAQRET (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:04:19 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E6BC861290;
-        Mon, 17 Jan 2022 17:04:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C335C36AE3;
-        Mon, 17 Jan 2022 17:04:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25BA16120D;
+        Mon, 17 Jan 2022 17:04:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F539C36AE7;
+        Mon, 17 Jan 2022 17:04:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642439055;
-        bh=/+mI8nrRREij5JDaj6gEO/h76K+KA7kZdaVgSdBD+Fk=;
+        s=k20201202; t=1642439058;
+        bh=Aqzs6TyYmoFSONdI2u4ZRgTSfsF8vwjIks/uERB6+TQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dVsv76PdfL85BNfIIMuuvjsXV4RASKkUDiCXtjHT0ZjP33ysKuNA8qTOv2qrWDg4B
-         d1p5p6MI+fKSOEHM8pJwF2LZ31jy7lgpUy1okFDbjXP/YBR98DWePoj7776a68Ouba
-         k9mzt3wt1EjhYI9eigg99/n6LWLvq/n2zlORcff3w9j4buR5ChOSclr8V+cXW+ZxAO
-         4b/tWNZs1T74jBTnf6qvD03i1GXPD8SNBhRkI9c3NYny74R3SkEt7pTnVRHZstc6yl
-         P9B+7xpw6vEBFIMHKQromLtazaruGrWNXvK1KtrVLwBHObi26BJ+ABrTEVn6T9TooB
-         uGKupCLwr+nhg==
+        b=lyL7J/Ln/IGJp4Rj8auGq0JHa2sg8zNa146YSILOvFm35w0KK2B9mUTE5Dvu20L7o
+         1HbMA5g1/WjqBhTB7cFgT4GtAVmua15L2hEYLcm+h0ugBQG5uy0G4inS6S927gpPkY
+         5sKb2ovIw2APmNMJN02nwS4g6WDt9dMV+Xk6mdTnUs/qHZZKpLpRmdmqn4b+7dVwN4
+         +bC4DHfRMEokuOE7NOidrc6Xl0R5K2svkiJqT3Ine3DbHev4/yToYd6z+xUPov0pmL
+         2Uc/KljDrFeyFxcuNZ+swKRzxOg1vIjwNb5Z4ydTHs3z9wXMIJXU4QblmzdvMqVs1S
+         sP989hgwsjRTg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+Cc:     Hari Bathini <hbathini@linux.ibm.com>,
+        kernel test robot <lkp@intel.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        linuxppc-dev@lists.ozlabs.org, linux-kselftest@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 22/34] selftests/powerpc/spectre_v2: Return skip code when miss_percent is high
-Date:   Mon, 17 Jan 2022 12:03:12 -0500
-Message-Id: <20220117170326.1471712-22-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, srikar@linux.vnet.ibm.com,
+        ego@linux.vnet.ibm.com, clg@kaod.org, parth@linux.ibm.com,
+        npiggin@gmail.com, robh@kernel.org, yukuai3@huawei.com,
+        linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.10 23/34] powerpc: handle kdump appropriately with crash_kexec_post_notifiers option
+Date:   Mon, 17 Jan 2022 12:03:13 -0500
+Message-Id: <20220117170326.1471712-23-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220117170326.1471712-1-sashal@kernel.org>
 References: <20220117170326.1471712-1-sashal@kernel.org>
@@ -48,40 +51,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+From: Hari Bathini <hbathini@linux.ibm.com>
 
-[ Upstream commit 3c42e9542050d49610077e083c7c3f5fd5e26820 ]
+[ Upstream commit 219572d2fc4135b5ce65c735d881787d48b10e71 ]
 
-A mis-match between reported and actual mitigation is not restricted to the
-Vulnerable case. The guest might also report the mitigation as "Software
-count cache flush" and the host will still mitigate with branch cache
-disabled.
+Kdump can be triggered after panic_notifers since commit f06e5153f4ae2
+("kernel/panic.c: add "crash_kexec_post_notifiers" option for kdump
+after panic_notifers") introduced crash_kexec_post_notifiers option.
+But using this option would mean smp_send_stop(), that marks all other
+CPUs as offline, gets called before kdump is triggered. As a result,
+kdump routines fail to save other CPUs' registers. To fix this, kdump
+friendly crash_smp_send_stop() function was introduced with kernel
+commit 0ee59413c967 ("x86/panic: replace smp_send_stop() with kdump
+friendly version in panic path"). Override this kdump friendly weak
+function to handle crash_kexec_post_notifiers option appropriately
+on powerpc.
 
-So, instead of skipping depending on the detected mitigation, simply skip
-whenever the detected miss_percent is the expected one for a fully
-mitigated system, that is, above 95%.
-
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
+[Fixed signature of crash_stop_this_cpu() - reported by lkp@intel.com]
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211207130557.40566-1-cascardo@canonical.com
+Link: https://lore.kernel.org/r/20211207103719.91117-1-hbathini@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/powerpc/security/spectre_v2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/kernel/smp.c | 30 ++++++++++++++++++++++++++++++
+ 1 file changed, 30 insertions(+)
 
-diff --git a/tools/testing/selftests/powerpc/security/spectre_v2.c b/tools/testing/selftests/powerpc/security/spectre_v2.c
-index adc2b7294e5fd..83647b8277e7d 100644
---- a/tools/testing/selftests/powerpc/security/spectre_v2.c
-+++ b/tools/testing/selftests/powerpc/security/spectre_v2.c
-@@ -193,7 +193,7 @@ int spectre_v2_test(void)
- 			 * We are not vulnerable and reporting otherwise, so
- 			 * missing such a mismatch is safe.
- 			 */
--			if (state == VULNERABLE)
-+			if (miss_percent > 95)
- 				return 4;
+diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
+index 50aeef08aa470..d993f28107afa 100644
+--- a/arch/powerpc/kernel/smp.c
++++ b/arch/powerpc/kernel/smp.c
+@@ -594,6 +594,36 @@ void crash_send_ipi(void (*crash_ipi_callback)(struct pt_regs *))
+ }
+ #endif
  
- 			return 1;
++#ifdef CONFIG_NMI_IPI
++static void crash_stop_this_cpu(struct pt_regs *regs)
++#else
++static void crash_stop_this_cpu(void *dummy)
++#endif
++{
++	/*
++	 * Just busy wait here and avoid marking CPU as offline to ensure
++	 * register data is captured appropriately.
++	 */
++	while (1)
++		cpu_relax();
++}
++
++void crash_smp_send_stop(void)
++{
++	static bool stopped = false;
++
++	if (stopped)
++		return;
++
++	stopped = true;
++
++#ifdef CONFIG_NMI_IPI
++	smp_send_nmi_ipi(NMI_IPI_ALL_OTHERS, crash_stop_this_cpu, 1000000);
++#else
++	smp_call_function(crash_stop_this_cpu, NULL, 0);
++#endif /* CONFIG_NMI_IPI */
++}
++
+ #ifdef CONFIG_NMI_IPI
+ static void nmi_stop_this_cpu(struct pt_regs *regs)
+ {
 -- 
 2.34.1
 
