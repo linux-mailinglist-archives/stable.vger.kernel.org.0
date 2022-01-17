@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCCA7490E75
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:11:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F750490E77
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:11:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241212AbiAQRJJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 12:09:09 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:57200 "EHLO
+        id S242639AbiAQRJN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 12:09:13 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:57252 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242127AbiAQRHI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:07:08 -0500
+        with ESMTP id S241885AbiAQRHK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:07:10 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AFDFA6126B;
-        Mon, 17 Jan 2022 17:07:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28297C36AE7;
-        Mon, 17 Jan 2022 17:07:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7855C6120D;
+        Mon, 17 Jan 2022 17:07:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11724C36AE7;
+        Mon, 17 Jan 2022 17:07:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642439224;
-        bh=1j7mayRmOuGQ+nRLdXsL59wVA+c5vHDalgnqM39ocY4=;
+        s=k20201202; t=1642439227;
+        bh=BhvH5FYxPJNi12cUpjUBB71t6MBUCKzlBxAp22IT8s0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OTAl/Lrwu4lOzIwND36pXNZhSQAgFhaKFtlOXboCmL7WxFf9bqg39o6Lyt1hT9g6U
-         5QU5Esv8x65hvM5RWUFIobeUviIhJjMg+JiOcXKW1DznU8YR5CBUrvhbWdwHv1UsZQ
-         W0djNk6dgs0UPM9TpovYTKWXTMiaie72ont7cSGi6Vz48n8ODd6qDYx82+nE9ucu5y
-         3ls6cB1yIRuGaYOKvPpzDqCoWsNkjLsqY2cmWwmAK5Q1TpsSXK4pmzLkAEACsWwjd6
-         R0yIk+pIQTZP/i8zMLreB8+/OsyiCFG6n78ByrSchTCUCT7LwAIbmtp5SVvXIeXugR
-         3fp56DoUwoQ9Q==
+        b=tVkX8eDZabaxSJ22w/nKPazfCCYj8NCdBfSf0+l05zH7DySkDAqo+R1jNJGz0kWQV
+         VOsNVKvjIZzqUcCWO0Uhyp3ZqYJKaku7+z/iiHrshlew7wOFCDnTTLfbc0h3/+Capo
+         vpU0zy5xJfe2CXWaSweYx9G/vluvjmk59vsyHCe25PPTqEtxNTnKu0cQGmibXoUmXQ
+         qmwqLmCKOmfdg30eMa4J1ny36ROKPrMx+Vw5yLhBGWnp/9l2Nj267ysd8IIxzQ2sEF
+         UxlJ/1P7ribVkeC6S/0DcZcXc+v6mrSLfcyvPXjeZv+nB4Fb4vO6zoOpBpoa+J9VhS
+         iJ9pruM6VFeFg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Takashi Iwai <tiwai@suse.de>, Zqiang <qiang.zhang1211@gmail.com>,
-        syzbot+bb950e68b400ab4f65f8@syzkaller.appspotmail.com,
-        Sasha Levin <sashal@kernel.org>, perex@perex.cz,
-        tiwai@suse.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.14 11/16] ALSA: seq: Set upper limit of processed events
-Date:   Mon, 17 Jan 2022 12:06:33 -0500
-Message-Id: <20220117170638.1472900-11-sashal@kernel.org>
+Cc:     Ye Guojin <ye.guojin@zte.com.cn>, Zeal Robot <zealci@zte.com.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>, yangyingliang@huawei.com,
+        linux-mips@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 12/16] MIPS: OCTEON: add put_device() after of_find_device_by_node()
+Date:   Mon, 17 Jan 2022 12:06:34 -0500
+Message-Id: <20220117170638.1472900-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220117170638.1472900-1-sashal@kernel.org>
 References: <20220117170638.1472900-1-sashal@kernel.org>
@@ -48,85 +48,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Ye Guojin <ye.guojin@zte.com.cn>
 
-[ Upstream commit 6fadb494a638d8b8a55864ecc6ac58194f03f327 ]
+[ Upstream commit 858779df1c0787d3fec827fb705708df9ebdb15b ]
 
-Currently ALSA sequencer core tries to process the queued events as
-much as possible when they become dispatchable.  If applications try
-to queue too massive events to be processed at the very same timing,
-the sequencer core would still try to process such all events, either
-in the interrupt context or via some notifier; in either away, it
-might be a cause of RCU stall or such problems.
+This was found by coccicheck:
+./arch/mips/cavium-octeon/octeon-platform.c, 332, 1-7, ERROR missing
+put_device; call of_find_device_by_node on line 324, but without a
+corresponding object release within this function.
+./arch/mips/cavium-octeon/octeon-platform.c, 395, 1-7, ERROR missing
+put_device; call of_find_device_by_node on line 387, but without a
+corresponding object release within this function.
+./arch/mips/cavium-octeon/octeon-usb.c, 512, 3-9, ERROR missing
+put_device; call of_find_device_by_node on line 515, but without a
+corresponding object release within this function.
+./arch/mips/cavium-octeon/octeon-usb.c, 543, 1-7, ERROR missing
+put_device; call of_find_device_by_node on line 515, but without a
+corresponding object release within this function.
 
-As a potential workaround for those problems, this patch adds the
-upper limit of the amount of events to be processed.  The remaining
-events are processed in the next batch, so they won't be lost.
-
-For the time being, it's limited up to 1000 events per queue, which
-should be high enough for any normal usages.
-
-Reported-by: Zqiang <qiang.zhang1211@gmail.com>
-Reported-by: syzbot+bb950e68b400ab4f65f8@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20211102033222.3849-1-qiang.zhang1211@gmail.com
-Link: https://lore.kernel.org/r/20211207165146.2888-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Ye Guojin <ye.guojin@zte.com.cn>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/seq/seq_queue.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ arch/mips/cavium-octeon/octeon-platform.c | 2 ++
+ arch/mips/cavium-octeon/octeon-usb.c      | 1 +
+ 2 files changed, 3 insertions(+)
 
-diff --git a/sound/core/seq/seq_queue.c b/sound/core/seq/seq_queue.c
-index ea1aa07962761..b923059a22276 100644
---- a/sound/core/seq/seq_queue.c
-+++ b/sound/core/seq/seq_queue.c
-@@ -257,12 +257,15 @@ struct snd_seq_queue *snd_seq_queue_find_name(char *name)
+diff --git a/arch/mips/cavium-octeon/octeon-platform.c b/arch/mips/cavium-octeon/octeon-platform.c
+index e1e24118c169e..ed42fc27033c4 100644
+--- a/arch/mips/cavium-octeon/octeon-platform.c
++++ b/arch/mips/cavium-octeon/octeon-platform.c
+@@ -328,6 +328,7 @@ static int __init octeon_ehci_device_init(void)
  
- /* -------------------------------------------------------- */
+ 	pd->dev.platform_data = &octeon_ehci_pdata;
+ 	octeon_ehci_hw_start(&pd->dev);
++	put_device(&pd->dev);
  
-+#define MAX_CELL_PROCESSES_IN_QUEUE	1000
-+
- void snd_seq_check_queue(struct snd_seq_queue *q, int atomic, int hop)
- {
- 	unsigned long flags;
- 	struct snd_seq_event_cell *cell;
- 	snd_seq_tick_time_t cur_tick;
- 	snd_seq_real_time_t cur_time;
-+	int processed = 0;
+ 	return ret;
+ }
+@@ -391,6 +392,7 @@ static int __init octeon_ohci_device_init(void)
  
- 	if (q == NULL)
- 		return;
-@@ -285,6 +288,8 @@ void snd_seq_check_queue(struct snd_seq_queue *q, int atomic, int hop)
- 		if (!cell)
- 			break;
- 		snd_seq_dispatch_event(cell, atomic, hop);
-+		if (++processed >= MAX_CELL_PROCESSES_IN_QUEUE)
-+			goto out; /* the rest processed at the next batch */
- 	}
+ 	pd->dev.platform_data = &octeon_ohci_pdata;
+ 	octeon_ohci_hw_start(&pd->dev);
++	put_device(&pd->dev);
  
- 	/* Process time queue... */
-@@ -294,14 +299,19 @@ void snd_seq_check_queue(struct snd_seq_queue *q, int atomic, int hop)
- 		if (!cell)
- 			break;
- 		snd_seq_dispatch_event(cell, atomic, hop);
-+		if (++processed >= MAX_CELL_PROCESSES_IN_QUEUE)
-+			goto out; /* the rest processed at the next batch */
- 	}
+ 	return ret;
+ }
+diff --git a/arch/mips/cavium-octeon/octeon-usb.c b/arch/mips/cavium-octeon/octeon-usb.c
+index 75189ff2f3c78..3465452e28195 100644
+--- a/arch/mips/cavium-octeon/octeon-usb.c
++++ b/arch/mips/cavium-octeon/octeon-usb.c
+@@ -543,6 +543,7 @@ static int __init dwc3_octeon_device_init(void)
+ 			devm_iounmap(&pdev->dev, base);
+ 			devm_release_mem_region(&pdev->dev, res->start,
+ 						resource_size(res));
++			put_device(&pdev->dev);
+ 		}
+ 	} while (node != NULL);
  
-+ out:
- 	/* free lock */
- 	spin_lock_irqsave(&q->check_lock, flags);
- 	if (q->check_again) {
- 		q->check_again = 0;
--		spin_unlock_irqrestore(&q->check_lock, flags);
--		goto __again;
-+		if (processed < MAX_CELL_PROCESSES_IN_QUEUE) {
-+			spin_unlock_irqrestore(&q->check_lock, flags);
-+			goto __again;
-+		}
- 	}
- 	q->check_blocked = 0;
- 	spin_unlock_irqrestore(&q->check_lock, flags);
 -- 
 2.34.1
 
