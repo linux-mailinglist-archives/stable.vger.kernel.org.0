@@ -2,41 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63CB2490E10
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:07:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F773490EAC
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:11:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242546AbiAQRG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 12:06:58 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:54612 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242506AbiAQREg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:04:36 -0500
+        id S243471AbiAQRLb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 12:11:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46332 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241707AbiAQRIV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:08:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 316AEC06175E;
+        Mon, 17 Jan 2022 09:04:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB3B66125B;
-        Mon, 17 Jan 2022 17:04:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E92BC36AFB;
-        Mon, 17 Jan 2022 17:04:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EE069B81148;
+        Mon, 17 Jan 2022 17:04:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3620FC36AE7;
+        Mon, 17 Jan 2022 17:04:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642439075;
-        bh=etu1+QawpUz4kFPhtE4lzzUtDzxSXDESMys7UCF3mVU=;
+        s=k20201202; t=1642439082;
+        bh=dPNDS9c1FKRDuq5vFo9z89Gbkjn2n1/fPgl2lhDlYk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p+YzqIP2IUZa/uLbE0aAyEico2qKElfHjfRo1E53rLtl8CcoiaBfy1SZDQ9gDFbee
-         OOmXrnqwSJse79++32culFfXrKeqwXuoH+5+6IxnY9J4XRHh5i/tENUAb4tDVRkyGJ
-         cS2XMqRzRAtiTaIjtw4tJ0A1A9h4AtQwku4DCzjgocGrDG3EwcEHACKjvmLeeHlzJu
-         30nejaXo1bh9g9X/q2JfyAAWgGIouFGufWl/llnp134RAA3nzYjLcqYFGN8gMtYUsQ
-         2+QfgPAOhUO+PHKqXmknutFx0+d2P1cK0a54WgNO2vx3pxUGnQuLToLSF69/LJ2gS8
-         VxBSguoNOrs3g==
+        b=IEecy1urv2XAHmc4k/xTiLYF0lyDv8qeF1xWvOk2i2U4NNg8goawPCbrV9HYFJbpm
+         WmJx4xxV1iaNlihrkjU9Gvm5X5awBF2JwI3cvQfV0/FdiV8PKiugQZsjAAjSuhntYn
+         RdPxIyY6uf4pi/mlccntp44Fl5pCB4m/gpCP25pUA208nJs6+XepE7wv0AVlGkwuCK
+         6Nb9NcO12+vLXvKMdbcuoWZ/2JwuacM/klR3bm/b0lCn4VHd07e6Q4ZufWi+PBwNB2
+         hNv0WLvc1RUcu7Lyz4+smEewvWSXR7uul1K5sAdNFJecTP/9rJSXk5F8C6NSmqTYOd
+         NDtGRTO16TatQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>, Baoquan He <bhe@redhat.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, jejb@linux.ibm.com,
-        linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 30/34] scsi: sr: Don't use GFP_DMA
-Date:   Mon, 17 Jan 2022 12:03:20 -0500
-Message-Id: <20220117170326.1471712-30-sashal@kernel.org>
+Cc:     Tzung-Bi Shih <tzungbi@google.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        perex@perex.cz, tiwai@suse.com, matthias.bgg@gmail.com,
+        jiaxin.yu@mediatek.com, angelogioacchino.delregno@collabora.com,
+        alsa-devel@alsa-project.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 31/34] ASoC: mediatek: mt8173: fix device_node leak
+Date:   Mon, 17 Jan 2022 12:03:21 -0500
+Message-Id: <20220117170326.1471712-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220117170326.1471712-1-sashal@kernel.org>
 References: <20220117170326.1471712-1-sashal@kernel.org>
@@ -48,58 +54,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Tzung-Bi Shih <tzungbi@google.com>
 
-[ Upstream commit d94d94969a4ba07a43d62429c60372320519c391 ]
+[ Upstream commit 493433785df0075afc0c106ab65f10a605d0b35d ]
 
-The allocated buffers are used as a command payload, for which the block
-layer and/or DMA API do the proper bounce buffering if needed.
+Fixes the device_node leak.
 
-Link: https://lore.kernel.org/r/20211222090842.920724-1-hch@lst.de
-Reported-by: Baoquan He <bhe@redhat.com>
-Reviewed-by: Baoquan He <bhe@redhat.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
+Link: https://lore.kernel.org/r/20211224064719.2031210-2-tzungbi@google.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/sr.c        | 2 +-
- drivers/scsi/sr_vendor.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ sound/soc/mediatek/mt8173/mt8173-max98090.c      | 3 +++
+ sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c | 2 ++
+ sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c | 2 ++
+ sound/soc/mediatek/mt8173/mt8173-rt5650.c        | 2 ++
+ 4 files changed, 9 insertions(+)
 
-diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
-index 4cb4ab9c6137e..464418413ced0 100644
---- a/drivers/scsi/sr.c
-+++ b/drivers/scsi/sr.c
-@@ -917,7 +917,7 @@ static void get_capabilities(struct scsi_cd *cd)
+diff --git a/sound/soc/mediatek/mt8173/mt8173-max98090.c b/sound/soc/mediatek/mt8173/mt8173-max98090.c
+index fc94314bfc02f..3bdd4931316cd 100644
+--- a/sound/soc/mediatek/mt8173/mt8173-max98090.c
++++ b/sound/soc/mediatek/mt8173/mt8173-max98090.c
+@@ -180,6 +180,9 @@ static int mt8173_max98090_dev_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
+ 			__func__, ret);
++
++	of_node_put(codec_node);
++	of_node_put(platform_node);
+ 	return ret;
+ }
  
+diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
+index 0f28dc2217c09..390da5bf727eb 100644
+--- a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
++++ b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
+@@ -218,6 +218,8 @@ static int mt8173_rt5650_rt5514_dev_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
+ 			__func__, ret);
++
++	of_node_put(platform_node);
+ 	return ret;
+ }
  
- 	/* allocate transfer buffer */
--	buffer = kmalloc(512, GFP_KERNEL | GFP_DMA);
-+	buffer = kmalloc(512, GFP_KERNEL);
- 	if (!buffer) {
- 		sr_printk(KERN_ERR, cd, "out of memory.\n");
- 		return;
-diff --git a/drivers/scsi/sr_vendor.c b/drivers/scsi/sr_vendor.c
-index 1f988a1b9166f..a61635326ae0a 100644
---- a/drivers/scsi/sr_vendor.c
-+++ b/drivers/scsi/sr_vendor.c
-@@ -131,7 +131,7 @@ int sr_set_blocklength(Scsi_CD *cd, int blocklength)
- 	if (cd->vendor == VENDOR_TOSHIBA)
- 		density = (blocklength > 2048) ? 0x81 : 0x83;
+diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c
+index 077c6ee067806..c8e4e85e10575 100644
+--- a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c
++++ b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c
+@@ -285,6 +285,8 @@ static int mt8173_rt5650_rt5676_dev_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
+ 			__func__, ret);
++
++	of_node_put(platform_node);
+ 	return ret;
+ }
  
--	buffer = kmalloc(512, GFP_KERNEL | GFP_DMA);
-+	buffer = kmalloc(512, GFP_KERNEL);
- 	if (!buffer)
- 		return -ENOMEM;
- 
-@@ -179,7 +179,7 @@ int sr_cd_check(struct cdrom_device_info *cdi)
- 	if (cd->cdi.mask & CDC_MULTI_SESSION)
- 		return 0;
- 
--	buffer = kmalloc(512, GFP_KERNEL | GFP_DMA);
-+	buffer = kmalloc(512, GFP_KERNEL);
- 	if (!buffer)
- 		return -ENOMEM;
+diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650.c b/sound/soc/mediatek/mt8173/mt8173-rt5650.c
+index c28ebf891cb05..e168d31f44459 100644
+--- a/sound/soc/mediatek/mt8173/mt8173-rt5650.c
++++ b/sound/soc/mediatek/mt8173/mt8173-rt5650.c
+@@ -323,6 +323,8 @@ static int mt8173_rt5650_dev_probe(struct platform_device *pdev)
+ 	if (ret)
+ 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
+ 			__func__, ret);
++
++	of_node_put(platform_node);
+ 	return ret;
+ }
  
 -- 
 2.34.1
