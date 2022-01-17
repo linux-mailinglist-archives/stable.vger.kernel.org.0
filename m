@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7D86490F34
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:17:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91630490EA3
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:11:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242227AbiAQRQj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 12:16:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48050 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243775AbiAQRNZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:13:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A89CC08E8AA;
-        Mon, 17 Jan 2022 09:08:07 -0800 (PST)
+        id S241601AbiAQRLZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 12:11:25 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56410 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241655AbiAQRIL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:08:11 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 19F0B611F0;
-        Mon, 17 Jan 2022 17:08:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5330C36AEF;
-        Mon, 17 Jan 2022 17:08:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F0978B8114E;
+        Mon, 17 Jan 2022 17:08:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAE66C36AEC;
+        Mon, 17 Jan 2022 17:08:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642439286;
-        bh=bZMho04zzMVM6kYWcyHEghrY3neLzEAufpfoVc5JEsk=;
+        s=k20201202; t=1642439287;
+        bh=iyFxWuN2vu/dulDTqndeNcafmcjOaQG2EV3AgqR2eKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nrOOne6mhIPMCQgjTbjjmtxb1BMgpsIzxuuR1WndIV1hr+7b3HK/eKha1BDJ5q6kW
-         jzHMwTNmcW3LnNJ49VrSEccwmlOLIBM6JcX3t6vNXuL12/EBfjkwPcwJLD8zu5rVCR
-         zkm6qNd7mUTOsWU6gP6Kv5sNl9AoovbIQRWWcZ6xFzMDO6PqeTFvnyTsTpDmDkL2mc
-         pEtiAUx141ucaIsZaXtf0aE6AgZVfJPpqZh7jpiG/aMW2mUY/MPQiH3e7qvDQ4HV0N
-         04aJ0MK6g56/G0G95fR7ypo/YJ+o/kS/T6HF8vSv7x9Zv2SAX3MALrpAbOU5uhGFHY
-         eDivXIM+jQEgA==
+        b=i8Jh+OPzlBudKWD6g0NFJw8U8qsEu2NGmtZJ21DFfTfiFoC6ya329MbX8ymQ+Ofwx
+         TF8XLKohTrYpByOrRthHnfpg6rXHnPFG3FUQm3qDJk9l6SY0cEKtt4wJSX133nmzzg
+         It61Jl1Kkzla05HMheEK37E8LLTL9ZP1Egy+hOBk2EOOipjcL3KZEnxR04IF1k2Bik
+         G9nO7bHy6F9uZ9gAExVR8cVqpw7gx4x0RrbAJqhdRwnNhopNoygmWlakHkT2A6YvG6
+         5p3tPLeiIv8O/pOxwyp/VTrOftDiQxeJ9ss04Pa6cszrTn3fNmJXhFP8PBCIknwnBY
+         AFThs3Tzjv0hw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Julia Lawall <Julia.Lawall@lip6.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, nick.child@ibm.com,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.4 04/12] powerpc/btext: add missing of_node_put
-Date:   Mon, 17 Jan 2022 12:07:48 -0500
-Message-Id: <20220117170757.1473318-4-sashal@kernel.org>
+Cc:     Heiner Kallweit <hkallweit1@gmail.com>,
+        Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, jdelvare@suse.com,
+        linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 05/12] i2c: i801: Don't silently correct invalid transfer size
+Date:   Mon, 17 Jan 2022 12:07:49 -0500
+Message-Id: <20220117170757.1473318-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220117170757.1473318-1-sashal@kernel.org>
 References: <20220117170757.1473318-1-sashal@kernel.org>
@@ -51,61 +48,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julia Lawall <Julia.Lawall@lip6.fr>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit a1d2b210ffa52d60acabbf7b6af3ef7e1e69cda0 ]
+[ Upstream commit effa453168a7eeb8a562ff4edc1dbf9067360a61 ]
 
-for_each_node_by_type performs an of_node_get on each iteration, so
-a break out of the loop requires an of_node_put.
+If an invalid block size is provided, reject it instead of silently
+changing it to a supported value. Especially critical I see the case of
+a write transfer with block length 0. In this case we have no guarantee
+that the byte we would write is valid. When silently reducing a read to
+32 bytes then we don't return an error and the caller may falsely
+assume that we returned the full requested data.
 
-A simplified version of the semantic patch that fixes this problem is as
-follows (http://coccinelle.lip6.fr):
+If this change should break any (broken) caller, then I think we should
+fix the caller.
 
-// <smpl>
-@@
-local idexpression n;
-expression e;
-@@
-
- for_each_node_by_type(n,...) {
-   ...
-(
-   of_node_put(n);
-|
-   e = n
-|
-+  of_node_put(n);
-?  break;
-)
-   ...
- }
-... when != n
-// </smpl>
-
-Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1448051604-25256-6-git-send-email-Julia.Lawall@lip6.fr
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/btext.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-i801.c | 15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
-diff --git a/arch/powerpc/kernel/btext.c b/arch/powerpc/kernel/btext.c
-index 41c011cb60706..8d05ef26dea9d 100644
---- a/arch/powerpc/kernel/btext.c
-+++ b/arch/powerpc/kernel/btext.c
-@@ -257,8 +257,10 @@ int __init btext_find_display(int allow_nonstdout)
- 			rc = btext_initialize(np);
- 			printk("result: %d\n", rc);
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 4399016a6caba..73026c00220c2 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -669,6 +669,11 @@ static int i801_block_transaction(struct i801_priv *priv,
+ 	int result = 0;
+ 	unsigned char hostc;
+ 
++	if (read_write == I2C_SMBUS_READ && command == I2C_SMBUS_BLOCK_DATA)
++		data->block[0] = I2C_SMBUS_BLOCK_MAX;
++	else if (data->block[0] < 1 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
++		return -EPROTO;
++
+ 	if (command == I2C_SMBUS_I2C_BLOCK_DATA) {
+ 		if (read_write == I2C_SMBUS_WRITE) {
+ 			/* set I2C_EN bit in configuration register */
+@@ -682,16 +687,6 @@ static int i801_block_transaction(struct i801_priv *priv,
  		}
--		if (rc == 0)
-+		if (rc == 0) {
-+			of_node_put(np);
- 			break;
-+		}
  	}
- 	return rc;
- }
+ 
+-	if (read_write == I2C_SMBUS_WRITE
+-	 || command == I2C_SMBUS_I2C_BLOCK_DATA) {
+-		if (data->block[0] < 1)
+-			data->block[0] = 1;
+-		if (data->block[0] > I2C_SMBUS_BLOCK_MAX)
+-			data->block[0] = I2C_SMBUS_BLOCK_MAX;
+-	} else {
+-		data->block[0] = 32;	/* max for SMBus block reads */
+-	}
+-
+ 	/* Experience has shown that the block buffer can only be used for
+ 	   SMBus (not I2C) block transactions, even though the datasheet
+ 	   doesn't mention this limitation. */
 -- 
 2.34.1
 
