@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E557490E51
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:08:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E44B0490E5C
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:11:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243093AbiAQRIc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 12:08:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46396 "EHLO
+        id S243114AbiAQRIh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 12:08:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242467AbiAQRGc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:06:32 -0500
+        with ESMTP id S242115AbiAQRGg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:06:36 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98935C0612F3;
-        Mon, 17 Jan 2022 09:04:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E18C4C0612A3;
+        Mon, 17 Jan 2022 09:04:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C0056119F;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C3954611D9;
+        Mon, 17 Jan 2022 17:04:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 691D4C36AE3;
         Mon, 17 Jan 2022 17:04:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FBC3C36B07;
-        Mon, 17 Jan 2022 17:04:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642439042;
-        bh=Y5jlLYsWFAHRggd1xo9Vqx2B9cfFo1Wl0XfIsTSkE0g=;
+        s=k20201202; t=1642439044;
+        bh=6SWFNtQAhiPbgkd6kdbFRMEtXk7VCljfVemFjaj60sg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OjaBdLrQV+lNPtlIQRvn6AxNaz4c5Y7CsDmPmvsWWoKpNiLVnQBd4tN4FJVyKDx2j
-         u4k1pWkAZX3AV8lOTVcYNKt1jA7OKSaPGXBhEMErcPKffbw3NFyYdzvF5Hm42uuPFH
-         PlORhlL5ne3rQcePWUE7FkpmsQqvV27BNedtoZyGJyBeTbGZTjH7Cv1NQ3IZ1E24t6
-         lOmgD9aXC+SEKIOsfEBsie5Ntuccs+d46Q+G/eY9xHw7cI66Oo3Az3h7Q0iqR9sGSM
-         1R1H0ln0Ybjz8t21ZUDnM/+2tA0CUVXMVvlhqE8W2aMMsWbMflKm77od0FEWBbOl5l
-         nRNa4VkCfrDQw==
+        b=b5/JgWdrEnttYoOhNfRcX6Px2ktU99W/GT5di+aDZPmMi/6rI0S3BLoVcRvnpwkEN
+         u7JNfwh0WetVXGqC6stY5j4VAbH4Mgo2QpuVaxdtwX+vE3DoIwZ5s3o/i4LhMvaB0q
+         xHbzDL/h32nqbV6C1I/p5r0r/p0pqxvLzISjAq+zrAst6Lw98aQyOLllShOHVfl68Q
+         6rKHpjFodov6DakDn8iKbrOnyg+7iwXhM/JznYXa077L50g6E6LTKSdzAvwjSSxe0/
+         qpqZHpDmLRWxD8IN1Ki6MxIgyPkRWZqCofAREZIDBvxAvx9Ul+LgYpL0GFbZnXnh8G
+         vaep6vMXbj3iA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Gilles BULOZ <gilles.buloz@kontron.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 16/34] nvmem: core: set size for sysfs bin file
-Date:   Mon, 17 Jan 2022 12:03:06 -0500
-Message-Id: <20220117170326.1471712-16-sashal@kernel.org>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Sasha Levin <sashal@kernel.org>, agk@redhat.com,
+        snitzer@redhat.com, dm-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.10 17/34] dm: fix alloc_dax error handling in alloc_dev
+Date:   Mon, 17 Jan 2022 12:03:07 -0500
+Message-Id: <20220117170326.1471712-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220117170326.1471712-1-sashal@kernel.org>
 References: <20220117170326.1471712-1-sashal@kernel.org>
@@ -51,35 +51,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 86192251033308bb42f1e9813c962989d8ed07ec ]
+[ Upstream commit d751939235b9b7bc4af15f90a3e99288a8b844a7 ]
 
-For some reason we never set the size for nvmem sysfs binary file.
-Set this.
+Make sure ->dax_dev is NULL on error so that the cleanup path doesn't
+trip over an ERR_PTR.
 
-Reported-by: Gilles BULOZ <gilles.buloz@kontron.com>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20211130133909.6154-1-srinivas.kandagatla@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20211129102203.2243509-2-hch@lst.de
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvmem/core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/md/dm.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index 6b170083cd248..21d89d80d0838 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -222,6 +222,8 @@ static umode_t nvmem_bin_attr_is_visible(struct kobject *kobj,
- 	struct device *dev = kobj_to_dev(kobj);
- 	struct nvmem_device *nvmem = to_nvmem_device(dev);
+diff --git a/drivers/md/dm.c b/drivers/md/dm.c
+index 19a70f434029b..6030cba5b0382 100644
+--- a/drivers/md/dm.c
++++ b/drivers/md/dm.c
+@@ -1894,8 +1894,10 @@ static struct mapped_device *alloc_dev(int minor)
+ 	if (IS_ENABLED(CONFIG_DAX_DRIVER)) {
+ 		md->dax_dev = alloc_dax(md, md->disk->disk_name,
+ 					&dm_dax_ops, 0);
+-		if (IS_ERR(md->dax_dev))
++		if (IS_ERR(md->dax_dev)) {
++			md->dax_dev = NULL;
+ 			goto bad;
++		}
+ 	}
  
-+	attr->size = nvmem->size;
-+
- 	return nvmem_bin_attr_get_umode(nvmem);
- }
- 
+ 	add_disk_no_queue_reg(md->disk);
 -- 
 2.34.1
 
