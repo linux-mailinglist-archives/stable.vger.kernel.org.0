@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD037490DD8
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:06:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFE7D490E4D
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:08:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238281AbiAQRGD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 12:06:03 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:50320 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241623AbiAQREA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:04:00 -0500
+        id S242688AbiAQRIa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 12:08:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46384 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242830AbiAQRGb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:06:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3346C0612EF;
+        Mon, 17 Jan 2022 09:04:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D3D8FB81131;
-        Mon, 17 Jan 2022 17:03:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71824C36AE3;
-        Mon, 17 Jan 2022 17:03:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 637EE6120D;
+        Mon, 17 Jan 2022 17:04:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CBADC36AEC;
+        Mon, 17 Jan 2022 17:04:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642439038;
-        bh=e21FpSYim1ygMkk92DWrzZG+FchegcpQRTza2xVC53M=;
+        s=k20201202; t=1642439041;
+        bh=6YKiuUS8IB5VXSiZrYfnABL7p33uLb807OzSPrmlgRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SpyWIZVGKcKRNKAC2ld8SEpiN6QY20kRLT8kFVfaSmZG/S6WaxSIAshcToFusNluS
-         UrVy5sD1wSKHjyw6+9tg0zQpyhxxre2npKkdbXZbO1kfvmBj2/Df1w38YLLJU9Te08
-         ub6zdpODf46l8XkpugpHhE5n6x1blcLHTKxXm9mr4sqgdGiZanBi+WW2CMNfEabwDl
-         lx09VgxCYLn/8gEt+g7OH7ImS7WsskKrvzQFZQU355EmNWXXnZ0Vt/Y3UkFVRfZuVc
-         MsmtztB51wLN3jVlcYst19tBPey/HPkCIJsNvQ9JHZvLEH3nkxWOP9mNFYILsiJOTx
-         q0bMVl6zgkTMA==
+        b=piLh28rrFLbH2O2qXL/xtgIPdOiFUZX7q5DEHTT0pDy6eIVPRLvuKlhlCxqtRO9Tt
+         amjyutZg1DkGSgDLA1+t13gT4KxpAw2S0jA9GfrguOXzyH1Mq3yCxmYIGnkx9gaESI
+         HRx9sJUPCJZZ5F5prrWFZ6T+eK1g7mYzYMGonl0vfqg4+hbp4wBIRDZTl1yIv6iAV4
+         +WTazCAiscmy225R53XZIqOFdkYwGDR4o4aP8HkFMSH8mGxufVBuN+pxi4Vq+IoNi3
+         h/TVVF0FW40blAEPW7eZt2GM9HUksK2gHxr0H+/lZ1LWF3+m8xfAcaqLqldFfC1zAN
+         OqCXw0mV8l0Eg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Fabiano Rosas <farosas@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, npiggin@gmail.com,
-        paulus@ozlabs.org, ravi.bangoria@linux.ibm.com,
-        bharata@linux.ibm.com, nathan@kernel.org,
-        linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.10 14/34] KVM: PPC: Book3S: Suppress failed alloc warning in H_COPY_TOFROM_GUEST
-Date:   Mon, 17 Jan 2022 12:03:04 -0500
-Message-Id: <20220117170326.1471712-14-sashal@kernel.org>
+Cc:     Christophe Leroy <christophe.leroy@csgroup.eu>,
+        kernel test robot <lkp@intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, zbr@ioremap.net
+Subject: [PATCH AUTOSEL 5.10 15/34] w1: Misuse of get_user()/put_user() reported by sparse
+Date:   Mon, 17 Jan 2022 12:03:05 -0500
+Message-Id: <20220117170326.1471712-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220117170326.1471712-1-sashal@kernel.org>
 References: <20220117170326.1471712-1-sashal@kernel.org>
@@ -51,41 +51,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 792020907b11c6f9246c21977cab3bad985ae4b6 ]
+[ Upstream commit 33dc3e3e99e626ce51f462d883b05856c6c30b1d ]
 
-H_COPY_TOFROM_GUEST is an hcall for an upper level VM to access its nested
-VMs memory. The userspace can trigger WARN_ON_ONCE(!(gfp & __GFP_NOWARN))
-in __alloc_pages() by constructing a tiny VM which only does
-H_COPY_TOFROM_GUEST with a too big GPR9 (number of bytes to copy).
+sparse warnings: (new ones prefixed by >>)
+>> drivers/w1/slaves/w1_ds28e04.c:342:13: sparse: sparse: incorrect type in initializer (different address spaces) @@     expected char [noderef] __user *_pu_addr @@     got char *buf @@
+   drivers/w1/slaves/w1_ds28e04.c:342:13: sparse:     expected char [noderef] __user *_pu_addr
+   drivers/w1/slaves/w1_ds28e04.c:342:13: sparse:     got char *buf
+>> drivers/w1/slaves/w1_ds28e04.c:356:13: sparse: sparse: incorrect type in initializer (different address spaces) @@     expected char const [noderef] __user *_gu_addr @@     got char const *buf @@
+   drivers/w1/slaves/w1_ds28e04.c:356:13: sparse:     expected char const [noderef] __user *_gu_addr
+   drivers/w1/slaves/w1_ds28e04.c:356:13: sparse:     got char const *buf
 
-This silences the warning by adding __GFP_NOWARN.
+The buffer buf is a failsafe buffer in kernel space, it's not user
+memory hence doesn't deserve the use of get_user() or put_user().
 
-Spotted by syzkaller.
+Access 'buf' content directly.
 
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Reviewed-by: Fabiano Rosas <farosas@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210901084550.1658699-1-aik@ozlabs.ru
+Link: https://lore.kernel.org/lkml/202111190526.K5vb7NWC-lkp@intel.com/T/
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Link: https://lore.kernel.org/r/d14ed8d71ad4372e6839ae427f91441d3ba0e94d.1637946316.git.christophe.leroy@csgroup.eu
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/book3s_hv_nested.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/w1/slaves/w1_ds28e04.c | 26 ++++++--------------------
+ 1 file changed, 6 insertions(+), 20 deletions(-)
 
-diff --git a/arch/powerpc/kvm/book3s_hv_nested.c b/arch/powerpc/kvm/book3s_hv_nested.c
-index a5f1ae892ba68..d0b6c8c16c48a 100644
---- a/arch/powerpc/kvm/book3s_hv_nested.c
-+++ b/arch/powerpc/kvm/book3s_hv_nested.c
-@@ -510,7 +510,7 @@ long kvmhv_copy_tofrom_guest_nested(struct kvm_vcpu *vcpu)
- 	if (eaddr & (0xFFFUL << 52))
- 		return H_PARAMETER;
+diff --git a/drivers/w1/slaves/w1_ds28e04.c b/drivers/w1/slaves/w1_ds28e04.c
+index e4f336111edc6..6cef6e2edb892 100644
+--- a/drivers/w1/slaves/w1_ds28e04.c
++++ b/drivers/w1/slaves/w1_ds28e04.c
+@@ -32,7 +32,7 @@ static int w1_strong_pullup = 1;
+ module_param_named(strong_pullup, w1_strong_pullup, int, 0);
  
--	buf = kzalloc(n, GFP_KERNEL);
-+	buf = kzalloc(n, GFP_KERNEL | __GFP_NOWARN);
- 	if (!buf)
- 		return H_NO_MEM;
+ /* enable/disable CRC checking on DS28E04-100 memory accesses */
+-static char w1_enable_crccheck = 1;
++static bool w1_enable_crccheck = true;
  
+ #define W1_EEPROM_SIZE		512
+ #define W1_PAGE_COUNT		16
+@@ -339,32 +339,18 @@ static BIN_ATTR_RW(pio, 1);
+ static ssize_t crccheck_show(struct device *dev, struct device_attribute *attr,
+ 			     char *buf)
+ {
+-	if (put_user(w1_enable_crccheck + 0x30, buf))
+-		return -EFAULT;
+-
+-	return sizeof(w1_enable_crccheck);
++	return sysfs_emit(buf, "%d\n", w1_enable_crccheck);
+ }
+ 
+ static ssize_t crccheck_store(struct device *dev, struct device_attribute *attr,
+ 			      const char *buf, size_t count)
+ {
+-	char val;
+-
+-	if (count != 1 || !buf)
+-		return -EINVAL;
++	int err = kstrtobool(buf, &w1_enable_crccheck);
+ 
+-	if (get_user(val, buf))
+-		return -EFAULT;
++	if (err)
++		return err;
+ 
+-	/* convert to decimal */
+-	val = val - 0x30;
+-	if (val != 0 && val != 1)
+-		return -EINVAL;
+-
+-	/* set the new value */
+-	w1_enable_crccheck = val;
+-
+-	return sizeof(w1_enable_crccheck);
++	return count;
+ }
+ 
+ static DEVICE_ATTR_RW(crccheck);
 -- 
 2.34.1
 
