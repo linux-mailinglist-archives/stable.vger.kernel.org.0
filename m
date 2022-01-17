@@ -2,206 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C2238490887
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 13:18:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99A5849088F
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 13:20:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239559AbiAQMSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 07:18:09 -0500
-Received: from mx08-00178001.pphosted.com ([91.207.212.93]:34898 "EHLO
-        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S236982AbiAQMSJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 07:18:09 -0500
-Received: from pps.filterd (m0046661.ppops.net [127.0.0.1])
-        by mx07-00178001.pphosted.com (8.16.1.2/8.16.1.2) with ESMTP id 20HB8SZj003347;
-        Mon, 17 Jan 2022 13:17:58 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-type; s=selector1;
- bh=eAGtpLGxSBUIlXwyUQAhV0dqyriUuuNNn2oh2mbZPlM=;
- b=DgNwH5wkS7WR5MsVB12K4Hb0y95syoI73hW3Hz1yatctkv9FKEEVO9/sBLdXUcb8NxpX
- PxmpDHxk5GTZ4/XkippKkmIYortMSjixxKXym0a+16yktuzeTrKd28NmYAq3PckEd2Z8
- jRxlaD2f34CBPLxWbxyhBmzYPHErJfvqZwFVTO8P2fkUINMp670qDpRjaaVlXnnlReel
- yROuzJrW40UviuGdsjgkOYWPM9XCLuRjAtl7Rya3rqdOMahZOrh+F68RKgDTO8KDTNy4
- S5xoigD63gMP+WHXx4b78cgWphAhSCbWQZIXj1utwlr55BGORQM8U59/2TULiWjsLp3K DQ== 
-Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
-        by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3dmq5g4gkb-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 17 Jan 2022 13:17:58 +0100
-Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
-        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 9F45110002A;
-        Mon, 17 Jan 2022 13:17:57 +0100 (CET)
-Received: from Webmail-eu.st.com (sfhdag2node1.st.com [10.75.127.4])
-        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 94AEF214D28;
-        Mon, 17 Jan 2022 13:17:57 +0100 (CET)
-Received: from localhost (10.75.127.49) by SFHDAG2NODE1.st.com (10.75.127.4)
- with Microsoft SMTP Server (TLS) id 15.0.1497.26; Mon, 17 Jan 2022 13:17:57
- +0100
-From:   <patrice.chotard@foss.st.com>
-To:     Mark Brown <broonie@kernel.org>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>
-CC:     <linux-spi@vger.kernel.org>,
-        <linux-stm32@st-md-mailman.stormreply.com>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-kernel@vger.kernel.org>, <christophe.kerello@foss.st.com>,
-        <patrice.chotard@foss.st.com>, <stable@vger.kernel.org>
-Subject: [PATCH v3] spi: stm32-qspi: Update spi registering
-Date:   Mon, 17 Jan 2022 13:17:44 +0100
-Message-ID: <20220117121744.29729-1-patrice.chotard@foss.st.com>
-X-Mailer: git-send-email 2.17.1
+        id S239821AbiAQMUr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 07:20:47 -0500
+Received: from mga14.intel.com ([192.55.52.115]:35821 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S236978AbiAQMUr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 Jan 2022 07:20:47 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1642422047; x=1673958047;
+  h=to:cc:references:from:subject:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=bDk7Xh2Uwl1ciemzd6BPTU50WsyNshlNM0SSyDlnoag=;
+  b=CRKKsHYyF+v8oymy98oBTrRI6yr92xUw29kMYaXvsZttR1fGZ7wa4yLq
+   zxw6wxn/zVxyul2VgdjsuDwH6xT5pqmIeYZLm58+tGtninn4yhJyx2kZ1
+   hdR63fYSxRTO7qeshT2xp8wvduXryrJFhTMXUxqUZcT/zI7XCEp4bgr0P
+   2OWg6oduV2gVqzo4kyz2xUwSQFcQMhBhYmKD4MONcXAamnYjnC8EN/C0f
+   hd8A11tjphepDXA7zh0+a+Qm/Oa18McbeCmajmKy1yjKM+SkS9qcIIs+J
+   0BhEWXpyMwruL9FhvInJnuVjxZoBQNIJZjtW/7eCyTJkI+pmdDQ+zrLFT
+   A==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10229"; a="244810402"
+X-IronPort-AV: E=Sophos;i="5.88,295,1635231600"; 
+   d="scan'208";a="244810402"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Jan 2022 04:20:46 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,295,1635231600"; 
+   d="scan'208";a="625175556"
+Received: from mattu-haswell.fi.intel.com (HELO [10.237.72.199]) ([10.237.72.199])
+  by orsmga004.jf.intel.com with ESMTP; 17 Jan 2022 04:20:43 -0800
+To:     Puma Hsu <pumahsu@google.com>, Greg KH <gregkh@linuxfoundation.org>
+Cc:     mathias.nyman@intel.com, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Albert Wang <albertccwang@google.com>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20211229112551.3483931-1-pumahsu@google.com>
+ <Yd1tUKhyZf26OVNQ@kroah.com>
+ <CAGCq0LZb8nQDvcz=LswWi4qKd-65ys6iPjTKh=46dVtYLDEUVw@mail.gmail.com>
+ <Yd/g/ywBWZG7gF8v@kroah.com>
+ <CAGCq0LZ3i8VaMfRWNKvH_-ms0TgNqKA6f+Zx7M=iz1t_-smW+g@mail.gmail.com>
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: Re: [PATCH v3] xhci: re-initialize the HC during resume if HCE was
+ set
+Message-ID: <fe411488-c67c-62ab-4709-98621b9f199b@linux.intel.com>
+Date:   Mon, 17 Jan 2022 14:22:10 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: text/plain
-X-Originating-IP: [10.75.127.49]
-X-ClientProxiedBy: SFHDAG2NODE1.st.com (10.75.127.4) To SFHDAG2NODE1.st.com
- (10.75.127.4)
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-01-17_05,2022-01-14_01,2021-12-02_01
+In-Reply-To: <CAGCq0LZ3i8VaMfRWNKvH_-ms0TgNqKA6f+Zx7M=iz1t_-smW+g@mail.gmail.com>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrice Chotard <patrice.chotard@foss.st.com>
 
-Some device driver need to communicate to qspi device during the remove
-process, qspi controller must be functional when spi_unregister_master()
-is called.
+>>> This seems like a big hammer for when the host controller throws an
+>>>> error.  Why is this the only place that it should be checked for?  What
+>>>> caused the error that can now allow it to be fixed?
+>>>
+>>> I believe this is not the only place that the host controller may set
+>>> HCE, the host controller may set HCE anytime it sees an error in my
+>>> opinion, not only in suspend or resume.
+>>
+>> Then where else should it be checked?  Where else will your silicon set
+>> this bit as part of the normal operating process?
+> 
+> We observed this flag while resume in our silicon so far. According to the XHCI
+> specification 4.24.1, “Software should implement an algorithm for checking the
+> HCE flag if the xHC is not responding.”, so maybe it would be better
+> to implement
+> a new API to recover host controller whenever the driver side finds no response
+> from host controller in the future.
+> 
 
-To ensure this, replace devm_spi_register_master() by spi_register_master()
-and spi_unregister_master() is called directly in .remove callback before
-stopping the qspi controller.
+As all the code to reset the host during resume already exists, and is well tried
+due to issues in resume being so common, I think it makes sense to add the HCE case 
+here as well. It's a simple fix that makes the life of users better.
 
-This issue was put in evidence using kernel v5.11 and later
-with a spi-nor which supports the software reset feature introduced
-by commit d73ee7534cc5 ("mtd: spi-nor: core: perform a Soft Reset on
-shutdown")
+That said we shouldn't hide the reason for reset like this.
+Print a debug message telling about the HCE so that everybody working with xHCI
+can see it and start fixing the rootcause.
 
-Fixes: c530cd1d9d5e ("spi: spi-mem: add stm32 qspi controller")
+Another HCE check could be added to command timeout code, but just to show a
+warning for now.
+Reset might not always clear HCE, and we don't want to be stuck in a reset loop.
+This check  could be a separate patch
 
-Signed-off-by: Patrice Chotard <patrice.chotard@foss.st.com>
-Cc: <stable@vger.kernel.org> # 5.8.x
----
-
-v3: 
-  _ Update error path due to devm_spi_alloc_master() usage
-
-v2: 
-  _ update commit message
-  _ make usage of devm_spi_alloc_master() instead of spi_alloc_master()
-
- drivers/spi/spi-stm32-qspi.c | 47 +++++++++++++-----------------------
- 1 file changed, 17 insertions(+), 30 deletions(-)
-
-diff --git a/drivers/spi/spi-stm32-qspi.c b/drivers/spi/spi-stm32-qspi.c
-index 514337c86d2c..ffdc55f87e82 100644
---- a/drivers/spi/spi-stm32-qspi.c
-+++ b/drivers/spi/spi-stm32-qspi.c
-@@ -688,7 +688,7 @@ static int stm32_qspi_probe(struct platform_device *pdev)
- 	struct resource *res;
- 	int ret, irq;
- 
--	ctrl = spi_alloc_master(dev, sizeof(*qspi));
-+	ctrl = devm_spi_alloc_master(dev, sizeof(*qspi));
- 	if (!ctrl)
- 		return -ENOMEM;
- 
-@@ -697,58 +697,46 @@ static int stm32_qspi_probe(struct platform_device *pdev)
- 
- 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "qspi");
- 	qspi->io_base = devm_ioremap_resource(dev, res);
--	if (IS_ERR(qspi->io_base)) {
--		ret = PTR_ERR(qspi->io_base);
--		goto err_master_put;
--	}
-+	if (IS_ERR(qspi->io_base))
-+		return PTR_ERR(qspi->io_base);
- 
- 	qspi->phys_base = res->start;
- 
- 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "qspi_mm");
- 	qspi->mm_base = devm_ioremap_resource(dev, res);
--	if (IS_ERR(qspi->mm_base)) {
--		ret = PTR_ERR(qspi->mm_base);
--		goto err_master_put;
--	}
-+	if (IS_ERR(qspi->mm_base))
-+		return PTR_ERR(qspi->mm_base);
- 
- 	qspi->mm_size = resource_size(res);
--	if (qspi->mm_size > STM32_QSPI_MAX_MMAP_SZ) {
--		ret = -EINVAL;
--		goto err_master_put;
--	}
-+	if (qspi->mm_size > STM32_QSPI_MAX_MMAP_SZ)
-+		return -EINVAL;
- 
- 	irq = platform_get_irq(pdev, 0);
--	if (irq < 0) {
--		ret = irq;
--		goto err_master_put;
--	}
-+	if (irq < 0)
-+		return irq;
- 
- 	ret = devm_request_irq(dev, irq, stm32_qspi_irq, 0,
- 			       dev_name(dev), qspi);
- 	if (ret) {
- 		dev_err(dev, "failed to request irq\n");
--		goto err_master_put;
-+		return ret;
- 	}
- 
- 	init_completion(&qspi->data_completion);
- 	init_completion(&qspi->match_completion);
- 
- 	qspi->clk = devm_clk_get(dev, NULL);
--	if (IS_ERR(qspi->clk)) {
--		ret = PTR_ERR(qspi->clk);
--		goto err_master_put;
--	}
-+	if (IS_ERR(qspi->clk))
-+		return PTR_ERR(qspi->clk);
- 
- 	qspi->clk_rate = clk_get_rate(qspi->clk);
--	if (!qspi->clk_rate) {
--		ret = -EINVAL;
--		goto err_master_put;
--	}
-+	if (!qspi->clk_rate)
-+		return -EINVAL;
- 
- 	ret = clk_prepare_enable(qspi->clk);
- 	if (ret) {
- 		dev_err(dev, "can not enable the clock\n");
--		goto err_master_put;
-+		return ret;
- 	}
- 
- 	rstc = devm_reset_control_get_exclusive(dev, NULL);
-@@ -784,7 +772,7 @@ static int stm32_qspi_probe(struct platform_device *pdev)
- 	pm_runtime_enable(dev);
- 	pm_runtime_get_noresume(dev);
- 
--	ret = devm_spi_register_master(dev, ctrl);
-+	ret = spi_register_master(ctrl);
- 	if (ret)
- 		goto err_pm_runtime_free;
- 
-@@ -806,8 +794,6 @@ static int stm32_qspi_probe(struct platform_device *pdev)
- 	stm32_qspi_dma_free(qspi);
- err_clk_disable:
- 	clk_disable_unprepare(qspi->clk);
--err_master_put:
--	spi_master_put(qspi->ctrl);
- 
- 	return ret;
- }
-@@ -817,6 +803,7 @@ static int stm32_qspi_remove(struct platform_device *pdev)
- 	struct stm32_qspi *qspi = platform_get_drvdata(pdev);
- 
- 	pm_runtime_get_sync(qspi->dev);
-+	spi_unregister_master(qspi->ctrl);
- 	/* disable qspi */
- 	writel_relaxed(0, qspi->io_base + QSPI_CR);
- 	stm32_qspi_dma_free(qspi);
--- 
-2.17.1
-
+-Mathias
