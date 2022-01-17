@@ -2,52 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AA70490D1E
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:01:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 418BE490D23
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:01:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241797AbiAQRBB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 12:01:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44672 "EHLO
+        id S241317AbiAQRBG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 12:01:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241346AbiAQRAP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:00:15 -0500
+        with ESMTP id S241625AbiAQRAV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:00:21 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1A5AC061765;
-        Mon, 17 Jan 2022 09:00:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 671C1C061775;
+        Mon, 17 Jan 2022 09:00:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AECEBB81142;
-        Mon, 17 Jan 2022 17:00:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94CCBC36AE3;
-        Mon, 17 Jan 2022 17:00:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F608B81131;
+        Mon, 17 Jan 2022 17:00:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3059AC36AE3;
+        Mon, 17 Jan 2022 17:00:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642438812;
-        bh=IoB7Upsgx+3TaNkP2jKC4svaYwVImu5WjHntAS3c59E=;
+        s=k20201202; t=1642438818;
+        bh=7bcSEZLz3ee9hcPWYNTolYzG/C+UFjH9TlCAQp+r2gA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n6vduLhLcdgiMRwBZ4aUYI5n4RIMRIvC7S8LvFnapYK0DGahw96MkvG4gvaSly8B0
-         7L8BgDDxxj3WY876wg/r/IwtavmVJD0kjEJG+0NNC3+EdI16Eh8i6/a6muZ7QrzRSP
-         Lwb8kK5f+M9/HLptW5OeKLYGxa0IIWG8Fc+a01F+VPgIeNAYYotA44Y0ftf145A3Hp
-         VuUuEYQIukztGoU+qiuvebPJyhCKdxgxND9zrZ0NwnGvGmav5dA3iYU41kZWydtrdm
-         KxNMGwFnIcDjccjNEPxPwf8SPKvu5cUt7X642kAXDi1jwizYHLjdkXyS0ua03V+0su
-         uZnklk2t+V+Yw==
+        b=P+da5lNLI3l8+z+JtAAFZ/r/+73DRx4NepOSL6dVpKJPwtw5PrtLWI5ZjfNYKsVyi
+         rxIn58BdewKz7Irax8+DlLrg5I/AKYtS6R4bgPtn48LcJQLTmGnkp0bgyk/HNp5xTM
+         r0GTqkvPxR3NLTAd3mb2UESJaRV5rgRSg0z+EtQ2tevtDHPQLaEQjx7n+P9KUtsqQq
+         E5x3GUlgmOTv0OHkY74Fq5atG/XXcY+zkePXlA+hqtJXdVYKC9bbGvqj99foJSYgc/
+         j7xcJv22eVNCJ6KzA6q7XIr7wDXPGLXWl+J3JuwWqKlF791+rXZLdR+bC7mJp/NFKC
+         rlb1b/8jY4X8w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hari Bathini <hbathini@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, sxwjean@gmail.com,
-        sfr@canb.auug.org.au, aneesh.kumar@linux.ibm.com,
-        nick.child@ibm.com, nathan@kernel.org, srikar@linux.vnet.ibm.com,
-        ego@linux.vnet.ibm.com, nathanl@linux.ibm.com, parth@linux.ibm.com,
-        clg@kaod.org, npiggin@gmail.com, robh@kernel.org,
-        yukuai3@huawei.com, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.16 30/52] powerpc/fadump: Fix inaccurate CPU state info in vmcore generated with panic
-Date:   Mon, 17 Jan 2022 11:58:31 -0500
-Message-Id: <20220117165853.1470420-30-sashal@kernel.org>
+Cc:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
+        kai.vehmanen@linux.intel.com, daniel.baluta@nxp.com,
+        perex@perex.cz, tiwai@suse.com, cujomalainey@chromium.org,
+        guennadi.liakhovetski@linux.intel.com,
+        yung-chuan.liao@linux.intel.com,
+        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.16 31/52] ASoC: SOF: Intel: hda: add quirks for HDAudio DMA position information
+Date:   Mon, 17 Jan 2022 11:58:32 -0500
+Message-Id: <20220117165853.1470420-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220117165853.1470420-1-sashal@kernel.org>
 References: <20220117165853.1470420-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -55,130 +58,182 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hari Bathini <hbathini@linux.ibm.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-[ Upstream commit 06e629c25daa519be620a8c17359ae8fc7a2e903 ]
+[ Upstream commit 288fad2f71fa0b989c075d4984879c26d47cfb06 ]
 
-In panic path, fadump is triggered via a panic notifier function.
-Before calling panic notifier functions, smp_send_stop() gets called,
-which stops all CPUs except the panic'ing CPU. Commit 8389b37dffdc
-("powerpc: stop_this_cpu: remove the cpu from the online map.") and
-again commit bab26238bbd4 ("powerpc: Offline CPU in stop_this_cpu()")
-started marking CPUs as offline while stopping them. So, if a kernel
-has either of the above commits, vmcore captured with fadump via panic
-path would not process register data for all CPUs except the panic'ing
-CPU. Sample output of crash-utility with such vmcore:
+The code inherited from the Skylake driver does not seem to follow any
+known hardware recommendations.
 
-  # crash vmlinux vmcore
-  ...
-        KERNEL: vmlinux
-      DUMPFILE: vmcore  [PARTIAL DUMP]
-          CPUS: 1
-          DATE: Wed Nov 10 09:56:34 EST 2021
-        UPTIME: 00:00:42
-  LOAD AVERAGE: 2.27, 0.69, 0.24
-         TASKS: 183
-      NODENAME: XXXXXXXXX
-       RELEASE: 5.15.0+
-       VERSION: #974 SMP Wed Nov 10 04:18:19 CST 2021
-       MACHINE: ppc64le  (2500 Mhz)
-        MEMORY: 8 GB
-         PANIC: "Kernel panic - not syncing: sysrq triggered crash"
-           PID: 3394
-       COMMAND: "bash"
-          TASK: c0000000150a5f80  [THREAD_INFO: c0000000150a5f80]
-           CPU: 1
-         STATE: TASK_RUNNING (PANIC)
+The only two recommended options are
+a) use DPIB registers if VC1 traffic is not allowed
+b) use DPIB DDR update if VC1 traffic is used
 
-  crash> p -x __cpu_online_mask
-  __cpu_online_mask = $1 = {
-    bits = {0x2, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}
-  }
-  crash>
-  crash>
-  crash> p -x __cpu_active_mask
-  __cpu_active_mask = $2 = {
-    bits = {0xff, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0}
-  }
-  crash>
+In all of SOF-based updated, VC1 is not supported so we can 'safely'
+move to using DPIB registers only.
 
-While this has been the case since fadump was introduced, the issue
-was not identified for two probable reasons:
+This patch keeps the legacy code, in case there was an undocumented
+issue lost to history, and adds the DPIB DDR update for additional
+debug.
 
-  - In general, the bulk of the vmcores analyzed were from crash
-    due to exception.
-
-  - The above did change since commit 8341f2f222d7 ("sysrq: Use
-    panic() to force a crash") started using panic() instead of
-    deferencing NULL pointer to force a kernel crash. But then
-    commit de6e5d38417e ("powerpc: smp_send_stop do not offline
-    stopped CPUs") stopped marking CPUs as offline till kernel
-    commit bab26238bbd4 ("powerpc: Offline CPU in stop_this_cpu()")
-    reverted that change.
-
-To ensure post processing register data of all other CPUs happens
-as intended, let panic() function take the crash friendly path (read
-crash_smp_send_stop()) with the help of crash_kexec_post_notifiers
-option. Also, as register data for all CPUs is captured by f/w, skip
-IPI callbacks here for fadump, to avoid any complications in finding
-the right backtraces.
-
-Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211207103719.91117-2-hbathini@linux.ibm.com
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20211207193947.71080-6-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/fadump.c |  8 ++++++++
- arch/powerpc/kernel/smp.c    | 10 ++++++++++
- 2 files changed, 18 insertions(+)
+ sound/soc/sof/intel/hda-pcm.c | 86 +++++++++++++++++++++++++----------
+ sound/soc/sof/intel/hda.c     |  9 +++-
+ sound/soc/sof/intel/hda.h     |  6 +++
+ 3 files changed, 75 insertions(+), 26 deletions(-)
 
-diff --git a/arch/powerpc/kernel/fadump.c b/arch/powerpc/kernel/fadump.c
-index b7ceb041743c9..60f5fc14aa235 100644
---- a/arch/powerpc/kernel/fadump.c
-+++ b/arch/powerpc/kernel/fadump.c
-@@ -1641,6 +1641,14 @@ int __init setup_fadump(void)
- 	else if (fw_dump.reserve_dump_area_size)
- 		fw_dump.ops->fadump_init_mem_struct(&fw_dump);
+diff --git a/sound/soc/sof/intel/hda-pcm.c b/sound/soc/sof/intel/hda-pcm.c
+index cc8ddef37f37b..41cb60955f5c1 100644
+--- a/sound/soc/sof/intel/hda-pcm.c
++++ b/sound/soc/sof/intel/hda-pcm.c
+@@ -172,38 +172,74 @@ snd_pcm_uframes_t hda_dsp_pcm_pointer(struct snd_sof_dev *sdev,
+ 		goto found;
+ 	}
  
-+	/*
-+	 * In case of panic, fadump is triggered via ppc_panic_event()
-+	 * panic notifier. Setting crash_kexec_post_notifiers to 'true'
-+	 * lets panic() function take crash friendly path before panic
-+	 * notifiers are invoked.
-+	 */
-+	crash_kexec_post_notifiers = true;
+-	/*
+-	 * DPIB/posbuf position mode:
+-	 * For Playback, Use DPIB register from HDA space which
+-	 * reflects the actual data transferred.
+-	 * For Capture, Use the position buffer for pointer, as DPIB
+-	 * is not accurate enough, its update may be completed
+-	 * earlier than the data written to DDR.
+-	 */
+-	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
++	switch (sof_hda_position_quirk) {
++	case SOF_HDA_POSITION_QUIRK_USE_SKYLAKE_LEGACY:
++		/*
++		 * This legacy code, inherited from the Skylake driver,
++		 * mixes DPIB registers and DPIB DDR updates and
++		 * does not seem to follow any known hardware recommendations.
++		 * It's not clear e.g. why there is a different flow
++		 * for capture and playback, the only information that matters is
++		 * what traffic class is used, and on all SOF-enabled platforms
++		 * only VC0 is supported so the work-around was likely not necessary
++		 * and quite possibly wrong.
++		 */
 +
- 	return 1;
- }
- subsys_initcall(setup_fadump);
-diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
-index 7201fdcf02f1c..c338f9d8ab37a 100644
---- a/arch/powerpc/kernel/smp.c
-+++ b/arch/powerpc/kernel/smp.c
-@@ -61,6 +61,7 @@
- #include <asm/cpu_has_feature.h>
- #include <asm/ftrace.h>
- #include <asm/kup.h>
-+#include <asm/fadump.h>
++		/* DPIB/posbuf position mode:
++		 * For Playback, Use DPIB register from HDA space which
++		 * reflects the actual data transferred.
++		 * For Capture, Use the position buffer for pointer, as DPIB
++		 * is not accurate enough, its update may be completed
++		 * earlier than the data written to DDR.
++		 */
++		if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK) {
++			pos = snd_sof_dsp_read(sdev, HDA_DSP_HDA_BAR,
++					       AZX_REG_VS_SDXDPIB_XBASE +
++					       (AZX_REG_VS_SDXDPIB_XINTERVAL *
++						hstream->index));
++		} else {
++			/*
++			 * For capture stream, we need more workaround to fix the
++			 * position incorrect issue:
++			 *
++			 * 1. Wait at least 20us before reading position buffer after
++			 * the interrupt generated(IOC), to make sure position update
++			 * happens on frame boundary i.e. 20.833uSec for 48KHz.
++			 * 2. Perform a dummy Read to DPIB register to flush DMA
++			 * position value.
++			 * 3. Read the DMA Position from posbuf. Now the readback
++			 * value should be >= period boundary.
++			 */
++			usleep_range(20, 21);
++			snd_sof_dsp_read(sdev, HDA_DSP_HDA_BAR,
++					 AZX_REG_VS_SDXDPIB_XBASE +
++					 (AZX_REG_VS_SDXDPIB_XINTERVAL *
++					  hstream->index));
++			pos = snd_hdac_stream_get_pos_posbuf(hstream);
++		}
++		break;
++	case SOF_HDA_POSITION_QUIRK_USE_DPIB_REGISTERS:
++		/*
++		 * In case VC1 traffic is disabled this is the recommended option
++		 */
+ 		pos = snd_sof_dsp_read(sdev, HDA_DSP_HDA_BAR,
+ 				       AZX_REG_VS_SDXDPIB_XBASE +
+ 				       (AZX_REG_VS_SDXDPIB_XINTERVAL *
+ 					hstream->index));
+-	} else {
++		break;
++	case SOF_HDA_POSITION_QUIRK_USE_DPIB_DDR_UPDATE:
+ 		/*
+-		 * For capture stream, we need more workaround to fix the
+-		 * position incorrect issue:
+-		 *
+-		 * 1. Wait at least 20us before reading position buffer after
+-		 * the interrupt generated(IOC), to make sure position update
+-		 * happens on frame boundary i.e. 20.833uSec for 48KHz.
+-		 * 2. Perform a dummy Read to DPIB register to flush DMA
+-		 * position value.
+-		 * 3. Read the DMA Position from posbuf. Now the readback
+-		 * value should be >= period boundary.
++		 * This is the recommended option when VC1 is enabled.
++		 * While this isn't needed for SOF platforms it's added for
++		 * consistency and debug.
+ 		 */
+-		usleep_range(20, 21);
+-		snd_sof_dsp_read(sdev, HDA_DSP_HDA_BAR,
+-				 AZX_REG_VS_SDXDPIB_XBASE +
+-				 (AZX_REG_VS_SDXDPIB_XINTERVAL *
+-				  hstream->index));
+ 		pos = snd_hdac_stream_get_pos_posbuf(hstream);
++		break;
++	default:
++		dev_err_once(sdev->dev, "hda_position_quirk value %d not supported\n",
++			     sof_hda_position_quirk);
++		pos = 0;
++		break;
+ 	}
  
- #ifdef DEBUG
- #include <asm/udbg.h>
-@@ -638,6 +639,15 @@ void crash_smp_send_stop(void)
- {
- 	static bool stopped = false;
+ 	if (pos >= hstream->bufsize)
+diff --git a/sound/soc/sof/intel/hda.c b/sound/soc/sof/intel/hda.c
+index 2c0d4d06ab364..25200a0e1dc9d 100644
+--- a/sound/soc/sof/intel/hda.c
++++ b/sound/soc/sof/intel/hda.c
+@@ -440,6 +440,10 @@ MODULE_PARM_DESC(use_msi, "SOF HDA use PCI MSI mode");
+ #define hda_use_msi	(1)
+ #endif
  
-+	/*
-+	 * In case of fadump, register data for all CPUs is captured by f/w
-+	 * on ibm,os-term rtas call. Skip IPI callbacks to other CPUs before
-+	 * this rtas call to avoid tricky post processing of those CPUs'
-+	 * backtraces.
-+	 */
-+	if (should_fadump_crash())
-+		return;
++int sof_hda_position_quirk = SOF_HDA_POSITION_QUIRK_USE_DPIB_REGISTERS;
++module_param_named(position_quirk, sof_hda_position_quirk, int, 0444);
++MODULE_PARM_DESC(position_quirk, "SOF HDaudio position quirk");
 +
- 	if (stopped)
- 		return;
+ static char *hda_model;
+ module_param(hda_model, charp, 0444);
+ MODULE_PARM_DESC(hda_model, "Use the given HDA board model.");
+@@ -618,7 +622,10 @@ static int hda_init(struct snd_sof_dev *sdev)
+ 	/* HDA bus init */
+ 	sof_hda_bus_init(bus, &pci->dev);
  
+-	bus->use_posbuf = 1;
++	if (sof_hda_position_quirk == SOF_HDA_POSITION_QUIRK_USE_DPIB_REGISTERS)
++		bus->use_posbuf = 0;
++	else
++		bus->use_posbuf = 1;
+ 	bus->bdl_pos_adj = 0;
+ 	bus->sync_write = 1;
+ 
+diff --git a/sound/soc/sof/intel/hda.h b/sound/soc/sof/intel/hda.h
+index 1195018a1f4f5..dba4733ccf9ae 100644
+--- a/sound/soc/sof/intel/hda.h
++++ b/sound/soc/sof/intel/hda.h
+@@ -738,4 +738,10 @@ struct sof_ipc_dai_config;
+ int hda_ctrl_dai_widget_setup(struct snd_soc_dapm_widget *w);
+ int hda_ctrl_dai_widget_free(struct snd_soc_dapm_widget *w);
+ 
++#define SOF_HDA_POSITION_QUIRK_USE_SKYLAKE_LEGACY	(0) /* previous implementation */
++#define SOF_HDA_POSITION_QUIRK_USE_DPIB_REGISTERS	(1) /* recommended if VC0 only */
++#define SOF_HDA_POSITION_QUIRK_USE_DPIB_DDR_UPDATE	(2) /* recommended with VC0 or VC1 */
++
++extern int sof_hda_position_quirk;
++
+ #endif
 -- 
 2.34.1
 
