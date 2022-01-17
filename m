@@ -2,200 +2,206 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E78C490708
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 12:18:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2238490887
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 13:18:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239020AbiAQLSt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 06:18:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51136 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239032AbiAQLSr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 06:18:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A8ABC06173E
-        for <stable@vger.kernel.org>; Mon, 17 Jan 2022 03:18:47 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 34550B80EF5
-        for <stable@vger.kernel.org>; Mon, 17 Jan 2022 11:18:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FE4DC36B01;
-        Mon, 17 Jan 2022 11:18:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642418325;
-        bh=scrykv58twl0w0rgtQliYBoEeyT2WkAgduHcFYwn4UQ=;
-        h=Subject:To:Cc:From:Date:From;
-        b=qDkfcYUsi4ZIzu3kbAgQbZhnR4PWbdj0J8E8aXNcr12ZiKvrOMycRwaRNan2UXpnk
-         OBhnqG+F8c7PwOShlMH+zepTmErVJb13VmIq9I+1f5RXpRY/iGL5Vzcb48is1u4LDF
-         lJrEwDZ8XgIZeKsjsgcNpl0gtdxHRlJsItHP+0RI=
-Subject: FAILED: patch "[PATCH] KVM: x86: Fix wall clock writes in Xen shared_info not to" failed to apply to 5.15-stable tree
-To:     dwmw@amazon.co.uk, butterflyhuangxx@gmail.com, pbonzini@redhat.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 Jan 2022 12:18:42 +0100
-Message-ID: <164241832261187@kroah.com>
+        id S239559AbiAQMSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 07:18:09 -0500
+Received: from mx08-00178001.pphosted.com ([91.207.212.93]:34898 "EHLO
+        mx07-00178001.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S236982AbiAQMSJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 07:18:09 -0500
+Received: from pps.filterd (m0046661.ppops.net [127.0.0.1])
+        by mx07-00178001.pphosted.com (8.16.1.2/8.16.1.2) with ESMTP id 20HB8SZj003347;
+        Mon, 17 Jan 2022 13:17:58 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foss.st.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-type; s=selector1;
+ bh=eAGtpLGxSBUIlXwyUQAhV0dqyriUuuNNn2oh2mbZPlM=;
+ b=DgNwH5wkS7WR5MsVB12K4Hb0y95syoI73hW3Hz1yatctkv9FKEEVO9/sBLdXUcb8NxpX
+ PxmpDHxk5GTZ4/XkippKkmIYortMSjixxKXym0a+16yktuzeTrKd28NmYAq3PckEd2Z8
+ jRxlaD2f34CBPLxWbxyhBmzYPHErJfvqZwFVTO8P2fkUINMp670qDpRjaaVlXnnlReel
+ yROuzJrW40UviuGdsjgkOYWPM9XCLuRjAtl7Rya3rqdOMahZOrh+F68RKgDTO8KDTNy4
+ S5xoigD63gMP+WHXx4b78cgWphAhSCbWQZIXj1utwlr55BGORQM8U59/2TULiWjsLp3K DQ== 
+Received: from beta.dmz-eu.st.com (beta.dmz-eu.st.com [164.129.1.35])
+        by mx07-00178001.pphosted.com (PPS) with ESMTPS id 3dmq5g4gkb-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 17 Jan 2022 13:17:58 +0100
+Received: from euls16034.sgp.st.com (euls16034.sgp.st.com [10.75.44.20])
+        by beta.dmz-eu.st.com (STMicroelectronics) with ESMTP id 9F45110002A;
+        Mon, 17 Jan 2022 13:17:57 +0100 (CET)
+Received: from Webmail-eu.st.com (sfhdag2node1.st.com [10.75.127.4])
+        by euls16034.sgp.st.com (STMicroelectronics) with ESMTP id 94AEF214D28;
+        Mon, 17 Jan 2022 13:17:57 +0100 (CET)
+Received: from localhost (10.75.127.49) by SFHDAG2NODE1.st.com (10.75.127.4)
+ with Microsoft SMTP Server (TLS) id 15.0.1497.26; Mon, 17 Jan 2022 13:17:57
+ +0100
+From:   <patrice.chotard@foss.st.com>
+To:     Mark Brown <broonie@kernel.org>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>
+CC:     <linux-spi@vger.kernel.org>,
+        <linux-stm32@st-md-mailman.stormreply.com>,
+        <linux-arm-kernel@lists.infradead.org>,
+        <linux-kernel@vger.kernel.org>, <christophe.kerello@foss.st.com>,
+        <patrice.chotard@foss.st.com>, <stable@vger.kernel.org>
+Subject: [PATCH v3] spi: stm32-qspi: Update spi registering
+Date:   Mon, 17 Jan 2022 13:17:44 +0100
+Message-ID: <20220117121744.29729-1-patrice.chotard@foss.st.com>
+X-Mailer: git-send-email 2.17.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.75.127.49]
+X-ClientProxiedBy: SFHDAG2NODE1.st.com (10.75.127.4) To SFHDAG2NODE1.st.com
+ (10.75.127.4)
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
+ definitions=2022-01-17_05,2022-01-14_01,2021-12-02_01
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Patrice Chotard <patrice.chotard@foss.st.com>
 
-The patch below does not apply to the 5.15-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Some device driver need to communicate to qspi device during the remove
+process, qspi controller must be functional when spi_unregister_master()
+is called.
 
-thanks,
+To ensure this, replace devm_spi_register_master() by spi_register_master()
+and spi_unregister_master() is called directly in .remove callback before
+stopping the qspi controller.
 
-greg k-h
+This issue was put in evidence using kernel v5.11 and later
+with a spi-nor which supports the software reset feature introduced
+by commit d73ee7534cc5 ("mtd: spi-nor: core: perform a Soft Reset on
+shutdown")
 
------------------- original commit in Linus's tree ------------------
+Fixes: c530cd1d9d5e ("spi: spi-mem: add stm32 qspi controller")
 
-From 55749769fe608fa3f4a075e42e89d237c8e37637 Mon Sep 17 00:00:00 2001
-From: David Woodhouse <dwmw@amazon.co.uk>
-Date: Fri, 10 Dec 2021 16:36:24 +0000
-Subject: [PATCH] KVM: x86: Fix wall clock writes in Xen shared_info not to
- mark page dirty
+Signed-off-by: Patrice Chotard <patrice.chotard@foss.st.com>
+Cc: <stable@vger.kernel.org> # 5.8.x
+---
 
-When dirty ring logging is enabled, any dirty logging without an active
-vCPU context will cause a kernel oops. But we've already declared that
-the shared_info page doesn't get dirty tracking anyway, since it would
-be kind of insane to mark it dirty every time we deliver an event channel
-interrupt. Userspace is supposed to just assume it's always dirty any
-time a vCPU can run or event channels are routed.
+v3: 
+  _ Update error path due to devm_spi_alloc_master() usage
 
-So stop using the generic kvm_write_wall_clock() and just write directly
-through the gfn_to_pfn_cache that we already have set up.
+v2: 
+  _ update commit message
+  _ make usage of devm_spi_alloc_master() instead of spi_alloc_master()
 
-We can make kvm_write_wall_clock() static in x86.c again now, but let's
-not remove the 'sec_hi_ofs' argument even though it's not used yet. At
-some point we *will* want to use that for KVM guests too.
+ drivers/spi/spi-stm32-qspi.c | 47 +++++++++++++-----------------------
+ 1 file changed, 17 insertions(+), 30 deletions(-)
 
-Fixes: 629b5348841a ("KVM: x86/xen: update wallclock region")
-Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
-Message-Id: <20211210163625.2886-6-dwmw2@infradead.org>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 3050601d5d73..6492329f2e9a 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -2135,7 +2135,7 @@ static s64 get_kvmclock_base_ns(void)
- }
- #endif
+diff --git a/drivers/spi/spi-stm32-qspi.c b/drivers/spi/spi-stm32-qspi.c
+index 514337c86d2c..ffdc55f87e82 100644
+--- a/drivers/spi/spi-stm32-qspi.c
++++ b/drivers/spi/spi-stm32-qspi.c
+@@ -688,7 +688,7 @@ static int stm32_qspi_probe(struct platform_device *pdev)
+ 	struct resource *res;
+ 	int ret, irq;
  
--void kvm_write_wall_clock(struct kvm *kvm, gpa_t wall_clock, int sec_hi_ofs)
-+static void kvm_write_wall_clock(struct kvm *kvm, gpa_t wall_clock, int sec_hi_ofs)
- {
- 	int version;
- 	int r;
-diff --git a/arch/x86/kvm/x86.h b/arch/x86/kvm/x86.h
-index 4abcd8d9836d..da7031e80f23 100644
---- a/arch/x86/kvm/x86.h
-+++ b/arch/x86/kvm/x86.h
-@@ -301,7 +301,6 @@ static inline bool kvm_vcpu_latch_init(struct kvm_vcpu *vcpu)
- 	return is_smm(vcpu) || static_call(kvm_x86_apic_init_signal_blocked)(vcpu);
- }
+-	ctrl = spi_alloc_master(dev, sizeof(*qspi));
++	ctrl = devm_spi_alloc_master(dev, sizeof(*qspi));
+ 	if (!ctrl)
+ 		return -ENOMEM;
  
--void kvm_write_wall_clock(struct kvm *kvm, gpa_t wall_clock, int sec_hi_ofs);
- void kvm_inject_realmode_interrupt(struct kvm_vcpu *vcpu, int irq, int inc_eip);
+@@ -697,58 +697,46 @@ static int stm32_qspi_probe(struct platform_device *pdev)
  
- u64 get_kvmclock_ns(struct kvm *kvm);
-diff --git a/arch/x86/kvm/xen.c b/arch/x86/kvm/xen.c
-index ceddabd1f5c6..0e3f7d6e9fd7 100644
---- a/arch/x86/kvm/xen.c
-+++ b/arch/x86/kvm/xen.c
-@@ -25,8 +25,11 @@ DEFINE_STATIC_KEY_DEFERRED_FALSE(kvm_xen_enabled, HZ);
- static int kvm_xen_shared_info_init(struct kvm *kvm, gfn_t gfn)
- {
- 	struct gfn_to_pfn_cache *gpc = &kvm->arch.xen.shinfo_cache;
-+	struct pvclock_wall_clock *wc;
- 	gpa_t gpa = gfn_to_gpa(gfn);
--	int wc_ofs, sec_hi_ofs;
-+	u32 *wc_sec_hi;
-+	u32 wc_version;
-+	u64 wall_nsec;
- 	int ret = 0;
- 	int idx = srcu_read_lock(&kvm->srcu);
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "qspi");
+ 	qspi->io_base = devm_ioremap_resource(dev, res);
+-	if (IS_ERR(qspi->io_base)) {
+-		ret = PTR_ERR(qspi->io_base);
+-		goto err_master_put;
+-	}
++	if (IS_ERR(qspi->io_base))
++		return PTR_ERR(qspi->io_base);
  
-@@ -35,32 +38,63 @@ static int kvm_xen_shared_info_init(struct kvm *kvm, gfn_t gfn)
- 		goto out;
+ 	qspi->phys_base = res->start;
+ 
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "qspi_mm");
+ 	qspi->mm_base = devm_ioremap_resource(dev, res);
+-	if (IS_ERR(qspi->mm_base)) {
+-		ret = PTR_ERR(qspi->mm_base);
+-		goto err_master_put;
+-	}
++	if (IS_ERR(qspi->mm_base))
++		return PTR_ERR(qspi->mm_base);
+ 
+ 	qspi->mm_size = resource_size(res);
+-	if (qspi->mm_size > STM32_QSPI_MAX_MMAP_SZ) {
+-		ret = -EINVAL;
+-		goto err_master_put;
+-	}
++	if (qspi->mm_size > STM32_QSPI_MAX_MMAP_SZ)
++		return -EINVAL;
+ 
+ 	irq = platform_get_irq(pdev, 0);
+-	if (irq < 0) {
+-		ret = irq;
+-		goto err_master_put;
+-	}
++	if (irq < 0)
++		return irq;
+ 
+ 	ret = devm_request_irq(dev, irq, stm32_qspi_irq, 0,
+ 			       dev_name(dev), qspi);
+ 	if (ret) {
+ 		dev_err(dev, "failed to request irq\n");
+-		goto err_master_put;
++		return ret;
  	}
  
--	ret = kvm_gfn_to_pfn_cache_init(kvm, gpc, NULL, false, true, gpa,
--					PAGE_SIZE, false);
--	if (ret)
--		goto out;
-+	do {
-+		ret = kvm_gfn_to_pfn_cache_init(kvm, gpc, NULL, false, true,
-+						gpa, PAGE_SIZE, false);
-+		if (ret)
-+			goto out;
-+
-+		/*
-+		 * This code mirrors kvm_write_wall_clock() except that it writes
-+		 * directly through the pfn cache and doesn't mark the page dirty.
-+		 */
-+		wall_nsec = ktime_get_real_ns() - get_kvmclock_ns(kvm);
-+
-+		/* It could be invalid again already, so we need to check */
-+		read_lock_irq(&gpc->lock);
-+
-+		if (gpc->valid)
-+			break;
-+
-+		read_unlock_irq(&gpc->lock);
-+	} while (1);
+ 	init_completion(&qspi->data_completion);
+ 	init_completion(&qspi->match_completion);
  
- 	/* Paranoia checks on the 32-bit struct layout */
- 	BUILD_BUG_ON(offsetof(struct compat_shared_info, wc) != 0x900);
- 	BUILD_BUG_ON(offsetof(struct compat_shared_info, arch.wc_sec_hi) != 0x924);
- 	BUILD_BUG_ON(offsetof(struct pvclock_vcpu_time_info, version) != 0);
- 
--	/* 32-bit location by default */
--	wc_ofs = offsetof(struct compat_shared_info, wc);
--	sec_hi_ofs = offsetof(struct compat_shared_info, arch.wc_sec_hi);
--
- #ifdef CONFIG_X86_64
- 	/* Paranoia checks on the 64-bit struct layout */
- 	BUILD_BUG_ON(offsetof(struct shared_info, wc) != 0xc00);
- 	BUILD_BUG_ON(offsetof(struct shared_info, wc_sec_hi) != 0xc0c);
- 
--	if (kvm->arch.xen.long_mode) {
--		wc_ofs = offsetof(struct shared_info, wc);
--		sec_hi_ofs = offsetof(struct shared_info, wc_sec_hi);
+ 	qspi->clk = devm_clk_get(dev, NULL);
+-	if (IS_ERR(qspi->clk)) {
+-		ret = PTR_ERR(qspi->clk);
+-		goto err_master_put;
 -	}
-+	if (IS_ENABLED(CONFIG_64BIT) && kvm->arch.xen.long_mode) {
-+		struct shared_info *shinfo = gpc->khva;
-+
-+		wc_sec_hi = &shinfo->wc_sec_hi;
-+		wc = &shinfo->wc;
-+	} else
- #endif
-+	{
-+		struct compat_shared_info *shinfo = gpc->khva;
-+
-+		wc_sec_hi = &shinfo->arch.wc_sec_hi;
-+		wc = &shinfo->wc;
-+	}
-+
-+	/* Increment and ensure an odd value */
-+	wc_version = wc->version = (wc->version + 1) | 1;
-+	smp_wmb();
-+
-+	wc->nsec = do_div(wall_nsec,  1000000000);
-+	wc->sec = (u32)wall_nsec;
-+	*wc_sec_hi = wall_nsec >> 32;
-+	smp_wmb();
-+
-+	wc->version = wc_version + 1;
-+	read_unlock_irq(&gpc->lock);
++	if (IS_ERR(qspi->clk))
++		return PTR_ERR(qspi->clk);
  
--	kvm_write_wall_clock(kvm, gpa + wc_ofs, sec_hi_ofs - wc_ofs);
- 	kvm_make_all_cpus_request(kvm, KVM_REQ_MASTERCLOCK_UPDATE);
+ 	qspi->clk_rate = clk_get_rate(qspi->clk);
+-	if (!qspi->clk_rate) {
+-		ret = -EINVAL;
+-		goto err_master_put;
+-	}
++	if (!qspi->clk_rate)
++		return -EINVAL;
  
- out:
+ 	ret = clk_prepare_enable(qspi->clk);
+ 	if (ret) {
+ 		dev_err(dev, "can not enable the clock\n");
+-		goto err_master_put;
++		return ret;
+ 	}
+ 
+ 	rstc = devm_reset_control_get_exclusive(dev, NULL);
+@@ -784,7 +772,7 @@ static int stm32_qspi_probe(struct platform_device *pdev)
+ 	pm_runtime_enable(dev);
+ 	pm_runtime_get_noresume(dev);
+ 
+-	ret = devm_spi_register_master(dev, ctrl);
++	ret = spi_register_master(ctrl);
+ 	if (ret)
+ 		goto err_pm_runtime_free;
+ 
+@@ -806,8 +794,6 @@ static int stm32_qspi_probe(struct platform_device *pdev)
+ 	stm32_qspi_dma_free(qspi);
+ err_clk_disable:
+ 	clk_disable_unprepare(qspi->clk);
+-err_master_put:
+-	spi_master_put(qspi->ctrl);
+ 
+ 	return ret;
+ }
+@@ -817,6 +803,7 @@ static int stm32_qspi_remove(struct platform_device *pdev)
+ 	struct stm32_qspi *qspi = platform_get_drvdata(pdev);
+ 
+ 	pm_runtime_get_sync(qspi->dev);
++	spi_unregister_master(qspi->ctrl);
+ 	/* disable qspi */
+ 	writel_relaxed(0, qspi->io_base + QSPI_CR);
+ 	stm32_qspi_dma_free(qspi);
+-- 
+2.17.1
 
