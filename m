@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6062490D2A
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:01:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF416490D2C
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:01:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230248AbiAQRBM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 12:01:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44954 "EHLO
+        id S241820AbiAQRBP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 12:01:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241418AbiAQRA1 (ORCPT
+        with ESMTP id S241653AbiAQRA1 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 12:00:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B62FC06175E;
-        Mon, 17 Jan 2022 09:00:27 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECBB1C06175D;
+        Mon, 17 Jan 2022 09:00:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 34438B81148;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF1626119C;
         Mon, 17 Jan 2022 17:00:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A44BC36B01;
-        Mon, 17 Jan 2022 17:00:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C866C36AEC;
+        Mon, 17 Jan 2022 17:00:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642438825;
-        bh=qYDOpIwbffRx83ZsylOR2lWYM5jvsut86DHKdCbumBU=;
+        s=k20201202; t=1642438826;
+        bh=/4ymQkPm05sQ9np1VxxhcptsSvkId83WEA1PyJ18I4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n/AFOLhdHjb7Glf7wP/3Tb5Y/cJYHM30CIVOLepO6C6+EHcC2X1SWbTXC1QO9PWQE
-         AkcAVSq3I3O7QzGdKwVX9Xdjoshocktg/2+AVipjng5UPp4w1hsYN0r+DnLTiELDua
-         U9pTEzLNEQRAQlLRVayt8qtUXQb/Lo5bALuPNc9vVP/fObTP3BMWGJM7Z483+vIpxV
-         BMe6q7JDrcw5mhas2d4e6D23R4cYaViJSDWM8ZeTcfgmYhFqVEqK1+Jo6gODk/87HS
-         NnL4arR+ecVR+Jbq0LPYFB4mDn3iA/lRfcyQotAi1mwOyHmK/PTtb3vhoTrAOpF0p5
-         SzastE5/9ZvHw==
+        b=HsDpKa9e4km/mrTNZ6PehilJnGz9m4d1El91sWlK5dlS2aJo2jYk0d2D8UT4kyyNN
+         HBEC8ED6guoijnLM6I9G5um4HW6cAw8uka8u58OzeuCNnRzJwt/QCzWdqmSUiBjlLn
+         zmAYJwSqBel1qK2mGhKndgCXsaPyDH3L75LE56GuJACTIJ34Tr3FKtrKEYJpfBp4RX
+         YrKm8IKwqh3n4HGD+jPy9zISMYYjDSMQ0lrhsQXtcrBkCDtZimtGMvpKJkV/fRagaC
+         so8BoCjcrXFKzAPNm2wOvJK2OvFlxpuhrqazpc3CzjAJeeUTj4FJW97yoNtj9lbmch
+         RFw+cOdx+23/w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marc Zyngier <maz@kernel.org>, Jay Chen <jkchen@linux.alibaba.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de
-Subject: [PATCH AUTOSEL 5.16 34/52] irqchip/gic-v4: Disable redistributors' view of the VPE table at boot time
-Date:   Mon, 17 Jan 2022 11:58:35 -0500
-Message-Id: <20220117165853.1470420-34-sashal@kernel.org>
+Cc:     Lakshmi Sowjanya D <lakshmi.sowjanya.d@intel.com>,
+        Wolfram Sang <wsa@kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>, linux-i2c@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 35/52] i2c: designware-pci: Fix to change data types of hcnt and lcnt parameters
+Date:   Mon, 17 Jan 2022 11:58:36 -0500
+Message-Id: <20220117165853.1470420-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220117165853.1470420-1-sashal@kernel.org>
 References: <20220117165853.1470420-1-sashal@kernel.org>
@@ -50,60 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Lakshmi Sowjanya D <lakshmi.sowjanya.d@intel.com>
 
-[ Upstream commit 79a7f77b9b154d572bd9d2f1eecf58c4d018d8e2 ]
+[ Upstream commit d52097010078c1844348dc0e467305e5f90fd317 ]
 
-Jay Chen reported that using a kdump kernel on a GICv4.1 system
-results in a RAS error being delivered when the secondary kernel
-configures the ITS's view of the new VPE table.
+The data type of hcnt and lcnt in the struct dw_i2c_dev is of type u16.
+It's better to have same data type in struct dw_scl_sda_cfg as well.
 
-As it turns out, that's because each RD still has a pointer to
-the previous instance of the VPE table, and that particular
-implementation is very upset by seeing two bits of the HW that
-should point to the same table with different values.
-
-To solve this, let's invalidate any reference that any RD has to
-the VPE table when discovering the RDs. The ITS can then be
-programmed as expected.
-
-Reported-by: Jay Chen <jkchen@linux.alibaba.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Link: https://lore.kernel.org/r/20211214064716.21407-1-jkchen@linux.alibaba.com
-Link: https://lore.kernel.org/r/20211216144804.1578566-1-maz@kernel.org
+Reported-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Lakshmi Sowjanya D <lakshmi.sowjanya.d@intel.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/irqchip/irq-gic-v3.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/i2c/busses/i2c-designware-pcidrv.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/irqchip/irq-gic-v3.c b/drivers/irqchip/irq-gic-v3.c
-index daec3309b014d..86397522e7864 100644
---- a/drivers/irqchip/irq-gic-v3.c
-+++ b/drivers/irqchip/irq-gic-v3.c
-@@ -920,6 +920,22 @@ static int __gic_update_rdist_properties(struct redist_region *region,
- {
- 	u64 typer = gic_read_typer(ptr + GICR_TYPER);
+diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
+index 0f409a4c2da0d..5b45941bcbddc 100644
+--- a/drivers/i2c/busses/i2c-designware-pcidrv.c
++++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
+@@ -39,10 +39,10 @@ enum dw_pci_ctl_id_t {
+ };
  
-+	/* Boot-time cleanip */
-+	if ((typer & GICR_TYPER_VLPIS) && (typer & GICR_TYPER_RVPEID)) {
-+		u64 val;
-+
-+		/* Deactivate any present vPE */
-+		val = gicr_read_vpendbaser(ptr + SZ_128K + GICR_VPENDBASER);
-+		if (val & GICR_VPENDBASER_Valid)
-+			gicr_write_vpendbaser(GICR_VPENDBASER_PendingLast,
-+					      ptr + SZ_128K + GICR_VPENDBASER);
-+
-+		/* Mark the VPE table as invalid */
-+		val = gicr_read_vpropbaser(ptr + SZ_128K + GICR_VPROPBASER);
-+		val &= ~GICR_VPROPBASER_4_1_VALID;
-+		gicr_write_vpropbaser(val, ptr + SZ_128K + GICR_VPROPBASER);
-+	}
-+
- 	gic_data.rdists.has_vlpis &= !!(typer & GICR_TYPER_VLPIS);
+ struct dw_scl_sda_cfg {
+-	u32 ss_hcnt;
+-	u32 fs_hcnt;
+-	u32 ss_lcnt;
+-	u32 fs_lcnt;
++	u16 ss_hcnt;
++	u16 fs_hcnt;
++	u16 ss_lcnt;
++	u16 fs_lcnt;
+ 	u32 sda_hold;
+ };
  
- 	/* RVPEID implies some form of DirectLPI, no matter what the doc says... :-/ */
 -- 
 2.34.1
 
