@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC4B5490709
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 12:18:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E78C490708
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 12:18:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236797AbiAQLS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 06:18:57 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:35990 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236726AbiAQLSz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 06:18:55 -0500
+        id S239020AbiAQLSt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 06:18:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51136 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239032AbiAQLSr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 06:18:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A8ABC06173E
+        for <stable@vger.kernel.org>; Mon, 17 Jan 2022 03:18:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BB8B8B80EF2
-        for <stable@vger.kernel.org>; Mon, 17 Jan 2022 11:18:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11AB0C36AE7;
-        Mon, 17 Jan 2022 11:18:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 34550B80EF5
+        for <stable@vger.kernel.org>; Mon, 17 Jan 2022 11:18:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FE4DC36B01;
+        Mon, 17 Jan 2022 11:18:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642418333;
-        bh=9uqndNwsQbs4dDIeTxUQxZxrD/Q3jalwqLFpjvVZqJE=;
+        s=korg; t=1642418325;
+        bh=scrykv58twl0w0rgtQliYBoEeyT2WkAgduHcFYwn4UQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=Kd7irKsDtmXn1v43gVV9nhLLky4E2DXnIlhmsDyuM/UvRreRcfKlMQUoQWwnluzhT
-         oNJ6XVA/4ILNcVRYeXHJb/pcYyBiq6PQKxdnaUSG25JkANbHVyztPxin3kzMLXI/Xp
-         YISa8frcVbRzxT+I+Hi3IOr9cMIGuUDn8YAXVb9o=
-Subject: FAILED: patch "[PATCH] KVM: x86: Fix wall clock writes in Xen shared_info not to" failed to apply to 5.16-stable tree
+        b=qDkfcYUsi4ZIzu3kbAgQbZhnR4PWbdj0J8E8aXNcr12ZiKvrOMycRwaRNan2UXpnk
+         OBhnqG+F8c7PwOShlMH+zepTmErVJb13VmIq9I+1f5RXpRY/iGL5Vzcb48is1u4LDF
+         lJrEwDZ8XgIZeKsjsgcNpl0gtdxHRlJsItHP+0RI=
+Subject: FAILED: patch "[PATCH] KVM: x86: Fix wall clock writes in Xen shared_info not to" failed to apply to 5.15-stable tree
 To:     dwmw@amazon.co.uk, butterflyhuangxx@gmail.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 17 Jan 2022 12:18:42 +0100
-Message-ID: <1642418322138230@kroah.com>
+Message-ID: <164241832261187@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.16-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
