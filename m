@@ -2,124 +2,197 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4917C490658
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 12:01:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC4B5490709
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 12:18:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236199AbiAQLBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 06:01:24 -0500
-Received: from lelv0142.ext.ti.com ([198.47.23.249]:52318 "EHLO
-        lelv0142.ext.ti.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238801AbiAQLBX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 06:01:23 -0500
-Received: from lelv0265.itg.ti.com ([10.180.67.224])
-        by lelv0142.ext.ti.com (8.15.2/8.15.2) with ESMTP id 20HB1F8i105933;
-        Mon, 17 Jan 2022 05:01:15 -0600
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1642417275;
-        bh=APcufelCvvtQ92C4lwDeP/wnCcE/tCVes1IRHyTJzUY=;
-        h=From:To:CC:Subject:Date;
-        b=I1walgYssduKSqfJZfAo656o1GDfaStLuK+EZyGTKO4SJjAiw4+BaNuuozjwlvYf5
-         X0CDHQrR0w7GDAP0jVa/600BNn2stCIQpA1SL3d0OufEwQKkQNoozsOZZoqf/7ua0P
-         e8K1NSJYF0zc9N++PgNtqrR3e7UZZW0D+N39Uvf4=
-Received: from DLEE104.ent.ti.com (dlee104.ent.ti.com [157.170.170.34])
-        by lelv0265.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 20HB1FKd111167
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Mon, 17 Jan 2022 05:01:15 -0600
-Received: from DLEE100.ent.ti.com (157.170.170.30) by DLEE104.ent.ti.com
- (157.170.170.34) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2308.14; Mon, 17
- Jan 2022 05:01:14 -0600
-Received: from lelv0326.itg.ti.com (10.180.67.84) by DLEE100.ent.ti.com
- (157.170.170.30) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2308.14 via
- Frontend Transport; Mon, 17 Jan 2022 05:01:14 -0600
-Received: from a0393678-lt.ent.ti.com (ileax41-snat.itg.ti.com [10.172.224.153])
-        by lelv0326.itg.ti.com (8.15.2/8.15.2) with ESMTP id 20HB1Ase115422;
-        Mon, 17 Jan 2022 05:01:11 -0600
-From:   Kishon Vijay Abraham I <kishon@ti.com>
-To:     Kishon Vijay Abraham I <kishon@ti.com>,
-        Vinod Koul <vkoul@kernel.org>
-CC:     Swapnil Jakhade <sjakhade@cadence.com>,
-        <linux-phy@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>
-Subject: [PATCH] phy: ti: Fix "BUG: KASAN: global-out-of-bounds in _get_maxdiv" issue
-Date:   Mon, 17 Jan 2022 16:31:08 +0530
-Message-ID: <20220117110108.4117-1-kishon@ti.com>
-X-Mailer: git-send-email 2.17.1
+        id S236797AbiAQLS5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 06:18:57 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:35990 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236726AbiAQLSz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 06:18:55 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BB8B8B80EF2
+        for <stable@vger.kernel.org>; Mon, 17 Jan 2022 11:18:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11AB0C36AE7;
+        Mon, 17 Jan 2022 11:18:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1642418333;
+        bh=9uqndNwsQbs4dDIeTxUQxZxrD/Q3jalwqLFpjvVZqJE=;
+        h=Subject:To:Cc:From:Date:From;
+        b=Kd7irKsDtmXn1v43gVV9nhLLky4E2DXnIlhmsDyuM/UvRreRcfKlMQUoQWwnluzhT
+         oNJ6XVA/4ILNcVRYeXHJb/pcYyBiq6PQKxdnaUSG25JkANbHVyztPxin3kzMLXI/Xp
+         YISa8frcVbRzxT+I+Hi3IOr9cMIGuUDn8YAXVb9o=
+Subject: FAILED: patch "[PATCH] KVM: x86: Fix wall clock writes in Xen shared_info not to" failed to apply to 5.16-stable tree
+To:     dwmw@amazon.co.uk, butterflyhuangxx@gmail.com, pbonzini@redhat.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 17 Jan 2022 12:18:42 +0100
+Message-ID: <1642418322138230@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-_get_table_maxdiv() tries to access "clk_div_table" array out of bound
-defined in phy-j721e-wiz.c. Add a sentinel entry to prevent
-the following global-out-of-bounds error reported by enabling KASAN.
 
-[    9.552392] BUG: KASAN: global-out-of-bounds in _get_maxdiv+0xc0/0x148
-[    9.558948] Read of size 4 at addr ffff8000095b25a4 by task kworker/u4:1/38
-[    9.565926]
-[    9.567441] CPU: 1 PID: 38 Comm: kworker/u4:1 Not tainted 5.16.0-116492-gdaadb3bd0e8d-dirty #360
-[    9.576242] Hardware name: Texas Instruments J721e EVM (DT)
-[    9.581832] Workqueue: events_unbound deferred_probe_work_func
-[    9.587708] Call trace:
-[    9.590174]  dump_backtrace+0x20c/0x218
-[    9.594038]  show_stack+0x18/0x68
-[    9.597375]  dump_stack_lvl+0x9c/0xd8
-[    9.601062]  print_address_description.constprop.0+0x78/0x334
-[    9.606830]  kasan_report+0x1f0/0x260
-[    9.610517]  __asan_load4+0x9c/0xd8
-[    9.614030]  _get_maxdiv+0xc0/0x148
-[    9.617540]  divider_determine_rate+0x88/0x488
-[    9.622005]  divider_round_rate_parent+0xc8/0x124
-[    9.626729]  wiz_clk_div_round_rate+0x54/0x68
-[    9.631113]  clk_core_determine_round_nolock+0x124/0x158
-[    9.636448]  clk_core_round_rate_nolock+0x68/0x138
-[    9.641260]  clk_core_set_rate_nolock+0x268/0x3a8
-[    9.645987]  clk_set_rate+0x50/0xa8
-[    9.649499]  cdns_sierra_phy_init+0x88/0x248
-[    9.653794]  phy_init+0x98/0x108
-[    9.657046]  cdns_pcie_enable_phy+0xa0/0x170
-[    9.661340]  cdns_pcie_init_phy+0x250/0x2b0
-[    9.665546]  j721e_pcie_probe+0x4b8/0x798
-[    9.669579]  platform_probe+0x8c/0x108
-[    9.673350]  really_probe+0x114/0x630
-[    9.677037]  __driver_probe_device+0x18c/0x220
-[    9.681505]  driver_probe_device+0xac/0x150
-[    9.685712]  __device_attach_driver+0xec/0x170
-[    9.690178]  bus_for_each_drv+0xf0/0x158
-[    9.694124]  __device_attach+0x184/0x210
-[    9.698070]  device_initial_probe+0x14/0x20
-[    9.702277]  bus_probe_device+0xec/0x100
-[    9.706223]  deferred_probe_work_func+0x124/0x180
-[    9.710951]  process_one_work+0x4b0/0xbc0
-[    9.714983]  worker_thread+0x74/0x5d0
-[    9.718668]  kthread+0x214/0x230
-[    9.721919]  ret_from_fork+0x10/0x20
-[    9.725520]
-[    9.727032] The buggy address belongs to the variable:
-[    9.732183]  clk_div_table+0x24/0x440
+The patch below does not apply to the 5.16-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Fixes: 091876cc35 ("phy: ti: j721e-wiz: Add support for WIZ module present in TI J721E SoC")
-Cc: stable@vger.kernel.org # v5.10+
-Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
----
- drivers/phy/ti/phy-j721e-wiz.c | 1 +
- 1 file changed, 1 insertion(+)
+thanks,
 
-diff --git a/drivers/phy/ti/phy-j721e-wiz.c b/drivers/phy/ti/phy-j721e-wiz.c
-index b3384c31637a..da546c35d1d5 100644
---- a/drivers/phy/ti/phy-j721e-wiz.c
-+++ b/drivers/phy/ti/phy-j721e-wiz.c
-@@ -233,6 +233,7 @@ static const struct clk_div_table clk_div_table[] = {
- 	{ .val = 1, .div = 2, },
- 	{ .val = 2, .div = 4, },
- 	{ .val = 3, .div = 8, },
-+	{ /* sentinel */ },
- };
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 55749769fe608fa3f4a075e42e89d237c8e37637 Mon Sep 17 00:00:00 2001
+From: David Woodhouse <dwmw@amazon.co.uk>
+Date: Fri, 10 Dec 2021 16:36:24 +0000
+Subject: [PATCH] KVM: x86: Fix wall clock writes in Xen shared_info not to
+ mark page dirty
+
+When dirty ring logging is enabled, any dirty logging without an active
+vCPU context will cause a kernel oops. But we've already declared that
+the shared_info page doesn't get dirty tracking anyway, since it would
+be kind of insane to mark it dirty every time we deliver an event channel
+interrupt. Userspace is supposed to just assume it's always dirty any
+time a vCPU can run or event channels are routed.
+
+So stop using the generic kvm_write_wall_clock() and just write directly
+through the gfn_to_pfn_cache that we already have set up.
+
+We can make kvm_write_wall_clock() static in x86.c again now, but let's
+not remove the 'sec_hi_ofs' argument even though it's not used yet. At
+some point we *will* want to use that for KVM guests too.
+
+Fixes: 629b5348841a ("KVM: x86/xen: update wallclock region")
+Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
+Signed-off-by: David Woodhouse <dwmw@amazon.co.uk>
+Message-Id: <20211210163625.2886-6-dwmw2@infradead.org>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 3050601d5d73..6492329f2e9a 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -2135,7 +2135,7 @@ static s64 get_kvmclock_base_ns(void)
+ }
+ #endif
  
- static const struct wiz_clk_div_sel clk_div_sel[] = {
--- 
-2.17.1
+-void kvm_write_wall_clock(struct kvm *kvm, gpa_t wall_clock, int sec_hi_ofs)
++static void kvm_write_wall_clock(struct kvm *kvm, gpa_t wall_clock, int sec_hi_ofs)
+ {
+ 	int version;
+ 	int r;
+diff --git a/arch/x86/kvm/x86.h b/arch/x86/kvm/x86.h
+index 4abcd8d9836d..da7031e80f23 100644
+--- a/arch/x86/kvm/x86.h
++++ b/arch/x86/kvm/x86.h
+@@ -301,7 +301,6 @@ static inline bool kvm_vcpu_latch_init(struct kvm_vcpu *vcpu)
+ 	return is_smm(vcpu) || static_call(kvm_x86_apic_init_signal_blocked)(vcpu);
+ }
+ 
+-void kvm_write_wall_clock(struct kvm *kvm, gpa_t wall_clock, int sec_hi_ofs);
+ void kvm_inject_realmode_interrupt(struct kvm_vcpu *vcpu, int irq, int inc_eip);
+ 
+ u64 get_kvmclock_ns(struct kvm *kvm);
+diff --git a/arch/x86/kvm/xen.c b/arch/x86/kvm/xen.c
+index ceddabd1f5c6..0e3f7d6e9fd7 100644
+--- a/arch/x86/kvm/xen.c
++++ b/arch/x86/kvm/xen.c
+@@ -25,8 +25,11 @@ DEFINE_STATIC_KEY_DEFERRED_FALSE(kvm_xen_enabled, HZ);
+ static int kvm_xen_shared_info_init(struct kvm *kvm, gfn_t gfn)
+ {
+ 	struct gfn_to_pfn_cache *gpc = &kvm->arch.xen.shinfo_cache;
++	struct pvclock_wall_clock *wc;
+ 	gpa_t gpa = gfn_to_gpa(gfn);
+-	int wc_ofs, sec_hi_ofs;
++	u32 *wc_sec_hi;
++	u32 wc_version;
++	u64 wall_nsec;
+ 	int ret = 0;
+ 	int idx = srcu_read_lock(&kvm->srcu);
+ 
+@@ -35,32 +38,63 @@ static int kvm_xen_shared_info_init(struct kvm *kvm, gfn_t gfn)
+ 		goto out;
+ 	}
+ 
+-	ret = kvm_gfn_to_pfn_cache_init(kvm, gpc, NULL, false, true, gpa,
+-					PAGE_SIZE, false);
+-	if (ret)
+-		goto out;
++	do {
++		ret = kvm_gfn_to_pfn_cache_init(kvm, gpc, NULL, false, true,
++						gpa, PAGE_SIZE, false);
++		if (ret)
++			goto out;
++
++		/*
++		 * This code mirrors kvm_write_wall_clock() except that it writes
++		 * directly through the pfn cache and doesn't mark the page dirty.
++		 */
++		wall_nsec = ktime_get_real_ns() - get_kvmclock_ns(kvm);
++
++		/* It could be invalid again already, so we need to check */
++		read_lock_irq(&gpc->lock);
++
++		if (gpc->valid)
++			break;
++
++		read_unlock_irq(&gpc->lock);
++	} while (1);
+ 
+ 	/* Paranoia checks on the 32-bit struct layout */
+ 	BUILD_BUG_ON(offsetof(struct compat_shared_info, wc) != 0x900);
+ 	BUILD_BUG_ON(offsetof(struct compat_shared_info, arch.wc_sec_hi) != 0x924);
+ 	BUILD_BUG_ON(offsetof(struct pvclock_vcpu_time_info, version) != 0);
+ 
+-	/* 32-bit location by default */
+-	wc_ofs = offsetof(struct compat_shared_info, wc);
+-	sec_hi_ofs = offsetof(struct compat_shared_info, arch.wc_sec_hi);
+-
+ #ifdef CONFIG_X86_64
+ 	/* Paranoia checks on the 64-bit struct layout */
+ 	BUILD_BUG_ON(offsetof(struct shared_info, wc) != 0xc00);
+ 	BUILD_BUG_ON(offsetof(struct shared_info, wc_sec_hi) != 0xc0c);
+ 
+-	if (kvm->arch.xen.long_mode) {
+-		wc_ofs = offsetof(struct shared_info, wc);
+-		sec_hi_ofs = offsetof(struct shared_info, wc_sec_hi);
+-	}
++	if (IS_ENABLED(CONFIG_64BIT) && kvm->arch.xen.long_mode) {
++		struct shared_info *shinfo = gpc->khva;
++
++		wc_sec_hi = &shinfo->wc_sec_hi;
++		wc = &shinfo->wc;
++	} else
+ #endif
++	{
++		struct compat_shared_info *shinfo = gpc->khva;
++
++		wc_sec_hi = &shinfo->arch.wc_sec_hi;
++		wc = &shinfo->wc;
++	}
++
++	/* Increment and ensure an odd value */
++	wc_version = wc->version = (wc->version + 1) | 1;
++	smp_wmb();
++
++	wc->nsec = do_div(wall_nsec,  1000000000);
++	wc->sec = (u32)wall_nsec;
++	*wc_sec_hi = wall_nsec >> 32;
++	smp_wmb();
++
++	wc->version = wc_version + 1;
++	read_unlock_irq(&gpc->lock);
+ 
+-	kvm_write_wall_clock(kvm, gpa + wc_ofs, sec_hi_ofs - wc_ofs);
+ 	kvm_make_all_cpus_request(kvm, KVM_REQ_MASTERCLOCK_UPDATE);
+ 
+ out:
 
