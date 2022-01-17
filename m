@@ -2,116 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D680A491239
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 00:14:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B46B49127C
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 00:52:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235133AbiAQXOA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 18:14:00 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:54820 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229842AbiAQXN7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 18:13:59 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1642461239;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=poL37lSy5yu+pXxIBkPJdf1QhhjhrG0y8WyJPB/Gac4=;
-        b=cHoc6UPpucyNFfOPIEB/5koMaKlkBRvD7YHGYaBZ4CGfgaPdpjY6swRUkt0SAIWD+9OUzI
-        Yz1vaOPfepoxcWTm1fvUOKdAVZFk4AvBszZ+oqy2LxBJpW8TyEym34r5RgHljcSs0lkPMz
-        D821CiSRrU0vGVu4uhzJ6WSqrhxt4GI=
-Received: from mail-ed1-f69.google.com (mail-ed1-f69.google.com
- [209.85.208.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-449-CdAjzcvAO6iM_9UDwriqdg-1; Mon, 17 Jan 2022 18:13:58 -0500
-X-MC-Unique: CdAjzcvAO6iM_9UDwriqdg-1
-Received: by mail-ed1-f69.google.com with SMTP id r14-20020aa7da0e000000b004021fa39843so4655197eds.15
-        for <stable@vger.kernel.org>; Mon, 17 Jan 2022 15:13:57 -0800 (PST)
+        id S233263AbiAQXww (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 18:52:52 -0500
+Received: from mail-pl1-f174.google.com ([209.85.214.174]:44954 "EHLO
+        mail-pl1-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231768AbiAQXwu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 18:52:50 -0500
+Received: by mail-pl1-f174.google.com with SMTP id v2so7885199ply.11;
+        Mon, 17 Jan 2022 15:52:50 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:content-transfer-encoding
-         :in-reply-to;
-        bh=poL37lSy5yu+pXxIBkPJdf1QhhjhrG0y8WyJPB/Gac4=;
-        b=FwG8MssVSMNmCNpMOaONkRWyyGM4WVLLCJetDlhxVqgnQwgNUHT128Ir9FsYoL4co8
-         BJRBg8rI7X73xPbsk9X3df1IXzEgq7ICQFgYtGl/81Dd9oz7TTXYN9b0O7cDdkms5N9v
-         1OVsPjKUYwNpvRHdjrsOxuQb3P6IIYzsAWsgZ5vLDVmnz/r4eb5r2aJCs/D/Rn3rcqQ4
-         eIjfNJBObf2ljtbdbwQLfKMT1CJO39NEK+jTYEiJKCFsVoJvPwxaizXCXyF8MizCeWYK
-         ax7Vba2CcE5dCOrivYDP6OiUfUNGLAkz9TFbIx1VfE325lhs2lOoywBeTKWXIfR4cLHi
-         Onyg==
-X-Gm-Message-State: AOAM5310LJJfgLYSr4SpKSaEYDZRhh3ZA071AhyGC9JSmNhG3/FjrC0M
-        Bztf/EzI+kjAjy3O3taPPqHQcI94Zi8GoyDbJxCuCnAyB5Wj/EgB5VuWoY/roGa2VwBJndhdEFm
-        /kfHIZre4uXXJBvHJ
-X-Received: by 2002:a05:6402:154:: with SMTP id s20mr23540997edu.148.1642461236858;
-        Mon, 17 Jan 2022 15:13:56 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJzLNJ+H3FJlkh2+Vfrf2XL670LwjFEEh5msW25BJKoOSxrD9zY3tXrjLznoSEqqi27F14Jz0A==
-X-Received: by 2002:a05:6402:154:: with SMTP id s20mr23540987edu.148.1642461236725;
-        Mon, 17 Jan 2022 15:13:56 -0800 (PST)
-Received: from redhat.com ([2.55.154.241])
-        by smtp.gmail.com with ESMTPSA id p25sm6417354edw.75.2022.01.17.15.13.52
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=E3Vs4IXxZ1o53P+v4lST9asSyi4iNaTfykJHulxAP6I=;
+        b=38Yw2iTO6o3QAQGw/srBNIoeGQ+tvzTIOOzpN0EPdlQa66302aMLRXCP5KjTPNonWo
+         l0QavEZFwSLpJPj7p1xCO+RG+ZmECkqNzFV6852nri0IUAYXx8Qjk78ytLiVzNWL6sBu
+         LHXOJpkU7fVCaROKUSw1LTE+PTTo3FCqKXN+XvZzuDQG/zfdufPSk+iUw8v9SMixmAo1
+         xC5C/Z/yAGmaEnvOQNVI8Rb8JPy5b+AV9UphkkWxcgWvAZtUsPhKqYIzGYURlFmeuh39
+         YXNmDq3Ti1ls3q7nfzd6rKWblpk2+J/d+2ZcxFOw4gj0lTxcwR1jHg57vdpXD9a887LV
+         jKrw==
+X-Gm-Message-State: AOAM5303/XuJuHEKhpemxomAwTgYyG2nLOX330FpJZeEdOwllUSm+8Pu
+        VrKM+y2ZPJ7SkUs+HnXoCGp2fIl53t4=
+X-Google-Smtp-Source: ABdhPJz4ZuSC9e8w3+8LhUWLe9QPlc2LklE09KfjXKRJLZVfJd2L4Hj4kOSjzkoNHa8F+bDJ71z6qg==
+X-Received: by 2002:a17:902:8d82:b0:149:a740:d8d0 with SMTP id v2-20020a1709028d8200b00149a740d8d0mr25253359plo.5.1642463570215;
+        Mon, 17 Jan 2022 15:52:50 -0800 (PST)
+Received: from localhost.localdomain ([61.74.27.164])
+        by smtp.gmail.com with ESMTPSA id x6sm12883412pge.50.2022.01.17.15.52.48
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Jan 2022 15:13:54 -0800 (PST)
-Date:   Mon, 17 Jan 2022 18:13:49 -0500
-From:   "Michael S. Tsirkin" <mst@redhat.com>
-To:     Cornelia Huck <cohuck@redhat.com>
-Cc:     Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>,
-        virtualization@lists.linux-foundation.org
-Subject: Re: [PATCH] virtio: acknowledge all features before access
-Message-ID: <20220117181318-mutt-send-email-mst@kernel.org>
-References: <20220114200744.150325-1-mst@redhat.com>
- <d6c4e521-1538-bbbf-30e6-f658a095b3ae@redhat.com>
- <20220117032429-mutt-send-email-mst@kernel.org>
- <87mtjuv8od.fsf@redhat.com>
+        Mon, 17 Jan 2022 15:52:49 -0800 (PST)
+From:   Namjae Jeon <linkinjeon@kernel.org>
+To:     linux-cifs@vger.kernel.org
+Cc:     Namjae Jeon <linkinjeon@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH] ksmbd: fix guest connection failure with nautilus
+Date:   Tue, 18 Jan 2022 08:52:42 +0900
+Message-Id: <20220117235242.9385-1-linkinjeon@kernel.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <87mtjuv8od.fsf@redhat.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 17, 2022 at 01:38:42PM +0100, Cornelia Huck wrote:
-> On Mon, Jan 17 2022, "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> 
-> > On Mon, Jan 17, 2022 at 02:31:49PM +0800, Jason Wang wrote:
-> >> 
-> >> 在 2022/1/15 上午4:09, Michael S. Tsirkin 写道:
-> >> > @@ -495,6 +494,10 @@ int virtio_device_restore(struct virtio_device *dev)
-> >> >   	/* We have a driver! */
-> >> >   	virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER);
-> >> > +	ret = dev->config->finalize_features(dev);
-> >> > +	if (ret)
-> >> > +		goto err;
-> >> 
-> >> 
-> >> Is this part of code related?
-> >> 
-> >> Thanks
-> >> 
-> >
-> > Yes. virtio_finalize_features no longer calls dev->config->finalize_features.
-> >
-> > I think the dev->config->finalize_features callback is actually
-> > a misnomer now, it just sends the features to device,
-> > finalize is FEATURES_OK. Renaming that is a bigger
-> > patch though, and I'd like this one to be cherry-pickable
-> > to stable.
-> 
-> Do we want to add a comment before the calls to ->finalize_features()
-> (/* write features to device */) and adapt the comment in virtio_ring.h?
-> Should still be stable-friendly, and giving the callback a better name
-> can be a follow-up patch.
+MS-SMB2 describe session sign like the following.
+Session.SigningRequired MUST be set to TRUE under the following conditions:
+ - If the SMB2_NEGOTIATE_SIGNING_REQUIRED bit is set in the SecurityMode
+   field of the client request.
+ - If the SMB2_SESSION_FLAG_IS_GUEST bit is not set in the SessionFlags
+   field and Session.IsAnonymous is FALSE and either Connection.ShouldSign
+   or global RequireMessageSigning is TRUE.
 
+When trying guest account connection using nautilus, The login failure
+happened on session setup. ksmbd does not allow this connection
+when the user is a guest and the connection sign is set. Just do not set
+session sign instead of error response as described in the specification.
+And this change improves the guest connection in Nautilus.
 
-Sounds like a good idea. I can also document that near
-virtio_finalize_features.
+Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
+Cc: stable@vger.kernel.org # v5.15+
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+---
+ fs/ksmbd/smb2pdu.c | 62 ++++++++++++++++++++++------------------------
+ 1 file changed, 29 insertions(+), 33 deletions(-)
 
-> >
-> >> > +
-> >> >   	ret = virtio_finalize_features(dev);
-> >> >   	if (ret)
-> >> >   		goto err;
+diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
+index 15f331dbe17a..1866c81c5c99 100644
+--- a/fs/ksmbd/smb2pdu.c
++++ b/fs/ksmbd/smb2pdu.c
+@@ -1464,11 +1464,6 @@ static int ntlm_authenticate(struct ksmbd_work *work)
+ 	}
+ 
+ 	if (user_guest(sess->user)) {
+-		if (conn->sign) {
+-			ksmbd_debug(SMB, "Guest login not allowed when signing enabled\n");
+-			return -EPERM;
+-		}
+-
+ 		rsp->SessionFlags = SMB2_SESSION_FLAG_IS_GUEST_LE;
+ 	} else {
+ 		struct authenticate_message *authblob;
+@@ -1481,38 +1476,39 @@ static int ntlm_authenticate(struct ksmbd_work *work)
+ 			ksmbd_debug(SMB, "authentication failed\n");
+ 			return -EPERM;
+ 		}
++	}
+ 
+-		/*
+-		 * If session state is SMB2_SESSION_VALID, We can assume
+-		 * that it is reauthentication. And the user/password
+-		 * has been verified, so return it here.
+-		 */
+-		if (sess->state == SMB2_SESSION_VALID) {
+-			if (conn->binding)
+-				goto binding_session;
+-			return 0;
+-		}
++	/*
++	 * If session state is SMB2_SESSION_VALID, We can assume
++	 * that it is reauthentication. And the user/password
++	 * has been verified, so return it here.
++	 */
++	if (sess->state == SMB2_SESSION_VALID) {
++		if (conn->binding)
++			goto binding_session;
++		return 0;
++	}
+ 
+-		if ((conn->sign || server_conf.enforced_signing) ||
+-		    (req->SecurityMode & SMB2_NEGOTIATE_SIGNING_REQUIRED))
+-			sess->sign = true;
++	if ((rsp->SessionFlags != SMB2_SESSION_FLAG_IS_GUEST_LE &&
++	     (conn->sign || server_conf.enforced_signing)) ||
++	    (req->SecurityMode & SMB2_NEGOTIATE_SIGNING_REQUIRED))
++		sess->sign = true;
+ 
+-		if (smb3_encryption_negotiated(conn) &&
+-		    !(req->Flags & SMB2_SESSION_REQ_FLAG_BINDING)) {
+-			rc = conn->ops->generate_encryptionkey(sess);
+-			if (rc) {
+-				ksmbd_debug(SMB,
+-					    "SMB3 encryption key generation failed\n");
+-				return -EINVAL;
+-			}
+-			sess->enc = true;
+-			rsp->SessionFlags = SMB2_SESSION_FLAG_ENCRYPT_DATA_LE;
+-			/*
+-			 * signing is disable if encryption is enable
+-			 * on this session
+-			 */
+-			sess->sign = false;
++	if (smb3_encryption_negotiated(conn) &&
++			!(req->Flags & SMB2_SESSION_REQ_FLAG_BINDING)) {
++		rc = conn->ops->generate_encryptionkey(sess);
++		if (rc) {
++			ksmbd_debug(SMB,
++					"SMB3 encryption key generation failed\n");
++			return -EINVAL;
+ 		}
++		sess->enc = true;
++		rsp->SessionFlags = SMB2_SESSION_FLAG_ENCRYPT_DATA_LE;
++		/*
++		 * signing is disable if encryption is enable
++		 * on this session
++		 */
++		sess->sign = false;
+ 	}
+ 
+ binding_session:
+-- 
+2.25.1
 
