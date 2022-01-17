@@ -2,137 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9CD448FFA4
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 00:25:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67166490120
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 06:24:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233923AbiAPXZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 Jan 2022 18:25:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33132 "EHLO
+        id S232837AbiAQFYp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 00:24:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232895AbiAPXZZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 Jan 2022 18:25:25 -0500
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2F0EC061574
-        for <stable@vger.kernel.org>; Sun, 16 Jan 2022 15:25:24 -0800 (PST)
-Received: by mail-pf1-x42e.google.com with SMTP id p37so8511286pfh.4
-        for <stable@vger.kernel.org>; Sun, 16 Jan 2022 15:25:24 -0800 (PST)
+        with ESMTP id S231967AbiAQFYi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 00:24:38 -0500
+Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07A4EC061747
+        for <stable@vger.kernel.org>; Sun, 16 Jan 2022 21:24:37 -0800 (PST)
+Received: by mail-pg1-x52b.google.com with SMTP id i8so9848147pgt.13
+        for <stable@vger.kernel.org>; Sun, 16 Jan 2022 21:24:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=mNtYjd49oZOXqjJDw5LTSlMb+yuiIiGfceMzYuTZKec=;
-        b=nPp6kvhk9Q/P77x7iKC7h7wi5VZOR3O//bqdevd1pf1T4CohAe0zb9ZjpDdYW0UTmZ
-         U7RpsrBY1Xzn0ZpUevj3X/qZXIeCIucy1sv5W8jjyi9Ufw+6zgky7UJqd8bzbq+mewws
-         hKpVjYjnIh7q/OIoy2C+Z23/MOl9Wj/C3CnVh5HRLXIHwuVqQvZXVhRMkR9O3CpX9+5u
-         BWFcCgeLNTXgjWqDayp6fvk8oPs1QCYljQX1cgFbryUYqYk0RqFdn2151CndqZTus2hb
-         d9W71XMgnmyzcGs+6+N6WbU/OU90EzVoyMGNnXmRM9CGzt3oDKKMVhG5ZG1kj5iluHrx
-         GJzw==
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=ISpM5IrkTHsOLgNJIWuzTE0806bOg7B0Sd40UWe36MY=;
+        b=mEmWRcI8rpsg6TVZzLXBc4yugerwYpj+1EEmNn/rJ8cJt+cMEF4GiUnb9KyxiUw+SW
+         1aO3wa1dG9ddyVopK+OCJ+xArSKONuiiRSGgDkmALA1ArRsBK43EGeeaxLFpXOlgWcwp
+         Y5ZwP0DkQ3D3dq/NaX3RjrKvPGzSr9GFTP6xLSBJ51dHQo2/RSBmexvFPgcsMuW6a2qV
+         0svRY0qCbO6zl2v+JziGGW/GOWm4VVaBZvpwjP28z6hrOq8bjRuj4jYKOSbF9ZqNNDhl
+         ZBLFWxERjjWjHnKOsoUx6Llwjjm/kgmrNOBdJj3gOxivQZU/186xYQO7jlfwZTiRIbO/
+         R2iw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=mNtYjd49oZOXqjJDw5LTSlMb+yuiIiGfceMzYuTZKec=;
-        b=Jd8baUwowE/IuFISXpI6VHpv2QJ+AkIt/Ac/bmZJOx1stdtB/fappe9TdzhgoCdeT1
-         ogV0KaB+T6oqXNnUqQ2eB7SDuatVF4/GcUW+OKzeanWbisgFB3Hcmd7aoqD11YNoJCAi
-         R8PcYf56CCKif2Dzk9sPVsh5rG2fizneYIth2/MZRGBu/Pv6H4Arnw2E5D/Xt9cljY7i
-         0eVx3h0iBALf/1Jfo+SWtdriN9UMQjdhsN8A77ZKx6b8zF2MyrIaSoGpLQmO1R7cN+Ay
-         EnVshsJAywTxMXJZI0xBUULIfAahub2nQhKR7cuWO58KUMZ4xNBnAdRVZkjIXAFU5Bp7
-         XVXQ==
-X-Gm-Message-State: AOAM533XNQT9XnfKO/Na/uVSKw+4yMszgLJsqmBpWRIhIazsML5x5J8m
-        Oec/XOIyce45jypsdelzj/CnX0aG3JALbFSG
-X-Google-Smtp-Source: ABdhPJz6IwVZhYZSlZtPyFVztRMgBWS6sOugBk189MYZELAc/T+tpnWMdelrhGirJiPPJdO9dKOEFw==
-X-Received: by 2002:a62:5251:0:b0:4bd:bc3a:2f77 with SMTP id g78-20020a625251000000b004bdbc3a2f77mr18779700pfb.3.1642375524120;
-        Sun, 16 Jan 2022 15:25:24 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id m12sm2899861pjl.15.2022.01.16.15.25.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 16 Jan 2022 15:25:23 -0800 (PST)
-Message-ID: <61e4a963.1c69fb81.c1b4b.8159@mx.google.com>
-Date:   Sun, 16 Jan 2022 15:25:23 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=ISpM5IrkTHsOLgNJIWuzTE0806bOg7B0Sd40UWe36MY=;
+        b=ICui7OpYVTfAECshPi8hNTMRNihWB28g7fn8AiBcCaMN/vri0Ubvr4GdQo1man5J+x
+         lQ7R1TqhqnbMTARpVbLGy1omABcTKgPP+XF8t/Yt0pLiSTt65IW9kAZPxIMOeSKGRyqO
+         l7IaL1HHzkzaZ4fuwUYaRlGJW8UzJK3G/TjYfXt0J8wfEO1LHqEcyD+v5HKVZyZOWGFR
+         yGy7gNM+J6zJP8jrRmhUsU2ImYOGLKvvKAhiqU3iJY6SuHRBdEASAE/jAH5Y6dKaMb5k
+         BivBwzVYHEjSfiD02CbC7U2AH4uIco+wl3FzrD3IiYS0Srhbx4s8bc0rKlm4joluCOER
+         w3eg==
+X-Gm-Message-State: AOAM530hsKC6eMCU6o7WHeQ1YAqmCkxGnIODG6Y2CrRMrLSngmlNhN2X
+        oeK+/0WeEyJlZ88n0db3hhev2QX8MXrb77ezC+bOXg==
+X-Google-Smtp-Source: ABdhPJxKwUr6Mj0BEDwdpy+SnRUQVHpSe65h55GAGFLd+Tz4e10Ihr4mDyeK2km1qRM342NbayRDmXZ3esgEpKlX8Gk=
+X-Received: by 2002:a63:fe47:: with SMTP id x7mr5625761pgj.415.1642397077062;
+ Sun, 16 Jan 2022 21:24:37 -0800 (PST)
 MIME-Version: 1.0
+References: <20211229112551.3483931-1-pumahsu@google.com> <Yd1tUKhyZf26OVNQ@kroah.com>
+ <CAGCq0LZb8nQDvcz=LswWi4qKd-65ys6iPjTKh=46dVtYLDEUVw@mail.gmail.com> <Yd/g/ywBWZG7gF8v@kroah.com>
+In-Reply-To: <Yd/g/ywBWZG7gF8v@kroah.com>
+From:   Puma Hsu <pumahsu@google.com>
+Date:   Mon, 17 Jan 2022 13:24:01 +0800
+Message-ID: <CAGCq0LZ3i8VaMfRWNKvH_-ms0TgNqKA6f+Zx7M=iz1t_-smW+g@mail.gmail.com>
+Subject: Re: [PATCH v3] xhci: re-initialize the HC during resume if HCE was set
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     mathias.nyman@intel.com, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Albert Wang <albertccwang@google.com>,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.262-10-g19825a46b36b
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 baseline: 145 runs,
- 1 regressions (v4.14.262-10-g19825a46b36b)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 145 runs, 1 regressions (v4.14.262-10-g19825=
-a46b36b)
+On Thu, Jan 13, 2022 at 4:21 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Thu, Jan 13, 2022 at 03:54:27PM +0800, Puma Hsu wrote:
+> > On Tue, Jan 11, 2022 at 7:43 PM Greg KH <gregkh@linuxfoundation.org> wr=
+ote:
+> > >
+> > > On Wed, Dec 29, 2021 at 07:25:51PM +0800, Puma Hsu wrote:
+> > > > When HCE(Host Controller Error) is set, it means an internal
+> > > > error condition has been detected. It needs to re-initialize
+> > > > the HC too.
+> > >
+> > > What is "It" in the last sentence?
+> >
+> > Maybe I can change "It" to "Software", xHCI specification uses
+> > "Software" when describing this.
+>
+> Please change it to something better :)
 
-Regressions Summary
--------------------
+I will fix it in next patch version.
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+> > > >
+> > > > Cc: stable@vger.kernel.org
+> > > > Signed-off-by: Puma Hsu <pumahsu@google.com>
+> > >
+> > > What commit id does this fix?
+> >
+> > This commit is not used to fix a specific commit. We find a condition
+> > that when XHCI runs the resume process but the HCE flag is set, then
+> > the Run/Stop bit of USBCMD cannot be set so that HC would not be
+> > enabled. In fact, HC may already meet a problem at this moment.
+> > Besides, in xHCI requirements specification revision 1.2, Table 5-21
+> > BIT(12) claims that Software should re-initialize the xHC when HCE is
+> > set. Therefore, I think this commit could be the error handling for
+> > HCE.
+>
+> So this problem has been there since the driver was first added to the
+> kernel?  Should it go to stable kernels as well?  If so, how far back in
+> time?
 
+I think XHCI hasn=E2=80=99t handled HCE, so yes this may be a long problem.
+I have cced stable@vger.kernel.org for stable backporting, but I=E2=80=99m =
+not sure
+how far it should backport since it seems this might be a rare case if no o=
+ne
+reported this issue?
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.262-10-g19825a46b36b/plan/baseline/
+> > > > ---
+> > > > v2: Follow Sergey Shtylyov <s.shtylyov@omp.ru>'s comment.
+> > > > v3: Add stable@vger.kernel.org for stable release.
+> > > >
+> > > >  drivers/usb/host/xhci.c | 4 ++--
+> > > >  1 file changed, 2 insertions(+), 2 deletions(-)
+> > > >
+> > > > diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+> > > > index dc357cabb265..ab440ce8420f 100644
+> > > > --- a/drivers/usb/host/xhci.c
+> > > > +++ b/drivers/usb/host/xhci.c
+> > > > @@ -1146,8 +1146,8 @@ int xhci_resume(struct xhci_hcd *xhci, bool h=
+ibernated)
+> > > >               temp =3D readl(&xhci->op_regs->status);
+> > > >       }
+> > > >
+> > > > -     /* If restore operation fails, re-initialize the HC during re=
+sume */
+> > > > -     if ((temp & STS_SRE) || hibernated) {
+> > > > +     /* If restore operation fails or HC error is detected, re-ini=
+tialize the HC during resume */
+> > > > +     if ((temp & (STS_SRE | STS_HCE)) || hibernated) {
+> > >
+> > > But if STS_HCE is set on suspend, that means the suspend was broken s=
+o
+> > > you wouldn't get here, right?
+> >
+> > In xhci_suspend(), it seems doesn't really check whether STS_HCE is
+> > set and then break the suspend(The only case for checking HCE is when
+> > STS_SAVE setting failed). So suspend function may be still able to
+> > finish even if HCE is set? Then xhci_resume will still be called.
+>
+> Is this a problem?
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.262-10-g19825a46b36b
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      19825a46b36beef007c6332f77bd8a13a53e98d0 =
+It could be, but I'm not sure and I think it may be not so serious if
+HCE was raised
+while suspend, because host controller doesn=E2=80=99t have job while suspe=
+nd.
+And we are
+trying to recover it while resume.
 
+> > > Or can the error happen between suspend and resume?
+> > >
+> > > This seems like a big hammer for when the host controller throws an
+> > > error.  Why is this the only place that it should be checked for?  Wh=
+at
+> > > caused the error that can now allow it to be fixed?
+> >
+> > I believe this is not the only place that the host controller may set
+> > HCE, the host controller may set HCE anytime it sees an error in my
+> > opinion, not only in suspend or resume.
+>
+> Then where else should it be checked?  Where else will your silicon set
+> this bit as part of the normal operating process?
 
+We observed this flag while resume in our silicon so far. According to the =
+XHCI
+specification 4.24.1, =E2=80=9CSoftware should implement an algorithm for c=
+hecking the
+HCE flag if the xHC is not responding.=E2=80=9D, so maybe it would be bette=
+r
+to implement
+a new API to recover host controller whenever the driver side finds no resp=
+onse
+from host controller in the future.
 
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e472ee3752fed352ef6755
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.262=
--10-g19825a46b36b/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.262=
--10-g19825a46b36b/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61e472ee3752fed=
-352ef6758
-        failing since 13 days (last pass: v4.14.260-5-g5ba2b1f2b4df, first =
-fail: v4.14.260-9-gb7bb5018400c)
-        2 lines
-
-    2022-01-16T19:32:40.661584  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/104
-    2022-01-16T19:32:40.670742  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2022-01-16T19:32:40.686044  [   20.404235] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
+> thanks,
+>
+> greg k-h
