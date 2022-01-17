@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93E84490CEE
-	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:00:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1A4C490CF3
+	for <lists+stable@lfdr.de>; Mon, 17 Jan 2022 18:00:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241313AbiAQRAD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 12:00:03 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:49058 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241306AbiAQQ7p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 11:59:45 -0500
+        id S241298AbiAQRAH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 12:00:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44734 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241203AbiAQQ7r (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 11:59:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE00FC061755;
+        Mon, 17 Jan 2022 08:59:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 29E9C611C8;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C226611EA;
+        Mon, 17 Jan 2022 16:59:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B0D1C36AE7;
         Mon, 17 Jan 2022 16:59:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A020DC36AEC;
-        Mon, 17 Jan 2022 16:59:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642438784;
-        bh=cJPgM4GLpjqSaHg5vohVKKh1k0m1iDUXV+RF33JQnf0=;
+        s=k20201202; t=1642438785;
+        bh=4RrGe9wr71LWzqgF6XSoStKYKDl1f6S25cA8dDWoh9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k+l2Py+kcaTU3tBE/G9oO2YJopYzTevjDXZVBQn5NY3pzp1o3XL6gLgzrpKraywKg
-         rUC0ryE46FbASTY+RSDF6apoZo9JxRaZLDdD3Nt7HPCEC2VJbtYMfUJ9HOUdgPqYkO
-         6fhp56X72UwOGEkfpQWegtYBtT1dPp+vyiZpd2CJEsdyRmi3ChlxT3Qk2wG7EPdHuZ
-         mjNYmP5KKJwnzJnzSMuvAffIVSw8HBv4+YozuXZjbxRgbyB0tKx2Gmfi/rgPuWrEzt
-         gsi93SXg46Ato4epxepWxLwMFu7VSpmC0dJvD8z5bGG0A98VhTVA7N9euBUhdADnnY
-         1R/ihVEcsWDNg==
+        b=Xas4kFPk4iEINhYYtepIPLSY8GxKCbdMd+FZ6kZqvM0qtSdxgp1b0L86G7OCagD+n
+         eWj4r2KNY8RXM4FtRstF+z/DSi/pXY2woy8XKvcfSnr9Plhr6Oy62mHsicXQD3e2AF
+         06f+CHUqBy/RwYsdk4SEQ67h/ZEW5SJHayVJiKof4LLRexThTEDnemp5sel4+OHEC2
+         c2Mzhzy46SNHBlP1e5UbtPzEzHMAkwCakK8BzhF1+o1rpa7e0GH8TgDfeg33pEDaq0
+         NtuJrfufhCtCZ1foSTSy4EM4HqsRVPk1LNLapteITzHQx6w5ZgksZSD136OsNeToCi
+         GODGHi3V3a3hQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ameer Hamza <amhamza.mgc@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, kuninori.morimoto.gx@renesas.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.16 20/52] ASoC: test-component: fix null pointer dereference.
-Date:   Mon, 17 Jan 2022 11:58:21 -0500
-Message-Id: <20220117165853.1470420-20-sashal@kernel.org>
+Cc:     Stephan Gerhold <stephan@gerhold.net>,
+        Georgi Djakov <djakov@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
+        bjorn.andersson@linaro.org, linux-arm-msm@vger.kernel.org,
+        linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 21/52] interconnect: qcom: rpm: Prevent integer overflow in rate
+Date:   Mon, 17 Jan 2022 11:58:22 -0500
+Message-Id: <20220117165853.1470420-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220117165853.1470420-1-sashal@kernel.org>
 References: <20220117165853.1470420-1-sashal@kernel.org>
@@ -49,44 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ameer Hamza <amhamza.mgc@gmail.com>
+From: Stephan Gerhold <stephan@gerhold.net>
 
-[ Upstream commit c686316ec1210d43653c91e104c1e4cd0156dc89 ]
+[ Upstream commit a7d9436a6c85fcb8843c910fd323dcd7f839bf63 ]
 
-Dereferncing of_id pointer will result in exception in current
-implementation since of_match_device() will assign it to NULL.
-Adding NULL check for protection.
+Using icc-rpm on ARM32 currently results in clk_set_rate() errors during
+boot, e.g. "bus clk_set_rate error: -22". This is very similar to commit
+7381e27b1e56 ("interconnect: qcom: msm8974: Prevent integer overflow in rate")
+where the u64 is converted to a signed long during clock rate rounding,
+resulting in an overflow on 32-bit platforms.
 
-Signed-off-by: Ameer Hamza <amhamza.mgc@gmail.com>
-Link: https://lore.kernel.org/r/20211205204200.7852-1-amhamza.mgc@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Let's fix it similarly by making sure that the rate does not exceed
+LONG_MAX. Such high clock rates will surely result in the maximum
+frequency of the bus anyway.
+
+Signed-off-by: Stephan Gerhold <stephan@gerhold.net>
+Link: https://lore.kernel.org/r/20211206114542.45325-1-stephan@gerhold.net
+Signed-off-by: Georgi Djakov <djakov@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/generic/test-component.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/interconnect/qcom/icc-rpm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/generic/test-component.c b/sound/soc/generic/test-component.c
-index 85385a771d807..8fc97d3ff0110 100644
---- a/sound/soc/generic/test-component.c
-+++ b/sound/soc/generic/test-component.c
-@@ -532,13 +532,16 @@ static int test_driver_probe(struct platform_device *pdev)
- 	struct device_node *node = dev->of_node;
- 	struct device_node *ep;
- 	const struct of_device_id *of_id = of_match_device(test_of_match, &pdev->dev);
--	const struct test_adata *adata = of_id->data;
-+	const struct test_adata *adata;
- 	struct snd_soc_component_driver *cdriv;
- 	struct snd_soc_dai_driver *ddriv;
- 	struct test_dai_name *dname;
- 	struct test_priv *priv;
- 	int num, ret, i;
+diff --git a/drivers/interconnect/qcom/icc-rpm.c b/drivers/interconnect/qcom/icc-rpm.c
+index ef7999a08c8bf..8114295a83129 100644
+--- a/drivers/interconnect/qcom/icc-rpm.c
++++ b/drivers/interconnect/qcom/icc-rpm.c
+@@ -239,6 +239,7 @@ static int qcom_icc_set(struct icc_node *src, struct icc_node *dst)
+ 	rate = max(sum_bw, max_peak_bw);
  
-+	if (!of_id)
-+		return -EINVAL;
-+	adata = of_id->data;
- 	num = of_graph_get_endpoint_count(node);
- 	if (!num) {
- 		dev_err(dev, "no port exits\n");
+ 	do_div(rate, qn->buswidth);
++	rate = min_t(u64, rate, LONG_MAX);
+ 
+ 	if (qn->rate == rate)
+ 		return 0;
 -- 
 2.34.1
 
