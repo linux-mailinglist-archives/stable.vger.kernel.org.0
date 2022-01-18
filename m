@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C5AB491B2E
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:04:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEE85491B32
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:04:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353685AbiARDES (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 22:04:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37506 "EHLO
+        id S1353719AbiARDE1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 22:04:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353369AbiARDBi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 22:01:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F976C061252;
-        Mon, 17 Jan 2022 18:47:09 -0800 (PST)
+        with ESMTP id S1353439AbiARDBs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 22:01:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D2E9C08EA40;
+        Mon, 17 Jan 2022 18:47:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 186B6B811D6;
-        Tue, 18 Jan 2022 02:47:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6D8AC36AE3;
-        Tue, 18 Jan 2022 02:47:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A2D06130D;
+        Tue, 18 Jan 2022 02:47:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2D70C36AE3;
+        Tue, 18 Jan 2022 02:47:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642474026;
-        bh=dR6pZiRW7TNa1iTDp9N7qtUKzFnTqgXitlsxGEtbyDs=;
+        s=k20201202; t=1642474034;
+        bh=+aGuwueJniqiioIn5b6jEmBIotGjO8kDhMbexpL+TjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rmRoc/yt8YR7n3trmJHvSGCcTh65+ZnQn+aEPPNqPXFqm6vdt+LAiGQFVVfU/GBj9
-         J05uLef2r7aUVfU232Wp2Tyi8vw52qcXypTlX1EfiRRKckU7TxMdWPZKq6xIssh0Ns
-         y9ovZq0aa+phKGmr7RA0e3QGdFLABlInGgbzxdfckz1a2Grv2dzlngN1iNSZEw6rGI
-         IezsULpRfedzU5yR4NTgJBAodnnFCpnXs6ZBzn6LMnH7TePUzh5IEDfjYXa4q4APYH
-         tDStpDkD7A5eG26CL6oIQG+uEISUKpF+uCM1CWRO9SBIw8dkKpxeAr2O17F9Gbh4qW
-         zcqFNGk0yjqGA==
+        b=bml8VLfsYr9QEZz5QcKetdRATpyDoQl2+IhS+7pnIoILl0UtQtjF8i7wVP3a0t+q3
+         5tZQLM6wnEs/d/ubzjNw+aKLvrPCywYegxWj0iC7k9XM5M3R1yuJZ/cxSP6zdg9QjI
+         9aVeQPvw96qbZEpDB2fNVPwjtXbOJj2ADE47xsUMtrUw5Pb2UdG/EnrRgAA9gBCnPn
+         gGF03KpTR1eIfEq/jywzWVKsl0Fnmwdl6KiiKsg8eDjAympYBgi6fm6mlQ7zO+uacv
+         yC5q/hUxmEy/3V9qKWVo7PjLgpvhANiLSagTiF4pHEwSdvnKKR1imPNSL70/RyZpxu
+         iuHS7B1mgj9ww==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zekun Shen <bruceshenzk@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>, pontus.fuchs@gmail.com,
-        kvalo@kernel.org, davem@davemloft.net, kuba@kernel.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 03/59] ar5523: Fix null-ptr-deref with unexpected WDCMSG_TARGET_START reply
-Date:   Mon, 17 Jan 2022 21:46:04 -0500
-Message-Id: <20220118024701.1952911-3-sashal@kernel.org>
+Cc:     Pavankumar Kondeti <quic_pkondeti@quicinc.com>,
+        John Keeping <john@metanate.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, balbi@kernel.org,
+        axboe@kernel.dk, jj251510319013@gmail.com, salah.triki@gmail.com,
+        plr.vincent@gmail.com, andrew_gabbasov@mentor.com,
+        dean@sensoray.com, lkp@intel.com, wcheng@codeaurora.org,
+        linux-usb@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 05/59] usb: gadget: f_fs: Use stream_open() for endpoint files
+Date:   Mon, 17 Jan 2022 21:46:06 -0500
+Message-Id: <20220118024701.1952911-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024701.1952911-1-sashal@kernel.org>
 References: <20220118024701.1952911-1-sashal@kernel.org>
@@ -52,61 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: Pavankumar Kondeti <quic_pkondeti@quicinc.com>
 
-[ Upstream commit ae80b6033834342601e99f74f6a62ff5092b1cee ]
+[ Upstream commit c76ef96fc00eb398c8fc836b0eb2f82bcc619dc7 ]
 
-Unexpected WDCMSG_TARGET_START replay can lead to null-ptr-deref
-when ar->tx_cmd->odata is NULL. The patch adds a null check to
-prevent such case.
+Function fs endpoint file operations are synchronized via an interruptible
+mutex wait. However we see threads that do ep file operations concurrently
+are getting blocked for the mutex lock in __fdget_pos(). This is an
+uninterruptible wait and we see hung task warnings and kernel panic
+if hung_task_panic systcl is enabled if host does not send/receive
+the data for long time.
 
-KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
- ar5523_cmd+0x46a/0x581 [ar5523]
- ar5523_probe.cold+0x1b7/0x18da [ar5523]
- ? ar5523_cmd_rx_cb+0x7a0/0x7a0 [ar5523]
- ? __pm_runtime_set_status+0x54a/0x8f0
- ? _raw_spin_trylock_bh+0x120/0x120
- ? pm_runtime_barrier+0x220/0x220
- ? __pm_runtime_resume+0xb1/0xf0
- usb_probe_interface+0x25b/0x710
- really_probe+0x209/0x5d0
- driver_probe_device+0xc6/0x1b0
- device_driver_attach+0xe2/0x120
+The reason for threads getting blocked in __fdget_pos() is due to
+the file position protection introduced by the commit 9c225f2655e3
+("vfs: atomic f_pos accesses as per POSIX"). Since function fs
+endpoint files does not have the notion of the file position, switch
+to the stream mode. This will bypass the file position mutex and
+threads will be blocked in interruptible state for the function fs
+mutex.
 
-I found the bug using a custome USBFuzz port. It's a research work
-to fuzz USB stack/drivers. I modified it to fuzz ath9k driver only,
-providing hand-crafted usb descriptors to QEMU.
+It should not affects user space as we are only changing the task state
+changes the task state from UNINTERRUPTIBLE to INTERRUPTIBLE while waiting
+for the USB transfers to be finished. However there is a slight change to
+the O_NONBLOCK behavior. Earlier threads that are using O_NONBLOCK are also
+getting blocked inside fdget_pos(). Now they reach to function fs and error
+code is returned. The non blocking behavior is actually honoured now.
 
-After fixing the code (fourth byte in usb packet) to WDCMSG_TARGET_START,
-I got the null-ptr-deref bug. I believe the bug is triggerable whenever
-cmd->odata is NULL. After patching, I tested with the same input and no
-longer see the KASAN report.
-
-This was NOT tested on a real device.
-
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/YXsmPQ3awHFLuAj2@10-18-43-117.dynapool.wireless.nyu.edu
+Reviewed-by: John Keeping <john@metanate.com>
+Signed-off-by: Pavankumar Kondeti <quic_pkondeti@quicinc.com>
+Link: https://lore.kernel.org/r/1636712682-1226-1-git-send-email-quic_pkondeti@quicinc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ar5523/ar5523.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/gadget/function/f_fs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ar5523/ar5523.c b/drivers/net/wireless/ath/ar5523/ar5523.c
-index 4c57e79e5779a..58e189ec672f9 100644
---- a/drivers/net/wireless/ath/ar5523/ar5523.c
-+++ b/drivers/net/wireless/ath/ar5523/ar5523.c
-@@ -153,6 +153,10 @@ static void ar5523_cmd_rx_cb(struct urb *urb)
- 			ar5523_err(ar, "Invalid reply to WDCMSG_TARGET_START");
- 			return;
- 		}
-+		if (!cmd->odata) {
-+			ar5523_err(ar, "Unexpected WDCMSG_TARGET_START reply");
-+			return;
-+		}
- 		memcpy(cmd->odata, hdr + 1, sizeof(u32));
- 		cmd->olen = sizeof(u32);
- 		cmd->res = 0;
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index f070082124742..9271a7009a00f 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -607,7 +607,7 @@ static int ffs_ep0_open(struct inode *inode, struct file *file)
+ 	file->private_data = ffs;
+ 	ffs_data_opened(ffs);
+ 
+-	return 0;
++	return stream_open(inode, file);
+ }
+ 
+ static int ffs_ep0_release(struct inode *inode, struct file *file)
+@@ -1071,7 +1071,7 @@ ffs_epfile_open(struct inode *inode, struct file *file)
+ 	file->private_data = epfile;
+ 	ffs_data_opened(epfile->ffs);
+ 
+-	return 0;
++	return stream_open(inode, file);
+ }
+ 
+ static int ffs_aio_cancel(struct kiocb *kiocb)
 -- 
 2.34.1
 
