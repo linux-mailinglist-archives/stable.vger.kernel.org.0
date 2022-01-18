@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B2F2491819
+	by mail.lfdr.de (Postfix) with ESMTP id DD51749181A
 	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:44:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344358AbiARCoY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:44:24 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:48790 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346766AbiARCjx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:39:53 -0500
+        id S1344366AbiARCoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:44:25 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:57406 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346792AbiARCjy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:39:54 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BC6D6B81243;
-        Tue, 18 Jan 2022 02:39:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CB3AC36AE3;
-        Tue, 18 Jan 2022 02:39:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 27C4360C96;
+        Tue, 18 Jan 2022 02:39:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDCC4C36AEF;
+        Tue, 18 Jan 2022 02:39:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473589;
-        bh=Py0Utb8K/TKDOXRe9hLUxo0KxcgvtJEQobvTI9y/7YQ=;
+        s=k20201202; t=1642473593;
+        bh=f3jC77ynaSTB8B4PFcxF+om2SUl/1JBzStOOMLauPeU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ti2jo+omzDNzRBCnSR2srz9zmjLce1COAPEhwq7p+WSJ5NRBpzAbf5jXsTS9pHdFd
-         eCT+Urfp3J92PJkVwsWAO7J3CTPMX5gi4fFJl23EJ6gQxAlhe1jwXTGmqygvlprak/
-         ArCPhfdVoB7fLtFwg7jCK6aznh0ZyIwE45NfjWYdtSlzxVBXi02YOsyYTOUG1ciOeN
-         8EDtX/XYOJ6SbDEkyfrjLEl7eE+BKpNjVCxl0eXn/J9Hm6Oq1ow0kT+TioAW4ZGWZb
-         loNucTkySGJyKkvTFz/Y8AcfuZIKTPAXZX0Bsiqpj3L9Exwde/lxhUAixC5TZzVhn9
-         ERR/WiGLbYUEA==
+        b=H2K3K6zhyGCk08V6jM/6+DKNODCkBRziuVCKtfGvIeTZUG+5u4/eZRYSUGadXN/jZ
+         u6HxiRj8sZguDqXkFMEsSfRLLrEY4XwEiV2FAseKCwV2vjmzQbd4iAlsN93yJdE+Cd
+         HENwjIPx7LAxO785sDnydIaVWKPcLc1TwejHhX7D2qcO7/iRzcWAcGHIpG3l+xYsIY
+         7IY2b6Ca77gpFTAebzNlLVwAEkx5PD/Ec92FU5TUNOqz0qgP4vJN8aqyb4C4yB5agO
+         yOpQBKk8Cf5MYMx/K4yofFZmCtgFI/ZTL7oeeipafQS/aWARjjpsmiRi9zSJYr92D+
+         jh20XFfGGcysA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maor Dickman <maord@nvidia.com>, Roi Dayan <roid@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        kuba@kernel.org, parav@nvidia.com, dlinkin@nvidia.com,
-        mbloch@nvidia.com, huyn@nvidia.com, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 181/188] net/mlx5e: Unblock setting vid 0 for VF in case PF isn't eswitch manager
-Date:   Mon, 17 Jan 2022 21:31:45 -0500
-Message-Id: <20220118023152.1948105-181-sashal@kernel.org>
+Cc:     Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Akira Yokosawa <akiyks@gmail.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Sasha Levin <sashal@kernel.org>, linux-doc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 183/188] scripts: sphinx-pre-install: Fix ctex support on Debian
+Date:   Mon, 17 Jan 2022 21:31:47 -0500
+Message-Id: <20220118023152.1948105-183-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118023152.1948105-1-sashal@kernel.org>
 References: <20220118023152.1948105-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -51,40 +48,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Dickman <maord@nvidia.com>
+From: Mauro Carvalho Chehab <mchehab@kernel.org>
 
-[ Upstream commit 7846665d3504812acaebf920d1141851379a7f37 ]
+[ Upstream commit 87d6576ddf8ac25f36597bc93ca17f6628289c16 ]
 
-When using libvirt to passthrough VF to VM it will always set the VF vlan
-to 0 even if user didn’t request it, this will cause libvirt to fail to
-boot in case the PF isn't eswitch owner.
+The name of the package with ctexhook.sty is different on
+Debian/Ubuntu.
 
-Example of such case is the DPU host PF which isn't eswitch manager, so
-any attempt to passthrough VF of it using libvirt will fail.
-
-Fix it by not returning error in case set VF vlan is called with vid 0.
-
-Signed-off-by: Maor Dickman <maord@nvidia.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Reported-by: Akira Yokosawa <akiyks@gmail.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Tested-by: Akira Yokosawa <akiyks@gmail.com>
+Link: https://lore.kernel.org/r/63882425609a2820fac78f5e94620abeb7ed5f6f.1641429634.git.mchehab@kernel.org
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/esw/legacy.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ scripts/sphinx-pre-install | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/legacy.c b/drivers/net/ethernet/mellanox/mlx5/core/esw/legacy.c
-index df277a6cddc0b..0c4c743ca31e1 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/esw/legacy.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/legacy.c
-@@ -431,7 +431,7 @@ int mlx5_eswitch_set_vport_vlan(struct mlx5_eswitch *esw,
- 	int err = 0;
+diff --git a/scripts/sphinx-pre-install b/scripts/sphinx-pre-install
+index 288e86a9d1e58..61a79ce705ccf 100755
+--- a/scripts/sphinx-pre-install
++++ b/scripts/sphinx-pre-install
+@@ -369,6 +369,9 @@ sub give_debian_hints()
+ 	);
  
- 	if (!mlx5_esw_allowed(esw))
--		return -EPERM;
-+		return vlan ? -EPERM : 0;
+ 	if ($pdf) {
++		check_missing_file(["/usr/share/texlive/texmf-dist/tex/latex/ctex/ctexhook.sty"],
++				   "texlive-lang-chinese", 2);
++
+ 		check_missing_file(["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"],
+ 				   "fonts-dejavu", 2);
  
- 	if (vlan || qos)
- 		set_flags = SET_VLAN_STRIP | SET_VLAN_INSERT;
 -- 
 2.34.1
 
