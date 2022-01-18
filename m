@@ -2,49 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E757B492A6D
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:10:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE846492A2B
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:08:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346826AbiARQJx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 11:09:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51612 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346909AbiARQI7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:08:59 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59FD2C0613E5;
-        Tue, 18 Jan 2022 08:08:48 -0800 (PST)
+        id S235673AbiARQIN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 11:08:13 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:40326 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235624AbiARQHW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:07:22 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AB638CE1A2C;
-        Tue, 18 Jan 2022 16:08:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 713B2C00446;
-        Tue, 18 Jan 2022 16:08:44 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A690CCE1A2F;
+        Tue, 18 Jan 2022 16:07:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B6BFC00446;
+        Tue, 18 Jan 2022 16:07:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642522125;
-        bh=f8m5zd6+t0NtYDf+2diGU7u8RWwohWgr45WnihyzkUs=;
+        s=korg; t=1642522039;
+        bh=TJP4eG+EUgISouMu2lc/Sy2XQA+4SDvaoiKuJBPSd0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=miI56waalbr+jkuIn7j6T+ML2doOK7Zp7yem/fH8ZxFeyOKcgy1g9JL/iiU4meLt5
-         7+tNRFNYUYGEf4cOvWkU/JV+Y7Muy3cnH6xwbNIGRfogTyiKA3d6ICBqJTTER2r9M/
-         okJ/OMUhq+f7U0uN4YFUPvntEAL3sdkWLi56LJmM=
+        b=dd9Dn3HASUOToTNNJAdMDxXeb8BOI+ZZRc7KfPYNolsSpuHgg7jtb9XELN8IWEALZ
+         3LfMgi0Ch5qmyMvNPRJbAIgBayuFpuXscKpG/FO67SpT7cY9LXbh2ssJn/s7KjfaYS
+         NT3UGGkRd5Gp1qIk1md1vwUzpnIVWg1gnQpwaaB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jamie Hill-Daniel <jamie@hill-daniel.co.uk>,
-        William Liu <willsroot@protonmail.com>,
-        Salvatore Bonaccorso <carnil@debian.org>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 05/23] vfs: fs_context: fix up param length parsing in legacy_parse_param
-Date:   Tue, 18 Jan 2022 17:05:45 +0100
-Message-Id: <20220118160451.425876269@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.4 07/15] media: uvcvideo: fix division by zero at stream start
+Date:   Tue, 18 Jan 2022 17:05:46 +0100
+Message-Id: <20220118160450.300427847@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220118160451.233828401@linuxfoundation.org>
-References: <20220118160451.233828401@linuxfoundation.org>
+In-Reply-To: <20220118160450.062004175@linuxfoundation.org>
+References: <20220118160450.062004175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jamie Hill-Daniel <jamie@hill-daniel.co.uk>
+From: Johan Hovold <johan@kernel.org>
 
-commit 722d94847de29310e8aa03fcbdb41fc92c521756 upstream.
+commit 8aa637bf6d70d2fb2ad4d708d8b9dd02b1c095df upstream.
 
-The "PAGE_SIZE - 2 - size" calculation in legacy_parse_param() is an
-unsigned type so a large value of "size" results in a high positive
-value instead of a negative value as expected.  Fix this by getting rid
-of the subtraction.
+Add the missing bulk-endpoint max-packet sanity check to
+uvc_video_start_transfer() to avoid division by zero in
+uvc_alloc_urb_buffers() in case a malicious device has broken
+descriptors (or when doing descriptor fuzz testing).
 
-Signed-off-by: Jamie Hill-Daniel <jamie@hill-daniel.co.uk>
-Signed-off-by: William Liu <willsroot@protonmail.com>
-Tested-by: Salvatore Bonaccorso <carnil@debian.org>
-Tested-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Acked-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Note that USB core will reject URBs submitted for endpoints with zero
+wMaxPacketSize but that drivers doing packet-size calculations still
+need to handle this (cf. commit 2548288b4fb0 ("USB: Fix: Don't skip
+endpoint descriptors with maxpacket=0")).
+
+Fixes: c0efd232929c ("V4L/DVB (8145a): USB Video Class driver")
+Cc: stable@vger.kernel.org      # 2.6.26
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fs_context.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/uvc/uvc_video.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/fs/fs_context.c
-+++ b/fs/fs_context.c
-@@ -530,7 +530,7 @@ static int legacy_parse_param(struct fs_
- 			      param->key);
+--- a/drivers/media/usb/uvc/uvc_video.c
++++ b/drivers/media/usb/uvc/uvc_video.c
+@@ -1915,6 +1915,10 @@ static int uvc_video_start_transfer(stru
+ 		if (ep == NULL)
+ 			return -EIO;
+ 
++		/* Reject broken descriptors. */
++		if (usb_endpoint_maxp(&ep->desc) == 0)
++			return -EIO;
++
+ 		ret = uvc_init_video_bulk(stream, ep, gfp_flags);
  	}
  
--	if (len > PAGE_SIZE - 2 - size)
-+	if (size + len + 2 > PAGE_SIZE)
- 		return invalf(fc, "VFS: Legacy: Cumulative options too large");
- 	if (strchr(param->key, ',') ||
- 	    (param->type == fs_value_is_string &&
 
 
