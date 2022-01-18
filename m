@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB5A049186A
+	by mail.lfdr.de (Postfix) with ESMTP id 18CA3491868
 	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:47:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348847AbiARCqh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:46:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33512 "EHLO
+        id S1348856AbiARCqi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:46:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245309AbiARCnX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:43:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECC63C08E875;
-        Mon, 17 Jan 2022 18:37:20 -0800 (PST)
+        with ESMTP id S1347922AbiARCn2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:43:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 604BCC061768;
+        Mon, 17 Jan 2022 18:37:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5763C612C6;
-        Tue, 18 Jan 2022 02:37:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0DCAC36AEF;
-        Tue, 18 Jan 2022 02:37:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A7A5B811CC;
+        Tue, 18 Jan 2022 02:37:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 352E7C36AE3;
+        Tue, 18 Jan 2022 02:37:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473439;
-        bh=Ie4qdRRo3GQzYifj9cDxbYRfZvg5hjiq7dfpnsXoKsc=;
+        s=k20201202; t=1642473443;
+        bh=vtWjHQg35ZYsG3cvoxDYlP7bz7YRDF4DFA/Z3UcxwWw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TMgi8F9MTsVpX1oPgomkhjJRyGz5/vnWlMraI48e/lPOv9ETdm8kBBXZAVpMeShqq
-         AfSmLywiUSpUpqQ3YdwYSlQUJqfZaYLGIhihD6ejHKIwrfoN/jDKf7yAAymirLJvw1
-         rfjQnCfMRdczXELn8UOTgQgRI+pQjdr0YdgLMGCZSA/OSH/cmyLxgE6Fdr0x0vNdFt
-         9UPx5aOxXr62ox9cOORvK16pANM6y1IgzvSVG722k3tGN5LihK+E/xyORy6JZ6WKgd
-         f3ZAZRvcvOfy5JeQSSaFJqoWtyo3UKIvwbh2RxYpeDor0nUZRjUsapIS4jN1GHHsme
-         rX7uJeo9sCgjw==
+        b=InFRHjm59dc2eNa7HdL0UYgetFBd7Prk39lzU3HDeSCHdcxTR7onVA06309ReXa/G
+         ngHXNXQGeSuijfw8WKGjBV5omGYEgKuguxxENvcwmUkBaxGzuX+pWWoQyziWTSSs3+
+         HIpYWo5uGIjoskgPloKtwW6IXuzpOBiVWZiJwSesb3lxdpLwYWhmWihdwF9XLJ1DlW
+         pO1cJQTaqvwbJFKrjmlm1U1MRJm8fjF9bdef/bHjPVUDNXu8Cefcj4ZXw3EkJyxoHI
+         dmUEevkFvh/qUU6JDyBxQGnFjNeCJprr9TeUVlxFY33xPkO1b+bvDuQtsARI7WhLAQ
+         f8XuS+nWsgujw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ulf Hansson <ulf.hansson@linaro.org>,
-        "H . Nikolaus Schaller" <hns@goldelico.com>,
-        Sasha Levin <sashal@kernel.org>, linus.walleij@linaro.org,
-        tiantao6@hisilicon.com, huyue2@yulong.com,
-        linux-mmc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 118/188] mmc: core: Fixup storing of OCR for MMC_QUIRK_NONSTD_SDIO
-Date:   Mon, 17 Jan 2022 21:30:42 -0500
-Message-Id: <20220118023152.1948105-118-sashal@kernel.org>
+Cc:     Jingwen Chen <Jingwen.Chen2@amd.com>,
+        Horace Chen <horace.chen@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
+        Hawking.Zhang@amd.com, john.clements@amd.com, candice.li@amd.com,
+        lijo.lazar@amd.com, lang.yu@amd.com, Oak.Zeng@amd.com,
+        jonathan.kim@amd.com, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.15 119/188] drm/amd/amdgpu: fix psp tmr bo pin count leak in SRIOV
+Date:   Mon, 17 Jan 2022 21:30:43 -0500
+Message-Id: <20220118023152.1948105-119-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118023152.1948105-1-sashal@kernel.org>
 References: <20220118023152.1948105-1-sashal@kernel.org>
@@ -52,55 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ulf Hansson <ulf.hansson@linaro.org>
+From: Jingwen Chen <Jingwen.Chen2@amd.com>
 
-[ Upstream commit 8c3e5b74b9e2146f564905e50ca716591c76d4f1 ]
+[ Upstream commit 85dfc1d692c9434c37842e610be37cd4ae4e0081 ]
 
-The mmc core takes a specific path to support initializing of a
-non-standard SDIO card. This is triggered by looking for the card-quirk,
-MMC_QUIRK_NONSTD_SDIO.
+[Why]
+psp tmr bo will be pinned during loading amdgpu and reset in SRIOV while
+only unpinned in unload amdgpu
 
-In mmc_sdio_init_card() this gets rather messy, as it causes the code to
-bail out earlier, compared to the usual path. This leads to that the OCR
-doesn't get saved properly in card->ocr. Fortunately, only omap_hsmmc has
-been using the MMC_QUIRK_NONSTD_SDIO and is dealing with the issue, by
-assigning a hardcoded value (0x80) to card->ocr from an ->init_card() ops.
+[How]
+add amdgpu_in_reset and sriov judgement to skip pin bo
 
-To make the behaviour consistent, let's instead rely on the core to save
-the OCR in card->ocr during initialization.
+v2: fix wrong judgement
 
-Reported-by: H. Nikolaus Schaller <hns@goldelico.com>
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
-Link: https://lore.kernel.org/r/e7936cff7fc24d187ef2680d3b4edb0ade58f293.1636564631.git.hns@goldelico.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Jingwen Chen <Jingwen.Chen2@amd.com>
+Reviewed-by: Horace Chen <horace.chen@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/sdio.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/mmc/core/sdio.c b/drivers/mmc/core/sdio.c
-index 68edf7a615be5..5447c47157aa5 100644
---- a/drivers/mmc/core/sdio.c
-+++ b/drivers/mmc/core/sdio.c
-@@ -708,6 +708,8 @@ static int mmc_sdio_init_card(struct mmc_host *host, u32 ocr,
- 	if (host->ops->init_card)
- 		host->ops->init_card(host, card);
- 
-+	card->ocr = ocr_card;
-+
- 	/*
- 	 * If the host and card support UHS-I mode request the card
- 	 * to switch to 1.8V signaling level.  No 1.8v signalling if
-@@ -820,7 +822,7 @@ static int mmc_sdio_init_card(struct mmc_host *host, u32 ocr,
- 			goto mismatch;
- 		}
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+index 9b41cb8c3de54..86e2090bbd6e0 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+@@ -2207,12 +2207,16 @@ static int psp_hw_start(struct psp_context *psp)
+ 		return ret;
  	}
--	card->ocr = ocr_card;
-+
- 	mmc_fixup_device(card, sdio_fixup_methods);
  
- 	if (card->type == MMC_TYPE_SD_COMBO) {
++	if (amdgpu_sriov_vf(adev) && amdgpu_in_reset(adev))
++		goto skip_pin_bo;
++
+ 	ret = psp_tmr_init(psp);
+ 	if (ret) {
+ 		DRM_ERROR("PSP tmr init failed!\n");
+ 		return ret;
+ 	}
+ 
++skip_pin_bo:
+ 	/*
+ 	 * For ASICs with DF Cstate management centralized
+ 	 * to PMFW, TMR setup should be performed after PMFW
 -- 
 2.34.1
 
