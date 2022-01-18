@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC3464917E9
+	by mail.lfdr.de (Postfix) with ESMTP id 6236B4917E6
 	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:43:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347942AbiARCnb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:43:31 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47832 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345110AbiARCiT (ORCPT
+        id S1344321AbiARCn3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:43:29 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:51560 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344840AbiARCiT (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:38:19 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3D219B81132;
-        Tue, 18 Jan 2022 02:38:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27388C36AE3;
-        Tue, 18 Jan 2022 02:38:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2652B612E1;
+        Tue, 18 Jan 2022 02:38:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8903CC36AF4;
+        Tue, 18 Jan 2022 02:38:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473497;
-        bh=VjeGrVWKUxuNF7cBz0+iP8hkmF9ifj/wPGSoiuV5FjM=;
+        s=k20201202; t=1642473498;
+        bh=eFMl/MhttaEwrV7USY7/hPWY6uI4fhVEmffTevK80BE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jIcSZV+O7c5G8YPXRtNpGa3ArKtjfCHe2VAMLz2JXfsAMKZ/WCjgEqoOLAo8lX9Wa
-         RCWdlMVcLeA9DvBIctRGaY4Elzfvr40+AD5+jXhRacqvlO31TbUfow4nxCip4ld+nV
-         tid8HX2OvsGxuk2prl4342PyBxuJcI784SFlaVXAvG0VkgQMajzZ3D4G/wmkIGNXtA
-         uIkWxBYLzfJSdpzHirIxXLC/8MaT5W6qo1FyLsr+EvRgeQLXmttJQlRpjZxqDVUvyV
-         80/iLlQXTeaEmSujxFOD4TIk4YmHipn3fNIved4Od2owOS3VrjwNf+QqN/vvO8ZQXo
-         /bTRFRm5IOioA==
+        b=XCG5TBaH9DCWekXqbmPAM8L2hJdVoF8eBkVxWXxGRX5h6jb2QVOTSuI6Zl7IdHpWY
+         XGf+djmiE+rOEg9vptQKaqqWZv1FbZhFiiHCRRNRD9ch4VQ0p9dtvHvZSrssC+2hHF
+         gR/VFBBOylG6F6FLSLZPcxbnHxjeX/vcQZbo61q6aiy/WJxB0wZGaHqDXCQkVctQjM
+         kio8nn53yYhelvKhtXgTQCHzh0N5FWL5+PwqnhemKDuorMH4JU9wk+m9kM7FVZkp0L
+         6+LaigU8X95Yyyk4d10WKtE1RTkS3LwMgCDOsf325qWXiAAc3c4hOvss347Mp0Iunu
+         Xn1aVG5HQR18g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Changcheng Deng <deng.changcheng@zte.com.cn>,
-        Zeal Robot <zealci@zte.com.cn>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, nks@flawful.org,
-        agross@kernel.org, linux-pm@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 137/188] PM: AVS: qcom-cpr: Use div64_ul instead of do_div
-Date:   Mon, 17 Jan 2022 21:31:01 -0500
-Message-Id: <20220118023152.1948105-137-sashal@kernel.org>
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>, kvalo@kernel.org,
+        davem@davemloft.net, kuba@kernel.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 138/188] iwlwifi: fix leaks/bad data after failed firmware load
+Date:   Mon, 17 Jan 2022 21:31:02 -0500
+Message-Id: <20220118023152.1948105-138-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118023152.1948105-1-sashal@kernel.org>
 References: <20220118023152.1948105-1-sashal@kernel.org>
@@ -50,36 +49,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Changcheng Deng <deng.changcheng@zte.com.cn>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 92c550f9ffd2884bb5def52b5c0485a35e452784 ]
+[ Upstream commit ab07506b0454bea606095951e19e72c282bfbb42 ]
 
-do_div() does a 64-by-32 division. Here the divisor is an unsigned long
-which on some platforms is 64 bit wide. So use div64_ul instead of do_div
-to avoid a possible truncation.
+If firmware load fails after having loaded some parts of the
+firmware, e.g. the IML image, then this would leak. For the
+host command list we'd end up running into a WARN on the next
+attempt to load another firmware image.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Changcheng Deng <deng.changcheng@zte.com.cn>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20211125014311.45942-1-deng.changcheng@zte.com.cn
+Fix this by calling iwl_dealloc_ucode() on failures, and make
+that also clear the data so we start fresh on the next round.
+
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20211210110539.1f742f0eb58a.I1315f22f6aa632d94ae2069f85e1bca5e734dce0@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/cpr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/iwl-drv.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/soc/qcom/cpr.c b/drivers/soc/qcom/cpr.c
-index 4ce8e816154f9..84dd93472a252 100644
---- a/drivers/soc/qcom/cpr.c
-+++ b/drivers/soc/qcom/cpr.c
-@@ -1010,7 +1010,7 @@ static int cpr_interpolate(const struct corner *corner, int step_volt,
- 		return corner->uV;
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
+index 94553f272d377..2206f66f69940 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
+@@ -131,6 +131,9 @@ static void iwl_dealloc_ucode(struct iwl_drv *drv)
  
- 	temp = f_diff * (uV_high - uV_low);
--	do_div(temp, f_high - f_low);
-+	temp = div64_ul(temp, f_high - f_low);
+ 	for (i = 0; i < IWL_UCODE_TYPE_MAX; i++)
+ 		iwl_free_fw_img(drv, drv->fw.img + i);
++
++	/* clear the data for the aborted load case */
++	memset(&drv->fw, 0, sizeof(drv->fw));
+ }
  
- 	/*
- 	 * max_volt_scale has units of uV/MHz while freq values
+ static int iwl_alloc_fw_desc(struct iwl_drv *drv, struct fw_desc *desc,
+@@ -1333,6 +1336,7 @@ static void iwl_req_fw_callback(const struct firmware *ucode_raw, void *context)
+ 	int i;
+ 	bool load_module = false;
+ 	bool usniffer_images = false;
++	bool failure = true;
+ 
+ 	fw->ucode_capa.max_probe_length = IWL_DEFAULT_MAX_PROBE_LENGTH;
+ 	fw->ucode_capa.standard_phy_calibration_size =
+@@ -1602,6 +1606,7 @@ static void iwl_req_fw_callback(const struct firmware *ucode_raw, void *context)
+ 				op->name, err);
+ #endif
+ 	}
++	failure = false;
+ 	goto free;
+ 
+  try_again:
+@@ -1617,6 +1622,9 @@ static void iwl_req_fw_callback(const struct firmware *ucode_raw, void *context)
+ 	complete(&drv->request_firmware_complete);
+ 	device_release_driver(drv->trans->dev);
+  free:
++	if (failure)
++		iwl_dealloc_ucode(drv);
++
+ 	if (pieces) {
+ 		for (i = 0; i < ARRAY_SIZE(pieces->img); i++)
+ 			kfree(pieces->img[i].sec);
 -- 
 2.34.1
 
