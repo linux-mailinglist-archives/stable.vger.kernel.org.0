@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99193491C3B
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:14:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66605491C43
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:15:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346555AbiARDOR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 22:14:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38906 "EHLO
+        id S1346646AbiARDOV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 22:14:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348476AbiARDI1 (ORCPT
+        with ESMTP id S1348531AbiARDI1 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 22:08:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F88DC0617AF;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF353C0617B0;
         Mon, 17 Jan 2022 18:50:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52B94B811CE;
-        Tue, 18 Jan 2022 02:49:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF2FBC36AE3;
-        Tue, 18 Jan 2022 02:49:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 235AD612E8;
+        Tue, 18 Jan 2022 02:50:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86A1DC36AEB;
+        Tue, 18 Jan 2022 02:49:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642474198;
-        bh=uDx30uAgUcsN7K0VNe2fp8EuYvLg5djITcl6kF56cWw=;
+        s=k20201202; t=1642474199;
+        bh=r2THuKnuQVqhnIIIAeI4Ysw+zPZeZ6LgfJ05ILhjZvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CFLEyGmrrKWAUqT0EvwPt3Twk/EQdMBK3hdI0Qb568TZ44BTUa6rBiOugnGjafT0H
-         pC7eXpfP8Z8s0Sw7M01d2J3pm4dF6ZvpBkm5o/KDsNBX/hdLs/Tjp8xefXeO5S/dls
-         eiqqZzxYBuTUXCrZubfqsnCnZ9MSJ8FJO+X2OXIr4Nbd2wbaquKBz4VrNkiF3muxsL
-         qUW6bN2W7GXUEsth/U/iHatabwEvsg4QVHW5RJ7ly4q4GY1ECD0SgeEBGZNOvDsZei
-         t2KOLVhpGfI7twmiXxyTX5WgIqx5se/N/KU1Nl3+Dec0Q/lCp1xx5Sg7HaGIske8FH
-         rKt0UbJY+tjJA==
+        b=V63hUQPT/O+8BdleChim0DduGCsdyfU2NJdx2ew8J8k2PZLB+ZqhxnMk6G/GTcEVr
+         XUu3/Fkq9RxYC6GVqs0QxF4Un1fLWc5qDrOioKAGXuOQgocdbYMLNIsFPQ0wgAiHqU
+         fmUJXbxwq8a8crZKpJOFIdffoKjOkyTjM3re3CK+EoYBGFjzRsSO250ixEyS2hWVo7
+         gfT8nCnfh6ZC9r2ejXdVuu/skFvlxoKO8ldj6KHrf4F0/IuufadUJueBN9zfjGgNfB
+         bPcV/EfxEEGxQFs9WM0LyjU6CZByUuUtZuEn9rmzJ8aa+XoTXzFwcaENZBHW6RnG/5
+         qvNdUfgA+LfRw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>, Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
-        linus.walleij@linaro.org, avolmat@me.com, daniel@thingy.jp,
-        eugen.hristev@microchip.com, romain.perier@gmail.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.14 16/56] ARM: imx: rename DEBUG_IMX21_IMX27_UART to DEBUG_IMX27_UART
-Date:   Mon, 17 Jan 2022 21:48:28 -0500
-Message-Id: <20220118024908.1953673-16-sashal@kernel.org>
+Cc:     Danielle Ratson <danieller@nvidia.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, petrm@nvidia.com,
+        kuba@kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 17/56] mlxsw: pci: Add shutdown method in PCI driver
+Date:   Mon, 17 Jan 2022 21:48:29 -0500
+Message-Id: <20220118024908.1953673-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024908.1953673-1-sashal@kernel.org>
 References: <20220118024908.1953673-1-sashal@kernel.org>
@@ -53,119 +53,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+From: Danielle Ratson <danieller@nvidia.com>
 
-[ Upstream commit b0100bce4ff82ec1ccd3c1f3d339fd2df6a81784 ]
+[ Upstream commit c1020d3cf4752f61a6a413f632ea2ce2370e150d ]
 
-Since commit 4b563a066611 ("ARM: imx: Remove imx21 support"), the config
-DEBUG_IMX21_IMX27_UART is really only debug support for IMX27.
+On an arm64 platform with the Spectrum ASIC, after loading and executing
+a new kernel via kexec, the following trace [1] is observed. This seems
+to be caused by the fact that the device is not properly shutdown before
+executing the new kernel.
 
-So, rename this option to DEBUG_IMX27_UART and adjust dependencies in
-Kconfig and rename the definitions to IMX27 as further clean-up.
+Fix this by implementing a shutdown method which mirrors the remove
+method, as recommended by the kexec maintainer [2][3].
 
-This issue was discovered with ./scripts/checkkconfigsymbols.py, which
-reported that DEBUG_IMX21_IMX27_UART depends on the non-existing config
-SOC_IMX21.
+[1]
+BUG: Bad page state in process devlink pfn:22f73d
+page:fffffe00089dcf40 refcount:-1 mapcount:0 mapping:0000000000000000 index:0x0
+flags: 0x2ffff00000000000()
+raw: 2ffff00000000000 0000000000000000 ffffffff089d0201 0000000000000000
+raw: 0000000000000000 0000000000000000 ffffffffffffffff 0000000000000000
+page dumped because: nonzero _refcount
+Modules linked in:
+CPU: 1 PID: 16346 Comm: devlink Tainted: G B 5.8.0-rc6-custom-273020-gac6b365b1bf5 #44
+Hardware name: Marvell Armada 7040 TX4810M (DT)
+Call trace:
+ dump_backtrace+0x0/0x1d0
+ show_stack+0x1c/0x28
+ dump_stack+0xbc/0x118
+ bad_page+0xcc/0xf8
+ check_free_page_bad+0x80/0x88
+ __free_pages_ok+0x3f8/0x418
+ __free_pages+0x38/0x60
+ kmem_freepages+0x200/0x2a8
+ slab_destroy+0x28/0x68
+ slabs_destroy+0x60/0x90
+ ___cache_free+0x1b4/0x358
+ kfree+0xc0/0x1d0
+ skb_free_head+0x2c/0x38
+ skb_release_data+0x110/0x1a0
+ skb_release_all+0x2c/0x38
+ consume_skb+0x38/0x130
+ __dev_kfree_skb_any+0x44/0x50
+ mlxsw_pci_rdq_fini+0x8c/0xb0
+ mlxsw_pci_queue_fini.isra.0+0x28/0x58
+ mlxsw_pci_queue_group_fini+0x58/0x88
+ mlxsw_pci_aqs_fini+0x2c/0x60
+ mlxsw_pci_fini+0x34/0x50
+ mlxsw_core_bus_device_unregister+0x104/0x1d0
+ mlxsw_devlink_core_bus_device_reload_down+0x2c/0x48
+ devlink_reload+0x44/0x158
+ devlink_nl_cmd_reload+0x270/0x290
+ genl_rcv_msg+0x188/0x2f0
+ netlink_rcv_skb+0x5c/0x118
+ genl_rcv+0x3c/0x50
+ netlink_unicast+0x1bc/0x278
+ netlink_sendmsg+0x194/0x390
+ __sys_sendto+0xe0/0x158
+ __arm64_sys_sendto+0x2c/0x38
+ el0_svc_common.constprop.0+0x70/0x168
+ do_el0_svc+0x28/0x88
+ el0_sync_handler+0x88/0x190
+ el0_sync+0x140/0x180
 
-Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+[2]
+https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1195432.html
+
+[3]
+https://patchwork.kernel.org/project/linux-scsi/patch/20170212214920.28866-1-anton@ozlabs.org/#20116693
+
+Cc: Eric Biederman <ebiederm@xmission.com>
+Signed-off-by: Danielle Ratson <danieller@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/Kconfig.debug            | 14 +++++++-------
- arch/arm/include/debug/imx-uart.h | 18 +++++++++---------
- 2 files changed, 16 insertions(+), 16 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/pci.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/Kconfig.debug b/arch/arm/Kconfig.debug
-index d6cf18a0cb0a9..b70ed4c7691e5 100644
---- a/arch/arm/Kconfig.debug
-+++ b/arch/arm/Kconfig.debug
-@@ -363,12 +363,12 @@ choice
- 		  Say Y here if you want kernel low-level debugging support
- 		  on i.MX25.
- 
--	config DEBUG_IMX21_IMX27_UART
--		bool "i.MX21 and i.MX27 Debug UART"
--		depends on SOC_IMX21 || SOC_IMX27
-+	config DEBUG_IMX27_UART
-+		bool "i.MX27 Debug UART"
-+		depends on SOC_IMX27
- 		help
- 		  Say Y here if you want kernel low-level debugging support
--		  on i.MX21 or i.MX27.
-+		  on i.MX27.
- 
- 	config DEBUG_IMX28_UART
- 		bool "i.MX28 Debug UART"
-@@ -1398,7 +1398,7 @@ config DEBUG_IMX_UART_PORT
- 	int "i.MX Debug UART Port Selection"
- 	depends on DEBUG_IMX1_UART || \
- 		   DEBUG_IMX25_UART || \
--		   DEBUG_IMX21_IMX27_UART || \
-+		   DEBUG_IMX27_UART || \
- 		   DEBUG_IMX31_UART || \
- 		   DEBUG_IMX35_UART || \
- 		   DEBUG_IMX50_UART || \
-@@ -1451,12 +1451,12 @@ config DEBUG_LL_INCLUDE
- 	default "debug/icedcc.S" if DEBUG_ICEDCC
- 	default "debug/imx.S" if DEBUG_IMX1_UART || \
- 				 DEBUG_IMX25_UART || \
--				 DEBUG_IMX21_IMX27_UART || \
-+				 DEBUG_IMX27_UART || \
- 				 DEBUG_IMX31_UART || \
- 				 DEBUG_IMX35_UART || \
- 				 DEBUG_IMX50_UART || \
- 				 DEBUG_IMX51_UART || \
--				 DEBUG_IMX53_UART ||\
-+				 DEBUG_IMX53_UART || \
- 				 DEBUG_IMX6Q_UART || \
- 				 DEBUG_IMX6SL_UART || \
- 				 DEBUG_IMX6SX_UART || \
-diff --git a/arch/arm/include/debug/imx-uart.h b/arch/arm/include/debug/imx-uart.h
-index bce58e975ad1f..c750cc9876f6d 100644
---- a/arch/arm/include/debug/imx-uart.h
-+++ b/arch/arm/include/debug/imx-uart.h
-@@ -14,13 +14,6 @@
- #define IMX1_UART_BASE_ADDR(n)	IMX1_UART##n##_BASE_ADDR
- #define IMX1_UART_BASE(n)	IMX1_UART_BASE_ADDR(n)
- 
--#define IMX21_UART1_BASE_ADDR	0x1000a000
--#define IMX21_UART2_BASE_ADDR	0x1000b000
--#define IMX21_UART3_BASE_ADDR	0x1000c000
--#define IMX21_UART4_BASE_ADDR	0x1000d000
--#define IMX21_UART_BASE_ADDR(n)	IMX21_UART##n##_BASE_ADDR
--#define IMX21_UART_BASE(n)	IMX21_UART_BASE_ADDR(n)
--
- #define IMX25_UART1_BASE_ADDR	0x43f90000
- #define IMX25_UART2_BASE_ADDR	0x43f94000
- #define IMX25_UART3_BASE_ADDR	0x5000c000
-@@ -29,6 +22,13 @@
- #define IMX25_UART_BASE_ADDR(n)	IMX25_UART##n##_BASE_ADDR
- #define IMX25_UART_BASE(n)	IMX25_UART_BASE_ADDR(n)
- 
-+#define IMX27_UART1_BASE_ADDR	0x1000a000
-+#define IMX27_UART2_BASE_ADDR	0x1000b000
-+#define IMX27_UART3_BASE_ADDR	0x1000c000
-+#define IMX27_UART4_BASE_ADDR	0x1000d000
-+#define IMX27_UART_BASE_ADDR(n)	IMX27_UART##n##_BASE_ADDR
-+#define IMX27_UART_BASE(n)	IMX27_UART_BASE_ADDR(n)
-+
- #define IMX31_UART1_BASE_ADDR	0x43f90000
- #define IMX31_UART2_BASE_ADDR	0x43f94000
- #define IMX31_UART3_BASE_ADDR	0x5000c000
-@@ -115,10 +115,10 @@
- 
- #ifdef CONFIG_DEBUG_IMX1_UART
- #define UART_PADDR	IMX_DEBUG_UART_BASE(IMX1)
--#elif defined(CONFIG_DEBUG_IMX21_IMX27_UART)
--#define UART_PADDR	IMX_DEBUG_UART_BASE(IMX21)
- #elif defined(CONFIG_DEBUG_IMX25_UART)
- #define UART_PADDR	IMX_DEBUG_UART_BASE(IMX25)
-+#elif defined(CONFIG_DEBUG_IMX27_UART)
-+#define UART_PADDR	IMX_DEBUG_UART_BASE(IMX27)
- #elif defined(CONFIG_DEBUG_IMX31_UART)
- #define UART_PADDR	IMX_DEBUG_UART_BASE(IMX31)
- #elif defined(CONFIG_DEBUG_IMX35_UART)
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/pci.c b/drivers/net/ethernet/mellanox/mlxsw/pci.c
+index 6ef20e5cc77dd..de93c77148684 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/pci.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/pci.c
+@@ -1772,6 +1772,7 @@ int mlxsw_pci_driver_register(struct pci_driver *pci_driver)
+ {
+ 	pci_driver->probe = mlxsw_pci_probe;
+ 	pci_driver->remove = mlxsw_pci_remove;
++	pci_driver->shutdown = mlxsw_pci_remove;
+ 	return pci_register_driver(pci_driver);
+ }
+ EXPORT_SYMBOL(mlxsw_pci_driver_register);
 -- 
 2.34.1
 
