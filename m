@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B8A6492ABA
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:12:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1852D492A8B
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:11:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347104AbiARQMr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 11:12:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51578 "EHLO
+        id S1347438AbiARQLL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 11:11:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347099AbiARQLJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:11:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDF1EC061759;
-        Tue, 18 Jan 2022 08:10:37 -0800 (PST)
+        with ESMTP id S1347107AbiARQJh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:09:37 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FA32C0613E3;
+        Tue, 18 Jan 2022 08:09:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D5C8612D9;
-        Tue, 18 Jan 2022 16:10:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45822C00446;
-        Tue, 18 Jan 2022 16:10:36 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id AB457CE1A32;
+        Tue, 18 Jan 2022 16:09:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FACEC340E0;
+        Tue, 18 Jan 2022 16:09:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642522236;
-        bh=7wTSqMpig/m2wbRTD66ZE5he1DEHG5kW/Yw/muIsqh0=;
+        s=korg; t=1642522170;
+        bh=jvgy58p5NNQDL1d44rsCcECEHTpB8jcJZ4tD6xqJeU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2KbIaiYvv/QR1F8eGb3qsB2a0znU0DY6lA8z4Hm2vqq27REF5iUi4xZGp7q/ROEOy
-         +nHr2FwPhtXMD+h+BSPCPPh2yEuBfuDu018tm+pLnTuM3LUo81LXi6jw88iFexEa52
-         3mPZNsgBnsBxSy1kq0E7RtF50yn3wZ5dd2Ye1jnU=
+        b=S+PKZ0JhqHt65S0gVKxGeSZiZ1LmhdGeAeEDWd9tmpHZn66EjXz+UT8tX5S9b8ZKx
+         OTijbw/Y85Qj1x9XSE9/vjf6gDxIW88cGuNcO03/fqGYxpdH2wFXE6GKvzDkq52Vk+
+         CoOkc2JUkB1o6PC/3pV+78+J7LazQfNvhGVlmXtk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Van Hensbergen <ericvh@gmail.com>,
-        Latchesar Ionkov <lucho@ionkov.net>,
-        Dominique Martinet <asmadeus@codewreck.org>, stable@kernel.org,
-        v9fs-developer@lists.sourceforge.net,
-        syzbot+dfac92a50024b54acaa4@syzkaller.appspotmail.com,
-        Christian Brauner <christian.brauner@ubuntu.com>
-Subject: [PATCH 5.16 13/28] 9p: only copy valid iattrs in 9P2000.L setattr implementation
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 22/28] ALSA: hda/realtek: Use ALC285_FIXUP_HP_GPIO_LED on another HP laptop
 Date:   Tue, 18 Jan 2022 17:06:08 +0100
-Message-Id: <20220118160452.842976342@linuxfoundation.org>
+Message-Id: <20220118160452.614874048@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220118160452.384322748@linuxfoundation.org>
-References: <20220118160452.384322748@linuxfoundation.org>
+In-Reply-To: <20220118160451.879092022@linuxfoundation.org>
+References: <20220118160451.879092022@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,79 +48,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Brauner <christian.brauner@ubuntu.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 3cb6ee991496b67ee284c6895a0ba007e2d7bac3 upstream.
+commit 08977fe8cfb7d9fe9337470eec4843081cf3a76d upstream.
 
-The 9P2000.L setattr method v9fs_vfs_setattr_dotl() copies struct iattr
-values without checking whether they are valid causing unitialized
-values to be copied. The 9P2000 setattr method v9fs_vfs_setattr() method
-gets this right. Check whether struct iattr fields are valid first
-before copying in v9fs_vfs_setattr_dotl() too and make sure that all
-other fields are set to 0 apart from {g,u}id which should be set to
-INVALID_{G,U}ID. This ensure that they can be safely sent over the wire
-or printed for debugging later on.
+The audio mute and mic mute LEDs don't work, so use the quirk to make
+them work.
 
-Link: https://lkml.kernel.org/r/20211129114434.3637938-1-brauner@kernel.org
-Link: https://lkml.kernel.org/r/000000000000a0d53f05d1c72a4c%40google.com
-Cc: Eric Van Hensbergen <ericvh@gmail.com>
-Cc: Latchesar Ionkov <lucho@ionkov.net>
-Cc: Dominique Martinet <asmadeus@codewreck.org>
-Cc: stable@kernel.org
-Cc: v9fs-developer@lists.sourceforge.net
-Reported-by: syzbot+dfac92a50024b54acaa4@syzkaller.appspotmail.com
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
-[Dominique: do not set a/mtime with just ATTR_A/MTIME as discussed]
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20211224035015.310068-1-kai.heng.feng@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/9p/vfs_inode_dotl.c |   29 ++++++++++++++++++++---------
- 1 file changed, 20 insertions(+), 9 deletions(-)
+ sound/pci/hda/patch_realtek.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/9p/vfs_inode_dotl.c
-+++ b/fs/9p/vfs_inode_dotl.c
-@@ -551,7 +551,10 @@ int v9fs_vfs_setattr_dotl(struct user_na
- {
- 	int retval, use_dentry = 0;
- 	struct p9_fid *fid = NULL;
--	struct p9_iattr_dotl p9attr;
-+	struct p9_iattr_dotl p9attr = {
-+		.uid = INVALID_UID,
-+		.gid = INVALID_GID,
-+	};
- 	struct inode *inode = d_inode(dentry);
- 
- 	p9_debug(P9_DEBUG_VFS, "\n");
-@@ -561,14 +564,22 @@ int v9fs_vfs_setattr_dotl(struct user_na
- 		return retval;
- 
- 	p9attr.valid = v9fs_mapped_iattr_valid(iattr->ia_valid);
--	p9attr.mode = iattr->ia_mode;
--	p9attr.uid = iattr->ia_uid;
--	p9attr.gid = iattr->ia_gid;
--	p9attr.size = iattr->ia_size;
--	p9attr.atime_sec = iattr->ia_atime.tv_sec;
--	p9attr.atime_nsec = iattr->ia_atime.tv_nsec;
--	p9attr.mtime_sec = iattr->ia_mtime.tv_sec;
--	p9attr.mtime_nsec = iattr->ia_mtime.tv_nsec;
-+	if (iattr->ia_valid & ATTR_MODE)
-+		p9attr.mode = iattr->ia_mode;
-+	if (iattr->ia_valid & ATTR_UID)
-+		p9attr.uid = iattr->ia_uid;
-+	if (iattr->ia_valid & ATTR_GID)
-+		p9attr.gid = iattr->ia_gid;
-+	if (iattr->ia_valid & ATTR_SIZE)
-+		p9attr.size = iattr->ia_size;
-+	if (iattr->ia_valid & ATTR_ATIME_SET) {
-+		p9attr.atime_sec = iattr->ia_atime.tv_sec;
-+		p9attr.atime_nsec = iattr->ia_atime.tv_nsec;
-+	}
-+	if (iattr->ia_valid & ATTR_MTIME_SET) {
-+		p9attr.mtime_sec = iattr->ia_mtime.tv_sec;
-+		p9attr.mtime_nsec = iattr->ia_mtime.tv_nsec;
-+	}
- 
- 	if (iattr->ia_valid & ATTR_FILE) {
- 		fid = iattr->ia_file->private_data;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -8730,6 +8730,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x8896, "HP EliteBook 855 G8 Notebook PC", ALC285_FIXUP_HP_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8898, "HP EliteBook 845 G8 Notebook PC", ALC285_FIXUP_HP_LIMIT_INT_MIC_BOOST),
+ 	SND_PCI_QUIRK(0x103c, 0x88d0, "HP Pavilion 15-eh1xxx (mainboard 88D0)", ALC287_FIXUP_HP_GPIO_LED),
++	SND_PCI_QUIRK(0x103c, 0x89c3, "HP", ALC285_FIXUP_HP_GPIO_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x89ca, "HP", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
+ 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x103f, "ASUS TX300", ALC282_FIXUP_ASUS_TX300),
 
 
