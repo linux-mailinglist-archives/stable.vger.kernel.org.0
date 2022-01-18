@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 986FA491C51
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:16:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6219D491AA0
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:02:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353618AbiARDOo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 22:14:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38950 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350274AbiARDIc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 22:08:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98A82C0619C1;
-        Mon, 17 Jan 2022 18:50:23 -0800 (PST)
+        id S1352770AbiARDAh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 22:00:37 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:58614 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1349831AbiARCu2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:50:28 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 20EAC612E8;
-        Tue, 18 Jan 2022 02:50:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97D62C36AEF;
-        Tue, 18 Jan 2022 02:50:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 06305B8124E;
+        Tue, 18 Jan 2022 02:50:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 636C8C36AE3;
+        Tue, 18 Jan 2022 02:50:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642474222;
-        bh=KtF8oSM/+IKrGVbzVycVUSpCGeY9eu9K95vEuK2pHRE=;
+        s=k20201202; t=1642474225;
+        bh=dbUaQiNtbtTcNYZvPSk/yK+SDopfTfCtM8ynIvkfl9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UrjX5zAjBqKaDRiIAxoAIbOcN6nJ69pd0QXxVD0phTVAc4t8oz+KcqRpr8HLfuM0W
-         XcItdrY/H5F2Hw2/TBPkCOrSmreihelh2dzW43LxCbgRjgd8958EPoWOw865Ow9ooK
-         TpDiQlRYDbKRQ0eC2sst5HT5VAh/PgilKPulYqCiZh47WOcLyv6xsxdKP2868om1Gy
-         Ec9G18odSe+UsG8DT58FKBMa4bXe98p6TF9y9J6g1Po88U7yQqHUZijYXEPQVSgv36
-         AhDuz+s5DVcbbYtxdCPERlf34nxtn3r9Vftj4NSGASqKI4nBObLMNiSb6espLAdHiy
-         26s85omYKaCfQ==
+        b=gVnIXjFMIi0jDT9Vyc3/28Ip5F2rXtYxxu0PlLvG0YU38lC6Ewy6RHqT2ydJpbLPz
+         S/DKayPYF3XsIUy0mti8UIdsVZtSg5f7j8Dvy0/PSeUdiytZ9PMo+O+XtUa8r/MMRU
+         sWJxOX8STFiEih9rqTyWq0hNqYW6JU6hRf7YPPAITmBZTHOP/AkMtHeYWjr50CWxp/
+         WxXLQZ/0fqY8QYDZHIDtjLerjrZ5uRAvjGKJGmpDmR8TdKADdwmgj/oLxltWXO6Yg1
+         ahiJrI+GW6iDpeerve/iKU+F48z6aSGYnVjfWTXOSyHEeOiPgBil3EhGxrs1FyBo0w
+         3woEI0OmB2OXA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Antoine Tenart <atenart@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        edumazet@google.com, pabeni@redhat.com, weiwan@google.com,
+Cc:     xu xin <xu.xin16@zte.com.cn>, Zeal Robot <zealci@zte.com.cn>,
+        Joanne Koong <joannekoong@fb.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
+        daniel@iogearbox.net, dsahern@kernel.org, edumazet@google.com,
+        yajun.deng@linux.dev, chinagar@codeaurora.org, roopa@nvidia.com,
         netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 29/56] net-sysfs: update the queue counts in the unregistration path
-Date:   Mon, 17 Jan 2022 21:48:41 -0500
-Message-Id: <20220118024908.1953673-29-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 30/56] net: Enable neighbor sysctls that is save for userns root
+Date:   Mon, 17 Jan 2022 21:48:42 -0500
+Message-Id: <20220118024908.1953673-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024908.1953673-1-sashal@kernel.org>
 References: <20220118024908.1953673-1-sashal@kernel.org>
@@ -52,36 +51,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <atenart@kernel.org>
+From: xu xin <xu.xin16@zte.com.cn>
 
-[ Upstream commit d7dac083414eb5bb99a6d2ed53dc2c1b405224e5 ]
+[ Upstream commit 8c8b7aa7fb0cf9e1cc9204e6bc6e1353b8393502 ]
 
-When updating Rx and Tx queue kobjects, the queue count should always be
-updated to match the queue kobjects count. This was not done in the net
-device unregistration path, fix it. Tracking all queue count updates
-will allow in a following up patch to detect illegal updates.
+Inside netns owned by non-init userns, sysctls about ARP/neighbor is
+currently not visible and configurable.
 
-Signed-off-by: Antoine Tenart <atenart@kernel.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+For the attributes these sysctls correspond to, any modifications make
+effects on the performance of networking(ARP, especilly) only in the
+scope of netns, which does not affect other netns.
+
+Actually, some tools via netlink can modify these attribute. iproute2 is
+an example. see as follows:
+
+$ unshare -ur -n
+$ cat /proc/sys/net/ipv4/neigh/lo/retrans_time
+cat: can't open '/proc/sys/net/ipv4/neigh/lo/retrans_time': No such file
+or directory
+$ ip ntable show dev lo
+inet arp_cache
+    dev lo
+    refcnt 1 reachable 19494 base_reachable 30000 retrans 1000
+    gc_stale 60000 delay_probe 5000 queue 101
+    app_probes 0 ucast_probes 3 mcast_probes 3
+    anycast_delay 1000 proxy_delay 800 proxy_queue 64 locktime 1000
+
+inet6 ndisc_cache
+    dev lo
+    refcnt 1 reachable 42394 base_reachable 30000 retrans 1000
+    gc_stale 60000 delay_probe 5000 queue 101
+    app_probes 0 ucast_probes 3 mcast_probes 3
+    anycast_delay 1000 proxy_delay 800 proxy_queue 64 locktime 0
+$ ip ntable change name arp_cache dev <if> retrans 2000
+inet arp_cache
+    dev lo
+    refcnt 1 reachable 22917 base_reachable 30000 retrans 2000
+    gc_stale 60000 delay_probe 5000 queue 101
+    app_probes 0 ucast_probes 3 mcast_probes 3
+    anycast_delay 1000 proxy_delay 800 proxy_queue 64 locktime 1000
+
+inet6 ndisc_cache
+    dev lo
+    refcnt 1 reachable 35524 base_reachable 30000 retrans 1000
+    gc_stale 60000 delay_probe 5000 queue 101
+    app_probes 0 ucast_probes 3 mcast_probes 3
+    anycast_delay 1000 proxy_delay 800 proxy_queue 64 locktime 0
+
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: xu xin <xu.xin16@zte.com.cn>
+Acked-by: Joanne Koong <joannekoong@fb.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/net-sysfs.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/core/neighbour.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/net/core/net-sysfs.c b/net/core/net-sysfs.c
-index 7d8c6ba5cbd22..3a5903f942e18 100644
---- a/net/core/net-sysfs.c
-+++ b/net/core/net-sysfs.c
-@@ -1449,6 +1449,9 @@ static void remove_queue_kobjects(struct net_device *dev)
+diff --git a/net/core/neighbour.c b/net/core/neighbour.c
+index 358e84af0210b..48bd9f4002b4e 100644
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
+@@ -3251,10 +3251,6 @@ int neigh_sysctl_register(struct net_device *dev, struct neigh_parms *p,
+ 			neigh_proc_base_reachable_time;
+ 	}
  
- 	net_rx_queue_update_kobjects(dev, real_rx, 0);
- 	netdev_queue_update_kobjects(dev, real_tx, 0);
-+
-+	dev->real_num_rx_queues = 0;
-+	dev->real_num_tx_queues = 0;
- #ifdef CONFIG_SYSFS
- 	kset_unregister(dev->queues_kset);
- #endif
+-	/* Don't export sysctls to unprivileged users */
+-	if (neigh_parms_net(p)->user_ns != &init_user_ns)
+-		t->neigh_vars[0].procname = NULL;
+-
+ 	switch (neigh_parms_family(p)) {
+ 	case AF_INET:
+ 	      p_name = "ipv4";
 -- 
 2.34.1
 
