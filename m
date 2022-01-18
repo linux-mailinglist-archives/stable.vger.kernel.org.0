@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB61D491ADD
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:03:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B348F491DBD
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:43:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352351AbiARC7r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:59:47 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:56672 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344518AbiARCsB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:48:01 -0500
+        id S1345425AbiARDl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 22:41:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38864 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1352663AbiARDEO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 22:04:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD84CC02525B;
+        Mon, 17 Jan 2022 18:48:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F55BB81258;
-        Tue, 18 Jan 2022 02:48:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06CAEC36AF2;
-        Tue, 18 Jan 2022 02:47:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6833FB811D6;
+        Tue, 18 Jan 2022 02:48:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24EB4C36AF6;
+        Tue, 18 Jan 2022 02:48:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642474079;
-        bh=ToQmvWXHSHE2XdXe3ciESHrugSQBmGxe7tlPv0Rn18M=;
+        s=k20201202; t=1642474083;
+        bh=mJzXnS1IcEmpxWvMgmaLHW9EGxrSV9VAOnlDQMkv5PE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a1QJ/3Yb8eXq5XmyDqTraHvS3v1oETVR8Nu2oMrHCj4NB2r3YSd01+dIZ9AFko2LG
-         7mPA/gdLTm2bqMtACxnY3TAxOUCNPWVOGTUc09lr+o1/177lCvzx/MobVTrVh6KFmU
-         ZpNgwoNptt9+PoR93OV/jOu8KEeYRXqyF5ygvvpdlZeWxsMTiBvtFXk6NCazkTFXgC
-         JiWjUuhRRMdk/JiQ4IN4SPuQbmYsH+XdZ7QhAO/mKAll4YmkF1anRXF7KCn3Mo3AYX
-         7osgXLkeoNmaXUuI6cJBcuLUqGiyLxFzilMM1R4TwmybfU0On8vH0k7O6xhgwQa+87
-         e+C9Y6hNaqnDQ==
+        b=R1XBZ11A8oYnDXttzJYapr3Eus6cgjqaxRe6YzQLoSOTvReVmVkznZ586k9ly9TX/
+         eNUidxnoDLsJhdmN7QIxciDZDuTcMhNLzcW+c2+tUiayKPkie5sClDH5/5DljEKhWd
+         9BjRF7g9FA5B42wR36988IPK/tiT9rA1xzlqd27U4pdMEuXvCxR+xz6cyVwYCSU8GL
+         KidgZ0OPvfl41SRtyEcnRUIC8pLz4IOTrzS7/uRJpolqjdP/14OvBEWNlhWOKs4nPx
+         fEh3mEWeAgHG9I2bvtBoRJMAj9XxwmyVdMkrjr2H/Awr8iWo+WIhjTf9CGAp/R90yr
+         n75cEGZnOex/Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org
-Subject: [PATCH AUTOSEL 4.19 25/59] x86/mce: Mark mce_end() noinstr
-Date:   Mon, 17 Jan 2022 21:46:26 -0500
-Message-Id: <20220118024701.1952911-25-sashal@kernel.org>
+Cc:     Suresh Kumar <surkumar@redhat.com>,
+        Suresh Kumar <suresh2514@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, j.vosburgh@gmail.com,
+        vfalico@gmail.com, andy@greyhouse.net, kuba@kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 27/59] net: bonding: debug: avoid printing debug logs when bond is not notifying peers
+Date:   Mon, 17 Jan 2022 21:46:28 -0500
+Message-Id: <20220118024701.1952911-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024701.1952911-1-sashal@kernel.org>
 References: <20220118024701.1952911-1-sashal@kernel.org>
@@ -47,62 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Suresh Kumar <surkumar@redhat.com>
 
-[ Upstream commit b4813539d37fa31fed62cdfab7bd2dd8929c5b2e ]
+[ Upstream commit fee32de284ac277ba434a2d59f8ce46528ff3946 ]
 
-It is called by the #MC handler which is noinstr.
+Currently "bond_should_notify_peers: slave ..." messages are printed whenever
+"bond_should_notify_peers" function is called.
 
-Fixes
++++
+Dec 12 12:33:26 node1 kernel: bond0: bond_should_notify_peers: slave enp0s25
+Dec 12 12:33:26 node1 kernel: bond0: bond_should_notify_peers: slave enp0s25
+Dec 12 12:33:26 node1 kernel: bond0: bond_should_notify_peers: slave enp0s25
+Dec 12 12:33:26 node1 kernel: bond0: (slave enp0s25): Received LACPDU on port 1
+Dec 12 12:33:26 node1 kernel: bond0: (slave enp0s25): Rx Machine: Port=1, Last State=6, Curr State=6
+Dec 12 12:33:26 node1 kernel: bond0: (slave enp0s25): partner sync=1
+Dec 12 12:33:26 node1 kernel: bond0: bond_should_notify_peers: slave enp0s25
+Dec 12 12:33:26 node1 kernel: bond0: bond_should_notify_peers: slave enp0s25
+Dec 12 12:33:26 node1 kernel: bond0: bond_should_notify_peers: slave enp0s25
+...
+Dec 12 12:33:30 node1 kernel: bond0: bond_should_notify_peers: slave enp0s25
+Dec 12 12:33:30 node1 kernel: bond0: bond_should_notify_peers: slave enp0s25
+Dec 12 12:33:30 node1 kernel: bond0: (slave enp4s3): Received LACPDU on port 2
+Dec 12 12:33:30 node1 kernel: bond0: (slave enp4s3): Rx Machine: Port=2, Last State=6, Curr State=6
+Dec 12 12:33:30 node1 kernel: bond0: (slave enp4s3): partner sync=1
+Dec 12 12:33:30 node1 kernel: bond0: bond_should_notify_peers: slave enp0s25
+Dec 12 12:33:30 node1 kernel: bond0: bond_should_notify_peers: slave enp0s25
+Dec 12 12:33:30 node1 kernel: bond0: bond_should_notify_peers: slave enp0s25
++++
 
-  vmlinux.o: warning: objtool: do_machine_check()+0xbd6: call to memset() leaves .noinstr.text section
+This is confusing and can also clutter up debug logs.
+Print logs only when the peer notification happens.
 
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20211208111343.8130-9-bp@alien8.de
+Signed-off-by: Suresh Kumar <suresh2514@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mcheck/mce.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/net/bonding/bond_main.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/mcheck/mce.c b/arch/x86/kernel/cpu/mcheck/mce.c
-index 56c4456434a82..26adaad3f2587 100644
---- a/arch/x86/kernel/cpu/mcheck/mce.c
-+++ b/arch/x86/kernel/cpu/mcheck/mce.c
-@@ -1030,10 +1030,13 @@ static int mce_start(int *no_way_out)
-  * Synchronize between CPUs after main scanning loop.
-  * This invokes the bulk of the Monarch processing.
-  */
--static int mce_end(int order)
-+static noinstr int mce_end(int order)
- {
--	int ret = -1;
- 	u64 timeout = (u64)mca_cfg.monarch_timeout * NSEC_PER_USEC;
-+	int ret = -1;
-+
-+	/* Allow instrumentation around external facilities. */
-+	instrumentation_begin();
+diff --git a/drivers/net/bonding/bond_main.c b/drivers/net/bonding/bond_main.c
+index d6c5f41b17f7e..2d70cdd26f89d 100644
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -782,14 +782,14 @@ static bool bond_should_notify_peers(struct bonding *bond)
+ 	slave = rcu_dereference(bond->curr_active_slave);
+ 	rcu_read_unlock();
  
- 	if (!timeout)
- 		goto reset;
-@@ -1077,7 +1080,8 @@ static int mce_end(int order)
- 		/*
- 		 * Don't reset anything. That's done by the Monarch.
- 		 */
--		return 0;
-+		ret = 0;
-+		goto out;
- 	}
+-	netdev_dbg(bond->dev, "bond_should_notify_peers: slave %s\n",
+-		   slave ? slave->dev->name : "NULL");
+-
+ 	if (!slave || !bond->send_peer_notif ||
+ 	    !netif_carrier_ok(bond->dev) ||
+ 	    test_bit(__LINK_STATE_LINKWATCH_PENDING, &slave->dev->state))
+ 		return false;
  
- 	/*
-@@ -1092,6 +1096,10 @@ static int mce_end(int order)
- 	 * Let others run again.
- 	 */
- 	atomic_set(&mce_executing, 0);
++	netdev_dbg(bond->dev, "bond_should_notify_peers: slave %s\n",
++		   slave ? slave->dev->name : "NULL");
 +
-+out:
-+	instrumentation_end();
-+
- 	return ret;
+ 	return true;
  }
  
 -- 
