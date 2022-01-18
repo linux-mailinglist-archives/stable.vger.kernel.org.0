@@ -2,207 +2,478 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88166492A6A
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:10:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C9D7492A3E
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:08:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346909AbiARQKM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 11:10:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51494 "EHLO
+        id S1346664AbiARQIg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 11:08:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346488AbiARQJS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:09:18 -0500
+        with ESMTP id S1346405AbiARQIQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:08:16 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1396EC061794;
-        Tue, 18 Jan 2022 08:09:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B71BC06175D;
+        Tue, 18 Jan 2022 08:07:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A9146612B5;
-        Tue, 18 Jan 2022 16:09:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EDEEC340E0;
-        Tue, 18 Jan 2022 16:09:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A177A612D8;
+        Tue, 18 Jan 2022 16:07:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 738A8C00446;
+        Tue, 18 Jan 2022 16:07:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642522154;
-        bh=nMKiYw9b/LaB4tBg1YfiWoR0kekCp4m/9b9h/VsDE4Y=;
-        h=From:To:Cc:Subject:Date:From;
-        b=MZSt4+I5S1TVpenOHuwo5lBZ/mcRMPXlTplfdu6BDmpfy5AMBOunYQP6KRR7KSETK
-         NEP3lus3LXAn68Ew3FgRgnRM2a/4M5TiXY9GwOiBbF9rE5M9d0R+Hf4paZLrsBxVla
-         JL48YHXaUs+3/RnIl+ACahwtw9n0VNkMpTiRQrQI=
+        s=korg; t=1642522067;
+        bh=IBQjWrrYQq/KYU817cZyv9PbdPg6I4kgUncOScE0wMw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Xi9753C2SSbJ9gwcHLudcSeJWSt3WyRB5TrWm6PyGK9NngFzLhpPIzVF4z1/F8wnB
+         Oc2hoWukF8ba5dq55erohrxWE5EfZV6g0Nf/BNfN0D1tSw+BxW+p5sdyeyjbj/0ZAI
+         C2uDa0kxZsMGaNFSSA1iAdJji76vE4TLj7YkIj/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 5.15 00/28] 5.15.16-rc1 review
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 06/23] perf: Protect perf_guest_cbs with RCU
 Date:   Tue, 18 Jan 2022 17:05:46 +0100
-Message-Id: <20220118160451.879092022@linuxfoundation.org>
+Message-Id: <20220118160451.456852950@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-MIME-Version: 1.0
+In-Reply-To: <20220118160451.233828401@linuxfoundation.org>
+References: <20220118160451.233828401@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.16-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.15.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.15.16-rc1
-X-KernelTest-Deadline: 2022-01-20T16:04+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.15.16 release.
-There are 28 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Sean Christopherson <seanjc@google.com>
 
-Responses should be made by Thu, 20 Jan 2022 16:04:42 +0000.
-Anything received after that time might be too late.
+commit ff083a2d972f56bebfd82409ca62e5dfce950961 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.16-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-and the diffstat can be found below.
+Protect perf_guest_cbs with RCU to fix multiple possible errors.  Luckily,
+all paths that read perf_guest_cbs already require RCU protection, e.g. to
+protect the callback chains, so only the direct perf_guest_cbs touchpoints
+need to be modified.
 
-thanks,
+Bug #1 is a simple lack of WRITE_ONCE/READ_ONCE behavior to ensure
+perf_guest_cbs isn't reloaded between a !NULL check and a dereference.
+Fixed via the READ_ONCE() in rcu_dereference().
 
-greg k-h
+Bug #2 is that on weakly-ordered architectures, updates to the callbacks
+themselves are not guaranteed to be visible before the pointer is made
+visible to readers.  Fixed by the smp_store_release() in
+rcu_assign_pointer() when the new pointer is non-NULL.
 
--------------
-Pseudo-Shortlog of commits:
+Bug #3 is that, because the callbacks are global, it's possible for
+readers to run in parallel with an unregisters, and thus a module
+implementing the callbacks can be unloaded while readers are in flight,
+resulting in a use-after-free.  Fixed by a synchronize_rcu() call when
+unregistering callbacks.
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.15.16-rc1
+Bug #1 escaped notice because it's extremely unlikely a compiler will
+reload perf_guest_cbs in this sequence.  perf_guest_cbs does get reloaded
+for future derefs, e.g. for ->is_user_mode(), but the ->is_in_guest()
+guard all but guarantees the consumer will win the race, e.g. to nullify
+perf_guest_cbs, KVM has to completely exit the guest and teardown down
+all VMs before KVM start its module unload / unregister sequence.  This
+also makes it all but impossible to encounter bug #3.
 
-Arnd Bergmann <arnd@arndb.de>
-    mtd: fixup CFI on ixp4xx
+Bug #2 has not been a problem because all architectures that register
+callbacks are strongly ordered and/or have a static set of callbacks.
 
-Takashi Iwai <tiwai@suse.de>
-    ALSA: hda/realtek: Re-order quirk entries for Lenovo
+But with help, unloading kvm_intel can trigger bug #1 e.g. wrapping
+perf_guest_cbs with READ_ONCE in perf_misc_flags() while spamming
+kvm_intel module load/unload leads to:
 
-Baole Fang <fbl718@163.com>
-    ALSA: hda/realtek: Add quirk for Legion Y9000X 2020
+  BUG: kernel NULL pointer dereference, address: 0000000000000000
+  #PF: supervisor read access in kernel mode
+  #PF: error_code(0x0000) - not-present page
+  PGD 0 P4D 0
+  Oops: 0000 [#1] PREEMPT SMP
+  CPU: 6 PID: 1825 Comm: stress Not tainted 5.14.0-rc2+ #459
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+  RIP: 0010:perf_misc_flags+0x1c/0x70
+  Call Trace:
+   perf_prepare_sample+0x53/0x6b0
+   perf_event_output_forward+0x67/0x160
+   __perf_event_overflow+0x52/0xf0
+   handle_pmi_common+0x207/0x300
+   intel_pmu_handle_irq+0xcf/0x410
+   perf_event_nmi_handler+0x28/0x50
+   nmi_handle+0xc7/0x260
+   default_do_nmi+0x6b/0x170
+   exc_nmi+0x103/0x130
+   asm_exc_nmi+0x76/0xbf
 
-Sameer Pujar <spujar@nvidia.com>
-    ALSA: hda/tegra: Fix Tegra194 HDA reset failure
+Fixes: 39447b386c84 ("perf: Enhance perf to allow for guest statistic collection from host")
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Paolo Bonzini <pbonzini@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20211111020738.2512932-2-seanjc@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ arch/arm/kernel/perf_callchain.c   |   17 +++++++++++------
+ arch/arm64/kernel/perf_callchain.c |   18 ++++++++++++------
+ arch/csky/kernel/perf_callchain.c  |    6 ++++--
+ arch/nds32/kernel/perf_event_cpu.c |   17 +++++++++++------
+ arch/riscv/kernel/perf_callchain.c |    7 +++++--
+ arch/x86/events/core.c             |   17 +++++++++++------
+ arch/x86/events/intel/core.c       |    9 ++++++---
+ include/linux/perf_event.h         |   13 ++++++++++++-
+ kernel/events/core.c               |   13 ++++++++++---
+ 9 files changed, 82 insertions(+), 35 deletions(-)
 
-Bart Kroon <bart@tarmack.eu>
-    ALSA: hda: ALC287: Add Lenovo IdeaPad Slim 9i 14ITL5 speaker quirk
-
-Christian Lachner <gladiac@gmail.com>
-    ALSA: hda/realtek - Fix silent output on Gigabyte X570 Aorus Master after reboot from Windows
-
-Kai-Heng Feng <kai.heng.feng@canonical.com>
-    ALSA: hda/realtek: Use ALC285_FIXUP_HP_GPIO_LED on another HP laptop
-
-Arie Geiger <arsgeiger@gmail.com>
-    ALSA: hda/realtek: Add speaker fixup for some Yoga 15ITL5 devices
-
-Wei Wang <wei.w.wang@intel.com>
-    KVM: x86: remove PMU FIXED_CTR3 from msrs_to_save_all
-
-Dario Petrillo <dario.pk1@gmail.com>
-    perf annotate: Avoid TUI crash when navigating in the annotation of recursive functions
-
-Johan Hovold <johan@kernel.org>
-    firmware: qemu_fw_cfg: fix kobject leak in probe error path
-
-Johan Hovold <johan@kernel.org>
-    firmware: qemu_fw_cfg: fix NULL-pointer deref on duplicate entries
-
-Johan Hovold <johan@kernel.org>
-    firmware: qemu_fw_cfg: fix sysfs information leak
-
-Larry Finger <Larry.Finger@lwfinger.net>
-    rtlwifi: rtl8192cu: Fix WARNING when calling local_irq_restore() with interrupts enabled
-
-Johan Hovold <johan@kernel.org>
-    media: uvcvideo: fix division by zero at stream start
-
-Javier Martinez Canillas <javierm@redhat.com>
-    video: vga16fb: Only probe for EGA and VGA 16 color graphic cards
-
-Christian Brauner <christian.brauner@ubuntu.com>
-    9p: only copy valid iattrs in 9P2000.L setattr implementation
-
-Sibi Sankar <sibis@codeaurora.org>
-    remoteproc: qcom: pas: Add missing power-domain "mxc" for CDSP
-
-Eric Farman <farman@linux.ibm.com>
-    KVM: s390: Clarify SIGP orders versus STOP/RESTART
-
-Li RongQing <lirongqing@baidu.com>
-    KVM: x86: don't print when fail to read/write pv eoi memory
-
-Sean Christopherson <seanjc@google.com>
-    KVM: x86: Register Processor Trace interrupt hook iff PT enabled in guest
-
-Sean Christopherson <seanjc@google.com>
-    KVM: x86: Register perf callbacks after calling vendor's hardware_setup()
-
-Sean Christopherson <seanjc@google.com>
-    perf: Protect perf_guest_cbs with RCU
-
-Jamie Hill-Daniel <jamie@hill-daniel.co.uk>
-    vfs: fs_context: fix up param length parsing in legacy_parse_param
-
-Stephen Boyd <swboyd@chromium.org>
-    remoteproc: qcom: pil_info: Don't memcpy_toio more than is provided
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    orangefs: Fix the size of a memory allocation in orangefs_bufmap_alloc()
-
-Mario Limonciello <mario.limonciello@amd.com>
-    drm/amd/display: explicitly set is_dsc_supported to false before use
-
-NeilBrown <neilb@suse.de>
-    devtmpfs regression fix: reconfigure on each mount
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 +-
- arch/arm/kernel/perf_callchain.c                   | 17 ++++---
- arch/arm64/kernel/perf_callchain.c                 | 18 +++++---
- arch/csky/kernel/perf_callchain.c                  |  6 ++-
- arch/nds32/kernel/perf_event_cpu.c                 | 17 ++++---
- arch/riscv/kernel/perf_callchain.c                 |  7 ++-
- arch/s390/kvm/interrupt.c                          |  7 +++
- arch/s390/kvm/kvm-s390.c                           |  9 +++-
- arch/s390/kvm/kvm-s390.h                           |  1 +
- arch/s390/kvm/sigp.c                               | 28 ++++++++++++
- arch/x86/events/core.c                             | 17 ++++---
- arch/x86/events/intel/core.c                       |  9 ++--
- arch/x86/include/asm/kvm_host.h                    |  1 +
- arch/x86/kvm/lapic.c                               | 18 +++-----
- arch/x86/kvm/vmx/vmx.c                             |  1 +
- arch/x86/kvm/x86.c                                 | 14 +++---
- drivers/base/devtmpfs.c                            |  7 +++
- drivers/firmware/qemu_fw_cfg.c                     | 20 ++++-----
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c  |  1 +
- drivers/media/usb/uvc/uvc_video.c                  |  4 ++
- drivers/mtd/chips/Kconfig                          |  2 +
- drivers/mtd/maps/Kconfig                           |  2 +-
- .../net/wireless/realtek/rtlwifi/rtl8192cu/hw.c    |  1 +
- drivers/remoteproc/qcom_pil_info.c                 |  2 +-
- drivers/remoteproc/qcom_q6v5_pas.c                 |  1 +
- drivers/video/fbdev/vga16fb.c                      | 24 ++++++++++
- fs/9p/vfs_inode_dotl.c                             | 29 ++++++++----
- fs/fs_context.c                                    |  2 +-
- fs/orangefs/orangefs-bufmap.c                      |  7 ++-
- fs/super.c                                         |  4 +-
- include/linux/fs_context.h                         |  2 +
- include/linux/perf_event.h                         | 13 +++++-
- kernel/events/core.c                               | 13 ++++--
- sound/pci/hda/hda_tegra.c                          | 43 ++++++++++++++----
- sound/pci/hda/patch_realtek.c                      | 52 ++++++++++++++++++++--
- tools/perf/ui/browsers/annotate.c                  | 23 ++++++----
- 36 files changed, 319 insertions(+), 107 deletions(-)
+--- a/arch/arm/kernel/perf_callchain.c
++++ b/arch/arm/kernel/perf_callchain.c
+@@ -62,9 +62,10 @@ user_backtrace(struct frame_tail __user
+ void
+ perf_callchain_user(struct perf_callchain_entry_ctx *entry, struct pt_regs *regs)
+ {
++	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
+ 	struct frame_tail __user *tail;
+ 
+-	if (perf_guest_cbs && perf_guest_cbs->is_in_guest()) {
++	if (guest_cbs && guest_cbs->is_in_guest()) {
+ 		/* We don't support guest os callchain now */
+ 		return;
+ 	}
+@@ -98,9 +99,10 @@ callchain_trace(struct stackframe *fr,
+ void
+ perf_callchain_kernel(struct perf_callchain_entry_ctx *entry, struct pt_regs *regs)
+ {
++	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
+ 	struct stackframe fr;
+ 
+-	if (perf_guest_cbs && perf_guest_cbs->is_in_guest()) {
++	if (guest_cbs && guest_cbs->is_in_guest()) {
+ 		/* We don't support guest os callchain now */
+ 		return;
+ 	}
+@@ -111,18 +113,21 @@ perf_callchain_kernel(struct perf_callch
+ 
+ unsigned long perf_instruction_pointer(struct pt_regs *regs)
+ {
+-	if (perf_guest_cbs && perf_guest_cbs->is_in_guest())
+-		return perf_guest_cbs->get_guest_ip();
++	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
++
++	if (guest_cbs && guest_cbs->is_in_guest())
++		return guest_cbs->get_guest_ip();
+ 
+ 	return instruction_pointer(regs);
+ }
+ 
+ unsigned long perf_misc_flags(struct pt_regs *regs)
+ {
++	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
+ 	int misc = 0;
+ 
+-	if (perf_guest_cbs && perf_guest_cbs->is_in_guest()) {
+-		if (perf_guest_cbs->is_user_mode())
++	if (guest_cbs && guest_cbs->is_in_guest()) {
++		if (guest_cbs->is_user_mode())
+ 			misc |= PERF_RECORD_MISC_GUEST_USER;
+ 		else
+ 			misc |= PERF_RECORD_MISC_GUEST_KERNEL;
+--- a/arch/arm64/kernel/perf_callchain.c
++++ b/arch/arm64/kernel/perf_callchain.c
+@@ -102,7 +102,9 @@ compat_user_backtrace(struct compat_fram
+ void perf_callchain_user(struct perf_callchain_entry_ctx *entry,
+ 			 struct pt_regs *regs)
+ {
+-	if (perf_guest_cbs && perf_guest_cbs->is_in_guest()) {
++	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
++
++	if (guest_cbs && guest_cbs->is_in_guest()) {
+ 		/* We don't support guest os callchain now */
+ 		return;
+ 	}
+@@ -147,9 +149,10 @@ static bool callchain_trace(void *data,
+ void perf_callchain_kernel(struct perf_callchain_entry_ctx *entry,
+ 			   struct pt_regs *regs)
+ {
++	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
+ 	struct stackframe frame;
+ 
+-	if (perf_guest_cbs && perf_guest_cbs->is_in_guest()) {
++	if (guest_cbs && guest_cbs->is_in_guest()) {
+ 		/* We don't support guest os callchain now */
+ 		return;
+ 	}
+@@ -160,18 +163,21 @@ void perf_callchain_kernel(struct perf_c
+ 
+ unsigned long perf_instruction_pointer(struct pt_regs *regs)
+ {
+-	if (perf_guest_cbs && perf_guest_cbs->is_in_guest())
+-		return perf_guest_cbs->get_guest_ip();
++	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
++
++	if (guest_cbs && guest_cbs->is_in_guest())
++		return guest_cbs->get_guest_ip();
+ 
+ 	return instruction_pointer(regs);
+ }
+ 
+ unsigned long perf_misc_flags(struct pt_regs *regs)
+ {
++	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
+ 	int misc = 0;
+ 
+-	if (perf_guest_cbs && perf_guest_cbs->is_in_guest()) {
+-		if (perf_guest_cbs->is_user_mode())
++	if (guest_cbs && guest_cbs->is_in_guest()) {
++		if (guest_cbs->is_user_mode())
+ 			misc |= PERF_RECORD_MISC_GUEST_USER;
+ 		else
+ 			misc |= PERF_RECORD_MISC_GUEST_KERNEL;
+--- a/arch/csky/kernel/perf_callchain.c
++++ b/arch/csky/kernel/perf_callchain.c
+@@ -86,10 +86,11 @@ static unsigned long user_backtrace(stru
+ void perf_callchain_user(struct perf_callchain_entry_ctx *entry,
+ 			 struct pt_regs *regs)
+ {
++	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
+ 	unsigned long fp = 0;
+ 
+ 	/* C-SKY does not support virtualization. */
+-	if (perf_guest_cbs && perf_guest_cbs->is_in_guest())
++	if (guest_cbs && guest_cbs->is_in_guest())
+ 		return;
+ 
+ 	fp = regs->regs[4];
+@@ -110,10 +111,11 @@ void perf_callchain_user(struct perf_cal
+ void perf_callchain_kernel(struct perf_callchain_entry_ctx *entry,
+ 			   struct pt_regs *regs)
+ {
++	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
+ 	struct stackframe fr;
+ 
+ 	/* C-SKY does not support virtualization. */
+-	if (perf_guest_cbs && perf_guest_cbs->is_in_guest()) {
++	if (guest_cbs && guest_cbs->is_in_guest()) {
+ 		pr_warn("C-SKY does not support perf in guest mode!");
+ 		return;
+ 	}
+--- a/arch/nds32/kernel/perf_event_cpu.c
++++ b/arch/nds32/kernel/perf_event_cpu.c
+@@ -1363,6 +1363,7 @@ void
+ perf_callchain_user(struct perf_callchain_entry_ctx *entry,
+ 		    struct pt_regs *regs)
+ {
++	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
+ 	unsigned long fp = 0;
+ 	unsigned long gp = 0;
+ 	unsigned long lp = 0;
+@@ -1371,7 +1372,7 @@ perf_callchain_user(struct perf_callchai
+ 
+ 	leaf_fp = 0;
+ 
+-	if (perf_guest_cbs && perf_guest_cbs->is_in_guest()) {
++	if (guest_cbs && guest_cbs->is_in_guest()) {
+ 		/* We don't support guest os callchain now */
+ 		return;
+ 	}
+@@ -1479,9 +1480,10 @@ void
+ perf_callchain_kernel(struct perf_callchain_entry_ctx *entry,
+ 		      struct pt_regs *regs)
+ {
++	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
+ 	struct stackframe fr;
+ 
+-	if (perf_guest_cbs && perf_guest_cbs->is_in_guest()) {
++	if (guest_cbs && guest_cbs->is_in_guest()) {
+ 		/* We don't support guest os callchain now */
+ 		return;
+ 	}
+@@ -1493,20 +1495,23 @@ perf_callchain_kernel(struct perf_callch
+ 
+ unsigned long perf_instruction_pointer(struct pt_regs *regs)
+ {
++	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
++
+ 	/* However, NDS32 does not support virtualization */
+-	if (perf_guest_cbs && perf_guest_cbs->is_in_guest())
+-		return perf_guest_cbs->get_guest_ip();
++	if (guest_cbs && guest_cbs->is_in_guest())
++		return guest_cbs->get_guest_ip();
+ 
+ 	return instruction_pointer(regs);
+ }
+ 
+ unsigned long perf_misc_flags(struct pt_regs *regs)
+ {
++	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
+ 	int misc = 0;
+ 
+ 	/* However, NDS32 does not support virtualization */
+-	if (perf_guest_cbs && perf_guest_cbs->is_in_guest()) {
+-		if (perf_guest_cbs->is_user_mode())
++	if (guest_cbs && guest_cbs->is_in_guest()) {
++		if (guest_cbs->is_user_mode())
+ 			misc |= PERF_RECORD_MISC_GUEST_USER;
+ 		else
+ 			misc |= PERF_RECORD_MISC_GUEST_KERNEL;
+--- a/arch/riscv/kernel/perf_callchain.c
++++ b/arch/riscv/kernel/perf_callchain.c
+@@ -60,10 +60,11 @@ static unsigned long user_backtrace(stru
+ void perf_callchain_user(struct perf_callchain_entry_ctx *entry,
+ 			 struct pt_regs *regs)
+ {
++	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
+ 	unsigned long fp = 0;
+ 
+ 	/* RISC-V does not support perf in guest mode. */
+-	if (perf_guest_cbs && perf_guest_cbs->is_in_guest())
++	if (guest_cbs && guest_cbs->is_in_guest())
+ 		return;
+ 
+ 	fp = regs->s0;
+@@ -84,8 +85,10 @@ void notrace walk_stackframe(struct task
+ void perf_callchain_kernel(struct perf_callchain_entry_ctx *entry,
+ 			   struct pt_regs *regs)
+ {
++	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
++
+ 	/* RISC-V does not support perf in guest mode. */
+-	if (perf_guest_cbs && perf_guest_cbs->is_in_guest()) {
++	if (guest_cbs && guest_cbs->is_in_guest()) {
+ 		pr_warn("RISC-V does not support perf in guest mode!");
+ 		return;
+ 	}
+--- a/arch/x86/events/core.c
++++ b/arch/x86/events/core.c
+@@ -2545,10 +2545,11 @@ static bool perf_hw_regs(struct pt_regs
+ void
+ perf_callchain_kernel(struct perf_callchain_entry_ctx *entry, struct pt_regs *regs)
+ {
++	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
+ 	struct unwind_state state;
+ 	unsigned long addr;
+ 
+-	if (perf_guest_cbs && perf_guest_cbs->is_in_guest()) {
++	if (guest_cbs && guest_cbs->is_in_guest()) {
+ 		/* TODO: We don't support guest os callchain now */
+ 		return;
+ 	}
+@@ -2648,10 +2649,11 @@ perf_callchain_user32(struct pt_regs *re
+ void
+ perf_callchain_user(struct perf_callchain_entry_ctx *entry, struct pt_regs *regs)
+ {
++	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
+ 	struct stack_frame frame;
+ 	const struct stack_frame __user *fp;
+ 
+-	if (perf_guest_cbs && perf_guest_cbs->is_in_guest()) {
++	if (guest_cbs && guest_cbs->is_in_guest()) {
+ 		/* TODO: We don't support guest os callchain now */
+ 		return;
+ 	}
+@@ -2728,18 +2730,21 @@ static unsigned long code_segment_base(s
+ 
+ unsigned long perf_instruction_pointer(struct pt_regs *regs)
+ {
+-	if (perf_guest_cbs && perf_guest_cbs->is_in_guest())
+-		return perf_guest_cbs->get_guest_ip();
++	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
++
++	if (guest_cbs && guest_cbs->is_in_guest())
++		return guest_cbs->get_guest_ip();
+ 
+ 	return regs->ip + code_segment_base(regs);
+ }
+ 
+ unsigned long perf_misc_flags(struct pt_regs *regs)
+ {
++	struct perf_guest_info_callbacks *guest_cbs = perf_get_guest_cbs();
+ 	int misc = 0;
+ 
+-	if (perf_guest_cbs && perf_guest_cbs->is_in_guest()) {
+-		if (perf_guest_cbs->is_user_mode())
++	if (guest_cbs && guest_cbs->is_in_guest()) {
++		if (guest_cbs->is_user_mode())
+ 			misc |= PERF_RECORD_MISC_GUEST_USER;
+ 		else
+ 			misc |= PERF_RECORD_MISC_GUEST_KERNEL;
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -2586,6 +2586,7 @@ static int handle_pmi_common(struct pt_r
+ {
+ 	struct perf_sample_data data;
+ 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
++	struct perf_guest_info_callbacks *guest_cbs;
+ 	int bit;
+ 	int handled = 0;
+ 
+@@ -2651,9 +2652,11 @@ static int handle_pmi_common(struct pt_r
+ 	 */
+ 	if (__test_and_clear_bit(GLOBAL_STATUS_TRACE_TOPAPMI_BIT, (unsigned long *)&status)) {
+ 		handled++;
+-		if (unlikely(perf_guest_cbs && perf_guest_cbs->is_in_guest() &&
+-			perf_guest_cbs->handle_intel_pt_intr))
+-			perf_guest_cbs->handle_intel_pt_intr();
++
++		guest_cbs = perf_get_guest_cbs();
++		if (unlikely(guest_cbs && guest_cbs->is_in_guest() &&
++			     guest_cbs->handle_intel_pt_intr))
++			guest_cbs->handle_intel_pt_intr();
+ 		else
+ 			intel_pt_interrupt();
+ 	}
+--- a/include/linux/perf_event.h
++++ b/include/linux/perf_event.h
+@@ -1235,7 +1235,18 @@ extern void perf_event_bpf_event(struct
+ 				 enum perf_bpf_event_type type,
+ 				 u16 flags);
+ 
+-extern struct perf_guest_info_callbacks *perf_guest_cbs;
++extern struct perf_guest_info_callbacks __rcu *perf_guest_cbs;
++static inline struct perf_guest_info_callbacks *perf_get_guest_cbs(void)
++{
++	/*
++	 * Callbacks are RCU-protected and must be READ_ONCE to avoid reloading
++	 * the callbacks between a !NULL check and dereferences, to ensure
++	 * pending stores/changes to the callback pointers are visible before a
++	 * non-NULL perf_guest_cbs is visible to readers, and to prevent a
++	 * module from unloading callbacks while readers are active.
++	 */
++	return rcu_dereference(perf_guest_cbs);
++}
+ extern int perf_register_guest_info_callbacks(struct perf_guest_info_callbacks *callbacks);
+ extern int perf_unregister_guest_info_callbacks(struct perf_guest_info_callbacks *callbacks);
+ 
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -6395,18 +6395,25 @@ static void perf_pending_event(struct ir
+  * Later on, we might change it to a list if there is
+  * another virtualization implementation supporting the callbacks.
+  */
+-struct perf_guest_info_callbacks *perf_guest_cbs;
++struct perf_guest_info_callbacks __rcu *perf_guest_cbs;
+ 
+ int perf_register_guest_info_callbacks(struct perf_guest_info_callbacks *cbs)
+ {
+-	perf_guest_cbs = cbs;
++	if (WARN_ON_ONCE(rcu_access_pointer(perf_guest_cbs)))
++		return -EBUSY;
++
++	rcu_assign_pointer(perf_guest_cbs, cbs);
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(perf_register_guest_info_callbacks);
+ 
+ int perf_unregister_guest_info_callbacks(struct perf_guest_info_callbacks *cbs)
+ {
+-	perf_guest_cbs = NULL;
++	if (WARN_ON_ONCE(rcu_access_pointer(perf_guest_cbs) != cbs))
++		return -EINVAL;
++
++	rcu_assign_pointer(perf_guest_cbs, NULL);
++	synchronize_rcu();
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(perf_unregister_guest_info_callbacks);
 
 
