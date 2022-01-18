@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1292E491404
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:19:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71EED49141E
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:20:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244365AbiARCT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:19:57 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34772 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244369AbiARCTy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:19:54 -0500
+        id S244505AbiARCUI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:20:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56370 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244388AbiARCT4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:19:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEEA3C06161C;
+        Mon, 17 Jan 2022 18:19:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 46D53B81233;
-        Tue, 18 Jan 2022 02:19:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E9CBC36AEB;
-        Tue, 18 Jan 2022 02:19:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 86A53B81232;
+        Tue, 18 Jan 2022 02:19:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72425C36AF2;
+        Tue, 18 Jan 2022 02:19:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642472392;
-        bh=hMvz0BBLDKfp6xLtKBumqNeTre1P81r1tH1l9Baj+sI=;
+        s=k20201202; t=1642472393;
+        bh=uJoyLqhseUQJo0ZE3D2WIiitPdPERSXYICGFZS49XR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iupY2IH4QyeSL3lvMo+MczM455jSnNPOoGDuXNnDzqDsNHdqhGjGP2Fyd26hEtHAr
-         kVlwKE+cNxs9XIQ6TNQY98dFaOwAuBfdFN/ZRo4J7u8nGePv5AUaocIRUTKlou/2rc
-         +Gv1wrkqXIEfflR/hEgRauiEpV1oXoGcbgMDyQppkpOlRB7s/qAcWWNlO1t3LMfgPB
-         /GsEqXpbrde4McBFNnpQuIVixgjRrcIe4QqMmd3vNqtR2csrMGM23zpsJnIA6+Nxqz
-         mzbtOZ8wS5K6gCoff31v1JeHkUC6nmdB37ldoVsJWxCmjYqoPa6LAMjjQJJFlio2LE
-         h1YZTIYvyw28Q==
+        b=qga7cYTKCuRVmi67Jh0yGzLi7WsrbEw8NZGYzl2y+dt/dolNln+79eTDspqbydT7U
+         VyG33sQpD1kRq4A2ZOhuNJaf/ruPlnneHDR3GDkj/p3Oxy17XwZrMEA6aQNWUR6KQL
+         Oxjv+ug39Soja+dCqayOnUGTtYDhmykMZ5+GTQCD6hGbSmlN46XEYlpICEM4iOy6Jz
+         jCWQnAWS+rCH5zdjZ0sjhtXlxl619Rlw5abfIKaRm/9fCyBS1D51BugB0fMQjoSwF0
+         Ax2pyGbUdKfxP3jPp83kcIJKomcO1BE6QL3vI5kdw8F9nwS6Mfbra0dH2JIR/cnZWq
+         BflhVqdVkvQlA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Sasha Levin <sashal@kernel.org>, airlied@linux.ie,
-        daniel@ffwll.ch, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.16 006/217] drm/sched: Avoid lockdep spalt on killing a processes
-Date:   Mon, 17 Jan 2022 21:16:09 -0500
-Message-Id: <20220118021940.1942199-6-sashal@kernel.org>
+Cc:     Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, ccaulfie@redhat.com,
+        cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.16 007/217] fs: dlm: filter user dlm messages for kernel locks
+Date:   Mon, 17 Jan 2022 21:16:10 -0500
+Message-Id: <20220118021940.1942199-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118021940.1942199-1-sashal@kernel.org>
 References: <20220118021940.1942199-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -50,122 +51,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit 542cff7893a37445f98ece26aeb3c9c1055e9ea4 ]
+[ Upstream commit 6c2e3bf68f3e5e5a647aa52be246d5f552d7496d ]
 
-Probelm:
-Singlaning one sched fence from within another's sched
-fence singal callback generates lockdep splat because
-the both have same lockdep class of their fence->lock
+This patch fixes the following crash by receiving a invalid message:
 
-Fix:
-Fix bellow stack by rescheduling to irq work of
-signaling and killing of jobs that left when entity is killed.
+[  160.672220] ==================================================================
+[  160.676206] BUG: KASAN: user-memory-access in dlm_user_add_ast+0xc3/0x370
+[  160.679659] Read of size 8 at addr 00000000deadbeef by task kworker/u32:13/319
+[  160.681447]
+[  160.681824] CPU: 10 PID: 319 Comm: kworker/u32:13 Not tainted 5.14.0-rc2+ #399
+[  160.683472] Hardware name: Red Hat KVM/RHEL-AV, BIOS 1.14.0-1.module+el8.6.0+12648+6ede71a5 04/01/2014
+[  160.685574] Workqueue: dlm_recv process_recv_sockets
+[  160.686721] Call Trace:
+[  160.687310]  dump_stack_lvl+0x56/0x6f
+[  160.688169]  ? dlm_user_add_ast+0xc3/0x370
+[  160.689116]  kasan_report.cold.14+0x116/0x11b
+[  160.690138]  ? dlm_user_add_ast+0xc3/0x370
+[  160.690832]  dlm_user_add_ast+0xc3/0x370
+[  160.691502]  _receive_unlock_reply+0x103/0x170
+[  160.692241]  _receive_message+0x11df/0x1ec0
+[  160.692926]  ? rcu_read_lock_sched_held+0xa1/0xd0
+[  160.693700]  ? rcu_read_lock_bh_held+0xb0/0xb0
+[  160.694427]  ? lock_acquire+0x175/0x400
+[  160.695058]  ? do_purge.isra.51+0x200/0x200
+[  160.695744]  ? lock_acquired+0x360/0x5d0
+[  160.696400]  ? lock_contended+0x6a0/0x6a0
+[  160.697055]  ? lock_release+0x21d/0x5e0
+[  160.697686]  ? lock_is_held_type+0xe0/0x110
+[  160.698352]  ? lock_is_held_type+0xe0/0x110
+[  160.699026]  ? ___might_sleep+0x1cc/0x1e0
+[  160.699698]  ? dlm_wait_requestqueue+0x94/0x140
+[  160.700451]  ? dlm_process_requestqueue+0x240/0x240
+[  160.701249]  ? down_write_killable+0x2b0/0x2b0
+[  160.701988]  ? do_raw_spin_unlock+0xa2/0x130
+[  160.702690]  dlm_receive_buffer+0x1a5/0x210
+[  160.703385]  dlm_process_incoming_buffer+0x726/0x9f0
+[  160.704210]  receive_from_sock+0x1c0/0x3b0
+[  160.704886]  ? dlm_tcp_shutdown+0x30/0x30
+[  160.705561]  ? lock_acquire+0x175/0x400
+[  160.706197]  ? rcu_read_lock_sched_held+0xa1/0xd0
+[  160.706941]  ? rcu_read_lock_bh_held+0xb0/0xb0
+[  160.707681]  process_recv_sockets+0x32/0x40
+[  160.708366]  process_one_work+0x55e/0xad0
+[  160.709045]  ? pwq_dec_nr_in_flight+0x110/0x110
+[  160.709820]  worker_thread+0x65/0x5e0
+[  160.710423]  ? process_one_work+0xad0/0xad0
+[  160.711087]  kthread+0x1ed/0x220
+[  160.711628]  ? set_kthread_struct+0x80/0x80
+[  160.712314]  ret_from_fork+0x22/0x30
 
-[11176.741181]  dump_stack+0x10/0x12
-[11176.741186] __lock_acquire.cold+0x208/0x2df
-[11176.741197]  lock_acquire+0xc6/0x2d0
-[11176.741204]  ? dma_fence_signal+0x28/0x80
-[11176.741212] _raw_spin_lock_irqsave+0x4d/0x70
-[11176.741219]  ? dma_fence_signal+0x28/0x80
-[11176.741225]  dma_fence_signal+0x28/0x80
-[11176.741230] drm_sched_fence_finished+0x12/0x20 [gpu_sched]
-[11176.741240] drm_sched_entity_kill_jobs_cb+0x1c/0x50 [gpu_sched]
-[11176.741248] dma_fence_signal_timestamp_locked+0xac/0x1a0
-[11176.741254]  dma_fence_signal+0x3b/0x80
-[11176.741260] drm_sched_fence_finished+0x12/0x20 [gpu_sched]
-[11176.741268] drm_sched_job_done.isra.0+0x7f/0x1a0 [gpu_sched]
-[11176.741277] drm_sched_job_done_cb+0x12/0x20 [gpu_sched]
-[11176.741284] dma_fence_signal_timestamp_locked+0xac/0x1a0
-[11176.741290]  dma_fence_signal+0x3b/0x80
-[11176.741296] amdgpu_fence_process+0xd1/0x140 [amdgpu]
-[11176.741504] sdma_v4_0_process_trap_irq+0x8c/0xb0 [amdgpu]
-[11176.741731]  amdgpu_irq_dispatch+0xce/0x250 [amdgpu]
-[11176.741954]  amdgpu_ih_process+0x81/0x100 [amdgpu]
-[11176.742174]  amdgpu_irq_handler+0x26/0xa0 [amdgpu]
-[11176.742393] __handle_irq_event_percpu+0x4f/0x2c0
-[11176.742402] handle_irq_event_percpu+0x33/0x80
-[11176.742408]  handle_irq_event+0x39/0x60
-[11176.742414]  handle_edge_irq+0x93/0x1d0
-[11176.742419]  __common_interrupt+0x50/0xe0
-[11176.742426]  common_interrupt+0x80/0x90
+The issue is that we received a DLM message for a user lock but the
+destination lock is a kernel lock. Note that the address which is trying
+to derefence is 00000000deadbeef, which is in a kernel lock
+lkb->lkb_astparam, this field should never be derefenced by the DLM
+kernel stack. In case of a user lock lkb->lkb_astparam is lkb->lkb_ua
+(memory is shared by a union field). The struct lkb_ua will be handled
+by the DLM kernel stack but on a kernel lock it will contain invalid
+data and ends in most likely crashing the kernel.
 
-Signed-off-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
-Suggested-by: Daniel Vetter  <daniel.vetter@ffwll.ch>
-Suggested-by: Christian König <christian.koenig@amd.com>
-Tested-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Link: https://www.spinics.net/lists/dri-devel/msg321250.html
+It can be reproduced with two cluster nodes.
+
+node 2:
+dlm_tool join test
+echo "862 fooobaar 1 2 1" > /sys/kernel/debug/dlm/test_locks
+echo "862 3 1" > /sys/kernel/debug/dlm/test_waiters
+
+node 1:
+dlm_tool join test
+
+python:
+foo = DLM(h_cmd=3, o_nextcmd=1, h_nodeid=1, h_lockspace=0x77222027, \
+          m_type=7, m_flags=0x1, m_remid=0x862, m_result=0xFFFEFFFE)
+newFile = open("/sys/kernel/debug/dlm/comms/2/rawmsg", "wb")
+newFile.write(bytes(foo))
+
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/scheduler/sched_entity.c | 15 ++++++++++++---
- include/drm/gpu_scheduler.h              | 12 +++++++++++-
- 2 files changed, 23 insertions(+), 4 deletions(-)
+ fs/dlm/lock.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/gpu/drm/scheduler/sched_entity.c b/drivers/gpu/drm/scheduler/sched_entity.c
-index 27e1573af96e2..191c56064f196 100644
---- a/drivers/gpu/drm/scheduler/sched_entity.c
-+++ b/drivers/gpu/drm/scheduler/sched_entity.c
-@@ -190,6 +190,16 @@ long drm_sched_entity_flush(struct drm_sched_entity *entity, long timeout)
- }
- EXPORT_SYMBOL(drm_sched_entity_flush);
+diff --git a/fs/dlm/lock.c b/fs/dlm/lock.c
+index c502c065d0075..28d1f35b11a4d 100644
+--- a/fs/dlm/lock.c
++++ b/fs/dlm/lock.c
+@@ -3973,6 +3973,14 @@ static int validate_message(struct dlm_lkb *lkb, struct dlm_message *ms)
+ 	int from = ms->m_header.h_nodeid;
+ 	int error = 0;
  
-+static void drm_sched_entity_kill_jobs_irq_work(struct irq_work *wrk)
-+{
-+	struct drm_sched_job *job = container_of(wrk, typeof(*job), work);
++	/* currently mixing of user/kernel locks are not supported */
++	if (ms->m_flags & DLM_IFL_USER && ~lkb->lkb_flags & DLM_IFL_USER) {
++		log_error(lkb->lkb_resource->res_ls,
++			  "got user dlm message for a kernel lock");
++		error = -EINVAL;
++		goto out;
++	}
 +
-+	drm_sched_fence_finished(job->s_fence);
-+	WARN_ON(job->s_fence->parent);
-+	job->sched->ops->free_job(job);
-+}
-+
-+
- /* Signal the scheduler finished fence when the entity in question is killed. */
- static void drm_sched_entity_kill_jobs_cb(struct dma_fence *f,
- 					  struct dma_fence_cb *cb)
-@@ -197,9 +207,8 @@ static void drm_sched_entity_kill_jobs_cb(struct dma_fence *f,
- 	struct drm_sched_job *job = container_of(cb, struct drm_sched_job,
- 						 finish_cb);
+ 	switch (ms->m_type) {
+ 	case DLM_MSG_CONVERT:
+ 	case DLM_MSG_UNLOCK:
+@@ -4001,6 +4009,7 @@ static int validate_message(struct dlm_lkb *lkb, struct dlm_message *ms)
+ 		error = -EINVAL;
+ 	}
  
--	drm_sched_fence_finished(job->s_fence);
--	WARN_ON(job->s_fence->parent);
--	job->sched->ops->free_job(job);
-+	init_irq_work(&job->work, drm_sched_entity_kill_jobs_irq_work);
-+	irq_work_queue(&job->work);
- }
- 
- static struct dma_fence *
-diff --git a/include/drm/gpu_scheduler.h b/include/drm/gpu_scheduler.h
-index f011e4c407f2e..bbc22fad8d802 100644
---- a/include/drm/gpu_scheduler.h
-+++ b/include/drm/gpu_scheduler.h
-@@ -28,6 +28,7 @@
- #include <linux/dma-fence.h>
- #include <linux/completion.h>
- #include <linux/xarray.h>
-+#include <linux/irq_work.h>
- 
- #define MAX_WAIT_SCHED_ENTITY_Q_EMPTY msecs_to_jiffies(1000)
- 
-@@ -286,7 +287,16 @@ struct drm_sched_job {
- 	struct list_head		list;
- 	struct drm_gpu_scheduler	*sched;
- 	struct drm_sched_fence		*s_fence;
--	struct dma_fence_cb		finish_cb;
-+
-+	/*
-+	 * work is used only after finish_cb has been used and will not be
-+	 * accessed anymore.
-+	 */
-+	union {
-+		struct dma_fence_cb		finish_cb;
-+		struct irq_work 		work;
-+	};
-+
- 	uint64_t			id;
- 	atomic_t			karma;
- 	enum drm_sched_priority		s_priority;
++out:
+ 	if (error)
+ 		log_error(lkb->lkb_resource->res_ls,
+ 			  "ignore invalid message %d from %d %x %x %x %d",
 -- 
 2.34.1
 
