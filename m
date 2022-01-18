@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5F4C492A5A
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:10:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6119B492A7D
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:10:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346504AbiARQJU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 11:09:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51152 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346507AbiARQIe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:08:34 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC4EEC061774;
-        Tue, 18 Jan 2022 08:08:28 -0800 (PST)
+        id S1346443AbiARQKh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 11:10:37 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:39986 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346571AbiARQI6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:08:58 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 258E0CE1A3C;
-        Tue, 18 Jan 2022 16:08:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC3F3C36AEB;
-        Tue, 18 Jan 2022 16:08:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DDA3612E6;
+        Tue, 18 Jan 2022 16:08:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54F73C00446;
+        Tue, 18 Jan 2022 16:08:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642522105;
-        bh=gvUxZARKEA7blLGcXUCH0UzgL0xjrlfD3qlywtFqa+0=;
+        s=korg; t=1642522137;
+        bh=euUqpoJamjbQtoMt2wX7hkoWVdt15chwwxCFqoDKJu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g5uqvC1wowmUlK9JL/XBMYwn3RVk8UiybRdg/PFYacAi9xEri1DKdX5Q7qCWRdW0a
-         XuvW3S+/4+HgTQQHGqHMO53pIn8q/2iMUMLyRGMNFlLt91iXCF7jehCaZQAoEc+qyP
-         Z6b4MqtKNr9BHL9j4657oLkcC8Zi0sCSCrJXrr+U=
+        b=a49Tm78YYe/MTS4ZliiZzAqt3P+UWGqSN0abUedYuEfpZynsNNL4g2RRIvPM/BECc
+         4Rn8E07JYEWXt7jNauZcqLoV6fIP3yD8gKwb8Nh4SO8/pFffiSNS2/PU4mdiNS4y4b
+         euNH2kF+j3T6V3c8Rph+hw8A3Iew/Jzw1mzmWEXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Van Hensbergen <ericvh@gmail.com>,
-        Latchesar Ionkov <lucho@ionkov.net>,
-        Dominique Martinet <asmadeus@codewreck.org>, stable@kernel.org,
-        v9fs-developer@lists.sourceforge.net,
-        syzbot+dfac92a50024b54acaa4@syzkaller.appspotmail.com,
-        Christian Brauner <christian.brauner@ubuntu.com>
-Subject: [PATCH 5.10 09/23] 9p: only copy valid iattrs in 9P2000.L setattr implementation
-Date:   Tue, 18 Jan 2022 17:05:49 +0100
-Message-Id: <20220118160451.552456292@linuxfoundation.org>
+        stable@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 5.15 04/28] remoteproc: qcom: pil_info: Dont memcpy_toio more than is provided
+Date:   Tue, 18 Jan 2022 17:05:50 +0100
+Message-Id: <20220118160452.025245220@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220118160451.233828401@linuxfoundation.org>
-References: <20220118160451.233828401@linuxfoundation.org>
+In-Reply-To: <20220118160451.879092022@linuxfoundation.org>
+References: <20220118160451.879092022@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,79 +44,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Brauner <christian.brauner@ubuntu.com>
+From: Stephen Boyd <swboyd@chromium.org>
 
-commit 3cb6ee991496b67ee284c6895a0ba007e2d7bac3 upstream.
+commit fdc12231d885119cc2e2b4f3e0fbba3155f37a56 upstream.
 
-The 9P2000.L setattr method v9fs_vfs_setattr_dotl() copies struct iattr
-values without checking whether they are valid causing unitialized
-values to be copied. The 9P2000 setattr method v9fs_vfs_setattr() method
-gets this right. Check whether struct iattr fields are valid first
-before copying in v9fs_vfs_setattr_dotl() too and make sure that all
-other fields are set to 0 apart from {g,u}id which should be set to
-INVALID_{G,U}ID. This ensure that they can be safely sent over the wire
-or printed for debugging later on.
+If the string passed into qcom_pil_info_store() isn't as long as
+PIL_RELOC_NAME_LEN we'll try to copy the string assuming the length is
+PIL_RELOC_NAME_LEN to the io space and go beyond the bounds of the
+string. Let's only copy as many byes as the string is long, ignoring the
+NUL terminator.
 
-Link: https://lkml.kernel.org/r/20211129114434.3637938-1-brauner@kernel.org
-Link: https://lkml.kernel.org/r/000000000000a0d53f05d1c72a4c%40google.com
-Cc: Eric Van Hensbergen <ericvh@gmail.com>
-Cc: Latchesar Ionkov <lucho@ionkov.net>
-Cc: Dominique Martinet <asmadeus@codewreck.org>
-Cc: stable@kernel.org
-Cc: v9fs-developer@lists.sourceforge.net
-Reported-by: syzbot+dfac92a50024b54acaa4@syzkaller.appspotmail.com
-Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
-[Dominique: do not set a/mtime with just ATTR_A/MTIME as discussed]
-Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
+This fixes the following KASAN error:
+
+ BUG: KASAN: global-out-of-bounds in __memcpy_toio+0x124/0x140
+ Read of size 1 at addr ffffffd35086e386 by task rmtfs/2392
+
+ CPU: 2 PID: 2392 Comm: rmtfs Tainted: G        W         5.16.0-rc1-lockdep+ #10
+ Hardware name: Google Lazor (rev3+) with KB Backlight (DT)
+ Call trace:
+  dump_backtrace+0x0/0x410
+  show_stack+0x24/0x30
+  dump_stack_lvl+0x7c/0xa0
+  print_address_description+0x78/0x2bc
+  kasan_report+0x160/0x1a0
+  __asan_report_load1_noabort+0x44/0x50
+  __memcpy_toio+0x124/0x140
+  qcom_pil_info_store+0x298/0x358 [qcom_pil_info]
+  q6v5_start+0xdf0/0x12e0 [qcom_q6v5_mss]
+  rproc_start+0x178/0x3a0
+  rproc_boot+0x5f0/0xb90
+  state_store+0x78/0x1bc
+  dev_attr_store+0x70/0x90
+  sysfs_kf_write+0xf4/0x118
+  kernfs_fop_write_iter+0x208/0x300
+  vfs_write+0x55c/0x804
+  ksys_pwrite64+0xc8/0x134
+  __arm64_compat_sys_aarch32_pwrite64+0xc4/0xdc
+  invoke_syscall+0x78/0x20c
+  el0_svc_common+0x11c/0x1f0
+  do_el0_svc_compat+0x50/0x60
+  el0_svc_compat+0x5c/0xec
+  el0t_32_sync_handler+0xc0/0xf0
+  el0t_32_sync+0x1a4/0x1a8
+
+ The buggy address belongs to the variable:
+  .str.59+0x6/0xffffffffffffec80 [qcom_q6v5_mss]
+
+ Memory state around the buggy address:
+  ffffffd35086e280: 00 00 00 00 02 f9 f9 f9 f9 f9 f9 f9 00 00 00 00
+  ffffffd35086e300: 00 02 f9 f9 f9 f9 f9 f9 00 00 00 06 f9 f9 f9 f9
+ >ffffffd35086e380: 06 f9 f9 f9 05 f9 f9 f9 00 00 00 00 00 06 f9 f9
+                    ^
+  ffffffd35086e400: f9 f9 f9 f9 01 f9 f9 f9 04 f9 f9 f9 00 00 01 f9
+  ffffffd35086e480: f9 f9 f9 f9 00 00 00 00 00 00 00 01 f9 f9 f9 f9
+
+Fixes: 549b67da660d ("remoteproc: qcom: Introduce helper to store pil info in IMEM")
+Signed-off-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20211117065454.4142936-1-swboyd@chromium.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/9p/vfs_inode_dotl.c |   29 ++++++++++++++++++++---------
- 1 file changed, 20 insertions(+), 9 deletions(-)
+ drivers/remoteproc/qcom_pil_info.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/9p/vfs_inode_dotl.c
-+++ b/fs/9p/vfs_inode_dotl.c
-@@ -541,7 +541,10 @@ int v9fs_vfs_setattr_dotl(struct dentry
- {
- 	int retval;
- 	struct p9_fid *fid = NULL;
--	struct p9_iattr_dotl p9attr;
-+	struct p9_iattr_dotl p9attr = {
-+		.uid = INVALID_UID,
-+		.gid = INVALID_GID,
-+	};
- 	struct inode *inode = d_inode(dentry);
+--- a/drivers/remoteproc/qcom_pil_info.c
++++ b/drivers/remoteproc/qcom_pil_info.c
+@@ -104,7 +104,7 @@ int qcom_pil_info_store(const char *imag
+ 	return -ENOMEM;
  
- 	p9_debug(P9_DEBUG_VFS, "\n");
-@@ -551,14 +554,22 @@ int v9fs_vfs_setattr_dotl(struct dentry
- 		return retval;
- 
- 	p9attr.valid = v9fs_mapped_iattr_valid(iattr->ia_valid);
--	p9attr.mode = iattr->ia_mode;
--	p9attr.uid = iattr->ia_uid;
--	p9attr.gid = iattr->ia_gid;
--	p9attr.size = iattr->ia_size;
--	p9attr.atime_sec = iattr->ia_atime.tv_sec;
--	p9attr.atime_nsec = iattr->ia_atime.tv_nsec;
--	p9attr.mtime_sec = iattr->ia_mtime.tv_sec;
--	p9attr.mtime_nsec = iattr->ia_mtime.tv_nsec;
-+	if (iattr->ia_valid & ATTR_MODE)
-+		p9attr.mode = iattr->ia_mode;
-+	if (iattr->ia_valid & ATTR_UID)
-+		p9attr.uid = iattr->ia_uid;
-+	if (iattr->ia_valid & ATTR_GID)
-+		p9attr.gid = iattr->ia_gid;
-+	if (iattr->ia_valid & ATTR_SIZE)
-+		p9attr.size = iattr->ia_size;
-+	if (iattr->ia_valid & ATTR_ATIME_SET) {
-+		p9attr.atime_sec = iattr->ia_atime.tv_sec;
-+		p9attr.atime_nsec = iattr->ia_atime.tv_nsec;
-+	}
-+	if (iattr->ia_valid & ATTR_MTIME_SET) {
-+		p9attr.mtime_sec = iattr->ia_mtime.tv_sec;
-+		p9attr.mtime_nsec = iattr->ia_mtime.tv_nsec;
-+	}
- 
- 	if (iattr->ia_valid & ATTR_FILE) {
- 		fid = iattr->ia_file->private_data;
+ found_unused:
+-	memcpy_toio(entry, image, PIL_RELOC_NAME_LEN);
++	memcpy_toio(entry, image, strnlen(image, PIL_RELOC_NAME_LEN));
+ found_existing:
+ 	/* Use two writel() as base is only aligned to 4 bytes on odd entries */
+ 	writel(base, entry + PIL_RELOC_NAME_LEN);
 
 
