@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66810492A62
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:10:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62CC1492A6F
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:10:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346730AbiARQJr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 11:09:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51540 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346739AbiARQIm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:08:42 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EFE4C061760;
-        Tue, 18 Jan 2022 08:08:41 -0800 (PST)
+        id S1346604AbiARQJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 11:09:56 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:40222 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346983AbiARQJM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:09:12 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1B70FCE1A45;
-        Tue, 18 Jan 2022 16:08:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C471CC36AF3;
-        Tue, 18 Jan 2022 16:08:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 95BBA612E7;
+        Tue, 18 Jan 2022 16:09:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B42AC00446;
+        Tue, 18 Jan 2022 16:09:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642522118;
-        bh=9OtNLgBZCevG6a5ICRwisDy1q+BlBNTtwsIeLoU+79w=;
+        s=korg; t=1642522151;
+        bh=eP1FHXkJaS1vfmICRdpSwWEOAQrgMPNvDtNQR6vgBrs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0tJiT5fIDJhVF9B4aGOghOjzOOzgs7uVH9NVxRFEvfqX6Lh5lfSSneME4sZFycwgR
-         bZlJcdPjxf95nxsK737PN/q+sBpdYvBQ/dcH6AUKEYSEM/tTuSyesGJqme3ozZo+pE
-         4tiFHir94IQwlWaGuwDNyjma//M9QeMwAH9mO/o8=
+        b=FQfmTck7EpzXW5cm/w41nXtpAGDjlf5yqmCIkt5wMeQUpGHL9OXytamwvC5kxEVn6
+         TGo+VS/ZhDCZ3iGrJzrxRu+2spk1RXN81QwffvH0+Dnpka0/S1QMSfApyMt+YQuQHe
+         Kz3BMtjai2yYfFPWx8Y41Mz+VUQKi0Rl82oSlDkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gabriel Somlo <somlo@cmu.edu>,
-        Johan Hovold <johan@kernel.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 5.10 13/23] firmware: qemu_fw_cfg: fix sysfs information leak
-Date:   Tue, 18 Jan 2022 17:05:53 +0100
-Message-Id: <20220118160451.683176709@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Artem Kashkanov <artem.kashkanov@intel.com>,
+        Sean Christopherson <seanjc@google.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 08/28] KVM: x86: Register Processor Trace interrupt hook iff PT enabled in guest
+Date:   Tue, 18 Jan 2022 17:05:54 +0100
+Message-Id: <20220118160452.156025146@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220118160451.233828401@linuxfoundation.org>
-References: <20220118160451.233828401@linuxfoundation.org>
+In-Reply-To: <20220118160451.879092022@linuxfoundation.org>
+References: <20220118160451.879092022@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,35 +48,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 1b656e9aad7f4886ed466094d1dc5ee4dd900d20 upstream.
+commit f4b027c5c8199abd4fb6f00d67d380548dbfdfa8 upstream.
 
-Make sure to always NUL-terminate file names retrieved from the firmware
-to avoid accessing data beyond the entry slab buffer and exposing it
-through sysfs in case the firmware data is corrupt.
+Override the Processor Trace (PT) interrupt handler for guest mode if and
+only if PT is configured for host+guest mode, i.e. is being used
+independently by both host and guest.  If PT is configured for system
+mode, the host fully controls PT and must handle all events.
 
-Fixes: 75f3e8e47f38 ("firmware: introduce sysfs driver for QEMU's fw_cfg device")
-Cc: stable@vger.kernel.org      # 4.6
-Cc: Gabriel Somlo <somlo@cmu.edu>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211201132528.30025-4-johan@kernel.org
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Fixes: 8479e04e7d6b ("KVM: x86: Inject PMI for KVM guest")
+Reported-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Reported-by: Artem Kashkanov <artem.kashkanov@intel.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20211111020738.2512932-4-seanjc@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/qemu_fw_cfg.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/kvm_host.h |    1 +
+ arch/x86/kvm/vmx/vmx.c          |    1 +
+ arch/x86/kvm/x86.c              |    5 ++++-
+ 3 files changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/firmware/qemu_fw_cfg.c
-+++ b/drivers/firmware/qemu_fw_cfg.c
-@@ -601,7 +601,7 @@ static int fw_cfg_register_file(const st
- 	/* set file entry information */
- 	entry->size = be32_to_cpu(f->size);
- 	entry->select = be16_to_cpu(f->select);
--	memcpy(entry->name, f->name, FW_CFG_MAX_FILE_PATH);
-+	strscpy(entry->name, f->name, FW_CFG_MAX_FILE_PATH);
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1509,6 +1509,7 @@ struct kvm_x86_init_ops {
+ 	int (*disabled_by_bios)(void);
+ 	int (*check_processor_compatibility)(void);
+ 	int (*hardware_setup)(void);
++	bool (*intel_pt_intr_in_guest)(void);
  
- 	/* register entry under "/sys/firmware/qemu_fw_cfg/by_key/" */
- 	err = kobject_init_and_add(&entry->kobj, &fw_cfg_sysfs_entry_ktype,
+ 	struct kvm_x86_ops *runtime_ops;
+ };
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -7899,6 +7899,7 @@ static struct kvm_x86_init_ops vmx_init_
+ 	.disabled_by_bios = vmx_disabled_by_bios,
+ 	.check_processor_compatibility = vmx_check_processor_compat,
+ 	.hardware_setup = hardware_setup,
++	.intel_pt_intr_in_guest = vmx_pt_mode_is_host_guest,
+ 
+ 	.runtime_ops = &vmx_x86_ops,
+ };
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -8430,7 +8430,7 @@ static struct perf_guest_info_callbacks
+ 	.is_in_guest		= kvm_is_in_guest,
+ 	.is_user_mode		= kvm_is_user_mode,
+ 	.get_guest_ip		= kvm_get_guest_ip,
+-	.handle_intel_pt_intr	= kvm_handle_intel_pt_intr,
++	.handle_intel_pt_intr	= NULL,
+ };
+ 
+ #ifdef CONFIG_X86_64
+@@ -11183,6 +11183,8 @@ int kvm_arch_hardware_setup(void *opaque
+ 	memcpy(&kvm_x86_ops, ops->runtime_ops, sizeof(kvm_x86_ops));
+ 	kvm_ops_static_call_update();
+ 
++	if (ops->intel_pt_intr_in_guest && ops->intel_pt_intr_in_guest())
++		kvm_guest_cbs.handle_intel_pt_intr = kvm_handle_intel_pt_intr;
+ 	perf_register_guest_info_callbacks(&kvm_guest_cbs);
+ 
+ 	if (!kvm_cpu_cap_has(X86_FEATURE_XSAVES))
+@@ -11213,6 +11215,7 @@ int kvm_arch_hardware_setup(void *opaque
+ void kvm_arch_hardware_unsetup(void)
+ {
+ 	perf_unregister_guest_info_callbacks(&kvm_guest_cbs);
++	kvm_guest_cbs.handle_intel_pt_intr = NULL;
+ 
+ 	static_call(kvm_x86_hardware_unsetup)();
+ }
 
 
