@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4218B492A42
+	by mail.lfdr.de (Postfix) with ESMTP id D6486492A44
 	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:08:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346725AbiARQIl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 11:08:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51402 "EHLO
+        id S1346732AbiARQIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 11:08:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346414AbiARQIR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:08:17 -0500
+        with ESMTP id S1346544AbiARQIW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:08:22 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BFFDC061762;
-        Tue, 18 Jan 2022 08:07:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2E0BC061746;
+        Tue, 18 Jan 2022 08:07:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B49C612D5;
-        Tue, 18 Jan 2022 16:07:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF47DC00446;
-        Tue, 18 Jan 2022 16:07:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 43186612C2;
+        Tue, 18 Jan 2022 16:07:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DF4BC00446;
+        Tue, 18 Jan 2022 16:07:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642522070;
-        bh=UYYUMo1mUrFFL/7scIcn9NFrEorA5XJbOgmC+sLMyaE=;
+        s=korg; t=1642522073;
+        bh=vdM6Cy9srToZDLQmdI33WSW2Po2CA/CbILXi6A19DZw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fxjLqzUvvDnkXU2+Yn6yAA+bnu34tE3u9Jd58wRIYXACjzCtLKz/X3GhoyGqEDoKS
-         ZHP5As6iObcwf4wTjM6ygAVgpquDaZ9p48r/Er7fgvWaR3IFfsbZ+YN4wrvrTTuOg1
-         iCx5M0YnCgIk8Scjte6zhTVR8Obg+0swee/3d7eo=
+        b=nryPrbr6H5gCLEAUa9B4itOKgzNeN3bvMcL55ulukliepjZT3T4avb/77Boc86wqA
+         6ttOSZ3s6jLYedO/x5F2BA8/SDno7gK5gi7Eg3aVnrWWb+xkJaXgelIV5kLqnbrGVv
+         9nCTrkCmS9Vi314MBZQe9zcCX3HoGbHQ01/m8oS0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gabriel Somlo <somlo@cmu.edu>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 15/23] firmware: qemu_fw_cfg: fix kobject leak in probe error path
-Date:   Tue, 18 Jan 2022 17:05:55 +0100
-Message-Id: <20220118160451.753639278@linuxfoundation.org>
+        stable@vger.kernel.org, Wei Wang <wei.w.wang@intel.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 16/23] KVM: x86: remove PMU FIXED_CTR3 from msrs_to_save_all
+Date:   Tue, 18 Jan 2022 17:05:56 +0100
+Message-Id: <20220118160451.790880694@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118160451.233828401@linuxfoundation.org>
 References: <20220118160451.233828401@linuxfoundation.org>
@@ -47,67 +47,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Wei Wang <wei.w.wang@intel.com>
 
-commit 47a1db8e797da01a1309bf42e0c0d771d4e4d4f3 upstream.
+commit 9fb12fe5b93b94b9e607509ba461e17f4cc6a264 upstream.
 
-An initialised kobject must be freed using kobject_put() to avoid
-leaking associated resources (e.g. the object name).
+The fixed counter 3 is used for the Topdown metrics, which hasn't been
+enabled for KVM guests. Userspace accessing to it will fail as it's not
+included in get_fixed_pmc(). This breaks KVM selftests on ICX+ machines,
+which have this counter.
 
-Commit fe3c60684377 ("firmware: Fix a reference count leak.") "fixed"
-the leak in the first error path of the file registration helper but
-left the second one unchanged. This "fix" would however result in a NULL
-pointer dereference due to the release function also removing the never
-added entry from the fw_cfg_entry_cache list. This has now been
-addressed.
+To reproduce it on ICX+ machines, ./state_test reports:
+==== Test Assertion Failure ====
+lib/x86_64/processor.c:1078: r == nmsrs
+pid=4564 tid=4564 - Argument list too long
+1  0x000000000040b1b9: vcpu_save_state at processor.c:1077
+2  0x0000000000402478: main at state_test.c:209 (discriminator 6)
+3  0x00007fbe21ed5f92: ?? ??:0
+4  0x000000000040264d: _start at ??:?
+ Unexpected result from KVM_GET_MSRS, r: 17 (failed MSR was 0x30c)
 
-Fix the remaining kobject leak by restoring the common error path and
-adding the missing kobject_put().
+With this patch, it works well.
 
-Fixes: 75f3e8e47f38 ("firmware: introduce sysfs driver for QEMU's fw_cfg device")
-Cc: stable@vger.kernel.org      # 4.6
-Cc: Gabriel Somlo <somlo@cmu.edu>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211201132528.30025-3-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+Message-Id: <20211217124934.32893-1-wei.w.wang@intel.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: e2ada66ec418 ("kvm: x86: Add Intel PMU MSRs to msrs_to_save[]")
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/qemu_fw_cfg.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ arch/x86/kvm/x86.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/firmware/qemu_fw_cfg.c
-+++ b/drivers/firmware/qemu_fw_cfg.c
-@@ -603,15 +603,13 @@ static int fw_cfg_register_file(const st
- 	/* register entry under "/sys/firmware/qemu_fw_cfg/by_key/" */
- 	err = kobject_init_and_add(&entry->kobj, &fw_cfg_sysfs_entry_ktype,
- 				   fw_cfg_sel_ko, "%d", entry->select);
--	if (err) {
--		kobject_put(&entry->kobj);
--		return err;
--	}
-+	if (err)
-+		goto err_put_entry;
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -1229,7 +1229,7 @@ static const u32 msrs_to_save_all[] = {
+ 	MSR_IA32_UMWAIT_CONTROL,
  
- 	/* add raw binary content access */
- 	err = sysfs_create_bin_file(&entry->kobj, &fw_cfg_sysfs_attr_raw);
- 	if (err)
--		goto err_add_raw;
-+		goto err_del_entry;
- 
- 	/* try adding "/sys/firmware/qemu_fw_cfg/by_name/" symlink */
- 	fw_cfg_build_symlink(fw_cfg_fname_kset, &entry->kobj, entry->name);
-@@ -620,9 +618,10 @@ static int fw_cfg_register_file(const st
- 	fw_cfg_sysfs_cache_enlist(entry);
- 	return 0;
- 
--err_add_raw:
-+err_del_entry:
- 	kobject_del(&entry->kobj);
--	kfree(entry);
-+err_put_entry:
-+	kobject_put(&entry->kobj);
- 	return err;
- }
- 
+ 	MSR_ARCH_PERFMON_FIXED_CTR0, MSR_ARCH_PERFMON_FIXED_CTR1,
+-	MSR_ARCH_PERFMON_FIXED_CTR0 + 2, MSR_ARCH_PERFMON_FIXED_CTR0 + 3,
++	MSR_ARCH_PERFMON_FIXED_CTR0 + 2,
+ 	MSR_CORE_PERF_FIXED_CTR_CTRL, MSR_CORE_PERF_GLOBAL_STATUS,
+ 	MSR_CORE_PERF_GLOBAL_CTRL, MSR_CORE_PERF_GLOBAL_OVF_CTRL,
+ 	MSR_ARCH_PERFMON_PERFCTR0, MSR_ARCH_PERFMON_PERFCTR1,
 
 
