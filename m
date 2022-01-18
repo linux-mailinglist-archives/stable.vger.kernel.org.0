@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3374C49141B
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:20:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1019F491426
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:20:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244489AbiARCUH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:20:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56392 "EHLO
+        id S244488AbiARCUS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:20:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244361AbiARCUA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:20:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C61A8C061574;
-        Mon, 17 Jan 2022 18:19:59 -0800 (PST)
+        with ESMTP id S244483AbiARCUG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:20:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 449F1C06174E;
+        Mon, 17 Jan 2022 18:20:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 63643612CF;
+        by ams.source.kernel.org (Postfix) with ESMTPS id EC825B81233;
+        Tue, 18 Jan 2022 02:20:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C6CFC36AE3;
         Tue, 18 Jan 2022 02:19:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB938C36AF2;
-        Tue, 18 Jan 2022 02:19:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642472398;
-        bh=KHJX1CBivhLoDwFSvdl5GVShspbncmIWqtKSQBbrEYo=;
+        s=k20201202; t=1642472400;
+        bh=RCAXm/IjT3B6yE8K0IDp6JIGWscVB0c2c/ZLJ90b314=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YlEGAf6kl2fq43DOFQJsApfFj2OcaZBizmh8xVv81gzYsfndo4pK0ieDZ7CvRPXBO
-         913etGF93KD8uv4AKUtkwU4xAp4vnnaMBH+KZiVHAG+64C9/AtD4z+nqgR4FglwCSx
-         EY3kBcECa5Ny0ObmgEw8ndkt0KG7rKJ/LTjERESGItTI/R+Sc0FzPeZF1uOSkytzpv
-         F19e2WdDEkdPmDozf37H9bwFrPi1hxMYV3ypR/uctQAjpQPT4Tjzx1soX6owx7Ykvt
-         j0D/GPf2SCSlnrfEWaamZ5X9q/4ObHaG4eu8yti74UeUp1bAYi7M77KaifsZoMPiI8
-         /zRasjYXNvOCw==
+        b=Dw1CEwFR2ddLfnn+SpKOCWEaGUgHO65Wr9fQgpsXZ2ek9NQfVytQpwROpffnzi+BD
+         RVaS84tXwNjCaDqrxfHiI2YkmklDCy9kb97/FktUjYcq5ZQqqvfyyRIts3f6cO2N6J
+         zGwEfz00jI17jqTeh5DxEb680gxMbiqK0A8uuiumKhOwmi6ZjMVX9qA2ToMlGo2u2P
+         RYpogKJR7UTFKEzo/3XlVwS++t5fLyfyBu4FkkgpNpRtZXg66IdCGbs+OGTQrMlHhp
+         Hw2rWi2tR0aW51Tv1rrz4F3Yo7ymd6PB2YDooTSTBItvV8KpiHly6GrJ26ozL4j8/2
+         tNkrMw21QGIPw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Qiang Yu <yuq825@gmail.com>,
-        Vasily Khoruzhick <anarsoul@gmail.com>,
-        Roman Stratiienko <r.stratiienko@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, airlied@linux.ie,
-        daniel@ffwll.ch, dri-devel@lists.freedesktop.org,
-        lima@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.16 011/217] drm/lima: fix warning when CONFIG_DEBUG_SG=y & CONFIG_DMA_API_DEBUG=y
-Date:   Mon, 17 Jan 2022 21:16:14 -0500
-Message-Id: <20220118021940.1942199-11-sashal@kernel.org>
+Cc:     Andrii Nakryiko <andrii@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Hengqi Chen <hengqi.chen@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
+        daniel@iogearbox.net, linux-kselftest@vger.kernel.org,
+        netdev@vger.kernel.org, bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 012/217] selftests/bpf: Fix memory leaks in btf_type_c_dump() helper
+Date:   Mon, 17 Jan 2022 21:16:15 -0500
+Message-Id: <20220118021940.1942199-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118021940.1942199-1-sashal@kernel.org>
 References: <20220118021940.1942199-1-sashal@kernel.org>
@@ -53,37 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiang Yu <yuq825@gmail.com>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit 89636a06fa2ee7826a19c39c19a9bc99ab9340a9 ]
+[ Upstream commit 8ba285874913da21ca39a46376e9cc5ce0f45f94 ]
 
-Otherwise get following warning:
+Free up memory and resources used by temporary allocated memstream and
+btf_dump instance.
 
-DMA-API: lima 1c40000.gpu: mapping sg segment longer than device claims to support [len=4149248] [max=65536]
-
-See: https://gitlab.freedesktop.org/mesa/mesa/-/issues/5496
-
-Reviewed-by: Vasily Khoruzhick <anarsoul@gmail.com>
-Reported-by: Roman Stratiienko <r.stratiienko@gmail.com>
-Signed-off-by: Qiang Yu <yuq825@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211031041604.187216-1-yuq825@gmail.com
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Reviewed-by: Hengqi Chen <hengqi.chen@gmail.com>
+Link: https://lore.kernel.org/bpf/20211107165521.9240-4-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/lima/lima_device.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/testing/selftests/bpf/btf_helpers.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/lima/lima_device.c b/drivers/gpu/drm/lima/lima_device.c
-index f74f8048af8f2..02cef0cea6572 100644
---- a/drivers/gpu/drm/lima/lima_device.c
-+++ b/drivers/gpu/drm/lima/lima_device.c
-@@ -358,6 +358,7 @@ int lima_device_init(struct lima_device *ldev)
- 	int err, i;
+diff --git a/tools/testing/selftests/bpf/btf_helpers.c b/tools/testing/selftests/bpf/btf_helpers.c
+index b5b6b013a245e..3d1a748d09d81 100644
+--- a/tools/testing/selftests/bpf/btf_helpers.c
++++ b/tools/testing/selftests/bpf/btf_helpers.c
+@@ -251,18 +251,23 @@ const char *btf_type_c_dump(const struct btf *btf)
+ 	d = btf_dump__new(btf, NULL, &opts, btf_dump_printf);
+ 	if (libbpf_get_error(d)) {
+ 		fprintf(stderr, "Failed to create btf_dump instance: %ld\n", libbpf_get_error(d));
+-		return NULL;
++		goto err_out;
+ 	}
  
- 	dma_set_coherent_mask(ldev->dev, DMA_BIT_MASK(32));
-+	dma_set_max_seg_size(ldev->dev, UINT_MAX);
+ 	for (i = 1; i < btf__type_cnt(btf); i++) {
+ 		err = btf_dump__dump_type(d, i);
+ 		if (err) {
+ 			fprintf(stderr, "Failed to dump type [%d]: %d\n", i, err);
+-			return NULL;
++			goto err_out;
+ 		}
+ 	}
  
- 	err = lima_clk_init(ldev);
- 	if (err)
++	btf_dump__free(d);
+ 	fflush(buf_file);
+ 	fclose(buf_file);
+ 	return buf;
++err_out:
++	btf_dump__free(d);
++	fclose(buf_file);
++	return NULL;
+ }
 -- 
 2.34.1
 
