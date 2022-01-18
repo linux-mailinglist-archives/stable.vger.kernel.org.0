@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84A70491ACA
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:03:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E327491ACE
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:03:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352950AbiARDAt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 22:00:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36072 "EHLO
+        id S1352959AbiARDAv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 22:00:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350723AbiARCwP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:52:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D26D1C03F938;
-        Mon, 17 Jan 2022 18:43:01 -0800 (PST)
+        with ESMTP id S1350745AbiARCwR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:52:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 595E4C08C5C3;
+        Mon, 17 Jan 2022 18:43:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7146461127;
-        Tue, 18 Jan 2022 02:43:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FFC5C36AE3;
-        Tue, 18 Jan 2022 02:43:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 20190B81132;
+        Tue, 18 Jan 2022 02:43:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDFB7C36AE3;
+        Tue, 18 Jan 2022 02:43:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473780;
-        bh=Mmov4kXM/0WU3bh6vK5IbxHSy3H97/BMQnWmsVg6fm0=;
+        s=k20201202; t=1642473790;
+        bh=/74ibrcK+ISIoJTWLGejVQLxnzs2mu57MYjpIyvlIbg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uFfUwhzH/t6Ty8LosF3dTvjSyfwM38CHNM4VZbBbeajGeBRMEDvL5+ngqt2mZm+zY
-         TPTRKBYZPUbsH/oYKm3fbWWfPcpp2zbYuiKHel1QpDf2g3eKvaIyZnZ1Y4I5LqAJk3
-         hCgu1bMaYv+tctoyIO+zwWzpLhHPMgeUTbw+218FGJrNgsAxBYNOAPYlg7S1BBSUER
-         2JDW2JEo7ybtskCvzrTHhfgUyJBM9VIMQw5RNwe7XwMByMPLSMGJVyHYheRSqtT6LM
-         lKT8rRFmMYI56yyW5pv6Od9fSzg7V0u8L8YCG/3EJ+EKqGcSo2usZ7NX6J5B6HNyWM
-         Iw5w6eCUaRs3Q==
+        b=EmKSGDA0OBpPAY6Zy1qUR/gcMc14NjPSVkitWVQ6lwFwbjtwQKfSiOQydnXCgtR4w
+         U9BldKPGiVZu4QeVF29NI+tDutTp+TEhmovjYzFQ+XlMKYUlQjB6m5UTDvlKStF+ww
+         8yH94JLHIJgp4Nd0Mor7ZJ7jW0bPMhqH9AbkF40ovxb389+bvYNEvFUUyEZK7DDyoK
+         iMtxvqezfQr85ZEHyQPduWeWdKLC70/m1TXMq0EUmBAZ+vhC6+EJFr5yHCu5310wcV
+         tCFdAqZi0a3a5szsM9LRFbUPpKwNP+1TY66q9J2wKwgmeeIlIIFtqXwPd9wxzm367x
+         NoX1rtdGWPwgQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhou Qingyang <zhou1615@umn.edu>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, hverkuil@xs4all.nl,
-        mchehab@kernel.org, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 069/116] media: saa7146: hexium_gemini: Fix a NULL pointer dereference in hexium_attach()
-Date:   Mon, 17 Jan 2022 21:39:20 -0500
-Message-Id: <20220118024007.1950576-69-sashal@kernel.org>
+Cc:     Thierry Reding <treding@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        thierry.reding@gmail.com, jonathanh@nvidia.com, spujar@nvidia.com,
+        mperttunen@nvidia.com, devicetree@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 073/116] arm64: tegra: Adjust length of CCPLEX cluster MMIO region
+Date:   Mon, 17 Jan 2022 21:39:24 -0500
+Message-Id: <20220118024007.1950576-73-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024007.1950576-1-sashal@kernel.org>
 References: <20220118024007.1950576-1-sashal@kernel.org>
@@ -51,71 +52,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 3af86b046933ba513d08399dba0d4d8b50d607d0 ]
+[ Upstream commit 2b14cbd643feea5fc17c6e8bead4e71088c69acd ]
 
-In hexium_attach(dev, info), saa7146_vv_init() is called to allocate
-a new memory for dev->vv_data. saa7146_vv_release() will be called on
-failure of saa7146_register_device(). There is a dereference of
-dev->vv_data in saa7146_vv_release(), which could lead to a NULL
-pointer dereference on failure of saa7146_vv_init().
+The Tegra186 CCPLEX cluster register region is 4 MiB is length, not 4
+MiB - 1. This was likely presumed to be the "limit" rather than length.
+Fix it up.
 
-Fix this bug by adding a check of saa7146_vv_init().
-
-This bug was found by a static analyzer. The analysis employs
-differential checking to identify inconsistent security operations
-(e.g., checks or kfrees) between two code paths and confirms that the
-inconsistent operations are not recovered in the current function or
-the callers, so they constitute bugs.
-
-Note that, as a bug found by static analysis, it can be a false
-positive or hard to trigger. Multiple researchers have cross-reviewed
-the bug.
-
-Builds with CONFIG_VIDEO_HEXIUM_GEMINI=m show no new warnings,
-and our static analyzer no longer warns about this code.
-
-Link: https://lore.kernel.org/linux-media/20211203154030.111210-1-zhou1615@umn.edu
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/common/saa7146/saa7146_fops.c | 2 +-
- drivers/media/pci/saa7146/hexium_gemini.c   | 7 ++++++-
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/nvidia/tegra186.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/common/saa7146/saa7146_fops.c b/drivers/media/common/saa7146/saa7146_fops.c
-index d6531874faa65..8047e305f3d01 100644
---- a/drivers/media/common/saa7146/saa7146_fops.c
-+++ b/drivers/media/common/saa7146/saa7146_fops.c
-@@ -523,7 +523,7 @@ int saa7146_vv_init(struct saa7146_dev* dev, struct saa7146_ext_vv *ext_vv)
- 		ERR("out of memory. aborting.\n");
- 		kfree(vv);
- 		v4l2_ctrl_handler_free(hdl);
--		return -1;
-+		return -ENOMEM;
- 	}
+diff --git a/arch/arm64/boot/dts/nvidia/tegra186.dtsi b/arch/arm64/boot/dts/nvidia/tegra186.dtsi
+index 0c46ab7bbbf37..eec6418ecdb1a 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra186.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra186.dtsi
+@@ -985,7 +985,7 @@ sdmmc3_1v8: sdmmc3-1v8 {
  
- 	saa7146_video_uops.init(dev,vv);
-diff --git a/drivers/media/pci/saa7146/hexium_gemini.c b/drivers/media/pci/saa7146/hexium_gemini.c
-index 2214c74bbbf15..3947701cd6c7e 100644
---- a/drivers/media/pci/saa7146/hexium_gemini.c
-+++ b/drivers/media/pci/saa7146/hexium_gemini.c
-@@ -284,7 +284,12 @@ static int hexium_attach(struct saa7146_dev *dev, struct saa7146_pci_extension_d
- 	hexium_set_input(hexium, 0);
- 	hexium->cur_input = 0;
+ 	ccplex@e000000 {
+ 		compatible = "nvidia,tegra186-ccplex-cluster";
+-		reg = <0x0 0x0e000000 0x0 0x3fffff>;
++		reg = <0x0 0x0e000000 0x0 0x400000>;
  
--	saa7146_vv_init(dev, &vv_data);
-+	ret = saa7146_vv_init(dev, &vv_data);
-+	if (ret) {
-+		i2c_del_adapter(&hexium->i2c_adapter);
-+		kfree(hexium);
-+		return ret;
-+	}
- 
- 	vv_data.vid_ops.vidioc_enum_input = vidioc_enum_input;
- 	vv_data.vid_ops.vidioc_g_input = vidioc_g_input;
+ 		nvidia,bpmp = <&bpmp>;
+ 	};
 -- 
 2.34.1
 
