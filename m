@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4FE0491DB7
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:43:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EAB5491C24
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:14:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347140AbiARDlq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 22:41:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39038 "EHLO
+        id S1347322AbiARDNj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 22:13:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353842AbiARDEo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 22:04:44 -0500
+        with ESMTP id S1354127AbiARDFT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 22:05:19 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1E23C021987;
-        Mon, 17 Jan 2022 18:48:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B83DC021992;
+        Mon, 17 Jan 2022 18:48:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A964612E8;
-        Tue, 18 Jan 2022 02:48:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADB61C36AF2;
-        Tue, 18 Jan 2022 02:48:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CBBE6130A;
+        Tue, 18 Jan 2022 02:48:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C915C36AE3;
+        Tue, 18 Jan 2022 02:48:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642474093;
-        bh=BiDawCDCR9XnHyP+jduSugMt5j1biVVhOqB9aUPbh90=;
+        s=k20201202; t=1642474096;
+        bh=x+VaJ/8Bhk9YBGBufy5sI3aIsySA7PsMp6c05L2SEDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lpbc3MlOMtPU1yqEaK5S3n43dd6xmakvVcNn8Pj1DzJxQScWuvfIPSApy/DRAZBs4
-         8A8lV2SDmVYgzpocDbXra6BTScMC2weQdIQ/DN8n8Hiit/TnFE3tlP4AOa3Selg9lk
-         yMuuJpxL13AdJ54UzLNzHLyzRVi5RYofNRupNKoyTtYvGcyoQOe2Ntw4bPDOBvvFHo
-         MTrsl1KdeiDzKkylqKvzIqzNRNvLL0QODmogVCSKsmBcX2UpcUW61UPsVAAY9HXwsh
-         rnBelCdjoQC3ChJnOtiblliyJjCV6KM2htXtFr5dBef0DzrWUp8vcVVJnhK8OXzgyl
-         Dt7nJqdMUzKTA==
+        b=DFmf+a9Ea8WYVliExPjUOi1sjJMDwbdVOkd7Cj/XkP3bGxAPjGkK4YAvHD7JVHY1G
+         FUDO+tZwEQDDng8Y4J7TtX/nrKhXFLWjarnkrUBQOHwdofhVUe4ZrqOUmRzP5jDv2p
+         ACj3MIJM7sxcWLHSQCKPvxIh0kINIl4X2ADy+XkiD5zJVF9q9P53Z88BUpR5EI/nNh
+         ycUULpSKC/HIxFZnciwKq1VhKMlsqItIzYLT//ydl8W0GDs8QwZe21CMxS+JPakyQD
+         3HFSk65YZPff3IgNDMGHZlfCQQR9So24SoqVrB6B7EB6tka70uqWkAtHZVRxtyssLh
+         gDujp1HWs1T2w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paul Moore <paul@paul-moore.com>,
-        Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Richard Guy Briggs <rgb@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, eparis@redhat.com,
-        linux-audit@redhat.com
-Subject: [PATCH AUTOSEL 4.19 33/59] audit: ensure userspace is penalized the same as the kernel when under pressure
-Date:   Mon, 17 Jan 2022 21:46:34 -0500
-Message-Id: <20220118024701.1952911-33-sashal@kernel.org>
+Cc:     Thierry Reding <treding@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        thierry.reding@gmail.com, jonathanh@nvidia.com, spujar@nvidia.com,
+        mperttunen@nvidia.com, devicetree@vger.kernel.org,
+        linux-tegra@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 34/59] arm64: tegra: Adjust length of CCPLEX cluster MMIO region
+Date:   Mon, 17 Jan 2022 21:46:35 -0500
+Message-Id: <20220118024701.1952911-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024701.1952911-1-sashal@kernel.org>
 References: <20220118024701.1952911-1-sashal@kernel.org>
@@ -52,68 +52,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Moore <paul@paul-moore.com>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 8f110f530635af44fff1f4ee100ecef0bac62510 ]
+[ Upstream commit 2b14cbd643feea5fc17c6e8bead4e71088c69acd ]
 
-Due to the audit control mutex necessary for serializing audit
-userspace messages we haven't been able to block/penalize userspace
-processes that attempt to send audit records while the system is
-under audit pressure.  The result is that privileged userspace
-applications have a priority boost with respect to audit as they are
-not bound by the same audit queue throttling as the other tasks on
-the system.
+The Tegra186 CCPLEX cluster register region is 4 MiB is length, not 4
+MiB - 1. This was likely presumed to be the "limit" rather than length.
+Fix it up.
 
-This patch attempts to restore some balance to the system when under
-audit pressure by blocking these privileged userspace tasks after
-they have finished their audit processing, and dropped the audit
-control mutex, but before they return to userspace.
-
-Reported-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Tested-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
-Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/audit.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/nvidia/tegra186.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/audit.c b/kernel/audit.c
-index 968921d376b98..c5e034fe14bbb 100644
---- a/kernel/audit.c
-+++ b/kernel/audit.c
-@@ -1528,6 +1528,20 @@ static void audit_receive(struct sk_buff  *skb)
- 		nlh = nlmsg_next(nlh, &len);
- 	}
- 	audit_ctl_unlock();
-+
-+	/* can't block with the ctrl lock, so penalize the sender now */
-+	if (audit_backlog_limit &&
-+	    (skb_queue_len(&audit_queue) > audit_backlog_limit)) {
-+		DECLARE_WAITQUEUE(wait, current);
-+
-+		/* wake kauditd to try and flush the queue */
-+		wake_up_interruptible(&kauditd_wait);
-+
-+		add_wait_queue_exclusive(&audit_backlog_wait, &wait);
-+		set_current_state(TASK_UNINTERRUPTIBLE);
-+		schedule_timeout(audit_backlog_wait_time);
-+		remove_wait_queue(&audit_backlog_wait, &wait);
-+	}
- }
+diff --git a/arch/arm64/boot/dts/nvidia/tegra186.dtsi b/arch/arm64/boot/dts/nvidia/tegra186.dtsi
+index b762227f6aa18..fc5d047ca50bc 100644
+--- a/arch/arm64/boot/dts/nvidia/tegra186.dtsi
++++ b/arch/arm64/boot/dts/nvidia/tegra186.dtsi
+@@ -372,7 +372,7 @@ pmc@c360000 {
  
- /* Run custom bind function on netlink socket group connect or bind requests. */
-@@ -1772,7 +1786,9 @@ struct audit_buffer *audit_log_start(struct audit_context *ctx, gfp_t gfp_mask,
- 	 *    task_tgid_vnr() since auditd_pid is set in audit_receive_msg()
- 	 *    using a PID anchored in the caller's namespace
- 	 * 2. generator holding the audit_cmd_mutex - we don't want to block
--	 *    while holding the mutex */
-+	 *    while holding the mutex, although we do penalize the sender
-+	 *    later in audit_receive() when it is safe to block
-+	 */
- 	if (!(auditd_test_task(current) || audit_ctl_owner_current())) {
- 		long stime = audit_backlog_wait_time;
+ 	ccplex@e000000 {
+ 		compatible = "nvidia,tegra186-ccplex-cluster";
+-		reg = <0x0 0x0e000000 0x0 0x3fffff>;
++		reg = <0x0 0x0e000000 0x0 0x400000>;
  
+ 		nvidia,bpmp = <&bpmp>;
+ 	};
 -- 
 2.34.1
 
