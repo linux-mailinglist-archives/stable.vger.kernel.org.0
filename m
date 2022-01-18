@@ -2,49 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F5E84916E4
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:37:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84756491723
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:38:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344589AbiARCg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:36:56 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:52132 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344535AbiARCew (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:34:52 -0500
+        id S1344684AbiARCiG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:38:06 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:45156 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344563AbiARCez (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:34:55 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 04667611D8;
-        Tue, 18 Jan 2022 02:34:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9ABDC36AEB;
-        Tue, 18 Jan 2022 02:34:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D04C4B8123D;
+        Tue, 18 Jan 2022 02:34:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA8DAC36AEF;
+        Tue, 18 Jan 2022 02:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473291;
-        bh=GRm6ZQaFJ60OS35Q/7OIBpWXiFjDg3ePGtx1dzEBxsM=;
+        s=k20201202; t=1642473292;
+        bh=f8+DzzjtvvnxDthTcjNQ/23aDxrL03Fv6o1cZ2WdV3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dBmUSdlF4C0nh7+cpcvrXMYA84Hdowzi1RC8ZVf4J4zYWoKLJcrmPHMd/0h3QWv5l
-         4UJk0tY8Doig7ZTHeOi+IUOHTmwRg4BuW2weTblHJ8TPcPZSID3tmiV9XN9Q4qAqlC
-         S3umtI6Xn2Wsd7CbkHxFRet64/lfzazmMQgOqNs9MH0hVxnwkEzwoBfuM0Q2ISgp8L
-         2XxvlM7wONVYr6a05SXYXiFCnkZ7qp4dziXp7yrJixC2PnK4bOtqHLppVsAasEUIuj
-         /7itDwHMKdcJ9SzLZlsm1ipB6LdgEFAC+6JFaU3Bkk53P/6GGHQzfxB35fsAYzvpgG
-         hKJu2frMLxsPg==
+        b=chEn3aQLPKrkFYuwWjbWrUt3H268ihJBHoGUn2dqXEt2qnmB3a/BieGwsQSgyONxQ
+         U7X7m2+rzNDRtuV7+8zivodBz/thZe48vx7+Ciqmrmu5CKjj2SkQL+pfu09+yzlCmP
+         HXenG2rlPDuaJcqPivje12ff+7XqWzlHe0jVZHQVn83B3QsJbMtkha7dmbKtkGqaUZ
+         swh5kaFLQvRci5k/Huv8lYRwDCBcKtkjJn80UQR+cMehH68HFTudMIforNsmkXuKgm
+         tNbz6q4h9sYrBo2jV/gtP5AGbBLE9EmjGnAPmzIwobZMXwvKNenYWJJNlkSFzPZC3x
+         R+pxglVHg0pDw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alex Deucher <alexander.deucher@amd.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
-        Felix.Kuehling@amd.com, Hawking.Zhang@amd.com, Emily.Deng@amd.com,
-        andrey.grodzovsky@amd.com, tzimmermann@suse.de,
-        Philip.Yang@amd.com, maz@kernel.org, Yong.Zhao@amd.com,
-        nicholas.kazlauskas@amd.com, qingqing.zhuo@amd.com,
-        Anson.Jacob@amd.com, shenshih@amd.com, aurabindo.pillai@amd.com,
-        nikola.cornij@amd.com, Wayne.Lin@amd.com, Roman.Li@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.15 053/188] drm/amdgpu/display: set vblank_disable_immediate for DC
-Date:   Mon, 17 Jan 2022 21:29:37 -0500
-Message-Id: <20220118023152.1948105-53-sashal@kernel.org>
+Cc:     Jan Kiszka <jan.kiszka@siemens.com>, Suman Anna <s-anna@ti.com>,
+        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 054/188] soc: ti: pruss: fix referenced node in error message
+Date:   Mon, 17 Jan 2022 21:29:38 -0500
+Message-Id: <20220118023152.1948105-54-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118023152.1948105-1-sashal@kernel.org>
 References: <20220118023152.1948105-1-sashal@kernel.org>
@@ -56,48 +47,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Jan Kiszka <jan.kiszka@siemens.com>
 
-[ Upstream commit 92020e81ddbeac351ea4a19bcf01743f32b9c800 ]
+[ Upstream commit 8aa35e0bb5eaa42bac415ad0847985daa7b4890c ]
 
-Disable vblanks immediately to save power.  I think this was
-missed when we merged DC support.
+So far, "(null)" is reported for the node that is missing clocks.
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1781
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Acked-by: Suman Anna <s-anna@ti.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Link: https://lore.kernel.org/r/d6e24953-ea89-fd1c-6e16-7a0142118054@siemens.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c           | 1 -
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 3 +++
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ drivers/soc/ti/pruss.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c
-index cc2e0c9cfe0a1..4f3c62adccbde 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c
-@@ -333,7 +333,6 @@ int amdgpu_irq_init(struct amdgpu_device *adev)
- 	if (!amdgpu_device_has_dc_support(adev)) {
- 		if (!adev->enable_virtual_display)
- 			/* Disable vblank IRQs aggressively for power-saving */
--			/* XXX: can this be enabled for DC? */
- 			adev_to_drm(adev)->vblank_disable_immediate = true;
+diff --git a/drivers/soc/ti/pruss.c b/drivers/soc/ti/pruss.c
+index 49da387d77494..b36779309e49b 100644
+--- a/drivers/soc/ti/pruss.c
++++ b/drivers/soc/ti/pruss.c
+@@ -129,7 +129,7 @@ static int pruss_clk_init(struct pruss *pruss, struct device_node *cfg_node)
  
- 		r = drm_vblank_init(adev_to_drm(adev), adev->mode_info.num_crtc);
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index fef13e93a99fd..cbc67477a9a1f 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -1279,6 +1279,9 @@ static int amdgpu_dm_init(struct amdgpu_device *adev)
- 	adev_to_drm(adev)->mode_config.cursor_width = adev->dm.dc->caps.max_cursor_size;
- 	adev_to_drm(adev)->mode_config.cursor_height = adev->dm.dc->caps.max_cursor_size;
+ 	clks_np = of_get_child_by_name(cfg_node, "clocks");
+ 	if (!clks_np) {
+-		dev_err(dev, "%pOF is missing its 'clocks' node\n", clks_np);
++		dev_err(dev, "%pOF is missing its 'clocks' node\n", cfg_node);
+ 		return -ENODEV;
+ 	}
  
-+	/* Disable vblank IRQs aggressively for power-saving */
-+	adev_to_drm(adev)->vblank_disable_immediate = true;
-+
- 	if (drm_vblank_init(adev_to_drm(adev), adev->dm.display_indexes_num)) {
- 		DRM_ERROR(
- 		"amdgpu: failed to initialize sw for display support.\n");
 -- 
 2.34.1
 
