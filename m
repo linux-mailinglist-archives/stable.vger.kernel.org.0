@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25AA649178A
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:42:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E04A34916AC
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:36:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345354AbiARCmN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:42:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58722 "EHLO
+        id S1344206AbiARCgA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:36:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345482AbiARCbf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:31:35 -0500
+        with ESMTP id S1345494AbiARCbg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:31:36 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE77FC061763;
-        Mon, 17 Jan 2022 18:29:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F10C0C0617A7;
+        Mon, 17 Jan 2022 18:29:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DC556117D;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D4019611D8;
+        Tue, 18 Jan 2022 02:29:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65403C36AEF;
         Tue, 18 Jan 2022 02:29:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1096DC36AEB;
-        Tue, 18 Jan 2022 02:29:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642472964;
-        bh=/nQm1xNgpdAOTxyswTWsS/Qa079KxmX+Nz2TBRcCI6s=;
+        s=k20201202; t=1642472966;
+        bh=F1XJP86QbRwonoLiEZokl4JXQQnS7jSJrjYRteoU7C4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=clDhxAnGr4ayCHX+ZNSThf6MkW9Rbad4DQEfPCQSlrvbY5f8Mjj986Yp9rKUXaXKK
-         0BwPmA//OhJZA5LCTdcqRtQXAlwOF5kNKORcp5tC2+crY6VfXk+YtbEINVkVknAhAX
-         tULUqc7Ad0M5pnDD3+rqjPPQpQBhJy0XXLVaf9/M0XDSmLOLPQahnjFno3/z2f78un
-         BgOLr0jaTZ0Y41NlCaaFF6Nzp4YxLTlI5QQ7WdXEvRvZn3tV2p8mG2Skl7/NHqWh+E
-         +tyvLlpqDOuRAVj7nLHjOiyJG3x9pd+vNdfAMQ80wf8V+jtcFcK46WoADkl9AsCofu
-         x4pukWzU5Ze/w==
+        b=LrRKyYWPAYK9vu6W7EbSGfBd1vSSpNcZck2I5P5LmG4fTPXeJHavUirHRdkkgRpZP
+         7Up4/TCogLmyY6QvnHoTdRE0zAET9ceSCoGfbd1WAOyg2UBv0FqQWerSA+C6IKG5uG
+         0YKcO3wLduVRMauPXr2yHoC5h8CMx6krvRb2abLwNd+xjy6txiUpnfdv4h9uAhj6ft
+         k1ouAtRpmV6asLALUuyP2kfte1aJhQjBlV4zk+HzjUIlxzn/dU+r9Nfdqx7Zng2G9r
+         tBH8aWSyI/cGFMncIyHp22NNCFLhg2dsFK8/6jai+UjHJb1Uv3mCocgX5YNxZuQU7v
+         K3Vqly/E8WqLg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Lenny Szubowicz <lszubowi@redhat.com>,
+Cc:     Sudeep Holla <sudeep.holla@arm.com>,
         Bob Moore <robert.moore@intel.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
         devel@acpica.org
-Subject: [PATCH AUTOSEL 5.16 181/217] ACPICA: Executer: Fix the REFCLASS_REFOF case in acpi_ex_opcode_1A_0T_1R()
-Date:   Mon, 17 Jan 2022 21:19:04 -0500
-Message-Id: <20220118021940.1942199-181-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.16 182/217] ACPICA: Fix wrong interpretation of PCC address
+Date:   Mon, 17 Jan 2022 21:19:05 -0500
+Message-Id: <20220118021940.1942199-182-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118021940.1942199-1-sashal@kernel.org>
 References: <20220118021940.1942199-1-sashal@kernel.org>
@@ -52,54 +52,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit 24ea5f90ec9548044a6209685c5010edd66ffe8f ]
+[ Upstream commit 9a3b8655db1ada31c82189ae13f40eb25da48c35 ]
 
-ACPICA commit d984f12041392fa4156b52e2f7e5c5e7bc38ad9e
+ACPICA commit 41be6afacfdaec2dba3a5ed368736babc2a7aa5c
 
-If Operand[0] is a reference of the ACPI_REFCLASS_REFOF class,
-acpi_ex_opcode_1A_0T_1R () calls acpi_ns_get_attached_object () to
-obtain return_desc which may require additional resolution with
-the help of acpi_ex_read_data_from_field (). If the latter fails,
-the reference counter of the original return_desc is decremented
-which is incorrect, because acpi_ns_get_attached_object () does not
-increment the reference counter of the object returned by it.
+With the PCC Opregion in the firmware and we are hitting below kernel crash:
 
-This issue may lead to premature deletion of the attached object
-while it is still attached and a use-after-free and crash in the
-host OS.  For example, this may happen when on evaluation of ref_of()
-a local region field where there is no registered handler for the
-given Operation Region.
+-->8
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000010
+ Workqueue: pm pm_runtime_work
+ pstate: 80000005 (Nzcv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+ pc : __memcpy+0x54/0x260
+ lr : acpi_ex_write_data_to_field+0xb8/0x194
+ Call trace:
+  __memcpy+0x54/0x260
+  acpi_ex_store_object_to_node+0xa4/0x1d4
+  acpi_ex_store+0x44/0x164
+  acpi_ex_opcode_1A_1T_1R+0x25c/0x508
+  acpi_ds_exec_end_op+0x1b4/0x44c
+  acpi_ps_parse_loop+0x3a8/0x614
+  acpi_ps_parse_aml+0x90/0x2f4
+  acpi_ps_execute_method+0x11c/0x19c
+  acpi_ns_evaluate+0x1ec/0x2b0
+  acpi_evaluate_object+0x170/0x2b0
+  acpi_device_set_power+0x118/0x310
+  acpi_dev_suspend+0xd4/0x180
+  acpi_subsys_runtime_suspend+0x28/0x38
+  __rpm_callback+0x74/0x328
+  rpm_suspend+0x2d8/0x624
+  pm_runtime_work+0xa4/0xb8
+  process_one_work+0x194/0x25c
+  worker_thread+0x260/0x49c
+  kthread+0x14c/0x30c
+  ret_from_fork+0x10/0x20
+ Code: f9000006 f81f80a7 d65f03c0 361000c2 (b9400026)
+ ---[ end trace 24d8a032fa77b68a ]---
 
-Fix it by making acpi_ex_opcode_1A_0T_1R () return Status right away
-after a acpi_ex_read_data_from_field () failure.
+The reason for the crash is that the PCC channel index passed via region.address
+in acpi_ex_store_object_to_node is interpreted as the channel subtype
+incorrectly.
 
-Link: https://github.com/acpica/acpica/commit/d984f120
-Link: https://github.com/acpica/acpica/pull/685
-Reported-by: Lenny Szubowicz <lszubowi@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Assuming the PCC op_region support is not used by any other type, let us
+remove the subtype check as the AML has no access to the subtype information.
+Once we remove it, the kernel crash disappears and correctly complains about
+missing PCC Opregion handler.
+
+ACPI Error: No handler for Region [PFRM] ((____ptrval____)) [PCC] (20210730/evregion-130)
+ACPI Error: Region PCC (ID=10) has no handler (20210730/exfldio-261)
+ACPI Error: Aborting method \_SB.ETH0._PS3 due to previous error (AE_NOT_EXIST) (20210730/psparse-531)
+
+Link: https://github.com/acpica/acpica/commit/41be6afa
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Bob Moore <robert.moore@intel.com>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/exoparg1.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/acpi/acpica/exfield.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/drivers/acpi/acpica/exoparg1.c b/drivers/acpi/acpica/exoparg1.c
-index b639e930d6429..44b7c350ed5ca 100644
---- a/drivers/acpi/acpica/exoparg1.c
-+++ b/drivers/acpi/acpica/exoparg1.c
-@@ -1007,7 +1007,8 @@ acpi_status acpi_ex_opcode_1A_0T_1R(struct acpi_walk_state *walk_state)
- 						    (walk_state, return_desc,
- 						     &temp_desc);
- 						if (ACPI_FAILURE(status)) {
--							goto cleanup;
-+							return_ACPI_STATUS
-+							    (status);
- 						}
+diff --git a/drivers/acpi/acpica/exfield.c b/drivers/acpi/acpica/exfield.c
+index 06f3c9df1e22d..8618500f23b39 100644
+--- a/drivers/acpi/acpica/exfield.c
++++ b/drivers/acpi/acpica/exfield.c
+@@ -330,12 +330,7 @@ acpi_ex_write_data_to_field(union acpi_operand_object *source_desc,
+ 		       obj_desc->field.base_byte_offset,
+ 		       source_desc->buffer.pointer, data_length);
  
- 						return_desc = temp_desc;
+-		if ((obj_desc->field.region_obj->region.address ==
+-		     PCC_MASTER_SUBSPACE
+-		     && MASTER_SUBSPACE_COMMAND(obj_desc->field.
+-						base_byte_offset))
+-		    || GENERIC_SUBSPACE_COMMAND(obj_desc->field.
+-						base_byte_offset)) {
++		if (MASTER_SUBSPACE_COMMAND(obj_desc->field.base_byte_offset)) {
+ 
+ 			/* Perform the write */
+ 
 -- 
 2.34.1
 
