@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6117F49187F
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:47:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B1EE491A18
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:58:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344667AbiARCrF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:47:05 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:51348 "EHLO
+        id S1345167AbiARC6J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:58:09 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:51424 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343548AbiARCmm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:42:42 -0500
+        with ESMTP id S245641AbiARCmp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:42:45 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6238AB81239;
-        Tue, 18 Jan 2022 02:42:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3AF8C36AF3;
-        Tue, 18 Jan 2022 02:42:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4064B81136;
+        Tue, 18 Jan 2022 02:42:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E3E6C36AEB;
+        Tue, 18 Jan 2022 02:42:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473758;
-        bh=RyW+SmIx7B5XRnPeWB2gA4lLDKVVpIflvrlvyxK0gro=;
+        s=k20201202; t=1642473762;
+        bh=NsNmxlzJcp4bHdt1JVI79chzoIVKauwC5RQte6uzHu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qHbp1wbLLWEexSBSEdBdW0NMGQprnGWRUEeGGKAkB8XqhLVJNdYI+SrQhn4luPXMk
-         UpAzGgCJwGko0koNYO/YOtJAPuoPOsjHtbawxnUt33bba892VCY+4cPnIBCjlc+Pwq
-         w4jYqEHqhYLgBNzhVfj+ryv4Bu/Y2i1ITc1CtgW9cC/Brq3BYelp6/KGpPDZZMfYRY
-         eQAJ5J5d1DJXob8/GtjHLSylf5CjiNVMFe+7ODTqDg81F1C2yxUAIr2Wf2cgRApO9u
-         W/bHh146iGNMO00BqS0/ltbKJGHsjd540700Gwh/wjdp5hKXtdEBbtjSE1ZXVYk4z5
-         gT00gGQyv6M8g==
+        b=p7e7dOclAEb5V2RCMsebhnC4GdRINgiPTE/dDAvwVmecQn+nMR2APAdfAtEFXtxyq
+         wJ0HxS5zVqWHlXJT7zE/If8UQ0qwl4SukUyap4HTMES27w6Q0HZmBFPWkAN3mOkvKq
+         y5+aokr3691bByU5Ff5wLHjFaDx/S+PRu3X5jZNxT+jVInhyKh8cC33e3zccLb2TIr
+         im3TcRuovcvuYHlOjGQKSiWh2Be0wAfjODmGnWkaa0l8D/MNUl6hgp8CgndxMm8j7Z
+         Hhz9UKy7HvvjJdhf4r6id5mSUpuqZcPpFo4KltZdH1rH+ntHtliG+QSrteMlcMQgSC
+         LMY1ePMx/w0AA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, hkallweit1@gmail.com,
-        davem@davemloft.net, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 056/116] net: phy: prefer 1000baseT over 1000baseKX
-Date:   Mon, 17 Jan 2022 21:39:07 -0500
-Message-Id: <20220118024007.1950576-56-sashal@kernel.org>
+Cc:     Heiko Carstens <hca@linux.ibm.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, rostedt@goodmis.org,
+        mingo@redhat.com, shuah@kernel.org, linux-kselftest@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 058/116] selftests/ftrace: make kprobe profile testcase description unique
+Date:   Mon, 17 Jan 2022 21:39:09 -0500
+Message-Id: <20220118024007.1950576-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024007.1950576-1-sashal@kernel.org>
 References: <20220118024007.1950576-1-sashal@kernel.org>
@@ -51,56 +50,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit f20f94f7f52c4685c81754f489ffcc72186e8bdb ]
+[ Upstream commit e5992f373c6eed6d09e5858e9623df1259b3ce30 ]
 
-The PHY settings table is supposed to be sorted by descending match
-priority - in other words, earlier entries are preferred over later
-entries.
+Commit 32f6e5da83c7 ("selftests/ftrace: Add kprobe profile testcase")
+added a new kprobes testcase, but has a description which does not
+describe what the test case is doing and is duplicating the description
+of another test case.
 
-The order of 1000baseKX/Full and 1000baseT/Full is such that we
-prefer 1000baseKX/Full over 1000baseT/Full, but 1000baseKX/Full is
-a lot rarer than 1000baseT/Full, and thus is much less likely to
-be preferred.
+Therefore change the test case description, so it is unique and then
+allows easily to tell which test case actually passed or failed.
 
-This causes phylink problems - it means a fixed link specifying a
-speed of 1G and full duplex gets an ethtool linkmode of 1000baseKX/Full
-rather than 1000baseT/Full as would be expected - and since we offer
-userspace a software emulation of a conventional copper PHY, we want
-to offer copper modes in preference to anything else. However, we do
-still want to allow the rarer modes as well.
-
-Hence, let's reorder these two modes to prefer copper.
-
-Tested-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reported-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/E1muvFO-00F6jY-1K@rmk-PC.armlinux.org.uk
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phy-core.c | 2 +-
+ tools/testing/selftests/ftrace/test.d/kprobe/profile.tc | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/phy-core.c b/drivers/net/phy/phy-core.c
-index 8d333d3084ed3..cccb83dae673b 100644
---- a/drivers/net/phy/phy-core.c
-+++ b/drivers/net/phy/phy-core.c
-@@ -161,11 +161,11 @@ static const struct phy_setting settings[] = {
- 	PHY_SETTING(   2500, FULL,   2500baseT_Full		),
- 	PHY_SETTING(   2500, FULL,   2500baseX_Full		),
- 	/* 1G */
--	PHY_SETTING(   1000, FULL,   1000baseKX_Full		),
- 	PHY_SETTING(   1000, FULL,   1000baseT_Full		),
- 	PHY_SETTING(   1000, HALF,   1000baseT_Half		),
- 	PHY_SETTING(   1000, FULL,   1000baseT1_Full		),
- 	PHY_SETTING(   1000, FULL,   1000baseX_Full		),
-+	PHY_SETTING(   1000, FULL,   1000baseKX_Full		),
- 	/* 100M */
- 	PHY_SETTING(    100, FULL,    100baseT_Full		),
- 	PHY_SETTING(    100, FULL,    100baseT1_Full		),
+diff --git a/tools/testing/selftests/ftrace/test.d/kprobe/profile.tc b/tools/testing/selftests/ftrace/test.d/kprobe/profile.tc
+index 98166fa3eb91c..34fb89b0c61fa 100644
+--- a/tools/testing/selftests/ftrace/test.d/kprobe/profile.tc
++++ b/tools/testing/selftests/ftrace/test.d/kprobe/profile.tc
+@@ -1,6 +1,6 @@
+ #!/bin/sh
+ # SPDX-License-Identifier: GPL-2.0
+-# description: Kprobe dynamic event - adding and removing
++# description: Kprobe profile
+ # requires: kprobe_events
+ 
+ ! grep -q 'myevent' kprobe_profile
 -- 
 2.34.1
 
