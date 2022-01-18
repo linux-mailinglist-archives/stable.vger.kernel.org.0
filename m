@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24661492AE3
+	by mail.lfdr.de (Postfix) with ESMTP id 9CD2E492AE4
 	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:14:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347415AbiARQO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 11:14:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51614 "EHLO
+        id S244167AbiARQOa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 11:14:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347555AbiARQMu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:12:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CB49C0613BD;
-        Tue, 18 Jan 2022 08:11:49 -0800 (PST)
+        with ESMTP id S1347560AbiARQMv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:12:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00E3CC061343;
+        Tue, 18 Jan 2022 08:11:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31976B81710;
-        Tue, 18 Jan 2022 16:11:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49974C00446;
-        Tue, 18 Jan 2022 16:11:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 945FD6128A;
+        Tue, 18 Jan 2022 16:11:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 737AEC00446;
+        Tue, 18 Jan 2022 16:11:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642522307;
-        bh=HtiRyzYHu/6rMFqYieOV5nQq8fpsVbNR671u3Qrhgk4=;
+        s=korg; t=1642522310;
+        bh=hTRDEN/X1rHYkMuWknx8N7RQeDUfodJ/6qtI+kqvAZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mtqr4rOAbMOGLIPdraku5L3euZ58PxeRrWJpMir2OteRekk1UuYanPdMVJ4CwJhai
-         h44ZlfFS7yEfxPeMRN8LNmMTuWCzNkNa9N66Saw9/hclseRLXJfATIVl0/DSAwCzAd
-         NqAp5bynmWqeAcdaTmN6IogvdXxiSC4J7X4lbbsA=
+        b=xhX2CtB3PvA+IIz0ha4z3ZfjN8RMJR5SuRYzTUP1WjSlq7KLORD/pqeH0CHnEKrIE
+         zcC2YQp+9u4fFkdlU2VvYV6mKEpALYfY/aYvmX4ior9jv4yvMEtxIn9fD352D3K19T
+         Bc2NpaiAk5QJ4dNAsO5/G+vhdssyGQ7GMD/nfyjE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Kroon <bart@tarmack.eu>,
+        stable@vger.kernel.org, Sameer Pujar <spujar@nvidia.com>,
+        Dmitry Osipenko <digetx@gmail.com>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.16 25/28] ALSA: hda: ALC287: Add Lenovo IdeaPad Slim 9i 14ITL5 speaker quirk
-Date:   Tue, 18 Jan 2022 17:06:20 +0100
-Message-Id: <20220118160453.233898093@linuxfoundation.org>
+Subject: [PATCH 5.16 26/28] ALSA: hda/tegra: Fix Tegra194 HDA reset failure
+Date:   Tue, 18 Jan 2022 17:06:21 +0100
+Message-Id: <20220118160453.263982133@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118160452.384322748@linuxfoundation.org>
 References: <20220118160452.384322748@linuxfoundation.org>
@@ -47,36 +48,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Kroon <bart@tarmack.eu>
+From: Sameer Pujar <spujar@nvidia.com>
 
-commit b81e9e5c723de936652653241d3dc4f33ae05e8c upstream.
+commit d278dc9151a034674b31ffeda24cdfb0073570f3 upstream.
 
-The speaker fixup that is used for the Yoga 7 14ITL5 also applies to
-the IdeaPad Slim 9i 14ITL5. The attached patch applies the quirk to
-initialise the amplifier on the IdeaPad Slim 9i as well.
+HDA regression is recently reported on Tegra194 based platforms.
+This happens because "hda2codec_2x" reset does not really exist
+in Tegra194 and it causes probe failure. All the HDA based audio
+tests fail at the moment. This underlying issue is exposed by
+commit c045ceb5a145 ("reset: tegra-bpmp: Handle errors in BPMP
+response") which now checks return code of BPMP command response.
+Fix this issue by skipping unavailable reset on Tegra194.
 
-This is validated to work on my laptop.
-
-[ corrected the quirk entry position by tiwai ]
-
-Signed-off-by: Bart Kroon <bart@tarmack.eu>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/JAG24R.7NLJGWBF4G8U@tarmack.eu
+Cc: stable@vger.kernel.org
+Signed-off-by: Sameer Pujar <spujar@nvidia.com>
+Reviewed-by: Dmitry Osipenko <digetx@gmail.com>
+Link: https://lore.kernel.org/r/1640260431-11613-2-git-send-email-spujar@nvidia.com
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/hda_tegra.c |   43 ++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 34 insertions(+), 9 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8952,6 +8952,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x17aa, 0x31af, "ThinkCentre Station", ALC623_FIXUP_LENOVO_THINKSTATION_P340),
- 	SND_PCI_QUIRK(0x17aa, 0x3818, "Lenovo C940", ALC298_FIXUP_LENOVO_SPK_VOLUME),
- 	SND_PCI_QUIRK(0x17aa, 0x3827, "Ideapad S740", ALC285_FIXUP_IDEAPAD_S740_COEF),
-+	SND_PCI_QUIRK(0x17aa, 0x3834, "Lenovo IdeaPad Slim 9i 14ITL5", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
- 	SND_PCI_QUIRK(0x17aa, 0x3843, "Yoga 9i", ALC287_FIXUP_IDEAPAD_BASS_SPK_AMP),
- 	SND_PCI_QUIRK(0x17aa, 0x3813, "Legion 7i 15IMHG05", ALC287_FIXUP_LEGION_15IMHG05_SPEAKERS),
- 	SND_PCI_QUIRK(0x17aa, 0x3852, "Lenovo Yoga 7 14ITL5", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
+--- a/sound/pci/hda/hda_tegra.c
++++ b/sound/pci/hda/hda_tegra.c
+@@ -68,14 +68,20 @@
+  */
+ #define TEGRA194_NUM_SDO_LINES	  4
+ 
++struct hda_tegra_soc {
++	bool has_hda2codec_2x_reset;
++};
++
+ struct hda_tegra {
+ 	struct azx chip;
+ 	struct device *dev;
+-	struct reset_control *reset;
++	struct reset_control_bulk_data resets[3];
+ 	struct clk_bulk_data clocks[3];
++	unsigned int nresets;
+ 	unsigned int nclocks;
+ 	void __iomem *regs;
+ 	struct work_struct probe_work;
++	const struct hda_tegra_soc *soc;
+ };
+ 
+ #ifdef CONFIG_PM
+@@ -170,7 +176,7 @@ static int __maybe_unused hda_tegra_runt
+ 	int rc;
+ 
+ 	if (!chip->running) {
+-		rc = reset_control_assert(hda->reset);
++		rc = reset_control_bulk_assert(hda->nresets, hda->resets);
+ 		if (rc)
+ 			return rc;
+ 	}
+@@ -187,7 +193,7 @@ static int __maybe_unused hda_tegra_runt
+ 	} else {
+ 		usleep_range(10, 100);
+ 
+-		rc = reset_control_deassert(hda->reset);
++		rc = reset_control_bulk_deassert(hda->nresets, hda->resets);
+ 		if (rc)
+ 			return rc;
+ 	}
+@@ -427,9 +433,17 @@ static int hda_tegra_create(struct snd_c
+ 	return 0;
+ }
+ 
++static const struct hda_tegra_soc tegra30_data = {
++	.has_hda2codec_2x_reset = true,
++};
++
++static const struct hda_tegra_soc tegra194_data = {
++	.has_hda2codec_2x_reset = false,
++};
++
+ static const struct of_device_id hda_tegra_match[] = {
+-	{ .compatible = "nvidia,tegra30-hda" },
+-	{ .compatible = "nvidia,tegra194-hda" },
++	{ .compatible = "nvidia,tegra30-hda", .data = &tegra30_data },
++	{ .compatible = "nvidia,tegra194-hda", .data = &tegra194_data },
+ 	{},
+ };
+ MODULE_DEVICE_TABLE(of, hda_tegra_match);
+@@ -449,6 +463,8 @@ static int hda_tegra_probe(struct platfo
+ 	hda->dev = &pdev->dev;
+ 	chip = &hda->chip;
+ 
++	hda->soc = of_device_get_match_data(&pdev->dev);
++
+ 	err = snd_card_new(&pdev->dev, SNDRV_DEFAULT_IDX1, SNDRV_DEFAULT_STR1,
+ 			   THIS_MODULE, 0, &card);
+ 	if (err < 0) {
+@@ -456,11 +472,20 @@ static int hda_tegra_probe(struct platfo
+ 		return err;
+ 	}
+ 
+-	hda->reset = devm_reset_control_array_get_exclusive(&pdev->dev);
+-	if (IS_ERR(hda->reset)) {
+-		err = PTR_ERR(hda->reset);
++	hda->resets[hda->nresets++].id = "hda";
++	hda->resets[hda->nresets++].id = "hda2hdmi";
++	/*
++	 * "hda2codec_2x" reset is not present on Tegra194. Though DT would
++	 * be updated to reflect this, but to have backward compatibility
++	 * below is necessary.
++	 */
++	if (hda->soc->has_hda2codec_2x_reset)
++		hda->resets[hda->nresets++].id = "hda2codec_2x";
++
++	err = devm_reset_control_bulk_get_exclusive(&pdev->dev, hda->nresets,
++						    hda->resets);
++	if (err)
+ 		goto out_free;
+-	}
+ 
+ 	hda->clocks[hda->nclocks++].id = "hda";
+ 	hda->clocks[hda->nclocks++].id = "hda2hdmi";
 
 
