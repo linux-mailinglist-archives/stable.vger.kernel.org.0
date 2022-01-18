@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94BD0492A17
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:06:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 177A4492A5D
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:10:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346234AbiARQGw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 11:06:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51014 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346257AbiARQGv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:06:51 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44B23C06173F;
-        Tue, 18 Jan 2022 08:06:51 -0800 (PST)
+        id S1346649AbiARQJY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 11:09:24 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:39588 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346383AbiARQI3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:08:29 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9A4EBCE1A2D;
-        Tue, 18 Jan 2022 16:06:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 779CCC00446;
-        Tue, 18 Jan 2022 16:06:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 20CAF612BE;
+        Tue, 18 Jan 2022 16:08:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE637C00446;
+        Tue, 18 Jan 2022 16:08:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642522008;
-        bh=9pdLfRAIC3i+Ov8lz3nUmCShg09W06WgYN964DB+O1w=;
+        s=korg; t=1642522108;
+        bh=7XGP7dG6+EC/xkmA/isIOueTBCAE1QOZz3FGPl9MwmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YgtzLUJqzaGQ0+ySiVKi/wsHMOEh151EslQOdOYijbWcGW2r25WcvDH+ygyCJg/vD
-         4+FjskE4Z5fEv5s1IHWXRl3glmwwfqLK9fUgOwdYhVFQ2jTkXowmcQTCm2CLpgFodo
-         p1YraCxAFuyb125zyHUGiPdq60qj8eS6OUcS/ONY=
+        b=LmY5XbGPAVDVjXjQ0CuqNK5tI8hAXTbFfeY5vlb8CTLgwmFgc/vlOKK5ApOixQoud
+         F4rchZHIRI+jxGVC4nvExLkI9xXbKDq1pV61rLTXLexbXow6aL1fvPymiq5Y4EKZpz
+         n8HMu3wqgWxwprZ1IdzgzRoQTVKEwEaJqfPMwjTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gabriel Somlo <somlo@cmu.edu>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 11/15] firmware: qemu_fw_cfg: fix kobject leak in probe error path
+        stable@vger.kernel.org, Kris Karas <bugs-a21@moonlit-rail.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Maxime Ripard <maxime@cerno.tech>
+Subject: [PATCH 5.10 10/23] video: vga16fb: Only probe for EGA and VGA 16 color graphic cards
 Date:   Tue, 18 Jan 2022 17:05:50 +0100
-Message-Id: <20220118160450.420747047@linuxfoundation.org>
+Message-Id: <20220118160451.593058388@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220118160450.062004175@linuxfoundation.org>
-References: <20220118160450.062004175@linuxfoundation.org>
+In-Reply-To: <20220118160451.233828401@linuxfoundation.org>
+References: <20220118160451.233828401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,67 +45,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Javier Martinez Canillas <javierm@redhat.com>
 
-commit 47a1db8e797da01a1309bf42e0c0d771d4e4d4f3 upstream.
+commit 0499f419b76f94ede08304aad5851144813ac55c upstream.
 
-An initialised kobject must be freed using kobject_put() to avoid
-leaking associated resources (e.g. the object name).
+The vga16fb framebuffer driver only supports Enhanced Graphics Adapter
+(EGA) and Video Graphics Array (VGA) 16 color graphic cards.
 
-Commit fe3c60684377 ("firmware: Fix a reference count leak.") "fixed"
-the leak in the first error path of the file registration helper but
-left the second one unchanged. This "fix" would however result in a NULL
-pointer dereference due to the release function also removing the never
-added entry from the fw_cfg_entry_cache list. This has now been
-addressed.
+But it doesn't check if the adapter is one of those or if a VGA16 mode
+is used. This means that the driver will be probed even if a VESA BIOS
+Extensions (VBE) or Graphics Output Protocol (GOP) interface is used.
 
-Fix the remaining kobject leak by restoring the common error path and
-adding the missing kobject_put().
+This issue has been present for a long time but it was only exposed by
+commit d391c5827107 ("drivers/firmware: move x86 Generic System
+Framebuffers support") since the platform device registration to match
+the {vesa,efi}fb drivers is done later as a consequence of that change.
 
-Fixes: 75f3e8e47f38 ("firmware: introduce sysfs driver for QEMU's fw_cfg device")
-Cc: stable@vger.kernel.org      # 4.6
-Cc: Gabriel Somlo <somlo@cmu.edu>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211201132528.30025-3-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+All non-x86 architectures though treat orig_video_isVGA as a boolean so
+only do the supported video mode check for x86 and not for other arches.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215001
+Fixes: d391c5827107 ("drivers/firmware: move x86 Generic System Framebuffers support")
+Reported-by: Kris Karas <bugs-a21@moonlit-rail.com>
+Cc: <stable@vger.kernel.org> # 5.15.x
+Signed-off-by: Javier Martinez Canillas <javierm@redhat.com>
+Tested-by: Kris Karas <bugs-a21@moonlit-rail.com>
+Acked-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220110095625.278836-3-javierm@redhat.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/qemu_fw_cfg.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/video/fbdev/vga16fb.c | 24 ++++++++++++++++++++++++
+ 1 file changed, 24 insertions(+)
 
---- a/drivers/firmware/qemu_fw_cfg.c
-+++ b/drivers/firmware/qemu_fw_cfg.c
-@@ -600,15 +600,13 @@ static int fw_cfg_register_file(const st
- 	/* register entry under "/sys/firmware/qemu_fw_cfg/by_key/" */
- 	err = kobject_init_and_add(&entry->kobj, &fw_cfg_sysfs_entry_ktype,
- 				   fw_cfg_sel_ko, "%d", entry->select);
--	if (err) {
--		kobject_put(&entry->kobj);
--		return err;
--	}
-+	if (err)
-+		goto err_put_entry;
- 
- 	/* add raw binary content access */
- 	err = sysfs_create_bin_file(&entry->kobj, &fw_cfg_sysfs_attr_raw);
- 	if (err)
--		goto err_add_raw;
-+		goto err_del_entry;
- 
- 	/* try adding "/sys/firmware/qemu_fw_cfg/by_name/" symlink */
- 	fw_cfg_build_symlink(fw_cfg_fname_kset, &entry->kobj, entry->name);
-@@ -617,9 +615,10 @@ static int fw_cfg_register_file(const st
- 	fw_cfg_sysfs_cache_enlist(entry);
- 	return 0;
- 
--err_add_raw:
-+err_del_entry:
- 	kobject_del(&entry->kobj);
--	kfree(entry);
-+err_put_entry:
-+	kobject_put(&entry->kobj);
- 	return err;
+diff --git a/drivers/video/fbdev/vga16fb.c b/drivers/video/fbdev/vga16fb.c
+index e2757ff1c23d..96e312a3eac7 100644
+--- a/drivers/video/fbdev/vga16fb.c
++++ b/drivers/video/fbdev/vga16fb.c
+@@ -184,6 +184,25 @@ static inline void setindex(int index)
+ 	vga_io_w(VGA_GFX_I, index);
  }
  
++/* Check if the video mode is supported by the driver */
++static inline int check_mode_supported(void)
++{
++	/* non-x86 architectures treat orig_video_isVGA as a boolean flag */
++#if defined(CONFIG_X86)
++	/* only EGA and VGA in 16 color graphic mode are supported */
++	if (screen_info.orig_video_isVGA != VIDEO_TYPE_EGAC &&
++	    screen_info.orig_video_isVGA != VIDEO_TYPE_VGAC)
++		return -ENODEV;
++
++	if (screen_info.orig_video_mode != 0x0D &&	/* 320x200/4 (EGA) */
++	    screen_info.orig_video_mode != 0x0E &&	/* 640x200/4 (EGA) */
++	    screen_info.orig_video_mode != 0x10 &&	/* 640x350/4 (EGA) */
++	    screen_info.orig_video_mode != 0x12)	/* 640x480/4 (VGA) */
++		return -ENODEV;
++#endif
++	return 0;
++}
++
+ static void vga16fb_pan_var(struct fb_info *info, 
+ 			    struct fb_var_screeninfo *var)
+ {
+@@ -1422,6 +1441,11 @@ static int __init vga16fb_init(void)
+ 
+ 	vga16fb_setup(option);
+ #endif
++
++	ret = check_mode_supported();
++	if (ret)
++		return ret;
++
+ 	ret = platform_driver_register(&vga16fb_driver);
+ 
+ 	if (!ret) {
+-- 
+2.34.1
+
 
 
