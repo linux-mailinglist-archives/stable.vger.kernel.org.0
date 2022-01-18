@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB3104920AF
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 08:56:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57CEF4920B0
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 08:57:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343758AbiARH4y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 02:56:54 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:59242 "EHLO
+        id S234091AbiARH45 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 02:56:57 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:59282 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343737AbiARH4x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 02:56:53 -0500
+        with ESMTP id S1343760AbiARH44 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 02:56:56 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C52706138B
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 07:56:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55C88C00446;
-        Tue, 18 Jan 2022 07:56:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DEA42613F9
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 07:56:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAFE0C00446;
+        Tue, 18 Jan 2022 07:56:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642492612;
-        bh=fKI3odA8FrGXJo6DhAW8AvFEEVk0Dwmo1jRaxJXry2A=;
+        s=korg; t=1642492615;
+        bh=XS1iUrQvXbPy8cgdojVK2rPG/46YzM37SCky50cR1js=;
         h=Subject:To:Cc:From:Date:From;
-        b=gTzZA/9XgPLfC3Lo8fsJoCvbcUWIpqHRa+xOUJ/4jik3MYUKBnf2hUeSkW8eOyFTS
-         ulMQg8zsOF1sEtOp6j6W3+SQq758kC7G4BDw41TDBMabGlGMF3y0Rgj++SqyqJclYl
-         HMtx6rvlTI9G7PZAmG0466FE2+b2f9E9ev8y8ZYA=
-Subject: FAILED: patch "[PATCH] perf: Protect perf_guest_cbs with RCU" failed to apply to 4.14-stable tree
+        b=bndSVM94dFCEoPSFObybzQVt3P2The19UVUVjUWig0pKrr7Zt4ss2pRbAuecOa/qW
+         RwqtmN9bcZpf+FVl0NqhUaDq19+ALqychWEvEFaIX0Ut/du5j7jEDsunXYNs1h+E97
+         F+0p97RtyH8UkviTDX5+P6LmoCDfjZMKD7IyeMA0=
+Subject: FAILED: patch "[PATCH] perf: Protect perf_guest_cbs with RCU" failed to apply to 4.19-stable tree
 To:     seanjc@google.com, pbonzini@redhat.com, peterz@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 18 Jan 2022 08:56:44 +0100
-Message-ID: <1642492604226122@kroah.com>
+Date:   Tue, 18 Jan 2022 08:56:46 +0100
+Message-ID: <1642492606159116@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
