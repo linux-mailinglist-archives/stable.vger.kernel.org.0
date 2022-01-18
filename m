@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A72D549141A
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:20:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3374C49141B
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:20:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238973AbiARCUH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S244489AbiARCUH (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 17 Jan 2022 21:20:07 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34802 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244343AbiARCT7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:19:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56392 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244361AbiARCUA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:20:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C61A8C061574;
+        Mon, 17 Jan 2022 18:19:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F18DB811FF;
-        Tue, 18 Jan 2022 02:19:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A8E8C36AE3;
-        Tue, 18 Jan 2022 02:19:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 63643612CF;
+        Tue, 18 Jan 2022 02:19:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB938C36AF2;
+        Tue, 18 Jan 2022 02:19:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642472397;
-        bh=xhoC9JEsQkh2x4CVlOItxInWCYdd7RSZiQ/yq62fugw=;
+        s=k20201202; t=1642472398;
+        bh=KHJX1CBivhLoDwFSvdl5GVShspbncmIWqtKSQBbrEYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OV6Gj9A9LcbnoRB8JnFSXZKYD24Dw/lSjKfiZwxoL3gHSg5CFJA26c5vj6uUq1Os4
-         /OZNzdh1ygTs1lKv6i7LO0ia752HFQNLTMlYrFrXDOnR++cI2CmNqdP1fZKLkGXUgI
-         SE04RRfJUQPubjBxnsRMvDunvcAHrSrx+/KSl30Ukrhb2afQnBxRf3G5CDKO2QvVqS
-         oVNS5WAcggVBdumqK+eT1FD35nN1ytHcpK3M5xa4zPed9LMx8xLgtDlWnBS939FkDw
-         xGRlKs/3QEesW3WyVdx8x4q2eA5kno3c2SfE2cBNpRW8EaHyBgn3Dkft0gTiH/iBlh
-         OWpyDqrzWgLqg==
+        b=YlEGAf6kl2fq43DOFQJsApfFj2OcaZBizmh8xVv81gzYsfndo4pK0ieDZ7CvRPXBO
+         913etGF93KD8uv4AKUtkwU4xAp4vnnaMBH+KZiVHAG+64C9/AtD4z+nqgR4FglwCSx
+         EY3kBcECa5Ny0ObmgEw8ndkt0KG7rKJ/LTjERESGItTI/R+Sc0FzPeZF1uOSkytzpv
+         F19e2WdDEkdPmDozf37H9bwFrPi1hxMYV3ypR/uctQAjpQPT4Tjzx1soX6owx7Ykvt
+         j0D/GPf2SCSlnrfEWaamZ5X9q/4ObHaG4eu8yti74UeUp1bAYi7M77KaifsZoMPiI8
+         /zRasjYXNvOCw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>,
-        daniel@iogearbox.net, netdev@vger.kernel.org, bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 010/217] libbpf: Validate that .BTF and .BTF.ext sections contain data
-Date:   Mon, 17 Jan 2022 21:16:13 -0500
-Message-Id: <20220118021940.1942199-10-sashal@kernel.org>
+Cc:     Qiang Yu <yuq825@gmail.com>,
+        Vasily Khoruzhick <anarsoul@gmail.com>,
+        Roman Stratiienko <r.stratiienko@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, airlied@linux.ie,
+        daniel@ffwll.ch, dri-devel@lists.freedesktop.org,
+        lima@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.16 011/217] drm/lima: fix warning when CONFIG_DEBUG_SG=y & CONFIG_DMA_API_DEBUG=y
+Date:   Mon, 17 Jan 2022 21:16:14 -0500
+Message-Id: <20220118021940.1942199-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118021940.1942199-1-sashal@kernel.org>
 References: <20220118021940.1942199-1-sashal@kernel.org>
@@ -48,41 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Qiang Yu <yuq825@gmail.com>
 
-[ Upstream commit 62554d52e71797eefa3fc15b54008038837bb2d4 ]
+[ Upstream commit 89636a06fa2ee7826a19c39c19a9bc99ab9340a9 ]
 
-.BTF and .BTF.ext ELF sections should have SHT_PROGBITS type and contain
-data. If they are not, ELF is invalid or corrupted, so bail out.
-Otherwise this can lead to data->d_buf being NULL and SIGSEGV later on.
-Reported by oss-fuzz project.
+Otherwise get following warning:
 
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20211103173213.1376990-4-andrii@kernel.org
+DMA-API: lima 1c40000.gpu: mapping sg segment longer than device claims to support [len=4149248] [max=65536]
+
+See: https://gitlab.freedesktop.org/mesa/mesa/-/issues/5496
+
+Reviewed-by: Vasily Khoruzhick <anarsoul@gmail.com>
+Reported-by: Roman Stratiienko <r.stratiienko@gmail.com>
+Signed-off-by: Qiang Yu <yuq825@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211031041604.187216-1-yuq825@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/lima/lima_device.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-index 18651e11b9ba3..7d27152dfb3a6 100644
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -3270,8 +3270,12 @@ static int bpf_object__elf_collect(struct bpf_object *obj)
- 		} else if (strcmp(name, MAPS_ELF_SEC) == 0) {
- 			obj->efile.btf_maps_shndx = idx;
- 		} else if (strcmp(name, BTF_ELF_SEC) == 0) {
-+			if (sh->sh_type != SHT_PROGBITS)
-+				return -LIBBPF_ERRNO__FORMAT;
- 			btf_data = data;
- 		} else if (strcmp(name, BTF_EXT_ELF_SEC) == 0) {
-+			if (sh->sh_type != SHT_PROGBITS)
-+				return -LIBBPF_ERRNO__FORMAT;
- 			btf_ext_data = data;
- 		} else if (sh->sh_type == SHT_SYMTAB) {
- 			/* already processed during the first pass above */
+diff --git a/drivers/gpu/drm/lima/lima_device.c b/drivers/gpu/drm/lima/lima_device.c
+index f74f8048af8f2..02cef0cea6572 100644
+--- a/drivers/gpu/drm/lima/lima_device.c
++++ b/drivers/gpu/drm/lima/lima_device.c
+@@ -358,6 +358,7 @@ int lima_device_init(struct lima_device *ldev)
+ 	int err, i;
+ 
+ 	dma_set_coherent_mask(ldev->dev, DMA_BIT_MASK(32));
++	dma_set_max_seg_size(ldev->dev, UINT_MAX);
+ 
+ 	err = lima_clk_init(ldev);
+ 	if (err)
 -- 
 2.34.1
 
