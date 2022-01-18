@@ -2,51 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07814491E08
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:47:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C11A3491A91
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:02:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343922AbiARDqX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 22:46:23 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:50332 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347408AbiARClX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:41:23 -0500
+        id S1352592AbiARDAN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 22:00:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34850 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346559AbiARCtJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:49:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDC89C06175E;
+        Mon, 17 Jan 2022 18:41:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5DA3DB81253;
-        Tue, 18 Jan 2022 02:41:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B988C36AEB;
-        Tue, 18 Jan 2022 02:41:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A88E0B81239;
+        Tue, 18 Jan 2022 02:41:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1750C36AE3;
+        Tue, 18 Jan 2022 02:41:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473681;
-        bh=mzszewQvu+rH1A9pS5GqxEif5yWkdOeZ53lYTxnWPLc=;
+        s=k20201202; t=1642473690;
+        bh=bECX07xkx2k484fsrIWFoWPuZFgoO91gV/NWmls1Tc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lwNaKyShSdlYmTqnSFm0gI5JxDr9IaPwNEEHQwOaCAOCJdx/QRpSDNXIK4lYdKioi
-         2VbZ9P2Ga2tdYk9wNat/3TwTqedhDKPpY5CgFO5j58wDUkDk/W5zUP7SLi3lD6vf2h
-         tnX/ved8PfZusEmI7ovVm6DSJMrPe3Ml4E9uz8NyS3Oc7bZRyhYhCiiOMSl16RDPfs
-         Bsx71oaPbAxuEDqTAQ8VFtRTtGHRI8qHIn5OsoonfZHdwk6xl36DPlkJeTIv6D6P2L
-         wuSgzrsv9n1exD/4QKWLPCIQtAZFMsGia0R34jjJa6Du0TVbRqEu+ThuAGT3vcx23/
-         59EbJIdEy2GBg==
+        b=eTgej2snnU2ifNA/2UNYP4yKOOG+57EA9G10s12fj5p90IObQ/A9oEVJNBAWXHk0/
+         i6G6uphlgvYXNhS8lLoAuMGpmv6gSeZ9VuZCGWdAeaklVP/IO9rBNXU2IPBmU9iU2X
+         Z9lpKPGi8hokcK96vXThcZh/bJC1vSInTjCu2M5V31kmv0qPsetDvyapeSLZ4qbuA8
+         6jtu445//JrI0qLGgvNn0hV2xQofEt0yCpQWjTlN/Q+rMV2olm/uIZLTBjur8ckwWY
+         Bqq1T52jO825d/y+ljo6lluCgLw1B7SIWo44lorqFp3EdDV9pjhi3M1rqPrsLYcIQT
+         4zv7lLBETEWgA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Li <yang.lee@linux.alibaba.com>,
-        Abaci Robot <abaci@linux.alibaba.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
-        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
-        daniel@ffwll.ch, nathan@kernel.org, ndesaulniers@google.com,
-        nicholas.kazlauskas@amd.com, Anson.Jacob@amd.com, aric.cyr@amd.com,
-        Wayne.Lin@amd.com, michael.strauss@amd.com,
-        meenakshikumar.somasundaram@amd.com, haonan.wang2@amd.com,
-        Martin.Leung@amd.com, Jimmy.Kizito@amd.com, Eric.Yang2@amd.com,
-        lee.jones@linaro.org, Lewis.Huang@amd.com, roy.chan@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.10 022/116] drm/amd/display: check top_pipe_to_program pointer
-Date:   Mon, 17 Jan 2022 21:38:33 -0500
-Message-Id: <20220118024007.1950576-22-sashal@kernel.org>
+Cc:     Jan Kiszka <jan.kiszka@siemens.com>, Suman Anna <s-anna@ti.com>,
+        Nishanth Menon <nm@ti.com>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 024/116] soc: ti: pruss: fix referenced node in error message
+Date:   Mon, 17 Jan 2022 21:38:35 -0500
+Message-Id: <20220118024007.1950576-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024007.1950576-1-sashal@kernel.org>
 References: <20220118024007.1950576-1-sashal@kernel.org>
@@ -58,45 +50,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Li <yang.lee@linux.alibaba.com>
+From: Jan Kiszka <jan.kiszka@siemens.com>
 
-[ Upstream commit a689e8d1f80012f90384ebac9dcfac4201f9f77e ]
+[ Upstream commit 8aa35e0bb5eaa42bac415ad0847985daa7b4890c ]
 
-Clang static analysis reports this error
+So far, "(null)" is reported for the node that is missing clocks.
 
-drivers/gpu/drm/amd/amdgpu/../display/dc/core/dc.c:2870:7: warning:
-Dereference of null pointer [clang-analyzer-core.NullDereference]
-                if
-(top_pipe_to_program->stream_res.tg->funcs->lock_doublebuffer_enable) {
-                    ^
-
-top_pipe_to_program being NULL is caught as an error
-But then it is used to report the error.
-
-So add a check before using it.
-
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Acked-by: Suman Anna <s-anna@ti.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Link: https://lore.kernel.org/r/d6e24953-ea89-fd1c-6e16-7a0142118054@siemens.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/soc/ti/pruss.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc.c b/drivers/gpu/drm/amd/display/dc/core/dc.c
-index 284ed1c8a35ac..93f5229c303e7 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc.c
-@@ -2436,7 +2436,8 @@ static void commit_planes_for_stream(struct dc *dc,
+diff --git a/drivers/soc/ti/pruss.c b/drivers/soc/ti/pruss.c
+index cc0b4ad7a3d34..30695172a508f 100644
+--- a/drivers/soc/ti/pruss.c
++++ b/drivers/soc/ti/pruss.c
+@@ -131,7 +131,7 @@ static int pruss_clk_init(struct pruss *pruss, struct device_node *cfg_node)
+ 
+ 	clks_np = of_get_child_by_name(cfg_node, "clocks");
+ 	if (!clks_np) {
+-		dev_err(dev, "%pOF is missing its 'clocks' node\n", clks_np);
++		dev_err(dev, "%pOF is missing its 'clocks' node\n", cfg_node);
+ 		return -ENODEV;
  	}
  
- 	if ((update_type != UPDATE_TYPE_FAST) && stream->update_flags.bits.dsc_changed)
--		if (top_pipe_to_program->stream_res.tg->funcs->lock_doublebuffer_enable) {
-+		if (top_pipe_to_program &&
-+			top_pipe_to_program->stream_res.tg->funcs->lock_doublebuffer_enable) {
- 			if (should_use_dmub_lock(stream->link)) {
- 				union dmub_hw_lock_flags hw_locks = { 0 };
- 				struct dmub_hw_lock_inst_flags inst_flags = { 0 };
 -- 
 2.34.1
 
