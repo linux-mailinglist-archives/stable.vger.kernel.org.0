@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F90D491792
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:42:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB26149179A
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:42:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346263AbiARCmT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:42:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58918 "EHLO
+        id S1346163AbiARCmR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:42:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345573AbiARCbn (ORCPT
+        with ESMTP id S1345575AbiARCbn (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:31:43 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88089C0612E1;
-        Mon, 17 Jan 2022 18:29:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 070A1C0612DF;
+        Mon, 17 Jan 2022 18:29:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49481B81256;
-        Tue, 18 Jan 2022 02:29:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D113C36AF2;
-        Tue, 18 Jan 2022 02:29:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BE578B8125A;
+        Tue, 18 Jan 2022 02:29:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C062C36AF3;
+        Tue, 18 Jan 2022 02:29:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642472982;
-        bh=dXBOlCuoOPukKy5ijeo0ko66jl0mtrClLVGnUYITNaU=;
+        s=k20201202; t=1642472983;
+        bh=g46A/5qUCfI59y4i02SYj+GUKatopABI5zCyp83hnhs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t5C4EDyLNJ2N3KH98ZDb1yF2kSVdE1oW+wwhVaTvzklom4z+vbQxhYO2LLzut5r4o
-         wFe5liy2cTmZcJHFmjtOdWpVPzpVaR+M8+nM+pOjQWHdBHmFEvHJlY/I0gqvw4ew8/
-         X0qLer50uDmRvM+A6eTCZbgfKVtxjXUkQ+So4f9U2DPm19AXrZf3At0+GGS4iX/tD5
-         dSYa4iKhLDpKUVv22d+PJoF5u0IUhSxp/HFRritAoRzVxJz2vnvCAqUUhUz76Ua+8B
-         uisHpdm9/dHCWjVbRj3V/E7VzLY3kq0lXyhmyroCGn7MxL8D8owLajff2T904SS3/0
-         dJixTnVgdbrrg==
+        b=YE+cJ6/5CDUYG4o61pP8WvSkt4zkzwd/SbvqmWdheIZsF2Sa+4LxJjDIef0cTCBuK
+         g82bp6qyrz2WPKJh4NwJR11L9gcE/BL+2hZH1MzuZMMra1tbjPgvscJPbemxY+f4Fa
+         mNdZU0yFQMi8Jx6XBVl8uLdvuFNA81eld/DOz9lFBAtC3pWTT31bqlEmYE8El/UvKj
+         Yz1uTdcRG1nNtD9/7yFsTqPMBPApGLBHggBnvYsy3cptNL9RYnltq4B/fRHw9jx0gm
+         UICzLADprn2mHUIcb3i4HlKPF5o6KEIZDgtOPMYFgdC0Uvrt5OVXiD2g5VOIzf7of5
+         Mt/3BavCTw2zg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        Hans de Goede <hdegoede@redhat.com>,
+Cc:     Mario Limonciello <mario.limonciello@amd.com>,
+        Jinzhou Su <Jinzhou.Su@amd.com>, Huang Rui <ray.huang@amd.com>,
         "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
         linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 189/217] ACPI: battery: Add the ThinkPad "Not Charging" quirk
-Date:   Mon, 17 Jan 2022 21:19:12 -0500
-Message-Id: <20220118021940.1942199-189-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.16 190/217] ACPI: CPPC: Check present CPUs for determining _CPC is valid
+Date:   Mon, 17 Jan 2022 21:19:13 -0500
+Message-Id: <20220118021940.1942199-190-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118021940.1942199-1-sashal@kernel.org>
 References: <20220118021940.1942199-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -53,80 +52,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Weißschuh <linux@weissschuh.net>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit e96c1197aca628f7d2480a1cc3214912b40b3414 ]
+[ Upstream commit 2aeca6bd02776d7f56a49a32be0dd184f204d888 ]
 
-The EC/ACPI firmware on Lenovo ThinkPads used to report a status
-of "Unknown" when the battery is between the charge start and
-charge stop thresholds. On Windows, it reports "Not Charging"
-so the quirk has been added to also report correctly.
+As this is a static check, it should be based upon what is currently
+present on the system. This makes probeing more deterministic.
 
-Now the "status" attribute returns "Not Charging" when the
-battery on ThinkPads is not physicaly charging.
+While local APIC flags field (lapic_flags) of cpu core in MADT table is
+0, then the cpu core won't be enabled. In this case, _CPC won't be found
+in this core, and return back to _CPC invalid with walking through
+possible cpus (include disable cpus). This is not expected, so switch to
+check present CPUs instead.
 
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Reported-by: Jinzhou Su <Jinzhou.Su@amd.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Huang Rui <ray.huang@amd.com>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/battery.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ drivers/acpi/cppc_acpi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
-index 8afa85d6eb6a7..ead0114f27c9f 100644
---- a/drivers/acpi/battery.c
-+++ b/drivers/acpi/battery.c
-@@ -53,6 +53,7 @@ static int battery_bix_broken_package;
- static int battery_notification_delay_ms;
- static int battery_ac_is_broken;
- static int battery_check_pmic = 1;
-+static int battery_quirk_notcharging;
- static unsigned int cache_time = 1000;
- module_param(cache_time, uint, 0644);
- MODULE_PARM_DESC(cache_time, "cache time in milliseconds");
-@@ -217,6 +218,8 @@ static int acpi_battery_get_property(struct power_supply *psy,
- 			val->intval = POWER_SUPPLY_STATUS_CHARGING;
- 		else if (acpi_battery_is_charged(battery))
- 			val->intval = POWER_SUPPLY_STATUS_FULL;
-+		else if (battery_quirk_notcharging)
-+			val->intval = POWER_SUPPLY_STATUS_NOT_CHARGING;
- 		else
- 			val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
- 		break;
-@@ -1111,6 +1114,12 @@ battery_do_not_check_pmic_quirk(const struct dmi_system_id *d)
- 	return 0;
- }
+diff --git a/drivers/acpi/cppc_acpi.c b/drivers/acpi/cppc_acpi.c
+index b62c87b8ce4a9..12a156d8283e6 100644
+--- a/drivers/acpi/cppc_acpi.c
++++ b/drivers/acpi/cppc_acpi.c
+@@ -411,7 +411,7 @@ bool acpi_cpc_valid(void)
+ 	struct cpc_desc *cpc_ptr;
+ 	int cpu;
  
-+static int __init battery_quirk_not_charging(const struct dmi_system_id *d)
-+{
-+	battery_quirk_notcharging = 1;
-+	return 0;
-+}
-+
- static const struct dmi_system_id bat_dmi_table[] __initconst = {
- 	{
- 		/* NEC LZ750/LS */
-@@ -1155,6 +1164,19 @@ static const struct dmi_system_id bat_dmi_table[] __initconst = {
- 			DMI_MATCH(DMI_PRODUCT_VERSION, "Lenovo MIIX 320-10ICR"),
- 		},
- 	},
-+	{
-+		/*
-+		 * On Lenovo ThinkPads the BIOS specification defines
-+		 * a state when the bits for charging and discharging
-+		 * are both set to 0. That state is "Not Charging".
-+		 */
-+		.callback = battery_quirk_not_charging,
-+		.ident = "Lenovo ThinkPad",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad"),
-+		},
-+	},
- 	{},
- };
- 
+-	for_each_possible_cpu(cpu) {
++	for_each_present_cpu(cpu) {
+ 		cpc_ptr = per_cpu(cpc_desc_ptr, cpu);
+ 		if (!cpc_ptr)
+ 			return false;
 -- 
 2.34.1
 
