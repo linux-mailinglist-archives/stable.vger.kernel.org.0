@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE6B14915E7
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:32:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC891491636
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:33:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238963AbiARCcM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1345900AbiARCcM (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 17 Jan 2022 21:32:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58666 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344078AbiARC2w (ORCPT
+        with ESMTP id S1344079AbiARC2w (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:28:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFB12C0612AC;
-        Mon, 17 Jan 2022 18:26:01 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FC63C0612AD;
+        Mon, 17 Jan 2022 18:26:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 79027B81255;
-        Tue, 18 Jan 2022 02:26:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A87BC36AE3;
-        Tue, 18 Jan 2022 02:25:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C2E0F60AE3;
+        Tue, 18 Jan 2022 02:26:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9579C36AEB;
+        Tue, 18 Jan 2022 02:26:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642472760;
-        bh=l5m0JNrwApBjUgpOL2jCcyrk+wjkCLYERdR8P9Cx/Vw=;
+        s=k20201202; t=1642472762;
+        bh=v4GfyUoxO/3i7wg7IBAZoBsHea3YJJ73B4jQ4QK/cWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KsqCz5Xgxy/cYo0kmAq7wcKtn/VSxyLlCWSF2Ib1QRP+EKmZ4bS0znbUh+h1urEXj
-         TB8rrS0dnKtHcBQWSDMu7ZA921+fg8gcuvBpZjNfTLBhjefYr1XIF9gDGWvM0nj3lh
-         pNEglrCuP8aDfXNLEmnULcDkfSSdzBxE+0OYT+U0Kl1vmotMitF3gtgEErfwdSdRQ6
-         PqF7qlfu6E9LsJj/kJaywV76xYquHXRAJUO0HpZwbQZJTbi6dF7IYZTjV0NoMx7w5u
-         ZqEU+fB65SaBq0W23/VMcC/pZV5NxKsdXWLFweOSdG0PeUq3M/RnY/L/+B7R+te7yQ
-         AxD//H85jYpEw==
+        b=jmtH46wVrTx+CCCwsFGwTY5DZiIRwqLuCcKTYrTtjkXV/75cfXRQFad7PELcUg5EE
+         AeJWrJ5RXEgdfoFybDwKS3vsSopCObasYvwUxfmFJ743+UqnIJK/8C3wmtJIEs4pHk
+         2xlaJssl0LN5uWQaqR4xhKHda/jcwvSYK1IUYCFD3isRB9pJrer1pcxlbYx36+quXb
+         kLyu4IEtKIH5iQGd/araTzjcNSbJs3nBEAO6C1nES40KzhQKK4GmXkinN/aNpZu7Yc
+         p7cC0Yk1iqGdZa/UyTQ6edZbMDg8M0t5UtcQCydecN0tTs1hQPzTvguEluwu9V12ss
+         8csQ/Eft94XVQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Gow <davidgow@google.com>,
-        Daniel Latypov <dlatypov@google.com>,
-        Brendan Higgins <brendanhiggins@google.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-kselftest@vger.kernel.org, kunit-dev@googlegroups.com
-Subject: [PATCH AUTOSEL 5.16 128/217] kunit: Don't crash if no parameters are generated
-Date:   Mon, 17 Jan 2022 21:18:11 -0500
-Message-Id: <20220118021940.1942199-128-sashal@kernel.org>
+Cc:     Paolo Abeni <pabeni@redhat.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, ast@kernel.org,
+        andrii@kernel.org, davem@davemloft.net, kuba@kernel.org,
+        hawk@kernel.org, john.fastabend@gmail.com, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 129/217] bpf: Do not WARN in bpf_warn_invalid_xdp_action()
+Date:   Mon, 17 Jan 2022 21:18:12 -0500
+Message-Id: <20220118021940.1942199-129-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118021940.1942199-1-sashal@kernel.org>
 References: <20220118021940.1942199-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -53,67 +55,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Gow <davidgow@google.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit 37dbb4c7c7442dbfc9b651e4ddd4afe30b26afc9 ]
+[ Upstream commit 2cbad989033bff0256675c38f96f5faab852af4b ]
 
-It's possible that a parameterised test could end up with zero
-parameters. At the moment, the test function will nevertheless be called
-with NULL as the parameter. Instead, don't try to run the test code, and
-just mark the test as SKIPped.
+The WARN_ONCE() in bpf_warn_invalid_xdp_action() can be triggered by
+any bugged program, and even attaching a correct program to a NIC
+not supporting the given action.
 
-Reported-by: Daniel Latypov <dlatypov@google.com>
-Signed-off-by: David Gow <davidgow@google.com>
-Reviewed-by: Daniel Latypov <dlatypov@google.com>
-Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+The resulting splat, beyond polluting the logs, fouls automated tools:
+e.g. a syzkaller reproducers using an XDP program returning an
+unsupported action will never pass validation.
+
+Replace the WARN_ONCE with a less intrusive pr_warn_once().
+
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Link: https://lore.kernel.org/bpf/016ceec56e4817ebb2a9e35ce794d5c917df572c.1638189075.git.pabeni@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/kunit/test.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ net/core/filter.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/lib/kunit/test.c b/lib/kunit/test.c
-index 3bd741e50a2d3..f96498ede2cc5 100644
---- a/lib/kunit/test.c
-+++ b/lib/kunit/test.c
-@@ -504,16 +504,18 @@ int kunit_run_tests(struct kunit_suite *suite)
- 		struct kunit_result_stats param_stats = { 0 };
- 		test_case->status = KUNIT_SKIPPED;
+diff --git a/net/core/filter.c b/net/core/filter.c
+index 6102f093d59a5..04032f64e01bc 100644
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -8185,9 +8185,9 @@ void bpf_warn_invalid_xdp_action(u32 act)
+ {
+ 	const u32 act_max = XDP_REDIRECT;
  
--		if (test_case->generate_params) {
-+		if (!test_case->generate_params) {
-+			/* Non-parameterised test. */
-+			kunit_run_case_catch_errors(suite, test_case, &test);
-+			kunit_update_stats(&param_stats, test.status);
-+		} else {
- 			/* Get initial param. */
- 			param_desc[0] = '\0';
- 			test.param_value = test_case->generate_params(NULL, param_desc);
--		}
- 
--		do {
--			kunit_run_case_catch_errors(suite, test_case, &test);
-+			while (test.param_value) {
-+				kunit_run_case_catch_errors(suite, test_case, &test);
- 
--			if (test_case->generate_params) {
- 				if (param_desc[0] == '\0') {
- 					snprintf(param_desc, sizeof(param_desc),
- 						 "param-%d", test.param_index);
-@@ -530,11 +532,11 @@ int kunit_run_tests(struct kunit_suite *suite)
- 				param_desc[0] = '\0';
- 				test.param_value = test_case->generate_params(test.param_value, param_desc);
- 				test.param_index++;
--			}
- 
--			kunit_update_stats(&param_stats, test.status);
-+				kunit_update_stats(&param_stats, test.status);
-+			}
-+		}
- 
--		} while (test.param_value);
- 
- 		kunit_print_test_stats(&test, param_stats);
+-	WARN_ONCE(1, "%s XDP return value %u, expect packet loss!\n",
+-		  act > act_max ? "Illegal" : "Driver unsupported",
+-		  act);
++	pr_warn_once("%s XDP return value %u, expect packet loss!\n",
++		     act > act_max ? "Illegal" : "Driver unsupported",
++		     act);
+ }
+ EXPORT_SYMBOL_GPL(bpf_warn_invalid_xdp_action);
  
 -- 
 2.34.1
