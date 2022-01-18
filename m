@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B6AA1491A8D
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:02:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B6F9491DFF
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:45:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352713AbiARDA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 22:00:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34474 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349503AbiARCtn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:49:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D056BC061794;
-        Mon, 17 Jan 2022 18:42:11 -0800 (PST)
+        id S244791AbiARDpv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 22:45:51 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:50968 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345636AbiARCmQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:42:16 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 24A51612F3;
-        Tue, 18 Jan 2022 02:42:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B452AC36AEB;
-        Tue, 18 Jan 2022 02:42:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3853BB8125D;
+        Tue, 18 Jan 2022 02:42:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CE6FC36AF2;
+        Tue, 18 Jan 2022 02:42:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473730;
-        bh=zfEYjZPtuQKLUiQd334jkr6Im+SBhh1cinJVAghTffk=;
+        s=k20201202; t=1642473732;
+        bh=WQCIdyoCBqzT1RiVCy6TIWZuU6QVvUeH/y9HpzGEJrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BynXSYCa+Dd2TEks3LZVfmF1sw/6yhuHELAGAW97JLxe/oBdIgoPaIfAgVwZp68aa
-         i4Ptrcc/F5YSDgy56VHNTfpuQpMaG6QW4XbSUiIAlGoIPgF8958gD04ihgG+Q8xJCq
-         sC0bGglIsI1oz6T6bNj6Ikw/nXgMaS51/GM9CzyhLmeSDjAgI1jAMeUCB2xL4KWZnW
-         xRteIp5hAUxkHwUY/VzzuM7Vz3YpLadc+9iudo44aEkxkGIS6nFwXBRbuaP0Yyt0fA
-         ZhvYE/b5zmrlP6nSL+O7JFCIXHpM8DuhBUf7N3fZV8Rn98ph6rXZQgt+huLslp98aA
-         qwgjAqrjmcGXg==
+        b=VrIUp4rEIRJ0vY4LBj64W+dnTt23tEV/Nww6hQs+WX5wtKyfOF/kjNBMNyGlmqqCW
+         MXLKEX7ynNenxjLcRqJiW+l64lOX1ezjwTiDzXFuwNPg+BKE2drehLdCpU3jsPXJLs
+         u23OB3W+r+QGXlCnUf24TgdAqcVGLkda4zDkzNKLCe2so3U4zDKnv351i8+XyoZrRH
+         k7GsNLa02EMIlQVnDSsKzru4GpOBR5B5Fd+dbtCFzun0dmNo+TPRXUi74VWBHje5PZ
+         zOp+o5R0H+s5wyKY6ao8ujifBuk2Ihb3JfDvvBhox40RdEaHUqssIJqJQXTTYblB1e
+         qcFixUgNvIAfw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joerg Roedel <jroedel@suse.de>, Borislav Petkov <bp@suse.de>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, dpreed@deepplum.com, hpa@zytor.com,
-        paul.gortmaker@windriver.com, pbonzini@redhat.com,
-        seanjc@google.com, thomas.lendacky@amd.com, rppt@kernel.org,
-        mick@ics.forth.gr, brijesh.singh@amd.com
-Subject: [PATCH AUTOSEL 5.10 043/116] x86/mm: Flush global TLB when switching to trampoline page-table
-Date:   Mon, 17 Jan 2022 21:38:54 -0500
-Message-Id: <20220118024007.1950576-43-sashal@kernel.org>
+Cc:     Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Sasha Levin <sashal@kernel.org>,
+        laurent.pinchart@ideasonboard.com,
+        kieran.bingham+renesas@ideasonboard.com, airlied@linux.ie,
+        daniel@ffwll.ch, dri-devel@lists.freedesktop.org,
+        linux-renesas-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 044/116] drm: rcar-du: Fix CRTC timings when CMM is used
+Date:   Mon, 17 Jan 2022 21:38:55 -0500
+Message-Id: <20220118024007.1950576-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024007.1950576-1-sashal@kernel.org>
 References: <20220118024007.1950576-1-sashal@kernel.org>
@@ -54,101 +50,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 
-[ Upstream commit 71d5049b053876afbde6c3273250b76935494ab2 ]
+[ Upstream commit f0ce591dc9a97067c6e783a2eaccd22c5476144d ]
 
-Move the switching code into a function so that it can be re-used and
-add a global TLB flush. This makes sure that usage of memory which is
-not mapped in the trampoline page-table is reliably caught.
+When the CMM is enabled, an offset of 25 pixels must be subtracted from
+the HDS (horizontal display start) and HDE (horizontal display end)
+registers. Fix the timings calculation, and take this into account in
+the mode validation.
 
-Also move the clearing of CR4.PCIDE before the CR3 switch because the
-cr4_clear_bits() function will access data not mapped into the
-trampoline page-table.
+This fixes a visible horizontal offset in the image with VGA monitors.
+HDMI monitors seem to be generally more tolerant to incorrect timings,
+but may be affected too.
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20211202153226.22946-4-joro@8bytes.org
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/realmode.h |  1 +
- arch/x86/kernel/reboot.c        | 12 ++----------
- arch/x86/realmode/init.c        | 26 ++++++++++++++++++++++++++
- 3 files changed, 29 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/rcar-du/rcar_du_crtc.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/include/asm/realmode.h b/arch/x86/include/asm/realmode.h
-index 5db5d083c8732..331474b150f16 100644
---- a/arch/x86/include/asm/realmode.h
-+++ b/arch/x86/include/asm/realmode.h
-@@ -89,6 +89,7 @@ static inline void set_real_mode_mem(phys_addr_t mem)
- }
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
+index 1b9738e44909d..065604c5837de 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
++++ b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
+@@ -215,6 +215,7 @@ static void rcar_du_crtc_set_display_timing(struct rcar_du_crtc *rcrtc)
+ 	const struct drm_display_mode *mode = &rcrtc->crtc.state->adjusted_mode;
+ 	struct rcar_du_device *rcdu = rcrtc->dev;
+ 	unsigned long mode_clock = mode->clock * 1000;
++	unsigned int hdse_offset;
+ 	u32 dsmr;
+ 	u32 escr;
  
- void reserve_real_mode(void);
-+void load_trampoline_pgtable(void);
+@@ -298,10 +299,15 @@ static void rcar_du_crtc_set_display_timing(struct rcar_du_crtc *rcrtc)
+ 	     | DSMR_DIPM_DISP | DSMR_CSPM;
+ 	rcar_du_crtc_write(rcrtc, DSMR, dsmr);
  
- #endif /* __ASSEMBLY__ */
++	hdse_offset = 19;
++	if (rcrtc->group->cmms_mask & BIT(rcrtc->index % 2))
++		hdse_offset += 25;
++
+ 	/* Display timings */
+-	rcar_du_crtc_write(rcrtc, HDSR, mode->htotal - mode->hsync_start - 19);
++	rcar_du_crtc_write(rcrtc, HDSR, mode->htotal - mode->hsync_start -
++					hdse_offset);
+ 	rcar_du_crtc_write(rcrtc, HDER, mode->htotal - mode->hsync_start +
+-					mode->hdisplay - 19);
++					mode->hdisplay - hdse_offset);
+ 	rcar_du_crtc_write(rcrtc, HSWR, mode->hsync_end -
+ 					mode->hsync_start - 1);
+ 	rcar_du_crtc_write(rcrtc, HCR,  mode->htotal - 1);
+@@ -831,6 +837,7 @@ rcar_du_crtc_mode_valid(struct drm_crtc *crtc,
+ 	struct rcar_du_crtc *rcrtc = to_rcar_crtc(crtc);
+ 	struct rcar_du_device *rcdu = rcrtc->dev;
+ 	bool interlaced = mode->flags & DRM_MODE_FLAG_INTERLACE;
++	unsigned int min_sync_porch;
+ 	unsigned int vbp;
  
-diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
-index 798a6f73f8946..df3514835b356 100644
---- a/arch/x86/kernel/reboot.c
-+++ b/arch/x86/kernel/reboot.c
-@@ -113,17 +113,9 @@ void __noreturn machine_real_restart(unsigned int type)
- 	spin_unlock(&rtc_lock);
+ 	if (interlaced && !rcar_du_has(rcdu, RCAR_DU_FEATURE_INTERLACED))
+@@ -838,9 +845,14 @@ rcar_du_crtc_mode_valid(struct drm_crtc *crtc,
  
  	/*
--	 * Switch back to the initial page table.
-+	 * Switch to the trampoline page table.
+ 	 * The hardware requires a minimum combined horizontal sync and back
+-	 * porch of 20 pixels and a minimum vertical back porch of 3 lines.
++	 * porch of 20 pixels (when CMM isn't used) or 45 pixels (when CMM is
++	 * used), and a minimum vertical back porch of 3 lines.
  	 */
--#ifdef CONFIG_X86_32
--	load_cr3(initial_page_table);
--#else
--	write_cr3(real_mode_header->trampoline_pgd);
--
--	/* Exiting long mode will fail if CR4.PCIDE is set. */
--	if (boot_cpu_has(X86_FEATURE_PCID))
--		cr4_clear_bits(X86_CR4_PCIDE);
--#endif
-+	load_trampoline_pgtable();
+-	if (mode->htotal - mode->hsync_start < 20)
++	min_sync_porch = 20;
++	if (rcrtc->group->cmms_mask & BIT(rcrtc->index % 2))
++		min_sync_porch += 25;
++
++	if (mode->htotal - mode->hsync_start < min_sync_porch)
+ 		return MODE_HBLANK_NARROW;
  
- 	/* Jump to the identity-mapped low memory code */
- #ifdef CONFIG_X86_32
-diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
-index 3313bffbecd4d..1a702c6a226ec 100644
---- a/arch/x86/realmode/init.c
-+++ b/arch/x86/realmode/init.c
-@@ -17,6 +17,32 @@ u32 *trampoline_cr4_features;
- /* Hold the pgd entry used on booting additional CPUs */
- pgd_t trampoline_pgd_entry;
- 
-+void load_trampoline_pgtable(void)
-+{
-+#ifdef CONFIG_X86_32
-+	load_cr3(initial_page_table);
-+#else
-+	/*
-+	 * This function is called before exiting to real-mode and that will
-+	 * fail with CR4.PCIDE still set.
-+	 */
-+	if (boot_cpu_has(X86_FEATURE_PCID))
-+		cr4_clear_bits(X86_CR4_PCIDE);
-+
-+	write_cr3(real_mode_header->trampoline_pgd);
-+#endif
-+
-+	/*
-+	 * The CR3 write above will not flush global TLB entries.
-+	 * Stale, global entries from previous page tables may still be
-+	 * present.  Flush those stale entries.
-+	 *
-+	 * This ensures that memory accessed while running with
-+	 * trampoline_pgd is *actually* mapped into trampoline_pgd.
-+	 */
-+	__flush_tlb_all();
-+}
-+
- void __init reserve_real_mode(void)
- {
- 	phys_addr_t mem;
+ 	vbp = (mode->vtotal - mode->vsync_end) / (interlaced ? 2 : 1);
 -- 
 2.34.1
 
