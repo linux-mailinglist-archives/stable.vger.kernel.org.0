@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 398DF492A7F
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:10:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D18AC492AA2
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:12:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235778AbiARQKj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 11:10:39 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:41302 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243397AbiARQJ1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:09:27 -0500
+        id S1347320AbiARQMO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 11:12:14 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:41606 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347385AbiARQKf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:10:35 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6AF0FCE1A33;
-        Tue, 18 Jan 2022 16:09:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 108A7C00446;
-        Tue, 18 Jan 2022 16:09:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 444206127D;
+        Tue, 18 Jan 2022 16:10:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02389C00446;
+        Tue, 18 Jan 2022 16:10:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642522163;
-        bh=aGmo8phtXGKjYkogyfosEDhdfyzWaPgWcxlOHzEJ7as=;
+        s=korg; t=1642522233;
+        bh=ERFngSnK8NWlq1S9iWKrXO753FmDpH8p3lhZOH5OLis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dx50tyC/huWJbs31Pzba5Naw2xri+HUWR49bf4I4UzkRHHoppcQ7PO6czv1uNGK4Q
-         UF2Ekicf59slHsf/lYhYrreNvS2VeQ7Ij4vvWjmNeoO7m9gn7uhT/Gf4zk9Eneq0GO
-         tDJgIeV74hhIapJaXNT3l3ej8L7gBWW815NLuT78=
+        b=mgB9/Ro3FfS/pTTfgFrcCLqRS6kzwa144AEVUn+VWDamAeA5+mQosM6lvSsx0Q2p/
+         Jj5yKvukgRlvUp1bccncXr9bHe8VaaaEyWRQHwhuqu7ZfWiiRFbDQxXivAG2qPKNnr
+         VV+hBowNabSmXRJdKu5RzQ5WJFtDIaB4mSiM5mzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wei Wang <wei.w.wang@intel.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 20/28] KVM: x86: remove PMU FIXED_CTR3 from msrs_to_save_all
-Date:   Tue, 18 Jan 2022 17:06:06 +0100
-Message-Id: <20220118160452.549838012@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Chuck Lever <chuck.lever@oracle.com>
+Subject: [PATCH 5.16 12/28] NFSD: Fix zero-length NFSv3 WRITEs
+Date:   Tue, 18 Jan 2022 17:06:07 +0100
+Message-Id: <20220118160452.813222449@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220118160451.879092022@linuxfoundation.org>
-References: <20220118160451.879092022@linuxfoundation.org>
+In-Reply-To: <20220118160452.384322748@linuxfoundation.org>
+References: <20220118160452.384322748@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +45,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Wang <wei.w.wang@intel.com>
+From: Chuck Lever <chuck.lever@oracle.com>
 
-commit 9fb12fe5b93b94b9e607509ba461e17f4cc6a264 upstream.
+commit 6a2f774424bfdcc2df3e17de0cefe74a4269cad5 upstream.
 
-The fixed counter 3 is used for the Topdown metrics, which hasn't been
-enabled for KVM guests. Userspace accessing to it will fail as it's not
-included in get_fixed_pmc(). This breaks KVM selftests on ICX+ machines,
-which have this counter.
+The Linux NFS server currently responds to a zero-length NFSv3 WRITE
+request with NFS3ERR_IO. It responds to a zero-length NFSv4 WRITE
+with NFS4_OK and count of zero.
 
-To reproduce it on ICX+ machines, ./state_test reports:
-==== Test Assertion Failure ====
-lib/x86_64/processor.c:1078: r == nmsrs
-pid=4564 tid=4564 - Argument list too long
-1  0x000000000040b1b9: vcpu_save_state at processor.c:1077
-2  0x0000000000402478: main at state_test.c:209 (discriminator 6)
-3  0x00007fbe21ed5f92: ?? ??:0
-4  0x000000000040264d: _start at ??:?
- Unexpected result from KVM_GET_MSRS, r: 17 (failed MSR was 0x30c)
+RFC 1813 says of the WRITE procedure's @count argument:
 
-With this patch, it works well.
+count
+         The number of bytes of data to be written. If count is
+         0, the WRITE will succeed and return a count of 0,
+         barring errors due to permissions checking.
 
-Signed-off-by: Wei Wang <wei.w.wang@intel.com>
-Message-Id: <20211217124934.32893-1-wei.w.wang@intel.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Fixes: e2ada66ec418 ("kvm: x86: Add Intel PMU MSRs to msrs_to_save[]")
+RFC 8881 has similar language for NFSv4, though NFSv4 removed the
+explicit @count argument because that value is already contained in
+the opaque payload array.
+
+The synthetic client pynfs's WRT4 and WRT15 tests do emit zero-
+length WRITEs to exercise this spec requirement. Commit fdec6114ee1f
+("nfsd4: zero-length WRITE should succeed") addressed the same
+problem there with the same fix.
+
+But interestingly the Linux NFS client does not appear to emit zero-
+length WRITEs, instead squelching them. I'm not aware of a test that
+can generate such WRITEs for NFSv3, so I wrote a naive C program to
+generate a zero-length WRITE and test this fix.
+
+Fixes: 8154ef2776aa ("NFSD: Clean up legacy NFS WRITE argument XDR decoders")
+Reported-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfsd/nfs3proc.c |    6 +-----
+ fs/nfsd/nfsproc.c  |    5 -----
+ 2 files changed, 1 insertion(+), 10 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -1323,7 +1323,7 @@ static const u32 msrs_to_save_all[] = {
- 	MSR_IA32_UMWAIT_CONTROL,
+--- a/fs/nfsd/nfs3proc.c
++++ b/fs/nfsd/nfs3proc.c
+@@ -202,15 +202,11 @@ nfsd3_proc_write(struct svc_rqst *rqstp)
+ 	fh_copy(&resp->fh, &argp->fh);
+ 	resp->committed = argp->stable;
+ 	nvecs = svc_fill_write_vector(rqstp, &argp->payload);
+-	if (!nvecs) {
+-		resp->status = nfserr_io;
+-		goto out;
+-	}
++
+ 	resp->status = nfsd_write(rqstp, &resp->fh, argp->offset,
+ 				  rqstp->rq_vec, nvecs, &cnt,
+ 				  resp->committed, resp->verf);
+ 	resp->count = cnt;
+-out:
+ 	return rpc_success;
+ }
  
- 	MSR_ARCH_PERFMON_FIXED_CTR0, MSR_ARCH_PERFMON_FIXED_CTR1,
--	MSR_ARCH_PERFMON_FIXED_CTR0 + 2, MSR_ARCH_PERFMON_FIXED_CTR0 + 3,
-+	MSR_ARCH_PERFMON_FIXED_CTR0 + 2,
- 	MSR_CORE_PERF_FIXED_CTR_CTRL, MSR_CORE_PERF_GLOBAL_STATUS,
- 	MSR_CORE_PERF_GLOBAL_CTRL, MSR_CORE_PERF_GLOBAL_OVF_CTRL,
- 	MSR_ARCH_PERFMON_PERFCTR0, MSR_ARCH_PERFMON_PERFCTR1,
+--- a/fs/nfsd/nfsproc.c
++++ b/fs/nfsd/nfsproc.c
+@@ -235,10 +235,6 @@ nfsd_proc_write(struct svc_rqst *rqstp)
+ 		argp->len, argp->offset);
+ 
+ 	nvecs = svc_fill_write_vector(rqstp, &argp->payload);
+-	if (!nvecs) {
+-		resp->status = nfserr_io;
+-		goto out;
+-	}
+ 
+ 	resp->status = nfsd_write(rqstp, fh_copy(&resp->fh, &argp->fh),
+ 				  argp->offset, rqstp->rq_vec, nvecs,
+@@ -247,7 +243,6 @@ nfsd_proc_write(struct svc_rqst *rqstp)
+ 		resp->status = fh_getattr(&resp->fh, &resp->stat);
+ 	else if (resp->status == nfserr_jukebox)
+ 		return rpc_drop_reply;
+-out:
+ 	return rpc_success;
+ }
+ 
 
 
