@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17F6E49148F
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:23:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F204049148C
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:23:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244879AbiARCXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:23:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57064 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245010AbiARCW1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:22:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C0CFC06173F;
-        Mon, 17 Jan 2022 18:22:27 -0800 (PST)
+        id S245150AbiARCXK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:23:10 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:39016 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244864AbiARCW2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:22:28 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ED3E8604EF;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5839B60A6B;
+        Tue, 18 Jan 2022 02:22:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD179C36AEF;
         Tue, 18 Jan 2022 02:22:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2E18C36AE3;
-        Tue, 18 Jan 2022 02:22:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642472546;
-        bh=A6mPTM9vcIfG+G/12YG4GMV7Lxx2UDvOqt7qvH2QNTo=;
+        s=k20201202; t=1642472547;
+        bh=1EyoLpH3u/C9VtsMId1mXlNNHGrLClCkoMSf0/DC940=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m/+LuQThtogVrqwUcMAripjOH0F7aORnM/gowMSSAfJR44gjF0ZpDPesyMxT4efY9
-         Eq7PB/UxYC9XbLvQiSLsX+xBZ8+Vcn0xvwY0c3YYcHwUlHjCj9Ewjii3hBMVvii2CF
-         Dr3iV6V8lITcy49CGeAPQO87p0IhJy17v3L4C+3lDFsLWL4oxEdxh5isu1v0luGRAS
-         L0JYHvSDyLhMMabqr+Q7+ih4CWmQekXqKMK4troDl5PZjwUkMsuqQGJ9oUxvunpYyD
-         QeHTM6TAoONmaz6ENDs/mXzMMw8JYVIRssnN/fZSgHQXokzF6RlMx4ksRKMZY756Pz
-         ZtO6U1A3V01OQ==
+        b=hNkTQqXuYgVeFdMG8aVRz/PbIoxCFufQJAN/cZrncaETkooaUxzVbaUcMYKildpcP
+         pxeryes58xIx+WecBMZtpP2wFqmBBkUPSn4Ag6tetUbyxn8NP7clXyYPkDA7dZc36F
+         b9HDwlULvspeZrU6g/AvDisppJYacWYjkDfRWpn3zcOmXil8Rekdo5qD5SYSm6e1sY
+         sajZqVfOQrBXV0zBRh8jMkCxRqQHMmTylhC5XKIi32Y98JAOqaENBc9//aI9uJpmSn
+         iQQ9GCTZ2U2kn4wOWjTjMwacAwmwANZfErR/A4WSPCS/zXFwNsrpFwlRhJqnpgLRkw
+         NGm7SG/C4nsGg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jakub Kicinski <kuba@kernel.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 047/217] cirrus: mac89x0: use eth_hw_addr_set()
-Date:   Mon, 17 Jan 2022 21:16:50 -0500
-Message-Id: <20220118021940.1942199-47-sashal@kernel.org>
+Cc:     =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        jikos@kernel.org, benjamin.tissoires@redhat.com,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 048/217] HID: magicmouse: Report battery level over USB
+Date:   Mon, 17 Jan 2022 21:16:51 -0500
+Message-Id: <20220118021940.1942199-48-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118021940.1942199-1-sashal@kernel.org>
 References: <20220118021940.1942199-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -50,43 +49,184 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: José Expósito <jose.exposito89@gmail.com>
 
-[ Upstream commit 9a962aedd30f7fceb828d3161a80e0526e358eb5 ]
+[ Upstream commit 0b91b4e4dae63cd43871fc2012370b86ee588f91 ]
 
-Byte by byte assignments.
+When connected over USB, the Apple Magic Mouse 2 and the Apple Magic
+Trackpad 2 register multiple interfaces, one of them is used to report
+the battery level.
 
-Fixes build on m68k.
+However, unlike when connected over Bluetooth, the battery level is not
+reported automatically and it is required to fetch it manually.
 
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix the battery report descriptor and add a timer to fetch the battery
+level.
+
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cirrus/mac89x0.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/hid/hid-magicmouse.c | 94 +++++++++++++++++++++++++++++++++---
+ 1 file changed, 88 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/ethernet/cirrus/mac89x0.c b/drivers/net/ethernet/cirrus/mac89x0.c
-index 84251b85fc931..21a70b1f0ac50 100644
---- a/drivers/net/ethernet/cirrus/mac89x0.c
-+++ b/drivers/net/ethernet/cirrus/mac89x0.c
-@@ -242,12 +242,15 @@ static int mac89x0_device_probe(struct platform_device *pdev)
- 		pr_info("No EEPROM, giving up now.\n");
- 		goto out1;
-         } else {
-+		u8 addr[ETH_ALEN];
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index d7687ce706144..eba1e8087bfd1 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -57,6 +57,8 @@ MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state fie
+ #define MOUSE_REPORT_ID    0x29
+ #define MOUSE2_REPORT_ID   0x12
+ #define DOUBLE_REPORT_ID   0xf7
++#define USB_BATTERY_TIMEOUT_MS 60000
 +
-                 for (i = 0; i < ETH_ALEN; i += 2) {
- 			/* Big-endian (why??!) */
- 			unsigned short s = readreg(dev, PP_IA + i);
--                        dev->dev_addr[i] = s >> 8;
--                        dev->dev_addr[i+1] = s & 0xff;
-+			addr[i] = s >> 8;
-+			addr[i+1] = s & 0xff;
-                 }
-+		eth_hw_addr_set(dev, addr);
-         }
+ /* These definitions are not precise, but they're close enough.  (Bits
+  * 0x03 seem to indicate the aspect ratio of the touch, bits 0x70 seem
+  * to be some kind of bit mask -- 0x20 may be a near-field reading,
+@@ -140,6 +142,7 @@ struct magicmouse_sc {
  
- 	dev->irq = SLOT2IRQ(slot);
+ 	struct hid_device *hdev;
+ 	struct delayed_work work;
++	struct timer_list battery_timer;
+ };
+ 
+ static int magicmouse_firm_touch(struct magicmouse_sc *msc)
+@@ -738,6 +741,44 @@ static void magicmouse_enable_mt_work(struct work_struct *work)
+ 		hid_err(msc->hdev, "unable to request touch data (%d)\n", ret);
+ }
+ 
++static int magicmouse_fetch_battery(struct hid_device *hdev)
++{
++#ifdef CONFIG_HID_BATTERY_STRENGTH
++	struct hid_report_enum *report_enum;
++	struct hid_report *report;
++
++	if (!hdev->battery || hdev->vendor != USB_VENDOR_ID_APPLE ||
++	    (hdev->product != USB_DEVICE_ID_APPLE_MAGICMOUSE2 &&
++	     hdev->product != USB_DEVICE_ID_APPLE_MAGICTRACKPAD2))
++		return -1;
++
++	report_enum = &hdev->report_enum[hdev->battery_report_type];
++	report = report_enum->report_id_hash[hdev->battery_report_id];
++
++	if (!report || report->maxfield < 1)
++		return -1;
++
++	if (hdev->battery_capacity == hdev->battery_max)
++		return -1;
++
++	hid_hw_request(hdev, report, HID_REQ_GET_REPORT);
++	return 0;
++#else
++	return -1;
++#endif
++}
++
++static void magicmouse_battery_timer_tick(struct timer_list *t)
++{
++	struct magicmouse_sc *msc = from_timer(msc, t, battery_timer);
++	struct hid_device *hdev = msc->hdev;
++
++	if (magicmouse_fetch_battery(hdev) == 0) {
++		mod_timer(&msc->battery_timer,
++			  jiffies + msecs_to_jiffies(USB_BATTERY_TIMEOUT_MS));
++	}
++}
++
+ static int magicmouse_probe(struct hid_device *hdev,
+ 	const struct hid_device_id *id)
+ {
+@@ -745,11 +786,6 @@ static int magicmouse_probe(struct hid_device *hdev,
+ 	struct hid_report *report;
+ 	int ret;
+ 
+-	if (id->vendor == USB_VENDOR_ID_APPLE &&
+-	    id->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2 &&
+-	    hdev->type != HID_TYPE_USBMOUSE)
+-		return -ENODEV;
+-
+ 	msc = devm_kzalloc(&hdev->dev, sizeof(*msc), GFP_KERNEL);
+ 	if (msc == NULL) {
+ 		hid_err(hdev, "can't alloc magicmouse descriptor\n");
+@@ -775,6 +811,16 @@ static int magicmouse_probe(struct hid_device *hdev,
+ 		return ret;
+ 	}
+ 
++	timer_setup(&msc->battery_timer, magicmouse_battery_timer_tick, 0);
++	mod_timer(&msc->battery_timer,
++		  jiffies + msecs_to_jiffies(USB_BATTERY_TIMEOUT_MS));
++	magicmouse_fetch_battery(hdev);
++
++	if (id->vendor == USB_VENDOR_ID_APPLE &&
++	    (id->product == USB_DEVICE_ID_APPLE_MAGICMOUSE2 ||
++	     (id->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2 && hdev->type != HID_TYPE_USBMOUSE)))
++		return 0;
++
+ 	if (!msc->input) {
+ 		hid_err(hdev, "magicmouse input not registered\n");
+ 		ret = -ENOMEM;
+@@ -835,17 +881,52 @@ static void magicmouse_remove(struct hid_device *hdev)
+ {
+ 	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
+ 
+-	if (msc)
++	if (msc) {
+ 		cancel_delayed_work_sync(&msc->work);
++		del_timer_sync(&msc->battery_timer);
++	}
+ 
+ 	hid_hw_stop(hdev);
+ }
+ 
++static __u8 *magicmouse_report_fixup(struct hid_device *hdev, __u8 *rdesc,
++				     unsigned int *rsize)
++{
++	/*
++	 * Change the usage from:
++	 *   0x06, 0x00, 0xff, // Usage Page (Vendor Defined Page 1)  0
++	 *   0x09, 0x0b,       // Usage (Vendor Usage 0x0b)           3
++	 * To:
++	 *   0x05, 0x01,       // Usage Page (Generic Desktop)        0
++	 *   0x09, 0x02,       // Usage (Mouse)                       2
++	 */
++	if (hdev->vendor == USB_VENDOR_ID_APPLE &&
++	    (hdev->product == USB_DEVICE_ID_APPLE_MAGICMOUSE2 ||
++	     hdev->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) &&
++	    *rsize == 83 && rdesc[46] == 0x84 && rdesc[58] == 0x85) {
++		hid_info(hdev,
++			 "fixing up magicmouse battery report descriptor\n");
++		*rsize = *rsize - 1;
++		rdesc = kmemdup(rdesc + 1, *rsize, GFP_KERNEL);
++		if (!rdesc)
++			return NULL;
++
++		rdesc[0] = 0x05;
++		rdesc[1] = 0x01;
++		rdesc[2] = 0x09;
++		rdesc[3] = 0x02;
++	}
++
++	return rdesc;
++}
++
+ static const struct hid_device_id magic_mice[] = {
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+ 		USB_DEVICE_ID_APPLE_MAGICMOUSE), .driver_data = 0 },
+ 	{ HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE,
+ 		USB_DEVICE_ID_APPLE_MAGICMOUSE2), .driver_data = 0 },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE,
++		USB_DEVICE_ID_APPLE_MAGICMOUSE2), .driver_data = 0 },
+ 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
+ 		USB_DEVICE_ID_APPLE_MAGICTRACKPAD), .driver_data = 0 },
+ 	{ HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE,
+@@ -861,6 +942,7 @@ static struct hid_driver magicmouse_driver = {
+ 	.id_table = magic_mice,
+ 	.probe = magicmouse_probe,
+ 	.remove = magicmouse_remove,
++	.report_fixup = magicmouse_report_fixup,
+ 	.raw_event = magicmouse_raw_event,
+ 	.event = magicmouse_event,
+ 	.input_mapping = magicmouse_input_mapping,
 -- 
 2.34.1
 
