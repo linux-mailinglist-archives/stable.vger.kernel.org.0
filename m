@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 674AA491A52
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:59:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5C4F491A53
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:59:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343678AbiARC7R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:59:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34900 "EHLO
+        id S1352209AbiARC7V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:59:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348958AbiARCrT (ORCPT
+        with ESMTP id S1348957AbiARCrT (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:47:19 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0358FC03327A;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7796C03327D;
         Mon, 17 Jan 2022 18:38:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 95B746093C;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA57D612D4;
+        Tue, 18 Jan 2022 02:38:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76D69C36AE3;
         Tue, 18 Jan 2022 02:38:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25AC9C36AEF;
-        Tue, 18 Jan 2022 02:38:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473531;
-        bh=GyS828HD/W5brWBjztyF7pzethTmRJ7htmn28hD2mHA=;
+        s=k20201202; t=1642473532;
+        bh=Pmo6IF4IBwL5Qx1rzocHFg+51u517NDJnuUHyGjU8H4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AExYOn0hN0JgHXM3GCvDZ/SakpC2qw5m2gQKfJabOVDKmVLE9bzzhG706tGiKsyVg
-         uTsD5pNnpsoJUxPURzZL+8eNhEdygzFwEaml1b8bsxbRbFQ2q/6vvrD41rzkQo3gmA
-         5JRXQ7lq0q3q8mGDhxkIGusfSAxttG4ZvwY4gczlmWfZnzfvX6AlKHfC30zjtEsOyP
-         kEGrPpgVtQee0/liX3BMwPbHau++vYlFvUWJqDpR/cgPzOz/83ycBUZDAf1W5OzUmF
-         W8bN7MX9/pyvSk8pG3AgNOgaz8raYbPghOtpjoJR9zR7yMh8bSK2mOjYRmbhLX3e4N
-         i19ZE3H1dMEoQ==
+        b=rLp6Ae2jjhQkHuq/yUGDcoD4omuxqlxpvVX93sogRyw7l6BjOjCwP4XDT+b0zRrnU
+         uX/LuiwNH5vLE1Fs0XRfDs5mLC2GKI+kHSqWLhoH66YfcUEHw5XG/joHuPKp5GVkDt
+         Hz1HhmtDbNUoqzrZ+U195Pqa2DNMTleTfkQf0gn+amGZ7uAHdwIMI+Mkdw+E0+Ht3V
+         SgWzACjdGs5kmeITZgKN+YDpTeKBOccWLUQW04fAn40lZYPHT909IdwSU/KLQhB2bP
+         zAZuhPnbtSkN9K6x+0xpvMb4uH/IN4GieIAbu/nV5lORGcmeABU+xYGVzFeSNoKwXJ
+         dPs0c3YKvmArw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Langsdorf <mlangsdo@redhat.com>,
+Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Mark Asselstine <mark.asselstine@windriver.com>,
         Bob Moore <robert.moore@intel.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
         devel@acpica.org
-Subject: [PATCH AUTOSEL 5.15 152/188] ACPICA: actypes.h: Expand the ACPI_ACCESS_ definitions
-Date:   Mon, 17 Jan 2022 21:31:16 -0500
-Message-Id: <20220118023152.1948105-152-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 153/188] ACPICA: Utilities: Avoid deleting the same object twice in a row
+Date:   Mon, 17 Jan 2022 21:31:17 -0500
+Message-Id: <20220118023152.1948105-153-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118023152.1948105-1-sashal@kernel.org>
 References: <20220118023152.1948105-1-sashal@kernel.org>
@@ -52,54 +52,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Langsdorf <mlangsdo@redhat.com>
+From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
 
-[ Upstream commit f81bdeaf816142e0729eea0cc84c395ec9673151 ]
+[ Upstream commit 1cdfe9e346b4c5509ffe19ccde880fd259d9f7a3 ]
 
-ACPICA commit bc02c76d518135531483dfc276ed28b7ee632ce1
+ACPICA commit c11af67d8f7e3d381068ce7771322f2b5324d687
 
-The current ACPI_ACCESS_*_WIDTH defines do not provide a way to
-test that size is small enough to not cause an overflow when
-applied to a 32-bit integer.
+If original_count is 0 in acpi_ut_update_ref_count (),
+acpi_ut_delete_internal_obj () is invoked for the target object, which is
+incorrect, because that object has been deleted once already and the
+memory allocated to store it may have been reclaimed and allocated
+for a different purpose by the host OS.  Moreover, a confusing debug
+message following the "Reference Count is already zero, cannot
+decrement" warning is printed in that case.
 
-Rather than adding more magic numbers, add ACPI_ACCESS_*_SHIFT,
-ACPI_ACCESS_*_MAX, and ACPI_ACCESS_*_DEFAULT #defines and
-redefine ACPI_ACCESS_*_WIDTH in terms of the new #defines.
+To fix this issue, make acpi_ut_update_ref_count () return after finding
+that original_count is 0 and printing the above warning.
 
-This was inititally reported on Linux where a size of 102 in
-ACPI_ACCESS_BIT_WIDTH caused an overflow error in the SPCR
-initialization code.
-
-Link: https://github.com/acpica/acpica/commit/bc02c76d
-Signed-off-by: Mark Langsdorf <mlangsdo@redhat.com>
+Link: https://github.com/acpica/acpica/commit/c11af67d
+Link: https://github.com/acpica/acpica/pull/652
+Reported-by: Mark Asselstine <mark.asselstine@windriver.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Bob Moore <robert.moore@intel.com>
 Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/acpi/actypes.h | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/acpi/acpica/utdelete.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/acpi/actypes.h b/include/acpi/actypes.h
-index 92c71dfce0d5d..cefbb7ad253e0 100644
---- a/include/acpi/actypes.h
-+++ b/include/acpi/actypes.h
-@@ -536,8 +536,14 @@ typedef u64 acpi_integer;
-  * Can be used with access_width of struct acpi_generic_address and access_size of
-  * struct acpi_resource_generic_register.
-  */
--#define ACPI_ACCESS_BIT_WIDTH(size)     (1 << ((size) + 2))
--#define ACPI_ACCESS_BYTE_WIDTH(size)    (1 << ((size) - 1))
-+#define ACPI_ACCESS_BIT_SHIFT		2
-+#define ACPI_ACCESS_BYTE_SHIFT		-1
-+#define ACPI_ACCESS_BIT_MAX		(31 - ACPI_ACCESS_BIT_SHIFT)
-+#define ACPI_ACCESS_BYTE_MAX		(31 - ACPI_ACCESS_BYTE_SHIFT)
-+#define ACPI_ACCESS_BIT_DEFAULT		(8 - ACPI_ACCESS_BIT_SHIFT)
-+#define ACPI_ACCESS_BYTE_DEFAULT	(8 - ACPI_ACCESS_BYTE_SHIFT)
-+#define ACPI_ACCESS_BIT_WIDTH(size)	(1 << ((size) + ACPI_ACCESS_BIT_SHIFT))
-+#define ACPI_ACCESS_BYTE_WIDTH(size)	(1 << ((size) + ACPI_ACCESS_BYTE_SHIFT))
+diff --git a/drivers/acpi/acpica/utdelete.c b/drivers/acpi/acpica/utdelete.c
+index e5ba9795ec696..8d7736d2d2699 100644
+--- a/drivers/acpi/acpica/utdelete.c
++++ b/drivers/acpi/acpica/utdelete.c
+@@ -422,6 +422,7 @@ acpi_ut_update_ref_count(union acpi_operand_object *object, u32 action)
+ 			ACPI_WARNING((AE_INFO,
+ 				      "Obj %p, Reference Count is already zero, cannot decrement\n",
+ 				      object));
++			return;
+ 		}
  
- /*******************************************************************************
-  *
+ 		ACPI_DEBUG_PRINT_RAW((ACPI_DB_ALLOCATIONS,
 -- 
 2.34.1
 
