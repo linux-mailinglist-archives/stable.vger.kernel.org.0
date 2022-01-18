@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5D77491E3F
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:48:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 567A6491A83
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:02:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353248AbiARDsb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 22:48:31 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:46150 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346960AbiARCkT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:40:19 -0500
+        id S1352508AbiARDAD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 22:00:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34802 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345681AbiARCs7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:48:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 389C5C061755;
+        Mon, 17 Jan 2022 18:40:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 655DFB811CF;
-        Tue, 18 Jan 2022 02:40:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5DC2C36AEB;
-        Tue, 18 Jan 2022 02:40:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00114B81261;
+        Tue, 18 Jan 2022 02:40:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1191C36AEF;
+        Tue, 18 Jan 2022 02:40:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473617;
-        bh=Adkz8tW47vbwofh7NrAPeUglOkNTCxORjd0loYPv954=;
+        s=k20201202; t=1642473618;
+        bh=z9Xl0iPAzJD3iaKf5VYmbyxLHCGM/Ya1QMtZ25AxyiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GL1euMVLqEJ4bRV+YoXRBZdaMGs1r3aWBL7al51zKAAW/f4R9NJtYgdoKCnbDSRFo
-         LHv+lFQgFiUmLPyqf2kI1Jm10/TUPyDMYqeyq7gw2JTQw3qHsTBsC9PI6WOf8azWBR
-         0JlZ5r2V6ZIcNA12VMQdaNVB7Gf7UKBpW/vQuNf2+yscx3CdUYJleTtAGOfVxFstMA
-         NIKpu/TE2weIc93999/KrZYKqzQxcUAYxspUC9Jjyhv8/UsPe+tdMLuCpdW3X00Lm2
-         XwVxJuqAK1Ao2Y7lkTQrlVzE8NwtaAXe/YYXDWuM/G2MjchPXzS08auCz/1tsUBfRp
-         krD3GdINLcgBw==
+        b=fNb9axjA7z2Vd3/y0Rlig8S3Q1ItZ1NbgmM74maATDclLg6vHtgS4smzXrxZikqCV
+         8ZPQ3rXZPG/yQ5tXTdmHlAv8/jPCsZSEC84OxrxOF4atxKICA4oNMKrzvytk/TG3ZI
+         mazveIL1otLFs+ElyjOgmKJ8CF1eC2GCd6qypopb6iFKzMQQEzTjNVxUKuq1WhNYuw
+         1TNhU0gwhEXmTxDutdPKo6CXpbGccSj/kzDnVZ4UlzVGlmcB6r3fUP/NjC0TgXDEe1
+         XlprCQN6DhCouvhGq8aTAiEqi6dPV85DHRy3KLNsF3QdpNs0DMim3aFMQ/okJwdyrP
+         KaDZPX7NPGbiA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Hengqi Chen <hengqi.chen@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        daniel@iogearbox.net, davemarchevsky@fb.com,
-        john.fastabend@gmail.com, ntspring@fb.com, vfedorenko@novek.ru,
-        linux-kselftest@vger.kernel.org, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 005/116] selftests/bpf: Fix bpf_object leak in skb_ctx selftest
-Date:   Mon, 17 Jan 2022 21:38:16 -0500
-Message-Id: <20220118024007.1950576-5-sashal@kernel.org>
+Cc:     Zekun Shen <bruceshenzk@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>, pontus.fuchs@gmail.com,
+        kvalo@kernel.org, davem@davemloft.net, kuba@kernel.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 006/116] ar5523: Fix null-ptr-deref with unexpected WDCMSG_TARGET_START reply
+Date:   Mon, 17 Jan 2022 21:38:17 -0500
+Message-Id: <20220118024007.1950576-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024007.1950576-1-sashal@kernel.org>
 References: <20220118024007.1950576-1-sashal@kernel.org>
@@ -52,34 +52,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Zekun Shen <bruceshenzk@gmail.com>
 
-[ Upstream commit 8c7a95520184b6677ca6075e12df9c208d57d088 ]
+[ Upstream commit ae80b6033834342601e99f74f6a62ff5092b1cee ]
 
-skb_ctx selftest didn't close bpf_object implicitly allocated by
-bpf_prog_test_load() helper. Fix the problem by explicitly calling
-bpf_object__close() at the end of the test.
+Unexpected WDCMSG_TARGET_START replay can lead to null-ptr-deref
+when ar->tx_cmd->odata is NULL. The patch adds a null check to
+prevent such case.
 
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Reviewed-by: Hengqi Chen <hengqi.chen@gmail.com>
-Link: https://lore.kernel.org/bpf/20211107165521.9240-10-andrii@kernel.org
+KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
+ ar5523_cmd+0x46a/0x581 [ar5523]
+ ar5523_probe.cold+0x1b7/0x18da [ar5523]
+ ? ar5523_cmd_rx_cb+0x7a0/0x7a0 [ar5523]
+ ? __pm_runtime_set_status+0x54a/0x8f0
+ ? _raw_spin_trylock_bh+0x120/0x120
+ ? pm_runtime_barrier+0x220/0x220
+ ? __pm_runtime_resume+0xb1/0xf0
+ usb_probe_interface+0x25b/0x710
+ really_probe+0x209/0x5d0
+ driver_probe_device+0xc6/0x1b0
+ device_driver_attach+0xe2/0x120
+
+I found the bug using a custome USBFuzz port. It's a research work
+to fuzz USB stack/drivers. I modified it to fuzz ath9k driver only,
+providing hand-crafted usb descriptors to QEMU.
+
+After fixing the code (fourth byte in usb packet) to WDCMSG_TARGET_START,
+I got the null-ptr-deref bug. I believe the bug is triggerable whenever
+cmd->odata is NULL. After patching, I tested with the same input and no
+longer see the KASAN report.
+
+This was NOT tested on a real device.
+
+Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/YXsmPQ3awHFLuAj2@10-18-43-117.dynapool.wireless.nyu.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/prog_tests/skb_ctx.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/wireless/ath/ar5523/ar5523.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/skb_ctx.c b/tools/testing/selftests/bpf/prog_tests/skb_ctx.c
-index fafeddaad6a99..23915be6172d6 100644
---- a/tools/testing/selftests/bpf/prog_tests/skb_ctx.c
-+++ b/tools/testing/selftests/bpf/prog_tests/skb_ctx.c
-@@ -105,4 +105,6 @@ void test_skb_ctx(void)
- 		   "ctx_out_mark",
- 		   "skb->mark == %u, expected %d\n",
- 		   skb.mark, 10);
-+
-+	bpf_object__close(obj);
- }
+diff --git a/drivers/net/wireless/ath/ar5523/ar5523.c b/drivers/net/wireless/ath/ar5523/ar5523.c
+index 49cc4b7ed5163..1baec4b412c8d 100644
+--- a/drivers/net/wireless/ath/ar5523/ar5523.c
++++ b/drivers/net/wireless/ath/ar5523/ar5523.c
+@@ -153,6 +153,10 @@ static void ar5523_cmd_rx_cb(struct urb *urb)
+ 			ar5523_err(ar, "Invalid reply to WDCMSG_TARGET_START");
+ 			return;
+ 		}
++		if (!cmd->odata) {
++			ar5523_err(ar, "Unexpected WDCMSG_TARGET_START reply");
++			return;
++		}
+ 		memcpy(cmd->odata, hdr + 1, sizeof(u32));
+ 		cmd->olen = sizeof(u32);
+ 		cmd->res = 0;
 -- 
 2.34.1
 
