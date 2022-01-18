@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1E0C4920E5
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 09:06:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5A284920E6
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 09:06:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236338AbiARIGq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 03:06:46 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:35224 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235121AbiARIGq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 03:06:46 -0500
+        id S1343818AbiARIG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 03:06:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52734 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1343799AbiARIG5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 03:06:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 321FEC061574
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 00:06:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 258F96140F
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 08:06:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBA2FC00446;
-        Tue, 18 Jan 2022 08:06:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E6559B81052
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 08:06:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28676C00446;
+        Tue, 18 Jan 2022 08:06:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642493205;
-        bh=o8jP+zQ3c/vYfwP9OW2p7YkkJY+QmJNEAVAGvqWIvNo=;
+        s=korg; t=1642493214;
+        bh=0FnDFVr8mEi2NDHDhMGOuiSigg6y0gPaK6HHacuiGQU=;
         h=Subject:To:Cc:From:Date:From;
-        b=wyBAWMx1Vls4sBd8zPR7t6jXj3TEzmdN3aiJlSoOBaUMniGRx2FfYSczc2xEVGDBn
-         uqv/EPPr2Sch7P8eD2D4/Dq/FnLtGvDKA+eScwQt7QTiOKnPtEswbE/I8h0JzdjQ/L
-         1TtacSI6XRenO40w/+l/pndFMFtpwUSJIPXGmEts=
-Subject: FAILED: patch "[PATCH] NFSD: Fix zero-length NFSv3 WRITEs" failed to apply to 4.19-stable tree
+        b=fz9OsXSm56wj8pA61Iz4k6FRJc+8ZzV6KIa09Z7PDKlNQhrgJQp97ogPe9BKM3ko5
+         8duaLKhPYLX8l3G1fYcAJ7aXRFU3Xo0eaxP1FDy6nTrXStezMterCtxM9McHipNLTS
+         uf5ui+jBlCVVP92LAIwL6ET71FqldUw3GER1cR8I=
+Subject: FAILED: patch "[PATCH] NFSD: Fix zero-length NFSv3 WRITEs" failed to apply to 5.4-stable tree
 To:     chuck.lever@oracle.com, trond.myklebust@hammerspace.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 18 Jan 2022 09:06:42 +0100
-Message-ID: <16424932021482@kroah.com>
+Date:   Tue, 18 Jan 2022 09:06:43 +0100
+Message-ID: <1642493203139123@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
