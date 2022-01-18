@@ -2,52 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4849491DBF
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:43:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A70B5491C21
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:14:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346607AbiARDl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 22:41:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38884 "EHLO
+        id S1347306AbiARDNi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 22:13:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352911AbiARDER (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 22:04:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56E89C02525E;
-        Mon, 17 Jan 2022 18:48:06 -0800 (PST)
+        with ESMTP id S1353716AbiARDEZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 22:04:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45593C0219F3;
+        Mon, 17 Jan 2022 18:48:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE6E6612CE;
+        by ams.source.kernel.org (Postfix) with ESMTPS id B12CEB81255;
+        Tue, 18 Jan 2022 02:48:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A596BC36AF6;
         Tue, 18 Jan 2022 02:48:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7DD8C36AEF;
-        Tue, 18 Jan 2022 02:48:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642474085;
-        bh=xAngeKfXCJtF/25f0h8+pSD9XBwTu6oIqZSVUBcS/cQ=;
+        s=k20201202; t=1642474086;
+        bh=FSpJDSpfVsJcYGFNZhFJVzsi85MzAyRlNh/wIUlnzeE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YGAzQC4hAK+kjM5cpXtld1hcnXg9d+GSMnRqYXnN+w+yjdeo+Ex/jGlni3/8qyi3n
-         PWX+KgGOAqy7ThKvGwzNCr5eOopUz61ePsRXYKeT1aEIsASYCAxcailZu7iY+5JmhG
-         +wiq/TSNqYEDEBc/nLs0SJpWthVwKa1M7Ts53ChmT0NjFBmMfzQtESrkHiiql5WHLt
-         DkZ6zwIFmq87e9BpvGF6vn85Er7LJm4llCZw3ZMJXXTQ1CopRv8yjWjgJn34/Xflt5
-         CWuIUhgsCOi11pG4rfBlfzdDrAiAj3xz97mQy3RZ93aZcO4NvXNnYliDgqlPidQ+UV
-         1zcdx3c1EU3VQ==
+        b=YgIADfwSLVdBZ3OCvOWD0a0287UFTVpgEsHktJSgbJv8Uj+ttbBo6IXECZDp+0KAp
+         leSaCCjxB/v7IhCKI0VnwzfzoPbEKU5wOZ2nhibyJj3us8maljy51tsOIdmGQ7Bbr+
+         QmlVDXSJet12YSUgb6FauIaLp7dne4kj38M2rI5HaoeZN7eOelL18OWlkwHWe9dXtX
+         SD9TuO8Xtl4aVrLhoydmdCqlppgVzo0Cfd4vd3H3bQN7ZuIGTSRj1mkf2ppO8IYRfg
+         mYbrgWM5fuLPBcj+UxHPoB+YPyRsSiXre8A0/+8hU+qbEe/Hu4gpwtVGDIxDEW1OT7
+         C8NwIsiQczOXQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Paolo Abeni <pabeni@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, ast@kernel.org,
-        andrii@kernel.org, davem@davemloft.net, kuba@kernel.org,
-        hawk@kernel.org, john.fastabend@gmail.com, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 28/59] bpf: Do not WARN in bpf_warn_invalid_xdp_action()
-Date:   Mon, 17 Jan 2022 21:46:29 -0500
-Message-Id: <20220118024701.1952911-28-sashal@kernel.org>
+Cc:     Alistair Francis <alistair@alistair23.me>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 29/59] HID: quirks: Allow inverting the absolute X/Y values
+Date:   Mon, 17 Jan 2022 21:46:30 -0500
+Message-Id: <20220118024701.1952911-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024701.1952911-1-sashal@kernel.org>
 References: <20220118024701.1952911-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -55,46 +51,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Alistair Francis <alistair@alistair23.me>
 
-[ Upstream commit 2cbad989033bff0256675c38f96f5faab852af4b ]
+[ Upstream commit fd8d135b2c5e88662f2729e034913f183455a667 ]
 
-The WARN_ONCE() in bpf_warn_invalid_xdp_action() can be triggered by
-any bugged program, and even attaching a correct program to a NIC
-not supporting the given action.
+Add a HID_QUIRK_X_INVERT/HID_QUIRK_Y_INVERT quirk that can be used
+to invert the X/Y values.
 
-The resulting splat, beyond polluting the logs, fouls automated tools:
-e.g. a syzkaller reproducers using an XDP program returning an
-unsupported action will never pass validation.
-
-Replace the WARN_ONCE with a less intrusive pr_warn_once().
-
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Link: https://lore.kernel.org/bpf/016ceec56e4817ebb2a9e35ce794d5c917df572c.1638189075.git.pabeni@redhat.com
+Signed-off-by: Alistair Francis <alistair@alistair23.me>
+[bentiss: silence checkpatch warning]
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Link: https://lore.kernel.org/r/20211208124045.61815-2-alistair@alistair23.me
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/filter.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/hid/hid-input.c | 6 ++++++
+ include/linux/hid.h     | 2 ++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/net/core/filter.c b/net/core/filter.c
-index 01496c7cb42d7..7d68c98a00aa8 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -5534,9 +5534,9 @@ void bpf_warn_invalid_xdp_action(u32 act)
- {
- 	const u32 act_max = XDP_REDIRECT;
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index d56ef395eb693..dd3f4aa052980 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -1246,6 +1246,12 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
  
--	WARN_ONCE(1, "%s XDP return value %u, expect packet loss!\n",
--		  act > act_max ? "Illegal" : "Driver unsupported",
--		  act);
-+	pr_warn_once("%s XDP return value %u, expect packet loss!\n",
-+		     act > act_max ? "Illegal" : "Driver unsupported",
-+		     act);
- }
- EXPORT_SYMBOL_GPL(bpf_warn_invalid_xdp_action);
+ 	input = field->hidinput->input;
  
++	if (usage->type == EV_ABS &&
++	    (((*quirks & HID_QUIRK_X_INVERT) && usage->code == ABS_X) ||
++	     ((*quirks & HID_QUIRK_Y_INVERT) && usage->code == ABS_Y))) {
++		value = field->logical_maximum - value;
++	}
++
+ 	if (usage->hat_min < usage->hat_max || usage->hat_dir) {
+ 		int hat_dir = usage->hat_dir;
+ 		if (!hat_dir)
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index da824ba9fb9a2..c51ebce2197e0 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -353,6 +353,8 @@ struct hid_item {
+ /* BIT(9) reserved for backward compatibility, was NO_INIT_INPUT_REPORTS */
+ #define HID_QUIRK_ALWAYS_POLL			BIT(10)
+ #define HID_QUIRK_INPUT_PER_APP			BIT(11)
++#define HID_QUIRK_X_INVERT			BIT(12)
++#define HID_QUIRK_Y_INVERT			BIT(13)
+ #define HID_QUIRK_SKIP_OUTPUT_REPORTS		BIT(16)
+ #define HID_QUIRK_SKIP_OUTPUT_REPORT_ID		BIT(17)
+ #define HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP	BIT(18)
 -- 
 2.34.1
 
