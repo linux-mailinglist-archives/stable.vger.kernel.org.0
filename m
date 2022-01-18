@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FBC84917E2
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:43:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFE63491725
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:38:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240526AbiARCnY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:43:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59958 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345041AbiARCiQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:38:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 942B5C061757;
-        Mon, 17 Jan 2022 18:35:02 -0800 (PST)
+        id S1344791AbiARCiH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:38:07 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:52298 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344852AbiARCfE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:35:04 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 75C4961216;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F0120611D6;
+        Tue, 18 Jan 2022 02:35:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54D8FC36AE3;
         Tue, 18 Jan 2022 02:35:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05A23C36AEF;
-        Tue, 18 Jan 2022 02:35:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473301;
-        bh=kvtpMf09zNVnWWbXCIVl9s/7VjcLSSErZYuDPGmkE3A=;
+        s=k20201202; t=1642473303;
+        bh=6ftHw2PhpvyqVOJfiLYzxPb74sRaD6npgzQ7/f5plLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a7cWxdhZZBVWVK+hofbR1qxpMznINBgpc8aUX16IvYKPtFl2WtpiFd3OLe2DJIcls
-         JGn2qZCh8rGC+50pgiJv/huoDpo562KsS7xRFPXY5W6OgumWhCQJ5BExodGvj1Irzf
-         YdXWj++cJolviOL5XGhP6eM5a0COrr8hq24nal/YAlBVUwgNED6LHbdT3lbf1wGNQK
-         rVdKaJWH5wJ/fwFQH/Fe4zHk5k7xSBF5WuwpcZrsrcGfNc+uNNNAnb3Ac0DI9JkROM
-         bp7hYRTz3aTUSSTSEHherYRFl4B1JXJG+NLRPoHpKm9iyDWZcn2cgUl6ajDXE2kdtk
-         mAD4NCOu7fPfg==
+        b=Alz6ds3MtNrwN+jO2q2nyHTJQmqRWOHdI51ZZn5fZDxNpWYjqeWbPt7XTVMisKmND
+         qHZpDY8xBspZlDp8RHoUs81tu6CTUUlb6LPEEMBDTXdzYuX4MAoi//gHJiPZolS2XL
+         Psi1+8YwESGWF404gJRxquvn+62BuycT5SuEwiUg24Fe0AtR5SvQuLRTGmMCCBKZ1f
+         V6L6jieQY62KOo00movX+J57EYnJ2DEDc0WFOPEs/CFP4qqy8NHH0allKHFjJdD2VS
+         NKvcu7HwhPSXDD/scbIPibgY8oYYFpk0Rh+ys0Ki1IBm1CYEC/4EOzrcm3XjVGutu/
+         z5AXGFYE+oW1Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiri Slaby <jslaby@suse.cz>,
+Cc:     Fugang Duan <fugang.duan@nxp.com>, Sherry Sun <sherry.sun@nxp.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>, jirislaby@kernel.org,
-        shawnguo@kernel.org, linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 058/188] mxser: keep only !tty test in ISR
-Date:   Mon, 17 Jan 2022 21:29:42 -0500
-Message-Id: <20220118023152.1948105-58-sashal@kernel.org>
+        shawnguo@kernel.org, linux-serial@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 059/188] tty: serial: imx: disable UCR4_OREN in .stop_rx() instead of .shutdown()
+Date:   Mon, 17 Jan 2022 21:29:43 -0500
+Message-Id: <20220118023152.1948105-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118023152.1948105-1-sashal@kernel.org>
 References: <20220118023152.1948105-1-sashal@kernel.org>
@@ -51,67 +49,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Fugang Duan <fugang.duan@nxp.com>
 
-[ Upstream commit 274ab58dc2b460cc474ffc7ccfcede4b2be1a3f5 ]
+[ Upstream commit 028e083832b06fdeeb290e1e57dc1f6702c4c215 ]
 
-The others are superfluous with tty refcounting in place now. And they
-are racy in fact:
-* tty_port_initialized() reports false for a small moment after
-  interrupts are enabled.
-* closing is 1 while the port is still alive.
+The UCR4_OREN should be disabled before disabling the uart receiver in
+.stop_rx() instead of in the .shutdown().
 
-The queues are flushed later during close anyway. So there is no need
-for this special handling. Actually, the ISR should not flush the
-queues. It should behave as every other driver, just queue the chars
-into tty buffer and go on. But this will be changed later. There is
-still a lot code depending on having tty in ISR (and not only tty_port).
+Otherwise, if we have the overrun error during the receiver disable
+process, the overrun interrupt will keep trigging until we disable the
+OREN interrupt in the .shutdown(), because the ORE status can only be
+cleared when read the rx FIFO or reset the controller.  Although the
+called time between the receiver disable and OREN disable in .shutdown()
+is very short, there is still the risk of endless interrupt during this
+short period of time. So here change to disable OREN before the receiver
+been disabled in .stop_rx().
 
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20211118073125.12283-4-jslaby@suse.cz
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Link: https://lore.kernel.org/r/20211125020349.4980-1-sherry.sun@nxp.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/mxser.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/tty/serial/imx.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/mxser.c b/drivers/tty/mxser.c
-index 1216f3985e18e..da375851af4e6 100644
---- a/drivers/tty/mxser.c
-+++ b/drivers/tty/mxser.c
-@@ -261,7 +261,6 @@ struct mxser_port {
- 	unsigned int xmit_head;
- 	unsigned int xmit_tail;
- 	unsigned int xmit_cnt;
--	int closing;
+diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
+index 51a9f9423b1a6..7820049aba5af 100644
+--- a/drivers/tty/serial/imx.c
++++ b/drivers/tty/serial/imx.c
+@@ -486,18 +486,21 @@ static void imx_uart_stop_tx(struct uart_port *port)
+ static void imx_uart_stop_rx(struct uart_port *port)
+ {
+ 	struct imx_port *sport = (struct imx_port *)port;
+-	u32 ucr1, ucr2;
++	u32 ucr1, ucr2, ucr4;
  
- 	spinlock_t slock;
- };
-@@ -923,7 +922,6 @@ static void mxser_close(struct tty_struct *tty, struct file *filp)
- 		return;
- 	if (tty_port_close_start(port, tty, filp) == 0)
- 		return;
--	info->closing = 1;
- 	mutex_lock(&port->mutex);
- 	mxser_close_port(port);
- 	mxser_flush_buffer(tty);
-@@ -932,7 +930,6 @@ static void mxser_close(struct tty_struct *tty, struct file *filp)
- 	mxser_shutdown_port(port);
- 	tty_port_set_initialized(port, 0);
- 	mutex_unlock(&port->mutex);
--	info->closing = 0;
- 	/* Right now the tty_port set is done outside of the close_end helper
- 	   as we don't yet have everyone using refcounts */	
- 	tty_port_close_end(port, tty);
-@@ -1693,7 +1690,7 @@ static bool mxser_port_isr(struct mxser_port *port)
+ 	ucr1 = imx_uart_readl(sport, UCR1);
+ 	ucr2 = imx_uart_readl(sport, UCR2);
++	ucr4 = imx_uart_readl(sport, UCR4);
  
- 	iir &= MOXA_MUST_IIR_MASK;
- 	tty = tty_port_tty_get(&port->port);
--	if (!tty || port->closing || !tty_port_initialized(&port->port)) {
-+	if (!tty) {
- 		status = inb(port->ioaddr + UART_LSR);
- 		outb(MOXA_MUST_FCR_GDA_MODE_ENABLE | UART_FCR_ENABLE_FIFO |
- 				UART_FCR_CLEAR_RCVR | UART_FCR_CLEAR_XMIT,
+ 	if (sport->dma_is_enabled) {
+ 		ucr1 &= ~(UCR1_RXDMAEN | UCR1_ATDMAEN);
+ 	} else {
+ 		ucr1 &= ~UCR1_RRDYEN;
+ 		ucr2 &= ~UCR2_ATEN;
++		ucr4 &= ~UCR4_OREN;
+ 	}
+ 	imx_uart_writel(sport, ucr1, UCR1);
++	imx_uart_writel(sport, ucr4, UCR4);
+ 
+ 	ucr2 &= ~UCR2_RXEN;
+ 	imx_uart_writel(sport, ucr2, UCR2);
+@@ -1544,7 +1547,7 @@ static void imx_uart_shutdown(struct uart_port *port)
+ 	imx_uart_writel(sport, ucr1, UCR1);
+ 
+ 	ucr4 = imx_uart_readl(sport, UCR4);
+-	ucr4 &= ~(UCR4_OREN | UCR4_TCEN);
++	ucr4 &= ~UCR4_TCEN;
+ 	imx_uart_writel(sport, ucr4, UCR4);
+ 
+ 	spin_unlock_irqrestore(&sport->port.lock, flags);
 -- 
 2.34.1
 
