@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EAE4492A8F
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:11:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C80F492AC3
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:13:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347198AbiARQLU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 11:11:20 -0500
+        id S1347099AbiARQNA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 11:13:00 -0500
 Received: from sin.source.kernel.org ([145.40.73.55]:41456 "EHLO
         sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346601AbiARQJt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:09:49 -0500
+        with ESMTP id S1347200AbiARQLV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:11:21 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C1F60CE1A2E;
-        Tue, 18 Jan 2022 16:09:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB6BEC00446;
-        Tue, 18 Jan 2022 16:09:45 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B1AF5CE1A30;
+        Tue, 18 Jan 2022 16:11:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99D54C00446;
+        Tue, 18 Jan 2022 16:11:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642522186;
-        bh=hFpFUyPjgA0qhWidN4tjSgQC/TIVNzqBmyw5e0LbkIw=;
+        s=korg; t=1642522278;
+        bh=9OtNLgBZCevG6a5ICRwisDy1q+BlBNTtwsIeLoU+79w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z6AbC+BTRsATQ9D2geGePSfsvQ1KziMBWXjolyo2P8LjBH9FBH1FU13BPw+KCVakO
-         HJFcmIdh33QJEnLArFNoI8TGQjoCewzrNxIpQ8EmXzr48SNY+pb+gq2ggUiUqdRcDO
-         YjDP+iHu4QJX7FkZAqH8mAkeM7n9JZ8JwDdEw8Lk=
+        b=nRBvYsOHcE152IIfbn+xO7pGFso9PhH2z2ev71SMNCLiQ7iB7RsiGVZv5itPSsA9i
+         aHDTc48Uk6KKvL3qFPUV8Safusn5P2mWGD0NBivNnwXgHwu7uHH0IDL0HoYRJX6yBB
+         PW+QZcb5jjDedTOqnHhJ5qW313PWmC7cWdJPQBHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 27/28] ALSA: hda/realtek: Re-order quirk entries for Lenovo
+        stable@vger.kernel.org, Gabriel Somlo <somlo@cmu.edu>,
+        Johan Hovold <johan@kernel.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 5.16 18/28] firmware: qemu_fw_cfg: fix sysfs information leak
 Date:   Tue, 18 Jan 2022 17:06:13 +0100
-Message-Id: <20220118160452.780728281@linuxfoundation.org>
+Message-Id: <20220118160453.008663385@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220118160451.879092022@linuxfoundation.org>
-References: <20220118160451.879092022@linuxfoundation.org>
+In-Reply-To: <20220118160452.384322748@linuxfoundation.org>
+References: <20220118160452.384322748@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,45 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Johan Hovold <johan@kernel.org>
 
-commit 2aac550da3257ab46e8c7944365eb4a79ccbb3a1 upstream.
+commit 1b656e9aad7f4886ed466094d1dc5ee4dd900d20 upstream.
 
-The recent few quirk entries for Lenovo haven't been put in the right
-order.  Let's arrange the table again.
+Make sure to always NUL-terminate file names retrieved from the firmware
+to avoid accessing data beyond the entry slab buffer and exposing it
+through sysfs in case the firmware data is corrupt.
 
-Fixes: ad7cc2d41b7a ("ALSA: hda/realtek: Quirks to enable speaker output...")
-Fixes: 6dc86976220c ("ALSA: hda/realtek: Add speaker fixup for some Yoga 15ITL5 devices")
-Fixes: 8f4c90427a8f ("ALSA: hda/realtek: Add quirk for Legion Y9000X 2020")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 75f3e8e47f38 ("firmware: introduce sysfs driver for QEMU's fw_cfg device")
+Cc: stable@vger.kernel.org      # 4.6
+Cc: Gabriel Somlo <somlo@cmu.edu>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211201132528.30025-4-johan@kernel.org
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/firmware/qemu_fw_cfg.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8964,16 +8964,16 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x17aa, 0x3176, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x17aa, 0x3178, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x17aa, 0x31af, "ThinkCentre Station", ALC623_FIXUP_LENOVO_THINKSTATION_P340),
-+	SND_PCI_QUIRK(0x17aa, 0x3813, "Legion 7i 15IMHG05", ALC287_FIXUP_LEGION_15IMHG05_SPEAKERS),
- 	SND_PCI_QUIRK(0x17aa, 0x3818, "Lenovo C940", ALC298_FIXUP_LENOVO_SPK_VOLUME),
--	SND_PCI_QUIRK(0x17aa, 0x3827, "Ideapad S740", ALC285_FIXUP_IDEAPAD_S740_COEF),
-+	SND_PCI_QUIRK(0x17aa, 0x3819, "Lenovo 13s Gen2 ITL", ALC287_FIXUP_13S_GEN2_SPEAKERS),
- 	SND_PCI_QUIRK(0x17aa, 0x3824, "Legion Y9000X 2020", ALC285_FIXUP_LEGION_Y9000X_SPEAKERS),
-+	SND_PCI_QUIRK(0x17aa, 0x3827, "Ideapad S740", ALC285_FIXUP_IDEAPAD_S740_COEF),
- 	SND_PCI_QUIRK(0x17aa, 0x3834, "Lenovo IdeaPad Slim 9i 14ITL5", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
- 	SND_PCI_QUIRK(0x17aa, 0x3843, "Yoga 9i", ALC287_FIXUP_IDEAPAD_BASS_SPK_AMP),
--	SND_PCI_QUIRK(0x17aa, 0x3813, "Legion 7i 15IMHG05", ALC287_FIXUP_LEGION_15IMHG05_SPEAKERS),
-+	SND_PCI_QUIRK(0x17aa, 0x384a, "Lenovo Yoga 7 15ITL5", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
- 	SND_PCI_QUIRK(0x17aa, 0x3852, "Lenovo Yoga 7 14ITL5", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
- 	SND_PCI_QUIRK(0x17aa, 0x3853, "Lenovo Yoga 7 15ITL5", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
--	SND_PCI_QUIRK(0x17aa, 0x384a, "Lenovo Yoga 7 15ITL5", ALC287_FIXUP_YOGA7_14ITL_SPEAKERS),
--	SND_PCI_QUIRK(0x17aa, 0x3819, "Lenovo 13s Gen2 ITL", ALC287_FIXUP_13S_GEN2_SPEAKERS),
- 	SND_PCI_QUIRK(0x17aa, 0x3902, "Lenovo E50-80", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
- 	SND_PCI_QUIRK(0x17aa, 0x3977, "IdeaPad S210", ALC283_FIXUP_INT_MIC),
- 	SND_PCI_QUIRK(0x17aa, 0x3978, "Lenovo B50-70", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
+--- a/drivers/firmware/qemu_fw_cfg.c
++++ b/drivers/firmware/qemu_fw_cfg.c
+@@ -601,7 +601,7 @@ static int fw_cfg_register_file(const st
+ 	/* set file entry information */
+ 	entry->size = be32_to_cpu(f->size);
+ 	entry->select = be16_to_cpu(f->select);
+-	memcpy(entry->name, f->name, FW_CFG_MAX_FILE_PATH);
++	strscpy(entry->name, f->name, FW_CFG_MAX_FILE_PATH);
+ 
+ 	/* register entry under "/sys/firmware/qemu_fw_cfg/by_key/" */
+ 	err = kobject_init_and_add(&entry->kobj, &fw_cfg_sysfs_entry_ktype,
 
 
