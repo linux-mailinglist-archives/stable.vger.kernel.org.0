@@ -2,73 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E71B04920DF
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 09:04:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1E0C4920E5
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 09:06:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235496AbiARIEg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 03:04:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52186 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344027AbiARIEd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 03:04:33 -0500
-Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CABAFC06161C;
-        Tue, 18 Jan 2022 00:04:32 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sipsolutions.net; s=mail; h=Content-Transfer-Encoding:MIME-Version:
-        Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
-        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
-        Resent-Cc:Resent-Message-ID; bh=F+DKVuOeeAd/lnzZqM+KdPM4PLOytZiGkPYxEeyXGaQ=;
-        t=1642493072; x=1643702672; b=eBbnqpsC8ebGMKRtMrsUmUAEE41adWL7z/5YlrZOOrLHUFo
-        Npy50I6h6s9pjwj7+DdWx+grZwxsPyNnT3/aE0sBSiTkB1IvzUCJeV1XD294NKQsxs8ebfywYyq2A
-        qNldqq0+85JZj111mwkcmkxxVBo9v0fZGoRnl83Q4s7qCOh7ltab5MPL3L/zZJG/B5vwx3IhUf72K
-        iIn9dJOoii2Js5AaN6A4WjHuL74Z/dFUVOn/p0DIJIdS8sVCC/FhdYsG+DU4Fj+9Wh2lY0Ss0hGle
-        n/JQHLVsTW5+GphQICeYrDefdLOVXilwmWfh2pKRtc7/j5SgHKpxXgE5NflYgFvw==;
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.95)
-        (envelope-from <johannes@sipsolutions.net>)
-        id 1n9jTe-0079HC-6F;
-        Tue, 18 Jan 2022 09:04:26 +0100
-Message-ID: <06a7e64e62bf8191be5004dac52f84d711e0e9a0.camel@sipsolutions.net>
-Subject: Re: [PATCH AUTOSEL 4.4 19/29] um: registers: Rename function names
- to avoid conflicts and build problems
-From:   Johannes Berg <johannes@sipsolutions.net>
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     Randy Dunlap <rdunlap@infradead.org>,
-        Jeff Dike <jdike@addtoit.com>,
-        Richard Weinberger <richard@nod.at>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        linux-um@lists.infradead.org, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        viro@zeniv.linux.org.uk
-Date:   Tue, 18 Jan 2022 09:04:24 +0100
-In-Reply-To: <20220118030822.1955469-19-sashal@kernel.org>
-References: <20220118030822.1955469-1-sashal@kernel.org>
-         <20220118030822.1955469-19-sashal@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.42.2 (3.42.2-1.fc35) 
+        id S236338AbiARIGq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 03:06:46 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:35224 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235121AbiARIGq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 03:06:46 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 258F96140F
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 08:06:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBA2FC00446;
+        Tue, 18 Jan 2022 08:06:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1642493205;
+        bh=o8jP+zQ3c/vYfwP9OW2p7YkkJY+QmJNEAVAGvqWIvNo=;
+        h=Subject:To:Cc:From:Date:From;
+        b=wyBAWMx1Vls4sBd8zPR7t6jXj3TEzmdN3aiJlSoOBaUMniGRx2FfYSczc2xEVGDBn
+         uqv/EPPr2Sch7P8eD2D4/Dq/FnLtGvDKA+eScwQt7QTiOKnPtEswbE/I8h0JzdjQ/L
+         1TtacSI6XRenO40w/+l/pndFMFtpwUSJIPXGmEts=
+Subject: FAILED: patch "[PATCH] NFSD: Fix zero-length NFSv3 WRITEs" failed to apply to 4.19-stable tree
+To:     chuck.lever@oracle.com, trond.myklebust@hammerspace.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 18 Jan 2022 09:06:42 +0100
+Message-ID: <16424932021482@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-malware-bazaar: not-scanned
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2022-01-17 at 22:08 -0500, Sasha Levin wrote:
-> From: Randy Dunlap <rdunlap@infradead.org>
-> 
-> [ Upstream commit 077b7320942b64b0da182aefd83c374462a65535 ]
-> 
-> The function names init_registers() and restore_registers() are used
-> in several net/ethernet/ and gpu/drm/ drivers for other purposes (not
-> calls to UML functions), so rename them.
-> 
-> This fixes multiple build errors.
 
-FWIW, this is certainly fine to backport, but also almost certainly not
-necessary: most likely all those drivers cannot be built before 5.14
-(commit 68f5d3f3b654 ("um: add PCI over virtio emulation driver"))
-anyway.
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-johannes
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 6a2f774424bfdcc2df3e17de0cefe74a4269cad5 Mon Sep 17 00:00:00 2001
+From: Chuck Lever <chuck.lever@oracle.com>
+Date: Tue, 21 Dec 2021 11:52:06 -0500
+Subject: [PATCH] NFSD: Fix zero-length NFSv3 WRITEs
+
+The Linux NFS server currently responds to a zero-length NFSv3 WRITE
+request with NFS3ERR_IO. It responds to a zero-length NFSv4 WRITE
+with NFS4_OK and count of zero.
+
+RFC 1813 says of the WRITE procedure's @count argument:
+
+count
+         The number of bytes of data to be written. If count is
+         0, the WRITE will succeed and return a count of 0,
+         barring errors due to permissions checking.
+
+RFC 8881 has similar language for NFSv4, though NFSv4 removed the
+explicit @count argument because that value is already contained in
+the opaque payload array.
+
+The synthetic client pynfs's WRT4 and WRT15 tests do emit zero-
+length WRITEs to exercise this spec requirement. Commit fdec6114ee1f
+("nfsd4: zero-length WRITE should succeed") addressed the same
+problem there with the same fix.
+
+But interestingly the Linux NFS client does not appear to emit zero-
+length WRITEs, instead squelching them. I'm not aware of a test that
+can generate such WRITEs for NFSv3, so I wrote a naive C program to
+generate a zero-length WRITE and test this fix.
+
+Fixes: 8154ef2776aa ("NFSD: Clean up legacy NFS WRITE argument XDR decoders")
+Reported-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+
+diff --git a/fs/nfsd/nfs3proc.c b/fs/nfsd/nfs3proc.c
+index 4418517f6f12..2c681785186f 100644
+--- a/fs/nfsd/nfs3proc.c
++++ b/fs/nfsd/nfs3proc.c
+@@ -202,15 +202,11 @@ nfsd3_proc_write(struct svc_rqst *rqstp)
+ 	fh_copy(&resp->fh, &argp->fh);
+ 	resp->committed = argp->stable;
+ 	nvecs = svc_fill_write_vector(rqstp, &argp->payload);
+-	if (!nvecs) {
+-		resp->status = nfserr_io;
+-		goto out;
+-	}
++
+ 	resp->status = nfsd_write(rqstp, &resp->fh, argp->offset,
+ 				  rqstp->rq_vec, nvecs, &cnt,
+ 				  resp->committed, resp->verf);
+ 	resp->count = cnt;
+-out:
+ 	return rpc_success;
+ }
+ 
+diff --git a/fs/nfsd/nfsproc.c b/fs/nfsd/nfsproc.c
+index eea5b59b6a6c..1743ed04197e 100644
+--- a/fs/nfsd/nfsproc.c
++++ b/fs/nfsd/nfsproc.c
+@@ -235,10 +235,6 @@ nfsd_proc_write(struct svc_rqst *rqstp)
+ 		argp->len, argp->offset);
+ 
+ 	nvecs = svc_fill_write_vector(rqstp, &argp->payload);
+-	if (!nvecs) {
+-		resp->status = nfserr_io;
+-		goto out;
+-	}
+ 
+ 	resp->status = nfsd_write(rqstp, fh_copy(&resp->fh, &argp->fh),
+ 				  argp->offset, rqstp->rq_vec, nvecs,
+@@ -247,7 +243,6 @@ nfsd_proc_write(struct svc_rqst *rqstp)
+ 		resp->status = fh_getattr(&resp->fh, &resp->stat);
+ 	else if (resp->status == nfserr_jukebox)
+ 		return rpc_drop_reply;
+-out:
+ 	return rpc_success;
+ }
+ 
+
