@@ -2,125 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27C124930EA
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 23:38:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2176D4930EC
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 23:39:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240938AbiARWif (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 17:38:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56980 "EHLO
+        id S1344906AbiARWi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 17:38:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57064 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237195AbiARWie (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 17:38:34 -0500
-Received: from mail-ua1-x92c.google.com (mail-ua1-x92c.google.com [IPv6:2607:f8b0:4864:20::92c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ABF8C061574
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 14:38:34 -0800 (PST)
-Received: by mail-ua1-x92c.google.com with SMTP id m90so1008379uam.2
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 14:38:34 -0800 (PST)
+        with ESMTP id S240802AbiARWix (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 17:38:53 -0500
+Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0CD0C061574;
+        Tue, 18 Jan 2022 14:38:53 -0800 (PST)
+Received: by mail-pf1-x435.google.com with SMTP id i129so654045pfe.13;
+        Tue, 18 Jan 2022 14:38:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=sFIPDwsDeRm81c05CD5S02oyUJN8DIpI+1GsvDMiep4=;
-        b=Jfugtf9FbGJis6uBQ4CdXc/8nGduDpvhXy+a27fLvitVKGrLopKpViHKRTXSVXqewY
-         cjAWMe19MPI2EVo2djGEGz3qllkZkYd9nbf6TEsLnVMTi+FdIzdmDADcm1tWu3ntoMqg
-         vfgyvwacp89WuvL7BspNzyyBXpxQOeOTwYHhEvOq+me4IzdfiNkJtn7VmqCiMBwSxl9h
-         j+jXpUvZ4pNBWhLTHMuNeOppkdgSynwqMWguZVWhdgyq3B6q2k8tEY0eCQNIA4A6BNni
-         +wvxQlo2GGOJv9x2DtpxzkWVdwKdzQSbqFeGqcCgMHoL4pLIwsmJvkO3bhyzQMQqMe4Z
-         BTEw==
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=uOGvUUzuJX9YKCxOe9YLRXRye1b5vrA9LrzACjIeYmE=;
+        b=YAj8C1CGqbzdUw599ssYVjQh9WjrrLHabGBGRFcdZ9OUmTA5loEfRUdxh1UZzrXMpw
+         qKWXm+VXmqJdtvbN4ma0cqRznWJi2FcSAla3aQdMLsIZzcgYcmaz8AeaBN9WSPukts+l
+         p+Jmi0KX+c/sRbDZ7dXM8DCBq+5Otsz5UicEyGGcd2u9leavSkDIZQIojw92+1zqalDS
+         mq+02GSul8vd0k95A7zDp/l3aNccZN9kE2SMysROti/Y7yWWyU/+QBOlCgC3nwIr6yBQ
+         RZxqC9eH0HZmwwh3JDOeu8YnOMyCCG8fqZOeJHob+FHKNJzNOQC3ceMAeGIIDmVvHQ0j
+         pfFg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=sFIPDwsDeRm81c05CD5S02oyUJN8DIpI+1GsvDMiep4=;
-        b=fkREjGP0zMPLWdMinJC/fCUEXfJ0OTo3EjT23YHk2yVSOLy1bUQToaDIk6DPL9R+VN
-         5XWjgYWeLFVkK10nvn250fzUpTl+2Zx9T0tW/RD6rlOzioXBBjYm/+jMWPE3suvfS6B8
-         YF1VeT4qk7o0u/8wzI9/9qRwkvEBRgztTsuGogkSqhCY/qMo+geoKL9sWuLutHQRmmLw
-         oNjGBnS7o4uhAUFsYvng2CFfg3gN3+HaZ99eeLjOn1F3YunWeSzXrASmFehoPUE1oOQC
-         2gB+wmih54uVCgR7xtfngDLfbz7KEGdusEBls0YAmb+9Xk0PbOcJ6fy6tLn1UyhSyH9+
-         BpPA==
-X-Gm-Message-State: AOAM53077QKQen+J2bibXlNBuqOmGrm7zk8eKKa/acnFNmEeElV0tzy5
-        3rWE92NkshSGUG2cPC5Q6Y1TgffM8kFkTp/YW3XggQ==
-X-Google-Smtp-Source: ABdhPJxQh1t44Frfz/2XYxwpy7ZXI1lO+ncbRUGm6GBcUykDOdHTvp8gIOSQksTNoWrRHe66Sh+aumcYSnD4CXhOpo4=
-X-Received: by 2002:a67:ebc2:: with SMTP id y2mr3183653vso.72.1642545513445;
- Tue, 18 Jan 2022 14:38:33 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=uOGvUUzuJX9YKCxOe9YLRXRye1b5vrA9LrzACjIeYmE=;
+        b=ZgFOrrvwIljZciFpGzhXlP40EOneAusye0UzBSGVHrm7t0wSOxNo29T9GT4yH6PG6v
+         If1W5onVwoZb4QFy2RuV4tKqaJW/zZFuC77s+pecWcDL89ygtXo1T9/ar5J/vgRCW21w
+         u5nEA+9+ADq1UVDXeU8kyMHtb4CxRblI3hq2nkYMGEfnkAGWtgLgmcyNTkTQ4xbapGIk
+         K1rJZFsMzyuCMspxwHzyi2NHvUnwA/iRQxKmfDD5VQPI6AN8AigwSLWNmtqypaJxGH30
+         +1MVssQmQHKP3qpdrAZ5laSgcpSX13RJg8khGuffXlwrM6Ah66lul3LYEmAlclskFGa8
+         g6nA==
+X-Gm-Message-State: AOAM531jJBwJMgz2fkfiD+GAFne5LgIznqd/MA1yFOMR4aKrbAhQG5ef
+        ZWGqffN5egJkvdq3NBP8ovNPZP/3eq0=
+X-Google-Smtp-Source: ABdhPJyCNuqM1wGkg6Z3hTznjOqW8F8aoo98xeiVJBTEDidhS+92cxYgwWjvaz7qUBVSAh+9IoM4yw==
+X-Received: by 2002:a63:154f:: with SMTP id 15mr24602005pgv.521.1642545533048;
+        Tue, 18 Jan 2022 14:38:53 -0800 (PST)
+Received: from horus.lan (75-164-184-207.ptld.qwest.net. [75.164.184.207])
+        by smtp.gmail.com with ESMTPSA id om6sm3680713pjb.48.2022.01.18.14.38.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Jan 2022 14:38:52 -0800 (PST)
+From:   Jason Gerecke <killertofu@gmail.com>
+X-Google-Original-From: Jason Gerecke <jason.gerecke@wacom.com>
+To:     linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Cc:     Ping Cheng <pinglinux@gmail.com>,
+        Aaron Armstrong Skomra <skomra@gmail.com>,
+        Joshua Dickens <Joshua@Joshua-Dickens.com>,
+        Jason Gerecke <jason.gerecke@wacom.com>,
+        stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>
+Subject: [PATCH] HID: wacom: Avoid using stale array indicies to read contact count
+Date:   Tue, 18 Jan 2022 14:38:41 -0800
+Message-Id: <20220118223841.45870-1-jason.gerecke@wacom.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-References: <20220113031434.464992-1-pcc@google.com> <CA+fCnZeckbw+Vv9TQaCNfaMBA9DkMGXeiQwcoHnwxoO6fCrzcA@mail.gmail.com>
-In-Reply-To: <CA+fCnZeckbw+Vv9TQaCNfaMBA9DkMGXeiQwcoHnwxoO6fCrzcA@mail.gmail.com>
-From:   Peter Collingbourne <pcc@google.com>
-Date:   Tue, 18 Jan 2022 14:38:22 -0800
-Message-ID: <CAMn1gO7zBjaAU9f=qnKKhVBxuujmqzHDpuEdHQxtePDZVBgWMg@mail.gmail.com>
-Subject: Re: [PATCH] mm: use compare-exchange operation to set KASAN page tag
-To:     Andrey Konovalov <andreyknvl@gmail.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 14, 2022 at 1:58 PM Andrey Konovalov <andreyknvl@gmail.com> wrote:
->
->  On Thu, Jan 13, 2022 at 6:14 AM Peter Collingbourne <pcc@google.com> wrote:
-> >
-> > It has been reported that the tag setting operation on newly-allocated
-> > pages can cause the page flags to be corrupted when performed
-> > concurrently with other flag updates as a result of the use of
-> > non-atomic operations.
->
-> Is it know how exactly this race happens? Why are flags for a newly
-> allocated page being accessed concurrently?
+If we ever see a touch report with contact count data we initialize
+several variables used to read the contact count in the pre-report
+phase. These variables are never reset if we process a report which
+doesn't contain a contact count, however. This can cause the pre-
+report function to trigger a read of arbitrary memory (e.g. NULL
+if we're lucky) and potentially crash the driver.
 
-In the report that we received, the race resulted in a crash in
-kswapd. This may just be a symptom of the problem though.
+This commit restores resetting of the variables back to default
+"none" values that were used prior to the commit mentioned
+below.
 
-I haven't closely audited all of the callers to page_kasan_tag_set()
-to check whether they may be operating on already-visible pages, but
-at least it doesn't appear to be unanticipated that there may be other
-threads accessing the page flags concurrently with a call to
-page_kasan_tag_set() (see the calls to smp_wmb() in
-arch/arm64/kernel/mte.c, arch/arm64/mm/copypage.c and
-arch/arm64/mm/mteswap.c).
+Link: https://github.com/linuxwacom/input-wacom/issues/276
+Fixes: 003f50ab673c (HID: wacom: Update last_slot_field during pre_report phase)
+CC: stable@vger.kernel.org
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+---
+ drivers/hid/wacom_wac.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-> > Fix the problem by using a compare-exchange
-> > loop to update the tag.
-> >
-> > Signed-off-by: Peter Collingbourne <pcc@google.com>
-> > Link: https://linux-review.googlesource.com/id/I456b24a2b9067d93968d43b4bb3351c0cec63101
-> > Fixes: 2813b9c02962 ("kasan, mm, arm64: tag non slab memory allocated via pagealloc")
-> > Cc: stable@vger.kernel.org
-> > ---
-> >  include/linux/mm.h | 16 +++++++++++-----
-> >  1 file changed, 11 insertions(+), 5 deletions(-)
-> >
-> > diff --git a/include/linux/mm.h b/include/linux/mm.h
-> > index c768a7c81b0b..b544b0a9f537 100644
-> > --- a/include/linux/mm.h
-> > +++ b/include/linux/mm.h
-> > @@ -1531,11 +1531,17 @@ static inline u8 page_kasan_tag(const struct page *page)
-> >
-> >  static inline void page_kasan_tag_set(struct page *page, u8 tag)
-> >  {
-> > -       if (kasan_enabled()) {
-> > -               tag ^= 0xff;
-> > -               page->flags &= ~(KASAN_TAG_MASK << KASAN_TAG_PGSHIFT);
-> > -               page->flags |= (tag & KASAN_TAG_MASK) << KASAN_TAG_PGSHIFT;
-> > -       }
-> > +       unsigned long old_flags, flags;
-> > +
-> > +       if (!kasan_enabled())
-> > +               return;
-> > +
-> > +       tag ^= 0xff;
-> > +       do {
-> > +               old_flags = flags = page->flags;
->
-> I guess this should be at least READ_ONCE(page->flags) if we care
-> about concurrency.
+diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
+index 92b52b1de526..a7176fc0635d 100644
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2682,6 +2682,10 @@ static void wacom_wac_finger_pre_report(struct hid_device *hdev,
+ 
+ 	hid_data->confidence = true;
+ 
++	hid_data->cc_report = 0;
++	hid_data->cc_index = -1;
++	hid_data->cc_value_index = -1;
++
+ 	for (i = 0; i < report->maxfield; i++) {
+ 		struct hid_field *field = report->field[i];
+ 		int j;
+-- 
+2.34.1
 
-Makes sense. I copied this code from page_cpupid_xchg_last() in
-mm/mmzone.c which has the same problem. I'll send a patch to fix that
-one as well.
-
-Peter
