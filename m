@@ -2,78 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BD47491833
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:46:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1620F491837
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:46:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348046AbiARCon (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:44:43 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:50482 "EHLO
+        id S1348071AbiARCot (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:44:49 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:50504 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237239AbiARClk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:41:40 -0500
+        with ESMTP id S245273AbiARClp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:41:45 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78EDAB81255;
-        Tue, 18 Jan 2022 02:41:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FA40C36AF2;
-        Tue, 18 Jan 2022 02:41:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9122CB81262;
+        Tue, 18 Jan 2022 02:41:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FBDEC36AF6;
+        Tue, 18 Jan 2022 02:41:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473698;
-        bh=SR6/RHYzbaW8Yv7fuCZxeBV3M2Vgut2hDG7UGkgolbU=;
+        s=k20201202; t=1642473699;
+        bh=cp+p/t25XdZb2rsecPqcVi9U8jj0FyYDOxIhELjcxZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bfQtMj+v2vWLxmV6TIML9jGTf5xa6+0SELTH4UurZlJ3YP1Dt2QGfOAt5rR6g2DbC
-         jbcMXN1SKb2wrZLcRul4wV17ohQJvSGK36Jse2iFoL4k2c4TrMOrQYstaZI6uDXBIC
-         m2IOTUKZgSHNjg3oYDuX9jfrQfRzOXhpIMZL6tdwWIAQKInor+Fz9ObUMVOP95UK6E
-         ADIL2T9sUklWHXwlHVPOvkphX2rYNSTIjd5JWlLz2z7QXsohy3s1wih4Bs9PygLCwO
-         ryX/L6w+Xb3TdNO3b9iU42ffVZ0r9xPCVPDgCvMBPCJUpPPnHIQL5VLHx5AzcBAFh6
-         E6O/dV8Zx6gjQ==
+        b=rxTaj6+nq7IvXJZL2VCn6loHWT0Nu+TlqhjUYyo/J63TMt+TuoEkSZZSvmFOE1S+t
+         lryXZc8K2kCEOsFIMPMGQj2MTzZ+Mp3sRW98vBnHgRO7f1LCQ/J8qgjqQ/sC92GrJw
+         0i/+qfVNC8Wso1aY0FtlFV7dhuhPkUq8/gQdknbsaxoZhL8R9nJ/U9fL0Ju/QpPBth
+         0U7AGwGBFig0jJYs3kajK2vk8n6j5RV+5hHgOMlxuAca/v+MSwJCToEKTn/JGIoDIC
+         Ir/pHgrCroe1/f1NZYWafKw3anv49iViculInmBMDu7Iv6wcagMjwQmybJ0+9QUn8l
+         GyW/kfJ8Q9a+Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chengfeng Ye <cyeaa@connect.ust.hk>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
-        Sasha Levin <sashal@kernel.org>, sre@kernel.org
-Subject: [PATCH AUTOSEL 5.10 029/116] HSI: core: Fix return freed object in hsi_new_client
-Date:   Mon, 17 Jan 2022 21:38:40 -0500
-Message-Id: <20220118024007.1950576-29-sashal@kernel.org>
+Cc:     =?UTF-8?q?Stephan=20M=C3=BCller?= <smueller@chronox.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        linux-crypto@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 030/116] crypto: jitter - consider 32 LSB for APT
+Date:   Mon, 17 Jan 2022 21:38:41 -0500
+Message-Id: <20220118024007.1950576-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024007.1950576-1-sashal@kernel.org>
 References: <20220118024007.1950576-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengfeng Ye <cyeaa@connect.ust.hk>
+From: Stephan Müller <smueller@chronox.de>
 
-[ Upstream commit a1ee1c08fcd5af03187dcd41dcab12fd5b379555 ]
+[ Upstream commit 552d03a223eda3df84526ab2c1f4d82e15eaee7a ]
 
-cl is freed on error of calling device_register, but this
-object is return later, which will cause uaf issue. Fix it
-by return NULL on error.
+The APT compares the current time stamp with a pre-set value. The
+current code only considered the 4 LSB only. Yet, after reviews by
+mathematicians of the user space Jitter RNG version >= 3.1.0, it was
+concluded that the APT can be calculated on the 32 LSB of the time
+delta. Thi change is applied to the kernel.
 
-Signed-off-by: Chengfeng Ye <cyeaa@connect.ust.hk>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+This fixes a bug where an AMD EPYC fails this test as its RDTSC value
+contains zeros in the LSB. The most appropriate fix would have been to
+apply a GCD calculation and divide the time stamp by the GCD. Yet, this
+is a significant code change that will be considered for a future
+update. Note, tests showed that constantly the GCD always was 32 on
+these systems, i.e. the 5 LSB were always zero (thus failing the APT
+since it only considered the 4 LSB for its calculation).
+
+Signed-off-by: Stephan Mueller <smueller@chronox.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hsi/hsi_core.c | 1 +
- 1 file changed, 1 insertion(+)
+ crypto/jitterentropy.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/hsi/hsi_core.c b/drivers/hsi/hsi_core.c
-index a5f92e2889cb8..a330f58d45fc6 100644
---- a/drivers/hsi/hsi_core.c
-+++ b/drivers/hsi/hsi_core.c
-@@ -102,6 +102,7 @@ struct hsi_client *hsi_new_client(struct hsi_port *port,
- 	if (device_register(&cl->device) < 0) {
- 		pr_err("hsi: failed to register client: %s\n", info->name);
- 		put_device(&cl->device);
-+		goto err;
- 	}
+diff --git a/crypto/jitterentropy.c b/crypto/jitterentropy.c
+index 6e147c43fc186..37c4c308339e4 100644
+--- a/crypto/jitterentropy.c
++++ b/crypto/jitterentropy.c
+@@ -265,7 +265,6 @@ static int jent_stuck(struct rand_data *ec, __u64 current_delta)
+ {
+ 	__u64 delta2 = jent_delta(ec->last_delta, current_delta);
+ 	__u64 delta3 = jent_delta(ec->last_delta2, delta2);
+-	unsigned int delta_masked = current_delta & JENT_APT_WORD_MASK;
  
- 	return cl;
+ 	ec->last_delta = current_delta;
+ 	ec->last_delta2 = delta2;
+@@ -274,7 +273,7 @@ static int jent_stuck(struct rand_data *ec, __u64 current_delta)
+ 	 * Insert the result of the comparison of two back-to-back time
+ 	 * deltas.
+ 	 */
+-	jent_apt_insert(ec, delta_masked);
++	jent_apt_insert(ec, current_delta);
+ 
+ 	if (!current_delta || !delta2 || !delta3) {
+ 		/* RCT with a stuck bit */
 -- 
 2.34.1
 
