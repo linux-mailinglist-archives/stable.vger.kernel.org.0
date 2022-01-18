@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D63884920BB
+	by mail.lfdr.de (Postfix) with ESMTP id 8C7F24920BA
 	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 08:58:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237124AbiARH6E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 02:58:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50686 "EHLO
+        id S234466AbiARH6D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 02:58:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234278AbiARH6E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 02:58:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43F09C061574
-        for <stable@vger.kernel.org>; Mon, 17 Jan 2022 23:58:04 -0800 (PST)
+        with ESMTP id S234278AbiARH6C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 02:58:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3083C061574
+        for <stable@vger.kernel.org>; Mon, 17 Jan 2022 23:58:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D46B8613B3
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 07:58:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC77EC00446;
-        Tue, 18 Jan 2022 07:58:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6B2AEB81052
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 07:58:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D5A7C00446;
+        Tue, 18 Jan 2022 07:57:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642492683;
-        bh=wyZ8s7LCbPvitVbsS0bhsQ+53se5Q89hoUpSIpJq/uI=;
+        s=korg; t=1642492680;
+        bh=Q2v1B4Ef1GBXMc65oKXq7C1MCjkOFCAV/bY+QTZBQ1A=;
         h=Subject:To:Cc:From:Date:From;
-        b=0ia6b7pXvw1f3jnktM2FNzvoU1Mymr2J/1xl+10wWh/GbdQ1rYifvinecumnur0y+
-         VeWAf5Cz2pt6bry+8hNsJWdWCn9w+lQnWE6RPEKhZM9P0DFDMfBwpMNvzxfssmF8Vc
-         iY/uZoASHe71yyZoowounjbzXVONXVtWehCnhdK0=
-Subject: FAILED: patch "[PATCH] KVM: x86: Register perf callbacks after calling vendor's" failed to apply to 5.4-stable tree
+        b=e8+pcIHJuHWw86QykVpWRPJU4lckWtmgiBgO65cCI7QKfdIkf6tbEfV6AyMUcrRD8
+         bmNVKpM+wYDNWP7vLqPR3q0kgkBaONZvPMXTdthRDgz+NCIdF/g9707nw6Mklmi3O8
+         IiunrXWZaaAuUw+81dx/4By2a0MQZ3uod1rMawyQ=
+Subject: FAILED: patch "[PATCH] KVM: x86: Register perf callbacks after calling vendor's" failed to apply to 5.10-stable tree
 To:     seanjc@google.com, pbonzini@redhat.com, peterz@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 18 Jan 2022 08:57:47 +0100
-Message-ID: <1642492667118191@kroah.com>
+Message-ID: <164249266762216@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
