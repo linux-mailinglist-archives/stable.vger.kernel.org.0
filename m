@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2572D491AE6
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:03:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14D73491A9A
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:02:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352634AbiARDAS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1352642AbiARDAS (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 17 Jan 2022 22:00:18 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:57852 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346659AbiARCtO (ORCPT
+Received: from dfw.source.kernel.org ([139.178.84.217]:42820 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346660AbiARCtO (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:49:14 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B12A5B8124B;
-        Tue, 18 Jan 2022 02:49:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 450C7C36AEF;
-        Tue, 18 Jan 2022 02:49:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 383846118D;
+        Tue, 18 Jan 2022 02:49:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8FB4C36AF3;
+        Tue, 18 Jan 2022 02:49:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642474151;
-        bh=Sh+M3L0lB9KpZ1YUcJstaGMEojTqMlUaXuswNPJ9dYg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Po0v9JmXoitMEyXPOmCNTJ1uB3lcNsotODQVyKBcqVJVPlEFqAmYAx9C6LTjZnmhT
-         lEYDnRFfjUXI9sPiuyc3boKBrc2ATgTMmsDgWO6lhBXxHs1ZI4IabTTsbBEJvu2tb4
-         O4QLodqt2PeJlHFoFwe29lWaxOP9cFLfPthDE8YUDJhEul3ykJnEyKJBMIMc0EKQRE
-         +m8z62FEPYVaRYK7ynL77psculXaRfCRHaJeDBM0zk3Ql6dtbuXgpRC3vv1u969yZn
-         6fmgFfS+B1WJ4YUChsYKzFlGWZV/QSOmTbbTJz9DEDMXaKR0cH/GpfKSYRv4fNIeCU
-         pswOZOz3lZ2nQ==
+        s=k20201202; t=1642474152;
+        bh=UZqt7F9T0rDiSTLTAnZvkhKO5UvRVAdoAjXoYZrpjwA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=djXoIGQtYIiz7aDGIMxcebjgiKXJqD3T+oP5PHuzbIe6sJBF3EBHlHsSFaPyVU6bB
+         iwL1+S9GCfE84f+OidxYRE8E6gI9iyLyW1kRo8RovFELbGpnMrCRCiBB8HiWScuVp5
+         zCZQ8lfEq3K81AhYmY1B01B7Buj/Nruk4hbf71zYQKhhPHLq8891hFg2kBUv92x1Mk
+         UoMdX8s58pqLPJgETi84VjYgLzJ2zdsEhfyHNmPaPUsGfzk55dk3TvsuAGgLAyJ6t7
+         9YkzJKimK9Atb6MuIvpoa9tqM9a0u0X8sltSZU+yYWSeGMH4noPF9jMVYfyWwSXU9j
+         CuLDFwfYW7Zeg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wei Yongjun <weiyongjun1@huawei.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>, johan.hedberg@gmail.com,
-        luiz.dentz@gmail.com, davem@davemloft.net, kuba@kernel.org,
-        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 01/56] Bluetooth: Fix debugfs entry leak in hci_register_dev()
-Date:   Mon, 17 Jan 2022 21:48:13 -0500
-Message-Id: <20220118024908.1953673-1-sashal@kernel.org>
+Cc:     Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, ccaulfie@redhat.com,
+        cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 4.14 02/56] fs: dlm: filter user dlm messages for kernel locks
+Date:   Mon, 17 Jan 2022 21:48:14 -0500
+Message-Id: <20220118024908.1953673-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220118024908.1953673-1-sashal@kernel.org>
+References: <20220118024908.1953673-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -47,38 +48,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit 5a4bb6a8e981d3d0d492aa38412ee80b21033177 ]
+[ Upstream commit 6c2e3bf68f3e5e5a647aa52be246d5f552d7496d ]
 
-Fault injection test report debugfs entry leak as follows:
+This patch fixes the following crash by receiving a invalid message:
 
-debugfs: Directory 'hci0' with parent 'bluetooth' already present!
+[  160.672220] ==================================================================
+[  160.676206] BUG: KASAN: user-memory-access in dlm_user_add_ast+0xc3/0x370
+[  160.679659] Read of size 8 at addr 00000000deadbeef by task kworker/u32:13/319
+[  160.681447]
+[  160.681824] CPU: 10 PID: 319 Comm: kworker/u32:13 Not tainted 5.14.0-rc2+ #399
+[  160.683472] Hardware name: Red Hat KVM/RHEL-AV, BIOS 1.14.0-1.module+el8.6.0+12648+6ede71a5 04/01/2014
+[  160.685574] Workqueue: dlm_recv process_recv_sockets
+[  160.686721] Call Trace:
+[  160.687310]  dump_stack_lvl+0x56/0x6f
+[  160.688169]  ? dlm_user_add_ast+0xc3/0x370
+[  160.689116]  kasan_report.cold.14+0x116/0x11b
+[  160.690138]  ? dlm_user_add_ast+0xc3/0x370
+[  160.690832]  dlm_user_add_ast+0xc3/0x370
+[  160.691502]  _receive_unlock_reply+0x103/0x170
+[  160.692241]  _receive_message+0x11df/0x1ec0
+[  160.692926]  ? rcu_read_lock_sched_held+0xa1/0xd0
+[  160.693700]  ? rcu_read_lock_bh_held+0xb0/0xb0
+[  160.694427]  ? lock_acquire+0x175/0x400
+[  160.695058]  ? do_purge.isra.51+0x200/0x200
+[  160.695744]  ? lock_acquired+0x360/0x5d0
+[  160.696400]  ? lock_contended+0x6a0/0x6a0
+[  160.697055]  ? lock_release+0x21d/0x5e0
+[  160.697686]  ? lock_is_held_type+0xe0/0x110
+[  160.698352]  ? lock_is_held_type+0xe0/0x110
+[  160.699026]  ? ___might_sleep+0x1cc/0x1e0
+[  160.699698]  ? dlm_wait_requestqueue+0x94/0x140
+[  160.700451]  ? dlm_process_requestqueue+0x240/0x240
+[  160.701249]  ? down_write_killable+0x2b0/0x2b0
+[  160.701988]  ? do_raw_spin_unlock+0xa2/0x130
+[  160.702690]  dlm_receive_buffer+0x1a5/0x210
+[  160.703385]  dlm_process_incoming_buffer+0x726/0x9f0
+[  160.704210]  receive_from_sock+0x1c0/0x3b0
+[  160.704886]  ? dlm_tcp_shutdown+0x30/0x30
+[  160.705561]  ? lock_acquire+0x175/0x400
+[  160.706197]  ? rcu_read_lock_sched_held+0xa1/0xd0
+[  160.706941]  ? rcu_read_lock_bh_held+0xb0/0xb0
+[  160.707681]  process_recv_sockets+0x32/0x40
+[  160.708366]  process_one_work+0x55e/0xad0
+[  160.709045]  ? pwq_dec_nr_in_flight+0x110/0x110
+[  160.709820]  worker_thread+0x65/0x5e0
+[  160.710423]  ? process_one_work+0xad0/0xad0
+[  160.711087]  kthread+0x1ed/0x220
+[  160.711628]  ? set_kthread_struct+0x80/0x80
+[  160.712314]  ret_from_fork+0x22/0x30
 
-When register_pm_notifier() failed in hci_register_dev(), the debugfs
-create by debugfs_create_dir() do not removed in the error handing path.
+The issue is that we received a DLM message for a user lock but the
+destination lock is a kernel lock. Note that the address which is trying
+to derefence is 00000000deadbeef, which is in a kernel lock
+lkb->lkb_astparam, this field should never be derefenced by the DLM
+kernel stack. In case of a user lock lkb->lkb_astparam is lkb->lkb_ua
+(memory is shared by a union field). The struct lkb_ua will be handled
+by the DLM kernel stack but on a kernel lock it will contain invalid
+data and ends in most likely crashing the kernel.
 
-Add the remove debugfs code to fix it.
+It can be reproduced with two cluster nodes.
 
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+node 2:
+dlm_tool join test
+echo "862 fooobaar 1 2 1" > /sys/kernel/debug/dlm/test_locks
+echo "862 3 1" > /sys/kernel/debug/dlm/test_waiters
+
+node 1:
+dlm_tool join test
+
+python:
+foo = DLM(h_cmd=3, o_nextcmd=1, h_nodeid=1, h_lockspace=0x77222027, \
+          m_type=7, m_flags=0x1, m_remid=0x862, m_result=0xFFFEFFFE)
+newFile = open("/sys/kernel/debug/dlm/comms/2/rawmsg", "wb")
+newFile.write(bytes(foo))
+
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_core.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/dlm/lock.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-index 1906adfd553ad..687b4d0e4c673 100644
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -3183,6 +3183,7 @@ int hci_register_dev(struct hci_dev *hdev)
- 	return id;
+diff --git a/fs/dlm/lock.c b/fs/dlm/lock.c
+index 21643d2b3fee4..8364f170fbb82 100644
+--- a/fs/dlm/lock.c
++++ b/fs/dlm/lock.c
+@@ -3974,6 +3974,14 @@ static int validate_message(struct dlm_lkb *lkb, struct dlm_message *ms)
+ 	int from = ms->m_header.h_nodeid;
+ 	int error = 0;
  
- err_wqueue:
-+	debugfs_remove_recursive(hdev->debugfs);
- 	destroy_workqueue(hdev->workqueue);
- 	destroy_workqueue(hdev->req_workqueue);
- err:
++	/* currently mixing of user/kernel locks are not supported */
++	if (ms->m_flags & DLM_IFL_USER && ~lkb->lkb_flags & DLM_IFL_USER) {
++		log_error(lkb->lkb_resource->res_ls,
++			  "got user dlm message for a kernel lock");
++		error = -EINVAL;
++		goto out;
++	}
++
+ 	switch (ms->m_type) {
+ 	case DLM_MSG_CONVERT:
+ 	case DLM_MSG_UNLOCK:
+@@ -4002,6 +4010,7 @@ static int validate_message(struct dlm_lkb *lkb, struct dlm_message *ms)
+ 		error = -EINVAL;
+ 	}
+ 
++out:
+ 	if (error)
+ 		log_error(lkb->lkb_resource->res_ls,
+ 			  "ignore invalid message %d from %d %x %x %x %d",
 -- 
 2.34.1
 
