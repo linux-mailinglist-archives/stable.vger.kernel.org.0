@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95458491531
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:26:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBA5149156E
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:28:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343664AbiARC0q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:26:46 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:38730 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245576AbiARCYm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:24:42 -0500
+        id S245450AbiARC2I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:28:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57328 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244942AbiARC0G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:26:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A41F0C061362;
+        Mon, 17 Jan 2022 18:24:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC5C6B81236;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 69C83B81239;
+        Tue, 18 Jan 2022 02:24:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29BDCC36AF5;
         Tue, 18 Jan 2022 02:24:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25722C36AF2;
-        Tue, 18 Jan 2022 02:24:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642472679;
-        bh=WB5Fr75X8G4jw0/y8XuyPCD1/8boh+YgNcljnWxG620=;
+        s=k20201202; t=1642472681;
+        bh=DTFUkXLNCr018LWSCZK9D1Uv6h36WaZyXht8Fz71pEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kqTo4oGylP80XBGENs2kr2FjwFdQ3xBd6o0dDHKSdb6Bem9pZwGI9VNHG387N/dC9
-         z45Q4x+o5chkCBWZodYFq48Vp8bMhUz9RDpcNH19t75nsvCxwgrmKlHnRPP69nnQri
-         795rqd4cQNaXS5hEkFJu29pvj2tGsCYhO450iqyv9Q0xss7YXyT9I6F7zd0L4ziDBw
-         1pbPsiLi53qRrkbs71QC3TxAwS+SVJTSOi0oSjEAGhIHghChEw0UMQrzqV9+sPcKMx
-         tH9Th6EFbnB4Txv9Pp4iGeaAGDPQOA1/sC2dKVtrXef7001+3lqCzk1BgwobouVzVv
-         X8GHlFHyMF9hg==
+        b=t4PT4Qh4Rzi8YZ0acPnELUtbebwcAstkGdUXRLo6zXRkPkdxsJnJ4Y+VoyJiEc5e3
+         Tvtawf7pEvf5uL1CTmMgsVNLdUsm6gI4s2dznJ7N/v82WW73BnVmh5kYFSO2K+T3+p
+         iBcPD8zN/xkSouZVj81txyFyA7DVXOZbF+DE2cOCkERYTWJByzuPW9szSr+VtSAH4d
+         Y6U456Y9GLsuPOnBZQEUxHwuOG5U5j3ZNhWaAkMzb1wvWqYiMwiBvjP5iOUaR5eoDX
+         6P5SjOqOvY5ix/6av+hfcXe9kK5TDxqhdKcGi1QZ2z45VhixCGL2F818zjCwsabi9a
+         5ZonDmYUAZVTw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
-        borntraeger@linux.ibm.com, egorenar@linux.ibm.com,
-        agordeev@linux.ibm.com, svens@linux.ibm.com, ebiederm@xmission.com,
-        rppt@kernel.org, valentin.schneider@arm.com, iii@linux.ibm.com,
-        linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 095/217] s390/nmi: add missing __pa/__va address conversion of extended save area
-Date:   Mon, 17 Jan 2022 21:17:38 -0500
-Message-Id: <20220118021940.1942199-95-sashal@kernel.org>
+Cc:     Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        Sasha Levin <sashal@kernel.org>,
+        laurent.pinchart@ideasonboard.com,
+        kieran.bingham+renesas@ideasonboard.com, airlied@linux.ie,
+        daniel@ffwll.ch, dri-devel@lists.freedesktop.org,
+        linux-renesas-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 096/217] drm: rcar-du: Fix CRTC timings when CMM is used
+Date:   Mon, 17 Jan 2022 21:17:39 -0500
+Message-Id: <20220118021940.1942199-96-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118021940.1942199-1-sashal@kernel.org>
 References: <20220118021940.1942199-1-sashal@kernel.org>
@@ -51,101 +53,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 
-[ Upstream commit 402ff5a3387dc8ec6987a80d3ce26b0c25773622 ]
+[ Upstream commit f0ce591dc9a97067c6e783a2eaccd22c5476144d ]
 
-Add missing __pa/__va address conversion of machine check extended
-save area designation, which is an absolute address.
+When the CMM is enabled, an offset of 25 pixels must be subtracted from
+the HDS (horizontal display start) and HDE (horizontal display end)
+registers. Fix the timings calculation, and take this into account in
+the mode validation.
 
-Note: this currently doesn't fix a real bug, since virtual addresses
-are indentical to physical ones.
+This fixes a visible horizontal offset in the image with VGA monitors.
+HDMI monitors seem to be generally more tolerant to incorrect timings,
+but may be affected too.
 
-Reported-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-Tested-by: Vineeth Vijayan <vneethv@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/machine_kexec.c |  2 +-
- arch/s390/kernel/nmi.c           | 10 +++++-----
- arch/s390/kernel/smp.c           |  2 +-
- 3 files changed, 7 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/rcar-du/rcar_du_crtc.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/arch/s390/kernel/machine_kexec.c b/arch/s390/kernel/machine_kexec.c
-index 0505e55a62979..a16467b3825ec 100644
---- a/arch/s390/kernel/machine_kexec.c
-+++ b/arch/s390/kernel/machine_kexec.c
-@@ -86,7 +86,7 @@ static noinline void __machine_kdump(void *image)
- 			continue;
- 	}
- 	/* Store status of the boot CPU */
--	mcesa = (struct mcesa *)(S390_lowcore.mcesad & MCESA_ORIGIN_MASK);
-+	mcesa = __va(S390_lowcore.mcesad & MCESA_ORIGIN_MASK);
- 	if (MACHINE_HAS_VX)
- 		save_vx_regs((__vector128 *) mcesa->vector_save_area);
- 	if (MACHINE_HAS_GS) {
-diff --git a/arch/s390/kernel/nmi.c b/arch/s390/kernel/nmi.c
-index 20f8e1868853f..3f18c1412eba3 100644
---- a/arch/s390/kernel/nmi.c
-+++ b/arch/s390/kernel/nmi.c
-@@ -68,7 +68,7 @@ void __init nmi_alloc_boot_cpu(struct lowcore *lc)
- {
- 	if (!nmi_needs_mcesa())
- 		return;
--	lc->mcesad = (unsigned long) &boot_mcesa;
-+	lc->mcesad = __pa(&boot_mcesa);
- 	if (MACHINE_HAS_GS)
- 		lc->mcesad |= ilog2(MCESA_MAX_SIZE);
- }
-@@ -94,7 +94,7 @@ static int __init nmi_init(void)
- 	__ctl_store(cr0, 0, 0);
- 	__ctl_clear_bit(0, 28); /* disable lowcore protection */
- 	/* Replace boot_mcesa on the boot CPU */
--	S390_lowcore.mcesad = origin | mcesa_origin_lc;
-+	S390_lowcore.mcesad = __pa(origin) | mcesa_origin_lc;
- 	__ctl_load(cr0, 0, 0);
- 	return 0;
- }
-@@ -111,7 +111,7 @@ int nmi_alloc_per_cpu(struct lowcore *lc)
- 		return -ENOMEM;
- 	/* The pointer is stored with mcesa_bits ORed in */
- 	kmemleak_not_leak((void *) origin);
--	lc->mcesad = origin | mcesa_origin_lc;
-+	lc->mcesad = __pa(origin) | mcesa_origin_lc;
- 	return 0;
- }
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
+index 5672830ca184d..ee6ba74627a21 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
++++ b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
+@@ -215,6 +215,7 @@ static void rcar_du_crtc_set_display_timing(struct rcar_du_crtc *rcrtc)
+ 	const struct drm_display_mode *mode = &rcrtc->crtc.state->adjusted_mode;
+ 	struct rcar_du_device *rcdu = rcrtc->dev;
+ 	unsigned long mode_clock = mode->clock * 1000;
++	unsigned int hdse_offset;
+ 	u32 dsmr;
+ 	u32 escr;
  
-@@ -119,7 +119,7 @@ void nmi_free_per_cpu(struct lowcore *lc)
- {
- 	if (!nmi_needs_mcesa())
- 		return;
--	kmem_cache_free(mcesa_cache, (void *)(lc->mcesad & MCESA_ORIGIN_MASK));
-+	kmem_cache_free(mcesa_cache, __va(lc->mcesad & MCESA_ORIGIN_MASK));
- }
+@@ -298,10 +299,15 @@ static void rcar_du_crtc_set_display_timing(struct rcar_du_crtc *rcrtc)
+ 	     | DSMR_DIPM_DISP | DSMR_CSPM;
+ 	rcar_du_crtc_write(rcrtc, DSMR, dsmr);
  
- static notrace void s390_handle_damage(void)
-@@ -246,7 +246,7 @@ static int notrace s390_validate_registers(union mci mci, int umode)
- 			: "Q" (S390_lowcore.fpt_creg_save_area));
- 	}
++	hdse_offset = 19;
++	if (rcrtc->group->cmms_mask & BIT(rcrtc->index % 2))
++		hdse_offset += 25;
++
+ 	/* Display timings */
+-	rcar_du_crtc_write(rcrtc, HDSR, mode->htotal - mode->hsync_start - 19);
++	rcar_du_crtc_write(rcrtc, HDSR, mode->htotal - mode->hsync_start -
++					hdse_offset);
+ 	rcar_du_crtc_write(rcrtc, HDER, mode->htotal - mode->hsync_start +
+-					mode->hdisplay - 19);
++					mode->hdisplay - hdse_offset);
+ 	rcar_du_crtc_write(rcrtc, HSWR, mode->hsync_end -
+ 					mode->hsync_start - 1);
+ 	rcar_du_crtc_write(rcrtc, HCR,  mode->htotal - 1);
+@@ -836,6 +842,7 @@ rcar_du_crtc_mode_valid(struct drm_crtc *crtc,
+ 	struct rcar_du_crtc *rcrtc = to_rcar_crtc(crtc);
+ 	struct rcar_du_device *rcdu = rcrtc->dev;
+ 	bool interlaced = mode->flags & DRM_MODE_FLAG_INTERLACE;
++	unsigned int min_sync_porch;
+ 	unsigned int vbp;
  
--	mcesa = (struct mcesa *)(S390_lowcore.mcesad & MCESA_ORIGIN_MASK);
-+	mcesa = __va(S390_lowcore.mcesad & MCESA_ORIGIN_MASK);
- 	if (!MACHINE_HAS_VX) {
- 		/* Validate floating point registers */
- 		asm volatile(
-diff --git a/arch/s390/kernel/smp.c b/arch/s390/kernel/smp.c
-index 78a8ea6fd582a..2e280e812dfd1 100644
---- a/arch/s390/kernel/smp.c
-+++ b/arch/s390/kernel/smp.c
-@@ -622,7 +622,7 @@ int smp_store_status(int cpu)
- 		return -EIO;
- 	if (!MACHINE_HAS_VX && !MACHINE_HAS_GS)
- 		return 0;
--	pa = __pa(lc->mcesad & MCESA_ORIGIN_MASK);
-+	pa = lc->mcesad & MCESA_ORIGIN_MASK;
- 	if (MACHINE_HAS_GS)
- 		pa |= lc->mcesad & MCESA_LC_MASK;
- 	if (__pcpu_sigp_relax(pcpu->address, SIGP_STORE_ADDITIONAL_STATUS,
+ 	if (interlaced && !rcar_du_has(rcdu, RCAR_DU_FEATURE_INTERLACED))
+@@ -843,9 +850,14 @@ rcar_du_crtc_mode_valid(struct drm_crtc *crtc,
+ 
+ 	/*
+ 	 * The hardware requires a minimum combined horizontal sync and back
+-	 * porch of 20 pixels and a minimum vertical back porch of 3 lines.
++	 * porch of 20 pixels (when CMM isn't used) or 45 pixels (when CMM is
++	 * used), and a minimum vertical back porch of 3 lines.
+ 	 */
+-	if (mode->htotal - mode->hsync_start < 20)
++	min_sync_porch = 20;
++	if (rcrtc->group->cmms_mask & BIT(rcrtc->index % 2))
++		min_sync_porch += 25;
++
++	if (mode->htotal - mode->hsync_start < min_sync_porch)
+ 		return MODE_HBLANK_NARROW;
+ 
+ 	vbp = (mode->vtotal - mode->vsync_end) / (interlaced ? 2 : 1);
 -- 
 2.34.1
 
