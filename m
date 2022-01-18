@@ -2,155 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B46B49127C
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 00:52:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94B0A4913FA
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:19:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233263AbiAQXww (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 18:52:52 -0500
-Received: from mail-pl1-f174.google.com ([209.85.214.174]:44954 "EHLO
-        mail-pl1-f174.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231768AbiAQXwu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 18:52:50 -0500
-Received: by mail-pl1-f174.google.com with SMTP id v2so7885199ply.11;
-        Mon, 17 Jan 2022 15:52:50 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=E3Vs4IXxZ1o53P+v4lST9asSyi4iNaTfykJHulxAP6I=;
-        b=38Yw2iTO6o3QAQGw/srBNIoeGQ+tvzTIOOzpN0EPdlQa66302aMLRXCP5KjTPNonWo
-         l0QavEZFwSLpJPj7p1xCO+RG+ZmECkqNzFV6852nri0IUAYXx8Qjk78ytLiVzNWL6sBu
-         LHXOJpkU7fVCaROKUSw1LTE+PTTo3FCqKXN+XvZzuDQG/zfdufPSk+iUw8v9SMixmAo1
-         xC5C/Z/yAGmaEnvOQNVI8Rb8JPy5b+AV9UphkkWxcgWvAZtUsPhKqYIzGYURlFmeuh39
-         YXNmDq3Ti1ls3q7nfzd6rKWblpk2+J/d+2ZcxFOw4gj0lTxcwR1jHg57vdpXD9a887LV
-         jKrw==
-X-Gm-Message-State: AOAM5303/XuJuHEKhpemxomAwTgYyG2nLOX330FpJZeEdOwllUSm+8Pu
-        VrKM+y2ZPJ7SkUs+HnXoCGp2fIl53t4=
-X-Google-Smtp-Source: ABdhPJz4ZuSC9e8w3+8LhUWLe9QPlc2LklE09KfjXKRJLZVfJd2L4Hj4kOSjzkoNHa8F+bDJ71z6qg==
-X-Received: by 2002:a17:902:8d82:b0:149:a740:d8d0 with SMTP id v2-20020a1709028d8200b00149a740d8d0mr25253359plo.5.1642463570215;
-        Mon, 17 Jan 2022 15:52:50 -0800 (PST)
-Received: from localhost.localdomain ([61.74.27.164])
-        by smtp.gmail.com with ESMTPSA id x6sm12883412pge.50.2022.01.17.15.52.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 Jan 2022 15:52:49 -0800 (PST)
-From:   Namjae Jeon <linkinjeon@kernel.org>
-To:     linux-cifs@vger.kernel.org
-Cc:     Namjae Jeon <linkinjeon@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH] ksmbd: fix guest connection failure with nautilus
-Date:   Tue, 18 Jan 2022 08:52:42 +0900
-Message-Id: <20220117235242.9385-1-linkinjeon@kernel.org>
-X-Mailer: git-send-email 2.25.1
+        id S244324AbiARCTr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:19:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56316 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231611AbiARCTp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:19:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF981C061574;
+        Mon, 17 Jan 2022 18:19:44 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 360E6612BE;
+        Tue, 18 Jan 2022 02:19:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55668C36AEB;
+        Tue, 18 Jan 2022 02:19:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1642472383;
+        bh=ePBaW9YD9SIwvLA46ELgC5rC7fjkynIpw6UKXVSMxew=;
+        h=From:To:Cc:Subject:Date:From;
+        b=PYHkxLtkipoa2E6HucbExx9mFwwJ951fWgG9pgCl9/kpovqMGWqAVlHVSoiX5VtPA
+         E5T/8wYB6K0BSkB3Pb4iSS61UcxjnRppneHNS7ztptpZPT8/Tkd5C0GVNHv72nHulN
+         Ot61ANhQomBsuFxv24JbiHpKrl3PupMPrjlsxcyjbFCuqpTaLxPJZWvPm4WUXt30qR
+         07sYJW7oTFlJ5jV1UEFLyTHT/4HWfz0L0plpmZnt2V4X3G/6pT1MZ7HnQZbyTBWG/P
+         oG5tO/ZiYv0cZ1qUm4WnUMvUohAPNu4sBaB/hOMIPbCNhaBAFjrxbfjwB/zRTGxJHX
+         +dehexyopM7Lw==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Nguyen Dinh Phi <phind.uet@gmail.com>,
+        syzbot+4c4ffd1e1094dae61035@syzkaller.appspotmail.com,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>, johan.hedberg@gmail.com,
+        luiz.dentz@gmail.com, davem@davemloft.net, kuba@kernel.org,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 001/217] Bluetooth: hci_sock: purge socket queues in the destruct() callback
+Date:   Mon, 17 Jan 2022 21:16:04 -0500
+Message-Id: <20220118021940.1942199-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-MS-SMB2 describe session sign like the following.
-Session.SigningRequired MUST be set to TRUE under the following conditions:
- - If the SMB2_NEGOTIATE_SIGNING_REQUIRED bit is set in the SecurityMode
-   field of the client request.
- - If the SMB2_SESSION_FLAG_IS_GUEST bit is not set in the SessionFlags
-   field and Session.IsAnonymous is FALSE and either Connection.ShouldSign
-   or global RequireMessageSigning is TRUE.
+From: Nguyen Dinh Phi <phind.uet@gmail.com>
 
-When trying guest account connection using nautilus, The login failure
-happened on session setup. ksmbd does not allow this connection
-when the user is a guest and the connection sign is set. Just do not set
-session sign instead of error response as described in the specification.
-And this change improves the guest connection in Nautilus.
+[ Upstream commit 709fca500067524381e28a5f481882930eebac88 ]
 
-Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
-Cc: stable@vger.kernel.org # v5.15+
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+The receive path may take the socket right before hci_sock_release(),
+but it may enqueue the packets to the socket queues after the call to
+skb_queue_purge(), therefore the socket can be destroyed without clear
+its queues completely.
+
+Moving these skb_queue_purge() to the hci_sock_destruct() will fix this
+issue, because nothing is referencing the socket at this point.
+
+Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
+Reported-by: syzbot+4c4ffd1e1094dae61035@syzkaller.appspotmail.com
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/smb2pdu.c | 62 ++++++++++++++++++++++------------------------
- 1 file changed, 29 insertions(+), 33 deletions(-)
+ net/bluetooth/hci_sock.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
-index 15f331dbe17a..1866c81c5c99 100644
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -1464,11 +1464,6 @@ static int ntlm_authenticate(struct ksmbd_work *work)
+diff --git a/net/bluetooth/hci_sock.c b/net/bluetooth/hci_sock.c
+index d0dad1fafe079..446573a125711 100644
+--- a/net/bluetooth/hci_sock.c
++++ b/net/bluetooth/hci_sock.c
+@@ -889,10 +889,6 @@ static int hci_sock_release(struct socket *sock)
  	}
  
- 	if (user_guest(sess->user)) {
--		if (conn->sign) {
--			ksmbd_debug(SMB, "Guest login not allowed when signing enabled\n");
--			return -EPERM;
--		}
+ 	sock_orphan(sk);
 -
- 		rsp->SessionFlags = SMB2_SESSION_FLAG_IS_GUEST_LE;
- 	} else {
- 		struct authenticate_message *authblob;
-@@ -1481,38 +1476,39 @@ static int ntlm_authenticate(struct ksmbd_work *work)
- 			ksmbd_debug(SMB, "authentication failed\n");
- 			return -EPERM;
- 		}
-+	}
+-	skb_queue_purge(&sk->sk_receive_queue);
+-	skb_queue_purge(&sk->sk_write_queue);
+-
+ 	release_sock(sk);
+ 	sock_put(sk);
+ 	return 0;
+@@ -2058,6 +2054,12 @@ static int hci_sock_getsockopt(struct socket *sock, int level, int optname,
+ 	return err;
+ }
  
--		/*
--		 * If session state is SMB2_SESSION_VALID, We can assume
--		 * that it is reauthentication. And the user/password
--		 * has been verified, so return it here.
--		 */
--		if (sess->state == SMB2_SESSION_VALID) {
--			if (conn->binding)
--				goto binding_session;
--			return 0;
--		}
-+	/*
-+	 * If session state is SMB2_SESSION_VALID, We can assume
-+	 * that it is reauthentication. And the user/password
-+	 * has been verified, so return it here.
-+	 */
-+	if (sess->state == SMB2_SESSION_VALID) {
-+		if (conn->binding)
-+			goto binding_session;
-+		return 0;
-+	}
++static void hci_sock_destruct(struct sock *sk)
++{
++	skb_queue_purge(&sk->sk_receive_queue);
++	skb_queue_purge(&sk->sk_write_queue);
++}
++
+ static const struct proto_ops hci_sock_ops = {
+ 	.family		= PF_BLUETOOTH,
+ 	.owner		= THIS_MODULE,
+@@ -2111,6 +2113,7 @@ static int hci_sock_create(struct net *net, struct socket *sock, int protocol,
  
--		if ((conn->sign || server_conf.enforced_signing) ||
--		    (req->SecurityMode & SMB2_NEGOTIATE_SIGNING_REQUIRED))
--			sess->sign = true;
-+	if ((rsp->SessionFlags != SMB2_SESSION_FLAG_IS_GUEST_LE &&
-+	     (conn->sign || server_conf.enforced_signing)) ||
-+	    (req->SecurityMode & SMB2_NEGOTIATE_SIGNING_REQUIRED))
-+		sess->sign = true;
+ 	sock->state = SS_UNCONNECTED;
+ 	sk->sk_state = BT_OPEN;
++	sk->sk_destruct = hci_sock_destruct;
  
--		if (smb3_encryption_negotiated(conn) &&
--		    !(req->Flags & SMB2_SESSION_REQ_FLAG_BINDING)) {
--			rc = conn->ops->generate_encryptionkey(sess);
--			if (rc) {
--				ksmbd_debug(SMB,
--					    "SMB3 encryption key generation failed\n");
--				return -EINVAL;
--			}
--			sess->enc = true;
--			rsp->SessionFlags = SMB2_SESSION_FLAG_ENCRYPT_DATA_LE;
--			/*
--			 * signing is disable if encryption is enable
--			 * on this session
--			 */
--			sess->sign = false;
-+	if (smb3_encryption_negotiated(conn) &&
-+			!(req->Flags & SMB2_SESSION_REQ_FLAG_BINDING)) {
-+		rc = conn->ops->generate_encryptionkey(sess);
-+		if (rc) {
-+			ksmbd_debug(SMB,
-+					"SMB3 encryption key generation failed\n");
-+			return -EINVAL;
- 		}
-+		sess->enc = true;
-+		rsp->SessionFlags = SMB2_SESSION_FLAG_ENCRYPT_DATA_LE;
-+		/*
-+		 * signing is disable if encryption is enable
-+		 * on this session
-+		 */
-+		sess->sign = false;
- 	}
- 
- binding_session:
+ 	bt_sock_link(&hci_sk_list, sk);
+ 	return 0;
 -- 
-2.25.1
+2.34.1
 
