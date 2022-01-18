@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDE94491A75
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:02:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C5DD491AF8
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:03:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352383AbiARC7w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:59:52 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42052 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345833AbiARCsk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:48:40 -0500
+        id S1344749AbiARDDU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 22:03:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37326 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1352274AbiARC7h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:59:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7118AC0612FD;
+        Mon, 17 Jan 2022 18:34:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5846D61294;
-        Tue, 18 Jan 2022 02:48:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1E85C36AF6;
-        Tue, 18 Jan 2022 02:48:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9CAC4B81250;
+        Tue, 18 Jan 2022 02:33:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C68D5C36AE3;
+        Tue, 18 Jan 2022 02:33:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642474118;
-        bh=FNVb3dcHIBLomxyIdcLDZf6bDvbLp1BTjjK8xjoWU5A=;
+        s=k20201202; t=1642473219;
+        bh=UmX2nlXkaOkWexEcFV10+goTcCTrpnTdiU5pNGjw6w8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m23FwRri3RvkE986WqbOH4boIY34Pyuwn1TDkQAbf+CMHB8Jfgpig+oomcKmXO6Sa
-         e7MTtdi/9Qtas3aYix1/edgf/XoesFjBdqKDYJ6RQi1w9eh/nlb+Rf/eowxQg80/0Y
-         UxAYdthg1u8rAntZSbRkefXl0/uVr37/JmE/2g2NFN9c0DfNeAwmi2B0+AbNjMvfeT
-         GsLgwIzlB/cqP0/ahVccd2LEotupAsWmBXaJ1v+QatX80sBvchqBBiYnYPWcSfjsIC
-         dZ5iZ8c0Y7DoXycUz8KrjyaYKQwrE9ZsREFFPVD617F1sD4nxmu34kUimZx9WcGj1W
-         t53QJHTggdsWg==
+        b=YR9FaH+YrRuBzatEVLjRM4ApaE5acfBeaSY1hVeFp8hLwDC1QAsZV158FFgv5SAZG
+         hrW9IN3UwGNM+bUjrFc9YZ37XQNvft+nF8zkrNJeCM1hdh7J4PcR+Baurdu/M+G/f8
+         qQwwcxSRYaWOsKGtUqxG10aqk/HqMMg0A6q6PDkbHn0HqWFWGcxlKWG/vO+NnfsErl
+         z+nPtw9tX5tFDeihNfaz2a/h/ASBo1xfgcxAe0Dv8XEa1jPHI7aqfTlrrqBnbd4U5z
+         7Le1jZMACu1HvF9alrUOuSsQgFFyXWJhfSDmpE73wWQCstjgCCyKUKP9I2WIB8roBG
+         hf9gYCzeZEYFg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Langsdorf <mlangsdo@redhat.com>,
-        Bob Moore <robert.moore@intel.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
-        devel@acpica.org
-Subject: [PATCH AUTOSEL 4.19 42/59] ACPICA: actypes.h: Expand the ACPI_ACCESS_ definitions
-Date:   Mon, 17 Jan 2022 21:46:43 -0500
-Message-Id: <20220118024701.1952911-42-sashal@kernel.org>
+Cc:     Jakub Kicinski <kuba@kernel.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 030/188] amd: a2065/ariadne: use eth_hw_addr_set()
+Date:   Mon, 17 Jan 2022 21:29:14 -0500
+Message-Id: <20220118023152.1948105-30-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220118024701.1952911-1-sashal@kernel.org>
-References: <20220118024701.1952911-1-sashal@kernel.org>
+In-Reply-To: <20220118023152.1948105-1-sashal@kernel.org>
+References: <20220118023152.1948105-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -49,54 +50,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Langsdorf <mlangsdo@redhat.com>
+From: Jakub Kicinski <kuba@kernel.org>
 
-[ Upstream commit f81bdeaf816142e0729eea0cc84c395ec9673151 ]
+[ Upstream commit 285e4c664d6461b175b4613fc77126b5006a1912 ]
 
-ACPICA commit bc02c76d518135531483dfc276ed28b7ee632ce1
+dev_addr is initialized byte by byte from series.
 
-The current ACPI_ACCESS_*_WIDTH defines do not provide a way to
-test that size is small enough to not cause an overflow when
-applied to a 32-bit integer.
+Fixes build on x86 (32bit).
 
-Rather than adding more magic numbers, add ACPI_ACCESS_*_SHIFT,
-ACPI_ACCESS_*_MAX, and ACPI_ACCESS_*_DEFAULT #defines and
-redefine ACPI_ACCESS_*_WIDTH in terms of the new #defines.
-
-This was inititally reported on Linux where a size of 102 in
-ACPI_ACCESS_BIT_WIDTH caused an overflow error in the SPCR
-initialization code.
-
-Link: https://github.com/acpica/acpica/commit/bc02c76d
-Signed-off-by: Mark Langsdorf <mlangsdo@redhat.com>
-Signed-off-by: Bob Moore <robert.moore@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/acpi/actypes.h | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/amd/a2065.c   | 18 ++++++++++--------
+ drivers/net/ethernet/amd/ariadne.c | 20 +++++++++++---------
+ 2 files changed, 21 insertions(+), 17 deletions(-)
 
-diff --git a/include/acpi/actypes.h b/include/acpi/actypes.h
-index 2939a6cd7fecb..9fc1dfc7f4c32 100644
---- a/include/acpi/actypes.h
-+++ b/include/acpi/actypes.h
-@@ -532,8 +532,14 @@ typedef u64 acpi_integer;
-  * Can be used with access_width of struct acpi_generic_address and access_size of
-  * struct acpi_resource_generic_register.
-  */
--#define ACPI_ACCESS_BIT_WIDTH(size)     (1 << ((size) + 2))
--#define ACPI_ACCESS_BYTE_WIDTH(size)    (1 << ((size) - 1))
-+#define ACPI_ACCESS_BIT_SHIFT		2
-+#define ACPI_ACCESS_BYTE_SHIFT		-1
-+#define ACPI_ACCESS_BIT_MAX		(31 - ACPI_ACCESS_BIT_SHIFT)
-+#define ACPI_ACCESS_BYTE_MAX		(31 - ACPI_ACCESS_BYTE_SHIFT)
-+#define ACPI_ACCESS_BIT_DEFAULT		(8 - ACPI_ACCESS_BIT_SHIFT)
-+#define ACPI_ACCESS_BYTE_DEFAULT	(8 - ACPI_ACCESS_BYTE_SHIFT)
-+#define ACPI_ACCESS_BIT_WIDTH(size)	(1 << ((size) + ACPI_ACCESS_BIT_SHIFT))
-+#define ACPI_ACCESS_BYTE_WIDTH(size)	(1 << ((size) + ACPI_ACCESS_BYTE_SHIFT))
+diff --git a/drivers/net/ethernet/amd/a2065.c b/drivers/net/ethernet/amd/a2065.c
+index 2f808dbc8b0ed..3a351d3396bfe 100644
+--- a/drivers/net/ethernet/amd/a2065.c
++++ b/drivers/net/ethernet/amd/a2065.c
+@@ -680,6 +680,7 @@ static int a2065_init_one(struct zorro_dev *z,
+ 	unsigned long base_addr = board + A2065_LANCE;
+ 	unsigned long mem_start = board + A2065_RAM;
+ 	struct resource *r1, *r2;
++	u8 addr[ETH_ALEN];
+ 	u32 serial;
+ 	int err;
  
- /*******************************************************************************
-  *
+@@ -706,17 +707,18 @@ static int a2065_init_one(struct zorro_dev *z,
+ 	r2->name = dev->name;
+ 
+ 	serial = be32_to_cpu(z->rom.er_SerialNumber);
+-	dev->dev_addr[0] = 0x00;
++	addr[0] = 0x00;
+ 	if (z->id != ZORRO_PROD_AMERISTAR_A2065) {	/* Commodore */
+-		dev->dev_addr[1] = 0x80;
+-		dev->dev_addr[2] = 0x10;
++		addr[1] = 0x80;
++		addr[2] = 0x10;
+ 	} else {					/* Ameristar */
+-		dev->dev_addr[1] = 0x00;
+-		dev->dev_addr[2] = 0x9f;
++		addr[1] = 0x00;
++		addr[2] = 0x9f;
+ 	}
+-	dev->dev_addr[3] = (serial >> 16) & 0xff;
+-	dev->dev_addr[4] = (serial >> 8) & 0xff;
+-	dev->dev_addr[5] = serial & 0xff;
++	addr[3] = (serial >> 16) & 0xff;
++	addr[4] = (serial >> 8) & 0xff;
++	addr[5] = serial & 0xff;
++	eth_hw_addr_set(dev, addr);
+ 	dev->base_addr = (unsigned long)ZTWO_VADDR(base_addr);
+ 	dev->mem_start = (unsigned long)ZTWO_VADDR(mem_start);
+ 	dev->mem_end = dev->mem_start + A2065_RAM_SIZE;
+diff --git a/drivers/net/ethernet/amd/ariadne.c b/drivers/net/ethernet/amd/ariadne.c
+index 5e0f645f5bde7..4ea7b9f3c4249 100644
+--- a/drivers/net/ethernet/amd/ariadne.c
++++ b/drivers/net/ethernet/amd/ariadne.c
+@@ -441,11 +441,11 @@ static int ariadne_open(struct net_device *dev)
+ 
+ 	/* Set the Ethernet Hardware Address */
+ 	lance->RAP = CSR12;		/* Physical Address Register, PADR[15:0] */
+-	lance->RDP = ((u_short *)&dev->dev_addr[0])[0];
++	lance->RDP = ((const u_short *)&dev->dev_addr[0])[0];
+ 	lance->RAP = CSR13;		/* Physical Address Register, PADR[31:16] */
+-	lance->RDP = ((u_short *)&dev->dev_addr[0])[1];
++	lance->RDP = ((const u_short *)&dev->dev_addr[0])[1];
+ 	lance->RAP = CSR14;		/* Physical Address Register, PADR[47:32] */
+-	lance->RDP = ((u_short *)&dev->dev_addr[0])[2];
++	lance->RDP = ((const u_short *)&dev->dev_addr[0])[2];
+ 
+ 	/* Set the Init Block Mode */
+ 	lance->RAP = CSR15;		/* Mode Register */
+@@ -717,6 +717,7 @@ static int ariadne_init_one(struct zorro_dev *z,
+ 	unsigned long mem_start = board + ARIADNE_RAM;
+ 	struct resource *r1, *r2;
+ 	struct net_device *dev;
++	u8 addr[ETH_ALEN];
+ 	u32 serial;
+ 	int err;
+ 
+@@ -740,12 +741,13 @@ static int ariadne_init_one(struct zorro_dev *z,
+ 	r2->name = dev->name;
+ 
+ 	serial = be32_to_cpu(z->rom.er_SerialNumber);
+-	dev->dev_addr[0] = 0x00;
+-	dev->dev_addr[1] = 0x60;
+-	dev->dev_addr[2] = 0x30;
+-	dev->dev_addr[3] = (serial >> 16) & 0xff;
+-	dev->dev_addr[4] = (serial >> 8) & 0xff;
+-	dev->dev_addr[5] = serial & 0xff;
++	addr[0] = 0x00;
++	addr[1] = 0x60;
++	addr[2] = 0x30;
++	addr[3] = (serial >> 16) & 0xff;
++	addr[4] = (serial >> 8) & 0xff;
++	addr[5] = serial & 0xff;
++	eth_hw_addr_set(dev, addr);
+ 	dev->base_addr = (unsigned long)ZTWO_VADDR(base_addr);
+ 	dev->mem_start = (unsigned long)ZTWO_VADDR(mem_start);
+ 	dev->mem_end = dev->mem_start + ARIADNE_RAM_SIZE;
 -- 
 2.34.1
 
