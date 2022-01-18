@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DE7F491AB5
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:03:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30502491AB0
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:03:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345297AbiARDCg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1344746AbiARDCg (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 17 Jan 2022 22:02:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37278 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344054AbiARC51 (ORCPT
+        with ESMTP id S1344044AbiARC51 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:57:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FB98C06135B;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D369C061347;
         Mon, 17 Jan 2022 18:45:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59427B81132;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF31F61310;
         Tue, 18 Jan 2022 02:45:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D117C36AE3;
-        Tue, 18 Jan 2022 02:45:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A142C36AF5;
+        Tue, 18 Jan 2022 02:45:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473925;
-        bh=QAoycasiljDcdSm6faYBKX2CXMKw6Rx++/AvlQpD6PI=;
+        s=k20201202; t=1642473926;
+        bh=qd+RMW3ekTWdd5Ghm7/F/Cbe9ZBpbdGE29aSnDE0Ntc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y0ZVYLhIHye0ar/6zR7dGOowV04LS3VVmmrvdVOnma54HtQOIbKqscLmukSVJ0zjL
-         9K+QkuCgKRr+Mxv1n45XdrvmWtVa+pZ42agEm1/zcBKydZICLXfh9I7ihLgPTywH1+
-         pOBzmxJ7YUuJN/n0dN75ZsGjgtXEHMTgXxeLwXOJrHKn8aLVnKv+Bj3Y2W2wFBuyKc
-         WDOMXKUJyp4Xl2B8vxPa9jlPImAnsiVCgNRE7f1xRTLRqZArfWmHDQTugQ3F0iAOzU
-         w5mQmlmWCMZ4X7RQjOAghUyiwrB8W4g0FGzz0YFSUNvjhV+lf4pof/Z3clwUgh6Iwg
-         U8PKXfEZItLlg==
+        b=WPZ3esaDefDFFa+C0vPckj1O/Dox2clh33HPtYbhq6+rk2cS9dg/j3lZ5BUWsvBeA
+         WDYBfLTk/JmQj/r69tCJD7olH4ddwv5+mp+9tNwwCfZIUfssrT0sLCzobnutWC8szR
+         ncVu4WiCkyti49D+AhDYor1nPUqsWclaaih24LFWBmaJmzjAHsbSg9HDNenUieiJ4Q
+         8GD5LZ587dgHGjSVnt4qJSQC03fNw6UqjW4979ODG8m2i6xROvi+mDaJMSeHj3xAiV
+         xldsjVsVJADPBY9fhoDoyBhRiTlnTIv1KoFQtzvjgzWaGmq+50moPR1N8/b/Y/T4Jr
+         orGb67cseaiHg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joerg Roedel <jroedel@suse.de>, Borislav Petkov <bp@suse.de>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org, dpreed@deepplum.com, hpa@zytor.com,
-        seanjc@google.com, paul.gortmaker@windriver.com,
-        thomas.lendacky@amd.com, rppt@kernel.org,
-        rafael.j.wysocki@intel.com, brijesh.singh@amd.com
-Subject: [PATCH AUTOSEL 5.4 24/73] x86/mm: Flush global TLB when switching to trampoline page-table
-Date:   Mon, 17 Jan 2022 21:43:43 -0500
-Message-Id: <20220118024432.1952028-24-sashal@kernel.org>
+Cc:     James Hilliard <james.hilliard1@gmail.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, mchehab@kernel.org,
+        linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 25/73] media: uvcvideo: Increase UVC_CTRL_CONTROL_TIMEOUT to 5 seconds.
+Date:   Mon, 17 Jan 2022 21:43:44 -0500
+Message-Id: <20220118024432.1952028-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024432.1952028-1-sashal@kernel.org>
 References: <20220118024432.1952028-1-sashal@kernel.org>
@@ -54,101 +52,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: James Hilliard <james.hilliard1@gmail.com>
 
-[ Upstream commit 71d5049b053876afbde6c3273250b76935494ab2 ]
+[ Upstream commit c8ed7d2f614cd8b315981d116c7a2fb01829500d ]
 
-Move the switching code into a function so that it can be re-used and
-add a global TLB flush. This makes sure that usage of memory which is
-not mapped in the trampoline page-table is reliably caught.
+Some uvc devices appear to require the maximum allowed USB timeout
+for GET_CUR/SET_CUR requests.
 
-Also move the clearing of CR4.PCIDE before the CR3 switch because the
-cr4_clear_bits() function will access data not mapped into the
-trampoline page-table.
+So lets just bump the UVC control timeout to 5 seconds which is the
+same as the usb ctrl get/set defaults:
+USB_CTRL_GET_TIMEOUT 5000
+USB_CTRL_SET_TIMEOUT 5000
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20211202153226.22946-4-joro@8bytes.org
+It fixes the following runtime warnings:
+   Failed to query (GET_CUR) UVC control 11 on unit 2: -110 (exp. 1).
+   Failed to query (SET_CUR) UVC control 3 on unit 2: -110 (exp. 2).
+
+Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/realmode.h |  1 +
- arch/x86/kernel/reboot.c        | 12 ++----------
- arch/x86/realmode/init.c        | 26 ++++++++++++++++++++++++++
- 3 files changed, 29 insertions(+), 10 deletions(-)
+ drivers/media/usb/uvc/uvcvideo.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/realmode.h b/arch/x86/include/asm/realmode.h
-index 09ecc32f65248..52d7512ea91ab 100644
---- a/arch/x86/include/asm/realmode.h
-+++ b/arch/x86/include/asm/realmode.h
-@@ -82,6 +82,7 @@ static inline void set_real_mode_mem(phys_addr_t mem)
- }
+diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
+index 24e3d8c647e77..5f137400bebd6 100644
+--- a/drivers/media/usb/uvc/uvcvideo.h
++++ b/drivers/media/usb/uvc/uvcvideo.h
+@@ -179,7 +179,7 @@
+ /* Maximum status buffer size in bytes of interrupt URB. */
+ #define UVC_MAX_STATUS_SIZE	16
  
- void reserve_real_mode(void);
-+void load_trampoline_pgtable(void);
+-#define UVC_CTRL_CONTROL_TIMEOUT	500
++#define UVC_CTRL_CONTROL_TIMEOUT	5000
+ #define UVC_CTRL_STREAMING_TIMEOUT	5000
  
- #endif /* __ASSEMBLY__ */
- 
-diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
-index d65d1afb27161..fdef27a84d713 100644
---- a/arch/x86/kernel/reboot.c
-+++ b/arch/x86/kernel/reboot.c
-@@ -113,17 +113,9 @@ void __noreturn machine_real_restart(unsigned int type)
- 	spin_unlock(&rtc_lock);
- 
- 	/*
--	 * Switch back to the initial page table.
-+	 * Switch to the trampoline page table.
- 	 */
--#ifdef CONFIG_X86_32
--	load_cr3(initial_page_table);
--#else
--	write_cr3(real_mode_header->trampoline_pgd);
--
--	/* Exiting long mode will fail if CR4.PCIDE is set. */
--	if (boot_cpu_has(X86_FEATURE_PCID))
--		cr4_clear_bits(X86_CR4_PCIDE);
--#endif
-+	load_trampoline_pgtable();
- 
- 	/* Jump to the identity-mapped low memory code */
- #ifdef CONFIG_X86_32
-diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
-index de371e52cfa85..fac50ebb122b5 100644
---- a/arch/x86/realmode/init.c
-+++ b/arch/x86/realmode/init.c
-@@ -16,6 +16,32 @@ u32 *trampoline_cr4_features;
- /* Hold the pgd entry used on booting additional CPUs */
- pgd_t trampoline_pgd_entry;
- 
-+void load_trampoline_pgtable(void)
-+{
-+#ifdef CONFIG_X86_32
-+	load_cr3(initial_page_table);
-+#else
-+	/*
-+	 * This function is called before exiting to real-mode and that will
-+	 * fail with CR4.PCIDE still set.
-+	 */
-+	if (boot_cpu_has(X86_FEATURE_PCID))
-+		cr4_clear_bits(X86_CR4_PCIDE);
-+
-+	write_cr3(real_mode_header->trampoline_pgd);
-+#endif
-+
-+	/*
-+	 * The CR3 write above will not flush global TLB entries.
-+	 * Stale, global entries from previous page tables may still be
-+	 * present.  Flush those stale entries.
-+	 *
-+	 * This ensures that memory accessed while running with
-+	 * trampoline_pgd is *actually* mapped into trampoline_pgd.
-+	 */
-+	__flush_tlb_all();
-+}
-+
- void __init reserve_real_mode(void)
- {
- 	phys_addr_t mem;
+ /* Maximum allowed number of control mappings per device */
 -- 
 2.34.1
 
