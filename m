@@ -2,101 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA424492E3B
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 20:14:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47632492E3E
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 20:14:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245130AbiARTO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 14:14:28 -0500
-Received: from mga03.intel.com ([134.134.136.65]:18954 "EHLO mga03.intel.com"
+        id S1348662AbiARTOm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 14:14:42 -0500
+Received: from mail.skyhub.de ([5.9.137.197]:60196 "EHLO mail.skyhub.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236512AbiARTO0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Jan 2022 14:14:26 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1642533266; x=1674069266;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=1bzjaE9PWeemsOPh5ZxLa54mzNFS673VSHgejMKQ0n4=;
-  b=UZ4RwkKgS9uJxfnXqi1qMo+4sc5Hz8NS4QUaKoO2+V6m5EhcIGAG9AgI
-   Gq/MBtKjKblKyqGReuRhDlHMK+6+ISGDRFzHS/Bk0NhxoFUgIv4/sss15
-   yc/4dSIBOFpECMhz132vVzctqnk1pRf9KrMJXl5FFo2CfjIY1NoXmjgbL
-   uzMxzVnq7N24NBFITAhgl8fP7zZhIsDveXK/Qd9wnj9a75oeym+lx0nAQ
-   n/QF3BMKCPI+Vo3hgiK0mNrNAgir7mxjkWxPhcSJJkFwaf32E0ogS3dmn
-   B6Dc2INYtLbyQKHZZgYWYZjqEWBx4/92GIMYLijPOtfxm/GoZDcQ6CVBr
-   A==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10230"; a="244851027"
-X-IronPort-AV: E=Sophos;i="5.88,297,1635231600"; 
-   d="scan'208";a="244851027"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2022 11:14:25 -0800
-X-IronPort-AV: E=Sophos;i="5.88,297,1635231600"; 
-   d="scan'208";a="531923927"
-Received: from rchatre-ws.ostc.intel.com ([10.54.69.144])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 Jan 2022 11:14:25 -0800
-From:   Reinette Chatre <reinette.chatre@intel.com>
-To:     dave.hansen@linux.intel.com, jarkko@kernel.org, tglx@linutronix.de,
-        bp@alien8.de, luto@kernel.org, mingo@redhat.com,
-        linux-sgx@vger.kernel.org, x86@kernel.org
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] x86/sgx: Silence softlockup detection when releasing large enclaves
-Date:   Tue, 18 Jan 2022 11:14:20 -0800
-Message-Id: <1aa037705e5aa209d8b7a075873c6b4190327436.1642530802.git.reinette.chatre@intel.com>
-X-Mailer: git-send-email 2.25.1
+        id S244343AbiARTO2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 Jan 2022 14:14:28 -0500
+Received: from zn.tnic (dslb-088-067-202-008.088.067.pools.vodafone-ip.de [88.67.202.8])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 6673A1EC0495;
+        Tue, 18 Jan 2022 20:14:22 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1642533262;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=ERiFXzh6NqwS4HsY/OsDLFVYh6aR15kreizWwmmn2Dk=;
+        b=LWGg2KKjKGIPeoiWiKdeQBhPOZ7g99QefDy0/P3Fu27f2yI/KFr/20WVSDdGZcVZYR5430
+        cPFezjkNTTVSQMGOTPf28mkDxcUrMfMiukBf2zq2CbP97aAhBCXHr6586P9DiEtdQB9pkF
+        YmLa2GlWAhDpKnTEAzeAFiOTn9Cravk=
+Date:   Tue, 18 Jan 2022 20:14:24 +0100
+From:   Borislav Petkov <bp@alien8.de>
+To:     Lucas De Marchi <lucas.demarchi@intel.com>
+Cc:     x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
+        intel-gfx@lists.freedesktop.org,
+        Ville =?utf-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
+        Matt Roper <matthew.d.roper@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v5 1/5] x86/quirks: Fix stolen detection with integrated
+ + discrete GPU
+Message-ID: <YecRkGidIS10N0md@zn.tnic>
+References: <20220114002843.2083382-1-lucas.demarchi@intel.com>
+ <YeaLIs9t0jhovC28@zn.tnic>
+ <20220118163656.fzzkwubgoe5gz36k@ldmartin-desk2>
+ <Yeb4WKOFNDNbx6tH@zn.tnic>
+ <20220118190558.2ququ4vdfjuahicm@ldmartin-desk2>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20220118190558.2ququ4vdfjuahicm@ldmartin-desk2>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Vijay reported that the "unclobbered_vdso_oversubscribed" selftest
-triggers the softlockup detector.
+On Tue, Jan 18, 2022 at 11:05:58AM -0800, Lucas De Marchi wrote:
+> I think to make it similar how the PCI fixups work. Anyway, do you
+> prefer that I change the QFLAG_APPLY_ONCE as above (including
+> nvidia_bugs() and ati_bugs()) or a very minimal fix like below and
+> nothing else?
+> 
+> ------8<------
+> diff --git a/arch/x86/kernel/early-quirks.c b/arch/x86/kernel/early-quirks.c
+> index 391a4e2b8604..7b2a3230c42a 100644
+> --- a/arch/x86/kernel/early-quirks.c
+> +++ b/arch/x86/kernel/early-quirks.c
+> @@ -591,6 +591,13 @@ static void __init intel_graphics_quirks(int num, int slot, int func)
+>  	u16 device;
+>  	int i;
+> +	/*
+> +	 * Already reserved for integrated graphics, nothing to do for other
+> +	 * (discrete) cards.
+> +	 */
+> +	if (resource_size(&intel_graphics_stolen_res))
+> +		return;
+> +
+>  	device = read_pci_config_16(num, slot, func, PCI_DEVICE_ID);
+>  	for (i = 0; i < ARRAY_SIZE(intel_early_ids); i++) {
+> @@ -703,7 +710,7 @@ static struct chipset early_qrk[] __initdata = {
+>  	{ PCI_VENDOR_ID_INTEL, 0x3406, PCI_CLASS_BRIDGE_HOST,
+>  	  PCI_BASE_CLASS_BRIDGE, 0, intel_remapping_check },
+>  	{ PCI_VENDOR_ID_INTEL, PCI_ANY_ID, PCI_CLASS_DISPLAY_VGA, PCI_ANY_ID,
+> -	  QFLAG_APPLY_ONCE, intel_graphics_quirks },
+> +	  0, intel_graphics_quirks },
+>  	/*
+>  	 * HPET on the current version of the Baytrail platform has accuracy
+>  	 * problems: it will halt in deep idle state - so we disable it.
+> ------8<------
 
-Actual SGX systems have 128GB of enclave memory or more.  The
-"unclobbered_vdso_oversubscribed" selftest creates one enclave which
-consumes all of the enclave memory on the system. Tearing down such a
-large enclave takes around a minute, most of it in the loop where
-the EREMOVE instruction is applied to each individual 4k enclave page.
+This looks even cleaner to me but that's Bjorn's call in the end.
 
-Spending one minute in a loop triggers the softlockup detector.
+Thx.
 
-Add a cond_resched() to give other tasks a chance to run and placate
-the softlockup detector.
-
-Cc: stable@vger.kernel.org
-Fixes: 1728ab54b4be ("x86/sgx: Add a page reclaimer")
-Reported-by: Vijay Dhanraj <vijay.dhanraj@intel.com>
-Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
-Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
----
-Softlockup message:
-watchdog: BUG: soft lockup - CPU#7 stuck for 22s! [test_sgx:11502]
-Kernel panic - not syncing: softlockup: hung tasks
-<snip>
-sgx_encl_release+0x86/0x1c0
-sgx_release+0x11c/0x130
-__fput+0xb0/0x280
-____fput+0xe/0x10
-task_work_run+0x6c/0xc0
-exit_to_user_mode_prepare+0x1eb/0x1f0
-syscall_exit_to_user_mode+0x1d/0x50
-do_syscall_64+0x46/0xb0
-entry_SYSCALL_64_after_hwframe+0x44/0xae
-
- arch/x86/kernel/cpu/sgx/encl.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/x86/kernel/cpu/sgx/encl.c b/arch/x86/kernel/cpu/sgx/encl.c
-index 001808e3901c..ab2b79327a8a 100644
---- a/arch/x86/kernel/cpu/sgx/encl.c
-+++ b/arch/x86/kernel/cpu/sgx/encl.c
-@@ -410,6 +410,7 @@ void sgx_encl_release(struct kref *ref)
- 		}
- 
- 		kfree(entry);
-+		cond_resched();
- 	}
- 
- 	xa_destroy(&encl->page_array);
 -- 
-2.25.1
+Regards/Gruss,
+    Boris.
 
+https://people.kernel.org/tglx/notes-about-netiquette
