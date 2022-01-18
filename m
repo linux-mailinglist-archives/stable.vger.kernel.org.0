@@ -2,41 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D755F492AA0
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:12:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A123492A76
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:10:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233076AbiARQMM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 11:12:12 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:41728 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347367AbiARQKa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:10:30 -0500
+        id S1347325AbiARQKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 11:10:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51722 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243394AbiARQJV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:09:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 695F3C061401;
+        Tue, 18 Jan 2022 08:09:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C2517CE1A32;
-        Tue, 18 Jan 2022 16:10:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67707C00446;
-        Tue, 18 Jan 2022 16:10:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B508612D1;
+        Tue, 18 Jan 2022 16:09:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1167C00446;
+        Tue, 18 Jan 2022 16:09:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642522227;
-        bh=DYgiJsRqlFesnYRzc0uqjAE5zEsG2YAuaw5jKkrO4YM=;
+        s=korg; t=1642522160;
+        bh=u20GRXqdFoWwdO0HLqYOO3U5SYterS/PKJI/gjDF68E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NYGGYpvzDYBGuzvv8YUh5wYJIm6RoZjcV9jlrisTPpcroXhIe444nAlqPEPeHTaw7
-         TN5IbkbJOqjHSxrBeLTf5dJLqH9ktCWJeqk77IlXg8c0dVCwgbxMbMJ5j1EIUfo9X4
-         9WXf3O44T3GRpwAjwAY/199l8mTvfI0MetXH5HE4=
+        b=z1nDj1QpsFr/rSFQvCHNsR0MWhDWTPucgvPG/Xyyal5ZJsTTWA3uKEm9Dzyig1OQM
+         gi3aTK0BCVnYiriUdvAfBaMFE/4IygC9uB7GLS2BVGINLXCiukLNDGPGMFkDHz3xkn
+         BaFh+pJAaxlfXdfE7bxYC/nWLmmpQqrEk2sZ2uCc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
-        Eric Farman <farman@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-Subject: [PATCH 5.16 10/28] KVM: s390: Clarify SIGP orders versus STOP/RESTART
+        stable@vger.kernel.org, Dario Petrillo <dario.pk1@gmail.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>, stable@kernel.org
+Subject: [PATCH 5.15 19/28] perf annotate: Avoid TUI crash when navigating in the annotation of recursive functions
 Date:   Tue, 18 Jan 2022 17:06:05 +0100
-Message-Id: <20220118160452.750105506@linuxfoundation.org>
+Message-Id: <20220118160452.511243269@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220118160452.384322748@linuxfoundation.org>
-References: <20220118160452.384322748@linuxfoundation.org>
+In-Reply-To: <20220118160451.879092022@linuxfoundation.org>
+References: <20220118160451.879092022@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,121 +52,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Farman <farman@linux.ibm.com>
+From: Dario Petrillo <dario.pk1@gmail.com>
 
-commit 812de04661c4daa7ac385c0dfd62594540538034 upstream.
+commit d5962fb7d69073bf68fb647531cfd4f0adf84be3 upstream.
 
-With KVM_CAP_S390_USER_SIGP, there are only five Signal Processor
-orders (CONDITIONAL EMERGENCY SIGNAL, EMERGENCY SIGNAL, EXTERNAL CALL,
-SENSE, and SENSE RUNNING STATUS) which are intended for frequent use
-and thus are processed in-kernel. The remainder are sent to userspace
-with the KVM_CAP_S390_USER_SIGP capability. Of those, three orders
-(RESTART, STOP, and STOP AND STORE STATUS) have the potential to
-inject work back into the kernel, and thus are asynchronous.
+In 'perf report', entering a recursive function from inside of itself
+(either directly of indirectly through some other function) results in
+calling symbol__annotate2 multiple() times, and freeing the whole
+disassembly when exiting from the innermost instance.
 
-Let's look for those pending IRQs when processing one of the in-kernel
-SIGP orders, and return BUSY (CC2) if one is in process. This is in
-agreement with the Principles of Operation, which states that only one
-order can be "active" on a CPU at a time.
+The first issue causes the function's disassembly to be duplicated, and
+the latter a heap use-after-free (and crash) when trying to access the
+disassembly again.
 
-Cc: stable@vger.kernel.org
-Suggested-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Link: https://lore.kernel.org/r/20211213210550.856213-2-farman@linux.ibm.com
-[borntraeger@linux.ibm.com: add stable tag]
-Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+I reproduced the bug on perf 5.11.22 (Ubuntu 20.04.3 LTS) and 5.16.rc8
+with the following testcase (compile with gcc recursive.c -o recursive).
+To reproduce:
+
+- perf record ./recursive
+- perf report
+- enter fibonacci and annotate it
+- move the cursor on one of the "callq fibonacci" instructions and press enter
+  - at this point there will be two copies of the function in the disassembly
+- go back by pressing q, and perf will crash
+
+  #include <stdio.h>
+
+  int fibonacci(int n)
+  {
+      if(n <= 2) return 1;
+      return fibonacci(n-1) + fibonacci(n-2);
+  }
+
+  int main()
+  {
+      printf("%d\n", fibonacci(40));
+  }
+
+This patch addresses the issue by annotating a function and freeing the
+associated memory on exit only if no annotation is already present, so
+that a recursive function is only annotated on entry.
+
+Signed-off-by: Dario Petrillo <dario.pk1@gmail.com>
+Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@kernel.org
+Link: http://lore.kernel.org/lkml/20220109234441.325106-1-dario.pk1@gmail.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kvm/interrupt.c |    7 +++++++
- arch/s390/kvm/kvm-s390.c  |    9 +++++++--
- arch/s390/kvm/kvm-s390.h  |    1 +
- arch/s390/kvm/sigp.c      |   28 ++++++++++++++++++++++++++++
- 4 files changed, 43 insertions(+), 2 deletions(-)
+ tools/perf/ui/browsers/annotate.c |   23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -2115,6 +2115,13 @@ int kvm_s390_is_stop_irq_pending(struct
- 	return test_bit(IRQ_PEND_SIGP_STOP, &li->pending_irqs);
- }
+--- a/tools/perf/ui/browsers/annotate.c
++++ b/tools/perf/ui/browsers/annotate.c
+@@ -966,6 +966,7 @@ int symbol__tui_annotate(struct map_symb
+ 		.opts = opts,
+ 	};
+ 	int ret = -1, err;
++	int not_annotated = list_empty(&notes->src->source);
  
-+int kvm_s390_is_restart_irq_pending(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
-+
-+	return test_bit(IRQ_PEND_RESTART, &li->pending_irqs);
-+}
-+
- void kvm_s390_clear_stop_irq(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4645,10 +4645,15 @@ int kvm_s390_vcpu_stop(struct kvm_vcpu *
- 		}
+ 	if (sym == NULL)
+ 		return -1;
+@@ -973,13 +974,15 @@ int symbol__tui_annotate(struct map_symb
+ 	if (ms->map->dso->annotate_warned)
+ 		return -1;
+ 
+-	err = symbol__annotate2(ms, evsel, opts, &browser.arch);
+-	if (err) {
+-		char msg[BUFSIZ];
+-		ms->map->dso->annotate_warned = true;
+-		symbol__strerror_disassemble(ms, err, msg, sizeof(msg));
+-		ui__error("Couldn't annotate %s:\n%s", sym->name, msg);
+-		goto out_free_offsets;
++	if (not_annotated) {
++		err = symbol__annotate2(ms, evsel, opts, &browser.arch);
++		if (err) {
++			char msg[BUFSIZ];
++			ms->map->dso->annotate_warned = true;
++			symbol__strerror_disassemble(ms, err, msg, sizeof(msg));
++			ui__error("Couldn't annotate %s:\n%s", sym->name, msg);
++			goto out_free_offsets;
++		}
  	}
  
--	/* SIGP STOP and SIGP STOP AND STORE STATUS has been fully processed */
-+	/*
-+	 * Set the VCPU to STOPPED and THEN clear the interrupt flag,
-+	 * now that the SIGP STOP and SIGP STOP AND STORE STATUS orders
-+	 * have been fully processed. This will ensure that the VCPU
-+	 * is kept BUSY if another VCPU is inquiring with SIGP SENSE.
-+	 */
-+	kvm_s390_set_cpuflags(vcpu, CPUSTAT_STOPPED);
- 	kvm_s390_clear_stop_irq(vcpu);
+ 	ui_helpline__push("Press ESC to exit");
+@@ -994,9 +997,11 @@ int symbol__tui_annotate(struct map_symb
  
--	kvm_s390_set_cpuflags(vcpu, CPUSTAT_STOPPED);
- 	__disable_ibs_on_vcpu(vcpu);
+ 	ret = annotate_browser__run(&browser, evsel, hbt);
  
- 	for (i = 0; i < online_vcpus; i++) {
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -427,6 +427,7 @@ void kvm_s390_destroy_adapters(struct kv
- int kvm_s390_ext_call_pending(struct kvm_vcpu *vcpu);
- extern struct kvm_device_ops kvm_flic_ops;
- int kvm_s390_is_stop_irq_pending(struct kvm_vcpu *vcpu);
-+int kvm_s390_is_restart_irq_pending(struct kvm_vcpu *vcpu);
- void kvm_s390_clear_stop_irq(struct kvm_vcpu *vcpu);
- int kvm_s390_set_irq_state(struct kvm_vcpu *vcpu,
- 			   void __user *buf, int len);
---- a/arch/s390/kvm/sigp.c
-+++ b/arch/s390/kvm/sigp.c
-@@ -276,6 +276,34 @@ static int handle_sigp_dst(struct kvm_vc
- 	if (!dst_vcpu)
- 		return SIGP_CC_NOT_OPERATIONAL;
+-	annotated_source__purge(notes->src);
++	if(not_annotated)
++		annotated_source__purge(notes->src);
  
-+	/*
-+	 * SIGP RESTART, SIGP STOP, and SIGP STOP AND STORE STATUS orders
-+	 * are processed asynchronously. Until the affected VCPU finishes
-+	 * its work and calls back into KVM to clear the (RESTART or STOP)
-+	 * interrupt, we need to return any new non-reset orders "busy".
-+	 *
-+	 * This is important because a single VCPU could issue:
-+	 *  1) SIGP STOP $DESTINATION
-+	 *  2) SIGP SENSE $DESTINATION
-+	 *
-+	 * If the SIGP SENSE would not be rejected as "busy", it could
-+	 * return an incorrect answer as to whether the VCPU is STOPPED
-+	 * or OPERATING.
-+	 */
-+	if (order_code != SIGP_INITIAL_CPU_RESET &&
-+	    order_code != SIGP_CPU_RESET) {
-+		/*
-+		 * Lockless check. Both SIGP STOP and SIGP (RE)START
-+		 * properly synchronize everything while processing
-+		 * their orders, while the guest cannot observe a
-+		 * difference when issuing other orders from two
-+		 * different VCPUs.
-+		 */
-+		if (kvm_s390_is_stop_irq_pending(dst_vcpu) ||
-+		    kvm_s390_is_restart_irq_pending(dst_vcpu))
-+			return SIGP_CC_BUSY;
-+	}
-+
- 	switch (order_code) {
- 	case SIGP_SENSE:
- 		vcpu->stat.instruction_sigp_sense++;
+ out_free_offsets:
+-	zfree(&notes->offsets);
++	if(not_annotated)
++		zfree(&notes->offsets);
+ 	return ret;
+ }
 
 
