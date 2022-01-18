@@ -2,129 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6261B492485
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 12:18:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EC00492487
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 12:18:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239360AbiARLR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 06:17:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40492 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239344AbiARLR4 (ORCPT
+        id S239408AbiARLR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 06:17:58 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:35030 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239325AbiARLR4 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 06:17:56 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAFC1C06173E;
-        Tue, 18 Jan 2022 03:17:55 -0800 (PST)
-Date:   Tue, 18 Jan 2022 11:17:53 -0000
+Date:   Tue, 18 Jan 2022 11:17:54 -0000
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1642504674;
+        s=2020; t=1642504675;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
          content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=PaW7SLV/zkwu/CdKU07m4qvRYvngfu+HL9fRAydCr/0=;
-        b=TFTaPEp/cRgrAwQr/V13GpwcqaktqGtZJua9FYunFUvsoM5dBhJR6cQJ3utzO67i120P/W
-        StGK1NVRgubrqPgSqJb0aVJZv3YXqslPupdfA0d3O02Z+9g8/EJ6lXNwk9J0jiZTvsDcT/
-        +DHy7pDJgTg6uRld3FStCdU07ghBTLkng7uvsLFGPbvFnEC9EmXBPVhIwx4H2LrAlKbCDf
-        714HAXC3w5o2EjU7Ial4wAvEFJ4NvUsFg0KYmqRdGlL/wYmp0IXc9KxHcr+vviMba8PBdk
-        OkmomaST2aB2pHO7Ql8vzhfXh7vZtl7l2ANR0EZKbCdQ6HgASsHEdcsK066xUQ==
+        bh=ugOifnkRHKs7csK+YuOLGEMBdLfyeUlU+6wdJZ8CJJc=;
+        b=Te7ZWeiTzU9616pkV+aLgKV2CKWNdTpTqTvEJ8XzndQmVL2Y4s8uagqmPUFQJ3IFMXEMXb
+        nb6vmAxybLlZaq7+A1MRMUx7xKe8v8RwNd/jEp24bGNqB2EfJkMbUSauAst0h5QaGCMtxd
+        0SY9Qs8/ZgTIVADJlvDGxP5tEp3OMnbkBXY+GAzem9dFgN4Qi04zwHEoS3O7F/n7nybjYo
+        3HMDHr/d9uqZCBEkmn99QuZ1n+oHH9O7sAQ2tROu2cYfVT4qdMqBiYdcPy8nx/wjumaZIn
+        nxI29qQPwK5Hey9MdtenSxqVcm8WDOPbXGwuuADDP+4cETxrJO6CAdjXUkW/LA==
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1642504674;
+        s=2020e; t=1642504675;
         h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
          message-id:message-id:to:to:cc:cc:mime-version:mime-version:
          content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=PaW7SLV/zkwu/CdKU07m4qvRYvngfu+HL9fRAydCr/0=;
-        b=9ayccppgZB5QDhM13WPT0bivqpPJe9wUlA2NAD2p9U1yNURzNFIr6VdKn9MLnlBZ4nknfp
-        6YbkPE5D/9cIiMDw==
-From:   "tip-bot2 for Zhengjun Xing" <tip-bot2@linutronix.de>
+        bh=ugOifnkRHKs7csK+YuOLGEMBdLfyeUlU+6wdJZ8CJJc=;
+        b=QUzw7XxV2rUR2w+Xqq+yyJfECQDg5tGhRPEj8cMIIxs6F8F2hQ7M1si4YI6eT9Xy9dYesI
+        Waa7tKdTHY9GNzCg==
+From:   "tip-bot2 for Kan Liang" <tip-bot2@linutronix.de>
 Sender: tip-bot2@linutronix.de
 Reply-to: linux-kernel@vger.kernel.org
 To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: perf/urgent] perf/x86/intel/uncore: Fix CAS_COUNT_WRITE issue for ICX
-Cc:     Zhengjun Xing <zhengjun.xing@linux.intel.com>,
+Subject: [tip: perf/urgent] perf/x86/intel: Add a quirk for the calculation of
+ the number of counters on Alder Lake
+Cc:     "Damjan Marion (damarion)" <damarion@cisco.com>,
+        Chan Edison <edison_chan_gz@hotmail.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
         "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Kan Liang <kan.liang@linux.intel.com>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20211223144826.841267-1-zhengjun.xing@linux.intel.com>
-References: <20211223144826.841267-1-zhengjun.xing@linux.intel.com>
+        stable@vger.kernel.org, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <1641925238-149288-1-git-send-email-kan.liang@linux.intel.com>
+References: <1641925238-149288-1-git-send-email-kan.liang@linux.intel.com>
 MIME-Version: 1.0
-Message-ID: <164250467331.16921.5385792639692425336.tip-bot2@tip-bot2>
+Message-ID: <164250467421.16921.17147767149511874705.tip-bot2@tip-bot2>
 Robot-ID: <tip-bot2@linutronix.de>
 Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 The following commit has been merged into the perf/urgent branch of tip:
 
-Commit-ID:     96fd2e89fba1aaada6f4b1e5d25a9d9ecbe1943d
-Gitweb:        https://git.kernel.org/tip/96fd2e89fba1aaada6f4b1e5d25a9d9ecbe=
-1943d
-Author:        Zhengjun Xing <zhengjun.xing@linux.intel.com>
-AuthorDate:    Thu, 23 Dec 2021 22:48:26 +08:00
+Commit-ID:     7fa981cad216e9f64f49e22112f610c0bfed91bc
+Gitweb:        https://git.kernel.org/tip/7fa981cad216e9f64f49e22112f610c0bfed91bc
+Author:        Kan Liang <kan.liang@linux.intel.com>
+AuthorDate:    Tue, 11 Jan 2022 10:20:38 -08:00
 Committer:     Peter Zijlstra <peterz@infradead.org>
-CommitterDate: Tue, 18 Jan 2022 12:09:48 +01:00
+CommitterDate: Tue, 18 Jan 2022 12:09:47 +01:00
 
-perf/x86/intel/uncore: Fix CAS_COUNT_WRITE issue for ICX
+perf/x86/intel: Add a quirk for the calculation of the number of counters on Alder Lake
 
-The user recently report a perf issue in the ICX platform, when test by
-perf event =E2=80=9Cuncore_imc_x/cas_count_write=E2=80=9D,the write bandwidth=
- is always
-very small (only 0.38MB/s), it is caused by the wrong "umask" for the
-"cas_count_write" event. When double-checking, find "cas_count_read"
-also is wrong.
+For some Alder Lake machine with all E-cores disabled in a BIOS, the
+below warning may be triggered.
 
-The public document for ICX uncore:
+[ 2.010766] hw perf events fixed 5 > max(4), clipping!
 
-3rd Gen Intel=C2=AE Xeon=C2=AE Processor Scalable Family, Codename Ice Lake,U=
-ncore
-Performance Monitoring Reference Manual, Revision 1.00, May 2021
+Current perf code relies on the CPUID leaf 0xA and leaf 7.EDX[15] to
+calculate the number of the counters and follow the below assumption.
 
-On 2.4.7, it defines Unit Masks for CAS_COUNT:
-RD b00001111
-WR b00110000
+For a hybrid configuration, the leaf 7.EDX[15] (X86_FEATURE_HYBRID_CPU)
+is set. The leaf 0xA only enumerate the common counters. Linux perf has
+to manually add the extra GP counters and fixed counters for P-cores.
+For a non-hybrid configuration, the X86_FEATURE_HYBRID_CPU should not
+be set. The leaf 0xA enumerates all counters.
 
-So corrected both "cas_count_read" and "cas_count_write" for ICX.
+However, that's not the case when all E-cores are disabled in a BIOS.
+Although there are only P-cores in the system, the leaf 7.EDX[15]
+(X86_FEATURE_HYBRID_CPU) is still set. But the leaf 0xA is updated
+to enumerate all counters of P-cores. The inconsistency triggers the
+warning.
 
-Old settings:
- hswep_uncore_imc_events
-	INTEL_UNCORE_EVENT_DESC(cas_count_read,  "event=3D0x04,umask=3D0x03")
-	INTEL_UNCORE_EVENT_DESC(cas_count_write, "event=3D0x04,umask=3D0x0c")
+Several software ways were considered to handle the inconsistency.
+- Drop the leaf 0xA and leaf 7.EDX[15] CPUID enumeration support.
+  Hardcode the number of counters. This solution may be a problem for
+  virtualization. A hypervisor cannot control the number of counters
+  in a Linux guest via changing the guest CPUID enumeration anymore.
+- Find another CPUID bit that is also updated with E-cores disabled.
+  There may be a problem in the virtualization environment too. Because
+  a hypervisor may disable the feature/CPUID bit.
+- The P-cores have a maximum of 8 GP counters and 4 fixed counters on
+  ADL. The maximum number can be used to detect the case.
+  This solution is implemented in this patch.
 
-New settings:
- snr_uncore_imc_events
-	INTEL_UNCORE_EVENT_DESC(cas_count_read,  "event=3D0x04,umask=3D0x0f")
-	INTEL_UNCORE_EVENT_DESC(cas_count_write, "event=3D0x04,umask=3D0x30")
-
-Fixes: 2b3b76b5ec67 ("perf/x86/intel/uncore: Add Ice Lake server uncore suppo=
-rt")
-Signed-off-by: Zhengjun Xing <zhengjun.xing@linux.intel.com>
+Fixes: ee72a94ea4a6 ("perf/x86/intel: Fix fixed counter check warning for some Alder Lake")
+Reported-by: Damjan Marion (damarion) <damarion@cisco.com>
+Reported-by: Chan Edison <edison_chan_gz@hotmail.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Kan Liang <kan.liang@linux.intel.com>
+Tested-by: Damjan Marion (damarion) <damarion@cisco.com>
 Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20211223144826.841267-1-zhengjun.xing@linux.i=
-ntel.com
+Link: https://lkml.kernel.org/r/1641925238-149288-1-git-send-email-kan.liang@linux.intel.com
 ---
- arch/x86/events/intel/uncore_snbep.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/events/intel/core.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/unc=
-ore_snbep.c
-index 3660f69..ed86944 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -5482,7 +5482,7 @@ static struct intel_uncore_type icx_uncore_imc =3D {
- 	.fixed_ctr_bits	=3D 48,
- 	.fixed_ctr	=3D SNR_IMC_MMIO_PMON_FIXED_CTR,
- 	.fixed_ctl	=3D SNR_IMC_MMIO_PMON_FIXED_CTL,
--	.event_descs	=3D hswep_uncore_imc_events,
-+	.event_descs	=3D snr_uncore_imc_events,
- 	.perf_ctr	=3D SNR_IMC_MMIO_PMON_CTR0,
- 	.event_ctl	=3D SNR_IMC_MMIO_PMON_CTL0,
- 	.event_mask	=3D SNBEP_PMON_RAW_EVENT_MASK,
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index fd9f908..d5f940c 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -6236,6 +6236,19 @@ __init int intel_pmu_init(void)
+ 			pmu->num_counters = x86_pmu.num_counters;
+ 			pmu->num_counters_fixed = x86_pmu.num_counters_fixed;
+ 		}
++
++		/*
++		 * Quirk: For some Alder Lake machine, when all E-cores are disabled in
++		 * a BIOS, the leaf 0xA will enumerate all counters of P-cores. However,
++		 * the X86_FEATURE_HYBRID_CPU is still set. The above codes will
++		 * mistakenly add extra counters for P-cores. Correct the number of
++		 * counters here.
++		 */
++		if ((pmu->num_counters > 8) || (pmu->num_counters_fixed > 4)) {
++			pmu->num_counters = x86_pmu.num_counters;
++			pmu->num_counters_fixed = x86_pmu.num_counters_fixed;
++		}
++
+ 		pmu->max_pebs_events = min_t(unsigned, MAX_PEBS_EVENTS, pmu->num_counters);
+ 		pmu->unconstrained = (struct event_constraint)
+ 					__EVENT_CONSTRAINT(0, (1ULL << pmu->num_counters) - 1,
