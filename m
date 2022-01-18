@@ -2,48 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23890491784
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:42:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A5894917A3
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:42:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241158AbiARCmH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:42:07 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:43148 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345420AbiARCbd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:31:33 -0500
+        id S1347638AbiARCm0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:42:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58654 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345832AbiARCcF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:32:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FF5BC06173F;
+        Mon, 17 Jan 2022 18:31:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 02B93B81235;
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0CF2B811FF;
+        Tue, 18 Jan 2022 02:31:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABAA9C36AE3;
         Tue, 18 Jan 2022 02:31:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FD5BC36AEF;
-        Tue, 18 Jan 2022 02:31:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473090;
-        bh=Py0Utb8K/TKDOXRe9hLUxo0KxcgvtJEQobvTI9y/7YQ=;
+        s=k20201202; t=1642473093;
+        bh=G82Q4cPxhw81sOqVHOtuTQNejvoexVwt2CxtmuQC0No=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qj9sjjVUy40lF4WQnU42Zlk5r8pGZ2Inhv9MYPYkxX+FCSPbkDwwNrY7abLOgsEHx
-         ISkoI6HdPCsgEVPMCOwYFVFYAyXw0/s5WDcIP5i2kbkbZ/mx2rrylqqZGi+NpmFHEE
-         5KLYI3FfpyynKTt6TcNZrS56BoNtvwJlZqDPsvJJpkH+vn5CXh3jd/C0r0jTV30eXJ
-         k+9izOHYF9MeP1iqJ7zwdW3MdwFvqSQ4UmJV01eTJl7RKyy6q8sAEPDwS/EqSCeXMl
-         INNq0ESHrgkoYUiVyIE8yHrGF4Y5ROtC3I+AQvwYbVIQ/zJWU+B4MR80IJTz/PhVhb
-         8Bp1cvdzHnH+A==
+        b=UhBXAq8MbeRdIMIpi59YBZTwE+ZkpXKt0+k0PDwX3fg6Ehw6QIeoEF3D/4/jqlSn7
+         0znNuUW9eEEGhHjec2eq+0u6OCNKKMEw3nLR3pogV3wPehnOMmgWUGlZsWmtlPe+AE
+         I1bn1qBlWy1C6tZ2X9EzvnTELyMuxaMXl+Az2RrUkXXw48F9oLOh3vm4Xqe72+Ax95
+         yNSCmhUy2FLfxIqUYFT6/oqzIdoXKHd20DDJ2rpV6bUSE+PtPjhoL60WTRRKKwogBB
+         NDq8rLZzYLGhg3Z+u1rZTKwAs8eSPKlIp9maFaeVmE+U1QBzrKPpTG4l0r66FJkOEA
+         pviPKerGtdUOQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maor Dickman <maord@nvidia.com>, Roi Dayan <roid@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        kuba@kernel.org, parav@nvidia.com, mbloch@nvidia.com,
-        dlinkin@nvidia.com, netdev@vger.kernel.org,
-        linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 210/217] net/mlx5e: Unblock setting vid 0 for VF in case PF isn't eswitch manager
-Date:   Mon, 17 Jan 2022 21:19:33 -0500
-Message-Id: <20220118021940.1942199-210-sashal@kernel.org>
+Cc:     John David Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
+        James.Bottomley@HansenPartnership.com, svens@stackframe.org,
+        mpe@ellerman.id.au, wangkefeng.wang@huawei.com,
+        ebiederm@xmission.com, linux-parisc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 211/217] parisc: Avoid calling faulthandler_disabled() twice
+Date:   Mon, 17 Jan 2022 21:19:34 -0500
+Message-Id: <20220118021940.1942199-211-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118021940.1942199-1-sashal@kernel.org>
 References: <20220118021940.1942199-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -51,40 +52,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Dickman <maord@nvidia.com>
+From: John David Anglin <dave.anglin@bell.net>
 
-[ Upstream commit 7846665d3504812acaebf920d1141851379a7f37 ]
+[ Upstream commit 9e9d4b460f23bab61672eae397417d03917d116c ]
 
-When using libvirt to passthrough VF to VM it will always set the VF vlan
-to 0 even if user didn’t request it, this will cause libvirt to fail to
-boot in case the PF isn't eswitch owner.
+In handle_interruption(), we call faulthandler_disabled() to check whether the
+fault handler is not disabled. If the fault handler is disabled, we immediately
+call do_page_fault(). It then calls faulthandler_disabled(). If disabled,
+do_page_fault() attempts to fixup the exception by jumping to no_context:
 
-Example of such case is the DPU host PF which isn't eswitch manager, so
-any attempt to passthrough VF of it using libvirt will fail.
+no_context:
 
-Fix it by not returning error in case set VF vlan is called with vid 0.
+        if (!user_mode(regs) && fixup_exception(regs)) {
+                return;
+        }
 
-Signed-off-by: Maor Dickman <maord@nvidia.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+        parisc_terminate("Bad Address (null pointer deref?)", regs, code, address);
+
+Apart from the error messages, the two blocks of code perform the same
+function.
+
+We can avoid two calls to faulthandler_disabled() by a simple revision
+to the code in handle_interruption().
+
+Note: I didn't try to fix the formatting of this code block.
+
+Signed-off-by: John David Anglin <dave.anglin@bell.net>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/esw/legacy.c | 2 +-
+ arch/parisc/kernel/traps.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/legacy.c b/drivers/net/ethernet/mellanox/mlx5/core/esw/legacy.c
-index df277a6cddc0b..0c4c743ca31e1 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/esw/legacy.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/legacy.c
-@@ -431,7 +431,7 @@ int mlx5_eswitch_set_vport_vlan(struct mlx5_eswitch *esw,
- 	int err = 0;
+diff --git a/arch/parisc/kernel/traps.c b/arch/parisc/kernel/traps.c
+index 892b7fc8f3c45..eb41fece19104 100644
+--- a/arch/parisc/kernel/traps.c
++++ b/arch/parisc/kernel/traps.c
+@@ -785,7 +785,7 @@ void notrace handle_interruption(int code, struct pt_regs *regs)
+ 	     * unless pagefault_disable() was called before.
+ 	     */
  
- 	if (!mlx5_esw_allowed(esw))
--		return -EPERM;
-+		return vlan ? -EPERM : 0;
- 
- 	if (vlan || qos)
- 		set_flags = SET_VLAN_STRIP | SET_VLAN_INSERT;
+-	    if (fault_space == 0 && !faulthandler_disabled())
++	    if (faulthandler_disabled() || fault_space == 0)
+ 	    {
+ 		/* Clean up and return if in exception table. */
+ 		if (fixup_exception(regs))
 -- 
 2.34.1
 
