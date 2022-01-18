@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A321491E20
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:47:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A341491E1A
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:47:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350661AbiARDrC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 22:47:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33356 "EHLO
+        id S1352857AbiARDqy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 22:46:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347192AbiARCkz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:40:55 -0500
+        with ESMTP id S1347203AbiARCk4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:40:56 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59CD0C08C5C1;
-        Mon, 17 Jan 2022 18:36:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A715C08C5C3;
+        Mon, 17 Jan 2022 18:36:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9DE6BB8124E;
-        Tue, 18 Jan 2022 02:36:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AE8EC36AF6;
-        Tue, 18 Jan 2022 02:36:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A4A2FB81249;
+        Tue, 18 Jan 2022 02:36:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D4BEC36AEF;
+        Tue, 18 Jan 2022 02:36:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473388;
-        bh=oApYUgwpm7sP2/MB1uTCxP0eGg8ajqHEVrPO6uprhBs=;
+        s=k20201202; t=1642473391;
+        bh=zrGN/H7rq5Xkf0os/FChXmYJJlBZX3zxIDFjOnOwKh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GkcP/gRbphPahqK0mY9WGv7bdyD3QuzbQ+U3cbaOq/aA7XyA4jCbywamJM1LcOjMA
-         oiZ/aCOWdpcB2auof3LK1gPM6US55+loivfXEtp8Sa1QpC5yWMF0aOuAqbVtjjOev6
-         crmDIvns+I7HraBOWMbjPIi4MyNFBJU+7ue9Z4i6lRLyq7BaVNBDyFBHGz87YR+NDa
-         ButnGDgdDcSvWE5tiX4NFACA65laPzlpqU6w9j6vYeA8RQZxJenc66zic/IMMdVW/V
-         dWTcthKYJHs2BXsTpsE89i5cXDG5xRvXZ3Dpgo2L9VSYu4C+71wPkzeCgEowr2RyVu
-         pvrWKqadwBGSA==
+        b=plEAq1EnARKYrlWXuqV+fAQVkxSPITA0CI/HXZvv1u/B6S8sngbJc49j254vB3Rm+
+         D18TSzdZU3dzrSwwD74fdijnJDoNFUcJ/01nS1qGscRrHF7Sg1afe8tk2Tx2glC3/v
+         PoEgtc/oVznQ4HSoOCEOr00He+33fRNRGCPo01TH66gLwxm/LWnJw8qiI2vHfi5Q/B
+         999Z45zWtG947QJ3jZ/nQzQki82YEJ/eChA+kdpDAegJ46vBMzqqOubmLeYfP1rVP6
+         k7F7HJhqdO8/AoQaSw3VWA7iouSr5gBiBJBmc0zYzX7hKU2mGeBakFyX1Zogu1tm4I
+         DC8jIzD+sXtMQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, hkallweit1@gmail.com,
-        davem@davemloft.net, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 097/188] net: phy: prefer 1000baseT over 1000baseKX
-Date:   Mon, 17 Jan 2022 21:30:21 -0500
-Message-Id: <20220118023152.1948105-97-sashal@kernel.org>
+Cc:     Iwona Winiarska <iwona.winiarska@intel.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
+        Sasha Levin <sashal@kernel.org>, linus.walleij@linaro.org,
+        joel@jms.id.au, linux-gpio@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org, linux-aspeed@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 5.15 099/188] gpio: aspeed-sgpio: Convert aspeed_sgpio.lock to raw_spinlock
+Date:   Mon, 17 Jan 2022 21:30:23 -0500
+Message-Id: <20220118023152.1948105-99-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118023152.1948105-1-sashal@kernel.org>
 References: <20220118023152.1948105-1-sashal@kernel.org>
@@ -54,56 +52,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+From: Iwona Winiarska <iwona.winiarska@intel.com>
 
-[ Upstream commit f20f94f7f52c4685c81754f489ffcc72186e8bdb ]
+[ Upstream commit ab39d6988dd53f354130438d8afa5596a2440fed ]
 
-The PHY settings table is supposed to be sorted by descending match
-priority - in other words, earlier entries are preferred over later
-entries.
+The gpio-aspeed-sgpio driver implements an irq_chip which need to be
+invoked from hardirq context. Since spin_lock() can sleep with
+PREEMPT_RT, it is no longer legal to invoke it while interrupts are
+disabled.
+This also causes lockdep to complain about:
+[   25.919465] [ BUG: Invalid wait context ]
+because aspeed_sgpio.lock (spin_lock_t) is taken under irq_desc.lock
+(raw_spinlock_t).
+Let's use of raw_spinlock_t instead of spinlock_t.
 
-The order of 1000baseKX/Full and 1000baseT/Full is such that we
-prefer 1000baseKX/Full over 1000baseT/Full, but 1000baseKX/Full is
-a lot rarer than 1000baseT/Full, and thus is much less likely to
-be preferred.
-
-This causes phylink problems - it means a fixed link specifying a
-speed of 1G and full duplex gets an ethtool linkmode of 1000baseKX/Full
-rather than 1000baseT/Full as would be expected - and since we offer
-userspace a software emulation of a conventional copper PHY, we want
-to offer copper modes in preference to anything else. However, we do
-still want to allow the rarer modes as well.
-
-Hence, let's reorder these two modes to prefer copper.
-
-Tested-by: Tom Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reported-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/E1muvFO-00F6jY-1K@rmk-PC.armlinux.org.uk
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Iwona Winiarska <iwona.winiarska@intel.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/phy-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpio/gpio-aspeed-sgpio.c | 32 ++++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/net/phy/phy-core.c b/drivers/net/phy/phy-core.c
-index 2870c33b8975d..271fc01f7f7fd 100644
---- a/drivers/net/phy/phy-core.c
-+++ b/drivers/net/phy/phy-core.c
-@@ -162,11 +162,11 @@ static const struct phy_setting settings[] = {
- 	PHY_SETTING(   2500, FULL,   2500baseT_Full		),
- 	PHY_SETTING(   2500, FULL,   2500baseX_Full		),
- 	/* 1G */
--	PHY_SETTING(   1000, FULL,   1000baseKX_Full		),
- 	PHY_SETTING(   1000, FULL,   1000baseT_Full		),
- 	PHY_SETTING(   1000, HALF,   1000baseT_Half		),
- 	PHY_SETTING(   1000, FULL,   1000baseT1_Full		),
- 	PHY_SETTING(   1000, FULL,   1000baseX_Full		),
-+	PHY_SETTING(   1000, FULL,   1000baseKX_Full		),
- 	/* 100M */
- 	PHY_SETTING(    100, FULL,    100baseT_Full		),
- 	PHY_SETTING(    100, FULL,    100baseT1_Full		),
+diff --git a/drivers/gpio/gpio-aspeed-sgpio.c b/drivers/gpio/gpio-aspeed-sgpio.c
+index b3a9b8488f11d..454cefbeecf0e 100644
+--- a/drivers/gpio/gpio-aspeed-sgpio.c
++++ b/drivers/gpio/gpio-aspeed-sgpio.c
+@@ -31,7 +31,7 @@ struct aspeed_sgpio {
+ 	struct gpio_chip chip;
+ 	struct irq_chip intc;
+ 	struct clk *pclk;
+-	spinlock_t lock;
++	raw_spinlock_t lock;
+ 	void __iomem *base;
+ 	int irq;
+ };
+@@ -173,12 +173,12 @@ static int aspeed_sgpio_get(struct gpio_chip *gc, unsigned int offset)
+ 	enum aspeed_sgpio_reg reg;
+ 	int rc = 0;
+ 
+-	spin_lock_irqsave(&gpio->lock, flags);
++	raw_spin_lock_irqsave(&gpio->lock, flags);
+ 
+ 	reg = aspeed_sgpio_is_input(offset) ? reg_val : reg_rdata;
+ 	rc = !!(ioread32(bank_reg(gpio, bank, reg)) & GPIO_BIT(offset));
+ 
+-	spin_unlock_irqrestore(&gpio->lock, flags);
++	raw_spin_unlock_irqrestore(&gpio->lock, flags);
+ 
+ 	return rc;
+ }
+@@ -215,11 +215,11 @@ static void aspeed_sgpio_set(struct gpio_chip *gc, unsigned int offset, int val)
+ 	struct aspeed_sgpio *gpio = gpiochip_get_data(gc);
+ 	unsigned long flags;
+ 
+-	spin_lock_irqsave(&gpio->lock, flags);
++	raw_spin_lock_irqsave(&gpio->lock, flags);
+ 
+ 	sgpio_set_value(gc, offset, val);
+ 
+-	spin_unlock_irqrestore(&gpio->lock, flags);
++	raw_spin_unlock_irqrestore(&gpio->lock, flags);
+ }
+ 
+ static int aspeed_sgpio_dir_in(struct gpio_chip *gc, unsigned int offset)
+@@ -236,9 +236,9 @@ static int aspeed_sgpio_dir_out(struct gpio_chip *gc, unsigned int offset, int v
+ 	/* No special action is required for setting the direction; we'll
+ 	 * error-out in sgpio_set_value if this isn't an output GPIO */
+ 
+-	spin_lock_irqsave(&gpio->lock, flags);
++	raw_spin_lock_irqsave(&gpio->lock, flags);
+ 	rc = sgpio_set_value(gc, offset, val);
+-	spin_unlock_irqrestore(&gpio->lock, flags);
++	raw_spin_unlock_irqrestore(&gpio->lock, flags);
+ 
+ 	return rc;
+ }
+@@ -277,11 +277,11 @@ static void aspeed_sgpio_irq_ack(struct irq_data *d)
+ 
+ 	status_addr = bank_reg(gpio, bank, reg_irq_status);
+ 
+-	spin_lock_irqsave(&gpio->lock, flags);
++	raw_spin_lock_irqsave(&gpio->lock, flags);
+ 
+ 	iowrite32(bit, status_addr);
+ 
+-	spin_unlock_irqrestore(&gpio->lock, flags);
++	raw_spin_unlock_irqrestore(&gpio->lock, flags);
+ }
+ 
+ static void aspeed_sgpio_irq_set_mask(struct irq_data *d, bool set)
+@@ -296,7 +296,7 @@ static void aspeed_sgpio_irq_set_mask(struct irq_data *d, bool set)
+ 	irqd_to_aspeed_sgpio_data(d, &gpio, &bank, &bit, &offset);
+ 	addr = bank_reg(gpio, bank, reg_irq_enable);
+ 
+-	spin_lock_irqsave(&gpio->lock, flags);
++	raw_spin_lock_irqsave(&gpio->lock, flags);
+ 
+ 	reg = ioread32(addr);
+ 	if (set)
+@@ -306,7 +306,7 @@ static void aspeed_sgpio_irq_set_mask(struct irq_data *d, bool set)
+ 
+ 	iowrite32(reg, addr);
+ 
+-	spin_unlock_irqrestore(&gpio->lock, flags);
++	raw_spin_unlock_irqrestore(&gpio->lock, flags);
+ }
+ 
+ static void aspeed_sgpio_irq_mask(struct irq_data *d)
+@@ -355,7 +355,7 @@ static int aspeed_sgpio_set_type(struct irq_data *d, unsigned int type)
+ 		return -EINVAL;
+ 	}
+ 
+-	spin_lock_irqsave(&gpio->lock, flags);
++	raw_spin_lock_irqsave(&gpio->lock, flags);
+ 
+ 	addr = bank_reg(gpio, bank, reg_irq_type0);
+ 	reg = ioread32(addr);
+@@ -372,7 +372,7 @@ static int aspeed_sgpio_set_type(struct irq_data *d, unsigned int type)
+ 	reg = (reg & ~bit) | type2;
+ 	iowrite32(reg, addr);
+ 
+-	spin_unlock_irqrestore(&gpio->lock, flags);
++	raw_spin_unlock_irqrestore(&gpio->lock, flags);
+ 
+ 	irq_set_handler_locked(d, handler);
+ 
+@@ -467,7 +467,7 @@ static int aspeed_sgpio_reset_tolerance(struct gpio_chip *chip,
+ 
+ 	reg = bank_reg(gpio, to_bank(offset), reg_tolerance);
+ 
+-	spin_lock_irqsave(&gpio->lock, flags);
++	raw_spin_lock_irqsave(&gpio->lock, flags);
+ 
+ 	val = readl(reg);
+ 
+@@ -478,7 +478,7 @@ static int aspeed_sgpio_reset_tolerance(struct gpio_chip *chip,
+ 
+ 	writel(val, reg);
+ 
+-	spin_unlock_irqrestore(&gpio->lock, flags);
++	raw_spin_unlock_irqrestore(&gpio->lock, flags);
+ 
+ 	return 0;
+ }
+@@ -575,7 +575,7 @@ static int __init aspeed_sgpio_probe(struct platform_device *pdev)
+ 	iowrite32(FIELD_PREP(ASPEED_SGPIO_CLK_DIV_MASK, sgpio_clk_div) | gpio_cnt_regval |
+ 		  ASPEED_SGPIO_ENABLE, gpio->base + ASPEED_SGPIO_CTRL);
+ 
+-	spin_lock_init(&gpio->lock);
++	raw_spin_lock_init(&gpio->lock);
+ 
+ 	gpio->chip.parent = &pdev->dev;
+ 	gpio->chip.ngpio = nr_gpios * 2;
 -- 
 2.34.1
 
