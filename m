@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06E31491A34
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:58:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A00F4491A30
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:58:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347714AbiARC6t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:58:49 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:55026 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348803AbiARCqJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:46:09 -0500
+        id S1344345AbiARC6s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:58:48 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38644 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348805AbiARCqI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:46:08 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49B4CB81249;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EDB1C6130A;
         Tue, 18 Jan 2022 02:46:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1936AC36AEB;
-        Tue, 18 Jan 2022 02:46:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97E7FC36AEF;
+        Tue, 18 Jan 2022 02:46:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473966;
-        bh=UeVBnUr7/IQip7NGL8zGJ5/cfjw3NXf5R8G/3PpdhgY=;
+        s=k20201202; t=1642473967;
+        bh=dCmLun5k8+53l0a2rmKskLmjLJcPJKfcQnoQY+F6V1Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WQN26/N7Hie04uzIE8UWu/nOgsVAVIGJIHjrCUZDv+6S8oIm7BSoQ+fY7vOTti7ov
-         +5pvCKno2CdRPuv5+Xgq94QKw0FG79LoCvHNyUnttNnViV+mltKnVynaaR5HYV9XFf
-         XcqwSQwt/+yeof9G4EZGcCligl5M70X5shbcyibuBmAs/gMPoUwHOA/SwrWnAtT095
-         sgPqmmAxYGhV3bGJKk2RhUbnp3iuBuaG6W5cw8MS5t2fK20s2m6qLMmmACun8pSNB/
-         RTWqzYe6sR0j3LjW5p70kOkmKGggQgE7k1pr/ZcgnLrI7C5+Pttjl/G96qabU43I8o
-         CAsXVtGANO5ag==
+        b=p2PQAOqyFHbhc0577d2W0iXTv108CAwuog6d3zNACNWtWgf89Os8ZnU2mW5UKeSHH
+         wqiPZ0+rX/hqqEJ1JjShoS7IfJwlG5Tz9eCdE206FRUwp80+dIygvDxq3Iiz8oR6kB
+         htv6CUu3u0oqJ+jlv6f0lp0Shw/xV3q0LjklZA19ajVOaxTthUMVK5HM3nceXHOV/d
+         ayi3JzKeqRyR0gG2lgPJ2hc5n0hGvjVWMdl1j9rV5f7IF6DglgjEk/fqe3mh6PmMGG
+         0ZwbltRAoxVsGw5cyhfzCHNiinQHfk3e/zRC6TUHjEUojQnOyI3F9usqUXskPV3bSg
+         LHCpJLrRxDmJg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        thierry.reding@gmail.com, jonathanh@nvidia.com, spujar@nvidia.com,
-        mperttunen@nvidia.com, devicetree@vger.kernel.org,
-        linux-tegra@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 45/73] arm64: tegra: Adjust length of CCPLEX cluster MMIO region
-Date:   Mon, 17 Jan 2022 21:44:04 -0500
-Message-Id: <20220118024432.1952028-45-sashal@kernel.org>
+Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 46/73] cpufreq: Fix initialization of min and max frequency QoS requests
+Date:   Mon, 17 Jan 2022 21:44:05 -0500
+Message-Id: <20220118024432.1952028-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024432.1952028-1-sashal@kernel.org>
 References: <20220118024432.1952028-1-sashal@kernel.org>
@@ -49,33 +48,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 2b14cbd643feea5fc17c6e8bead4e71088c69acd ]
+[ Upstream commit 521223d8b3ec078f670c7c35a1a04b1b2af07966 ]
 
-The Tegra186 CCPLEX cluster register region is 4 MiB is length, not 4
-MiB - 1. This was likely presumed to be the "limit" rather than length.
-Fix it up.
+The min and max frequency QoS requests in the cpufreq core are
+initialized to whatever the current min and max frequency values are
+at the init time, but if any of these values change later (for
+example, cpuinfo.max_freq is updated by the driver), these initial
+request values will be limiting the CPU frequency unnecessarily
+unless they are changed by user space via sysfs.
 
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+To address this, initialize min_freq_req and max_freq_req to
+FREQ_QOS_MIN_DEFAULT_VALUE and FREQ_QOS_MAX_DEFAULT_VALUE,
+respectively, so they don't really limit anything until user
+space updates them.
+
+Reported-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Tested-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/nvidia/tegra186.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/cpufreq/cpufreq.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra186.dtsi b/arch/arm64/boot/dts/nvidia/tegra186.dtsi
-index 9abf0cb1dd67f..4457262750734 100644
---- a/arch/arm64/boot/dts/nvidia/tegra186.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra186.dtsi
-@@ -709,7 +709,7 @@ sdmmc3_1v8: sdmmc3-1v8 {
+diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
+index cb7949a2ac0ca..af9f348048629 100644
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -1393,7 +1393,7 @@ static int cpufreq_online(unsigned int cpu)
  
- 	ccplex@e000000 {
- 		compatible = "nvidia,tegra186-ccplex-cluster";
--		reg = <0x0 0x0e000000 0x0 0x3fffff>;
-+		reg = <0x0 0x0e000000 0x0 0x400000>;
+ 		ret = freq_qos_add_request(&policy->constraints,
+ 					   policy->min_freq_req, FREQ_QOS_MIN,
+-					   policy->min);
++					   FREQ_QOS_MIN_DEFAULT_VALUE);
+ 		if (ret < 0) {
+ 			/*
+ 			 * So we don't call freq_qos_remove_request() for an
+@@ -1413,7 +1413,7 @@ static int cpufreq_online(unsigned int cpu)
  
- 		nvidia,bpmp = <&bpmp>;
- 	};
+ 		ret = freq_qos_add_request(&policy->constraints,
+ 					   policy->max_freq_req, FREQ_QOS_MAX,
+-					   policy->max);
++					   FREQ_QOS_MAX_DEFAULT_VALUE);
+ 		if (ret < 0) {
+ 			policy->max_freq_req = NULL;
+ 			goto out_destroy_policy;
 -- 
 2.34.1
 
