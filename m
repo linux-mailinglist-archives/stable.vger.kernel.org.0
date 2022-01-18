@@ -2,113 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD5F84921A7
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 09:53:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E8474921AC
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 09:54:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344991AbiARIv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 03:51:58 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:33930 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229762AbiARIv6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 03:51:58 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2CA32B81223
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 08:51:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C64EC00446;
-        Tue, 18 Jan 2022 08:51:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642495916;
-        bh=mmbRE72LXYbOsY3SOlsfgoZ86qujado8EjYBxG74Afs=;
-        h=Subject:To:Cc:From:Date:From;
-        b=klWbUjqDDInj6oMyl4MX/uxHgzrpONq/y3ZjTiBTio1HQ/ZVvp0sSHhrmbc9hru14
-         149LExtyJs3befFbALUSl0jCCxTL1Y3neYEkQJW8pzhUz6Qr2pzykBu/lh16f+nKxO
-         LkTicCqnNEbZg/ObN9d26TG0egrab2x1eQ2mgiNg=
-Subject: FAILED: patch "[PATCH] firmware: qemu_fw_cfg: fix kobject leak in probe error path" failed to apply to 4.9-stable tree
-To:     johan@kernel.org, gregkh@linuxfoundation.org, somlo@cmu.edu
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 18 Jan 2022 09:51:45 +0100
-Message-ID: <16424959052209@kroah.com>
+        id S1345067AbiARIyj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 03:54:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35568 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345018AbiARIyg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 03:54:36 -0500
+Received: from mail-ed1-x534.google.com (mail-ed1-x534.google.com [IPv6:2a00:1450:4864:20::534])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34BD9C061574
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 00:54:36 -0800 (PST)
+Received: by mail-ed1-x534.google.com with SMTP id m4so76213398edb.10
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 00:54:36 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=5JMhK9pOqseAjHRtHcU/HG4i5NuvupLcjaClPwT4ItM=;
+        b=F9fCw9ri9B7A+Xnnv8l5LAXgybu2wmJpihSyWqA9CpFEyJwWaNd0zBxk1UO6xSoDT3
+         Ze4ZGHIxp2A0IadytBqNp1CaQAHXjjXJiRBk8HhwJ0FwRNufwVKvbaD4K3rA8C0JjMe8
+         Je3KWuHWINC+peFnX9r/VSE4wF5E6RJhVXfvqr8iWSBiOc5IvTD4N41sCighmbaxUslt
+         4/OasRrOvNDJz/0fY+kHfa+x+oEgyqT4JjqbNzFm9Ee3W7u0DE8F27OtvdcI0Ho/5PMM
+         tRlgxjWx5oHmNxSLtoc9kmqQl8Mh5jEvMk5kU4T1XK3MeVRVLXZfiy0S4Jz7H+QJLtQC
+         TPNg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=5JMhK9pOqseAjHRtHcU/HG4i5NuvupLcjaClPwT4ItM=;
+        b=F52Lv7M7Bv5L8ImgyLbF7nOVIODMNX6JM9XtC3weyYuoq9tD5D/9fuGCh1cZxd+q6W
+         bejVOo1X6lF/LpubhWFJB3vtEHwjh/+W/ln1ueo/NXDX5rDd+UQMpVLUw0KUTW9baZTD
+         XwM+Z9RPM5jMQw51KDijJY1slEh49JDzybQVvHXrH4M+zl40ntG2thq2gwx84rVRO2HC
+         quVHgh+CiKLqAj2+KFp6gep+yHnlSxRgpQ1rHsdpUwH2VA1izo4XMfHxRZljIPwRjptY
+         5SeeMFkNXAv1Rwjnlk8QNxTXvDhuMECmL9C9TzjXHucTeYFAtlJnRmlXBxwzjD3pTPqk
+         XFFQ==
+X-Gm-Message-State: AOAM533filPAEHqT5Lq7GfJGbvT7AIfZWbAexhTk9V7IXYfNLCcVpD0w
+        C8pm47aeJF94e9pRnA1jYMUYT+XPuNi8GEefuE8=
+X-Google-Smtp-Source: ABdhPJw8A79A3vB+cOElKCjBlPNvU12hcB2yjbjKRDPaTogPmueF/+vyB4GoJGDV9EsHgcUPpX5ffkemkpKKrTyUxNc=
+X-Received: by 2002:a17:907:6ea2:: with SMTP id sh34mr4773146ejc.378.1642496074344;
+ Tue, 18 Jan 2022 00:54:34 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a17:907:6d88:0:0:0:0 with HTTP; Tue, 18 Jan 2022 00:54:33
+ -0800 (PST)
+Reply-To: ayishagddafio@mail.ru
+From:   "Aisha.Gaddafi" <fasoburkina03@gmail.com>
+Date:   Tue, 18 Jan 2022 00:54:33 -0800
+Message-ID: <CALcAMQJWpqZuQOVScd8G_8CikCeAf7+WcL2CJfqhKQaD1xfK=w@mail.gmail.com>
+Subject: Liebster Freund,?
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+--=20
+Liebster Freund,
 
-The patch below does not apply to the 4.9-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Im Namen Gottes, des gn=C3=A4digsten, barmherzigsten.
 
-thanks,
+Friede sei mit dir und Barmherzigkeit sei mit dir und Segen sei mit dir.
+Ich habe die Summe von 27,5 Millionen USD f=C3=BCr Investitionen, ich
+interessiere mich f=C3=BCr Sie f=C3=BCr die Unterst=C3=BCtzung von
+Investitionsprojekten in Ihrem Land. Mein Name ist Aisha Gaddafi und
+lebe derzeit im Oman, ich bin eine Witwe und alleinerziehende Mutter
+mit drei Kindern, die einzige leibliche Tochter des verstorbenen
+libyschen Pr=C3=A4sidenten (dem verstorbenen Oberst Muammar Gaddafi) und
+stehe derzeit unter politischem Asylschutz der omanischen Regierung.
 
-greg k-h
+Bitte antworten Sie dringend f=C3=BCr weitere Details.
 
------------------- original commit in Linus's tree ------------------
-
-From 47a1db8e797da01a1309bf42e0c0d771d4e4d4f3 Mon Sep 17 00:00:00 2001
-From: Johan Hovold <johan@kernel.org>
-Date: Wed, 1 Dec 2021 14:25:26 +0100
-Subject: [PATCH] firmware: qemu_fw_cfg: fix kobject leak in probe error path
-
-An initialised kobject must be freed using kobject_put() to avoid
-leaking associated resources (e.g. the object name).
-
-Commit fe3c60684377 ("firmware: Fix a reference count leak.") "fixed"
-the leak in the first error path of the file registration helper but
-left the second one unchanged. This "fix" would however result in a NULL
-pointer dereference due to the release function also removing the never
-added entry from the fw_cfg_entry_cache list. This has now been
-addressed.
-
-Fix the remaining kobject leak by restoring the common error path and
-adding the missing kobject_put().
-
-Fixes: 75f3e8e47f38 ("firmware: introduce sysfs driver for QEMU's fw_cfg device")
-Cc: stable@vger.kernel.org      # 4.6
-Cc: Gabriel Somlo <somlo@cmu.edu>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211201132528.30025-3-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/firmware/qemu_fw_cfg.c b/drivers/firmware/qemu_fw_cfg.c
-index a9c64ebfc49a..ccb7ed62452f 100644
---- a/drivers/firmware/qemu_fw_cfg.c
-+++ b/drivers/firmware/qemu_fw_cfg.c
-@@ -603,15 +603,13 @@ static int fw_cfg_register_file(const struct fw_cfg_file *f)
- 	/* register entry under "/sys/firmware/qemu_fw_cfg/by_key/" */
- 	err = kobject_init_and_add(&entry->kobj, &fw_cfg_sysfs_entry_ktype,
- 				   fw_cfg_sel_ko, "%d", entry->select);
--	if (err) {
--		kobject_put(&entry->kobj);
--		return err;
--	}
-+	if (err)
-+		goto err_put_entry;
- 
- 	/* add raw binary content access */
- 	err = sysfs_create_bin_file(&entry->kobj, &fw_cfg_sysfs_attr_raw);
- 	if (err)
--		goto err_add_raw;
-+		goto err_del_entry;
- 
- 	/* try adding "/sys/firmware/qemu_fw_cfg/by_name/" symlink */
- 	fw_cfg_build_symlink(fw_cfg_fname_kset, &entry->kobj, entry->name);
-@@ -620,9 +618,10 @@ static int fw_cfg_register_file(const struct fw_cfg_file *f)
- 	fw_cfg_sysfs_cache_enlist(entry);
- 	return 0;
- 
--err_add_raw:
-+err_del_entry:
- 	kobject_del(&entry->kobj);
--	kfree(entry);
-+err_put_entry:
-+	kobject_put(&entry->kobj);
- 	return err;
- }
- 
-
+meine E-Mail-Adresse unten: ayishagddafio@mail.ru
+Vielen Dank
+Mit freundlichen Gr=C3=BC=C3=9Fen Aisha
