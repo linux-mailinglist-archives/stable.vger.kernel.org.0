@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1852D492A8B
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:11:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D0D6492AA5
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:12:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347438AbiARQLL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 11:11:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51544 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347107AbiARQJh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:09:37 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FA32C0613E3;
-        Tue, 18 Jan 2022 08:09:33 -0800 (PST)
+        id S244077AbiARQMR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 11:12:17 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:41722 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346887AbiARQKl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:10:41 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AB457CE1A32;
-        Tue, 18 Jan 2022 16:09:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FACEC340E0;
-        Tue, 18 Jan 2022 16:09:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 916DD61330;
+        Tue, 18 Jan 2022 16:10:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57B0AC00446;
+        Tue, 18 Jan 2022 16:10:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642522170;
-        bh=jvgy58p5NNQDL1d44rsCcECEHTpB8jcJZ4tD6xqJeU0=;
+        s=korg; t=1642522240;
+        bh=C5aujnFJ1NRiwxgdObOzedAoYWgfCW1MQquWKOgJ0yI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S+PKZ0JhqHt65S0gVKxGeSZiZ1LmhdGeAeEDWd9tmpHZn66EjXz+UT8tX5S9b8ZKx
-         OTijbw/Y85Qj1x9XSE9/vjf6gDxIW88cGuNcO03/fqGYxpdH2wFXE6GKvzDkq52Vk+
-         CoOkc2JUkB1o6PC/3pV+78+J7LazQfNvhGVlmXtk=
+        b=hxAwAvvFCTex9KM5f4pcZe2zJbS+7bI2q/lNNjXYEBSj59SMDFgnIAdVQ8mXlmN42
+         nnOO2dTV4N0p2N6cOzoQfmTL6LyWKurunwiEs/jKmZVI2zicFFTb6bQzPRUSaw/KNG
+         VYsUykYtgCFRKjVOECm9Plm0LVkt/nTVVnvUuC/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 22/28] ALSA: hda/realtek: Use ALC285_FIXUP_HP_GPIO_LED on another HP laptop
-Date:   Tue, 18 Jan 2022 17:06:08 +0100
-Message-Id: <20220118160452.614874048@linuxfoundation.org>
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Dominique Martinet <asmadeus@codewreck.org>
+Subject: [PATCH 5.16 14/28] 9p: fix enodata when reading growing file
+Date:   Tue, 18 Jan 2022 17:06:09 +0100
+Message-Id: <20220118160452.878838210@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220118160451.879092022@linuxfoundation.org>
-References: <20220118160451.879092022@linuxfoundation.org>
+In-Reply-To: <20220118160452.384322748@linuxfoundation.org>
+References: <20220118160452.384322748@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,31 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Dominique Martinet <asmadeus@codewreck.org>
 
-commit 08977fe8cfb7d9fe9337470eec4843081cf3a76d upstream.
+commit 19d1c32652bbbf406063025354845fdddbcecd3a upstream.
 
-The audio mute and mic mute LEDs don't work, so use the quirk to make
-them work.
+Reading from a file that was just extended by a write, but the write had
+not yet reached the server would return ENODATA as illustrated by this
+command:
+$ xfs_io -c 'open -ft test' -c 'w 4096 1000' -c 'r 0 1000'
+wrote 1000/1000 bytes at offset 4096
+1000.000000 bytes, 1 ops; 0.0001 sec (5.610 MiB/sec and 5882.3529 ops/sec)
+pread: No data available
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211224035015.310068-1-kai.heng.feng@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fix this case by having netfs assume zeroes when reads from server come
+short like AFS and CEPH do
+
+Link: https://lkml.kernel.org/r/20220110111444.926753-1-asmadeus@codewreck.org
+Cc: stable@vger.kernel.org
+Fixes: eb497943fa21 ("9p: Convert to using the netfs helper lib to do reads and caching")
+Co-authored-by: David Howells <dhowells@redhat.com>
+Reviewed-by: David Howells <dhowells@redhat.com>
+Tested-by: David Howells <dhowells@redhat.com>
+Signed-off-by: Dominique Martinet <asmadeus@codewreck.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/9p/vfs_addr.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8730,6 +8730,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x8896, "HP EliteBook 855 G8 Notebook PC", ALC285_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8898, "HP EliteBook 845 G8 Notebook PC", ALC285_FIXUP_HP_LIMIT_INT_MIC_BOOST),
- 	SND_PCI_QUIRK(0x103c, 0x88d0, "HP Pavilion 15-eh1xxx (mainboard 88D0)", ALC287_FIXUP_HP_GPIO_LED),
-+	SND_PCI_QUIRK(0x103c, 0x89c3, "HP", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x89ca, "HP", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
- 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x103f, "ASUS TX300", ALC282_FIXUP_ASUS_TX300),
+--- a/fs/9p/vfs_addr.c
++++ b/fs/9p/vfs_addr.c
+@@ -42,6 +42,11 @@ static void v9fs_req_issue_op(struct net
+ 	iov_iter_xarray(&to, READ, &rreq->mapping->i_pages, pos, len);
+ 
+ 	total = p9_client_read(fid, pos, &to, &err);
++
++	/* if we just extended the file size, any portion not in
++	 * cache won't be on server and is zeroes */
++	__set_bit(NETFS_SREQ_CLEAR_TAIL, &subreq->flags);
++
+ 	netfs_subreq_terminated(subreq, err ?: total, false);
+ }
+ 
 
 
