@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7AAE491AD5
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:03:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F93C491AF7
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:03:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353005AbiARDAy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1353012AbiARDAy (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 17 Jan 2022 22:00:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35858 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351506AbiARCyg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:54:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2877C02B844;
-        Mon, 17 Jan 2022 18:43:46 -0800 (PST)
+        with ESMTP id S1351534AbiARCyk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:54:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3F36C02B848;
+        Mon, 17 Jan 2022 18:43:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B195B81132;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 40B6561294;
+        Tue, 18 Jan 2022 02:43:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C94F9C36AEB;
         Tue, 18 Jan 2022 02:43:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB39BC36AF4;
-        Tue, 18 Jan 2022 02:43:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473824;
-        bh=vYqT50n7P1s8BSjh/eXllW0EJ7z12+co5rPuam7sJbo=;
+        s=k20201202; t=1642473826;
+        bh=9zqniQmnmRj2EP7QeluyIKIoG9IT21ZtY1hW7QzQH5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tvHW+5OTXEVW4x4gv9mpinXXAx4svqjAOK80/X4OECqSk5qTKkiV6EoCoFOwhlUNL
-         goCC9aVqHo18Nfe6wWsNigZ20pPqtWGKnNhyCRHupORwsMDafvDRx3PXttfGCUe2c5
-         UluUYZwCpCydMOndNvVL1BFlntWazxqz6dNOyA4f+llNCnvWNCHMbfsznl8blpwGnB
-         6CQWf2dBdj+j7mYPkRduf/ly5PuwRTCT2zgFPRdvebYWQ8mwacZuIyn2TM5fEBZVJ2
-         r7T7vVAzomD/o0k/RfERqo4gVQgZXgzeH0RARf/jIE8/EnTu2ZczoYgFWVvXLvPuPY
-         b8N7DwEB3ygeQ==
+        b=VXiD/bjU9zjXN71yNjv33HeIugBVZcXF39R32St/KsjJ5mzDgzoctVOmFchFHQd8T
+         xLhzXkLGZXiw0K9YX1PbviwbOYKpH64yWE/JNfIuuMk70TSMbLzASvo6Z6aTD5BLAG
+         /AJT+UBhKFbrbVEj9581nFJNN2vC4faR2y61QwCBHior024N4mRL2lA8JP+I7Q7Xvv
+         qZLEo2LPXIw1MMRON23350X3W6NXfD4CMAWVvR2c7XGgB11d9FE2HfPr0yudU62XHF
+         qoXg8QucyQmdVC3M49QgBSCayjRp4raykXm+uLvTz/OGgMZEmheRevWXf6BC8ORCA6
+         73PQ/lqDKBIvg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lucas Stach <l.stach@pengutronix.de>,
-        Joerg Albert <joerg.albert@iav.de>,
-        Christian Gmeiner <christian.gmeiner@gmail.com>,
-        Sasha Levin <sashal@kernel.org>, airlied@linux.ie,
-        daniel@ffwll.ch, etnaviv@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 088/116] drm/etnaviv: consider completed fence seqno in hang check
-Date:   Mon, 17 Jan 2022 21:39:39 -0500
-Message-Id: <20220118024007.1950576-88-sashal@kernel.org>
+Cc:     Kyeong Yoo <kyeong.yoo@alliedtelesis.co.nz>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>, dwmw2@infradead.org,
+        joel@jms.id.au, linux-mtd@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 089/116] jffs2: GC deadlock reading a page that is used in jffs2_write_begin()
+Date:   Mon, 17 Jan 2022 21:39:40 -0500
+Message-Id: <20220118024007.1950576-89-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024007.1950576-1-sashal@kernel.org>
 References: <20220118024007.1950576-1-sashal@kernel.org>
@@ -53,56 +51,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Kyeong Yoo <kyeong.yoo@alliedtelesis.co.nz>
 
-[ Upstream commit cdd156955f946beaa5f3a00d8ccf90e5a197becc ]
+[ Upstream commit aa39cc675799bc92da153af9a13d6f969c348e82 ]
 
-Some GPU heavy test programs manage to trigger the hangcheck quite often.
-If there are no other GPU users in the system and the test program
-exhibits a very regular structure in the commandstreams that are being
-submitted, we can end up with two distinct submits managing to trigger
-the hangcheck with the FE in a very similar address range. This leads
-the hangcheck to believe that the GPU is stuck, while in reality the GPU
-is already busy working on a different job. To avoid those spurious
-GPU resets, also remember and consider the last completed fence seqno
-in the hang check.
+GC task can deadlock in read_cache_page() because it may attempt
+to release a page that is actually allocated by another task in
+jffs2_write_begin().
+The reason is that in jffs2_write_begin() there is a small window
+a cache page is allocated for use but not set Uptodate yet.
 
-Reported-by: Joerg Albert <joerg.albert@iav.de>
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+This ends up with a deadlock between two tasks:
+1) A task (e.g. file copy)
+   - jffs2_write_begin() locks a cache page
+   - jffs2_write_end() tries to lock "alloc_sem" from
+	 jffs2_reserve_space() <-- STUCK
+2) GC task (jffs2_gcd_mtd3)
+   - jffs2_garbage_collect_pass() locks "alloc_sem"
+   - try to lock the same cache page in read_cache_page() <-- STUCK
+
+So to avoid this deadlock, hold "alloc_sem" in jffs2_write_begin()
+while reading data in a cache page.
+
+Signed-off-by: Kyeong Yoo <kyeong.yoo@alliedtelesis.co.nz>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/etnaviv/etnaviv_gpu.h   | 1 +
- drivers/gpu/drm/etnaviv/etnaviv_sched.c | 4 +++-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ fs/jffs2/file.c | 40 +++++++++++++++++++++++++---------------
+ 1 file changed, 25 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gpu.h b/drivers/gpu/drm/etnaviv/etnaviv_gpu.h
-index 1c75c8ed5bcea..85eddd492774d 100644
---- a/drivers/gpu/drm/etnaviv/etnaviv_gpu.h
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_gpu.h
-@@ -130,6 +130,7 @@ struct etnaviv_gpu {
+diff --git a/fs/jffs2/file.c b/fs/jffs2/file.c
+index 4fc8cd698d1a4..bd7d58d27bfc6 100644
+--- a/fs/jffs2/file.c
++++ b/fs/jffs2/file.c
+@@ -136,20 +136,15 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 	struct page *pg;
+ 	struct inode *inode = mapping->host;
+ 	struct jffs2_inode_info *f = JFFS2_INODE_INFO(inode);
++	struct jffs2_sb_info *c = JFFS2_SB_INFO(inode->i_sb);
+ 	pgoff_t index = pos >> PAGE_SHIFT;
+ 	uint32_t pageofs = index << PAGE_SHIFT;
+ 	int ret = 0;
  
- 	/* hang detection */
- 	u32 hangcheck_dma_addr;
-+	u32 hangcheck_fence;
+-	pg = grab_cache_page_write_begin(mapping, index, flags);
+-	if (!pg)
+-		return -ENOMEM;
+-	*pagep = pg;
+-
+ 	jffs2_dbg(1, "%s()\n", __func__);
  
- 	void __iomem *mmio;
- 	int irq;
-diff --git a/drivers/gpu/drm/etnaviv/etnaviv_sched.c b/drivers/gpu/drm/etnaviv/etnaviv_sched.c
-index cd46c882269cc..026b6c0731198 100644
---- a/drivers/gpu/drm/etnaviv/etnaviv_sched.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_sched.c
-@@ -106,8 +106,10 @@ static void etnaviv_sched_timedout_job(struct drm_sched_job *sched_job)
- 	 */
- 	dma_addr = gpu_read(gpu, VIVS_FE_DMA_ADDRESS);
- 	change = dma_addr - gpu->hangcheck_dma_addr;
--	if (change < 0 || change > 16) {
-+	if (gpu->completed_fence != gpu->hangcheck_fence ||
-+	    change < 0 || change > 16) {
- 		gpu->hangcheck_dma_addr = dma_addr;
-+		gpu->hangcheck_fence = gpu->completed_fence;
- 		goto out_no_timeout;
+ 	if (pageofs > inode->i_size) {
+ 		/* Make new hole frag from old EOF to new page */
+-		struct jffs2_sb_info *c = JFFS2_SB_INFO(inode->i_sb);
+ 		struct jffs2_raw_inode ri;
+ 		struct jffs2_full_dnode *fn;
+ 		uint32_t alloc_len;
+@@ -160,7 +155,7 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 		ret = jffs2_reserve_space(c, sizeof(ri), &alloc_len,
+ 					  ALLOC_NORMAL, JFFS2_SUMMARY_INODE_SIZE);
+ 		if (ret)
+-			goto out_page;
++			goto out_err;
+ 
+ 		mutex_lock(&f->sem);
+ 		memset(&ri, 0, sizeof(ri));
+@@ -190,7 +185,7 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 			ret = PTR_ERR(fn);
+ 			jffs2_complete_reservation(c);
+ 			mutex_unlock(&f->sem);
+-			goto out_page;
++			goto out_err;
+ 		}
+ 		ret = jffs2_add_full_dnode_to_inode(c, f, fn);
+ 		if (f->metadata) {
+@@ -205,13 +200,26 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 			jffs2_free_full_dnode(fn);
+ 			jffs2_complete_reservation(c);
+ 			mutex_unlock(&f->sem);
+-			goto out_page;
++			goto out_err;
+ 		}
+ 		jffs2_complete_reservation(c);
+ 		inode->i_size = pageofs;
+ 		mutex_unlock(&f->sem);
  	}
+ 
++	/*
++	 * While getting a page and reading data in, lock c->alloc_sem until
++	 * the page is Uptodate. Otherwise GC task may attempt to read the same
++	 * page in read_cache_page(), which causes a deadlock.
++	 */
++	mutex_lock(&c->alloc_sem);
++	pg = grab_cache_page_write_begin(mapping, index, flags);
++	if (!pg) {
++		ret = -ENOMEM;
++		goto release_sem;
++	}
++	*pagep = pg;
++
+ 	/*
+ 	 * Read in the page if it wasn't already present. Cannot optimize away
+ 	 * the whole page write case until jffs2_write_end can handle the
+@@ -221,15 +229,17 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 		mutex_lock(&f->sem);
+ 		ret = jffs2_do_readpage_nolock(inode, pg);
+ 		mutex_unlock(&f->sem);
+-		if (ret)
+-			goto out_page;
++		if (ret) {
++			unlock_page(pg);
++			put_page(pg);
++			goto release_sem;
++		}
+ 	}
+ 	jffs2_dbg(1, "end write_begin(). pg->flags %lx\n", pg->flags);
+-	return ret;
+ 
+-out_page:
+-	unlock_page(pg);
+-	put_page(pg);
++release_sem:
++	mutex_unlock(&c->alloc_sem);
++out_err:
+ 	return ret;
+ }
  
 -- 
 2.34.1
