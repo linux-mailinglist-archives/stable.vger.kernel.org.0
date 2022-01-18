@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 858F54915A5
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:29:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B1B64915D6
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:32:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245255AbiARC3L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:29:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57180 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343713AbiARC0y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:26:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0DD3C061794;
-        Mon, 17 Jan 2022 18:25:12 -0800 (PST)
+        id S1345735AbiARCb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:31:59 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:37908 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245286AbiARCZP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:25:15 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 334506104B;
+        by ams.source.kernel.org (Postfix) with ESMTPS id A7569B81243;
+        Tue, 18 Jan 2022 02:25:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B324C36AE3;
         Tue, 18 Jan 2022 02:25:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD0C5C36AF3;
-        Tue, 18 Jan 2022 02:25:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642472711;
-        bh=lt6mIJfzkqvFPg0u6qu+wckvaEO9qenNedKzRuOJshc=;
+        s=k20201202; t=1642472713;
+        bh=LmPaX7zldt4EKMoSEVIJLQiC2qrMN8IKsWAukZL/DfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NOQk48UNsMjTotl+e18vkk2mK5zNK8mreMUzs7ln0ejpzhO22wCnTTB4gfE6ZuJdF
-         5CAOzDt0d1NRvNmHm2rB6rewcqKigRoPsy80EBf6cdWNtGVCPpGXTjxHumWJDMnQVN
-         iFjJNsv9uUmQC1pfOAn9X/kQMWqeQ1YwhxtyRMOQgIJY4jNPIT94gEig55nNcZdg35
-         1AnQ/VBI2mAdEjgVEWvvmaLJxXRK1GoPRM2/r+xMWuiGnhrrXF1BjWiohsNJacAObP
-         Dj2VvNxKDP9UvGtnbhPrrONYdVKlyFdFcndi9EtVjccvkBCHSZuZDtwy3sDAUA55CG
-         T+zqwFtENq+9A==
+        b=VF+M80OAR2j0IRLSqaG537Sp/LXgMeuUtKOHeYbDTAQh78lTyuc9fHYAYSd8tDzU+
+         hXCJ5pCFVfrfpnnFJ7z0+K1R4YiTpqfXM4SHwhAnFwrmFWw42Bucggu0QFRDg54pVy
+         hWq+9LS5RLdKlIbOBga0ODdQnmQmag42zHDDVbCjN9J6EWJ8V1NKjRs8DUIDlfYCCI
+         PdbfqE/k+xjGIFgkqG8moU0DtIKPeQBcNlbRYVfnNuoKLz+8zesAxU/xAlE8cAeU65
+         EkcK5YE0Eau0JaAI8xrJ9rzmXtxdE1Wwy5pJe8o0tbI2TvIr7bAAGr/isfpDOJNYGc
+         QjA58Lz5GUdpQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wander Lairson Costa <wander@redhat.com>,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, dave@stgolabs.net,
-        josh@joshtriplett.org, rcu@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 107/217] rcutorture: Avoid soft lockup during cpu stall
-Date:   Mon, 17 Jan 2022 21:17:50 -0500
-Message-Id: <20220118021940.1942199-107-sashal@kernel.org>
+Cc:     Colin Foster <colin.foster@in-advantage.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, claudiu.manoil@nxp.com,
+        alexandre.belloni@bootlin.com, UNGLinuxDriver@microchip.com,
+        andrew@lunn.ch, vivien.didelot@gmail.com, davem@davemloft.net,
+        linux@armlinux.org.uk, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 108/217] net: dsa: ocelot: felix: Remove requirement for PCS in felix devices
+Date:   Mon, 17 Jan 2022 21:17:51 -0500
+Message-Id: <20220118021940.1942199-108-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118021940.1942199-1-sashal@kernel.org>
 References: <20220118021940.1942199-1-sashal@kernel.org>
@@ -51,53 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wander Lairson Costa <wander@redhat.com>
+From: Colin Foster <colin.foster@in-advantage.com>
 
-[ Upstream commit 5ff7c9f9d7e3e0f6db5b81945fa11b69d62f433a ]
+[ Upstream commit 49af6a7620c53b779572abfbfd7778e113154330 ]
 
-If we use the module stall_cpu option, we may get a soft lockup warning
-in case we also don't pass the stall_cpu_block option.
+Existing felix devices all have an initialized pcs array. Future devices
+might not, so running a NULL check on the array before dereferencing it
+will allow those future drivers to not crash at this point
 
-Introduce the stall_no_softlockup option to avoid a soft lockup on
-cpu stall even if we don't use the stall_cpu_block option.
-
-Signed-off-by: Wander Lairson Costa <wander@redhat.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Colin Foster <colin.foster@in-advantage.com>
+Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/rcutorture.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/dsa/ocelot/felix.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/rcu/rcutorture.c b/kernel/rcu/rcutorture.c
-index 8b410d982990c..05e4d6c28d1f5 100644
---- a/kernel/rcu/rcutorture.c
-+++ b/kernel/rcu/rcutorture.c
-@@ -46,6 +46,7 @@
- #include <linux/oom.h>
- #include <linux/tick.h>
- #include <linux/rcupdate_trace.h>
-+#include <linux/nmi.h>
+diff --git a/drivers/net/dsa/ocelot/felix.c b/drivers/net/dsa/ocelot/felix.c
+index f1a05e7dc8181..221440a61e17e 100644
+--- a/drivers/net/dsa/ocelot/felix.c
++++ b/drivers/net/dsa/ocelot/felix.c
+@@ -823,7 +823,7 @@ static void felix_phylink_mac_config(struct dsa_switch *ds, int port,
+ 	struct felix *felix = ocelot_to_felix(ocelot);
+ 	struct dsa_port *dp = dsa_to_port(ds, port);
  
- #include "rcu.h"
+-	if (felix->pcs[port])
++	if (felix->pcs && felix->pcs[port])
+ 		phylink_set_pcs(dp->pl, &felix->pcs[port]->pcs);
+ }
  
-@@ -109,6 +110,8 @@ torture_param(int, shutdown_secs, 0, "Shutdown time (s), <= zero to disable.");
- torture_param(int, stall_cpu, 0, "Stall duration (s), zero to disable.");
- torture_param(int, stall_cpu_holdoff, 10,
- 	     "Time to wait before starting stall (s).");
-+torture_param(bool, stall_no_softlockup, false,
-+	     "Avoid softlockup warning during cpu stall.");
- torture_param(int, stall_cpu_irqsoff, 0, "Disable interrupts while stalling.");
- torture_param(int, stall_cpu_block, 0, "Sleep while stalling.");
- torture_param(int, stall_gp_kthread, 0,
-@@ -2052,6 +2055,8 @@ static int rcu_torture_stall(void *args)
- #else
- 				schedule_timeout_uninterruptible(HZ);
- #endif
-+			} else if (stall_no_softlockup) {
-+				touch_softlockup_watchdog();
- 			}
- 		if (stall_cpu_irqsoff)
- 			local_irq_enable();
 -- 
 2.34.1
 
