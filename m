@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7602F491AEE
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:03:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 379D7491AC0
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:03:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352875AbiARDAo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 22:00:44 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:57852 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350130AbiARCvR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:51:17 -0500
+        id S1352879AbiARDAp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 22:00:45 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:42956 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1350160AbiARCvT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:51:19 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC91DB811D6;
-        Tue, 18 Jan 2022 02:51:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9387FC36AEB;
-        Tue, 18 Jan 2022 02:51:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 43B1E612E8;
+        Tue, 18 Jan 2022 02:51:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A53A6C36AEB;
+        Tue, 18 Jan 2022 02:51:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642474274;
-        bh=qbuJzMLstbf2L54xjwrmp0834IdyaWQYNr1ugUCfyB4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pvORHCm/K7I5NC8DhO35LSXDiBRskp71Vmgx7tHM5i8SxCyTXy81KFlVy0JeCPVVa
-         71eS3bKglknTyzgOAYx4iU9e3qoh5Y8mFyDo+bUaPMtUO7Gg8cIzj4LcWEVqPlyMEi
-         0+186b2YcDbB0M5cFIUC5ftnEvekZbfpW89GfjNFFWf5MX/4dFZOODBgMJFHpJd29A
-         gXi2/BCho1yciPFdfDOLt5izzDaM7jG51NvmWwu7Ni1NMrsOQ1A3Sat9jE/F8c/QiX
-         rMvqcvFaX5Y85ID/WkHZkpZfw495Un46gZa8peF+gRT83E4/bJSNtzwiEWrSCHkIyx
-         Opala18dNYShg==
+        s=k20201202; t=1642474278;
+        bh=8HhqhLYUtzscszQjAX1dCUydahnbhPvnAe7pYo2zT+Y=;
+        h=From:To:Cc:Subject:Date:From;
+        b=tVKyNEnYdg5kKB2WyQxxJHE0smZvuRNvDJvMwLjGsKRdqTyJSkLFfGwXrfu5AVpqc
+         bUt8zuYAENjpuTKgrMqrrjOdT921TrjOj/9zLXuSf33f+nOB0HRoOQPW7WhG9iGAbw
+         8PbRF1AE3rtsxRWBsNxE26hwcyPA9MUvRKVWnW9qQlnq2S7cPrQA70yMRxrulLS5OA
+         nxShJU6eE72113DZrAe6U4BP9EK6sjclj0cnQoMfdOztYUtwXCokU/WRMmGyMZnY40
+         /tccl1T3d7Ljnug9EL4Hr6ByimanW4Ugi9ndBvYXK/wtr+P2ENcrGbPsel9h1ewxqY
+         vpC3uQdpoSgYQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John David Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>,
-        James.Bottomley@HansenPartnership.com, svens@stackframe.org,
-        wangkefeng.wang@huawei.com, rmk+kernel@armlinux.org.uk,
-        akpm@linux-foundation.org, ebiederm@xmission.com,
-        linux-parisc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 56/56] parisc: Avoid calling faulthandler_disabled() twice
-Date:   Mon, 17 Jan 2022 21:49:08 -0500
-Message-Id: <20220118024908.1953673-56-sashal@kernel.org>
+Cc:     Wei Yongjun <weiyongjun1@huawei.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>, johan.hedberg@gmail.com,
+        luiz.dentz@gmail.com, davem@davemloft.net, kuba@kernel.org,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 01/33] Bluetooth: Fix debugfs entry leak in hci_register_dev()
+Date:   Mon, 17 Jan 2022 21:50:43 -0500
+Message-Id: <20220118025116.1954375-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220118024908.1953673-1-sashal@kernel.org>
-References: <20220118024908.1953673-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -50,51 +47,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John David Anglin <dave.anglin@bell.net>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 9e9d4b460f23bab61672eae397417d03917d116c ]
+[ Upstream commit 5a4bb6a8e981d3d0d492aa38412ee80b21033177 ]
 
-In handle_interruption(), we call faulthandler_disabled() to check whether the
-fault handler is not disabled. If the fault handler is disabled, we immediately
-call do_page_fault(). It then calls faulthandler_disabled(). If disabled,
-do_page_fault() attempts to fixup the exception by jumping to no_context:
+Fault injection test report debugfs entry leak as follows:
 
-no_context:
+debugfs: Directory 'hci0' with parent 'bluetooth' already present!
 
-        if (!user_mode(regs) && fixup_exception(regs)) {
-                return;
-        }
+When register_pm_notifier() failed in hci_register_dev(), the debugfs
+create by debugfs_create_dir() do not removed in the error handing path.
 
-        parisc_terminate("Bad Address (null pointer deref?)", regs, code, address);
+Add the remove debugfs code to fix it.
 
-Apart from the error messages, the two blocks of code perform the same
-function.
-
-We can avoid two calls to faulthandler_disabled() by a simple revision
-to the code in handle_interruption().
-
-Note: I didn't try to fix the formatting of this code block.
-
-Signed-off-by: John David Anglin <dave.anglin@bell.net>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/kernel/traps.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/hci_core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/parisc/kernel/traps.c b/arch/parisc/kernel/traps.c
-index 9a898d68f4a0d..346456c43aa0b 100644
---- a/arch/parisc/kernel/traps.c
-+++ b/arch/parisc/kernel/traps.c
-@@ -795,7 +795,7 @@ void notrace handle_interruption(int code, struct pt_regs *regs)
- 	     * unless pagefault_disable() was called before.
- 	     */
+diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
+index b43f31203a430..40e6e5feb1e06 100644
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -3148,6 +3148,7 @@ int hci_register_dev(struct hci_dev *hdev)
+ 	return id;
  
--	    if (fault_space == 0 && !faulthandler_disabled())
-+	    if (faulthandler_disabled() || fault_space == 0)
- 	    {
- 		/* Clean up and return if in exception table. */
- 		if (fixup_exception(regs))
+ err_wqueue:
++	debugfs_remove_recursive(hdev->debugfs);
+ 	destroy_workqueue(hdev->workqueue);
+ 	destroy_workqueue(hdev->req_workqueue);
+ err:
 -- 
 2.34.1
 
