@@ -2,79 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4316B492624
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 13:54:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB45F492649
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 14:01:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240937AbiARMy3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 07:54:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34624 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240692AbiARMy2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 07:54:28 -0500
-Received: from mail-wm1-x336.google.com (mail-wm1-x336.google.com [IPv6:2a00:1450:4864:20::336])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44A84C061574
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 04:54:28 -0800 (PST)
-Received: by mail-wm1-x336.google.com with SMTP id ay4-20020a05600c1e0400b0034a81a94607so7168219wmb.1
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 04:54:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=kt7BSYvG+rr2bLEECwLOEMCvBVZotJIk44/4XcKD9H0=;
-        b=mBU+mOyC8syOl/X37lsIyubbNoQ0dpviwkq2OP9MYO+TqB6zbijGmj6s77wmyrKc3O
-         gs2BONUDGGhVW8S6Jn6FX9sc8scCMe5GYQJMdeaC2Fuj1/ECRsShwUEOuctNoFPSWl63
-         EGl7BptmEhRbCl4rKYCOvOkIRyeAhfWyICg4A5vXbrbJ08/yPMHpdGnEe5Tl2RbC8vMc
-         joJ9FXL/7o04ujHVUMwXfLL2V3NwOxIuXO304w92BCGSvowr/jtvCFqd6HDGBYhdcTw2
-         lEweAz8ZK4r9Qc/AuSorpNOYgd332GBJvcpDd5ISaUUt7CE/+LwHhx3MTCFDqjn9OWFu
-         AfTA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=kt7BSYvG+rr2bLEECwLOEMCvBVZotJIk44/4XcKD9H0=;
-        b=w77FzMweD3fxtKC7WjELX+o6mNw5VC98rN1o2uPGb4fCltreNyUzka5AqraM162p4h
-         ZJQ6kKpOBHoTCj6abGD0E3FHsKY5CHxsKTVDLeJZ6PuYLgKCwvv2nNObgGB27Y/tA+XV
-         W09c8jmDp0y6dkfR13uAs1yN1BQ21/TGBsCjnQyY08ixD/S6dK+plLgXDH1T0i1XMme5
-         XIUovGX0ZGBad1uz1XMZopxf94pgwcYhNPKS8YCQipbsoy3NhZESQ5gbYlinB/opLtyn
-         CxuriO0kS1FDS/ag9lUiZM5/ASlxgvpIMeqoUaMe2yv7aE701i4XZSQGJgFNIL/Iuzu2
-         aCtQ==
-X-Gm-Message-State: AOAM532d9fgbINIcKs7UXOoIqYisaI8Cub3D3aDp5tKuG+sAryy2FGEW
-        np8U7xbSo48w/9NipS9+BIi8WAChJXkWZJs/y4U=
-X-Google-Smtp-Source: ABdhPJxxamA4ib6JJghApjiFwE57VyxKRiivCOc7ndrAGG0FC+si/OIKtZF8MnkCTtAHohUDN4lK8hPDvp4d3eNTNaw=
-X-Received: by 2002:a05:600c:33a7:: with SMTP id o39mr24138071wmp.6.1642510466717;
- Tue, 18 Jan 2022 04:54:26 -0800 (PST)
+        id S239292AbiARNAv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 08:00:51 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:55718 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239392AbiARNAv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 08:00:51 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A57D2B8165F
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 13:00:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72928C340E7
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 13:00:48 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1642510848;
+        bh=Sz4+EBrrg/ocmc2Gdc+FZso9VyaSCo8D64U92LXOFm0=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=JRs3Db+vwPgkiCb3Kz0fqLITR8nCjWRMXNJbEw7SrwE4nq1FDGKciXyAVvqozGvdc
+         /5A6xi42zVGgNsPX0eyEzvzB21SoU5fYtxiQgvzIUr2BTMYAAY6xyYJpJ9uSnH+ctS
+         KRrLway4czD3bWlSUcs5rBeG++RRoklNVQsgkXhVDV9mS/bvUd4oLcE5Cd9/lZHh6G
+         Gg3OGc8rSuCpDpp2wAz9CgmbzX6UjUqg1HWitvVM6VThaieo9WZO3F0nQwiXDKSmDN
+         upGzM14j3d3hqr3sllmvbVSZ5NC7dD9Fb02onCFAComlQnzDWb9E3Xik8R8wiV6DKB
+         mkiJoC7iISIBg==
+Received: by mail-wm1-f49.google.com with SMTP id c2so21948484wml.1
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 05:00:48 -0800 (PST)
+X-Gm-Message-State: AOAM533A/zBaNypc/TYkvZRAokW9E0AB7W3ITYq45/m3qp2iCVLVKOBD
+        fkqOuGoZQn3C71gstu3SknO2zgu6DKQwy7NSonA=
+X-Google-Smtp-Source: ABdhPJyjZdUDe1z1IpjJ/dVdEcBlBQMmcIp6jA1/fQj4ifqvcKf5nLaVmQjQNJnt4IT9KraAr8sysk7mTTwO32YOw0o=
+X-Received: by 2002:a5d:6541:: with SMTP id z1mr21975565wrv.550.1642510846681;
+ Tue, 18 Jan 2022 05:00:46 -0800 (PST)
 MIME-Version: 1.0
-Received: by 2002:adf:e18f:0:0:0:0:0 with HTTP; Tue, 18 Jan 2022 04:54:26
- -0800 (PST)
-Reply-To: mohsheikhalhamed@gmail.com
-From:   bratikox <bratikox@gmail.com>
-Date:   Tue, 18 Jan 2022 13:54:26 +0100
-Message-ID: <CAFuXTSyB_9Bsutb2piVqVTAU+3_c_+PkbO4cPP1dtL4wxSky6w@mail.gmail.com>
-Subject: Salam Alaikum /ADIA LOAN OFFER
-To:     undisclosed-recipients:;
+References: <20220118082808.931129-1-ardb@kernel.org> <CAK8P3a0XGEZSTWy=24fEckPxtLoOt7sF7SYzF+QZEMooiW4BsA@mail.gmail.com>
+ <CAMj1kXGtHoDYzjv8eUg0xbs4aTZVnRDHCne-cJg=9ZLHzYbOgQ@mail.gmail.com>
+In-Reply-To: <CAMj1kXGtHoDYzjv8eUg0xbs4aTZVnRDHCne-cJg=9ZLHzYbOgQ@mail.gmail.com>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Tue, 18 Jan 2022 14:00:34 +0100
+X-Gmail-Original-Message-ID: <CAMj1kXFh-XFr8tBrYcobrR1G9YBwV-BvAyBtVQPUqDOe+Dw7fw@mail.gmail.com>
+Message-ID: <CAMj1kXFh-XFr8tBrYcobrR1G9YBwV-BvAyBtVQPUqDOe+Dw7fw@mail.gmail.com>
+Subject: Re: [PATCH] ARM: uaccess: avoid alignment faults in copy_[from|to]_kernel_nofault
+To:     Arnd Bergmann <arnd@arndb.de>
+Cc:     Russell King - ARM Linux <linux@armlinux.org.uk>,
+        Linux ARM <linux-arm-kernel@lists.infradead.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        "# 3.4.x" <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Salam Alaikum,
+On Tue, 18 Jan 2022 at 09:41, Ard Biesheuvel <ardb@kernel.org> wrote:
+>
+> On Tue, 18 Jan 2022 at 09:38, Arnd Bergmann <arnd@arndb.de> wrote:
+> >
+> > On Tue, Jan 18, 2022 at 9:28 AM Ard Biesheuvel <ardb@kernel.org> wrote:
+> > >
+> > > The helpers that are used to implement copy_from_kernel_nofault() and
+> > > copy_to_kernel_nofault() cast a void* to a pointer to a wider type,
+> > > which may result in alignment faults on ARM if the compiler decides to
+> > > use double-word or multiple-word load/store instructions.
+> > >
+> > > So use the unaligned accessors where needed: when the type's size > 1
+> > > and the input was not aligned already by the caller.
+> > >
+> > > Cc: <stable@vger.kernel.org>
+> > > Fixes: 2df4c9a741a0 ("ARM: 9112/1: uaccess: add __{get,put}_kernel_nofault")
+> > > Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+> >
+> > Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+> >
+> > It took me a bit to see whythis works, maybe mention commit 2423de2e6f4d
+> > ("ARM: 9115/1: mm/maccess: fix unaligned copy_{from,to}_kernel_nofault")
+> > in the description for clarification.
+> >
+>
+> Ack.
+>
 
-We are a United Arab Emirates based investment company known as Abu
-Dhabi Investment Authority working on expanding its portfolio globally
-and financing projects.
+I've dropped this into the patch system as #9719/1, with the above
+suggestions incorporated into the commit log.
 
-We are offering Corporate and Personal Loan at 3.5% Interest Rate for
-a duration of 5 to 10 years.
-
-Please get back to us on Email: mohsheikhalhamed@gmail.com ,if you are
-interested for further embellishment.
-
-We also pay 2% commission to brokers who introduce project owners for
-finance or other opportunities.
-
-
- Yours truly,
- Hamed Mohammad
- (Personal Assistant)
- Abu Dhabi Investment Authority
- 211 Corniche, P.O Box 3600
- Abu Dhabi,United Arab Emirates
+Thanks,
+> > Did you run into actual faults, or did you find this problem by
+> > reading the code?
+> >
+>
+> I was seeing actual faults:
+>
+> [    4.447003]  copy_from_kernel_nofault from prepend+0x3c/0xb4
+> [    4.453085]  prepend from prepend_path+0x118/0x34c
+> [    4.457930]  prepend_path from d_path+0x11c/0x184
+> [    4.462656]  d_path from proc_pid_readlink+0xbc/0x1d4
+> [    4.467928]  proc_pid_readlink from vfs_readlink+0xfc/0x110
+> [    4.473740]  vfs_readlink from do_readlinkat+0xb0/0x110
+> [    4.479024]  do_readlinkat from ret_fast_syscall+0x0/0x54
