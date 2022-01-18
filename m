@@ -2,95 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A10094930A3
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 23:23:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55B9E4930BE
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 23:28:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346319AbiARWX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 17:23:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53490 "EHLO
+        id S1350015AbiARW1s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 17:27:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346295AbiARWXZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 17:23:25 -0500
-Received: from mail-il1-x129.google.com (mail-il1-x129.google.com [IPv6:2607:f8b0:4864:20::129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88C53C061574
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 14:23:24 -0800 (PST)
-Received: by mail-il1-x129.google.com with SMTP id o10so563823ilh.0
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 14:23:24 -0800 (PST)
+        with ESMTP id S1349970AbiARW13 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 17:27:29 -0500
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22CB7C06161C
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 14:27:29 -0800 (PST)
+Received: by mail-pl1-x62e.google.com with SMTP id t18so264095plg.9
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 14:27:29 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=XNtPWssh2PR7qIeRLLnXLaH7QUkJNkbsX89oO61tgEs=;
-        b=HBCD6c1u9U+VHasxhDGkv6MsqGDiBq7Y5XHuEk54q0hoP2qnqcSjAIGaLQhh595f0U
-         BrxILAgrQ2eMXRZeg3/X0jlXFodHLThFHNQhHe3qOuqn18Lw8NXEQmO1cCZ2K6wNeOAo
-         TcFqEQOsJDQzZ78RTqr4UqscVddHo16AK98hY=
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=NYKrM4NNNXN9ZFG53aDhwpw7guegA64senT9u/dMOsQ=;
+        b=2tmdY/j1NcrplgiapZV5VAEfedxved31uOAvVyZ7zwtIatD0QLKnfxpUf/WwWvDEXT
+         qWzTTS/iJkJxRRCLnvN0Oy/0WIyJXnehvM7fNDlaEHYXI7lxf19D8sOb9qLl8XsfLtlR
+         U/h18i1Y5snXlI/PIUnM2njrXs0nADvy2FnQAmDUHtNqsyLSvAHEM/Tkeohu3DOvX4pr
+         t0HufROavQIzFg73AOz4yU5+XIX+VhnHghq2f6FHxFX+FGldlbbAedLTKA1LMMFw7g5s
+         +7SC6oW8K7bFbRUYTYQa6mc1jf9ujFF9IcEdbQNGbkhPPyXnKVRvz+MRK24g6itVapnm
+         wtSA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=XNtPWssh2PR7qIeRLLnXLaH7QUkJNkbsX89oO61tgEs=;
-        b=NKK8F24SxYGWlSvKvSgZVCFFd1JuDHgsK/3pjJKQkjuJ1vMYoNaUUz7w8krdwk66oT
-         9b/eGjgjDG0/zRCp1vekdmytoV4egWy0qzxi7DKlPjWtJIbvcUJSeYu9pivVtUtgCln2
-         SCmqCGHN0WbQeswqcY3JmFwHOZTFkjsZOOd73YDR/InHk7e2R9dmD+696lje+eXZyhRr
-         MTK0nGXpS4nEuJN9TZKGKw0gzvAmo/cPLIXKC2xCvmUVFbSwdDc6G+2AqNC8JA5dQm4M
-         Ykc1vXp/A0GFmA59WY1NdbOkbUqdGUgdt43sC0oDYNPgfErrIVj3EFrdgVTORcRyV6jk
-         z3WQ==
-X-Gm-Message-State: AOAM532Kg45JIeyuQd+dhrrUWdOB8xSr+Nps877W9Cejl4YUC4XPSJ5q
-        IVqJx4Y+Ry9RRAKB14sSV3qTpw==
-X-Google-Smtp-Source: ABdhPJwiBRUuKE5rabBe+QBx74lQbz7p8AFC/KpUmqMLxuWs7wkze1wKpEOH9zkJY1mvJG0a8axiXA==
-X-Received: by 2002:a05:6e02:1c4c:: with SMTP id d12mr6954190ilg.241.1642544603945;
-        Tue, 18 Jan 2022 14:23:23 -0800 (PST)
-Received: from [192.168.1.128] ([71.205.29.0])
-        by smtp.gmail.com with ESMTPSA id s20sm11768549iog.25.2022.01.18.14.23.20
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 18 Jan 2022 14:23:23 -0800 (PST)
-Subject: Re: [PATCH 5.16 00/28] 5.16.2-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20220118160452.384322748@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-Message-ID: <6a931b78-543f-2ee4-0d82-b65b3e408d19@linuxfoundation.org>
-Date:   Tue, 18 Jan 2022 15:23:18 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=NYKrM4NNNXN9ZFG53aDhwpw7guegA64senT9u/dMOsQ=;
+        b=ypCLeC+znN83SwPoufEAmGHh9dvBLcjO2mwlTpI5RpFhkSdwqjPi4rRFBCa+u1hK+r
+         aZkcxg2+ahnZmKwmqKo6QR3FlZM4NbJ0cUyZKa7DQZ+ZuB+1PWt6wHTe4eoMNJgqSlnT
+         WF3zTDspiYRGIDJD6XhsPd66NAq5Cov854HQc/xn+fjkFJUYekV77eEswUOFgt4b/s7j
+         UPkoiHG0j5/fQ19JKX3l5xsU7fEyxkmYJNL+RZzbWeaRVuhtM8ZYlUyxVS4RmVKs+JVk
+         weAn9gGV48BxxzS+5Lq/6yo+lJ763J12axwspQNA4pTeOodPmtBXcYGfYdev4Xt0FrK6
+         m14w==
+X-Gm-Message-State: AOAM532KDB4+rcw7/H7qE4OsevANxY77iQDKSxCOJoxgsxAjkoTeM62v
+        ZLOpXFZTeyl2l17kuPohZ+BXWsgNkg8k5TX9
+X-Google-Smtp-Source: ABdhPJw9UNTCZ6YWIB7UKEQoYJd4in/Wlik1KVSqwaxlDo1QQ1/iaW6lMGwqFZtRxjou28vFsgy2kQ==
+X-Received: by 2002:a17:90b:33ca:: with SMTP id lk10mr777749pjb.33.1642544848525;
+        Tue, 18 Jan 2022 14:27:28 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id ip13sm4041077pjb.13.2022.01.18.14.27.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Jan 2022 14:27:28 -0800 (PST)
+Message-ID: <61e73ed0.1c69fb81.b7703.ad09@mx.google.com>
+Date:   Tue, 18 Jan 2022 14:27:28 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20220118160452.384322748@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.9.297-12-g5c0e5629e5ef
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.9
+Subject: stable-rc/queue/4.9 baseline: 113 runs,
+ 1 regressions (v4.9.297-12-g5c0e5629e5ef)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/18/22 9:05 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.16.2 release.
-> There are 28 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 20 Jan 2022 16:04:42 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.2-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+stable-rc/queue/4.9 baseline: 113 runs, 1 regressions (v4.9.297-12-g5c0e562=
+9e5ef)
 
-Compiled and booted on my test system. No dmesg regressions.
+Regressions Summary
+-------------------
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-thanks,
--- Shuah
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.297-12-g5c0e5629e5ef/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.297-12-g5c0e5629e5ef
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      5c0e5629e5efc8c19bb8cda3b1868b67998b7a7e =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61e7072489f86ffd35abbdb3
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.297-1=
+2-g5c0e5629e5ef/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.297-1=
+2-g5c0e5629e5ef/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220115.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61e7072489f86ff=
+d35abbdb9
+        failing since 0 day (last pass: v4.9.297-10-gfdec8da75479, first fa=
+il: v4.9.297-10-gece287e6caf0)
+        2 lines
+
+    2022-01-18T18:29:35.321383  [   20.543182] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2022-01-18T18:29:35.372705  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/120
+    2022-01-18T18:29:35.381613  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+230 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =20
