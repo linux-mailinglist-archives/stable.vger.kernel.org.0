@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 815D0492A5E
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:10:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1040492A1B
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:07:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346672AbiARQJY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 11:09:24 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:40788 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243152AbiARQIi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:08:38 -0500
+        id S1346245AbiARQG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 11:06:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51036 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346252AbiARQGz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:06:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60D34C06161C;
+        Tue, 18 Jan 2022 08:06:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D8409CE1A38;
-        Tue, 18 Jan 2022 16:08:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83761C340E2;
-        Tue, 18 Jan 2022 16:08:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0121F612C2;
+        Tue, 18 Jan 2022 16:06:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D56C6C00446;
+        Tue, 18 Jan 2022 16:06:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642522115;
-        bh=kQOy95IhZSZw5cFxZAIB00jh2ltD6YlMb16JXwiYEjQ=;
+        s=korg; t=1642522014;
+        bh=Kq3pGM3kWRQdERdBzL6asJt6CqV5FnFiifgeF1ts87k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dMaUvOMz2Qr9J0rkShvOHqaWZzZ2wYWVab1R7HjRxRpTLkM0pweD5rs8MUY8+X29B
-         Dg6Y+B5ADoifCAbkXEPA77HLcGdD2PW1vjVQLnHUMe9ORhiAninEIgSWULkrO1i6Vt
-         S/lp5VcosYa34VwHLZZUE/mB0Vs+MLcyEbzjHpuU=
+        b=0sCAOnB3FVXPX7RMa/bSfLxALZD5mmfOl5cDTqUQiQ90zkhEgWsguZuNFqEQdHKl6
+         1+IVB4w1aG9xevhJpQrpaBRpihNUe+3NrboDxEwALjsvJSB52rki1Rcfc7+nL21o31
+         6TkeVGqBA0NhX7SIRZ3q8+iwQ8u9hm20iAxztBwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+cce1ee31614c171f5595@syzkaller.appspotmail.com,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.10 12/23] rtlwifi: rtl8192cu: Fix WARNING when calling local_irq_restore() with interrupts enabled
+        stable@vger.kernel.org, Christian Lachner <gladiac@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 13/15] ALSA: hda/realtek - Fix silent output on Gigabyte X570 Aorus Master after reboot from Windows
 Date:   Tue, 18 Jan 2022 17:05:52 +0100
-Message-Id: <20220118160451.654037780@linuxfoundation.org>
+Message-Id: <20220118160450.491657172@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220118160451.233828401@linuxfoundation.org>
-References: <20220118160451.233828401@linuxfoundation.org>
+In-Reply-To: <20220118160450.062004175@linuxfoundation.org>
+References: <20220118160450.062004175@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,45 +47,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Larry Finger <Larry.Finger@lwfinger.net>
+From: Christian Lachner <gladiac@gmail.com>
 
-commit 8b144dedb928e4e2f433a328d58f44c3c098d63e upstream.
+commit c1933008679586b20437280463110c967d66f865 upstream.
 
-Syzbot reports the following WARNING:
+This patch addresses an issue where after rebooting from Windows into Linux
+there would be no audio output.
 
-[200~raw_local_irq_restore() called with IRQs enabled
-WARNING: CPU: 1 PID: 1206 at kernel/locking/irqflag-debug.c:10
-   warn_bogus_irq_restore+0x1d/0x20 kernel/locking/irqflag-debug.c:10
+It turns out that the Realtek Audio driver on Windows changes some coeffs
+which are not being reset/reinitialized when rebooting the machine. As a
+result, there is no audio output until these coeffs are being reset to
+their initial state. This patch takes care of that by setting known-good
+(initial) values to the coeffs.
 
-Hardware initialization for the rtl8188cu can run for as long as 350 ms,
-and the routine may be called with interrupts disabled. To avoid locking
-the machine for this long, the current routine saves the interrupt flags
-and enables local interrupts. The problem is that it restores the flags
-at the end without disabling local interrupts first.
+We initially relied upon alc1220_fixup_clevo_p950() to fix some pins in the
+connection list. However, it also sets coef 0x7 which does not need to be
+touched. Furthermore, to prevent mixing device-specific quirks I introduced
+a new alc1220_fixup_gb_x570() which is heavily based on
+alc1220_fixup_clevo_p950() but does not set coeff 0x7 and fixes the coeffs
+that are actually needed instead.
 
-This patch fixes commit a53268be0cb9 ("rtlwifi: rtl8192cu: Fix too long
-disable of IRQs").
+This new alc1220_fixup_gb_x570() is believed to also work for other boards,
+like the Gigabyte X570 Aorus Extreme and the newer Gigabyte Aorus X570S
+Master. However, as there is no way for me to test these I initially only
+enable this new behaviour for the mainboard I have which is the Gigabyte
+X570(non-S) Aorus Master.
 
-Reported-by: syzbot+cce1ee31614c171f5595@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org
-Fixes: a53268be0cb9 ("rtlwifi: rtl8192cu: Fix too long disable of IRQs")
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20211215171105.20623-1-Larry.Finger@lwfinger.net
+I tested this patch on the 5.15 branch as well as on master and it is
+working well for me.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205275
+Signed-off-by: Christian Lachner <gladiac@gmail.com>
+Fixes: 0d45e86d2267d ("ALSA: hda/realtek - Fix silent output on Gigabyte X570 Aorus Master")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20220103140517.30273-2-gladiac@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c |    1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/hda/patch_realtek.c |   30 +++++++++++++++++++++++++++++-
+ 1 file changed, 29 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c
-@@ -1000,6 +1000,7 @@ int rtl92cu_hw_init(struct ieee80211_hw
- 	_initpabias(hw);
- 	rtl92c_dm_init(hw);
- exit:
-+	local_irq_disable();
- 	local_irq_restore(flags);
- 	return err;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -1926,6 +1926,7 @@ enum {
+ 	ALC887_FIXUP_ASUS_BASS,
+ 	ALC887_FIXUP_BASS_CHMAP,
+ 	ALC1220_FIXUP_GB_DUAL_CODECS,
++	ALC1220_FIXUP_GB_X570,
+ 	ALC1220_FIXUP_CLEVO_P950,
+ 	ALC1220_FIXUP_CLEVO_PB51ED,
+ 	ALC1220_FIXUP_CLEVO_PB51ED_PINS,
+@@ -2115,6 +2116,29 @@ static void alc1220_fixup_gb_dual_codecs
+ 	}
  }
+ 
++static void alc1220_fixup_gb_x570(struct hda_codec *codec,
++				     const struct hda_fixup *fix,
++				     int action)
++{
++	static const hda_nid_t conn1[] = { 0x0c };
++	static const struct coef_fw gb_x570_coefs[] = {
++		WRITE_COEF(0x1a, 0x01c1),
++		WRITE_COEF(0x1b, 0x0202),
++		WRITE_COEF(0x43, 0x3005),
++		{}
++	};
++
++	switch (action) {
++	case HDA_FIXUP_ACT_PRE_PROBE:
++		snd_hda_override_conn_list(codec, 0x14, ARRAY_SIZE(conn1), conn1);
++		snd_hda_override_conn_list(codec, 0x1b, ARRAY_SIZE(conn1), conn1);
++		break;
++	case HDA_FIXUP_ACT_INIT:
++		alc_process_coef_fw(codec, gb_x570_coefs);
++		break;
++	}
++}
++
+ static void alc1220_fixup_clevo_p950(struct hda_codec *codec,
+ 				     const struct hda_fixup *fix,
+ 				     int action)
+@@ -2417,6 +2441,10 @@ static const struct hda_fixup alc882_fix
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc1220_fixup_gb_dual_codecs,
+ 	},
++	[ALC1220_FIXUP_GB_X570] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc1220_fixup_gb_x570,
++	},
+ 	[ALC1220_FIXUP_CLEVO_P950] = {
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc1220_fixup_clevo_p950,
+@@ -2519,7 +2547,7 @@ static const struct snd_pci_quirk alc882
+ 	SND_PCI_QUIRK(0x13fe, 0x1009, "Advantech MIT-W101", ALC886_FIXUP_EAPD),
+ 	SND_PCI_QUIRK(0x1458, 0xa002, "Gigabyte EP45-DS3/Z87X-UD3H", ALC889_FIXUP_FRONT_HP_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x1458, 0xa0b8, "Gigabyte AZ370-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
+-	SND_PCI_QUIRK(0x1458, 0xa0cd, "Gigabyte X570 Aorus Master", ALC1220_FIXUP_CLEVO_P950),
++	SND_PCI_QUIRK(0x1458, 0xa0cd, "Gigabyte X570 Aorus Master", ALC1220_FIXUP_GB_X570),
+ 	SND_PCI_QUIRK(0x1458, 0xa0ce, "Gigabyte X570 Aorus Xtreme", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x11f7, "MSI-GE63", ALC1220_FIXUP_CLEVO_P950),
+ 	SND_PCI_QUIRK(0x1462, 0x1228, "MSI-GP63", ALC1220_FIXUP_CLEVO_P950),
 
 
