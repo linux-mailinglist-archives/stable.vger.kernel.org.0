@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0ACB491811
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:44:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A38EC491813
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:44:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234284AbiARCoR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:44:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60270 "EHLO
+        id S1343563AbiARCoS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:44:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345781AbiARCjZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:39:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B8F5C061786;
-        Mon, 17 Jan 2022 18:35:58 -0800 (PST)
+        with ESMTP id S1346584AbiARCje (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:39:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5838C06138F;
+        Mon, 17 Jan 2022 18:36:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B5AA61268;
-        Tue, 18 Jan 2022 02:35:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC437C36AF2;
-        Tue, 18 Jan 2022 02:35:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16D27B81260;
+        Tue, 18 Jan 2022 02:36:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 028C6C36AEF;
+        Tue, 18 Jan 2022 02:36:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473357;
-        bh=JjoTPxcrsm13yYDz2X0aCGOrakWj/cvM4DjQzFBa75A=;
+        s=k20201202; t=1642473363;
+        bh=t6EK6nXBYsJjngzkuNBBOsN4uXBS60XMMOEjqfzHALs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MEJHHOksiw+iIIOa6JbEFga0b9Rhzyb/2f6W0S4NFLoXYEY0WRHRkSHDm6lIbLKR6
-         lO4fqqFx3ipIKYyfjTnLPYP0Kaz2rLRLkzCTBZHDf9WC6ly16gVO0gr8GMkPTQjujM
-         NIhURsPADtdiCFIlp7LfsGCZkZ+b6LJODjhlC+OVzwKPRJqmTT3OBXDZ4sTRzfcxpl
-         KRVn0gZarA+A6ZC5zYxEEP/qYnPD0thyfPc01RAXtCEUzrV5VRQ6/2MniswVyhJhum
-         8Mz7X+8G7E7qC5UIaf8kweRsPXG9XrUBXRuXBg62FE1R/kl0Z99Yfa0jkAdRar/ov3
-         /8PyVuTUPIZgQ==
+        b=KJmGqkEld2E1r6BX9XXn7wrDBWvgr0MX7+PJfjfOWf4ahINuCRMpbi2HKBjQSakI6
+         asyxfXi0b6Rae0YfdBIklEub/XJCKptdAaFVDXlCmdZFufsa2fjNtK1aB6UlCHvipY
+         G2a77ORadkgOl24bn3XrWCT3hTehp1etjbqChvmVSIEaB1J/luKnNluisXJVquWJRZ
+         1rZcIWIal4Ld//5lOLUqigZ+mB1f0Q4o26EmPRPSD5ugLXk1GrxnDdRDhYEf3bVQAj
+         3fc12AhvdeIfDSafjEDhSSo/IYBHXYc+L0HfQPjLog7Jdjzl+/NQyRlhCb5F4yd0V7
+         88Cu6TYL7Kfwg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhou Qingyang <zhou1615@umn.edu>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+Cc:     Tsuchiya Yuto <kitakar@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, hverkuil@xs4all.nl,
-        mchehab@kernel.org, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 085/188] media: saa7146: hexium_orion: Fix a NULL pointer dereference in hexium_attach()
-Date:   Mon, 17 Jan 2022 21:30:09 -0500
-Message-Id: <20220118023152.1948105-85-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, mchehab@kernel.org,
+        gregkh@linuxfoundation.org, hverkuil-cisco@xs4all.nl,
+        arnd@arndb.de, tomi.valkeinen@ideasonboard.com,
+        alex.dewar90@gmail.com, alinesantanacordeiro@gmail.com,
+        peterz@infradead.org, mingo@kernel.org, kaixuxia@tencent.com,
+        linux-media@vger.kernel.org, linux-staging@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.15 086/188] media: atomisp: fix "variable dereferenced before check 'asd'"
+Date:   Mon, 17 Jan 2022 21:30:10 -0500
+Message-Id: <20220118023152.1948105-86-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118023152.1948105-1-sashal@kernel.org>
 References: <20220118023152.1948105-1-sashal@kernel.org>
@@ -52,71 +56,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Tsuchiya Yuto <kitakar@gmail.com>
 
-[ Upstream commit 348df8035301dd212e3cc2860efe4c86cb0d3303 ]
+[ Upstream commit ac56760a8bbb4e654b2fd54e5de79dd5d72f937d ]
 
-In hexium_attach(dev, info), saa7146_vv_init() is called to allocate
-a new memory for dev->vv_data. In hexium_detach(), saa7146_vv_release()
-will be called and there is a dereference of dev->vv_data in
-saa7146_vv_release(), which could lead to a NULL pointer dereference
-on failure of saa7146_vv_init() according to the following logic.
+There are two occurrences where the variable 'asd' is dereferenced
+before check. Fix this issue by using the variable after the check.
 
-Both hexium_attach() and hexium_detach() are callback functions of
-the variable 'extension', so there exists a possible call chain directly
-from hexium_attach() to hexium_detach():
+Link: https://lore.kernel.org/linux-media/20211122074122.GA6581@kili/
 
-hexium_attach(dev, info) -- fail to alloc memory to dev->vv_data
-	|		    		in saa7146_vv_init().
-	|
-	|
-hexium_detach() -- a dereference of dev->vv_data in saa7146_vv_release()
-
-Fix this bug by adding a check of saa7146_vv_init().
-
-This bug was found by a static analyzer. The analysis employs
-differential checking to identify inconsistent security operations
-(e.g., checks or kfrees) between two code paths and confirms that the
-inconsistent operations are not recovered in the current function or
-the callers, so they constitute bugs.
-
-Note that, as a bug found by static analysis, it can be a false
-positive or hard to trigger. Multiple researchers have cross-reviewed
-the bug.
-
-Builds with CONFIG_VIDEO_HEXIUM_ORION=m show no new warnings,
-and our static analyzer no longer warns about this code.
-
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Link: https://lore.kernel.org/linux-media/20211201141904.47231-1-kitakar@gmail.com
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Tsuchiya Yuto <kitakar@gmail.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/saa7146/hexium_orion.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/staging/media/atomisp/pci/atomisp_cmd.c   | 3 ++-
+ drivers/staging/media/atomisp/pci/atomisp_ioctl.c | 3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/pci/saa7146/hexium_orion.c b/drivers/media/pci/saa7146/hexium_orion.c
-index 39d14c179d229..2eb4bee16b71f 100644
---- a/drivers/media/pci/saa7146/hexium_orion.c
-+++ b/drivers/media/pci/saa7146/hexium_orion.c
-@@ -355,10 +355,16 @@ static struct saa7146_ext_vv vv_data;
- static int hexium_attach(struct saa7146_dev *dev, struct saa7146_pci_extension_data *info)
- {
- 	struct hexium *hexium = (struct hexium *) dev->ext_priv;
-+	int ret;
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_cmd.c b/drivers/staging/media/atomisp/pci/atomisp_cmd.c
+index 1ddb9c815a3cb..ef0b0963cf930 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_cmd.c
++++ b/drivers/staging/media/atomisp/pci/atomisp_cmd.c
+@@ -5224,7 +5224,7 @@ static int atomisp_set_fmt_to_isp(struct video_device *vdev,
+ 	int (*configure_pp_input)(struct atomisp_sub_device *asd,
+ 				  unsigned int width, unsigned int height) =
+ 				      configure_pp_input_nop;
+-	u16 stream_index = atomisp_source_pad_to_stream_id(asd, source_pad);
++	u16 stream_index;
+ 	const struct atomisp_in_fmt_conv *fc;
+ 	int ret, i;
  
- 	DEB_EE("\n");
+@@ -5233,6 +5233,7 @@ static int atomisp_set_fmt_to_isp(struct video_device *vdev,
+ 			__func__, vdev->name);
+ 		return -EINVAL;
+ 	}
++	stream_index = atomisp_source_pad_to_stream_id(asd, source_pad);
  
--	saa7146_vv_init(dev, &vv_data);
-+	ret = saa7146_vv_init(dev, &vv_data);
-+	if (ret) {
-+		pr_err("Error in saa7146_vv_init()\n");
-+		return ret;
-+	}
-+
- 	vv_data.vid_ops.vidioc_enum_input = vidioc_enum_input;
- 	vv_data.vid_ops.vidioc_g_input = vidioc_g_input;
- 	vv_data.vid_ops.vidioc_s_input = vidioc_s_input;
+ 	v4l2_fh_init(&fh.vfh, vdev);
+ 
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_ioctl.c b/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
+index 442446e5d59f7..3861e794272ea 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
++++ b/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
+@@ -1112,7 +1112,7 @@ int __atomisp_reqbufs(struct file *file, void *fh,
+ 	struct ia_css_frame *frame;
+ 	struct videobuf_vmalloc_memory *vm_mem;
+ 	u16 source_pad = atomisp_subdev_source_pad(vdev);
+-	u16 stream_id = atomisp_source_pad_to_stream_id(asd, source_pad);
++	u16 stream_id;
+ 	int ret = 0, i = 0;
+ 
+ 	if (!asd) {
+@@ -1120,6 +1120,7 @@ int __atomisp_reqbufs(struct file *file, void *fh,
+ 			__func__, vdev->name);
+ 		return -EINVAL;
+ 	}
++	stream_id = atomisp_source_pad_to_stream_id(asd, source_pad);
+ 
+ 	if (req->count == 0) {
+ 		mutex_lock(&pipe->capq.vb_lock);
 -- 
 2.34.1
 
