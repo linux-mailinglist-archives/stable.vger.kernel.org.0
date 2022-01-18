@@ -2,121 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 290AD492E08
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 20:00:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC292492E0D
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 20:00:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244905AbiARTAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 14:00:18 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:46769 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S244633AbiARTAR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 14:00:17 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1642532417;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=3L786VdHb7jzEuUgQYqOh5SVXdHks5akSmwjq1fQ6HA=;
-        b=dYDtzekZE23nJ6P8dhUzMhkTEuChgaJlejAPHDjRra+2NWwRiz89H7/jSDLmSc9hMxyHPE
-        Ao2/xqEmmtuAFGIZjnEL8E4+bghtHG5eSEENpCfAd3NTUdtXYPBc+zEEOggi9Y1aA3BVLK
-        yRnbQmWFJsLBeEq1zX1NkNqLJa5S+D8=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-551-M0HqvuuiPoCD-ACfZSROXw-1; Tue, 18 Jan 2022 14:00:15 -0500
-X-MC-Unique: M0HqvuuiPoCD-ACfZSROXw-1
-Received: by mail-wm1-f70.google.com with SMTP id j18-20020a05600c1c1200b0034aeea95dacso2484249wms.8
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 11:00:15 -0800 (PST)
+        id S1348512AbiARTAZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 14:00:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35602 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244633AbiARTAY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 14:00:24 -0500
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0179C061574;
+        Tue, 18 Jan 2022 11:00:24 -0800 (PST)
+Received: by mail-pj1-x1032.google.com with SMTP id o3so205615pjs.1;
+        Tue, 18 Jan 2022 11:00:24 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=b1NOpw0fI8U5gcc/EomJX+JqGfcu3g1OIM9vbuYlYt8=;
+        b=ZVdIWILcRsqy8cnISN+Qq613MzLO1RDiaGL6xZKgkk/JisQFG5CfM5WW2oqx0J0HXX
+         kJ909PNVT5JgD4dNbcNqCFIb5KEaPdfsxDMvXid+55A2uSNS/mxd0aPG918QqHMntUeF
+         Ja6XedKujQfYkU5gbhnpmTlvuXARUwYUnbTxAV0LRdyWJ7X3xB5kz0CBjhTqU+aqMl4X
+         KQu96C6dvsRK40pXAsi64xYRKoPXdtNAAxGKg2gcjEFl2xKeBU2AKqHv7Mu+WzXnZ29e
+         tw99rFPQi87t4Ep4D8XQvL2jGXmKN3WTnmMhy3/IcQ5/bAlOY3eD6ScGm1fzbDWhFnMO
+         wHng==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=3L786VdHb7jzEuUgQYqOh5SVXdHks5akSmwjq1fQ6HA=;
-        b=B/TidK6/jp9o/C+NBFLnbekGYjGG709wwngfdmBAli6IIa5YJLw++bYmm6qlubYckA
-         +CML9XzDfB9/2plJgqc0wU40oePKodAPYJHnhExj/BFsIu6NiAb6c8R2mBGK6p+3UsC/
-         c9WgLLHbvrvHNc4cLCLG8kTU2h9SMybrOmSfxM4t/LcPplqmAG7Jquj/3GU+alQNtXKn
-         YyttJQh2LK1mDxgmp9LeTocxZzJYU32uwy29KrVgHMWWqkt9ry4HwmdRwTfB93wWwQlR
-         Y27irL5VSOhHfktJoI3QsdsN0vSZJ8nHhcP5Wrz4Kl84arU9XWjCHN0rcdAKSXbgrWnh
-         cKgg==
-X-Gm-Message-State: AOAM530wDNk9wlwFINjrF1mfE4yEg+TZo8Kg3H873JisVQemZuIiHOvL
-        Yo4qMEfQbFhBhNjBOULqq5HvVqZGfnElgyrZSW6TEr1ZNwstRAVkBA4tRjQp+eTsICDemm5XSRR
-        51TkAJN+ZqMjjgAGf
-X-Received: by 2002:a5d:64e3:: with SMTP id g3mr13109099wri.450.1642532414445;
-        Tue, 18 Jan 2022 11:00:14 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJyQMjevWFmDnMSNPtcO0MVjLlxRtAJh85PUR+OA7yNXYiLwmX95uE7hoiVGvVFiXlrSwzbnjQ==
-X-Received: by 2002:a5d:64e3:: with SMTP id g3mr13109083wri.450.1642532414215;
-        Tue, 18 Jan 2022 11:00:14 -0800 (PST)
-Received: from [192.168.1.102] ([92.176.231.205])
-        by smtp.gmail.com with ESMTPSA id o15sm3386819wms.11.2022.01.18.11.00.13
+        bh=b1NOpw0fI8U5gcc/EomJX+JqGfcu3g1OIM9vbuYlYt8=;
+        b=14dV4xjbRchWWqO2Pf4R5gWi8Fwwdfi0842JDRkr1wgXHVi/c/NV+jrmGPiR90kVV1
+         ZERmAE5R55S9Ju6TeZJk2V/uQvyPMeURuNQmwJxFmvsiDYf5Vxt/+nfKVgY4lbanfFTO
+         B1gEtHuDYkF1NAxbnCMpYghw3eiWqHJCpHcVF/ubpVTt/917QUI/bFbly7vwnGZk0bWU
+         1C/mC2B03YdXRJ8tQTmJEzM1qRRHKX+YamHa4xLLQqd62BjlbHyocaJIpoObERiffMXx
+         XNt30Qsuz+wt2zmtHBdJ7Yul+DP3p4pd/0I4E2dA2+TTg4MKCIPZcF4czKi1CIYLCKGP
+         Vidg==
+X-Gm-Message-State: AOAM530Rw8QPjo1wPsTY+FpgNkVrFVMEb9az229mQ6wCZ41iQjpqn1xv
+        nsljMELKkVk9JN5liWNdu0XWZ8ZJ/50=
+X-Google-Smtp-Source: ABdhPJxY5UXvD8fHcgz7NBBuLSAJDf2jf/Okr9oHb0aAK2oT9WyHzDQMK6RATuhBmWZEWer6PMnYCg==
+X-Received: by 2002:a17:90a:5996:: with SMTP id l22mr13625713pji.27.1642532423796;
+        Tue, 18 Jan 2022 11:00:23 -0800 (PST)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id om7sm3667813pjb.47.2022.01.18.11.00.17
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 18 Jan 2022 11:00:13 -0800 (PST)
-Message-ID: <1c177e79-d28a-e896-08ec-3cd4cd2fb823@redhat.com>
-Date:   Tue, 18 Jan 2022 20:00:13 +0100
+        Tue, 18 Jan 2022 11:00:23 -0800 (PST)
+Subject: Re: [PATCH 5.4 00/15] 5.4.173-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20220118160450.062004175@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <2c284cb6-d273-504c-bcb2-dfea00e6b3c6@gmail.com>
+Date:   Tue, 18 Jan 2022 11:00:14 -0800
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.4.0
-Subject: Re: [PATCH] drm/vmwgfx: Stop requesting the pci regions
+In-Reply-To: <20220118160450.062004175@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
-To:     Zack Rusin <zackr@vmware.com>, dri-devel@lists.freedesktop.org
-Cc:     krastevm@vmware.com, stable@vger.kernel.org,
-        mombasawalam@vmware.com
-References: <20220117180359.18114-1-zack@kde.org>
-From:   Javier Martinez Canillas <javierm@redhat.com>
-In-Reply-To: <20220117180359.18114-1-zack@kde.org>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Zack,
-
-On 1/17/22 19:03, Zack Rusin wrote:
-> From: Zack Rusin <zackr@vmware.com>
+On 1/18/22 8:05 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.173 release.
+> There are 15 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> When sysfb_simple is enabled loading vmwgfx fails because the regions
-> are held by the platform. In that case remove_conflicting*_framebuffers
-> only removes the simplefb but not the regions held by sysfb.
->
+> Responses should be made by Thu, 20 Jan 2022 16:04:42 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.173-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Indeed, that's an issue. I wonder if we should drop the IORESOURCE_BUSY
-flag from the memory resource added to the "simple-framebuffer" device ?
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
-In fact, maybe in sysfb_create_simplefb() shouldn't even attempt to claim
-a memory resource and just register the platform device with no resources ?
- 
-> Like the other drm drivers we need to stop requesting all the pci regions
-> to let the driver load with platform code enabled.
-> This allows vmwgfx to load correctly on systems with sysfb_simple enabled.
->
-
-I read this very interesting thread from two years ago:
-
-https://lkml.org/lkml/2020/11/5/248
-
-Maybe is worth mentioning in the commit message what Daniel said there,
-that is that only a few DRM drivers request explicitly the PCI regions
-and the only reliable approach is for bus drivers to claim these.
-
-In other words, removing the pci_request_regions() seems to have merit
-on its own.
-
-> Signed-off-by: Zack Rusin <zackr@vmware.com>
-> Fixes: 523375c943e5 ("drm/vmwgfx: Port vmwgfx to arm64")
-> Cc: dri-devel@lists.freedesktop.org
-> Cc: <stable@vger.kernel.org>
-> Reviewed-by: Martin Krastev <krastevm@vmware.com>
-> ---
-
-The patch looks good to me, thanks a lot for fixing this:
-
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-
-Best regards,
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-Javier Martinez Canillas
-Linux Engineering
-Red Hat
-
+Florian
