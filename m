@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D15E7491AE5
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:03:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00562491AE0
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:03:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344265AbiARDDK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 22:03:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37618 "EHLO
+        id S244752AbiARDDI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 22:03:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350941AbiARC6l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:58:41 -0500
+        with ESMTP id S1344351AbiARC7K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:59:10 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DE13C08E81D;
-        Mon, 17 Jan 2022 18:46:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8396C02B778;
+        Mon, 17 Jan 2022 18:46:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 134D061310;
-        Tue, 18 Jan 2022 02:46:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 931EEC36AEB;
-        Tue, 18 Jan 2022 02:46:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 65CFB6130F;
+        Tue, 18 Jan 2022 02:46:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36E32C36AE3;
+        Tue, 18 Jan 2022 02:46:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473993;
-        bh=cnN5xt6O7qL5pb9YX1Cpeo6wCDkG1nZj0Zoq4vNviYg=;
+        s=k20201202; t=1642473998;
+        bh=f6NAM56Og1Yrc6Od3Am5rH5imViISDUzVvr7k4kzIP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oiekNBZdJHPsQMjU/Vut5Zp5cyGjOU44PH2KthAxUeICK/huPe7pVdYe3uL8Uos0U
-         Lxa/f29CDwme2kuQPgS40Rx652pp1Jv3n6RYbBU5sh7NZZ+qy3l6ieHgP/6jgcHYqK
-         55UoRGr2VZ+55pozABsoLWA6b1EbN6YWAxe4F0M74iZPdi+shWp8LGNA3EGP8r8Ly5
-         MbwK7gbzeWPVb1aFx9GacVqRYQ+SvPvA/P0PXD24GF23ayh9fE0TUbuG1GpcBs8T0n
-         J9ImNZuExj2l6sdiYJhGnE9UnIP92bmykAI3jrs0YwTVQCs2Tfsbnp1vrwfADCBhXs
-         GNCmSlkOdgllg==
+        b=hecOCpvtQ9wKGzeiG5Q7bCKvOOuggoQzAohqc3r/nkz3AmHPRZfo4oFrhKF8VyKcD
+         LViit+CxsiaZEx6Q3N1QP607Na3RglsiHtQ1Qm1lRkvSlASbnY4BklJK2boFfKGCGS
+         M/Rfk5X5GwqK4Z7gBIF2KXCJfG1RsInTIXt+2QLc52DZxe/DrYVbjC7rM9VdKn0EKi
+         9D/c7p81opapL9G2rvOqlYoPXwzGSvtt78oZQJiX2XdFluBMsVpZvc9Q1MJzlNMZ/V
+         ZkH/UbxF090PssRawJGGceKk1w7hSp0bXWpHaWVXfvP8OmZUP791sY4oWxenSwWWI/
+         It66zxSA+6bcg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sudeep Holla <sudeep.holla@arm.com>,
-        Bob Moore <robert.moore@intel.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
-        devel@acpica.org
-Subject: [PATCH AUTOSEL 5.4 57/73] ACPICA: Fix wrong interpretation of PCC address
-Date:   Mon, 17 Jan 2022 21:44:16 -0500
-Message-Id: <20220118024432.1952028-57-sashal@kernel.org>
+Cc:     Zongmin Zhou <zhouzongmin@kylinos.cn>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
+        Felix.Kuehling@amd.com, evan.quan@amd.com,
+        andrey.grodzovsky@amd.com, nirmoy.das@amd.com, Oak.Zeng@amd.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.4 59/73] drm/amdgpu: fixup bad vram size on gmc v8
+Date:   Mon, 17 Jan 2022 21:44:18 -0500
+Message-Id: <20220118024432.1952028-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024432.1952028-1-sashal@kernel.org>
 References: <20220118024432.1952028-1-sashal@kernel.org>
@@ -52,84 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sudeep Holla <sudeep.holla@arm.com>
+From: Zongmin Zhou <zhouzongmin@kylinos.cn>
 
-[ Upstream commit 9a3b8655db1ada31c82189ae13f40eb25da48c35 ]
+[ Upstream commit 11544d77e3974924c5a9c8a8320b996a3e9b2f8b ]
 
-ACPICA commit 41be6afacfdaec2dba3a5ed368736babc2a7aa5c
+Some boards(like RX550) seem to have garbage in the upper
+16 bits of the vram size register.  Check for
+this and clamp the size properly.  Fixes
+boards reporting bogus amounts of vram.
 
-With the PCC Opregion in the firmware and we are hitting below kernel crash:
+after add this patch,the maximum GPU VRAM size is 64GB,
+otherwise only 64GB vram size will be used.
 
--->8
-Unable to handle kernel NULL pointer dereference at virtual address 0000000000000010
- Workqueue: pm pm_runtime_work
- pstate: 80000005 (Nzcv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
- pc : __memcpy+0x54/0x260
- lr : acpi_ex_write_data_to_field+0xb8/0x194
- Call trace:
-  __memcpy+0x54/0x260
-  acpi_ex_store_object_to_node+0xa4/0x1d4
-  acpi_ex_store+0x44/0x164
-  acpi_ex_opcode_1A_1T_1R+0x25c/0x508
-  acpi_ds_exec_end_op+0x1b4/0x44c
-  acpi_ps_parse_loop+0x3a8/0x614
-  acpi_ps_parse_aml+0x90/0x2f4
-  acpi_ps_execute_method+0x11c/0x19c
-  acpi_ns_evaluate+0x1ec/0x2b0
-  acpi_evaluate_object+0x170/0x2b0
-  acpi_device_set_power+0x118/0x310
-  acpi_dev_suspend+0xd4/0x180
-  acpi_subsys_runtime_suspend+0x28/0x38
-  __rpm_callback+0x74/0x328
-  rpm_suspend+0x2d8/0x624
-  pm_runtime_work+0xa4/0xb8
-  process_one_work+0x194/0x25c
-  worker_thread+0x260/0x49c
-  kthread+0x14c/0x30c
-  ret_from_fork+0x10/0x20
- Code: f9000006 f81f80a7 d65f03c0 361000c2 (b9400026)
- ---[ end trace 24d8a032fa77b68a ]---
-
-The reason for the crash is that the PCC channel index passed via region.address
-in acpi_ex_store_object_to_node is interpreted as the channel subtype
-incorrectly.
-
-Assuming the PCC op_region support is not used by any other type, let us
-remove the subtype check as the AML has no access to the subtype information.
-Once we remove it, the kernel crash disappears and correctly complains about
-missing PCC Opregion handler.
-
-ACPI Error: No handler for Region [PFRM] ((____ptrval____)) [PCC] (20210730/evregion-130)
-ACPI Error: Region PCC (ID=10) has no handler (20210730/exfldio-261)
-ACPI Error: Aborting method \_SB.ETH0._PS3 due to previous error (AE_NOT_EXIST) (20210730/psparse-531)
-
-Link: https://github.com/acpica/acpica/commit/41be6afa
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Bob Moore <robert.moore@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Zongmin Zhou<zhouzongmin@kylinos.cn>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/exfield.c | 7 +------
- 1 file changed, 1 insertion(+), 6 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/acpi/acpica/exfield.c b/drivers/acpi/acpica/exfield.c
-index d3d2dbfba680c..cd3debefe990d 100644
---- a/drivers/acpi/acpica/exfield.c
-+++ b/drivers/acpi/acpica/exfield.c
-@@ -320,12 +320,7 @@ acpi_ex_write_data_to_field(union acpi_operand_object *source_desc,
- 		       obj_desc->field.base_byte_offset,
- 		       source_desc->buffer.pointer, data_length);
+diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c
+index ea764dd9245db..2975331a7b867 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c
+@@ -524,10 +524,10 @@ static void gmc_v8_0_mc_program(struct amdgpu_device *adev)
+ static int gmc_v8_0_mc_init(struct amdgpu_device *adev)
+ {
+ 	int r;
++	u32 tmp;
  
--		if ((obj_desc->field.region_obj->region.address ==
--		     PCC_MASTER_SUBSPACE
--		     && MASTER_SUBSPACE_COMMAND(obj_desc->field.
--						base_byte_offset))
--		    || GENERIC_SUBSPACE_COMMAND(obj_desc->field.
--						base_byte_offset)) {
-+		if (MASTER_SUBSPACE_COMMAND(obj_desc->field.base_byte_offset)) {
+ 	adev->gmc.vram_width = amdgpu_atombios_get_vram_width(adev);
+ 	if (!adev->gmc.vram_width) {
+-		u32 tmp;
+ 		int chansize, numchan;
  
- 			/* Perform the write */
+ 		/* Get VRAM informations */
+@@ -571,8 +571,15 @@ static int gmc_v8_0_mc_init(struct amdgpu_device *adev)
+ 		adev->gmc.vram_width = numchan * chansize;
+ 	}
+ 	/* size in MB on si */
+-	adev->gmc.mc_vram_size = RREG32(mmCONFIG_MEMSIZE) * 1024ULL * 1024ULL;
+-	adev->gmc.real_vram_size = RREG32(mmCONFIG_MEMSIZE) * 1024ULL * 1024ULL;
++	tmp = RREG32(mmCONFIG_MEMSIZE);
++	/* some boards may have garbage in the upper 16 bits */
++	if (tmp & 0xffff0000) {
++		DRM_INFO("Probable bad vram size: 0x%08x\n", tmp);
++		if (tmp & 0xffff)
++			tmp &= 0xffff;
++	}
++	adev->gmc.mc_vram_size = tmp * 1024ULL * 1024ULL;
++	adev->gmc.real_vram_size = adev->gmc.mc_vram_size;
  
+ 	if (!(adev->flags & AMD_IS_APU)) {
+ 		r = amdgpu_device_resize_fb_bar(adev);
 -- 
 2.34.1
 
