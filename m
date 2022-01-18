@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CAE2491443
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:21:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86233491447
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:21:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232788AbiARCV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:21:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56688 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244567AbiARCU4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:20:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66FD3C06175D;
-        Mon, 17 Jan 2022 18:20:48 -0800 (PST)
+        id S244473AbiARCVa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:21:30 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:37674 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244469AbiARCU7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:20:59 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 22C03B81233;
-        Tue, 18 Jan 2022 02:20:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5CDDC36AE3;
-        Tue, 18 Jan 2022 02:20:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B1B9A612D3;
+        Tue, 18 Jan 2022 02:20:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 575C9C36AEB;
+        Tue, 18 Jan 2022 02:20:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642472446;
-        bh=TUnm+Toda9hJczhj3ziIH/SgtocelZAF6EwqaINvxNg=;
+        s=k20201202; t=1642472458;
+        bh=WFuBHMiwPiqGN8h6F2lk8mHWQKZUX7p3wTbJ0W2u8d0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c1mV5eSV+z5NuuS1HembPB5KH1L2ekzlHBKjqqfNb6BO+IAu2JIk4mIH5zTcOsADG
-         QE5aPhQiEpXR+xYy1P2L7OLPJCc6NHyLgqSG+unujnyeWTjre9oDGRwN7DOWtLfzRB
-         dwMPDPCkArJz0OZK0dZnx1YJPL917Gjtbd3k5WZyQQCyHZj6t0e9CdSeMh3bAZgLEc
-         u6E8Ijk5yG5P7AYuYqo/wXWrH225svWkGjZ2lOj7lXTb4dlAz/YUpy24wie5wm7hju
-         sH7eoReWdG6no2zFvrYAPYzlk05VXSGr9YWv9juEcw43gWSfMKZ/kjLlmx5HBQz0TE
-         IGvCMeh8s38Ng==
+        b=tBuITyeO9icw9/yNx8rl/f04QqX4aH/9OVUWh/OUrZRgwYydT6gXJrypSGRsHrtEv
+         sA0cCXN4dnnuXuDD/gpyu14ierP+9AuU5K88PsxmwALFvxPzdMsJDd2R3urE1U989v
+         C2c6Buanf1qtSFPZoKMTBN3+fhu+5CNazTsM2KPBbIuGhygF8AhhXpw5uDN1SHTVVJ
+         bzqCSnUhYDd4jJs6SirSNngOxFyiFzb3GJq01zw0u5+5wovCkwF08/4ZFy/Jc3nbks
+         +QImYUx7QFiRrr18/g9/4Faj06A2sz1jdRCeHobAxOLrVs7ob2tQ9PsElDWfYTOlUU
+         0t05VKrAWVQTA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Tsuchiya Yuto <kitakar@gmail.com>,
         Sasha Levin <sashal@kernel.org>, mchehab@kernel.org,
-        gregkh@linuxfoundation.org, peterz@infradead.org,
-        kitakar@gmail.com, andriy.shevchenko@linux.intel.com,
-        arnd@arndb.de, dan.carpenter@oracle.com,
+        gregkh@linuxfoundation.org, hverkuil-cisco@xs4all.nl,
+        sakari.ailus@linux.intel.com, laurent.pinchart@ideasonboard.com,
+        arnd@arndb.de, alan@linux.intel.com,
+        tomi.valkeinen@ideasonboard.com, dan.carpenter@oracle.com,
+        alinesantanacordeiro@gmail.com, yangyingliang@huawei.com,
         linux-media@vger.kernel.org, linux-staging@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.16 019/217] media: atomisp: fix try_fmt logic
-Date:   Mon, 17 Jan 2022 21:16:22 -0500
-Message-Id: <20220118021940.1942199-19-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.16 020/217] media: atomisp: set per-device's default mode
+Date:   Mon, 17 Jan 2022 21:16:23 -0500
+Message-Id: <20220118021940.1942199-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118021940.1942199-1-sashal@kernel.org>
 References: <20220118021940.1942199-1-sashal@kernel.org>
@@ -55,111 +55,154 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit c9e9094c4e42124af909b2f5f6ded0498e0854ac ]
+[ Upstream commit 2c45e343c581091835c9047ed5298518aa133163 ]
 
-The internal try_fmt logic is not meant to provide everything
-that the V4L2 API should provide. Also, it doesn't decrement
-the pads that are used only internally by the driver, but aren't
-part of the device's output.
+The atomisp driver originally used the s_parm command to
+initialize the run_mode type to the driver. So, before start
+setting up the streaming, s_parm should be called.
 
-Fix it.
+So, even having 5 "normal" video devices, one meant to be used
+for each type, the run_mode was actually selected when
+s_parm is called.
 
+Without setting the run mode, applications that don't call
+VIDIOC_SET_PARM with a custom atomisp parameters won't work, as
+the pipeline won't be set:
+
+	atomisp-isp2 0000:00:03.0: can't create streams
+	atomisp-isp2 0000:00:03.0: __get_frame_info 1600x1200 (padded to 0) returned -22
+
+However, commit 8a7c5594c020 ("media: v4l2-ioctl: clear fields in s_parm")
+broke support for it, with a good reason, as drivers shoudn't be
+extending the API for their own purposes.
+
+So, as an step to allow generic apps to use this driver, put
+the device's run_mode in preview after open.
+
+After this patch, using v4l2grab starts to work on preview
+mode (/dev/video2):
+
+	$ v4l2grab -f YUYV -x 1600 -y 1200 -d /dev/video2 -n 1 -u
+	$ feh out000.pnm
+
+So, let's just setup the default run_mode that each video devnode
+should assume, setting it at open() time.
+
+Reported-by: Tsuchiya Yuto <kitakar@gmail.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../staging/media/atomisp/pci/atomisp_ioctl.c | 72 ++++++++++++++++++-
- 1 file changed, 71 insertions(+), 1 deletion(-)
+ drivers/staging/media/atomisp/pci/atomisp_fops.c  |  5 +++++
+ .../staging/media/atomisp/pci/atomisp_subdev.c    | 15 ++++++++++-----
+ .../staging/media/atomisp/pci/atomisp_subdev.h    |  3 +++
+ drivers/staging/media/atomisp/pci/atomisp_v4l2.c  |  4 +++-
+ drivers/staging/media/atomisp/pci/atomisp_v4l2.h  |  3 ++-
+ 5 files changed, 23 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/staging/media/atomisp/pci/atomisp_ioctl.c b/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
-index a57e640fbf791..442446e5d59f7 100644
---- a/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
-+++ b/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
-@@ -852,6 +852,72 @@ static int atomisp_g_fmt_file(struct file *file, void *fh,
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_fops.c b/drivers/staging/media/atomisp/pci/atomisp_fops.c
+index 02c19b92bdccb..18fff47bd25d2 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_fops.c
++++ b/drivers/staging/media/atomisp/pci/atomisp_fops.c
+@@ -877,6 +877,11 @@ static int atomisp_open(struct file *file)
+ 	else
+ 		pipe->users++;
+ 	rt_mutex_unlock(&isp->mutex);
++
++	/* Ensure that a mode is set */
++	if (asd)
++		v4l2_ctrl_s_ctrl(asd->run_mode, pipe->default_run_mode);
++
+ 	return 0;
+ 
+ css_error:
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_subdev.c b/drivers/staging/media/atomisp/pci/atomisp_subdev.c
+index 12f22ad007c73..ffaf11e0b0ad8 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_subdev.c
++++ b/drivers/staging/media/atomisp/pci/atomisp_subdev.c
+@@ -1164,23 +1164,28 @@ static int isp_subdev_init_entities(struct atomisp_sub_device *asd)
+ 
+ 	atomisp_init_acc_pipe(asd, &asd->video_acc);
+ 
+-	ret = atomisp_video_init(&asd->video_in, "MEMORY");
++	ret = atomisp_video_init(&asd->video_in, "MEMORY",
++				 ATOMISP_RUN_MODE_SDV);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	ret = atomisp_video_init(&asd->video_out_capture, "CAPTURE");
++	ret = atomisp_video_init(&asd->video_out_capture, "CAPTURE",
++				 ATOMISP_RUN_MODE_STILL_CAPTURE);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	ret = atomisp_video_init(&asd->video_out_vf, "VIEWFINDER");
++	ret = atomisp_video_init(&asd->video_out_vf, "VIEWFINDER",
++				 ATOMISP_RUN_MODE_CONTINUOUS_CAPTURE);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	ret = atomisp_video_init(&asd->video_out_preview, "PREVIEW");
++	ret = atomisp_video_init(&asd->video_out_preview, "PREVIEW",
++				 ATOMISP_RUN_MODE_PREVIEW);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	ret = atomisp_video_init(&asd->video_out_video_capture, "VIDEO");
++	ret = atomisp_video_init(&asd->video_out_video_capture, "VIDEO",
++				 ATOMISP_RUN_MODE_VIDEO);
+ 	if (ret < 0)
+ 		return ret;
+ 
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_subdev.h b/drivers/staging/media/atomisp/pci/atomisp_subdev.h
+index d6fcfab6352d7..a8d210ea5f8be 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_subdev.h
++++ b/drivers/staging/media/atomisp/pci/atomisp_subdev.h
+@@ -81,6 +81,9 @@ struct atomisp_video_pipe {
+ 	/* the link list to store per_frame parameters */
+ 	struct list_head per_frame_params;
+ 
++	/* Store here the initial run mode */
++	unsigned int default_run_mode;
++
+ 	unsigned int buffers_in_css;
+ 
+ 	/* irq_lock is used to protect video buffer state change operations and
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_v4l2.c b/drivers/staging/media/atomisp/pci/atomisp_v4l2.c
+index 1e324f1f656e5..b16f969f85afb 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_v4l2.c
++++ b/drivers/staging/media/atomisp/pci/atomisp_v4l2.c
+@@ -447,7 +447,8 @@ const struct atomisp_dfs_config dfs_config_cht_soc = {
+ 	.dfs_table_size = ARRAY_SIZE(dfs_rules_cht_soc),
+ };
+ 
+-int atomisp_video_init(struct atomisp_video_pipe *video, const char *name)
++int atomisp_video_init(struct atomisp_video_pipe *video, const char *name,
++		       unsigned int run_mode)
+ {
+ 	int ret;
+ 	const char *direction;
+@@ -478,6 +479,7 @@ int atomisp_video_init(struct atomisp_video_pipe *video, const char *name)
+ 		 "ATOMISP ISP %s %s", name, direction);
+ 	video->vdev.release = video_device_release_empty;
+ 	video_set_drvdata(&video->vdev, video->isp);
++	video->default_run_mode = run_mode;
+ 
  	return 0;
  }
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_v4l2.h b/drivers/staging/media/atomisp/pci/atomisp_v4l2.h
+index 81bb356b81720..72611b8286a4a 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_v4l2.h
++++ b/drivers/staging/media/atomisp/pci/atomisp_v4l2.h
+@@ -27,7 +27,8 @@ struct v4l2_device;
+ struct atomisp_device;
+ struct firmware;
  
-+static int atomisp_adjust_fmt(struct v4l2_format *f)
-+{
-+	const struct atomisp_format_bridge *format_bridge;
-+	u32 padded_width;
-+
-+	format_bridge = atomisp_get_format_bridge(f->fmt.pix.pixelformat);
-+
-+	padded_width = f->fmt.pix.width + pad_w;
-+
-+	if (format_bridge->planar) {
-+		f->fmt.pix.bytesperline = padded_width;
-+		f->fmt.pix.sizeimage = PAGE_ALIGN(f->fmt.pix.height *
-+						  DIV_ROUND_UP(format_bridge->depth *
-+						  padded_width, 8));
-+	} else {
-+		f->fmt.pix.bytesperline = DIV_ROUND_UP(format_bridge->depth *
-+						      padded_width, 8);
-+		f->fmt.pix.sizeimage = PAGE_ALIGN(f->fmt.pix.height * f->fmt.pix.bytesperline);
-+	}
-+
-+	if (f->fmt.pix.field == V4L2_FIELD_ANY)
-+		f->fmt.pix.field = V4L2_FIELD_NONE;
-+
-+	format_bridge = atomisp_get_format_bridge(f->fmt.pix.pixelformat);
-+	if (!format_bridge)
-+		return -EINVAL;
-+
-+	/* Currently, raw formats are broken!!! */
-+	if (format_bridge->sh_fmt == IA_CSS_FRAME_FORMAT_RAW) {
-+		f->fmt.pix.pixelformat = V4L2_PIX_FMT_YUV420;
-+
-+		format_bridge = atomisp_get_format_bridge(f->fmt.pix.pixelformat);
-+		if (!format_bridge)
-+			return -EINVAL;
-+	}
-+
-+	padded_width = f->fmt.pix.width + pad_w;
-+
-+	if (format_bridge->planar) {
-+		f->fmt.pix.bytesperline = padded_width;
-+		f->fmt.pix.sizeimage = PAGE_ALIGN(f->fmt.pix.height *
-+						  DIV_ROUND_UP(format_bridge->depth *
-+						  padded_width, 8));
-+	} else {
-+		f->fmt.pix.bytesperline = DIV_ROUND_UP(format_bridge->depth *
-+						      padded_width, 8);
-+		f->fmt.pix.sizeimage = PAGE_ALIGN(f->fmt.pix.height * f->fmt.pix.bytesperline);
-+	}
-+
-+	if (f->fmt.pix.field == V4L2_FIELD_ANY)
-+		f->fmt.pix.field = V4L2_FIELD_NONE;
-+
-+	/*
-+	 * FIXME: do we need to setup this differently, depending on the
-+	 * sensor or the pipeline?
-+	 */
-+	f->fmt.pix.colorspace = V4L2_COLORSPACE_REC709;
-+	f->fmt.pix.ycbcr_enc = V4L2_YCBCR_ENC_709;
-+	f->fmt.pix.xfer_func = V4L2_XFER_FUNC_709;
-+
-+	f->fmt.pix.width -= pad_w;
-+	f->fmt.pix.height -= pad_h;
-+
-+	return 0;
-+}
-+
- /* This function looks up the closest available resolution. */
- static int atomisp_try_fmt_cap(struct file *file, void *fh,
- 			       struct v4l2_format *f)
-@@ -863,7 +929,11 @@ static int atomisp_try_fmt_cap(struct file *file, void *fh,
- 	rt_mutex_lock(&isp->mutex);
- 	ret = atomisp_try_fmt(vdev, &f->fmt.pix, NULL);
- 	rt_mutex_unlock(&isp->mutex);
--	return ret;
-+
-+	if (ret)
-+		return ret;
-+
-+	return atomisp_adjust_fmt(f);
- }
- 
- static int atomisp_s_fmt_cap(struct file *file, void *fh,
+-int atomisp_video_init(struct atomisp_video_pipe *video, const char *name);
++int atomisp_video_init(struct atomisp_video_pipe *video, const char *name,
++		       unsigned int run_mode);
+ void atomisp_acc_init(struct atomisp_acc_pipe *video, const char *name);
+ void atomisp_video_unregister(struct atomisp_video_pipe *video);
+ void atomisp_acc_unregister(struct atomisp_acc_pipe *video);
 -- 
 2.34.1
 
