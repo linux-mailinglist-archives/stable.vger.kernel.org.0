@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47337491AB6
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:03:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3503C491AEF
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:03:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352896AbiARDAq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1352903AbiARDAq (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 17 Jan 2022 22:00:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34918 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350217AbiARCvY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:51:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81C6EC061A82;
-        Mon, 17 Jan 2022 18:42:29 -0800 (PST)
+        with ESMTP id S1350370AbiARCvi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:51:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 356F5C094266;
+        Mon, 17 Jan 2022 18:42:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 20B4B612D5;
-        Tue, 18 Jan 2022 02:42:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 066DCC36AEF;
-        Tue, 18 Jan 2022 02:42:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DAF04B81243;
+        Tue, 18 Jan 2022 02:42:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 913F4C36AF5;
+        Tue, 18 Jan 2022 02:42:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473748;
-        bh=qGUA5Sjaby0CcmdyL1x0eQfhorlxZK98VIp5iNaJCp8=;
+        s=k20201202; t=1642473753;
+        bh=HBx2Z0bo2vlrE7hqQN6Os7uEULxdugf4B9uv+P7rybc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nhX2CSQ9KCix0bo4dIfSRKxeV89gTDTERfamUal2MF6f0tuxOwZ6FG3sqEiZln5Gb
-         2fxvfaRw8wWrCnpRruvhC4q1Ez96pcphbKyqX2+TsVTm9olEXRIj7EdOA9T9L40qUo
-         25flFAsk6GX+uGR71Xo0i5vHGRrARwTLgTa+mgnWTmVfa3Ub26xz5Rslw2jhXo9Mnq
-         E6+rnF6e/iNBOGLf9PFNxrg+P0OUNKPieFtOSHtOLOumW4gCY+p4VARRFpRAgkNeZA
-         0NVNX1q+/5sDW6Z5/8RKw1iKU9QbLME4xaKk+g9vamiLT01zfTwveCc9kT5BI9D2XY
-         Sye8vF8cAwlgA==
+        b=rCwPVPN29lp49RVsu1TkrLdlUhZUJ24Y81+LKx/Z30DXJPkIeF2rhES/KbDGpvx9s
+         /rRbFvV5IR7MN32j2PJXVFLPFZuY9TjorRXaqBS3JKUo5FX57tKUiPJSiU+jgCA1pe
+         LxL6qURW6r+GuamDZZvy7vn7PX3dCFoQm6o4GfI/7a0vi0jHarN9WgeSsY6lSZkglF
+         +nAixBBXZvsU3Q7xpvXAywrY0PQVAz6p5capTl9U/DUWexmVlW9fnkrW3VY5Y9VX7x
+         afCyDlBVqOkO5fhxCdp4av2l5EnwUqKjj/WmIp9APEqOh1yU0X75bY4AgD84RkMfna
+         dmoATNO4pQXyg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shaul Triebitz <shaul.triebitz@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+Cc:     Sebastian Gottschall <s.gottschall@dd-wrt.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>, kvalo@kernel.org,
-        davem@davemloft.net, kuba@kernel.org, emmanuel.grumbach@intel.com,
-        avraham.stern@intel.com, ilan.peer@intel.com,
-        sara.sharon@intel.com, nathan.errera@intel.com,
+        davem@davemloft.net, kuba@kernel.org, ath10k@lists.infradead.org,
         linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 051/116] iwlwifi: mvm: avoid clearing a just saved session protection id
-Date:   Mon, 17 Jan 2022 21:39:02 -0500
-Message-Id: <20220118024007.1950576-51-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 054/116] ath10k: Fix tx hanging
+Date:   Mon, 17 Jan 2022 21:39:05 -0500
+Message-Id: <20220118024007.1950576-54-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024007.1950576-1-sashal@kernel.org>
 References: <20220118024007.1950576-1-sashal@kernel.org>
@@ -54,57 +52,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shaul Triebitz <shaul.triebitz@intel.com>
+From: Sebastian Gottschall <s.gottschall@dd-wrt.com>
 
-[ Upstream commit 8e967c137df3b236d2075f9538cb888129425d1a ]
+[ Upstream commit e8a91863eba3966a447d2daa1526082d52b5db2a ]
 
-When scheduling a session protection the id is saved but
-then it may be cleared when calling iwl_mvm_te_clear_data
-(if a previous session protection is currently active).
-Fix it by saving the id after calling iwl_mvm_te_clear_data.
+While running stress tests in roaming scenarios (switching ap's every 5
+seconds, we discovered a issue which leads to tx hangings of exactly 5
+seconds while or after scanning for new accesspoints. We found out that
+this hanging is triggered by ath10k_mac_wait_tx_complete since the
+empty_tx_wq was not wake when the num_tx_pending counter reaches zero.
+To fix this, we simply move the wake_up call to htt_tx_dec_pending,
+since this call was missed on several locations within the ath10k code.
 
-Signed-off-by: Shaul Triebitz <shaul.triebitz@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20211204130722.b0743a588d14.I098fef6677d0dab3ef1b6183ed206a10bab01eb2@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Sebastian Gottschall <s.gottschall@dd-wrt.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20210505085806.11474-1-s.gottschall@dd-wrt.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/time-event.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/net/wireless/ath/ath10k/htt_tx.c | 3 +++
+ drivers/net/wireless/ath/ath10k/txrx.c   | 2 --
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c b/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
-index 394598b14a173..6e6e5dd1b30d2 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
-@@ -1157,15 +1157,10 @@ void iwl_mvm_schedule_session_protection(struct iwl_mvm *mvm,
- 			cpu_to_le32(FW_CMD_ID_AND_COLOR(mvmvif->id,
- 							mvmvif->color)),
- 		.action = cpu_to_le32(FW_CTXT_ACTION_ADD),
-+		.conf_id = cpu_to_le32(SESSION_PROTECT_CONF_ASSOC),
- 		.duration_tu = cpu_to_le32(MSEC_TO_TU(duration)),
- 	};
+diff --git a/drivers/net/wireless/ath/ath10k/htt_tx.c b/drivers/net/wireless/ath/ath10k/htt_tx.c
+index 1fc0a312ab587..5f67da47036cf 100644
+--- a/drivers/net/wireless/ath/ath10k/htt_tx.c
++++ b/drivers/net/wireless/ath/ath10k/htt_tx.c
+@@ -147,6 +147,9 @@ void ath10k_htt_tx_dec_pending(struct ath10k_htt *htt)
+ 	htt->num_pending_tx--;
+ 	if (htt->num_pending_tx == htt->max_num_pending_tx - 1)
+ 		ath10k_mac_tx_unlock(htt->ar, ATH10K_TX_PAUSE_Q_FULL);
++
++	if (htt->num_pending_tx == 0)
++		wake_up(&htt->empty_tx_wq);
+ }
  
--	/* The time_event_data.id field is reused to save session
--	 * protection's configuration.
--	 */
--	mvmvif->time_event_data.id = SESSION_PROTECT_CONF_ASSOC;
--	cmd.conf_id = cpu_to_le32(mvmvif->time_event_data.id);
--
- 	lockdep_assert_held(&mvm->mutex);
+ int ath10k_htt_tx_inc_pending(struct ath10k_htt *htt)
+diff --git a/drivers/net/wireless/ath/ath10k/txrx.c b/drivers/net/wireless/ath/ath10k/txrx.c
+index aefe1f7f906c0..f51f1cf2c6a40 100644
+--- a/drivers/net/wireless/ath/ath10k/txrx.c
++++ b/drivers/net/wireless/ath/ath10k/txrx.c
+@@ -82,8 +82,6 @@ int ath10k_txrx_tx_unref(struct ath10k_htt *htt,
+ 	flags = skb_cb->flags;
+ 	ath10k_htt_tx_free_msdu_id(htt, tx_done->msdu_id);
+ 	ath10k_htt_tx_dec_pending(htt);
+-	if (htt->num_pending_tx == 0)
+-		wake_up(&htt->empty_tx_wq);
+ 	spin_unlock_bh(&htt->tx_lock);
  
- 	spin_lock_bh(&mvm->time_event_lock);
-@@ -1179,6 +1174,11 @@ void iwl_mvm_schedule_session_protection(struct iwl_mvm *mvm,
- 	}
- 
- 	iwl_mvm_te_clear_data(mvm, te_data);
-+	/*
-+	 * The time_event_data.id field is reused to save session
-+	 * protection's configuration.
-+	 */
-+	te_data->id = le32_to_cpu(cmd.conf_id);
- 	te_data->duration = le32_to_cpu(cmd.duration_tu);
- 	spin_unlock_bh(&mvm->time_event_lock);
- 
+ 	rcu_read_lock();
 -- 
 2.34.1
 
