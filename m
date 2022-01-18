@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29C99491AC4
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:03:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3263491AF2
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:03:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348363AbiARDCu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 22:02:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37418 "EHLO
+        id S242927AbiARDDS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 22:03:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352086AbiARC5z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:57:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9360DC06136F;
-        Mon, 17 Jan 2022 18:46:20 -0800 (PST)
+        with ESMTP id S1348471AbiARC6O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:58:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E890FC0612AC;
+        Mon, 17 Jan 2022 18:46:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 32C8C612D1;
-        Tue, 18 Jan 2022 02:46:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CF0EC36AE3;
-        Tue, 18 Jan 2022 02:46:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A29E3B81132;
+        Tue, 18 Jan 2022 02:46:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E9E7C36AEB;
+        Tue, 18 Jan 2022 02:46:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473979;
-        bh=Wbkwr54W1ZE6NvANhIYMVi477GP/ssZByIQOh6Dkhg4=;
+        s=k20201202; t=1642473985;
+        bh=YRtFLS33UvhcMXoutG1kpLoHx0Za8NOY2p3DeITTCGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BQ0lh3QpTSPcWCxY8QTWTcD4W/hGU+bPK97f+PsyEA+0Q0Dc4ANqjg+pywCvhkWRi
-         q20kvtEZS+cNNUh776yTnCVgcuQjWQ+D7bfMvlZfiUhss+kBwFc6jpqr7H6hBkRf4Y
-         dvtcHgFjj8739vbf3726oAyad1I1t/V3nLPyOW6QvUURWg6GrkU2fbAhvbMLlzvZlq
-         JGhcmc4vVLDGoELy/bqZCDNrzlDV0Wk/5BfMJ/95mMEneSt8Rk5h3zTJbr+pFUcDxK
-         dV9WjaRzZKe1FfzVy4kQLLeh6W2NPKS88oKebq4MSHFt+g+kMh0VVZtPQjIZyyTium
-         DOqkabznddDtQ==
+        b=grEDdYXqVLf/Zqiq6vhhkmP1Vn+lBjEinN10W26JcgEsmhmI9LjCRfX51JcgSNgxe
+         ieHgpMYrqzaBgSlt1G63+KnlWiFGy9eGhtm+SOu+vTtU7oyp5eJTJY6lW82C168x6t
+         qR96cAzmLj9YUToeP1ik0lbB/xd/5aggJhiGfBn3BQXOmNBm8kaxSsHGOLs4SYWOh4
+         zk8pwC5b1vYfFwNOh6UhtaEKApYiUyI9yq7CMzlNqjiylzOb2Mog3+vZcWxABQ+/HY
+         uEn3yEH+wupVnimkDNylvnEfmEVsonQOMvbJkoEtplc8EmkASA2ViMPXf8nXrKgUXq
+         b9Vp2bTmSqBag==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ilan Peer <ilan.peer@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>, kvalo@kernel.org,
-        davem@davemloft.net, kuba@kernel.org, johannes.berg@intel.com,
-        miriam.rachel.korenblit@intel.com, emmanuel.grumbach@intel.com,
-        avraham.stern@intel.com, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 51/73] iwlwifi: mvm: Fix calculation of frame length
-Date:   Mon, 17 Jan 2022 21:44:10 -0500
-Message-Id: <20220118024432.1952028-51-sashal@kernel.org>
+Cc:     Randy Dunlap <rdunlap@infradead.org>,
+        Jeff Dike <jdike@addtoit.com>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        linux-um@lists.infradead.org, Sasha Levin <sashal@kernel.org>,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org,
+        viro@zeniv.linux.org.uk
+Subject: [PATCH AUTOSEL 5.4 52/73] um: registers: Rename function names to avoid conflicts and build problems
+Date:   Mon, 17 Jan 2022 21:44:11 -0500
+Message-Id: <20220118024432.1952028-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024432.1952028-1-sashal@kernel.org>
 References: <20220118024432.1952028-1-sashal@kernel.org>
@@ -54,70 +55,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilan Peer <ilan.peer@intel.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 40a0b38d7a7f91a6027287e0df54f5f547e8d27e ]
+[ Upstream commit 077b7320942b64b0da182aefd83c374462a65535 ]
 
-The RADA might include in the Rx frame the MIC and CRC bytes.
-These bytes should be removed for non monitor interfaces and
-should not be passed to mac80211.
+The function names init_registers() and restore_registers() are used
+in several net/ethernet/ and gpu/drm/ drivers for other purposes (not
+calls to UML functions), so rename them.
 
-Fix the Rx processing to remove the extra bytes on non monitor
-cases.
+This fixes multiple build errors.
 
-Signed-off-by: Ilan Peer <ilan.peer@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20211219121514.098be12c801e.I1d81733d8a75b84c3b20eb6e0d14ab3405ca6a86@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Jeff Dike <jdike@addtoit.com>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Cc: linux-um@lists.infradead.org
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c | 27 +++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ arch/um/include/shared/registers.h | 4 ++--
+ arch/um/os-Linux/registers.c       | 4 ++--
+ arch/um/os-Linux/start_up.c        | 2 +-
+ arch/x86/um/syscalls_64.c          | 3 ++-
+ 4 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
-index a6e2a30eb3109..52c6edc621ced 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
-@@ -177,12 +177,39 @@ static int iwl_mvm_create_skb(struct iwl_mvm *mvm, struct sk_buff *skb,
- 	struct iwl_rx_mpdu_desc *desc = (void *)pkt->data;
- 	unsigned int headlen, fraglen, pad_len = 0;
- 	unsigned int hdrlen = ieee80211_hdrlen(hdr->frame_control);
-+	u8 mic_crc_len = u8_get_bits(desc->mac_flags1,
-+				     IWL_RX_MPDU_MFLG1_MIC_CRC_LEN_MASK) << 1;
+diff --git a/arch/um/include/shared/registers.h b/arch/um/include/shared/registers.h
+index 0c50fa6e8a55b..fbb709a222839 100644
+--- a/arch/um/include/shared/registers.h
++++ b/arch/um/include/shared/registers.h
+@@ -16,8 +16,8 @@ extern int restore_fp_registers(int pid, unsigned long *fp_regs);
+ extern int save_fpx_registers(int pid, unsigned long *fp_regs);
+ extern int restore_fpx_registers(int pid, unsigned long *fp_regs);
+ extern int save_registers(int pid, struct uml_pt_regs *regs);
+-extern int restore_registers(int pid, struct uml_pt_regs *regs);
+-extern int init_registers(int pid);
++extern int restore_pid_registers(int pid, struct uml_pt_regs *regs);
++extern int init_pid_registers(int pid);
+ extern void get_safe_registers(unsigned long *regs, unsigned long *fp_regs);
+ extern unsigned long get_thread_reg(int reg, jmp_buf *buf);
+ extern int get_fp_registers(int pid, unsigned long *regs);
+diff --git a/arch/um/os-Linux/registers.c b/arch/um/os-Linux/registers.c
+index 2d9270508e156..b123955be7acc 100644
+--- a/arch/um/os-Linux/registers.c
++++ b/arch/um/os-Linux/registers.c
+@@ -21,7 +21,7 @@ int save_registers(int pid, struct uml_pt_regs *regs)
+ 	return 0;
+ }
  
- 	if (desc->mac_flags2 & IWL_RX_MPDU_MFLG2_PAD) {
- 		len -= 2;
- 		pad_len = 2;
- 	}
+-int restore_registers(int pid, struct uml_pt_regs *regs)
++int restore_pid_registers(int pid, struct uml_pt_regs *regs)
+ {
+ 	int err;
  
-+	/*
-+	 * For non monitor interface strip the bytes the RADA might not have
-+	 * removed. As monitor interface cannot exist with other interfaces
-+	 * this removal is safe.
-+	 */
-+	if (mic_crc_len && !ieee80211_hw_check(mvm->hw, RX_INCLUDES_FCS)) {
-+		u32 pkt_flags = le32_to_cpu(pkt->len_n_flags);
-+
-+		/*
-+		 * If RADA was not enabled then decryption was not performed so
-+		 * the MIC cannot be removed.
-+		 */
-+		if (!(pkt_flags & FH_RSCSR_RADA_EN)) {
-+			if (WARN_ON(crypt_len > mic_crc_len))
-+				return -EINVAL;
-+
-+			mic_crc_len -= crypt_len;
-+		}
-+
-+		if (WARN_ON(mic_crc_len > len))
-+			return -EINVAL;
-+
-+		len -= mic_crc_len;
-+	}
-+
- 	/* If frame is small enough to fit in skb->head, pull it completely.
- 	 * If not, only pull ieee80211_hdr (including crypto if present, and
- 	 * an additional 8 bytes for SNAP/ethertype, see below) so that
+@@ -36,7 +36,7 @@ int restore_registers(int pid, struct uml_pt_regs *regs)
+ static unsigned long exec_regs[MAX_REG_NR];
+ static unsigned long exec_fp_regs[FP_SIZE];
+ 
+-int init_registers(int pid)
++int init_pid_registers(int pid)
+ {
+ 	int err;
+ 
+diff --git a/arch/um/os-Linux/start_up.c b/arch/um/os-Linux/start_up.c
+index f79dc338279e6..b28373a2b8d2d 100644
+--- a/arch/um/os-Linux/start_up.c
++++ b/arch/um/os-Linux/start_up.c
+@@ -336,7 +336,7 @@ void __init os_early_checks(void)
+ 	check_tmpexec();
+ 
+ 	pid = start_ptraced_child();
+-	if (init_registers(pid))
++	if (init_pid_registers(pid))
+ 		fatal("Failed to initialize default registers");
+ 	stop_ptraced_child(pid, 1, 1);
+ }
+diff --git a/arch/x86/um/syscalls_64.c b/arch/x86/um/syscalls_64.c
+index 58f51667e2e4b..8249685b40960 100644
+--- a/arch/x86/um/syscalls_64.c
++++ b/arch/x86/um/syscalls_64.c
+@@ -11,6 +11,7 @@
+ #include <linux/uaccess.h>
+ #include <asm/prctl.h> /* XXX This should get the constants from libc */
+ #include <os.h>
++#include <registers.h>
+ 
+ long arch_prctl(struct task_struct *task, int option,
+ 		unsigned long __user *arg2)
+@@ -35,7 +36,7 @@ long arch_prctl(struct task_struct *task, int option,
+ 	switch (option) {
+ 	case ARCH_SET_FS:
+ 	case ARCH_SET_GS:
+-		ret = restore_registers(pid, &current->thread.regs.regs);
++		ret = restore_pid_registers(pid, &current->thread.regs.regs);
+ 		if (ret)
+ 			return ret;
+ 		break;
 -- 
 2.34.1
 
