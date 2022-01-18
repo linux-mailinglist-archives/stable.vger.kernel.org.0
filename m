@@ -2,50 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FA3D491559
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:27:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 232CC491556
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:27:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245332AbiARC11 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:27:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57222 "EHLO
+        id S1343844AbiARC10 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:27:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245313AbiARCZQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:25:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89A8EC0613EE;
-        Mon, 17 Jan 2022 18:24:22 -0800 (PST)
+        with ESMTP id S245324AbiARCZR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:25:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E8CDC0613AC;
+        Mon, 17 Jan 2022 18:24:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB34060C9B;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 16EABB8123A;
+        Tue, 18 Jan 2022 02:24:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE39EC36AEF;
         Tue, 18 Jan 2022 02:24:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DDE1C36AE3;
-        Tue, 18 Jan 2022 02:24:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642472661;
-        bh=capFOdoYMT5zuDsGokY1Gk/LSUmBH/rwoQ/95rHsKq0=;
+        s=k20201202; t=1642472662;
+        bh=fOdp8drVGeVQtJE34TPJ0nmUqgItGGndsnQCmIEAx4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J3ljuf9L9ekzY0xUtaO7baI+JIOjLLi38LsrCFWFP5je2DrLIH+skXlP+qhlfQIQZ
-         7mRJeBFobOiNWOMRct4/PVi6iHCChEEf/U5VBe1RjbXDFKmWfBttw+0RUyVCBCfMdl
-         S2pXdNZhzT7UVKZQoxQehgIOtQefX7b3py7RdbKNhakCN/VivPXreGCAA1PKSJyWgf
-         LOadXLQSz20uTcnnUte8EI5z+PCTOPbtuxz/TkFOAoI7G7lcVEZS+Xj6hry7UHjneK
-         eg58Zodg9NY3oKOp2DotHlGUW9arLWxZXezkUOsaop2SHH4rJ4oCf3eQzRtxA+QlXw
-         4B5X6tFrEmrpg==
+        b=cFKZ85b8GIyKSgTbfS9Py7LkzjsI8QFtM6CMmMf75HS+IpGcv5N4Y1lNQUqIZk17z
+         /t4T5xYRXnUAQvTmiqUco1gmduP6gR45UNOIMMTunxLXqjOoDLIjIpM+E+d2FjEI4x
+         CInWNUToLuK2sO9FXx8eKaL2XG/vJYhsjeAWKU9Bbormdqlxngn8D7dsSjq9QrvkUE
+         psWRNM3bJqCpuCavHkb6ZB+p/wUtbLezmd/0WUJdyUhGxrYqxCmAC1JTaye0v2TEE1
+         H5BUrW8l03pMVUeMhn2wPR6Pp4xJuYnr4UxXsNy7ZhCs4DRnJNTPu0779lUmFdGQ2U
+         MuYDjmXbzkE9A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vlad Zahorodnii <vlad.zahorodnii@kde.org>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
-        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@linux.ie,
-        daniel@ffwll.ch, qingqing.zhuo@amd.com, Anson.Jacob@amd.com,
-        shenshih@amd.com, aurabindo.pillai@amd.com, nikola.cornij@amd.com,
-        Wayne.Lin@amd.com, Roman.Li@amd.com, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.16 089/217] drm/amd/display: Use oriented source size when checking cursor scaling
-Date:   Mon, 17 Jan 2022 21:17:32 -0500
-Message-Id: <20220118021940.1942199-89-sashal@kernel.org>
+Cc:     Kishon Vijay Abraham I <kishon@ti.com>,
+        Aswath Govindraju <a-govindraju@ti.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Sasha Levin <sashal@kernel.org>, nm@ti.com, kristo@kernel.org,
+        robh+dt@kernel.org, linux-arm-kernel@lists.infradead.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 090/217] arm64: dts: ti: j7200-main: Fix 'dtbs_check' serdes_ln_ctrl node
+Date:   Mon, 17 Jan 2022 21:17:33 -0500
+Message-Id: <20220118021940.1942199-90-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118021940.1942199-1-sashal@kernel.org>
 References: <20220118021940.1942199-1-sashal@kernel.org>
@@ -57,101 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlad Zahorodnii <vlad.zahorodnii@kde.org>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-[ Upstream commit 69cb56290d9d10cdcc461aa2685e67e540507a96 ]
+[ Upstream commit 4d3984906397581dc0ccb6a02bf16b6ff82c9192 ]
 
-dm_check_crtc_cursor() doesn't take into account plane transforms when
-calculating plane scaling, this can result in false positives.
+Fix 'dtbs_check' in serdes_ln_ctrl (serdes-ln-ctrl@4080) node by
+changing the node name to mux-controller@4080.
 
-For example, if there's an output with resolution 3840x2160 and the
-output is rotated 90 degrees, CRTC_W and CRTC_H will be 3840 and 2160,
-respectively, but SRC_W and SRC_H will be 2160 and 3840, respectively.
-
-Since the cursor plane usually has a square buffer attached to it, the
-dm_check_crtc_cursor() will think that there's a scale factor mismatch
-even though there isn't really.
-
-This fixes an issue where kwin fails to use hardware plane transforms.
-
-Changes since version 1:
-- s/orientated/oriented/g
-
-Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Vlad Zahorodnii <vlad.zahorodnii@kde.org>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Reviewed-by: Aswath Govindraju <a-govindraju@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Link: https://lore.kernel.org/r/20211126084555.17797-2-kishon@ti.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 35 ++++++++++++++-----
- 1 file changed, 27 insertions(+), 8 deletions(-)
+ arch/arm64/boot/dts/ti/k3-j7200-main.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index e08ac474e9d59..21ff6b232fb62 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -10661,6 +10661,24 @@ static int dm_update_plane_state(struct dc *dc,
- 	return ret;
- }
+diff --git a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
+index d60ef4f7dd0b7..05a627ad6cdc4 100644
+--- a/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-j7200-main.dtsi
+@@ -32,7 +32,7 @@ scm_conf: scm-conf@100000 {
+ 		#size-cells = <1>;
+ 		ranges = <0x00 0x00 0x00100000 0x1c000>;
  
-+static void dm_get_oriented_plane_size(struct drm_plane_state *plane_state,
-+				       int *src_w, int *src_h)
-+{
-+	switch (plane_state->rotation & DRM_MODE_ROTATE_MASK) {
-+	case DRM_MODE_ROTATE_90:
-+	case DRM_MODE_ROTATE_270:
-+		*src_w = plane_state->src_h >> 16;
-+		*src_h = plane_state->src_w >> 16;
-+		break;
-+	case DRM_MODE_ROTATE_0:
-+	case DRM_MODE_ROTATE_180:
-+	default:
-+		*src_w = plane_state->src_w >> 16;
-+		*src_h = plane_state->src_h >> 16;
-+		break;
-+	}
-+}
-+
- static int dm_check_crtc_cursor(struct drm_atomic_state *state,
- 				struct drm_crtc *crtc,
- 				struct drm_crtc_state *new_crtc_state)
-@@ -10669,6 +10687,8 @@ static int dm_check_crtc_cursor(struct drm_atomic_state *state,
- 	struct drm_plane_state *new_cursor_state, *new_underlying_state;
- 	int i;
- 	int cursor_scale_w, cursor_scale_h, underlying_scale_w, underlying_scale_h;
-+	int cursor_src_w, cursor_src_h;
-+	int underlying_src_w, underlying_src_h;
- 
- 	/* On DCE and DCN there is no dedicated hardware cursor plane. We get a
- 	 * cursor per pipe but it's going to inherit the scaling and
-@@ -10680,10 +10700,9 @@ static int dm_check_crtc_cursor(struct drm_atomic_state *state,
- 		return 0;
- 	}
- 
--	cursor_scale_w = new_cursor_state->crtc_w * 1000 /
--			 (new_cursor_state->src_w >> 16);
--	cursor_scale_h = new_cursor_state->crtc_h * 1000 /
--			 (new_cursor_state->src_h >> 16);
-+	dm_get_oriented_plane_size(new_cursor_state, &cursor_src_w, &cursor_src_h);
-+	cursor_scale_w = new_cursor_state->crtc_w * 1000 / cursor_src_w;
-+	cursor_scale_h = new_cursor_state->crtc_h * 1000 / cursor_src_h;
- 
- 	for_each_new_plane_in_state_reverse(state, underlying, new_underlying_state, i) {
- 		/* Narrow down to non-cursor planes on the same CRTC as the cursor */
-@@ -10694,10 +10713,10 @@ static int dm_check_crtc_cursor(struct drm_atomic_state *state,
- 		if (!new_underlying_state->fb)
- 			continue;
- 
--		underlying_scale_w = new_underlying_state->crtc_w * 1000 /
--				     (new_underlying_state->src_w >> 16);
--		underlying_scale_h = new_underlying_state->crtc_h * 1000 /
--				     (new_underlying_state->src_h >> 16);
-+		dm_get_oriented_plane_size(new_underlying_state,
-+					   &underlying_src_w, &underlying_src_h);
-+		underlying_scale_w = new_underlying_state->crtc_w * 1000 / underlying_src_w;
-+		underlying_scale_h = new_underlying_state->crtc_h * 1000 / underlying_src_h;
- 
- 		if (cursor_scale_w != underlying_scale_w ||
- 		    cursor_scale_h != underlying_scale_h) {
+-		serdes_ln_ctrl: serdes-ln-ctrl@4080 {
++		serdes_ln_ctrl: mux-controller@4080 {
+ 			compatible = "mmio-mux";
+ 			#mux-control-cells = <1>;
+ 			mux-reg-masks = <0x4080 0x3>, <0x4084 0x3>, /* SERDES0 lane0/1 select */
 -- 
 2.34.1
 
