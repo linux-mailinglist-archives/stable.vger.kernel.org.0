@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ADE1491D63
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:35:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07B54491D66
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:36:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347922AbiARDfw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 22:35:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45004 "EHLO
+        id S1344536AbiARDfz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 22:35:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353450AbiARDdE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 22:33:04 -0500
+        with ESMTP id S1353473AbiARDdF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 22:33:05 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74DBFC037003;
-        Mon, 17 Jan 2022 19:08:55 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47FD7C037005;
+        Mon, 17 Jan 2022 19:08:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 033B760B32;
-        Tue, 18 Jan 2022 03:08:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9159DC36AE3;
-        Tue, 18 Jan 2022 03:08:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DACA860BC5;
+        Tue, 18 Jan 2022 03:08:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED9ABC36AEB;
+        Tue, 18 Jan 2022 03:08:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642475334;
-        bh=4jx1Bl4S5uQyeaT0H4TWgXfSBRxVssLycfkRR4kmCkU=;
+        s=k20201202; t=1642475338;
+        bh=x0GDq5/TGahdJpi0k1BZhKdPLlEVphD7FM3LYcMZxcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vCgnDIvH4iWVbiCmVsIZ67R78D4ZdEuXJHeWZ0xpx1tdbkBKgp1XCZP+LHoA0eynd
-         F6us8nTH5ef4nKJe9s+1KrjixsFlrIBrYo+85YCHXq9rTtmt0HJr9p4NQKLVSf1+4x
-         u6tttKsHwhdF49+gqEHiFnwlcx48pfM754rKCgtdf9CH+EFGvv5IBwKtNrFUJuAHoD
-         W9I9G34OQOH6GlKPbddGvs64qrS79ajeMSmQCO/VQz5HRuv4uGuVGguTcH8TllPjtn
-         +z787P08qBbU0F3Puh3YVDKpX3jzoXU4kH2zZfC9ZNuHhoYADiXumL6c98GA4Fu0Wm
-         oqq0I4CTckicQ==
+        b=VO2/kE4vWzapmNvQSJEzdrvsXSFNEh90pW7IfPSvVtYK2h2BMk2fI8kiTTvogATYv
+         sCkMs+BzYSD4DvHZpfQe2x4c9b5tI/MbXBGGXzx8IhJAKltWjM1jaGuyXrfvrqvpMg
+         c9l1bezs2xxKEsgE37mdR2EJmZbDxBvJgK6p92qcn8CLR6Un2pi1HcsiiYtqWyqbQ5
+         +XR1m+/bD6PJFzxththNDoajxBMpLHaq0/ZDfsdAHR6l5zSBM9LItXJkIkqBeasVpN
+         Rd2aRIy5M9/kWobeXeHC7eszTsiSnxryWVBzYNCeh72jMK9bt4H5B0Fh1HgyuFGftD
+         d1EtUHjn6otlQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        rkardell@mida.se, Sasha Levin <sashal@kernel.org>,
-        mchehab@kernel.org, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 11/29] media: m920x: don't use stack on USB reads
-Date:   Mon, 17 Jan 2022 22:08:04 -0500
-Message-Id: <20220118030822.1955469-11-sashal@kernel.org>
+Cc:     Johannes Berg <johannes.berg@intel.com>,
+        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
+        Maximilian Ernestus <maximilian@ernestus.de>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>, kvalo@kernel.org,
+        davem@davemloft.net, kuba@kernel.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 12/29] iwlwifi: mvm: synchronize with FW after multicast commands
+Date:   Mon, 17 Jan 2022 22:08:05 -0500
+Message-Id: <20220118030822.1955469-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118030822.1955469-1-sashal@kernel.org>
 References: <20220118030822.1955469-1-sashal@kernel.org>
@@ -50,57 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit a2ab06d7c4d6bfd0b545a768247a70463e977e27 ]
+[ Upstream commit db66abeea3aefed481391ecc564fb7b7fb31d742 ]
 
-Using stack-allocated pointers for USB message data don't work.
-This driver is almost OK with that, except for the I2C read
-logic.
+If userspace installs a lot of multicast groups very quickly, then
+we may run out of command queue space as we send the updates in an
+asynchronous fashion (due to locking concerns), and the CPU can
+create them faster than the firmware can process them. This is true
+even when mac80211 has a work struct that gets scheduled.
 
-Fix it by using a temporary read buffer, just like on all other
-calls to m920x_read().
+Fix this by synchronizing with the firmware after sending all those
+commands - outside of the iteration we can send a synchronous echo
+command that just has the effect of the CPU waiting for the prior
+asynchronous commands to finish. This also will cause fewer of the
+commands to be sent to the firmware overall, because the work will
+only run once when rescheduled multiple times while it's running.
 
-Link: https://lore.kernel.org/all/ccc99e48-de4f-045e-0fe4-61e3118e3f74@mida.se/
-Reported-by: rkardell@mida.se
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=213649
+Suggested-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Reported-by: Maximilian Ernestus <maximilian@ernestus.de>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20211204083238.51aea5b79ea4.I88a44798efda16e9fe480fb3e94224931d311b29@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/m920x.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/net/wireless/iwlwifi/mvm/mac80211.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/drivers/media/usb/dvb-usb/m920x.c b/drivers/media/usb/dvb-usb/m920x.c
-index eafc5c82467f4..5b806779e2106 100644
---- a/drivers/media/usb/dvb-usb/m920x.c
-+++ b/drivers/media/usb/dvb-usb/m920x.c
-@@ -284,6 +284,13 @@ static int m920x_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msg[], int nu
- 			/* Should check for ack here, if we knew how. */
- 		}
- 		if (msg[i].flags & I2C_M_RD) {
-+			char *read = kmalloc(1, GFP_KERNEL);
-+			if (!read) {
-+				ret = -ENOMEM;
-+				kfree(read);
-+				goto unlock;
-+			}
-+
- 			for (j = 0; j < msg[i].len; j++) {
- 				/* Last byte of transaction?
- 				 * Send STOP, otherwise send ACK. */
-@@ -291,9 +298,12 @@ static int m920x_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msg[], int nu
+diff --git a/drivers/net/wireless/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/iwlwifi/mvm/mac80211.c
+index ca498b1f1f568..6417fda88733c 100644
+--- a/drivers/net/wireless/iwlwifi/mvm/mac80211.c
++++ b/drivers/net/wireless/iwlwifi/mvm/mac80211.c
+@@ -1957,6 +1957,7 @@ static void iwl_mvm_recalc_multicast(struct iwl_mvm *mvm)
+ 	struct iwl_mvm_mc_iter_data iter_data = {
+ 		.mvm = mvm,
+ 	};
++	int ret;
  
- 				if ((ret = m920x_read(d->udev, M9206_I2C, 0x0,
- 						      0x20 | stop,
--						      &msg[i].buf[j], 1)) != 0)
-+						      read, 1)) != 0)
- 					goto unlock;
-+				msg[i].buf[j] = read[0];
- 			}
+ 	lockdep_assert_held(&mvm->mutex);
+ 
+@@ -1966,6 +1967,22 @@ static void iwl_mvm_recalc_multicast(struct iwl_mvm *mvm)
+ 	ieee80211_iterate_active_interfaces_atomic(
+ 		mvm->hw, IEEE80211_IFACE_ITER_NORMAL,
+ 		iwl_mvm_mc_iface_iterator, &iter_data);
 +
-+			kfree(read);
- 		} else {
- 			for (j = 0; j < msg[i].len; j++) {
- 				/* Last byte of transaction? Then send STOP. */
++	/*
++	 * Send a (synchronous) ech command so that we wait for the
++	 * multiple asynchronous MCAST_FILTER_CMD commands sent by
++	 * the interface iterator. Otherwise, we might get here over
++	 * and over again (by userspace just sending a lot of these)
++	 * and the CPU can send them faster than the firmware can
++	 * process them.
++	 * Note that the CPU is still faster - but with this we'll
++	 * actually send fewer commands overall because the CPU will
++	 * not schedule the work in mac80211 as frequently if it's
++	 * still running when rescheduled (possibly multiple times).
++	 */
++	ret = iwl_mvm_send_cmd_pdu(mvm, ECHO_CMD, 0, 0, NULL);
++	if (ret)
++		IWL_ERR(mvm, "Failed to synchronize multicast groups update\n");
+ }
+ 
+ static u64 iwl_mvm_prepare_multicast(struct ieee80211_hw *hw,
 -- 
 2.34.1
 
