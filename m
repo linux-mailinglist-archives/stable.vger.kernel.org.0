@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C17ED49140A
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:20:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD67E491402
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:19:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244395AbiARCT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:19:56 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34726 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244332AbiARCTt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:19:49 -0500
+        id S231611AbiARCTz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:19:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56342 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244343AbiARCTu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:19:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0AECC06173E;
+        Mon, 17 Jan 2022 18:19:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EFA35B81232;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 60B51612CD;
+        Tue, 18 Jan 2022 02:19:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5466C36AF3;
         Tue, 18 Jan 2022 02:19:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85D1CC36AEB;
-        Tue, 18 Jan 2022 02:19:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642472386;
-        bh=KgD6qxy+fP2fvSM/3e8PrWESYFntT/ISgWQqCE2FJS0=;
+        s=k20201202; t=1642472388;
+        bh=FWew8kSA0PCwrUkOdUPtZ3rD8Vs0Xt6T0HP/cCKVwJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=euTA7ZLXr90l4pYuM6om2n6/wA6o8gZwVBPCYxn5Pig7zwTssCS6FH2UyIqRyDP2Q
-         CF0KkH1aj287tLfn/Bmetp8uirul43gbc45Go7DTIpPUTqn2u0IJE0M52HTUAHp/R+
-         zL8RfQERrH+WWQgbxwHReO3ZY1Tn4OFi39KeMdcDF5P2htDAUJgZoillcqxPh8GOYv
-         W+eGuKBukIY8oBTCJFsn/a0dGgaNfyFtJ/1udGLVB96P7tpLE4GIfBrtLIU/8i8qk2
-         EdKhoZwLzNPs1a0zqP/hRX1CZl8QVvKoQ/TvRfTdNIXHKI0tuC1ktL/BGVvW9+hleS
-         cUywCW/hDkkfQ==
+        b=Wzc3eJNLixafRolNgvkGXQstCaolP7toR98BMEa1/akRVgL56CE0D1++f5O4CjJIo
+         vxrR2qY5qFp51hO3fnAI7VqU5f2DTaJhpq5A7ij0kt40ZYN5in7G/6wtXAbOxdsJIP
+         Fp9K0M32bw0LnMsAGW9U3pemySll/DUzepaXHd2vBiXZpAsZl4yETFkxSKHm5XvFnp
+         CrvssIEUYdeWXgrGYzj8V/DzFKNvyi9kJm5F7ltUo+MZAeSd7bYBlKhhaXu6HgW6QF
+         mybztwKNe4fcS+x81UBmNGzc1hWo9nYW8GydR0F/YK3mwulioxrQyamrS3+WZi1TeC
+         4eLoFeRy0hPkw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Wei Yongjun <weiyongjun1@huawei.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>, johan.hedberg@gmail.com,
-        luiz.dentz@gmail.com, davem@davemloft.net, kuba@kernel.org,
-        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 003/217] Bluetooth: Fix memory leak of hci device
-Date:   Mon, 17 Jan 2022 21:16:06 -0500
-Message-Id: <20220118021940.1942199-3-sashal@kernel.org>
+Cc:     Brian Norris <briannorris@chromium.org>,
+        Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>, jagan@amarulasolutions.com,
+        thierry.reding@gmail.com, airlied@linux.ie, daniel@ffwll.ch,
+        sumit.semwal@linaro.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.16 004/217] drm/panel: Delete panel on mipi_dsi_attach() failure
+Date:   Mon, 17 Jan 2022 21:16:07 -0500
+Message-Id: <20220118021940.1942199-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118021940.1942199-1-sashal@kernel.org>
 References: <20220118021940.1942199-1-sashal@kernel.org>
@@ -49,64 +52,170 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Brian Norris <briannorris@chromium.org>
 
-[ Upstream commit 75d9b8559ac36e059238ee4f8e33cd86086586ba ]
+[ Upstream commit 9bf7123bb07f98dc76acb5daa91248e6f95713cb ]
 
-Fault injection test reported memory leak of hci device as follows:
+Many DSI panel drivers fail to clean up their panel references on
+mipi_dsi_attach() failure, so we're leaving a dangling drm_panel
+reference to freed memory. Clean that up on failure.
 
-unreferenced object 0xffff88800b858000 (size 8192):
-  comm "kworker/0:2", pid 167, jiffies 4294955747 (age 557.148s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 ad 4e ad de  .............N..
-  backtrace:
-    [<0000000070eb1059>] kmem_cache_alloc_trace mm/slub.c:3208
-    [<00000000015eb521>] hci_alloc_dev_priv include/linux/slab.h:591
-    [<00000000dcfc1e21>] bpa10x_probe include/net/bluetooth/hci_core.h:1240
-    [<000000005d3028c7>] usb_probe_interface drivers/usb/core/driver.c:397
-    [<00000000cbac9243>] really_probe drivers/base/dd.c:517
-    [<0000000024cab3f0>] __driver_probe_device drivers/base/dd.c:751
-    [<00000000202135cb>] driver_probe_device drivers/base/dd.c:782
-    [<000000000761f2bc>] __device_attach_driver drivers/base/dd.c:899
-    [<00000000f7d63134>] bus_for_each_drv drivers/base/bus.c:427
-    [<00000000c9551f0b>] __device_attach drivers/base/dd.c:971
-    [<000000007f79bd16>] bus_probe_device drivers/base/bus.c:487
-    [<000000007bb8b95a>] device_add drivers/base/core.c:3364
-    [<000000009564d9ea>] usb_set_configuration drivers/usb/core/message.c:2171
-    [<00000000e4657087>] usb_generic_driver_probe drivers/usb/core/generic.c:239
-    [<0000000071ede518>] usb_probe_device drivers/usb/core/driver.c:294
-    [<00000000cbac9243>] really_probe drivers/base/dd.c:517
+Noticed by inspection, after seeing similar problems on other drivers.
+Therefore, I'm not marking Fixes/stable.
 
-hci_alloc_dev() do not init the device's flag. And hci_free_dev()
-using put_device() to free the memory allocated for this device,
-but it calls just put_device(dev) only in case of HCI_UNREGISTER
-flag is set, So any error handing before hci_register_dev() success
-will cause memory leak.
-
-To avoid this behaviour we can using kfree() to release dev before
-hci_register_dev() success.
-
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210923173336.3.If9e74fa9b1d6eaa9e0e5b95b2b957b992740251c@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_sysfs.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/panel/panel-feiyang-fy07024di26a30d.c    | 8 +++++++-
+ drivers/gpu/drm/panel/panel-jdi-lt070me05000.c           | 8 +++++++-
+ drivers/gpu/drm/panel/panel-novatek-nt36672a.c           | 8 +++++++-
+ drivers/gpu/drm/panel/panel-panasonic-vvx10f034n00.c     | 8 +++++++-
+ drivers/gpu/drm/panel/panel-ronbo-rb070d30.c             | 8 +++++++-
+ drivers/gpu/drm/panel/panel-samsung-s6e88a0-ams452ef01.c | 1 +
+ drivers/gpu/drm/panel/panel-samsung-sofef00.c            | 1 +
+ drivers/gpu/drm/panel/panel-sharp-ls043t1le01.c          | 8 +++++++-
+ 8 files changed, 44 insertions(+), 6 deletions(-)
 
-diff --git a/net/bluetooth/hci_sysfs.c b/net/bluetooth/hci_sysfs.c
-index 7827639ecf5c3..4e3e0451b08c1 100644
---- a/net/bluetooth/hci_sysfs.c
-+++ b/net/bluetooth/hci_sysfs.c
-@@ -86,6 +86,8 @@ static void bt_host_release(struct device *dev)
+diff --git a/drivers/gpu/drm/panel/panel-feiyang-fy07024di26a30d.c b/drivers/gpu/drm/panel/panel-feiyang-fy07024di26a30d.c
+index 581661b506f81..f9c1f7bc8218c 100644
+--- a/drivers/gpu/drm/panel/panel-feiyang-fy07024di26a30d.c
++++ b/drivers/gpu/drm/panel/panel-feiyang-fy07024di26a30d.c
+@@ -227,7 +227,13 @@ static int feiyang_dsi_probe(struct mipi_dsi_device *dsi)
+ 	dsi->format = MIPI_DSI_FMT_RGB888;
+ 	dsi->lanes = 4;
  
- 	if (hci_dev_test_flag(hdev, HCI_UNREGISTER))
- 		hci_release_dev(hdev);
-+	else
-+		kfree(hdev);
- 	module_put(THIS_MODULE);
+-	return mipi_dsi_attach(dsi);
++	ret = mipi_dsi_attach(dsi);
++	if (ret < 0) {
++		drm_panel_remove(&ctx->panel);
++		return ret;
++	}
++
++	return 0;
  }
  
+ static int feiyang_dsi_remove(struct mipi_dsi_device *dsi)
+diff --git a/drivers/gpu/drm/panel/panel-jdi-lt070me05000.c b/drivers/gpu/drm/panel/panel-jdi-lt070me05000.c
+index 733010b5e4f53..3c86ad262d5e0 100644
+--- a/drivers/gpu/drm/panel/panel-jdi-lt070me05000.c
++++ b/drivers/gpu/drm/panel/panel-jdi-lt070me05000.c
+@@ -473,7 +473,13 @@ static int jdi_panel_probe(struct mipi_dsi_device *dsi)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	return mipi_dsi_attach(dsi);
++	ret = mipi_dsi_attach(dsi);
++	if (ret < 0) {
++		jdi_panel_del(jdi);
++		return ret;
++	}
++
++	return 0;
+ }
+ 
+ static int jdi_panel_remove(struct mipi_dsi_device *dsi)
+diff --git a/drivers/gpu/drm/panel/panel-novatek-nt36672a.c b/drivers/gpu/drm/panel/panel-novatek-nt36672a.c
+index 533cd3934b8b7..839b263fb3c0f 100644
+--- a/drivers/gpu/drm/panel/panel-novatek-nt36672a.c
++++ b/drivers/gpu/drm/panel/panel-novatek-nt36672a.c
+@@ -656,7 +656,13 @@ static int nt36672a_panel_probe(struct mipi_dsi_device *dsi)
+ 	if (err < 0)
+ 		return err;
+ 
+-	return mipi_dsi_attach(dsi);
++	err = mipi_dsi_attach(dsi);
++	if (err < 0) {
++		drm_panel_remove(&pinfo->base);
++		return err;
++	}
++
++	return 0;
+ }
+ 
+ static int nt36672a_panel_remove(struct mipi_dsi_device *dsi)
+diff --git a/drivers/gpu/drm/panel/panel-panasonic-vvx10f034n00.c b/drivers/gpu/drm/panel/panel-panasonic-vvx10f034n00.c
+index 3c20beeb17819..3991f5d950af4 100644
+--- a/drivers/gpu/drm/panel/panel-panasonic-vvx10f034n00.c
++++ b/drivers/gpu/drm/panel/panel-panasonic-vvx10f034n00.c
+@@ -241,7 +241,13 @@ static int wuxga_nt_panel_probe(struct mipi_dsi_device *dsi)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	return mipi_dsi_attach(dsi);
++	ret = mipi_dsi_attach(dsi);
++	if (ret < 0) {
++		wuxga_nt_panel_del(wuxga_nt);
++		return ret;
++	}
++
++	return 0;
+ }
+ 
+ static int wuxga_nt_panel_remove(struct mipi_dsi_device *dsi)
+diff --git a/drivers/gpu/drm/panel/panel-ronbo-rb070d30.c b/drivers/gpu/drm/panel/panel-ronbo-rb070d30.c
+index a3782830ae3c4..1fb579a574d9f 100644
+--- a/drivers/gpu/drm/panel/panel-ronbo-rb070d30.c
++++ b/drivers/gpu/drm/panel/panel-ronbo-rb070d30.c
+@@ -199,7 +199,13 @@ static int rb070d30_panel_dsi_probe(struct mipi_dsi_device *dsi)
+ 	dsi->format = MIPI_DSI_FMT_RGB888;
+ 	dsi->lanes = 4;
+ 
+-	return mipi_dsi_attach(dsi);
++	ret = mipi_dsi_attach(dsi);
++	if (ret < 0) {
++		drm_panel_remove(&ctx->panel);
++		return ret;
++	}
++
++	return 0;
+ }
+ 
+ static int rb070d30_panel_dsi_remove(struct mipi_dsi_device *dsi)
+diff --git a/drivers/gpu/drm/panel/panel-samsung-s6e88a0-ams452ef01.c b/drivers/gpu/drm/panel/panel-samsung-s6e88a0-ams452ef01.c
+index ea63799ff2a1e..29fde3823212b 100644
+--- a/drivers/gpu/drm/panel/panel-samsung-s6e88a0-ams452ef01.c
++++ b/drivers/gpu/drm/panel/panel-samsung-s6e88a0-ams452ef01.c
+@@ -247,6 +247,7 @@ static int s6e88a0_ams452ef01_probe(struct mipi_dsi_device *dsi)
+ 	ret = mipi_dsi_attach(dsi);
+ 	if (ret < 0) {
+ 		dev_err(dev, "Failed to attach to DSI host: %d\n", ret);
++		drm_panel_remove(&ctx->panel);
+ 		return ret;
+ 	}
+ 
+diff --git a/drivers/gpu/drm/panel/panel-samsung-sofef00.c b/drivers/gpu/drm/panel/panel-samsung-sofef00.c
+index 8cb1853574bb8..6d107e14fcc55 100644
+--- a/drivers/gpu/drm/panel/panel-samsung-sofef00.c
++++ b/drivers/gpu/drm/panel/panel-samsung-sofef00.c
+@@ -302,6 +302,7 @@ static int sofef00_panel_probe(struct mipi_dsi_device *dsi)
+ 	ret = mipi_dsi_attach(dsi);
+ 	if (ret < 0) {
+ 		dev_err(dev, "Failed to attach to DSI host: %d\n", ret);
++		drm_panel_remove(&ctx->panel);
+ 		return ret;
+ 	}
+ 
+diff --git a/drivers/gpu/drm/panel/panel-sharp-ls043t1le01.c b/drivers/gpu/drm/panel/panel-sharp-ls043t1le01.c
+index b937e24dac8e0..25829a0a8e801 100644
+--- a/drivers/gpu/drm/panel/panel-sharp-ls043t1le01.c
++++ b/drivers/gpu/drm/panel/panel-sharp-ls043t1le01.c
+@@ -296,7 +296,13 @@ static int sharp_nt_panel_probe(struct mipi_dsi_device *dsi)
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	return mipi_dsi_attach(dsi);
++	ret = mipi_dsi_attach(dsi);
++	if (ret < 0) {
++		sharp_nt_panel_del(sharp_nt);
++		return ret;
++	}
++
++	return 0;
+ }
+ 
+ static int sharp_nt_panel_remove(struct mipi_dsi_device *dsi)
 -- 
 2.34.1
 
