@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C980F49155E
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:27:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F8C3491562
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:27:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343495AbiARC1p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:27:45 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42510 "EHLO
+        id S1343514AbiARC1r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:27:47 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:42696 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245410AbiARCZf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:25:35 -0500
+        with ESMTP id S245470AbiARCZq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:25:46 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C06360A6B;
-        Tue, 18 Jan 2022 02:25:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F4AFC36AE3;
-        Tue, 18 Jan 2022 02:25:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 38D836110F;
+        Tue, 18 Jan 2022 02:25:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84A0DC36AE3;
+        Tue, 18 Jan 2022 02:25:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642472734;
-        bh=NrDQkO4I+cVBZBVA1n3ItY4WmFP9x95zh+C06Zuohno=;
+        s=k20201202; t=1642472745;
+        bh=Chc9JxYeropHxv0l4lx9PHgC5dJsgohvIR5/56p+Y3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=btvQ2z+j/RpBiFS5AGd3UzcR/lEXwg1sUmLnybAaBI9/yAWICQmYHEg9pY4nSpXzQ
-         v1MCSeUV26Ac4BNArAalpreHUgkrIFp6UvZjqKXy4Cw7wRshaicWC8WTx/HlMmCv91
-         i8CipWsXQbU6J7+XZD2B8E7Ez17+s83/koVib4f0Am0SpiwOOKgEuO0BkFlB4GPOJv
-         aaVUfpRiIQw5mWn6GorSjAfnD1ubx0ZmY9LWV14saW4tJKf10UEn/2/26Gt6wA/ma0
-         vDF5WBcaVWshXb+QIORQjmPAMbwrp3H2Fljva+K9EakMxH4Sxxqn1G0M6e6qzSlyK0
-         0VosqtWjkcTDg==
+        b=XmsB62sFKiLBR0QBOKBjBnU+vOFtu7md2pG6qsu/thRDv1Sn17zivykXr+15L1i1d
+         kVonbab5nbEsNS5EUZgyH7Ucv837ThmYRHKnqvLnTOoFsEl8lVH/g3N/zV/+gz4TnU
+         Zq3H2JccaIukpDKiTRA2U7ay+0bjGB+5aVnciKwigyN695VK8tNq+RPzP5g/nTs8W1
+         y33HVMzFU6/mcRX3v4CwIHHIh2wkwUZrfoXEUcGqNqMrYnuLnio9m6y70AreNFTcyb
+         TUcy73MuQM64F7vyT+P/cVTLBpAk6j6RwY67khTFyqb19xwKm/AJxeMn/0XNjTJbL3
+         g4GjQxDd0v8yQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     xu xin <xu.xin16@zte.com.cn>, Zeal Robot <zealci@zte.com.cn>,
-        Joanne Koong <joannekoong@fb.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
-        daniel@iogearbox.net, dsahern@kernel.org, roopa@nvidia.com,
-        edumazet@google.com, chinagar@codeaurora.org, yajun.deng@linux.dev,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 118/217] net: Enable neighbor sysctls that is save for userns root
-Date:   Mon, 17 Jan 2022 21:18:01 -0500
-Message-Id: <20220118021940.1942199-118-sashal@kernel.org>
+Cc:     Jagan Teki <jagan@amarulasolutions.com>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        knaerzche@gmail.com, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.16 119/217] arm64: dts: rockchip: Fix Bluetooth on ROCK Pi 4 boards
+Date:   Mon, 17 Jan 2022 21:18:02 -0500
+Message-Id: <20220118021940.1942199-119-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118021940.1942199-1-sashal@kernel.org>
 References: <20220118021940.1942199-1-sashal@kernel.org>
@@ -51,77 +50,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: xu xin <xu.xin16@zte.com.cn>
+From: Jagan Teki <jagan@amarulasolutions.com>
 
-[ Upstream commit 8c8b7aa7fb0cf9e1cc9204e6bc6e1353b8393502 ]
+[ Upstream commit f471b1b2db0819917c54099ab68349ad6a7e9e19 ]
 
-Inside netns owned by non-init userns, sysctls about ARP/neighbor is
-currently not visible and configurable.
+This patch fixes the Bluetooth on ROCK Pi 4 boards.
 
-For the attributes these sysctls correspond to, any modifications make
-effects on the performance of networking(ARP, especilly) only in the
-scope of netns, which does not affect other netns.
+ROCK Pi 4 boards has BCM4345C5 and now it is supported
+on Mainline Linux, brcm,bcm43438-bt still working but
+observed the BT Audio issues with latest test.
 
-Actually, some tools via netlink can modify these attribute. iproute2 is
-an example. see as follows:
+So, use the BCM4345C5 compatible and its associated
+properties like clock-names as lpo and max-speed.
 
-$ unshare -ur -n
-$ cat /proc/sys/net/ipv4/neigh/lo/retrans_time
-cat: can't open '/proc/sys/net/ipv4/neigh/lo/retrans_time': No such file
-or directory
-$ ip ntable show dev lo
-inet arp_cache
-    dev lo
-    refcnt 1 reachable 19494 base_reachable 30000 retrans 1000
-    gc_stale 60000 delay_probe 5000 queue 101
-    app_probes 0 ucast_probes 3 mcast_probes 3
-    anycast_delay 1000 proxy_delay 800 proxy_queue 64 locktime 1000
+Attach vbat and vddio supply rails as well.
 
-inet6 ndisc_cache
-    dev lo
-    refcnt 1 reachable 42394 base_reachable 30000 retrans 1000
-    gc_stale 60000 delay_probe 5000 queue 101
-    app_probes 0 ucast_probes 3 mcast_probes 3
-    anycast_delay 1000 proxy_delay 800 proxy_queue 64 locktime 0
-$ ip ntable change name arp_cache dev <if> retrans 2000
-inet arp_cache
-    dev lo
-    refcnt 1 reachable 22917 base_reachable 30000 retrans 2000
-    gc_stale 60000 delay_probe 5000 queue 101
-    app_probes 0 ucast_probes 3 mcast_probes 3
-    anycast_delay 1000 proxy_delay 800 proxy_queue 64 locktime 1000
-
-inet6 ndisc_cache
-    dev lo
-    refcnt 1 reachable 35524 base_reachable 30000 retrans 1000
-    gc_stale 60000 delay_probe 5000 queue 101
-    app_probes 0 ucast_probes 3 mcast_probes 3
-    anycast_delay 1000 proxy_delay 800 proxy_queue 64 locktime 0
-
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: xu xin <xu.xin16@zte.com.cn>
-Acked-by: Joanne Koong <joannekoong@fb.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jagan Teki <jagan@amarulasolutions.com>
+Link: https://lore.kernel.org/r/20211112142359.320798-1-jagan@amarulasolutions.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/neighbour.c | 4 ----
- 1 file changed, 4 deletions(-)
+ arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4b-plus.dts | 7 +++++--
+ arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4b.dts      | 7 +++++--
+ arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4c.dts      | 7 +++++--
+ 3 files changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index dda12fbd177ba..559928a1defb4 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -3770,10 +3770,6 @@ int neigh_sysctl_register(struct net_device *dev, struct neigh_parms *p,
- 			neigh_proc_base_reachable_time;
- 	}
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4b-plus.dts b/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4b-plus.dts
+index dfad13d2ab249..5bd2b8db3d51a 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4b-plus.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4b-plus.dts
+@@ -35,13 +35,16 @@ &uart0 {
+ 	status = "okay";
  
--	/* Don't export sysctls to unprivileged users */
--	if (neigh_parms_net(p)->user_ns != &init_user_ns)
--		t->neigh_vars[0].procname = NULL;
--
- 	switch (neigh_parms_family(p)) {
- 	case AF_INET:
- 	      p_name = "ipv4";
+ 	bluetooth {
+-		compatible = "brcm,bcm43438-bt";
++		compatible = "brcm,bcm4345c5";
+ 		clocks = <&rk808 1>;
+-		clock-names = "ext_clock";
++		clock-names = "lpo";
+ 		device-wakeup-gpios = <&gpio2 RK_PD3 GPIO_ACTIVE_HIGH>;
+ 		host-wakeup-gpios = <&gpio0 RK_PA4 GPIO_ACTIVE_HIGH>;
+ 		shutdown-gpios = <&gpio0 RK_PB1 GPIO_ACTIVE_HIGH>;
++		max-speed = <1500000>;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&bt_host_wake_l &bt_wake_l &bt_enable_h>;
++		vbat-supply = <&vcc3v3_sys>;
++		vddio-supply = <&vcc_1v8>;
+ 	};
+ };
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4b.dts b/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4b.dts
+index 6c63e617063c9..cf48746a3ad81 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4b.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4b.dts
+@@ -34,13 +34,16 @@ &uart0 {
+ 	status = "okay";
+ 
+ 	bluetooth {
+-		compatible = "brcm,bcm43438-bt";
++		compatible = "brcm,bcm4345c5";
+ 		clocks = <&rk808 1>;
+-		clock-names = "ext_clock";
++		clock-names = "lpo";
+ 		device-wakeup-gpios = <&gpio2 RK_PD3 GPIO_ACTIVE_HIGH>;
+ 		host-wakeup-gpios = <&gpio0 RK_PA4 GPIO_ACTIVE_HIGH>;
+ 		shutdown-gpios = <&gpio0 RK_PB1 GPIO_ACTIVE_HIGH>;
++		max-speed = <1500000>;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&bt_host_wake_l &bt_wake_l &bt_enable_h>;
++		vbat-supply = <&vcc3v3_sys>;
++		vddio-supply = <&vcc_1v8>;
+ 	};
+ };
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4c.dts b/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4c.dts
+index 99169bcd51c03..57ddf55ee6930 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4c.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3399-rock-pi-4c.dts
+@@ -35,14 +35,17 @@ &uart0 {
+ 	status = "okay";
+ 
+ 	bluetooth {
+-		compatible = "brcm,bcm43438-bt";
++		compatible = "brcm,bcm4345c5";
+ 		clocks = <&rk808 1>;
+-		clock-names = "ext_clock";
++		clock-names = "lpo";
+ 		device-wakeup-gpios = <&gpio2 RK_PD3 GPIO_ACTIVE_HIGH>;
+ 		host-wakeup-gpios = <&gpio0 RK_PA4 GPIO_ACTIVE_HIGH>;
+ 		shutdown-gpios = <&gpio0 RK_PB1 GPIO_ACTIVE_HIGH>;
++		max-speed = <1500000>;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&bt_host_wake_l &bt_wake_l &bt_enable_h>;
++		vbat-supply = <&vcc3v3_sys>;
++		vddio-supply = <&vcc_1v8>;
+ 	};
+ };
+ 
 -- 
 2.34.1
 
