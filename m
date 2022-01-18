@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 009FE492A15
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:06:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37D39492A66
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:10:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346219AbiARQGr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 11:06:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50982 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346218AbiARQGq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:06:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9D9FC06161C;
-        Tue, 18 Jan 2022 08:06:45 -0800 (PST)
+        id S1346754AbiARQJs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 11:09:48 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:39964 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346886AbiARQIz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:08:55 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 78A29612CF;
-        Tue, 18 Jan 2022 16:06:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C82CC00446;
-        Tue, 18 Jan 2022 16:06:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6526D612C8;
+        Tue, 18 Jan 2022 16:08:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 304C8C00446;
+        Tue, 18 Jan 2022 16:08:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642522004;
-        bh=OvvClgg8tVQtTWn8Qm3ypBSAwn/4B4w1SBC5HNpllfA=;
+        s=korg; t=1642522134;
+        bh=bKimfoQ1gskIREFUdIgvDX+yOxQ8Y2Lm3TDY/b8xxzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DquNUtoIxqUREGHToGnx1KDFTuynORgX76fCA9W/q30qNmdbWb39tsuP+VZ5rgjMk
-         Eh42+iSFfgL2C20aVfMgMVIrawB2LDlk7oIXl4Ev6YkYQlAWspUIjZBSxJB7Yr1C25
-         BWzxkmJmi54R63xlOXyQ0qlLRG2Gs99jvC4FQ8aQ=
+        b=VkDzrZkYVH3b5IKeiv7XREUbp7TKpMME09q1CF5qoxfMGLuKOPWSkZRfL95QB5yKt
+         zw4KneB9YL8v/ZatnSO04faQ+4CfPg/LQCZ/NITxy6TSGJf608dLefuU30rx3qcgDz
+         t1qRAvLXSgsGkJdi6CK18lRbATdvOOQZVf5263Ks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        Kees Cook <keescook@chromium.org>,
-        Johan Hovold <johan@kernel.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 5.4 10/15] firmware: qemu_fw_cfg: fix NULL-pointer deref on duplicate entries
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Mike Marshall <hubcap@omnibond.com>
+Subject: [PATCH 5.15 03/28] orangefs: Fix the size of a memory allocation in orangefs_bufmap_alloc()
 Date:   Tue, 18 Jan 2022 17:05:49 +0100
-Message-Id: <20220118160450.390919144@linuxfoundation.org>
+Message-Id: <20220118160451.986308939@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220118160450.062004175@linuxfoundation.org>
-References: <20220118160450.062004175@linuxfoundation.org>
+In-Reply-To: <20220118160451.879092022@linuxfoundation.org>
+References: <20220118160451.879092022@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,60 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit d3e305592d69e21e36b76d24ca3c01971a2d09be upstream.
+commit 40a74870b2d1d3d44e13b3b73c6571dd34f5614d upstream.
 
-Commit fe3c60684377 ("firmware: Fix a reference count leak.") "fixed"
-a kobject leak in the file registration helper by properly calling
-kobject_put() for the entry in case registration of the object fails
-(e.g. due to a name collision).
+'buffer_index_array' really looks like a bitmap. So it should be allocated
+as such.
+When kzalloc is called, a number of bytes is expected, but a number of
+longs is passed instead.
 
-This would however result in a NULL pointer dereference when the
-release function tries to remove the never added entry from the
-fw_cfg_entry_cache list.
+In get(), if not enough memory is allocated, un-allocated memory may be
+read or written.
 
-Fix this by moving the list-removal out of the release function.
+So use bitmap_zalloc() to safely allocate the correct memory size and
+avoid un-expected behavior.
 
-Note that the offending commit was one of the benign looking umn.edu
-fixes which was reviewed but not reverted. [1][2]
+While at it, change the corresponding kfree() into bitmap_free() to keep
+the semantic.
 
-[1] https://lore.kernel.org/r/202105051005.49BFABCE@keescook
-[2] https://lore.kernel.org/all/YIg7ZOZvS3a8LjSv@kroah.com
-
-Fixes: fe3c60684377 ("firmware: Fix a reference count leak.")
-Cc: stable@vger.kernel.org      # 5.8
-Cc: Qiushi Wu <wu000273@umn.edu>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211201132528.30025-2-johan@kernel.org
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Fixes: ea2c9c9f6574 ("orangefs: bufmap rewrite")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Mike Marshall <hubcap@omnibond.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/qemu_fw_cfg.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ fs/orangefs/orangefs-bufmap.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
---- a/drivers/firmware/qemu_fw_cfg.c
-+++ b/drivers/firmware/qemu_fw_cfg.c
-@@ -385,9 +385,7 @@ static void fw_cfg_sysfs_cache_cleanup(v
- 	struct fw_cfg_sysfs_entry *entry, *next;
- 
- 	list_for_each_entry_safe(entry, next, &fw_cfg_entry_cache, list) {
--		/* will end up invoking fw_cfg_sysfs_cache_delist()
--		 * via each object's release() method (i.e. destructor)
--		 */
-+		fw_cfg_sysfs_cache_delist(entry);
- 		kobject_put(&entry->kobj);
- 	}
- }
-@@ -445,7 +443,6 @@ static void fw_cfg_sysfs_release_entry(s
+--- a/fs/orangefs/orangefs-bufmap.c
++++ b/fs/orangefs/orangefs-bufmap.c
+@@ -176,7 +176,7 @@ orangefs_bufmap_free(struct orangefs_buf
  {
- 	struct fw_cfg_sysfs_entry *entry = to_entry(kobj);
- 
--	fw_cfg_sysfs_cache_delist(entry);
- 	kfree(entry);
+ 	kfree(bufmap->page_array);
+ 	kfree(bufmap->desc_array);
+-	kfree(bufmap->buffer_index_array);
++	bitmap_free(bufmap->buffer_index_array);
+ 	kfree(bufmap);
  }
  
+@@ -226,8 +226,7 @@ orangefs_bufmap_alloc(struct ORANGEFS_de
+ 	bufmap->desc_size = user_desc->size;
+ 	bufmap->desc_shift = ilog2(bufmap->desc_size);
+ 
+-	bufmap->buffer_index_array =
+-		kzalloc(DIV_ROUND_UP(bufmap->desc_count, BITS_PER_LONG), GFP_KERNEL);
++	bufmap->buffer_index_array = bitmap_zalloc(bufmap->desc_count, GFP_KERNEL);
+ 	if (!bufmap->buffer_index_array)
+ 		goto out_free_bufmap;
+ 
+@@ -250,7 +249,7 @@ orangefs_bufmap_alloc(struct ORANGEFS_de
+ out_free_desc_array:
+ 	kfree(bufmap->desc_array);
+ out_free_index_array:
+-	kfree(bufmap->buffer_index_array);
++	bitmap_free(bufmap->buffer_index_array);
+ out_free_bufmap:
+ 	kfree(bufmap);
+ out:
 
 
