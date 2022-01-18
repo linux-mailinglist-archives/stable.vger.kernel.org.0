@@ -2,154 +2,136 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 542464925B0
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 13:27:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 333334925DA
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 13:43:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241876AbiARM1S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 07:27:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56602 "EHLO
+        id S236816AbiARMnw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 07:43:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60318 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234413AbiARM1R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 07:27:17 -0500
-Received: from mail-il1-x129.google.com (mail-il1-x129.google.com [IPv6:2607:f8b0:4864:20::129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E7E8C061574;
-        Tue, 18 Jan 2022 04:27:17 -0800 (PST)
-Received: by mail-il1-x129.google.com with SMTP id a2so11483322ilr.0;
-        Tue, 18 Jan 2022 04:27:17 -0800 (PST)
+        with ESMTP id S236761AbiARMnw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 07:43:52 -0500
+Received: from mail-pg1-x52d.google.com (mail-pg1-x52d.google.com [IPv6:2607:f8b0:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12DA3C06173E
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 04:43:52 -0800 (PST)
+Received: by mail-pg1-x52d.google.com with SMTP id c5so13846685pgk.12
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 04:43:52 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=pYLlRD99Rz4D8D8EFfAOvi+cuOnyBu6LT0ax/HdUAW8=;
-        b=HQENVoDnS5popVrwNgMRiH2t26Msaa3pBT9VvGcHbYXxcMFrniRWByy4qGw+LZmdHC
-         SiSVrqR3wF0PNQjtVDmopQcOPUuHt+4p70CBRZDZiG6YXRW3MAZoPWMn0sjruiPhfazD
-         ACg1OoJ5jA2nnU672DZrNT3n3kS7PA3jgQ2Olg9jN0Lc3I8HiF12niBR2yOnnKiwfnLO
-         FA0grxgWm38yZvIOyqM6DW1zNebvfLiPNt6hE5jYRuHKq0fPuv7aKz3P8LPm9mOqBJgi
-         LNOIp6x3X41c/i8mrRiKhDcTiY83jAKdMqFGJjZxq5BAEnzbnPYPOAa3jvIS2pXTM4aq
-         /4Gw==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=2yt0bJS6NvB/DCsMo1SwbnzEGm5XaLu8/zt/kcwHXxo=;
+        b=JUKmnl3aGpwbV2NpciD2u6m4XyYtk2CGrghjvvMTE1BE1Mc+kP4TLbqLngWFnZUimh
+         uHAD14LmeNIsnpSycOrVKIXDkee6IUsUdReESYYiUBRxWlBQIcJ/U3+t8ZpNRsQOaR/N
+         WSqkLcclpOcSV2Ls75pyRRHBywNVnkEFCOhy2YU3izYeuJonOwaUiJ380+UenU5BNp17
+         A8yjjxSsqro3H9nB3/CewK72pj9hEbhT14bMTo822WQJjowkjDw89ALSg20txhO62CCH
+         ymY4vdiJahDkE6H/G9vbwUPUGx/aLPWnynxx3vMMY08Lw64OTgICz/kAMoLmVjb2kcB4
+         FRpg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=pYLlRD99Rz4D8D8EFfAOvi+cuOnyBu6LT0ax/HdUAW8=;
-        b=ElrzmrhH78ML6id+QmUkK4zZAFp8wmBE3r1Z6cHCHAneAGAKy45aGF6SUanHkOjtX3
-         AnYu59zEdOHXhHrGT+jIzi7KZ2uvn6Mn8wRT32obtYlMsuRZoEssYubTMLNxFGhjn1wn
-         7PBRNUmG585V0aXAMVuNs49vkfrgQ3wjnMaMQKc/L7lDQX+dgOUXkkvvcKfJr/rKs6hB
-         zV/FcNwfA+0e8ys/BDbm+XFSxkA0HAQtWUp0tMhwjhiu8DgxEwe5yLCxXs7fTAAkxnzq
-         k8o5WkmzPuZeq5LjXTfBYFwu4yRuUSWkkkhWFT6WFWu8yeoXDlj3DrQCDGotEDnvzNCa
-         bqwQ==
-X-Gm-Message-State: AOAM530anFrtus8BaLBUaOaun/KnaCDXyE3+8l6ZnGLtoJv7dy8EdUs9
-        e7w/dSKVFLgbqbYrrbp67X/i+sOfLn7oPVkgMao=
-X-Google-Smtp-Source: ABdhPJzpJQUqRjCwGM5v0i9hUV+DkW7ufrPpgzCnbQjGahgFEJ0t2xDaWNS9eavha93xTlAy+YocQMkJ4txbevUvXHI=
-X-Received: by 2002:a05:6e02:1948:: with SMTP id x8mr14609753ilu.107.1642508836861;
- Tue, 18 Jan 2022 04:27:16 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=2yt0bJS6NvB/DCsMo1SwbnzEGm5XaLu8/zt/kcwHXxo=;
+        b=J7bU9HxHmOOWOFCwxOTs0LRHLVjV0pcmVA7iEzyU/jr8ORIATIQJ6Az7Vsgm45e8d9
+         FNjMSmCgoa02izmVGisgmfNnIyOVvB+snaF1tfX6pKRb+cCvzNcWbO4JM8dHg4+Cw1rV
+         hen252gpogqeT76xBlzp9XSWCHzxXI68NLvJbBMnvHc+WnDK3xxPNqTBvC3y6z9WmuKE
+         CiU+YqfltKJnKAeK2Rk1fQz7p0vAdzJFBTQJKFYV5VyzSXZYiF+M7pI8gzQB/6R2Onis
+         oVOXxrqpKGz84isM8KC3g3rYM1Wu5zCRvuNBE4ur+tqPRuy67kcr1g2y1johfEfhj6xc
+         Zz1A==
+X-Gm-Message-State: AOAM533VbeKE20cyND92X7RiZ7maDQd9i8VOAy7BryamhEdU5TPkT2cT
+        fDZA3xTGMgJgEjSwxSlfNFPbNB3Xdi93WbeW
+X-Google-Smtp-Source: ABdhPJyF8qsjMfEWwC/aoXeXqPfSyCY4h7I2QVV3imYAFbLsY6Piz7xiErK8ehKj85t0HI3XZxhzEQ==
+X-Received: by 2002:a63:2b4a:: with SMTP id r71mr23494825pgr.57.1642509831425;
+        Tue, 18 Jan 2022 04:43:51 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id m10sm2583718pjl.33.2022.01.18.04.43.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Jan 2022 04:43:51 -0800 (PST)
+Message-ID: <61e6b607.1c69fb81.aec58.685f@mx.google.com>
+Date:   Tue, 18 Jan 2022 04:43:51 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20220118120031.196123-1-amir73il@gmail.com>
-In-Reply-To: <20220118120031.196123-1-amir73il@gmail.com>
-From:   Amir Goldstein <amir73il@gmail.com>
-Date:   Tue, 18 Jan 2022 14:27:05 +0200
-Message-ID: <CAOQ4uxg3PJBx6MjDnPYcLjJ-tY-Kc-c1d0YDr7OZAiJ=qk7USw@mail.gmail.com>
-Subject: Re: [PATCH] fnotify: invalidate dcache before IN_DELETE event
-To:     Jan Kara <jack@suse.cz>
-Cc:     Matthew Bobrowski <repnop@google.com>,
-        Ivan Delalande <colona@arista.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.297-10-gece287e6caf0
+X-Kernelci-Branch: queue/4.9
+Subject: stable-rc/queue/4.9 baseline: 101 runs,
+ 1 regressions (v4.9.297-10-gece287e6caf0)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 18, 2022 at 2:00 PM Amir Goldstein <amir73il@gmail.com> wrote:
->
-> Apparently, there are some applications that use IN_DELETE event as an
-> invalidation mechanism and expect that if they try to open a file with
-> the name reported with the delete event, that it should not contain the
-> content of the deleted file.
->
-> Commit 49246466a989 ("fsnotify: move fsnotify_nameremove() hook out of
-> d_delete()") moved the fsnotify delete hook before d_delete() so fsnotify
-> will have access to a positive dentry.
->
-> This allowed a race where opening the deleted file via cached dentry
-> is now possible after receiving the IN_DELETE event.
->
-> To fix the regression, we use two different techniques:
-> 1) For call sites that call d_delete() with elevated refcount, convert
->    the call to d_drop() and move the fsnotify hook after d_drop().
-> 2) For the vfs helpers that may turn dentry to negative on d_delete(),
->    use a helper d_delete_notify() to pin the inode, so we can pass it
->    to an fsnotify hook after d_delete().
->
-> Create a new hook fsnotify_delete() that allows to pass a negative
-> dentry and takes the unlinked inode as an argument.
->
-> Add a missing fsnotify_unlink() hook in nfsdfs that was found during
-> the call sites audit.
->
-> Note that the call sites in simple_recursive_removal() follow
-> d_invalidate(), so they require no change.
->
-> Backporting hint: this regression is from v5.3. Although patch will
-> apply with only trivial conflicts to v5.4 and v5.10, it won't build,
-> because fsnotify_delete() implementation is different in each of those
-> versions (see fsnotify_link()).
->
-> Reported-by: Ivan Delalande <colona@arista.com>
-> Link: https://lore.kernel.org/linux-fsdevel/YeNyzoDM5hP5LtGW@visor/
-> Fixes: 49246466a989 ("fsnotify: move fsnotify_nameremove() hook out of d_delete()")
-> Cc: stable@vger.kernel.org # v5.3+
-> Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-> ---
->
-> Jan,
->
-> This turned into an audit of fsnotify_unlink/rmdir() call sites, so
-> besides fixing the regression, I also added one missing hook and replaced
-> most of the d_delete() calls with d_drop() to simplify things.
->
-> I will follow up with backports for v5.4 and v5.10 and will send the
-> repro to LTP guys.
->
-> Thanks,
-> Amir.
->
->  fs/btrfs/ioctl.c         |  5 ++---
->  fs/configfs/dir.c        |  6 +++---
->  fs/devpts/inode.c        |  2 +-
->  fs/namei.c               | 27 ++++++++++++++++++++++-----
->  fs/nfsd/nfsctl.c         |  5 +++--
->  include/linux/fsnotify.h | 20 ++++++++++++++++++++
->  net/sunrpc/rpc_pipe.c    |  4 ++--
->  7 files changed, 53 insertions(+), 16 deletions(-)
->
-> diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
-> index edfecfe62b4b..121e8f439996 100644
-> --- a/fs/btrfs/ioctl.c
-> +++ b/fs/btrfs/ioctl.c
-> @@ -3060,10 +3060,9 @@ static noinline int btrfs_ioctl_snap_destroy(struct file *file,
->         btrfs_inode_lock(inode, 0);
->         err = btrfs_delete_subvolume(dir, dentry);
->         btrfs_inode_unlock(inode, 0);
-> -       if (!err) {
-> +       d_drop(dentry);
-> +       if (!err)
->                 fsnotify_rmdir(dir, dentry);
-> -               d_delete(dentry);
-> -       }
->
+stable-rc/queue/4.9 baseline: 101 runs, 1 regressions (v4.9.297-10-gece287e=
+6caf0)
 
-oops that an unintentional logic change.
-Was supposed to be:
+Regressions Summary
+-------------------
 
-        if (!err) {
-+               d_drop(dentry);
-                fsnotify_rmdir(dir, dentry);
--               d_delete(dentry);
-        }
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-Anyway, fix is pushed to fsnotify-fixes branch.
 
-Thanks,
-Amir.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.297-10-gece287e6caf0/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.297-10-gece287e6caf0
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      ece287e6caf0c867595f29ebba9e1f4f95877943 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61e67447178f77f4d4ef6762
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.297-1=
+0-gece287e6caf0/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.297-1=
+0-gece287e6caf0/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220115.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61e67447178f77f=
+4d4ef6765
+        new failure (last pass: v4.9.297-10-gfdec8da75479)
+        2 lines
+
+    2022-01-18T08:03:01.082505  [   20.568481] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2022-01-18T08:03:01.135221  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/125
+    2022-01-18T08:03:01.145027  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+230 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =20
