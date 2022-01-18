@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56E17491C17
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:14:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB61D491ADD
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:03:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344694AbiARDNd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 22:13:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37470 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344475AbiARDCo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 22:02:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DDCEC028B93;
-        Mon, 17 Jan 2022 18:47:54 -0800 (PST)
+        id S1352351AbiARC7r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:59:47 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56672 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344518AbiARCsB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:48:01 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C14760AB1;
-        Tue, 18 Jan 2022 02:47:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09B6FC36AEB;
-        Tue, 18 Jan 2022 02:47:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F55BB81258;
+        Tue, 18 Jan 2022 02:48:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06CAEC36AF2;
+        Tue, 18 Jan 2022 02:47:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642474073;
-        bh=MKLrJ8FlCvlI9o//6ZJnt/lKxwBZJ03UBn+TH3C0pVI=;
+        s=k20201202; t=1642474079;
+        bh=ToQmvWXHSHE2XdXe3ciESHrugSQBmGxe7tlPv0Rn18M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HPRhytpb7bqjMMAol4wXHeJe95WI0i9+C3D9HebUGAxYSueOTrKd/AYQ1NngNLZhk
-         MXvmELRBmg3KAuaQsIZorrC8muDuZIcwRolk3Eb+QnuqZMeSBj1tNFPQ7MkLOEra2q
-         tqD03dlZb/Amr8HIXeRhJFNLRuGuhNIdhqBZ7KNeUnipzk2NYLsgOYLoynPD6lKsZz
-         gAYLtGlRRZg3/4q6LLVV7ODVtgLwh0uvcDzfdZ2soYe87oMDQwk76JwRETxDCX6Q+i
-         dHhU90iNh+l0Cc1OMWhSrGpuQKZiLy6oMeB3uQMHZaAcfTZex3qXRqSe2JuAm3ldAh
-         SvyreFk0x8u2w==
+        b=a1QJ/3Yb8eXq5XmyDqTraHvS3v1oETVR8Nu2oMrHCj4NB2r3YSd01+dIZ9AFko2LG
+         7mPA/gdLTm2bqMtACxnY3TAxOUCNPWVOGTUc09lr+o1/177lCvzx/MobVTrVh6KFmU
+         ZpNgwoNptt9+PoR93OV/jOu8KEeYRXqyF5ygvvpdlZeWxsMTiBvtFXk6NCazkTFXgC
+         JiWjUuhRRMdk/JiQ4IN4SPuQbmYsH+XdZ7QhAO/mKAll4YmkF1anRXF7KCn3Mo3AYX
+         7osgXLkeoNmaXUuI6cJBcuLUqGiyLxFzilMM1R4TwmybfU0On8vH0k7O6xhgwQa+87
+         e+C9Y6hNaqnDQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     xu xin <xu.xin16@zte.com.cn>, Zeal Robot <zealci@zte.com.cn>,
-        Joanne Koong <joannekoong@fb.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, kuba@kernel.org,
-        daniel@iogearbox.net, dsahern@kernel.org, roopa@nvidia.com,
-        edumazet@google.com, yajun.deng@linux.dev, chinagar@codeaurora.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 23/59] net: Enable neighbor sysctls that is save for userns root
-Date:   Mon, 17 Jan 2022 21:46:24 -0500
-Message-Id: <20220118024701.1952911-23-sashal@kernel.org>
+Cc:     Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>,
+        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+        dave.hansen@linux.intel.com, x86@kernel.org
+Subject: [PATCH AUTOSEL 4.19 25/59] x86/mce: Mark mce_end() noinstr
+Date:   Mon, 17 Jan 2022 21:46:26 -0500
+Message-Id: <20220118024701.1952911-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024701.1952911-1-sashal@kernel.org>
 References: <20220118024701.1952911-1-sashal@kernel.org>
@@ -54,77 +47,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: xu xin <xu.xin16@zte.com.cn>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 8c8b7aa7fb0cf9e1cc9204e6bc6e1353b8393502 ]
+[ Upstream commit b4813539d37fa31fed62cdfab7bd2dd8929c5b2e ]
 
-Inside netns owned by non-init userns, sysctls about ARP/neighbor is
-currently not visible and configurable.
+It is called by the #MC handler which is noinstr.
 
-For the attributes these sysctls correspond to, any modifications make
-effects on the performance of networking(ARP, especilly) only in the
-scope of netns, which does not affect other netns.
+Fixes
 
-Actually, some tools via netlink can modify these attribute. iproute2 is
-an example. see as follows:
+  vmlinux.o: warning: objtool: do_machine_check()+0xbd6: call to memset() leaves .noinstr.text section
 
-$ unshare -ur -n
-$ cat /proc/sys/net/ipv4/neigh/lo/retrans_time
-cat: can't open '/proc/sys/net/ipv4/neigh/lo/retrans_time': No such file
-or directory
-$ ip ntable show dev lo
-inet arp_cache
-    dev lo
-    refcnt 1 reachable 19494 base_reachable 30000 retrans 1000
-    gc_stale 60000 delay_probe 5000 queue 101
-    app_probes 0 ucast_probes 3 mcast_probes 3
-    anycast_delay 1000 proxy_delay 800 proxy_queue 64 locktime 1000
-
-inet6 ndisc_cache
-    dev lo
-    refcnt 1 reachable 42394 base_reachable 30000 retrans 1000
-    gc_stale 60000 delay_probe 5000 queue 101
-    app_probes 0 ucast_probes 3 mcast_probes 3
-    anycast_delay 1000 proxy_delay 800 proxy_queue 64 locktime 0
-$ ip ntable change name arp_cache dev <if> retrans 2000
-inet arp_cache
-    dev lo
-    refcnt 1 reachable 22917 base_reachable 30000 retrans 2000
-    gc_stale 60000 delay_probe 5000 queue 101
-    app_probes 0 ucast_probes 3 mcast_probes 3
-    anycast_delay 1000 proxy_delay 800 proxy_queue 64 locktime 1000
-
-inet6 ndisc_cache
-    dev lo
-    refcnt 1 reachable 35524 base_reachable 30000 retrans 1000
-    gc_stale 60000 delay_probe 5000 queue 101
-    app_probes 0 ucast_probes 3 mcast_probes 3
-    anycast_delay 1000 proxy_delay 800 proxy_queue 64 locktime 0
-
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: xu xin <xu.xin16@zte.com.cn>
-Acked-by: Joanne Koong <joannekoong@fb.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20211208111343.8130-9-bp@alien8.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/neighbour.c | 4 ----
- 1 file changed, 4 deletions(-)
+ arch/x86/kernel/cpu/mcheck/mce.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index 6233e9856016e..4c49e4ddabff7 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -3239,10 +3239,6 @@ int neigh_sysctl_register(struct net_device *dev, struct neigh_parms *p,
- 			neigh_proc_base_reachable_time;
+diff --git a/arch/x86/kernel/cpu/mcheck/mce.c b/arch/x86/kernel/cpu/mcheck/mce.c
+index 56c4456434a82..26adaad3f2587 100644
+--- a/arch/x86/kernel/cpu/mcheck/mce.c
++++ b/arch/x86/kernel/cpu/mcheck/mce.c
+@@ -1030,10 +1030,13 @@ static int mce_start(int *no_way_out)
+  * Synchronize between CPUs after main scanning loop.
+  * This invokes the bulk of the Monarch processing.
+  */
+-static int mce_end(int order)
++static noinstr int mce_end(int order)
+ {
+-	int ret = -1;
+ 	u64 timeout = (u64)mca_cfg.monarch_timeout * NSEC_PER_USEC;
++	int ret = -1;
++
++	/* Allow instrumentation around external facilities. */
++	instrumentation_begin();
+ 
+ 	if (!timeout)
+ 		goto reset;
+@@ -1077,7 +1080,8 @@ static int mce_end(int order)
+ 		/*
+ 		 * Don't reset anything. That's done by the Monarch.
+ 		 */
+-		return 0;
++		ret = 0;
++		goto out;
  	}
  
--	/* Don't export sysctls to unprivileged users */
--	if (neigh_parms_net(p)->user_ns != &init_user_ns)
--		t->neigh_vars[0].procname = NULL;
--
- 	switch (neigh_parms_family(p)) {
- 	case AF_INET:
- 	      p_name = "ipv4";
+ 	/*
+@@ -1092,6 +1096,10 @@ static int mce_end(int order)
+ 	 * Let others run again.
+ 	 */
+ 	atomic_set(&mce_executing, 0);
++
++out:
++	instrumentation_end();
++
+ 	return ret;
+ }
+ 
 -- 
 2.34.1
 
