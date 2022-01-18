@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F813492A23
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:07:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE6B8492A31
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:08:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346356AbiARQHL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 11:07:11 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:40224 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346326AbiARQHJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:07:09 -0500
+        id S1346553AbiARQIW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 11:08:22 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38964 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346431AbiARQHf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:07:35 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EE91ACE1A2D;
-        Tue, 18 Jan 2022 16:07:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7149C00446;
-        Tue, 18 Jan 2022 16:07:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E327E612C8;
+        Tue, 18 Jan 2022 16:07:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5F37C00446;
+        Tue, 18 Jan 2022 16:07:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642522026;
-        bh=an8wbRIoUSTqX7geJnMl5kKqR7w6jg1m7eh6WjdnOt4=;
+        s=korg; t=1642522054;
+        bh=E0fzpSVzymH84+ockhMIJNAw8yP85J4Ded4qGqhWmmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aomDUBKFGzFTWbNzP3QeCm8GQNEZJqQLvsoBGCmkSazRYRZxui9IzOh2aDmsWD2lE
-         H/ux5+xCiU3wlaLX2y2XwdyT5+Buq4n5wSHjKe5pJvQtsLavQeh9tkCooumKOt0pc3
-         LO1icn4CCDQXJ6XR9MC770w2HbSNaR+pSvrO9fbg=
+        b=dzpPdyx6WaSJ9WmkECMzqfR3hAiXoFv/L539rp5BJHJvdIXhos/P7mOBN9+oYvxxf
+         Iwkez41Udx17L/qMpiXklE7WLNGdnRx5DB4jY13NukFCIIKf5n0R/g10v7vzU1RiYD
+         idqr3hqaJrMsz7dzovvkkYNWkfzGxmI09H6IlJ5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Mike Marshall <hubcap@omnibond.com>
-Subject: [PATCH 5.4 03/15] orangefs: Fix the size of a memory allocation in orangefs_bufmap_alloc()
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Al Viro <viro@zeniv.linux.org.uk>, NeilBrown <neilb@suse.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 02/23] devtmpfs regression fix: reconfigure on each mount
 Date:   Tue, 18 Jan 2022 17:05:42 +0100
-Message-Id: <20220118160450.173608285@linuxfoundation.org>
+Message-Id: <20220118160451.327507632@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220118160450.062004175@linuxfoundation.org>
-References: <20220118160450.062004175@linuxfoundation.org>
+In-Reply-To: <20220118160451.233828401@linuxfoundation.org>
+References: <20220118160451.233828401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +46,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: NeilBrown <neilb@suse.de>
 
-commit 40a74870b2d1d3d44e13b3b73c6571dd34f5614d upstream.
+commit a6097180d884ddab769fb25588ea8598589c218c upstream.
 
-'buffer_index_array' really looks like a bitmap. So it should be allocated
-as such.
-When kzalloc is called, a number of bytes is expected, but a number of
-longs is passed instead.
+Prior to Linux v5.4 devtmpfs used mount_single() which treats the given
+mount options as "remount" options, so it updates the configuration of
+the single super_block on each mount.
 
-In get(), if not enough memory is allocated, un-allocated memory may be
-read or written.
+Since that was changed, the mount options used for devtmpfs are ignored.
+This is a regression which affect systemd - which mounts devtmpfs with
+"-o mode=755,size=4m,nr_inodes=1m".
 
-So use bitmap_zalloc() to safely allocate the correct memory size and
-avoid un-expected behavior.
+This patch restores the "remount" effect by calling reconfigure_single()
 
-While at it, change the corresponding kfree() into bitmap_free() to keep
-the semantic.
-
-Fixes: ea2c9c9f6574 ("orangefs: bufmap rewrite")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Mike Marshall <hubcap@omnibond.com>
+Fixes: d401727ea0d7 ("devtmpfs: don't mix {ramfs,shmem}_fill_super() with mount_single()")
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Signed-off-by: NeilBrown <neilb@suse.de>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/orangefs/orangefs-bufmap.c |    7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/base/devtmpfs.c    |    7 +++++++
+ fs/super.c                 |    4 ++--
+ include/linux/fs_context.h |    2 ++
+ 3 files changed, 11 insertions(+), 2 deletions(-)
 
---- a/fs/orangefs/orangefs-bufmap.c
-+++ b/fs/orangefs/orangefs-bufmap.c
-@@ -179,7 +179,7 @@ orangefs_bufmap_free(struct orangefs_buf
+--- a/drivers/base/devtmpfs.c
++++ b/drivers/base/devtmpfs.c
+@@ -59,8 +59,15 @@ static struct dentry *public_dev_mount(s
+ 		      const char *dev_name, void *data)
  {
- 	kfree(bufmap->page_array);
- 	kfree(bufmap->desc_array);
--	kfree(bufmap->buffer_index_array);
-+	bitmap_free(bufmap->buffer_index_array);
- 	kfree(bufmap);
+ 	struct super_block *s = mnt->mnt_sb;
++	int err;
++
+ 	atomic_inc(&s->s_active);
+ 	down_write(&s->s_umount);
++	err = reconfigure_single(s, flags, data);
++	if (err < 0) {
++		deactivate_locked_super(s);
++		return ERR_PTR(err);
++	}
+ 	return dget(s->s_root);
  }
  
-@@ -229,8 +229,7 @@ orangefs_bufmap_alloc(struct ORANGEFS_de
- 	bufmap->desc_size = user_desc->size;
- 	bufmap->desc_shift = ilog2(bufmap->desc_size);
+--- a/fs/super.c
++++ b/fs/super.c
+@@ -1472,8 +1472,8 @@ struct dentry *mount_nodev(struct file_s
+ }
+ EXPORT_SYMBOL(mount_nodev);
  
--	bufmap->buffer_index_array =
--		kzalloc(DIV_ROUND_UP(bufmap->desc_count, BITS_PER_LONG), GFP_KERNEL);
-+	bufmap->buffer_index_array = bitmap_zalloc(bufmap->desc_count, GFP_KERNEL);
- 	if (!bufmap->buffer_index_array)
- 		goto out_free_bufmap;
+-static int reconfigure_single(struct super_block *s,
+-			      int flags, void *data)
++int reconfigure_single(struct super_block *s,
++		       int flags, void *data)
+ {
+ 	struct fs_context *fc;
+ 	int ret;
+--- a/include/linux/fs_context.h
++++ b/include/linux/fs_context.h
+@@ -140,6 +140,8 @@ extern int generic_parse_monolithic(stru
+ extern int vfs_get_tree(struct fs_context *fc);
+ extern void put_fs_context(struct fs_context *fc);
+ extern void fc_drop_locked(struct fs_context *fc);
++int reconfigure_single(struct super_block *s,
++		       int flags, void *data);
  
-@@ -253,7 +252,7 @@ orangefs_bufmap_alloc(struct ORANGEFS_de
- out_free_desc_array:
- 	kfree(bufmap->desc_array);
- out_free_index_array:
--	kfree(bufmap->buffer_index_array);
-+	bitmap_free(bufmap->buffer_index_array);
- out_free_bufmap:
- 	kfree(bufmap);
- out:
+ /*
+  * sget() wrappers to be called from the ->get_tree() op.
 
 
