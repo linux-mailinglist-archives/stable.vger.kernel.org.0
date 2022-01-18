@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 315534914B8
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:24:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7E684914B7
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:24:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245389AbiARCXs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S245043AbiARCXs (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 17 Jan 2022 21:23:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57226 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244732AbiARCWp (ORCPT
+        with ESMTP id S244809AbiARCWp (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:22:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3D72C06176E;
-        Mon, 17 Jan 2022 18:22:44 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15A63C06176F;
+        Mon, 17 Jan 2022 18:22:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9181CB8124E;
-        Tue, 18 Jan 2022 02:22:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 623B2C36AF2;
-        Tue, 18 Jan 2022 02:22:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8559A60010;
+        Tue, 18 Jan 2022 02:22:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2961C36AEB;
+        Tue, 18 Jan 2022 02:22:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642472562;
-        bh=bLZe5OoYsGgnPbNAU3HWfa4F/i/GsLBmkpOXd9PxLn0=;
+        s=k20201202; t=1642472564;
+        bh=Uy3muUzRramXrgI3qDW47luLxlFoyW/MzQLWzbhDiyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LnlTRUXPdCH9b5R9wDXU2B3t1ZbJrMP3GDxbVjlmXu4L4prPrsnh42btRJiUqCjtD
-         vbAgv/996Up7QkZ1W9x9anIZd76b3MPp9WU+QG3L2nW5dQvpNY7awYA8c8i2NSqlGd
-         mRORuuFXWi2+sIY9qWLe8YI6hRxzBiUUkr8ubWurYeZoK3FBUmTdDaQdq2inHB9IY4
-         /2dG8Bkd/r8jC+MeepvWExX6AhcGsLLVCxdR9UaoQif1BAukcrL6kU1a8KhYBokbsA
-         zRAWxHun6prfpMQ7ge0TSaB0VVj3PuftuSjngX457sHlaqR2MY3Wr9EuX6gZxe0MAa
-         GDrBNv+SkACBg==
+        b=cK64x3MRbrOcZFbH11pycydLRnPg+hcbZPJAe/phqdYVJBZLu3JGr6EHM9wvOZvch
+         F2YPpdRhrNPWZ26P5Jtgwhlf1rQFk9SpETiyj/Wl2MDeHtMXmTeUK3UO66zUTzhg5o
+         KRHewCrvaSE/0tIgO6PaP0SWUx5ph6zojS/yNI8HuuOMslVujIheYv5ap805Urg5tE
+         eVA1c3uPAdKdkPWdOW29501ZcrF5ZdzXtyl+Fq0KO/bWGyaxfTvmcjT6UpR6+JmPij
+         q5/P6uEWuBtqnCfkl5j0oJCqxa0OcNAo8RTaQ2DL8zCI0Ru5ihuWUTuKE6bUhGItCo
+         s7YjMI3flbMqQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dinh Nguyen <dinguyen@kernel.org>, Borislav Petkov <bp@suse.de>,
-        Michal Simek <michal.simek@xilinx.com>,
-        Sasha Levin <sashal@kernel.org>, bp@alien8.de,
-        mchehab@kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-edac@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 054/217] EDAC/synopsys: Use the quirk for version instead of ddr version
-Date:   Mon, 17 Jan 2022 21:16:57 -0500
-Message-Id: <20220118021940.1942199-54-sashal@kernel.org>
+Cc:     Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, agross@kernel.org,
+        robh+dt@kernel.org, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 055/217] arm64: dts: qcom: sm[68]350: Use interrupts-extended with pdc interrupts
+Date:   Mon, 17 Jan 2022 21:16:58 -0500
+Message-Id: <20220118021940.1942199-55-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118021940.1942199-1-sashal@kernel.org>
 References: <20220118021940.1942199-1-sashal@kernel.org>
@@ -52,36 +52,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinh Nguyen <dinguyen@kernel.org>
+From: Konrad Dybcio <konrad.dybcio@somainline.org>
 
-[ Upstream commit bd1d6da17c296bd005bfa656952710d256e77dd3 ]
+[ Upstream commit 9e7f7b65c7f04c5cfda97d6bd0d452a49e60f24e ]
 
-Version 2.40a supports DDR_ECC_INTR_SUPPORT for a quirk, so use that
-quirk to determine a call to setup_address_map().
+Using interrupts = <&pdc X Y> makes the interrupt framework interpret this as
+the &pdc-nth range of the main interrupt controller (GIC). Fix it.
 
-Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Michal Simek <michal.simek@xilinx.com>
-Link: https://lkml.kernel.org/r/20211012190709.1504152-1-dinguyen@kernel.org
+Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20211114012755.112226-5-konrad.dybcio@somainline.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/synopsys_edac.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/arm64/boot/dts/qcom/sm6350.dtsi | 4 ++--
+ arch/arm64/boot/dts/qcom/sm8350.dtsi | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/edac/synopsys_edac.c b/drivers/edac/synopsys_edac.c
-index 7d08627e738b3..a5486d86fdd2f 100644
---- a/drivers/edac/synopsys_edac.c
-+++ b/drivers/edac/synopsys_edac.c
-@@ -1352,8 +1352,7 @@ static int mc_probe(struct platform_device *pdev)
- 		}
- 	}
- 
--	if (of_device_is_compatible(pdev->dev.of_node,
--				    "xlnx,zynqmp-ddrc-2.40a"))
-+	if (priv->p_data->quirks & DDR_ECC_INTR_SUPPORT)
- 		setup_address_map(priv);
- #endif
- 
+diff --git a/arch/arm64/boot/dts/qcom/sm6350.dtsi b/arch/arm64/boot/dts/qcom/sm6350.dtsi
+index 973e18fe3b674..cd55797facf69 100644
+--- a/arch/arm64/boot/dts/qcom/sm6350.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm6350.dtsi
+@@ -631,7 +631,7 @@ tsens0: thermal-sensor@c263000 {
+ 			reg = <0 0x0c263000 0 0x1ff>, /* TM */
+ 			      <0 0x0c222000 0 0x8>; /* SROT */
+ 			#qcom,sensors = <16>;
+-			interrupts = <&pdc 26 IRQ_TYPE_LEVEL_HIGH>,
++			interrupts-extended = <&pdc 26 IRQ_TYPE_LEVEL_HIGH>,
+ 				     <&pdc 28 IRQ_TYPE_LEVEL_HIGH>;
+ 			interrupt-names = "uplow", "critical";
+ 			#thermal-sensor-cells = <1>;
+@@ -642,7 +642,7 @@ tsens1: thermal-sensor@c265000 {
+ 			reg = <0 0x0c265000 0 0x1ff>, /* TM */
+ 			      <0 0x0c223000 0 0x8>; /* SROT */
+ 			#qcom,sensors = <16>;
+-			interrupts = <&pdc 27 IRQ_TYPE_LEVEL_HIGH>,
++			interrupts-extended = <&pdc 27 IRQ_TYPE_LEVEL_HIGH>,
+ 				     <&pdc 29 IRQ_TYPE_LEVEL_HIGH>;
+ 			interrupt-names = "uplow", "critical";
+ 			#thermal-sensor-cells = <1>;
+diff --git a/arch/arm64/boot/dts/qcom/sm8350.dtsi b/arch/arm64/boot/dts/qcom/sm8350.dtsi
+index d134280e29390..a8c040c564096 100644
+--- a/arch/arm64/boot/dts/qcom/sm8350.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8350.dtsi
+@@ -910,7 +910,7 @@ tsens0: thermal-sensor@c263000 {
+ 			reg = <0 0x0c263000 0 0x1ff>, /* TM */
+ 			      <0 0x0c222000 0 0x8>; /* SROT */
+ 			#qcom,sensors = <15>;
+-			interrupts = <&pdc 26 IRQ_TYPE_LEVEL_HIGH>,
++			interrupts-extended = <&pdc 26 IRQ_TYPE_LEVEL_HIGH>,
+ 				     <&pdc 28 IRQ_TYPE_LEVEL_HIGH>;
+ 			interrupt-names = "uplow", "critical";
+ 			#thermal-sensor-cells = <1>;
+@@ -921,7 +921,7 @@ tsens1: thermal-sensor@c265000 {
+ 			reg = <0 0x0c265000 0 0x1ff>, /* TM */
+ 			      <0 0x0c223000 0 0x8>; /* SROT */
+ 			#qcom,sensors = <14>;
+-			interrupts = <&pdc 27 IRQ_TYPE_LEVEL_HIGH>,
++			interrupts-extended = <&pdc 27 IRQ_TYPE_LEVEL_HIGH>,
+ 				     <&pdc 29 IRQ_TYPE_LEVEL_HIGH>;
+ 			interrupt-names = "uplow", "critical";
+ 			#thermal-sensor-cells = <1>;
 -- 
 2.34.1
 
