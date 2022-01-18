@@ -2,107 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 491D7492C4D
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 18:27:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E09F492C80
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 18:35:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243879AbiARR0x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 12:26:53 -0500
-Received: from mail.skyhub.de ([5.9.137.197]:44346 "EHLO mail.skyhub.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238539AbiARR0x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 Jan 2022 12:26:53 -0500
-Received: from zn.tnic (dslb-088-067-202-008.088.067.pools.vodafone-ip.de [88.67.202.8])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 347CD1EC018C;
-        Tue, 18 Jan 2022 18:26:46 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1642526806;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=CWaM8oIp7o2Aaev/wro+HXQnt9heh/Qc8Sja6PGiC6I=;
-        b=Oj2BAifzOwJW2z2oqt8iF5j5YA6Q9zR7oT0UASVq0337uvHudzyu1rba49S7MNCbs3ZE3S
-        ah04gGzTqruJ3yc2e/3P+q2BWRYIePZWkaRGtNiH3NhfU7zVeVrShzvFmKrRStPq8/DkLP
-        dpQdJ/QpipwyQvGl6KkTvL2GuK0Wa8A=
-Date:   Tue, 18 Jan 2022 18:26:48 +0100
-From:   Borislav Petkov <bp@alien8.de>
-To:     Lucas De Marchi <lucas.demarchi@intel.com>
-Cc:     x86@kernel.org, Dave Hansen <dave.hansen@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Bjorn Helgaas <bhelgaas@google.com>, linux-pci@vger.kernel.org,
-        intel-gfx@lists.freedesktop.org,
-        Ville =?utf-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
-        Matt Roper <matthew.d.roper@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v5 1/5] x86/quirks: Fix stolen detection with integrated
- + discrete GPU
-Message-ID: <Yeb4WKOFNDNbx6tH@zn.tnic>
-References: <20220114002843.2083382-1-lucas.demarchi@intel.com>
- <YeaLIs9t0jhovC28@zn.tnic>
- <20220118163656.fzzkwubgoe5gz36k@ldmartin-desk2>
+        id S1347504AbiARRf2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 12:35:28 -0500
+Received: from jabberwock.ucw.cz ([46.255.230.98]:47514 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347463AbiARRf0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 12:35:26 -0500
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 1321E1C0B80; Tue, 18 Jan 2022 18:35:25 +0100 (CET)
+Date:   Tue, 18 Jan 2022 18:35:24 +0100
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.10 00/23] 5.10.93-rc1 review
+Message-ID: <20220118173524.GA17462@duo.ucw.cz>
+References: <20220118160451.233828401@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
 Content-Disposition: inline
-In-Reply-To: <20220118163656.fzzkwubgoe5gz36k@ldmartin-desk2>
+In-Reply-To: <20220118160451.233828401@linuxfoundation.org>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 18, 2022 at 08:36:56AM -0800, Lucas De Marchi wrote:
-> I had the impression the subject/title should be imperative, with it
-> more relaxed in the body. It seems we have one more difference among
-> subsystems and I will adapt on next submissions to x86.
 
-We have written it down properly, in case it explains it better:
+--yrj/dFKFPuw6o+aM
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-"The tip tree maintainers set value on following these rules, especially
-on the request to write changelogs in imperative mood and not
-impersonating code or the execution of it. This is not just a whim of
-the maintainers. Changelogs written in abstract words are more precise
-and tend to be less confusing than those written in the form of novels."
+Hi!
 
-from Documentation/process/maintainer-tip.rst
+> This is the start of the stable review cycle for the 5.10.93 release.
+> There are 23 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 
-> > So I wonder: why can't you simply pass in a static struct chipset *
-> > pointer into the early_qrk[i].f function and in there you can set
-> > QFLAG_APPLIED or so, so that you can mark that the quirk is applied by
-> > using the nice, per-quirk flags someone has already added instead of
-> > this ugly static variable?
-> 
-> It seems you prefer v1. See 20211218061313.100571-1-lucas.demarchi@intel.com
+CIP testing did not find any new kernel problems here (but we still
+hit the gmp.h compilation issue):
 
-I do?
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/tree/linux-=
+5.10.y
 
-I don't see there:
+Tested-by: Pavel Machek (CIP) <pavel@denx.de>
 
-	early_qrk[i].f(&early_qrk[i], num, slot, func)
+Best regards,
+                                                                Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
-so that the ->f callback can set the flags. Or at least the flags passed
-in.
+--yrj/dFKFPuw6o+aM
+Content-Type: application/pgp-signature; name="signature.asc"
 
-If it is not clear what I mean, pls say so and I'll try to produce an
-example diff ontop.
+-----BEGIN PGP SIGNATURE-----
 
-> Although in the review Bjorn suggested just splitting the commit, it was
-> also mentioned that the PCI subsystem has no such logic in its
-> equivalent pci_do_fixups(): a quirk/fixup needing that should instead
-> use a static local.
+iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYeb6XAAKCRAw5/Bqldv6
+8iQcAJ0eDo/vTp0YjCy7aKxBMUQ+viyWSwCgrtg4ZwZYHwu/FtREZ8R/0cy1w50=
+=Sgcs
+-----END PGP SIGNATURE-----
 
-Why?
-
-There's perfectly nice ->flags there for exactly stuff like that. static
-vars are ugly and should be avoided if possible.
-
-> What is special about patch 3?
-
-Nothing special. It is just ugly.
-
-Thx.
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+--yrj/dFKFPuw6o+aM--
