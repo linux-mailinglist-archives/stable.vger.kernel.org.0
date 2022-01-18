@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFE63491725
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:38:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60EA24917DD
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:43:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344791AbiARCiH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:38:07 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:52298 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344852AbiARCfE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:35:04 -0500
+        id S1343976AbiARCnV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:43:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60916 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345043AbiARCiQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:38:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD2F3C061759;
+        Mon, 17 Jan 2022 18:35:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F0120611D6;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D179611F0;
+        Tue, 18 Jan 2022 02:35:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3B53C36AF3;
         Tue, 18 Jan 2022 02:35:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54D8FC36AE3;
-        Tue, 18 Jan 2022 02:35:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473303;
-        bh=6ftHw2PhpvyqVOJfiLYzxPb74sRaD6npgzQ7/f5plLI=;
+        s=k20201202; t=1642473304;
+        bh=p9CdwRWne9+kvQaj67kRPnickld1KZcHC6w7Wj/SdVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Alz6ds3MtNrwN+jO2q2nyHTJQmqRWOHdI51ZZn5fZDxNpWYjqeWbPt7XTVMisKmND
-         qHZpDY8xBspZlDp8RHoUs81tu6CTUUlb6LPEEMBDTXdzYuX4MAoi//gHJiPZolS2XL
-         Psi1+8YwESGWF404gJRxquvn+62BuycT5SuEwiUg24Fe0AtR5SvQuLRTGmMCCBKZ1f
-         V6L6jieQY62KOo00movX+J57EYnJ2DEDc0WFOPEs/CFP4qqy8NHH0allKHFjJdD2VS
-         NKvcu7HwhPSXDD/scbIPibgY8oYYFpk0Rh+ys0Ki1IBm1CYEC/4EOzrcm3XjVGutu/
-         z5AXGFYE+oW1Q==
+        b=NPJfkiWAW2oxo6zMhe0RTzu5iGA8TLGOd0EYvwqjGIBqLlSGWMbLOPBFaEA11g+aT
+         IqDIeh4lUpsi9V11gUYZhgsAm/ynp/zgQ+3H7yF5sHoWj8UmIBjjipRXdubRmC5JoG
+         QG23k/vW5gc6iVEJe2RoHRVwvXkBPGkLcpyWuBT637Q69gJuD6TAZcGI2UhY67IYsT
+         kFQlygxuE5MG4wFHclXEhIM3Urel4wSlc7R4J5L1nMl1EFJlGm7FRsIDSY7Nm/m945
+         P/MeclO0PCWZ9m5GktAvE1Cx+ySpAUpTIFKvGxUJubGh34r2E8daXRs4YrLf8RBTy9
+         FLGoxkUf2Oipw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Fugang Duan <fugang.duan@nxp.com>, Sherry Sun <sherry.sun@nxp.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, jirislaby@kernel.org,
-        shawnguo@kernel.org, linux-serial@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 059/188] tty: serial: imx: disable UCR4_OREN in .stop_rx() instead of .shutdown()
-Date:   Mon, 17 Jan 2022 21:29:43 -0500
-Message-Id: <20220118023152.1948105-59-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        mika.westerberg@linux.intel.com, linus.walleij@linaro.org,
+        brgl@bgdev.pl, linux-gpio@vger.kernel.org,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 060/188] gpiolib: acpi: Do not set the IRQ type if the IRQ is already in use
+Date:   Mon, 17 Jan 2022 21:29:44 -0500
+Message-Id: <20220118023152.1948105-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118023152.1948105-1-sashal@kernel.org>
 References: <20220118023152.1948105-1-sashal@kernel.org>
@@ -49,67 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fugang Duan <fugang.duan@nxp.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 028e083832b06fdeeb290e1e57dc1f6702c4c215 ]
+[ Upstream commit bdfd6ab8fdccd8b138837efff66f4a1911496378 ]
 
-The UCR4_OREN should be disabled before disabling the uart receiver in
-.stop_rx() instead of in the .shutdown().
+If the IRQ is already in use, then acpi_dev_gpio_irq_get_by() really
+should not change the type underneath the current owner.
 
-Otherwise, if we have the overrun error during the receiver disable
-process, the overrun interrupt will keep trigging until we disable the
-OREN interrupt in the .shutdown(), because the ORE status can only be
-cleared when read the rx FIFO or reset the controller.  Although the
-called time between the receiver disable and OREN disable in .shutdown()
-is very short, there is still the risk of endless interrupt during this
-short period of time. So here change to disable OREN before the receiver
-been disabled in .stop_rx().
+I specifically hit an issue with this an a Chuwi Hi8 Super (CWI509) Bay
+Trail tablet, when the Boot OS selection in the BIOS is set to Android.
+In this case _STA for a MAX17047 ACPI I2C device wrongly returns 0xf and
+the _CRS resources for this device include a GpioInt pointing to a GPIO
+already in use by an _AEI handler, with a different type then specified
+in the _CRS for the MAX17047 device. Leading to the acpi_dev_gpio_irq_get()
+call done by the i2c-core-acpi.c code changing the type breaking the
+_AEI handler.
 
-Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Link: https://lore.kernel.org/r/20211125020349.4980-1-sherry.sun@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Now this clearly is a bug in the DSDT of this tablet (in Android mode),
+but in general calling irq_set_irq_type() on an IRQ which already is
+in use seems like a bad idea.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/imx.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/gpio/gpiolib-acpi.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
-index 51a9f9423b1a6..7820049aba5af 100644
---- a/drivers/tty/serial/imx.c
-+++ b/drivers/tty/serial/imx.c
-@@ -486,18 +486,21 @@ static void imx_uart_stop_tx(struct uart_port *port)
- static void imx_uart_stop_rx(struct uart_port *port)
- {
- 	struct imx_port *sport = (struct imx_port *)port;
--	u32 ucr1, ucr2;
-+	u32 ucr1, ucr2, ucr4;
+diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
+index 47712b6903b51..d040c72fea582 100644
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -1059,10 +1059,17 @@ int acpi_dev_gpio_irq_get_by(struct acpi_device *adev, const char *name, int ind
+ 			irq_flags = acpi_dev_get_irq_type(info.triggering,
+ 							  info.polarity);
  
- 	ucr1 = imx_uart_readl(sport, UCR1);
- 	ucr2 = imx_uart_readl(sport, UCR2);
-+	ucr4 = imx_uart_readl(sport, UCR4);
+-			/* Set type if specified and different than the current one */
+-			if (irq_flags != IRQ_TYPE_NONE &&
+-			    irq_flags != irq_get_trigger_type(irq))
+-				irq_set_irq_type(irq, irq_flags);
++			/*
++			 * If the IRQ is not already in use then set type
++			 * if specified and different than the current one.
++			 */
++			if (can_request_irq(irq, irq_flags)) {
++				if (irq_flags != IRQ_TYPE_NONE &&
++				    irq_flags != irq_get_trigger_type(irq))
++					irq_set_irq_type(irq, irq_flags);
++			} else {
++				dev_dbg(&adev->dev, "IRQ %d already in use\n", irq);
++			}
  
- 	if (sport->dma_is_enabled) {
- 		ucr1 &= ~(UCR1_RXDMAEN | UCR1_ATDMAEN);
- 	} else {
- 		ucr1 &= ~UCR1_RRDYEN;
- 		ucr2 &= ~UCR2_ATEN;
-+		ucr4 &= ~UCR4_OREN;
- 	}
- 	imx_uart_writel(sport, ucr1, UCR1);
-+	imx_uart_writel(sport, ucr4, UCR4);
- 
- 	ucr2 &= ~UCR2_RXEN;
- 	imx_uart_writel(sport, ucr2, UCR2);
-@@ -1544,7 +1547,7 @@ static void imx_uart_shutdown(struct uart_port *port)
- 	imx_uart_writel(sport, ucr1, UCR1);
- 
- 	ucr4 = imx_uart_readl(sport, UCR4);
--	ucr4 &= ~(UCR4_OREN | UCR4_TCEN);
-+	ucr4 &= ~UCR4_TCEN;
- 	imx_uart_writel(sport, ucr4, UCR4);
- 
- 	spin_unlock_irqrestore(&sport->port.lock, flags);
+ 			return irq;
+ 		}
 -- 
 2.34.1
 
