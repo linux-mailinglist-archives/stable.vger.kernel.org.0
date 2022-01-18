@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82EC2491A6D
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:02:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FD47491A74
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:02:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352331AbiARC7p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:59:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34496 "EHLO
+        id S1352379AbiARC7v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:59:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349241AbiARCrs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:47:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE749C094250;
-        Mon, 17 Jan 2022 18:39:19 -0800 (PST)
+        with ESMTP id S1345808AbiARCsj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:48:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ACE6C0612E1;
+        Mon, 17 Jan 2022 18:39:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 88269B81240;
-        Tue, 18 Jan 2022 02:39:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB6D1C36AF4;
-        Tue, 18 Jan 2022 02:39:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D6ADC611F1;
+        Tue, 18 Jan 2022 02:39:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96B29C36AE3;
+        Tue, 18 Jan 2022 02:39:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473558;
-        bh=0W+efpgq1FlUhJyr6MfVSm/5wkWq3CVYrdrfGADKS5w=;
+        s=k20201202; t=1642473567;
+        bh=TElkjlzuCBV3Gc3JqGNMR1z/jwiZxTMPgmvaZtwLM8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ozaHFbGCC2Qt+7sBda5CzgsTUeTEJOWAM8y4ZFheZlmxgtdFM4Yea1q1ze6fMmSRI
-         xFHnF/+mk9FZsIOtLsU1+nQYdEqCd7PNH/8x9Y2vCSQnGtuV+AGMpyZUKhtfl2E/P5
-         UmYO1mbBgvTAfkJpLfrv8n7r6ppuhWzv9dIflptfKXkStaVRjotRRPZqRVmxbzXh9n
-         Gfi3tyN9O7Kipv9IUfHXciqm6L7bbPxH1ZGPVnzNJJ6D95QYXntifsTSCQSVF4+EOz
-         Jfa154lIWWemnvulRIn3G1RskXRcpki1PZkPthvo3gu1iFZxxwGdwL7KxKTALtOs5f
-         Idi3b8W755JzQ==
+        b=EBezdbPkcVrepUvg7wRmaMzioOrSPHTCiI45/LtOdQG5561V7l6bX79TJJt/meVn/
+         cB1QJO+esTevI8jMONtAcYzET7vNIR+89fBvgH7hXTsGUXsPc8Lm9cUz8pKanwZYbk
+         3by+pLYSjIGILaKPdxxGQ/ay/MxKBGPDfA5HA/qr3O8EHVC6VgpI7OxZ/SFFI4hN1q
+         vmsooVRB3sdfGnktPArJB8nA+lWiKa4zo5kUNd43HMVej7QW1A3z0DpWJcS//DISD7
+         F62yQBbpIjwCktSZ+0Fklp49Enbjrj2Cyeew9bY6k9SlAry18ImLPTMViQraO9pliX
+         mkM1ecMVjAWFA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Joe Thornber <ejt@redhat.com>, Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, agk@redhat.com,
-        dm-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.15 168/188] dm btree: add a defensive bounds check to insert_at()
-Date:   Mon, 17 Jan 2022 21:31:32 -0500
-Message-Id: <20220118023152.1948105-168-sashal@kernel.org>
+Cc:     Jiri Olsa <jolsa@redhat.com>, Hangbin Liu <haliu@redhat.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jussi Maki <joamaki@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
+        ast@kernel.org, andrii@kernel.org, yhs@fb.com, sdf@google.com,
+        sunyucong@gmail.com, linux-kselftest@vger.kernel.org,
+        netdev@vger.kernel.org, bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 170/188] bpf/selftests: Fix namespace mount setup in tc_redirect
+Date:   Mon, 17 Jan 2022 21:31:34 -0500
+Message-Id: <20220118023152.1948105-170-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118023152.1948105-1-sashal@kernel.org>
 References: <20220118023152.1948105-1-sashal@kernel.org>
@@ -50,43 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Thornber <ejt@redhat.com>
+From: Jiri Olsa <jolsa@redhat.com>
 
-[ Upstream commit 85bca3c05b6cca31625437eedf2060e846c4bbad ]
+[ Upstream commit 5e22dd18626726028a93ff1350a8a71a00fd843d ]
 
-Corrupt metadata could trigger an out of bounds write.
+The tc_redirect umounts /sys in the new namespace, which can be
+mounted as shared and cause global umount. The lazy umount also
+takes down mounted trees under /sys like debugfs, which won't be
+available after sysfs mounts again and could cause fails in other
+tests.
 
-Signed-off-by: Joe Thornber <ejt@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+  # cat /proc/self/mountinfo | grep debugfs
+  34 23 0:7 / /sys/kernel/debug rw,nosuid,nodev,noexec,relatime shared:14 - debugfs debugfs rw
+  # cat /proc/self/mountinfo | grep sysfs
+  23 86 0:22 / /sys rw,nosuid,nodev,noexec,relatime shared:2 - sysfs sysfs rw
+  # mount | grep debugfs
+  debugfs on /sys/kernel/debug type debugfs (rw,nosuid,nodev,noexec,relatime)
+
+  # ./test_progs -t tc_redirect
+  #164 tc_redirect:OK
+  Summary: 1/4 PASSED, 0 SKIPPED, 0 FAILED
+
+  # mount | grep debugfs
+  # cat /proc/self/mountinfo | grep debugfs
+  # cat /proc/self/mountinfo | grep sysfs
+  25 86 0:22 / /sys rw,relatime shared:2 - sysfs sysfs rw
+
+Making the sysfs private under the new namespace so the umount won't
+trigger the global sysfs umount.
+
+Reported-by: Hangbin Liu <haliu@redhat.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Jussi Maki <joamaki@gmail.com>
+Link: https://lore.kernel.org/bpf/20220104121030.138216-1-jolsa@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/persistent-data/dm-btree.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ tools/testing/selftests/bpf/prog_tests/tc_redirect.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/md/persistent-data/dm-btree.c b/drivers/md/persistent-data/dm-btree.c
-index 0703ca7a7d9a4..5ce64e93aae74 100644
---- a/drivers/md/persistent-data/dm-btree.c
-+++ b/drivers/md/persistent-data/dm-btree.c
-@@ -81,14 +81,16 @@ void inc_children(struct dm_transaction_manager *tm, struct btree_node *n,
- }
+diff --git a/tools/testing/selftests/bpf/prog_tests/tc_redirect.c b/tools/testing/selftests/bpf/prog_tests/tc_redirect.c
+index e7201ba29ccd6..47e3159729d21 100644
+--- a/tools/testing/selftests/bpf/prog_tests/tc_redirect.c
++++ b/tools/testing/selftests/bpf/prog_tests/tc_redirect.c
+@@ -105,6 +105,13 @@ static int setns_by_fd(int nsfd)
+ 	if (!ASSERT_OK(err, "unshare"))
+ 		return err;
  
- static int insert_at(size_t value_size, struct btree_node *node, unsigned index,
--		      uint64_t key, void *value)
--		      __dm_written_to_disk(value)
-+		     uint64_t key, void *value)
-+	__dm_written_to_disk(value)
- {
- 	uint32_t nr_entries = le32_to_cpu(node->header.nr_entries);
-+	uint32_t max_entries = le32_to_cpu(node->header.max_entries);
- 	__le64 key_le = cpu_to_le64(key);
- 
- 	if (index > nr_entries ||
--	    index >= le32_to_cpu(node->header.max_entries)) {
-+	    index >= max_entries ||
-+	    nr_entries >= max_entries) {
- 		DMERR("too many entries in btree node for insert");
- 		__dm_unbless_for_disk(value);
- 		return -ENOMEM;
++	/* Make our /sys mount private, so the following umount won't
++	 * trigger the global umount in case it's shared.
++	 */
++	err = mount("none", "/sys", NULL, MS_PRIVATE, NULL);
++	if (!ASSERT_OK(err, "remount private /sys"))
++		return err;
++
+ 	err = umount2("/sys", MNT_DETACH);
+ 	if (!ASSERT_OK(err, "umount2 /sys"))
+ 		return err;
 -- 
 2.34.1
 
