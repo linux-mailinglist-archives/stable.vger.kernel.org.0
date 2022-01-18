@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B7C5491C59
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:16:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD23A491C5B
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:16:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355911AbiARDOu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 22:14:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39010 "EHLO
+        id S1355932AbiARDOy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 22:14:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352437AbiARDIk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 22:08:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DB80C061747;
-        Mon, 17 Jan 2022 18:51:02 -0800 (PST)
+        with ESMTP id S1352601AbiARDIm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 22:08:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13288C061748;
+        Mon, 17 Jan 2022 18:51:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D92B56133E;
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA313B81255;
+        Tue, 18 Jan 2022 02:51:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C006BC36AF2;
         Tue, 18 Jan 2022 02:51:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 986DAC36AEB;
-        Tue, 18 Jan 2022 02:51:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642474261;
-        bh=gAdR1OM5DyzXldaoTGerOPYk5Q5HS47XdNIAaB8QhhY=;
+        s=k20201202; t=1642474262;
+        bh=qwLyaZMfE85g/d4I9bn3G44vYMOvYhH+xIhWBPlvYxI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aN7hgv5eD3xtN9pR0wddgdteEuI1gMBl6y20f9sVP8mgvciYM06BhmXThh2vpleb+
-         9wiJd3xzibGUqucGB0we2/oWICgysWqRjlqD13x00QQFIEt5ISqF6FZqWmC9dxvO5z
-         WhsuZmBU0U/84bPVxBhQEIQCkWe0MVet21/N74bvab5zFWEYoKa9IX/yFUfWzXQxnD
-         W8k0isA9Tg4rUCXsPRUf84UT9Ew0Uum+dwIPgWoH/j/hQ3XXy9yqQOl4eK+f+G3xWp
-         3KQfwPktGMJ0fHvCK1CuZ8fStDhRp3oKDMAKzd51vsWHGR8+fblYOZfsszrrDn//VY
-         B0e/Iv4BRh+Kw==
+        b=Vi63qRGs2yMgEoQk79a7a0x+9cjvEibelkamGz9cgIR1fsj9oC3BXDUn2q3jvbvbj
+         OsogqemTIv2jP5s3f8Gunf3mKJQ/vWnJmVSXsUA1i60PPAE1Pk+m/qQqXiaqfoTmg4
+         R2u2FaVTYaFnyOlHmW6ZTUHBwe1KYBm5ORMp7J1VtGkDWUVP0I5FNIRI5bLA/DVSnh
+         LtGycdmmIa2sXYPClc2ZiAXGBvnHjgXNhtTj3uHM4T7jV0MGKcA2KXwkekcLkAv24/
+         RvWRPRXjxElSlmfenDtq/piqVolAlvazPT8PQLgxBtpuLLROPKUcR+gV0l3Eh4bsg2
+         bRGGHGelA3WOA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>, clm@fb.com,
         linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 47/56] btrfs: remove BUG_ON() in find_parent_nodes()
-Date:   Mon, 17 Jan 2022 21:48:59 -0500
-Message-Id: <20220118024908.1953673-47-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 48/56] btrfs: remove BUG_ON(!eie) in find_parent_nodes
+Date:   Mon, 17 Jan 2022 21:49:00 -0500
+Message-Id: <20220118024908.1953673-48-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024908.1953673-1-sashal@kernel.org>
 References: <20220118024908.1953673-1-sashal@kernel.org>
@@ -53,38 +53,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit fcba0120edf88328524a4878d1d6f4ad39f2ec81 ]
+[ Upstream commit 9f05c09d6baef789726346397438cca4ec43c3ee ]
 
-We search for an extent entry with .offset = -1, which shouldn't be a
-thing, but corruption happens.  Add an ASSERT() for the developers,
-return -EUCLEAN for mortals.
+If we're looking for leafs that point to a data extent we want to record
+the extent items that point at our bytenr.  At this point we have the
+reference and we know for a fact that this leaf should have a reference
+to our bytenr.  However if there's some sort of corruption we may not
+find any references to our leaf, and thus could end up with eie == NULL.
+Replace this BUG_ON() with an ASSERT() and then return -EUCLEAN for the
+mortals.
 
 Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/backref.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ fs/btrfs/backref.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
 diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
-index 1cf75d1032e17..f2c2ac3343bac 100644
+index f2c2ac3343bac..58dc96d7ecafa 100644
 --- a/fs/btrfs/backref.c
 +++ b/fs/btrfs/backref.c
-@@ -1163,7 +1163,12 @@ static int find_parent_nodes(struct btrfs_trans_handle *trans,
- 	ret = btrfs_search_slot(trans, fs_info->extent_root, &key, path, 0, 0);
- 	if (ret < 0)
- 		goto out;
--	BUG_ON(ret == 0);
-+	if (ret == 0) {
-+		/* This shouldn't happen, indicates a bug or fs corruption. */
-+		ASSERT(ret != 0);
-+		ret = -EUCLEAN;
-+		goto out;
-+	}
- 
- #ifdef CONFIG_BTRFS_FS_RUN_SANITY_TESTS
- 	if (trans && likely(trans->type != __TRANS_DUMMY) &&
+@@ -1315,10 +1315,18 @@ static int find_parent_nodes(struct btrfs_trans_handle *trans,
+ 				goto out;
+ 			if (!ret && extent_item_pos) {
+ 				/*
+-				 * we've recorded that parent, so we must extend
+-				 * its inode list here
++				 * We've recorded that parent, so we must extend
++				 * its inode list here.
++				 *
++				 * However if there was corruption we may not
++				 * have found an eie, return an error in this
++				 * case.
+ 				 */
+-				BUG_ON(!eie);
++				ASSERT(eie);
++				if (!eie) {
++					ret = -EUCLEAN;
++					goto out;
++				}
+ 				while (eie->next)
+ 					eie = eie->next;
+ 				eie->next = ref->inode_list;
 -- 
 2.34.1
 
