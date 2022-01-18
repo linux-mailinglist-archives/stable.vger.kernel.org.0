@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 141EF4920C4
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 08:59:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A70714920D6
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 09:02:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238767AbiARH7V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 02:59:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50978 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245626AbiARH7U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 02:59:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58263C061574
-        for <stable@vger.kernel.org>; Mon, 17 Jan 2022 23:59:20 -0800 (PST)
+        id S1343838AbiARICl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 03:02:41 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:33600 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245613AbiARICk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 03:02:40 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 21121B81052
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 07:59:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46E7FC00446;
-        Tue, 18 Jan 2022 07:59:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79AB3613F1
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 08:02:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A1A9C00446;
+        Tue, 18 Jan 2022 08:02:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642492757;
-        bh=+V4e18xvIaiDNhLnR4O88+JuCDH4/Dy4Zcrm9aNYgOw=;
+        s=korg; t=1642492959;
+        bh=qsuO00dBupv7xJuYjecOvFnSrjVEzEzPScdSGpSEHr4=;
         h=Subject:To:Cc:From:Date:From;
-        b=GV/iYkb7Wj13Z8a1eC75wfydd6KhHrf2U3UajyBUlwJzVhYHwMCJo1UmVIHRPqFO2
-         /NOjec2kZGaRjErF+QtYNDdbzgbNx/CVqx7nTI+9MZXxHAgHzJwzGnAMPEV4SlM5Nc
-         Wny19LRhY60FLLEliBFFC98Jo0XTk/pJNW5sWGrw=
-Subject: FAILED: patch "[PATCH] KVM: s390: Clarify SIGP orders versus STOP/RESTART" failed to apply to 4.14-stable tree
-To:     farman@linux.ibm.com, borntraeger@linux.ibm.com, david@redhat.com
+        b=PqpP9qLuthL5IhOoQxwDGJelzP2WlGM7HpI2yhScPj/UWA1JVxZw/mZhLe6T7zKMV
+         Kf3mmtxWs59Qb21vjMQeGDZABaCTlHD0heVUwyEG518bXaINO8aEgBJpJe/Hk/LPPB
+         EuPGF5x4aSxV6hCynTE277nrClSWhv/puCM7x2c8=
+Subject: FAILED: patch "[PATCH] exfat: fix i_blocks for files truncated over 4 GiB" failed to apply to 5.15-stable tree
+To:     christophe.vu-brugier@seagate.com, linkinjeon@kernel.org,
+        sj1557.seo@samsung.com, willy@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 18 Jan 2022 08:59:02 +0100
-Message-ID: <164249274213065@kroah.com>
+Date:   Tue, 18 Jan 2022 09:02:28 +0100
+Message-ID: <164249294821237@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -53,122 +51,72 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 812de04661c4daa7ac385c0dfd62594540538034 Mon Sep 17 00:00:00 2001
-From: Eric Farman <farman@linux.ibm.com>
-Date: Mon, 13 Dec 2021 22:05:50 +0100
-Subject: [PATCH] KVM: s390: Clarify SIGP orders versus STOP/RESTART
+From 92fba084b79e6bc7b12fc118209f1922c1a2df56 Mon Sep 17 00:00:00 2001
+From: Christophe Vu-Brugier <christophe.vu-brugier@seagate.com>
+Date: Mon, 22 Nov 2021 22:02:37 +0900
+Subject: [PATCH] exfat: fix i_blocks for files truncated over 4 GiB
 
-With KVM_CAP_S390_USER_SIGP, there are only five Signal Processor
-orders (CONDITIONAL EMERGENCY SIGNAL, EMERGENCY SIGNAL, EXTERNAL CALL,
-SENSE, and SENSE RUNNING STATUS) which are intended for frequent use
-and thus are processed in-kernel. The remainder are sent to userspace
-with the KVM_CAP_S390_USER_SIGP capability. Of those, three orders
-(RESTART, STOP, and STOP AND STORE STATUS) have the potential to
-inject work back into the kernel, and thus are asynchronous.
+In exfat_truncate(), the computation of inode->i_blocks is wrong if
+the file is larger than 4 GiB because a 32-bit variable is used as a
+mask. This is fixed and simplified by using round_up().
 
-Let's look for those pending IRQs when processing one of the in-kernel
-SIGP orders, and return BUSY (CC2) if one is in process. This is in
-agreement with the Principles of Operation, which states that only one
-order can be "active" on a CPU at a time.
+Also fix the same buggy computation in exfat_read_root() and another
+(correct) one in exfat_fill_inode(). The latter was fixed another way
+last month but can be simplified by using round_up() as well. See:
 
-Cc: stable@vger.kernel.org
-Suggested-by: David Hildenbrand <david@redhat.com>
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Link: https://lore.kernel.org/r/20211213210550.856213-2-farman@linux.ibm.com
-[borntraeger@linux.ibm.com: add stable tag]
-Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+  commit 0c336d6e33f4 ("exfat: fix incorrect loading of i_blocks for
+                        large files")
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index c3bd993fdd0c..0576d5c99138 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -2115,6 +2115,13 @@ int kvm_s390_is_stop_irq_pending(struct kvm_vcpu *vcpu)
- 	return test_bit(IRQ_PEND_SIGP_STOP, &li->pending_irqs);
- }
+Fixes: 98d917047e8b ("exfat: add file operations")
+Cc: stable@vger.kernel.org # v5.7+
+Suggested-by: Matthew Wilcox <willy@infradead.org>
+Reviewed-by: Sungjong Seo <sj1557.seo@samsung.com>
+Signed-off-by: Christophe Vu-Brugier <christophe.vu-brugier@seagate.com>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+
+diff --git a/fs/exfat/file.c b/fs/exfat/file.c
+index 848166d6d5e9..d890fd34bb2d 100644
+--- a/fs/exfat/file.c
++++ b/fs/exfat/file.c
+@@ -251,8 +251,8 @@ void exfat_truncate(struct inode *inode, loff_t size)
+ 	else
+ 		mark_inode_dirty(inode);
  
-+int kvm_s390_is_restart_irq_pending(struct kvm_vcpu *vcpu)
-+{
-+	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
-+
-+	return test_bit(IRQ_PEND_RESTART, &li->pending_irqs);
-+}
-+
- void kvm_s390_clear_stop_irq(struct kvm_vcpu *vcpu)
- {
- 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
-diff --git a/arch/s390/kvm/kvm-s390.c b/arch/s390/kvm/kvm-s390.c
-index 14a18ba5ff2c..ef299aad4009 100644
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -4645,10 +4645,15 @@ int kvm_s390_vcpu_stop(struct kvm_vcpu *vcpu)
- 		}
- 	}
+-	inode->i_blocks = ((i_size_read(inode) + (sbi->cluster_size - 1)) &
+-			~(sbi->cluster_size - 1)) >> inode->i_blkbits;
++	inode->i_blocks = round_up(i_size_read(inode), sbi->cluster_size) >>
++				inode->i_blkbits;
+ write_size:
+ 	aligned_size = i_size_read(inode);
+ 	if (aligned_size & (blocksize - 1)) {
+diff --git a/fs/exfat/inode.c b/fs/exfat/inode.c
+index 5c442182f516..df805bd05508 100644
+--- a/fs/exfat/inode.c
++++ b/fs/exfat/inode.c
+@@ -602,8 +602,8 @@ static int exfat_fill_inode(struct inode *inode, struct exfat_dir_entry *info)
  
--	/* SIGP STOP and SIGP STOP AND STORE STATUS has been fully processed */
-+	/*
-+	 * Set the VCPU to STOPPED and THEN clear the interrupt flag,
-+	 * now that the SIGP STOP and SIGP STOP AND STORE STATUS orders
-+	 * have been fully processed. This will ensure that the VCPU
-+	 * is kept BUSY if another VCPU is inquiring with SIGP SENSE.
-+	 */
-+	kvm_s390_set_cpuflags(vcpu, CPUSTAT_STOPPED);
- 	kvm_s390_clear_stop_irq(vcpu);
+ 	exfat_save_attr(inode, info->attr);
  
--	kvm_s390_set_cpuflags(vcpu, CPUSTAT_STOPPED);
- 	__disable_ibs_on_vcpu(vcpu);
+-	inode->i_blocks = ((i_size_read(inode) + (sbi->cluster_size - 1)) &
+-		~((loff_t)sbi->cluster_size - 1)) >> inode->i_blkbits;
++	inode->i_blocks = round_up(i_size_read(inode), sbi->cluster_size) >>
++				inode->i_blkbits;
+ 	inode->i_mtime = info->mtime;
+ 	inode->i_ctime = info->mtime;
+ 	ei->i_crtime = info->crtime;
+diff --git a/fs/exfat/super.c b/fs/exfat/super.c
+index 1a2115d73a48..4b5d02b1df58 100644
+--- a/fs/exfat/super.c
++++ b/fs/exfat/super.c
+@@ -364,8 +364,8 @@ static int exfat_read_root(struct inode *inode)
+ 	inode->i_op = &exfat_dir_inode_operations;
+ 	inode->i_fop = &exfat_dir_operations;
  
- 	for (i = 0; i < online_vcpus; i++) {
-diff --git a/arch/s390/kvm/kvm-s390.h b/arch/s390/kvm/kvm-s390.h
-index c07a050d757d..1876ab0c293f 100644
---- a/arch/s390/kvm/kvm-s390.h
-+++ b/arch/s390/kvm/kvm-s390.h
-@@ -427,6 +427,7 @@ void kvm_s390_destroy_adapters(struct kvm *kvm);
- int kvm_s390_ext_call_pending(struct kvm_vcpu *vcpu);
- extern struct kvm_device_ops kvm_flic_ops;
- int kvm_s390_is_stop_irq_pending(struct kvm_vcpu *vcpu);
-+int kvm_s390_is_restart_irq_pending(struct kvm_vcpu *vcpu);
- void kvm_s390_clear_stop_irq(struct kvm_vcpu *vcpu);
- int kvm_s390_set_irq_state(struct kvm_vcpu *vcpu,
- 			   void __user *buf, int len);
-diff --git a/arch/s390/kvm/sigp.c b/arch/s390/kvm/sigp.c
-index cf4de80bd541..8aaee2892ec3 100644
---- a/arch/s390/kvm/sigp.c
-+++ b/arch/s390/kvm/sigp.c
-@@ -276,6 +276,34 @@ static int handle_sigp_dst(struct kvm_vcpu *vcpu, u8 order_code,
- 	if (!dst_vcpu)
- 		return SIGP_CC_NOT_OPERATIONAL;
- 
-+	/*
-+	 * SIGP RESTART, SIGP STOP, and SIGP STOP AND STORE STATUS orders
-+	 * are processed asynchronously. Until the affected VCPU finishes
-+	 * its work and calls back into KVM to clear the (RESTART or STOP)
-+	 * interrupt, we need to return any new non-reset orders "busy".
-+	 *
-+	 * This is important because a single VCPU could issue:
-+	 *  1) SIGP STOP $DESTINATION
-+	 *  2) SIGP SENSE $DESTINATION
-+	 *
-+	 * If the SIGP SENSE would not be rejected as "busy", it could
-+	 * return an incorrect answer as to whether the VCPU is STOPPED
-+	 * or OPERATING.
-+	 */
-+	if (order_code != SIGP_INITIAL_CPU_RESET &&
-+	    order_code != SIGP_CPU_RESET) {
-+		/*
-+		 * Lockless check. Both SIGP STOP and SIGP (RE)START
-+		 * properly synchronize everything while processing
-+		 * their orders, while the guest cannot observe a
-+		 * difference when issuing other orders from two
-+		 * different VCPUs.
-+		 */
-+		if (kvm_s390_is_stop_irq_pending(dst_vcpu) ||
-+		    kvm_s390_is_restart_irq_pending(dst_vcpu))
-+			return SIGP_CC_BUSY;
-+	}
-+
- 	switch (order_code) {
- 	case SIGP_SENSE:
- 		vcpu->stat.instruction_sigp_sense++;
+-	inode->i_blocks = ((i_size_read(inode) + (sbi->cluster_size - 1))
+-			& ~(sbi->cluster_size - 1)) >> inode->i_blkbits;
++	inode->i_blocks = round_up(i_size_read(inode), sbi->cluster_size) >>
++				inode->i_blkbits;
+ 	ei->i_pos = ((loff_t)sbi->root_dir << 32) | 0xffffffff;
+ 	ei->i_size_aligned = i_size_read(inode);
+ 	ei->i_size_ondisk = i_size_read(inode);
 
