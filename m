@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEFAF4916B0
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:36:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F681491632
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:33:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240627AbiARCgH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:36:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58892 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345570AbiARCbn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:31:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16E90C061770;
-        Mon, 17 Jan 2022 18:29:40 -0800 (PST)
+        id S239855AbiARCdE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:33:04 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:42390 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344315AbiARC3n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:29:43 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7461A61157;
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8F96B81244;
+        Tue, 18 Jan 2022 02:29:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 606A6C36AE3;
         Tue, 18 Jan 2022 02:29:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07188C36AEB;
-        Tue, 18 Jan 2022 02:29:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642472978;
-        bh=WrmovBE7B/LPgIOvuDDD6clEs9gOydREBb19a2g3R1w=;
+        s=k20201202; t=1642472980;
+        bh=o+qYG+ML9wHDSqQvfw0/Rdn3tY3nA8lbroLnq/hiesA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZoI1CCFSAUdkqkZ2N0eekZo6rUWz00fdUyloXh+h5YiJQ5N8+m+9MU3p2jY6OvM6u
-         jY/H6GbJ1Z/FEg/Ohi/TOP72rheARnMOEx85g6DwlaUX0gLQPROVjKTahqZbQ0Xwzn
-         5pZdWodNMzHkDkzQuBZCwS1I7hlggyzVP4f37TCnsQf4GmX+S+LxJSTTUjTRH7761S
-         vtTM6bC0rVEC/6y49QMHeqRF8t2XAlkOqjtcNbXUSZCh07hCqVnQavfJgoKZjyRJB+
-         UmxLx7wuuh0SYY5XvPYALGmHztcwN4gKzEdv7P5enSXuKCPGv1BgL08ZVcmJga0O59
-         egRBeetyNwy8Q==
+        b=MkdzJxjbGu4pDkLYjH8nvC07Ei5kuKHFfWOoUhYfsYa4sVbv2HLNPhCijROJnc2wN
+         w3alVI4upquEH9K9WlWiR4LmhYmPB1fDjvRmWaOjwNd1CXZRWb0BmFzh1YYh2582eF
+         7Te4Xdt6ci55sGiEJd87M/+nqA+9tCP4P6unSIp7UhxnYpY1fXeLSgO97cYUmTCcW5
+         E7KxEcNTxI1z+895k/e/BQN/9gQ4oSjpC8asrtSRrcUq/N6XVL7fsgiI9WZFP6i0w4
+         TgGZbRqYqp3J+ezMeC+Ur5Ltc1xu0z4ra1WOe4fQ5/aacxXpHgAR3by3hYAJC2W69Y
+         Ldh7f1JFoKchw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Tsuchiya Yuto <kitakar@gmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, andy@kernel.org
-Subject: [PATCH AUTOSEL 5.16 187/217] mfd: intel_soc_pmic: Use CPU-id check instead of _HRV check to differentiate variants
-Date:   Mon, 17 Jan 2022 21:19:10 -0500
-Message-Id: <20220118021940.1942199-187-sashal@kernel.org>
+Cc:     Marina Nikolic <Marina.Nikolic@amd.com>,
+        Evan Quan <evan.quan@amd.com>, Lijo Lazar <lijo.lazar@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
+        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.16 188/217] amdgpu/pm: Make sysfs pm attributes as read-only for VFs
+Date:   Mon, 17 Jan 2022 21:19:11 -0500
+Message-Id: <20220118021940.1942199-188-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118021940.1942199-1-sashal@kernel.org>
 References: <20220118021940.1942199-1-sashal@kernel.org>
@@ -52,85 +50,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Marina Nikolic <Marina.Nikolic@amd.com>
 
-[ Upstream commit 5b78223f55a0f516a1639dbe11cd4324d4aaee20 ]
+[ Upstream commit 11c9cc95f818f0f187e9b579a7f136f532b42445 ]
 
-The Intel Crystal Cove PMIC has 2 different variants, one for use with
-Bay Trail (BYT) SoCs and one for use with Cherry Trail (CHT) SoCs.
+== Description ==
+Setting values of pm attributes through sysfs
+should not be allowed in SRIOV mode.
+These calls will not be processed by FW anyway,
+but error handling on sysfs level should be improved.
 
-So far we have been using an ACPI _HRV check to differentiate between
-the 2, but at least on the Microsoft Surface 3, which is a CHT device,
-the wrong _HRV value is reported by ACPI.
+== Changes ==
+This patch prohibits performing of all set commands
+in SRIOV mode on sysfs level.
+It offers better error handling as calls that are
+not allowed will not be propagated further.
 
-So instead switch to a CPU-ID check which prevents us from relying on
-the possibly wrong ACPI _HRV value.
+== Test ==
+Writing to any sysfs file in passthrough mode will succeed.
+Writing to any sysfs file in ONEVF mode will yield error:
+"calling process does not have sufficient permission to execute a command".
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reported-by: Tsuchiya Yuto <kitakar@gmail.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Link: https://lore.kernel.org/r/20211206174806.197772-2-hdegoede@redhat.com
+Signed-off-by: Marina Nikolic <Marina.Nikolic@amd.com>
+Acked-by: Evan Quan <evan.quan@amd.com>
+Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/intel_soc_pmic_core.c | 28 +++-------------------------
- 1 file changed, 3 insertions(+), 25 deletions(-)
+ drivers/gpu/drm/amd/pm/amdgpu_pm.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/mfd/intel_soc_pmic_core.c b/drivers/mfd/intel_soc_pmic_core.c
-index ddd64f9e3341e..47cb7f00dfcfc 100644
---- a/drivers/mfd/intel_soc_pmic_core.c
-+++ b/drivers/mfd/intel_soc_pmic_core.c
-@@ -14,15 +14,12 @@
- #include <linux/module.h>
- #include <linux/mfd/core.h>
- #include <linux/mfd/intel_soc_pmic.h>
-+#include <linux/platform_data/x86/soc.h>
- #include <linux/pwm.h>
- #include <linux/regmap.h>
+diff --git a/drivers/gpu/drm/amd/pm/amdgpu_pm.c b/drivers/gpu/drm/amd/pm/amdgpu_pm.c
+index 41472ed992530..f8370d54100e8 100644
+--- a/drivers/gpu/drm/amd/pm/amdgpu_pm.c
++++ b/drivers/gpu/drm/amd/pm/amdgpu_pm.c
+@@ -2123,6 +2123,12 @@ static int default_attr_update(struct amdgpu_device *adev, struct amdgpu_device_
+ 		}
+ 	}
  
- #include "intel_soc_pmic_core.h"
++	/* setting should not be allowed from VF */
++	if (amdgpu_sriov_vf(adev)) {
++		dev_attr->attr.mode &= ~S_IWUGO;
++		dev_attr->store = NULL;
++	}
++
+ #undef DEVICE_ATTR_IS
  
--/* Crystal Cove PMIC shares same ACPI ID between different platforms */
--#define BYT_CRC_HRV		2
--#define CHT_CRC_HRV		3
--
- /* PWM consumed by the Intel GFX */
- static struct pwm_lookup crc_pwm_lookup[] = {
- 	PWM_LOOKUP("crystal_cove_pwm", 0, "0000:00:02.0", "pwm_pmic_backlight", 0, PWM_POLARITY_NORMAL),
-@@ -34,31 +31,12 @@ static int intel_soc_pmic_i2c_probe(struct i2c_client *i2c,
- 	struct device *dev = &i2c->dev;
- 	struct intel_soc_pmic_config *config;
- 	struct intel_soc_pmic *pmic;
--	unsigned long long hrv;
--	acpi_status status;
- 	int ret;
- 
--	/*
--	 * There are 2 different Crystal Cove PMICs a Bay Trail and Cherry
--	 * Trail version, use _HRV to differentiate between the 2.
--	 */
--	status = acpi_evaluate_integer(ACPI_HANDLE(dev), "_HRV", NULL, &hrv);
--	if (ACPI_FAILURE(status)) {
--		dev_err(dev, "Failed to get PMIC hardware revision\n");
--		return -ENODEV;
--	}
--
--	switch (hrv) {
--	case BYT_CRC_HRV:
-+	if (soc_intel_is_byt())
- 		config = &intel_soc_pmic_config_byt_crc;
--		break;
--	case CHT_CRC_HRV:
-+	else
- 		config = &intel_soc_pmic_config_cht_crc;
--		break;
--	default:
--		dev_warn(dev, "Unknown hardware rev %llu, assuming BYT\n", hrv);
--		config = &intel_soc_pmic_config_byt_crc;
--	}
- 
- 	pmic = devm_kzalloc(dev, sizeof(*pmic), GFP_KERNEL);
- 	if (!pmic)
+ 	return 0;
 -- 
 2.34.1
 
