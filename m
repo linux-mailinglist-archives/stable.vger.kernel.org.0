@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C68E491A2A
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:58:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0275F491A2C
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:58:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345457AbiARC6m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:58:42 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:54926 "EHLO
+        id S1348040AbiARC6r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:58:47 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:54984 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348734AbiARCp5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:45:57 -0500
+        with ESMTP id S1348775AbiARCqE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:46:04 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 146E4B81136;
-        Tue, 18 Jan 2022 02:45:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EED6CC36AEF;
-        Tue, 18 Jan 2022 02:45:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B0AFB81244;
+        Tue, 18 Jan 2022 02:46:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3B6DC36AEB;
+        Tue, 18 Jan 2022 02:46:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473954;
-        bh=pgsZHp9ixRySTOMnwePYjcM7jO08VdKO54ioWL4fvKA=;
+        s=k20201202; t=1642473961;
+        bh=Mux5XJTW3pJiVPcl/iFS7hUyFsEJtVaPya5qb4ckeX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j4hhEVbGmvpa66gwiBDq5neg2CSHV+PE536uUcxYPfZXx3DW+BJSfinvquxADyN9D
-         84fUKFLGPSfcZKgZdKocKwt1Eigu844lXwWAMaczr0m+8sNzs8yDtL5ZVgYXUnnxAw
-         jSnl9jITrxn+RDWiYiVkvg+2f1SWElVkWPszIWQJr8WT8dlzxWyVauZNFGZkeNIx0E
-         RBY7o2xUmvTHjplxnBPDsQQRhjduo2QcGVzpiz7Jdhu3Hyz+EVVxTE0dKF3Ujbw/7q
-         3qFmtazJ8lb9W4CVBFZRNJ6Xviwq4fsIeXnvYc948myiNHvCEUyBPWFa1uEB95dRi7
-         WMWnKaR0yBU+A==
+        b=eVTcSDcZtgrb2y7kokwfP89uqWf4UCW8+pWU+tw2P2keBxWqgXWMOAsdF58dyDltr
+         jiNzeuySX5VTd279cy/2+MfUxC+Z2gx/d+NEFZV0rhYanT1auw5l+pORgQ7ojPsF07
+         LZNECUm4cYu94vL0wSEoTBLb7ZPzuINYaXYjRMmYXH/e/h6jyCUoZ0UmCPPV0mTy9/
+         bLb1QUeOzgFo3659LeyBWU4SJIJ2sY/MZQjovPK2KhwV3JtiWNrnN52ikvQAvMrILa
+         klnMNborA1aMLvlbsE86N2kEHImemXlIPuL3NH7sQjhpkCwNW1RXnzvCqcLvJZtVIg
+         IbrUxmKqS53IQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alistair Francis <alistair@alistair23.me>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 39/73] HID: quirks: Allow inverting the absolute X/Y values
-Date:   Mon, 17 Jan 2022 21:43:58 -0500
-Message-Id: <20220118024432.1952028-39-sashal@kernel.org>
+Cc:     Paul Moore <paul@paul-moore.com>,
+        Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Richard Guy Briggs <rgb@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, eparis@redhat.com,
+        linux-audit@redhat.com
+Subject: [PATCH AUTOSEL 5.4 43/73] audit: ensure userspace is penalized the same as the kernel when under pressure
+Date:   Mon, 17 Jan 2022 21:44:02 -0500
+Message-Id: <20220118024432.1952028-43-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024432.1952028-1-sashal@kernel.org>
 References: <20220118024432.1952028-1-sashal@kernel.org>
@@ -48,53 +49,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alistair Francis <alistair@alistair23.me>
+From: Paul Moore <paul@paul-moore.com>
 
-[ Upstream commit fd8d135b2c5e88662f2729e034913f183455a667 ]
+[ Upstream commit 8f110f530635af44fff1f4ee100ecef0bac62510 ]
 
-Add a HID_QUIRK_X_INVERT/HID_QUIRK_Y_INVERT quirk that can be used
-to invert the X/Y values.
+Due to the audit control mutex necessary for serializing audit
+userspace messages we haven't been able to block/penalize userspace
+processes that attempt to send audit records while the system is
+under audit pressure.  The result is that privileged userspace
+applications have a priority boost with respect to audit as they are
+not bound by the same audit queue throttling as the other tasks on
+the system.
 
-Signed-off-by: Alistair Francis <alistair@alistair23.me>
-[bentiss: silence checkpatch warning]
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Link: https://lore.kernel.org/r/20211208124045.61815-2-alistair@alistair23.me
+This patch attempts to restore some balance to the system when under
+audit pressure by blocking these privileged userspace tasks after
+they have finished their audit processing, and dropped the audit
+control mutex, but before they return to userspace.
+
+Reported-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Tested-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-input.c | 6 ++++++
- include/linux/hid.h     | 2 ++
- 2 files changed, 8 insertions(+)
+ kernel/audit.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index ea4c97f5b0736..749558aa27e78 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -1288,6 +1288,12 @@ void hidinput_hid_event(struct hid_device *hid, struct hid_field *field, struct
- 
- 	input = field->hidinput->input;
- 
-+	if (usage->type == EV_ABS &&
-+	    (((*quirks & HID_QUIRK_X_INVERT) && usage->code == ABS_X) ||
-+	     ((*quirks & HID_QUIRK_Y_INVERT) && usage->code == ABS_Y))) {
-+		value = field->logical_maximum - value;
-+	}
+diff --git a/kernel/audit.c b/kernel/audit.c
+index d67fce9e3f8b8..146edff0c73ec 100644
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -1528,6 +1528,20 @@ static void audit_receive(struct sk_buff  *skb)
+ 		nlh = nlmsg_next(nlh, &len);
+ 	}
+ 	audit_ctl_unlock();
 +
- 	if (usage->hat_min < usage->hat_max || usage->hat_dir) {
- 		int hat_dir = usage->hat_dir;
- 		if (!hat_dir)
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index ad46ed41e8836..d5f9bbf8afa51 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -344,6 +344,8 @@ struct hid_item {
- /* BIT(9) reserved for backward compatibility, was NO_INIT_INPUT_REPORTS */
- #define HID_QUIRK_ALWAYS_POLL			BIT(10)
- #define HID_QUIRK_INPUT_PER_APP			BIT(11)
-+#define HID_QUIRK_X_INVERT			BIT(12)
-+#define HID_QUIRK_Y_INVERT			BIT(13)
- #define HID_QUIRK_SKIP_OUTPUT_REPORTS		BIT(16)
- #define HID_QUIRK_SKIP_OUTPUT_REPORT_ID		BIT(17)
- #define HID_QUIRK_NO_OUTPUT_REPORTS_ON_INTR_EP	BIT(18)
++	/* can't block with the ctrl lock, so penalize the sender now */
++	if (audit_backlog_limit &&
++	    (skb_queue_len(&audit_queue) > audit_backlog_limit)) {
++		DECLARE_WAITQUEUE(wait, current);
++
++		/* wake kauditd to try and flush the queue */
++		wake_up_interruptible(&kauditd_wait);
++
++		add_wait_queue_exclusive(&audit_backlog_wait, &wait);
++		set_current_state(TASK_UNINTERRUPTIBLE);
++		schedule_timeout(audit_backlog_wait_time);
++		remove_wait_queue(&audit_backlog_wait, &wait);
++	}
+ }
+ 
+ /* Run custom bind function on netlink socket group connect or bind requests. */
+@@ -1772,7 +1786,9 @@ struct audit_buffer *audit_log_start(struct audit_context *ctx, gfp_t gfp_mask,
+ 	 *    task_tgid_vnr() since auditd_pid is set in audit_receive_msg()
+ 	 *    using a PID anchored in the caller's namespace
+ 	 * 2. generator holding the audit_cmd_mutex - we don't want to block
+-	 *    while holding the mutex */
++	 *    while holding the mutex, although we do penalize the sender
++	 *    later in audit_receive() when it is safe to block
++	 */
+ 	if (!(auditd_test_task(current) || audit_ctl_owner_current())) {
+ 		long stime = audit_backlog_wait_time;
+ 
 -- 
 2.34.1
 
