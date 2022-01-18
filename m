@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FBAD491DED
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:44:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28935491DE8
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:44:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349799AbiARDn5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 22:43:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35910 "EHLO
+        id S1349985AbiARDnf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 22:43:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36022 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351592AbiARCyr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:54:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49E40C0613AA;
-        Mon, 17 Jan 2022 18:43:51 -0800 (PST)
+        with ESMTP id S1351774AbiARCzJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:55:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 037B4C02B85B;
+        Mon, 17 Jan 2022 18:44:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C2C661118;
-        Tue, 18 Jan 2022 02:43:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B88F9C36AEB;
-        Tue, 18 Jan 2022 02:43:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3ACBB81250;
+        Tue, 18 Jan 2022 02:43:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF82AC36AF4;
+        Tue, 18 Jan 2022 02:43:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473830;
-        bh=UghuDjSFA1C3blZTNc6nhb0ec0wuLb7FlX9uFjb8g6s=;
+        s=k20201202; t=1642473838;
+        bh=WrmovBE7B/LPgIOvuDDD6clEs9gOydREBb19a2g3R1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HmocPg/E4+vbeNzDlThDYw9ntxYe28j0xsnhcZcyQWvymlPUGiymPtr9b9azokei1
-         CiTRAwSW2k2d4oJMLh/cvj+oh7i/mqinv5Ro/8oTSXcdQ2y5DFVoqpPe1UGPT2AjhJ
-         fwoOCuFhxGhWe2nAefQAPYdeSzIw8y2rwL5iX23uM2uq/gKBzf5gcqZhkchL6kDWl/
-         bqhqHBHqLF7bMDfNZsCjtbByFL9qWoiEFobhpCpjBeCD8MI09ylTrhZQ+DvatkcmZV
-         WnWxhlrjCO+HkcZmZU99W8ieUKfZIVwYYI9dEYZwFc3WeWJmJNgXlMsxoJPVkBHAFU
-         Hd4oJYX7tpyWw==
+        b=SrF84gV6wKaDQTCgLwvDawNcN5JSaDOYJTjJWxcB/YEFWi7e2HCC6cBcH2+1qex2c
+         5Hw8oZZlMQc7JPbA+OghIQ4ENn0VDhiwpMiOn6Jf4WHVtEhgumM7xjv+6fR3tVbYqz
+         5ax4SgQoGMxeUwBAD7ry2OkTJxmG/hzr8DWV6t/IcJCXQCt/TZ39f11mv39Dtoz1x7
+         ynqgWQNKUjSrycvhoC7xofeGbTfey3DHsxql/kffoy9uuqAbC5M4rR1vj4u1SjTtpO
+         TWRyLNHGII8wnBh3bynbyOX7G/RBDiC4tIjQCmipIgmdhgLrCMFm/U7Dw/IjfqtZsM
+         3MVk7QyHA4MZw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Lenny Szubowicz <lszubowi@redhat.com>,
-        Bob Moore <robert.moore@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-acpi@vger.kernel.org,
-        devel@acpica.org
-Subject: [PATCH AUTOSEL 5.10 092/116] ACPICA: Executer: Fix the REFCLASS_REFOF case in acpi_ex_opcode_1A_0T_1R()
-Date:   Mon, 17 Jan 2022 21:39:43 -0500
-Message-Id: <20220118024007.1950576-92-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Tsuchiya Yuto <kitakar@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Lee Jones <lee.jones@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, andy@kernel.org
+Subject: [PATCH AUTOSEL 5.10 096/116] mfd: intel_soc_pmic: Use CPU-id check instead of _HRV check to differentiate variants
+Date:   Mon, 17 Jan 2022 21:39:47 -0500
+Message-Id: <20220118024007.1950576-96-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024007.1950576-1-sashal@kernel.org>
 References: <20220118024007.1950576-1-sashal@kernel.org>
@@ -52,54 +52,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 24ea5f90ec9548044a6209685c5010edd66ffe8f ]
+[ Upstream commit 5b78223f55a0f516a1639dbe11cd4324d4aaee20 ]
 
-ACPICA commit d984f12041392fa4156b52e2f7e5c5e7bc38ad9e
+The Intel Crystal Cove PMIC has 2 different variants, one for use with
+Bay Trail (BYT) SoCs and one for use with Cherry Trail (CHT) SoCs.
 
-If Operand[0] is a reference of the ACPI_REFCLASS_REFOF class,
-acpi_ex_opcode_1A_0T_1R () calls acpi_ns_get_attached_object () to
-obtain return_desc which may require additional resolution with
-the help of acpi_ex_read_data_from_field (). If the latter fails,
-the reference counter of the original return_desc is decremented
-which is incorrect, because acpi_ns_get_attached_object () does not
-increment the reference counter of the object returned by it.
+So far we have been using an ACPI _HRV check to differentiate between
+the 2, but at least on the Microsoft Surface 3, which is a CHT device,
+the wrong _HRV value is reported by ACPI.
 
-This issue may lead to premature deletion of the attached object
-while it is still attached and a use-after-free and crash in the
-host OS.  For example, this may happen when on evaluation of ref_of()
-a local region field where there is no registered handler for the
-given Operation Region.
+So instead switch to a CPU-ID check which prevents us from relying on
+the possibly wrong ACPI _HRV value.
 
-Fix it by making acpi_ex_opcode_1A_0T_1R () return Status right away
-after a acpi_ex_read_data_from_field () failure.
-
-Link: https://github.com/acpica/acpica/commit/d984f120
-Link: https://github.com/acpica/acpica/pull/685
-Reported-by: Lenny Szubowicz <lszubowi@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Bob Moore <robert.moore@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reported-by: Tsuchiya Yuto <kitakar@gmail.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20211206174806.197772-2-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/exoparg1.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/mfd/intel_soc_pmic_core.c | 28 +++-------------------------
+ 1 file changed, 3 insertions(+), 25 deletions(-)
 
-diff --git a/drivers/acpi/acpica/exoparg1.c b/drivers/acpi/acpica/exoparg1.c
-index a46d685a3ffcf..9d67dfd93d5b6 100644
---- a/drivers/acpi/acpica/exoparg1.c
-+++ b/drivers/acpi/acpica/exoparg1.c
-@@ -1007,7 +1007,8 @@ acpi_status acpi_ex_opcode_1A_0T_1R(struct acpi_walk_state *walk_state)
- 						    (walk_state, return_desc,
- 						     &temp_desc);
- 						if (ACPI_FAILURE(status)) {
--							goto cleanup;
-+							return_ACPI_STATUS
-+							    (status);
- 						}
+diff --git a/drivers/mfd/intel_soc_pmic_core.c b/drivers/mfd/intel_soc_pmic_core.c
+index ddd64f9e3341e..47cb7f00dfcfc 100644
+--- a/drivers/mfd/intel_soc_pmic_core.c
++++ b/drivers/mfd/intel_soc_pmic_core.c
+@@ -14,15 +14,12 @@
+ #include <linux/module.h>
+ #include <linux/mfd/core.h>
+ #include <linux/mfd/intel_soc_pmic.h>
++#include <linux/platform_data/x86/soc.h>
+ #include <linux/pwm.h>
+ #include <linux/regmap.h>
  
- 						return_desc = temp_desc;
+ #include "intel_soc_pmic_core.h"
+ 
+-/* Crystal Cove PMIC shares same ACPI ID between different platforms */
+-#define BYT_CRC_HRV		2
+-#define CHT_CRC_HRV		3
+-
+ /* PWM consumed by the Intel GFX */
+ static struct pwm_lookup crc_pwm_lookup[] = {
+ 	PWM_LOOKUP("crystal_cove_pwm", 0, "0000:00:02.0", "pwm_pmic_backlight", 0, PWM_POLARITY_NORMAL),
+@@ -34,31 +31,12 @@ static int intel_soc_pmic_i2c_probe(struct i2c_client *i2c,
+ 	struct device *dev = &i2c->dev;
+ 	struct intel_soc_pmic_config *config;
+ 	struct intel_soc_pmic *pmic;
+-	unsigned long long hrv;
+-	acpi_status status;
+ 	int ret;
+ 
+-	/*
+-	 * There are 2 different Crystal Cove PMICs a Bay Trail and Cherry
+-	 * Trail version, use _HRV to differentiate between the 2.
+-	 */
+-	status = acpi_evaluate_integer(ACPI_HANDLE(dev), "_HRV", NULL, &hrv);
+-	if (ACPI_FAILURE(status)) {
+-		dev_err(dev, "Failed to get PMIC hardware revision\n");
+-		return -ENODEV;
+-	}
+-
+-	switch (hrv) {
+-	case BYT_CRC_HRV:
++	if (soc_intel_is_byt())
+ 		config = &intel_soc_pmic_config_byt_crc;
+-		break;
+-	case CHT_CRC_HRV:
++	else
+ 		config = &intel_soc_pmic_config_cht_crc;
+-		break;
+-	default:
+-		dev_warn(dev, "Unknown hardware rev %llu, assuming BYT\n", hrv);
+-		config = &intel_soc_pmic_config_byt_crc;
+-	}
+ 
+ 	pmic = devm_kzalloc(dev, sizeof(*pmic), GFP_KERNEL);
+ 	if (!pmic)
 -- 
 2.34.1
 
