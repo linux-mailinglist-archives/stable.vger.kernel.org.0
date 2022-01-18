@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00562491AE0
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:03:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED071491B01
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:03:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244752AbiARDDI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 22:03:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37752 "EHLO
+        id S243159AbiARDD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 22:03:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344351AbiARC7K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:59:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8396C02B778;
-        Mon, 17 Jan 2022 18:46:39 -0800 (PST)
+        with ESMTP id S1352407AbiARC74 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:59:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D0C6C02B5F0;
+        Mon, 17 Jan 2022 18:46:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 65CFB6130F;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 44828B81233;
+        Tue, 18 Jan 2022 02:46:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41694C36AEB;
         Tue, 18 Jan 2022 02:46:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36E32C36AE3;
-        Tue, 18 Jan 2022 02:46:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473998;
-        bh=f6NAM56Og1Yrc6Od3Am5rH5imViISDUzVvr7k4kzIP8=;
+        s=k20201202; t=1642474000;
+        bh=pAudh+TsOSpSnD0nYfPANG+aRUPcTOqHL2dBB7d7S30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hecOCpvtQ9wKGzeiG5Q7bCKvOOuggoQzAohqc3r/nkz3AmHPRZfo4oFrhKF8VyKcD
-         LViit+CxsiaZEx6Q3N1QP607Na3RglsiHtQ1Qm1lRkvSlASbnY4BklJK2boFfKGCGS
-         M/Rfk5X5GwqK4Z7gBIF2KXCJfG1RsInTIXt+2QLc52DZxe/DrYVbjC7rM9VdKn0EKi
-         9D/c7p81opapL9G2rvOqlYoPXwzGSvtt78oZQJiX2XdFluBMsVpZvc9Q1MJzlNMZ/V
-         ZkH/UbxF090PssRawJGGceKk1w7hSp0bXWpHaWVXfvP8OmZUP791sY4oWxenSwWWI/
-         It66zxSA+6bcg==
+        b=SoC64WXmzKIMbaZRQ6H/nEvfJPb55sU3EElL62Ho19p/QFNijvGy6Re4B5JkRGhzu
+         P9WHYvnJtWRiYEaO8/OHmQZnh9hfUn8TiGiZbHgEkRl+VhF+gATArJB87fS2/1KNpZ
+         UgQ72nFi4ROMk8D5KUIJTW+NCbbOdUw5Wt3p097cxS8MyLuf8UBtgBbubRqM3kYMgw
+         Nd6/t4rdW00YsBuVcxpTN3cpbGyhWAAUO5CumQ2nN60EM7DhpFR+B8jfUqOBh9hwT3
+         PpDwHOinMZr3TCL7Occc4jm8c3yJuTw0FnIMj3zk6xUtLjM1CGITQt0QVQdqcCAUmn
+         aCoR9QoQN/b1g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zongmin Zhou <zhouzongmin@kylinos.cn>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@linux.ie, daniel@ffwll.ch,
-        Felix.Kuehling@amd.com, evan.quan@amd.com,
-        andrey.grodzovsky@amd.com, nirmoy.das@amd.com, Oak.Zeng@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 59/73] drm/amdgpu: fixup bad vram size on gmc v8
-Date:   Mon, 17 Jan 2022 21:44:18 -0500
-Message-Id: <20220118024432.1952028-59-sashal@kernel.org>
+Cc:     =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
+        Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 60/73] ACPI: battery: Add the ThinkPad "Not Charging" quirk
+Date:   Mon, 17 Jan 2022 21:44:19 -0500
+Message-Id: <20220118024432.1952028-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118024432.1952028-1-sashal@kernel.org>
 References: <20220118024432.1952028-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -54,59 +53,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zongmin Zhou <zhouzongmin@kylinos.cn>
+From: Thomas Weißschuh <linux@weissschuh.net>
 
-[ Upstream commit 11544d77e3974924c5a9c8a8320b996a3e9b2f8b ]
+[ Upstream commit e96c1197aca628f7d2480a1cc3214912b40b3414 ]
 
-Some boards(like RX550) seem to have garbage in the upper
-16 bits of the vram size register.  Check for
-this and clamp the size properly.  Fixes
-boards reporting bogus amounts of vram.
+The EC/ACPI firmware on Lenovo ThinkPads used to report a status
+of "Unknown" when the battery is between the charge start and
+charge stop thresholds. On Windows, it reports "Not Charging"
+so the quirk has been added to also report correctly.
 
-after add this patch,the maximum GPU VRAM size is 64GB,
-otherwise only 64GB vram size will be used.
+Now the "status" attribute returns "Not Charging" when the
+battery on ThinkPads is not physicaly charging.
 
-Signed-off-by: Zongmin Zhou<zhouzongmin@kylinos.cn>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/acpi/battery.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c
-index ea764dd9245db..2975331a7b867 100644
---- a/drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c
-@@ -524,10 +524,10 @@ static void gmc_v8_0_mc_program(struct amdgpu_device *adev)
- static int gmc_v8_0_mc_init(struct amdgpu_device *adev)
- {
- 	int r;
-+	u32 tmp;
+diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
+index 6e96ed68b3379..4e0aea5f008e3 100644
+--- a/drivers/acpi/battery.c
++++ b/drivers/acpi/battery.c
+@@ -65,6 +65,7 @@ static int battery_bix_broken_package;
+ static int battery_notification_delay_ms;
+ static int battery_ac_is_broken;
+ static int battery_check_pmic = 1;
++static int battery_quirk_notcharging;
+ static unsigned int cache_time = 1000;
+ module_param(cache_time, uint, 0644);
+ MODULE_PARM_DESC(cache_time, "cache time in milliseconds");
+@@ -233,6 +234,8 @@ static int acpi_battery_get_property(struct power_supply *psy,
+ 			val->intval = POWER_SUPPLY_STATUS_CHARGING;
+ 		else if (acpi_battery_is_charged(battery))
+ 			val->intval = POWER_SUPPLY_STATUS_FULL;
++		else if (battery_quirk_notcharging)
++			val->intval = POWER_SUPPLY_STATUS_NOT_CHARGING;
+ 		else
+ 			val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
+ 		break;
+@@ -1337,6 +1340,12 @@ battery_do_not_check_pmic_quirk(const struct dmi_system_id *d)
+ 	return 0;
+ }
  
- 	adev->gmc.vram_width = amdgpu_atombios_get_vram_width(adev);
- 	if (!adev->gmc.vram_width) {
--		u32 tmp;
- 		int chansize, numchan;
++static int __init battery_quirk_not_charging(const struct dmi_system_id *d)
++{
++	battery_quirk_notcharging = 1;
++	return 0;
++}
++
+ static const struct dmi_system_id bat_dmi_table[] __initconst = {
+ 	{
+ 		/* NEC LZ750/LS */
+@@ -1381,6 +1390,19 @@ static const struct dmi_system_id bat_dmi_table[] __initconst = {
+ 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Lenovo MIIX 320-10ICR"),
+ 		},
+ 	},
++	{
++		/*
++		 * On Lenovo ThinkPads the BIOS specification defines
++		 * a state when the bits for charging and discharging
++		 * are both set to 0. That state is "Not Charging".
++		 */
++		.callback = battery_quirk_not_charging,
++		.ident = "Lenovo ThinkPad",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad"),
++		},
++	},
+ 	{},
+ };
  
- 		/* Get VRAM informations */
-@@ -571,8 +571,15 @@ static int gmc_v8_0_mc_init(struct amdgpu_device *adev)
- 		adev->gmc.vram_width = numchan * chansize;
- 	}
- 	/* size in MB on si */
--	adev->gmc.mc_vram_size = RREG32(mmCONFIG_MEMSIZE) * 1024ULL * 1024ULL;
--	adev->gmc.real_vram_size = RREG32(mmCONFIG_MEMSIZE) * 1024ULL * 1024ULL;
-+	tmp = RREG32(mmCONFIG_MEMSIZE);
-+	/* some boards may have garbage in the upper 16 bits */
-+	if (tmp & 0xffff0000) {
-+		DRM_INFO("Probable bad vram size: 0x%08x\n", tmp);
-+		if (tmp & 0xffff)
-+			tmp &= 0xffff;
-+	}
-+	adev->gmc.mc_vram_size = tmp * 1024ULL * 1024ULL;
-+	adev->gmc.real_vram_size = adev->gmc.mc_vram_size;
- 
- 	if (!(adev->flags & AMD_IS_APU)) {
- 		r = amdgpu_device_resize_fb_bar(adev);
 -- 
 2.34.1
 
