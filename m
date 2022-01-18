@@ -2,143 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EEDA4930E8
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 23:38:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27C124930EA
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 23:38:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237690AbiARWiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 17:38:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56906 "EHLO
+        id S240938AbiARWif (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 17:38:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240802AbiARWiP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 17:38:15 -0500
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1ED0C061574;
-        Tue, 18 Jan 2022 14:38:14 -0800 (PST)
-Received: by mail-pj1-x1034.google.com with SMTP id z17-20020a17090ab11100b001b4d8817e04so3391853pjq.2;
-        Tue, 18 Jan 2022 14:38:14 -0800 (PST)
+        with ESMTP id S237195AbiARWie (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 17:38:34 -0500
+Received: from mail-ua1-x92c.google.com (mail-ua1-x92c.google.com [IPv6:2607:f8b0:4864:20::92c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7ABF8C061574
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 14:38:34 -0800 (PST)
+Received: by mail-ua1-x92c.google.com with SMTP id m90so1008379uam.2
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 14:38:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=ZbU8JFNz8EJwN7FgVu0cRZAO8izn8Kn18zUzADS8gd4=;
-        b=qLB+fZQTeul3PaPNLzabru6EfFjb//O5L/H/oGiKJk6TaaSEMrWTOhEWbZPsWk1pjV
-         M/HVD2P/vAS/4eRozOAAnO8w0x4yFENI/51hKy494g2CGbfV9vUIiqymYiTIiVqeWQSW
-         WrmsgPiaf0Tf0wIk6Hc6U6qHMXSatSkClsyRzPyZRj4EkWuTOTlGOYE7wKsqTCM2tX2N
-         wqOApjbBiBop50XZfY4uyGQLhpy71ajc8x6itLLzdFYGN8sdSC3kFDvaaTppbrRIIFya
-         bxzEzyDMOHCsUkzMgWmLXUU4vamt9/hPXpQj0Y1QIauOwskTbI97TBfVi/DV/tdUOE/x
-         o7PA==
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=sFIPDwsDeRm81c05CD5S02oyUJN8DIpI+1GsvDMiep4=;
+        b=Jfugtf9FbGJis6uBQ4CdXc/8nGduDpvhXy+a27fLvitVKGrLopKpViHKRTXSVXqewY
+         cjAWMe19MPI2EVo2djGEGz3qllkZkYd9nbf6TEsLnVMTi+FdIzdmDADcm1tWu3ntoMqg
+         vfgyvwacp89WuvL7BspNzyyBXpxQOeOTwYHhEvOq+me4IzdfiNkJtn7VmqCiMBwSxl9h
+         j+jXpUvZ4pNBWhLTHMuNeOppkdgSynwqMWguZVWhdgyq3B6q2k8tEY0eCQNIA4A6BNni
+         +wvxQlo2GGOJv9x2DtpxzkWVdwKdzQSbqFeGqcCgMHoL4pLIwsmJvkO3bhyzQMQqMe4Z
+         BTEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=ZbU8JFNz8EJwN7FgVu0cRZAO8izn8Kn18zUzADS8gd4=;
-        b=Y3eXMPkdO9Dug68CNxyf3afTXlP0QLvtVs7RCUjWWJX1VxSl/gaO0uCNjeMeM/CwNm
-         vEoxlUBX4vPJRBD0U/3LiTeKe3EZpi3RsBmFlWO7T4rT0Wl6xJ9P07DFofjQetLivT0g
-         /MUH5X9ALO6bTJK6VjF3SfMNwSMle6C/wx1EpRyA3yZ4wkEHYe6MFRLG4zVH7ppxHarx
-         E1pGenyWk8hlMkguQMyZaPdqXNLuSgU3jyd8Io0odlMESZdNl1HzPS9FGG6BoioH1O8t
-         PzdpVC27LYoTXAd9kIPHjO0XaU0fjYA21vjXyuUz7cJTjvzHVQKXCkC4M6FAq8y24bT/
-         IPqw==
-X-Gm-Message-State: AOAM5325y9kv6jKdwK1x1LPNFW9C60nrbZRvCELS4qNf67YQdmCu24DJ
-        ZJV5qaZ7y2GUebwG8ERawP9ZMSKX+T4=
-X-Google-Smtp-Source: ABdhPJy8NmyV4OoqB4rgP4Cm4SB/wZYyrZBmDQQ3COSOsm2/hnk+FnumY4KbscTnDAiRl/RLxL/q2g==
-X-Received: by 2002:a17:902:bf02:b0:149:c653:22af with SMTP id bi2-20020a170902bf0200b00149c65322afmr29852473plb.139.1642545494367;
-        Tue, 18 Jan 2022 14:38:14 -0800 (PST)
-Received: from horus.lan (75-164-184-207.ptld.qwest.net. [75.164.184.207])
-        by smtp.gmail.com with ESMTPSA id pf16sm3433250pjb.35.2022.01.18.14.38.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Jan 2022 14:38:13 -0800 (PST)
-From:   Jason Gerecke <killertofu@gmail.com>
-X-Google-Original-From: Jason Gerecke <jason.gerecke@wacom.com>
-To:     linux-input@vger.kernel.org, Jiri Kosina <jikos@kernel.org>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Cc:     Ping Cheng <pinglinux@gmail.com>,
-        Aaron Armstrong Skomra <skomra@gmail.com>,
-        Joshua Dickens <Joshua@Joshua-Dickens.com>,
-        Jason Gerecke <jason.gerecke@wacom.com>,
-        stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>
-Subject: [PATCH 2/2] HID: wacom: Ignore the confidence flag when a touch is removed
-Date:   Tue, 18 Jan 2022 14:37:56 -0800
-Message-Id: <20220118223756.45624-2-jason.gerecke@wacom.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220118223756.45624-1-jason.gerecke@wacom.com>
-References: <20220118223756.45624-1-jason.gerecke@wacom.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=sFIPDwsDeRm81c05CD5S02oyUJN8DIpI+1GsvDMiep4=;
+        b=fkREjGP0zMPLWdMinJC/fCUEXfJ0OTo3EjT23YHk2yVSOLy1bUQToaDIk6DPL9R+VN
+         5XWjgYWeLFVkK10nvn250fzUpTl+2Zx9T0tW/RD6rlOzioXBBjYm/+jMWPE3suvfS6B8
+         YF1VeT4qk7o0u/8wzI9/9qRwkvEBRgztTsuGogkSqhCY/qMo+geoKL9sWuLutHQRmmLw
+         oNjGBnS7o4uhAUFsYvng2CFfg3gN3+HaZ99eeLjOn1F3YunWeSzXrASmFehoPUE1oOQC
+         2gB+wmih54uVCgR7xtfngDLfbz7KEGdusEBls0YAmb+9Xk0PbOcJ6fy6tLn1UyhSyH9+
+         BpPA==
+X-Gm-Message-State: AOAM53077QKQen+J2bibXlNBuqOmGrm7zk8eKKa/acnFNmEeElV0tzy5
+        3rWE92NkshSGUG2cPC5Q6Y1TgffM8kFkTp/YW3XggQ==
+X-Google-Smtp-Source: ABdhPJxQh1t44Frfz/2XYxwpy7ZXI1lO+ncbRUGm6GBcUykDOdHTvp8gIOSQksTNoWrRHe66Sh+aumcYSnD4CXhOpo4=
+X-Received: by 2002:a67:ebc2:: with SMTP id y2mr3183653vso.72.1642545513445;
+ Tue, 18 Jan 2022 14:38:33 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20220113031434.464992-1-pcc@google.com> <CA+fCnZeckbw+Vv9TQaCNfaMBA9DkMGXeiQwcoHnwxoO6fCrzcA@mail.gmail.com>
+In-Reply-To: <CA+fCnZeckbw+Vv9TQaCNfaMBA9DkMGXeiQwcoHnwxoO6fCrzcA@mail.gmail.com>
+From:   Peter Collingbourne <pcc@google.com>
+Date:   Tue, 18 Jan 2022 14:38:22 -0800
+Message-ID: <CAMn1gO7zBjaAU9f=qnKKhVBxuujmqzHDpuEdHQxtePDZVBgWMg@mail.gmail.com>
+Subject: Re: [PATCH] mm: use compare-exchange operation to set KASAN page tag
+To:     Andrey Konovalov <andreyknvl@gmail.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Linux Memory Management List <linux-mm@kvack.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-AES hardware may internally re-classify a contact that it thought was
-intentional as a palm. Intentional contacts are reported as "down" with
-the confidence bit set. When this re-classification occurs, however, the
-state transitions to "up" with the confidence bit cleared. This kind of
-transition appears to be legal according to Microsoft docs, but we do
-not handle it correctly. Because the confidence bit is clear, we don't
-call `wacom_wac_finger_slot` and update userspace. This causes hung
-touches that confuse userspace and interfere with pen arbitration.
+On Fri, Jan 14, 2022 at 1:58 PM Andrey Konovalov <andreyknvl@gmail.com> wrote:
+>
+>  On Thu, Jan 13, 2022 at 6:14 AM Peter Collingbourne <pcc@google.com> wrote:
+> >
+> > It has been reported that the tag setting operation on newly-allocated
+> > pages can cause the page flags to be corrupted when performed
+> > concurrently with other flag updates as a result of the use of
+> > non-atomic operations.
+>
+> Is it know how exactly this race happens? Why are flags for a newly
+> allocated page being accessed concurrently?
 
-This commit adds a special case to ignore the confidence flag if a contact
-is reported as removed. This ensures we do not leave a hung touch if one
-of these re-classification events occured. Ideally we'd have some way to
-also let userspace know that the touch has been re-classified as a palm
-and needs to be canceled, but that's not possible right now :)
+In the report that we received, the race resulted in a crash in
+kswapd. This may just be a symptom of the problem though.
 
-Link: https://github.com/linuxwacom/input-wacom/issues/288
-Fixes: 7fb0413baa7f (HID: wacom: Use "Confidence" flag to prevent reporting invalid contacts)
-CC: stable@vger.kernel.org
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
----
- drivers/hid/wacom_wac.c | 29 ++++++++++++++++++++++++++---
- 1 file changed, 26 insertions(+), 3 deletions(-)
+I haven't closely audited all of the callers to page_kasan_tag_set()
+to check whether they may be operating on already-visible pages, but
+at least it doesn't appear to be unanticipated that there may be other
+threads accessing the page flags concurrently with a call to
+page_kasan_tag_set() (see the calls to smp_wmb() in
+arch/arm64/kernel/mte.c, arch/arm64/mm/copypage.c and
+arch/arm64/mm/mteswap.c).
 
-diff --git a/drivers/hid/wacom_wac.c b/drivers/hid/wacom_wac.c
-index 5978399ae7d2..92b52b1de526 100644
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2588,6 +2588,24 @@ static void wacom_wac_finger_slot(struct wacom_wac *wacom_wac,
- 	}
- }
- 
-+static bool wacom_wac_slot_is_active(struct input_dev *dev, int key)
-+{
-+	struct input_mt *mt = dev->mt;
-+	struct input_mt_slot *s;
-+
-+	if (!mt)
-+		return false;
-+
-+	for (s = mt->slots; s != mt->slots + mt->num_slots; s++) {
-+		if (s->key == key &&
-+			input_mt_get_value(s, ABS_MT_TRACKING_ID) >= 0) {
-+			return true;
-+		}
-+	}
-+
-+	return false;
-+}
-+
- static void wacom_wac_finger_event(struct hid_device *hdev,
- 		struct hid_field *field, struct hid_usage *usage, __s32 value)
- {
-@@ -2638,9 +2656,14 @@ static void wacom_wac_finger_event(struct hid_device *hdev,
- 	}
- 
- 	if (usage->usage_index + 1 == field->report_count) {
--		if (equivalent_usage == wacom_wac->hid_data.last_slot_field &&
--		    wacom_wac->hid_data.confidence)
--			wacom_wac_finger_slot(wacom_wac, wacom_wac->touch_input);
-+		if (equivalent_usage == wacom_wac->hid_data.last_slot_field) {
-+			bool touch_removed = wacom_wac_slot_is_active(wacom_wac->touch_input,
-+				wacom_wac->hid_data.id) && !wacom_wac->hid_data.tipswitch;
-+
-+			if (wacom_wac->hid_data.confidence || touch_removed) {
-+				wacom_wac_finger_slot(wacom_wac, wacom_wac->touch_input);
-+			}
-+		}
- 	}
- }
- 
--- 
-2.34.1
+> > Fix the problem by using a compare-exchange
+> > loop to update the tag.
+> >
+> > Signed-off-by: Peter Collingbourne <pcc@google.com>
+> > Link: https://linux-review.googlesource.com/id/I456b24a2b9067d93968d43b4bb3351c0cec63101
+> > Fixes: 2813b9c02962 ("kasan, mm, arm64: tag non slab memory allocated via pagealloc")
+> > Cc: stable@vger.kernel.org
+> > ---
+> >  include/linux/mm.h | 16 +++++++++++-----
+> >  1 file changed, 11 insertions(+), 5 deletions(-)
+> >
+> > diff --git a/include/linux/mm.h b/include/linux/mm.h
+> > index c768a7c81b0b..b544b0a9f537 100644
+> > --- a/include/linux/mm.h
+> > +++ b/include/linux/mm.h
+> > @@ -1531,11 +1531,17 @@ static inline u8 page_kasan_tag(const struct page *page)
+> >
+> >  static inline void page_kasan_tag_set(struct page *page, u8 tag)
+> >  {
+> > -       if (kasan_enabled()) {
+> > -               tag ^= 0xff;
+> > -               page->flags &= ~(KASAN_TAG_MASK << KASAN_TAG_PGSHIFT);
+> > -               page->flags |= (tag & KASAN_TAG_MASK) << KASAN_TAG_PGSHIFT;
+> > -       }
+> > +       unsigned long old_flags, flags;
+> > +
+> > +       if (!kasan_enabled())
+> > +               return;
+> > +
+> > +       tag ^= 0xff;
+> > +       do {
+> > +               old_flags = flags = page->flags;
+>
+> I guess this should be at least READ_ONCE(page->flags) if we care
+> about concurrency.
 
+Makes sense. I copied this code from page_cpupid_xchg_last() in
+mm/mmzone.c which has the same problem. I'll send a patch to fix that
+one as well.
+
+Peter
