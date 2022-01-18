@@ -2,44 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8B18492A52
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:10:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C307E492A4C
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:08:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346934AbiARQJB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 11:09:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51172 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346594AbiARQI0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:08:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32F0FC061751;
-        Tue, 18 Jan 2022 08:08:20 -0800 (PST)
+        id S1346856AbiARQIx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 11:08:53 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:39512 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346286AbiARQIX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:08:23 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C8BA2612DB;
-        Tue, 18 Jan 2022 16:08:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A05BFC340E2;
-        Tue, 18 Jan 2022 16:08:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB398612DD;
+        Tue, 18 Jan 2022 16:08:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB11BC340E2;
+        Tue, 18 Jan 2022 16:08:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642522099;
-        bh=5tjuPRxbDNcv+A4lzH6MjGGQpb+5W7L0ZxQtBlWzeqg=;
+        s=korg; t=1642522102;
+        bh=s31AlYEwrEgc50Qo6OeEGMlgreLtO4C9iARv1xdF0F0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d62D+Yn2jBgyVRvFvsFIM4Yz3gk0NDsf5dO1AsbQn/0foQLpcfZlQaLJuY7ZY65UM
-         rbx6qbKDiipUeBkjissfb/q/QV34lgBFHjdxHPdd3thco1CN2cskEC/ll1GqRDiEjm
-         13oqo8rEofS+INEDGunBr/ZKd5TG9cBug/LdU26k=
+        b=ZSkmMNDEkJp+Vk+LlvbvUfIuqv+qyAuGOsHSMePPmMXOMirl3K8SfbLLB2Rt8CIVF
+         fahAqIy4M7ZwLfTkX0MF+8GwDjSVxvT3S7gZKO4agl+76QOp4cY8Z9GShJSv/LYS1g
+         FyiQoiz5g2GSxluzDJ/KqIZk76yt3fDC9VnVNt3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Artem Kashkanov <artem.kashkanov@intel.com>,
-        Sean Christopherson <seanjc@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.10 07/23] KVM: x86: Register Processor Trace interrupt hook iff PT enabled in guest
-Date:   Tue, 18 Jan 2022 17:05:47 +0100
-Message-Id: <20220118160451.494513572@linuxfoundation.org>
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Subject: [PATCH 5.10 08/23] KVM: s390: Clarify SIGP orders versus STOP/RESTART
+Date:   Tue, 18 Jan 2022 17:05:48 +0100
+Message-Id: <20220118160451.523529172@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118160451.233828401@linuxfoundation.org>
 References: <20220118160451.233828401@linuxfoundation.org>
@@ -51,77 +45,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Eric Farman <farman@linux.ibm.com>
 
-commit f4b027c5c8199abd4fb6f00d67d380548dbfdfa8 upstream.
+commit 812de04661c4daa7ac385c0dfd62594540538034 upstream.
 
-Override the Processor Trace (PT) interrupt handler for guest mode if and
-only if PT is configured for host+guest mode, i.e. is being used
-independently by both host and guest.  If PT is configured for system
-mode, the host fully controls PT and must handle all events.
+With KVM_CAP_S390_USER_SIGP, there are only five Signal Processor
+orders (CONDITIONAL EMERGENCY SIGNAL, EMERGENCY SIGNAL, EXTERNAL CALL,
+SENSE, and SENSE RUNNING STATUS) which are intended for frequent use
+and thus are processed in-kernel. The remainder are sent to userspace
+with the KVM_CAP_S390_USER_SIGP capability. Of those, three orders
+(RESTART, STOP, and STOP AND STORE STATUS) have the potential to
+inject work back into the kernel, and thus are asynchronous.
 
-Fixes: 8479e04e7d6b ("KVM: x86: Inject PMI for KVM guest")
-Reported-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Reported-by: Artem Kashkanov <artem.kashkanov@intel.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Paolo Bonzini <pbonzini@redhat.com>
+Let's look for those pending IRQs when processing one of the in-kernel
+SIGP orders, and return BUSY (CC2) if one is in process. This is in
+agreement with the Principles of Operation, which states that only one
+order can be "active" on a CPU at a time.
+
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20211111020738.2512932-4-seanjc@google.com
+Suggested-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20211213210550.856213-2-farman@linux.ibm.com
+[borntraeger@linux.ibm.com: add stable tag]
+Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/kvm_host.h |    1 +
- arch/x86/kvm/vmx/vmx.c          |    1 +
- arch/x86/kvm/x86.c              |    5 ++++-
- 3 files changed, 6 insertions(+), 1 deletion(-)
+ arch/s390/kvm/interrupt.c |    7 +++++++
+ arch/s390/kvm/kvm-s390.c  |    9 +++++++--
+ arch/s390/kvm/kvm-s390.h  |    1 +
+ arch/s390/kvm/sigp.c      |   28 ++++++++++++++++++++++++++++
+ 4 files changed, 43 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1306,6 +1306,7 @@ struct kvm_x86_init_ops {
- 	int (*disabled_by_bios)(void);
- 	int (*check_processor_compatibility)(void);
- 	int (*hardware_setup)(void);
-+	bool (*intel_pt_intr_in_guest)(void);
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -2115,6 +2115,13 @@ int kvm_s390_is_stop_irq_pending(struct
+ 	return test_bit(IRQ_PEND_SIGP_STOP, &li->pending_irqs);
+ }
  
- 	struct kvm_x86_ops *runtime_ops;
- };
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -7915,6 +7915,7 @@ static struct kvm_x86_init_ops vmx_init_
- 	.disabled_by_bios = vmx_disabled_by_bios,
- 	.check_processor_compatibility = vmx_check_processor_compat,
- 	.hardware_setup = hardware_setup,
-+	.intel_pt_intr_in_guest = vmx_pt_mode_is_host_guest,
++int kvm_s390_is_restart_irq_pending(struct kvm_vcpu *vcpu)
++{
++	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
++
++	return test_bit(IRQ_PEND_RESTART, &li->pending_irqs);
++}
++
+ void kvm_s390_clear_stop_irq(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -4588,10 +4588,15 @@ int kvm_s390_vcpu_stop(struct kvm_vcpu *
+ 		}
+ 	}
  
- 	.runtime_ops = &vmx_x86_ops,
- };
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -7882,7 +7882,7 @@ static struct perf_guest_info_callbacks
- 	.is_in_guest		= kvm_is_in_guest,
- 	.is_user_mode		= kvm_is_user_mode,
- 	.get_guest_ip		= kvm_get_guest_ip,
--	.handle_intel_pt_intr	= kvm_handle_intel_pt_intr,
-+	.handle_intel_pt_intr	= NULL,
- };
+-	/* SIGP STOP and SIGP STOP AND STORE STATUS has been fully processed */
++	/*
++	 * Set the VCPU to STOPPED and THEN clear the interrupt flag,
++	 * now that the SIGP STOP and SIGP STOP AND STORE STATUS orders
++	 * have been fully processed. This will ensure that the VCPU
++	 * is kept BUSY if another VCPU is inquiring with SIGP SENSE.
++	 */
++	kvm_s390_set_cpuflags(vcpu, CPUSTAT_STOPPED);
+ 	kvm_s390_clear_stop_irq(vcpu);
  
- #ifdef CONFIG_X86_64
-@@ -8005,6 +8005,8 @@ int kvm_arch_init(void *opaque)
- 			PT_PRESENT_MASK, 0, sme_me_mask);
- 	kvm_timer_init();
+-	kvm_s390_set_cpuflags(vcpu, CPUSTAT_STOPPED);
+ 	__disable_ibs_on_vcpu(vcpu);
  
-+	if (ops->intel_pt_intr_in_guest && ops->intel_pt_intr_in_guest())
-+		kvm_guest_cbs.handle_intel_pt_intr = kvm_handle_intel_pt_intr;
- 	perf_register_guest_info_callbacks(&kvm_guest_cbs);
+ 	for (i = 0; i < online_vcpus; i++) {
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -418,6 +418,7 @@ void kvm_s390_destroy_adapters(struct kv
+ int kvm_s390_ext_call_pending(struct kvm_vcpu *vcpu);
+ extern struct kvm_device_ops kvm_flic_ops;
+ int kvm_s390_is_stop_irq_pending(struct kvm_vcpu *vcpu);
++int kvm_s390_is_restart_irq_pending(struct kvm_vcpu *vcpu);
+ void kvm_s390_clear_stop_irq(struct kvm_vcpu *vcpu);
+ int kvm_s390_set_irq_state(struct kvm_vcpu *vcpu,
+ 			   void __user *buf, int len);
+--- a/arch/s390/kvm/sigp.c
++++ b/arch/s390/kvm/sigp.c
+@@ -288,6 +288,34 @@ static int handle_sigp_dst(struct kvm_vc
+ 	if (!dst_vcpu)
+ 		return SIGP_CC_NOT_OPERATIONAL;
  
- 	if (boot_cpu_has(X86_FEATURE_XSAVE)) {
-@@ -8042,6 +8044,7 @@ void kvm_arch_exit(void)
- #endif
- 	kvm_lapic_exit();
- 	perf_unregister_guest_info_callbacks(&kvm_guest_cbs);
-+	kvm_guest_cbs.handle_intel_pt_intr = NULL;
- 
- 	if (!boot_cpu_has(X86_FEATURE_CONSTANT_TSC))
- 		cpufreq_unregister_notifier(&kvmclock_cpufreq_notifier_block,
++	/*
++	 * SIGP RESTART, SIGP STOP, and SIGP STOP AND STORE STATUS orders
++	 * are processed asynchronously. Until the affected VCPU finishes
++	 * its work and calls back into KVM to clear the (RESTART or STOP)
++	 * interrupt, we need to return any new non-reset orders "busy".
++	 *
++	 * This is important because a single VCPU could issue:
++	 *  1) SIGP STOP $DESTINATION
++	 *  2) SIGP SENSE $DESTINATION
++	 *
++	 * If the SIGP SENSE would not be rejected as "busy", it could
++	 * return an incorrect answer as to whether the VCPU is STOPPED
++	 * or OPERATING.
++	 */
++	if (order_code != SIGP_INITIAL_CPU_RESET &&
++	    order_code != SIGP_CPU_RESET) {
++		/*
++		 * Lockless check. Both SIGP STOP and SIGP (RE)START
++		 * properly synchronize everything while processing
++		 * their orders, while the guest cannot observe a
++		 * difference when issuing other orders from two
++		 * different VCPUs.
++		 */
++		if (kvm_s390_is_stop_irq_pending(dst_vcpu) ||
++		    kvm_s390_is_restart_irq_pending(dst_vcpu))
++			return SIGP_CC_BUSY;
++	}
++
+ 	switch (order_code) {
+ 	case SIGP_SENSE:
+ 		vcpu->stat.instruction_sigp_sense++;
 
 
