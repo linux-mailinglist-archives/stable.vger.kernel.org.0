@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20CFE492AAE
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:12:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4218B492A42
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:08:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347372AbiARQMa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 11:12:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51776 "EHLO
+        id S1346725AbiARQIl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 11:08:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51402 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346708AbiARQKw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:10:52 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C829C0617BC;
-        Tue, 18 Jan 2022 08:10:21 -0800 (PST)
+        with ESMTP id S1346414AbiARQIR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:08:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BFFDC061762;
+        Tue, 18 Jan 2022 08:07:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D3111CE1A4C;
-        Tue, 18 Jan 2022 16:10:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8625C00446;
-        Tue, 18 Jan 2022 16:10:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B49C612D5;
+        Tue, 18 Jan 2022 16:07:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF47DC00446;
+        Tue, 18 Jan 2022 16:07:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642522219;
-        bh=QGUxhGBilWf2yzYAsZvkl/FNKNHY8OjYtLqgw6U6rB0=;
+        s=korg; t=1642522070;
+        bh=UYYUMo1mUrFFL/7scIcn9NFrEorA5XJbOgmC+sLMyaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LGiCO5rM6cDha5SjFSSWxT0GbYcgefEcxdcYzbwrwUU/4Fkt6fe+xkvfJRaRtQhhF
-         +C/nIo47TW5xOu/Z/dZVCHBF2x1P8LpXPcGyOX4hfvrV9U+prWz+sr0QSR9VgGqKHi
-         ac37D3MJVNBbpBdt3Foz4p3NZJjEZsTJ9Z8a+ytY=
+        b=fxjLqzUvvDnkXU2+Yn6yAA+bnu34tE3u9Jd58wRIYXACjzCtLKz/X3GhoyGqEDoKS
+         ZHP5As6iObcwf4wTjM6ygAVgpquDaZ9p48r/Er7fgvWaR3IFfsbZ+YN4wrvrTTuOg1
+         iCx5M0YnCgIk8Scjte6zhTVR8Obg+0swee/3d7eo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Li RongQing <lirongqing@baidu.com>, stable@kernel.org,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 09/28] KVM: x86: dont print when fail to read/write pv eoi memory
+        stable@vger.kernel.org, Gabriel Somlo <somlo@cmu.edu>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 15/23] firmware: qemu_fw_cfg: fix kobject leak in probe error path
 Date:   Tue, 18 Jan 2022 17:05:55 +0100
-Message-Id: <20220118160452.185229184@linuxfoundation.org>
+Message-Id: <20220118160451.753639278@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220118160451.879092022@linuxfoundation.org>
-References: <20220118160451.879092022@linuxfoundation.org>
+In-Reply-To: <20220118160451.233828401@linuxfoundation.org>
+References: <20220118160451.233828401@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,63 +47,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li RongQing <lirongqing@baidu.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit ce5977b181c1613072eafbc7546bcb6c463ea68c upstream.
+commit 47a1db8e797da01a1309bf42e0c0d771d4e4d4f3 upstream.
 
-If guest gives MSR_KVM_PV_EOI_EN a wrong value, this printk() will
-be trigged, and kernel log is spammed with the useless message
+An initialised kobject must be freed using kobject_put() to avoid
+leaking associated resources (e.g. the object name).
 
-Fixes: 0d88800d5472 ("kvm: x86: ioapic and apic debug macros cleanup")
-Reported-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Reviewed-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Signed-off-by: Li RongQing <lirongqing@baidu.com>
-Cc: stable@kernel.org
-Message-Id: <1636026974-50555-1-git-send-email-lirongqing@baidu.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Commit fe3c60684377 ("firmware: Fix a reference count leak.") "fixed"
+the leak in the first error path of the file registration helper but
+left the second one unchanged. This "fix" would however result in a NULL
+pointer dereference due to the release function also removing the never
+added entry from the fw_cfg_entry_cache list. This has now been
+addressed.
+
+Fix the remaining kobject leak by restoring the common error path and
+adding the missing kobject_put().
+
+Fixes: 75f3e8e47f38 ("firmware: introduce sysfs driver for QEMU's fw_cfg device")
+Cc: stable@vger.kernel.org      # 4.6
+Cc: Gabriel Somlo <somlo@cmu.edu>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211201132528.30025-3-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/lapic.c |   18 ++++++------------
- 1 file changed, 6 insertions(+), 12 deletions(-)
+ drivers/firmware/qemu_fw_cfg.c |   13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -676,31 +676,25 @@ static inline bool pv_eoi_enabled(struct
- static bool pv_eoi_get_pending(struct kvm_vcpu *vcpu)
- {
- 	u8 val;
--	if (pv_eoi_get_user(vcpu, &val) < 0) {
--		printk(KERN_WARNING "Can't read EOI MSR value: 0x%llx\n",
--			   (unsigned long long)vcpu->arch.pv_eoi.msr_val);
-+	if (pv_eoi_get_user(vcpu, &val) < 0)
- 		return false;
+--- a/drivers/firmware/qemu_fw_cfg.c
++++ b/drivers/firmware/qemu_fw_cfg.c
+@@ -603,15 +603,13 @@ static int fw_cfg_register_file(const st
+ 	/* register entry under "/sys/firmware/qemu_fw_cfg/by_key/" */
+ 	err = kobject_init_and_add(&entry->kobj, &fw_cfg_sysfs_entry_ktype,
+ 				   fw_cfg_sel_ko, "%d", entry->select);
+-	if (err) {
+-		kobject_put(&entry->kobj);
+-		return err;
 -	}
-+
- 	return val & KVM_PV_EOI_ENABLED;
- }
++	if (err)
++		goto err_put_entry;
  
- static void pv_eoi_set_pending(struct kvm_vcpu *vcpu)
- {
--	if (pv_eoi_put_user(vcpu, KVM_PV_EOI_ENABLED) < 0) {
--		printk(KERN_WARNING "Can't set EOI MSR value: 0x%llx\n",
--			   (unsigned long long)vcpu->arch.pv_eoi.msr_val);
-+	if (pv_eoi_put_user(vcpu, KVM_PV_EOI_ENABLED) < 0)
- 		return;
--	}
-+
- 	__set_bit(KVM_APIC_PV_EOI_PENDING, &vcpu->arch.apic_attention);
- }
+ 	/* add raw binary content access */
+ 	err = sysfs_create_bin_file(&entry->kobj, &fw_cfg_sysfs_attr_raw);
+ 	if (err)
+-		goto err_add_raw;
++		goto err_del_entry;
  
- static void pv_eoi_clr_pending(struct kvm_vcpu *vcpu)
- {
--	if (pv_eoi_put_user(vcpu, KVM_PV_EOI_DISABLED) < 0) {
--		printk(KERN_WARNING "Can't clear EOI MSR value: 0x%llx\n",
--			   (unsigned long long)vcpu->arch.pv_eoi.msr_val);
-+	if (pv_eoi_put_user(vcpu, KVM_PV_EOI_DISABLED) < 0)
- 		return;
--	}
-+
- 	__clear_bit(KVM_APIC_PV_EOI_PENDING, &vcpu->arch.apic_attention);
+ 	/* try adding "/sys/firmware/qemu_fw_cfg/by_name/" symlink */
+ 	fw_cfg_build_symlink(fw_cfg_fname_kset, &entry->kobj, entry->name);
+@@ -620,9 +618,10 @@ static int fw_cfg_register_file(const st
+ 	fw_cfg_sysfs_cache_enlist(entry);
+ 	return 0;
+ 
+-err_add_raw:
++err_del_entry:
+ 	kobject_del(&entry->kobj);
+-	kfree(entry);
++err_put_entry:
++	kobject_put(&entry->kobj);
+ 	return err;
  }
  
 
