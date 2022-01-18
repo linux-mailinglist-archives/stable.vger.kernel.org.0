@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C7F24920BA
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 08:58:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBB574920BC
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 08:58:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234466AbiARH6D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 02:58:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50676 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234278AbiARH6C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 02:58:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3083C061574
-        for <stable@vger.kernel.org>; Mon, 17 Jan 2022 23:58:02 -0800 (PST)
+        id S234278AbiARH6O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 02:58:14 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:40296 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242476AbiARH6N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 02:58:13 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B2AEB81052
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 07:58:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D5A7C00446;
-        Tue, 18 Jan 2022 07:57:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4159EB81223
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 07:58:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C62EC00446;
+        Tue, 18 Jan 2022 07:58:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642492680;
-        bh=Q2v1B4Ef1GBXMc65oKXq7C1MCjkOFCAV/bY+QTZBQ1A=;
+        s=korg; t=1642492691;
+        bh=hYFDI3unCJK5B3mZ729vLKxjlPUp6uF/IUblRUuRbyA=;
         h=Subject:To:Cc:From:Date:From;
-        b=e8+pcIHJuHWw86QykVpWRPJU4lckWtmgiBgO65cCI7QKfdIkf6tbEfV6AyMUcrRD8
-         bmNVKpM+wYDNWP7vLqPR3q0kgkBaONZvPMXTdthRDgz+NCIdF/g9707nw6Mklmi3O8
-         IiunrXWZaaAuUw+81dx/4By2a0MQZ3uod1rMawyQ=
-Subject: FAILED: patch "[PATCH] KVM: x86: Register perf callbacks after calling vendor's" failed to apply to 5.10-stable tree
-To:     seanjc@google.com, pbonzini@redhat.com, peterz@infradead.org
+        b=Yg0wfIrwb4F9ZIczwIEhSf76G1iGEbwJF4DnJ9SaNWLU3qz0druN0z0QDoEJFva1r
+         0jpALHwWpJ5AWvMQAKUv6EBuOsRK7pYn3qTm8hVhO3025Dk7T1drTADxaidcqWijNr
+         hUwud0Q6vpSPsOFx26JarzHZX5bZeyzOkQjDNpa0=
+Subject: FAILED: patch "[PATCH] KVM: x86: Register Processor Trace interrupt hook iff PT" failed to apply to 5.4-stable tree
+To:     seanjc@google.com, alexander.shishkin@linux.intel.com,
+        artem.kashkanov@intel.com, pbonzini@redhat.com,
+        peterz@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 18 Jan 2022 08:57:47 +0100
-Message-ID: <164249266762216@kroah.com>
+Date:   Tue, 18 Jan 2022 08:58:08 +0100
+Message-ID: <164249268898145@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +41,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -53,65 +52,78 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 5c7df80e2ce4c954c80eb4ecf5fa002a5ff5d2d6 Mon Sep 17 00:00:00 2001
+From f4b027c5c8199abd4fb6f00d67d380548dbfdfa8 Mon Sep 17 00:00:00 2001
 From: Sean Christopherson <seanjc@google.com>
-Date: Thu, 11 Nov 2021 02:07:23 +0000
-Subject: [PATCH] KVM: x86: Register perf callbacks after calling vendor's
- hardware_setup()
+Date: Thu, 11 Nov 2021 02:07:24 +0000
+Subject: [PATCH] KVM: x86: Register Processor Trace interrupt hook iff PT
+ enabled in guest
 
-Wait to register perf callbacks until after doing vendor hardaware setup.
-VMX's hardware_setup() configures Intel Processor Trace (PT) mode, and a
-future fix to register the Intel PT guest interrupt hook if and only if
-Intel PT is exposed to the guest will consume the configured PT mode.
+Override the Processor Trace (PT) interrupt handler for guest mode if and
+only if PT is configured for host+guest mode, i.e. is being used
+independently by both host and guest.  If PT is configured for system
+mode, the host fully controls PT and must handle all events.
 
-Delaying registration to hardware setup is effectively a nop as KVM's perf
-hooks all pivot on the per-CPU current_vcpu, which is non-NULL only when
-KVM is handling an IRQ/NMI in a VM-Exit path.  I.e. current_vcpu will be
-NULL throughout both kvm_arch_init() and kvm_arch_hardware_setup().
-
+Fixes: 8479e04e7d6b ("KVM: x86: Inject PMI for KVM guest")
+Reported-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Reported-by: Artem Kashkanov <artem.kashkanov@intel.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Acked-by: Paolo Bonzini <pbonzini@redhat.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20211111020738.2512932-3-seanjc@google.com
+Link: https://lore.kernel.org/r/20211111020738.2512932-4-seanjc@google.com
 
+diff --git a/arch/x86/include/asm/kvm_host.h b/arch/x86/include/asm/kvm_host.h
+index e5d8700319cc..41e858df5795 100644
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -1516,6 +1516,7 @@ struct kvm_x86_init_ops {
+ 	int (*disabled_by_bios)(void);
+ 	int (*check_processor_compatibility)(void);
+ 	int (*hardware_setup)(void);
++	bool (*intel_pt_intr_in_guest)(void);
+ 
+ 	struct kvm_x86_ops *runtime_ops;
+ };
+diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+index ba66c171d951..7d90c8d443ac 100644
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -7865,6 +7865,7 @@ static struct kvm_x86_init_ops vmx_init_ops __initdata = {
+ 	.disabled_by_bios = vmx_disabled_by_bios,
+ 	.check_processor_compatibility = vmx_check_processor_compat,
+ 	.hardware_setup = hardware_setup,
++	.intel_pt_intr_in_guest = vmx_pt_mode_is_host_guest,
+ 
+ 	.runtime_ops = &vmx_x86_ops,
+ };
 diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index dc7eb5fddfd3..50f0cd16f2d4 100644
+index 50f0cd16f2d4..760c4e3a8326 100644
 --- a/arch/x86/kvm/x86.c
 +++ b/arch/x86/kvm/x86.c
-@@ -8626,8 +8626,6 @@ int kvm_arch_init(void *opaque)
+@@ -8510,7 +8510,7 @@ static struct perf_guest_info_callbacks kvm_guest_cbs = {
+ 	.is_in_guest		= kvm_is_in_guest,
+ 	.is_user_mode		= kvm_is_user_mode,
+ 	.get_guest_ip		= kvm_get_guest_ip,
+-	.handle_intel_pt_intr	= kvm_handle_intel_pt_intr,
++	.handle_intel_pt_intr	= NULL,
+ };
  
- 	kvm_timer_init();
- 
--	perf_register_guest_info_callbacks(&kvm_guest_cbs);
--
- 	if (boot_cpu_has(X86_FEATURE_XSAVE)) {
- 		host_xcr0 = xgetbv(XCR_XFEATURE_ENABLED_MASK);
- 		supported_xcr0 = host_xcr0 & KVM_SUPPORTED_XCR0;
-@@ -8659,7 +8657,6 @@ void kvm_arch_exit(void)
- 		clear_hv_tscchange_cb();
- #endif
- 	kvm_lapic_exit();
--	perf_unregister_guest_info_callbacks(&kvm_guest_cbs);
- 
- 	if (!boot_cpu_has(X86_FEATURE_CONSTANT_TSC))
- 		cpufreq_unregister_notifier(&kvmclock_cpufreq_notifier_block,
-@@ -11225,6 +11222,8 @@ int kvm_arch_hardware_setup(void *opaque)
+ #ifdef CONFIG_X86_64
+@@ -11222,6 +11222,8 @@ int kvm_arch_hardware_setup(void *opaque)
  	memcpy(&kvm_x86_ops, ops->runtime_ops, sizeof(kvm_x86_ops));
  	kvm_ops_static_call_update();
  
-+	perf_register_guest_info_callbacks(&kvm_guest_cbs);
-+
++	if (ops->intel_pt_intr_in_guest && ops->intel_pt_intr_in_guest())
++		kvm_guest_cbs.handle_intel_pt_intr = kvm_handle_intel_pt_intr;
+ 	perf_register_guest_info_callbacks(&kvm_guest_cbs);
+ 
  	if (!kvm_cpu_cap_has(X86_FEATURE_XSAVES))
- 		supported_xss = 0;
- 
-@@ -11252,6 +11251,8 @@ int kvm_arch_hardware_setup(void *opaque)
- 
+@@ -11252,6 +11254,7 @@ int kvm_arch_hardware_setup(void *opaque)
  void kvm_arch_hardware_unsetup(void)
  {
-+	perf_unregister_guest_info_callbacks(&kvm_guest_cbs);
-+
+ 	perf_unregister_guest_info_callbacks(&kvm_guest_cbs);
++	kvm_guest_cbs.handle_intel_pt_intr = NULL;
+ 
  	static_call(kvm_x86_hardware_unsetup)();
  }
- 
 
