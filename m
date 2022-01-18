@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 682B6492A53
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:10:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96213492AAB
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:12:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346544AbiARQJB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 11:09:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51444 "EHLO
+        id S1347335AbiARQM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 11:12:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346589AbiARQI0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:08:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2221DC061748;
-        Tue, 18 Jan 2022 08:08:17 -0800 (PST)
+        with ESMTP id S243676AbiARQKv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:10:51 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EC50C06178C;
+        Tue, 18 Jan 2022 08:10:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B5C5D6128A;
-        Tue, 18 Jan 2022 16:08:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76118C340E5;
-        Tue, 18 Jan 2022 16:08:15 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0AE8FCE1A4C;
+        Tue, 18 Jan 2022 16:10:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB677C00446;
+        Tue, 18 Jan 2022 16:10:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642522096;
-        bh=Wv6uDVfZvCl7R9evF3FLA+vXQWzDHbAVWLZ/P5CJ0Aw=;
+        s=korg; t=1642522216;
+        bh=UYYUMo1mUrFFL/7scIcn9NFrEorA5XJbOgmC+sLMyaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xpqBk20T3st0WkcGK8DhnbSioP1y55RhBxIVT54yT9fzlZTeaHLmiN3vH3NobBxzm
-         NEV0I0rCzkEhEb2k2dUEfDjTuTr+JczIVBaS9pp81VcFbT3va/OSVzGMBfRlISeB12
-         rk9fNTyB/OV00CODuCKHyxFUplCnBMKEmt2RmHY4=
+        b=iLsKcuAl1+Xg3e9KDHDeS85jjY6VuRE7yuXVtA7bO4QGe2MiLMrGZoXTYvIuMvG8d
+         MdvuQX4mBCqI0r8RWCXqZ0sLSHnxDdDApePcHlszczZzEQ2lSjV+0+63OVUAN6a+O+
+         H4wal4/m/QT0IIym8qjwLvpzM8RDr6oGb6Ym3dNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
-        Anders Roxell <anders.roxell@linaro.org>
-Subject: [PATCH 5.10 23/23] mtd: fixup CFI on ixp4xx
-Date:   Tue, 18 Jan 2022 17:06:03 +0100
-Message-Id: <20220118160452.012659523@linuxfoundation.org>
+        stable@vger.kernel.org, Gabriel Somlo <somlo@cmu.edu>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.15 18/28] firmware: qemu_fw_cfg: fix kobject leak in probe error path
+Date:   Tue, 18 Jan 2022 17:06:04 +0100
+Message-Id: <20220118160452.480720593@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220118160451.233828401@linuxfoundation.org>
-References: <20220118160451.233828401@linuxfoundation.org>
+In-Reply-To: <20220118160451.879092022@linuxfoundation.org>
+References: <20220118160451.879092022@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,57 +47,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Johan Hovold <johan@kernel.org>
 
-commit 603362b4a58393061dcfed1c7f0d0fd4aba61126 upstream.
+commit 47a1db8e797da01a1309bf42e0c0d771d4e4d4f3 upstream.
 
-drivers/mtd/maps/ixp4xx.c requires MTD_CFI_BE_BYTE_SWAP to be set
-in order to compile.
+An initialised kobject must be freed using kobject_put() to avoid
+leaking associated resources (e.g. the object name).
 
-drivers/mtd/maps/ixp4xx.c:57:4: error: #error CONFIG_MTD_CFI_BE_BYTE_SWAP required
+Commit fe3c60684377 ("firmware: Fix a reference count leak.") "fixed"
+the leak in the first error path of the file registration helper but
+left the second one unchanged. This "fix" would however result in a NULL
+pointer dereference due to the release function also removing the never
+added entry from the fw_cfg_entry_cache list. This has now been
+addressed.
 
-This patch avoids the #error output by enforcing the policy in
-Kconfig. Not sure if this is the right approach, but it helps doing
-randconfig builds.
+Fix the remaining kobject leak by restoring the common error path and
+adding the missing kobject_put().
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Acked-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210927141045.1597593-1-arnd@kernel.org
-Cc: Anders Roxell <anders.roxell@linaro.org>
+Fixes: 75f3e8e47f38 ("firmware: introduce sysfs driver for QEMU's fw_cfg device")
+Cc: stable@vger.kernel.org      # 4.6
+Cc: Gabriel Somlo <somlo@cmu.edu>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211201132528.30025-3-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/chips/Kconfig |    2 ++
- drivers/mtd/maps/Kconfig  |    2 +-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ drivers/firmware/qemu_fw_cfg.c |   13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
---- a/drivers/mtd/chips/Kconfig
-+++ b/drivers/mtd/chips/Kconfig
-@@ -55,12 +55,14 @@ choice
- 	  LITTLE_ENDIAN_BYTE, if the bytes are reversed.
+--- a/drivers/firmware/qemu_fw_cfg.c
++++ b/drivers/firmware/qemu_fw_cfg.c
+@@ -603,15 +603,13 @@ static int fw_cfg_register_file(const st
+ 	/* register entry under "/sys/firmware/qemu_fw_cfg/by_key/" */
+ 	err = kobject_init_and_add(&entry->kobj, &fw_cfg_sysfs_entry_ktype,
+ 				   fw_cfg_sel_ko, "%d", entry->select);
+-	if (err) {
+-		kobject_put(&entry->kobj);
+-		return err;
+-	}
++	if (err)
++		goto err_put_entry;
  
- config MTD_CFI_NOSWAP
-+	depends on !ARCH_IXP4XX || CPU_BIG_ENDIAN
- 	bool "NO"
+ 	/* add raw binary content access */
+ 	err = sysfs_create_bin_file(&entry->kobj, &fw_cfg_sysfs_attr_raw);
+ 	if (err)
+-		goto err_add_raw;
++		goto err_del_entry;
  
- config MTD_CFI_BE_BYTE_SWAP
- 	bool "BIG_ENDIAN_BYTE"
+ 	/* try adding "/sys/firmware/qemu_fw_cfg/by_name/" symlink */
+ 	fw_cfg_build_symlink(fw_cfg_fname_kset, &entry->kobj, entry->name);
+@@ -620,9 +618,10 @@ static int fw_cfg_register_file(const st
+ 	fw_cfg_sysfs_cache_enlist(entry);
+ 	return 0;
  
- config MTD_CFI_LE_BYTE_SWAP
-+	depends on !ARCH_IXP4XX
- 	bool "LITTLE_ENDIAN_BYTE"
+-err_add_raw:
++err_del_entry:
+ 	kobject_del(&entry->kobj);
+-	kfree(entry);
++err_put_entry:
++	kobject_put(&entry->kobj);
+ 	return err;
+ }
  
- endchoice
---- a/drivers/mtd/maps/Kconfig
-+++ b/drivers/mtd/maps/Kconfig
-@@ -325,7 +325,7 @@ config MTD_DC21285
- 
- config MTD_IXP4XX
- 	tristate "CFI Flash device mapped on Intel IXP4xx based systems"
--	depends on MTD_CFI && MTD_COMPLEX_MAPPINGS && ARCH_IXP4XX
-+	depends on MTD_CFI && MTD_COMPLEX_MAPPINGS && ARCH_IXP4XX && MTD_CFI_ADV_OPTIONS
- 	help
- 	  This enables MTD access to flash devices on platforms based
- 	  on Intel's IXP4xx family of network processors such as the
 
 
