@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DCEF491ABD
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:03:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7886491AFC
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:03:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344651AbiARDCo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 22:02:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37278 "EHLO
+        id S1345421AbiARDDV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 22:03:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352247AbiARC71 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:59:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC603C0619D0;
-        Mon, 17 Jan 2022 18:34:34 -0800 (PST)
+        with ESMTP id S1352292AbiARC7k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:59:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D57BC061751;
+        Mon, 17 Jan 2022 18:34:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 39751611F2;
-        Tue, 18 Jan 2022 02:34:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97157C36AE3;
-        Tue, 18 Jan 2022 02:34:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 352D5B8123A;
+        Tue, 18 Jan 2022 02:34:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1633C36AEB;
+        Tue, 18 Jan 2022 02:34:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473273;
-        bh=EQRRA9PuObldp87ocMm+5sG91qe7TgelMcXd6092xrw=;
+        s=k20201202; t=1642473278;
+        bh=S72zmxOG0k3L7U4zKehJLaSpMyumIyBnV8FZbTgUH0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lIdae4cov+x7nM+MeTuOF+7HeCw0ouM+NEF+ntzZf128evMB1m0/can4Vv0HrUtQa
-         pM43aSA1M/NU0JPzj+HeWnw0MldPVsiloKOr/bS6BS4xVTvIYnjhtNaXdD59Ib6bsn
-         5+a1639l9+JiSOgrnjai5mminSdgmgcqkWK4kMN0VpbrKLwyQzR0LsNLu02Udmn9YQ
-         ZiNJuAEVjJLPAbxd54rztY7EQqR/z10dGHjBozs5hu9RAd4oASZZGXYs45GalcezeZ
-         jXqc9WruyHImfEgTUNzCyHneSIjMozH7hdya0LeIoCpgS6gbT3+SvD7Y2v9sJHLEnd
-         yZroGUkHotgMw==
+        b=tBy6OD3BoS3+LBgLCCxjjXIelRMCVCibVkUMtIfJwC4yvLXvbvezMb0Piz144h0OD
+         btC43XFYm09hy4SsMNpiHQXS+cIAYfDgtPq5M+41QwzweVWx6e8eAXrCL93dehicGv
+         a+pDzCJRDSgZLFA0rCaZCg/aGXa2RAbLn9De71vGv9bqKXuz7xOSAKYhgHmD8hQ5U1
+         bVYgl14JEo0/WXqzBijU0uuL6e09UKGpU0K8r0YsUjfoxhlqHTTmeH4fMjcHLis/yQ
+         uchcmWS1/3hEfrUTQiYpOMOwx/rLrdhO1fPyzdaNY5fl7EKR78Nk27pQFNcnIjaIOb
+         zSJ6qD893c5Vw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Vasut <marex@denx.de>,
-        Frieder Schrempf <frieder.schrempf@kontron.de>,
-        Lucas Stach <l.stach@pengutronix.de>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Peng Fan <peng.fan@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, aford173@gmail.com,
+Cc:     Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>, Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux@armlinux.org.uk,
+        linus.walleij@linaro.org, daniel@thingy.jp, avolmat@me.com,
+        romain.perier@gmail.com, eugen.hristev@microchip.com,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 050/188] soc: imx: gpcv2: Synchronously suspend MIX domains
-Date:   Mon, 17 Jan 2022 21:29:34 -0500
-Message-Id: <20220118023152.1948105-50-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.15 051/188] ARM: imx: rename DEBUG_IMX21_IMX27_UART to DEBUG_IMX27_UART
+Date:   Mon, 17 Jan 2022 21:29:35 -0500
+Message-Id: <20220118023152.1948105-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118023152.1948105-1-sashal@kernel.org>
 References: <20220118023152.1948105-1-sashal@kernel.org>
@@ -54,43 +53,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
 
-[ Upstream commit f756f435f7dd823f2d4bd593ce1bf3168def1308 ]
+[ Upstream commit b0100bce4ff82ec1ccd3c1f3d339fd2df6a81784 ]
 
-In case the following power domain sequence happens, iMX8M Mini always hangs:
-  gpumix:on -> gpu:on -> gpu:off -> gpu:on
-This is likely due to another quirk of the GPC block. This situation can be
-prevented by always synchronously powering off both the domain and MIX domain.
-Make it so. This turns the aforementioned sequence into:
-  gpumix:on -> gpu:on -> gpu:off -> gpumix:off -> gpumix:on -> gpu:on
+Since commit 4b563a066611 ("ARM: imx: Remove imx21 support"), the config
+DEBUG_IMX21_IMX27_UART is really only debug support for IMX27.
 
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Frieder Schrempf <frieder.schrempf@kontron.de>
-Cc: Lucas Stach <l.stach@pengutronix.de>
-Cc: NXP Linux Team <linux-imx@nxp.com>
-Cc: Peng Fan <peng.fan@nxp.com>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Acked-by: Lucas Stach <l.stach@pengutronix.de>
+So, rename this option to DEBUG_IMX27_UART and adjust dependencies in
+Kconfig and rename the definitions to IMX27 as further clean-up.
+
+This issue was discovered with ./scripts/checkkconfigsymbols.py, which
+reported that DEBUG_IMX21_IMX27_UART depends on the non-existing config
+SOC_IMX21.
+
+Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/imx/gpcv2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/Kconfig.debug            | 14 +++++++-------
+ arch/arm/include/debug/imx-uart.h | 18 +++++++++---------
+ 2 files changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/soc/imx/gpcv2.c b/drivers/soc/imx/gpcv2.c
-index 8b7a01773aec2..b4aa28420f2a8 100644
---- a/drivers/soc/imx/gpcv2.c
-+++ b/drivers/soc/imx/gpcv2.c
-@@ -369,7 +369,7 @@ static int imx_pgc_power_down(struct generic_pm_domain *genpd)
- 		}
- 	}
+diff --git a/arch/arm/Kconfig.debug b/arch/arm/Kconfig.debug
+index 98436702e0c7e..644875d73ba15 100644
+--- a/arch/arm/Kconfig.debug
++++ b/arch/arm/Kconfig.debug
+@@ -410,12 +410,12 @@ choice
+ 		  Say Y here if you want kernel low-level debugging support
+ 		  on i.MX25.
  
--	pm_runtime_put(domain->dev);
-+	pm_runtime_put_sync_suspend(domain->dev);
+-	config DEBUG_IMX21_IMX27_UART
+-		bool "i.MX21 and i.MX27 Debug UART"
+-		depends on SOC_IMX21 || SOC_IMX27
++	config DEBUG_IMX27_UART
++		bool "i.MX27 Debug UART"
++		depends on SOC_IMX27
+ 		help
+ 		  Say Y here if you want kernel low-level debugging support
+-		  on i.MX21 or i.MX27.
++		  on i.MX27.
  
- 	return 0;
+ 	config DEBUG_IMX28_UART
+ 		bool "i.MX28 Debug UART"
+@@ -1481,7 +1481,7 @@ config DEBUG_IMX_UART_PORT
+ 	int "i.MX Debug UART Port Selection"
+ 	depends on DEBUG_IMX1_UART || \
+ 		   DEBUG_IMX25_UART || \
+-		   DEBUG_IMX21_IMX27_UART || \
++		   DEBUG_IMX27_UART || \
+ 		   DEBUG_IMX31_UART || \
+ 		   DEBUG_IMX35_UART || \
+ 		   DEBUG_IMX50_UART || \
+@@ -1540,12 +1540,12 @@ config DEBUG_LL_INCLUDE
+ 	default "debug/icedcc.S" if DEBUG_ICEDCC
+ 	default "debug/imx.S" if DEBUG_IMX1_UART || \
+ 				 DEBUG_IMX25_UART || \
+-				 DEBUG_IMX21_IMX27_UART || \
++				 DEBUG_IMX27_UART || \
+ 				 DEBUG_IMX31_UART || \
+ 				 DEBUG_IMX35_UART || \
+ 				 DEBUG_IMX50_UART || \
+ 				 DEBUG_IMX51_UART || \
+-				 DEBUG_IMX53_UART ||\
++				 DEBUG_IMX53_UART || \
+ 				 DEBUG_IMX6Q_UART || \
+ 				 DEBUG_IMX6SL_UART || \
+ 				 DEBUG_IMX6SX_UART || \
+diff --git a/arch/arm/include/debug/imx-uart.h b/arch/arm/include/debug/imx-uart.h
+index c8eb83d4b8964..3edbb3c5b42bf 100644
+--- a/arch/arm/include/debug/imx-uart.h
++++ b/arch/arm/include/debug/imx-uart.h
+@@ -11,13 +11,6 @@
+ #define IMX1_UART_BASE_ADDR(n)	IMX1_UART##n##_BASE_ADDR
+ #define IMX1_UART_BASE(n)	IMX1_UART_BASE_ADDR(n)
  
+-#define IMX21_UART1_BASE_ADDR	0x1000a000
+-#define IMX21_UART2_BASE_ADDR	0x1000b000
+-#define IMX21_UART3_BASE_ADDR	0x1000c000
+-#define IMX21_UART4_BASE_ADDR	0x1000d000
+-#define IMX21_UART_BASE_ADDR(n)	IMX21_UART##n##_BASE_ADDR
+-#define IMX21_UART_BASE(n)	IMX21_UART_BASE_ADDR(n)
+-
+ #define IMX25_UART1_BASE_ADDR	0x43f90000
+ #define IMX25_UART2_BASE_ADDR	0x43f94000
+ #define IMX25_UART3_BASE_ADDR	0x5000c000
+@@ -26,6 +19,13 @@
+ #define IMX25_UART_BASE_ADDR(n)	IMX25_UART##n##_BASE_ADDR
+ #define IMX25_UART_BASE(n)	IMX25_UART_BASE_ADDR(n)
+ 
++#define IMX27_UART1_BASE_ADDR	0x1000a000
++#define IMX27_UART2_BASE_ADDR	0x1000b000
++#define IMX27_UART3_BASE_ADDR	0x1000c000
++#define IMX27_UART4_BASE_ADDR	0x1000d000
++#define IMX27_UART_BASE_ADDR(n)	IMX27_UART##n##_BASE_ADDR
++#define IMX27_UART_BASE(n)	IMX27_UART_BASE_ADDR(n)
++
+ #define IMX31_UART1_BASE_ADDR	0x43f90000
+ #define IMX31_UART2_BASE_ADDR	0x43f94000
+ #define IMX31_UART3_BASE_ADDR	0x5000c000
+@@ -112,10 +112,10 @@
+ 
+ #ifdef CONFIG_DEBUG_IMX1_UART
+ #define UART_PADDR	IMX_DEBUG_UART_BASE(IMX1)
+-#elif defined(CONFIG_DEBUG_IMX21_IMX27_UART)
+-#define UART_PADDR	IMX_DEBUG_UART_BASE(IMX21)
+ #elif defined(CONFIG_DEBUG_IMX25_UART)
+ #define UART_PADDR	IMX_DEBUG_UART_BASE(IMX25)
++#elif defined(CONFIG_DEBUG_IMX27_UART)
++#define UART_PADDR	IMX_DEBUG_UART_BASE(IMX27)
+ #elif defined(CONFIG_DEBUG_IMX31_UART)
+ #define UART_PADDR	IMX_DEBUG_UART_BASE(IMX31)
+ #elif defined(CONFIG_DEBUG_IMX35_UART)
 -- 
 2.34.1
 
