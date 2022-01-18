@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C977E491E48
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:49:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5E9D491E36
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 04:48:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350943AbiARDss (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 22:48:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33192 "EHLO
+        id S1348399AbiARDsP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 22:48:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346940AbiARCkR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:40:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63346C061A82;
-        Mon, 17 Jan 2022 18:36:16 -0800 (PST)
+        with ESMTP id S1347086AbiARCki (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:40:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECE95C07E5F8;
+        Mon, 17 Jan 2022 18:36:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 259AFB81244;
-        Tue, 18 Jan 2022 02:36:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77D1AC36AE3;
-        Tue, 18 Jan 2022 02:36:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A07260C74;
+        Tue, 18 Jan 2022 02:36:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21A79C36AEF;
+        Tue, 18 Jan 2022 02:36:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642473373;
-        bh=u/rMJCClADWqwrUINDSCBhqeHcpdAFdoMe++HuFFxeA=;
+        s=k20201202; t=1642473379;
+        bh=1XtZLBYLo8vRVDv6RwMfDJXo36eB71DbQs/OchA+8xU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pxA7rAlYNkxym2Wg+5Zl1MKLODMJsOXz8Y7dRX/b49IIyTOgSlEbsQZGa3IrTk9O/
-         a6GMFlu4UoqEDekw/SxpDHjzLDoIhTtTF2dYiU2j4AewLn4Ua2JKDMry48MBtSH4BK
-         7aLetZNZCkU3b+tA53AvqLyTjaur1skMPIFJz0obAh92tBI/q1XFKCjK9zk2uCXLBZ
-         zTimiMEm0JU3dRz2GR0We1bHHA4wFTB2i3A3BTiRRaRCrwch/DWeY9PuqzzWhHiy4i
-         kxrqH8GlwnTYNlUBAD5pfKR8Zkoj4PeAkHYGDQ03D6u+GYr4IOnNOGNjUxE651ixZ2
-         4vZRgsT9dO1yA==
+        b=acyHblEAmKy3DGkNKxTbQ91FPvQeQNeyJebsxkW20PQ5/gBcQlNWkaXhRZFqQxePR
+         M6HUzT4frlXPRz5sdHxl1/mCSzTPNizM/uvvfqdldUlUMiJiplNfb+uAQaEqiYBNbJ
+         VvgVae6MPiaWDF/HpVsscCmt9SYhx1eaqZWTcVNUNiwjW0dxjngNgiEoRGPSQ8Kw9K
+         pycXhf5zKzfhlc3hIB809XD5zkCg1iv8mYnJALAK6oz2Vjqx5my84MzlUl9PXHwu9v
+         F/8exNN504zR1pP76Cmuaq8/j+9H2/u93kyl8HTfSKYHYoCRSUr9bPXy0MZWxdQfqo
+         Nur/aEcyO0W7w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Johannes Berg <johannes.berg@intel.com>,
-        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
-        Maximilian Ernestus <maximilian@ernestus.de>,
-        Luca Coelho <luciano.coelho@intel.com>,
-        Sasha Levin <sashal@kernel.org>, kvalo@kernel.org,
-        davem@davemloft.net, kuba@kernel.org,
-        mordechay.goodstein@intel.com, miriam.rachel.korenblit@intel.com,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 090/188] iwlwifi: mvm: synchronize with FW after multicast commands
-Date:   Mon, 17 Jan 2022 21:30:14 -0500
-Message-Id: <20220118023152.1948105-90-sashal@kernel.org>
+Cc:     Wander Lairson Costa <wander@redhat.com>,
+        "Paul E . McKenney" <paulmck@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, dave@stgolabs.net,
+        josh@joshtriplett.org, rcu@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 092/188] rcutorture: Avoid soft lockup during cpu stall
+Date:   Mon, 17 Jan 2022 21:30:16 -0500
+Message-Id: <20220118023152.1948105-92-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118023152.1948105-1-sashal@kernel.org>
 References: <20220118023152.1948105-1-sashal@kernel.org>
@@ -55,70 +51,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Wander Lairson Costa <wander@redhat.com>
 
-[ Upstream commit db66abeea3aefed481391ecc564fb7b7fb31d742 ]
+[ Upstream commit 5ff7c9f9d7e3e0f6db5b81945fa11b69d62f433a ]
 
-If userspace installs a lot of multicast groups very quickly, then
-we may run out of command queue space as we send the updates in an
-asynchronous fashion (due to locking concerns), and the CPU can
-create them faster than the firmware can process them. This is true
-even when mac80211 has a work struct that gets scheduled.
+If we use the module stall_cpu option, we may get a soft lockup warning
+in case we also don't pass the stall_cpu_block option.
 
-Fix this by synchronizing with the firmware after sending all those
-commands - outside of the iteration we can send a synchronous echo
-command that just has the effect of the CPU waiting for the prior
-asynchronous commands to finish. This also will cause fewer of the
-commands to be sent to the firmware overall, because the work will
-only run once when rescheduled multiple times while it's running.
+Introduce the stall_no_softlockup option to avoid a soft lockup on
+cpu stall even if we don't use the stall_cpu_block option.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=213649
-Suggested-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
-Reported-by: Maximilian Ernestus <maximilian@ernestus.de>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20211204083238.51aea5b79ea4.I88a44798efda16e9fe480fb3e94224931d311b29@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Signed-off-by: Wander Lairson Costa <wander@redhat.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/intel/iwlwifi/mvm/mac80211.c   | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ kernel/rcu/rcutorture.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-index 7e5ad943b20cb..750217393f480 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
-@@ -1687,6 +1687,7 @@ static void iwl_mvm_recalc_multicast(struct iwl_mvm *mvm)
- 	struct iwl_mvm_mc_iter_data iter_data = {
- 		.mvm = mvm,
- 	};
-+	int ret;
+diff --git a/kernel/rcu/rcutorture.c b/kernel/rcu/rcutorture.c
+index 968696ace8f3f..f922937eb39ad 100644
+--- a/kernel/rcu/rcutorture.c
++++ b/kernel/rcu/rcutorture.c
+@@ -46,6 +46,7 @@
+ #include <linux/oom.h>
+ #include <linux/tick.h>
+ #include <linux/rcupdate_trace.h>
++#include <linux/nmi.h>
  
- 	lockdep_assert_held(&mvm->mutex);
+ #include "rcu.h"
  
-@@ -1696,6 +1697,22 @@ static void iwl_mvm_recalc_multicast(struct iwl_mvm *mvm)
- 	ieee80211_iterate_active_interfaces_atomic(
- 		mvm->hw, IEEE80211_IFACE_ITER_NORMAL,
- 		iwl_mvm_mc_iface_iterator, &iter_data);
-+
-+	/*
-+	 * Send a (synchronous) ech command so that we wait for the
-+	 * multiple asynchronous MCAST_FILTER_CMD commands sent by
-+	 * the interface iterator. Otherwise, we might get here over
-+	 * and over again (by userspace just sending a lot of these)
-+	 * and the CPU can send them faster than the firmware can
-+	 * process them.
-+	 * Note that the CPU is still faster - but with this we'll
-+	 * actually send fewer commands overall because the CPU will
-+	 * not schedule the work in mac80211 as frequently if it's
-+	 * still running when rescheduled (possibly multiple times).
-+	 */
-+	ret = iwl_mvm_send_cmd_pdu(mvm, ECHO_CMD, 0, 0, NULL);
-+	if (ret)
-+		IWL_ERR(mvm, "Failed to synchronize multicast groups update\n");
- }
- 
- static u64 iwl_mvm_prepare_multicast(struct ieee80211_hw *hw,
+@@ -109,6 +110,8 @@ torture_param(int, shutdown_secs, 0, "Shutdown time (s), <= zero to disable.");
+ torture_param(int, stall_cpu, 0, "Stall duration (s), zero to disable.");
+ torture_param(int, stall_cpu_holdoff, 10,
+ 	     "Time to wait before starting stall (s).");
++torture_param(bool, stall_no_softlockup, false,
++	     "Avoid softlockup warning during cpu stall.");
+ torture_param(int, stall_cpu_irqsoff, 0, "Disable interrupts while stalling.");
+ torture_param(int, stall_cpu_block, 0, "Sleep while stalling.");
+ torture_param(int, stall_gp_kthread, 0,
+@@ -2052,6 +2055,8 @@ static int rcu_torture_stall(void *args)
+ #else
+ 				schedule_timeout_uninterruptible(HZ);
+ #endif
++			} else if (stall_no_softlockup) {
++				touch_softlockup_watchdog();
+ 			}
+ 		if (stall_cpu_irqsoff)
+ 			local_irq_enable();
 -- 
 2.34.1
 
