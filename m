@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E646491780
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:42:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E886491622
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 03:33:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245505AbiARCmF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 Jan 2022 21:42:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58666 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345433AbiARCbc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:31:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA08CC0617A3;
-        Mon, 17 Jan 2022 18:29:12 -0800 (PST)
+        id S245306AbiARCc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 Jan 2022 21:32:58 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:42018 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1343707AbiARC3O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 Jan 2022 21:29:14 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A478DB8123A;
-        Tue, 18 Jan 2022 02:29:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 566EBC36AF3;
-        Tue, 18 Jan 2022 02:29:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1E981B81249;
+        Tue, 18 Jan 2022 02:29:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFF54C36AF4;
+        Tue, 18 Jan 2022 02:29:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642472950;
-        bh=X1Ks8FvRuAMpRB/m8dyQVbxEYAjsGrrkW6v02oHlFys=;
+        s=k20201202; t=1642472951;
+        bh=GV/7FD4SRn+k6luiTgkJqWYlvOif5E5cRv+WgmQ03uk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UiCbOvrvEGOo6binK/73+Tm1KJIRrHYjB1/vt5zTmCbgQArBZlSpoAPa+UifEOt2J
-         G2fQFeqwsl4yBXdWxarQDzR0nVitFLFjcGuy3lFWKUfsQSn978N7gzQCqmqs31zR+w
-         1heiRxxrRhk5XaSBnayYCagNTChvdvr8wbHMdc0mJ/0M6ybdZUmEN76sWyTS1BZ3Oz
-         2xPc+f21At697R1dWh7PmTXy/NFIQSb8r4Z7+SIHZ4VvHWF/IrJ6PDejTqWTTrJHbm
-         pqcnJ8BzAFLtXhd6zu4Naypf4Ca0Y0LkuRkredlusDTgVQTMsgkXBS0hT6EONYYPdq
-         I/49PInSpOizQ==
+        b=gga7so8tmglX9XFtJk6M/6XRpS/Rw6B8hgNdmhveSWvsM1jZ1Qf0NW0S03y3aSvm3
+         0LJFQW4nq/FiPxOjZCo9SYBnYbQX1j9Yr4DaVtedUBwvS7u8/ZVrsYd+gc8CsZvSGP
+         h6h/7VjVpRfsCgUdGcwkJH3NE0AsRdggvjs53ESeRI5vAwthij4rBZIiwY8UZiiuGn
+         tBlyj6g+wfJohfg7qh7Q+uATwTr/KDEI+8cmAN9E5ejS98dIVAEHS2RwG0D6dukxIB
+         CDFHxaTpA3Ic+tLCnhaBbbkf4uWWNUiokt/8LhVvClP8WXRJPu0e1ylqAz0XfvGSNA
+         obHXmwle5Dk6w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ben Greear <greearb@candelatech.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>, kvalo@kernel.org,
-        davem@davemloft.net, kuba@kernel.org, ath11k@lists.infradead.org,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 172/217] ath11k: Fix napi related hang
-Date:   Mon, 17 Jan 2022 21:18:55 -0500
-Message-Id: <20220118021940.1942199-172-sashal@kernel.org>
+Cc:     Tedd Ho-Jeong An <tedd.an@intel.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>, johan.hedberg@gmail.com,
+        luiz.dentz@gmail.com, linux-bluetooth@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 173/217] Bluetooth: btintel: Add missing quirks and msft ext for legacy bootloader
+Date:   Mon, 17 Jan 2022 21:18:56 -0500
+Message-Id: <20220118021940.1942199-173-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220118021940.1942199-1-sashal@kernel.org>
 References: <20220118021940.1942199-1-sashal@kernel.org>
@@ -52,107 +49,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Greear <greearb@candelatech.com>
+From: Tedd Ho-Jeong An <tedd.an@intel.com>
 
-[ Upstream commit d943fdad7589653065be0e20aadc6dff37725ed4 ]
+[ Upstream commit 3547a008c8962df2175db1e78b80f27e027ec549 ]
 
-Similar to the same bug in ath10k, a napi disable w/out it being enabled
-will hang forever.  I believe I saw this while trying rmmod after driver
-had some failure on startup.  Fix it by keeping state on whether napi is
-enabled or not.
+This patch add missing HCI quirks and MSFT extension for legacy
+bootloader when it is running in the operational firmware.
 
-And, remove un-used napi pointer in ath11k driver base struct.
-
-Signed-off-by: Ben Greear <greearb@candelatech.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20200903195254.29379-1-greearb@candelatech.com
+Signed-off-by: Tedd Ho-Jeong An <tedd.an@intel.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/ahb.c  | 12 +++++++++---
- drivers/net/wireless/ath/ath11k/core.h |  2 +-
- drivers/net/wireless/ath/ath11k/pci.c  | 12 +++++++++---
- 3 files changed, 19 insertions(+), 7 deletions(-)
+ drivers/bluetooth/btintel.c | 26 ++++++++++++++++++++++----
+ 1 file changed, 22 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/ahb.c b/drivers/net/wireless/ath/ath11k/ahb.c
-index 8c9c781afc3e5..b9939057b7baf 100644
---- a/drivers/net/wireless/ath/ath11k/ahb.c
-+++ b/drivers/net/wireless/ath/ath11k/ahb.c
-@@ -175,8 +175,11 @@ static void __ath11k_ahb_ext_irq_disable(struct ath11k_base *ab)
- 
- 		ath11k_ahb_ext_grp_disable(irq_grp);
- 
--		napi_synchronize(&irq_grp->napi);
--		napi_disable(&irq_grp->napi);
-+		if (irq_grp->napi_enabled) {
-+			napi_synchronize(&irq_grp->napi);
-+			napi_disable(&irq_grp->napi);
-+			irq_grp->napi_enabled = false;
-+		}
- 	}
- }
- 
-@@ -300,7 +303,10 @@ static void ath11k_ahb_ext_irq_enable(struct ath11k_base *ab)
- 	for (i = 0; i < ATH11K_EXT_IRQ_GRP_NUM_MAX; i++) {
- 		struct ath11k_ext_irq_grp *irq_grp = &ab->ext_irq_grp[i];
- 
--		napi_enable(&irq_grp->napi);
-+		if (!irq_grp->napi_enabled) {
-+			napi_enable(&irq_grp->napi);
-+			irq_grp->napi_enabled = true;
-+		}
- 		ath11k_ahb_ext_grp_enable(irq_grp);
- 	}
- }
-diff --git a/drivers/net/wireless/ath/ath11k/core.h b/drivers/net/wireless/ath/ath11k/core.h
-index 31d234a51c79b..62ceee363fea0 100644
---- a/drivers/net/wireless/ath/ath11k/core.h
-+++ b/drivers/net/wireless/ath/ath11k/core.h
-@@ -136,6 +136,7 @@ struct ath11k_ext_irq_grp {
- 	u32 num_irq;
- 	u32 grp_id;
- 	u64 timestamp;
-+	bool napi_enabled;
- 	struct napi_struct napi;
- 	struct net_device napi_ndev;
- };
-@@ -713,7 +714,6 @@ struct ath11k_base {
- 	u32 wlan_init_status;
- 	int irq_num[ATH11K_IRQ_NUM_MAX];
- 	struct ath11k_ext_irq_grp ext_irq_grp[ATH11K_EXT_IRQ_GRP_NUM_MAX];
--	struct napi_struct *napi;
- 	struct ath11k_targ_cap target_caps;
- 	u32 ext_service_bitmap[WMI_SERVICE_EXT_BM_SIZE];
- 	bool pdevs_macaddr_valid;
-diff --git a/drivers/net/wireless/ath/ath11k/pci.c b/drivers/net/wireless/ath/ath11k/pci.c
-index 3d353e7c9d5c2..5a78a7cb65f5e 100644
---- a/drivers/net/wireless/ath/ath11k/pci.c
-+++ b/drivers/net/wireless/ath/ath11k/pci.c
-@@ -634,8 +634,11 @@ static void __ath11k_pci_ext_irq_disable(struct ath11k_base *sc)
- 
- 		ath11k_pci_ext_grp_disable(irq_grp);
- 
--		napi_synchronize(&irq_grp->napi);
--		napi_disable(&irq_grp->napi);
-+		if (irq_grp->napi_enabled) {
-+			napi_synchronize(&irq_grp->napi);
-+			napi_disable(&irq_grp->napi);
-+			irq_grp->napi_enabled = false;
-+		}
- 	}
- }
- 
-@@ -654,7 +657,10 @@ static void ath11k_pci_ext_irq_enable(struct ath11k_base *ab)
- 	for (i = 0; i < ATH11K_EXT_IRQ_GRP_NUM_MAX; i++) {
- 		struct ath11k_ext_irq_grp *irq_grp = &ab->ext_irq_grp[i];
- 
--		napi_enable(&irq_grp->napi);
-+		if (!irq_grp->napi_enabled) {
-+			napi_enable(&irq_grp->napi);
-+			irq_grp->napi_enabled = true;
-+		}
- 		ath11k_pci_ext_grp_enable(irq_grp);
- 	}
- }
+diff --git a/drivers/bluetooth/btintel.c b/drivers/bluetooth/btintel.c
+index 9359bff472965..8b3583f1cdf92 100644
+--- a/drivers/bluetooth/btintel.c
++++ b/drivers/bluetooth/btintel.c
+@@ -2492,10 +2492,14 @@ static int btintel_setup_combined(struct hci_dev *hdev)
+ 	case 0x12:      /* ThP */
+ 	case 0x13:      /* HrP */
+ 	case 0x14:      /* CcP */
+-		/* Some legacy bootloader devices from JfP supports both old
+-		 * and TLV based HCI_Intel_Read_Version command. But we don't
+-		 * want to use the TLV based setup routines for those legacy
+-		 * bootloader device.
++		/* Some legacy bootloader devices starting from JfP,
++		 * the operational firmware supports both old and TLV based
++		 * HCI_Intel_Read_Version command based on the command
++		 * parameter.
++		 *
++		 * For upgrading firmware case, the TLV based version cannot
++		 * be used because the firmware filename for legacy bootloader
++		 * is based on the old format.
+ 		 *
+ 		 * Also, it is not easy to convert TLV based version from the
+ 		 * legacy version format.
+@@ -2507,6 +2511,20 @@ static int btintel_setup_combined(struct hci_dev *hdev)
+ 		err = btintel_read_version(hdev, &ver);
+ 		if (err)
+ 			return err;
++
++		/* Apply the device specific HCI quirks
++		 *
++		 * All Legacy bootloader devices support WBS
++		 */
++		set_bit(HCI_QUIRK_WIDEBAND_SPEECH_SUPPORTED, &hdev->quirks);
++
++		/* Valid LE States quirk for JfP/ThP familiy */
++		if (ver.hw_variant == 0x11 || ver.hw_variant == 0x12)
++			set_bit(HCI_QUIRK_VALID_LE_STATES, &hdev->quirks);
++
++		/* Setup MSFT Extension support */
++		btintel_set_msft_opcode(hdev, ver.hw_variant);
++
+ 		err = btintel_bootloader_setup(hdev, &ver);
+ 		break;
+ 	case 0x17:
 -- 
 2.34.1
 
