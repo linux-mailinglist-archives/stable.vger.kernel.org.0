@@ -2,85 +2,240 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57DC9492B08
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:19:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A054A492B0B
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 17:19:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243758AbiARQTI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 11:19:08 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:46812 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346618AbiARQSv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:18:51 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12ECC61444;
-        Tue, 18 Jan 2022 16:18:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B6DCC00446;
-        Tue, 18 Jan 2022 16:18:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642522730;
-        bh=lWwgMLWeN92CpQV3rny+wqDTYoq0ROE6wIY4Y1P6dnA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jGyX78QRww/d16vaK9s1zbN4lO8EJ0FspYJdZgkvqR+MmqdU0SXHWhsxgJJUXzaN1
-         lzFX8CPXjPCWy4dTQzGzSZmlLCFX+mgQ3HFFYtt5y/9Za1Gs8Nvp1rP5dEZ82iKaYK
-         PBV5trb3A7sxfw4tquN/NsR54aWamu9CWFAxIlGV9n7ue0UFL6iBspe+pTmPFXuJzL
-         ooJXNddznNMqWwdqK1BhGbCOtFdLH5WLoAfm+925oAuVu6bPHMTj37TaaUdFmSU8zu
-         1Tz51eidlhe6gQZrDqZ4ERaHlMl4WwvKAs+I/FxcE7ZTFGUHOLr7aIap9o9aGt5ZhC
-         0ubF+mQwQRyLw==
-Date:   Tue, 18 Jan 2022 16:18:45 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Ajit Kumar Pandey <AjitKumar.Pandey@amd.com>,
-        lgirdwood@gmail.com, perex@perex.cz, tiwai@suse.com,
-        vsujithkumar.reddy@amd.com, alsa-devel@alsa-project.org
-Subject: Re: [PATCH AUTOSEL 5.16 50/52] ASoC: amd: acp: acp-mach: Change
- default RT1019 amp dev id
-Message-ID: <YeboZaJQLVejZCRg@sirena.org.uk>
-References: <20220117165853.1470420-1-sashal@kernel.org>
- <20220117165853.1470420-50-sashal@kernel.org>
+        id S244194AbiARQT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 11:19:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54094 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346194AbiARQTR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 11:19:17 -0500
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 673F9C06174E
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 08:19:16 -0800 (PST)
+Received: by mail-pj1-x102d.google.com with SMTP id pf13so23847700pjb.0
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 08:19:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=OTmCxpmE0kdCFAKZGcGit3fNCWmQNEo3CcdnH37KCGE=;
+        b=AwL2d7z0UUPoekNFrNnhp64MaezIBpKdZ1dtA4+/5OV+H7Z7qtx4TgO7/k5HU6H8KT
+         8TfxYL8IWilHeq1iD2I88TupmZN6Vc2EuJoC3RMj+2+ab7JzvgOIWxcc0fMQXeYvuZwp
+         kT52dFmqIp13hrn0QShLdS9uDPqAJRoZ2FvwtJ9RwFuu+5FS7+e4UQAXoRVgqDWjBJTR
+         1pzl6OMXLRW9DuE0DHRmP4st4eqpPzhSnDXuraisYaL/0RsllEtgCnGbICnMxgUblQIe
+         D+34+pdtGSkHOBQmgVi72qgzM61lV+WoxU3/YdsRIyKhGd1lt6htRA+WN9WrJU7fuuBQ
+         o5sQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=OTmCxpmE0kdCFAKZGcGit3fNCWmQNEo3CcdnH37KCGE=;
+        b=Iy9UMLV7Xe1KWYhxD1B3jdqTgyk7mGh4PRFl3pfQpJmoiG7g6M5FKRfF4ktKDIOnE/
+         sin4p9GjuXuaP+LHZEDuIG5SvOjTyial1xe3wK88+uHSyZ7jYTqVcHM7qGeUPoXWimbV
+         ajVpgS/o3LuQubhxYR/oOZWuooPDYz/V/ATlqLjRn3pEYasgAoutbMAvtY2+vnKDFWIu
+         ZcqMQg1AOzpei9baYdJEZZkc9smVFPmJzkA0Z6pPXSjYO3pZ50DqI3EQoB7Z7AtxafQz
+         D2Zz9CjXOWVb14yEGGgBZ/f2094hicaZkUtkmG8fopOilESya8oQ/4nIhRKzxUnJIdvB
+         x5lQ==
+X-Gm-Message-State: AOAM531TMYZnC6E7k7tDa5lQLNqwCm7bN60r9tQOlk/8vC9cBOcQTBMc
+        f3uDdKTs58lrb9fD0dpoksdZXeY4Ter1yY2W
+X-Google-Smtp-Source: ABdhPJz0yFFCSyBQ3hZnd6gXxfYqwH2zmT+g2ifW4KT6L93UjWceWML5ED6m1qabnKWy93L23MhzOw==
+X-Received: by 2002:a17:90b:3148:: with SMTP id ip8mr27665955pjb.61.1642522755742;
+        Tue, 18 Jan 2022 08:19:15 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id 34sm14981483pgl.72.2022.01.18.08.19.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Jan 2022 08:19:15 -0800 (PST)
+Message-ID: <61e6e883.1c69fb81.711e3.755f@mx.google.com>
+Date:   Tue, 18 Jan 2022 08:19:15 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="q6NjtMl96wQVpgwI"
-Content-Disposition: inline
-In-Reply-To: <20220117165853.1470420-50-sashal@kernel.org>
-X-Cookie: Do YOU have redeeming social value?
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.4.171-32-ge8a73034b1a9
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 173 runs,
+ 4 regressions (v5.4.171-32-ge8a73034b1a9)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.4 baseline: 173 runs, 4 regressions (v5.4.171-32-ge8a7303=
+4b1a9)
 
---q6NjtMl96wQVpgwI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Regressions Summary
+-------------------
 
-On Mon, Jan 17, 2022 at 11:58:51AM -0500, Sasha Levin wrote:
-> From: Ajit Kumar Pandey <AjitKumar.Pandey@amd.com>
->=20
-> [ Upstream commit 7112550890d7e415188a3351ec0a140be60f6deb ]
->=20
-> RT1019 components was initially registered with i2c1 and i2c2 but
-> now changed to i2c0 and i2c1 in most of our AMD platforms. Change
-> default rt1019 components to 10EC1019:00 and 10EC1019:01 which is
-> aligned with most of AMD machines.
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-This seems like a disruptive change to be backporting into stable...
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
---q6NjtMl96wQVpgwI
-Content-Type: application/pgp-signature; name="signature.asc"
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
------BEGIN PGP SIGNATURE-----
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmHm6GQACgkQJNaLcl1U
-h9Cc+Af+LysinIPtu2z7k6BtNNgMxopSjDRXmvpFaxTaDINJWKg0Qps9VjZIQoM4
-46/b1AnkPLHJW48mtsS0chlzyIB7yvnmY+boA8WHntSxYInSmOXP4tLIw8X/Zq3e
-E9UBjPxMYJbPxNNDR97PqEJP7K71maEWwg+hgwkS5O6HsztCWMfO7mW7zOAKidsN
-8Kgi6OgkjiPdKs5eFr3bzR6KcK9x5gc759E8Ox4bHLUhDTRy1umZNo8CLxssOCTG
-6AjrJCR0pdy3QsONDVh6qnbj5FXeQoj3Tio5INS+4VQVfsffCsa9sI6olp3qcGXF
-aIBtW46qLwVqqyjDwhe1QwTVLULb3A==
-=YylC
------END PGP SIGNATURE-----
 
---q6NjtMl96wQVpgwI--
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.171-32-ge8a73034b1a9/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.171-32-ge8a73034b1a9
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      e8a73034b1a9c12f921c37738d6110fa8d3e64ef =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61e6b2606d000de10aef6746
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-3=
+2-ge8a73034b1a9/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-3=
+2-ge8a73034b1a9/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220115.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61e6b2606d000de10aef6=
+747
+        failing since 33 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61e6b2836af7af9f11ef675a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-3=
+2-ge8a73034b1a9/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-3=
+2-ge8a73034b1a9/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220115.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61e6b2836af7af9f11ef6=
+75b
+        failing since 33 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61e6b262012c1312ebef6754
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-3=
+2-ge8a73034b1a9/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-3=
+2-ge8a73034b1a9/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220115.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61e6b262012c1312ebef6=
+755
+        failing since 33 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61e6b2846af7af9f11ef6767
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-3=
+2-ge8a73034b1a9/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-3=
+2-ge8a73034b1a9/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220115.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61e6b2846af7af9f11ef6=
+768
+        failing since 33 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =20
