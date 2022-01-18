@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79CA749217E
-	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 09:43:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9294649217B
+	for <lists+stable@lfdr.de>; Tue, 18 Jan 2022 09:42:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344805AbiARInH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 03:43:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32934 "EHLO
+        id S1344761AbiARIm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 03:42:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344813AbiARInE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 03:43:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 86E37C061574
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 00:43:04 -0800 (PST)
+        with ESMTP id S1344813AbiARImw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 03:42:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74ED1C06161C
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 00:42:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DED260BC5
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 08:43:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB2FDC00446;
-        Tue, 18 Jan 2022 08:43:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 40EFFB812A5
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 08:42:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DB70C00446;
+        Tue, 18 Jan 2022 08:42:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642495383;
-        bh=ECzK/c8yL76TaQ1DTRBBhdm5E3sooJByd17jxwex9tU=;
+        s=korg; t=1642495370;
+        bh=LicsD3oxRr4FQ3dY7DMugRXeLSs3XojcAlEJWvItl3Y=;
         h=Subject:To:Cc:From:Date:From;
-        b=ela5ArRa2ux4MO54g8JdFc5r97IR9aWfNRh+syJg6dy8R3rHmxIMIW9rd0m9uwyUe
-         LVKiVy9PIKN0005r2K/nlLqBH1Il256beK1XT74nTeGT+DQHt+M8w1i/827lZfESGD
-         z1rD5OHoKW+SPAmw9eH9m6Eq17I9YXpa0h+w2Lxs=
-Subject: FAILED: patch "[PATCH] firmware: qemu_fw_cfg: fix sysfs information leak" failed to apply to 4.14-stable tree
+        b=g2CRaivfOMC0txSY02AYLdfx13GJoql5S9Cggg/qen9VJlzIyz+4fUDSHh0Iks1KX
+         yloFl/d3BAkIKwKk+Xhh9HSyyuRG1UDylW5Mc4pAiJZRgxGWtGozPqYyVnmD35lrAk
+         1+rlupjBSEMe8nE4it3Icq8+1t3q7TxHUpB60MEs=
+Subject: FAILED: patch "[PATCH] firmware: qemu_fw_cfg: fix sysfs information leak" failed to apply to 4.9-stable tree
 To:     johan@kernel.org, mst@redhat.com, somlo@cmu.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 18 Jan 2022 09:42:47 +0100
-Message-ID: <164249536725446@kroah.com>
+Message-ID: <16424953678374@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
