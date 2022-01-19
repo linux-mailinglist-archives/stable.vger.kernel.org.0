@@ -2,137 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7C0B4940C0
-	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 20:20:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8AED4941A2
+	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 21:18:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239694AbiASTUp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jan 2022 14:20:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56118 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239680AbiASTUo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Jan 2022 14:20:44 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B3E1C061574
-        for <stable@vger.kernel.org>; Wed, 19 Jan 2022 11:20:44 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id pf13so3437114pjb.0
-        for <stable@vger.kernel.org>; Wed, 19 Jan 2022 11:20:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=fwN6cD/QkkPPKjTeWwMRYuILe28YgCjWmvtJMPzopFU=;
-        b=dn8VSk7XyrAof4r2ggklqqOjqKzb1SYxGASHso2dDgiMXBUnJg6RtFXgV5d1GNnapZ
-         WkwRAHIWdCpj1VK6+1QMV01kOi8tjtU6JYoGzKEE6aRzcwCySbRW5NcFuqx4lJK5Sv5B
-         7/s2scudZmIQ21C2/tx6HXAgBYaLhXM3y1xt/n/1FpL0Izj+rmFwmSHla1YiLQ7hjIJG
-         A6oiOL8E/55byEJgDu3A1F309mdN6+ZWHNYcA2F8WpsVu8c+COdia0tGhpbwAZsE7Gzr
-         G80YiaFBxqgpQiFZNHDzDNwjWtawJ7y7ElMuXGDlfp08p+b4vfG9rsDm0qjYBQA/FIzx
-         aVXQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=fwN6cD/QkkPPKjTeWwMRYuILe28YgCjWmvtJMPzopFU=;
-        b=F2N+BSuLxS1CkbY8X71OGKVo07n8GhkpwaHqJy430XKAxM0POntBSXOkJ3yMEp8pre
-         6m4fZhN8OTppbIxUfUKV6dUxJWNqP1LNdjodqtJhhPtaSVu6/nmEWybLwnF6UHDKo5R6
-         TyepwuAOoqUvUMEXvJwG1MWN4efzFQcZcMtXp30BrES4Ow+iMrY8xfZdDSd4tbhydDEX
-         vMsT3WTR8Gq10ti1jOP0BvEmIkf6Bl6UpR+tLaz/ZvKScQyE6jwswBC3erFcdFsSI17j
-         W+ljhIf8fGVKxhVjHvUEaVzIcFOKTZEjrJBhCqpwrGlPaJ2Vjf7gw4GSpU7iXo4tYpQY
-         hEJw==
-X-Gm-Message-State: AOAM5319AIcNkdJ8rMPnw8FOywdDIj1xNrfJfxm09hV8VotxQVTJI/n5
-        V3IRMisg3jaZDJD/h5j1HsJLgsPS+gb57Uxp
-X-Google-Smtp-Source: ABdhPJxUDJ51bULJHuUx+2vIKqtoedqaLBeJZuxWxvFWNGxiv0tK6PKLA11kl5DjuXc7ZG4tLNO/GA==
-X-Received: by 2002:a17:90b:4c0f:: with SMTP id na15mr3410087pjb.156.1642620044013;
-        Wed, 19 Jan 2022 11:20:44 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q18sm478994pfn.46.2022.01.19.11.20.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Jan 2022 11:20:43 -0800 (PST)
-Message-ID: <61e8648b.1c69fb81.18811.1ddd@mx.google.com>
-Date:   Wed, 19 Jan 2022 11:20:43 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S242970AbiASUSt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jan 2022 15:18:49 -0500
+Received: from p-impout005aa.msg.pkvw.co.charter.net ([47.43.26.136]:57702
+        "EHLO p-impout005.msg.pkvw.co.charter.net" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S231146AbiASUSr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Jan 2022 15:18:47 -0500
+Received: from localhost.localdomain ([24.31.246.181])
+        by cmsmtp with ESMTP
+        id AHPlndEzHM0uWAHPmnXTMO; Wed, 19 Jan 2022 20:18:44 +0000
+X-Authority-Analysis: v=2.4 cv=AY2iolbG c=1 sm=1 tr=0 ts=61e87224
+ a=cAe/7qmlxnd6JlJqP68I9A==:117 a=cAe/7qmlxnd6JlJqP68I9A==:17 a=NEAV23lmAAAA:8
+ a=yQdBAQUQAAAA:8 a=VwQbUJbxAAAA:8 a=JXEDzCox5okIAoVKa0MA:9
+ a=SzazLyfi1tnkUD6oumHU:22 a=AjGcO6oz07-iQ99wixmX:22
+From:   Larry Finger <Larry.Finger@lwfinger.net>
+To:     Marcel Holtmann <marcel@holtmann.org>,
+        Gustavo Padovan <gustavo@padovan.org>,
+        Johan Hedberg <johan.hedberg@gmail.com>
+Cc:     linux-bluetooth@vger.kernel.org, Hilda Wu <hildawu@realtek.com>,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        stable@vger.kernel.org
+Subject: [PATCH] Bluetooth: btusb: Add one more Bluetooth part for the Realtek RTL8852AE
+Date:   Wed, 19 Jan 2022 14:18:37 -0600
+Message-Id: <20220119201837.4135-1-Larry.Finger@lwfinger.net>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.262-15-gc015d06920ca
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.14
-Subject: stable-rc/queue/4.14 baseline: 157 runs,
- 1 regressions (v4.14.262-15-gc015d06920ca)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
+X-CMAE-Envelope: MS4xfP2vpwKuN2gZq6KKycyaBtg3c00GoQBPa58vKQ2i+Ku9fc3aVGuqSJPISoDbaLxCyBkGUr0fL6qQ6VpDBPr6NBGErOY9wPAI/FkjNh9bY5cU5+dkxrDN
+ SzBTDoOd1TiMQOzXrBUoveUvuh7KUSFoauoycBLuanWnjmiKjEZWGuYOPyWdWZmRl3e56L09TxZVRJvCZcyhUOWv5tDSbiyRCnT0Zn1pXC730H+4PhODxdsz
+ SGBvyjRqNdYVrVkxuP2zPopZ60Oa8SEXtqbjTQmyLgUBeYdeszhlxN7ygikxWDWWOFVx2HKKnXXD0lsmcBxBkVw7PTr9ejlqa9LxSbSRbeoecv8ARMS9qGdH
+ 878UtUKRrYDqoJotmSk4CmhZK+mrs5oiys6NLi/nzIqA1IGMo7f37qEtPjiUSUwOrVVG8QdZ
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 157 runs, 1 regressions (v4.14.262-15-gc015d=
-06920ca)
+This Realtek device has both wifi and BT components. The latter reports
+a USB ID of 0bda:2852, which is not in the table.
 
-Regressions Summary
--------------------
+BT device description in /sys/kernel/debug/usb/devices contains the following entries:
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
+T: Bus=01 Lev=01 Prnt=01 Port=03 Cnt=02 Dev#= 3 Spd=12 MxCh= 0
+D: Ver= 1.00 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs= 1
+P: Vendor=0bda ProdID=2852 Rev= 0.00
+S: Manufacturer=Realtek
+S: Product=Bluetooth Radio
+S: SerialNumber=00e04c000001
+C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=500mA
+I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E: Ad=81(I) Atr=03(Int.) MxPS= 16 Ivl=1ms
+E: Ad=02(O) Atr=02(Bulk) MxPS= 64 Ivl=0ms
+E: Ad=82(I) Atr=02(Bulk) MxPS= 64 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E: Ad=03(O) Atr=01(Isoc) MxPS= 0 Ivl=1ms
+E: Ad=83(I) Atr=01(Isoc) MxPS= 0 Ivl=1ms
+I: If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E: Ad=03(O) Atr=01(Isoc) MxPS= 9 Ivl=1ms
+E: Ad=83(I) Atr=01(Isoc) MxPS= 9 Ivl=1ms
+I: If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E: Ad=03(O) Atr=01(Isoc) MxPS= 17 Ivl=1ms
+E: Ad=83(I) Atr=01(Isoc) MxPS= 17 Ivl=1ms
+I: If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E: Ad=03(O) Atr=01(Isoc) MxPS= 25 Ivl=1ms
+E: Ad=83(I) Atr=01(Isoc) MxPS= 25 Ivl=1ms
+I: If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E: Ad=03(O) Atr=01(Isoc) MxPS= 33 Ivl=1ms
+E: Ad=83(I) Atr=01(Isoc) MxPS= 33 Ivl=1ms
+I: If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+E: Ad=03(O) Atr=01(Isoc) MxPS= 49 Ivl=1ms
+E: Ad=83(I) Atr=01(Isoc) MxPS= 49 Ivl=1ms
+
+The missing USB_ID was reported by user trius65 at https://github.com/lwfinger/rtw89/issues/122
+
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Cc: stable@vger.kernel.org
 ---
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+ drivers/bluetooth/btusb.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index c30d131da784..cc690f04d2c3 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -405,6 +405,8 @@ static const struct usb_device_id blacklist_table[] = {
+ 						     BTUSB_WIDEBAND_SPEECH },
+ 
+ 	/* Realtek 8852AE Bluetooth devices */
++	{ USB_DEVICE(0x0bda, 0x2852), .driver_info = BTUSB_REALTEK |
++						     BTUSB_WIDEBAND_SPEECH },
+ 	{ USB_DEVICE(0x0bda, 0xc852), .driver_info = BTUSB_REALTEK |
+ 						     BTUSB_WIDEBAND_SPEECH },
+ 	{ USB_DEVICE(0x0bda, 0x385a), .driver_info = BTUSB_REALTEK |
+-- 
+2.34.1
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.262-15-gc015d06920ca/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.262-15-gc015d06920ca
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      c015d06920ca2b796e3d52ff2b4fe1939c8a99c9 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e82e63a289babd61abbd35
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.262=
--15-gc015d06920ca/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.262=
--15-gc015d06920ca/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220115.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61e82e63a289bab=
-d61abbd3b
-        failing since 1 day (last pass: v4.14.262-10-g93d10bded874, first f=
-ail: v4.14.262-13-g01f6e3343a5a)
-        2 lines
-
-    2022-01-19T15:29:21.817275  [   20.132720] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2022-01-19T15:29:21.864686  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/104
-    2022-01-19T15:29:21.874023  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
