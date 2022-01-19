@@ -2,90 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B3C1493B6A
-	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 14:49:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10571493B78
+	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 14:53:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347038AbiASNtp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jan 2022 08:49:45 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:37358 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235698AbiASNtp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Jan 2022 08:49:45 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id A0E6D1C0B9C; Wed, 19 Jan 2022 14:49:43 +0100 (CET)
-Date:   Wed, 19 Jan 2022 14:49:43 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Pavel Machek <pavel@denx.de>, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: 4.4 series end of line was Re: [PATCH 4.4 00/17] 4.4.297-rc1
- review
-Message-ID: <20220119134943.GA1032@duo.ucw.cz>
-References: <20211227151315.962187770@linuxfoundation.org>
- <20220119102858.GB4984@amd>
- <YefooANkr6eem49U@kroah.com>
+        id S1350255AbiASNxp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jan 2022 08:53:45 -0500
+Received: from mout.gmx.net ([212.227.17.21]:44909 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235698AbiASNxo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Jan 2022 08:53:44 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1642600423;
+        bh=g8zJR2Jkab1ps8eQAvmK9ipWmEmdtAot34V34MMMnEM=;
+        h=X-UI-Sender-Class:Date:From:Subject:To:Cc;
+        b=dbOvYv7k00MMYrpwxpovh2XPzH/A2w6EiJ2bl6Y7zZRiUZEd8U1JGNkHWuW+XdJMA
+         pNrmIE8WFhYn8LstXdCckIMH0V8ztjbuEwFNiQEWZLcsflX/czLvXSOSFU2JN4lBOk
+         rBSUFZYv18fQKhtNWAmjF4t8Tt/WKN311hAa6woU=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.100.20] ([46.142.34.97]) by mail.gmx.net (mrgmx105
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1M42nY-1nABPD0lwu-0001xl; Wed, 19
+ Jan 2022 14:53:43 +0100
+Message-ID: <a8e70042-e1c6-1d32-42c8-9f31128353f0@gmx.de>
+Date:   Wed, 19 Jan 2022 14:53:42 +0100
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="azLHFNyN32YCQGCU"
-Content-Disposition: inline
-In-Reply-To: <YefooANkr6eem49U@kroah.com>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+From:   Ronald Warsow <rwarsow@gmx.de>
+Subject: Re: [PATCH 5.16 00/28] 5.16.2-rc1 review
+To:     linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Content-Language: de-DE
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: V03:K1:XICGdjkHf2YuCXiFAqtfu1/2lrEIoddKJYLdgbvGaKjAB4Oqero
+ MkfGwithc56AkSe15vmLmkpn6Hg684SxhXD6LRGcsAgokiz/l/cXOa0F71anEtqjP7RsOwh
+ 03lSmWa9pBhSPNcBXQ8kVReOSmhRbqRympU7eT9EoRA4ot6wPKCVqAMNbIARMZdpHxxxe/p
+ a/CRhu5oQ3igG3rXVfRPA==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:Gf/B3JynFDQ=:+slPRfWeRsvp4qADstdrLB
+ 3w6OJ88eOlAmy2pisgK5HqDUn7HOUKToUFANj0DsyJB5SgyKUhVJ7ELKdJ69+Ogq5Ryq4UmO6
+ ANglGjyheDmO4yIvQixarKyFau6Ip296pSNsTRhslg0bziHZId1kJgzb6Ck/RihNn1LIHSI4a
+ zrwG8M/duj72ciqoIGgd8UpjOPfp2pQffpzEu8C38qjVGh2nAIvoM2f3bWw2nHTURodusQcO9
+ kgW7hCJM4DxAUTGm6WOLMV9RKPeD1JzQPYyflWiwFNZAD93V0pXHqMAaJwrDRWX0CVD6Wd5sE
+ BO/yQ3mYUshNf0uRFo9x9U9tx3gAbS3V4kudtaU1toElj8XOn5I8izB5lwUUl+lvlTgkTJ2kW
+ HMt44lReVU1/iP4EVqyswp4etE8AcI2AaR3uUqRCfvDELqPIbjNPCm67SCHz9jHq9qtBD6ChH
+ Y9G/1drmAkLhp6KBbWQjJsJVZZWntipzlxAm7hNWYEePs4FCmaUke6E05hRiACfPCssQG2qw5
+ 4AlbajM66onEDzfaPfxff6fwJRP9dGqupXpLhX7ddTLbY8LgE1qbd0TyAzcjk96y0Sd77ZZk1
+ g/VvBl+yoXQVvvzRKBAaiLeITRlXrkpbHCx5PzeL/0xQNRIJOyfDhx9dIlSkiDDnw84lj9Xkh
+ pbGInMiejzIi/eXtXZNaTkFw4fAjbvKPuDYqc69BiEj7x+VXf+RrO11ss+FVp/kFBNA1g8obo
+ M6XfvM0RmO208OV5dLkz1l1DPw73fV1YRkSVsbQYABsikUh0U9xiieGSmQCcnGnvH+vVNyLG/
+ 6hwsMN0/Ej8pAklEdgD8r4WB5wQESn/RgEjrnfwe3K7zZZobzddLCTVqkcVhOH1UkdRo6j2/Q
+ ETdoRA1BlNyLRits6A812YfFEdcMAEPuMCmbtoFycV/2HlpQTqA0e52WPd6TsOyeSI+0jo7Ef
+ aFah+8jIGxIurZ0NKOKnKXO77JiFamDLEvAfSds3k/esI7vC9GDugHi+tO62bEP+BQF6hH2V9
+ JuHog2kI/rR/50zL1RDvKElpGKam/pqmdko1UYdMZCQ1AOU/Dfu8++yLochK2Ck3iT1bzECge
+ Ki1AMeoipm+1mk=
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+hallo Greg
 
---azLHFNyN32YCQGCU
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+5.16.2-rc1
 
-Hi!
+compiles, boots, suspends on my x86_64
+(Intel i5-11400, Fedora 35)
 
-> > > This is the start of the stable review cycle for the 4.4.297 release.
-> > > There are 17 patches in this series, all will be posted as a response
-> > > to this one.  If anyone has any issues with these being applied, plea=
-se
-> > > let me know.
-> >=20
-> > 4.4.X series is scheduled for EOL next month. Do you have any
-> > estimates if it will be more like Feb 2 or Feb 27?
->=20
-> I would bet on Feb 1 :)
+Thanks
 
-Hmm. That does not leave us too much time.
+Tested-by: Ronald Warsow <rwarsow@gmx.de>
 
-FAQ states:
+regards
+Ronald
 
-# Why are some longterm versions supported longer than others?  The
-# "projected EOL" dates are not set in stone. Each new longterm kernel
-# usually starts with only a 2-year projected EOL that can be extended
-# further if there is enough interest from the industry at large to
-# help support it for a longer period of time.
-
-Is there anyone else interested in continued 4.4.X maintainence?
-
-CIP project will need to maintain 4.4.X-cip and 4.4.X-cip-rt for some
-more years. Do you think it would make sense to maintain 4.4.X-stable
-as well? What would be requirements for doing so?
-
-Best regards,
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---azLHFNyN32YCQGCU
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYegW9wAKCRAw5/Bqldv6
-8i7kAJ4ihbzh6IYNHqBBAq0eKdOiknic/QCeMN2gTepaNuGTiVNfhvT6Ipvt2iY=
-=qkFY
------END PGP SIGNATURE-----
-
---azLHFNyN32YCQGCU--
