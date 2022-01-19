@@ -2,170 +2,174 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71D2249357B
-	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 08:30:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57F004935CA
+	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 08:48:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235553AbiASHar (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jan 2022 02:30:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33372 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245723AbiASHar (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Jan 2022 02:30:47 -0500
-Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61486C06161C
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 23:30:46 -0800 (PST)
-Received: by mail-yb1-xb31.google.com with SMTP id g81so4656554ybg.10
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 23:30:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=Klx4RzQ0BDuNT+ki5g9oKkuf71RbnaB1NJYG//vbHCU=;
-        b=dLFt7IMZdOeWJN+/buAb2gH8Pj1b1OfrdbHh9Ic3NoEL4vU6XfssQYw2jUSVTR/Dmu
-         5dI2ITPJr1aMiOCRyuWaPL4FEts7Hy0IeM1NRR8jQb+rg1nAYMK5qMYBJhYwB8Y4Tpcd
-         Ut9c/Abyo8mzf+g727gg/2AIIUuY7YVYGqXwmRwFOEjZS1mjQArNXsbL62wQ+8v0RmkP
-         S4fCGubdX0BP2TLgTE6Wc8K6Em6+1Xj6vqQdlFJPJOWJBeZU6kOR34EYosG+l3UyGRVl
-         B0+tDPF/bfmZNCXTH46KFniuQ7phsetxvnWutcF59U7BfO3tCrDpoLTNqV4YfWfT6o/0
-         ELvQ==
+        id S1352185AbiASHs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jan 2022 02:48:28 -0500
+Received: from smtp-relay-internal-0.canonical.com ([185.125.188.122]:38380
+        "EHLO smtp-relay-internal-0.canonical.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1352176AbiASHsY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Jan 2022 02:48:24 -0500
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com [209.85.208.72])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 2C38B3F1E0
+        for <stable@vger.kernel.org>; Wed, 19 Jan 2022 07:48:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1642578503;
+        bh=iCsbKRFYtpy96brOq0zYi/PpCyfWdxoLfUAjSC23KxI=;
+        h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+         MIME-Version;
+        b=LYruI4o3oOooY1r/kR2VfxLKhZUqwMGoFJgtzXmQKZVT2N2UrXLlxfh3oj9i2b6gC
+         DfuVev4w1YS9GDU4MIC5zj++oV+9PorFGA5eG659Wc+ca84ubiMiQd8wMyjDlxHq19
+         FYhxfqInMikmx/LJOESdE+0UayGvsJ+HVjIqm/tU+iBieFSqjZXuBpKsQSLJ7ux1q7
+         yspVX07RldUmgHkdTQMX80eULcooc8SAzMnRSztpCCG79WWjfQE0jsa6kuFJshcSMQ
+         RgOpN9jXNERMr+23oYJUXjSrS/kM/qrLrhmNlYEHpCw4StDhHvOGZwFNr+Q/D2PRO3
+         fJ1LjobMB/E2w==
+Received: by mail-ed1-f72.google.com with SMTP id h21-20020aa7c955000000b0040390b2bfc5so1459706edt.15
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 23:48:23 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Klx4RzQ0BDuNT+ki5g9oKkuf71RbnaB1NJYG//vbHCU=;
-        b=Kuy2fYqfR8j3nOSp9gtH+ERII7EYk/veP2nxQfDKm2Vwk1+yR9gofJT+MJkHrvJUF8
-         WlM56WnzHIhdBMu3qz/G2RWVkjNX0czLMjCXuQOd5YYtn/YYRM0/aEzfjbK/A9zIcZXs
-         QfVVpmXu+EAgaRCQyvOZifXTD9D/mmdDcsSicSpl3sG9BWNN5qeGG8wj9C6sw9A0Ou2J
-         tMHrhw4zrV0QXP1c2eeSd4+eKu/AURnW23zBeUhImaEwnpdEgKNRy4RqZqR9YG8c7Bon
-         AfBVzeamkVdyOFyEh/A65nnMJCxkQWuPRZ6Xv4PKvbfBGnYzvntSTN8Rpj/R6LsY1l5w
-         NkXg==
-X-Gm-Message-State: AOAM53095Y0jqouP7+N9Rac5qtcsROWYuAnDVd8HgHK243p8YC4w0tdK
-        SBiDe1EQ3jZl7MLA16QcSOhgma5d7fesVyILEW1cGg==
-X-Google-Smtp-Source: ABdhPJx14O3iuJhpQEbglBjfJUBPPdqOvAJzQIcvWXK74zSc3TPptBdwP6/Tm2mjBt/9Z+Lukq0BTo2sD/UcB5I266o=
-X-Received: by 2002:a25:9082:: with SMTP id t2mr15698199ybl.684.1642577445341;
- Tue, 18 Jan 2022 23:30:45 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=iCsbKRFYtpy96brOq0zYi/PpCyfWdxoLfUAjSC23KxI=;
+        b=DIfgOtskw0LT3Fgv8xUMcIIjitLCXGmstl3wkE6Gufijx+36JSTnySgLZcksopRkeG
+         rNu2rCpzGTOz4CSeaZ2+l/CXN+9l0Q9N2HiqHzuOsHbuuVTj8jjzBYIQYdVZxb5z2TyF
+         IVGz4qMpJyeo4W8O4p18PVv2FEzkkkhmr51BYZ/IDmeqEDtTdBhFMwE2hBwEEMezVsL2
+         RvOqVEqspb4OMKA1wNDb9CDyQYCzScd+R6Z4/BxoXhBqJY6cFHoquiIRNO7VIiwyye9Z
+         R/Mf0z2lF0GkRwP4sbTKcku3ABZpCKrlAgDs9Zpf/PfrnrWXowLrHiFNAAC+60Kyo49U
+         SwNw==
+X-Gm-Message-State: AOAM533vSo6W0gtMiaLA6U/SjZGVAnmB25B90QTIwFLgbsiqBY5ZR37A
+        gVc6O3jeShB951HAB9Soq7i4ORMbhpYHBqxtcNHtAJakcqhwAIio5uVtGhi3UfHNEksr6XUdIp/
+        vN3BWi/zJpLCKnQbQBJs0J3SE8WzwtvgzvQ==
+X-Received: by 2002:a05:6402:84c:: with SMTP id b12mr7507203edz.243.1642578502817;
+        Tue, 18 Jan 2022 23:48:22 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJy92l9OELb/JNLf9Srkc2YlRT5NXMskJoriRhm94S0jCBqI7jA0MER7CYMeGjMbYmb4t8IWrQ==
+X-Received: by 2002:a05:6402:84c:: with SMTP id b12mr7507191edz.243.1642578502593;
+        Tue, 18 Jan 2022 23:48:22 -0800 (PST)
+Received: from localhost.localdomain (xdsl-188-155-168-84.adslplus.ch. [188.155.168.84])
+        by smtp.gmail.com with ESMTPSA id zo4sm1104996ejb.143.2022.01.18.23.48.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Jan 2022 23:48:22 -0800 (PST)
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>, linux-nfc@lists.01.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc:     syzbot+7f23bcddf626e0593a39@syzkaller.appspotmail.com,
+        stable@vger.kernel.org
+Subject: [PATCH v2 1/1] nfc: llcp: fix NULL error pointer dereference on sendmsg() after failed bind()
+Date:   Wed, 19 Jan 2022 08:48:16 +0100
+Message-Id: <20220119074816.6505-2-krzysztof.kozlowski@canonical.com>
+X-Mailer: git-send-email 2.32.0
+In-Reply-To: <20220119074816.6505-1-krzysztof.kozlowski@canonical.com>
+References: <20220119074816.6505-1-krzysztof.kozlowski@canonical.com>
 MIME-Version: 1.0
-References: <20220118160452.384322748@linuxfoundation.org>
-In-Reply-To: <20220118160452.384322748@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Wed, 19 Jan 2022 13:00:33 +0530
-Message-ID: <CA+G9fYvJaFVKu24oFuR1wGFRe4N2A=yxH6ksx61bunfR9Y3Ejw@mail.gmail.com>
-Subject: Re: [PATCH 5.16 00/28] 5.16.2-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        NeilBrown <neilb@suse.de>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Arnd Bergmann <arnd@arndb.de>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 18 Jan 2022 at 21:41, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.16.2 release.
-> There are 28 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 20 Jan 2022 16:04:42 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.2-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
+Syzbot detected a NULL pointer dereference of nfc_llcp_sock->dev pointer
+(which is a 'struct nfc_dev *') with calls to llcp_sock_sendmsg() after
+a failed llcp_sock_bind(). The message being sent is a SOCK_DGRAM.
 
-Following patch caused build regression for powerpc allnoconfig only on 5.16
-with gcc-9.
+KASAN report:
 
-5.16-powerpc-gcc-9-allnoconfig   - FAIL
-5.16-powerpc-gcc-10-allnoconfig  - PASS
-5.16-powerpc-gcc-11-allnoconfig  - PASS
+  BUG: KASAN: null-ptr-deref in nfc_alloc_send_skb+0x2d/0xc0
+  Read of size 4 at addr 00000000000005c8 by task llcp_sock_nfc_a/899
 
+  CPU: 5 PID: 899 Comm: llcp_sock_nfc_a Not tainted 5.16.0-rc6-next-20211224-00001-gc6437fbf18b0 #125
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x45/0x59
+   ? nfc_alloc_send_skb+0x2d/0xc0
+   __kasan_report.cold+0x117/0x11c
+   ? mark_lock+0x480/0x4f0
+   ? nfc_alloc_send_skb+0x2d/0xc0
+   kasan_report+0x38/0x50
+   nfc_alloc_send_skb+0x2d/0xc0
+   nfc_llcp_send_ui_frame+0x18c/0x2a0
+   ? nfc_llcp_send_i_frame+0x230/0x230
+   ? __local_bh_enable_ip+0x86/0xe0
+   ? llcp_sock_connect+0x470/0x470
+   ? llcp_sock_connect+0x470/0x470
+   sock_sendmsg+0x8e/0xa0
+   ____sys_sendmsg+0x253/0x3f0
+   ...
 
-make --silent --keep-going --jobs=8 \
-  O=/home/tuxbuild/.cache/tuxmake/builds/current \
-  ARCH=powerpc \
-  CROSS_COMPILE=powerpc64le-linux-gnu- \
- 'CC=sccache powerpc64le-linux-gnu-gcc' \
-  'HOSTCC=sccache gcc'
+The issue was visible only with multiple simultaneous calls to bind() and
+sendmsg(), which resulted in most of the bind() calls to fail.  The
+bind() was failing on checking if there is available WKS/SDP/SAP
+(respective bit in 'struct nfc_llcp_local' fields).  When there was no
+available WKS/SDP/SAP, the bind returned error but the sendmsg() to such
+socket was able to trigger mentioned NULL pointer dereference of
+nfc_llcp_sock->dev.
 
-Inconsistent kallsyms data
-Try make KALLSYMS_EXTRA_PASS=1 as a workaround
-make[1]: *** [/builds/linux/Makefile:1161: vmlinux] Error 1
-make[1]: *** Deleting file 'vmlinux'
+The code looks simply racy and currently it protects several paths
+against race with checks for (!nfc_llcp_sock->local) which is NULL-ified
+in error paths of bind().  The llcp_sock_sendmsg() did not have such
+check but called function nfc_llcp_send_ui_frame() had, although not
+protected with lock_sock().
 
-> NeilBrown <neilb@suse.de>
->     devtmpfs regression fix: reconfigure on each mount
+Therefore the race could look like (same socket is used all the time):
+  CPU0                                     CPU1
+  ====                                     ====
+  llcp_sock_bind()
+  - lock_sock()
+    - success
+  - release_sock()
+  - return 0
+                                           llcp_sock_sendmsg()
+                                           - lock_sock()
+                                           - release_sock()
+  llcp_sock_bind(), same socket
+  - lock_sock()
+    - error
+                                           - nfc_llcp_send_ui_frame()
+                                             - if (!llcp_sock->local)
+    - llcp_sock->local = NULL
+    - nfc_put_device(dev)
+                                             - dereference llcp_sock->dev
+  - release_sock()
+  - return -ERRNO
 
-Bisect log:
-# bad: [979dd812ffb543a3f6218868a26a701054ba3b8c] Linux 5.16.2-rc1
-# good: [80820ae87cc8c09b828faa951f44b2396a5b48c4] drm/i915: Avoid
-bitwise vs logical OR warning in snb_wm_latency_quirk()
-git bisect start '979dd812ffb543a3f6218868a26a701054ba3b8c'
-'80820ae87cc8c09b828faa951f44b2396a5b48c4'
-# bad: [6cb89b83384df47b2def88870be10db707a77649] 9p: only copy valid
-iattrs in 9P2000.L setattr implementation
-git bisect bad 6cb89b83384df47b2def88870be10db707a77649
-# bad: [041b83007bd86ba0e7275e348eb13df13df669ef] vfs: fs_context: fix
-up param length parsing in legacy_parse_param
-git bisect bad 041b83007bd86ba0e7275e348eb13df13df669ef
-# bad: [a7458144427accc2b602a672b1f9435e00ba578e] devtmpfs regression
-fix: reconfigure on each mount
-git bisect bad a7458144427accc2b602a672b1f9435e00ba578e
-# good: [5c245afa643712977fd0a9c70ffbb9df5dbf204b] parisc: Fix
-pdc_toc_pim_11 and pdc_toc_pim_20 definitions
-git bisect good 5c245afa643712977fd0a9c70ffbb9df5dbf204b
-# good: [677615cd2689a0898dd58e51d12abe6663567b24] Linux 5.16.1
-git bisect good 677615cd2689a0898dd58e51d12abe6663567b24
-# first bad commit: [a7458144427accc2b602a672b1f9435e00ba578e]
-devtmpfs regression fix: reconfigure on each mount
-The first bad commit:
-commit a7458144427accc2b602a672b1f9435e00ba578e
-Author: NeilBrown <neilb@suse.de>
-Date:   Mon Jan 17 09:07:26 2022 +1100
-    devtmpfs regression fix: reconfigure on each mount
+The nfc_llcp_send_ui_frame() checked llcp_sock->local outside of the
+lock, which is racy and ineffective check.  Instead, its caller
+llcp_sock_sendmsg(), should perform the check inside lock_sock().
 
-    commit a6097180d884ddab769fb25588ea8598589c218c upstream.
+Reported-and-tested-by: syzbot+7f23bcddf626e0593a39@syzkaller.appspotmail.com
+Fixes: b874dec21d1c ("NFC: Implement LLCP connection less Tx path")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-    Prior to Linux v5.4 devtmpfs used mount_single() which treats the given
-    mount options as "remount" options, so it updates the configuration of
-    the single super_block on each mount.
+---
 
-    Since that was changed, the mount options used for devtmpfs are ignored.
-    This is a regression which affect systemd - which mounts devtmpfs with
-    "-o mode=755,size=4m,nr_inodes=1m".
+Changes since v1:
+1. Only split to independent set and updating Syzbot tested tag.
+---
+ net/nfc/llcp_sock.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-    This patch restores the "remount" effect by calling reconfigure_single()
+diff --git a/net/nfc/llcp_sock.c b/net/nfc/llcp_sock.c
+index 6cfd30fc0798..0b93a17b9f11 100644
+--- a/net/nfc/llcp_sock.c
++++ b/net/nfc/llcp_sock.c
+@@ -789,6 +789,11 @@ static int llcp_sock_sendmsg(struct socket *sock, struct msghdr *msg,
+ 
+ 	lock_sock(sk);
+ 
++	if (!llcp_sock->local) {
++		release_sock(sk);
++		return -ENODEV;
++	}
++
+ 	if (sk->sk_type == SOCK_DGRAM) {
+ 		DECLARE_SOCKADDR(struct sockaddr_nfc_llcp *, addr,
+ 				 msg->msg_name);
+-- 
+2.32.0
 
-    Fixes: d401727ea0d7 ("devtmpfs: don't mix
-{ramfs,shmem}_fill_super() with mount_single()")
-    Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-    Cc: Al Viro <viro@zeniv.linux.org.uk>
-    Signed-off-by: NeilBrown <neilb@suse.de>
-    Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-    Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
- drivers/base/devtmpfs.c    | 7 +++++++
- fs/super.c                 | 4 ++--
- include/linux/fs_context.h | 2 ++
- 3 files changed, 11 insertions(+), 2 deletions(-)
-
-you may compare build results here.
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.16.y/build/v5.16-67-g979dd812ffb5/testrun/7410428/suite/build/test/gcc-9-allnoconfig/history/
-
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
---
-Linaro LKFT
-https://lkft.linaro.org
