@@ -2,99 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8AED4941A2
-	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 21:18:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EBB64941AF
+	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 21:30:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242970AbiASUSt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jan 2022 15:18:49 -0500
-Received: from p-impout005aa.msg.pkvw.co.charter.net ([47.43.26.136]:57702
-        "EHLO p-impout005.msg.pkvw.co.charter.net" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231146AbiASUSr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Jan 2022 15:18:47 -0500
-Received: from localhost.localdomain ([24.31.246.181])
-        by cmsmtp with ESMTP
-        id AHPlndEzHM0uWAHPmnXTMO; Wed, 19 Jan 2022 20:18:44 +0000
-X-Authority-Analysis: v=2.4 cv=AY2iolbG c=1 sm=1 tr=0 ts=61e87224
- a=cAe/7qmlxnd6JlJqP68I9A==:117 a=cAe/7qmlxnd6JlJqP68I9A==:17 a=NEAV23lmAAAA:8
- a=yQdBAQUQAAAA:8 a=VwQbUJbxAAAA:8 a=JXEDzCox5okIAoVKa0MA:9
- a=SzazLyfi1tnkUD6oumHU:22 a=AjGcO6oz07-iQ99wixmX:22
-From:   Larry Finger <Larry.Finger@lwfinger.net>
-To:     Marcel Holtmann <marcel@holtmann.org>,
-        Gustavo Padovan <gustavo@padovan.org>,
-        Johan Hedberg <johan.hedberg@gmail.com>
-Cc:     linux-bluetooth@vger.kernel.org, Hilda Wu <hildawu@realtek.com>,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        stable@vger.kernel.org
-Subject: [PATCH] Bluetooth: btusb: Add one more Bluetooth part for the Realtek RTL8852AE
-Date:   Wed, 19 Jan 2022 14:18:37 -0600
-Message-Id: <20220119201837.4135-1-Larry.Finger@lwfinger.net>
-X-Mailer: git-send-email 2.34.1
+        id S244067AbiASUaF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jan 2022 15:30:05 -0500
+Received: from mga02.intel.com ([134.134.136.20]:57543 "EHLO mga02.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231146AbiASUaF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Jan 2022 15:30:05 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1642624205; x=1674160205;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=nfdzBYBqQaqq5ju/KIZ0OGlrsNPW5+aw7QS4ZNf9KN4=;
+  b=d7XAprLJZdWnRnGkdemlM+5sZeXKOav1Z+mowjjLfo1UpjY5+F8o0Vk/
+   s3zDftfdUDGNaZyqnk5mK9ajF1jKX1PbgS9UF2v3hkg6f8gmFfAYx2GGZ
+   fOphQfRHo7o8YJ8yuOEttmBQINJbybqWanr3O41BSYvFpze24uswurF8w
+   C0xeeenXeHpLhiCKfWf62e0A/c4amAm9fFANO+tawOC5EyPWy1mlrw3bW
+   AaJsIWss4p4fn99hMnc1QgxB90qeaPXdJ3P6inwF94KvitjLUPxsdB+GP
+   YWMyu8tuBK9XCdPFO84r+iKbfa2ur2YFpj0eWaXGDp5hMis5G/mlZBJgX
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10231"; a="232550213"
+X-IronPort-AV: E=Sophos;i="5.88,300,1635231600"; 
+   d="scan'208";a="232550213"
+Received: from orsmga005.jf.intel.com ([10.7.209.41])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2022 12:30:05 -0800
+X-IronPort-AV: E=Sophos;i="5.88,300,1635231600"; 
+   d="scan'208";a="693930438"
+Received: from atefehad-mobl1.amr.corp.intel.com (HELO ldmartin-desk2) ([10.212.238.132])
+  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2022 12:30:04 -0800
+Date:   Wed, 19 Jan 2022 12:30:04 -0800
+From:   Lucas De Marchi <lucas.demarchi@intel.com>
+To:     Bjorn Helgaas <helgaas@kernel.org>
+Cc:     Borislav Petkov <bp@alien8.de>, x86@kernel.org,
+        linux-pci@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [Intel-gfx] [PATCH v5 1/5] x86/quirks: Fix stolen detection with
+ integrated + discrete GPU
+Message-ID: <20220119203004.mnds3vrxtsqkvso3@ldmartin-desk2>
+X-Patchwork-Hint: comment
+References: <YecI6S9Cx5esqL+H@zn.tnic>
+ <20220118200145.GA887728@bhelgaas>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CMAE-Envelope: MS4xfP2vpwKuN2gZq6KKycyaBtg3c00GoQBPa58vKQ2i+Ku9fc3aVGuqSJPISoDbaLxCyBkGUr0fL6qQ6VpDBPr6NBGErOY9wPAI/FkjNh9bY5cU5+dkxrDN
- SzBTDoOd1TiMQOzXrBUoveUvuh7KUSFoauoycBLuanWnjmiKjEZWGuYOPyWdWZmRl3e56L09TxZVRJvCZcyhUOWv5tDSbiyRCnT0Zn1pXC730H+4PhODxdsz
- SGBvyjRqNdYVrVkxuP2zPopZ60Oa8SEXtqbjTQmyLgUBeYdeszhlxN7ygikxWDWWOFVx2HKKnXXD0lsmcBxBkVw7PTr9ejlqa9LxSbSRbeoecv8ARMS9qGdH
- 878UtUKRrYDqoJotmSk4CmhZK+mrs5oiys6NLi/nzIqA1IGMo7f37qEtPjiUSUwOrVVG8QdZ
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <20220118200145.GA887728@bhelgaas>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This Realtek device has both wifi and BT components. The latter reports
-a USB ID of 0bda:2852, which is not in the table.
+On Tue, Jan 18, 2022 at 02:01:45PM -0600, Bjorn Helgaas wrote:
+>On Tue, Jan 18, 2022 at 07:37:29PM +0100, Borislav Petkov wrote:
+>> On Tue, Jan 18, 2022 at 11:58:53AM -0600, Bjorn Helgaas wrote:
+>> > I don't really care much one way or the other.  I think the simplest
+>> > approach is to remove QFLAG_APPLY_ONCE from intel_graphics_quirks()
+>> > and do nothing else, as I suggested here:
+>> >
+>> >   https://lore.kernel.org/r/20220113000805.GA295089@bhelgaas
+>> >
+>> > Unfortunately that didn't occur to me until I'd already suggested more
+>> > complicated things that no longer seem worthwhile to me.
+>> >
+>> > The static variable might be ugly, but it does seem to be what
+>> > intel_graphics_quirks() wants -- a "do this at most once per system
+>> > but we don't know exactly which device" situation.
+>>
+>> I see.
+>>
+>> Yeah, keeping it solely inside intel_graphics_quirks() and maybe with a
+>> comment ontop, why it is done, is simple. I guess if more quirks need
+>> this once-thing people might have to consider a more sensible scheme - I
+>> was just objecting to sprinkling those static vars everywhere.
+>>
+>> But your call. :)
+>
+>Haha :)  I was hoping not to touch it myself because I think this
+>whole stolen memory thing is kind of nasty.  It's not clear to me why
+>we need it at all, or why we have to keep all this device-specific
+>logic in the kernel, or why it has to be an early quirk as opposed to
+>a regular PCI quirk.  We had a thread [1] about it a while ago but I
+>don't think anything got resolved.
 
-BT device description in /sys/kernel/debug/usb/devices contains the following entries:
+I was reading that thread again and thinking what we could do to try to
+resolve this. I will reply on that thread.
 
-T: Bus=01 Lev=01 Prnt=01 Port=03 Cnt=02 Dev#= 3 Spd=12 MxCh= 0
-D: Ver= 1.00 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs= 1
-P: Vendor=0bda ProdID=2852 Rev= 0.00
-S: Manufacturer=Realtek
-S: Product=Bluetooth Radio
-S: SerialNumber=00e04c000001
-C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E: Ad=81(I) Atr=03(Int.) MxPS= 16 Ivl=1ms
-E: Ad=02(O) Atr=02(Bulk) MxPS= 64 Ivl=0ms
-E: Ad=82(I) Atr=02(Bulk) MxPS= 64 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E: Ad=03(O) Atr=01(Isoc) MxPS= 0 Ivl=1ms
-E: Ad=83(I) Atr=01(Isoc) MxPS= 0 Ivl=1ms
-I: If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E: Ad=03(O) Atr=01(Isoc) MxPS= 9 Ivl=1ms
-E: Ad=83(I) Atr=01(Isoc) MxPS= 9 Ivl=1ms
-I: If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E: Ad=03(O) Atr=01(Isoc) MxPS= 17 Ivl=1ms
-E: Ad=83(I) Atr=01(Isoc) MxPS= 17 Ivl=1ms
-I: If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E: Ad=03(O) Atr=01(Isoc) MxPS= 25 Ivl=1ms
-E: Ad=83(I) Atr=01(Isoc) MxPS= 25 Ivl=1ms
-I: If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E: Ad=03(O) Atr=01(Isoc) MxPS= 33 Ivl=1ms
-E: Ad=83(I) Atr=01(Isoc) MxPS= 33 Ivl=1ms
-I: If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E: Ad=03(O) Atr=01(Isoc) MxPS= 49 Ivl=1ms
-E: Ad=83(I) Atr=01(Isoc) MxPS= 49 Ivl=1ms
+>But to try to make forward progress, I applied patch 1/5 (actually,
+>the updated one from [2]) to my pci/misc branch with the updated
+>commit log and code comments below.
 
-The missing USB_ID was reported by user trius65 at https://github.com/lwfinger/rtw89/issues/122
+thanks. I found the wording in the title odd as when I read "first" it
+gives me the impression it's saying there could be more, which is not
+possible.  Anyway, not a big thing. Thanks for rewording it.
 
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-Cc: stable@vger.kernel.org
----
- drivers/bluetooth/btusb.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index c30d131da784..cc690f04d2c3 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -405,6 +405,8 @@ static const struct usb_device_id blacklist_table[] = {
- 						     BTUSB_WIDEBAND_SPEECH },
- 
- 	/* Realtek 8852AE Bluetooth devices */
-+	{ USB_DEVICE(0x0bda, 0x2852), .driver_info = BTUSB_REALTEK |
-+						     BTUSB_WIDEBAND_SPEECH },
- 	{ USB_DEVICE(0x0bda, 0xc852), .driver_info = BTUSB_REALTEK |
- 						     BTUSB_WIDEBAND_SPEECH },
- 	{ USB_DEVICE(0x0bda, 0x385a), .driver_info = BTUSB_REALTEK |
--- 
-2.34.1
-
+Lucas De Marchi
