@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 924FB49399D
+	by mail.lfdr.de (Postfix) with ESMTP id 1B89549399C
 	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 12:37:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354206AbiASLgy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jan 2022 06:36:54 -0500
-Received: from urabess.com ([60.43.139.129]:42262 "EHLO urabess.com"
+        id S1354185AbiASLgr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jan 2022 06:36:47 -0500
+Received: from urabess.com ([60.43.139.129]:42006 "EHLO urabess.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1354053AbiASLgy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Jan 2022 06:36:54 -0500
+        id S1354053AbiASLgr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Jan 2022 06:36:47 -0500
 Received: by urabess.com (Postfix, from userid 5062)
-        id ED6191075042E; Wed, 19 Jan 2022 20:31:33 +0900 (JST)
+        id 11EBF107504A3; Wed, 19 Jan 2022 20:31:34 +0900 (JST)
 To:     stable@vger.kernel.org
 Subject: =?ISO-2022-JP?B?GyRCJCpMZCQkOWckbyQ7JCIkaiQsJEgkJiQ0JDYkJCReJDkhWjN0PDAycTxSQGpJdEA9Om49aiFbGyhCICJbeW91ci1zdWJqZWN0XSI=?=
-Date:   Wed, 19 Jan 2022 11:31:31 +0000
+Date:   Wed, 19 Jan 2022 11:31:32 +0000
 From:   =?ISO-2022-JP?B?GyRCM3Q8MDJxPFJAakl0QD06bj1qGyhC?= 
         <main@urabess.com>
 Reply-To: main@urabess.com
-Message-ID: <7bf6554bcbe6c940747b5047e99b59ca@urabess.com>
+Message-ID: <35112d66f9fa4165cddfe0e2dce5dfc8@urabess.com>
 X-Mailer: WPMailSMTP/Mailer/mail 1.6.0
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-2022-JP
