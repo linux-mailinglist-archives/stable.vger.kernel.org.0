@@ -2,174 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57F004935CA
-	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 08:48:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF6674935EA
+	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 08:55:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352185AbiASHs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jan 2022 02:48:28 -0500
-Received: from smtp-relay-internal-0.canonical.com ([185.125.188.122]:38380
-        "EHLO smtp-relay-internal-0.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1352176AbiASHsY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Jan 2022 02:48:24 -0500
-Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com [209.85.208.72])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-internal-0.canonical.com (Postfix) with ESMTPS id 2C38B3F1E0
-        for <stable@vger.kernel.org>; Wed, 19 Jan 2022 07:48:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1642578503;
-        bh=iCsbKRFYtpy96brOq0zYi/PpCyfWdxoLfUAjSC23KxI=;
-        h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-         MIME-Version;
-        b=LYruI4o3oOooY1r/kR2VfxLKhZUqwMGoFJgtzXmQKZVT2N2UrXLlxfh3oj9i2b6gC
-         DfuVev4w1YS9GDU4MIC5zj++oV+9PorFGA5eG659Wc+ca84ubiMiQd8wMyjDlxHq19
-         FYhxfqInMikmx/LJOESdE+0UayGvsJ+HVjIqm/tU+iBieFSqjZXuBpKsQSLJ7ux1q7
-         yspVX07RldUmgHkdTQMX80eULcooc8SAzMnRSztpCCG79WWjfQE0jsa6kuFJshcSMQ
-         RgOpN9jXNERMr+23oYJUXjSrS/kM/qrLrhmNlYEHpCw4StDhHvOGZwFNr+Q/D2PRO3
-         fJ1LjobMB/E2w==
-Received: by mail-ed1-f72.google.com with SMTP id h21-20020aa7c955000000b0040390b2bfc5so1459706edt.15
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 23:48:23 -0800 (PST)
+        id S1352306AbiASHz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jan 2022 02:55:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38632 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1352405AbiASHxo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Jan 2022 02:53:44 -0500
+Received: from mail-ed1-x533.google.com (mail-ed1-x533.google.com [IPv6:2a00:1450:4864:20::533])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79EC5C061756
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 23:53:44 -0800 (PST)
+Received: by mail-ed1-x533.google.com with SMTP id q25so7290080edb.2
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 23:53:44 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=h+4TAAW0oCGxfeZjzEbwErifa+6E3JL+Snfdxuo9hi4=;
+        b=VphISyBLHqMdbjiWr2Zai00b4bFXug+8mUgSJxbfpZQoTAGgs2rCN2UNKbJD2vXt6i
+         GbOkmqHLi5vXN621pAU3O1Ao0bKq9j/ukvtcqner6W2s0X1EaCJuZ1aCZNCFt6lFO7Ig
+         tH+1kqNjJqFLVH0/8uHItRZFdFBLAZZJMq+2o=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=iCsbKRFYtpy96brOq0zYi/PpCyfWdxoLfUAjSC23KxI=;
-        b=DIfgOtskw0LT3Fgv8xUMcIIjitLCXGmstl3wkE6Gufijx+36JSTnySgLZcksopRkeG
-         rNu2rCpzGTOz4CSeaZ2+l/CXN+9l0Q9N2HiqHzuOsHbuuVTj8jjzBYIQYdVZxb5z2TyF
-         IVGz4qMpJyeo4W8O4p18PVv2FEzkkkhmr51BYZ/IDmeqEDtTdBhFMwE2hBwEEMezVsL2
-         RvOqVEqspb4OMKA1wNDb9CDyQYCzScd+R6Z4/BxoXhBqJY6cFHoquiIRNO7VIiwyye9Z
-         R/Mf0z2lF0GkRwP4sbTKcku3ABZpCKrlAgDs9Zpf/PfrnrWXowLrHiFNAAC+60Kyo49U
-         SwNw==
-X-Gm-Message-State: AOAM533vSo6W0gtMiaLA6U/SjZGVAnmB25B90QTIwFLgbsiqBY5ZR37A
-        gVc6O3jeShB951HAB9Soq7i4ORMbhpYHBqxtcNHtAJakcqhwAIio5uVtGhi3UfHNEksr6XUdIp/
-        vN3BWi/zJpLCKnQbQBJs0J3SE8WzwtvgzvQ==
-X-Received: by 2002:a05:6402:84c:: with SMTP id b12mr7507203edz.243.1642578502817;
-        Tue, 18 Jan 2022 23:48:22 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJy92l9OELb/JNLf9Srkc2YlRT5NXMskJoriRhm94S0jCBqI7jA0MER7CYMeGjMbYmb4t8IWrQ==
-X-Received: by 2002:a05:6402:84c:: with SMTP id b12mr7507191edz.243.1642578502593;
-        Tue, 18 Jan 2022 23:48:22 -0800 (PST)
-Received: from localhost.localdomain (xdsl-188-155-168-84.adslplus.ch. [188.155.168.84])
-        by smtp.gmail.com with ESMTPSA id zo4sm1104996ejb.143.2022.01.18.23.48.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Jan 2022 23:48:22 -0800 (PST)
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>, linux-nfc@lists.01.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     syzbot+7f23bcddf626e0593a39@syzkaller.appspotmail.com,
-        stable@vger.kernel.org
-Subject: [PATCH v2 1/1] nfc: llcp: fix NULL error pointer dereference on sendmsg() after failed bind()
-Date:   Wed, 19 Jan 2022 08:48:16 +0100
-Message-Id: <20220119074816.6505-2-krzysztof.kozlowski@canonical.com>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20220119074816.6505-1-krzysztof.kozlowski@canonical.com>
-References: <20220119074816.6505-1-krzysztof.kozlowski@canonical.com>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=h+4TAAW0oCGxfeZjzEbwErifa+6E3JL+Snfdxuo9hi4=;
+        b=l5Wiy+qrfLo0Jeg/CIj+9yfevozi/I/woOtMRXg1y6/O3yTOaFUDmp9xZBI71ey6R8
+         /6q4S4sa04mBVsIWrkWzpMW+Jv+wXMyxHMRay6DAJW65cWNtU1yR0vdCsjeI+MxHVOJC
+         PkB5EA3H5IAmyhgFQmuaZg72S3j1FXsJVrhtJsxcLIenLMCdoN/kaQ9GeOMzj9vMmwOe
+         RqjwuDl+TRFFhbzyVKzH6sT6MTg3/LK0Dhk9xMrk82LH36n0nvMS6zb3Dh39ju9lDarR
+         J4jF8SS83nTwwJuflLZ7lVVnPqpZu/zRrvPNvwClsIxNuUOEvaYYn/miacG776Mh3QwX
+         sIBQ==
+X-Gm-Message-State: AOAM5306W8Lot71aetoMz5WEXmWyEgV8OAGccrlmQ2SJd0d2FbLJTLAh
+        BftBr353dO3tmC7BEkfIHil8a/KDnUfZsYaP
+X-Google-Smtp-Source: ABdhPJyk/ixoiwem3BSOmLdL26p6EOCkiG0syZ85Qm/dOTn8pXP0M6/nwh4FXIUpnXkxPIQnri7eCQ==
+X-Received: by 2002:a17:906:3094:: with SMTP id 20mr19505479ejv.72.1642578822987;
+        Tue, 18 Jan 2022 23:53:42 -0800 (PST)
+Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com. [209.85.128.44])
+        by smtp.gmail.com with ESMTPSA id bj1sm3634288ejb.141.2022.01.18.23.53.40
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 18 Jan 2022 23:53:40 -0800 (PST)
+Received: by mail-wm1-f44.google.com with SMTP id ay14-20020a05600c1e0e00b0034d7bef1b5dso5612234wmb.3
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 23:53:40 -0800 (PST)
+X-Received: by 2002:adf:c74e:: with SMTP id b14mr27546389wrh.97.1642578820207;
+ Tue, 18 Jan 2022 23:53:40 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20220118160452.384322748@linuxfoundation.org> <CA+G9fYvJaFVKu24oFuR1wGFRe4N2A=yxH6ksx61bunfR9Y3Ejw@mail.gmail.com>
+In-Reply-To: <CA+G9fYvJaFVKu24oFuR1wGFRe4N2A=yxH6ksx61bunfR9Y3Ejw@mail.gmail.com>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Wed, 19 Jan 2022 09:53:24 +0200
+X-Gmail-Original-Message-ID: <CAHk-=whJjHXGeVnVPmC8t_+Rie5N1tarrzsttECEh5efbXYUuA@mail.gmail.com>
+Message-ID: <CAHk-=whJjHXGeVnVPmC8t_+Rie5N1tarrzsttECEh5efbXYUuA@mail.gmail.com>
+Subject: Re: [PATCH 5.16 00/28] 5.16.2-rc1 review
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        NeilBrown <neilb@suse.de>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        stable <stable@vger.kernel.org>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Arnd Bergmann <arnd@arndb.de>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Syzbot detected a NULL pointer dereference of nfc_llcp_sock->dev pointer
-(which is a 'struct nfc_dev *') with calls to llcp_sock_sendmsg() after
-a failed llcp_sock_bind(). The message being sent is a SOCK_DGRAM.
+On Wed, Jan 19, 2022 at 9:30 AM Naresh Kamboju
+<naresh.kamboju@linaro.org> wrote:
+>
+> Inconsistent kallsyms data
 
-KASAN report:
+This tends to be a "odd build environment" problem, and very very
+random. Triggered by very particular compiler versions and just some
+odd code modement details.
 
-  BUG: KASAN: null-ptr-deref in nfc_alloc_send_skb+0x2d/0xc0
-  Read of size 4 at addr 00000000000005c8 by task llcp_sock_nfc_a/899
+I'd suggest doing a completely clean build and disabling ccache, and
+seeing if that makes it go away.
 
-  CPU: 5 PID: 899 Comm: llcp_sock_nfc_a Not tainted 5.16.0-rc6-next-20211224-00001-gc6437fbf18b0 #125
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
-  Call Trace:
-   <TASK>
-   dump_stack_lvl+0x45/0x59
-   ? nfc_alloc_send_skb+0x2d/0xc0
-   __kasan_report.cold+0x117/0x11c
-   ? mark_lock+0x480/0x4f0
-   ? nfc_alloc_send_skb+0x2d/0xc0
-   kasan_report+0x38/0x50
-   nfc_alloc_send_skb+0x2d/0xc0
-   nfc_llcp_send_ui_frame+0x18c/0x2a0
-   ? nfc_llcp_send_i_frame+0x230/0x230
-   ? __local_bh_enable_ip+0x86/0xe0
-   ? llcp_sock_connect+0x470/0x470
-   ? llcp_sock_connect+0x470/0x470
-   sock_sendmsg+0x8e/0xa0
-   ____sys_sendmsg+0x253/0x3f0
-   ...
-
-The issue was visible only with multiple simultaneous calls to bind() and
-sendmsg(), which resulted in most of the bind() calls to fail.  The
-bind() was failing on checking if there is available WKS/SDP/SAP
-(respective bit in 'struct nfc_llcp_local' fields).  When there was no
-available WKS/SDP/SAP, the bind returned error but the sendmsg() to such
-socket was able to trigger mentioned NULL pointer dereference of
-nfc_llcp_sock->dev.
-
-The code looks simply racy and currently it protects several paths
-against race with checks for (!nfc_llcp_sock->local) which is NULL-ified
-in error paths of bind().  The llcp_sock_sendmsg() did not have such
-check but called function nfc_llcp_send_ui_frame() had, although not
-protected with lock_sock().
-
-Therefore the race could look like (same socket is used all the time):
-  CPU0                                     CPU1
-  ====                                     ====
-  llcp_sock_bind()
-  - lock_sock()
-    - success
-  - release_sock()
-  - return 0
-                                           llcp_sock_sendmsg()
-                                           - lock_sock()
-                                           - release_sock()
-  llcp_sock_bind(), same socket
-  - lock_sock()
-    - error
-                                           - nfc_llcp_send_ui_frame()
-                                             - if (!llcp_sock->local)
-    - llcp_sock->local = NULL
-    - nfc_put_device(dev)
-                                             - dereference llcp_sock->dev
-  - release_sock()
-  - return -ERRNO
-
-The nfc_llcp_send_ui_frame() checked llcp_sock->local outside of the
-lock, which is racy and ineffective check.  Instead, its caller
-llcp_sock_sendmsg(), should perform the check inside lock_sock().
-
-Reported-and-tested-by: syzbot+7f23bcddf626e0593a39@syzkaller.appspotmail.com
-Fixes: b874dec21d1c ("NFC: Implement LLCP connection less Tx path")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-
----
-
-Changes since v1:
-1. Only split to independent set and updating Syzbot tested tag.
----
- net/nfc/llcp_sock.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/net/nfc/llcp_sock.c b/net/nfc/llcp_sock.c
-index 6cfd30fc0798..0b93a17b9f11 100644
---- a/net/nfc/llcp_sock.c
-+++ b/net/nfc/llcp_sock.c
-@@ -789,6 +789,11 @@ static int llcp_sock_sendmsg(struct socket *sock, struct msghdr *msg,
- 
- 	lock_sock(sk);
- 
-+	if (!llcp_sock->local) {
-+		release_sock(sk);
-+		return -ENODEV;
-+	}
-+
- 	if (sk->sk_type == SOCK_DGRAM) {
- 		DECLARE_SOCKADDR(struct sockaddr_nfc_llcp *, addr,
- 				 msg->msg_name);
--- 
-2.32.0
-
+              Linus
