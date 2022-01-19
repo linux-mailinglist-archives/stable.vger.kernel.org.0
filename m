@@ -2,164 +2,218 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A763493300
-	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 03:38:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6F67493324
+	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 03:52:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350613AbiASCiL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 21:38:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53616 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348799AbiASCiK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 21:38:10 -0500
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 514F1C061574
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 18:38:10 -0800 (PST)
-Received: by mail-pf1-x42a.google.com with SMTP id x83so1204826pfc.0
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 18:38:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=54DkpHqQCoitHdo1pYxLscuvlWrpHKeT473c5DubO0I=;
-        b=4NtItnidmnrv1ZYjVhlbABQpZT3kqLuAZN2P1FgMqoxbG96R6IID4Fwc1l0JkKMot1
-         Y0aG1ER3sRJ24hmZrg5e4fpksG+MYANlcXUBh7+SWGwxbj8aNCRGAhWoZ49+NcZAVgOo
-         +VUd+WuwOyFuWomDAXOwVO6jK1PuHPGKojSpdSQwwtNInqiRNI/p9Ns42GJu8cuNhfNa
-         TdyXzCyuXtgxkzanyNFcP/uu8sZF2TAsAQaI3sfALDjAcLmZdGBJ069tqeXRGs6zctWk
-         WNQ48IyBfvxLRnk6M2ztR5Xf4m2+mXaGlsSYyYgX3TJJ43Zlukp0r9u7HTRjrsqZ7yL6
-         Z4Bw==
+        id S1350721AbiASCwu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 21:52:50 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:22081 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S244048AbiASCwt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 21:52:49 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1642560768;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=gHpnsn2NkfuadkUJHw0pU0DVjGRpoEK47XlUcu+C1CQ=;
+        b=IGkvmr5yPN2Rl3aqhW1Urk/XQMosCmOAD7vso67cDEZo+INSdENuNgEIhNDpdXP7HApOmm
+        KBMA407t8RyUQ1PrZfPc2Bdh35BcGw16w7DTFBb3iYIEWQhRgUJfeYkG4Eh1jYvXyRRwtK
+        QhGp515KZ1AxMItSS7Ioc0+e2C0d4FQ=
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
+ [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-524-__MTABNiORixEdKnko8b-w-1; Tue, 18 Jan 2022 21:52:47 -0500
+X-MC-Unique: __MTABNiORixEdKnko8b-w-1
+Received: by mail-lf1-f72.google.com with SMTP id v7-20020a056512048700b0042d99b3a962so522957lfq.23
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 18:52:47 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=54DkpHqQCoitHdo1pYxLscuvlWrpHKeT473c5DubO0I=;
-        b=buS2+k4OWeKsp/O2rCcRolc88Bp1amOGHgSD0oojI+FFHPrckjkRs0QwFQEKX6zKnb
-         7bA8L5bnKKFrSVmUN0pu+aOG2H3j6GTr48af985aGGkjadoMBT1OZqg2c43ysDx/i+BR
-         +WDSd6oBHD+4FYZrgj1o7vua+dzFa/PPcfhdbWI0Rnwyo2rdDDPDefh1hjo+uYZZqK0+
-         lHXi/KqqDfZX6dU6m/GkaEJFAYcUIbWjiEnyJF/rIJlVZeGEZ2LMLu+GqFYJytdIoCzt
-         ntcz1u4kdWzQzDST/nnUv+fEP4A5VQC6ZBtIpU6wG3/SICBrYvx+nMuwGocWiiFEnPd1
-         QFYQ==
-X-Gm-Message-State: AOAM533HJmXbYZUWA8QJ61yQ6xBHss+gUvML+/fOWQz+cpzgwZHxyTm5
-        qRtYjvyWK81PWyDQ4/xmLEEqdsUJpGB0uNq6
-X-Google-Smtp-Source: ABdhPJxEOrZeCXZBdcGMMMYttDlFo1oelMogGXlMG+Brpb3u5ffWrurGvcMjrsf22dJ+pV0T7Q6CQQ==
-X-Received: by 2002:a63:6c03:: with SMTP id h3mr25597767pgc.458.1642559889708;
-        Tue, 18 Jan 2022 18:38:09 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d7sm12328282pfh.126.2022.01.18.18.38.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Jan 2022 18:38:09 -0800 (PST)
-Message-ID: <61e77991.1c69fb81.df276.1ff4@mx.google.com>
-Date:   Tue, 18 Jan 2022 18:38:09 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=gHpnsn2NkfuadkUJHw0pU0DVjGRpoEK47XlUcu+C1CQ=;
+        b=EJtPQut/BTMEWTpDKNvvAoAN2rh/Ww8s/zqJLDIZkx/nTlINvMGRTMzROi7touMz86
+         aid6QP94IgBXwb2Q4Mv12Pb/nNVdB85Rem+xuLZpr6YDUaYwZ91e+MfAD+Sx9174zAif
+         XpAQtE0+IyREpAyCCrM1+/2CCes6yupowrXPdalde8gKnHRD/19YFhI83sMaBceuFca6
+         c28sRdlnOb/URNg1nNIFrfmjJ5RcINlVDxbDo6YSTHjX1IGl8qpLCFh0sU0zr9uY+1k8
+         tKVOc7tUa3ZgDN8dPUcREJrJZFdv+dpc7NoRay4u7qhEhhCOwyI1xlm7Toj0VOzOooLl
+         /Jqw==
+X-Gm-Message-State: AOAM530Gi0mD+0MAhOA76tuhF9bgNt8y90dSA7YePTAlKv2IfcjH70xt
+        lmlqsRA+sNPwxRVAbMrsVymQFSTjxgZhC/l2jVrGl0dq9wAL7EdtCGUaKx8+Kslzs4YJQAIDG4Q
+        u5GguE3ClJ26tQk9bQZo595QcuZLmHH26
+X-Received: by 2002:a05:6512:3b0a:: with SMTP id f10mr21391226lfv.629.1642560765781;
+        Tue, 18 Jan 2022 18:52:45 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwjlx7+UrF3gEdPjwx5nPlNnkZuqvs+mcSd1Q1R7MKLtS3Xz3+7MscCitPjBMwKq2CO18iBS+jjgO+0dejml+8=
+X-Received: by 2002:a05:6512:3b0a:: with SMTP id f10mr21391207lfv.629.1642560765492;
+ Tue, 18 Jan 2022 18:52:45 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.16-66-g0a52f03a4702
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.16
-Subject: stable-rc/queue/5.16 baseline: 141 runs,
- 2 regressions (v5.16-66-g0a52f03a4702)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+References: <20220118170225.30620-1-mst@redhat.com> <20220118170225.30620-2-mst@redhat.com>
+In-Reply-To: <20220118170225.30620-2-mst@redhat.com>
+From:   Jason Wang <jasowang@redhat.com>
+Date:   Wed, 19 Jan 2022 10:52:34 +0800
+Message-ID: <CACGkMEt-Q7baDDUM8aC_Lki1aeO36xi02AE7kEapi5NVqkGErg@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] virtio: acknowledge all features before access
+To:     "Michael S. Tsirkin" <mst@redhat.com>
+Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
+        Cornelia Huck <cohuck@redhat.com>,
+        virtualization <virtualization@lists.linux-foundation.org>,
+        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.16 baseline: 141 runs, 2 regressions (v5.16-66-g0a52f03a4=
-702)
+On Wed, Jan 19, 2022 at 1:04 AM Michael S. Tsirkin <mst@redhat.com> wrote:
+>
+> The feature negotiation was designed in a way that
+> makes it possible for devices to know which config
+> fields will be accessed by drivers.
+>
+> This is broken since commit 404123c2db79 ("virtio: allow drivers to
+> validate features") with fallout in at least block and net.  We have a
+> partial work-around in commit 2f9a174f918e ("virtio: write back
+> F_VERSION_1 before validate") which at least lets devices find out which
+> format should config space have, but this is a partial fix: guests
+> should not access config space without acknowledging features since
+> otherwise we'll never be able to change the config space format.
 
-Regressions Summary
--------------------
+So I guess this is for this part of the spec 3.1.1:
 
-platform                | arch  | lab         | compiler | defconfig | regr=
-essions
-------------------------+-------+-------------+----------+-----------+-----=
--------
-kontron-pitx-imx8m      | arm64 | lab-kontron | gcc-10   | defconfig | 1   =
-       =
+"""
+4. Read device feature bits, and write the subset of feature bits
+understood by the OS and driver to the device. During this step the
+driver MAY read (but MUST NOT write) the device-specific configuration
+fields to check that it can support the device before accepting it.
+"""
 
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe  | gcc-10   | defconfig | 1   =
-       =
+If it is, is this better to quote in the change log?
 
+Other than this,
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.16/ker=
-nel/v5.16-66-g0a52f03a4702/plan/baseline/
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.16
-  Describe: v5.16-66-g0a52f03a4702
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      0a52f03a4702a37ecbf2ba4842268bf227c950c7 =
+>
+> To fix, split finalize_features from virtio_finalize_features and
+> call finalize_features with all feature bits before validation,
+> and then - if validation changed any bits - once again after.
+>
+> Since virtio_finalize_features no longer writes out features
+> rename it to virtio_features_ok - since that is what it does:
+> checks that features are ok with the device.
+>
+> As a side effect, this also reduces the amount of hypervisor accesses -
+> we now only acknowledge features once unless we are clearing any
+> features when validating (which is uncommon).
+>
+> Cc: stable@vger.kernel.org
+> Fixes: 404123c2db79 ("virtio: allow drivers to validate features")
+> Fixes: 2f9a174f918e ("virtio: write back F_VERSION_1 before validate")
+> Cc: "Halil Pasic" <pasic@linux.ibm.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>
+> fixup! virtio: acknowledge all features before access
+> ---
+>  drivers/virtio/virtio.c       | 39 ++++++++++++++++++++---------------
+>  include/linux/virtio_config.h |  3 ++-
+>  2 files changed, 24 insertions(+), 18 deletions(-)
+>
+> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+> index d891b0a354b0..d6396be0ea83 100644
+> --- a/drivers/virtio/virtio.c
+> +++ b/drivers/virtio/virtio.c
+> @@ -166,14 +166,13 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
+>  }
+>  EXPORT_SYMBOL_GPL(virtio_add_status);
+>
+> -static int virtio_finalize_features(struct virtio_device *dev)
+> +/* Do some validation, then set FEATURES_OK */
+> +static int virtio_features_ok(struct virtio_device *dev)
+>  {
+> -       int ret = dev->config->finalize_features(dev);
+>         unsigned status;
+> +       int ret;
+>
+>         might_sleep();
+> -       if (ret)
+> -               return ret;
+>
+>         ret = arch_has_restricted_virtio_memory_access();
+>         if (ret) {
+> @@ -244,17 +243,6 @@ static int virtio_dev_probe(struct device *_d)
+>                 driver_features_legacy = driver_features;
+>         }
+>
+> -       /*
+> -        * Some devices detect legacy solely via F_VERSION_1. Write
+> -        * F_VERSION_1 to force LE config space accesses before FEATURES_OK for
+> -        * these when needed.
+> -        */
+> -       if (drv->validate && !virtio_legacy_is_little_endian()
+> -                         && device_features & BIT_ULL(VIRTIO_F_VERSION_1)) {
+> -               dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
+> -               dev->config->finalize_features(dev);
+> -       }
+> -
+>         if (device_features & (1ULL << VIRTIO_F_VERSION_1))
+>                 dev->features = driver_features & device_features;
+>         else
+> @@ -265,13 +253,26 @@ static int virtio_dev_probe(struct device *_d)
+>                 if (device_features & (1ULL << i))
+>                         __virtio_set_bit(dev, i);
+>
+> +       err = dev->config->finalize_features(dev);
+> +       if (err)
+> +               goto err;
+> +
+>         if (drv->validate) {
+> +               u64 features = dev->features;
+> +
+>                 err = drv->validate(dev);
+>                 if (err)
+>                         goto err;
+> +
+> +               /* Did validation change any features? Then write them again. */
+> +               if (features != dev->features) {
+> +                       err = dev->config->finalize_features(dev);
+> +                       if (err)
+> +                               goto err;
+> +               }
+>         }
+>
+> -       err = virtio_finalize_features(dev);
+> +       err = virtio_features_ok(dev);
+>         if (err)
+>                 goto err;
+>
+> @@ -495,7 +496,11 @@ int virtio_device_restore(struct virtio_device *dev)
+>         /* We have a driver! */
+>         virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER);
+>
+> -       ret = virtio_finalize_features(dev);
+> +       ret = dev->config->finalize_features(dev);
+> +       if (ret)
+> +               goto err;
+> +
+> +       ret = virtio_features_ok(dev);
+>         if (ret)
+>                 goto err;
+>
+> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
+> index 4d107ad31149..dafdc7f48c01 100644
+> --- a/include/linux/virtio_config.h
+> +++ b/include/linux/virtio_config.h
+> @@ -64,8 +64,9 @@ struct virtio_shm_region {
+>   *     Returns the first 64 feature bits (all we currently need).
+>   * @finalize_features: confirm what device features we'll be using.
+>   *     vdev: the virtio_device
+> - *     This gives the final feature bits for the device: it can change
+> + *     This sends the driver feature bits to the device: it can change
+>   *     the dev->feature bits if it wants.
+> + * Note: despite the name this can be called any number of times.
+>   *     Returns 0 on success or error status
+>   * @bus_name: return the bus name associated with the device (optional)
+>   *     vdev: the virtio_device
+> --
+> MST
+>
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform                | arch  | lab         | compiler | defconfig | regr=
-essions
-------------------------+-------+-------------+----------+-----------+-----=
--------
-kontron-pitx-imx8m      | arm64 | lab-kontron | gcc-10   | defconfig | 1   =
-       =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e7426f004c62f42cabbd5d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16-66-=
-g0a52f03a4702/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx-imx8=
-m.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16-66-=
-g0a52f03a4702/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx-imx8=
-m.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220115.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61e7426f004c62f42cabb=
-d5e
-        new failure (last pass: v5.16-66-gb71cc2d4ec38) =
-
- =
-
-
-
-platform                | arch  | lab         | compiler | defconfig | regr=
-essions
-------------------------+-------+-------------+----------+-----------+-----=
--------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe  | gcc-10   | defconfig | 1   =
-       =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e741a2f107364802abbd2a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16-66-=
-g0a52f03a4702/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bananap=
-i-m64.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16-66-=
-g0a52f03a4702/arm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bananap=
-i-m64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220115.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61e741a2f107364802abb=
-d2b
-        new failure (last pass: v5.16-66-gb71cc2d4ec38) =
-
- =20
