@@ -2,76 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA20F4931AE
-	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 01:15:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4412D4931A4
+	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 01:13:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350362AbiASAPA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 19:15:00 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47634 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348506AbiASAO7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 19:14:59 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0A87B8185B;
-        Wed, 19 Jan 2022 00:14:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EED8C340E5;
-        Wed, 19 Jan 2022 00:14:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642551296;
-        bh=xVBGpsBT8Iho12AXNuLcSsyn7RKWZaSgxxscCl3hAIY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=caa4kBE21AwZ7Kj2+eCtEsc6AICOVicbyDBBx09rjT1GdEbrgrl909JfpdZv9ZHUg
-         jYcUqC3UYgKs6RyMVI4s54CUf34FQCdffkuonH0kEnDrKkyfamNtZSGU1r9hGC7iQ+
-         1ylMolIZbgz2EQ7JRrTE0QkADA3ClR8xSHrsIY3flJpKYwVeaj9rMUyojd4GjuCoKk
-         WZ818qprZPa4DukBg17Hn9bWL/t7xNU+YeYj4q5mZ/DAB4/sFKw7YfI2AihmrLgjpv
-         7UwHVLonBJ3hjdvulJeYkTaZiDtlPVRmP/yVXxWCl997tatdgnlgCglffvOKur2jV5
-         HHmoP5UyxVO2A==
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     linux-crypto@vger.kernel.org,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Cc:     keyrings@vger.kernel.org, Vitaly Chikunov <vt@altlinux.org>,
-        Denis Kenzior <denkenz@gmail.com>, stable@vger.kernel.org,
-        Tadeusz Struk <tadeusz.struk@linaro.org>
-Subject: [PATCH v2 4/5] crypto: rsa-pkcs1pad - fix buffer overread in pkcs1pad_verify_complete()
-Date:   Tue, 18 Jan 2022 16:13:05 -0800
-Message-Id: <20220119001306.85355-5-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220119001306.85355-1-ebiggers@kernel.org>
-References: <20220119001306.85355-1-ebiggers@kernel.org>
+        id S239681AbiASANX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 19:13:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49668 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238348AbiASANX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 19:13:23 -0500
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74E22C061574
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 16:13:22 -0800 (PST)
+Received: by mail-pf1-x432.google.com with SMTP id i129so833974pfe.13
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 16:13:22 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=eXYgOEXpbjYzZW/uqMr7y14NckUhKJfH2KPKwDfSHcE=;
+        b=IXoHKlTontffd1WJPJOq23dbA2JRDODKnT9s92kC/iDht84YteMMgxVg+jpcg8YQZU
+         PCGRQfzXVLn6FJTecYPIqAmcFcRbVOBSnNljHIs8aaHnczNi+IvO1VtSD2Q5UpKd0qKA
+         5T24TbfKGmC8ZQ8RrZ5l6jjLpdqC+6mqsnrY2NyVcLHJ2GdabOM/OIx7rUoRPBKtVnjD
+         eh7ODKTt4aDGaZDuNxzKFB+t8oWq7kPt7nceO3xJPUBi+ZTCwCbYK3IU+kPTiUzsrKPL
+         cTJKfaGUjA1uC9qT6GI2Ws0MPxwm4zvUlL1g0PSU22PE1xwJu0u87demQNPA04+w8r5z
+         hciw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=eXYgOEXpbjYzZW/uqMr7y14NckUhKJfH2KPKwDfSHcE=;
+        b=jzNkF8p5F0im/MXE6mylQiGVWjB0viBhzn3vxdUy5PmD4g9h64DwMaiZ8eoZG/1t6U
+         8mL5HLw+RPqhxiG7nLXS2VYyEBjDWZb1nLTBMSqmv3KiHcZdX3stv1Idf0SqQoqK4Kfr
+         heNjc/r/iLEK9BD5elzghR+eqlb8Ot7upjD/wzjtVX1+q98BQnVG7Yi9LqAUynjqfVeE
+         8PApI8BYCbM6+eOibXZd1kddGhI2Zle5qLbgTbUUdMfh3xrKEO/Nt+y03wUTKNVWXLv1
+         3Brl8we/ZiZsVqMlkvqOfngV3PfpJdoUBZEi8/9M1YPrJbjsiym0pxFHkgunrS3dQSrO
+         vFcg==
+X-Gm-Message-State: AOAM530Cn5yUWZt+o5v9yHhPoU1AhAJb/RLl6YeCd+kcoKq6RE9/XmFW
+        NW09aouXjoQtPYmW5XRSU7/0SADepDrDGUyo
+X-Google-Smtp-Source: ABdhPJwn1xEbpFOS6LrI2zQvguegKN15ul2J/qXDIlaIU/sU7yu3zWjO2Gw1JdpW6wj0s/m0D0HILg==
+X-Received: by 2002:aa7:804c:0:b0:4bc:6ca6:4bac with SMTP id y12-20020aa7804c000000b004bc6ca64bacmr28459290pfm.52.1642551201884;
+        Tue, 18 Jan 2022 16:13:21 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id h7sm18927384pfk.173.2022.01.18.16.13.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Jan 2022 16:13:21 -0800 (PST)
+Message-ID: <61e757a1.1c69fb81.1f448.3bfb@mx.google.com>
+Date:   Tue, 18 Jan 2022 16:13:21 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.91-50-ge0476c04ea89
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.10.y
+Subject: stable-rc/linux-5.10.y baseline: 188 runs,
+ 1 regressions (v5.10.91-50-ge0476c04ea89)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+stable-rc/linux-5.10.y baseline: 188 runs, 1 regressions (v5.10.91-50-ge047=
+6c04ea89)
 
-Before checking whether the expected digest_info is present, we need to
-check that there are enough bytes remaining.
+Regressions Summary
+-------------------
 
-Fixes: a49de377e051 ("crypto: Add hash param to pkcs1pad")
-Cc: <stable@vger.kernel.org> # v4.6+
-Cc: Tadeusz Struk <tadeusz.struk@linaro.org>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
----
- crypto/rsa-pkcs1pad.c | 2 ++
- 1 file changed, 2 insertions(+)
+platform            | arch  | lab          | compiler | defconfig | regress=
+ions
+--------------------+-------+--------------+----------+-----------+--------=
+----
+r8a77950-salvator-x | arm64 | lab-baylibre | gcc-10   | defconfig | 1      =
+    =
 
-diff --git a/crypto/rsa-pkcs1pad.c b/crypto/rsa-pkcs1pad.c
-index 6b556ddeb3a00..9d804831c8b3f 100644
---- a/crypto/rsa-pkcs1pad.c
-+++ b/crypto/rsa-pkcs1pad.c
-@@ -476,6 +476,8 @@ static int pkcs1pad_verify_complete(struct akcipher_request *req, int err)
- 	pos++;
- 
- 	if (digest_info) {
-+		if (digest_info->size > dst_len - pos)
-+			goto done;
- 		if (crypto_memneq(out_buf + pos, digest_info->data,
- 				  digest_info->size))
- 			goto done;
--- 
-2.34.1
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.91-50-ge0476c04ea89/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.91-50-ge0476c04ea89
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      e0476c04ea8991e23850dab84ce56ab557c56986 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform            | arch  | lab          | compiler | defconfig | regress=
+ions
+--------------------+-------+--------------+----------+-----------+--------=
+----
+r8a77950-salvator-x | arm64 | lab-baylibre | gcc-10   | defconfig | 1      =
+    =
+
+
+  Details:     https://kernelci.org/test/plan/id/61e72428299c0986e8abbd29
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.9=
+1-50-ge0476c04ea89/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-sa=
+lvator-x.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.9=
+1-50-ge0476c04ea89/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-sa=
+lvator-x.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220115.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61e72428299c0986e8abb=
+d2a
+        new failure (last pass: v5.10.91-26-gfe11f2e0d63b) =
+
+ =20
