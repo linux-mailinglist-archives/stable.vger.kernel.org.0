@@ -2,130 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D61449399E
-	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 12:37:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FBDD4939A4
+	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 12:38:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354207AbiASLhJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jan 2022 06:37:09 -0500
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:49157 "EHLO
-        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1354053AbiASLhJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Jan 2022 06:37:09 -0500
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id B7D38320209A;
-        Wed, 19 Jan 2022 06:37:08 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Wed, 19 Jan 2022 06:37:09 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm2; bh=DnpHo9kV5iFIix8/11LT71z0m5R
-        x/e2zWpnL0RXxbrM=; b=Y9NsHS3giYQJda7t9QV2p4Dz0tMmdNLlytkY0RBzDCx
-        R2YLv0itq3MjH3qCOYvWPMGKZ1BamaxsI5Y+s0bl0qbvwA98SCiiDpf8PvtjSwlm
-        gNdWjDRghKI4+QbspRVdLVibUrNIs/E49c/3YEFFoBqCdYlv3cMd/XDU/3hOu3sx
-        kHdC8oC058jZ+dSmAYYzLAmNbxlPc/NmxM+d9xG68eRXHke/weWL9kjQ//pEStjt
-        zs+/eGxBCSXpm8rZ/Orp1WwllWxFUAfsKOxn1BueM+bTmd+Yd4ED9iVY5SHKVMTv
-        3ItHmxyUXFv9R5WbEIJG8EaZzMyJfqb/i2YVk54m8iQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=DnpHo9
-        kV5iFIix8/11LT71z0m5Rx/e2zWpnL0RXxbrM=; b=DmL1OSKLmcyossmO2ZN0og
-        9MfWPvUTmWLRXH8MLzN9E5aJ/YFCG0Ywb5o5y0+mlDSsQOAQz9FyoQ+1urmA7BFK
-        mIua+9XErJjaFh7QWbnicaTIIeOvCIHeI01VwAOUS6EM7sBUhhAqc1eJnnzrJdIJ
-        4pUJ0GV1kRkQq0MDOpbj1ziwf2GwwFnO3tXRtM2ASg73gddiSkfhAi5K3P1V3iXI
-        FS7oC3nj7IMw6PWZiRDm8dzojBdbAXWjQ/8MYd933q3vLENWIKjUAY9oQ/W2JGIY
-        fi0P7hCfWc3Qu/f5Dp9egjtKhPQvkTyGR9ZWAgPyu1nK3z1hckznqjYzhvDB8wsQ
-        ==
-X-ME-Sender: <xms:5PfnYV3WVkbctw-XYt6WsQJd5OfG7Fx8XzsN8elhwUxApUwRZ1y_rg>
-    <xme:5PfnYcHvQoOpfN-Zvi5mSh4y-G8oNfHT47zc8irzdf4mF3hA0sBdoouTwJeaa7eAD
-    sB6dbErIgoR4g>
-X-ME-Received: <xmr:5PfnYV7TM2JENC0hFNqzOYYe_79g154RbA0He7JcEBl5wlr3cWMV_NkGUsNTVrtOnfspv6awbklNYEfXxTVwA92IZqZTGjc3>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrudehgdefudcutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepjeehheetve
-    eiffeutdfhleekkeefleevgfdufeehtdejgeejhfdvffeggfdugeefnecuffhomhgrihhn
-    pehshiiikhgrlhhlvghrrdgrphhpshhpohhtrdgtohhmnecuvehluhhsthgvrhfuihiivg
-    eptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:5PfnYS3fggMZdEUkbEllsGF488N1eGFZ7qcHZahVsjRrvo7jqa3fZQ>
-    <xmx:5PfnYYE4-xI5Fx8FSqpAtkiwsmk9lrjk19BrlCjeKRcH26hjLbqBQw>
-    <xmx:5PfnYT-RjT_CKsafzZ_CG6Zjv14U6VJVHH6SwC909VmRao0xH6pCDQ>
-    <xmx:5PfnYdR06oB7h2NxgmjoNpEm678rmWwW7jv-HXaZk7_MfmpxkW5UrQ>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 19 Jan 2022 06:37:07 -0500 (EST)
-Date:   Wed, 19 Jan 2022 12:37:06 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Ovidiu Panait <ovidiu.panait@windriver.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: [PATCH 4.14 1/2] Bluetooth: schedule SCO timeouts with
- delayed_work
-Message-ID: <Yef34tC/MAMc2ozn@kroah.com>
-References: <20220118163240.2892168-1-ovidiu.panait@windriver.com>
+        id S1354229AbiASLiA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jan 2022 06:38:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34230 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1354216AbiASLiA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Jan 2022 06:38:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60A69C061574
+        for <stable@vger.kernel.org>; Wed, 19 Jan 2022 03:38:00 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1D6D4B81901
+        for <stable@vger.kernel.org>; Wed, 19 Jan 2022 11:37:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A6FCC004E1;
+        Wed, 19 Jan 2022 11:37:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1642592277;
+        bh=t9BYfKB5W8tdgjoqeYl+LMWZv4qma0M4UloNeDu589k=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=y+SrZOpWdQejqyxNdfHn+JM6fWnCrtUpVAUcebj9Xyha/s4x6KnbY8CYbbhI7kDTs
+         PFEfPfRqZyFWn+QwyToGbKm3CNKvu2qkcgUG953pyYVNKQUyo4MgNs0GMNu5nXMoUA
+         /9bVlDKTCR1L3b4GfwhDJv5OthqHjteORYihkpG0=
+Date:   Wed, 19 Jan 2022 12:37:54 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Samuel Mendoza-Jonas <samjonas@amazon.com>
+Cc:     stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
+        Amir Goldstein <amir73il@gmail.com>
+Subject: Re: [PATCH 4.14 1/2] fuse: fix bad inode
+Message-ID: <Yef4Ejks7hTSgl6C@kroah.com>
+References: <20220119005201.130738-1-samjonas@amazon.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220118163240.2892168-1-ovidiu.panait@windriver.com>
+In-Reply-To: <20220119005201.130738-1-samjonas@amazon.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 18, 2022 at 06:32:39PM +0200, Ovidiu Panait wrote:
-> From: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
+On Tue, Jan 18, 2022 at 04:52:00PM -0800, Samuel Mendoza-Jonas wrote:
+> From: Miklos Szeredi <mszeredi@redhat.com>
 > 
-> commit ba316be1b6a00db7126ed9a39f9bee434a508043 upstream.
+> commit 5d069dbe8aaf2a197142558b6fb2978189ba3454 upstream.
 > 
-> struct sock.sk_timer should be used as a sock cleanup timer. However,
-> SCO uses it to implement sock timeouts.
+> Jan Kara's analysis of the syzbot report (edited):
 > 
-> This causes issues because struct sock.sk_timer's callback is run in
-> an IRQ context, and the timer callback function sco_sock_timeout takes
-> a spin lock on the socket. However, other functions such as
-> sco_conn_del and sco_conn_ready take the spin lock with interrupts
-> enabled.
+>   The reproducer opens a directory on FUSE filesystem, it then attaches
+>   dnotify mark to the open directory.  After that a fuse_do_getattr() call
+>   finds that attributes returned by the server are inconsistent, and calls
+>   make_bad_inode() which, among other things does:
 > 
-> This inconsistent {SOFTIRQ-ON-W} -> {IN-SOFTIRQ-W} lock usage could
-> lead to deadlocks as reported by Syzbot [1]:
->        CPU0
->        ----
->   lock(slock-AF_BLUETOOTH-BTPROTO_SCO);
->   <Interrupt>
->     lock(slock-AF_BLUETOOTH-BTPROTO_SCO);
+>           inode->i_mode = S_IFREG;
 > 
-> To fix this, we use delayed work to implement SCO sock timouts
-> instead. This allows us to avoid taking the spin lock on the socket in
-> an IRQ context, and corrects the misuse of struct sock.sk_timer.
+>   This then confuses dnotify which doesn't tear down its structures
+>   properly and eventually crashes.
 > 
-> As a note, cancel_delayed_work is used instead of
-> cancel_delayed_work_sync in sco_sock_set_timer and
-> sco_sock_clear_timer to avoid a deadlock. In the future, the call to
-> bh_lock_sock inside sco_sock_timeout should be changed to lock_sock to
-> synchronize with other functions using lock_sock. However, since
-> sco_sock_set_timer and sco_sock_clear_timer are sometimes called under
-> the locked socket (in sco_connect and __sco_sock_close),
-> cancel_delayed_work_sync might cause them to sleep until an
-> sco_sock_timeout that has started finishes running. But
-> sco_sock_timeout would also sleep until it can grab the lock_sock.
+> Avoid calling make_bad_inode() on a live inode: switch to a private flag on
+> the fuse inode.  Also add the test to ops which the bad_inode_ops would
+> have caught.
 > 
-> Using cancel_delayed_work is fine because sco_sock_timeout does not
-> change from run to run, hence there is no functional difference
-> between:
-> 1. waiting for a timeout to finish running before scheduling another
-> timeout
-> 2. scheduling another timeout while a timeout is running.
+> This bug goes back to the initial merge of fuse in 2.6.14...
 > 
-> Link: https://syzkaller.appspot.com/bug?id=9089d89de0502e120f234ca0fc8a703f7368b31e [1]
-> Reported-by: syzbot+2f6d7c28bb4bf7e82060@syzkaller.appspotmail.com
-> Tested-by: syzbot+2f6d7c28bb4bf7e82060@syzkaller.appspotmail.com
-> Signed-off-by: Desmond Cheong Zhi Xi <desmondcheongzx@gmail.com>
-> Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-> [OP: adjusted context for 4.14]
-> Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-> ---
-> Note: these 2 fixes are part of CVE-2021-3640 patchset and are already present
-> in 4.14+ stable branches. For this backport, small contextual adjustments
-> were done to account for the old setup_timer() API usage.
+> Reported-by: syzbot+f427adf9324b92652ccc@syzkaller.appspotmail.com
+> Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+> Tested-by: Jan Kara <jack@suse.cz>
+> Cc: <stable@vger.kernel.org>
+> [adjusted for missing fs/fuse/readdir.c and changes in fuse_evict_inode() in 4.14]
+> Signed-off-by: Samuel Mendoza-Jonas <samjonas@amazon.com>
 
-Both now queued up, thanks.
+What about 4.19.y, will this work there as well?  We need it for that
+kernel before we can take it into 4.14.y.
+
+Also what about 4.4.y and 4.9.y?
+
+thanks,
 
 greg k-h
