@@ -2,84 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 465F0493E81
-	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 17:45:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30043493EC3
+	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 18:05:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356208AbiASQpG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jan 2022 11:45:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48272 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239684AbiASQpD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Jan 2022 11:45:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57D03C061574;
-        Wed, 19 Jan 2022 08:45:02 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2057DB819A7;
-        Wed, 19 Jan 2022 16:45:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97FBAC004E1;
-        Wed, 19 Jan 2022 16:44:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642610700;
-        bh=eh6y5B9q6FX57v8HHKlT0unobKvzhzmWzWVnc3CQgZ4=;
-        h=From:To:Cc:Subject:Date:From;
-        b=hp9frS6yq+bfymbf5LVj1/0AiVOlwhPJzK+qhCTFOfT/gGw5+0hb5ewMnXdOBcq/X
-         BNOWhDICw1Alain36y+NdSq6TC4n9jqX7hA09IYGoOntEHXmLSYPS/XFDAqNiG5Wjv
-         Yx9nhhO217aco5pOloaTGNRMycvXZRXMxHuliaK0ILxww7yVUYApi5+VMgdjyH7R9O
-         y1ayaetuW8J5n8iZD+uG3vc52D1Mfq836vtN18BMMDrCPYwriaoAvqwHgj5UADtl14
-         VVhmEaajnIBgDFqRVHpIZO39L4WqUbJ5i+CsiO0paoWpj71Ht5psrJnOQ19dp8DKFP
-         RTyg01xoe8auQ==
-From:   =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
-To:     "netdev@vger.kernel.org" <netdev@vger.kernel.org>
-Cc:     Russell King <rmk+kernel@armlinux.org.uk>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S . Miller" <davem@davemloft.net>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        stable@vger.kernel.org
-Subject: [PATCH net] net: sfp: ignore disabled SFP node
-Date:   Wed, 19 Jan 2022 17:44:55 +0100
-Message-Id: <20220119164455.1397-1-kabel@kernel.org>
-X-Mailer: git-send-email 2.34.1
+        id S1356304AbiASRFB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jan 2022 12:05:01 -0500
+Received: from smtp-fw-9103.amazon.com ([207.171.188.200]:12834 "EHLO
+        smtp-fw-9103.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1356299AbiASRFB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Jan 2022 12:05:01 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1642611901; x=1674147901;
+  h=date:from:to:cc:message-id:references:mime-version:
+   in-reply-to:subject;
+  bh=wNvxhWN+s72+gYCkF7CK/B4m+DlwHrxIAxTnWyHbsW0=;
+  b=W4b2dFU/+CWZedFyLxjZ8YiCJtEu8dCrsO1+KV+m+cCCeGarApfpuzfS
+   6WaUG6Nt0pjqFIY+HnAKWqT8Xg8oHL8jA612icEFEb4FAG5QhlmGyoMDC
+   c8tijqtQZd4qu06yrgzP3o+GHxuHvqO0eVW9qZQpNrLH5vsmsuLGGSCRe
+   Y=;
+X-IronPort-AV: E=Sophos;i="5.88,299,1635206400"; 
+   d="scan'208";a="985810275"
+Subject: Re: [PATCH 4.14 1/2] fuse: fix bad inode
+Received: from pdx4-co-svc-p1-lb2-vlan2.amazon.com (HELO email-inbound-relay-pdx-2a-2dbf0206.us-west-2.amazon.com) ([10.25.36.210])
+  by smtp-border-fw-9103.sea19.amazon.com with ESMTP; 19 Jan 2022 17:04:37 +0000
+Received: from EX13MTAUWA001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
+        by email-inbound-relay-pdx-2a-2dbf0206.us-west-2.amazon.com (Postfix) with ESMTPS id 53C1FA2780;
+        Wed, 19 Jan 2022 17:04:37 +0000 (UTC)
+Received: from EX13D01UWA003.ant.amazon.com (10.43.160.107) by
+ EX13MTAUWA001.ant.amazon.com (10.43.160.118) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.28; Wed, 19 Jan 2022 17:04:37 +0000
+Received: from localhost (10.43.160.93) by EX13d01UWA003.ant.amazon.com
+ (10.43.160.107) with Microsoft SMTP Server (TLS) id 15.0.1497.28; Wed, 19 Jan
+ 2022 17:04:36 +0000
+Date:   Wed, 19 Jan 2022 09:04:36 -0800
+From:   Samuel Mendoza-Jonas <samjonas@amazon.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     <stable@vger.kernel.org>, Miklos Szeredi <mszeredi@redhat.com>,
+        "Amir Goldstein" <amir73il@gmail.com>
+Message-ID: <20220119170436.2lhqyx66nwvaovov@u46989501580c5c.ant.amazon.com>
+References: <20220119005201.130738-1-samjonas@amazon.com>
+ <Yef4Ejks7hTSgl6C@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <Yef4Ejks7hTSgl6C@kroah.com>
+X-Originating-IP: [10.43.160.93]
+X-ClientProxiedBy: EX13D22UWC002.ant.amazon.com (10.43.162.29) To
+ EX13d01UWA003.ant.amazon.com (10.43.160.107)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit ce0aa27ff3f6 ("sfp: add sfp-bus to bridge between network devices
-and sfp cages") added code which finds SFP bus DT node even if the node
-is disabled with status = "disabled". Because of this, when phylink is
-created, it ends with non-null .sfp_bus member, even though the SFP
-module is not probed (because the node is disabled).
+On Wed, Jan 19, 2022 at 12:37:54PM +0100, Greg KH wrote:
+> CAUTION: This email originated from outside of the organization. Do not click links or open attachments unless you can confirm the sender and know the content is safe.
+> 
+> 
+> 
+> On Tue, Jan 18, 2022 at 04:52:00PM -0800, Samuel Mendoza-Jonas wrote:
+> > From: Miklos Szeredi <mszeredi@redhat.com>
+> >
+> > commit 5d069dbe8aaf2a197142558b6fb2978189ba3454 upstream.
+> >
+> > Jan Kara's analysis of the syzbot report (edited):
+> >
+> >   The reproducer opens a directory on FUSE filesystem, it then attaches
+> >   dnotify mark to the open directory.  After that a fuse_do_getattr() call
+> >   finds that attributes returned by the server are inconsistent, and calls
+> >   make_bad_inode() which, among other things does:
+> >
+> >           inode->i_mode = S_IFREG;
+> >
+> >   This then confuses dnotify which doesn't tear down its structures
+> >   properly and eventually crashes.
+> >
+> > Avoid calling make_bad_inode() on a live inode: switch to a private flag on
+> > the fuse inode.  Also add the test to ops which the bad_inode_ops would
+> > have caught.
+> >
+> > This bug goes back to the initial merge of fuse in 2.6.14...
+> >
+> > Reported-by: syzbot+f427adf9324b92652ccc@syzkaller.appspotmail.com
+> > Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+> > Tested-by: Jan Kara <jack@suse.cz>
+> > Cc: <stable@vger.kernel.org>
+> > [adjusted for missing fs/fuse/readdir.c and changes in fuse_evict_inode() in 4.14]
+> > Signed-off-by: Samuel Mendoza-Jonas <samjonas@amazon.com>
+> 
+> What about 4.19.y, will this work there as well?  We need it for that
+> kernel before we can take it into 4.14.y.
+> 
+> Also what about 4.4.y and 4.9.y?
 
-We need to ignore disabled SFP bus node.
+Hi,
 
-Fixes: ce0aa27ff3f6 ("sfp: add sfp-bus to bridge between network devices and sfp cages")
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Cc: stable@vger.kernel.org # 2203cbf2c8b5 ("net: sfp: move fwnode parsing into sfp-bus layer")
----
- drivers/net/phy/sfp-bus.c | 5 +++++
- 1 file changed, 5 insertions(+)
+This applies & builds on 4.19.y and 4.9.y fine as well, 4.4.y runs into
+a conflict which I'll have a closer look at.
 
-diff --git a/drivers/net/phy/sfp-bus.c b/drivers/net/phy/sfp-bus.c
-index 0c6c0d1843bc..c1512c9925a6 100644
---- a/drivers/net/phy/sfp-bus.c
-+++ b/drivers/net/phy/sfp-bus.c
-@@ -651,6 +651,11 @@ struct sfp_bus *sfp_bus_find_fwnode(struct fwnode_handle *fwnode)
- 	else if (ret < 0)
- 		return ERR_PTR(ret);
- 
-+	if (!fwnode_device_is_available(ref.fwnode)) {
-+		fwnode_handle_put(ref.fwnode);
-+		return NULL;
-+	}
-+
- 	bus = sfp_bus_get(ref.fwnode);
- 	fwnode_handle_put(ref.fwnode);
- 	if (!bus)
--- 
-2.34.1
+Cheers,
+Sam
 
+> 
+> thanks,
+> 
+> greg k-h
