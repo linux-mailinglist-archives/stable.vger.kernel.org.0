@@ -2,240 +2,421 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB23C4931EC
-	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 01:38:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD75E493207
+	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 01:52:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238443AbiASAhU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 19:37:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55042 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237177AbiASAhU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 19:37:20 -0500
-Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E465CC061574
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 16:37:19 -0800 (PST)
-Received: by mail-pf1-x42f.google.com with SMTP id r5so921545pfl.2
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 16:37:19 -0800 (PST)
+        id S1347779AbiASAwo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 19:52:44 -0500
+Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:60339 "EHLO
+        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235175AbiASAwo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 19:52:44 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=pV5wap1RlFDizJEBW+mL2wtXBnqBxJARX9+ot//RKpc=;
-        b=ITSflt/ojn0yPC/Uv6B00I4Uf7KfBPfd4KlIvJ1I/M4L5agkS1MdsvhtN++Gi+QFC7
-         cVT1eQthkugoaBkGY8vmHzmXjqkSN3MhOfCSPMCZv/xUrkgyz23fI/myjm1hhRTcdX6f
-         6CM/kkLdBuTtX1LWFzuoxQPHv5vgMtbZ3klx71kJkT65QCzaUsA+p2QGTHFgaIqrjGQ8
-         D7uT0IO9sOpJ9V9omOAwaN9PsI2NntiCeJ93e6C+4amgBJChxs1TGYay1/VOJgLnfmHR
-         Sq8cCuEwAGw8Nj4gFszowz1zG0F+sEFzV90tPtbf2jqu7jDCsd2BIYMdfVUC2hSAsei9
-         lFog==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=pV5wap1RlFDizJEBW+mL2wtXBnqBxJARX9+ot//RKpc=;
-        b=zehwJSkxMZT0SXFJGRxyOuHX0ajpzgxV2Oq+7n9Se1/6E6PklzYqWbjeP+zwVqQnhL
-         oA5AFCmebjDMmmFAxN+2hREKQgRbyM+HqXnS3hP9/BAwJRFIt9ekyGD/pAcIl0mRgi9c
-         KspZt+tbq/xGHyVyb0nSQIcGG4YM0PH1iWOrGsrVxZFFjLohRKK2qGwamROBY69INnzX
-         ngLFUtio1UViBa3dXw6KrZIXOxb1xO1FRYLePBqrrqMPiAdOIanv1HC3iOU8EWrRw2kU
-         agnLbakgxtGFoj9+rwle7EzND0h778BB2Vm5nbWBkHVkdlq4UUkYyz0afumORps5l5YZ
-         +XAw==
-X-Gm-Message-State: AOAM533Pij1djpBsaV1AnenN7ttdQIHT7duZLQ56cmk0/YekaUtlvmSJ
-        M8l/OL5Z8VK4sIZkeCNRtflfz7Zpi757xAyp
-X-Google-Smtp-Source: ABdhPJxKNpoMnov5TLd/YK8kJ1m1ocdqwXSLvCRlPQsOFJPKily3gFAogkZKbEfvU9CdbG1fVee2jA==
-X-Received: by 2002:aa7:8887:0:b0:4c2:6ed0:fc00 with SMTP id z7-20020aa78887000000b004c26ed0fc00mr24210021pfe.65.1642552639305;
-        Tue, 18 Jan 2022 16:37:19 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p15sm3672568pjj.52.2022.01.18.16.37.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Jan 2022 16:37:19 -0800 (PST)
-Message-ID: <61e75d3f.1c69fb81.4f6a7.a97b@mx.google.com>
-Date:   Tue, 18 Jan 2022 16:37:19 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1642553564; x=1674089564;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=p/t43c+xzeMycQKoe5GBajzbXqCFPT5CuYnyB/4IRRM=;
+  b=G5C711WgnLEolbm1tk4ZOQGSiGHdGvOsr7VT4ctRYVMeGBp2jdOMphRP
+   SWm/GH66pVfS75MOxw7+GLIRKvf7npKJVlLLfkZRsjrKqYWu+n3mj+07Q
+   IA/rcq8fp1hRFjeVvuhmWCtyIDKr48RIPT4UNIm/gpmuoficqYx+LmeER
+   I=;
+X-IronPort-AV: E=Sophos;i="5.88,298,1635206400"; 
+   d="scan'208";a="166736747"
+Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-pdx-2c-b09ea7fa.us-west-2.amazon.com) ([10.43.8.2])
+  by smtp-border-fw-2101.iad2.amazon.com with ESMTP; 19 Jan 2022 00:52:43 +0000
+Received: from EX13MTAUWA001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan3.pdx.amazon.com [10.236.137.198])
+        by email-inbound-relay-pdx-2c-b09ea7fa.us-west-2.amazon.com (Postfix) with ESMTPS id A0D794181F;
+        Wed, 19 Jan 2022 00:52:42 +0000 (UTC)
+Received: from EX13D01UWA002.ant.amazon.com (10.43.160.74) by
+ EX13MTAUWA001.ant.amazon.com (10.43.160.58) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.28; Wed, 19 Jan 2022 00:52:40 +0000
+Received: from u46989501580c5c.ant.amazon.com (10.43.160.17) by
+ EX13d01UWA002.ant.amazon.com (10.43.160.74) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.28; Wed, 19 Jan 2022 00:52:40 +0000
+From:   Samuel Mendoza-Jonas <samjonas@amazon.com>
+To:     <stable@vger.kernel.org>
+CC:     Miklos Szeredi <mszeredi@redhat.com>,
+        Amir Goldstein <amir73il@gmail.com>
+Subject: [PATCH 4.14 1/2] fuse: fix bad inode
+Date:   Tue, 18 Jan 2022 16:52:00 -0800
+Message-ID: <20220119005201.130738-1-samjonas@amazon.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.171-35-g6a507169a5ff
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.4.y
-Subject: stable-rc/linux-5.4.y baseline: 132 runs,
- 4 regressions (v5.4.171-35-g6a507169a5ff)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.43.160.17]
+X-ClientProxiedBy: EX13D17UWB004.ant.amazon.com (10.43.161.132) To
+ EX13d01UWA002.ant.amazon.com (10.43.160.74)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 132 runs, 4 regressions (v5.4.171-35-g6a507=
-169a5ff)
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-Regressions Summary
--------------------
+commit 5d069dbe8aaf2a197142558b6fb2978189ba3454 upstream.
 
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
+Jan Kara's analysis of the syzbot report (edited):
 
-qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
+  The reproducer opens a directory on FUSE filesystem, it then attaches
+  dnotify mark to the open directory.  After that a fuse_do_getattr() call
+  finds that attributes returned by the server are inconsistent, and calls
+  make_bad_inode() which, among other things does:
 
-qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
+          inode->i_mode = S_IFREG;
 
-qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
+  This then confuses dnotify which doesn't tear down its structures
+  properly and eventually crashes.
 
+Avoid calling make_bad_inode() on a live inode: switch to a private flag on
+the fuse inode.  Also add the test to ops which the bad_inode_ops would
+have caught.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.171-35-g6a507169a5ff/plan/baseline/
+This bug goes back to the initial merge of fuse in 2.6.14...
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.171-35-g6a507169a5ff
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      6a507169a5ff33a54b96499b12c79f71537e0bde =
+Reported-by: syzbot+f427adf9324b92652ccc@syzkaller.appspotmail.com
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Tested-by: Jan Kara <jack@suse.cz>
+Cc: <stable@vger.kernel.org>
+[adjusted for missing fs/fuse/readdir.c and changes in fuse_evict_inode() in 4.14]
+Signed-off-by: Samuel Mendoza-Jonas <samjonas@amazon.com>
+---
+ fs/fuse/acl.c    |  6 ++++++
+ fs/fuse/dir.c    | 37 ++++++++++++++++++++++++++++++++-----
+ fs/fuse/file.c   | 21 +++++++++++++++------
+ fs/fuse/fuse_i.h | 12 ++++++++++++
+ fs/fuse/inode.c  |  2 +-
+ fs/fuse/xattr.c  |  9 +++++++++
+ 6 files changed, 75 insertions(+), 12 deletions(-)
 
+diff --git a/fs/fuse/acl.c b/fs/fuse/acl.c
+index ec85765502f1..990529da5354 100644
+--- a/fs/fuse/acl.c
++++ b/fs/fuse/acl.c
+@@ -19,6 +19,9 @@ struct posix_acl *fuse_get_acl(struct inode *inode, int type)
+ 	void *value = NULL;
+ 	struct posix_acl *acl;
+ 
++	if (fuse_is_bad(inode))
++		return ERR_PTR(-EIO);
++
+ 	if (!fc->posix_acl || fc->no_getxattr)
+ 		return NULL;
+ 
+@@ -53,6 +56,9 @@ int fuse_set_acl(struct inode *inode, struct posix_acl *acl, int type)
+ 	const char *name;
+ 	int ret;
+ 
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	if (!fc->posix_acl || fc->no_setxattr)
+ 		return -EOPNOTSUPP;
+ 
+diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
+index b8d13b69583c..e7220fbd2d41 100644
+--- a/fs/fuse/dir.c
++++ b/fs/fuse/dir.c
+@@ -187,7 +187,7 @@ static int fuse_dentry_revalidate(struct dentry *entry, unsigned int flags)
+ 	int ret;
+ 
+ 	inode = d_inode_rcu(entry);
+-	if (inode && is_bad_inode(inode))
++	if (inode && fuse_is_bad(inode))
+ 		goto invalid;
+ 	else if (time_before64(fuse_dentry_time(entry), get_jiffies_64()) ||
+ 		 (flags & LOOKUP_REVAL)) {
+@@ -364,6 +364,9 @@ static struct dentry *fuse_lookup(struct inode *dir, struct dentry *entry,
+ 	bool outarg_valid = true;
+ 	bool locked;
+ 
++	if (fuse_is_bad(dir))
++		return ERR_PTR(-EIO);
++
+ 	locked = fuse_lock_inode(dir);
+ 	err = fuse_lookup_name(dir->i_sb, get_node_id(dir), &entry->d_name,
+ 			       &outarg, &inode);
+@@ -504,6 +507,9 @@ static int fuse_atomic_open(struct inode *dir, struct dentry *entry,
+ 	struct fuse_conn *fc = get_fuse_conn(dir);
+ 	struct dentry *res = NULL;
+ 
++	if (fuse_is_bad(dir))
++		return -EIO;
++
+ 	if (d_in_lookup(entry)) {
+ 		res = fuse_lookup(dir, entry, 0);
+ 		if (IS_ERR(res))
+@@ -551,6 +557,9 @@ static int create_new_entry(struct fuse_conn *fc, struct fuse_args *args,
+ 	int err;
+ 	struct fuse_forget_link *forget;
+ 
++	if (fuse_is_bad(dir))
++		return -EIO;
++
+ 	forget = fuse_alloc_forget();
+ 	if (!forget)
+ 		return -ENOMEM;
+@@ -672,6 +681,9 @@ static int fuse_unlink(struct inode *dir, struct dentry *entry)
+ 	struct fuse_conn *fc = get_fuse_conn(dir);
+ 	FUSE_ARGS(args);
+ 
++	if (fuse_is_bad(dir))
++		return -EIO;
++
+ 	args.in.h.opcode = FUSE_UNLINK;
+ 	args.in.h.nodeid = get_node_id(dir);
+ 	args.in.numargs = 1;
+@@ -708,6 +720,9 @@ static int fuse_rmdir(struct inode *dir, struct dentry *entry)
+ 	struct fuse_conn *fc = get_fuse_conn(dir);
+ 	FUSE_ARGS(args);
+ 
++	if (fuse_is_bad(dir))
++		return -EIO;
++
+ 	args.in.h.opcode = FUSE_RMDIR;
+ 	args.in.h.nodeid = get_node_id(dir);
+ 	args.in.numargs = 1;
+@@ -786,6 +801,9 @@ static int fuse_rename2(struct inode *olddir, struct dentry *oldent,
+ 	struct fuse_conn *fc = get_fuse_conn(olddir);
+ 	int err;
+ 
++	if (fuse_is_bad(olddir))
++		return -EIO;
++
+ 	if (flags & ~(RENAME_NOREPLACE | RENAME_EXCHANGE))
+ 		return -EINVAL;
+ 
+@@ -921,7 +939,7 @@ static int fuse_do_getattr(struct inode *inode, struct kstat *stat,
+ 	if (!err) {
+ 		if (fuse_invalid_attr(&outarg.attr) ||
+ 		    (inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
+-			make_bad_inode(inode);
++			fuse_make_bad(inode);
+ 			err = -EIO;
+ 		} else {
+ 			fuse_change_attributes(inode, &outarg.attr,
+@@ -1110,6 +1128,9 @@ static int fuse_permission(struct inode *inode, int mask)
+ 	bool refreshed = false;
+ 	int err = 0;
+ 
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	if (!fuse_allow_current_process(fc))
+ 		return -EACCES;
+ 
+@@ -1247,7 +1268,7 @@ static int fuse_direntplus_link(struct file *file,
+ 			dput(dentry);
+ 			goto retry;
+ 		}
+-		if (is_bad_inode(inode)) {
++		if (fuse_is_bad(inode)) {
+ 			dput(dentry);
+ 			return -EIO;
+ 		}
+@@ -1345,7 +1366,7 @@ static int fuse_readdir(struct file *file, struct dir_context *ctx)
+ 	u64 attr_version = 0;
+ 	bool locked;
+ 
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		return -EIO;
+ 
+ 	req = fuse_get_req(fc, 1);
+@@ -1703,7 +1724,7 @@ int fuse_do_setattr(struct dentry *dentry, struct iattr *attr,
+ 
+ 	if (fuse_invalid_attr(&outarg.attr) ||
+ 	    (inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
+-		make_bad_inode(inode);
++		fuse_make_bad(inode);
+ 		err = -EIO;
+ 		goto error;
+ 	}
+@@ -1759,6 +1780,9 @@ static int fuse_setattr(struct dentry *entry, struct iattr *attr)
+ 	struct file *file = (attr->ia_valid & ATTR_FILE) ? attr->ia_file : NULL;
+ 	int ret;
+ 
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	if (!fuse_allow_current_process(get_fuse_conn(inode)))
+ 		return -EACCES;
+ 
+@@ -1817,6 +1841,9 @@ static int fuse_getattr(const struct path *path, struct kstat *stat,
+ 	struct inode *inode = d_inode(path->dentry);
+ 	struct fuse_conn *fc = get_fuse_conn(inode);
+ 
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	if (!fuse_allow_current_process(fc))
+ 		return -EACCES;
+ 
+diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+index 4238939af2fe..0fb5466d5b09 100644
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -206,6 +206,9 @@ int fuse_open_common(struct inode *inode, struct file *file, bool isdir)
+ 			  fc->atomic_o_trunc &&
+ 			  fc->writeback_cache;
+ 
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	err = generic_file_open(inode, file);
+ 	if (err)
+ 		return err;
+@@ -407,7 +410,7 @@ static int fuse_flush(struct file *file, fl_owner_t id)
+ 	struct fuse_flush_in inarg;
+ 	int err;
+ 
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		return -EIO;
+ 
+ 	if (fc->no_flush)
+@@ -455,7 +458,7 @@ int fuse_fsync_common(struct file *file, loff_t start, loff_t end,
+ 	struct fuse_fsync_in inarg;
+ 	int err;
+ 
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		return -EIO;
+ 
+ 	inode_lock(inode);
+@@ -770,7 +773,7 @@ static int fuse_readpage(struct file *file, struct page *page)
+ 	int err;
+ 
+ 	err = -EIO;
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		goto out;
+ 
+ 	err = fuse_do_readpage(file, page);
+@@ -897,7 +900,7 @@ static int fuse_readpages(struct file *file, struct address_space *mapping,
+ 	int nr_alloc = min_t(unsigned, nr_pages, FUSE_MAX_PAGES_PER_REQ);
+ 
+ 	err = -EIO;
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		goto out;
+ 
+ 	data.file = file;
+@@ -927,6 +930,9 @@ static ssize_t fuse_file_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ 	struct inode *inode = iocb->ki_filp->f_mapping->host;
+ 	struct fuse_conn *fc = get_fuse_conn(inode);
+ 
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	/*
+ 	 * In auto invalidate mode, always update attributes on read.
+ 	 * Otherwise, only update if we attempt to read past EOF (to ensure
+@@ -1184,6 +1190,9 @@ static ssize_t fuse_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 	ssize_t err;
+ 	loff_t endbyte = 0;
+ 
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	if (get_fuse_conn(inode)->writeback_cache) {
+ 		/* Update size (EOF optimization) and mode (SUID clearing) */
+ 		err = fuse_update_attributes(mapping->host, file);
+@@ -1916,7 +1925,7 @@ static int fuse_writepages(struct address_space *mapping,
+ 	int err;
+ 
+ 	err = -EIO;
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		goto out;
+ 
+ 	data.inode = inode;
+@@ -2701,7 +2710,7 @@ long fuse_ioctl_common(struct file *file, unsigned int cmd,
+ 	if (!fuse_allow_current_process(fc))
+ 		return -EACCES;
+ 
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		return -EIO;
+ 
+ 	return fuse_do_ioctl(file, cmd, arg, flags);
+diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
+index 338aa5e266d6..220960c9b96d 100644
+--- a/fs/fuse/fuse_i.h
++++ b/fs/fuse/fuse_i.h
+@@ -117,6 +117,8 @@ enum {
+ 	FUSE_I_INIT_RDPLUS,
+ 	/** An operation changing file size is in progress  */
+ 	FUSE_I_SIZE_UNSTABLE,
++	/* Bad inode */
++	FUSE_I_BAD,
+ };
+ 
+ struct fuse_conn;
+@@ -687,6 +689,16 @@ static inline u64 get_node_id(struct inode *inode)
+ 	return get_fuse_inode(inode)->nodeid;
+ }
+ 
++static inline void fuse_make_bad(struct inode *inode)
++{
++	set_bit(FUSE_I_BAD, &get_fuse_inode(inode)->state);
++}
++
++static inline bool fuse_is_bad(struct inode *inode)
++{
++	return unlikely(test_bit(FUSE_I_BAD, &get_fuse_inode(inode)->state));
++}
++
+ /** Device operations */
+ extern const struct file_operations fuse_dev_operations;
+ 
+diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
+index ffb61787d77a..747f7a710fb9 100644
+--- a/fs/fuse/inode.c
++++ b/fs/fuse/inode.c
+@@ -317,7 +317,7 @@ struct inode *fuse_iget(struct super_block *sb, u64 nodeid,
+ 		unlock_new_inode(inode);
+ 	} else if ((inode->i_mode ^ attr->mode) & S_IFMT) {
+ 		/* Inode has changed type, any I/O on the old should fail */
+-		make_bad_inode(inode);
++		fuse_make_bad(inode);
+ 		iput(inode);
+ 		goto retry;
+ 	}
+diff --git a/fs/fuse/xattr.c b/fs/fuse/xattr.c
+index 3caac46b08b0..134bbc432ae6 100644
+--- a/fs/fuse/xattr.c
++++ b/fs/fuse/xattr.c
+@@ -113,6 +113,9 @@ ssize_t fuse_listxattr(struct dentry *entry, char *list, size_t size)
+ 	struct fuse_getxattr_out outarg;
+ 	ssize_t ret;
+ 
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	if (!fuse_allow_current_process(fc))
+ 		return -EACCES;
+ 
+@@ -178,6 +181,9 @@ static int fuse_xattr_get(const struct xattr_handler *handler,
+ 			 struct dentry *dentry, struct inode *inode,
+ 			 const char *name, void *value, size_t size)
+ {
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	return fuse_getxattr(inode, name, value, size);
+ }
+ 
+@@ -186,6 +192,9 @@ static int fuse_xattr_set(const struct xattr_handler *handler,
+ 			  const char *name, const void *value, size_t size,
+ 			  int flags)
+ {
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	if (!value)
+ 		return fuse_removexattr(inode, name);
+ 
+-- 
+2.25.1
 
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e72bae8054b62856abbd2e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.171=
--35-g6a507169a5ff/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
-arm-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.171=
--35-g6a507169a5ff/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
-arm-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220115.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61e72bae8054b62856abb=
-d2f
-        failing since 33 days (last pass: v5.4.165, first fail: v5.4.165-19=
--gb780ab989d60) =
-
- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e72bcd2f317d8d8cabbd18
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.171=
--35-g6a507169a5ff/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
-rm-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.171=
--35-g6a507169a5ff/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
-rm-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220115.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61e72bcd2f317d8d8cabb=
-d19
-        failing since 33 days (last pass: v5.4.165, first fail: v5.4.165-19=
--gb780ab989d60) =
-
- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e72bac4bb3da324fabbd1e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.171=
--35-g6a507169a5ff/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
-arm-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.171=
--35-g6a507169a5ff/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
-arm-virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220115.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61e72bac4bb3da324fabb=
-d1f
-        failing since 33 days (last pass: v5.4.165, first fail: v5.4.165-19=
--gb780ab989d60) =
-
- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e72bc94bb3da324fabbd33
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.171=
--35-g6a507169a5ff/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
-rm-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.171=
--35-g6a507169a5ff/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
-rm-virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220115.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61e72bc94bb3da324fabb=
-d34
-        failing since 33 days (last pass: v5.4.165, first fail: v5.4.165-19=
--gb780ab989d60) =
-
- =20
