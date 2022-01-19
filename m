@@ -2,164 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 692414941ED
-	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 21:40:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5537494212
+	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 21:48:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232416AbiASUkw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jan 2022 15:40:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46074 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230288AbiASUkv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Jan 2022 15:40:51 -0500
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C21B4C061574
-        for <stable@vger.kernel.org>; Wed, 19 Jan 2022 12:40:51 -0800 (PST)
-Received: by mail-pf1-x436.google.com with SMTP id q25so3357443pfl.8
-        for <stable@vger.kernel.org>; Wed, 19 Jan 2022 12:40:51 -0800 (PST)
+        id S235292AbiASUsG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jan 2022 15:48:06 -0500
+Received: from mail-dm6nam08on2042.outbound.protection.outlook.com ([40.107.102.42]:13664
+        "EHLO NAM04-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S234528AbiASUsF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 Jan 2022 15:48:05 -0500
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=RiiLcUkBXZfZo9SI2Nn30MGfuAtw9Uk4q5hvQMfu3PvZre0rFsmTliVQsd6wcCoHZSTz6g/lgzpriNdhAUCRGzdA9k/wocsvSz9m+KQ33dqOQoy2s0z7MKCwoZ4bZVf4A9VwqzOCGQvspgt6KZGORaNbdJrkkyx88GbrxG7IADZq5SP/NFktfOQhsT3od6OEUtlDaeu1RpUHl/kiw/jGjH4MDZKFDeSbauNHllU8W/q7NjMznhIffoPnF2IOBQrkExxEIX/HZKKQs3qY27FRaw+lGibfZOMdjWCi1+1WJICrAz+02NB9Ryempr3BAjKYDHqgGR06iPo5srZofwrU/g==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Qf+0hHQGNl99NT4rmAZZh0ntXMtHCS+FqKyJsQxxx4k=;
+ b=kh7ohrLBLWGuUIa+dyIjP1tbXcEXBSPrPPh1h0L/Dbu1jTXfV3SwZSIs+2KuVtwlWGZLdsEw33k7HGgKVpBateeMNip+kmrxJ3V1f5SJ1rL1YIrH+tbrJgUNm2nas9zJ2eDpTHJlwoPqIC8Fy7s9MsY4BMwZIrhCPh6tLH22w5Rs7NbIlKtP40NR/40s3Qr9/Rj1NeZi2+2aO//uF8dmf3EXwGIvdU586yIEliS/Biqi4LwYMjxHVceWvdFzTi04vGVYJOuTzu5RS8zxQd5A4kc2asZnVxR5Py/Il68K60y8lb/qAQUwQyTxcNumCCd8pUBopcKECeCiT73CJCKpAw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=8cYsunmArAHi6VKmMViAwUl+Q3fLhiBJAXa+mB+Isuk=;
-        b=0MNwObS/pen/uaYaNFoipD5pG4s+RrMbFWcQYkBLcV6L9+HWCvS3OVddmc/mhP92j3
-         Wi4hCk/cV1MhvOZFA2RQinQ/XcriKnUdvgXa2/UxgvRI0/UcyipiFlFbNM9h34zVXLJ7
-         se1+vWWnVIGdT5FM0RLH0O8PRHnWY6w+c31tor5HpJBxcSfRjogheY1Nr3bTgpSfxjgc
-         p2kFNghVKYLfR/11YedL27J+BW+P4obTZb6IfOOWTY5CbojZ/JZdL47iTM5AdZ/vOi7W
-         7FSBvSuFIZZJUuvnCBBmVS0IAFgBNNUPIQm+jrUYUW3hHqSInVxU81T2OBfDGPp7oscg
-         UzmA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=8cYsunmArAHi6VKmMViAwUl+Q3fLhiBJAXa+mB+Isuk=;
-        b=YROq2azw44bV2pkJ+vZXSg12H1MPr3w68DRGjrbznej9ze9GJDm6lP5z1RHO52Mxea
-         Dh2YCa+SySdyW79Cbk92/x5Q1HnOIsIdzWqLOJu7WtbJhbAhYPidJaP/x5YW3BVuXYbL
-         NXoAVB26J7OhrVc8oYfIYP4Pq8mIMZ2YboMlavBcZODaPVf72KzTKxzYh/4H3fcgRAKK
-         zDK30tWjZTygGnHGXLSZsertNdZetgJgWGFaBPt6vDDXqhzv6yfuSYkb/g7PT9h/JZ7B
-         cbH0n+Ur+zBMZMaIke7xf5txDkaCpv0zKtkGoD+DEYs+Cyk3jzw2cI+dOG+7XYBcFBzU
-         +EdQ==
-X-Gm-Message-State: AOAM532TJf4H0F5xAv57kefdEFnT0RbXq/ggS1jDo+fIF2KrQTuZyyvo
-        9Oqc5KBNd3oKhVntDKeW0Z1FnPiqNG4mp6cz
-X-Google-Smtp-Source: ABdhPJykH8qLtSocCyK8i//kBmaHp+GsPPNdepQPP0wao/nAkXa4ndcQdPw5coPRNgUztoNyvN2TvA==
-X-Received: by 2002:a63:b145:: with SMTP id g5mr28694014pgp.113.1642624851060;
-        Wed, 19 Jan 2022 12:40:51 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t23sm458288pgg.30.2022.01.19.12.40.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 19 Jan 2022 12:40:50 -0800 (PST)
-Message-ID: <61e87752.1c69fb81.f2893.1fb1@mx.google.com>
-Date:   Wed, 19 Jan 2022 12:40:50 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+ d=vpitech.onmicrosoft.com; s=selector2-vpitech-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Qf+0hHQGNl99NT4rmAZZh0ntXMtHCS+FqKyJsQxxx4k=;
+ b=CZ/HMyPoVPnvXoI2N0K8Tk+3OZTXhGmG/Bvw1OwcHaD5g2jNnmE+Pcl7FtaVxdtl6e7rGIY2PMrtScv8oz+HA0GXyEhc6TrliFu6PpB/pdcy31CbTvozoiygcfWOeVLhzBCJUB648lPGe61G/d6GPcU3E3pXUzgosxhxPBAmvac=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=vpitech.com;
+Received: from CO1P222MB0212.NAMP222.PROD.OUTLOOK.COM (2603:10b6:303:15b::19)
+ by CO1P222MB0193.NAMP222.PROD.OUTLOOK.COM (2603:10b6:303:158::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4909.7; Wed, 19 Jan
+ 2022 20:48:03 +0000
+Received: from CO1P222MB0212.NAMP222.PROD.OUTLOOK.COM
+ ([fe80::acb2:d13e:3a3:c824]) by CO1P222MB0212.NAMP222.PROD.OUTLOOK.COM
+ ([fe80::acb2:d13e:3a3:c824%9]) with mapi id 15.20.4888.014; Wed, 19 Jan 2022
+ 20:48:03 +0000
+Date:   Wed, 19 Jan 2022 13:48:01 -0700
+From:   Alex Henrie <alexh@vpitech.com>
+To:     linux-i2c@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     Hector Martin <marcan@marcan.st>, Jean Delvare <jdelvare@suse.com>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: Re: [PATCH v3] i2c: i801: Safely share SMBus with BIOS/ACPI
+Message-Id: <20220119134801.c9bfa050d8374b37b33c06d1@vpitech.com>
+In-Reply-To: <20210626054113.246309-1-marcan@marcan.st>
+References: <20210626054113.246309-1-marcan@marcan.st>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-unknown-linux-gnu)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: MWHPR20CA0012.namprd20.prod.outlook.com
+ (2603:10b6:300:13d::22) To CO1P222MB0212.NAMP222.PROD.OUTLOOK.COM
+ (2603:10b6:303:15b::19)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.16-66-ge6abef275919
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.16
-Subject: stable-rc/queue/5.16 baseline: 153 runs,
- 2 regressions (v5.16-66-ge6abef275919)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: f7085f54-8c24-4ad0-cc13-08d9db8cfca2
+X-MS-TrafficTypeDiagnostic: CO1P222MB0193:EE_
+X-Microsoft-Antispam-PRVS: <CO1P222MB01935A12B88280FE7310E873B8599@CO1P222MB0193.NAMP222.PROD.OUTLOOK.COM>
+X-MS-Oob-TLC-OOBClassifiers: OLM:1728;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: 5lWZDinowPVPYttRwZYNHekeCA4m+D3dSZp/NQuFPHXX5M7iF3+vX2j9T2HQpL/OaaQvJ/e/ueLacXrSM+jukcVmcs2sdZAKwDz7m4B6zhZI5lNXdetZvtgEwNTm95j9U+FAql7E5pStVp1YulsUqZRfrZlxddNjG5sV2bgI86RpeJVv1vJsVFIIdEGRmNVsTXmqPhgckxtpq34HopDPoSAyp7SZ7yltkeIOlGX0CNAv2WUnpPsNYPx/GVdt1Jyv2/MJkTk6zr3ZipbRXKq/T3hj/M0tLfzoluwJJEBNopHu7/4/pQT5sel172Flgq+HjQDb1mDBB93RGKZbLSWkKyKdkGbV8aFdMfrLkLi9knySrfmhdwekZXpUwiZy8JebE39LDqrgMX7bKplFnlpwldcIWq2vYBLH6h1hxstikurSO1K4q+tV0nFlVv2NKC1vQ3xuLihRCBpdBdKqBiwCkfoBvFokkGtH9Q0DeCBRd1LYiLiIU/2nZdgD5MCDD9jCVELjdZC3jouCn06344uVrqdJnW5UFBl+q3i+RYbsmkH8oXkPL6TlPj1tjlfZSzQqjHdRb4UwtoSdToSknFkWx95b6rkdSLGfwvYHp0UkDLXw4NQcqTHe5FvuGdB5SKchzprmZsIb6jO0T0th/VhmHTZn335xEsP3Ig+aQlNAsdYyR4pXPYgwr7SQ6hnHW2sOBVB1r09wgdVR0w8OgQ5cjQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CO1P222MB0212.NAMP222.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(39830400003)(376002)(396003)(366004)(136003)(346002)(6486002)(558084003)(4270600006)(1076003)(36756003)(66476007)(66556008)(316002)(52116002)(186003)(38350700002)(66946007)(26005)(2616005)(8676002)(2906002)(8936002)(6512007)(5660300002)(19618925003)(86362001)(38100700002)(6506007)(508600001)(4326008)(54906003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?1K4zBVdnVKqsQFHVblBAOfD6JyOM7Nitnyp0aSjjFci3B7+7UZvPtSSVZu3a?=
+ =?us-ascii?Q?NzcH7JzJaicU+zqeYm3vzFfX4+mSUoqbCK/VDBenz9PORhz8AL3XmNMwwP1Y?=
+ =?us-ascii?Q?JOKcFPLS6o0r5skxTf/lPBPLqlc8e6di6W5Pey1LopNDuiLG3pkGqKMbm02n?=
+ =?us-ascii?Q?PSuhxXZCKWb5MjK8L7jZxu4uqXQMu9r1D+lBRxb5BzmGpkmWGFbT2Wp5knFd?=
+ =?us-ascii?Q?m8Re7tqxuMVMiFim9udxoiop6jgZY4WFvrxH3unuFG+OH5YrMIvYkxKQL4cF?=
+ =?us-ascii?Q?ppEpbID0VZozG5Fr/Lz7Z2jMDmN4wAA/8m1CpWS5ofAsgu24IPjnAawpMxDR?=
+ =?us-ascii?Q?c8rP6sXpkgMjVZX22BKzn26HI1JFiF0FOeL9GabHP8ij7i1MmiYqI+C4eCIc?=
+ =?us-ascii?Q?onUhqz01/qQ/HNUqXcLg9L8m+MbiJTJvGWuDu4Pwkc1oESzih2p5ht8WCJS8?=
+ =?us-ascii?Q?+Zi+4MvFkD8bR5nhHocXH+vJbytAzCAZKHKtGe9BIDXPDhiTeiAWrlp5uCxI?=
+ =?us-ascii?Q?7yeKAl+XWNtMISoXC+9dzo44ocAcI5AChDz+kf0yftPFrDXuHnFTvhG0yr/5?=
+ =?us-ascii?Q?DjMZe3U+lk0F/E2yVGSxFO8ihLqlZ51ydSoUIm7aSPSHI2CXj1GMRuo4cxlF?=
+ =?us-ascii?Q?tPmD7CQq4uQmYxiPiVapPdPwHrpOwr28ZmDMt7LWRi5VD3CVbW7UR4o9sXwy?=
+ =?us-ascii?Q?c9Wt7IFHHF4E2dPXn2B/JNDI9uHwxoG0MV+6DH2YuLkmysNrk23bzn/ETQKC?=
+ =?us-ascii?Q?ryfjXE/tIeMRkR6no7g/pFl2Hh8xE2IAzzoZksBWcm3JGFXzGL5MNCpfZ8Jp?=
+ =?us-ascii?Q?9Ya2D46iMJtXIeCLi4AcSQkp8FMjRmJtS0coRsPLum794yM3y8hUTZpo6uHd?=
+ =?us-ascii?Q?gO3nAZHEq9U0KZKHcgFcQywteIGCmroBVuOwVRcMIyEmdPAEr1OPIS/OKw0z?=
+ =?us-ascii?Q?eeAhW+irdJC8R2XPdoIvHpzsHYuzZnULrO9WA/Ly30fzg9YKb2RYZWy2HmjH?=
+ =?us-ascii?Q?u6gPCzYc6wyS94KcBqQSXI1+8POXsBvnj0XBlUHXXxwJNYTdmJCpAuz/SoDV?=
+ =?us-ascii?Q?DiY7E6cWDT+rHOu8ua1FmIIoE3I32SrAcq9MO4c6ABBF+XlPbNpaSsvLPSaD?=
+ =?us-ascii?Q?Wx7yZyG5u3O95JNZwQASfXk+zDOAIZPkk7VFElGOVK4mBlFSiwbFW6T42ufV?=
+ =?us-ascii?Q?T5dFd41iVKyuZjR+MdX9NAI0eqwXKRpHlGl3nPGbF+5vVUk42aV3jYHW+BXA?=
+ =?us-ascii?Q?aEpbG5Q1C2j85vTqDnBD7hUgpUj1ZP/2xI0XK+DMQmBo/WJSEQRb/D5R7711?=
+ =?us-ascii?Q?uVPfbhNm3/c0OV4c7nCFIeq7W0spvE75mR1tzz5oGfwKQXM4q2jyYw1cpKHV?=
+ =?us-ascii?Q?KCUjwF2lOL71QlVmf6iI9FGezdg3vdqJJ0jJeKKXN+K/XXx6/xkLNHMHjTdE?=
+ =?us-ascii?Q?hthFizAZQx6UItab3GHi36RCjfLVe6vzYGjBXeh8nBfg6O5WItNsMQCZr4jj?=
+ =?us-ascii?Q?UyVHaIXZxdmacP1GqijFDqSKTdohoAe7RjqcWltiPXDPiO9pilLEQ7jJRfrG?=
+ =?us-ascii?Q?afmFcJNfjCnvECDn1HHTJRuwHL1SAyc0HzQyN545PJDgpKHV9gtyUZix4ZC3?=
+ =?us-ascii?Q?klVrHnGuKx3EF8MpP0wM2t0=3D?=
+X-OriginatorOrg: vpitech.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f7085f54-8c24-4ad0-cc13-08d9db8cfca2
+X-MS-Exchange-CrossTenant-AuthSource: CO1P222MB0212.NAMP222.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 19 Jan 2022 20:48:03.2579
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 130d6264-38b7-4474-a9bf-511ff1224fac
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 8kwPBx50TUVZpkqnPT2JYu2a82hI2aXQvxi3oVaIoHFzy8znW/kNcLV4LLwn3BqkFbQmd1WNvv+UxaUXqkT4Pw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO1P222MB0193
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.16 baseline: 153 runs, 2 regressions (v5.16-66-ge6abef275=
-919)
-
-Regressions Summary
--------------------
-
-platform                     | arch  | lab           | compiler | defconfig=
- | regressions
------------------------------+-------+---------------+----------+----------=
--+------------
-meson-g12b-a311d-khadas-vim3 | arm64 | lab-collabora | gcc-10   | defconfig=
- | 1          =
-
-r8a77950-salvator-x          | arm64 | lab-baylibre  | gcc-10   | defconfig=
- | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.16/ker=
-nel/v5.16-66-ge6abef275919/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.16
-  Describe: v5.16-66-ge6abef275919
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      e6abef275919520e9b5c12946901b612c40c4d17 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                     | arch  | lab           | compiler | defconfig=
- | regressions
------------------------------+-------+---------------+----------+----------=
--+------------
-meson-g12b-a311d-khadas-vim3 | arm64 | lab-collabora | gcc-10   | defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e84533e3b28ff690abbd35
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16-66-=
-ge6abef275919/arm64/defconfig/gcc-10/lab-collabora/baseline-meson-g12b-a311=
-d-khadas-vim3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16-66-=
-ge6abef275919/arm64/defconfig/gcc-10/lab-collabora/baseline-meson-g12b-a311=
-d-khadas-vim3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220115.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61e84533e3b28ff690abb=
-d36
-        new failure (last pass: v5.16-66-g0a52f03a4702) =
-
- =
-
-
-
-platform                     | arch  | lab           | compiler | defconfig=
- | regressions
------------------------------+-------+---------------+----------+----------=
--+------------
-r8a77950-salvator-x          | arm64 | lab-baylibre  | gcc-10   | defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e845ce88f2b4798fabbd48
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16-66-=
-ge6abef275919/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-salvato=
-r-x.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16-66-=
-ge6abef275919/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-salvato=
-r-x.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220115.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61e845ce88f2b4798fabb=
-d49
-        new failure (last pass: v5.16-66-g0a52f03a4702) =
-
- =20
+Tested-by: Alex Henrie <alexh@vpitech.com>
