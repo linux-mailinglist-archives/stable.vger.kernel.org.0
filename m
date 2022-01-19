@@ -2,101 +2,164 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EBB64941AF
-	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 21:30:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 692414941ED
+	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 21:40:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244067AbiASUaF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jan 2022 15:30:05 -0500
-Received: from mga02.intel.com ([134.134.136.20]:57543 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231146AbiASUaF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 Jan 2022 15:30:05 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1642624205; x=1674160205;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=nfdzBYBqQaqq5ju/KIZ0OGlrsNPW5+aw7QS4ZNf9KN4=;
-  b=d7XAprLJZdWnRnGkdemlM+5sZeXKOav1Z+mowjjLfo1UpjY5+F8o0Vk/
-   s3zDftfdUDGNaZyqnk5mK9ajF1jKX1PbgS9UF2v3hkg6f8gmFfAYx2GGZ
-   fOphQfRHo7o8YJ8yuOEttmBQINJbybqWanr3O41BSYvFpze24uswurF8w
-   C0xeeenXeHpLhiCKfWf62e0A/c4amAm9fFANO+tawOC5EyPWy1mlrw3bW
-   AaJsIWss4p4fn99hMnc1QgxB90qeaPXdJ3P6inwF94KvitjLUPxsdB+GP
-   YWMyu8tuBK9XCdPFO84r+iKbfa2ur2YFpj0eWaXGDp5hMis5G/mlZBJgX
-   Q==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10231"; a="232550213"
-X-IronPort-AV: E=Sophos;i="5.88,300,1635231600"; 
-   d="scan'208";a="232550213"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2022 12:30:05 -0800
-X-IronPort-AV: E=Sophos;i="5.88,300,1635231600"; 
-   d="scan'208";a="693930438"
-Received: from atefehad-mobl1.amr.corp.intel.com (HELO ldmartin-desk2) ([10.212.238.132])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 19 Jan 2022 12:30:04 -0800
-Date:   Wed, 19 Jan 2022 12:30:04 -0800
-From:   Lucas De Marchi <lucas.demarchi@intel.com>
-To:     Bjorn Helgaas <helgaas@kernel.org>
-Cc:     Borislav Petkov <bp@alien8.de>, x86@kernel.org,
-        linux-pci@vger.kernel.org, intel-gfx@lists.freedesktop.org,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@redhat.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [Intel-gfx] [PATCH v5 1/5] x86/quirks: Fix stolen detection with
- integrated + discrete GPU
-Message-ID: <20220119203004.mnds3vrxtsqkvso3@ldmartin-desk2>
-X-Patchwork-Hint: comment
-References: <YecI6S9Cx5esqL+H@zn.tnic>
- <20220118200145.GA887728@bhelgaas>
+        id S232416AbiASUkw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jan 2022 15:40:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46074 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230288AbiASUkv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Jan 2022 15:40:51 -0500
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C21B4C061574
+        for <stable@vger.kernel.org>; Wed, 19 Jan 2022 12:40:51 -0800 (PST)
+Received: by mail-pf1-x436.google.com with SMTP id q25so3357443pfl.8
+        for <stable@vger.kernel.org>; Wed, 19 Jan 2022 12:40:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=8cYsunmArAHi6VKmMViAwUl+Q3fLhiBJAXa+mB+Isuk=;
+        b=0MNwObS/pen/uaYaNFoipD5pG4s+RrMbFWcQYkBLcV6L9+HWCvS3OVddmc/mhP92j3
+         Wi4hCk/cV1MhvOZFA2RQinQ/XcriKnUdvgXa2/UxgvRI0/UcyipiFlFbNM9h34zVXLJ7
+         se1+vWWnVIGdT5FM0RLH0O8PRHnWY6w+c31tor5HpJBxcSfRjogheY1Nr3bTgpSfxjgc
+         p2kFNghVKYLfR/11YedL27J+BW+P4obTZb6IfOOWTY5CbojZ/JZdL47iTM5AdZ/vOi7W
+         7FSBvSuFIZZJUuvnCBBmVS0IAFgBNNUPIQm+jrUYUW3hHqSInVxU81T2OBfDGPp7oscg
+         UzmA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=8cYsunmArAHi6VKmMViAwUl+Q3fLhiBJAXa+mB+Isuk=;
+        b=YROq2azw44bV2pkJ+vZXSg12H1MPr3w68DRGjrbznej9ze9GJDm6lP5z1RHO52Mxea
+         Dh2YCa+SySdyW79Cbk92/x5Q1HnOIsIdzWqLOJu7WtbJhbAhYPidJaP/x5YW3BVuXYbL
+         NXoAVB26J7OhrVc8oYfIYP4Pq8mIMZ2YboMlavBcZODaPVf72KzTKxzYh/4H3fcgRAKK
+         zDK30tWjZTygGnHGXLSZsertNdZetgJgWGFaBPt6vDDXqhzv6yfuSYkb/g7PT9h/JZ7B
+         cbH0n+Ur+zBMZMaIke7xf5txDkaCpv0zKtkGoD+DEYs+Cyk3jzw2cI+dOG+7XYBcFBzU
+         +EdQ==
+X-Gm-Message-State: AOAM532TJf4H0F5xAv57kefdEFnT0RbXq/ggS1jDo+fIF2KrQTuZyyvo
+        9Oqc5KBNd3oKhVntDKeW0Z1FnPiqNG4mp6cz
+X-Google-Smtp-Source: ABdhPJykH8qLtSocCyK8i//kBmaHp+GsPPNdepQPP0wao/nAkXa4ndcQdPw5coPRNgUztoNyvN2TvA==
+X-Received: by 2002:a63:b145:: with SMTP id g5mr28694014pgp.113.1642624851060;
+        Wed, 19 Jan 2022 12:40:51 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id t23sm458288pgg.30.2022.01.19.12.40.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Jan 2022 12:40:50 -0800 (PST)
+Message-ID: <61e87752.1c69fb81.f2893.1fb1@mx.google.com>
+Date:   Wed, 19 Jan 2022 12:40:50 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20220118200145.GA887728@bhelgaas>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.16-66-ge6abef275919
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.16
+Subject: stable-rc/queue/5.16 baseline: 153 runs,
+ 2 regressions (v5.16-66-ge6abef275919)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 18, 2022 at 02:01:45PM -0600, Bjorn Helgaas wrote:
->On Tue, Jan 18, 2022 at 07:37:29PM +0100, Borislav Petkov wrote:
->> On Tue, Jan 18, 2022 at 11:58:53AM -0600, Bjorn Helgaas wrote:
->> > I don't really care much one way or the other.  I think the simplest
->> > approach is to remove QFLAG_APPLY_ONCE from intel_graphics_quirks()
->> > and do nothing else, as I suggested here:
->> >
->> >   https://lore.kernel.org/r/20220113000805.GA295089@bhelgaas
->> >
->> > Unfortunately that didn't occur to me until I'd already suggested more
->> > complicated things that no longer seem worthwhile to me.
->> >
->> > The static variable might be ugly, but it does seem to be what
->> > intel_graphics_quirks() wants -- a "do this at most once per system
->> > but we don't know exactly which device" situation.
->>
->> I see.
->>
->> Yeah, keeping it solely inside intel_graphics_quirks() and maybe with a
->> comment ontop, why it is done, is simple. I guess if more quirks need
->> this once-thing people might have to consider a more sensible scheme - I
->> was just objecting to sprinkling those static vars everywhere.
->>
->> But your call. :)
->
->Haha :)  I was hoping not to touch it myself because I think this
->whole stolen memory thing is kind of nasty.  It's not clear to me why
->we need it at all, or why we have to keep all this device-specific
->logic in the kernel, or why it has to be an early quirk as opposed to
->a regular PCI quirk.  We had a thread [1] about it a while ago but I
->don't think anything got resolved.
+stable-rc/queue/5.16 baseline: 153 runs, 2 regressions (v5.16-66-ge6abef275=
+919)
 
-I was reading that thread again and thinking what we could do to try to
-resolve this. I will reply on that thread.
+Regressions Summary
+-------------------
 
->But to try to make forward progress, I applied patch 1/5 (actually,
->the updated one from [2]) to my pci/misc branch with the updated
->commit log and code comments below.
+platform                     | arch  | lab           | compiler | defconfig=
+ | regressions
+-----------------------------+-------+---------------+----------+----------=
+-+------------
+meson-g12b-a311d-khadas-vim3 | arm64 | lab-collabora | gcc-10   | defconfig=
+ | 1          =
 
-thanks. I found the wording in the title odd as when I read "first" it
-gives me the impression it's saying there could be more, which is not
-possible.  Anyway, not a big thing. Thanks for rewording it.
+r8a77950-salvator-x          | arm64 | lab-baylibre  | gcc-10   | defconfig=
+ | 1          =
 
-Lucas De Marchi
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.16/ker=
+nel/v5.16-66-ge6abef275919/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.16
+  Describe: v5.16-66-ge6abef275919
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      e6abef275919520e9b5c12946901b612c40c4d17 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+ | regressions
+-----------------------------+-------+---------------+----------+----------=
+-+------------
+meson-g12b-a311d-khadas-vim3 | arm64 | lab-collabora | gcc-10   | defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61e84533e3b28ff690abbd35
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16-66-=
+ge6abef275919/arm64/defconfig/gcc-10/lab-collabora/baseline-meson-g12b-a311=
+d-khadas-vim3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16-66-=
+ge6abef275919/arm64/defconfig/gcc-10/lab-collabora/baseline-meson-g12b-a311=
+d-khadas-vim3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220115.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61e84533e3b28ff690abb=
+d36
+        new failure (last pass: v5.16-66-g0a52f03a4702) =
+
+ =
+
+
+
+platform                     | arch  | lab           | compiler | defconfig=
+ | regressions
+-----------------------------+-------+---------------+----------+----------=
+-+------------
+r8a77950-salvator-x          | arm64 | lab-baylibre  | gcc-10   | defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61e845ce88f2b4798fabbd48
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16-66-=
+ge6abef275919/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-salvato=
+r-x.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16-66-=
+ge6abef275919/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-salvato=
+r-x.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220115.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61e845ce88f2b4798fabb=
+d49
+        new failure (last pass: v5.16-66-g0a52f03a4702) =
+
+ =20
