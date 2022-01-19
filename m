@@ -2,240 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17F9749339F
-	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 04:29:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24B914933BC
+	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 04:46:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242776AbiASD2S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 22:28:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36544 "EHLO
+        id S239041AbiASDqw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 22:46:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351310AbiASD2R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 22:28:17 -0500
-Received: from mail-pg1-x534.google.com (mail-pg1-x534.google.com [IPv6:2607:f8b0:4864:20::534])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1925C061574
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 19:28:16 -0800 (PST)
-Received: by mail-pg1-x534.google.com with SMTP id e9so1112140pgb.3
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 19:28:16 -0800 (PST)
+        with ESMTP id S236349AbiASDqv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 22:46:51 -0500
+Received: from mail-il1-x12e.google.com (mail-il1-x12e.google.com [IPv6:2607:f8b0:4864:20::12e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C58C2C061574;
+        Tue, 18 Jan 2022 19:46:51 -0800 (PST)
+Received: by mail-il1-x12e.google.com with SMTP id h30so1030107ila.12;
+        Tue, 18 Jan 2022 19:46:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=lObZO+EOWLUsxT+onuhql/50gN3tcQO/Tot0TyKlUTw=;
-        b=WNZupbJz1bBrh+Kxpfd34rXofloWZXkm7cFV9nXxPt29Dtbp/ccmsyeEPci/wX5Yiw
-         6CPq8sY9s6O7qCIkSCGR7CchSLHpRbRwov0zdGm60eDAaofOAUUakvLy3wrHesJDhm26
-         ViZ6QgJIXq/+IzCRH6Ud/GO+u/95+UZQc+vhyz+ILVMBOmBwiPxAwXPiUwe8dLmzajJK
-         6ZzICgMWp7FbGzwcILwn+5MUJ5J8LFkqih6YR0OjQVa151S6cuQlb/HYtJUhBOAtNO/8
-         XVZ9/lx5NM4TWeiw7/JmEIPgJi2L5XkxwHrDN+ZUZawjnGdSFhXpgRi9F7kr3YdhixMe
-         qUVQ==
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=VhFWqtfS53NlaIXZZHHH2I/cw34K8M2uEVfmGSHsbrM=;
+        b=iXjWcTZ2020uJS0SoWqbVrSDTcAcWxkxIjGOtjHnRsSbpE+1KHIAs5+I/088r43x7H
+         eKpbcqTJIRY5P5GEvdLUWfzrWKwnkN95Xd34FO36p/eKFo/i8kquLxUGQqu7AlQGKADN
+         rLsX5koZKCc/PXYVlJEU8omIQwvAVMxuTH/CEnDH5GkonjyWhTgBm42zJSHE8bzP8kjG
+         z8oFZ2fnWfhImzibX/xPDhgDprXYMBKtJ2gpVj6rk436UYK6Osiok2KPH2o04xjac017
+         HBhpeOjCH78xf9BA4smzLd/NncDqYb1T4+h+p/Fmr7oFgEmF/+xPDbpcI5JSMBcokrda
+         9psQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=lObZO+EOWLUsxT+onuhql/50gN3tcQO/Tot0TyKlUTw=;
-        b=hUBrqeLdWY9uN51jclE5pG7e8Nd3yH9+Pqy84iqdlhprkiqtavLJk9uCZK1dbVcmDc
-         9qZkDp/QTiG4OrH+NDmHCx1oHQ2E3qFwv2KYjGt7x/cNQcYHoAcipTmmLplf4KbGWAkM
-         V3huGcxrX2q061V5piykWUkCGRgWp8YQWYleTg6sMoy7rQPYlh28AD/PFIbyiGGlMgGw
-         nRdXn3vjdM3ZX3XVtc5Prz0cxq7QVsjHVElAWu0mqVqEap5g7iwGIk3l2KSBIojB/Umk
-         gNscscIS58tGa0zbhyxyWUOfhFSdGM6pWDMgoxLQTAZHqSxo4E9JIzNhsnpbYLWc1yBs
-         Ca1w==
-X-Gm-Message-State: AOAM530hb4q52/0J8NIO9c1hK7tcKgQ+pf8ospMoPaJycI/EAbhN7tkz
-        GSVvfMOmD2RMcJVm9KqqquRb/9E+HUk3Opwx
-X-Google-Smtp-Source: ABdhPJxqN1IZsMxbgexdpHeIcMhEwBpYEOLdm6CyGwanMLPWFUJaCqXdgWNN8Qtpdk1JTB52qgNZ4g==
-X-Received: by 2002:a05:6a00:1595:b0:4c2:7c7c:f3df with SMTP id u21-20020a056a00159500b004c27c7cf3dfmr23760352pfk.71.1642562896314;
-        Tue, 18 Jan 2022 19:28:16 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id t12sm16633553pfl.68.2022.01.18.19.28.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 Jan 2022 19:28:15 -0800 (PST)
-Message-ID: <61e7854f.1c69fb81.7f03d.dd83@mx.google.com>
-Date:   Tue, 18 Jan 2022 19:28:15 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=VhFWqtfS53NlaIXZZHHH2I/cw34K8M2uEVfmGSHsbrM=;
+        b=8NAAc+JbqU5qH2NnwmAIdslAslRuflPj8YAhW553HugWXNvOnnxU5M4j7vHfPpAdnC
+         cCgq6BR9yqJCfDVDOGSL4XNPI3/brL3nAkY6Pg1prfINlH/bpAh+rtP2U6K8onlkZW6s
+         fSIbRAXa0IrXRvtPSGQOVj/HaqU+qxWT5saArVhmG7SNbQKlBop/QYSU2Yoq4coMiYv6
+         ivtvOVblNLX7kQwRXYzx32nPVF/Xq9YBbZVqTwwZi1K21W4MOoTbUQIqBC5Z9bUkxvpo
+         t+tAo2Mwrfj+37mmEGZBTcUCTT6wIhc5qwPbz8N/qYHe83Ad64ZfvMzL3aTdhB0iSfIX
+         bm+g==
+X-Gm-Message-State: AOAM532eV0h//XXvZ6V7tLAlrFzxPdxfdn1lb+yigW27fLmBXUMXJahw
+        da+UIqTRFXynl4pWJH9vHzs=
+X-Google-Smtp-Source: ABdhPJxBLoeP/4doJy/1PHCQNJDMuvivRCbJ+y/Qmq6cU7/BKPmImOjXRPsVGvLSgX3FIHNVmgaoOw==
+X-Received: by 2002:a92:c142:: with SMTP id b2mr14036323ilh.214.1642564011217;
+        Tue, 18 Jan 2022 19:46:51 -0800 (PST)
+Received: from [172.16.0.2] ([8.48.134.58])
+        by smtp.googlemail.com with ESMTPSA id x16sm8196231iol.33.2022.01.18.19.46.49
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 18 Jan 2022 19:46:50 -0800 (PST)
+Message-ID: <04a436b8-3120-4671-a1e4-cf690ce8ec60@gmail.com>
+Date:   Tue, 18 Jan 2022 20:46:47 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.171-34-g717ea32e61e8
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-Subject: stable-rc/queue/5.4 baseline: 151 runs,
- 4 regressions (v5.4.171-34-g717ea32e61e8)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.5.0
+Subject: Re: [PATCH AUTOSEL 5.16 118/217] net: Enable neighbor sysctls that is
+ save for userns root
+Content-Language: en-US
+To:     Jakub Kicinski <kuba@kernel.org>, Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        xu xin <xu.xin16@zte.com.cn>, Zeal Robot <zealci@zte.com.cn>,
+        Joanne Koong <joannekoong@fb.com>,
+        "David S . Miller" <davem@davemloft.net>, daniel@iogearbox.net,
+        dsahern@kernel.org, roopa@nvidia.com, edumazet@google.com,
+        chinagar@codeaurora.org, yajun.deng@linux.dev,
+        netdev@vger.kernel.org
+References: <20220118021940.1942199-1-sashal@kernel.org>
+ <20220118021940.1942199-118-sashal@kernel.org>
+ <20220118085940.6d7b4a88@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
+From:   David Ahern <dsahern@gmail.com>
+In-Reply-To: <20220118085940.6d7b4a88@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 151 runs, 4 regressions (v5.4.171-34-g717ea32=
-e61e8)
+On 1/18/22 9:59 AM, Jakub Kicinski wrote:
+>> Reported-by: Zeal Robot <zealci@zte.com.cn>
+>> Signed-off-by: xu xin <xu.xin16@zte.com.cn>
+>> Acked-by: Joanne Koong <joannekoong@fb.com>
+>> Signed-off-by: David S. Miller <davem@davemloft.net>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> 
+> Not a fix, IDK how the "Zeal Robot" "reported" that a sysctl is not
+> exposed under uesr ns, that's probably what throws off matchers :/
+> Anyway - it's a feature.
 
-Regressions Summary
--------------------
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.171-34-g717ea32e61e8/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.171-34-g717ea32e61e8
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      717ea32e61e84fdd6832226bb1be5a7db2b44e19 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e751236b99ff37a5abbd40
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-3=
-4-g717ea32e61e8/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
-m-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-3=
-4-g717ea32e61e8/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
-m-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220115.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61e751236b99ff37a5abb=
-d41
-        failing since 34 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e75141f08bbc0bdaabbd1d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-3=
-4-g717ea32e61e8/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
--virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-3=
-4-g717ea32e61e8/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
--virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220115.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61e75141f08bbc0bdaabb=
-d1e
-        failing since 34 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e751216b99ff37a5abbd3d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-3=
-4-g717ea32e61e8/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
-m-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-3=
-4-g717ea32e61e8/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
-m-virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220115.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61e751216b99ff37a5abb=
-d3e
-        failing since 34 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e7513d6b99ff37a5abbd72
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-3=
-4-g717ea32e61e8/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
--virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.171-3=
-4-g717ea32e61e8/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
--virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220115.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61e7513d6b99ff37a5abb=
-d73
-        failing since 34 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =20
+A lot of these Reported-by from robots should be "Suggested-by".
