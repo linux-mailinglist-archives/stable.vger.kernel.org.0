@@ -2,113 +2,240 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6182C4931E3
-	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 01:28:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB23C4931EC
+	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 01:38:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241380AbiASA20 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 19:28:26 -0500
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:53138 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237177AbiASA2Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 19:28:25 -0500
-Received: from pps.filterd (m0127361.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.1.2/8.16.1.2) with SMTP id 20INRrEm011450;
-        Wed, 19 Jan 2022 00:28:17 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : subject :
- from : to : cc : date : in-reply-to : references : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=0s3EPiTBBJVqZJT2McfkGgt7LnKRIJ6MavHK+e9cY5g=;
- b=CnFTON8KYNfeuWtaNcHIOXapRqHfFvptL2miNnJBXebNxtFRLPs6jFSX5tLe5gglHGxg
- j/UIiUFvijYZ3lH5Xdi8Hm2KVN4+6wYeyH6+vkLY87V8nQexbqrko/n8KOzeKeI6bCsC
- QrLysnErSXPjBBiAODUPo+7WCRSiZfxv+XuhdTus9/g8h7LnYQ0ogo4maBhUvX+9B9nj
- NMFuvAeh9RzojwW2RRzaAk0lXdhKiOFW0qn7JxFxdnoJVdOumEWyt9fNk57pTZu2hYfx
- ZG7UuWl92nu9PQH+ahUyFoPQoD8wuHLfuwpdnvozzjKaAPZ67XtYcFPBvKLYhzvt1o06 yw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dp78dgru1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 Jan 2022 00:28:17 +0000
-Received: from m0127361.ppops.net (m0127361.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 20J0DFNU017809;
-        Wed, 19 Jan 2022 00:28:16 GMT
-Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 3dp78dgrtp-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 Jan 2022 00:28:16 +0000
-Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
-        by ppma04fra.de.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 20J0IA0v007720;
-        Wed, 19 Jan 2022 00:28:14 GMT
-Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
-        by ppma04fra.de.ibm.com with ESMTP id 3dknw9f7v0-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 19 Jan 2022 00:28:14 +0000
-Received: from d06av21.portsmouth.uk.ibm.com (d06av21.portsmouth.uk.ibm.com [9.149.105.232])
-        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 20J0SCRr44106078
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 19 Jan 2022 00:28:12 GMT
-Received: from d06av21.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 45FC852054;
-        Wed, 19 Jan 2022 00:28:12 +0000 (GMT)
-Received: from sig-9-65-88-194.ibm.com (unknown [9.65.88.194])
-        by d06av21.portsmouth.uk.ibm.com (Postfix) with ESMTP id DAB6B5204F;
-        Wed, 19 Jan 2022 00:28:10 +0000 (GMT)
-Message-ID: <c349477264b23b401d6142d686b61b401a52c542.camel@linux.ibm.com>
-Subject: Re: [PATCH] ima: fix reference leak in asymmetric_verify()
-From:   Mimi Zohar <zohar@linux.ibm.com>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     linux-integrity@vger.kernel.org,
-        Dmitry Kasatkin <dmitry.kasatkin@gmail.com>,
-        keyrings@vger.kernel.org, Vitaly Chikunov <vt@altlinux.org>,
-        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
-        Stefan Berger <stefanb@linux.ibm.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        stable@vger.kernel.org
-Date:   Tue, 18 Jan 2022 19:28:10 -0500
-In-Reply-To: <YedY1BCKSKXn2Dcc@sol.localdomain>
-References: <20220113194438.69202-1-ebiggers@kernel.org>
-         <55c5576db2bb0f8a2b9d509f4d1160911388fa41.camel@linux.ibm.com>
-         <YedY1BCKSKXn2Dcc@sol.localdomain>
-Content-Type: text/plain; charset="ISO-8859-15"
-X-Mailer: Evolution 3.28.5 (3.28.5-18.el8) 
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: ldYC7ke2Tse4QaFML4mY9Fy1tvxIJqL4
-X-Proofpoint-ORIG-GUID: e9QuXZGyKkJz8r_4K8TjScVx_7rvzUDF
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        id S238443AbiASAhU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 19:37:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55042 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237177AbiASAhU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 19:37:20 -0500
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E465CC061574
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 16:37:19 -0800 (PST)
+Received: by mail-pf1-x42f.google.com with SMTP id r5so921545pfl.2
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 16:37:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=pV5wap1RlFDizJEBW+mL2wtXBnqBxJARX9+ot//RKpc=;
+        b=ITSflt/ojn0yPC/Uv6B00I4Uf7KfBPfd4KlIvJ1I/M4L5agkS1MdsvhtN++Gi+QFC7
+         cVT1eQthkugoaBkGY8vmHzmXjqkSN3MhOfCSPMCZv/xUrkgyz23fI/myjm1hhRTcdX6f
+         6CM/kkLdBuTtX1LWFzuoxQPHv5vgMtbZ3klx71kJkT65QCzaUsA+p2QGTHFgaIqrjGQ8
+         D7uT0IO9sOpJ9V9omOAwaN9PsI2NntiCeJ93e6C+4amgBJChxs1TGYay1/VOJgLnfmHR
+         Sq8cCuEwAGw8Nj4gFszowz1zG0F+sEFzV90tPtbf2jqu7jDCsd2BIYMdfVUC2hSAsei9
+         lFog==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=pV5wap1RlFDizJEBW+mL2wtXBnqBxJARX9+ot//RKpc=;
+        b=zehwJSkxMZT0SXFJGRxyOuHX0ajpzgxV2Oq+7n9Se1/6E6PklzYqWbjeP+zwVqQnhL
+         oA5AFCmebjDMmmFAxN+2hREKQgRbyM+HqXnS3hP9/BAwJRFIt9ekyGD/pAcIl0mRgi9c
+         KspZt+tbq/xGHyVyb0nSQIcGG4YM0PH1iWOrGsrVxZFFjLohRKK2qGwamROBY69INnzX
+         ngLFUtio1UViBa3dXw6KrZIXOxb1xO1FRYLePBqrrqMPiAdOIanv1HC3iOU8EWrRw2kU
+         agnLbakgxtGFoj9+rwle7EzND0h778BB2Vm5nbWBkHVkdlq4UUkYyz0afumORps5l5YZ
+         +XAw==
+X-Gm-Message-State: AOAM533Pij1djpBsaV1AnenN7ttdQIHT7duZLQ56cmk0/YekaUtlvmSJ
+        M8l/OL5Z8VK4sIZkeCNRtflfz7Zpi757xAyp
+X-Google-Smtp-Source: ABdhPJxKNpoMnov5TLd/YK8kJ1m1ocdqwXSLvCRlPQsOFJPKily3gFAogkZKbEfvU9CdbG1fVee2jA==
+X-Received: by 2002:aa7:8887:0:b0:4c2:6ed0:fc00 with SMTP id z7-20020aa78887000000b004c26ed0fc00mr24210021pfe.65.1642552639305;
+        Tue, 18 Jan 2022 16:37:19 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id p15sm3672568pjj.52.2022.01.18.16.37.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Jan 2022 16:37:19 -0800 (PST)
+Message-ID: <61e75d3f.1c69fb81.4f6a7.a97b@mx.google.com>
+Date:   Tue, 18 Jan 2022 16:37:19 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.205,Aquarius:18.0.816,Hydra:6.0.425,FMLib:17.11.62.513
- definitions=2022-01-18_06,2022-01-18_01,2021-12-02_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 spamscore=0
- mlxlogscore=788 lowpriorityscore=0 mlxscore=0 suspectscore=0 phishscore=0
- priorityscore=1501 adultscore=0 bulkscore=0 clxscore=1015 impostorscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2110150000
- definitions=main-2201180132
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.4.171-35-g6a507169a5ff
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-5.4.y
+Subject: stable-rc/linux-5.4.y baseline: 132 runs,
+ 4 regressions (v5.4.171-35-g6a507169a5ff)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2022-01-18 at 16:18 -0800, Eric Biggers wrote:
-> On Thu, Jan 13, 2022 at 08:52:59PM -0500, Mimi Zohar wrote:
-> > Hi Eric,
-> > 
-> > On Thu, 2022-01-13 at 11:44 -0800, Eric Biggers wrote:
-> > > From: Eric Biggers <ebiggers@google.com>
-> > > 
-> > > Don't leak a reference to the key if its algorithm is unknown.
-> > > 
-> > > Fixes: 947d70597236 ("ima: Support EC keys for signature verification")
-> > > Cc: <stable@vger.kernel.org> # v5.13+
-> > > Signed-off-by: Eric Biggers <ebiggers@google.com>
-> > 
-> > Reviewed-by: Mimi Zohar <zohar@linux.ibm.com>
-> > 
-> 
-> Thanks.  You're intending to apply this patch, right?  Or are you expecting
-> someone else to?  get_maintainer.pl didn't associate this file with IMA, but I
-> see you sent out a patch to fix that
-> (https://lore.kernel.org/linux-integrity/20220117230229.16475-1-zohar@linux.ibm.com/T/#u).
+stable-rc/linux-5.4.y baseline: 132 runs, 4 regressions (v5.4.171-35-g6a507=
+169a5ff)
 
-Once the open window closes, I'll apply it.
+Regressions Summary
+-------------------
 
-Mimi
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
+el/v5.4.171-35-g6a507169a5ff/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.4.y
+  Describe: v5.4.171-35-g6a507169a5ff
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      6a507169a5ff33a54b96499b12c79f71537e0bde =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61e72bae8054b62856abbd2e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.171=
+-35-g6a507169a5ff/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
+arm-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.171=
+-35-g6a507169a5ff/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
+arm-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220115.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61e72bae8054b62856abb=
+d2f
+        failing since 33 days (last pass: v5.4.165, first fail: v5.4.165-19=
+-gb780ab989d60) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61e72bcd2f317d8d8cabbd18
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.171=
+-35-g6a507169a5ff/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
+rm-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.171=
+-35-g6a507169a5ff/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
+rm-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220115.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61e72bcd2f317d8d8cabb=
+d19
+        failing since 33 days (last pass: v5.4.165, first fail: v5.4.165-19=
+-gb780ab989d60) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61e72bac4bb3da324fabbd1e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.171=
+-35-g6a507169a5ff/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
+arm-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.171=
+-35-g6a507169a5ff/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
+arm-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220115.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61e72bac4bb3da324fabb=
+d1f
+        failing since 33 days (last pass: v5.4.165, first fail: v5.4.165-19=
+-gb780ab989d60) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61e72bc94bb3da324fabbd33
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.171=
+-35-g6a507169a5ff/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
+rm-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.171=
+-35-g6a507169a5ff/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_a=
+rm-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220115.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61e72bc94bb3da324fabb=
+d34
+        failing since 33 days (last pass: v5.4.165, first fail: v5.4.165-19=
+-gb780ab989d60) =
+
+ =20
