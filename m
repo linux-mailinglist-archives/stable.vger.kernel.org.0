@@ -2,95 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF6594943D2
-	for <lists+stable@lfdr.de>; Thu, 20 Jan 2022 00:21:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B7304943DE
+	for <lists+stable@lfdr.de>; Thu, 20 Jan 2022 00:28:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344275AbiASXVm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jan 2022 18:21:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53816 "EHLO
+        id S229876AbiASX2p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jan 2022 18:28:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55354 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344210AbiASXVm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Jan 2022 18:21:42 -0500
-Received: from mail-pf1-x44a.google.com (mail-pf1-x44a.google.com [IPv6:2607:f8b0:4864:20::44a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35E26C061574
-        for <stable@vger.kernel.org>; Wed, 19 Jan 2022 15:21:42 -0800 (PST)
-Received: by mail-pf1-x44a.google.com with SMTP id m13-20020a056a00080d00b004be40ef1fd9so2433812pfk.22
-        for <stable@vger.kernel.org>; Wed, 19 Jan 2022 15:21:42 -0800 (PST)
+        with ESMTP id S229866AbiASX2p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Jan 2022 18:28:45 -0500
+Received: from mail-ua1-x92e.google.com (mail-ua1-x92e.google.com [IPv6:2607:f8b0:4864:20::92e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4C12C061574
+        for <stable@vger.kernel.org>; Wed, 19 Jan 2022 15:28:44 -0800 (PST)
+Received: by mail-ua1-x92e.google.com with SMTP id 2so7568856uax.10
+        for <stable@vger.kernel.org>; Wed, 19 Jan 2022 15:28:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=R3Y/gOk08NgtXcS6vykPovrhRLCA2DpTaWszWvKKMv8=;
-        b=c5zgx/4itJnifU5XQnptwovLjitu5KxUpdScwBHS9ppYLx8ucjI2vrBYnNg7vFwLG7
-         VzFrLBx5t7DPwx/PJAna5plHjt7e7TgHwB/G8MXte8rSpYlwAoWRr14WybVs89QLUesC
-         pgsTFv1yPQkaCAzYO9fu7jkDmk6hMnMFPUc864hF/qsMPw8X1Jt+FCfsiojcg4ZvbLI8
-         102AZ7T1DxZAm95v5nl9qYZeoJWr2IO5mHLblewk4l/t/GU9ST8RtuDlZHyxZZkRdK9Z
-         Vfk2b+ssBm7uP69bDqqQQSekf/OqZkeGdNNLY8VgwQdSTBKxSAxeWdSLPREam0I4Tzqy
-         FLGQ==
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=SAvFOz8ghr5oAZyEvyWgFSjE0cOqBv8pLZgD3az/Alw=;
+        b=bsrpLBeEmGPON4IVnn1J9LS41vfyBHVbscaKWsuCglNOrJmCd5wbVfUTccva0jnF4t
+         279q+9zbrD+ZWr8qrelwJQTRhNzSYbs5gig4TBG0nyZEqIinSkCPAxiYOvna0hrEiv5D
+         xoeJC9NwShyhujgekVKeZa14J68SMjQo3LSdBUda1rDhWMATtytzbjfPJCNxcthKatxB
+         wt70R5w+8MsTAylz4/5aRRwYbrOpRn5RU8pogPtfenu6omPyh9m0vxuWpD+rg4Rk5VS2
+         Cm+SF06WzCepcaQQeTQ12imr97K+3TkPsU54aR6k7wXd2b9y4OVXuKL4xdbvd/7zw4B+
+         P/YQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=R3Y/gOk08NgtXcS6vykPovrhRLCA2DpTaWszWvKKMv8=;
-        b=GYtK3TqJiM0fqMSyWy5Qmu0deAYZ2dWSmlRGRm2We8JblIjFiEOnDF8no3d2Yx6xdT
-         y0UwIPmsOLQhteVCR+FOQ9ZTYf9eqfneFnaAJyhdnAvWQCJDBg2JyDehaVDASY1e1/JH
-         3zWeHu0cqSVtTK9hVZdnBAmtLkUQYuhqxJV6vb4WpyF/vnn9tsnGv0WvRhDMf2p1uIix
-         d4wn6/Efc5h3KimzLetzDZ2SLoeI77PSktuWpDXPQcghLb4OOn9sbOQ3lx4Ww3GB+ujl
-         8WaAFu4zfjvSLNh9Ta3bPR8MuhG2iVLQ0hF88lNasjlQpBHjKhrqQ3BYIi4kXBV1qDQh
-         oPXw==
-X-Gm-Message-State: AOAM530e2Q8NZr8UnAdp6n5BnqpFf0HAaBWRiFfdbZ9pfUGYNECKLFf0
-        5ikVd2Dje5YOzEkrfqRBOTO5VPFIB7g=
-X-Google-Smtp-Source: ABdhPJy0tmrWl2qzWMTzlH8xT25SOYiP2Mzw6nzK3q3lsalSqLQ2INJtAheVNXowbPrtzMsxUnxlwxnh370=
-X-Received: from adelva.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:b2b])
- (user=adelva job=sendgmr) by 2002:a05:6a00:2408:b0:4c1:e1a1:770 with SMTP id
- z8-20020a056a00240800b004c1e1a10770mr32410337pfh.70.1642634501702; Wed, 19
- Jan 2022 15:21:41 -0800 (PST)
-Date:   Wed, 19 Jan 2022 23:21:39 +0000
-Message-Id: <20220119232139.1125908-1-adelva@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.34.1.703.g22d0c6ccf7-goog
-Subject: [PATCH] remoteproc: Fix count check in rproc_coredump_write()
-From:   Alistair Delva <adelva@google.com>
-To:     linux-kernel@vger.kernel.org
-Cc:     Rishabh Bhatnagar <rishabhb@codeaurora.org>,
-        stable@vger.kernel.org, Ohad Ben-Cohen <ohad@wizery.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Sibi Sankar <sibis@codeaurora.org>,
-        linux-remoteproc@vger.kernel.org, kernel-team@android.com
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=SAvFOz8ghr5oAZyEvyWgFSjE0cOqBv8pLZgD3az/Alw=;
+        b=YIPr4fqcQjaSP2ADAfT+H8DyhWOMh5ExtTEXuNcFTCm336gwzclnwESG5WZQMwlZE9
+         Ds8mI+uV0qQ8Qk7oI5Xm1p5EXCg+u3k+RNd9Tg56NBRCFNItvvUDG45pOLS8fSJeC3e+
+         SsWNaqDI1bKdFwn+BkqrsLsfhgtxTqesoasFqSESC546fqtuAlWYVsadNsTfdNBGA4Vv
+         B8BNte4tjNLWF0+uYJ4OuvthnJXLcElGUXKOTuMFpElw4QsGuG9/sJ6USHeYnGGgiouv
+         q4oRMsg0yc/L5DcE5rzDTKWYobSMhH9wWAM27yGxVDBFyQ1qN+lV9mpGAg46uex7myVy
+         VS7w==
+X-Gm-Message-State: AOAM532FsoiQKsJ1MblaSaVLSDTbnQiqKBFSCBmluO6xf4YsocE5bYz6
+        5GCA7MPIQOOlRjR6FfazqpCTNGFnbusOKjuW3tLftQ==
+X-Google-Smtp-Source: ABdhPJztNtP2ASrwQij4Hnq8zUdL8VnM6LFy0K4AN9sQGIkxltMSEPOR/5D8UuhwRg2Dmn31bBqJ3tpesxaIKOurOlI=
+X-Received: by 2002:a67:6587:: with SMTP id z129mr140195vsb.61.1642634923681;
+ Wed, 19 Jan 2022 15:28:43 -0800 (PST)
+MIME-Version: 1.0
+References: <20220118230539.323058-1-pcc@google.com> <Yefh00fKOIPj+kYC@hirez.programming.kicks-ass.net>
+In-Reply-To: <Yefh00fKOIPj+kYC@hirez.programming.kicks-ass.net>
+From:   Peter Collingbourne <pcc@google.com>
+Date:   Wed, 19 Jan 2022 15:28:32 -0800
+Message-ID: <CAMn1gO5n6GofyRv6dvpEe0xRekRx=wneQzwP-n=9Qj6Pez6eEg@mail.gmail.com>
+Subject: Re: [PATCH] mm/mmzone.c: fix page_cpupid_xchg_last() to READ_ONCE()
+ the page flags
+To:     Peter Zijlstra <peterz@infradead.org>
+Cc:     Andrey Konovalov <andreyknvl@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux Memory Management List <linux-mm@kvack.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Mel Gorman <mgorman@suse.de>,
+        "# 3.4.x" <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Check count for 0, to avoid a potential underflow. Make the check the
-same as the one in rproc_recovery_write().
+On Wed, Jan 19, 2022 at 2:03 AM Peter Zijlstra <peterz@infradead.org> wrote:
+>
+> On Tue, Jan 18, 2022 at 03:05:39PM -0800, Peter Collingbourne wrote:
+> > After submitting a patch with a compare-exchange loop similar to this
+> > one to set the KASAN tag in the page flags, Andrey Konovalov pointed
+> > out that we should be using READ_ONCE() to read the page flags. Fix
+> > it here.
+>
+> What does it actually fix? If it manages to split the read and read
+> garbage the cmpxchg will fail and we go another round, no harm done.
 
-Fixes: 3afdc59e4390 ("remoteproc: Add coredump debugfs entry")
-Signed-off-by: Alistair Delva <adelva@google.com>
-Cc: Rishabh Bhatnagar <rishabhb@codeaurora.org>
-Cc: stable@vger.kernel.org
-Cc: Ohad Ben-Cohen <ohad@wizery.com>
-Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
-Cc: Sibi Sankar <sibis@codeaurora.org>
-Cc: linux-remoteproc@vger.kernel.org
-Cc: kernel-team@android.com
----
- drivers/remoteproc/remoteproc_debugfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+What I wasn't sure about was whether the compiler would be allowed to
+break this code by hoisting the read of page->flags out of the loop
+(because nothing in the loop actually writes to page->flags aside from
+the compare-exchange, and if that succeeds we're *leaving* the loop).
+That could potentially result in a loop that never terminates if the
+first compare-exchange fails. This is largely a theoretical problem as
+far as I know; the assembly produced by clang and gcc on x86_64 and
+arm64 appears to be doing the expected thing for now, and we're using
+inline asm for compare-exchange instead of the compiler builtins on
+those architectures (and on all other architectures it seems? no
+matches for __atomic_compare_exchange outside of kcsan and the
+selftests) so the compiler wouldn't be able to look inside it anyway.
 
-diff --git a/drivers/remoteproc/remoteproc_debugfs.c b/drivers/remoteproc/remoteproc_debugfs.c
-index b5a1e3b697d9..581930483ef8 100644
---- a/drivers/remoteproc/remoteproc_debugfs.c
-+++ b/drivers/remoteproc/remoteproc_debugfs.c
-@@ -76,7 +76,7 @@ static ssize_t rproc_coredump_write(struct file *filp,
- 	int ret, err = 0;
- 	char buf[20];
- 
--	if (count > sizeof(buf))
-+	if (count < 1 || count > sizeof(buf))
- 		return -EINVAL;
- 
- 	ret = copy_from_user(buf, user_buf, count);
--- 
-2.30.2
+> > Fixes: 75980e97dacc ("mm: fold page->_last_nid into page->flags where possible")
+>
+> As per the above argument, I don't think this rates a Fixes tag, there
+> is no actual fix.
 
+Okay, I'll remove it unless you find the above convincing.
+
+> > Signed-off-by: Peter Collingbourne <pcc@google.com>
+> > Link: https://linux-review.googlesource.com/id/I2e1f5b5b080ac9c4e0eb7f98768dba6fd7821693
+>
+> That's that doing here?
+
+I upload my changes to Gerrit and link to them here so that I (and
+others) can see the progression of the patch via the web UI.
+
+> > Cc: stable@vger.kernel.org
+>
+> That's massively over-selling things.
+
+Fair enough since it isn't causing an actual problem, I'll remove this tag.
+
+> > ---
+> >  mm/mmzone.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> >
+> > diff --git a/mm/mmzone.c b/mm/mmzone.c
+> > index eb89d6e018e2..f84b84b0d3fc 100644
+> > --- a/mm/mmzone.c
+> > +++ b/mm/mmzone.c
+> > @@ -90,7 +90,7 @@ int page_cpupid_xchg_last(struct page *page, int cpupid)
+> >       int last_cpupid;
+> >
+> >       do {
+> > -             old_flags = flags = page->flags;
+> > +             old_flags = flags = READ_ONCE(page->flags);
+> >               last_cpupid = page_cpupid_last(page);
+> >
+> >               flags &= ~(LAST_CPUPID_MASK << LAST_CPUPID_PGSHIFT);
+>
+> I think that if you want to touch that code, something like the below
+> makes more sense...
+
+Yeah, that looks a bit nicer. I'll send a v2 and update the other patch as well.
+
+Peter
