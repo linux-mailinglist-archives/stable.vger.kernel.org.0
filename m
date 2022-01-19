@@ -2,218 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6F67493324
-	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 03:52:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD1D6493351
+	for <lists+stable@lfdr.de>; Wed, 19 Jan 2022 04:08:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350721AbiASCwu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 Jan 2022 21:52:50 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:22081 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S244048AbiASCwt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 21:52:49 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1642560768;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=gHpnsn2NkfuadkUJHw0pU0DVjGRpoEK47XlUcu+C1CQ=;
-        b=IGkvmr5yPN2Rl3aqhW1Urk/XQMosCmOAD7vso67cDEZo+INSdENuNgEIhNDpdXP7HApOmm
-        KBMA407t8RyUQ1PrZfPc2Bdh35BcGw16w7DTFBb3iYIEWQhRgUJfeYkG4Eh1jYvXyRRwtK
-        QhGp515KZ1AxMItSS7Ioc0+e2C0d4FQ=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-524-__MTABNiORixEdKnko8b-w-1; Tue, 18 Jan 2022 21:52:47 -0500
-X-MC-Unique: __MTABNiORixEdKnko8b-w-1
-Received: by mail-lf1-f72.google.com with SMTP id v7-20020a056512048700b0042d99b3a962so522957lfq.23
-        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 18:52:47 -0800 (PST)
+        id S1351172AbiASDIO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 Jan 2022 22:08:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60352 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238949AbiASDIN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 Jan 2022 22:08:13 -0500
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8172C061574
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 19:08:13 -0800 (PST)
+Received: by mail-pj1-x102a.google.com with SMTP id s61-20020a17090a69c300b001b4d0427ea2so4497360pjj.4
+        for <stable@vger.kernel.org>; Tue, 18 Jan 2022 19:08:13 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=2ZSZq1T0fPDSG5l8JETg/PiX/JoeRp79NCgDgseCFFQ=;
+        b=c8ffXS36AqzgEaDB4mE0FcN6twAtQa00BwZ4aTxg88DST2C5X0h3RUYmz0xwAoFPM1
+         d6w01dpG2zd8tzuz+9flgAvBsa1gEWRUO4dzE3fkhxQIGfDiDnCbtcNN0UK7y8ylGCXE
+         Vvv74Pz0XOT7xt3wTkE3cgRQAU2S0n2av1GUREz0yyTwGJSJxdT9D+RrzBaWJwbolJBq
+         mE5ah0566b6LNMqJkaCns0Z6yRpYQTqwAXtpCI+gILEwIJ0U1njzw8VSr+09dUgqzrWp
+         QLliWELF7TSVY8Fau8eKAEaZwXFoCCgtpCMDjvnJcbwDYidWiTyVnsI+n9EiHmCLbFpz
+         qUAw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=gHpnsn2NkfuadkUJHw0pU0DVjGRpoEK47XlUcu+C1CQ=;
-        b=EJtPQut/BTMEWTpDKNvvAoAN2rh/Ww8s/zqJLDIZkx/nTlINvMGRTMzROi7touMz86
-         aid6QP94IgBXwb2Q4Mv12Pb/nNVdB85Rem+xuLZpr6YDUaYwZ91e+MfAD+Sx9174zAif
-         XpAQtE0+IyREpAyCCrM1+/2CCes6yupowrXPdalde8gKnHRD/19YFhI83sMaBceuFca6
-         c28sRdlnOb/URNg1nNIFrfmjJ5RcINlVDxbDo6YSTHjX1IGl8qpLCFh0sU0zr9uY+1k8
-         tKVOc7tUa3ZgDN8dPUcREJrJZFdv+dpc7NoRay4u7qhEhhCOwyI1xlm7Toj0VOzOooLl
-         /Jqw==
-X-Gm-Message-State: AOAM530Gi0mD+0MAhOA76tuhF9bgNt8y90dSA7YePTAlKv2IfcjH70xt
-        lmlqsRA+sNPwxRVAbMrsVymQFSTjxgZhC/l2jVrGl0dq9wAL7EdtCGUaKx8+Kslzs4YJQAIDG4Q
-        u5GguE3ClJ26tQk9bQZo595QcuZLmHH26
-X-Received: by 2002:a05:6512:3b0a:: with SMTP id f10mr21391226lfv.629.1642560765781;
-        Tue, 18 Jan 2022 18:52:45 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJwjlx7+UrF3gEdPjwx5nPlNnkZuqvs+mcSd1Q1R7MKLtS3Xz3+7MscCitPjBMwKq2CO18iBS+jjgO+0dejml+8=
-X-Received: by 2002:a05:6512:3b0a:: with SMTP id f10mr21391207lfv.629.1642560765492;
- Tue, 18 Jan 2022 18:52:45 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=2ZSZq1T0fPDSG5l8JETg/PiX/JoeRp79NCgDgseCFFQ=;
+        b=4SyWah5VcMa5xr+7jkus1Lo3ewGNlB9GXzhUF/Z1Ccmd74AU6P8SUCyOgNxN1Xii4H
+         bbZ6BoJRv13U8sxZP9JiZ/vMFvN/k7gvAqXlJJr6FALI+CfnKELsFidDMtJOkOj3ipbL
+         WWmiINwvw4b62cLj3vJeJl+iR2mHLrj8SjSCsfxkHmv70fNXAovG11izrAk3FKrP86NM
+         UbmDO3WtmMmT/FdC2NI64lIJy3/lIxRkrjnFnEjOtYxUqPqdQ+LCgf8Z882kF/AfCSMr
+         k92r2AxD7ExWqnIR1IFJmmbKcD3SEcfKZOsvsRfuR/LK20Fx1qdnHBELuWR9sLPyD6al
+         3VFQ==
+X-Gm-Message-State: AOAM533Rv46hNDAMnZME6A3e0dXnFiwOlVrBBnwhpyWaTFjF3JcL3qyv
+        5ztflrUhUZ/iQq61JT5cyBFwt5NzJcy89656
+X-Google-Smtp-Source: ABdhPJzUUBk5bozZ2qCvWqGPPJcihxwsXMmpdAUUR4gcpOKbUbyBYF8zFG/twrZewUWIekd2Vhd5FQ==
+X-Received: by 2002:a17:902:e202:b0:14a:e525:b675 with SMTP id u2-20020a170902e20200b0014ae525b675mr4214992plb.11.1642561693110;
+        Tue, 18 Jan 2022 19:08:13 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y129sm17975410pfy.164.2022.01.18.19.08.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 18 Jan 2022 19:08:12 -0800 (PST)
+Message-ID: <61e7809c.1c69fb81.bf4d0.1c26@mx.google.com>
+Date:   Tue, 18 Jan 2022 19:08:12 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20220118170225.30620-1-mst@redhat.com> <20220118170225.30620-2-mst@redhat.com>
-In-Reply-To: <20220118170225.30620-2-mst@redhat.com>
-From:   Jason Wang <jasowang@redhat.com>
-Date:   Wed, 19 Jan 2022 10:52:34 +0800
-Message-ID: <CACGkMEt-Q7baDDUM8aC_Lki1aeO36xi02AE7kEapi5NVqkGErg@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] virtio: acknowledge all features before access
-To:     "Michael S. Tsirkin" <mst@redhat.com>
-Cc:     linux-kernel <linux-kernel@vger.kernel.org>,
-        Cornelia Huck <cohuck@redhat.com>,
-        virtualization <virtualization@lists.linux-foundation.org>,
-        stable@vger.kernel.org, Halil Pasic <pasic@linux.ibm.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.10.91-49-g9703e54f4016
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+Subject: stable-rc/queue/5.10 baseline: 157 runs,
+ 2 regressions (v5.10.91-49-g9703e54f4016)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 19, 2022 at 1:04 AM Michael S. Tsirkin <mst@redhat.com> wrote:
->
-> The feature negotiation was designed in a way that
-> makes it possible for devices to know which config
-> fields will be accessed by drivers.
->
-> This is broken since commit 404123c2db79 ("virtio: allow drivers to
-> validate features") with fallout in at least block and net.  We have a
-> partial work-around in commit 2f9a174f918e ("virtio: write back
-> F_VERSION_1 before validate") which at least lets devices find out which
-> format should config space have, but this is a partial fix: guests
-> should not access config space without acknowledging features since
-> otherwise we'll never be able to change the config space format.
+stable-rc/queue/5.10 baseline: 157 runs, 2 regressions (v5.10.91-49-g9703e5=
+4f4016)
 
-So I guess this is for this part of the spec 3.1.1:
+Regressions Summary
+-------------------
 
-"""
-4. Read device feature bits, and write the subset of feature bits
-understood by the OS and driver to the device. During this step the
-driver MAY read (but MUST NOT write) the device-specific configuration
-fields to check that it can support the device before accepting it.
-"""
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+imx6q-var-dt6customboard | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 2          =
 
-If it is, is this better to quote in the change log?
 
-Other than this,
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.91-49-g9703e54f4016/plan/baseline/
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.91-49-g9703e54f4016
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      9703e54f40169134cce44987fb3c7556b816b0cb =
 
->
-> To fix, split finalize_features from virtio_finalize_features and
-> call finalize_features with all feature bits before validation,
-> and then - if validation changed any bits - once again after.
->
-> Since virtio_finalize_features no longer writes out features
-> rename it to virtio_features_ok - since that is what it does:
-> checks that features are ok with the device.
->
-> As a side effect, this also reduces the amount of hypervisor accesses -
-> we now only acknowledge features once unless we are clearing any
-> features when validating (which is uncommon).
->
-> Cc: stable@vger.kernel.org
-> Fixes: 404123c2db79 ("virtio: allow drivers to validate features")
-> Fixes: 2f9a174f918e ("virtio: write back F_VERSION_1 before validate")
-> Cc: "Halil Pasic" <pasic@linux.ibm.com>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->
-> fixup! virtio: acknowledge all features before access
-> ---
->  drivers/virtio/virtio.c       | 39 ++++++++++++++++++++---------------
->  include/linux/virtio_config.h |  3 ++-
->  2 files changed, 24 insertions(+), 18 deletions(-)
->
-> diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-> index d891b0a354b0..d6396be0ea83 100644
-> --- a/drivers/virtio/virtio.c
-> +++ b/drivers/virtio/virtio.c
-> @@ -166,14 +166,13 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
->  }
->  EXPORT_SYMBOL_GPL(virtio_add_status);
->
-> -static int virtio_finalize_features(struct virtio_device *dev)
-> +/* Do some validation, then set FEATURES_OK */
-> +static int virtio_features_ok(struct virtio_device *dev)
->  {
-> -       int ret = dev->config->finalize_features(dev);
->         unsigned status;
-> +       int ret;
->
->         might_sleep();
-> -       if (ret)
-> -               return ret;
->
->         ret = arch_has_restricted_virtio_memory_access();
->         if (ret) {
-> @@ -244,17 +243,6 @@ static int virtio_dev_probe(struct device *_d)
->                 driver_features_legacy = driver_features;
->         }
->
-> -       /*
-> -        * Some devices detect legacy solely via F_VERSION_1. Write
-> -        * F_VERSION_1 to force LE config space accesses before FEATURES_OK for
-> -        * these when needed.
-> -        */
-> -       if (drv->validate && !virtio_legacy_is_little_endian()
-> -                         && device_features & BIT_ULL(VIRTIO_F_VERSION_1)) {
-> -               dev->features = BIT_ULL(VIRTIO_F_VERSION_1);
-> -               dev->config->finalize_features(dev);
-> -       }
-> -
->         if (device_features & (1ULL << VIRTIO_F_VERSION_1))
->                 dev->features = driver_features & device_features;
->         else
-> @@ -265,13 +253,26 @@ static int virtio_dev_probe(struct device *_d)
->                 if (device_features & (1ULL << i))
->                         __virtio_set_bit(dev, i);
->
-> +       err = dev->config->finalize_features(dev);
-> +       if (err)
-> +               goto err;
-> +
->         if (drv->validate) {
-> +               u64 features = dev->features;
-> +
->                 err = drv->validate(dev);
->                 if (err)
->                         goto err;
-> +
-> +               /* Did validation change any features? Then write them again. */
-> +               if (features != dev->features) {
-> +                       err = dev->config->finalize_features(dev);
-> +                       if (err)
-> +                               goto err;
-> +               }
->         }
->
-> -       err = virtio_finalize_features(dev);
-> +       err = virtio_features_ok(dev);
->         if (err)
->                 goto err;
->
-> @@ -495,7 +496,11 @@ int virtio_device_restore(struct virtio_device *dev)
->         /* We have a driver! */
->         virtio_add_status(dev, VIRTIO_CONFIG_S_DRIVER);
->
-> -       ret = virtio_finalize_features(dev);
-> +       ret = dev->config->finalize_features(dev);
-> +       if (ret)
-> +               goto err;
-> +
-> +       ret = virtio_features_ok(dev);
->         if (ret)
->                 goto err;
->
-> diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-> index 4d107ad31149..dafdc7f48c01 100644
-> --- a/include/linux/virtio_config.h
-> +++ b/include/linux/virtio_config.h
-> @@ -64,8 +64,9 @@ struct virtio_shm_region {
->   *     Returns the first 64 feature bits (all we currently need).
->   * @finalize_features: confirm what device features we'll be using.
->   *     vdev: the virtio_device
-> - *     This gives the final feature bits for the device: it can change
-> + *     This sends the driver feature bits to the device: it can change
->   *     the dev->feature bits if it wants.
-> + * Note: despite the name this can be called any number of times.
->   *     Returns 0 on success or error status
->   * @bus_name: return the bus name associated with the device (optional)
->   *     vdev: the virtio_device
-> --
-> MST
->
 
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+imx6q-var-dt6customboard | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 2          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61e74bd11a4714cfefabbd27
+
+  Results:     4 PASS, 2 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.91-=
+49-g9703e54f4016/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-imx6q-=
+var-dt6customboard.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.91-=
+49-g9703e54f4016/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-imx6q-=
+var-dt6customboard.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220115.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.alert: https://kernelci.org/test/case/id/61e74bd11a4714c=
+fefabbd2e
+        new failure (last pass: v5.10.91-47-g6c855c89aa97)
+        4 lines
+
+    2022-01-18T23:22:46.905892  kern  :alert : 8<--- cut here ---
+    2022-01-18T23:22:46.906526  kern  :alert : Unable to handle kernel NULL=
+ pointer dereference at virtual address 00000313
+    2022-01-18T23:22:46.907386  kern  :alert : pgd =3D (ptrval)<8>[   39.41=
+2823] <LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Dalert RESULT=3Dfail UNITS=3Dline=
+s MEASUREMENT=3D4>
+    2022-01-18T23:22:46.907775  =
+
+    2022-01-18T23:22:46.908034  kern  :alert : [00000313] *pgd=3D00000000   =
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61e74bd11a4714c=
+fefabbd2f
+        new failure (last pass: v5.10.91-47-g6c855c89aa97)
+        46 lines
+
+    2022-01-18T23:22:46.959349  kern  :emerg : Internal error: Oops: 17 [#1=
+] SMP ARM
+    2022-01-18T23:22:46.959642  kern  :emerg : Process kworker/1:5 (pid: 96=
+, stack limit =3D 0x(ptrval))
+    2022-01-18T23:22:46.960158  kern  :emerg : Stack: (0xc36ddd68 to 0xc36d=
+e000)
+    2022-01-18T23:22:46.960422  kern  :emerg : dd60:                   c3a3=
+a1b0 c3a3a1b4 c3a3a000 c3a3a000 c1445ce4 c09e3c94
+    2022-01-18T23:22:46.960670  kern  :emerg : dd80: c36dc000 c1445ce4 0000=
+000c c3a3a000 000002f3 c32ded00 c2001d80 ef85dbc0
+    2022-01-18T23:22:46.961165  kern  :emerg : dda0: c09f13fc c1445ce4 0000=
+000c c234b340 c19c7a10 09d03d33 00000001 c3a80d40
+    2022-01-18T23:22:47.002341  kern  :emerg : ddc0: c3a87300 c3a3a000 c3a3=
+a014 c1445ce4 0000000c c234b340 c19c7a10 c09f13d0
+    2022-01-18T23:22:47.002952  kern  :emerg : dde0: c1443a08 00000000 c3a3=
+a000 fffffdfb bf026000 c22d8c10 00000120 c09c73b0
+    2022-01-18T23:22:47.003244  kern  :emerg : de00: c3a3a000 bf022120 c3a8=
+0340 c3b6cf08 c3b16dc0 c19c7a2c 00000120 c0a23da0
+    2022-01-18T23:22:47.003499  kern  :emerg : de20: c3a80340 c3a80340 c223=
+2c00 c3b16dc0 00000000 c3a80340 c19c7a24 bf08e0a8 =
+
+    ... (36 line(s) more)  =
+
+ =20
