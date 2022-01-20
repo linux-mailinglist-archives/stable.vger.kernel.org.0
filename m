@@ -2,209 +2,223 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C343A4955BB
-	for <lists+stable@lfdr.de>; Thu, 20 Jan 2022 22:01:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AA1E4955E9
+	for <lists+stable@lfdr.de>; Thu, 20 Jan 2022 22:24:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347351AbiATVBV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jan 2022 16:01:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37096 "EHLO
+        id S244366AbiATVYx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jan 2022 16:24:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347149AbiATVBV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Jan 2022 16:01:21 -0500
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03E5AC061574
-        for <stable@vger.kernel.org>; Thu, 20 Jan 2022 13:01:21 -0800 (PST)
-Received: by mail-pj1-x1034.google.com with SMTP id z10-20020a17090acb0a00b001b520826011so2734089pjt.5
-        for <stable@vger.kernel.org>; Thu, 20 Jan 2022 13:01:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=fLgXhexBnlEl9Cvm/QgZ62SvqNIrIWgQ5teLLbDdQwU=;
-        b=PLlpmlRYcBUjoY/kMzsv+/W0F4gei6ObegO4bOKOLZ8Cp9IEjwQSrJgbnRvMq2NgWm
-         AgOIg7Y8i5Pxp1/BZPhXAaMncX/urAiXUabPCO/8YUhu51oRspF44nfuXKbfmPUhj9LG
-         /1tv6Abq+YKHglC/oIEHkI9dC7tb0BxW+oMDzd5SKiW6pqAquaZ1Od8CfiuO58chUE2n
-         z2uGnhttNve07LZOFcS3A/VwTv0qTTDLxU6X0uS3A4Tka+5sqz6+6CE/wKAcGZ17QiP6
-         aXPfcbGz8MvE+KGHo24QfZwYxXIqMm4gp8WzkpUJkReGCt8Gqku9pPt6r5jEPIAlHLL1
-         e8sQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=fLgXhexBnlEl9Cvm/QgZ62SvqNIrIWgQ5teLLbDdQwU=;
-        b=6A8/p2/E0lzOhxCdLbg3hEvjS0SMwc1p0BE2W4vC0t1jJeHen0xjRg2uz2vm8gvUIi
-         Ps8iZA1mhAYv9FD2gwGrnmyeneWAt6NYBbz75r1VlvbUgV+Lw3TZ7Vwgaxq/kO+nwCKo
-         oBoJujpxYTOxPadVhMx1/bnjiNY/BAw0/j2blXzZJizTH27dZCNSUSNHWa8tfHDUd1n+
-         fCpbQmQ3BOYI1HTC5odRrtocWSO5+rA9nJhXKUVW6ua4OuTwBCFI3o0QVvU1tmU8B1Ci
-         jkaPCAQzUkEV2LC4CrIRcEfxgnb9H0cgHD6OGeT+5N/J8NMNU4h/LPU1fFLp27yjZIWv
-         qMCg==
-X-Gm-Message-State: AOAM5335LqTbHdce+iVShS/aRpzU5D9P9QLKYr6l/s+RWFuBBu8zUdp2
-        /RaVfLVM3boo2KsVuHNyC+AaTKgQs5hzTB94
-X-Google-Smtp-Source: ABdhPJzeDgf0HoV9IaHjHyHp/rjwetg/CF09jTSg3d1VP3B7lUMae71ZprR6jhl89SPeALq4YH8eKw==
-X-Received: by 2002:a17:90b:224a:: with SMTP id hk10mr12958279pjb.83.1642712480215;
-        Thu, 20 Jan 2022 13:01:20 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s23sm4735483pfg.144.2022.01.20.13.01.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Jan 2022 13:01:19 -0800 (PST)
-Message-ID: <61e9cd9f.1c69fb81.9509b.d2b8@mx.google.com>
-Date:   Thu, 20 Jan 2022 13:01:19 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S244034AbiATVYw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Jan 2022 16:24:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76BE6C061574;
+        Thu, 20 Jan 2022 13:24:52 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3F834B81E69;
+        Thu, 20 Jan 2022 21:24:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB7A8C340E0;
+        Thu, 20 Jan 2022 21:24:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1642713890;
+        bh=VcJDkpFz3Ety29p86cJgI/LC1Er+RLna7QuXLIk3aXI=;
+        h=Date:From:To:Subject:From;
+        b=Qtf2mNjH6fd2CE0W5SJkc2ZeipIvvvrpMGh5UBV8M4g2ak2UFjJJWKpQO67tSisr+
+         JLLABKIOWbEvdDJVhjd7wQNBcrROcACNs8d78rUWpK9NxVCu5jNa205AquAYCYf5mB
+         swcgSam/CF/NZlKV5Gqp+jNa06AvzPm80uEHX2nQ=
+Date:   Thu, 20 Jan 2022 13:24:49 -0800
+From:   akpm@linux-foundation.org
+To:     hughd@google.com, kirill.shutemov@linux.intel.com,
+        ligang.bdlg@bytedance.com, mm-commits@vger.kernel.org,
+        songmuchun@bytedance.com, stable@vger.kernel.org
+Subject:  [merged]
+ =?US-ASCII?Q?shmem-fix-a-race-between-shmem=5Funused=5Fhuge=5Fshrink-and?=
+ =?US-ASCII?Q?-shmem=5Fevict=5Finode.patch?= removed from -mm tree
+Message-ID: <20220120212449.LA9Nvfar6%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.4.299
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable-rc/linux-4.4.y baseline: 280 runs, 3 regressions (v4.4.299)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y baseline: 280 runs, 3 regressions (v4.4.299)
 
-Regressions Summary
--------------------
+The patch titled
+     Subject: shmem: fix a race between shmem_unused_huge_shrink and shmem_evict_inode
+has been removed from the -mm tree.  Its filename was
+     shmem-fix-a-race-between-shmem_unused_huge_shrink-and-shmem_evict_inode.patch
 
-platform  | arch | lab           | compiler | defconfig           | regress=
-ions
-----------+------+---------------+----------+---------------------+--------=
-----
-panda     | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1      =
-    =
+This patch was dropped because it was merged into mainline or a subsystem tree
 
-panda     | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1      =
-    =
+------------------------------------------------------
+From: Gang Li <ligang.bdlg@bytedance.com>
+Subject: shmem: fix a race between shmem_unused_huge_shrink and shmem_evict_inode
 
-qemu_i386 | i386 | lab-cip       | gcc-10   | i386_defconfig      | 1      =
-    =
+Fix a data race in commit 779750d20b93 ("shmem: split huge pages beyond
+i_size under memory pressure").
+
+Here are call traces causing race:
+
+   Call Trace 1:
+     shmem_unused_huge_shrink+0x3ae/0x410
+     ? __list_lru_walk_one.isra.5+0x33/0x160
+     super_cache_scan+0x17c/0x190
+     shrink_slab.part.55+0x1ef/0x3f0
+     shrink_node+0x10e/0x330
+     kswapd+0x380/0x740
+     kthread+0xfc/0x130
+     ? mem_cgroup_shrink_node+0x170/0x170
+     ? kthread_create_on_node+0x70/0x70
+     ret_from_fork+0x1f/0x30
+
+   Call Trace 2:
+     shmem_evict_inode+0xd8/0x190
+     evict+0xbe/0x1c0
+     do_unlinkat+0x137/0x330
+     do_syscall_64+0x76/0x120
+     entry_SYSCALL_64_after_hwframe+0x3d/0xa2
+
+A simple explanation:
+
+Image there are 3 items in the local list (@list).  In the first
+traversal, A is not deleted from @list.
+
+  1)    A->B->C
+        ^
+        |
+        pos (leave)
+
+In the second traversal, B is deleted from @list.  Concurrently, A is
+deleted from @list through shmem_evict_inode() since last reference
+counter of inode is dropped by other thread.  Then the @list is corrupted.
+
+  2)    A->B->C
+        ^  ^
+        |  |
+     evict pos (drop)
+
+We should make sure the inode is either on the global list or deleted from
+any local list before iput().
+
+Fixed by moving inodes back to global list before we put them.
+
+[akpm@linux-foundation.org: coding style fixes]
+Link: https://lkml.kernel.org/r/20211125064502.99983-1-ligang.bdlg@bytedance.com
+Fixes: 779750d20b93 ("shmem: split huge pages beyond i_size under memory pressure")
+Signed-off-by: Gang Li <ligang.bdlg@bytedance.com>
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ mm/shmem.c |   37 +++++++++++++++++++++----------------
+ 1 file changed, 21 insertions(+), 16 deletions(-)
+
+--- a/mm/shmem.c~shmem-fix-a-race-between-shmem_unused_huge_shrink-and-shmem_evict_inode
++++ a/mm/shmem.c
+@@ -554,7 +554,7 @@ static unsigned long shmem_unused_huge_s
+ 	struct shmem_inode_info *info;
+ 	struct page *page;
+ 	unsigned long batch = sc ? sc->nr_to_scan : 128;
+-	int removed = 0, split = 0;
++	int split = 0;
+ 
+ 	if (list_empty(&sbinfo->shrinklist))
+ 		return SHRINK_STOP;
+@@ -569,7 +569,6 @@ static unsigned long shmem_unused_huge_s
+ 		/* inode is about to be evicted */
+ 		if (!inode) {
+ 			list_del_init(&info->shrinklist);
+-			removed++;
+ 			goto next;
+ 		}
+ 
+@@ -577,12 +576,12 @@ static unsigned long shmem_unused_huge_s
+ 		if (round_up(inode->i_size, PAGE_SIZE) ==
+ 				round_up(inode->i_size, HPAGE_PMD_SIZE)) {
+ 			list_move(&info->shrinklist, &to_remove);
+-			removed++;
+ 			goto next;
+ 		}
+ 
+ 		list_move(&info->shrinklist, &list);
+ next:
++		sbinfo->shrinklist_len--;
+ 		if (!--batch)
+ 			break;
+ 	}
+@@ -602,7 +601,7 @@ next:
+ 		inode = &info->vfs_inode;
+ 
+ 		if (nr_to_split && split >= nr_to_split)
+-			goto leave;
++			goto move_back;
+ 
+ 		page = find_get_page(inode->i_mapping,
+ 				(inode->i_size & HPAGE_PMD_MASK) >> PAGE_SHIFT);
+@@ -616,38 +615,44 @@ next:
+ 		}
+ 
+ 		/*
+-		 * Leave the inode on the list if we failed to lock
+-		 * the page at this time.
++		 * Move the inode on the list back to shrinklist if we failed
++		 * to lock the page at this time.
+ 		 *
+ 		 * Waiting for the lock may lead to deadlock in the
+ 		 * reclaim path.
+ 		 */
+ 		if (!trylock_page(page)) {
+ 			put_page(page);
+-			goto leave;
++			goto move_back;
+ 		}
+ 
+ 		ret = split_huge_page(page);
+ 		unlock_page(page);
+ 		put_page(page);
+ 
+-		/* If split failed leave the inode on the list */
++		/* If split failed move the inode on the list back to shrinklist */
+ 		if (ret)
+-			goto leave;
++			goto move_back;
+ 
+ 		split++;
+ drop:
+ 		list_del_init(&info->shrinklist);
+-		removed++;
+-leave:
++		goto put;
++move_back:
++		/*
++		 * Make sure the inode is either on the global list or deleted
++		 * from any local list before iput() since it could be deleted
++		 * in another thread once we put the inode (then the local list
++		 * is corrupted).
++		 */
++		spin_lock(&sbinfo->shrinklist_lock);
++		list_move(&info->shrinklist, &sbinfo->shrinklist);
++		sbinfo->shrinklist_len++;
++		spin_unlock(&sbinfo->shrinklist_lock);
++put:
+ 		iput(inode);
+ 	}
+ 
+-	spin_lock(&sbinfo->shrinklist_lock);
+-	list_splice_tail(&list, &sbinfo->shrinklist);
+-	sbinfo->shrinklist_len -= removed;
+-	spin_unlock(&sbinfo->shrinklist_lock);
+-
+ 	return split;
+ }
+ 
+_
+
+Patches currently in -mm which might be from ligang.bdlg@bytedance.com are
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
-el/v4.4.299/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.4.y
-  Describe: v4.4.299
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b0ee52316847cf279a1028334117985a5d633c0c =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab           | compiler | defconfig           | regress=
-ions
-----------+------+---------------+----------+---------------------+--------=
-----
-panda     | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1      =
-    =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e3ec69b3b9c29e62ef6743
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.299=
-/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.299=
-/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20211210.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61e3ec69b3b9c29=
-e62ef6746
-        failing since 17 days (last pass: v4.4.296-18-gea28db322a98, first =
-fail: v4.4.297)
-        2 lines
-
-    2022-01-16T09:58:49.344939  [   19.041595] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2022-01-16T09:58:49.388470  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/118
-    2022-01-16T09:58:49.397841  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-25c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =
-
-
-
-platform  | arch | lab           | compiler | defconfig           | regress=
-ions
-----------+------+---------------+----------+---------------------+--------=
-----
-panda     | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1      =
-    =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e998b9eb656cbe91abbd2b
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.299=
-/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.299=
-/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220115.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61e998b9eb656cb=
-e91abbd31
-        failing since 17 days (last pass: v4.4.296-18-gea28db322a98, first =
-fail: v4.4.297)
-        2 lines
-
-    2022-01-20T17:15:14.030747  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/119
-    2022-01-20T17:15:14.040203  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-25c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2022-01-20T17:15:14.057106  [   19.355377] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =
-
-
-
-platform  | arch | lab           | compiler | defconfig           | regress=
-ions
-----------+------+---------------+----------+---------------------+--------=
-----
-qemu_i386 | i386 | lab-cip       | gcc-10   | i386_defconfig      | 1      =
-    =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e99986297ef36a9fabbd1b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: i386_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.299=
-/i386/i386_defconfig/gcc-10/lab-cip/baseline-qemu_i386.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.299=
-/i386/i386_defconfig/gcc-10/lab-cip/baseline-qemu_i386.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220115.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61e99986297ef36a9fabb=
-d1c
-        new failure (last pass: v4.4.299-10-g5f58931b34ba) =
-
- =20
