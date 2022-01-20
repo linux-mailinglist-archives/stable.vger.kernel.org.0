@@ -2,92 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 851824955A3
-	for <lists+stable@lfdr.de>; Thu, 20 Jan 2022 21:48:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 124434955B1
+	for <lists+stable@lfdr.de>; Thu, 20 Jan 2022 21:57:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347203AbiATUsu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jan 2022 15:48:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34372 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377539AbiATUss (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Jan 2022 15:48:48 -0500
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B23DC061574
-        for <stable@vger.kernel.org>; Thu, 20 Jan 2022 12:48:47 -0800 (PST)
-Received: by mail-pf1-x42e.google.com with SMTP id a8so1304952pfa.6
-        for <stable@vger.kernel.org>; Thu, 20 Jan 2022 12:48:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=XIum57TJjEo8tnkhLenk48MFnTWbdQGql8jgVrRZrVA=;
-        b=ehNc6gxRVlLhflcSTEpvrjLGARHnueLoRocFb1J9aJY4NBkDniCVxAOZ1GqnY9fdrD
-         I5/MnSculaqoKYYEjgYmaz9P5PFLCgnll+6pSXDBYkhb01zlNsRdSMJcy5COR4aPSgif
-         OsU2IypIfnxVhwUidcYrq5BiIbhz1/wco1U/wtrPsF18X/rWdH9J1ZlTkefe+mwhcl6V
-         qnqI2OeVbdp3xqven4FlJ03nrR51JFUURKXbQRCVnWXRNQ0W2nbiKOhLmfxpObaqumQR
-         ArB2hx8r7A39b+AGcFf06gggscbuggELNUvEjPSmxjpxtNzt9bXP5eFZw0FetD0Z7P8z
-         bXLw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to:content-transfer-encoding;
-        bh=XIum57TJjEo8tnkhLenk48MFnTWbdQGql8jgVrRZrVA=;
-        b=79pTnuTv2t42hOo2iwabgUj27LiiO6ZyiwA1K6zE6g/hLGapGcLNstwZmVOFWLU6b+
-         mKIz/dRSF0nXth89q4SK9M5VeTa0PS+9SmIHTomxs0kJH26jpLcP6wNruN4eA1bSifwS
-         hVDVWOypOoTqlmyDB6eG9VLBvAYh4hkGEPlEfmfC2MbLJY7zELqq+XVNw8ibLxAvRqu7
-         /q9vws+TcYty5PoCypy5J/+sScfjQOmlQIGskPo32wSQZImbUJu1Ayzx6ohrfCsN9HQ4
-         dEoY+qyIKhdoXv0AJ5zmJml0T+XaIUuWmwFGRH64lAK0VSFIWduP+yeHchiAQKm0zhbA
-         g6Cw==
-X-Gm-Message-State: AOAM531lYv10IUfnrQC/WK12dKHa5FqHa2O8d2j9PAMhnfVwgcFBMNs5
-        cG35TNX4RMxOU9lsX2hq8sYHJ2Iv0DkeQ6ZnH68=
-X-Google-Smtp-Source: ABdhPJw3GTJVCi/gbbZGbgs3RodeLDLrb4CPKhkz7YckGeDaZaOIjCN3KkTvJJiu5Pbu+Td3Q5+atdtuXG5kE5ZT3b0=
-X-Received: by 2002:a05:6a00:2310:b0:4c3:d3e:3667 with SMTP id
- h16-20020a056a00231000b004c30d3e3667mr754313pfh.69.1642711726774; Thu, 20 Jan
- 2022 12:48:46 -0800 (PST)
+        id S1347398AbiATU5I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jan 2022 15:57:08 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:47466 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347149AbiATU5I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Jan 2022 15:57:08 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EBBE1B81D71
+        for <stable@vger.kernel.org>; Thu, 20 Jan 2022 20:57:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8F00C340E0;
+        Thu, 20 Jan 2022 20:57:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1642712225;
+        bh=O0dlZk30EXXcZC1gCB8mAnrg2iwiX1zmHwPJ7BIjISk=;
+        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
+        b=pWZT43kFLxsaf/yKkg/3mJT9fUOsJuJqNMMSIcWWHdCt8XO053xpi24Wr8AXKKCGl
+         cfWR/N3j6yfUri18MzuVuExW19idW/4QY4nnf0aS/Yl+GAOUoO91Hq3OKYNuxl68fR
+         OQa3Ou/1ePvzJu1cZRNtzOTqsEe0UG0a82SU1TfqOXdLsp38AvjrbkuXCrqyGaAKdv
+         k6LwI9xv6H0mss6BN+5IB0mctCLUxGwGsDuui3gMoycIc5zlLaEuiK6Hz0W8ldkf0q
+         TBLpqc+Eer9wfUcuS4knUIBlTKvK2W8mIIqlwmnplh3NCPj+xvjFoN8XOkcV/04k57
+         6KvmJvuBIHMHA==
+Received: by paulmck-ThinkPad-P17-Gen-1.home (Postfix, from userid 1000)
+        id 6908C5C0367; Thu, 20 Jan 2022 12:57:05 -0800 (PST)
+Date:   Thu, 20 Jan 2022 12:57:05 -0800
+From:   "Paul E. McKenney" <paulmck@kernel.org>
+To:     Guillaume Morin <guillaume@morinfr.org>
+Cc:     gregkh@linuxfoundation.org, stable@vger.kernel.org,
+        neelx@redhat.com
+Subject: Re: [PATCH for stable 5.x] rcu: Tighten rcu_advance_cbs_nowake()
+ checks
+Message-ID: <20220120205705.GQ947480@paulmck-ThinkPad-P17-Gen-1>
+Reply-To: paulmck@kernel.org
+References: <YemwBdpmBeC03JeT@bender.morinfr.org>
+ <20220120191600.GP947480@paulmck-ThinkPad-P17-Gen-1>
+ <Yem3fsHWahJEvjsk@bender.morinfr.org>
 MIME-Version: 1.0
-Received: by 2002:a05:6a20:3a70:b0:6a:9d74:ba2a with HTTP; Thu, 20 Jan 2022
- 12:48:46 -0800 (PST)
-Reply-To: mrahmedibrahim199@gmail.com
-From:   Mr Ahmed Ibrahim <chiomamarceel@gmail.com>
-Date:   Thu, 20 Jan 2022 12:48:46 -0800
-Message-ID: <CAN4f8S7mZ13Gxj8unhDRya945KGxJhvP=3exSeqCYiBRyAG7LQ@mail.gmail.com>
-Subject: Greetings
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Yem3fsHWahJEvjsk@bender.morinfr.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---=20
-My Good Friend
+On Thu, Jan 20, 2022 at 08:26:54PM +0100, Guillaume Morin wrote:
+> On 20 Jan 11:16, Paul E. McKenney wrote:
+> > On Thu, Jan 20, 2022 at 07:55:01PM +0100, Guillaume Morin wrote:
+> > > I believe commit 614ddad17f22a22e035e2ea37a04815f50362017 (slated for
+> > > 5.17) should be queued for all 5.4+ stable branches as it fixes a
+> > > serious lockup bug. FWIW I have verified it applies cleanly on all 4
+> > > branches.
+> > > 
+> > > Does that make sense to you?
+> > 
+> > From a quick glance at v5.4, it looks quite plausible to me.
+> > 
+> > I do suggest that you try building and testing, given that the hardware's
+> > idea of what is plausible overrides that of either of us.  ;-)
+> 
+> We've had a few dozens lockups on 5.4 and 5.10 due to this bug (what
+> lead me to write to you back in Sep). The original bugzilla report is on
+> 5.4 as well, see https://bugzilla.kernel.org/show_bug.cgi?id=208685. So
+> I am positive that the issue is reachable in both kernels.
+> 
+> Also I do know for sure it fixes the problem for 5.10. I don't have a
+> test rig anymore for 5.4. But considering we know it's reachable with
+> 5.4, I think the patch should be applied for 5.4+. Obviously, you're the
+> expert here though.
 
-I'm deeply sorry to berg into your privacy as we haven't met before,
-as a matter of fact, I will be very brief since I'm in urgent need of
-a trust person to help move out a valuable funds deposit by later
-Libyan leader Muammar Gaddafi into a foreign bank account which will
-later be used for any profitable joint investment between me and you,
+Au contraire!  I do not claim much expertise on -stable validation.
 
-as a civil servant i cannot do this alone, The Libya=E2=80=99s sovereign
-wealth fund said five EU countries paid out money from frozen accounts
-in Europe that once belonged to Muammar Qaddafi despite international
-sanctions, according to POLITICO.
+If it was me, I would run a quick touch-test like this from the top-level
+directory of the Linux-kernel source tree on a qemu/KVM-capable system:
 
-But no one are aware of this Total Amount is $19.5 Million us Dollars
-that currently available under QNB Fineness bank Turkey and placed in
-an ESCROW CALL ACCOUNT without a beneficiary, it will be of advantage
-for me to solicit for a foreigner on my behalf since the funds origin
-is from a genuine source. Total Amount is $19.5 Million us Dollars.
+	tools/testing/selftests/rcutorture/bin/kvm.sh --cpus N --duration 10 --configs "TREE01 TREE04"
 
-https://english.alarabiya.net/en/features/2018/11/18/Where-are-Libya-s-bill=
-ions-under-Qaddafi-abroad-and-who-benefits-from-them-
+Where "N" is replaced by the number of CPUs on your system, which should
+preferably be at least eight.
 
-https://www.politico.eu/article/muammar-gaddafi-frozen-funds-belgium-unknow=
-n-beneficiaries/
+This will take somewhere between 15 minutes and an hour to run, depending
+on your system.
 
-For more details kindly indicate your willingness by responding via my
-private email id below=3D=3D=3D=3D
-mrahmedibrahim199@gmail.com
+Sadly, v5.4 isn't quite as good at analyzing results as are current
+versions, but please feel free to send me the output.
 
- Best regards,
-From Mr Ahmed Ibrahim
+Does that help?
+
+							Thanx, Paul
