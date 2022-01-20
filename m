@@ -2,158 +2,265 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F59C49555E
-	for <lists+stable@lfdr.de>; Thu, 20 Jan 2022 21:22:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B00349556B
+	for <lists+stable@lfdr.de>; Thu, 20 Jan 2022 21:28:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377618AbiATUWH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jan 2022 15:22:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56694 "EHLO
+        id S229880AbiATU2K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jan 2022 15:28:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377629AbiATUWD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Jan 2022 15:22:03 -0500
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97905C061401
-        for <stable@vger.kernel.org>; Thu, 20 Jan 2022 12:22:03 -0800 (PST)
-Received: by mail-pj1-x102d.google.com with SMTP id d5so4634318pjk.5
-        for <stable@vger.kernel.org>; Thu, 20 Jan 2022 12:22:03 -0800 (PST)
+        with ESMTP id S229701AbiATU2J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Jan 2022 15:28:09 -0500
+Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B404C061574;
+        Thu, 20 Jan 2022 12:28:09 -0800 (PST)
+Received: by mail-pj1-x102e.google.com with SMTP id h12so7054674pjq.3;
+        Thu, 20 Jan 2022 12:28:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=/6uTobqv79hNMYo9r0wOKv/XGMOzEV1zOZ6YKwDSEAY=;
-        b=lH5zR6ehy/6wrZEigw4Gdf1TZK4BDBjWTKsvSO5H20Hlx9zKbQO6y7aYVLXGFlpjmS
-         rm85Z48HeS0ckZ9IIuy5v42hvy9JdyYgrqY4CmRRYb2xeYksPJ7yf71QSLlX18HWTbek
-         WxMvGp1RcwnKdthFIemkJHrox8h5PTloxkjex7tJ7X+y03+HnOTORtKmj+bfL8pIPkiD
-         x5vqEzsgYqP9sw64QGH4ikT1IvWEDmNuoD/22OilVVHlNa+itvqkKlSkEVvJ8T+Bphmp
-         P1+1uxN7zfAyThA5AH3G6qVWuvVirMbAK/GW0c6RbF3WDpmY612ix3oDsx2RRFOVmSQf
-         4DDg==
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=CI7NDBFAkGXfidbJOW8wXZoiOshWSUhW2QoHzW3cfQk=;
+        b=O6ImPnT/ScJ1yJPH0+wBjdMg0vhRmstquWv/7DS5f3LQBN8VcQEhubPmYPrfp0FY7u
+         9Gw8EvurKwLcqMBeeKVj2NqK9c7DLJmIX7zyXE6AzMckd5UAOZtPrP11GkMYfIZvt0Mv
+         /CjMLlnlsEFMq1/IvKxAdlnYiVJxZvTEj5KF/Vphuk7lmfiLtJcA2/3p6JfXrpgow98q
+         HjdwJsfprOK/lGs288M6WtAeqjA3lpG3B944t5o2Lr8wFIFL6MSfUY3OSVDP9j3Uxi4r
+         gZ7jf/6WIUpDA5q1RgRrP8tb0b7U7wtd84cM5TGoCs2Bec4Iz1Sia582iVjFCanYP0m8
+         omNQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=/6uTobqv79hNMYo9r0wOKv/XGMOzEV1zOZ6YKwDSEAY=;
-        b=VOJsOtZZvoU1gdaer3rQawbn0IBkqW1tQcibD/ZPKG1ppWiVggPGsV9AI6cDvj92tJ
-         n+1rzv/d+LuD54nP93p4fry9o8wV3V0YJP+EqWYM8nZkRX/WMtb5IwITO9fSxTBlCI28
-         eABOUNSFdBB/q9aBfyoGBi5GWZ87kI1CiceTn4sq1EUv373oV91/AK8xCiK2iXNV+7wC
-         zhc5jJHdePQJWiRNX0Z9s5iiQf+35orVyPFGOgZL08L1giQJLZsrE7d99muwQ7LT2hSt
-         b8HM/5ILZlwHDmzYta2E6UyZ1lcatyovs+lXlbiGuhOMUPBwHsGWSQAMxXXZIlA8oH2K
-         JRVA==
-X-Gm-Message-State: AOAM531/zvC3k3LJ9FT0ezmMFdoOA2HMk1n0kKQniBWw27NtVHt+XwJK
-        yLBBECPEHlftj7yO7G8Btw82zpDbKCdxH1yF
-X-Google-Smtp-Source: ABdhPJwB5+uvOBVKyNFVt+bwy74xUE6aU7HQ0mXqo4VJnfTdFaV7m2qq4V/sblqkytbi+eO1w7JfFA==
-X-Received: by 2002:a17:90b:1c02:: with SMTP id oc2mr12809932pjb.31.1642710122986;
-        Thu, 20 Jan 2022 12:22:02 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id e6sm3158666pgi.43.2022.01.20.12.22.02
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=CI7NDBFAkGXfidbJOW8wXZoiOshWSUhW2QoHzW3cfQk=;
+        b=aRSEMaDWkshIEeuq64ukjg2D7YgtVY/fPLSUHKg1ixhG75/sQyJoEr1AwX6VSgp+Ed
+         2OOMyvBc2YwqMwgEd6bkFFfslTKUXFsU/67mbyp13WeMcNd7eVQL2wP7WLZ7YbWm4lry
+         pGn7J1KjojlUBMNDebq2wsF9yNZG9cH+PNBe1okLQbffklLeiJdn0O8rgkkJmWH9FWX6
+         gFkdqDtJQq9N8SWvmaktIKdXtZuGC0Kgifx/TFf/XaroruSJSO02luCGY0vzjAK8rKB9
+         ZlTj4oBPGtzuJCo+pzweYrUcXcVzMjRsgJPfygsOWwwmU4Eet+hvMx5N6R8wB8BQa+cN
+         ajIQ==
+X-Gm-Message-State: AOAM530Fu8sIwnEyJm3KsKRdWg2jZX25sbdq94F7uUFcfTErUllKUsgj
+        jEwc8wqRTy3o8g6SP7CIK6Y=
+X-Google-Smtp-Source: ABdhPJzrkABpytO1HoyWMwxlgkChZMTBPkgeCN4n/9xZP6sdrZo+BE52sUsnimcBi7XyC/6qS7cC2w==
+X-Received: by 2002:a17:902:f545:b0:14b:18f:9389 with SMTP id h5-20020a170902f54500b0014b018f9389mr436844plf.25.1642710488625;
+        Thu, 20 Jan 2022 12:28:08 -0800 (PST)
+Received: from localhost.localdomain (c-67-174-241-145.hsd1.ca.comcast.net. [67.174.241.145])
+        by smtp.gmail.com with ESMTPSA id d18sm4506668pfv.173.2022.01.20.12.28.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Jan 2022 12:22:02 -0800 (PST)
-Message-ID: <61e9c46a.1c69fb81.e276b.9787@mx.google.com>
-Date:   Thu, 20 Jan 2022 12:22:02 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        Thu, 20 Jan 2022 12:28:07 -0800 (PST)
+From:   Yang Shi <shy828301@gmail.com>
+To:     kirill.shutemov@linux.intel.com, jannh@google.com,
+        willy@infradead.org, akpm@linux-foundation.org
+Cc:     shy828301@gmail.com, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [v2 PATCH] fs/proc: task_mmu.c: don't read mapcount for migration entry
+Date:   Thu, 20 Jan 2022 12:28:05 -0800
+Message-Id: <20220120202805.3369-1-shy828301@gmail.com>
+X-Mailer: git-send-email 2.26.3
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.15.16
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.15.y
-Subject: stable-rc/linux-5.15.y baseline: 173 runs, 2 regressions (v5.15.16)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.15.y baseline: 173 runs, 2 regressions (v5.15.16)
+The syzbot reported the below BUG:
 
-Regressions Summary
--------------------
+kernel BUG at include/linux/page-flags.h:785!
+invalid opcode: 0000 [#1] PREEMPT SMP KASAN
+CPU: 1 PID: 4392 Comm: syz-executor560 Not tainted 5.16.0-rc6-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+RIP: 0010:PageDoubleMap include/linux/page-flags.h:785 [inline]
+RIP: 0010:__page_mapcount+0x2d2/0x350 mm/util.c:744
+Code: e8 d3 16 d1 ff 48 c7 c6 c0 00 b6 89 48 89 ef e8 94 4e 04 00 0f 0b e8 bd 16 d1 ff 48 c7 c6 60 01 b6 89 48 89 ef e8 7e 4e 04 00 <0f> 0b e8 a7 16 d1 ff 48 c7 c6 a0 01 b6 89 4c 89 f7 e8 68 4e 04 00
+RSP: 0018:ffffc90002b6f7b8 EFLAGS: 00010293
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: ffff888019619d00 RSI: ffffffff81a68c12 RDI: 0000000000000003
+RBP: ffffea0001bdc2c0 R08: 0000000000000029 R09: 00000000ffffffff
+R10: ffffffff8903e29f R11: 00000000ffffffff R12: 00000000ffffffff
+R13: 00000000ffffea00 R14: ffffc90002b6fb30 R15: ffffea0001bd8001
+FS:  00007faa2aefd700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fff7e663318 CR3: 0000000018c6e000 CR4: 00000000003506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ page_mapcount include/linux/mm.h:837 [inline]
+ smaps_account+0x470/0xb10 fs/proc/task_mmu.c:466
+ smaps_pte_entry fs/proc/task_mmu.c:538 [inline]
+ smaps_pte_range+0x611/0x1250 fs/proc/task_mmu.c:601
+ walk_pmd_range mm/pagewalk.c:128 [inline]
+ walk_pud_range mm/pagewalk.c:205 [inline]
+ walk_p4d_range mm/pagewalk.c:240 [inline]
+ walk_pgd_range mm/pagewalk.c:277 [inline]
+ __walk_page_range+0xe23/0x1ea0 mm/pagewalk.c:379
+ walk_page_vma+0x277/0x350 mm/pagewalk.c:530
+ smap_gather_stats.part.0+0x148/0x260 fs/proc/task_mmu.c:768
+ smap_gather_stats fs/proc/task_mmu.c:741 [inline]
+ show_smap+0xc6/0x440 fs/proc/task_mmu.c:822
+ seq_read_iter+0xbb0/0x1240 fs/seq_file.c:272
+ seq_read+0x3e0/0x5b0 fs/seq_file.c:162
+ vfs_read+0x1b5/0x600 fs/read_write.c:479
+ ksys_read+0x12d/0x250 fs/read_write.c:619
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+RIP: 0033:0x7faa2af6c969
+Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 11 15 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007faa2aefd288 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
+RAX: ffffffffffffffda RBX: 00007faa2aff4418 RCX: 00007faa2af6c969
+RDX: 0000000000002025 RSI: 0000000020000100 RDI: 0000000000000003
+RBP: 00007faa2aff4410 R08: 00007faa2aefd700 R09: 0000000000000000
+R10: 00007faa2aefd700 R11: 0000000000000246 R12: 00007faa2afc20ac
+R13: 00007fff7e6632bf R14: 00007faa2aefd400 R15: 0000000000022000
+ </TASK>
+Modules linked in:
+---[ end trace 24ec93ff95e4ac3d ]---
+RIP: 0010:PageDoubleMap include/linux/page-flags.h:785 [inline]
+RIP: 0010:__page_mapcount+0x2d2/0x350 mm/util.c:744
+Code: e8 d3 16 d1 ff 48 c7 c6 c0 00 b6 89 48 89 ef e8 94 4e 04 00 0f 0b e8 bd 16 d1 ff 48 c7 c6 60 01 b6 89 48 89 ef e8 7e 4e 04 00 <0f> 0b e8 a7 16 d1 ff 48 c7 c6 a0 01 b6 89 4c 89 f7 e8 68 4e 04 00
+RSP: 0018:ffffc90002b6f7b8 EFLAGS: 00010293
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: ffff888019619d00 RSI: ffffffff81a68c12 RDI: 0000000000000003
+RBP: ffffea0001bdc2c0 R08: 0000000000000029 R09: 00000000ffffffff
+R10: ffffffff8903e29f R11: 00000000ffffffff R12: 00000000ffffffff
+R13: 00000000ffffea00 R14: ffffc90002b6fb30 R15: ffffea0001bd8001
+FS:  00007faa2aefd700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fff7e663318 CR3: 0000000018c6e000 CR4: 00000000003506e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
 
-platform           | arch  | lab          | compiler | defconfig           =
-| regressions
--------------------+-------+--------------+----------+---------------------=
-+------------
-beagle-xm          | arm   | lab-baylibre | gcc-10   | omap2plus_defconfig =
-| 1          =
+The reproducer was trying to reading /proc/$PID/smaps when calling
+MADV_FREE at the mean time.  MADV_FREE may split THPs if it is called
+for partial THP.  It may trigger the below race:
 
-kontron-pitx-imx8m | arm64 | lab-kontron  | gcc-10   | defconfig           =
-| 1          =
+         CPU A                         CPU B
+         -----                         -----
+smaps walk:                      MADV_FREE:
+page_mapcount()
+  PageCompound()
+                                 split_huge_page()
+  page = compound_head(page)
+  PageDoubleMap(page)
 
+When calling PageDoubleMap() this page is not a tail page of THP anymore
+so the BUG is triggered.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
-nel/v5.15.16/plan/baseline/
+This could be fixed by elevated refcount of the page before calling
+mapcount, but it prevents from counting migration entries, and it seems
+overkilling because the race just could happen when PMD is split so all
+PTE entries of tail pages are actually migration entries, and
+smaps_account() does treat migration entries as mapcount == 1 as Kirill
+pointed out.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.15.y
-  Describe: v5.15.16
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      63dcc388662c3562de94d69bfa771ae4cd29b79f =
+Add a new parameter for smaps_account() to tell this entry is migration
+entry then skip calling page_mapcount().  Don't skip getting mapcount for
+device private entries since they do track references with mapcount.
 
+Fixes: b1d4d9e0cbd0 ("proc/smaps: carefully handle migration entries")
+Reported-by: syzbot+1f52b3a18d5633fa7f82@syzkaller.appspotmail.com
+Cc: "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Yang Shi <shy828301@gmail.com>
+---
+v2: * Added proper fix tag per Jann Horn
+    * Rebased to the latest linus's tree
 
+ fs/proc/task_mmu.c | 27 +++++++++++++++++++++------
+ 1 file changed, 21 insertions(+), 6 deletions(-)
 
-Test Regressions
----------------- =
+diff --git a/fs/proc/task_mmu.c b/fs/proc/task_mmu.c
+index 18f8c3acbb85..2bb567014d77 100644
+--- a/fs/proc/task_mmu.c
++++ b/fs/proc/task_mmu.c
+@@ -440,7 +440,8 @@ static void smaps_page_accumulate(struct mem_size_stats *mss,
+ }
+ 
+ static void smaps_account(struct mem_size_stats *mss, struct page *page,
+-		bool compound, bool young, bool dirty, bool locked)
++		bool compound, bool young, bool dirty, bool locked,
++		bool migration)
+ {
+ 	int i, nr = compound ? compound_nr(page) : 1;
+ 	unsigned long size = nr * PAGE_SIZE;
+@@ -467,8 +468,12 @@ static void smaps_account(struct mem_size_stats *mss, struct page *page,
+ 	 * page_count(page) == 1 guarantees the page is mapped exactly once.
+ 	 * If any subpage of the compound page mapped with PTE it would elevate
+ 	 * page_count().
++	 *
++	 * Treated regular migration entries as mapcount == 1 without reading
++	 * mapcount since calling page_mapcount() for migration entries is
++	 * racy against THP splitting.
+ 	 */
+-	if (page_count(page) == 1) {
++	if ((page_count(page) == 1) || migration) {
+ 		smaps_page_accumulate(mss, page, size, size << PSS_SHIFT, dirty,
+ 			locked, true);
+ 		return;
+@@ -517,6 +522,7 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
+ 	struct vm_area_struct *vma = walk->vma;
+ 	bool locked = !!(vma->vm_flags & VM_LOCKED);
+ 	struct page *page = NULL;
++	bool migration = false;
+ 
+ 	if (pte_present(*pte)) {
+ 		page = vm_normal_page(vma, addr, *pte);
+@@ -536,8 +542,11 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
+ 			} else {
+ 				mss->swap_pss += (u64)PAGE_SIZE << PSS_SHIFT;
+ 			}
+-		} else if (is_pfn_swap_entry(swpent))
++		} else if (is_pfn_swap_entry(swpent)) {
++			if (is_migration_entry(swpent))
++				migration = true;
+ 			page = pfn_swap_entry_to_page(swpent);
++		}
+ 	} else {
+ 		smaps_pte_hole_lookup(addr, walk);
+ 		return;
+@@ -546,7 +555,8 @@ static void smaps_pte_entry(pte_t *pte, unsigned long addr,
+ 	if (!page)
+ 		return;
+ 
+-	smaps_account(mss, page, false, pte_young(*pte), pte_dirty(*pte), locked);
++	smaps_account(mss, page, false, pte_young(*pte), pte_dirty(*pte),
++		      locked, migration);
+ }
+ 
+ #ifdef CONFIG_TRANSPARENT_HUGEPAGE
+@@ -557,6 +567,7 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
+ 	struct vm_area_struct *vma = walk->vma;
+ 	bool locked = !!(vma->vm_flags & VM_LOCKED);
+ 	struct page *page = NULL;
++	bool migration = false;
+ 
+ 	if (pmd_present(*pmd)) {
+ 		/* FOLL_DUMP will return -EFAULT on huge zero page */
+@@ -564,8 +575,10 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
+ 	} else if (unlikely(thp_migration_supported() && is_swap_pmd(*pmd))) {
+ 		swp_entry_t entry = pmd_to_swp_entry(*pmd);
+ 
+-		if (is_migration_entry(entry))
++		if (is_migration_entry(entry)) {
++			migration = true;
+ 			page = pfn_swap_entry_to_page(entry);
++		}
+ 	}
+ 	if (IS_ERR_OR_NULL(page))
+ 		return;
+@@ -577,7 +590,9 @@ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
+ 		/* pass */;
+ 	else
+ 		mss->file_thp += HPAGE_PMD_SIZE;
+-	smaps_account(mss, page, true, pmd_young(*pmd), pmd_dirty(*pmd), locked);
++
++	smaps_account(mss, page, true, pmd_young(*pmd), pmd_dirty(*pmd),
++		      locked, migration);
+ }
+ #else
+ static void smaps_pmd_entry(pmd_t *pmd, unsigned long addr,
+-- 
+2.26.3
 
-
-
-platform           | arch  | lab          | compiler | defconfig           =
-| regressions
--------------------+-------+--------------+----------+---------------------=
-+------------
-beagle-xm          | arm   | lab-baylibre | gcc-10   | omap2plus_defconfig =
-| 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e991507e7b03c91cabbd47
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
-6/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle-xm.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
-6/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-beagle-xm.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220115.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61e991507e7b03c91cabb=
-d48
-        new failure (last pass: v5.15.14-70-g9cb47c4d3cbf) =
-
- =
-
-
-
-platform           | arch  | lab          | compiler | defconfig           =
-| regressions
--------------------+-------+--------------+----------+---------------------=
-+------------
-kontron-pitx-imx8m | arm64 | lab-kontron  | gcc-10   | defconfig           =
-| 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e98e2c8d707fb00fabbdb6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
-6/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx-imx8m.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.1=
-6/arm64/defconfig/gcc-10/lab-kontron/baseline-kontron-pitx-imx8m.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220115.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61e98e2c8d707fb00fabb=
-db7
-        new failure (last pass: v5.15.14-41-g760a85303c5a) =
-
- =20
