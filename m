@@ -2,133 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B7304943DE
-	for <lists+stable@lfdr.de>; Thu, 20 Jan 2022 00:28:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CA53494407
+	for <lists+stable@lfdr.de>; Thu, 20 Jan 2022 01:12:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229876AbiASX2p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jan 2022 18:28:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55354 "EHLO
+        id S1357654AbiATALj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jan 2022 19:11:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229866AbiASX2p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Jan 2022 18:28:45 -0500
-Received: from mail-ua1-x92e.google.com (mail-ua1-x92e.google.com [IPv6:2607:f8b0:4864:20::92e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4C12C061574
-        for <stable@vger.kernel.org>; Wed, 19 Jan 2022 15:28:44 -0800 (PST)
-Received: by mail-ua1-x92e.google.com with SMTP id 2so7568856uax.10
-        for <stable@vger.kernel.org>; Wed, 19 Jan 2022 15:28:44 -0800 (PST)
+        with ESMTP id S1357643AbiATALj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Jan 2022 19:11:39 -0500
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3390EC06173F
+        for <stable@vger.kernel.org>; Wed, 19 Jan 2022 16:11:39 -0800 (PST)
+Received: by mail-pl1-x635.google.com with SMTP id a7so3740289plh.1
+        for <stable@vger.kernel.org>; Wed, 19 Jan 2022 16:11:39 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=SAvFOz8ghr5oAZyEvyWgFSjE0cOqBv8pLZgD3az/Alw=;
-        b=bsrpLBeEmGPON4IVnn1J9LS41vfyBHVbscaKWsuCglNOrJmCd5wbVfUTccva0jnF4t
-         279q+9zbrD+ZWr8qrelwJQTRhNzSYbs5gig4TBG0nyZEqIinSkCPAxiYOvna0hrEiv5D
-         xoeJC9NwShyhujgekVKeZa14J68SMjQo3LSdBUda1rDhWMATtytzbjfPJCNxcthKatxB
-         wt70R5w+8MsTAylz4/5aRRwYbrOpRn5RU8pogPtfenu6omPyh9m0vxuWpD+rg4Rk5VS2
-         Cm+SF06WzCepcaQQeTQ12imr97K+3TkPsU54aR6k7wXd2b9y4OVXuKL4xdbvd/7zw4B+
-         P/YQ==
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=xVjyliV2Seqod5G5KIrqETEB6DdMnlj/gwwO0Ms37r0=;
+        b=m2Cq3pKgOPSZH8kQrR3RmS6xRkj5mu1noGfRe3JZhs8okQ1LqSuYyK//XFTZkx1aQs
+         yHUXZol3p03WVKjGCTEpbNIwX1Y17hojgjvIyt4T8a5US0T0fRGuh5XrTFE7N2jsmURt
+         d5YyE0CUQIeGJ0Q571BvcoBoXM5+SCFLLetkw=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=SAvFOz8ghr5oAZyEvyWgFSjE0cOqBv8pLZgD3az/Alw=;
-        b=YIPr4fqcQjaSP2ADAfT+H8DyhWOMh5ExtTEXuNcFTCm336gwzclnwESG5WZQMwlZE9
-         Ds8mI+uV0qQ8Qk7oI5Xm1p5EXCg+u3k+RNd9Tg56NBRCFNItvvUDG45pOLS8fSJeC3e+
-         SsWNaqDI1bKdFwn+BkqrsLsfhgtxTqesoasFqSESC546fqtuAlWYVsadNsTfdNBGA4Vv
-         B8BNte4tjNLWF0+uYJ4OuvthnJXLcElGUXKOTuMFpElw4QsGuG9/sJ6USHeYnGGgiouv
-         q4oRMsg0yc/L5DcE5rzDTKWYobSMhH9wWAM27yGxVDBFyQ1qN+lV9mpGAg46uex7myVy
-         VS7w==
-X-Gm-Message-State: AOAM532FsoiQKsJ1MblaSaVLSDTbnQiqKBFSCBmluO6xf4YsocE5bYz6
-        5GCA7MPIQOOlRjR6FfazqpCTNGFnbusOKjuW3tLftQ==
-X-Google-Smtp-Source: ABdhPJztNtP2ASrwQij4Hnq8zUdL8VnM6LFy0K4AN9sQGIkxltMSEPOR/5D8UuhwRg2Dmn31bBqJ3tpesxaIKOurOlI=
-X-Received: by 2002:a67:6587:: with SMTP id z129mr140195vsb.61.1642634923681;
- Wed, 19 Jan 2022 15:28:43 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=xVjyliV2Seqod5G5KIrqETEB6DdMnlj/gwwO0Ms37r0=;
+        b=cdhbB+pK89E+0Us+ItPHVFxKVSCIGqezerQVkMVqjD23geEuEs1lJ9cxGlVhAiQmz+
+         q2nrqDM+5GAS0tIcZi9xx3ijY1dYH9jXgK5fhvZ0DNJU1yUXu7OcnAA53DQzRxR05pUA
+         aeWwCqceDE19U1br0XwPwchVqzyDs++NZv0VXS6JcrHk4iZQG/KsAGinffkXN8rHOKXa
+         b2Tzy8FWgqn+QgWSRpfNvcknKBnyigPhTLr8u5DIBKzMdnYj8tRb0+f0aGne4Qun+iyU
+         S3sXuXNCeN+DfIES8NMx1//APpwv+gyCRpG+wEItWaVwuTyYy3aWsOllVo9mR/B5ghlG
+         FX9Q==
+X-Gm-Message-State: AOAM532DmGqTqOIK/BEF84ea28sur+UtLgfalABQo5qoXQg3OkRf213p
+        qyuGW6o4i3BSBVBC6TlJmHRjrw==
+X-Google-Smtp-Source: ABdhPJwLpxXuY7FO2TAuqYWaVf818ZHbHTTM8JXzcEhXz0whOElvDA2CBgU9tYGH1YmFEb+a9qtFGg==
+X-Received: by 2002:a17:902:7c89:b0:14a:a76f:78d2 with SMTP id y9-20020a1709027c8900b0014aa76f78d2mr21640702pll.166.1642637498672;
+        Wed, 19 Jan 2022 16:11:38 -0800 (PST)
+Received: from localhost ([2620:15c:202:201:bebd:c462:321a:9b63])
+        by smtp.gmail.com with UTF8SMTPSA id j4sm804788pfc.125.2022.01.19.16.11.36
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 19 Jan 2022 16:11:37 -0800 (PST)
+From:   Brian Norris <briannorris@chromium.org>
+To:     Daniel Vetter <daniel@ffwll.ch>, David Airlie <airlied@linux.ie>,
+        =?UTF-8?q?Heiko=20St=C3=BCbner?= <heiko@sntech.de>
+Cc:     Sandy Huang <hjc@rock-chips.com>, linux-kernel@vger.kernel.org,
+        linux-rockchip@lists.infradead.org,
+        Mark Yao <markyao0591@gmail.com>,
+        dri-devel@lists.freedesktop.org,
+        Brian Norris <briannorris@chromium.org>,
+        Andrzej Pietrasiewicz <andrzej.p@collabora.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] drm/rockchip: vop: Correct RK3399 VOP register fields
+Date:   Wed, 19 Jan 2022 16:11:22 -0800
+Message-Id: <20220119161104.1.I1d01436bef35165a8cdfe9308789c0badb5ff46a@changeid>
+X-Mailer: git-send-email 2.34.1.703.g22d0c6ccf7-goog
 MIME-Version: 1.0
-References: <20220118230539.323058-1-pcc@google.com> <Yefh00fKOIPj+kYC@hirez.programming.kicks-ass.net>
-In-Reply-To: <Yefh00fKOIPj+kYC@hirez.programming.kicks-ass.net>
-From:   Peter Collingbourne <pcc@google.com>
-Date:   Wed, 19 Jan 2022 15:28:32 -0800
-Message-ID: <CAMn1gO5n6GofyRv6dvpEe0xRekRx=wneQzwP-n=9Qj6Pez6eEg@mail.gmail.com>
-Subject: Re: [PATCH] mm/mmzone.c: fix page_cpupid_xchg_last() to READ_ONCE()
- the page flags
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     Andrey Konovalov <andreyknvl@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Mel Gorman <mgorman@suse.de>,
-        "# 3.4.x" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 19, 2022 at 2:03 AM Peter Zijlstra <peterz@infradead.org> wrote:
->
-> On Tue, Jan 18, 2022 at 03:05:39PM -0800, Peter Collingbourne wrote:
-> > After submitting a patch with a compare-exchange loop similar to this
-> > one to set the KASAN tag in the page flags, Andrey Konovalov pointed
-> > out that we should be using READ_ONCE() to read the page flags. Fix
-> > it here.
->
-> What does it actually fix? If it manages to split the read and read
-> garbage the cmpxchg will fail and we go another round, no harm done.
+Commit 7707f7227f09 ("drm/rockchip: Add support for afbc") switched up
+the rk3399_vop_big[] register windows, but it did so incorrectly.
 
-What I wasn't sure about was whether the compiler would be allowed to
-break this code by hoisting the read of page->flags out of the loop
-(because nothing in the loop actually writes to page->flags aside from
-the compare-exchange, and if that succeeds we're *leaving* the loop).
-That could potentially result in a loop that never terminates if the
-first compare-exchange fails. This is largely a theoretical problem as
-far as I know; the assembly produced by clang and gcc on x86_64 and
-arm64 appears to be doing the expected thing for now, and we're using
-inline asm for compare-exchange instead of the compiler builtins on
-those architectures (and on all other architectures it seems? no
-matches for __atomic_compare_exchange outside of kcsan and the
-selftests) so the compiler wouldn't be able to look inside it anyway.
+The biggest problem is in rk3288_win23_data[] vs.
+rk3368_win23_data[] .format field:
 
-> > Fixes: 75980e97dacc ("mm: fold page->_last_nid into page->flags where possible")
->
-> As per the above argument, I don't think this rates a Fixes tag, there
-> is no actual fix.
+  RK3288's format: VOP_REG(RK3288_WIN2_CTRL0, 0x7, 1)
+  RK3368's format: VOP_REG(RK3368_WIN2_CTRL0, 0x3, 5)
 
-Okay, I'll remove it unless you find the above convincing.
+Bits 5:6 (i.e., shift 5, mask 0x3) are correct for RK3399, according to
+the TRM.
 
-> > Signed-off-by: Peter Collingbourne <pcc@google.com>
-> > Link: https://linux-review.googlesource.com/id/I2e1f5b5b080ac9c4e0eb7f98768dba6fd7821693
->
-> That's that doing here?
+There are a few other small differences between the 3288 and 3368
+definitions that were swapped in commit 7707f7227f09. I reviewed them to
+the best of my ability according to the RK3399 TRM and fixed them up.
 
-I upload my changes to Gerrit and link to them here so that I (and
-others) can see the progression of the patch via the web UI.
+This fixes IOMMU issues (and display errors) when testing with BG24
+color formats.
 
-> > Cc: stable@vger.kernel.org
->
-> That's massively over-selling things.
+Fixes: 7707f7227f09 ("drm/rockchip: Add support for afbc")
+Cc: Andrzej Pietrasiewicz <andrzej.p@collabora.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+---
+I'd appreciate notes or testing from Andrzej, since I'm not sure how he
+tested his original AFBC work.
 
-Fair enough since it isn't causing an actual problem, I'll remove this tag.
+ drivers/gpu/drm/rockchip/rockchip_vop_reg.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-> > ---
-> >  mm/mmzone.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/mm/mmzone.c b/mm/mmzone.c
-> > index eb89d6e018e2..f84b84b0d3fc 100644
-> > --- a/mm/mmzone.c
-> > +++ b/mm/mmzone.c
-> > @@ -90,7 +90,7 @@ int page_cpupid_xchg_last(struct page *page, int cpupid)
-> >       int last_cpupid;
-> >
-> >       do {
-> > -             old_flags = flags = page->flags;
-> > +             old_flags = flags = READ_ONCE(page->flags);
-> >               last_cpupid = page_cpupid_last(page);
-> >
-> >               flags &= ~(LAST_CPUPID_MASK << LAST_CPUPID_PGSHIFT);
->
-> I think that if you want to touch that code, something like the below
-> makes more sense...
+diff --git a/drivers/gpu/drm/rockchip/rockchip_vop_reg.c b/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
+index 1f7353f0684a..798b542e5916 100644
+--- a/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
++++ b/drivers/gpu/drm/rockchip/rockchip_vop_reg.c
+@@ -902,6 +902,7 @@ static const struct vop_win_phy rk3399_win01_data = {
+ 	.enable = VOP_REG(RK3288_WIN0_CTRL0, 0x1, 0),
+ 	.format = VOP_REG(RK3288_WIN0_CTRL0, 0x7, 1),
+ 	.rb_swap = VOP_REG(RK3288_WIN0_CTRL0, 0x1, 12),
++	.x_mir_en = VOP_REG(RK3288_WIN0_CTRL0, 0x1, 21),
+ 	.y_mir_en = VOP_REG(RK3288_WIN0_CTRL0, 0x1, 22),
+ 	.act_info = VOP_REG(RK3288_WIN0_ACT_INFO, 0x1fff1fff, 0),
+ 	.dsp_info = VOP_REG(RK3288_WIN0_DSP_INFO, 0x0fff0fff, 0),
+@@ -912,6 +913,7 @@ static const struct vop_win_phy rk3399_win01_data = {
+ 	.uv_vir = VOP_REG(RK3288_WIN0_VIR, 0x3fff, 16),
+ 	.src_alpha_ctl = VOP_REG(RK3288_WIN0_SRC_ALPHA_CTRL, 0xff, 0),
+ 	.dst_alpha_ctl = VOP_REG(RK3288_WIN0_DST_ALPHA_CTRL, 0xff, 0),
++	.channel = VOP_REG(RK3288_WIN0_CTRL2, 0xff, 0),
+ };
+ 
+ /*
+@@ -922,11 +924,11 @@ static const struct vop_win_phy rk3399_win01_data = {
+ static const struct vop_win_data rk3399_vop_win_data[] = {
+ 	{ .base = 0x00, .phy = &rk3399_win01_data,
+ 	  .type = DRM_PLANE_TYPE_PRIMARY },
+-	{ .base = 0x40, .phy = &rk3288_win01_data,
++	{ .base = 0x40, .phy = &rk3368_win01_data,
+ 	  .type = DRM_PLANE_TYPE_OVERLAY },
+-	{ .base = 0x00, .phy = &rk3288_win23_data,
++	{ .base = 0x00, .phy = &rk3368_win23_data,
+ 	  .type = DRM_PLANE_TYPE_OVERLAY },
+-	{ .base = 0x50, .phy = &rk3288_win23_data,
++	{ .base = 0x50, .phy = &rk3368_win23_data,
+ 	  .type = DRM_PLANE_TYPE_CURSOR },
+ };
+ 
+-- 
+2.34.1.703.g22d0c6ccf7-goog
 
-Yeah, that looks a bit nicer. I'll send a v2 and update the other patch as well.
-
-Peter
