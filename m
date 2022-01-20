@@ -2,158 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C9AD494B98
-	for <lists+stable@lfdr.de>; Thu, 20 Jan 2022 11:26:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 544CE494BFA
+	for <lists+stable@lfdr.de>; Thu, 20 Jan 2022 11:44:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241905AbiATK0D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jan 2022 05:26:03 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:52624 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232937AbiATK0D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Jan 2022 05:26:03 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id E9F0F1C0B9D; Thu, 20 Jan 2022 11:26:01 +0100 (CET)
-Date:   Thu, 20 Jan 2022 11:26:01 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        rkardell@mida.se, mchehab@kernel.org, linux-media@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 4.4 11/29] media: m920x: don't use stack on USB
- reads
-Message-ID: <20220120102601.GB14998@amd>
-References: <20220118030822.1955469-1-sashal@kernel.org>
- <20220118030822.1955469-11-sashal@kernel.org>
+        id S234719AbiATKnm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jan 2022 05:43:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36322 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243288AbiATKnl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Jan 2022 05:43:41 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A0E6C061574;
+        Thu, 20 Jan 2022 02:43:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=RUxAMIPHh8EnpD7PkzX4ApuOdrcdTPZnoa+y0am0Ul0=; b=E5o6FGrXSZ1r9rnEjy8o+ycLlk
+        FAE77GFFmK1xFTUF8V3yI/pRFm9u8ipxwYnGaGMbTSS4vvJbTofWtLgpOv0Xg/uzwmw1yC9KEACRA
+        4We19fE6P33qJcUSpx0jzDb4FYIpO8t1uNWiwvLFWmaJtGSYQRzv1yb8iTpvenavYLHNisQuiQPhy
+        enPckymC/F4GPe1oBe39u2M54k4nAGBJBnN8k/TUBETZttv8W5a95qjZlF69MDS/qGyw3+7JYstY0
+        kVf3lKkPkxzlmUAXQJCvq5QATbtZDqMLPTloG5X5lcH3SAxA5X7d+QFKZXYrxr/S0QqTiXyvI7WsP
+        xgVGvoeg==;
+Received: from j217100.upc-j.chello.nl ([24.132.217.100] helo=noisy.programming.kicks-ass.net)
+        by casper.infradead.org with esmtpsa (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1nAUul-00E9Vb-L1; Thu, 20 Jan 2022 10:43:36 +0000
+Received: from hirez.programming.kicks-ass.net (hirez.programming.kicks-ass.net [192.168.1.225])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (4096 bits))
+        (Client did not present a certificate)
+        by noisy.programming.kicks-ass.net (Postfix) with ESMTPS id 1045F3002F1;
+        Thu, 20 Jan 2022 11:43:33 +0100 (CET)
+Received: by hirez.programming.kicks-ass.net (Postfix, from userid 1000)
+        id E320C2C4BFBCC; Thu, 20 Jan 2022 11:43:32 +0100 (CET)
+Date:   Thu, 20 Jan 2022 11:43:32 +0100
+From:   Peter Zijlstra <peterz@infradead.org>
+To:     Peter Collingbourne <pcc@google.com>
+Cc:     Andrey Konovalov <andreyknvl@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux Memory Management List <linux-mm@kvack.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        Mel Gorman <mgorman@suse.de>,
+        "# 3.4.x" <stable@vger.kernel.org>
+Subject: Re: [PATCH] mm/mmzone.c: fix page_cpupid_xchg_last() to READ_ONCE()
+ the page flags
+Message-ID: <Yek81DNvQAXMxHwB@hirez.programming.kicks-ass.net>
+References: <20220118230539.323058-1-pcc@google.com>
+ <Yefh00fKOIPj+kYC@hirez.programming.kicks-ass.net>
+ <CAMn1gO5n6GofyRv6dvpEe0xRekRx=wneQzwP-n=9Qj6Pez6eEg@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="kORqDWCi7qDJ0mEj"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220118030822.1955469-11-sashal@kernel.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+In-Reply-To: <CAMn1gO5n6GofyRv6dvpEe0xRekRx=wneQzwP-n=9Qj6Pez6eEg@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Jan 19, 2022 at 03:28:32PM -0800, Peter Collingbourne wrote:
+> On Wed, Jan 19, 2022 at 2:03 AM Peter Zijlstra <peterz@infradead.org> wrote:
+> >
+> > On Tue, Jan 18, 2022 at 03:05:39PM -0800, Peter Collingbourne wrote:
+> > > After submitting a patch with a compare-exchange loop similar to this
+> > > one to set the KASAN tag in the page flags, Andrey Konovalov pointed
+> > > out that we should be using READ_ONCE() to read the page flags. Fix
+> > > it here.
+> >
+> > What does it actually fix? If it manages to split the read and read
+> > garbage the cmpxchg will fail and we go another round, no harm done.
+> 
+> What I wasn't sure about was whether the compiler would be allowed to
+> break this code by hoisting the read of page->flags out of the loop
+> (because nothing in the loop actually writes to page->flags aside from
+> the compare-exchange, and if that succeeds we're *leaving* the loop).
 
---kORqDWCi7qDJ0mEj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The cmpxchg is a barrier() and as such I don't think it's allowed to
+hoist anything out of the loop. Except perhaps since it's do-while, it
+could try and unroll the first iteration and wreck that something
+fierce.
 
-Hi!
+The bigger problem is I think that page_cpuid_last() usage which does a
+second load of page->flags, and given sufficient races that could
+actually load a different value and then things would be screwy. But
+that's not actually fixed.
 
-> From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
->=20
-> [ Upstream commit a2ab06d7c4d6bfd0b545a768247a70463e977e27 ]
->=20
-> Using stack-allocated pointers for USB message data don't work.
-> This driver is almost OK with that, except for the I2C read
-> logic.
->=20
-> Fix it by using a temporary read buffer, just like on all other
-> calls to m920x_read().
+> > > Signed-off-by: Peter Collingbourne <pcc@google.com>
+> > > Link: https://linux-review.googlesource.com/id/I2e1f5b5b080ac9c4e0eb7f98768dba6fd7821693
+> >
+> > That's that doing here?
+> 
+> I upload my changes to Gerrit and link to them here so that I (and
+> others) can see the progression of the patch via the web UI.
 
-This introduces memory leak... and I don't believe it really fixes the
-problem.
-
-> index eafc5c82467f4..5b806779e2106 100644
-> --- a/drivers/media/usb/dvb-usb/m920x.c
-> +++ b/drivers/media/usb/dvb-usb/m920x.c
-> @@ -284,6 +284,13 @@ static int m920x_i2c_xfer(struct i2c_adapter *adap, =
-struct i2c_msg msg[], int nu
->  			/* Should check for ack here, if we knew how. */
->  		}
->  		if (msg[i].flags & I2C_M_RD) {
-> +			char *read =3D kmalloc(1, GFP_KERNEL);
-> +			if (!read) {
-> +				ret =3D -ENOMEM;
-> +				kfree(read);
-> +				goto unlock;
-> +			}
-
-kfree(NULL);
-
->  			for (j =3D 0; j < msg[i].len; j++) {
->  				/* Last byte of transaction?
->  				 * Send STOP, otherwise send ACK. */
-> @@ -291,9 +298,12 @@ static int m920x_i2c_xfer(struct i2c_adapter *adap, =
-struct i2c_msg msg[], int nu
-> =20
->  				if ((ret =3D m920x_read(d->udev, M9206_I2C, 0x0,
->  						      0x20 | stop,
-> -						      &msg[i].buf[j], 1)) !=3D 0)
-> +						      read, 1)) !=3D 0)
->  					goto unlock;
-
-Memory leak of read.
-
-> +				msg[i].buf[j] =3D read[0];
->  			}
-> +
-> +			kfree(read);
->  		} else {
->  			for (j =3D 0; j < msg[i].len; j++) {
->  				/* Last byte of transaction? Then send STOP. */
-
-But more importantly, do we have exact copy of the read problem just
-below, during write?
-
-Best regards,
-								Pavel
-
-diff --git a/drivers/media/usb/dvb-usb/m920x.c b/drivers/media/usb/dvb-usb/=
-m920x.c
-index 691e05833db1..e5ee54324a28 100644
---- a/drivers/media/usb/dvb-usb/m920x.c
-+++ b/drivers/media/usb/dvb-usb/m920x.c
-@@ -250,7 +250,7 @@ static int m920x_i2c_xfer(struct i2c_adapter *adap, str=
-uct i2c_msg msg[], int nu
- {
- 	struct dvb_usb_device *d =3D i2c_get_adapdata(adap);
- 	int i, j;
--	int ret =3D 0;
-+	int ret;
-=20
- 	if (mutex_lock_interruptible(&d->i2c_mutex) < 0)
- 		return -EAGAIN;
-@@ -277,7 +277,6 @@ static int m920x_i2c_xfer(struct i2c_adapter *adap, str=
-uct i2c_msg msg[], int nu
- 			char *read =3D kmalloc(1, GFP_KERNEL);
- 			if (!read) {
- 				ret =3D -ENOMEM;
--				kfree(read);
- 				goto unlock;
- 			}
-=20
-@@ -288,8 +287,10 @@ static int m920x_i2c_xfer(struct i2c_adapter *adap, st=
-ruct i2c_msg msg[], int nu
-=20
- 				if ((ret =3D m920x_read(d->udev, M9206_I2C, 0x0,
- 						      0x20 | stop,
--						      read, 1)) !=3D 0)
-+						      read, 1)) !=3D 0) {
-+					kfree(read);
- 					goto unlock;
-+				}
- 				msg[i].buf[j] =3D read[0];
- 			}
-=20
-
-
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---kORqDWCi7qDJ0mEj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAmHpOLkACgkQMOfwapXb+vK1tACgmHbcATCI8NZGWJcnrMDiyHwQ
-TA8AoLPVH8buRwXyQ01lJbmwGygSUpZW
-=0cJZ
------END PGP SIGNATURE-----
-
---kORqDWCi7qDJ0mEj--
+What's the life-time guarantee for that URL existing? Because if it
+becomes part of the git commit, it had better stay around 'forever'
+etc..
