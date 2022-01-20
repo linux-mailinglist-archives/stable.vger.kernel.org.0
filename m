@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98674495351
-	for <lists+stable@lfdr.de>; Thu, 20 Jan 2022 18:33:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C3DE49539D
+	for <lists+stable@lfdr.de>; Thu, 20 Jan 2022 18:56:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231690AbiATRcH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jan 2022 12:32:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46450 "EHLO
+        id S233004AbiATR4C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jan 2022 12:56:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231680AbiATRcG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Jan 2022 12:32:06 -0500
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8ECABC061574
-        for <stable@vger.kernel.org>; Thu, 20 Jan 2022 09:32:06 -0800 (PST)
-Received: by mail-pj1-x102d.google.com with SMTP id pf13so6576534pjb.0
-        for <stable@vger.kernel.org>; Thu, 20 Jan 2022 09:32:06 -0800 (PST)
+        with ESMTP id S233067AbiATR4C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Jan 2022 12:56:02 -0500
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF5B5C061574
+        for <stable@vger.kernel.org>; Thu, 20 Jan 2022 09:56:01 -0800 (PST)
+Received: by mail-pg1-x529.google.com with SMTP id e9so2377471pgn.4
+        for <stable@vger.kernel.org>; Thu, 20 Jan 2022 09:56:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=message-id:date:mime-version:content-transfer-encoding:subject:to
          :from;
-        bh=ckZXBxiC+eubychb+fHau31pIMS/SLlhwVsp9JUyqCU=;
-        b=rcWaRTS+Da0R3QsSS6BBczJfaMfettIHlVH9pJCILJyyx/WJ8OIsWjmPbttoZjC8L0
-         W49u8+48Qr6PnHfq2g170CLw2fmUzxIZMCrdnGrVZpnzdjoB9nHY/11UB7yl4wNWqJ5a
-         DiF0Wx95F2BycDe7zTcR2YYO+0LnyCfNSnQaa7eFab4x1Ok5L+OhUX9CRzOOMTHPeJEH
-         NFV5YgEjPi/3dO+dj++Dmt2CItjSkmVIWe6/3p+yMNiAm6PKbPbU45boUY/v+Z223F3f
-         +cJn5rZulBIPezHPMg7rMiJU+NO5SN67OKVIRNQwSAvbgpcgYG44vclcqIWBYMEA+J98
-         fCjQ==
+        bh=JfPxlNGOcUDJ0MHoQ4nADigJ0xyw0AhT91wMC5wxdVo=;
+        b=noBr9LjB4tRBW3dNsUc3FfLd33NhlcS513LTbS4Cb76pDbnRWwuEKz8x59NJxNrN7U
+         dDCXSflP496/uEPPptHSy0fG2shR5NIJkKF/zpEPG8Mv1Z8XKcWtwIlfxZPUV0A9tXmx
+         c4yf9+Dtyirwip4Ze1NoHGFjggMemnZjdTzMCGoL3AQyCceOwpKgSjYeBCp3f2rJSg77
+         s1zcIStEycHbSZp93A3uelqnjSjsQyd/tLDvOenxHDHjAIEUGkAMa3kclC/w4mtEtgw8
+         /6U6L/9T2a6WWX040RSp4HRalsBAU7N5MmenpGGTDicPCD46FsZOhqFpPS7Lf84GRyiF
+         lGrA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version
          :content-transfer-encoding:subject:to:from;
-        bh=ckZXBxiC+eubychb+fHau31pIMS/SLlhwVsp9JUyqCU=;
-        b=WFfD207dDalT2GX2APgyHlPccAtY6/o3Zbv1YCaFkTTgcPmXi/URqAZodf2e6IRXuG
-         4ffb838U76IDKP5KF89xVlrIO4oRbMu0GeVFeGmX4AD4aIwO0FnTLOPee6bOk++6TY2i
-         wJNoXk+2NuYkW9Bx+YUV+W/bgWarJQGrUsJFIlZZEbUiJSobL8lpbRjh+X/GQS8BwlHZ
-         pxRvNYmJ0i94AD2WlJKI1YamPTj12X0TR85bJm3rTf863EOpVxKirL1lZ7NsjoLrZnY5
-         rfWTiKiTawB6PmTZuFzz9DQmzwPd/Gmuku5CVz9Ps5jx6Nvi7v4451gSxrvfcg+6DxSi
-         sMzg==
-X-Gm-Message-State: AOAM532/wkEaFikU7qBoknZo7pN1JoTS9HtLaWIMYpj0SkiCdgJiiyQw
-        R1PC2SyvJ6NhfZk45r5wUSMdJgRsJUyhJOrh
-X-Google-Smtp-Source: ABdhPJzrjocB+reT0LbrcH2ZPDQaBTfdjlXLbHryBv0oNnM+2Mdv7aE2DKzGavGfRa3FlVDuj2gWcA==
-X-Received: by 2002:a17:90b:4b8a:: with SMTP id lr10mr35747pjb.58.1642699925146;
-        Thu, 20 Jan 2022 09:32:05 -0800 (PST)
+        bh=JfPxlNGOcUDJ0MHoQ4nADigJ0xyw0AhT91wMC5wxdVo=;
+        b=GeVHVG/BusMQSMY4gf7dUM6hN/XOQirLoQty7Ap8huUsON5xYXEW3YR4OAy1MIlMlH
+         7QJU7PBWBh0KJfd4HiDfjREBdmeUzVg9ecy//qS0HU0FC59iZ5SeWBgS/V8TPr9bPNu5
+         C70CQpz9f5fcyLr4kuHaFz+khO8xnSvHPJWMvT1yrWfCXitjmx16zpZwUv5DrWUpzQH5
+         DeEkQ4byCmm3msgnqo4I3vCGbYtMRD3jiLgw6xzECT3s+DOJ63TUI3G1pDv5lN47mu6G
+         33S/6l7xdXzLp9H5M1lX+2vA67GcX3BK7R86vqL4kDFe+AMdo3sUWptw5M25B/t3RVkl
+         kpcA==
+X-Gm-Message-State: AOAM530tGOEaMjsmR4bLh34R4On/b0C0JghcXVZiJtTnTLjxC2HqgLty
+        WEnvzKuOt5Cwz6WQKlar8yrj4UCP7a0F7uA6
+X-Google-Smtp-Source: ABdhPJyLtHicmpizBwCEHDI9yn6lZ7tPv7SWpWQqdiGSWu+1noiduKKieVXtkOC6QxQU5nF3IWuszQ==
+X-Received: by 2002:a63:b702:: with SMTP id t2mr33108388pgf.49.1642701360430;
+        Thu, 20 Jan 2022 09:56:00 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id l23sm3018233pgj.20.2022.01.20.09.32.04
+        by smtp.gmail.com with ESMTPSA id mv10sm2987297pjb.45.2022.01.20.09.55.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Jan 2022 09:32:04 -0800 (PST)
-Message-ID: <61e99c94.1c69fb81.13c26.8d05@mx.google.com>
-Date:   Thu, 20 Jan 2022 09:32:04 -0800 (PST)
+        Thu, 20 Jan 2022 09:56:00 -0800 (PST)
+Message-ID: <61e9a230.1c69fb81.3b501.8485@mx.google.com>
+Date:   Thu, 20 Jan 2022 09:56:00 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Report-Type: build
-X-Kernelci-Kernel: v4.4.299
+X-Kernelci-Kernel: v4.4.299-9-g7958be08b7c2
 X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable-rc/linux-4.4.y build: 187 builds: 5 failed, 182 passed,
- 6 errors, 36 warnings (v4.4.299)
+X-Kernelci-Branch: queue/4.4
+Subject: stable-rc/queue/4.4 build: 187 builds: 5 failed, 182 passed, 6 errors,
+ 36 warnings (v4.4.299-9-g7958be08b7c2)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -65,16 +65,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y build: 187 builds: 5 failed, 182 passed, 6 errors, 36=
- warnings (v4.4.299)
+stable-rc/queue/4.4 build: 187 builds: 5 failed, 182 passed, 6 errors, 36 w=
+arnings (v4.4.299-9-g7958be08b7c2)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/linux-4.4.y=
-/kernel/v4.4.299/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.4=
+/kernel/v4.4.299-9-g7958be08b7c2/
 
 Tree: stable-rc
-Branch: linux-4.4.y
-Git Describe: v4.4.299
-Git Commit: b0ee52316847cf279a1028334117985a5d633c0c
+Branch: queue/4.4
+Git Describe: v4.4.299-9-g7958be08b7c2
+Git Commit: 7958be08b7c2f5e180fd9a35077dd90b1342cd31
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 6 unique architectures
@@ -126,48 +126,48 @@ x86_64:
 
 Errors summary:
 
-    12   cc1: error: =E2=80=98-mloongson-mmi=E2=80=99 must be used with =E2=
+    4    cc1: error: =E2=80=98-mloongson-mmi=E2=80=99 must be used with =E2=
 =80=98-mhard-float=E2=80=99
-    3    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
-    3    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
+    1    arm-linux-gnueabihf-gcc: error: unrecognized -march target: armv3
+    1    arm-linux-gnueabihf-gcc: error: missing argument to =E2=80=98-marc=
 h=3D=E2=80=99
 
 Warnings summary:
 
-    19   arch/x86/kernel/process.c:456: Warning: no instruction mnemonic su=
+    7    arch/x86/kernel/process.c:456: Warning: no instruction mnemonic su=
 ffix given and no register operands; using default for `btr'
-    11   arch/x86/entry/entry_64.S:487: Warning: no instruction mnemonic su=
+    4    arch/x86/entry/entry_64.S:487: Warning: no instruction mnemonic su=
 ffix given and no register operands; using default for `btr'
-    11   arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic s=
+    4    arch/x86/entry/entry_64.S:1642: Warning: no instruction mnemonic s=
 uffix given and no register operands; using default for `sysret'
-    9    ld: warning: creating DT_TEXTREL in a PIE
-    7    drivers/tty/serial/samsung.c:1780:34: warning: array =E2=80=98s3c2=
+    3    ld: warning: creating DT_TEXTREL in a PIE
+    3    drivers/tty/serial/samsung.c:1780:34: warning: array =E2=80=98s3c2=
 4xx_uart_dt_match=E2=80=99 assumed to have one element
-    6    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
+    2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
 741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    6    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
+    2    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
 d-only section `.head.text'
-    6    drivers/net/ethernet/apm/xgene/xgene_enet_main.c:32:36: warning: a=
+    2    drivers/net/ethernet/apm/xgene/xgene_enet_main.c:32:36: warning: a=
 rray =E2=80=98xgene_enet_acpi_match=E2=80=99 assumed to have one element
-    3    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
+    1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
 741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
+    1    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
 d-only section `.head.text'
-    3    drivers/mmc/host/sdhci-s3c.c:429:34: warning: array =E2=80=98sdhci=
-_s3c_dt_match=E2=80=99 assumed to have one element
-    3    drivers/gpio/gpio-omap.c:1161:34: warning: array =E2=80=98omap_gpi=
-o_match=E2=80=99 assumed to have one element
-    3    arch/arm/mach-mxs/mach-mxs.c:285:26: warning: duplicate =E2=80=98c=
-onst=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-    3    arch/arm/mach-lpc32xx/phy3250.c:215:36: warning: duplicate =E2=80=
-=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-    3    arch/arm/mach-clps711x/board-autcpu12.c:163:26: warning: duplicate=
- =E2=80=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
-    2    drivers/net/ethernet/seeq/sgiseeq.c:804:26: warning: passing argum=
+    1    drivers/net/ethernet/seeq/sgiseeq.c:804:26: warning: passing argum=
 ent 5 of =E2=80=98dma_free_attrs=E2=80=99 makes pointer from integer withou=
 t a cast [-Wint-conversion]
-    2    arch/arm/mach-davinci/da8xx-dt.c:23:34: warning: duplicate =E2=80=
+    1    drivers/mmc/host/sdhci-s3c.c:429:34: warning: array =E2=80=98sdhci=
+_s3c_dt_match=E2=80=99 assumed to have one element
+    1    drivers/gpio/gpio-omap.c:1161:34: warning: array =E2=80=98omap_gpi=
+o_match=E2=80=99 assumed to have one element
+    1    arch/arm/mach-mxs/mach-mxs.c:285:26: warning: duplicate =E2=80=98c=
+onst=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
+    1    arch/arm/mach-lpc32xx/phy3250.c:215:36: warning: duplicate =E2=80=
 =98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
+    1    arch/arm/mach-davinci/da8xx-dt.c:23:34: warning: duplicate =E2=80=
+=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
+    1    arch/arm/mach-clps711x/board-autcpu12.c:163:26: warning: duplicate=
+ =E2=80=98const=E2=80=99 declaration specifier [-Wduplicate-decl-specifier]
 
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
 =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
@@ -188,16 +188,6 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
 allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 4 warnings, 0 sectio=
 n mismatches
 
@@ -213,12 +203,22 @@ given and no register operands; using default for `btr'
 
 ---------------------------------------------------------------------------=
 -----
+allnoconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
 allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
 ---------------------------------------------------------------------------=
 -----
 allnoconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
 mismatches
 
 ---------------------------------------------------------------------------=
@@ -1085,6 +1085,11 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
+tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
 tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section=
  mismatches
 
@@ -1103,18 +1108,13 @@ smatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
 tinyconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
 ismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
+tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
