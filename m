@@ -2,76 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDA1349440C
-	for <lists+stable@lfdr.de>; Thu, 20 Jan 2022 01:15:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0159F494468
+	for <lists+stable@lfdr.de>; Thu, 20 Jan 2022 01:23:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230295AbiATAPq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 Jan 2022 19:15:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37326 "EHLO
+        id S1345226AbiATAX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 Jan 2022 19:23:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357655AbiATAPp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 Jan 2022 19:15:45 -0500
-Received: from mail-yb1-xb33.google.com (mail-yb1-xb33.google.com [IPv6:2607:f8b0:4864:20::b33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75950C061574
-        for <stable@vger.kernel.org>; Wed, 19 Jan 2022 16:15:45 -0800 (PST)
-Received: by mail-yb1-xb33.google.com with SMTP id r65so9077070ybc.11
-        for <stable@vger.kernel.org>; Wed, 19 Jan 2022 16:15:45 -0800 (PST)
+        with ESMTP id S1345179AbiATAXz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 Jan 2022 19:23:55 -0500
+Received: from mail-ot1-x335.google.com (mail-ot1-x335.google.com [IPv6:2607:f8b0:4864:20::335])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7597C061574
+        for <stable@vger.kernel.org>; Wed, 19 Jan 2022 16:23:55 -0800 (PST)
+Received: by mail-ot1-x335.google.com with SMTP id a10-20020a9d260a000000b005991bd6ae3eso5459008otb.11
+        for <stable@vger.kernel.org>; Wed, 19 Jan 2022 16:23:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cloudflare.com; s=google;
-        h=mime-version:from:date:message-id:subject:to:cc;
-        bh=vqB9iAU9Xq8VapOGNAY+XjZSz4Vf+X9jFOMw2lhUkLY=;
-        b=QmmAQIRC3yjjpgn0zlODllGsc9bsnAah2PJ+2PQwD+mCtbXR5pW6NqmpqKaCbuRb55
-         7rU9nirnNxVnTtRvxaijfO0R5t8glKIe7wI0EVxh8kiXIndAe3x1LWCKlnSx9Prd+ti1
-         wy9o2bjZTUD1jcnQELsHbAit+Y3rFEKPcpbfg=
+        d=linaro.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=+zOzBednldscnhra6JkUaxzTXlQRRyK3OUBhQ9RJ0wI=;
+        b=NpbjfuoZWYoirSiXxGLn/doWeM127etmTOHNo1OItL5dp01OmD4hyhCDg/xM0UfCT1
+         rOxi8tW+uJMockG2eaGOkKyQkhejkhEHCXiyqfrzq+ciH0g6dpIRKcYX07utdfhT3bDK
+         VYmw5pI/A/scDX13g6SvUKDgDgrx8Jn6KdQXFqHaVOksRgZ28FTLBAqzIMZENvjfAHSf
+         ivs0JEfRrZF9cW/oIqtR4yVAvSkhulG6nWnApHAvLLhY8hHKNqQK5hg1QwyQ6oagmBKc
+         iWKbvRHLeasZuqyYveCKMJcVVvgf5/hOJufpLa4HW+6VoZ9+PLLXF+dg64v0fz1t8vLe
+         tX0w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:from:date:message-id:subject:to:cc;
-        bh=vqB9iAU9Xq8VapOGNAY+XjZSz4Vf+X9jFOMw2lhUkLY=;
-        b=b7wSZY2jCDJv3cBNIDpZvvYpZE8TuR3LttLCb7tWpJ+4F0FgB0Ivs1UZOzvce7xpPv
-         lDT8O9tlVWdSHd24Q7kiv8javQPVToZN0rBDyKSeWpHNXCBvpVhaMFtPEZSE/60+Yb2m
-         HNj4MgwquBh0RZh8KlWRsHDEVYZGurX02BdiTaZce4IoanTskeHY0hQb0nWBB6PLNcl/
-         WO5jA1l1wLlp66j//EVQpgObarHnXwO7vziNFgdzFhaLu0K9anuG29zEvbHfpVV5GisS
-         6biDNZWS62arjsCGLb1LDNfMhiTPYcF1WrFHJb6BW1imjCQUr8qW4fP97bMhtpadyIIg
-         DJbQ==
-X-Gm-Message-State: AOAM530x2j+gZD/vRgQEuiRH8VAYgXiVkfFVaU9xzOpEHOAgaUv9KVGt
-        3D2UcFAvJHLJBLRDpgIUSFU7mgLG6Kg25xYjYMzACNejbMPuOQ==
-X-Google-Smtp-Source: ABdhPJywvv5oYywzYzmG4Eo7tReEkmwlZFlc81LCRSGw7rA0bDYB2gH40+2TimPqIE9xCxjRrfGQwYK+PVBzR0Ii0Mg=
-X-Received: by 2002:a25:880e:: with SMTP id c14mr12305836ybl.158.1642637744580;
- Wed, 19 Jan 2022 16:15:44 -0800 (PST)
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=+zOzBednldscnhra6JkUaxzTXlQRRyK3OUBhQ9RJ0wI=;
+        b=kUrYBB/1vqqkZ1AJUUGklZSAeQcWMGJUwHt/UEb99+3N9fgIsaWwIRR+jnOS5vVq1V
+         8KPs0mzk5kUlYoI0lZ4iaS7Rl96roJpvclEmmtpQXZI0BbBA508oPDYqKC+fQqQjhG7G
+         22cblDOqCs4TrzpA6C/KNaG0SszEkuODlLBmIf/0sWp38tC1iV2tzCIuInONgcum/lep
+         gS4JoS+Nln7b6toXZqooujFtzsP9OEIFPQg7C+XedHPFecgsQLX7GYTxZvCJJyNjt2vI
+         S++CrSlittnfdbF7T+pBRjzgixyHQJ+zYnFXtpAcJVhx1Q1vF43wxqvfVIuRDXM1NUS3
+         U5Cw==
+X-Gm-Message-State: AOAM53309lKiVc3QmbevK1V2mk8wbOP7gsowHhLpLFJJRVpROjot8Rx8
+        z0EHWsPUxunwSeG9YPi7JuijNQ==
+X-Google-Smtp-Source: ABdhPJy37utAjcXmDJpvkZf5F+Wf0nXgH3gIhBsUk14LTso8ERUlIkmIzuj9uCtuTYG1ry2DQ346/Q==
+X-Received: by 2002:a05:6830:4425:: with SMTP id q37mr7059637otv.14.1642638235040;
+        Wed, 19 Jan 2022 16:23:55 -0800 (PST)
+Received: from ripper ([2600:1700:a0:3dc8:205:1bff:fec0:b9b3])
+        by smtp.gmail.com with ESMTPSA id l18sm732081otv.49.2022.01.19.16.23.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 19 Jan 2022 16:23:54 -0800 (PST)
+Date:   Wed, 19 Jan 2022 16:24:29 -0800
+From:   Bjorn Andersson <bjorn.andersson@linaro.org>
+To:     Alistair Delva <adelva@google.com>
+Cc:     linux-kernel@vger.kernel.org,
+        Rishabh Bhatnagar <rishabhb@codeaurora.org>,
+        stable@vger.kernel.org, Ohad Ben-Cohen <ohad@wizery.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Sibi Sankar <sibis@codeaurora.org>,
+        linux-remoteproc@vger.kernel.org, kernel-team@android.com
+Subject: Re: [PATCH] remoteproc: Fix count check in rproc_coredump_write()
+Message-ID: <YeirvbTh5Cztcgxh@ripper>
+References: <20220119232139.1125908-1-adelva@google.com>
 MIME-Version: 1.0
-From:   Ivan Babrou <ivan@cloudflare.com>
-Date:   Wed, 19 Jan 2022 16:15:34 -0800
-Message-ID: <CABWYdi28yMU2YbJGKvPb91HR7yYAEyq3Zg6QeeBUk3KwjiyTMg@mail.gmail.com>
-Subject: Backport memcg flush improvements into 5.15
-To:     stable@vger.kernel.org
-Cc:     Shakeel Butt <shakeelb@google.com>,
-        kernel-team <kernel-team@cloudflare.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220119232139.1125908-1-adelva@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On Wed 19 Jan 15:21 PST 2022, Alistair Delva wrote:
 
-We've seen a significant perf degradation when reading a tmpfs file
-swapped into zram between 5.10 and 5.15. The source of the issue is:
+> Check count for 0, to avoid a potential underflow. Make the check the
+> same as the one in rproc_recovery_write().
+> 
+> Fixes: 3afdc59e4390 ("remoteproc: Add coredump debugfs entry")
+> Signed-off-by: Alistair Delva <adelva@google.com>
+> Cc: Rishabh Bhatnagar <rishabhb@codeaurora.org>
+> Cc: stable@vger.kernel.org
+> Cc: Ohad Ben-Cohen <ohad@wizery.com>
+> Cc: Bjorn Andersson <bjorn.andersson@linaro.org>
+> Cc: Mathieu Poirier <mathieu.poirier@linaro.org>
+> Cc: Sibi Sankar <sibis@codeaurora.org>
+> Cc: linux-remoteproc@vger.kernel.org
+> Cc: kernel-team@android.com
 
-* aa48e47e3906: memcg: infrastructure to flush memcg stats
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-There's a couple of commits that helps to bridge the gap in 5.16:
+Regards,
+Bjorn
 
-* 11192d9c124d: memcg: flush stats only if updated
-* fd25a9e0e23b: memcg: unify memcg stat flushing
-
-Both of these apply cleanly and Shakeel (the author) has okayed the
-backport from his end. He also suggested backporting the following:
-
-* 5b3be698a872: memcg: better bounds on the memcg stats updates
-
-I personally did not test this one, but it applies cleanly, so there's
-probably no harm. I cc'd Shakeel in case you want confirmation on
-that. It's not a part of any tag yet.
-
-Please backport all three (or at least the first two) to 5.15 LTS.
-
-Thanks!
+> ---
+>  drivers/remoteproc/remoteproc_debugfs.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/remoteproc/remoteproc_debugfs.c b/drivers/remoteproc/remoteproc_debugfs.c
+> index b5a1e3b697d9..581930483ef8 100644
+> --- a/drivers/remoteproc/remoteproc_debugfs.c
+> +++ b/drivers/remoteproc/remoteproc_debugfs.c
+> @@ -76,7 +76,7 @@ static ssize_t rproc_coredump_write(struct file *filp,
+>  	int ret, err = 0;
+>  	char buf[20];
+>  
+> -	if (count > sizeof(buf))
+> +	if (count < 1 || count > sizeof(buf))
+>  		return -EINVAL;
+>  
+>  	ret = copy_from_user(buf, user_buf, count);
+> -- 
+> 2.30.2
+> 
