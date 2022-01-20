@@ -2,124 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC94649517B
-	for <lists+stable@lfdr.de>; Thu, 20 Jan 2022 16:30:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9FBB49517C
+	for <lists+stable@lfdr.de>; Thu, 20 Jan 2022 16:31:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232746AbiATPa2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 Jan 2022 10:30:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46194 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376763AbiATP3w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 Jan 2022 10:29:52 -0500
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE6B5C06173F
-        for <stable@vger.kernel.org>; Thu, 20 Jan 2022 07:29:52 -0800 (PST)
-Received: by mail-pj1-x102e.google.com with SMTP id g11-20020a17090a7d0b00b001b2c12c7273so4556826pjl.0
-        for <stable@vger.kernel.org>; Thu, 20 Jan 2022 07:29:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Vwa3NMPA771XAz5l1Gz468q/XU601vYKsCXyH7Ia0t4=;
-        b=WdgZxPpPTjWOTIdbWFIMzG8FEti+okKHtBT341VtpSJVYEKj4J7QZLeTreJ1DnatOX
-         aQJ706eSXq85S6sF1HVTRy/nbhmKyaQySbbD8bZhEMU7gLmOxalLZ6VGn2vfKyb38pxY
-         rpzWa+lGd4xSnZgYXRlSiXeKSbPLOAGfDd5KEXqNfPpuujoImAq/TOP2wiv5bCP8gw24
-         gwA0uPGxGLnO/u+yIxSZi488gf6OX/0B0h4MqGPUHhLjvyJz7aMtRntyL4ZrET+npjxC
-         8WkAZVF+vKzA9Y1piP4d2rcoXF2vexfT8fe2jlh3OSkJcoQztu3a9ejLNaQSqY2pT9Hp
-         aoag==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Vwa3NMPA771XAz5l1Gz468q/XU601vYKsCXyH7Ia0t4=;
-        b=Y/2txc1poIWumW0L8qsxdgPskOsBWustkpH45iGzyWi/XVKWMe+oBQSSg/fSuBdsD4
-         W6JbCL6WiOblNHxWQAI9pZcljMqEze7aqmBGtvQ63ubfpI3Jpe9dN3ihLsjYhiZBCBqo
-         A15bbi2aQiE27BYm8+a6EWMw2zcb166PuAfcij/V3hLM48qdSz2xItKiFIWTSMZxa+WS
-         NREk5LcHvvUiZSBO9bewEgtjzbS+rOdbnRNOHXNRYDGM3p1ZzD6vqeABQztpZ6Bc/9Dr
-         k21PBnCxRdK5SYNd0BjbY5OS6/sYyNsfWGP73rgK82CqtxnGq1mVNOm4rJ0IfItzTAaf
-         78Jg==
-X-Gm-Message-State: AOAM530icr0khhPyv5hdQ0USJyMWIQ7dC08kqC456o5T/NDZpMcT2NV+
-        322OMxiwqzlaWnFLELvnf3lOmGA9YpCuLOv8
-X-Google-Smtp-Source: ABdhPJwlRJQabmfZ03bUMT+XghgV96ihL05SsHMDbO8LHT12J+Va7qofYUO6wMjVzhHWf75e8SnxiQ==
-X-Received: by 2002:a17:90a:6e0f:: with SMTP id b15mr2101118pjk.102.1642692592243;
-        Thu, 20 Jan 2022 07:29:52 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s6sm3023648pjg.22.2022.01.20.07.29.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 Jan 2022 07:29:51 -0800 (PST)
-Message-ID: <61e97fef.1c69fb81.5a533.7f6a@mx.google.com>
-Date:   Thu, 20 Jan 2022 07:29:51 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1346474AbiATPb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 Jan 2022 10:31:29 -0500
+Received: from smtp-out1.suse.de ([195.135.220.28]:36248 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346385AbiATPb0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 Jan 2022 10:31:26 -0500
+Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
+        by smtp-out1.suse.de (Postfix) with ESMTP id 8BBC92190B;
+        Thu, 20 Jan 2022 15:31:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1642692685; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=CeAKA/iV/5m4aLZ6NbhTnNQny+wAlGZwM27Jzkopjbk=;
+        b=3X1YObwzeOcHGUM+4drtok74aVJX/znxmEe8AHAeUtWM7LKR8t0lQ+tUAu/DO059k9FOn6
+        07NT2yZOAqVCrrzsf6HNrfMMh/Gyb3veNwU0sTZ8b+ocyWEzIChYNW+HZ0+it8T6VAEi3K
+        c2FFP5WAMjO7ZqlBxMvxRK0qoVTOJoc=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1642692685;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=CeAKA/iV/5m4aLZ6NbhTnNQny+wAlGZwM27Jzkopjbk=;
+        b=efaUYMlqQ+jZRmwujeIMi7RF1nt+/XzC8Hi8u9mm+xOxtaQu2Uv6PnufTHs6vnAJfhSX8s
+        3oKomywEZIpwYHDw==
+Received: from quack3.suse.cz (unknown [10.100.200.198])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by relay2.suse.de (Postfix) with ESMTPS id 7B22EA3B89;
+        Thu, 20 Jan 2022 15:31:25 +0000 (UTC)
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+        id 38308A05D3; Thu, 20 Jan 2022 16:31:22 +0100 (CET)
+Date:   Thu, 20 Jan 2022 16:31:22 +0100
+From:   Jan Kara <jack@suse.cz>
+To:     Amir Goldstein <amir73il@gmail.com>
+Cc:     Jan Kara <jack@suse.cz>, Matthew Bobrowski <repnop@google.com>,
+        Ivan Delalande <colona@arista.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH] fnotify: invalidate dcache before IN_DELETE event
+Message-ID: <20220120153122.fpxg24okcmcvkcay@quack3.lan>
+References: <20220118120031.196123-1-amir73il@gmail.com>
+ <20220120125208.jmm2xjwcxaswt3tn@quack3.lan>
+ <CAOQ4uxjxayK006RDAiEm9hKP_JAZhZZDcj7tbnANjQWP-_XObA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.15.16
-X-Kernelci-Tree: stable
-X-Kernelci-Branch: linux-5.15.y
-Subject: stable/linux-5.15.y baseline: 159 runs, 1 regressions (v5.15.16)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAOQ4uxjxayK006RDAiEm9hKP_JAZhZZDcj7tbnANjQWP-_XObA@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-5.15.y baseline: 159 runs, 1 regressions (v5.15.16)
+On Thu 20-01-22 16:31:11, Amir Goldstein wrote:
+> On Thu, Jan 20, 2022 at 2:52 PM Jan Kara <jack@suse.cz> wrote:
+> > > +/*
+> > > + * fsnotify_delete - @dentry was unlinked and unhashed
+> > > + *
+> > > + * Caller must make sure that dentry->d_name is stable.
+> > > + *
+> > > + * Note: unlike fsnotify_unlink(), we have to pass also the unlinked inode
+> > > + * as this may be called after d_delete() and old_dentry may be negative.
+> > > + */
+> > > +static inline void fsnotify_delete(struct inode *dir, struct inode *inode,
+> > > +                                struct dentry *dentry)
+> > > +{
+> > > +     __u32 mask = FS_DELETE;
+> > > +
+> > > +     if (S_ISDIR(inode->i_mode))
+> > > +             mask |= FS_ISDIR;
+> > > +
+> > > +     fsnotify_name(mask, inode, FSNOTIFY_EVENT_INODE, dir, &dentry->d_name,
+> > > +                   0);
+> > > +}
+> > > +
+> >
+> > OK, this is fine because we use dentry only for FAN_RENAME event, don't we?
+> 
+> Almost.
+> We also use dentry in FS_CREATE to get sb from d_sb for error event, because:
+>  * Note: some filesystems (e.g. kernfs) leave @dentry negative and instantiate
+>  * ->d_inode later
 
-Regressions Summary
--------------------
+Ah, right.
 
-platform                | arch  | lab        | compiler | defconfig | regre=
-ssions
-------------------------+-------+------------+----------+-----------+------=
-------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
-      =
+> > In all other cases we always use only inode anyway. Can we perhaps cleanup
+> > include/linux/fsnotify.h to use FSNOTIFY_EVENT_DENTRY only in that one call
+> > site inside fsnotify_move() and use FSNOTIFY_EVENT_INODE in all the other
+> > cases? So that this is clear and also so that we don't start using dentry
+> > inadvertedly for something inside fsnotify thus breaking unlink reporting
+> > in subtle ways...
+> >
+> 
+> I don't know.
+> For fsnotify_unlink/rmdir we check d_is_negative, so it's fine to use
+> FSNOTIFY_EVENT_INODE.
+> For fsnotify_link,fsnotify_move we get the inode explicitly, but we already
+> use FSNOTIFY_EVENT_INODE in those cases (except FS_RENAME).
 
+Yeah, plus we have the xattr and attrib events which need dentry to lookup
+parent. So scratch this idea.
 
-  Details:  https://kernelci.org/test/job/stable/branch/linux-5.15.y/kernel=
-/v5.15.16/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable
-  Branch:   linux-5.15.y
-  Describe: v5.15.16
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able.git
-  SHA:      63dcc388662c3562de94d69bfa771ae4cd29b79f =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                | arch  | lab        | compiler | defconfig | regre=
-ssions
-------------------------+-------+------------+----------+-----------+------=
-------
-sun50i-a64-bananapi-m64 | arm64 | lab-clabbe | gcc-10   | defconfig | 1    =
-      =
-
-
-  Details:     https://kernelci.org/test/plan/id/61e94e86acf88b27baabbd35
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable/linux-5.15.y/v5.15.16/a=
-rm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bananapi-m64.txt
-  HTML log:    https://storage.kernelci.org//stable/linux-5.15.y/v5.15.16/a=
-rm64/defconfig/gcc-10/lab-clabbe/baseline-sun50i-a64-bananapi-m64.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220115.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61e94e86acf88b27baabb=
-d36
-        new failure (last pass: v5.15.15) =
-
- =20
+								Honza
+-- 
+Jan Kara <jack@suse.com>
+SUSE Labs, CR
