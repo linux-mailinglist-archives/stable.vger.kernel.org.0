@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 213E3496858
-	for <lists+stable@lfdr.de>; Sat, 22 Jan 2022 00:54:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DDCD49685B
+	for <lists+stable@lfdr.de>; Sat, 22 Jan 2022 00:54:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229630AbiAUXyC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Jan 2022 18:54:02 -0500
-Received: from mail-pj1-f49.google.com ([209.85.216.49]:35785 "EHLO
-        mail-pj1-f49.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229868AbiAUXyB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Jan 2022 18:54:01 -0500
-Received: by mail-pj1-f49.google.com with SMTP id w12-20020a17090a528c00b001b276aa3aabso14970983pjh.0;
-        Fri, 21 Jan 2022 15:54:01 -0800 (PST)
+        id S229870AbiAUXyE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Jan 2022 18:54:04 -0500
+Received: from mail-pg1-f178.google.com ([209.85.215.178]:45890 "EHLO
+        mail-pg1-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229868AbiAUXyE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Jan 2022 18:54:04 -0500
+Received: by mail-pg1-f178.google.com with SMTP id c5so9376981pgk.12;
+        Fri, 21 Jan 2022 15:54:04 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=kiSTIgq2L6RzGs0SDabU1lIwcvCVrILXPf+FV7lZnhk=;
-        b=LybJaZG5qzyZMszhaUPqh+UyZefW79qDvgmQ170mp47Yzup4PklmT242MUQTd/EoLW
-         n+taLod1aelC9atKVyKxMQgXAuGexWjUNyVIOVyZ1FNcOMkkco4RLuxIeoXoIGFp/MG+
-         VOADqPo8+H+NqULUv3Rar0Rkf4QePy5NQdiylZjP9pbt/hxHm6Rzj6+PFgqgb1GQWDUW
-         8PlqLAuPkjSDRCtXXmyp2xd7h7j26Q41rzX7COPiDRH6sCmwgan2NDIrTqB97CXC3bs8
-         ryTpsKvxAKsCWZ0xQdiaVfWCXS5+uD0ozZcxhtrukdIsKM9udrzjbQkgMN1zhozROp5H
-         pyoA==
-X-Gm-Message-State: AOAM532AbVYgfnUm8gKlRlIQKGRa8x2yOHhZd+RtZwTVzqY4rxGPF8Ez
-        hNIAb21NMz5Wpm/t2ZO9avw=
-X-Google-Smtp-Source: ABdhPJz3Axor6BLNUdu1mkm4qXB65ctwuDIhbq8aEqspxz0VnWvMemNSMPikUmqmAJycmV8zf6p1cg==
-X-Received: by 2002:a17:90a:56:: with SMTP id 22mr2874962pjb.199.1642809241290;
-        Fri, 21 Jan 2022 15:54:01 -0800 (PST)
+        bh=WHDD6AnNIbFltgrQnZ3SkV7eKjXRnp3FzJv1cPkHzs8=;
+        b=o+pixkJe3SNxcoVKROW0J5l7XRkCo0xD+p60r7xSFcIMzJeffLjK1QZOxgafu1lddc
+         tWhP9am1hjxUiSZN+g/FeS2GLqCCPNK0Tif0y09YeJJIti+EzVQwE+30AVfnAFK/NkYT
+         nY+CXRRy2BuBG4HBkZ1KQ9uvr9IBBz+JOH8J2eFe8yk9Ns2vwQjg/lK+QhfWizdSao6L
+         PjUCm/c+wY3BSUD8iMqgyhMwimpOA++bMyvwHcQOzUxf/hBAN8IWOuXYmlq+CSLbchLm
+         TIwjYZKG91zLSILqf9aPET+Kfwo7XeHkNHSq02aMQPS3IDvLjx66cdB4nd23+rbelfVJ
+         ksSw==
+X-Gm-Message-State: AOAM532DM2U88Ut54sYf94AphydYdSbg6Xsql7Um3nTGI//eRJgksYes
+        AOcNSJ/HaI1lsrrBEbGc/RBJDblDVx8=
+X-Google-Smtp-Source: ABdhPJyOI99NLxzay0/sIgGgPGA7+6x07gUbIEdHFjK0hgkEiYC5N65o4qoDrC2Qtnixaxmoj7NAaA==
+X-Received: by 2002:a63:7110:: with SMTP id m16mr4372330pgc.621.1642809244068;
+        Fri, 21 Jan 2022 15:54:04 -0800 (PST)
 Received: from localhost.localdomain ([61.74.27.164])
-        by smtp.gmail.com with ESMTPSA id nn14sm6076356pjb.26.2022.01.21.15.53.59
+        by smtp.gmail.com with ESMTPSA id nn14sm6076356pjb.26.2022.01.21.15.54.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Jan 2022 15:54:01 -0800 (PST)
+        Fri, 21 Jan 2022 15:54:03 -0800 (PST)
 From:   Namjae Jeon <linkinjeon@kernel.org>
 To:     gregkh@linuxfoundation.org
 Cc:     stable@vger.kernel.org, smfrench@gmail.com,
         linux-cifs@vger.kernel.org, Namjae Jeon <linkinjeon@kernel.org>,
         Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.15.y 2/4] ksmbd: move credit charge deduction under processing request
-Date:   Sat, 22 Jan 2022 08:53:38 +0900
-Message-Id: <20220121235340.10269-3-linkinjeon@kernel.org>
+Subject: [PATCH 5.15.y 3/4] ksmbd: limits exceeding the maximum allowable outstanding requests
+Date:   Sat, 22 Jan 2022 08:53:39 +0900
+Message-Id: <20220121235340.10269-4-linkinjeon@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220121235340.10269-1-linkinjeon@kernel.org>
 References: <20220121235340.10269-1-linkinjeon@kernel.org>
@@ -50,89 +50,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 914d7e5709ac59ded70bea7956d408fe2acd7c3c upstream.
+commit b589f5db6d4af8f14d70e31e1276b4c017668a26 upstream.
 
-Moves the credit charge deduction from total_credits under the processing
-a request. When repeating smb2 lock request and other command request,
-there will be a problem that ->total_credits does not decrease.
+If the client ignores the CreditResponse received from the server and
+continues to send the request, ksmbd limits the requests if it exceeds
+smb2 max credits.
 
 Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 ---
- fs/ksmbd/smb2misc.c |  7 ++-----
- fs/ksmbd/smb2pdu.c  | 16 ++++++++++------
- 2 files changed, 12 insertions(+), 11 deletions(-)
+ fs/ksmbd/connection.c | 1 +
+ fs/ksmbd/connection.h | 3 ++-
+ fs/ksmbd/smb2misc.c   | 9 +++++++++
+ fs/ksmbd/smb2pdu.c    | 1 +
+ 4 files changed, 13 insertions(+), 1 deletion(-)
 
+diff --git a/fs/ksmbd/connection.c b/fs/ksmbd/connection.c
+index b57a0d8a392f..f7d5e8b7bef7 100644
+--- a/fs/ksmbd/connection.c
++++ b/fs/ksmbd/connection.c
+@@ -62,6 +62,7 @@ struct ksmbd_conn *ksmbd_conn_alloc(void)
+ 	atomic_set(&conn->req_running, 0);
+ 	atomic_set(&conn->r_count, 0);
+ 	conn->total_credits = 1;
++	conn->outstanding_credits = 1;
+ 
+ 	init_waitqueue_head(&conn->req_running_q);
+ 	INIT_LIST_HEAD(&conn->conns_list);
+diff --git a/fs/ksmbd/connection.h b/fs/ksmbd/connection.h
+index 08e85568ccd6..8694aef482c1 100644
+--- a/fs/ksmbd/connection.h
++++ b/fs/ksmbd/connection.h
+@@ -61,7 +61,8 @@ struct ksmbd_conn {
+ 	atomic_t			req_running;
+ 	/* References which are made for this Server object*/
+ 	atomic_t			r_count;
+-	unsigned short			total_credits;
++	unsigned int			total_credits;
++	unsigned int			outstanding_credits;
+ 	spinlock_t			credits_lock;
+ 	wait_queue_head_t		req_running_q;
+ 	/* Lock to protect requests list*/
 diff --git a/fs/ksmbd/smb2misc.c b/fs/ksmbd/smb2misc.c
-index f8f031978d06..e4a28eae51b2 100644
+index e4a28eae51b2..cc1c38686ecd 100644
 --- a/fs/ksmbd/smb2misc.c
 +++ b/fs/ksmbd/smb2misc.c
-@@ -290,7 +290,7 @@ static int smb2_validate_credit_charge(struct ksmbd_conn *conn,
- 	unsigned int req_len = 0, expect_resp_len = 0, calc_credit_num, max_len;
- 	unsigned short credit_charge = le16_to_cpu(hdr->CreditCharge);
- 	void *__hdr = hdr;
--	int ret;
-+	int ret = 0;
- 
- 	switch (hdr->Command) {
- 	case SMB2_QUERY_INFO:
-@@ -333,10 +333,7 @@ static int smb2_validate_credit_charge(struct ksmbd_conn *conn,
- 	}
- 
- 	spin_lock(&conn->credits_lock);
--	if (credit_charge <= conn->total_credits) {
--		conn->total_credits -= credit_charge;
--		ret = 0;
--	} else {
-+	if (credit_charge > conn->total_credits) {
- 		ksmbd_debug(SMB, "Insufficient credits granted, given: %u, granted: %u\n",
+@@ -338,7 +338,16 @@ static int smb2_validate_credit_charge(struct ksmbd_conn *conn,
  			    credit_charge, conn->total_credits);
  		ret = 1;
+ 	}
++
++	if ((u64)conn->outstanding_credits + credit_charge > conn->vals->max_credits) {
++		ksmbd_debug(SMB, "Limits exceeding the maximum allowable outstanding requests, given : %u, pending : %u\n",
++			    credit_charge, conn->outstanding_credits);
++		ret = 1;
++	} else
++		conn->outstanding_credits += credit_charge;
++
+ 	spin_unlock(&conn->credits_lock);
++
+ 	return ret;
+ }
+ 
 diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
-index 7be0e0994e10..0ce35717cdde 100644
+index 0ce35717cdde..5327247f98e4 100644
 --- a/fs/ksmbd/smb2pdu.c
 +++ b/fs/ksmbd/smb2pdu.c
-@@ -301,9 +301,8 @@ int smb2_set_rsp_credits(struct ksmbd_work *work)
- 	struct smb2_hdr *req_hdr = ksmbd_req_buf_next(work);
- 	struct smb2_hdr *hdr = ksmbd_resp_buf_next(work);
- 	struct ksmbd_conn *conn = work->conn;
--	unsigned short credits_requested;
-+	unsigned short credits_requested, aux_max;
- 	unsigned short credit_charge, credits_granted = 0;
--	unsigned short aux_max, aux_credits;
+@@ -324,6 +324,7 @@ int smb2_set_rsp_credits(struct ksmbd_work *work)
+ 	}
  
- 	if (work->send_no_response)
- 		return 0;
-@@ -318,6 +317,13 @@ int smb2_set_rsp_credits(struct ksmbd_work *work)
- 
- 	credit_charge = max_t(unsigned short,
- 			      le16_to_cpu(req_hdr->CreditCharge), 1);
-+	if (credit_charge > conn->total_credits) {
-+		ksmbd_debug(SMB, "Insufficient credits granted, given: %u, granted: %u\n",
-+			    credit_charge, conn->total_credits);
-+		return -EINVAL;
-+	}
-+
-+	conn->total_credits -= credit_charge;
+ 	conn->total_credits -= credit_charge;
++	conn->outstanding_credits -= credit_charge;
  	credits_requested = max_t(unsigned short,
  				  le16_to_cpu(req_hdr->CreditRequest), 1);
  
-@@ -327,13 +333,11 @@ int smb2_set_rsp_credits(struct ksmbd_work *work)
- 	 * TODO: Need to adjuct CreditRequest value according to
- 	 * current cpu load
- 	 */
--	aux_credits = credits_requested - 1;
- 	if (hdr->Command == SMB2_NEGOTIATE)
--		aux_max = 0;
-+		aux_max = 1;
- 	else
- 		aux_max = conn->vals->max_credits - credit_charge;
--	aux_credits = min_t(unsigned short, aux_credits, aux_max);
--	credits_granted = credit_charge + aux_credits;
-+	credits_granted = min_t(unsigned short, credits_requested, aux_max);
- 
- 	if (conn->vals->max_credits - conn->total_credits < credits_granted)
- 		credits_granted = conn->vals->max_credits -
 -- 
 2.25.1
 
