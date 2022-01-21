@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DDCD49685B
-	for <lists+stable@lfdr.de>; Sat, 22 Jan 2022 00:54:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CCCA49685D
+	for <lists+stable@lfdr.de>; Sat, 22 Jan 2022 00:54:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229870AbiAUXyE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Jan 2022 18:54:04 -0500
-Received: from mail-pg1-f178.google.com ([209.85.215.178]:45890 "EHLO
-        mail-pg1-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229868AbiAUXyE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Jan 2022 18:54:04 -0500
-Received: by mail-pg1-f178.google.com with SMTP id c5so9376981pgk.12;
-        Fri, 21 Jan 2022 15:54:04 -0800 (PST)
+        id S229868AbiAUXyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Jan 2022 18:54:09 -0500
+Received: from mail-pf1-f178.google.com ([209.85.210.178]:33282 "EHLO
+        mail-pf1-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229880AbiAUXyH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Jan 2022 18:54:07 -0500
+Received: by mail-pf1-f178.google.com with SMTP id y27so6105227pfa.0;
+        Fri, 21 Jan 2022 15:54:07 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
          :references:mime-version:content-transfer-encoding;
-        bh=WHDD6AnNIbFltgrQnZ3SkV7eKjXRnp3FzJv1cPkHzs8=;
-        b=o+pixkJe3SNxcoVKROW0J5l7XRkCo0xD+p60r7xSFcIMzJeffLjK1QZOxgafu1lddc
-         tWhP9am1hjxUiSZN+g/FeS2GLqCCPNK0Tif0y09YeJJIti+EzVQwE+30AVfnAFK/NkYT
-         nY+CXRRy2BuBG4HBkZ1KQ9uvr9IBBz+JOH8J2eFe8yk9Ns2vwQjg/lK+QhfWizdSao6L
-         PjUCm/c+wY3BSUD8iMqgyhMwimpOA++bMyvwHcQOzUxf/hBAN8IWOuXYmlq+CSLbchLm
-         TIwjYZKG91zLSILqf9aPET+Kfwo7XeHkNHSq02aMQPS3IDvLjx66cdB4nd23+rbelfVJ
-         ksSw==
-X-Gm-Message-State: AOAM532DM2U88Ut54sYf94AphydYdSbg6Xsql7Um3nTGI//eRJgksYes
-        AOcNSJ/HaI1lsrrBEbGc/RBJDblDVx8=
-X-Google-Smtp-Source: ABdhPJyOI99NLxzay0/sIgGgPGA7+6x07gUbIEdHFjK0hgkEiYC5N65o4qoDrC2Qtnixaxmoj7NAaA==
-X-Received: by 2002:a63:7110:: with SMTP id m16mr4372330pgc.621.1642809244068;
-        Fri, 21 Jan 2022 15:54:04 -0800 (PST)
+        bh=khIC+u+MTPJ26mN7B+E2bNWIhiuFBq3/IbsqxM4+2ys=;
+        b=SOGzurSdsjQbbW+IpUW011P3sJME4av5fhZIDpPpMPpr/XCdRGWOj6ZK2kzJjbX48z
+         z3eh/4xuh303jbT783bD8GxlHUDDcvk39jj8sCAznGR59JNm8hJGLysgTFnaAxDx5O7g
+         CP1jcCBB0orTdiH0kpgVFKXQkT1px9iMwNr27QAe6n5x1t7UluxgmppZQKjlgXroLbEJ
+         3U2CNUYdQjM4pAl6DJsG53hINPQmqfnxE/FgZ/seP6kXvJbpfOOt6COuK+Q3fOseHcUB
+         rzwwXXJK0QAExB2PECAJcgM/STdbZxksb1O3Wse3lwmk6rwPMHub9hs7HoDIeO0TT51O
+         ltuw==
+X-Gm-Message-State: AOAM532L5Dpu09QASr71N8JiV6FVxhjkq2aPz4ROaa0ZWOGlTQ1a+p7r
+        Vs4P2cgfLxnirynIzlsdK9ETK7pN4FQ=
+X-Google-Smtp-Source: ABdhPJyjXbsyyNsUsZqUsHfgFQpHFScvk3yRbY187roDQQaqaGPnUw1RJPkfddY5TFLr2Tp/t/1C2Q==
+X-Received: by 2002:a63:b44a:: with SMTP id n10mr4431716pgu.77.1642809247178;
+        Fri, 21 Jan 2022 15:54:07 -0800 (PST)
 Received: from localhost.localdomain ([61.74.27.164])
-        by smtp.gmail.com with ESMTPSA id nn14sm6076356pjb.26.2022.01.21.15.54.02
+        by smtp.gmail.com with ESMTPSA id nn14sm6076356pjb.26.2022.01.21.15.54.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 Jan 2022 15:54:03 -0800 (PST)
+        Fri, 21 Jan 2022 15:54:06 -0800 (PST)
 From:   Namjae Jeon <linkinjeon@kernel.org>
 To:     gregkh@linuxfoundation.org
 Cc:     stable@vger.kernel.org, smfrench@gmail.com,
         linux-cifs@vger.kernel.org, Namjae Jeon <linkinjeon@kernel.org>,
         Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.15.y 3/4] ksmbd: limits exceeding the maximum allowable outstanding requests
-Date:   Sat, 22 Jan 2022 08:53:39 +0900
-Message-Id: <20220121235340.10269-4-linkinjeon@kernel.org>
+Subject: [PATCH 5.15.y 4/4] ksmbd: add reserved room in ipc request/response
+Date:   Sat, 22 Jan 2022 08:53:40 +0900
+Message-Id: <20220121235340.10269-5-linkinjeon@kernel.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20220121235340.10269-1-linkinjeon@kernel.org>
 References: <20220121235340.10269-1-linkinjeon@kernel.org>
@@ -50,80 +50,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit b589f5db6d4af8f14d70e31e1276b4c017668a26 upstream.
+commit 41dbda16a0902798e732abc6599de256b9dc3b27 upstream.
 
-If the client ignores the CreditResponse received from the server and
-continues to send the request, ksmbd limits the requests if it exceeds
-smb2 max credits.
+Whenever new parameter is added to smb configuration, It is possible
+to break the execution of the IPC daemon by mismatch size of
+request/response. This patch tries to reserve space in ipc request/response
+in advance to prevent that.
 
 Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 ---
- fs/ksmbd/connection.c | 1 +
- fs/ksmbd/connection.h | 3 ++-
- fs/ksmbd/smb2misc.c   | 9 +++++++++
- fs/ksmbd/smb2pdu.c    | 1 +
- 4 files changed, 13 insertions(+), 1 deletion(-)
+ fs/ksmbd/ksmbd_netlink.h | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ksmbd/connection.c b/fs/ksmbd/connection.c
-index b57a0d8a392f..f7d5e8b7bef7 100644
---- a/fs/ksmbd/connection.c
-+++ b/fs/ksmbd/connection.c
-@@ -62,6 +62,7 @@ struct ksmbd_conn *ksmbd_conn_alloc(void)
- 	atomic_set(&conn->req_running, 0);
- 	atomic_set(&conn->r_count, 0);
- 	conn->total_credits = 1;
-+	conn->outstanding_credits = 1;
+diff --git a/fs/ksmbd/ksmbd_netlink.h b/fs/ksmbd/ksmbd_netlink.h
+index a5c2861792ae..71bfb7de4472 100644
+--- a/fs/ksmbd/ksmbd_netlink.h
++++ b/fs/ksmbd/ksmbd_netlink.h
+@@ -104,6 +104,7 @@ struct ksmbd_startup_request {
+ 					 */
+ 	__u32	sub_auth[3];		/* Subauth value for Security ID */
+ 	__u32	smb2_max_credits;	/* MAX credits */
++	__u32	reserved[128];		/* Reserved room */
+ 	__u32	ifc_list_sz;		/* interfaces list size */
+ 	__s8	____payload[];
+ };
+@@ -114,7 +115,7 @@ struct ksmbd_startup_request {
+  * IPC request to shutdown ksmbd server.
+  */
+ struct ksmbd_shutdown_request {
+-	__s32	reserved;
++	__s32	reserved[16];
+ };
  
- 	init_waitqueue_head(&conn->req_running_q);
- 	INIT_LIST_HEAD(&conn->conns_list);
-diff --git a/fs/ksmbd/connection.h b/fs/ksmbd/connection.h
-index 08e85568ccd6..8694aef482c1 100644
---- a/fs/ksmbd/connection.h
-+++ b/fs/ksmbd/connection.h
-@@ -61,7 +61,8 @@ struct ksmbd_conn {
- 	atomic_t			req_running;
- 	/* References which are made for this Server object*/
- 	atomic_t			r_count;
--	unsigned short			total_credits;
-+	unsigned int			total_credits;
-+	unsigned int			outstanding_credits;
- 	spinlock_t			credits_lock;
- 	wait_queue_head_t		req_running_q;
- 	/* Lock to protect requests list*/
-diff --git a/fs/ksmbd/smb2misc.c b/fs/ksmbd/smb2misc.c
-index e4a28eae51b2..cc1c38686ecd 100644
---- a/fs/ksmbd/smb2misc.c
-+++ b/fs/ksmbd/smb2misc.c
-@@ -338,7 +338,16 @@ static int smb2_validate_credit_charge(struct ksmbd_conn *conn,
- 			    credit_charge, conn->total_credits);
- 		ret = 1;
- 	}
-+
-+	if ((u64)conn->outstanding_credits + credit_charge > conn->vals->max_credits) {
-+		ksmbd_debug(SMB, "Limits exceeding the maximum allowable outstanding requests, given : %u, pending : %u\n",
-+			    credit_charge, conn->outstanding_credits);
-+		ret = 1;
-+	} else
-+		conn->outstanding_credits += credit_charge;
-+
- 	spin_unlock(&conn->credits_lock);
-+
- 	return ret;
- }
+ /*
+@@ -123,6 +124,7 @@ struct ksmbd_shutdown_request {
+ struct ksmbd_login_request {
+ 	__u32	handle;
+ 	__s8	account[KSMBD_REQ_MAX_ACCOUNT_NAME_SZ]; /* user account name */
++	__u32	reserved[16];				/* Reserved room */
+ };
  
-diff --git a/fs/ksmbd/smb2pdu.c b/fs/ksmbd/smb2pdu.c
-index 0ce35717cdde..5327247f98e4 100644
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -324,6 +324,7 @@ int smb2_set_rsp_credits(struct ksmbd_work *work)
- 	}
+ /*
+@@ -136,6 +138,7 @@ struct ksmbd_login_response {
+ 	__u16	status;
+ 	__u16	hash_sz;			/* hash size */
+ 	__s8	hash[KSMBD_REQ_MAX_HASH_SZ];	/* password hash */
++	__u32	reserved[16];			/* Reserved room */
+ };
  
- 	conn->total_credits -= credit_charge;
-+	conn->outstanding_credits -= credit_charge;
- 	credits_requested = max_t(unsigned short,
- 				  le16_to_cpu(req_hdr->CreditRequest), 1);
+ /*
+@@ -144,6 +147,7 @@ struct ksmbd_login_response {
+ struct ksmbd_share_config_request {
+ 	__u32	handle;
+ 	__s8	share_name[KSMBD_REQ_MAX_SHARE_NAME]; /* share name */
++	__u32	reserved[16];		/* Reserved room */
+ };
  
+ /*
+@@ -158,6 +162,7 @@ struct ksmbd_share_config_response {
+ 	__u16	force_directory_mode;
+ 	__u16	force_uid;
+ 	__u16	force_gid;
++	__u32	reserved[128];		/* Reserved room */
+ 	__u32	veto_list_sz;
+ 	__s8	____payload[];
+ };
+@@ -188,6 +193,7 @@ struct ksmbd_tree_connect_request {
+ 	__s8	account[KSMBD_REQ_MAX_ACCOUNT_NAME_SZ];
+ 	__s8	share[KSMBD_REQ_MAX_SHARE_NAME];
+ 	__s8	peer_addr[64];
++	__u32	reserved[16];		/* Reserved room */
+ };
+ 
+ /*
+@@ -197,6 +203,7 @@ struct ksmbd_tree_connect_response {
+ 	__u32	handle;
+ 	__u16	status;
+ 	__u16	connection_flags;
++	__u32	reserved[16];		/* Reserved room */
+ };
+ 
+ /*
+@@ -205,6 +212,7 @@ struct ksmbd_tree_connect_response {
+ struct ksmbd_tree_disconnect_request {
+ 	__u64	session_id;	/* session id */
+ 	__u64	connect_id;	/* tree connection id */
++	__u32	reserved[16];	/* Reserved room */
+ };
+ 
+ /*
+@@ -213,6 +221,7 @@ struct ksmbd_tree_disconnect_request {
+ struct ksmbd_logout_request {
+ 	__s8	account[KSMBD_REQ_MAX_ACCOUNT_NAME_SZ]; /* user account name */
+ 	__u32	account_flags;
++	__u32	reserved[16];				/* Reserved room */
+ };
+ 
+ /*
 -- 
 2.25.1
 
