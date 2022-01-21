@@ -2,243 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98D90495C22
-	for <lists+stable@lfdr.de>; Fri, 21 Jan 2022 09:42:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 91537495C3C
+	for <lists+stable@lfdr.de>; Fri, 21 Jan 2022 09:46:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234222AbiAUImY convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 21 Jan 2022 03:42:24 -0500
-Received: from mail-eopbgr90047.outbound.protection.outlook.com ([40.107.9.47]:53600
-        "EHLO FRA01-MR2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S234238AbiAUImV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 Jan 2022 03:42:21 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=QCdt/04nCTk0QZ1Lqfq+iOozSToEob5V7YYMyL2V2y00b6Z1xu/jkWuqaDIpxx+1xnQBJbmEgRATK4rwCuIXWSvSKXOLLRqgIexZJlxbIk6tIcdtTg0tOp2NUinoASr5RS7I+fvmlWQwWmfziafPFjWhRm6HQp2Su80qbo2Jwmg7a+0kFbIz9cqPX3ygYSs+C+sor2+FzUiR3oo534OCWYXPAw88bAD/jE7EiD/Ypacq39IfLo6x67JukFwnMvquzix761MxVKtymLG8Vsr9aTxRVu31X6VuXXXdvM86aB2OCNATWTscAQcbPMvmL1RcAPxgyfc3WHjNW8w9NABf9w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=lw5N86s3tqPtBgpRDVxozjxEFAMRNf6EE/hUhEFfU3c=;
- b=XwXn7IIXxNIPcB70SS8i0Biva04wLUKXOGc68QXVeQWE0rMTE6/bjn/B8LLPxUff+XJtXzAAFX13F+8cft4IwnQZY6Vp19QosMWH3bmxo6SEJlrSo9WBynlXPvmHvlSHT9EJ4RqSYfutljxITefsCjFWewS/nUqX2ORKrOgHusPFc+YQ9DLlX0rqRNVKP4cT33Ox7BYUO8VWzh7oJE4hr+lAaxChS//y2oS3Rf1DvIli3mCJH/OuYxxj0RDix7UyWP3sss+urCbW7C3mDbfIPcHYeL4TCm4SWu25kv1Vrs5Ds5eVu0VLBHMZ6GJVb3RJfrjtH7+C5xZoU0e2iw9yxw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-Received: from MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM (2603:10a6:501:31::15)
- by PR1P264MB2206.FRAP264.PROD.OUTLOOK.COM (2603:10a6:102:192::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4909.8; Fri, 21 Jan
- 2022 08:42:18 +0000
-Received: from MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
- ([fe80::9d4f:1090:9b36:3fc5]) by MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
- ([fe80::9d4f:1090:9b36:3fc5%5]) with mapi id 15.20.4909.008; Fri, 21 Jan 2022
- 08:42:18 +0000
-From:   Christophe Leroy <christophe.leroy@csgroup.eu>
-To:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        "alex@ghiti.fr" <alex@ghiti.fr>
-CC:     Christophe Leroy <christophe.leroy@csgroup.eu>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
-        "linux-mm@kvack.org" <linux-mm@kvack.org>,
-        "akpm@linux-foundation.org" <akpm@linux-foundation.org>,
-        "catalin.marinas@arm.com" <catalin.marinas@arm.com>,
-        "will@kernel.org" <will@kernel.org>,
-        "linux-arm-kernel@lists.infradead.org" 
-        <linux-arm-kernel@lists.infradead.org>,
-        Steve Capper <steve.capper@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: [PATCH v7 04/14] mm, hugetlbfs: Allow for "high" userspace addresses
-Thread-Topic: [PATCH v7 04/14] mm, hugetlbfs: Allow for "high" userspace
- addresses
-Thread-Index: AQHYDqLM2DB5nXoCH0elbLgrlKVk/Q==
-Date:   Fri, 21 Jan 2022 08:42:18 +0000
-Message-ID: <6c95091eab9f58cee58da3762a4dc4c56ab700e7.1642752946.git.christophe.leroy@csgroup.eu>
-References: <cover.1642752946.git.christophe.leroy@csgroup.eu>
-In-Reply-To: <cover.1642752946.git.christophe.leroy@csgroup.eu>
-Accept-Language: fr-FR, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=csgroup.eu;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 1c6216db-644c-4901-25c2-08d9dcb9eef0
-x-ms-traffictypediagnostic: PR1P264MB2206:EE_
-x-microsoft-antispam-prvs: <PR1P264MB220689C22DD49651721224FAED5B9@PR1P264MB2206.FRAP264.PROD.OUTLOOK.COM>
-x-ms-oob-tlc-oobclassifiers: OLM:4714;
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: +RO20GS1c4VhLu9s7YiE5j52zwIg2XymivZtg+nuq8HGC/YljKkKBq2yy/Q6yFHb5mEXah1d2Gzp/bvzpb9f8vq+ltr8gD6vPH63ONZgLwh1d+pjKz5FyOUy4/hpjQMYW3loLD+uxXvr+M0xYXHhzwIQvU3iLfRFBnmUtWEEE+erZ5aqtNaPvYGYkeEEwJkm8YWrISgpg+ZWNgohZ8KVW2sKEbTuIDfHarteUeGRlpIviRqpKFGyjZCCyWoPRiEs0btoAgC+6VS5eQW8jUlifsgKYVjPxh3PlF9tdMDfUKABr5BezXtkcA8W3v/Bwvy0Zlm4J9eIt4K9APbQNw6dZpgMb2fkoZ2EkPm36G3SQ7KV5xeaxoxB1VRyUw7ukLriguCvbm5weXyLqXdEogmQYYVMiw1qXB6igSAIAGB6CQZQ0iBIr9aeXTtpCgBDU8FT+zdvD81HAmAQgpZvDPXh0/yToKsr3p7unmAH1jPSIcAtLZwyoyE39r8RVkzzDFnGZVyh5oRePnBbkaZepRM3Aq3R617COIA+1STAdsJ8fv1qTWl1kXrXbJl0CDtBmfSjcWyQb0y7qCuf2B9LVSR8I2vtOOAp+LMkJY5tugr+cgpWyFsi5f17iE8dMvw0RM9MH1fbEQduTMHCHKVrDPqvGqM6Hf4XbA7V3L2Zz6iapqOtdWha6DjglWSOO3+X8SoZ7TWP7CYvawi6cyu1xhbt6w==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(4636009)(366004)(71200400001)(316002)(54906003)(38070700005)(2906002)(6512007)(8936002)(6486002)(86362001)(186003)(2616005)(83380400001)(7416002)(110136005)(26005)(66476007)(66556008)(64756008)(91956017)(36756003)(66946007)(44832011)(76116006)(66446008)(38100700002)(508600001)(5660300002)(8676002)(4326008)(122000001)(6506007);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?iso-8859-1?Q?W9vekwVZWTR+cbQo1SvzyZEL9gWBpvWRwupVXLAgzZtEfvgl8L0euDsY/j?=
- =?iso-8859-1?Q?pLlRyMzAYQX31AJNPP1bG63YAxSAnVZ6okRm92xg2tNlCLzSoxFmvrJnnD?=
- =?iso-8859-1?Q?MjWDodvc4VssOwLRgXIs/Wgpo0+46KnMKv2Ip2/jBuIr91LL/ZhIlvGOqN?=
- =?iso-8859-1?Q?9D1gPAuIsMS+oVO9AP+TJANJHdJyCujG7q+awv8J3cXAGbCK6r6I6CtXvQ?=
- =?iso-8859-1?Q?TP58GHzbjzUYNGG3b9UXPFIrppKCgecAGjGJ+C9fNcrbVByTOg7i0NL0z+?=
- =?iso-8859-1?Q?jQV/6gnNQONzpQoYlED6iFR0sJODRlFx/cAfWK/P6GNYp3JrR3LF4bJp+g?=
- =?iso-8859-1?Q?MbHBjrPX3Xzv1gSSwekcc06y9rwxFtxTCguwklnxEAcY0PEVDD/ZliPt21?=
- =?iso-8859-1?Q?hIC1dufodUElQje+fW1P98UI1+eya8Z9W0Y8qWzlXKTIG3/kdjQHS5pWmC?=
- =?iso-8859-1?Q?yiUSKxcXOQiWbTb7mvaIx2z/nbyktzhwZuTpXcmEVElcAX+Z2yH62CwVC1?=
- =?iso-8859-1?Q?Fquc5lg/GODztMMMeKoLy8np58synaMHZkkxvXhHAOQprsAFgY2HmveTkz?=
- =?iso-8859-1?Q?2KTge6I5q0TEOadLdRhJa2y9TX7jqcV2EgAPjlm4/y40bpyNk4l7k8dPQR?=
- =?iso-8859-1?Q?tJsSX9cQB8GbKhSfdz78XiRZnEEt5NhB5GWCLFd2CAiwweOoqFZ+sGmXaD?=
- =?iso-8859-1?Q?s2H4w8joViyFsdObP01IiktfhG07FkaWQaLJbM++8rOPE9dM9YuIZyrORz?=
- =?iso-8859-1?Q?7adCQKhcF+29A9u2NFr0s2HhL14SLJ/CDpcGTstTmJJ9NQjPwVN2HleGoC?=
- =?iso-8859-1?Q?aFIJNfX9Pueg2f/wDEKYKm439ruotYVJP0TLZw0Xyhmi+PBHB3xYhojIVH?=
- =?iso-8859-1?Q?wh51ebNzEcZIztutDMlAGz4MrnHpPTBMTmQbG3HXeMYesknfd5N4YEn7zg?=
- =?iso-8859-1?Q?pPqnA+pe7duDwAkcO5Imk5pot2O8HoeOjezC+sQR+Yojb8QVE5/tUgjL6h?=
- =?iso-8859-1?Q?yr33xSTx63XJ3S4vyy6CQcKcJEdMSuncKYJvSGGCdQxvXlemLgdyp9b4SR?=
- =?iso-8859-1?Q?um2PAebn89AQ88IxDCKsgcfVjStfHJqlhY2HrM7Swb2AWkpGlA/4vQzRr8?=
- =?iso-8859-1?Q?dZNcoW1lkuF4fyDhqLqeM7TXQbvGE5JcVpVd6opAitv8sUWzsG4mvxFDY2?=
- =?iso-8859-1?Q?Nm2g7xnZK+yOmCIUCpBEQlvO4HZLBnQJOfIeASUkGrdfwJPyh0wyUf/C1b?=
- =?iso-8859-1?Q?mej6pz3btcgRouKyG0RIxmXeOOFrAKGvndeNm5SHS/X1bCiyXOEOYzmzu6?=
- =?iso-8859-1?Q?UI/of2/+D7qe5oZm0GBf4S+Vk7Q4ZIsDqdLk9VG10sR3RDH2E9mm/AOtEJ?=
- =?iso-8859-1?Q?T1wtJs+jWiHvaq2G5q+EWiBdQ2CXs4E3fLTVKfUb/IrtC/Y1NU7UAhObj0?=
- =?iso-8859-1?Q?WImhT04hvqV6MmwLtubG8tsHMtA/nvoemNY7IZjNmzR/ee6nSMmJLFoftT?=
- =?iso-8859-1?Q?CjWAlLhGGN3XCilN6XbbVZENbLpgXWK0UB3i4+kFEz+8N7fuJ5JFmmkXgj?=
- =?iso-8859-1?Q?XHc6e03JNiEFzOHfF1cKqxwxRWIvMKTvClFJKN0EdvkcKbi+kb2IZbDH7+?=
- =?iso-8859-1?Q?sIE5xAPn0ifmQlxAcDtvE2gWx3/g6eAWdwoMPPJAke24ajeoZtpA1TCn83?=
- =?iso-8859-1?Q?1eSM9CFPuJsA2IcsvIB+k4XA/zaYDKsQH893zmtjDeQwYxrGKc9EuM0aNs?=
- =?iso-8859-1?Q?fsihvdw4wFmxFBvKS3A8k1suA=3D?=
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+        id S234507AbiAUIq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Jan 2022 03:46:29 -0500
+Received: from smtp-out1.suse.de ([195.135.220.28]:34712 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1379616AbiAUIoG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Jan 2022 03:44:06 -0500
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 45834218ED;
+        Fri, 21 Jan 2022 08:44:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1642754645; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=+nqVeT08mrJpHzyoInkYIgIo/MheF55WNHiHZCva8qo=;
+        b=b4ddEBDUAUdOp7OX4QHDub/6c09LlEsXeOGxqy6VuANKaesjRp5cfGixAqWLiqWkoG0I4S
+        amOS6FjBO+O6O9FOurE4MhcgxzX6oa3nsb4WkwTvIMbuofBZQysFrfzOL06tgSZd/X/Lpa
+        iPMhoZaqmP2IDaNRsLyLooFVtnJdFQ0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1642754645;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=+nqVeT08mrJpHzyoInkYIgIo/MheF55WNHiHZCva8qo=;
+        b=2+xevdpFXp5yxhMjNTB462AjFesOhlni0G1IrIZnwC83pejHYEDSuuFp+cF2rNYUv4oPMT
+        UBf0o8eiWYvKBBCg==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 214CF13BAC;
+        Fri, 21 Jan 2022 08:44:05 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id mvsBB1Vy6mFAPgAAMHmgww
+        (envelope-from <tzimmermann@suse.de>); Fri, 21 Jan 2022 08:44:05 +0000
+Message-ID: <550c94f9-8302-c015-17be-d97fbe2e1b89@suse.de>
+Date:   Fri, 21 Jan 2022 09:44:04 +0100
 MIME-Version: 1.0
-X-OriginatorOrg: csgroup.eu
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: MRZP264MB2988.FRAP264.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1c6216db-644c-4901-25c2-08d9dcb9eef0
-X-MS-Exchange-CrossTenant-originalarrivaltime: 21 Jan 2022 08:42:18.5099
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 9914def7-b676-4fda-8815-5d49fb3b45c8
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: gBfZW1GH8L4QWmsllaah1+kXn3I7doOZ3MCPALacgWkmJfhILrSfeXvs3hIbja3USmD7WOj/CtL0Cis8MsPmGItv4AS1nduNeqAbzocEfRg=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PR1P264MB2206
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH] drm/vmwgfx: Stop requesting the pci regions
+Content-Language: en-US
+To:     Zack Rusin <zackr@vmware.com>,
+        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+        "javierm@redhat.com" <javierm@redhat.com>
+Cc:     Martin Krastev <krastevm@vmware.com>,
+        Maaz Mombasawala <mombasawalam@vmware.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <20220117180359.18114-1-zack@kde.org>
+ <1c177e79-d28a-e896-08ec-3cd4cd2fb823@redhat.com>
+ <da4e34772a9557cf4c4733ce6ee2a2ad47615044.camel@vmware.com>
+ <5292edf8-0e60-28e1-15d3-6a1779023f68@suse.de>
+ <afc4c659-b92e-3227-634f-7c171b7a74b3@suse.de>
+ <80fc6b88d659dd7281364daccfed1fd294e785dc.camel@vmware.com>
+ <89f1b9df-6ace-d59c-86a4-571cd92d0a4c@suse.de>
+ <e9f42f83d7966952c8c0ff78be7e510a2aebdf01.camel@vmware.com>
+ <14b3043a-2569-f4fb-a73d-d67ee1feaee4@suse.de>
+ <9f9b9417d04e4ca7157b03a1e4430e2ce374d97a.camel@vmware.com>
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+In-Reply-To: <9f9b9417d04e4ca7157b03a1e4430e2ce374d97a.camel@vmware.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------ykSv4ZUIDDse1lbC9Qu2srIW"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is a complement of f6795053dac8 ("mm: mmap: Allow for "high"
-userspace addresses") for hugetlb.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------ykSv4ZUIDDse1lbC9Qu2srIW
+Content-Type: multipart/mixed; boundary="------------Ibl9G10vqptQtp7lyMNoRHxd";
+ protected-headers="v1"
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: Zack Rusin <zackr@vmware.com>,
+ "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+ "javierm@redhat.com" <javierm@redhat.com>
+Cc: Martin Krastev <krastevm@vmware.com>,
+ Maaz Mombasawala <mombasawalam@vmware.com>,
+ "stable@vger.kernel.org" <stable@vger.kernel.org>
+Message-ID: <550c94f9-8302-c015-17be-d97fbe2e1b89@suse.de>
+Subject: Re: [PATCH] drm/vmwgfx: Stop requesting the pci regions
+References: <20220117180359.18114-1-zack@kde.org>
+ <1c177e79-d28a-e896-08ec-3cd4cd2fb823@redhat.com>
+ <da4e34772a9557cf4c4733ce6ee2a2ad47615044.camel@vmware.com>
+ <5292edf8-0e60-28e1-15d3-6a1779023f68@suse.de>
+ <afc4c659-b92e-3227-634f-7c171b7a74b3@suse.de>
+ <80fc6b88d659dd7281364daccfed1fd294e785dc.camel@vmware.com>
+ <89f1b9df-6ace-d59c-86a4-571cd92d0a4c@suse.de>
+ <e9f42f83d7966952c8c0ff78be7e510a2aebdf01.camel@vmware.com>
+ <14b3043a-2569-f4fb-a73d-d67ee1feaee4@suse.de>
+ <9f9b9417d04e4ca7157b03a1e4430e2ce374d97a.camel@vmware.com>
+In-Reply-To: <9f9b9417d04e4ca7157b03a1e4430e2ce374d97a.camel@vmware.com>
 
-This patch adds support for "high" userspace addresses that are
-optionally supported on the system and have to be requested via a hint
-mechanism ("high" addr parameter to mmap).
+--------------Ibl9G10vqptQtp7lyMNoRHxd
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-Architectures such as powerpc and x86 achieve this by making changes to
-their architectural versions of hugetlb_get_unmapped_area() function.
-However, arm64 uses the generic version of that function.
+SGkNCg0KQW0gMjAuMDEuMjIgdW0gMjI6Mjggc2NocmllYiBaYWNrIFJ1c2luOg0KPiBPbiBU
+aHUsIDIwMjItMDEtMjAgYXQgMTE6MDAgKzAxMDAsIFRob21hcyBaaW1tZXJtYW5uIHdyb3Rl
+Og0KPj4+Pg0KPj4+PiBJZiB0aGF0IHdvcmtzLCB3b3VsZCB5b3UgY29uc2lkZXIgcHJvdGVj
+dGluZyBwY2lfcmVxdWVzdF9yZWdpb24oKQ0KPj4+PiB3aXRoDQo+Pj4+ICDCoMKgICNpZiBu
+b3QgZGVmaW5lZChDT05GSUdfRkJfU0lNUExFKQ0KPj4+PiAgwqDCoCAjZW5kaWYNCj4+Pj4N
+Cj4+Pj4gd2l0aCBhIEZJWE1FIGNvbW1lbnQ/DQo+Pj4NCj4+PiBZZXMsIEkgdGhpbmsgdGhh
+dCdzIGEgZ29vZCBjb21wcm9taXNlLiBJJ2xsIHJlc3BpbiB0aGUgcGF0Y2ggd2l0aA0KPj4+
+IHRoYXQuDQo+Pg0KPj4gQmVmb3JlIHlvdSBkbyB0aGF0LCBJIGhhdmUgb25lIG1vcmUgcGF0
+Y2ggZm9yIHlvdSB0byB0cnkuIEl0J3MgYWxsDQo+PiB0aGUNCj4+IGNoYW5nZXMgYXMgYmVm
+b3JlLCBidXQgbm93IGZiZGV2IGhvdC11bnBsdWdzIHRoZSB1bmRlcmx5aW5nIHBsYXRmb3Jt
+DQo+PiBkZXZpY2UgZnJvbSB0aGUgZGV2aWNlIGhpZXJhcmNoeS4gVGhlIEJPT1RGQiB3aWxs
+IG5vdCBjb25zdW1lIHBhcnRzDQo+PiBvZg0KPj4gdm13Z2Z4J3MgZGlzcGxheSBtZW1vcnkg
+cmFuZ2UgYW55IGxvbmdlci4gSXQncyBub3cgdGhlIHNhbWUgYmVoYXZpb3INCj4+IGFzDQo+
+PiB3aXRoIHNpbXBsZWRybS4NCj4+DQo+PiBUaGlzIHdvcmtzIGZvciBtZSB3aXRoIHNpbXBs
+ZWZiIGFuZCBlZmlmYiBvbiBpOTE1IGhhcmR3YXJlLg0KPiANCj4gWWVhLCB0aGF0IHdvcmtz
+IGZvciBtZSB0b28uIEJvdGggd2l0aCBzaW1wbGVkcm0gYW5kIHNpbXBsZWZiLiBUaGUgcGF0
+Y2gNCj4gbG9va3MgZ29vZCB0b28uDQo+IA0KPiBEbyB5b3UgdGhpbmsgeW91J2xsIGJlIGFi
+bGUgdG8gZ2V0IHRoaXMgaW4gc3RhYmxlIGtlcm5lbHM/IElmIG5vdCBJJ2xsDQo+IHN0aWxs
+IG5lZWQgc29tZXRoaW5nIGZvciB2bXdnZnggdG8gbWFrZSBrZXJuZWxzIGJldHdlZW4gNS4x
+NSBhbmQNCj4gd2hlbmV2ZXIgdGhpcyBwYXRjaCBnZXRzIGluIGJvb3Qgd2l0aCBmYi4NCg0K
+SSdsbCBwcmVwYXJlIGEgcGF0Y2hzZXQgd2l0aCB0aGVzZSBjaGFuZ2VzLiBUaGUgYWN0dWFs
+IGZpeCBpcyB0aGUgY2hhbmdlIA0KdG8gZmJtZW0uYy4gVGhpcyBvbmUgc2hvdWxkIGdvIHRv
+IHN0YWJsZSBhbmQgc2hvdWxkIGJlIGVhc3kgdG8gYmFja3BvcnQuIA0KQWxsIHRoZSBvdGhl
+ciBwYXRjaGVzIGFyZSBtb3N0bHkgZm9yIGNvcnJlY3RuZXNzIGFuZCBjYW4gZ28gdG8gDQpk
+cm0tbWlzYy1uZXh0IG9ubHkuDQoNCkNhbiBJIGFkZCB5b3VyIFRlc3RlZC1ieSB0YWcgdG8g
+dGhlIHBhdGNoZXM/DQoNCkJlc3QgcmVnYXJkcw0KVGhvbWFzDQoNCj4gDQo+IHoNCg0KLS0g
+DQpUaG9tYXMgWmltbWVybWFubg0KR3JhcGhpY3MgRHJpdmVyIERldmVsb3Blcg0KU1VTRSBT
+b2Z0d2FyZSBTb2x1dGlvbnMgR2VybWFueSBHbWJIDQpNYXhmZWxkc3RyLiA1LCA5MDQwOSBO
+w7xybmJlcmcsIEdlcm1hbnkNCihIUkIgMzY4MDksIEFHIE7DvHJuYmVyZykNCkdlc2Now6Rm
+dHNmw7xocmVyOiBJdm8gVG90ZXYNCg==
 
-So take into account arch_get_mmap_base() and arch_get_mmap_end() in
-hugetlb_get_unmapped_area(). To allow that, move those two macros
-out of mm/mmap.c into include/linux/sched/mm.h
+--------------Ibl9G10vqptQtp7lyMNoRHxd--
 
-If these macros are not defined in architectural code then they default
-to (TASK_SIZE) and (base) so should not introduce any behavioural
-changes to architectures that do not define them.
+--------------ykSv4ZUIDDse1lbC9Qu2srIW
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
 
-For the time being, only ARM64 is affected by this change.
+-----BEGIN PGP SIGNATURE-----
 
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Cc: Steve Capper <steve.capper@arm.com>
-Cc: Will Deacon <will.deacon@arm.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Fixes: f6795053dac8 ("mm: mmap: Allow for "high" userspace addresses")
-Cc: <stable@vger.kernel.org> # 5.0.x
-Reviewed-by: Catalin Marinas <catalin.marinas@arm.com>
----
- fs/hugetlbfs/inode.c     | 9 +++++----
- include/linux/sched/mm.h | 8 ++++++++
- mm/mmap.c                | 8 --------
- 3 files changed, 13 insertions(+), 12 deletions(-)
+wsF5BAABCAAjFiEExndm/fpuMUdwYFFolh/E3EQov+AFAmHqclQFAwAAAAAACgkQlh/E3EQov+Br
+cQ//fvaUggutff4hikAZRiLKp/xAEvY9HP+/Bp9BxWPs/mjKjEHD0ksu2Udtu7KKXUMbONDh5l1o
+ZEzJpIj5USKDkCIN05CU5hUW87fnTfTvgCGAen44/YOyMdXDpxNxWw7CH1GLUTSdZTmSH6IicfFr
+kZM2BILbt2BjfSfsNQSLEB/b3VPlyWX8JrLW3/2ST/VGkqiykO2p3HUqn8kbbWZbYtpxa2AKnw2C
+5Mkw9VLhykGjyMTkRMe5zFPgPKeqpLvXeOCre2iuuEhtbf7hq1N3H4Unjtupbe807cdbEBxguPKA
+1bJU2R4p4EiqcoQ03P3M645KYDsmI/CbwPVybx+ftlfyZnxfRPSSMfC5smSy6l9PWBwGzk2HEgzF
+ckPqRe6NJ3XTgp9gFcEZBmRrPRq8b5YjbUlD6a+OOMw8Fkt1T6tPO/pLGOI/pjh9v3x/LiN/mPUk
+oJlyjbcz6sGoWwI1OxEGdM36uLo+uHLmCdERn8AXHqqQnQIdX+L0wExTaCHoMs9bqiq7z6tfC7RR
+kYkHintGa40HHVxt/qndotmIOdiZ1KTFrxmUNkvwD/nvrQpypjCHjjJ0NB8rtHsbkAl9tc4u3bMD
++mCW4tpQATr3yqf7FcSKBygdhgFX86J+UzApOaKnbW6OGaIKqSRw+NjjPYjag6S55cP1r87iJPIc
+7tw=
+=jnF0
+-----END PGP SIGNATURE-----
 
-diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-index c7cde4e5924d..a8d3b0899b60 100644
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -205,7 +205,7 @@ hugetlb_get_unmapped_area_bottomup(struct file *file, unsigned long addr,
- 	info.flags = 0;
- 	info.length = len;
- 	info.low_limit = current->mm->mmap_base;
--	info.high_limit = TASK_SIZE;
-+	info.high_limit = arch_get_mmap_end(addr, len, flags);
- 	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
- 	info.align_offset = 0;
- 	return vm_unmapped_area(&info);
-@@ -221,7 +221,7 @@ hugetlb_get_unmapped_area_topdown(struct file *file, unsigned long addr,
- 	info.flags = VM_UNMAPPED_AREA_TOPDOWN;
- 	info.length = len;
- 	info.low_limit = max(PAGE_SIZE, mmap_min_addr);
--	info.high_limit = current->mm->mmap_base;
-+	info.high_limit = arch_get_mmap_base(addr, current->mm->mmap_base);
- 	info.align_mask = PAGE_MASK & ~huge_page_mask(h);
- 	info.align_offset = 0;
- 	addr = vm_unmapped_area(&info);
-@@ -236,7 +236,7 @@ hugetlb_get_unmapped_area_topdown(struct file *file, unsigned long addr,
- 		VM_BUG_ON(addr != -ENOMEM);
- 		info.flags = 0;
- 		info.low_limit = current->mm->mmap_base;
--		info.high_limit = TASK_SIZE;
-+		info.high_limit = arch_get_mmap_end(addr, len, flags);
- 		addr = vm_unmapped_area(&info);
- 	}
- 
-@@ -251,6 +251,7 @@ generic_hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
- 	struct mm_struct *mm = current->mm;
- 	struct vm_area_struct *vma;
- 	struct hstate *h = hstate_file(file);
-+	const unsigned long mmap_end = arch_get_mmap_end(addr, len, flags);
- 
- 	if (len & ~huge_page_mask(h))
- 		return -EINVAL;
-@@ -266,7 +267,7 @@ generic_hugetlb_get_unmapped_area(struct file *file, unsigned long addr,
- 	if (addr) {
- 		addr = ALIGN(addr, huge_page_size(h));
- 		vma = find_vma(mm, addr);
--		if (TASK_SIZE - len >= addr &&
-+		if (mmap_end - len >= addr &&
- 		    (!vma || addr + len <= vm_start_gap(vma)))
- 			return addr;
- 	}
-diff --git a/include/linux/sched/mm.h b/include/linux/sched/mm.h
-index 2584f7c13f69..cc9d80bd36d5 100644
---- a/include/linux/sched/mm.h
-+++ b/include/linux/sched/mm.h
-@@ -135,6 +135,14 @@ static inline void mm_update_next_owner(struct mm_struct *mm)
- #endif /* CONFIG_MEMCG */
- 
- #ifdef CONFIG_MMU
-+#ifndef arch_get_mmap_end
-+#define arch_get_mmap_end(addr, len, flags)	(TASK_SIZE)
-+#endif
-+
-+#ifndef arch_get_mmap_base
-+#define arch_get_mmap_base(addr, base) (base)
-+#endif
-+
- extern void arch_pick_mmap_layout(struct mm_struct *mm,
- 				  struct rlimit *rlim_stack);
- extern unsigned long
-diff --git a/mm/mmap.c b/mm/mmap.c
-index ad48f7af7511..c773b5ad9a11 100644
---- a/mm/mmap.c
-+++ b/mm/mmap.c
-@@ -2112,14 +2112,6 @@ unsigned long vm_unmapped_area(struct vm_unmapped_area_info *info)
- 	return addr;
- }
- 
--#ifndef arch_get_mmap_end
--#define arch_get_mmap_end(addr, len, flags)	(TASK_SIZE)
--#endif
--
--#ifndef arch_get_mmap_base
--#define arch_get_mmap_base(addr, base) (base)
--#endif
--
- /* Get an address range which is currently unmapped.
-  * For shmat() with addr=0.
-  *
--- 
-2.33.1
+--------------ykSv4ZUIDDse1lbC9Qu2srIW--
