@@ -2,113 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A60BE496003
-	for <lists+stable@lfdr.de>; Fri, 21 Jan 2022 14:54:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CF32496081
+	for <lists+stable@lfdr.de>; Fri, 21 Jan 2022 15:11:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350568AbiAUNyu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Jan 2022 08:54:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36214 "EHLO
+        id S1349171AbiAUOLt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Jan 2022 09:11:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350341AbiAUNyt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Jan 2022 08:54:49 -0500
+        with ESMTP id S1344906AbiAUOLs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Jan 2022 09:11:48 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72924C061574;
-        Fri, 21 Jan 2022 05:54:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E772C061574;
+        Fri, 21 Jan 2022 06:11:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 59A84616F0;
-        Fri, 21 Jan 2022 13:54:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B912C340E1;
-        Fri, 21 Jan 2022 13:54:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642773287;
-        bh=MsGTfQONatWIvmB+ivBn7GztIxbSTJkJ4CdpKN2PPh8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=g91iKuk5lY+J2J7MmuPExW4S7EYjj/FcXwJYf7QI9502AbYrToyaXIblqIXbeHsaT
-         gHBa5SHiFz2fP5gEiIbEE0WgIN1kpgLj2uK2m3cc/+fXBS/6kDB420Ow1mL1jmVknt
-         ieKCl7zu846j+LYjAz+1qU+wBOSeVEmPq8gGpFqs=
-Date:   Fri, 21 Jan 2022 14:54:39 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Ulf Hansson <ulf.hansson@linaro.org>
-Cc:     linux-kernel@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Xiong <xiongx18@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Yang Li <yang.lee@linux.alibaba.com>,
-        linux-mmc@vger.kernel.org, stable <stable@vger.kernel.org>,
-        whitehat002 <hackyzh002@gmail.com>
-Subject: Re: [PATCH] moxart: fix potential use-after-free on remove path
-Message-ID: <Yeq7H0LSegfCNHzl@kroah.com>
-References: <20220114075934.302464-1-gregkh@linuxfoundation.org>
- <CAPDyKFpu0mGchoqdzE-qKc6=9ogncnTCwN8AR7g1wcMZLyRFsw@mail.gmail.com>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A4036175E;
+        Fri, 21 Jan 2022 14:11:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAB94C340E1;
+        Fri, 21 Jan 2022 14:11:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1642774307;
+        bh=aU/a/VZKaBk3Zf+73rhngb0wPbazkC1pZlQcUuQUeoc=;
+        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
+        b=Yf3jweMEulrli5G6DUs3aDkFmS5QrvfDpOSW1U97G7HhJV+uu69c24T/rkVd79r3h
+         hmXeTVFZPw4D0bq1KwzVjIUk5PQZHSQII1LUHH2rweTS9hGRSQFBsUgHziF+6nfZpD
+         YU6/iJbnrFDaTqK7CnsYp7hBgfYt+cbcvJQi80IVvfW6YYgDoCAiNqbpmLvIC7bp0S
+         z3aN8+SsN3IUk65MJ2tXOuosbUIvx6F3MB2/oeZ0zmeCXAoW8nGJ57sTd/PSgY5LgH
+         HkltPx4JSDenLYArtOCGklK/LmKS6qdHTlG1MKvQTI8lURvZNxCjo8KBP+/Ipx8X60
+         S5lFO/1ToXuUQ==
+Date:   Fri, 21 Jan 2022 15:11:43 +0100 (CET)
+From:   Jiri Kosina <jikos@kernel.org>
+To:     Jason Gerecke <killertofu@gmail.com>
+cc:     linux-input@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Ping Cheng <pinglinux@gmail.com>,
+        Aaron Armstrong Skomra <skomra@gmail.com>,
+        Joshua Dickens <Joshua@Joshua-Dickens.com>,
+        Jason Gerecke <jason.gerecke@wacom.com>,
+        stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>
+Subject: Re: [PATCH 1/2] HID: wacom: Reset expected and received contact
+ counts at the same time
+In-Reply-To: <20220118223756.45624-1-jason.gerecke@wacom.com>
+Message-ID: <nycvar.YFH.7.76.2201211511330.28059@cbobk.fhfr.pm>
+References: <20220118223756.45624-1-jason.gerecke@wacom.com>
+User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAPDyKFpu0mGchoqdzE-qKc6=9ogncnTCwN8AR7g1wcMZLyRFsw@mail.gmail.com>
+Content-Type: text/plain; charset=US-ASCII
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 21, 2022 at 01:41:27PM +0100, Ulf Hansson wrote:
-> On Fri, 14 Jan 2022 at 08:59, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > It was reported that the mmc host structure could be accessed after it
-> > was freed in moxart_remove(), so fix this by saving the base register of
-> > the device and using it instead of the pointer dereference.
-> >
-> > Cc: Ulf Hansson <ulf.hansson@linaro.org>
-> > Cc: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-> > Cc: Xin Xiong <xiongx18@fudan.edu.cn>
-> > Cc: Xin Tan <tanxin.ctf@gmail.com>
-> > Cc: Tony Lindgren <tony@atomide.com>
-> > Cc: Yang Li <yang.lee@linux.alibaba.com>
-> > Cc: linux-mmc@vger.kernel.org
-> > Cc: stable <stable@vger.kernel.org>
-> > Reported-by: whitehat002 <hackyzh002@gmail.com>
-> > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> > ---
-> >  drivers/mmc/host/moxart-mmc.c | 9 +++++----
-> >  1 file changed, 5 insertions(+), 4 deletions(-)
-> >
-> > diff --git a/drivers/mmc/host/moxart-mmc.c b/drivers/mmc/host/moxart-mmc.c
-> > index 16d1c7a43d33..f5d96940a9b8 100644
-> > --- a/drivers/mmc/host/moxart-mmc.c
-> > +++ b/drivers/mmc/host/moxart-mmc.c
-> > @@ -697,6 +697,7 @@ static int moxart_remove(struct platform_device *pdev)
-> >  {
-> >         struct mmc_host *mmc = dev_get_drvdata(&pdev->dev);
-> >         struct moxart_host *host = mmc_priv(mmc);
-> > +       void __iomem *base = host->base;
-> >
-> >         dev_set_drvdata(&pdev->dev, NULL);
-> >
-> > @@ -707,10 +708,10 @@ static int moxart_remove(struct platform_device *pdev)
-> >         mmc_remove_host(mmc);
-> >         mmc_free_host(mmc);
-> >
-> > -       writel(0, host->base + REG_INTERRUPT_MASK);
-> > -       writel(0, host->base + REG_POWER_CONTROL);
-> > -       writel(readl(host->base + REG_CLOCK_CONTROL) | CLK_OFF,
-> > -              host->base + REG_CLOCK_CONTROL);
+On Tue, 18 Jan 2022, Jason Gerecke wrote:
+
+> These two values go hand-in-hand and must be valid for the driver to
+> behave correctly. We are currently lazy about updating the values and
+> rely on the "expected" code flow to take care of making sure they're
+> valid at the point they're needed. The "expected" flow changed somewhat
+> with commit f8b6a74719b5 ("HID: wacom: generic: Support multiple tools
+> per report"), however. This led to problems with the DTH-2452 due (in
+> part) to *all* contacts being fully processed -- even those past the
+> expected contact count. Specifically, the received count gets reset to
+> 0 once all expected fingers are processed, but not the expected count.
+> The rest of the contacts in the report are then *also* processed since
+> now the driver thinks we've only processed 0 of N expected contacts.
 > 
-> Rather than doing it like this, I think it would be easier to move
-> mmc_free_host() below this part. That's usually what mmc host drivers
-> do clean up things in ->remove().
+> Later commits such as 7fb0413baa7f (HID: wacom: Use "Confidence" flag to
+> prevent reporting invalid contacts) worked around the DTH-2452 issue by
+> skipping the invalid contacts at the end of the report, but this is not
+> a complete fix. The confidence flag cannot be relied on when a contact
+> is removed (see the following patch), and dealing with that condition
+> re-introduces the DTH-2452 issue unless we also address this contact
+> count laziness. By resetting expected and received counts at the same
+> time we ensure the driver understands that there are 0 more contacts
+> expected in the report. Similarly, we also make sure to reset the
+> received count if for some reason we're out of sync in the pre-report
+> phase.
 > 
-> > +       writel(0, base + REG_INTERRUPT_MASK);
-> > +       writel(0, base + REG_POWER_CONTROL);
-> > +       writel(readl(base + REG_CLOCK_CONTROL) | CLK_OFF,
-> > +              base + REG_CLOCK_CONTROL);
-> >
+> Link: https://github.com/linuxwacom/input-wacom/issues/288
+> Fixes: f8b6a74719b5 ("HID: wacom: generic: Support multiple tools per report")
+> CC: stable@vger.kernel.org
+> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+> Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
 
-Ok, I can do that, I didn't know if it would cause any functionality
-changes, so I was trying to preserve the same logic that the driver
-currently has.
+Both patches applied, thanks.
 
-Do you have this device to test this with?
+-- 
+Jiri Kosina
+SUSE Labs
 
-thanks,
-
-greg k-h
