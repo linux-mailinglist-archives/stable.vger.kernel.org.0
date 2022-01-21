@@ -2,76 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4116E496084
-	for <lists+stable@lfdr.de>; Fri, 21 Jan 2022 15:12:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D5094960A4
+	for <lists+stable@lfdr.de>; Fri, 21 Jan 2022 15:24:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350678AbiAUOMH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Jan 2022 09:12:07 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:32850 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344906AbiAUOMG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 Jan 2022 09:12:06 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D74ACCE2257;
-        Fri, 21 Jan 2022 14:12:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EE4EC340E1;
-        Fri, 21 Jan 2022 14:12:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642774323;
-        bh=dJVzX8AqdFEZTA6/cEJjBrcTDRe91D49kYaTPY+SeFg=;
-        h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-        b=jTEbATWXAR6fgcNIRjcbEziTnM4fd2HMkYlC5sWnluVTfiZgCWM2oYoRltyGscpTK
-         dzwysrh1frD2a5qjta/BKpYHQmS2L9jA7hknFdM6r/F8TRLi4B9MdXsYxP5lKGssNT
-         4ZAiggHc1NusOBiip23ZtpSzwsudEHqhCxTcMqT6YTqiHWQ3IpSQhReDjKTZjPzR9h
-         pJfnOBqK4Hm2IZThmUdEmBpU+KnETtphHXmFhhk6j6xlv+UTpsOlAFf1S0Dtjc0HPb
-         dbvVq1WwOxR6CC0IeS402afA1YwOIlzjObgnDg6VmuBUUHnYuDw48SkdAX0sWhREN3
-         azBvFI0iQttnQ==
-Date:   Fri, 21 Jan 2022 15:11:59 +0100 (CET)
-From:   Jiri Kosina <jikos@kernel.org>
-To:     Jason Gerecke <killertofu@gmail.com>
-cc:     linux-input@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Ping Cheng <pinglinux@gmail.com>,
-        Aaron Armstrong Skomra <skomra@gmail.com>,
-        Joshua Dickens <Joshua@Joshua-Dickens.com>,
-        Jason Gerecke <jason.gerecke@wacom.com>,
-        stable@vger.kernel.org, Ping Cheng <ping.cheng@wacom.com>
-Subject: Re: [PATCH] HID: wacom: Avoid using stale array indicies to read
- contact count
-In-Reply-To: <20220118223841.45870-1-jason.gerecke@wacom.com>
-Message-ID: <nycvar.YFH.7.76.2201211511490.28059@cbobk.fhfr.pm>
-References: <20220118223841.45870-1-jason.gerecke@wacom.com>
-User-Agent: Alpine 2.21 (LSU 202 2017-01-01)
+        id S1350863AbiAUOYo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Jan 2022 09:24:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43194 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1350836AbiAUOYn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 Jan 2022 09:24:43 -0500
+Received: from mail-lf1-x12a.google.com (mail-lf1-x12a.google.com [IPv6:2a00:1450:4864:20::12a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 658C8C061401
+        for <stable@vger.kernel.org>; Fri, 21 Jan 2022 06:24:43 -0800 (PST)
+Received: by mail-lf1-x12a.google.com with SMTP id x11so34257204lfa.2
+        for <stable@vger.kernel.org>; Fri, 21 Jan 2022 06:24:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=ywlwYoLbVf66LRPVuDML6JrCxAFNet8eWQAIvhQatmI=;
+        b=qg8MdUSveB3cicbEbA4Xzu5xhxuj+XfY2gmAtK4tDPnW8hav3LfEpO5sNceEsOP5l8
+         0sjy3R/c5F3T0t/KtKd3MN3INWMX9kEFWyYO2ZADALWN2/SoqJftcCgqtnvc3DjWEKPt
+         qWVyuke7X4TULIcEe7nua8polewLRlKpBWrcU17zl/+EXRvQ2o5uPy702m4D1NLue4r/
+         gpXE/cBs6cqjeG4B66T9dZV/Y5sF+4wmxB9FiD2nlXd2Bf3QjdZzlf3hWTZ/JzH4OoBp
+         vVtNpE92Ifuxt2oJobhaiRhEsspameHi5y6rm2TMqQhQb+YwOQzCAUTdTV8shOcB9Z3t
+         abFA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=ywlwYoLbVf66LRPVuDML6JrCxAFNet8eWQAIvhQatmI=;
+        b=lyP1a91Arvv47Aa9J46heAVkECPZ9xfq2M9wuxADcqSnZCQoZu3P2mo0+dPcWJfnm2
+         KIM891Zn5ov+Z/Q5sLrt3Pacc9PbqaZbi5zOA4+ndzKyq/0HmiagLCrDkpcQzMCUwvPa
+         gP6hWBg+/QyWOKJYXf854YbHdhVE7YInrac9+ISiBbp3sDQXL/gu6sx7LrL+KUmvzo+7
+         eJyWSsQDduD+kMoK14bVSejeDwxF+ErbjPZtPnZyiJVX45fC8X7oDq2bHGjmhVwEHx8y
+         5Gz557q8f3y4Jc5Q4d3rKu+XBDDNg35sM7zhuGB8RhDijrrZalEHmtaDTcjMlNRoObL2
+         SGnw==
+X-Gm-Message-State: AOAM530B8wZ5Y4vSF981BxRyuRCnIehsvjw1B6VvOuu57B1NkOyl1cGX
+        N4ld2Jc8lzV10zZG9bEXbXmo4BQmCa0FjZ3ofJ3fiQ==
+X-Google-Smtp-Source: ABdhPJw3KmDefhEu9+u11W8ReRDK7zsZD5YPZ35YEQucvJ//0VwehEfRK68CvuGIDKQjXaOnmm8VCKjv8dLC3x142EY=
+X-Received: by 2002:a05:6512:20ca:: with SMTP id u10mr3805297lfr.71.1642775081622;
+ Fri, 21 Jan 2022 06:24:41 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+References: <20220114075934.302464-1-gregkh@linuxfoundation.org>
+ <CAPDyKFpu0mGchoqdzE-qKc6=9ogncnTCwN8AR7g1wcMZLyRFsw@mail.gmail.com> <Yeq7H0LSegfCNHzl@kroah.com>
+In-Reply-To: <Yeq7H0LSegfCNHzl@kroah.com>
+From:   Ulf Hansson <ulf.hansson@linaro.org>
+Date:   Fri, 21 Jan 2022 15:24:05 +0100
+Message-ID: <CAPDyKFrQ+1icC-qO6Oo4DAhZYVt9oOSZiKs0qRFMwKdq5=X1Hw@mail.gmail.com>
+Subject: Re: [PATCH] moxart: fix potential use-after-free on remove path
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Xiong <xiongx18@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Yang Li <yang.lee@linux.alibaba.com>,
+        linux-mmc@vger.kernel.org, stable <stable@vger.kernel.org>,
+        whitehat002 <hackyzh002@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 18 Jan 2022, Jason Gerecke wrote:
+On Fri, 21 Jan 2022 at 14:54, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> On Fri, Jan 21, 2022 at 01:41:27PM +0100, Ulf Hansson wrote:
+> > On Fri, 14 Jan 2022 at 08:59, Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> > >
+> > > It was reported that the mmc host structure could be accessed after it
+> > > was freed in moxart_remove(), so fix this by saving the base register of
+> > > the device and using it instead of the pointer dereference.
+> > >
+> > > Cc: Ulf Hansson <ulf.hansson@linaro.org>
+> > > Cc: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+> > > Cc: Xin Xiong <xiongx18@fudan.edu.cn>
+> > > Cc: Xin Tan <tanxin.ctf@gmail.com>
+> > > Cc: Tony Lindgren <tony@atomide.com>
+> > > Cc: Yang Li <yang.lee@linux.alibaba.com>
+> > > Cc: linux-mmc@vger.kernel.org
+> > > Cc: stable <stable@vger.kernel.org>
+> > > Reported-by: whitehat002 <hackyzh002@gmail.com>
+> > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > ---
+> > >  drivers/mmc/host/moxart-mmc.c | 9 +++++----
+> > >  1 file changed, 5 insertions(+), 4 deletions(-)
+> > >
+> > > diff --git a/drivers/mmc/host/moxart-mmc.c b/drivers/mmc/host/moxart-mmc.c
+> > > index 16d1c7a43d33..f5d96940a9b8 100644
+> > > --- a/drivers/mmc/host/moxart-mmc.c
+> > > +++ b/drivers/mmc/host/moxart-mmc.c
+> > > @@ -697,6 +697,7 @@ static int moxart_remove(struct platform_device *pdev)
+> > >  {
+> > >         struct mmc_host *mmc = dev_get_drvdata(&pdev->dev);
+> > >         struct moxart_host *host = mmc_priv(mmc);
+> > > +       void __iomem *base = host->base;
+> > >
+> > >         dev_set_drvdata(&pdev->dev, NULL);
+> > >
+> > > @@ -707,10 +708,10 @@ static int moxart_remove(struct platform_device *pdev)
+> > >         mmc_remove_host(mmc);
+> > >         mmc_free_host(mmc);
+> > >
+> > > -       writel(0, host->base + REG_INTERRUPT_MASK);
+> > > -       writel(0, host->base + REG_POWER_CONTROL);
+> > > -       writel(readl(host->base + REG_CLOCK_CONTROL) | CLK_OFF,
+> > > -              host->base + REG_CLOCK_CONTROL);
+> >
+> > Rather than doing it like this, I think it would be easier to move
+> > mmc_free_host() below this part. That's usually what mmc host drivers
+> > do clean up things in ->remove().
+> >
+> > > +       writel(0, base + REG_INTERRUPT_MASK);
+> > > +       writel(0, base + REG_POWER_CONTROL);
+> > > +       writel(readl(base + REG_CLOCK_CONTROL) | CLK_OFF,
+> > > +              base + REG_CLOCK_CONTROL);
+> > >
+>
+> Ok, I can do that, I didn't know if it would cause any functionality
+> changes, so I was trying to preserve the same logic that the driver
+> currently has.
 
-> If we ever see a touch report with contact count data we initialize
-> several variables used to read the contact count in the pre-report
-> phase. These variables are never reset if we process a report which
-> doesn't contain a contact count, however. This can cause the pre-
-> report function to trigger a read of arbitrary memory (e.g. NULL
-> if we're lucky) and potentially crash the driver.
-> 
-> This commit restores resetting of the variables back to default
-> "none" values that were used prior to the commit mentioned
-> below.
-> 
-> Link: https://github.com/linuxwacom/input-wacom/issues/276
-> Fixes: 003f50ab673c (HID: wacom: Update last_slot_field during pre_report phase)
-> CC: stable@vger.kernel.org
-> Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-> Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+Yes, but it's most likely just a simple mistake that was made by the
+original author.
 
-Applied, thank you.
+>
+> Do you have this device to test this with?
 
--- 
-Jiri Kosina
-SUSE Labs
+No, I don't.
 
+Although, I am confident that it should work fine too.
+
+>
+> thanks,
+>
+> greg k-h
+
+Kind regards
+Uffe
