@@ -2,134 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E885495E06
-	for <lists+stable@lfdr.de>; Fri, 21 Jan 2022 11:58:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 640E4495E02
+	for <lists+stable@lfdr.de>; Fri, 21 Jan 2022 11:58:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380045AbiAUK6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 Jan 2022 05:58:24 -0500
-Received: from smtp-out1.suse.de ([195.135.220.28]:52636 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380043AbiAUK6S (ORCPT
+        id S1350083AbiAUK6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 Jan 2022 05:58:22 -0500
+Received: from smtp-out2.suse.de ([195.135.220.29]:48142 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1380040AbiAUK6S (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 21 Jan 2022 05:58:18 -0500
 Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id B00272197D;
+        by smtp-out2.suse.de (Postfix) with ESMTP id ACA9F1F88C;
         Fri, 21 Jan 2022 10:58:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
         t=1642762696; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=oeshiqmmWZD73GkSK4+N+GqKNPAYETIzxJpuE6/zef0=;
-        b=BRxf5uSLwWnqG2gFmHUdrD7ZzGSjoskq9t+5MX0NN3teT0fZI5vQ7vNgDgnaDEiV9x7+Mu
-        8jh72Nf/BxN39DlzV+/u4y+lsej7uRRJFApX3OMHl3M7YEay8p8gQQVG08p1upfNpvkw9N
-        giBCkqSyjJrFulXb/kxFgq8g0uHJah0=
+        bh=xsNow785fNlV7cvSdCWuHorXrq54SLGkf0IkK8trwHE=;
+        b=KwUFuYg5hjxkDGq3g1rtR6eOrYX0zRYruNypbiA0Fpe/khgMDP2c7+fRDu58JYmSDqSAag
+        OYmK26Hgqe2dZ6FDGZ2RmcpdKbBUbj6Ee8Fe04ivKKP/Lw7oR26J0CSWY/lwXw9XN4LIrq
+        7wcb7n18UKJRVCaBNCQQ8+3xEWGrl80=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
         s=susede2_ed25519; t=1642762696;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
          mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=oeshiqmmWZD73GkSK4+N+GqKNPAYETIzxJpuE6/zef0=;
-        b=e+XG4LEWeqvwGBRhPoCjbtbfUO334+h3Wg3QcO0egml4613iiXnfYwXgnF792GcBmjFnsU
-        PDqqxi3shKlSsYDw==
+        bh=xsNow785fNlV7cvSdCWuHorXrq54SLGkf0IkK8trwHE=;
+        b=esWIZdZKT6WDKdHnUN2UYVRaksQCzvplI9JWjJHzFpCDn6uAomwVk/H539LyN220FubFb5
+        Hz7DmhydiH/hbdBg==
 Received: from quack3.suse.cz (unknown [10.100.200.198])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id A36C1A3B97;
+        by relay2.suse.de (Postfix) with ESMTPS id A09E5A3B96;
         Fri, 21 Jan 2022 10:58:16 +0000 (UTC)
 Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id 319E5A05E7; Fri, 21 Jan 2022 11:58:16 +0100 (CET)
+        id 3623DA05E8; Fri, 21 Jan 2022 11:58:16 +0100 (CET)
 From:   Jan Kara <jack@suse.cz>
 To:     <linux-block@vger.kernel.org>
 Cc:     Paolo Valente <paolo.valente@linaro.org>,
         Jens Axboe <axboe@kernel.dk>,
         "yukuai (C)" <yukuai3@huawei.com>, Jan Kara <jack@suse.cz>,
         stable@vger.kernel.org
-Subject: [PATCH 2/4] bfq: Avoid merging queues with different parents
-Date:   Fri, 21 Jan 2022 11:56:43 +0100
-Message-Id: <20220121105816.27320-2-jack@suse.cz>
+Subject: [PATCH 3/4] bfq: Split shared queues on move between cgroups
+Date:   Fri, 21 Jan 2022 11:56:44 +0100
+Message-Id: <20220121105816.27320-3-jack@suse.cz>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20220121105503.14069-1-jack@suse.cz>
 References: <20220121105503.14069-1-jack@suse.cz>
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2888; h=from:subject; bh=Wo1FkmvrgLnsLoxUN8FFedXWnRxiaMVst9kwBuKTVTg=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBh6pFqCr2kJ3pthS1i4guH+kNkcoxQDTHDYlhq+Qn6 JBmDeFCJATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCYeqRagAKCRCcnaoHP2RA2cQNCA CEr1VE56h0cdLbITxvHXv6ldxav8dVUEk2mHiAZNxsHfNlhBMJTD2JGrNJnhdTSEMH2LwatJnZ8/HO Md+9qvm8508PCcS2KWF+7/pL09IAEMcLU/zZUvqs4xsa9q5w/i29WgCPd5OFmNYeVHUAYkZHWSAsAS Vo/QcfrOP4Dpr3PW1in/GR3SK917BK2d+PWWFwy2sPLQimHzqSbBbhQIGc6XqbPWKlOPmx5Gh+8AJf Hj0KjkY/n3ekHm3B15r7Xa7q4bnykxMwsJVMfGXnns8t0p7t4G6UkWSs4NYZzoGlxsQusbZ8F+p2Oo 31sTxftReg2Z1LUIUlHSJY5GaC0dZ7
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3501; h=from:subject; bh=BQykiJFlu5FJfTkQTB0E1rhHc7iDqb6KaRLCtSsuwag=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBh6pFrScWdjbasUM11EOIptN4959qo0vOdXmy/RiTQ 2MIu7qaJATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCYeqRawAKCRCcnaoHP2RA2fcGB/ wNKhkDTxn1JnBS7HoYUAB1qYg0aTypX77+rAZdS/ac2+Mc8ROscxTP2gdsUwVjws19Ettv7KhIIM3p B0RSrfoiGnon7guEdjU4ZoR8AnBzsM+KEl32UGZJC/1JmYSHpXfO+83UbEByxoJ4HbP6ydB0KMlCDJ qPpwg+F3MtEOGRPSBWZzUkuH4DwY+hofBzsrJx0fsuvv2L39q3o6Cz2V7lhMQwVwvkJkZBjlQRlNUw NaFqS6NgDU9uuLxoKkpVOke7Ocqx2rCOkxlr6Iw2yZyJs6i7sRCqjQDSAqWpnGI7+qbJJw9E4s9Lsg XhGrWxlM7/01tr5rxy5KudGjoTgNG9
 X-Developer-Key: i=jack@suse.cz; a=openpgp; fpr=93C6099A142276A28BBE35D815BC833443038D8C
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It can happen that the parent of a bfqq changes between the moment we
-decide two queues are worth to merge (and set bic->stable_merge_bfqq)
-and the moment bfq_setup_merge() is called. This can happen e.g. because
-the process submitted IO for a different cgroup and thus bfqq got
-reparented. It can even happen that the bfqq we are merging with has
-parent cgroup that is already offline and going to be destroyed in which
-case the merge can lead to use-after-free issues such as:
+When bfqq is shared by multiple processes it can happen that one of the
+processes gets moved to a different cgroup (or just starts submitting IO
+for different cgroup). In case that happens we need to split the merged
+bfqq as otherwise we will have IO for multiple cgroups in one bfqq and
+we will just account IO time to wrong entities etc.
 
-BUG: KASAN: use-after-free in __bfq_deactivate_entity+0x9cb/0xa50
-Read of size 8 at addr ffff88800693c0c0 by task runc:[2:INIT]/10544
+Similarly if the bfqq is scheduled to merge with another bfqq but the
+merge didn't happen yet, cancel the merge as it need not be valid
+anymore.
 
-CPU: 0 PID: 10544 Comm: runc:[2:INIT] Tainted: G            E     5.15.2-0.g5fb85fd-default #1 openSUSE Tumbleweed (unreleased) f1f3b891c72369aebecd2e43e4641a6358867c70
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a-rebuilt.opensuse.org 04/01/2014
-Call Trace:
- <IRQ>
- dump_stack_lvl+0x46/0x5a
- print_address_description.constprop.0+0x1f/0x140
- ? __bfq_deactivate_entity+0x9cb/0xa50
- kasan_report.cold+0x7f/0x11b
- ? __bfq_deactivate_entity+0x9cb/0xa50
- __bfq_deactivate_entity+0x9cb/0xa50
- ? update_curr+0x32f/0x5d0
- bfq_deactivate_entity+0xa0/0x1d0
- bfq_del_bfqq_busy+0x28a/0x420
- ? resched_curr+0x116/0x1d0
- ? bfq_requeue_bfqq+0x70/0x70
- ? check_preempt_wakeup+0x52b/0xbc0
- __bfq_bfqq_expire+0x1a2/0x270
- bfq_bfqq_expire+0xd16/0x2160
- ? try_to_wake_up+0x4ee/0x1260
- ? bfq_end_wr_async_queues+0xe0/0xe0
- ? _raw_write_unlock_bh+0x60/0x60
- ? _raw_spin_lock_irq+0x81/0xe0
- bfq_idle_slice_timer+0x109/0x280
- ? bfq_dispatch_request+0x4870/0x4870
- __hrtimer_run_queues+0x37d/0x700
- ? enqueue_hrtimer+0x1b0/0x1b0
- ? kvm_clock_get_cycles+0xd/0x10
- ? ktime_get_update_offsets_now+0x6f/0x280
- hrtimer_interrupt+0x2c8/0x740
-
-Fix the problem by checking that the parent of the two bfqqs we are
-merging in bfq_setup_merge() is the same.
-
-Link: https://lore.kernel.org/linux-block/20211125172809.GC19572@quack2.suse.cz/
 CC: stable@vger.kernel.org
-Fixes: 430a67f9d616 ("block, bfq: merge bursts of newly-created queues")
+Fixes: e21b7a0b9887 ("block, bfq: add full hierarchical scheduling and cgroups support")
 Signed-off-by: Jan Kara <jack@suse.cz>
 ---
- block/bfq-iosched.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ block/bfq-cgroup.c  | 36 +++++++++++++++++++++++++++++++++---
+ block/bfq-iosched.c |  2 +-
+ block/bfq-iosched.h |  1 +
+ 3 files changed, 35 insertions(+), 4 deletions(-)
 
+diff --git a/block/bfq-cgroup.c b/block/bfq-cgroup.c
+index 24a5c5329bcd..00184530c644 100644
+--- a/block/bfq-cgroup.c
++++ b/block/bfq-cgroup.c
+@@ -729,9 +729,39 @@ static struct bfq_group *__bfq_bic_change_cgroup(struct bfq_data *bfqd,
+ 	}
+ 
+ 	if (sync_bfqq) {
+-		entity = &sync_bfqq->entity;
+-		if (entity->sched_data != &bfqg->sched_data)
+-			bfq_bfqq_move(bfqd, sync_bfqq, bfqg);
++		if (!sync_bfqq->new_bfqq && !bfq_bfqq_coop(sync_bfqq)) {
++			/* We are the only user of this bfqq, just move it */
++			if (sync_bfqq->entity.sched_data != &bfqg->sched_data)
++				bfq_bfqq_move(bfqd, sync_bfqq, bfqg);
++		} else {
++			struct bfq_queue *bfqq;
++
++			/*
++			 * The queue was merged to a different queue. Check
++			 * that the merge chain still belongs to the same
++			 * cgroup.
++			 */
++			for (bfqq = sync_bfqq; bfqq; bfqq = bfqq->new_bfqq)
++				if (bfqq->entity.sched_data !=
++				    &bfqg->sched_data)
++					break;
++			if (bfqq) {
++				/*
++				 * Some queue changed cgroup so the merge is
++				 * not valid anymore. We cannot easily just
++				 * cancel the merge (by clearing new_bfqq) as
++				 * there may be other processes using this
++				 * queue and holding refs to all queues below
++				 * sync_bfqq->new_bfqq. Similarly if the merge
++				 * already happened, we need to detach from
++				 * bfqq now so that we cannot merge bio to a
++				 * request from the old cgroup.
++				 */
++				bfq_put_cooperator(sync_bfqq);
++				bfq_release_process_ref(bfqd, sync_bfqq);
++				bic_set_bfqq(bic, NULL, 1);
++			}
++		}
+ 	}
+ 
+ 	return bfqg;
 diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 056399185c2f..0da47f2ca781 100644
+index 0da47f2ca781..361d321b012a 100644
 --- a/block/bfq-iosched.c
 +++ b/block/bfq-iosched.c
-@@ -2638,6 +2638,14 @@ bfq_setup_merge(struct bfq_queue *bfqq, struct bfq_queue *new_bfqq)
- 	if (process_refs == 0 || new_process_refs == 0)
- 		return NULL;
+@@ -5184,7 +5184,7 @@ static void bfq_put_stable_ref(struct bfq_queue *bfqq)
+ 	bfq_put_queue(bfqq);
+ }
  
-+	/*
-+	 * Make sure merged queues belong to the same parent. Parents could
-+	 * have changed since the time we decided the two queues are suitable
-+	 * for merging.
-+	 */
-+	if (new_bfqq->entity.parent != bfqq->entity.parent)
-+		return NULL;
-+
- 	bfq_log_bfqq(bfqq->bfqd, bfqq, "scheduling merge with queue %d",
- 		new_bfqq->pid);
+-static void bfq_put_cooperator(struct bfq_queue *bfqq)
++void bfq_put_cooperator(struct bfq_queue *bfqq)
+ {
+ 	struct bfq_queue *__bfqq, *next;
  
+diff --git a/block/bfq-iosched.h b/block/bfq-iosched.h
+index a73488eec8a4..6e250db2138e 100644
+--- a/block/bfq-iosched.h
++++ b/block/bfq-iosched.h
+@@ -976,6 +976,7 @@ void bfq_weights_tree_remove(struct bfq_data *bfqd,
+ void bfq_bfqq_expire(struct bfq_data *bfqd, struct bfq_queue *bfqq,
+ 		     bool compensate, enum bfqq_expiration reason);
+ void bfq_put_queue(struct bfq_queue *bfqq);
++void bfq_put_cooperator(struct bfq_queue *bfqq);
+ void bfq_end_wr_async_queues(struct bfq_data *bfqd, struct bfq_group *bfqg);
+ void bfq_release_process_ref(struct bfq_data *bfqd, struct bfq_queue *bfqq);
+ void bfq_schedule_dispatch(struct bfq_data *bfqd);
 -- 
 2.31.1
 
