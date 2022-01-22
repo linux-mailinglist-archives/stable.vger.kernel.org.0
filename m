@@ -2,76 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C88F496D8B
-	for <lists+stable@lfdr.de>; Sat, 22 Jan 2022 20:13:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BEE2496D91
+	for <lists+stable@lfdr.de>; Sat, 22 Jan 2022 20:17:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234762AbiAVTNM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Jan 2022 14:13:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56900 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229582AbiAVTNM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 14:13:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A44EEC06173B;
-        Sat, 22 Jan 2022 11:13:11 -0800 (PST)
+        id S234796AbiAVTRn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Jan 2022 14:17:43 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:46648 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229582AbiAVTRm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 14:17:42 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E82260EA2;
-        Sat, 22 Jan 2022 19:13:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4786AC004E1;
-        Sat, 22 Jan 2022 19:13:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5F2EFB8092A;
+        Sat, 22 Jan 2022 19:17:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0906C004E1;
+        Sat, 22 Jan 2022 19:17:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642878790;
-        bh=roaOsHS3yEMHQgGC9vjjj/ZC8YlTg8c938hfa781kek=;
+        s=k20201202; t=1642879060;
+        bh=JeXyzQULWAbMFiomXAsBJNjnrrAJw5Mhyf59QGiZVeo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ghPly8QV9loDn9gLfS9QMPb0OvysBP3JOguSP1rmR4uRwbPU1BTeLP7zJBHHyAY5d
-         wWxR2Gv22trSFpIag7qWG1SKGlC2EkT9ZjjtQHVWWcLKrkaxuO373cYury/adatkwO
-         kC1wtqy+wZzt+1RmNbpM+/C0JgR8PLMFoU2hSrrqCaIbeo/Dmn6IjG4UyRP+/XCRCg
-         3mCUVITCEF01N5sZAfGM6Gzzw1p8MHjgCzLWuVH/UM4V7MbN4cC1hRp//fWVeEa5HJ
-         57VEBNaH2Xq09JxZaT+LGnVfCzl7DG2dEuh+jFQqnVJkXtS06HSpqzPTu+u+1vYkEG
-         l3fvY1ZQDrE+g==
-Date:   Sat, 22 Jan 2022 14:13:08 -0500
+        b=lJghKbHCWhhld84ChEdv1nbqcjjMpckEn/db3woEjyGguVvRFezPhBgFEzsfbk6ZY
+         Yf8sPYOMEUJ/AGXmOgrZ6QhF7bFbOpJMT5+SZIHs7ZsthkWX39YOLCWfdon4c4JaqK
+         dJZPUrhAuYbf46qh6GY9Uz5/AegtWYH25VU2fT7PCoF2d9SS1t87a7Gz1ohvxtYVGA
+         C3+xYc0k9kRnbhdFFLDBY8AZuZX/fwoXf7n8PvPs3+93165GLs6ybHFydLQu3EsgXk
+         JqHRyFcnz05PISBjcexYSF16MvvRXAZSY+yWwpz8YiT+eu+WZ7r4UT/7/dfX7FmaBt
+         Mv4osTx3hnu8A==
+Date:   Sat, 22 Jan 2022 14:17:38 -0500
 From:   Sasha Levin <sashal@kernel.org>
-To:     David Ahern <dsahern@gmail.com>
-Cc:     Jakub Kicinski <kuba@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, xu xin <xu.xin16@zte.com.cn>,
-        Zeal Robot <zealci@zte.com.cn>,
-        Joanne Koong <joannekoong@fb.com>,
-        "David S . Miller" <davem@davemloft.net>, daniel@iogearbox.net,
-        dsahern@kernel.org, roopa@nvidia.com, edumazet@google.com,
-        chinagar@codeaurora.org, yajun.deng@linux.dev,
-        netdev@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.16 118/217] net: Enable neighbor sysctls that
- is save for userns root
-Message-ID: <YexXRLHClOPI/RkJ@sashalap>
+To:     Vladimir Oltean <olteanv@gmail.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>, andrew@lunn.ch,
+        vivien.didelot@gmail.com, kuba@kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.16 203/217] net: dsa: hold rtnl_mutex when
+ calling dsa_master_{setup,teardown}
+Message-ID: <YexYUqZzurZ1F3kc@sashalap>
 References: <20220118021940.1942199-1-sashal@kernel.org>
- <20220118021940.1942199-118-sashal@kernel.org>
- <20220118085940.6d7b4a88@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
- <04a436b8-3120-4671-a1e4-cf690ce8ec60@gmail.com>
+ <20220118021940.1942199-203-sashal@kernel.org>
+ <20220118121329.v6inazagzduz6fyw@skbuf>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <04a436b8-3120-4671-a1e4-cf690ce8ec60@gmail.com>
+In-Reply-To: <20220118121329.v6inazagzduz6fyw@skbuf>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 18, 2022 at 08:46:47PM -0700, David Ahern wrote:
->On 1/18/22 9:59 AM, Jakub Kicinski wrote:
->>> Reported-by: Zeal Robot <zealci@zte.com.cn>
->>> Signed-off-by: xu xin <xu.xin16@zte.com.cn>
->>> Acked-by: Joanne Koong <joannekoong@fb.com>
->>> Signed-off-by: David S. Miller <davem@davemloft.net>
->>> Signed-off-by: Sasha Levin <sashal@kernel.org>
->>
->> Not a fix, IDK how the "Zeal Robot" "reported" that a sysctl is not
->> exposed under uesr ns, that's probably what throws off matchers :/
->> Anyway - it's a feature.
+On Tue, Jan 18, 2022 at 02:13:29PM +0200, Vladimir Oltean wrote:
+>Hi Sasha,
 >
->A lot of these Reported-by from robots should be "Suggested-by".
+>On Mon, Jan 17, 2022 at 09:19:26PM -0500, Sasha Levin wrote:
+>> From: Vladimir Oltean <vladimir.oltean@nxp.com>
+>>
+>> [ Upstream commit c146f9bc195a9dc3ad7fd000a14540e7c9df952d ]
+>>
+>> DSA needs to simulate master tracking events when a binding is first
+>> with a DSA master established and torn down, in order to give drivers
+>> the simplifying guarantee that ->master_state_change calls are made
+>> only when the master's readiness state to pass traffic changes.
+>> master_state_change() provide a operational bool that DSA driver can use
+>> to understand if DSA master is operational or not.
+>> To avoid races, we need to block the reception of
+>> NETDEV_UP/NETDEV_CHANGE/NETDEV_GOING_DOWN events in the netdev notifier
+>> chain while we are changing the master's dev->dsa_ptr (this changes what
+>> netdev_uses_dsa(dev) reports).
+>>
+>> The dsa_master_setup() and dsa_master_teardown() functions optionally
+>> require the rtnl_mutex to be held, if the tagger needs the master to be
+>> promiscuous, these functions call dev_set_promiscuity(). Move the
+>> rtnl_lock() from that function and make it top-level.
+>>
+>> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+>> Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+>> Signed-off-by: David S. Miller <davem@davemloft.net>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
+>> ---
+>
+>Please drop this patch from all stable branches (5.16, 5.15, 5.10).
+>Thanks.
 
-Possibly... I'll drop this one, thanks!
+Dropped, thanks!
 
 -- 
 Thanks,
