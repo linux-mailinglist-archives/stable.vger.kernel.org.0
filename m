@@ -2,99 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F720496B9C
-	for <lists+stable@lfdr.de>; Sat, 22 Jan 2022 11:07:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8AF0496BAE
+	for <lists+stable@lfdr.de>; Sat, 22 Jan 2022 11:30:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232253AbiAVKG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Jan 2022 05:06:59 -0500
-Received: from szxga03-in.huawei.com ([45.249.212.189]:31178 "EHLO
-        szxga03-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232124AbiAVKG6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 05:06:58 -0500
-Received: from canpemm500006.china.huawei.com (unknown [172.30.72.55])
-        by szxga03-in.huawei.com (SkyGuard) with ESMTP id 4JgsKH4wkgz8wQb;
-        Sat, 22 Jan 2022 18:04:03 +0800 (CST)
-Received: from localhost.localdomain (10.175.104.82) by
- canpemm500006.china.huawei.com (7.192.105.130) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.21; Sat, 22 Jan 2022 18:06:56 +0800
-From:   Ziyang Xuan <william.xuanziyang@huawei.com>
-To:     <gregkh@linuxfoundation.org>, <socketcan@hartkopp.net>,
-        <mkl@pengutronix.de>, <davem@davemloft.net>,
-        <stable@vger.kernel.org>
-CC:     <netdev@vger.kernel.org>, <linux-can@vger.kernel.org>
-Subject: [PATCH 4.14] can: bcm: fix UAF of bcm op
-Date:   Sat, 22 Jan 2022 18:25:06 +0800
-Message-ID: <20220122102506.2898032-1-william.xuanziyang@huawei.com>
-X-Mailer: git-send-email 2.25.1
+        id S232853AbiAVKax (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Jan 2022 05:30:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57012 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232784AbiAVKax (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 05:30:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEA2DC06173B;
+        Sat, 22 Jan 2022 02:30:52 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 81A5EB81B8D;
+        Sat, 22 Jan 2022 10:30:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFCF9C004E1;
+        Sat, 22 Jan 2022 10:30:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1642847450;
+        bh=gUZn2Gk16JowLLdk/g3spcvb8uldFBnKHG6Enfkbk7o=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=kHyXILn2km7d7Ozr48FjUxsiPKUJOq7s+8xrvXSlittqqNcpulQw9gF0h1yoiwZ7O
+         c7lb3lnU0bE2vOvrGatBrpXJRe6XXILbCfg8p1eLc9vgzOLnmQXOMd9sUFYs8NSz/Q
+         OwvD2GhS35ngzecbe+mfjxsslqoXakhe6nWiHD6k=
+Date:   Sat, 22 Jan 2022 11:30:47 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Ziyang Xuan <william.xuanziyang@huawei.com>
+Cc:     socketcan@hartkopp.net, mkl@pengutronix.de, davem@davemloft.net,
+        stable@vger.kernel.org, netdev@vger.kernel.org,
+        linux-can@vger.kernel.org
+Subject: Re: [PATCH 4.14] can: bcm: fix UAF of bcm op
+Message-ID: <Yevc134xM9BDEyNd@kroah.com>
+References: <20220122102506.2898032-1-william.xuanziyang@huawei.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.104.82]
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
- canpemm500006.china.huawei.com (7.192.105.130)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220122102506.2898032-1-william.xuanziyang@huawei.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Stopping tasklet and hrtimer rely on the active state of tasklet and
-hrtimer sequentially in bcm_remove_op(), the op object will be freed
-if they are all unactive. Assume the hrtimer timeout is short, the
-hrtimer cb has been excuted after tasklet conditional judgment which
-must be false after last round tasklet_kill() and before condition
-hrtimer_active(), it is false when execute to hrtimer_active(). Bug
-is triggerd, because the stopping action is end and the op object
-will be freed, but the tasklet is scheduled. The resources of the op
-object will occur UAF bug.
+On Sat, Jan 22, 2022 at 06:25:06PM +0800, Ziyang Xuan wrote:
+> Stopping tasklet and hrtimer rely on the active state of tasklet and
+> hrtimer sequentially in bcm_remove_op(), the op object will be freed
+> if they are all unactive. Assume the hrtimer timeout is short, the
+> hrtimer cb has been excuted after tasklet conditional judgment which
+> must be false after last round tasklet_kill() and before condition
+> hrtimer_active(), it is false when execute to hrtimer_active(). Bug
+> is triggerd, because the stopping action is end and the op object
+> will be freed, but the tasklet is scheduled. The resources of the op
+> object will occur UAF bug.
+> 
+> Move hrtimer_cancel() behind tasklet_kill() and switch 'while () {...}'
+> to 'do {...} while ()' to fix the op UAF problem.
+> 
+> Fixes: a06393ed0316 ("can: bcm: fix hrtimer/tasklet termination in bcm op removal")
+> Reported-by: syzbot+5ca851459ed04c778d1d@syzkaller.appspotmail.com
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+> ---
+>  net/can/bcm.c | 20 ++++++++++----------
+>  1 file changed, 10 insertions(+), 10 deletions(-)
 
-Move hrtimer_cancel() behind tasklet_kill() and switch 'while () {...}'
-to 'do {...} while ()' to fix the op UAF problem.
+What is the git commit id of this change in Linus's tree?
 
-Fixes: a06393ed0316 ("can: bcm: fix hrtimer/tasklet termination in bcm op removal")
-Reported-by: syzbot+5ca851459ed04c778d1d@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
----
- net/can/bcm.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+thanks,
 
-diff --git a/net/can/bcm.c b/net/can/bcm.c
-index 324c4cdc003e..b3f3b02ffd42 100644
---- a/net/can/bcm.c
-+++ b/net/can/bcm.c
-@@ -762,21 +762,21 @@ static struct bcm_op *bcm_find_op(struct list_head *ops,
- static void bcm_remove_op(struct bcm_op *op)
- {
- 	if (op->tsklet.func) {
--		while (test_bit(TASKLET_STATE_SCHED, &op->tsklet.state) ||
--		       test_bit(TASKLET_STATE_RUN, &op->tsklet.state) ||
--		       hrtimer_active(&op->timer)) {
--			hrtimer_cancel(&op->timer);
-+		do {
- 			tasklet_kill(&op->tsklet);
--		}
-+			hrtimer_cancel(&op->timer);
-+		} while (test_bit(TASKLET_STATE_SCHED, &op->tsklet.state) ||
-+			 test_bit(TASKLET_STATE_RUN, &op->tsklet.state) ||
-+			 hrtimer_active(&op->timer));
- 	}
- 
- 	if (op->thrtsklet.func) {
--		while (test_bit(TASKLET_STATE_SCHED, &op->thrtsklet.state) ||
--		       test_bit(TASKLET_STATE_RUN, &op->thrtsklet.state) ||
--		       hrtimer_active(&op->thrtimer)) {
--			hrtimer_cancel(&op->thrtimer);
-+		do {
- 			tasklet_kill(&op->thrtsklet);
--		}
-+			hrtimer_cancel(&op->thrtimer);
-+		} while (test_bit(TASKLET_STATE_SCHED, &op->thrtsklet.state) ||
-+			 test_bit(TASKLET_STATE_RUN, &op->thrtsklet.state) ||
-+			 hrtimer_active(&op->thrtimer));
- 	}
- 
- 	if ((op->frames) && (op->frames != &op->sframe))
--- 
-2.25.1
-
+greg k-h
