@@ -2,65 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3936A497732
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 03:20:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E151A4978AD
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 06:48:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240792AbiAXCUl convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Sun, 23 Jan 2022 21:20:41 -0500
-Received: from 200-35-77-146.static.telcel.net.ve ([200.35.77.146]:45160 "EHLO
-        svmailsar00.saren.gob.ve" rhost-flags-OK-OK-OK-FAIL)
-        by vger.kernel.org with ESMTP id S231358AbiAXCUl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 21:20:41 -0500
-Received: from localhost (localhost [127.0.0.1])
-        by svmailsar00.saren.gob.ve (Postfix) with ESMTP id 1F3A6182C2E;
-        Sun, 23 Jan 2022 21:22:20 -0400 (-04)
-Received: from svmailsar00.saren.gob.ve ([127.0.0.1])
-        by localhost (svmailsar00.saren.gob.ve [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id 44HD89wnmIxP; Sun, 23 Jan 2022 21:22:19 -0400 (-04)
-Received: from localhost (localhost [127.0.0.1])
-        by svmailsar00.saren.gob.ve (Postfix) with ESMTP id 9259A182C51;
-        Sun, 23 Jan 2022 21:22:19 -0400 (-04)
-X-Virus-Scanned: amavisd-new at saren.gob.ve
-Received: from svmailsar00.saren.gob.ve ([127.0.0.1])
-        by localhost (svmailsar00.saren.gob.ve [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id oDsv-0wXtyVv; Sun, 23 Jan 2022 21:22:19 -0400 (-04)
-Received: from svmailsar00.saren.gob.ve (svmailsar00.saren.gob.ve [192.16.11.60])
-        by svmailsar00.saren.gob.ve (Postfix) with ESMTP id 43083182C38;
-        Sun, 23 Jan 2022 21:22:19 -0400 (-04)
-Date:   Sun, 23 Jan 2022 20:52:19 -0430 (VET)
-From:   =?utf-8?B?0KHQuNGB0YLQtdC80L3Ri9C5INCw0LTQvNC40L3QuNGB0YLRgNCw0YLQvtGA?= 
-        <siglas@saren.gob.ve>
-Reply-To: sistemassadmins@mail2engineer.com
-Message-ID: <1870056258.8637333.1642987339244.JavaMail.zimbra@saren.gob.ve>
-Subject: =?utf-8?B?0LLQvdC40LzQsNC90LjRjw==?=
+        id S241302AbiAXFsA convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 24 Jan 2022 00:48:00 -0500
+Received: from 137.34.87.110.broad.fz.fj.dynamic.163data.com.cn ([110.87.34.137]:55339
+        "EHLO fjxxll.cn" rhost-flags-OK-FAIL-OK-FAIL) by vger.kernel.org
+        with ESMTP id S241243AbiAXFr7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 00:47:59 -0500
+X-Greylist: delayed 69507 seconds by postgrey-1.27 at vger.kernel.org; Mon, 24 Jan 2022 00:47:58 EST
+Received: from Unknown (unknown [103.37.82.38])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by fjxxll.cn (Postfix) with ESMTPSA id 5F8195286FFA;
+        Sun, 23 Jan 2022 05:08:15 +0800 (CST)
+Message-ID: <C0C573202BFFD162BEBBF24FABDF66BC@ebbwv>
+Reply-To: "Fredrik Elvebakk" <fcresswell9@gmail.com>
+From:   "Fredrik Elvebakk" <investment@dnb.no>
+Subject: Re:
+Date:   Sat, 22 Jan 2022 13:05:56 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-X-Originating-IP: [106.198.186.242]
-X-Mailer: Zimbra 8.6.0_GA_1242 (zclient/8.6.0_GA_1242)
-Thread-Topic: =?utf-8?B?0LLQvdC40LzQsNC90LjRjw==?=
-Thread-Index: TfmhNDyfJkMmfapWZknoMT+HNM/DwA==
+Content-Type: text/plain;
+        format=flowed;
+        charset="windows-1251";
+        reply-type=original
 Content-Transfer-Encoding: 8BIT
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Windows Live Mail 16.4.3528.331
+X-MimeOLE: Produced By Microsoft MimeOLE V16.4.3528.331
 To:     unlisted-recipients:; (no To-header on input)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-внимания;
- 
-Ваши сообщения превысил лимит памяти, который составляет 5 Гб, определенных администратором, который в настоящее время работает на 10.9GB, Вы не сможете отправить или получить новую почту, пока вы повторно не проверить ваш почтовый ящик почты. Чтобы восстановить работоспособность Вашего почтового ящика, отправьте следующую информацию ниже:
- 
-имя:
-Имя пользователя:
-пароль:
-Подтверждение пароля:
-Адрес электронной почты:
-телефон:
- 
-Если вы не в состоянии перепроверить сообщения, ваш почтовый ящик будет отключен!
- 
-Приносим извинения за неудобства.
-Проверочный код: EN: 006524
-Почты технической поддержки © 2022
- 
-спасибо
-системы администратор
+Hello,
+
+Am Fredrik Elvebakk an Investment Manager from Norway. I wish to solicit 
+your interest in an investment project that is currently ongoing in my company (DNB); 
+It is a short term investment with good returns. 
+Simply reply for me to confirm the validity of your email so i shall give you comprehensive details about the project.
+
+Best Regards,
+Fredrik Elvebakk
+Business Consultant
