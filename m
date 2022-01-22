@@ -2,67 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80748496D6A
-	for <lists+stable@lfdr.de>; Sat, 22 Jan 2022 19:45:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCF3D496D6F
+	for <lists+stable@lfdr.de>; Sat, 22 Jan 2022 19:51:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229379AbiAVSpT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Jan 2022 13:45:19 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:34466 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230437AbiAVSpL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 13:45:11 -0500
+        id S234724AbiAVSvS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Jan 2022 13:51:18 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:58574 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230437AbiAVSvS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 13:51:18 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 51A02CE0920;
-        Sat, 22 Jan 2022 18:45:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C39BC004E1;
-        Sat, 22 Jan 2022 18:45:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 62ABE60EA6;
+        Sat, 22 Jan 2022 18:51:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96A92C340E4;
+        Sat, 22 Jan 2022 18:51:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642877107;
-        bh=sCXbGdPD/DLUXHC43kzl/N19hLy2775nseKkVywyCBo=;
+        s=k20201202; t=1642877476;
+        bh=eDFJ0JvkUYQt0VUhHH3xRwKMAQTmz7VtgWrSGyhYsdo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=eCCumVsQ3kuyG1y/yjxxjMGqkgA4TrZke2dcaXe8ArI5I62GP6D2W7a8hl2HpehcA
-         XfodSGRoF9y1wZniKyrn0MCysm/kXWBKNuMHtZE7clm2fE3PMn0pORLOAKn271KE8d
-         Skt1tgAttZNescYaqjWHttjHtS42gLbCiAtlO+Ati+0wLnw+VpU7i/SxI2f7p6BCNK
-         rku/Nhsoa5o1X+L7Vzt2Si42IXemZqR9DmHbepkHpLF+nvO6y7URst0/X6hPgwns6p
-         wF5FfKSaFFl3x4UEc+PgMWRAdjA8iSKlR1KcDrg+oSYO5ta9NM7bm+KfjXjUbq7GKk
-         1JqSngEkHLrGw==
-Date:   Sat, 22 Jan 2022 13:45:04 -0500
+        b=knla0GCS/tX+SXQsXvKOghLFoRA2cGwynzhpzR8WFQprnwyghvGmb3PbSrfU/RtH0
+         gQC9Sg/33EXmsQOTDXOxrpwgInXnZnTtI2F/sXIxXnqvzq7qwggTxg8Yl1EjGthpBv
+         6X8IETYGflMUpTtmvcjF41CW1/CKddiOqzYjTuoZlva8JWNth0gu0Dq217kSEyNTFA
+         QYQXrivZwnYWtEPZuyH5OWTda4E4P1ujykzTlf98WDLW9WvTS4JIcBEZC+CDkGgaeG
+         9JoQpTIVH9SUjv2pmDONFP1axnzCnC2o7GITWBUctdMULEWBiU7Vfb4+bBjG9buZ46
+         XrIMXYJllv7fA==
+Date:   Sat, 22 Jan 2022 13:51:13 -0500
 From:   Sasha Levin <sashal@kernel.org>
-To:     Pavel Machek <pavel@ucw.cz>
+To:     Jakub Kicinski <kuba@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Krzysztof =?utf-8?Q?Ha=C5=82asa?= <khalasa@piap.pl>,
-        Rod Whitby <rod@whitby.id.au>, linux-leds@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.10 34/34] leds: leds-fsg: Drop FSG3 LED driver
-Message-ID: <YexQsGqgu0Fz9UVw@sashalap>
-References: <20220117170326.1471712-1-sashal@kernel.org>
- <20220117170326.1471712-34-sashal@kernel.org>
- <20220117230900.GB14035@duo.ucw.cz>
+        "David S . Miller" <davem@davemloft.net>, netdev@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.16 047/217] cirrus: mac89x0: use
+ eth_hw_addr_set()
+Message-ID: <YexSIQFF/lXAt8L9@sashalap>
+References: <20220118021940.1942199-1-sashal@kernel.org>
+ <20220118021940.1942199-47-sashal@kernel.org>
+ <20220118085641.6c0c7cc9@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20220117230900.GB14035@duo.ucw.cz>
+In-Reply-To: <20220118085641.6c0c7cc9@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 18, 2022 at 12:09:00AM +0100, Pavel Machek wrote:
->On Mon 2022-01-17 12:03:24, Sasha Levin wrote:
->> From: Linus Walleij <linus.walleij@linaro.org>
+On Tue, Jan 18, 2022 at 08:56:41AM -0800, Jakub Kicinski wrote:
+>On Mon, 17 Jan 2022 21:16:50 -0500 Sasha Levin wrote:
+>> From: Jakub Kicinski <kuba@kernel.org>
 >>
->> [ Upstream commit b7f1ac9bb6413b739ea91bd61bdf23c9130a8007 ]
+>> [ Upstream commit 9a962aedd30f7fceb828d3161a80e0526e358eb5 ]
 >>
->> The board file using this driver has been deleted and the
->> FSG3 LEDs can be modeled using a system controller and some
->> register bit LEDs in the device tree so this driver is no
->> longer needed.
+>> Byte by byte assignments.
+>>
+>> Fixes build on m68k.
+>>
+>> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+>> Signed-off-by: David S. Miller <davem@davemloft.net>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
 >
->Please drop.
+>Hi Sasha! You can drop all the eth_hw_addr_set() patches.
+>They aren't fixes, I should have used a different verb, the point
+>was to mention the arch where the driver is built. The patches are
+>only needed in 5.17 where netdev->dev_addr becomes a const.
+>
+>I think that's patches 34-47, 53.
 
-Uh, not sure how it made it in to begin with. Dropped, thanks!
+Will do, thanks!
 
 -- 
 Thanks,
