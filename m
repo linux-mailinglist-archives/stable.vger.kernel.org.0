@@ -2,73 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8AF0496BAE
-	for <lists+stable@lfdr.de>; Sat, 22 Jan 2022 11:30:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAAD3496C5A
+	for <lists+stable@lfdr.de>; Sat, 22 Jan 2022 13:35:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232853AbiAVKax (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Jan 2022 05:30:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57012 "EHLO
+        id S231467AbiAVMfV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Jan 2022 07:35:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232784AbiAVKax (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 05:30:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BEA2DC06173B;
-        Sat, 22 Jan 2022 02:30:52 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 81A5EB81B8D;
-        Sat, 22 Jan 2022 10:30:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFCF9C004E1;
-        Sat, 22 Jan 2022 10:30:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642847450;
-        bh=gUZn2Gk16JowLLdk/g3spcvb8uldFBnKHG6Enfkbk7o=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=kHyXILn2km7d7Ozr48FjUxsiPKUJOq7s+8xrvXSlittqqNcpulQw9gF0h1yoiwZ7O
-         c7lb3lnU0bE2vOvrGatBrpXJRe6XXILbCfg8p1eLc9vgzOLnmQXOMd9sUFYs8NSz/Q
-         OwvD2GhS35ngzecbe+mfjxsslqoXakhe6nWiHD6k=
-Date:   Sat, 22 Jan 2022 11:30:47 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ziyang Xuan <william.xuanziyang@huawei.com>
-Cc:     socketcan@hartkopp.net, mkl@pengutronix.de, davem@davemloft.net,
-        stable@vger.kernel.org, netdev@vger.kernel.org,
-        linux-can@vger.kernel.org
-Subject: Re: [PATCH 4.14] can: bcm: fix UAF of bcm op
-Message-ID: <Yevc134xM9BDEyNd@kroah.com>
-References: <20220122102506.2898032-1-william.xuanziyang@huawei.com>
+        with ESMTP id S231400AbiAVMfV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 07:35:21 -0500
+Received: from mail-io1-xd2d.google.com (mail-io1-xd2d.google.com [IPv6:2607:f8b0:4864:20::d2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F38C1C06173B
+        for <stable@vger.kernel.org>; Sat, 22 Jan 2022 04:35:20 -0800 (PST)
+Received: by mail-io1-xd2d.google.com with SMTP id z19so13961768ioj.1
+        for <stable@vger.kernel.org>; Sat, 22 Jan 2022 04:35:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=2iWP8dND/hBdoQEpMTeRlZ2WLJHbeFPxHgpL541vuc0=;
+        b=CCRKtQqyBNN5RGPN2DIW0IjO8I5eVwa+ibECUlN+TJpLHhKaBAj4ctuBoQV3eMtIjx
+         jwPD/NBGWC5Jk0nN5nl0uj+e0PJF6hWs4X4O/2InSqNeiSQjzwAfHEpnwpZ75afrMptR
+         2WrB81dwjI8+oF10xwA1V/SNoHi56ixr8xrcCRuUGyQ5woCQWZylAOuHWMdbvNnxDzcM
+         tTtgwSBvLlXdJG3TXfUdiiJslosPCxhAoFBu2T8UGq+sEMC1aYnVCajQ9kOPcrLoTcsl
+         UYaNUlW4ffRShKEJD5cQE0n9AEgdfRbcCf9G+0m65LF29JrDXRG2YBABq10uznfEmhwo
+         fmTA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to:content-transfer-encoding;
+        bh=2iWP8dND/hBdoQEpMTeRlZ2WLJHbeFPxHgpL541vuc0=;
+        b=g2397LMkX2ey7oI0gXr2atyQwGczT0a44Tc1rJ+8MlVqBGfo1rH9K3pXhZfsYWxAC8
+         EM+6WBx/xaR5kTSa3jdJ+CHODw7f6X/Sc9MyDIXt14020+YvkhHvn7SHZY1O4OuO/CtB
+         Q3viJ27/V9Jrk7GETwkq28+9kOgJvptC+EU293Fh7bYvUtg8pGUbd1F3YbbFPdJUlDFs
+         VA2LL6Hdksz4G9DbKfcMOf2iA+IJOlmVibYalm3te1oh5JezUzZyv1DR6M1cyL0577G9
+         7znSTe+AiE7OZAHuo8+HuGhQc6cMamw1QJe9NtbBj5qpOubw0DsQK40yyY+9Rjl4paPF
+         YNzg==
+X-Gm-Message-State: AOAM5314DJTRpJscpnLdwOV5iVNdBupN5fRk84XD8psdPPlE8P1Sm+fT
+        9UNrC5hyDOFbDeHRkgPYYgJZW30e63cBr41wkPs=
+X-Google-Smtp-Source: ABdhPJzKqyEPuqOBLQwAQwJEl4bF+rQbFLRbU40tTDvyHcDHDKBHYmJ4USViriQew5uXpo+2lEUorc6vKw0jm5HDdV8=
+X-Received: by 2002:a05:6638:613:: with SMTP id g19mr3516859jar.20.1642854920359;
+ Sat, 22 Jan 2022 04:35:20 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220122102506.2898032-1-william.xuanziyang@huawei.com>
+Received: by 2002:a05:6e02:1707:0:0:0:0 with HTTP; Sat, 22 Jan 2022 04:35:19
+ -0800 (PST)
+Reply-To: anthonyloanfunds@gmail.com
+From:   "Mr. Anthony Rolle" <tumwiinebrians@gmail.com>
+Date:   Sat, 22 Jan 2022 04:35:19 -0800
+Message-ID: <CAFjafY3MS2aRTQOHnOExqAeys9w-h4Nj8GbpT2WRoBq-USj9jA@mail.gmail.com>
+Subject: FINANZIELLE HILFE
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Jan 22, 2022 at 06:25:06PM +0800, Ziyang Xuan wrote:
-> Stopping tasklet and hrtimer rely on the active state of tasklet and
-> hrtimer sequentially in bcm_remove_op(), the op object will be freed
-> if they are all unactive. Assume the hrtimer timeout is short, the
-> hrtimer cb has been excuted after tasklet conditional judgment which
-> must be false after last round tasklet_kill() and before condition
-> hrtimer_active(), it is false when execute to hrtimer_active(). Bug
-> is triggerd, because the stopping action is end and the op object
-> will be freed, but the tasklet is scheduled. The resources of the op
-> object will occur UAF bug.
-> 
-> Move hrtimer_cancel() behind tasklet_kill() and switch 'while () {...}'
-> to 'do {...} while ()' to fix the op UAF problem.
-> 
-> Fixes: a06393ed0316 ("can: bcm: fix hrtimer/tasklet termination in bcm op removal")
-> Reported-by: syzbot+5ca851459ed04c778d1d@syzkaller.appspotmail.com
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-> ---
->  net/can/bcm.c | 20 ++++++++++----------
->  1 file changed, 10 insertions(+), 10 deletions(-)
+--=20
+BEN=C3=96TIGEN SIE EIN PERS=C3=96NLICHES DARLEHEN ODER EIN GESCH=C3=84FTSDA=
+RLEHEN,
+EIN DARLEHEN VON =E2=82=AC5000 BIS =E2=82=AC90.000.000? WENN JA, KONTAKTIER=
+EN SIE UNS
+PER E-MAIL: anthonyloanfunds@gmail.com MIT DEN UNTENSTEHENDEN
+INFORMATIONEN.
 
-What is the git commit id of this change in Linus's tree?
-
-thanks,
-
-greg k-h
+Ihr vollst=C3=A4ndiger Name: ...
+Ben=C3=B6tigte Menge:...
+Dauer: ..
+Telefon: ....
+Land: ..
+Kontakt =C3=BCber: anthonyloanfunds@gmail.com
