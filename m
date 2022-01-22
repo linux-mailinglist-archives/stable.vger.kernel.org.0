@@ -2,88 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BEE2496D91
-	for <lists+stable@lfdr.de>; Sat, 22 Jan 2022 20:17:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BC25496D95
+	for <lists+stable@lfdr.de>; Sat, 22 Jan 2022 20:18:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234796AbiAVTRn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Jan 2022 14:17:43 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:46648 "EHLO
+        id S229674AbiAVTSm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Jan 2022 14:18:42 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:46904 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229582AbiAVTRm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 14:17:42 -0500
+        with ESMTP id S229582AbiAVTSl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 14:18:41 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F2EFB8092A;
-        Sat, 22 Jan 2022 19:17:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0906C004E1;
-        Sat, 22 Jan 2022 19:17:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 27126B80AB4;
+        Sat, 22 Jan 2022 19:18:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A85EDC004E1;
+        Sat, 22 Jan 2022 19:18:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642879060;
-        bh=JeXyzQULWAbMFiomXAsBJNjnrrAJw5Mhyf59QGiZVeo=;
+        s=k20201202; t=1642879118;
+        bh=+uDpqTIZtAPLAYnQOlLFD/r2FjMhHDDcoyocz5WLUFM=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lJghKbHCWhhld84ChEdv1nbqcjjMpckEn/db3woEjyGguVvRFezPhBgFEzsfbk6ZY
-         Yf8sPYOMEUJ/AGXmOgrZ6QhF7bFbOpJMT5+SZIHs7ZsthkWX39YOLCWfdon4c4JaqK
-         dJZPUrhAuYbf46qh6GY9Uz5/AegtWYH25VU2fT7PCoF2d9SS1t87a7Gz1ohvxtYVGA
-         C3+xYc0k9kRnbhdFFLDBY8AZuZX/fwoXf7n8PvPs3+93165GLs6ybHFydLQu3EsgXk
-         JqHRyFcnz05PISBjcexYSF16MvvRXAZSY+yWwpz8YiT+eu+WZ7r4UT/7/dfX7FmaBt
-         Mv4osTx3hnu8A==
-Date:   Sat, 22 Jan 2022 14:17:38 -0500
+        b=V02UAbNKS3W/97afYLqmJWJaqrkPfXvj2B1Bz1djJnAxHOZHAyR0f6e8VkhaC5ieM
+         if7DZr3twNMNUaNIchkHHjtuuFUuPijx5IXBsOKL2X74fHx2hYBrD+mimDnKrLefyB
+         ak5nLL76UdWZWkw8ZFlKbnL8s7qvN4bguLf3LdBeww6HKaodR1QymrXXL1IA9vpoYI
+         QMGsv8rSMv4tbnMm9UkfZBKhTM3ax0o2LbS54mNILSMesjAYOO76ROaUpa195QGKkb
+         fQanrEhp0h4c9IOiJHLCni/CIzJ8NQdIPBWYR/YDj+zB3Vn1823Szl99CsnhMItejW
+         huvvL6AQWzHNg==
+Date:   Sat, 22 Jan 2022 14:18:37 -0500
 From:   Sasha Levin <sashal@kernel.org>
-To:     Vladimir Oltean <olteanv@gmail.com>
+To:     Christian Borntraeger <borntraeger@linux.ibm.com>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>, andrew@lunn.ch,
-        vivien.didelot@gmail.com, kuba@kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.16 203/217] net: dsa: hold rtnl_mutex when
- calling dsa_master_{setup,teardown}
-Message-ID: <YexYUqZzurZ1F3kc@sashalap>
-References: <20220118021940.1942199-1-sashal@kernel.org>
- <20220118021940.1942199-203-sashal@kernel.org>
- <20220118121329.v6inazagzduz6fyw@skbuf>
+        Heiko Carstens <hca@linux.ibm.com>,
+        Vineeth Vijayan <vneethv@linux.ibm.com>, gor@linux.ibm.com,
+        egorenar@linux.ibm.com, agordeev@linux.ibm.com,
+        svens@linux.ibm.com, ebiederm@xmission.com,
+        valentin.schneider@arm.com, rppt@kernel.org, iii@linux.ibm.com,
+        linux-s390@vger.kernel.org
+Subject: Re: [PATCH AUTOSEL 5.15 081/188] s390/nmi: add missing __pa/__va
+ address conversion of extended save area
+Message-ID: <YexYjV+Cm3RoLRk9@sashalap>
+References: <20220118023152.1948105-1-sashal@kernel.org>
+ <20220118023152.1948105-81-sashal@kernel.org>
+ <aef11e2f-2b92-e713-a407-3bebf9b3340d@linux.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20220118121329.v6inazagzduz6fyw@skbuf>
+In-Reply-To: <aef11e2f-2b92-e713-a407-3bebf9b3340d@linux.ibm.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 18, 2022 at 02:13:29PM +0200, Vladimir Oltean wrote:
->Hi Sasha,
+On Tue, Jan 18, 2022 at 09:18:40AM +0100, Christian Borntraeger wrote:
+>Am 18.01.22 um 03:30 schrieb Sasha Levin:
+>>From: Heiko Carstens <hca@linux.ibm.com>
+>>
+>>[ Upstream commit 402ff5a3387dc8ec6987a80d3ce26b0c25773622 ]
+>>
+>>Add missing __pa/__va address conversion of machine check extended
+>>save area designation, which is an absolute address.
+>>
 >
->On Mon, Jan 17, 2022 at 09:19:26PM -0500, Sasha Levin wrote:
->> From: Vladimir Oltean <vladimir.oltean@nxp.com>
->>
->> [ Upstream commit c146f9bc195a9dc3ad7fd000a14540e7c9df952d ]
->>
->> DSA needs to simulate master tracking events when a binding is first
->> with a DSA master established and torn down, in order to give drivers
->> the simplifying guarantee that ->master_state_change calls are made
->> only when the master's readiness state to pass traffic changes.
->> master_state_change() provide a operational bool that DSA driver can use
->> to understand if DSA master is operational or not.
->> To avoid races, we need to block the reception of
->> NETDEV_UP/NETDEV_CHANGE/NETDEV_GOING_DOWN events in the netdev notifier
->> chain while we are changing the master's dev->dsa_ptr (this changes what
->> netdev_uses_dsa(dev) reports).
->>
->> The dsa_master_setup() and dsa_master_teardown() functions optionally
->> require the rtnl_mutex to be held, if the tagger needs the master to be
->> promiscuous, these functions call dev_set_promiscuity(). Move the
->> rtnl_lock() from that function and make it top-level.
->>
->> Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
->> Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
->> Signed-off-by: David S. Miller <davem@davemloft.net>
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
->> ---
+>vv
+>>Note: this currently doesn't fix a real bug, since virtual addresses
+>>are indentical to physical ones.
+>^^
 >
->Please drop this patch from all stable branches (5.16, 5.15, 5.10).
->Thanks.
+>Sasha,
+>please note the disclaimer above. There will be plenty of such fixes
+>in s390 code and there is no point in backporting single fixes to stable.
+>It will provide no benefit on its own but adds a risk of regression.
 
-Dropped, thanks!
+Sure, I'll drop it. Thanks!
 
 -- 
 Thanks,
