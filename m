@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00367497334
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:50:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FFB0497335
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:50:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232018AbiAWQuc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 11:50:32 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:57616 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231686AbiAWQua (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:50:30 -0500
+        id S234571AbiAWQuq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 11:50:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57260 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231686AbiAWQuq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:50:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 692ACC06173B
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 08:50:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84B41B80C81
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:50:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA2FDC340E4;
-        Sun, 23 Jan 2022 16:50:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 063D460F95
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:50:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6374C340E2;
+        Sun, 23 Jan 2022 16:50:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642956628;
-        bh=DEKJ5DooaGsjy5FPPos6aYGKBSTeMHT2MkuStQjNfpw=;
+        s=korg; t=1642956645;
+        bh=Yap0nCBS+EAFiOtOLWBKkOamTWa0ncZYIQyfMrfE1uE=;
         h=Subject:To:Cc:From:Date:From;
-        b=tHn2dUdCaklNkywj7xgmU/HUtqw0/2o/vS/4SraoxVY9dbUBrbGP/am8AxMU/eJ/C
-         mQCEzSULQMs460v+OKQV6lw7w47T7Pk2dcVHIZjYOFmKfCOASuLawWyKJgjpOlsn9m
-         qZ2UeE7IuTm0xb3JxdXsu3mPRJAsg3NbrwGZjYKg=
-Subject: FAILED: patch "[PATCH] drm/i915/guc: Fix recursive lock in GuC submission" failed to apply to 5.16-stable tree
-To:     matthew.brost@intel.com, John.C.Harrison@Intel.com,
-        thomas.hellstrom@linux.intel.com
+        b=bSdGpYYvZSvkElVbZE6U6vkqFFs4neoWtvtULf/dPhY7+cjHm7y6bFkGPuYA0ZTDL
+         X+lE5wGReqJ1Mv7tjKHTUkdFPH8n0AmDKaDcrA6PREd4keKkIvZsVpg20AUAkGOUxO
+         VLqk6jfEXxqTCbzBllBipTwpcgLgQEZ7qZCIVMvM=
+Subject: FAILED: patch "[PATCH] drm/i915: Add support for panels with VESA backlights with" failed to apply to 5.16-stable tree
+To:     lyude@redhat.com, stable@vger.kernel.org,
+        ville.syrjala@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jan 2022 17:50:25 +0100
-Message-ID: <1642956625152174@kroah.com>
+Date:   Sun, 23 Jan 2022 17:50:42 +0100
+Message-ID: <164295664220261@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -51,135 +54,93 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 12a9917e9e84fef4efa73c09b32870df0b1ed795 Mon Sep 17 00:00:00 2001
-From: Matthew Brost <matthew.brost@intel.com>
-Date: Wed, 20 Oct 2021 12:21:47 -0700
-Subject: [PATCH] drm/i915/guc: Fix recursive lock in GuC submission
+From 04f0d6cc62cc1eaf9242c081520c024a17ba86a3 Mon Sep 17 00:00:00 2001
+From: Lyude Paul <lyude@redhat.com>
+Date: Fri, 5 Nov 2021 14:33:38 -0400
+Subject: [PATCH] drm/i915: Add support for panels with VESA backlights with
+ PWM enable/disable
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Use __release_guc_id (lock held) rather than release_guc_id (acquires
-lock), add lockdep annotations.
+This simply adds proper support for panel backlights that can be controlled
+via VESA's backlight control protocol, but which also require that we
+enable and disable the backlight via PWM instead of via the DPCD interface.
+We also enable this by default, in order to fix some people's backlights
+that were broken by not having this enabled.
 
-213.280129] i915: Running i915_perf_live_selftests/live_noa_gpr
-[ 213.283459] ============================================
-[ 213.283462] WARNING: possible recursive locking detected
-{{[ 213.283466] 5.15.0-rc6+ #18 Tainted: G U W }}
-[ 213.283470] --------------------------------------------
-[ 213.283472] kworker/u24:0/8 is trying to acquire lock:
-[ 213.283475] ffff8ffc4f6cc1e8 (&guc->submission_state.lock){....}-{2:2}, at: destroyed_worker_func+0x2df/0x350 [i915]
-{{[ 213.283618] }}
-{{ but task is already holding lock:}}
-[ 213.283621] ffff8ffc4f6cc1e8 (&guc->submission_state.lock){....}-{2:2}, at: destroyed_worker_func+0x4f/0x350 [i915]
-{{[ 213.283720] }}
-{{ other info that might help us debug this:}}
-[ 213.283724] Possible unsafe locking scenario:[ 213.283727] CPU0
-[ 213.283728] ----
-[ 213.283730] lock(&guc->submission_state.lock);
-[ 213.283734] lock(&guc->submission_state.lock);
-{{[ 213.283737] }}
-{{ *** DEADLOCK ***}}[ 213.283740] May be due to missing lock nesting notation[ 213.283744] 3 locks held by kworker/u24:0/8:
-[ 213.283747] #0: ffff8ffb80059d38 ((wq_completion)events_unbound){..}-{0:0}, at: process_one_work+0x1f3/0x550
-[ 213.283757] #1: ffffb509000e3e78 ((work_completion)(&guc->submission_state.destroyed_worker)){..}-{0:0}, at: process_one_work+0x1f3/0x550
-[ 213.283766] #2: ffff8ffc4f6cc1e8 (&guc->submission_state.lock){....}-{2:2}, at: destroyed_worker_func+0x4f/0x350 [i915]
-{{[ 213.283860] }}
-{{ stack backtrace:}}
-[ 213.283863] CPU: 8 PID: 8 Comm: kworker/u24:0 Tainted: G U W 5.15.0-rc6+ #18
-[ 213.283868] Hardware name: ASUS System Product Name/PRIME B560M-A AC, BIOS 0403 01/26/2021
-[ 213.283873] Workqueue: events_unbound destroyed_worker_func [i915]
-[ 213.283957] Call Trace:
-[ 213.283960] dump_stack_lvl+0x57/0x72
-[ 213.283966] __lock_acquire.cold+0x191/0x2d3
-[ 213.283972] lock_acquire+0xb5/0x2b0
-[ 213.283978] ? destroyed_worker_func+0x2df/0x350 [i915]
-[ 213.284059] ? destroyed_worker_func+0x2d7/0x350 [i915]
-[ 213.284139] ? lock_release+0xb9/0x280
-[ 213.284143] _raw_spin_lock_irqsave+0x48/0x60
-[ 213.284148] ? destroyed_worker_func+0x2df/0x350 [i915]
-[ 213.284226] destroyed_worker_func+0x2df/0x350 [i915]
-[ 213.284310] process_one_work+0x270/0x550
-[ 213.284315] worker_thread+0x52/0x3b0
-[ 213.284319] ? process_one_work+0x550/0x550
-[ 213.284322] kthread+0x135/0x160
-[ 213.284326] ? set_kthread_struct+0x40/0x40
-[ 213.284331] ret_from_fork+0x1f/0x30
+For reference, backlights that require this and use VESA's backlight
+interface tend to be laptops with hybrid GPUs, but this very well may
+change in the future.
 
-and a bit later in the trace:
+v4:
+* Make sure that we call intel_backlight_level_to_pwm() in
+  intel_dp_aux_vesa_enable_backlight() - vsyrjala
 
-{{ 227.499864] do_raw_spin_lock+0x94/0xa0}}
-[ 227.499868] _raw_spin_lock_irqsave+0x50/0x60
-[ 227.499871] ? guc_flush_destroyed_contexts+0x4f/0xf0 [i915]
-[ 227.499995] guc_flush_destroyed_contexts+0x4f/0xf0 [i915]
-[ 227.500104] intel_guc_submission_reset_prepare+0x99/0x4b0 [i915]
-[ 227.500209] ? mark_held_locks+0x49/0x70
-[ 227.500212] intel_uc_reset_prepare+0x46/0x50 [i915]
-[ 227.500320] reset_prepare+0x78/0x90 [i915]
-[ 227.500412] __intel_gt_set_wedged.part.0+0x13/0xe0 [i915]
-[ 227.500485] intel_gt_set_wedged.part.0+0x54/0x100 [i915]
-[ 227.500556] intel_gt_set_wedged_on_fini+0x1a/0x30 [i915]
-[ 227.500622] intel_gt_driver_unregister+0x1e/0x60 [i915]
-[ 227.500694] i915_driver_remove+0x4a/0xf0 [i915]
-[ 227.500767] i915_pci_probe+0x84/0x170 [i915]
-[ 227.500838] local_pci_probe+0x42/0x80
-[ 227.500842] pci_device_probe+0xd9/0x190
-[ 227.500844] really_probe+0x1f2/0x3f0
-[ 227.500847] __driver_probe_device+0xfe/0x180
-[ 227.500848] driver_probe_device+0x1e/0x90
-[ 227.500850] __driver_attach+0xc4/0x1d0
-[ 227.500851] ? __device_attach_driver+0xe0/0xe0
-[ 227.500853] ? __device_attach_driver+0xe0/0xe0
-[ 227.500854] bus_for_each_dev+0x64/0x90
-[ 227.500856] bus_add_driver+0x12e/0x1f0
-[ 227.500857] driver_register+0x8f/0xe0
-[ 227.500859] i915_init+0x1d/0x8f [i915]
-[ 227.500934] ? 0xffffffffc144a000
-[ 227.500936] do_one_initcall+0x58/0x2d0
-[ 227.500938] ? rcu_read_lock_sched_held+0x3f/0x80
-[ 227.500940] ? kmem_cache_alloc_trace+0x238/0x2d0
-[ 227.500944] do_init_module+0x5c/0x270
-[ 227.500946] __do_sys_finit_module+0x95/0xe0
-[ 227.500949] do_syscall_64+0x38/0x90
-[ 227.500951] entry_SYSCALL_64_after_hwframe+0x44/0xae
-[ 227.500953] RIP: 0033:0x7ffa59d2ae0d
-[ 227.500954] Code: c8 0c 00 0f 05 eb a9 66 0f 1f 44 00 00 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 3b 80 0c 00 f7 d8 64 89 01 48
-[ 227.500955] RSP: 002b:00007fff320bbf48 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
-[ 227.500956] RAX: ffffffffffffffda RBX: 00000000022ea710 RCX: 00007ffa59d2ae0d
-[ 227.500957] RDX: 0000000000000000 RSI: 00000000022e1d90 RDI: 0000000000000004
-[ 227.500958] RBP: 0000000000000020 R08: 00007ffa59df3a60 R09: 0000000000000070
-[ 227.500958] R10: 00000000022e1d90 R11: 0000000000000246 R12: 00000000022e1d90
-[ 227.500959] R13: 00000000022e58e0 R14: 0000000000000043 R15: 00000000022e42c0
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://gitlab.freedesktop.org/drm/intel/-/issues/3680
+Fixes: fe7d52bccab6 ("drm/i915/dp: Don't use DPCD backlights that need PWM enable/disable")
+Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: <stable@vger.kernel.org> # v5.12+
+Link: https://patchwork.freedesktop.org/patch/msgid/20211105183342.130810-2-lyude@redhat.com
 
-v2:
- (CI build)
-  - Fix build error
-
-Fixes: 1a52faed31311 ("drm/i915/guc: Take GT PM ref when deregistering context")
-Signed-off-by: Matthew Brost <matthew.brost@intel.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211020192147.8048-1-matthew.brost@intel.com
-
-diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-index d7710debcd47..38b47e73e35d 100644
---- a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-+++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
-@@ -2373,6 +2373,7 @@ static inline void guc_lrc_desc_unpin(struct intel_context *ce)
- 	unsigned long flags;
- 	bool disabled;
+diff --git a/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c b/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
+index 569d17b4d00f..f05b71c01b8e 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
++++ b/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
+@@ -293,6 +293,13 @@ intel_dp_aux_vesa_enable_backlight(const struct intel_crtc_state *crtc_state,
+ 	struct intel_panel *panel = &connector->panel;
+ 	struct intel_dp *intel_dp = enc_to_intel_dp(connector->encoder);
  
-+	lockdep_assert_held(&guc->submission_state.lock);
- 	GEM_BUG_ON(!intel_gt_pm_is_awake(gt));
- 	GEM_BUG_ON(!lrc_desc_registered(guc, ce->guc_id.id));
- 	GEM_BUG_ON(ce != __get_context(guc, ce->guc_id.id));
-@@ -2388,7 +2389,7 @@ static inline void guc_lrc_desc_unpin(struct intel_context *ce)
- 	}
- 	spin_unlock_irqrestore(&ce->guc_state.lock, flags);
- 	if (unlikely(disabled)) {
--		release_guc_id(guc, ce);
-+		__release_guc_id(guc, ce);
- 		__guc_context_destroy(ce);
- 		return;
++	if (!panel->backlight.edp.vesa.info.aux_enable) {
++		u32 pwm_level = intel_backlight_invert_pwm_level(connector,
++								 panel->backlight.pwm_level_max);
++
++		panel->backlight.pwm_funcs->enable(crtc_state, conn_state, pwm_level);
++	}
++
+ 	drm_edp_backlight_enable(&intel_dp->aux, &panel->backlight.edp.vesa.info, level);
+ }
+ 
+@@ -304,6 +311,10 @@ static void intel_dp_aux_vesa_disable_backlight(const struct drm_connector_state
+ 	struct intel_dp *intel_dp = enc_to_intel_dp(connector->encoder);
+ 
+ 	drm_edp_backlight_disable(&intel_dp->aux, &panel->backlight.edp.vesa.info);
++
++	if (!panel->backlight.edp.vesa.info.aux_enable)
++		panel->backlight.pwm_funcs->disable(old_conn_state,
++						    intel_backlight_invert_pwm_level(connector, 0));
+ }
+ 
+ static int intel_dp_aux_vesa_setup_backlight(struct intel_connector *connector, enum pipe pipe)
+@@ -321,6 +332,15 @@ static int intel_dp_aux_vesa_setup_backlight(struct intel_connector *connector,
+ 	if (ret < 0)
+ 		return ret;
+ 
++	if (!panel->backlight.edp.vesa.info.aux_enable) {
++		ret = panel->backlight.pwm_funcs->setup(connector, pipe);
++		if (ret < 0) {
++			drm_err(&i915->drm,
++				"Failed to setup PWM backlight controls for eDP backlight: %d\n",
++				ret);
++			return ret;
++		}
++	}
+ 	panel->backlight.max = panel->backlight.edp.vesa.info.max;
+ 	panel->backlight.min = 0;
+ 	if (current_mode == DP_EDP_BACKLIGHT_CONTROL_MODE_DPCD) {
+@@ -340,12 +360,7 @@ intel_dp_aux_supports_vesa_backlight(struct intel_connector *connector)
+ 	struct intel_dp *intel_dp = intel_attached_dp(connector);
+ 	struct drm_i915_private *i915 = dp_to_i915(intel_dp);
+ 
+-	/* TODO: We currently only support AUX only backlight configurations, not backlights which
+-	 * require a mix of PWM and AUX controls to work. In the mean time, these machines typically
+-	 * work just fine using normal PWM controls anyway.
+-	 */
+-	if ((intel_dp->edp_dpcd[1] & DP_EDP_BACKLIGHT_AUX_ENABLE_CAP) &&
+-	    drm_edp_backlight_supported(intel_dp->edp_dpcd)) {
++	if (drm_edp_backlight_supported(intel_dp->edp_dpcd)) {
+ 		drm_dbg_kms(&i915->drm, "AUX Backlight Control Supported!\n");
+ 		return true;
  	}
 
