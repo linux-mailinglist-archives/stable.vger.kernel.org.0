@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDB08497318
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:46:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EA4149731A
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:47:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238853AbiAWQqp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 11:46:45 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:35676 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232833AbiAWQqo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:46:44 -0500
+        id S233042AbiAWQrN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 11:47:13 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:52606 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233592AbiAWQrN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:47:13 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id EC1BFCE0EDC
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:46:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABD19C340E5;
-        Sun, 23 Jan 2022 16:46:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EFAF860ECD
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:47:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC1CAC340E5;
+        Sun, 23 Jan 2022 16:47:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642956401;
-        bh=JILAxxZOINnT0uthY4XMvg6N8DhAOMoy9k8idVndY7E=;
+        s=korg; t=1642956432;
+        bh=D8IPUex6K8W4ZukvgUJ5jNb201I4jMu8D2r3oAL+NkM=;
         h=Subject:To:Cc:From:Date:From;
-        b=r+vls/FGxMmmXRFV/+bcr+3Hv4sysxcmBkVz6MGVQ/B/r2Evl7CxXFl5CMhi+ILA/
-         Pk5CYZnqgjmYSpKDKji/Lz9CpD33DESIYXrnjG4HBlpLbNR/X6Q/4z/THLDQPpchHY
-         nLOsdgQKRP9DfogCGqonWWceUBsn8V2TUBbVY2t8=
-Subject: FAILED: patch "[PATCH] tracing/osnoise: Properly unhook events if" failed to apply to 5.15-stable tree
-To:     nikita.yushchenko@virtuozzo.com, bristot@kernel.org,
-        rostedt@goodmis.org
+        b=AgZJSem872tDZ8aAm0SOcmuE2cWfqRAPoj6LHrl9HD7LL4G8HKrLt+E1Ai6rfQ459
+         DZ2GqkYhp52Y0IztDRUdjNxITx48jA6SGk6GQCXlCcOYYH5KkFWTnsGl+A1Bj3GC8h
+         EtRk/O9cNhgKFhbC0CvEOhG7wxd21yh9yJDGQXNo=
+Subject: FAILED: patch "[PATCH] tracing/kprobes: 'nmissed' not showed correctly for kretprobe" failed to apply to 4.19-stable tree
+To:     xyz.sun.ok@gmail.com, mhiramat@kernel.org, rostedt@goodmis.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jan 2022 17:46:38 +0100
-Message-ID: <1642956398125157@kroah.com>
+Date:   Sun, 23 Jan 2022 17:47:09 +0100
+Message-ID: <164295642959183@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -51,78 +50,46 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 0878355b51f5f26632e652c848a8e174bb02d22d Mon Sep 17 00:00:00 2001
-From: Nikita Yushchenko <nikita.yushchenko@virtuozzo.com>
-Date: Sun, 9 Jan 2022 18:34:59 +0300
-Subject: [PATCH] tracing/osnoise: Properly unhook events if
- start_per_cpu_kthreads() fails
+From dfea08a2116fe327f79d8f4d4b2cf6e0c88be11f Mon Sep 17 00:00:00 2001
+From: Xiangyang Zhang <xyz.sun.ok@gmail.com>
+Date: Fri, 7 Jan 2022 23:02:42 +0800
+Subject: [PATCH] tracing/kprobes: 'nmissed' not showed correctly for kretprobe
 
-If start_per_cpu_kthreads() called from osnoise_workload_start() returns
-error, event hooks are left in broken state: unhook_irq_events() called
-but unhook_thread_events() and unhook_softirq_events() not called, and
-trace_osnoise_callback_enabled flag not cleared.
+The 'nmissed' column of the 'kprobe_profile' file for kretprobe is
+not showed correctly, kretprobe can be skipped by two reasons,
+shortage of kretprobe_instance which is counted by tk->rp.nmissed,
+and kprobe itself is missed by some reason, so to show the sum.
 
-On the next tracer enable, hooks get not installed due to
-trace_osnoise_callback_enabled flag.
-
-And on the further tracer disable an attempt to remove non-installed
-hooks happened, hitting a WARN_ON_ONCE() in tracepoint_remove_func().
-
-Fix the error path by adding the missing part of cleanup.
-While at this, introduce osnoise_unhook_events() to avoid code
-duplication between this error path and normal tracer disable.
-
-Link: https://lkml.kernel.org/r/20220109153459.3701773-1-nikita.yushchenko@virtuozzo.com
+Link: https://lkml.kernel.org/r/20220107150242.5019-1-xyz.sun.ok@gmail.com
 
 Cc: stable@vger.kernel.org
-Fixes: bce29ac9ce0b ("trace: Add osnoise tracer")
-Acked-by: Daniel Bristot de Oliveira <bristot@kernel.org>
-Signed-off-by: Nikita Yushchenko <nikita.yushchenko@virtuozzo.com>
+Fixes: 4a846b443b4e ("tracing/kprobes: Cleanup kprobe tracer code")
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Xiangyang Zhang <xyz.sun.ok@gmail.com>
 Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
-diff --git a/kernel/trace/trace_osnoise.c b/kernel/trace/trace_osnoise.c
-index 4719a848bf17..36d9d5be08b4 100644
---- a/kernel/trace/trace_osnoise.c
-+++ b/kernel/trace/trace_osnoise.c
-@@ -2122,6 +2122,13 @@ static int osnoise_hook_events(void)
- 	return -EINVAL;
+diff --git a/kernel/trace/trace_kprobe.c b/kernel/trace/trace_kprobe.c
+index f8c26ee72de3..3d85323278ed 100644
+--- a/kernel/trace/trace_kprobe.c
++++ b/kernel/trace/trace_kprobe.c
+@@ -1170,15 +1170,18 @@ static int probes_profile_seq_show(struct seq_file *m, void *v)
+ {
+ 	struct dyn_event *ev = v;
+ 	struct trace_kprobe *tk;
++	unsigned long nmissed;
+ 
+ 	if (!is_trace_kprobe(ev))
+ 		return 0;
+ 
+ 	tk = to_trace_kprobe(ev);
++	nmissed = trace_kprobe_is_return(tk) ?
++		tk->rp.kp.nmissed + tk->rp.nmissed : tk->rp.kp.nmissed;
+ 	seq_printf(m, "  %-44s %15lu %15lu\n",
+ 		   trace_probe_name(&tk->tp),
+ 		   trace_kprobe_nhit(tk),
+-		   tk->rp.kp.nmissed);
++		   nmissed);
+ 
+ 	return 0;
  }
- 
-+static void osnoise_unhook_events(void)
-+{
-+	unhook_thread_events();
-+	unhook_softirq_events();
-+	unhook_irq_events();
-+}
-+
- /*
-  * osnoise_workload_start - start the workload and hook to events
-  */
-@@ -2154,7 +2161,14 @@ static int osnoise_workload_start(void)
- 
- 	retval = start_per_cpu_kthreads();
- 	if (retval) {
--		unhook_irq_events();
-+		trace_osnoise_callback_enabled = false;
-+		/*
-+		 * Make sure that ftrace_nmi_enter/exit() see
-+		 * trace_osnoise_callback_enabled as false before continuing.
-+		 */
-+		barrier();
-+
-+		osnoise_unhook_events();
- 		return retval;
- 	}
- 
-@@ -2185,9 +2199,7 @@ static void osnoise_workload_stop(void)
- 
- 	stop_per_cpu_kthreads();
- 
--	unhook_irq_events();
--	unhook_softirq_events();
--	unhook_thread_events();
-+	osnoise_unhook_events();
- }
- 
- static void osnoise_tracer_start(struct trace_array *tr)
 
