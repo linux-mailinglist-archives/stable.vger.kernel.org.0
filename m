@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB67D4972DE
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:09:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBA2E4972D9
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:09:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231514AbiAWQJf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 11:09:35 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:33102 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238458AbiAWQJd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:09:33 -0500
+        id S238444AbiAWQJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 11:09:28 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:42594 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238454AbiAWQJ0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:09:26 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BB3360F7E
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:09:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC73CC340E2;
-        Sun, 23 Jan 2022 16:09:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2C23BB80DD0
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:09:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56CC5C340E5;
+        Sun, 23 Jan 2022 16:09:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642954172;
-        bh=Iki7g5zcLOtBFYEDEpRhAZjQErP7tmWhyJe98xawAHU=;
+        s=korg; t=1642954163;
+        bh=mDHS8k86AghSsmLApw7ko4WuOsm6ypFLq8BM6z1e1xU=;
         h=Subject:To:Cc:From:Date:From;
-        b=noJXhJmsAhY6HmM4Kt85i85zrD0kaakURzQa2S1fCkB05IGQCkWEkxu2ZvA83mkll
-         5mhFe4Ai7Ckpa3pbM+IC9EdEsHgpCeSYlwtuC3z0udteGMJgCT4y9/8R8oZBkS5PO8
-         bg2BrT1x7w/6jHNV7wm3zWP1FMOeZG/wgWgOpvog=
-Subject: FAILED: patch "[PATCH] rpmsg: core: Clean up resources on announce_create failure." failed to apply to 4.14-stable tree
+        b=aihWQzSlS96QPCC+hGpV7EK0AKOWAmswd9A2PKquZdILqcXvjIm7xjbSbM+HNlK0K
+         CyfE6+TRhjXN0GkUHfbNLPIwoYAq+gv0R0BkdLpuuXVK2vIjgzfLeb92E24dTkPj/d
+         w0WSY/9BwD8oA/myzlBDJulmqwCMG7SWTUsuCIZo=
+Subject: FAILED: patch "[PATCH] rpmsg: core: Clean up resources on announce_create failure." failed to apply to 4.9-stable tree
 To:     arnaud.pouliquen@foss.st.com, bjorn.andersson@linaro.org,
         mathieu.poirier@linaro.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 23 Jan 2022 17:09:21 +0100
-Message-ID: <164295416188131@kroah.com>
+Message-ID: <1642954161103222@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
