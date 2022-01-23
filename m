@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E04B2496EE0
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 01:15:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 847FB496EE2
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 01:15:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235741AbiAWAPB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Jan 2022 19:15:01 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38368 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235515AbiAWAOC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 19:14:02 -0500
+        id S235493AbiAWAPI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Jan 2022 19:15:08 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:46634 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235528AbiAWAOH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 19:14:07 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CC1C261006;
-        Sun, 23 Jan 2022 00:14:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED02EC004E1;
-        Sun, 23 Jan 2022 00:13:59 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id EAD78CE0AC0;
+        Sun, 23 Jan 2022 00:14:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89B87C004E1;
+        Sun, 23 Jan 2022 00:14:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642896841;
-        bh=ZAJLC2q3cS+5sfPOv6QANM6EFxVWb/Mgf7brJEM1cng=;
-        h=From:To:Cc:Subject:Date:From;
-        b=THMRFhkKdrmygHYzPuBCRbA+oGFM87xIomCB7iGTtT05SUOH0K2erJ7GgXEsFenJF
-         jX7b6wWxxNa9S7/KkzahhLIw7M8+RkLV/mDPaIPnoQTGQMSeA2kWi35emZEzM1NYpL
-         QXlKdrBP48vdszPZwrLIochbqgNOuqD7SAI9SmKh/bypjr4eiodEI1PkuhrAhphCsO
-         gTOWxpTHi78mTYSWkmCsM2X6YMQszgNN4+gzNSlROWitD5DFFwbMnUJWPI+QY12peZ
-         0eG7gIcc/XsFVZAFsWQqufKq3aDDTnDl99z1N8vkqvYoIGPPL60jF3zrVKNlmZYL4/
-         bAup72bRUpCMg==
+        s=k20201202; t=1642896844;
+        bh=gE3KmClf3RmIYRBux5/1oQ0Qeg2JGI37IhruQ/MsKDQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Yylf99bzMubPhkCjhD+Ag+TK5julIgUMUh1HMabtjzqJ6mMKiEdYfHv2SDmPT6UXv
+         Nr7snNH2UIBteoCLSoFiBerHnOiTZPdcA5jvikRsQbokrcIVk94/s5x0hSfNk6mJNR
+         ayCgjqaErCFz3w5ZKho1LQt1kfOoUMuZSk9QrB2j3b/CkFsOtNseBTXZsc6NFBpu8/
+         cHVbu94G6UhQAj3xzxFmMDbMcACSR763h7bXhcy6z2dtPSlNgbDJliA+pS1UEo8PGt
+         N/6Rqtu1MoEiBQZP7GRr5WBjfca3wo73VDskg/lY6uvOGyP1JyVMS33AgIuoRYL/Zt
+         Cx4HRi2msZaBA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org
-Subject: [PATCH AUTOSEL 4.19 1/5] x86/PCI: Ignore E820 reservations for bridge windows on newer systems
-Date:   Sat, 22 Jan 2022 19:13:47 -0500
-Message-Id: <20220123001353.2460870-1-sashal@kernel.org>
+Cc:     Michael Ellerman <mpe@ellerman.id.au>,
+        Jakub Kicinski <kuba@kernel.org>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, tanghui20@huawei.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 2/5] net: apple: mace: Fix build since dev_addr constification
+Date:   Sat, 22 Jan 2022 19:13:48 -0500
+Message-Id: <20220123001353.2460870-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220123001353.2460870-1-sashal@kernel.org>
+References: <20220123001353.2460870-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -49,123 +50,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 7f7b4236f2040d19df1ddaf30047128b41e78de7 ]
+[ Upstream commit 6c8dc12cd925e5fa8c152633338b2b35c4c89258 ]
 
-Some BIOS-es contain a bug where they add addresses which map to system
-RAM in the PCI host bridge window returned by the ACPI _CRS method, see
-commit 4dc2287c1805 ("x86: avoid E820 regions when allocating address
-space").
+Since commit adeef3e32146 ("net: constify netdev->dev_addr") the mace
+driver no longer builds with various errors (pmac32_defconfig):
 
-To work around this bug Linux excludes E820 reserved addresses when
-allocating addresses from the PCI host bridge window since 2010.
+  linux/drivers/net/ethernet/apple/mace.c: In function ‘mace_probe’:
+  linux/drivers/net/ethernet/apple/mace.c:170:20: error: assignment of read-only location ‘*(dev->dev_addr + (sizetype)j)’
+    170 |   dev->dev_addr[j] = rev ? bitrev8(addr[j]): addr[j];
+        |                    ^
+  linux/drivers/net/ethernet/apple/mace.c: In function ‘mace_reset’:
+  linux/drivers/net/ethernet/apple/mace.c:349:32: warning: passing argument 2 of ‘__mace_set_address’ discards ‘const’ qualifier from pointer target type
+    349 |     __mace_set_address(dev, dev->dev_addr);
+        |                             ~~~^~~~~~~~~~
+  linux/drivers/net/ethernet/apple/mace.c:93:62: note: expected ‘void *’ but argument is of type ‘const unsigned char *’
+     93 | static void __mace_set_address(struct net_device *dev, void *addr);
+        |                                                        ~~~~~~^~~~
+  linux/drivers/net/ethernet/apple/mace.c: In function ‘__mace_set_address’:
+  linux/drivers/net/ethernet/apple/mace.c:388:36: error: assignment of read-only location ‘*(dev->dev_addr + (sizetype)i)’
+    388 |  out_8(&mb->padr, dev->dev_addr[i] = p[i]);
+        |                                    ^
 
-Recently (2019) some systems have shown-up with E820 reservations which
-cover the entire _CRS returned PCI bridge memory window, causing all
-attempts to assign memory to PCI BARs which have not been setup by the
-BIOS to fail. For example here are the relevant dmesg bits from a
-Lenovo IdeaPad 3 15IIL 81WE:
+Fix it by making the modifications to a local macaddr variable and then
+passing that to eth_hw_addr_set(), as well as adding some missing const
+qualifiers.
 
- [mem 0x000000004bc50000-0x00000000cfffffff] reserved
- pci_bus 0000:00: root bus resource [mem 0x65400000-0xbfffffff window]
-
-The ACPI specifications appear to allow this new behavior:
-
-The relationship between E820 and ACPI _CRS is not really very clear.
-ACPI v6.3, sec 15, table 15-374, says AddressRangeReserved means:
-
-  This range of addresses is in use or reserved by the system and is
-  not to be included in the allocatable memory pool of the operating
-  system's memory manager.
-
-and it may be used when:
-
-  The address range is in use by a memory-mapped system device.
-
-Furthermore, sec 15.2 says:
-
-  Address ranges defined for baseboard memory-mapped I/O devices, such
-  as APICs, are returned as reserved.
-
-A PCI host bridge qualifies as a baseboard memory-mapped I/O device,
-and its apertures are in use and certainly should not be included in
-the general allocatable pool, so the fact that some BIOS-es reports
-the PCI aperture as "reserved" in E820 doesn't seem like a BIOS bug.
-
-So it seems that the excluding of E820 reserved addresses is a mistake.
-
-Ideally Linux would fully stop excluding E820 reserved addresses,
-but then the old systems this was added for will regress.
-Instead keep the old behavior for old systems, while ignoring
-the E820 reservations for any systems from now on.
-
-Old systems are defined here as BIOS year < 2018, this was chosen to make
-sure that E820 reservations will not be used on the currently affected
-systems, while at the same time also taking into account that the systems
-for which the E820 checking was originally added may have received BIOS
-updates for quite a while (esp. CVE related ones), giving them a more
-recent BIOS year then 2010.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206459
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1868899
-BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1871793
-BugLink: https://bugs.launchpad.net/bugs/1878279
-BugLink: https://bugs.launchpad.net/bugs/1931715
-BugLink: https://bugs.launchpad.net/bugs/1932069
-BugLink: https://bugs.launchpad.net/bugs/1921649
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Acked-by: Bjorn Helgaas <bhelgaas@google.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Reviewed-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/resource.c | 23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/apple/mace.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/kernel/resource.c b/arch/x86/kernel/resource.c
-index 9b9fb7882c206..9ae64f9af9568 100644
---- a/arch/x86/kernel/resource.c
-+++ b/arch/x86/kernel/resource.c
-@@ -1,4 +1,5 @@
- // SPDX-License-Identifier: GPL-2.0
-+#include <linux/dmi.h>
- #include <linux/ioport.h>
- #include <asm/e820/api.h>
+diff --git a/drivers/net/ethernet/apple/mace.c b/drivers/net/ethernet/apple/mace.c
+index 68b9ee4894892..68d85b236953b 100644
+--- a/drivers/net/ethernet/apple/mace.c
++++ b/drivers/net/ethernet/apple/mace.c
+@@ -89,7 +89,7 @@ static void mace_set_timeout(struct net_device *dev);
+ static void mace_tx_timeout(struct timer_list *t);
+ static inline void dbdma_reset(volatile struct dbdma_regs __iomem *dma);
+ static inline void mace_clean_rings(struct mace_data *mp);
+-static void __mace_set_address(struct net_device *dev, void *addr);
++static void __mace_set_address(struct net_device *dev, const void *addr);
  
-@@ -23,11 +24,31 @@ static void resource_clip(struct resource *res, resource_size_t start,
- 		res->start = end + 1;
+ /*
+  * If we can't get a skbuff when we need it, we use this area for DMA.
+@@ -111,6 +111,7 @@ static int mace_probe(struct macio_dev *mdev, const struct of_device_id *match)
+ 	struct net_device *dev;
+ 	struct mace_data *mp;
+ 	const unsigned char *addr;
++	u8 macaddr[ETH_ALEN];
+ 	int j, rev, rc = -EBUSY;
+ 
+ 	if (macio_resource_count(mdev) != 3 || macio_irq_count(mdev) != 3) {
+@@ -166,8 +167,9 @@ static int mace_probe(struct macio_dev *mdev, const struct of_device_id *match)
+ 
+ 	rev = addr[0] == 0 && addr[1] == 0xA0;
+ 	for (j = 0; j < 6; ++j) {
+-		dev->dev_addr[j] = rev ? bitrev8(addr[j]): addr[j];
++		macaddr[j] = rev ? bitrev8(addr[j]): addr[j];
+ 	}
++	eth_hw_addr_set(dev, macaddr);
+ 	mp->chipid = (in_8(&mp->mace->chipid_hi) << 8) |
+ 			in_8(&mp->mace->chipid_lo);
+ 
+@@ -368,11 +370,12 @@ static void mace_reset(struct net_device *dev)
+     	out_8(&mb->plscc, PORTSEL_GPSI + ENPLSIO);
  }
  
-+/*
-+ * Some BIOS-es contain a bug where they add addresses which map to
-+ * system RAM in the PCI host bridge window returned by the ACPI _CRS
-+ * method, see commit 4dc2287c1805 ("x86: avoid E820 regions when
-+ * allocating address space"). To avoid this Linux by default excludes
-+ * E820 reservations when allocating addresses since 2010.
-+ * In 2019 some systems have shown-up with E820 reservations which cover
-+ * the entire _CRS returned PCI host bridge window, causing all attempts
-+ * to assign memory to PCI BARs to fail if Linux uses E820 reservations.
-+ *
-+ * Ideally Linux would fully stop using E820 reservations, but then
-+ * the old systems this was added for will regress.
-+ * Instead keep the old behavior for old systems, while ignoring the
-+ * E820 reservations for any systems from now on.
-+ */
- static void remove_e820_regions(struct resource *avail)
+-static void __mace_set_address(struct net_device *dev, void *addr)
++static void __mace_set_address(struct net_device *dev, const void *addr)
  {
--	int i;
-+	int i, year = dmi_get_bios_year();
- 	struct e820_entry *entry;
+     struct mace_data *mp = netdev_priv(dev);
+     volatile struct mace __iomem *mb = mp->mace;
+-    unsigned char *p = addr;
++    const unsigned char *p = addr;
++    u8 macaddr[ETH_ALEN];
+     int i;
  
-+	if (year >= 2018)
-+		return;
+     /* load up the hardware address */
+@@ -384,7 +387,10 @@ static void __mace_set_address(struct net_device *dev, void *addr)
+ 	    ;
+     }
+     for (i = 0; i < 6; ++i)
+-	out_8(&mb->padr, dev->dev_addr[i] = p[i]);
++        out_8(&mb->padr, macaddr[i] = p[i]);
 +
-+	pr_info_once("PCI: Removing E820 reservations from host bridge windows\n");
++    eth_hw_addr_set(dev, macaddr);
 +
- 	for (i = 0; i < e820_table->nr_entries; i++) {
- 		entry = &e820_table->entries[i];
- 
+     if (mp->chipid != BROKEN_ADDRCHG_REV)
+         out_8(&mb->iac, 0);
+ }
 -- 
 2.34.1
 
