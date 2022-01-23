@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A858496EBF
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 01:14:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7698C496E89
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 01:13:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235335AbiAWAN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Jan 2022 19:13:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36730 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235520AbiAWANI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 19:13:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9762C061772;
-        Sat, 22 Jan 2022 16:12:15 -0800 (PST)
+        id S235198AbiAWANA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Jan 2022 19:13:00 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:36544 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235193AbiAWAMP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 19:12:15 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A60BEB80AB1;
-        Sun, 23 Jan 2022 00:12:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B509AC340E5;
-        Sun, 23 Jan 2022 00:12:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 542E260F9F;
+        Sun, 23 Jan 2022 00:12:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE1C1C340E2;
+        Sun, 23 Jan 2022 00:12:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642896733;
-        bh=MOSOdNrNX7YPNs5k15GRveQOjAdD2y3ACTA3CGnAruc=;
+        s=k20201202; t=1642896734;
+        bh=fZypQpgkRfInoHjS2iRjdcBucBEwTWKnEXuwoq78lFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sycsYueqpJBsOeIZjyUVXYC2H+w8iu0DGlhk7479mLOo2LEd72o4mb9bnUiw6zSiH
-         DJqlYZfPJthoGkoiLfUMt5dNrUreSHpW7CL/saHVlzBCuimf7dhjb8ITyUdPhme0zI
-         8xbDL7HWDVnnGce/KywRC8ieSj6oWHRlkohW74Tl4m0ttXLCg5zQY8Uj2axDYu0rR4
-         G+zm8NCM8EzPT5ch7xvhtlY0ruhRisSASexnv3YvXNOj+YH3pMRqd6LNmBUHdnlM4+
-         uNsqyt/8c0TGq/WzxOyyToZ+8BnNIKHHPdj54XYnYcG+9717Xcq76C+YV+3O7NA0Oq
-         h+QgJB0YF1orw==
+        b=p32UkSUEoYFwR5iF6/gwU2slKJ0zQv9fLe1ZfuzH89ek4VJcFo0Kllt0P+d1JKaGT
+         UtVaRcN4dBpAvM76+fgPfPLQ3C0se342z0JFhJL4x4TsCXdn7hvxX5iH33Vy34rqMq
+         bTM7UwN6bcZDhi4pvfCmM9OhDHh1HE95ctlfiN8A12rXDRogIcCPxsyYuipRyGAQYW
+         lDAAxgGkHRpXN2ybN4RrHTTIRPVD9L3YeVUJeGel7ETgkGdV3eyj6Tq+sjBBfdRuE9
+         Q59VYzO/anXrssC7JN39B5U/2pY69W7H2PhbbXKjCxzSNZA1q6TCUus/M/Jug4ji5p
+         0Rz5ZfYCguikw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>,
-        Florian Fischer <florian.fl.fischer@fau.de>,
-        Sasha Levin <sashal@kernel.org>, io-uring@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 18/19] io_uring: perform poll removal even if async work removal is successful
-Date:   Sat, 22 Jan 2022 19:11:11 -0500
-Message-Id: <20220123001113.2460140-18-sashal@kernel.org>
+Cc:     OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        syzbot+ac94ae5f68b84197f41c@syzkaller.appspotmail.com,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 19/19] block: Fix wrong offset in bio_truncate()
+Date:   Sat, 22 Jan 2022 19:11:12 -0500
+Message-Id: <20220123001113.2460140-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220123001113.2460140-1-sashal@kernel.org>
 References: <20220123001113.2460140-1-sashal@kernel.org>
@@ -50,54 +48,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
-[ Upstream commit ccbf726171b7328f800bc98005132fd77eb1a175 ]
+[ Upstream commit 3ee859e384d453d6ac68bfd5971f630d9fa46ad3 ]
 
-An active work can have poll armed, hence it's not enough to just do
-the async work removal and return the value if it's different from "not
-found". Rather than make poll removal special, just fall through to do
-the remaining type lookups and removals.
+bio_truncate() clears the buffer outside of last block of bdev, however
+current bio_truncate() is using the wrong offset of page. So it can
+return the uninitialized data.
 
-Reported-by: Florian Fischer <florian.fl.fischer@fau.de>
-Link: https://lore.kernel.org/io-uring/20220118151337.fac6cthvbnu7icoc@pasture/
+This happened when both of truncated/corrupted FS and userspace (via
+bdev) are trying to read the last of bdev.
+
+Reported-by: syzbot+ac94ae5f68b84197f41c@syzkaller.appspotmail.com
+Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/875yqt1c9g.fsf@mail.parknet.co.jp
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ block/bio.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index fb2a0cb4aaf83..a958457b2af07 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -6316,16 +6316,21 @@ static int io_try_cancel_userdata(struct io_kiocb *req, u64 sqe_addr)
- 	WARN_ON_ONCE(!io_wq_current_is_worker() && req->task != current);
- 
- 	ret = io_async_cancel_one(req->task->io_uring, sqe_addr, ctx);
--	if (ret != -ENOENT)
--		return ret;
-+	/*
-+	 * Fall-through even for -EALREADY, as we may have poll armed
-+	 * that need unarming.
-+	 */
-+	if (!ret)
-+		return 0;
- 
- 	spin_lock(&ctx->completion_lock);
-+	ret = io_poll_cancel(ctx, sqe_addr, false);
-+	if (ret != -ENOENT)
-+		goto out;
-+
- 	spin_lock_irq(&ctx->timeout_lock);
- 	ret = io_timeout_cancel(ctx, sqe_addr);
- 	spin_unlock_irq(&ctx->timeout_lock);
--	if (ret != -ENOENT)
--		goto out;
--	ret = io_poll_cancel(ctx, sqe_addr, false);
- out:
- 	spin_unlock(&ctx->completion_lock);
- 	return ret;
+diff --git a/block/bio.c b/block/bio.c
+index 15ab0d6d1c06e..99cad261ec531 100644
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -569,7 +569,8 @@ static void bio_truncate(struct bio *bio, unsigned new_size)
+ 				offset = new_size - done;
+ 			else
+ 				offset = 0;
+-			zero_user(bv.bv_page, offset, bv.bv_len - offset);
++			zero_user(bv.bv_page, bv.bv_offset + offset,
++				  bv.bv_len - offset);
+ 			truncated = true;
+ 		}
+ 		done += bv.bv_len;
 -- 
 2.34.1
 
