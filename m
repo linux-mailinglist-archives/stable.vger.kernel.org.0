@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27B484972B2
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 16:46:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F3D44972B6
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 16:47:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231617AbiAWPqW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 10:46:22 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:49464 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238049AbiAWPqV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 10:46:21 -0500
+        id S238086AbiAWPrc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 10:47:32 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:33396 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238094AbiAWPrb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 10:47:31 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 10A7B6093C
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 15:46:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2A04C340E2;
-        Sun, 23 Jan 2022 15:46:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7783CB80DC1
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 15:47:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54F02C36AE7;
+        Sun, 23 Jan 2022 15:47:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642952780;
-        bh=BOqX0LMs9/yaTvOLlztmH0a6nss4k0HPPQGlUgDYsu8=;
+        s=korg; t=1642952849;
+        bh=kTGZVLiHVxP5bYA6B3BZkfGklijJwmHQ74Kl3qFgIqc=;
         h=Subject:To:Cc:From:Date:From;
-        b=E1fOX/oVw6X2qRB++2QVUuBEJT0T0Fw5qKT+QStqL/0jMRvs51PjKMzMcX+8tk+De
-         mJp6aqX+OHJW8nPlhOkHjnP5MVfPqYdmVJ4i+1Eu0J++KYC5Lm5UtDAFgV+wPVZETr
-         7/3b/DC3OR9Ffrx6LluSpBE6IB1ex61q0ypHDB4I=
-Subject: FAILED: patch "[PATCH] mfd: intel_soc_pmic: Use CPU-id check instead of _HRV check" failed to apply to 5.15-stable tree
+        b=1yNu4NQGccwFAEfvhJWQrK9jv+Se2e5wNnckcMgSk4AXdoEBHA8aL5W2+SQcWbhBh
+         eyZM7azTwAObntCzFgaqTSLkbgc2MMJZOEdWXTZ6B6y3q3kKJcagV7NDpzx1oSE9VZ
+         f4XmDng5SHTBdoCYWCqrAVSg8EaV7lFOllcOKnPw=
+Subject: FAILED: patch "[PATCH] mfd: intel_soc_pmic: Use CPU-id check instead of _HRV check" failed to apply to 5.10-stable tree
 To:     hdegoede@redhat.com, andy.shevchenko@gmail.com, kitakar@gmail.com,
         lee.jones@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jan 2022 16:46:16 +0100
-Message-ID: <1642952776204211@kroah.com>
+Date:   Sun, 23 Jan 2022 16:47:26 +0100
+Message-ID: <1642952846141223@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
