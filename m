@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A821F497324
+	by mail.lfdr.de (Postfix) with ESMTP id 2F3BB497323
 	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:47:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238877AbiAWQrr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 11:47:47 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:52954 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238875AbiAWQrr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:47:47 -0500
+        id S238870AbiAWQrq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 11:47:46 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:35960 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238876AbiAWQrq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:47:46 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F59E60F9F
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:47:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E620CC340E2;
-        Sun, 23 Jan 2022 16:47:45 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1D094CE0AFE
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:47:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC1F6C340E2;
+        Sun, 23 Jan 2022 16:47:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642956466;
-        bh=MrLptpadbcCdTvx+jZ3xPor4ALt9cwUMXKQbCOq+6+Y=;
+        s=korg; t=1642956463;
+        bh=QzznbFd6mq9zLOpD8ErLshsXv3mywYaaCcFK8IWc1qI=;
         h=Subject:To:Cc:From:Date:From;
-        b=RguOWQz9yC/z9a7CQkzXIXER3ZTu76Ltiiry6GzrvfL2sVyda6dgQeiPHL9JT8qAO
-         knZ1RPFkOv4LYHH7Z6bx+3yAkD6D+0hb5DatEyx6fF15MJDO87eQ2GSPzTrwe9O5qT
-         nsPYa+c3zpGoSXUhrWjSZIHacsfhbDPop3LcaZpc=
-Subject: FAILED: patch "[PATCH] tracing: Have syscall trace events use" failed to apply to 4.14-stable tree
+        b=ry4+PdOW9r6giMtOzDfDfJcjTc8W2Q0y1iAwKNi8JugyrkkOpISsUU5KBXCUSwplx
+         FeTjbvOpF56SRMGI2Ggg5rs4qIEVvDDxZlcQH789ggZqjdyc8YF+jhBkEQxayA4wl2
+         yKVoqzrwFQbek7r0sNReD0eH3phAlVmVjCGyUeec=
+Subject: FAILED: patch "[PATCH] tracing: Have syscall trace events use" failed to apply to 4.9-stable tree
 To:     rostedt@goodmis.org, akpm@linux-foundation.org,
         mhiramat@kernel.org, mingo@kernel.org, zanussi@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 23 Jan 2022 17:47:29 +0100
-Message-ID: <16429564498466@kroah.com>
+Message-ID: <1642956449212224@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
