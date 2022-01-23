@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37332497208
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 15:22:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E04E849720E
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 15:24:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233494AbiAWOWk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 09:22:40 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:36762 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232277AbiAWOWj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 09:22:39 -0500
+        id S236721AbiAWOYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 09:24:14 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:58566 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232290AbiAWOYN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 09:24:13 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A20D960C7F
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 14:22:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73BA3C340E2;
-        Sun, 23 Jan 2022 14:22:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DA0F6B80CF1
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 14:24:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11B71C340E2;
+        Sun, 23 Jan 2022 14:24:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642947759;
-        bh=hQJxjRi5JcJFws5lkI8WwRWOyfkRxmWS1EgrBij6h1k=;
+        s=korg; t=1642947851;
+        bh=VYHtY6ntn0KJtow7aG8j9kFUlouDQ9HjiO8Lmq7I2CI=;
         h=Subject:To:Cc:From:Date:From;
-        b=vRyLYGHrYLnTVgnLNULqSRv02SHI6Z05FfwHfRuaOiOCJn76uBzk24ickQsjjjKew
-         c0QcKn61kiZt9ggh5m02AnO3luP/wDBKuxQpFzbKMtcChI23ON1emt22iExF9dG5lC
-         r+4+Vr8XbS8zXvDJExg7K1h3k83ZehV/Gj7zrSYs=
-Subject: FAILED: patch "[PATCH] media: cec-pin: fix interrupt en/disable handling" failed to apply to 4.19-stable tree
-To:     hverkuil-cisco@xs4all.nl, mchehab+huawei@kernel.org,
-        stable@vger.kernel.org
+        b=1JSCJM5WlZdkHmahSDRrftiAh8O2dDKQ2livPbeXoOnpvRPWSM9kJVYCQZ6gRaz8P
+         L54U4JI07OA6dyhmtWjUmRB1iuF1Ocuqp5tebOOQdPyEBfHUqXOFJTfW/kb9cqXjxT
+         EHgIlcU15J1piYj5S42A/9h5bjxVBSP/JsnfGgJo=
+Subject: FAILED: patch "[PATCH] lkdtm: Fix content of section containing" failed to apply to 4.14-stable tree
+To:     christophe.leroy@csgroup.eu, arnd@arndb.de,
+        gregkh@linuxfoundation.org, keescook@chromium.org,
+        nathan@kernel.org, ndesaulniers@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jan 2022 15:22:36 +0100
-Message-ID: <1642947756113132@kroah.com>
+Date:   Sun, 23 Jan 2022 15:24:08 +0100
+Message-ID: <164294784819088@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +41,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -51,117 +52,54 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 713bdfa10b5957053811470d298def9537d9ff13 Mon Sep 17 00:00:00 2001
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Date: Wed, 1 Dec 2021 13:41:25 +0100
-Subject: [PATCH] media: cec-pin: fix interrupt en/disable handling
+From bc93a22a19eb2b68a16ecf04cdf4b2ed65aaf398 Mon Sep 17 00:00:00 2001
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+Date: Fri, 8 Oct 2021 18:58:40 +0200
+Subject: [PATCH] lkdtm: Fix content of section containing
+ lkdtm_rodata_do_nothing()
 
-The en/disable_irq() functions keep track of the 'depth': i.e. if
-interrupts are disabled twice, then it needs to enable_irq() calls to
-enable them again. The cec-pin framework didn't take this into accound
-and could disable irqs multiple times, and it expected that a single
-enable_irq() would enable them again.
+On a kernel without CONFIG_STRICT_KERNEL_RWX, running EXEC_RODATA
+test leads to "Illegal instruction" failure.
 
-Move all calls to en/disable_irq() to the kthread where it is easy
-to keep track of the current irq state and ensure that multiple
-en/disable_irq calls never happen.
+Looking at the content of rodata_objcopy.o, we see that the
+function content zeroes only:
 
-If interrupts where disabled twice, then they would never turn on
-again, leaving the CEC adapter in a dead state.
+	Disassembly of section .rodata:
 
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Fixes: 865463fc03ed (media: cec-pin: add error injection support)
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+	0000000000000000 <.lkdtm_rodata_do_nothing>:
+	   0:	00 00 00 00 	.long 0x0
 
-diff --git a/drivers/media/cec/core/cec-pin.c b/drivers/media/cec/core/cec-pin.c
-index 2b6459df1e94..21f0f749713e 100644
---- a/drivers/media/cec/core/cec-pin.c
-+++ b/drivers/media/cec/core/cec-pin.c
-@@ -1033,6 +1033,7 @@ static int cec_pin_thread_func(void *_adap)
- {
- 	struct cec_adapter *adap = _adap;
- 	struct cec_pin *pin = adap->pin;
-+	bool irq_enabled = false;
+Add the contents flag in order to keep the content of the section
+while renaming it.
+
+	Disassembly of section .rodata:
+
+	0000000000000000 <.lkdtm_rodata_do_nothing>:
+	   0:	4e 80 00 20 	blr
+
+Fixes: e9e08a07385e ("lkdtm: support llvm-objcopy")
+Cc: stable@vger.kernel.org
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/8900731fbc05fb8b0de18af7133a8fc07c3c53a1.1633712176.git.christophe.leroy@csgroup.eu
+
+diff --git a/drivers/misc/lkdtm/Makefile b/drivers/misc/lkdtm/Makefile
+index aa12097668d3..e2984ce51fe4 100644
+--- a/drivers/misc/lkdtm/Makefile
++++ b/drivers/misc/lkdtm/Makefile
+@@ -20,7 +20,7 @@ CFLAGS_REMOVE_rodata.o		+= $(CC_FLAGS_LTO)
  
- 	for (;;) {
- 		wait_event_interruptible(pin->kthread_waitq,
-@@ -1060,6 +1061,7 @@ static int cec_pin_thread_func(void *_adap)
- 				ns_to_ktime(pin->work_rx_msg.rx_ts));
- 			msg->len = 0;
- 		}
-+
- 		if (pin->work_tx_status) {
- 			unsigned int tx_status = pin->work_tx_status;
- 
-@@ -1083,27 +1085,39 @@ static int cec_pin_thread_func(void *_adap)
- 		switch (atomic_xchg(&pin->work_irq_change,
- 				    CEC_PIN_IRQ_UNCHANGED)) {
- 		case CEC_PIN_IRQ_DISABLE:
--			pin->ops->disable_irq(adap);
-+			if (irq_enabled) {
-+				pin->ops->disable_irq(adap);
-+				irq_enabled = false;
-+			}
- 			cec_pin_high(pin);
- 			cec_pin_to_idle(pin);
- 			hrtimer_start(&pin->timer, ns_to_ktime(0),
- 				      HRTIMER_MODE_REL);
- 			break;
- 		case CEC_PIN_IRQ_ENABLE:
-+			if (irq_enabled)
-+				break;
- 			pin->enable_irq_failed = !pin->ops->enable_irq(adap);
- 			if (pin->enable_irq_failed) {
- 				cec_pin_to_idle(pin);
- 				hrtimer_start(&pin->timer, ns_to_ktime(0),
- 					      HRTIMER_MODE_REL);
-+			} else {
-+				irq_enabled = true;
- 			}
- 			break;
- 		default:
- 			break;
- 		}
--
- 		if (kthread_should_stop())
- 			break;
- 	}
-+	if (pin->ops->disable_irq && irq_enabled)
-+		pin->ops->disable_irq(adap);
-+	hrtimer_cancel(&pin->timer);
-+	cec_pin_read(pin);
-+	cec_pin_to_idle(pin);
-+	pin->state = CEC_ST_OFF;
- 	return 0;
- }
- 
-@@ -1129,13 +1143,7 @@ static int cec_pin_adap_enable(struct cec_adapter *adap, bool enable)
- 		hrtimer_start(&pin->timer, ns_to_ktime(0),
- 			      HRTIMER_MODE_REL);
- 	} else {
--		if (pin->ops->disable_irq)
--			pin->ops->disable_irq(adap);
--		hrtimer_cancel(&pin->timer);
- 		kthread_stop(pin->kthread);
--		cec_pin_read(pin);
--		cec_pin_to_idle(pin);
--		pin->state = CEC_ST_OFF;
- 	}
- 	return 0;
- }
-@@ -1156,11 +1164,8 @@ void cec_pin_start_timer(struct cec_pin *pin)
- 	if (pin->state != CEC_ST_RX_IRQ)
- 		return;
- 
--	atomic_set(&pin->work_irq_change, CEC_PIN_IRQ_UNCHANGED);
--	pin->ops->disable_irq(pin->adap);
--	cec_pin_high(pin);
--	cec_pin_to_idle(pin);
--	hrtimer_start(&pin->timer, ns_to_ktime(0), HRTIMER_MODE_REL);
-+	atomic_set(&pin->work_irq_change, CEC_PIN_IRQ_DISABLE);
-+	wake_up_interruptible(&pin->kthread_waitq);
- }
- 
- static int cec_pin_adap_transmit(struct cec_adapter *adap, u8 attempts,
+ OBJCOPYFLAGS :=
+ OBJCOPYFLAGS_rodata_objcopy.o	:= \
+-			--rename-section .noinstr.text=.rodata,alloc,readonly,load
++			--rename-section .noinstr.text=.rodata,alloc,readonly,load,contents
+ targets += rodata.o rodata_objcopy.o
+ $(obj)/rodata_objcopy.o: $(obj)/rodata.o FORCE
+ 	$(call if_changed,objcopy)
 
