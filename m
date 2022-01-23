@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27310497212
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 15:25:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 09A1D497213
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 15:25:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233513AbiAWOZG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 09:25:06 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58780 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232290AbiAWOZG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 09:25:06 -0500
+        id S233519AbiAWOZk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 09:25:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51044 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232290AbiAWOZj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 09:25:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6EB0C06173B
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 06:25:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1E2CCB80CF1
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 14:25:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 484BBC340E2;
-        Sun, 23 Jan 2022 14:25:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A3EF7B80CF1
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 14:25:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8F97C340E2;
+        Sun, 23 Jan 2022 14:25:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642947903;
-        bh=IvfLr0DNIqhknUNCJzF2YS8lbrESKXxEHVRg9O3KWjA=;
+        s=korg; t=1642947936;
+        bh=HcnH1YK1zNX8A/XJwpKHPNmhD43FxImF+aG1VhiGccE=;
         h=Subject:To:Cc:From:Date:From;
-        b=j6/BSaEtDNA+1bg1XlaA44IfglXtb6svmeQoORP3heOM0sJWGlxzLoEpd4s+JtSjQ
-         a4tpdWrWpsYlGKv9FZ/bF4CG8b5ckAJQJwPMXnj0lHaWdoAIIpZCtkDANY82Rbd1zw
-         CKxqTuDCo3+9rVc60baT1/sT3OJVSx8URnZe2Myg=
-Subject: FAILED: patch "[PATCH] bus: mhi: core: Fix race while handling SYS_ERR at power up" failed to apply to 5.10-stable tree
-To:     mani@kernel.org, aleksander@aleksander.es,
-        gregkh@linuxfoundation.org, manivannan.sadhasivam@linaro.org,
-        thomas.perrot@bootlin.com
+        b=Gk7C/tmT5R1lszyrU9MIYpH+Hf8Q0wL8ituvYwKUcKsEhjYM/gLVjIgYj/u3LP9h5
+         0LVd495H8iBfsH89x8oFCC90nmpl9KjX4prWT66x6+plUjFEFEQND3oQuOCRu2C4RJ
+         x/dj54ysSX893Q9W1QdYP1t0mNKfM87qbu7wD93c=
+Subject: FAILED: patch "[PATCH] cxl/pmem: Fix module reload vs workqueue state" failed to apply to 5.15-stable tree
+To:     dan.j.williams@intel.com, stable@vger.kernel.org,
+        vishal.l.verma@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jan 2022 15:25:01 +0100
-Message-ID: <164294790123673@kroah.com>
+Date:   Sun, 23 Jan 2022 15:25:33 +0100
+Message-ID: <164294793385141@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -41,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -52,115 +54,168 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d651ce8e917fa1bf6cfab8dca74c512edffc35d3 Mon Sep 17 00:00:00 2001
-From: Manivannan Sadhasivam <mani@kernel.org>
-Date: Thu, 16 Dec 2021 13:42:24 +0530
-Subject: [PATCH] bus: mhi: core: Fix race while handling SYS_ERR at power up
+From 53989fad1286e652ea3655ae3367ba698da8d2ff Mon Sep 17 00:00:00 2001
+From: Dan Williams <dan.j.williams@intel.com>
+Date: Thu, 11 Nov 2021 10:19:05 -0800
+Subject: [PATCH] cxl/pmem: Fix module reload vs workqueue state
 
-During SYS_ERR condition, as a response to the MHI_RESET from host, some
-devices tend to issue BHI interrupt without clearing the SYS_ERR state in
-the device. This creates a race condition and causes a failure in booting
-up the device.
+A test of the form:
 
-The issue is seen on the Sierra Wireless EM9191 modem during SYS_ERR
-handling in mhi_async_power_up(). Once the host detects that the device
-is in SYS_ERR state, it issues MHI_RESET and waits for the device to
-process the reset request. During this time, the device triggers the BHI
-interrupt to the host without clearing SYS_ERR condition. So the host
-starts handling the SYS_ERR condition again.
+    while true; do modprobe -r cxl_pmem; modprobe cxl_pmem; done
 
-To fix this issue, let's register the IRQ handler only after handling the
-SYS_ERR check to avoid getting spurious IRQs from the device.
+May lead to a crash signature of the form:
 
-Fixes: e18d4e9fa79b ("bus: mhi: core: Handle syserr during power_up")
-Cc: stable@vger.kernel.org
-Reported-by: Aleksander Morgado <aleksander@aleksander.es>
-Tested-by: Aleksander Morgado <aleksander@aleksander.es>
-Tested-by: Thomas Perrot <thomas.perrot@bootlin.com>
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Link: https://lore.kernel.org/r/20211216081227.237749-8-manivannan.sadhasivam@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    BUG: unable to handle page fault for address: ffffffffc0660030
+    #PF: supervisor instruction fetch in kernel mode
+    #PF: error_code(0x0010) - not-present page
+    [..]
+    Workqueue: cxl_pmem 0xffffffffc0660030
+    RIP: 0010:0xffffffffc0660030
+    Code: Unable to access opcode bytes at RIP 0xffffffffc0660006.
+    [..]
+    Call Trace:
+     ? process_one_work+0x4ec/0x9c0
+     ? pwq_dec_nr_in_flight+0x100/0x100
+     ? rwlock_bug.part.0+0x60/0x60
+     ? worker_thread+0x2eb/0x700
 
-diff --git a/drivers/bus/mhi/core/pm.c b/drivers/bus/mhi/core/pm.c
-index e70a3e3a0b46..4aae0baea008 100644
---- a/drivers/bus/mhi/core/pm.c
-+++ b/drivers/bus/mhi/core/pm.c
-@@ -1053,7 +1053,7 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
- 	enum mhi_ee_type current_ee;
- 	enum dev_st_transition next_state;
- 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
--	u32 val;
-+	u32 interval_us = 25000; /* poll register field every 25 milliseconds */
- 	int ret;
+In that report the 0xffffffffc0660030 address corresponds to the former
+function address of cxl_nvb_update_state() from a previous load of the
+module, not the current address. Fix that by arranging for ->state_work
+in the 'struct cxl_nvdimm_bridge' object to be reinitialized on cxl_pmem
+module reload.
+
+Details:
+
+Recall that CXL subsystem wants to link a CXL memory expander device to
+an NVDIMM sub-hierarchy when both a persistent memory range has been
+registered by the CXL platform driver (cxl_acpi) *and* when that CXL
+memory expander has published persistent memory capacity (Get Partition
+Info). To this end the cxl_nvdimm_bridge driver arranges to rescan the
+CXL bus when either of those conditions change. The helper
+bus_rescan_devices() can not be called underneath the device_lock() for
+any device on that bus, so the cxl_nvdimm_bridge driver uses a workqueue
+for the rescan.
+
+Typically a driver allocates driver data to hold a 'struct work_struct'
+for a driven device, but for a workqueue that may run after ->remove()
+returns, driver data will have been freed. The 'struct
+cxl_nvdimm_bridge' object holds the state and work_struct directly.
+Unfortunately it was only arranging for that infrastructure to be
+initialized once per device creation rather than the necessary once per
+workqueue (cxl_pmem_wq) creation.
+
+Introduce is_cxl_nvdimm_bridge() and cxl_nvdimm_bridge_reset() in
+support of invalidating stale references to a recently destroyed
+cxl_pmem_wq.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 8fdcb1704f61 ("cxl/pmem: Add initial infrastructure for pmem support")
+Reported-by: Vishal Verma <vishal.l.verma@intel.com>
+Tested-by: Vishal Verma <vishal.l.verma@intel.com>
+Link: https://lore.kernel.org/r/163665474585.3505991.8397182770066720755.stgit@dwillia2-desk3.amr.corp.intel.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+
+diff --git a/drivers/cxl/core/pmem.c b/drivers/cxl/core/pmem.c
+index 2e402f0b2a10..b5fca97b0a07 100644
+--- a/drivers/cxl/core/pmem.c
++++ b/drivers/cxl/core/pmem.c
+@@ -51,10 +51,16 @@ struct cxl_nvdimm_bridge *to_cxl_nvdimm_bridge(struct device *dev)
+ }
+ EXPORT_SYMBOL_NS_GPL(to_cxl_nvdimm_bridge, CXL);
  
- 	dev_info(dev, "Requested to power ON\n");
-@@ -1070,10 +1070,6 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
- 	mutex_lock(&mhi_cntrl->pm_mutex);
- 	mhi_cntrl->pm_state = MHI_PM_DISABLE;
- 
--	ret = mhi_init_irq_setup(mhi_cntrl);
--	if (ret)
--		goto error_setup_irq;
--
- 	/* Setup BHI INTVEC */
- 	write_lock_irq(&mhi_cntrl->pm_lock);
- 	mhi_write_reg(mhi_cntrl, mhi_cntrl->bhi, BHI_INTVEC, 0);
-@@ -1087,7 +1083,7 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
- 		dev_err(dev, "%s is not a valid EE for power on\n",
- 			TO_MHI_EXEC_STR(current_ee));
- 		ret = -EIO;
--		goto error_async_power_up;
-+		goto error_exit;
- 	}
- 
- 	state = mhi_get_mhi_state(mhi_cntrl);
-@@ -1096,20 +1092,12 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
- 
- 	if (state == MHI_STATE_SYS_ERR) {
- 		mhi_set_mhi_state(mhi_cntrl, MHI_STATE_RESET);
--		ret = wait_event_timeout(mhi_cntrl->state_event,
--				MHI_PM_IN_FATAL_STATE(mhi_cntrl->pm_state) ||
--					mhi_read_reg_field(mhi_cntrl,
--							   mhi_cntrl->regs,
--							   MHICTRL,
--							   MHICTRL_RESET_MASK,
--							   MHICTRL_RESET_SHIFT,
--							   &val) ||
--					!val,
--				msecs_to_jiffies(mhi_cntrl->timeout_ms));
--		if (!ret) {
--			ret = -EIO;
-+		ret = mhi_poll_reg_field(mhi_cntrl, mhi_cntrl->regs, MHICTRL,
-+				 MHICTRL_RESET_MASK, MHICTRL_RESET_SHIFT, 0,
-+				 interval_us);
-+		if (ret) {
- 			dev_info(dev, "Failed to reset MHI due to syserr state\n");
--			goto error_async_power_up;
-+			goto error_exit;
- 		}
- 
- 		/*
-@@ -1119,6 +1107,10 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
- 		mhi_write_reg(mhi_cntrl, mhi_cntrl->bhi, BHI_INTVEC, 0);
- 	}
- 
-+	ret = mhi_init_irq_setup(mhi_cntrl);
-+	if (ret)
-+		goto error_exit;
+-__mock int match_nvdimm_bridge(struct device *dev, const void *data)
++bool is_cxl_nvdimm_bridge(struct device *dev)
+ {
+ 	return dev->type == &cxl_nvdimm_bridge_type;
+ }
++EXPORT_SYMBOL_NS_GPL(is_cxl_nvdimm_bridge, CXL);
 +
- 	/* Transition to next state */
- 	next_state = MHI_IN_PBL(current_ee) ?
- 		DEV_ST_TRANSITION_PBL : DEV_ST_TRANSITION_READY;
-@@ -1131,10 +1123,7 @@ int mhi_async_power_up(struct mhi_controller *mhi_cntrl)
++__mock int match_nvdimm_bridge(struct device *dev, const void *data)
++{
++	return is_cxl_nvdimm_bridge(dev);
++}
  
- 	return 0;
+ struct cxl_nvdimm_bridge *cxl_find_nvdimm_bridge(struct cxl_nvdimm *cxl_nvd)
+ {
+diff --git a/drivers/cxl/cxl.h b/drivers/cxl/cxl.h
+index 3af704e9b448..ab4596f0b751 100644
+--- a/drivers/cxl/cxl.h
++++ b/drivers/cxl/cxl.h
+@@ -196,6 +196,13 @@ struct cxl_decoder {
+ };
  
--error_async_power_up:
--	mhi_deinit_free_irq(mhi_cntrl);
--
--error_setup_irq:
-+error_exit:
- 	mhi_cntrl->pm_state = MHI_PM_DISABLE;
- 	mutex_unlock(&mhi_cntrl->pm_mutex);
  
++/**
++ * enum cxl_nvdimm_brige_state - state machine for managing bus rescans
++ * @CXL_NVB_NEW: Set at bridge create and after cxl_pmem_wq is destroyed
++ * @CXL_NVB_DEAD: Set at brige unregistration to preclude async probing
++ * @CXL_NVB_ONLINE: Target state after successful ->probe()
++ * @CXL_NVB_OFFLINE: Target state after ->remove() or failed ->probe()
++ */
+ enum cxl_nvdimm_brige_state {
+ 	CXL_NVB_NEW,
+ 	CXL_NVB_DEAD,
+@@ -308,6 +315,7 @@ struct cxl_nvdimm_bridge *devm_cxl_add_nvdimm_bridge(struct device *host,
+ 						     struct cxl_port *port);
+ struct cxl_nvdimm *to_cxl_nvdimm(struct device *dev);
+ bool is_cxl_nvdimm(struct device *dev);
++bool is_cxl_nvdimm_bridge(struct device *dev);
+ int devm_cxl_add_nvdimm(struct device *host, struct cxl_memdev *cxlmd);
+ struct cxl_nvdimm_bridge *cxl_find_nvdimm_bridge(struct cxl_nvdimm *cxl_nvd);
+ 
+diff --git a/drivers/cxl/pmem.c b/drivers/cxl/pmem.c
+index 17e82ae90456..b65a272a2d6d 100644
+--- a/drivers/cxl/pmem.c
++++ b/drivers/cxl/pmem.c
+@@ -315,6 +315,31 @@ static struct cxl_driver cxl_nvdimm_bridge_driver = {
+ 	.id = CXL_DEVICE_NVDIMM_BRIDGE,
+ };
+ 
++/*
++ * Return all bridges to the CXL_NVB_NEW state to invalidate any
++ * ->state_work referring to the now destroyed cxl_pmem_wq.
++ */
++static int cxl_nvdimm_bridge_reset(struct device *dev, void *data)
++{
++	struct cxl_nvdimm_bridge *cxl_nvb;
++
++	if (!is_cxl_nvdimm_bridge(dev))
++		return 0;
++
++	cxl_nvb = to_cxl_nvdimm_bridge(dev);
++	device_lock(dev);
++	cxl_nvb->state = CXL_NVB_NEW;
++	device_unlock(dev);
++
++	return 0;
++}
++
++static void destroy_cxl_pmem_wq(void)
++{
++	destroy_workqueue(cxl_pmem_wq);
++	bus_for_each_dev(&cxl_bus_type, NULL, NULL, cxl_nvdimm_bridge_reset);
++}
++
+ static __init int cxl_pmem_init(void)
+ {
+ 	int rc;
+@@ -340,7 +365,7 @@ static __init int cxl_pmem_init(void)
+ err_nvdimm:
+ 	cxl_driver_unregister(&cxl_nvdimm_bridge_driver);
+ err_bridge:
+-	destroy_workqueue(cxl_pmem_wq);
++	destroy_cxl_pmem_wq();
+ 	return rc;
+ }
+ 
+@@ -348,7 +373,7 @@ static __exit void cxl_pmem_exit(void)
+ {
+ 	cxl_driver_unregister(&cxl_nvdimm_driver);
+ 	cxl_driver_unregister(&cxl_nvdimm_bridge_driver);
+-	destroy_workqueue(cxl_pmem_wq);
++	destroy_cxl_pmem_wq();
+ }
+ 
+ MODULE_LICENSE("GPL v2");
 
