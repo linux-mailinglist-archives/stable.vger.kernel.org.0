@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EA4149731A
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:47:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D54EF49731D
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:47:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233042AbiAWQrN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 11:47:13 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:52606 "EHLO
+        id S238861AbiAWQrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 11:47:25 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:52696 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233592AbiAWQrN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:47:13 -0500
+        with ESMTP id S233808AbiAWQrY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:47:24 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EFAF860ECD
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:47:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC1CAC340E5;
-        Sun, 23 Jan 2022 16:47:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 607C560AB1
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:47:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46053C340E2;
+        Sun, 23 Jan 2022 16:47:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642956432;
-        bh=D8IPUex6K8W4ZukvgUJ5jNb201I4jMu8D2r3oAL+NkM=;
+        s=korg; t=1642956443;
+        bh=cQNRDNLnLCNc8b0csSsdYYEJS3s1YXna77iAzR9kgMQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=AgZJSem872tDZ8aAm0SOcmuE2cWfqRAPoj6LHrl9HD7LL4G8HKrLt+E1Ai6rfQ459
-         DZ2GqkYhp52Y0IztDRUdjNxITx48jA6SGk6GQCXlCcOYYH5KkFWTnsGl+A1Bj3GC8h
-         EtRk/O9cNhgKFhbC0CvEOhG7wxd21yh9yJDGQXNo=
-Subject: FAILED: patch "[PATCH] tracing/kprobes: 'nmissed' not showed correctly for kretprobe" failed to apply to 4.19-stable tree
+        b=CoKdr5vFFxECUSMILYYDcfliJiASmzMMVEKxyui2TKt2aLb/JEfRqXzBbgGRjQcZL
+         dJ1E7VkMrbxgQQ0elhSUltUIq0wQEKw3TogZdSQ+B6WxbuhKEwcRDxOy/QFVOgj5cU
+         X/Sm/M7F0kKspRsOv7UZiZZFTYnlh/SuNPsBilPc=
+Subject: FAILED: patch "[PATCH] tracing/kprobes: 'nmissed' not showed correctly for kretprobe" failed to apply to 4.4-stable tree
 To:     xyz.sun.ok@gmail.com, mhiramat@kernel.org, rostedt@goodmis.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jan 2022 17:47:09 +0100
-Message-ID: <164295642959183@kroah.com>
+Date:   Sun, 23 Jan 2022 17:47:10 +0100
+Message-ID: <1642956430163172@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
