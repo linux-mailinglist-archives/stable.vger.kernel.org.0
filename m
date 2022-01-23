@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09A1D497213
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 15:25:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5503D497214
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 15:26:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233519AbiAWOZk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 09:25:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51044 "EHLO
+        id S236704AbiAWO0A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 09:26:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232290AbiAWOZj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 09:25:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6EB0C06173B
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 06:25:38 -0800 (PST)
+        with ESMTP id S232290AbiAWO0A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 09:26:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8600CC06173B
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 06:26:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A3EF7B80CF1
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 14:25:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8F97C340E2;
-        Sun, 23 Jan 2022 14:25:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2587060C79
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 14:26:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBF65C340E2;
+        Sun, 23 Jan 2022 14:25:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642947936;
-        bh=HcnH1YK1zNX8A/XJwpKHPNmhD43FxImF+aG1VhiGccE=;
+        s=korg; t=1642947959;
+        bh=bRwKoyxt6gTriJbPcy9NoSZ8M5uzr7nmFgok8xBMjYE=;
         h=Subject:To:Cc:From:Date:From;
-        b=Gk7C/tmT5R1lszyrU9MIYpH+Hf8Q0wL8ituvYwKUcKsEhjYM/gLVjIgYj/u3LP9h5
-         0LVd495H8iBfsH89x8oFCC90nmpl9KjX4prWT66x6+plUjFEFEQND3oQuOCRu2C4RJ
-         x/dj54ysSX893Q9W1QdYP1t0mNKfM87qbu7wD93c=
-Subject: FAILED: patch "[PATCH] cxl/pmem: Fix module reload vs workqueue state" failed to apply to 5.15-stable tree
-To:     dan.j.williams@intel.com, stable@vger.kernel.org,
-        vishal.l.verma@intel.com
+        b=oo47ZIt0Rq8ry3+6TvO89MrW/3ByFUKwAObrMhWcoGtElviP2DmoQ8bFBUe5DVFZO
+         djOEw6crfp/dcqaq99fn1ElaVIW3YrZHAH0W/WNapji0eaaMGWEchlfX/vEAmuJFUr
+         Y5zzz01i9NH5yDcumLnEOgIRvUix5uitdxrGIOYE=
+Subject: FAILED: patch "[PATCH] thermal/drivers/int340x: Fix RFIM mailbox write commands" failed to apply to 5.15-stable tree
+To:     sumeet.r.pawnikar@intel.com, rafael.j.wysocki@intel.com,
+        srinivas.pandruvada@linux.intel.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jan 2022 15:25:33 +0100
-Message-ID: <164294793385141@kroah.com>
+Date:   Sun, 23 Jan 2022 15:25:56 +0100
+Message-ID: <1642947956201220@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -54,168 +54,298 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 53989fad1286e652ea3655ae3367ba698da8d2ff Mon Sep 17 00:00:00 2001
-From: Dan Williams <dan.j.williams@intel.com>
-Date: Thu, 11 Nov 2021 10:19:05 -0800
-Subject: [PATCH] cxl/pmem: Fix module reload vs workqueue state
+From 2685c77b80a80c57e2a25a726b82fb31e6e212ab Mon Sep 17 00:00:00 2001
+From: Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>
+Date: Thu, 23 Dec 2021 15:12:36 +0530
+Subject: [PATCH] thermal/drivers/int340x: Fix RFIM mailbox write commands
 
-A test of the form:
+The existing mail mechanism only supports writing of workload types.
 
-    while true; do modprobe -r cxl_pmem; modprobe cxl_pmem; done
+However, mailbox command for RFIM (cmd = 0x08) also requires write
+operation which is ignored. This results in failing to store RFI
+restriction.
 
-May lead to a crash signature of the form:
+Fixint this requires enhancing mailbox writes for non workload
+commands too, so remove the check for MBOX_CMD_WORKLOAD_TYPE_WRITE
+in mailbox write to allow this other write commands to be supoorted.
 
-    BUG: unable to handle page fault for address: ffffffffc0660030
-    #PF: supervisor instruction fetch in kernel mode
-    #PF: error_code(0x0010) - not-present page
-    [..]
-    Workqueue: cxl_pmem 0xffffffffc0660030
-    RIP: 0010:0xffffffffc0660030
-    Code: Unable to access opcode bytes at RIP 0xffffffffc0660006.
-    [..]
-    Call Trace:
-     ? process_one_work+0x4ec/0x9c0
-     ? pwq_dec_nr_in_flight+0x100/0x100
-     ? rwlock_bug.part.0+0x60/0x60
-     ? worker_thread+0x2eb/0x700
+At the same time, however, we have to make sure that there is no
+impact on read commands, by avoiding to write anything into the
+mailbox data register.
 
-In that report the 0xffffffffc0660030 address corresponds to the former
-function address of cxl_nvb_update_state() from a previous load of the
-module, not the current address. Fix that by arranging for ->state_work
-in the 'struct cxl_nvdimm_bridge' object to be reinitialized on cxl_pmem
-module reload.
+To properly implement that, add two separate functions for mbox read
+and write commands for the processor thermal workload command type.
+This helps to distinguish the read and write workload command types
+from each other while sending mbox commands.
 
-Details:
+Fixes: 5d6fbc96bd36 ("thermal/drivers/int340x: processor_thermal: Export additional attributes")
+Signed-off-by: Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>
+Cc: 5.14+ <stable@vger.kernel.org> # 5.14+
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+[ rjw: Changelog edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-Recall that CXL subsystem wants to link a CXL memory expander device to
-an NVDIMM sub-hierarchy when both a persistent memory range has been
-registered by the CXL platform driver (cxl_acpi) *and* when that CXL
-memory expander has published persistent memory capacity (Get Partition
-Info). To this end the cxl_nvdimm_bridge driver arranges to rescan the
-CXL bus when either of those conditions change. The helper
-bus_rescan_devices() can not be called underneath the device_lock() for
-any device on that bus, so the cxl_nvdimm_bridge driver uses a workqueue
-for the rescan.
-
-Typically a driver allocates driver data to hold a 'struct work_struct'
-for a driven device, but for a workqueue that may run after ->remove()
-returns, driver data will have been freed. The 'struct
-cxl_nvdimm_bridge' object holds the state and work_struct directly.
-Unfortunately it was only arranging for that infrastructure to be
-initialized once per device creation rather than the necessary once per
-workqueue (cxl_pmem_wq) creation.
-
-Introduce is_cxl_nvdimm_bridge() and cxl_nvdimm_bridge_reset() in
-support of invalidating stale references to a recently destroyed
-cxl_pmem_wq.
-
-Cc: <stable@vger.kernel.org>
-Fixes: 8fdcb1704f61 ("cxl/pmem: Add initial infrastructure for pmem support")
-Reported-by: Vishal Verma <vishal.l.verma@intel.com>
-Tested-by: Vishal Verma <vishal.l.verma@intel.com>
-Link: https://lore.kernel.org/r/163665474585.3505991.8397182770066720755.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-
-diff --git a/drivers/cxl/core/pmem.c b/drivers/cxl/core/pmem.c
-index 2e402f0b2a10..b5fca97b0a07 100644
---- a/drivers/cxl/core/pmem.c
-+++ b/drivers/cxl/core/pmem.c
-@@ -51,10 +51,16 @@ struct cxl_nvdimm_bridge *to_cxl_nvdimm_bridge(struct device *dev)
- }
- EXPORT_SYMBOL_NS_GPL(to_cxl_nvdimm_bridge, CXL);
+diff --git a/drivers/thermal/intel/int340x_thermal/processor_thermal_device.h b/drivers/thermal/intel/int340x_thermal/processor_thermal_device.h
+index be27f633e40a..9b2a64ef55d0 100644
+--- a/drivers/thermal/intel/int340x_thermal/processor_thermal_device.h
++++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_device.h
+@@ -80,7 +80,8 @@ void proc_thermal_rfim_remove(struct pci_dev *pdev);
+ int proc_thermal_mbox_add(struct pci_dev *pdev, struct proc_thermal_device *proc_priv);
+ void proc_thermal_mbox_remove(struct pci_dev *pdev);
  
--__mock int match_nvdimm_bridge(struct device *dev, const void *data)
-+bool is_cxl_nvdimm_bridge(struct device *dev)
+-int processor_thermal_send_mbox_cmd(struct pci_dev *pdev, u16 cmd_id, u32 cmd_data, u64 *cmd_resp);
++int processor_thermal_send_mbox_read_cmd(struct pci_dev *pdev, u16 id, u64 *resp);
++int processor_thermal_send_mbox_write_cmd(struct pci_dev *pdev, u16 id, u32 data);
+ int proc_thermal_add(struct device *dev, struct proc_thermal_device *priv);
+ void proc_thermal_remove(struct proc_thermal_device *proc_priv);
+ int proc_thermal_suspend(struct device *dev);
+diff --git a/drivers/thermal/intel/int340x_thermal/processor_thermal_mbox.c b/drivers/thermal/intel/int340x_thermal/processor_thermal_mbox.c
+index 01008ae00e7f..0b89a4340ff4 100644
+--- a/drivers/thermal/intel/int340x_thermal/processor_thermal_mbox.c
++++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_mbox.c
+@@ -24,19 +24,15 @@
+ 
+ static DEFINE_MUTEX(mbox_lock);
+ 
+-static int send_mbox_cmd(struct pci_dev *pdev, u16 cmd_id, u32 cmd_data, u64 *cmd_resp)
++static int wait_for_mbox_ready(struct proc_thermal_device *proc_priv)
  {
- 	return dev->type == &cxl_nvdimm_bridge_type;
- }
-+EXPORT_SYMBOL_NS_GPL(is_cxl_nvdimm_bridge, CXL);
+-	struct proc_thermal_device *proc_priv;
+ 	u32 retries, data;
+ 	int ret;
+ 
+-	mutex_lock(&mbox_lock);
+-	proc_priv = pci_get_drvdata(pdev);
+-
+ 	/* Poll for rb bit == 0 */
+ 	retries = MBOX_RETRY_COUNT;
+ 	do {
+-		data = readl((void __iomem *) (proc_priv->mmio_base + MBOX_OFFSET_INTERFACE));
++		data = readl(proc_priv->mmio_base + MBOX_OFFSET_INTERFACE);
+ 		if (data & BIT_ULL(MBOX_BUSY_BIT)) {
+ 			ret = -EBUSY;
+ 			continue;
+@@ -45,53 +41,78 @@ static int send_mbox_cmd(struct pci_dev *pdev, u16 cmd_id, u32 cmd_data, u64 *cm
+ 		break;
+ 	} while (--retries);
+ 
++	return ret;
++}
 +
-+__mock int match_nvdimm_bridge(struct device *dev, const void *data)
++static int send_mbox_write_cmd(struct pci_dev *pdev, u16 id, u32 data)
 +{
-+	return is_cxl_nvdimm_bridge(dev);
++	struct proc_thermal_device *proc_priv;
++	u32 reg_data;
++	int ret;
++
++	proc_priv = pci_get_drvdata(pdev);
++
++	mutex_lock(&mbox_lock);
++
++	ret = wait_for_mbox_ready(proc_priv);
+ 	if (ret)
+ 		goto unlock_mbox;
+ 
+-	if (cmd_id == MBOX_CMD_WORKLOAD_TYPE_WRITE)
+-		writel(cmd_data, (void __iomem *) ((proc_priv->mmio_base + MBOX_OFFSET_DATA)));
+-
++	writel(data, (proc_priv->mmio_base + MBOX_OFFSET_DATA));
+ 	/* Write command register */
+-	data = BIT_ULL(MBOX_BUSY_BIT) | cmd_id;
+-	writel(data, (void __iomem *) ((proc_priv->mmio_base + MBOX_OFFSET_INTERFACE)));
++	reg_data = BIT_ULL(MBOX_BUSY_BIT) | id;
++	writel(reg_data, (proc_priv->mmio_base + MBOX_OFFSET_INTERFACE));
+ 
+-	/* Poll for rb bit == 0 */
+-	retries = MBOX_RETRY_COUNT;
+-	do {
+-		data = readl((void __iomem *) (proc_priv->mmio_base + MBOX_OFFSET_INTERFACE));
+-		if (data & BIT_ULL(MBOX_BUSY_BIT)) {
+-			ret = -EBUSY;
+-			continue;
+-		}
++	ret = wait_for_mbox_ready(proc_priv);
+ 
+-		if (data) {
+-			ret = -ENXIO;
+-			goto unlock_mbox;
+-		}
++unlock_mbox:
++	mutex_unlock(&mbox_lock);
++	return ret;
 +}
  
- struct cxl_nvdimm_bridge *cxl_find_nvdimm_bridge(struct cxl_nvdimm *cxl_nvd)
+-		ret = 0;
++static int send_mbox_read_cmd(struct pci_dev *pdev, u16 id, u64 *resp)
++{
++	struct proc_thermal_device *proc_priv;
++	u32 reg_data;
++	int ret;
+ 
+-		if (!cmd_resp)
+-			break;
++	proc_priv = pci_get_drvdata(pdev);
+ 
+-		if (cmd_id == MBOX_CMD_WORKLOAD_TYPE_READ)
+-			*cmd_resp = readl((void __iomem *) (proc_priv->mmio_base + MBOX_OFFSET_DATA));
+-		else
+-			*cmd_resp = readq((void __iomem *) (proc_priv->mmio_base + MBOX_OFFSET_DATA));
++	mutex_lock(&mbox_lock);
+ 
+-		break;
+-	} while (--retries);
++	ret = wait_for_mbox_ready(proc_priv);
++	if (ret)
++		goto unlock_mbox;
++
++	/* Write command register */
++	reg_data = BIT_ULL(MBOX_BUSY_BIT) | id;
++	writel(reg_data, (proc_priv->mmio_base + MBOX_OFFSET_INTERFACE));
++
++	ret = wait_for_mbox_ready(proc_priv);
++	if (ret)
++		goto unlock_mbox;
++
++	if (id == MBOX_CMD_WORKLOAD_TYPE_READ)
++		*resp = readl(proc_priv->mmio_base + MBOX_OFFSET_DATA);
++	else
++		*resp = readq(proc_priv->mmio_base + MBOX_OFFSET_DATA);
+ 
+ unlock_mbox:
+ 	mutex_unlock(&mbox_lock);
+ 	return ret;
+ }
+ 
+-int processor_thermal_send_mbox_cmd(struct pci_dev *pdev, u16 cmd_id, u32 cmd_data, u64 *cmd_resp)
++int processor_thermal_send_mbox_read_cmd(struct pci_dev *pdev, u16 id, u64 *resp)
  {
-diff --git a/drivers/cxl/cxl.h b/drivers/cxl/cxl.h
-index 3af704e9b448..ab4596f0b751 100644
---- a/drivers/cxl/cxl.h
-+++ b/drivers/cxl/cxl.h
-@@ -196,6 +196,13 @@ struct cxl_decoder {
+-	return send_mbox_cmd(pdev, cmd_id, cmd_data, cmd_resp);
++	return send_mbox_read_cmd(pdev, id, resp);
+ }
+-EXPORT_SYMBOL_GPL(processor_thermal_send_mbox_cmd);
++EXPORT_SYMBOL_NS_GPL(processor_thermal_send_mbox_read_cmd, INT340X_THERMAL);
++
++int processor_thermal_send_mbox_write_cmd(struct pci_dev *pdev, u16 id, u32 data)
++{
++	return send_mbox_write_cmd(pdev, id, data);
++}
++EXPORT_SYMBOL_NS_GPL(processor_thermal_send_mbox_write_cmd, INT340X_THERMAL);
+ 
+ /* List of workload types */
+ static const char * const workload_types[] = {
+@@ -104,7 +125,6 @@ static const char * const workload_types[] = {
+ 	NULL
  };
  
+-
+ static ssize_t workload_available_types_show(struct device *dev,
+ 					       struct device_attribute *attr,
+ 					       char *buf)
+@@ -146,7 +166,7 @@ static ssize_t workload_type_store(struct device *dev,
  
-+/**
-+ * enum cxl_nvdimm_brige_state - state machine for managing bus rescans
-+ * @CXL_NVB_NEW: Set at bridge create and after cxl_pmem_wq is destroyed
-+ * @CXL_NVB_DEAD: Set at brige unregistration to preclude async probing
-+ * @CXL_NVB_ONLINE: Target state after successful ->probe()
-+ * @CXL_NVB_OFFLINE: Target state after ->remove() or failed ->probe()
-+ */
- enum cxl_nvdimm_brige_state {
- 	CXL_NVB_NEW,
- 	CXL_NVB_DEAD,
-@@ -308,6 +315,7 @@ struct cxl_nvdimm_bridge *devm_cxl_add_nvdimm_bridge(struct device *host,
- 						     struct cxl_port *port);
- struct cxl_nvdimm *to_cxl_nvdimm(struct device *dev);
- bool is_cxl_nvdimm(struct device *dev);
-+bool is_cxl_nvdimm_bridge(struct device *dev);
- int devm_cxl_add_nvdimm(struct device *host, struct cxl_memdev *cxlmd);
- struct cxl_nvdimm_bridge *cxl_find_nvdimm_bridge(struct cxl_nvdimm *cxl_nvd);
+ 	data |= ret;
  
-diff --git a/drivers/cxl/pmem.c b/drivers/cxl/pmem.c
-index 17e82ae90456..b65a272a2d6d 100644
---- a/drivers/cxl/pmem.c
-+++ b/drivers/cxl/pmem.c
-@@ -315,6 +315,31 @@ static struct cxl_driver cxl_nvdimm_bridge_driver = {
- 	.id = CXL_DEVICE_NVDIMM_BRIDGE,
+-	ret = send_mbox_cmd(pdev, MBOX_CMD_WORKLOAD_TYPE_WRITE, data, NULL);
++	ret = send_mbox_write_cmd(pdev, MBOX_CMD_WORKLOAD_TYPE_WRITE, data);
+ 	if (ret)
+ 		return false;
+ 
+@@ -161,7 +181,7 @@ static ssize_t workload_type_show(struct device *dev,
+ 	u64 cmd_resp;
+ 	int ret;
+ 
+-	ret = send_mbox_cmd(pdev, MBOX_CMD_WORKLOAD_TYPE_READ, 0, &cmd_resp);
++	ret = send_mbox_read_cmd(pdev, MBOX_CMD_WORKLOAD_TYPE_READ, &cmd_resp);
+ 	if (ret)
+ 		return false;
+ 
+@@ -186,8 +206,6 @@ static const struct attribute_group workload_req_attribute_group = {
+ 	.name = "workload_request"
  };
  
-+/*
-+ * Return all bridges to the CXL_NVB_NEW state to invalidate any
-+ * ->state_work referring to the now destroyed cxl_pmem_wq.
-+ */
-+static int cxl_nvdimm_bridge_reset(struct device *dev, void *data)
-+{
-+	struct cxl_nvdimm_bridge *cxl_nvb;
+-
+-
+ static bool workload_req_created;
+ 
+ int proc_thermal_mbox_add(struct pci_dev *pdev, struct proc_thermal_device *proc_priv)
+@@ -196,7 +214,7 @@ int proc_thermal_mbox_add(struct pci_dev *pdev, struct proc_thermal_device *proc
+ 	int ret;
+ 
+ 	/* Check if there is a mailbox support, if fails return success */
+-	ret = send_mbox_cmd(pdev, MBOX_CMD_WORKLOAD_TYPE_READ, 0, &cmd_resp);
++	ret = send_mbox_read_cmd(pdev, MBOX_CMD_WORKLOAD_TYPE_READ, &cmd_resp);
+ 	if (ret)
+ 		return 0;
+ 
+diff --git a/drivers/thermal/intel/int340x_thermal/processor_thermal_rfim.c b/drivers/thermal/intel/int340x_thermal/processor_thermal_rfim.c
+index e693ec8234fb..8c42e7662033 100644
+--- a/drivers/thermal/intel/int340x_thermal/processor_thermal_rfim.c
++++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_rfim.c
+@@ -9,6 +9,8 @@
+ #include <linux/pci.h>
+ #include "processor_thermal_device.h"
+ 
++MODULE_IMPORT_NS(INT340X_THERMAL);
 +
-+	if (!is_cxl_nvdimm_bridge(dev))
-+		return 0;
-+
-+	cxl_nvb = to_cxl_nvdimm_bridge(dev);
-+	device_lock(dev);
-+	cxl_nvb->state = CXL_NVB_NEW;
-+	device_unlock(dev);
-+
-+	return 0;
-+}
-+
-+static void destroy_cxl_pmem_wq(void)
-+{
-+	destroy_workqueue(cxl_pmem_wq);
-+	bus_for_each_dev(&cxl_bus_type, NULL, NULL, cxl_nvdimm_bridge_reset);
-+}
-+
- static __init int cxl_pmem_init(void)
+ struct mmio_reg {
+ 	int read_only;
+ 	u32 offset;
+@@ -194,8 +196,7 @@ static ssize_t rfi_restriction_store(struct device *dev,
+ 				     struct device_attribute *attr,
+ 				     const char *buf, size_t count)
  {
- 	int rc;
-@@ -340,7 +365,7 @@ static __init int cxl_pmem_init(void)
- err_nvdimm:
- 	cxl_driver_unregister(&cxl_nvdimm_bridge_driver);
- err_bridge:
--	destroy_workqueue(cxl_pmem_wq);
-+	destroy_cxl_pmem_wq();
- 	return rc;
+-	u16 cmd_id = 0x0008;
+-	u64 cmd_resp;
++	u16 id = 0x0008;
+ 	u32 input;
+ 	int ret;
+ 
+@@ -203,7 +204,7 @@ static ssize_t rfi_restriction_store(struct device *dev,
+ 	if (ret)
+ 		return ret;
+ 
+-	ret = processor_thermal_send_mbox_cmd(to_pci_dev(dev), cmd_id, input, &cmd_resp);
++	ret = processor_thermal_send_mbox_write_cmd(to_pci_dev(dev), id, input);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -214,30 +215,30 @@ static ssize_t rfi_restriction_show(struct device *dev,
+ 				    struct device_attribute *attr,
+ 				    char *buf)
+ {
+-	u16 cmd_id = 0x0007;
+-	u64 cmd_resp;
++	u16 id = 0x0007;
++	u64 resp;
+ 	int ret;
+ 
+-	ret = processor_thermal_send_mbox_cmd(to_pci_dev(dev), cmd_id, 0, &cmd_resp);
++	ret = processor_thermal_send_mbox_read_cmd(to_pci_dev(dev), id, &resp);
+ 	if (ret)
+ 		return ret;
+ 
+-	return sprintf(buf, "%llu\n", cmd_resp);
++	return sprintf(buf, "%llu\n", resp);
  }
  
-@@ -348,7 +373,7 @@ static __exit void cxl_pmem_exit(void)
+ static ssize_t ddr_data_rate_show(struct device *dev,
+ 				  struct device_attribute *attr,
+ 				  char *buf)
  {
- 	cxl_driver_unregister(&cxl_nvdimm_driver);
- 	cxl_driver_unregister(&cxl_nvdimm_bridge_driver);
--	destroy_workqueue(cxl_pmem_wq);
-+	destroy_cxl_pmem_wq();
+-	u16 cmd_id = 0x0107;
+-	u64 cmd_resp;
++	u16 id = 0x0107;
++	u64 resp;
+ 	int ret;
+ 
+-	ret = processor_thermal_send_mbox_cmd(to_pci_dev(dev), cmd_id, 0, &cmd_resp);
++	ret = processor_thermal_send_mbox_read_cmd(to_pci_dev(dev), id, &resp);
+ 	if (ret)
+ 		return ret;
+ 
+-	return sprintf(buf, "%llu\n", cmd_resp);
++	return sprintf(buf, "%llu\n", resp);
  }
  
- MODULE_LICENSE("GPL v2");
+ static DEVICE_ATTR_RW(rfi_restriction);
 
