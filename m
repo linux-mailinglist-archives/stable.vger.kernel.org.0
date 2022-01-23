@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08C67496E88
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 01:13:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A858496EBF
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 01:14:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235311AbiAWAMz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Jan 2022 19:12:55 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:40898 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235198AbiAWAMO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 19:12:14 -0500
+        id S235335AbiAWAN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Jan 2022 19:13:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36730 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235520AbiAWANI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 19:13:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9762C061772;
+        Sat, 22 Jan 2022 16:12:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 79626B80927;
-        Sun, 23 Jan 2022 00:12:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 300C9C340E4;
-        Sun, 23 Jan 2022 00:12:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A60BEB80AB1;
+        Sun, 23 Jan 2022 00:12:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B509AC340E5;
+        Sun, 23 Jan 2022 00:12:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642896732;
-        bh=Ew//I/En9Gd8ruRvLDwh96Ay8uzpIAJMy1X0RMRL7uw=;
+        s=k20201202; t=1642896733;
+        bh=MOSOdNrNX7YPNs5k15GRveQOjAdD2y3ACTA3CGnAruc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TODSJHGea3ns31tXDMpGlBP6UsIMydwrZ2T2xIbpgqbxeJa1qrKmZgPUeXAvITBYE
-         2fGu3YW4AvdPHIj6DFQv7aO55uYCqAxrod+WATTxy7+2EyJQjgIHOO62anCxpdobzM
-         e75tPoJ+2cPtcdkko9hflkLyiC/hju1GkvVHOK4o3H2ll9tHJKPhFlZP09JK6t2PX2
-         wfUDaqXK6QYhAfoRlk366WudK8bWtpi+MEK8y1mofQ/lmuq4eRK9dO2G8F1Sg1SDi8
-         P+6W+KhkVw9PZXUWMTokkWaUoTUvbTo+HXjfCqQGOkn1HovuzvM8WD+zLH7ednP8Tg
-         0doSGLUj/Iklg==
+        b=sycsYueqpJBsOeIZjyUVXYC2H+w8iu0DGlhk7479mLOo2LEd72o4mb9bnUiw6zSiH
+         DJqlYZfPJthoGkoiLfUMt5dNrUreSHpW7CL/saHVlzBCuimf7dhjb8ITyUdPhme0zI
+         8xbDL7HWDVnnGce/KywRC8ieSj6oWHRlkohW74Tl4m0ttXLCg5zQY8Uj2axDYu0rR4
+         G+zm8NCM8EzPT5ch7xvhtlY0ruhRisSASexnv3YvXNOj+YH3pMRqd6LNmBUHdnlM4+
+         uNsqyt/8c0TGq/WzxOyyToZ+8BnNIKHHPdj54XYnYcG+9717Xcq76C+YV+3O7NA0Oq
+         h+QgJB0YF1orw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eli Cohen <elic@nvidia.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Si-Wei Liu <si-wei.liu@oracle.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, parav@nvidia.com,
-        xieyongji@bytedance.com, virtualization@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.16 17/19] vdpa/mlx5: Fix is_index_valid() to refer to features
-Date:   Sat, 22 Jan 2022 19:11:10 -0500
-Message-Id: <20220123001113.2460140-17-sashal@kernel.org>
+Cc:     Jens Axboe <axboe@kernel.dk>,
+        Florian Fischer <florian.fl.fischer@fau.de>,
+        Sasha Levin <sashal@kernel.org>, io-uring@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 18/19] io_uring: perform poll removal even if async work removal is successful
+Date:   Sat, 22 Jan 2022 19:11:11 -0500
+Message-Id: <20220123001113.2460140-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220123001113.2460140-1-sashal@kernel.org>
 References: <20220123001113.2460140-1-sashal@kernel.org>
@@ -50,53 +50,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eli Cohen <elic@nvidia.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit f8ae3a489b21b05c39a0a1a7734f2a0188852177 ]
+[ Upstream commit ccbf726171b7328f800bc98005132fd77eb1a175 ]
 
-Make sure the decision whether an index received through a callback is
-valid or not consults the negotiated features.
+An active work can have poll armed, hence it's not enough to just do
+the async work removal and return the value if it's different from "not
+found". Rather than make poll removal special, just fall through to do
+the remaining type lookups and removals.
 
-The motivation for this was due to a case encountered where I shut down
-the VM. After the reset operation was called features were already
-clear, I got get_vq_state() call which caused out array bounds
-access since is_index_valid() reported the index value.
-
-So this is more of not hit a bug since the call shouldn't have been made
-first place.
-
-Signed-off-by: Eli Cohen <elic@nvidia.com>
-Link: https://lore.kernel.org/r/20220111183400.38418-4-elic@nvidia.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Si-Wei Liu<si-wei.liu@oracle.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
+Reported-by: Florian Fischer <florian.fl.fischer@fau.de>
+Link: https://lore.kernel.org/io-uring/20220118151337.fac6cthvbnu7icoc@pasture/
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ fs/io_uring.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index d8e69340a25ae..68ace0ad659f2 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -138,10 +138,14 @@ struct mlx5_vdpa_virtqueue {
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index fb2a0cb4aaf83..a958457b2af07 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6316,16 +6316,21 @@ static int io_try_cancel_userdata(struct io_kiocb *req, u64 sqe_addr)
+ 	WARN_ON_ONCE(!io_wq_current_is_worker() && req->task != current);
  
- static bool is_index_valid(struct mlx5_vdpa_dev *mvdev, u16 idx)
- {
--	if (unlikely(idx > mvdev->max_idx))
--		return false;
-+	if (!(mvdev->actual_features & BIT_ULL(VIRTIO_NET_F_MQ))) {
-+		if (!(mvdev->actual_features & BIT_ULL(VIRTIO_NET_F_CTRL_VQ)))
-+			return idx < 2;
-+		else
-+			return idx < 3;
-+	}
+ 	ret = io_async_cancel_one(req->task->io_uring, sqe_addr, ctx);
+-	if (ret != -ENOENT)
+-		return ret;
++	/*
++	 * Fall-through even for -EALREADY, as we may have poll armed
++	 * that need unarming.
++	 */
++	if (!ret)
++		return 0;
  
--	return true;
-+	return idx <= mvdev->max_idx;
- }
- 
- struct mlx5_vdpa_net {
+ 	spin_lock(&ctx->completion_lock);
++	ret = io_poll_cancel(ctx, sqe_addr, false);
++	if (ret != -ENOENT)
++		goto out;
++
+ 	spin_lock_irq(&ctx->timeout_lock);
+ 	ret = io_timeout_cancel(ctx, sqe_addr);
+ 	spin_unlock_irq(&ctx->timeout_lock);
+-	if (ret != -ENOENT)
+-		goto out;
+-	ret = io_poll_cancel(ctx, sqe_addr, false);
+ out:
+ 	spin_unlock(&ctx->completion_lock);
+ 	return ret;
 -- 
 2.34.1
 
