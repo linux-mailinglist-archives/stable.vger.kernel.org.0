@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5503D497214
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 15:26:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 313B6497215
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 15:26:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236704AbiAWO0A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 09:26:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51126 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232290AbiAWO0A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 09:26:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8600CC06173B
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 06:26:00 -0800 (PST)
+        id S236671AbiAWO0X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 09:26:23 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38020 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232290AbiAWO0W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 09:26:22 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2587060C79
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 14:26:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBF65C340E2;
-        Sun, 23 Jan 2022 14:25:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A066B60C7F
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 14:26:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EF02C340E2;
+        Sun, 23 Jan 2022 14:26:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642947959;
-        bh=bRwKoyxt6gTriJbPcy9NoSZ8M5uzr7nmFgok8xBMjYE=;
+        s=korg; t=1642947982;
+        bh=5R8fD7bWsFVkcHKBcDHGiOgigr2eNI5M74ej0BGm2MU=;
         h=Subject:To:Cc:From:Date:From;
-        b=oo47ZIt0Rq8ry3+6TvO89MrW/3ByFUKwAObrMhWcoGtElviP2DmoQ8bFBUe5DVFZO
-         djOEw6crfp/dcqaq99fn1ElaVIW3YrZHAH0W/WNapji0eaaMGWEchlfX/vEAmuJFUr
-         Y5zzz01i9NH5yDcumLnEOgIRvUix5uitdxrGIOYE=
-Subject: FAILED: patch "[PATCH] thermal/drivers/int340x: Fix RFIM mailbox write commands" failed to apply to 5.15-stable tree
-To:     sumeet.r.pawnikar@intel.com, rafael.j.wysocki@intel.com,
-        srinivas.pandruvada@linux.intel.com, stable@vger.kernel.org
+        b=YPe7AiiGvKCOkNiEUxWqvvRQ/1kdjjVDKwlpkcXGl2MCX3xZs7BJGJWDNs7G1skC/
+         W1m/SKdhyuQ2YL8L4UV5usBVCXCUPH5JtMeyE0eH4Cab6VrBsPBUzipcV89GEMYrI8
+         Nc2Y5fSWFyffPxo4DZ20zzHv/j5QNdS6RJfiGO9w=
+Subject: FAILED: patch "[PATCH] arm64: errata: Fix exec handling in erratum 1418040" failed to apply to 5.4-stable tree
+To:     scott@os.amperecomputing.com, catalin.marinas@arm.com,
+        maz@kernel.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jan 2022 15:25:56 +0100
-Message-ID: <1642947956201220@kroah.com>
+Date:   Sun, 23 Jan 2022 15:26:19 +0100
+Message-ID: <1642947979229102@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -54,298 +51,101 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2685c77b80a80c57e2a25a726b82fb31e6e212ab Mon Sep 17 00:00:00 2001
-From: Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>
-Date: Thu, 23 Dec 2021 15:12:36 +0530
-Subject: [PATCH] thermal/drivers/int340x: Fix RFIM mailbox write commands
+From 38e0257e0e6f4fef2aa2966b089b56a8b1cfb75c Mon Sep 17 00:00:00 2001
+From: D Scott Phillips <scott@os.amperecomputing.com>
+Date: Mon, 20 Dec 2021 15:41:14 -0800
+Subject: [PATCH] arm64: errata: Fix exec handling in erratum 1418040
+ workaround
 
-The existing mail mechanism only supports writing of workload types.
+The erratum 1418040 workaround enables CNTVCT_EL1 access trapping in EL0
+when executing compat threads. The workaround is applied when switching
+between tasks, but the need for the workaround could also change at an
+exec(), when a non-compat task execs a compat binary or vice versa. Apply
+the workaround in arch_setup_new_exec().
 
-However, mailbox command for RFIM (cmd = 0x08) also requires write
-operation which is ignored. This results in failing to store RFI
-restriction.
+This leaves a small window of time between SET_PERSONALITY and
+arch_setup_new_exec where preemption could occur and confuse the old
+workaround logic that compares TIF_32BIT between prev and next. Instead, we
+can just read cntkctl to make sure it's in the state that the next task
+needs. I measured cntkctl read time to be about the same as a mov from a
+general-purpose register on N1. Update the workaround logic to examine the
+current value of cntkctl instead of the previous task's compat state.
 
-Fixint this requires enhancing mailbox writes for non workload
-commands too, so remove the check for MBOX_CMD_WORKLOAD_TYPE_WRITE
-in mailbox write to allow this other write commands to be supoorted.
+Fixes: d49f7d7376d0 ("arm64: Move handling of erratum 1418040 into C code")
+Cc: <stable@vger.kernel.org> # 5.9.x
+Signed-off-by: D Scott Phillips <scott@os.amperecomputing.com>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20211220234114.3926-1-scott@os.amperecomputing.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 
-At the same time, however, we have to make sure that there is no
-impact on read commands, by avoiding to write anything into the
-mailbox data register.
-
-To properly implement that, add two separate functions for mbox read
-and write commands for the processor thermal workload command type.
-This helps to distinguish the read and write workload command types
-from each other while sending mbox commands.
-
-Fixes: 5d6fbc96bd36 ("thermal/drivers/int340x: processor_thermal: Export additional attributes")
-Signed-off-by: Sumeet Pawnikar <sumeet.r.pawnikar@intel.com>
-Cc: 5.14+ <stable@vger.kernel.org> # 5.14+
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-[ rjw: Changelog edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-
-diff --git a/drivers/thermal/intel/int340x_thermal/processor_thermal_device.h b/drivers/thermal/intel/int340x_thermal/processor_thermal_device.h
-index be27f633e40a..9b2a64ef55d0 100644
---- a/drivers/thermal/intel/int340x_thermal/processor_thermal_device.h
-+++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_device.h
-@@ -80,7 +80,8 @@ void proc_thermal_rfim_remove(struct pci_dev *pdev);
- int proc_thermal_mbox_add(struct pci_dev *pdev, struct proc_thermal_device *proc_priv);
- void proc_thermal_mbox_remove(struct pci_dev *pdev);
+diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
+index aacf2f5559a8..271d4bbf468e 100644
+--- a/arch/arm64/kernel/process.c
++++ b/arch/arm64/kernel/process.c
+@@ -439,34 +439,26 @@ static void entry_task_switch(struct task_struct *next)
  
--int processor_thermal_send_mbox_cmd(struct pci_dev *pdev, u16 cmd_id, u32 cmd_data, u64 *cmd_resp);
-+int processor_thermal_send_mbox_read_cmd(struct pci_dev *pdev, u16 id, u64 *resp);
-+int processor_thermal_send_mbox_write_cmd(struct pci_dev *pdev, u16 id, u32 data);
- int proc_thermal_add(struct device *dev, struct proc_thermal_device *priv);
- void proc_thermal_remove(struct proc_thermal_device *proc_priv);
- int proc_thermal_suspend(struct device *dev);
-diff --git a/drivers/thermal/intel/int340x_thermal/processor_thermal_mbox.c b/drivers/thermal/intel/int340x_thermal/processor_thermal_mbox.c
-index 01008ae00e7f..0b89a4340ff4 100644
---- a/drivers/thermal/intel/int340x_thermal/processor_thermal_mbox.c
-+++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_mbox.c
-@@ -24,19 +24,15 @@
- 
- static DEFINE_MUTEX(mbox_lock);
- 
--static int send_mbox_cmd(struct pci_dev *pdev, u16 cmd_id, u32 cmd_data, u64 *cmd_resp)
-+static int wait_for_mbox_ready(struct proc_thermal_device *proc_priv)
+ /*
+  * ARM erratum 1418040 handling, affecting the 32bit view of CNTVCT.
+- * Assuming the virtual counter is enabled at the beginning of times:
+- *
+- * - disable access when switching from a 64bit task to a 32bit task
+- * - enable access when switching from a 32bit task to a 64bit task
++ * Ensure access is disabled when switching to a 32bit task, ensure
++ * access is enabled when switching to a 64bit task.
+  */
+-static void erratum_1418040_thread_switch(struct task_struct *prev,
+-					  struct task_struct *next)
++static void erratum_1418040_thread_switch(struct task_struct *next)
  {
--	struct proc_thermal_device *proc_priv;
- 	u32 retries, data;
- 	int ret;
- 
--	mutex_lock(&mbox_lock);
--	proc_priv = pci_get_drvdata(pdev);
+-	bool prev32, next32;
+-	u64 val;
 -
- 	/* Poll for rb bit == 0 */
- 	retries = MBOX_RETRY_COUNT;
- 	do {
--		data = readl((void __iomem *) (proc_priv->mmio_base + MBOX_OFFSET_INTERFACE));
-+		data = readl(proc_priv->mmio_base + MBOX_OFFSET_INTERFACE);
- 		if (data & BIT_ULL(MBOX_BUSY_BIT)) {
- 			ret = -EBUSY;
- 			continue;
-@@ -45,53 +41,78 @@ static int send_mbox_cmd(struct pci_dev *pdev, u16 cmd_id, u32 cmd_data, u64 *cm
- 		break;
- 	} while (--retries);
- 
-+	return ret;
-+}
-+
-+static int send_mbox_write_cmd(struct pci_dev *pdev, u16 id, u32 data)
-+{
-+	struct proc_thermal_device *proc_priv;
-+	u32 reg_data;
-+	int ret;
-+
-+	proc_priv = pci_get_drvdata(pdev);
-+
-+	mutex_lock(&mbox_lock);
-+
-+	ret = wait_for_mbox_ready(proc_priv);
- 	if (ret)
- 		goto unlock_mbox;
- 
--	if (cmd_id == MBOX_CMD_WORKLOAD_TYPE_WRITE)
--		writel(cmd_data, (void __iomem *) ((proc_priv->mmio_base + MBOX_OFFSET_DATA)));
+-	if (!IS_ENABLED(CONFIG_ARM64_ERRATUM_1418040))
+-		return;
 -
-+	writel(data, (proc_priv->mmio_base + MBOX_OFFSET_DATA));
- 	/* Write command register */
--	data = BIT_ULL(MBOX_BUSY_BIT) | cmd_id;
--	writel(data, (void __iomem *) ((proc_priv->mmio_base + MBOX_OFFSET_INTERFACE)));
-+	reg_data = BIT_ULL(MBOX_BUSY_BIT) | id;
-+	writel(reg_data, (proc_priv->mmio_base + MBOX_OFFSET_INTERFACE));
+-	prev32 = is_compat_thread(task_thread_info(prev));
+-	next32 = is_compat_thread(task_thread_info(next));
+-
+-	if (prev32 == next32 || !this_cpu_has_cap(ARM64_WORKAROUND_1418040))
++	if (!IS_ENABLED(CONFIG_ARM64_ERRATUM_1418040) ||
++	    !this_cpu_has_cap(ARM64_WORKAROUND_1418040))
+ 		return;
  
--	/* Poll for rb bit == 0 */
--	retries = MBOX_RETRY_COUNT;
--	do {
--		data = readl((void __iomem *) (proc_priv->mmio_base + MBOX_OFFSET_INTERFACE));
--		if (data & BIT_ULL(MBOX_BUSY_BIT)) {
--			ret = -EBUSY;
--			continue;
--		}
-+	ret = wait_for_mbox_ready(proc_priv);
- 
--		if (data) {
--			ret = -ENXIO;
--			goto unlock_mbox;
--		}
-+unlock_mbox:
-+	mutex_unlock(&mbox_lock);
-+	return ret;
+-	val = read_sysreg(cntkctl_el1);
+-
+-	if (!next32)
+-		val |= ARCH_TIMER_USR_VCT_ACCESS_EN;
++	if (is_compat_thread(task_thread_info(next)))
++		sysreg_clear_set(cntkctl_el1, ARCH_TIMER_USR_VCT_ACCESS_EN, 0);
+ 	else
+-		val &= ~ARCH_TIMER_USR_VCT_ACCESS_EN;
++		sysreg_clear_set(cntkctl_el1, 0, ARCH_TIMER_USR_VCT_ACCESS_EN);
 +}
  
--		ret = 0;
-+static int send_mbox_read_cmd(struct pci_dev *pdev, u16 id, u64 *resp)
+-	write_sysreg(val, cntkctl_el1);
++static void erratum_1418040_new_exec(void)
 +{
-+	struct proc_thermal_device *proc_priv;
-+	u32 reg_data;
-+	int ret;
- 
--		if (!cmd_resp)
--			break;
-+	proc_priv = pci_get_drvdata(pdev);
- 
--		if (cmd_id == MBOX_CMD_WORKLOAD_TYPE_READ)
--			*cmd_resp = readl((void __iomem *) (proc_priv->mmio_base + MBOX_OFFSET_DATA));
--		else
--			*cmd_resp = readq((void __iomem *) (proc_priv->mmio_base + MBOX_OFFSET_DATA));
-+	mutex_lock(&mbox_lock);
- 
--		break;
--	} while (--retries);
-+	ret = wait_for_mbox_ready(proc_priv);
-+	if (ret)
-+		goto unlock_mbox;
-+
-+	/* Write command register */
-+	reg_data = BIT_ULL(MBOX_BUSY_BIT) | id;
-+	writel(reg_data, (proc_priv->mmio_base + MBOX_OFFSET_INTERFACE));
-+
-+	ret = wait_for_mbox_ready(proc_priv);
-+	if (ret)
-+		goto unlock_mbox;
-+
-+	if (id == MBOX_CMD_WORKLOAD_TYPE_READ)
-+		*resp = readl(proc_priv->mmio_base + MBOX_OFFSET_DATA);
-+	else
-+		*resp = readq(proc_priv->mmio_base + MBOX_OFFSET_DATA);
- 
- unlock_mbox:
- 	mutex_unlock(&mbox_lock);
- 	return ret;
++	preempt_disable();
++	erratum_1418040_thread_switch(current);
++	preempt_enable();
  }
  
--int processor_thermal_send_mbox_cmd(struct pci_dev *pdev, u16 cmd_id, u32 cmd_data, u64 *cmd_resp)
-+int processor_thermal_send_mbox_read_cmd(struct pci_dev *pdev, u16 id, u64 *resp)
- {
--	return send_mbox_cmd(pdev, cmd_id, cmd_data, cmd_resp);
-+	return send_mbox_read_cmd(pdev, id, resp);
- }
--EXPORT_SYMBOL_GPL(processor_thermal_send_mbox_cmd);
-+EXPORT_SYMBOL_NS_GPL(processor_thermal_send_mbox_read_cmd, INT340X_THERMAL);
-+
-+int processor_thermal_send_mbox_write_cmd(struct pci_dev *pdev, u16 id, u32 data)
-+{
-+	return send_mbox_write_cmd(pdev, id, data);
-+}
-+EXPORT_SYMBOL_NS_GPL(processor_thermal_send_mbox_write_cmd, INT340X_THERMAL);
+ /*
+@@ -501,7 +493,7 @@ __notrace_funcgraph struct task_struct *__switch_to(struct task_struct *prev,
+ 	contextidr_thread_switch(next);
+ 	entry_task_switch(next);
+ 	ssbs_thread_switch(next);
+-	erratum_1418040_thread_switch(prev, next);
++	erratum_1418040_thread_switch(next);
+ 	ptrauth_thread_switch_user(next);
  
- /* List of workload types */
- static const char * const workload_types[] = {
-@@ -104,7 +125,6 @@ static const char * const workload_types[] = {
- 	NULL
- };
+ 	/*
+@@ -611,6 +603,7 @@ void arch_setup_new_exec(void)
+ 	current->mm->context.flags = mmflags;
+ 	ptrauth_thread_init_user();
+ 	mte_thread_init_user();
++	erratum_1418040_new_exec();
  
--
- static ssize_t workload_available_types_show(struct device *dev,
- 					       struct device_attribute *attr,
- 					       char *buf)
-@@ -146,7 +166,7 @@ static ssize_t workload_type_store(struct device *dev,
- 
- 	data |= ret;
- 
--	ret = send_mbox_cmd(pdev, MBOX_CMD_WORKLOAD_TYPE_WRITE, data, NULL);
-+	ret = send_mbox_write_cmd(pdev, MBOX_CMD_WORKLOAD_TYPE_WRITE, data);
- 	if (ret)
- 		return false;
- 
-@@ -161,7 +181,7 @@ static ssize_t workload_type_show(struct device *dev,
- 	u64 cmd_resp;
- 	int ret;
- 
--	ret = send_mbox_cmd(pdev, MBOX_CMD_WORKLOAD_TYPE_READ, 0, &cmd_resp);
-+	ret = send_mbox_read_cmd(pdev, MBOX_CMD_WORKLOAD_TYPE_READ, &cmd_resp);
- 	if (ret)
- 		return false;
- 
-@@ -186,8 +206,6 @@ static const struct attribute_group workload_req_attribute_group = {
- 	.name = "workload_request"
- };
- 
--
--
- static bool workload_req_created;
- 
- int proc_thermal_mbox_add(struct pci_dev *pdev, struct proc_thermal_device *proc_priv)
-@@ -196,7 +214,7 @@ int proc_thermal_mbox_add(struct pci_dev *pdev, struct proc_thermal_device *proc
- 	int ret;
- 
- 	/* Check if there is a mailbox support, if fails return success */
--	ret = send_mbox_cmd(pdev, MBOX_CMD_WORKLOAD_TYPE_READ, 0, &cmd_resp);
-+	ret = send_mbox_read_cmd(pdev, MBOX_CMD_WORKLOAD_TYPE_READ, &cmd_resp);
- 	if (ret)
- 		return 0;
- 
-diff --git a/drivers/thermal/intel/int340x_thermal/processor_thermal_rfim.c b/drivers/thermal/intel/int340x_thermal/processor_thermal_rfim.c
-index e693ec8234fb..8c42e7662033 100644
---- a/drivers/thermal/intel/int340x_thermal/processor_thermal_rfim.c
-+++ b/drivers/thermal/intel/int340x_thermal/processor_thermal_rfim.c
-@@ -9,6 +9,8 @@
- #include <linux/pci.h>
- #include "processor_thermal_device.h"
- 
-+MODULE_IMPORT_NS(INT340X_THERMAL);
-+
- struct mmio_reg {
- 	int read_only;
- 	u32 offset;
-@@ -194,8 +196,7 @@ static ssize_t rfi_restriction_store(struct device *dev,
- 				     struct device_attribute *attr,
- 				     const char *buf, size_t count)
- {
--	u16 cmd_id = 0x0008;
--	u64 cmd_resp;
-+	u16 id = 0x0008;
- 	u32 input;
- 	int ret;
- 
-@@ -203,7 +204,7 @@ static ssize_t rfi_restriction_store(struct device *dev,
- 	if (ret)
- 		return ret;
- 
--	ret = processor_thermal_send_mbox_cmd(to_pci_dev(dev), cmd_id, input, &cmd_resp);
-+	ret = processor_thermal_send_mbox_write_cmd(to_pci_dev(dev), id, input);
- 	if (ret)
- 		return ret;
- 
-@@ -214,30 +215,30 @@ static ssize_t rfi_restriction_show(struct device *dev,
- 				    struct device_attribute *attr,
- 				    char *buf)
- {
--	u16 cmd_id = 0x0007;
--	u64 cmd_resp;
-+	u16 id = 0x0007;
-+	u64 resp;
- 	int ret;
- 
--	ret = processor_thermal_send_mbox_cmd(to_pci_dev(dev), cmd_id, 0, &cmd_resp);
-+	ret = processor_thermal_send_mbox_read_cmd(to_pci_dev(dev), id, &resp);
- 	if (ret)
- 		return ret;
- 
--	return sprintf(buf, "%llu\n", cmd_resp);
-+	return sprintf(buf, "%llu\n", resp);
- }
- 
- static ssize_t ddr_data_rate_show(struct device *dev,
- 				  struct device_attribute *attr,
- 				  char *buf)
- {
--	u16 cmd_id = 0x0107;
--	u64 cmd_resp;
-+	u16 id = 0x0107;
-+	u64 resp;
- 	int ret;
- 
--	ret = processor_thermal_send_mbox_cmd(to_pci_dev(dev), cmd_id, 0, &cmd_resp);
-+	ret = processor_thermal_send_mbox_read_cmd(to_pci_dev(dev), id, &resp);
- 	if (ret)
- 		return ret;
- 
--	return sprintf(buf, "%llu\n", cmd_resp);
-+	return sprintf(buf, "%llu\n", resp);
- }
- 
- static DEVICE_ATTR_RW(rfi_restriction);
+ 	if (task_spec_ssb_noexec(current)) {
+ 		arch_prctl_spec_ctrl_set(current, PR_SPEC_STORE_BYPASS,
 
