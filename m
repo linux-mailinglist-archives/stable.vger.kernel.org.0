@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 392414971E1
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 15:10:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC64A4971E3
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 15:11:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236687AbiAWOKP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 09:10:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47662 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236678AbiAWOKP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 09:10:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26296C06173B
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 06:10:15 -0800 (PST)
+        id S233169AbiAWOLC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 09:11:02 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:55292 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236678AbiAWOLC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 09:11:02 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3EABB80CEB
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 14:10:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E80FC340E2;
-        Sun, 23 Jan 2022 14:10:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B5B5B80CE1
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 14:11:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 660C4C340E2;
+        Sun, 23 Jan 2022 14:10:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642947012;
-        bh=ZARG1r0BPOwvPYnKd/MgFEXEnmaNW51kBxgCLghoMuI=;
+        s=korg; t=1642947059;
+        bh=Kzg6pzFI5cvF97NxrqdfObmp1kw6xQzS4dgW9RvcLyc=;
         h=Subject:To:Cc:From:Date:From;
-        b=SA5KVGn/xgDxlUL112HdKmu74Hn8AxYrE+qVMRoh116rs7xqyJnkQbrC7iKrI7eYD
-         j6BjHnSsTsJBtqHrn7nNyUPeJauS+wZulq0NpQ/Wo61je9sQDvf+WCHYbMAFfILXWB
-         xlfmwZ1gA183aTpcloejbA15nmXAbZ0DteU19beg=
-Subject: FAILED: patch "[PATCH] mtd: rawnand: ingenic: JZ4740 needs 'oob_first' read page" failed to apply to 5.4-stable tree
+        b=ePOey1oB9hyAAyjWHAkNqc5u8kedHL61gpjSiVZ03t2NrkkAQ8SQ9uedIf0ArY42t
+         1Qimb/jLDztbUCoMMx7YTrdqdzQOMobLO8ysNAP71SCvL//YwAIve1ZgQdQquWiche
+         6QLYOSZSqxbSlf6+z99AUCbtU54L/GG0T/P7Q8bc=
+Subject: FAILED: patch "[PATCH] mtd: rawnand: ingenic: JZ4740 needs 'oob_first' read page" failed to apply to 5.10-stable tree
 To:     paul@crapouillou.net, miquel.raynal@bootlin.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jan 2022 15:10:10 +0100
-Message-ID: <164294701072245@kroah.com>
+Date:   Sun, 23 Jan 2022 15:10:52 +0100
+Message-ID: <1642947052213250@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
