@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45F2D497344
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:53:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71CF2497346
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:53:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238951AbiAWQx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 11:53:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57888 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238947AbiAWQx3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:53:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ABB0C06173B
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 08:53:29 -0800 (PST)
+        id S238963AbiAWQxj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 11:53:39 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:58502 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238960AbiAWQxj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:53:39 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD2CB60FA3
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:53:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E179C340E2;
-        Sun, 23 Jan 2022 16:53:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 32BB3B80DC1
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:53:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D780C340E2;
+        Sun, 23 Jan 2022 16:53:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642956808;
-        bh=tfu09xlCVB1JyP18cj9DlCQwz7tt8SpeHN2J6BtF8sI=;
+        s=korg; t=1642956816;
+        bh=tvM5UMUu8+j6yXgSHrvdGundser/Q820KGg0amYTqxs=;
         h=Subject:To:Cc:From:Date:From;
-        b=TrjiYCeytp9saKk4B6EPyHJ0uhVQnxZ8kD4BpqozfbecCW6tpqb1hC7nG+Ir4R2Ud
-         Dl5m1kp2g+Y0l+i0WLJ+mv7Rno2qvniFqyeZvAlat2oSjvWFvj4PKyOMJdWdgoVbDb
-         ICeLKqgrSRHP1QKPYb/dsuuJfw9/XOvwzi5HMvzg=
-Subject: FAILED: patch "[PATCH] drm/i915/display/adlp: Implement new step in the TC voltage" failed to apply to 5.16-stable tree
+        b=f0rB4sPR1MDH5yCfW9W89HIf/VBifuig2vt7PvlfBOZuuqZ5m8pwcgViz8aTaBaJr
+         NDmU5nYVcPcpNMa8Jfs3ss5sRrSuYw4aD7mmCwI2lp0OgXuYuqjGNPRXLVhzOhhijr
+         Oo7XyqTNG7IRtJ8m/Mbc2sTxF2Uewd4KMOU+tyfU=
+Subject: FAILED: patch "[PATCH] drm/i915/display/adlp: Implement new step in the TC voltage" failed to apply to 5.15-stable tree
 To:     jose.souza@intel.com, Clinton.A.Taylor@intel.com,
         clinton.a.taylor@intel.com, imre.deak@intel.com,
         jani.nikula@linux.intel.com, tvrtko.ursulin@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 23 Jan 2022 17:53:25 +0100
-Message-ID: <16429568053411@kroah.com>
+Message-ID: <1642956805215188@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,7 +41,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.16-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
