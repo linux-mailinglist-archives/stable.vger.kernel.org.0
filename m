@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C909497339
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:51:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B90A449733A
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:51:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232879AbiAWQvA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 11:51:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57314 "EHLO
+        id S234623AbiAWQve (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 11:51:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238947AbiAWQu6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:50:58 -0500
+        with ESMTP id S231686AbiAWQve (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:51:34 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C2C1C06173B
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 08:50:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32788C06173B
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 08:51:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BCC760F95
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:50:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBA92C340E2;
-        Sun, 23 Jan 2022 16:50:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C7CFD60AB1
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:51:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE6BFC340E2;
+        Sun, 23 Jan 2022 16:51:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642956657;
-        bh=TQ91YkTFgu+rtI9giVM4uvmh0lFQT7DzPwS6Qkgjgb4=;
+        s=korg; t=1642956693;
+        bh=CBkX1oZGsWu/ivtXlM2Tv/I+pY5LKIfXU4E/4dUcSbQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=JL52Afk2ZHfa1fKYTijjW2mOtfsotqXNLSUdrqmydxq+2K6qunHdYmVfTO+s5ujBK
-         9k6z0aIiLtQkgEVRtQNoRnPHSIC6A/cKQrKyxM2n+AulJBgQpFgHEPpL7MsomQiQsh
-         pRaZdSnl/9dCRKemvW/zBgmn9L3fooAByTr8631I=
-Subject: FAILED: patch "[PATCH] drm/i915: Add support for panels with VESA backlights with" failed to apply to 04f0d6cc62cc1eaf9242c081520c024a17ba86a3-stable tree
-To:     lyude@redhat.com, stable@vger.kernel.org,
-        ville.syrjala@linux.intel.com
+        b=Y/rxV9kUsI5Plx8c9yH6lheWrtzftsAcytLxRSnnxeYabTaNP9eNgK3dWpwi93aMi
+         YWl9zT9k1QhSKt3Hxlj3YjIYafgekW0C3cW0ykHotmUfIPnijdHfkVPvkO3p5nOoZV
+         gVHZyPDNENIwkM7K/PQBDaUV2ILJWAY5eXL4itL8=
+Subject: FAILED: patch "[PATCH] powerpc/64s/radix: Fix huge vmap false positive" failed to apply to 5.4-stable tree
+To:     npiggin@gmail.com, mpe@ellerman.id.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jan 2022 17:50:44 +0100
-Message-ID: <164295664417072@kroah.com>
+Date:   Sun, 23 Jan 2022 17:51:30 +0100
+Message-ID: <1642956690213219@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 04f0d6cc62cc1eaf9242c081520c024a17ba86a3-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -54,93 +53,94 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 04f0d6cc62cc1eaf9242c081520c024a17ba86a3 Mon Sep 17 00:00:00 2001
-From: Lyude Paul <lyude@redhat.com>
-Date: Fri, 5 Nov 2021 14:33:38 -0400
-Subject: [PATCH] drm/i915: Add support for panels with VESA backlights with
- PWM enable/disable
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 467ba14e1660b52a2f9338b484704c461bd23019 Mon Sep 17 00:00:00 2001
+From: Nicholas Piggin <npiggin@gmail.com>
+Date: Thu, 16 Dec 2021 20:33:42 +1000
+Subject: [PATCH] powerpc/64s/radix: Fix huge vmap false positive
 
-This simply adds proper support for panel backlights that can be controlled
-via VESA's backlight control protocol, but which also require that we
-enable and disable the backlight via PWM instead of via the DPCD interface.
-We also enable this by default, in order to fix some people's backlights
-that were broken by not having this enabled.
+pmd_huge() is defined to false when HUGETLB_PAGE is not configured, but
+the vmap code still installs huge PMDs. This leads to false bad PMD
+errors when vunmapping because it is not seen as a huge PTE, and the bad
+PMD check catches it. The end result may not be much more serious than
+some bad pmd warning messages, because the pmd_none_or_clear_bad() does
+what we wanted and clears the huge PTE anyway.
 
-For reference, backlights that require this and use VESA's backlight
-interface tend to be laptops with hybrid GPUs, but this very well may
-change in the future.
+Fix this by checking pmd_is_leaf(), which checks for a PTE regardless of
+config options. The whole huge/large/leaf stuff is a tangled mess but
+that's kernel-wide and not something we can improve much in arch/powerpc
+code.
 
-v4:
-* Make sure that we call intel_backlight_level_to_pwm() in
-  intel_dp_aux_vesa_enable_backlight() - vsyrjala
+pmd_page(), pud_page(), etc., called by vmalloc_to_page() on huge vmaps
+can similarly trigger a false VM_BUG_ON when CONFIG_HUGETLB_PAGE=n, so
+those checks are adjusted. The checks were added by commit d6eacedd1f0e
+("powerpc/book3s: Use config independent helpers for page table walk"),
+while implementing a similar fix for other page table walking functions.
 
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://gitlab.freedesktop.org/drm/intel/-/issues/3680
-Fixes: fe7d52bccab6 ("drm/i915/dp: Don't use DPCD backlights that need PWM enable/disable")
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: <stable@vger.kernel.org> # v5.12+
-Link: https://patchwork.freedesktop.org/patch/msgid/20211105183342.130810-2-lyude@redhat.com
+Fixes: d909f9109c30 ("powerpc/64s/radix: Enable HAVE_ARCH_HUGE_VMAP")
+Cc: stable@vger.kernel.org # v5.3+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211216103342.609192-1-npiggin@gmail.com
 
-diff --git a/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c b/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
-index 569d17b4d00f..f05b71c01b8e 100644
---- a/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp_aux_backlight.c
-@@ -293,6 +293,13 @@ intel_dp_aux_vesa_enable_backlight(const struct intel_crtc_state *crtc_state,
- 	struct intel_panel *panel = &connector->panel;
- 	struct intel_dp *intel_dp = enc_to_intel_dp(connector->encoder);
+diff --git a/arch/powerpc/mm/book3s64/radix_pgtable.c b/arch/powerpc/mm/book3s64/radix_pgtable.c
+index 3c4f0ebe5df8..ca23f5d1883a 100644
+--- a/arch/powerpc/mm/book3s64/radix_pgtable.c
++++ b/arch/powerpc/mm/book3s64/radix_pgtable.c
+@@ -1076,7 +1076,7 @@ int pud_set_huge(pud_t *pud, phys_addr_t addr, pgprot_t prot)
  
-+	if (!panel->backlight.edp.vesa.info.aux_enable) {
-+		u32 pwm_level = intel_backlight_invert_pwm_level(connector,
-+								 panel->backlight.pwm_level_max);
-+
-+		panel->backlight.pwm_funcs->enable(crtc_state, conn_state, pwm_level);
-+	}
-+
- 	drm_edp_backlight_enable(&intel_dp->aux, &panel->backlight.edp.vesa.info, level);
- }
- 
-@@ -304,6 +311,10 @@ static void intel_dp_aux_vesa_disable_backlight(const struct drm_connector_state
- 	struct intel_dp *intel_dp = enc_to_intel_dp(connector->encoder);
- 
- 	drm_edp_backlight_disable(&intel_dp->aux, &panel->backlight.edp.vesa.info);
-+
-+	if (!panel->backlight.edp.vesa.info.aux_enable)
-+		panel->backlight.pwm_funcs->disable(old_conn_state,
-+						    intel_backlight_invert_pwm_level(connector, 0));
- }
- 
- static int intel_dp_aux_vesa_setup_backlight(struct intel_connector *connector, enum pipe pipe)
-@@ -321,6 +332,15 @@ static int intel_dp_aux_vesa_setup_backlight(struct intel_connector *connector,
- 	if (ret < 0)
- 		return ret;
- 
-+	if (!panel->backlight.edp.vesa.info.aux_enable) {
-+		ret = panel->backlight.pwm_funcs->setup(connector, pipe);
-+		if (ret < 0) {
-+			drm_err(&i915->drm,
-+				"Failed to setup PWM backlight controls for eDP backlight: %d\n",
-+				ret);
-+			return ret;
-+		}
-+	}
- 	panel->backlight.max = panel->backlight.edp.vesa.info.max;
- 	panel->backlight.min = 0;
- 	if (current_mode == DP_EDP_BACKLIGHT_CONTROL_MODE_DPCD) {
-@@ -340,12 +360,7 @@ intel_dp_aux_supports_vesa_backlight(struct intel_connector *connector)
- 	struct intel_dp *intel_dp = intel_attached_dp(connector);
- 	struct drm_i915_private *i915 = dp_to_i915(intel_dp);
- 
--	/* TODO: We currently only support AUX only backlight configurations, not backlights which
--	 * require a mix of PWM and AUX controls to work. In the mean time, these machines typically
--	 * work just fine using normal PWM controls anyway.
--	 */
--	if ((intel_dp->edp_dpcd[1] & DP_EDP_BACKLIGHT_AUX_ENABLE_CAP) &&
--	    drm_edp_backlight_supported(intel_dp->edp_dpcd)) {
-+	if (drm_edp_backlight_supported(intel_dp->edp_dpcd)) {
- 		drm_dbg_kms(&i915->drm, "AUX Backlight Control Supported!\n");
- 		return true;
+ int pud_clear_huge(pud_t *pud)
+ {
+-	if (pud_huge(*pud)) {
++	if (pud_is_leaf(*pud)) {
+ 		pud_clear(pud);
+ 		return 1;
  	}
+@@ -1123,7 +1123,7 @@ int pmd_set_huge(pmd_t *pmd, phys_addr_t addr, pgprot_t prot)
+ 
+ int pmd_clear_huge(pmd_t *pmd)
+ {
+-	if (pmd_huge(*pmd)) {
++	if (pmd_is_leaf(*pmd)) {
+ 		pmd_clear(pmd);
+ 		return 1;
+ 	}
+diff --git a/arch/powerpc/mm/pgtable_64.c b/arch/powerpc/mm/pgtable_64.c
+index 78c8cf01db5f..175aabf101e8 100644
+--- a/arch/powerpc/mm/pgtable_64.c
++++ b/arch/powerpc/mm/pgtable_64.c
+@@ -102,7 +102,8 @@ EXPORT_SYMBOL(__pte_frag_size_shift);
+ struct page *p4d_page(p4d_t p4d)
+ {
+ 	if (p4d_is_leaf(p4d)) {
+-		VM_WARN_ON(!p4d_huge(p4d));
++		if (!IS_ENABLED(CONFIG_HAVE_ARCH_HUGE_VMAP))
++			VM_WARN_ON(!p4d_huge(p4d));
+ 		return pte_page(p4d_pte(p4d));
+ 	}
+ 	return virt_to_page(p4d_pgtable(p4d));
+@@ -112,7 +113,8 @@ struct page *p4d_page(p4d_t p4d)
+ struct page *pud_page(pud_t pud)
+ {
+ 	if (pud_is_leaf(pud)) {
+-		VM_WARN_ON(!pud_huge(pud));
++		if (!IS_ENABLED(CONFIG_HAVE_ARCH_HUGE_VMAP))
++			VM_WARN_ON(!pud_huge(pud));
+ 		return pte_page(pud_pte(pud));
+ 	}
+ 	return virt_to_page(pud_pgtable(pud));
+@@ -125,7 +127,13 @@ struct page *pud_page(pud_t pud)
+ struct page *pmd_page(pmd_t pmd)
+ {
+ 	if (pmd_is_leaf(pmd)) {
+-		VM_WARN_ON(!(pmd_large(pmd) || pmd_huge(pmd)));
++		/*
++		 * vmalloc_to_page may be called on any vmap address (not only
++		 * vmalloc), and it uses pmd_page() etc., when huge vmap is
++		 * enabled so these checks can't be used.
++		 */
++		if (!IS_ENABLED(CONFIG_HAVE_ARCH_HUGE_VMAP))
++			VM_WARN_ON(!(pmd_large(pmd) || pmd_huge(pmd)));
+ 		return pte_page(pmd_pte(pmd));
+ 	}
+ 	return virt_to_page(pmd_page_vaddr(pmd));
 
