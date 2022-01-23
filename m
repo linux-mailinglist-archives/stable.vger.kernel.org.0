@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0626496F1C
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 01:16:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DEFE496F19
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 01:16:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235631AbiAWAQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Jan 2022 19:16:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36712 "EHLO
+        id S231995AbiAWAQX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Jan 2022 19:16:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235626AbiAWAOd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 19:14:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79617C0617AE;
-        Sat, 22 Jan 2022 16:13:22 -0800 (PST)
+        with ESMTP id S235649AbiAWAOe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 19:14:34 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0FEAC0617BF;
+        Sat, 22 Jan 2022 16:13:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 161B760F9D;
+        by sin.source.kernel.org (Postfix) with ESMTPS id B750ACE0025;
+        Sun, 23 Jan 2022 00:13:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32E59C340E2;
         Sun, 23 Jan 2022 00:13:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DA02C340E9;
-        Sun, 23 Jan 2022 00:13:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642896801;
-        bh=94AMPHSOMB0HPZgdjyDj+IRBX/Gt+wzDLbqEMbirc/s=;
+        s=k20201202; t=1642896803;
+        bh=sRFbfziYn/GXziu1+HwHd/arn8ZkRrexYZMBH0GRhpY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lnT93xyKiHWjjLYtEC9vsXvRzWlz9lejZJWyhRB/GFFVSUKabPPvRshZ673jDuA/0
-         jH0KKUF/2CAwH3dliTrItQQWyB5ugpEHOPRKwGh8af+ey4jhENo7KwPgUoXTgdlhwM
-         +JcQPbmmBitbEFrfmgS6PmuLkETabtHjaHFP1PIWYghxVcD7z8flUYxZERB40RvDrg
-         JF9dPlbcPGV/B09ntpHZQ3TJtFUP4w8fsTXY8zL9Xy2p0BPwIc4OkK5PrhY+rMzuzy
-         uVvT5NgJHD8HG2f7rPpzMnztkGjq5vhGSozw+nruhnqvJ9oXsLB+CGzX+Oavwh6A2S
-         Ta4XCIjtmiHNw==
+        b=dCVHQs8Ve+cSPdqfTU9rACArpCOC1lwB9DSj/HHEtO7TYr89fYsuRquUq9Hr7tEmN
+         DV5VLXim2cMnLUjr7RD7oYSrXFeSZHdbX27eNefB85TIOK1vtL3li+xOXhNlY1bqUs
+         sf/uU8oBsoFN4NJpICQSgBWhugtAXLxRU0HmV5BcNt1LGKorylbmkXhn00t+YKmPqg
+         JIsFkgIJ/KiSvW8eonC+xS48AgYeOhfkm5rvtYhmsLsxp3T5ykuHuhBV0k5Zuh/C9f
+         i4XViBx64v3nByTsQyEtgqFFH2d1EURp0gFS19tSMpOc17Mg8Js4gPhus6nA2ekPXo
+         X/WBCJJ2vjdcg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Xianting Tian <xianting.tian@linux.alibaba.com>,
-        "Michael S . Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, kvm@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 8/9] vhost/test: fix memory leak of vhost virtqueues
-Date:   Sat, 22 Jan 2022 19:12:57 -0500
-Message-Id: <20220123001258.2460594-8-sashal@kernel.org>
+Cc:     OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
+        syzbot+ac94ae5f68b84197f41c@syzkaller.appspotmail.com,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 9/9] block: Fix wrong offset in bio_truncate()
+Date:   Sat, 22 Jan 2022 19:12:58 -0500
+Message-Id: <20220123001258.2460594-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220123001258.2460594-1-sashal@kernel.org>
 References: <20220123001258.2460594-1-sashal@kernel.org>
@@ -52,33 +51,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xianting Tian <xianting.tian@linux.alibaba.com>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 
-[ Upstream commit 080063920777af65105e5953e2851e036376e3ea ]
+[ Upstream commit 3ee859e384d453d6ac68bfd5971f630d9fa46ad3 ]
 
-We need free the vqs in .release(), which are allocated in .open().
+bio_truncate() clears the buffer outside of last block of bdev, however
+current bio_truncate() is using the wrong offset of page. So it can
+return the uninitialized data.
 
-Signed-off-by: Xianting Tian <xianting.tian@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20211228030924.3468439-1-xianting.tian@linux.alibaba.com
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
+This happened when both of truncated/corrupted FS and userspace (via
+bdev) are trying to read the last of bdev.
+
+Reported-by: syzbot+ac94ae5f68b84197f41c@syzkaller.appspotmail.com
+Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/875yqt1c9g.fsf@mail.parknet.co.jp
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vhost/test.c | 1 +
- 1 file changed, 1 insertion(+)
+ block/bio.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vhost/test.c b/drivers/vhost/test.c
-index a09dedc79f682..05740cba1cd89 100644
---- a/drivers/vhost/test.c
-+++ b/drivers/vhost/test.c
-@@ -166,6 +166,7 @@ static int vhost_test_release(struct inode *inode, struct file *f)
- 	/* We do an extra flush before freeing memory,
- 	 * since jobs can re-queue themselves. */
- 	vhost_test_flush(n);
-+	kfree(n->dev.vqs);
- 	kfree(n);
- 	return 0;
- }
+diff --git a/block/bio.c b/block/bio.c
+index 0703a208ca248..f8d26ce7b61b0 100644
+--- a/block/bio.c
++++ b/block/bio.c
+@@ -575,7 +575,8 @@ void bio_truncate(struct bio *bio, unsigned new_size)
+ 				offset = new_size - done;
+ 			else
+ 				offset = 0;
+-			zero_user(bv.bv_page, offset, bv.bv_len - offset);
++			zero_user(bv.bv_page, bv.bv_offset + offset,
++				  bv.bv_len - offset);
+ 			truncated = true;
+ 		}
+ 		done += bv.bv_len;
 -- 
 2.34.1
 
