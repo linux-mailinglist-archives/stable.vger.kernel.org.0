@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F3E64972E0
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:10:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 739764972E1
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:10:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234269AbiAWQKr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 11:10:47 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:43204 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232971AbiAWQKr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:10:47 -0500
+        id S238460AbiAWQKy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 11:10:54 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:33858 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232971AbiAWQKy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:10:54 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 638F4B80D3B
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:10:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1771C340E8;
-        Sun, 23 Jan 2022 16:10:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 15B2860F54
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:10:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6277C340E2;
+        Sun, 23 Jan 2022 16:10:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642954245;
-        bh=5iMQ8G4LXWECoKUBiq3FCjVBypJTuYlgnVxysdRZjD4=;
+        s=korg; t=1642954253;
+        bh=C0J7dQO2IJ4QV7si2ABh+D+2A8d4U7gfZDE1f5VdpBw=;
         h=Subject:To:Cc:From:Date:From;
-        b=liro9a5gt0vNXLe8xMF1zRTnsRmiQLucSYKEsaGcj1xsv/Z7EpFh5bnYZ3tcyuutD
-         aT99GoTHtoLpPbbeRKDcyr8CjdZmYrxznO+Fltu+4sT+/7xXTIvPReYvvHcbjOWEEz
-         zCs6M8BxJPWxazh3LAQOUkdyB0BDDjKrH8zeMPAg=
-Subject: FAILED: patch "[PATCH] crypto: stm32/crc32 - Fix kernel BUG triggered in probe()" failed to apply to 4.19-stable tree
+        b=cou7N7G+OuB1ti+6Ld3vtEzTCKYfjjjCBfcoYsqoX9ias2WL7DYFzRk3a94Mrfdyu
+         UsRJN03LxQLpnv23soJzj2E3ChkzO+lG+Zo9WKwzNZ2thH9+KYQcUgkH3lpqBYOUhC
+         jmggczEa0Nlp7NxJGw3GEB1kt/iBBE8ypTE1HKl8=
+Subject: FAILED: patch "[PATCH] crypto: stm32/crc32 - Fix kernel BUG triggered in probe()" failed to apply to 4.14-stable tree
 To:     marex@denx.de, alexandre.torgue@foss.st.com,
         fabien.dessenne@st.com, herbert@gondor.apana.org.au,
         lionel.debieve@st.com, nicolas.toromanoff@foss.st.com,
         nicolas.toromanoff@st.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jan 2022 17:10:41 +0100
-Message-ID: <16429542415161@kroah.com>
+Date:   Sun, 23 Jan 2022 17:10:42 +0100
+Message-ID: <164295424225123@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
