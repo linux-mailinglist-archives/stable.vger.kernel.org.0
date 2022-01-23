@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51721497327
+	by mail.lfdr.de (Postfix) with ESMTP id 9B78C497328
 	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:48:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233204AbiAWQsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 11:48:09 -0500
-Received: from sin.source.kernel.org ([145.40.73.55]:36106 "EHLO
-        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230022AbiAWQsJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:48:09 -0500
+        id S230022AbiAWQsK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 11:48:10 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:53134 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238885AbiAWQsK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:48:10 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C88BDCE0EC7
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:48:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92F7FC340E5;
-        Sun, 23 Jan 2022 16:48:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BE09E60C26
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:48:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96588C340E4;
+        Sun, 23 Jan 2022 16:48:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642956486;
-        bh=n1FnLWDs62XH7GgvaOlC0Fj8jDKJD2BNBL0kvkZzmAQ=;
+        s=korg; t=1642956489;
+        bh=yky/2GflyBF171RfibffVyY0n6N2v8j+jbNVv53kpmw=;
         h=Subject:To:Cc:From:Date:From;
-        b=dKN24VJ5QdFpnfLOR4lckx8+IK7i6MpJ+vbiVTyBQtsdQpFqIRmQM8shBxIIhk5Yg
-         f2pe0uOhWFpnlVkR+zdR83CDcUESUGPa9xzZSVYABc7Cdv8zKUsjD7grs56hxQXfOR
-         Kj7h2SRghhf8ONvh0KANlVYhFVwLcu2VyvJQuvqw=
-Subject: FAILED: patch "[PATCH] tracing: Add test for user space strings when filtering on" failed to apply to 5.10-stable tree
+        b=wW5iCXUhOLhHp7bxUSJwRLw72RBag+87Zk1nulxM0Knd99//JiVMHBQN2LeLhJBoG
+         OKKbnz9OsKi+DN5lj5mrQC67rH1Hc8HHIlqT1P3DajJxys2Yew74Da7AUdYyq//db7
+         nJAknTtCcKvgy4d5I2cf21Uh+XZ+vtD2U248kSIM=
+Subject: FAILED: patch "[PATCH] tracing: Add test for user space strings when filtering on" failed to apply to 5.4-stable tree
 To:     rostedt@goodmis.org, akpm@linux-foundation.org,
         kernelfans@gmail.com, mhiramat@kernel.org, mingo@kernel.org,
         zanussi@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jan 2022 17:47:58 +0100
-Message-ID: <164295647858171@kroah.com>
+Date:   Sun, 23 Jan 2022 17:48:00 +0100
+Message-ID: <1642956480200111@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -41,7 +41,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
