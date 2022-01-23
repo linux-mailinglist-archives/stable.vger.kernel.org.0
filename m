@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15D26497217
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 15:26:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E30849721A
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 15:27:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236737AbiAWO05 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 09:26:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51334 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232290AbiAWO05 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 09:26:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4388C06173B
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 06:26:56 -0800 (PST)
+        id S233465AbiAWO1W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 09:27:22 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38304 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232290AbiAWO1V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 09:27:21 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7FF22B80CF1
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 14:26:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D531C340E2;
-        Sun, 23 Jan 2022 14:26:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E281860C97
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 14:27:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9119C340E2;
+        Sun, 23 Jan 2022 14:27:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642948014;
-        bh=qcsOQyCcX9MLpqsawgQR4aVFkNqaJdHR9+zzYfZoohE=;
+        s=korg; t=1642948040;
+        bh=4mPHJADAV8kbFcRs8GnMPA5wPep4OizT+Hi2r2DHSqM=;
         h=Subject:To:Cc:From:Date:From;
-        b=C4i1S9g16ZVMlxhlTDR0GRAMx9rC+VV37WdSrHzgDV7EVtQc+W8WJtdqXyFZIo28O
-         wohHxMFXl9eatPCHezu91IP1lDbbWFaaMRXnmPa3ijiLK+Tf/RATG9peq2CsgVBOHh
-         3ZvS3+L5N9ZPiLk+/Rdrf7ZV/2r3saq0NJHTufns=
-Subject: FAILED: patch "[PATCH] iommu/io-pgtable-arm-v7s: Add error handle for page table" failed to apply to 4.14-stable tree
-To:     yf.wang@mediatek.com, robin.murphy@arm.com, stable@vger.kernel.org,
-        will@kernel.org
+        b=PWdUdiPdWCdu72tnySdgCh64KdsjOOLER8vl4p5ggTFbKPEGQlZQBjXQr5rxo8TaE
+         kTmHnEYCOskiRbByUGJMQdK1rH4PHifv3pK0tDD/+2bwx9r0B6JMhle8SWP75ZDVMQ
+         00+B8o8ANQyKURZHPQqa38kODjpd/0E3YxKq2bVU=
+Subject: FAILED: patch "[PATCH] drm/tegra: Add back arm_iommu_detach_device()" failed to apply to 5.10-stable tree
+To:     digetx@gmail.com, treding@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jan 2022 15:26:51 +0100
-Message-ID: <1642948011331@kroah.com>
+Date:   Sun, 23 Jan 2022 15:27:17 +0100
+Message-ID: <1642948037215200@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -54,48 +50,55 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a556cfe4cabc6d79cbb7733f118bbb420b376fe6 Mon Sep 17 00:00:00 2001
-From: Yunfei Wang <yf.wang@mediatek.com>
-Date: Tue, 7 Dec 2021 19:33:15 +0800
-Subject: [PATCH] iommu/io-pgtable-arm-v7s: Add error handle for page table
- allocation failure
+From d210919dbdc8a82c676cc3e3c370b1802be63124 Mon Sep 17 00:00:00 2001
+From: Dmitry Osipenko <digetx@gmail.com>
+Date: Sat, 4 Dec 2021 17:58:49 +0300
+Subject: [PATCH] drm/tegra: Add back arm_iommu_detach_device()
 
-In __arm_v7s_alloc_table function:
-iommu call kmem_cache_alloc to allocate page table, this function
-allocate memory may fail, when kmem_cache_alloc fails to allocate
-table, call virt_to_phys will be abnomal and return unexpected phys
-and goto out_free, then call kmem_cache_free to release table will
-trigger KE, __get_free_pages and free_pages have similar problem,
-so add error handle for page table allocation failure.
+DMA buffers of 2D/3D engines aren't mapped properly when
+CONFIG_ARM_DMA_USE_IOMMU=y. The memory management code of Tegra DRM driver
+has a longstanding overhaul overdue and it's not obvious where the problem
+is in this case. Hence let's add back the old workaround which we already
+had sometime before. It explicitly detaches DRM devices from the offending
+implicit IOMMU domain. This fixes a completely broken 2d/3d drivers in
+case of ARM32 multiplatform kernel config.
 
-Fixes: 29859aeb8a6e ("iommu/io-pgtable-arm-v7s: Abort allocation when table address overflows the PTE")
-Signed-off-by: Yunfei Wang <yf.wang@mediatek.com>
-Cc: <stable@vger.kernel.org> # 5.10.*
-Acked-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/20211207113315.29109-1-yf.wang@mediatek.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: fa6661b7aa0b ("drm/tegra: Optionally attach clients to the IOMMU")
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 
-diff --git a/drivers/iommu/io-pgtable-arm-v7s.c b/drivers/iommu/io-pgtable-arm-v7s.c
-index bfb6acb651e5..be066c1503d3 100644
---- a/drivers/iommu/io-pgtable-arm-v7s.c
-+++ b/drivers/iommu/io-pgtable-arm-v7s.c
-@@ -246,13 +246,17 @@ static void *__arm_v7s_alloc_table(int lvl, gfp_t gfp,
- 			__GFP_ZERO | ARM_V7S_TABLE_GFP_DMA, get_order(size));
- 	else if (lvl == 2)
- 		table = kmem_cache_zalloc(data->l2_tables, gfp);
+diff --git a/drivers/gpu/drm/tegra/drm.c b/drivers/gpu/drm/tegra/drm.c
+index dc04ce329be3..e9de91a4e7e8 100644
+--- a/drivers/gpu/drm/tegra/drm.c
++++ b/drivers/gpu/drm/tegra/drm.c
+@@ -22,6 +22,10 @@
+ #include <drm/drm_prime.h>
+ #include <drm/drm_vblank.h>
+ 
++#if IS_ENABLED(CONFIG_ARM_DMA_USE_IOMMU)
++#include <asm/dma-iommu.h>
++#endif
 +
-+	if (!table)
-+		return NULL;
+ #include "dc.h"
+ #include "drm.h"
+ #include "gem.h"
+@@ -945,6 +949,17 @@ int host1x_client_iommu_attach(struct host1x_client *client)
+ 	struct iommu_group *group = NULL;
+ 	int err;
+ 
++#if IS_ENABLED(CONFIG_ARM_DMA_USE_IOMMU)
++	if (client->dev->archdata.mapping) {
++		struct dma_iommu_mapping *mapping =
++				to_dma_iommu_mapping(client->dev);
++		arm_iommu_detach_device(client->dev);
++		arm_iommu_release_mapping(mapping);
 +
- 	phys = virt_to_phys(table);
- 	if (phys != (arm_v7s_iopte)phys) {
- 		/* Doesn't fit in PTE */
- 		dev_err(dev, "Page table does not fit in PTE: %pa", &phys);
- 		goto out_free;
- 	}
--	if (table && !cfg->coherent_walk) {
-+	if (!cfg->coherent_walk) {
- 		dma = dma_map_single(dev, table, size, DMA_TO_DEVICE);
- 		if (dma_mapping_error(dev, dma))
- 			goto out_free;
++		domain = iommu_get_domain_for_dev(client->dev);
++	}
++#endif
++
+ 	/*
+ 	 * If the host1x client is already attached to an IOMMU domain that is
+ 	 * not the shared IOMMU domain, don't try to attach it to a different
 
