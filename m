@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE73C4972DF
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:09:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F3E64972E0
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:10:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238454AbiAWQJi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 11:09:38 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:42692 "EHLO
+        id S234269AbiAWQKr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 11:10:47 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:43204 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234328AbiAWQJh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:09:37 -0500
+        with ESMTP id S232971AbiAWQKr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:10:47 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C7D8BB80DD1
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:09:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0694FC340E2;
-        Sun, 23 Jan 2022 16:09:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 638F4B80D3B
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:10:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1771C340E8;
+        Sun, 23 Jan 2022 16:10:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642954175;
-        bh=C6TsRQJwZ1QTDpGME55jl1IQzkPIbHd8BMBjAI3h9Dw=;
+        s=korg; t=1642954245;
+        bh=5iMQ8G4LXWECoKUBiq3FCjVBypJTuYlgnVxysdRZjD4=;
         h=Subject:To:Cc:From:Date:From;
-        b=zRalJGejNkA8wKrhM6MqiChsOWGSnIMgY3El08noBD4kwQXlgEUqzZ6Xlj2P88e92
-         cmk/hQPGllHEBV8plT4wRZFMsWUXvhRceIQXRxYAcegEYl+3RwRslgh0K4rWz4PKwK
-         J7R1LYRMnDaFhlyNT5fu5sQbbk/OUab7ooAQ1txU=
-Subject: FAILED: patch "[PATCH] rpmsg: core: Clean up resources on announce_create failure." failed to apply to 4.19-stable tree
-To:     arnaud.pouliquen@foss.st.com, bjorn.andersson@linaro.org,
-        mathieu.poirier@linaro.org, stable@vger.kernel.org
+        b=liro9a5gt0vNXLe8xMF1zRTnsRmiQLucSYKEsaGcj1xsv/Z7EpFh5bnYZ3tcyuutD
+         aT99GoTHtoLpPbbeRKDcyr8CjdZmYrxznO+Fltu+4sT+/7xXTIvPReYvvHcbjOWEEz
+         zCs6M8BxJPWxazh3LAQOUkdyB0BDDjKrH8zeMPAg=
+Subject: FAILED: patch "[PATCH] crypto: stm32/crc32 - Fix kernel BUG triggered in probe()" failed to apply to 4.19-stable tree
+To:     marex@denx.de, alexandre.torgue@foss.st.com,
+        fabien.dessenne@st.com, herbert@gondor.apana.org.au,
+        lionel.debieve@st.com, nicolas.toromanoff@foss.st.com,
+        nicolas.toromanoff@st.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jan 2022 17:09:22 +0100
-Message-ID: <164295416216567@kroah.com>
+Date:   Sun, 23 Jan 2022 17:10:41 +0100
+Message-ID: <16429542415161@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -51,55 +53,62 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 8066c615cb69b7da8a94f59379847b037b3a5e46 Mon Sep 17 00:00:00 2001
-From: Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>
-Date: Mon, 6 Dec 2021 20:07:58 +0100
-Subject: [PATCH] rpmsg: core: Clean up resources on announce_create failure.
+From 29009604ad4e3ef784fd9b9fef6f23610ddf633d Mon Sep 17 00:00:00 2001
+From: Marek Vasut <marex@denx.de>
+Date: Mon, 20 Dec 2021 20:50:22 +0100
+Subject: [PATCH] crypto: stm32/crc32 - Fix kernel BUG triggered in probe()
 
-During the rpmsg_dev_probe, if rpdev->ops->announce_create returns an
-error, the rpmsg device and default endpoint should be freed before
-exiting the function.
+The include/linux/crypto.h struct crypto_alg field cra_driver_name description
+states "Unique name of the transformation provider. " ... " this contains the
+name of the chip or provider and the name of the transformation algorithm."
 
-Fixes: 5e619b48677c ("rpmsg: Split rpmsg core and virtio backend")
-Suggested-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211206190758.10004-1-arnaud.pouliquen@foss.st.com
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+In case of the stm32-crc driver, field cra_driver_name is identical for all
+registered transformation providers and set to the name of the driver itself,
+which is incorrect. This patch fixes it by assigning a unique cra_driver_name
+to each registered transformation provider.
 
-diff --git a/drivers/rpmsg/rpmsg_core.c b/drivers/rpmsg/rpmsg_core.c
-index f031b2b1b21c..d9e612f4f0f2 100644
---- a/drivers/rpmsg/rpmsg_core.c
-+++ b/drivers/rpmsg/rpmsg_core.c
-@@ -540,13 +540,25 @@ static int rpmsg_dev_probe(struct device *dev)
- 	err = rpdrv->probe(rpdev);
- 	if (err) {
- 		dev_err(dev, "%s: failed: %d\n", __func__, err);
--		if (ept)
--			rpmsg_destroy_ept(ept);
--		goto out;
-+		goto destroy_ept;
- 	}
- 
--	if (ept && rpdev->ops->announce_create)
-+	if (ept && rpdev->ops->announce_create) {
- 		err = rpdev->ops->announce_create(rpdev);
-+		if (err) {
-+			dev_err(dev, "failed to announce creation\n");
-+			goto remove_rpdev;
-+		}
-+	}
-+
-+	return 0;
-+
-+remove_rpdev:
-+	if (rpdrv->remove)
-+		rpdrv->remove(rpdev);
-+destroy_ept:
-+	if (ept)
-+		rpmsg_destroy_ept(ept);
- out:
- 	return err;
- }
+The kernel crash is triggered when the driver calls crypto_register_shashes()
+which calls crypto_register_shash(), which calls crypto_register_alg(), which
+calls __crypto_register_alg(), which returns -EEXIST, which is propagated
+back through this call chain. Upon -EEXIST from crypto_register_shash(), the
+crypto_register_shashes() starts unregistering the providers back, and calls
+crypto_unregister_shash(), which calls crypto_unregister_alg(), and this is
+where the BUG() triggers due to incorrect cra_refcnt.
+
+Fixes: b51dbe90912a ("crypto: stm32 - Support for STM32 CRC32 crypto module")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: <stable@vger.kernel.org> # 4.12+
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Cc: Fabien Dessenne <fabien.dessenne@st.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Lionel Debieve <lionel.debieve@st.com>
+Cc: Nicolas Toromanoff <nicolas.toromanoff@st.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-stm32@st-md-mailman.stormreply.com
+To: linux-crypto@vger.kernel.org
+Acked-by: Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+
+diff --git a/drivers/crypto/stm32/stm32-crc32.c b/drivers/crypto/stm32/stm32-crc32.c
+index 75867c0b0017..be1bf39a317d 100644
+--- a/drivers/crypto/stm32/stm32-crc32.c
++++ b/drivers/crypto/stm32/stm32-crc32.c
+@@ -279,7 +279,7 @@ static struct shash_alg algs[] = {
+ 		.digestsize     = CHKSUM_DIGEST_SIZE,
+ 		.base           = {
+ 			.cra_name               = "crc32",
+-			.cra_driver_name        = DRIVER_NAME,
++			.cra_driver_name        = "stm32-crc32-crc32",
+ 			.cra_priority           = 200,
+ 			.cra_flags		= CRYPTO_ALG_OPTIONAL_KEY,
+ 			.cra_blocksize          = CHKSUM_BLOCK_SIZE,
+@@ -301,7 +301,7 @@ static struct shash_alg algs[] = {
+ 		.digestsize     = CHKSUM_DIGEST_SIZE,
+ 		.base           = {
+ 			.cra_name               = "crc32c",
+-			.cra_driver_name        = DRIVER_NAME,
++			.cra_driver_name        = "stm32-crc32-crc32c",
+ 			.cra_priority           = 200,
+ 			.cra_flags		= CRYPTO_ALG_OPTIONAL_KEY,
+ 			.cra_blocksize          = CHKSUM_BLOCK_SIZE,
 
