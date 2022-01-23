@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B90A449733A
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:51:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EC7149733B
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:52:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234623AbiAWQve (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 11:51:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57450 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231686AbiAWQve (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:51:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32788C06173B
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 08:51:34 -0800 (PST)
+        id S238943AbiAWQwG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 11:52:06 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:58044 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238942AbiAWQwF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:52:05 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C7CFD60AB1
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:51:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE6BFC340E2;
-        Sun, 23 Jan 2022 16:51:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 91F31B80DC1
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:52:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A07C9C340E2;
+        Sun, 23 Jan 2022 16:52:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642956693;
-        bh=CBkX1oZGsWu/ivtXlM2Tv/I+pY5LKIfXU4E/4dUcSbQ=;
+        s=korg; t=1642956723;
+        bh=pZCXgVrZgLcGH2NyrnYOQsZT7W5CIEeOv9iODZ/2Z5g=;
         h=Subject:To:Cc:From:Date:From;
-        b=Y/rxV9kUsI5Plx8c9yH6lheWrtzftsAcytLxRSnnxeYabTaNP9eNgK3dWpwi93aMi
-         YWl9zT9k1QhSKt3Hxlj3YjIYafgekW0C3cW0ykHotmUfIPnijdHfkVPvkO3p5nOoZV
-         gVHZyPDNENIwkM7K/PQBDaUV2ILJWAY5eXL4itL8=
-Subject: FAILED: patch "[PATCH] powerpc/64s/radix: Fix huge vmap false positive" failed to apply to 5.4-stable tree
-To:     npiggin@gmail.com, mpe@ellerman.id.au
+        b=2qL5Ja2zWVJQNaFJFse5rmdJcGhpQp4zXfKmr0LN8XF6xp2DGYFJCnzpS69/hnk3A
+         55JyXJmHP6XPZ0bAmFUJF7cHkeoJvGtAfoCFrDLaKA39wwHM0Cr6SM95WU0ybJH8Os
+         VnyYWJ4Ur2s+rp72lvKdfuSgCailw0g23c2Ybl0s=
+Subject: FAILED: patch "[PATCH] powerpc/32: Fix boot failure with GCC latent entropy plugin" failed to apply to 4.9-stable tree
+To:     christophe.leroy@csgroup.eu, erhard_f@mailbox.org,
+        mpe@ellerman.id.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jan 2022 17:51:30 +0100
-Message-ID: <1642956690213219@kroah.com>
+Date:   Sun, 23 Jan 2022 17:51:55 +0100
+Message-ID: <164295671514541@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -53,94 +51,53 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 467ba14e1660b52a2f9338b484704c461bd23019 Mon Sep 17 00:00:00 2001
-From: Nicholas Piggin <npiggin@gmail.com>
-Date: Thu, 16 Dec 2021 20:33:42 +1000
-Subject: [PATCH] powerpc/64s/radix: Fix huge vmap false positive
+From bba496656a73fc1d1330b49c7f82843836e9feb1 Mon Sep 17 00:00:00 2001
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
+Date: Wed, 22 Dec 2021 13:07:31 +0000
+Subject: [PATCH] powerpc/32: Fix boot failure with GCC latent entropy plugin
 
-pmd_huge() is defined to false when HUGETLB_PAGE is not configured, but
-the vmap code still installs huge PMDs. This leads to false bad PMD
-errors when vunmapping because it is not seen as a huge PTE, and the bad
-PMD check catches it. The end result may not be much more serious than
-some bad pmd warning messages, because the pmd_none_or_clear_bad() does
-what we wanted and clears the huge PTE anyway.
+Boot fails with GCC latent entropy plugin enabled.
 
-Fix this by checking pmd_is_leaf(), which checks for a PTE regardless of
-config options. The whole huge/large/leaf stuff is a tangled mess but
-that's kernel-wide and not something we can improve much in arch/powerpc
-code.
+This is due to early boot functions trying to access 'latent_entropy'
+global data while the kernel is not relocated at its final
+destination yet.
 
-pmd_page(), pud_page(), etc., called by vmalloc_to_page() on huge vmaps
-can similarly trigger a false VM_BUG_ON when CONFIG_HUGETLB_PAGE=n, so
-those checks are adjusted. The checks were added by commit d6eacedd1f0e
-("powerpc/book3s: Use config independent helpers for page table walk"),
-while implementing a similar fix for other page table walking functions.
+As there is no way to tell GCC to use PTRRELOC() to access it,
+disable latent entropy plugin in early_32.o and feature-fixups.o and
+code-patching.o
 
-Fixes: d909f9109c30 ("powerpc/64s/radix: Enable HAVE_ARCH_HUGE_VMAP")
-Cc: stable@vger.kernel.org # v5.3+
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Fixes: 38addce8b600 ("gcc-plugins: Add latent_entropy plugin")
+Cc: stable@vger.kernel.org # v4.9+
+Reported-by: Erhard Furtner <erhard_f@mailbox.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211216103342.609192-1-npiggin@gmail.com
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215217
+Link: https://lore.kernel.org/r/2bac55483b8daf5b1caa163a45fa5f9cdbe18be4.1640178426.git.christophe.leroy@csgroup.eu
 
-diff --git a/arch/powerpc/mm/book3s64/radix_pgtable.c b/arch/powerpc/mm/book3s64/radix_pgtable.c
-index 3c4f0ebe5df8..ca23f5d1883a 100644
---- a/arch/powerpc/mm/book3s64/radix_pgtable.c
-+++ b/arch/powerpc/mm/book3s64/radix_pgtable.c
-@@ -1076,7 +1076,7 @@ int pud_set_huge(pud_t *pud, phys_addr_t addr, pgprot_t prot)
+diff --git a/arch/powerpc/kernel/Makefile b/arch/powerpc/kernel/Makefile
+index 5fa68c2ef1f8..36f3f5a8868d 100644
+--- a/arch/powerpc/kernel/Makefile
++++ b/arch/powerpc/kernel/Makefile
+@@ -11,6 +11,7 @@ CFLAGS_prom_init.o      += -fPIC
+ CFLAGS_btext.o		+= -fPIC
+ endif
  
- int pud_clear_huge(pud_t *pud)
- {
--	if (pud_huge(*pud)) {
-+	if (pud_is_leaf(*pud)) {
- 		pud_clear(pud);
- 		return 1;
- 	}
-@@ -1123,7 +1123,7 @@ int pmd_set_huge(pmd_t *pmd, phys_addr_t addr, pgprot_t prot)
++CFLAGS_early_32.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
+ CFLAGS_cputable.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
+ CFLAGS_prom_init.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
+ CFLAGS_btext.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
+diff --git a/arch/powerpc/lib/Makefile b/arch/powerpc/lib/Makefile
+index 3e183f4b4bda..5d1881d2e39a 100644
+--- a/arch/powerpc/lib/Makefile
++++ b/arch/powerpc/lib/Makefile
+@@ -19,6 +19,9 @@ CFLAGS_code-patching.o += -DDISABLE_BRANCH_PROFILING
+ CFLAGS_feature-fixups.o += -DDISABLE_BRANCH_PROFILING
+ endif
  
- int pmd_clear_huge(pmd_t *pmd)
- {
--	if (pmd_huge(*pmd)) {
-+	if (pmd_is_leaf(*pmd)) {
- 		pmd_clear(pmd);
- 		return 1;
- 	}
-diff --git a/arch/powerpc/mm/pgtable_64.c b/arch/powerpc/mm/pgtable_64.c
-index 78c8cf01db5f..175aabf101e8 100644
---- a/arch/powerpc/mm/pgtable_64.c
-+++ b/arch/powerpc/mm/pgtable_64.c
-@@ -102,7 +102,8 @@ EXPORT_SYMBOL(__pte_frag_size_shift);
- struct page *p4d_page(p4d_t p4d)
- {
- 	if (p4d_is_leaf(p4d)) {
--		VM_WARN_ON(!p4d_huge(p4d));
-+		if (!IS_ENABLED(CONFIG_HAVE_ARCH_HUGE_VMAP))
-+			VM_WARN_ON(!p4d_huge(p4d));
- 		return pte_page(p4d_pte(p4d));
- 	}
- 	return virt_to_page(p4d_pgtable(p4d));
-@@ -112,7 +113,8 @@ struct page *p4d_page(p4d_t p4d)
- struct page *pud_page(pud_t pud)
- {
- 	if (pud_is_leaf(pud)) {
--		VM_WARN_ON(!pud_huge(pud));
-+		if (!IS_ENABLED(CONFIG_HAVE_ARCH_HUGE_VMAP))
-+			VM_WARN_ON(!pud_huge(pud));
- 		return pte_page(pud_pte(pud));
- 	}
- 	return virt_to_page(pud_pgtable(pud));
-@@ -125,7 +127,13 @@ struct page *pud_page(pud_t pud)
- struct page *pmd_page(pmd_t pmd)
- {
- 	if (pmd_is_leaf(pmd)) {
--		VM_WARN_ON(!(pmd_large(pmd) || pmd_huge(pmd)));
-+		/*
-+		 * vmalloc_to_page may be called on any vmap address (not only
-+		 * vmalloc), and it uses pmd_page() etc., when huge vmap is
-+		 * enabled so these checks can't be used.
-+		 */
-+		if (!IS_ENABLED(CONFIG_HAVE_ARCH_HUGE_VMAP))
-+			VM_WARN_ON(!(pmd_large(pmd) || pmd_huge(pmd)));
- 		return pte_page(pmd_pte(pmd));
- 	}
- 	return virt_to_page(pmd_page_vaddr(pmd));
++CFLAGS_code-patching.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
++CFLAGS_feature-fixups.o += $(DISABLE_LATENT_ENTROPY_PLUGIN)
++
+ obj-y += alloc.o code-patching.o feature-fixups.o pmem.o
+ 
+ obj-$(CONFIG_CODE_PATCHING_SELFTEST) += test-code-patching.o
 
