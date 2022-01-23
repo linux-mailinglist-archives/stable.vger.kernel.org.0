@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 700A8497356
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 18:03:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC53A497355
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 18:03:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239056AbiAWRDI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 12:03:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60062 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233237AbiAWRDI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 12:03:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED308C06173B
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 09:03:07 -0800 (PST)
+        id S239055AbiAWRC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 12:02:59 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:33270 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233237AbiAWRC7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 12:02:59 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA899B80D31
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 17:03:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEBA5C340E2;
-        Sun, 23 Jan 2022 17:03:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 369EEB80C81
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 17:02:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68520C340E2;
+        Sun, 23 Jan 2022 17:02:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642957385;
-        bh=e+b0wN1LlLLoCe8CSqZEspEWXGBQ/TsSdtPnDM9iucI=;
+        s=korg; t=1642957377;
+        bh=TW46e6FGE7S9RnvcFX797gQLLgkGUus4Xjddiuz80Bo=;
         h=Subject:To:Cc:From:Date:From;
-        b=Rwla0h9kX7uVqyempLTIgk++7h+2/eh4EFZS8hisT3osDROQZRSLFNkR5LbUbcJpp
-         JeEfdJ+jiXKT3SLSqJ8e9pc1A33W9bli9nMH2xcf1sCCT0b8f8aR3hjQKJlElBJaMC
-         DUmLMHaG80ne87E7M2Jv6GNVHGTxh+BFWXQpQs8o=
-Subject: FAILED: patch "[PATCH] xfrm: fix policy lookup for ipv6 gre packets" failed to apply to 4.14-stable tree
+        b=Yvvfq77XzI8wgA4Aw0M8xoCGF7BvMvhBvhDAiIw+pl4EPCQ4lj5Y1yeEnQ7VmIbhi
+         cC3ylXWv4YdnR4nQvZbyVB7DTwjFonSgFAQOb3hreWLbeFf3XvqLlpzqIUJDyHnkdI
+         s0fm2gGH3rsx5fvwfSWt/TbF2f49msSO/mdjIPhY=
+Subject: FAILED: patch "[PATCH] xfrm: fix policy lookup for ipv6 gre packets" failed to apply to 4.19-stable tree
 To:     ghalem.boudour@6wind.com, nicolas.dichtel@6wind.com,
         steffen.klassert@secunet.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 23 Jan 2022 18:02:54 +0100
-Message-ID: <1642957374138250@kroah.com>
+Message-ID: <164295737416239@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
