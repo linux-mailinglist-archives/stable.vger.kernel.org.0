@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A844A49721D
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 15:28:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 035F049721C
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 15:28:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236741AbiAWO2M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 09:28:12 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38574 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232290AbiAWO2L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 09:28:11 -0500
+        id S233517AbiAWO2E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 09:28:04 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:59508 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232290AbiAWO2E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 09:28:04 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 683D060C97
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 14:28:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43A84C340E2;
-        Sun, 23 Jan 2022 14:28:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7B7A2B80CF1
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 14:28:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A52CBC340E2;
+        Sun, 23 Jan 2022 14:28:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642948090;
-        bh=kjcEiUkC5uLZ0DqZQWlop2pxpx0kS47xtocMgQRnYuY=;
+        s=korg; t=1642948082;
+        bh=1MhSLZKngKj6m3DH7amKzghGAbXEhIa9DiQYg67iQ5Q=;
         h=Subject:To:Cc:From:Date:From;
-        b=Xc1dIv68grVeknak+Nyd9bobJjO4Ddh4uQuK7oCtJdoENwJkoj2PnxdRes5wMAw3z
-         Uqxla34A3WM9lQcZ82VbDD/vQQwSYV4U6A7r6AyDtTqbEPzjDL+Pnjrx5IESqfnzzp
-         7YHd4H3OQjGsWyfZS09FBIsoY/NevJSR4P1yX1Kk=
-Subject: FAILED: patch "[PATCH] io_uring: fix not released cached task refs" failed to apply to 5.16-stable tree
+        b=BJP7SDXS08jMmLlSWL+A7z2uVvHdxxPloLS0xRi0nPMiihCtTkN3B9bfqybacOH4h
+         eIsDIAaiJt/ZxPYAVA+cQP0YXWP0ASSgnNOwF+s+NLczC4HGUoYnQBv/4kG+W66A7T
+         gUdqRqaX0a1Gzb2YBcXFDVNrZGAC21Jvp2v8g+Rw=
+Subject: FAILED: patch "[PATCH] io_uring: fix not released cached task refs" failed to apply to 5.15-stable tree
 To:     asml.silence@gmail.com, axboe@kernel.dk, lukas.bulwahn@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 23 Jan 2022 15:27:59 +0100
-Message-ID: <164294807930124@kroah.com>
+Message-ID: <1642948079177212@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.16-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
