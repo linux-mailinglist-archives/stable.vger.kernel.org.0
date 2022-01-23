@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7698C496E89
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 01:13:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70926496E92
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 01:13:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235198AbiAWANA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Jan 2022 19:13:00 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:36544 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235193AbiAWAMP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 19:12:15 -0500
+        id S235362AbiAWANI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Jan 2022 19:13:08 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:40958 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235365AbiAWAMV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 19:12:21 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 542E260F9F;
-        Sun, 23 Jan 2022 00:12:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE1C1C340E2;
-        Sun, 23 Jan 2022 00:12:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AF82EB80AF5;
+        Sun, 23 Jan 2022 00:12:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA609C004E1;
+        Sun, 23 Jan 2022 00:12:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642896734;
-        bh=fZypQpgkRfInoHjS2iRjdcBucBEwTWKnEXuwoq78lFE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p32UkSUEoYFwR5iF6/gwU2slKJ0zQv9fLe1ZfuzH89ek4VJcFo0Kllt0P+d1JKaGT
-         UtVaRcN4dBpAvM76+fgPfPLQ3C0se342z0JFhJL4x4TsCXdn7hvxX5iH33Vy34rqMq
-         bTM7UwN6bcZDhi4pvfCmM9OhDHh1HE95ctlfiN8A12rXDRogIcCPxsyYuipRyGAQYW
-         lDAAxgGkHRpXN2ybN4RrHTTIRPVD9L3YeVUJeGel7ETgkGdV3eyj6Tq+sjBBfdRuE9
-         Q59VYzO/anXrssC7JN39B5U/2pY69W7H2PhbbXKjCxzSNZA1q6TCUus/M/Jug4ji5p
-         0Rz5ZfYCguikw==
+        s=k20201202; t=1642896738;
+        bh=HYKxLJMRC2uGjUuszv/ikOC4jFTFiRxAuWKQfKrpBl8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=mv+IFaUQiB+3V7sUNsBw2ua6DL3JheB7f6ylq70+iQf8NKmrh4wtig9DiVMbNHL76
+         Z6MkjUVHGqXgC84Qys7gWMCBEherq2W7SeNkxYhIQd9lmA/m5w0PsjORW5EeGXihZX
+         Ejk3dLLV8EoVbib8lCDi09Gl3nGCOlx8nGyJfReFVNpykl4lP+kLHuC+rcgk0J59kd
+         zp5WpJpUtln4rxffdOqeq0mr40rAcb5O+ao9shUAy6lUrMcIcIcbn+DPZ83wHj1Pje
+         ZiK1o0U1UuxW/uFjRIUhcu99h7GodZz+olSVufVLYg/yYjjVhizoB3JBDpr/BvuOwg
+         pmhAWCqSumamg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        syzbot+ac94ae5f68b84197f41c@syzkaller.appspotmail.com,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.16 19/19] block: Fix wrong offset in bio_truncate()
-Date:   Sat, 22 Jan 2022 19:11:12 -0500
-Message-Id: <20220123001113.2460140-19-sashal@kernel.org>
+Cc:     Peng Fan <peng.fan@nxp.com>, kernel test robot <lkp@intel.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, bjorn.andersson@linaro.org,
+        linux-remoteproc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 01/16] remoteproc: coredump: Correct argument 2 type for memcpy_fromio
+Date:   Sat, 22 Jan 2022 19:12:00 -0500
+Message-Id: <20220123001216.2460383-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220123001113.2460140-1-sashal@kernel.org>
-References: <20220123001113.2460140-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -48,41 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+From: Peng Fan <peng.fan@nxp.com>
 
-[ Upstream commit 3ee859e384d453d6ac68bfd5971f630d9fa46ad3 ]
+[ Upstream commit 876e0b26ccd211ca92607d83c87cc1f097784c6d ]
 
-bio_truncate() clears the buffer outside of last block of bdev, however
-current bio_truncate() is using the wrong offset of page. So it can
-return the uninitialized data.
+Address the sparse check warning:
+>> drivers/remoteproc/remoteproc_coredump.c:169:53:
+sparse: warning: incorrect type in argument 2 (different address spaces)
+sparse:    expected void const volatile [noderef] __iomem *src
+sparse:    got void *[assigned] ptr
 
-This happened when both of truncated/corrupted FS and userspace (via
-bdev) are trying to read the last of bdev.
-
-Reported-by: syzbot+ac94ae5f68b84197f41c@syzkaller.appspotmail.com
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/875yqt1c9g.fsf@mail.parknet.co.jp
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Link: https://lore.kernel.org/r/20211110032101.517487-1-peng.fan@oss.nxp.com
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bio.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/remoteproc/remoteproc_coredump.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/block/bio.c b/block/bio.c
-index 15ab0d6d1c06e..99cad261ec531 100644
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -569,7 +569,8 @@ static void bio_truncate(struct bio *bio, unsigned new_size)
- 				offset = new_size - done;
+diff --git a/drivers/remoteproc/remoteproc_coredump.c b/drivers/remoteproc/remoteproc_coredump.c
+index c892f433a323e..4b093420d98aa 100644
+--- a/drivers/remoteproc/remoteproc_coredump.c
++++ b/drivers/remoteproc/remoteproc_coredump.c
+@@ -166,7 +166,7 @@ static void rproc_copy_segment(struct rproc *rproc, void *dest,
+ 			memset(dest, 0xff, size);
+ 		} else {
+ 			if (is_iomem)
+-				memcpy_fromio(dest, ptr, size);
++				memcpy_fromio(dest, (void const __iomem *)ptr, size);
  			else
- 				offset = 0;
--			zero_user(bv.bv_page, offset, bv.bv_len - offset);
-+			zero_user(bv.bv_page, bv.bv_offset + offset,
-+				  bv.bv_len - offset);
- 			truncated = true;
+ 				memcpy(dest, ptr, size);
  		}
- 		done += bv.bv_len;
 -- 
 2.34.1
 
