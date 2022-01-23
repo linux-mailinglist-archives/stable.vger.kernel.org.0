@@ -2,103 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCBE7496EEB
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 01:15:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACFB6496EF4
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 01:15:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235551AbiAWAPU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Jan 2022 19:15:20 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38578 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229468AbiAWAOT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 19:14:19 -0500
+        id S236019AbiAWAPe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Jan 2022 19:15:34 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:46744 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231836AbiAWAOW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 19:14:22 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F2DE360DCB;
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1621CCE0920;
+        Sun, 23 Jan 2022 00:14:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D27F1C36AE3;
         Sun, 23 Jan 2022 00:14:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A497C340E2;
-        Sun, 23 Jan 2022 00:14:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642896858;
-        bh=yK29ml3UVDJqS7LpaSmidg+8acUQn0flg4WYId//gpQ=;
+        s=k20201202; t=1642896859;
+        bh=OksXVQlW/gPJ9LytV3kqPMDJ6mNVmLh35P/E7cdZ5+s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ogqd1nS7tYzS4LKTv10ZUxAUSPVYWL5YVh+d+oTDK+46TqKp/CtDcJGyAwq5/M0uk
-         I+nUVDpR356+h6kO58S3LvTAAQj4GbJ0rRoycwG+QnrqTPb3g03zS/Aj39Z1D3KADK
-         atgPPhXAiUKZdFsp5DBMFt+3PyKmIjJIKYsVNabsh1khcDeNQfw73R1QI+V8OtkW/c
-         nXu7az8N6Ojnr79qQk7ymf9sm2bXpChOBRB9oCopzHQA/OrOA5fdFiA05GMsRXMuUI
-         RuvF3+R6lWjIqRN6B8NJXHR60voLMRvXMa8ItlVTIWkuRw1498pO9XFXXIJX3kDjEp
-         w6o/y1RGfSVVg==
+        b=HavGGbOHXRRFsPjNnIcRSeA3zL8dBjBbZPnynUXu0VOKzZ9Oym4uBXWAnI9ZY1frN
+         BXZD+W8U5tjN4bXamvb6eVIDVxZDtBu2bEW7Ef/CWN+N4ZkAGjk3pYhDLQPGV7fsuH
+         8anQh+/DVXiy7iTe2zEBuazYPmexAyTFU+sd0z4VozXCNsz11xKE8i5Lk2amWtqqAp
+         fPDQDpB8Guhzv9/dtf62/Cjk2AfZlG70pmFgyoJRnL3nXfNDmNI0WxWwZor6cZ8Yb7
+         mO1vRKv0Bt/ziAIsqT7/ThFL0GthMA9zGdfHPBiAJzQbaLlWmemV6/PVmmc7CXXytv
+         zFSZAb0azr9Qg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, tanghui20@huawei.com,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 2/4] net: apple: bmac: Fix build since dev_addr constification
-Date:   Sat, 22 Jan 2022 19:14:08 -0500
-Message-Id: <20220123001412.2460945-2-sashal@kernel.org>
+Cc:     =?UTF-8?q?=E7=8E=8B=E8=B4=87?= <yun.wang@linux.alibaba.com>,
+        "Michael S . Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, jasowang@redhat.com,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 4.14 3/4] virtio-pci: fix the confusing error message
+Date:   Sat, 22 Jan 2022 19:14:09 -0500
+Message-Id: <20220123001412.2460945-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220123001412.2460945-1-sashal@kernel.org>
 References: <20220123001412.2460945-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: 王贇 <yun.wang@linux.alibaba.com>
 
-[ Upstream commit ea938248557a52e231a31f338eac4baee36a8626 ]
+[ Upstream commit 6017599bb25c20b7a68cbb8e7d534bdc1c36b5e4 ]
 
-Since commit adeef3e32146 ("net: constify netdev->dev_addr") the bmac
-driver no longer builds with the following errors (pmac32_defconfig):
+The error message on the failure of pfn check should tell
+virtio-pci rather than virtio-mmio, just fix it.
 
-  linux/drivers/net/ethernet/apple/bmac.c: In function ‘bmac_probe’:
-  linux/drivers/net/ethernet/apple/bmac.c:1287:20: error: assignment of read-only location ‘*(dev->dev_addr + (sizetype)j)’
-   1287 |   dev->dev_addr[j] = rev ? bitrev8(addr[j]): addr[j];
-        |                    ^
-
-Fix it by making the modifications to a local macaddr variable and then
-passing that to eth_hw_addr_set().
-
-We don't use the existing addr variable because the bitrev8() would
-mutate it, but it is already used unreversed later in the function.
-
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Reviewed-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
+Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+Link: https://lore.kernel.org/r/ae5e154e-ac59-f0fa-a7c7-091a2201f581@linux.alibaba.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/apple/bmac.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/virtio/virtio_pci_legacy.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/apple/bmac.c b/drivers/net/ethernet/apple/bmac.c
-index a8b462e1beba6..387fb0d5e288b 100644
---- a/drivers/net/ethernet/apple/bmac.c
-+++ b/drivers/net/ethernet/apple/bmac.c
-@@ -1245,6 +1245,7 @@ static int bmac_probe(struct macio_dev *mdev, const struct of_device_id *match)
- 	struct bmac_data *bp;
- 	const unsigned char *prop_addr;
- 	unsigned char addr[6];
-+	u8 macaddr[6];
- 	struct net_device *dev;
- 	int is_bmac_plus = ((int)match->data) != 0;
- 
-@@ -1292,7 +1293,9 @@ static int bmac_probe(struct macio_dev *mdev, const struct of_device_id *match)
- 
- 	rev = addr[0] == 0 && addr[1] == 0xA0;
- 	for (j = 0; j < 6; ++j)
--		dev->dev_addr[j] = rev ? bitrev8(addr[j]): addr[j];
-+		macaddr[j] = rev ? bitrev8(addr[j]): addr[j];
-+
-+	eth_hw_addr_set(dev, macaddr);
- 
- 	/* Enable chip without interrupts for now */
- 	bmac_enable_and_reset_chip(dev);
+diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+index de062fb201bc2..61add42862017 100644
+--- a/drivers/virtio/virtio_pci_legacy.c
++++ b/drivers/virtio/virtio_pci_legacy.c
+@@ -145,7 +145,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 	q_pfn = virtqueue_get_desc_addr(vq) >> VIRTIO_PCI_QUEUE_ADDR_SHIFT;
+ 	if (q_pfn >> 32) {
+ 		dev_err(&vp_dev->pci_dev->dev,
+-			"platform bug: legacy virtio-mmio must not be used with RAM above 0x%llxGB\n",
++			"platform bug: legacy virtio-pci must not be used with RAM above 0x%llxGB\n",
+ 			0x1ULL << (32 + PAGE_SHIFT - 30));
+ 		err = -E2BIG;
+ 		goto out_del_vq;
 -- 
 2.34.1
 
