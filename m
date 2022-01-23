@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0F58497311
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:46:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEB8A497310
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:46:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238840AbiAWQqC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 11:46:02 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:52076 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238832AbiAWQqC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:46:02 -0500
+        id S231857AbiAWQqB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 11:46:01 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:35506 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238832AbiAWQqA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:46:00 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E782360ECD
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:46:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA599C340E4;
-        Sun, 23 Jan 2022 16:46:00 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6A5CDCE0DF2
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:45:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26A56C340E2;
+        Sun, 23 Jan 2022 16:45:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642956361;
-        bh=lunSjNiGR1UJxywIepsYAfExvGR15or9OLWpDxUAV1Q=;
+        s=korg; t=1642956357;
+        bh=bY1zhclV5T7y+aPjZAsGHBv2H8ohfFQfT7NabW2m0Pw=;
         h=Subject:To:Cc:From:Date:From;
-        b=elx7Mzp5wjirRCJhOFGEr2lQBUPF67ZN68lHxcGqjpVGEvKMUFeau0eZrnEyfzhY6
-         U8uTNQETuxDGRibmTkCTVcVNxfzdTkg0b7OsljkGA9BdoZLGHIRCI0bE7qPS2dxopS
-         mvPRzAotxNsZ20AbOeeEs56M2RMByKHwMgMIkDmc=
-Subject: FAILED: patch "[PATCH] sched/cpuacct: Fix user/system in shown cpuacct.usage*" failed to apply to 5.4-stable tree
+        b=cJBx2/cMA2A0dN+IZ5Am7AuoKr0ABx571bWkSj9fbOe0xs084H0CFXPJ+9THXfEzb
+         27DmYYH+wiVBQl7x9JLeuQR6LEGeyUQYQY1pqYX0Qn06FS17fRB4/IrtgchDMrHriW
+         dYZKh4nAX7cpk3U04VbcZts8ZmlcimJJeVM38SaY=
+Subject: FAILED: patch "[PATCH] sched/cpuacct: Fix user/system in shown cpuacct.usage*" failed to apply to 5.10-stable tree
 To:     arbn@yandex-team.com, daniel.m.jordan@oracle.com,
         peterz@infradead.org, stable@vger.kernel.org, tj@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 23 Jan 2022 17:45:55 +0100
-Message-ID: <1642956355147239@kroah.com>
+Message-ID: <164295635548218@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
