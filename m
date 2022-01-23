@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 313B6497215
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 15:26:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4597497216
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 15:26:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236671AbiAWO0X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 09:26:23 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38020 "EHLO
+        id S236731AbiAWO0c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 09:26:32 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38062 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232290AbiAWO0W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 09:26:22 -0500
+        with ESMTP id S232290AbiAWO0b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 09:26:31 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A066B60C7F
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 14:26:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EF02C340E2;
-        Sun, 23 Jan 2022 14:26:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BD6A60C79
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 14:26:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38B12C340E2;
+        Sun, 23 Jan 2022 14:26:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642947982;
-        bh=5R8fD7bWsFVkcHKBcDHGiOgigr2eNI5M74ej0BGm2MU=;
+        s=korg; t=1642947990;
+        bh=HZM9WVkyWQMFj1i3V9TOgmUl/Tn8B3fPcymmLljYKNk=;
         h=Subject:To:Cc:From:Date:From;
-        b=YPe7AiiGvKCOkNiEUxWqvvRQ/1kdjjVDKwlpkcXGl2MCX3xZs7BJGJWDNs7G1skC/
-         W1m/SKdhyuQ2YL8L4UV5usBVCXCUPH5JtMeyE0eH4Cab6VrBsPBUzipcV89GEMYrI8
-         Nc2Y5fSWFyffPxo4DZ20zzHv/j5QNdS6RJfiGO9w=
-Subject: FAILED: patch "[PATCH] arm64: errata: Fix exec handling in erratum 1418040" failed to apply to 5.4-stable tree
+        b=Vr90WQ2NeyH33XmLh2C8Q+v0+qUf6R6iRDh7Z2ZDjnkrQH+etWTB5UFykrGIhoE1I
+         MXL3FWGqi4TG4+dgdQpeE/K8vpeGRFiKfVMyZzFv5UYKnnf1NJZUTrRfGfGzYvyPLk
+         dg7M82CWjLVPAd7yJY9v6qpNJw4puNy08spPTZH4=
+Subject: FAILED: patch "[PATCH] arm64: errata: Fix exec handling in erratum 1418040" failed to apply to 5.10-stable tree
 To:     scott@os.amperecomputing.com, catalin.marinas@arm.com,
         maz@kernel.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jan 2022 15:26:19 +0100
-Message-ID: <1642947979229102@kroah.com>
+Date:   Sun, 23 Jan 2022 15:26:20 +0100
+Message-ID: <164294798017187@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
