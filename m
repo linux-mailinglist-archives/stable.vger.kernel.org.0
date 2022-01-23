@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36CCC496F2B
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 01:17:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E04B2496EE0
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 01:15:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235577AbiAWAQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Jan 2022 19:16:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36706 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231836AbiAWAPi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 19:15:38 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B40EC061768;
-        Sat, 22 Jan 2022 16:13:53 -0800 (PST)
+        id S235741AbiAWAPB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Jan 2022 19:15:01 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38368 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235515AbiAWAOC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 19:14:02 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id F0ECECE0AD1;
-        Sun, 23 Jan 2022 00:13:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90FD7C004E1;
-        Sun, 23 Jan 2022 00:13:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CC1C261006;
+        Sun, 23 Jan 2022 00:14:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED02EC004E1;
+        Sun, 23 Jan 2022 00:13:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642896831;
-        bh=izXuRLTqqf53tu6dekzU+DqbvdILLQrv0sYd8FrFK8o=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XoEEIsCEaSl854DrQLPfdYTinF5Qxo1n5AzmB2Z8alEmuygXb6PgwcSHknADe1wif
-         vJsBJ5tf2dCH+t4PbjU52p+dIxj/9WxjkQaOk3wsIBV/Rol6Yxyz8MKnW8sHVXWfcK
-         d9uefpz1LqCh9GH5JsmbpwI1pHs0YCaGaUB4s9IQHmDNASAGUSAhB0A6qRmnedGGd4
-         fr79SC+cmBz5DaZDz8/kuK8mAnTFtTmANKuOqnfwxpTjoDC1ovyVgoQmCTsLELxYNc
-         MiKqxj2XoXgBFpTJ4flj0ibAtQqY8EOrGAi+AQZzM8GdYl+2Vg4WYycRpqMQN1fbiO
-         TmBtHh5G57JWQ==
+        s=k20201202; t=1642896841;
+        bh=ZAJLC2q3cS+5sfPOv6QANM6EFxVWb/Mgf7brJEM1cng=;
+        h=From:To:Cc:Subject:Date:From;
+        b=THMRFhkKdrmygHYzPuBCRbA+oGFM87xIomCB7iGTtT05SUOH0K2erJ7GgXEsFenJF
+         jX7b6wWxxNa9S7/KkzahhLIw7M8+RkLV/mDPaIPnoQTGQMSeA2kWi35emZEzM1NYpL
+         QXlKdrBP48vdszPZwrLIochbqgNOuqD7SAI9SmKh/bypjr4eiodEI1PkuhrAhphCsO
+         gTOWxpTHi78mTYSWkmCsM2X6YMQszgNN4+gzNSlROWitD5DFFwbMnUJWPI+QY12peZ
+         0eG7gIcc/XsFVZAFsWQqufKq3aDDTnDl99z1N8vkqvYoIGPPL60jF3zrVKNlmZYL4/
+         bAup72bRUpCMg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>,
-        syzbot+ac94ae5f68b84197f41c@syzkaller.appspotmail.com,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 8/8] block: Fix wrong offset in bio_truncate()
-Date:   Sat, 22 Jan 2022 19:13:23 -0500
-Message-Id: <20220123001323.2460719-8-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org
+Subject: [PATCH AUTOSEL 4.19 1/5] x86/PCI: Ignore E820 reservations for bridge windows on newer systems
+Date:   Sat, 22 Jan 2022 19:13:47 -0500
+Message-Id: <20220123001353.2460870-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220123001323.2460719-1-sashal@kernel.org>
-References: <20220123001323.2460719-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -51,41 +49,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 3ee859e384d453d6ac68bfd5971f630d9fa46ad3 ]
+[ Upstream commit 7f7b4236f2040d19df1ddaf30047128b41e78de7 ]
 
-bio_truncate() clears the buffer outside of last block of bdev, however
-current bio_truncate() is using the wrong offset of page. So it can
-return the uninitialized data.
+Some BIOS-es contain a bug where they add addresses which map to system
+RAM in the PCI host bridge window returned by the ACPI _CRS method, see
+commit 4dc2287c1805 ("x86: avoid E820 regions when allocating address
+space").
 
-This happened when both of truncated/corrupted FS and userspace (via
-bdev) are trying to read the last of bdev.
+To work around this bug Linux excludes E820 reserved addresses when
+allocating addresses from the PCI host bridge window since 2010.
 
-Reported-by: syzbot+ac94ae5f68b84197f41c@syzkaller.appspotmail.com
-Signed-off-by: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/875yqt1c9g.fsf@mail.parknet.co.jp
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Recently (2019) some systems have shown-up with E820 reservations which
+cover the entire _CRS returned PCI bridge memory window, causing all
+attempts to assign memory to PCI BARs which have not been setup by the
+BIOS to fail. For example here are the relevant dmesg bits from a
+Lenovo IdeaPad 3 15IIL 81WE:
+
+ [mem 0x000000004bc50000-0x00000000cfffffff] reserved
+ pci_bus 0000:00: root bus resource [mem 0x65400000-0xbfffffff window]
+
+The ACPI specifications appear to allow this new behavior:
+
+The relationship between E820 and ACPI _CRS is not really very clear.
+ACPI v6.3, sec 15, table 15-374, says AddressRangeReserved means:
+
+  This range of addresses is in use or reserved by the system and is
+  not to be included in the allocatable memory pool of the operating
+  system's memory manager.
+
+and it may be used when:
+
+  The address range is in use by a memory-mapped system device.
+
+Furthermore, sec 15.2 says:
+
+  Address ranges defined for baseboard memory-mapped I/O devices, such
+  as APICs, are returned as reserved.
+
+A PCI host bridge qualifies as a baseboard memory-mapped I/O device,
+and its apertures are in use and certainly should not be included in
+the general allocatable pool, so the fact that some BIOS-es reports
+the PCI aperture as "reserved" in E820 doesn't seem like a BIOS bug.
+
+So it seems that the excluding of E820 reserved addresses is a mistake.
+
+Ideally Linux would fully stop excluding E820 reserved addresses,
+but then the old systems this was added for will regress.
+Instead keep the old behavior for old systems, while ignoring
+the E820 reservations for any systems from now on.
+
+Old systems are defined here as BIOS year < 2018, this was chosen to make
+sure that E820 reservations will not be used on the currently affected
+systems, while at the same time also taking into account that the systems
+for which the E820 checking was originally added may have received BIOS
+updates for quite a while (esp. CVE related ones), giving them a more
+recent BIOS year then 2010.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=206459
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1868899
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1871793
+BugLink: https://bugs.launchpad.net/bugs/1878279
+BugLink: https://bugs.launchpad.net/bugs/1931715
+BugLink: https://bugs.launchpad.net/bugs/1932069
+BugLink: https://bugs.launchpad.net/bugs/1921649
+Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bio.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/kernel/resource.c | 23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
 
-diff --git a/block/bio.c b/block/bio.c
-index cb38d6f3acceb..1c52d0196e15c 100644
---- a/block/bio.c
-+++ b/block/bio.c
-@@ -569,7 +569,8 @@ void bio_truncate(struct bio *bio, unsigned new_size)
- 				offset = new_size - done;
- 			else
- 				offset = 0;
--			zero_user(bv.bv_page, offset, bv.bv_len - offset);
-+			zero_user(bv.bv_page, bv.bv_offset + offset,
-+				  bv.bv_len - offset);
- 			truncated = true;
- 		}
- 		done += bv.bv_len;
+diff --git a/arch/x86/kernel/resource.c b/arch/x86/kernel/resource.c
+index 9b9fb7882c206..9ae64f9af9568 100644
+--- a/arch/x86/kernel/resource.c
++++ b/arch/x86/kernel/resource.c
+@@ -1,4 +1,5 @@
+ // SPDX-License-Identifier: GPL-2.0
++#include <linux/dmi.h>
+ #include <linux/ioport.h>
+ #include <asm/e820/api.h>
+ 
+@@ -23,11 +24,31 @@ static void resource_clip(struct resource *res, resource_size_t start,
+ 		res->start = end + 1;
+ }
+ 
++/*
++ * Some BIOS-es contain a bug where they add addresses which map to
++ * system RAM in the PCI host bridge window returned by the ACPI _CRS
++ * method, see commit 4dc2287c1805 ("x86: avoid E820 regions when
++ * allocating address space"). To avoid this Linux by default excludes
++ * E820 reservations when allocating addresses since 2010.
++ * In 2019 some systems have shown-up with E820 reservations which cover
++ * the entire _CRS returned PCI host bridge window, causing all attempts
++ * to assign memory to PCI BARs to fail if Linux uses E820 reservations.
++ *
++ * Ideally Linux would fully stop using E820 reservations, but then
++ * the old systems this was added for will regress.
++ * Instead keep the old behavior for old systems, while ignoring the
++ * E820 reservations for any systems from now on.
++ */
+ static void remove_e820_regions(struct resource *avail)
+ {
+-	int i;
++	int i, year = dmi_get_bios_year();
+ 	struct e820_entry *entry;
+ 
++	if (year >= 2018)
++		return;
++
++	pr_info_once("PCI: Removing E820 reservations from host bridge windows\n");
++
+ 	for (i = 0; i < e820_table->nr_entries; i++) {
+ 		entry = &e820_table->entries[i];
+ 
 -- 
 2.34.1
 
