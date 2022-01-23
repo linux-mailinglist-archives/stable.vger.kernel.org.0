@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71CF2497346
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:53:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA2B0497351
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 18:01:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238963AbiAWQxj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 11:53:39 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58502 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238960AbiAWQxj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:53:39 -0500
+        id S239031AbiAWRBB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 12:01:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59598 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233237AbiAWRBB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 12:01:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F872C06173B
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 09:01:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32BB3B80DC1
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:53:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D780C340E2;
-        Sun, 23 Jan 2022 16:53:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BF00660FBB
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 17:01:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C28EC340E2;
+        Sun, 23 Jan 2022 17:00:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642956816;
-        bh=tvM5UMUu8+j6yXgSHrvdGundser/Q820KGg0amYTqxs=;
+        s=korg; t=1642957260;
+        bh=3hPrtZ4duEaAaRc5rXeOoeMild0LbhjeD7FoU3kw9AM=;
         h=Subject:To:Cc:From:Date:From;
-        b=f0rB4sPR1MDH5yCfW9W89HIf/VBifuig2vt7PvlfBOZuuqZ5m8pwcgViz8aTaBaJr
-         NDmU5nYVcPcpNMa8Jfs3ss5sRrSuYw4aD7mmCwI2lp0OgXuYuqjGNPRXLVhzOhhijr
-         Oo7XyqTNG7IRtJ8m/Mbc2sTxF2Uewd4KMOU+tyfU=
-Subject: FAILED: patch "[PATCH] drm/i915/display/adlp: Implement new step in the TC voltage" failed to apply to 5.15-stable tree
-To:     jose.souza@intel.com, Clinton.A.Taylor@intel.com,
-        clinton.a.taylor@intel.com, imre.deak@intel.com,
-        jani.nikula@linux.intel.com, tvrtko.ursulin@intel.com
+        b=aoXGOFN42lrChpOaalrSMhlUJ7jhd4PJBbmVzMcrq2yhtE0luPw3uAwmS7n8+IvCp
+         DmD/ZH7jxfrhZXa+vQPOvMVnA0DiIUSXPHQAFvd9BLzl5ix+proy43JDruZFlgdLoW
+         Vcb4xMWGRXZPNgTVrOZt0Fg+C6+RuGHmIKm2P0r8=
+Subject: FAILED: patch "[PATCH] PCI: pciehp: Fix infinite loop in IRQ handler upon power" failed to apply to 4.19-stable tree
+To:     lukas@wunner.de, bhelgaas@google.com, joseph.bao@intel.com,
+        stuart.w.hayes@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jan 2022 17:53:25 +0100
-Message-ID: <1642956805215188@kroah.com>
+Date:   Sun, 23 Jan 2022 18:00:57 +0100
+Message-ID: <16429572572420@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -52,78 +54,75 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e26602be4869c74dd8a0f66f718b8a0ce120edb4 Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>
-Date: Thu, 13 Jan 2022 09:48:26 -0800
-Subject: [PATCH] drm/i915/display/adlp: Implement new step in the TC voltage
- swing prog sequence
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+From 23584c1ed3e15a6f4bfab8dc5a88d94ab929ee12 Mon Sep 17 00:00:00 2001
+From: Lukas Wunner <lukas@wunner.de>
+Date: Wed, 17 Nov 2021 23:22:09 +0100
+Subject: [PATCH] PCI: pciehp: Fix infinite loop in IRQ handler upon power
+ fault
 
-TC voltage swing programming sequence was updated with a new step.
+The Power Fault Detected bit in the Slot Status register differs from
+all other hotplug events in that it is sticky:  It can only be cleared
+after turning off slot power.  Per PCIe r5.0, sec. 6.7.1.8:
 
-BSpec: 54956
-Cc: stable@vger.kernel.org
-Cc: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Clint Taylor <clinton.a.taylor@intel.com>
-Cc: Imre Deak <imre.deak@intel.com>
-Signed-off-by: José Roberto de Souza <jose.souza@intel.com>
-Reviewed-by: Clint Taylor <Clinton.A.Taylor@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220113174826.50272-1-jose.souza@intel.com
-(cherry picked from commit 5ff59dddacd4738edcbd01847d9df7682348cf86)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+  If a power controller detects a main power fault on the hot-plug slot,
+  it must automatically set its internal main power fault latch [...].
+  The main power fault latch is cleared when software turns off power to
+  the hot-plug slot.
 
-diff --git a/drivers/gpu/drm/i915/display/intel_ddi.c b/drivers/gpu/drm/i915/display/intel_ddi.c
-index 9c9d574f0b8c..cab505277595 100644
---- a/drivers/gpu/drm/i915/display/intel_ddi.c
-+++ b/drivers/gpu/drm/i915/display/intel_ddi.c
-@@ -1298,6 +1298,28 @@ static void tgl_dkl_phy_set_signal_levels(struct intel_encoder *encoder,
+The stickiness used to cause interrupt storms and infinite loops which
+were fixed in 2009 by commits 5651c48cfafe ("PCI pciehp: fix power fault
+interrupt storm problem") and 99f0169c17f3 ("PCI: pciehp: enable
+software notification on empty slots").
+
+Unfortunately in 2020 the infinite loop issue was inadvertently
+reintroduced by commit 8edf5332c393 ("PCI: pciehp: Fix MSI interrupt
+race"):  The hardirq handler pciehp_isr() clears the PFD bit until
+pciehp's power_fault_detected flag is set.  That happens in the IRQ
+thread pciehp_ist(), which never learns of the event because the hardirq
+handler is stuck in an infinite loop.  Fix by setting the
+power_fault_detected flag already in the hardirq handler.
+
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=214989
+Link: https://lore.kernel.org/linux-pci/DM8PR11MB5702255A6A92F735D90A4446868B9@DM8PR11MB5702.namprd11.prod.outlook.com
+Fixes: 8edf5332c393 ("PCI: pciehp: Fix MSI interrupt race")
+Link: https://lore.kernel.org/r/66eaeef31d4997ceea357ad93259f290ededecfd.1637187226.git.lukas@wunner.de
+Reported-by: Joseph Bao <joseph.bao@intel.com>
+Tested-by: Joseph Bao <joseph.bao@intel.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org # v4.19+
+Cc: Stuart Hayes <stuart.w.hayes@gmail.com>
+
+diff --git a/drivers/pci/hotplug/pciehp_hpc.c b/drivers/pci/hotplug/pciehp_hpc.c
+index 83a0fa119cae..9535c61cbff3 100644
+--- a/drivers/pci/hotplug/pciehp_hpc.c
++++ b/drivers/pci/hotplug/pciehp_hpc.c
+@@ -642,6 +642,8 @@ static irqreturn_t pciehp_isr(int irq, void *dev_id)
+ 	 */
+ 	if (ctrl->power_fault_detected)
+ 		status &= ~PCI_EXP_SLTSTA_PFD;
++	else if (status & PCI_EXP_SLTSTA_PFD)
++		ctrl->power_fault_detected = true;
  
- 		intel_de_rmw(dev_priv, DKL_TX_DPCNTL2(tc_port),
- 			     DKL_TX_DP20BITMODE, 0);
-+
-+		if (IS_ALDERLAKE_P(dev_priv)) {
-+			u32 val;
-+
-+			if (intel_crtc_has_type(crtc_state, INTEL_OUTPUT_HDMI)) {
-+				if (ln == 0) {
-+					val = DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX1(0);
-+					val |= DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX2(2);
-+				} else {
-+					val = DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX1(3);
-+					val |= DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX2(3);
-+				}
-+			} else {
-+				val = DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX1(0);
-+				val |= DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX2(0);
-+			}
-+
-+			intel_de_rmw(dev_priv, DKL_TX_DPCNTL2(tc_port),
-+				     DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX1_MASK |
-+				     DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX2_MASK,
-+				     val);
-+		}
+ 	events |= status;
+ 	if (!events) {
+@@ -651,7 +653,7 @@ static irqreturn_t pciehp_isr(int irq, void *dev_id)
  	}
- }
  
-diff --git a/drivers/gpu/drm/i915/i915_reg.h b/drivers/gpu/drm/i915/i915_reg.h
-index 4c28dadf8d69..971d601fe751 100644
---- a/drivers/gpu/drm/i915/i915_reg.h
-+++ b/drivers/gpu/drm/i915/i915_reg.h
-@@ -11166,8 +11166,12 @@ enum skl_power_gate {
- 						     _DKL_PHY2_BASE) + \
- 						     _DKL_TX_DPCNTL1)
+ 	if (status) {
+-		pcie_capability_write_word(pdev, PCI_EXP_SLTSTA, events);
++		pcie_capability_write_word(pdev, PCI_EXP_SLTSTA, status);
  
--#define _DKL_TX_DPCNTL2				0x2C8
--#define  DKL_TX_DP20BITMODE				(1 << 2)
-+#define _DKL_TX_DPCNTL2					0x2C8
-+#define  DKL_TX_DP20BITMODE				REG_BIT(2)
-+#define  DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX1_MASK	REG_GENMASK(4, 3)
-+#define  DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX1(val)	REG_FIELD_PREP(DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX1_MASK, (val))
-+#define  DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX2_MASK	REG_GENMASK(6, 5)
-+#define  DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX2(val)	REG_FIELD_PREP(DKL_TX_DPCNTL2_CFG_LOADGENSELECT_TX2_MASK, (val))
- #define DKL_TX_DPCNTL2(tc_port) _MMIO(_PORT(tc_port, \
- 						     _DKL_PHY1_BASE, \
- 						     _DKL_PHY2_BASE) + \
+ 		/*
+ 		 * In MSI mode, all event bits must be zero before the port
+@@ -725,8 +727,7 @@ static irqreturn_t pciehp_ist(int irq, void *dev_id)
+ 	}
+ 
+ 	/* Check Power Fault Detected */
+-	if ((events & PCI_EXP_SLTSTA_PFD) && !ctrl->power_fault_detected) {
+-		ctrl->power_fault_detected = 1;
++	if (events & PCI_EXP_SLTSTA_PFD) {
+ 		ctrl_err(ctrl, "Slot(%s): Power fault\n", slot_name(ctrl));
+ 		pciehp_set_indicators(ctrl, PCI_EXP_SLTCTL_PWR_IND_OFF,
+ 				      PCI_EXP_SLTCTL_ATTN_IND_ON);
 
