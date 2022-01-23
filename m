@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A18774971F0
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 15:14:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 063B34971F1
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 15:14:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236707AbiAWOOi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 09:14:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48620 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236705AbiAWOOh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 09:14:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8BFC1C06173B
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 06:14:37 -0800 (PST)
+        id S236709AbiAWOOp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 09:14:45 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:33490 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236705AbiAWOOo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 09:14:44 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5C056B80CF7
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 14:14:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8722BC340E2;
-        Sun, 23 Jan 2022 14:14:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 674AF60C7B
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 14:14:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49B61C340E2;
+        Sun, 23 Jan 2022 14:14:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642947275;
-        bh=CCkDVyeX0A502p+S4ZYOCWDK4x44sYunfai07rHAzi0=;
+        s=korg; t=1642947283;
+        bh=um2J3eDO0ugjUIDz1yzwtruvCIjIggSjcBvkhh3Rs+g=;
         h=Subject:To:Cc:From:Date:From;
-        b=sDhNYBqgIinTMHyrzxK3LopQGS8e+Z3d7XMoKKZkQXPbfef76TW8BK4Jcz0ZKozIh
-         aLG3TtmnfuhMUJoGqPgsA0Tnx/u3iQx1p7q5c4D7f7+KebR+BR1r8+IJPR92m3gi3Q
-         L/l0BJCcQImcYeDJs0M5J2zSVC8rKctU71kYziVE=
-Subject: FAILED: patch "[PATCH] platform/x86: amd-pmc: Fix s2idle failures on certain AMD" failed to apply to 5.15-stable tree
+        b=pKv1r8m/xypFtC9OlQqGbWyYqCsWXvbCDgskA9WZKPxt2/9iV/3GFLClmLXT8033E
+         5oB1BQY0SjtWBZ6Md8gI3p/Px2jzRe1rNF7OxEbXXf8OnLVTiZDjvtMz64lqXeshXR
+         6KAhjU31uBaL5jWlO8MGJ2b9h8wmmm1b0Jrf51MU=
+Subject: FAILED: patch "[PATCH] platform/x86: amd-pmc: Fix s2idle failures on certain AMD" failed to apply to 5.16-stable tree
 To:     fabriziobertocci@gmail.com, Shyam-sundar.S-k@amd.com,
         hdegoede@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jan 2022 15:14:32 +0100
-Message-ID: <164294727220819@kroah.com>
+Date:   Sun, 23 Jan 2022 15:14:33 +0100
+Message-ID: <1642947273187150@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
