@@ -2,84 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3EC6496E02
-	for <lists+stable@lfdr.de>; Sat, 22 Jan 2022 21:45:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41A9A496E56
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 01:11:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230311AbiAVUpk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Jan 2022 15:45:40 -0500
-Received: from jabberwock.ucw.cz ([46.255.230.98]:56420 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230242AbiAVUpk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 15:45:40 -0500
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 78BB91C0B76; Sat, 22 Jan 2022 21:45:38 +0100 (CET)
-Date:   Sat, 22 Jan 2022 21:45:37 +0100
-From:   Pavel Machek <pavel@denx.de>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     Pavel Machek <pavel@denx.de>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>, Shawn Guo <shawnguo@kernel.org>,
-        linux@armlinux.org.uk, linus.walleij@linaro.org, daniel@thingy.jp,
-        avolmat@me.com, krzysztof.kozlowski@canonical.com,
-        romain.perier@gmail.com, eugen.hristev@microchip.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH AUTOSEL 4.4 06/29] ARM: imx: rename
- DEBUG_IMX21_IMX27_UART to DEBUG_IMX27_UART
-Message-ID: <20220122204537.GA31487@duo.ucw.cz>
-References: <20220118030822.1955469-1-sashal@kernel.org>
- <20220118030822.1955469-6-sashal@kernel.org>
- <20220120100849.GA14998@amd>
- <YexahcZZO1z/pM94@sashalap>
+        id S235081AbiAWAL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Jan 2022 19:11:27 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:35500 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231288AbiAWAL1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 19:11:27 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BAFFA60F77;
+        Sun, 23 Jan 2022 00:11:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 429DAC004E1;
+        Sun, 23 Jan 2022 00:11:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1642896686;
+        bh=HYKxLJMRC2uGjUuszv/ikOC4jFTFiRxAuWKQfKrpBl8=;
+        h=From:To:Cc:Subject:Date:From;
+        b=P3oe9fTkkPzzBEc2XYYpmUaIT96PpdJW71PtomoNVeA/2+eSL0q8ORtPg+q5FOuho
+         yHnhNIlCeEf2HBvcAx2uqZI9HZmj/w2ka0zNx63i6g2Db4ne8AkHny0PsD0CU/ulSU
+         lj1ickoVJZevSyn6QDF7rG0G1E+daXhZ0YeNUryxRfTc46QgKY7FmndrMU7nw6C5hp
+         hOlxeDcZkmA+xXb0WyQLvp0b2iOPOErMULyWDLjNRbGBUKZBWzV0sXNFgtw6w3gyQn
+         gK+dj70MWJ4/FwfTJeEefsh79yUI1bQJ3J7nvGPeT/9CYmOMauywtaK7fl9yacDvji
+         MIeW59UZslzHw==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Peng Fan <peng.fan@nxp.com>, kernel test robot <lkp@intel.com>,
+        Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, bjorn.andersson@linaro.org,
+        linux-remoteproc@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.16 01/19] remoteproc: coredump: Correct argument 2 type for memcpy_fromio
+Date:   Sat, 22 Jan 2022 19:10:54 -0500
+Message-Id: <20220123001113.2460140-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="Kj7319i9nmIyA2yE"
-Content-Disposition: inline
-In-Reply-To: <YexahcZZO1z/pM94@sashalap>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Peng Fan <peng.fan@nxp.com>
 
---Kj7319i9nmIyA2yE
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+[ Upstream commit 876e0b26ccd211ca92607d83c87cc1f097784c6d ]
 
-Hi!
+Address the sparse check warning:
+>> drivers/remoteproc/remoteproc_coredump.c:169:53:
+sparse: warning: incorrect type in argument 2 (different address spaces)
+sparse:    expected void const volatile [noderef] __iomem *src
+sparse:    got void *[assigned] ptr
 
-> > > From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-> > >=20
-> > > [ Upstream commit b0100bce4ff82ec1ccd3c1f3d339fd2df6a81784 ]
-> > >=20
-> > > Since commit 4b563a066611 ("ARM: imx: Remove imx21 support"), the con=
-fig
-> > > DEBUG_IMX21_IMX27_UART is really only debug support for IMX27.
-> >=20
-> > This is unsuitable for 4.4 as imx21 is still supported there.
->=20
-> I'll drop it, thanks!
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Link: https://lore.kernel.org/r/20211110032101.517487-1-peng.fan@oss.nxp.com
+Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/remoteproc/remoteproc_coredump.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Thank you.
+diff --git a/drivers/remoteproc/remoteproc_coredump.c b/drivers/remoteproc/remoteproc_coredump.c
+index c892f433a323e..4b093420d98aa 100644
+--- a/drivers/remoteproc/remoteproc_coredump.c
++++ b/drivers/remoteproc/remoteproc_coredump.c
+@@ -166,7 +166,7 @@ static void rproc_copy_segment(struct rproc *rproc, void *dest,
+ 			memset(dest, 0xff, size);
+ 		} else {
+ 			if (is_iomem)
+-				memcpy_fromio(dest, ptr, size);
++				memcpy_fromio(dest, (void const __iomem *)ptr, size);
+ 			else
+ 				memcpy(dest, ptr, size);
+ 		}
+-- 
+2.34.1
 
-I have not checked which is the newest kernel that supports imx21,
-other kernels may have same issue, too.
-
-Best regards,
-								Pavel
-
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---Kj7319i9nmIyA2yE
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYexs8QAKCRAw5/Bqldv6
-8sPMAJ0Ru+Wuf16Ox2dRQUCWSmL6Pa+miQCeItBzUjW/5yODWS1xoZfyqm9rYCE=
-=4cY3
------END PGP SIGNATURE-----
-
---Kj7319i9nmIyA2yE--
