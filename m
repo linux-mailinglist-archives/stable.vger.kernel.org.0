@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF26649732D
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:49:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00367497334
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:50:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234142AbiAWQtR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 11:49:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56890 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238903AbiAWQtP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:49:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C02AC06173B
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 08:49:15 -0800 (PST)
+        id S232018AbiAWQuc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 11:50:32 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:57616 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231686AbiAWQua (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:50:30 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52712B80DBF
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:49:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BD24C340E4;
-        Sun, 23 Jan 2022 16:49:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 84B41B80C81
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:50:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA2FDC340E4;
+        Sun, 23 Jan 2022 16:50:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642956553;
-        bh=Jpxf+F31p8/MFU051yMYMLSxh1yQfKTgHcMJNxvHVaQ=;
+        s=korg; t=1642956628;
+        bh=DEKJ5DooaGsjy5FPPos6aYGKBSTeMHT2MkuStQjNfpw=;
         h=Subject:To:Cc:From:Date:From;
-        b=B+FIXiZolOwY8FGxOzm2QsLlSZytqyd09Z88lx92wSdOu1KfU+vHwBVrrdQuZPFdk
-         3vvVIwAWKpqmcxbCX1tVO4vOcCMG68lR6kRsrJcV0yrCK5DO8zA6WD7ACdk+74uAmC
-         4JOvfD9rpED3mBX9ceUWOvveCG78PE0uzP0NF0OY=
-Subject: FAILED: patch "[PATCH] device property: Fix fwnode_graph_devcon_match() fwnode leak" failed to apply to 5.4-stable tree
-To:     sakari.ailus@linux.intel.com, andriy.shevchenko@linux.intel.com,
-        rafael.j.wysocki@intel.com, stable@vger.kernel.org
+        b=tHn2dUdCaklNkywj7xgmU/HUtqw0/2o/vS/4SraoxVY9dbUBrbGP/am8AxMU/eJ/C
+         mQCEzSULQMs460v+OKQV6lw7w47T7Pk2dcVHIZjYOFmKfCOASuLawWyKJgjpOlsn9m
+         qZ2UeE7IuTm0xb3JxdXsu3mPRJAsg3NbrwGZjYKg=
+Subject: FAILED: patch "[PATCH] drm/i915/guc: Fix recursive lock in GuC submission" failed to apply to 5.16-stable tree
+To:     matthew.brost@intel.com, John.C.Harrison@Intel.com,
+        thomas.hellstrom@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jan 2022 17:49:10 +0100
-Message-ID: <164295655014840@kroah.com>
+Date:   Sun, 23 Jan 2022 17:50:25 +0100
+Message-ID: <1642956625152174@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -54,39 +51,135 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4a7f4110f79163fd53ea65438041994ed615e3af Mon Sep 17 00:00:00 2001
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
-Date: Wed, 1 Dec 2021 14:59:29 +0200
-Subject: [PATCH] device property: Fix fwnode_graph_devcon_match() fwnode leak
+From 12a9917e9e84fef4efa73c09b32870df0b1ed795 Mon Sep 17 00:00:00 2001
+From: Matthew Brost <matthew.brost@intel.com>
+Date: Wed, 20 Oct 2021 12:21:47 -0700
+Subject: [PATCH] drm/i915/guc: Fix recursive lock in GuC submission
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-For each endpoint it encounters, fwnode_graph_devcon_match() checks
-whether the endpoint's remote port parent device is available. If it is
-not, it ignores the endpoint but does not put the reference to the remote
-endpoint port parent fwnode. For available devices the fwnode handle
-reference is put as expected.
+Use __release_guc_id (lock held) rather than release_guc_id (acquires
+lock), add lockdep annotations.
 
-Put the reference for unavailable devices now.
+213.280129] i915: Running i915_perf_live_selftests/live_noa_gpr
+[ 213.283459] ============================================
+[ 213.283462] WARNING: possible recursive locking detected
+{{[ 213.283466] 5.15.0-rc6+ #18 Tainted: G U W }}
+[ 213.283470] --------------------------------------------
+[ 213.283472] kworker/u24:0/8 is trying to acquire lock:
+[ 213.283475] ffff8ffc4f6cc1e8 (&guc->submission_state.lock){....}-{2:2}, at: destroyed_worker_func+0x2df/0x350 [i915]
+{{[ 213.283618] }}
+{{ but task is already holding lock:}}
+[ 213.283621] ffff8ffc4f6cc1e8 (&guc->submission_state.lock){....}-{2:2}, at: destroyed_worker_func+0x4f/0x350 [i915]
+{{[ 213.283720] }}
+{{ other info that might help us debug this:}}
+[ 213.283724] Possible unsafe locking scenario:[ 213.283727] CPU0
+[ 213.283728] ----
+[ 213.283730] lock(&guc->submission_state.lock);
+[ 213.283734] lock(&guc->submission_state.lock);
+{{[ 213.283737] }}
+{{ *** DEADLOCK ***}}[ 213.283740] May be due to missing lock nesting notation[ 213.283744] 3 locks held by kworker/u24:0/8:
+[ 213.283747] #0: ffff8ffb80059d38 ((wq_completion)events_unbound){..}-{0:0}, at: process_one_work+0x1f3/0x550
+[ 213.283757] #1: ffffb509000e3e78 ((work_completion)(&guc->submission_state.destroyed_worker)){..}-{0:0}, at: process_one_work+0x1f3/0x550
+[ 213.283766] #2: ffff8ffc4f6cc1e8 (&guc->submission_state.lock){....}-{2:2}, at: destroyed_worker_func+0x4f/0x350 [i915]
+{{[ 213.283860] }}
+{{ stack backtrace:}}
+[ 213.283863] CPU: 8 PID: 8 Comm: kworker/u24:0 Tainted: G U W 5.15.0-rc6+ #18
+[ 213.283868] Hardware name: ASUS System Product Name/PRIME B560M-A AC, BIOS 0403 01/26/2021
+[ 213.283873] Workqueue: events_unbound destroyed_worker_func [i915]
+[ 213.283957] Call Trace:
+[ 213.283960] dump_stack_lvl+0x57/0x72
+[ 213.283966] __lock_acquire.cold+0x191/0x2d3
+[ 213.283972] lock_acquire+0xb5/0x2b0
+[ 213.283978] ? destroyed_worker_func+0x2df/0x350 [i915]
+[ 213.284059] ? destroyed_worker_func+0x2d7/0x350 [i915]
+[ 213.284139] ? lock_release+0xb9/0x280
+[ 213.284143] _raw_spin_lock_irqsave+0x48/0x60
+[ 213.284148] ? destroyed_worker_func+0x2df/0x350 [i915]
+[ 213.284226] destroyed_worker_func+0x2df/0x350 [i915]
+[ 213.284310] process_one_work+0x270/0x550
+[ 213.284315] worker_thread+0x52/0x3b0
+[ 213.284319] ? process_one_work+0x550/0x550
+[ 213.284322] kthread+0x135/0x160
+[ 213.284326] ? set_kthread_struct+0x40/0x40
+[ 213.284331] ret_from_fork+0x1f/0x30
 
-Fixes: 637e9e52b185 ("device connection: Find device connections also from device graphs")
-Cc: 5.1+ <stable@vger.kernel.org> # 5.1+
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+and a bit later in the trace:
 
-diff --git a/drivers/base/property.c b/drivers/base/property.c
-index d0960a9e8974..b7b3a7b86006 100644
---- a/drivers/base/property.c
-+++ b/drivers/base/property.c
-@@ -1158,8 +1158,10 @@ fwnode_graph_devcon_match(struct fwnode_handle *fwnode, const char *con_id,
+{{ 227.499864] do_raw_spin_lock+0x94/0xa0}}
+[ 227.499868] _raw_spin_lock_irqsave+0x50/0x60
+[ 227.499871] ? guc_flush_destroyed_contexts+0x4f/0xf0 [i915]
+[ 227.499995] guc_flush_destroyed_contexts+0x4f/0xf0 [i915]
+[ 227.500104] intel_guc_submission_reset_prepare+0x99/0x4b0 [i915]
+[ 227.500209] ? mark_held_locks+0x49/0x70
+[ 227.500212] intel_uc_reset_prepare+0x46/0x50 [i915]
+[ 227.500320] reset_prepare+0x78/0x90 [i915]
+[ 227.500412] __intel_gt_set_wedged.part.0+0x13/0xe0 [i915]
+[ 227.500485] intel_gt_set_wedged.part.0+0x54/0x100 [i915]
+[ 227.500556] intel_gt_set_wedged_on_fini+0x1a/0x30 [i915]
+[ 227.500622] intel_gt_driver_unregister+0x1e/0x60 [i915]
+[ 227.500694] i915_driver_remove+0x4a/0xf0 [i915]
+[ 227.500767] i915_pci_probe+0x84/0x170 [i915]
+[ 227.500838] local_pci_probe+0x42/0x80
+[ 227.500842] pci_device_probe+0xd9/0x190
+[ 227.500844] really_probe+0x1f2/0x3f0
+[ 227.500847] __driver_probe_device+0xfe/0x180
+[ 227.500848] driver_probe_device+0x1e/0x90
+[ 227.500850] __driver_attach+0xc4/0x1d0
+[ 227.500851] ? __device_attach_driver+0xe0/0xe0
+[ 227.500853] ? __device_attach_driver+0xe0/0xe0
+[ 227.500854] bus_for_each_dev+0x64/0x90
+[ 227.500856] bus_add_driver+0x12e/0x1f0
+[ 227.500857] driver_register+0x8f/0xe0
+[ 227.500859] i915_init+0x1d/0x8f [i915]
+[ 227.500934] ? 0xffffffffc144a000
+[ 227.500936] do_one_initcall+0x58/0x2d0
+[ 227.500938] ? rcu_read_lock_sched_held+0x3f/0x80
+[ 227.500940] ? kmem_cache_alloc_trace+0x238/0x2d0
+[ 227.500944] do_init_module+0x5c/0x270
+[ 227.500946] __do_sys_finit_module+0x95/0xe0
+[ 227.500949] do_syscall_64+0x38/0x90
+[ 227.500951] entry_SYSCALL_64_after_hwframe+0x44/0xae
+[ 227.500953] RIP: 0033:0x7ffa59d2ae0d
+[ 227.500954] Code: c8 0c 00 0f 05 eb a9 66 0f 1f 44 00 00 f3 0f 1e fa 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 3b 80 0c 00 f7 d8 64 89 01 48
+[ 227.500955] RSP: 002b:00007fff320bbf48 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
+[ 227.500956] RAX: ffffffffffffffda RBX: 00000000022ea710 RCX: 00007ffa59d2ae0d
+[ 227.500957] RDX: 0000000000000000 RSI: 00000000022e1d90 RDI: 0000000000000004
+[ 227.500958] RBP: 0000000000000020 R08: 00007ffa59df3a60 R09: 0000000000000070
+[ 227.500958] R10: 00000000022e1d90 R11: 0000000000000246 R12: 00000000022e1d90
+[ 227.500959] R13: 00000000022e58e0 R14: 0000000000000043 R15: 00000000022e42c0
+
+v2:
+ (CI build)
+  - Fix build error
+
+Fixes: 1a52faed31311 ("drm/i915/guc: Take GT PM ref when deregistering context")
+Signed-off-by: Matthew Brost <matthew.brost@intel.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211020192147.8048-1-matthew.brost@intel.com
+
+diff --git a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
+index d7710debcd47..38b47e73e35d 100644
+--- a/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
++++ b/drivers/gpu/drm/i915/gt/uc/intel_guc_submission.c
+@@ -2373,6 +2373,7 @@ static inline void guc_lrc_desc_unpin(struct intel_context *ce)
+ 	unsigned long flags;
+ 	bool disabled;
  
- 	fwnode_graph_for_each_endpoint(fwnode, ep) {
- 		node = fwnode_graph_get_remote_port_parent(ep);
--		if (!fwnode_device_is_available(node))
-+		if (!fwnode_device_is_available(node)) {
-+			fwnode_handle_put(node);
- 			continue;
-+		}
- 
- 		ret = match(node, con_id, data);
- 		fwnode_handle_put(node);
++	lockdep_assert_held(&guc->submission_state.lock);
+ 	GEM_BUG_ON(!intel_gt_pm_is_awake(gt));
+ 	GEM_BUG_ON(!lrc_desc_registered(guc, ce->guc_id.id));
+ 	GEM_BUG_ON(ce != __get_context(guc, ce->guc_id.id));
+@@ -2388,7 +2389,7 @@ static inline void guc_lrc_desc_unpin(struct intel_context *ce)
+ 	}
+ 	spin_unlock_irqrestore(&ce->guc_state.lock, flags);
+ 	if (unlikely(disabled)) {
+-		release_guc_id(guc, ce);
++		__release_guc_id(guc, ce);
+ 		__guc_context_destroy(ce);
+ 		return;
+ 	}
 
