@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0F7A497338
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:51:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C909497339
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:51:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238948AbiAWQu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 11:50:59 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:54516 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231686AbiAWQuz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:50:55 -0500
+        id S232879AbiAWQvA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 11:51:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57314 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238947AbiAWQu6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:50:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C2C1C06173B
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 08:50:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D2DB760FA3
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:50:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B696DC340E5;
-        Sun, 23 Jan 2022 16:50:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BCC760F95
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:50:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBA92C340E2;
+        Sun, 23 Jan 2022 16:50:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642956654;
-        bh=dV6J1zrv6F9ysdDp5ssNYgdCWXZ0PzX39jgfHaymuFI=;
+        s=korg; t=1642956657;
+        bh=TQ91YkTFgu+rtI9giVM4uvmh0lFQT7DzPwS6Qkgjgb4=;
         h=Subject:To:Cc:From:Date:From;
-        b=RIc1MC6vxDsNQwnWWFvtYNZduX4inkBX2BfOvblVU3w5ZS138axXX1Iev5JbyY6jW
-         8mHxf/Zt7O88HeNOM1GhJdclWesi/JLups/q9EOIZiH9pLJO00TFcQbPtJD3JcpdzZ
-         CsaiCEGdEGf48MAojE7CW2mzK5G8Rj/FezXClzvc=
-Subject: FAILED: patch "[PATCH] drm/i915: Add support for panels with VESA backlights with" failed to apply to 5.15-stable tree
+        b=JL52Afk2ZHfa1fKYTijjW2mOtfsotqXNLSUdrqmydxq+2K6qunHdYmVfTO+s5ujBK
+         9k6z0aIiLtQkgEVRtQNoRnPHSIC6A/cKQrKyxM2n+AulJBgQpFgHEPpL7MsomQiQsh
+         pRaZdSnl/9dCRKemvW/zBgmn9L3fooAByTr8631I=
+Subject: FAILED: patch "[PATCH] drm/i915: Add support for panels with VESA backlights with" failed to apply to 04f0d6cc62cc1eaf9242c081520c024a17ba86a3-stable tree
 To:     lyude@redhat.com, stable@vger.kernel.org,
         ville.syrjala@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jan 2022 17:50:43 +0100
-Message-ID: <1642956643198197@kroah.com>
+Date:   Sun, 23 Jan 2022 17:50:44 +0100
+Message-ID: <164295664417072@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 04f0d6cc62cc1eaf9242c081520c024a17ba86a3-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
