@@ -2,89 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C410496EB5
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 01:13:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50B07496E7E
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 01:12:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235723AbiAWANy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 Jan 2022 19:13:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36714 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235335AbiAWANG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 19:13:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCE1BC06175F;
-        Sat, 22 Jan 2022 16:12:06 -0800 (PST)
+        id S235428AbiAWAMn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 Jan 2022 19:12:43 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:40848 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235284AbiAWAMH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 22 Jan 2022 19:12:07 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 77D45B80927;
-        Sun, 23 Jan 2022 00:12:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37ED4C004E1;
-        Sun, 23 Jan 2022 00:12:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8163B80B19;
+        Sun, 23 Jan 2022 00:12:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7B6BC340E4;
+        Sun, 23 Jan 2022 00:12:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1642896724;
-        bh=FZdORr6n1v/yWRKN8gy/VklB3+rU/+xBNX36oDx/RLM=;
+        s=k20201202; t=1642896725;
+        bh=38RC1PJn8/37II7ZwgeuvRYEswuHJdj9JkLG7IReO1Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JEZB0iXg7942aPGfHf/UtfJupOZwHKJERHV6OwGOgXmFJMR9nf1+HPHhfpTHZMIue
-         4Z19V+KIzMsRS95ksG4jI0vp7kJZMzzOq2zD/rcpdSQElI++Zi51BfBfpbwuuWpCXa
-         pck7TeTTWEUTjt3BJim7eVMSfjhnF0TBwp/AKRhyHgnbS8NxznxUnfEQHG7sp5GDe1
-         IayYe0gbpB8nXtfeC4GYQrtuaGUPYqmmZ2HSfWWk/76VOULjGsVZ4H1IEIfHVWiqEh
-         FuEmX+7UnMe4IEb7rVtfI/8w8349doUBuWdJAxkjyRGi48EiFHRJdKCKHLYRLLhDxY
-         Am9aZMKElD4Kg==
+        b=LicHFLk5srb4l6W1Ds4Td+WSjaCvGqee0iBfpAlpy6frqVABclowkuUp/FDKNMUbs
+         7zUK3OLtSbMj89bCxMp54ahS8vd+FDOpTYgE1LTIL5yavn6TEYTM4MSLZwof4xPatP
+         lCRR3yptPvxDBWqywWg729ZyxsC3u9U2NP2iAd4gzKdaH0VtB78pWuwy6mY9cdcWfL
+         +VT22Sc9jjhWhRGbEOYgugez2rHp9nEc6GJDqXOglZ3yd6AunscxOaZevhWZD/cKhV
+         bswVaKGG8rNqGYdX6PzhaG9auqAWIdqH2nRRIDmjQGJbh9XKAIUV/CNFxfPX7nh0m2
+         a/S5Yg+9FsHIw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eli Cohen <elic@nvidia.com>,
+Cc:     =?UTF-8?q?=E7=8E=8B=E8=B4=87?= <yun.wang@linux.alibaba.com>,
         "Michael S . Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Si-Wei Liu <si-wei.liu@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, parav@nvidia.com,
-        xieyongji@bytedance.com, virtualization@lists.linux-foundation.org
-Subject: [PATCH AUTOSEL 5.16 13/19] net/mlx5_vdpa: Offer VIRTIO_NET_F_MTU when setting MTU
-Date:   Sat, 22 Jan 2022 19:11:06 -0500
-Message-Id: <20220123001113.2460140-13-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, jasowang@redhat.com,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.16 14/19] virtio-pci: fix the confusing error message
+Date:   Sat, 22 Jan 2022 19:11:07 -0500
+Message-Id: <20220123001113.2460140-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220123001113.2460140-1-sashal@kernel.org>
 References: <20220123001113.2460140-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eli Cohen <elic@nvidia.com>
+From: 王贇 <yun.wang@linux.alibaba.com>
 
-[ Upstream commit 60af39c1f4cc92cc2785ef745c0c97558134d539 ]
+[ Upstream commit 6017599bb25c20b7a68cbb8e7d534bdc1c36b5e4 ]
 
-Make sure to offer VIRTIO_NET_F_MTU since we configure the MTU based on
-what was queried from the device.
+The error message on the failure of pfn check should tell
+virtio-pci rather than virtio-mmio, just fix it.
 
-This allows the virtio driver to allocate large enough buffers based on
-the reported MTU.
-
-Signed-off-by: Eli Cohen <elic@nvidia.com>
-Link: https://lore.kernel.org/r/20211124170949.51725-1-elic@nvidia.com
+Signed-off-by: Michael Wang <yun.wang@linux.alibaba.com>
+Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+Link: https://lore.kernel.org/r/ae5e154e-ac59-f0fa-a7c7-091a2201f581@linux.alibaba.com
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Reviewed-by: Si-Wei Liu <si-wei.liu@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vdpa/mlx5/net/mlx5_vnet.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/virtio/virtio_pci_legacy.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index 63813fbb5f62a..d8e69340a25ae 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -1895,6 +1895,7 @@ static u64 mlx5_vdpa_get_features(struct vdpa_device *vdev)
- 	ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_CTRL_MAC_ADDR);
- 	ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_MQ);
- 	ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_STATUS);
-+	ndev->mvdev.mlx_features |= BIT_ULL(VIRTIO_NET_F_MTU);
- 
- 	print_features(mvdev, ndev->mvdev.mlx_features, false);
- 	return ndev->mvdev.mlx_features;
+diff --git a/drivers/virtio/virtio_pci_legacy.c b/drivers/virtio/virtio_pci_legacy.c
+index b3f8128b7983b..34141b9abe278 100644
+--- a/drivers/virtio/virtio_pci_legacy.c
++++ b/drivers/virtio/virtio_pci_legacy.c
+@@ -138,7 +138,7 @@ static struct virtqueue *setup_vq(struct virtio_pci_device *vp_dev,
+ 	q_pfn = virtqueue_get_desc_addr(vq) >> VIRTIO_PCI_QUEUE_ADDR_SHIFT;
+ 	if (q_pfn >> 32) {
+ 		dev_err(&vp_dev->pci_dev->dev,
+-			"platform bug: legacy virtio-mmio must not be used with RAM above 0x%llxGB\n",
++			"platform bug: legacy virtio-pci must not be used with RAM above 0x%llxGB\n",
+ 			0x1ULL << (32 + PAGE_SHIFT - 30));
+ 		err = -E2BIG;
+ 		goto out_del_vq;
 -- 
 2.34.1
 
