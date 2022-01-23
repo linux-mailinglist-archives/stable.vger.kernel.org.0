@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 739764972E1
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:10:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C618D4972E7
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:12:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238460AbiAWQKy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 11:10:54 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:33858 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232971AbiAWQKy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:10:54 -0500
+        id S233148AbiAWQMj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 11:12:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48224 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230007AbiAWQMj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:12:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A069C06173B
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 08:12:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 15B2860F54
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:10:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6277C340E2;
-        Sun, 23 Jan 2022 16:10:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EDAB760FA2
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:12:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5A7AC340E4;
+        Sun, 23 Jan 2022 16:12:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642954253;
-        bh=C0J7dQO2IJ4QV7si2ABh+D+2A8d4U7gfZDE1f5VdpBw=;
+        s=korg; t=1642954358;
+        bh=hq8OmNT9dCvRXKY59DK7ba/IXE4a8fUnQMGRDIWkIhA=;
         h=Subject:To:Cc:From:Date:From;
-        b=cou7N7G+OuB1ti+6Ld3vtEzTCKYfjjjCBfcoYsqoX9ias2WL7DYFzRk3a94Mrfdyu
-         UsRJN03LxQLpnv23soJzj2E3ChkzO+lG+Zo9WKwzNZ2thH9+KYQcUgkH3lpqBYOUhC
-         jmggczEa0Nlp7NxJGw3GEB1kt/iBBE8ypTE1HKl8=
-Subject: FAILED: patch "[PATCH] crypto: stm32/crc32 - Fix kernel BUG triggered in probe()" failed to apply to 4.14-stable tree
-To:     marex@denx.de, alexandre.torgue@foss.st.com,
-        fabien.dessenne@st.com, herbert@gondor.apana.org.au,
-        lionel.debieve@st.com, nicolas.toromanoff@foss.st.com,
-        nicolas.toromanoff@st.com, stable@vger.kernel.org
+        b=FAeV7eSGG5RHzWX31Cd32r11/mQMIJxw8AeE5J0EZpK5NTvV+pQVOpanEeXu103f0
+         3SN37YiFkg5lcroIy85M6qBoY5CEKHCali/v5Wug1zfYaGxLYtkCgWfiSx0S8/y2Bj
+         dne88cx8Vi8qh11v/6ZG7G228pGWegmnTQc6K9oE=
+Subject: FAILED: patch "[PATCH] spi: uniphier: Fix a bug that doesn't point to private data" failed to apply to 5.4-stable tree
+To:     hayashi.kunihiko@socionext.com, broonie@kernel.org,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 23 Jan 2022 17:10:42 +0100
-Message-ID: <164295424225123@kroah.com>
+Date:   Sun, 23 Jan 2022 17:12:27 +0100
+Message-ID: <1642954347211197@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -53,62 +54,45 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 29009604ad4e3ef784fd9b9fef6f23610ddf633d Mon Sep 17 00:00:00 2001
-From: Marek Vasut <marex@denx.de>
-Date: Mon, 20 Dec 2021 20:50:22 +0100
-Subject: [PATCH] crypto: stm32/crc32 - Fix kernel BUG triggered in probe()
+From 80bb73a9fbcde4ecc55e12f10c73fabbe68a24d1 Mon Sep 17 00:00:00 2001
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Date: Wed, 22 Dec 2021 13:48:12 +0900
+Subject: [PATCH] spi: uniphier: Fix a bug that doesn't point to private data
+ correctly
 
-The include/linux/crypto.h struct crypto_alg field cra_driver_name description
-states "Unique name of the transformation provider. " ... " this contains the
-name of the chip or provider and the name of the transformation algorithm."
+In uniphier_spi_remove(), there is a wrong code to get private data from
+the platform device, so the driver can't be removed properly.
 
-In case of the stm32-crc driver, field cra_driver_name is identical for all
-registered transformation providers and set to the name of the driver itself,
-which is incorrect. This patch fixes it by assigning a unique cra_driver_name
-to each registered transformation provider.
+The driver should get spi_master from the platform device and retrieve
+the private data from it.
 
-The kernel crash is triggered when the driver calls crypto_register_shashes()
-which calls crypto_register_shash(), which calls crypto_register_alg(), which
-calls __crypto_register_alg(), which returns -EEXIST, which is propagated
-back through this call chain. Upon -EEXIST from crypto_register_shash(), the
-crypto_register_shashes() starts unregistering the providers back, and calls
-crypto_unregister_shash(), which calls crypto_unregister_alg(), and this is
-where the BUG() triggers due to incorrect cra_refcnt.
+Cc: <stable@vger.kernel.org>
+Fixes: 5ba155a4d4cc ("spi: add SPI controller driver for UniPhier SoC")
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Link: https://lore.kernel.org/r/1640148492-32178-1-git-send-email-hayashi.kunihiko@socionext.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 
-Fixes: b51dbe90912a ("crypto: stm32 - Support for STM32 CRC32 crypto module")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: <stable@vger.kernel.org> # 4.12+
-Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
-Cc: Fabien Dessenne <fabien.dessenne@st.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Lionel Debieve <lionel.debieve@st.com>
-Cc: Nicolas Toromanoff <nicolas.toromanoff@st.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-stm32@st-md-mailman.stormreply.com
-To: linux-crypto@vger.kernel.org
-Acked-by: Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-
-diff --git a/drivers/crypto/stm32/stm32-crc32.c b/drivers/crypto/stm32/stm32-crc32.c
-index 75867c0b0017..be1bf39a317d 100644
---- a/drivers/crypto/stm32/stm32-crc32.c
-+++ b/drivers/crypto/stm32/stm32-crc32.c
-@@ -279,7 +279,7 @@ static struct shash_alg algs[] = {
- 		.digestsize     = CHKSUM_DIGEST_SIZE,
- 		.base           = {
- 			.cra_name               = "crc32",
--			.cra_driver_name        = DRIVER_NAME,
-+			.cra_driver_name        = "stm32-crc32-crc32",
- 			.cra_priority           = 200,
- 			.cra_flags		= CRYPTO_ALG_OPTIONAL_KEY,
- 			.cra_blocksize          = CHKSUM_BLOCK_SIZE,
-@@ -301,7 +301,7 @@ static struct shash_alg algs[] = {
- 		.digestsize     = CHKSUM_DIGEST_SIZE,
- 		.base           = {
- 			.cra_name               = "crc32c",
--			.cra_driver_name        = DRIVER_NAME,
-+			.cra_driver_name        = "stm32-crc32-crc32c",
- 			.cra_priority           = 200,
- 			.cra_flags		= CRYPTO_ALG_OPTIONAL_KEY,
- 			.cra_blocksize          = CHKSUM_BLOCK_SIZE,
+diff --git a/drivers/spi/spi-uniphier.c b/drivers/spi/spi-uniphier.c
+index 8900e51e1a1c..342ee8d2c476 100644
+--- a/drivers/spi/spi-uniphier.c
++++ b/drivers/spi/spi-uniphier.c
+@@ -767,12 +767,13 @@ static int uniphier_spi_probe(struct platform_device *pdev)
+ 
+ static int uniphier_spi_remove(struct platform_device *pdev)
+ {
+-	struct uniphier_spi_priv *priv = platform_get_drvdata(pdev);
++	struct spi_master *master = platform_get_drvdata(pdev);
++	struct uniphier_spi_priv *priv = spi_master_get_devdata(master);
+ 
+-	if (priv->master->dma_tx)
+-		dma_release_channel(priv->master->dma_tx);
+-	if (priv->master->dma_rx)
+-		dma_release_channel(priv->master->dma_rx);
++	if (master->dma_tx)
++		dma_release_channel(master->dma_tx);
++	if (master->dma_rx)
++		dma_release_channel(master->dma_rx);
+ 
+ 	clk_disable_unprepare(priv->clk);
+ 
 
