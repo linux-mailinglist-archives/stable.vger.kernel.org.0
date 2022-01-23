@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EC7149733B
-	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:52:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4957B49733D
+	for <lists+stable@lfdr.de>; Sun, 23 Jan 2022 17:52:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238943AbiAWQwG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 23 Jan 2022 11:52:06 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58044 "EHLO
+        id S231686AbiAWQwK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 Jan 2022 11:52:10 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:58060 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238942AbiAWQwF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:52:05 -0500
+        with ESMTP id S238944AbiAWQwJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 23 Jan 2022 11:52:09 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 91F31B80DC1
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:52:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A07C9C340E2;
-        Sun, 23 Jan 2022 16:52:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D5D9EB80DD1
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 16:52:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01E1AC340E2;
+        Sun, 23 Jan 2022 16:52:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1642956723;
-        bh=pZCXgVrZgLcGH2NyrnYOQsZT7W5CIEeOv9iODZ/2Z5g=;
+        s=korg; t=1642956726;
+        bh=4waoAd97Kx0p2+YbRusiJtW2jY89KJQnEpTfUKNTUbQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=2qL5Ja2zWVJQNaFJFse5rmdJcGhpQp4zXfKmr0LN8XF6xp2DGYFJCnzpS69/hnk3A
-         55JyXJmHP6XPZ0bAmFUJF7cHkeoJvGtAfoCFrDLaKA39wwHM0Cr6SM95WU0ybJH8Os
-         VnyYWJ4Ur2s+rp72lvKdfuSgCailw0g23c2Ybl0s=
-Subject: FAILED: patch "[PATCH] powerpc/32: Fix boot failure with GCC latent entropy plugin" failed to apply to 4.9-stable tree
+        b=L/q4lEC7RJwyR+p6WkoU9Wo7UcAspOhukfEt1fQe4MG+MIIIo8ZdF7B+yapmSr8ev
+         WXr73s/dngjDTYj2haH1gkkkdd0/8SxFdOQIu/TRjeB7ptnYyp4zInFdha7y9YeVIG
+         BDGgU3HPqBs6bkHIBxeH0MvwwIURwhY1Y60A7ie8=
+Subject: FAILED: patch "[PATCH] powerpc/32: Fix boot failure with GCC latent entropy plugin" failed to apply to 4.14-stable tree
 To:     christophe.leroy@csgroup.eu, erhard_f@mailbox.org,
         mpe@ellerman.id.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sun, 23 Jan 2022 17:51:55 +0100
-Message-ID: <164295671514541@kroah.com>
+Message-ID: <164295671571205@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
