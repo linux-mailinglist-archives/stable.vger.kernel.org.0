@@ -2,36 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 043674989B4
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:58:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C4F2498A1A
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:02:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343554AbiAXS5u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:57:50 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:55008 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343565AbiAXSzs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:55:48 -0500
+        id S1344120AbiAXTBb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:01:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44112 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344675AbiAXS6y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:58:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2238BC0613B0;
+        Mon, 24 Jan 2022 10:56:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5869861507;
-        Mon, 24 Jan 2022 18:55:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 316A0C340EC;
-        Mon, 24 Jan 2022 18:55:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B58D161537;
+        Mon, 24 Jan 2022 18:56:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 855B4C340E7;
+        Mon, 24 Jan 2022 18:56:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050546;
-        bh=UeIk/6h2m960zT2fJm51+GzcCIYPNCXiVBySTF5hzY8=;
+        s=korg; t=1643050565;
+        bh=4e2c9QG+xOFsS+hz96NS9KY9zF5wK4/cpjzUua0tK1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2AjKMMA+BmdmCeH4zPPsRmJAKtUsYiH5piUi9rELtDLIQg3lxbQmjenfPE7B9Nlz5
-         NMrqzeuKZWk3q6JmkxJW6B3KFIp5l6lcf5JzKaJ2Ob80CzMv5bxtrK3EyWU8uzkZFj
-         goyOGfodlJjwWtAlh5zlZT4TeZPs3CSKXr/iLPbg=
+        b=Ik2KZ1iis7RtIkhJPz2AOcM3B0twnC5ETw2w5YUcURGq1DtVARtmAZHzD2blJ7Gsx
+         HKJ/wsf1koAlRWmstqTVnPDYzNZYNlEgFHzNx3NNdKyZczpiNuU3A8S/7yQIXxyKXg
+         xDI8F0CPKyHWWAy7ubZfWZ7vbSL9mR8Rq7iyRMTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 4.9 009/157] staging: wlan-ng: Avoid bitwise vs logical OR warning in hfa384x_usb_throttlefn()
-Date:   Mon, 24 Jan 2022 19:41:39 +0100
-Message-Id: <20220124183933.084840126@linuxfoundation.org>
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        =?UTF-8?q?D=C3=A1vid=20Bolvansk=C3=BD?= <david.bolvansky@gmail.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>
+Subject: [PATCH 4.9 010/157] drm/i915: Avoid bitwise vs logical OR warning in snb_wm_latency_quirk()
+Date:   Mon, 24 Jan 2022 19:41:40 +0100
+Message-Id: <20220124183933.112710894@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
 References: <20220124183932.787526760@linuxfoundation.org>
@@ -45,66 +52,50 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <nathan@kernel.org>
 
-commit 502408a61f4b7eb4713f44bd77f4a48e6cb1b59a upstream.
+commit 2e70570656adfe1c5d9a29940faa348d5f132199 upstream.
 
 A new warning in clang points out a place in this file where a bitwise
-OR is being used with boolean expressions:
+OR is being used with boolean types:
 
-In file included from drivers/staging/wlan-ng/prism2usb.c:2:
-drivers/staging/wlan-ng/hfa384x_usb.c:3787:7: warning: use of bitwise '|' with boolean operands [-Wbitwise-instead-of-logical]
-            ((test_and_clear_bit(THROTTLE_RX, &hw->usb_flags) &&
-            ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/staging/wlan-ng/hfa384x_usb.c:3787:7: note: cast one or both operands to int to silence this warning
-1 warning generated.
+drivers/gpu/drm/i915/intel_pm.c:3066:12: warning: use of bitwise '|' with boolean operands [-Wbitwise-instead-of-logical]
+        changed = ilk_increase_wm_latency(dev_priv, dev_priv->wm.pri_latency, 12) |
+                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The comment explains that short circuiting here is undesirable, as the
-calls to test_and_{clear,set}_bit() need to happen for both sides of the
-expression.
+This construct is intentional, as it allows every one of the calls to
+ilk_increase_wm_latency() to occur (instead of short circuiting with
+logical OR) while still caring about the result of each call.
 
-Clang's suggestion would work to silence the warning but the readability
-of the expression would suffer even more. To clean up the warning and
-make the block more readable, use a variable for each side of the
-bitwise expression.
+To make this clearer to the compiler, use the '|=' operator to assign
+the result of each ilk_increase_wm_latency() call to changed, which
+keeps the meaning of the code the same but makes it obvious that every
+one of these calls is expected to happen.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1478
+Link: https://github.com/ClangBuiltLinux/linux/issues/1473
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
 Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/20211014215703.3705371-1-nathan@kernel.org
+Suggested-by: Dávid Bolvanský <david.bolvansky@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211014211916.3550122-1-nathan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/wlan-ng/hfa384x_usb.c |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/gpu/drm/i915/intel_pm.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/staging/wlan-ng/hfa384x_usb.c
-+++ b/drivers/staging/wlan-ng/hfa384x_usb.c
-@@ -3848,18 +3848,18 @@ static void hfa384x_usb_throttlefn(unsig
+--- a/drivers/gpu/drm/i915/intel_pm.c
++++ b/drivers/gpu/drm/i915/intel_pm.c
+@@ -2274,9 +2274,9 @@ static void snb_wm_latency_quirk(struct
+ 	 * The BIOS provided WM memory latency values are often
+ 	 * inadequate for high resolution displays. Adjust them.
+ 	 */
+-	changed = ilk_increase_wm_latency(dev_priv, dev_priv->wm.pri_latency, 12) |
+-		ilk_increase_wm_latency(dev_priv, dev_priv->wm.spr_latency, 12) |
+-		ilk_increase_wm_latency(dev_priv, dev_priv->wm.cur_latency, 12);
++	changed = ilk_increase_wm_latency(dev_priv, dev_priv->wm.pri_latency, 12);
++	changed |= ilk_increase_wm_latency(dev_priv, dev_priv->wm.spr_latency, 12);
++	changed |= ilk_increase_wm_latency(dev_priv, dev_priv->wm.cur_latency, 12);
  
- 	spin_lock_irqsave(&hw->ctlxq.lock, flags);
- 
--	/*
--	 * We need to check BOTH the RX and the TX throttle controls,
--	 * so we use the bitwise OR instead of the logical OR.
--	 */
- 	pr_debug("flags=0x%lx\n", hw->usb_flags);
--	if (!hw->wlandev->hwremoved &&
--	    ((test_and_clear_bit(THROTTLE_RX, &hw->usb_flags) &&
--	      !test_and_set_bit(WORK_RX_RESUME, &hw->usb_flags)) |
--	     (test_and_clear_bit(THROTTLE_TX, &hw->usb_flags) &&
--	      !test_and_set_bit(WORK_TX_RESUME, &hw->usb_flags))
--	    )) {
--		schedule_work(&hw->usb_work);
-+	if (!hw->wlandev->hwremoved) {
-+		bool rx_throttle = test_and_clear_bit(THROTTLE_RX, &hw->usb_flags) &&
-+				   !test_and_set_bit(WORK_RX_RESUME, &hw->usb_flags);
-+		bool tx_throttle = test_and_clear_bit(THROTTLE_TX, &hw->usb_flags) &&
-+				   !test_and_set_bit(WORK_TX_RESUME, &hw->usb_flags);
-+		/*
-+		 * We need to check BOTH the RX and the TX throttle controls,
-+		 * so we use the bitwise OR instead of the logical OR.
-+		 */
-+		if (rx_throttle | tx_throttle)
-+			schedule_work(&hw->usb_work);
- 	}
- 
- 	spin_unlock_irqrestore(&hw->ctlxq.lock, flags);
+ 	if (!changed)
+ 		return;
 
 
