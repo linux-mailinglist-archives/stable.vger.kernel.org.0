@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 377634990A2
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:04:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1862498E15
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:43:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354185AbiAXUCW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:02:22 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:54610 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359839AbiAXUAR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:00:17 -0500
+        id S244033AbiAXTjK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:39:10 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:55730 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1353078AbiAXTcn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:32:43 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BA0860916;
-        Mon, 24 Jan 2022 20:00:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A965C340E5;
-        Mon, 24 Jan 2022 20:00:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 93D72B81243;
+        Mon, 24 Jan 2022 19:32:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9890C340E5;
+        Mon, 24 Jan 2022 19:32:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054415;
-        bh=C+4B7g9Rtt7BSWPboHk3EW42cx6jfP4t12STewUU/Eo=;
+        s=korg; t=1643052757;
+        bh=c48g0P2kXom32ZkWk2oniIOiwrvvjuNKadW20KYAa4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hcqlJJhjXPsslbrzgac42DiZG1T4hdwGQFw17Tl6773Y+LJEBx4ZSLrEB99CtnAxB
-         Q1F0MzwdW+h0CY/fOTC+lYXG5z7JtJYeWxGDMvyCx9kFwjUsj8uAobH+AwReznceFP
-         6zr2yIZQTn83tcGSmE4whpSmqlEjPbac68Qw6eTA=
+        b=r43gWbelS30z4WmaiOL78EdPywGwx31rEDljAyGKLya3poGTBMLiWRDzRW8CibY8l
+         HOFPl75YA1TTESPmmpm7OQR5zo35+/Y9RXFa3OxAvcatV4blmifGl2OOGgaAM+s1T0
+         mPYiiZBEes9DDvp265ScGxNkX2yluB1VRFeDlUxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Egerer <thomas.egerer@secunet.com>,
-        Antony Antony <antony.antony@secunet.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 382/563] xfrm: rate limit SA mapping change message to user space
+Subject: [PATCH 5.4 163/320] media: b2c2: Add missing check in flexcop_pci_isr:
 Date:   Mon, 24 Jan 2022 19:42:27 +0100
-Message-Id: <20220124184037.632696519@linuxfoundation.org>
+Message-Id: <20220124183959.194972317@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,209 +45,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antony Antony <antony.antony@secunet.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 4e484b3e969b52effd95c17f7a86f39208b2ccf4 ]
+[ Upstream commit b13203032e679674c7c518f52a7ec0801ca3a829 ]
 
-Kernel generates mapping change message, XFRM_MSG_MAPPING,
-when a source port chage is detected on a input state with UDP
-encapsulation set.  Kernel generates a message for each IPsec packet
-with new source port.  For a high speed flow per packet mapping change
-message can be excessive, and can overload the user space listener.
+A out-of-bounds bug can be triggered by an interrupt, the reason for
+this bug is the lack of checking of register values.
 
-Introduce rate limiting for XFRM_MSG_MAPPING message to the user space.
+In flexcop_pci_isr, the driver reads value from a register and uses it as
+a dma address. Finally, this address will be passed to the count parameter
+of find_next_packet. If this value is larger than the size of dma, the
+index of buffer will be out-of-bounds.
 
-The rate limiting is configurable via netlink, when adding a new SA or
-updating it. Use the new attribute XFRMA_MTIMER_THRESH in seconds.
+Fix this by adding a check after reading the value of the register.
 
-v1->v2 change:
-	update xfrm_sa_len()
+The following KASAN report reveals it:
 
-v2->v3 changes:
-	use u32 insted unsigned long to reduce size of struct xfrm_state
-	fix xfrm_ompat size Reported-by: kernel test robot <lkp@intel.com>
-	accept XFRM_MSG_MAPPING only when XFRMA_ENCAP is present
+BUG: KASAN: slab-out-of-bounds in find_next_packet
+drivers/media/dvb-core/dvb_demux.c:528 [inline]
+BUG: KASAN: slab-out-of-bounds in _dvb_dmx_swfilter
+drivers/media/dvb-core/dvb_demux.c:572 [inline]
+BUG: KASAN: slab-out-of-bounds in dvb_dmx_swfilter+0x3fa/0x420
+drivers/media/dvb-core/dvb_demux.c:603
+Read of size 1 at addr ffff8880608c00a0 by task swapper/2/0
 
-Co-developed-by: Thomas Egerer <thomas.egerer@secunet.com>
-Signed-off-by: Thomas Egerer <thomas.egerer@secunet.com>
-Signed-off-by: Antony Antony <antony.antony@secunet.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+CPU: 2 PID: 0 Comm: swapper/2 Not tainted 4.19.177-gdba4159c14ef #25
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0xec/0x156 lib/dump_stack.c:118
+ print_address_description+0x78/0x290 mm/kasan/report.c:256
+ kasan_report_error mm/kasan/report.c:354 [inline]
+ kasan_report+0x25b/0x380 mm/kasan/report.c:412
+ __asan_report_load1_noabort+0x19/0x20 mm/kasan/report.c:430
+ find_next_packet drivers/media/dvb-core/dvb_demux.c:528 [inline]
+ _dvb_dmx_swfilter drivers/media/dvb-core/dvb_demux.c:572 [inline]
+ dvb_dmx_swfilter+0x3fa/0x420 drivers/media/dvb-core/dvb_demux.c:603
+ flexcop_pass_dmx_data+0x2e/0x40 drivers/media/common/b2c2/flexcop.c:167
+ flexcop_pci_isr+0x3d1/0x5d0 drivers/media/pci/b2c2/flexcop-pci.c:212
+ __handle_irq_event_percpu+0xfb/0x770 kernel/irq/handle.c:149
+ handle_irq_event_percpu+0x79/0x150 kernel/irq/handle.c:189
+ handle_irq_event+0xac/0x140 kernel/irq/handle.c:206
+ handle_fasteoi_irq+0x232/0x5c0 kernel/irq/chip.c:725
+ generic_handle_irq_desc include/linux/irqdesc.h:155 [inline]
+ handle_irq+0x230/0x3a0 arch/x86/kernel/irq_64.c:87
+ do_IRQ+0xa7/0x1e0 arch/x86/kernel/irq.c:247
+ common_interrupt+0xf/0xf arch/x86/entry/entry_64.S:670
+ </IRQ>
+RIP: 0010:native_safe_halt+0x28/0x30 arch/x86/include/asm/irqflags.h:61
+Code: 00 00 55 be 04 00 00 00 48 c7 c7 00 62 2f 8c 48 89 e5 e8 fb 31
+e8 f8 8b 05 75 4f 8e 03 85 c0 7e 07 0f 00 2d 8a 61 66 00 fb f4 <5d> c3
+90 90 90 90 90 90 0f 1f 44 00 00 55 48 89 e5 41 57 41 56 41
+RSP: 0018:ffff88806b71fcc8 EFLAGS: 00000246 ORIG_RAX: ffffffffffffffde
+RAX: 0000000000000000 RBX: ffffffff8bde44c8 RCX: ffffffff88a11285
+RDX: 0000000000000000 RSI: 0000000000000004 RDI: ffffffff8c2f6200
+RBP: ffff88806b71fcc8 R08: fffffbfff185ec40 R09: fffffbfff185ec40
+R10: 0000000000000001 R11: fffffbfff185ec40 R12: 0000000000000002
+R13: ffffffff8be9d6e0 R14: 0000000000000000 R15: 0000000000000000
+ arch_safe_halt arch/x86/include/asm/paravirt.h:94 [inline]
+ default_idle+0x6f/0x360 arch/x86/kernel/process.c:557
+ arch_cpu_idle+0xf/0x20 arch/x86/kernel/process.c:548
+ default_idle_call+0x3b/0x60 kernel/sched/idle.c:93
+ cpuidle_idle_call kernel/sched/idle.c:153 [inline]
+ do_idle+0x2ab/0x3c0 kernel/sched/idle.c:263
+ cpu_startup_entry+0xcb/0xe0 kernel/sched/idle.c:369
+ start_secondary+0x3b8/0x4e0 arch/x86/kernel/smpboot.c:271
+ secondary_startup_64+0xa4/0xb0 arch/x86/kernel/head_64.S:243
+
+Allocated by task 1:
+ save_stack+0x43/0xd0 mm/kasan/kasan.c:448
+ set_track mm/kasan/kasan.c:460 [inline]
+ kasan_kmalloc+0xad/0xe0 mm/kasan/kasan.c:553
+ kasan_slab_alloc+0x11/0x20 mm/kasan/kasan.c:490
+ slab_post_alloc_hook mm/slab.h:445 [inline]
+ slab_alloc_node mm/slub.c:2741 [inline]
+ slab_alloc mm/slub.c:2749 [inline]
+ kmem_cache_alloc+0xeb/0x280 mm/slub.c:2754
+ kmem_cache_zalloc include/linux/slab.h:699 [inline]
+ __kernfs_new_node+0xe2/0x6f0 fs/kernfs/dir.c:633
+ kernfs_new_node+0x9a/0x120 fs/kernfs/dir.c:693
+ __kernfs_create_file+0x5f/0x340 fs/kernfs/file.c:992
+ sysfs_add_file_mode_ns+0x22a/0x4e0 fs/sysfs/file.c:306
+ create_files fs/sysfs/group.c:63 [inline]
+ internal_create_group+0x34e/0xc30 fs/sysfs/group.c:147
+ sysfs_create_group fs/sysfs/group.c:173 [inline]
+ sysfs_create_groups+0x9c/0x140 fs/sysfs/group.c:200
+ driver_add_groups+0x3e/0x50 drivers/base/driver.c:129
+ bus_add_driver+0x3a5/0x790 drivers/base/bus.c:684
+ driver_register+0x1cd/0x410 drivers/base/driver.c:170
+ __pci_register_driver+0x197/0x200 drivers/pci/pci-driver.c:1411
+ cx88_audio_pci_driver_init+0x23/0x25 drivers/media/pci/cx88/cx88-alsa.c:
+ 1017
+ do_one_initcall+0xe0/0x610 init/main.c:884
+ do_initcall_level init/main.c:952 [inline]
+ do_initcalls init/main.c:960 [inline]
+ do_basic_setup init/main.c:978 [inline]
+ kernel_init_freeable+0x4d0/0x592 init/main.c:1145
+ kernel_init+0x18/0x190 init/main.c:1062
+ ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:415
+
+Freed by task 0:
+(stack is not available)
+
+The buggy address belongs to the object at ffff8880608c0000
+ which belongs to the cache kernfs_node_cache of size 160
+The buggy address is located 0 bytes to the right of
+ 160-byte region [ffff8880608c0000, ffff8880608c00a0)
+The buggy address belongs to the page:
+page:ffffea0001823000 count:1 mapcount:0 mapping:ffff88806bed1e00
+index:0x0 compound_mapcount: 0
+flags: 0x100000000008100(slab|head)
+raw: 0100000000008100 dead000000000100 dead000000000200 ffff88806bed1e00
+raw: 0000000000000000 0000000000240024 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff8880608bff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffff8880608c0000: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>ffff8880608c0080: 00 00 00 00 fc fc fc fc fc fc fc fc 00 00 00 00
+                               ^
+ ffff8880608c0100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffff8880608c0180: fc fc fc fc fc fc fc fc 00 00 00 00 00 00 00 00
+==================================================================
+
+Link: https://lore.kernel.org/linux-media/1620723603-30912-1-git-send-email-zheyuma97@gmail.com
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/xfrm.h        |  5 +++++
- include/uapi/linux/xfrm.h |  1 +
- net/xfrm/xfrm_compat.c    |  6 ++++--
- net/xfrm/xfrm_state.c     | 23 ++++++++++++++++++++++-
- net/xfrm/xfrm_user.c      | 18 +++++++++++++++++-
- 5 files changed, 49 insertions(+), 4 deletions(-)
+ drivers/media/pci/b2c2/flexcop-pci.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/include/net/xfrm.h b/include/net/xfrm.h
-index 6232a5f048bde..337d29875e518 100644
---- a/include/net/xfrm.h
-+++ b/include/net/xfrm.h
-@@ -193,6 +193,11 @@ struct xfrm_state {
- 	struct xfrm_algo_aead	*aead;
- 	const char		*geniv;
+diff --git a/drivers/media/pci/b2c2/flexcop-pci.c b/drivers/media/pci/b2c2/flexcop-pci.c
+index a9d9520a94c6d..c9e6c7d663768 100644
+--- a/drivers/media/pci/b2c2/flexcop-pci.c
++++ b/drivers/media/pci/b2c2/flexcop-pci.c
+@@ -185,6 +185,8 @@ static irqreturn_t flexcop_pci_isr(int irq, void *dev_id)
+ 		dma_addr_t cur_addr =
+ 			fc->read_ibi_reg(fc,dma1_008).dma_0x8.dma_cur_addr << 2;
+ 		u32 cur_pos = cur_addr - fc_pci->dma[0].dma_addr0;
++		if (cur_pos > fc_pci->dma[0].size * 2)
++			goto error;
  
-+	/* mapping change rate limiting */
-+	__be16 new_mapping_sport;
-+	u32 new_mapping;	/* seconds */
-+	u32 mapping_maxage;	/* seconds for input SA */
-+
- 	/* Data for encapsulator */
- 	struct xfrm_encap_tmpl	*encap;
- 	struct sock __rcu	*encap_sk;
-diff --git a/include/uapi/linux/xfrm.h b/include/uapi/linux/xfrm.h
-index ffc6a5391bb7b..2290c98b47cf8 100644
---- a/include/uapi/linux/xfrm.h
-+++ b/include/uapi/linux/xfrm.h
-@@ -308,6 +308,7 @@ enum xfrm_attr_type_t {
- 	XFRMA_SET_MARK,		/* __u32 */
- 	XFRMA_SET_MARK_MASK,	/* __u32 */
- 	XFRMA_IF_ID,		/* __u32 */
-+	XFRMA_MTIMER_THRESH,	/* __u32 in seconds for input SA */
- 	__XFRMA_MAX
- 
- #define XFRMA_OUTPUT_MARK XFRMA_SET_MARK	/* Compatibility */
-diff --git a/net/xfrm/xfrm_compat.c b/net/xfrm/xfrm_compat.c
-index 2bf2693901631..a0f62fa02e06e 100644
---- a/net/xfrm/xfrm_compat.c
-+++ b/net/xfrm/xfrm_compat.c
-@@ -127,6 +127,7 @@ static const struct nla_policy compat_policy[XFRMA_MAX+1] = {
- 	[XFRMA_SET_MARK]	= { .type = NLA_U32 },
- 	[XFRMA_SET_MARK_MASK]	= { .type = NLA_U32 },
- 	[XFRMA_IF_ID]		= { .type = NLA_U32 },
-+	[XFRMA_MTIMER_THRESH]	= { .type = NLA_U32 },
- };
- 
- static struct nlmsghdr *xfrm_nlmsg_put_compat(struct sk_buff *skb,
-@@ -274,9 +275,10 @@ static int xfrm_xlate64_attr(struct sk_buff *dst, const struct nlattr *src)
- 	case XFRMA_SET_MARK:
- 	case XFRMA_SET_MARK_MASK:
- 	case XFRMA_IF_ID:
-+	case XFRMA_MTIMER_THRESH:
- 		return xfrm_nla_cpy(dst, src, nla_len(src));
- 	default:
--		BUILD_BUG_ON(XFRMA_MAX != XFRMA_IF_ID);
-+		BUILD_BUG_ON(XFRMA_MAX != XFRMA_MTIMER_THRESH);
- 		pr_warn_once("unsupported nla_type %d\n", src->nla_type);
- 		return -EOPNOTSUPP;
+ 		deb_irq("%u irq: %08x cur_addr: %llx: cur_pos: %08x, last_cur_pos: %08x ",
+ 				jiffies_to_usecs(jiffies - fc_pci->last_irq),
+@@ -225,6 +227,7 @@ static irqreturn_t flexcop_pci_isr(int irq, void *dev_id)
+ 		ret = IRQ_NONE;
  	}
-@@ -431,7 +433,7 @@ static int xfrm_xlate32_attr(void *dst, const struct nlattr *nla,
- 	int err;
  
- 	if (type > XFRMA_MAX) {
--		BUILD_BUG_ON(XFRMA_MAX != XFRMA_IF_ID);
-+		BUILD_BUG_ON(XFRMA_MAX != XFRMA_MTIMER_THRESH);
- 		NL_SET_ERR_MSG(extack, "Bad attribute");
- 		return -EOPNOTSUPP;
- 	}
-diff --git a/net/xfrm/xfrm_state.c b/net/xfrm/xfrm_state.c
-index c158e70e8ae10..65e2805fa113a 100644
---- a/net/xfrm/xfrm_state.c
-+++ b/net/xfrm/xfrm_state.c
-@@ -1557,6 +1557,9 @@ static struct xfrm_state *xfrm_state_clone(struct xfrm_state *orig,
- 	x->km.seq = orig->km.seq;
- 	x->replay = orig->replay;
- 	x->preplay = orig->preplay;
-+	x->mapping_maxage = orig->mapping_maxage;
-+	x->new_mapping = 0;
-+	x->new_mapping_sport = 0;
- 
- 	return x;
- 
-@@ -2208,7 +2211,7 @@ int km_query(struct xfrm_state *x, struct xfrm_tmpl *t, struct xfrm_policy *pol)
- }
- EXPORT_SYMBOL(km_query);
- 
--int km_new_mapping(struct xfrm_state *x, xfrm_address_t *ipaddr, __be16 sport)
-+static int __km_new_mapping(struct xfrm_state *x, xfrm_address_t *ipaddr, __be16 sport)
- {
- 	int err = -EINVAL;
- 	struct xfrm_mgr *km;
-@@ -2223,6 +2226,24 @@ int km_new_mapping(struct xfrm_state *x, xfrm_address_t *ipaddr, __be16 sport)
- 	rcu_read_unlock();
- 	return err;
- }
-+
-+int km_new_mapping(struct xfrm_state *x, xfrm_address_t *ipaddr, __be16 sport)
-+{
-+	int ret = 0;
-+
-+	if (x->mapping_maxage) {
-+		if ((jiffies / HZ - x->new_mapping) > x->mapping_maxage ||
-+		    x->new_mapping_sport != sport) {
-+			x->new_mapping_sport = sport;
-+			x->new_mapping = jiffies / HZ;
-+			ret = __km_new_mapping(x, ipaddr, sport);
-+		}
-+	} else {
-+		ret = __km_new_mapping(x, ipaddr, sport);
-+	}
-+
-+	return ret;
-+}
- EXPORT_SYMBOL(km_new_mapping);
- 
- void km_policy_expired(struct xfrm_policy *pol, int dir, int hard, u32 portid)
-diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
-index ddf1b3a5f7c1f..d0fdfbf4c5f72 100644
---- a/net/xfrm/xfrm_user.c
-+++ b/net/xfrm/xfrm_user.c
-@@ -282,6 +282,10 @@ static int verify_newsa_info(struct xfrm_usersa_info *p,
- 
- 	err = 0;
- 
-+	if (attrs[XFRMA_MTIMER_THRESH])
-+		if (!attrs[XFRMA_ENCAP])
-+			err = -EINVAL;
-+
- out:
- 	return err;
- }
-@@ -521,6 +525,7 @@ static void xfrm_update_ae_params(struct xfrm_state *x, struct nlattr **attrs,
- 	struct nlattr *lt = attrs[XFRMA_LTIME_VAL];
- 	struct nlattr *et = attrs[XFRMA_ETIMER_THRESH];
- 	struct nlattr *rt = attrs[XFRMA_REPLAY_THRESH];
-+	struct nlattr *mt = attrs[XFRMA_MTIMER_THRESH];
- 
- 	if (re) {
- 		struct xfrm_replay_state_esn *replay_esn;
-@@ -552,6 +557,9 @@ static void xfrm_update_ae_params(struct xfrm_state *x, struct nlattr **attrs,
- 
- 	if (rt)
- 		x->replay_maxdiff = nla_get_u32(rt);
-+
-+	if (mt)
-+		x->mapping_maxage = nla_get_u32(mt);
- }
- 
- static void xfrm_smark_init(struct nlattr **attrs, struct xfrm_mark *m)
-@@ -969,8 +977,13 @@ static int copy_to_user_state_extra(struct xfrm_state *x,
- 		if (ret)
- 			goto out;
- 	}
--	if (x->security)
-+	if (x->security) {
- 		ret = copy_sec_ctx(x->security, skb);
-+		if (ret)
-+			goto out;
-+	}
-+	if (x->mapping_maxage)
-+		ret = nla_put_u32(skb, XFRMA_MTIMER_THRESH, x->mapping_maxage);
- out:
++error:
+ 	spin_unlock_irqrestore(&fc_pci->irq_lock, flags);
  	return ret;
  }
-@@ -2924,6 +2937,9 @@ static inline unsigned int xfrm_sa_len(struct xfrm_state *x)
- 	/* Must count x->lastused as it may become non-zero behind our back. */
- 	l += nla_total_size_64bit(sizeof(u64));
- 
-+	if (x->mapping_maxage)
-+		l += nla_total_size(sizeof(x->mapping_maxage));
-+
- 	return l;
- }
- 
 -- 
 2.34.1
 
