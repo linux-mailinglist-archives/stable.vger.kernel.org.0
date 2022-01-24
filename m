@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93BEC499684
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:19:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 053BD49965E
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:18:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1445689AbiAXVEn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:04:43 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:52044 "EHLO
+        id S1445440AbiAXVDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:03:25 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:52140 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1443200AbiAXU4a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:56:30 -0500
+        with ESMTP id S1443303AbiAXU4k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:56:40 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7740DB8123D;
-        Mon, 24 Jan 2022 20:56:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B7E2C340E5;
-        Mon, 24 Jan 2022 20:56:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C3797B811A9;
+        Mon, 24 Jan 2022 20:56:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9CF5C340E5;
+        Mon, 24 Jan 2022 20:56:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057788;
-        bh=y68xxu8iMAtxJro7Nolt3iQzbp/6pcihsIFLmjlaUH0=;
+        s=korg; t=1643057797;
+        bh=ANJ5LKnxfnBTuQcDEKga1MP8P7cUsecKPu5TOiY2Go0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xuGeAlHbaWzLmhJeZt9zLtxIfOFYzY8NBMNXnbWnw/Rp7PjTJjdfuLOuyvduuvWtB
-         4gOQkoJOPC/KjaMHkUyRZVIo5wJrq2hkIA3Vi5rRJyg4or1lElAXBxBu3UuC2CpSt3
-         b6ruZ3RJyS23jcv7gdzSMYASweliDmOYmgTLTV90=
+        b=r2V6hGdv8OY/bqHOcNQ9p+tDVWzBB+Uzy84UyhGcCUEYW4fonbjVC7u1sByi4FWRl
+         M0SNquKs4mPEVuS6NbVJmDRNhoCSNxKBWybiMq+g7rRxDhxoP7Cxgg/xPmTLtS0VY9
+         IJtnYEK6AQiM6lggSbAL7RrZRKlPf0tRjv5l1Zd8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Gong <quic_wgong@quicinc.com>,
-        Jouni Malinen <quic_jouni@quicinc.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "Limonciello, Mario" <Mario.Limonciello@amd.com>
-Subject: [PATCH 5.16 0078/1039] ath11k: add string type to search board data in board-2.bin for WCN6855
-Date:   Mon, 24 Jan 2022 19:31:07 +0100
-Message-Id: <20220124184127.793504812@linuxfoundation.org>
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        Chen-Yu Tsai <wenst@chromium.org>,
+        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
+        <nfraprado@collabora.com>, Heiko Stuebner <heiko@sntech.de>
+Subject: [PATCH 5.16 0081/1039] drm/rockchip: dsi: Reconfigure hardware on resume()
+Date:   Mon, 24 Jan 2022 19:31:10 +0100
+Message-Id: <20220124184127.887606666@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -46,135 +46,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Gong <quic_wgong@quicinc.com>
+From: Brian Norris <briannorris@chromium.org>
 
-commit fc95d10ac41d75c14a81afcc8722333d8b2cf80f upstream.
+commit e584cdc1549932f87a2707b56bc588cfac5d89e0 upstream.
 
-Currently ath11k only support string type with bus, chip id and board id
-such as "bus=ahb,qmi-chip-id=1,qmi-board-id=4" for ahb bus chip and
-"bus=pci,qmi-chip-id=0,qmi-board-id=255" for PCIe bus chip in
-board-2.bin. For WCN6855, it is not enough to distinguish all different
-chips.
+Since commit 43c2de1002d2 ("drm/rockchip: dsi: move all lane config except
+LCDC mux to bind()"), we perform most HW configuration in the bind()
+function. This configuration may be lost on suspend/resume, so we
+need to call it again. That may lead to errors like this after system
+suspend/resume:
 
-This is to add a new string type which include bus, chip id, board id,
-vendor, device, subsystem-vendor and subsystem-device for WCN6855.
+  dw-mipi-dsi-rockchip ff968000.mipi: failed to write command FIFO
+  panel-kingdisplay-kd097d04 ff960000.mipi.0: failed write init cmds: -110
 
-ath11k will first load board-2.bin and search in it for the board data
-with the above parameters, if matched one board data, then download it
-to firmware, if not matched any one, then ath11k will download the file
-board.bin to firmware.
+Tested on Acer Chromebook Tab 10 (RK3399 Gru-Scarlet).
 
-Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-01720.1-QCAHSPSWPL_V1_V2_SILICONZ_LITE-1
+Note that early mailing list versions of this driver borrowed Rockchip's
+downstream/BSP solution, to do HW configuration in mode_set() (which
+*is* called at the appropriate pre-enable() times), but that was
+discarded along the way. I've avoided that still, because mode_set()
+documentation doesn't suggest this kind of purpose as far as I can tell.
 
-Signed-off-by: Wen Gong <quic_wgong@quicinc.com>
-Signed-off-by: Jouni Malinen <quic_jouni@quicinc.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211111065340.20187-1-quic_wgong@quicinc.com
-Cc: "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Fixes: 43c2de1002d2 ("drm/rockchip: dsi: move all lane config except LCDC mux to bind()")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
+Tested-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210928143413.v3.2.I4e9d93aadb00b1ffc7d506e3186a25492bf0b732@changeid
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath11k/core.c |   27 +++++++++++++++++++++------
- drivers/net/wireless/ath/ath11k/core.h |   13 +++++++++++++
- drivers/net/wireless/ath/ath11k/pci.c  |   10 ++++++++++
- 3 files changed, 44 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c |   37 ++++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
 
---- a/drivers/net/wireless/ath/ath11k/core.c
-+++ b/drivers/net/wireless/ath/ath11k/core.c
-@@ -392,11 +392,26 @@ static int ath11k_core_create_board_name
- 		scnprintf(variant, sizeof(variant), ",variant=%s",
- 			  ab->qmi.target.bdf_ext);
- 
--	scnprintf(name, name_len,
--		  "bus=%s,qmi-chip-id=%d,qmi-board-id=%d%s",
--		  ath11k_bus_str(ab->hif.bus),
--		  ab->qmi.target.chip_id,
--		  ab->qmi.target.board_id, variant);
-+	switch (ab->id.bdf_search) {
-+	case ATH11K_BDF_SEARCH_BUS_AND_BOARD:
-+		scnprintf(name, name_len,
-+			  "bus=%s,vendor=%04x,device=%04x,subsystem-vendor=%04x,subsystem-device=%04x,qmi-chip-id=%d,qmi-board-id=%d%s",
-+			  ath11k_bus_str(ab->hif.bus),
-+			  ab->id.vendor, ab->id.device,
-+			  ab->id.subsystem_vendor,
-+			  ab->id.subsystem_device,
-+			  ab->qmi.target.chip_id,
-+			  ab->qmi.target.board_id,
-+			  variant);
-+		break;
-+	default:
-+		scnprintf(name, name_len,
-+			  "bus=%s,qmi-chip-id=%d,qmi-board-id=%d%s",
-+			  ath11k_bus_str(ab->hif.bus),
-+			  ab->qmi.target.chip_id,
-+			  ab->qmi.target.board_id, variant);
-+		break;
-+	}
- 
- 	ath11k_dbg(ab, ATH11K_DBG_BOOT, "boot using board name '%s'\n", name);
- 
-@@ -633,7 +648,7 @@ static int ath11k_core_fetch_board_data_
- 	return 0;
- }
- 
--#define BOARD_NAME_SIZE 100
-+#define BOARD_NAME_SIZE 200
- int ath11k_core_fetch_bdf(struct ath11k_base *ab, struct ath11k_board_data *bd)
- {
- 	char boardname[BOARD_NAME_SIZE];
---- a/drivers/net/wireless/ath/ath11k/core.h
-+++ b/drivers/net/wireless/ath/ath11k/core.h
-@@ -47,6 +47,11 @@ enum ath11k_supported_bw {
- 	ATH11K_BW_160	= 3,
+--- a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
++++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
+@@ -267,6 +267,8 @@ struct dw_mipi_dsi_rockchip {
+ 	struct dw_mipi_dsi *dmd;
+ 	const struct rockchip_dw_dsi_chip_data *cdata;
+ 	struct dw_mipi_dsi_plat_data pdata;
++
++	bool dsi_bound;
  };
  
-+enum ath11k_bdf_search {
-+	ATH11K_BDF_SEARCH_DEFAULT,
-+	ATH11K_BDF_SEARCH_BUS_AND_BOARD,
-+};
-+
- enum wme_ac {
- 	WME_AC_BE,
- 	WME_AC_BK,
-@@ -759,6 +764,14 @@ struct ath11k_base {
- 
- 	struct completion htc_suspend;
- 
-+	struct {
-+		enum ath11k_bdf_search bdf_search;
-+		u32 vendor;
-+		u32 device;
-+		u32 subsystem_vendor;
-+		u32 subsystem_device;
-+	} id;
-+
- 	/* must be last */
- 	u8 drv_priv[0] __aligned(sizeof(void *));
- };
---- a/drivers/net/wireless/ath/ath11k/pci.c
-+++ b/drivers/net/wireless/ath/ath11k/pci.c
-@@ -1251,6 +1251,15 @@ static int ath11k_pci_probe(struct pci_d
- 		goto err_free_core;
+ struct dphy_pll_parameter_map {
+@@ -963,6 +965,8 @@ static int dw_mipi_dsi_rockchip_bind(str
+ 		goto out_pm_runtime;
  	}
  
-+	ath11k_dbg(ab, ATH11K_DBG_BOOT, "pci probe %04x:%04x %04x:%04x\n",
-+		   pdev->vendor, pdev->device,
-+		   pdev->subsystem_vendor, pdev->subsystem_device);
++	dsi->dsi_bound = true;
 +
-+	ab->id.vendor = pdev->vendor;
-+	ab->id.device = pdev->device;
-+	ab->id.subsystem_vendor = pdev->subsystem_vendor;
-+	ab->id.subsystem_device = pdev->subsystem_device;
+ 	return 0;
+ 
+ out_pm_runtime:
+@@ -982,6 +986,8 @@ static void dw_mipi_dsi_rockchip_unbind(
+ 	if (dsi->is_slave)
+ 		return;
+ 
++	dsi->dsi_bound = false;
 +
- 	switch (pci_dev->device) {
- 	case QCA6390_DEVICE_ID:
- 		ath11k_pci_read_hw_version(ab, &soc_hw_version_major,
-@@ -1273,6 +1282,7 @@ static int ath11k_pci_probe(struct pci_d
- 		ab->hw_rev = ATH11K_HW_QCN9074_HW10;
- 		break;
- 	case WCN6855_DEVICE_ID:
-+		ab->id.bdf_search = ATH11K_BDF_SEARCH_BUS_AND_BOARD;
- 		ath11k_pci_read_hw_version(ab, &soc_hw_version_major,
- 					   &soc_hw_version_minor);
- 		switch (soc_hw_version_major) {
+ 	dw_mipi_dsi_unbind(dsi->dmd);
+ 
+ 	clk_disable_unprepare(dsi->pllref_clk);
+@@ -1276,6 +1282,36 @@ static const struct phy_ops dw_mipi_dsi_
+ 	.exit		= dw_mipi_dsi_dphy_exit,
+ };
+ 
++static int __maybe_unused dw_mipi_dsi_rockchip_resume(struct device *dev)
++{
++	struct dw_mipi_dsi_rockchip *dsi = dev_get_drvdata(dev);
++	int ret;
++
++	/*
++	 * Re-configure DSI state, if we were previously initialized. We need
++	 * to do this before rockchip_drm_drv tries to re-enable() any panels.
++	 */
++	if (dsi->dsi_bound) {
++		ret = clk_prepare_enable(dsi->grf_clk);
++		if (ret) {
++			DRM_DEV_ERROR(dsi->dev, "Failed to enable grf_clk: %d\n", ret);
++			return ret;
++		}
++
++		dw_mipi_dsi_rockchip_config(dsi);
++		if (dsi->slave)
++			dw_mipi_dsi_rockchip_config(dsi->slave);
++
++		clk_disable_unprepare(dsi->grf_clk);
++	}
++
++	return 0;
++}
++
++static const struct dev_pm_ops dw_mipi_dsi_rockchip_pm_ops = {
++	SET_LATE_SYSTEM_SLEEP_PM_OPS(NULL, dw_mipi_dsi_rockchip_resume)
++};
++
+ static int dw_mipi_dsi_rockchip_probe(struct platform_device *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+@@ -1593,6 +1629,7 @@ struct platform_driver dw_mipi_dsi_rockc
+ 	.remove		= dw_mipi_dsi_rockchip_remove,
+ 	.driver		= {
+ 		.of_match_table = dw_mipi_dsi_rockchip_dt_ids,
++		.pm	= &dw_mipi_dsi_rockchip_pm_ops,
+ 		.name	= "dw-mipi-dsi-rockchip",
+ 	},
+ };
 
 
