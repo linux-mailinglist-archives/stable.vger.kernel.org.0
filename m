@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 884C7499A77
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3B5B499DA4
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:00:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1573061AbiAXVoP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:44:15 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:45900 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1454866AbiAXVeB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:34:01 -0500
+        id S1585894AbiAXWZN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:25:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35700 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1582520AbiAXWPX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:15:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DD14C04966A;
+        Mon, 24 Jan 2022 12:44:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E870AB8123A;
-        Mon, 24 Jan 2022 21:33:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B60EC340E4;
-        Mon, 24 Jan 2022 21:33:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 55BC3B8121C;
+        Mon, 24 Jan 2022 20:44:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BC4EC340E5;
+        Mon, 24 Jan 2022 20:44:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060038;
-        bh=R8/1XpnUCRmWuxRq57W415mmpgzGhzNlkkynV5S82N0=;
+        s=korg; t=1643057066;
+        bh=A2EUI144kMYsLayEJBAsTA84cPoFnieVulthcDcdZcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ONeBL5Gsat1wRL+yUfAG109shpgcP7hJC1dKEo5TaVH6BXZ34Iq22qnkggFbS53/k
-         56YAn1J814O525y6s2MK4XfXDQWHqLphJS5p0xGuLt9Qi9TC7ij2+aKbniRyjw/o53
-         QLi5oWqapXKdvmk4lyWexFlihdCmelatJdiBxa5I=
+        b=kcYJNYZ8MI4fGQz36T8j1iUa2ADgkpAhXAVOaDPKB/9GIzcwFHEg3//VykVcbDwfK
+         fjIYHpBW30+o98obqt/ldqJpMYYwK2J2sNiXvZXkbPi/YRSbwcDNAk7J8inykLv6Kf
+         3Qp87uNrJQztRDx0JhRz+9lwk30ANgVw0uxb6ULU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Paul <seanpaul@chromium.org>,
-        Rob Clark <robdclark@chromium.org>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@linux.ie>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Liu Ying <victor.liu@nxp.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0818/1039] drm/atomic: Check new_crtc_state->active to determine if CRTC needs disable in self refresh mode
-Date:   Mon, 24 Jan 2022 19:43:27 +0100
-Message-Id: <20220124184152.800331782@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: [PATCH 5.15 691/846] drm/etnaviv: limit submit sizes
+Date:   Mon, 24 Jan 2022 19:43:28 +0100
+Message-Id: <20220124184124.887012384@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,57 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Ying <victor.liu@nxp.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit 69e630016ef4e4a1745310c446f204dc6243e907 ]
+commit 6dfa2fab8ddd46faa771a102672176bee7a065de upstream.
 
-Actual hardware state of CRTC is controlled by the member 'active' in
-struct drm_crtc_state instead of the member 'enable', according to the
-kernel doc of the member 'enable'.  In fact, the drm client modeset
-and atomic helpers are using the member 'active' to do the control.
+Currently we allow rediculous amounts of kernel memory being allocated
+via the etnaviv GEM_SUBMIT ioctl, which is a pretty easy DoS vector. Put
+some reasonable limits in to fix this.
 
-Referencing the member 'enable' of new_crtc_state, the function
-crtc_needs_disable() may fail to reflect if CRTC needs disable in
-self refresh mode, e.g., when the framebuffer emulation will be blanked
-through the client modeset helper with the next commit, the member
-'enable' of new_crtc_state is still true while the member 'active' is
-false, hence the relevant potential encoder and bridges won't be disabled.
+The commandstream size is limited to 64KB, which was already a soft limit
+on older kernels after which the kernel only took submits on a best effort
+base, so there is no userspace that tries to submit commandstreams larger
+than this. Even if the whole commandstream is a single incrementing address
+load, the size limit also limits the number of potential relocs and
+referenced buffers to slightly under 64K, so use the same limit for those
+arguments. The performance monitoring infrastructure currently supports
+less than 50 performance counter signals, so limiting them to 128 on a
+single submit seems like a reasonably future-proof number for now. This
+number can be bumped if needed without breaking the interface.
 
-So, let's check new_crtc_state->active to determine if CRTC needs disable
-in self refresh mode instead of new_crtc_state->enable.
-
-Fixes: 1452c25b0e60 ("drm: Add helpers to kick off self refresh mode in drivers")
-Cc: Sean Paul <seanpaul@chromium.org>
-Cc: Rob Clark <robdclark@chromium.org>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Cc: Maxime Ripard <mripard@kernel.org>
-Cc: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Daniel Vetter <daniel@ffwll.ch>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Liu Ying <victor.liu@nxp.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211230040626.646807-1-victor.liu@nxp.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_atomic_helper.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_atomic_helper.c b/drivers/gpu/drm/drm_atomic_helper.c
-index 2c0c6ec928200..ff2bc9a118011 100644
---- a/drivers/gpu/drm/drm_atomic_helper.c
-+++ b/drivers/gpu/drm/drm_atomic_helper.c
-@@ -1001,7 +1001,7 @@ crtc_needs_disable(struct drm_crtc_state *old_state,
- 	 * it's in self refresh mode and needs to be fully disabled.
- 	 */
- 	return old_state->active ||
--	       (old_state->self_refresh_active && !new_state->enable) ||
-+	       (old_state->self_refresh_active && !new_state->active) ||
- 	       new_state->self_refresh_active;
- }
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c
+@@ -469,6 +469,12 @@ int etnaviv_ioctl_gem_submit(struct drm_
+ 		return -EINVAL;
+ 	}
  
--- 
-2.34.1
-
++	if (args->stream_size > SZ_64K || args->nr_relocs > SZ_64K ||
++	    args->nr_bos > SZ_64K || args->nr_pmrs > 128) {
++		DRM_ERROR("submit arguments out of size limits\n");
++		return -EINVAL;
++	}
++
+ 	/*
+ 	 * Copy the command submission and bo array to kernel space in
+ 	 * one go, and do this outside of any locks.
 
 
