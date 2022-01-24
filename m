@@ -2,29 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70E94499164
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48FA8498CEE
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:32:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379192AbiAXUKd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:10:33 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:59572 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377186AbiAXUFG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:05:06 -0500
+        id S1346672AbiAXT0j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:26:39 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:46416 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347384AbiAXTWd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:22:33 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C24E36090B;
-        Mon, 24 Jan 2022 20:05:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E643C340E5;
-        Mon, 24 Jan 2022 20:05:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 71BECB81236;
+        Mon, 24 Jan 2022 19:22:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F2B3C340E5;
+        Mon, 24 Jan 2022 19:22:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054705;
-        bh=PBfU0sjDKHjPEXXIWzNxqIfWzz3fkDv5Yi5PMouzK2E=;
+        s=korg; t=1643052148;
+        bh=FRukRTFFv3IyJWhgY9Oz80eIT2Q6q8nsT2qXjYOW4+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kfMYlhF7DPqdB1Zzb88S6aeafGMFemxSQOOnz/Ktmcwsgh/U2minb8r8swJfLaqKL
-         6J2DP8GQoYiXkCyZbkAGs6ab9vM3XWoIR9uM1pMVOupRw7w//pcOOo7JZzOEyfAE6e
-         VRv5E+yk7225BqQnTRGCIHgKy7mXOMAkei1AaMkI=
+        b=cQIqpfxCqySjuhIFsoTe1sH3HvS4/hOqxyFe1+Mjx6N2zj8nqmPX0iLLsR9pxL6W5
+         +8JFN0paKjqXiTEYy+OI5e1JaJSqDE41CzPVh1K9exb03C5AgPxCt5OA9uMcJ40gMm
+         pXZpgzRwsuLMeDI9Is8a5C+a7APvYSjNs1tF5SME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -32,12 +32,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jeroen van Wolffelaar <jeroen@wolffelaar.nl>,
         =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>,
         Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.10 477/563] ext4: set csum seed in tmp inode while migrating to extents
+Subject: [PATCH 4.19 204/239] ext4: set csum seed in tmp inode while migrating to extents
 Date:   Mon, 24 Jan 2022 19:44:02 +0100
-Message-Id: <20220124184040.962722424@linuxfoundation.org>
+Message-Id: <20220124183949.590528678@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -70,7 +70,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/fs/ext4/migrate.c
 +++ b/fs/ext4/migrate.c
-@@ -459,6 +459,17 @@ int ext4_ext_migrate(struct inode *inode
+@@ -477,6 +477,17 @@ int ext4_ext_migrate(struct inode *inode
  		ext4_journal_stop(handle);
  		goto out_unlock;
  	}
@@ -88,7 +88,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	i_size_write(tmp_inode, i_size_read(inode));
  	/*
  	 * Set the i_nlink to zero so it will be deleted later
-@@ -502,7 +513,6 @@ int ext4_ext_migrate(struct inode *inode
+@@ -520,7 +531,6 @@ int ext4_ext_migrate(struct inode *inode
  		goto out_tmp_inode;
  	}
  
