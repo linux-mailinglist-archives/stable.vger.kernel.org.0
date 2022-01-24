@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4770F499AFC
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:58:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A73D4996CA
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:20:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1574277AbiAXVsi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:48:38 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:60172 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1457664AbiAXVmE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:42:04 -0500
+        id S1354310AbiAXVGv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:06:51 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49116 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1392236AbiAXUuw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:50:52 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E27D6150B;
-        Mon, 24 Jan 2022 21:42:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1393C340E4;
-        Mon, 24 Jan 2022 21:42:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA303B8105C;
+        Mon, 24 Jan 2022 20:50:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC255C340E5;
+        Mon, 24 Jan 2022 20:50:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060523;
-        bh=ekvhrQOAS/MQjky6nakGfLKJtqZG6H3R4/eM51qJ2aw=;
+        s=korg; t=1643057449;
+        bh=W9rtOjKHBw6hBibNcxr0t32NfHgPu+2J1i1+BKiQQuI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CcPXzt7jKkle+gtVDQcbZSQFnpwce55GDHNST4BVsCktDiCoxWTUPQzmb6c/oLFhF
-         /h5y6j8RtFjU0W5Y4vSyuDiZwbg2BKSVVLn83nSP0bDLGzdqSNSsBDOGHAndgBsGAJ
-         lq/oaCH/BzmxG3zOCEtCNAtCrI8jtrYxA2yjZ39k=
+        b=WwiO04yHMLskbLkqfzZd69RPkHgJGP4AHHEFQ6umhTjnh3THRIg9cRRXFsRhAgKRw
+         lJVDwbOO4kr/mIQ3xDNqD8kZnURZ0gEaBOlVhFcx1vCaHL8/Wp0FG8NrRVpCgxMBsQ
+         f67iPWis4ZTvyBfzNc6Apb4bl/i83mOXB+jAiEVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        David Laight <David.Laight@ACULAB.COM>,
-        Ido Schimmel <idosch@mellanox.com>,
-        Jiri Pirko <jiri@mellanox.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.16 0944/1039] ipv4: update fib_info_cnt under spinlock protection
+        stable@vger.kernel.org,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.15 816/846] dmaengine: at_xdmac: Start transfer for cyclic channels in issue_pending
 Date:   Mon, 24 Jan 2022 19:45:33 +0100
-Message-Id: <20220124184157.026797303@linuxfoundation.org>
+Message-Id: <20220124184129.057776609@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,140 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-commit 0a6e6b3c7db6c34e3d149f09cd714972f8753e3f upstream.
+commit e6af9b05bec63cd4d1de2a33968cd0be2a91282a upstream.
 
-In the past, free_fib_info() was supposed to be called
-under RTNL protection.
+Cyclic channels must too call issue_pending in order to start a transfer.
+Start the transfer in issue_pending regardless of the type of channel.
+This wrongly worked before, because in the past the transfer was started
+at tx_submit level when only a desc in the transfer list.
 
-This eventually was no longer the case.
-
-Instead of enforcing RTNL it seems we simply can
-move fib_info_cnt changes to occur when fib_info_lock
-is held.
-
-v2: David Laight suggested to update fib_info_cnt
-only when an entry is added/deleted to/from the hash table,
-as fib_info_cnt is used to make sure hash table size
-is optimal.
-
-BUG: KCSAN: data-race in fib_create_info / free_fib_info
-
-write to 0xffffffff86e243a0 of 4 bytes by task 26429 on cpu 0:
- fib_create_info+0xe78/0x3440 net/ipv4/fib_semantics.c:1428
- fib_table_insert+0x148/0x10c0 net/ipv4/fib_trie.c:1224
- fib_magic+0x195/0x1e0 net/ipv4/fib_frontend.c:1087
- fib_add_ifaddr+0xd0/0x2e0 net/ipv4/fib_frontend.c:1109
- fib_netdev_event+0x178/0x510 net/ipv4/fib_frontend.c:1466
- notifier_call_chain kernel/notifier.c:83 [inline]
- raw_notifier_call_chain+0x53/0xb0 kernel/notifier.c:391
- __dev_notify_flags+0x1d3/0x3b0
- dev_change_flags+0xa2/0xc0 net/core/dev.c:8872
- do_setlink+0x810/0x2410 net/core/rtnetlink.c:2719
- rtnl_group_changelink net/core/rtnetlink.c:3242 [inline]
- __rtnl_newlink net/core/rtnetlink.c:3396 [inline]
- rtnl_newlink+0xb10/0x13b0 net/core/rtnetlink.c:3506
- rtnetlink_rcv_msg+0x745/0x7e0 net/core/rtnetlink.c:5571
- netlink_rcv_skb+0x14e/0x250 net/netlink/af_netlink.c:2496
- rtnetlink_rcv+0x18/0x20 net/core/rtnetlink.c:5589
- netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
- netlink_unicast+0x5fc/0x6c0 net/netlink/af_netlink.c:1345
- netlink_sendmsg+0x726/0x840 net/netlink/af_netlink.c:1921
- sock_sendmsg_nosec net/socket.c:704 [inline]
- sock_sendmsg net/socket.c:724 [inline]
- ____sys_sendmsg+0x39a/0x510 net/socket.c:2409
- ___sys_sendmsg net/socket.c:2463 [inline]
- __sys_sendmsg+0x195/0x230 net/socket.c:2492
- __do_sys_sendmsg net/socket.c:2501 [inline]
- __se_sys_sendmsg net/socket.c:2499 [inline]
- __x64_sys_sendmsg+0x42/0x50 net/socket.c:2499
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-read to 0xffffffff86e243a0 of 4 bytes by task 31505 on cpu 1:
- free_fib_info+0x35/0x80 net/ipv4/fib_semantics.c:252
- fib_info_put include/net/ip_fib.h:575 [inline]
- nsim_fib4_rt_destroy drivers/net/netdevsim/fib.c:294 [inline]
- nsim_fib4_rt_replace drivers/net/netdevsim/fib.c:403 [inline]
- nsim_fib4_rt_insert drivers/net/netdevsim/fib.c:431 [inline]
- nsim_fib4_event drivers/net/netdevsim/fib.c:461 [inline]
- nsim_fib_event drivers/net/netdevsim/fib.c:881 [inline]
- nsim_fib_event_work+0x15ca/0x2cf0 drivers/net/netdevsim/fib.c:1477
- process_one_work+0x3fc/0x980 kernel/workqueue.c:2298
- process_scheduled_works kernel/workqueue.c:2361 [inline]
- worker_thread+0x7df/0xa70 kernel/workqueue.c:2447
- kthread+0x2c7/0x2e0 kernel/kthread.c:327
- ret_from_fork+0x1f/0x30
-
-value changed: 0x00000d2d -> 0x00000d2e
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 PID: 31505 Comm: kworker/1:21 Not tainted 5.16.0-rc6-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Workqueue: events nsim_fib_event_work
-
-Fixes: 48bb9eb47b27 ("netdevsim: fib: Add dummy implementation for FIB offload")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Cc: David Laight <David.Laight@ACULAB.COM>
-Cc: Ido Schimmel <idosch@mellanox.com>
-Cc: Jiri Pirko <jiri@mellanox.com>
-Reviewed-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e1f7c9eee707 ("dmaengine: at_xdmac: creation of the atmel eXtended DMA Controller driver")
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Link: https://lore.kernel.org/r/20211215110115.191749-3-tudor.ambarus@microchip.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/fib_semantics.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ drivers/dma/at_xdmac.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/net/ipv4/fib_semantics.c
-+++ b/net/ipv4/fib_semantics.c
-@@ -249,7 +249,6 @@ void free_fib_info(struct fib_info *fi)
- 		pr_warn("Freeing alive fib_info %p\n", fi);
- 		return;
- 	}
--	fib_info_cnt--;
+--- a/drivers/dma/at_xdmac.c
++++ b/drivers/dma/at_xdmac.c
+@@ -1778,11 +1778,9 @@ static void at_xdmac_issue_pending(struc
  
- 	call_rcu(&fi->rcu, free_fib_info_rcu);
+ 	dev_dbg(chan2dev(&atchan->chan), "%s\n", __func__);
+ 
+-	if (!at_xdmac_chan_is_cyclic(atchan)) {
+-		spin_lock_irqsave(&atchan->lock, flags);
+-		at_xdmac_advance_work(atchan);
+-		spin_unlock_irqrestore(&atchan->lock, flags);
+-	}
++	spin_lock_irqsave(&atchan->lock, flags);
++	at_xdmac_advance_work(atchan);
++	spin_unlock_irqrestore(&atchan->lock, flags);
+ 
+ 	return;
  }
-@@ -260,6 +259,10 @@ void fib_release_info(struct fib_info *f
- 	spin_lock_bh(&fib_info_lock);
- 	if (fi && refcount_dec_and_test(&fi->fib_treeref)) {
- 		hlist_del(&fi->fib_hash);
-+
-+		/* Paired with READ_ONCE() in fib_create_info(). */
-+		WRITE_ONCE(fib_info_cnt, fib_info_cnt - 1);
-+
- 		if (fi->fib_prefsrc)
- 			hlist_del(&fi->fib_lhash);
- 		if (fi->nh) {
-@@ -1430,7 +1433,9 @@ struct fib_info *fib_create_info(struct
- #endif
- 
- 	err = -ENOBUFS;
--	if (fib_info_cnt >= fib_info_hash_size) {
-+
-+	/* Paired with WRITE_ONCE() in fib_release_info() */
-+	if (READ_ONCE(fib_info_cnt) >= fib_info_hash_size) {
- 		unsigned int new_size = fib_info_hash_size << 1;
- 		struct hlist_head *new_info_hash;
- 		struct hlist_head *new_laddrhash;
-@@ -1462,7 +1467,6 @@ struct fib_info *fib_create_info(struct
- 		return ERR_PTR(err);
- 	}
- 
--	fib_info_cnt++;
- 	fi->fib_net = net;
- 	fi->fib_protocol = cfg->fc_protocol;
- 	fi->fib_scope = cfg->fc_scope;
-@@ -1589,6 +1593,7 @@ link_it:
- 	refcount_set(&fi->fib_treeref, 1);
- 	refcount_set(&fi->fib_clntref, 1);
- 	spin_lock_bh(&fib_info_lock);
-+	fib_info_cnt++;
- 	hlist_add_head(&fi->fib_hash,
- 		       &fib_info_hash[fib_info_hashfn(fi)]);
- 	if (fi->fib_prefsrc) {
 
 
