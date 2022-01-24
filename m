@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 529A0498D23
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:33:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5FE749944E
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:42:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348198AbiAXT2K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:28:10 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49014 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351180AbiAXT0I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:26:08 -0500
+        id S1389045AbiAXUkX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:40:23 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:32830 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1387681AbiAXUhD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:37:03 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 72EDFB81232;
-        Mon, 24 Jan 2022 19:26:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1F1BC340E5;
-        Mon, 24 Jan 2022 19:26:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B4F8E613FB;
+        Mon, 24 Jan 2022 20:37:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98715C340E5;
+        Mon, 24 Jan 2022 20:37:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052365;
-        bh=MAqNBqkJY10xt9ZfgsqlIb9d8Hthqug4RgrqoOKK6xU=;
+        s=korg; t=1643056622;
+        bh=p9CdwRWne9+kvQaj67kRPnickld1KZcHC6w7Wj/SdVg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eB3TJV5YOEZ1WmC3e1RfIUszW70UqzgaMm+/3Ak8ksMy8O5EPZitmyic+isvWJ9Ic
-         OJ4XR2Q4V5ix4aKLQ6Dt2jzNWvFmi39zOSjWo6ZfIB1sGPxyqBJA5NSES+PnyDAv28
-         3hYbzvEWeHIkSrN/ZK5FytwRnk1srqSrwcpRRAMI=
+        b=eCqV5qUopPCpOwjq4HJzY8XvAmd1qM/oaegEyOGhx6A1vQZidnNnyo2QKswqw5taP
+         BcLm/cLHBLetYIgs3uvDyE7HCgxYBoquIr0F6wO/phDwicizAUSfsszAdgFepvmzdx
+         kDlnQJ86JDmQXWVgSXxc1SFCfzTo8Cn/SUB6uyME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 035/320] drm/panel: innolux-p079zca: Delete panel on attach() failure
+Subject: [PATCH 5.15 502/846] gpiolib: acpi: Do not set the IRQ type if the IRQ is already in use
 Date:   Mon, 24 Jan 2022 19:40:19 +0100
-Message-Id: <20220124183954.942378834@linuxfoundation.org>
+Message-Id: <20220124184118.350491813@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 32a267e9c057e1636e7afdd20599aa5741a73079 ]
+[ Upstream commit bdfd6ab8fdccd8b138837efff66f4a1911496378 ]
 
-If we fail to attach (e.g., because 1 of 2 dual-DSI controllers aren't
-ready), we leave a dangling drm_panel reference to freed memory. Clean
-that up on failure.
+If the IRQ is already in use, then acpi_dev_gpio_irq_get_by() really
+should not change the type underneath the current owner.
 
-This problem exists since the driver's introduction, but is especially
-relevant after refactored for dual-DSI variants.
+I specifically hit an issue with this an a Chuwi Hi8 Super (CWI509) Bay
+Trail tablet, when the Boot OS selection in the BIOS is set to Android.
+In this case _STA for a MAX17047 ACPI I2C device wrongly returns 0xf and
+the _CRS resources for this device include a GpioInt pointing to a GPIO
+already in use by an _AEI handler, with a different type then specified
+in the _CRS for the MAX17047 device. Leading to the acpi_dev_gpio_irq_get()
+call done by the i2c-core-acpi.c code changing the type breaking the
+_AEI handler.
 
-Fixes: 14c8f2e9f8ea ("drm/panel: add Innolux P079ZCA panel driver")
-Fixes: 7ad4e4636c54 ("drm/panel: p079zca: Refactor panel driver to support multiple panels")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210923173336.2.I9023cf8811a3abf4964ed84eb681721d8bb489d6@changeid
+Now this clearly is a bug in the DSDT of this tablet (in Android mode),
+but in general calling irq_set_irq_type() on an IRQ which already is
+in use seems like a bad idea.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panel/panel-innolux-p079zca.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/gpio/gpiolib-acpi.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/panel/panel-innolux-p079zca.c b/drivers/gpu/drm/panel/panel-innolux-p079zca.c
-index d92d1c98878c1..df90b66079816 100644
---- a/drivers/gpu/drm/panel/panel-innolux-p079zca.c
-+++ b/drivers/gpu/drm/panel/panel-innolux-p079zca.c
-@@ -509,6 +509,7 @@ static void innolux_panel_del(struct innolux_panel *innolux)
- static int innolux_panel_probe(struct mipi_dsi_device *dsi)
- {
- 	const struct panel_desc *desc;
-+	struct innolux_panel *innolux;
- 	int err;
+diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
+index 47712b6903b51..d040c72fea582 100644
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -1059,10 +1059,17 @@ int acpi_dev_gpio_irq_get_by(struct acpi_device *adev, const char *name, int ind
+ 			irq_flags = acpi_dev_get_irq_type(info.triggering,
+ 							  info.polarity);
  
- 	desc = of_device_get_match_data(&dsi->dev);
-@@ -520,7 +521,14 @@ static int innolux_panel_probe(struct mipi_dsi_device *dsi)
- 	if (err < 0)
- 		return err;
+-			/* Set type if specified and different than the current one */
+-			if (irq_flags != IRQ_TYPE_NONE &&
+-			    irq_flags != irq_get_trigger_type(irq))
+-				irq_set_irq_type(irq, irq_flags);
++			/*
++			 * If the IRQ is not already in use then set type
++			 * if specified and different than the current one.
++			 */
++			if (can_request_irq(irq, irq_flags)) {
++				if (irq_flags != IRQ_TYPE_NONE &&
++				    irq_flags != irq_get_trigger_type(irq))
++					irq_set_irq_type(irq, irq_flags);
++			} else {
++				dev_dbg(&adev->dev, "IRQ %d already in use\n", irq);
++			}
  
--	return mipi_dsi_attach(dsi);
-+	err = mipi_dsi_attach(dsi);
-+	if (err < 0) {
-+		innolux = mipi_dsi_get_drvdata(dsi);
-+		innolux_panel_del(innolux);
-+		return err;
-+	}
-+
-+	return 0;
- }
- 
- static int innolux_panel_remove(struct mipi_dsi_device *dsi)
+ 			return irq;
+ 		}
 -- 
 2.34.1
 
