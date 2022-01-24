@@ -2,47 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 394F549999C
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:46:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3627F4997C3
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:29:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378391AbiAXVgd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:36:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52956 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1453010AbiAXV1j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:27:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F921C07323B;
-        Mon, 24 Jan 2022 12:18:40 -0800 (PST)
+        id S1448976AbiAXVOa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:14:30 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:59654 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1447046AbiAXVJ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:09:57 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A8406B8121A;
-        Mon, 24 Jan 2022 20:18:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6DE0C340E8;
-        Mon, 24 Jan 2022 20:18:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1977EB81233;
+        Mon, 24 Jan 2022 21:09:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36667C340E5;
+        Mon, 24 Jan 2022 21:09:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055518;
-        bh=c119dTtFJ/UsDiNJRoA+V53VfW8MDbBahmzYfXdX0aE=;
+        s=korg; t=1643058593;
+        bh=2/G4H/z6ZjT0mBnaR+ViTzd1dhM7FMwdV/1uFN7ooNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W6VVtflGs00qpVGfLhQwZSBzk1vio/DCHqT6mCSyhaR75yg70ObXsPpOdE/LjAV/n
-         UyFY1waa1332msbIjN4aDwJa93HIYiPOn6KhP9/4YguXgJd1o0PEyz2c1lKN9lNQor
-         ZlLTdpOBY38aWZ/iMkeeeHBSNrP7fFD+gLZFoNH8=
+        b=gW2jXS0E5vEYhGBBlfSjBAePFWVzSJ/t1Xy4ACmz2ozVrdjqu2ylaEdCfDP5p3rem
+         383vHHcvNwhzeQc3hCjIclr7CygIzM292I8VLoaq4Q9rsfgh4b382UCDI1Zexqi5Rm
+         0vi1SgkXJpMVgyNu6ZZld/E0vy9GyQzLj7jAv+Fc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Eirik Fuller <efuller@redhat.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
+        stable@vger.kernel.org, Robert Marko <robert.marko@sartura.hr>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 176/846] powerpc: Avoid discarding flags in system_call_exception()
-Date:   Mon, 24 Jan 2022 19:34:53 +0100
-Message-Id: <20220124184107.044834827@linuxfoundation.org>
+Subject: [PATCH 5.16 0306/1039] arm64: dts: marvell: cn9130: enable CP0 GPIO controllers
+Date:   Mon, 24 Jan 2022 19:34:55 +0100
+Message-Id: <20220124184135.596706810@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,58 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Robert Marko <robert.marko@sartura.hr>
 
-[ Upstream commit 08b0af5b2affbe7419853e8dd1330e4b3fe27125 ]
+[ Upstream commit 0734f8311ce72c9041e5142769eff2083889c172 ]
 
-Some thread flags can be set remotely, and so even when IRQs are disabled,
-the flags can change under our feet. Thus, when setting flags we must use
-an atomic operation rather than a plain read-modify-write sequence, as a
-plain read-modify-write may discard flags which are concurrently set by a
-remote thread, e.g.
+CN9130 has a built-in CP115 which has 2 GPIO controllers, but unlike in
+Armada 7k and 8k both are left disabled by the SoC DTSI.
 
-	// task A			// task B
-	tmp = A->thread_info.flags;
-					set_tsk_thread_flag(A, NEWFLAG_B);
-	tmp |= NEWFLAG_A;
-	A->thread_info.flags = tmp;
+This first of all makes no sense as they are always present due to being
+SoC built-in and its an issue as boards like CN9130-CRB use the CPO GPIO2
+pins for regulators and SD card support without enabling them first.
 
-arch/powerpc/kernel/interrupt.c's system_call_exception() sets
-_TIF_RESTOREALL in the thread info flags with a read-modify-write, which
-may result in other flags being discarded.
+So, enable both of them like Armada 7k and 8k do.
 
-Elsewhere in the file it uses clear_bits() to atomically remove flag bits,
-so use set_bits() here for consistency with those.
+Fixes: 6b8970bd8d7a ("arm64: dts: marvell: Add support for Marvell CN9130 SoC support")
 
-There may be reasons (e.g. instrumentation) that prevent the use of
-set_thread_flag() and clear_thread_flag() here, which would otherwise be
-preferable.
-
-Fixes: ae7aaecc3f2f78b7 ("powerpc/64s: system call rfscv workaround for TM bugs")
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Eirik Fuller <efuller@redhat.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Link: https://lore.kernel.org/r/20211129130653.2037928-10-mark.rutland@arm.com
+Signed-off-by: Robert Marko <robert.marko@sartura.hr>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/interrupt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/marvell/cn9130.dtsi | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/powerpc/kernel/interrupt.c b/arch/powerpc/kernel/interrupt.c
-index 835b626cd4760..df048e331cbfe 100644
---- a/arch/powerpc/kernel/interrupt.c
-+++ b/arch/powerpc/kernel/interrupt.c
-@@ -148,7 +148,7 @@ notrace long system_call_exception(long r3, long r4, long r5,
- 	 */
- 	if (IS_ENABLED(CONFIG_PPC_TRANSACTIONAL_MEM) &&
- 			unlikely(MSR_TM_TRANSACTIONAL(regs->msr)))
--		current_thread_info()->flags |= _TIF_RESTOREALL;
-+		set_bits(_TIF_RESTOREALL, &current_thread_info()->flags);
- 
- 	/*
- 	 * If the system call was made with a transaction active, doom it and
+diff --git a/arch/arm64/boot/dts/marvell/cn9130.dtsi b/arch/arm64/boot/dts/marvell/cn9130.dtsi
+index 71769ac7f0585..327b04134134f 100644
+--- a/arch/arm64/boot/dts/marvell/cn9130.dtsi
++++ b/arch/arm64/boot/dts/marvell/cn9130.dtsi
+@@ -42,3 +42,11 @@
+ #undef CP11X_PCIE0_BASE
+ #undef CP11X_PCIE1_BASE
+ #undef CP11X_PCIE2_BASE
++
++&cp0_gpio1 {
++	status = "okay";
++};
++
++&cp0_gpio2 {
++	status = "okay";
++};
 -- 
 2.34.1
 
