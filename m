@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3409D49A440
+	by mail.lfdr.de (Postfix) with ESMTP id ED27249A447
 	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:09:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2369431AbiAYABo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:01:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52900 "EHLO
+        id S2369440AbiAYABp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:01:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52960 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1849518AbiAXX0B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:26:01 -0500
+        with ESMTP id S1849605AbiAXX0P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:26:15 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73877C073238;
-        Mon, 24 Jan 2022 13:29:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 144D8C01D7E1;
+        Mon, 24 Jan 2022 13:30:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C8EED60C60;
-        Mon, 24 Jan 2022 21:29:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A98F8C340E4;
-        Mon, 24 Jan 2022 21:29:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A652360C44;
+        Mon, 24 Jan 2022 21:30:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8169BC340E4;
+        Mon, 24 Jan 2022 21:30:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059798;
-        bh=tg8iEjvzYlmjjMbrWjc40apMLT5XKRdF0J/xCoow65U=;
+        s=korg; t=1643059801;
+        bh=w4/sa6VIfwmLi3PNDuC9bjSMupcRF4wgztyNzCiHA9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EH3+w4BDIdn/dmvGyIhfVgmGxqBobhvADfi7GxxtEB7wNYKAUCeCNWXvECdzXREN7
-         Yjzpm4u4GIKICRbNEpN29sdb1hViKGDvzI9uh4qX43/PObAwYk9LAgabi0D4oyxRpX
-         icUyBUDoJViYhMtZQ25ElpYtqn/2Wxs9na/xKirg=
+        b=wiM6+EOQsFwyxdw/ZK17hi5BiwdyYUdWOPs3HXGGdHDiUmydiYtTcA6OqjqavJX8N
+         +bVg70eaPNMTLtdqdDJTQ6ILMVLYafbcQnddLakf8fB3+/1iMoJcndiYaVIPQW/FQh
+         6Cp9kENx2CLefwlDX36nyweuQSQ1AWjn3ZFc8EUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Laurent Dufour <ldufour@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Ye Guojin <ye.guojin@zte.com.cn>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0738/1039] powerpc/watchdog: Fix missed watchdog reset due to memory ordering race
-Date:   Mon, 24 Jan 2022 19:42:07 +0100
-Message-Id: <20220124184150.132273919@linuxfoundation.org>
+Subject: [PATCH 5.16 0739/1039] ASoC: imx-hdmi: add put_device() after of_find_device_by_node()
+Date:   Mon, 24 Jan 2022 19:42:08 +0100
+Message-Id: <20220124184150.168629965@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -49,108 +49,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Ye Guojin <ye.guojin@zte.com.cn>
 
-[ Upstream commit 5dad4ba68a2483fc80d70b9dc90bbe16e1f27263 ]
+[ Upstream commit f670b274f7f6f4b2722d7f08d0fddf606a727e92 ]
 
-It is possible for all CPUs to miss the pending cpumask becoming clear,
-and then nobody resetting it, which will cause the lockup detector to
-stop working. It will eventually expire, but watchdog_smp_panic will
-avoid doing anything if the pending mask is clear and it will never be
-reset.
+This was found by coccicheck:
+./sound/soc/fsl/imx-hdmi.c,209,1-7,ERROR  missing put_device; call
+of_find_device_by_node on line 119, but without a corresponding object
+release within this function.
 
-Order the cpumask clear vs the subsequent test to close this race.
-
-Add an extra check for an empty pending mask when the watchdog fires and
-finds its bit still clear, to try to catch any other possible races or
-bugs here and keep the watchdog working. The extra test in
-arch_touch_nmi_watchdog is required to prevent the new warning from
-firing off.
-
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Laurent Dufour <ldufour@linux.ibm.com>
-Debugged-by: Laurent Dufour <ldufour@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211110025056.2084347-2-npiggin@gmail.com
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Ye Guojin <ye.guojin@zte.com.cn>
+Link: https://lore.kernel.org/r/20211110002910.134915-1-ye.guojin@zte.com.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/watchdog.c | 41 +++++++++++++++++++++++++++++++++-
- 1 file changed, 40 insertions(+), 1 deletion(-)
+ sound/soc/fsl/imx-hdmi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/powerpc/kernel/watchdog.c b/arch/powerpc/kernel/watchdog.c
-index 3fa6d240bade2..ad94a2c6b7337 100644
---- a/arch/powerpc/kernel/watchdog.c
-+++ b/arch/powerpc/kernel/watchdog.c
-@@ -135,6 +135,10 @@ static void set_cpumask_stuck(const struct cpumask *cpumask, u64 tb)
- {
- 	cpumask_or(&wd_smp_cpus_stuck, &wd_smp_cpus_stuck, cpumask);
- 	cpumask_andnot(&wd_smp_cpus_pending, &wd_smp_cpus_pending, cpumask);
-+	/*
-+	 * See wd_smp_clear_cpu_pending()
-+	 */
-+	smp_mb();
- 	if (cpumask_empty(&wd_smp_cpus_pending)) {
- 		wd_smp_last_reset_tb = tb;
- 		cpumask_andnot(&wd_smp_cpus_pending,
-@@ -221,13 +225,44 @@ static void wd_smp_clear_cpu_pending(int cpu, u64 tb)
+diff --git a/sound/soc/fsl/imx-hdmi.c b/sound/soc/fsl/imx-hdmi.c
+index f10359a288005..929f69b758af4 100644
+--- a/sound/soc/fsl/imx-hdmi.c
++++ b/sound/soc/fsl/imx-hdmi.c
+@@ -145,6 +145,8 @@ static int imx_hdmi_probe(struct platform_device *pdev)
+ 	data->dai.capture_only = false;
+ 	data->dai.init = imx_hdmi_init;
  
- 			cpumask_clear_cpu(cpu, &wd_smp_cpus_stuck);
- 			wd_smp_unlock(&flags);
-+		} else {
-+			/*
-+			 * The last CPU to clear pending should have reset the
-+			 * watchdog so we generally should not find it empty
-+			 * here if our CPU was clear. However it could happen
-+			 * due to a rare race with another CPU taking the
-+			 * last CPU out of the mask concurrently.
-+			 *
-+			 * We can't add a warning for it. But just in case
-+			 * there is a problem with the watchdog that is causing
-+			 * the mask to not be reset, try to kick it along here.
-+			 */
-+			if (unlikely(cpumask_empty(&wd_smp_cpus_pending)))
-+				goto none_pending;
- 		}
- 		return;
- 	}
++	put_device(&cpu_pdev->dev);
 +
- 	cpumask_clear_cpu(cpu, &wd_smp_cpus_pending);
-+
-+	/*
-+	 * Order the store to clear pending with the load(s) to check all
-+	 * words in the pending mask to check they are all empty. This orders
-+	 * with the same barrier on another CPU. This prevents two CPUs
-+	 * clearing the last 2 pending bits, but neither seeing the other's
-+	 * store when checking if the mask is empty, and missing an empty
-+	 * mask, which ends with a false positive.
-+	 */
-+	smp_mb();
- 	if (cpumask_empty(&wd_smp_cpus_pending)) {
- 		unsigned long flags;
- 
-+none_pending:
-+		/*
-+		 * Double check under lock because more than one CPU could see
-+		 * a clear mask with the lockless check after clearing their
-+		 * pending bits.
-+		 */
- 		wd_smp_lock(&flags);
- 		if (cpumask_empty(&wd_smp_cpus_pending)) {
- 			wd_smp_last_reset_tb = tb;
-@@ -318,8 +353,12 @@ void arch_touch_nmi_watchdog(void)
- {
- 	unsigned long ticks = tb_ticks_per_usec * wd_timer_period_ms * 1000;
- 	int cpu = smp_processor_id();
--	u64 tb = get_tb();
-+	u64 tb;
- 
-+	if (!cpumask_test_cpu(cpu, &watchdog_cpumask))
-+		return;
-+
-+	tb = get_tb();
- 	if (tb - per_cpu(wd_timer_tb, cpu) >= ticks) {
- 		per_cpu(wd_timer_tb, cpu) = tb;
- 		wd_smp_clear_cpu_pending(cpu, tb);
+ 	if (of_node_name_eq(cpu_np, "sai")) {
+ 		data->cpu_priv.sysclk_id[1] = FSL_SAI_CLK_MAST1;
+ 		data->cpu_priv.sysclk_id[0] = FSL_SAI_CLK_MAST1;
 -- 
 2.34.1
 
