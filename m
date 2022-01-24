@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 508A3498E7D
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:44:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B4EE499241
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:20:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238200AbiAXTmE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:42:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55006 "EHLO
+        id S1353671AbiAXUSi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:18:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34050 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355107AbiAXTkB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:40:01 -0500
+        with ESMTP id S1379733AbiAXUMU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:12:20 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6757C0612A7;
-        Mon, 24 Jan 2022 11:19:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA824C061748;
+        Mon, 24 Jan 2022 11:33:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 27D7B6140C;
-        Mon, 24 Jan 2022 19:19:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08E82C340E5;
-        Mon, 24 Jan 2022 19:19:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79D8D61504;
+        Mon, 24 Jan 2022 19:33:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E50CC340E5;
+        Mon, 24 Jan 2022 19:33:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051945;
-        bh=Bom9tySjE4yaK810prdtgeNbiLhRB7EH8JZuDDgOKlw=;
+        s=korg; t=1643052838;
+        bh=brX5qYXObnA5ZMaKED0orH5yXmiH2X/NMgB9WdDLijI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g/kVjTXH2rafPEQZfR3zzeTb5hYDO4VE2KWkoUX3DOAQPhfI3SmGJTRAvpvv0+Rt5
-         6loDxp33ksEoJpnfafKTcb8ZVWmhUxtm9hbkmTdyms9uCv4awAiu9jNsWRlbqjfE+7
-         8mZBAAKmv2SbuDvQK7+ellsnFaMZRwkFOB2GAfXQ=
+        b=ICI2DdHMbZitXUrT0tZBuQ1R94iOoTakWjRNny/dE/CjCodtxQ4+x4ehR2HfEk42o
+         OtGg1jzxj8mGvvay5iFIgrw6FoZzNwQy817S4xQ4YV37a/PdfssguubRwB5lQ5mDB/
+         dJY96oyvNnyXb3VCzSlXK9IUYHVTaI8c+0NK+YPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Hilliard <james.hilliard1@gmail.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        stable@vger.kernel.org, Sean Young <sean@mess.org>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 136/239] media: uvcvideo: Increase UVC_CTRL_CONTROL_TIMEOUT to 5 seconds.
+Subject: [PATCH 5.4 190/320] media: igorplugusb: receiver overflow should be reported
 Date:   Mon, 24 Jan 2022 19:42:54 +0100
-Message-Id: <20220124183947.436079457@linuxfoundation.org>
+Message-Id: <20220124184000.102346977@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,43 +48,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Hilliard <james.hilliard1@gmail.com>
+From: Sean Young <sean@mess.org>
 
-[ Upstream commit c8ed7d2f614cd8b315981d116c7a2fb01829500d ]
+[ Upstream commit 8fede658e7ddb605bbd68ed38067ddb0af033db4 ]
 
-Some uvc devices appear to require the maximum allowed USB timeout
-for GET_CUR/SET_CUR requests.
+Without this, some IR will be missing mid-stream and we might decode
+something which never really occurred.
 
-So lets just bump the UVC control timeout to 5 seconds which is the
-same as the usb ctrl get/set defaults:
-USB_CTRL_GET_TIMEOUT 5000
-USB_CTRL_SET_TIMEOUT 5000
-
-It fixes the following runtime warnings:
-   Failed to query (GET_CUR) UVC control 11 on unit 2: -110 (exp. 1).
-   Failed to query (SET_CUR) UVC control 3 on unit 2: -110 (exp. 2).
-
-Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Sean Young <sean@mess.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvcvideo.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/rc/igorplugusb.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
-index a738486fd9d64..839ba3cc53119 100644
---- a/drivers/media/usb/uvc/uvcvideo.h
-+++ b/drivers/media/usb/uvc/uvcvideo.h
-@@ -176,7 +176,7 @@
- /* Maximum status buffer size in bytes of interrupt URB. */
- #define UVC_MAX_STATUS_SIZE	16
+diff --git a/drivers/media/rc/igorplugusb.c b/drivers/media/rc/igorplugusb.c
+index b981f7290c1b2..1e8276040ea5b 100644
+--- a/drivers/media/rc/igorplugusb.c
++++ b/drivers/media/rc/igorplugusb.c
+@@ -64,9 +64,11 @@ static void igorplugusb_irdata(struct igorplugusb *ir, unsigned len)
+ 	if (start >= len) {
+ 		dev_err(ir->dev, "receive overflow invalid: %u", overflow);
+ 	} else {
+-		if (overflow > 0)
++		if (overflow > 0) {
+ 			dev_warn(ir->dev, "receive overflow, at least %u lost",
+ 								overflow);
++			ir_raw_event_reset(ir->rc);
++		}
  
--#define UVC_CTRL_CONTROL_TIMEOUT	500
-+#define UVC_CTRL_CONTROL_TIMEOUT	5000
- #define UVC_CTRL_STREAMING_TIMEOUT	5000
- 
- /* Maximum allowed number of control mappings per device */
+ 		do {
+ 			rawir.duration = ir->buf_in[i] * 85333;
 -- 
 2.34.1
 
