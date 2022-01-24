@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30E3449A059
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:28:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CE8349A06A
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:29:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1843846AbiAXXG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:06:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46180 "EHLO
+        id S1843913AbiAXXG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:06:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1842389AbiAXXBr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:01:47 -0500
+        with ESMTP id S1842496AbiAXXB7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:01:59 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2DC6C0F0551;
-        Mon, 24 Jan 2022 13:13:55 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4305FC0F0559;
+        Mon, 24 Jan 2022 13:14:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 83D646147D;
-        Mon, 24 Jan 2022 21:13:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C436C340E5;
-        Mon, 24 Jan 2022 21:13:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C75036141C;
+        Mon, 24 Jan 2022 21:14:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DF29C340E5;
+        Mon, 24 Jan 2022 21:14:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058834;
-        bh=hu2038tPn5JoE1cXR2b9Gyfb0XVbNKodylO5hpbvfNU=;
+        s=korg; t=1643058841;
+        bh=ZoNkKVhcKuiwDIg6kQ1SLQk1hXz5ho2UjRj/10QBW00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GD7/bqbj7wEFCekn2sjHrkoyoF8XSvWCbCN9hUCJJ6JZvS6qrHCS8n0tTpV7Kjabz
-         0g8A0tfPQpgxQmsiscU0sYDP+pvHghQVSryNBOJ5ocBr7ZjGLNbt/ZNjdygwEDfHJ/
-         B5j/dNhYyqVK/7ICSN0i2e7jmNBWAyraLoXD9CeU=
+        b=UqD5U5SF5HCnr1yPnLOfJlqwiIc3fgeNJEWktTmpZDmOk8OdwL+DD7+PNEdK54avi
+         sr7Fx5qWjndk712ufLY4NJ14KzN7O06SEKbJfKYjT8PApvuukcecAYv3tz+AImaH/v
+         8T6f14t0UDSZX4uL3zrCapxPT7RDHoX+0ypL+sho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        stable@vger.kernel.org,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Geliang Tang <geliang.tang@suse.com>,
         Mat Martineau <mathew.j.martineau@linux.intel.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0418/1039] mptcp: fix per socket endpoint accounting
-Date:   Mon, 24 Jan 2022 19:36:47 +0100
-Message-Id: <20220124184139.360599133@linuxfoundation.org>
+Subject: [PATCH 5.16 0420/1039] mptcp: fix a DSS option writing error
+Date:   Mon, 24 Jan 2022 19:36:49 +0100
+Message-Id: <20220124184139.422102200@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -49,69 +51,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Geliang Tang <geliang.tang@suse.com>
 
-[ Upstream commit f7d6a237d7422809d458d754016de2844017cb4d ]
+[ Upstream commit 110b6d1fe98fd7af9893992459b651594d789293 ]
 
-Since full-mesh endpoint support, the reception of a single ADD_ADDR
-option can cause multiple subflows creation. When such option is
-accepted we increment 'add_addr_accepted' by one. When we received
-a paired RM_ADDR option, we deleted all the relevant subflows,
-decrementing 'add_addr_accepted' by one for each of them.
+'ptr += 1;' was omitted in the original code.
 
-We have a similar issue for 'local_addr_used'
+If the DSS is the last option -- which is what we have most of the
+time -- that's not an issue. But it is if we need to send something else
+after like a RM_ADDR or an MP_PRIO.
 
-Fix them moving the pm endpoint accounting outside the subflow
-traversal.
-
-Fixes: 1a0d6136c5f0 ("mptcp: local addresses fullmesh")
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 1bff1e43a30e ("mptcp: optimize out option generation")
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Geliang Tang <geliang.tang@suse.com>
 Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/pm_netlink.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ net/mptcp/options.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/mptcp/pm_netlink.c b/net/mptcp/pm_netlink.c
-index f523051f5aef3..65764c8171b37 100644
---- a/net/mptcp/pm_netlink.c
-+++ b/net/mptcp/pm_netlink.c
-@@ -710,6 +710,8 @@ static void mptcp_pm_nl_rm_addr_or_subflow(struct mptcp_sock *msk,
- 		return;
- 
- 	for (i = 0; i < rm_list->nr; i++) {
-+		bool removed = false;
-+
- 		list_for_each_entry_safe(subflow, tmp, &msk->conn_list, node) {
- 			struct sock *ssk = mptcp_subflow_tcp_sock(subflow);
- 			int how = RCV_SHUTDOWN | SEND_SHUTDOWN;
-@@ -729,15 +731,19 @@ static void mptcp_pm_nl_rm_addr_or_subflow(struct mptcp_sock *msk,
- 			mptcp_close_ssk(sk, ssk, subflow);
- 			spin_lock_bh(&msk->pm.lock);
- 
--			if (rm_type == MPTCP_MIB_RMADDR) {
--				msk->pm.add_addr_accepted--;
--				WRITE_ONCE(msk->pm.accept_addr, true);
--			} else if (rm_type == MPTCP_MIB_RMSUBFLOW) {
--				msk->pm.local_addr_used--;
--			}
-+			removed = true;
- 			msk->pm.subflows--;
- 			__MPTCP_INC_STATS(sock_net(sk), rm_type);
+diff --git a/net/mptcp/options.c b/net/mptcp/options.c
+index 96c6efdd48bcc..6661b1d6520f1 100644
+--- a/net/mptcp/options.c
++++ b/net/mptcp/options.c
+@@ -1319,6 +1319,7 @@ void mptcp_write_options(__be32 *ptr, const struct tcp_sock *tp,
+ 				put_unaligned_be32(mpext->data_len << 16 |
+ 						   TCPOPT_NOP << 8 | TCPOPT_NOP, ptr);
+ 			}
++			ptr += 1;
  		}
-+		if (!removed)
-+			continue;
-+
-+		if (rm_type == MPTCP_MIB_RMADDR) {
-+			msk->pm.add_addr_accepted--;
-+			WRITE_ONCE(msk->pm.accept_addr, true);
-+		} else if (rm_type == MPTCP_MIB_RMSUBFLOW) {
-+			msk->pm.local_addr_used--;
-+		}
- 	}
- }
- 
+ 	} else if (OPTIONS_MPTCP_MPC & opts->suboptions) {
+ 		u8 len, flag = MPTCP_CAP_HMAC_SHA256;
 -- 
 2.34.1
 
