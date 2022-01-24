@@ -2,46 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83951499BB7
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:04:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 566F2499B52
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:00:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379657AbiAXVyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:54:23 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:52814 "EHLO
+        id S1575105AbiAXVvC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:51:02 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:52952 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359781AbiAXVnY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:43:24 -0500
+        with ESMTP id S1445206AbiAXVng (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:43:36 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F0EBB811A2;
-        Mon, 24 Jan 2022 21:43:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 826F0C340E4;
-        Mon, 24 Jan 2022 21:43:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F4E3B8119E;
+        Mon, 24 Jan 2022 21:43:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23521C340E4;
+        Mon, 24 Jan 2022 21:43:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060598;
-        bh=fhcehs13K324S4NcYX+VvjBRl1SSEGNfMfH7EvgCHdk=;
+        s=korg; t=1643060609;
+        bh=xi4KJIaJwSCkynoxCcarqiM8KPP5W/cAYIZDLYrFnBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2YEfBIsJmChaWyJWJeyJ1/ODb2a+6fEVafLWI/hwXtK/4VTSu0GWl1z5m0DdviLqi
-         oWmlaWBbywz6G26BWgTt2Ox1LgyK/PRwvEu8mDgpaWypcxg95dzNXFWLXanSPmGVou
-         1N9n7++DJznG9mzeLSC6DQdmWDc5h0wztUiucREI=
+        b=O9krJI8xsM2S5QNE6Aw2IuCATZOgoMbs8wBe7VSujvoGSQ+DD7gJDVKP1wHauRJId
+         WUN6Up3OIB6mFG1Wo21dSyGU+aCH2HGhMchR8vkYuvVa1L4vohi1mTd8d+fwY6+U/x
+         KhGqXLo+KqHs0tts/WNorz0G32PJff+/rPf29Qd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
-        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>,
-        Adrian Bunk <bunk@debian.org>,
+        stable@vger.kernel.org, Zechuan Chen <chenzechuan1@huawei.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
         Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Branislav Rankov <branislav.rankov@arm.com>,
-        Diederik de Haas <didi.debian@cknow.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Jianlin Lv <Jianlin.Lv@arm.com>,
+        Jin Yao <yao.jin@linux.intel.com>,
         Jiri Olsa <jolsa@redhat.com>,
         Mark Rutland <mark.rutland@arm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Namhyung Kim <namhyung@kernel.org>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
         Peter Zijlstra <peterz@infradead.org>,
+        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
+        Yang Jihong <yangjihong1@huawei.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.16 1001/1039] perf tools: Drop requirement for libstdc++.so for libopencsd check
-Date:   Mon, 24 Jan 2022 19:46:30 +0100
-Message-Id: <20220124184158.935216954@linuxfoundation.org>
+Subject: [PATCH 5.16 1004/1039] perf probe: Fix ppc64 perf probe add events failed case
+Date:   Mon, 24 Jan 2022 19:46:33 +0100
+Message-Id: <20220124184159.039062305@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -53,52 +57,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Uwe Kleine-König <uwe@kleine-koenig.org>
+From: Zechuan Chen <chenzechuan1@huawei.com>
 
-commit ed17b1914978eddb2b01f2d34577f1c82518c650 upstream.
+commit 4624f199327a704dd1069aca1c3cadb8f2a28c6f upstream.
 
-It's possible to link against libopencsd_c_api without having
-libstdc++.so available, only libstdc++.so.6.0.28 (or whatever version is
-in use) needs to be available. The same holds true for libopencsd.so.
-When -lstdc++ (or -lopencsd) is explicitly passed to the linker however
-the .so file must be available.
+Because of commit bf794bf52a80c627 ("powerpc/kprobes: Fix kallsyms
+lookup across powerpc ABIv1 and ABIv2"), in ppc64 ABIv1, our perf
+command eliminates the need to use the prefix "." at the symbol name.
 
-So wrap adding the dependencies into a check for static linking that
-actually requires adding them all. The same construct is already used
-for some other tests in the same file to reduce dependencies in the
-dynamic linking case.
+But when the command "perf probe -a schedule" is executed on ppc64
+ABIv1, it obtains two symbol address information through /proc/kallsyms,
+for example:
 
-Fixes: 573cf5c9a152 ("perf build: Add missing -lstdc++ when linking with libopencsd")
-Reviewed-by: James Clark <james.clark@arm.com>
-Signed-off-by: Uwe Kleine-König <uwe@kleine-koenig.org>
-Cc: Adrian Bunk <bunk@debian.org>
+  cat /proc/kallsyms | grep -w schedule
+  c000000000657020 T .schedule
+  c000000000d4fdb8 D schedule
+
+The symbol "D schedule" is not a function symbol, and perf will print:
+"p:probe/schedule _text+13958584"Failed to write event: Invalid argument
+
+Therefore, when searching symbols from map and adding probe point for
+them, a symbol type check is added. If the type of symbol is not a
+function, skip it.
+
+Fixes: bf794bf52a80c627 ("powerpc/kprobes: Fix kallsyms lookup across powerpc ABIv1 and ABIv2")
+Signed-off-by: Zechuan Chen <chenzechuan1@huawei.com>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
 Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Branislav Rankov <branislav.rankov@arm.com>
-Cc: Diederik de Haas <didi.debian@cknow.org>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Jianlin Lv <Jianlin.Lv@arm.com>
+Cc: Jin Yao <yao.jin@linux.intel.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
 Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
 Cc: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/all/20211203210544.1137935-1-uwe@kleine-koenig.org
+Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
+Cc: Yang Jihong <yangjihong1@huawei.com>
+Link: https://lore.kernel.org/r/20211228111338.218602-1-chenzechuan1@huawei.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/Makefile.config |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ tools/perf/util/probe-event.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/tools/perf/Makefile.config
-+++ b/tools/perf/Makefile.config
-@@ -143,7 +143,10 @@ FEATURE_CHECK_LDFLAGS-libcrypto = -lcryp
- ifdef CSINCLUDES
-   LIBOPENCSD_CFLAGS := -I$(CSINCLUDES)
- endif
--OPENCSDLIBS := -lopencsd_c_api -lopencsd -lstdc++
-+OPENCSDLIBS := -lopencsd_c_api
-+ifeq ($(findstring -static,${LDFLAGS}),-static)
-+  OPENCSDLIBS += -lopencsd -lstdc++
-+endif
- ifdef CSLIBS
-   LIBOPENCSD_LDFLAGS := -L$(CSLIBS)
- endif
+--- a/tools/perf/util/probe-event.c
++++ b/tools/perf/util/probe-event.c
+@@ -3083,6 +3083,9 @@ static int find_probe_trace_events_from_
+ 	for (j = 0; j < num_matched_functions; j++) {
+ 		sym = syms[j];
+ 
++		if (sym->type != STT_FUNC)
++			continue;
++
+ 		/* There can be duplicated symbols in the map */
+ 		for (i = 0; i < j; i++)
+ 			if (sym->start == syms[i]->start) {
 
 
