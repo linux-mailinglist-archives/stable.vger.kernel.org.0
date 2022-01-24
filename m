@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 000FF499976
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:45:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 799DA499C5B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:08:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1455455AbiAXVf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:35:27 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:42630 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1452982AbiAXV1e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:27:34 -0500
+        id S1579084AbiAXWE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:04:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58626 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1573020AbiAXVzI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:55:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B284CC07E2AF;
+        Mon, 24 Jan 2022 12:37:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8864EB812A4;
-        Mon, 24 Jan 2022 21:27:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD833C340E4;
-        Mon, 24 Jan 2022 21:27:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6EF23B81063;
+        Mon, 24 Jan 2022 20:37:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F4D9C340E5;
+        Mon, 24 Jan 2022 20:37:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059651;
-        bh=xsfclcnth22emOhXnExQDbZEHeQPjA9k8JwPqBUjW/I=;
+        s=korg; t=1643056664;
+        bh=vNMezxssj6VcvR7r/jjQIM53BOA5+j+5fVwfrXZIJ98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n4r861l2MbFnMSWcVg9r9tzjUx8+7+9LIk8QYvKHuYcbfeE639m06Cm+EarP8SV78
-         iQhbk0PeuekaaqQ1amkkZy8BICGj+NzNLzBOoPyQVaBcx4P/U0tXkT/eyr4CJZIi9r
-         AriZoxioNS523DF8MdXxsgwtN4uNXvc659WdVrws=
+        b=xQIaWVpxutPsC6GegXirRFVNxvAInucOp9zRZ7fWvZBtYIl2qFnakw9SfT6fmmQ+x
+         e4W3moSeLmRzT4LPhOJ1h27iq56fxze3Wy8Nc4kkwVeYH0o92/rVD9c1QYWd3PSCQl
+         KszC4l8ktf+N/gyFmRL/NZjAjzv9zF87dQezbiJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Hector Martin <marcan@marcan.st>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Richard Guy Briggs <rgb@redhat.com>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0686/1039] mmc: sdhci-pci-gli: GL9755: Support for CD/WP inversion on OF platforms
-Date:   Mon, 24 Jan 2022 19:41:15 +0100
-Message-Id: <20220124184148.413659573@linuxfoundation.org>
+Subject: [PATCH 5.15 559/846] audit: ensure userspace is penalized the same as the kernel when under pressure
+Date:   Mon, 24 Jan 2022 19:41:16 +0100
+Message-Id: <20220124184120.310761403@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,61 +49,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hector Martin <marcan@marcan.st>
+From: Paul Moore <paul@paul-moore.com>
 
-[ Upstream commit 189f1d9bc3a5ea3e442e119e4a5deda63da8c462 ]
+[ Upstream commit 8f110f530635af44fff1f4ee100ecef0bac62510 ]
 
-This is required on some Apple ARM64 laptops using this controller.
-As is typical on DT platforms, pull these quirks from the device tree
-using the standard mmc bindings.
+Due to the audit control mutex necessary for serializing audit
+userspace messages we haven't been able to block/penalize userspace
+processes that attempt to send audit records while the system is
+under audit pressure.  The result is that privileged userspace
+applications have a priority boost with respect to audit as they are
+not bound by the same audit queue throttling as the other tasks on
+the system.
 
-See Documentation/devicetree/bindings/mmc/mmc-controller.yaml
+This patch attempts to restore some balance to the system when under
+audit pressure by blocking these privileged userspace tasks after
+they have finished their audit processing, and dropped the audit
+control mutex, but before they return to userspace.
 
-Acked-by: Adrian Hunter <adrian.hunter@intel.com>
-Signed-off-by: Hector Martin <marcan@marcan.st>
-Link: https://lore.kernel.org/r/20211215161045.38843-2-marcan@marcan.st
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reported-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Tested-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Reviewed-by: Richard Guy Briggs <rgb@redhat.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sdhci-pci-gli.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ kernel/audit.c | 18 +++++++++++++++++-
+ 1 file changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mmc/host/sdhci-pci-gli.c b/drivers/mmc/host/sdhci-pci-gli.c
-index 4fd99c1e82ba3..ad50f16658fe2 100644
---- a/drivers/mmc/host/sdhci-pci-gli.c
-+++ b/drivers/mmc/host/sdhci-pci-gli.c
-@@ -12,6 +12,7 @@
- #include <linux/pci.h>
- #include <linux/mmc/mmc.h>
- #include <linux/delay.h>
-+#include <linux/of.h>
- #include "sdhci.h"
- #include "sdhci-pci.h"
- #include "cqhci.h"
-@@ -116,6 +117,8 @@
- #define PCI_GLI_9755_PECONF   0x44
- #define   PCI_GLI_9755_LFCLK    GENMASK(14, 12)
- #define   PCI_GLI_9755_DMACLK   BIT(29)
-+#define   PCI_GLI_9755_INVERT_CD  BIT(30)
-+#define   PCI_GLI_9755_INVERT_WP  BIT(31)
+diff --git a/kernel/audit.c b/kernel/audit.c
+index 4cebadb5f30db..eab7282668ab9 100644
+--- a/kernel/audit.c
++++ b/kernel/audit.c
+@@ -1540,6 +1540,20 @@ static void audit_receive(struct sk_buff  *skb)
+ 		nlh = nlmsg_next(nlh, &len);
+ 	}
+ 	audit_ctl_unlock();
++
++	/* can't block with the ctrl lock, so penalize the sender now */
++	if (audit_backlog_limit &&
++	    (skb_queue_len(&audit_queue) > audit_backlog_limit)) {
++		DECLARE_WAITQUEUE(wait, current);
++
++		/* wake kauditd to try and flush the queue */
++		wake_up_interruptible(&kauditd_wait);
++
++		add_wait_queue_exclusive(&audit_backlog_wait, &wait);
++		set_current_state(TASK_UNINTERRUPTIBLE);
++		schedule_timeout(audit_backlog_wait_time);
++		remove_wait_queue(&audit_backlog_wait, &wait);
++	}
+ }
  
- #define PCI_GLI_9755_CFG2          0x48
- #define   PCI_GLI_9755_CFG2_L1DLY    GENMASK(28, 24)
-@@ -570,6 +573,14 @@ static void gl9755_hw_setting(struct sdhci_pci_slot *slot)
- 	gl9755_wt_on(pdev);
- 
- 	pci_read_config_dword(pdev, PCI_GLI_9755_PECONF, &value);
-+	/*
-+	 * Apple ARM64 platforms using these chips may have
-+	 * inverted CD/WP detection.
+ /* Log information about who is connecting to the audit multicast socket */
+@@ -1824,7 +1838,9 @@ struct audit_buffer *audit_log_start(struct audit_context *ctx, gfp_t gfp_mask,
+ 	 *    task_tgid_vnr() since auditd_pid is set in audit_receive_msg()
+ 	 *    using a PID anchored in the caller's namespace
+ 	 * 2. generator holding the audit_cmd_mutex - we don't want to block
+-	 *    while holding the mutex */
++	 *    while holding the mutex, although we do penalize the sender
++	 *    later in audit_receive() when it is safe to block
 +	 */
-+	if (of_property_read_bool(pdev->dev.of_node, "cd-inverted"))
-+		value |= PCI_GLI_9755_INVERT_CD;
-+	if (of_property_read_bool(pdev->dev.of_node, "wp-inverted"))
-+		value |= PCI_GLI_9755_INVERT_WP;
- 	value &= ~PCI_GLI_9755_LFCLK;
- 	value &= ~PCI_GLI_9755_DMACLK;
- 	pci_write_config_dword(pdev, PCI_GLI_9755_PECONF, value);
+ 	if (!(auditd_test_task(current) || audit_ctl_owner_current())) {
+ 		long stime = audit_backlog_wait_time;
+ 
 -- 
 2.34.1
 
