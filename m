@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 628C7498C69
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:23:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E7FB499240
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:20:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237379AbiAXTWN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:22:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49394 "EHLO
+        id S237808AbiAXUSe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:18:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345691AbiAXTTG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:19:06 -0500
+        with ESMTP id S1379738AbiAXUMU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:12:20 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DBECC09427C;
-        Mon, 24 Jan 2022 11:07:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BE89C0604CE;
+        Mon, 24 Jan 2022 11:34:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DCD006090C;
-        Mon, 24 Jan 2022 19:07:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B501BC340E5;
-        Mon, 24 Jan 2022 19:07:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B0D561504;
+        Mon, 24 Jan 2022 19:34:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7662AC340E5;
+        Mon, 24 Jan 2022 19:34:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051248;
-        bh=Ve3OpKm8dHaFRBRmlMlYw/UJfhTIP7rNtWxEplgZ5pE=;
+        s=korg; t=1643052842;
+        bh=PwjgCXsxBBNDaqdajnAiUXq66v/vFynQ/z8Ps+IVHK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CsIkCHBaJfos2N12mcYsQg9rD1nRDyV8iqzV4/sI3LGqJyn1IgjK1ZbpoThJ/ECUB
-         NEogC2AS/pYQouR4jrYFKGL+56y7aESaB7YWdO7VZj7BGntXTKgd09VS2zWNfWue/V
-         PAUxBEZDV3kkx6rNop3jdaowS7xDbxI80GlU4/nI=
+        b=cPB5HLfHwC4Fv1bZyMybjC+uk4o1gJfA9dUZ0vHHqKVDaP+s1a2MoY1DAz8VHocxo
+         KlTn15WCFxhi8q76vU22CIs+5rAj0TxgjMFhqnJvbnfbcTUrmEhx/sXxAxLC0EDBJx
+         7ce/V0yeR8q4xfGtS/iCctXSGV2U3+L3u6IqsB7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+23a02c7df2cf2bc93fa2@syzkaller.appspotmail.com,
-        Xiongwei Song <sxwjean@gmail.com>,
-        Denis Efremov <efremov@linux.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 100/186] floppy: Add max size check for user space request
+        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 191/320] media: saa7146: hexium_gemini: Fix a NULL pointer dereference in hexium_attach()
 Date:   Mon, 24 Jan 2022 19:42:55 +0100
-Message-Id: <20220124183940.333199922@linuxfoundation.org>
+Message-Id: <20220124184000.143564158@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,80 +48,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongwei Song <sxwjean@gmail.com>
+From: Zhou Qingyang <zhou1615@umn.edu>
 
-[ Upstream commit 545a32498c536ee152331cd2e7d2416aa0f20e01 ]
+[ Upstream commit 3af86b046933ba513d08399dba0d4d8b50d607d0 ]
 
-We need to check the max request size that is from user space before
-allocating pages. If the request size exceeds the limit, return -EINVAL.
-This check can avoid the warning below from page allocator.
+In hexium_attach(dev, info), saa7146_vv_init() is called to allocate
+a new memory for dev->vv_data. saa7146_vv_release() will be called on
+failure of saa7146_register_device(). There is a dereference of
+dev->vv_data in saa7146_vv_release(), which could lead to a NULL
+pointer dereference on failure of saa7146_vv_init().
 
-WARNING: CPU: 3 PID: 16525 at mm/page_alloc.c:5344 current_gfp_context include/linux/sched/mm.h:195 [inline]
-WARNING: CPU: 3 PID: 16525 at mm/page_alloc.c:5344 __alloc_pages+0x45d/0x500 mm/page_alloc.c:5356
-Modules linked in:
-CPU: 3 PID: 16525 Comm: syz-executor.3 Not tainted 5.15.0-syzkaller #0
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-2 04/01/2014
-RIP: 0010:__alloc_pages+0x45d/0x500 mm/page_alloc.c:5344
-Code: be c9 00 00 00 48 c7 c7 20 4a 97 89 c6 05 62 32 a7 0b 01 e8 74 9a 42 07 e9 6a ff ff ff 0f 0b e9 a0 fd ff ff 40 80 e5 3f eb 88 <0f> 0b e9 18 ff ff ff 4c 89 ef 44 89 e6 45 31 ed e8 1e 76 ff ff e9
-RSP: 0018:ffffc90023b87850 EFLAGS: 00010246
-RAX: 0000000000000000 RBX: 1ffff92004770f0b RCX: dffffc0000000000
-RDX: 0000000000000000 RSI: 0000000000000033 RDI: 0000000000010cc1
-RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000001
-R10: ffffffff81bb4686 R11: 0000000000000001 R12: ffffffff902c1960
-R13: 0000000000000033 R14: 0000000000000000 R15: ffff88804cf64a30
-FS:  0000000000000000(0000) GS:ffff88802cd00000(0063) knlGS:00000000f44b4b40
-CS:  0010 DS: 002b ES: 002b CR0: 0000000080050033
-CR2: 000000002c921000 CR3: 000000004f507000 CR4: 0000000000150ee0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <TASK>
- alloc_pages+0x1a7/0x300 mm/mempolicy.c:2191
- __get_free_pages+0x8/0x40 mm/page_alloc.c:5418
- raw_cmd_copyin drivers/block/floppy.c:3113 [inline]
- raw_cmd_ioctl drivers/block/floppy.c:3160 [inline]
- fd_locked_ioctl+0x12e5/0x2820 drivers/block/floppy.c:3528
- fd_ioctl drivers/block/floppy.c:3555 [inline]
- fd_compat_ioctl+0x891/0x1b60 drivers/block/floppy.c:3869
- compat_blkdev_ioctl+0x3b8/0x810 block/ioctl.c:662
- __do_compat_sys_ioctl+0x1c7/0x290 fs/ioctl.c:972
- do_syscall_32_irqs_on arch/x86/entry/common.c:112 [inline]
- __do_fast_syscall_32+0x65/0xf0 arch/x86/entry/common.c:178
- do_fast_syscall_32+0x2f/0x70 arch/x86/entry/common.c:203
- entry_SYSENTER_compat_after_hwframe+0x4d/0x5c
+Fix this bug by adding a check of saa7146_vv_init().
 
-Reported-by: syzbot+23a02c7df2cf2bc93fa2@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20211116131033.27685-1-sxwjean@me.com
-Signed-off-by: Xiongwei Song <sxwjean@gmail.com>
-Signed-off-by: Denis Efremov <efremov@linux.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+This bug was found by a static analyzer. The analysis employs
+differential checking to identify inconsistent security operations
+(e.g., checks or kfrees) between two code paths and confirms that the
+inconsistent operations are not recovered in the current function or
+the callers, so they constitute bugs.
+
+Note that, as a bug found by static analysis, it can be a false
+positive or hard to trigger. Multiple researchers have cross-reviewed
+the bug.
+
+Builds with CONFIG_VIDEO_HEXIUM_GEMINI=m show no new warnings,
+and our static analyzer no longer warns about this code.
+
+Link: https://lore.kernel.org/linux-media/20211203154030.111210-1-zhou1615@umn.edu
+Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/floppy.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/common/saa7146/saa7146_fops.c | 2 +-
+ drivers/media/pci/saa7146/hexium_gemini.c   | 7 ++++++-
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/block/floppy.c b/drivers/block/floppy.c
-index b6c99cf1ce745..057bedeaacab5 100644
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -3118,6 +3118,8 @@ static void raw_cmd_free(struct floppy_raw_cmd **ptr)
+diff --git a/drivers/media/common/saa7146/saa7146_fops.c b/drivers/media/common/saa7146/saa7146_fops.c
+index aabb830e74689..4b332ea986168 100644
+--- a/drivers/media/common/saa7146/saa7146_fops.c
++++ b/drivers/media/common/saa7146/saa7146_fops.c
+@@ -525,7 +525,7 @@ int saa7146_vv_init(struct saa7146_dev* dev, struct saa7146_ext_vv *ext_vv)
+ 		ERR("out of memory. aborting.\n");
+ 		kfree(vv);
+ 		v4l2_ctrl_handler_free(hdl);
+-		return -1;
++		return -ENOMEM;
  	}
- }
  
-+#define MAX_LEN (1UL << MAX_ORDER << PAGE_SHIFT)
-+
- static int raw_cmd_copyin(int cmd, void __user *param,
- 				 struct floppy_raw_cmd **rcmd)
- {
-@@ -3155,7 +3157,7 @@ loop:
- 	ptr->resultcode = 0;
+ 	saa7146_video_uops.init(dev,vv);
+diff --git a/drivers/media/pci/saa7146/hexium_gemini.c b/drivers/media/pci/saa7146/hexium_gemini.c
+index f962269306707..86d4e2abed82a 100644
+--- a/drivers/media/pci/saa7146/hexium_gemini.c
++++ b/drivers/media/pci/saa7146/hexium_gemini.c
+@@ -284,7 +284,12 @@ static int hexium_attach(struct saa7146_dev *dev, struct saa7146_pci_extension_d
+ 	hexium_set_input(hexium, 0);
+ 	hexium->cur_input = 0;
  
- 	if (ptr->flags & (FD_RAW_READ | FD_RAW_WRITE)) {
--		if (ptr->length <= 0)
-+		if (ptr->length <= 0 || ptr->length >= MAX_LEN)
- 			return -EINVAL;
- 		ptr->kernel_data = (char *)fd_dma_mem_alloc(ptr->length);
- 		fallback_on_nodma_alloc(&ptr->kernel_data, ptr->length);
+-	saa7146_vv_init(dev, &vv_data);
++	ret = saa7146_vv_init(dev, &vv_data);
++	if (ret) {
++		i2c_del_adapter(&hexium->i2c_adapter);
++		kfree(hexium);
++		return ret;
++	}
+ 
+ 	vv_data.vid_ops.vidioc_enum_input = vidioc_enum_input;
+ 	vv_data.vid_ops.vidioc_g_input = vidioc_g_input;
 -- 
 2.34.1
 
