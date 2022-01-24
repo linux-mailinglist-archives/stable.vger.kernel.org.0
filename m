@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78442498AEB
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:08:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0944E498E11
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:43:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344426AbiAXTHx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:07:53 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:35822 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345431AbiAXTFv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:05:51 -0500
+        id S1347475AbiAXTjH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:39:07 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:55624 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1352225AbiAXTce (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:32:34 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 898C060915;
-        Mon, 24 Jan 2022 19:05:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59D29C340E8;
-        Mon, 24 Jan 2022 19:05:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 32B45B8122F;
+        Mon, 24 Jan 2022 19:32:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65705C340E5;
+        Mon, 24 Jan 2022 19:32:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051150;
-        bh=GI8rViXqs2bdhiSwCmv3aNUVUSabK0VoZcqOpoSJ5sQ=;
+        s=korg; t=1643052747;
+        bh=DAO4tYwqdARcTANi8ZVt/gONjK/k/ESqgOqBbagLP1I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DprSpOEfUqe0sWrAnSRpWK5Lo4kOmPcwOsJbn2axPHKKnUUYh7sOpmgshEM8HFuy4
-         tcfubf/NqN+JYYX+q19Abg8FfugmiSuSx/VsIajztV6waro6mZvrPGYH5xuCGrZzgS
-         E3qvipRKgUITwVjvok2o6evCNnuL3JJ7Ap/icR7s=
+        b=WgXw+SSDsuHknmkbFyi5Mr1T7qLubIW7S1AaLkSBVQUVJUNO8AcjApBKQW5M56Uas
+         KowftTt+h273oK+K+6Uqke6Zo3KtfjlPOQR2lb/1ZlPgPgsKUmB2qWj5L5R2wIQ20m
+         1nVnFc+po7czqQGE+tmQj+FsLHtY4PNOmHt/CaRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, John Keeping <john@metanate.com>,
+        Pavankumar Kondeti <quic_pkondeti@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 069/186] ALSA: jack: Add missing rwsem around snd_ctl_remove() calls
+Subject: [PATCH 5.4 160/320] usb: gadget: f_fs: Use stream_open() for endpoint files
 Date:   Mon, 24 Jan 2022 19:42:24 +0100
-Message-Id: <20220124183939.346173866@linuxfoundation.org>
+Message-Id: <20220124183959.083332678@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Pavankumar Kondeti <quic_pkondeti@quicinc.com>
 
-[ Upstream commit 06764dc931848c3a9bc01a63bbf76a605408bb54 ]
+[ Upstream commit c76ef96fc00eb398c8fc836b0eb2f82bcc619dc7 ]
 
-snd_ctl_remove() has to be called with card->controls_rwsem held (when
-called after the card instantiation).  This patch add the missing
-rwsem calls around it.
+Function fs endpoint file operations are synchronized via an interruptible
+mutex wait. However we see threads that do ep file operations concurrently
+are getting blocked for the mutex lock in __fdget_pos(). This is an
+uninterruptible wait and we see hung task warnings and kernel panic
+if hung_task_panic systcl is enabled if host does not send/receive
+the data for long time.
 
-Fixes: 9058cbe1eed2 ("ALSA: jack: implement kctl creating for jack devices")
-Link: https://lore.kernel.org/r/20211116071314.15065-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The reason for threads getting blocked in __fdget_pos() is due to
+the file position protection introduced by the commit 9c225f2655e3
+("vfs: atomic f_pos accesses as per POSIX"). Since function fs
+endpoint files does not have the notion of the file position, switch
+to the stream mode. This will bypass the file position mutex and
+threads will be blocked in interruptible state for the function fs
+mutex.
+
+It should not affects user space as we are only changing the task state
+changes the task state from UNINTERRUPTIBLE to INTERRUPTIBLE while waiting
+for the USB transfers to be finished. However there is a slight change to
+the O_NONBLOCK behavior. Earlier threads that are using O_NONBLOCK are also
+getting blocked inside fdget_pos(). Now they reach to function fs and error
+code is returned. The non blocking behavior is actually honoured now.
+
+Reviewed-by: John Keeping <john@metanate.com>
+Signed-off-by: Pavankumar Kondeti <quic_pkondeti@quicinc.com>
+Link: https://lore.kernel.org/r/1636712682-1226-1-git-send-email-quic_pkondeti@quicinc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/jack.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/gadget/function/f_fs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/core/jack.c b/sound/core/jack.c
-index 5ddf81f091fa9..36cfe1c54109d 100644
---- a/sound/core/jack.c
-+++ b/sound/core/jack.c
-@@ -68,10 +68,13 @@ static int snd_jack_dev_free(struct snd_device *device)
- 	struct snd_card *card = device->card;
- 	struct snd_jack_kctl *jack_kctl, *tmp_jack_kctl;
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index 3f5c21f7f9905..2bea33b41553b 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -614,7 +614,7 @@ static int ffs_ep0_open(struct inode *inode, struct file *file)
+ 	file->private_data = ffs;
+ 	ffs_data_opened(ffs);
  
-+	down_write(&card->controls_rwsem);
- 	list_for_each_entry_safe(jack_kctl, tmp_jack_kctl, &jack->kctl_list, list) {
- 		list_del_init(&jack_kctl->list);
- 		snd_ctl_remove(card, jack_kctl->kctl);
- 	}
-+	up_write(&card->controls_rwsem);
-+
- 	if (jack->private_free)
- 		jack->private_free(jack);
+-	return 0;
++	return stream_open(inode, file);
+ }
  
+ static int ffs_ep0_release(struct inode *inode, struct file *file)
+@@ -1156,7 +1156,7 @@ ffs_epfile_open(struct inode *inode, struct file *file)
+ 	file->private_data = epfile;
+ 	ffs_data_opened(epfile->ffs);
+ 
+-	return 0;
++	return stream_open(inode, file);
+ }
+ 
+ static int ffs_aio_cancel(struct kiocb *kiocb)
 -- 
 2.34.1
 
