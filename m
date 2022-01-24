@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D499498ED4
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:49:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F624499105
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:08:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345734AbiAXTsv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:48:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54702 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354102AbiAXTlC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:41:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA695C061747;
-        Mon, 24 Jan 2022 11:20:50 -0800 (PST)
+        id S1352509AbiAXUIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:08:32 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:58696 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376532AbiAXUCG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:02:06 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F059B8121A;
-        Mon, 24 Jan 2022 19:20:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FE29C340E5;
-        Mon, 24 Jan 2022 19:20:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 69E4061304;
+        Mon, 24 Jan 2022 20:02:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52512C340E5;
+        Mon, 24 Jan 2022 20:02:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052049;
-        bh=2Ao0xJWtEm824Wm0cz0zDXdrq9k9TSs5nYnz5dAhi+M=;
+        s=korg; t=1643054524;
+        bh=GnC4qoc3qNiPeEEPfhsgJBYgncJZP5nIfaEdUe0w6x0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pJN1icgo+P5z+WxTW0jT9IHg3pz+fYqnCwn7DpPgZ9R2KFguKDu6fR1g4T87S53wl
-         ngpLzmAAN8A5KCEcdxCyWu8NZt/0k8kZXfpyyAZrSZKeFD/3TLk7rlmCF2QevwL67l
-         vipLu/hHuej7s+7mhFpb2TTd1bgSDhRGrr1LpQls=
+        b=2KZFI77X4yFMVyRRwdB/vjXpvP+yIl0EhUdTG8SCfwQ9hCUaQHNM+USRCITweHR/3
+         /DkL/IAJ3P5/hWuyfaYRMZLpb3QTPi+o8DbbizQVLvm6zDeZia6vbho91/njBanvGv
+         iq/jUyObLMw8g+Cg4qqdB97VSbLvMmvNP1EOpOzk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        stable@vger.kernel.org,
+        Christian Hewitt <christianshewitt@gmail.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 144/239] x86/mce: Mark mce_read_aux() noinstr
+Subject: [PATCH 5.10 417/563] clk: meson: gxbb: Fix the SDM_EN bit for MPLL0 on GXBB
 Date:   Mon, 24 Jan 2022 19:43:02 +0100
-Message-Id: <20220124183947.676611681@linuxfoundation.org>
+Message-Id: <20220124184038.869757473@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,34 +47,142 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 
-[ Upstream commit db6c996d6ce45dfb44891f0824a65ecec216f47a ]
+[ Upstream commit ff54938dd190d85f740b9bf9dde59b550936b621 ]
 
-Fixes
+There are reports that 48kHz audio does not work on the WeTek Play 2
+(which uses a GXBB SoC), while 44.1kHz audio works fine on the same
+board. There are also reports of 48kHz audio working fine on GXL and
+GXM SoCs, which are using an (almost) identical AIU (audio controller).
 
-  vmlinux.o: warning: objtool: do_machine_check()+0x681: call to mce_read_aux() leaves .noinstr.text section
+Experimenting has shown that MPLL0 is causing this problem. In the .dts
+we have by default:
+	assigned-clocks = <&clkc CLKID_MPLL0>,
+			  <&clkc CLKID_MPLL1>,
+			  <&clkc CLKID_MPLL2>;
+	assigned-clock-rates = <294912000>,
+			       <270950400>,
+			       <393216000>;
+The MPLL0 rate is divisible by 48kHz without remainder and the MPLL1
+rate is divisible by 44.1kHz without remainder. Swapping these two clock
+rates "fixes" 48kHz audio but breaks 44.1kHz audio.
 
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20211208111343.8130-10-bp@alien8.de
+Everything looks normal when looking at the info provided by the common
+clock framework while playing 48kHz audio (via I2S with mclk-fs = 256):
+        mpll_prediv                 1        1        0  2000000000
+           mpll0_div                1        1        0   294909641
+              mpll0                 1        1        0   294909641
+                 cts_amclk_sel       1        1        0   294909641
+                    cts_amclk_div       1        1        0    12287902
+                       cts_amclk       1        1        0    12287902
+
+meson-clk-msr however shows that the actual MPLL0 clock is off by more
+than 38MHz:
+        mp0_out               333322917    +/-10416Hz
+
+The rate seen by meson-clk-msr is very close to what we would get when
+SDM (the fractional part) was ignored:
+  (2000000000Hz * 16384) / ((16384 * 6) = 333.33MHz
+If SDM was considered the we should get close to:
+  (2000000000Hz * 16384) / ((16384 * 6) + 12808) = 294.9MHz
+
+Further experimenting shows that HHI_MPLL_CNTL7[15] does not have any
+effect on the rate of MPLL0 as seen my meson-clk-msr (regardless of
+whether that bit is zero or one the rate is always the same according to
+meson-clk-msr). Using HHI_MPLL_CNTL[25] on the other hand as SDM_EN
+results in SDM being considered for the rate output by the hardware. The
+rate - as seen by meson-clk-msr - matches with what we expect when
+SDM_EN is enabled (fractional part is being considered, resulting in a
+294.9MHz output) or disable (fractional part being ignored, resulting in
+a 333.33MHz output).
+
+Reported-by: Christian Hewitt <christianshewitt@gmail.com>
+Tested-by: Christian Hewitt <christianshewitt@gmail.com>
+Signed-off-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20211031135006.1508796-1-martin.blumenstingl@googlemail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mcheck/mce.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/clk/meson/gxbb.c | 44 +++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 41 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/mcheck/mce.c b/arch/x86/kernel/cpu/mcheck/mce.c
-index 26adaad3f2587..8f36ccf26ceca 100644
---- a/arch/x86/kernel/cpu/mcheck/mce.c
-+++ b/arch/x86/kernel/cpu/mcheck/mce.c
-@@ -651,7 +651,7 @@ static struct notifier_block mce_default_nb = {
- /*
-  * Read ADDR and MISC registers.
-  */
--static void mce_read_aux(struct mce *m, int i)
-+static noinstr void mce_read_aux(struct mce *m, int i)
- {
- 	if (m->status & MCI_STATUS_MISCV)
- 		m->misc = mce_rdmsrl(msr_ops.misc(i));
+diff --git a/drivers/clk/meson/gxbb.c b/drivers/clk/meson/gxbb.c
+index 0a68af6eec3dd..d42551a46ec91 100644
+--- a/drivers/clk/meson/gxbb.c
++++ b/drivers/clk/meson/gxbb.c
+@@ -712,6 +712,35 @@ static struct clk_regmap gxbb_mpll_prediv = {
+ };
+ 
+ static struct clk_regmap gxbb_mpll0_div = {
++	.data = &(struct meson_clk_mpll_data){
++		.sdm = {
++			.reg_off = HHI_MPLL_CNTL7,
++			.shift   = 0,
++			.width   = 14,
++		},
++		.sdm_en = {
++			.reg_off = HHI_MPLL_CNTL,
++			.shift   = 25,
++			.width	 = 1,
++		},
++		.n2 = {
++			.reg_off = HHI_MPLL_CNTL7,
++			.shift   = 16,
++			.width   = 9,
++		},
++		.lock = &meson_clk_lock,
++	},
++	.hw.init = &(struct clk_init_data){
++		.name = "mpll0_div",
++		.ops = &meson_clk_mpll_ops,
++		.parent_hws = (const struct clk_hw *[]) {
++			&gxbb_mpll_prediv.hw
++		},
++		.num_parents = 1,
++	},
++};
++
++static struct clk_regmap gxl_mpll0_div = {
+ 	.data = &(struct meson_clk_mpll_data){
+ 		.sdm = {
+ 			.reg_off = HHI_MPLL_CNTL7,
+@@ -748,7 +777,16 @@ static struct clk_regmap gxbb_mpll0 = {
+ 	.hw.init = &(struct clk_init_data){
+ 		.name = "mpll0",
+ 		.ops = &clk_regmap_gate_ops,
+-		.parent_hws = (const struct clk_hw *[]) { &gxbb_mpll0_div.hw },
++		.parent_data = &(const struct clk_parent_data) {
++			/*
++			 * Note:
++			 * GXL and GXBB have different SDM_EN registers. We
++			 * fallback to the global naming string mechanism so
++			 * mpll0_div picks up the appropriate one.
++			 */
++			.name = "mpll0_div",
++			.index = -1,
++		},
+ 		.num_parents = 1,
+ 		.flags = CLK_SET_RATE_PARENT,
+ 	},
+@@ -3043,7 +3081,7 @@ static struct clk_hw_onecell_data gxl_hw_onecell_data = {
+ 		[CLKID_VAPB_1]		    = &gxbb_vapb_1.hw,
+ 		[CLKID_VAPB_SEL]	    = &gxbb_vapb_sel.hw,
+ 		[CLKID_VAPB]		    = &gxbb_vapb.hw,
+-		[CLKID_MPLL0_DIV]	    = &gxbb_mpll0_div.hw,
++		[CLKID_MPLL0_DIV]	    = &gxl_mpll0_div.hw,
+ 		[CLKID_MPLL1_DIV]	    = &gxbb_mpll1_div.hw,
+ 		[CLKID_MPLL2_DIV]	    = &gxbb_mpll2_div.hw,
+ 		[CLKID_MPLL_PREDIV]	    = &gxbb_mpll_prediv.hw,
+@@ -3438,7 +3476,7 @@ static struct clk_regmap *const gxl_clk_regmaps[] = {
+ 	&gxbb_mpll0,
+ 	&gxbb_mpll1,
+ 	&gxbb_mpll2,
+-	&gxbb_mpll0_div,
++	&gxl_mpll0_div,
+ 	&gxbb_mpll1_div,
+ 	&gxbb_mpll2_div,
+ 	&gxbb_cts_amclk_div,
 -- 
 2.34.1
 
