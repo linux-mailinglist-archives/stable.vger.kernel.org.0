@@ -2,41 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A646499D81
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:00:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1AF0499583
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:13:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351517AbiAXWYA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:24:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36182 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1583232AbiAXWR1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:17:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 124DDC06138F;
-        Mon, 24 Jan 2022 12:48:19 -0800 (PST)
+        id S1442059AbiAXUwl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:52:41 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:42268 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1391681AbiAXUsW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:48:22 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A3A2D60C19;
-        Mon, 24 Jan 2022 20:48:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8570DC340E5;
-        Mon, 24 Jan 2022 20:48:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A9A5760C3E;
+        Mon, 24 Jan 2022 20:48:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 623B1C340E5;
+        Mon, 24 Jan 2022 20:48:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057298;
-        bh=6i/Lc3WTadO3w1mqFn1HbvI5iuw8Z8mWohFm0Ksrknc=;
+        s=korg; t=1643057301;
+        bh=eipPTW4zUA2Y7C6/tT/Xx48Qu8AVSVvCdWRcAwJbjbs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z4GWvnvcj2yHScho/Dd7Z4H7qez3SyP2Lx9zY26ayyiCEN/xhYz69ATMxdgpTDKMJ
-         Ko8w2ZzV/dS4LrteDklgDFf/cKKAkthl0Mhmox+GolW/1g6PudeWDVSbZ9Mj5tm9NE
-         LwALerZMngssTMuziyRqDjj3H+K5fjnAi4KwZh7U=
+        b=mDdknbIGQysdIcgik43P379chCn2IYSxtxjZ/H+yf2L3x8UfDGw3662PxvrwaTwIn
+         YsLCeGmwsPDraojRWxDj2WZ2Rv5A7UaQ2OuCuf28OylHrRyGCVjdo6Fr/hI9kwS950
+         q3mY5ejd8JOElUJayRiepTn6t8AEXvva2dLQJNMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        stable@vger.kernel.org, Chase Conklin <chase.conklin@arm.com>,
+        German Gomez <german.gomez@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
         John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.15 767/846] bpf: Mark PTR_TO_FUNC register initially with zero offset
-Date:   Mon, 24 Jan 2022 19:44:44 +0100
-Message-Id: <20220124184127.412298584@linuxfoundation.org>
+        KP Singh <kpsingh@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Song Liu <songliubraving@fb.com>,
+        Stephane Eranian <eranian@google.com>,
+        Yonghong Song <yhs@fb.com>, bpf@vger.kernel.org,
+        netdev@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.15 768/846] perf evsel: Override attr->sample_period for non-libpfm4 events
+Date:   Mon, 24 Jan 2022 19:44:45 +0100
+Message-Id: <20220124184127.452102489@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -48,52 +55,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: German Gomez <german.gomez@arm.com>
 
-commit d400a6cf1c8a57cdf10f35220ead3284320d85ff upstream.
+commit 3606c0e1a1050d397ad759a62607e419fd8b0ccb upstream.
 
-Similar as with other pointer types where we use ldimm64, clear the register
-content to zero first, and then populate the PTR_TO_FUNC type and subprogno
-number. Currently this is not done, and leads to reuse of stale register
-tracking data.
+A previous patch preventing "attr->sample_period" values from being
+overridden in pfm events changed a related behaviour in arm-spe.
 
-Given for special ldimm64 cases we always clear the register offset, make it
-common for all cases, so it won't be forgotten in future.
+Before said patch:
 
-Fixes: 69c087ba6225 ("bpf: Add bpf_for_each_map_elem() helper")
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
+  perf record -c 10000 -e arm_spe_0// -- sleep 1
+
+Would yield an SPE event with period=10000. After the patch, the period
+in "-c 10000" was being ignored because the arm-spe code initializes
+sample_period to a non-zero value.
+
+This patch restores the previous behaviour for non-libpfm4 events.
+
+Fixes: ae5dcc8abe31 (“perf record: Prevent override of attr->sample_period for libpfm4 events”)
+Reported-by: Chase Conklin <chase.conklin@arm.com>
+Signed-off-by: German Gomez <german.gomez@arm.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Cc: KP Singh <kpsingh@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Yonghong Song <yhs@fb.com>
+Cc: bpf@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20220118144054.2541-1-german.gomez@arm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/verifier.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ tools/perf/util/evsel.c |   25 +++++++++++++++++--------
+ 1 file changed, 17 insertions(+), 8 deletions(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -9199,9 +9199,13 @@ static int check_ld_imm(struct bpf_verif
- 		return 0;
- 	}
+--- a/tools/perf/util/evsel.c
++++ b/tools/perf/util/evsel.c
+@@ -1047,6 +1047,17 @@ void __weak arch_evsel__set_sample_weigh
+ 	evsel__set_sample_bit(evsel, WEIGHT);
+ }
  
--	if (insn->src_reg == BPF_PSEUDO_BTF_ID) {
--		mark_reg_known_zero(env, regs, insn->dst_reg);
-+	/* All special src_reg cases are listed below. From this point onwards
-+	 * we either succeed and assign a corresponding dst_reg->type after
-+	 * zeroing the offset, or fail and reject the program.
-+	 */
-+	mark_reg_known_zero(env, regs, insn->dst_reg);
- 
-+	if (insn->src_reg == BPF_PSEUDO_BTF_ID) {
- 		dst_reg->type = aux->btf_var.reg_type;
- 		switch (dst_reg->type) {
- 		case PTR_TO_MEM:
-@@ -9238,7 +9242,6 @@ static int check_ld_imm(struct bpf_verif
- 	}
- 
- 	map = env->used_maps[aux->map_index];
--	mark_reg_known_zero(env, regs, insn->dst_reg);
- 	dst_reg->map_ptr = map;
- 
- 	if (insn->src_reg == BPF_PSEUDO_MAP_VALUE ||
++static void evsel__set_default_freq_period(struct record_opts *opts,
++					   struct perf_event_attr *attr)
++{
++	if (opts->freq) {
++		attr->freq = 1;
++		attr->sample_freq = opts->freq;
++	} else {
++		attr->sample_period = opts->default_interval;
++	}
++}
++
+ /*
+  * The enable_on_exec/disabled value strategy:
+  *
+@@ -1113,14 +1124,12 @@ void evsel__config(struct evsel *evsel,
+ 	 * We default some events to have a default interval. But keep
+ 	 * it a weak assumption overridable by the user.
+ 	 */
+-	if (!attr->sample_period) {
+-		if (opts->freq) {
+-			attr->freq		= 1;
+-			attr->sample_freq	= opts->freq;
+-		} else {
+-			attr->sample_period = opts->default_interval;
+-		}
+-	}
++	if ((evsel->is_libpfm_event && !attr->sample_period) ||
++	    (!evsel->is_libpfm_event && (!attr->sample_period ||
++					 opts->user_freq != UINT_MAX ||
++					 opts->user_interval != ULLONG_MAX)))
++		evsel__set_default_freq_period(opts, attr);
++
+ 	/*
+ 	 * If attr->freq was set (here or earlier), ask for period
+ 	 * to be sampled.
 
 
