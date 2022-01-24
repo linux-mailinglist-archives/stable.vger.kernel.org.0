@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C2DE498A50
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:02:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C47CC498A4F
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:02:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344985AbiAXTC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:02:29 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:59202 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345572AbiAXTAa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:00:30 -0500
+        id S1345028AbiAXTCc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:02:32 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:57612 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345594AbiAXTAi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:00:38 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CD7E609EE;
-        Mon, 24 Jan 2022 19:00:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F860C340E5;
-        Mon, 24 Jan 2022 19:00:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2F04FB8122C;
+        Mon, 24 Jan 2022 19:00:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E4CDC340E5;
+        Mon, 24 Jan 2022 19:00:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050829;
-        bh=8tY+An6URUoVV/3dDVrzPaBtt69kSBA3mgynBIRuVoU=;
+        s=korg; t=1643050835;
+        bh=PgUbgX6ANUFRXQ8ngiqtS0bdZs9c8PBcaUhoUtYw8X4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t99amihwz5CPaIZEFMBJZlbW/mF1ZNISRA9BZUpd1qbqBt1YnCbHT+Nm3aGhGnoZm
-         hs2OHFkFq7+PZeoRa/rfkcR9+uoMQXqNw9Q42fGgb8R9U6e+gvnoPBcAZHZf1p9vVh
-         ZnXhfRPlmTDoC2dX2PhAvx0DHS7dvUh+jKs/anuU=
+        b=TlGhDn4EMAUbnZTfbDAdkt9c4h1qJRofCXvjgYQq96TYIptJoJtWOsDf+Z7V0mbV+
+         KQkWBlXTPybIo9SlMxlwio73zG2XyH5AAsVxwOcmAYqpwbCuaUjKq2gdQ/CRd08o4h
+         iPRWL8sXxGXsW6B8nhXhtjmJVDRtR9RDCRCyJ/Ug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 126/157] fuse: fix live lock in fuse_iget()
-Date:   Mon, 24 Jan 2022 19:43:36 +0100
-Message-Id: <20220124183936.775591737@linuxfoundation.org>
+        stable@vger.kernel.org, Yixing Liu <liuyixing1@huawei.com>,
+        Wenpeng Liang <liangwenpeng@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>
+Subject: [PATCH 4.9 128/157] RDMA/hns: Modify the mapping attribute of doorbell to device
+Date:   Mon, 24 Jan 2022 19:43:38 +0100
+Message-Id: <20220124183936.838628466@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
 References: <20220124183932.787526760@linuxfoundation.org>
@@ -45,53 +45,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amir Goldstein <amir73il@gmail.com>
+From: Yixing Liu <liuyixing1@huawei.com>
 
-commit 775c5033a0d164622d9d10dd0f0a5531639ed3ed upstream.
+commit 39d5534b1302189c809e90641ffae8cbdc42a8fc upstream.
 
-Commit 5d069dbe8aaf ("fuse: fix bad inode") replaced make_bad_inode()
-in fuse_iget() with a private implementation fuse_make_bad().
+It is more general for ARM device drivers to use the device attribute to
+map PCI BAR spaces.
 
-The private implementation fails to remove the bad inode from inode
-cache, so the retry loop with iget5_locked() finds the same bad inode
-and marks it bad forever.
-
-kmsg snip:
-
-[ ] rcu: INFO: rcu_sched self-detected stall on CPU
-...
-[ ]  ? bit_wait_io+0x50/0x50
-[ ]  ? fuse_init_file_inode+0x70/0x70
-[ ]  ? find_inode.isra.32+0x60/0xb0
-[ ]  ? fuse_init_file_inode+0x70/0x70
-[ ]  ilookup5_nowait+0x65/0x90
-[ ]  ? fuse_init_file_inode+0x70/0x70
-[ ]  ilookup5.part.36+0x2e/0x80
-[ ]  ? fuse_init_file_inode+0x70/0x70
-[ ]  ? fuse_inode_eq+0x20/0x20
-[ ]  iget5_locked+0x21/0x80
-[ ]  ? fuse_inode_eq+0x20/0x20
-[ ]  fuse_iget+0x96/0x1b0
-
-Fixes: 5d069dbe8aaf ("fuse: fix bad inode")
-Cc: stable@vger.kernel.org # 5.10+
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Fixes: 9a4435375cd1 ("IB/hns: Add driver files for hns RoCE driver")
+Link: https://lore.kernel.org/r/20211206133652.27476-1-liangwenpeng@huawei.com
+Signed-off-by: Yixing Liu <liuyixing1@huawei.com>
+Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/fuse/fuse_i.h |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/infiniband/hw/hns/hns_roce_main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/fuse/fuse_i.h
-+++ b/fs/fuse/fuse_i.h
-@@ -692,6 +692,7 @@ static inline u64 get_node_id(struct ino
+--- a/drivers/infiniband/hw/hns/hns_roce_main.c
++++ b/drivers/infiniband/hw/hns/hns_roce_main.c
+@@ -556,7 +556,7 @@ static int hns_roce_mmap(struct ib_ucont
+ 		return -EINVAL;
  
- static inline void fuse_make_bad(struct inode *inode)
- {
-+	remove_inode_hash(inode);
- 	set_bit(FUSE_I_BAD, &get_fuse_inode(inode)->state);
- }
- 
+ 	if (vma->vm_pgoff == 0) {
+-		vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
++		vma->vm_page_prot = pgprot_device(vma->vm_page_prot);
+ 		if (io_remap_pfn_range(vma, vma->vm_start,
+ 				       to_hr_ucontext(context)->uar.pfn,
+ 				       PAGE_SIZE, vma->vm_page_prot))
 
 
