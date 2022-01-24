@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E68AB49A313
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:02:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 629A349A4E2
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:10:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385727AbiAXXtd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:49:33 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:45920 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1454930AbiAXVeP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:34:15 -0500
+        id S1387641AbiAYAFD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:05:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53020 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1839672AbiAXX2d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:28:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A79AC075955;
+        Mon, 24 Jan 2022 13:34:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CC226B81257;
-        Mon, 24 Jan 2022 21:34:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02FBDC340E4;
-        Mon, 24 Jan 2022 21:34:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BAD061305;
+        Mon, 24 Jan 2022 21:34:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 103CCC340E4;
+        Mon, 24 Jan 2022 21:34:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060044;
-        bh=PuPDInC1r/GLcY+Vi+sQObVdNBoB1cbEQ8SKVAlGUU0=;
+        s=korg; t=1643060047;
+        bh=+gYox5gfMlmqNO1wkoe6FTEVu8N04dhY/8LJMhA6gtI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V2UAReNXan+TmlkIrx4VZj6ZYo1NdeshC46cTh6x5ry9jtGg2X5XaRxHcTag4njXk
-         Z6FbmBmsNK/bZbClHDmajnH4F3WZrJQ27h2zLp3WLKEx1xi5afJ3BXd++RQ9akBgKg
-         Yms/TgNhwfs9dQl4DXdgLsDdoLOScyx3zo7LFJf4=
+        b=AymDe3G0Zu2Myo6385zcKsllOXyiZ0Lj5vMfSmzGpX+gyatf+5k3u9LE8dFYNkZNs
+         5UrlDzct1VoLPqMKUFGfbY0jWNEf/DgjX5hb8zPTEB9I7LmZfFZB988lBJ5IWgif8y
+         IXA3a84r+kbABDKJW1ifVEH1IIkwb6B+LAdNbXWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wesley Sheng <wesley.sheng@microchip.com>,
-        Kelvin Cao <kelvin.cao@microchip.com>,
-        Jon Mason <jdmason@kudzu.us>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0820/1039] ntb_hw_switchtec: Fix bug with more than 32 partitions
-Date:   Mon, 24 Jan 2022 19:43:29 +0100
-Message-Id: <20220124184152.866189101@linuxfoundation.org>
+        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0821/1039] drm/amd/display: invalid parameter check in dmub_hpd_callback
+Date:   Mon, 24 Jan 2022 19:43:30 +0100
+Message-Id: <20220124184152.897816208@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -45,72 +49,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wesley Sheng <wesley.sheng@microchip.com>
+From: José Expósito <jose.exposito89@gmail.com>
 
-[ Upstream commit 7ff351c86b6b258f387502ab2c9b9d04f82c1c3d ]
+[ Upstream commit 978ffac878fd64039f95798b15b430032d2d89d5 ]
 
-Switchtec could support as mush as 48 partitions, but ffs & fls are
-for 32 bit argument, in case of partition index larger than 31, the
-current code could not parse the peer partition index correctly.
-Change to the 64 bit version __ffs64 & fls64 accordingly to fix this
-bug.
+The function performs a check on the "adev" input parameter, however, it
+is used before the check.
 
-Fixes: 3df54c870f52 ("ntb_hw_switchtec: Allow using Switchtec NTB in multi-partition setups")
-Signed-off-by: Wesley Sheng <wesley.sheng@microchip.com>
-Signed-off-by: Kelvin Cao <kelvin.cao@microchip.com>
-Signed-off-by: Jon Mason <jdmason@kudzu.us>
+Initialize the "dev" variable after the sanity check to avoid a possible
+NULL pointer dereference.
+
+Fixes: e27c41d5b0681 ("drm/amd/display: Support for DMUB HPD interrupt handling")
+Addresses-Coverity-ID: 1493909 ("Null pointer dereference")
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ntb/hw/mscc/ntb_hw_switchtec.c | 12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/ntb/hw/mscc/ntb_hw_switchtec.c b/drivers/ntb/hw/mscc/ntb_hw_switchtec.c
-index 6603c77c0a848..ec9cb6c81edae 100644
---- a/drivers/ntb/hw/mscc/ntb_hw_switchtec.c
-+++ b/drivers/ntb/hw/mscc/ntb_hw_switchtec.c
-@@ -840,7 +840,6 @@ static int switchtec_ntb_init_sndev(struct switchtec_ntb *sndev)
- 	u64 tpart_vec;
- 	int self;
- 	u64 part_map;
--	int bit;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 46d38d528468c..3a227e9d8dfcb 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -656,7 +656,7 @@ void dmub_hpd_callback(struct amdgpu_device *adev, struct dmub_notification *not
+ 	struct drm_connector_list_iter iter;
+ 	struct dc_link *link;
+ 	uint8_t link_index = 0;
+-	struct drm_device *dev = adev->dm.ddev;
++	struct drm_device *dev;
  
- 	sndev->ntb.pdev = sndev->stdev->pdev;
- 	sndev->ntb.topo = NTB_TOPO_SWITCH;
-@@ -861,29 +860,28 @@ static int switchtec_ntb_init_sndev(struct switchtec_ntb *sndev)
- 	part_map = ioread64(&sndev->mmio_ntb->ep_map);
- 	part_map &= ~(1 << sndev->self_partition);
+ 	if (adev == NULL)
+ 		return;
+@@ -673,6 +673,7 @@ void dmub_hpd_callback(struct amdgpu_device *adev, struct dmub_notification *not
  
--	if (!ffs(tpart_vec)) {
-+	if (!tpart_vec) {
- 		if (sndev->stdev->partition_count != 2) {
- 			dev_err(&sndev->stdev->dev,
- 				"ntb target partition not defined\n");
- 			return -ENODEV;
- 		}
+ 	link_index = notify->link_index;
+ 	link = adev->dm.dc->links[link_index];
++	dev = adev->dm.ddev;
  
--		bit = ffs(part_map);
--		if (!bit) {
-+		if (!part_map) {
- 			dev_err(&sndev->stdev->dev,
- 				"peer partition is not NT partition\n");
- 			return -ENODEV;
- 		}
- 
--		sndev->peer_partition = bit - 1;
-+		sndev->peer_partition = __ffs64(part_map);
- 	} else {
--		if (ffs(tpart_vec) != fls(tpart_vec)) {
-+		if (__ffs64(tpart_vec) != (fls64(tpart_vec) - 1)) {
- 			dev_err(&sndev->stdev->dev,
- 				"ntb driver only supports 1 pair of 1-1 ntb mapping\n");
- 			return -ENODEV;
- 		}
- 
--		sndev->peer_partition = ffs(tpart_vec) - 1;
-+		sndev->peer_partition = __ffs64(tpart_vec);
- 		if (!(part_map & (1ULL << sndev->peer_partition))) {
- 			dev_err(&sndev->stdev->dev,
- 				"ntb target partition is not NT partition\n");
+ 	drm_connector_list_iter_begin(dev, &iter);
+ 	drm_for_each_connector_iter(connector, &iter) {
 -- 
 2.34.1
 
