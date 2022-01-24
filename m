@@ -2,503 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7A94498181
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:55:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C781149814D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:43:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235583AbiAXNzU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 08:55:20 -0500
-Received: from maynard.decadent.org.uk ([95.217.213.242]:41962 "EHLO
-        maynard.decadent.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234941AbiAXNzT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:55:19 -0500
-Received: from 168.7-181-91.adsl-dyn.isp.belgacom.be ([91.181.7.168] helo=deadeye)
-        by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1nBzcu-0004zk-3s; Mon, 24 Jan 2022 14:43:20 +0100
-Received: from ben by deadeye with local (Exim 4.95)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1nBzct-009hpT-Kj;
-        Mon, 24 Jan 2022 14:43:19 +0100
-Date:   Mon, 24 Jan 2022 14:43:19 +0100
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     stable@vger.kernel.org
-Cc:     Miklos Szeredi <mszeredi@redhat.com>, Jan Kara <jack@suse.cz>
-Subject: [PATCH 4.9 1/2] fuse: fix bad inode
-Message-ID: <Ye6s90hqJXcsvslQ@decadent.org.uk>
+        id S230396AbiAXNn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 08:43:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54162 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230365AbiAXNn0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:43:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA071C06173B
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 05:43:26 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 49AAC612A8
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:43:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24FBBC340E1;
+        Mon, 24 Jan 2022 13:43:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1643031805;
+        bh=AxKBflI5F7TiVWFo37tTTSnFG+JHfbnNlkSnO0kTaHA=;
+        h=Subject:To:Cc:From:Date:From;
+        b=snF5sdc+spalTJiLFcZxJh7zm9oLlrMpdWn6lrtcTyu00RUBTZ4Nu4f0iVENSBFPY
+         HsG8bXLFGTsIjxPJ2JifWN8ONYc0QzLZS42LR1vM3hqAaVsyfDUa07G1GSIyAxeyvU
+         +uL0jF1HPfQ4LtbST9qpXZlxuQAY/5GqS7tHnpJM=
+Subject: FAILED: patch "[PATCH] net: cpsw: avoid alignment faults by taking NET_IP_ALIGN into" failed to apply to 5.4-stable tree
+To:     ardb@kernel.org, davem@davemloft.net, grygorii.strashko@ti.com,
+        ilias.apalodimas@linaro.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 24 Jan 2022 14:43:22 +0100
+Message-ID: <1643031802184249@kroah.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="Vcbf50j0eHZV8teZ"
-Content-Disposition: inline
-X-SA-Exim-Connect-IP: 91.181.7.168
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on maynard); SAEximRunCond expanded to false
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---Vcbf50j0eHZV8teZ
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-=46rom: Miklos Szeredi <mszeredi@redhat.com>
+thanks,
 
-commit 5d069dbe8aaf2a197142558b6fb2978189ba3454 upstream.
+greg k-h
 
-Jan Kara's analysis of the syzbot report (edited):
+------------------ original commit in Linus's tree ------------------
 
-  The reproducer opens a directory on FUSE filesystem, it then attaches
-  dnotify mark to the open directory.  After that a fuse_do_getattr() call
-  finds that attributes returned by the server are inconsistent, and calls
-  make_bad_inode() which, among other things does:
+From 1771afd47430f5e95c9c3a2e3a8a63e67402d3fe Mon Sep 17 00:00:00 2001
+From: Ard Biesheuvel <ardb@kernel.org>
+Date: Tue, 18 Jan 2022 11:22:04 +0100
+Subject: [PATCH] net: cpsw: avoid alignment faults by taking NET_IP_ALIGN into
+ account
 
-          inode->i_mode =3D S_IFREG;
+Both versions of the CPSW driver declare a CPSW_HEADROOM_NA macro that
+takes NET_IP_ALIGN into account, but fail to use it appropriately when
+storing incoming packets in memory. This results in the IPv4 source and
+destination addresses to appear misaligned in memory, which causes
+aligment faults that need to be fixed up in software.
 
-  This then confuses dnotify which doesn't tear down its structures
-  properly and eventually crashes.
+So let's switch from CPSW_HEADROOM to CPSW_HEADROOM_NA where needed.
+This gets rid of any alignment faults on the RX path on a Beaglebone
+White.
 
-Avoid calling make_bad_inode() on a live inode: switch to a private flag on
-the fuse inode.  Also add the test to ops which the bad_inode_ops would
-have caught.
+Fixes: 9ed4050c0d75 ("net: ethernet: ti: cpsw: add XDP support")
+Cc: Grygorii Strashko <grygorii.strashko@ti.com>
+Cc: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 
-This bug goes back to the initial merge of fuse in 2.6.14...
-
-Reported-by: syzbot+f427adf9324b92652ccc@syzkaller.appspotmail.com
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Tested-by: Jan Kara <jack@suse.cz>
-Cc: <stable@vger.kernel.org>
-[bwh: Backported to 4.9:
- - Drop changes in fuse_dir_fsync(), fuse_readahead(), fuse_evict_inode()
- - In fuse_get_link(), return ERR_PTR(-EIO) for bad inodes
- - Convert some additional calls to is_bad_inode()
- - Adjust filename, context]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
----
- fs/fuse/acl.c    |  6 ++++++
- fs/fuse/dir.c    | 40 +++++++++++++++++++++++++++++++++++-----
- fs/fuse/file.c   | 27 ++++++++++++++++++---------
- fs/fuse/fuse_i.h | 12 ++++++++++++
- fs/fuse/inode.c  |  2 +-
- fs/fuse/xattr.c  |  9 +++++++++
- 6 files changed, 81 insertions(+), 15 deletions(-)
-
-diff --git a/fs/fuse/acl.c b/fs/fuse/acl.c
-index ec85765502f1..990529da5354 100644
---- a/fs/fuse/acl.c
-+++ b/fs/fuse/acl.c
-@@ -19,6 +19,9 @@ struct posix_acl *fuse_get_acl(struct inode *inode, int t=
-ype)
- 	void *value =3D NULL;
- 	struct posix_acl *acl;
-=20
-+	if (fuse_is_bad(inode))
-+		return ERR_PTR(-EIO);
-+
- 	if (!fc->posix_acl || fc->no_getxattr)
- 		return NULL;
-=20
-@@ -53,6 +56,9 @@ int fuse_set_acl(struct inode *inode, struct posix_acl *a=
-cl, int type)
- 	const char *name;
- 	int ret;
-=20
-+	if (fuse_is_bad(inode))
-+		return -EIO;
-+
- 	if (!fc->posix_acl || fc->no_setxattr)
- 		return -EOPNOTSUPP;
-=20
-diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
-index b41cc537eb31..c40bdfab0a85 100644
---- a/fs/fuse/dir.c
-+++ b/fs/fuse/dir.c
-@@ -187,7 +187,7 @@ static int fuse_dentry_revalidate(struct dentry *entry,=
- unsigned int flags)
- 	int ret;
-=20
- 	inode =3D d_inode_rcu(entry);
--	if (inode && is_bad_inode(inode))
-+	if (inode && fuse_is_bad(inode))
- 		goto invalid;
- 	else if (time_before64(fuse_dentry_time(entry), get_jiffies_64()) ||
- 		 (flags & LOOKUP_REVAL)) {
-@@ -364,6 +364,9 @@ static struct dentry *fuse_lookup(struct inode *dir, st=
-ruct dentry *entry,
- 	bool outarg_valid =3D true;
- 	bool locked;
-=20
-+	if (fuse_is_bad(dir))
-+		return ERR_PTR(-EIO);
-+
- 	locked =3D fuse_lock_inode(dir);
- 	err =3D fuse_lookup_name(dir->i_sb, get_node_id(dir), &entry->d_name,
- 			       &outarg, &inode);
-@@ -504,6 +507,9 @@ static int fuse_atomic_open(struct inode *dir, struct d=
-entry *entry,
- 	struct fuse_conn *fc =3D get_fuse_conn(dir);
- 	struct dentry *res =3D NULL;
-=20
-+	if (fuse_is_bad(dir))
-+		return -EIO;
-+
- 	if (d_in_lookup(entry)) {
- 		res =3D fuse_lookup(dir, entry, 0);
- 		if (IS_ERR(res))
-@@ -551,6 +557,9 @@ static int create_new_entry(struct fuse_conn *fc, struc=
-t fuse_args *args,
- 	int err;
- 	struct fuse_forget_link *forget;
-=20
-+	if (fuse_is_bad(dir))
-+		return -EIO;
-+
- 	forget =3D fuse_alloc_forget();
- 	if (!forget)
- 		return -ENOMEM;
-@@ -672,6 +681,9 @@ static int fuse_unlink(struct inode *dir, struct dentry=
- *entry)
- 	struct fuse_conn *fc =3D get_fuse_conn(dir);
- 	FUSE_ARGS(args);
-=20
-+	if (fuse_is_bad(dir))
-+		return -EIO;
-+
- 	args.in.h.opcode =3D FUSE_UNLINK;
- 	args.in.h.nodeid =3D get_node_id(dir);
- 	args.in.numargs =3D 1;
-@@ -708,6 +720,9 @@ static int fuse_rmdir(struct inode *dir, struct dentry =
-*entry)
- 	struct fuse_conn *fc =3D get_fuse_conn(dir);
- 	FUSE_ARGS(args);
-=20
-+	if (fuse_is_bad(dir))
-+		return -EIO;
-+
- 	args.in.h.opcode =3D FUSE_RMDIR;
- 	args.in.h.nodeid =3D get_node_id(dir);
- 	args.in.numargs =3D 1;
-@@ -786,6 +801,9 @@ static int fuse_rename2(struct inode *olddir, struct de=
-ntry *oldent,
- 	struct fuse_conn *fc =3D get_fuse_conn(olddir);
- 	int err;
-=20
-+	if (fuse_is_bad(olddir))
-+		return -EIO;
-+
- 	if (flags & ~(RENAME_NOREPLACE | RENAME_EXCHANGE))
- 		return -EINVAL;
-=20
-@@ -921,7 +939,7 @@ static int fuse_do_getattr(struct inode *inode, struct =
-kstat *stat,
- 	if (!err) {
- 		if (fuse_invalid_attr(&outarg.attr) ||
- 		    (inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
--			make_bad_inode(inode);
-+			fuse_make_bad(inode);
- 			err =3D -EIO;
- 		} else {
- 			fuse_change_attributes(inode, &outarg.attr,
-@@ -1114,6 +1132,9 @@ static int fuse_permission(struct inode *inode, int m=
-ask)
- 	bool refreshed =3D false;
- 	int err =3D 0;
-=20
-+	if (fuse_is_bad(inode))
-+		return -EIO;
-+
- 	if (!fuse_allow_current_process(fc))
- 		return -EACCES;
-=20
-@@ -1251,7 +1272,7 @@ static int fuse_direntplus_link(struct file *file,
- 			dput(dentry);
- 			goto retry;
- 		}
--		if (is_bad_inode(inode)) {
-+		if (fuse_is_bad(inode)) {
- 			dput(dentry);
- 			return -EIO;
- 		}
-@@ -1349,7 +1370,7 @@ static int fuse_readdir(struct file *file, struct dir=
-_context *ctx)
- 	u64 attr_version =3D 0;
- 	bool locked;
-=20
--	if (is_bad_inode(inode))
-+	if (fuse_is_bad(inode))
- 		return -EIO;
-=20
- 	req =3D fuse_get_req(fc, 1);
-@@ -1409,6 +1430,9 @@ static const char *fuse_get_link(struct dentry *dentr=
-y,
- 	if (!dentry)
- 		return ERR_PTR(-ECHILD);
-=20
-+	if (fuse_is_bad(inode))
-+		return ERR_PTR(-EIO);
-+
- 	link =3D kmalloc(PAGE_SIZE, GFP_KERNEL);
- 	if (!link)
- 		return ERR_PTR(-ENOMEM);
-@@ -1707,7 +1731,7 @@ int fuse_do_setattr(struct dentry *dentry, struct iat=
-tr *attr,
-=20
- 	if (fuse_invalid_attr(&outarg.attr) ||
- 	    (inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
--		make_bad_inode(inode);
-+		fuse_make_bad(inode);
- 		err =3D -EIO;
- 		goto error;
+diff --git a/drivers/net/ethernet/ti/cpsw.c b/drivers/net/ethernet/ti/cpsw.c
+index 33142d505fc8..03575c017500 100644
+--- a/drivers/net/ethernet/ti/cpsw.c
++++ b/drivers/net/ethernet/ti/cpsw.c
+@@ -349,7 +349,7 @@ static void cpsw_rx_handler(void *token, int len, int status)
+ 	struct cpsw_common	*cpsw = ndev_to_cpsw(xmeta->ndev);
+ 	int			pkt_size = cpsw->rx_packet_max;
+ 	int			ret = 0, port, ch = xmeta->ch;
+-	int			headroom = CPSW_HEADROOM;
++	int			headroom = CPSW_HEADROOM_NA;
+ 	struct net_device	*ndev = xmeta->ndev;
+ 	struct cpsw_priv	*priv;
+ 	struct page_pool	*pool;
+@@ -392,7 +392,7 @@ static void cpsw_rx_handler(void *token, int len, int status)
  	}
-@@ -1763,6 +1787,9 @@ static int fuse_setattr(struct dentry *entry, struct =
-iattr *attr)
- 	struct file *file =3D (attr->ia_valid & ATTR_FILE) ? attr->ia_file : NULL;
- 	int ret;
-=20
-+	if (fuse_is_bad(inode))
-+		return -EIO;
-+
- 	if (!fuse_allow_current_process(get_fuse_conn(inode)))
- 		return -EACCES;
-=20
-@@ -1821,6 +1848,9 @@ static int fuse_getattr(struct vfsmount *mnt, struct =
-dentry *entry,
- 	struct inode *inode =3D d_inode(entry);
- 	struct fuse_conn *fc =3D get_fuse_conn(inode);
-=20
-+	if (fuse_is_bad(inode))
-+		return -EIO;
-+
- 	if (!fuse_allow_current_process(fc))
- 		return -EACCES;
-=20
-diff --git a/fs/fuse/file.c b/fs/fuse/file.c
-index cea2317e0138..8aef8e56eb1b 100644
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -206,6 +206,9 @@ int fuse_open_common(struct inode *inode, struct file *=
-file, bool isdir)
- 			  fc->atomic_o_trunc &&
- 			  fc->writeback_cache;
-=20
-+	if (fuse_is_bad(inode))
-+		return -EIO;
-+
- 	err =3D generic_file_open(inode, file);
- 	if (err)
- 		return err;
-@@ -411,7 +414,7 @@ static int fuse_flush(struct file *file, fl_owner_t id)
- 	struct fuse_flush_in inarg;
- 	int err;
-=20
--	if (is_bad_inode(inode))
-+	if (fuse_is_bad(inode))
- 		return -EIO;
-=20
- 	if (fc->no_flush)
-@@ -459,7 +462,7 @@ int fuse_fsync_common(struct file *file, loff_t start, =
-loff_t end,
- 	struct fuse_fsync_in inarg;
- 	int err;
-=20
--	if (is_bad_inode(inode))
-+	if (fuse_is_bad(inode))
- 		return -EIO;
-=20
- 	inode_lock(inode);
-@@ -771,7 +774,7 @@ static int fuse_readpage(struct file *file, struct page=
- *page)
- 	int err;
-=20
- 	err =3D -EIO;
--	if (is_bad_inode(inode))
-+	if (fuse_is_bad(inode))
- 		goto out;
-=20
- 	err =3D fuse_do_readpage(file, page);
-@@ -898,7 +901,7 @@ static int fuse_readpages(struct file *file, struct add=
-ress_space *mapping,
- 	int nr_alloc =3D min_t(unsigned, nr_pages, FUSE_MAX_PAGES_PER_REQ);
-=20
- 	err =3D -EIO;
--	if (is_bad_inode(inode))
-+	if (fuse_is_bad(inode))
- 		goto out;
-=20
- 	data.file =3D file;
-@@ -928,6 +931,9 @@ static ssize_t fuse_file_read_iter(struct kiocb *iocb, =
-struct iov_iter *to)
- 	struct inode *inode =3D iocb->ki_filp->f_mapping->host;
- 	struct fuse_conn *fc =3D get_fuse_conn(inode);
-=20
-+	if (fuse_is_bad(inode))
-+		return -EIO;
-+
- 	/*
- 	 * In auto invalidate mode, always update attributes on read.
- 	 * Otherwise, only update if we attempt to read past EOF (to ensure
-@@ -1123,7 +1129,7 @@ static ssize_t fuse_perform_write(struct file *file,
- 	int err =3D 0;
- 	ssize_t res =3D 0;
-=20
--	if (is_bad_inode(inode))
-+	if (fuse_is_bad(inode))
- 		return -EIO;
-=20
- 	if (inode->i_size < pos + iov_iter_count(ii))
-@@ -1180,6 +1186,9 @@ static ssize_t fuse_file_write_iter(struct kiocb *ioc=
-b, struct iov_iter *from)
- 	ssize_t err;
- 	loff_t endbyte =3D 0;
-=20
-+	if (fuse_is_bad(inode))
-+		return -EIO;
-+
- 	if (get_fuse_conn(inode)->writeback_cache) {
- 		/* Update size (EOF optimization) and mode (SUID clearing) */
- 		err =3D fuse_update_attributes(mapping->host, NULL, file, NULL);
-@@ -1415,7 +1424,7 @@ static ssize_t __fuse_direct_read(struct fuse_io_priv=
- *io,
- 	struct file *file =3D io->file;
- 	struct inode *inode =3D file_inode(file);
-=20
--	if (is_bad_inode(inode))
-+	if (fuse_is_bad(inode))
- 		return -EIO;
-=20
- 	res =3D fuse_direct_io(io, iter, ppos, 0);
-@@ -1438,7 +1447,7 @@ static ssize_t fuse_direct_write_iter(struct kiocb *i=
-ocb, struct iov_iter *from)
- 	struct fuse_io_priv io =3D FUSE_IO_PRIV_SYNC(file);
- 	ssize_t res;
-=20
--	if (is_bad_inode(inode))
-+	if (fuse_is_bad(inode))
- 		return -EIO;
-=20
- 	/* Don't allow parallel writes to the same file */
-@@ -1911,7 +1920,7 @@ static int fuse_writepages(struct address_space *mapp=
-ing,
- 	int err;
-=20
- 	err =3D -EIO;
--	if (is_bad_inode(inode))
-+	if (fuse_is_bad(inode))
- 		goto out;
-=20
- 	data.inode =3D inode;
-@@ -2687,7 +2696,7 @@ long fuse_ioctl_common(struct file *file, unsigned in=
-t cmd,
- 	if (!fuse_allow_current_process(fc))
- 		return -EACCES;
-=20
--	if (is_bad_inode(inode))
-+	if (fuse_is_bad(inode))
- 		return -EIO;
-=20
- 	return fuse_do_ioctl(file, cmd, arg, flags);
-diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
-index f84dd6d87d90..bd82c09b053d 100644
---- a/fs/fuse/fuse_i.h
-+++ b/fs/fuse/fuse_i.h
-@@ -115,6 +115,8 @@ enum {
- 	FUSE_I_INIT_RDPLUS,
- 	/** An operation changing file size is in progress  */
- 	FUSE_I_SIZE_UNSTABLE,
-+	/* Bad inode */
-+	FUSE_I_BAD,
- };
-=20
- struct fuse_conn;
-@@ -688,6 +690,16 @@ static inline u64 get_node_id(struct inode *inode)
- 	return get_fuse_inode(inode)->nodeid;
- }
-=20
-+static inline void fuse_make_bad(struct inode *inode)
-+{
-+	set_bit(FUSE_I_BAD, &get_fuse_inode(inode)->state);
-+}
-+
-+static inline bool fuse_is_bad(struct inode *inode)
-+{
-+	return unlikely(test_bit(FUSE_I_BAD, &get_fuse_inode(inode)->state));
-+}
-+
- /** Device operations */
- extern const struct file_operations fuse_dev_operations;
-=20
-diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
-index 7a9b1069d267..77b8f0f26407 100644
---- a/fs/fuse/inode.c
-+++ b/fs/fuse/inode.c
-@@ -316,7 +316,7 @@ struct inode *fuse_iget(struct super_block *sb, u64 nod=
-eid,
- 		unlock_new_inode(inode);
- 	} else if ((inode->i_mode ^ attr->mode) & S_IFMT) {
- 		/* Inode has changed type, any I/O on the old should fail */
--		make_bad_inode(inode);
-+		fuse_make_bad(inode);
- 		iput(inode);
- 		goto retry;
+ 
+ 	if (priv->xdp_prog) {
+-		int headroom = CPSW_HEADROOM, size = len;
++		int size = len;
+ 
+ 		xdp_init_buff(&xdp, PAGE_SIZE, &priv->xdp_rxq[ch]);
+ 		if (status & CPDMA_RX_VLAN_ENCAP) {
+@@ -442,7 +442,7 @@ static void cpsw_rx_handler(void *token, int len, int status)
+ 	xmeta->ndev = ndev;
+ 	xmeta->ch = ch;
+ 
+-	dma = page_pool_get_dma_addr(new_page) + CPSW_HEADROOM;
++	dma = page_pool_get_dma_addr(new_page) + CPSW_HEADROOM_NA;
+ 	ret = cpdma_chan_submit_mapped(cpsw->rxv[ch].ch, new_page, dma,
+ 				       pkt_size, 0);
+ 	if (ret < 0) {
+diff --git a/drivers/net/ethernet/ti/cpsw_new.c b/drivers/net/ethernet/ti/cpsw_new.c
+index 279e261e4720..bd4b1528cf99 100644
+--- a/drivers/net/ethernet/ti/cpsw_new.c
++++ b/drivers/net/ethernet/ti/cpsw_new.c
+@@ -283,7 +283,7 @@ static void cpsw_rx_handler(void *token, int len, int status)
+ {
+ 	struct page *new_page, *page = token;
+ 	void *pa = page_address(page);
+-	int headroom = CPSW_HEADROOM;
++	int headroom = CPSW_HEADROOM_NA;
+ 	struct cpsw_meta_xdp *xmeta;
+ 	struct cpsw_common *cpsw;
+ 	struct net_device *ndev;
+@@ -336,7 +336,7 @@ static void cpsw_rx_handler(void *token, int len, int status)
  	}
-diff --git a/fs/fuse/xattr.c b/fs/fuse/xattr.c
-index 3caac46b08b0..134bbc432ae6 100644
---- a/fs/fuse/xattr.c
-+++ b/fs/fuse/xattr.c
-@@ -113,6 +113,9 @@ ssize_t fuse_listxattr(struct dentry *entry, char *list=
-, size_t size)
- 	struct fuse_getxattr_out outarg;
- 	ssize_t ret;
-=20
-+	if (fuse_is_bad(inode))
-+		return -EIO;
-+
- 	if (!fuse_allow_current_process(fc))
- 		return -EACCES;
-=20
-@@ -178,6 +181,9 @@ static int fuse_xattr_get(const struct xattr_handler *h=
-andler,
- 			 struct dentry *dentry, struct inode *inode,
- 			 const char *name, void *value, size_t size)
- {
-+	if (fuse_is_bad(inode))
-+		return -EIO;
-+
- 	return fuse_getxattr(inode, name, value, size);
- }
-=20
-@@ -186,6 +192,9 @@ static int fuse_xattr_set(const struct xattr_handler *h=
-andler,
- 			  const char *name, const void *value, size_t size,
- 			  int flags)
- {
-+	if (fuse_is_bad(inode))
-+		return -EIO;
-+
- 	if (!value)
- 		return fuse_removexattr(inode, name);
-=20
+ 
+ 	if (priv->xdp_prog) {
+-		int headroom = CPSW_HEADROOM, size = len;
++		int size = len;
+ 
+ 		xdp_init_buff(&xdp, PAGE_SIZE, &priv->xdp_rxq[ch]);
+ 		if (status & CPDMA_RX_VLAN_ENCAP) {
+@@ -386,7 +386,7 @@ static void cpsw_rx_handler(void *token, int len, int status)
+ 	xmeta->ndev = ndev;
+ 	xmeta->ch = ch;
+ 
+-	dma = page_pool_get_dma_addr(new_page) + CPSW_HEADROOM;
++	dma = page_pool_get_dma_addr(new_page) + CPSW_HEADROOM_NA;
+ 	ret = cpdma_chan_submit_mapped(cpsw->rxv[ch].ch, new_page, dma,
+ 				       pkt_size, 0);
+ 	if (ret < 0) {
+diff --git a/drivers/net/ethernet/ti/cpsw_priv.c b/drivers/net/ethernet/ti/cpsw_priv.c
+index 3537502e5e8b..ba220593e6db 100644
+--- a/drivers/net/ethernet/ti/cpsw_priv.c
++++ b/drivers/net/ethernet/ti/cpsw_priv.c
+@@ -1122,7 +1122,7 @@ int cpsw_fill_rx_channels(struct cpsw_priv *priv)
+ 			xmeta->ndev = priv->ndev;
+ 			xmeta->ch = ch;
+ 
+-			dma = page_pool_get_dma_addr(page) + CPSW_HEADROOM;
++			dma = page_pool_get_dma_addr(page) + CPSW_HEADROOM_NA;
+ 			ret = cpdma_chan_idle_submit_mapped(cpsw->rxv[ch].ch,
+ 							    page, dma,
+ 							    cpsw->rx_packet_max,
 
-
---Vcbf50j0eHZV8teZ
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmHurPcACgkQ57/I7JWG
-EQm3Ww/5ASg5bCtFZh+InLziGYsz5TOEZS0PYAevmOnWFntMeLRFgxHtxgNQpiER
-qmgxwjIHw+CB6wiZQAEHMVVYXNH9YY5pr7x7F/jKA4wxfU3TXYJ0Zu+6LaG7PJLp
-ESUL+Shb3G/h5jJJFrlzZhONPkNayXRYTg+AykBlZGyufbFZ2/fUym5C4R0WVf4U
-Oh0Lp/mqDVEnAlIyiNsbQwI4VLjaDwu9faOUFMRa9FCE1laN2t74Fnh+3BkuwOCZ
-8NiL8poPppS5yf1mZQBSe+Ogxoc8WSROqPKDqcltqF6xBtxe/HeNIDLYLZbhnkdD
-VgOeOgqzTGPg2MQNcWu40MJ8J4O5T5BGhE9AjGsyQIbEjevKqtOCHm7KWfoA7LJ9
-+HE1uAmu1O6s5PBejX7LozB5HOkIxfXj7dKD67vG03yBWZDdawhQNBAWzKdJXxRe
-qG1CH6tTzJf1olTrDu8WQLpIlEk/gsiJF4OzmQN2kgw1Qul6M8GvdNYkohCqG3ZI
-CBLRxSFkXi6BzoLDMS1+Lu8SypKbpK1JFOXys0hT4r066+IGpTS64HzXlGLUMkbS
-4YuusUCUP071UUh1f9larOm9Vcu8KiCSXqNNR1Mm0WWzdN4YojlVWLM7Y5IVjhqB
-H8gk92jm3Db28ZC0eCmGT3efMKi0dvltcJzKULeAtS7hv8l5Bt0=
-=B1dj
------END PGP SIGNATURE-----
-
---Vcbf50j0eHZV8teZ--
