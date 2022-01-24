@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DAED49A31C
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:02:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B69149A335
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:02:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2366142AbiAXXwX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:52:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48686 "EHLO
+        id S1386351AbiAXX5K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:57:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1844747AbiAXXKN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:10:13 -0500
+        with ESMTP id S1845985AbiAXXOJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:14:09 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38B7EC0A0295;
-        Mon, 24 Jan 2022 13:18:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5778C0A02BD;
+        Mon, 24 Jan 2022 13:20:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6120861496;
-        Mon, 24 Jan 2022 21:18:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AABCC340E4;
-        Mon, 24 Jan 2022 21:18:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5538C60C44;
+        Mon, 24 Jan 2022 21:20:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D2C2C340E4;
+        Mon, 24 Jan 2022 21:20:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059112;
-        bh=crMXqvSs9XeCYRWN5QFY6tsNKDUACgMNtu1LADo50Es=;
+        s=korg; t=1643059250;
+        bh=tGwi8PGuwVZUsl3xSmCHNuQbiPSwT1D+Ohe2sWsCveo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qOVHfJO7ZoxKEmK83q/802lOpo6CchlCPZYByMkno9r4MYqc+5k/6VAHhSmcKW4zt
-         fNNcu0gvof7n6L3JMbbJg5I3AbudCFM/A36frTqe7eCid06yT5wpbRAK2UuoQwuREg
-         rXrXvhibwwAZZMylraiQpjevkMrUHZkHpYZ/Uch8=
+        b=bcST5ddlk6I+q9OyHUlUpSpFuUjGand1Op8QUcsQa0u5uc0xBCeA+oiC6PyZdKkhi
+         YUsXbsJ7dkyL3gWUj56fFHzvyf45DWhUNM4YT8Ob7VIm1hZY0D3FAi8/UK0FageYDX
+         ywnnfYTq/uzU4X6ALgLuo5/Pwu6t4aI8d8AoJoMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sachin Sant <sachinp@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0507/1039] powerpc/64s: Mask NIP before checking against SRR0
-Date:   Mon, 24 Jan 2022 19:38:16 +0100
-Message-Id: <20220124184142.325472093@linuxfoundation.org>
+Subject: [PATCH 5.16 0510/1039] iio: chemical: sunrise_co2: set val parameter only on success
+Date:   Mon, 24 Jan 2022 19:38:19 +0100
+Message-Id: <20220124184142.432735565@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -48,47 +48,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Tom Rix <trix@redhat.com>
 
-[ Upstream commit 314f6c23dd8d417281eb9e8a516dd98036f2e7b3 ]
+[ Upstream commit 38ac2f038666521f94d4fa37b5a9441cef832ccf ]
 
-When CONFIG_PPC_RFI_SRR_DEBUG=y we check that NIP and SRR0 match when
-returning from interrupts. This can trigger falsely if NIP has either of
-its two low bits set via sigreturn or ptrace, while SRR0 has its low two
-bits masked in hardware.
+Clang static analysis reports this representative warning
 
-As a quick fix make sure to mask the low bits before doing the check.
+sunrise_co2.c:410:9: warning: Assigned value is garbage or undefined
+  *val = value;
+       ^ ~~~~~
 
-Fixes: 59dc5bfca0cb ("powerpc/64s: avoid reloading (H)SRR registers if they are still valid")
-Reported-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Tested-by: Sachin Sant <sachinp@linux.vnet.ibm.com>
-Link: https://lore.kernel.org/r/20211221135101.2085547-1-mpe@ellerman.id.au
+The ealier call to sunrise_read_word can fail without setting
+value.  So defer setting val until we know the read was successful.
+
+Fixes: c397894e24f1 ("iio: chemical: Add Senseair Sunrise 006-0-007 driver")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Link: https://lore.kernel.org/r/20211224150833.3278236-1-trix@redhat.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/interrupt_64.S | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/iio/chemical/sunrise_co2.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/kernel/interrupt_64.S b/arch/powerpc/kernel/interrupt_64.S
-index ec950b08a8dcc..894588b2381e5 100644
---- a/arch/powerpc/kernel/interrupt_64.S
-+++ b/arch/powerpc/kernel/interrupt_64.S
-@@ -30,6 +30,7 @@ COMPAT_SYS_CALL_TABLE:
- 	.ifc \srr,srr
- 	mfspr	r11,SPRN_SRR0
- 	ld	r12,_NIP(r1)
-+	clrrdi  r12,r12,2
- 100:	tdne	r11,r12
- 	EMIT_BUG_ENTRY 100b,__FILE__,__LINE__,(BUGFLAG_WARNING | BUGFLAG_ONCE)
- 	mfspr	r11,SPRN_SRR1
-@@ -39,6 +40,7 @@ COMPAT_SYS_CALL_TABLE:
- 	.else
- 	mfspr	r11,SPRN_HSRR0
- 	ld	r12,_NIP(r1)
-+	clrrdi  r12,r12,2
- 100:	tdne	r11,r12
- 	EMIT_BUG_ENTRY 100b,__FILE__,__LINE__,(BUGFLAG_WARNING | BUGFLAG_ONCE)
- 	mfspr	r11,SPRN_HSRR1
+diff --git a/drivers/iio/chemical/sunrise_co2.c b/drivers/iio/chemical/sunrise_co2.c
+index 233bd0f379c93..8440dc0c77cfe 100644
+--- a/drivers/iio/chemical/sunrise_co2.c
++++ b/drivers/iio/chemical/sunrise_co2.c
+@@ -407,24 +407,24 @@ static int sunrise_read_raw(struct iio_dev *iio_dev,
+ 			mutex_lock(&sunrise->lock);
+ 			ret = sunrise_read_word(sunrise, SUNRISE_CO2_FILTERED_COMP_REG,
+ 						&value);
+-			*val = value;
+ 			mutex_unlock(&sunrise->lock);
+ 
+ 			if (ret)
+ 				return ret;
+ 
++			*val = value;
+ 			return IIO_VAL_INT;
+ 
+ 		case IIO_TEMP:
+ 			mutex_lock(&sunrise->lock);
+ 			ret = sunrise_read_word(sunrise, SUNRISE_CHIP_TEMPERATURE_REG,
+ 						&value);
+-			*val = value;
+ 			mutex_unlock(&sunrise->lock);
+ 
+ 			if (ret)
+ 				return ret;
+ 
++			*val = value;
+ 			return IIO_VAL_INT;
+ 
+ 		default:
 -- 
 2.34.1
 
