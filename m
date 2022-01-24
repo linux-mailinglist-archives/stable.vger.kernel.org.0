@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A630498BAA
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:15:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E362498C88
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:23:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234328AbiAXTPm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:15:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47518 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347546AbiAXTNQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:13:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFBF0C08EAD7;
-        Mon, 24 Jan 2022 11:04:39 -0800 (PST)
+        id S241161AbiAXTXH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:23:07 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:41144 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345800AbiAXTQU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:16:20 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EBD0AB8122C;
-        Mon, 24 Jan 2022 19:04:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10C43C340E5;
-        Mon, 24 Jan 2022 19:04:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 706E7B81235;
+        Mon, 24 Jan 2022 19:16:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E22BC340E5;
+        Mon, 24 Jan 2022 19:16:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051075;
-        bh=0HIcbNe44vpoX7J0z4B6yzMybdVKFNuIc5+ehR4MREA=;
+        s=korg; t=1643051776;
+        bh=X5jJ6NhYJuoshh5xIzUWV+HwgGDkQAbbJZYP703Wfao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dqe0YPy2/nNvs/0MSNjx/pstIJMp3UtuJM7xeCHBFmksPhavbDIpddy7qkd4YnvBp
-         lnTPk9C/73HKAVHJCewEl6z+skuz6Y344rFCFjHYNagsRB4RC1l5v6JNMVg/PkF8Uv
-         lYugf+yg7B0vsY8ihCaT0qgwbZExs0bFtcQ4p27Q=
+        b=gFdi7DUcc1fui/3wIE2VZmnnxKUc9REZ5RqbmQI7RS5HzH3IGP+B+l7fLQxSnRczM
+         waxklV8n96AN2vEmnF0LCyiB7lBg+Da7MsVrc6bPm7AQYwZ27qmSsT9MVYR8lrwz37
+         yAeP8k5noVgzXangw8BYMAmffzL9TxIud6B9YBGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Zhou Qingyang <zhou1615@umn.edu>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 047/186] drm/radeon/radeon_kms: Fix a NULL pointer dereference in radeon_driver_open_kms()
+        stable@vger.kernel.org, Zhang Zixun <zhang133010@icloud.com>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 084/239] x86/mce/inject: Avoid out-of-bounds write when setting flags
 Date:   Mon, 24 Jan 2022 19:42:02 +0100
-Message-Id: <20220124183938.643797389@linuxfoundation.org>
+Message-Id: <20220124183945.791813622@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,116 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Zhang Zixun <zhang133010@icloud.com>
 
-[ Upstream commit ab50cb9df8896b39aae65c537a30de2c79c19735 ]
+[ Upstream commit de768416b203ac84e02a757b782a32efb388476f ]
 
-In radeon_driver_open_kms(), radeon_vm_bo_add() is assigned to
-vm->ib_bo_va and passes and used in radeon_vm_bo_set_addr(). In
-radeon_vm_bo_set_addr(), there is a dereference of vm->ib_bo_va,
-which could lead to a NULL pointer dereference on failure of
-radeon_vm_bo_add().
+A contrived zero-length write, for example, by using write(2):
 
-Fix this bug by adding a check of vm->ib_bo_va.
+  ...
+  ret = write(fd, str, 0);
+  ...
 
-This bug was found by a static analyzer. The analysis employs
-differential checking to identify inconsistent security operations
-(e.g., checks or kfrees) between two code paths and confirms that the
-inconsistent operations are not recovered in the current function or
-the callers, so they constitute bugs.
+to the "flags" file causes:
 
-Note that, as a bug found by static analysis, it can be a false
-positive or hard to trigger. Multiple researchers have cross-reviewed
-the bug.
+  BUG: KASAN: stack-out-of-bounds in flags_write
+  Write of size 1 at addr ffff888019be7ddf by task writefile/3787
 
-Builds with CONFIG_DRM_RADEON=m show no new warnings,
-and our static analyzer no longer warns about this code.
+  CPU: 4 PID: 3787 Comm: writefile Not tainted 5.16.0-rc7+ #12
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
 
-Fixes: cc9e67e3d700 ("drm/radeon: fix VM IB handling")
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+due to accessing buf one char before its start.
+
+Prevent such out-of-bounds access.
+
+  [ bp: Productize into a proper patch. Link below is the next best
+    thing because the original mail didn't get archived on lore. ]
+
+Fixes: 0451d14d0561 ("EDAC, mce_amd_inj: Modify flags attribute to use string arguments")
+Signed-off-by: Zhang Zixun <zhang133010@icloud.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/linux-edac/YcnePfF1OOqoQwrX@zn.tnic/
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_kms.c | 36 ++++++++++++++++-------------
- 1 file changed, 20 insertions(+), 16 deletions(-)
+ arch/x86/kernel/cpu/mcheck/mce-inject.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_kms.c b/drivers/gpu/drm/radeon/radeon_kms.c
-index 4973bd241aec3..fb292b9f3d402 100644
---- a/drivers/gpu/drm/radeon/radeon_kms.c
-+++ b/drivers/gpu/drm/radeon/radeon_kms.c
-@@ -655,6 +655,8 @@ void radeon_driver_lastclose_kms(struct drm_device *dev)
- int radeon_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
- {
- 	struct radeon_device *rdev = dev->dev_private;
-+	struct radeon_fpriv *fpriv;
-+	struct radeon_vm *vm;
- 	int r;
+diff --git a/arch/x86/kernel/cpu/mcheck/mce-inject.c b/arch/x86/kernel/cpu/mcheck/mce-inject.c
+index 9cc524be3c949..14dc3c1f7fb43 100644
+--- a/arch/x86/kernel/cpu/mcheck/mce-inject.c
++++ b/arch/x86/kernel/cpu/mcheck/mce-inject.c
+@@ -354,7 +354,7 @@ static ssize_t flags_write(struct file *filp, const char __user *ubuf,
+ 	char buf[MAX_FLAG_OPT_SIZE], *__buf;
+ 	int err;
  
- 	file_priv->driver_priv = NULL;
-@@ -667,8 +669,6 @@ int radeon_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
+-	if (cnt > MAX_FLAG_OPT_SIZE)
++	if (!cnt || cnt > MAX_FLAG_OPT_SIZE)
+ 		return -EINVAL;
  
- 	/* new gpu have virtual address space support */
- 	if (rdev->family >= CHIP_CAYMAN) {
--		struct radeon_fpriv *fpriv;
--		struct radeon_vm *vm;
- 
- 		fpriv = kzalloc(sizeof(*fpriv), GFP_KERNEL);
- 		if (unlikely(!fpriv)) {
-@@ -679,35 +679,39 @@ int radeon_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
- 		if (rdev->accel_working) {
- 			vm = &fpriv->vm;
- 			r = radeon_vm_init(rdev, vm);
--			if (r) {
--				kfree(fpriv);
--				goto out_suspend;
--			}
-+			if (r)
-+				goto out_fpriv;
- 
- 			r = radeon_bo_reserve(rdev->ring_tmp_bo.bo, false);
--			if (r) {
--				radeon_vm_fini(rdev, vm);
--				kfree(fpriv);
--				goto out_suspend;
--			}
-+			if (r)
-+				goto out_vm_fini;
- 
- 			/* map the ib pool buffer read only into
- 			 * virtual address space */
- 			vm->ib_bo_va = radeon_vm_bo_add(rdev, vm,
- 							rdev->ring_tmp_bo.bo);
-+			if (!vm->ib_bo_va) {
-+				r = -ENOMEM;
-+				goto out_vm_fini;
-+			}
-+
- 			r = radeon_vm_bo_set_addr(rdev, vm->ib_bo_va,
- 						  RADEON_VA_IB_OFFSET,
- 						  RADEON_VM_PAGE_READABLE |
- 						  RADEON_VM_PAGE_SNOOPED);
--			if (r) {
--				radeon_vm_fini(rdev, vm);
--				kfree(fpriv);
--				goto out_suspend;
--			}
-+			if (r)
-+				goto out_vm_fini;
- 		}
- 		file_priv->driver_priv = fpriv;
- 	}
- 
-+	if (!r)
-+		goto out_suspend;
-+
-+out_vm_fini:
-+	radeon_vm_fini(rdev, vm);
-+out_fpriv:
-+	kfree(fpriv);
- out_suspend:
- 	pm_runtime_mark_last_busy(dev->dev);
- 	pm_runtime_put_autosuspend(dev->dev);
+ 	if (copy_from_user(&buf, ubuf, cnt))
 -- 
 2.34.1
 
