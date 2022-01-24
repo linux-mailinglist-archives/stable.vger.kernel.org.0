@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85E6949A95B
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:23:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 780FB49A95F
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:23:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1322500AbiAYDV4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:21:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38490 "EHLO
+        id S1322512AbiAYDV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:21:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356859AbiAXU2c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:28:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C506CC07A959;
-        Mon, 24 Jan 2022 11:42:06 -0800 (PST)
+        with ESMTP id S1384162AbiAXU3T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:29:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0D52C082571;
+        Mon, 24 Jan 2022 11:42:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6508661488;
-        Mon, 24 Jan 2022 19:42:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23C3FC340E5;
-        Mon, 24 Jan 2022 19:42:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7CD32B80FA1;
+        Mon, 24 Jan 2022 19:42:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B23CC340E5;
+        Mon, 24 Jan 2022 19:42:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053325;
-        bh=237rbF9pS7DmapYAq12bvUaL8GTC3vSFTf2z40fMX3E=;
+        s=korg; t=1643053339;
+        bh=uwBEOBweT8nlFVJJg0CeubIROq7ixtblezKhAsWjI78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IB3dskKLnVy6YOh7m0W8tuvJYu84V7J2D8EWRwIsRrrjSJy3W3OOl0RoxGAfNogKm
-         i8Af/a11VSttHdQtilwl8cpq6uNx6JiPiVJaeVCKV3sx1NViUQ9U3T+nPo46M+YZRY
-         2QPvm6SooX+VUOQTWPRLBEFiWDjFGdTx3RT5CGWQ=
+        b=ouLjJSPP9nvx2WNcfXshbJPIHnc3Z13uxOexjRFiC99z7S7wu/d3UdgBYI3GdBhkp
+         j87PmjwbNQT2v9INa9txKy4VmXqPkBms9g+j1xUD99ZCH+cX2NUqf5zDNReZnqR+2r
+         uvUm0QY1/0/8Kq0tpsgTulPy9xWBQ2QGSVtTcUXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.10 028/563] media: stk1160: fix control-message timeouts
-Date:   Mon, 24 Jan 2022 19:36:33 +0100
-Message-Id: <20220124184025.402106800@linuxfoundation.org>
+        stable@vger.kernel.org, Kunyang Fan <Kunyang_Fan@aaeon.com.tw>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stable@vger.kernel.org
+Subject: [PATCH 5.10 031/563] iio: adc: ti-adc081c: Partial revert of removal of ACPI IDs
+Date:   Mon, 24 Jan 2022 19:36:36 +0100
+Message-Id: <20220124184025.503755457@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -48,42 +49,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-commit 6aa6e70cdb5b863a57bad61310bf89b6617a5d2d upstream.
+commit c9791a94384af07592d29504004d2255dbaf8663 upstream.
 
-USB control-message timeouts are specified in milliseconds and should
-specifically not vary with CONFIG_HZ.
+Unfortuanately a non standards compliant ACPI ID is known to be
+in the wild on some AAEON boards.
 
-Fixes: 9cb2173e6ea8 ("[media] media: Add stk1160 new driver (easycap replacement)")
-Cc: stable@vger.kernel.org      # 3.7
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Partly revert the removal of these IDs so that ADC081C will again
+work + add a comment to that affect for future reference.
+
+Whilst here use generic firmware properties rather than the ACPI
+specific handling previously found in this driver.
+
+Reported-by: Kunyang Fan <Kunyang_Fan@aaeon.com.tw>
+Fixes: c458b7ca3fd0 ("iio:adc:ti-adc081c: Drop ACPI ids that seem very unlikely to be official.")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
+Tested-by: Kunyang Fan <Kunyang_Fan@aaeon.com.tw> #UP-extremei11
+Link: https://lore.kernel.org/r/20211205172728.2826512-1-jic23@kernel.org
+Cc: <Stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/stk1160/stk1160-core.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/adc/ti-adc081c.c |   22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
---- a/drivers/media/usb/stk1160/stk1160-core.c
-+++ b/drivers/media/usb/stk1160/stk1160-core.c
-@@ -65,7 +65,7 @@ int stk1160_read_reg(struct stk1160 *dev
- 		return -ENOMEM;
- 	ret = usb_control_msg(dev->udev, pipe, 0x00,
- 			USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--			0x00, reg, buf, sizeof(u8), HZ);
-+			0x00, reg, buf, sizeof(u8), 1000);
- 	if (ret < 0) {
- 		stk1160_err("read failed on reg 0x%x (%d)\n",
- 			reg, ret);
-@@ -85,7 +85,7 @@ int stk1160_write_reg(struct stk1160 *de
+--- a/drivers/iio/adc/ti-adc081c.c
++++ b/drivers/iio/adc/ti-adc081c.c
+@@ -19,6 +19,7 @@
+ #include <linux/i2c.h>
+ #include <linux/module.h>
+ #include <linux/mod_devicetable.h>
++#include <linux/property.h>
  
- 	ret =  usb_control_msg(dev->udev, pipe, 0x01,
- 			USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--			value, reg, NULL, 0, HZ);
-+			value, reg, NULL, 0, 1000);
- 	if (ret < 0) {
- 		stk1160_err("write failed on reg 0x%x (%d)\n",
- 			reg, ret);
+ #include <linux/iio/iio.h>
+ #include <linux/iio/buffer.h>
+@@ -151,13 +152,16 @@ static int adc081c_probe(struct i2c_clie
+ {
+ 	struct iio_dev *iio;
+ 	struct adc081c *adc;
+-	struct adcxx1c_model *model;
++	const struct adcxx1c_model *model;
+ 	int err;
+ 
+ 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_WORD_DATA))
+ 		return -EOPNOTSUPP;
+ 
+-	model = &adcxx1c_models[id->driver_data];
++	if (dev_fwnode(&client->dev))
++		model = device_get_match_data(&client->dev);
++	else
++		model = &adcxx1c_models[id->driver_data];
+ 
+ 	iio = devm_iio_device_alloc(&client->dev, sizeof(*adc));
+ 	if (!iio)
+@@ -224,10 +228,17 @@ static const struct i2c_device_id adc081
+ };
+ MODULE_DEVICE_TABLE(i2c, adc081c_id);
+ 
++static const struct acpi_device_id adc081c_acpi_match[] = {
++	/* Used on some AAEON boards */
++	{ "ADC081C", (kernel_ulong_t)&adcxx1c_models[ADC081C] },
++	{ }
++};
++MODULE_DEVICE_TABLE(acpi, adc081c_acpi_match);
++
+ static const struct of_device_id adc081c_of_match[] = {
+-	{ .compatible = "ti,adc081c" },
+-	{ .compatible = "ti,adc101c" },
+-	{ .compatible = "ti,adc121c" },
++	{ .compatible = "ti,adc081c", .data = &adcxx1c_models[ADC081C] },
++	{ .compatible = "ti,adc101c", .data = &adcxx1c_models[ADC101C] },
++	{ .compatible = "ti,adc121c", .data = &adcxx1c_models[ADC121C] },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(of, adc081c_of_match);
+@@ -236,6 +247,7 @@ static struct i2c_driver adc081c_driver
+ 	.driver = {
+ 		.name = "adc081c",
+ 		.of_match_table = adc081c_of_match,
++		.acpi_match_table = adc081c_acpi_match,
+ 	},
+ 	.probe = adc081c_probe,
+ 	.remove = adc081c_remove,
 
 
