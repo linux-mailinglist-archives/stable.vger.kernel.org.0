@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B69A14980F9
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:26:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C4C74980FA
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:27:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240356AbiAXN0y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 08:26:54 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:50826 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229576AbiAXN0y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:26:54 -0500
+        id S242877AbiAXN1A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 08:27:00 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:41926 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229576AbiAXN1A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:27:00 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3524C61275
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:26:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AC58C340E7;
-        Mon, 24 Jan 2022 13:26:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EC4CEB80ED1
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:26:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 304CAC340E1;
+        Mon, 24 Jan 2022 13:26:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643030813;
-        bh=/Qa6a+Itq3ZbiZrSQllDQrnBVHSTNmcLlTUGp86KUbI=;
+        s=korg; t=1643030817;
+        bh=jdw5j0Oaorqu9KOnUEVydyNA88wmTq51TnOwgPmjSyA=;
         h=Subject:To:Cc:From:Date:From;
-        b=kwd73z9AFbDJ9+7RCWULnpdnHGVihPiV8n2BNC1EQta6jJ63jMxpYjeoU2BOQl1aZ
-         rwFlzJRX+jemjkHlXzQiWpYLDYo4IF9EH0LcwCsEBcgjWdKnw1450PBgd41m1sF77d
-         ShuYH7PoqmuSsv9u+zN8v6gUUH9NO8f2hr6CCjAA=
-Subject: FAILED: patch "[PATCH] dmaengine: at_xdmac: Start transfer for cyclic channels in" failed to apply to 4.4-stable tree
+        b=OO5O3XEcNpm6JkJmn1wnQGU4rmYbfRo0h5ZqEWrRFqnRW3qvLMkd3HDNhGamL0aXB
+         vK7b8wZDudZ3fPJF6NwDJDk7yWAWWgCA9bZPRCNJ4zCHWsMZE0wGEW1PMWkee1pc7U
+         OPMd44Wt/6ciEPuyCFUE8EiQ5tlCt22GDiDsmUNw=
+Subject: FAILED: patch "[PATCH] dmaengine: at_xdmac: Start transfer for cyclic channels in" failed to apply to 4.9-stable tree
 To:     tudor.ambarus@microchip.com, vkoul@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 14:26:50 +0100
-Message-ID: <164303081075134@kroah.com>
+Date:   Mon, 24 Jan 2022 14:26:52 +0100
+Message-ID: <16430308121812@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
