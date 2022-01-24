@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 102254989DB
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:59:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01ADF49892C
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:53:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344306AbiAXS6r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:58:47 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:55858 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245730AbiAXS4o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:56:44 -0500
+        id S1344082AbiAXSxU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:53:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42634 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1343599AbiAXSwH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:52:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0D87C061747;
+        Mon, 24 Jan 2022 10:51:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 90D1E61540;
-        Mon, 24 Jan 2022 18:56:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64C68C340E5;
-        Mon, 24 Jan 2022 18:56:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 90C2B614F5;
+        Mon, 24 Jan 2022 18:51:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C720C340E5;
+        Mon, 24 Jan 2022 18:51:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050603;
-        bh=xyb7el4B8LdNx+P5MYu2OzNDCK3CD8EPUq/+flDETEc=;
+        s=korg; t=1643050314;
+        bh=PXQvNXSynGedMbXNskrLymAziKLhVRUN27jmdLGmQu0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uPNDvbVym2SsJEB4PnUG5+epDqOj/36wOvaKKU2Tc38ixgQ7CmMuwtQ5Cwv0o3uhZ
-         h6CgBRgm5V3svGnz9VHTQiDN2a03BGr1gWcgVDGplEyYFrWj9rcA+ZuTl8P28RljBy
-         LS5BO+efNLxRYgTHqFIf3Ho7kEt1zktYMjHNozsY=
+        b=kYylGHdHDm2f9+8UnpWPypGsTqYQjLqikenBhiVkmJ++1Fo4GLfAXL1UCowM8n6QU
+         KUurWZWXax5Du9g1rzftJl0vSSOARFGnQ1xK/nCcVuCjrtq46CAurqaI1roeTXE4K/
+         BUNDKFp/mTCNlLyWZ5lTY1CzBV/PpoPwWqtg1uaQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+003c0a286b9af5412510@syzkaller.appspotmail.com
-Subject: [PATCH 4.9 055/157] net: mcs7830: handle usb read errors properly
-Date:   Mon, 24 Jan 2022 19:42:25 +0100
-Message-Id: <20220124183934.529532759@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Mark Brown <broonie@kernel.org>, Vinod Koul <vkoul@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 051/114] dmaengine: pxa/mmp: stop referencing config->slave_id
+Date:   Mon, 24 Jan 2022 19:42:26 +0100
+Message-Id: <20220124183928.675412763@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
-References: <20220124183932.787526760@linuxfoundation.org>
+In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
+References: <20220124183927.095545464@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,54 +48,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit d668769eb9c52b150753f1653f7f5a0aeb8239d2 ]
+[ Upstream commit 134c37fa250a87a7e77c80a7c59ae16c462e46e0 ]
 
-Syzbot reported uninit value in mcs7830_bind(). The problem was in
-missing validation check for bytes read via usbnet_read_cmd().
+The last driver referencing the slave_id on Marvell PXA and MMP platforms
+was the SPI driver, but this stopped doing so a long time ago, so the
+TODO from the earlier patch can no be removed.
 
-usbnet_read_cmd() internally calls usb_control_msg(), that returns
-number of bytes read. Code should validate that requested number of bytes
-was actually read.
-
-So, this patch adds missing size validation check inside
-mcs7830_get_reg() to prevent uninit value bugs
-
-Reported-and-tested-by: syzbot+003c0a286b9af5412510@syzkaller.appspotmail.com
-Fixes: 2a36d7083438 ("USB: driver for mcs7830 (aka DeLOCK) USB ethernet adapter")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20220106225716.7425-1-paskripkin@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: b729bf34535e ("spi/pxa2xx: Don't use slave_id of dma_slave_config")
+Fixes: 13b3006b8ebd ("dma: mmp_pdma: add filter function")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20211122222203.4103644-7-arnd@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/mcs7830.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/dma/mmp_pdma.c | 6 ------
+ drivers/dma/pxa_dma.c  | 7 -------
+ 2 files changed, 13 deletions(-)
 
-diff --git a/drivers/net/usb/mcs7830.c b/drivers/net/usb/mcs7830.c
-index 4f345bd4e6e29..95151b46f2001 100644
---- a/drivers/net/usb/mcs7830.c
-+++ b/drivers/net/usb/mcs7830.c
-@@ -121,8 +121,16 @@ static const char driver_name[] = "MOSCHIP usb-ethernet driver";
+diff --git a/drivers/dma/mmp_pdma.c b/drivers/dma/mmp_pdma.c
+index e39457f13d4dd..548600ce6cc87 100644
+--- a/drivers/dma/mmp_pdma.c
++++ b/drivers/dma/mmp_pdma.c
+@@ -723,12 +723,6 @@ static int mmp_pdma_config(struct dma_chan *dchan,
  
- static int mcs7830_get_reg(struct usbnet *dev, u16 index, u16 size, void *data)
- {
--	return usbnet_read_cmd(dev, MCS7830_RD_BREQ, MCS7830_RD_BMREQ,
--				0x0000, index, data, size);
-+	int ret;
-+
-+	ret = usbnet_read_cmd(dev, MCS7830_RD_BREQ, MCS7830_RD_BMREQ,
-+			      0x0000, index, data, size);
-+	if (ret < 0)
-+		return ret;
-+	else if (ret < size)
-+		return -ENODATA;
-+
-+	return ret;
+ 	chan->dir = cfg->direction;
+ 	chan->dev_addr = addr;
+-	/* FIXME: drivers should be ported over to use the filter
+-	 * function. Once that's done, the following two lines can
+-	 * be removed.
+-	 */
+-	if (cfg->slave_id)
+-		chan->drcmr = cfg->slave_id;
+ 
+ 	return 0;
+ }
+diff --git a/drivers/dma/pxa_dma.c b/drivers/dma/pxa_dma.c
+index 4251e9ac0373c..ff2e28137a7b1 100644
+--- a/drivers/dma/pxa_dma.c
++++ b/drivers/dma/pxa_dma.c
+@@ -959,13 +959,6 @@ static void pxad_get_config(struct pxad_chan *chan,
+ 		*dcmd |= PXA_DCMD_BURST16;
+ 	else if (maxburst == 32)
+ 		*dcmd |= PXA_DCMD_BURST32;
+-
+-	/* FIXME: drivers should be ported over to use the filter
+-	 * function. Once that's done, the following two lines can
+-	 * be removed.
+-	 */
+-	if (chan->cfg.slave_id)
+-		chan->drcmr = chan->cfg.slave_id;
  }
  
- static int mcs7830_set_reg(struct usbnet *dev, u16 index, u16 size, const void *data)
+ static struct dma_async_tx_descriptor *
 -- 
 2.34.1
 
