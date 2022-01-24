@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D8C7499ADF
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:58:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 486BF499D7F
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:00:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379008AbiAXVra (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:47:30 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:55820 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377564AbiAXVhk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:37:40 -0500
+        id S1585533AbiAXWXl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:23:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36674 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1583217AbiAXWR1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:17:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F114DC0617BF;
+        Mon, 24 Jan 2022 12:48:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 89AF261320;
-        Mon, 24 Jan 2022 21:37:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F8D0C340E4;
-        Mon, 24 Jan 2022 21:37:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B9B2DB81057;
+        Mon, 24 Jan 2022 20:48:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB1F4C340E5;
+        Mon, 24 Jan 2022 20:48:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060259;
-        bh=UT/Dyl9nj/GkI8RbdJNJ6JJC4uuJhbXEjUEcFtXd0Bo=;
+        s=korg; t=1643057282;
+        bh=DipoW+9j9osrZ+kfOvN/q/9oNghSGZj1flwFPyKMQQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ERebD0CSw+APQ9s/XpSjt6C35Wpb0fd42IGcq6a9V2aBWJ+Ft4oL5dtpNIdDhdfFT
-         IFejbMLFaSSwEf6gSvLHrCuSAiy1DU1G5j3Ha/0etyNCniJ9+RVYC6XzkIux63p8pM
-         Wrc5shrI8ilPYyf8Mmb/ZVn6GhvDFsB7BSQbZ89U=
+        b=ZnvxrbDGmxJhowmb2nC92JlQocGFYtoa4PNDN7JE1Z5LDzF9rqlX1CN/+Bc+lc3Hd
+         fs1cGlIiBwNV0b9Dj8wa1MmYMauoA25HfiD11fo1xTH7d2CtZQ9ihvccWFtPSSJHH4
+         FLJDs7m8AZiCFJppqU0u2rd4TQK7hz3gdxNUow4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>, stable@kernel.org,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.16 0890/1039] ext4: make sure quota gets properly shutdown on error
+        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Russell King <russell.king@oracle.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alan Maguire <alan.maguire@oracle.com>
+Subject: [PATCH 5.15 762/846] arm64/bpf: Remove 128MB limit for BPF JIT programs
 Date:   Mon, 24 Jan 2022 19:44:39 +0100
-Message-Id: <20220124184155.205187963@linuxfoundation.org>
+Message-Id: <20220124184127.244740766@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +49,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Russell King <russell.king@oracle.com>
 
-commit 15fc69bbbbbc8c72e5f6cc4e1be0f51283c5448e upstream.
+commit b89ddf4cca43f1269093942cf5c4e457fd45c335 upstream.
 
-When we hit an error when enabling quotas and setting inode flags, we do
-not properly shutdown quota subsystem despite returning error from
-Q_QUOTAON quotactl. This can lead to some odd situations like kernel
-using quota file while it is still writeable for userspace. Make sure we
-properly cleanup the quota subsystem in case of error.
+Commit 91fc957c9b1d ("arm64/bpf: don't allocate BPF JIT programs in module
+memory") restricts BPF JIT program allocation to a 128MB region to ensure
+BPF programs are still in branching range of each other. However this
+restriction should not apply to the aarch64 JIT, since BPF_JMP | BPF_CALL
+are implemented as a 64-bit move into a register and then a BLR instruction -
+which has the effect of being able to call anything without proximity
+limitation.
 
-Signed-off-by: Jan Kara <jack@suse.cz>
-Cc: stable@kernel.org
-Link: https://lore.kernel.org/r/20211007155336.12493-2-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+The practical reason to relax this restriction on JIT memory is that 128MB of
+JIT memory can be quickly exhausted, especially where PAGE_SIZE is 64KB - one
+page is needed per program. In cases where seccomp filters are applied to
+multiple VMs on VM launch - such filters are classic BPF but converted to
+BPF - this can severely limit the number of VMs that can be launched. In a
+world where we support BPF JIT always on, turning off the JIT isn't always an
+option either.
+
+Fixes: 91fc957c9b1d ("arm64/bpf: don't allocate BPF JIT programs in module memory")
+Suggested-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Russell King <russell.king@oracle.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Tested-by: Alan Maguire <alan.maguire@oracle.com>
+Link: https://lore.kernel.org/bpf/1636131046-5982-2-git-send-email-alan.maguire@oracle.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ arch/arm64/include/asm/extable.h |    9 ---------
+ arch/arm64/include/asm/memory.h  |    5 +----
+ arch/arm64/kernel/traps.c        |    2 +-
+ arch/arm64/mm/ptdump.c           |    2 --
+ arch/arm64/net/bpf_jit_comp.c    |    7 ++-----
+ 5 files changed, 4 insertions(+), 21 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -6275,10 +6275,7 @@ static int ext4_quota_on(struct super_bl
+--- a/arch/arm64/include/asm/extable.h
++++ b/arch/arm64/include/asm/extable.h
+@@ -22,15 +22,6 @@ struct exception_table_entry
  
- 	lockdep_set_quota_inode(path->dentry->d_inode, I_DATA_SEM_QUOTA);
- 	err = dquot_quota_on(sb, type, format_id, path);
--	if (err) {
--		lockdep_set_quota_inode(path->dentry->d_inode,
--					     I_DATA_SEM_NORMAL);
--	} else {
-+	if (!err) {
- 		struct inode *inode = d_inode(path->dentry);
- 		handle_t *handle;
+ #define ARCH_HAS_RELATIVE_EXTABLE
  
-@@ -6298,7 +6295,12 @@ static int ext4_quota_on(struct super_bl
- 		ext4_journal_stop(handle);
- 	unlock_inode:
- 		inode_unlock(inode);
-+		if (err)
-+			dquot_quota_off(sb, type);
- 	}
-+	if (err)
-+		lockdep_set_quota_inode(path->dentry->d_inode,
-+					     I_DATA_SEM_NORMAL);
- 	return err;
+-static inline bool in_bpf_jit(struct pt_regs *regs)
+-{
+-	if (!IS_ENABLED(CONFIG_BPF_JIT))
+-		return false;
+-
+-	return regs->pc >= BPF_JIT_REGION_START &&
+-	       regs->pc < BPF_JIT_REGION_END;
+-}
+-
+ #ifdef CONFIG_BPF_JIT
+ int arm64_bpf_fixup_exception(const struct exception_table_entry *ex,
+ 			      struct pt_regs *regs);
+--- a/arch/arm64/include/asm/memory.h
++++ b/arch/arm64/include/asm/memory.h
+@@ -44,11 +44,8 @@
+ #define _PAGE_OFFSET(va)	(-(UL(1) << (va)))
+ #define PAGE_OFFSET		(_PAGE_OFFSET(VA_BITS))
+ #define KIMAGE_VADDR		(MODULES_END)
+-#define BPF_JIT_REGION_START	(_PAGE_END(VA_BITS_MIN))
+-#define BPF_JIT_REGION_SIZE	(SZ_128M)
+-#define BPF_JIT_REGION_END	(BPF_JIT_REGION_START + BPF_JIT_REGION_SIZE)
+ #define MODULES_END		(MODULES_VADDR + MODULES_VSIZE)
+-#define MODULES_VADDR		(BPF_JIT_REGION_END)
++#define MODULES_VADDR		(_PAGE_END(VA_BITS_MIN))
+ #define MODULES_VSIZE		(SZ_128M)
+ #define VMEMMAP_START		(-(UL(1) << (VA_BITS - VMEMMAP_SHIFT)))
+ #define VMEMMAP_END		(VMEMMAP_START + VMEMMAP_SIZE)
+--- a/arch/arm64/kernel/traps.c
++++ b/arch/arm64/kernel/traps.c
+@@ -988,7 +988,7 @@ static struct break_hook bug_break_hook
+ static int reserved_fault_handler(struct pt_regs *regs, unsigned int esr)
+ {
+ 	pr_err("%s generated an invalid instruction at %pS!\n",
+-		in_bpf_jit(regs) ? "BPF JIT" : "Kernel text patching",
++		"Kernel text patching",
+ 		(void *)instruction_pointer(regs));
+ 
+ 	/* We cannot handle this */
+--- a/arch/arm64/mm/ptdump.c
++++ b/arch/arm64/mm/ptdump.c
+@@ -41,8 +41,6 @@ static struct addr_marker address_marker
+ 	{ 0 /* KASAN_SHADOW_START */,	"Kasan shadow start" },
+ 	{ KASAN_SHADOW_END,		"Kasan shadow end" },
+ #endif
+-	{ BPF_JIT_REGION_START,		"BPF start" },
+-	{ BPF_JIT_REGION_END,		"BPF end" },
+ 	{ MODULES_VADDR,		"Modules start" },
+ 	{ MODULES_END,			"Modules end" },
+ 	{ VMALLOC_START,		"vmalloc() area" },
+--- a/arch/arm64/net/bpf_jit_comp.c
++++ b/arch/arm64/net/bpf_jit_comp.c
+@@ -1138,15 +1138,12 @@ out:
+ 
+ u64 bpf_jit_alloc_exec_limit(void)
+ {
+-	return BPF_JIT_REGION_SIZE;
++	return VMALLOC_END - VMALLOC_START;
  }
  
+ void *bpf_jit_alloc_exec(unsigned long size)
+ {
+-	return __vmalloc_node_range(size, PAGE_SIZE, BPF_JIT_REGION_START,
+-				    BPF_JIT_REGION_END, GFP_KERNEL,
+-				    PAGE_KERNEL, 0, NUMA_NO_NODE,
+-				    __builtin_return_address(0));
++	return vmalloc(size);
+ }
+ 
+ void bpf_jit_free_exec(void *addr)
 
 
