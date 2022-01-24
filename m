@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86A3C499549
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:09:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8515E499DA3
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:00:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1392523AbiAXUvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:51:25 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:46710 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390720AbiAXUqG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:46:06 -0500
+        id S1585866AbiAXWZI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:25:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36190 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1582535AbiAXWPX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:15:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 825D4C049660;
+        Mon, 24 Jan 2022 12:44:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31C84B81061;
-        Mon, 24 Jan 2022 20:46:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E2A1C340E5;
-        Mon, 24 Jan 2022 20:46:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 483D2B8121C;
+        Mon, 24 Jan 2022 20:44:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AB8FC340E5;
+        Mon, 24 Jan 2022 20:44:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057163;
-        bh=1UkMZa/royLpHMxGh9IRPXpsoz9kl6dKbdO4wAyXQCA=;
+        s=korg; t=1643057063;
+        bh=tCklUFkTz/9x3T08B8bbRuJKvWtGxMtJjmqMXxKUWro=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Pqtye1jbfVWluzV/MSxWVZLvYQ80GIYrpaeS3V/KSVGPzm0DxhMpPWfKDAoVeQVS
-         80Q4eYZ+2RV0RDJtVkWgtyKmjXz17LrK1MINnFo0IoM5jicNs8U8h/TeyfpepCt+JX
-         XpZU9IdafJUZosqmGroTkvony6pgrEvuQFiVovNQ=
+        b=iIxtypzwNp9brmHqh2q+2EbnvCvP1PMoW9h+jrqyDLSZriInVAOrdb0bTHr+DSfDG
+         92LbaMVTCYt9fl+AceqqkuTwIuqOs58DwC7fjxn4jqZjhFpa6ey+MZUbsA8/KztJFq
+         SvPzQ08ZYNsteq6R4INHU9WY954UU9NE8CkDgRh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.15 689/846] device property: Fix fwnode_graph_devcon_match() fwnode leak
-Date:   Mon, 24 Jan 2022 19:43:26 +0100
-Message-Id: <20220124184124.825727206@linuxfoundation.org>
+        stable@vger.kernel.org, Ulf Hansson <ulf.hansson@linaro.org>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 5.15 690/846] drm/tegra: submit: Add missing pm_runtime_mark_last_busy()
+Date:   Mon, 24 Jan 2022 19:43:27 +0100
+Message-Id: <20220124184124.857537440@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -46,41 +48,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit 4a7f4110f79163fd53ea65438041994ed615e3af upstream.
+commit a21115dd38c6cf396ba39aefd561e7903ca6149d upstream.
 
-For each endpoint it encounters, fwnode_graph_devcon_match() checks
-whether the endpoint's remote port parent device is available. If it is
-not, it ignores the endpoint but does not put the reference to the remote
-endpoint port parent fwnode. For available devices the fwnode handle
-reference is put as expected.
+Runtime PM auto-suspension doesn't work without pm_runtime_mark_last_busy(),
+add it.
 
-Put the reference for unavailable devices now.
-
-Fixes: 637e9e52b185 ("device connection: Find device connections also from device graphs")
-Cc: 5.1+ <stable@vger.kernel.org> # 5.1+
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/base/property.c |    4 +++-
+ drivers/gpu/drm/tegra/submit.c |    4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/base/property.c
-+++ b/drivers/base/property.c
-@@ -1269,8 +1269,10 @@ fwnode_graph_devcon_match(struct fwnode_
+--- a/drivers/gpu/drm/tegra/submit.c
++++ b/drivers/gpu/drm/tegra/submit.c
+@@ -475,8 +475,10 @@ static void release_job(struct host1x_jo
+ 	kfree(job_data->used_mappings);
+ 	kfree(job_data);
  
- 	fwnode_graph_for_each_endpoint(fwnode, ep) {
- 		node = fwnode_graph_get_remote_port_parent(ep);
--		if (!fwnode_device_is_available(node))
-+		if (!fwnode_device_is_available(node)) {
-+			fwnode_handle_put(node);
- 			continue;
-+		}
+-	if (pm_runtime_enabled(client->base.dev))
++	if (pm_runtime_enabled(client->base.dev)) {
++		pm_runtime_mark_last_busy(client->base.dev);
+ 		pm_runtime_put_autosuspend(client->base.dev);
++	}
+ }
  
- 		ret = match(node, con_id, data);
- 		fwnode_handle_put(node);
+ int tegra_drm_ioctl_channel_submit(struct drm_device *drm, void *data,
 
 
