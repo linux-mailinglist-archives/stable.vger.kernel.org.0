@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3132F49A49A
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:10:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 228F149A285
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:00:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380645AbiAYAJA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:09:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53000 "EHLO
+        id S2365797AbiAXXvn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:51:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1454114AbiAXVbt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:31:49 -0500
+        with ESMTP id S1383052AbiAXWx4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:53:56 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F452C07595A;
-        Mon, 24 Jan 2022 12:21:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7727BC061361;
+        Mon, 24 Jan 2022 13:08:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3857EB8119E;
-        Mon, 24 Jan 2022 20:21:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B99FC340E5;
-        Mon, 24 Jan 2022 20:21:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A536B811FB;
+        Mon, 24 Jan 2022 21:08:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16F8CC340E5;
+        Mon, 24 Jan 2022 21:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055662;
-        bh=U94C906NVzu+fIoK8RoHp3J6s382LtXBfWhOw9c3lbA=;
+        s=korg; t=1643058531;
+        bh=jUgsdUEOYzMQeY3iiMX1KyBUEw4niBVsx+uDtqxYTy4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nLLvYsFUg2F/dC0YDOqSfHf5I3UZz09pc3HqqiBV+dL7XusvvpT+Tsgb8AjDzFCLc
-         gXLQeeWJ+LKoPQYcG/iKyOWulO6ei2c3hVhq+DybnV+7LXuQtJVc5IkEoscJlJlH0O
-         GefzEOU+X0aoeP1AzpmuAYzB9m6a7K/FPeD+BkFo=
+        b=zd3JY8qZ71+0E3t5Pg7ILSbr+vSgA/Uuo1qUZBLXannErcc1UGInkMa4RsRFjaOmR
+         kd04ZJzRKhJzqlyfFqLcuIEuMXYSdXdSKnfNZGUKaFYzWaVOHxHuJzyHxbyEyeyOe5
+         +xrmrhN4gwN0IbIU4Jru0ctDuGzxZWY1DVQ/m/ZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 181/846] ACPI: EC: Rework flushing of EC work while suspended to idle
-Date:   Mon, 24 Jan 2022 19:34:58 +0100
-Message-Id: <20220124184107.226676200@linuxfoundation.org>
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0319/1039] mt76: connac: introduce MCU_EXT macros
+Date:   Mon, 24 Jan 2022 19:35:08 +0100
+Message-Id: <20220124184136.014876769@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,216 +47,741 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 4a9af6cac050dce2e895ec3205c4615383ad9112 ]
+[ Upstream commit e6d2070d9d64aad04c12424865cfd9684ba64bea ]
 
-The flushing of pending work in the EC driver uses drain_workqueue()
-to flush the event handling work that can requeue itself via
-advance_transaction(), but this is problematic, because that
-work may also be requeued from the query workqueue.
+Introduce MCU_EXT_CMD and MCU_EXT_QUERY macros in mt76_connac module.
+This is a preliminary patch to reuse mt76_connac module in mt7915
+driver.
 
-Namely, if an EC transaction is carried out during the execution of
-a query handler, it involves calling advance_transaction() which
-may queue up the event handling work again.  This causes the kernel
-to complain about attempts to add a work item to the EC event
-workqueue while it is being drained and worst-case it may cause a
-valid event to be skipped.
-
-To avoid this problem, introduce two new counters, events_in_progress
-and queries_in_progress, incremented when a work item is queued on
-the event workqueue or the query workqueue, respectively, and
-decremented at the end of the corresponding work function, and make
-acpi_ec_dispatch_gpe() the workqueues in a loop until the both of
-these counters are zero (or system wakeup is pending) instead of
-calling acpi_ec_flush_work().
-
-At the same time, change __acpi_ec_flush_work() to call
-flush_workqueue() instead of drain_workqueue() to flush the event
-workqueue.
-
-While at it, use the observation that the work item queued in
-acpi_ec_query() cannot be pending at that time, because it is used
-only once, to simplify the code in there.
-
-Additionally, clean up a comment in acpi_ec_query() and adjust white
-space in acpi_ec_event_processor().
-
-Fixes: f0ac20c3f613 ("ACPI: EC: Fix flushing of pending work")
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/ec.c       | 57 +++++++++++++++++++++++++++++++----------
- drivers/acpi/internal.h |  2 ++
- 2 files changed, 45 insertions(+), 14 deletions(-)
+ .../net/wireless/mediatek/mt76/mt7615/main.c  |   4 +-
+ .../net/wireless/mediatek/mt76/mt7615/mcu.c   | 154 ++++++++----------
+ .../wireless/mediatek/mt76/mt7615/testmode.c  |   4 +-
+ .../wireless/mediatek/mt76/mt76_connac_mcu.c  |   4 +-
+ .../wireless/mediatek/mt76/mt76_connac_mcu.h  |  16 +-
+ .../net/wireless/mediatek/mt76/mt7921/main.c  |   4 +-
+ .../net/wireless/mediatek/mt76/mt7921/mcu.c   |  76 +++------
+ 7 files changed, 113 insertions(+), 149 deletions(-)
 
-diff --git a/drivers/acpi/ec.c b/drivers/acpi/ec.c
-index e629e891d1bb3..9b859ff976e89 100644
---- a/drivers/acpi/ec.c
-+++ b/drivers/acpi/ec.c
-@@ -166,6 +166,7 @@ struct acpi_ec_query {
- 	struct transaction transaction;
- 	struct work_struct work;
- 	struct acpi_ec_query_handler *handler;
-+	struct acpi_ec *ec;
- };
- 
- static int acpi_ec_query(struct acpi_ec *ec, u8 *data);
-@@ -452,6 +453,7 @@ static void acpi_ec_submit_query(struct acpi_ec *ec)
- 		ec_dbg_evt("Command(%s) submitted/blocked",
- 			   acpi_ec_cmd_string(ACPI_EC_COMMAND_QUERY));
- 		ec->nr_pending_queries++;
-+		ec->events_in_progress++;
- 		queue_work(ec_wq, &ec->work);
- 	}
- }
-@@ -518,7 +520,7 @@ static void acpi_ec_enable_event(struct acpi_ec *ec)
- #ifdef CONFIG_PM_SLEEP
- static void __acpi_ec_flush_work(void)
- {
--	drain_workqueue(ec_wq); /* flush ec->work */
-+	flush_workqueue(ec_wq); /* flush ec->work */
- 	flush_workqueue(ec_query_wq); /* flush queries */
- }
- 
-@@ -1103,7 +1105,7 @@ void acpi_ec_remove_query_handler(struct acpi_ec *ec, u8 query_bit)
- }
- EXPORT_SYMBOL_GPL(acpi_ec_remove_query_handler);
- 
--static struct acpi_ec_query *acpi_ec_create_query(u8 *pval)
-+static struct acpi_ec_query *acpi_ec_create_query(struct acpi_ec *ec, u8 *pval)
- {
- 	struct acpi_ec_query *q;
- 	struct transaction *t;
-@@ -1111,11 +1113,13 @@ static struct acpi_ec_query *acpi_ec_create_query(u8 *pval)
- 	q = kzalloc(sizeof (struct acpi_ec_query), GFP_KERNEL);
- 	if (!q)
- 		return NULL;
-+
- 	INIT_WORK(&q->work, acpi_ec_event_processor);
- 	t = &q->transaction;
- 	t->command = ACPI_EC_COMMAND_QUERY;
- 	t->rdata = pval;
- 	t->rlen = 1;
-+	q->ec = ec;
- 	return q;
- }
- 
-@@ -1132,13 +1136,21 @@ static void acpi_ec_event_processor(struct work_struct *work)
- {
- 	struct acpi_ec_query *q = container_of(work, struct acpi_ec_query, work);
- 	struct acpi_ec_query_handler *handler = q->handler;
-+	struct acpi_ec *ec = q->ec;
- 
- 	ec_dbg_evt("Query(0x%02x) started", handler->query_bit);
-+
- 	if (handler->func)
- 		handler->func(handler->data);
- 	else if (handler->handle)
- 		acpi_evaluate_object(handler->handle, NULL, NULL, NULL);
-+
- 	ec_dbg_evt("Query(0x%02x) stopped", handler->query_bit);
-+
-+	spin_lock_irq(&ec->lock);
-+	ec->queries_in_progress--;
-+	spin_unlock_irq(&ec->lock);
-+
- 	acpi_ec_delete_query(q);
- }
- 
-@@ -1148,7 +1160,7 @@ static int acpi_ec_query(struct acpi_ec *ec, u8 *data)
- 	int result;
- 	struct acpi_ec_query *q;
- 
--	q = acpi_ec_create_query(&value);
-+	q = acpi_ec_create_query(ec, &value);
- 	if (!q)
- 		return -ENOMEM;
- 
-@@ -1170,19 +1182,20 @@ static int acpi_ec_query(struct acpi_ec *ec, u8 *data)
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/main.c b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
+index 890d9b07e1563..24c23d4951432 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
+@@ -73,7 +73,7 @@ static int mt7615_start(struct ieee80211_hw *hw)
+ 			goto out;
  	}
  
- 	/*
--	 * It is reported that _Qxx are evaluated in a parallel way on
--	 * Windows:
-+	 * It is reported that _Qxx are evaluated in a parallel way on Windows:
- 	 * https://bugzilla.kernel.org/show_bug.cgi?id=94411
- 	 *
--	 * Put this log entry before schedule_work() in order to make
--	 * it appearing before any other log entries occurred during the
--	 * work queue execution.
-+	 * Put this log entry before queue_work() to make it appear in the log
-+	 * before any other messages emitted during workqueue handling.
- 	 */
- 	ec_dbg_evt("Query(0x%02x) scheduled", value);
--	if (!queue_work(ec_query_wq, &q->work)) {
--		ec_dbg_evt("Query(0x%02x) overlapped", value);
--		result = -EBUSY;
+-	ret = mt7615_mcu_set_chan_info(phy, MCU_EXT_CMD_SET_RX_PATH);
++	ret = mt7615_mcu_set_chan_info(phy, MCU_EXT_CMD(SET_RX_PATH));
+ 	if (ret)
+ 		goto out;
+ 
+@@ -331,7 +331,7 @@ int mt7615_set_channel(struct mt7615_phy *phy)
+ 			goto out;
+ 	}
+ 
+-	ret = mt7615_mcu_set_chan_info(phy, MCU_EXT_CMD_CHANNEL_SWITCH);
++	ret = mt7615_mcu_set_chan_info(phy, MCU_EXT_CMD(CHANNEL_SWITCH));
+ 	if (ret)
+ 		goto out;
+ 
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
+index 25f9cbe2cd610..397a8bb67ffbf 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/mcu.c
+@@ -87,7 +87,7 @@ struct mt7663_fw_buf {
+ void mt7615_mcu_fill_msg(struct mt7615_dev *dev, struct sk_buff *skb,
+ 			 int cmd, int *wait_seq)
+ {
+-	int txd_len, mcu_cmd = cmd & MCU_CMD_MASK;
++	int txd_len, mcu_cmd = FIELD_GET(__MCU_CMD_FIELD_ID, cmd);
+ 	struct mt7615_uni_txd *uni_txd;
+ 	struct mt7615_mcu_txd *mcu_txd;
+ 	u8 seq, q_idx, pkt_fmt;
+@@ -142,28 +142,17 @@ void mt7615_mcu_fill_msg(struct mt7615_dev *dev, struct sk_buff *skb,
+ 	mcu_txd->s2d_index = MCU_S2D_H2N;
+ 	mcu_txd->pkt_type = MCU_PKT_ID;
+ 	mcu_txd->seq = seq;
++	mcu_txd->cid = mcu_cmd;
++	mcu_txd->ext_cid = FIELD_GET(__MCU_CMD_FIELD_EXT_ID, cmd);
+ 
+-	switch (cmd & ~MCU_CMD_MASK) {
+-	case MCU_FW_PREFIX:
+-		mcu_txd->set_query = MCU_Q_NA;
+-		mcu_txd->cid = mcu_cmd;
+-		break;
+-	case MCU_CE_PREFIX:
+-		if (cmd & MCU_QUERY_MASK)
++	if (mcu_txd->ext_cid || (cmd & MCU_CE_PREFIX)) {
++		if (cmd & __MCU_CMD_FIELD_QUERY)
+ 			mcu_txd->set_query = MCU_Q_QUERY;
+ 		else
+ 			mcu_txd->set_query = MCU_Q_SET;
+-		mcu_txd->cid = mcu_cmd;
+-		break;
+-	default:
+-		mcu_txd->cid = MCU_CMD_EXT_CID;
+-		if (cmd & MCU_QUERY_PREFIX)
+-			mcu_txd->set_query = MCU_Q_QUERY;
+-		else
+-			mcu_txd->set_query = MCU_Q_SET;
+-		mcu_txd->ext_cid = mcu_cmd;
+-		mcu_txd->ext_cid_ack = 1;
+-		break;
++		mcu_txd->ext_cid_ack = !!mcu_txd->ext_cid;
++	} else {
++		mcu_txd->set_query = MCU_Q_NA;
+ 	}
+ }
+ EXPORT_SYMBOL_GPL(mt7615_mcu_fill_msg);
+@@ -184,42 +173,32 @@ int mt7615_mcu_parse_response(struct mt76_dev *mdev, int cmd,
+ 	if (seq != rxd->seq)
+ 		return -EAGAIN;
+ 
+-	switch (cmd) {
+-	case MCU_CMD_PATCH_SEM_CONTROL:
++	if (cmd == MCU_CMD_PATCH_SEM_CONTROL) {
+ 		skb_pull(skb, sizeof(*rxd) - 4);
+ 		ret = *skb->data;
+-		break;
+-	case MCU_EXT_CMD_GET_TEMP:
++	} else if (cmd == MCU_EXT_CMD(GET_TEMP)) {
+ 		skb_pull(skb, sizeof(*rxd));
+ 		ret = le32_to_cpu(*(__le32 *)skb->data);
+-		break;
+-	case MCU_EXT_CMD_RF_REG_ACCESS | MCU_QUERY_PREFIX:
++	} else if (cmd == MCU_EXT_QUERY(RF_REG_ACCESS)) {
+ 		skb_pull(skb, sizeof(*rxd));
+ 		ret = le32_to_cpu(*(__le32 *)&skb->data[8]);
+-		break;
+-	case MCU_UNI_CMD_DEV_INFO_UPDATE:
+-	case MCU_UNI_CMD_BSS_INFO_UPDATE:
+-	case MCU_UNI_CMD_STA_REC_UPDATE:
+-	case MCU_UNI_CMD_HIF_CTRL:
+-	case MCU_UNI_CMD_OFFLOAD:
+-	case MCU_UNI_CMD_SUSPEND: {
++	} else if (cmd == MCU_UNI_CMD_DEV_INFO_UPDATE ||
++		   cmd == MCU_UNI_CMD_BSS_INFO_UPDATE ||
++		   cmd == MCU_UNI_CMD_STA_REC_UPDATE ||
++		   cmd == MCU_UNI_CMD_HIF_CTRL ||
++		   cmd == MCU_UNI_CMD_OFFLOAD ||
++		   cmd == MCU_UNI_CMD_SUSPEND) {
+ 		struct mt7615_mcu_uni_event *event;
+ 
+ 		skb_pull(skb, sizeof(*rxd));
+ 		event = (struct mt7615_mcu_uni_event *)skb->data;
+ 		ret = le32_to_cpu(event->status);
+-		break;
 -	}
-+
-+	spin_lock_irq(&ec->lock);
-+
-+	ec->queries_in_progress++;
-+	queue_work(ec_query_wq, &q->work);
-+
-+	spin_unlock_irq(&ec->lock);
+-	case MCU_CMD_REG_READ: {
++	} else if (cmd == MCU_CMD_REG_READ) {
+ 		struct mt7615_mcu_reg_event *event;
  
- err_exit:
- 	if (result)
-@@ -1240,6 +1253,10 @@ static void acpi_ec_event_handler(struct work_struct *work)
- 	ec_dbg_evt("Event stopped");
+ 		skb_pull(skb, sizeof(*rxd));
+ 		event = (struct mt7615_mcu_reg_event *)skb->data;
+ 		ret = (int)le32_to_cpu(event->val);
+-		break;
+-	}
+-	default:
+-		break;
+ 	}
  
- 	acpi_ec_check_event(ec);
-+
-+	spin_lock_irqsave(&ec->lock, flags);
-+	ec->events_in_progress--;
-+	spin_unlock_irqrestore(&ec->lock, flags);
+ 	return ret;
+@@ -253,8 +232,7 @@ u32 mt7615_rf_rr(struct mt7615_dev *dev, u32 wf, u32 reg)
+ 		.address = cpu_to_le32(reg),
+ 	};
+ 
+-	return mt76_mcu_send_msg(&dev->mt76,
+-				 MCU_EXT_CMD_RF_REG_ACCESS | MCU_QUERY_PREFIX,
++	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_QUERY(RF_REG_ACCESS),
+ 				 &req, sizeof(req), true);
  }
  
- static void acpi_ec_handle_interrupt(struct acpi_ec *ec)
-@@ -2021,6 +2038,7 @@ void acpi_ec_set_gpe_wake_mask(u8 action)
+@@ -270,8 +248,8 @@ int mt7615_rf_wr(struct mt7615_dev *dev, u32 wf, u32 reg, u32 val)
+ 		.data = cpu_to_le32(val),
+ 	};
  
- bool acpi_ec_dispatch_gpe(void)
+-	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD_RF_REG_ACCESS, &req,
+-				 sizeof(req), false);
++	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(RF_REG_ACCESS),
++				 &req, sizeof(req), false);
+ }
+ 
+ void mt7622_trigger_hif_int(struct mt7615_dev *dev, bool en)
+@@ -658,8 +636,8 @@ mt7615_mcu_muar_config(struct mt7615_dev *dev, struct ieee80211_vif *vif,
+ 	if (enable)
+ 		ether_addr_copy(req.addr, addr);
+ 
+-	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD_MUAR_UPDATE, &req,
+-				 sizeof(req), true);
++	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(MUAR_UPDATE),
++				 &req, sizeof(req), true);
+ }
+ 
+ static int
+@@ -702,7 +680,7 @@ mt7615_mcu_add_dev(struct mt7615_phy *phy, struct ieee80211_vif *vif,
+ 		return mt7615_mcu_muar_config(dev, vif, false, enable);
+ 
+ 	memcpy(data.tlv.omac_addr, vif->addr, ETH_ALEN);
+-	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD_DEV_INFO_UPDATE,
++	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(DEV_INFO_UPDATE),
+ 				 &data, sizeof(data), true);
+ }
+ 
+@@ -771,7 +749,7 @@ mt7615_mcu_add_beacon_offload(struct mt7615_dev *dev,
+ 	dev_kfree_skb(skb);
+ 
+ out:
+-	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD_BCN_OFFLOAD, &req,
++	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(BCN_OFFLOAD), &req,
+ 				 sizeof(req), true);
+ }
+ 
+@@ -802,8 +780,8 @@ mt7615_mcu_ctrl_pm_state(struct mt7615_dev *dev, int band, int state)
+ 		.band_idx = band,
+ 	};
+ 
+-	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD_PM_STATE_CTRL, &req,
+-				 sizeof(req), true);
++	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(PM_STATE_CTRL),
++				 &req, sizeof(req), true);
+ }
+ 
+ static int
+@@ -944,7 +922,7 @@ mt7615_mcu_add_bss(struct mt7615_phy *phy, struct ieee80211_vif *vif,
+ 		mt7615_mcu_bss_ext_tlv(skb, mvif);
+ 
+ 	return mt76_mcu_skb_send_msg(&dev->mt76, skb,
+-				     MCU_EXT_CMD_BSS_INFO_UPDATE, true);
++				     MCU_EXT_CMD(BSS_INFO_UPDATE), true);
+ }
+ 
+ static int
+@@ -966,8 +944,8 @@ mt7615_mcu_wtbl_tx_ba(struct mt7615_dev *dev,
+ 	mt76_connac_mcu_wtbl_ba_tlv(&dev->mt76, skb, params, enable, true,
+ 				    NULL, wtbl_hdr);
+ 
+-	err = mt76_mcu_skb_send_msg(&dev->mt76, skb, MCU_EXT_CMD_WTBL_UPDATE,
+-				    true);
++	err = mt76_mcu_skb_send_msg(&dev->mt76, skb,
++				    MCU_EXT_CMD(WTBL_UPDATE), true);
+ 	if (err < 0)
+ 		return err;
+ 
+@@ -979,7 +957,7 @@ mt7615_mcu_wtbl_tx_ba(struct mt7615_dev *dev,
+ 	mt76_connac_mcu_sta_ba_tlv(skb, params, enable, true);
+ 
+ 	return mt76_mcu_skb_send_msg(&dev->mt76, skb,
+-				     MCU_EXT_CMD_STA_REC_UPDATE, true);
++				     MCU_EXT_CMD(STA_REC_UPDATE), true);
+ }
+ 
+ static int
+@@ -1001,7 +979,7 @@ mt7615_mcu_wtbl_rx_ba(struct mt7615_dev *dev,
+ 	mt76_connac_mcu_sta_ba_tlv(skb, params, enable, false);
+ 
+ 	err = mt76_mcu_skb_send_msg(&dev->mt76, skb,
+-				    MCU_EXT_CMD_STA_REC_UPDATE, true);
++				    MCU_EXT_CMD(STA_REC_UPDATE), true);
+ 	if (err < 0 || !enable)
+ 		return err;
+ 
+@@ -1014,8 +992,8 @@ mt7615_mcu_wtbl_rx_ba(struct mt7615_dev *dev,
+ 	mt76_connac_mcu_wtbl_ba_tlv(&dev->mt76, skb, params, enable, false,
+ 				    NULL, wtbl_hdr);
+ 
+-	return mt76_mcu_skb_send_msg(&dev->mt76, skb, MCU_EXT_CMD_WTBL_UPDATE,
+-				     true);
++	return mt76_mcu_skb_send_msg(&dev->mt76, skb,
++				     MCU_EXT_CMD(WTBL_UPDATE), true);
+ }
+ 
+ static int
+@@ -1057,7 +1035,7 @@ mt7615_mcu_wtbl_sta_add(struct mt7615_phy *phy, struct ieee80211_vif *vif,
+ 						   NULL, wtbl_hdr);
+ 	}
+ 
+-	cmd = enable ? MCU_EXT_CMD_WTBL_UPDATE : MCU_EXT_CMD_STA_REC_UPDATE;
++	cmd = enable ? MCU_EXT_CMD(WTBL_UPDATE) : MCU_EXT_CMD(STA_REC_UPDATE);
+ 	skb = enable ? wskb : sskb;
+ 
+ 	err = mt76_mcu_skb_send_msg(&dev->mt76, skb, cmd, true);
+@@ -1068,7 +1046,7 @@ mt7615_mcu_wtbl_sta_add(struct mt7615_phy *phy, struct ieee80211_vif *vif,
+ 		return err;
+ 	}
+ 
+-	cmd = enable ? MCU_EXT_CMD_STA_REC_UPDATE : MCU_EXT_CMD_WTBL_UPDATE;
++	cmd = enable ? MCU_EXT_CMD(STA_REC_UPDATE) : MCU_EXT_CMD(WTBL_UPDATE);
+ 	skb = enable ? sskb : wskb;
+ 
+ 	return mt76_mcu_skb_send_msg(&dev->mt76, skb, cmd, true);
+@@ -1090,8 +1068,8 @@ mt7615_mcu_wtbl_update_hdr_trans(struct mt7615_dev *dev,
+ 
+ 	mt76_connac_mcu_wtbl_hdr_trans_tlv(skb, vif, &msta->wcid, NULL,
+ 					   wtbl_hdr);
+-	return mt76_mcu_skb_send_msg(&dev->mt76, skb, MCU_EXT_CMD_WTBL_UPDATE,
+-				     true);
++	return mt76_mcu_skb_send_msg(&dev->mt76, skb,
++				     MCU_EXT_CMD(WTBL_UPDATE), true);
+ }
+ 
+ static const struct mt7615_mcu_ops wtbl_update_ops = {
+@@ -1136,7 +1114,7 @@ mt7615_mcu_sta_ba(struct mt7615_dev *dev,
+ 				    sta_wtbl, wtbl_hdr);
+ 
+ 	return mt76_mcu_skb_send_msg(&dev->mt76, skb,
+-				     MCU_EXT_CMD_STA_REC_UPDATE, true);
++				     MCU_EXT_CMD(STA_REC_UPDATE), true);
+ }
+ 
+ static int
+@@ -1179,7 +1157,7 @@ mt7615_mcu_add_sta(struct mt7615_phy *phy, struct ieee80211_vif *vif,
+ 		   struct ieee80211_sta *sta, bool enable)
  {
-+	bool work_in_progress;
- 	u32 ret;
- 
- 	if (!first_ec)
-@@ -2041,8 +2059,19 @@ bool acpi_ec_dispatch_gpe(void)
- 	if (ret == ACPI_INTERRUPT_HANDLED)
- 		pm_pr_dbg("ACPI EC GPE dispatched\n");
- 
--	/* Flush the event and query workqueues. */
--	acpi_ec_flush_work();
-+	/* Drain EC work. */
-+	do {
-+		acpi_ec_flush_work();
-+
-+		pm_pr_dbg("ACPI EC work flushed\n");
-+
-+		spin_lock_irq(&first_ec->lock);
-+
-+		work_in_progress = first_ec->events_in_progress +
-+			first_ec->queries_in_progress > 0;
-+
-+		spin_unlock_irq(&first_ec->lock);
-+	} while (work_in_progress && !pm_wakeup_pending());
- 
- 	return false;
+ 	return __mt7615_mcu_add_sta(phy->mt76, vif, sta, enable,
+-				    MCU_EXT_CMD_STA_REC_UPDATE, false);
++				    MCU_EXT_CMD(STA_REC_UPDATE), false);
  }
-diff --git a/drivers/acpi/internal.h b/drivers/acpi/internal.h
-index d91b560e88674..54b2be94d23dc 100644
---- a/drivers/acpi/internal.h
-+++ b/drivers/acpi/internal.h
-@@ -183,6 +183,8 @@ struct acpi_ec {
- 	struct work_struct work;
- 	unsigned long timestamp;
- 	unsigned long nr_pending_queries;
-+	unsigned int events_in_progress;
-+	unsigned int queries_in_progress;
- 	bool busy_polling;
- 	unsigned int polling_guard;
- };
+ 
+ static int
+@@ -1191,7 +1169,7 @@ mt7615_mcu_sta_update_hdr_trans(struct mt7615_dev *dev,
+ 
+ 	return mt76_connac_mcu_sta_update_hdr_trans(&dev->mt76,
+ 						    vif, &msta->wcid,
+-						    MCU_EXT_CMD_STA_REC_UPDATE);
++						    MCU_EXT_CMD(STA_REC_UPDATE));
+ }
+ 
+ static const struct mt7615_mcu_ops sta_update_ops = {
+@@ -1694,8 +1672,8 @@ int mt7615_mcu_fw_log_2_host(struct mt7615_dev *dev, u8 ctrl)
+ 		.ctrl_val = ctrl
+ 	};
+ 
+-	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD_FW_LOG_2_HOST, &data,
+-				 sizeof(data), true);
++	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(FW_LOG_2_HOST),
++				 &data, sizeof(data), true);
+ }
+ 
+ static int mt7615_mcu_cal_cache_apply(struct mt7615_dev *dev)
+@@ -1707,7 +1685,7 @@ static int mt7615_mcu_cal_cache_apply(struct mt7615_dev *dev)
+ 		.cache_enable = true
+ 	};
+ 
+-	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD_CAL_CACHE, &data,
++	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(CAL_CACHE), &data,
+ 				 sizeof(data), false);
+ }
+ 
+@@ -1977,7 +1955,7 @@ int mt7615_mcu_set_eeprom(struct mt7615_dev *dev)
+ 	skb_put_data(skb, eep + offset, eep_len);
+ 
+ 	return mt76_mcu_skb_send_msg(&dev->mt76, skb,
+-				     MCU_EXT_CMD_EFUSE_BUFFER_MODE, true);
++				     MCU_EXT_CMD(EFUSE_BUFFER_MODE), true);
+ }
+ 
+ int mt7615_mcu_set_wmm(struct mt7615_dev *dev, u8 queue,
+@@ -2013,8 +1991,8 @@ int mt7615_mcu_set_wmm(struct mt7615_dev *dev, u8 queue,
+ 	if (params->cw_max)
+ 		req.cw_max = cpu_to_le16(fls(params->cw_max));
+ 
+-	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD_EDCA_UPDATE, &req,
+-				 sizeof(req), true);
++	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(EDCA_UPDATE),
++				 &req, sizeof(req), true);
+ }
+ 
+ int mt7615_mcu_set_dbdc(struct mt7615_dev *dev)
+@@ -2072,7 +2050,7 @@ int mt7615_mcu_set_dbdc(struct mt7615_dev *dev)
+ 	ADD_DBDC_ENTRY(DBDC_TYPE_MGMT, 1, 1);
+ 
+ out:
+-	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD_DBDC_CTRL, &req,
++	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(DBDC_CTRL), &req,
+ 				 sizeof(req), true);
+ }
+ 
+@@ -2082,8 +2060,8 @@ int mt7615_mcu_del_wtbl_all(struct mt7615_dev *dev)
+ 		.operation = WTBL_RESET_ALL,
+ 	};
+ 
+-	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD_WTBL_UPDATE, &req,
+-				 sizeof(req), true);
++	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(WTBL_UPDATE),
++				 &req, sizeof(req), true);
+ }
+ 
+ int mt7615_mcu_rdd_cmd(struct mt7615_dev *dev,
+@@ -2103,8 +2081,8 @@ int mt7615_mcu_rdd_cmd(struct mt7615_dev *dev,
+ 		.val = val,
+ 	};
+ 
+-	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD_SET_RDD_CTRL, &req,
+-				 sizeof(req), true);
++	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(SET_RDD_CTRL),
++				 &req, sizeof(req), true);
+ }
+ 
+ int mt7615_mcu_set_fcc5_lpn(struct mt7615_dev *dev, int val)
+@@ -2117,7 +2095,7 @@ int mt7615_mcu_set_fcc5_lpn(struct mt7615_dev *dev, int val)
+ 		.min_lpn = cpu_to_le16(val),
+ 	};
+ 
+-	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD_SET_RDD_TH, &req,
++	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(SET_RDD_TH), &req,
+ 				 sizeof(req), true);
+ }
+ 
+@@ -2146,7 +2124,7 @@ int mt7615_mcu_set_pulse_th(struct mt7615_dev *dev,
+ #undef  __req_field
+ 	};
+ 
+-	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD_SET_RDD_TH, &req,
++	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(SET_RDD_TH), &req,
+ 				 sizeof(req), true);
+ }
+ 
+@@ -2193,7 +2171,7 @@ int mt7615_mcu_set_radar_th(struct mt7615_dev *dev, int index,
+ #undef __req_field_u32
+ 	};
+ 
+-	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD_SET_RDD_TH, &req,
++	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(SET_RDD_TH), &req,
+ 				 sizeof(req), true);
+ }
+ 
+@@ -2225,7 +2203,7 @@ int mt7615_mcu_rdd_send_pattern(struct mt7615_dev *dev)
+ 		req.pattern[i].start_time = cpu_to_le32(ts);
+ 	}
+ 
+-	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD_SET_RDD_PATTERN,
++	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(SET_RDD_PATTERN),
+ 				 &req, sizeof(req), false);
+ }
+ 
+@@ -2394,8 +2372,8 @@ int mt7615_mcu_get_temperature(struct mt7615_dev *dev)
+ 		u8 rsv[3];
+ 	} req = {};
+ 
+-	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD_GET_TEMP, &req,
+-				 sizeof(req), true);
++	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(GET_TEMP),
++				 &req, sizeof(req), true);
+ }
+ 
+ int mt7615_mcu_set_test_param(struct mt7615_dev *dev, u8 param, bool test_mode,
+@@ -2415,8 +2393,8 @@ int mt7615_mcu_set_test_param(struct mt7615_dev *dev, u8 param, bool test_mode,
+ 		.value = cpu_to_le32(val),
+ 	};
+ 
+-	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD_ATE_CTRL, &req,
+-				 sizeof(req), false);
++	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(ATE_CTRL),
++				 &req, sizeof(req), false);
+ }
+ 
+ int mt7615_mcu_set_sku_en(struct mt7615_phy *phy, bool enable)
+@@ -2434,8 +2412,8 @@ int mt7615_mcu_set_sku_en(struct mt7615_phy *phy, bool enable)
+ 	};
+ 
+ 	return mt76_mcu_send_msg(&dev->mt76,
+-				 MCU_EXT_CMD_TX_POWER_FEATURE_CTRL, &req,
+-				 sizeof(req), true);
++				 MCU_EXT_CMD(TX_POWER_FEATURE_CTRL),
++				 &req, sizeof(req), true);
+ }
+ 
+ static int mt7615_find_freq_idx(const u16 *freqs, int n_freqs, u16 cur)
+@@ -2574,7 +2552,7 @@ again:
+ 
+ out:
+ 	req.center_freq = cpu_to_le16(center_freq);
+-	ret = mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD_RXDCOC_CAL, &req,
++	ret = mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(RXDCOC_CAL), &req,
+ 				sizeof(req), true);
+ 
+ 	if ((chandef->width == NL80211_CHAN_WIDTH_80P80 ||
+@@ -2695,8 +2673,8 @@ again:
+ 
+ out:
+ 	req.center_freq = cpu_to_le16(center_freq);
+-	ret = mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD_TXDPD_CAL, &req,
+-				sizeof(req), true);
++	ret = mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(TXDPD_CAL),
++				&req, sizeof(req), true);
+ 
+ 	if ((chandef->width == NL80211_CHAN_WIDTH_80P80 ||
+ 	     chandef->width == NL80211_CHAN_WIDTH_160) && !req.is_freq2) {
+@@ -2724,7 +2702,7 @@ int mt7615_mcu_set_rx_hdr_trans_blacklist(struct mt7615_dev *dev)
+ 		.etype = cpu_to_le16(ETH_P_PAE),
+ 	};
+ 
+-	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD_RX_HDR_TRANS,
++	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(RX_HDR_TRANS),
+ 				 &req, sizeof(req), false);
+ }
+ 
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/testmode.c b/drivers/net/wireless/mediatek/mt76/mt7615/testmode.c
+index 59d99264f5e5f..e5544f4e69797 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/testmode.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/testmode.c
+@@ -91,7 +91,7 @@ mt7615_tm_set_tx_power(struct mt7615_phy *phy)
+ 	}
+ 
+ 	return mt76_mcu_skb_send_msg(&dev->mt76, skb,
+-				     MCU_EXT_CMD_SET_TX_POWER_CTRL, false);
++				     MCU_EXT_CMD(SET_TX_POWER_CTRL), false);
+ }
+ 
+ static void
+@@ -229,7 +229,7 @@ mt7615_tm_set_tx_frames(struct mt7615_phy *phy, bool en)
+ 	struct ieee80211_tx_info *info;
+ 	struct sk_buff *skb = phy->mt76->test.tx_skb;
+ 
+-	mt7615_mcu_set_chan_info(phy, MCU_EXT_CMD_SET_RX_PATH);
++	mt7615_mcu_set_chan_info(phy, MCU_EXT_CMD(SET_RX_PATH));
+ 	mt7615_tm_set_tx_antenna(phy, en);
+ 	mt7615_tm_set_rx_enable(dev, !en);
+ 	if (!en || !skb)
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
+index b15bbd650a90c..f603c6fab583a 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
+@@ -176,7 +176,7 @@ int mt76_connac_mcu_set_mac_enable(struct mt76_dev *dev, int band, bool enable,
+ 		.band = band,
+ 	};
+ 
+-	return mt76_mcu_send_msg(dev, MCU_EXT_CMD_MAC_INIT_CTRL, &req_mac,
++	return mt76_mcu_send_msg(dev, MCU_EXT_CMD(MAC_INIT_CTRL), &req_mac,
+ 				 sizeof(req_mac), true);
+ }
+ EXPORT_SYMBOL_GPL(mt76_connac_mcu_set_mac_enable);
+@@ -218,7 +218,7 @@ int mt76_connac_mcu_set_rts_thresh(struct mt76_dev *dev, u32 val, u8 band)
+ 		.pkt_thresh = cpu_to_le32(0x2),
+ 	};
+ 
+-	return mt76_mcu_send_msg(dev, MCU_EXT_CMD_PROTECT_CTRL, &req,
++	return mt76_mcu_send_msg(dev, MCU_EXT_CMD(PROTECT_CTRL), &req,
+ 				 sizeof(req), true);
+ }
+ EXPORT_SYMBOL_GPL(mt76_connac_mcu_set_rts_thresh);
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h
+index 4e2c9dafd7765..1c7a99bc26261 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h
++++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.h
+@@ -499,11 +499,19 @@ enum {
+ #define MCU_FW_PREFIX				BIT(31)
+ #define MCU_UNI_PREFIX				BIT(30)
+ #define MCU_CE_PREFIX				BIT(29)
+-#define MCU_QUERY_PREFIX			BIT(28)
+ #define MCU_CMD_MASK				~(MCU_FW_PREFIX | MCU_UNI_PREFIX |	\
+-						  MCU_CE_PREFIX | MCU_QUERY_PREFIX)
++						  MCU_CE_PREFIX)
+ 
+-#define MCU_QUERY_MASK				BIT(16)
++#define __MCU_CMD_FIELD_ID			GENMASK(7, 0)
++#define __MCU_CMD_FIELD_EXT_ID			GENMASK(15, 8)
++#define __MCU_CMD_FIELD_QUERY			BIT(16)
++
++#define MCU_CMD(_t)				FIELD_PREP(__MCU_CMD_FIELD_ID,		\
++							   MCU_CMD_##_t)
++#define MCU_EXT_CMD(_t)				(MCU_CMD(EXT_CID) | \
++						 FIELD_PREP(__MCU_CMD_FIELD_EXT_ID,	\
++							    MCU_EXT_CMD_##_t))
++#define MCU_EXT_QUERY(_t)			(MCU_EXT_CMD(_t) | __MCU_CMD_FIELD_QUERY)
+ 
+ enum {
+ 	MCU_EXT_CMD_EFUSE_ACCESS = 0x01,
+@@ -575,7 +583,7 @@ enum {
+ 	MCU_CMD_GET_NIC_CAPAB = MCU_CE_PREFIX | 0x8a,
+ 	MCU_CMD_SET_MU_EDCA_PARMS = MCU_CE_PREFIX | 0xb0,
+ 	MCU_CMD_REG_WRITE = MCU_CE_PREFIX | 0xc0,
+-	MCU_CMD_REG_READ = MCU_CE_PREFIX | MCU_QUERY_MASK | 0xc0,
++	MCU_CMD_REG_READ = MCU_CE_PREFIX | __MCU_CMD_FIELD_QUERY | 0xc0,
+ 	MCU_CMD_CHIP_CONFIG = MCU_CE_PREFIX | 0xca,
+ 	MCU_CMD_FWLOG_2_HOST = MCU_CE_PREFIX | 0xc5,
+ 	MCU_CMD_GET_WTBL = MCU_CE_PREFIX | 0xcd,
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/main.c b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
+index 21e745fddc9c3..e7c9cb66a3543 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
+@@ -221,7 +221,7 @@ int __mt7921_start(struct mt7921_phy *phy)
+ 	if (err)
+ 		return err;
+ 
+-	err = mt7921_mcu_set_chan_info(phy, MCU_EXT_CMD_SET_RX_PATH);
++	err = mt7921_mcu_set_chan_info(phy, MCU_EXT_CMD(SET_RX_PATH));
+ 	if (err)
+ 		return err;
+ 
+@@ -363,7 +363,7 @@ static int mt7921_set_channel(struct mt7921_phy *phy)
+ 
+ 	mt76_set_channel(phy->mt76);
+ 
+-	ret = mt7921_mcu_set_chan_info(phy, MCU_EXT_CMD_CHANNEL_SWITCH);
++	ret = mt7921_mcu_set_chan_info(phy, MCU_EXT_CMD(CHANNEL_SWITCH));
+ 	if (ret)
+ 		goto out;
+ 
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
+index 6ada1ebe7d68b..50f0c13f1c41e 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/mcu.c
+@@ -179,24 +179,20 @@ int mt7921_mcu_parse_response(struct mt76_dev *mdev, int cmd,
+ 	if (seq != rxd->seq)
+ 		return -EAGAIN;
+ 
+-	switch (cmd) {
+-	case MCU_CMD_PATCH_SEM_CONTROL:
++	if (cmd == MCU_CMD_PATCH_SEM_CONTROL) {
+ 		skb_pull(skb, sizeof(*rxd) - 4);
+ 		ret = *skb->data;
+-		break;
+-	case MCU_EXT_CMD_GET_TEMP:
++	} else if (cmd == MCU_EXT_CMD(GET_TEMP)) {
+ 		skb_pull(skb, sizeof(*rxd) + 4);
+ 		ret = le32_to_cpu(*(__le32 *)skb->data);
+-		break;
+-	case MCU_EXT_CMD_EFUSE_ACCESS:
++	} else if (cmd == MCU_EXT_CMD(EFUSE_ACCESS)) {
+ 		ret = mt7921_mcu_parse_eeprom(mdev, skb);
+-		break;
+-	case MCU_UNI_CMD_DEV_INFO_UPDATE:
+-	case MCU_UNI_CMD_BSS_INFO_UPDATE:
+-	case MCU_UNI_CMD_STA_REC_UPDATE:
+-	case MCU_UNI_CMD_HIF_CTRL:
+-	case MCU_UNI_CMD_OFFLOAD:
+-	case MCU_UNI_CMD_SUSPEND: {
++	} else if (cmd == MCU_UNI_CMD_DEV_INFO_UPDATE ||
++		   cmd == MCU_UNI_CMD_BSS_INFO_UPDATE ||
++		   cmd == MCU_UNI_CMD_STA_REC_UPDATE ||
++		   cmd == MCU_UNI_CMD_HIF_CTRL ||
++		   cmd == MCU_UNI_CMD_OFFLOAD ||
++		   cmd == MCU_UNI_CMD_SUSPEND) {
+ 		struct mt7921_mcu_uni_event *event;
+ 
+ 		skb_pull(skb, sizeof(*rxd));
+@@ -205,19 +201,14 @@ int mt7921_mcu_parse_response(struct mt76_dev *mdev, int cmd,
+ 		/* skip invalid event */
+ 		if (mcu_cmd != event->cid)
+ 			ret = -EAGAIN;
+-		break;
+-	}
+-	case MCU_CMD_REG_READ: {
++	} else if (cmd == MCU_CMD_REG_READ) {
+ 		struct mt7921_mcu_reg_event *event;
+ 
+ 		skb_pull(skb, sizeof(*rxd));
+ 		event = (struct mt7921_mcu_reg_event *)skb->data;
+ 		ret = (int)le32_to_cpu(event->val);
+-		break;
+-	}
+-	default:
++	} else {
+ 		skb_pull(skb, sizeof(struct mt7921_mcu_rxd));
+-		break;
+ 	}
+ 
+ 	return ret;
+@@ -228,7 +219,7 @@ int mt7921_mcu_fill_message(struct mt76_dev *mdev, struct sk_buff *skb,
+ 			    int cmd, int *wait_seq)
+ {
+ 	struct mt7921_dev *dev = container_of(mdev, struct mt7921_dev, mt76);
+-	int txd_len, mcu_cmd = cmd & MCU_CMD_MASK;
++	int txd_len, mcu_cmd = FIELD_GET(__MCU_CMD_FIELD_ID, cmd);
+ 	struct mt7921_uni_txd *uni_txd;
+ 	struct mt7921_mcu_txd *mcu_txd;
+ 	__le32 *txd;
+@@ -283,34 +274,20 @@ int mt7921_mcu_fill_message(struct mt76_dev *mdev, struct sk_buff *skb,
+ 					       MT_TX_MCU_PORT_RX_Q0));
+ 	mcu_txd->pkt_type = MCU_PKT_ID;
+ 	mcu_txd->seq = seq;
++	mcu_txd->cid = mcu_cmd;
++	mcu_txd->s2d_index = MCU_S2D_H2N;
++	mcu_txd->ext_cid = FIELD_GET(__MCU_CMD_FIELD_EXT_ID, cmd);
+ 
+-	switch (cmd & ~MCU_CMD_MASK) {
+-	case MCU_FW_PREFIX:
+-		mcu_txd->set_query = MCU_Q_NA;
+-		mcu_txd->cid = mcu_cmd;
+-		break;
+-	case MCU_CE_PREFIX:
+-		if (cmd & MCU_QUERY_MASK)
+-			mcu_txd->set_query = MCU_Q_QUERY;
+-		else
+-			mcu_txd->set_query = MCU_Q_SET;
+-		mcu_txd->cid = mcu_cmd;
+-		break;
+-	default:
+-		mcu_txd->cid = MCU_CMD_EXT_CID;
+-		if (cmd & MCU_QUERY_PREFIX || cmd == MCU_EXT_CMD_EFUSE_ACCESS)
++	if (mcu_txd->ext_cid || (cmd & MCU_CE_PREFIX)) {
++		if (cmd & __MCU_CMD_FIELD_QUERY)
+ 			mcu_txd->set_query = MCU_Q_QUERY;
+ 		else
+ 			mcu_txd->set_query = MCU_Q_SET;
+-		mcu_txd->ext_cid = mcu_cmd;
+-		mcu_txd->ext_cid_ack = 1;
+-		break;
++		mcu_txd->ext_cid_ack = !!mcu_txd->ext_cid;
++	} else {
++		mcu_txd->set_query = MCU_Q_NA;
+ 	}
+ 
+-	mcu_txd->s2d_index = MCU_S2D_H2N;
+-	WARN_ON(cmd == MCU_EXT_CMD_EFUSE_ACCESS &&
+-		mcu_txd->set_query != MCU_Q_QUERY);
+-
+ exit:
+ 	if (wait_seq)
+ 		*wait_seq = seq;
+@@ -997,8 +974,8 @@ int mt7921_mcu_set_tx(struct mt7921_dev *dev, struct ieee80211_vif *vif)
+ 			e->cw_max = cpu_to_le16(10);
+ 	}
+ 
+-	ret = mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD_EDCA_UPDATE, &req,
+-				sizeof(req), true);
++	ret = mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(EDCA_UPDATE),
++				&req, sizeof(req), true);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -1070,7 +1047,7 @@ int mt7921_mcu_set_chan_info(struct mt7921_phy *phy, int cmd)
+ 	else
+ 		req.switch_reason = CH_SWITCH_NORMAL;
+ 
+-	if (cmd == MCU_EXT_CMD_CHANNEL_SWITCH)
++	if (cmd == MCU_EXT_CMD(CHANNEL_SWITCH))
+ 		req.rx_streams = hweight8(req.rx_streams);
+ 
+ 	if (chandef->width == NL80211_CHAN_WIDTH_80P80) {
+@@ -1093,7 +1070,7 @@ int mt7921_mcu_set_eeprom(struct mt7921_dev *dev)
+ 		.format = EE_FORMAT_WHOLE,
+ 	};
+ 
+-	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD_EFUSE_BUFFER_MODE,
++	return mt76_mcu_send_msg(&dev->mt76, MCU_EXT_CMD(EFUSE_BUFFER_MODE),
+ 				 &req, sizeof(req), true);
+ }
+ EXPORT_SYMBOL_GPL(mt7921_mcu_set_eeprom);
+@@ -1108,8 +1085,9 @@ int mt7921_mcu_get_eeprom(struct mt7921_dev *dev, u32 offset)
+ 	int ret;
+ 	u8 *buf;
+ 
+-	ret = mt76_mcu_send_and_get_msg(&dev->mt76, MCU_EXT_CMD_EFUSE_ACCESS, &req,
+-					sizeof(req), true, &skb);
++	ret = mt76_mcu_send_and_get_msg(&dev->mt76,
++					MCU_EXT_QUERY(EFUSE_ACCESS),
++					&req, sizeof(req), true, &skb);
+ 	if (ret)
+ 		return ret;
+ 
 -- 
 2.34.1
 
