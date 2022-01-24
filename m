@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B0B84991B9
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:14:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BD58498C8B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:23:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344412AbiAXUN4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:13:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33866 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355394AbiAXUNh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:13:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA58DC061759;
-        Mon, 24 Jan 2022 11:35:03 -0800 (PST)
+        id S237784AbiAXTXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:23:17 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:48746 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1349071AbiAXTUK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:20:10 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A2104B8122C;
-        Mon, 24 Jan 2022 19:35:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF9FDC340E5;
-        Mon, 24 Jan 2022 19:35:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9883861317;
+        Mon, 24 Jan 2022 19:20:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B519C340E5;
+        Mon, 24 Jan 2022 19:20:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052901;
-        bh=VE7s1jTQ4vFtA3r5D31OJGay35QqQYg1y+cWP5Lbudg=;
+        s=korg; t=1643052007;
+        bh=2POWAd983rmLTzegXs88h1p/oWSCn2Gje3KOmqdlqlE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qexgTIQgD1iCAaYVPn6B9VOMb6VQcmkI0n916dVugq02FK0zK4e60RJE9fzTDcqhN
-         il4fOYCSs2UwdAS8SHmIHQbR0/+lTqYSmialsbtOs3PpzLfe7M4JJB2fuF3o0jOSPl
-         3BzcTUxCLLGuhuCKvAupvTYCNeXJ37/s1uG1nRsI=
+        b=xDLkIggJJkhbAjEoxs69bGRik1FUaEzrCKhHAANX8zagDJIt86KV7LZ5HL8tH+E1J
+         8u2Dkrsq1ZMf2mENYm98C004X7e/7TVWpQkwXq1v2aXQ2ZCJ70wd42rvsQSOvsrdrp
+         2yZokeLtLH21zXOc/rOCo25eS0H7mxFBVIYBo6gA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 211/320] btrfs: remove BUG_ON() in find_parent_nodes()
-Date:   Mon, 24 Jan 2022 19:43:15 +0100
-Message-Id: <20220124184000.799097611@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Jeff Dike <jdike@addtoit.com>,
+        Richard Weinberger <richard@nod.at>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        linux-um@lists.infradead.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 158/239] um: registers: Rename function names to avoid conflicts and build problems
+Date:   Mon, 24 Jan 2022 19:43:16 +0100
+Message-Id: <20220124183948.120592624@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,40 +47,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit fcba0120edf88328524a4878d1d6f4ad39f2ec81 ]
+[ Upstream commit 077b7320942b64b0da182aefd83c374462a65535 ]
 
-We search for an extent entry with .offset = -1, which shouldn't be a
-thing, but corruption happens.  Add an ASSERT() for the developers,
-return -EUCLEAN for mortals.
+The function names init_registers() and restore_registers() are used
+in several net/ethernet/ and gpu/drm/ drivers for other purposes (not
+calls to UML functions), so rename them.
 
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+This fixes multiple build errors.
+
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Jeff Dike <jdike@addtoit.com>
+Cc: Richard Weinberger <richard@nod.at>
+Cc: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Cc: linux-um@lists.infradead.org
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/backref.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/um/include/shared/registers.h | 4 ++--
+ arch/um/os-Linux/registers.c       | 4 ++--
+ arch/um/os-Linux/start_up.c        | 2 +-
+ arch/x86/um/syscalls_64.c          | 3 ++-
+ 4 files changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
-index 7f644a58db511..9044e7282d0b2 100644
---- a/fs/btrfs/backref.c
-+++ b/fs/btrfs/backref.c
-@@ -1208,7 +1208,12 @@ again:
- 	ret = btrfs_search_slot(trans, fs_info->extent_root, &key, path, 0, 0);
- 	if (ret < 0)
- 		goto out;
--	BUG_ON(ret == 0);
-+	if (ret == 0) {
-+		/* This shouldn't happen, indicates a bug or fs corruption. */
-+		ASSERT(ret != 0);
-+		ret = -EUCLEAN;
-+		goto out;
-+	}
+diff --git a/arch/um/include/shared/registers.h b/arch/um/include/shared/registers.h
+index a74449b5b0e31..12ad7c435e97f 100644
+--- a/arch/um/include/shared/registers.h
++++ b/arch/um/include/shared/registers.h
+@@ -16,8 +16,8 @@ extern int restore_fp_registers(int pid, unsigned long *fp_regs);
+ extern int save_fpx_registers(int pid, unsigned long *fp_regs);
+ extern int restore_fpx_registers(int pid, unsigned long *fp_regs);
+ extern int save_registers(int pid, struct uml_pt_regs *regs);
+-extern int restore_registers(int pid, struct uml_pt_regs *regs);
+-extern int init_registers(int pid);
++extern int restore_pid_registers(int pid, struct uml_pt_regs *regs);
++extern int init_pid_registers(int pid);
+ extern void get_safe_registers(unsigned long *regs, unsigned long *fp_regs);
+ extern unsigned long get_thread_reg(int reg, jmp_buf *buf);
+ extern int get_fp_registers(int pid, unsigned long *regs);
+diff --git a/arch/um/os-Linux/registers.c b/arch/um/os-Linux/registers.c
+index 2ff8d4fe83c4f..34a5963bd7efd 100644
+--- a/arch/um/os-Linux/registers.c
++++ b/arch/um/os-Linux/registers.c
+@@ -21,7 +21,7 @@ int save_registers(int pid, struct uml_pt_regs *regs)
+ 	return 0;
+ }
  
- #ifdef CONFIG_BTRFS_FS_RUN_SANITY_TESTS
- 	if (trans && likely(trans->type != __TRANS_DUMMY) &&
+-int restore_registers(int pid, struct uml_pt_regs *regs)
++int restore_pid_registers(int pid, struct uml_pt_regs *regs)
+ {
+ 	int err;
+ 
+@@ -36,7 +36,7 @@ int restore_registers(int pid, struct uml_pt_regs *regs)
+ static unsigned long exec_regs[MAX_REG_NR];
+ static unsigned long exec_fp_regs[FP_SIZE];
+ 
+-int init_registers(int pid)
++int init_pid_registers(int pid)
+ {
+ 	int err;
+ 
+diff --git a/arch/um/os-Linux/start_up.c b/arch/um/os-Linux/start_up.c
+index 82bf5f8442ba4..2c75f2d638681 100644
+--- a/arch/um/os-Linux/start_up.c
++++ b/arch/um/os-Linux/start_up.c
+@@ -336,7 +336,7 @@ void __init os_early_checks(void)
+ 	check_tmpexec();
+ 
+ 	pid = start_ptraced_child();
+-	if (init_registers(pid))
++	if (init_pid_registers(pid))
+ 		fatal("Failed to initialize default registers");
+ 	stop_ptraced_child(pid, 1, 1);
+ }
+diff --git a/arch/x86/um/syscalls_64.c b/arch/x86/um/syscalls_64.c
+index 58f51667e2e4b..8249685b40960 100644
+--- a/arch/x86/um/syscalls_64.c
++++ b/arch/x86/um/syscalls_64.c
+@@ -11,6 +11,7 @@
+ #include <linux/uaccess.h>
+ #include <asm/prctl.h> /* XXX This should get the constants from libc */
+ #include <os.h>
++#include <registers.h>
+ 
+ long arch_prctl(struct task_struct *task, int option,
+ 		unsigned long __user *arg2)
+@@ -35,7 +36,7 @@ long arch_prctl(struct task_struct *task, int option,
+ 	switch (option) {
+ 	case ARCH_SET_FS:
+ 	case ARCH_SET_GS:
+-		ret = restore_registers(pid, &current->thread.regs.regs);
++		ret = restore_pid_registers(pid, &current->thread.regs.regs);
+ 		if (ret)
+ 			return ret;
+ 		break;
 -- 
 2.34.1
 
