@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59C77498EBC
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:48:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6901498B52
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:13:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230077AbiAXTsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:48:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54590 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348646AbiAXTmg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:42:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBC06C033270;
-        Mon, 24 Jan 2022 11:21:48 -0800 (PST)
+        id S1345387AbiAXTMw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:12:52 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:39814 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347331AbiAXTKQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:10:16 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 60631B8122C;
-        Mon, 24 Jan 2022 19:21:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FF81C340E5;
-        Mon, 24 Jan 2022 19:21:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 00A9D6124F;
+        Mon, 24 Jan 2022 19:10:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCB29C340E5;
+        Mon, 24 Jan 2022 19:10:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052107;
-        bh=dPECgQQvYcxOo2hldr1cbm6OU4xhatPfSlbAjSYEegw=;
+        s=korg; t=1643051415;
+        bh=qbeVDiYoTeerjRaLZmNXcvpXW5Esy1HTidj3dzeiwNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2tFsebKfXfDRZT6i3k6ZWPH//jwcd/jRjLF+4cn2A038cREKif1AcCD0yFYqraww9
-         iciCc+ZNGojoiSjItNMSA2+vBfnEznvm4pC6dw26ZXJFkJFhOM7hMHpz5/E7AHkqIj
-         PICiJbW/iBAMzXWNeXWcGLDUORJtOTpZ91C0sPC4=
+        b=ovAC8m8kybvN0etrTlvcZ6WJ3b3bp7HJVBBbb7MMDK2UOVuA9qIXJbZo7wCktifch
+         wdNGpLigGKLFlxU5cw2dE1aLR4+L+n1kHoxo26S4v4yS3yYSFH1r+uW869GsZ124f8
+         GrQyPWWsY4NhsCPNGnYYS/MsgCgmHP9BQWAuewM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baoquan He <bhe@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 192/239] scsi: sr: Dont use GFP_DMA
+        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@kernel.org
+Subject: [PATCH 4.14 155/186] ext4: Fix BUG_ON in ext4_bread when write quota data
 Date:   Mon, 24 Jan 2022 19:43:50 +0100
-Message-Id: <20220124183949.219917316@linuxfoundation.org>
+Message-Id: <20220124183942.084544839@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
+References: <20220124183937.101330125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,61 +45,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit d94d94969a4ba07a43d62429c60372320519c391 ]
+commit 380a0091cab482489e9b19e07f2a166ad2b76d5c upstream.
 
-The allocated buffers are used as a command payload, for which the block
-layer and/or DMA API do the proper bounce buffering if needed.
+We got issue as follows when run syzkaller:
+[  167.936972] EXT4-fs error (device loop0): __ext4_remount:6314: comm rep: Abort forced by user
+[  167.938306] EXT4-fs (loop0): Remounting filesystem read-only
+[  167.981637] Assertion failure in ext4_getblk() at fs/ext4/inode.c:847: '(EXT4_SB(inode->i_sb)->s_mount_state & EXT4_FC_REPLAY) || handle != NULL || create == 0'
+[  167.983601] ------------[ cut here ]------------
+[  167.984245] kernel BUG at fs/ext4/inode.c:847!
+[  167.984882] invalid opcode: 0000 [#1] PREEMPT SMP KASAN PTI
+[  167.985624] CPU: 7 PID: 2290 Comm: rep Tainted: G    B             5.16.0-rc5-next-20211217+ #123
+[  167.986823] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_073836-buildvm-ppc64le-16.ppc.fedoraproject.org-3.fc31 04/01/2014
+[  167.988590] RIP: 0010:ext4_getblk+0x17e/0x504
+[  167.989189] Code: c6 01 74 28 49 c7 c0 a0 a3 5c 9b b9 4f 03 00 00 48 c7 c2 80 9c 5c 9b 48 c7 c6 40 b6 5c 9b 48 c7 c7 20 a4 5c 9b e8 77 e3 fd ff <0f> 0b 8b 04 244
+[  167.991679] RSP: 0018:ffff8881736f7398 EFLAGS: 00010282
+[  167.992385] RAX: 0000000000000094 RBX: 1ffff1102e6dee75 RCX: 0000000000000000
+[  167.993337] RDX: 0000000000000001 RSI: ffffffff9b6e29e0 RDI: ffffed102e6dee66
+[  167.994292] RBP: ffff88816a076210 R08: 0000000000000094 R09: ffffed107363fa09
+[  167.995252] R10: ffff88839b1fd047 R11: ffffed107363fa08 R12: ffff88816a0761e8
+[  167.996205] R13: 0000000000000000 R14: 0000000000000021 R15: 0000000000000001
+[  167.997158] FS:  00007f6a1428c740(0000) GS:ffff88839b000000(0000) knlGS:0000000000000000
+[  167.998238] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  167.999025] CR2: 00007f6a140716c8 CR3: 0000000133216000 CR4: 00000000000006e0
+[  167.999987] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  168.000944] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  168.001899] Call Trace:
+[  168.002235]  <TASK>
+[  168.007167]  ext4_bread+0xd/0x53
+[  168.007612]  ext4_quota_write+0x20c/0x5c0
+[  168.010457]  write_blk+0x100/0x220
+[  168.010944]  remove_free_dqentry+0x1c6/0x440
+[  168.011525]  free_dqentry.isra.0+0x565/0x830
+[  168.012133]  remove_tree+0x318/0x6d0
+[  168.014744]  remove_tree+0x1eb/0x6d0
+[  168.017346]  remove_tree+0x1eb/0x6d0
+[  168.019969]  remove_tree+0x1eb/0x6d0
+[  168.022128]  qtree_release_dquot+0x291/0x340
+[  168.023297]  v2_release_dquot+0xce/0x120
+[  168.023847]  dquot_release+0x197/0x3e0
+[  168.024358]  ext4_release_dquot+0x22a/0x2d0
+[  168.024932]  dqput.part.0+0x1c9/0x900
+[  168.025430]  __dquot_drop+0x120/0x190
+[  168.025942]  ext4_clear_inode+0x86/0x220
+[  168.026472]  ext4_evict_inode+0x9e8/0xa22
+[  168.028200]  evict+0x29e/0x4f0
+[  168.028625]  dispose_list+0x102/0x1f0
+[  168.029148]  evict_inodes+0x2c1/0x3e0
+[  168.030188]  generic_shutdown_super+0xa4/0x3b0
+[  168.030817]  kill_block_super+0x95/0xd0
+[  168.031360]  deactivate_locked_super+0x85/0xd0
+[  168.031977]  cleanup_mnt+0x2bc/0x480
+[  168.033062]  task_work_run+0xd1/0x170
+[  168.033565]  do_exit+0xa4f/0x2b50
+[  168.037155]  do_group_exit+0xef/0x2d0
+[  168.037666]  __x64_sys_exit_group+0x3a/0x50
+[  168.038237]  do_syscall_64+0x3b/0x90
+[  168.038751]  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Link: https://lore.kernel.org/r/20211222090842.920724-1-hch@lst.de
-Reported-by: Baoquan He <bhe@redhat.com>
-Reviewed-by: Baoquan He <bhe@redhat.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In order to reproduce this problem, the following conditions need to be met:
+1. Ext4 filesystem with no journal;
+2. Filesystem image with incorrect quota data;
+3. Abort filesystem forced by user;
+4. umount filesystem;
+
+As in ext4_quota_write:
+...
+         if (EXT4_SB(sb)->s_journal && !handle) {
+                 ext4_msg(sb, KERN_WARNING, "Quota write (off=%llu, len=%llu)"
+                         " cancelled because transaction is not started",
+                         (unsigned long long)off, (unsigned long long)len);
+                 return -EIO;
+         }
+...
+We only check handle if NULL when filesystem has journal. There is need
+check handle if NULL even when filesystem has no journal.
+
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20211223015506.297766-1-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/sr.c        | 2 +-
- drivers/scsi/sr_vendor.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ fs/ext4/super.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
-index 84dd776d36c33..fdbd5c691d333 100644
---- a/drivers/scsi/sr.c
-+++ b/drivers/scsi/sr.c
-@@ -885,7 +885,7 @@ static void get_capabilities(struct scsi_cd *cd)
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -5869,7 +5869,7 @@ static ssize_t ext4_quota_write(struct s
+ 	struct buffer_head *bh;
+ 	handle_t *handle = journal_current_handle();
  
- 
- 	/* allocate transfer buffer */
--	buffer = kmalloc(512, GFP_KERNEL | GFP_DMA);
-+	buffer = kmalloc(512, GFP_KERNEL);
- 	if (!buffer) {
- 		sr_printk(KERN_ERR, cd, "out of memory.\n");
- 		return;
-diff --git a/drivers/scsi/sr_vendor.c b/drivers/scsi/sr_vendor.c
-index b9db2ec6d0361..996bccadd3866 100644
---- a/drivers/scsi/sr_vendor.c
-+++ b/drivers/scsi/sr_vendor.c
-@@ -113,7 +113,7 @@ int sr_set_blocklength(Scsi_CD *cd, int blocklength)
- 	if (cd->vendor == VENDOR_TOSHIBA)
- 		density = (blocklength > 2048) ? 0x81 : 0x83;
- 
--	buffer = kmalloc(512, GFP_KERNEL | GFP_DMA);
-+	buffer = kmalloc(512, GFP_KERNEL);
- 	if (!buffer)
- 		return -ENOMEM;
- 
-@@ -161,7 +161,7 @@ int sr_cd_check(struct cdrom_device_info *cdi)
- 	if (cd->cdi.mask & CDC_MULTI_SESSION)
- 		return 0;
- 
--	buffer = kmalloc(512, GFP_KERNEL | GFP_DMA);
-+	buffer = kmalloc(512, GFP_KERNEL);
- 	if (!buffer)
- 		return -ENOMEM;
- 
--- 
-2.34.1
-
+-	if (EXT4_SB(sb)->s_journal && !handle) {
++	if (!handle) {
+ 		ext4_msg(sb, KERN_WARNING, "Quota write (off=%llu, len=%llu)"
+ 			" cancelled because transaction is not started",
+ 			(unsigned long long)off, (unsigned long long)len);
 
 
