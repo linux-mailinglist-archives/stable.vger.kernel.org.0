@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1EA3499965
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:44:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D522499C6B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:08:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1455189AbiAXVez (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:34:55 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:40482 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1452459AbiAXVZi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:25:38 -0500
+        id S1579345AbiAXWFW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:05:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58570 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1456427AbiAXVzC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:55:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1A21C07E28E;
+        Mon, 24 Jan 2022 12:35:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA0C4B80FA1;
-        Mon, 24 Jan 2022 21:25:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05E27C340E4;
-        Mon, 24 Jan 2022 21:25:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7F655B80FA1;
+        Mon, 24 Jan 2022 20:35:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A68D3C340E5;
+        Mon, 24 Jan 2022 20:35:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059536;
-        bh=61ceIHMJ+OldHwRLEtoYGl3BHB03bL4y4xAgQX2DcGk=;
+        s=korg; t=1643056544;
+        bh=OzfIY9xRVRlOTpRoanuZo2T6HA3to4jATFB0/K4WRxs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GLt7FMPRLJxVIECqaURW+ixqSPkloWoGB5Fmgdq6V0JowATSo4PA8p1B4As/DPF9j
-         eAiaSxDxS6yRd3YzUdNNBx8nPpzdwXiQ4IeY2SNm8dFF5EXyxUHRFtq4fDDcR2+GYF
-         tbdKs8nu4LETlRP37aV6BhCn5eBQvKNHxTMN2SiY=
+        b=YrsoDINTgSwlrg/k8j36Qy/MlRyFdh5o5rmFA2VWTaGblOBykvit46GIcKr6lP8r+
+         tyV29stQZmltgaK2i64MhsnO+XTXwsAdaBZCfv4xTZegkAMqmAC/ErlFbVjL1hsYSz
+         qoTqtIr6cCQ8aYcng+Yfvd1KTeWcaoxJtqjIZu5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0647/1039] bpf: Do not WARN in bpf_warn_invalid_xdp_action()
-Date:   Mon, 24 Jan 2022 19:40:36 +0100
-Message-Id: <20220124184147.096194625@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+23a02c7df2cf2bc93fa2@syzkaller.appspotmail.com,
+        Xiongwei Song <sxwjean@gmail.com>,
+        Denis Efremov <efremov@linux.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 520/846] floppy: Add max size check for user space request
+Date:   Mon, 24 Jan 2022 19:40:37 +0100
+Message-Id: <20220124184118.952832171@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,46 +50,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Xiongwei Song <sxwjean@gmail.com>
 
-[ Upstream commit 2cbad989033bff0256675c38f96f5faab852af4b ]
+[ Upstream commit 545a32498c536ee152331cd2e7d2416aa0f20e01 ]
 
-The WARN_ONCE() in bpf_warn_invalid_xdp_action() can be triggered by
-any bugged program, and even attaching a correct program to a NIC
-not supporting the given action.
+We need to check the max request size that is from user space before
+allocating pages. If the request size exceeds the limit, return -EINVAL.
+This check can avoid the warning below from page allocator.
 
-The resulting splat, beyond polluting the logs, fouls automated tools:
-e.g. a syzkaller reproducers using an XDP program returning an
-unsupported action will never pass validation.
+WARNING: CPU: 3 PID: 16525 at mm/page_alloc.c:5344 current_gfp_context include/linux/sched/mm.h:195 [inline]
+WARNING: CPU: 3 PID: 16525 at mm/page_alloc.c:5344 __alloc_pages+0x45d/0x500 mm/page_alloc.c:5356
+Modules linked in:
+CPU: 3 PID: 16525 Comm: syz-executor.3 Not tainted 5.15.0-syzkaller #0
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-2 04/01/2014
+RIP: 0010:__alloc_pages+0x45d/0x500 mm/page_alloc.c:5344
+Code: be c9 00 00 00 48 c7 c7 20 4a 97 89 c6 05 62 32 a7 0b 01 e8 74 9a 42 07 e9 6a ff ff ff 0f 0b e9 a0 fd ff ff 40 80 e5 3f eb 88 <0f> 0b e9 18 ff ff ff 4c 89 ef 44 89 e6 45 31 ed e8 1e 76 ff ff e9
+RSP: 0018:ffffc90023b87850 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 1ffff92004770f0b RCX: dffffc0000000000
+RDX: 0000000000000000 RSI: 0000000000000033 RDI: 0000000000010cc1
+RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000001
+R10: ffffffff81bb4686 R11: 0000000000000001 R12: ffffffff902c1960
+R13: 0000000000000033 R14: 0000000000000000 R15: ffff88804cf64a30
+FS:  0000000000000000(0000) GS:ffff88802cd00000(0063) knlGS:00000000f44b4b40
+CS:  0010 DS: 002b ES: 002b CR0: 0000000080050033
+CR2: 000000002c921000 CR3: 000000004f507000 CR4: 0000000000150ee0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ alloc_pages+0x1a7/0x300 mm/mempolicy.c:2191
+ __get_free_pages+0x8/0x40 mm/page_alloc.c:5418
+ raw_cmd_copyin drivers/block/floppy.c:3113 [inline]
+ raw_cmd_ioctl drivers/block/floppy.c:3160 [inline]
+ fd_locked_ioctl+0x12e5/0x2820 drivers/block/floppy.c:3528
+ fd_ioctl drivers/block/floppy.c:3555 [inline]
+ fd_compat_ioctl+0x891/0x1b60 drivers/block/floppy.c:3869
+ compat_blkdev_ioctl+0x3b8/0x810 block/ioctl.c:662
+ __do_compat_sys_ioctl+0x1c7/0x290 fs/ioctl.c:972
+ do_syscall_32_irqs_on arch/x86/entry/common.c:112 [inline]
+ __do_fast_syscall_32+0x65/0xf0 arch/x86/entry/common.c:178
+ do_fast_syscall_32+0x2f/0x70 arch/x86/entry/common.c:203
+ entry_SYSENTER_compat_after_hwframe+0x4d/0x5c
 
-Replace the WARN_ONCE with a less intrusive pr_warn_once().
-
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Link: https://lore.kernel.org/bpf/016ceec56e4817ebb2a9e35ce794d5c917df572c.1638189075.git.pabeni@redhat.com
+Reported-by: syzbot+23a02c7df2cf2bc93fa2@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20211116131033.27685-1-sxwjean@me.com
+Signed-off-by: Xiongwei Song <sxwjean@gmail.com>
+Signed-off-by: Denis Efremov <efremov@linux.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/filter.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/block/floppy.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/core/filter.c b/net/core/filter.c
-index 31147a4cfab30..5b82a817f65a6 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -8187,9 +8187,9 @@ void bpf_warn_invalid_xdp_action(u32 act)
- {
- 	const u32 act_max = XDP_REDIRECT;
- 
--	WARN_ONCE(1, "%s XDP return value %u, expect packet loss!\n",
--		  act > act_max ? "Illegal" : "Driver unsupported",
--		  act);
-+	pr_warn_once("%s XDP return value %u, expect packet loss!\n",
-+		     act > act_max ? "Illegal" : "Driver unsupported",
-+		     act);
+diff --git a/drivers/block/floppy.c b/drivers/block/floppy.c
+index f50bbaba5762c..4a6a74177b3c9 100644
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -3080,6 +3080,8 @@ static void raw_cmd_free(struct floppy_raw_cmd **ptr)
+ 	}
  }
- EXPORT_SYMBOL_GPL(bpf_warn_invalid_xdp_action);
  
++#define MAX_LEN (1UL << MAX_ORDER << PAGE_SHIFT)
++
+ static int raw_cmd_copyin(int cmd, void __user *param,
+ 				 struct floppy_raw_cmd **rcmd)
+ {
+@@ -3107,7 +3109,7 @@ loop:
+ 	ptr->resultcode = 0;
+ 
+ 	if (ptr->flags & (FD_RAW_READ | FD_RAW_WRITE)) {
+-		if (ptr->length <= 0)
++		if (ptr->length <= 0 || ptr->length >= MAX_LEN)
+ 			return -EINVAL;
+ 		ptr->kernel_data = (char *)fd_dma_mem_alloc(ptr->length);
+ 		fallback_on_nodma_alloc(&ptr->kernel_data, ptr->length);
 -- 
 2.34.1
 
