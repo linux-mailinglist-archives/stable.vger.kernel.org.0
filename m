@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93DEB49A28B
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:00:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABED549A291
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:00:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2365814AbiAXXvq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:51:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45344 "EHLO
+        id S2365833AbiAXXvs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:51:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1589221AbiAXWyE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:54:04 -0500
+        with ESMTP id S1840878AbiAXWzj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:55:39 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA3E3C061A78;
-        Mon, 24 Jan 2022 13:09:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDD8CC0680A6;
+        Mon, 24 Jan 2022 13:09:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A6836146B;
-        Mon, 24 Jan 2022 21:09:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B14FC340E5;
-        Mon, 24 Jan 2022 21:09:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D6B161451;
+        Mon, 24 Jan 2022 21:09:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AD62C340E5;
+        Mon, 24 Jan 2022 21:09:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058565;
-        bh=SFpaN1Q+FQLxVudgmI3DnJry1PBPmM+zzf/zOsrDouM=;
+        s=korg; t=1643058572;
+        bh=/CjwGGaAUdmDEBm/a/YjAd8KE0FRV4xADIfrAnFqqX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DCyT/Xrgo32ARRs662fIHjjYPnTqMBsJto9NOsC8BGn9aIKRuvx/uiCkx3CkQqG+N
-         i+sweG40o/bz+jgXBW2KT4b4j/QhIEO24GfmlzfE3hPVnlgQfEc2wPAHyvzQ2BD6ci
-         S9a7RnyHa3f1EhIuU6bJ8hddEBoxxbhh50g7xB9I=
+        b=zF0v6gTZSEUTpfCTtpF3so4tOZMrDhuNyje+5hE4c4D0vgQUvPAylWRZ6aUeAccM2
+         MkKuWZHNC+MavCXmWOKt87zuGM7uPam7mx5SJFHmVthh/mDbXMrXzCUUSbH0qalGVx
+         HdTISxWGS0OAkIjL+n+V2Q2kaRG6QLEPPNSgXtJQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Errera <nathan.errera@intel.com>,
+        stable@vger.kernel.org, Avraham Stern <avraham.stern@intel.com>,
         Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0329/1039] iwlwifi: mvm: test roc running status bits before removing the sta
-Date:   Mon, 24 Jan 2022 19:35:18 +0100
-Message-Id: <20220124184136.366304226@linuxfoundation.org>
+Subject: [PATCH 5.16 0331/1039] iwlwifi: mvm: set protected flag only for NDP ranging
+Date:   Mon, 24 Jan 2022 19:35:20 +0100
+Message-Id: <20220124184136.439036135@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -48,65 +48,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Errera <nathan.errera@intel.com>
+From: Avraham Stern <avraham.stern@intel.com>
 
-[ Upstream commit 998e1aba6e5eb35370eaf30ccc1823426ec11f90 ]
+[ Upstream commit 6bb2ea37c02db98cb677f978cfcb833ca608c5eb ]
 
-In some cases the sta is being removed twice since we do not test the
-roc aux running before removing it. Start looking at the bit before
-removing the sta.
+Don't use protected ranging negotiation for FTM ranging as responders
+that support only FTM ranging don't expect the FTM request to be
+protected.
 
-Signed-off-by: Nathan Errera <nathan.errera@intel.com>
-Fixes: 2c2c3647cde4 ("iwlwifi: mvm: support ADD_STA_CMD_API_S ver 12")
+Signed-off-by: Avraham Stern <avraham.stern@intel.com>
+Fixes: 517a5eb9fab2 ("iwlwifi: mvm: when associated with PMF, use protected NDP ranging negotiation")
 Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20211219121514.d5376ac6bcb0.Ic5f8470ea60c072bde9d1503e5f528b65e301e20@changeid
+Link: https://lore.kernel.org/r/iwlwifi.20211219132536.f50ed0e3c6b3.Ibff247ee9d4e6e0a1a2d08a3c8a4bbb37e6829dd@changeid
 Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/intel/iwlwifi/mvm/time-event.c   | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c b/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
-index e91f8e889df70..f93f15357a3f8 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
-@@ -49,14 +49,13 @@ void iwl_mvm_roc_done_wk(struct work_struct *wk)
- 	struct iwl_mvm *mvm = container_of(wk, struct iwl_mvm, roc_done_wk);
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c b/drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c
+index 3e6c13fc74eb0..9449d1af3c11a 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c
+@@ -511,7 +511,7 @@ iwl_mvm_ftm_put_target(struct iwl_mvm *mvm, struct ieee80211_vif *vif,
+ 		rcu_read_lock();
  
- 	/*
--	 * Clear the ROC_RUNNING /ROC_AUX_RUNNING status bit.
-+	 * Clear the ROC_RUNNING status bit.
- 	 * This will cause the TX path to drop offchannel transmissions.
- 	 * That would also be done by mac80211, but it is racy, in particular
- 	 * in the case that the time event actually completed in the firmware
- 	 * (which is handled in iwl_mvm_te_handle_notif).
- 	 */
- 	clear_bit(IWL_MVM_STATUS_ROC_RUNNING, &mvm->status);
--	clear_bit(IWL_MVM_STATUS_ROC_AUX_RUNNING, &mvm->status);
+ 		sta = rcu_dereference(mvm->fw_id_to_mac_id[mvmvif->ap_sta_id]);
+-		if (sta->mfp)
++		if (sta->mfp && (peer->ftm.trigger_based || peer->ftm.non_trigger_based))
+ 			FTM_PUT_FLAG(PMF);
  
- 	synchronize_net();
- 
-@@ -82,9 +81,19 @@ void iwl_mvm_roc_done_wk(struct work_struct *wk)
- 			mvmvif = iwl_mvm_vif_from_mac80211(mvm->p2p_device_vif);
- 			iwl_mvm_flush_sta(mvm, &mvmvif->bcast_sta, true);
- 		}
--	} else {
-+	}
-+
-+	/*
-+	 * Clear the ROC_AUX_RUNNING status bit.
-+	 * This will cause the TX path to drop offchannel transmissions.
-+	 * That would also be done by mac80211, but it is racy, in particular
-+	 * in the case that the time event actually completed in the firmware
-+	 * (which is handled in iwl_mvm_te_handle_notif).
-+	 */
-+	if (test_and_clear_bit(IWL_MVM_STATUS_ROC_AUX_RUNNING, &mvm->status)) {
- 		/* do the same in case of hot spot 2.0 */
- 		iwl_mvm_flush_sta(mvm, &mvm->aux_sta, true);
-+
- 		/* In newer version of this command an aux station is added only
- 		 * in cases of dedicated tx queue and need to be removed in end
- 		 * of use */
+ 		rcu_read_unlock();
 -- 
 2.34.1
 
