@@ -2,41 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79D91499386
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:38:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B4CB49947D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:43:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346454AbiAXUed (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:34:33 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:51996 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382985AbiAXU0e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:26:34 -0500
+        id S1388996AbiAXUkV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:40:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39174 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1385443AbiAXUdZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:33:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBD2BC07E294;
+        Mon, 24 Jan 2022 11:45:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 091656150F;
-        Mon, 24 Jan 2022 20:26:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA5F2C340E5;
-        Mon, 24 Jan 2022 20:26:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6861261482;
+        Mon, 24 Jan 2022 19:45:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29597C340E5;
+        Mon, 24 Jan 2022 19:45:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055993;
-        bh=uPoj56l//6ep58k5qjt+4b1ScvoN02nYEnT+UKSM9AM=;
+        s=korg; t=1643053509;
+        bh=WCqmV5V7bA9Ezs5dDtJnZCm+j+H3lnDU0oaDy3hIKIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X1YrIt57k9G2DyAWfW1yxW/P/bGc0YpSSPJC6Qg7hhBMJTyA/PpyQXo27JkL85317
-         kMqAt2+nZ5VX8qxtxPLTltSxLvLPdUSLAj+wplJYuSsMHryrCIjmI+aONdMxCYE0oV
-         S5v1h/eBt/xCMeGmt/aNSn7tQYimQguIt42fWwNo=
+        b=QnGnXvNoylRzfJge4HSOq5tlA7cfwyuBCZ4VqET7tJgWkLgDXxWPQQR8lHoI6kAzz
+         Q8DGzxvORENUE6X+sbRgzB9hMNehrsTcEQXwHcd77X5SiBwl5pSOeTZgzdj2wm1KxX
+         G0bHa8Gon9oHj2L/GbaIKRnWyRHUchylSxYBowMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erwan Le Ray <erwan.leray@foss.st.com>,
-        Valentin Caron <valentin.caron@foss.st.com>,
+        stable@vger.kernel.org,
+        Venkateswara Naralasetty <vnaralas@codeaurora.org>,
+        Sven Eckelmann <sven@narfation.org>,
+        Karthikeyan Kathirvel <kathirve@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 335/846] serial: stm32: move tx dma terminate DMA to shutdown
-Date:   Mon, 24 Jan 2022 19:37:32 +0100
-Message-Id: <20220124184112.478807405@linuxfoundation.org>
+Subject: [PATCH 5.10 088/563] ath11k: reset RSN/WPA present state for open BSS
+Date:   Mon, 24 Jan 2022 19:37:33 +0100
+Message-Id: <20220124184027.439684369@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,49 +51,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Valentin Caron <valentin.caron@foss.st.com>
+From: Karthikeyan Kathirvel <kathirve@codeaurora.org>
 
-[ Upstream commit 56a23f9319e86e1d62a109896e2c7e52c414e67d ]
+[ Upstream commit 64bc3aa02ae78b1fcb1b850e0eb1f0622002bfaa ]
 
-Terminate DMA transaction and clear CR3_DMAT when shutdown is requested,
-instead of when remove is requested. If DMA transfer is not stopped in
-shutdown ops, driver will fail to start a new DMA transfer after next
-startup ops.
+The ath11k driver is caching the information about RSN/WPA IE in the
+configured beacon template. The cached information is used during
+associations to figure out whether 4-way PKT/2-way GTK peer flags need to
+be set or not.
 
-Fixes: 3489187204eb ("serial: stm32: adding dma support")
-Signed-off-by: Erwan Le Ray <erwan.leray@foss.st.com>
-Signed-off-by: Valentin Caron <valentin.caron@foss.st.com>
-Link: https://lore.kernel.org/r/20220104182445.4195-2-valentin.caron@foss.st.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+But the code never cleared the state when no such IE was found. This can
+for example happen when moving from an WPA/RSN to an open setup. The
+(seemingly connected) peer was then not able to communicate over the
+link because the firmware assumed a different (encryption enabled) state
+for the peer.
+
+Tested-on: IPQ6018 hw1.0 AHB WLAN.HK.2.5.0.1-01100-QCAHKSWPL_SILICONZ-1
+
+Fixes: 01e34233c645 ("ath11k: fix wmi peer flags in peer assoc command")
+Cc: Venkateswara Naralasetty <vnaralas@codeaurora.org>
+Reported-by: Sven Eckelmann <sven@narfation.org>
+Signed-off-by: Karthikeyan Kathirvel <kathirve@codeaurora.org>
+[sven@narfation.org: split into separate patches, clean up commit message]
+Signed-off-by: Sven Eckelmann <sven@narfation.org>
+
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211115100441.33771-2-sven@narfation.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/stm32-usart.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath11k/mac.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
-index 8f032e77b954a..3366914dad7a8 100644
---- a/drivers/tty/serial/stm32-usart.c
-+++ b/drivers/tty/serial/stm32-usart.c
-@@ -691,6 +691,11 @@ static void stm32_usart_shutdown(struct uart_port *port)
- 	u32 val, isr;
- 	int ret;
+diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
+index 304e158f09751..b4f8494e3c707 100644
+--- a/drivers/net/wireless/ath/ath11k/mac.c
++++ b/drivers/net/wireless/ath/ath11k/mac.c
+@@ -792,11 +792,15 @@ static int ath11k_mac_setup_bcn_tmpl(struct ath11k_vif *arvif)
  
-+	if (stm32_port->tx_dma_busy) {
-+		dmaengine_terminate_async(stm32_port->tx_ch);
-+		stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_DMAT);
-+	}
-+
- 	/* Disable modem control interrupts */
- 	stm32_usart_disable_ms(port);
+ 	if (cfg80211_find_ie(WLAN_EID_RSN, ies, (skb_tail_pointer(bcn) - ies)))
+ 		arvif->rsnie_present = true;
++	else
++		arvif->rsnie_present = false;
  
-@@ -1385,7 +1390,6 @@ static int stm32_usart_serial_remove(struct platform_device *pdev)
- 	stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_DMAR);
+ 	if (cfg80211_find_vendor_ie(WLAN_OUI_MICROSOFT,
+ 				    WLAN_OUI_TYPE_MICROSOFT_WPA,
+ 				    ies, (skb_tail_pointer(bcn) - ies)))
+ 		arvif->wpaie_present = true;
++	else
++		arvif->wpaie_present = false;
  
- 	if (stm32_port->tx_ch) {
--		dmaengine_terminate_async(stm32_port->tx_ch);
- 		stm32_usart_of_dma_tx_remove(stm32_port, pdev);
- 		dma_release_channel(stm32_port->tx_ch);
- 	}
+ 	ret = ath11k_wmi_bcn_tmpl(ar, arvif->vdev_id, &offs, bcn);
+ 
 -- 
 2.34.1
 
