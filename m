@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99AB2498A31
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:02:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC20D498948
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:54:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344674AbiAXTBx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:01:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45326 "EHLO
+        id S1344271AbiAXSyH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:54:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345284AbiAXTAA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:00:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0006C061772;
-        Mon, 24 Jan 2022 10:56:48 -0800 (PST)
+        with ESMTP id S1343592AbiAXSw3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:52:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9EA0C0617AD;
+        Mon, 24 Jan 2022 10:52:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 77AEEB8122F;
-        Mon, 24 Jan 2022 18:56:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8940EC340E5;
-        Mon, 24 Jan 2022 18:56:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A8CD614E5;
+        Mon, 24 Jan 2022 18:52:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CED3C340E5;
+        Mon, 24 Jan 2022 18:52:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050606;
-        bh=HxKvqnUteLCSiyLVRAp2YIgzPudHjG4+MlokUgSHc+8=;
+        s=korg; t=1643050335;
+        bh=psuyDMM6MvL9f/VYUohhevJw8G1rkBO4hNdRr21J+v0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zox/JKMc+OCcLPRePflYDXO+iwRWFz31Dp218IsbYwc3LCfj1KLRajqqvAghXsv7p
-         jziWpgvDzrATBrlMSG5JUU5rI8a6hhy6zF/bdESmeAWLFeraom11lFuAQ4bEQG8603
-         gyEAMvyDuXiuefcH1HMHVDootNR4IqX5eTHOe3y8=
+        b=Bd7GJW9RTu/fYm8ZDBuRPHDDMRpAyvx8kT8Fu5uncAusESUUD6VqQrVGfHxM3UdcE
+         1qzdMdPNhkLjFPLD/z8wPtElIZXLLMopzEFtRCH7ILuqbXWYa+il/0oSdx/l48GZ6C
+         86//xFlLuhQ2CEiWiYshSkWdvLCi6mvp67s+i5kI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 056/157] ext4: avoid trim error on fs with small groups
-Date:   Mon, 24 Jan 2022 19:42:26 +0100
-Message-Id: <20220124183934.559402099@linuxfoundation.org>
+Subject: [PATCH 4.4 052/114] ASoC: samsung: idma: Check of ioremap return value
+Date:   Mon, 24 Jan 2022 19:42:27 +0100
+Message-Id: <20220124183928.707294544@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
-References: <20220124183932.787526760@linuxfoundation.org>
+In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
+References: <20220124183927.095545464@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,70 +49,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 173b6e383d2a204c9921ffc1eca3b87aa2106c33 ]
+[ Upstream commit 3ecb46755eb85456b459a1a9f952c52986bce8ec ]
 
-A user reported FITRIM ioctl failing for him on ext4 on some devices
-without apparent reason.  After some debugging we've found out that
-these devices (being LVM volumes) report rather large discard
-granularity of 42MB and the filesystem had 1k blocksize and thus group
-size of 8MB. Because ext4 FITRIM implementation puts discard
-granularity into minlen, ext4_trim_fs() declared the trim request as
-invalid. However just silently doing nothing seems to be a more
-appropriate reaction to such combination of parameters since user did
-not specify anything wrong.
+Because of the potential failure of the ioremap(), the buf->area could
+be NULL.
+Therefore, we need to check it and return -ENOMEM in order to transfer
+the error.
 
-CC: Lukas Czerner <lczerner@redhat.com>
-Fixes: 5c2ed62fd447 ("ext4: Adjust minlen with discard_granularity in the FITRIM ioctl")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20211112152202.26614-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: f09aecd50f39 ("ASoC: SAMSUNG: Add I2S0 internal dma driver")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20211228034026.1659385-1-jiasheng@iscas.ac.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/ioctl.c   | 2 --
- fs/ext4/mballoc.c | 8 ++++++++
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ sound/soc/samsung/idma.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/ext4/ioctl.c b/fs/ext4/ioctl.c
-index 75fff707beb6a..e7384a6e6a083 100644
---- a/fs/ext4/ioctl.c
-+++ b/fs/ext4/ioctl.c
-@@ -760,8 +760,6 @@ resizefs_out:
- 		    sizeof(range)))
- 			return -EFAULT;
+diff --git a/sound/soc/samsung/idma.c b/sound/soc/samsung/idma.c
+index 4ed29ffc1c54e..d9cd9350ffbe2 100644
+--- a/sound/soc/samsung/idma.c
++++ b/sound/soc/samsung/idma.c
+@@ -370,6 +370,8 @@ static int preallocate_idma_buffer(struct snd_pcm *pcm, int stream)
+ 	buf->addr = idma.lp_tx_addr;
+ 	buf->bytes = idma_hardware.buffer_bytes_max;
+ 	buf->area = (unsigned char * __force)ioremap(buf->addr, buf->bytes);
++	if (!buf->area)
++		return -ENOMEM;
  
--		range.minlen = max((unsigned int)range.minlen,
--				   q->limits.discard_granularity);
- 		ret = ext4_trim_fs(sb, &range);
- 		if (ret < 0)
- 			return ret;
-diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
-index 807331da9dfc1..2a7fb2cf19b81 100644
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -5224,6 +5224,7 @@ out:
-  */
- int ext4_trim_fs(struct super_block *sb, struct fstrim_range *range)
- {
-+	struct request_queue *q = bdev_get_queue(sb->s_bdev);
- 	struct ext4_group_info *grp;
- 	ext4_group_t group, first_group, last_group;
- 	ext4_grpblk_t cnt = 0, first_cluster, last_cluster;
-@@ -5242,6 +5243,13 @@ int ext4_trim_fs(struct super_block *sb, struct fstrim_range *range)
- 	    start >= max_blks ||
- 	    range->len < sb->s_blocksize)
- 		return -EINVAL;
-+	/* No point to try to trim less than discard granularity */
-+	if (range->minlen < q->limits.discard_granularity) {
-+		minlen = EXT4_NUM_B2C(EXT4_SB(sb),
-+			q->limits.discard_granularity >> sb->s_blocksize_bits);
-+		if (minlen > EXT4_CLUSTERS_PER_GROUP(sb))
-+			goto out;
-+	}
- 	if (end >= max_blks)
- 		end = max_blks - 1;
- 	if (end <= first_data_blk)
+ 	return 0;
+ }
 -- 
 2.34.1
 
