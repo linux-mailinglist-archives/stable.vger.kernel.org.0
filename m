@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11976499444
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:42:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FD22498D65
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:34:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1388961AbiAXUkT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:40:19 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:59758 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385843AbiAXUel (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:34:41 -0500
+        id S243471AbiAXTcA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:32:00 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:50798 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1351577AbiAXT1f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:27:35 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AAB8561382;
-        Mon, 24 Jan 2022 20:34:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 919F6C340E5;
-        Mon, 24 Jan 2022 20:34:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 42F11B81236;
+        Mon, 24 Jan 2022 19:27:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E9FDC340E5;
+        Mon, 24 Jan 2022 19:27:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056480;
-        bh=udChFAOK6Mu/2axyC3InlsNabDd0Alqgds7LNRaJXn0=;
+        s=korg; t=1643052452;
+        bh=qNKlem9v4fNlTk6Ry4S3P7h+PCGrP7GM4X1sOXf7q+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ojSaKvIfy5aXLDtg0b5H9iiTh1wd+WvsonkNV54H0iChkE5fl3/U9OVofE6jwCBpb
-         0pYOHlF+lwNNSQcMWn/IjE3QUiIGVDFtSxMl++VMAh4IFfa95xIuCZvEOVFwC13BWj
-         Ue5wPovQCDJhD/bnayppu0zBzICAIEvfiowMfdtc=
+        b=eS17yUyGLM+gM/ajiYF9PM5xLNo9OaQK4X/Q9IX27JM4hQLc5KEAK/veOkMl8dubT
+         5QFJtsyT44EG4kiei+yOafRWY9NFJzWfEwsqAIkRjG9mEobgXZCZuaFYsM7UU9f4qW
+         trdTTgPuGiXMzgcI546s5jIYkcCtvusBp2UtZ5NM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biederman <ebiederm@xmission.com>,
-        Danielle Ratson <danieller@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 497/846] mlxsw: pci: Add shutdown method in PCI driver
-Date:   Mon, 24 Jan 2022 19:40:14 +0100
-Message-Id: <20220124184118.156097507@linuxfoundation.org>
+        stable@vger.kernel.org, Gang Li <ligang.bdlg@bytedance.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.4 031/320] shmem: fix a race between shmem_unused_huge_shrink and shmem_evict_inode
+Date:   Mon, 24 Jan 2022 19:40:15 +0100
+Message-Id: <20220124183954.812075129@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,96 +48,172 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Danielle Ratson <danieller@nvidia.com>
+From: Gang Li <ligang.bdlg@bytedance.com>
 
-[ Upstream commit c1020d3cf4752f61a6a413f632ea2ce2370e150d ]
+commit 62c9827cbb996c2c04f615ecd783ce28bcea894b upstream.
 
-On an arm64 platform with the Spectrum ASIC, after loading and executing
-a new kernel via kexec, the following trace [1] is observed. This seems
-to be caused by the fact that the device is not properly shutdown before
-executing the new kernel.
+Fix a data race in commit 779750d20b93 ("shmem: split huge pages beyond
+i_size under memory pressure").
 
-Fix this by implementing a shutdown method which mirrors the remove
-method, as recommended by the kexec maintainer [2][3].
+Here are call traces causing race:
 
-[1]
-BUG: Bad page state in process devlink pfn:22f73d
-page:fffffe00089dcf40 refcount:-1 mapcount:0 mapping:0000000000000000 index:0x0
-flags: 0x2ffff00000000000()
-raw: 2ffff00000000000 0000000000000000 ffffffff089d0201 0000000000000000
-raw: 0000000000000000 0000000000000000 ffffffffffffffff 0000000000000000
-page dumped because: nonzero _refcount
-Modules linked in:
-CPU: 1 PID: 16346 Comm: devlink Tainted: G B 5.8.0-rc6-custom-273020-gac6b365b1bf5 #44
-Hardware name: Marvell Armada 7040 TX4810M (DT)
-Call trace:
- dump_backtrace+0x0/0x1d0
- show_stack+0x1c/0x28
- dump_stack+0xbc/0x118
- bad_page+0xcc/0xf8
- check_free_page_bad+0x80/0x88
- __free_pages_ok+0x3f8/0x418
- __free_pages+0x38/0x60
- kmem_freepages+0x200/0x2a8
- slab_destroy+0x28/0x68
- slabs_destroy+0x60/0x90
- ___cache_free+0x1b4/0x358
- kfree+0xc0/0x1d0
- skb_free_head+0x2c/0x38
- skb_release_data+0x110/0x1a0
- skb_release_all+0x2c/0x38
- consume_skb+0x38/0x130
- __dev_kfree_skb_any+0x44/0x50
- mlxsw_pci_rdq_fini+0x8c/0xb0
- mlxsw_pci_queue_fini.isra.0+0x28/0x58
- mlxsw_pci_queue_group_fini+0x58/0x88
- mlxsw_pci_aqs_fini+0x2c/0x60
- mlxsw_pci_fini+0x34/0x50
- mlxsw_core_bus_device_unregister+0x104/0x1d0
- mlxsw_devlink_core_bus_device_reload_down+0x2c/0x48
- devlink_reload+0x44/0x158
- devlink_nl_cmd_reload+0x270/0x290
- genl_rcv_msg+0x188/0x2f0
- netlink_rcv_skb+0x5c/0x118
- genl_rcv+0x3c/0x50
- netlink_unicast+0x1bc/0x278
- netlink_sendmsg+0x194/0x390
- __sys_sendto+0xe0/0x158
- __arm64_sys_sendto+0x2c/0x38
- el0_svc_common.constprop.0+0x70/0x168
- do_el0_svc+0x28/0x88
- el0_sync_handler+0x88/0x190
- el0_sync+0x140/0x180
+   Call Trace 1:
+     shmem_unused_huge_shrink+0x3ae/0x410
+     ? __list_lru_walk_one.isra.5+0x33/0x160
+     super_cache_scan+0x17c/0x190
+     shrink_slab.part.55+0x1ef/0x3f0
+     shrink_node+0x10e/0x330
+     kswapd+0x380/0x740
+     kthread+0xfc/0x130
+     ? mem_cgroup_shrink_node+0x170/0x170
+     ? kthread_create_on_node+0x70/0x70
+     ret_from_fork+0x1f/0x30
 
-[2]
-https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1195432.html
+   Call Trace 2:
+     shmem_evict_inode+0xd8/0x190
+     evict+0xbe/0x1c0
+     do_unlinkat+0x137/0x330
+     do_syscall_64+0x76/0x120
+     entry_SYSCALL_64_after_hwframe+0x3d/0xa2
 
-[3]
-https://patchwork.kernel.org/project/linux-scsi/patch/20170212214920.28866-1-anton@ozlabs.org/#20116693
+A simple explanation:
 
-Cc: Eric Biederman <ebiederm@xmission.com>
-Signed-off-by: Danielle Ratson <danieller@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Image there are 3 items in the local list (@list).  In the first
+traversal, A is not deleted from @list.
+
+  1)    A->B->C
+        ^
+        |
+        pos (leave)
+
+In the second traversal, B is deleted from @list.  Concurrently, A is
+deleted from @list through shmem_evict_inode() since last reference
+counter of inode is dropped by other thread.  Then the @list is corrupted.
+
+  2)    A->B->C
+        ^  ^
+        |  |
+     evict pos (drop)
+
+We should make sure the inode is either on the global list or deleted from
+any local list before iput().
+
+Fixed by moving inodes back to global list before we put them.
+
+[akpm@linux-foundation.org: coding style fixes]
+
+Link: https://lkml.kernel.org/r/20211125064502.99983-1-ligang.bdlg@bytedance.com
+Fixes: 779750d20b93 ("shmem: split huge pages beyond i_size under memory pressure")
+Signed-off-by: Gang Li <ligang.bdlg@bytedance.com>
+Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/pci.c | 1 +
- 1 file changed, 1 insertion(+)
+ mm/shmem.c |   37 +++++++++++++++++++++----------------
+ 1 file changed, 21 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/pci.c b/drivers/net/ethernet/mellanox/mlxsw/pci.c
-index fcace73eae40f..01c3235ab2bdf 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/pci.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/pci.c
-@@ -1973,6 +1973,7 @@ int mlxsw_pci_driver_register(struct pci_driver *pci_driver)
- {
- 	pci_driver->probe = mlxsw_pci_probe;
- 	pci_driver->remove = mlxsw_pci_remove;
-+	pci_driver->shutdown = mlxsw_pci_remove;
- 	return pci_register_driver(pci_driver);
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -466,7 +466,7 @@ static unsigned long shmem_unused_huge_s
+ 	struct shmem_inode_info *info;
+ 	struct page *page;
+ 	unsigned long batch = sc ? sc->nr_to_scan : 128;
+-	int removed = 0, split = 0;
++	int split = 0;
+ 
+ 	if (list_empty(&sbinfo->shrinklist))
+ 		return SHRINK_STOP;
+@@ -481,7 +481,6 @@ static unsigned long shmem_unused_huge_s
+ 		/* inode is about to be evicted */
+ 		if (!inode) {
+ 			list_del_init(&info->shrinklist);
+-			removed++;
+ 			goto next;
+ 		}
+ 
+@@ -489,12 +488,12 @@ static unsigned long shmem_unused_huge_s
+ 		if (round_up(inode->i_size, PAGE_SIZE) ==
+ 				round_up(inode->i_size, HPAGE_PMD_SIZE)) {
+ 			list_move(&info->shrinklist, &to_remove);
+-			removed++;
+ 			goto next;
+ 		}
+ 
+ 		list_move(&info->shrinklist, &list);
+ next:
++		sbinfo->shrinklist_len--;
+ 		if (!--batch)
+ 			break;
+ 	}
+@@ -514,7 +513,7 @@ next:
+ 		inode = &info->vfs_inode;
+ 
+ 		if (nr_to_split && split >= nr_to_split)
+-			goto leave;
++			goto move_back;
+ 
+ 		page = find_get_page(inode->i_mapping,
+ 				(inode->i_size & HPAGE_PMD_MASK) >> PAGE_SHIFT);
+@@ -528,38 +527,44 @@ next:
+ 		}
+ 
+ 		/*
+-		 * Leave the inode on the list if we failed to lock
+-		 * the page at this time.
++		 * Move the inode on the list back to shrinklist if we failed
++		 * to lock the page at this time.
+ 		 *
+ 		 * Waiting for the lock may lead to deadlock in the
+ 		 * reclaim path.
+ 		 */
+ 		if (!trylock_page(page)) {
+ 			put_page(page);
+-			goto leave;
++			goto move_back;
+ 		}
+ 
+ 		ret = split_huge_page(page);
+ 		unlock_page(page);
+ 		put_page(page);
+ 
+-		/* If split failed leave the inode on the list */
++		/* If split failed move the inode on the list back to shrinklist */
+ 		if (ret)
+-			goto leave;
++			goto move_back;
+ 
+ 		split++;
+ drop:
+ 		list_del_init(&info->shrinklist);
+-		removed++;
+-leave:
++		goto put;
++move_back:
++		/*
++		 * Make sure the inode is either on the global list or deleted
++		 * from any local list before iput() since it could be deleted
++		 * in another thread once we put the inode (then the local list
++		 * is corrupted).
++		 */
++		spin_lock(&sbinfo->shrinklist_lock);
++		list_move(&info->shrinklist, &sbinfo->shrinklist);
++		sbinfo->shrinklist_len++;
++		spin_unlock(&sbinfo->shrinklist_lock);
++put:
+ 		iput(inode);
+ 	}
+ 
+-	spin_lock(&sbinfo->shrinklist_lock);
+-	list_splice_tail(&list, &sbinfo->shrinklist);
+-	sbinfo->shrinklist_len -= removed;
+-	spin_unlock(&sbinfo->shrinklist_lock);
+-
+ 	return split;
  }
- EXPORT_SYMBOL(mlxsw_pci_driver_register);
--- 
-2.34.1
-
+ 
 
 
