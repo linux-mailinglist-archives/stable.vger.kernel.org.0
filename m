@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCA4F498E06
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:43:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0553E498E38
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:44:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347319AbiAXTiq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:38:46 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:54526 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344766AbiAXTb3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:31:29 -0500
+        id S1355041AbiAXTjy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:39:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52782 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1353545AbiAXTe6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:34:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ED56C0219BF;
+        Mon, 24 Jan 2022 11:16:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 957F1B810BD;
-        Mon, 24 Jan 2022 19:31:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4B7EC340E7;
-        Mon, 24 Jan 2022 19:31:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E62661320;
+        Mon, 24 Jan 2022 19:16:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB7A5C340E7;
+        Mon, 24 Jan 2022 19:16:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052682;
-        bh=PlU0BGXYhEPw+yxn5LNeHuz6RZoUF0+GF9AQ5NrEnq0=;
+        s=korg; t=1643051785;
+        bh=q5W9hIOQRdyJnbVfoV96IYZAH+fk/4zycAksEdJnDqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e276yz+0dCbmXDQbEJN5GEjeNMJmGqFPdFZPsWYe3ZFEFXXPBK4uYS7VsWrmjrXyc
-         nXf7mttieCkyB98F3UWUtBfqJLUEX4xdrnE2Yo4H+WGISbJv1pdSNMITYcPyxgjrLS
-         aGzQ+awENObHwz9qh4niokv21tjDZoI5Vwf5YPbc=
+        b=tR4ELxWNivesxZkTHO80gxp9hF8HrtnhArNvK1C/L29WcQjMtJ7cTtMUUsixYw6VY
+         x1lJ9Qd2t2GMYNTzvwFqchWFjHmOiuZdXu+VPS/45nC4h7yHTSQG/9E95q8PrdqunV
+         uWSQLFH2j4nqh3OLRqAfaJYx9qZjPBS+30v5hBZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dillon Min <dillon.minfei@gmail.com>,
-        Patrice Chotard <patrice.chotard@foss.st.com>,
-        Gabriel Fernandez <gabriel.fernandez@foss.st.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Xin Xiong <xiongx18@fudan.edu.cn>,
+        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 141/320] clk: stm32: Fix ltdcs clock turn off by clk_disable_unused() after system enter shell
+Subject: [PATCH 4.19 087/239] netfilter: ipt_CLUSTERIP: fix refcount leak in clusterip_tg_check()
 Date:   Mon, 24 Jan 2022 19:42:05 +0100
-Message-Id: <20220124183958.442819685@linuxfoundation.org>
+Message-Id: <20220124183945.883816661@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,72 +50,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dillon Min <dillon.minfei@gmail.com>
+From: Xin Xiong <xiongx18@fudan.edu.cn>
 
-[ Upstream commit 6fc058a72f3b7b07fc4de6d66ad1f68951b00f6e ]
+[ Upstream commit d94a69cb2cfa77294921aae9afcfb866e723a2da ]
 
-stm32's clk driver register two ltdc gate clk to clk core by
-clk_hw_register_gate() and clk_hw_register_composite()
+The issue takes place in one error path of clusterip_tg_check(). When
+memcmp() returns nonzero, the function simply returns the error code,
+forgetting to decrease the reference count of a clusterip_config
+object, which is bumped earlier by clusterip_config_find_get(). This
+may incur reference count leak.
 
-first: 'stm32f429_gates[]', clk name is 'ltdc', which no user to use.
-second: 'stm32f429_aux_clk[]', clk name is 'lcd-tft', used by ltdc driver
+Fix this issue by decrementing the refcount of the object in specific
+error path.
 
-both of them point to the same offset of stm32's RCC register. after
-kernel enter console, clk core turn off ltdc's clk as 'stm32f429_gates[]'
-is no one to use. but, actually 'stm32f429_aux_clk[]' is in use.
-
-stm32f469/746/769 have the same issue, fix it.
-
-Fixes: daf2d117cbca ("clk: stm32f4: Add lcd-tft clock")
-Link: https://lore.kernel.org/linux-arm-kernel/1590564453-24499-7-git-send-email-dillon.minfei@gmail.com/
-Link: https://lore.kernel.org/lkml/CAPTRvHkf0cK_4ZidM17rPo99gWDmxgqFt4CDUjqFFwkOeQeFDg@mail.gmail.com/
-Signed-off-by: Dillon Min <dillon.minfei@gmail.com>
-Reviewed-by: Patrice Chotard <patrice.chotard@foss.st.com>
-Acked-by: Gabriel Fernandez <gabriel.fernandez@foss.st.com>
-Acked-by: Stephen Boyd <sboyd@kernel.org>
-Link: https://lore.kernel.org/r/1635232282-3992-10-git-send-email-dillon.minfei@gmail.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 06aa151ad1fc74 ("netfilter: ipt_CLUSTERIP: check MAC address when duplicate config is set")
+Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-stm32f4.c | 4 ----
- 1 file changed, 4 deletions(-)
+ net/ipv4/netfilter/ipt_CLUSTERIP.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/clk-stm32f4.c b/drivers/clk/clk-stm32f4.c
-index 5c75e3d906c20..682a18b392f08 100644
---- a/drivers/clk/clk-stm32f4.c
-+++ b/drivers/clk/clk-stm32f4.c
-@@ -129,7 +129,6 @@ static const struct stm32f4_gate_data stm32f429_gates[] __initconst = {
- 	{ STM32F4_RCC_APB2ENR, 20,	"spi5",		"apb2_div" },
- 	{ STM32F4_RCC_APB2ENR, 21,	"spi6",		"apb2_div" },
- 	{ STM32F4_RCC_APB2ENR, 22,	"sai1",		"apb2_div" },
--	{ STM32F4_RCC_APB2ENR, 26,	"ltdc",		"apb2_div" },
- };
+diff --git a/net/ipv4/netfilter/ipt_CLUSTERIP.c b/net/ipv4/netfilter/ipt_CLUSTERIP.c
+index 2fa1963259880..954c96f4ddd0f 100644
+--- a/net/ipv4/netfilter/ipt_CLUSTERIP.c
++++ b/net/ipv4/netfilter/ipt_CLUSTERIP.c
+@@ -509,8 +509,11 @@ static int clusterip_tg_check(const struct xt_tgchk_param *par)
+ 			if (IS_ERR(config))
+ 				return PTR_ERR(config);
+ 		}
+-	} else if (memcmp(&config->clustermac, &cipinfo->clustermac, ETH_ALEN))
++	} else if (memcmp(&config->clustermac, &cipinfo->clustermac, ETH_ALEN)) {
++		clusterip_config_entry_put(config);
++		clusterip_config_put(config);
+ 		return -EINVAL;
++	}
  
- static const struct stm32f4_gate_data stm32f469_gates[] __initconst = {
-@@ -211,7 +210,6 @@ static const struct stm32f4_gate_data stm32f469_gates[] __initconst = {
- 	{ STM32F4_RCC_APB2ENR, 20,	"spi5",		"apb2_div" },
- 	{ STM32F4_RCC_APB2ENR, 21,	"spi6",		"apb2_div" },
- 	{ STM32F4_RCC_APB2ENR, 22,	"sai1",		"apb2_div" },
--	{ STM32F4_RCC_APB2ENR, 26,	"ltdc",		"apb2_div" },
- };
- 
- static const struct stm32f4_gate_data stm32f746_gates[] __initconst = {
-@@ -286,7 +284,6 @@ static const struct stm32f4_gate_data stm32f746_gates[] __initconst = {
- 	{ STM32F4_RCC_APB2ENR, 21,	"spi6",		"apb2_div" },
- 	{ STM32F4_RCC_APB2ENR, 22,	"sai1",		"apb2_div" },
- 	{ STM32F4_RCC_APB2ENR, 23,	"sai2",		"apb2_div" },
--	{ STM32F4_RCC_APB2ENR, 26,	"ltdc",		"apb2_div" },
- };
- 
- static const struct stm32f4_gate_data stm32f769_gates[] __initconst = {
-@@ -364,7 +361,6 @@ static const struct stm32f4_gate_data stm32f769_gates[] __initconst = {
- 	{ STM32F4_RCC_APB2ENR, 21,	"spi6",		"apb2_div" },
- 	{ STM32F4_RCC_APB2ENR, 22,	"sai1",		"apb2_div" },
- 	{ STM32F4_RCC_APB2ENR, 23,	"sai2",		"apb2_div" },
--	{ STM32F4_RCC_APB2ENR, 26,	"ltdc",		"apb2_div" },
- 	{ STM32F4_RCC_APB2ENR, 30,	"mdio",		"apb2_div" },
- };
- 
+ 	ret = nf_ct_netns_get(par->net, par->family);
+ 	if (ret < 0) {
 -- 
 2.34.1
 
