@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E8BE49A9C5
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:28:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28D5349A9D4
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:28:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1323483AbiAYD2c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:28:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46474 "EHLO
+        id S1323719AbiAYD3T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:29:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1445655AbiAXVEm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:04:42 -0500
+        with ESMTP id S1347065AbiAXVFL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:05:11 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74527C068090;
-        Mon, 24 Jan 2022 12:04:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05737C055A94;
+        Mon, 24 Jan 2022 12:04:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3B780B811FB;
-        Mon, 24 Jan 2022 20:04:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DF09C340E5;
-        Mon, 24 Jan 2022 20:04:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6A13B811FB;
+        Mon, 24 Jan 2022 20:04:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E21B9C340E5;
+        Mon, 24 Jan 2022 20:04:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054659;
-        bh=Aqzs6TyYmoFSONdI2u4ZRgTSfsF8vwjIks/uERB6+TQ=;
+        s=korg; t=1643054668;
+        bh=1W7QnzWemca3+VHrxEBDJsad3MM3/pf0E4IB4zUs6LA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tRcTrICOhJgCTmJYpAqnqpf+syd7eNa0hkkOea2q6EBaJ0vsLPFiIBbKCEvB1waW5
-         dhA9QCWfCVN6WslJSEir5dWk5npJZaSVF7BAXGCTfgIY+JtXlWgj7uxy7NZu2ODbgw
-         PluLpX9qB42dKm2Ted/6JSfu6ekjX4dERD15kP9w=
+        b=p8GcmPvcQA6sgSZ+00ofn+xjsHT7CIPoDKBnUZibiXyvmqOOXP/KHHFTtV2lex4cS
+         u0T0mQubQYJ82mYLlwXpbTV8mIkQX4yLcivF9cVTOQPv/s8XlFey8KffBmqzqjrXwo
+         nhKr6zPKsEi/b+YXcGJ3TtGkRHik64upYyq8ablU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Hari Bathini <hbathini@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Ye Guojin <ye.guojin@zte.com.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 429/563] powerpc: handle kdump appropriately with crash_kexec_post_notifiers option
-Date:   Mon, 24 Jan 2022 19:43:14 +0100
-Message-Id: <20220124184039.294568624@linuxfoundation.org>
+Subject: [PATCH 5.10 432/563] MIPS: OCTEON: add put_device() after of_find_device_by_node()
+Date:   Mon, 24 Jan 2022 19:43:17 +0100
+Message-Id: <20220124184039.394739063@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -49,73 +49,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hari Bathini <hbathini@linux.ibm.com>
+From: Ye Guojin <ye.guojin@zte.com.cn>
 
-[ Upstream commit 219572d2fc4135b5ce65c735d881787d48b10e71 ]
+[ Upstream commit 858779df1c0787d3fec827fb705708df9ebdb15b ]
 
-Kdump can be triggered after panic_notifers since commit f06e5153f4ae2
-("kernel/panic.c: add "crash_kexec_post_notifiers" option for kdump
-after panic_notifers") introduced crash_kexec_post_notifiers option.
-But using this option would mean smp_send_stop(), that marks all other
-CPUs as offline, gets called before kdump is triggered. As a result,
-kdump routines fail to save other CPUs' registers. To fix this, kdump
-friendly crash_smp_send_stop() function was introduced with kernel
-commit 0ee59413c967 ("x86/panic: replace smp_send_stop() with kdump
-friendly version in panic path"). Override this kdump friendly weak
-function to handle crash_kexec_post_notifiers option appropriately
-on powerpc.
+This was found by coccicheck:
+./arch/mips/cavium-octeon/octeon-platform.c, 332, 1-7, ERROR missing
+put_device; call of_find_device_by_node on line 324, but without a
+corresponding object release within this function.
+./arch/mips/cavium-octeon/octeon-platform.c, 395, 1-7, ERROR missing
+put_device; call of_find_device_by_node on line 387, but without a
+corresponding object release within this function.
+./arch/mips/cavium-octeon/octeon-usb.c, 512, 3-9, ERROR missing
+put_device; call of_find_device_by_node on line 515, but without a
+corresponding object release within this function.
+./arch/mips/cavium-octeon/octeon-usb.c, 543, 1-7, ERROR missing
+put_device; call of_find_device_by_node on line 515, but without a
+corresponding object release within this function.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Hari Bathini <hbathini@linux.ibm.com>
-[Fixed signature of crash_stop_this_cpu() - reported by lkp@intel.com]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211207103719.91117-1-hbathini@linux.ibm.com
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Ye Guojin <ye.guojin@zte.com.cn>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/smp.c | 30 ++++++++++++++++++++++++++++++
- 1 file changed, 30 insertions(+)
+ arch/mips/cavium-octeon/octeon-platform.c | 2 ++
+ arch/mips/cavium-octeon/octeon-usb.c      | 1 +
+ 2 files changed, 3 insertions(+)
 
-diff --git a/arch/powerpc/kernel/smp.c b/arch/powerpc/kernel/smp.c
-index 50aeef08aa470..d993f28107afa 100644
---- a/arch/powerpc/kernel/smp.c
-+++ b/arch/powerpc/kernel/smp.c
-@@ -594,6 +594,36 @@ void crash_send_ipi(void (*crash_ipi_callback)(struct pt_regs *))
- }
- #endif
+diff --git a/arch/mips/cavium-octeon/octeon-platform.c b/arch/mips/cavium-octeon/octeon-platform.c
+index d56e9b9d2e434..a994022e32c9f 100644
+--- a/arch/mips/cavium-octeon/octeon-platform.c
++++ b/arch/mips/cavium-octeon/octeon-platform.c
+@@ -328,6 +328,7 @@ static int __init octeon_ehci_device_init(void)
  
-+#ifdef CONFIG_NMI_IPI
-+static void crash_stop_this_cpu(struct pt_regs *regs)
-+#else
-+static void crash_stop_this_cpu(void *dummy)
-+#endif
-+{
-+	/*
-+	 * Just busy wait here and avoid marking CPU as offline to ensure
-+	 * register data is captured appropriately.
-+	 */
-+	while (1)
-+		cpu_relax();
-+}
-+
-+void crash_smp_send_stop(void)
-+{
-+	static bool stopped = false;
-+
-+	if (stopped)
-+		return;
-+
-+	stopped = true;
-+
-+#ifdef CONFIG_NMI_IPI
-+	smp_send_nmi_ipi(NMI_IPI_ALL_OTHERS, crash_stop_this_cpu, 1000000);
-+#else
-+	smp_call_function(crash_stop_this_cpu, NULL, 0);
-+#endif /* CONFIG_NMI_IPI */
-+}
-+
- #ifdef CONFIG_NMI_IPI
- static void nmi_stop_this_cpu(struct pt_regs *regs)
- {
+ 	pd->dev.platform_data = &octeon_ehci_pdata;
+ 	octeon_ehci_hw_start(&pd->dev);
++	put_device(&pd->dev);
+ 
+ 	return ret;
+ }
+@@ -391,6 +392,7 @@ static int __init octeon_ohci_device_init(void)
+ 
+ 	pd->dev.platform_data = &octeon_ohci_pdata;
+ 	octeon_ohci_hw_start(&pd->dev);
++	put_device(&pd->dev);
+ 
+ 	return ret;
+ }
+diff --git a/arch/mips/cavium-octeon/octeon-usb.c b/arch/mips/cavium-octeon/octeon-usb.c
+index 950e6c6e86297..fa87e5aa1811d 100644
+--- a/arch/mips/cavium-octeon/octeon-usb.c
++++ b/arch/mips/cavium-octeon/octeon-usb.c
+@@ -544,6 +544,7 @@ static int __init dwc3_octeon_device_init(void)
+ 			devm_iounmap(&pdev->dev, base);
+ 			devm_release_mem_region(&pdev->dev, res->start,
+ 						resource_size(res));
++			put_device(&pdev->dev);
+ 		}
+ 	} while (node != NULL);
+ 
 -- 
 2.34.1
 
