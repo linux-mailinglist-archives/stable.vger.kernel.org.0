@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 403CE498D8C
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:34:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A73F649910C
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:09:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347340AbiAXTdL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:33:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51812 "EHLO
+        id S1352221AbiAXUIt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:08:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352844AbiAXTbL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:31:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF152C028C22;
-        Mon, 24 Jan 2022 11:14:07 -0800 (PST)
+        with ESMTP id S1354537AbiAXUDK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:03:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB840C068099;
+        Mon, 24 Jan 2022 11:29:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B55BB81232;
-        Mon, 24 Jan 2022 19:14:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBD51C340E5;
-        Mon, 24 Jan 2022 19:14:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 787A06121F;
+        Mon, 24 Jan 2022 19:29:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C1EFC340E5;
+        Mon, 24 Jan 2022 19:29:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051645;
-        bh=h9OWux2i1YLh5BjrO9KQYEBGMBejsiK7N9nwnwNhnxc=;
+        s=korg; t=1643052548;
+        bh=j9v4ELVvP4tqIhgux2H8+EMhBOnwF6PBYkPSz86upds=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pHP01jKj4ZrTM4WPBsVVOhcm6YLwfOIme96qWTmQ6z61ovZe4mhxCyaGpkEHTIdOh
-         fOPsr9RwChad5OP5SfOej/ZkqzWUEunS/yYe2WIRtNolpUJk25tdgyYqaynv/q8UV4
-         fLh10O7eIMH0Ks2yOOmxeOqVWgv7s8kfoZuxI9pA=
+        b=G0WaE1aTAcgMlTHqJv98wachaC5XXSfBUJpayNXB0bc0jcpDCL+q1uhbPesMALmua
+         WiOXgvM1bOkoBnzFgNIgtDyj+NfKL4KYLVIJ83ulK9vHQ4eLRSTYJQsmmIBAQLZ/1k
+         Loh/pxdXqBuEsaJILT0oIuAb5+JIguuv7mZRjY/E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>
-Subject: [PATCH 4.19 009/239] random: fix data race on crng_node_pool
+        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 063/320] drm/amdgpu: Fix a NULL pointer dereference in amdgpu_connector_lcd_native_mode()
 Date:   Mon, 24 Jan 2022 19:40:47 +0100
-Message-Id: <20220124183943.409514111@linuxfoundation.org>
+Message-Id: <20220124183955.871825060@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,106 +48,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Zhou Qingyang <zhou1615@umn.edu>
 
-commit 5d73d1e320c3fd94ea15ba5f79301da9a8bcc7de upstream.
+[ Upstream commit b220110e4cd442156f36e1d9b4914bb9e87b0d00 ]
 
-extract_crng() and crng_backtrack_protect() load crng_node_pool with a
-plain load, which causes undefined behavior if do_numa_crng_init()
-modifies it concurrently.
+In amdgpu_connector_lcd_native_mode(), the return value of
+drm_mode_duplicate() is assigned to mode, and there is a dereference
+of it in amdgpu_connector_lcd_native_mode(), which will lead to a NULL
+pointer dereference on failure of drm_mode_duplicate().
 
-Fix this by using READ_ONCE().  Note: as per the previous discussion
-https://lore.kernel.org/lkml/20211219025139.31085-1-ebiggers@kernel.org/T/#u,
-READ_ONCE() is believed to be sufficient here, and it was requested that
-it be used here instead of smp_load_acquire().
+Fix this bug add a check of mode.
 
-Also change do_numa_crng_init() to set crng_node_pool using
-cmpxchg_release() instead of mb() + cmpxchg(), as the former is
-sufficient here but is more lightweight.
+This bug was found by a static analyzer. The analysis employs
+differential checking to identify inconsistent security operations
+(e.g., checks or kfrees) between two code paths and confirms that the
+inconsistent operations are not recovered in the current function or
+the callers, so they constitute bugs.
 
-Fixes: 1e7f583af67b ("random: make /dev/urandom scalable for silly userspace programs")
-Cc: stable@vger.kernel.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Acked-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Note that, as a bug found by static analysis, it can be a false
+positive or hard to trigger. Multiple researchers have cross-reviewed
+the bug.
+
+Builds with CONFIG_DRM_AMDGPU=m show no new warnings, and
+our static analyzer no longer warns about this code.
+
+Fixes: d38ceaf99ed0 ("drm/amdgpu: add core driver (v4)")
+Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/random.c |   42 ++++++++++++++++++++++--------------------
- 1 file changed, 22 insertions(+), 20 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -831,8 +831,8 @@ static void do_numa_crng_init(struct wor
- 		crng_initialize(crng);
- 		pool[i] = crng;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
+index 0d39e386f6e9c..0e1cacf731698 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
+@@ -389,6 +389,9 @@ amdgpu_connector_lcd_native_mode(struct drm_encoder *encoder)
+ 	    native_mode->vdisplay != 0 &&
+ 	    native_mode->clock != 0) {
+ 		mode = drm_mode_duplicate(dev, native_mode);
++		if (!mode)
++			return NULL;
++
+ 		mode->type = DRM_MODE_TYPE_PREFERRED | DRM_MODE_TYPE_DRIVER;
+ 		drm_mode_set_name(mode);
+ 
+@@ -403,6 +406,9 @@ amdgpu_connector_lcd_native_mode(struct drm_encoder *encoder)
+ 		 * simpler.
+ 		 */
+ 		mode = drm_cvt_mode(dev, native_mode->hdisplay, native_mode->vdisplay, 60, true, false, false);
++		if (!mode)
++			return NULL;
++
+ 		mode->type = DRM_MODE_TYPE_PREFERRED | DRM_MODE_TYPE_DRIVER;
+ 		DRM_DEBUG_KMS("Adding cvt approximation of native panel mode %s\n", mode->name);
  	}
--	mb();
--	if (cmpxchg(&crng_node_pool, NULL, pool)) {
-+	/* pairs with READ_ONCE() in select_crng() */
-+	if (cmpxchg_release(&crng_node_pool, NULL, pool) != NULL) {
- 		for_each_node(i)
- 			kfree(pool[i]);
- 		kfree(pool);
-@@ -845,8 +845,26 @@ static void numa_crng_init(void)
- {
- 	schedule_work(&numa_crng_init_work);
- }
-+
-+static struct crng_state *select_crng(void)
-+{
-+	struct crng_state **pool;
-+	int nid = numa_node_id();
-+
-+	/* pairs with cmpxchg_release() in do_numa_crng_init() */
-+	pool = READ_ONCE(crng_node_pool);
-+	if (pool && pool[nid])
-+		return pool[nid];
-+
-+	return &primary_crng;
-+}
- #else
- static void numa_crng_init(void) {}
-+
-+static struct crng_state *select_crng(void)
-+{
-+	return &primary_crng;
-+}
- #endif
- 
- /*
-@@ -995,15 +1013,7 @@ static void _extract_crng(struct crng_st
- 
- static void extract_crng(__u8 out[CHACHA20_BLOCK_SIZE])
- {
--	struct crng_state *crng = NULL;
--
--#ifdef CONFIG_NUMA
--	if (crng_node_pool)
--		crng = crng_node_pool[numa_node_id()];
--	if (crng == NULL)
--#endif
--		crng = &primary_crng;
--	_extract_crng(crng, out);
-+	_extract_crng(select_crng(), out);
- }
- 
- /*
-@@ -1032,15 +1042,7 @@ static void _crng_backtrack_protect(stru
- 
- static void crng_backtrack_protect(__u8 tmp[CHACHA20_BLOCK_SIZE], int used)
- {
--	struct crng_state *crng = NULL;
--
--#ifdef CONFIG_NUMA
--	if (crng_node_pool)
--		crng = crng_node_pool[numa_node_id()];
--	if (crng == NULL)
--#endif
--		crng = &primary_crng;
--	_crng_backtrack_protect(crng, tmp, used);
-+	_crng_backtrack_protect(select_crng(), tmp, used);
- }
- 
- static ssize_t extract_crng_user(void __user *buf, size_t nbytes)
+-- 
+2.34.1
+
 
 
