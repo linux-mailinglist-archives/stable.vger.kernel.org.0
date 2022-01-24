@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 244D4499986
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:45:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C815B499C4F
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:07:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1455599AbiAXVfm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:35:42 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:44874 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1453305AbiAXV3w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:29:52 -0500
+        id S1380871AbiAXWEf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:04:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60474 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1577770AbiAXWBE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:01:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 885FAC02B8F9;
+        Mon, 24 Jan 2022 12:40:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ABBEEB80CCF;
-        Mon, 24 Jan 2022 21:29:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1F57C340E4;
-        Mon, 24 Jan 2022 21:29:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4EE90B81060;
+        Mon, 24 Jan 2022 20:40:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54153C340E5;
+        Mon, 24 Jan 2022 20:40:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059789;
-        bh=rfnii2i5sU04+NW982sp8A0gGiDGgjs8gxUSp7gBgk8=;
+        s=korg; t=1643056815;
+        bh=PhaiHvgaJpNLluoQ655csgJdmKRf0MjZyKXxTOJ71MQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tspMyoxbP3SCoSwMWHso/bDM9Ue/QNlyhNeLrTyPOMo16R7tstHFHsVm0c9Nyb0WE
-         QvXRpVlFlqXmH0D8Mipz+kA0OTmjly6BxSXx4iHDdTQ1M34RE6ys2rpIG50+RxTpXR
-         TSRjt2XYsFoflKRjVsGWc5yD8axwtjGf6qxNj1fU=
+        b=tAdOaJW9I2PiRCnPpNBEsfTMJP07qHZaO30QV37u1wRsFTsKbdG6k45lujiTQROvs
+         UgjKBP3arPgZKpME78YoN0vYwDqbEyCKKOH/IWLxedQFAdU8m/lay9zLbaDSCQ/nsA
+         EbAyI+sxiAWTkFQT0NkWs32c5LWD3I+vX9mxfT78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julia Lawall <Julia.Lawall@lip6.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Corentin Labbe <clabbe.montjoie@gmail.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0735/1039] powerpc/powernv: add missing of_node_put
-Date:   Mon, 24 Jan 2022 19:42:04 +0100
-Message-Id: <20220124184150.030797507@linuxfoundation.org>
+Subject: [PATCH 5.15 608/846] net: phy: marvell: configure RGMII delays for 88E1118
+Date:   Mon, 24 Jan 2022 19:42:05 +0100
+Message-Id: <20220124184121.993809745@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,59 +49,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julia Lawall <Julia.Lawall@lip6.fr>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit 7d405a939ca960162eb30c1475759cb2fdf38f8c ]
+[ Upstream commit f22725c95ececb703c3f741e8f946d23705630b7 ]
 
-for_each_compatible_node performs an of_node_get on each iteration, so
-a break out of the loop requires an of_node_put.
+Corentin Labbe reports that the SSI 1328 does not work when allowing
+the PHY to operate at gigabit speeds, but does work with the generic
+PHY driver.
 
-A simplified version of the semantic patch that fixes this problem is as
-follows (http://coccinelle.lip6.fr):
+This appears to be because m88e1118_config_init() writes a fixed value
+to the MSCR register, claiming that this is to enable 1G speeds.
+However, this always sets bits 4 and 5, enabling RGMII transmit and
+receive delays. The suspicion is that the original board this was
+added for required the delays to make 1G speeds work.
 
-// <smpl>
-@@
-local idexpression n;
-expression e;
-@@
+Add the necessary configuration for RGMII delays for the 88E1118 to
+bring this into line with the requirements for RGMII support, and thus
+make the SSI 1328 work.
 
- for_each_compatible_node(n,...) {
-   ...
-(
-   of_node_put(n);
-|
-   e = n
-|
-+  of_node_put(n);
-?  break;
-)
-   ...
- }
-... when != n
-// </smpl>
+Corentin Labbe has tested this on gemini-ssi1328 and gemini-ns2502.
 
-Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1448051604-25256-4-git-send-email-Julia.Lawall@lip6.fr
+Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/powernv/opal-lpc.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/phy/marvell.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/powerpc/platforms/powernv/opal-lpc.c b/arch/powerpc/platforms/powernv/opal-lpc.c
-index 1e5d51db40f84..5390c888db162 100644
---- a/arch/powerpc/platforms/powernv/opal-lpc.c
-+++ b/arch/powerpc/platforms/powernv/opal-lpc.c
-@@ -396,6 +396,7 @@ void __init opal_lpc_init(void)
- 		if (!of_get_property(np, "primary", NULL))
- 			continue;
- 		opal_lpc_chip_id = of_get_ibm_chip_id(np);
-+		of_node_put(np);
- 		break;
- 	}
- 	if (opal_lpc_chip_id < 0)
--- 
-2.34.1
-
+--- a/drivers/net/phy/marvell.c
++++ b/drivers/net/phy/marvell.c
+@@ -1244,6 +1244,12 @@ static int m88e1118_config_init(struct p
+ 	if (err < 0)
+ 		return err;
+ 
++	if (phy_interface_is_rgmii(phydev)) {
++		err = m88e1121_config_aneg_rgmii_delays(phydev);
++		if (err < 0)
++			return err;
++	}
++
+ 	/* Adjust LED Control */
+ 	if (phydev->dev_flags & MARVELL_PHY_M1118_DNS323_LEDS)
+ 		err = phy_write(phydev, 0x10, 0x1100);
 
 
