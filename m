@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D9BD4999F7
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:48:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C98C04999D9
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:47:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378201AbiAXVix (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:38:53 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:41684 "EHLO
+        id S1456202AbiAXViE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:38:04 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:40736 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1449207AbiAXV2W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:28:22 -0500
+        with ESMTP id S1449381AbiAXV2U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:28:20 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 34FA8B815B0;
-        Mon, 24 Jan 2022 21:28:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 618C3C340E8;
-        Mon, 24 Jan 2022 21:28:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 29B3AB811FB;
+        Mon, 24 Jan 2022 21:28:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5509BC340E4;
+        Mon, 24 Jan 2022 21:28:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059691;
-        bh=35lOTX6cm3m1nD+3sw8XpEL6aINTmKJuCTuO6dclzwU=;
+        s=korg; t=1643059694;
+        bh=Evjdvma7DpXHpludweJifTmE2JUT8KCAToNGDJW3x2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bQuRHEZcTqyNPV91LVDf3kYVGiB7f8brIbslg0f7Q5nWAZq2xohyGBdz8F4bzfeEu
-         QqiF9FvyXiF/LUb1kJ/YNPhN3iVyt6uVR9OuVbZpo8hqJbr626/ftmqltGirqbB+w5
-         KuSi4k955uqne2Df+HpztccqaHZHKytO7Cg2aL8E=
+        b=XgvY4r24ag3Y72DPmVku1cg4JeRGEOFz2mc20JSx0vKdGGM+Vj4fkxX5yCiI+h3Sw
+         oUTuBRrGH3RmgxtQ47WoSMPlhXiJSScODSsDpbHzRs7xF+YoyP4FLk0OsinHl+fl2R
+         1q1mZ8z0XX9bgjbSJ2M4Dssam+ge1FDvCn6I+3wQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Kuehling <Felix.Kuehling@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        David Yat Sin <david.yatsin@amd.com>,
-        Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>,
+        stable@vger.kernel.org, Zongmin Zhou <zhouzongmin@kylinos.cn>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0702/1039] drm/amdgpu: Dont inherit GEM object VMAs in child process
-Date:   Mon, 24 Jan 2022 19:41:31 +0100
-Message-Id: <20220124184148.931014095@linuxfoundation.org>
+Subject: [PATCH 5.16 0703/1039] drm/amdgpu: fixup bad vram size on gmc v8
+Date:   Mon, 24 Jan 2022 19:41:32 +0100
+Message-Id: <20220124184148.962296625@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -48,55 +45,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
+From: Zongmin Zhou <zhouzongmin@kylinos.cn>
 
-[ Upstream commit fbcdbfde87509d523132b59f661a355c731139d0 ]
+[ Upstream commit 11544d77e3974924c5a9c8a8320b996a3e9b2f8b ]
 
-When an application having open file access to a node forks, its shared
-mappings also get reflected in the address space of child process even
-though it cannot access them with the object permissions applied. With the
-existing permission checks on the gem objects, it might be reasonable to
-also create the VMAs with VM_DONTCOPY flag so a user space application
-doesn't need to explicitly call the madvise(addr, len, MADV_DONTFORK)
-system call to prevent the pages in the mapped range to appear in the
-address space of the child process. It also prevents the memory leaks
-due to additional reference counts on the mapped BOs in the child
-process that prevented freeing the memory in the parent for which we had
-worked around earlier in the user space inside the thunk library.
+Some boards(like RX550) seem to have garbage in the upper
+16 bits of the vram size register.  Check for
+this and clamp the size properly.  Fixes
+boards reporting bogus amounts of vram.
 
-Additionally, we faced this issue when using CRIU to checkpoint restore
-an application that had such inherited mappings in the child which
-confuse CRIU when it mmaps on restore. Having this flag set for the
-render node VMAs helps. VMAs mapped via KFD already take care of this so
-this is needed only for the render nodes.
+after add this patch,the maximum GPU VRAM size is 64GB,
+otherwise only 64GB vram size will be used.
 
-To limit the impact of the change to user space consumers such as OpenGL
-etc, limit it to KFD BOs only.
-
-Acked-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: David Yat Sin <david.yatsin@amd.com>
-Signed-off-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
+Signed-off-by: Zongmin Zhou<zhouzongmin@kylinos.cn>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
-index a1e63ba4c54a5..630dc99e49086 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
-@@ -264,6 +264,9 @@ static int amdgpu_gem_object_mmap(struct drm_gem_object *obj, struct vm_area_str
- 	    !(vma->vm_flags & (VM_READ | VM_WRITE | VM_EXEC)))
- 		vma->vm_flags &= ~VM_MAYWRITE;
+diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c
+index 492ebed2915be..63b890f1e8afb 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c
+@@ -515,10 +515,10 @@ static void gmc_v8_0_mc_program(struct amdgpu_device *adev)
+ static int gmc_v8_0_mc_init(struct amdgpu_device *adev)
+ {
+ 	int r;
++	u32 tmp;
  
-+	if (bo->kfd_bo)
-+		vma->vm_flags |= VM_DONTCOPY;
-+
- 	return drm_gem_ttm_mmap(obj, vma);
- }
+ 	adev->gmc.vram_width = amdgpu_atombios_get_vram_width(adev);
+ 	if (!adev->gmc.vram_width) {
+-		u32 tmp;
+ 		int chansize, numchan;
  
+ 		/* Get VRAM informations */
+@@ -562,8 +562,15 @@ static int gmc_v8_0_mc_init(struct amdgpu_device *adev)
+ 		adev->gmc.vram_width = numchan * chansize;
+ 	}
+ 	/* size in MB on si */
+-	adev->gmc.mc_vram_size = RREG32(mmCONFIG_MEMSIZE) * 1024ULL * 1024ULL;
+-	adev->gmc.real_vram_size = RREG32(mmCONFIG_MEMSIZE) * 1024ULL * 1024ULL;
++	tmp = RREG32(mmCONFIG_MEMSIZE);
++	/* some boards may have garbage in the upper 16 bits */
++	if (tmp & 0xffff0000) {
++		DRM_INFO("Probable bad vram size: 0x%08x\n", tmp);
++		if (tmp & 0xffff)
++			tmp &= 0xffff;
++	}
++	adev->gmc.mc_vram_size = tmp * 1024ULL * 1024ULL;
++	adev->gmc.real_vram_size = adev->gmc.mc_vram_size;
+ 
+ 	if (!(adev->flags & AMD_IS_APU)) {
+ 		r = amdgpu_device_resize_fb_bar(adev);
 -- 
 2.34.1
 
