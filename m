@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAFC9498AC8
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:07:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E020499138
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:12:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346516AbiAXTGs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:06:48 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:60084 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345409AbiAXTDj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:03:39 -0500
+        id S1378827AbiAXUJy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:09:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60224 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1352002AbiAXUDp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:03:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6307C02B742;
+        Mon, 24 Jan 2022 11:30:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9A87EB81229;
-        Mon, 24 Jan 2022 19:03:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCA47C340E5;
-        Mon, 24 Jan 2022 19:03:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 651A260917;
+        Mon, 24 Jan 2022 19:30:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A002C340E5;
+        Mon, 24 Jan 2022 19:30:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051016;
-        bh=Z+3gYJluckRbcTIpsFaWUA0l42oo2yBU1kbM0QAyt5w=;
+        s=korg; t=1643052616;
+        bh=/lpNPmWX5dfLrKHdBpEYNnkutGKFPRmgQYn9v2IX4JM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oom0yE52oZjvL+Pdie9Cf3XdYC/XAWiukDEH7/UVgqGjTN3KD1pirGFmAJFDja+Cb
-         zoNV6KQadAHIscHtAtTlHs9C3ltaov86Y6bO1ZfMkqPp5OIYAt637bF6ISnZD4/rw9
-         YJk+1oLi1e636v3QMic5GvmyZPWDxufKJLKqie+0=
+        b=VWzI3hiIshJ9UmK0pIE8QXoMttJDuNtPd6oJlef0mOHKNb1K5kqBb+CkGIje8iH0q
+         e5/ODueCEwdjn4qqszBLK9kQF7IcUmN3AwSZLrftlhNUmM9F36vp72s9f478J1/8Vm
+         KbMD4LgvBSKZKUK8u3jKQriDTriN2L5Os5BfnPVo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.14 027/186] media: redrat3: fix control-message timeouts
+        stable@vger.kernel.org,
+        Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 118/320] can: softing: softing_startstop(): fix set but not used variable warning
 Date:   Mon, 24 Jan 2022 19:41:42 +0100
-Message-Id: <20220124183937.994872985@linuxfoundation.org>
+Message-Id: <20220124183957.707029762@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,115 +49,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-commit 2adc965c8bfa224e11ecccf9c92fd458c4236428 upstream.
+[ Upstream commit 370d988cc529598ebaec6487d4f84c2115dc696b ]
 
-USB control-message timeouts are specified in milliseconds and should
-specifically not vary with CONFIG_HZ.
+In the function softing_startstop() the variable error_reporting is
+assigned but not used. The code that uses this variable is commented
+out. Its stated that the functionality is not finally verified.
 
-Fixes: 2154be651b90 ("[media] redrat3: new rc-core IR transceiver device driver")
-Cc: stable@vger.kernel.org      # 3.0
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To fix the warning:
+
+| drivers/net/can/softing/softing_fw.c:424:9: error: variable 'error_reporting' set but not used [-Werror,-Wunused-but-set-variable]
+
+remove the comment, activate the code, but add a "0 &&" to the if
+expression and rely on the optimizer rather than the preprocessor to
+remove the code.
+
+Link: https://lore.kernel.org/all/20220109103126.1872833-1-mkl@pengutronix.de
+Fixes: 03fd3cf5a179 ("can: add driver for Softing card")
+Cc: Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/redrat3.c |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/net/can/softing/softing_fw.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/drivers/media/rc/redrat3.c
-+++ b/drivers/media/rc/redrat3.c
-@@ -415,7 +415,7 @@ static int redrat3_send_cmd(int cmd, str
- 	udev = rr3->udev;
- 	res = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0), cmd,
- 			      USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
--			      0x0000, 0x0000, data, sizeof(u8), HZ * 10);
-+			      0x0000, 0x0000, data, sizeof(u8), 10000);
- 
- 	if (res < 0) {
- 		dev_err(rr3->dev, "%s: Error sending rr3 cmd res %d, data %d",
-@@ -491,7 +491,7 @@ static u32 redrat3_get_timeout(struct re
- 	pipe = usb_rcvctrlpipe(rr3->udev, 0);
- 	ret = usb_control_msg(rr3->udev, pipe, RR3_GET_IR_PARAM,
- 			      USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
--			      RR3_IR_IO_SIG_TIMEOUT, 0, tmp, len, HZ * 5);
-+			      RR3_IR_IO_SIG_TIMEOUT, 0, tmp, len, 5000);
- 	if (ret != len)
- 		dev_warn(rr3->dev, "Failed to read timeout from hardware\n");
- 	else {
-@@ -521,7 +521,7 @@ static int redrat3_set_timeout(struct rc
- 	ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0), RR3_SET_IR_PARAM,
- 		     USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
- 		     RR3_IR_IO_SIG_TIMEOUT, 0, timeout, sizeof(*timeout),
--		     HZ * 25);
-+		     25000);
- 	dev_dbg(dev, "set ir parm timeout %d ret 0x%02x\n",
- 						be32_to_cpu(*timeout), ret);
- 
-@@ -553,32 +553,32 @@ static void redrat3_reset(struct redrat3
- 	*val = 0x01;
- 	rc = usb_control_msg(udev, rxpipe, RR3_RESET,
- 			     USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
--			     RR3_CPUCS_REG_ADDR, 0, val, len, HZ * 25);
-+			     RR3_CPUCS_REG_ADDR, 0, val, len, 25000);
- 	dev_dbg(dev, "reset returned 0x%02x\n", rc);
- 
- 	*val = length_fuzz;
- 	rc = usb_control_msg(udev, txpipe, RR3_SET_IR_PARAM,
- 			     USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
--			     RR3_IR_IO_LENGTH_FUZZ, 0, val, len, HZ * 25);
-+			     RR3_IR_IO_LENGTH_FUZZ, 0, val, len, 25000);
- 	dev_dbg(dev, "set ir parm len fuzz %d rc 0x%02x\n", *val, rc);
- 
- 	*val = (65536 - (minimum_pause * 2000)) / 256;
- 	rc = usb_control_msg(udev, txpipe, RR3_SET_IR_PARAM,
- 			     USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
--			     RR3_IR_IO_MIN_PAUSE, 0, val, len, HZ * 25);
-+			     RR3_IR_IO_MIN_PAUSE, 0, val, len, 25000);
- 	dev_dbg(dev, "set ir parm min pause %d rc 0x%02x\n", *val, rc);
- 
- 	*val = periods_measure_carrier;
- 	rc = usb_control_msg(udev, txpipe, RR3_SET_IR_PARAM,
- 			     USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
--			     RR3_IR_IO_PERIODS_MF, 0, val, len, HZ * 25);
-+			     RR3_IR_IO_PERIODS_MF, 0, val, len, 25000);
- 	dev_dbg(dev, "set ir parm periods measure carrier %d rc 0x%02x", *val,
- 									rc);
- 
- 	*val = RR3_DRIVER_MAXLENS;
- 	rc = usb_control_msg(udev, txpipe, RR3_SET_IR_PARAM,
- 			     USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_OUT,
--			     RR3_IR_IO_MAX_LENGTHS, 0, val, len, HZ * 25);
-+			     RR3_IR_IO_MAX_LENGTHS, 0, val, len, 25000);
- 	dev_dbg(dev, "set ir parm max lens %d rc 0x%02x\n", *val, rc);
- 
- 	kfree(val);
-@@ -596,7 +596,7 @@ static void redrat3_get_firmware_rev(str
- 	rc = usb_control_msg(rr3->udev, usb_rcvctrlpipe(rr3->udev, 0),
- 			     RR3_FW_VERSION,
- 			     USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
--			     0, 0, buffer, RR3_FW_VERSION_LEN, HZ * 5);
-+			     0, 0, buffer, RR3_FW_VERSION_LEN, 5000);
- 
- 	if (rc >= 0)
- 		dev_info(rr3->dev, "Firmware rev: %s", buffer);
-@@ -836,14 +836,14 @@ static int redrat3_transmit_ir(struct rc
- 
- 	pipe = usb_sndbulkpipe(rr3->udev, rr3->ep_out->bEndpointAddress);
- 	ret = usb_bulk_msg(rr3->udev, pipe, irdata,
--			    sendbuf_len, &ret_len, 10 * HZ);
-+			    sendbuf_len, &ret_len, 10000);
- 	dev_dbg(dev, "sent %d bytes, (ret %d)\n", ret_len, ret);
- 
- 	/* now tell the hardware to transmit what we sent it */
- 	pipe = usb_rcvctrlpipe(rr3->udev, 0);
- 	ret = usb_control_msg(rr3->udev, pipe, RR3_TX_SEND_SIGNAL,
- 			      USB_TYPE_VENDOR | USB_RECIP_DEVICE | USB_DIR_IN,
--			      0, 0, irdata, 2, HZ * 10);
-+			      0, 0, irdata, 2, 10000);
- 
- 	if (ret < 0)
- 		dev_err(dev, "Error: control msg send failed, rc %d\n", ret);
+diff --git a/drivers/net/can/softing/softing_fw.c b/drivers/net/can/softing/softing_fw.c
+index 8f44fdd8804bf..1c2afa17c26d1 100644
+--- a/drivers/net/can/softing/softing_fw.c
++++ b/drivers/net/can/softing/softing_fw.c
+@@ -565,18 +565,19 @@ int softing_startstop(struct net_device *dev, int up)
+ 		if (ret < 0)
+ 			goto failed;
+ 	}
+-	/* enable_error_frame */
+-	/*
++
++	/* enable_error_frame
++	 *
+ 	 * Error reporting is switched off at the moment since
+ 	 * the receiving of them is not yet 100% verified
+ 	 * This should be enabled sooner or later
+-	 *
+-	if (error_reporting) {
++	 */
++	if (0 && error_reporting) {
+ 		ret = softing_fct_cmd(card, 51, "enable_error_frame");
+ 		if (ret < 0)
+ 			goto failed;
+ 	}
+-	*/
++
+ 	/* initialize interface */
+ 	iowrite16(1, &card->dpram[DPRAM_FCT_PARAM + 2]);
+ 	iowrite16(1, &card->dpram[DPRAM_FCT_PARAM + 4]);
+-- 
+2.34.1
+
 
 
