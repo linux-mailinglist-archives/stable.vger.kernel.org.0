@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A1C2499724
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:25:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DFE44995A1
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:13:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1446901AbiAXVJi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:09:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47256 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354150AbiAXVFt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:05:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E24C4C0613E8;
-        Mon, 24 Jan 2022 12:06:33 -0800 (PST)
+        id S1442142AbiAXUxZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:53:25 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:41702 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1391315AbiAXUrW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:47:22 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8995BB81239;
-        Mon, 24 Jan 2022 20:06:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8359C340E5;
-        Mon, 24 Jan 2022 20:06:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B5F016090B;
+        Mon, 24 Jan 2022 20:47:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83905C340E5;
+        Mon, 24 Jan 2022 20:47:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054792;
-        bh=x7S04SykEtkNO6jyz+/ia/IfgXn8OU6ejHj5ebXM5TE=;
+        s=korg; t=1643057241;
+        bh=T4NY8zqPRR6WKhwieFaRIRF4HrYhvq77oMAZe4cIyL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iZ8TaNah0+GuvgPL1GlUqk5C9gX7fgzpE6xpIA72LTdw++QXCuhh4U4OHKuBEOpGk
-         iWqTPmThS44eRAIzZ2/AOt+WIMT95DThubrZaqCh0mM4aaGUUlIWYMDE2BQgL8fe9b
-         ZRhLo4HcCP/ESDY/+1QVoHNH79vS8UfrzCiu/ktQ=
+        b=shyYPXjlfq6rsmTsceKWJXQK4J0R2WHwOXP3zDq4+Zv+F3CV7WPnjMrQwHy3opGjF
+         XAYsD1+xY9X8zUokM6IRuv6bWGU0cxKYPnecFR502u99FqT0an591Ap2RAJiovyhwk
+         SKoB/gu4O0IiNzKfo4jQu5Bz3aI9JHWtEfULTUmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.10 497/563] dmaengine: uniphier-xdmac: Fix type of address variables
-Date:   Mon, 24 Jan 2022 19:44:22 +0100
-Message-Id: <20220124184041.634891897@linuxfoundation.org>
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.15 746/846] scsi: core: Show SCMD_LAST in text form
+Date:   Mon, 24 Jan 2022 19:44:23 +0100
+Message-Id: <20220124184126.716497653@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,35 +44,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit 105a8c525675bb7d4d64871f9b2edf39460de881 upstream.
+commit 3369046e54ca8f82e0cb17740643da2d80d3cfa8 upstream.
 
-The variables src_addr and dst_addr handle DMA addresses, so these should
-be declared as dma_addr_t.
+The SCSI debugfs code supports showing information about pending commands,
+including translating SCSI command flags from numeric into text format.
+Also convert the SCMD_LAST flag from numeric into text form.
 
-Fixes: 667b9251440b ("dmaengine: uniphier-xdmac: Add UniPhier external DMA controller driver")
-Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Link: https://lore.kernel.org/r/1639456963-10232-1-git-send-email-hayashi.kunihiko@socionext.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Link: https://lore.kernel.org/r/20211129194609.3466071-4-bvanassche@acm.org
+Fixes: 8930a6c20791 ("scsi: core: add support for request batching")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/uniphier-xdmac.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/scsi/scsi_debugfs.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/dma/uniphier-xdmac.c
-+++ b/drivers/dma/uniphier-xdmac.c
-@@ -131,8 +131,9 @@ uniphier_xdmac_next_desc(struct uniphier
- static void uniphier_xdmac_chan_start(struct uniphier_xdmac_chan *xc,
- 				      struct uniphier_xdmac_desc *xd)
- {
--	u32 src_mode, src_addr, src_width;
--	u32 dst_mode, dst_addr, dst_width;
-+	u32 src_mode, src_width;
-+	u32 dst_mode, dst_width;
-+	dma_addr_t src_addr, dst_addr;
- 	u32 val, its, tnum;
- 	enum dma_slave_buswidth buswidth;
+--- a/drivers/scsi/scsi_debugfs.c
++++ b/drivers/scsi/scsi_debugfs.c
+@@ -9,6 +9,7 @@
+ static const char *const scsi_cmd_flags[] = {
+ 	SCSI_CMD_FLAG_NAME(TAGGED),
+ 	SCSI_CMD_FLAG_NAME(INITIALIZED),
++	SCSI_CMD_FLAG_NAME(LAST),
+ };
+ #undef SCSI_CMD_FLAG_NAME
  
 
 
