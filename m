@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A5ED4993A3
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:38:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FAB7499425
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:41:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386060AbiAXUe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:34:59 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:35350 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384120AbiAXU2y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:28:54 -0500
+        id S1357605AbiAXUjb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:39:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39394 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345513AbiAXUeT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:34:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5453C07E2B4;
+        Mon, 24 Jan 2022 11:47:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1F5DDB81249;
-        Mon, 24 Jan 2022 20:28:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49180C340E5;
-        Mon, 24 Jan 2022 20:28:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9BDE7B811FB;
+        Mon, 24 Jan 2022 19:47:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1E04C340E5;
+        Mon, 24 Jan 2022 19:47:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056131;
-        bh=E3RTaUgku1Rf9mVYCDXetqPO8OLq391heMQ/FMi8orE=;
+        s=korg; t=1643053660;
+        bh=dKB+66OEFYLtY2vwiuFxKSq1TWOn9R5HhTm/Y3CAfr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EyHQNQe8QZX138DpTe3WVhcyROgvI7ZlmWzj+lFN5XzlIglQeUZ+CJA0HiQJhWKhK
-         5+hRAYnuS++9xV1+TB2A3gKtBRqvB4KgZc58F69ZIdOlOVthqMEKoFyITFQF6z8mug
-         URg+RMpB5MDav9/RLSebAmbWCRPH2ghs7A5acDo8=
+        b=izDFkG76I3zTbg+mc/rLPGSR2EwHESwlZttb0cL3tEHFX6cvCyzD1BKwpxg3c423I
+         NMoKrYq4flAoPspGu0JxGvkKYYMT5AWxZtAUhOW2mHXaGGpuVkayfAwK/ac5m1A/re
+         kMa5rKKi9521l+mzaosrjbyao0thAnMbe3Sk6VgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Vincent Donnefort <vincent.donnefort@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 381/846] clk: renesas: rzg2l: Check return value of pm_genpd_init()
-Date:   Mon, 24 Jan 2022 19:38:18 +0100
-Message-Id: <20220124184114.085861691@linuxfoundation.org>
+Subject: [PATCH 5.10 135/563] sched/fair: Fix per-CPU kthread and wakee stacking for asym CPU capacity
+Date:   Mon, 24 Jan 2022 19:38:20 +0100
+Message-Id: <20220124184029.069413824@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,59 +51,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+From: Vincent Donnefort <vincent.donnefort@arm.com>
 
-[ Upstream commit 27527a3d3b162e4512798c058c0e8a216c721187 ]
+[ Upstream commit 014ba44e8184e1acf93e0cbb7089ee847802f8f0 ]
 
-Make sure we check the return value of pm_genpd_init() which might fail.
-Also add a devres action to remove the power-domain in-case the probe
-callback fails further down in the code flow.
+select_idle_sibling() has a special case for tasks woken up by a per-CPU
+kthread where the selected CPU is the previous one. For asymmetric CPU
+capacity systems, the assumption was that the wakee couldn't have a
+bigger utilization during task placement than it used to have during the
+last activation. That was not considering uclamp.min which can completely
+change between two task activations and as a consequence mandates the
+fitness criterion asym_fits_capacity(), even for the exit path described
+above.
 
-Fixes: ef3c613ccd68a ("clk: renesas: Add CPG core wrapper for RZ/G2L SoC")
-Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Link: https://lore.kernel.org/r/20211117115101.28281-2-prabhakar.mahadev-lad.rj@bp.renesas.com
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Fixes: b4c9c9f15649 ("sched/fair: Prefer prev cpu in asymmetric wakeup path")
+Signed-off-by: Vincent Donnefort <vincent.donnefort@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Link: https://lkml.kernel.org/r/20211129173115.4006346-1-vincent.donnefort@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/renesas/rzg2l-cpg.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ kernel/sched/fair.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/clk/renesas/rzg2l-cpg.c b/drivers/clk/renesas/rzg2l-cpg.c
-index 761922ea5db76..61e7c0c4f3794 100644
---- a/drivers/clk/renesas/rzg2l-cpg.c
-+++ b/drivers/clk/renesas/rzg2l-cpg.c
-@@ -638,10 +638,16 @@ static void rzg2l_cpg_detach_dev(struct generic_pm_domain *unused, struct device
- 		pm_clk_destroy(dev);
- }
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index a7589552be5fc..2a33cb5a10e59 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -6286,7 +6286,8 @@ static int select_idle_sibling(struct task_struct *p, int prev, int target)
+ 	if (is_per_cpu_kthread(current) &&
+ 	    in_task() &&
+ 	    prev == smp_processor_id() &&
+-	    this_rq()->nr_running <= 1) {
++	    this_rq()->nr_running <= 1 &&
++	    asym_fits_capacity(task_util, prev)) {
+ 		return prev;
+ 	}
  
-+static void rzg2l_cpg_genpd_remove(void *data)
-+{
-+	pm_genpd_remove(data);
-+}
-+
- static int __init rzg2l_cpg_add_clk_domain(struct device *dev)
- {
- 	struct device_node *np = dev->of_node;
- 	struct generic_pm_domain *genpd;
-+	int ret;
- 
- 	genpd = devm_kzalloc(dev, sizeof(*genpd), GFP_KERNEL);
- 	if (!genpd)
-@@ -652,7 +658,13 @@ static int __init rzg2l_cpg_add_clk_domain(struct device *dev)
- 		       GENPD_FLAG_ACTIVE_WAKEUP;
- 	genpd->attach_dev = rzg2l_cpg_attach_dev;
- 	genpd->detach_dev = rzg2l_cpg_detach_dev;
--	pm_genpd_init(genpd, &pm_domain_always_on_gov, false);
-+	ret = pm_genpd_init(genpd, &pm_domain_always_on_gov, false);
-+	if (ret)
-+		return ret;
-+
-+	ret = devm_add_action_or_reset(dev, rzg2l_cpg_genpd_remove, genpd);
-+	if (ret)
-+		return ret;
- 
- 	of_genpd_add_provider_simple(np, genpd);
- 	return 0;
 -- 
 2.34.1
 
