@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12610499AAF
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:56:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F14B499D5B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:59:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1573178AbiAXVok (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:44:40 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47424 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1455133AbiAXVes (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:34:48 -0500
+        id S1583414AbiAXWRn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:17:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34738 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1581211AbiAXWLY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:11:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 924AEC0DF2FE;
+        Mon, 24 Jan 2022 12:43:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3365AB81142;
-        Mon, 24 Jan 2022 21:34:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D1D7C340E7;
-        Mon, 24 Jan 2022 21:34:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E164360907;
+        Mon, 24 Jan 2022 20:43:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABA5DC340E5;
+        Mon, 24 Jan 2022 20:43:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060085;
-        bh=Gj+/fEzo/MIrlAptBR6EwJeX40dJ6PyDWkKRNwcTaWg=;
+        s=korg; t=1643057013;
+        bh=ddcl4cBea324E6KzDBct/pV9ygz8c88MAFzgAN9niJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SegIXzSS2IAjx32mbozDlyz9LnoQL7p/2+YaRpssX1gAlUmAhZQVXp6bPxaiiKX65
-         0Ly+lyHdm/wNKiXPKww92hdCcbk+jU6KuX+LwPzp34xa9dVDbuhV1/v7r8k4mFIWyD
-         xKoAg7e0OR9Nf++iJXF13OSh09HZaQHXKLS8OymI=
+        b=fCS3moWeixOMvs3MW9U7sILYSO73qsoLA1n2geE3c2TvS8MghnhBJ4WzkN7ZJOPzs
+         xvsAGvtB+sJvuqbxcV0t+miLP/AKXDd1G2gBRrwmNA+8aFMsRR6kRvWXSPV++oKapN
+         keeJsAOkNAeAL6lxcBUqP8Xmtdead9vPmj8SUFkM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0801/1039] PCI: mvebu: Fix support for bus mastering and PCI_COMMAND on emulated bridge
+        stable@vger.kernel.org, Lino Sanfilippo <LinoSanfilippo@gmx.de>,
+        Stefan Berger <stefanb@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Subject: [PATCH 5.15 673/846] tpm: fix potential NULL pointer access in tpm_del_char_device
 Date:   Mon, 24 Jan 2022 19:43:10 +0100
-Message-Id: <20220124184152.227183950@linuxfoundation.org>
+Message-Id: <20220124184124.292354647@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,135 +48,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Lino Sanfilippo <LinoSanfilippo@gmx.de>
 
-[ Upstream commit e42b85583719adb87ab88dc7bcd41b38011f7d11 ]
+commit eabad7ba2c752392ae50f24a795093fb115b686d upstream.
 
-According to PCI specifications bits [0:2] of Command Register, this should
-be by default disabled on reset. So explicitly disable these bits at early
-beginning of driver initialization.
+Some SPI controller drivers unregister the controller in the shutdown
+handler (e.g. BCM2835). If such a controller is used with a TPM 2 slave
+chip->ops may be accessed when it is already NULL:
 
-Also remove code which unconditionally enables all 3 bits and let kernel
-code (via pci_set_master() function) to handle bus mastering of PCI Bridge
-via emulated PCI_COMMAND on emulated bridge.
+At system shutdown the pre-shutdown handler tpm_class_shutdown() shuts down
+TPM 2 and sets chip->ops to NULL. Then at SPI controller unregistration
+tpm_tis_spi_remove() is called and eventually calls tpm_del_char_device()
+which tries to shut down TPM 2 again. Thereby it accesses chip->ops again:
+(tpm_del_char_device calls tpm_chip_start which calls tpm_clk_enable which
+calls chip->ops->clk_enable).
 
-Adjust existing functions mvebu_pcie_handle_iobase_change() and
-mvebu_pcie_handle_membase_change() to handle PCI_IO_BASE and PCI_MEM_BASE
-registers correctly even when bus mastering on emulated bridge is disabled.
+Avoid the NULL pointer access by testing if chip->ops is valid and skipping
+the TPM 2 shutdown procedure in case it is NULL.
 
-Link: https://lore.kernel.org/r/20211125124605.25915-7-pali@kernel.org
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
+Fixes: 39d0099f9439 ("powerpc/pseries: Add shutdown() to vio_driver and vio_bus")
+Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+Tested-by: Stefan Berger <stefanb@linux.ibm.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-mvebu.c | 52 ++++++++++++++++++------------
- 1 file changed, 32 insertions(+), 20 deletions(-)
+ drivers/char/tpm/tpm-chip.c |   18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/pci/controller/pci-mvebu.c b/drivers/pci/controller/pci-mvebu.c
-index beae555b06bbc..326527f2d6f41 100644
---- a/drivers/pci/controller/pci-mvebu.c
-+++ b/drivers/pci/controller/pci-mvebu.c
-@@ -215,16 +215,14 @@ static void mvebu_pcie_setup_hw(struct mvebu_pcie_port *port)
- {
- 	u32 cmd, mask;
+--- a/drivers/char/tpm/tpm-chip.c
++++ b/drivers/char/tpm/tpm-chip.c
+@@ -474,13 +474,21 @@ static void tpm_del_char_device(struct t
  
--	/* Point PCIe unit MBUS decode windows to DRAM space. */
--	mvebu_pcie_setup_wins(port);
--
--	/* Master + slave enable. */
-+	/* Disable Root Bridge I/O space, memory space and bus mastering. */
- 	cmd = mvebu_readl(port, PCIE_CMD_OFF);
--	cmd |= PCI_COMMAND_IO;
--	cmd |= PCI_COMMAND_MEMORY;
--	cmd |= PCI_COMMAND_MASTER;
-+	cmd &= ~(PCI_COMMAND_IO | PCI_COMMAND_MEMORY | PCI_COMMAND_MASTER);
- 	mvebu_writel(port, cmd, PCIE_CMD_OFF);
- 
-+	/* Point PCIe unit MBUS decode windows to DRAM space. */
-+	mvebu_pcie_setup_wins(port);
+ 	/* Make the driver uncallable. */
+ 	down_write(&chip->ops_sem);
+-	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
+-		if (!tpm_chip_start(chip)) {
+-			tpm2_shutdown(chip, TPM2_SU_CLEAR);
+-			tpm_chip_stop(chip);
 +
- 	/* Enable interrupt lines A-D. */
- 	mask = mvebu_readl(port, PCIE_MASK_OFF);
- 	mask |= PCIE_MASK_ENABLE_INTS;
-@@ -371,8 +369,7 @@ static void mvebu_pcie_handle_iobase_change(struct mvebu_pcie_port *port)
- 
- 	/* Are the new iobase/iolimit values invalid? */
- 	if (conf->iolimit < conf->iobase ||
--	    conf->iolimitupper < conf->iobaseupper ||
--	    !(conf->command & PCI_COMMAND_IO)) {
-+	    conf->iolimitupper < conf->iobaseupper) {
- 		mvebu_pcie_set_window(port, port->io_target, port->io_attr,
- 				      &desired, &port->iowin);
- 		return;
-@@ -409,8 +406,7 @@ static void mvebu_pcie_handle_membase_change(struct mvebu_pcie_port *port)
- 	struct pci_bridge_emul_conf *conf = &port->bridge.conf;
- 
- 	/* Are the new membase/memlimit values invalid? */
--	if (conf->memlimit < conf->membase ||
--	    !(conf->command & PCI_COMMAND_MEMORY)) {
-+	if (conf->memlimit < conf->membase) {
- 		mvebu_pcie_set_window(port, port->mem_target, port->mem_attr,
- 				      &desired, &port->memwin);
- 		return;
-@@ -430,6 +426,24 @@ static void mvebu_pcie_handle_membase_change(struct mvebu_pcie_port *port)
- 			      &port->memwin);
++	/*
++	 * Check if chip->ops is still valid: In case that the controller
++	 * drivers shutdown handler unregisters the controller in its
++	 * shutdown handler we are called twice and chip->ops to NULL.
++	 */
++	if (chip->ops) {
++		if (chip->flags & TPM_CHIP_FLAG_TPM2) {
++			if (!tpm_chip_start(chip)) {
++				tpm2_shutdown(chip, TPM2_SU_CLEAR);
++				tpm_chip_stop(chip);
++			}
+ 		}
++		chip->ops = NULL;
+ 	}
+-	chip->ops = NULL;
+ 	up_write(&chip->ops_sem);
  }
  
-+static pci_bridge_emul_read_status_t
-+mvebu_pci_bridge_emul_base_conf_read(struct pci_bridge_emul *bridge,
-+				     int reg, u32 *value)
-+{
-+	struct mvebu_pcie_port *port = bridge->data;
-+
-+	switch (reg) {
-+	case PCI_COMMAND:
-+		*value = mvebu_readl(port, PCIE_CMD_OFF);
-+		break;
-+
-+	default:
-+		return PCI_BRIDGE_EMUL_NOT_HANDLED;
-+	}
-+
-+	return PCI_BRIDGE_EMUL_HANDLED;
-+}
-+
- static pci_bridge_emul_read_status_t
- mvebu_pci_bridge_emul_pcie_conf_read(struct pci_bridge_emul *bridge,
- 				     int reg, u32 *value)
-@@ -484,17 +498,14 @@ mvebu_pci_bridge_emul_base_conf_write(struct pci_bridge_emul *bridge,
- 
- 	switch (reg) {
- 	case PCI_COMMAND:
--	{
--		if (!mvebu_has_ioport(port))
--			conf->command &= ~PCI_COMMAND_IO;
--
--		if ((old ^ new) & PCI_COMMAND_IO)
--			mvebu_pcie_handle_iobase_change(port);
--		if ((old ^ new) & PCI_COMMAND_MEMORY)
--			mvebu_pcie_handle_membase_change(port);
-+		if (!mvebu_has_ioport(port)) {
-+			conf->command = cpu_to_le16(
-+				le16_to_cpu(conf->command) & ~PCI_COMMAND_IO);
-+			new &= ~PCI_COMMAND_IO;
-+		}
- 
-+		mvebu_writel(port, new, PCIE_CMD_OFF);
- 		break;
--	}
- 
- 	case PCI_IO_BASE:
- 		mvebu_pcie_handle_iobase_change(port);
-@@ -554,6 +565,7 @@ mvebu_pci_bridge_emul_pcie_conf_write(struct pci_bridge_emul *bridge,
- }
- 
- static struct pci_bridge_emul_ops mvebu_pci_bridge_emul_ops = {
-+	.read_base = mvebu_pci_bridge_emul_base_conf_read,
- 	.write_base = mvebu_pci_bridge_emul_base_conf_write,
- 	.read_pcie = mvebu_pci_bridge_emul_pcie_conf_read,
- 	.write_pcie = mvebu_pci_bridge_emul_pcie_conf_write,
--- 
-2.34.1
-
 
 
