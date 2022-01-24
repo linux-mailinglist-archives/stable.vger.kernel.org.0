@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFF9C498E46
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:44:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED14B498E9A
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:48:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355140AbiAXTkE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:40:04 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:33890 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353906AbiAXTfd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:35:33 -0500
+        id S1348120AbiAXTnY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:43:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55314 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1355412AbiAXTlQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:41:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA50CC06175E;
+        Mon, 24 Jan 2022 11:21:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ED8C3614B8;
-        Mon, 24 Jan 2022 19:35:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC55DC340E5;
-        Mon, 24 Jan 2022 19:35:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90D17B811F9;
+        Mon, 24 Jan 2022 19:21:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7526C340E5;
+        Mon, 24 Jan 2022 19:21:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052932;
-        bh=9RyE6ZLi77tUv4uCLRdOWWqq4WpjHFSm/tVZXOPXU14=;
+        s=korg; t=1643052080;
+        bh=TXblizUNnF0qFAWhKFQNE34d8SwkK57tLFPlgMicx4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gfoWxPA4qGCPDv3SG5RlfrDbEbKT76GEyTOtRS8D0YjDjTB1dYOp8mDLnpvF4PoVc
-         yoDqmvQRAWTxbwEDwBIs6MCvb//IdkIj2QhLcbxECRcWBri+ZVD7YbzVCfODMEgpE9
-         jqsxwOy69Aq0KqW4uHtNYIGuy8NaqApLxLiomer8=
+        b=1pFLRIZkgD9q9/Q6c8isODjLyFUcONKjEE6zW8P5HELxq3bx3vtcDK+J+/qE9eRqi
+         KSpsb/fyYhOU4URkPL3LnUTTzpVyq2TOKcKf76797nyzd+HYdZPwmuNn2wEfLbZMMq
+         P2u2SrWagMHFeuwMpa0bmzi/HDsxsg/Va2mCtRsE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kyeong Yoo <kyeong.yoo@alliedtelesis.co.nz>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 203/320] jffs2: GC deadlock reading a page that is used in jffs2_write_begin()
-Date:   Mon, 24 Jan 2022 19:43:07 +0100
-Message-Id: <20220124184000.541931930@linuxfoundation.org>
+Subject: [PATCH 4.19 150/239] mmc: core: Fixup storing of OCR for MMC_QUIRK_NONSTD_SDIO
+Date:   Mon, 24 Jan 2022 19:43:08 +0100
+Message-Id: <20220124183947.864839011@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,131 +48,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kyeong Yoo <kyeong.yoo@alliedtelesis.co.nz>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit aa39cc675799bc92da153af9a13d6f969c348e82 ]
+[ Upstream commit 8c3e5b74b9e2146f564905e50ca716591c76d4f1 ]
 
-GC task can deadlock in read_cache_page() because it may attempt
-to release a page that is actually allocated by another task in
-jffs2_write_begin().
-The reason is that in jffs2_write_begin() there is a small window
-a cache page is allocated for use but not set Uptodate yet.
+The mmc core takes a specific path to support initializing of a
+non-standard SDIO card. This is triggered by looking for the card-quirk,
+MMC_QUIRK_NONSTD_SDIO.
 
-This ends up with a deadlock between two tasks:
-1) A task (e.g. file copy)
-   - jffs2_write_begin() locks a cache page
-   - jffs2_write_end() tries to lock "alloc_sem" from
-	 jffs2_reserve_space() <-- STUCK
-2) GC task (jffs2_gcd_mtd3)
-   - jffs2_garbage_collect_pass() locks "alloc_sem"
-   - try to lock the same cache page in read_cache_page() <-- STUCK
+In mmc_sdio_init_card() this gets rather messy, as it causes the code to
+bail out earlier, compared to the usual path. This leads to that the OCR
+doesn't get saved properly in card->ocr. Fortunately, only omap_hsmmc has
+been using the MMC_QUIRK_NONSTD_SDIO and is dealing with the issue, by
+assigning a hardcoded value (0x80) to card->ocr from an ->init_card() ops.
 
-So to avoid this deadlock, hold "alloc_sem" in jffs2_write_begin()
-while reading data in a cache page.
+To make the behaviour consistent, let's instead rely on the core to save
+the OCR in card->ocr during initialization.
 
-Signed-off-by: Kyeong Yoo <kyeong.yoo@alliedtelesis.co.nz>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Reported-by: H. Nikolaus Schaller <hns@goldelico.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Link: https://lore.kernel.org/r/e7936cff7fc24d187ef2680d3b4edb0ade58f293.1636564631.git.hns@goldelico.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/jffs2/file.c | 40 +++++++++++++++++++++++++---------------
- 1 file changed, 25 insertions(+), 15 deletions(-)
+ drivers/mmc/core/sdio.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/jffs2/file.c b/fs/jffs2/file.c
-index f8fb89b10227c..34880a4c21732 100644
---- a/fs/jffs2/file.c
-+++ b/fs/jffs2/file.c
-@@ -135,20 +135,15 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
- 	struct page *pg;
- 	struct inode *inode = mapping->host;
- 	struct jffs2_inode_info *f = JFFS2_INODE_INFO(inode);
-+	struct jffs2_sb_info *c = JFFS2_SB_INFO(inode->i_sb);
- 	pgoff_t index = pos >> PAGE_SHIFT;
- 	uint32_t pageofs = index << PAGE_SHIFT;
- 	int ret = 0;
+diff --git a/drivers/mmc/core/sdio.c b/drivers/mmc/core/sdio.c
+index 4e72ad24322f7..5f1ee88aa7615 100644
+--- a/drivers/mmc/core/sdio.c
++++ b/drivers/mmc/core/sdio.c
+@@ -634,6 +634,8 @@ try_again:
+ 	if (host->ops->init_card)
+ 		host->ops->init_card(host, card);
  
--	pg = grab_cache_page_write_begin(mapping, index, flags);
--	if (!pg)
--		return -ENOMEM;
--	*pagep = pg;
--
- 	jffs2_dbg(1, "%s()\n", __func__);
- 
- 	if (pageofs > inode->i_size) {
- 		/* Make new hole frag from old EOF to new page */
--		struct jffs2_sb_info *c = JFFS2_SB_INFO(inode->i_sb);
- 		struct jffs2_raw_inode ri;
- 		struct jffs2_full_dnode *fn;
- 		uint32_t alloc_len;
-@@ -159,7 +154,7 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
- 		ret = jffs2_reserve_space(c, sizeof(ri), &alloc_len,
- 					  ALLOC_NORMAL, JFFS2_SUMMARY_INODE_SIZE);
- 		if (ret)
--			goto out_page;
-+			goto out_err;
- 
- 		mutex_lock(&f->sem);
- 		memset(&ri, 0, sizeof(ri));
-@@ -189,7 +184,7 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
- 			ret = PTR_ERR(fn);
- 			jffs2_complete_reservation(c);
- 			mutex_unlock(&f->sem);
--			goto out_page;
-+			goto out_err;
- 		}
- 		ret = jffs2_add_full_dnode_to_inode(c, f, fn);
- 		if (f->metadata) {
-@@ -204,13 +199,26 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
- 			jffs2_free_full_dnode(fn);
- 			jffs2_complete_reservation(c);
- 			mutex_unlock(&f->sem);
--			goto out_page;
-+			goto out_err;
- 		}
- 		jffs2_complete_reservation(c);
- 		inode->i_size = pageofs;
- 		mutex_unlock(&f->sem);
- 	}
- 
-+	/*
-+	 * While getting a page and reading data in, lock c->alloc_sem until
-+	 * the page is Uptodate. Otherwise GC task may attempt to read the same
-+	 * page in read_cache_page(), which causes a deadlock.
-+	 */
-+	mutex_lock(&c->alloc_sem);
-+	pg = grab_cache_page_write_begin(mapping, index, flags);
-+	if (!pg) {
-+		ret = -ENOMEM;
-+		goto release_sem;
-+	}
-+	*pagep = pg;
++	card->ocr = ocr_card;
 +
  	/*
- 	 * Read in the page if it wasn't already present. Cannot optimize away
- 	 * the whole page write case until jffs2_write_end can handle the
-@@ -220,15 +228,17 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
- 		mutex_lock(&f->sem);
- 		ret = jffs2_do_readpage_nolock(inode, pg);
- 		mutex_unlock(&f->sem);
--		if (ret)
--			goto out_page;
-+		if (ret) {
-+			unlock_page(pg);
-+			put_page(pg);
-+			goto release_sem;
-+		}
+ 	 * If the host and card support UHS-I mode request the card
+ 	 * to switch to 1.8V signaling level.  No 1.8v signalling if
+@@ -740,7 +742,7 @@ try_again:
+ 
+ 		card = oldcard;
  	}
- 	jffs2_dbg(1, "end write_begin(). pg->flags %lx\n", pg->flags);
--	return ret;
+-	card->ocr = ocr_card;
++
+ 	mmc_fixup_device(card, sdio_fixup_methods);
  
--out_page:
--	unlock_page(pg);
--	put_page(pg);
-+release_sem:
-+	mutex_unlock(&c->alloc_sem);
-+out_err:
- 	return ret;
- }
- 
+ 	if (card->type == MMC_TYPE_SD_COMBO) {
 -- 
 2.34.1
 
