@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A84F749A373
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:03:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47C1649A379
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:03:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2365450AbiAXXu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:50:57 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:53904 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1573325AbiAXVou (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:44:50 -0500
+        id S2365485AbiAXXvD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:51:03 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:33936 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1573366AbiAXVoy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:44:54 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6D0E3B8105C;
-        Mon, 24 Jan 2022 21:44:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FE1FC340E4;
-        Mon, 24 Jan 2022 21:44:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BCFF61530;
+        Mon, 24 Jan 2022 21:44:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CEFCC340E4;
+        Mon, 24 Jan 2022 21:44:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060687;
-        bh=cMFAZwDQpgjABQ2Q/fX+54tfhOManCJbXO3VeKI8TMU=;
+        s=korg; t=1643060690;
+        bh=MHmC5G+aOd3jIodOwStGtnsuWl6x1s8Ye8y6waVER78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hmpGdyrx9bwPeeVzRdkFfeYc6fkrVve81IzlTEa7Hy5PBq+16A0kyW5wwLL5wzeGC
-         jJYZlerHqA9JCM2KwjZMGQYPCbMflSzYVOZf9cwyid91GSUtWh8FguePCJM+ocCTCU
-         k4myKoZ23plLH9i8RJaXxfjV+mY/+g/fAS43laL4=
+        b=GVxkupgk8Jqk2LO/LN798YajnKUlYf0ukfICEqnnhAAoEPhPtAHdqeo/4DOU4HSTc
+         aoUqO8rutJh2ei+uiBZE2l6Ma/Ue44B7u9ymZsAbRICUd24Tipc8J1SIw0Av15ZVKY
+         wGtaQNwY3HsRFrgs2qQ5c1/IG03/ESB9IYmTngGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jussi Maki <joamaki@gmail.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Gal Pressman <gal@nvidia.com>, Moshe Tal <moshet@nvidia.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.16 1030/1039] bonding: Fix extraction of ports from the packet headers
-Date:   Mon, 24 Jan 2022 19:46:59 +0100
-Message-Id: <20220124184159.911513508@linuxfoundation.org>
+        stable@vger.kernel.org, Andrey Konovalov <andreyknvl@google.com>,
+        Marco Elver <elver@google.com>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.16 1031/1039] lib/test_meminit: destroy cache in kmem_cache_alloc_bulk() test
+Date:   Mon, 24 Jan 2022 19:47:00 +0100
+Message-Id: <20220124184159.948287040@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -47,40 +49,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Tal <moshet@nvidia.com>
+From: Andrey Konovalov <andreyknvl@google.com>
 
-commit 429e3d123d9a50cc9882402e40e0ac912d88cfcf upstream.
+commit e073e5ef90298d2d6e5e7f04b545a0815e92110c upstream.
 
-Wrong hash sends single stream to multiple output interfaces.
+Make do_kmem_cache_size_bulk() destroy the cache it creates.
 
-The offset calculation was relative to skb->head, fix it to be relative
-to skb->data.
-
-Fixes: a815bde56b15 ("net, bonding: Refactor bond_xmit_hash for use with
-xdp_buff")
-Reviewed-by: Jussi Maki <joamaki@gmail.com>
-Reviewed-by: Saeed Mahameed <saeedm@nvidia.com>
-Reviewed-by: Gal Pressman <gal@nvidia.com>
-Signed-off-by: Moshe Tal <moshet@nvidia.com>
-Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lkml.kernel.org/r/aced20a94bf04159a139f0846e41d38a1537debb.1640018297.git.andreyknvl@google.com
+Fixes: 03a9349ac0e0 ("lib/test_meminit: add a kmem_cache_alloc_bulk() test")
+Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
+Reviewed-by: Marco Elver <elver@google.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/bonding/bond_main.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ lib/test_meminit.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/bonding/bond_main.c
-+++ b/drivers/net/bonding/bond_main.c
-@@ -3872,8 +3872,8 @@ u32 bond_xmit_hash(struct bonding *bond,
- 	    skb->l4_hash)
- 		return skb->hash;
- 
--	return __bond_xmit_hash(bond, skb, skb->head, skb->protocol,
--				skb->mac_header, skb->network_header,
-+	return __bond_xmit_hash(bond, skb, skb->data, skb->protocol,
-+				skb_mac_offset(skb), skb_network_offset(skb),
- 				skb_headlen(skb));
+--- a/lib/test_meminit.c
++++ b/lib/test_meminit.c
+@@ -337,6 +337,7 @@ static int __init do_kmem_cache_size_bul
+ 		if (num)
+ 			kmem_cache_free_bulk(c, num, objects);
+ 	}
++	kmem_cache_destroy(c);
+ 	*total_failures += fail;
+ 	return 1;
  }
- 
 
 
