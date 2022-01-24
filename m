@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56E7A49908C
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:04:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A4E3B499131
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:12:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376270AbiAXUBL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:01:11 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:53960 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348223AbiAXT5e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:57:34 -0500
+        id S1376781AbiAXUJl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:09:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60652 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1352283AbiAXUDd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:03:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5B66C02B87E;
+        Mon, 24 Jan 2022 11:29:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E493360B56;
-        Mon, 24 Jan 2022 19:57:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0CB3C340E5;
-        Mon, 24 Jan 2022 19:57:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 52DC16148B;
+        Mon, 24 Jan 2022 19:29:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A3DEC340E5;
+        Mon, 24 Jan 2022 19:29:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054253;
-        bh=cN3Y0NOmEgjX6lY6HpwrG6edABhYWBCKcpqZwy82Zp0=;
+        s=korg; t=1643052589;
+        bh=Qyt+cjc79L+3v4LC0sQJwm5VCbZP3ks6OIZ5fJEIcQM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rsnaQV913iIOPQKVZvUWai+Mb8I2cYfqYGyugZLpNRV/eDlHqopS69BYadCsbgKfR
-         e0TnhAHHTMoIggt8k7PhxDnGbgZO8DacR2loS98g7m3NqZecKMZSGRFnYdr78DKUUq
-         NLJ5zFTXPmTXKLaKg+/Q4zSm39LKBQ7r1tzZPVeY=
+        b=qm9sQoGNAA+qyElgYPwKy8qjLWpbOvdCtssHS7sIticpifSfhMzmwRQy/+bNi5q9m
+         Trrsz1jkpTm/atdi2QP2GRFIdsZkdAry+S1gwWUZLPGY3j//xmdstVolP0SGcXChUo
+         2LVFKwVT3brQrwNhRKA5fkyKtYWoMKAuLQeSzQ+E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brendan Dolan-Gavitt <brendandg@nyu.edu>,
-        Zekun Shen <bruceshenzk@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 329/563] rsi: Fix use-after-free in rsi_rx_done_handler()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 110/320] HID: hid-uclogic-params: Invalid parameter check in uclogic_params_huion_init
 Date:   Mon, 24 Jan 2022 19:41:34 +0100
-Message-Id: <20220124184035.812021706@linuxfoundation.org>
+Message-Id: <20220124183957.463099825@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,86 +48,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: José Expósito <jose.exposito89@gmail.com>
 
-[ Upstream commit b07e3c6ebc0c20c772c0f54042e430acec2945c3 ]
+[ Upstream commit ff6b548afe4d9d1ff3a0f6ef79e8cbca25d8f905 ]
 
-When freeing rx_cb->rx_skb, the pointer is not set to NULL,
-a later rsi_rx_done_handler call will try to read the freed
-address.
-This bug will very likley lead to double free, although
-detected early as use-after-free bug.
+The function performs a check on its input parameters, however, the
+hdev parameter is used before the check.
 
-The bug is triggerable with a compromised/malfunctional usb
-device. After applying the patch, the same input no longer
-triggers the use-after-free.
+Initialize the stack variables after checking the input parameters to
+avoid a possible NULL pointer dereference.
 
-Attached is the kasan report from fuzzing.
-
-BUG: KASAN: use-after-free in rsi_rx_done_handler+0x354/0x430 [rsi_usb]
-Read of size 4 at addr ffff8880188e5930 by task modprobe/231
-Call Trace:
- <IRQ>
- dump_stack+0x76/0xa0
- print_address_description.constprop.0+0x16/0x200
- ? rsi_rx_done_handler+0x354/0x430 [rsi_usb]
- ? rsi_rx_done_handler+0x354/0x430 [rsi_usb]
- __kasan_report.cold+0x37/0x7c
- ? dma_direct_unmap_page+0x90/0x110
- ? rsi_rx_done_handler+0x354/0x430 [rsi_usb]
- kasan_report+0xe/0x20
- rsi_rx_done_handler+0x354/0x430 [rsi_usb]
- __usb_hcd_giveback_urb+0x1e4/0x380
- usb_giveback_urb_bh+0x241/0x4f0
- ? __usb_hcd_giveback_urb+0x380/0x380
- ? apic_timer_interrupt+0xa/0x20
- tasklet_action_common.isra.0+0x135/0x330
- __do_softirq+0x18c/0x634
- ? handle_irq_event+0xcd/0x157
- ? handle_edge_irq+0x1eb/0x7b0
- irq_exit+0x114/0x140
- do_IRQ+0x91/0x1e0
- common_interrupt+0xf/0xf
- </IRQ>
-
-Reported-by: Brendan Dolan-Gavitt <brendandg@nyu.edu>
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/YXxQL/vIiYcZUu/j@10-18-43-117.dynapool.wireless.nyu.edu
+Fixes: 9614219e9310e ("HID: uclogic: Extract tablet parameter discovery into a module")
+Addresses-Coverity-ID: 1443804 ("Null pointer dereference")
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/rsi/rsi_91x_usb.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/hid/hid-uclogic-params.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/rsi/rsi_91x_usb.c b/drivers/net/wireless/rsi/rsi_91x_usb.c
-index d881df9ebd0c3..7f34148c7dfe5 100644
---- a/drivers/net/wireless/rsi/rsi_91x_usb.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_usb.c
-@@ -269,8 +269,12 @@ static void rsi_rx_done_handler(struct urb *urb)
- 	struct rsi_91x_usbdev *dev = (struct rsi_91x_usbdev *)rx_cb->data;
- 	int status = -EINVAL;
- 
-+	if (!rx_cb->rx_skb)
-+		return;
-+
- 	if (urb->status) {
- 		dev_kfree_skb(rx_cb->rx_skb);
-+		rx_cb->rx_skb = NULL;
- 		return;
+diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
+index 1f3ea6c93ef44..0fdac91c5f510 100644
+--- a/drivers/hid/hid-uclogic-params.c
++++ b/drivers/hid/hid-uclogic-params.c
+@@ -707,9 +707,9 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
+ 				     struct hid_device *hdev)
+ {
+ 	int rc;
+-	struct usb_device *udev = hid_to_usb_dev(hdev);
+-	struct usb_interface *iface = to_usb_interface(hdev->dev.parent);
+-	__u8 bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
++	struct usb_device *udev;
++	struct usb_interface *iface;
++	__u8 bInterfaceNumber;
+ 	bool found;
+ 	/* The resulting parameters (noop) */
+ 	struct uclogic_params p = {0, };
+@@ -723,6 +723,10 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
+ 		goto cleanup;
  	}
  
-@@ -294,8 +298,10 @@ out:
- 	if (rsi_rx_urb_submit(dev->priv, rx_cb->ep_num, GFP_ATOMIC))
- 		rsi_dbg(ERR_ZONE, "%s: Failed in urb submission", __func__);
- 
--	if (status)
-+	if (status) {
- 		dev_kfree_skb(rx_cb->rx_skb);
-+		rx_cb->rx_skb = NULL;
-+	}
- }
- 
- static void rsi_rx_urb_kill(struct rsi_hw *adapter, u8 ep_num)
++	udev = hid_to_usb_dev(hdev);
++	iface = to_usb_interface(hdev->dev.parent);
++	bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
++
+ 	/* If it's not a pen interface */
+ 	if (bInterfaceNumber != 0) {
+ 		/* TODO: Consider marking the interface invalid */
 -- 
 2.34.1
 
