@@ -2,138 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0235549851C
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 17:45:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24874498525
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 17:47:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243876AbiAXQpF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 11:45:05 -0500
-Received: from maynard.decadent.org.uk ([95.217.213.242]:42362 "EHLO
-        maynard.decadent.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243874AbiAXQpD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 11:45:03 -0500
-Received: from 168.7-181-91.adsl-dyn.isp.belgacom.be ([91.181.7.168] helo=deadeye)
-        by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1nC2Sj-00073r-OD; Mon, 24 Jan 2022 17:45:01 +0100
-Received: from ben by deadeye with local (Exim 4.95)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1nC2Si-009zKv-Vk;
-        Mon, 24 Jan 2022 17:45:00 +0100
-Date:   Mon, 24 Jan 2022 17:45:00 +0100
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     stable@vger.kernel.org
-Cc:     Paolo Bonzini <pbonzini@redhat.com>,
-        Nicholas Piggin <npiggin@gmail.com>
-Subject: [PATCH 4.9 4/4] KVM: do not allow mapping valid but
- non-reference-counted pages
-Message-ID: <Ye7XjLxf61gjp8w2@decadent.org.uk>
+        id S243890AbiAXQq6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 11:46:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41190 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243904AbiAXQq4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 11:46:56 -0500
+Received: from mail-yb1-xb29.google.com (mail-yb1-xb29.google.com [IPv6:2607:f8b0:4864:20::b29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23303C061744
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 08:46:56 -0800 (PST)
+Received: by mail-yb1-xb29.google.com with SMTP id m6so53163261ybc.9
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 08:46:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=u9bMjbO8pE/Eeqks/NLjs54biBVGg3hGkaC+WJylhww=;
+        b=aceonQOCFKz/mF3lO2ptSIoQGHfRhUesPyruSS8TFD4M0aQ/N0z1QosJzjBipUM0/B
+         xkkvskU/mcgH49k2OcLpSzg9ITJPDM5wDF5Lg4lxSYBlOjzVuadQTtZQGv1j05KMqIfC
+         XFq1QUZhE8h32t27LlslMlNgArRbzAcRscESBSYkDV2QSAFbNu7/y3tlrxYmugjCJpmZ
+         I6+Fg7zK8z/23M2n8ydYNN2W0OzVD6cP0Uhfrsm+WJvhoQuix0xX8rrGAySKmrAVZJ7o
+         9c0WUBn9JiSPrv3LJU8iOiAb1LRnBJ/fpPwTQdSNrWunVSBoBcIx++2AHaRHIgvBkV8T
+         QTQw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=u9bMjbO8pE/Eeqks/NLjs54biBVGg3hGkaC+WJylhww=;
+        b=x3yDyiVFIQFizppur5O5MA5dU1Rgz06wQ9nnO4zm504XVFTK/lNXMLObM5fMVqH29Y
+         59FSDdQT/bMfoMayZOGet8GgHA1mRnikAZcRayWHSt4CFRnKttubinvCTAPRrf89YHf1
+         OQCeJTIRaeZ5Tz8c0O+NT1zqUFB5tvwXKmSnw+RVOhjgrvBFkcjfsV5JzUyuNlK9cR+B
+         ssTC7W2S7SC9OASbJBNCcLc9sPZZX7+aOXu6JKpbgIDpgcLnx++yiejL4tNwaX+gIXPl
+         sWpvjgjgWwMBOlfMsCR6OMDOOOzwhZQSNegzBgnjNBIYpasRKgSh1lmzfVDtIuUMMB8t
+         cYXw==
+X-Gm-Message-State: AOAM532QC9VCly+l+ZsdJaiMk2zgF8T012StBbaRxHelj5yVI1Bn7wch
+        o49OyjFGi3rubrHgzB5hrPmp0UVviT/xx+Tqq5R5M5NEnQA6jg==
+X-Google-Smtp-Source: ABdhPJwnom0q6R8v/exQZAGKf39qbHX/WDAqCzU74hVlnqFWIRQb3A7tYXzXgXQrDE9z1vYpyWPKv11UR7sixmPhPOo=
+X-Received: by 2002:a25:d617:: with SMTP id n23mr25340718ybg.488.1643042814481;
+ Mon, 24 Jan 2022 08:46:54 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="bO0PXj4JUsqXi3Rq"
-Content-Disposition: inline
-In-Reply-To: <Ye7WqMoYNyxOqWId@decadent.org.uk>
-X-SA-Exim-Connect-IP: 91.181.7.168
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on maynard); SAEximRunCond expanded to false
+References: <Ye7BluXgj+5i9VUb@decadent.org.uk> <Ye7EZaQh/nYk4Oz+@kroah.com>
+In-Reply-To: <Ye7EZaQh/nYk4Oz+@kroah.com>
+From:   Suren Baghdasaryan <surenb@google.com>
+Date:   Mon, 24 Jan 2022 08:46:43 -0800
+Message-ID: <CAJuCfpEA=Wwd2=fn2aNark8+CqXwY90ibpbd6HF1WzcrUSdOPQ@mail.gmail.com>
+Subject: Re: [PATCH 4.14,4.19] mips,s390,sh,sparc: gup: Work around the "COW
+ can break either way" issue
+To:     Greg KH <greg@kroah.com>
+Cc:     Ben Hutchings <ben@decadent.org.uk>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Jan 24, 2022 at 7:23 AM Greg KH <greg@kroah.com> wrote:
+>
+> On Mon, Jan 24, 2022 at 04:11:18PM +0100, Ben Hutchings wrote:
+> > In Linux 4.14 and 4.19 these architectures still have their own
+> > implementations of get_user_pages_fast().  These also need to force
+> > the write flag on when taking the fast path.
+> >
+> > Fixes: 407faed92b4a ("gup: document and work around "COW can break either way" issue")
+> > Fixes: 5e24029791e8 ("gup: document and work around "COW can break either way" issue")
+> > Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+> > ---
+> >  arch/mips/mm/gup.c  | 9 ++++++++-
+> >  arch/s390/mm/gup.c  | 9 ++++++++-
+> >  arch/sh/mm/gup.c    | 9 ++++++++-
+> >  arch/sparc/mm/gup.c | 9 ++++++++-
+> >  4 files changed, 32 insertions(+), 4 deletions(-)
+>
+> Thanks, now queued up.
 
---bO0PXj4JUsqXi3Rq
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks for catching this. I completely missed the extra uses in the
+previous versions.
 
-=46rom: Nicholas Piggin <npiggin@gmail.com>
-
-commit f8be156be163a052a067306417cd0ff679068c97 upstream.
-
-It's possible to create a region which maps valid but non-refcounted
-pages (e.g., tail pages of non-compound higher order allocations). These
-host pages can then be returned by gfn_to_page, gfn_to_pfn, etc., family
-of APIs, which take a reference to the page, which takes it from 0 to 1.
-When the reference is dropped, this will free the page incorrectly.
-
-Fix this by only taking a reference on valid pages if it was non-zero,
-which indicates it is participating in normal refcounting (and can be
-released with put_page).
-
-This addresses CVE-2021-22543.
-
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Tested-by: Paolo Bonzini <pbonzini@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
----
- virt/kvm/kvm_main.c | 19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
-
-diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index dc7b60c81039..d9b7001227e3 100644
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -1513,6 +1513,13 @@ static bool vma_is_valid(struct vm_area_struct *vma,=
- bool write_fault)
- 	return true;
- }
-=20
-+static int kvm_try_get_pfn(kvm_pfn_t pfn)
-+{
-+	if (kvm_is_reserved_pfn(pfn))
-+		return 1;
-+	return get_page_unless_zero(pfn_to_page(pfn));
-+}
-+
- static int hva_to_pfn_remapped(struct vm_area_struct *vma,
- 			       unsigned long addr, bool *async,
- 			       bool write_fault, bool *writable,
-@@ -1562,13 +1569,21 @@ static int hva_to_pfn_remapped(struct vm_area_struc=
-t *vma,
- 	 * Whoever called remap_pfn_range is also going to call e.g.
- 	 * unmap_mapping_range before the underlying pages are freed,
- 	 * causing a call to our MMU notifier.
-+	 *
-+	 * Certain IO or PFNMAP mappings can be backed with valid
-+	 * struct pages, but be allocated without refcounting e.g.,
-+	 * tail pages of non-compound higher order allocations, which
-+	 * would then underflow the refcount when the caller does the
-+	 * required put_page. Don't allow those pages here.
- 	 */=20
--	kvm_get_pfn(pfn);
-+	if (!kvm_try_get_pfn(pfn))
-+		r =3D -EFAULT;
-=20
- out:
- 	pte_unmap_unlock(ptep, ptl);
- 	*p_pfn =3D pfn;
--	return 0;
-+
-+	return r;
- }
-=20
- /*
-
---bO0PXj4JUsqXi3Rq
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmHu14wACgkQ57/I7JWG
-EQn9Ww//SPa5UkNujSgCZHSur49Srl/1wFkNWsVUNiEHzr6cI35Ykup1eZM1Amsf
-Z75jznbNha2t1f4VfmJkgfvDSQ1XSdhIUOEdbBegMhoCuDRcZMk6oXC+mBqELXC3
-IGBoPJAsGFwlm8sRI3RNcJSdGL+YFOEm30LeyuvPwCs36DOXDVr21RrccrVD02EX
-xsXlsFkVWA5zATzdlUlL2pnVyII/kwCvkWzd6KPZiB9GcBVlIY0onEQOtOMfxFI+
-Ni1xMNqiCWbtcTXs7cXM7FvD1Yb4+ZjrejwCNwurQ0XDwuvjKDIF6Dz9O/6gGeS8
-Mk49r5c3vc+lrVtJNbNJ/mireQg/1YCAH87jUfUUABGlwXODoUIA4PGbWDFKnV1O
-7ZtPBjy/7Nx3sqPeh7tGJjUo4e9EanvVCNIiqdffjrv/TlY+7bJlfMVnpc0PEXCD
-2kjeo8lx/qGBieogKfvmZEW9hJdfTYqWx9XZxHDwnyMXn+ARtWsMGwLYP1DjILaD
-9sfSKrJLmTB5Ye1Hfsb0JzWsOOtS+MPsNU5+ZezVmY+jo/AQnnJiRk8KkcQ6ql8E
-ZZthm+J84Q4JzbmwWUBQ4oEyDcrczqVWZKZu+IyUjPCg/7UEA68BGMTNtF1ErZ23
-h/ZJxj9AaKFPoRTMhB2YyxUVsr7SgfeiPc2Wew394YPx3X29g3I=
-=dCPv
------END PGP SIGNATURE-----
-
---bO0PXj4JUsqXi3Rq--
+>
+> greg k-h
