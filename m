@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F5BF4979CE
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 08:53:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D37E4979CF
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 08:53:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230401AbiAXHxd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 02:53:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57428 "EHLO
+        id S241931AbiAXHxf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 02:53:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241902AbiAXHxd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 02:53:33 -0500
+        with ESMTP id S241902AbiAXHxf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 02:53:35 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3C52C06173D
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 23:53:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D1D3C06173B
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 23:53:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 748706111C
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 07:53:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 365CAC340E1;
-        Mon, 24 Jan 2022 07:53:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F80E61045
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 07:53:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68F06C340E1;
+        Mon, 24 Jan 2022 07:53:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643010810;
-        bh=9fvHuIVJ78Cj54c1/3cxvCCyBLl3WnhVWeveLr+HsD0=;
+        s=korg; t=1643010814;
+        bh=aoxG1y1oZozrqwG24CVDSbW3pHSHwGLbyKGv9Q+hrg4=;
         h=Subject:To:Cc:From:Date:From;
-        b=S5FDnjOATqMJlJBx0YqiMTadxk9AwffNXYPnYU65oAl/xEtVKtildTyaKn5E1PUte
-         uF6dVbfGCwAueW7XuoFQSz2OPrrTl7qj1sjWr3V7UsUNFTe5eLQJspv5Cozlhxslye
-         Cu6buuY9pATZZGnjTxwCTcCofZ5fr8zMChY+ra34=
-Subject: FAILED: patch "[PATCH] ext4: fix an use-after-free issue about data=journal" failed to apply to 5.4-stable tree
+        b=aGYbm3iFQ8mdxH4jIzMmftfJugs1yBM17KnFQUmHCmWLciTbvRmteMCe6XcBkrsos
+         dltpkUQpbInBBQN5N6iraoL+cHp5WbExI1kCLY+z/HRzAFeycN1oZ7nxrj8tv7Jm8x
+         voFRXu2v6oQI140K/OfV/TTo9jZhxeLlQWgPe+Mk=
+Subject: FAILED: patch "[PATCH] ext4: fix an use-after-free issue about data=journal" failed to apply to 4.19-stable tree
 To:     yi.zhang@huawei.com, tytso@mit.edu
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 08:53:25 +0100
-Message-ID: <1643010805136188@kroah.com>
+Date:   Mon, 24 Jan 2022 08:53:26 +0100
+Message-ID: <1643010806156207@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
