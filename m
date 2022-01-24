@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DD1E4995B1
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:13:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5164499781
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:28:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352629AbiAXUyD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:54:03 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:48374 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1392457AbiAXUvP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:51:15 -0500
+        id S1448632AbiAXVNM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:13:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47574 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1442661AbiAXVJP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:09:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13955C08E7BF;
+        Mon, 24 Jan 2022 12:08:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CCAE7B81063;
-        Mon, 24 Jan 2022 20:51:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E517C340E5;
-        Mon, 24 Jan 2022 20:51:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A9F1B61028;
+        Mon, 24 Jan 2022 20:08:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72AD1C340E5;
+        Mon, 24 Jan 2022 20:08:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057473;
-        bh=QQYbblQ35leF5mIDeINDGQFfwan87gWS7LaQi2QXxZI=;
+        s=korg; t=1643054908;
+        bh=kMr+l1X0Tz15rQxemznxgmpr77b7eA79Xv76g7qVjlg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1txdVApDkGrpbneHEwbmecVV/7h9wD+k/cfuz1S5Ite1zEig/hxC8LwRJ6zjE27s/
-         3fGug7zYhUEzVq4lqE0Fp6ycsrnK4x36orq8VSsuBKK4yVJmNypdCl2rq3UEb0b77O
-         DouaohQRQul+68gWfGadraAib+/NnaIgwGNEyN8Q=
+        b=pwZ+728oYuE0f9XtySY9ZiSeYV/3rNHHnOfxBSNIzu3Bnz+TLdhjmEalaEAL3zbgP
+         aDy82EN7lnrqLnYDNA5Hibh8+4fT4VfX+AX6DfseU1n+EKqNrf7rmN25XNkpbSZGX9
+         c3Vli2WKmEMpQ22+85OydDeEsujxwSQ9OiQKJwKM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 791/846] net: axienet: increase reset timeout
+        stable@vger.kernel.org,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.10 543/563] dmaengine: at_xdmac: Fix concurrency over xfers_list
 Date:   Mon, 24 Jan 2022 19:45:08 +0100
-Message-Id: <20220124184128.245066759@linuxfoundation.org>
+Message-Id: <20220124184043.212118839@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,58 +48,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-commit 2e5644b1bab2ccea9cfc7a9520af95b94eb0dbf1 upstream.
+commit 18deddea9184b62941395889ff7659529c877326 upstream.
 
-The previous timeout of 1ms was too short to handle some cases where the
-core is reset just after the input clocks were started, which will
-be introduced in an upcoming patch. Increase the timeout to 50ms. Also
-simplify the reset timeout checking to use read_poll_timeout.
+Since tx_submit can be called from a hard IRQ, xfers_list must be
+protected with a lock to avoid concurency on the list's elements.
+Since at_xdmac_handle_cyclic() is called from a tasklet, spin_lock_irq
+is enough to protect from a hard IRQ.
 
-Fixes: 8a3b7a252dca9 ("drivers/net/ethernet/xilinx: added Xilinx AXI Ethernet driver")
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e1f7c9eee707 ("dmaengine: at_xdmac: creation of the atmel eXtended DMA Controller driver")
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Link: https://lore.kernel.org/r/20211215110115.191749-8-tudor.ambarus@microchip.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/xilinx/xilinx_axienet_main.c |   19 +++++++++----------
- 1 file changed, 9 insertions(+), 10 deletions(-)
+ drivers/dma/at_xdmac.c |   17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
---- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-@@ -496,7 +496,8 @@ static void axienet_setoptions(struct ne
+--- a/drivers/dma/at_xdmac.c
++++ b/drivers/dma/at_xdmac.c
+@@ -1559,14 +1559,17 @@ static void at_xdmac_handle_cyclic(struc
+ 	struct at_xdmac_desc		*desc;
+ 	struct dma_async_tx_descriptor	*txd;
  
- static int __axienet_device_reset(struct axienet_local *lp)
- {
--	u32 timeout;
-+	u32 value;
-+	int ret;
- 
- 	/* Reset Axi DMA. This would reset Axi Ethernet core as well. The reset
- 	 * process of Axi DMA takes a while to complete as all pending
-@@ -506,15 +507,13 @@ static int __axienet_device_reset(struct
- 	 * they both reset the entire DMA core, so only one needs to be used.
- 	 */
- 	axienet_dma_out32(lp, XAXIDMA_TX_CR_OFFSET, XAXIDMA_CR_RESET_MASK);
--	timeout = DELAY_OF_ONE_MILLISEC;
--	while (axienet_dma_in32(lp, XAXIDMA_TX_CR_OFFSET) &
--				XAXIDMA_CR_RESET_MASK) {
--		udelay(1);
--		if (--timeout == 0) {
--			netdev_err(lp->ndev, "%s: DMA reset timeout!\n",
--				   __func__);
--			return -ETIMEDOUT;
--		}
-+	ret = read_poll_timeout(axienet_dma_in32, value,
-+				!(value & XAXIDMA_CR_RESET_MASK),
-+				DELAY_OF_ONE_MILLISEC, 50000, false, lp,
-+				XAXIDMA_TX_CR_OFFSET);
-+	if (ret) {
-+		dev_err(lp->dev, "%s: DMA reset timeout!\n", __func__);
-+		return ret;
+-	if (!list_empty(&atchan->xfers_list)) {
+-		desc = list_first_entry(&atchan->xfers_list,
+-					struct at_xdmac_desc, xfer_node);
+-		txd = &desc->tx_dma_desc;
+-
+-		if (txd->flags & DMA_PREP_INTERRUPT)
+-			dmaengine_desc_get_callback_invoke(txd, NULL);
++	spin_lock_irq(&atchan->lock);
++	if (list_empty(&atchan->xfers_list)) {
++		spin_unlock_irq(&atchan->lock);
++		return;
  	}
++	desc = list_first_entry(&atchan->xfers_list, struct at_xdmac_desc,
++				xfer_node);
++	spin_unlock_irq(&atchan->lock);
++	txd = &desc->tx_dma_desc;
++	if (txd->flags & DMA_PREP_INTERRUPT)
++		dmaengine_desc_get_callback_invoke(txd, NULL);
+ }
  
- 	return 0;
+ static void at_xdmac_handle_error(struct at_xdmac_chan *atchan)
 
 
