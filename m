@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CECAA498F84
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:54:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62CA8498F85
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:54:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352603AbiAXTxA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:53:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56404 "EHLO
+        id S1354090AbiAXTxC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:53:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343914AbiAXTrs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:47:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72947C061797;
-        Mon, 24 Jan 2022 11:23:26 -0800 (PST)
+        with ESMTP id S1349990AbiAXTry (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:47:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B350C038AF4;
+        Mon, 24 Jan 2022 11:23:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2E55BB8119D;
-        Mon, 24 Jan 2022 19:23:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CCE6C340E5;
-        Mon, 24 Jan 2022 19:23:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BEF1961496;
+        Mon, 24 Jan 2022 19:23:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73D23C36AE2;
+        Mon, 24 Jan 2022 19:23:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052203;
-        bh=eGU5BZn9pv3lxR8n0x8YyiDNk3dQsF9nkslcgbj7S0M=;
+        s=korg; t=1643052207;
+        bh=WIhonFUuLPDgILEzIj8zMYalQ6tBoRgyQ7YNS/mS6RA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fTFhPB0YhSaEjwXeQ/ilTQQE8jVv4OZMefVM5QjKho1wQkvqiU+/ui8+iAQlGvP+e
-         rq6sFhMwLLzcfm5vTMHh+s1xFMv4jod4YCCb1Jpdg5PDptxgvsT0xnaKdDNYED9yRg
-         ABJWQI4fOZvRQ/yQoTB7rnDat7AExnR46accAj54=
+        b=SE8YkIDaapaFZ9eUce/9+9jnmS0VU3QKn01siD7rAMVySd5tnI0Us0LCVX2WmBGkO
+         Un2z+2AHk8fB54rAsAp8MZsu7249JJOhKAupvSLbrdInb2Sk/uUVXwNkjHOltZwIC2
+         658d8DArUz10ruBOO1uVSPT8cWmQntxR19Uy5aqY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 223/239] net: axienet: Wait for PhyRstCmplt after core reset
-Date:   Mon, 24 Jan 2022 19:44:21 +0100
-Message-Id: <20220124183950.200828682@linuxfoundation.org>
+Subject: [PATCH 4.19 224/239] net: axienet: fix number of TX ring slots for available check
+Date:   Mon, 24 Jan 2022 19:44:22 +0100
+Message-Id: <20220124183950.232834013@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
 References: <20220124183943.102762895@linuxfoundation.org>
@@ -50,49 +49,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Robert Hancock <robert.hancock@calian.com>
 
-commit b400c2f4f4c53c86594dd57098970d97d488bfde upstream.
+commit aba57a823d2985a2cc8c74a2535f3a88e68d9424 upstream.
 
-When resetting the device, wait for the PhyRstCmplt bit to be set
-in the interrupt status register before continuing initialization, to
-ensure that the core is actually ready. When using an external PHY, this
-also ensures we do not start trying to access the PHY while it is still
-in reset. The PHY reset is initiated by the core reset which is
-triggered just above, but remains asserted for 5ms after the core is
-reset according to the documentation.
-
-The MgtRdy bit could also be waited for, but unfortunately when using
-7-series devices, the bit does not appear to work as documented (it
-seems to behave as some sort of link state indication and not just an
-indication the transceiver is ready) so it can't really be relied on for
-this purpose.
+The check for the number of available TX ring slots was off by 1 since a
+slot is required for the skb header as well as each fragment. This could
+result in overwriting a TX ring slot that was still in use.
 
 Fixes: 8a3b7a252dca9 ("drivers/net/ethernet/xilinx: added Xilinx AXI Ethernet driver")
 Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/xilinx/xilinx_axienet_main.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/net/ethernet/xilinx/xilinx_axienet_main.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 --- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
 +++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-@@ -279,6 +279,16 @@ static int axienet_dma_bd_init(struct ne
- 	axienet_dma_out32(lp, XAXIDMA_TX_CR_OFFSET,
- 			  cr | XAXIDMA_CR_RUNSTOP_MASK);
+@@ -682,7 +682,7 @@ axienet_start_xmit(struct sk_buff *skb,
+ 	num_frag = skb_shinfo(skb)->nr_frags;
+ 	cur_p = &lp->tx_bd_v[lp->tx_bd_tail];
  
-+	/* Wait for PhyRstCmplt bit to be set, indicating the PHY reset has finished */
-+	ret = read_poll_timeout(axienet_ior, value,
-+				value & XAE_INT_PHYRSTCMPLT_MASK,
-+				DELAY_OF_ONE_MILLISEC, 50000, false, lp,
-+				XAE_IS_OFFSET);
-+	if (ret) {
-+		dev_err(lp->dev, "%s: timeout waiting for PhyRstCmplt\n", __func__);
-+		return ret;
-+	}
-+
- 	return 0;
- out:
- 	axienet_dma_bd_release(ndev);
+-	if (axienet_check_tx_bd_space(lp, num_frag)) {
++	if (axienet_check_tx_bd_space(lp, num_frag + 1)) {
+ 		if (netif_queue_stopped(ndev))
+ 			return NETDEV_TX_BUSY;
+ 
+@@ -692,7 +692,7 @@ axienet_start_xmit(struct sk_buff *skb,
+ 		smp_mb();
+ 
+ 		/* Space might have just been freed - check again */
+-		if (axienet_check_tx_bd_space(lp, num_frag))
++		if (axienet_check_tx_bd_space(lp, num_frag + 1))
+ 			return NETDEV_TX_BUSY;
+ 
+ 		netif_wake_queue(ndev);
 
 
