@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF50D498E18
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:43:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6A01498BF4
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:18:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343972AbiAXTjR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:39:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53186 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348693AbiAXTct (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:32:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C732CC06175C;
-        Mon, 24 Jan 2022 11:15:47 -0800 (PST)
+        id S242833AbiAXTRz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:17:55 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:44916 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344692AbiAXTPt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:15:49 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90A7BB81243;
-        Mon, 24 Jan 2022 19:15:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A988EC36AF6;
-        Mon, 24 Jan 2022 19:15:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05CD960BB9;
+        Mon, 24 Jan 2022 19:15:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC8A8C340E5;
+        Mon, 24 Jan 2022 19:15:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051745;
-        bh=klrBH5nyZMWKmNmb4becohaWwomwqQ1u6jORvNXAu9k=;
+        s=korg; t=1643051748;
+        bh=LcFHXWk/CJPMEDuKn4mpuc4FpGa3nt8Tz577qgyfW3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Oy/Z670zW4znsSM/XBGr4J71cWUGyTD6Rq3vRukApGuUBJ7XSz7W8CKQ0WLynOge+
-         cCMSrR7w7xv19ibZYuE3Z4Uz5p9b2K0GTEckPLH7+nKQPGxiBRN+w7oxKkQ1LpCaDK
-         hQRsS/S6Iob9HsTflFjMg6UcXKBkFJvleDDvSd2M=
+        b=apOfZAbSQFfof1K7jEW1K2xwNq6+9/6uBjng15LYHnSY5sJ6E+0iT1Lci61czOmOb
+         vhU2HQ/JTOYUsxFLloX/YmlR/5b/8e+a1BNO4DRPx5Zi/TA2jzOgKzqCAeO49lKGiB
+         Eyj5hN5tIJP731pSYe40mzDNxxI8mq+jwpoWfMnI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>
-Subject: [PATCH 4.19 041/239] lkdtm: Fix content of section containing lkdtm_rodata_do_nothing()
-Date:   Mon, 24 Jan 2022 19:41:19 +0100
-Message-Id: <20220124183944.447973032@linuxfoundation.org>
+        stable@vger.kernel.org, Sam Bingner <sam@bingner.com>,
+        Yifeng Li <tomli@tomli.me>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>
+Subject: [PATCH 4.19 042/239] PCI: Add function 1 DMA alias quirk for Marvell 88SE9125 SATA controller
+Date:   Mon, 24 Jan 2022 19:41:20 +0100
+Message-Id: <20220124183944.479480458@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
 References: <20220124183943.102762895@linuxfoundation.org>
@@ -50,55 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Yifeng Li <tomli@tomli.me>
 
-commit bc93a22a19eb2b68a16ecf04cdf4b2ed65aaf398 upstream.
+commit e445375882883f69018aa669b67cbb37ec873406 upstream.
 
-On a kernel without CONFIG_STRICT_KERNEL_RWX, running EXEC_RODATA
-test leads to "Illegal instruction" failure.
+Like other SATA controller chips in the Marvell 88SE91xx series, the
+Marvell 88SE9125 has the same DMA requester ID hardware bug that prevents
+it from working under IOMMU.  Add it to the list of devices that need the
+quirk.
 
-Looking at the content of rodata_objcopy.o, we see that the
-function content zeroes only:
+Without this patch, device initialization fails with DMA errors:
 
-	Disassembly of section .rodata:
+  ata8: softreset failed (1st FIS failed)
+  DMAR: DRHD: handling fault status reg 2
+  DMAR: [DMA Write NO_PASID] Request device [03:00.1] fault addr 0xfffc0000 [fault reason 0x02] Present bit in context entry is clear
+  DMAR: DRHD: handling fault status reg 2
+  DMAR: [DMA Read NO_PASID] Request device [03:00.1] fault addr 0xfffc0000 [fault reason 0x02] Present bit in context entry is clear
 
-	0000000000000000 <.lkdtm_rodata_do_nothing>:
-	   0:	00 00 00 00 	.long 0x0
+After applying the patch, the controller can be successfully initialized:
 
-Add the contents flag in order to keep the content of the section
-while renaming it.
+  ata8: SATA link up 1.5 Gbps (SStatus 113 SControl 330)
+  ata8.00: ATAPI: PIONEER BD-RW   BDR-207M, 1.21, max UDMA/100
+  ata8.00: configured for UDMA/100
+  scsi 7:0:0:0: CD-ROM            PIONEER  BD-RW   BDR-207M 1.21 PQ: 0 ANSI: 5
 
-	Disassembly of section .rodata:
-
-	0000000000000000 <.lkdtm_rodata_do_nothing>:
-	   0:	4e 80 00 20 	blr
-
-Fixes: e9e08a07385e ("lkdtm: support llvm-objcopy")
+Link: https://lore.kernel.org/r/YahpKVR+McJVDdkD@work
+Reported-by: Sam Bingner <sam@bingner.com>
+Tested-by: Sam Bingner <sam@bingner.com>
+Tested-by: Yifeng Li <tomli@tomli.me>
+Signed-off-by: Yifeng Li <tomli@tomli.me>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Krzysztof Wilczyński <kw@linux.com>
 Cc: stable@vger.kernel.org
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Nick Desaulniers <ndesaulniers@google.com>
-Cc: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/8900731fbc05fb8b0de18af7133a8fc07c3c53a1.1633712176.git.christophe.leroy@csgroup.eu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/lkdtm/Makefile |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/misc/lkdtm/Makefile
-+++ b/drivers/misc/lkdtm/Makefile
-@@ -13,7 +13,7 @@ KCOV_INSTRUMENT_rodata.o	:= n
- 
- OBJCOPYFLAGS :=
- OBJCOPYFLAGS_rodata_objcopy.o	:= \
--			--rename-section .noinstr.text=.rodata,alloc,readonly,load
-+			--rename-section .noinstr.text=.rodata,alloc,readonly,load,contents
- targets += rodata.o rodata_objcopy.o
- $(obj)/rodata_objcopy.o: $(obj)/rodata.o FORCE
- 	$(call if_changed,objcopy)
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -4040,6 +4040,9 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_M
+ 			 quirk_dma_func1_alias);
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9123,
+ 			 quirk_dma_func1_alias);
++/* https://bugzilla.kernel.org/show_bug.cgi?id=42679#c136 */
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9125,
++			 quirk_dma_func1_alias);
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9128,
+ 			 quirk_dma_func1_alias);
+ /* https://bugzilla.kernel.org/show_bug.cgi?id=42679#c14 */
 
 
