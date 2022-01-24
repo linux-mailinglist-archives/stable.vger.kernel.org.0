@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B566E498F3E
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:51:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57494498A7D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:04:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357726AbiAXTvj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:51:39 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58588 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348432AbiAXThT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:37:19 -0500
+        id S1345580AbiAXTER (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:04:17 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60844 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344517AbiAXTCP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:02:15 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0B246B810BD;
-        Mon, 24 Jan 2022 19:37:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AC02C340E8;
-        Mon, 24 Jan 2022 19:37:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9132B60BAD;
+        Mon, 24 Jan 2022 19:02:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 468ACC340E5;
+        Mon, 24 Jan 2022 19:02:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053033;
-        bh=1CNTcvK4OXKHW3vcSevueM9ut4cbVVfCf3c2zi3LRCY=;
+        s=korg; t=1643050933;
+        bh=iWOkdgPCQQjl1CePs+iFke75cLkjFCy3GlkrB5GhPvY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JSYN3KN+u0Xq6blxPFdIrlh0uxSk8tShbmLpLbrH9JZ/CUPQI3DXVAO+h5CQewPMp
-         rukKNGC7FpJ6fw5Kjl7PwJCErdhSZmSb67sJXiDT8ZcFW8xY7q+Kw6DM4foRtfNhT2
-         a8LvGZuS+pl5h8QHQdrsXh5k1Lt4tPzbHWaqXHz0=
+        b=sNqmBylp0bo4jKIcD+k2r49JSTlyIFdNWTKK6lT99xalI1NuUnxKcgBANkY5ieUPR
+         WUFDExrpAaS+QifRXqAqIi/JCtaG1QmQNv7o4zWNnxokfhWnlQgOQQfXr+Hj1nbLw8
+         RPmziA0DJkiaRptE5l1SYGOMSIpOeMuWpfAsvtAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vlastimil Babka <vbabka@suse.com>,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.4 255/320] s390/mm: fix 2KB pgtable release race
-Date:   Mon, 24 Jan 2022 19:43:59 +0100
-Message-Id: <20220124184002.666556675@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Braun <michael-dev@fami-braun.de>,
+        "David S. Miller" <davem@davemloft.net>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.9 150/157] gianfar: fix jumbo packets+napi+rx overrun crash
+Date:   Mon, 24 Jan 2022 19:44:00 +0100
+Message-Id: <20220124183937.520465560@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,110 +45,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Gordeev <agordeev@linux.ibm.com>
+From: Michael Braun <michael-dev@fami-braun.de>
 
-commit c2c224932fd0ee6854d6ebfc8d059c2bcad86606 upstream.
+commit d8861bab48b6c1fc3cdbcab8ff9d1eaea43afe7f upstream.
 
-There is a race on concurrent 2KB-pgtables release paths when
-both upper and lower halves of the containing parent page are
-freed, one via page_table_free_rcu() + __tlb_remove_table(),
-and the other via page_table_free(). The race might lead to a
-corruption as result of remove of list item in page_table_free()
-concurrently with __free_page() in __tlb_remove_table().
+When using jumbo packets and overrunning rx queue with napi enabled,
+the following sequence is observed in gfar_add_rx_frag:
 
-Let's assume first the lower and next the upper 2KB-pgtables are
-freed from a page. Since both halves of the page are allocated
-the tracking byte (bits 24-31 of the page _refcount) has value
-of 0x03 initially:
+   | lstatus                              |       | skb                   |
+t  | lstatus,  size, flags                | first | len, data_len, *ptr   |
+---+--------------------------------------+-------+-----------------------+
+13 | 18002348, 9032, INTERRUPT LAST       | 0     | 9600, 8000,  f554c12e |
+12 | 10000640, 1600, INTERRUPT            | 0     | 8000, 6400,  f554c12e |
+11 | 10000640, 1600, INTERRUPT            | 0     | 6400, 4800,  f554c12e |
+10 | 10000640, 1600, INTERRUPT            | 0     | 4800, 3200,  f554c12e |
+09 | 10000640, 1600, INTERRUPT            | 0     | 3200, 1600,  f554c12e |
+08 | 14000640, 1600, INTERRUPT FIRST      | 0     | 1600, 0,     f554c12e |
+07 | 14000640, 1600, INTERRUPT FIRST      | 1     | 0,    0,     f554c12e |
+06 | 1c000080, 128,  INTERRUPT LAST FIRST | 1     | 0,    0,     abf3bd6e |
+05 | 18002348, 9032, INTERRUPT LAST       | 0     | 8000, 6400,  c5a57780 |
+04 | 10000640, 1600, INTERRUPT            | 0     | 6400, 4800,  c5a57780 |
+03 | 10000640, 1600, INTERRUPT            | 0     | 4800, 3200,  c5a57780 |
+02 | 10000640, 1600, INTERRUPT            | 0     | 3200, 1600,  c5a57780 |
+01 | 10000640, 1600, INTERRUPT            | 0     | 1600, 0,     c5a57780 |
+00 | 14000640, 1600, INTERRUPT FIRST      | 1     | 0,    0,     c5a57780 |
 
-CPU0				CPU1
-----				----
+So at t=7 a new packets is started but not finished, probably due to rx
+overrun - but rx overrun is not indicated in the flags. Instead a new
+packets starts at t=8. This results in skb->len to exceed size for the LAST
+fragment at t=13 and thus a negative fragment size added to the skb.
 
-page_table_free_rcu() // lower half
-{
-	// _refcount[31..24] == 0x03
-	...
-	atomic_xor_bits(&page->_refcount,
-			0x11U << (0 + 24));
-	// _refcount[31..24] <= 0x12
-	...
-	table = table | (1U << 0);
-	tlb_remove_table(tlb, table);
-}
+This then crashes:
+
+kernel BUG at include/linux/skbuff.h:2277!
+Oops: Exception in kernel mode, sig: 5 [#1]
 ...
-__tlb_remove_table()
-{
-	// _refcount[31..24] == 0x12
-	mask = _table & 3;
-	// mask <= 0x01
-	...
+NIP [c04689f4] skb_pull+0x2c/0x48
+LR [c03f62ac] gfar_clean_rx_ring+0x2e4/0x844
+Call Trace:
+[ec4bfd38] [c06a84c4] _raw_spin_unlock_irqrestore+0x60/0x7c (unreliable)
+[ec4bfda8] [c03f6a44] gfar_poll_rx_sq+0x48/0xe4
+[ec4bfdc8] [c048d504] __napi_poll+0x54/0x26c
+[ec4bfdf8] [c048d908] net_rx_action+0x138/0x2c0
+[ec4bfe68] [c06a8f34] __do_softirq+0x3a4/0x4fc
+[ec4bfed8] [c0040150] run_ksoftirqd+0x58/0x70
+[ec4bfee8] [c0066ecc] smpboot_thread_fn+0x184/0x1cc
+[ec4bff08] [c0062718] kthread+0x140/0x144
+[ec4bff38] [c0012350] ret_from_kernel_thread+0x14/0x1c
 
-				page_table_free() // upper half
-				{
-					// _refcount[31..24] == 0x12
-					...
-					atomic_xor_bits(
-						&page->_refcount,
-						1U << (1 + 24));
-					// _refcount[31..24] <= 0x10
-					// mask <= 0x10
-					...
-	atomic_xor_bits(&page->_refcount,
-			mask << (4 + 24));
-	// _refcount[31..24] <= 0x00
-	// mask <= 0x00
-	...
-	if (mask != 0) // == false
-		break;
-	fallthrough;
-	...
-					if (mask & 3) // == false
-						...
-					else
-	__free_page(page);			list_del(&page->lru);
-	^^^^^^^^^^^^^^^^^^	RACE!		^^^^^^^^^^^^^^^^^^^^^
-}					...
-				}
+This patch fixes this by checking for computed LAST fragment size, so a
+negative sized fragment is never added.
+In order to prevent the newer rx frame from getting corrupted, the FIRST
+flag is checked to discard the incomplete older frame.
 
-The problem is page_table_free() releases the page as result of
-lower nibble unset and __tlb_remove_table() observing zero too
-early. With this update page_table_free() will use the similar
-logic as page_table_free_rcu() + __tlb_remove_table(), and mark
-the fragment as pending for removal in the upper nibble until
-after the list_del().
-
-In other words, the parent page is considered as unreferenced and
-safe to release only when the lower nibble is cleared already and
-unsetting a bit in upper nibble results in that nibble turned zero.
-
-Cc: stable@vger.kernel.org
-Suggested-by: Vlastimil Babka <vbabka@suse.com>
-Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Michael Braun <michael-dev@fami-braun.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/mm/pgalloc.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/freescale/gianfar.c |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
---- a/arch/s390/mm/pgalloc.c
-+++ b/arch/s390/mm/pgalloc.c
-@@ -255,13 +255,15 @@ void page_table_free(struct mm_struct *m
- 		/* Free 2K page table fragment of a 4K page */
- 		bit = (__pa(table) & ~PAGE_MASK)/(PTRS_PER_PTE*sizeof(pte_t));
- 		spin_lock_bh(&mm->context.lock);
--		mask = atomic_xor_bits(&page->_refcount, 1U << (bit + 24));
-+		mask = atomic_xor_bits(&page->_refcount, 0x11U << (bit + 24));
- 		mask >>= 24;
- 		if (mask & 3)
- 			list_add(&page->lru, &mm->context.pgtable_list);
- 		else
- 			list_del(&page->lru);
- 		spin_unlock_bh(&mm->context.lock);
-+		mask = atomic_xor_bits(&page->_refcount, 0x10U << (bit + 24));
-+		mask >>= 24;
- 		if (mask != 0)
- 			return;
- 	} else {
+--- a/drivers/net/ethernet/freescale/gianfar.c
++++ b/drivers/net/ethernet/freescale/gianfar.c
+@@ -2947,6 +2947,10 @@ static bool gfar_add_rx_frag(struct gfar
+ 		if (lstatus & BD_LFLAG(RXBD_LAST))
+ 			size -= skb->len;
+ 
++		WARN(size < 0, "gianfar: rx fragment size underflow");
++		if (size < 0)
++			return false;
++
+ 		skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, page,
+ 				rxb->page_offset + RXBUF_ALIGNMENT,
+ 				size, GFAR_RXB_TRUESIZE);
+@@ -3108,6 +3112,17 @@ int gfar_clean_rx_ring(struct gfar_priv_
+ 		if (lstatus & BD_LFLAG(RXBD_EMPTY))
+ 			break;
+ 
++		/* lost RXBD_LAST descriptor due to overrun */
++		if (skb &&
++		    (lstatus & BD_LFLAG(RXBD_FIRST))) {
++			/* discard faulty buffer */
++			dev_kfree_skb(skb);
++			skb = NULL;
++			rx_queue->stats.rx_dropped++;
++
++			/* can continue normally */
++		}
++
+ 		/* order rx buffer descriptor reads */
+ 		rmb();
+ 
 
 
