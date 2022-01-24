@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D77049A924
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:19:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B42F849A926
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:19:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1322197AbiAYDVW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:21:22 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:35780 "EHLO
+        id S1322201AbiAYDVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:21:25 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:36132 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353840AbiAXUJA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:09:00 -0500
+        with ESMTP id S1353904AbiAXUJR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:09:17 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 03333612FC;
-        Mon, 24 Jan 2022 20:08:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B912CC340E5;
-        Mon, 24 Jan 2022 20:08:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 22C266131D;
+        Mon, 24 Jan 2022 20:09:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D26F6C340E7;
+        Mon, 24 Jan 2022 20:09:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054938;
-        bh=yrC4/59bDpg4P6F8ntcpYsVINcsebGMtT4MPqprAZJM=;
+        s=korg; t=1643054956;
+        bh=yu+IE5+gItyP4e2FuDlpjTgxMD8d6Lf0tXsdlecCLis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Adj4hF7SDdLoqL2rEiwuDW9Ptg8Y/BorCexbABjI3O5Hb7zXh4v/ffWppUhZzNV78
-         a9PEN8wXIV0cfUg0UiVyuTBrOBevbLz3BZJ2HM4IbBWNocKD0oNipANmMOT7JLbNDR
-         wRMTEuLtS3EulaPyDlnAh90BRVN4f0ltB9pawzjw=
+        b=pVO0uHo6LQESZ87fvNf0/m7MXcHpOYI+TVmnpIxLXmrXz+SUZ/8SQC68SdvzXHQIK
+         4MpMfdIF3G/OG76/Rab7EU7TT8WJG0ey4eceYRerFUEGo49Lzvt71+5PVmmPKAgyHf
+         d9elk8Gzvfm52d9Nk9kUoXvXbRYu6ngF1v451RoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 552/563] net: ethernet: mtk_eth_soc: fix error checking in mtk_mac_config()
-Date:   Mon, 24 Jan 2022 19:45:17 +0100
-Message-Id: <20220124184043.527136494@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
+        Frank Rowand <frank.rowand@sony.com>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.10 558/563] scripts/dtc: dtx_diff: remove broken example from help text
+Date:   Mon, 24 Jan 2022 19:45:23 +0100
+Message-Id: <20220124184043.747104714@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -44,37 +46,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
 
-commit 214b3369ab9b0a6f28d6c970220c209417edbc65 upstream.
+commit d8adf5b92a9d2205620874d498c39923ecea8749 upstream.
 
-Clang static analysis reports this problem
-mtk_eth_soc.c:394:7: warning: Branch condition evaluates
-  to a garbage value
-                if (err)
-                    ^~~
+dtx_diff suggests to use <(...) syntax to pipe two inputs into it, but
+this has never worked: The /proc/self/fds/... paths passed by the shell
+will fail the `[ -f "${dtx}" ] && [ -r "${dtx}" ]` check in compile_to_dts,
+but even with this check removed, the function cannot work: hexdump will
+eat up the DTB magic, making the subsequent dtc call fail, as a pipe
+cannot be rewound.
 
-err is not initialized and only conditionally set.
-So intitialize err.
+Simply remove this broken example, as there is already an alternative one
+that works fine.
 
-Fixes: 7e538372694b ("net: ethernet: mediatek: Re-add support SGMII")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 10eadc253ddf ("dtc: create tool to diff device trees")
+Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+Reviewed-by: Frank Rowand <frank.rowand@sony.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/20220113081918.10387-1-matthias.schiffer@ew.tq-group.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mediatek/mtk_eth_soc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ scripts/dtc/dtx_diff |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -215,7 +215,7 @@ static void mtk_mac_config(struct phylin
- 					   phylink_config);
- 	struct mtk_eth *eth = mac->hw;
- 	u32 mcr_cur, mcr_new, sid, i;
--	int val, ge_mode, err;
-+	int val, ge_mode, err = 0;
+--- a/scripts/dtc/dtx_diff
++++ b/scripts/dtc/dtx_diff
+@@ -59,12 +59,8 @@ Otherwise DTx is treated as a dts source
+    or '/include/' to be processed.
  
- 	/* MT76x8 has no hardware settings between for the MAC */
- 	if (!MTK_HAS_CAPS(eth->soc->caps, MTK_SOC_MT7628) &&
+    If DTx_1 and DTx_2 are in different architectures, then this script
+-   may not work since \${ARCH} is part of the include path.  Two possible
+-   workarounds:
+-
+-      `basename $0` \\
+-          <(ARCH=arch_of_dtx_1 `basename $0` DTx_1) \\
+-          <(ARCH=arch_of_dtx_2 `basename $0` DTx_2)
++   may not work since \${ARCH} is part of the include path.  The following
++   workaround can be used:
+ 
+       `basename $0` ARCH=arch_of_dtx_1 DTx_1 >tmp_dtx_1.dts
+       `basename $0` ARCH=arch_of_dtx_2 DTx_2 >tmp_dtx_2.dts
 
 
