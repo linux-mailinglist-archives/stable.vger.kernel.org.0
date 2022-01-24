@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30E6049A067
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:29:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1401649A043
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:26:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351513AbiAXXG4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:06:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45684 "EHLO
+        id S1843606AbiAXXFG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:05:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1841135AbiAXW5l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:57:41 -0500
+        with ESMTP id S1382486AbiAXW6D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:58:03 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 899FAC034610;
-        Mon, 24 Jan 2022 13:12:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8DFEC02B87A;
+        Mon, 24 Jan 2022 13:12:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 45287B8123D;
-        Mon, 24 Jan 2022 21:12:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93AE7C340E5;
-        Mon, 24 Jan 2022 21:12:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6ABC7B810BD;
+        Mon, 24 Jan 2022 21:12:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 886CFC340E8;
+        Mon, 24 Jan 2022 21:12:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058742;
-        bh=ZiUO++6bgchHIbgpfnE+8NHiJEyM/iEETegiv0Pg5dQ=;
+        s=korg; t=1643058775;
+        bh=v3CmNcQuVcLWxRTsj4bwVZeaXhS0Z8OOc7cj1SIMdtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sTamqOwjrrZ3bLnheNVFcdpcCMysSASlZZaLOHc2WRB2pIn4oNFFJP0Y062bh5+iL
-         EXM1cIBtz2MRTqMHbqLGPV0KhVDJfeYD1r6MFigy3RyOFbYFVC0NgQbSGX5pjcMQI/
-         UcRZrp36yQsrD2Z+hn42WVgjfhucsxbkboOqQMKY=
+        b=lkGObqf0TrgCuysKmhe0ylJ31x6t1YcFEBHVF7p3p3wkaNUZV6mrSlZlOT3ryBTWO
+         YATr9MXhB1htWreU2QacRPyVuCitmb3s1WCDa/NP+kChlUPp5aUNlTcg3s3Zn//y3Q
+         STztndIPgtQodcr/zfkeoxrAnJcwwpVODbpE9neM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Xin Xiong <xiongx18@fudan.edu.cn>,
+        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
+        Xin Tan <tanxin.ctf@gmail.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0370/1039] net: dsa: fix incorrect function pointer check for MRP ring roles
-Date:   Mon, 24 Jan 2022 19:35:59 +0100
-Message-Id: <20220124184137.738106366@linuxfoundation.org>
+Subject: [PATCH 5.16 0371/1039] netfilter: ipt_CLUSTERIP: fix refcount leak in clusterip_tg_check()
+Date:   Mon, 24 Jan 2022 19:36:00 +0100
+Message-Id: <20220124184137.776664213@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -50,52 +50,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Xin Xiong <xiongx18@fudan.edu.cn>
 
-[ Upstream commit ff91e1b68490b97c18c649b769618815eb945f11 ]
+[ Upstream commit d94a69cb2cfa77294921aae9afcfb866e723a2da ]
 
-The cross-chip notifier boilerplate code meant to check the presence of
-ds->ops->port_mrp_add_ring_role before calling it, but checked
-ds->ops->port_mrp_add instead, before calling
-ds->ops->port_mrp_add_ring_role.
+The issue takes place in one error path of clusterip_tg_check(). When
+memcmp() returns nonzero, the function simply returns the error code,
+forgetting to decrease the reference count of a clusterip_config
+object, which is bumped earlier by clusterip_config_find_get(). This
+may incur reference count leak.
 
-Therefore, a driver which implements one operation but not the other
-would trigger a NULL pointer dereference.
+Fix this issue by decrementing the refcount of the object in specific
+error path.
 
-There isn't any such driver in DSA yet, so there is no reason to
-backport the change. Issue found through code inspection.
-
-Cc: Horatiu Vultur <horatiu.vultur@microchip.com>
-Fixes: c595c4330da0 ("net: dsa: add MRP support")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 06aa151ad1fc74 ("netfilter: ipt_CLUSTERIP: check MAC address when duplicate config is set")
+Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
+Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
+Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/dsa/switch.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ipv4/netfilter/ipt_CLUSTERIP.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/net/dsa/switch.c b/net/dsa/switch.c
-index bb155a16d4540..80816f7e1f996 100644
---- a/net/dsa/switch.c
-+++ b/net/dsa/switch.c
-@@ -675,7 +675,7 @@ static int
- dsa_switch_mrp_add_ring_role(struct dsa_switch *ds,
- 			     struct dsa_notifier_mrp_ring_role_info *info)
- {
--	if (!ds->ops->port_mrp_add)
-+	if (!ds->ops->port_mrp_add_ring_role)
- 		return -EOPNOTSUPP;
+diff --git a/net/ipv4/netfilter/ipt_CLUSTERIP.c b/net/ipv4/netfilter/ipt_CLUSTERIP.c
+index 8fd1aba8af31c..b518f20c9a244 100644
+--- a/net/ipv4/netfilter/ipt_CLUSTERIP.c
++++ b/net/ipv4/netfilter/ipt_CLUSTERIP.c
+@@ -520,8 +520,11 @@ static int clusterip_tg_check(const struct xt_tgchk_param *par)
+ 			if (IS_ERR(config))
+ 				return PTR_ERR(config);
+ 		}
+-	} else if (memcmp(&config->clustermac, &cipinfo->clustermac, ETH_ALEN))
++	} else if (memcmp(&config->clustermac, &cipinfo->clustermac, ETH_ALEN)) {
++		clusterip_config_entry_put(config);
++		clusterip_config_put(config);
+ 		return -EINVAL;
++	}
  
- 	if (ds->index == info->sw_index)
-@@ -689,7 +689,7 @@ static int
- dsa_switch_mrp_del_ring_role(struct dsa_switch *ds,
- 			     struct dsa_notifier_mrp_ring_role_info *info)
- {
--	if (!ds->ops->port_mrp_del)
-+	if (!ds->ops->port_mrp_del_ring_role)
- 		return -EOPNOTSUPP;
- 
- 	if (ds->index == info->sw_index)
+ 	ret = nf_ct_netns_get(par->net, par->family);
+ 	if (ret < 0) {
 -- 
 2.34.1
 
