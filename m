@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FB38498F83
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:54:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4976B498B48
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:12:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348386AbiAXTw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:52:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56312 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356828AbiAXTr0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:47:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11834C038AEB;
-        Mon, 24 Jan 2022 11:23:18 -0800 (PST)
+        id S1346376AbiAXTMh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:12:37 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:36618 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344011AbiAXTJe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:09:34 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BABFBB810BD;
-        Mon, 24 Jan 2022 19:23:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6331C340E5;
-        Mon, 24 Jan 2022 19:23:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 44E97B81223;
+        Mon, 24 Jan 2022 19:09:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6832AC340E5;
+        Mon, 24 Jan 2022 19:09:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052194;
-        bh=5Ymn2AW/zGqbjw3qp2nR15M/bmz7QlMmrneVUroSo4g=;
+        s=korg; t=1643051372;
+        bh=10N+I46ycgYorHj50Ok5rvkOkrdy4oDRd2b9iQrWrFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vCWCgfat/DXx8mHeHIK5uMfDo57a1tGH2ypsclv3GOznEHRsFXV8safVxpJb30TVU
-         NGrBCrD/gleI45GwhSbjDUVBXfOdMQEbIsICjzno6ES7tSuEMwohT4S+XnL4ofs2tt
-         K8QvIvUYKBAgojFuYtBOxBhyf4oZJSRc3MWMX7uo=
+        b=vSKewPCbcextJ+5Ax7f79chIsz91W1Se11R8JSpa95LWl2G+aRJJuAKE2duuFkBHs
+         VWRcrjTWnsglke01eiBuAb/XgWiHCSuazI9FQm9XyR9oDLS6LGGZCWVgzuCO7E1pN6
+         9c27t9X65gi6WfeRtacwQRd7n5SFidVkssUp2fQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        stable@vger.kernel.org,
+        Joakim Tjernlund <joakim.tjernlund@infinera.com>,
+        Scott Wood <oss@buserror.net>, Wolfram Sang <wsa@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 176/239] serial: core: Keep mctrl register state and cached copy in sync
+Subject: [PATCH 4.14 139/186] i2c: mpc: Correct I2C reset procedure
 Date:   Mon, 24 Jan 2022 19:43:34 +0100
-Message-Id: <20220124183948.698401680@linuxfoundation.org>
+Message-Id: <20220124183941.575222487@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
+References: <20220124183937.101330125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,51 +46,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Joakim Tjernlund <joakim.tjernlund@infinera.com>
 
-[ Upstream commit 93a770b7e16772530196674ffc79bb13fa927dc6 ]
+[ Upstream commit ebe82cf92cd4825c3029434cabfcd2f1780e64be ]
 
-struct uart_port contains a cached copy of the Modem Control signals.
-It is used to skip register writes in uart_update_mctrl() if the new
-signal state equals the old signal state.  It also avoids a register
-read to obtain the current state of output signals.
+Current I2C reset procedure is broken in two ways:
+1) It only generate 1 START instead of 9 STARTs and STOP.
+2) It leaves the bus Busy so every I2C xfer after the first
+   fixup calls the reset routine again, for every xfer there after.
 
-When a uart_port is registered, uart_configure_port() changes signal
-state but neglects to keep the cached copy in sync.  That may cause
-a subsequent register write to be incorrectly skipped.  Fix it before
-it trips somebody up.
+This fixes both errors.
 
-This behavior has been present ever since the serial core was introduced
-in 2002:
-https://git.kernel.org/history/history/c/33c0d1b0c3eb
-
-So far it was never an issue because the cached copy is initialized to 0
-by kzalloc() and when uart_configure_port() is executed, at most DTR has
-been set by uart_set_options() or sunsu_console_setup().  Therefore,
-a stable designation seems unnecessary.
-
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Link: https://lore.kernel.org/r/bceeaba030b028ed810272d55d5fc6f3656ddddb.1641129752.git.lukas@wunner.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+Acked-by: Scott Wood <oss@buserror.net>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/serial_core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-mpc.c | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
-index 63aefe7e91be1..ab4d0f6058c04 100644
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -2347,7 +2347,8 @@ uart_configure_port(struct uart_driver *drv, struct uart_state *state,
- 		 * We probably don't need a spinlock around this, but
- 		 */
- 		spin_lock_irqsave(&port->lock, flags);
--		port->ops->set_mctrl(port, port->mctrl & TIOCM_DTR);
-+		port->mctrl &= TIOCM_DTR;
-+		port->ops->set_mctrl(port, port->mctrl);
- 		spin_unlock_irqrestore(&port->lock, flags);
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index 7db5554d2b4e7..194bf06ecb25e 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -107,23 +107,30 @@ static irqreturn_t mpc_i2c_isr(int irq, void *dev_id)
+ /* Sometimes 9th clock pulse isn't generated, and slave doesn't release
+  * the bus, because it wants to send ACK.
+  * Following sequence of enabling/disabling and sending start/stop generates
+- * the 9 pulses, so it's all OK.
++ * the 9 pulses, each with a START then ending with STOP, so it's all OK.
+  */
+ static void mpc_i2c_fixup(struct mpc_i2c *i2c)
+ {
+ 	int k;
+-	u32 delay_val = 1000000 / i2c->real_clk + 1;
+-
+-	if (delay_val < 2)
+-		delay_val = 2;
++	unsigned long flags;
  
- 		/*
+ 	for (k = 9; k; k--) {
+ 		writeccr(i2c, 0);
+-		writeccr(i2c, CCR_MSTA | CCR_MTX | CCR_MEN);
++		writeb(0, i2c->base + MPC_I2C_SR); /* clear any status bits */
++		writeccr(i2c, CCR_MEN | CCR_MSTA); /* START */
++		readb(i2c->base + MPC_I2C_DR); /* init xfer */
++		udelay(15); /* let it hit the bus */
++		local_irq_save(flags); /* should not be delayed further */
++		writeccr(i2c, CCR_MEN | CCR_MSTA | CCR_RSTA); /* delay SDA */
+ 		readb(i2c->base + MPC_I2C_DR);
+-		writeccr(i2c, CCR_MEN);
+-		udelay(delay_val << 1);
++		if (k != 1)
++			udelay(5);
++		local_irq_restore(flags);
+ 	}
++	writeccr(i2c, CCR_MEN); /* Initiate STOP */
++	readb(i2c->base + MPC_I2C_DR);
++	udelay(15); /* Let STOP propagate */
++	writeccr(i2c, 0);
+ }
+ 
+ static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
 -- 
 2.34.1
 
