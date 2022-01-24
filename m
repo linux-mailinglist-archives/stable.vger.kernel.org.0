@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94F7D49912C
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:12:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04097498AF0
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:08:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376284AbiAXUJh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:09:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60540 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377244AbiAXUFL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:05:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B849C08E814;
-        Mon, 24 Jan 2022 11:30:50 -0800 (PST)
+        id S1344775AbiAXTIC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:08:02 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:32904 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344554AbiAXTFh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:05:37 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B0CA60917;
-        Mon, 24 Jan 2022 19:30:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C7EDC340E5;
-        Mon, 24 Jan 2022 19:30:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B4C68B8122F;
+        Mon, 24 Jan 2022 19:05:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E992EC340E5;
+        Mon, 24 Jan 2022 19:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052649;
-        bh=VNXFk8BJ3Gnx1wh3auxgPrTluzAXvo1QXEFYQZslIsM=;
+        s=korg; t=1643051134;
+        bh=nmjZSEe7ziaN378FuR/msL8ZIqf1i8BMls2oqwT16d4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s+izFP24edvCMHawF7ws5/XV9XdtEVcBEbvmb2TONiM0HiT8zdN2Hjok+OuVEmoO8
-         mpYDFEKLcjPTyqcAZ6Gndoea49P3whrJpi6FQ1iQqje+iFyhYaVwgVmrgmEzN8xSNM
-         hiAd/UG+qBgj1nu6fwQT0bKhytrUbnf3O0u7Gvso=
+        b=w/6Gk6okjnVlB2acgNyIlzl3WEPmxPSq450s65c+qescYquB02aM6lOMMKOtq342a
+         vRnEA87kmdD/KVqXzo8uCMpQF8ENE/nE3Y5WVA3OznhLSe1ybO8xHkIhWcEIcDwblp
+         8BScHwRVfXOG2y28BuKUiZd/dRqrRvPBGXxcKx7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peiwei Hu <jlu.hpw@foxmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 128/320] powerpc/prom_init: Fix improper check of prom_getprop()
-Date:   Mon, 24 Jan 2022 19:41:52 +0100
-Message-Id: <20220124183958.031926322@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+e3fcb9c4f3c2a931dc40@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 038/186] Bluetooth: stop proccessing malicious adv data
+Date:   Mon, 24 Jan 2022 19:41:53 +0100
+Message-Id: <20220124183938.352879074@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
+References: <20220124183937.101330125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,35 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peiwei Hu <jlu.hpw@foxmail.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 869fb7e5aecbc163003f93f36dcc26d0554319f6 ]
+[ Upstream commit 3a56ef719f0b9682afb8a86d64b2399e36faa4e6 ]
 
-prom_getprop() can return PROM_ERROR. Binary operator can not identify
-it.
+Syzbot reported slab-out-of-bounds read in hci_le_adv_report_evt(). The
+problem was in missing validaion check.
 
-Fixes: 94d2dde738a5 ("[POWERPC] Efika: prune fixups and make them more carefull")
-Signed-off-by: Peiwei Hu <jlu.hpw@foxmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/tencent_BA28CC6897B7C95A92EB8C580B5D18589105@qq.com
+We should check if data is not malicious and we can read next data block.
+If we won't check ptr validness, code can read a way beyond skb->end and
+it can cause problems, of course.
+
+Fixes: e95beb414168 ("Bluetooth: hci_le_adv_report_evt code refactoring")
+Reported-and-tested-by: syzbot+e3fcb9c4f3c2a931dc40@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/prom_init.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/hci_event.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/prom_init.c b/arch/powerpc/kernel/prom_init.c
-index 1b65fb7c0bdaa..7f4e2c031a9ab 100644
---- a/arch/powerpc/kernel/prom_init.c
-+++ b/arch/powerpc/kernel/prom_init.c
-@@ -2919,7 +2919,7 @@ static void __init fixup_device_tree_efika_add_phy(void)
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index 5186f199d892c..eca596a56f46b 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -4967,7 +4967,8 @@ static void hci_le_adv_report_evt(struct hci_dev *hdev, struct sk_buff *skb)
+ 		struct hci_ev_le_advertising_info *ev = ptr;
+ 		s8 rssi;
  
- 	/* Check if the phy-handle property exists - bail if it does */
- 	rv = prom_getprop(node, "phy-handle", prop, sizeof(prop));
--	if (!rv)
-+	if (rv <= 0)
- 		return;
+-		if (ev->length <= HCI_MAX_AD_LENGTH) {
++		if (ev->length <= HCI_MAX_AD_LENGTH &&
++		    ev->data + ev->length <= skb_tail_pointer(skb)) {
+ 			rssi = ev->data[ev->length];
+ 			process_adv_report(hdev, ev->evt_type, &ev->bdaddr,
+ 					   ev->bdaddr_type, NULL, 0, rssi,
+@@ -4977,6 +4978,11 @@ static void hci_le_adv_report_evt(struct hci_dev *hdev, struct sk_buff *skb)
+ 		}
  
- 	/*
+ 		ptr += sizeof(*ev) + ev->length + 1;
++
++		if (ptr > (void *) skb_tail_pointer(skb) - sizeof(*ev)) {
++			bt_dev_err(hdev, "Malicious advertising data. Stopping processing");
++			break;
++		}
+ 	}
+ 
+ 	hci_dev_unlock(hdev);
 -- 
 2.34.1
 
