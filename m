@@ -2,125 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63BAD497E04
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 12:31:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F27D497E40
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 12:49:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237554AbiAXLb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 06:31:27 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:50224 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237234AbiAXLb0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 06:31:26 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9AFEB80EF7
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 11:31:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA26DC340E1;
-        Mon, 24 Jan 2022 11:31:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643023884;
-        bh=GZ/ebugmDXHLXyDWYLTz/odAqTcUe9jorckSus8Se4M=;
-        h=Subject:To:Cc:From:Date:From;
-        b=eTIwkNM/6F0PJQqzjhsFzUkRMqAj/pNAn0FqdnU5seaEj0DnUSNIVUSbKN2pXqy1Q
-         m2eWNpFp1P1OM+VKg+1K+mivdWrhJdMHRx4wQV9FrpcZt5xmbOYYRyE3xLVkqp4Ypa
-         V0hdgyR7F3e2SQvxNBTOuhZMoFs2rh4sDnVkZTpw=
-Subject: FAILED: patch "[PATCH] drm/vc4: kms: Wait for the commit before increasing our clock" failed to apply to 5.16-stable tree
-To:     maxime@cerno.tech, daniel.vetter@intel.com,
-        dave.stevenson@raspberrypi.com, jhp@endlessos.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 12:31:13 +0100
-Message-ID: <164302387391228@kroah.com>
+        id S237956AbiAXLtx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 06:49:53 -0500
+Received: from mail.efficios.com ([167.114.26.124]:48842 "EHLO
+        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237983AbiAXLtw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 06:49:52 -0500
+Received: from localhost (localhost [127.0.0.1])
+        by mail.efficios.com (Postfix) with ESMTP id E32AA3428CE;
+        Mon, 24 Jan 2022 06:49:50 -0500 (EST)
+Received: from mail.efficios.com ([127.0.0.1])
+        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10032)
+        with ESMTP id xz0Jvo2HHOPX; Mon, 24 Jan 2022 06:49:50 -0500 (EST)
+Received: from localhost (localhost [127.0.0.1])
+        by mail.efficios.com (Postfix) with ESMTP id 5268C3429C4;
+        Mon, 24 Jan 2022 06:49:50 -0500 (EST)
+DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com 5268C3429C4
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
+        s=default; t=1643024990;
+        bh=70Ro/A1XGeVG9oQHqw8ICvwdo6uwoHMdEEqIu4jOcjc=;
+        h=Date:From:To:Message-ID:MIME-Version;
+        b=CCTZDNReJNz+g8Q/BAXAtCATWo+ddvis2ieBCNx06veeVI9Z63AOvNgeqs+XpxpSi
+         Pylm5U+q07ZA611ZEozxcFHwAvZntIcP2T/t3joS4b1Zwa4qjAUv/I4YOZljgbmrtG
+         XPL83WbL70b645aDRPd+cTcDW9FCjJZAeTFIMZDFLF5/PR32WygE6hal+q4kU3S6Tl
+         elY6pAMJqv1d+4Lv6R4IktecsOAr0hP+xMtrTT0mg3cW11H5ALQ3f9CyP+TPEixLW4
+         sVVT6GjFvkrb31gZ19avdTlTeR9kyibc8tN+rHO5vOOE8B/bwoQb6U7dPmTZU2e6Iz
+         Rz99nqIG6oZkQ==
+X-Virus-Scanned: amavisd-new at efficios.com
+Received: from mail.efficios.com ([127.0.0.1])
+        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id wHkc4UUiQWQT; Mon, 24 Jan 2022 06:49:50 -0500 (EST)
+Received: from mail03.efficios.com (mail03.efficios.com [167.114.26.124])
+        by mail.efficios.com (Postfix) with ESMTP id 33E473429C3;
+        Mon, 24 Jan 2022 06:49:50 -0500 (EST)
+Date:   Mon, 24 Jan 2022 06:49:50 -0500 (EST)
+From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        paulmck <paulmck@kernel.org>, Boqun Feng <boqun.feng@gmail.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Paul Turner <pjt@google.com>,
+        linux-api <linux-api@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Florian Weimer <fw@deneb.enyo.de>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Dave Watson <davejwatson@fb.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Russell King <linux@arm.linux.org.uk>,
+        Andi Kleen <andi@firstfloor.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Ben Maurer <bmaurer@fb.com>, rostedt <rostedt@goodmis.org>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Michael Kerrisk <mtk.manpages@gmail.com>,
+        Joel Fernandes <joelaf@google.com>
+Message-ID: <1704063895.68277.1643024990042.JavaMail.zimbra@efficios.com>
+In-Reply-To: <CAHk-=whhEB-A-ahgeMsozDfdGNmP_MB9JVnV3bavGbeqgfpStQ@mail.gmail.com>
+References: <20220123193154.14565-1-mathieu.desnoyers@efficios.com> <CAHk-=whhEB-A-ahgeMsozDfdGNmP_MB9JVnV3bavGbeqgfpStQ@mail.gmail.com>
+Subject: Re: [RFC PATCH] rseq: Fix broken uapi field layout on 32-bit little
+ endian
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [167.114.26.124]
+X-Mailer: Zimbra 8.8.15_GA_4180 (ZimbraWebClient - FF96 (Linux)/8.8.15_GA_4177)
+Thread-Topic: rseq: Fix broken uapi field layout on 32-bit little endian
+Thread-Index: 91NRQaoYbR37CijZG/AtbbyrNK/roA==
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+----- On Jan 24, 2022, at 2:42 AM, Linus Torvalds torvalds@linux-foundation.org wrote:
 
-The patch below does not apply to the 5.16-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+> On Sun, Jan 23, 2022 at 9:32 PM Mathieu Desnoyers
+> <mathieu.desnoyers@efficios.com> wrote:
+>>
+>> The rseq rseq_cs.ptr.{ptr32,padding} uapi endianness handling is
+>> entirely wrong on 32-bit little endian: a preprocessor logic mistake
+>> wrongly uses the big endian field layout on 32-bit little endian
+>> architectures.
+>>
+>> Fortunately, those ptr32 accessors were never used within the kernel,
+>> and only meant as a convenience for user-space.
+> 
+> Please don't double down on something that was already broken once.
+> 
+> Just remove the broken 32-bit one entirely that the kernel doesn't
+> even use, and make everybody use
+> 
+>   __u64 ptr64;
+> 
+> and be done with it.
 
-thanks,
+OK, should I just leave:
 
-greg k-h
+struct rseq {
+  [...]
+  union rseq_cs {
+    __u64 ptr64;
+  } rseq_cs;
+  [...]
+};
 
------------------- original commit in Linus's tree ------------------
+and remove all the other content from the union, so users of
+rseq_abi->rseq_cs.ptr64 will continue to work as-is with either
+old and new headers ? This keeps a union in place with a single
+element, so I just want to confirm with you that is what you
+have in mind.
 
-From 244a36e50da05c33b860d20638ee4628017a5334 Mon Sep 17 00:00:00 2001
-From: Maxime Ripard <maxime@cerno.tech>
-Date: Wed, 17 Nov 2021 10:45:22 +0100
-Subject: [PATCH] drm/vc4: kms: Wait for the commit before increasing our clock
- rate
+It does make tons of sense to just remove the broken convenience
+code and let user-space handle this based on the ptr64 field, so
+it will work fine with old and new headers.
 
-Several DRM/KMS atomic commits can run in parallel if they affect
-different CRTC. These commits share the global HVS state, so we have
-some code to make sure we run commits in sequence. This synchronization
-code is one of the first thing that runs in vc4_atomic_commit_tail().
+Thanks for your feedback, and travel safe!
 
-Another constraints we have is that we need to make sure the HVS clock
-gets a boost during the commit. That code relies on clk_set_min_rate and
-will remove the old minimum and set a new one. We also need another,
-temporary, minimum for the duration of the commit.
+Mathieu
 
-The algorithm is thus to set a temporary minimum, drop the previous
-one, do the commit, and finally set the minimum for the current mode.
-
-However, the part that sets the temporary minimum and drops the older
-one runs before the commit synchronization code.
-
-Thus, under the proper conditions, we can end up mixing up the minimums
-and ending up with the wrong one for our current step.
-
-To avoid it, let's move the clock setup in the protected section.
-
-Fixes: d7d96c00e585 ("drm/vc4: hvs: Boost the core clock during modeset")
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Tested-by: Jian-Hong Pan <jhp@endlessos.org>
-[danvet: re-apply this from 0c980a006d3f ("drm/vc4: kms: Wait for the
-commit before increasing our clock rate") because I lost that part in
-my merge resolution in 99b03ca651f1 ("Merge v5.16-rc5 into drm-next")]
-Fixes: 99b03ca651f1 ("Merge v5.16-rc5 into drm-next")
-Acked-by: Maxime Ripard <maxime@cerno.tech>
-Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-Link: https://lore.kernel.org/r/20211117094527.146275-2-maxime@cerno.tech
-
-diff --git a/drivers/gpu/drm/vc4/vc4_kms.c b/drivers/gpu/drm/vc4/vc4_kms.c
-index bf3706f97ec7..24de29bc1cda 100644
---- a/drivers/gpu/drm/vc4/vc4_kms.c
-+++ b/drivers/gpu/drm/vc4/vc4_kms.c
-@@ -365,14 +365,6 @@ static void vc4_atomic_commit_tail(struct drm_atomic_state *state)
- 		vc4_hvs_mask_underrun(dev, vc4_crtc_state->assigned_channel);
- 	}
- 
--	if (vc4->hvs->hvs5) {
--		unsigned long core_rate = max_t(unsigned long,
--						500000000,
--						new_hvs_state->core_clock_rate);
--
--		clk_set_min_rate(hvs->core_clk, core_rate);
--	}
--
- 	for (channel = 0; channel < HVS_NUM_CHANNELS; channel++) {
- 		struct drm_crtc_commit *commit;
- 		int ret;
-@@ -392,6 +384,13 @@ static void vc4_atomic_commit_tail(struct drm_atomic_state *state)
- 		old_hvs_state->fifo_state[channel].pending_commit = NULL;
- 	}
- 
-+	if (vc4->hvs->hvs5) {
-+		unsigned long core_rate = max_t(unsigned long,
-+						500000000,
-+						new_hvs_state->core_clock_rate);
-+
-+		clk_set_min_rate(hvs->core_clk, core_rate);
-+	}
- 	drm_atomic_helper_commit_modeset_disables(dev, state);
- 
- 	vc4_ctm_commit(vc4, state);
-
+-- 
+Mathieu Desnoyers
+EfficiOS Inc.
+http://www.efficios.com
