@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2753498CFE
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:33:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D668C498B26
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:12:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351454AbiAXT1E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:27:04 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:49180 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346367AbiAXTXG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:23:06 -0500
+        id S1345362AbiAXTMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:12:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46600 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346254AbiAXTFO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:05:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 172DEC0613EC;
+        Mon, 24 Jan 2022 11:00:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BEC9C61490;
-        Mon, 24 Jan 2022 19:23:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BECAC36AE3;
-        Mon, 24 Jan 2022 19:23:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A8178608D4;
+        Mon, 24 Jan 2022 19:00:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A27DC340E5;
+        Mon, 24 Jan 2022 19:00:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052182;
-        bh=fqghv2tM9KQdZtwnpamw7ZoE6favq2oByT6WYmfaJKk=;
+        s=korg; t=1643050842;
+        bh=SqqKlmrkJD2ajJiHT7F53gMvsqqsiJfdubXqh3QjyAo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VOaSXvOxxv9voBj/zuy+k6rmOPU+tc98sbAO+R8u5Y6osuPSnQLYLRxFi0Wlz/85Y
-         RSHuP4sfm3wvWbzTMV0JYM91G7gtSPV5aK3W6csp7BNqfnmDnPyr378wrGiXp91RBj
-         rlXlDXH4GllLagTIVum6HJAl6tKj0xa0rkc+nnWk=
+        b=qPBcD5KGCssJ//76QRGd3RDtOQr4p6jdRd0ozCv4/HDgle9DL3S/DsCOld0sLdMUQ
+         m7QBpukZ1AKo1cqcGH6l8iKVS7NABN8Sswi1Gjz+OsrXoXGWNcj4/0ktuC7g5+993i
+         4D9qDUQ7FFr+GTKtSAMrZh4bXhsCTo3EwXa3Npig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Laurent Dufour <ldufour@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 182/239] powerpc/watchdog: Fix missed watchdog reset due to memory ordering race
+        stable@vger.kernel.org, Tobias Waldekranz <tobias@waldekranz.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 130/157] powerpc/fsl/dts: Enable WA for erratum A-009885 on fman3l MDIO buses
 Date:   Mon, 24 Jan 2022 19:43:40 +0100
-Message-Id: <20220124183948.881059269@linuxfoundation.org>
+Message-Id: <20220124183936.908163451@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,110 +47,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Tobias Waldekranz <tobias@waldekranz.com>
 
-[ Upstream commit 5dad4ba68a2483fc80d70b9dc90bbe16e1f27263 ]
+commit 0d375d610fa96524e2ee2b46830a46a7bfa92a9f upstream.
 
-It is possible for all CPUs to miss the pending cpumask becoming clear,
-and then nobody resetting it, which will cause the lockup detector to
-stop working. It will eventually expire, but watchdog_smp_panic will
-avoid doing anything if the pending mask is clear and it will never be
-reset.
+This block is used in (at least) T1024 and T1040, including their
+variants like T1023 etc.
 
-Order the cpumask clear vs the subsequent test to close this race.
-
-Add an extra check for an empty pending mask when the watchdog fires and
-finds its bit still clear, to try to catch any other possible races or
-bugs here and keep the watchdog working. The extra test in
-arch_touch_nmi_watchdog is required to prevent the new warning from
-firing off.
-
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Laurent Dufour <ldufour@linux.ibm.com>
-Debugged-by: Laurent Dufour <ldufour@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211110025056.2084347-2-npiggin@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: d55ad2967d89 ("powerpc/mpc85xx: Create dts components for the FSL QorIQ DPAA FMan")
+Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/watchdog.c | 41 +++++++++++++++++++++++++++++++++-
- 1 file changed, 40 insertions(+), 1 deletion(-)
+ arch/powerpc/boot/dts/fsl/qoriq-fman3l-0.dtsi |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/powerpc/kernel/watchdog.c b/arch/powerpc/kernel/watchdog.c
-index af3c15a1d41eb..75b2a6c4db5a5 100644
---- a/arch/powerpc/kernel/watchdog.c
-+++ b/arch/powerpc/kernel/watchdog.c
-@@ -132,6 +132,10 @@ static void set_cpumask_stuck(const struct cpumask *cpumask, u64 tb)
- {
- 	cpumask_or(&wd_smp_cpus_stuck, &wd_smp_cpus_stuck, cpumask);
- 	cpumask_andnot(&wd_smp_cpus_pending, &wd_smp_cpus_pending, cpumask);
-+	/*
-+	 * See wd_smp_clear_cpu_pending()
-+	 */
-+	smp_mb();
- 	if (cpumask_empty(&wd_smp_cpus_pending)) {
- 		wd_smp_last_reset_tb = tb;
- 		cpumask_andnot(&wd_smp_cpus_pending,
-@@ -217,13 +221,44 @@ static void wd_smp_clear_cpu_pending(int cpu, u64 tb)
+--- a/arch/powerpc/boot/dts/fsl/qoriq-fman3l-0.dtsi
++++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3l-0.dtsi
+@@ -78,6 +78,7 @@ fman0: fman@400000 {
+ 		#size-cells = <0>;
+ 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
+ 		reg = <0xfc000 0x1000>;
++		fsl,erratum-a009885;
+ 	};
  
- 			cpumask_clear_cpu(cpu, &wd_smp_cpus_stuck);
- 			wd_smp_unlock(&flags);
-+		} else {
-+			/*
-+			 * The last CPU to clear pending should have reset the
-+			 * watchdog so we generally should not find it empty
-+			 * here if our CPU was clear. However it could happen
-+			 * due to a rare race with another CPU taking the
-+			 * last CPU out of the mask concurrently.
-+			 *
-+			 * We can't add a warning for it. But just in case
-+			 * there is a problem with the watchdog that is causing
-+			 * the mask to not be reset, try to kick it along here.
-+			 */
-+			if (unlikely(cpumask_empty(&wd_smp_cpus_pending)))
-+				goto none_pending;
- 		}
- 		return;
- 	}
-+
- 	cpumask_clear_cpu(cpu, &wd_smp_cpus_pending);
-+
-+	/*
-+	 * Order the store to clear pending with the load(s) to check all
-+	 * words in the pending mask to check they are all empty. This orders
-+	 * with the same barrier on another CPU. This prevents two CPUs
-+	 * clearing the last 2 pending bits, but neither seeing the other's
-+	 * store when checking if the mask is empty, and missing an empty
-+	 * mask, which ends with a false positive.
-+	 */
-+	smp_mb();
- 	if (cpumask_empty(&wd_smp_cpus_pending)) {
- 		unsigned long flags;
+ 	xmdio0: mdio@fd000 {
+@@ -85,6 +86,7 @@ fman0: fman@400000 {
+ 		#size-cells = <0>;
+ 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
+ 		reg = <0xfd000 0x1000>;
++		fsl,erratum-a009885;
+ 	};
  
-+none_pending:
-+		/*
-+		 * Double check under lock because more than one CPU could see
-+		 * a clear mask with the lockless check after clearing their
-+		 * pending bits.
-+		 */
- 		wd_smp_lock(&flags);
- 		if (cpumask_empty(&wd_smp_cpus_pending)) {
- 			wd_smp_last_reset_tb = tb;
-@@ -314,8 +349,12 @@ void arch_touch_nmi_watchdog(void)
- {
- 	unsigned long ticks = tb_ticks_per_usec * wd_timer_period_ms * 1000;
- 	int cpu = smp_processor_id();
--	u64 tb = get_tb();
-+	u64 tb;
- 
-+	if (!cpumask_test_cpu(cpu, &watchdog_cpumask))
-+		return;
-+
-+	tb = get_tb();
- 	if (tb - per_cpu(wd_timer_tb, cpu) >= ticks) {
- 		per_cpu(wd_timer_tb, cpu) = tb;
- 		wd_smp_clear_cpu_pending(cpu, tb);
--- 
-2.34.1
-
+ 	ptp_timer0: ptp-timer@fe000 {
 
 
