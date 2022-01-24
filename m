@@ -2,51 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1AF0499583
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:13:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 470FC499A9C
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1442059AbiAXUwl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:52:41 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42268 "EHLO
+        id S1573598AbiAXVpW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:45:22 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56218 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1391681AbiAXUsW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:48:22 -0500
+        with ESMTP id S1456183AbiAXViC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:38:02 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A9A5760C3E;
-        Mon, 24 Jan 2022 20:48:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 623B1C340E5;
-        Mon, 24 Jan 2022 20:48:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B5A6961516;
+        Mon, 24 Jan 2022 21:38:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B091C36AE7;
+        Mon, 24 Jan 2022 21:37:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057301;
-        bh=eipPTW4zUA2Y7C6/tT/Xx48Qu8AVSVvCdWRcAwJbjbs=;
+        s=korg; t=1643060280;
+        bh=r3t9De6Vv16FA1XPz2GR0dzvGr6aoOUnk+n2LPMHXP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mDdknbIGQysdIcgik43P379chCn2IYSxtxjZ/H+yf2L3x8UfDGw3662PxvrwaTwIn
-         YsLCeGmwsPDraojRWxDj2WZ2Rv5A7UaQ2OuCuf28OylHrRyGCVjdo6Fr/hI9kwS950
-         q3mY5ejd8JOElUJayRiepTn6t8AEXvva2dLQJNMA=
+        b=Leruon5Vc1bLKi1LU0j+/xKUOp/ZML3em0KVZ6A34MRWWM9CAI1abn5qZ2eFTuaBw
+         rG7TTer68BTKA9gVTlwFp2334SixO1rbezxQ2+J1Viihr4h7JMyyfb4VXExRwkpe2m
+         oLV76i/Lh6YUB6c1EXWhXp1BeT/wYUNhve0EB7O4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chase Conklin <chase.conklin@arm.com>,
-        German Gomez <german.gomez@arm.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Martin KaFai Lau <kafai@fb.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Song Liu <songliubraving@fb.com>,
-        Stephane Eranian <eranian@google.com>,
-        Yonghong Song <yhs@fb.com>, bpf@vger.kernel.org,
-        netdev@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.15 768/846] perf evsel: Override attr->sample_period for non-libpfm4 events
+        stable@vger.kernel.org, Xin Yin <yinxin.x@bytedance.com>,
+        Harshad Shirwadkar <harshadshirwadkar@gmail.com>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.16 0896/1039] ext4: use ext4_ext_remove_space() for fast commit replay delete range
 Date:   Mon, 24 Jan 2022 19:44:45 +0100
-Message-Id: <20220124184127.452102489@linuxfoundation.org>
+Message-Id: <20220124184155.406199813@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,86 +45,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: German Gomez <german.gomez@arm.com>
+From: Xin Yin <yinxin.x@bytedance.com>
 
-commit 3606c0e1a1050d397ad759a62607e419fd8b0ccb upstream.
+commit 0b5b5a62b945a141e64011b2f90ee7e46f14be98 upstream.
 
-A previous patch preventing "attr->sample_period" values from being
-overridden in pfm events changed a related behaviour in arm-spe.
+For now ,we use ext4_punch_hole() during fast commit replay delete range
+procedure. But it will be affected by inode->i_size, which may not
+correct during fast commit replay procedure. The following test will
+failed.
 
-Before said patch:
+-create & write foo (len 1000K)
+-falloc FALLOC_FL_ZERO_RANGE foo (range 400K - 600K)
+-create & fsync bar
+-falloc FALLOC_FL_PUNCH_HOLE foo (range 300K-500K)
+-fsync foo
+-crash before a full commit
 
-  perf record -c 10000 -e arm_spe_0// -- sleep 1
+After the fast_commit reply procedure, the range 400K-500K will not be
+removed. Because in this case, when calling ext4_punch_hole() the
+inode->i_size is 0, and it just retruns with doing nothing.
 
-Would yield an SPE event with period=10000. After the patch, the period
-in "-c 10000" was being ignored because the arm-spe code initializes
-sample_period to a non-zero value.
+Change to use ext4_ext_remove_space() instead of ext4_punch_hole()
+to remove blocks of inode directly.
 
-This patch restores the previous behaviour for non-libpfm4 events.
-
-Fixes: ae5dcc8abe31 (“perf record: Prevent override of attr->sample_period for libpfm4 events”)
-Reported-by: Chase Conklin <chase.conklin@arm.com>
-Signed-off-by: German Gomez <german.gomez@arm.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: KP Singh <kpsingh@kernel.org>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Martin KaFai Lau <kafai@fb.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: Stephane Eranian <eranian@google.com>
-Cc: Yonghong Song <yhs@fb.com>
-Cc: bpf@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20220118144054.2541-1-german.gomez@arm.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Xin Yin <yinxin.x@bytedance.com>
+Reviewed-by: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
+Link: https://lore.kernel.org/r/20211223032337.5198-2-yinxin.x@bytedance.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/evsel.c |   25 +++++++++++++++++--------
- 1 file changed, 17 insertions(+), 8 deletions(-)
+ fs/ext4/fast_commit.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/tools/perf/util/evsel.c
-+++ b/tools/perf/util/evsel.c
-@@ -1047,6 +1047,17 @@ void __weak arch_evsel__set_sample_weigh
- 	evsel__set_sample_bit(evsel, WEIGHT);
- }
+--- a/fs/ext4/fast_commit.c
++++ b/fs/ext4/fast_commit.c
+@@ -1812,11 +1812,14 @@ ext4_fc_replay_del_range(struct super_bl
+ 		}
+ 	}
  
-+static void evsel__set_default_freq_period(struct record_opts *opts,
-+					   struct perf_event_attr *attr)
-+{
-+	if (opts->freq) {
-+		attr->freq = 1;
-+		attr->sample_freq = opts->freq;
-+	} else {
-+		attr->sample_period = opts->default_interval;
+-	ret = ext4_punch_hole(inode,
+-		le32_to_cpu(lrange.fc_lblk) << sb->s_blocksize_bits,
+-		le32_to_cpu(lrange.fc_len) <<  sb->s_blocksize_bits);
+-	if (ret)
+-		jbd_debug(1, "ext4_punch_hole returned %d", ret);
++	down_write(&EXT4_I(inode)->i_data_sem);
++	ret = ext4_ext_remove_space(inode, lrange.fc_lblk,
++				lrange.fc_lblk + lrange.fc_len - 1);
++	up_write(&EXT4_I(inode)->i_data_sem);
++	if (ret) {
++		iput(inode);
++		return 0;
 +	}
-+}
-+
- /*
-  * The enable_on_exec/disabled value strategy:
-  *
-@@ -1113,14 +1124,12 @@ void evsel__config(struct evsel *evsel,
- 	 * We default some events to have a default interval. But keep
- 	 * it a weak assumption overridable by the user.
- 	 */
--	if (!attr->sample_period) {
--		if (opts->freq) {
--			attr->freq		= 1;
--			attr->sample_freq	= opts->freq;
--		} else {
--			attr->sample_period = opts->default_interval;
--		}
--	}
-+	if ((evsel->is_libpfm_event && !attr->sample_period) ||
-+	    (!evsel->is_libpfm_event && (!attr->sample_period ||
-+					 opts->user_freq != UINT_MAX ||
-+					 opts->user_interval != ULLONG_MAX)))
-+		evsel__set_default_freq_period(opts, attr);
-+
- 	/*
- 	 * If attr->freq was set (here or earlier), ask for period
- 	 * to be sampled.
+ 	ext4_ext_replay_shrink_inode(inode,
+ 		i_size_read(inode) >> sb->s_blocksize_bits);
+ 	ext4_mark_inode_dirty(NULL, inode);
 
 
