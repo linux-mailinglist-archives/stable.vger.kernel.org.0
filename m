@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52BB9498A10
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:02:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 932FC498916
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:52:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232425AbiAXTBV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:01:21 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:56912 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344104AbiAXS5y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:57:54 -0500
+        id S245728AbiAXSwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:52:45 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:50822 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245724AbiAXSve (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:51:34 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD52C61318;
-        Mon, 24 Jan 2022 18:57:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88235C340E5;
-        Mon, 24 Jan 2022 18:57:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 44161B810BD;
+        Mon, 24 Jan 2022 18:51:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68654C36AE3;
+        Mon, 24 Jan 2022 18:51:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050673;
-        bh=X2HMSLWSypMHKIOh7Y660kYKewFTYjIlF/6xNVgEuFs=;
+        s=korg; t=1643050292;
+        bh=7aaGjrrgNJ1aKX+foSv3KxNFkbrvGSzDYPPjGLXPFQA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BYUQYybYptfOC0sbkpaRLon2SWR6uAZWWwcFZHpiNSZxHiZdzyMh5xD8CjueZKLCX
-         XEzjyKfr0VNJEV10QYuTc9ZGfL7+n0FBBw0x5UgNIMY6N1uk3rNzlavr0oCi9CRuDj
-         u2cwQ0c/S//Ul0ZFJXQ39pz4UWlrolUu/TIYSuUE=
+        b=Ckt1/OQtWxdH4NJ/VU0XqqupKi0X0L3Twh5DfGvmmBGz7BhvTjpJ5v9mYQe3fQa39
+         jy/lLx15BEjEGVHE1edj5HVGd+tIhHKj+XoNjP62vObioIkMZNJnwR8EHTFS8O+a1X
+         Vvo9Szh+YdHTC45l2b+7M7MLNij0cKucaJWASla4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zekun Shen <bruceshenzk@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 075/157] ar5523: Fix null-ptr-deref with unexpected WDCMSG_TARGET_START reply
-Date:   Mon, 24 Jan 2022 19:42:45 +0100
-Message-Id: <20220124183935.166532036@linuxfoundation.org>
+Subject: [PATCH 4.4 071/114] usb: hub: Add delay for SuperSpeed hub resume to let links transit to U0
+Date:   Mon, 24 Jan 2022 19:42:46 +0100
+Message-Id: <20220124183929.289646365@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
-References: <20220124183932.787526760@linuxfoundation.org>
+In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
+References: <20220124183927.095545464@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit ae80b6033834342601e99f74f6a62ff5092b1cee ]
+[ Upstream commit 00558586382891540c59c9febc671062425a6e47 ]
 
-Unexpected WDCMSG_TARGET_START replay can lead to null-ptr-deref
-when ar->tx_cmd->odata is NULL. The patch adds a null check to
-prevent such case.
+When a new USB device gets plugged to nested hubs, the affected hub,
+which connects to usb 2-1.4-port2, doesn't report there's any change,
+hence the nested hubs go back to runtime suspend like nothing happened:
+[  281.032951] usb usb2: usb wakeup-resume
+[  281.032959] usb usb2: usb auto-resume
+[  281.032974] hub 2-0:1.0: hub_resume
+[  281.033011] usb usb2-port1: status 0263 change 0000
+[  281.033077] hub 2-0:1.0: state 7 ports 4 chg 0000 evt 0000
+[  281.049797] usb 2-1: usb wakeup-resume
+[  281.069800] usb 2-1: Waited 0ms for CONNECT
+[  281.069810] usb 2-1: finish resume
+[  281.070026] hub 2-1:1.0: hub_resume
+[  281.070250] usb 2-1-port4: status 0203 change 0000
+[  281.070272] usb usb2-port1: resume, status 0
+[  281.070282] hub 2-1:1.0: state 7 ports 4 chg 0010 evt 0000
+[  281.089813] usb 2-1.4: usb wakeup-resume
+[  281.109792] usb 2-1.4: Waited 0ms for CONNECT
+[  281.109801] usb 2-1.4: finish resume
+[  281.109991] hub 2-1.4:1.0: hub_resume
+[  281.110147] usb 2-1.4-port2: status 0263 change 0000
+[  281.110234] usb 2-1-port4: resume, status 0
+[  281.110239] usb 2-1-port4: status 0203, change 0000, 10.0 Gb/s
+[  281.110266] hub 2-1.4:1.0: state 7 ports 4 chg 0000 evt 0000
+[  281.110426] hub 2-1.4:1.0: hub_suspend
+[  281.110565] usb 2-1.4: usb auto-suspend, wakeup 1
+[  281.130998] hub 2-1:1.0: hub_suspend
+[  281.137788] usb 2-1: usb auto-suspend, wakeup 1
+[  281.142935] hub 2-0:1.0: state 7 ports 4 chg 0000 evt 0000
+[  281.177828] usb 2-1: usb wakeup-resume
+[  281.197839] usb 2-1: Waited 0ms for CONNECT
+[  281.197850] usb 2-1: finish resume
+[  281.197984] hub 2-1:1.0: hub_resume
+[  281.198203] usb 2-1-port4: status 0203 change 0000
+[  281.198228] usb usb2-port1: resume, status 0
+[  281.198237] hub 2-1:1.0: state 7 ports 4 chg 0010 evt 0000
+[  281.217835] usb 2-1.4: usb wakeup-resume
+[  281.237834] usb 2-1.4: Waited 0ms for CONNECT
+[  281.237845] usb 2-1.4: finish resume
+[  281.237990] hub 2-1.4:1.0: hub_resume
+[  281.238067] usb 2-1.4-port2: status 0263 change 0000
+[  281.238148] usb 2-1-port4: resume, status 0
+[  281.238152] usb 2-1-port4: status 0203, change 0000, 10.0 Gb/s
+[  281.238166] hub 2-1.4:1.0: state 7 ports 4 chg 0000 evt 0000
+[  281.238385] hub 2-1.4:1.0: hub_suspend
+[  281.238523] usb 2-1.4: usb auto-suspend, wakeup 1
+[  281.258076] hub 2-1:1.0: hub_suspend
+[  281.265744] usb 2-1: usb auto-suspend, wakeup 1
+[  281.285976] hub 2-0:1.0: hub_suspend
+[  281.285988] usb usb2: bus auto-suspend, wakeup 1
 
-KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
- ar5523_cmd+0x46a/0x581 [ar5523]
- ar5523_probe.cold+0x1b7/0x18da [ar5523]
- ? ar5523_cmd_rx_cb+0x7a0/0x7a0 [ar5523]
- ? __pm_runtime_set_status+0x54a/0x8f0
- ? _raw_spin_trylock_bh+0x120/0x120
- ? pm_runtime_barrier+0x220/0x220
- ? __pm_runtime_resume+0xb1/0xf0
- usb_probe_interface+0x25b/0x710
- really_probe+0x209/0x5d0
- driver_probe_device+0xc6/0x1b0
- device_driver_attach+0xe2/0x120
+USB 3.2 spec, 9.2.5.4 "Changing Function Suspend State" says that "If
+the link is in a non-U0 state, then the device must transition the link
+to U0 prior to sending the remote wake message", but the hub only
+transits the link to U0 after signaling remote wakeup.
 
-I found the bug using a custome USBFuzz port. It's a research work
-to fuzz USB stack/drivers. I modified it to fuzz ath9k driver only,
-providing hand-crafted usb descriptors to QEMU.
+So be more forgiving and use a 20ms delay to let the link transit to U0
+for remote wakeup.
 
-After fixing the code (fourth byte in usb packet) to WDCMSG_TARGET_START,
-I got the null-ptr-deref bug. I believe the bug is triggerable whenever
-cmd->odata is NULL. After patching, I tested with the same input and no
-longer see the KASAN report.
-
-This was NOT tested on a real device.
-
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/YXsmPQ3awHFLuAj2@10-18-43-117.dynapool.wireless.nyu.edu
+Suggested-by: Alan Stern <stern@rowland.harvard.edu>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20211215120108.336597-1-kai.heng.feng@canonical.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ar5523/ar5523.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/core/hub.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ar5523/ar5523.c b/drivers/net/wireless/ath/ar5523/ar5523.c
-index 9f4ee1d125b68..0c6b33c464cd9 100644
---- a/drivers/net/wireless/ath/ar5523/ar5523.c
-+++ b/drivers/net/wireless/ath/ar5523/ar5523.c
-@@ -153,6 +153,10 @@ static void ar5523_cmd_rx_cb(struct urb *urb)
- 			ar5523_err(ar, "Invalid reply to WDCMSG_TARGET_START");
- 			return;
+diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+index 97edc38eb8d2d..9b6d41740aaa6 100644
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -1054,7 +1054,10 @@ static void hub_activate(struct usb_hub *hub, enum hub_activation_type type)
+ 		} else {
+ 			hub_power_on(hub, true);
  		}
-+		if (!cmd->odata) {
-+			ar5523_err(ar, "Unexpected WDCMSG_TARGET_START reply");
-+			return;
-+		}
- 		memcpy(cmd->odata, hdr + 1, sizeof(u32));
- 		cmd->olen = sizeof(u32);
- 		cmd->res = 0;
+-	}
++	/* Give some time on remote wakeup to let links to transit to U0 */
++	} else if (hub_is_superspeed(hub->hdev))
++		msleep(20);
++
+  init2:
+ 
+ 	/*
 -- 
 2.34.1
 
