@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C82364996D2
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:20:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9128499510
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:08:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377081AbiAXVG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:06:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46010 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1444317AbiAXVAi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:00:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39F3CC04C04F;
-        Mon, 24 Jan 2022 12:01:53 -0800 (PST)
+        id S1392169AbiAXUue (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:50:34 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:44534 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1389751AbiAXUm7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:42:59 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CAE8C6090B;
-        Mon, 24 Jan 2022 20:01:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3E94C340E5;
-        Mon, 24 Jan 2022 20:01:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 280EAB810A8;
+        Mon, 24 Jan 2022 20:42:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 563E5C340EA;
+        Mon, 24 Jan 2022 20:42:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054512;
-        bh=fqghv2tM9KQdZtwnpamw7ZoE6favq2oByT6WYmfaJKk=;
+        s=korg; t=1643056972;
+        bh=OXTutBZ56C4yn0cJKtTpgqY929mSXbUhpk4iRv6w/sk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G3YCdU1SukD79N4aAelSjrIvls+sst2qU1+Uwx/wHrhOxWEDF1ZZpG8d93uYmRz4q
-         AzGzd+bNgsDKfvwXhBnd0fkuTbo3TaJc5sgK5fHGdma5cAIAaVFloKyp13R8gOlK6K
-         I/gw79OYlUQcvGOhwQJ/nPwiSZ+Ha6X4HPSLbM5M=
+        b=u6HtfW2z4M9Bi4ikBp6RWA/icK72dSiR/le5LvmkKrbpRYhBuZb0YssC81cDoXPge
+         09k0uN6qEikzjnW8L4dNHDYy10sveeicIZsOdSDzIGjav51IpD4YuEOMuc+1NNaub2
+         8NWyrh/6x+WTC/rabxxxpl5zcWc+hOhW30nmu6uU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        Laurent Dufour <ldufour@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Ohad Sharabi <osharabi@habana.ai>,
+        Oded Gabbay <ogabbay@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 413/563] powerpc/watchdog: Fix missed watchdog reset due to memory ordering race
+Subject: [PATCH 5.15 661/846] habanalabs: skip read fw errors if dynamic descriptor invalid
 Date:   Mon, 24 Jan 2022 19:42:58 +0100
-Message-Id: <20220124184038.729399483@linuxfoundation.org>
+Message-Id: <20220124184123.865384707@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,108 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Ohad Sharabi <osharabi@habana.ai>
 
-[ Upstream commit 5dad4ba68a2483fc80d70b9dc90bbe16e1f27263 ]
+[ Upstream commit 4fac990f604e6c10538026835a8a30f3c1b6fcf5 ]
 
-It is possible for all CPUs to miss the pending cpumask becoming clear,
-and then nobody resetting it, which will cause the lockup detector to
-stop working. It will eventually expire, but watchdog_smp_panic will
-avoid doing anything if the pending mask is clear and it will never be
-reset.
+Reporting FW errors involves reading of the error registers.
 
-Order the cpumask clear vs the subsequent test to close this race.
+In case we have a corrupted FW descriptor we cannot do that since the
+dynamic scratchpad is potentially corrupted as well and may cause kernel
+crush when attempting access to a corrupted register offset.
 
-Add an extra check for an empty pending mask when the watchdog fires and
-finds its bit still clear, to try to catch any other possible races or
-bugs here and keep the watchdog working. The extra test in
-arch_touch_nmi_watchdog is required to prevent the new warning from
-firing off.
-
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Laurent Dufour <ldufour@linux.ibm.com>
-Debugged-by: Laurent Dufour <ldufour@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211110025056.2084347-2-npiggin@gmail.com
+Signed-off-by: Ohad Sharabi <osharabi@habana.ai>
+Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
+Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/watchdog.c | 41 +++++++++++++++++++++++++++++++++-
- 1 file changed, 40 insertions(+), 1 deletion(-)
+ drivers/misc/habanalabs/common/firmware_if.c | 17 +++++++++++++++--
+ drivers/misc/habanalabs/common/habanalabs.h  |  2 ++
+ 2 files changed, 17 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/kernel/watchdog.c b/arch/powerpc/kernel/watchdog.c
-index af3c15a1d41eb..75b2a6c4db5a5 100644
---- a/arch/powerpc/kernel/watchdog.c
-+++ b/arch/powerpc/kernel/watchdog.c
-@@ -132,6 +132,10 @@ static void set_cpumask_stuck(const struct cpumask *cpumask, u64 tb)
- {
- 	cpumask_or(&wd_smp_cpus_stuck, &wd_smp_cpus_stuck, cpumask);
- 	cpumask_andnot(&wd_smp_cpus_pending, &wd_smp_cpus_pending, cpumask);
-+	/*
-+	 * See wd_smp_clear_cpu_pending()
-+	 */
-+	smp_mb();
- 	if (cpumask_empty(&wd_smp_cpus_pending)) {
- 		wd_smp_last_reset_tb = tb;
- 		cpumask_andnot(&wd_smp_cpus_pending,
-@@ -217,13 +221,44 @@ static void wd_smp_clear_cpu_pending(int cpu, u64 tb)
- 
- 			cpumask_clear_cpu(cpu, &wd_smp_cpus_stuck);
- 			wd_smp_unlock(&flags);
-+		} else {
-+			/*
-+			 * The last CPU to clear pending should have reset the
-+			 * watchdog so we generally should not find it empty
-+			 * here if our CPU was clear. However it could happen
-+			 * due to a rare race with another CPU taking the
-+			 * last CPU out of the mask concurrently.
-+			 *
-+			 * We can't add a warning for it. But just in case
-+			 * there is a problem with the watchdog that is causing
-+			 * the mask to not be reset, try to kick it along here.
-+			 */
-+			if (unlikely(cpumask_empty(&wd_smp_cpus_pending)))
-+				goto none_pending;
- 		}
- 		return;
+diff --git a/drivers/misc/habanalabs/common/firmware_if.c b/drivers/misc/habanalabs/common/firmware_if.c
+index 8d2568c63f19e..a8e683964ab03 100644
+--- a/drivers/misc/habanalabs/common/firmware_if.c
++++ b/drivers/misc/habanalabs/common/firmware_if.c
+@@ -1703,6 +1703,9 @@ static int hl_fw_dynamic_validate_descriptor(struct hl_device *hdev,
+ 		return rc;
  	}
+ 
++	/* here we can mark the descriptor as valid as the content has been validated */
++	fw_loader->dynamic_loader.fw_desc_valid = true;
 +
- 	cpumask_clear_cpu(cpu, &wd_smp_cpus_pending);
-+
+ 	return 0;
+ }
+ 
+@@ -1759,7 +1762,13 @@ static int hl_fw_dynamic_read_and_validate_descriptor(struct hl_device *hdev,
+ 		return rc;
+ 	}
+ 
+-	/* extract address copy the descriptor from */
 +	/*
-+	 * Order the store to clear pending with the load(s) to check all
-+	 * words in the pending mask to check they are all empty. This orders
-+	 * with the same barrier on another CPU. This prevents two CPUs
-+	 * clearing the last 2 pending bits, but neither seeing the other's
-+	 * store when checking if the mask is empty, and missing an empty
-+	 * mask, which ends with a false positive.
++	 * extract address to copy the descriptor from
++	 * in addition, as the descriptor value is going to be over-ridden by new data- we mark it
++	 * as invalid.
++	 * it will be marked again as valid once validated
 +	 */
-+	smp_mb();
- 	if (cpumask_empty(&wd_smp_cpus_pending)) {
- 		unsigned long flags;
++	fw_loader->dynamic_loader.fw_desc_valid = false;
+ 	src = hdev->pcie_bar[region->bar_id] + region->offset_in_bar +
+ 							response->ram_offset;
+ 	memcpy_fromio(fw_desc, src, sizeof(struct lkd_fw_comms_desc));
+@@ -2239,6 +2248,9 @@ static int hl_fw_dynamic_init_cpu(struct hl_device *hdev,
+ 	dev_info(hdev->dev,
+ 		"Loading firmware to device, may take some time...\n");
  
-+none_pending:
-+		/*
-+		 * Double check under lock because more than one CPU could see
-+		 * a clear mask with the lockless check after clearing their
-+		 * pending bits.
-+		 */
- 		wd_smp_lock(&flags);
- 		if (cpumask_empty(&wd_smp_cpus_pending)) {
- 			wd_smp_last_reset_tb = tb;
-@@ -314,8 +349,12 @@ void arch_touch_nmi_watchdog(void)
- {
- 	unsigned long ticks = tb_ticks_per_usec * wd_timer_period_ms * 1000;
- 	int cpu = smp_processor_id();
--	u64 tb = get_tb();
-+	u64 tb;
- 
-+	if (!cpumask_test_cpu(cpu, &watchdog_cpumask))
-+		return;
++	/* initialize FW descriptor as invalid */
++	fw_loader->dynamic_loader.fw_desc_valid = false;
 +
-+	tb = get_tb();
- 	if (tb - per_cpu(wd_timer_tb, cpu) >= ticks) {
- 		per_cpu(wd_timer_tb, cpu) = tb;
- 		wd_smp_clear_cpu_pending(cpu, tb);
+ 	/*
+ 	 * In this stage, "cpu_dyn_regs" contains only LKD's hard coded values!
+ 	 * It will be updated from FW after hl_fw_dynamic_request_descriptor().
+@@ -2325,7 +2337,8 @@ static int hl_fw_dynamic_init_cpu(struct hl_device *hdev,
+ 	return 0;
+ 
+ protocol_err:
+-	fw_read_errors(hdev, le32_to_cpu(dyn_regs->cpu_boot_err0),
++	if (fw_loader->dynamic_loader.fw_desc_valid)
++		fw_read_errors(hdev, le32_to_cpu(dyn_regs->cpu_boot_err0),
+ 				le32_to_cpu(dyn_regs->cpu_boot_err1),
+ 				le32_to_cpu(dyn_regs->cpu_boot_dev_sts0),
+ 				le32_to_cpu(dyn_regs->cpu_boot_dev_sts1));
+diff --git a/drivers/misc/habanalabs/common/habanalabs.h b/drivers/misc/habanalabs/common/habanalabs.h
+index bebebcb163ee8..dfcd87b98ca08 100644
+--- a/drivers/misc/habanalabs/common/habanalabs.h
++++ b/drivers/misc/habanalabs/common/habanalabs.h
+@@ -992,6 +992,7 @@ struct fw_response {
+  * @image_region: region to copy the FW image to
+  * @fw_image_size: size of FW image to load
+  * @wait_for_bl_timeout: timeout for waiting for boot loader to respond
++ * @fw_desc_valid: true if FW descriptor has been validated and hence the data can be used
+  */
+ struct dynamic_fw_load_mgr {
+ 	struct fw_response response;
+@@ -999,6 +1000,7 @@ struct dynamic_fw_load_mgr {
+ 	struct pci_mem_region *image_region;
+ 	size_t fw_image_size;
+ 	u32 wait_for_bl_timeout;
++	bool fw_desc_valid;
+ };
+ 
+ /**
 -- 
 2.34.1
 
