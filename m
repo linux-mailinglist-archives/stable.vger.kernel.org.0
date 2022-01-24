@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCDDF498E41
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:44:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80622499150
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355095AbiAXTj7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:39:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53352 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353763AbiAXTfU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:35:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4D9CC0A893A;
-        Mon, 24 Jan 2022 11:16:35 -0800 (PST)
+        id S1379062AbiAXUKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:10:16 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:54838 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347509AbiAXT6b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:58:31 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B4996121F;
-        Mon, 24 Jan 2022 19:16:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FC1BC340E5;
-        Mon, 24 Jan 2022 19:16:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D086660B02;
+        Mon, 24 Jan 2022 19:58:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA024C340E5;
+        Mon, 24 Jan 2022 19:58:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051794;
-        bh=/MtwEjQmi6Z/hKYMuHWTxOW7JOqE1TNJzX7HKcDbGzQ=;
+        s=korg; t=1643054305;
+        bh=aXgAlWjFhuTYaGo0IQrs5NxFaBkHUtQAgDjh1OBwC9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zmug4/KEt78FkiQpU2HRvNTV3IkH5AgU0YOIayLDJm+lXZNetX89HmQnqceIdwr7s
-         tTncvXq5fqKb8cOI4m24cDWhHmLB9a22ov1/EcJTHkmB3ZtouYTquLcMf0ddCvFlsw
-         jvEx2vKOMzKjGs4ra+jwf8c48BAjvvBPFQP5l4hY=
+        b=QuN7KRleVxvKtb7ekSR5PDdUAomPSZdo42sXLDwVXaLHqz9UnLfGECrrvhNX+PglG
+         +I9EIGTRC3QbanLPz7HQhvTKTinlpZZONvvtGkw6RP7eNseoxte+2Lv3zIvFD5Y5eh
+         f1g/qEnAdfQ3HQqXOweuH4DoT7b1R+HLqsc9rCO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Li Hua <hucool.lihua@huawei.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, rkardell@mida.se,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 072/239] sched/rt: Try to restart rt period timer when rt runtime exceeded
+Subject: [PATCH 5.10 345/563] media: m920x: dont use stack on USB reads
 Date:   Mon, 24 Jan 2022 19:41:50 +0100
-Message-Id: <20220124183945.417814701@linuxfoundation.org>
+Message-Id: <20220124184036.351610038@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,97 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Hua <hucool.lihua@huawei.com>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit 9b58e976b3b391c0cf02e038d53dd0478ed3013c ]
+[ Upstream commit a2ab06d7c4d6bfd0b545a768247a70463e977e27 ]
 
-When rt_runtime is modified from -1 to a valid control value, it may
-cause the task to be throttled all the time. Operations like the following
-will trigger the bug. E.g:
+Using stack-allocated pointers for USB message data don't work.
+This driver is almost OK with that, except for the I2C read
+logic.
 
-  1. echo -1 > /proc/sys/kernel/sched_rt_runtime_us
-  2. Run a FIFO task named A that executes while(1)
-  3. echo 950000 > /proc/sys/kernel/sched_rt_runtime_us
+Fix it by using a temporary read buffer, just like on all other
+calls to m920x_read().
 
-When rt_runtime is -1, The rt period timer will not be activated when task
-A enqueued. And then the task will be throttled after setting rt_runtime to
-950,000. The task will always be throttled because the rt period timer is
-not activated.
-
-Fixes: d0b27fa77854 ("sched: rt-group: synchonised bandwidth period")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Li Hua <hucool.lihua@huawei.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20211203033618.11895-1-hucool.lihua@huawei.com
+Link: https://lore.kernel.org/all/ccc99e48-de4f-045e-0fe4-61e3118e3f74@mida.se/
+Reported-by: rkardell@mida.se
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/rt.c | 23 ++++++++++++++++++-----
- 1 file changed, 18 insertions(+), 5 deletions(-)
+ drivers/media/usb/dvb-usb/m920x.c | 12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
-index b980cc96604fa..70e8cd3954745 100644
---- a/kernel/sched/rt.c
-+++ b/kernel/sched/rt.c
-@@ -50,11 +50,8 @@ void init_rt_bandwidth(struct rt_bandwidth *rt_b, u64 period, u64 runtime)
- 	rt_b->rt_period_timer.function = sched_rt_period_timer;
- }
- 
--static void start_rt_bandwidth(struct rt_bandwidth *rt_b)
-+static inline void do_start_rt_bandwidth(struct rt_bandwidth *rt_b)
- {
--	if (!rt_bandwidth_enabled() || rt_b->rt_runtime == RUNTIME_INF)
--		return;
--
- 	raw_spin_lock(&rt_b->rt_runtime_lock);
- 	if (!rt_b->rt_period_active) {
- 		rt_b->rt_period_active = 1;
-@@ -72,6 +69,14 @@ static void start_rt_bandwidth(struct rt_bandwidth *rt_b)
- 	raw_spin_unlock(&rt_b->rt_runtime_lock);
- }
- 
-+static void start_rt_bandwidth(struct rt_bandwidth *rt_b)
-+{
-+	if (!rt_bandwidth_enabled() || rt_b->rt_runtime == RUNTIME_INF)
-+		return;
-+
-+	do_start_rt_bandwidth(rt_b);
-+}
-+
- void init_rt_rq(struct rt_rq *rt_rq)
- {
- 	struct rt_prio_array *array;
-@@ -980,13 +985,17 @@ static void update_curr_rt(struct rq *rq)
- 
- 	for_each_sched_rt_entity(rt_se) {
- 		struct rt_rq *rt_rq = rt_rq_of_se(rt_se);
-+		int exceeded;
- 
- 		if (sched_rt_runtime(rt_rq) != RUNTIME_INF) {
- 			raw_spin_lock(&rt_rq->rt_runtime_lock);
- 			rt_rq->rt_time += delta_exec;
--			if (sched_rt_runtime_exceeded(rt_rq))
-+			exceeded = sched_rt_runtime_exceeded(rt_rq);
-+			if (exceeded)
- 				resched_curr(rq);
- 			raw_spin_unlock(&rt_rq->rt_runtime_lock);
-+			if (exceeded)
-+				do_start_rt_bandwidth(sched_rt_bandwidth(rt_rq));
+diff --git a/drivers/media/usb/dvb-usb/m920x.c b/drivers/media/usb/dvb-usb/m920x.c
+index 4bb5b82599a79..691e05833db19 100644
+--- a/drivers/media/usb/dvb-usb/m920x.c
++++ b/drivers/media/usb/dvb-usb/m920x.c
+@@ -274,6 +274,13 @@ static int m920x_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msg[], int nu
+ 			/* Should check for ack here, if we knew how. */
  		}
- 	}
- }
-@@ -2655,8 +2664,12 @@ static int sched_rt_global_validate(void)
- 
- static void sched_rt_do_global(void)
- {
-+	unsigned long flags;
+ 		if (msg[i].flags & I2C_M_RD) {
++			char *read = kmalloc(1, GFP_KERNEL);
++			if (!read) {
++				ret = -ENOMEM;
++				kfree(read);
++				goto unlock;
++			}
 +
-+	raw_spin_lock_irqsave(&def_rt_bandwidth.rt_runtime_lock, flags);
- 	def_rt_bandwidth.rt_runtime = global_rt_runtime();
- 	def_rt_bandwidth.rt_period = ns_to_ktime(global_rt_period());
-+	raw_spin_unlock_irqrestore(&def_rt_bandwidth.rt_runtime_lock, flags);
- }
+ 			for (j = 0; j < msg[i].len; j++) {
+ 				/* Last byte of transaction?
+ 				 * Send STOP, otherwise send ACK. */
+@@ -281,9 +288,12 @@ static int m920x_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg msg[], int nu
  
- int sched_rt_handler(struct ctl_table *table, int write,
+ 				if ((ret = m920x_read(d->udev, M9206_I2C, 0x0,
+ 						      0x20 | stop,
+-						      &msg[i].buf[j], 1)) != 0)
++						      read, 1)) != 0)
+ 					goto unlock;
++				msg[i].buf[j] = read[0];
+ 			}
++
++			kfree(read);
+ 		} else {
+ 			for (j = 0; j < msg[i].len; j++) {
+ 				/* Last byte of transaction? Then send STOP. */
 -- 
 2.34.1
 
