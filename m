@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 276784996FE
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:20:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88E2C4998F1
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:39:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353573AbiAXVIl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:08:41 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:55262 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347028AbiAXVDC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:03:02 -0500
+        id S1453782AbiAXVay (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:30:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50956 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1450663AbiAXVVI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:21:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30E92C0604D4;
+        Mon, 24 Jan 2022 12:15:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67612B811FB;
-        Mon, 24 Jan 2022 21:03:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F133C340E5;
-        Mon, 24 Jan 2022 21:02:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C420E61371;
+        Mon, 24 Jan 2022 20:15:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0A10C340E7;
+        Mon, 24 Jan 2022 20:15:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058180;
-        bh=r6PJTVbTgA7n2wSq8entt3xiWEWDnWuHPyVrqFfvuUQ=;
+        s=korg; t=1643055322;
+        bh=3i3CBiVMZBkewYtFO/rlHuYcQ0pOBSw9avcWBceQj+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gjr/q4eJRij9zblNdQ/jOqW60PpN6pwa4UjJzwO5gI5aGGMgFS9D08MdmPJVF4F6J
-         uiNt77AefEr1LWDvB80ZtmXxadFsko9Vjlxj44KfUFQovmWSvhdshvuz35eutVtC2J
-         oT4LE7j3DdnfaHlLRFTa38EvBvQJDT/JYuONYnBw=
+        b=xB9rUZxCoQ99vJF3gy2HrbUF0h8pV9A3Ro4W0Yy9fYTW1pQeYzaHjL/1vZXYN7P+v
+         NM87UNMmJe52T6amNBztL57njzd7ckkBi+AvCjCxM97P+Moo5qS80SgAH0PP41l+0S
+         CaP9B6Vge25GIS2q4DPhTyofhriTodzHrYDQ/DjM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zack Rusin <zackr@vmware.com>,
-        Martin Krastev <krastevm@vmware.com>,
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        Chen-Yu Tsai <wenst@chromium.org>,
+        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
+        <nfraprado@collabora.com>, Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0206/1039] drm/vmwgfx: Remove the deprecated lower mem limit
-Date:   Mon, 24 Jan 2022 19:33:15 +0100
-Message-Id: <20220124184132.246155959@linuxfoundation.org>
+Subject: [PATCH 5.15 081/846] drm/rockchip: dsi: Fix unbalanced clock on probe error
+Date:   Mon, 24 Jan 2022 19:33:18 +0100
+Message-Id: <20220124184103.788290244@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,186 +50,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zack Rusin <zackr@vmware.com>
+From: Brian Norris <briannorris@chromium.org>
 
-[ Upstream commit 826c387d015247df396a91eadbaca94f0394853c ]
+[ Upstream commit 251888398753924059f3bb247a44153a2853137f ]
 
-TTM during the transition to the new page allocator lost the ability
-to constrain the allocations via the lower_mem_limit. The code has
-been unused since the change:
-256dd44bd897 ("drm/ttm: nuke old page allocator")
-and there's no reason to keep it.
+Our probe() function never enabled this clock, so we shouldn't disable
+it if we fail to probe the bridge.
 
-Fixes: 256dd44bd897 ("drm/ttm: nuke old page allocator")
-Signed-off-by: Zack Rusin <zackr@vmware.com>
-Reviewed-by: Martin Krastev <krastevm@vmware.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211105193845.258816-2-zackr@vmware.com
+Noted by inspection.
+
+Fixes: 2d4f7bdafd70 ("drm/rockchip: dsi: migrate to use dw-mipi-dsi bridge driver")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
+Tested-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210928143413.v3.3.Ie8ceefb51ab6065a1151869b6fcda41a467d4d2c@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vmwgfx/ttm_memory.c | 99 +----------------------------
- drivers/gpu/drm/vmwgfx/ttm_memory.h |  6 +-
- 2 files changed, 2 insertions(+), 103 deletions(-)
+ drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/vmwgfx/ttm_memory.c b/drivers/gpu/drm/vmwgfx/ttm_memory.c
-index 7f7fe35fc21df..326d2d177c8bb 100644
---- a/drivers/gpu/drm/vmwgfx/ttm_memory.c
-+++ b/drivers/gpu/drm/vmwgfx/ttm_memory.c
-@@ -34,7 +34,6 @@
- #include <linux/mm.h>
- #include <linux/module.h>
- #include <linux/slab.h>
--#include <linux/swap.h>
+diff --git a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
+index a2262bee5aa47..b7eaffafbccbc 100644
+--- a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
++++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
+@@ -1397,14 +1397,10 @@ static int dw_mipi_dsi_rockchip_probe(struct platform_device *pdev)
+ 		if (ret != -EPROBE_DEFER)
+ 			DRM_DEV_ERROR(dev,
+ 				      "Failed to probe dw_mipi_dsi: %d\n", ret);
+-		goto err_clkdisable;
++		return ret;
+ 	}
  
- #include <drm/drm_device.h>
- #include <drm/drm_file.h>
-@@ -173,69 +172,7 @@ static struct kobj_type ttm_mem_zone_kobj_type = {
- 	.sysfs_ops = &ttm_mem_zone_ops,
- 	.default_attrs = ttm_mem_zone_attrs,
- };
+ 	return 0;
 -
--static struct attribute ttm_mem_global_lower_mem_limit = {
--	.name = "lower_mem_limit",
--	.mode = S_IRUGO | S_IWUSR
--};
--
--static ssize_t ttm_mem_global_show(struct kobject *kobj,
--				 struct attribute *attr,
--				 char *buffer)
--{
--	struct ttm_mem_global *glob =
--		container_of(kobj, struct ttm_mem_global, kobj);
--	uint64_t val = 0;
--
--	spin_lock(&glob->lock);
--	val = glob->lower_mem_limit;
--	spin_unlock(&glob->lock);
--	/* convert from number of pages to KB */
--	val <<= (PAGE_SHIFT - 10);
--	return snprintf(buffer, PAGE_SIZE, "%llu\n",
--			(unsigned long long) val);
--}
--
--static ssize_t ttm_mem_global_store(struct kobject *kobj,
--				  struct attribute *attr,
--				  const char *buffer,
--				  size_t size)
--{
--	int chars;
--	uint64_t val64;
--	unsigned long val;
--	struct ttm_mem_global *glob =
--		container_of(kobj, struct ttm_mem_global, kobj);
--
--	chars = sscanf(buffer, "%lu", &val);
--	if (chars == 0)
--		return size;
--
--	val64 = val;
--	/* convert from KB to number of pages */
--	val64 >>= (PAGE_SHIFT - 10);
--
--	spin_lock(&glob->lock);
--	glob->lower_mem_limit = val64;
--	spin_unlock(&glob->lock);
--
--	return size;
--}
--
--static struct attribute *ttm_mem_global_attrs[] = {
--	&ttm_mem_global_lower_mem_limit,
--	NULL
--};
--
--static const struct sysfs_ops ttm_mem_global_ops = {
--	.show = &ttm_mem_global_show,
--	.store = &ttm_mem_global_store,
--};
--
--static struct kobj_type ttm_mem_glob_kobj_type = {
--	.sysfs_ops = &ttm_mem_global_ops,
--	.default_attrs = ttm_mem_global_attrs,
--};
-+static struct kobj_type ttm_mem_glob_kobj_type = {0};
- 
- static bool ttm_zones_above_swap_target(struct ttm_mem_global *glob,
- 					bool from_wq, uint64_t extra)
-@@ -435,11 +372,6 @@ int ttm_mem_global_init(struct ttm_mem_global *glob, struct device *dev)
- 
- 	si_meminfo(&si);
- 
--	spin_lock(&glob->lock);
--	/* set it as 0 by default to keep original behavior of OOM */
--	glob->lower_mem_limit = 0;
--	spin_unlock(&glob->lock);
--
- 	ret = ttm_mem_init_kernel_zone(glob, &si);
- 	if (unlikely(ret != 0))
- 		goto out_no_zone;
-@@ -526,35 +458,6 @@ void ttm_mem_global_free(struct ttm_mem_global *glob,
+-err_clkdisable:
+-	clk_disable_unprepare(dsi->pllref_clk);
+-	return ret;
  }
- EXPORT_SYMBOL(ttm_mem_global_free);
  
--/*
-- * check if the available mem is under lower memory limit
-- *
-- * a. if no swap disk at all or free swap space is under swap_mem_limit
-- * but available system mem is bigger than sys_mem_limit, allow TTM
-- * allocation;
-- *
-- * b. if the available system mem is less than sys_mem_limit but free
-- * swap disk is bigger than swap_mem_limit, allow TTM allocation.
-- */
--bool
--ttm_check_under_lowerlimit(struct ttm_mem_global *glob,
--			uint64_t num_pages,
--			struct ttm_operation_ctx *ctx)
--{
--	int64_t available;
--
--	/* We allow over commit during suspend */
--	if (ctx->force_alloc)
--		return false;
--
--	available = get_nr_swap_pages() + si_mem_available();
--	available -= num_pages;
--	if (available < glob->lower_mem_limit)
--		return true;
--
--	return false;
--}
--
- static int ttm_mem_global_reserve(struct ttm_mem_global *glob,
- 				  struct ttm_mem_zone *single_zone,
- 				  uint64_t amount, bool reserve)
-diff --git a/drivers/gpu/drm/vmwgfx/ttm_memory.h b/drivers/gpu/drm/vmwgfx/ttm_memory.h
-index c50dba7744854..7b0d617ebcb1e 100644
---- a/drivers/gpu/drm/vmwgfx/ttm_memory.h
-+++ b/drivers/gpu/drm/vmwgfx/ttm_memory.h
-@@ -50,8 +50,6 @@
-  * @work: The workqueue callback for the shrink queue.
-  * @lock: Lock to protect the @shrink - and the memory accounting members,
-  * that is, essentially the whole structure with some exceptions.
-- * @lower_mem_limit: include lower limit of swap space and lower limit of
-- * system memory.
-  * @zones: Array of pointers to accounting zones.
-  * @num_zones: Number of populated entries in the @zones array.
-  * @zone_kernel: Pointer to the kernel zone.
-@@ -69,7 +67,6 @@ extern struct ttm_mem_global {
- 	struct workqueue_struct *swap_queue;
- 	struct work_struct work;
- 	spinlock_t lock;
--	uint64_t lower_mem_limit;
- 	struct ttm_mem_zone *zones[TTM_MEM_MAX_ZONES];
- 	unsigned int num_zones;
- 	struct ttm_mem_zone *zone_kernel;
-@@ -91,6 +88,5 @@ int ttm_mem_global_alloc_page(struct ttm_mem_global *glob,
- void ttm_mem_global_free_page(struct ttm_mem_global *glob,
- 			      struct page *page, uint64_t size);
- size_t ttm_round_pot(size_t size);
--bool ttm_check_under_lowerlimit(struct ttm_mem_global *glob, uint64_t num_pages,
--				struct ttm_operation_ctx *ctx);
-+
- #endif
+ static int dw_mipi_dsi_rockchip_remove(struct platform_device *pdev)
 -- 
 2.34.1
 
