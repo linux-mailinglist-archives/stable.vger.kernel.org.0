@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D486C499763
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:28:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 968484999F1
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:48:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1448591AbiAXVNG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:13:06 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58932 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230110AbiAXVIw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:08:52 -0500
+        id S1378171AbiAXViv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:38:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53440 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378363AbiAXV3i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:29:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBAB0C0A8848;
+        Mon, 24 Jan 2022 12:19:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D21DDB80FA3;
-        Mon, 24 Jan 2022 21:08:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F258BC340E5;
-        Mon, 24 Jan 2022 21:08:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 731E1B811FB;
+        Mon, 24 Jan 2022 20:19:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A81C9C340E5;
+        Mon, 24 Jan 2022 20:19:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058528;
-        bh=YjrVxM7CLUaCdnPq3WETDJ47sLozfT7aDhMUijcqU08=;
+        s=korg; t=1643055558;
+        bh=8RJImasyP0E687fOXhu6E9cjMMzCtvHjtFNDW7Y9jaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CfOE1GmC2M/18GoO9qbgk/J6bJ0TRAbpDZP21DCaXRU/65dBiBJ5bRefVlEHaAO4P
-         W1fm+qyPwMfA59Mc98+UIxwohTEWeObqOM653cZEhfigaS7AhHTtxCusWZLQE9Or1r
-         QJlLrElDsZSlK1Qe2TdJUnhSA3FmCs9+mTf4aEkY=
+        b=TzUFTCvnoyp7Jy8RhjLTFpSREuJtRHqxVL28hCGmhI9B0hepr7qTb0RB9ckZbhSs9
+         Z9AzFRWgmMYUO5E86Ldx8GY+MUIAlRH8/cpkjzuj/oJLKstx0MmLVadrckRKWoatyo
+         Vp8H76Q9qK+Ajk9pkTmepH3IX2XT4rZ13QM5dNgw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, YN Chen <YN.Chen@mediatek.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0318/1039] mt76: mt7921: fix possible resume failure
-Date:   Mon, 24 Jan 2022 19:35:07 +0100
-Message-Id: <20220124184135.983197973@linuxfoundation.org>
+        stable@vger.kernel.org, Lizhi Hou <lizhi.hou@xilinx.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 191/846] tty: serial: uartlite: allow 64 bit address
+Date:   Mon, 24 Jan 2022 19:35:08 +0100
+Message-Id: <20220124184107.541427000@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,56 +47,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Wang <sean.wang@mediatek.com>
+From: Lizhi Hou <lizhi.hou@xilinx.com>
 
-[ Upstream commit 5375001bb4ce22801bf3bb566cc3e67d2d3a5dc0 ]
+[ Upstream commit 3672fb65155530b5eea6225685c75329b6debec3 ]
 
-Fix the possible resume failure due to mt76_connac_mcu_set_hif_suspend
-timeout.
+The base address of uartlite registers could be 64 bit address which is from
+device resource. When ulite_probe() calls ulite_assign(), this 64 bit
+address is casted to 32-bit. The fix is to replace "u32" type with
+"phys_addr_t" type for the base address in ulite_assign() argument list.
 
-That is because clearing the flag pm->suspended too early opened up a race
-window, where mt7921_poll_tx/rx scheduled a ps_work to put the device in
-doze mode, that is unexpected for the device is being resumed from the
-suspend state and would make the remaining MCU comamnds in resume handler
-failed to execute.
-
-Fixes: ffa1bf97425b ("mt76: mt7921: introduce PM support")
-Co-developed-by: YN Chen <YN.Chen@mediatek.com>
-Signed-off-by: YN Chen <YN.Chen@mediatek.com>
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Fixes: 8fa7b6100693 ("[POWERPC] Uartlite: Separate the bus binding from the driver proper")
+Signed-off-by: Lizhi Hou <lizhi.hou@xilinx.com>
+Link: https://lore.kernel.org/r/20211129202302.1319033-1-lizhi.hou@xilinx.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/pci.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/tty/serial/uartlite.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/pci.c b/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
-index c29dde23d4ab1..40186e6cd865e 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/pci.c
-@@ -313,7 +313,6 @@ static int mt7921_pci_resume(struct pci_dev *pdev)
- 	struct mt76_connac_pm *pm = &dev->pm;
- 	int i, err;
- 
--	pm->suspended = false;
- 	err = pci_set_power_state(pdev, PCI_D0);
- 	if (err)
- 		return err;
-@@ -351,7 +350,13 @@ static int mt7921_pci_resume(struct pci_dev *pdev)
- 	if (!pm->ds_enable)
- 		mt76_connac_mcu_set_deep_sleep(&dev->mt76, false);
- 
--	return mt76_connac_mcu_set_hif_suspend(mdev, false);
-+	err = mt76_connac_mcu_set_hif_suspend(mdev, false);
-+	if (err)
-+		return err;
-+
-+	pm->suspended = false;
-+
-+	return err;
- }
- #endif /* CONFIG_PM */
- 
+diff --git a/drivers/tty/serial/uartlite.c b/drivers/tty/serial/uartlite.c
+index dfc1ba4e15724..36871cebd6a0f 100644
+--- a/drivers/tty/serial/uartlite.c
++++ b/drivers/tty/serial/uartlite.c
+@@ -612,7 +612,7 @@ static struct uart_driver ulite_uart_driver = {
+  *
+  * Returns: 0 on success, <0 otherwise
+  */
+-static int ulite_assign(struct device *dev, int id, u32 base, int irq,
++static int ulite_assign(struct device *dev, int id, phys_addr_t base, int irq,
+ 			struct uartlite_data *pdata)
+ {
+ 	struct uart_port *port;
 -- 
 2.34.1
 
