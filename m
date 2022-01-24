@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B131F4999B4
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:46:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE95E499ACF
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:57:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1455173AbiAXVey (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:34:54 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:33918 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359768AbiAXVOW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:14:22 -0500
+        id S1573951AbiAXVqy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:46:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55392 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1456716AbiAXVjy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:39:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4196C0419C7;
+        Mon, 24 Jan 2022 12:26:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0F321B81243;
-        Mon, 24 Jan 2022 21:14:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23C2EC340E5;
-        Mon, 24 Jan 2022 21:14:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 42E02614ED;
+        Mon, 24 Jan 2022 20:26:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10C07C340E5;
+        Mon, 24 Jan 2022 20:26:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058859;
-        bh=tLYKVPrk6SwB3glulpE2TPmStGQfWvn/PQr44b2j16Y=;
+        s=korg; t=1643055981;
+        bh=Qu5Alj4np2rsmPwZeeQ8YmvOKti3I/KQtYcIQZVE/lg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XgYw4whTmsFkoXqPi68o5le/aGQDK8lgnUovxt8I0eFjad64kU411GHnRDMJAeIcs
-         USMoNVVHIFGVyvgPZiLtlj05pUVgbBSV6/nv9ILYgiPbYKO0vyHJucX0qGvEGDadjm
-         B6uxRc0iVH6x/2Pt9HLunhsCTRsdTqKGi/sxzWAk=
+        b=cBWmAsIB0uhTnSKpU4bHkxDbImc2CDTGLi+uMcC7dqv4zpzPk39Oc//9rDDX5HhDF
+         Tf4NOjds2I+UK1ydaJ1Pegz+XQE+WAKSbIPGu8y/MNPuKikZwpnpWIbn9r0h9KKskv
+         09/3zhIIQ9Le1zxfjX3Xevx8sbAO7CupipW1IR4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Arseny Demidov <a.demidov@yadro.com>,
+        Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0425/1039] ax25: uninitialized variable in ax25_setsockopt()
+Subject: [PATCH 5.15 297/846] hwmon: (mr75203) fix wrong power-up delay value
 Date:   Mon, 24 Jan 2022 19:36:54 +0100
-Message-Id: <20220124184139.589701660@linuxfoundation.org>
+Message-Id: <20220124184111.157997827@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,73 +48,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Arseny Demidov <arsdemal@gmail.com>
 
-[ Upstream commit 9371937092d5fd502032c1bb4475b36b39b1f1b3 ]
+[ Upstream commit a8d6d4992ad9d92356619ac372906bd29687bb46 ]
 
-The "opt" variable is unsigned long but we only copy 4 bytes from
-the user so the lower 4 bytes are uninitialized.
+In the file mr75203.c we have a macro named POWER_DELAY_CYCLE_256,
+the correct value should be 0x100. The register ip_tmr is expressed
+in units of IP clk cycles, in accordance with the datasheet.
+Typical power-up delays for Temperature Sensor are 256 cycles i.e. 0x100.
 
-I have changed the integer overflow checks from ULONG to UINT as well.
-This is a slight API change but I don't expect it to break anything.
-
-Fixes: a7b75c5a8c41 ("net: pass a sockptr_t into ->setsockopt")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 9d823351a337 ("hwmon: Add hardware monitoring driver for Moortec MR75203 PVT controller")
+Signed-off-by: Arseny Demidov <a.demidov@yadro.com>
+Link: https://lore.kernel.org/r/20211219102239.1112-1-a.demidov@yadro.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ax25/af_ax25.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/hwmon/mr75203.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ax25/af_ax25.c b/net/ax25/af_ax25.c
-index cfca99e295b80..02f43f3e2c564 100644
---- a/net/ax25/af_ax25.c
-+++ b/net/ax25/af_ax25.c
-@@ -536,7 +536,7 @@ static int ax25_setsockopt(struct socket *sock, int level, int optname,
- 	ax25_cb *ax25;
- 	struct net_device *dev;
- 	char devname[IFNAMSIZ];
--	unsigned long opt;
-+	unsigned int opt;
- 	int res = 0;
+diff --git a/drivers/hwmon/mr75203.c b/drivers/hwmon/mr75203.c
+index 868243dba1ee0..1ba1e31459690 100644
+--- a/drivers/hwmon/mr75203.c
++++ b/drivers/hwmon/mr75203.c
+@@ -93,7 +93,7 @@
+ #define VM_CH_REQ	BIT(21)
  
- 	if (level != SOL_AX25)
-@@ -568,7 +568,7 @@ static int ax25_setsockopt(struct socket *sock, int level, int optname,
- 		break;
+ #define IP_TMR			0x05
+-#define POWER_DELAY_CYCLE_256	0x80
++#define POWER_DELAY_CYCLE_256	0x100
+ #define POWER_DELAY_CYCLE_64	0x40
  
- 	case AX25_T1:
--		if (opt < 1 || opt > ULONG_MAX / HZ) {
-+		if (opt < 1 || opt > UINT_MAX / HZ) {
- 			res = -EINVAL;
- 			break;
- 		}
-@@ -577,7 +577,7 @@ static int ax25_setsockopt(struct socket *sock, int level, int optname,
- 		break;
- 
- 	case AX25_T2:
--		if (opt < 1 || opt > ULONG_MAX / HZ) {
-+		if (opt < 1 || opt > UINT_MAX / HZ) {
- 			res = -EINVAL;
- 			break;
- 		}
-@@ -593,7 +593,7 @@ static int ax25_setsockopt(struct socket *sock, int level, int optname,
- 		break;
- 
- 	case AX25_T3:
--		if (opt < 1 || opt > ULONG_MAX / HZ) {
-+		if (opt < 1 || opt > UINT_MAX / HZ) {
- 			res = -EINVAL;
- 			break;
- 		}
-@@ -601,7 +601,7 @@ static int ax25_setsockopt(struct socket *sock, int level, int optname,
- 		break;
- 
- 	case AX25_IDLE:
--		if (opt > ULONG_MAX / (60 * HZ)) {
-+		if (opt > UINT_MAX / (60 * HZ)) {
- 			res = -EINVAL;
- 			break;
- 		}
+ #define PVT_POLL_DELAY_US	20
 -- 
 2.34.1
 
