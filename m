@@ -2,116 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43E98498363
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 16:18:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 629A3498375
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 16:23:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238694AbiAXPSa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 10:18:30 -0500
-Received: from maynard.decadent.org.uk ([95.217.213.242]:42128 "EHLO
-        maynard.decadent.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238469AbiAXPSa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 10:18:30 -0500
-Received: from 168.7-181-91.adsl-dyn.isp.belgacom.be ([91.181.7.168] helo=deadeye)
-        by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1nC16z-0006e6-1O; Mon, 24 Jan 2022 16:18:29 +0100
-Received: from ben by deadeye with local (Exim 4.95)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1nC16y-009sGO-Ee;
-        Mon, 24 Jan 2022 16:18:28 +0100
-Date:   Mon, 24 Jan 2022 16:18:28 +0100
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     stable@vger.kernel.org
-Cc:     Amir Goldstein <amir73il@gmail.com>,
-        Miklos Szeredi <mszeredi@redhat.com>, Jan Kara <jack@suse.cz>
-Subject: [PATCH 4.14,4.19 2/2] fuse: fix live lock in fuse_iget()
-Message-ID: <Ye7DRM+jxoaske8/@decadent.org.uk>
+        id S240242AbiAXPXU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 10:23:20 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:47537 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235210AbiAXPXT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 10:23:19 -0500
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.nyi.internal (Postfix) with ESMTP id 7F8A35C0032;
+        Mon, 24 Jan 2022 10:23:19 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Mon, 24 Jan 2022 10:23:19 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm2; bh=5tVOxchoRlJQ9oVa38o8Q0ocBQpIb1lhZlmRVk
+        exNP8=; b=CZtc6KQZabbwZn/VW2434m5/7jiDuK//V0ezoerup89k9a6Wdb0FcS
+        qfQmjQseL5IxZwEwjgm52VoyxVDnXJO9YfyeUVUJQB7LyXHJvvIDPqhoNnwg05OW
+        MHAXqWfJ7PW2muicmGzJ7xgaf9aOZ7Mvq70AnbtuHt+BHIN/49Ho501nHfz9OQWS
+        H80mllMjpTwCG15mD9YAVKN2m05W2noPnnA2hmr69vJYXlBbbmIbvCscSbLiqmw+
+        ygd1aJnFJ5DxE6xXKSsow4wogglHA5zsE4JhHFC+aWDd/pNOi/asBaHPGFL+2OdF
+        Kds9d8BxJh3J0FS6DPXiEvX3q0L1EyAQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=5tVOxchoRlJQ9oVa3
+        8o8Q0ocBQpIb1lhZlmRVkexNP8=; b=niMk8bEYw4a+qtmzbOWDsL5RaYRSlY7H6
+        aaThzeIOWUFMN8eQwFuRJkFfd2/iQUzPP1GAoxDrODqhiBUFy1nNH34EbeIuNrue
+        PosZG6J28p9wO8jiVGnuZxnsRvZOp2GAdNQmW+gdGoTIeA9W0bMPVbMypE8VUTlJ
+        o1A6iToqMqxxFXz2H9xYTDio8q/K5vSnEby9F2CI9sWol4F4UZCCMI36GcbOqLue
+        UlOuDuW3brIv5Wc2Jw3oseGupHEZC9A6/FQkl4sGQ79SmK+h9fcOgnZdhy/zF0wW
+        de1GVVVQ+dz1ks1XaM4vXZ56nXXUCVkmyWbdwL20Z00o6pl7Qn+sA==
+X-ME-Sender: <xms:Z8TuYeW-wnoT8XlEbkjSege-_ft6vRO5eDrObhxaouNLhFLdiCANFw>
+    <xme:Z8TuYakhfxV-vzv-_IgP4rgxgqjJLouMwmWfPKDApbGt2PyE-PdFHL4CyNd8DNc6T
+    t_s-B8qpgoq3A>
+X-ME-Received: <xmr:Z8TuYSaDi-wea9WFnWS8TllP_o6aymfGT4kxakYGqwcSrLBlYYwSs2u_FraCgzudIZgdw7o_K5N_X5rM0dnfpbHTQoujxUkF>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrvdeigdejjecutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
+    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:Z8TuYVVnJi_sx-AjbtHA-FDFpRxT_RrAQ3tNd7Xxkm2sCUg5kpfX8w>
+    <xmx:Z8TuYYkh0MiDUwHGqTdkL8Kg0mnDXtU8uAsMcpUqXqtUnh67O6TNrw>
+    <xmx:Z8TuYaf58bfmQTmiSFYgHHx4ljkVTTAy3nZ8fWf1z_vZhSYCjh3IdA>
+    <xmx:Z8TuYZBplXmBaXXCArL2AFrxCdGn4nVSPQuo9uvwUbhaiQofIzC60g>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 24 Jan 2022 10:23:18 -0500 (EST)
+Date:   Mon, 24 Jan 2022 16:23:17 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Ben Hutchings <ben@decadent.org.uk>
+Cc:     stable@vger.kernel.org, Suren Baghdasaryan <surenb@google.com>
+Subject: Re: [PATCH 4.14,4.19] mips,s390,sh,sparc: gup: Work around the "COW
+ can break either way" issue
+Message-ID: <Ye7EZaQh/nYk4Oz+@kroah.com>
+References: <Ye7BluXgj+5i9VUb@decadent.org.uk>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="qckN/X/CQYA8P9Tt"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Ye7C/r2HAXqKeg/7@decadent.org.uk>
-X-SA-Exim-Connect-IP: 91.181.7.168
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on maynard); SAEximRunCond expanded to false
+In-Reply-To: <Ye7BluXgj+5i9VUb@decadent.org.uk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Jan 24, 2022 at 04:11:18PM +0100, Ben Hutchings wrote:
+> In Linux 4.14 and 4.19 these architectures still have their own
+> implementations of get_user_pages_fast().  These also need to force
+> the write flag on when taking the fast path.
+> 
+> Fixes: 407faed92b4a ("gup: document and work around "COW can break either way" issue")
+> Fixes: 5e24029791e8 ("gup: document and work around "COW can break either way" issue")
+> Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+> ---
+>  arch/mips/mm/gup.c  | 9 ++++++++-
+>  arch/s390/mm/gup.c  | 9 ++++++++-
+>  arch/sh/mm/gup.c    | 9 ++++++++-
+>  arch/sparc/mm/gup.c | 9 ++++++++-
+>  4 files changed, 32 insertions(+), 4 deletions(-)
 
---qckN/X/CQYA8P9Tt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks, now queued up.
 
-=46rom: Amir Goldstein <amir73il@gmail.com>
-
-commit 775c5033a0d164622d9d10dd0f0a5531639ed3ed upstream.
-
-Commit 5d069dbe8aaf ("fuse: fix bad inode") replaced make_bad_inode()
-in fuse_iget() with a private implementation fuse_make_bad().
-
-The private implementation fails to remove the bad inode from inode
-cache, so the retry loop with iget5_locked() finds the same bad inode
-and marks it bad forever.
-
-kmsg snip:
-
-[ ] rcu: INFO: rcu_sched self-detected stall on CPU
-=2E..
-[ ]  ? bit_wait_io+0x50/0x50
-[ ]  ? fuse_init_file_inode+0x70/0x70
-[ ]  ? find_inode.isra.32+0x60/0xb0
-[ ]  ? fuse_init_file_inode+0x70/0x70
-[ ]  ilookup5_nowait+0x65/0x90
-[ ]  ? fuse_init_file_inode+0x70/0x70
-[ ]  ilookup5.part.36+0x2e/0x80
-[ ]  ? fuse_init_file_inode+0x70/0x70
-[ ]  ? fuse_inode_eq+0x20/0x20
-[ ]  iget5_locked+0x21/0x80
-[ ]  ? fuse_inode_eq+0x20/0x20
-[ ]  fuse_iget+0x96/0x1b0
-
-Fixes: 5d069dbe8aaf ("fuse: fix bad inode")
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
----
- fs/fuse/fuse_i.h | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
-index 220960c9b96d..fac1f08dd32e 100644
---- a/fs/fuse/fuse_i.h
-+++ b/fs/fuse/fuse_i.h
-@@ -691,6 +691,7 @@ static inline u64 get_node_id(struct inode *inode)
-=20
- static inline void fuse_make_bad(struct inode *inode)
- {
-+	remove_inode_hash(inode);
- 	set_bit(FUSE_I_BAD, &get_fuse_inode(inode)->state);
- }
-=20
-
---qckN/X/CQYA8P9Tt
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmHuw0QACgkQ57/I7JWG
-EQlE/BAAyVZ5g0R/R4UYDcyWgNu5Z6Ss5jRl6X/A1P7f+AnjfvOCa7WuOFmway/p
-68mJgL9LYxRhXp+szPeeXj6N+iRF0t8Yk7XaIirMSaovHXllsfSWCqTiuNJqTzEC
-AXXLcZwhPkb4nkTwMIr39Jv6ROvHEdvpkXK1TwIPlYhyvSu5zoaipqVa8nsUACCZ
-486JSXEJ0Y4RQue6thN2ou3wAith/AZet2fC4hF4GgNzuB7F6MPnVvCI3jMKcFre
-SQd00NEYx4fZo+cojUuB0wThRlnUVrXwiQMiKpUfTWWbCZEEMmHGoxbGwj1W2uyz
-SS4H8s02A0U18zjHq8TSVVilGgt6ZP2b5NSOASbTjo2q2jATlAD1g+DlOYnf9OWe
-ZNuTKl7fSzNKidaItZwQVxk7gGxwaNF1UYBElMMCxsvYQEYWXoK/+ww63bclOrBJ
-gP+Zy0Y8IDpwWyr/R6Umi1jA/3YupSTkVIymWLD8sh9wEXzPBGLidWeM34FRlzh5
-zc6ip3pti9zf7uGug8627mUS+WsQFTawG/PECYoiffEGgwJHNi9n5VMzIdSOYrCM
-saQ9q+2m5jxVX2qA3YL+vYSwR0xQFSyuCNCqq+iBw4YyIR3XXbwoD3humZQJsH81
-rznY7XpDpKuTZf4P2N67HRDJUpvB7w2DNjGl+etv+MgCMX84C98=
-=IRls
------END PGP SIGNATURE-----
-
---qckN/X/CQYA8P9Tt--
+greg k-h
