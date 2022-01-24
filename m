@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B15B64996C6
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:20:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 205854999BB
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:46:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1446106AbiAXVGn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:06:43 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:54896 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1444201AbiAXVAT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:00:19 -0500
+        id S1455979AbiAXVhB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:37:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48976 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1448508AbiAXVM6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:12:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 325E6C06E00D;
+        Mon, 24 Jan 2022 12:10:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 35D25B811FB;
-        Mon, 24 Jan 2022 21:00:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F51AC340E5;
-        Mon, 24 Jan 2022 21:00:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EFCF4B8121A;
+        Mon, 24 Jan 2022 20:10:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 276B4C340E5;
+        Mon, 24 Jan 2022 20:10:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058015;
-        bh=rQ607IDeFU2nWSVgGXcNI0jU6mG3sRhHTCFIHXP0PwM=;
+        s=korg; t=1643055049;
+        bh=sPzD3sIHCoQZ6kq2zRn0RcdzuU13RsPBbpmhmt4Sj7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=02cnn9g3tm6G5Yke4Y0cOmSh98cuFGucDmqAsHFRDBs/LS7CZ0uUDKnhKkku9kw91
-         5Mrl7IHxu5fkCPvUE5vXok4PUy78HYbh+E3+0IXu10j+fzvmw2pJA6PM/Fm7epKZez
-         S0+o9E8HMjYjE4739Mo1iECZh437OrV0sSAbHvS4=
+        b=Vcgph0N9XDuqUqGDjRvT1AbwfnWB/qVHz4r2zigyhs4jex3GyC6vrRNdsmfXnM0df
+         vHrto3vipvZ3OF+u9qgRWgmmGSDPiG/kQj78uCyq7tCSiZyXvSM4aZH2paW10tKWCk
+         EDh9RnyHQ+8FSabFJjZDdCiCbXAi0akYAFMqw9RA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Gong <wgong@codeaurora.org>,
-        Jouni Malinen <jouni@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0152/1039] ath11k: set correct NL80211_FEATURE_DYNAMIC_SMPS for WCN6855
+        stable@vger.kernel.org, Nick Kossifidis <mick@ics.forth.gr>,
+        Alexandre Ghiti <alex@ghiti.fr>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.15 024/846] riscv: Dont use va_pa_offset on kdump
 Date:   Mon, 24 Jan 2022 19:32:21 +0100
-Message-Id: <20220124184130.267861766@linuxfoundation.org>
+Message-Id: <20220124184101.760975660@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,107 +48,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Gong <wgong@codeaurora.org>
+From: Nick Kossifidis <mick@ics.forth.gr>
 
-[ Upstream commit 82c434c103408842a87404e873992b7698b6df2b ]
+commit a11c07f032a0e9a562a32ece73af96b0e754c4b3 upstream.
 
-Commit 6f4d70308e5e ("ath11k: support SMPS configuration for 6 GHz") changed
-"if (ht_cap & WMI_HT_CAP_DYNAMIC_SMPS)" to "if (ht_cap &
-WMI_HT_CAP_DYNAMIC_SMPS || ar->supports_6ghz)" which means
-NL80211_FEATURE_DYNAMIC_SMPS is enabled for all chips which support 6 GHz.
-However, WCN6855 supports 6 GHz but it does not support feature
-NL80211_FEATURE_DYNAMIC_SMPS, and this can lead to MU-MIMO test failures for
-WCN6855.
+On kdump instead of using an intermediate step to relocate the kernel,
+that lives in a "control buffer" outside the current kernel's mapping,
+we jump to the crash kernel directly by calling riscv_kexec_norelocate().
+The current implementation uses va_pa_offset while switching to physical
+addressing, however since we moved the kernel outside the linear mapping
+this won't work anymore since riscv_kexec_norelocate() is part of the
+kernel mapping and we should use kernel_map.va_kernel_pa_offset, and also
+take XIP kernel into account.
 
-Disable NL80211_FEATURE_DYNAMIC_SMPS for WCN6855 since its ht_cap does not
-support WMI_HT_CAP_DYNAMIC_SMPS. Enable the feature only on QCN9074 as that's
-the only other device supporting 6 GHz band.
+We don't really need to use va_pa_offset on riscv_kexec_norelocate, we
+can just set STVEC to the physical address of the new kernel instead and
+let the hart jump to the new kernel on the next instruction after setting
+SATP to zero. This fixes kdump and is also simpler/cleaner.
 
-Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-01720.1-QCAHSPSWPL_V1_V2_SILICONZ_LITE-1
+I tested this on the latest qemu and HiFive Unmatched and works as
+expected.
 
-Signed-off-by: Wen Gong <wgong@codeaurora.org>
-Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210914163726.38604-3-jouni@codeaurora.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2bfc6cd81bd1 ("riscv: Move kernel mapping outside of linear mapping")
+Signed-off-by: Nick Kossifidis <mick@ics.forth.gr>
+Reviewed-by: Alexandre Ghiti <alex@ghiti.fr>
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath11k/core.c | 5 +++++
- drivers/net/wireless/ath/ath11k/hw.h   | 1 +
- drivers/net/wireless/ath/ath11k/mac.c  | 3 ++-
- 3 files changed, 8 insertions(+), 1 deletion(-)
+ arch/riscv/kernel/kexec_relocate.S |   20 +++++++++-----------
+ 1 file changed, 9 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/core.c b/drivers/net/wireless/ath/ath11k/core.c
-index b5a2af3ffc3e1..7ee2ccc49c747 100644
---- a/drivers/net/wireless/ath/ath11k/core.c
-+++ b/drivers/net/wireless/ath/ath11k/core.c
-@@ -82,6 +82,7 @@ static const struct ath11k_hw_params ath11k_hw_params[] = {
- 		.fix_l1ss = true,
- 		.max_tx_ring = DP_TCL_NUM_RING_MAX,
- 		.hal_params = &ath11k_hw_hal_params_ipq8074,
-+		.supports_dynamic_smps_6ghz = false,
- 	},
- 	{
- 		.hw_rev = ATH11K_HW_IPQ6018_HW10,
-@@ -131,6 +132,7 @@ static const struct ath11k_hw_params ath11k_hw_params[] = {
- 		.fix_l1ss = true,
- 		.max_tx_ring = DP_TCL_NUM_RING_MAX,
- 		.hal_params = &ath11k_hw_hal_params_ipq8074,
-+		.supports_dynamic_smps_6ghz = false,
- 	},
- 	{
- 		.name = "qca6390 hw2.0",
-@@ -179,6 +181,7 @@ static const struct ath11k_hw_params ath11k_hw_params[] = {
- 		.fix_l1ss = true,
- 		.max_tx_ring = DP_TCL_NUM_RING_MAX_QCA6390,
- 		.hal_params = &ath11k_hw_hal_params_qca6390,
-+		.supports_dynamic_smps_6ghz = false,
- 	},
- 	{
- 		.name = "qcn9074 hw1.0",
-@@ -227,6 +230,7 @@ static const struct ath11k_hw_params ath11k_hw_params[] = {
- 		.fix_l1ss = true,
- 		.max_tx_ring = DP_TCL_NUM_RING_MAX,
- 		.hal_params = &ath11k_hw_hal_params_ipq8074,
-+		.supports_dynamic_smps_6ghz = true,
- 	},
- 	{
- 		.name = "wcn6855 hw2.0",
-@@ -275,6 +279,7 @@ static const struct ath11k_hw_params ath11k_hw_params[] = {
- 		.fix_l1ss = false,
- 		.max_tx_ring = DP_TCL_NUM_RING_MAX_QCA6390,
- 		.hal_params = &ath11k_hw_hal_params_qca6390,
-+		.supports_dynamic_smps_6ghz = false,
- 	},
- };
- 
-diff --git a/drivers/net/wireless/ath/ath11k/hw.h b/drivers/net/wireless/ath/ath11k/hw.h
-index 19223d36846e8..6dcac596e3fe5 100644
---- a/drivers/net/wireless/ath/ath11k/hw.h
-+++ b/drivers/net/wireless/ath/ath11k/hw.h
-@@ -176,6 +176,7 @@ struct ath11k_hw_params {
- 	bool fix_l1ss;
- 	u8 max_tx_ring;
- 	const struct ath11k_hw_hal_params *hal_params;
-+	bool supports_dynamic_smps_6ghz;
- };
- 
- struct ath11k_hw_ops {
-diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
-index 9ed7eb09bdb70..821332cbeb5de 100644
---- a/drivers/net/wireless/ath/ath11k/mac.c
-+++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -7674,7 +7674,8 @@ static int __ath11k_mac_register(struct ath11k *ar)
- 	 * for each band for a dual band capable radio. It will be tricky to
- 	 * handle it when the ht capability different for each band.
+--- a/arch/riscv/kernel/kexec_relocate.S
++++ b/arch/riscv/kernel/kexec_relocate.S
+@@ -159,25 +159,15 @@ SYM_CODE_START(riscv_kexec_norelocate)
+ 	 * s0: (const) Phys address to jump to
+ 	 * s1: (const) Phys address of the FDT image
+ 	 * s2: (const) The hartid of the current hart
+-	 * s3: (const) kernel_map.va_pa_offset, used when switching MMU off
  	 */
--	if (ht_cap & WMI_HT_CAP_DYNAMIC_SMPS || ar->supports_6ghz)
-+	if (ht_cap & WMI_HT_CAP_DYNAMIC_SMPS ||
-+	    (ar->supports_6ghz && ab->hw_params.supports_dynamic_smps_6ghz))
- 		ar->hw->wiphy->features |= NL80211_FEATURE_DYNAMIC_SMPS;
+ 	mv	s0, a1
+ 	mv	s1, a2
+ 	mv	s2, a3
+-	mv	s3, a4
  
- 	ar->hw->wiphy->max_scan_ssids = WLAN_SCAN_PARAMS_MAX_SSID;
--- 
-2.34.1
-
+ 	/* Disable / cleanup interrupts */
+ 	csrw	CSR_SIE, zero
+ 	csrw	CSR_SIP, zero
+ 
+-	/* Switch to physical addressing */
+-	la	s4, 1f
+-	sub	s4, s4, s3
+-	csrw	CSR_STVEC, s4
+-	csrw	CSR_SATP, zero
+-
+-.align 2
+-1:
+ 	/* Pass the arguments to the next kernel  / Cleanup*/
+ 	mv	a0, s2
+ 	mv	a1, s1
+@@ -214,7 +204,15 @@ SYM_CODE_START(riscv_kexec_norelocate)
+ 	csrw	CSR_SCAUSE, zero
+ 	csrw	CSR_SSCRATCH, zero
+ 
+-	jalr	zero, a2, 0
++	/*
++	 * Switch to physical addressing
++	 * This will also trigger a jump to CSR_STVEC
++	 * which in this case is the address of the new
++	 * kernel.
++	 */
++	csrw	CSR_STVEC, a2
++	csrw	CSR_SATP, zero
++
+ SYM_CODE_END(riscv_kexec_norelocate)
+ 
+ .section ".rodata"
 
 
