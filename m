@@ -2,76 +2,121 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 802E4497A95
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 09:47:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25DBE497AD2
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 09:57:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229513AbiAXIrk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 03:47:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41580 "EHLO
+        id S242530AbiAXI5X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 03:57:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236418AbiAXIrk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 03:47:40 -0500
-Received: from mail-lj1-x232.google.com (mail-lj1-x232.google.com [IPv6:2a00:1450:4864:20::232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3164C06173B
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 00:47:39 -0800 (PST)
-Received: by mail-lj1-x232.google.com with SMTP id c15so5790872ljf.11
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 00:47:39 -0800 (PST)
+        with ESMTP id S242529AbiAXI5U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 03:57:20 -0500
+Received: from mail-oi1-x236.google.com (mail-oi1-x236.google.com [IPv6:2607:f8b0:4864:20::236])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 497DFC061744
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 00:57:20 -0800 (PST)
+Received: by mail-oi1-x236.google.com with SMTP id y23so6151844oia.13
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 00:57:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=NhKvpblPLwngFDxWekvVpDPH3dmWon3UQiZOuuTHGmE=;
-        b=O7HpFOtBJ43J1+2QPah7j1HK+wTN6Se6mUr+FmAcjjHWSDqr79YZHS1qdj7XQvwOHZ
-         YVAgVunBm1oorfiQMwATEaVeIpLoBRe6eujLSAMWEP9d2jPVuKNi8R9NI8XRcy0ogeTr
-         J2wNNhw5zl1xgwkexELcCZXWvBRWahyXPkatmm5Xd4XkThBPP4N3mzpfp3V/5D5j+DAm
-         c6qGlW4cf+0cdwdOkRYAFmqGHCgm2IPz9iGHT14KHWJ+vnh8IDr3+C4GF4njkQn3f9of
-         fsQxK28OsbFtqqFYs7zzzK6JjM+whZkNpgJeZjEY+syacrHyOsehyDk2sCZM9nsJcsLL
-         KVSg==
+        d=google.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=7LOYL+rXbKkBxwKnxxUJRI+JYuYrzmRIZD8R7ss33Fo=;
+        b=mOOM32JvhyWHxDNT1yl3o3ilV91m8p0sbxYBFE2MaJPRhEDNPFjsP2l/9YgR1e4n/j
+         /+Ki5Wm3HUJjPfHmtoyeLbLIo740NpCjaxlELrLzkpxjvTtLVLgFWh8GpXYSEC2vg8xw
+         iALRbAuJMSsqq2pRpY9vxpEREZ4RJi0zTV/KM0ihwHpDnu4BVD/4YzgHzVTpsoFaN6M/
+         fUNijqYnsFrEFtdDqrP8v+9Q5RTA3dsVOlW+tn4g5RcNPn2AzUI2B4k2Th2N4rlXs+NR
+         YVgFC+bMIftycOG+A/gPsTHZFp/9Ps/r6PvQpOeBiH4RaPhbQKDlyKSAj7xOc1Q1HQYY
+         XRNg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=NhKvpblPLwngFDxWekvVpDPH3dmWon3UQiZOuuTHGmE=;
-        b=l9Zfgq/I4slAMGIV7/Iwzs3KMUKvbyiuA2knW2YBcyMNJWWLYqjdBgcTVHzcTGlWro
-         1+J+kb0dzL6pooSJomjIZLWoMerIlkK0izPSlkCWwDsS0mo+plpqOmhtW28KIRegVg87
-         q6EaGq4mJd6SlvTr5rnfvz5NKqPq8pwv8m67YsOQGk4H8WTI5sO3NSOXWNbW0nGbiATQ
-         DPy1SSXKVLUptv2f02l7o296YNS1+JAYmOLqZpSVrW0NtjKTZnlVmUspb17g7JDDoKeT
-         1RaKsK871z7ICtZNdkUgMmI5MMNCYwU10Q9p8caUOtewcHsG8ttP5IEtIvzUiwCRBNhZ
-         jlMw==
-X-Gm-Message-State: AOAM530kQQr4pvFGym0aHw6jyGzYWZLiivunAa/PqEks4Jnt6p0/MQN7
-        +MIlGNK92xqq/Qoh7E3AZF8QF6fro7EGQqUiF4o=
-X-Google-Smtp-Source: ABdhPJzFSwawS8enmmXfC2omVMluDXqFWj86WT4lDuBOzgToV40O+z6howUtRntZhdu2uJNhqbD6cFaINqMIerYWNZY=
-X-Received: by 2002:a2e:b914:: with SMTP id b20mr10606434ljb.6.1643014057823;
- Mon, 24 Jan 2022 00:47:37 -0800 (PST)
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=7LOYL+rXbKkBxwKnxxUJRI+JYuYrzmRIZD8R7ss33Fo=;
+        b=t+knVL1cIeMhHPX09aRWb6ETJlfIkfXKku78U/szhG9BAWrItdQzbb/mRHD1ENpvLe
+         T8QDRi/OWD4PKgb07WYqsG2etDkjEQlCgBUihnfW5WlMBW1IgTyNdU8nQgFR08H/p4pX
+         fwSeJFLL0xBx/IHGe6aGmQb87o7YSkhXn/lfbLwU3y6z1Y1EVj7se9rNzg54sxJ9K696
+         OeaBkKGVFjWjT6UtdTHKBm9Cr7EaKAcaS5JcOkG+7tDOAGs6/QrnLR7GrzPEE4bf/RLj
+         59MYTxfV1bTirmrgaATEuuJhBn74BimYSdccCqnyYNJqUp+pPDmcoipv5OB6vcDAXhy3
+         1wPw==
+X-Gm-Message-State: AOAM533N1mLyIP0gE/9/fFr6tNkTNu7W+4G4V4WeW2jFKbU29W/51piI
+        OFxZjAD486LOBHBOce0hP3ay7n4psPBNvT+yX9q8UNZCWC0OdouM
+X-Google-Smtp-Source: ABdhPJxyYrXLQdtFig50Jm9MpWiRAsg7rBHxdCaoci5ZAoy/TpI9NboFii/+p4yqn/MGRoXXtldKiGH6LOsbJbsLU20=
+X-Received: by 2002:aca:1e14:: with SMTP id m20mr640396oic.14.1643014639400;
+ Mon, 24 Jan 2022 00:57:19 -0800 (PST)
 MIME-Version: 1.0
-Received: by 2002:a9a:489a:0:b0:190:2485:feaa with HTTP; Mon, 24 Jan 2022
- 00:47:37 -0800 (PST)
-Reply-To: Mr.RobertFerguson@aeiou.pt
-From:   OFFICE <mrsejanetallan@gmail.com>
-Date:   Mon, 24 Jan 2022 09:47:37 +0100
-Message-ID: <CAMmqu33Ro4E_cqS-zt96GheSwcRE5D3=ZZ0jPd-XNfGSvdJXSg@mail.gmail.com>
-Subject: ATTN: BENEFICIARY
-To:     undisclosed-recipients:;
+References: <20220121184207.423426-1-maz@kernel.org>
+In-Reply-To: <20220121184207.423426-1-maz@kernel.org>
+From:   Fuad Tabba <tabba@google.com>
+Date:   Mon, 24 Jan 2022 08:56:43 +0000
+Message-ID: <CA+EHjTzks6CpViFPc=xCq4SGpdiEPy_88L3MTjikmNA-9bC0Tg@mail.gmail.com>
+Subject: Re: [PATCH] KVM: arm64: Use shadow SPSR_EL1 when injecting exceptions
+ on !VHE
+To:     Marc Zyngier <maz@kernel.org>
+Cc:     kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        James Morse <james.morse@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Quentin Perret <qperret@google.com>, kernel-team@android.com,
+        stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-ATTN: BENEFICIARY
+Hi Marc,
 
-OVER-DUE PAYMENT RELEASED. FINALLY, YOUR FUND IS NOW HERE IN THE
-Nigeria AWAITING TO BE SHIPPED TO YOUR HOME ADDRESS. THIS IS THREE
-TIMES I HAVE SENT YOU THIS THE SAME MESSAGE AND TODAY IF YOU, FAIL TO
-COMPLY WITHIN THREE DAYS YOU WILL LOSE YOUR FUND FOREVER.YOUR FUND
-APPROVED PAYMENT OF $27,000,000.00 (TWENTY SEVEN MILLION
-DOLLARS THROUGH ATM CARD)
+On Fri, Jan 21, 2022 at 6:42 PM Marc Zyngier <maz@kernel.org> wrote:
+>
+> Injecting an exception into a guest with non-VHE is risky business.
+> Instead of writing in the shadow register for the switch code to
+> restore it, we override the CPU register instead. Which gets
+> overriden a few instructions later by said restore code.
 
-This is to inform you that three gentle men came to my  office with
-all the claim documents this morning at about (10:15amStandard Pacific
-Time),  with a letter claiming to be from you.You are advise to
-contact this office immediately with your full contact details. EMAIL
-:  Mr.RobertFerguson@aeiou.pt
+I see that in __sysreg_restore_el1_state(), which as you said is
+called after __vcpu_write_spsr().
 
-Regards
+> The result is that although the guest correctly gets the exception,
+> it will return to the original context in some random state,
+> depending on what was there the first place... Boo.
+>
+> Fix the issue by writing to the shadow register. The original code
+> is absolutely fine on VHE, as the state is already loaded, and writing
+> to the shadow register in that case would actually be a bug.
 
-Mr. Robert Ferguson
-Admin Chairman
+Which happens via kvm_vcpu_load_sysregs_vhe() calling
+__sysreg_restore_el1_state() before __vcpu_write_spsr() in this case.
+
+Reviewed-by: Fuad Tabba <tabba@google.com>
+
+Cheers,
+/fuad
+
+
+> Fixes: bb666c472ca2 ("KVM: arm64: Inject AArch64 exceptions from HYP")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> ---
+>  arch/arm64/kvm/hyp/exception.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
+>
+> diff --git a/arch/arm64/kvm/hyp/exception.c b/arch/arm64/kvm/hyp/exception.c
+> index 0418399e0a20..c5d009715402 100644
+> --- a/arch/arm64/kvm/hyp/exception.c
+> +++ b/arch/arm64/kvm/hyp/exception.c
+> @@ -38,7 +38,10 @@ static inline void __vcpu_write_sys_reg(struct kvm_vcpu *vcpu, u64 val, int reg)
+>
+>  static void __vcpu_write_spsr(struct kvm_vcpu *vcpu, u64 val)
+>  {
+> -       write_sysreg_el1(val, SYS_SPSR);
+> +       if (has_vhe())
+> +               write_sysreg_el1(val, SYS_SPSR);
+> +       else
+> +               __vcpu_sys_reg(vcpu, SPSR_EL1) = val;
+>  }
+>
+>  static void __vcpu_write_spsr_abt(struct kvm_vcpu *vcpu, u64 val)
+> --
+> 2.34.1
+>
