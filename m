@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B547499152
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 403CE498D8C
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:34:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379070AbiAXUKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:10:16 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:53818 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237207AbiAXT5Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:57:25 -0500
+        id S1347340AbiAXTdL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:33:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51812 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1352844AbiAXTbL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:31:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF152C028C22;
+        Mon, 24 Jan 2022 11:14:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 96F0D6090B;
-        Mon, 24 Jan 2022 19:57:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 544F9C33DA0;
-        Mon, 24 Jan 2022 19:57:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B55BB81232;
+        Mon, 24 Jan 2022 19:14:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBD51C340E5;
+        Mon, 24 Jan 2022 19:14:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054244;
-        bh=eBtV3ryZiXUZattGsksT7BmwOVTZlzKcXHsLCTSvJcc=;
+        s=korg; t=1643051645;
+        bh=h9OWux2i1YLh5BjrO9KQYEBGMBejsiK7N9nwnwNhnxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g6ooYM8B7/jCwc5C68VkebOO6p5py7J74ct8cqZhIwD7aOV0Fn2WPA3zTHpb5M5hf
-         rn6zqB3I53jnwDSP8NM3CaLtuVxCHIaTYlK8SoOKFuI5CGLPK6NzK7WooeW+cxlwOP
-         a+Fbpkqu4I37TuQ49Dh3pgbfXDnHJyagtdmNJuF8=
+        b=pHP01jKj4ZrTM4WPBsVVOhcm6YLwfOIme96qWTmQ6z61ovZe4mhxCyaGpkEHTIdOh
+         fOPsr9RwChad5OP5SfOej/ZkqzWUEunS/yYe2WIRtNolpUJk25tdgyYqaynv/q8UV4
+         fLh10O7eIMH0Ks2yOOmxeOqVWgv7s8kfoZuxI9pA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ryuta NAKANISHI <nakanishi.ryuta@socionext.com>,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 282/563] phy: uniphier-usb3ss: fix unintended writing zeros to PHY register
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.19 009/239] random: fix data race on crng_node_pool
 Date:   Mon, 24 Jan 2022 19:40:47 +0100
-Message-Id: <20220124184034.194066983@linuxfoundation.org>
+Message-Id: <20220124183943.409514111@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,61 +48,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryuta NAKANISHI <nakanishi.ryuta@socionext.com>
+From: Eric Biggers <ebiggers@google.com>
 
-[ Upstream commit 898c7a9ec81620125f2463714a0f4dea18ad6e54 ]
+commit 5d73d1e320c3fd94ea15ba5f79301da9a8bcc7de upstream.
 
-Similar to commit 4a90bbb478db ("phy: uniphier-pcie: Fix updating phy
-parameters"), in function uniphier_u3ssphy_set_param(), unintentionally
-write zeros to other fields when writing PHY registers.
+extract_crng() and crng_backtrack_protect() load crng_node_pool with a
+plain load, which causes undefined behavior if do_numa_crng_init()
+modifies it concurrently.
 
-Fixes: 5ab43d0f8697 ("phy: socionext: add USB3 PHY driver for UniPhier SoC")
-Signed-off-by: Ryuta NAKANISHI <nakanishi.ryuta@socionext.com>
-Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Link: https://lore.kernel.org/r/1640150369-4134-1-git-send-email-hayashi.kunihiko@socionext.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fix this by using READ_ONCE().  Note: as per the previous discussion
+https://lore.kernel.org/lkml/20211219025139.31085-1-ebiggers@kernel.org/T/#u,
+READ_ONCE() is believed to be sufficient here, and it was requested that
+it be used here instead of smp_load_acquire().
+
+Also change do_numa_crng_init() to set crng_node_pool using
+cmpxchg_release() instead of mb() + cmpxchg(), as the former is
+sufficient here but is more lightweight.
+
+Fixes: 1e7f583af67b ("random: make /dev/urandom scalable for silly userspace programs")
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Acked-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/phy/socionext/phy-uniphier-usb3ss.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/char/random.c |   42 ++++++++++++++++++++++--------------------
+ 1 file changed, 22 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/phy/socionext/phy-uniphier-usb3ss.c b/drivers/phy/socionext/phy-uniphier-usb3ss.c
-index 6700645bcbe6b..3b5ffc16a6947 100644
---- a/drivers/phy/socionext/phy-uniphier-usb3ss.c
-+++ b/drivers/phy/socionext/phy-uniphier-usb3ss.c
-@@ -22,11 +22,13 @@
- #include <linux/reset.h>
- 
- #define SSPHY_TESTI		0x0
--#define SSPHY_TESTO		0x4
- #define TESTI_DAT_MASK		GENMASK(13, 6)
- #define TESTI_ADR_MASK		GENMASK(5, 1)
- #define TESTI_WR_EN		BIT(0)
- 
-+#define SSPHY_TESTO		0x4
-+#define TESTO_DAT_MASK		GENMASK(7, 0)
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -831,8 +831,8 @@ static void do_numa_crng_init(struct wor
+ 		crng_initialize(crng);
+ 		pool[i] = crng;
+ 	}
+-	mb();
+-	if (cmpxchg(&crng_node_pool, NULL, pool)) {
++	/* pairs with READ_ONCE() in select_crng() */
++	if (cmpxchg_release(&crng_node_pool, NULL, pool) != NULL) {
+ 		for_each_node(i)
+ 			kfree(pool[i]);
+ 		kfree(pool);
+@@ -845,8 +845,26 @@ static void numa_crng_init(void)
+ {
+ 	schedule_work(&numa_crng_init_work);
+ }
 +
- #define PHY_F(regno, msb, lsb) { (regno), (msb), (lsb) }
++static struct crng_state *select_crng(void)
++{
++	struct crng_state **pool;
++	int nid = numa_node_id();
++
++	/* pairs with cmpxchg_release() in do_numa_crng_init() */
++	pool = READ_ONCE(crng_node_pool);
++	if (pool && pool[nid])
++		return pool[nid];
++
++	return &primary_crng;
++}
+ #else
+ static void numa_crng_init(void) {}
++
++static struct crng_state *select_crng(void)
++{
++	return &primary_crng;
++}
+ #endif
  
- #define CDR_CPD_TRIM	PHY_F(7, 3, 0)	/* RxPLL charge pump current */
-@@ -84,12 +86,12 @@ static void uniphier_u3ssphy_set_param(struct uniphier_u3ssphy_priv *priv,
- 	val  = FIELD_PREP(TESTI_DAT_MASK, 1);
- 	val |= FIELD_PREP(TESTI_ADR_MASK, p->field.reg_no);
- 	uniphier_u3ssphy_testio_write(priv, val);
--	val = readl(priv->base + SSPHY_TESTO);
-+	val = readl(priv->base + SSPHY_TESTO) & TESTO_DAT_MASK;
+ /*
+@@ -995,15 +1013,7 @@ static void _extract_crng(struct crng_st
  
- 	/* update value */
--	val &= ~FIELD_PREP(TESTI_DAT_MASK, field_mask);
-+	val &= ~field_mask;
- 	data = field_mask & (p->value << p->field.lsb);
--	val  = FIELD_PREP(TESTI_DAT_MASK, data);
-+	val  = FIELD_PREP(TESTI_DAT_MASK, data | val);
- 	val |= FIELD_PREP(TESTI_ADR_MASK, p->field.reg_no);
- 	uniphier_u3ssphy_testio_write(priv, val);
- 	uniphier_u3ssphy_testio_write(priv, val | TESTI_WR_EN);
--- 
-2.34.1
-
+ static void extract_crng(__u8 out[CHACHA20_BLOCK_SIZE])
+ {
+-	struct crng_state *crng = NULL;
+-
+-#ifdef CONFIG_NUMA
+-	if (crng_node_pool)
+-		crng = crng_node_pool[numa_node_id()];
+-	if (crng == NULL)
+-#endif
+-		crng = &primary_crng;
+-	_extract_crng(crng, out);
++	_extract_crng(select_crng(), out);
+ }
+ 
+ /*
+@@ -1032,15 +1042,7 @@ static void _crng_backtrack_protect(stru
+ 
+ static void crng_backtrack_protect(__u8 tmp[CHACHA20_BLOCK_SIZE], int used)
+ {
+-	struct crng_state *crng = NULL;
+-
+-#ifdef CONFIG_NUMA
+-	if (crng_node_pool)
+-		crng = crng_node_pool[numa_node_id()];
+-	if (crng == NULL)
+-#endif
+-		crng = &primary_crng;
+-	_crng_backtrack_protect(crng, tmp, used);
++	_crng_backtrack_protect(select_crng(), tmp, used);
+ }
+ 
+ static ssize_t extract_crng_user(void __user *buf, size_t nbytes)
 
 
