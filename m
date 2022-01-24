@@ -2,43 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E12D8498182
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:55:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7A94498181
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:55:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234941AbiAXNzX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 08:55:23 -0500
-Received: from maynard.decadent.org.uk ([95.217.213.242]:41968 "EHLO
+        id S235583AbiAXNzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 08:55:20 -0500
+Received: from maynard.decadent.org.uk ([95.217.213.242]:41962 "EHLO
         maynard.decadent.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229696AbiAXNzW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:55:22 -0500
+        with ESMTP id S234941AbiAXNzT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:55:19 -0500
 Received: from 168.7-181-91.adsl-dyn.isp.belgacom.be ([91.181.7.168] helo=deadeye)
         by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1nBzbT-0004zK-IJ; Mon, 24 Jan 2022 14:41:51 +0100
+        id 1nBzcu-0004zk-3s; Mon, 24 Jan 2022 14:43:20 +0100
 Received: from ben by deadeye with local (Exim 4.95)
         (envelope-from <ben@decadent.org.uk>)
-        id 1nBzbS-009hoT-Vv;
-        Mon, 24 Jan 2022 14:41:50 +0100
-Date:   Mon, 24 Jan 2022 14:41:50 +0100
+        id 1nBzct-009hpT-Kj;
+        Mon, 24 Jan 2022 14:43:19 +0100
+Date:   Mon, 24 Jan 2022 14:43:19 +0100
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     stable@vger.kernel.org
-Cc:     Jann Horn <jannh@google.com>, Christoph Hellwig <hch@lst.de>,
-        Oleg Nesterov <oleg@redhat.com>,
-        Kirill Shutemov <kirill@shutemov.name>,
-        Jan Kara <jack@suse.cz>, aarcange@redhat.com,
-        willy@infradead.org,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Suren Baghdasaryan <surenb@google.com>
-Subject: [PATCH 4.9 2/2] gup: document and work around "COW can break either
- way" issue
-Message-ID: <Ye6snojxPZQErYTw@decadent.org.uk>
-References: <Ye6r1M/jrcVrUDXQ@decadent.org.uk>
+Cc:     Miklos Szeredi <mszeredi@redhat.com>, Jan Kara <jack@suse.cz>
+Subject: [PATCH 4.9 1/2] fuse: fix bad inode
+Message-ID: <Ye6s90hqJXcsvslQ@decadent.org.uk>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="CviTYG5SuAF1uBSj"
+        protocol="application/pgp-signature"; boundary="Vcbf50j0eHZV8teZ"
 Content-Disposition: inline
-In-Reply-To: <Ye6r1M/jrcVrUDXQ@decadent.org.uk>
 X-SA-Exim-Connect-IP: 91.181.7.168
 X-SA-Exim-Mail-From: ben@decadent.org.uk
 X-SA-Exim-Scanned: No (on maynard); SAEximRunCond expanded to false
@@ -47,368 +38,467 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---CviTYG5SuAF1uBSj
+--Vcbf50j0eHZV8teZ
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-=46rom: Linus Torvalds <torvalds@linux-foundation.org>
+=46rom: Miklos Szeredi <mszeredi@redhat.com>
 
-commit 9bbd42e79720122334226afad9ddcac1c3e6d373 upstream.
+commit 5d069dbe8aaf2a197142558b6fb2978189ba3454 upstream.
 
-Doing a "get_user_pages()" on a copy-on-write page for reading can be
-ambiguous: the page can be COW'ed at any time afterwards, and the
-direction of a COW event isn't defined.
+Jan Kara's analysis of the syzbot report (edited):
 
-Yes, whoever writes to it will generally do the COW, but if the thread
-that did the get_user_pages() unmapped the page before the write (and
-that could happen due to memory pressure in addition to any outright
-action), the writer could also just take over the old page instead.
+  The reproducer opens a directory on FUSE filesystem, it then attaches
+  dnotify mark to the open directory.  After that a fuse_do_getattr() call
+  finds that attributes returned by the server are inconsistent, and calls
+  make_bad_inode() which, among other things does:
 
-End result: the get_user_pages() call might result in a page pointer
-that is no longer associated with the original VM, and is associated
-with - and controlled by - another VM having taken it over instead.
+          inode->i_mode =3D S_IFREG;
 
-So when doing a get_user_pages() on a COW mapping, the only really safe
-thing to do would be to break the COW when getting the page, even when
-only getting it for reading.
+  This then confuses dnotify which doesn't tear down its structures
+  properly and eventually crashes.
 
-At the same time, some users simply don't even care.
+Avoid calling make_bad_inode() on a live inode: switch to a private flag on
+the fuse inode.  Also add the test to ops which the bad_inode_ops would
+have caught.
 
-For example, the perf code wants to look up the page not because it
-cares about the page, but because the code simply wants to look up the
-physical address of the access for informational purposes, and doesn't
-really care about races when a page might be unmapped and remapped
-elsewhere.
+This bug goes back to the initial merge of fuse in 2.6.14...
 
-This adds logic to force a COW event by setting FOLL_WRITE on any
-copy-on-write mapping when FOLL_GET (or FOLL_PIN) is used to get a page
-pointer as a result.
-
-The current semantics end up being:
-
- - __get_user_pages_fast(): no change. If you don't ask for a write,
-   you won't break COW. You'd better know what you're doing.
-
- - get_user_pages_fast(): the fast-case "look it up in the page tables
-   without anything getting mmap_sem" now refuses to follow a read-only
-   page, since it might need COW breaking.  Which happens in the slow
-   path - the fast path doesn't know if the memory might be COW or not.
-
- - get_user_pages() (including the slow-path fallback for gup_fast()):
-   for a COW mapping, turn on FOLL_WRITE for FOLL_GET/FOLL_PIN, with
-   very similar semantics to FOLL_FORCE.
-
-If it turns out that we want finer granularity (ie "only break COW when
-it might actually matter" - things like the zero page are special and
-don't need to be broken) we might need to push these semantics deeper
-into the lookup fault path.  So if people care enough, it's possible
-that we might end up adding a new internal FOLL_BREAK_COW flag to go
-with the internal FOLL_COW flag we already have for tracking "I had a
-COW".
-
-Alternatively, if it turns out that different callers might want to
-explicitly control the forced COW break behavior, we might even want to
-make such a flag visible to the users of get_user_pages() instead of
-using the above default semantics.
-
-But for now, this is mostly commentary on the issue (this commit message
-being a lot bigger than the patch, and that patch in turn is almost all
-comments), with that minimal "enable COW breaking early" logic using the
-existing FOLL_WRITE behavior.
-
-[ It might be worth noting that we've always had this ambiguity, and it
-  could arguably be seen as a user-space issue.
-
-  You only get private COW mappings that could break either way in
-  situations where user space is doing cooperative things (ie fork()
-  before an execve() etc), but it _is_ surprising and very subtle, and
-  fork() is supposed to give you independent address spaces.
-
-  So let's treat this as a kernel issue and make the semantics of
-  get_user_pages() easier to understand. Note that obviously a true
-  shared mapping will still get a page that can change under us, so this
-  does _not_ mean that get_user_pages() somehow returns any "stable"
-  page ]
-
-[surenb: backport notes
-	Replaced (gup_flags | FOLL_WRITE) with write=3D1 in gup_pgd_range.
-	Removed FOLL_PIN usage in should_force_cow_break since it's missing in
-	the earlier kernels.]
-
-Reported-by: Jann Horn <jannh@google.com>
-Tested-by: Christoph Hellwig <hch@lst.de>
-Acked-by: Oleg Nesterov <oleg@redhat.com>
-Acked-by: Kirill Shutemov <kirill@shutemov.name>
-Acked-by: Jan Kara <jack@suse.cz>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[surenb: backport to 4.19 kernel]
-Cc: stable@vger.kernel.org # 4.19.x
-Signed-off-by: Suren Baghdasaryan <surenb@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: syzbot+f427adf9324b92652ccc@syzkaller.appspotmail.com
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Tested-by: Jan Kara <jack@suse.cz>
+Cc: <stable@vger.kernel.org>
 [bwh: Backported to 4.9:
- - Generic get_user_pages_fast() calls __get_user_pages_fast() here,
-   so make it pass write=3D1
- - Various architectures have their own implementations of
-   get_user_pages_fast(), so apply the corresponding change there
- - Adjust context]
+ - Drop changes in fuse_dir_fsync(), fuse_readahead(), fuse_evict_inode()
+ - In fuse_get_link(), return ERR_PTR(-EIO) for bad inodes
+ - Convert some additional calls to is_bad_inode()
+ - Adjust filename, context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/mips/mm/gup.c  |  9 ++++++++-
- arch/s390/mm/gup.c  |  9 ++++++++-
- arch/sh/mm/gup.c    |  9 ++++++++-
- arch/sparc/mm/gup.c |  9 ++++++++-
- arch/x86/mm/gup.c   |  9 ++++++++-
- mm/gup.c            | 44 ++++++++++++++++++++++++++++++++++++++------
- mm/huge_memory.c    |  7 +++----
- 7 files changed, 81 insertions(+), 15 deletions(-)
+ fs/fuse/acl.c    |  6 ++++++
+ fs/fuse/dir.c    | 40 +++++++++++++++++++++++++++++++++++-----
+ fs/fuse/file.c   | 27 ++++++++++++++++++---------
+ fs/fuse/fuse_i.h | 12 ++++++++++++
+ fs/fuse/inode.c  |  2 +-
+ fs/fuse/xattr.c  |  9 +++++++++
+ 6 files changed, 81 insertions(+), 15 deletions(-)
 
-diff --git a/arch/mips/mm/gup.c b/arch/mips/mm/gup.c
-index d8c3c159289a..71a19d20bbb7 100644
---- a/arch/mips/mm/gup.c
-+++ b/arch/mips/mm/gup.c
-@@ -271,7 +271,14 @@ int get_user_pages_fast(unsigned long start, int nr_pa=
-ges, int write,
- 		next =3D pgd_addr_end(addr, end);
- 		if (pgd_none(pgd))
- 			goto slow;
--		if (!gup_pud_range(pgd, addr, next, write, pages, &nr))
-+		/*
-+		 * The FAST_GUP case requires FOLL_WRITE even for pure reads,
-+		 * because get_user_pages() may need to cause an early COW in
-+		 * order to avoid confusing the normal COW routines. So only
-+		 * targets that are already writable are safe to do by just
-+		 * looking at the page tables.
-+		 */
-+		if (!gup_pud_range(pgd, addr, next, 1, pages, &nr))
- 			goto slow;
- 	} while (pgdp++, addr =3D next, addr !=3D end);
- 	local_irq_enable();
-diff --git a/arch/s390/mm/gup.c b/arch/s390/mm/gup.c
-index cf045f56581e..be1e2ed6405d 100644
---- a/arch/s390/mm/gup.c
-+++ b/arch/s390/mm/gup.c
-@@ -261,7 +261,14 @@ int get_user_pages_fast(unsigned long start, int nr_pa=
-ges, int write,
+diff --git a/fs/fuse/acl.c b/fs/fuse/acl.c
+index ec85765502f1..990529da5354 100644
+--- a/fs/fuse/acl.c
++++ b/fs/fuse/acl.c
+@@ -19,6 +19,9 @@ struct posix_acl *fuse_get_acl(struct inode *inode, int t=
+ype)
+ 	void *value =3D NULL;
+ 	struct posix_acl *acl;
 =20
- 	might_sleep();
- 	start &=3D PAGE_MASK;
--	nr =3D __get_user_pages_fast(start, nr_pages, write, pages);
-+	/*
-+	 * The FAST_GUP case requires FOLL_WRITE even for pure reads,
-+	 * because get_user_pages() may need to cause an early COW in
-+	 * order to avoid confusing the normal COW routines. So only
-+	 * targets that are already writable are safe to do by just
-+	 * looking at the page tables.
-+	 */
-+	nr =3D __get_user_pages_fast(start, nr_pages, 1, pages);
- 	if (nr =3D=3D nr_pages)
- 		return nr;
++	if (fuse_is_bad(inode))
++		return ERR_PTR(-EIO);
++
+ 	if (!fc->posix_acl || fc->no_getxattr)
+ 		return NULL;
 =20
-diff --git a/arch/sh/mm/gup.c b/arch/sh/mm/gup.c
-index 063c298ba56c..7fec66e34af0 100644
---- a/arch/sh/mm/gup.c
-+++ b/arch/sh/mm/gup.c
-@@ -239,7 +239,14 @@ int get_user_pages_fast(unsigned long start, int nr_pa=
-ges, int write,
- 		next =3D pgd_addr_end(addr, end);
- 		if (pgd_none(pgd))
- 			goto slow;
--		if (!gup_pud_range(pgd, addr, next, write, pages, &nr))
-+		/*
-+		 * The FAST_GUP case requires FOLL_WRITE even for pure reads,
-+		 * because get_user_pages() may need to cause an early COW in
-+		 * order to avoid confusing the normal COW routines. So only
-+		 * targets that are already writable are safe to do by just
-+		 * looking at the page tables.
-+		 */
-+		if (!gup_pud_range(pgd, addr, next, 1, pages, &nr))
- 			goto slow;
- 	} while (pgdp++, addr =3D next, addr !=3D end);
- 	local_irq_enable();
-diff --git a/arch/sparc/mm/gup.c b/arch/sparc/mm/gup.c
-index cd0e32bbcb1d..685679f87988 100644
---- a/arch/sparc/mm/gup.c
-+++ b/arch/sparc/mm/gup.c
-@@ -218,7 +218,14 @@ int get_user_pages_fast(unsigned long start, int nr_pa=
-ges, int write,
- 		next =3D pgd_addr_end(addr, end);
- 		if (pgd_none(pgd))
- 			goto slow;
--		if (!gup_pud_range(pgd, addr, next, write, pages, &nr))
-+		/*
-+		 * The FAST_GUP case requires FOLL_WRITE even for pure reads,
-+		 * because get_user_pages() may need to cause an early COW in
-+		 * order to avoid confusing the normal COW routines. So only
-+		 * targets that are already writable are safe to do by just
-+		 * looking at the page tables.
-+		 */
-+		if (!gup_pud_range(pgd, addr, next, 1, pages, &nr))
- 			goto slow;
- 	} while (pgdp++, addr =3D next, addr !=3D end);
+@@ -53,6 +56,9 @@ int fuse_set_acl(struct inode *inode, struct posix_acl *a=
+cl, int type)
+ 	const char *name;
+ 	int ret;
 =20
-diff --git a/arch/x86/mm/gup.c b/arch/x86/mm/gup.c
-index 82f727fbbbd2..549f89fb3abc 100644
---- a/arch/x86/mm/gup.c
-+++ b/arch/x86/mm/gup.c
-@@ -454,7 +454,14 @@ int get_user_pages_fast(unsigned long start, int nr_pa=
-ges, int write,
- 		next =3D pgd_addr_end(addr, end);
- 		if (pgd_none(pgd))
- 			goto slow;
--		if (!gup_pud_range(pgd, addr, next, write, pages, &nr))
-+		/*
-+		 * The FAST_GUP case requires FOLL_WRITE even for pure reads,
-+		 * because get_user_pages() may need to cause an early COW in
-+		 * order to avoid confusing the normal COW routines. So only
-+		 * targets that are already writable are safe to do by just
-+		 * looking at the page tables.
-+		 */
-+		if (!gup_pud_range(pgd, addr, next, 1, pages, &nr))
- 			goto slow;
- 	} while (pgdp++, addr =3D next, addr !=3D end);
- 	local_irq_enable();
-diff --git a/mm/gup.c b/mm/gup.c
-index 6bb7a8eb7f82..0b80bf3878dc 100644
---- a/mm/gup.c
-+++ b/mm/gup.c
-@@ -61,13 +61,22 @@ static int follow_pfn_pte(struct vm_area_struct *vma, u=
-nsigned long address,
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	if (!fc->posix_acl || fc->no_setxattr)
+ 		return -EOPNOTSUPP;
+=20
+diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
+index b41cc537eb31..c40bdfab0a85 100644
+--- a/fs/fuse/dir.c
++++ b/fs/fuse/dir.c
+@@ -187,7 +187,7 @@ static int fuse_dentry_revalidate(struct dentry *entry,=
+ unsigned int flags)
+ 	int ret;
+=20
+ 	inode =3D d_inode_rcu(entry);
+-	if (inode && is_bad_inode(inode))
++	if (inode && fuse_is_bad(inode))
+ 		goto invalid;
+ 	else if (time_before64(fuse_dentry_time(entry), get_jiffies_64()) ||
+ 		 (flags & LOOKUP_REVAL)) {
+@@ -364,6 +364,9 @@ static struct dentry *fuse_lookup(struct inode *dir, st=
+ruct dentry *entry,
+ 	bool outarg_valid =3D true;
+ 	bool locked;
+=20
++	if (fuse_is_bad(dir))
++		return ERR_PTR(-EIO);
++
+ 	locked =3D fuse_lock_inode(dir);
+ 	err =3D fuse_lookup_name(dir->i_sb, get_node_id(dir), &entry->d_name,
+ 			       &outarg, &inode);
+@@ -504,6 +507,9 @@ static int fuse_atomic_open(struct inode *dir, struct d=
+entry *entry,
+ 	struct fuse_conn *fc =3D get_fuse_conn(dir);
+ 	struct dentry *res =3D NULL;
+=20
++	if (fuse_is_bad(dir))
++		return -EIO;
++
+ 	if (d_in_lookup(entry)) {
+ 		res =3D fuse_lookup(dir, entry, 0);
+ 		if (IS_ERR(res))
+@@ -551,6 +557,9 @@ static int create_new_entry(struct fuse_conn *fc, struc=
+t fuse_args *args,
+ 	int err;
+ 	struct fuse_forget_link *forget;
+=20
++	if (fuse_is_bad(dir))
++		return -EIO;
++
+ 	forget =3D fuse_alloc_forget();
+ 	if (!forget)
+ 		return -ENOMEM;
+@@ -672,6 +681,9 @@ static int fuse_unlink(struct inode *dir, struct dentry=
+ *entry)
+ 	struct fuse_conn *fc =3D get_fuse_conn(dir);
+ 	FUSE_ARGS(args);
+=20
++	if (fuse_is_bad(dir))
++		return -EIO;
++
+ 	args.in.h.opcode =3D FUSE_UNLINK;
+ 	args.in.h.nodeid =3D get_node_id(dir);
+ 	args.in.numargs =3D 1;
+@@ -708,6 +720,9 @@ static int fuse_rmdir(struct inode *dir, struct dentry =
+*entry)
+ 	struct fuse_conn *fc =3D get_fuse_conn(dir);
+ 	FUSE_ARGS(args);
+=20
++	if (fuse_is_bad(dir))
++		return -EIO;
++
+ 	args.in.h.opcode =3D FUSE_RMDIR;
+ 	args.in.h.nodeid =3D get_node_id(dir);
+ 	args.in.numargs =3D 1;
+@@ -786,6 +801,9 @@ static int fuse_rename2(struct inode *olddir, struct de=
+ntry *oldent,
+ 	struct fuse_conn *fc =3D get_fuse_conn(olddir);
+ 	int err;
+=20
++	if (fuse_is_bad(olddir))
++		return -EIO;
++
+ 	if (flags & ~(RENAME_NOREPLACE | RENAME_EXCHANGE))
+ 		return -EINVAL;
+=20
+@@ -921,7 +939,7 @@ static int fuse_do_getattr(struct inode *inode, struct =
+kstat *stat,
+ 	if (!err) {
+ 		if (fuse_invalid_attr(&outarg.attr) ||
+ 		    (inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
+-			make_bad_inode(inode);
++			fuse_make_bad(inode);
+ 			err =3D -EIO;
+ 		} else {
+ 			fuse_change_attributes(inode, &outarg.attr,
+@@ -1114,6 +1132,9 @@ static int fuse_permission(struct inode *inode, int m=
+ask)
+ 	bool refreshed =3D false;
+ 	int err =3D 0;
+=20
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	if (!fuse_allow_current_process(fc))
+ 		return -EACCES;
+=20
+@@ -1251,7 +1272,7 @@ static int fuse_direntplus_link(struct file *file,
+ 			dput(dentry);
+ 			goto retry;
+ 		}
+-		if (is_bad_inode(inode)) {
++		if (fuse_is_bad(inode)) {
+ 			dput(dentry);
+ 			return -EIO;
+ 		}
+@@ -1349,7 +1370,7 @@ static int fuse_readdir(struct file *file, struct dir=
+_context *ctx)
+ 	u64 attr_version =3D 0;
+ 	bool locked;
+=20
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		return -EIO;
+=20
+ 	req =3D fuse_get_req(fc, 1);
+@@ -1409,6 +1430,9 @@ static const char *fuse_get_link(struct dentry *dentr=
+y,
+ 	if (!dentry)
+ 		return ERR_PTR(-ECHILD);
+=20
++	if (fuse_is_bad(inode))
++		return ERR_PTR(-EIO);
++
+ 	link =3D kmalloc(PAGE_SIZE, GFP_KERNEL);
+ 	if (!link)
+ 		return ERR_PTR(-ENOMEM);
+@@ -1707,7 +1731,7 @@ int fuse_do_setattr(struct dentry *dentry, struct iat=
+tr *attr,
+=20
+ 	if (fuse_invalid_attr(&outarg.attr) ||
+ 	    (inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
+-		make_bad_inode(inode);
++		fuse_make_bad(inode);
+ 		err =3D -EIO;
+ 		goto error;
+ 	}
+@@ -1763,6 +1787,9 @@ static int fuse_setattr(struct dentry *entry, struct =
+iattr *attr)
+ 	struct file *file =3D (attr->ia_valid & ATTR_FILE) ? attr->ia_file : NULL;
+ 	int ret;
+=20
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	if (!fuse_allow_current_process(get_fuse_conn(inode)))
+ 		return -EACCES;
+=20
+@@ -1821,6 +1848,9 @@ static int fuse_getattr(struct vfsmount *mnt, struct =
+dentry *entry,
+ 	struct inode *inode =3D d_inode(entry);
+ 	struct fuse_conn *fc =3D get_fuse_conn(inode);
+=20
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	if (!fuse_allow_current_process(fc))
+ 		return -EACCES;
+=20
+diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+index cea2317e0138..8aef8e56eb1b 100644
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -206,6 +206,9 @@ int fuse_open_common(struct inode *inode, struct file *=
+file, bool isdir)
+ 			  fc->atomic_o_trunc &&
+ 			  fc->writeback_cache;
+=20
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	err =3D generic_file_open(inode, file);
+ 	if (err)
+ 		return err;
+@@ -411,7 +414,7 @@ static int fuse_flush(struct file *file, fl_owner_t id)
+ 	struct fuse_flush_in inarg;
+ 	int err;
+=20
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		return -EIO;
+=20
+ 	if (fc->no_flush)
+@@ -459,7 +462,7 @@ int fuse_fsync_common(struct file *file, loff_t start, =
+loff_t end,
+ 	struct fuse_fsync_in inarg;
+ 	int err;
+=20
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		return -EIO;
+=20
+ 	inode_lock(inode);
+@@ -771,7 +774,7 @@ static int fuse_readpage(struct file *file, struct page=
+ *page)
+ 	int err;
+=20
+ 	err =3D -EIO;
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		goto out;
+=20
+ 	err =3D fuse_do_readpage(file, page);
+@@ -898,7 +901,7 @@ static int fuse_readpages(struct file *file, struct add=
+ress_space *mapping,
+ 	int nr_alloc =3D min_t(unsigned, nr_pages, FUSE_MAX_PAGES_PER_REQ);
+=20
+ 	err =3D -EIO;
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		goto out;
+=20
+ 	data.file =3D file;
+@@ -928,6 +931,9 @@ static ssize_t fuse_file_read_iter(struct kiocb *iocb, =
+struct iov_iter *to)
+ 	struct inode *inode =3D iocb->ki_filp->f_mapping->host;
+ 	struct fuse_conn *fc =3D get_fuse_conn(inode);
+=20
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	/*
+ 	 * In auto invalidate mode, always update attributes on read.
+ 	 * Otherwise, only update if we attempt to read past EOF (to ensure
+@@ -1123,7 +1129,7 @@ static ssize_t fuse_perform_write(struct file *file,
+ 	int err =3D 0;
+ 	ssize_t res =3D 0;
+=20
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		return -EIO;
+=20
+ 	if (inode->i_size < pos + iov_iter_count(ii))
+@@ -1180,6 +1186,9 @@ static ssize_t fuse_file_write_iter(struct kiocb *ioc=
+b, struct iov_iter *from)
+ 	ssize_t err;
+ 	loff_t endbyte =3D 0;
+=20
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	if (get_fuse_conn(inode)->writeback_cache) {
+ 		/* Update size (EOF optimization) and mode (SUID clearing) */
+ 		err =3D fuse_update_attributes(mapping->host, NULL, file, NULL);
+@@ -1415,7 +1424,7 @@ static ssize_t __fuse_direct_read(struct fuse_io_priv=
+ *io,
+ 	struct file *file =3D io->file;
+ 	struct inode *inode =3D file_inode(file);
+=20
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		return -EIO;
+=20
+ 	res =3D fuse_direct_io(io, iter, ppos, 0);
+@@ -1438,7 +1447,7 @@ static ssize_t fuse_direct_write_iter(struct kiocb *i=
+ocb, struct iov_iter *from)
+ 	struct fuse_io_priv io =3D FUSE_IO_PRIV_SYNC(file);
+ 	ssize_t res;
+=20
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		return -EIO;
+=20
+ 	/* Don't allow parallel writes to the same file */
+@@ -1911,7 +1920,7 @@ static int fuse_writepages(struct address_space *mapp=
+ing,
+ 	int err;
+=20
+ 	err =3D -EIO;
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		goto out;
+=20
+ 	data.inode =3D inode;
+@@ -2687,7 +2696,7 @@ long fuse_ioctl_common(struct file *file, unsigned in=
+t cmd,
+ 	if (!fuse_allow_current_process(fc))
+ 		return -EACCES;
+=20
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		return -EIO;
+=20
+ 	return fuse_do_ioctl(file, cmd, arg, flags);
+diff --git a/fs/fuse/fuse_i.h b/fs/fuse/fuse_i.h
+index f84dd6d87d90..bd82c09b053d 100644
+--- a/fs/fuse/fuse_i.h
++++ b/fs/fuse/fuse_i.h
+@@ -115,6 +115,8 @@ enum {
+ 	FUSE_I_INIT_RDPLUS,
+ 	/** An operation changing file size is in progress  */
+ 	FUSE_I_SIZE_UNSTABLE,
++	/* Bad inode */
++	FUSE_I_BAD,
+ };
+=20
+ struct fuse_conn;
+@@ -688,6 +690,16 @@ static inline u64 get_node_id(struct inode *inode)
+ 	return get_fuse_inode(inode)->nodeid;
  }
 =20
- /*
-- * FOLL_FORCE can write to even unwritable pte's, but only
-- * after we've gone through a COW cycle and they are dirty.
-+ * FOLL_FORCE or a forced COW break can write even to unwritable pte's,
-+ * but only after we've gone through a COW cycle and they are dirty.
-  */
- static inline bool can_follow_write_pte(pte_t pte, unsigned int flags)
- {
--	return pte_write(pte) ||
--		((flags & FOLL_FORCE) && (flags & FOLL_COW) && pte_dirty(pte));
-+	return pte_write(pte) || ((flags & FOLL_COW) && pte_dirty(pte));
++static inline void fuse_make_bad(struct inode *inode)
++{
++	set_bit(FUSE_I_BAD, &get_fuse_inode(inode)->state);
 +}
 +
-+/*
-+ * A (separate) COW fault might break the page the other way and
-+ * get_user_pages() would return the page from what is now the wrong
-+ * VM. So we need to force a COW break at GUP time even for reads.
-+ */
-+static inline bool should_force_cow_break(struct vm_area_struct *vma, unsi=
-gned int flags)
++static inline bool fuse_is_bad(struct inode *inode)
 +{
-+	return is_cow_mapping(vma->vm_flags) && (flags & FOLL_GET);
- }
-=20
- static struct page *follow_page_pte(struct vm_area_struct *vma,
-@@ -577,12 +586,18 @@ static long __get_user_pages(struct task_struct *tsk,=
- struct mm_struct *mm,
- 			if (!vma || check_vma_flags(vma, gup_flags))
- 				return i ? : -EFAULT;
- 			if (is_vm_hugetlb_page(vma)) {
-+				if (should_force_cow_break(vma, foll_flags))
-+					foll_flags |=3D FOLL_WRITE;
- 				i =3D follow_hugetlb_page(mm, vma, pages, vmas,
- 						&start, &nr_pages, i,
--						gup_flags);
-+						foll_flags);
- 				continue;
- 			}
- 		}
++	return unlikely(test_bit(FUSE_I_BAD, &get_fuse_inode(inode)->state));
++}
 +
-+		if (should_force_cow_break(vma, foll_flags))
-+			foll_flags |=3D FOLL_WRITE;
+ /** Device operations */
+ extern const struct file_operations fuse_dev_operations;
+=20
+diff --git a/fs/fuse/inode.c b/fs/fuse/inode.c
+index 7a9b1069d267..77b8f0f26407 100644
+--- a/fs/fuse/inode.c
++++ b/fs/fuse/inode.c
+@@ -316,7 +316,7 @@ struct inode *fuse_iget(struct super_block *sb, u64 nod=
+eid,
+ 		unlock_new_inode(inode);
+ 	} else if ((inode->i_mode ^ attr->mode) & S_IFMT) {
+ 		/* Inode has changed type, any I/O on the old should fail */
+-		make_bad_inode(inode);
++		fuse_make_bad(inode);
+ 		iput(inode);
+ 		goto retry;
+ 	}
+diff --git a/fs/fuse/xattr.c b/fs/fuse/xattr.c
+index 3caac46b08b0..134bbc432ae6 100644
+--- a/fs/fuse/xattr.c
++++ b/fs/fuse/xattr.c
+@@ -113,6 +113,9 @@ ssize_t fuse_listxattr(struct dentry *entry, char *list=
+, size_t size)
+ 	struct fuse_getxattr_out outarg;
+ 	ssize_t ret;
+=20
++	if (fuse_is_bad(inode))
++		return -EIO;
 +
- retry:
- 		/*
- 		 * If we have a pending SIGKILL, don't keep faulting pages and
-@@ -1503,6 +1518,10 @@ static int gup_pud_range(pgd_t pgd, unsigned long ad=
-dr, unsigned long end,
- /*
-  * Like get_user_pages_fast() except it's IRQ-safe in that it won't fall b=
-ack to
-  * the regular GUP. It will only return non-negative values.
-+ *
-+ * Careful, careful! COW breaking can go either way, so a non-write
-+ * access can get ambiguous page results. If you call this function without
-+ * 'write' set, you'd better be sure that you're ok with that ambiguity.
-  */
- int __get_user_pages_fast(unsigned long start, int nr_pages, int write,
- 			  struct page **pages)
-@@ -1532,6 +1551,12 @@ int __get_user_pages_fast(unsigned long start, int n=
-r_pages, int write,
- 	 *
- 	 * We do not adopt an rcu_read_lock(.) here as we also want to
- 	 * block IPIs that come from THPs splitting.
-+	 *
-+	 * NOTE! We allow read-only gup_fast() here, but you'd better be
-+	 * careful about possible COW pages. You'll get _a_ COW page, but
-+	 * not necessarily the one you intended to get depending on what
-+	 * COW event happens after this. COW may break the page copy in a
-+	 * random direction.
- 	 */
+ 	if (!fuse_allow_current_process(fc))
+ 		return -EACCES;
 =20
- 	local_irq_save(flags);
-@@ -1580,7 +1605,14 @@ int get_user_pages_fast(unsigned long start, int nr_=
-pages, int write,
- 	int nr, ret;
-=20
- 	start &=3D PAGE_MASK;
--	nr =3D __get_user_pages_fast(start, nr_pages, write, pages);
-+	/*
-+	 * The FAST_GUP case requires FOLL_WRITE even for pure reads,
-+	 * because get_user_pages() may need to cause an early COW in
-+	 * order to avoid confusing the normal COW routines. So only
-+	 * targets that are already writable are safe to do by just
-+	 * looking at the page tables.
-+	 */
-+	nr =3D __get_user_pages_fast(start, nr_pages, 1, pages);
- 	ret =3D nr;
-=20
- 	if (nr < nr_pages) {
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 91f33bb43f17..3f3a86cc62b6 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -1135,13 +1135,12 @@ int do_huge_pmd_wp_page(struct fault_env *fe, pmd_t=
- orig_pmd)
- }
-=20
- /*
-- * FOLL_FORCE can write to even unwritable pmd's, but only
-- * after we've gone through a COW cycle and they are dirty.
-+ * FOLL_FORCE or a forced COW break can write even to unwritable pmd's,
-+ * but only after we've gone through a COW cycle and they are dirty.
-  */
- static inline bool can_follow_write_pmd(pmd_t pmd, unsigned int flags)
+@@ -178,6 +181,9 @@ static int fuse_xattr_get(const struct xattr_handler *h=
+andler,
+ 			 struct dentry *dentry, struct inode *inode,
+ 			 const char *name, void *value, size_t size)
  {
--	return pmd_write(pmd) ||
--	       ((flags & FOLL_FORCE) && (flags & FOLL_COW) && pmd_dirty(pmd));
-+	return pmd_write(pmd) || ((flags & FOLL_COW) && pmd_dirty(pmd));
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	return fuse_getxattr(inode, name, value, size);
  }
 =20
- struct page *follow_trans_huge_pmd(struct vm_area_struct *vma,
+@@ -186,6 +192,9 @@ static int fuse_xattr_set(const struct xattr_handler *h=
+andler,
+ 			  const char *name, const void *value, size_t size,
+ 			  int flags)
+ {
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	if (!value)
+ 		return fuse_removexattr(inode, name);
+=20
 
---CviTYG5SuAF1uBSj
+
+--Vcbf50j0eHZV8teZ
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmHurJ4ACgkQ57/I7JWG
-EQnzmg//Ujdt3FtOfTRO4ufj2a8kUddur5j3onbybs2du/MhfeH+w4rsAncVs/Uz
-yoEZDymOlYznnhh612HGx8Z/dcOPYPb8PVVK7jLLNUEyg6bCVgi61hq1tNzEw3WT
-bN6SITb/ZYxKq1JPwhWGI1x5gEPtO5NH9TThuW931wWFXDSwO9/e1F32YnC/a+dV
-Oy7ypOE+ZUGr0+9GVccG2ZNLweFinNEN/2TCnYjEMasKEkYdfVl+hrehvJFRvzMg
-+/3i25+R2PijE7pmVOdwS3/khIENEoTMj3lCHbDIM/tS0A1qcdRmWtEg7bgx2MH/
-E11frleWMLZ3/4Lka4YGhqR64TklGz8S9B9Rpp7JxIXaM4/p338ql9luOYvTLDxb
-gJdLTynLRFSO2mX2o/JIxG0dVLtkCaf1gsDDDG4p+x2txq8sDKKXjc7xxPP1zQzw
-AuQL6QT/2uk+JSxVhp55ZLmrDBYz+UFXprTqPEMnqky9Cwn0fCoXD0V9ECbDuuqn
-HePzagFdJiZlkzQtQMhJkCPbePf1wx2kEZKO4LfH6xskwp2+tmADD1VNOEBMWdn1
-zUBRuZ7nSgEee3wr/fUSmhGgHKJoD3e0YcNgGr1vrmPsW9YcB7aabYzAWSMsBIma
-928+FHsMlcImpExyPKCW9pAmpsjOZ3bdVtfN5Lk8ULTsljYsQp4=
-=ZOu9
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmHurPcACgkQ57/I7JWG
+EQm3Ww/5ASg5bCtFZh+InLziGYsz5TOEZS0PYAevmOnWFntMeLRFgxHtxgNQpiER
+qmgxwjIHw+CB6wiZQAEHMVVYXNH9YY5pr7x7F/jKA4wxfU3TXYJ0Zu+6LaG7PJLp
+ESUL+Shb3G/h5jJJFrlzZhONPkNayXRYTg+AykBlZGyufbFZ2/fUym5C4R0WVf4U
+Oh0Lp/mqDVEnAlIyiNsbQwI4VLjaDwu9faOUFMRa9FCE1laN2t74Fnh+3BkuwOCZ
+8NiL8poPppS5yf1mZQBSe+Ogxoc8WSROqPKDqcltqF6xBtxe/HeNIDLYLZbhnkdD
+VgOeOgqzTGPg2MQNcWu40MJ8J4O5T5BGhE9AjGsyQIbEjevKqtOCHm7KWfoA7LJ9
++HE1uAmu1O6s5PBejX7LozB5HOkIxfXj7dKD67vG03yBWZDdawhQNBAWzKdJXxRe
+qG1CH6tTzJf1olTrDu8WQLpIlEk/gsiJF4OzmQN2kgw1Qul6M8GvdNYkohCqG3ZI
+CBLRxSFkXi6BzoLDMS1+Lu8SypKbpK1JFOXys0hT4r066+IGpTS64HzXlGLUMkbS
+4YuusUCUP071UUh1f9larOm9Vcu8KiCSXqNNR1Mm0WWzdN4YojlVWLM7Y5IVjhqB
+H8gk92jm3Db28ZC0eCmGT3efMKi0dvltcJzKULeAtS7hv8l5Bt0=
+=B1dj
 -----END PGP SIGNATURE-----
 
---CviTYG5SuAF1uBSj--
+--Vcbf50j0eHZV8teZ--
