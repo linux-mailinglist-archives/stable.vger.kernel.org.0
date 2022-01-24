@@ -2,112 +2,261 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAC06498582
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 17:57:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0AB9498598
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 18:00:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241250AbiAXQ5B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 11:57:01 -0500
-Received: from mail.efficios.com ([167.114.26.124]:41828 "EHLO
-        mail.efficios.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243796AbiAXQ47 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 11:56:59 -0500
-Received: from localhost (localhost [127.0.0.1])
-        by mail.efficios.com (Postfix) with ESMTP id 1B379344BCF;
-        Mon, 24 Jan 2022 11:56:58 -0500 (EST)
-Received: from mail.efficios.com ([127.0.0.1])
-        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id nOTX4EkGCWYJ; Mon, 24 Jan 2022 11:56:57 -0500 (EST)
-Received: from localhost (localhost [127.0.0.1])
-        by mail.efficios.com (Postfix) with ESMTP id 4D7DF344BCD;
-        Mon, 24 Jan 2022 11:56:57 -0500 (EST)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mail.efficios.com 4D7DF344BCD
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=efficios.com;
-        s=default; t=1643043417;
-        bh=Fuss6rxEbY9C0XsqWjuiCNTFvR+z4EdHL0f9IdHH/Qc=;
-        h=From:To:Date:Message-Id;
-        b=BhWC1oyDO0mOpXsahbNAIMnb2LECdzsykwGKV3G74D04Rup9ffyoTpykYBsUeH9GJ
-         c+46n3JMmxVj7wczzMuhC0AfPsLErzfc+gfJy6nh9xYdLx67VCSBbYAgf/3I+YCE24
-         7yA+jFnuDdzpd2a2KfMxvq68GT3S8rBXJcBIWW5VqhrqpsoBrTNyKbPjBqC9V8PVV5
-         DS1ioemLmN/1IfCraqau7xO6rx55lXAmNVqxIHpQYkZAhzURG6wtUZTCcAIHv8/HcF
-         SeA2PKO1CjKT+Zvv3xhpHDOe8WFft3qMalS9Fl+LQpnEcHaiHhgwmcZDz5foB3D2z3
-         XRlTDqES/hsoA==
-X-Virus-Scanned: amavisd-new at efficios.com
-Received: from mail.efficios.com ([127.0.0.1])
-        by localhost (mail03.efficios.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id jgAC8R7owfFM; Mon, 24 Jan 2022 11:56:57 -0500 (EST)
-Received: from localhost.localdomain (192-222-180-24.qc.cable.ebox.net [192.222.180.24])
-        by mail.efficios.com (Postfix) with ESMTPSA id 1A034344F05;
-        Mon, 24 Jan 2022 11:56:57 -0500 (EST)
-From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-To:     Peter Zijlstra <peterz@infradead.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-        Peter Oskolkov <posk@google.com>, stable@vger.kernel.org
-Subject: [PATCH] sched/membarrier: Fix membarrier-rseq fence command missing from query bitmask
-Date:   Mon, 24 Jan 2022 11:56:43 -0500
-Message-Id: <20220124165643.17247-1-mathieu.desnoyers@efficios.com>
-X-Mailer: git-send-email 2.17.1
+        id S241367AbiAXRA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 12:00:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44426 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241252AbiAXRA1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 12:00:27 -0500
+Received: from phobos.denx.de (phobos.denx.de [IPv6:2a01:238:438b:c500:173d:9f52:ddab:ee01])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DC11C06173B
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 09:00:27 -0800 (PST)
+Received: from localhost.localdomain (unknown [IPv6:2804:14c:485:4b69:915:5092:874a:4cf7])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits))
+        (No client certificate requested)
+        (Authenticated sender: festevam@denx.de)
+        by phobos.denx.de (Postfix) with ESMTPSA id 1869280820;
+        Mon, 24 Jan 2022 18:00:22 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
+        s=phobos-20191101; t=1643043625;
+        bh=d0hL6rDtXbwWbNlc2OzX6cRksYXkJtKqMDac2KY5TkM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ya3S3h+Xa2go4AfN/f7Fat13imRth4QBFsKzNud2N/FHk/91Dau0I6EEHEkEmy4Sm
+         LAXIei7LEP0XPfHqp0yDML5hn6/NJn+t0MJog5nI84Rih8QJT8k7eV6vXSOTF9Wbxa
+         4Qk2WLilL+O4JyCcZV1fZ1kKzD1FKmMtvHNiB1+guuRZoTJGw51d6k+wltQJgSWEMX
+         fGmDiXqDwGh9NIRZJOtNV0MOWNkUOAiPWyN4bEAGTAd55P9XXC+++i2U3SBrLfuPAW
+         9+Nvc1XcinqN/gFr9NG2zg/030mEcRejfH4MD8WdR6P9wUfzjA1dgMTNWA7bpH103X
+         QpFLuEeHPS4iw==
+From:   Fabio Estevam <festevam@denx.de>
+To:     gregkh@linuxfoundation.org
+Cc:     stable@vger.kernel.org, sashal@kernel.org,
+        Fabio Estevam <festevam@denx.de>,
+        Kalle Valo <quic_kvalo@quicinc.com>
+Subject: [PATCH v2 stable-5.10] ath10k: Fix the MTU size on QCA9377 SDIO
+Date:   Mon, 24 Jan 2022 14:00:09 -0300
+Message-Id: <20220124170009.1446245-1-festevam@denx.de>
+X-Mailer: git-send-email 2.25.1
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Virus-Scanned: clamav-milter 0.103.5 at phobos.denx.de
+X-Virus-Status: Clean
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The membarrier command MEMBARRIER_CMD_QUERY allows querying the
-available membarrier commands. When the membarrier-rseq fence commands
-were added, a new MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ_BITMASK was
-introduced with the intent to expose them with the MEMBARRIER_CMD_QUERY
-command, the but it was never added to MEMBARRIER_CMD_BITMASK.
+[ Upstream commit 09b8cd69edcf2be04a781e1781e98e52a775c9ad ]
+    
+On an imx6dl-pico-pi board with a QCA9377 SDIO chip, simply trying to
+connect via ssh to another machine causes:
 
-The membarrier-rseq fence commands are therefore not wired up with the
-query command.
+[   55.824159] ath10k_sdio mmc1:0001:1: failed to transmit packet, dropping: -12
+[   55.832169] ath10k_sdio mmc1:0001:1: failed to submit frame: -12
+[   55.838529] ath10k_sdio mmc1:0001:1: failed to push frame: -12
+[   55.905863] ath10k_sdio mmc1:0001:1: failed to transmit packet, dropping: -12
+[   55.913650] ath10k_sdio mmc1:0001:1: failed to submit frame: -12
+[   55.919887] ath10k_sdio mmc1:0001:1: failed to push frame: -12
 
-Rename MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ_BITMASK to
-MEMBARRIER_PRIVATE_EXPEDITED_RSEQ_BITMASK (the bitmask is not a command
-per-se), and change the erroneous
-MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ_BITMASK (which does not
-actually exist) to MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ.
+, leading to an ssh connection failure.
 
-Wire up MEMBARRIER_PRIVATE_EXPEDITED_RSEQ_BITMASK in
-MEMBARRIER_CMD_BITMASK. Fixing this allows discovering availability of
-the membarrier-rseq fence feature.
+One user inspected the size of frames on Wireshark and reported
+the followig:
 
-Fixes: 2a36ab717e8f ("rseq/membarrier: Add MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ")
-Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: Peter Oskolkov <posk@google.com>
-Cc: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: <stable@vger.kernel.org> # 5.10+
+"I was able to narrow the issue down to the mtu. If I set the mtu for
+the wlan0 device to 1486 instead of 1500, the issue does not happen.
+
+The size of frames that I see on Wireshark is exactly 1500 after
+setting it to 1486."
+
+Clearing the HI_ACS_FLAGS_ALT_DATA_CREDIT_SIZE avoids the problem and
+the ssh command works successfully after that.
+
+Introduce a 'credit_size_workaround' field to ath10k_hw_params for
+the QCA9377 SDIO, so that the HI_ACS_FLAGS_ALT_DATA_CREDIT_SIZE
+is not set in this case.
+
+Tested with QCA9377 SDIO with firmware WLAN.TF.1.1.1-00061-QCATFSWPZ-1.
+
+Fixes: 2f918ea98606 ("ath10k: enable alt data of TX path for sdio")
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20211124131047.713756-1-festevam@denx.de
 ---
- kernel/sched/membarrier.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+Hi,
 
-diff --git a/kernel/sched/membarrier.c b/kernel/sched/membarrier.c
-index b5add64d9698..3d2825408e3a 100644
---- a/kernel/sched/membarrier.c
-+++ b/kernel/sched/membarrier.c
-@@ -147,11 +147,11 @@
- #endif
+This is the resolution for the linux-stable 5.10 tree.
+
+Changes since v1:
+- Added the missing change in hw.h.
+---
+ drivers/net/wireless/ath/ath10k/core.c | 19 ++++++++++++++++++-
+ drivers/net/wireless/ath/ath10k/hw.h   |  2 ++
+ 2 files changed, 20 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/net/wireless/ath/ath10k/core.c b/drivers/net/wireless/ath/ath10k/core.c
+index d73ad60b571c..d0967bb1f387 100644
+--- a/drivers/net/wireless/ath/ath10k/core.c
++++ b/drivers/net/wireless/ath/ath10k/core.c
+@@ -89,6 +89,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = true,
+ 	},
+ 	{
+@@ -123,6 +124,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = true,
+ 	},
+ 	{
+@@ -158,6 +160,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 	},
+ 	{
+@@ -187,6 +190,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.num_wds_entries = 0x20,
+ 		.uart_pin_workaround = true,
+ 		.tx_stats_over_pktlog = false,
++		.credit_size_workaround = false,
+ 		.bmi_large_size_download = true,
+ 		.supports_peer_stats_info = true,
+ 	},
+@@ -222,6 +226,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 	},
+ 	{
+@@ -256,6 +261,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 	},
+ 	{
+@@ -290,6 +296,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 	},
+ 	{
+@@ -327,6 +334,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = true,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 		.supports_peer_stats_info = true,
+ 	},
+@@ -368,6 +376,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 	},
+ 	{
+@@ -415,6 +424,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 	},
+ 	{
+@@ -459,6 +469,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 	},
+ 	{
+@@ -493,6 +504,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 	},
+ 	{
+@@ -529,6 +541,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = true,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 	},
+ 	{
+@@ -557,6 +570,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.ast_skid_limit = 0x10,
+ 		.num_wds_entries = 0x20,
+ 		.uart_pin_workaround = true,
++		.credit_size_workaround = true,
+ 	},
+ 	{
+ 		.id = QCA4019_HW_1_0_DEV_VERSION,
+@@ -597,6 +611,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 	},
+ 	{
+@@ -624,6 +639,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = true,
+ 		.hw_filter_reset_required = false,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 	},
+ };
+@@ -697,6 +713,7 @@ static void ath10k_send_suspend_complete(struct ath10k *ar)
  
- #ifdef CONFIG_RSEQ
--#define MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ_BITMASK		\
-+#define MEMBARRIER_PRIVATE_EXPEDITED_RSEQ_BITMASK		\
- 	(MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ			\
--	| MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ_BITMASK)
-+	| MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ)
- #else
--#define MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ_BITMASK	0
-+#define MEMBARRIER_PRIVATE_EXPEDITED_RSEQ_BITMASK	0
- #endif
- 
- #define MEMBARRIER_CMD_BITMASK						\
-@@ -159,7 +159,8 @@
- 	| MEMBARRIER_CMD_REGISTER_GLOBAL_EXPEDITED			\
- 	| MEMBARRIER_CMD_PRIVATE_EXPEDITED				\
- 	| MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED			\
--	| MEMBARRIER_PRIVATE_EXPEDITED_SYNC_CORE_BITMASK)
-+	| MEMBARRIER_PRIVATE_EXPEDITED_SYNC_CORE_BITMASK		\
-+	| MEMBARRIER_PRIVATE_EXPEDITED_RSEQ_BITMASK)
- 
- static void ipi_mb(void *info)
+ static int ath10k_init_sdio(struct ath10k *ar, enum ath10k_firmware_mode mode)
  {
++	bool mtu_workaround = ar->hw_params.credit_size_workaround;
+ 	int ret;
+ 	u32 param = 0;
+ 
+@@ -714,7 +731,7 @@ static int ath10k_init_sdio(struct ath10k *ar, enum ath10k_firmware_mode mode)
+ 
+ 	param |= HI_ACS_FLAGS_SDIO_REDUCE_TX_COMPL_SET;
+ 
+-	if (mode == ATH10K_FIRMWARE_MODE_NORMAL)
++	if (mode == ATH10K_FIRMWARE_MODE_NORMAL && !mtu_workaround)
+ 		param |= HI_ACS_FLAGS_ALT_DATA_CREDIT_SIZE;
+ 	else
+ 		param &= ~HI_ACS_FLAGS_ALT_DATA_CREDIT_SIZE;
+diff --git a/drivers/net/wireless/ath/ath10k/hw.h b/drivers/net/wireless/ath/ath10k/hw.h
+index c6ded21f5ed6..0c133ea72b16 100644
+--- a/drivers/net/wireless/ath/ath10k/hw.h
++++ b/drivers/net/wireless/ath/ath10k/hw.h
+@@ -617,6 +617,8 @@ struct ath10k_hw_params {
+ 	 * firmware bug
+ 	 */
+ 	bool uart_pin_workaround;
++	/* Workaround for the credit size calculation */
++	bool credit_size_workaround;
+ 
+ 	/* tx stats support over pktlog */
+ 	bool tx_stats_over_pktlog;
 -- 
-2.17.1
+2.25.1
 
