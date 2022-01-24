@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C78D4991B3
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:14:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E044C498AF8
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:08:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349487AbiAXUNk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:13:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33852 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355367AbiAXUNg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:13:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0323C01D7D0;
-        Mon, 24 Jan 2022 11:34:46 -0800 (PST)
+        id S1344307AbiAXTIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:08:32 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:32836 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345813AbiAXTGZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:06:25 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 404D2612A5;
-        Mon, 24 Jan 2022 19:34:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0774C340E5;
-        Mon, 24 Jan 2022 19:34:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6141E603DE;
+        Mon, 24 Jan 2022 19:06:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25BAAC340E5;
+        Mon, 24 Jan 2022 19:06:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052885;
-        bh=Wz1PAbR8+iIe/jPfTcBbjPHkLNB0RxFEi0fK8+Aossk=;
+        s=korg; t=1643051184;
+        bh=2C18HuDLscgc4+tKatxU9QstG6/auVKahETKdInN1gE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GnbzTkVFfEEUR6g4t6TRBDWo+1/QnLkkDkvV2DSvkLnkQPfwvGWq5SVrP10iQeVWW
-         IY61jp3pbsHS+9fxg/MfX/FoVlZSGGWTtZ0Ki63kw46z246TptEURNqsDztso1MNDS
-         beYvSy6fypp3UuMZNWyoKGGSuZ2uwTlPZNuXoOlg=
+        b=iqhaJDh1lxqDHj3g3dngicRQ2tjXlGkIsyZpRGZPZWgBIRKxrFbdTmcwPnYEboUdl
+         YYSrn9eAdqVB7h5fScfsQzLVqvNI3N0a0gs5ZgfdDIfj/BcMnl7fgLKaWxY59SsMRt
+         Ct8zxF8c56ROrpSm9BKUKH88pZkWEYJSBk2Kjin0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neal Liu <neal_liu@aspeedtech.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 173/320] usb: uhci: add aspeed ast2600 uhci support
+Subject: [PATCH 4.14 082/186] misc: lattice-ecp3-config: Fix task hung when firmware load failed
 Date:   Mon, 24 Jan 2022 19:42:37 +0100
-Message-Id: <20220124183959.550782168@linuxfoundation.org>
+Message-Id: <20220124183939.758150635@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
+References: <20220124183937.101330125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,34 +45,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neal Liu <neal_liu@aspeedtech.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 554abfe2eadec97d12c71d4a69da1518478f69eb ]
+[ Upstream commit fcee5ce50bdb21116711e38635e3865594af907e ]
 
-Enable ast2600 uhci quirks.
+When firmware load failed, kernel report task hung as follows:
 
-Signed-off-by: Neal Liu <neal_liu@aspeedtech.com>
-Link: https://lore.kernel.org/r/20211126100021.2331024-1-neal_liu@aspeedtech.com
+INFO: task xrun:5191 blocked for more than 147 seconds.
+      Tainted: G        W         5.16.0-rc5-next-20211220+ #11
+"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+task:xrun            state:D stack:    0 pid: 5191 ppid:   270 flags:0x00000004
+Call Trace:
+ __schedule+0xc12/0x4b50 kernel/sched/core.c:4986
+ schedule+0xd7/0x260 kernel/sched/core.c:6369 (discriminator 1)
+ schedule_timeout+0x7aa/0xa80 kernel/time/timer.c:1857
+ wait_for_completion+0x181/0x290 kernel/sched/completion.c:85
+ lattice_ecp3_remove+0x32/0x40 drivers/misc/lattice-ecp3-config.c:221
+ spi_remove+0x72/0xb0 drivers/spi/spi.c:409
+
+lattice_ecp3_remove() wait for signals from firmware loading, but when
+load failed, firmware_load() does not send this signal. This cause
+device remove hung. Fix it by sending signal even if load failed.
+
+Fixes: 781551df57c7 ("misc: Add Lattice ECP3 FPGA configuration via SPI")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Link: https://lore.kernel.org/r/20211228125522.3122284-1-weiyongjun1@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/uhci-platform.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/misc/lattice-ecp3-config.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/usb/host/uhci-platform.c b/drivers/usb/host/uhci-platform.c
-index 70dbd95c3f063..be9e9db7cad10 100644
---- a/drivers/usb/host/uhci-platform.c
-+++ b/drivers/usb/host/uhci-platform.c
-@@ -113,7 +113,8 @@ static int uhci_hcd_platform_probe(struct platform_device *pdev)
- 				num_ports);
- 		}
- 		if (of_device_is_compatible(np, "aspeed,ast2400-uhci") ||
--		    of_device_is_compatible(np, "aspeed,ast2500-uhci")) {
-+		    of_device_is_compatible(np, "aspeed,ast2500-uhci") ||
-+		    of_device_is_compatible(np, "aspeed,ast2600-uhci")) {
- 			uhci->is_aspeed = 1;
- 			dev_info(&pdev->dev,
- 				 "Enabled Aspeed implementation workarounds\n");
+diff --git a/drivers/misc/lattice-ecp3-config.c b/drivers/misc/lattice-ecp3-config.c
+index 626fdcaf25101..645d26536114f 100644
+--- a/drivers/misc/lattice-ecp3-config.c
++++ b/drivers/misc/lattice-ecp3-config.c
+@@ -81,12 +81,12 @@ static void firmware_load(const struct firmware *fw, void *context)
+ 
+ 	if (fw == NULL) {
+ 		dev_err(&spi->dev, "Cannot load firmware, aborting\n");
+-		return;
++		goto out;
+ 	}
+ 
+ 	if (fw->size == 0) {
+ 		dev_err(&spi->dev, "Error: Firmware size is 0!\n");
+-		return;
++		goto out;
+ 	}
+ 
+ 	/* Fill dummy data (24 stuffing bits for commands) */
+@@ -108,7 +108,7 @@ static void firmware_load(const struct firmware *fw, void *context)
+ 		dev_err(&spi->dev,
+ 			"Error: No supported FPGA detected (JEDEC_ID=%08x)!\n",
+ 			jedec_id);
+-		return;
++		goto out;
+ 	}
+ 
+ 	dev_info(&spi->dev, "FPGA %s detected\n", ecp3_dev[i].name);
+@@ -121,7 +121,7 @@ static void firmware_load(const struct firmware *fw, void *context)
+ 	buffer = kzalloc(fw->size + 8, GFP_KERNEL);
+ 	if (!buffer) {
+ 		dev_err(&spi->dev, "Error: Can't allocate memory!\n");
+-		return;
++		goto out;
+ 	}
+ 
+ 	/*
+@@ -160,7 +160,7 @@ static void firmware_load(const struct firmware *fw, void *context)
+ 			"Error: Timeout waiting for FPGA to clear (status=%08x)!\n",
+ 			status);
+ 		kfree(buffer);
+-		return;
++		goto out;
+ 	}
+ 
+ 	dev_info(&spi->dev, "Configuring the FPGA...\n");
+@@ -186,7 +186,7 @@ static void firmware_load(const struct firmware *fw, void *context)
+ 	release_firmware(fw);
+ 
+ 	kfree(buffer);
+-
++out:
+ 	complete(&data->fw_loaded);
+ }
+ 
 -- 
 2.34.1
 
