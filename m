@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D14FD4996FD
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:20:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8A164998ED
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:39:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1446514AbiAXVIi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:08:38 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:53558 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1445345AbiAXVCw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:02:52 -0500
+        id S1453765AbiAXVau (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:30:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50950 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1450662AbiAXVVI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:21:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4203CC0604D5;
+        Mon, 24 Jan 2022 12:15:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7486F61320;
-        Mon, 24 Jan 2022 21:02:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F357C340E5;
-        Mon, 24 Jan 2022 21:02:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03487B8122D;
+        Mon, 24 Jan 2022 20:15:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E4D1C340E5;
+        Mon, 24 Jan 2022 20:15:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058170;
-        bh=c119dTtFJ/UsDiNJRoA+V53VfW8MDbBahmzYfXdX0aE=;
+        s=korg; t=1643055334;
+        bh=Of7o8sUp1oF0WnG3m2QjNpOrdoJeej0KI0tKW8m4LpU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0WUuNBlWta3mzI4mxH9Io1Q3rM2DbTuet8xmodACbe+Ud0fMJp3NSKJyuNtLUe17W
-         0rnK+OYQdaoZpPGBbQlYFRM/5o4VjMYxOlJjydn05NEZfYmNWTQ3EWMWE9+QIkp3u1
-         VJx9z5EQZ2NkWZ7j8XUPSy/pzF58NDokivxl8EtQ=
+        b=WWggblfSrHy+k88gY4OJy9rItJfft5HNzntYLCyritFZlqc6Xzf4o0xKtdid0j59b
+         1wevG6FHckwW7EnPncAPUmjlQ+nie4YRX1BIARuApvec9Q6qciMMMNekvbyJtxhDp9
+         EpxLJk7EYe4+JAXpi6TGSYYtbK5AwJCqhkVp6M60=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Eirik Fuller <efuller@redhat.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0203/1039] powerpc: Avoid discarding flags in system_call_exception()
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        xinhui pan <xinhui.pan@amd.com>
+Subject: [PATCH 5.15 075/846] drm/ttm: Put BO in its memory managers lru list
 Date:   Mon, 24 Jan 2022 19:33:12 +0100
-Message-Id: <20220124184132.148938792@linuxfoundation.org>
+Message-Id: <20220124184103.575400530@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,60 +48,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: xinhui pan <xinhui.pan@amd.com>
 
-[ Upstream commit 08b0af5b2affbe7419853e8dd1330e4b3fe27125 ]
+commit 781050b0a3164934857c300bb0bc291e38c26b6f upstream.
 
-Some thread flags can be set remotely, and so even when IRQs are disabled,
-the flags can change under our feet. Thus, when setting flags we must use
-an atomic operation rather than a plain read-modify-write sequence, as a
-plain read-modify-write may discard flags which are concurrently set by a
-remote thread, e.g.
+After we move BO to a new memory region, we should put it to
+the new memory manager's lru list regardless we unlock the resv or not.
 
-	// task A			// task B
-	tmp = A->thread_info.flags;
-					set_tsk_thread_flag(A, NEWFLAG_B);
-	tmp |= NEWFLAG_A;
-	A->thread_info.flags = tmp;
-
-arch/powerpc/kernel/interrupt.c's system_call_exception() sets
-_TIF_RESTOREALL in the thread info flags with a read-modify-write, which
-may result in other flags being discarded.
-
-Elsewhere in the file it uses clear_bits() to atomically remove flag bits,
-so use set_bits() here for consistency with those.
-
-There may be reasons (e.g. instrumentation) that prevent the use of
-set_thread_flag() and clear_thread_flag() here, which would otherwise be
-preferable.
-
-Fixes: ae7aaecc3f2f78b7 ("powerpc/64s: system call rfscv workaround for TM bugs")
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: Eirik Fuller <efuller@redhat.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Nicholas Piggin <npiggin@gmail.com>
-Link: https://lore.kernel.org/r/20211129130653.2037928-10-mark.rutland@arm.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: xinhui pan <xinhui.pan@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211110043149.57554-1-xinhui.pan@amd.com
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/interrupt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/ttm/ttm_bo.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/powerpc/kernel/interrupt.c b/arch/powerpc/kernel/interrupt.c
-index 835b626cd4760..df048e331cbfe 100644
---- a/arch/powerpc/kernel/interrupt.c
-+++ b/arch/powerpc/kernel/interrupt.c
-@@ -148,7 +148,7 @@ notrace long system_call_exception(long r3, long r4, long r5,
- 	 */
- 	if (IS_ENABLED(CONFIG_PPC_TRANSACTIONAL_MEM) &&
- 			unlikely(MSR_TM_TRANSACTIONAL(regs->msr)))
--		current_thread_info()->flags |= _TIF_RESTOREALL;
-+		set_bits(_TIF_RESTOREALL, &current_thread_info()->flags);
+--- a/drivers/gpu/drm/ttm/ttm_bo.c
++++ b/drivers/gpu/drm/ttm/ttm_bo.c
+@@ -724,6 +724,8 @@ int ttm_mem_evict_first(struct ttm_devic
+ 	ret = ttm_bo_evict(bo, ctx);
+ 	if (locked)
+ 		ttm_bo_unreserve(bo);
++	else
++		ttm_bo_move_to_lru_tail_unlocked(bo);
  
- 	/*
- 	 * If the system call was made with a transaction active, doom it and
--- 
-2.34.1
-
+ 	ttm_bo_put(bo);
+ 	return ret;
 
 
