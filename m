@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57494498A7D
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:04:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42589499227
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:19:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345580AbiAXTER (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:04:17 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:60844 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344517AbiAXTCP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:02:15 -0500
+        id S1347032AbiAXURh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:17:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34424 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238181AbiAXUNu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:13:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35473C0604DB;
+        Mon, 24 Jan 2022 11:37:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9132B60BAD;
-        Mon, 24 Jan 2022 19:02:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 468ACC340E5;
-        Mon, 24 Jan 2022 19:02:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1E3FB811FC;
+        Mon, 24 Jan 2022 19:37:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B0D3C340E8;
+        Mon, 24 Jan 2022 19:37:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050933;
-        bh=iWOkdgPCQQjl1CePs+iFke75cLkjFCy3GlkrB5GhPvY=;
+        s=korg; t=1643053036;
+        bh=PZ01Hxh638HDPHNS+Dby+/D9eR2Rhd60+XYmAAGGGkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sNqmBylp0bo4jKIcD+k2r49JSTlyIFdNWTKK6lT99xalI1NuUnxKcgBANkY5ieUPR
-         WUFDExrpAaS+QifRXqAqIi/JCtaG1QmQNv7o4zWNnxokfhWnlQgOQQfXr+Hj1nbLw8
-         RPmziA0DJkiaRptE5l1SYGOMSIpOeMuWpfAsvtAQ=
+        b=QYGXJ9EJz+NeqwlrOiQbiq8aHx8NGdAOZ511lzoPk/MpQz5pwZNM6NmLDOTkP6b5c
+         cVfzpMEotmHO38rTawsMon8AMLbHX1fKZJhEuG72c0OTcV0j/HCGkaX+OftY1u3ds7
+         vD9doQ7qShRu0o0po3Pe0m8t2nOwRxNvKpinB6fI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Braun <michael-dev@fami-braun.de>,
-        "David S. Miller" <davem@davemloft.net>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 150/157] gianfar: fix jumbo packets+napi+rx overrun crash
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: [PATCH 5.4 256/320] drm/etnaviv: limit submit sizes
 Date:   Mon, 24 Jan 2022 19:44:00 +0100
-Message-Id: <20220124183937.520465560@linuxfoundation.org>
+Message-Id: <20220124184002.698750045@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
-References: <20220124183932.787526760@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,97 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Braun <michael-dev@fami-braun.de>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-commit d8861bab48b6c1fc3cdbcab8ff9d1eaea43afe7f upstream.
+commit 6dfa2fab8ddd46faa771a102672176bee7a065de upstream.
 
-When using jumbo packets and overrunning rx queue with napi enabled,
-the following sequence is observed in gfar_add_rx_frag:
+Currently we allow rediculous amounts of kernel memory being allocated
+via the etnaviv GEM_SUBMIT ioctl, which is a pretty easy DoS vector. Put
+some reasonable limits in to fix this.
 
-   | lstatus                              |       | skb                   |
-t  | lstatus,  size, flags                | first | len, data_len, *ptr   |
----+--------------------------------------+-------+-----------------------+
-13 | 18002348, 9032, INTERRUPT LAST       | 0     | 9600, 8000,  f554c12e |
-12 | 10000640, 1600, INTERRUPT            | 0     | 8000, 6400,  f554c12e |
-11 | 10000640, 1600, INTERRUPT            | 0     | 6400, 4800,  f554c12e |
-10 | 10000640, 1600, INTERRUPT            | 0     | 4800, 3200,  f554c12e |
-09 | 10000640, 1600, INTERRUPT            | 0     | 3200, 1600,  f554c12e |
-08 | 14000640, 1600, INTERRUPT FIRST      | 0     | 1600, 0,     f554c12e |
-07 | 14000640, 1600, INTERRUPT FIRST      | 1     | 0,    0,     f554c12e |
-06 | 1c000080, 128,  INTERRUPT LAST FIRST | 1     | 0,    0,     abf3bd6e |
-05 | 18002348, 9032, INTERRUPT LAST       | 0     | 8000, 6400,  c5a57780 |
-04 | 10000640, 1600, INTERRUPT            | 0     | 6400, 4800,  c5a57780 |
-03 | 10000640, 1600, INTERRUPT            | 0     | 4800, 3200,  c5a57780 |
-02 | 10000640, 1600, INTERRUPT            | 0     | 3200, 1600,  c5a57780 |
-01 | 10000640, 1600, INTERRUPT            | 0     | 1600, 0,     c5a57780 |
-00 | 14000640, 1600, INTERRUPT FIRST      | 1     | 0,    0,     c5a57780 |
+The commandstream size is limited to 64KB, which was already a soft limit
+on older kernels after which the kernel only took submits on a best effort
+base, so there is no userspace that tries to submit commandstreams larger
+than this. Even if the whole commandstream is a single incrementing address
+load, the size limit also limits the number of potential relocs and
+referenced buffers to slightly under 64K, so use the same limit for those
+arguments. The performance monitoring infrastructure currently supports
+less than 50 performance counter signals, so limiting them to 128 on a
+single submit seems like a reasonably future-proof number for now. This
+number can be bumped if needed without breaking the interface.
 
-So at t=7 a new packets is started but not finished, probably due to rx
-overrun - but rx overrun is not indicated in the flags. Instead a new
-packets starts at t=8. This results in skb->len to exceed size for the LAST
-fragment at t=13 and thus a negative fragment size added to the skb.
-
-This then crashes:
-
-kernel BUG at include/linux/skbuff.h:2277!
-Oops: Exception in kernel mode, sig: 5 [#1]
-...
-NIP [c04689f4] skb_pull+0x2c/0x48
-LR [c03f62ac] gfar_clean_rx_ring+0x2e4/0x844
-Call Trace:
-[ec4bfd38] [c06a84c4] _raw_spin_unlock_irqrestore+0x60/0x7c (unreliable)
-[ec4bfda8] [c03f6a44] gfar_poll_rx_sq+0x48/0xe4
-[ec4bfdc8] [c048d504] __napi_poll+0x54/0x26c
-[ec4bfdf8] [c048d908] net_rx_action+0x138/0x2c0
-[ec4bfe68] [c06a8f34] __do_softirq+0x3a4/0x4fc
-[ec4bfed8] [c0040150] run_ksoftirqd+0x58/0x70
-[ec4bfee8] [c0066ecc] smpboot_thread_fn+0x184/0x1cc
-[ec4bff08] [c0062718] kthread+0x140/0x144
-[ec4bff38] [c0012350] ret_from_kernel_thread+0x14/0x1c
-
-This patch fixes this by checking for computed LAST fragment size, so a
-negative sized fragment is never added.
-In order to prevent the newer rx frame from getting corrupted, the FIRST
-flag is checked to discard the incomplete older frame.
-
-Signed-off-by: Michael Braun <michael-dev@fami-braun.de>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Cc: Ben Hutchings <ben@decadent.org.uk>
+Cc: stable@vger.kernel.org
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/gianfar.c |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/drivers/net/ethernet/freescale/gianfar.c
-+++ b/drivers/net/ethernet/freescale/gianfar.c
-@@ -2947,6 +2947,10 @@ static bool gfar_add_rx_frag(struct gfar
- 		if (lstatus & BD_LFLAG(RXBD_LAST))
- 			size -= skb->len;
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c
+@@ -471,6 +471,12 @@ int etnaviv_ioctl_gem_submit(struct drm_
+ 		return -EINVAL;
+ 	}
  
-+		WARN(size < 0, "gianfar: rx fragment size underflow");
-+		if (size < 0)
-+			return false;
++	if (args->stream_size > SZ_64K || args->nr_relocs > SZ_64K ||
++	    args->nr_bos > SZ_64K || args->nr_pmrs > 128) {
++		DRM_ERROR("submit arguments out of size limits\n");
++		return -EINVAL;
++	}
 +
- 		skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, page,
- 				rxb->page_offset + RXBUF_ALIGNMENT,
- 				size, GFAR_RXB_TRUESIZE);
-@@ -3108,6 +3112,17 @@ int gfar_clean_rx_ring(struct gfar_priv_
- 		if (lstatus & BD_LFLAG(RXBD_EMPTY))
- 			break;
- 
-+		/* lost RXBD_LAST descriptor due to overrun */
-+		if (skb &&
-+		    (lstatus & BD_LFLAG(RXBD_FIRST))) {
-+			/* discard faulty buffer */
-+			dev_kfree_skb(skb);
-+			skb = NULL;
-+			rx_queue->stats.rx_dropped++;
-+
-+			/* can continue normally */
-+		}
-+
- 		/* order rx buffer descriptor reads */
- 		rmb();
- 
+ 	/*
+ 	 * Copy the command submission and bo array to kernel space in
+ 	 * one go, and do this outside of any locks.
 
 
