@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F61249943A
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:42:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4085D498D77
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:34:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1388787AbiAXUkI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:40:08 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:39752 "EHLO
+        id S1345479AbiAXTcY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:32:24 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:52128 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386908AbiAXUgH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:36:07 -0500
+        with ESMTP id S1348122AbiAXT3a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:29:30 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 706E5B8122C;
-        Mon, 24 Jan 2022 20:36:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F8DDC340E5;
-        Mon, 24 Jan 2022 20:36:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2A2F3B81232;
+        Mon, 24 Jan 2022 19:29:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59AF6C340E5;
+        Mon, 24 Jan 2022 19:29:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056565;
-        bh=MwjSNMBDiKF0+H5jqz5A2By0pk1oW/OfxKi+IgH4XTU=;
+        s=korg; t=1643052566;
+        bh=Kld7CYDt2mevVIhsIFjhJ24FekgJ91SGTvQxVwukp8M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2FgVCyniUxvFZoR54sMzzGtBXZ/ar+PFvd9679qM34JCWyVNQr6KmuJK4rLzitbOR
-         aLPyZ1JdEunHP1OdJi19mv9f5w2GbIozFPtUF49dFoT0fftu3xp3Azn4WyNFfTyoWH
-         Z8S0tNZPnLqcRsf/+CmGm9NWIsNOhTfpXhNVff3A=
+        b=2JeXP8IxrU5DVFQ4ej/QHUWKSWqRLTv2CUK37GPlzQJiCmCK3anqrisFo8M+Ulg9i
+         MBP/sDKptYDyZgGjClcyD4r2xYGR8WleBO8Z+xqJP3p3OrzX1N6dXiVdxVD5ptkK4v
+         zTQDuSk9tiWm5X8LtkUKBlxL4qtQuY+6bh7Fy7ao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Tsuchiya Yuto <kitakar@gmail.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 526/846] media: atomisp: fix "variable dereferenced before check asd"
+Subject: [PATCH 5.4 059/320] media: venus: core: Fix a resource leak in the error handling path of venus_probe()
 Date:   Mon, 24 Jan 2022 19:40:43 +0100
-Message-Id: <20220124184119.151926726@linuxfoundation.org>
+Message-Id: <20220124183955.745569890@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,67 +47,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tsuchiya Yuto <kitakar@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit ac56760a8bbb4e654b2fd54e5de79dd5d72f937d ]
+[ Upstream commit 8cc7a1b2aca067397a016cdb971a5e6ad9b640c7 ]
 
-There are two occurrences where the variable 'asd' is dereferenced
-before check. Fix this issue by using the variable after the check.
+A successful 'of_platform_populate()' call should be balanced by a
+corresponding 'of_platform_depopulate()' call in the error handling path
+of the probe, as already done in the remove function.
 
-Link: https://lore.kernel.org/linux-media/20211122074122.GA6581@kili/
+A successful 'venus_firmware_init()' call should be balanced by a
+corresponding 'venus_firmware_deinit()' call in the error handling path
+of the probe, as already done in the remove function.
 
-Link: https://lore.kernel.org/linux-media/20211201141904.47231-1-kitakar@gmail.com
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Tsuchiya Yuto <kitakar@gmail.com>
+Update the error handling path accordingly.
+
+Fixes: f9799fcce4bb ("media: venus: firmware: register separate platform_device for firmware loader")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/atomisp/pci/atomisp_cmd.c   | 3 ++-
- drivers/staging/media/atomisp/pci/atomisp_ioctl.c | 3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/media/platform/qcom/venus/core.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/media/atomisp/pci/atomisp_cmd.c b/drivers/staging/media/atomisp/pci/atomisp_cmd.c
-index 1ddb9c815a3cb..ef0b0963cf930 100644
---- a/drivers/staging/media/atomisp/pci/atomisp_cmd.c
-+++ b/drivers/staging/media/atomisp/pci/atomisp_cmd.c
-@@ -5224,7 +5224,7 @@ static int atomisp_set_fmt_to_isp(struct video_device *vdev,
- 	int (*configure_pp_input)(struct atomisp_sub_device *asd,
- 				  unsigned int width, unsigned int height) =
- 				      configure_pp_input_nop;
--	u16 stream_index = atomisp_source_pad_to_stream_id(asd, source_pad);
-+	u16 stream_index;
- 	const struct atomisp_in_fmt_conv *fc;
- 	int ret, i;
+diff --git a/drivers/media/platform/qcom/venus/core.c b/drivers/media/platform/qcom/venus/core.c
+index bbc430a003443..7b52d3e5d3f89 100644
+--- a/drivers/media/platform/qcom/venus/core.c
++++ b/drivers/media/platform/qcom/venus/core.c
+@@ -289,11 +289,11 @@ static int venus_probe(struct platform_device *pdev)
  
-@@ -5233,6 +5233,7 @@ static int atomisp_set_fmt_to_isp(struct video_device *vdev,
- 			__func__, vdev->name);
- 		return -EINVAL;
- 	}
-+	stream_index = atomisp_source_pad_to_stream_id(asd, source_pad);
+ 	ret = venus_firmware_init(core);
+ 	if (ret)
+-		goto err_runtime_disable;
++		goto err_of_depopulate;
  
- 	v4l2_fh_init(&fh.vfh, vdev);
+ 	ret = venus_boot(core);
+ 	if (ret)
+-		goto err_runtime_disable;
++		goto err_firmware_deinit;
  
-diff --git a/drivers/staging/media/atomisp/pci/atomisp_ioctl.c b/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
-index 54624f8814e04..b7dda4b96d49c 100644
---- a/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
-+++ b/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
-@@ -1123,7 +1123,7 @@ int __atomisp_reqbufs(struct file *file, void *fh,
- 	struct ia_css_frame *frame;
- 	struct videobuf_vmalloc_memory *vm_mem;
- 	u16 source_pad = atomisp_subdev_source_pad(vdev);
--	u16 stream_id = atomisp_source_pad_to_stream_id(asd, source_pad);
-+	u16 stream_id;
- 	int ret = 0, i = 0;
- 
- 	if (!asd) {
-@@ -1131,6 +1131,7 @@ int __atomisp_reqbufs(struct file *file, void *fh,
- 			__func__, vdev->name);
- 		return -EINVAL;
- 	}
-+	stream_id = atomisp_source_pad_to_stream_id(asd, source_pad);
- 
- 	if (req->count == 0) {
- 		mutex_lock(&pipe->capq.vb_lock);
+ 	ret = hfi_core_resume(core, true);
+ 	if (ret)
+@@ -329,6 +329,10 @@ err_core_deinit:
+ 	hfi_core_deinit(core, false);
+ err_venus_shutdown:
+ 	venus_shutdown(core);
++err_firmware_deinit:
++	venus_firmware_deinit(core);
++err_of_depopulate:
++	of_platform_depopulate(dev);
+ err_runtime_disable:
+ 	pm_runtime_put_noidle(dev);
+ 	pm_runtime_set_suspended(dev);
 -- 
 2.34.1
 
