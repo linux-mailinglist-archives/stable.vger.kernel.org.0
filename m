@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93AF449A2CB
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:01:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A9DA49A3C0
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:03:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2365982AbiAXXwE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:52:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47712 "EHLO
+        id S2368780AbiAYAAC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:00:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50118 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1843492AbiAXXED (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:04:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E073C06C5B8;
-        Mon, 24 Jan 2022 13:16:03 -0800 (PST)
+        with ESMTP id S1846533AbiAXXQP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:16:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 077FDC07E5FE;
+        Mon, 24 Jan 2022 11:44:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 14CDAB80CCF;
-        Mon, 24 Jan 2022 21:16:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36B99C340E4;
-        Mon, 24 Jan 2022 21:16:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 994D6612E9;
+        Mon, 24 Jan 2022 19:44:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69C1DC340E5;
+        Mon, 24 Jan 2022 19:44:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058960;
-        bh=+FIhuV+QFoMc3kFprresSPzAW2LFZqusS4F4IERQ6gw=;
+        s=korg; t=1643053443;
+        bh=TUZoR2a6e6D4ye3CC8JKRwNZAcvr5X0v2R8sXMbQqKI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yqjFp+OdE9pcMwpzpoZub27eyFdXsQSeVAlr7s5LL/yK+n+JPgrW5pEQpNV7O/goE
-         BDAf1t25i0ZPxTsZKHieUU/GpxApXhFos8S5MTqV+U0RsO8iAAebbn3I3mdZOwG4Nq
-         P92s2UeonxeQBP9oONhbD2bvAXQ1rAnb/yKG7tvU=
+        b=A7t7JzNi4kgFqKQroBRWprrk15DOxcSmYhvqGLc+aNm0DfejS9RtsgBFlL1dYLcN7
+         95ahyGvyZoA4rS1VG2wBjJh9QI4jjChyZ/RoO2G6piUER2C2yfLElyjQyJghLiBbAD
+         b3f+zB5hTFmch+fiDlp/CIMH25o+31XBNp/JU5cY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+003c0a286b9af5412510@syzkaller.appspotmail.com
-Subject: [PATCH 5.16 0441/1039] net: mcs7830: handle usb read errors properly
+        stable@vger.kernel.org, Tsuchiya Yuto <kitakar@gmail.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 065/563] media: atomisp: add missing media_device_cleanup() in atomisp_unregister_entities()
 Date:   Mon, 24 Jan 2022 19:37:10 +0100
-Message-Id: <20220124184140.120501193@linuxfoundation.org>
+Message-Id: <20220124184026.656495527@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,54 +48,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Tsuchiya Yuto <kitakar@gmail.com>
 
-[ Upstream commit d668769eb9c52b150753f1653f7f5a0aeb8239d2 ]
+[ Upstream commit ce3015b7212e96db426d0c36f80fd159c91155d1 ]
 
-Syzbot reported uninit value in mcs7830_bind(). The problem was in
-missing validation check for bytes read via usbnet_read_cmd().
+After the commit 9832e155f1ed ("[media] media-device: split media
+initialization and registration"), calling media_device_cleanup()
+is needed it seems. However, currently it is missing for the module
+unload path.
 
-usbnet_read_cmd() internally calls usb_control_msg(), that returns
-number of bytes read. Code should validate that requested number of bytes
-was actually read.
+Note that for the probe failure path, it is already added in
+atomisp_register_entities().
 
-So, this patch adds missing size validation check inside
-mcs7830_get_reg() to prevent uninit value bugs
+This patch adds the missing call of media_device_cleanup() in
+atomisp_unregister_entities().
 
-Reported-and-tested-by: syzbot+003c0a286b9af5412510@syzkaller.appspotmail.com
-Fixes: 2a36d7083438 ("USB: driver for mcs7830 (aka DeLOCK) USB ethernet adapter")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20220106225716.7425-1-paskripkin@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: a49d25364dfb ("staging/atomisp: Add support for the Intel IPU v2")
+Signed-off-by: Tsuchiya Yuto <kitakar@gmail.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/mcs7830.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/staging/media/atomisp/pci/atomisp_v4l2.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/usb/mcs7830.c b/drivers/net/usb/mcs7830.c
-index 326cc4e749d80..fdda0616704ea 100644
---- a/drivers/net/usb/mcs7830.c
-+++ b/drivers/net/usb/mcs7830.c
-@@ -108,8 +108,16 @@ static const char driver_name[] = "MOSCHIP usb-ethernet driver";
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_v4l2.c b/drivers/staging/media/atomisp/pci/atomisp_v4l2.c
+index fa1bd99cd6f17..d35506f643609 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_v4l2.c
++++ b/drivers/staging/media/atomisp/pci/atomisp_v4l2.c
+@@ -1182,6 +1182,7 @@ static void atomisp_unregister_entities(struct atomisp_device *isp)
  
- static int mcs7830_get_reg(struct usbnet *dev, u16 index, u16 size, void *data)
- {
--	return usbnet_read_cmd(dev, MCS7830_RD_BREQ, MCS7830_RD_BMREQ,
--				0x0000, index, data, size);
-+	int ret;
-+
-+	ret = usbnet_read_cmd(dev, MCS7830_RD_BREQ, MCS7830_RD_BMREQ,
-+			      0x0000, index, data, size);
-+	if (ret < 0)
-+		return ret;
-+	else if (ret < size)
-+		return -ENODATA;
-+
-+	return ret;
+ 	v4l2_device_unregister(&isp->v4l2_dev);
+ 	media_device_unregister(&isp->media_dev);
++	media_device_cleanup(&isp->media_dev);
  }
  
- static int mcs7830_set_reg(struct usbnet *dev, u16 index, u16 size, const void *data)
+ static int atomisp_register_entities(struct atomisp_device *isp)
 -- 
 2.34.1
 
