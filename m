@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C3EA498B43
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:12:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05613498E47
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:44:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346251AbiAXTMc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:12:32 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:36414 "EHLO
+        id S1355151AbiAXTkF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:40:05 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:57812 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346923AbiAXTJJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:09:09 -0500
+        with ESMTP id S1353985AbiAXTfn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:35:43 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DA981B8121A;
-        Mon, 24 Jan 2022 19:09:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DF48C340E5;
-        Mon, 24 Jan 2022 19:09:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97DC8B8122A;
+        Mon, 24 Jan 2022 19:35:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE896C340E7;
+        Mon, 24 Jan 2022 19:35:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051346;
-        bh=qNILM1RdhmA5Zm0cLlQ79sNMcY7CTw2k9YHU8nTci04=;
+        s=korg; t=1643052941;
+        bh=Z6LnLnvpzRXBhuAU39DeUE7li7MEBSuYocwLtie5v+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CIfewN+Dia7lY9GxI92G/GpSkMn81A0T7Et5NLLOtZ4IX1rFUUU0bDsB//VpDZnfq
-         qcftELjV1qPwp1MOYrFiVbi5Jmnsl6oDHNs4lfAZT+X9e+1JQ9RuprhkSb6ISUO0ny
-         CHTlI04a6kIhaWL9k5hW17dIIzoF8lKCO+ZSF2fo=
+        b=UJoHSb0WWm4pv0sW0A01Nvkc6yoWvHsDaOQNhDQ9ULKBbQ/YmZzhkoEPZCbJG+cIU
+         92Eb/kTLXbnACWxZTxLiIOjQ1xN+wf4+8d77eTBkjUmCfnHWUEPMKClmORUhq7kV7R
+         9VcNqWaqMTy1jplCGOvdbidHUPemzGAMW4u/4tH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julia Lawall <Julia.Lawall@lip6.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 132/186] powerpc/6xx: add missing of_node_put
+        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 223/320] parisc: Avoid calling faulthandler_disabled() twice
 Date:   Mon, 24 Jan 2022 19:43:27 +0100
-Message-Id: <20220124183941.357910302@linuxfoundation.org>
+Message-Id: <20220124184001.578089440@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julia Lawall <Julia.Lawall@lip6.fr>
+From: John David Anglin <dave.anglin@bell.net>
 
-[ Upstream commit f6e82647ff71d427d4148964b71f239fba9d7937 ]
+[ Upstream commit 9e9d4b460f23bab61672eae397417d03917d116c ]
 
-for_each_compatible_node performs an of_node_get on each iteration, so
-a break out of the loop requires an of_node_put.
+In handle_interruption(), we call faulthandler_disabled() to check whether the
+fault handler is not disabled. If the fault handler is disabled, we immediately
+call do_page_fault(). It then calls faulthandler_disabled(). If disabled,
+do_page_fault() attempts to fixup the exception by jumping to no_context:
 
-A simplified version of the semantic patch that fixes this problem is as
-follows (http://coccinelle.lip6.fr):
+no_context:
 
-// <smpl>
-@@
-expression e;
-local idexpression n;
-@@
+        if (!user_mode(regs) && fixup_exception(regs)) {
+                return;
+        }
 
-@@
-local idexpression n;
-expression e;
-@@
+        parisc_terminate("Bad Address (null pointer deref?)", regs, code, address);
 
- for_each_compatible_node(n,...) {
-   ...
-(
-   of_node_put(n);
-|
-   e = n
-|
-+  of_node_put(n);
-?  break;
-)
-   ...
- }
-... when != n
-// </smpl>
+Apart from the error messages, the two blocks of code perform the same
+function.
 
-Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1448051604-25256-2-git-send-email-Julia.Lawall@lip6.fr
+We can avoid two calls to faulthandler_disabled() by a simple revision
+to the code in handle_interruption().
+
+Note: I didn't try to fix the formatting of this code block.
+
+Signed-off-by: John David Anglin <dave.anglin@bell.net>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/embedded6xx/hlwd-pic.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/parisc/kernel/traps.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/embedded6xx/hlwd-pic.c b/arch/powerpc/platforms/embedded6xx/hlwd-pic.c
-index bf4a125faec66..db2ea6b6889de 100644
---- a/arch/powerpc/platforms/embedded6xx/hlwd-pic.c
-+++ b/arch/powerpc/platforms/embedded6xx/hlwd-pic.c
-@@ -220,6 +220,7 @@ void hlwd_pic_probe(void)
- 			irq_set_chained_handler(cascade_virq,
- 						hlwd_pic_irq_cascade);
- 			hlwd_irq_host = host;
-+			of_node_put(np);
- 			break;
- 		}
- 	}
+diff --git a/arch/parisc/kernel/traps.c b/arch/parisc/kernel/traps.c
+index 82fc011894889..2a1060d747a5d 100644
+--- a/arch/parisc/kernel/traps.c
++++ b/arch/parisc/kernel/traps.c
+@@ -783,7 +783,7 @@ void notrace handle_interruption(int code, struct pt_regs *regs)
+ 	     * unless pagefault_disable() was called before.
+ 	     */
+ 
+-	    if (fault_space == 0 && !faulthandler_disabled())
++	    if (faulthandler_disabled() || fault_space == 0)
+ 	    {
+ 		/* Clean up and return if in exception table. */
+ 		if (fixup_exception(regs))
 -- 
 2.34.1
 
