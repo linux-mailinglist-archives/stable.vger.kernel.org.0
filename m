@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D494497E78
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 13:07:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03292497E79
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 13:07:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238079AbiAXMHO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 07:07:14 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:33772 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238097AbiAXMHN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 07:07:13 -0500
+        id S238145AbiAXMHY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 07:07:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59374 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238097AbiAXMHX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 07:07:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43888C06173B
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 04:07:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D96D3B80EFA
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 12:07:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CEE4C340E1;
-        Mon, 24 Jan 2022 12:07:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D52A960E9D
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 12:07:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB2F5C340E1;
+        Mon, 24 Jan 2022 12:07:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643026031;
-        bh=N8UzxCyENONkYkFs6bSkCs9p1NLXwU5lqZKK5aVd8Zg=;
+        s=korg; t=1643026042;
+        bh=SKgwxptxo30NT4pntijA1acMqiM9MpNK/+c+GfWhD9U=;
         h=Subject:To:Cc:From:Date:From;
-        b=PEZS6Ic6ZzoJ74fKjQv/RaKtPoJi0k023X8J083pJZbhovPC0KUaYfpRZSTMh4GXs
-         N5JVdIy6mkYWanHpyqvULq/CXv9BmWYrwhAT02stbn1Fo8eAdMClS5DVWZiKYT9ioD
-         zImCLMGxa84UZh+9AOvPKAaWiqCGkryhf0pg7tQs=
-Subject: FAILED: patch "[PATCH] bpf: Fix mount source show for bpffs" failed to apply to 5.4-stable tree
+        b=LobWfiBMb2Ik+vwAaNjJAgtPbP2BUApBYJCFBHkTy8FVqdwgYXoQLSTlL4i+ZtEFq
+         zceYWXZRXFDO5elwcj7yeOrLipCRLVGHquM1A1aVaFPJyVNHlztjaoB4xduXycg0qG
+         lm8CB0t2f7nieyGoYixagYqSJbqmBZgKEnyJRVp8=
+Subject: FAILED: patch "[PATCH] bpf: Fix mount source show for bpffs" failed to apply to 5.10-stable tree
 To:     laoar.shao@gmail.com, christian.brauner@ubuntu.com,
         daniel@iogearbox.net, dhowells@redhat.com, viro@zeniv.linux.org.uk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 13:07:08 +0100
-Message-ID: <1643026028171173@kroah.com>
+Date:   Mon, 24 Jan 2022 13:07:11 +0100
+Message-ID: <1643026031219194@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
