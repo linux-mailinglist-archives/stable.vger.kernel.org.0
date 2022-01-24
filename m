@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2FE5498A2D
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:02:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12B4C49894B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:54:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344057AbiAXTBr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:01:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44554 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345215AbiAXS74 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:59:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9892EC0619C9;
-        Mon, 24 Jan 2022 10:56:35 -0800 (PST)
+        id S1343895AbiAXSyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:54:09 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:51690 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236282AbiAXSwf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:52:35 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6097EB81235;
-        Mon, 24 Jan 2022 18:56:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77125C340E5;
-        Mon, 24 Jan 2022 18:56:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C514A614EC;
+        Mon, 24 Jan 2022 18:52:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CB7BC340E5;
+        Mon, 24 Jan 2022 18:52:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050593;
-        bh=3hDW7gIhEOondEF4Jh+0/sHITCd+cZaNzno8dlPJPuE=;
+        s=korg; t=1643050354;
+        bh=qtKkJMFmMPARKOd3X03qqmFD/4R6AL0N8Z/w7kj3lLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a4EoOBrvqpSR4wmb492altdE034+NALGsrJOwGz6dtDhog0lFOtal7baH9ZDG3l5D
-         kdtZ+7E0qrNuBiO+H0JJ9ivlGE9pGdb0vBkcn/k0SFmXbaYTGbVN5GHiGI9REiwrSL
-         gmZZ9GvX4Hfo317adxJPfsDXbJP3IsbxpbkXuR+w=
+        b=evSUhN1/wjx0RojmPt3msuMt54WzFH2avvDxM9oLw3ScE9fWiePCYElN/6rWOVdRw
+         9rXqImHreAF0BxyTZToSDqbKfQ+tJZ4QFQmM0KgPOd0yADf8S+pS9M8vji6SwoO1g2
+         1PaWwV5FQe82HNWkkQyJf/hScXRGzvC+zsO/53PA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 052/157] can: softing: softing_startstop(): fix set but not used variable warning
-Date:   Mon, 24 Jan 2022 19:42:22 +0100
-Message-Id: <20220124183934.438803830@linuxfoundation.org>
+Subject: [PATCH 4.4 048/114] char/mwave: Adjust io port register size
+Date:   Mon, 24 Jan 2022 19:42:23 +0100
+Message-Id: <20220124183928.587436790@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
-References: <20220124183932.787526760@linuxfoundation.org>
+In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
+References: <20220124183927.095545464@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,60 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 370d988cc529598ebaec6487d4f84c2115dc696b ]
+[ Upstream commit f5912cc19acd7c24b2dbf65a6340bf194244f085 ]
 
-In the function softing_startstop() the variable error_reporting is
-assigned but not used. The code that uses this variable is commented
-out. Its stated that the functionality is not finally verified.
+Using MKWORD() on a byte-sized variable results in OOB read. Expand the
+size of the reserved area so both MKWORD and MKBYTE continue to work
+without overflow. Silences this warning on a -Warray-bounds build:
 
-To fix the warning:
+drivers/char/mwave/3780i.h:346:22: error: array subscript 'short unsigned int[0]' is partly outside array bounds of 'DSP_ISA_SLAVE_CONTROL[1]' [-Werror=array-bounds]
+  346 | #define MKWORD(var) (*((unsigned short *)(&var)))
+      |                     ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/char/mwave/3780i.h:356:40: note: in definition of macro 'OutWordDsp'
+  356 | #define OutWordDsp(index,value)   outw(value,usDspBaseIO+index)
+      |                                        ^~~~~
+drivers/char/mwave/3780i.c:373:41: note: in expansion of macro 'MKWORD'
+  373 |         OutWordDsp(DSP_IsaSlaveControl, MKWORD(rSlaveControl));
+      |                                         ^~~~~~
+drivers/char/mwave/3780i.c:358:31: note: while referencing 'rSlaveControl'
+  358 |         DSP_ISA_SLAVE_CONTROL rSlaveControl;
+      |                               ^~~~~~~~~~~~~
 
-| drivers/net/can/softing/softing_fw.c:424:9: error: variable 'error_reporting' set but not used [-Werror,-Wunused-but-set-variable]
-
-remove the comment, activate the code, but add a "0 &&" to the if
-expression and rely on the optimizer rather than the preprocessor to
-remove the code.
-
-Link: https://lore.kernel.org/all/20220109103126.1872833-1-mkl@pengutronix.de
-Fixes: 03fd3cf5a179 ("can: add driver for Softing card")
-Cc: Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20211203084206.3104326-1-keescook@chromium.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/softing/softing_fw.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/char/mwave/3780i.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/softing/softing_fw.c b/drivers/net/can/softing/softing_fw.c
-index 52fe50725d749..a74c779feb90e 100644
---- a/drivers/net/can/softing/softing_fw.c
-+++ b/drivers/net/can/softing/softing_fw.c
-@@ -576,18 +576,19 @@ int softing_startstop(struct net_device *dev, int up)
- 		if (ret < 0)
- 			goto failed;
- 	}
--	/* enable_error_frame */
--	/*
-+
-+	/* enable_error_frame
-+	 *
- 	 * Error reporting is switched off at the moment since
- 	 * the receiving of them is not yet 100% verified
- 	 * This should be enabled sooner or later
--	 *
--	if (error_reporting) {
-+	 */
-+	if (0 && error_reporting) {
- 		ret = softing_fct_cmd(card, 51, "enable_error_frame");
- 		if (ret < 0)
- 			goto failed;
- 	}
--	*/
-+
- 	/* initialize interface */
- 	iowrite16(1, &card->dpram[DPRAM_FCT_PARAM + 2]);
- 	iowrite16(1, &card->dpram[DPRAM_FCT_PARAM + 4]);
+diff --git a/drivers/char/mwave/3780i.h b/drivers/char/mwave/3780i.h
+index fba6ab1160ce8..b167163b18277 100644
+--- a/drivers/char/mwave/3780i.h
++++ b/drivers/char/mwave/3780i.h
+@@ -68,7 +68,7 @@ typedef struct {
+ 	unsigned char ClockControl:1;	/* RW: Clock control: 0=normal, 1=stop 3780i clocks */
+ 	unsigned char SoftReset:1;	/* RW: Soft reset 0=normal, 1=soft reset active */
+ 	unsigned char ConfigMode:1;	/* RW: Configuration mode, 0=normal, 1=config mode */
+-	unsigned char Reserved:5;	/* 0: Reserved */
++	unsigned short Reserved:13;	/* 0: Reserved */
+ } DSP_ISA_SLAVE_CONTROL;
+ 
+ 
 -- 
 2.34.1
 
