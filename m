@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40F90499ADD
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:58:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF3CB4999AF
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:46:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378990AbiAXVr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:47:28 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:58600 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1456858AbiAXVkR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:40:17 -0500
+        id S1455956AbiAXVgz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:36:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48958 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1390804AbiAXVM6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:12:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92790C02980B;
+        Mon, 24 Jan 2022 12:09:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 96E346151D;
-        Mon, 24 Jan 2022 21:40:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DD59C340E4;
-        Mon, 24 Jan 2022 21:40:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 598C2B8119E;
+        Mon, 24 Jan 2022 20:09:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 808C7C340E7;
+        Mon, 24 Jan 2022 20:09:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060416;
-        bh=bp019RBoTTCh7yRBmXJPnGFc3pky8+XP4OrNPBx1/AM=;
+        s=korg; t=1643054997;
+        bh=iVHyyH0Rl0ctyayqKyVIO5m9Sy/n8b+oFCc8GQ1GgAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oIOWU7J/EPdgH3JIiAAO0hDK8h0C06VTAVvQnXw7Y5mu7g/EBBCMl+OJEIR4/w6wJ
-         /qnkrkBjLiw6B8DI8916L+hYleQnMr+kto03++fSilQ5Q4ua4BR9Kn/w9f3EWyWVzV
-         BEXEg9N8ImAapw4PS6xptQ7OiIXmtMbH1IYAIC04=
+        b=rcz0PK+s9cZn+dghSUMl/nkqCDgBzzglLUpAadaXZVFZ8JMQiFhF7+Y3VKweyb6sp
+         T9QQwZ+3mhDZBYIWEdVOx/5buP6wZB3Qr4o+HZkmRXX0Y0/+tMNRPF1ZV5/H/BKvTw
+         5l15DbK6W4EssT2o+Ou5KJR4UMNXc5uYX2l4K/uQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suresh Udipi <sudipi@jp.adit-jv.com>,
-        Michael Rodin <mrodin@de.adit-jv.com>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.16 0907/1039] media: rcar-csi2: Optimize the selection PHTW register
+        stable@vger.kernel.org, Eli Cohen <elic@nvidia.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Parav Pandit <parav@nvidia.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Si-Wei Liu <si-wei.liu@oracle.com>
+Subject: [PATCH 5.10 531/563] vdpa/mlx5: Fix wrong configuration of virtio_version_1_0
 Date:   Mon, 24 Jan 2022 19:44:56 +0100
-Message-Id: <20220124184155.785926208@linuxfoundation.org>
+Message-Id: <20220124184042.812983165@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,50 +50,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suresh Udipi <sudipi@jp.adit-jv.com>
+From: Eli Cohen <elic@nvidia.com>
 
-commit 549cc89cd09a85aaa16dc07ef3db811d5cf9bcb1 upstream.
+commit 97143b70aa847f2b0a1f959dde126b76ff7b5376 upstream.
 
-PHTW register is selected based on default bit rate from Table[1].
-for the bit rates less than or equal to 250. Currently first
-value of default bit rate which is greater than or equal to
-the caculated mbps is selected. This selection can be further
-improved by selecting the default bit rate which is nearest to
-the calculated value.
+Remove overriding of virtio_version_1_0 which forced the virtqueue
+object to version 1.
 
-[1] specs r19uh0105ej0200-r-car-3rd-generation.pdf [Table 25.12]
-
-Fixes: 769afd212b16 ("media: rcar-csi2: add Renesas R-Car MIPI CSI-2 receiver driver")
-Signed-off-by: Suresh Udipi <sudipi@jp.adit-jv.com>
-Signed-off-by: Michael Rodin <mrodin@de.adit-jv.com>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5 devices")
+Signed-off-by: Eli Cohen <elic@nvidia.com>
+Link: https://lore.kernel.org/r/20211230142024.142979-1-elic@nvidia.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Parav Pandit <parav@nvidia.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Reviewed-by: Si-Wei Liu <si-wei.liu@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/rcar-vin/rcar-csi2.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/vdpa/mlx5/net/mlx5_vnet.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/media/platform/rcar-vin/rcar-csi2.c
-+++ b/drivers/media/platform/rcar-vin/rcar-csi2.c
-@@ -1104,10 +1104,17 @@ static int rcsi2_phtw_write_mbps(struct
- 				 const struct rcsi2_mbps_reg *values, u16 code)
- {
- 	const struct rcsi2_mbps_reg *value;
-+	const struct rcsi2_mbps_reg *prev_value = NULL;
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -812,8 +812,6 @@ static int create_virtqueue(struct mlx5_
+ 	MLX5_SET(virtio_q, vq_ctx, umem_3_id, mvq->umem3.id);
+ 	MLX5_SET(virtio_q, vq_ctx, umem_3_size, mvq->umem3.size);
+ 	MLX5_SET(virtio_q, vq_ctx, pd, ndev->mvdev.res.pdn);
+-	if (MLX5_CAP_DEV_VDPA_EMULATION(ndev->mvdev.mdev, eth_frame_offload_type))
+-		MLX5_SET(virtio_q, vq_ctx, virtio_version_1_0, 1);
  
--	for (value = values; value->mbps; value++)
-+	for (value = values; value->mbps; value++) {
- 		if (value->mbps >= mbps)
- 			break;
-+		prev_value = value;
-+	}
-+
-+	if (prev_value &&
-+	    ((mbps - prev_value->mbps) <= (value->mbps - mbps)))
-+		value = prev_value;
- 
- 	if (!value->mbps) {
- 		dev_err(priv->dev, "Unsupported PHY speed (%u Mbps)", mbps);
+ 	err = mlx5_cmd_exec(ndev->mvdev.mdev, in, inlen, out, sizeof(out));
+ 	if (err)
 
 
