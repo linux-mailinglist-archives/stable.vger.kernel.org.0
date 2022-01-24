@@ -2,38 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D3BB4988C5
+	by mail.lfdr.de (Postfix) with ESMTP id ED6334988C6
 	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:51:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245529AbiAXSu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:50:27 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49624 "EHLO
+        id S245698AbiAXSu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:50:28 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49730 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245531AbiAXStn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:49:43 -0500
+        with ESMTP id S241971AbiAXSty (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:49:54 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B0DAB8121F;
-        Mon, 24 Jan 2022 18:49:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABB14C340E5;
-        Mon, 24 Jan 2022 18:49:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DFA92B81227;
+        Mon, 24 Jan 2022 18:49:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFFBBC340E5;
+        Mon, 24 Jan 2022 18:49:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050180;
-        bh=WwExldU9G39L2ssPdcPuqzKK5FM6hA2PmC/gQghHkmE=;
+        s=korg; t=1643050183;
+        bh=J4IP5pvWFW9dfShp8XiaAsZ1GggdgqBAu+DMu39gvzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=arAFBWbzB20YeVvl/FNUtFmapyW62sezautw0WludFS7EAZcLzfz2byadfft56Xo8
-         ugSRB/G2uhNCiTMu/RcnjpiN1WOjVuSHkkVdN8zmWt32XUncanIaY6BakFnoJDui2t
-         WsshAdFYz/B1J2/pDFr6idCf6ic+IczZhph218ys=
+        b=qnI0tQzsjCooMeVAK5nIlx5su+nLed/RZ3u2uBgS5EZIISkwNzMPLD/8jhPqcDlJ+
+         UEV/NEGf3Xw3zoPqkcN9je73RokvY634nqmKoSt5MIBOVawDHlVrF9eQNOyIKiyZ1K
+         B26qEG8RFQ8dtNyLnxEdh0J8Ylk0WmbHkHBS9TZo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Paul Mackerras <paulus@samba.org>, linux-ppp@vger.kernel.org,
+        syzbot <syzkaller@googlegroups.com>,
+        Guillaume Nault <gnault@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 035/114] pcmcia: rsrc_nonstatic: Fix a NULL pointer dereference in nonstatic_find_mem_region()
-Date:   Mon, 24 Jan 2022 19:42:10 +0100
-Message-Id: <20220124183928.201248888@linuxfoundation.org>
+Subject: [PATCH 4.4 036/114] ppp: ensure minimum packet size in ppp_write()
+Date:   Mon, 24 Jan 2022 19:42:11 +0100
+Message-Id: <20220124183928.230569342@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
 References: <20220124183927.095545464@linuxfoundation.org>
@@ -45,52 +48,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 977d2e7c63c3d04d07ba340b39987742e3241554 ]
+[ Upstream commit 44073187990d5629804ce0627525f6ea5cfef171 ]
 
-In nonstatic_find_mem_region(), pcmcia_make_resource() is assigned to
-res and used in pci_bus_alloc_resource(). There a dereference of res
-in pci_bus_alloc_resource(), which could lead to a NULL pointer
-dereference on failure of pcmcia_make_resource().
+It seems pretty clear ppp layer assumed user space
+would always be kind to provide enough data
+in their write() to a ppp device.
 
-Fix this bug by adding a check of res.
+This patch makes sure user provides at least
+2 bytes.
 
-This bug was found by a static analyzer. The analysis employs
-differential checking to identify inconsistent security operations
-(e.g., checks or kfrees) between two code paths and confirms that the
-inconsistent operations are not recovered in the current function or
-the callers, so they constitute bugs.
+It adds PPP_PROTO_LEN macro that could replace
+in net-next many occurrences of hard-coded 2 value.
 
-Note that, as a bug found by static analysis, it can be a false
-positive or hard to trigger. Multiple researchers have cross-reviewed
-the bug.
+I replaced only one occurrence to ease backports
+to stable kernels.
 
-Builds with CONFIG_PCCARD_NONSTATIC=y show no new warnings,
-and our static analyzer no longer warns about this code.
+The bug manifests in the following report:
 
-Fixes: 49b1153adfe1 ("pcmcia: move all pcmcia_resource_ops providers into one module")
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+BUG: KMSAN: uninit-value in ppp_send_frame+0x28d/0x27c0 drivers/net/ppp/ppp_generic.c:1740
+ ppp_send_frame+0x28d/0x27c0 drivers/net/ppp/ppp_generic.c:1740
+ __ppp_xmit_process+0x23e/0x4b0 drivers/net/ppp/ppp_generic.c:1640
+ ppp_xmit_process+0x1fe/0x480 drivers/net/ppp/ppp_generic.c:1661
+ ppp_write+0x5cb/0x5e0 drivers/net/ppp/ppp_generic.c:513
+ do_iter_write+0xb0c/0x1500 fs/read_write.c:853
+ vfs_writev fs/read_write.c:924 [inline]
+ do_writev+0x645/0xe00 fs/read_write.c:967
+ __do_sys_writev fs/read_write.c:1040 [inline]
+ __se_sys_writev fs/read_write.c:1037 [inline]
+ __x64_sys_writev+0xe5/0x120 fs/read_write.c:1037
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:524 [inline]
+ slab_alloc_node mm/slub.c:3251 [inline]
+ __kmalloc_node_track_caller+0xe0c/0x1510 mm/slub.c:4974
+ kmalloc_reserve net/core/skbuff.c:354 [inline]
+ __alloc_skb+0x545/0xf90 net/core/skbuff.c:426
+ alloc_skb include/linux/skbuff.h:1126 [inline]
+ ppp_write+0x11d/0x5e0 drivers/net/ppp/ppp_generic.c:501
+ do_iter_write+0xb0c/0x1500 fs/read_write.c:853
+ vfs_writev fs/read_write.c:924 [inline]
+ do_writev+0x645/0xe00 fs/read_write.c:967
+ __do_sys_writev fs/read_write.c:1040 [inline]
+ __se_sys_writev fs/read_write.c:1037 [inline]
+ __x64_sys_writev+0xe5/0x120 fs/read_write.c:1037
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: linux-ppp@vger.kernel.org
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Acked-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pcmcia/rsrc_nonstatic.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ppp/ppp_generic.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pcmcia/rsrc_nonstatic.c b/drivers/pcmcia/rsrc_nonstatic.c
-index 4d244014f423f..2e96d9273b780 100644
---- a/drivers/pcmcia/rsrc_nonstatic.c
-+++ b/drivers/pcmcia/rsrc_nonstatic.c
-@@ -815,6 +815,9 @@ static struct resource *nonstatic_find_mem_region(u_long base, u_long num,
- 	unsigned long min, max;
- 	int ret, i, j;
+diff --git a/drivers/net/ppp/ppp_generic.c b/drivers/net/ppp/ppp_generic.c
+index 46448d7e32902..679b14759379f 100644
+--- a/drivers/net/ppp/ppp_generic.c
++++ b/drivers/net/ppp/ppp_generic.c
+@@ -70,6 +70,8 @@
+ #define MPHDRLEN	6	/* multilink protocol header length */
+ #define MPHDRLEN_SSN	4	/* ditto with short sequence numbers */
  
-+	if (!res)
-+		return NULL;
++#define PPP_PROTO_LEN	2
 +
- 	low = low || !(s->features & SS_CAP_PAGE_REGS);
+ /*
+  * An instance of /dev/ppp can be associated with either a ppp
+  * interface unit or a ppp channel.  In both cases, file->private_data
+@@ -487,6 +489,9 @@ static ssize_t ppp_write(struct file *file, const char __user *buf,
  
- 	data.mask = align - 1;
+ 	if (!pf)
+ 		return -ENXIO;
++	/* All PPP packets should start with the 2-byte protocol */
++	if (count < PPP_PROTO_LEN)
++		return -EINVAL;
+ 	ret = -ENOMEM;
+ 	skb = alloc_skb(count + pf->hdrlen, GFP_KERNEL);
+ 	if (!skb)
+@@ -1293,7 +1298,7 @@ ppp_send_frame(struct ppp *ppp, struct sk_buff *skb)
+ 	}
+ 
+ 	++ppp->stats64.tx_packets;
+-	ppp->stats64.tx_bytes += skb->len - 2;
++	ppp->stats64.tx_bytes += skb->len - PPP_PROTO_LEN;
+ 
+ 	switch (proto) {
+ 	case PPP_IP:
 -- 
 2.34.1
 
