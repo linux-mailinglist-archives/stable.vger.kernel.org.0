@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1513449A2E8
+	by mail.lfdr.de (Postfix) with ESMTP id 828C049A2EC
 	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:01:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2366022AbiAXXwK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:52:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46814 "EHLO
+        id S2366026AbiAXXwL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:52:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383495AbiAXXEV (ORCPT
+        with ESMTP id S1383497AbiAXXEV (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:04:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9195C02B777;
-        Mon, 24 Jan 2022 13:16:26 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB516C02B77C;
+        Mon, 24 Jan 2022 13:16:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5804B6141C;
-        Mon, 24 Jan 2022 21:16:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39BA9C340E4;
-        Mon, 24 Jan 2022 21:16:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A4159B8123A;
+        Mon, 24 Jan 2022 21:16:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03218C340E4;
+        Mon, 24 Jan 2022 21:16:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058985;
-        bh=1h+/Z/DAiDZoSEbnMDcCn4AXxNjDsVzS3lRJAXu21lc=;
+        s=korg; t=1643058991;
+        bh=kO9zzbykNvCY4rMFSnfyyyarik+GEjCV89BpyAmECy4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VvY9MmE4pxrvSfnEaJ/12RdDrp7GjIl7q5CCR9zqTRto5lxFDNBjeWmmXUh43WIsS
-         FLFdj3OiLYEZ9hsQBsZGu6aB8ePhOaOC3hfFcji/ihSu/2BoC+aVeZVje+JkRxKHgY
-         PeVyV3tFrqJRoF5dRw2uXmJTovOPiH0n0Wo0KzVg=
+        b=tKdM25WUNw4wWiF5bRpZKo4mSts/s8W51miLE0sCu66GIKOY3LLYbUb50yJisugMO
+         xQeOT1xWfFlj+80cYGAFq8be8kMNdKmvEwTxBQmZF7jGOEEkYgfbExKqfML2GIdzlB
+         npov/h2wp9VUaOukz/EY57Db5fZGtpvf+r8A/kvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bixuan Cui <cuibixuan@linux.alibaba.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0466/1039] ALSA: oss: fix compile error when OSS_DEBUG is enabled
-Date:   Mon, 24 Jan 2022 19:37:35 +0100
-Message-Id: <20220124184140.946282833@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Lucas Tanure <tanureal@opensource.cirrus.com>,
+        kernel test robot <lkp@intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0468/1039] ASoC: amd: Fix dependency for SPI master
+Date:   Mon, 24 Jan 2022 19:37:37 +0100
+Message-Id: <20220124184141.014006048@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -47,39 +50,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bixuan Cui <cuibixuan@linux.alibaba.com>
+From: Lucas Tanure <tanureal@opensource.cirrus.com>
 
-[ Upstream commit 8e7daf318d97f25e18b2fc7eb5909e34cd903575 ]
+[ Upstream commit 19a628d8f1a6c16263d8037a918427207c8a95a0 ]
 
-Fix compile error when OSS_DEBUG is enabled:
-    sound/core/oss/pcm_oss.c: In function 'snd_pcm_oss_set_trigger':
-    sound/core/oss/pcm_oss.c:2055:10: error: 'substream' undeclared (first
-    use in this function); did you mean 'csubstream'?
-      pcm_dbg(substream->pcm, "pcm_oss: trigger = 0x%x\n", trigger);
-              ^
+Set SPI_MASTER as dependency as is using CS35L41 SPI driver
 
-Fixes: 61efcee8608c ("ALSA: oss: Use standard printk helpers")
-Signed-off-by: Bixuan Cui <cuibixuan@linux.alibaba.com>
-Link: https://lore.kernel.org/r/1638349134-110369-1-git-send-email-cuibixuan@linux.alibaba.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 96792fdd77cd1 ("ASoC: amd: enable vangogh platform machine driver build")
+
+Signed-off-by: Lucas Tanure <tanureal@opensource.cirrus.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/r/20211201180004.1402156-1-tanureal@opensource.cirrus.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/oss/pcm_oss.c | 2 +-
+ sound/soc/amd/Kconfig | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/core/oss/pcm_oss.c b/sound/core/oss/pcm_oss.c
-index 20a0a4771b9a8..3ee9edf858156 100644
---- a/sound/core/oss/pcm_oss.c
-+++ b/sound/core/oss/pcm_oss.c
-@@ -2065,7 +2065,7 @@ static int snd_pcm_oss_set_trigger(struct snd_pcm_oss_file *pcm_oss_file, int tr
- 	int err, cmd;
- 
- #ifdef OSS_DEBUG
--	pcm_dbg(substream->pcm, "pcm_oss: trigger = 0x%x\n", trigger);
-+	pr_debug("pcm_oss: trigger = 0x%x\n", trigger);
- #endif
- 	
- 	psubstream = pcm_oss_file->streams[SNDRV_PCM_STREAM_PLAYBACK];
+diff --git a/sound/soc/amd/Kconfig b/sound/soc/amd/Kconfig
+index 2c6af3f8f2961..ff535370e525a 100644
+--- a/sound/soc/amd/Kconfig
++++ b/sound/soc/amd/Kconfig
+@@ -68,7 +68,7 @@ config SND_SOC_AMD_VANGOGH_MACH
+ 	tristate "AMD Vangogh support for NAU8821 CS35L41"
+ 	select SND_SOC_NAU8821
+ 	select SND_SOC_CS35L41_SPI
+-	depends on SND_SOC_AMD_ACP5x && I2C
++	depends on SND_SOC_AMD_ACP5x && I2C && SPI_MASTER
+ 	help
+ 	  This option enables machine driver for Vangogh platform
+ 	  using NAU8821 and CS35L41 codecs.
 -- 
 2.34.1
 
