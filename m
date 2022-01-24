@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B90C498139
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:37:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B73549813A
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:37:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243051AbiAXNhT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 08:37:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52762 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239976AbiAXNhT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:37:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C9BEC06173B
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 05:37:18 -0800 (PST)
+        id S240203AbiAXNht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 08:37:49 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:46988 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239976AbiAXNhq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:37:46 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 38E5AB80F9C
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:37:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44A89C340E1;
-        Mon, 24 Jan 2022 13:37:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B274DB80EEB
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:37:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D92DBC340E4;
+        Mon, 24 Jan 2022 13:37:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643031435;
-        bh=QRchrMCN1FjJTP08T3bxI6zSfUiZyfs5uJavYrEVUfc=;
+        s=korg; t=1643031464;
+        bh=Vedgfa5ZA6p/jVaB34R64tBG1QAdA7/i1xlsoWEuALo=;
         h=Subject:To:Cc:From:Date:From;
-        b=ZAD23lEYwVDIXXLxmKJVbXYiQWEQxs+RiXvoziHSvNG4huHtGzwNS0jnKBT2FYiK/
-         hA2IZ5YdK+7l7RnccyYUwoQkTDTOF6CkWhz3YFf2qoSF+glRH1zywxoR4J2/3B61jH
-         Rb6JXDr2IrV6n49pzECz+F00VKUjTWTfOvzTvX8w=
-Subject: FAILED: patch "[PATCH] net: ipa: fix atomic update in ipa_endpoint_replenish()" failed to apply to 5.10-stable tree
-To:     elder@linaro.org, davem@davemloft.net, mka@chromium.org
+        b=octrT5/Lw0LnI3/H2wXxE0SGH8zDC19HlrkbKQqm3gYYCuPGZspxUfXak2HHN5flc
+         c24P39ssEYM4L22McoaVIPYIypMPCSBuqnzQucswlBWPhRJxvDfRSI7uII21NvkRC8
+         CSUuMzA0wHyuDSUI5RusUgUkX9kgk5XOcV/lyJBs=
+Subject: FAILED: patch "[PATCH] net: ipa: prevent concurrent replenish" failed to apply to 5.10-stable tree
+To:     elder@linaro.org, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 14:37:13 +0100
-Message-ID: <164303143324018@kroah.com>
+Date:   Mon, 24 Jan 2022 14:37:41 +0100
+Message-ID: <1643031461124156@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -53,52 +50,78 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6c0e3b5ce94947b311348c367db9e11dcb2ccc93 Mon Sep 17 00:00:00 2001
+From 998c0bd2b3715244da7639cc4e6a2062cb79c3f4 Mon Sep 17 00:00:00 2001
 From: Alex Elder <elder@linaro.org>
-Date: Wed, 12 Jan 2022 07:30:10 -0600
-Subject: [PATCH] net: ipa: fix atomic update in ipa_endpoint_replenish()
+Date: Wed, 12 Jan 2022 07:30:12 -0600
+Subject: [PATCH] net: ipa: prevent concurrent replenish
 
-In ipa_endpoint_replenish(), if an error occurs when attempting to
-replenish a receive buffer, we just quit and try again later.  In
-that case we increment the backlog count to reflect that the attempt
-was unsuccessful.  Then, if the add_one flag was true we increment
-the backlog again.
+We have seen cases where an endpoint RX completion interrupt arrives
+while replenishing for the endpoint is underway.  This causes another
+instance of replenishing to begin as part of completing the receive
+transaction.  If this occurs it can lead to transaction corruption.
 
-This second increment is not included in the backlog local variable
-though, and its value determines whether delayed work should be
-scheduled.  This is a bug.
+Use a new flag to ensure only one replenish instance for an endpoint
+executes at a time.
 
-Fix this by determining whether 1 or 2 should be added to the
-backlog before adding it in a atomic_add_return() call.
-
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
 Fixes: 84f9bd12d46db ("soc: qcom: ipa: IPA endpoints")
 Signed-off-by: Alex Elder <elder@linaro.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 
 diff --git a/drivers/net/ipa/ipa_endpoint.c b/drivers/net/ipa/ipa_endpoint.c
-index 49d9a077d037..8b055885cf3c 100644
+index cddddcedaf72..68291a3efd04 100644
 --- a/drivers/net/ipa/ipa_endpoint.c
 +++ b/drivers/net/ipa/ipa_endpoint.c
-@@ -1080,6 +1080,7 @@ static void ipa_endpoint_replenish(struct ipa_endpoint *endpoint, bool add_one)
- {
- 	struct gsi *gsi;
- 	u32 backlog;
-+	int delta;
+@@ -1088,15 +1088,27 @@ static void ipa_endpoint_replenish(struct ipa_endpoint *endpoint, bool add_one)
+ 		return;
+ 	}
  
- 	if (!endpoint->replenish_enabled) {
- 		if (add_one)
-@@ -1097,10 +1098,8 @@ static void ipa_endpoint_replenish(struct ipa_endpoint *endpoint, bool add_one)
++	/* If already active, just update the backlog */
++	if (test_and_set_bit(IPA_REPLENISH_ACTIVE, endpoint->replenish_flags)) {
++		if (add_one)
++			atomic_inc(&endpoint->replenish_backlog);
++		return;
++	}
++
+ 	while (atomic_dec_not_zero(&endpoint->replenish_backlog))
+ 		if (ipa_endpoint_replenish_one(endpoint))
+ 			goto try_again_later;
++
++	clear_bit(IPA_REPLENISH_ACTIVE, endpoint->replenish_flags);
++
+ 	if (add_one)
+ 		atomic_inc(&endpoint->replenish_backlog);
+ 
+ 	return;
  
  try_again_later:
++	clear_bit(IPA_REPLENISH_ACTIVE, endpoint->replenish_flags);
++
  	/* The last one didn't succeed, so fix the backlog */
--	backlog = atomic_inc_return(&endpoint->replenish_backlog);
--
--	if (add_one)
--		atomic_inc(&endpoint->replenish_backlog);
-+	delta = add_one ? 2 : 1;
-+	backlog = atomic_add_return(delta, &endpoint->replenish_backlog);
+ 	delta = add_one ? 2 : 1;
+ 	backlog = atomic_add_return(delta, &endpoint->replenish_backlog);
+@@ -1691,6 +1703,7 @@ static void ipa_endpoint_setup_one(struct ipa_endpoint *endpoint)
+ 		 * backlog is the same as the maximum outstanding TREs.
+ 		 */
+ 		clear_bit(IPA_REPLENISH_ENABLED, endpoint->replenish_flags);
++		clear_bit(IPA_REPLENISH_ACTIVE, endpoint->replenish_flags);
+ 		atomic_set(&endpoint->replenish_saved,
+ 			   gsi_channel_tre_max(gsi, endpoint->channel_id));
+ 		atomic_set(&endpoint->replenish_backlog, 0);
+diff --git a/drivers/net/ipa/ipa_endpoint.h b/drivers/net/ipa/ipa_endpoint.h
+index 07d5c20e5f00..0313cdc607de 100644
+--- a/drivers/net/ipa/ipa_endpoint.h
++++ b/drivers/net/ipa/ipa_endpoint.h
+@@ -44,10 +44,12 @@ enum ipa_endpoint_name {
+  * enum ipa_replenish_flag:	RX buffer replenish flags
+  *
+  * @IPA_REPLENISH_ENABLED:	Whether receive buffer replenishing is enabled
++ * @IPA_REPLENISH_ACTIVE:	Whether replenishing is underway
+  * @IPA_REPLENISH_COUNT:	Number of defined replenish flags
+  */
+ enum ipa_replenish_flag {
+ 	IPA_REPLENISH_ENABLED,
++	IPA_REPLENISH_ACTIVE,
+ 	IPA_REPLENISH_COUNT,	/* Number of flags (must be last) */
+ };
  
- 	/* Whenever a receive buffer transaction completes we'll try to
- 	 * replenish again.  It's unlikely, but if we fail to supply even
 
