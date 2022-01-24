@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9875A499898
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:38:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 839D7499AD8
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:58:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1453073AbiAXV17 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:27:59 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:39072 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346359AbiAXVQW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:16:22 -0500
+        id S1378823AbiAXVrT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:47:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55396 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1456711AbiAXVjy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:39:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E964C0419CA;
+        Mon, 24 Jan 2022 12:26:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2757161469;
-        Mon, 24 Jan 2022 21:16:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC54FC340E4;
-        Mon, 24 Jan 2022 21:16:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D058C6150D;
+        Mon, 24 Jan 2022 20:26:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3B10C340E5;
+        Mon, 24 Jan 2022 20:26:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058976;
-        bh=uthVye0iwSuswlGwFuQRe9N7bDcMWWKiC6t7peSk9s0=;
+        s=korg; t=1643055996;
+        bh=Pl/gtIakko0+K4DcO8u+PBfMjvwYR2boCYlTmG7IVEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nnFxNtC1kIUZa/GDiZQzsUTlVh3QRJGzEP5m8K5Oi8CvDHv03E/dOZefJDsns3yoS
-         q1RAxssVZgMZH/tBX/ttyE2euODaFEwGytkHfL4XpBDv48Af/l5lQrsMIVw1AlsAQi
-         9LWC0GHRoTucc6QheYzN9dQU+5VKbQx+bK1dCOac=
+        b=NfDZFo6zE4VSqYpY2Dgwxz2fkweSZe5RcqtGMQjYXUV9NH3egTtL7MbhEfQ8ussRi
+         vS8PGUbdVjV584yE/lBfryT1lAV7NSNuo+KwdezRyqWlIflKSfhscBgXSK1z3L00/x
+         Czfxzr3LwyaTFcrtLcZC9+kQYpnqdFbl56X8y5rg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Erhard Furtner <erhard_f@mailbox.org>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Stephen Rothwell <sfr@canb.auug.org.au>,
+        Huang Rui <ray.huang@amd.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0463/1039] powerpc/modules: Dont WARN on first module allocation attempt
-Date:   Mon, 24 Jan 2022 19:37:32 +0100
-Message-Id: <20220124184140.843266216@linuxfoundation.org>
+Subject: [PATCH 5.15 336/846] x86, sched: Fix undefined reference to init_freq_invariance_cppc() build error
+Date:   Mon, 24 Jan 2022 19:37:33 +0100
+Message-Id: <20220124184112.514811632@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,82 +51,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Huang Rui <ray.huang@amd.com>
 
-[ Upstream commit f1797e4de1146009c888bcf8b6bb6648d55394f1 ]
+[ Upstream commit 6c4ab1b86dac3954d15c00c1a6396d60a1023fab ]
 
-module_alloc() first tries to allocate module text within 24 bits direct
-jump from kernel text, and tries a wider allocation if first one fails.
+The init_freq_invariance_cppc function is implemented in smpboot and depends on
+CONFIG_SMP.
 
-When first allocation fails the following is observed in kernel logs:
+  MODPOST vmlinux.symvers
+  MODINFO modules.builtin.modinfo
+  GEN     modules.builtin
+  LD      .tmp_vmlinux.kallsyms1
+ld: drivers/acpi/cppc_acpi.o: in function `acpi_cppc_processor_probe':
+/home/ray/brahma3/linux/drivers/acpi/cppc_acpi.c:819: undefined reference to `init_freq_invariance_cppc'
+make: *** [Makefile:1161: vmlinux] Error 1
 
-  vmap allocation for size 2400256 failed: use vmalloc=<size> to increase size
-  systemd-udevd: vmalloc error: size 2395133, vm_struct allocation failed, mode:0xcc0(GFP_KERNEL), nodemask=(null)
-  CPU: 0 PID: 127 Comm: systemd-udevd Tainted: G        W         5.15.5-gentoo-PowerMacG4 #9
-  Call Trace:
-  [e2a53a50] [c0ba0048] dump_stack_lvl+0x80/0xb0 (unreliable)
-  [e2a53a70] [c0540128] warn_alloc+0x11c/0x2b4
-  [e2a53b50] [c0531be8] __vmalloc_node_range+0xd8/0x64c
-  [e2a53c10] [c00338c0] module_alloc+0xa0/0xac
-  [e2a53c40] [c027a368] load_module+0x2ae0/0x8148
-  [e2a53e30] [c027fc78] sys_finit_module+0xfc/0x130
-  [e2a53f30] [c0035098] ret_from_syscall+0x0/0x28
-  ...
+See https://lore.kernel.org/lkml/484af487-7511-647e-5c5b-33d4429acdec@infradead.org/.
 
-Add __GFP_NOWARN flag to first allocation so that no warning appears
-when it fails.
-
-Reported-by: Erhard Furtner <erhard_f@mailbox.org>
-Fixes: 2ec13df16704 ("powerpc/modules: Load modules closer to kernel text")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/93c9b84d6ec76aaf7b4f03468e22433a6d308674.1638267035.git.christophe.leroy@csgroup.eu
+Fixes: 41ea667227ba ("x86, sched: Calculate frequency invariance for AMD systems")
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Signed-off-by: Huang Rui <ray.huang@amd.com>
+[ rjw: Subject edits ]
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/module.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ arch/x86/include/asm/topology.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kernel/module.c b/arch/powerpc/kernel/module.c
-index ed04a3ba66fe8..40a583e9d3c70 100644
---- a/arch/powerpc/kernel/module.c
-+++ b/arch/powerpc/kernel/module.c
-@@ -90,16 +90,17 @@ int module_finalize(const Elf_Ehdr *hdr,
+diff --git a/arch/x86/include/asm/topology.h b/arch/x86/include/asm/topology.h
+index 9239399e54914..55160445ea78b 100644
+--- a/arch/x86/include/asm/topology.h
++++ b/arch/x86/include/asm/topology.h
+@@ -218,7 +218,7 @@ static inline void arch_set_max_freq_ratio(bool turbo_disabled)
  }
- 
- static __always_inline void *
--__module_alloc(unsigned long size, unsigned long start, unsigned long end)
-+__module_alloc(unsigned long size, unsigned long start, unsigned long end, bool nowarn)
- {
- 	pgprot_t prot = strict_module_rwx_enabled() ? PAGE_KERNEL : PAGE_KERNEL_EXEC;
-+	gfp_t gfp = GFP_KERNEL | (nowarn ? __GFP_NOWARN : 0);
- 
- 	/*
- 	 * Don't do huge page allocations for modules yet until more testing
- 	 * is done. STRICT_MODULE_RWX may require extra work to support this
- 	 * too.
- 	 */
--	return __vmalloc_node_range(size, 1, start, end, GFP_KERNEL, prot,
-+	return __vmalloc_node_range(size, 1, start, end, gfp, prot,
- 				    VM_FLUSH_RESET_PERMS | VM_NO_HUGE_VMAP,
- 				    NUMA_NO_NODE, __builtin_return_address(0));
- }
-@@ -114,13 +115,13 @@ void *module_alloc(unsigned long size)
- 
- 	/* First try within 32M limit from _etext to avoid branch trampolines */
- 	if (MODULES_VADDR < PAGE_OFFSET && MODULES_END > limit)
--		ptr = __module_alloc(size, limit, MODULES_END);
-+		ptr = __module_alloc(size, limit, MODULES_END, true);
- 
- 	if (!ptr)
--		ptr = __module_alloc(size, MODULES_VADDR, MODULES_END);
-+		ptr = __module_alloc(size, MODULES_VADDR, MODULES_END, false);
- 
- 	return ptr;
- #else
--	return __module_alloc(size, VMALLOC_START, VMALLOC_END);
-+	return __module_alloc(size, VMALLOC_START, VMALLOC_END, false);
  #endif
- }
+ 
+-#ifdef CONFIG_ACPI_CPPC_LIB
++#if defined(CONFIG_ACPI_CPPC_LIB) && defined(CONFIG_SMP)
+ void init_freq_invariance_cppc(void);
+ #define init_freq_invariance_cppc init_freq_invariance_cppc
+ #endif
 -- 
 2.34.1
 
