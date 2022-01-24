@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4728649A58F
+	by mail.lfdr.de (Postfix) with ESMTP id 92F9F49A592
 	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:12:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2370995AbiAYAGr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:06:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54432 "EHLO
+        id S2371025AbiAYAGu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:06:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2360320AbiAXXga (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:36:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D0E5C0604F1;
-        Mon, 24 Jan 2022 13:37:29 -0800 (PST)
+        with ESMTP id S2360363AbiAXXgi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:36:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E69EC05A180;
+        Mon, 24 Jan 2022 13:37:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3ACFCB812A7;
-        Mon, 24 Jan 2022 21:37:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 622A7C340E7;
-        Mon, 24 Jan 2022 21:37:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C28636150D;
+        Mon, 24 Jan 2022 21:37:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5DFAC340E4;
+        Mon, 24 Jan 2022 21:37:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060247;
-        bh=J08//W2RZ6z3pUMPIZc0DxIQ0L/ndbEORfINNcq+txY=;
+        s=korg; t=1643060253;
+        bh=cLHPf/JCXUTYGxqtShabK2y0tmu9p4jwP5/5jvaPxHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uur736XDGFjDSWG5RIhR5334nuT1ECAIctsUb8wRnPLh3UKwnxr6BHBN9uhKHVpa2
-         WyXUlgGVFgVAoBPnBHnSFxD46uQ7EApuo3/xuW36bAZ2S8NIm2huPKkWwm9kyzudbU
-         uzfzhNR2TKZRufD28jiwt5MipUgbf5Bxy9jdLkfk=
+        b=hvajUePxWQrNOWB2mN6TaXXNGtyYKCltkRYk3ATrVnHziaCKU/JtJfU5DsPJ1zyEY
+         P89fh2LmuOcs7YNHxycVtlJW5+AQ1aUm5tNKZzQTwW75AyuVlHWgPoiE3+kKJOjHfp
+         GXUhYPjLWv9FXKoiStpukBIzzr6+uQA53Kd+eEDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Naohiro Aota <naohiro.aota@wdc.com>,
+        stable@vger.kernel.org, Filipe Manana <fdmanana@suse.com>,
         David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.16 0886/1039] btrfs: zoned: unset dedicated block group on allocation failure
-Date:   Mon, 24 Jan 2022 19:44:35 +0100
-Message-Id: <20220124184155.069409458@linuxfoundation.org>
+Subject: [PATCH 5.16 0888/1039] btrfs: respect the max size in the header when activating swap file
+Date:   Mon, 24 Jan 2022 19:44:37 +0100
+Message-Id: <20220124184155.141168606@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -47,72 +47,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naohiro Aota <naohiro.aota@wdc.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 1ada69f61c88abb75a1038ee457633325658a183 upstream.
+commit c2f822635df873c510bda6fb7fd1b10b7c31be2d upstream.
 
-Allocating an extent from a block group can fail for various reasons.
-When an allocation from a dedicated block group (for tree-log or
-relocation data) fails, we need to unregister it as a dedicated one so
-that we can allocate a new block group for the dedicated one.
+If we extended the size of a swapfile after its header was created (by the
+mkswap utility) and then try to activate it, we will map the entire file
+when activating the swap file, instead of limiting to the max size defined
+in the swap file's header.
 
-However, we are returning early when the block group in case it is
-read-only, fully used, or not be able to activate the zone. As a result,
-we keep the non-usable block group as a dedicated one, leading to
-further allocation failure. With many block groups, the allocator will
-iterate hopeless loop to find a free extent, results in a hung task.
+Currently test case generic/643 from fstests fails because we do not
+respect that size limit defined in the swap file's header.
 
-Fix the issue by delaying the return and doing the proper cleanups.
+So fix this by not mapping file ranges beyond the max size defined in the
+swap header.
 
-CC: stable@vger.kernel.org # 5.16
-Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+This is the same type of bug that iomap used to have, and was fixed in
+commit 36ca7943ac18ae ("mm/swap: consider max pages in
+iomap_swapfile_add_extent").
+
+Fixes: ed46ff3d423780 ("Btrfs: support swap files")
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-and-tested-by: Josef Bacik <josef@toxicpanda.com
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/extent-tree.c |   20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ fs/btrfs/inode.c |   11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -3790,23 +3790,35 @@ static int do_allocation_zoned(struct bt
- 	spin_unlock(&fs_info->relocation_bg_lock);
- 	if (skip)
- 		return 1;
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -10595,9 +10595,19 @@ static int btrfs_add_swap_extent(struct
+ 				 struct btrfs_swap_info *bsi)
+ {
+ 	unsigned long nr_pages;
++	unsigned long max_pages;
+ 	u64 first_ppage, first_ppage_reported, next_ppage;
+ 	int ret;
+ 
++	/*
++	 * Our swapfile may have had its size extended after the swap header was
++	 * written. In that case activating the swapfile should not go beyond
++	 * the max size set in the swap header.
++	 */
++	if (bsi->nr_pages >= sis->max)
++		return 0;
 +
- 	/* Check RO and no space case before trying to activate it */
- 	spin_lock(&block_group->lock);
- 	if (block_group->ro ||
- 	    block_group->alloc_offset == block_group->zone_capacity) {
--		spin_unlock(&block_group->lock);
--		return 1;
-+		ret = 1;
-+		/*
-+		 * May need to clear fs_info->{treelog,data_reloc}_bg.
-+		 * Return the error after taking the locks.
-+		 */
- 	}
- 	spin_unlock(&block_group->lock);
++	max_pages = sis->max - bsi->nr_pages;
+ 	first_ppage = ALIGN(bsi->block_start, PAGE_SIZE) >> PAGE_SHIFT;
+ 	next_ppage = ALIGN_DOWN(bsi->block_start + bsi->block_len,
+ 				PAGE_SIZE) >> PAGE_SHIFT;
+@@ -10605,6 +10615,7 @@ static int btrfs_add_swap_extent(struct
+ 	if (first_ppage >= next_ppage)
+ 		return 0;
+ 	nr_pages = next_ppage - first_ppage;
++	nr_pages = min(nr_pages, max_pages);
  
--	if (!btrfs_zone_activate(block_group))
--		return 1;
-+	if (!ret && !btrfs_zone_activate(block_group)) {
-+		ret = 1;
-+		/*
-+		 * May need to clear fs_info->{treelog,data_reloc}_bg.
-+		 * Return the error after taking the locks.
-+		 */
-+	}
- 
- 	spin_lock(&space_info->lock);
- 	spin_lock(&block_group->lock);
- 	spin_lock(&fs_info->treelog_bg_lock);
- 	spin_lock(&fs_info->relocation_bg_lock);
- 
-+	if (ret)
-+		goto out;
-+
- 	ASSERT(!ffe_ctl->for_treelog ||
- 	       block_group->start == fs_info->treelog_bg ||
- 	       fs_info->treelog_bg == 0);
+ 	first_ppage_reported = first_ppage;
+ 	if (bsi->start == 0)
 
 
