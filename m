@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC495499B23
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:59:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D09D4499DBF
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:00:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1574646AbiAXVuB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:50:01 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47594 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377338AbiAXVh3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:37:29 -0500
+        id S1586169AbiAXWZs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:25:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36186 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1583725AbiAXWT3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:19:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90D7FC0619C9;
+        Mon, 24 Jan 2022 12:49:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F2D18B81142;
-        Mon, 24 Jan 2022 21:37:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2393CC340E7;
-        Mon, 24 Jan 2022 21:37:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 57025B811A9;
+        Mon, 24 Jan 2022 20:49:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AC10C340E5;
+        Mon, 24 Jan 2022 20:49:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060237;
-        bh=NoAJVYw6CP/5wj4wKs43vSyyWuXkyI9r0CT4hhQoO8g=;
+        s=korg; t=1643057365;
+        bh=3U9VP1OuruVXeNmVCUIDrfmA01G3vDMoXgFxbdOhwwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N6ZV7o86rpTbcfpnGZu53diW3t1PDaPhohU46LfkhkXWEiTNcTAkI/DYrB7DpYPlP
-         pRHjk2i0qC2tqVfV2lvBMYde8zeBIbkJD9I6+xivmOM7O3wsY/skzMlmUGdjzmkb91
-         00gaZZlrgNOnA7N4gBwX6YoCKIqwZATyUKcVMYZI=
+        b=qdHY+Id+wTWMavVFd6Vn5W3TJlqYvG2USon6TvfHXnyH1MII29HZi2SyKBe9RRORR
+         JGF6PNuGdphsIqcbIdpJLel0GHmQfZwSRVz/q5vAGkhzgOZ9wFaypdv9wYredYGm9m
+         s3CivBDQh0iC+zLfPQ1HMdTHJ8sYwHzCax+WHUOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.16 0884/1039] btrfs: check the root node for uptodate before returning it
+        stable@vger.kernel.org, Tobias Waldekranz <tobias@waldekranz.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 756/846] powerpc/fsl/dts: Enable WA for erratum A-009885 on fman3l MDIO buses
 Date:   Mon, 24 Jan 2022 19:44:33 +0100
-Message-Id: <20220124184155.007622603@linuxfoundation.org>
+Message-Id: <20220124184127.054924390@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,68 +47,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Tobias Waldekranz <tobias@waldekranz.com>
 
-commit 120de408e4b97504a2d9b5ca534b383de2c73d49 upstream.
+commit 0d375d610fa96524e2ee2b46830a46a7bfa92a9f upstream.
 
-Now that we clear the extent buffer uptodate if we fail to write it out
-we need to check to see if our root node is uptodate before we search
-down it.  Otherwise we could return stale data (or potentially corrupt
-data that was caught by the write verification step) and think that the
-path is OK to search down.
+This block is used in (at least) T1024 and T1040, including their
+variants like T1023 etc.
 
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: d55ad2967d89 ("powerpc/mpc85xx: Create dts components for the FSL QorIQ DPAA FMan")
+Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/ctree.c |   19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ arch/powerpc/boot/dts/fsl/qoriq-fman3l-0.dtsi |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/btrfs/ctree.c
-+++ b/fs/btrfs/ctree.c
-@@ -1570,12 +1570,9 @@ static struct extent_buffer *btrfs_searc
- {
- 	struct btrfs_fs_info *fs_info = root->fs_info;
- 	struct extent_buffer *b;
--	int root_lock;
-+	int root_lock = 0;
- 	int level = 0;
+--- a/arch/powerpc/boot/dts/fsl/qoriq-fman3l-0.dtsi
++++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3l-0.dtsi
+@@ -79,6 +79,7 @@ fman0: fman@400000 {
+ 		#size-cells = <0>;
+ 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
+ 		reg = <0xfc000 0x1000>;
++		fsl,erratum-a009885;
+ 	};
  
--	/* We try very hard to do read locks on the root */
--	root_lock = BTRFS_READ_LOCK;
--
- 	if (p->search_commit_root) {
- 		/*
- 		 * The commit roots are read only so we always do read locks,
-@@ -1613,6 +1610,9 @@ static struct extent_buffer *btrfs_searc
- 		goto out;
- 	}
+ 	xmdio0: mdio@fd000 {
+@@ -86,6 +87,7 @@ fman0: fman@400000 {
+ 		#size-cells = <0>;
+ 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
+ 		reg = <0xfd000 0x1000>;
++		fsl,erratum-a009885;
+ 	};
+ };
  
-+	/* We try very hard to do read locks on the root */
-+	root_lock = BTRFS_READ_LOCK;
-+
- 	/*
- 	 * If the level is set to maximum, we can skip trying to get the read
- 	 * lock.
-@@ -1639,6 +1639,17 @@ static struct extent_buffer *btrfs_searc
- 	level = btrfs_header_level(b);
- 
- out:
-+	/*
-+	 * The root may have failed to write out at some point, and thus is no
-+	 * longer valid, return an error in this case.
-+	 */
-+	if (!extent_buffer_uptodate(b)) {
-+		if (root_lock)
-+			btrfs_tree_unlock_rw(b, root_lock);
-+		free_extent_buffer(b);
-+		return ERR_PTR(-EIO);
-+	}
-+
- 	p->nodes[level] = b;
- 	if (!p->skip_locking)
- 		p->locks[level] = root_lock;
 
 
