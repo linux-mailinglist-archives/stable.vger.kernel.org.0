@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08125499287
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:21:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7544C498A5A
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:03:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345878AbiAXUV3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:21:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35414 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355301AbiAXUSF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:18:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1B85C0A893D;
-        Mon, 24 Jan 2022 11:38:30 -0800 (PST)
+        id S1345168AbiAXTCt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:02:49 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:57212 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345644AbiAXTAr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:00:47 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5043F6153A;
-        Mon, 24 Jan 2022 19:38:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2318AC340E5;
-        Mon, 24 Jan 2022 19:38:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6269BB81229;
+        Mon, 24 Jan 2022 19:00:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 907AAC340E5;
+        Mon, 24 Jan 2022 19:00:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053109;
-        bh=khj1TPKAGtqZ8SRnFW3L1kpEHrsWYchWuXRxLdSbLMw=;
+        s=korg; t=1643050845;
+        bh=SkxgkeQKtRzsXP4qhrbvLWmh+8iL7PKLaOqj4Z1DGOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pyl1MVjUxR8JMIfZNRyFtJZXhWi7AdZoaeF95FqTu152HIJ27N8dPJ+yBqowcZufK
-         eOpHzIh1qIOan2nYGZn7bpP4r0n0wDbpgvUfZQ8n8KFgDpcVYVQkDfpbxB/8wUe+Ny
-         BJZss1dW0+oR295n6S6s7dcqsGdHvZsLVkzjIGZw=
+        b=ZpMdSy/SpIjTtP0dOW81bGT65ATdcNLUyrqq7CuFS5nAYIxB2f2LVIW52ZKDRrbg8
+         hOfZt2UZD3XHxmJW5DnlZytwEKVR7tNIV72l6bG8QJRWxiagrO+uDBAp6UABJjOs9o
+         kLhqpd105EKImXUH7nzIjyHrsOfuEzPDnKZ3X0hI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zqiang <qiang.zhang1211@gmail.com>,
-        syzbot+bb950e68b400ab4f65f8@syzkaller.appspotmail.com,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 237/320] ALSA: seq: Set upper limit of processed events
+        stable@vger.kernel.org, Tobias Waldekranz <tobias@waldekranz.com>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 131/157] net/fsl: xgmac_mdio: Fix incorrect iounmap when removing module
 Date:   Mon, 24 Jan 2022 19:43:41 +0100
-Message-Id: <20220124184002.049031441@linuxfoundation.org>
+Message-Id: <20220124183936.938138098@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,87 +44,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Tobias Waldekranz <tobias@waldekranz.com>
 
-[ Upstream commit 6fadb494a638d8b8a55864ecc6ac58194f03f327 ]
+commit 3f7c239c7844d2044ed399399d97a5f1c6008e1b upstream.
 
-Currently ALSA sequencer core tries to process the queued events as
-much as possible when they become dispatchable.  If applications try
-to queue too massive events to be processed at the very same timing,
-the sequencer core would still try to process such all events, either
-in the interrupt context or via some notifier; in either away, it
-might be a cause of RCU stall or such problems.
+As reported by sparse: In the remove path, the driver would attempt to
+unmap its own priv pointer - instead of the io memory that it mapped
+in probe.
 
-As a potential workaround for those problems, this patch adds the
-upper limit of the amount of events to be processed.  The remaining
-events are processed in the next batch, so they won't be lost.
-
-For the time being, it's limited up to 1000 events per queue, which
-should be high enough for any normal usages.
-
-Reported-by: Zqiang <qiang.zhang1211@gmail.com>
-Reported-by: syzbot+bb950e68b400ab4f65f8@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/r/20211102033222.3849-1-qiang.zhang1211@gmail.com
-Link: https://lore.kernel.org/r/20211207165146.2888-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 9f35a7342cff ("net/fsl: introduce Freescale 10G MDIO driver")
+Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/core/seq/seq_queue.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/freescale/xgmac_mdio.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/sound/core/seq/seq_queue.c b/sound/core/seq/seq_queue.c
-index 71a6ea62c3be7..4ff0b927230c2 100644
---- a/sound/core/seq/seq_queue.c
-+++ b/sound/core/seq/seq_queue.c
-@@ -234,12 +234,15 @@ struct snd_seq_queue *snd_seq_queue_find_name(char *name)
- 
- /* -------------------------------------------------------- */
- 
-+#define MAX_CELL_PROCESSES_IN_QUEUE	1000
-+
- void snd_seq_check_queue(struct snd_seq_queue *q, int atomic, int hop)
+--- a/drivers/net/ethernet/freescale/xgmac_mdio.c
++++ b/drivers/net/ethernet/freescale/xgmac_mdio.c
+@@ -301,9 +301,10 @@ err_ioremap:
+ static int xgmac_mdio_remove(struct platform_device *pdev)
  {
- 	unsigned long flags;
- 	struct snd_seq_event_cell *cell;
- 	snd_seq_tick_time_t cur_tick;
- 	snd_seq_real_time_t cur_time;
-+	int processed = 0;
+ 	struct mii_bus *bus = platform_get_drvdata(pdev);
++	struct mdio_fsl_priv *priv = bus->priv;
  
- 	if (q == NULL)
- 		return;
-@@ -262,6 +265,8 @@ void snd_seq_check_queue(struct snd_seq_queue *q, int atomic, int hop)
- 		if (!cell)
- 			break;
- 		snd_seq_dispatch_event(cell, atomic, hop);
-+		if (++processed >= MAX_CELL_PROCESSES_IN_QUEUE)
-+			goto out; /* the rest processed at the next batch */
- 	}
+ 	mdiobus_unregister(bus);
+-	iounmap(bus->priv);
++	iounmap(priv->mdio_base);
+ 	mdiobus_free(bus);
  
- 	/* Process time queue... */
-@@ -271,14 +276,19 @@ void snd_seq_check_queue(struct snd_seq_queue *q, int atomic, int hop)
- 		if (!cell)
- 			break;
- 		snd_seq_dispatch_event(cell, atomic, hop);
-+		if (++processed >= MAX_CELL_PROCESSES_IN_QUEUE)
-+			goto out; /* the rest processed at the next batch */
- 	}
- 
-+ out:
- 	/* free lock */
- 	spin_lock_irqsave(&q->check_lock, flags);
- 	if (q->check_again) {
- 		q->check_again = 0;
--		spin_unlock_irqrestore(&q->check_lock, flags);
--		goto __again;
-+		if (processed < MAX_CELL_PROCESSES_IN_QUEUE) {
-+			spin_unlock_irqrestore(&q->check_lock, flags);
-+			goto __again;
-+		}
- 	}
- 	q->check_blocked = 0;
- 	spin_unlock_irqrestore(&q->check_lock, flags);
--- 
-2.34.1
-
+ 	return 0;
 
 
