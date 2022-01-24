@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22BBB499F8C
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:19:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 081A0499F80
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:19:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1837240AbiAXW7V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:59:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39976 "EHLO
+        id S1348165AbiAXW6x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:58:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1588122AbiAXWbl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:31:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51F27C047CD6;
-        Mon, 24 Jan 2022 12:56:35 -0800 (PST)
+        with ESMTP id S1588126AbiAXWbj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:31:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32C32C047CD7;
+        Mon, 24 Jan 2022 12:56:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E512460916;
-        Mon, 24 Jan 2022 20:56:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C48F4C340E5;
-        Mon, 24 Jan 2022 20:56:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E1B12B81233;
+        Mon, 24 Jan 2022 20:56:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 048F3C340E5;
+        Mon, 24 Jan 2022 20:56:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057794;
-        bh=gsJaKnaWHi5ojQSmHlL+FWWaKCOaXVLvwTdLO9exnxI=;
+        s=korg; t=1643057800;
+        bh=W+/+k2azZaIAX+5Yr6DtFQsLwnUIJoywgp9Jh6rhCI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MPrRoLgc4YAKyJrZuV3oTcil0THCTVE3izN5f8eDcnh0GD2B83+4uv7H+M232GDOd
-         iGQ2pTJXVWK6z+RUVIrXScQ/0X2Y4fNDw7Nm5R09KCMY+hG6PGIqXqKRBWam3Hg6Nb
-         BGBOo6YvfI3NQ9M64ZvBsxwvhVMkuRJ5LuYKX/sc=
+        b=tV+Z81LojYfjunB+USeoRh8Pxh5fN7VvbCXihmE+yiQyak8wzsOqP0VawCFhOAwyP
+         idV6SerAYJiIW2P9wM5+2PNmKY7x3DODcfuSaHuKPB/o0+BRXpeTj8j9Adn9abfW/d
+         Yeda9+4SHYQs2OokbsdmpEHiQbNGvuwWEVV5Xi+s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, aleksandr.o.makarov@gmail.com,
-        Brian Norris <briannorris@chromium.org>,
-        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
-        <nfraprado@collabora.com>, Chen-Yu Tsai <wenst@chromium.org>,
-        Heiko Stuebner <heiko@sntech.de>
-Subject: [PATCH 5.16 0080/1039] drm/rockchip: dsi: Hold pm-runtime across bind/unbind
-Date:   Mon, 24 Jan 2022 19:31:09 +0100
-Message-Id: <20220124184127.854702681@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        xinhui pan <xinhui.pan@amd.com>
+Subject: [PATCH 5.16 0082/1039] drm/ttm: Put BO in its memory managers lru list
+Date:   Mon, 24 Jan 2022 19:31:11 +0100
+Message-Id: <20220124184127.917572817@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -50,148 +48,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: xinhui pan <xinhui.pan@amd.com>
 
-commit 514db871922f103886ad4d221cf406b4fcc5e74a upstream.
+commit 781050b0a3164934857c300bb0bc291e38c26b6f upstream.
 
-In commit 43c2de1002d2 ("drm/rockchip: dsi: move all lane config except
-LCDC mux to bind()"), we moved most HW configuration to bind(), but we
-didn't move the runtime PM management. Therefore, depending on initial
-boot state, runtime-PM workqueue delays, and other timing factors, we
-may disable our power domain in between the hardware configuration
-(bind()) and when we enable the display. This can cause us to lose
-hardware state and fail to configure our display. For example:
+After we move BO to a new memory region, we should put it to
+the new memory manager's lru list regardless we unlock the resv or not.
 
-  dw-mipi-dsi-rockchip ff968000.mipi: failed to write command FIFO
-  panel-innolux-p079zca ff960000.mipi.0: failed to write command 0
-
-or:
-
-  dw-mipi-dsi-rockchip ff968000.mipi: failed to write command FIFO
-  panel-kingdisplay-kd097d04 ff960000.mipi.0: failed write init cmds: -110
-
-We should match the runtime PM to the lifetime of the bind()/unbind()
-cycle.
-
-Tested on Acer Chrometab 10 (RK3399 Gru-Scarlet), with panel drivers
-built either as modules or built-in.
-
-Side notes: it seems one is more likely to see this problem when the
-panel driver is built into the kernel. I've also seen this problem
-bisect down to commits that simply changed Kconfig dependencies, because
-it changed the order in which driver init functions were compiled into
-the kernel, and therefore the ordering and timing of built-in device
-probe.
-
-Fixes: 43c2de1002d2 ("drm/rockchip: dsi: move all lane config except LCDC mux to bind()")
-Link: https://lore.kernel.org/linux-rockchip/9aedfb528600ecf871885f7293ca4207c84d16c1.camel@gmail.com/
-Reported-by: <aleksandr.o.makarov@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Tested-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
-Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210928143413.v3.1.Ic2904d37f30013a7f3d8476203ad3733c186827e@changeid
+Cc: stable@vger.kernel.org
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: xinhui pan <xinhui.pan@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211110043149.57554-1-xinhui.pan@amd.com
+Signed-off-by: Christian König <christian.koenig@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c |   37 ++++++++++++------------
- 1 file changed, 19 insertions(+), 18 deletions(-)
+ drivers/gpu/drm/ttm/ttm_bo.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-+++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-@@ -772,10 +772,6 @@ static void dw_mipi_dsi_encoder_enable(s
- 	if (mux < 0)
- 		return;
+--- a/drivers/gpu/drm/ttm/ttm_bo.c
++++ b/drivers/gpu/drm/ttm/ttm_bo.c
+@@ -727,6 +727,8 @@ int ttm_mem_evict_first(struct ttm_devic
+ 	ret = ttm_bo_evict(bo, ctx);
+ 	if (locked)
+ 		ttm_bo_unreserve(bo);
++	else
++		ttm_bo_move_to_lru_tail_unlocked(bo);
  
--	pm_runtime_get_sync(dsi->dev);
--	if (dsi->slave)
--		pm_runtime_get_sync(dsi->slave->dev);
--
- 	/*
- 	 * For the RK3399, the clk of grf must be enabled before writing grf
- 	 * register. And for RK3288 or other soc, this grf_clk must be NULL,
-@@ -794,20 +790,10 @@ static void dw_mipi_dsi_encoder_enable(s
- 	clk_disable_unprepare(dsi->grf_clk);
- }
- 
--static void dw_mipi_dsi_encoder_disable(struct drm_encoder *encoder)
--{
--	struct dw_mipi_dsi_rockchip *dsi = to_dsi(encoder);
--
--	if (dsi->slave)
--		pm_runtime_put(dsi->slave->dev);
--	pm_runtime_put(dsi->dev);
--}
--
- static const struct drm_encoder_helper_funcs
- dw_mipi_dsi_encoder_helper_funcs = {
- 	.atomic_check = dw_mipi_dsi_encoder_atomic_check,
- 	.enable = dw_mipi_dsi_encoder_enable,
--	.disable = dw_mipi_dsi_encoder_disable,
- };
- 
- static int rockchip_dsi_drm_create_encoder(struct dw_mipi_dsi_rockchip *dsi,
-@@ -937,10 +923,14 @@ static int dw_mipi_dsi_rockchip_bind(str
- 		put_device(second);
- 	}
- 
-+	pm_runtime_get_sync(dsi->dev);
-+	if (dsi->slave)
-+		pm_runtime_get_sync(dsi->slave->dev);
-+
- 	ret = clk_prepare_enable(dsi->pllref_clk);
- 	if (ret) {
- 		DRM_DEV_ERROR(dev, "Failed to enable pllref_clk: %d\n", ret);
--		return ret;
-+		goto out_pm_runtime;
- 	}
- 
- 	/*
-@@ -952,7 +942,7 @@ static int dw_mipi_dsi_rockchip_bind(str
- 	ret = clk_prepare_enable(dsi->grf_clk);
- 	if (ret) {
- 		DRM_DEV_ERROR(dsi->dev, "Failed to enable grf_clk: %d\n", ret);
--		return ret;
-+		goto out_pm_runtime;
- 	}
- 
- 	dw_mipi_dsi_rockchip_config(dsi);
-@@ -964,16 +954,23 @@ static int dw_mipi_dsi_rockchip_bind(str
- 	ret = rockchip_dsi_drm_create_encoder(dsi, drm_dev);
- 	if (ret) {
- 		DRM_DEV_ERROR(dev, "Failed to create drm encoder\n");
--		return ret;
-+		goto out_pm_runtime;
- 	}
- 
- 	ret = dw_mipi_dsi_bind(dsi->dmd, &dsi->encoder);
- 	if (ret) {
- 		DRM_DEV_ERROR(dev, "Failed to bind: %d\n", ret);
--		return ret;
-+		goto out_pm_runtime;
- 	}
- 
- 	return 0;
-+
-+out_pm_runtime:
-+	pm_runtime_put(dsi->dev);
-+	if (dsi->slave)
-+		pm_runtime_put(dsi->slave->dev);
-+
-+	return ret;
- }
- 
- static void dw_mipi_dsi_rockchip_unbind(struct device *dev,
-@@ -988,6 +985,10 @@ static void dw_mipi_dsi_rockchip_unbind(
- 	dw_mipi_dsi_unbind(dsi->dmd);
- 
- 	clk_disable_unprepare(dsi->pllref_clk);
-+
-+	pm_runtime_put(dsi->dev);
-+	if (dsi->slave)
-+		pm_runtime_put(dsi->slave->dev);
- }
- 
- static const struct component_ops dw_mipi_dsi_rockchip_ops = {
+ 	ttm_bo_put(bo);
+ 	return ret;
 
 
