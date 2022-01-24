@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27DFB499615
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:16:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E8BB499C81
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:09:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241789AbiAXU7E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:59:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43756 "EHLO
+        id S1579531AbiAXWFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:05:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359088AbiAXUxF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:53:05 -0500
+        with ESMTP id S1577037AbiAXV5L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:57:11 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0320C047CC6;
-        Mon, 24 Jan 2022 11:59:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61B42C02C30C;
+        Mon, 24 Jan 2022 12:38:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5DD1C60B43;
-        Mon, 24 Jan 2022 19:59:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 712F6C340E5;
-        Mon, 24 Jan 2022 19:59:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0103661008;
+        Mon, 24 Jan 2022 20:38:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCA1BC340E5;
+        Mon, 24 Jan 2022 20:38:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054349;
-        bh=cp+p/t25XdZb2rsecPqcVi9U8jj0FyYDOxIhELjcxZY=;
+        s=korg; t=1643056733;
+        bh=eFMl/MhttaEwrV7USY7/hPWY6uI4fhVEmffTevK80BE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t2PGzIoNoh7QE9x6r3fUnrM/7VQ7B8ad/WGUOLudLrpllhBx8y8kFP7bImAk+A1r0
-         OXbgEzba/UNiP50ws5xs37M6WliEYkxF3/x8Dsffp8+7pdAfqBZKqw+Idio+iUJ8AF
-         jrDV0PWzTq89baQ2OhVu1LQV85wrWlgnYklPQWUw=
+        b=mcpfA6IKnocnYMhib51Px+Ip1pNqJ/GXfMvkdFL2X2esS3oO0/YRJbbIIcVErt5m0
+         EzmF+XtyIeN/HjcIV1y+f9Fi2mAz+4TqrkZrFSZ47Kdhev3OfropQn+6lnkNhKanA7
+         2bhC8D/5TZp85c+CX4JiNDnO5u0irPVbCLbfGAYU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stephan Mueller <smueller@chronox.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 327/563] crypto: jitter - consider 32 LSB for APT
+Subject: [PATCH 5.15 575/846] iwlwifi: fix leaks/bad data after failed firmware load
 Date:   Mon, 24 Jan 2022 19:41:32 +0100
-Message-Id: <20220124184035.742929596@linuxfoundation.org>
+Message-Id: <20220124184120.866302947@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,52 +48,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephan Müller <smueller@chronox.de>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 552d03a223eda3df84526ab2c1f4d82e15eaee7a ]
+[ Upstream commit ab07506b0454bea606095951e19e72c282bfbb42 ]
 
-The APT compares the current time stamp with a pre-set value. The
-current code only considered the 4 LSB only. Yet, after reviews by
-mathematicians of the user space Jitter RNG version >= 3.1.0, it was
-concluded that the APT can be calculated on the 32 LSB of the time
-delta. Thi change is applied to the kernel.
+If firmware load fails after having loaded some parts of the
+firmware, e.g. the IML image, then this would leak. For the
+host command list we'd end up running into a WARN on the next
+attempt to load another firmware image.
 
-This fixes a bug where an AMD EPYC fails this test as its RDTSC value
-contains zeros in the LSB. The most appropriate fix would have been to
-apply a GCD calculation and divide the time stamp by the GCD. Yet, this
-is a significant code change that will be considered for a future
-update. Note, tests showed that constantly the GCD always was 32 on
-these systems, i.e. the 5 LSB were always zero (thus failing the APT
-since it only considered the 4 LSB for its calculation).
+Fix this by calling iwl_dealloc_ucode() on failures, and make
+that also clear the data so we start fresh on the next round.
 
-Signed-off-by: Stephan Mueller <smueller@chronox.de>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20211210110539.1f742f0eb58a.I1315f22f6aa632d94ae2069f85e1bca5e734dce0@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- crypto/jitterentropy.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/iwl-drv.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/crypto/jitterentropy.c b/crypto/jitterentropy.c
-index 6e147c43fc186..37c4c308339e4 100644
---- a/crypto/jitterentropy.c
-+++ b/crypto/jitterentropy.c
-@@ -265,7 +265,6 @@ static int jent_stuck(struct rand_data *ec, __u64 current_delta)
- {
- 	__u64 delta2 = jent_delta(ec->last_delta, current_delta);
- 	__u64 delta3 = jent_delta(ec->last_delta2, delta2);
--	unsigned int delta_masked = current_delta & JENT_APT_WORD_MASK;
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
+index 94553f272d377..2206f66f69940 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
+@@ -131,6 +131,9 @@ static void iwl_dealloc_ucode(struct iwl_drv *drv)
  
- 	ec->last_delta = current_delta;
- 	ec->last_delta2 = delta2;
-@@ -274,7 +273,7 @@ static int jent_stuck(struct rand_data *ec, __u64 current_delta)
- 	 * Insert the result of the comparison of two back-to-back time
- 	 * deltas.
- 	 */
--	jent_apt_insert(ec, delta_masked);
-+	jent_apt_insert(ec, current_delta);
+ 	for (i = 0; i < IWL_UCODE_TYPE_MAX; i++)
+ 		iwl_free_fw_img(drv, drv->fw.img + i);
++
++	/* clear the data for the aborted load case */
++	memset(&drv->fw, 0, sizeof(drv->fw));
+ }
  
- 	if (!current_delta || !delta2 || !delta3) {
- 		/* RCT with a stuck bit */
+ static int iwl_alloc_fw_desc(struct iwl_drv *drv, struct fw_desc *desc,
+@@ -1333,6 +1336,7 @@ static void iwl_req_fw_callback(const struct firmware *ucode_raw, void *context)
+ 	int i;
+ 	bool load_module = false;
+ 	bool usniffer_images = false;
++	bool failure = true;
+ 
+ 	fw->ucode_capa.max_probe_length = IWL_DEFAULT_MAX_PROBE_LENGTH;
+ 	fw->ucode_capa.standard_phy_calibration_size =
+@@ -1602,6 +1606,7 @@ static void iwl_req_fw_callback(const struct firmware *ucode_raw, void *context)
+ 				op->name, err);
+ #endif
+ 	}
++	failure = false;
+ 	goto free;
+ 
+  try_again:
+@@ -1617,6 +1622,9 @@ static void iwl_req_fw_callback(const struct firmware *ucode_raw, void *context)
+ 	complete(&drv->request_firmware_complete);
+ 	device_release_driver(drv->trans->dev);
+  free:
++	if (failure)
++		iwl_dealloc_ucode(drv);
++
+ 	if (pieces) {
+ 		for (i = 0; i < ARRAY_SIZE(pieces->img); i++)
+ 			kfree(pieces->img[i].sec);
 -- 
 2.34.1
 
