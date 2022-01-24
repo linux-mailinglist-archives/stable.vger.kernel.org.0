@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55A09499A17
+	by mail.lfdr.de (Postfix) with ESMTP id 0327C499A16
 	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:48:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1456725AbiAXVjy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:39:54 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:33588 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1447866AbiAXVLg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:11:36 -0500
+        id S1456686AbiAXVjs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:39:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53822 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1453936AbiAXVbS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:31:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04643C075946;
+        Mon, 24 Jan 2022 12:20:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D527B81142;
-        Mon, 24 Jan 2022 21:11:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2934BC340E5;
-        Mon, 24 Jan 2022 21:11:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C0F7DB8122F;
+        Mon, 24 Jan 2022 20:20:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9152C340E5;
+        Mon, 24 Jan 2022 20:20:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058693;
-        bh=/bLI7PY8b0pniFdtjS+4UE+h+UAG8zivzIo6Fo50J8c=;
+        s=korg; t=1643055626;
+        bh=awbqRVaIUfFP7Xv7D24AO89VIJbRkobad3YVxWh0VP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EcdGETPRddbF4Ls5vdL0+GWzsCy6nXbYbo+MTUd8zT8/HOMfdzCJyiI7cM6QSAxWv
-         71zbag37xabMUJRkWm/aEu/LWhq3NaJ+b/EUWsG1nrEM2OyxS4vFgm+Fgv817ZFhlJ
-         ZdYfUZACkAXoEYR0hAhT+h8rmBBm0jxsBhOoMv3A=
+        b=D23oXtaBvHLirY7izUnkrt232l3LC73cMdXkacAvppdiaqBhVvPr2MjZt8GVMvM4t
+         lmECuQ8rurnQwIa1ag5J17XUaCC30SG7PTy7+FvYfjNA5LkB6Am/CiKiE0gnJIiu27
+         ozN4KMDUmS5OGxHKKOkV4Jqjuvi45epDse0YAXRE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0339/1039] lib/logic_iomem: Fix 32-bit build
+Subject: [PATCH 5.15 211/846] media: saa7146: mxb: Fix a NULL pointer dereference in mxb_attach()
 Date:   Mon, 24 Jan 2022 19:35:28 +0100
-Message-Id: <20220124184136.697599517@linuxfoundation.org>
+Message-Id: <20220124184108.199723411@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,82 +49,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Zhou Qingyang <zhou1615@umn.edu>
 
-[ Upstream commit 4e84139e14af5ea60772cc4f33d7059aec76e0eb ]
+[ Upstream commit 0407c49ebe330333478440157c640fffd986f41b ]
 
-On a 32-bit build, the (unsigned long long) casts throw warnings
-(or errors) due to being to a different integer size. Cast to
-uintptr_t first (with the __force for sparse) and then further
-to get the consistent print on 32 and 64-bit.
+In mxb_attach(dev, info), saa7146_vv_init() is called to allocate a
+new memory for dev->vv_data. saa7146_vv_release() will be called on
+failure of mxb_probe(dev). There is a dereference of dev->vv_data
+in saa7146_vv_release(), which could lead to a NULL pointer dereference
+on failure of saa7146_vv_init().
 
-Fixes: ca2e334232b6 ("lib: add iomem emulation (logic_iomem)")
-Reported-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fix this bug by adding a check of saa7146_vv_init().
+
+This bug was found by a static analyzer. The analysis employs
+differential checking to identify inconsistent security operations
+(e.g., checks or kfrees) between two code paths and confirms that the
+inconsistent operations are not recovered in the current function or
+the callers, so they constitute bugs.
+
+Note that, as a bug found by static analysis, it can be a false
+positive or hard to trigger. Multiple researchers have cross-reviewed
+the bug.
+
+Builds with CONFIG_VIDEO_MXB=m show no new warnings,
+and our static analyzer no longer warns about this code.
+
+Fixes: 03b1930efd3c ("V4L/DVB: saa7146: fix regression of the av7110/budget-av driver")
+Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/logic_iomem.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/media/pci/saa7146/mxb.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/lib/logic_iomem.c b/lib/logic_iomem.c
-index 9bdfde0c0f86d..54fa601f3300b 100644
---- a/lib/logic_iomem.c
-+++ b/lib/logic_iomem.c
-@@ -79,7 +79,7 @@ static void __iomem *real_ioremap(phys_addr_t offset, size_t size)
- static void real_iounmap(void __iomem *addr)
+diff --git a/drivers/media/pci/saa7146/mxb.c b/drivers/media/pci/saa7146/mxb.c
+index 73fc901ecf3db..bf0b9b0914cd5 100644
+--- a/drivers/media/pci/saa7146/mxb.c
++++ b/drivers/media/pci/saa7146/mxb.c
+@@ -683,10 +683,16 @@ static struct saa7146_ext_vv vv_data;
+ static int mxb_attach(struct saa7146_dev *dev, struct saa7146_pci_extension_data *info)
  {
- 	WARN(1, "invalid iounmap for addr 0x%llx\n",
--	     (unsigned long long __force)addr);
-+	     (unsigned long long)(uintptr_t __force)addr);
- }
- #endif /* CONFIG_LOGIC_IOMEM_FALLBACK */
+ 	struct mxb *mxb;
++	int ret;
  
-@@ -173,7 +173,7 @@ EXPORT_SYMBOL(iounmap);
- static u##sz real_raw_read ## op(const volatile void __iomem *addr)	\
- {									\
- 	WARN(1, "Invalid read" #op " at address %llx\n",		\
--	     (unsigned long long __force)addr);				\
-+	     (unsigned long long)(uintptr_t __force)addr);		\
- 	return (u ## sz)~0ULL;						\
- }									\
- 									\
-@@ -181,7 +181,8 @@ static void real_raw_write ## op(u ## sz val,				\
- 				 volatile void __iomem *addr)		\
- {									\
- 	WARN(1, "Invalid writeq" #op " of 0x%llx at address %llx\n",	\
--	     (unsigned long long)val, (unsigned long long __force)addr);\
-+	     (unsigned long long)val,					\
-+	     (unsigned long long)(uintptr_t __force)addr);\
- }									\
+ 	DEB_EE("dev:%p\n", dev);
  
- MAKE_FALLBACK(b, 8);
-@@ -194,14 +195,14 @@ MAKE_FALLBACK(q, 64);
- static void real_memset_io(volatile void __iomem *addr, int value, size_t size)
- {
- 	WARN(1, "Invalid memset_io at address 0x%llx\n",
--	     (unsigned long long __force)addr);
-+	     (unsigned long long)(uintptr_t __force)addr);
- }
- 
- static void real_memcpy_fromio(void *buffer, const volatile void __iomem *addr,
- 			       size_t size)
- {
- 	WARN(1, "Invalid memcpy_fromio at address 0x%llx\n",
--	     (unsigned long long __force)addr);
-+	     (unsigned long long)(uintptr_t __force)addr);
- 
- 	memset(buffer, 0xff, size);
- }
-@@ -210,7 +211,7 @@ static void real_memcpy_toio(volatile void __iomem *addr, const void *buffer,
- 			     size_t size)
- {
- 	WARN(1, "Invalid memcpy_toio at address 0x%llx\n",
--	     (unsigned long long __force)addr);
-+	     (unsigned long long)(uintptr_t __force)addr);
- }
- #endif /* CONFIG_LOGIC_IOMEM_FALLBACK */
- 
+-	saa7146_vv_init(dev, &vv_data);
++	ret = saa7146_vv_init(dev, &vv_data);
++	if (ret) {
++		ERR("Error in saa7146_vv_init()");
++		return ret;
++	}
++
+ 	if (mxb_probe(dev)) {
+ 		saa7146_vv_release(dev);
+ 		return -1;
 -- 
 2.34.1
 
