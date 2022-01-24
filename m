@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D7D6499144
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E06A499140
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378932AbiAXUKF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:10:05 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:57572 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353838AbiAXUBJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:01:09 -0500
+        id S1378926AbiAXUKE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:10:04 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:46142 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376272AbiAXUBL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:01:11 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 34071611D6;
-        Mon, 24 Jan 2022 20:01:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF52FC36AE2;
-        Mon, 24 Jan 2022 20:01:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 063BBB8124F;
+        Mon, 24 Jan 2022 20:01:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31808C340E5;
+        Mon, 24 Jan 2022 20:01:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054465;
-        bh=aBh7I4G6eOqb3JIhGIqsj/himHv49hrPqU4ibGY8N90=;
+        s=korg; t=1643054468;
+        bh=MOqpyLIQ3I/vv1y8J/7vIEClqtBU18OiiM0sN/pQ4eE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wot25cpXPGKIIYyiBhtdeiRoXLOI0Ml/9xeVUCjXQK9NQXrJKVCD2hHuvnUb1Q/Ag
-         MD75QeHpv+ZwAH4IJqhpGJuWqiDfW13ZtPbz8sq5A5KLqKffAnsr+t+N47OQzh6ZdW
-         7zsLY2ntn6W+HIXCjmyk7R2XwMi4jIvU2ff2OdYk=
+        b=jOElBW9Pm3SkRaxePYkH5Sr7ZI7CANFZ5kDf5yHTxdAJ9VM/OFdbv5LeDZ4rjmaod
+         W+wNRv9LwYycjZ7SuDiLUjl218zAzKz6z1geu8ilH8aJCILZ1UpcY8dt6ckUG1SKwC
+         wttYlH9J+2JfJw7EVxSBiB0gcq2pDPrRCXKHlhQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Danielle Ratson <danieller@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Corentin Labbe <clabbe.montjoie@gmail.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 399/563] mlxsw: pci: Avoid flow control for EMAD packets
-Date:   Mon, 24 Jan 2022 19:42:44 +0100
-Message-Id: <20220124184038.227358463@linuxfoundation.org>
+Subject: [PATCH 5.10 400/563] net: phy: marvell: configure RGMII delays for 88E1118
+Date:   Mon, 24 Jan 2022 19:42:45 +0100
+Message-Id: <20220124184038.266854410@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -46,93 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Danielle Ratson <danieller@nvidia.com>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit d43e4271747ace01a27a49a97a397cb4219f6487 ]
+[ Upstream commit f22725c95ececb703c3f741e8f946d23705630b7 ]
 
-Locally generated packets ingress the device through its CPU port. When
-the CPU port is congested and there are not enough credits in its
-headroom buffer, packets can be dropped.
+Corentin Labbe reports that the SSI 1328 does not work when allowing
+the PHY to operate at gigabit speeds, but does work with the generic
+PHY driver.
 
-While this might be acceptable for data packets that traverse the
-network, configuration packets exchanged between the host and the device
-(EMADs) should not be subjected to this flow control.
+This appears to be because m88e1118_config_init() writes a fixed value
+to the MSCR register, claiming that this is to enable 1G speeds.
+However, this always sets bits 4 and 5, enabling RGMII transmit and
+receive delays. The suspicion is that the original board this was
+added for required the delays to make 1G speeds work.
 
-The "sdq_lp" bit in the SDQ (Send Descriptor Queue) context allows the
-host to instruct the device to treat packets sent on this queue as
-"local processing" and always process them, regardless of the state of
-the CPU port's headroom.
+Add the necessary configuration for RGMII delays for the 88E1118 to
+bring this into line with the requirements for RGMII support, and thus
+make the SSI 1328 work.
 
-Add the definition of this bit and set it for the dedicated SDQ reserved
-for the transmission of EMAD packets. This makes the "local processing"
-bit in the WQE (Work Queue Element) redundant, so clear it.
+Corentin Labbe has tested this on gemini-ssi1328 and gemini-ns2502.
 
-Signed-off-by: Danielle Ratson <danieller@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/cmd.h | 12 ++++++++++++
- drivers/net/ethernet/mellanox/mlxsw/pci.c |  6 +++++-
- 2 files changed, 17 insertions(+), 1 deletion(-)
+ drivers/net/phy/marvell.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/cmd.h b/drivers/net/ethernet/mellanox/mlxsw/cmd.h
-index 5ffdfb532cb7f..91f68fb0b420a 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/cmd.h
-+++ b/drivers/net/ethernet/mellanox/mlxsw/cmd.h
-@@ -905,6 +905,18 @@ static inline int mlxsw_cmd_sw2hw_rdq(struct mlxsw_core *mlxsw_core,
-  */
- MLXSW_ITEM32(cmd_mbox, sw2hw_dq, cq, 0x00, 24, 8);
+diff --git a/drivers/net/phy/marvell.c b/drivers/net/phy/marvell.c
+index 91616182c311f..4dda2ab19c265 100644
+--- a/drivers/net/phy/marvell.c
++++ b/drivers/net/phy/marvell.c
+@@ -1090,6 +1090,12 @@ static int m88e1118_config_init(struct phy_device *phydev)
+ 	if (err < 0)
+ 		return err;
  
-+enum mlxsw_cmd_mbox_sw2hw_dq_sdq_lp {
-+	MLXSW_CMD_MBOX_SW2HW_DQ_SDQ_LP_WQE,
-+	MLXSW_CMD_MBOX_SW2HW_DQ_SDQ_LP_IGNORE_WQE,
-+};
++	if (phy_interface_is_rgmii(phydev)) {
++		err = m88e1121_config_aneg_rgmii_delays(phydev);
++		if (err < 0)
++			return err;
++	}
 +
-+/* cmd_mbox_sw2hw_dq_sdq_lp
-+ * SDQ local Processing
-+ * 0: local processing by wqe.lp
-+ * 1: local processing (ignoring wqe.lp)
-+ */
-+MLXSW_ITEM32(cmd_mbox, sw2hw_dq, sdq_lp, 0x00, 23, 1);
-+
- /* cmd_mbox_sw2hw_dq_sdq_tclass
-  * SDQ: CPU Egress TClass
-  * RDQ: Reserved
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/pci.c b/drivers/net/ethernet/mellanox/mlxsw/pci.c
-index 72d5c77bcb949..dbb16ce25bdf3 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/pci.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/pci.c
-@@ -285,6 +285,7 @@ static int mlxsw_pci_sdq_init(struct mlxsw_pci *mlxsw_pci, char *mbox,
- 			      struct mlxsw_pci_queue *q)
- {
- 	int tclass;
-+	int lp;
- 	int i;
- 	int err;
- 
-@@ -292,9 +293,12 @@ static int mlxsw_pci_sdq_init(struct mlxsw_pci *mlxsw_pci, char *mbox,
- 	q->consumer_counter = 0;
- 	tclass = q->num == MLXSW_PCI_SDQ_EMAD_INDEX ? MLXSW_PCI_SDQ_EMAD_TC :
- 						      MLXSW_PCI_SDQ_CTL_TC;
-+	lp = q->num == MLXSW_PCI_SDQ_EMAD_INDEX ? MLXSW_CMD_MBOX_SW2HW_DQ_SDQ_LP_IGNORE_WQE :
-+						  MLXSW_CMD_MBOX_SW2HW_DQ_SDQ_LP_WQE;
- 
- 	/* Set CQ of same number of this SDQ. */
- 	mlxsw_cmd_mbox_sw2hw_dq_cq_set(mbox, q->num);
-+	mlxsw_cmd_mbox_sw2hw_dq_sdq_lp_set(mbox, lp);
- 	mlxsw_cmd_mbox_sw2hw_dq_sdq_tclass_set(mbox, tclass);
- 	mlxsw_cmd_mbox_sw2hw_dq_log2_dq_sz_set(mbox, 3); /* 8 pages */
- 	for (i = 0; i < MLXSW_PCI_AQ_PAGES; i++) {
-@@ -1599,7 +1603,7 @@ static int mlxsw_pci_skb_transmit(void *bus_priv, struct sk_buff *skb,
- 
- 	wqe = elem_info->elem;
- 	mlxsw_pci_wqe_c_set(wqe, 1); /* always report completion */
--	mlxsw_pci_wqe_lp_set(wqe, !!tx_info->is_emad);
-+	mlxsw_pci_wqe_lp_set(wqe, 0);
- 	mlxsw_pci_wqe_type_set(wqe, MLXSW_PCI_WQE_TYPE_ETHERNET);
- 
- 	err = mlxsw_pci_wqe_frag_map(mlxsw_pci, wqe, 0, skb->data,
+ 	/* Adjust LED Control */
+ 	if (phydev->dev_flags & MARVELL_PHY_M1118_DNS323_LEDS)
+ 		err = phy_write(phydev, 0x10, 0x1100);
 -- 
 2.34.1
 
