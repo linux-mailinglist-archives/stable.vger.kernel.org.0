@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 324EB497E74
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 13:06:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D494497E78
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 13:07:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238101AbiAXMGB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 07:06:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59060 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238097AbiAXMGA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 07:06:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B306C06173B
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 04:06:00 -0800 (PST)
+        id S238079AbiAXMHO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 07:07:14 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:33772 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238097AbiAXMHN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 07:07:13 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AD8E60DE1
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 12:06:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16E60C340E1;
-        Mon, 24 Jan 2022 12:05:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D96D3B80EFA
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 12:07:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CEE4C340E1;
+        Mon, 24 Jan 2022 12:07:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643025959;
-        bh=TlYmcCeWs9XtA1eU10R9/GhIpN/sXGEUBka6bLxBSJ8=;
+        s=korg; t=1643026031;
+        bh=N8UzxCyENONkYkFs6bSkCs9p1NLXwU5lqZKK5aVd8Zg=;
         h=Subject:To:Cc:From:Date:From;
-        b=zGeDIaV432XRMK23sisrQIaxjKw34t8W9lCDHHtp43CR4LjvqO/GzkmYtDRFczmUa
-         yGI4Nltk51IP928nRSCYPJMZI1oY3qO4zdg4rN5obsacx1imyt299v0anV3VFFEbXK
-         BIZsbmQAhgCYZ6YXxtfgQ2DgP4HQGYwEOIPEYXcQ=
-Subject: FAILED: patch "[PATCH] net: dsa: mv88e6xxx: Add tx fwd offload PVT on intermediate" failed to apply to 5.16-stable tree
-To:     tobias@waldekranz.com, davem@davemloft.net, vladimir.oltean@nxp.com
+        b=PEZS6Ic6ZzoJ74fKjQv/RaKtPoJi0k023X8J083pJZbhovPC0KUaYfpRZSTMh4GXs
+         N5JVdIy6mkYWanHpyqvULq/CXv9BmWYrwhAT02stbn1Fo8eAdMClS5DVWZiKYT9ioD
+         zImCLMGxa84UZh+9AOvPKAaWiqCGkryhf0pg7tQs=
+Subject: FAILED: patch "[PATCH] bpf: Fix mount source show for bpffs" failed to apply to 5.4-stable tree
+To:     laoar.shao@gmail.com, christian.brauner@ubuntu.com,
+        daniel@iogearbox.net, dhowells@redhat.com, viro@zeniv.linux.org.uk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 13:05:48 +0100
-Message-ID: <1643025948208153@kroah.com>
+Date:   Mon, 24 Jan 2022 13:07:08 +0100
+Message-ID: <1643026028171173@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.16-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -53,50 +51,78 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e0068620e5e1779b3d5bb5649cd196e1cbf277a9 Mon Sep 17 00:00:00 2001
-From: Tobias Waldekranz <tobias@waldekranz.com>
-Date: Thu, 9 Dec 2021 23:24:24 +0100
-Subject: [PATCH] net: dsa: mv88e6xxx: Add tx fwd offload PVT on intermediate
- devices
+From 1e9d74660d4df625b0889e77018f9e94727ceacd Mon Sep 17 00:00:00 2001
+From: Yafang Shao <laoar.shao@gmail.com>
+Date: Sat, 8 Jan 2022 13:46:23 +0000
+Subject: [PATCH] bpf: Fix mount source show for bpffs
 
-In a typical mv88e6xxx switch tree like this:
+We noticed our tc ebpf tools can't start after we upgrade our in-house kernel
+version from 4.19 to 5.10. That is because of the behaviour change in bpffs
+caused by commit d2935de7e4fd ("vfs: Convert bpf to use the new mount API").
 
-  CPU
-   |    .----.
-.--0--. | .--0--.
-| sw0 | | | sw1 |
-'-1-2-' | '-1-2-'
-    '---'
+In our tc ebpf tools, we do strict environment check. If the environment is
+not matched, we won't allow to start the ebpf progs. One of the check is whether
+bpffs is properly mounted. The mount information of bpffs in kernel-4.19 and
+kernel-5.10 are as follows:
 
-If sw1p{1,2} are added to a bridge that sw0p1 is not a part of, sw0
-still needs to add a crosschip PVT entry for the virtual DSA device
-assigned to represent the bridge.
+- kernel 4.19
+$ mount -t bpf bpffs /sys/fs/bpf
+$ mount -t bpf
+bpffs on /sys/fs/bpf type bpf (rw,relatime)
 
-Fixes: ce5df6894a57 ("net: dsa: mv88e6xxx: map virtual bridges with forwarding offload in the PVT")
-Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
-Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+- kernel 5.10
+$ mount -t bpf bpffs /sys/fs/bpf
+$ mount -t bpf
+none on /sys/fs/bpf type bpf (rw,relatime)
 
-diff --git a/drivers/net/dsa/mv88e6xxx/chip.c b/drivers/net/dsa/mv88e6xxx/chip.c
-index 45aaa7333fb8..dced1505e6bf 100644
---- a/drivers/net/dsa/mv88e6xxx/chip.c
-+++ b/drivers/net/dsa/mv88e6xxx/chip.c
-@@ -2531,6 +2531,7 @@ static int mv88e6xxx_crosschip_bridge_join(struct dsa_switch *ds,
+The device name in kernel-5.10 is displayed as none instead of bpffs, then our
+environment check fails. Currently we modify the tools to adopt to the kernel
+behaviour change, but I think we'd better change the kernel code to keep the
+behavior consistent.
+
+After this change, the mount information will be displayed the same with the
+behavior in kernel-4.19, for example:
+
+$ mount -t bpf bpffs /sys/fs/bpf
+$ mount -t bpf
+bpffs on /sys/fs/bpf type bpf (rw,relatime)
+
+Fixes: d2935de7e4fd ("vfs: Convert bpf to use the new mount API")
+Suggested-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Link: https://lore.kernel.org/bpf/20220108134623.32467-1-laoar.shao@gmail.com
+
+diff --git a/kernel/bpf/inode.c b/kernel/bpf/inode.c
+index 80da1db47c68..5a8d9f7467bf 100644
+--- a/kernel/bpf/inode.c
++++ b/kernel/bpf/inode.c
+@@ -648,12 +648,22 @@ static int bpf_parse_param(struct fs_context *fc, struct fs_parameter *param)
+ 	int opt;
  
- 	mv88e6xxx_reg_lock(chip);
- 	err = mv88e6xxx_pvt_map(chip, sw_index, port);
-+	err = err ? : mv88e6xxx_map_virtual_bridge_to_pvt(ds, bridge.num);
- 	mv88e6xxx_reg_unlock(chip);
+ 	opt = fs_parse(fc, bpf_fs_parameters, param, &result);
+-	if (opt < 0)
++	if (opt < 0) {
+ 		/* We might like to report bad mount options here, but
+ 		 * traditionally we've ignored all mount options, so we'd
+ 		 * better continue to ignore non-existing options for bpf.
+ 		 */
+-		return opt == -ENOPARAM ? 0 : opt;
++		if (opt == -ENOPARAM) {
++			opt = vfs_parse_fs_param_source(fc, param);
++			if (opt != -ENOPARAM)
++				return opt;
++
++			return 0;
++		}
++
++		if (opt < 0)
++			return opt;
++	}
  
- 	return err;
-@@ -2546,7 +2547,8 @@ static void mv88e6xxx_crosschip_bridge_leave(struct dsa_switch *ds,
- 		return;
- 
- 	mv88e6xxx_reg_lock(chip);
--	if (mv88e6xxx_pvt_map(chip, sw_index, port))
-+	if (mv88e6xxx_pvt_map(chip, sw_index, port) ||
-+	    mv88e6xxx_map_virtual_bridge_to_pvt(ds, bridge.num))
- 		dev_err(ds->dev, "failed to remap cross-chip Port VLAN\n");
- 	mv88e6xxx_reg_unlock(chip);
- }
+ 	switch (opt) {
+ 	case OPT_MODE:
 
