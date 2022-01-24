@@ -2,86 +2,176 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF3EB49831C
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 16:08:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9418A49831F
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 16:09:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235234AbiAXPIN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 10:08:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46146 "EHLO
+        id S240212AbiAXPJS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 10:09:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46406 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233197AbiAXPIN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 10:08:13 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD134C06173B
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 07:08:12 -0800 (PST)
+        with ESMTP id S240188AbiAXPJR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 10:09:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 094F0C06173B;
+        Mon, 24 Jan 2022 07:09:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 476A3CE1188
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 15:08:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38F66C340E1;
-        Mon, 24 Jan 2022 15:08:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A85A613C5;
+        Mon, 24 Jan 2022 15:09:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E6DAC340E1;
+        Mon, 24 Jan 2022 15:09:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643036889;
-        bh=LAGoS95SdOBkHmcZBZ/t9/iUocbXGvJxYGYKJA8RswM=;
+        s=korg; t=1643036956;
+        bh=vsFL6HOQwkNugp0rbGxl+Vo5U1vQl5c5pRrmbvYpdJg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=u+7yRXsRQLAafiPZNz77ZXEP52dz5JARVQiK6HJgyOEVgHU+egK1IyFLVL27geUgC
-         WpwF1ux9js006fbw3J5pSTPbEFjHloc5SWC4tiRlI+Mxw1cj83QD+QyQefXJod4c+i
-         tgCbqXV3kMxXn/MjTUWUkNX8GQEnpw/3k89dyFNs=
-Date:   Mon, 24 Jan 2022 16:08:06 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jaegeuk Kim <jaegeuk@google.com>
-Cc:     stable@vger.kernel.org, timmurray@google.com, longman@redhat.com,
-        peterz@infradead.org
-Subject: Re: [PATCH 0/7] rwsem enhancement patches for 5.10
-Message-ID: <Ye7A1rzKwD0DIqKI@kroah.com>
-References: <20220115005945.2125174-1-jaegeuk@google.com>
- <YePdttINqpJxzjbw@kroah.com>
+        b=v2EEwgMc8oWDl46QXm0Px3et0xbFoOUWFdKwlUCK/EQ8Yg9BMkD1FA9L9R/rASDiW
+         WQEnpvf0bYPDa9uFWJ929tlMVIbqtDkGYyPzmBRIvlNWUyE8fg1Pp5nxvOVvZZBEMy
+         vP1O7TCl8bhHtsyhl1EF97aTO/wjS/SziQUA7HzA=
+Date:   Mon, 24 Jan 2022 16:09:13 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Masami Hiramatsu <mhiramat@kernel.org>
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH v2 5.4.y] Revert "ia64: kprobes: Use generic kretprobe
+ trampoline handler"
+Message-ID: <Ye7BGfOwNQbPQ37M@kroah.com>
+References: <YeEhuGXr2B9r7mer@kroah.com>
+ <164225155571.1964629.11131335649262508943.stgit@devnote2>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YePdttINqpJxzjbw@kroah.com>
+In-Reply-To: <164225155571.1964629.11131335649262508943.stgit@devnote2>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jan 16, 2022 at 09:56:22AM +0100, Greg KH wrote:
-> On Fri, Jan 14, 2022 at 04:59:39PM -0800, Jaegeuk Kim wrote:
-> > Per discussion [1], can we merge these patches in 5.10 first?
-> > 
-> > [1] https://lore.kernel.org/linux-f2fs-devel/CAEe=Sx=6FCvrp_6x2Bqp3YTzep2s=aWdCmP29g7+sGCWkpNvkg@mail.gmail.com/T/#t
+On Sat, Jan 15, 2022 at 09:59:16PM +0900, Masami Hiramatsu wrote:
+> This reverts commit 77fa5e15c933a1ec812de61ad709c00aa51e96ae.
 > 
-> I do not understand, what "discussion" exactly is there that requires
-> these changes for older kernels?
+> Since the upstream commit e792ff804f49720ce003b3e4c618b5d996256a18
+> depends on the generic kretprobe trampoline handler, which was
+> introduced by commit 66ada2ccae4e ("kprobes: Add generic kretprobe
+> trampoline handler") but that is not ported to the stable kernel
+> because it is not a bugfix series.
+> So revert this commit to fix a build error.
 > 
-> What bug is this fixing?
+> NOTE: I keep commit a7fe2378454c ("ia64: kprobes: Fix to pass
+> correct trampoline address to the handler") on the tree, that seems
+> just a cleanup without the original reverted commit, but it would
+> be better to use dereference_function_descriptor() macro instead
+> of accessing descriptor's field directly.
 > 
-> > Peter Zijlstra (3):
-> >   locking/rwsem: Better collate rwsem_read_trylock()
-> >   locking/rwsem: Introduce rwsem_write_trylock()
-> >   locking/rwsem: Fold __down_{read,write}*()
-> > 
-> > Waiman Long (4):
-> >   locking/rwsem: Pass the current atomic count to
-> >     rwsem_down_read_slowpath()
-> >   locking/rwsem: Prevent potential lock starvation
-> >   locking/rwsem: Enable reader optimistic lock stealing
-> >   locking/rwsem: Remove reader optimistic spinning
-> > 
-> >  kernel/locking/lock_events_list.h |   6 +-
-> >  kernel/locking/rwsem.c            | 359 +++++++++---------------------
-> >  2 files changed, 106 insertions(+), 259 deletions(-)
+> Fixes: 77fa5e15c933 ("ia64: kprobes: Use generic kretprobe trampoline handler")
+> Reported-by: kernel test robot <lkp@intel.com>
+> Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+> ---
+>   Changes in v2:
+>    - fix the lack of type casting for dereference_function_descriptor().
+> ---
+>  arch/ia64/kernel/kprobes.c |   78 ++++++++++++++++++++++++++++++++++++++++++--
+>  1 file changed, 75 insertions(+), 3 deletions(-)
 > 
-> And you are positive that there are no follow-on patches needed for
-> these core changes?  How were they tested?  What now works that did not
-> work in 5.10?  Why just 5.10?  What about all older kernels?
+> diff --git a/arch/ia64/kernel/kprobes.c b/arch/ia64/kernel/kprobes.c
+> index 8a223d0e4918..fa10d51f6217 100644
+> --- a/arch/ia64/kernel/kprobes.c
+> +++ b/arch/ia64/kernel/kprobes.c
+> @@ -396,10 +396,83 @@ static void kretprobe_trampoline(void)
+>  {
+>  }
+>  
+> +/*
+> + * At this point the target function has been tricked into
+> + * returning into our trampoline.  Lookup the associated instance
+> + * and then:
+> + *    - call the handler function
+> + *    - cleanup by marking the instance as unused
+> + *    - long jump back to the original return address
+> + */
+>  int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
+>  {
+> -	regs->cr_iip = __kretprobe_trampoline_handler(regs,
+> -		dereference_function_descriptor(kretprobe_trampoline), NULL);
+> +	struct kretprobe_instance *ri = NULL;
+> +	struct hlist_head *head, empty_rp;
+> +	struct hlist_node *tmp;
+> +	unsigned long flags, orig_ret_address = 0;
+> +	unsigned long trampoline_address =
+> +		(unsigned long)dereference_function_descriptor(kretprobe_trampoline);
+> +
+> +	INIT_HLIST_HEAD(&empty_rp);
+> +	kretprobe_hash_lock(current, &head, &flags);
+> +
+> +	/*
+> +	 * It is possible to have multiple instances associated with a given
+> +	 * task either because an multiple functions in the call path
+> +	 * have a return probe installed on them, and/or more than one return
+> +	 * return probe was registered for a target function.
+> +	 *
+> +	 * We can handle this because:
+> +	 *     - instances are always inserted at the head of the list
+> +	 *     - when multiple return probes are registered for the same
+> +	 *       function, the first instance's ret_addr will point to the
+> +	 *       real return address, and all the rest will point to
+> +	 *       kretprobe_trampoline
+> +	 */
+> +	hlist_for_each_entry_safe(ri, tmp, head, hlist) {
+> +		if (ri->task != current)
+> +			/* another task is sharing our hash bucket */
+> +			continue;
+> +
+> +		orig_ret_address = (unsigned long)ri->ret_addr;
+> +		if (orig_ret_address != trampoline_address)
+> +			/*
+> +			 * This is the real return address. Any other
+> +			 * instances associated with this task are for
+> +			 * other calls deeper on the call stack
+> +			 */
+> +			break;
+> +	}
+> +
+> +	regs->cr_iip = orig_ret_address;
+> +
+> +	hlist_for_each_entry_safe(ri, tmp, head, hlist) {
+> +		if (ri->task != current)
+> +			/* another task is sharing our hash bucket */
+> +			continue;
+> +
+> +		if (ri->rp && ri->rp->handler)
+> +			ri->rp->handler(ri, regs);
+> +
+> +		orig_ret_address = (unsigned long)ri->ret_addr;
+> +		recycle_rp_inst(ri, &empty_rp);
+> +
+> +		if (orig_ret_address != trampoline_address)
+> +			/*
+> +			 * This is the real return address. Any other
+> +			 * instances associated with this task are for
+> +			 * other calls deeper on the call stack
+> +			 */
+> +			break;
+> +	}
+> +	kretprobe_assert(ri, orig_ret_address, trampoline_address);
+> +
+> +	kretprobe_hash_unlock(current, &flags);
+> +
+> +	hlist_for_each_entry_safe(ri, tmp, &empty_rp, hlist) {
+> +		hlist_del(&ri->hlist);
+> +		kfree(ri);
+> +	}
+>  	/*
+>  	 * By returning a non-zero value, we are telling
+>  	 * kprobe_handler() that we don't want the post_handler
+> @@ -412,7 +485,6 @@ void __kprobes arch_prepare_kretprobe(struct kretprobe_instance *ri,
+>  				      struct pt_regs *regs)
+>  {
+>  	ri->ret_addr = (kprobe_opcode_t *)regs->b0;
+> -	ri->fp = NULL;
+>  
+>  	/* Replace the return addr with trampoline addr */
+>  	regs->b0 = (unsigned long)dereference_function_descriptor(kretprobe_trampoline);
 > 
-> We need a lot more information here, sorry.
 
-Given a lack of response, I'm dropping this from my "to review" queue.
-If you want these added to a stable kernel, please resend with the
-requested information.
-
-thanks,
+Now queued up, thanks.
 
 greg k-h
