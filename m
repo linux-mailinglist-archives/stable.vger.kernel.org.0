@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E84A84999B6
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:46:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79101499C4E
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:07:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1455509AbiAXVfd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:35:33 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:47980 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1449094AbiAXV2C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:28:02 -0500
+        id S1379945AbiAXWE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:04:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59066 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1576938AbiAXV5C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:57:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90FAFC038ADF;
+        Mon, 24 Jan 2022 12:38:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CFFAB614B4;
-        Mon, 24 Jan 2022 21:28:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFC35C340E4;
-        Mon, 24 Jan 2022 21:27:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EDA961540;
+        Mon, 24 Jan 2022 20:38:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5C85C340E7;
+        Mon, 24 Jan 2022 20:38:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059680;
-        bh=RrkQfr1N8/D9I56nK7YQ11YiOSyDN+pImc2mLPrVi0M=;
+        s=korg; t=1643056699;
+        bh=0NPR2GEkXmlKshR2DCdw5F1yXLjr3XEZ5JAnE8LMcEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wuGIVL+0mRpj1Lf2IG9e3KzNQ1MbJ9vL/sL3bGZ/ui+lKWnQaHdx5JpyP+uBWL4WA
-         859aJWjC9VHcs1YrV4MAIo8g3OXUKyaXt9qYrOuha0Jc2eqt+UvLAVEbeQqMl2xTVf
-         8F+wH9xAaXODLFRp6lbcC0uK/c0Tse6SkacJVd0o=
+        b=PBQoIgjdMN/u3oImnLMibSOZRbl3B7oXqGpCQgX5nNaqExcSVNUeH0YSChnMh5eQ/
+         KtjtzY28SNj7tZPW1CVs6sZKJqrFFCNOG5taAk0dAlRdyDckNwbzrvvA/l2SxAyGmO
+         UQymxBA/pzbxhC45Lk64/ibrSk8ceZExFd9oPNYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lenny Szubowicz <lszubowi@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Bob Moore <robert.moore@intel.com>,
+        stable@vger.kernel.org,
+        syzbot <syzbot+4d2d56175b934b9a7bf9@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0698/1039] ACPICA: Executer: Fix the REFCLASS_REFOF case in acpi_ex_opcode_1A_0T_1R()
+Subject: [PATCH 5.15 570/846] ath9k_htc: fix NULL pointer dereference at ath9k_htc_rxep()
 Date:   Mon, 24 Jan 2022 19:41:27 +0100
-Message-Id: <20220124184148.801945773@linuxfoundation.org>
+Message-Id: <20220124184120.702213299@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,54 +50,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 
-[ Upstream commit 24ea5f90ec9548044a6209685c5010edd66ffe8f ]
+[ Upstream commit b0ec7e55fce65f125bd1d7f02e2dc4de62abee34 ]
 
-ACPICA commit d984f12041392fa4156b52e2f7e5c5e7bc38ad9e
+syzbot is reporting lockdep warning followed by kernel panic at
+ath9k_htc_rxep() [1], for ath9k_htc_rxep() depends on ath9k_rx_init()
+being already completed.
 
-If Operand[0] is a reference of the ACPI_REFCLASS_REFOF class,
-acpi_ex_opcode_1A_0T_1R () calls acpi_ns_get_attached_object () to
-obtain return_desc which may require additional resolution with
-the help of acpi_ex_read_data_from_field (). If the latter fails,
-the reference counter of the original return_desc is decremented
-which is incorrect, because acpi_ns_get_attached_object () does not
-increment the reference counter of the object returned by it.
+Since ath9k_htc_rxep() is set by ath9k_htc_connect_svc(WMI_BEACON_SVC)
+ from ath9k_init_htc_services(), it is possible that ath9k_htc_rxep() is
+called via timer interrupt before ath9k_rx_init() from ath9k_init_device()
+is called.
 
-This issue may lead to premature deletion of the attached object
-while it is still attached and a use-after-free and crash in the
-host OS.  For example, this may happen when on evaluation of ref_of()
-a local region field where there is no registered handler for the
-given Operation Region.
+Since we can't call ath9k_init_device() before ath9k_init_htc_services(),
+let's hold ath9k_htc_rxep() no-op until ath9k_rx_init() completes.
 
-Fix it by making acpi_ex_opcode_1A_0T_1R () return Status right away
-after a acpi_ex_read_data_from_field () failure.
-
-Link: https://github.com/acpica/acpica/commit/d984f120
-Link: https://github.com/acpica/acpica/pull/685
-Reported-by: Lenny Szubowicz <lszubowi@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Bob Moore <robert.moore@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: https://syzkaller.appspot.com/bug?extid=4d2d56175b934b9a7bf9 [1]
+Reported-by: syzbot <syzbot+4d2d56175b934b9a7bf9@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Tested-by: syzbot <syzbot+4d2d56175b934b9a7bf9@syzkaller.appspotmail.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/2b88f416-b2cb-7a18-d688-951e6dc3fe92@i-love.sakura.ne.jp
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/exoparg1.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath9k/htc.h          | 1 +
+ drivers/net/wireless/ath/ath9k/htc_drv_txrx.c | 8 ++++++++
+ 2 files changed, 9 insertions(+)
 
-diff --git a/drivers/acpi/acpica/exoparg1.c b/drivers/acpi/acpica/exoparg1.c
-index b639e930d6429..44b7c350ed5ca 100644
---- a/drivers/acpi/acpica/exoparg1.c
-+++ b/drivers/acpi/acpica/exoparg1.c
-@@ -1007,7 +1007,8 @@ acpi_status acpi_ex_opcode_1A_0T_1R(struct acpi_walk_state *walk_state)
- 						    (walk_state, return_desc,
- 						     &temp_desc);
- 						if (ACPI_FAILURE(status)) {
--							goto cleanup;
-+							return_ACPI_STATUS
-+							    (status);
- 						}
+diff --git a/drivers/net/wireless/ath/ath9k/htc.h b/drivers/net/wireless/ath/ath9k/htc.h
+index 0a1634238e673..4f71e962279af 100644
+--- a/drivers/net/wireless/ath/ath9k/htc.h
++++ b/drivers/net/wireless/ath/ath9k/htc.h
+@@ -281,6 +281,7 @@ struct ath9k_htc_rxbuf {
+ struct ath9k_htc_rx {
+ 	struct list_head rxbuf;
+ 	spinlock_t rxbuflock;
++	bool initialized;
+ };
  
- 						return_desc = temp_desc;
+ #define ATH9K_HTC_TX_CLEANUP_INTERVAL 50 /* ms */
+diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
+index 8e69e8989f6d3..e7a21eaf3a68d 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
++++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
+@@ -1130,6 +1130,10 @@ void ath9k_htc_rxep(void *drv_priv, struct sk_buff *skb,
+ 	struct ath9k_htc_rxbuf *rxbuf = NULL, *tmp_buf = NULL;
+ 	unsigned long flags;
+ 
++	/* Check if ath9k_rx_init() completed. */
++	if (!data_race(priv->rx.initialized))
++		goto err;
++
+ 	spin_lock_irqsave(&priv->rx.rxbuflock, flags);
+ 	list_for_each_entry(tmp_buf, &priv->rx.rxbuf, list) {
+ 		if (!tmp_buf->in_process) {
+@@ -1185,6 +1189,10 @@ int ath9k_rx_init(struct ath9k_htc_priv *priv)
+ 		list_add_tail(&rxbuf->list, &priv->rx.rxbuf);
+ 	}
+ 
++	/* Allow ath9k_htc_rxep() to operate. */
++	smp_wmb();
++	priv->rx.initialized = true;
++
+ 	return 0;
+ 
+ err:
 -- 
 2.34.1
 
