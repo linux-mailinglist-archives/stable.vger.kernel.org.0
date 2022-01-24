@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D59BB499406
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:40:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1BD649903D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1388239AbiAXUiY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:38:24 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:55290 "EHLO
+        id S1353077AbiAXT7P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:59:15 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:50796 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357395AbiAXUdF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:33:05 -0500
+        with ESMTP id S1357960AbiAXTxe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:53:34 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 90FDA61535;
-        Mon, 24 Jan 2022 20:33:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D705C340E5;
-        Mon, 24 Jan 2022 20:33:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E15760B4E;
+        Mon, 24 Jan 2022 19:53:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84346C340E5;
+        Mon, 24 Jan 2022 19:53:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056384;
-        bh=FpFOz55NDArr1D4SGMUr6c5B/Pd266OUahPpfqk8l5Q=;
+        s=korg; t=1643054013;
+        bh=8aVxZ5d5NrDI04qkthgBcQyo7elCVhjuzYezjAPXQhc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ACDloUJeZoUptukMOG7N1CXNnG165Nw2CEKqSvflgwFcq0mNFvygTULaNgYWLo4GT
-         WPdlc4CCvWhBfT3AvpAmYuVa5Zvp4XzKVKhkAkHgYLwchjUvSUTHZaSisTV8sgVImN
-         6Oi9cv+RhY7V2AMv9HamSWh7pCMWyuCV64eoy64o=
+        b=EaxsCXgW171F81HsvzjrHnjvw08riLDToP+0usNo6/egZVZXBIq/ACZY5uPXfSx3q
+         /PiuLz5Sj7ZFf1/re9tKYOZk8G4i98XN4l/+/utUojdTffhnbNxy0QiQ963ifFo3d9
+         KFfWiEqnyXeVSavXYSAPqRfdjCUk2VDwG8gd05HM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vasily Khoruzhick <anarsoul@gmail.com>,
-        Roman Stratiienko <r.stratiienko@gmail.com>,
-        Qiang Yu <yuq825@gmail.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 465/846] drm/lima: fix warning when CONFIG_DEBUG_SG=y & CONFIG_DMA_API_DEBUG=y
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 217/563] HID: hid-uclogic-params: Invalid parameter check in uclogic_params_huion_init
 Date:   Mon, 24 Jan 2022 19:39:42 +0100
-Message-Id: <20220124184117.020752409@linuxfoundation.org>
+Message-Id: <20220124184031.956289046@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiang Yu <yuq825@gmail.com>
+From: José Expósito <jose.exposito89@gmail.com>
 
-[ Upstream commit 89636a06fa2ee7826a19c39c19a9bc99ab9340a9 ]
+[ Upstream commit ff6b548afe4d9d1ff3a0f6ef79e8cbca25d8f905 ]
 
-Otherwise get following warning:
+The function performs a check on its input parameters, however, the
+hdev parameter is used before the check.
 
-DMA-API: lima 1c40000.gpu: mapping sg segment longer than device claims to support [len=4149248] [max=65536]
+Initialize the stack variables after checking the input parameters to
+avoid a possible NULL pointer dereference.
 
-See: https://gitlab.freedesktop.org/mesa/mesa/-/issues/5496
-
-Reviewed-by: Vasily Khoruzhick <anarsoul@gmail.com>
-Reported-by: Roman Stratiienko <r.stratiienko@gmail.com>
-Signed-off-by: Qiang Yu <yuq825@gmail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211031041604.187216-1-yuq825@gmail.com
+Fixes: 9614219e9310e ("HID: uclogic: Extract tablet parameter discovery into a module")
+Addresses-Coverity-ID: 1443804 ("Null pointer dereference")
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/lima/lima_device.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-uclogic-params.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/lima/lima_device.c b/drivers/gpu/drm/lima/lima_device.c
-index 65fdca366e41f..36c9905894278 100644
---- a/drivers/gpu/drm/lima/lima_device.c
-+++ b/drivers/gpu/drm/lima/lima_device.c
-@@ -357,6 +357,7 @@ int lima_device_init(struct lima_device *ldev)
- 	int err, i;
+diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
+index a751c9a49360f..df12178a80da5 100644
+--- a/drivers/hid/hid-uclogic-params.c
++++ b/drivers/hid/hid-uclogic-params.c
+@@ -707,9 +707,9 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
+ 				     struct hid_device *hdev)
+ {
+ 	int rc;
+-	struct usb_device *udev = hid_to_usb_dev(hdev);
+-	struct usb_interface *iface = to_usb_interface(hdev->dev.parent);
+-	__u8 bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
++	struct usb_device *udev;
++	struct usb_interface *iface;
++	__u8 bInterfaceNumber;
+ 	bool found;
+ 	/* The resulting parameters (noop) */
+ 	struct uclogic_params p = {0, };
+@@ -723,6 +723,10 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
+ 		goto cleanup;
+ 	}
  
- 	dma_set_coherent_mask(ldev->dev, DMA_BIT_MASK(32));
-+	dma_set_max_seg_size(ldev->dev, UINT_MAX);
- 
- 	err = lima_clk_init(ldev);
- 	if (err)
++	udev = hid_to_usb_dev(hdev);
++	iface = to_usb_interface(hdev->dev.parent);
++	bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
++
+ 	/* If it's not a pen interface */
+ 	if (bInterfaceNumber != 0) {
+ 		/* TODO: Consider marking the interface invalid */
 -- 
 2.34.1
 
