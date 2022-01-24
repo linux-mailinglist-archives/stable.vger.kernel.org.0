@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C27FA498A6B
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:03:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6561F499179
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241868AbiAXTD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:03:28 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:59964 "EHLO
+        id S1348055AbiAXUK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:10:56 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:33542 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343931AbiAXTB0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:01:26 -0500
+        with ESMTP id S1378136AbiAXUGY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:06:24 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 748EB6090A;
-        Mon, 24 Jan 2022 19:01:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54F45C340E5;
-        Mon, 24 Jan 2022 19:01:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ECC616130A;
+        Mon, 24 Jan 2022 20:06:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C77AAC340E5;
+        Mon, 24 Jan 2022 20:06:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050885;
-        bh=wPbWj41fVhAncbHUubc2p8HpbyvviYRKFxe/qjP5LuY=;
+        s=korg; t=1643054783;
+        bh=ww+BcVqET/zZZV6a5y5S+vmzcWajE9txv4bLkQMaiJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=otbGtsh06I1ifYrHM5wbt/nwDcwqoZgG4JJeQpw0jO1EKQweMF9bYy6SrPhEsUJGD
-         MHSVFflZJ366+vzB4pOSM6XdOlO0qRY4eZlPWDrHLRgO6w4RP5PTISO3OA4aRdDviN
-         FLK4ARpHcrhhPmSBIwtIjwkG9zupHicgoJLgczTA=
+        b=W4NtyY2ZWi76viPGKkf3ffNnPZLjUBCugJjpgyQV8FZ0A3N9lArEcgGU+D41fWXEk
+         RxYcg60ZHddXyoP8B/FwnM6ywJTx3WX7nngZjUpmfQaT1WfKjTWGo1fc0ggfBDla/N
+         SzG8Z0YBgaCD0xsd2e4iPJiFzTFTHS2l6qh7f/ac=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Bracey <kevin@bracey.fi>,
-        Eric Dumazet <edumazet@google.com>,
-        Jiri Pirko <jiri@resnulli.us>, Vimalkumar <j.vimal@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 142/157] net_sched: restore "mpu xxx" handling
-Date:   Mon, 24 Jan 2022 19:43:52 +0100
-Message-Id: <20220124183937.272967858@linuxfoundation.org>
+        stable@vger.kernel.org, Ghalem Boudour <ghalem.boudour@6wind.com>,
+        Nicolas Dichtel <nicolas.dichtel@6wind.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>
+Subject: [PATCH 5.10 468/563] xfrm: fix policy lookup for ipv6 gre packets
+Date:   Mon, 24 Jan 2022 19:43:53 +0100
+Message-Id: <20220124184040.647045636@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
-References: <20220124183932.787526760@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,99 +45,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Bracey <kevin@bracey.fi>
+From: Ghalem Boudour <ghalem.boudour@6wind.com>
 
-commit fb80445c438c78b40b547d12b8d56596ce4ccfeb upstream.
+commit bcf141b2eb551b3477b24997ebc09c65f117a803 upstream.
 
-commit 56b765b79e9a ("htb: improved accuracy at high rates") broke
-"overhead X", "linklayer atm" and "mpu X" attributes.
+On egress side, xfrm lookup is called from __gre6_xmit() with the
+fl6_gre_key field not initialized leading to policies selectors check
+failure. Consequently, gre packets are sent without encryption.
 
-"overhead X" and "linklayer atm" have already been fixed. This restores
-the "mpu X" handling, as might be used by DOCSIS or Ethernet shaping:
+On ingress side, INET6_PROTO_NOPOLICY was set, thus packets were not
+checked against xfrm policies. Like for egress side, fl6_gre_key should be
+correctly set, this is now done in decode_session6().
 
-    tc class add ... htb rate X overhead 4 mpu 64
-
-The code being fixed is used by htb, tbf and act_police. Cake has its
-own mpu handling. qdisc_calculate_pkt_len still uses the size table
-containing values adjusted for mpu by user space.
-
-iproute2 tc has always passed mpu into the kernel via a tc_ratespec
-structure, but the kernel never directly acted on it, merely stored it
-so that it could be read back by `tc class show`.
-
-Rather, tc would generate length-to-time tables that included the mpu
-(and linklayer) in their construction, and the kernel used those tables.
-
-Since v3.7, the tables were no longer used. Along with "mpu", this also
-broke "overhead" and "linklayer" which were fixed in 01cb71d2d47b
-("net_sched: restore "overhead xxx" handling", v3.10) and 8a8e3d84b171
-("net_sched: restore "linklayer atm" handling", v3.11).
-
-"overhead" was fixed by simply restoring use of tc_ratespec::overhead -
-this had originally been used by the kernel but was initially omitted
-from the new non-table-based calculations.
-
-"linklayer" had been handled in the table like "mpu", but the mode was
-not originally passed in tc_ratespec. The new implementation was made to
-handle it by getting new versions of tc to pass the mode in an extended
-tc_ratespec, and for older versions of tc the table contents were analysed
-at load time to deduce linklayer.
-
-As "mpu" has always been given to the kernel in tc_ratespec,
-accompanying the mpu-based table, we can restore system functionality
-with no userspace change by making the kernel act on the tc_ratespec
-value.
-
-Fixes: 56b765b79e9a ("htb: improved accuracy at high rates")
-Signed-off-by: Kevin Bracey <kevin@bracey.fi>
-Cc: Eric Dumazet <edumazet@google.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Cc: Vimalkumar <j.vimal@gmail.com>
-Link: https://lore.kernel.org/r/20220112170210.1014351-1-kevin@bracey.fi
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: c12b395a4664 ("gre: Support GRE over IPv6")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ghalem Boudour <ghalem.boudour@6wind.com>
+Signed-off-by: Nicolas Dichtel <nicolas.dichtel@6wind.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/sch_generic.h |    5 +++++
- net/sched/sch_generic.c   |    1 +
- 2 files changed, 6 insertions(+)
+ net/ipv6/ip6_gre.c     |    5 ++++-
+ net/xfrm/xfrm_policy.c |   21 +++++++++++++++++++++
+ 2 files changed, 25 insertions(+), 1 deletion(-)
 
---- a/include/net/sch_generic.h
-+++ b/include/net/sch_generic.h
-@@ -837,6 +837,7 @@ struct psched_ratecfg {
- 	u64	rate_bytes_ps; /* bytes per second */
- 	u32	mult;
- 	u16	overhead;
-+	u16	mpu;
- 	u8	linklayer;
- 	u8	shift;
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -755,6 +755,7 @@ static netdev_tx_t __gre6_xmit(struct sk
+ 		fl6->daddr = key->u.ipv6.dst;
+ 		fl6->flowlabel = key->label;
+ 		fl6->flowi6_uid = sock_net_uid(dev_net(dev), NULL);
++		fl6->fl6_gre_key = tunnel_id_to_key32(key->tun_id);
+ 
+ 		dsfield = key->tos;
+ 		flags = key->tun_flags &
+@@ -990,6 +991,7 @@ static netdev_tx_t ip6erspan_tunnel_xmit
+ 		fl6.daddr = key->u.ipv6.dst;
+ 		fl6.flowlabel = key->label;
+ 		fl6.flowi6_uid = sock_net_uid(dev_net(dev), NULL);
++		fl6.fl6_gre_key = tunnel_id_to_key32(key->tun_id);
+ 
+ 		dsfield = key->tos;
+ 		if (!(tun_info->key.tun_flags & TUNNEL_ERSPAN_OPT))
+@@ -1098,6 +1100,7 @@ static void ip6gre_tnl_link_config_commo
+ 	fl6->flowi6_oif = p->link;
+ 	fl6->flowlabel = 0;
+ 	fl6->flowi6_proto = IPPROTO_GRE;
++	fl6->fl6_gre_key = t->parms.o_key;
+ 
+ 	if (!(p->flags&IP6_TNL_F_USE_ORIG_TCLASS))
+ 		fl6->flowlabel |= IPV6_TCLASS_MASK & p->flowinfo;
+@@ -1543,7 +1546,7 @@ static void ip6gre_fb_tunnel_init(struct
+ static struct inet6_protocol ip6gre_protocol __read_mostly = {
+ 	.handler     = gre_rcv,
+ 	.err_handler = ip6gre_err,
+-	.flags       = INET6_PROTO_NOPOLICY|INET6_PROTO_FINAL,
++	.flags       = INET6_PROTO_FINAL,
  };
-@@ -846,6 +847,9 @@ static inline u64 psched_l2t_ns(const st
- {
- 	len += r->overhead;
  
-+	if (len < r->mpu)
-+		len = r->mpu;
+ static void ip6gre_destroy_tunnels(struct net *net, struct list_head *head)
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -33,6 +33,7 @@
+ #include <net/flow.h>
+ #include <net/xfrm.h>
+ #include <net/ip.h>
++#include <net/gre.h>
+ #if IS_ENABLED(CONFIG_IPV6_MIP6)
+ #include <net/mip6.h>
+ #endif
+@@ -3455,6 +3456,26 @@ decode_session6(struct sk_buff *skb, str
+ 			}
+ 			fl6->flowi6_proto = nexthdr;
+ 			return;
++		case IPPROTO_GRE:
++			if (!onlyproto &&
++			    (nh + offset + 12 < skb->data ||
++			     pskb_may_pull(skb, nh + offset + 12 - skb->data))) {
++				struct gre_base_hdr *gre_hdr;
++				__be32 *gre_key;
 +
- 	if (unlikely(r->linklayer == TC_LINKLAYER_ATM))
- 		return ((u64)(DIV_ROUND_UP(len,48)*53) * r->mult) >> r->shift;
- 
-@@ -868,6 +872,7 @@ static inline void psched_ratecfg_getrat
- 	res->rate = min_t(u64, r->rate_bytes_ps, ~0U);
- 
- 	res->overhead = r->overhead;
-+	res->mpu = r->mpu;
- 	res->linklayer = (r->linklayer & TC_LINKLAYER_MASK);
- }
- 
---- a/net/sched/sch_generic.c
-+++ b/net/sched/sch_generic.c
-@@ -996,6 +996,7 @@ void psched_ratecfg_precompute(struct ps
- {
- 	memset(r, 0, sizeof(*r));
- 	r->overhead = conf->overhead;
-+	r->mpu = conf->mpu;
- 	r->rate_bytes_ps = max_t(u64, conf->rate, rate64);
- 	r->linklayer = (conf->linklayer & TC_LINKLAYER_MASK);
- 	r->mult = 1;
++				nh = skb_network_header(skb);
++				gre_hdr = (struct gre_base_hdr *)(nh + offset);
++				gre_key = (__be32 *)(gre_hdr + 1);
++
++				if (gre_hdr->flags & GRE_KEY) {
++					if (gre_hdr->flags & GRE_CSUM)
++						gre_key++;
++					fl6->fl6_gre_key = *gre_key;
++				}
++			}
++			fl6->flowi6_proto = nexthdr;
++			return;
++
+ #if IS_ENABLED(CONFIG_IPV6_MIP6)
+ 		case IPPROTO_MH:
+ 			offset += ipv6_optlen(exthdr);
 
 
