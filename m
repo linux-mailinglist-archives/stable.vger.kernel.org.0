@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABA6149A91E
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:19:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3B2149A905
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:18:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1322149AbiAYDVD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:21:03 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49108 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359737AbiAXUIM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:08:12 -0500
+        id S1321907AbiAYDUD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:20:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56862 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357234AbiAXTtj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:49:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1744C02B85E;
+        Mon, 24 Jan 2022 11:23:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0FD43B810AF;
-        Mon, 24 Jan 2022 20:08:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18AAAC340E5;
-        Mon, 24 Jan 2022 20:08:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7F82BB8119D;
+        Mon, 24 Jan 2022 19:23:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77C35C340E5;
+        Mon, 24 Jan 2022 19:23:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054889;
-        bh=bdl7aCB7q1AmohirLEAJ6MqG/P5xKxNKb1jA7R0d7mw=;
+        s=korg; t=1643052235;
+        bh=vOXL6mDMuE3FEEnsEWT8d+ESEXgBcEAP+vCQtONFlDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AZl9Xu02uyIPk9l2/znLVQkJsPUWQ6XDDT+W50wJoqZgp7z09iyS6ZcdrPqMC2cqY
-         G7rEDzvRTJDxhPNfnLpgai1nMuduCzoYkWECDT17uFguxlLP0l7D40BbFB8DTras7R
-         0kJpjTlbagF067sSF5/IQ+f7Y1IhnuKQRtvEd9Qs=
+        b=yBwZOKDcIDR7qzLNGZidtv4zjaViR2edROzy74C6p7wb3K4Xtw2bzNVzX1mbWymwP
+         amq5sy3ViDCvtldo7G84s2c/JZmr7hyGVnogb+dPMhpZZ/2QIOMlUawtPGNygbnwGK
+         WGCPEIqzfaRHvayPgDjrSP8DXBgHpS26/oBYLc2c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 504/563] block: Fix fsync always failed if once failed
-Date:   Mon, 24 Jan 2022 19:44:29 +0100
-Message-Id: <20220124184041.901852878@linuxfoundation.org>
+        stable@vger.kernel.org, Kevin Bracey <kevin@bracey.fi>,
+        Eric Dumazet <edumazet@google.com>,
+        Jiri Pirko <jiri@resnulli.us>, Vimalkumar <j.vimal@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 232/239] net_sched: restore "mpu xxx" handling
+Date:   Mon, 24 Jan 2022 19:44:30 +0100
+Message-Id: <20220124183950.477490702@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,62 +49,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Kevin Bracey <kevin@bracey.fi>
 
-commit 8a7518931baa8ea023700987f3db31cb0a80610b upstream.
+commit fb80445c438c78b40b547d12b8d56596ce4ccfeb upstream.
 
-We do test with inject error fault base on v4.19, after test some time we found
-sync /dev/sda always failed.
-[root@localhost] sync /dev/sda
-sync: error syncing '/dev/sda': Input/output error
+commit 56b765b79e9a ("htb: improved accuracy at high rates") broke
+"overhead X", "linklayer atm" and "mpu X" attributes.
 
-scsi log as follows:
-[19069.812296] sd 0:0:0:0: [sda] tag#64 Send: scmd 0x00000000d03a0b6b
-[19069.812302] sd 0:0:0:0: [sda] tag#64 CDB: Synchronize Cache(10) 35 00 00 00 00 00 00 00 00 00
-[19069.812533] sd 0:0:0:0: [sda] tag#64 Done: SUCCESS Result: hostbyte=DID_OK driverbyte=DRIVER_OK
-[19069.812536] sd 0:0:0:0: [sda] tag#64 CDB: Synchronize Cache(10) 35 00 00 00 00 00 00 00 00 00
-[19069.812539] sd 0:0:0:0: [sda] tag#64 scsi host busy 1 failed 0
-[19069.812542] sd 0:0:0:0: Notifying upper driver of completion (result 0)
-[19069.812546] sd 0:0:0:0: [sda] tag#64 sd_done: completed 0 of 0 bytes
-[19069.812549] sd 0:0:0:0: [sda] tag#64 0 sectors total, 0 bytes done.
-[19069.812564] print_req_error: I/O error, dev sda, sector 0
+"overhead X" and "linklayer atm" have already been fixed. This restores
+the "mpu X" handling, as might be used by DOCSIS or Ethernet shaping:
 
-ftrace log as follows:
- rep-306069 [007] .... 19654.923315: block_bio_queue: 8,0 FWS 0 + 0 [rep]
- rep-306069 [007] .... 19654.923333: block_getrq: 8,0 FWS 0 + 0 [rep]
- kworker/7:1H-250   [007] .... 19654.923352: block_rq_issue: 8,0 FF 0 () 0 + 0 [kworker/7:1H]
- <idle>-0     [007] ..s. 19654.923562: block_rq_complete: 8,0 FF () 18446744073709551615 + 0 [0]
- <idle>-0     [007] d.s. 19654.923576: block_rq_complete: 8,0 WS () 0 + 0 [-5]
+    tc class add ... htb rate X overhead 4 mpu 64
 
-As 8d6996630c03 introduce 'fq->rq_status', this data only update when 'flush_rq'
-reference count isn't zero. If flush request once failed and record error code
-in 'fq->rq_status'. If there is no chance to update 'fq->rq_status',then do fsync
-will always failed.
-To address this issue reset 'fq->rq_status' after return error code to upper layer.
+The code being fixed is used by htb, tbf and act_police. Cake has its
+own mpu handling. qdisc_calculate_pkt_len still uses the size table
+containing values adjusted for mpu by user space.
 
-Fixes: 8d6996630c03("block: fix null pointer dereference in blk_mq_rq_timed_out()")
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20211129012659.1553733-1-yebin10@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+iproute2 tc has always passed mpu into the kernel via a tc_ratespec
+structure, but the kernel never directly acted on it, merely stored it
+so that it could be read back by `tc class show`.
+
+Rather, tc would generate length-to-time tables that included the mpu
+(and linklayer) in their construction, and the kernel used those tables.
+
+Since v3.7, the tables were no longer used. Along with "mpu", this also
+broke "overhead" and "linklayer" which were fixed in 01cb71d2d47b
+("net_sched: restore "overhead xxx" handling", v3.10) and 8a8e3d84b171
+("net_sched: restore "linklayer atm" handling", v3.11).
+
+"overhead" was fixed by simply restoring use of tc_ratespec::overhead -
+this had originally been used by the kernel but was initially omitted
+from the new non-table-based calculations.
+
+"linklayer" had been handled in the table like "mpu", but the mode was
+not originally passed in tc_ratespec. The new implementation was made to
+handle it by getting new versions of tc to pass the mode in an extended
+tc_ratespec, and for older versions of tc the table contents were analysed
+at load time to deduce linklayer.
+
+As "mpu" has always been given to the kernel in tc_ratespec,
+accompanying the mpu-based table, we can restore system functionality
+with no userspace change by making the kernel act on the tc_ratespec
+value.
+
+Fixes: 56b765b79e9a ("htb: improved accuracy at high rates")
+Signed-off-by: Kevin Bracey <kevin@bracey.fi>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Cc: Vimalkumar <j.vimal@gmail.com>
+Link: https://lore.kernel.org/r/20220112170210.1014351-1-kevin@bracey.fi
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-flush.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ include/net/sch_generic.h |    5 +++++
+ net/sched/sch_generic.c   |    1 +
+ 2 files changed, 6 insertions(+)
 
---- a/block/blk-flush.c
-+++ b/block/blk-flush.c
-@@ -236,8 +236,10 @@ static void flush_end_io(struct request
- 	 * avoiding use-after-free.
- 	 */
- 	WRITE_ONCE(flush_rq->state, MQ_RQ_IDLE);
--	if (fq->rq_status != BLK_STS_OK)
-+	if (fq->rq_status != BLK_STS_OK) {
- 		error = fq->rq_status;
-+		fq->rq_status = BLK_STS_OK;
-+	}
+--- a/include/net/sch_generic.h
++++ b/include/net/sch_generic.h
+@@ -1077,6 +1077,7 @@ struct psched_ratecfg {
+ 	u64	rate_bytes_ps; /* bytes per second */
+ 	u32	mult;
+ 	u16	overhead;
++	u16	mpu;
+ 	u8	linklayer;
+ 	u8	shift;
+ };
+@@ -1086,6 +1087,9 @@ static inline u64 psched_l2t_ns(const st
+ {
+ 	len += r->overhead;
  
- 	if (!q->elevator) {
- 		flush_rq->tag = BLK_MQ_NO_TAG;
++	if (len < r->mpu)
++		len = r->mpu;
++
+ 	if (unlikely(r->linklayer == TC_LINKLAYER_ATM))
+ 		return ((u64)(DIV_ROUND_UP(len,48)*53) * r->mult) >> r->shift;
+ 
+@@ -1108,6 +1112,7 @@ static inline void psched_ratecfg_getrat
+ 	res->rate = min_t(u64, r->rate_bytes_ps, ~0U);
+ 
+ 	res->overhead = r->overhead;
++	res->mpu = r->mpu;
+ 	res->linklayer = (r->linklayer & TC_LINKLAYER_MASK);
+ }
+ 
+--- a/net/sched/sch_generic.c
++++ b/net/sched/sch_generic.c
+@@ -1367,6 +1367,7 @@ void psched_ratecfg_precompute(struct ps
+ {
+ 	memset(r, 0, sizeof(*r));
+ 	r->overhead = conf->overhead;
++	r->mpu = conf->mpu;
+ 	r->rate_bytes_ps = max_t(u64, conf->rate, rate64);
+ 	r->linklayer = (conf->linklayer & TC_LINKLAYER_MASK);
+ 	r->mult = 1;
 
 
