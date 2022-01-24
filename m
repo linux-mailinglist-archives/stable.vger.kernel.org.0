@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B95A4498BA2
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:15:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF1C8498D78
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:34:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345476AbiAXTPi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:15:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47932 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345498AbiAXTNC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:13:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DF85C0604D6;
-        Mon, 24 Jan 2022 11:04:05 -0800 (PST)
+        id S1346522AbiAXTcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:32:25 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:52262 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1352052AbiAXT3c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:29:32 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F1B2D60010;
-        Mon, 24 Jan 2022 19:04:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC4EBC340E7;
-        Mon, 24 Jan 2022 19:04:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0FAB6B811F9;
+        Mon, 24 Jan 2022 19:29:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 332FBC340E7;
+        Mon, 24 Jan 2022 19:29:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051044;
-        bh=u7PT4VEBoCpl1z4UKdzURqBUvQQ7yDGByyBCzgv/Jh8=;
+        s=korg; t=1643052569;
+        bh=8PyNwfE8AMHt87zLF1fUP0V9ClhrAz8U/sYGHvaLTDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V76TyIBe8RPJN1iGLHM4VcdR6etueX3OwGDw/hK4ARcmpLwCnUTKaKNInTmheN53R
-         ESeR3eycTOKcKZtMWBaDIhm+18u+PgNlJ3WPPR9Cd/KZ/PtZA/UJsfUMbJkMlX/iP/
-         JEX6GdbuUxR3x54C0QaXVi29AGBIG4fHGaBCANw4=
+        b=zEqqt95hBf65fslQ9P2FuQxpB6Uhm68vHPp0gFAC5diZvh9+xUQ1EupCeiCgF7A3d
+         LZ51b9Q5yTvAgz/IRRPl6Wa4baxmxsbzbuHBr2lOFbqmDScX1OF5VmQ2QNEjuKlLvm
+         GxPRF6AxP8Y5sEYRyYdjiTSE038LeNh+fntSHAVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Orlando Chamberlain <redecorating@protonmail.com>,
-        Aditya Garg <gargaditya08@live.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Lee Jones <lee.jones@linaro.org>
-Subject: [PATCH 4.14 004/186] mfd: intel-lpss: Fix too early PM enablement in the ACPI ->probe()
+        stable@vger.kernel.org, Bernard Zhao <bernard@vivo.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 095/320] selinux: fix potential memleak in selinux_add_opt()
 Date:   Mon, 24 Jan 2022 19:41:19 +0100
-Message-Id: <20220124183937.253355140@linuxfoundation.org>
+Message-Id: <20220124183956.964553715@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,61 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Bernard Zhao <bernard@vivo.com>
 
-commit c9e143084d1a602f829115612e1ec79df3727c8b upstream.
+[ Upstream commit 2e08df3c7c4e4e74e3dd5104c100f0bf6288aaa8 ]
 
-The runtime PM callback may be called as soon as the runtime PM facility
-is enabled and activated. It means that ->suspend() may be called before
-we finish probing the device in the ACPI case. Hence, NULL pointer
-dereference:
+This patch try to fix potential memleak in error branch.
 
-  intel-lpss INT34BA:00: IRQ index 0 not found
-  BUG: kernel NULL pointer dereference, address: 0000000000000030
-  ...
-  Workqueue: pm pm_runtime_work
-  RIP: 0010:intel_lpss_suspend+0xb/0x40 [intel_lpss]
-
-To fix this, first try to register the device and only after that enable
-runtime PM facility.
-
-Fixes: 4b45efe85263 ("mfd: Add support for Intel Sunrisepoint LPSS devices")
-Reported-by: Orlando Chamberlain <redecorating@protonmail.com>
-Reported-by: Aditya Garg <gargaditya08@live.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Tested-by: Aditya Garg <gargaditya08@live.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Link: https://lore.kernel.org/r/20211101190008.86473-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ba6418623385 ("selinux: new helper - selinux_add_opt()")
+Signed-off-by: Bernard Zhao <bernard@vivo.com>
+[PM: tweak the subject line, add Fixes tag]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/intel-lpss-acpi.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ security/selinux/hooks.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/drivers/mfd/intel-lpss-acpi.c
-+++ b/drivers/mfd/intel-lpss-acpi.c
-@@ -80,6 +80,7 @@ static int intel_lpss_acpi_probe(struct
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 91f2ba0b225b7..56418cf72069d 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -995,18 +995,22 @@ out:
+ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
  {
- 	struct intel_lpss_platform_info *info;
- 	const struct acpi_device_id *id;
-+	int ret;
+ 	struct selinux_mnt_opts *opts = *mnt_opts;
++	bool is_alloc_opts = false;
  
- 	id = acpi_match_device(intel_lpss_acpi_ids, &pdev->dev);
- 	if (!id)
-@@ -93,10 +94,14 @@ static int intel_lpss_acpi_probe(struct
- 	info->mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	info->irq = platform_get_irq(pdev, 0);
+ 	if (token == Opt_seclabel)	/* eaten and completely ignored */
+ 		return 0;
  
-+	ret = intel_lpss_probe(&pdev->dev, info);
-+	if (ret)
-+		return ret;
++	if (!s)
++		return -ENOMEM;
 +
- 	pm_runtime_set_active(&pdev->dev);
- 	pm_runtime_enable(&pdev->dev);
- 
--	return intel_lpss_probe(&pdev->dev, info);
-+	return 0;
+ 	if (!opts) {
+ 		opts = kzalloc(sizeof(struct selinux_mnt_opts), GFP_KERNEL);
+ 		if (!opts)
+ 			return -ENOMEM;
+ 		*mnt_opts = opts;
++		is_alloc_opts = true;
+ 	}
+-	if (!s)
+-		return -ENOMEM;
++
+ 	switch (token) {
+ 	case Opt_context:
+ 		if (opts->context || opts->defcontext)
+@@ -1031,6 +1035,10 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
+ 	}
+ 	return 0;
+ Einval:
++	if (is_alloc_opts) {
++		kfree(opts);
++		*mnt_opts = NULL;
++	}
+ 	pr_warn(SEL_MOUNT_FAIL_MSG);
+ 	return -EINVAL;
  }
- 
- static int intel_lpss_acpi_remove(struct platform_device *pdev)
+-- 
+2.34.1
+
 
 
