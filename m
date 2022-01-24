@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DA2B49957A
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:13:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 246BF499A8C
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1441973AbiAXUw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:52:28 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:41754 "EHLO
+        id S1573501AbiAXVpA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:45:00 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:54158 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1391341AbiAXUr2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:47:28 -0500
+        with ESMTP id S1455961AbiAXVg7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:36:59 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA42C60B11;
-        Mon, 24 Jan 2022 20:47:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84496C340E5;
-        Mon, 24 Jan 2022 20:47:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D6691614B4;
+        Mon, 24 Jan 2022 21:36:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41F9FC340E4;
+        Mon, 24 Jan 2022 21:36:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057247;
-        bh=jV0MshI0Oglx5/JEM82uxpfw09EeJcTyjtUKUjYzzBQ=;
+        s=korg; t=1643060217;
+        bh=AaF7euI3kYHd/11AknQCQrpr2iggUpjasga3Y3juYgM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oGRHszkwpX0nyq+OHqGtdRbxXVLLoprmH9eEoVLDqPRiBQ89jAVVigbR89jq5xXJ7
-         gva1jN26Qm605uPBIInmM0ZWhuzlXJXkhAHUwoi0wJjozLQn2ABtcRRgZgol8RNj38
-         UoRUc79hDKnkOLNNpgFYtbkuBJGPt/DdDzfsvQY4=
+        b=JZTFl0QZnFwybEKqgHe74ZFvBraD/WktHl0/yrQr3dkvhtbLvJ8Z7XnXnuj9OJMsW
+         i4OmpkE0FGx7kkFHB2CMZ3u58qeOKBG0ICiVeyUXRbMDspTBtJhU1+9tWGvUGf4x8+
+         I1PpUSy+Izm6PHoOjLzoNrGHU/BwWT9AwpbOplOM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?H=C3=A5kon=20Bugge?= <haakon.bugge@oracle.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.15 748/846] RDMA/cma: Remove open coding of overflow checking for private_data_len
-Date:   Mon, 24 Jan 2022 19:44:25 +0100
-Message-Id: <20220124184126.787599256@linuxfoundation.org>
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.16 0877/1039] PCI: pci-bridge-emul: Fix definitions of reserved bits
+Date:   Mon, 24 Jan 2022 19:44:26 +0100
+Message-Id: <20220124184154.783323173@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,44 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Håkon Bugge <haakon.bugge@oracle.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit 8d0d2b0f41b1b2add8a30dbd816051a964efa497 upstream.
+commit 12998087d9f48b66965b97412069c7826502cd7e upstream.
 
-The existing tests are a little hard to comprehend. Use
-check_add_overflow() instead.
+Some bits in PCI_EXP registers are reserved for non-root ports. Driver
+pci-bridge-emul.c implements PCIe Root Port device therefore it should not
+allow setting reserved bits of registers.
 
-Fixes: 04ded1672402 ("RDMA/cma: Verify private data length")
-Link: https://lore.kernel.org/r/1637661978-18770-1-git-send-email-haakon.bugge@oracle.com
-Signed-off-by: Håkon Bugge <haakon.bugge@oracle.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Properly define non-reserved bits for all PCI_EXP registers.
+
+Link: https://lore.kernel.org/r/20211124155944.1290-5-pali@kernel.org
+Fixes: 23a5fba4d941 ("PCI: Introduce PCI bridge emulated config space common logic")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/core/cma.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/pci/pci-bridge-emul.c |   36 +++++++++++++++++++++++++-----------
+ 1 file changed, 25 insertions(+), 11 deletions(-)
 
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -4037,8 +4037,7 @@ static int cma_resolve_ib_udp(struct rdm
+--- a/drivers/pci/pci-bridge-emul.c
++++ b/drivers/pci/pci-bridge-emul.c
+@@ -176,41 +176,55 @@ struct pci_bridge_reg_behavior pcie_cap_
+ 	[PCI_CAP_LIST_ID / 4] = {
+ 		/*
+ 		 * Capability ID, Next Capability Pointer and
+-		 * Capabilities register are all read-only.
++		 * bits [14:0] of Capabilities register are all read-only.
++		 * Bit 15 of Capabilities register is reserved.
+ 		 */
+-		.ro = ~0,
++		.ro = GENMASK(30, 0),
+ 	},
  
- 	memset(&req, 0, sizeof req);
- 	offset = cma_user_data_offset(id_priv);
--	req.private_data_len = offset + conn_param->private_data_len;
--	if (req.private_data_len < conn_param->private_data_len)
-+	if (check_add_overflow(offset, conn_param->private_data_len, &req.private_data_len))
- 		return -EINVAL;
+ 	[PCI_EXP_DEVCAP / 4] = {
+-		.ro = ~0,
++		/*
++		 * Bits [31:29] and [17:16] are reserved.
++		 * Bits [27:18] are reserved for non-upstream ports.
++		 * Bits 28 and [14:6] are reserved for non-endpoint devices.
++		 * Other bits are read-only.
++		 */
++		.ro = BIT(15) | GENMASK(5, 0),
+ 	},
  
- 	if (req.private_data_len) {
-@@ -4097,8 +4096,7 @@ static int cma_connect_ib(struct rdma_id
+ 	[PCI_EXP_DEVCTL / 4] = {
+-		/* Device control register is RW */
+-		.rw = GENMASK(15, 0),
++		/*
++		 * Device control register is RW, except bit 15 which is
++		 * reserved for non-endpoints or non-PCIe-to-PCI/X bridges.
++		 */
++		.rw = GENMASK(14, 0),
  
- 	memset(&req, 0, sizeof req);
- 	offset = cma_user_data_offset(id_priv);
--	req.private_data_len = offset + conn_param->private_data_len;
--	if (req.private_data_len < conn_param->private_data_len)
-+	if (check_add_overflow(offset, conn_param->private_data_len, &req.private_data_len))
- 		return -EINVAL;
+ 		/*
+ 		 * Device status register has bits 6 and [3:0] W1C, [5:4] RO,
+-		 * the rest is reserved
++		 * the rest is reserved. Also bit 6 is reserved for non-upstream
++		 * ports.
+ 		 */
+-		.w1c = (BIT(6) | GENMASK(3, 0)) << 16,
++		.w1c = GENMASK(3, 0) << 16,
+ 		.ro = GENMASK(5, 4) << 16,
+ 	},
  
- 	if (req.private_data_len) {
+ 	[PCI_EXP_LNKCAP / 4] = {
+-		/* All bits are RO, except bit 23 which is reserved */
+-		.ro = lower_32_bits(~BIT(23)),
++		/*
++		 * All bits are RO, except bit 23 which is reserved and
++		 * bit 18 which is reserved for non-upstream ports.
++		 */
++		.ro = lower_32_bits(~(BIT(23) | PCI_EXP_LNKCAP_CLKPM)),
+ 	},
+ 
+ 	[PCI_EXP_LNKCTL / 4] = {
+ 		/*
+ 		 * Link control has bits [15:14], [11:3] and [1:0] RW, the
+-		 * rest is reserved.
++		 * rest is reserved. Bit 8 is reserved for non-upstream ports.
+ 		 *
+ 		 * Link status has bits [13:0] RO, and bits [15:14]
+ 		 * W1C.
+ 		 */
+-		.rw = GENMASK(15, 14) | GENMASK(11, 3) | GENMASK(1, 0),
++		.rw = GENMASK(15, 14) | GENMASK(11, 9) | GENMASK(7, 3) | GENMASK(1, 0),
+ 		.ro = GENMASK(13, 0) << 16,
+ 		.w1c = GENMASK(15, 14) << 16,
+ 	},
 
 
