@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E0904998C1
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:38:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18E3949970E
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:24:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1450546AbiAXV3k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:29:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50398 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351988AbiAXVTB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:19:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9B1BC06F8CB;
-        Mon, 24 Jan 2022 12:12:58 -0800 (PST)
+        id S1353675AbiAXVJD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:09:03 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56402 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1445588AbiAXVEM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:04:12 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A0EB61375;
-        Mon, 24 Jan 2022 20:12:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56FCAC340E7;
-        Mon, 24 Jan 2022 20:12:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9201260C17;
+        Mon, 24 Jan 2022 21:04:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CB6CC340EC;
+        Mon, 24 Jan 2022 21:04:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055177;
-        bh=RHR1IXkcIgk2HJtIz0MhPowxjEOro65WsiGHJqwdpCQ=;
+        s=korg; t=1643058251;
+        bh=73OCnF0ijlwNyF0VYdHcUtgcGaBD+/0/qpwxiORDKkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IVcLS4MlqI9lBDZAkRptHIUKQq26FuWR9YmaM8shZek6anmde8LOyBz9DefcdSf4l
-         plZzyVbPbSa2vHv5fkBQLusP0IY0BqcfF6BIcmG15yAk3bk7C6h+gWK50W/7hY+sA4
-         jbzv1atBlFIVOlm7jEbSlOrXeOSpnFQGeL1ea4co=
+        b=Cmkeghe4jxYM7AShIs3h/XivWkyFAg5IeFWfwRTMZbkfPY/iQtQ4GMbiFs69UtpKA
+         tkjTh9Y9VDbJHP864PLJ255mzi9I++yGkUUlyK4prI1CoxXbOzyeHlCkZRizws0tp7
+         6VsJtcwSgvfto+n+s/SQ7fnyDR440FyC7JdpmJ8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 5.15 066/846] drm/tegra: Add back arm_iommu_detach_device()
-Date:   Mon, 24 Jan 2022 19:33:03 +0100
-Message-Id: <20220124184103.245035526@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mansur Alisha Shaik <mansur@codeaurora.org>,
+        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0195/1039] media: venus: correct low power frequency calculation for encoder
+Date:   Mon, 24 Jan 2022 19:33:04 +0100
+Message-Id: <20220124184131.877920159@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,57 +47,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Mansur Alisha Shaik <mansur@codeaurora.org>
 
-commit d210919dbdc8a82c676cc3e3c370b1802be63124 upstream.
+[ Upstream commit b1f9bb8020783a48151e3a2864fbdc70548566dd ]
 
-DMA buffers of 2D/3D engines aren't mapped properly when
-CONFIG_ARM_DMA_USE_IOMMU=y. The memory management code of Tegra DRM driver
-has a longstanding overhaul overdue and it's not obvious where the problem
-is in this case. Hence let's add back the old workaround which we already
-had sometime before. It explicitly detaches DRM devices from the offending
-implicit IOMMU domain. This fixes a completely broken 2d/3d drivers in
-case of ARM32 multiplatform kernel config.
+In exististing implimentation, in min_loaded_core() for low_power
+vpp frequency value is considering as vpp_freq instead of low_power_freq.
+Fixed this by correcting vpp frequency calculation for encoder.
 
-Cc: stable@vger.kernel.org
-Fixes: fa6661b7aa0b ("drm/tegra: Optionally attach clients to the IOMMU")
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3cfe5815ce0e (media: venus: Enable low power setting for encoder)
+Signed-off-by: Mansur Alisha Shaik <mansur@codeaurora.org>
+Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/tegra/drm.c |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/media/platform/qcom/venus/pm_helpers.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/tegra/drm.c
-+++ b/drivers/gpu/drm/tegra/drm.c
-@@ -21,6 +21,10 @@
- #include <drm/drm_prime.h>
- #include <drm/drm_vblank.h>
+diff --git a/drivers/media/platform/qcom/venus/pm_helpers.c b/drivers/media/platform/qcom/venus/pm_helpers.c
+index cedc664ba755f..184f0cea2fdb8 100644
+--- a/drivers/media/platform/qcom/venus/pm_helpers.c
++++ b/drivers/media/platform/qcom/venus/pm_helpers.c
+@@ -587,8 +587,8 @@ min_loaded_core(struct venus_inst *inst, u32 *min_coreid, u32 *min_load, bool lo
+ 		if (inst->session_type == VIDC_SESSION_TYPE_DEC)
+ 			vpp_freq = inst_pos->clk_data.vpp_freq;
+ 		else if (inst->session_type == VIDC_SESSION_TYPE_ENC)
+-			vpp_freq = low_power ? inst_pos->clk_data.vpp_freq :
+-				inst_pos->clk_data.low_power_freq;
++			vpp_freq = low_power ? inst_pos->clk_data.low_power_freq :
++				inst_pos->clk_data.vpp_freq;
+ 		else
+ 			continue;
  
-+#if IS_ENABLED(CONFIG_ARM_DMA_USE_IOMMU)
-+#include <asm/dma-iommu.h>
-+#endif
-+
- #include "dc.h"
- #include "drm.h"
- #include "gem.h"
-@@ -936,6 +940,17 @@ int host1x_client_iommu_attach(struct ho
- 	struct iommu_group *group = NULL;
- 	int err;
- 
-+#if IS_ENABLED(CONFIG_ARM_DMA_USE_IOMMU)
-+	if (client->dev->archdata.mapping) {
-+		struct dma_iommu_mapping *mapping =
-+				to_dma_iommu_mapping(client->dev);
-+		arm_iommu_detach_device(client->dev);
-+		arm_iommu_release_mapping(mapping);
-+
-+		domain = iommu_get_domain_for_dev(client->dev);
-+	}
-+#endif
-+
- 	/*
- 	 * If the host1x client is already attached to an IOMMU domain that is
- 	 * not the shared IOMMU domain, don't try to attach it to a different
+-- 
+2.34.1
+
 
 
