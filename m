@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5838C49977D
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:28:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA7DE4999A6
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:46:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1448609AbiAXVNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:13:09 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:59368 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1446847AbiAXVJc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:09:32 -0500
+        id S1455912AbiAXVgp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:36:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52824 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1453887AbiAXVbI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:31:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 304CCC0AD1AD;
+        Mon, 24 Jan 2022 12:20:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 421E4B811FB;
-        Mon, 24 Jan 2022 21:09:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 590CEC340E5;
-        Mon, 24 Jan 2022 21:09:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C9822B811F9;
+        Mon, 24 Jan 2022 20:19:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07AF6C340E5;
+        Mon, 24 Jan 2022 20:19:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058569;
-        bh=HAxnIYUvZDrbYUQuiX/NRDtGF45GALErTHSE5Q6bXDI=;
+        s=korg; t=1643055598;
+        bh=vHsytlRuhEniNKYDf87eMNzzcRoTpH3g1LK1qlpI8Lw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=baQuRUrvVBNidnL6PACKoGwL++nySnoqvP32gIZ/XMIru3ef027SiL2pD0cHbHnP7
-         dgQ1BZOsO9ij4QQ6K36gF25BWSPgRt34phceq3m8X/jNIo57jF6FYX/Fr4v9Uy0S64
-         d1+ckjXFAj6qqT2D8wVka0jXBv+l/7ed1566M3Hw=
+        b=IkJK1YTAszWW44OV2qJss/MjH3RAadO1t/2rbK1XXw3US1SLbwD9Uvd0RuGWGkB7p
+         9U6yPO9g5sbUcjBAPyQWu36ZNl7SVqktHqhhzrF1yY4Krif/qFUJx7upwgECNWAyqb
+         SpPXeeEuMJmyUYj4dbx0a1IjWYTCyk6uVJ6Uy6uQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avraham Stern <avraham.stern@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Kajol Jain <kjain@linux.ibm.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0330/1039] iwlwifi: mvm: perform 6GHz passive scan after suspend
-Date:   Mon, 24 Jan 2022 19:35:19 +0100
-Message-Id: <20220124184136.406568617@linuxfoundation.org>
+Subject: [PATCH 5.15 203/846] bpf: Remove config check to enable bpf support for branch records
+Date:   Mon, 24 Jan 2022 19:35:20 +0100
+Message-Id: <20220124184107.938110220@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,62 +49,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Avraham Stern <avraham.stern@intel.com>
+From: Kajol Jain <kjain@linux.ibm.com>
 
-[ Upstream commit f4745cbb17572209a7fa27a6796ed70e7ada860b ]
+[ Upstream commit db52f57211b4e45f0ebb274e2c877b211dc18591 ]
 
-The 6GHz passive scan is performed only once every 50 minutes.
-However, in case of suspend/resume, the regulatory information
-is reset, so 6GHz channels may become disabled.
-Fix it by performing a 6GHz passive scan within 60 seconds after
-suspend/resume even if the 50 minutes timeout did not expire yet.
+Branch data available to BPF programs can be very useful to get stack traces
+out of userspace application.
 
-Signed-off-by: Avraham Stern <avraham.stern@intel.com>
-Fixes: e8fe3b41c3a3 ("iwlwifi: mvm: Add support for 6GHz passive scan")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20211219121514.6d5c043372cf.I251dd5618a3f0b8febbcca788eb861f1cd6039bc@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Commit fff7b64355ea ("bpf: Add bpf_read_branch_records() helper") added BPF
+support to capture branch records in x86. Enable this feature also for other
+architectures as well by removing checks specific to x86.
+
+If an architecture doesn't support branch records, bpf_read_branch_records()
+still has appropriate checks and it will return an -EINVAL in that scenario.
+Based on UAPI helper doc in include/uapi/linux/bpf.h, unsupported architectures
+should return -ENOENT in such case. Hence, update the appropriate check to
+return -ENOENT instead.
+
+Selftest 'perf_branches' result on power9 machine which has the branch stacks
+support:
+
+ - Before this patch:
+
+  [command]# ./test_progs -t perf_branches
+   #88/1 perf_branches/perf_branches_hw:FAIL
+   #88/2 perf_branches/perf_branches_no_hw:OK
+   #88 perf_branches:FAIL
+  Summary: 0/1 PASSED, 0 SKIPPED, 1 FAILED
+
+ - After this patch:
+
+  [command]# ./test_progs -t perf_branches
+   #88/1 perf_branches/perf_branches_hw:OK
+   #88/2 perf_branches/perf_branches_no_hw:OK
+   #88 perf_branches:OK
+  Summary: 1/2 PASSED, 0 SKIPPED, 0 FAILED
+
+Selftest 'perf_branches' result on power9 machine which doesn't have branch
+stack report:
+
+ - After this patch:
+
+  [command]# ./test_progs -t perf_branches
+   #88/1 perf_branches/perf_branches_hw:SKIP
+   #88/2 perf_branches/perf_branches_no_hw:OK
+   #88 perf_branches:OK
+  Summary: 1/1 PASSED, 1 SKIPPED, 0 FAILED
+
+Fixes: fff7b64355eac ("bpf: Add bpf_read_branch_records() helper")
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Kajol Jain <kjain@linux.ibm.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20211206073315.77432-1-kjain@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/scan.c | 21 ++++++++-----------
- 1 file changed, 9 insertions(+), 12 deletions(-)
+ kernel/trace/bpf_trace.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/scan.c b/drivers/net/wireless/intel/iwlwifi/mvm/scan.c
-index a138b5c4cce84..ab960f86b940c 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/scan.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/scan.c
-@@ -1924,22 +1924,19 @@ static void iwl_mvm_scan_6ghz_passive_scan(struct iwl_mvm *mvm,
- 	}
+diff --git a/kernel/trace/bpf_trace.c b/kernel/trace/bpf_trace.c
+index 6c1038526d1fc..5a18b861fcf75 100644
+--- a/kernel/trace/bpf_trace.c
++++ b/kernel/trace/bpf_trace.c
+@@ -1322,9 +1322,6 @@ static const struct bpf_func_proto bpf_perf_prog_read_value_proto = {
+ BPF_CALL_4(bpf_read_branch_records, struct bpf_perf_event_data_kern *, ctx,
+ 	   void *, buf, u32, size, u64, flags)
+ {
+-#ifndef CONFIG_X86
+-	return -ENOENT;
+-#else
+ 	static const u32 br_entry_size = sizeof(struct perf_branch_entry);
+ 	struct perf_branch_stack *br_stack = ctx->data->br_stack;
+ 	u32 to_copy;
+@@ -1333,7 +1330,7 @@ BPF_CALL_4(bpf_read_branch_records, struct bpf_perf_event_data_kern *, ctx,
+ 		return -EINVAL;
  
- 	/*
--	 * 6GHz passive scan is allowed while associated in a defined time
--	 * interval following HW reset or resume flow
-+	 * 6GHz passive scan is allowed in a defined time interval following HW
-+	 * reset or resume flow, or while not associated and a large interval
-+	 * has passed since the last 6GHz passive scan.
- 	 */
--	if (vif->bss_conf.assoc &&
-+	if ((vif->bss_conf.assoc ||
-+	     time_after(mvm->last_6ghz_passive_scan_jiffies +
-+			(IWL_MVM_6GHZ_PASSIVE_SCAN_TIMEOUT * HZ), jiffies)) &&
- 	    (time_before(mvm->last_reset_or_resume_time_jiffies +
- 			 (IWL_MVM_6GHZ_PASSIVE_SCAN_ASSOC_TIMEOUT * HZ),
- 			 jiffies))) {
--		IWL_DEBUG_SCAN(mvm, "6GHz passive scan: associated\n");
--		return;
--	}
--
--	/* No need for 6GHz passive scan if not enough time elapsed */
--	if (time_after(mvm->last_6ghz_passive_scan_jiffies +
--		       (IWL_MVM_6GHZ_PASSIVE_SCAN_TIMEOUT * HZ), jiffies)) {
--		IWL_DEBUG_SCAN(mvm,
--			       "6GHz passive scan: timeout did not expire\n");
-+		IWL_DEBUG_SCAN(mvm, "6GHz passive scan: %s\n",
-+			       vif->bss_conf.assoc ? "associated" :
-+			       "timeout did not expire");
- 		return;
- 	}
+ 	if (unlikely(!br_stack))
+-		return -EINVAL;
++		return -ENOENT;
  
+ 	if (flags & BPF_F_GET_BRANCH_RECORDS_SIZE)
+ 		return br_stack->nr * br_entry_size;
+@@ -1345,7 +1342,6 @@ BPF_CALL_4(bpf_read_branch_records, struct bpf_perf_event_data_kern *, ctx,
+ 	memcpy(buf, br_stack->entries, to_copy);
+ 
+ 	return to_copy;
+-#endif
+ }
+ 
+ static const struct bpf_func_proto bpf_read_branch_records_proto = {
 -- 
 2.34.1
 
