@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4577499C14
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:06:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2056A4999A9
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:46:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380571AbiAXV7g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:59:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58600 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1457807AbiAXVzG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:55:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C9D1C07E2A2;
-        Mon, 24 Jan 2022 12:36:25 -0800 (PST)
+        id S1455929AbiAXVgs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:36:48 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:41100 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376280AbiAXVYy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:24:54 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49FBEB81218;
-        Mon, 24 Jan 2022 20:36:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5398BC340E5;
-        Mon, 24 Jan 2022 20:36:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F8D0B81142;
+        Mon, 24 Jan 2022 21:24:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A85CC340E4;
+        Mon, 24 Jan 2022 21:24:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056583;
-        bh=mMVMuisXCIt+zCi8F5XYc+fsmSAixmNaldXMRbfRe4I=;
+        s=korg; t=1643059491;
+        bh=JRwEwaQ2ghXjEgsdO+LW6h97cIMvCsKA8iS5G29TpR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SID9gG1ZDoqa/AEt+26SAJ2NAqNuZDSk6Su3LMRrym0h8oMas+Z+3CMtz6ZiFQCsV
-         tQzvvly/LeFJ7RMukg+WTF3K7/eQ7sODrAAQtNqpYZWCCxQ80SvG3ZDAvJEnXEMLJ2
-         hgbnv0bBWc84BcKYtIolHowzL2SDT+aPwMw+Mywk=
+        b=l3DA5vKvf6apPnKOBnjpq9mPvNMlJWz4v2MsztzPhoDd4TbOTMnmONreqpiueX89i
+         a/flODkk4i6PnzeZQKbG2DvCWHaCwlwR8pjIvtQ4uDzwbkAhHiL5mBPQQOJdn6rIwd
+         eVrghSX8WEhVBsJLAdobvgSGvJOUqx4U5Ti2ekJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brendan Dolan-Gavitt <brendandg@nyu.edu>,
-        Zekun Shen <bruceshenzk@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        Iwona Winiarska <iwona.winiarska@intel.com>,
+        Bartosz Golaszewski <brgl@bgdev.pl>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 505/846] mwifiex: Fix skb_over_panic in mwifiex_usb_recv()
-Date:   Mon, 24 Jan 2022 19:40:22 +0100
-Message-Id: <20220124184118.453270302@linuxfoundation.org>
+Subject: [PATCH 5.16 0634/1039] gpio: aspeed: Convert aspeed_gpio.lock to raw_spinlock
+Date:   Mon, 24 Jan 2022 19:40:23 +0100
+Message-Id: <20220124184146.664807169@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,66 +46,256 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: Iwona Winiarska <iwona.winiarska@intel.com>
 
-[ Upstream commit 04d80663f67ccef893061b49ec8a42ff7045ae84 ]
+[ Upstream commit 61a7904b6ace99b1bde0d0e867fa3097f5c8cee2 ]
 
-Currently, with an unknown recv_type, mwifiex_usb_recv
-just return -1 without restoring the skb. Next time
-mwifiex_usb_rx_complete is invoked with the same skb,
-calling skb_put causes skb_over_panic.
+The gpio-aspeed driver implements an irq_chip which need to be invoked
+from hardirq context. Since spin_lock() can sleep with PREEMPT_RT, it is
+no longer legal to invoke it while interrupts are disabled.
+This also causes lockdep to complain about:
+[    0.649797] [ BUG: Invalid wait context ]
+because aspeed_gpio.lock (spin_lock_t) is taken under irq_desc.lock
+(raw_spinlock_t).
+Let's use of raw_spinlock_t instead of spinlock_t.
 
-The bug is triggerable with a compromised/malfunctioning
-usb device. After applying the patch, skb_over_panic
-no longer shows up with the same input.
-
-Attached is the panic report from fuzzing.
-skbuff: skb_over_panic: text:000000003bf1b5fa
- len:2048 put:4 head:00000000dd6a115b data:000000000a9445d8
- tail:0x844 end:0x840 dev:<NULL>
-kernel BUG at net/core/skbuff.c:109!
-invalid opcode: 0000 [#1] SMP KASAN NOPTI
-CPU: 0 PID: 198 Comm: in:imklog Not tainted 5.6.0 #60
-RIP: 0010:skb_panic+0x15f/0x161
-Call Trace:
- <IRQ>
- ? mwifiex_usb_rx_complete+0x26b/0xfcd [mwifiex_usb]
- skb_put.cold+0x24/0x24
- mwifiex_usb_rx_complete+0x26b/0xfcd [mwifiex_usb]
- __usb_hcd_giveback_urb+0x1e4/0x380
- usb_giveback_urb_bh+0x241/0x4f0
- ? __hrtimer_run_queues+0x316/0x740
- ? __usb_hcd_giveback_urb+0x380/0x380
- tasklet_action_common.isra.0+0x135/0x330
- __do_softirq+0x18c/0x634
- irq_exit+0x114/0x140
- smp_apic_timer_interrupt+0xde/0x380
- apic_timer_interrupt+0xf/0x20
- </IRQ>
-
-Reported-by: Brendan Dolan-Gavitt <brendandg@nyu.edu>
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/YX4CqjfRcTa6bVL+@Zekuns-MBP-16.fios-router.home
+Signed-off-by: Iwona Winiarska <iwona.winiarska@intel.com>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/usb.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpio/gpio-aspeed.c | 52 +++++++++++++++++++-------------------
+ 1 file changed, 26 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/usb.c b/drivers/net/wireless/marvell/mwifiex/usb.c
-index 9736aa0ab7fd4..8f01fcbe93961 100644
---- a/drivers/net/wireless/marvell/mwifiex/usb.c
-+++ b/drivers/net/wireless/marvell/mwifiex/usb.c
-@@ -130,7 +130,8 @@ static int mwifiex_usb_recv(struct mwifiex_adapter *adapter,
- 		default:
- 			mwifiex_dbg(adapter, ERROR,
- 				    "unknown recv_type %#x\n", recv_type);
--			return -1;
-+			ret = -1;
-+			goto exit_restore_skb;
- 		}
- 		break;
- 	case MWIFIEX_USB_EP_DATA:
+diff --git a/drivers/gpio/gpio-aspeed.c b/drivers/gpio/gpio-aspeed.c
+index 3c8f20c57695f..318a7d95a1a8b 100644
+--- a/drivers/gpio/gpio-aspeed.c
++++ b/drivers/gpio/gpio-aspeed.c
+@@ -53,7 +53,7 @@ struct aspeed_gpio_config {
+ struct aspeed_gpio {
+ 	struct gpio_chip chip;
+ 	struct irq_chip irqc;
+-	spinlock_t lock;
++	raw_spinlock_t lock;
+ 	void __iomem *base;
+ 	int irq;
+ 	const struct aspeed_gpio_config *config;
+@@ -413,14 +413,14 @@ static void aspeed_gpio_set(struct gpio_chip *gc, unsigned int offset,
+ 	unsigned long flags;
+ 	bool copro;
+ 
+-	spin_lock_irqsave(&gpio->lock, flags);
++	raw_spin_lock_irqsave(&gpio->lock, flags);
+ 	copro = aspeed_gpio_copro_request(gpio, offset);
+ 
+ 	__aspeed_gpio_set(gc, offset, val);
+ 
+ 	if (copro)
+ 		aspeed_gpio_copro_release(gpio, offset);
+-	spin_unlock_irqrestore(&gpio->lock, flags);
++	raw_spin_unlock_irqrestore(&gpio->lock, flags);
+ }
+ 
+ static int aspeed_gpio_dir_in(struct gpio_chip *gc, unsigned int offset)
+@@ -435,7 +435,7 @@ static int aspeed_gpio_dir_in(struct gpio_chip *gc, unsigned int offset)
+ 	if (!have_input(gpio, offset))
+ 		return -ENOTSUPP;
+ 
+-	spin_lock_irqsave(&gpio->lock, flags);
++	raw_spin_lock_irqsave(&gpio->lock, flags);
+ 
+ 	reg = ioread32(addr);
+ 	reg &= ~GPIO_BIT(offset);
+@@ -445,7 +445,7 @@ static int aspeed_gpio_dir_in(struct gpio_chip *gc, unsigned int offset)
+ 	if (copro)
+ 		aspeed_gpio_copro_release(gpio, offset);
+ 
+-	spin_unlock_irqrestore(&gpio->lock, flags);
++	raw_spin_unlock_irqrestore(&gpio->lock, flags);
+ 
+ 	return 0;
+ }
+@@ -463,7 +463,7 @@ static int aspeed_gpio_dir_out(struct gpio_chip *gc,
+ 	if (!have_output(gpio, offset))
+ 		return -ENOTSUPP;
+ 
+-	spin_lock_irqsave(&gpio->lock, flags);
++	raw_spin_lock_irqsave(&gpio->lock, flags);
+ 
+ 	reg = ioread32(addr);
+ 	reg |= GPIO_BIT(offset);
+@@ -474,7 +474,7 @@ static int aspeed_gpio_dir_out(struct gpio_chip *gc,
+ 
+ 	if (copro)
+ 		aspeed_gpio_copro_release(gpio, offset);
+-	spin_unlock_irqrestore(&gpio->lock, flags);
++	raw_spin_unlock_irqrestore(&gpio->lock, flags);
+ 
+ 	return 0;
+ }
+@@ -492,11 +492,11 @@ static int aspeed_gpio_get_direction(struct gpio_chip *gc, unsigned int offset)
+ 	if (!have_output(gpio, offset))
+ 		return GPIO_LINE_DIRECTION_IN;
+ 
+-	spin_lock_irqsave(&gpio->lock, flags);
++	raw_spin_lock_irqsave(&gpio->lock, flags);
+ 
+ 	val = ioread32(bank_reg(gpio, bank, reg_dir)) & GPIO_BIT(offset);
+ 
+-	spin_unlock_irqrestore(&gpio->lock, flags);
++	raw_spin_unlock_irqrestore(&gpio->lock, flags);
+ 
+ 	return val ? GPIO_LINE_DIRECTION_OUT : GPIO_LINE_DIRECTION_IN;
+ }
+@@ -539,14 +539,14 @@ static void aspeed_gpio_irq_ack(struct irq_data *d)
+ 
+ 	status_addr = bank_reg(gpio, bank, reg_irq_status);
+ 
+-	spin_lock_irqsave(&gpio->lock, flags);
++	raw_spin_lock_irqsave(&gpio->lock, flags);
+ 	copro = aspeed_gpio_copro_request(gpio, offset);
+ 
+ 	iowrite32(bit, status_addr);
+ 
+ 	if (copro)
+ 		aspeed_gpio_copro_release(gpio, offset);
+-	spin_unlock_irqrestore(&gpio->lock, flags);
++	raw_spin_unlock_irqrestore(&gpio->lock, flags);
+ }
+ 
+ static void aspeed_gpio_irq_set_mask(struct irq_data *d, bool set)
+@@ -565,7 +565,7 @@ static void aspeed_gpio_irq_set_mask(struct irq_data *d, bool set)
+ 
+ 	addr = bank_reg(gpio, bank, reg_irq_enable);
+ 
+-	spin_lock_irqsave(&gpio->lock, flags);
++	raw_spin_lock_irqsave(&gpio->lock, flags);
+ 	copro = aspeed_gpio_copro_request(gpio, offset);
+ 
+ 	reg = ioread32(addr);
+@@ -577,7 +577,7 @@ static void aspeed_gpio_irq_set_mask(struct irq_data *d, bool set)
+ 
+ 	if (copro)
+ 		aspeed_gpio_copro_release(gpio, offset);
+-	spin_unlock_irqrestore(&gpio->lock, flags);
++	raw_spin_unlock_irqrestore(&gpio->lock, flags);
+ }
+ 
+ static void aspeed_gpio_irq_mask(struct irq_data *d)
+@@ -629,7 +629,7 @@ static int aspeed_gpio_set_type(struct irq_data *d, unsigned int type)
+ 		return -EINVAL;
+ 	}
+ 
+-	spin_lock_irqsave(&gpio->lock, flags);
++	raw_spin_lock_irqsave(&gpio->lock, flags);
+ 	copro = aspeed_gpio_copro_request(gpio, offset);
+ 
+ 	addr = bank_reg(gpio, bank, reg_irq_type0);
+@@ -649,7 +649,7 @@ static int aspeed_gpio_set_type(struct irq_data *d, unsigned int type)
+ 
+ 	if (copro)
+ 		aspeed_gpio_copro_release(gpio, offset);
+-	spin_unlock_irqrestore(&gpio->lock, flags);
++	raw_spin_unlock_irqrestore(&gpio->lock, flags);
+ 
+ 	irq_set_handler_locked(d, handler);
+ 
+@@ -716,7 +716,7 @@ static int aspeed_gpio_reset_tolerance(struct gpio_chip *chip,
+ 
+ 	treg = bank_reg(gpio, to_bank(offset), reg_tolerance);
+ 
+-	spin_lock_irqsave(&gpio->lock, flags);
++	raw_spin_lock_irqsave(&gpio->lock, flags);
+ 	copro = aspeed_gpio_copro_request(gpio, offset);
+ 
+ 	val = readl(treg);
+@@ -730,7 +730,7 @@ static int aspeed_gpio_reset_tolerance(struct gpio_chip *chip,
+ 
+ 	if (copro)
+ 		aspeed_gpio_copro_release(gpio, offset);
+-	spin_unlock_irqrestore(&gpio->lock, flags);
++	raw_spin_unlock_irqrestore(&gpio->lock, flags);
+ 
+ 	return 0;
+ }
+@@ -856,7 +856,7 @@ static int enable_debounce(struct gpio_chip *chip, unsigned int offset,
+ 		return rc;
+ 	}
+ 
+-	spin_lock_irqsave(&gpio->lock, flags);
++	raw_spin_lock_irqsave(&gpio->lock, flags);
+ 
+ 	if (timer_allocation_registered(gpio, offset)) {
+ 		rc = unregister_allocated_timer(gpio, offset);
+@@ -916,7 +916,7 @@ static int enable_debounce(struct gpio_chip *chip, unsigned int offset,
+ 	configure_timer(gpio, offset, i);
+ 
+ out:
+-	spin_unlock_irqrestore(&gpio->lock, flags);
++	raw_spin_unlock_irqrestore(&gpio->lock, flags);
+ 
+ 	return rc;
+ }
+@@ -927,13 +927,13 @@ static int disable_debounce(struct gpio_chip *chip, unsigned int offset)
+ 	unsigned long flags;
+ 	int rc;
+ 
+-	spin_lock_irqsave(&gpio->lock, flags);
++	raw_spin_lock_irqsave(&gpio->lock, flags);
+ 
+ 	rc = unregister_allocated_timer(gpio, offset);
+ 	if (!rc)
+ 		configure_timer(gpio, offset, 0);
+ 
+-	spin_unlock_irqrestore(&gpio->lock, flags);
++	raw_spin_unlock_irqrestore(&gpio->lock, flags);
+ 
+ 	return rc;
+ }
+@@ -1015,7 +1015,7 @@ int aspeed_gpio_copro_grab_gpio(struct gpio_desc *desc,
+ 		return -EINVAL;
+ 	bindex = offset >> 3;
+ 
+-	spin_lock_irqsave(&gpio->lock, flags);
++	raw_spin_lock_irqsave(&gpio->lock, flags);
+ 
+ 	/* Sanity check, this shouldn't happen */
+ 	if (gpio->cf_copro_bankmap[bindex] == 0xff) {
+@@ -1036,7 +1036,7 @@ int aspeed_gpio_copro_grab_gpio(struct gpio_desc *desc,
+ 	if (bit)
+ 		*bit = GPIO_OFFSET(offset);
+  bail:
+-	spin_unlock_irqrestore(&gpio->lock, flags);
++	raw_spin_unlock_irqrestore(&gpio->lock, flags);
+ 	return rc;
+ }
+ EXPORT_SYMBOL_GPL(aspeed_gpio_copro_grab_gpio);
+@@ -1060,7 +1060,7 @@ int aspeed_gpio_copro_release_gpio(struct gpio_desc *desc)
+ 		return -EINVAL;
+ 	bindex = offset >> 3;
+ 
+-	spin_lock_irqsave(&gpio->lock, flags);
++	raw_spin_lock_irqsave(&gpio->lock, flags);
+ 
+ 	/* Sanity check, this shouldn't happen */
+ 	if (gpio->cf_copro_bankmap[bindex] == 0) {
+@@ -1074,7 +1074,7 @@ int aspeed_gpio_copro_release_gpio(struct gpio_desc *desc)
+ 		aspeed_gpio_change_cmd_source(gpio, bank, bindex,
+ 					      GPIO_CMDSRC_ARM);
+  bail:
+-	spin_unlock_irqrestore(&gpio->lock, flags);
++	raw_spin_unlock_irqrestore(&gpio->lock, flags);
+ 	return rc;
+ }
+ EXPORT_SYMBOL_GPL(aspeed_gpio_copro_release_gpio);
+@@ -1148,7 +1148,7 @@ static int __init aspeed_gpio_probe(struct platform_device *pdev)
+ 	if (IS_ERR(gpio->base))
+ 		return PTR_ERR(gpio->base);
+ 
+-	spin_lock_init(&gpio->lock);
++	raw_spin_lock_init(&gpio->lock);
+ 
+ 	gpio_id = of_match_node(aspeed_gpio_of_table, pdev->dev.of_node);
+ 	if (!gpio_id)
 -- 
 2.34.1
 
