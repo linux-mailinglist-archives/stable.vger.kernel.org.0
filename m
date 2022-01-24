@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B12BB499E4F
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:08:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31220499E4B
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:08:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1588336AbiAXWb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:31:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37102 "EHLO
+        id S1588301AbiAXWbx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:31:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37156 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1584545AbiAXWVY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:21:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDA0DC0424CF;
-        Mon, 24 Jan 2022 12:50:08 -0800 (PST)
+        with ESMTP id S1584613AbiAXWV3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:21:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48364C0424E9;
+        Mon, 24 Jan 2022 12:52:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 732EAB80FA1;
-        Mon, 24 Jan 2022 20:50:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB3E7C340E5;
-        Mon, 24 Jan 2022 20:50:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D9D4060C11;
+        Mon, 24 Jan 2022 20:52:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6450C340E5;
+        Mon, 24 Jan 2022 20:52:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057407;
-        bh=t36Qf7OqaHp5mhLh63Ejubt/7CRwFd48SoJJMeaqkEw=;
+        s=korg; t=1643057528;
+        bh=jVD31n0XfwWUjaU2jrHFkTVw1QFT1OP0Be3lL52UQb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mxryHwxWoHZChzr6ovZ6iOQvaJnOe52Rq8DCM78TKHv7RIBx9SfCPfhebZfNHMpSY
-         KCYxmjHQdoAL+ghyS24hzK6waKWCyOQq0K1RmapDN50WV+wj7dZDBR/11lvXj69wbi
-         XQ6O6rzK7NQL4NWIKpzttbeIT5YVPtP34aBT4Fs8=
+        b=ZLPlQndkHezvCwgKLSuspS8hQHfvoYiXYNiCoL/Jr32YOFaWrIaw+61NT8s66+OUI
+         clauQy61Yb9Boampqq6+Z8C/QQzJ4+9O2T8P2SWoj2hffkklxAMu0tSd8ZS50wfl72
+         JNuKnG3TXEQ+BHSaGznCHh+0RlC2fwDUGgavcDh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Laurence de Bruxelles <lfdebrux@gmail.com>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5.15 803/846] rtc: pxa: fix null pointer dereference
-Date:   Mon, 24 Jan 2022 19:45:20 +0100
-Message-Id: <20220124184128.642134089@linuxfoundation.org>
+        stable@vger.kernel.org, Miroslav Lichvar <mlichvar@redhat.com>,
+        Yangbo Lu <yangbo.lu@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 825/846] net: fix sock_timestamping_bind_phc() to release device
+Date:   Mon, 24 Jan 2022 19:45:42 +0100
+Message-Id: <20220124184129.359668763@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -47,51 +48,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurence de Bruxelles <lfdebrux@gmail.com>
+From: Miroslav Lichvar <mlichvar@redhat.com>
 
-commit 34127b3632b21e5c391756e724b1198eb9917981 upstream.
+commit 2a4d75bfe41232608f5596a6d1369f92ccb20817 upstream.
 
-With the latest stable kernel versions the rtc on the PXA based
-Zaurus does not work, when booting I see the following kernel messages:
+Don't forget to release the device in sock_timestamping_bind_phc() after
+it was used to get the vclock indices.
 
-pxa-rtc pxa-rtc: failed to find rtc clock source
-pxa-rtc pxa-rtc: Unable to init SA1100 RTC sub-device
-pxa-rtc: probe of pxa-rtc failed with error -2
-hctosys: unable to open rtc device (rtc0)
-
-I think this is because commit f2997775b111 ("rtc: sa1100: fix possible
-race condition") moved the allocation of the rtc_device struct out of
-sa1100_rtc_init and into sa1100_rtc_probe. This means that pxa_rtc_probe
-also needs to do allocation for the rtc_device struct, otherwise
-sa1100_rtc_init will try to dereference a null pointer. This patch adds
-that allocation by copying how sa1100_rtc_probe in
-drivers/rtc/rtc-sa1100.c does it; after the IRQs are set up a managed
-rtc_device is allocated.
-
-I've tested this patch with `qemu-system-arm -machine akita` and with a
-real Zaurus SL-C1000 applied to 4.19, 5.4, and 5.10.
-
-Signed-off-by: Laurence de Bruxelles <lfdebrux@gmail.com>
-Fixes: f2997775b111 ("rtc: sa1100: fix possible race condition")
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20220101154149.12026-1-lfdebrux@gmail.com
+Fixes: d463126e23f1 ("net: sock: extend SO_TIMESTAMPING for PHC binding")
+Signed-off-by: Miroslav Lichvar <mlichvar@redhat.com>
+Cc: Yangbo Lu <yangbo.lu@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rtc/rtc-pxa.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/core/sock.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/rtc/rtc-pxa.c
-+++ b/drivers/rtc/rtc-pxa.c
-@@ -330,6 +330,10 @@ static int __init pxa_rtc_probe(struct p
- 	if (sa1100_rtc->irq_alarm < 0)
- 		return -ENXIO;
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -830,6 +830,8 @@ static int sock_timestamping_bind_phc(st
+ 	}
  
-+	sa1100_rtc->rtc = devm_rtc_allocate_device(&pdev->dev);
-+	if (IS_ERR(sa1100_rtc->rtc))
-+		return PTR_ERR(sa1100_rtc->rtc);
+ 	num = ethtool_get_phc_vclocks(dev, &vclock_index);
++	dev_put(dev);
 +
- 	pxa_rtc->base = devm_ioremap(dev, pxa_rtc->ress->start,
- 				resource_size(pxa_rtc->ress));
- 	if (!pxa_rtc->base) {
+ 	for (i = 0; i < num; i++) {
+ 		if (*(vclock_index + i) == phc_index) {
+ 			match = true;
 
 
