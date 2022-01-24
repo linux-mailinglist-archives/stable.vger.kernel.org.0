@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD5B749A398
+	by mail.lfdr.de (Postfix) with ESMTP id 739FC49A396
 	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:03:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2368535AbiAXX7X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:59:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50032 "EHLO
+        id S2368473AbiAXX7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:59:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1846413AbiAXXPz (ORCPT
+        with ESMTP id S1846415AbiAXXPz (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:15:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50C84C0604CE;
-        Mon, 24 Jan 2022 13:24:05 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8572CC0604D2;
+        Mon, 24 Jan 2022 13:24:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E3ABC61320;
-        Mon, 24 Jan 2022 21:24:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7EB7C340E4;
-        Mon, 24 Jan 2022 21:24:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4E30CB812A8;
+        Mon, 24 Jan 2022 21:24:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E974C340E4;
+        Mon, 24 Jan 2022 21:24:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059444;
-        bh=TH+ekF/q/S4B463GdM+Q95pPIb/BpaQu6eM3YQyRVhg=;
+        s=korg; t=1643059468;
+        bh=BybjXRdFrnNgucLm1SBhLKOfxFS0NwCWkQYWRha5CHs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pT3VfVKn+sgdzUmeyzhbRHcY2h+F1/VLXHA43kjXuNp+NhAB7eKkCxlkSdkgI7fZi
-         oStaB5PA2ov8Fy9ZtKTph5poREiNJzEX5JQAGMjABFKxkiB+3e6vkDw89ex2jHYfFh
-         BqaEa6tm2mcA/Vgo8Ntcrtq8TTeoXrbKaF3/J7Jk=
+        b=MoTELk0EuqWlLWeIGA+4AP9oPrtNc6S/kWkES21PtfdhYsO0t4K7RX1irGg/mDz/B
+         d8GF7r+wVILnY0qWEIfJZ3v3bov2vR97KBzDKk6U+cZewzglGQsIAY9qPL5Uiu3U3o
+         5R4KypRrbGS+20L3PLE/1VjYbeXIjUXZfMmCXrQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0616/1039] drm: rcar-du: Fix CRTC timings when CMM is used
-Date:   Mon, 24 Jan 2022 19:40:05 +0100
-Message-Id: <20220124184146.042359307@linuxfoundation.org>
+Subject: [PATCH 5.16 0618/1039] media: rcar-vin: Update format alignment constraints
+Date:   Mon, 24 Jan 2022 19:40:07 +0100
+Message-Id: <20220124184146.112090744@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -48,80 +51,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
 
-[ Upstream commit f0ce591dc9a97067c6e783a2eaccd22c5476144d ]
+[ Upstream commit da6911f330d40cfe115a37249e47643eff555e82 ]
 
-When the CMM is enabled, an offset of 25 pixels must be subtracted from
-the HDS (horizontal display start) and HDE (horizontal display end)
-registers. Fix the timings calculation, and take this into account in
-the mode validation.
+This change fixes two issues with the size constraints for buffers.
 
-This fixes a visible horizontal offset in the image with VGA monitors.
-HDMI monitors seem to be generally more tolerant to incorrect timings,
-but may be affected too.
+- There is no width alignment constraint for RGB formats. Prior to this
+  change they were treated as YUV and as a result were more restricted
+  than needed. Add a new check to differentiate between the two.
 
-Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
+- The minimum width and height supported is 5x2, not 2x4, this is an
+  artifact from the driver's soc-camera days. Fix this incorrect
+  assumption.
+
+Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rcar-du/rcar_du_crtc.c | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ drivers/media/platform/rcar-vin/rcar-v4l2.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
-index 5236f917cc68d..f361a604337f6 100644
---- a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
-+++ b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
-@@ -215,6 +215,7 @@ static void rcar_du_crtc_set_display_timing(struct rcar_du_crtc *rcrtc)
- 	const struct drm_display_mode *mode = &rcrtc->crtc.state->adjusted_mode;
- 	struct rcar_du_device *rcdu = rcrtc->dev;
- 	unsigned long mode_clock = mode->clock * 1000;
-+	unsigned int hdse_offset;
- 	u32 dsmr;
- 	u32 escr;
+diff --git a/drivers/media/platform/rcar-vin/rcar-v4l2.c b/drivers/media/platform/rcar-vin/rcar-v4l2.c
+index a5bfa76fdac6e..2e60b9fce03b0 100644
+--- a/drivers/media/platform/rcar-vin/rcar-v4l2.c
++++ b/drivers/media/platform/rcar-vin/rcar-v4l2.c
+@@ -179,20 +179,27 @@ static void rvin_format_align(struct rvin_dev *vin, struct v4l2_pix_format *pix)
+ 		break;
+ 	}
  
-@@ -299,10 +300,15 @@ static void rcar_du_crtc_set_display_timing(struct rcar_du_crtc *rcrtc)
- 	     | DSMR_DIPM_DISP | DSMR_CSPM;
- 	rcar_du_crtc_write(rcrtc, DSMR, dsmr);
+-	/* HW limit width to a multiple of 32 (2^5) for NV12/16 else 2 (2^1) */
++	/* Hardware limits width alignment based on format. */
+ 	switch (pix->pixelformat) {
++	/* Multiple of 32 (2^5) for NV12/16. */
+ 	case V4L2_PIX_FMT_NV12:
+ 	case V4L2_PIX_FMT_NV16:
+ 		walign = 5;
+ 		break;
+-	default:
++	/* Multiple of 2 (2^1) for YUV. */
++	case V4L2_PIX_FMT_YUYV:
++	case V4L2_PIX_FMT_UYVY:
+ 		walign = 1;
+ 		break;
++	/* No multiple for RGB. */
++	default:
++		walign = 0;
++		break;
+ 	}
  
-+	hdse_offset = 19;
-+	if (rcrtc->group->cmms_mask & BIT(rcrtc->index % 2))
-+		hdse_offset += 25;
-+
- 	/* Display timings */
--	rcar_du_crtc_write(rcrtc, HDSR, mode->htotal - mode->hsync_start - 19);
-+	rcar_du_crtc_write(rcrtc, HDSR, mode->htotal - mode->hsync_start -
-+					hdse_offset);
- 	rcar_du_crtc_write(rcrtc, HDER, mode->htotal - mode->hsync_start +
--					mode->hdisplay - 19);
-+					mode->hdisplay - hdse_offset);
- 	rcar_du_crtc_write(rcrtc, HSWR, mode->hsync_end -
- 					mode->hsync_start - 1);
- 	rcar_du_crtc_write(rcrtc, HCR,  mode->htotal - 1);
-@@ -837,6 +843,7 @@ rcar_du_crtc_mode_valid(struct drm_crtc *crtc,
- 	struct rcar_du_crtc *rcrtc = to_rcar_crtc(crtc);
- 	struct rcar_du_device *rcdu = rcrtc->dev;
- 	bool interlaced = mode->flags & DRM_MODE_FLAG_INTERLACE;
-+	unsigned int min_sync_porch;
- 	unsigned int vbp;
+ 	/* Limit to VIN capabilities */
+-	v4l_bound_align_image(&pix->width, 2, vin->info->max_width, walign,
+-			      &pix->height, 4, vin->info->max_height, 2, 0);
++	v4l_bound_align_image(&pix->width, 5, vin->info->max_width, walign,
++			      &pix->height, 2, vin->info->max_height, 0, 0);
  
- 	if (interlaced && !rcar_du_has(rcdu, RCAR_DU_FEATURE_INTERLACED))
-@@ -844,9 +851,14 @@ rcar_du_crtc_mode_valid(struct drm_crtc *crtc,
- 
- 	/*
- 	 * The hardware requires a minimum combined horizontal sync and back
--	 * porch of 20 pixels and a minimum vertical back porch of 3 lines.
-+	 * porch of 20 pixels (when CMM isn't used) or 45 pixels (when CMM is
-+	 * used), and a minimum vertical back porch of 3 lines.
- 	 */
--	if (mode->htotal - mode->hsync_start < 20)
-+	min_sync_porch = 20;
-+	if (rcrtc->group->cmms_mask & BIT(rcrtc->index % 2))
-+		min_sync_porch += 25;
-+
-+	if (mode->htotal - mode->hsync_start < min_sync_porch)
- 		return MODE_HBLANK_NARROW;
- 
- 	vbp = (mode->vtotal - mode->vsync_end) / (interlaced ? 2 : 1);
+ 	pix->bytesperline = rvin_format_bytesperline(vin, pix);
+ 	pix->sizeimage = rvin_format_sizeimage(pix);
 -- 
 2.34.1
 
