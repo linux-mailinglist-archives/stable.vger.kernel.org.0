@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C610649A468
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:09:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 123A149A39B
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:03:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2369484AbiAYABy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:01:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52052 "EHLO
+        id S2368548AbiAXX7c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:59:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1849686AbiAXX02 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:26:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4698C02B850;
-        Mon, 24 Jan 2022 11:51:20 -0800 (PST)
+        with ESMTP id S1846416AbiAXXPz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:15:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63D25C0604CF;
+        Mon, 24 Jan 2022 13:24:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 62736B811F3;
-        Mon, 24 Jan 2022 19:51:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9190AC340E5;
-        Mon, 24 Jan 2022 19:51:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 00622614C9;
+        Mon, 24 Jan 2022 21:24:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7FA4C340E4;
+        Mon, 24 Jan 2022 21:24:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053878;
-        bh=uZdjnvYVh5IOLTVLrRpVEx2N2444vhjRxBkWWJxrb8g=;
+        s=korg; t=1643059447;
+        bh=REBuG4OoCqpO2dEgywiMEnlKX2lH4hWXFOcoOtaLmws=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eWx+7w4j4QHNnqUL5scAumNWSVkPtVVTWnm4NchvK5pZxgSNKi40Paf8tDcMKRxou
-         2vE72MatsHAp17zyBQnDHpqfoAiUtyr/j4v0auqU065FTiHCAKMQxpEhLp6xNDz9Us
-         Whk3/OMhw1LY4jvzzEoojpF2R5UzPs6I2msEnXVE=
+        b=kqBIs3K9j84lHej5as9GL+6WVJSycKSmxuAcTRR0T0lx4NhT4mMF07BvgjsNx58mF
+         PUfwTf2Zw13BYolNN4Nt6OO4hC6Rd0Q9eVWpHSL5wkBRx5z1tsj9+fUFuasAXZbO+m
+         xdnv5Iwgc00+ED6VNRax7p1gs/djwWobx6WwxcGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, Aric Cyr <Aric.Cyr@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Martin Leung <Martin.Leung@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 205/563] bpf: Dont promote bogus looking registers after null check.
-Date:   Mon, 24 Jan 2022 19:39:30 +0100
-Message-Id: <20220124184031.520807730@linuxfoundation.org>
+Subject: [PATCH 5.16 0586/1039] drm/amd/display: add else to avoid double destroy clk_mgr
+Date:   Mon, 24 Jan 2022 19:39:35 +0100
+Message-Id: <20220124184145.038092690@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,51 +51,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Martin Leung <Martin.Leung@amd.com>
 
-[ Upstream commit e60b0d12a95dcf16a63225cead4541567f5cb517 ]
+[ Upstream commit 11dff0e871037a6ad978e52f826a2eb7f5fb274a ]
 
-If we ever get to a point again where we convert a bogus looking <ptr>_or_null
-typed register containing a non-zero fixed or variable offset, then lets not
-reset these bounds to zero since they are not and also don't promote the register
-to a <ptr> type, but instead leave it as <ptr>_or_null. Converting to a unknown
-register could be an avenue as well, but then if we run into this case it would
-allow to leak a kernel pointer this way.
+[Why & How]
+when changing some code we accidentally
+changed else if-> if. reverting that.
 
-Fixes: f1174f77b50c ("bpf/verifier: rework value tracking")
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Reviewed-by: Aric Cyr <Aric.Cyr@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: Martin Leung <Martin.Leung@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/amd/display/dc/clk_mgr/clk_mgr.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index c623c3e549210..015bf2ba4a0b6 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -7725,15 +7725,15 @@ static void mark_ptr_or_null_reg(struct bpf_func_state *state,
- {
- 	if (reg_type_may_be_null(reg->type) && reg->id == id &&
- 	    !WARN_ON_ONCE(!reg->id)) {
--		/* Old offset (both fixed and variable parts) should
--		 * have been known-zero, because we don't allow pointer
--		 * arithmetic on pointers that might be NULL.
--		 */
- 		if (WARN_ON_ONCE(reg->smin_value || reg->smax_value ||
- 				 !tnum_equals_const(reg->var_off, 0) ||
- 				 reg->off)) {
--			__mark_reg_known_zero(reg);
--			reg->off = 0;
-+			/* Old offset (both fixed and variable parts) should
-+			 * have been known-zero, because we don't allow pointer
-+			 * arithmetic on pointers that might be NULL. If we
-+			 * see this happening, don't convert the register.
-+			 */
-+			return;
+diff --git a/drivers/gpu/drm/amd/display/dc/clk_mgr/clk_mgr.c b/drivers/gpu/drm/amd/display/dc/clk_mgr/clk_mgr.c
+index 26f96ee324729..9200c8ce02ba9 100644
+--- a/drivers/gpu/drm/amd/display/dc/clk_mgr/clk_mgr.c
++++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/clk_mgr.c
+@@ -308,8 +308,7 @@ void dc_destroy_clk_mgr(struct clk_mgr *clk_mgr_base)
+ 	case FAMILY_NV:
+ 		if (ASICREV_IS_SIENNA_CICHLID_P(clk_mgr_base->ctx->asic_id.hw_internal_rev)) {
+ 			dcn3_clk_mgr_destroy(clk_mgr);
+-		}
+-		if (ASICREV_IS_DIMGREY_CAVEFISH_P(clk_mgr_base->ctx->asic_id.hw_internal_rev)) {
++		} else if (ASICREV_IS_DIMGREY_CAVEFISH_P(clk_mgr_base->ctx->asic_id.hw_internal_rev)) {
+ 			dcn3_clk_mgr_destroy(clk_mgr);
  		}
- 		if (is_null) {
- 			reg->type = SCALAR_VALUE;
+ 		if (ASICREV_IS_BEIGE_GOBY_P(clk_mgr_base->ctx->asic_id.hw_internal_rev)) {
 -- 
 2.34.1
 
