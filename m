@@ -2,201 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BB0C498069
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:05:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E73B49806D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:06:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242794AbiAXNFr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 08:05:47 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:59655 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239721AbiAXNFr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:05:47 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1643029546;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=eIQcSN6yLGGLuq+d9AxapgjWbk1O/gmkOfcLAXoLa5M=;
-        b=jVpbsNsKPepOaj0uEStpVxAYLVWYFCFHCDZViE5RGpJzIhgsb9P5Be19OGJuQzTVkOsbmq
-        uWQiiYAOXAIY7H0wPCHM8q0BDYgD7ICYg1i3A9i7IeUep6dcNbDtl5dCimlRj37lGMqiC9
-        4PP//+asBxaq6cXYdOVVSlP2AQLRWRo=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-604-dONdoxJtPICDfYe1E-hjgg-1; Mon, 24 Jan 2022 08:05:45 -0500
-X-MC-Unique: dONdoxJtPICDfYe1E-hjgg-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        id S242914AbiAXNGI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 08:06:08 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:59340 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239858AbiAXNGG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:06:06 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 9B1908143EA;
-        Mon, 24 Jan 2022 13:05:44 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.40.194.235])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 2D7AB7D4A4;
-        Mon, 24 Jan 2022 13:05:42 +0000 (UTC)
-From:   Vitaly Kuznetsov <vkuznets@redhat.com>
-To:     stable@vger.kernel.org
-Cc:     Paolo Bonzini <pbonzini@redhat.com>,
-        Igor Mammedov <imammedo@redhat.com>, gregkh@linuxfoundation.org
-Subject: [PATCH stable 5.16 v1 4/4] KVM: selftests: Test KVM_SET_CPUID2 after KVM_RUN
-Date:   Mon, 24 Jan 2022 14:05:34 +0100
-Message-Id: <20220124130534.2645955-5-vkuznets@redhat.com>
-In-Reply-To: <20220124130534.2645955-1-vkuznets@redhat.com>
-References: <20220124130534.2645955-1-vkuznets@redhat.com>
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0477AB80FA1;
+        Mon, 24 Jan 2022 13:06:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2623FC340E1;
+        Mon, 24 Jan 2022 13:06:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1643029563;
+        bh=ZZlC6yQ77rHhWqT90zMzi6f0dEybPN6YRh/LW1Urf94=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=P+TENVuV7lmGzdRXU4BUSm11c8Bu1VVM0xsTH49CzeMToFuHV817eElQhM2vFtbh7
+         yE7k1WoH603Y5/DwotdoalGYgjdvI7vpESAnDabtZmRG9CBGjX3tVyXDy0OBKDdv1z
+         q5ivrk+LfaO4PQNE1AAB3SC2KvL3Uk13PaUD/nxBqZkPuHkGTvlVCVkMxOgyAoGFiW
+         knVyrlsRaXA7YxurgJq4cBd++KGPcGmJg8bzpv5Qf7dSNd99Xv6gYTGpRiTMWh4CP+
+         xCEjFYbBhRh1fR4BtObItbJhO+sEWsbEZSgCs9aUyQ8G5yhD1bk+aU21+hvcYmcIAi
+         vfquP4sf4ONdw==
+Date:   Mon, 24 Jan 2022 13:05:59 +0000
+From:   Mark Brown <broonie@kernel.org>
+To:     Masami Hiramatsu <mhiramat@kernel.org>
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>, stable@vger.kernel.org
+Subject: Re: [PATCH] arm64: Mark start_backtrace() notrace and NOKPROBE_SYMBOL
+Message-ID: <Ye6kNwFisZw2MwV1@sirena.org.uk>
+References: <164301227374.1433152.12808232644267107415.stgit@devnote2>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="hx2tYzScFFysvo5H"
+Content-Disposition: inline
+In-Reply-To: <164301227374.1433152.12808232644267107415.stgit@devnote2>
+X-Cookie: The second best policy is dishonesty.
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit ecebb966acaab2466d9857d1cc435ee1fc9eee50 upstream.
 
-KVM forbids KVM_SET_CPUID2 after KVM_RUN was performed on a vCPU unless
-the supplied CPUID data is equal to what was previously set. Test this.
+--hx2tYzScFFysvo5H
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20220117150542.2176196-5-vkuznets@redhat.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
----
- .../selftests/kvm/include/x86_64/processor.h  |  7 ++++
- .../selftests/kvm/lib/x86_64/processor.c      | 33 ++++++++++++++++---
- .../testing/selftests/kvm/x86_64/cpuid_test.c | 30 +++++++++++++++++
- 3 files changed, 66 insertions(+), 4 deletions(-)
+On Mon, Jan 24, 2022 at 05:17:54PM +0900, Masami Hiramatsu wrote:
+> Mark the start_backtrace() as notrace and NOKPROBE_SYMBOL
+> because this function is called from ftrace and lockdep to
+> get the caller address via return_address(). The lockdep
+> is used in kprobes, it should also be NOKPROBE_SYMBOL.
 
-diff --git a/tools/testing/selftests/kvm/include/x86_64/processor.h b/tools/testing/selftests/kvm/include/x86_64/processor.h
-index 05e65ca1c30c..5a3a4809b49a 100644
---- a/tools/testing/selftests/kvm/include/x86_64/processor.h
-+++ b/tools/testing/selftests/kvm/include/x86_64/processor.h
-@@ -358,6 +358,8 @@ uint64_t kvm_get_feature_msr(uint64_t msr_index);
- struct kvm_cpuid2 *kvm_get_supported_cpuid(void);
- 
- struct kvm_cpuid2 *vcpu_get_cpuid(struct kvm_vm *vm, uint32_t vcpuid);
-+int __vcpu_set_cpuid(struct kvm_vm *vm, uint32_t vcpuid,
-+		     struct kvm_cpuid2 *cpuid);
- void vcpu_set_cpuid(struct kvm_vm *vm, uint32_t vcpuid,
- 		    struct kvm_cpuid2 *cpuid);
- 
-@@ -401,6 +403,11 @@ uint64_t vm_get_page_table_entry(struct kvm_vm *vm, int vcpuid, uint64_t vaddr);
- void vm_set_page_table_entry(struct kvm_vm *vm, int vcpuid, uint64_t vaddr,
- 			     uint64_t pte);
- 
-+/*
-+ * get_cpuid() - find matching CPUID entry and return pointer to it.
-+ */
-+struct kvm_cpuid_entry2 *get_cpuid(struct kvm_cpuid2 *cpuid, uint32_t function,
-+				   uint32_t index);
- /*
-  * set_cpuid() - overwrites a matching cpuid entry with the provided value.
-  *		 matches based on ent->function && ent->index. returns true
-diff --git a/tools/testing/selftests/kvm/lib/x86_64/processor.c b/tools/testing/selftests/kvm/lib/x86_64/processor.c
-index eef7b34756d5..6441b03c46a9 100644
---- a/tools/testing/selftests/kvm/lib/x86_64/processor.c
-+++ b/tools/testing/selftests/kvm/lib/x86_64/processor.c
-@@ -847,6 +847,17 @@ kvm_get_supported_cpuid_index(uint32_t function, uint32_t index)
- 	return entry;
- }
- 
-+
-+int __vcpu_set_cpuid(struct kvm_vm *vm, uint32_t vcpuid,
-+		     struct kvm_cpuid2 *cpuid)
-+{
-+	struct vcpu *vcpu = vcpu_find(vm, vcpuid);
-+
-+	TEST_ASSERT(vcpu != NULL, "vcpu not found, vcpuid: %u", vcpuid);
-+
-+	return ioctl(vcpu->fd, KVM_SET_CPUID2, cpuid);
-+}
-+
- /*
-  * VM VCPU CPUID Set
-  *
-@@ -864,12 +875,9 @@ kvm_get_supported_cpuid_index(uint32_t function, uint32_t index)
- void vcpu_set_cpuid(struct kvm_vm *vm,
- 		uint32_t vcpuid, struct kvm_cpuid2 *cpuid)
- {
--	struct vcpu *vcpu = vcpu_find(vm, vcpuid);
- 	int rc;
- 
--	TEST_ASSERT(vcpu != NULL, "vcpu not found, vcpuid: %u", vcpuid);
--
--	rc = ioctl(vcpu->fd, KVM_SET_CPUID2, cpuid);
-+	rc = __vcpu_set_cpuid(vm, vcpuid, cpuid);
- 	TEST_ASSERT(rc == 0, "KVM_SET_CPUID2 failed, rc: %i errno: %i",
- 		    rc, errno);
- 
-@@ -1337,6 +1345,23 @@ void assert_on_unhandled_exception(struct kvm_vm *vm, uint32_t vcpuid)
- 	}
- }
- 
-+struct kvm_cpuid_entry2 *get_cpuid(struct kvm_cpuid2 *cpuid, uint32_t function,
-+				   uint32_t index)
-+{
-+	int i;
-+
-+	for (i = 0; i < cpuid->nent; i++) {
-+		struct kvm_cpuid_entry2 *cur = &cpuid->entries[i];
-+
-+		if (cur->function == function && cur->index == index)
-+			return cur;
-+	}
-+
-+	TEST_FAIL("CPUID function 0x%x index 0x%x not found ", function, index);
-+
-+	return NULL;
-+}
-+
- bool set_cpuid(struct kvm_cpuid2 *cpuid,
- 	       struct kvm_cpuid_entry2 *ent)
- {
-diff --git a/tools/testing/selftests/kvm/x86_64/cpuid_test.c b/tools/testing/selftests/kvm/x86_64/cpuid_test.c
-index a711f83749ea..16d2465c5634 100644
---- a/tools/testing/selftests/kvm/x86_64/cpuid_test.c
-+++ b/tools/testing/selftests/kvm/x86_64/cpuid_test.c
-@@ -154,6 +154,34 @@ struct kvm_cpuid2 *vcpu_alloc_cpuid(struct kvm_vm *vm, vm_vaddr_t *p_gva, struct
- 	return guest_cpuids;
- }
- 
-+static void set_cpuid_after_run(struct kvm_vm *vm, struct kvm_cpuid2 *cpuid)
-+{
-+	struct kvm_cpuid_entry2 *ent;
-+	int rc;
-+	u32 eax, ebx, x;
-+
-+	/* Setting unmodified CPUID is allowed */
-+	rc = __vcpu_set_cpuid(vm, VCPU_ID, cpuid);
-+	TEST_ASSERT(!rc, "Setting unmodified CPUID after KVM_RUN failed: %d", rc);
-+
-+	/* Changing CPU features is forbidden */
-+	ent = get_cpuid(cpuid, 0x7, 0);
-+	ebx = ent->ebx;
-+	ent->ebx--;
-+	rc = __vcpu_set_cpuid(vm, VCPU_ID, cpuid);
-+	TEST_ASSERT(rc, "Changing CPU features should fail");
-+	ent->ebx = ebx;
-+
-+	/* Changing MAXPHYADDR is forbidden */
-+	ent = get_cpuid(cpuid, 0x80000008, 0);
-+	eax = ent->eax;
-+	x = eax & 0xff;
-+	ent->eax = (eax & ~0xffu) | (x - 1);
-+	rc = __vcpu_set_cpuid(vm, VCPU_ID, cpuid);
-+	TEST_ASSERT(rc, "Changing MAXPHYADDR should fail");
-+	ent->eax = eax;
-+}
-+
- int main(void)
- {
- 	struct kvm_cpuid2 *supp_cpuid, *cpuid2;
-@@ -175,5 +203,7 @@ int main(void)
- 	for (stage = 0; stage < 3; stage++)
- 		run_vcpu(vm, VCPU_ID, stage);
- 
-+	set_cpuid_after_run(vm, cpuid2);
-+
- 	kvm_vm_free(vm);
- }
--- 
-2.34.1
+Reviwed-by: Mark Brown <broonie@kernel.org>
 
+--hx2tYzScFFysvo5H
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmHupDYACgkQJNaLcl1U
+h9B6QQf+Khb96INwt1OmQe3AFIwjSxmvqgljU+eJKeBzrXfqfXT3HO/7YxGieiCG
+igbQ3qNwp8sUW3Hb7D8lcH8ZpG+SY5ayREJLcy4Ki3OuUCSz5rpUcFYyqmka6B3o
+u25eygoSoVL0pKGeumj++jS0zy0fiSRWF1SY7f9u96bwmAWEtG2Wpt03m0lUXRNC
+KkzrkCTBAqbJdC19KZQyF75cEgdik98btQRtKO6fFADS9nCOOvsRbsfIcjl+fffV
+54z1TM60Rf+PYby4nrkHsQgJ/UK9+ytBnQHO8/p1A/bdGrh0cI2X2l9KjLGQx8MD
+WKlX/TN8G2qV49YAks+3s+mKfGnhQw==
+=MfQj
+-----END PGP SIGNATURE-----
+
+--hx2tYzScFFysvo5H--
