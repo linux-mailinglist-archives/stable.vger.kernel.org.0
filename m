@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BD2549997E
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:45:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DFBF499606
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:16:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1455519AbiAXVfd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:35:33 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:43062 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359317AbiAXV2M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:28:12 -0500
+        id S1359796AbiAXU6e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:58:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44224 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359039AbiAXUxE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:53:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E109FC095401;
+        Mon, 24 Jan 2022 11:59:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5899BB8123A;
-        Mon, 24 Jan 2022 21:28:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85E30C340E4;
-        Mon, 24 Jan 2022 21:28:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A5FE60FF4;
+        Mon, 24 Jan 2022 19:59:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EB2DC340E5;
+        Mon, 24 Jan 2022 19:59:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059689;
-        bh=Y52+VQDFKWPukWVOcP0x5AwatEYKIO8IinShTBqBvuM=;
+        s=korg; t=1643054343;
+        bh=fpJUuwgTvCrd7e1pIEnOTkVUhstiH0I4N60wi49/f9s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RPtyIFWYk28NPxjWHjwsPFxi3rrfjaMBsgjYghWaNtaop48mi/44npOeG9W2mhGJv
-         JavDS4Q3vwohdTPMSA5QV+XDP0uQ12uNCUR0LkdSn7xvETJZYimEYiR3XduxMY7YAG
-         zc2tJroFm374XTwC2ZFO+YSjJY/A7saw9quAv4+Y=
+        b=AKHwK+2MT5AU80uYTa7yjfdtJgSPMVFf8NB5OfkM7PJ+BKATRL1rHoNgWcRlc+yJG
+         wfsJbA9hBkabcm4ceFwU//lkPVqPX8J7OIrKqrxdjmY2OkKDGtc26WGiyXRJysBKq0
+         27jbOOh9Ay/kUVhsz0DGgBJ4AAbtXAC2HpMgbDx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0701/1039] mmc: mtk-sd: Use readl_poll_timeout instead of open-coded polling
+Subject: [PATCH 5.10 325/563] gpiolib: acpi: Do not set the IRQ type if the IRQ is already in use
 Date:   Mon, 24 Jan 2022 19:41:30 +0100
-Message-Id: <20220124184148.901333381@linuxfoundation.org>
+Message-Id: <20220124184035.676435963@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,175 +48,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit ffaea6ebfe9ce06ebb3a54811a47688f2b0893cd ]
+[ Upstream commit bdfd6ab8fdccd8b138837efff66f4a1911496378 ]
 
-Replace all instances of open-coded while loops for polling registers
-with calls to readl_poll_timeout() and, while at it, also fix some
-possible infinite loop instances.
+If the IRQ is already in use, then acpi_dev_gpio_irq_get_by() really
+should not change the type underneath the current owner.
 
-Signed-off-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20211216125748.179602-1-angelogioacchino.delregno@collabora.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+I specifically hit an issue with this an a Chuwi Hi8 Super (CWI509) Bay
+Trail tablet, when the Boot OS selection in the BIOS is set to Android.
+In this case _STA for a MAX17047 ACPI I2C device wrongly returns 0xf and
+the _CRS resources for this device include a GpioInt pointing to a GPIO
+already in use by an _AEI handler, with a different type then specified
+in the _CRS for the MAX17047 device. Leading to the acpi_dev_gpio_irq_get()
+call done by the i2c-core-acpi.c code changing the type breaking the
+_AEI handler.
+
+Now this clearly is a bug in the DSDT of this tablet (in Android mode),
+but in general calling irq_set_irq_type() on an IRQ which already is
+in use seems like a bad idea.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/mtk-sd.c | 64 ++++++++++++++++++++++++---------------
- 1 file changed, 39 insertions(+), 25 deletions(-)
+ drivers/gpio/gpiolib-acpi.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mmc/host/mtk-sd.c b/drivers/mmc/host/mtk-sd.c
-index 632775217d35c..d5a9c269d4926 100644
---- a/drivers/mmc/host/mtk-sd.c
-+++ b/drivers/mmc/host/mtk-sd.c
-@@ -636,12 +636,11 @@ static void msdc_reset_hw(struct msdc_host *host)
- 	u32 val;
+diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
+index 6f11714ce0239..55e4f402ec8b6 100644
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -969,10 +969,17 @@ int acpi_dev_gpio_irq_get_by(struct acpi_device *adev, const char *name, int ind
+ 			irq_flags = acpi_dev_get_irq_type(info.triggering,
+ 							  info.polarity);
  
- 	sdr_set_bits(host->base + MSDC_CFG, MSDC_CFG_RST);
--	while (readl(host->base + MSDC_CFG) & MSDC_CFG_RST)
--		cpu_relax();
-+	readl_poll_timeout(host->base + MSDC_CFG, val, !(val & MSDC_CFG_RST), 0, 0);
+-			/* Set type if specified and different than the current one */
+-			if (irq_flags != IRQ_TYPE_NONE &&
+-			    irq_flags != irq_get_trigger_type(irq))
+-				irq_set_irq_type(irq, irq_flags);
++			/*
++			 * If the IRQ is not already in use then set type
++			 * if specified and different than the current one.
++			 */
++			if (can_request_irq(irq, irq_flags)) {
++				if (irq_flags != IRQ_TYPE_NONE &&
++				    irq_flags != irq_get_trigger_type(irq))
++					irq_set_irq_type(irq, irq_flags);
++			} else {
++				dev_dbg(&adev->dev, "IRQ %d already in use\n", irq);
++			}
  
- 	sdr_set_bits(host->base + MSDC_FIFOCS, MSDC_FIFOCS_CLR);
--	while (readl(host->base + MSDC_FIFOCS) & MSDC_FIFOCS_CLR)
--		cpu_relax();
-+	readl_poll_timeout(host->base + MSDC_FIFOCS, val,
-+			   !(val & MSDC_FIFOCS_CLR), 0, 0);
- 
- 	val = readl(host->base + MSDC_INT);
- 	writel(val, host->base + MSDC_INT);
-@@ -814,8 +813,9 @@ static void msdc_gate_clock(struct msdc_host *host)
- 	clk_disable_unprepare(host->h_clk);
- }
- 
--static void msdc_ungate_clock(struct msdc_host *host)
-+static int msdc_ungate_clock(struct msdc_host *host)
- {
-+	u32 val;
- 	int ret;
- 
- 	clk_prepare_enable(host->h_clk);
-@@ -825,11 +825,11 @@ static void msdc_ungate_clock(struct msdc_host *host)
- 	ret = clk_bulk_prepare_enable(MSDC_NR_CLOCKS, host->bulk_clks);
- 	if (ret) {
- 		dev_err(host->dev, "Cannot enable pclk/axi/ahb clock gates\n");
--		return;
-+		return ret;
- 	}
- 
--	while (!(readl(host->base + MSDC_CFG) & MSDC_CFG_CKSTB))
--		cpu_relax();
-+	return readl_poll_timeout(host->base + MSDC_CFG, val,
-+				  (val & MSDC_CFG_CKSTB), 1, 20000);
- }
- 
- static void msdc_set_mclk(struct msdc_host *host, unsigned char timing, u32 hz)
-@@ -840,6 +840,7 @@ static void msdc_set_mclk(struct msdc_host *host, unsigned char timing, u32 hz)
- 	u32 div;
- 	u32 sclk;
- 	u32 tune_reg = host->dev_comp->pad_tune_reg;
-+	u32 val;
- 
- 	if (!hz) {
- 		dev_dbg(host->dev, "set mclk to 0\n");
-@@ -920,8 +921,7 @@ static void msdc_set_mclk(struct msdc_host *host, unsigned char timing, u32 hz)
- 	else
- 		clk_prepare_enable(clk_get_parent(host->src_clk));
- 
--	while (!(readl(host->base + MSDC_CFG) & MSDC_CFG_CKSTB))
--		cpu_relax();
-+	readl_poll_timeout(host->base + MSDC_CFG, val, (val & MSDC_CFG_CKSTB), 0, 0);
- 	sdr_set_bits(host->base + MSDC_CFG, MSDC_CFG_CKPDN);
- 	mmc->actual_clock = sclk;
- 	host->mclk = hz;
-@@ -1231,13 +1231,13 @@ static bool msdc_cmd_done(struct msdc_host *host, int events,
- static inline bool msdc_cmd_is_ready(struct msdc_host *host,
- 		struct mmc_request *mrq, struct mmc_command *cmd)
- {
--	/* The max busy time we can endure is 20ms */
--	unsigned long tmo = jiffies + msecs_to_jiffies(20);
-+	u32 val;
-+	int ret;
- 
--	while ((readl(host->base + SDC_STS) & SDC_STS_CMDBUSY) &&
--			time_before(jiffies, tmo))
--		cpu_relax();
--	if (readl(host->base + SDC_STS) & SDC_STS_CMDBUSY) {
-+	/* The max busy time we can endure is 20ms */
-+	ret = readl_poll_timeout_atomic(host->base + SDC_STS, val,
-+					!(val & SDC_STS_CMDBUSY), 1, 20000);
-+	if (ret) {
- 		dev_err(host->dev, "CMD bus busy detected\n");
- 		host->error |= REQ_CMD_BUSY;
- 		msdc_cmd_done(host, MSDC_INT_CMDTMO, mrq, cmd);
-@@ -1245,12 +1245,10 @@ static inline bool msdc_cmd_is_ready(struct msdc_host *host,
- 	}
- 
- 	if (mmc_resp_type(cmd) == MMC_RSP_R1B || cmd->data) {
--		tmo = jiffies + msecs_to_jiffies(20);
- 		/* R1B or with data, should check SDCBUSY */
--		while ((readl(host->base + SDC_STS) & SDC_STS_SDCBUSY) &&
--				time_before(jiffies, tmo))
--			cpu_relax();
--		if (readl(host->base + SDC_STS) & SDC_STS_SDCBUSY) {
-+		ret = readl_poll_timeout_atomic(host->base + SDC_STS, val,
-+						!(val & SDC_STS_SDCBUSY), 1, 20000);
-+		if (ret) {
- 			dev_err(host->dev, "Controller busy detected\n");
- 			host->error |= REQ_CMD_BUSY;
- 			msdc_cmd_done(host, MSDC_INT_CMDTMO, mrq, cmd);
-@@ -1376,6 +1374,8 @@ static bool msdc_data_xfer_done(struct msdc_host *host, u32 events,
- 	    (MSDC_INT_XFER_COMPL | MSDC_INT_DATCRCERR | MSDC_INT_DATTMO
- 	     | MSDC_INT_DMA_BDCSERR | MSDC_INT_DMA_GPDCSERR
- 	     | MSDC_INT_DMA_PROTECT);
-+	u32 val;
-+	int ret;
- 
- 	spin_lock_irqsave(&host->lock, flags);
- 	done = !host->data;
-@@ -1392,8 +1392,14 @@ static bool msdc_data_xfer_done(struct msdc_host *host, u32 events,
- 				readl(host->base + MSDC_DMA_CFG));
- 		sdr_set_field(host->base + MSDC_DMA_CTRL, MSDC_DMA_CTRL_STOP,
- 				1);
--		while (readl(host->base + MSDC_DMA_CFG) & MSDC_DMA_CFG_STS)
--			cpu_relax();
-+
-+		ret = readl_poll_timeout_atomic(host->base + MSDC_DMA_CFG, val,
-+						!(val & MSDC_DMA_CFG_STS), 1, 20000);
-+		if (ret) {
-+			dev_dbg(host->dev, "DMA stop timed out\n");
-+			return false;
-+		}
-+
- 		sdr_clr_bits(host->base + MSDC_INTEN, data_ints_mask);
- 		dev_dbg(host->dev, "DMA stop\n");
- 
-@@ -2674,7 +2680,11 @@ static int msdc_drv_probe(struct platform_device *pdev)
- 	spin_lock_init(&host->lock);
- 
- 	platform_set_drvdata(pdev, mmc);
--	msdc_ungate_clock(host);
-+	ret = msdc_ungate_clock(host);
-+	if (ret) {
-+		dev_err(&pdev->dev, "Cannot ungate clocks!\n");
-+		goto release_mem;
-+	}
- 	msdc_init_hw(host);
- 
- 	if (mmc->caps2 & MMC_CAP2_CQE) {
-@@ -2833,8 +2843,12 @@ static int __maybe_unused msdc_runtime_resume(struct device *dev)
- {
- 	struct mmc_host *mmc = dev_get_drvdata(dev);
- 	struct msdc_host *host = mmc_priv(mmc);
-+	int ret;
-+
-+	ret = msdc_ungate_clock(host);
-+	if (ret)
-+		return ret;
- 
--	msdc_ungate_clock(host);
- 	msdc_restore_reg(host);
- 	return 0;
- }
+ 			return irq;
+ 		}
 -- 
 2.34.1
 
