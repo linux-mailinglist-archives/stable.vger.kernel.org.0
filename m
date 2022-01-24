@@ -2,56 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 634374998C3
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:38:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 551D94996F6
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:20:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1453263AbiAXV3s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:29:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50930 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1447375AbiAXVTH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:19:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64526C06F8D5;
-        Mon, 24 Jan 2022 12:13:21 -0800 (PST)
+        id S1377385AbiAXVI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:08:28 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:55150 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1445301AbiAXVCn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:02:43 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06376B811FB;
-        Mon, 24 Jan 2022 20:13:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F28B8C340E5;
-        Mon, 24 Jan 2022 20:13:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 76E1360E8D;
+        Mon, 24 Jan 2022 21:02:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F92AC340E8;
+        Mon, 24 Jan 2022 21:02:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055199;
-        bh=zPh5p7FABxi5Q4+sOjWICwvNeN9fXrty6gLPGE1tFdI=;
+        s=korg; t=1643058161;
+        bh=GSPw2tC2/aZH08CgCYUriKjqTe1XdPeZhekrHeV1OJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dKV1DcMo8Oc+z3+VrGF1SG8jPgr614sXP4CskWahtgIZ9bYP6QC84ep+gGwOOnwcs
-         h8qeIahjcCdSHGytCElI+UGXpDSpCU0zEoNDw5P9KIbOyGYFl8zhxI9vmy8Dfc6hON
-         hjrf36hNiLA/UN4o131FnKOHYvkG54de1kNi6wVY=
+        b=nqgaFFJF6hJrkca/TEkGgYBgTMieXZCm6Wqza9q4BhnH+tH4/tadrmsw/wEEu9DK6
+         emwCOmD+2BjK4uPk4w8rDEsFxAtWpH53pVaDXwTotQj4o4cN+qAKoyWDlfZscXBV8b
+         Ske/5VO4KN/hoyHsyAN3powCyD005JvXoPFCcdhY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baoquan He <bhe@redhat.com>,
-        John Donnelly <john.p.donnelly@oracle.com>,
-        Hyeonggon Yoo <42.hyeyoo@gmail.com>,
-        Christoph Lameter <cl@linux.com>,
-        Pekka Enberg <penberg@kernel.org>,
-        David Rientjes <rientjes@google.com>,
-        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Borislav Petkov <bp@alien8.de>, Christoph Hellwig <hch@lst.de>,
-        David Hildenbrand <david@redhat.com>,
-        David Laight <David.Laight@ACULAB.COM>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 072/846] mm/page_alloc.c: do not warn allocation failure on zone DMA if no managed pages
+        stable@vger.kernel.org, Oleksij Rempel <o.rempel@pengutronix.de>,
+        =?UTF-8?q?Petr=20Bene=C5=A1?= <petr.benes@ysoft.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0200/1039] thermal/drivers/imx: Implement runtime PM support
 Date:   Mon, 24 Jan 2022 19:33:09 +0100
-Message-Id: <20220124184103.464688090@linuxfoundation.org>
+Message-Id: <20220124184132.049816270@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,98 +46,305 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baoquan He <bhe@redhat.com>
+From: Oleksij Rempel <o.rempel@pengutronix.de>
 
-commit c4dc63f0032c77464fbd4e7a6afc22fa6913c4a7 upstream.
+[ Upstream commit 4cf2ddf16e175ee18c5c29865c32da7d6269cf44 ]
 
-In kdump kernel of x86_64, page allocation failure is observed:
+Starting with commit d92ed2c9d3ff ("thermal: imx: Use driver's local
+data to decide whether to run a measurement") this driver stared using
+irq_enabled flag to make decision to power on/off the thermal
+core. This triggered a regression, where after reaching critical
+temperature, alarm IRQ handler set irq_enabled to false, disabled
+thermal core and was not able read temperature and disable cooling
+sequence.
 
- kworker/u2:2: page allocation failure: order:0, mode:0xcc1(GFP_KERNEL|GFP_DMA), nodemask=(null),cpuset=/,mems_allowed=0
- CPU: 0 PID: 55 Comm: kworker/u2:2 Not tainted 5.16.0-rc4+ #5
- Hardware name: AMD Dinar/Dinar, BIOS RDN1505B 06/05/2013
- Workqueue: events_unbound async_run_entry_fn
- Call Trace:
-  <TASK>
-  dump_stack_lvl+0x48/0x5e
-  warn_alloc.cold+0x72/0xd6
-  __alloc_pages_slowpath.constprop.0+0xc69/0xcd0
-  __alloc_pages+0x1df/0x210
-  new_slab+0x389/0x4d0
-  ___slab_alloc+0x58f/0x770
-  __slab_alloc.constprop.0+0x4a/0x80
-  kmem_cache_alloc_trace+0x24b/0x2c0
-  sr_probe+0x1db/0x620
-  ......
-  device_add+0x405/0x920
-  ......
-  __scsi_add_device+0xe5/0x100
-  ata_scsi_scan_host+0x97/0x1d0
-  async_run_entry_fn+0x30/0x130
-  process_one_work+0x1e8/0x3c0
-  worker_thread+0x50/0x3b0
-  ? rescuer_thread+0x350/0x350
-  kthread+0x16b/0x190
-  ? set_kthread_struct+0x40/0x40
-  ret_from_fork+0x22/0x30
-  </TASK>
- Mem-Info:
- ......
+In case the cooling device is "CPU/GPU freq", the system will run with
+reduce performance until next reboot.
 
-The above failure happened when calling kmalloc() to allocate buffer with
-GFP_DMA.  It requests to allocate slab page from DMA zone while no managed
-pages at all in there.
+To solve this issue, we need to move all parts implementing hand made
+runtime power management and let it handle actual runtime PM framework.
 
- sr_probe()
- --> get_capabilities()
-     --> buffer = kmalloc(512, GFP_KERNEL | GFP_DMA);
-
-Because in the current kernel, dma-kmalloc will be created as long as
-CONFIG_ZONE_DMA is enabled.  However, kdump kernel of x86_64 doesn't have
-managed pages on DMA zone since commit 6f599d84231f ("x86/kdump: Always
-reserve the low 1M when the crashkernel option is specified").  The
-failure can be always reproduced.
-
-For now, let's mute the warning of allocation failure if requesting pages
-from DMA zone while no managed pages.
-
-[akpm@linux-foundation.org: fix warning]
-
-Link: https://lkml.kernel.org/r/20211223094435.248523-4-bhe@redhat.com
-Fixes: 6f599d84231f ("x86/kdump: Always reserve the low 1M when the crashkernel option is specified")
-Signed-off-by: Baoquan He <bhe@redhat.com>
-Acked-by: John Donnelly  <john.p.donnelly@oracle.com>
-Reviewed-by: Hyeonggon Yoo <42.hyeyoo@gmail.com>
-Cc: Christoph Lameter <cl@linux.com>
-Cc: Pekka Enberg <penberg@kernel.org>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: David Laight <David.Laight@ACULAB.COM>
-Cc: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Robin Murphy <robin.murphy@arm.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d92ed2c9d3ff ("thermal: imx: Use driver's local data to decide whether to run a measurement")
+Signed-off-by: Oleksij Rempel <o.rempel@pengutronix.de>
+Tested-by: Petr Beneš <petr.benes@ysoft.com>
+Link: https://lore.kernel.org/r/20211117103426.81813-1-o.rempel@pengutronix.de
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/page_alloc.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/thermal/imx_thermal.c | 145 +++++++++++++++++++++-------------
+ 1 file changed, 91 insertions(+), 54 deletions(-)
 
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -4210,7 +4210,9 @@ void warn_alloc(gfp_t gfp_mask, nodemask
- 	va_list args;
- 	static DEFINE_RATELIMIT_STATE(nopage_rs, 10*HZ, 1);
+diff --git a/drivers/thermal/imx_thermal.c b/drivers/thermal/imx_thermal.c
+index 2c7473d86a59b..16663373b6829 100644
+--- a/drivers/thermal/imx_thermal.c
++++ b/drivers/thermal/imx_thermal.c
+@@ -15,6 +15,7 @@
+ #include <linux/regmap.h>
+ #include <linux/thermal.h>
+ #include <linux/nvmem-consumer.h>
++#include <linux/pm_runtime.h>
  
--	if ((gfp_mask & __GFP_NOWARN) || !__ratelimit(&nopage_rs))
-+	if ((gfp_mask & __GFP_NOWARN) ||
-+	     !__ratelimit(&nopage_rs) ||
-+	     ((gfp_mask & __GFP_DMA) && !has_managed_dma()))
- 		return;
+ #define REG_SET		0x4
+ #define REG_CLR		0x8
+@@ -194,6 +195,7 @@ static struct thermal_soc_data thermal_imx7d_data = {
+ };
  
- 	va_start(args, fmt);
+ struct imx_thermal_data {
++	struct device *dev;
+ 	struct cpufreq_policy *policy;
+ 	struct thermal_zone_device *tz;
+ 	struct thermal_cooling_device *cdev;
+@@ -252,44 +254,15 @@ static int imx_get_temp(struct thermal_zone_device *tz, int *temp)
+ 	const struct thermal_soc_data *soc_data = data->socdata;
+ 	struct regmap *map = data->tempmon;
+ 	unsigned int n_meas;
+-	bool wait, run_measurement;
+ 	u32 val;
++	int ret;
+ 
+-	run_measurement = !data->irq_enabled;
+-	if (!run_measurement) {
+-		/* Check if a measurement is currently in progress */
+-		regmap_read(map, soc_data->temp_data, &val);
+-		wait = !(val & soc_data->temp_valid_mask);
+-	} else {
+-		/*
+-		 * Every time we measure the temperature, we will power on the
+-		 * temperature sensor, enable measurements, take a reading,
+-		 * disable measurements, power off the temperature sensor.
+-		 */
+-		regmap_write(map, soc_data->sensor_ctrl + REG_CLR,
+-			    soc_data->power_down_mask);
+-		regmap_write(map, soc_data->sensor_ctrl + REG_SET,
+-			    soc_data->measure_temp_mask);
+-
+-		wait = true;
+-	}
+-
+-	/*
+-	 * According to the temp sensor designers, it may require up to ~17us
+-	 * to complete a measurement.
+-	 */
+-	if (wait)
+-		usleep_range(20, 50);
++	ret = pm_runtime_resume_and_get(data->dev);
++	if (ret < 0)
++		return ret;
+ 
+ 	regmap_read(map, soc_data->temp_data, &val);
+ 
+-	if (run_measurement) {
+-		regmap_write(map, soc_data->sensor_ctrl + REG_CLR,
+-			     soc_data->measure_temp_mask);
+-		regmap_write(map, soc_data->sensor_ctrl + REG_SET,
+-			     soc_data->power_down_mask);
+-	}
+-
+ 	if ((val & soc_data->temp_valid_mask) == 0) {
+ 		dev_dbg(&tz->device, "temp measurement never finished\n");
+ 		return -EAGAIN;
+@@ -328,6 +301,8 @@ static int imx_get_temp(struct thermal_zone_device *tz, int *temp)
+ 		enable_irq(data->irq);
+ 	}
+ 
++	pm_runtime_put(data->dev);
++
+ 	return 0;
+ }
+ 
+@@ -335,24 +310,16 @@ static int imx_change_mode(struct thermal_zone_device *tz,
+ 			   enum thermal_device_mode mode)
+ {
+ 	struct imx_thermal_data *data = tz->devdata;
+-	struct regmap *map = data->tempmon;
+-	const struct thermal_soc_data *soc_data = data->socdata;
+ 
+ 	if (mode == THERMAL_DEVICE_ENABLED) {
+-		regmap_write(map, soc_data->sensor_ctrl + REG_CLR,
+-			     soc_data->power_down_mask);
+-		regmap_write(map, soc_data->sensor_ctrl + REG_SET,
+-			     soc_data->measure_temp_mask);
++		pm_runtime_get(data->dev);
+ 
+ 		if (!data->irq_enabled) {
+ 			data->irq_enabled = true;
+ 			enable_irq(data->irq);
+ 		}
+ 	} else {
+-		regmap_write(map, soc_data->sensor_ctrl + REG_CLR,
+-			     soc_data->measure_temp_mask);
+-		regmap_write(map, soc_data->sensor_ctrl + REG_SET,
+-			     soc_data->power_down_mask);
++		pm_runtime_put(data->dev);
+ 
+ 		if (data->irq_enabled) {
+ 			disable_irq(data->irq);
+@@ -393,6 +360,11 @@ static int imx_set_trip_temp(struct thermal_zone_device *tz, int trip,
+ 			     int temp)
+ {
+ 	struct imx_thermal_data *data = tz->devdata;
++	int ret;
++
++	ret = pm_runtime_resume_and_get(data->dev);
++	if (ret < 0)
++		return ret;
+ 
+ 	/* do not allow changing critical threshold */
+ 	if (trip == IMX_TRIP_CRITICAL)
+@@ -406,6 +378,8 @@ static int imx_set_trip_temp(struct thermal_zone_device *tz, int trip,
+ 
+ 	imx_set_alarm_temp(data, temp);
+ 
++	pm_runtime_put(data->dev);
++
+ 	return 0;
+ }
+ 
+@@ -681,6 +655,8 @@ static int imx_thermal_probe(struct platform_device *pdev)
+ 	if (!data)
+ 		return -ENOMEM;
+ 
++	data->dev = &pdev->dev;
++
+ 	map = syscon_regmap_lookup_by_phandle(pdev->dev.of_node, "fsl,tempmon");
+ 	if (IS_ERR(map)) {
+ 		ret = PTR_ERR(map);
+@@ -800,6 +776,16 @@ static int imx_thermal_probe(struct platform_device *pdev)
+ 		     data->socdata->power_down_mask);
+ 	regmap_write(map, data->socdata->sensor_ctrl + REG_SET,
+ 		     data->socdata->measure_temp_mask);
++	/* After power up, we need a delay before first access can be done. */
++	usleep_range(20, 50);
++
++	/* the core was configured and enabled just before */
++	pm_runtime_set_active(&pdev->dev);
++	pm_runtime_enable(data->dev);
++
++	ret = pm_runtime_resume_and_get(data->dev);
++	if (ret < 0)
++		goto disable_runtime_pm;
+ 
+ 	data->irq_enabled = true;
+ 	ret = thermal_zone_device_enable(data->tz);
+@@ -814,10 +800,15 @@ static int imx_thermal_probe(struct platform_device *pdev)
+ 		goto thermal_zone_unregister;
+ 	}
+ 
++	pm_runtime_put(data->dev);
++
+ 	return 0;
+ 
+ thermal_zone_unregister:
+ 	thermal_zone_device_unregister(data->tz);
++disable_runtime_pm:
++	pm_runtime_put_noidle(data->dev);
++	pm_runtime_disable(data->dev);
+ clk_disable:
+ 	clk_disable_unprepare(data->thermal_clk);
+ legacy_cleanup:
+@@ -829,13 +820,9 @@ legacy_cleanup:
+ static int imx_thermal_remove(struct platform_device *pdev)
+ {
+ 	struct imx_thermal_data *data = platform_get_drvdata(pdev);
+-	struct regmap *map = data->tempmon;
+ 
+-	/* Disable measurements */
+-	regmap_write(map, data->socdata->sensor_ctrl + REG_SET,
+-		     data->socdata->power_down_mask);
+-	if (!IS_ERR(data->thermal_clk))
+-		clk_disable_unprepare(data->thermal_clk);
++	pm_runtime_put_noidle(data->dev);
++	pm_runtime_disable(data->dev);
+ 
+ 	thermal_zone_device_unregister(data->tz);
+ 	imx_thermal_unregister_legacy_cooling(data);
+@@ -858,29 +845,79 @@ static int __maybe_unused imx_thermal_suspend(struct device *dev)
+ 	ret = thermal_zone_device_disable(data->tz);
+ 	if (ret)
+ 		return ret;
++
++	return pm_runtime_force_suspend(data->dev);
++}
++
++static int __maybe_unused imx_thermal_resume(struct device *dev)
++{
++	struct imx_thermal_data *data = dev_get_drvdata(dev);
++	int ret;
++
++	ret = pm_runtime_force_resume(data->dev);
++	if (ret)
++		return ret;
++	/* Enabled thermal sensor after resume */
++	return thermal_zone_device_enable(data->tz);
++}
++
++static int __maybe_unused imx_thermal_runtime_suspend(struct device *dev)
++{
++	struct imx_thermal_data *data = dev_get_drvdata(dev);
++	const struct thermal_soc_data *socdata = data->socdata;
++	struct regmap *map = data->tempmon;
++	int ret;
++
++	ret = regmap_write(map, socdata->sensor_ctrl + REG_CLR,
++			   socdata->measure_temp_mask);
++	if (ret)
++		return ret;
++
++	ret = regmap_write(map, socdata->sensor_ctrl + REG_SET,
++			   socdata->power_down_mask);
++	if (ret)
++		return ret;
++
+ 	clk_disable_unprepare(data->thermal_clk);
+ 
+ 	return 0;
+ }
+ 
+-static int __maybe_unused imx_thermal_resume(struct device *dev)
++static int __maybe_unused imx_thermal_runtime_resume(struct device *dev)
+ {
+ 	struct imx_thermal_data *data = dev_get_drvdata(dev);
++	const struct thermal_soc_data *socdata = data->socdata;
++	struct regmap *map = data->tempmon;
+ 	int ret;
+ 
+ 	ret = clk_prepare_enable(data->thermal_clk);
+ 	if (ret)
+ 		return ret;
+-	/* Enabled thermal sensor after resume */
+-	ret = thermal_zone_device_enable(data->tz);
++
++	ret = regmap_write(map, socdata->sensor_ctrl + REG_CLR,
++			   socdata->power_down_mask);
++	if (ret)
++		return ret;
++
++	ret = regmap_write(map, socdata->sensor_ctrl + REG_SET,
++			   socdata->measure_temp_mask);
+ 	if (ret)
+ 		return ret;
+ 
++	/*
++	 * According to the temp sensor designers, it may require up to ~17us
++	 * to complete a measurement.
++	 */
++	usleep_range(20, 50);
++
+ 	return 0;
+ }
+ 
+-static SIMPLE_DEV_PM_OPS(imx_thermal_pm_ops,
+-			 imx_thermal_suspend, imx_thermal_resume);
++static const struct dev_pm_ops imx_thermal_pm_ops = {
++	SET_SYSTEM_SLEEP_PM_OPS(imx_thermal_suspend, imx_thermal_resume)
++	SET_RUNTIME_PM_OPS(imx_thermal_runtime_suspend,
++			   imx_thermal_runtime_resume, NULL)
++};
+ 
+ static struct platform_driver imx_thermal = {
+ 	.driver = {
+-- 
+2.34.1
+
 
 
