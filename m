@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D6FA499E39
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:07:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81B51499E59
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:08:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356137AbiAXWa6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:30:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38116 "EHLO
+        id S1356483AbiAXWco (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:32:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37642 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1585442AbiAXWXd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:23:33 -0500
+        with ESMTP id S1585424AbiAXWXb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:23:31 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82181C04189A;
-        Mon, 24 Jan 2022 12:53:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1CE8C04189C;
+        Mon, 24 Jan 2022 12:53:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E560B81218;
-        Mon, 24 Jan 2022 20:53:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 720DBC340E5;
-        Mon, 24 Jan 2022 20:53:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 45B51B811FB;
+        Mon, 24 Jan 2022 20:53:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82EC5C340E5;
+        Mon, 24 Jan 2022 20:53:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057626;
-        bh=E+29dWAS2bNGWEVBTIKKRP7OxbGQOJmSmmqhxe69i2s=;
+        s=korg; t=1643057629;
+        bh=QjAv+mVi3dI62MzHUFz7B9G4FS95ehWT/yUknSVrAwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BeF8sHTQBI2shzoqeLW9ayyVfDISZ2Q6x9nloNAlZxF2OA2ZiUSnzxs8wYYf65O2/
-         wyiT9cb7izFbTJWRVAwvX8Sv38FUw8anVIvAY7F4CzlnK/GOVtT8hnRSfhiWmt5K9n
-         wuiDllbrutCZq9yLtkkbYjy3IsRG3uSXPIHygf6Q=
+        b=E8/yhqkSmwH+cz7jHIpLEntlFSlNqJgxVAJPzuKIWCjGYbNAugNSktBTv3oItVZOw
+         MPD3J/xsvap3V5QWQ7OJRBBt1w+cfj7odnD3/SH8yK/0pQnxUv81ZqyJGBZnHsPrwE
+         e2enNCaFKxjZGVCp6vrXLoSHbbe43M3hKqe0UjJU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Kossifidis <mick@ics.forth.gr>,
+        stable@vger.kernel.org, Jisheng Zhang <jszhang@kernel.org>,
+        Alexandre Ghiti <alex@ghiti.fr>,
         Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.16 0027/1039] riscv: use hart id instead of cpu id on machine_kexec
-Date:   Mon, 24 Jan 2022 19:30:16 +0100
-Message-Id: <20220124184126.052139899@linuxfoundation.org>
+Subject: [PATCH 5.16 0028/1039] riscv: mm: fix wrong phys_ram_base value for RV64
+Date:   Mon, 24 Jan 2022 19:30:17 +0100
+Message-Id: <20220124184126.086370772@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -47,36 +48,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nick Kossifidis <mick@ics.forth.gr>
+From: Jisheng Zhang <jszhang@kernel.org>
 
-commit 0e105f1d0037d677dff3c697d22f9551e6c39af8 upstream.
+commit b0fd4b1bf995172b9efcee23600d4f69571c321c upstream.
 
-raw_smp_processor_id() doesn't return the hart id as stated in
-arch/riscv/include/asm/smp.h, use smp_processor_id() instead
-to get the cpu id, and cpuid_to_hartid_map() to pass the hart id
-to the next kernel. This fixes kexec on HiFive Unleashed/Unmatched
-where cpu ids and hart ids don't match (on qemu-virt they match).
+Currently, if 64BIT and !XIP_KERNEL, the phys_ram_base is always 0,
+no matter the real start of dram reported by memblock is.
 
-Fixes: fba8a8674f68 ("RISC-V: Add kexec support")
-Signed-off-by: Nick Kossifidis <mick@ics.forth.gr>
+Fixes: 6d7f91d914bc ("riscv: Get rid of CONFIG_PHYS_RAM_BASE in kernel physical address conversion")
+Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
+Reviewed-by: Alexandre Ghiti <alex@ghiti.fr>
 Cc: stable@vger.kernel.org
 Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kernel/machine_kexec.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/riscv/mm/init.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/riscv/kernel/machine_kexec.c
-+++ b/arch/riscv/kernel/machine_kexec.c
-@@ -169,7 +169,8 @@ machine_kexec(struct kimage *image)
- 	struct kimage_arch *internal = &image->arch;
- 	unsigned long jump_addr = (unsigned long) image->start;
- 	unsigned long first_ind_entry = (unsigned long) &image->head;
--	unsigned long this_hart_id = raw_smp_processor_id();
-+	unsigned long this_cpu_id = smp_processor_id();
-+	unsigned long this_hart_id = cpuid_to_hartid_map(this_cpu_id);
- 	unsigned long fdt_addr = internal->fdt_addr;
- 	void *control_code_buffer = page_address(image->control_code_page);
- 	riscv_kexec_method kexec_method = NULL;
+--- a/arch/riscv/mm/init.c
++++ b/arch/riscv/mm/init.c
+@@ -187,10 +187,10 @@ static void __init setup_bootmem(void)
+ 
+ 
+ 	phys_ram_end = memblock_end_of_DRAM();
+-#ifndef CONFIG_64BIT
+ #ifndef CONFIG_XIP_KERNEL
+ 	phys_ram_base = memblock_start_of_DRAM();
+ #endif
++#ifndef CONFIG_64BIT
+ 	/*
+ 	 * memblock allocator is not aware of the fact that last 4K bytes of
+ 	 * the addressable memory can not be mapped because of IS_ERR_VALUE
 
 
