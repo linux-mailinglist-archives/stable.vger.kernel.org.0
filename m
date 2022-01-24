@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D269499A70
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85F1E499A71
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378908AbiAXVoE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:44:04 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:46782 "EHLO
+        id S1378920AbiAXVoF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:44:05 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:45714 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1454796AbiAXVdn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:33:43 -0500
+        with ESMTP id S1454817AbiAXVdp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:33:45 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F1D2B81233;
-        Mon, 24 Jan 2022 21:33:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2FFAC340E4;
-        Mon, 24 Jan 2022 21:33:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 922CBB80FA1;
+        Mon, 24 Jan 2022 21:33:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4ADDC340E5;
+        Mon, 24 Jan 2022 21:33:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060020;
-        bh=yg7nmv7uay7Pj6NDNSVSmBGl9495vlN68aIKhTtxQGw=;
+        s=korg; t=1643060023;
+        bh=UmrV72hs4fkCPVZC9sUSZ23FItTS0o2fU/PF43t+HqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JryVdkoJskiRSaJ+mlp07iig0a9C2hpf0YIyOTXj15pRJWrr3icUdCjH46gx9j3p3
-         pGirozeVxzco9MaI9ckdMuv3x0YyhHCSSq0Swt9xvQcLj0P1g1iBr0WSe1eriwAEB/
-         9x3EvICcTczPm9CRhKSCpUL1bVEGv2yCP55SrzD8=
+        b=HQlSNmprdCr0FL/n0rtHqUGsYjVMJVCSWxyaLkaayugBTH7wrlNzm8zsIj6lXtNKx
+         UGjI1aKCknebtw0AlBAkMbWFmYsKqxTB9iGBdPwJyHiVNJKGDSgJvpi+2ED7UCmcr/
+         XjY73pi/wp5gPpB/cHdGjx3rvWMqzVx0vLWHbWmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lee Shawn C <shawn.c.lee@intel.com>,
-        Juston Li <juston.li@intel.com>,
-        Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>,
-        John Harrison <John.C.Harrison@Intel.com>,
+        stable@vger.kernel.org, Matthew Auld <matthew.auld@intel.com>,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>,
         Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0813/1039] drm/i915/pxp: Hold RPM wakelock during PXP unbind
-Date:   Mon, 24 Jan 2022 19:43:22 +0100
-Message-Id: <20220124184152.635190440@linuxfoundation.org>
+Subject: [PATCH 5.16 0814/1039] drm/i915: dont call free_mmap_offset when purging
+Date:   Mon, 24 Jan 2022 19:43:23 +0100
+Message-Id: <20220124184152.665968323@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -48,103 +47,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Juston Li <juston.li@intel.com>
+From: Matthew Auld <matthew.auld@intel.com>
 
-[ Upstream commit f9535d28ac93c3cc326f7215fccd0abe1d3a6083 ]
+[ Upstream commit 4c2602ba8d74c35d550ed3d518809c697de08d88 ]
 
-Similar to commit b8d8436840ca ("drm/i915/gt: Hold RPM wakelock during
-PXP suspend") but to fix the same warning for unbind during shutdown:
+The TTM backend is in theory the only user here(also purge should only
+be called once we have dropped the pages), where it is setup at object
+creation and is only removed once the object is destroyed. Also
+resetting the node here might be iffy since the ttm fault handler
+uses the stored fake offset to determine the page offset within the pages
+array.
 
-------------[ cut here ]------------
-RPM wakelock ref not held during HW access
-WARNING: CPU: 0 PID: 4139 at drivers/gpu/drm/i915/intel_runtime_pm.h:115
-gen12_fwtable_write32+0x1b7/0
-Modules linked in: 8021q ccm rfcomm cmac algif_hash algif_skcipher
-af_alg uinput snd_hda_codec_hdmi vf industrialio iwl7000_mac80211
-cros_ec_sensorhub lzo_rle lzo_compress zram iwlwifi cfg80211 joydev
-CPU: 0 PID: 4139 Comm: halt Tainted: G     U  W
-5.10.84 #13 344e11e079c4a03940d949e537eab645f6
-RIP: 0010:gen12_fwtable_write32+0x1b7/0x200
-Code: 48 c7 c7 fc b3 b5 89 31 c0 e8 2c f3 ad ff 0f 0b e9 04 ff ff ff c6
-05 71 e9 1d 01 01 48 c7 c7 d67
-RSP: 0018:ffffa09ec0bb3bb0 EFLAGS: 00010246
-RAX: 12dde97bbd260300 RBX: 00000000000320f0 RCX: ffffffff89e60ea0
-RDX: 0000000000000000 RSI: 00000000ffffdfff RDI: ffffffff89e60e70
-RBP: ffffa09ec0bb3bd8 R08: 0000000000000000 R09: ffffa09ec0bb3950
-R10: 00000000ffffdfff R11: ffffffff89e91160 R12: 0000000000000000
-R13: 0000000028121969 R14: ffff9515c32f0990 R15: 0000000040000000
-FS:  0000790dcf225740(0000) GS:ffff951737800000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000058b25efae147 CR3: 0000000133ea6001 CR4: 0000000000770ef0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000ffff07f0 DR7: 0000000000000400
-PKRU: 55555554
-Call Trace:
- intel_pxp_fini_hw+0x2f/0x39
- i915_pxp_tee_component_unbind+0x1c/0x42
- component_unbind+0x32/0x48
- component_unbind_all+0x80/0x9d
- take_down_master+0x24/0x36
- component_master_del+0x56/0x70
- mei_pxp_remove+0x2c/0x68
- mei_cl_device_remove+0x35/0x68
- device_release_driver_internal+0x100/0x1a1
- mei_cl_bus_remove_device+0x21/0x79
- mei_cl_bus_remove_devices+0x3b/0x51
- mei_stop+0x3b/0xae
- mei_me_shutdown+0x23/0x58
- device_shutdown+0x144/0x1d3
- kernel_power_off+0x13/0x4c
- __se_sys_reboot+0x1d4/0x1e9
- do_syscall_64+0x43/0x55
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-RIP: 0033:0x790dcf316273
-Code: 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00
-00 89 fa be 69 19 12 28 bf ad8
-RSP: 002b:00007ffca0df9198 EFLAGS: 00000202 ORIG_RAX: 00000000000000a9
-RAX: ffffffffffffffda RBX: 000000004321fedc RCX: 0000790dcf316273
-RDX: 000000004321fedc RSI: 0000000028121969 RDI: 00000000fee1dead
-RBP: 00007ffca0df9200 R08: 0000000000000007 R09: 0000563ce8cd8970
-R10: 0000000000000000 R11: 0000000000000202 R12: 00007ffca0df9308
-R13: 0000000000000001 R14: 0000000000000000 R15: 0000000000000003
----[ end trace 2f501b01b348f114 ]---
-ACPI: Preparing to enter system sleep state S5
-reboot: Power down
+This also blows up in the dontneed-before-mmap test, since the
+expectation is that the vma_node will live on, until the object is
+destroyed:
 
-Changes since v1:
- - Rebase to latest drm-tip
+<2> [749.062902] kernel BUG at drivers/gpu/drm/i915/gem/i915_gem_ttm.c:943!
+<4> [749.062923] invalid opcode: 0000 [#1] PREEMPT SMP NOPTI
+<4> [749.062928] CPU: 0 PID: 1643 Comm: gem_madvise Tainted: G     U  W         5.16.0-rc8-CI-CI_DRM_11046+ #1
+<4> [749.062933] Hardware name: Gigabyte Technology Co., Ltd. GB-Z390 Garuda/GB-Z390 Garuda-CF, BIOS IG1c 11/19/2019
+<4> [749.062937] RIP: 0010:i915_ttm_mmap_offset.cold.35+0x5b/0x5d [i915]
+<4> [749.063044] Code: 00 48 c7 c2 a0 23 4e a0 48 c7 c7 26 df 4a a0 e8 95 1d d0 e0 bf 01 00 00 00 e8 8b ec cf e0 31 f6 bf 09 00 00 00 e8 5f 30 c0 e0 <0f> 0b 48 c7 c1 24 4b 56 a0 ba 5b 03 00 00 48 c7 c6 c0 23 4e a0 48
+<4> [749.063052] RSP: 0018:ffffc90002ab7d38 EFLAGS: 00010246
+<4> [749.063056] RAX: 0000000000000240 RBX: ffff88811f2e61c0 RCX: 0000000000000006
+<4> [749.063060] RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000009
+<4> [749.063063] RBP: ffffc90002ab7e58 R08: 0000000000000001 R09: 0000000000000001
+<4> [749.063067] R10: 000000000123d0f8 R11: ffffc90002ab7b20 R12: ffff888112a1a000
+<4> [749.063071] R13: 0000000000000004 R14: ffff88811f2e61c0 R15: ffff888112a1a000
+<4> [749.063074] FS:  00007f6e5fcad500(0000) GS:ffff8884ad600000(0000) knlGS:0000000000000000
+<4> [749.063078] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+<4> [749.063081] CR2: 00007efd264e39f0 CR3: 0000000115fd6005 CR4: 00000000003706f0
+<4> [749.063085] Call Trace:
+<4> [749.063087]  <TASK>
+<4> [749.063089]  __assign_mmap_offset+0x41/0x300 [i915]
+<4> [749.063171]  __assign_mmap_offset_handle+0x159/0x270 [i915]
+<4> [749.063248]  ? i915_gem_dumb_mmap_offset+0x70/0x70 [i915]
+<4> [749.063325]  drm_ioctl_kernel+0xae/0x140
+<4> [749.063330]  drm_ioctl+0x201/0x3d0
+<4> [749.063333]  ? i915_gem_dumb_mmap_offset+0x70/0x70 [i915]
+<4> [749.063409]  ? do_user_addr_fault+0x200/0x670
+<4> [749.063415]  __x64_sys_ioctl+0x6d/0xa0
+<4> [749.063419]  do_syscall_64+0x3a/0xb0
+<4> [749.063423]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+<4> [749.063428] RIP: 0033:0x7f6e5f100317
 
-Fixes: 0cfab4cb3c4e ("drm/i915/pxp: Enable PXP power management")
-Suggested-by: Lee Shawn C <shawn.c.lee@intel.com>
-Signed-off-by: Juston Li <juston.li@intel.com>
-Reviewed-by: Daniele Ceraolo Spurio <daniele.ceraolospurio@intel.com>
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220106200236.489656-2-juston.li@intel.com
-(cherry picked from commit 57ded5fc98b11d76dae505ca3591b61c9dbbbda7)
+Testcase: igt/gem_madvise/dontneed-before-mmap
+Fixes: cf3e3e86d779 ("drm/i915: Use ttm mmap handling for ttm bo's.")
+Signed-off-by: Matthew Auld <matthew.auld@intel.com>
+Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Reviewed-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220106174910.280616-1-matthew.auld@intel.com
+(cherry picked from commit 658a0c632625e1db51837ff754fe18a6a7f2ccf8)
 Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/pxp/intel_pxp_tee.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/gem/i915_gem_pages.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/i915/pxp/intel_pxp_tee.c b/drivers/gpu/drm/i915/pxp/intel_pxp_tee.c
-index 49508f31dcb73..d2980370d9297 100644
---- a/drivers/gpu/drm/i915/pxp/intel_pxp_tee.c
-+++ b/drivers/gpu/drm/i915/pxp/intel_pxp_tee.c
-@@ -103,9 +103,12 @@ static int i915_pxp_tee_component_bind(struct device *i915_kdev,
- static void i915_pxp_tee_component_unbind(struct device *i915_kdev,
- 					  struct device *tee_kdev, void *data)
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_pages.c b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
+index 8eb1c3a6fc9cd..1d3f40abd0258 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_pages.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
+@@ -160,7 +160,6 @@ retry:
+ /* Immediately discard the backing storage */
+ void i915_gem_object_truncate(struct drm_i915_gem_object *obj)
  {
-+	struct drm_i915_private *i915 = kdev_to_i915(i915_kdev);
- 	struct intel_pxp *pxp = i915_dev_to_pxp(i915_kdev);
-+	intel_wakeref_t wakeref;
- 
--	intel_pxp_fini_hw(pxp);
-+	with_intel_runtime_pm_if_in_use(&i915->runtime_pm, wakeref)
-+		intel_pxp_fini_hw(pxp);
- 
- 	mutex_lock(&pxp->tee_mutex);
- 	pxp->pxp_component = NULL;
+-	drm_gem_free_mmap_offset(&obj->base);
+ 	if (obj->ops->truncate)
+ 		obj->ops->truncate(obj);
+ }
 -- 
 2.34.1
 
