@@ -2,40 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3798498B7C
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:14:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ACC049915F
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346527AbiAXTOB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:14:01 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:41566 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345298AbiAXTL6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:11:58 -0500
+        id S1379168AbiAXUK2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:10:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57824 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346281AbiAXTvt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:51:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93042C04188D;
+        Mon, 24 Jan 2022 11:24:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 18B0A60BB9;
-        Mon, 24 Jan 2022 19:11:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25D53C340EB;
-        Mon, 24 Jan 2022 19:11:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 909E2B8122C;
+        Mon, 24 Jan 2022 19:24:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF529C340E7;
+        Mon, 24 Jan 2022 19:24:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051517;
-        bh=ATbwbrhLYhUw5b7slfxUdG2/4HZMt/W6+8bip6jDOLM=;
+        s=korg; t=1643052269;
+        bh=gk9HNkOw8giGGMPD+7p+DjpVIM6kP8mjUyFj3QJZWyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ldVqTc/ZcIBEKvYrq6COGH0FSSWXEi7jQnX25+S1uPQXkAYXYvA8B8Cho47e/8Y27
-         Nf6h2v0u5KXwBYVJ/ecUGTNjRX+W3LxXhjpHyZpu0+lM1Ei+cIVp8BwZ1y0RbV0Byl
-         eE5VTa4hrhJQtiO8iBxjqIxE9Y7J3RVi55TLVP8A=
+        b=C8TA59XMZGvBBtUMbD3p+1swcDOqyyvc6Tm4302pOYFz7FxAp6MY0TdeXLKiEVprt
+         16lyxz5GVytFK+oPONlx/yBYWMGdfvkwhuk9QFSjkFoXBuCcpumFqERSbsA2Xc3RxH
+         x5yV+SUjwnxChT3ls+jQeBBjfCvTIGf8nEbydiUU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.14 180/186] mips,s390,sh,sparc: gup: Work around the "COW can break either way" issue
-Date:   Mon, 24 Jan 2022 19:44:15 +0100
-Message-Id: <20220124183942.899147289@linuxfoundation.org>
+        stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.19 218/239] powerpc/cell: Fix clang -Wimplicit-fallthrough warning
+Date:   Mon, 24 Jan 2022 19:44:16 +0100
+Message-Id: <20220124183950.039483697@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,93 +50,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Hutchings <ben@decadent.org.uk>
+From: Anders Roxell <anders.roxell@linaro.org>
 
-In Linux 4.14 and 4.19 these architectures still have their own
-implementations of get_user_pages_fast().  These also need to force
-the write flag on when taking the fast path.
+commit e89257e28e844f5d1d39081bb901d9f1183a7705 upstream.
 
-Fixes: 407faed92b4a ("gup: document and work around "COW can break either way" issue")
-Fixes: 5e24029791e8 ("gup: document and work around "COW can break either way" issue")
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Clang warns:
+
+arch/powerpc/platforms/cell/pervasive.c:81:2: error: unannotated fall-through between switch labels
+        case SRR1_WAKEEE:
+        ^
+arch/powerpc/platforms/cell/pervasive.c:81:2: note: insert 'break;' to avoid fall-through
+        case SRR1_WAKEEE:
+        ^
+        break;
+1 error generated.
+
+Clang is more pedantic than GCC, which does not warn when failing
+through to a case that is just break or return. Clang's version is more
+in line with the kernel's own stance in deprecated.rst. Add athe missing
+break to silence the warning.
+
+Fixes: 6e83985b0f6e ("powerpc/cbe: Do not process external or decremeter interrupts from sreset")
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211207110228.698956-1-anders.roxell@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/mm/gup.c  |    9 ++++++++-
- arch/s390/mm/gup.c  |    9 ++++++++-
- arch/sh/mm/gup.c    |    9 ++++++++-
- arch/sparc/mm/gup.c |    9 ++++++++-
- 4 files changed, 32 insertions(+), 4 deletions(-)
+ arch/powerpc/platforms/cell/pervasive.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/mips/mm/gup.c
-+++ b/arch/mips/mm/gup.c
-@@ -272,7 +272,14 @@ int get_user_pages_fast(unsigned long st
- 		next = pgd_addr_end(addr, end);
- 		if (pgd_none(pgd))
- 			goto slow;
--		if (!gup_pud_range(pgd, addr, next, write, pages, &nr))
-+		/*
-+		 * The FAST_GUP case requires FOLL_WRITE even for pure reads,
-+		 * because get_user_pages() may need to cause an early COW in
-+		 * order to avoid confusing the normal COW routines. So only
-+		 * targets that are already writable are safe to do by just
-+		 * looking at the page tables.
-+		 */
-+		if (!gup_pud_range(pgd, addr, next, 1, pages, &nr))
- 			goto slow;
- 	} while (pgdp++, addr = next, addr != end);
- 	local_irq_enable();
---- a/arch/s390/mm/gup.c
-+++ b/arch/s390/mm/gup.c
-@@ -285,7 +285,14 @@ int get_user_pages_fast(unsigned long st
- 
- 	might_sleep();
- 	start &= PAGE_MASK;
--	nr = __get_user_pages_fast(start, nr_pages, write, pages);
-+	/*
-+	 * The FAST_GUP case requires FOLL_WRITE even for pure reads,
-+	 * because get_user_pages() may need to cause an early COW in
-+	 * order to avoid confusing the normal COW routines. So only
-+	 * targets that are already writable are safe to do by just
-+	 * looking at the page tables.
-+	 */
-+	nr = __get_user_pages_fast(start, nr_pages, 1, pages);
- 	if (nr == nr_pages)
- 		return nr;
- 
---- a/arch/sh/mm/gup.c
-+++ b/arch/sh/mm/gup.c
-@@ -240,7 +240,14 @@ int get_user_pages_fast(unsigned long st
- 		next = pgd_addr_end(addr, end);
- 		if (pgd_none(pgd))
- 			goto slow;
--		if (!gup_pud_range(pgd, addr, next, write, pages, &nr))
-+		/*
-+		 * The FAST_GUP case requires FOLL_WRITE even for pure reads,
-+		 * because get_user_pages() may need to cause an early COW in
-+		 * order to avoid confusing the normal COW routines. So only
-+		 * targets that are already writable are safe to do by just
-+		 * looking at the page tables.
-+		 */
-+		if (!gup_pud_range(pgd, addr, next, 1, pages, &nr))
- 			goto slow;
- 	} while (pgdp++, addr = next, addr != end);
- 	local_irq_enable();
---- a/arch/sparc/mm/gup.c
-+++ b/arch/sparc/mm/gup.c
-@@ -262,7 +262,14 @@ int get_user_pages_fast(unsigned long st
- 		next = pgd_addr_end(addr, end);
- 		if (pgd_none(pgd))
- 			goto slow;
--		if (!gup_pud_range(pgd, addr, next, write, pages, &nr))
-+		/*
-+		 * The FAST_GUP case requires FOLL_WRITE even for pure reads,
-+		 * because get_user_pages() may need to cause an early COW in
-+		 * order to avoid confusing the normal COW routines. So only
-+		 * targets that are already writable are safe to do by just
-+		 * looking at the page tables.
-+		 */
-+		if (!gup_pud_range(pgd, addr, next, 1, pages, &nr))
- 			goto slow;
- 	} while (pgdp++, addr = next, addr != end);
- 
+--- a/arch/powerpc/platforms/cell/pervasive.c
++++ b/arch/powerpc/platforms/cell/pervasive.c
+@@ -90,6 +90,7 @@ static int cbe_system_reset_exception(st
+ 	switch (regs->msr & SRR1_WAKEMASK) {
+ 	case SRR1_WAKEDEC:
+ 		set_dec(1);
++		break;
+ 	case SRR1_WAKEEE:
+ 		/*
+ 		 * Handle these when interrupts get re-enabled and we take
 
 
