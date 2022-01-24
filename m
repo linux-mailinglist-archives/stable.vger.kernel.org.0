@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27D7A498EDF
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:49:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2209499221
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:19:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355732AbiAXTtO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:49:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54224 "EHLO
+        id S1344697AbiAXURc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:17:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348952AbiAXTk7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:40:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91AC0C07A968;
-        Mon, 24 Jan 2022 11:19:43 -0800 (PST)
+        with ESMTP id S1355136AbiAXUNU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:13:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D84DC028BE4;
+        Mon, 24 Jan 2022 11:34:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 30F3C612F3;
-        Mon, 24 Jan 2022 19:19:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A596C340E5;
-        Mon, 24 Jan 2022 19:19:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E8796B810BD;
+        Mon, 24 Jan 2022 19:34:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3A8DC340E5;
+        Mon, 24 Jan 2022 19:34:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051982;
-        bh=vPTjVddl5DKb6MbfQQ7t/DzPJ0dMH0IYt5/qolz2wgk=;
+        s=korg; t=1643052860;
+        bh=6dHo04fHFiPT6f+jP1NYlQtr50rOB45dS0uHn/hwoCE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ylTvvB/WdWBBFrQmbF5JU8R69IlzDBi3QAFD1oYZoEOwXmCQXKOqI+1BxsZHNU56r
-         7gpCwWVSnvfq9WlI+MA1U9WRdpf1YX7FwKhyQ3RWo/+s6C5C7fJpnOJOsj5mXAM3u7
-         Zia/WEtWOMYEvg4kwcxIGiSYBRiXR6fUdhgSdbt4=
+        b=W7YvEEaqT7ho/FzM0nBmzUAIYuwvUtnEyfL7F7XX2bXkwxhlyhWMCwdmH8iHEfNLs
+         fQiTRer3cCxTcPcia/tYFqWE4Furgts0eebbjY+AolxEIs+HlnOe8AksRvWhxz6ymP
+         zh3e0jmOFOdlz+9O6DqXNlCj3MfF0diYbwg/POko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
+        stable@vger.kernel.org,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 142/239] x86/mce: Mark mce_panic() noinstr
+Subject: [PATCH 5.4 196/320] cpufreq: Fix initialization of min and max frequency QoS requests
 Date:   Mon, 24 Jan 2022 19:43:00 +0100
-Message-Id: <20220124183947.617320258@linuxfoundation.org>
+Message-Id: <20220124184000.304813534@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,67 +49,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Borislav Petkov <bp@suse.de>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 3c7ce80a818fa7950be123cac80cd078e5ac1013 ]
+[ Upstream commit 521223d8b3ec078f670c7c35a1a04b1b2af07966 ]
 
-And allow instrumentation inside it because it does calls to other
-facilities which will not be tagged noinstr.
+The min and max frequency QoS requests in the cpufreq core are
+initialized to whatever the current min and max frequency values are
+at the init time, but if any of these values change later (for
+example, cpuinfo.max_freq is updated by the driver), these initial
+request values will be limiting the CPU frequency unnecessarily
+unless they are changed by user space via sysfs.
 
-Fixes
+To address this, initialize min_freq_req and max_freq_req to
+FREQ_QOS_MIN_DEFAULT_VALUE and FREQ_QOS_MAX_DEFAULT_VALUE,
+respectively, so they don't really limit anything until user
+space updates them.
 
-  vmlinux.o: warning: objtool: do_machine_check()+0xc73: call to mce_panic() leaves .noinstr.text section
-
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20211208111343.8130-8-bp@alien8.de
+Reported-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Tested-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mcheck/mce.c | 15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/cpufreq/cpufreq.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/mcheck/mce.c b/arch/x86/kernel/cpu/mcheck/mce.c
-index 2a13468f87739..56c4456434a82 100644
---- a/arch/x86/kernel/cpu/mcheck/mce.c
-+++ b/arch/x86/kernel/cpu/mcheck/mce.c
-@@ -295,11 +295,17 @@ static void wait_for_panic(void)
- 	panic("Panicing machine check CPU died");
- }
+diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
+index cb7949a2ac0ca..af9f348048629 100644
+--- a/drivers/cpufreq/cpufreq.c
++++ b/drivers/cpufreq/cpufreq.c
+@@ -1393,7 +1393,7 @@ static int cpufreq_online(unsigned int cpu)
  
--static void mce_panic(const char *msg, struct mce *final, char *exp)
-+static noinstr void mce_panic(const char *msg, struct mce *final, char *exp)
- {
--	int apei_err = 0;
- 	struct llist_node *pending;
- 	struct mce_evt_llist *l;
-+	int apei_err = 0;
-+
-+	/*
-+	 * Allow instrumentation around external facilities usage. Not that it
-+	 * matters a whole lot since the machine is going to panic anyway.
-+	 */
-+	instrumentation_begin();
+ 		ret = freq_qos_add_request(&policy->constraints,
+ 					   policy->min_freq_req, FREQ_QOS_MIN,
+-					   policy->min);
++					   FREQ_QOS_MIN_DEFAULT_VALUE);
+ 		if (ret < 0) {
+ 			/*
+ 			 * So we don't call freq_qos_remove_request() for an
+@@ -1413,7 +1413,7 @@ static int cpufreq_online(unsigned int cpu)
  
- 	if (!fake_panic) {
- 		/*
-@@ -314,7 +320,7 @@ static void mce_panic(const char *msg, struct mce *final, char *exp)
- 	} else {
- 		/* Don't log too much for fake panic */
- 		if (atomic_inc_return(&mce_fake_panicked) > 1)
--			return;
-+			goto out;
- 	}
- 	pending = mce_gen_pool_prepare_records();
- 	/* First print corrected ones that are still unlogged */
-@@ -352,6 +358,9 @@ static void mce_panic(const char *msg, struct mce *final, char *exp)
- 		panic(msg);
- 	} else
- 		pr_emerg(HW_ERR "Fake kernel panic: %s\n", msg);
-+
-+out:
-+	instrumentation_end();
- }
- 
- /* Support code for software error injection */
+ 		ret = freq_qos_add_request(&policy->constraints,
+ 					   policy->max_freq_req, FREQ_QOS_MAX,
+-					   policy->max);
++					   FREQ_QOS_MAX_DEFAULT_VALUE);
+ 		if (ret < 0) {
+ 			policy->max_freq_req = NULL;
+ 			goto out_destroy_policy;
 -- 
 2.34.1
 
