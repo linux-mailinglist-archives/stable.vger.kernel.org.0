@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 010CF499A0F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:48:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C30D4997DD
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:34:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1456660AbiAXVjp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:39:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48960 "EHLO
+        id S1352217AbiAXVRD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:17:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390792AbiAXVM6 (ORCPT
+        with ESMTP id S1390922AbiAXVM6 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:12:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD58FC02980C;
-        Mon, 24 Jan 2022 12:10:01 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B8B4C02980D;
+        Mon, 24 Jan 2022 12:10:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84A03B81218;
-        Mon, 24 Jan 2022 20:10:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A742EC340E7;
-        Mon, 24 Jan 2022 20:09:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CD04060B89;
+        Mon, 24 Jan 2022 20:10:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6151C340E7;
+        Mon, 24 Jan 2022 20:10:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055000;
-        bh=fdEnQR3ESgo3jqbn1qe9UEwBUMsHG31tWLdWi7m5dR8=;
+        s=korg; t=1643055003;
+        bh=6fZMCQloQ2t3ladZ5ITB1GxhYi5y6jBkCeqwFsjnSLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ucgCgEE+JWo22aQAIGa6Jg1JZEFycUGVZq/2shhpyjFxHQSufX9tICoPMpcV22pOP
-         5hhR3iVpednjHABZ8qvcg5t6QZMXuKF2Rx9//z+BOPotVsoC0nMh/ZwpCzfo8sTbxp
-         o9cmdpYf5Ur8BJvSCv44gnrIjIPVnaBVu0DdVTD8=
+        b=w5c9Ms3UPEXjoLNHv2gVV/3cIOr6lC1uT1jve9Ea/axewzurEplsRjvt/vEIaNbNf
+         aoz1KdBWulbRWw+arlGVd9Ze+2byh8OwT01XBTdHbOYP1BkheI41C7Jy+I56HYI+qQ
+         MiT2gAtgLAPT0eLg5Ef0xA6ydVN+AhUEz0TTQGZs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Matlack <dmatlack@google.com>,
-        Sean Christopherson <seanjc@google.com>,
+        stable@vger.kernel.org, Marcelo Tosatti <mtosatti@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 001/846] KVM: x86/mmu: Fix write-protection of PTs mapped by the TDP MMU
-Date:   Mon, 24 Jan 2022 19:31:58 +0100
-Message-Id: <20220124184100.925469129@linuxfoundation.org>
+Subject: [PATCH 5.15 002/846] KVM: VMX: switch blocked_vcpu_on_cpu_lock to raw spinlock
+Date:   Mon, 24 Jan 2022 19:31:59 +0100
+Message-Id: <20220124184100.961890363@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -50,56 +47,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Matlack <dmatlack@google.com>
+From: Marcelo Tosatti <mtosatti@redhat.com>
 
-commit 7c8a4742c4abe205ec9daf416c9d42fd6b406e8e upstream.
+commit 5f02ef741a785678930f3ff0a8b6b2b0ef1bb402 upstream.
 
-When the TDP MMU is write-protection GFNs for page table protection (as
-opposed to for dirty logging, or due to the HVA not being writable), it
-checks if the SPTE is already write-protected and if so skips modifying
-the SPTE and the TLB flush.
+blocked_vcpu_on_cpu_lock is taken from hard interrupt context
+(pi_wakeup_handler), therefore it cannot sleep.
 
-This behavior is incorrect because it fails to check if the SPTE
-is write-protected for page table protection, i.e. fails to check
-that MMU-writable is '0'.  If the SPTE was write-protected for dirty
-logging but not page table protection, the SPTE could locklessly be made
-writable, and vCPUs could still be running with writable mappings cached
-in their TLB.
+Switch it to a raw spinlock.
 
-Fix this by only skipping setting the SPTE if the SPTE is already
-write-protected *and* MMU-writable is already clear.  Technically,
-checking only MMU-writable would suffice; a SPTE cannot be writable
-without MMU-writable being set.  But check both to be paranoid and
-because it arguably yields more readable code.
+Fixes:
 
-Fixes: 46044f72c382 ("kvm: x86/mmu: Support write protection for nesting in tdp MMU")
+[41297.066254] BUG: scheduling while atomic: CPU 0/KVM/635218/0x00010001
+[41297.066323] Preemption disabled at:
+[41297.066324] [<ffffffff902ee47f>] irq_enter_rcu+0xf/0x60
+[41297.066339] Call Trace:
+[41297.066342]  <IRQ>
+[41297.066346]  dump_stack_lvl+0x34/0x44
+[41297.066353]  ? irq_enter_rcu+0xf/0x60
+[41297.066356]  __schedule_bug.cold+0x7d/0x8b
+[41297.066361]  __schedule+0x439/0x5b0
+[41297.066365]  ? task_blocks_on_rt_mutex.constprop.0.isra.0+0x1b0/0x440
+[41297.066369]  schedule_rtlock+0x1e/0x40
+[41297.066371]  rtlock_slowlock_locked+0xf1/0x260
+[41297.066374]  rt_spin_lock+0x3b/0x60
+[41297.066378]  pi_wakeup_handler+0x31/0x90 [kvm_intel]
+[41297.066388]  sysvec_kvm_posted_intr_wakeup_ipi+0x9d/0xd0
+[41297.066392]  </IRQ>
+[41297.066392]  asm_sysvec_kvm_posted_intr_wakeup_ipi+0x12/0x20
+...
+
+Signed-off-by: Marcelo Tosatti <mtosatti@redhat.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: David Matlack <dmatlack@google.com>
-Message-Id: <20220113233020.3986005-2-dmatlack@google.com>
-Reviewed-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/mmu/tdp_mmu.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/kvm/vmx/posted_intr.c |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/arch/x86/kvm/mmu/tdp_mmu.c
-+++ b/arch/x86/kvm/mmu/tdp_mmu.c
-@@ -1493,12 +1493,12 @@ static bool write_protect_gfn(struct kvm
- 		    !is_last_spte(iter.old_spte, iter.level))
- 			continue;
+--- a/arch/x86/kvm/vmx/posted_intr.c
++++ b/arch/x86/kvm/vmx/posted_intr.c
+@@ -15,7 +15,7 @@
+  * can find which vCPU should be waken up.
+  */
+ static DEFINE_PER_CPU(struct list_head, blocked_vcpu_on_cpu);
+-static DEFINE_PER_CPU(spinlock_t, blocked_vcpu_on_cpu_lock);
++static DEFINE_PER_CPU(raw_spinlock_t, blocked_vcpu_on_cpu_lock);
  
--		if (!is_writable_pte(iter.old_spte))
--			break;
--
- 		new_spte = iter.old_spte &
- 			~(PT_WRITABLE_MASK | shadow_mmu_writable_mask);
+ static inline struct pi_desc *vcpu_to_pi_desc(struct kvm_vcpu *vcpu)
+ {
+@@ -121,9 +121,9 @@ static void __pi_post_block(struct kvm_v
+ 			   new.control) != old.control);
  
-+		if (new_spte == iter.old_spte)
-+			break;
-+
- 		tdp_mmu_set_spte(kvm, &iter, new_spte);
- 		spte_set = true;
+ 	if (!WARN_ON_ONCE(vcpu->pre_pcpu == -1)) {
+-		spin_lock(&per_cpu(blocked_vcpu_on_cpu_lock, vcpu->pre_pcpu));
++		raw_spin_lock(&per_cpu(blocked_vcpu_on_cpu_lock, vcpu->pre_pcpu));
+ 		list_del(&vcpu->blocked_vcpu_list);
+-		spin_unlock(&per_cpu(blocked_vcpu_on_cpu_lock, vcpu->pre_pcpu));
++		raw_spin_unlock(&per_cpu(blocked_vcpu_on_cpu_lock, vcpu->pre_pcpu));
+ 		vcpu->pre_pcpu = -1;
  	}
+ }
+@@ -154,11 +154,11 @@ int pi_pre_block(struct kvm_vcpu *vcpu)
+ 	local_irq_disable();
+ 	if (!WARN_ON_ONCE(vcpu->pre_pcpu != -1)) {
+ 		vcpu->pre_pcpu = vcpu->cpu;
+-		spin_lock(&per_cpu(blocked_vcpu_on_cpu_lock, vcpu->pre_pcpu));
++		raw_spin_lock(&per_cpu(blocked_vcpu_on_cpu_lock, vcpu->pre_pcpu));
+ 		list_add_tail(&vcpu->blocked_vcpu_list,
+ 			      &per_cpu(blocked_vcpu_on_cpu,
+ 				       vcpu->pre_pcpu));
+-		spin_unlock(&per_cpu(blocked_vcpu_on_cpu_lock, vcpu->pre_pcpu));
++		raw_spin_unlock(&per_cpu(blocked_vcpu_on_cpu_lock, vcpu->pre_pcpu));
+ 	}
+ 
+ 	do {
+@@ -215,7 +215,7 @@ void pi_wakeup_handler(void)
+ 	struct kvm_vcpu *vcpu;
+ 	int cpu = smp_processor_id();
+ 
+-	spin_lock(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
++	raw_spin_lock(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
+ 	list_for_each_entry(vcpu, &per_cpu(blocked_vcpu_on_cpu, cpu),
+ 			blocked_vcpu_list) {
+ 		struct pi_desc *pi_desc = vcpu_to_pi_desc(vcpu);
+@@ -223,13 +223,13 @@ void pi_wakeup_handler(void)
+ 		if (pi_test_on(pi_desc) == 1)
+ 			kvm_vcpu_kick(vcpu);
+ 	}
+-	spin_unlock(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
++	raw_spin_unlock(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
+ }
+ 
+ void __init pi_init_cpu(int cpu)
+ {
+ 	INIT_LIST_HEAD(&per_cpu(blocked_vcpu_on_cpu, cpu));
+-	spin_lock_init(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
++	raw_spin_lock_init(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
+ }
+ 
+ bool pi_has_pending_interrupt(struct kvm_vcpu *vcpu)
 
 
