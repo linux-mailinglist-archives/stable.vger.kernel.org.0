@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94184497FEF
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 13:49:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB5B0497FED
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 13:49:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242300AbiAXMt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 07:49:27 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:52566 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242419AbiAXMtZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 07:49:25 -0500
+        id S240173AbiAXMt0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 07:49:26 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60878 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241952AbiAXMtU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 07:49:20 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 538C6B80F9E
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 12:49:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81118C340E1;
-        Mon, 24 Jan 2022 12:49:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5B68F60EC2
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 12:49:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2390CC340E1;
+        Mon, 24 Jan 2022 12:49:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643028563;
-        bh=KlKk0DhhXyy2wCTvmQ9w0Ih6cRq4NxVEnt+hc3SbFrA=;
+        s=korg; t=1643028559;
+        bh=GepdAjchHx1OWo5ezsT5m5I8S2MboueuWJFI5ygnMSk=;
         h=Subject:To:Cc:From:Date:From;
-        b=nWPTnk9HbdM5FiA9YYuNlkJ8FgJXrDztrJhaJ1iRc78tg1KxXhe5AQA5S7bl0F6VE
-         JFE589B+0R/nx1PGshXd+4GAO6vUZLLstrWzyUe6BX478rGz3TZjqn4wqKtq5hesay
-         5O7Bb6IHSJ4Ptx6souYUGxaDDYYJPo1fKReh7Zw4=
-Subject: FAILED: patch "[PATCH] net: axienet: fix for TX busy handling" failed to apply to 4.9-stable tree
+        b=m3G/RCrVxc/1pbbvLSo6dtu5zJlOgTsaLXNKaARknQRgBviY8iERbEK2BOCGeMC3z
+         stJQo1FYW4jm4pYovFxaf6SlPlgCNN7hsH/h04TxyoM5qyeQkMDkTJFxQDBv0Npme+
+         ynGfSjF+qfYNv2m2d6olezDJc8Vy0JiuwvyWh4qs=
+Subject: FAILED: patch "[PATCH] net: axienet: fix for TX busy handling" failed to apply to 4.14-stable tree
 To:     robert.hancock@calian.com, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 24 Jan 2022 13:49:09 +0100
-Message-ID: <164302854925132@kroah.com>
+Message-ID: <1643028549150241@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
