@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 454C0498908
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:52:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 102254989DB
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:59:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343677AbiAXSwb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:52:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42934 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343688AbiAXSv0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:51:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACCD9C061751;
-        Mon, 24 Jan 2022 10:51:21 -0800 (PST)
+        id S1344306AbiAXS6r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:58:47 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:55858 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245730AbiAXS4o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:56:44 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 76795B81227;
-        Mon, 24 Jan 2022 18:51:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB902C340E7;
-        Mon, 24 Jan 2022 18:51:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 90D1E61540;
+        Mon, 24 Jan 2022 18:56:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64C68C340E5;
+        Mon, 24 Jan 2022 18:56:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050279;
-        bh=D77353yRkWUoeoAkcoVvyTrgVQDRoCb6uV1U5naKB+w=;
+        s=korg; t=1643050603;
+        bh=xyb7el4B8LdNx+P5MYu2OzNDCK3CD8EPUq/+flDETEc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N6nMVQXiGmiEcZXgJOVq7yIvK/ofCSgFYZXdf3HNDdPmxn7bvRl2yQLcKw+GcPIZy
-         IKrRPQWj/64AKW6lEt7rbXooB55u7Ta8WNOAKdgKjtxrUTeISCOM3m7hTB7Etwtteo
-         /R3y75gqlHwcE49KhZoL3+cHqKDsYPTWDJdF8vXQ=
+        b=uPNDvbVym2SsJEB4PnUG5+epDqOj/36wOvaKKU2Tc38ixgQ7CmMuwtQ5Cwv0o3uhZ
+         h6CgBRgm5V3svGnz9VHTQiDN2a03BGr1gWcgVDGplEyYFrWj9rcA+ZuTl8P28RljBy
+         LS5BO+efNLxRYgTHqFIf3Ho7kEt1zktYMjHNozsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avihai Horon <avihaih@nvidia.com>,
-        Mark Zhang <markzhang@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 050/114] RDMA/core: Let ib_find_gid() continue search even after empty entry
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+003c0a286b9af5412510@syzkaller.appspotmail.com
+Subject: [PATCH 4.9 055/157] net: mcs7830: handle usb read errors properly
 Date:   Mon, 24 Jan 2022 19:42:25 +0100
-Message-Id: <20220124183928.647449106@linuxfoundation.org>
+Message-Id: <20220124183934.529532759@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
-References: <20220124183927.095545464@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,45 +47,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Avihai Horon <avihaih@nvidia.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 483d805191a23191f8294bbf9b4e94836f5d92e4 ]
+[ Upstream commit d668769eb9c52b150753f1653f7f5a0aeb8239d2 ]
 
-Currently, ib_find_gid() will stop searching after encountering the first
-empty GID table entry. This behavior is wrong since neither IB nor RoCE
-spec enforce tightly packed GID tables.
+Syzbot reported uninit value in mcs7830_bind(). The problem was in
+missing validation check for bytes read via usbnet_read_cmd().
 
-For example, when a valid GID entry exists at index N, and if a GID entry
-is empty at index N-1, ib_find_gid() will fail to find the valid entry.
+usbnet_read_cmd() internally calls usb_control_msg(), that returns
+number of bytes read. Code should validate that requested number of bytes
+was actually read.
 
-Fix it by making ib_find_gid() continue searching even after encountering
-missing entries.
+So, this patch adds missing size validation check inside
+mcs7830_get_reg() to prevent uninit value bugs
 
-Fixes: 5eb620c81ce3 ("IB/core: Add helpers for uncached GID and P_Key searches")
-Link: https://lore.kernel.org/r/e55d331b96cecfc2cf19803d16e7109ea966882d.1639055490.git.leonro@nvidia.com
-Signed-off-by: Avihai Horon <avihaih@nvidia.com>
-Reviewed-by: Mark Zhang <markzhang@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Reported-and-tested-by: syzbot+003c0a286b9af5412510@syzkaller.appspotmail.com
+Fixes: 2a36d7083438 ("USB: driver for mcs7830 (aka DeLOCK) USB ethernet adapter")
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20220106225716.7425-1-paskripkin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/device.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/usb/mcs7830.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/core/device.c b/drivers/infiniband/core/device.c
-index 179e8134d57fc..a14a3ec99ffe1 100644
---- a/drivers/infiniband/core/device.c
-+++ b/drivers/infiniband/core/device.c
-@@ -848,7 +848,8 @@ int ib_find_gid(struct ib_device *device, union ib_gid *gid,
- 		for (i = 0; i < device->port_immutable[port].gid_tbl_len; ++i) {
- 			ret = ib_query_gid(device, port, i, &tmp_gid, NULL);
- 			if (ret)
--				return ret;
-+				continue;
+diff --git a/drivers/net/usb/mcs7830.c b/drivers/net/usb/mcs7830.c
+index 4f345bd4e6e29..95151b46f2001 100644
+--- a/drivers/net/usb/mcs7830.c
++++ b/drivers/net/usb/mcs7830.c
+@@ -121,8 +121,16 @@ static const char driver_name[] = "MOSCHIP usb-ethernet driver";
+ 
+ static int mcs7830_get_reg(struct usbnet *dev, u16 index, u16 size, void *data)
+ {
+-	return usbnet_read_cmd(dev, MCS7830_RD_BREQ, MCS7830_RD_BMREQ,
+-				0x0000, index, data, size);
++	int ret;
 +
- 			if (!memcmp(&tmp_gid, gid, sizeof *gid)) {
- 				*port_num = port;
- 				if (index)
++	ret = usbnet_read_cmd(dev, MCS7830_RD_BREQ, MCS7830_RD_BMREQ,
++			      0x0000, index, data, size);
++	if (ret < 0)
++		return ret;
++	else if (ret < size)
++		return -ENODATA;
++
++	return ret;
+ }
+ 
+ static int mcs7830_set_reg(struct usbnet *dev, u16 index, u16 size, const void *data)
 -- 
 2.34.1
 
