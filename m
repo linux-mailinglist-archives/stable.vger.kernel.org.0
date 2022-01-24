@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39DE4497E6F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 13:01:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60CCF497E70
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 13:01:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238085AbiAXMBw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 07:01:52 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:60318 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238087AbiAXMBw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 07:01:52 -0500
+        id S238092AbiAXMBy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 07:01:54 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38250 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238087AbiAXMBy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 07:01:54 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 43421B80F10
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 12:01:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43CD3C340E4;
-        Mon, 24 Jan 2022 12:01:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E751C60E99
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 12:01:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AFA5DC340E4;
+        Mon, 24 Jan 2022 12:01:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643025710;
-        bh=MzfmTPskD+mrZUmOpMtDmX7A0ztIVQXvF9i+Tb3Qy0E=;
+        s=korg; t=1643025713;
+        bh=W+nwlirFPUWdjlp6PqY1gwjZYbw3iVQXaLIqiH0QuUI=;
         h=Subject:To:Cc:From:Date:From;
-        b=DRezJbzm1FVpaVLHhl3PBxzVAmbZMn/PFarI8FtGwa/KETHEWvatMJz4qpJwWeNPq
-         h39rJiT8JKRnu7lYA5Rl9jxfvOqk1bwAFAJ4dIEipNM9yNK0JOP1aHZC0xCJEctQ8E
-         ZJgwx7PR9HgnL25QPXqciQYu7rn7fnLIdz6hogOs=
-Subject: FAILED: patch "[PATCH] bpf: Fix ringbuf memory type confusion when passing to" failed to apply to 5.10-stable tree
+        b=j8drq+/KiY2oTivo5F1/q8BTV5dCuEH/hs0dmDYLeSJ0J9SMI62VQ/EoH58W5CA1A
+         vLxT3YO4A/4dlXOzo0Si8Itc0EleXwCgBQRYCxXuJpmicXM+6NBtdhd9Toy1H4qlo5
+         4W4sG6WQfLBimo+Kh7qHL+8kWjH2P52LiRYdaGJA=
+Subject: FAILED: patch "[PATCH] bpf: Fix ringbuf memory type confusion when passing to" failed to apply to 5.15-stable tree
 To:     daniel@iogearbox.net, ast@kernel.org, john.fastabend@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 13:01:46 +0100
-Message-ID: <1643025706141186@kroah.com>
+Date:   Mon, 24 Jan 2022 13:01:47 +0100
+Message-ID: <164302570728145@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
