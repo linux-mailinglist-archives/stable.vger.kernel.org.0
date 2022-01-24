@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 246BF499A8C
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD47849957B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:13:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1573501AbiAXVpA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:45:00 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:54158 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1455961AbiAXVg7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:36:59 -0500
+        id S1441984AbiAXUwa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:52:30 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:46552 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1391365AbiAXUrc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:47:32 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6691614B4;
-        Mon, 24 Jan 2022 21:36:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41F9FC340E4;
-        Mon, 24 Jan 2022 21:36:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 79C0BB81218;
+        Mon, 24 Jan 2022 20:47:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85AC8C340E5;
+        Mon, 24 Jan 2022 20:47:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060217;
-        bh=AaF7euI3kYHd/11AknQCQrpr2iggUpjasga3Y3juYgM=;
+        s=korg; t=1643057250;
+        bh=x7S04SykEtkNO6jyz+/ia/IfgXn8OU6ejHj5ebXM5TE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JZTFl0QZnFwybEKqgHe74ZFvBraD/WktHl0/yrQr3dkvhtbLvJ8Z7XnXnuj9OJMsW
-         i4OmpkE0FGx7kkFHB2CMZ3u58qeOKBG0ICiVeyUXRbMDspTBtJhU1+9tWGvUGf4x8+
-         I1PpUSy+Izm6PHoOjLzoNrGHU/BwWT9AwpbOplOM=
+        b=tJFua6t6a3RYgoRVtmbYmPhGvaDHMrbPfJ4ZwEjOXKEaTtceAstv9ecsILRvCEfNX
+         b200FjfI3YyiBUpMiY6PG23ZtSz1C1jsUvXJaqb9nDVakckUXZEp0ss+AIqe9cCdEq
+         VrLzfnsqzzGTOOiBfXRFBVK5mxqkHIwZFOlZA09s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.16 0877/1039] PCI: pci-bridge-emul: Fix definitions of reserved bits
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.15 749/846] dmaengine: uniphier-xdmac: Fix type of address variables
 Date:   Mon, 24 Jan 2022 19:44:26 +0100
-Message-Id: <20220124184154.783323173@linuxfoundation.org>
+Message-Id: <20220124184126.819817518@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,94 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-commit 12998087d9f48b66965b97412069c7826502cd7e upstream.
+commit 105a8c525675bb7d4d64871f9b2edf39460de881 upstream.
 
-Some bits in PCI_EXP registers are reserved for non-root ports. Driver
-pci-bridge-emul.c implements PCIe Root Port device therefore it should not
-allow setting reserved bits of registers.
+The variables src_addr and dst_addr handle DMA addresses, so these should
+be declared as dma_addr_t.
 
-Properly define non-reserved bits for all PCI_EXP registers.
-
-Link: https://lore.kernel.org/r/20211124155944.1290-5-pali@kernel.org
-Fixes: 23a5fba4d941 ("PCI: Introduce PCI bridge emulated config space common logic")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: stable@vger.kernel.org
+Fixes: 667b9251440b ("dmaengine: uniphier-xdmac: Add UniPhier external DMA controller driver")
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Link: https://lore.kernel.org/r/1639456963-10232-1-git-send-email-hayashi.kunihiko@socionext.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/pci-bridge-emul.c |   36 +++++++++++++++++++++++++-----------
- 1 file changed, 25 insertions(+), 11 deletions(-)
+ drivers/dma/uniphier-xdmac.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/pci/pci-bridge-emul.c
-+++ b/drivers/pci/pci-bridge-emul.c
-@@ -176,41 +176,55 @@ struct pci_bridge_reg_behavior pcie_cap_
- 	[PCI_CAP_LIST_ID / 4] = {
- 		/*
- 		 * Capability ID, Next Capability Pointer and
--		 * Capabilities register are all read-only.
-+		 * bits [14:0] of Capabilities register are all read-only.
-+		 * Bit 15 of Capabilities register is reserved.
- 		 */
--		.ro = ~0,
-+		.ro = GENMASK(30, 0),
- 	},
+--- a/drivers/dma/uniphier-xdmac.c
++++ b/drivers/dma/uniphier-xdmac.c
+@@ -131,8 +131,9 @@ uniphier_xdmac_next_desc(struct uniphier
+ static void uniphier_xdmac_chan_start(struct uniphier_xdmac_chan *xc,
+ 				      struct uniphier_xdmac_desc *xd)
+ {
+-	u32 src_mode, src_addr, src_width;
+-	u32 dst_mode, dst_addr, dst_width;
++	u32 src_mode, src_width;
++	u32 dst_mode, dst_width;
++	dma_addr_t src_addr, dst_addr;
+ 	u32 val, its, tnum;
+ 	enum dma_slave_buswidth buswidth;
  
- 	[PCI_EXP_DEVCAP / 4] = {
--		.ro = ~0,
-+		/*
-+		 * Bits [31:29] and [17:16] are reserved.
-+		 * Bits [27:18] are reserved for non-upstream ports.
-+		 * Bits 28 and [14:6] are reserved for non-endpoint devices.
-+		 * Other bits are read-only.
-+		 */
-+		.ro = BIT(15) | GENMASK(5, 0),
- 	},
- 
- 	[PCI_EXP_DEVCTL / 4] = {
--		/* Device control register is RW */
--		.rw = GENMASK(15, 0),
-+		/*
-+		 * Device control register is RW, except bit 15 which is
-+		 * reserved for non-endpoints or non-PCIe-to-PCI/X bridges.
-+		 */
-+		.rw = GENMASK(14, 0),
- 
- 		/*
- 		 * Device status register has bits 6 and [3:0] W1C, [5:4] RO,
--		 * the rest is reserved
-+		 * the rest is reserved. Also bit 6 is reserved for non-upstream
-+		 * ports.
- 		 */
--		.w1c = (BIT(6) | GENMASK(3, 0)) << 16,
-+		.w1c = GENMASK(3, 0) << 16,
- 		.ro = GENMASK(5, 4) << 16,
- 	},
- 
- 	[PCI_EXP_LNKCAP / 4] = {
--		/* All bits are RO, except bit 23 which is reserved */
--		.ro = lower_32_bits(~BIT(23)),
-+		/*
-+		 * All bits are RO, except bit 23 which is reserved and
-+		 * bit 18 which is reserved for non-upstream ports.
-+		 */
-+		.ro = lower_32_bits(~(BIT(23) | PCI_EXP_LNKCAP_CLKPM)),
- 	},
- 
- 	[PCI_EXP_LNKCTL / 4] = {
- 		/*
- 		 * Link control has bits [15:14], [11:3] and [1:0] RW, the
--		 * rest is reserved.
-+		 * rest is reserved. Bit 8 is reserved for non-upstream ports.
- 		 *
- 		 * Link status has bits [13:0] RO, and bits [15:14]
- 		 * W1C.
- 		 */
--		.rw = GENMASK(15, 14) | GENMASK(11, 3) | GENMASK(1, 0),
-+		.rw = GENMASK(15, 14) | GENMASK(11, 9) | GENMASK(7, 3) | GENMASK(1, 0),
- 		.ro = GENMASK(13, 0) << 16,
- 		.w1c = GENMASK(15, 14) << 16,
- 	},
 
 
