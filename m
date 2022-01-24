@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCCCF49818D
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:59:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78AAD4981A8
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 15:03:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237604AbiAXN7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 08:59:24 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:56282 "EHLO
+        id S238135AbiAXODa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 09:03:30 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:58232 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237526AbiAXN7Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:59:24 -0500
+        with ESMTP id S238344AbiAXODa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 09:03:30 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5F5E6B81057
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:59:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A711C340E1;
-        Mon, 24 Jan 2022 13:59:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 845E4B81056
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 14:03:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B38CC340E9;
+        Mon, 24 Jan 2022 14:03:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643032762;
-        bh=lS5WnRc2Ui5dt6kAobcax19vG3I3Zv8kw44/lS9DJCw=;
+        s=korg; t=1643033008;
+        bh=TV6hP58wpv1msq4jjEAA6FmPKJZe/5ix55PIarJ1NTw=;
         h=Subject:To:Cc:From:Date:From;
-        b=Ka8j5uYv4ySsz/nn7TVzlTGXDAsWuxo4XEcBh72RqjPiZX0vHyFEGeVzQH1Zs2CpY
-         k3EgLFuuTCpPRlNmb8ghZKq24IpFkiDz4x0rc0fLJu3ZHNBW/OYAsmjAJ6s9I9kRF5
-         VRR6kmr/t8V0cOrK6R4j2sg5TlE04z8ioMSfeJc8=
-Subject: FAILED: patch "[PATCH] net: mscc: ocelot: don't dereference NULL pointers with" failed to apply to 5.10-stable tree
-To:     vladimir.oltean@nxp.com, davem@davemloft.net
+        b=ZDPH103E92oVHJtmCCRUfY3EQIteyVxv+GCPic0/7Vj1FDfcwIgFWRzutGDs47Jrm
+         ZCCKW9NKTOZ6q6uPeVYDTd+YSmoymf6cT8vMny48nav3LmucQ1rAhV+h87ktGVqoED
+         CW6pX3v2qDmbGNHMTvBxiTI5n7lGkwbT1uB1pupI=
+Subject: FAILED: patch "[PATCH] ASoC: SOF: sof-audio: setup sched widgets during pipeline" failed to apply to 5.16-stable tree
+To:     pierre-louis.bossart@linux.intel.com, broonie@kernel.org,
+        kai.vehmanen@linux.intel.com, ranjani.sridharan@linux.intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 14:58:33 +0100
-Message-ID: <164303271327100@kroah.com>
+Date:   Mon, 24 Jan 2022 14:59:55 +0100
+Message-ID: <16430327951439@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -50,155 +51,77 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 80f15f3bef9e9c2cc29888a6773df44de0a0c65f Mon Sep 17 00:00:00 2001
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
-Date: Fri, 14 Jan 2022 15:36:37 +0200
-Subject: [PATCH] net: mscc: ocelot: don't dereference NULL pointers with
- shared tc filters
+From 01429183f479c54c1b5d15453a8ce574ea43e525 Mon Sep 17 00:00:00 2001
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Date: Tue, 23 Nov 2021 19:16:04 +0200
+Subject: [PATCH] ASoC: SOF: sof-audio: setup sched widgets during pipeline
+ complete step
 
-The following command sequence:
+Older firmware prior to ABI 3.19 has a dependency where the scheduler
+widgets need to be setup last. Moving the call to sof_widget_setup()
+before the pipeline_complete() call also helps remove the need for the
+'reverse' direction when walking through the widget list - this was
+only working because of the topology macros but the topology does not
+require any order.
 
-tc qdisc del dev swp0 clsact
-tc qdisc add dev swp0 ingress_block 1 clsact
-tc qdisc add dev swp1 ingress_block 1 clsact
-tc filter add block 1 flower action drop
-tc qdisc del dev swp0 clsact
+Fixes: 5fcdbb2d45df ("ASoC: SOF: Add support for dynamic pipelines")
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Link: https://lore.kernel.org/r/20211123171606.129350-1-kai.vehmanen@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 
-produces the following NPD:
-
-Unable to handle kernel NULL pointer dereference at virtual address 0000000000000014
-pc : vcap_entry_set+0x14/0x70
-lr : ocelot_vcap_filter_del+0x198/0x234
-Call trace:
- vcap_entry_set+0x14/0x70
- ocelot_vcap_filter_del+0x198/0x234
- ocelot_cls_flower_destroy+0x94/0xe4
- felix_cls_flower_del+0x70/0x84
- dsa_slave_setup_tc_block_cb+0x13c/0x60c
- dsa_slave_setup_tc_block_cb_ig+0x20/0x30
- tc_setup_cb_reoffload+0x44/0x120
- fl_reoffload+0x280/0x320
- tcf_block_playback_offloads+0x6c/0x184
- tcf_block_unbind+0x80/0xe0
- tcf_block_setup+0x174/0x214
- tcf_block_offload_cmd.isra.0+0x100/0x13c
- tcf_block_offload_unbind+0x5c/0xa0
- __tcf_block_put+0x54/0x174
- tcf_block_put_ext+0x5c/0x74
- clsact_destroy+0x40/0x60
- qdisc_destroy+0x4c/0x150
- qdisc_put+0x70/0x90
- qdisc_graft+0x3f0/0x4c0
- tc_get_qdisc+0x1cc/0x364
- rtnetlink_rcv_msg+0x124/0x340
-
-The reason is that the driver isn't prepared to receive two tc filters
-with the same cookie. It unconditionally creates a new struct
-ocelot_vcap_filter for each tc filter, and it adds all filters with the
-same identifier (cookie) to the ocelot_vcap_block.
-
-The problem is here, in ocelot_vcap_filter_del():
-
-	/* Gets index of the filter */
-	index = ocelot_vcap_block_get_filter_index(block, filter);
-	if (index < 0)
-		return index;
-
-	/* Delete filter */
-	ocelot_vcap_block_remove_filter(ocelot, block, filter);
-
-	/* Move up all the blocks over the deleted filter */
-	for (i = index; i < block->count; i++) {
-		struct ocelot_vcap_filter *tmp;
-
-		tmp = ocelot_vcap_block_find_filter_by_index(block, i);
-		vcap_entry_set(ocelot, i, tmp);
-	}
-
-what will happen is ocelot_vcap_block_get_filter_index() will return the
-index (@index) of the first filter found with that cookie. This is _not_
-the index of _this_ filter, but the other one with the same cookie,
-because ocelot_vcap_filter_equal() gets fooled.
-
-Then later, ocelot_vcap_block_remove_filter() is coded to remove all
-filters that are ocelot_vcap_filter_equal() with the passed @filter.
-So unexpectedly, both filters get deleted from the list.
-
-Then ocelot_vcap_filter_del() will attempt to move all the other filters
-up, again finding them by index (@i). The block count is 2, @index was 0,
-so it will attempt to move up filter @i=0 and @i=1. It assigns tmp =
-ocelot_vcap_block_find_filter_by_index(block, i), which is now a NULL
-pointer because ocelot_vcap_block_remove_filter() has removed more than
-one filter.
-
-As far as I can see, this problem has been there since the introduction
-of tc offload support, however I cannot test beyond the blamed commit
-due to hardware availability. In any case, any fix cannot be backported
-that far, due to lots of changes to the code base.
-
-Therefore, let's go for the correct solution, which is to not call
-ocelot_vcap_filter_add() and ocelot_vcap_filter_del(), unless the filter
-is actually unique and not shared. For the shared filters, we should
-just modify the ingress port mask and call ocelot_vcap_filter_replace(),
-a function introduced by commit 95706be13b9f ("net: mscc: ocelot: create
-a function that replaces an existing VCAP filter"). This way,
-block->rules will only contain filters with unique cookies, by design.
-
-Fixes: 07d985eef073 ("net: dsa: felix: Wire up the ocelot cls_flower methods")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-
-diff --git a/drivers/net/ethernet/mscc/ocelot_flower.c b/drivers/net/ethernet/mscc/ocelot_flower.c
-index beb9379424c0..4a0fda22d343 100644
---- a/drivers/net/ethernet/mscc/ocelot_flower.c
-+++ b/drivers/net/ethernet/mscc/ocelot_flower.c
-@@ -805,13 +805,34 @@ int ocelot_cls_flower_replace(struct ocelot *ocelot, int port,
- 	struct netlink_ext_ack *extack = f->common.extack;
- 	struct ocelot_vcap_filter *filter;
- 	int chain = f->common.chain_index;
--	int ret;
-+	int block_id, ret;
+diff --git a/sound/soc/sof/sof-audio.c b/sound/soc/sof/sof-audio.c
+index 0f2566f7c094..f4e142ec0fbd 100644
+--- a/sound/soc/sof/sof-audio.c
++++ b/sound/soc/sof/sof-audio.c
+@@ -637,16 +637,25 @@ const struct sof_ipc_pipe_new *snd_sof_pipeline_find(struct snd_sof_dev *sdev,
  
- 	if (chain && !ocelot_find_vcap_filter_that_points_at(ocelot, chain)) {
- 		NL_SET_ERR_MSG_MOD(extack, "No default GOTO action points to this chain");
- 		return -EOPNOTSUPP;
- 	}
+ int sof_set_up_pipelines(struct snd_sof_dev *sdev, bool verify)
+ {
++	struct sof_ipc_fw_version *v = &sdev->fw_ready.version;
+ 	struct snd_sof_widget *swidget;
+ 	struct snd_sof_route *sroute;
+ 	int ret;
  
-+	block_id = ocelot_chain_to_block(chain, ingress);
-+	if (block_id < 0) {
-+		NL_SET_ERR_MSG_MOD(extack, "Cannot offload to this chain");
-+		return -EOPNOTSUPP;
-+	}
-+
-+	filter = ocelot_vcap_block_find_filter_by_id(&ocelot->block[block_id],
-+						     f->cookie, true);
-+	if (filter) {
-+		/* Filter already exists on other ports */
-+		if (!ingress) {
-+			NL_SET_ERR_MSG_MOD(extack, "VCAP ES0 does not support shared filters");
-+			return -EOPNOTSUPP;
-+		}
-+
-+		filter->ingress_port_mask |= BIT(port);
-+
-+		return ocelot_vcap_filter_replace(ocelot, filter);
-+	}
-+
-+	/* Filter didn't exist, create it now */
- 	filter = ocelot_vcap_filter_create(ocelot, port, ingress, f);
- 	if (!filter)
- 		return -ENOMEM;
-@@ -874,6 +895,12 @@ int ocelot_cls_flower_destroy(struct ocelot *ocelot, int port,
- 	if (filter->type == OCELOT_VCAP_FILTER_DUMMY)
- 		return ocelot_vcap_dummy_filter_del(ocelot, filter);
+ 	/* restore pipeline components */
+-	list_for_each_entry_reverse(swidget, &sdev->widget_list, list) {
++	list_for_each_entry(swidget, &sdev->widget_list, list) {
+ 		/* only set up the widgets belonging to static pipelines */
+ 		if (!verify && swidget->dynamic_pipeline_widget)
+ 			continue;
  
-+	if (ingress) {
-+		filter->ingress_port_mask &= ~BIT(port);
-+		if (filter->ingress_port_mask)
-+			return ocelot_vcap_filter_replace(ocelot, filter);
-+	}
++		/*
++		 * For older firmware, skip scheduler widgets in this loop,
++		 * sof_widget_setup() will be called in the 'complete pipeline' loop
++		 */
++		if (v->abi_version < SOF_ABI_VER(3, 19, 0) &&
++		    swidget->id == snd_soc_dapm_scheduler)
++			continue;
 +
- 	return ocelot_vcap_filter_del(ocelot, filter);
- }
- EXPORT_SYMBOL_GPL(ocelot_cls_flower_destroy);
+ 		/* update DAI config. The IPC will be sent in sof_widget_setup() */
+ 		if (WIDGET_IS_DAI(swidget->id)) {
+ 			struct snd_sof_dai *dai = swidget->private;
+@@ -694,6 +703,12 @@ int sof_set_up_pipelines(struct snd_sof_dev *sdev, bool verify)
+ 			if (!verify && swidget->dynamic_pipeline_widget)
+ 				continue;
+ 
++			if (v->abi_version < SOF_ABI_VER(3, 19, 0)) {
++				ret = sof_widget_setup(sdev, swidget);
++				if (ret < 0)
++					return ret;
++			}
++
+ 			swidget->complete =
+ 				snd_sof_complete_pipeline(sdev, swidget);
+ 			break;
+@@ -722,7 +737,7 @@ int sof_tear_down_pipelines(struct snd_sof_dev *sdev, bool verify)
+ 	 * sroute->setup because during suspend all streams are suspended and during topology
+ 	 * loading the sound card unavailable to open PCMs.
+ 	 */
+-	list_for_each_entry_reverse(swidget, &sdev->widget_list, list) {
++	list_for_each_entry(swidget, &sdev->widget_list, list) {
+ 		if (swidget->dynamic_pipeline_widget)
+ 			continue;
+ 
 
