@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 13C5D499426
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:41:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BBFF498F86
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:54:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357646AbiAXUje (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:39:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39396 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348182AbiAXUeT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:34:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B048C07E2B8;
-        Mon, 24 Jan 2022 11:47:54 -0800 (PST)
+        id S1352648AbiAXTxD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:53:03 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:37800 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1354097AbiAXTsA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:48:00 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E267E61298;
-        Mon, 24 Jan 2022 19:47:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC5BAC340E5;
-        Mon, 24 Jan 2022 19:47:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 29C77B8119D;
+        Mon, 24 Jan 2022 19:47:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D17BC340E5;
+        Mon, 24 Jan 2022 19:47:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053673;
-        bh=2oPRCzvY5dsRKRC7+16mS3DHzsCSSWf7cRER46nZmQ0=;
+        s=korg; t=1643053676;
+        bh=/vz12Y+4kCw+FJnjP4uwJIwY0vpUaKSJwMXMfs4kA/k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gTVI4neVPrEmO8wQtd94+QPR4VQIpZazoV1HofX0pRVtjz7JJqErf8777ct5EJh4I
-         e90DTH2kAChrewpiMT9wL8q7lrOk06Oyk0U/2m4nRU22piNs8AgxWRwjMMje3ZBhEW
-         zQDLjnQyxKUviRhaxys9gs6tEPCsWKnsx80s/lgw=
+        b=vltYa7x/HUPJXlOU193E8ZIP4kZCHA22a0S1cEFz7lGZMtMC+VR1kNG4p8bywlD6n
+         sS0u6UBd+9+UkHRbM+7qBHPD6PW80aWQwz5A0lu146lq0iPX8gaNZFnVbj20i7W25H
+         XTDroPvtWpOfKbktzcIeaviddlzmfQPYM9jQEOok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Codrin Ciubotariu <codrin.ciubotariu@microchip.com>,
-        Nicolas Ferre <nicolas.ferre@microchip.com>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, Suresh Udipi <sudipi@jp.adit-jv.com>,
+        Kazuyoshi Akiyama <akiyama@nds-osk.co.jp>,
+        Michael Rodin <mrodin@de.adit-jv.com>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 107/563] mfd: atmel-flexcom: Use .resume_noirq
-Date:   Mon, 24 Jan 2022 19:37:52 +0100
-Message-Id: <20220124184028.102081221@linuxfoundation.org>
+Subject: [PATCH 5.10 108/563] media: rcar-csi2: Correct the selection of hsfreqrange
+Date:   Mon, 24 Jan 2022 19:37:53 +0100
+Message-Id: <20220124184028.138439005@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -51,54 +50,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Suresh Udipi <sudipi@jp.adit-jv.com>
 
-[ Upstream commit 5d051cf94fd5834a1513aa77e542c49fd973988a ]
+[ Upstream commit cee44d4fbacbbdfe62697ec94e76c6e4f726c5df ]
 
-Flexcom IP embeds 3 other IPs: usart, i2c, spi and selects the operation
-mode (usart, i2c, spi) via mode register (FLEX_MR). On i2c bus there might
-be connected critical devices (like PMIC) which on suspend/resume should
-be suspended/resumed at the end/beginning. i2c uses
-.suspend_noirq/.resume_noirq for this kind of purposes. Align flexcom
-to use .resume_noirq as it should be resumed before the embedded IPs.
-Otherwise the embedded devices might behave badly.
+hsfreqrange should be chosen based on the calculated mbps which
+is closer to the default bit rate  and within the range as per
+table[1]. But current calculation always selects first value which
+is greater than or equal to the calculated mbps which may lead
+to chosing a wrong range in some cases.
 
-Fixes: 7fdec11015c3 ("atmel_flexcom: Support resuming after a chip reset")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Tested-by: Codrin Ciubotariu <codrin.ciubotariu@microchip.com>
-Acked-by: Nicolas Ferre <nicolas.ferre@microchip.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
-Link: https://lore.kernel.org/r/20211028135138.3481166-3-claudiu.beznea@microchip.com
+For example for 360 mbps for H3/M3N
+Existing logic selects
+Calculated value 360Mbps : Default 400Mbps Range [368.125 -433.125 mbps]
+
+This hsfreqrange is out of range.
+
+The logic is changed to get the default value which is closest to the
+calculated value [1]
+
+Calculated value 360Mbps : Default 350Mbps  Range [320.625 -380.625 mpbs]
+
+[1] specs r19uh0105ej0200-r-car-3rd-generation.pdf [Table 25.9]
+
+Please note that According to Renesas in Table 25.9 the range for
+220 default value is corrected as below
+
+ |Range (Mbps)     |  Default  Bit rate (Mbps) |
+ -----------------------------------------------
+ | 197.125-244.125 |     220                   |
+ -----------------------------------------------
+
+Fixes: 769afd212b16 ("media: rcar-csi2: add Renesas R-Car MIPI CSI-2 receiver driver")
+Signed-off-by: Suresh Udipi <sudipi@jp.adit-jv.com>
+Signed-off-by: Kazuyoshi Akiyama <akiyama@nds-osk.co.jp>
+Signed-off-by: Michael Rodin <mrodin@de.adit-jv.com>
+Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/atmel-flexcom.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/media/platform/rcar-vin/rcar-csi2.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mfd/atmel-flexcom.c b/drivers/mfd/atmel-flexcom.c
-index 962f66dc8813e..559eb4d352b68 100644
---- a/drivers/mfd/atmel-flexcom.c
-+++ b/drivers/mfd/atmel-flexcom.c
-@@ -87,7 +87,7 @@ static const struct of_device_id atmel_flexcom_of_match[] = {
- };
- MODULE_DEVICE_TABLE(of, atmel_flexcom_of_match);
- 
--static int __maybe_unused atmel_flexcom_resume(struct device *dev)
-+static int __maybe_unused atmel_flexcom_resume_noirq(struct device *dev)
+diff --git a/drivers/media/platform/rcar-vin/rcar-csi2.c b/drivers/media/platform/rcar-vin/rcar-csi2.c
+index d2d87a204e918..6fb8efcb40444 100644
+--- a/drivers/media/platform/rcar-vin/rcar-csi2.c
++++ b/drivers/media/platform/rcar-vin/rcar-csi2.c
+@@ -436,16 +436,23 @@ static int rcsi2_wait_phy_start(struct rcar_csi2 *priv,
+ static int rcsi2_set_phypll(struct rcar_csi2 *priv, unsigned int mbps)
  {
- 	struct atmel_flexcom *ddata = dev_get_drvdata(dev);
- 	int err;
-@@ -105,8 +105,9 @@ static int __maybe_unused atmel_flexcom_resume(struct device *dev)
+ 	const struct rcsi2_mbps_reg *hsfreq;
++	const struct rcsi2_mbps_reg *hsfreq_prev = NULL;
+ 
+-	for (hsfreq = priv->info->hsfreqrange; hsfreq->mbps != 0; hsfreq++)
++	for (hsfreq = priv->info->hsfreqrange; hsfreq->mbps != 0; hsfreq++) {
+ 		if (hsfreq->mbps >= mbps)
+ 			break;
++		hsfreq_prev = hsfreq;
++	}
+ 
+ 	if (!hsfreq->mbps) {
+ 		dev_err(priv->dev, "Unsupported PHY speed (%u Mbps)", mbps);
+ 		return -ERANGE;
+ 	}
+ 
++	if (hsfreq_prev &&
++	    ((mbps - hsfreq_prev->mbps) <= (hsfreq->mbps - mbps)))
++		hsfreq = hsfreq_prev;
++
+ 	rcsi2_write(priv, PHYPLL_REG, PHYPLL_HSFREQRANGE(hsfreq->reg));
+ 
  	return 0;
- }
- 
--static SIMPLE_DEV_PM_OPS(atmel_flexcom_pm_ops, NULL,
--			 atmel_flexcom_resume);
-+static const struct dev_pm_ops atmel_flexcom_pm_ops = {
-+	.resume_noirq = atmel_flexcom_resume_noirq,
-+};
- 
- static struct platform_driver atmel_flexcom_driver = {
- 	.probe	= atmel_flexcom_probe,
 -- 
 2.34.1
 
