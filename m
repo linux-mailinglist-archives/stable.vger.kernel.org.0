@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6282B4996F2
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:20:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 002AD4998B1
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:38:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1446410AbiAXVII (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:08:08 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:50862 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1445095AbiAXVCL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:02:11 -0500
+        id S1346851AbiAXV3C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:29:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50082 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1449975AbiAXVRk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:17:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17819C067A6A;
+        Mon, 24 Jan 2022 12:12:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C8146611DA;
-        Mon, 24 Jan 2022 21:02:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB269C340E5;
-        Mon, 24 Jan 2022 21:02:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9AEDD61368;
+        Mon, 24 Jan 2022 20:12:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 816CBC340ED;
+        Mon, 24 Jan 2022 20:12:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058130;
-        bh=IhACb9bxfxsVvsSEtnGRQo29vIfTysy249Res4IG6L4=;
+        s=korg; t=1643055160;
+        bh=XmunwkHp3uSTDer0TGSDoR8vFkcsn6YyKg9JSHU7/wM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mDlZgF8Z+G/ucHLdsJ58kTvecV5Ja775GozrP2TI+xgBXcejbd0QqL+S+bOo78A2r
-         peiMDBtt71Gv10ujEiXdgWBdJorfoderRbt95AkzLolQzKgeuxzU/t+JsWdCNU764p
-         gZPERttGdkX8d32X4mx30yqV1xr2O2O9o2zXmQEQ=
+        b=1xY+v5GQ2+PqgpBj+pJ9VOu5qeITENCzswVp6t0sP16a/T8MlNHuvOzfiRH2uhjpu
+         bLAvbhesBj3nbkIW4frL7s8KrA+JfBDfmrQ2NTjVry2c70SZ6xkKYvV73Stz05o5F+
+         LDt3Aq0mG6j2gD36lOuSyxyChUVUysNI2cYPcAdo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suresh Udipi <sudipi@jp.adit-jv.com>,
-        Kazuyoshi Akiyama <akiyama@nds-osk.co.jp>,
-        Michael Rodin <mrodin@de.adit-jv.com>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0188/1039] media: rcar-csi2: Correct the selection of hsfreqrange
+        stable@vger.kernel.org,
+        Aleksander Morgado <aleksander@aleksander.es>,
+        Thomas Perrot <thomas.perrot@bootlin.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: [PATCH 5.15 060/846] bus: mhi: core: Fix race while handling SYS_ERR at power up
 Date:   Mon, 24 Jan 2022 19:32:57 +0100
-Message-Id: <20220124184131.625904622@linuxfoundation.org>
+Message-Id: <20220124184103.036530225@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,80 +49,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suresh Udipi <sudipi@jp.adit-jv.com>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-[ Upstream commit cee44d4fbacbbdfe62697ec94e76c6e4f726c5df ]
+commit d651ce8e917fa1bf6cfab8dca74c512edffc35d3 upstream.
 
-hsfreqrange should be chosen based on the calculated mbps which
-is closer to the default bit rate  and within the range as per
-table[1]. But current calculation always selects first value which
-is greater than or equal to the calculated mbps which may lead
-to chosing a wrong range in some cases.
+During SYS_ERR condition, as a response to the MHI_RESET from host, some
+devices tend to issue BHI interrupt without clearing the SYS_ERR state in
+the device. This creates a race condition and causes a failure in booting
+up the device.
 
-For example for 360 mbps for H3/M3N
-Existing logic selects
-Calculated value 360Mbps : Default 400Mbps Range [368.125 -433.125 mbps]
+The issue is seen on the Sierra Wireless EM9191 modem during SYS_ERR
+handling in mhi_async_power_up(). Once the host detects that the device
+is in SYS_ERR state, it issues MHI_RESET and waits for the device to
+process the reset request. During this time, the device triggers the BHI
+interrupt to the host without clearing SYS_ERR condition. So the host
+starts handling the SYS_ERR condition again.
 
-This hsfreqrange is out of range.
+To fix this issue, let's register the IRQ handler only after handling the
+SYS_ERR check to avoid getting spurious IRQs from the device.
 
-The logic is changed to get the default value which is closest to the
-calculated value [1]
-
-Calculated value 360Mbps : Default 350Mbps  Range [320.625 -380.625 mpbs]
-
-[1] specs r19uh0105ej0200-r-car-3rd-generation.pdf [Table 25.9]
-
-Please note that According to Renesas in Table 25.9 the range for
-220 default value is corrected as below
-
- |Range (Mbps)     |  Default  Bit rate (Mbps) |
- -----------------------------------------------
- | 197.125-244.125 |     220                   |
- -----------------------------------------------
-
-Fixes: 769afd212b16 ("media: rcar-csi2: add Renesas R-Car MIPI CSI-2 receiver driver")
-Signed-off-by: Suresh Udipi <sudipi@jp.adit-jv.com>
-Signed-off-by: Kazuyoshi Akiyama <akiyama@nds-osk.co.jp>
-Signed-off-by: Michael Rodin <mrodin@de.adit-jv.com>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e18d4e9fa79b ("bus: mhi: core: Handle syserr during power_up")
+Cc: stable@vger.kernel.org
+Reported-by: Aleksander Morgado <aleksander@aleksander.es>
+Tested-by: Aleksander Morgado <aleksander@aleksander.es>
+Tested-by: Thomas Perrot <thomas.perrot@bootlin.com>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/20211216081227.237749-8-manivannan.sadhasivam@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/rcar-vin/rcar-csi2.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/bus/mhi/core/pm.c |   35 ++++++++++++-----------------------
+ 1 file changed, 12 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/media/platform/rcar-vin/rcar-csi2.c b/drivers/media/platform/rcar-vin/rcar-csi2.c
-index 11848d0c4a55c..436b7be969202 100644
---- a/drivers/media/platform/rcar-vin/rcar-csi2.c
-+++ b/drivers/media/platform/rcar-vin/rcar-csi2.c
-@@ -542,16 +542,23 @@ static int rcsi2_wait_phy_start(struct rcar_csi2 *priv,
- static int rcsi2_set_phypll(struct rcar_csi2 *priv, unsigned int mbps)
- {
- 	const struct rcsi2_mbps_reg *hsfreq;
-+	const struct rcsi2_mbps_reg *hsfreq_prev = NULL;
+--- a/drivers/bus/mhi/core/pm.c
++++ b/drivers/bus/mhi/core/pm.c
+@@ -1053,7 +1053,7 @@ int mhi_async_power_up(struct mhi_contro
+ 	enum mhi_ee_type current_ee;
+ 	enum dev_st_transition next_state;
+ 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
+-	u32 val;
++	u32 interval_us = 25000; /* poll register field every 25 milliseconds */
+ 	int ret;
  
--	for (hsfreq = priv->info->hsfreqrange; hsfreq->mbps != 0; hsfreq++)
-+	for (hsfreq = priv->info->hsfreqrange; hsfreq->mbps != 0; hsfreq++) {
- 		if (hsfreq->mbps >= mbps)
- 			break;
-+		hsfreq_prev = hsfreq;
-+	}
+ 	dev_info(dev, "Requested to power ON\n");
+@@ -1070,10 +1070,6 @@ int mhi_async_power_up(struct mhi_contro
+ 	mutex_lock(&mhi_cntrl->pm_mutex);
+ 	mhi_cntrl->pm_state = MHI_PM_DISABLE;
  
- 	if (!hsfreq->mbps) {
- 		dev_err(priv->dev, "Unsupported PHY speed (%u Mbps)", mbps);
- 		return -ERANGE;
+-	ret = mhi_init_irq_setup(mhi_cntrl);
+-	if (ret)
+-		goto error_setup_irq;
+-
+ 	/* Setup BHI INTVEC */
+ 	write_lock_irq(&mhi_cntrl->pm_lock);
+ 	mhi_write_reg(mhi_cntrl, mhi_cntrl->bhi, BHI_INTVEC, 0);
+@@ -1087,7 +1083,7 @@ int mhi_async_power_up(struct mhi_contro
+ 		dev_err(dev, "%s is not a valid EE for power on\n",
+ 			TO_MHI_EXEC_STR(current_ee));
+ 		ret = -EIO;
+-		goto error_async_power_up;
++		goto error_exit;
  	}
  
-+	if (hsfreq_prev &&
-+	    ((mbps - hsfreq_prev->mbps) <= (hsfreq->mbps - mbps)))
-+		hsfreq = hsfreq_prev;
+ 	state = mhi_get_mhi_state(mhi_cntrl);
+@@ -1096,20 +1092,12 @@ int mhi_async_power_up(struct mhi_contro
+ 
+ 	if (state == MHI_STATE_SYS_ERR) {
+ 		mhi_set_mhi_state(mhi_cntrl, MHI_STATE_RESET);
+-		ret = wait_event_timeout(mhi_cntrl->state_event,
+-				MHI_PM_IN_FATAL_STATE(mhi_cntrl->pm_state) ||
+-					mhi_read_reg_field(mhi_cntrl,
+-							   mhi_cntrl->regs,
+-							   MHICTRL,
+-							   MHICTRL_RESET_MASK,
+-							   MHICTRL_RESET_SHIFT,
+-							   &val) ||
+-					!val,
+-				msecs_to_jiffies(mhi_cntrl->timeout_ms));
+-		if (!ret) {
+-			ret = -EIO;
++		ret = mhi_poll_reg_field(mhi_cntrl, mhi_cntrl->regs, MHICTRL,
++				 MHICTRL_RESET_MASK, MHICTRL_RESET_SHIFT, 0,
++				 interval_us);
++		if (ret) {
+ 			dev_info(dev, "Failed to reset MHI due to syserr state\n");
+-			goto error_async_power_up;
++			goto error_exit;
+ 		}
+ 
+ 		/*
+@@ -1119,6 +1107,10 @@ int mhi_async_power_up(struct mhi_contro
+ 		mhi_write_reg(mhi_cntrl, mhi_cntrl->bhi, BHI_INTVEC, 0);
+ 	}
+ 
++	ret = mhi_init_irq_setup(mhi_cntrl);
++	if (ret)
++		goto error_exit;
 +
- 	rcsi2_write(priv, PHYPLL_REG, PHYPLL_HSFREQRANGE(hsfreq->reg));
+ 	/* Transition to next state */
+ 	next_state = MHI_IN_PBL(current_ee) ?
+ 		DEV_ST_TRANSITION_PBL : DEV_ST_TRANSITION_READY;
+@@ -1131,10 +1123,7 @@ int mhi_async_power_up(struct mhi_contro
  
  	return 0;
--- 
-2.34.1
-
+ 
+-error_async_power_up:
+-	mhi_deinit_free_irq(mhi_cntrl);
+-
+-error_setup_irq:
++error_exit:
+ 	mhi_cntrl->pm_state = MHI_PM_DISABLE;
+ 	mutex_unlock(&mhi_cntrl->pm_mutex);
+ 
 
 
