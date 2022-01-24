@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 900774993AC
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:38:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41D994993B0
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:38:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386108AbiAXUfK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:35:10 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:53096 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384621AbiAXUaP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:30:15 -0500
+        id S1386113AbiAXUfL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:35:11 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:36204 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1384721AbiAXUa0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:30:26 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 813A961512;
-        Mon, 24 Jan 2022 20:30:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F046C340E5;
-        Mon, 24 Jan 2022 20:30:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3C37BB8122D;
+        Mon, 24 Jan 2022 20:30:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EDDFC340E5;
+        Mon, 24 Jan 2022 20:30:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056214;
-        bh=eXD3O4QmX5J7aE4pQ1f46f7WdUCuth2V6BwFwk8xKBY=;
+        s=korg; t=1643056224;
+        bh=03Wqyse5WbMn58IU7wn8cQE9JWvTPxZxaYwH/cNb67A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Huxj35rT2hgAn0hzZDRNXXZ1n0E5Zw9Hcx+DTjQNRycbmB3aVaUT7DZ3huxC2cECN
-         kDOJfRcERZmuCNs0XTCEtrT3A3QLCq3qpe4pqtpy4vlZYKvrA5o7ppfQ5aRvTnELlR
-         SrRjspmGXbF44V0BEXUEouqqI/6RJIy3cot3iVfc=
+        b=PHRVMFtep2t1qpDp5W8ue1yHw0Y7wm0/ZXOi46+sJRPB9XQkul6vSmacwoPMS5Dbv
+         cJAqgXr64x/D5WMdYfkOyo+xUSqorO4uQBJfaEFUp9EavSKLute+TyOHJvXf1Uo0n+
+         4xYrwimmu3nbr5fihXU9bRUhTo9fVPTM6b+tv24o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avihai Horon <avihaih@nvidia.com>,
-        Mark Zhang <markzhang@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 410/846] RDMA/core: Let ib_find_gid() continue search even after empty entry
-Date:   Mon, 24 Jan 2022 19:38:47 +0100
-Message-Id: <20220124184115.121049627@linuxfoundation.org>
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Jim Quinlan <jim2101024@gmail.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Frank Rowand <frank.rowand@sony.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 413/846] of: unittest: fix warning on PowerPC frame size warning
+Date:   Mon, 24 Jan 2022 19:38:50 +0100
+Message-Id: <20220124184115.216029653@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -47,45 +48,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Avihai Horon <avihaih@nvidia.com>
+From: Jim Quinlan <jim2101024@gmail.com>
 
-[ Upstream commit 483d805191a23191f8294bbf9b4e94836f5d92e4 ]
+[ Upstream commit a8d61a9112ad0c9216ab45d050991e07bc4f3408 ]
 
-Currently, ib_find_gid() will stop searching after encountering the first
-empty GID table entry. This behavior is wrong since neither IB nor RoCE
-spec enforce tightly packed GID tables.
+The struct device variable "dev_bogus" was triggering this warning
+on a PowerPC build:
 
-For example, when a valid GID entry exists at index N, and if a GID entry
-is empty at index N-1, ib_find_gid() will fail to find the valid entry.
+    drivers/of/unittest.c: In function 'of_unittest_dma_ranges_one.constprop':
+    [...] >> The frame size of 1424 bytes is larger than 1024 bytes
+             [-Wframe-larger-than=]
 
-Fix it by making ib_find_gid() continue searching even after encountering
-missing entries.
+This variable is now dynamically allocated.
 
-Fixes: 5eb620c81ce3 ("IB/core: Add helpers for uncached GID and P_Key searches")
-Link: https://lore.kernel.org/r/e55d331b96cecfc2cf19803d16e7109ea966882d.1639055490.git.leonro@nvidia.com
-Signed-off-by: Avihai Horon <avihaih@nvidia.com>
-Reviewed-by: Mark Zhang <markzhang@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: e0d072782c734 ("dma-mapping: introduce DMA range map, supplanting dma_pfn_offset")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Jim Quinlan <jim2101024@gmail.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Frank Rowand <frank.rowand@sony.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/20211210184636.7273-2-jim2101024@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/device.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/of/unittest.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/core/device.c b/drivers/infiniband/core/device.c
-index f4814bb7f082f..6ab46648af909 100644
---- a/drivers/infiniband/core/device.c
-+++ b/drivers/infiniband/core/device.c
-@@ -2461,7 +2461,8 @@ int ib_find_gid(struct ib_device *device, union ib_gid *gid,
- 		     ++i) {
- 			ret = rdma_query_gid(device, port, i, &tmp_gid);
- 			if (ret)
--				return ret;
-+				continue;
+diff --git a/drivers/of/unittest.c b/drivers/of/unittest.c
+index 5b85a2a3792ae..242381568f13c 100644
+--- a/drivers/of/unittest.c
++++ b/drivers/of/unittest.c
+@@ -911,11 +911,18 @@ static void __init of_unittest_dma_ranges_one(const char *path,
+ 	if (!rc) {
+ 		phys_addr_t	paddr;
+ 		dma_addr_t	dma_addr;
+-		struct device	dev_bogus;
++		struct device	*dev_bogus;
+ 
+-		dev_bogus.dma_range_map = map;
+-		paddr = dma_to_phys(&dev_bogus, expect_dma_addr);
+-		dma_addr = phys_to_dma(&dev_bogus, expect_paddr);
++		dev_bogus = kzalloc(sizeof(struct device), GFP_KERNEL);
++		if (!dev_bogus) {
++			unittest(0, "kzalloc() failed\n");
++			kfree(map);
++			return;
++		}
 +
- 			if (!memcmp(&tmp_gid, gid, sizeof *gid)) {
- 				*port_num = port;
- 				if (index)
++		dev_bogus->dma_range_map = map;
++		paddr = dma_to_phys(dev_bogus, expect_dma_addr);
++		dma_addr = phys_to_dma(dev_bogus, expect_paddr);
+ 
+ 		unittest(paddr == expect_paddr,
+ 			 "of_dma_get_range: wrong phys addr %pap (expecting %llx) on node %pOF\n",
+@@ -925,6 +932,7 @@ static void __init of_unittest_dma_ranges_one(const char *path,
+ 			 &dma_addr, expect_dma_addr, np);
+ 
+ 		kfree(map);
++		kfree(dev_bogus);
+ 	}
+ 	of_node_put(np);
+ #endif
 -- 
 2.34.1
 
