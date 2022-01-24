@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D57C49A33E
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:02:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BF6E49A339
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:02:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2366187AbiAXXw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:52:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48584 "EHLO
+        id S2366183AbiAXXw2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:52:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1845252AbiAXXLz (ORCPT
+        with ESMTP id S1845261AbiAXXLz (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:11:55 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C412C0A02AE;
-        Mon, 24 Jan 2022 13:18:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 636FCC0A02B2;
+        Mon, 24 Jan 2022 13:18:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E6CC3B811A2;
-        Mon, 24 Jan 2022 21:18:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1064DC340E4;
-        Mon, 24 Jan 2022 21:18:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2C5BDB8123A;
+        Mon, 24 Jan 2022 21:18:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DA99C340E4;
+        Mon, 24 Jan 2022 21:18:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059128;
-        bh=vM/wn0gzeh2We6o+cpyhxuqY+/RcIVZXWMkfQnZOjK0=;
+        s=korg; t=1643059131;
+        bh=5bUKsrqF9mbHtV4XlYG05/ugAg6Jo+Sb90uYqTfChFM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GHQ8mk2H6m42L/WyJg+wHVTMXoVrgwxb8IyUESXDa9zkiRPvilwq+F1kJWleaUsv5
-         zOuOX0OfAgAkSI8299wCxsNeDFBFB5UrndeOXn+mjkiuRENmcGhVF7qoIKr8d2nGkz
-         XUVvWntzZTI0V47eGo2uSik+2EiF/udsONHv35uU=
+        b=Nop0maVa6lVucsRkAhc4uy2PU9je0gp9SaGJ3jPPcUZ41rZWiFUeScC18O+RUsKLq
+         H2HNZOCSgOtuSoc2U8VMCVb5OygtO88SbrIHq79CQUb2u5+lawc0SdbJMtpdPorfWg
+         HZGq0gR8Ep+ChLIsUIi+aG8l7sLSZauY280bnnHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
-        =?UTF-8?q?Michal=20Kalderon=C2=A0?= <michal.kalderon@marvell.com>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Juergen Gross <jgross@suse.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0480/1039] RDMA/qedr: Fix reporting max_{send/recv}_wr attrs
-Date:   Mon, 24 Jan 2022 19:37:49 +0100
-Message-Id: <20220124184141.404989772@linuxfoundation.org>
+Subject: [PATCH 5.16 0481/1039] PCI/MSI: Fix pci_irq_vector()/pci_irq_get_affinity()
+Date:   Mon, 24 Jan 2022 19:37:50 +0100
+Message-Id: <20220124184141.435262990@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -49,44 +50,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Heib <kamalheib1@gmail.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit b1a4da64bfc189510e08df1ccb1c589e667dc7a3 ]
+[ Upstream commit 29bbc35e29d9b6347780dcacde2deb4b39344167 ]
 
-Fix the wrongly reported max_send_wr and max_recv_wr attributes for user
-QP by making sure to save their valuse on QP creation, so when query QP is
-called the attributes will be reported correctly.
+pci_irq_vector() and pci_irq_get_affinity() use the list position to find the
+MSI-X descriptor at a given index. That's correct for the normal case where
+the entry number is the same as the list position.
 
-Fixes: cecbcddf6461 ("qedr: Add support for QP verbs")
-Link: https://lore.kernel.org/r/20211206201314.124947-1-kamalheib1@gmail.com
-Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
-Acked-by: Michal Kalderon <michal.kalderon@marvell.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+But it's wrong for cases where MSI-X was allocated with an entries array
+describing sparse entry numbers into the hardware message descriptor
+table. That's inconsistent at best.
+
+Make it always check the entry number because that's what the zero base
+index really means. This change won't break existing users which use a
+sparse entries array for allocation because these users retrieve the Linux
+interrupt number from the entries array after allocation and none of them
+uses pci_irq_vector() or pci_irq_get_affinity().
+
+Fixes: aff171641d18 ("PCI: Provide sensible IRQ vector alloc/free routines")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Link: https://lore.kernel.org/r/20211206210223.929792157@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/qedr/verbs.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/pci/msi.c | 26 ++++++++++++++++++--------
+ 1 file changed, 18 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/infiniband/hw/qedr/verbs.c b/drivers/infiniband/hw/qedr/verbs.c
-index 9100009f0a23d..a53476653b0d9 100644
---- a/drivers/infiniband/hw/qedr/verbs.c
-+++ b/drivers/infiniband/hw/qedr/verbs.c
-@@ -1931,6 +1931,7 @@ static int qedr_create_user_qp(struct qedr_dev *dev,
- 	/* db offset was calculated in copy_qp_uresp, now set in the user q */
- 	if (qedr_qp_has_sq(qp)) {
- 		qp->usq.db_addr = ctx->dpi_addr + uresp.sq_db_offset;
-+		qp->sq.max_wr = attrs->cap.max_send_wr;
- 		rc = qedr_db_recovery_add(dev, qp->usq.db_addr,
- 					  &qp->usq.db_rec_data->db_data,
- 					  DB_REC_WIDTH_32B,
-@@ -1941,6 +1942,7 @@ static int qedr_create_user_qp(struct qedr_dev *dev,
+diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
+index d84cf30bb2790..8465221be6d21 100644
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -1194,19 +1194,24 @@ EXPORT_SYMBOL(pci_free_irq_vectors);
  
- 	if (qedr_qp_has_rq(qp)) {
- 		qp->urq.db_addr = ctx->dpi_addr + uresp.rq_db_offset;
-+		qp->rq.max_wr = attrs->cap.max_recv_wr;
- 		rc = qedr_db_recovery_add(dev, qp->urq.db_addr,
- 					  &qp->urq.db_rec_data->db_data,
- 					  DB_REC_WIDTH_32B,
+ /**
+  * pci_irq_vector - return Linux IRQ number of a device vector
+- * @dev: PCI device to operate on
+- * @nr: device-relative interrupt vector index (0-based).
++ * @dev:	PCI device to operate on
++ * @nr:		Interrupt vector index (0-based)
++ *
++ * @nr has the following meanings depending on the interrupt mode:
++ *   MSI-X:	The index in the MSI-X vector table
++ *   MSI:	The index of the enabled MSI vectors
++ *   INTx:	Must be 0
++ *
++ * Return: The Linux interrupt number or -EINVAl if @nr is out of range.
+  */
+ int pci_irq_vector(struct pci_dev *dev, unsigned int nr)
+ {
+ 	if (dev->msix_enabled) {
+ 		struct msi_desc *entry;
+-		int i = 0;
+ 
+ 		for_each_pci_msi_entry(entry, dev) {
+-			if (i == nr)
++			if (entry->msi_attrib.entry_nr == nr)
+ 				return entry->irq;
+-			i++;
+ 		}
+ 		WARN_ON_ONCE(1);
+ 		return -EINVAL;
+@@ -1230,17 +1235,22 @@ EXPORT_SYMBOL(pci_irq_vector);
+  * pci_irq_get_affinity - return the affinity of a particular MSI vector
+  * @dev:	PCI device to operate on
+  * @nr:		device-relative interrupt vector index (0-based).
++ *
++ * @nr has the following meanings depending on the interrupt mode:
++ *   MSI-X:	The index in the MSI-X vector table
++ *   MSI:	The index of the enabled MSI vectors
++ *   INTx:	Must be 0
++ *
++ * Return: A cpumask pointer or NULL if @nr is out of range
+  */
+ const struct cpumask *pci_irq_get_affinity(struct pci_dev *dev, int nr)
+ {
+ 	if (dev->msix_enabled) {
+ 		struct msi_desc *entry;
+-		int i = 0;
+ 
+ 		for_each_pci_msi_entry(entry, dev) {
+-			if (i == nr)
++			if (entry->msi_attrib.entry_nr == nr)
+ 				return &entry->affinity->mask;
+-			i++;
+ 		}
+ 		WARN_ON_ONCE(1);
+ 		return NULL;
 -- 
 2.34.1
 
