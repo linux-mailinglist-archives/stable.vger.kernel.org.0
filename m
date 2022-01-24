@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40D31498F7A
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:54:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FE1B498B5A
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:13:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241706AbiAXTwr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:52:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56300 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356808AbiAXTrX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:47:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23B4EC038AE9;
-        Mon, 24 Jan 2022 11:23:06 -0800 (PST)
+        id S1346907AbiAXTM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:12:56 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:37594 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345148AbiAXTLf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:11:35 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B795E60010;
-        Mon, 24 Jan 2022 19:23:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D07EC340E7;
-        Mon, 24 Jan 2022 19:23:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4DB21B81233;
+        Mon, 24 Jan 2022 19:11:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A115C340E5;
+        Mon, 24 Jan 2022 19:11:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052185;
-        bh=q5V/oWsy8/Any2yGd1E9n2BPhXEB4Nbics/VFJRxRGQ=;
+        s=korg; t=1643051492;
+        bh=AXv0bhwDFHYDlHSaMxBSRFCsCriGi5RSJxtkFLs0kwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kLRp1dQbdqFXE6iHDkMgd++kF/Kj+TyQPArv0PLjIcEYGnscjJzcbIa4up74XZ/6N
-         66+YPSeDJB3JHnC2atdXAvSXyUMVHaBvy71sVdrXGL24Vfe+rJ7z9521mbL+Lw7sXA
-         0Z586HCNPrLjqDoqiWeSN3uoQ3WxjzvkxrMTr7T8=
+        b=QyLTs/s1knjfeW2UOCGNfMvjuyVN8WtOfjStxTBrM+6cj+uLnkmwxbiWA8kEYY4UF
+         FB0xV99oLmDjtVJJas0YHOzZGb6t+SA76RCcR4RlkQfBAdSoJb0hVm9DJHddKabjIi
+         SoEwq1Xy7wqP8aL993AnDLbuNmqhVzFRui54Yeog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@kernel.org>,
+        stable@vger.kernel.org, Yauhen Kharuzhy <jekhor@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 183/239] i2c: i801: Dont silently correct invalid transfer size
-Date:   Mon, 24 Jan 2022 19:43:41 +0100
-Message-Id: <20220124183948.918214094@linuxfoundation.org>
+Subject: [PATCH 4.14 147/186] power: bq25890: Enable continuous conversion for ADC at charging
+Date:   Mon, 24 Jan 2022 19:43:42 +0100
+Message-Id: <20220124183941.832765733@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
+References: <20220124183937.101330125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,61 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Yauhen Kharuzhy <jekhor@gmail.com>
 
-[ Upstream commit effa453168a7eeb8a562ff4edc1dbf9067360a61 ]
+[ Upstream commit 80211be1b9dec04cc2805d3d81e2091ecac289a1 ]
 
-If an invalid block size is provided, reject it instead of silently
-changing it to a supported value. Especially critical I see the case of
-a write transfer with block length 0. In this case we have no guarantee
-that the byte we would write is valid. When silently reducing a read to
-32 bytes then we don't return an error and the caller may falsely
-assume that we returned the full requested data.
+Instead of one shot run of ADC at beginning of charging, run continuous
+conversion to ensure that all charging-related values are monitored
+properly (input voltage, input current, themperature etc.).
 
-If this change should break any (broken) caller, then I think we should
-fix the caller.
-
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Yauhen Kharuzhy <jekhor@gmail.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-i801.c | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ drivers/power/supply/bq25890_charger.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index efafd028c5d16..fb0ddaad87d2e 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -774,6 +774,11 @@ static int i801_block_transaction(struct i801_priv *priv,
- 	int result = 0;
- 	unsigned char hostc;
+diff --git a/drivers/power/supply/bq25890_charger.c b/drivers/power/supply/bq25890_charger.c
+index 8e2c41ded171c..e90253b3f6561 100644
+--- a/drivers/power/supply/bq25890_charger.c
++++ b/drivers/power/supply/bq25890_charger.c
+@@ -521,12 +521,12 @@ static void bq25890_handle_state_change(struct bq25890_device *bq,
  
-+	if (read_write == I2C_SMBUS_READ && command == I2C_SMBUS_BLOCK_DATA)
-+		data->block[0] = I2C_SMBUS_BLOCK_MAX;
-+	else if (data->block[0] < 1 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
-+		return -EPROTO;
-+
- 	if (command == I2C_SMBUS_I2C_BLOCK_DATA) {
- 		if (read_write == I2C_SMBUS_WRITE) {
- 			/* set I2C_EN bit in configuration register */
-@@ -787,16 +792,6 @@ static int i801_block_transaction(struct i801_priv *priv,
- 		}
+ 	if (!new_state->online) {			     /* power removed */
+ 		/* disable ADC */
+-		ret = bq25890_field_write(bq, F_CONV_START, 0);
++		ret = bq25890_field_write(bq, F_CONV_RATE, 0);
+ 		if (ret < 0)
+ 			goto error;
+ 	} else if (!old_state.online) {			    /* power inserted */
+ 		/* enable ADC, to have control of charge current/voltage */
+-		ret = bq25890_field_write(bq, F_CONV_START, 1);
++		ret = bq25890_field_write(bq, F_CONV_RATE, 1);
+ 		if (ret < 0)
+ 			goto error;
  	}
- 
--	if (read_write == I2C_SMBUS_WRITE
--	 || command == I2C_SMBUS_I2C_BLOCK_DATA) {
--		if (data->block[0] < 1)
--			data->block[0] = 1;
--		if (data->block[0] > I2C_SMBUS_BLOCK_MAX)
--			data->block[0] = I2C_SMBUS_BLOCK_MAX;
--	} else {
--		data->block[0] = 32;	/* max for SMBus block reads */
--	}
--
- 	/* Experience has shown that the block buffer can only be used for
- 	   SMBus (not I2C) block transactions, even though the datasheet
- 	   doesn't mention this limitation. */
 -- 
 2.34.1
 
