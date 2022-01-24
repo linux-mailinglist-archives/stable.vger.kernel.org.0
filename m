@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A733499FE5
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:24:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3C69499FE7
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:24:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1842309AbiAXXBf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:01:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43898 "EHLO
+        id S1842326AbiAXXBk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:01:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1838727AbiAXWr6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:47:58 -0500
+        with ESMTP id S1838741AbiAXWsA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:48:00 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA7AEC068091;
-        Mon, 24 Jan 2022 13:07:16 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D003BC068094;
+        Mon, 24 Jan 2022 13:07:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 581B161320;
-        Mon, 24 Jan 2022 21:07:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D45FC340E5;
-        Mon, 24 Jan 2022 21:07:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A63161446;
+        Mon, 24 Jan 2022 21:07:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33995C340E5;
+        Mon, 24 Jan 2022 21:07:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058435;
-        bh=UJoBk2AX7uagF3E4lBveV8DtzXXk/DzkBuDh3DUoHyI=;
+        s=korg; t=1643058438;
+        bh=wObO+B5KFU6f959FvGizWAR8qcGc9TgRvKJQdmxbzMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qpqlgGnQy+FusC03hE5tN1sdYoIcHwBsl+UVeu4DkcyPhZQwsGQrAa9R0GeXl3F1g
-         /S7n54KU3wWHVEe2G9fLKNBUQIyjCOi6TPTtgjY3Xq0fyneBYIWupp2GJp6naqB7fR
-         sdOEZ2HQPfT+xj9czzSharJFOFpBLfinfgIHuXzw=
+        b=hYWSSxeLF1xuLIi3U9ai7mz2AT/2SY09trC2pdk85m1+nBV9xvyZdNpn+9ubzGZQ+
+         SsyOzy9RMmXbBwPkQBljGdyMn4RZ9DUv8i4mQ6u1Dk7GD2OVMBv3Ze2sx5g5163wsz
+         WxorQQYe9xG8n9duA+u1CX+m7x530rZHDUwA1/gY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Kurt Kanzenbach <kurt@linutronix.de>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Richard Cochran <richardcochran@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0288/1039] ath11k: Fix a NULL pointer dereference in ath11k_mac_op_hw_scan()
-Date:   Mon, 24 Jan 2022 19:34:37 +0100
-Message-Id: <20220124184134.963810672@linuxfoundation.org>
+Subject: [PATCH 5.16 0289/1039] net: dsa: hellcreek: Fix insertion of static FDB entries
+Date:   Mon, 24 Jan 2022 19:34:38 +0100
+Message-Id: <20220124184134.995912313@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -48,57 +50,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Kurt Kanzenbach <kurt@linutronix.de>
 
-[ Upstream commit eccd25136386a04ebf46a64f3a34e8e0fab6d9e1 ]
+[ Upstream commit 4db4c3ea56978086ca367a355e440de17d534827 ]
 
-In ath11k_mac_op_hw_scan(), the return value of kzalloc() is directly
-used in memcpy(), which may lead to a NULL pointer dereference on
-failure of kzalloc().
+The insertion of static FDB entries ignores the pass_blocked bit. That bit is
+evaluated with regards to STP. Add the missing functionality.
 
-Fix this bug by adding a check of arg.extraie.ptr.
-
-This bug was found by a static analyzer. The analysis employs
-differential checking to identify inconsistent security operations
-(e.g., checks or kfrees) between two code paths and confirms that the
-inconsistent operations are not recovered in the current function or
-the callers, so they constitute bugs.
-
-Note that, as a bug found by static analysis, it can be a false
-positive or hard to trigger. Multiple researchers have cross-reviewed
-the bug.
-
-Builds with CONFIG_ATH11K=m show no new warnings, and our static
-analyzer no longer warns about this code.
-
-Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20211202155348.71315-1-zhou1615@umn.edu
+Fixes: e4b27ebc780f ("net: dsa: Add DSA driver for Hirschmann Hellcreek switches")
+Signed-off-by: Kurt Kanzenbach <kurt@linutronix.de>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Acked-by: Richard Cochran <richardcochran@gmail.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/mac.c | 7 +++++--
+ drivers/net/dsa/hirschmann/hellcreek.c | 7 +++++--
  1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
-index 67be109eda910..5d49a7ea51fae 100644
---- a/drivers/net/wireless/ath/ath11k/mac.c
-+++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -3241,9 +3241,12 @@ static int ath11k_mac_op_hw_scan(struct ieee80211_hw *hw,
- 	arg.scan_id = ATH11K_SCAN_ID;
+diff --git a/drivers/net/dsa/hirschmann/hellcreek.c b/drivers/net/dsa/hirschmann/hellcreek.c
+index 4e0b53d94b525..bb1a24c8078be 100644
+--- a/drivers/net/dsa/hirschmann/hellcreek.c
++++ b/drivers/net/dsa/hirschmann/hellcreek.c
+@@ -710,8 +710,9 @@ static int __hellcreek_fdb_add(struct hellcreek *hellcreek,
+ 	u16 meta = 0;
  
- 	if (req->ie_len) {
-+		arg.extraie.ptr = kmemdup(req->ie, req->ie_len, GFP_KERNEL);
-+		if (!arg.extraie.ptr) {
-+			ret = -ENOMEM;
-+			goto exit;
-+		}
- 		arg.extraie.len = req->ie_len;
--		arg.extraie.ptr = kzalloc(req->ie_len, GFP_KERNEL);
--		memcpy(arg.extraie.ptr, req->ie, req->ie_len);
- 	}
+ 	dev_dbg(hellcreek->dev, "Add static FDB entry: MAC=%pM, MASK=0x%02x, "
+-		"OBT=%d, REPRIO_EN=%d, PRIO=%d\n", entry->mac, entry->portmask,
+-		entry->is_obt, entry->reprio_en, entry->reprio_tc);
++		"OBT=%d, PASS_BLOCKED=%d, REPRIO_EN=%d, PRIO=%d\n", entry->mac,
++		entry->portmask, entry->is_obt, entry->pass_blocked,
++		entry->reprio_en, entry->reprio_tc);
  
- 	if (req->n_ssids) {
+ 	/* Add mac address */
+ 	hellcreek_write(hellcreek, entry->mac[1] | (entry->mac[0] << 8), HR_FDBWDH);
+@@ -722,6 +723,8 @@ static int __hellcreek_fdb_add(struct hellcreek *hellcreek,
+ 	meta |= entry->portmask << HR_FDBWRM0_PORTMASK_SHIFT;
+ 	if (entry->is_obt)
+ 		meta |= HR_FDBWRM0_OBT;
++	if (entry->pass_blocked)
++		meta |= HR_FDBWRM0_PASS_BLOCKED;
+ 	if (entry->reprio_en) {
+ 		meta |= HR_FDBWRM0_REPRIO_EN;
+ 		meta |= entry->reprio_tc << HR_FDBWRM0_REPRIO_TC_SHIFT;
 -- 
 2.34.1
 
