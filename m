@@ -2,42 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32C5D499026
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F8E2498D20
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:33:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347517AbiAXT6o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:58:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57542 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351774AbiAXTwn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:52:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A7B6C061390;
-        Mon, 24 Jan 2022 11:25:52 -0800 (PST)
+        id S1348173AbiAXT2F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:28:05 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:48898 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1351079AbiAXTZz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:25:55 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA916B8121C;
-        Mon, 24 Jan 2022 19:25:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2A94C340E7;
-        Mon, 24 Jan 2022 19:25:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D5A13B8121B;
+        Mon, 24 Jan 2022 19:25:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BDAAC340E5;
+        Mon, 24 Jan 2022 19:25:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052349;
-        bh=9RUyuV8X8p3XqKTR+JMGeYvUPlLzZu6EXdN0cDot12U=;
+        s=korg; t=1643052352;
+        bh=hPRy7MHQ9qWvjx1gbXdwAJtjs8DlbBoxJ6CBGClWPjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jGfM0FtFBuYL8zT9ZLMb1023ZtWPp8DrHbrtRZYOGMRQcZ/yApHP9lSH//f2DMhli
-         Ee0OChyttWZKjX4zw1LaKQWiGMA52o+2FfpT1gvCUX+xtKw+FpcMTUnM50w0AISk50
-         5it6ENzg+0NdiXq9nrScdZPOl62QTW/lQBgwAm0U=
+        b=JwL8vKwv4TQzpLy99jjSY+qrq4s45xmr4l7v79YUm/5FLeUGmITexEjYmEJ15j9ff
+         FmFrNloHPlX674FoxuU1jewrD9md7AbIWCpPiE/oSbVFCL/+WHSOW0gbSgt7uKj0R3
+         9BaeS6exSRrLmtZuMSd2Hn7zj7OtqRM/v3tB8M9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Stefan Riedmueller <s.riedmueller@phytec.de>,
-        Han Xu <han.xu@nxp.com>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.4 008/320] mtd: rawnand: gpmi: Remove explicit default gpmi clock setting for i.MX6
-Date:   Mon, 24 Jan 2022 19:39:52 +0100
-Message-Id: <20220124183954.052845191@linuxfoundation.org>
+        stable@vger.kernel.org, Lucas De Marchi <lucas.demarchi@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 5.4 009/320] x86/gpu: Reserve stolen memory for first integrated Intel GPU
+Date:   Mon, 24 Jan 2022 19:39:53 +0100
+Message-Id: <20220124183954.083159707@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
 References: <20220124183953.750177707@linuxfoundation.org>
@@ -49,40 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Riedmueller <s.riedmueller@phytec.de>
+From: Lucas De Marchi <lucas.demarchi@intel.com>
 
-commit aa1baa0e6c1aa4872e481dce4fc7fd6f3dd8496b upstream.
+commit 9c494ca4d3a535f9ca11ad6af1813983c1c6cbdd upstream.
 
-There is no need to explicitly set the default gpmi clock rate during
-boot for the i.MX 6 since this is done during nand_detect anyway.
+"Stolen memory" is memory set aside for use by an Intel integrated GPU.
+The intel_graphics_quirks() early quirk reserves this memory when it is
+called for a GPU that appears in the intel_early_ids[] table of integrated
+GPUs.
 
-Signed-off-by: Stefan Riedmueller <s.riedmueller@phytec.de>
+Previously intel_graphics_quirks() was marked as QFLAG_APPLY_ONCE, so it
+was called only for the first Intel GPU found.  If a discrete GPU happened
+to be enumerated first, intel_graphics_quirks() was called for it but not
+for any integrated GPU found later.  Therefore, stolen memory for such an
+integrated GPU was never reserved.
+
+For example, this problem occurs in this Alderlake-P (integrated) + DG2
+(discrete) topology where the DG2 is found first, but stolen memory is
+associated with the integrated GPU:
+
+  - 00:01.0 Bridge
+    `- 03:00.0 DG2 discrete GPU
+  - 00:02.0 Integrated GPU (with stolen memory)
+
+Remove the QFLAG_APPLY_ONCE flag and call intel_graphics_quirks() for every
+Intel GPU.  Reserve stolen memory for the first GPU that appears in
+intel_early_ids[].
+
+[bhelgaas: commit log, add code comment, squash in
+https://lore.kernel.org/r/20220118190558.2ququ4vdfjuahicm@ldmartin-desk2]
+Link: https://lore.kernel.org/r/20220114002843.2083382-1-lucas.demarchi@intel.com
+Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Cc: stable@vger.kernel.org
-Acked-by: Han Xu <han.xu@nxp.com>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20211102202022.15551-1-ceggers@arri.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c |    9 ---------
- 1 file changed, 9 deletions(-)
+ arch/x86/kernel/early-quirks.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
-+++ b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
-@@ -1204,15 +1204,6 @@ static int gpmi_get_clks(struct gpmi_nan
- 		r->clock[i] = clk;
- 	}
+--- a/arch/x86/kernel/early-quirks.c
++++ b/arch/x86/kernel/early-quirks.c
+@@ -515,6 +515,7 @@ static const struct intel_early_ops gen1
+ 	.stolen_size = gen9_stolen_size,
+ };
  
--	if (GPMI_IS_MX6(this))
--		/*
--		 * Set the default value for the gpmi clock.
--		 *
--		 * If you want to use the ONFI nand which is in the
--		 * Synchronous Mode, you should change the clock as you need.
--		 */
--		clk_set_rate(r->clock[0], 22000000);
--
- 	return 0;
++/* Intel integrated GPUs for which we need to reserve "stolen memory" */
+ static const struct pci_device_id intel_early_ids[] __initconst = {
+ 	INTEL_I830_IDS(&i830_early_ops),
+ 	INTEL_I845G_IDS(&i845_early_ops),
+@@ -587,6 +588,13 @@ static void __init intel_graphics_quirks
+ 	u16 device;
+ 	int i;
  
- err_clock:
++	/*
++	 * Reserve "stolen memory" for an integrated GPU.  If we've already
++	 * found one, there's nothing to do for other (discrete) GPUs.
++	 */
++	if (resource_size(&intel_graphics_stolen_res))
++		return;
++
+ 	device = read_pci_config_16(num, slot, func, PCI_DEVICE_ID);
+ 
+ 	for (i = 0; i < ARRAY_SIZE(intel_early_ids); i++) {
+@@ -699,7 +707,7 @@ static struct chipset early_qrk[] __init
+ 	{ PCI_VENDOR_ID_INTEL, 0x3406, PCI_CLASS_BRIDGE_HOST,
+ 	  PCI_BASE_CLASS_BRIDGE, 0, intel_remapping_check },
+ 	{ PCI_VENDOR_ID_INTEL, PCI_ANY_ID, PCI_CLASS_DISPLAY_VGA, PCI_ANY_ID,
+-	  QFLAG_APPLY_ONCE, intel_graphics_quirks },
++	  0, intel_graphics_quirks },
+ 	/*
+ 	 * HPET on the current version of the Baytrail platform has accuracy
+ 	 * problems: it will halt in deep idle state - so we disable it.
 
 
