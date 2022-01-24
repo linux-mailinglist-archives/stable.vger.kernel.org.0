@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28D5349A9D4
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:28:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 144E449A9D7
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:28:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1323719AbiAYD3T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:29:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46598 "EHLO
+        id S1323730AbiAYD3Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:29:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347065AbiAXVFL (ORCPT
+        with ESMTP id S1347317AbiAXVFL (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:05:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05737C055A94;
-        Mon, 24 Jan 2022 12:04:31 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C712C055A97;
+        Mon, 24 Jan 2022 12:04:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B6A13B811FB;
-        Mon, 24 Jan 2022 20:04:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E21B9C340E5;
-        Mon, 24 Jan 2022 20:04:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 09BF161357;
+        Mon, 24 Jan 2022 20:04:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB007C340E5;
+        Mon, 24 Jan 2022 20:04:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054668;
-        bh=1W7QnzWemca3+VHrxEBDJsad3MM3/pf0E4IB4zUs6LA=;
+        s=korg; t=1643054671;
+        bh=TCMAxjkJB9dgoIXSVmuuBks01Ti+Fg5Kyhrp6E1okHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p8GcmPvcQA6sgSZ+00ofn+xjsHT7CIPoDKBnUZibiXyvmqOOXP/KHHFTtV2lex4cS
-         u0T0mQubQYJ82mYLlwXpbTV8mIkQX4yLcivF9cVTOQPv/s8XlFey8KffBmqzqjrXwo
-         nhKr6zPKsEi/b+YXcGJ3TtGkRHik64upYyq8ablU=
+        b=DlqVVy0Ri6sg23/kQTRjdVd/x31vNOqjesvEa0NlsqOD4GYPRA7DDaZJtJxJwjVKa
+         EA+ehfVAXiU3c3O7MXaTgfFrsvJTKbvLT46WsyfxDMVyKa3u6gCHgorvLh3kkYgiN0
+         RrWanrZ/q3Kk/ad3fuwHELo0lf85K6PsrkoKbdSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Ye Guojin <ye.guojin@zte.com.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Jay Chen <jkchen@linux.alibaba.com>,
+        Marc Zyngier <maz@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 432/563] MIPS: OCTEON: add put_device() after of_find_device_by_node()
-Date:   Mon, 24 Jan 2022 19:43:17 +0100
-Message-Id: <20220124184039.394739063@linuxfoundation.org>
+Subject: [PATCH 5.10 433/563] irqchip/gic-v4: Disable redistributors view of the VPE table at boot time
+Date:   Mon, 24 Jan 2022 19:43:18 +0100
+Message-Id: <20220124184039.425602485@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -49,65 +49,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Guojin <ye.guojin@zte.com.cn>
+From: Marc Zyngier <maz@kernel.org>
 
-[ Upstream commit 858779df1c0787d3fec827fb705708df9ebdb15b ]
+[ Upstream commit 79a7f77b9b154d572bd9d2f1eecf58c4d018d8e2 ]
 
-This was found by coccicheck:
-./arch/mips/cavium-octeon/octeon-platform.c, 332, 1-7, ERROR missing
-put_device; call of_find_device_by_node on line 324, but without a
-corresponding object release within this function.
-./arch/mips/cavium-octeon/octeon-platform.c, 395, 1-7, ERROR missing
-put_device; call of_find_device_by_node on line 387, but without a
-corresponding object release within this function.
-./arch/mips/cavium-octeon/octeon-usb.c, 512, 3-9, ERROR missing
-put_device; call of_find_device_by_node on line 515, but without a
-corresponding object release within this function.
-./arch/mips/cavium-octeon/octeon-usb.c, 543, 1-7, ERROR missing
-put_device; call of_find_device_by_node on line 515, but without a
-corresponding object release within this function.
+Jay Chen reported that using a kdump kernel on a GICv4.1 system
+results in a RAS error being delivered when the secondary kernel
+configures the ITS's view of the new VPE table.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Ye Guojin <ye.guojin@zte.com.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+As it turns out, that's because each RD still has a pointer to
+the previous instance of the VPE table, and that particular
+implementation is very upset by seeing two bits of the HW that
+should point to the same table with different values.
+
+To solve this, let's invalidate any reference that any RD has to
+the VPE table when discovering the RDs. The ITS can then be
+programmed as expected.
+
+Reported-by: Jay Chen <jkchen@linux.alibaba.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Link: https://lore.kernel.org/r/20211214064716.21407-1-jkchen@linux.alibaba.com
+Link: https://lore.kernel.org/r/20211216144804.1578566-1-maz@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/cavium-octeon/octeon-platform.c | 2 ++
- arch/mips/cavium-octeon/octeon-usb.c      | 1 +
- 2 files changed, 3 insertions(+)
+ drivers/irqchip/irq-gic-v3.c | 16 ++++++++++++++++
+ 1 file changed, 16 insertions(+)
 
-diff --git a/arch/mips/cavium-octeon/octeon-platform.c b/arch/mips/cavium-octeon/octeon-platform.c
-index d56e9b9d2e434..a994022e32c9f 100644
---- a/arch/mips/cavium-octeon/octeon-platform.c
-+++ b/arch/mips/cavium-octeon/octeon-platform.c
-@@ -328,6 +328,7 @@ static int __init octeon_ehci_device_init(void)
+diff --git a/drivers/irqchip/irq-gic-v3.c b/drivers/irqchip/irq-gic-v3.c
+index 1bdb7acf445f4..04d1b3963b6ba 100644
+--- a/drivers/irqchip/irq-gic-v3.c
++++ b/drivers/irqchip/irq-gic-v3.c
+@@ -915,6 +915,22 @@ static int __gic_update_rdist_properties(struct redist_region *region,
+ {
+ 	u64 typer = gic_read_typer(ptr + GICR_TYPER);
  
- 	pd->dev.platform_data = &octeon_ehci_pdata;
- 	octeon_ehci_hw_start(&pd->dev);
-+	put_device(&pd->dev);
++	/* Boot-time cleanip */
++	if ((typer & GICR_TYPER_VLPIS) && (typer & GICR_TYPER_RVPEID)) {
++		u64 val;
++
++		/* Deactivate any present vPE */
++		val = gicr_read_vpendbaser(ptr + SZ_128K + GICR_VPENDBASER);
++		if (val & GICR_VPENDBASER_Valid)
++			gicr_write_vpendbaser(GICR_VPENDBASER_PendingLast,
++					      ptr + SZ_128K + GICR_VPENDBASER);
++
++		/* Mark the VPE table as invalid */
++		val = gicr_read_vpropbaser(ptr + SZ_128K + GICR_VPROPBASER);
++		val &= ~GICR_VPROPBASER_4_1_VALID;
++		gicr_write_vpropbaser(val, ptr + SZ_128K + GICR_VPROPBASER);
++	}
++
+ 	gic_data.rdists.has_vlpis &= !!(typer & GICR_TYPER_VLPIS);
  
- 	return ret;
- }
-@@ -391,6 +392,7 @@ static int __init octeon_ohci_device_init(void)
- 
- 	pd->dev.platform_data = &octeon_ohci_pdata;
- 	octeon_ohci_hw_start(&pd->dev);
-+	put_device(&pd->dev);
- 
- 	return ret;
- }
-diff --git a/arch/mips/cavium-octeon/octeon-usb.c b/arch/mips/cavium-octeon/octeon-usb.c
-index 950e6c6e86297..fa87e5aa1811d 100644
---- a/arch/mips/cavium-octeon/octeon-usb.c
-+++ b/arch/mips/cavium-octeon/octeon-usb.c
-@@ -544,6 +544,7 @@ static int __init dwc3_octeon_device_init(void)
- 			devm_iounmap(&pdev->dev, base);
- 			devm_release_mem_region(&pdev->dev, res->start,
- 						resource_size(res));
-+			put_device(&pdev->dev);
- 		}
- 	} while (node != NULL);
- 
+ 	/* RVPEID implies some form of DirectLPI, no matter what the doc says... :-/ */
 -- 
 2.34.1
 
