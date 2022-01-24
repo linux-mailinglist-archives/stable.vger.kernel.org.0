@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 776F94990F7
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:08:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83BC6498B9D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:15:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353390AbiAXUIG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:08:06 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:43330 "EHLO
+        id S1344714AbiAXTPf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:15:35 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:38408 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352152AbiAXT5L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:57:11 -0500
+        with ESMTP id S1346427AbiAXTMr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:12:47 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CB8B8B81215;
-        Mon, 24 Jan 2022 19:57:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1C34C340E5;
-        Mon, 24 Jan 2022 19:57:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1969B8121A;
+        Mon, 24 Jan 2022 19:12:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8396C340E8;
+        Mon, 24 Jan 2022 19:12:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054228;
-        bh=k/jaFgS3jdXQ+cUcP3Ir26Qm797Ulvmbkt2quYhZPXI=;
+        s=korg; t=1643051561;
+        bh=sqIKcZ/QTMPYz57hTGY6s+dI4WplPMK/ztbGXgAGfns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EiVRB0/pgehPGxN8zYgj+emrt4ekQJbhQih6mY9VXO3sJsctpDDleFBHyct5t486+
-         XCaFHOlMewCUD9y5XKDzwTwTajA7t5/6vm5LWyN+Tea3Esdaz7X8pLpnfmCXQUMExL
-         HFRWSG5UCbqe7mbohq2Ni0lrEDU/N7ccGLQm82z8=
+        b=z6qH0vGxqa3dBGn7gv31Dut6jc6Iffa5pYS0VbPkT6MCNy258B8iidVTG5OC+iz1h
+         /sS579gO1gs571EqUvQ89qTdyHJH8U2vUVa93CpTSMRJ03c1su6iS47IFg80n9YQGQ
+         Z/oYCrCEQaYd+1YgUGGR5PcXpRGOkU2jmlaHLKjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sameer Pujar <spujar@nvidia.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 287/563] arm64: tegra: Fix Tegra194 HDA {clock,reset}-names ordering
-Date:   Mon, 24 Jan 2022 19:40:52 +0100
-Message-Id: <20220124184034.378586170@linuxfoundation.org>
+        stable@vger.kernel.org, David Hildenbrand <david@redhat.com>,
+        Eric Farman <farman@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@linux.ibm.com>
+Subject: [PATCH 4.19 015/239] KVM: s390: Clarify SIGP orders versus STOP/RESTART
+Date:   Mon, 24 Jan 2022 19:40:53 +0100
+Message-Id: <20220124183943.599752654@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +45,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sameer Pujar <spujar@nvidia.com>
+From: Eric Farman <farman@linux.ibm.com>
 
-[ Upstream commit 48f6e195039486bc303118948f49a9873acc888f ]
+commit 812de04661c4daa7ac385c0dfd62594540538034 upstream.
 
-As per the HDA binding doc reorder {clock,reset}-names entries for
-Tegra194. This also serves as a preparation for converting existing
-binding doc to json-schema.
+With KVM_CAP_S390_USER_SIGP, there are only five Signal Processor
+orders (CONDITIONAL EMERGENCY SIGNAL, EMERGENCY SIGNAL, EXTERNAL CALL,
+SENSE, and SENSE RUNNING STATUS) which are intended for frequent use
+and thus are processed in-kernel. The remainder are sent to userspace
+with the KVM_CAP_S390_USER_SIGP capability. Of those, three orders
+(RESTART, STOP, and STOP AND STORE STATUS) have the potential to
+inject work back into the kernel, and thus are asynchronous.
 
-Signed-off-by: Sameer Pujar <spujar@nvidia.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Let's look for those pending IRQs when processing one of the in-kernel
+SIGP orders, and return BUSY (CC2) if one is in process. This is in
+agreement with the Principles of Operation, which states that only one
+order can be "active" on a CPU at a time.
+
+Cc: stable@vger.kernel.org
+Suggested-by: David Hildenbrand <david@redhat.com>
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Link: https://lore.kernel.org/r/20211213210550.856213-2-farman@linux.ibm.com
+[borntraeger@linux.ibm.com: add stable tag]
+Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/nvidia/tegra194.dtsi | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ arch/s390/kvm/interrupt.c |    7 +++++++
+ arch/s390/kvm/kvm-s390.c  |    9 +++++++--
+ arch/s390/kvm/kvm-s390.h  |    1 +
+ arch/s390/kvm/sigp.c      |   28 ++++++++++++++++++++++++++++
+ 4 files changed, 43 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra194.dtsi b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-index 9b5007e5f790f..815df654e6387 100644
---- a/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-@@ -782,13 +782,13 @@
- 			reg = <0x3510000 0x10000>;
- 			interrupts = <GIC_SPI 161 IRQ_TYPE_LEVEL_HIGH>;
- 			clocks = <&bpmp TEGRA194_CLK_HDA>,
--				 <&bpmp TEGRA194_CLK_HDA2CODEC_2X>,
--				 <&bpmp TEGRA194_CLK_HDA2HDMICODEC>;
--			clock-names = "hda", "hda2codec_2x", "hda2hdmi";
-+				 <&bpmp TEGRA194_CLK_HDA2HDMICODEC>,
-+				 <&bpmp TEGRA194_CLK_HDA2CODEC_2X>;
-+			clock-names = "hda", "hda2hdmi", "hda2codec_2x";
- 			resets = <&bpmp TEGRA194_RESET_HDA>,
--				 <&bpmp TEGRA194_RESET_HDA2CODEC_2X>,
--				 <&bpmp TEGRA194_RESET_HDA2HDMICODEC>;
--			reset-names = "hda", "hda2codec_2x", "hda2hdmi";
-+				 <&bpmp TEGRA194_RESET_HDA2HDMICODEC>,
-+				 <&bpmp TEGRA194_RESET_HDA2CODEC_2X>;
-+			reset-names = "hda", "hda2hdmi", "hda2codec_2x";
- 			power-domains = <&bpmp TEGRA194_POWER_DOMAIN_DISP>;
- 			interconnects = <&mc TEGRA194_MEMORY_CLIENT_HDAR &emc>,
- 					<&mc TEGRA194_MEMORY_CLIENT_HDAW &emc>;
--- 
-2.34.1
-
+--- a/arch/s390/kvm/interrupt.c
++++ b/arch/s390/kvm/interrupt.c
+@@ -1900,6 +1900,13 @@ int kvm_s390_is_stop_irq_pending(struct
+ 	return test_bit(IRQ_PEND_SIGP_STOP, &li->pending_irqs);
+ }
+ 
++int kvm_s390_is_restart_irq_pending(struct kvm_vcpu *vcpu)
++{
++	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
++
++	return test_bit(IRQ_PEND_RESTART, &li->pending_irqs);
++}
++
+ void kvm_s390_clear_stop_irq(struct kvm_vcpu *vcpu)
+ {
+ 	struct kvm_s390_local_interrupt *li = &vcpu->arch.local_int;
+--- a/arch/s390/kvm/kvm-s390.c
++++ b/arch/s390/kvm/kvm-s390.c
+@@ -3844,10 +3844,15 @@ void kvm_s390_vcpu_stop(struct kvm_vcpu
+ 	spin_lock(&vcpu->kvm->arch.start_stop_lock);
+ 	online_vcpus = atomic_read(&vcpu->kvm->online_vcpus);
+ 
+-	/* SIGP STOP and SIGP STOP AND STORE STATUS has been fully processed */
++	/*
++	 * Set the VCPU to STOPPED and THEN clear the interrupt flag,
++	 * now that the SIGP STOP and SIGP STOP AND STORE STATUS orders
++	 * have been fully processed. This will ensure that the VCPU
++	 * is kept BUSY if another VCPU is inquiring with SIGP SENSE.
++	 */
++	kvm_s390_set_cpuflags(vcpu, CPUSTAT_STOPPED);
+ 	kvm_s390_clear_stop_irq(vcpu);
+ 
+-	kvm_s390_set_cpuflags(vcpu, CPUSTAT_STOPPED);
+ 	__disable_ibs_on_vcpu(vcpu);
+ 
+ 	for (i = 0; i < online_vcpus; i++) {
+--- a/arch/s390/kvm/kvm-s390.h
++++ b/arch/s390/kvm/kvm-s390.h
+@@ -372,6 +372,7 @@ void kvm_s390_destroy_adapters(struct kv
+ int kvm_s390_ext_call_pending(struct kvm_vcpu *vcpu);
+ extern struct kvm_device_ops kvm_flic_ops;
+ int kvm_s390_is_stop_irq_pending(struct kvm_vcpu *vcpu);
++int kvm_s390_is_restart_irq_pending(struct kvm_vcpu *vcpu);
+ void kvm_s390_clear_stop_irq(struct kvm_vcpu *vcpu);
+ int kvm_s390_set_irq_state(struct kvm_vcpu *vcpu,
+ 			   void __user *buf, int len);
+--- a/arch/s390/kvm/sigp.c
++++ b/arch/s390/kvm/sigp.c
+@@ -288,6 +288,34 @@ static int handle_sigp_dst(struct kvm_vc
+ 	if (!dst_vcpu)
+ 		return SIGP_CC_NOT_OPERATIONAL;
+ 
++	/*
++	 * SIGP RESTART, SIGP STOP, and SIGP STOP AND STORE STATUS orders
++	 * are processed asynchronously. Until the affected VCPU finishes
++	 * its work and calls back into KVM to clear the (RESTART or STOP)
++	 * interrupt, we need to return any new non-reset orders "busy".
++	 *
++	 * This is important because a single VCPU could issue:
++	 *  1) SIGP STOP $DESTINATION
++	 *  2) SIGP SENSE $DESTINATION
++	 *
++	 * If the SIGP SENSE would not be rejected as "busy", it could
++	 * return an incorrect answer as to whether the VCPU is STOPPED
++	 * or OPERATING.
++	 */
++	if (order_code != SIGP_INITIAL_CPU_RESET &&
++	    order_code != SIGP_CPU_RESET) {
++		/*
++		 * Lockless check. Both SIGP STOP and SIGP (RE)START
++		 * properly synchronize everything while processing
++		 * their orders, while the guest cannot observe a
++		 * difference when issuing other orders from two
++		 * different VCPUs.
++		 */
++		if (kvm_s390_is_stop_irq_pending(dst_vcpu) ||
++		    kvm_s390_is_restart_irq_pending(dst_vcpu))
++			return SIGP_CC_BUSY;
++	}
++
+ 	switch (order_code) {
+ 	case SIGP_SENSE:
+ 		vcpu->stat.instruction_sigp_sense++;
 
 
