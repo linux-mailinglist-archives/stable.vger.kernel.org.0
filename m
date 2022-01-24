@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DCAD499A94
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00D89499B1D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:59:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1573546AbiAXVpK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:45:10 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47772 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1456084AbiAXVhs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:37:48 -0500
+        id S1574575AbiAXVts (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:49:48 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:54650 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1456098AbiAXVht (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:37:49 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4957CB812A7;
-        Mon, 24 Jan 2022 21:37:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 617EAC340E4;
-        Mon, 24 Jan 2022 21:37:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8872861510;
+        Mon, 24 Jan 2022 21:37:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BFCEC340E4;
+        Mon, 24 Jan 2022 21:37:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060262;
-        bh=TrEyxXScUQN2ndIprFfTUzN2MsbyjUrfc//izk3BMCk=;
+        s=korg; t=1643060265;
+        bh=OLpI67k/l5+6Nfl6y5XUeykp7wBmqWj5duco+nik+zA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DeJU6osTOOhIoC29NF3vjDJ+1aRVrQI/+NQV4Ch9H8YyHm4BN0hH4XRF8dGo8EOYI
-         xWll1l4ba5KQWc89WyLa4qqqP6mA/E59T0daOW+FwkO8wbKOgkjjEjx+VCuY3vT1OE
-         pBAt8+b5EqXrTtrHOPEhgSBW4nqJZhtytMUtvcDg=
+        b=doSjkcahvqQOPe8RDHA0Mb7Is1CQ49RP5R16Ywj+ATl9MECvluCiQxxH4M8rplJIy
+         vf72SBpkrw4zPA7+Oy/V1c3WhQqqRdSI22oBBVKK+pVVw1VfcCDRDBp1fE0TO5PsNF
+         cpQHucQhKNeiDzDXAh9ccBBa/0dIMUC8IekdC/yg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunguang Xu <brookxu@tencent.com>,
-        kernel test robot <lkp@intel.com>, Jan Kara <jack@suse.cz>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Harshad Shirwadkar <harshadshirwadkar@gmail.com>,
         Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.16 0891/1039] ext4: fix a possible ABBA deadlock due to busy PA
-Date:   Mon, 24 Jan 2022 19:44:40 +0100
-Message-Id: <20220124184155.237744472@linuxfoundation.org>
+Subject: [PATCH 5.16 0892/1039] ext4: initialize err_blk before calling __ext4_get_inode_loc
+Date:   Mon, 24 Jan 2022 19:44:41 +0100
+Message-Id: <20220124184155.269572866@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -45,154 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunguang Xu <brookxu@tencent.com>
+From: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
 
-commit 8c80fb312d7abf8bcd66cca1d843a80318a2c522 upstream.
+commit c27c29c6af4f3f4ce925a2111c256733c5a5b430 upstream.
 
-We found on older kernel (3.10) that in the scenario of insufficient
-disk space, system may trigger an ABBA deadlock problem, it seems that
-this problem still exists in latest kernel, try to fix it here. The
-main process triggered by this problem is that task A occupies the PA
-and waits for the jbd2 transaction finish, the jbd2 transaction waits
-for the completion of task B's IO (plug_list), but task B waits for
-the release of PA by task A to finish discard, which indirectly forms
-an ABBA deadlock. The related calltrace is as follows:
+It is not guaranteed that __ext4_get_inode_loc will definitely set
+err_blk pointer when it returns EIO. To avoid using uninitialized
+variables, let's first set err_blk to 0.
 
-    Task A
-    vfs_write
-    ext4_mb_new_blocks()
-    ext4_mb_mark_diskspace_used()       JBD2
-    jbd2_journal_get_write_access()  -> jbd2_journal_commit_transaction()
-  ->schedule()                          filemap_fdatawait()
- |                                              |
- | Task B                                       |
- | do_unlinkat()                                |
- | ext4_evict_inode()                           |
- | jbd2_journal_begin_ordered_truncate()        |
- | filemap_fdatawrite_range()                   |
- | ext4_mb_new_blocks()                         |
-  -ext4_mb_discard_group_preallocations() <-----
-
-Here, try to cancel ext4_mb_discard_group_preallocations() internal
-retry due to PA busy, and do a limited number of retries inside
-ext4_mb_discard_preallocations(), which can circumvent the above
-problems, but also has some advantages:
-
-1. Since the PA is in a busy state, if other groups have free PAs,
-   keeping the current PA may help to reduce fragmentation.
-2. Continue to traverse forward instead of waiting for the current
-   group PA to be released. In most scenarios, the PA discard time
-   can be reduced.
-
-However, in the case of smaller free space, if only a few groups have
-space, then due to multiple traversals of the group, it may increase
-CPU overhead. But in contrast, I feel that the overall benefit is
-better than the cost.
-
-Signed-off-by: Chunguang Xu <brookxu@tencent.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/1637630277-23496-1-git-send-email-brookxu.cn@gmail.com
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
+Link: https://lore.kernel.org/r/20211201163421.2631661-1-harshads@google.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/mballoc.c |   40 ++++++++++++++++++----------------------
- 1 file changed, 18 insertions(+), 22 deletions(-)
+ fs/ext4/inode.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -4814,7 +4814,7 @@ ext4_mb_release_group_pa(struct ext4_bud
-  */
- static noinline_for_stack int
- ext4_mb_discard_group_preallocations(struct super_block *sb,
--					ext4_group_t group, int needed)
-+				     ext4_group_t group, int *busy)
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -4523,7 +4523,7 @@ has_buffer:
+ static int __ext4_get_inode_loc_noinmem(struct inode *inode,
+ 					struct ext4_iloc *iloc)
  {
- 	struct ext4_group_info *grp = ext4_get_group_info(sb, group);
- 	struct buffer_head *bitmap_bh = NULL;
-@@ -4822,8 +4822,7 @@ ext4_mb_discard_group_preallocations(str
- 	struct list_head list;
- 	struct ext4_buddy e4b;
- 	int err;
--	int busy = 0;
--	int free, free_total = 0;
-+	int free = 0;
- 
- 	mb_debug(sb, "discard preallocation for group %u\n", group);
- 	if (list_empty(&grp->bb_prealloc_list))
-@@ -4846,19 +4845,14 @@ ext4_mb_discard_group_preallocations(str
- 		goto out_dbg;
- 	}
- 
--	if (needed == 0)
--		needed = EXT4_CLUSTERS_PER_GROUP(sb) + 1;
--
- 	INIT_LIST_HEAD(&list);
--repeat:
--	free = 0;
- 	ext4_lock_group(sb, group);
- 	list_for_each_entry_safe(pa, tmp,
- 				&grp->bb_prealloc_list, pa_group_list) {
- 		spin_lock(&pa->pa_lock);
- 		if (atomic_read(&pa->pa_count)) {
- 			spin_unlock(&pa->pa_lock);
--			busy = 1;
-+			*busy = 1;
- 			continue;
- 		}
- 		if (pa->pa_deleted) {
-@@ -4898,22 +4892,13 @@ repeat:
- 		call_rcu(&(pa)->u.pa_rcu, ext4_mb_pa_callback);
- 	}
- 
--	free_total += free;
--
--	/* if we still need more blocks and some PAs were used, try again */
--	if (free_total < needed && busy) {
--		ext4_unlock_group(sb, group);
--		cond_resched();
--		busy = 0;
--		goto repeat;
--	}
- 	ext4_unlock_group(sb, group);
- 	ext4_mb_unload_buddy(&e4b);
- 	put_bh(bitmap_bh);
- out_dbg:
- 	mb_debug(sb, "discarded (%d) blocks preallocated for group %u bb_free (%d)\n",
--		 free_total, group, grp->bb_free);
--	return free_total;
-+		 free, group, grp->bb_free);
-+	return free;
- }
- 
- /*
-@@ -5455,13 +5440,24 @@ static int ext4_mb_discard_preallocation
- {
- 	ext4_group_t i, ngroups = ext4_get_groups_count(sb);
+-	ext4_fsblk_t err_blk;
++	ext4_fsblk_t err_blk = 0;
  	int ret;
--	int freed = 0;
-+	int freed = 0, busy = 0;
-+	int retry = 0;
  
- 	trace_ext4_mb_discard_preallocations(sb, needed);
-+
-+	if (needed == 0)
-+		needed = EXT4_CLUSTERS_PER_GROUP(sb) + 1;
-+ repeat:
- 	for (i = 0; i < ngroups && needed > 0; i++) {
--		ret = ext4_mb_discard_group_preallocations(sb, i, needed);
-+		ret = ext4_mb_discard_group_preallocations(sb, i, &busy);
- 		freed += ret;
- 		needed -= ret;
-+		cond_resched();
-+	}
-+
-+	if (needed > 0 && busy && ++retry < 3) {
-+		busy = 0;
-+		goto repeat;
- 	}
+ 	ret = __ext4_get_inode_loc(inode->i_sb, inode->i_ino, NULL, iloc,
+@@ -4538,7 +4538,7 @@ static int __ext4_get_inode_loc_noinmem(
  
- 	return freed;
+ int ext4_get_inode_loc(struct inode *inode, struct ext4_iloc *iloc)
+ {
+-	ext4_fsblk_t err_blk;
++	ext4_fsblk_t err_blk = 0;
+ 	int ret;
+ 
+ 	ret = __ext4_get_inode_loc(inode->i_sb, inode->i_ino, inode, iloc,
 
 
