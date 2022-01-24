@@ -2,43 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39347498A95
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:06:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94B8D498F65
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:54:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236874AbiAXTFr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:05:47 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:59288 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345003AbiAXTCb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:02:31 -0500
+        id S245186AbiAXTwR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:52:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56468 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1356359AbiAXTqB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:46:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5713CC02417B;
+        Mon, 24 Jan 2022 11:22:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2A3A1B8122C;
-        Mon, 24 Jan 2022 19:02:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36388C340E7;
-        Mon, 24 Jan 2022 19:02:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA72E6143D;
+        Mon, 24 Jan 2022 19:22:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBBEBC340E8;
+        Mon, 24 Jan 2022 19:22:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050948;
-        bh=QaK4PqTesDZysa0f8zUBvmQkPai+vOO0lmowdkVMUL0=;
+        s=korg; t=1643052160;
+        bh=T4/i0YuXX/RMcyoaCx/hrRoyWRKFKPUqGz9imKlq18w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o2Eb4J0eLdwaZfd2Ns5P2lNx43B5GVA9lI7+2eUYpl6e4ceeM3kcG8tPsEAHQRYhJ
-         hOHUwAvOZRELv3FaNi3Jso6S1NWQVlu9GVnY0OXZEm0bCuOsaE3yFFC+tgJFotAM0T
-         gpy8UCjn4UnI6ANhW66vxygr5EVkStSfMT2yVFUc=
+        b=RRbOcHXKXtDrWbwlXI3Ua5jakU8m74I/qmEPlu/m/X5WWFU0+5hdAgz/FsilPlU4c
+         9epGAVvKpjLmdTkIa/62ApY0scJYkuZ3rPLa2leoq/faic9f/0n8Ke+/3T/Aehu4gn
+         PEu2Xbdz5yLeQvBKC4posgKZw/VRGNKdo6tO/MHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        David Stevens <stevensd@google.com>, 3pvd@google.com,
-        Jann Horn <jannh@google.com>, Jason Gunthorpe <jgg@ziepe.ca>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 155/157] KVM: do not assume PTE is writable after follow_pfn
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Fabien Dessenne <fabien.dessenne@st.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Lionel Debieve <lionel.debieve@st.com>,
+        Nicolas Toromanoff <nicolas.toromanoff@st.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>
+Subject: [PATCH 4.19 207/239] crypto: stm32/crc32 - Fix kernel BUG triggered in probe()
 Date:   Mon, 24 Jan 2022 19:44:05 +0100
-Message-Id: <20220124183937.673291168@linuxfoundation.org>
+Message-Id: <20220124183949.688480674@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
-References: <20220124183932.787526760@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,91 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Marek Vasut <marex@denx.de>
 
-commit bd2fae8da794b55bf2ac02632da3a151b10e664c upstream.
+commit 29009604ad4e3ef784fd9b9fef6f23610ddf633d upstream.
 
-In order to convert an HVA to a PFN, KVM usually tries to use
-the get_user_pages family of functinso.  This however is not
-possible for VM_IO vmas; in that case, KVM instead uses follow_pfn.
+The include/linux/crypto.h struct crypto_alg field cra_driver_name description
+states "Unique name of the transformation provider. " ... " this contains the
+name of the chip or provider and the name of the transformation algorithm."
 
-In doing this however KVM loses the information on whether the
-PFN is writable.  That is usually not a problem because the main
-use of VM_IO vmas with KVM is for BARs in PCI device assignment,
-however it is a bug.  To fix it, use follow_pte and check pte_write
-while under the protection of the PTE lock.  The information can
-be used to fail hva_to_pfn_remapped or passed back to the
-caller via *writable.
+In case of the stm32-crc driver, field cra_driver_name is identical for all
+registered transformation providers and set to the name of the driver itself,
+which is incorrect. This patch fixes it by assigning a unique cra_driver_name
+to each registered transformation provider.
 
-Usage of follow_pfn was introduced in commit add6a0cd1c5b ("KVM: MMU: try to fix
-up page faults before giving up", 2016-07-05); however, even older version
-have the same issue, all the way back to commit 2e2e3738af33 ("KVM:
-Handle vma regions with no backing page", 2008-07-20), as they also did
-not check whether the PFN was writable.
+The kernel crash is triggered when the driver calls crypto_register_shashes()
+which calls crypto_register_shash(), which calls crypto_register_alg(), which
+calls __crypto_register_alg(), which returns -EEXIST, which is propagated
+back through this call chain. Upon -EEXIST from crypto_register_shash(), the
+crypto_register_shashes() starts unregistering the providers back, and calls
+crypto_unregister_shash(), which calls crypto_unregister_alg(), and this is
+where the BUG() triggers due to incorrect cra_refcnt.
 
-Fixes: 2e2e3738af33 ("KVM: Handle vma regions with no backing page")
-Reported-by: David Stevens <stevensd@google.com>
-Cc: 3pvd@google.com
-Cc: Jann Horn <jannh@google.com>
-Cc: Jason Gunthorpe <jgg@ziepe.ca>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[OP: backport to 4.19, adjust follow_pte() -> follow_pte_pmd()]
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[bwh: Backport to 4.9: follow_pte_pmd() does not take start or end
- parameters]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Fixes: b51dbe90912a ("crypto: stm32 - Support for STM32 CRC32 crypto module")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: <stable@vger.kernel.org> # 4.12+
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Cc: Fabien Dessenne <fabien.dessenne@st.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Lionel Debieve <lionel.debieve@st.com>
+Cc: Nicolas Toromanoff <nicolas.toromanoff@st.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-stm32@st-md-mailman.stormreply.com
+To: linux-crypto@vger.kernel.org
+Acked-by: Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- virt/kvm/kvm_main.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/crypto/stm32/stm32_crc32.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -1519,9 +1519,11 @@ static int hva_to_pfn_remapped(struct vm
- 			       kvm_pfn_t *p_pfn)
- {
- 	unsigned long pfn;
-+	pte_t *ptep;
-+	spinlock_t *ptl;
- 	int r;
- 
--	r = follow_pfn(vma, addr, &pfn);
-+	r = follow_pte_pmd(vma->vm_mm, addr, &ptep, NULL, &ptl);
- 	if (r) {
- 		/*
- 		 * get_user_pages fails for VM_IO and VM_PFNMAP vmas and does
-@@ -1536,14 +1538,19 @@ static int hva_to_pfn_remapped(struct vm
- 		if (r)
- 			return r;
- 
--		r = follow_pfn(vma, addr, &pfn);
-+		r = follow_pte_pmd(vma->vm_mm, addr, &ptep, NULL, &ptl);
- 		if (r)
- 			return r;
-+	}
- 
-+	if (write_fault && !pte_write(*ptep)) {
-+		pfn = KVM_PFN_ERR_RO_FAULT;
-+		goto out;
- 	}
- 
- 	if (writable)
--		*writable = true;
-+		*writable = pte_write(*ptep);
-+	pfn = pte_pfn(*ptep);
- 
- 	/*
- 	 * Get a reference here because callers of *hva_to_pfn* and
-@@ -1558,6 +1565,8 @@ static int hva_to_pfn_remapped(struct vm
- 	 */ 
- 	kvm_get_pfn(pfn);
- 
-+out:
-+	pte_unmap_unlock(ptep, ptl);
- 	*p_pfn = pfn;
- 	return 0;
- }
+--- a/drivers/crypto/stm32/stm32_crc32.c
++++ b/drivers/crypto/stm32/stm32_crc32.c
+@@ -230,7 +230,7 @@ static struct shash_alg algs[] = {
+ 		.digestsize     = CHKSUM_DIGEST_SIZE,
+ 		.base           = {
+ 			.cra_name               = "crc32",
+-			.cra_driver_name        = DRIVER_NAME,
++			.cra_driver_name        = "stm32-crc32-crc32",
+ 			.cra_priority           = 200,
+ 			.cra_flags		= CRYPTO_ALG_OPTIONAL_KEY,
+ 			.cra_blocksize          = CHKSUM_BLOCK_SIZE,
+@@ -252,7 +252,7 @@ static struct shash_alg algs[] = {
+ 		.digestsize     = CHKSUM_DIGEST_SIZE,
+ 		.base           = {
+ 			.cra_name               = "crc32c",
+-			.cra_driver_name        = DRIVER_NAME,
++			.cra_driver_name        = "stm32-crc32-crc32c",
+ 			.cra_priority           = 200,
+ 			.cra_flags		= CRYPTO_ALG_OPTIONAL_KEY,
+ 			.cra_blocksize          = CHKSUM_BLOCK_SIZE,
 
 
