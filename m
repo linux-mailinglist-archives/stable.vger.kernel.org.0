@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28704499DAB
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:00:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BBD44995AD
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:13:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1585992AbiAXWZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:25:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37600 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1584571AbiAXWVZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:21:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 261FDC0424DC;
-        Mon, 24 Jan 2022 12:51:07 -0800 (PST)
+        id S1442237AbiAXUx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:53:56 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:44502 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1392408AbiAXUvK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:51:10 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D7A16B81057;
-        Mon, 24 Jan 2022 20:51:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13401C340E5;
-        Mon, 24 Jan 2022 20:51:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2663860C44;
+        Mon, 24 Jan 2022 20:51:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6E5AC340E5;
+        Mon, 24 Jan 2022 20:51:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057464;
-        bh=NxXNBQpf4dvv8gbQ9BWxfIxyWCwIsLResc7PmWo2IHQ=;
+        s=korg; t=1643057467;
+        bh=fhcehs13K324S4NcYX+VvjBRl1SSEGNfMfH7EvgCHdk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k00VF9KKhxmqP0KkwJyVPVp/r3Bp1vMmCwj0xOOJ75lvbWK94pg+2VPpaIOzDqdpP
-         M1wbeuX24o3MZSm6QOmkNLKcezX3uOksX6UFDVTYzhgFHeYHq5SaMUlC62jGtK/OTB
-         svkOjX3mXBAZEpKg1MuOpK27rgzrzGDDj2e+GFZo=
+        b=C7kLsUK20rDWue9Uyg1ZVFrQZ7nwBRiLVWup05cwTaffk4DFKiQhByxotCWEQpsKG
+         BMFWgwW5wPbLWy9Lb9N+nRRfkG/R8nJk2+/Am5UfWDvwEcC4vKVa2jslN5J8NhQ4I7
+         RFWWsyWZ/2lhgaasPBJyExU1gOzRawFEcjdSs+Qk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.15 820/846] dmaengine: at_xdmac: Fix at_xdmac_lld struct definition
-Date:   Mon, 24 Jan 2022 19:45:37 +0100
-Message-Id: <20220124184129.186040377@linuxfoundation.org>
+        stable@vger.kernel.org, James Clark <james.clark@arm.com>,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= <uwe@kleine-koenig.org>,
+        Adrian Bunk <bunk@debian.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Branislav Rankov <branislav.rankov@arm.com>,
+        Diederik de Haas <didi.debian@cknow.org>,
+        Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.15 821/846] perf tools: Drop requirement for libstdc++.so for libopencsd check
+Date:   Mon, 24 Jan 2022 19:45:38 +0100
+Message-Id: <20220124184129.225160788@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -48,50 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tudor Ambarus <tudor.ambarus@microchip.com>
+From: Uwe Kleine-König <uwe@kleine-koenig.org>
 
-commit 912f7c6f7fac273f40e621447cf17d14b50d6e5b upstream.
+commit ed17b1914978eddb2b01f2d34577f1c82518c650 upstream.
 
-The hardware channel next descriptor view structure contains just
-fields of 32 bits, while dma_addr_t can be of type u64 or u32
-depending on CONFIG_ARCH_DMA_ADDR_T_64BIT. Force u32 to comply with
-what the hardware expects.
+It's possible to link against libopencsd_c_api without having
+libstdc++.so available, only libstdc++.so.6.0.28 (or whatever version is
+in use) needs to be available. The same holds true for libopencsd.so.
+When -lstdc++ (or -lopencsd) is explicitly passed to the linker however
+the .so file must be available.
 
-Fixes: e1f7c9eee707 ("dmaengine: at_xdmac: creation of the atmel eXtended DMA Controller driver")
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Link: https://lore.kernel.org/r/20211215110115.191749-11-tudor.ambarus@microchip.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+So wrap adding the dependencies into a check for static linking that
+actually requires adding them all. The same construct is already used
+for some other tests in the same file to reduce dependencies in the
+dynamic linking case.
+
+Fixes: 573cf5c9a152 ("perf build: Add missing -lstdc++ when linking with libopencsd")
+Reviewed-by: James Clark <james.clark@arm.com>
+Signed-off-by: Uwe Kleine-König <uwe@kleine-koenig.org>
+Cc: Adrian Bunk <bunk@debian.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Branislav Rankov <branislav.rankov@arm.com>
+Cc: Diederik de Haas <didi.debian@cknow.org>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: https://lore.kernel.org/all/20211203210544.1137935-1-uwe@kleine-koenig.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/at_xdmac.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ tools/perf/Makefile.config |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/dma/at_xdmac.c
-+++ b/drivers/dma/at_xdmac.c
-@@ -253,15 +253,15 @@ struct at_xdmac {
- 
- /* Linked List Descriptor */
- struct at_xdmac_lld {
--	dma_addr_t	mbr_nda;	/* Next Descriptor Member */
--	u32		mbr_ubc;	/* Microblock Control Member */
--	dma_addr_t	mbr_sa;		/* Source Address Member */
--	dma_addr_t	mbr_da;		/* Destination Address Member */
--	u32		mbr_cfg;	/* Configuration Register */
--	u32		mbr_bc;		/* Block Control Register */
--	u32		mbr_ds;		/* Data Stride Register */
--	u32		mbr_sus;	/* Source Microblock Stride Register */
--	u32		mbr_dus;	/* Destination Microblock Stride Register */
-+	u32 mbr_nda;	/* Next Descriptor Member */
-+	u32 mbr_ubc;	/* Microblock Control Member */
-+	u32 mbr_sa;	/* Source Address Member */
-+	u32 mbr_da;	/* Destination Address Member */
-+	u32 mbr_cfg;	/* Configuration Register */
-+	u32 mbr_bc;	/* Block Control Register */
-+	u32 mbr_ds;	/* Data Stride Register */
-+	u32 mbr_sus;	/* Source Microblock Stride Register */
-+	u32 mbr_dus;	/* Destination Microblock Stride Register */
- };
- 
- /* 64-bit alignment needed to update CNDA and CUBC registers in an atomic way. */
+--- a/tools/perf/Makefile.config
++++ b/tools/perf/Makefile.config
+@@ -143,7 +143,10 @@ FEATURE_CHECK_LDFLAGS-libcrypto = -lcryp
+ ifdef CSINCLUDES
+   LIBOPENCSD_CFLAGS := -I$(CSINCLUDES)
+ endif
+-OPENCSDLIBS := -lopencsd_c_api -lopencsd -lstdc++
++OPENCSDLIBS := -lopencsd_c_api
++ifeq ($(findstring -static,${LDFLAGS}),-static)
++  OPENCSDLIBS += -lopencsd -lstdc++
++endif
+ ifdef CSLIBS
+   LIBOPENCSD_LDFLAGS := -L$(CSLIBS)
+ endif
 
 
