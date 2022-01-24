@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A619F49904F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A108849903B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359364AbiAXT7f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:59:35 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:41808 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358203AbiAXTyh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:54:37 -0500
+        id S1358265AbiAXT7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:59:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57744 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357951AbiAXTxa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:53:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC651C061199;
+        Mon, 24 Jan 2022 11:27:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 17573B8119E;
-        Mon, 24 Jan 2022 19:54:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32CCEC340E5;
-        Mon, 24 Jan 2022 19:54:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6EFC161491;
+        Mon, 24 Jan 2022 19:27:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D34AC340E8;
+        Mon, 24 Jan 2022 19:26:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054074;
-        bh=G4y5VaQLlX2WmLR6x7NApiSBbmoSG7zgYqheBLtIcBE=;
+        s=korg; t=1643052419;
+        bh=YG1xf9oNHSBgV2sgH8XU82z4delKmUNuv0XKdlfsUA8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aCKrANjmUXBJHpWyL/e4niW06wJ1YM+2vr4+eWQjE+oRSzKhKqMWg6TZLzRqSzVsb
-         sof5zFO+jeMMvqJvB/7kmD2HsBbYJeN71tsx5ofhcOx7kuWAjFCM2k3sysKsCDO4Lq
-         b4Hee3yrnaiXBsb3GdJvxahBhqSCuzZnzOuJ7dE8=
+        b=WDz4YMgElrlj+8vUkDn6rC5eTEE2umi1oXF5TkGI0WDVI2Ox7Fd0aEcybAHxc0pCn
+         wszu2UhY5qTBnz+D+efpIbwsyId8qK8ybueg6UTh3+GQSbYy16fiAlXqrHnB4LHIeh
+         JBIDCLK874WtSEGuYHGtmfNf2A48i5AxB5ddeLBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
+        Nishanth Menon <nm@ti.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 270/563] ASoC: rt5663: Handle device_property_read_u32_array error codes
-Date:   Mon, 24 Jan 2022 19:40:35 +0100
-Message-Id: <20220124184033.781895504@linuxfoundation.org>
+Subject: [PATCH 5.4 052/320] arm64: dts: ti: k3-j721e: correct cache-sets info
+Date:   Mon, 24 Jan 2022 19:40:36 +0100
+Message-Id: <20220124183955.515036978@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +49,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Peng Fan <peng.fan@nxp.com>
 
-[ Upstream commit 2167c0b205960607fb136b4bb3c556a62be1569a ]
+[ Upstream commit 7a0df1f969c14939f60a7f9a6af72adcc314675f ]
 
-The return value of device_property_read_u32_array() is not always 0.
-To catch the exception in case that devm_kzalloc failed and the
-rt5663->imp_table was NULL, which caused the failure of
-device_property_read_u32_array.
+A72 Cluster has 48KB Icache, 32KB Dcache and 1MB L2 Cache
+ - ICache is 3-way set-associative
+ - Dcache is 2-way set-associative
+ - Line size are 64bytes
 
-Fixes: 450f0f6a8fb4 ("ASoC: rt5663: Add the manual offset field to compensate the DC offset")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20211215031550.70702-1-jiasheng@iscas.ac.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+So correct the cache-sets info.
+
+Fixes: 2d87061e70dea ("arm64: dts: ti: Add Support for J721E SoC")
+Signed-off-by: Peng Fan <peng.fan@nxp.com>
+Reviewed-by: Nishanth Menon <nm@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Link: https://lore.kernel.org/r/20211112063155.3485777-1-peng.fan@oss.nxp.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5663.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/ti/k3-j721e.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/codecs/rt5663.c b/sound/soc/codecs/rt5663.c
-index 619fb9a031e39..db8a41aaa3859 100644
---- a/sound/soc/codecs/rt5663.c
-+++ b/sound/soc/codecs/rt5663.c
-@@ -3461,6 +3461,7 @@ static void rt5663_calibrate(struct rt5663_priv *rt5663)
- static int rt5663_parse_dp(struct rt5663_priv *rt5663, struct device *dev)
- {
- 	int table_size;
-+	int ret;
+diff --git a/arch/arm64/boot/dts/ti/k3-j721e.dtsi b/arch/arm64/boot/dts/ti/k3-j721e.dtsi
+index 43ea1ba979220..f4d8f3b37d5bb 100644
+--- a/arch/arm64/boot/dts/ti/k3-j721e.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-j721e.dtsi
+@@ -60,7 +60,7 @@
+ 			i-cache-sets = <256>;
+ 			d-cache-size = <0x8000>;
+ 			d-cache-line-size = <64>;
+-			d-cache-sets = <128>;
++			d-cache-sets = <256>;
+ 			next-level-cache = <&L2_0>;
+ 		};
  
- 	device_property_read_u32(dev, "realtek,dc_offset_l_manual",
- 		&rt5663->pdata.dc_offset_l_manual);
-@@ -3477,9 +3478,11 @@ static int rt5663_parse_dp(struct rt5663_priv *rt5663, struct device *dev)
- 		table_size = sizeof(struct impedance_mapping_table) *
- 			rt5663->pdata.impedance_sensing_num;
- 		rt5663->imp_table = devm_kzalloc(dev, table_size, GFP_KERNEL);
--		device_property_read_u32_array(dev,
-+		ret = device_property_read_u32_array(dev,
- 			"realtek,impedance_sensing_table",
- 			(u32 *)rt5663->imp_table, table_size);
-+		if (ret)
-+			return ret;
- 	}
- 
- 	return 0;
-@@ -3504,8 +3507,11 @@ static int rt5663_i2c_probe(struct i2c_client *i2c,
- 
- 	if (pdata)
- 		rt5663->pdata = *pdata;
--	else
--		rt5663_parse_dp(rt5663, &i2c->dev);
-+	else {
-+		ret = rt5663_parse_dp(rt5663, &i2c->dev);
-+		if (ret)
-+			return ret;
-+	}
- 
- 	for (i = 0; i < ARRAY_SIZE(rt5663->supplies); i++)
- 		rt5663->supplies[i].supply = rt5663_supply_names[i];
+@@ -74,7 +74,7 @@
+ 			i-cache-sets = <256>;
+ 			d-cache-size = <0x8000>;
+ 			d-cache-line-size = <64>;
+-			d-cache-sets = <128>;
++			d-cache-sets = <256>;
+ 			next-level-cache = <&L2_0>;
+ 		};
+ 	};
 -- 
 2.34.1
 
