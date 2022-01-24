@@ -2,29 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 290A749928F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:21:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76BC2499292
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:21:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348790AbiAXUVn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:21:43 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:45856 "EHLO
+        id S1350542AbiAXUVp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:21:45 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:45914 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349645AbiAXUTc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:19:32 -0500
+        with ESMTP id S1355892AbiAXUTf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:19:35 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D0716091B;
-        Mon, 24 Jan 2022 20:19:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7EE0C340E5;
-        Mon, 24 Jan 2022 20:19:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 150F4613FB;
+        Mon, 24 Jan 2022 20:19:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9472C340E5;
+        Mon, 24 Jan 2022 20:19:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055570;
-        bh=qIu40SqUO5KD28fEgzEEHatZGMorjGgeu74zFz8rpis=;
+        s=korg; t=1643055573;
+        bh=TVOUWNBzfDhAxoXUMjAv2R95FzmE2kWLWGzml5e+0xM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2CGHNVIGqiv5aDDPIcha6wUjA2S2+7U/4F+BRAnrXWOLuFw+efVmUxmmFgMGowH8L
-         In2WcuDQmP33SP5x1ll1w8dQZ9IteLrOzoPv7ECT1nxHSDw5sJ9JWDq30u2QmPq1a/
-         zb1XCZ1izHUAteJNb1PlEr9rfY/BI6APjyze5N2M=
+        b=iy79RLEIRpbr0DvXlYnmgj8MVdHPg/R7Wd0CEnOZStGJr87kCg/Bu/Zspqu5o7HlM
+         XcujONLtIRE+hPL51lZaYgzUB8fkIzxvy28nSW2o3Ix2F8nSnX9ikms4yWSui9jcuQ
+         qbBpISAYFlZd+/wqnNAurv057FYg0wmRrS9WHgcA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -32,9 +32,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Pavel Skripkin <paskripkin@gmail.com>,
         Yang Yingliang <yangyingliang@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 195/846] staging: rtl8192e: return error code from rtllib_softmac_init()
-Date:   Mon, 24 Jan 2022 19:35:12 +0100
-Message-Id: <20220124184107.677026184@linuxfoundation.org>
+Subject: [PATCH 5.15 196/846] staging: rtl8192e: rtllib_module: fix error handle case in alloc_rtllib()
+Date:   Mon, 24 Jan 2022 19:35:13 +0100
+Message-Id: <20220124184107.706837745@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -48,67 +48,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 68bf78ff59a0891eb1239948e94ce10f73a9dd30 ]
+[ Upstream commit e730cd57ac2dfe94bca0f14a3be8e1b21de41a9c ]
 
-If it fails to allocate 'dot11d_info', rtllib_softmac_init()
-should return error code. And remove unneccessary error message.
+Some variables are leaked in the error handling in alloc_rtllib(), free
+the variables in the error path.
 
 Fixes: 94a799425eee ("From: wlanfae <wlanfae@realtek.com>")
 Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
 Reviewed-by: Pavel Skripkin <paskripkin@gmail.com>
 Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20211202030704.2425621-2-yangyingliang@huawei.com
+Link: https://lore.kernel.org/r/20211202030704.2425621-3-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8192e/rtllib.h         | 2 +-
- drivers/staging/rtl8192e/rtllib_softmac.c | 6 ++++--
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ drivers/staging/rtl8192e/rtllib_module.c | 16 ++++++++++++----
+ 1 file changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/rtl8192e/rtllib.h b/drivers/staging/rtl8192e/rtllib.h
-index c6f8b772335c1..c985e4ebc545a 100644
---- a/drivers/staging/rtl8192e/rtllib.h
-+++ b/drivers/staging/rtl8192e/rtllib.h
-@@ -1980,7 +1980,7 @@ void SendDisassociation(struct rtllib_device *ieee, bool deauth, u16 asRsn);
- void rtllib_softmac_xmit(struct rtllib_txb *txb, struct rtllib_device *ieee);
- 
- void rtllib_start_ibss(struct rtllib_device *ieee);
--void rtllib_softmac_init(struct rtllib_device *ieee);
-+int rtllib_softmac_init(struct rtllib_device *ieee);
- void rtllib_softmac_free(struct rtllib_device *ieee);
- void rtllib_disassociate(struct rtllib_device *ieee);
- void rtllib_stop_scan(struct rtllib_device *ieee);
-diff --git a/drivers/staging/rtl8192e/rtllib_softmac.c b/drivers/staging/rtl8192e/rtllib_softmac.c
-index d2726d01c7573..503d33be71d99 100644
---- a/drivers/staging/rtl8192e/rtllib_softmac.c
-+++ b/drivers/staging/rtl8192e/rtllib_softmac.c
-@@ -2952,7 +2952,7 @@ void rtllib_start_protocol(struct rtllib_device *ieee)
+diff --git a/drivers/staging/rtl8192e/rtllib_module.c b/drivers/staging/rtl8192e/rtllib_module.c
+index 64d9feee1f392..f00ac94b2639b 100644
+--- a/drivers/staging/rtl8192e/rtllib_module.c
++++ b/drivers/staging/rtl8192e/rtllib_module.c
+@@ -88,7 +88,7 @@ struct net_device *alloc_rtllib(int sizeof_priv)
+ 	err = rtllib_networks_allocate(ieee);
+ 	if (err) {
+ 		pr_err("Unable to allocate beacon storage: %d\n", err);
+-		goto failed;
++		goto free_netdev;
  	}
- }
+ 	rtllib_networks_initialize(ieee);
  
--void rtllib_softmac_init(struct rtllib_device *ieee)
-+int rtllib_softmac_init(struct rtllib_device *ieee)
- {
- 	int i;
+@@ -121,11 +121,13 @@ struct net_device *alloc_rtllib(int sizeof_priv)
+ 	ieee->hwsec_active = 0;
  
-@@ -2963,7 +2963,8 @@ void rtllib_softmac_init(struct rtllib_device *ieee)
- 		ieee->seq_ctrl[i] = 0;
- 	ieee->dot11d_info = kzalloc(sizeof(struct rt_dot11d_info), GFP_ATOMIC);
- 	if (!ieee->dot11d_info)
--		netdev_err(ieee->dev, "Can't alloc memory for DOT11D\n");
-+		return -ENOMEM;
+ 	memset(ieee->swcamtable, 0, sizeof(struct sw_cam_table) * 32);
+-	rtllib_softmac_init(ieee);
++	err = rtllib_softmac_init(ieee);
++	if (err)
++		goto free_crypt_info;
+ 
+ 	ieee->pHTInfo = kzalloc(sizeof(struct rt_hi_throughput), GFP_KERNEL);
+ 	if (!ieee->pHTInfo)
+-		return NULL;
++		goto free_softmac;
+ 
+ 	HTUpdateDefaultSetting(ieee);
+ 	HTInitializeHTInfo(ieee);
+@@ -141,8 +143,14 @@ struct net_device *alloc_rtllib(int sizeof_priv)
+ 
+ 	return dev;
+ 
+- failed:
++free_softmac:
++	rtllib_softmac_free(ieee);
++free_crypt_info:
++	lib80211_crypt_info_free(&ieee->crypt_info);
++	rtllib_networks_free(ieee);
++free_netdev:
+ 	free_netdev(dev);
 +
- 	ieee->LinkDetectInfo.SlotIndex = 0;
- 	ieee->LinkDetectInfo.SlotNum = 2;
- 	ieee->LinkDetectInfo.NumRecvBcnInPeriod = 0;
-@@ -3029,6 +3030,7 @@ void rtllib_softmac_init(struct rtllib_device *ieee)
- 
- 	tasklet_setup(&ieee->ps_task, rtllib_sta_ps);
- 
-+	return 0;
+ 	return NULL;
  }
- 
- void rtllib_softmac_free(struct rtllib_device *ieee)
+ EXPORT_SYMBOL(alloc_rtllib);
 -- 
 2.34.1
 
