@@ -2,42 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2BDE49A417
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:08:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E6CE49A25A
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 02:59:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2371216AbiAYAHO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:07:14 -0500
-Received: from [36.155.112.122] ([36.155.112.122]:59582 "EHLO
-        ecs-42a4.novalocal" rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org
-        with ESMTP id S2365199AbiAXXud (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:50:33 -0500
-Received: from User (localhost [127.0.0.1])
-        by ecs-42a4.novalocal (Postfix) with SMTP id A49E1481564;
-        Mon, 10 Jan 2022 06:17:41 +0800 (CST)
-Reply-To: <andbaill228@mail2world.com>
-From:   "Vlieghe" <andbaill228@mail2world.com>
-Subject: Very Importante Notice
-Date:   Mon, 10 Jan 2022 00:16:12 +0200
+        id S2365700AbiAXXva (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:51:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41396 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1836988AbiAXWlf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:41:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE43BC04D62B;
+        Mon, 24 Jan 2022 13:04:27 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 71D23B815AB;
+        Mon, 24 Jan 2022 21:04:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DC72C340E5;
+        Mon, 24 Jan 2022 21:04:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1643058266;
+        bh=fntRpshkPH1kBf19IZiQRtlhXjIeJ4hCEiSlfehiMwY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=Aro1rurvsKCL7dhAkPr3inlJbUr+Q3zORrRqUGA8H1k3/y/url2In/wP9I6hmGBvD
+         lyqBPWKBOlBahfzUbJWInd/yUD5/buc4yB8jKmfTLC8TLaAa8vZ+7q5NUeYnY2AV0T
+         U8entK0wsppaLKKMyeeW/jdkwiJvXPgNbN8T4M0w=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0190/1039] media: si470x-i2c: fix possible memory leak in si470x_i2c_probe()
+Date:   Mon, 24 Jan 2022 19:32:59 +0100
+Message-Id: <20220124184131.690000207@linuxfoundation.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
+User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain;
-        charset="Windows-1251"
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2600.0000
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2600.0000
-Message-Id: <20220109221742.A49E1481564@ecs-42a4.novalocal>
-To:     undisclosed-recipients:;
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Sir/Madam,
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-Good day to you.
+[ Upstream commit ef054e345ed8c79ce1121a3599b5a2dfd78e57a0 ]
 
-I am Dr.Gertjan Vlieghe personal Secretary to Andrew Bailey who double as the Governor, Bank of England (https://en.wikipedia.org/wiki/Andrew_Bailey_%28banker%29). We have an inheritance of a deceased client, who bear the same name  with your surname. kindly contact Andrew Bailey through his personal email ( andbaill228@mail2world.com ) with your details for more information.
+n the 'radio->hdl.error' error handling, ctrl handler allocated by
+v4l2_ctrl_new_std() does not released, and caused memory leak as
+follows:
 
-Thank you.
+unreferenced object 0xffff888033d54200 (size 256):
+  comm "i2c-si470x-19", pid 909, jiffies 4294914203 (age 8.072s)
+  hex dump (first 32 bytes):
+    e8 69 11 03 80 88 ff ff 00 46 d5 33 80 88 ff ff  .i.......F.3....
+    10 42 d5 33 80 88 ff ff 10 42 d5 33 80 88 ff ff  .B.3.....B.3....
+  backtrace:
+    [<00000000086bd4ed>] __kmalloc_node+0x1eb/0x360
+    [<00000000bdb68871>] kvmalloc_node+0x66/0x120
+    [<00000000fac74e4c>] v4l2_ctrl_new+0x7b9/0x1c60 [videodev]
+    [<00000000693bf940>] v4l2_ctrl_new_std+0x19b/0x270 [videodev]
+    [<00000000c0cb91bc>] si470x_i2c_probe+0x2d3/0x9a0 [radio_si470x_i2c]
+    [<0000000056a6f01f>] i2c_device_probe+0x4d8/0xbe0
 
-Dr.Gertjan Vlieghe
+Fix the error handling path to avoid memory leak.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Fixes: 8c081b6f9a9b ("media: radio: Critical v4l2 registration...")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/media/radio/si470x/radio-si470x-i2c.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/drivers/media/radio/si470x/radio-si470x-i2c.c b/drivers/media/radio/si470x/radio-si470x-i2c.c
+index a972c0705ac79..76d39e2e87706 100644
+--- a/drivers/media/radio/si470x/radio-si470x-i2c.c
++++ b/drivers/media/radio/si470x/radio-si470x-i2c.c
+@@ -368,7 +368,7 @@ static int si470x_i2c_probe(struct i2c_client *client)
+ 	if (radio->hdl.error) {
+ 		retval = radio->hdl.error;
+ 		dev_err(&client->dev, "couldn't register control\n");
+-		goto err_dev;
++		goto err_all;
+ 	}
+ 
+ 	/* video device initialization */
+@@ -463,7 +463,6 @@ static int si470x_i2c_probe(struct i2c_client *client)
+ 	return 0;
+ err_all:
+ 	v4l2_ctrl_handler_free(&radio->hdl);
+-err_dev:
+ 	v4l2_device_unregister(&radio->v4l2_dev);
+ err_initial:
+ 	return retval;
+-- 
+2.34.1
+
+
+
