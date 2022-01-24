@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43C0B497DB3
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 12:16:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 16A9C497DE4
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 12:25:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232330AbiAXLQP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 06:16:15 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:44906 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237250AbiAXLQP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 06:16:15 -0500
+        id S237491AbiAXLZD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 06:25:03 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:49468 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237484AbiAXLZD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 06:25:03 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1ADEEB80EF2
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 11:16:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4269CC340E1;
-        Mon, 24 Jan 2022 11:16:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C24B46066C
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 11:25:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E168C340E1;
+        Mon, 24 Jan 2022 11:25:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643022972;
-        bh=dolO+nF9Eau9O8viBxHtYZYypWBt1a+CEirvYoXQR7U=;
+        s=korg; t=1643023502;
+        bh=nXvnT5bALSP7JRJPp9VotUxkGKXXm8MFn+/5bCWCByw=;
         h=Subject:To:Cc:From:Date:From;
-        b=g4nWBAMRo6fD6VSimWh62ulJqFj4KdjMc1DLUQPWdbfsTx+Br4k7yhgnvjPCcBYtJ
-         qRuEDww4ZBdrOaqfrnJ7TffB3tHNJoGM4XMGYHxTZBJcq+yqVjE++HoareHCordStr
-         SPpQEn+DnO9JtjIIT9bvfQ1cv4VFzLrzMsJC8v/k=
-Subject: FAILED: patch "[PATCH] platform/x86: pmc_atom: improve critclk_systems matching for" failed to apply to 5.4-stable tree
-To:     henning.schild@siemens.com, hdegoede@redhat.com,
-        michael.haener@siemens.com
+        b=EPFm6t2T8X2F9dDJf1mAlD4QRqw980+sXrgjZcuFeI1pLdJxQLsH561pGKc88lLu5
+         nN/MMjF+c3JbMMzMXwX8o74JzIHxIUMMyjQvDZ3BdieHGRNrcelYEma6xHPXoWlF4K
+         8F2rQY+hPYBJKg4Q3wmQ6G7qNBOmkEgRiqgOAODU=
+Subject: FAILED: patch "[PATCH] block: Fix fsync always failed if once failed" failed to apply to 4.19-stable tree
+To:     yebin10@huawei.com, axboe@kernel.dk, ming.lei@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 12:15:56 +0100
-Message-ID: <1643022956186162@kroah.com>
+Date:   Mon, 24 Jan 2022 12:24:59 +0100
+Message-ID: <164302349921124@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -51,149 +50,60 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 4ba0b8187d98cb4c5e33c0e98895ac5dcb86af83 Mon Sep 17 00:00:00 2001
-From: Henning Schild <henning.schild@siemens.com>
-Date: Mon, 13 Dec 2021 13:05:02 +0100
-Subject: [PATCH] platform/x86: pmc_atom: improve critclk_systems matching for
- Siemens PCs
+From 8a7518931baa8ea023700987f3db31cb0a80610b Mon Sep 17 00:00:00 2001
+From: Ye Bin <yebin10@huawei.com>
+Date: Mon, 29 Nov 2021 09:26:59 +0800
+Subject: [PATCH] block: Fix fsync always failed if once failed
 
-Siemens industrial PCs unfortunately can not always be properly
-identified the way we used to. An earlier commit introduced code that
-allows proper identification without looking at DMI strings that could
-differ based on product branding.
-Switch over to that proper way and revert commits that used to collect
-the machines based on unstable strings.
+We do test with inject error fault base on v4.19, after test some time we found
+sync /dev/sda always failed.
+[root@localhost] sync /dev/sda
+sync: error syncing '/dev/sda': Input/output error
 
-Fixes: 648e921888ad ("clk: x86: Stop marking clocks as CLK_IS_CRITICAL")
-Fixes: e8796c6c69d1 ("platform/x86: pmc_atom: Add Siemens CONNECT ...")
-Fixes: f110d252ae79 ("platform/x86: pmc_atom: Add Siemens SIMATIC ...")
-Fixes: ad0d315b4d4e ("platform/x86: pmc_atom: Add Siemens SIMATIC ...")
-Tested-by: Michael Haener <michael.haener@siemens.com>
-Signed-off-by: Henning Schild <henning.schild@siemens.com>
-Link: https://lore.kernel.org/r/20211213120502.20661-5-henning.schild@siemens.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+scsi log as follows:
+[19069.812296] sd 0:0:0:0: [sda] tag#64 Send: scmd 0x00000000d03a0b6b
+[19069.812302] sd 0:0:0:0: [sda] tag#64 CDB: Synchronize Cache(10) 35 00 00 00 00 00 00 00 00 00
+[19069.812533] sd 0:0:0:0: [sda] tag#64 Done: SUCCESS Result: hostbyte=DID_OK driverbyte=DRIVER_OK
+[19069.812536] sd 0:0:0:0: [sda] tag#64 CDB: Synchronize Cache(10) 35 00 00 00 00 00 00 00 00 00
+[19069.812539] sd 0:0:0:0: [sda] tag#64 scsi host busy 1 failed 0
+[19069.812542] sd 0:0:0:0: Notifying upper driver of completion (result 0)
+[19069.812546] sd 0:0:0:0: [sda] tag#64 sd_done: completed 0 of 0 bytes
+[19069.812549] sd 0:0:0:0: [sda] tag#64 0 sectors total, 0 bytes done.
+[19069.812564] print_req_error: I/O error, dev sda, sector 0
 
-diff --git a/drivers/platform/x86/pmc_atom.c b/drivers/platform/x86/pmc_atom.c
-index a9d2a4b98e57..a40fae6edc84 100644
---- a/drivers/platform/x86/pmc_atom.c
-+++ b/drivers/platform/x86/pmc_atom.c
-@@ -13,6 +13,7 @@
- #include <linux/io.h>
- #include <linux/platform_data/x86/clk-pmc-atom.h>
- #include <linux/platform_data/x86/pmc_atom.h>
-+#include <linux/platform_data/x86/simatic-ipc.h>
- #include <linux/platform_device.h>
- #include <linux/pci.h>
- #include <linux/seq_file.h>
-@@ -362,6 +363,30 @@ static void pmc_dbgfs_register(struct pmc_dev *pmc)
- }
- #endif /* CONFIG_DEBUG_FS */
+ftrace log as follows:
+ rep-306069 [007] .... 19654.923315: block_bio_queue: 8,0 FWS 0 + 0 [rep]
+ rep-306069 [007] .... 19654.923333: block_getrq: 8,0 FWS 0 + 0 [rep]
+ kworker/7:1H-250   [007] .... 19654.923352: block_rq_issue: 8,0 FF 0 () 0 + 0 [kworker/7:1H]
+ <idle>-0     [007] ..s. 19654.923562: block_rq_complete: 8,0 FF () 18446744073709551615 + 0 [0]
+ <idle>-0     [007] d.s. 19654.923576: block_rq_complete: 8,0 WS () 0 + 0 [-5]
+
+As 8d6996630c03 introduce 'fq->rq_status', this data only update when 'flush_rq'
+reference count isn't zero. If flush request once failed and record error code
+in 'fq->rq_status'. If there is no chance to update 'fq->rq_status',then do fsync
+will always failed.
+To address this issue reset 'fq->rq_status' after return error code to upper layer.
+
+Fixes: 8d6996630c03("block: fix null pointer dereference in blk_mq_rq_timed_out()")
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20211129012659.1553733-1-yebin10@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+
+diff --git a/block/blk-flush.c b/block/blk-flush.c
+index fd5187a0898d..f78bb39e589e 100644
+--- a/block/blk-flush.c
++++ b/block/blk-flush.c
+@@ -242,8 +242,10 @@ static void flush_end_io(struct request *flush_rq, blk_status_t error)
+ 	 * avoiding use-after-free.
+ 	 */
+ 	WRITE_ONCE(flush_rq->state, MQ_RQ_IDLE);
+-	if (fq->rq_status != BLK_STS_OK)
++	if (fq->rq_status != BLK_STS_OK) {
+ 		error = fq->rq_status;
++		fq->rq_status = BLK_STS_OK;
++	}
  
-+static bool pmc_clk_is_critical = true;
-+
-+static int dmi_callback(const struct dmi_system_id *d)
-+{
-+	pr_info("%s critclks quirk enabled\n", d->ident);
-+
-+	return 1;
-+}
-+
-+static int dmi_callback_siemens(const struct dmi_system_id *d)
-+{
-+	u32 st_id;
-+
-+	if (dmi_walk(simatic_ipc_find_dmi_entry_helper, &st_id))
-+		goto out;
-+
-+	if (st_id == SIMATIC_IPC_IPC227E || st_id == SIMATIC_IPC_IPC277E)
-+		return dmi_callback(d);
-+
-+out:
-+	pmc_clk_is_critical = false;
-+	return 1;
-+}
-+
- /*
-  * Some systems need one or more of their pmc_plt_clks to be
-  * marked as critical.
-@@ -370,6 +395,7 @@ static const struct dmi_system_id critclk_systems[] = {
- 	{
- 		/* pmc_plt_clk0 is used for an external HSIC USB HUB */
- 		.ident = "MPL CEC1x",
-+		.callback = dmi_callback,
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "MPL AG"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "CEC10 Family"),
-@@ -378,6 +404,7 @@ static const struct dmi_system_id critclk_systems[] = {
- 	{
- 		/* pmc_plt_clk0 - 3 are used for the 4 ethernet controllers */
- 		.ident = "Lex 3I380D",
-+		.callback = dmi_callback,
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Lex BayTrail"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "3I380D"),
-@@ -386,6 +413,7 @@ static const struct dmi_system_id critclk_systems[] = {
- 	{
- 		/* pmc_plt_clk* - are used for ethernet controllers */
- 		.ident = "Lex 2I385SW",
-+		.callback = dmi_callback,
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Lex BayTrail"),
- 			DMI_MATCH(DMI_PRODUCT_NAME, "2I385SW"),
-@@ -394,30 +422,17 @@ static const struct dmi_system_id critclk_systems[] = {
- 	{
- 		/* pmc_plt_clk* - are used for ethernet controllers */
- 		.ident = "Beckhoff Baytrail",
-+		.callback = dmi_callback,
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Beckhoff Automation"),
- 			DMI_MATCH(DMI_PRODUCT_FAMILY, "CBxx63"),
- 		},
- 	},
- 	{
--		.ident = "SIMATIC IPC227E",
-+		.ident = "SIEMENS AG",
-+		.callback = dmi_callback_siemens,
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "SIEMENS AG"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "6ES7647-8B"),
--		},
--	},
--	{
--		.ident = "SIMATIC IPC277E",
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "SIEMENS AG"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "6AV7882-0"),
--		},
--	},
--	{
--		.ident = "CONNECT X300",
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "SIEMENS AG"),
--			DMI_MATCH(DMI_PRODUCT_VERSION, "A5E45074588"),
- 		},
- 	},
- 
-@@ -429,7 +444,6 @@ static int pmc_setup_clks(struct pci_dev *pdev, void __iomem *pmc_regmap,
- {
- 	struct platform_device *clkdev;
- 	struct pmc_clk_data *clk_data;
--	const struct dmi_system_id *d = dmi_first_match(critclk_systems);
- 
- 	clk_data = kzalloc(sizeof(*clk_data), GFP_KERNEL);
- 	if (!clk_data)
-@@ -437,10 +451,8 @@ static int pmc_setup_clks(struct pci_dev *pdev, void __iomem *pmc_regmap,
- 
- 	clk_data->base = pmc_regmap; /* offset is added by client */
- 	clk_data->clks = pmc_data->clks;
--	if (d) {
--		clk_data->critical = true;
--		pr_info("%s critclks quirk enabled\n", d->ident);
--	}
-+	if (dmi_check_system(critclk_systems))
-+		clk_data->critical = pmc_clk_is_critical;
- 
- 	clkdev = platform_device_register_data(&pdev->dev, "clk-pmc-atom",
- 					       PLATFORM_DEVID_NONE,
+ 	if (!q->elevator) {
+ 		flush_rq->tag = BLK_MQ_NO_TAG;
 
