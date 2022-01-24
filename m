@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51598499018
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:02:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0FA8499020
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:02:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345380AbiAXT6R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:58:17 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:49566 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357858AbiAXTwF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:52:05 -0500
+        id S1352386AbiAXT6h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:58:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58036 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348443AbiAXTwj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:52:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD9C4C0617BF;
+        Mon, 24 Jan 2022 11:25:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 537D260FDD;
-        Mon, 24 Jan 2022 19:52:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28638C340E5;
-        Mon, 24 Jan 2022 19:52:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5FBF4B8121A;
+        Mon, 24 Jan 2022 19:25:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD212C340E7;
+        Mon, 24 Jan 2022 19:25:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053923;
-        bh=HQl6YcXziRLQm+WPUb+jMGqqFQhdR6u6srb+Q89n8GY=;
+        s=korg; t=1643052334;
+        bh=6d29mTJvh2GOvub6qrgiH29qIyJhZWECLVUAyxaXSJU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BhE5ctBPU3hjE6SmCqotHh1FyhfELWhbKztH+EiCF93DyPSPq3Ko2c/Gs7/E2KGQm
-         fsPYbpS5wVFjdSYeDceUQyUkugvUQXj1W7GfWDH7z+A6Z7IbpZoZ+5g2EXm6Lz7jM/
-         pQmFOHDMm+l+Tbm2mta94shEh/yRBMx7HtAH4/7k=
+        b=LaKGyrb1NdfO6lnIcm1cwTF3hHa1ihBmw1/EX4p/I4k9EIJz+X1LxZeGmZmA8CRFM
+         iAJzBf6RxpilPtYiLXLjsKH438OYU0ZNAMf0YuphWrq9Bq556uTaRFNHEI0dNZyUH5
+         0FhCfakh/Q7M4LrpBZ8lg3gKZ1b/cxSv77cq8Df4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
-        Gal Pressman <gal@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 222/563] Revert "net/mlx5e: Block offload of outer header csum for UDP tunnels"
+        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
+        Ping Cheng <ping.cheng@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.4 003/320] HID: wacom: Ignore the confidence flag when a touch is removed
 Date:   Mon, 24 Jan 2022 19:39:47 +0100
-Message-Id: <20220124184032.128483270@linuxfoundation.org>
+Message-Id: <20220124183953.873854390@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,50 +48,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@nvidia.com>
+From: Jason Gerecke <killertofu@gmail.com>
 
-[ Upstream commit 64050cdad0983ad8060e33c3f4b5aee2366bcebd ]
+commit df03e9bd6d4806619b4cdc91a3d7695818a8e2b7 upstream.
 
-This reverts commit 6d6727dddc7f93fcc155cb8d0c49c29ae0e71122.
+AES hardware may internally re-classify a contact that it thought was
+intentional as a palm. Intentional contacts are reported as "down" with
+the confidence bit set. When this re-classification occurs, however, the
+state transitions to "up" with the confidence bit cleared. This kind of
+transition appears to be legal according to Microsoft docs, but we do
+not handle it correctly. Because the confidence bit is clear, we don't
+call `wacom_wac_finger_slot` and update userspace. This causes hung
+touches that confuse userspace and interfere with pen arbitration.
 
-Although the NIC doesn't support offload of outer header CSUM, using
-gso_partial_features allows offloading the tunnel's segmentation. The
-driver relies on the stack CSUM calculation of the outer header. For
-this, NETIF_F_GSO_UDP_TUNNEL_CSUM must be a member of the device's
-features.
+This commit adds a special case to ignore the confidence flag if a contact
+is reported as removed. This ensures we do not leave a hung touch if one
+of these re-classification events occured. Ideally we'd have some way to
+also let userspace know that the touch has been re-classified as a palm
+and needs to be canceled, but that's not possible right now :)
 
-Fixes: 6d6727dddc7f ("net/mlx5e: Block offload of outer header csum for UDP tunnels")
-Signed-off-by: Aya Levin <ayal@nvidia.com>
-Reviewed-by: Gal Pressman <gal@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://github.com/linuxwacom/input-wacom/issues/288
+Fixes: 7fb0413baa7f (HID: wacom: Use "Confidence" flag to prevent reporting invalid contacts)
+CC: stable@vger.kernel.org
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/hid/wacom_wac.c |   29 ++++++++++++++++++++++++++---
+ 1 file changed, 26 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index 2f6c3a5813ed1..16e98ac47624c 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -5024,9 +5024,13 @@ static void mlx5e_build_nic_netdev(struct net_device *netdev)
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2566,6 +2566,24 @@ static void wacom_wac_finger_slot(struct
+ 	}
+ }
+ 
++static bool wacom_wac_slot_is_active(struct input_dev *dev, int key)
++{
++	struct input_mt *mt = dev->mt;
++	struct input_mt_slot *s;
++
++	if (!mt)
++		return false;
++
++	for (s = mt->slots; s != mt->slots + mt->num_slots; s++) {
++		if (s->key == key &&
++			input_mt_get_value(s, ABS_MT_TRACKING_ID) >= 0) {
++			return true;
++		}
++	}
++
++	return false;
++}
++
+ static void wacom_wac_finger_event(struct hid_device *hdev,
+ 		struct hid_field *field, struct hid_usage *usage, __s32 value)
+ {
+@@ -2613,9 +2631,14 @@ static void wacom_wac_finger_event(struc
  	}
  
- 	if (mlx5_vxlan_allowed(mdev->vxlan) || mlx5_geneve_tx_allowed(mdev)) {
--		netdev->hw_features     |= NETIF_F_GSO_UDP_TUNNEL;
--		netdev->hw_enc_features |= NETIF_F_GSO_UDP_TUNNEL;
--		netdev->vlan_features |= NETIF_F_GSO_UDP_TUNNEL;
-+		netdev->hw_features     |= NETIF_F_GSO_UDP_TUNNEL |
-+					   NETIF_F_GSO_UDP_TUNNEL_CSUM;
-+		netdev->hw_enc_features |= NETIF_F_GSO_UDP_TUNNEL |
-+					   NETIF_F_GSO_UDP_TUNNEL_CSUM;
-+		netdev->gso_partial_features = NETIF_F_GSO_UDP_TUNNEL_CSUM;
-+		netdev->vlan_features |= NETIF_F_GSO_UDP_TUNNEL |
-+					 NETIF_F_GSO_UDP_TUNNEL_CSUM;
+ 	if (usage->usage_index + 1 == field->report_count) {
+-		if (equivalent_usage == wacom_wac->hid_data.last_slot_field &&
+-		    wacom_wac->hid_data.confidence)
+-			wacom_wac_finger_slot(wacom_wac, wacom_wac->touch_input);
++		if (equivalent_usage == wacom_wac->hid_data.last_slot_field) {
++			bool touch_removed = wacom_wac_slot_is_active(wacom_wac->touch_input,
++				wacom_wac->hid_data.id) && !wacom_wac->hid_data.tipswitch;
++
++			if (wacom_wac->hid_data.confidence || touch_removed) {
++				wacom_wac_finger_slot(wacom_wac, wacom_wac->touch_input);
++			}
++		}
  	}
+ }
  
- 	if (mlx5e_tunnel_proto_supported(mdev, IPPROTO_GRE)) {
--- 
-2.34.1
-
 
 
