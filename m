@@ -2,121 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25DBE497AD2
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 09:57:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B713497AE3
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 10:01:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242530AbiAXI5X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 03:57:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43972 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242529AbiAXI5U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 03:57:20 -0500
-Received: from mail-oi1-x236.google.com (mail-oi1-x236.google.com [IPv6:2607:f8b0:4864:20::236])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 497DFC061744
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 00:57:20 -0800 (PST)
-Received: by mail-oi1-x236.google.com with SMTP id y23so6151844oia.13
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 00:57:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=7LOYL+rXbKkBxwKnxxUJRI+JYuYrzmRIZD8R7ss33Fo=;
-        b=mOOM32JvhyWHxDNT1yl3o3ilV91m8p0sbxYBFE2MaJPRhEDNPFjsP2l/9YgR1e4n/j
-         /+Ki5Wm3HUJjPfHmtoyeLbLIo740NpCjaxlELrLzkpxjvTtLVLgFWh8GpXYSEC2vg8xw
-         iALRbAuJMSsqq2pRpY9vxpEREZ4RJi0zTV/KM0ihwHpDnu4BVD/4YzgHzVTpsoFaN6M/
-         fUNijqYnsFrEFtdDqrP8v+9Q5RTA3dsVOlW+tn4g5RcNPn2AzUI2B4k2Th2N4rlXs+NR
-         YVgFC+bMIftycOG+A/gPsTHZFp/9Ps/r6PvQpOeBiH4RaPhbQKDlyKSAj7xOc1Q1HQYY
-         XRNg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=7LOYL+rXbKkBxwKnxxUJRI+JYuYrzmRIZD8R7ss33Fo=;
-        b=t+knVL1cIeMhHPX09aRWb6ETJlfIkfXKku78U/szhG9BAWrItdQzbb/mRHD1ENpvLe
-         T8QDRi/OWD4PKgb07WYqsG2etDkjEQlCgBUihnfW5WlMBW1IgTyNdU8nQgFR08H/p4pX
-         fwSeJFLL0xBx/IHGe6aGmQb87o7YSkhXn/lfbLwU3y6z1Y1EVj7se9rNzg54sxJ9K696
-         OeaBkKGVFjWjT6UtdTHKBm9Cr7EaKAcaS5JcOkG+7tDOAGs6/QrnLR7GrzPEE4bf/RLj
-         59MYTxfV1bTirmrgaATEuuJhBn74BimYSdccCqnyYNJqUp+pPDmcoipv5OB6vcDAXhy3
-         1wPw==
-X-Gm-Message-State: AOAM533N1mLyIP0gE/9/fFr6tNkTNu7W+4G4V4WeW2jFKbU29W/51piI
-        OFxZjAD486LOBHBOce0hP3ay7n4psPBNvT+yX9q8UNZCWC0OdouM
-X-Google-Smtp-Source: ABdhPJxyYrXLQdtFig50Jm9MpWiRAsg7rBHxdCaoci5ZAoy/TpI9NboFii/+p4yqn/MGRoXXtldKiGH6LOsbJbsLU20=
-X-Received: by 2002:aca:1e14:: with SMTP id m20mr640396oic.14.1643014639400;
- Mon, 24 Jan 2022 00:57:19 -0800 (PST)
+        id S242564AbiAXJBW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 04:01:22 -0500
+Received: from mail.24vie.pl ([217.61.120.50]:55690 "EHLO mail.24vie.pl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S242560AbiAXJBS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jan 2022 04:01:18 -0500
+Received: by mail.24vie.pl (Postfix, from userid 1001)
+        id 70519A1EA1; Mon, 24 Jan 2022 09:00:59 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=24vie.pl; s=mail;
+        t=1643014876; bh=F7xWRdlpFQ24umbJm+VOTepUBB16dhzzDWjrh2jn0x4=;
+        h=Date:From:To:Subject:From;
+        b=lgdUWp5rDeBjGIzu0/tb3ZkGbNf6c2n6RzJzUFLBQkkhpDNuJPeXDqMZcdL5Ofe55
+         LPUCEfKmgnu2WA5FzN9/kH40yf6a4TdfoTBhZBJUIdJcQLP7AOTotGbqIkan9h6Fkn
+         nwr1MrLyte7uJrkK/pyZe07XGhXnfeAMzJIelNv8bqjVvCGsu6+OWQaJlo+pJK5DPN
+         ylqsOW8g8Zrn3u8ce9hjzQoQLJ7Sirwny7tB/8pE98CVg4iwVAtUPyklUkYTSDTmpl
+         uAVMs418i5J69dZGOJt5wtQKxGotZ1fsF0DLlTn8UqlB9qXIHJcfKDZ21iXS4Ahbui
+         lwTfYkIFKgnFA==
+Received: by mail.24vie.pl for <stable@vger.kernel.org>; Mon, 24 Jan 2022 09:00:43 GMT
+Message-ID: <20220124074501-0.1.44.bupo.0.qslw7gdp4f@24vie.pl>
+Date:   Mon, 24 Jan 2022 09:00:43 GMT
+From:   =?UTF-8?Q? "Przemys=C5=82aw_Wr=C3=B3blewski" ?= 
+        <przemyslaw.wroblewski@24vie.pl>
+To:     <stable@vger.kernel.org>
+Subject: Fotowoltaika- propozycja instalacji
+X-Mailer: mail.24vie.pl
 MIME-Version: 1.0
-References: <20220121184207.423426-1-maz@kernel.org>
-In-Reply-To: <20220121184207.423426-1-maz@kernel.org>
-From:   Fuad Tabba <tabba@google.com>
-Date:   Mon, 24 Jan 2022 08:56:43 +0000
-Message-ID: <CA+EHjTzks6CpViFPc=xCq4SGpdiEPy_88L3MTjikmNA-9bC0Tg@mail.gmail.com>
-Subject: Re: [PATCH] KVM: arm64: Use shadow SPSR_EL1 when injecting exceptions
- on !VHE
-To:     Marc Zyngier <maz@kernel.org>
-Cc:     kvmarm@lists.cs.columbia.edu, kvm@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        James Morse <james.morse@arm.com>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Alexandru Elisei <alexandru.elisei@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Quentin Perret <qperret@google.com>, kernel-team@android.com,
-        stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Marc,
-
-On Fri, Jan 21, 2022 at 6:42 PM Marc Zyngier <maz@kernel.org> wrote:
->
-> Injecting an exception into a guest with non-VHE is risky business.
-> Instead of writing in the shadow register for the switch code to
-> restore it, we override the CPU register instead. Which gets
-> overriden a few instructions later by said restore code.
-
-I see that in __sysreg_restore_el1_state(), which as you said is
-called after __vcpu_write_spsr().
-
-> The result is that although the guest correctly gets the exception,
-> it will return to the original context in some random state,
-> depending on what was there the first place... Boo.
->
-> Fix the issue by writing to the shadow register. The original code
-> is absolutely fine on VHE, as the state is already loaded, and writing
-> to the shadow register in that case would actually be a bug.
-
-Which happens via kvm_vcpu_load_sysregs_vhe() calling
-__sysreg_restore_el1_state() before __vcpu_write_spsr() in this case.
-
-Reviewed-by: Fuad Tabba <tabba@google.com>
-
-Cheers,
-/fuad
+Dzie=C5=84 dobry,
+=20
+Czy rozwa=C5=BCali Pa=C5=84stwo monta=C5=BC systemu fotowoltaicznego?
+=20
+Instalacja fotowoltaiczna jest najlepszym sposobem na obni=C5=BCenie wyso=
+ko=C5=9Bci rachunk=C3=B3w za pr=C4=85d (pozostaj=C4=85 tylko op=C5=82aty =
+sta=C5=82e) i zabezpieczenie si=C4=99 przed rosn=C4=85cymi cenami energii=
+ elektrycznej. Jest to w pe=C5=82ni odnawialne i bezemisyjne =C5=BAr=C3=B3=
+d=C5=82o energii, dzi=C4=99ki czemu przyczyniamy si=C4=99 do ochrony =C5=9B=
+rodowiska naturalnego.
+=20
+Dzia=C5=82amy od wielu lat na rynku energetycznym. Przygotujemy projekt, =
+wycen=C4=99 oraz kompleksowo wykonamy i zg=C5=82osimy realizacj=C4=99 do =
+zak=C5=82adu energetycznego.=20
+=20
+Czy chc=C4=85 Pa=C5=84stwo pozna=C4=87 nasz=C4=85 propozycj=C4=99? =20
 
 
-> Fixes: bb666c472ca2 ("KVM: arm64: Inject AArch64 exceptions from HYP")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Marc Zyngier <maz@kernel.org>
-> ---
->  arch/arm64/kvm/hyp/exception.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
->
-> diff --git a/arch/arm64/kvm/hyp/exception.c b/arch/arm64/kvm/hyp/exception.c
-> index 0418399e0a20..c5d009715402 100644
-> --- a/arch/arm64/kvm/hyp/exception.c
-> +++ b/arch/arm64/kvm/hyp/exception.c
-> @@ -38,7 +38,10 @@ static inline void __vcpu_write_sys_reg(struct kvm_vcpu *vcpu, u64 val, int reg)
->
->  static void __vcpu_write_spsr(struct kvm_vcpu *vcpu, u64 val)
->  {
-> -       write_sysreg_el1(val, SYS_SPSR);
-> +       if (has_vhe())
-> +               write_sysreg_el1(val, SYS_SPSR);
-> +       else
-> +               __vcpu_sys_reg(vcpu, SPSR_EL1) = val;
->  }
->
->  static void __vcpu_write_spsr_abt(struct kvm_vcpu *vcpu, u64 val)
-> --
-> 2.34.1
->
+Pozdrawiam,
+Przemys=C5=82aw Wr=C3=B3blewski
