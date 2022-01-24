@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B73549813A
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:37:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D225F49813B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:37:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240203AbiAXNht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 08:37:49 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:46988 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239976AbiAXNhq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:37:46 -0500
+        id S240476AbiAXNh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 08:37:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52906 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239976AbiAXNhz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:37:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5337DC06173B
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 05:37:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B274DB80EEB
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:37:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D92DBC340E4;
-        Mon, 24 Jan 2022 13:37:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 19BDAB80EEB
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:37:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 461C2C340E1;
+        Mon, 24 Jan 2022 13:37:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643031464;
-        bh=Vedgfa5ZA6p/jVaB34R64tBG1QAdA7/i1xlsoWEuALo=;
+        s=korg; t=1643031472;
+        bh=9wSZYVMpaFfAWLutB7Z/qmGSYglHWBwpM+ibBPfkykg=;
         h=Subject:To:Cc:From:Date:From;
-        b=octrT5/Lw0LnI3/H2wXxE0SGH8zDC19HlrkbKQqm3gYYCuPGZspxUfXak2HHN5flc
-         c24P39ssEYM4L22McoaVIPYIypMPCSBuqnzQucswlBWPhRJxvDfRSI7uII21NvkRC8
-         CSUuMzA0wHyuDSUI5RusUgUkX9kgk5XOcV/lyJBs=
-Subject: FAILED: patch "[PATCH] net: ipa: prevent concurrent replenish" failed to apply to 5.10-stable tree
+        b=wHkDjxQuNZYF2E6SXh8ndDG9lpQmPMJ4SCSur/9yEAY39wmtQdJwlw5myMNxR1zIl
+         LMnQKXoZoitaLilnEaavYi4uSmTknhvTG0txKw2EmUZ8E3LZRzq5krUKrGm8AtKRSg
+         gKRY4tkV0vosGvE2aHW+Mt6Z/m5iyv+cJ5rBM0Zk=
+Subject: FAILED: patch "[PATCH] net: ipa: prevent concurrent replenish" failed to apply to 5.16-stable tree
 To:     elder@linaro.org, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 14:37:41 +0100
-Message-ID: <1643031461124156@kroah.com>
+Date:   Mon, 24 Jan 2022 14:37:42 +0100
+Message-ID: <1643031462146216@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
