@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACC75499A8A
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B87F499ADA
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:58:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1573487AbiAXVo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:44:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54446 "EHLO
+        id S1378893AbiAXVrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:47:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1455664AbiAXVfu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:35:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 788C6C0BD10A;
-        Mon, 24 Jan 2022 12:22:55 -0800 (PST)
+        with ESMTP id S1456120AbiAXVhw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:37:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBD10C0BD12F;
+        Mon, 24 Jan 2022 12:24:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F1D961008;
-        Mon, 24 Jan 2022 20:22:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEF95C340E5;
-        Mon, 24 Jan 2022 20:22:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9389B81229;
+        Mon, 24 Jan 2022 20:24:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D22C8C340E5;
+        Mon, 24 Jan 2022 20:24:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055774;
-        bh=fxcUChu8wZsG+kDRiTO+SG2o6+LS8qKV+WZdXN75Qa8=;
+        s=korg; t=1643055841;
+        bh=jwjFmACAnwdgTPgiXQNtUaCkXKpEKBIBAWq4GBFnCFA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lEfC3++5yzaijz0X1mQmpzE7uRUGitk7IeyvHLF2GvloAQMQT4eTzCZ8tGez70Hwj
-         KdoMZ4AHP/VbogVqPTD6xOhx+6KBtKX47nzthVKoigYfzjy4EUbGqYUrQvckj3qjFU
-         N3s+j2Nof3GCLAPcoITXuSpa6jQunQz4PmfDW63o=
+        b=IRIw2wPaVah+njMHMUAMgfh3IOOR/AHecc5BuHFFUSV32XKn5JawDMrTjfHQhwudV
+         7o7jJ5aodT5jXkPScYopJFCQl788yr1wWFz36ZsYkCj3pzipyjUM+rA1YxQG4ogiJe
+         9rME9rNN37JPaRhhQxXPtHyn/rfuWvmWBhqUZaTs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Robert Foss <robert.foss@linaro.org>,
+        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 254/846] drm/bridge: ti-sn65dsi86: Set max register for regmap
-Date:   Mon, 24 Jan 2022 19:36:11 +0100
-Message-Id: <20220124184109.706592593@linuxfoundation.org>
+Subject: [PATCH 5.15 256/846] drm/tegra: gr2d: Explicitly control module reset
+Date:   Mon, 24 Jan 2022 19:36:13 +0100
+Message-Id: <20220124184109.771216782@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -51,38 +47,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Thierry Reding <treding@nvidia.com>
 
-[ Upstream commit 0b665d4af35837f0a0ae63135b84a3c187c1db3b ]
+[ Upstream commit 271fca025a6d43f1c18a48543c5aaf31a31e4694 ]
 
-Set the maximum register to 0xff so we can dump the registers for this
-device in debugfs.
+As of commit 4782c0a5dd88 ("clk: tegra: Don't deassert reset on enabling
+clocks"), module resets are no longer automatically deasserted when the
+module clock is enabled. To make sure that the gr2d module continues to
+work, we need to explicitly control the module reset.
 
-Fixes: a095f15c00e2 ("drm/bridge: add support for sn65dsi86 bridge driver")
-Cc: Rob Clark <robdclark@chromium.org>
-Cc: Douglas Anderson <dianders@chromium.org>
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211215002529.382383-1-swboyd@chromium.org
+Fixes: 4782c0a5dd88 ("clk: tegra: Don't deassert reset on enabling clocks")
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/ti-sn65dsi86.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/tegra/gr2d.c | 33 +++++++++++++++++++++++++++++++--
+ 1 file changed, 31 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/ti-sn65dsi86.c b/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-index 41d48a393e7f5..4d08246f930c3 100644
---- a/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-+++ b/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-@@ -188,6 +188,7 @@ static const struct regmap_config ti_sn65dsi86_regmap_config = {
- 	.val_bits = 8,
- 	.volatile_table = &ti_sn_bridge_volatile_table,
- 	.cache_type = REGCACHE_NONE,
-+	.max_register = 0xFF,
- };
+diff --git a/drivers/gpu/drm/tegra/gr2d.c b/drivers/gpu/drm/tegra/gr2d.c
+index de288cba39055..ba3722f1b8651 100644
+--- a/drivers/gpu/drm/tegra/gr2d.c
++++ b/drivers/gpu/drm/tegra/gr2d.c
+@@ -4,9 +4,11 @@
+  */
  
- static void ti_sn65dsi86_write_u16(struct ti_sn65dsi86 *pdata,
+ #include <linux/clk.h>
++#include <linux/delay.h>
+ #include <linux/iommu.h>
+ #include <linux/module.h>
+ #include <linux/of_device.h>
++#include <linux/reset.h>
+ 
+ #include "drm.h"
+ #include "gem.h"
+@@ -19,6 +21,7 @@ struct gr2d_soc {
+ struct gr2d {
+ 	struct tegra_drm_client client;
+ 	struct host1x_channel *channel;
++	struct reset_control *rst;
+ 	struct clk *clk;
+ 
+ 	const struct gr2d_soc *soc;
+@@ -208,6 +211,12 @@ static int gr2d_probe(struct platform_device *pdev)
+ 	if (!syncpts)
+ 		return -ENOMEM;
+ 
++	gr2d->rst = devm_reset_control_get(dev, NULL);
++	if (IS_ERR(gr2d->rst)) {
++		dev_err(dev, "cannot get reset\n");
++		return PTR_ERR(gr2d->rst);
++	}
++
+ 	gr2d->clk = devm_clk_get(dev, NULL);
+ 	if (IS_ERR(gr2d->clk)) {
+ 		dev_err(dev, "cannot get clock\n");
+@@ -220,6 +229,14 @@ static int gr2d_probe(struct platform_device *pdev)
+ 		return err;
+ 	}
+ 
++	usleep_range(2000, 4000);
++
++	err = reset_control_deassert(gr2d->rst);
++	if (err < 0) {
++		dev_err(dev, "failed to deassert reset: %d\n", err);
++		goto disable_clk;
++	}
++
+ 	INIT_LIST_HEAD(&gr2d->client.base.list);
+ 	gr2d->client.base.ops = &gr2d_client_ops;
+ 	gr2d->client.base.dev = dev;
+@@ -234,8 +251,7 @@ static int gr2d_probe(struct platform_device *pdev)
+ 	err = host1x_client_register(&gr2d->client.base);
+ 	if (err < 0) {
+ 		dev_err(dev, "failed to register host1x client: %d\n", err);
+-		clk_disable_unprepare(gr2d->clk);
+-		return err;
++		goto assert_rst;
+ 	}
+ 
+ 	/* initialize address register map */
+@@ -245,6 +261,13 @@ static int gr2d_probe(struct platform_device *pdev)
+ 	platform_set_drvdata(pdev, gr2d);
+ 
+ 	return 0;
++
++assert_rst:
++	(void)reset_control_assert(gr2d->rst);
++disable_clk:
++	clk_disable_unprepare(gr2d->clk);
++
++	return err;
+ }
+ 
+ static int gr2d_remove(struct platform_device *pdev)
+@@ -259,6 +282,12 @@ static int gr2d_remove(struct platform_device *pdev)
+ 		return err;
+ 	}
+ 
++	err = reset_control_assert(gr2d->rst);
++	if (err < 0)
++		dev_err(&pdev->dev, "failed to assert reset: %d\n", err);
++
++	usleep_range(2000, 4000);
++
+ 	clk_disable_unprepare(gr2d->clk);
+ 
+ 	return 0;
 -- 
 2.34.1
 
