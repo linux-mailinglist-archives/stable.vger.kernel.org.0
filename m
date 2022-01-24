@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC0E749A9FA
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:30:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 502F249A91D
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:19:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1323895AbiAYD3v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:29:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38352 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S3409802AbiAYA11 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 19:27:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6315FC0680B1;
-        Mon, 24 Jan 2022 12:08:04 -0800 (PST)
+        id S1322142AbiAYDU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:20:57 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:50618 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1353468AbiAXUIL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:08:11 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 018CE6091B;
-        Mon, 24 Jan 2022 20:08:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C943DC340E5;
-        Mon, 24 Jan 2022 20:08:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E6B43B8159B;
+        Mon, 24 Jan 2022 20:08:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BB37C340E5;
+        Mon, 24 Jan 2022 20:08:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054883;
-        bh=jWDHRme/ITQfZrL35IpdVL6ftOshaIh0+geEM+S1LeU=;
+        s=korg; t=1643054886;
+        bh=3U9VP1OuruVXeNmVCUIDrfmA01G3vDMoXgFxbdOhwwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QYDJn6mPgNyP0hC43XGOE2lp75rrkExxH4i0JnOfncOoi+UGuZ7k0hxucCxZwyf6R
-         glRZVl7p0vvDDkz0a12rRtmN2lScqHdjEi3jR1cY5ow+aNncVfTkTU+aHbzJ4JlOzp
-         Lb6JnVhFGmoSvHfx5L2T077XrZFFIzGVGinpzNr8=
+        b=ZqdSBf8oY1aiQmZMKKsMkwY6mY7n01tIbWfY4MueVLRLT0p6agy8m+29ZfSflhZSG
+         5lBBwChQSM6o4kfLWmpsBReNkbaiD/T2lc08xdU2u1VIUxIFZDdgZ7rqzuAyYHGW09
+         XuW2ZUmScSHcKu8HygxZiFspoR3/V+qinE/6y0xY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 502/563] powerpc/cell: Fix clang -Wimplicit-fallthrough warning
-Date:   Mon, 24 Jan 2022 19:44:27 +0100
-Message-Id: <20220124184041.826719761@linuxfoundation.org>
+        stable@vger.kernel.org, Tobias Waldekranz <tobias@waldekranz.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 503/563] powerpc/fsl/dts: Enable WA for erratum A-009885 on fman3l MDIO buses
+Date:   Mon, 24 Jan 2022 19:44:28 +0100
+Message-Id: <20220124184041.865223836@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -50,47 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anders Roxell <anders.roxell@linaro.org>
+From: Tobias Waldekranz <tobias@waldekranz.com>
 
-commit e89257e28e844f5d1d39081bb901d9f1183a7705 upstream.
+commit 0d375d610fa96524e2ee2b46830a46a7bfa92a9f upstream.
 
-Clang warns:
+This block is used in (at least) T1024 and T1040, including their
+variants like T1023 etc.
 
-arch/powerpc/platforms/cell/pervasive.c:81:2: error: unannotated fall-through between switch labels
-        case SRR1_WAKEEE:
-        ^
-arch/powerpc/platforms/cell/pervasive.c:81:2: note: insert 'break;' to avoid fall-through
-        case SRR1_WAKEEE:
-        ^
-        break;
-1 error generated.
-
-Clang is more pedantic than GCC, which does not warn when failing
-through to a case that is just break or return. Clang's version is more
-in line with the kernel's own stance in deprecated.rst. Add athe missing
-break to silence the warning.
-
-Fixes: 6e83985b0f6e ("powerpc/cbe: Do not process external or decremeter interrupts from sreset")
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211207110228.698956-1-anders.roxell@linaro.org
+Fixes: d55ad2967d89 ("powerpc/mpc85xx: Create dts components for the FSL QorIQ DPAA FMan")
+Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/cell/pervasive.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/powerpc/boot/dts/fsl/qoriq-fman3l-0.dtsi |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/powerpc/platforms/cell/pervasive.c
-+++ b/arch/powerpc/platforms/cell/pervasive.c
-@@ -77,6 +77,7 @@ static int cbe_system_reset_exception(st
- 	switch (regs->msr & SRR1_WAKEMASK) {
- 	case SRR1_WAKEDEC:
- 		set_dec(1);
-+		break;
- 	case SRR1_WAKEEE:
- 		/*
- 		 * Handle these when interrupts get re-enabled and we take
+--- a/arch/powerpc/boot/dts/fsl/qoriq-fman3l-0.dtsi
++++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3l-0.dtsi
+@@ -79,6 +79,7 @@ fman0: fman@400000 {
+ 		#size-cells = <0>;
+ 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
+ 		reg = <0xfc000 0x1000>;
++		fsl,erratum-a009885;
+ 	};
+ 
+ 	xmdio0: mdio@fd000 {
+@@ -86,6 +87,7 @@ fman0: fman@400000 {
+ 		#size-cells = <0>;
+ 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
+ 		reg = <0xfd000 0x1000>;
++		fsl,erratum-a009885;
+ 	};
+ };
+ 
 
 
