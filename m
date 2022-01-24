@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3781A499A62
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:54:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 401484996D1
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:20:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346774AbiAXVnr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:43:47 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:51250 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1454382AbiAXVc2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:32:28 -0500
+        id S1390166AbiAXVG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:06:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46014 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1444320AbiAXVAi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:00:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9DE5C04D63A;
+        Mon, 24 Jan 2022 12:01:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E11BA6131F;
-        Mon, 24 Jan 2022 21:32:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD5CBC340E4;
-        Mon, 24 Jan 2022 21:32:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70D4BB81239;
+        Mon, 24 Jan 2022 20:01:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4C0DC340EA;
+        Mon, 24 Jan 2022 20:01:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059947;
-        bh=+IC5SxFlPCTwimrhYxrbf0C6EBpcKCzs3MZ8Q9Z5Lf0=;
+        s=korg; t=1643054509;
+        bh=noPkjLggVRzhHtJtUyyY8AiSqQGvqU0JZkwRb0GYV3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RrXxvxxMikzF1qW3RXVQ15uB1IAMV+NxeXxnAnNUy1HjKqhIIpZ7hCaTu2O6UG6Ou
-         p0ePgVNW59F3mApqOTOqHMBv25fFkx6tcUAXe/KAnnhHimteVjSZdmspBA0SV5jXUr
-         Mf5graGyfCmYJjNSrGfwJMp8jURmj7uQcXbGufvU=
+        b=tqZK/LYm8eZeDFp0CCfxYyT0j7jlRQE3Jyf+Rm0xTfGOf8HrbepC7W7vZI+obsnGC
+         hj2K9Ie+gBt42imdKjHEoOr7oOYE7Z9SRRKUDFmcROWpWbyd4Fy1Riaf5ZSdUxeGgI
+         pm3ZOwjQeWUbCZrPLfG0KEi1MHy/laQF/MbpUkZ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Julia Lawall <Julia.Lawall@lip6.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0788/1039] KVM: VMX: Dont unblock vCPU w/ Posted IRQ if IRQs are disabled in guest
+Subject: [PATCH 5.10 412/563] powerpc/btext: add missing of_node_put
 Date:   Mon, 24 Jan 2022 19:42:57 +0100
-Message-Id: <20220124184151.781814654@linuxfoundation.org>
+Message-Id: <20220124184038.697652909@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,37 +48,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Julia Lawall <Julia.Lawall@lip6.fr>
 
-[ Upstream commit 1831fa44df743a7cdffdf1c12c799bf6f3c12b8c ]
+[ Upstream commit a1d2b210ffa52d60acabbf7b6af3ef7e1e69cda0 ]
 
-Don't configure the wakeup handler when a vCPU is blocking with IRQs
-disabled, in which case any IRQ, posted or otherwise, should not be
-recognized and thus should not wake the vCPU.
+for_each_node_by_type performs an of_node_get on each iteration, so
+a break out of the loop requires an of_node_put.
 
-Fixes: bf9f6ac8d749 ("KVM: Update Posted-Interrupts Descriptor when vCPU is blocked")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20211009021236.4122790-2-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+A simplified version of the semantic patch that fixes this problem is as
+follows (http://coccinelle.lip6.fr):
+
+// <smpl>
+@@
+local idexpression n;
+expression e;
+@@
+
+ for_each_node_by_type(n,...) {
+   ...
+(
+   of_node_put(n);
+|
+   e = n
+|
++  of_node_put(n);
+?  break;
+)
+   ...
+ }
+... when != n
+// </smpl>
+
+Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1448051604-25256-6-git-send-email-Julia.Lawall@lip6.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/posted_intr.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/kernel/btext.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kvm/vmx/posted_intr.c b/arch/x86/kvm/vmx/posted_intr.c
-index 21ea58d25771f..696ad48ab5daa 100644
---- a/arch/x86/kvm/vmx/posted_intr.c
-+++ b/arch/x86/kvm/vmx/posted_intr.c
-@@ -147,7 +147,8 @@ int pi_pre_block(struct kvm_vcpu *vcpu)
- 	struct pi_desc old, new;
- 	struct pi_desc *pi_desc = vcpu_to_pi_desc(vcpu);
- 
--	if (!vmx_can_use_vtd_pi(vcpu->kvm))
-+	if (!vmx_can_use_vtd_pi(vcpu->kvm) ||
-+	    vmx_interrupt_blocked(vcpu))
- 		return 0;
- 
- 	WARN_ON(irqs_disabled());
+diff --git a/arch/powerpc/kernel/btext.c b/arch/powerpc/kernel/btext.c
+index 803c2a45b22ac..1cffb5e7c38d6 100644
+--- a/arch/powerpc/kernel/btext.c
++++ b/arch/powerpc/kernel/btext.c
+@@ -241,8 +241,10 @@ int __init btext_find_display(int allow_nonstdout)
+ 			rc = btext_initialize(np);
+ 			printk("result: %d\n", rc);
+ 		}
+-		if (rc == 0)
++		if (rc == 0) {
++			of_node_put(np);
+ 			break;
++		}
+ 	}
+ 	return rc;
+ }
 -- 
 2.34.1
 
