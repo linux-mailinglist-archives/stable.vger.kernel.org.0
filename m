@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6DC1499395
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:38:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10F02498F63
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:54:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385921AbiAXUer (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:34:47 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34708 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383789AbiAXU1t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:27:49 -0500
+        id S1351589AbiAXTwP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:52:15 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:43778 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1356497AbiAXTq3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:46:29 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2211EB8122C;
-        Mon, 24 Jan 2022 20:27:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52C91C340E5;
-        Mon, 24 Jan 2022 20:27:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E1A976153B;
+        Mon, 24 Jan 2022 19:46:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5CECC340E5;
+        Mon, 24 Jan 2022 19:46:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056066;
-        bh=utsPrtpcWIvwCt9tvxNIxDq0GM9C7hpc0Yc/H/vxqiE=;
+        s=korg; t=1643053587;
+        bh=hSnyDgOnkCgKuwYcR+1NOauOe0CVhqfyNm4Nyh+3WZs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HtikcpBj34yj2nWAIPW0HTJhwF/GgtXpgLKK4DiSFgvckZuGTQf17yTFQE+Ms926Z
-         4dWhQOnwARdF9DZfmk/Hf4jFl7Egfemzbh2tuXjpFLeqYWhcuXIxHJS+EjqDo3k7W6
-         34DkSITV+iMk+gVq9QfIu4SCOMpVUqbKupCzMgP4=
+        b=Tyhmd3pzfwQ9m8UqOHfyQzb6Uddcpm5GvY7bC9hkhoIwSy5g5S0QwrrL/bMXl3qt5
+         53H+rkwPn6pvrR+lucQJF6pWA15If97/ZOraN06Fn18rm/QSgE6JfKH1ZqDvg+dlsd
+         9jKf7EW0AvD05g1UJnN/lPGkKMQ5ELfDaw7dLvnI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen Jun <chenjun102@huawei.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>,
+        stable@vger.kernel.org, Fritz Koenig <frkoenig@chromium.org>,
+        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 358/846] tpm: add request_locality before write TPM_INT_ENABLE
-Date:   Mon, 24 Jan 2022 19:37:55 +0100
-Message-Id: <20220124184113.281721674@linuxfoundation.org>
+Subject: [PATCH 5.10 113/563] media: venus: pm_helpers: Control core power domain manually
+Date:   Mon, 24 Jan 2022 19:37:58 +0100
+Message-Id: <20220124184028.332819166@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,42 +46,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Jun <chenjun102@huawei.com>
+From: Stanimir Varbanov <stanimir.varbanov@linaro.org>
 
-[ Upstream commit 0ef333f5ba7f24f5d8478425c163d3097f1c7afd ]
+[ Upstream commit a76f43a490542ecb8c57176730b6eb665d716139 ]
 
-Locality is not appropriately requested before writing the int mask.
-Add the missing boilerplate.
+Presently we use device_link to control core power domain. But this
+leads to issues because the genpd doesn't guarantee synchronous on/off
+for supplier devices. Switch to manually control by pmruntime calls.
 
-Fixes: e6aef069b6e9 ("tpm_tis: convert to using locality callbacks")
-Signed-off-by: Chen Jun <chenjun102@huawei.com>
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Tested-by: Fritz Koenig <frkoenig@chromium.org>
+Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/tpm_tis_core.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/media/platform/qcom/venus/core.h      |  2 --
+ .../media/platform/qcom/venus/pm_helpers.c    | 36 ++++++++++---------
+ 2 files changed, 19 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
-index b2659a4c40168..e2df1098a812f 100644
---- a/drivers/char/tpm/tpm_tis_core.c
-+++ b/drivers/char/tpm/tpm_tis_core.c
-@@ -994,7 +994,15 @@ int tpm_tis_core_init(struct device *dev, struct tpm_tis_data *priv, int irq,
- 	intmask |= TPM_INTF_CMD_READY_INT | TPM_INTF_LOCALITY_CHANGE_INT |
- 		   TPM_INTF_DATA_AVAIL_INT | TPM_INTF_STS_VALID_INT;
- 	intmask &= ~TPM_GLOBAL_INT_ENABLE;
-+
-+	rc = request_locality(chip, 0);
-+	if (rc < 0) {
-+		rc = -ENODEV;
-+		goto out_err;
-+	}
-+
- 	tpm_tis_write32(priv, TPM_INT_ENABLE(priv->locality), intmask);
-+	release_locality(chip, 0);
+diff --git a/drivers/media/platform/qcom/venus/core.h b/drivers/media/platform/qcom/venus/core.h
+index 05c9fbd51f0c0..f2a0ef9ee884e 100644
+--- a/drivers/media/platform/qcom/venus/core.h
++++ b/drivers/media/platform/qcom/venus/core.h
+@@ -123,7 +123,6 @@ struct venus_caps {
+  * @clks:	an array of struct clk pointers
+  * @vcodec0_clks: an array of vcodec0 struct clk pointers
+  * @vcodec1_clks: an array of vcodec1 struct clk pointers
+- * @pd_dl_venus: pmdomain device-link for venus domain
+  * @pmdomains:	an array of pmdomains struct device pointers
+  * @vdev_dec:	a reference to video device structure for decoder instances
+  * @vdev_enc:	a reference to video device structure for encoder instances
+@@ -161,7 +160,6 @@ struct venus_core {
+ 	struct icc_path *cpucfg_path;
+ 	struct opp_table *opp_table;
+ 	bool has_opp_table;
+-	struct device_link *pd_dl_venus;
+ 	struct device *pmdomains[VIDC_PMDOMAINS_NUM_MAX];
+ 	struct device_link *opp_dl_venus;
+ 	struct device *opp_pmdomain;
+diff --git a/drivers/media/platform/qcom/venus/pm_helpers.c b/drivers/media/platform/qcom/venus/pm_helpers.c
+index 2946547a0df4a..bce9a370015fb 100644
+--- a/drivers/media/platform/qcom/venus/pm_helpers.c
++++ b/drivers/media/platform/qcom/venus/pm_helpers.c
+@@ -773,13 +773,6 @@ static int vcodec_domains_get(struct device *dev)
+ 		core->pmdomains[i] = pd;
+ 	}
  
- 	rc = tpm_chip_start(chip);
- 	if (rc)
+-	core->pd_dl_venus = device_link_add(dev, core->pmdomains[0],
+-					    DL_FLAG_PM_RUNTIME |
+-					    DL_FLAG_STATELESS |
+-					    DL_FLAG_RPM_ACTIVE);
+-	if (!core->pd_dl_venus)
+-		return -ENODEV;
+-
+ skip_pmdomains:
+ 	if (!core->has_opp_table)
+ 		return 0;
+@@ -806,14 +799,12 @@ skip_pmdomains:
+ opp_dl_add_err:
+ 	dev_pm_opp_detach_genpd(core->opp_table);
+ opp_attach_err:
+-	if (core->pd_dl_venus) {
+-		device_link_del(core->pd_dl_venus);
+-		for (i = 0; i < res->vcodec_pmdomains_num; i++) {
+-			if (IS_ERR_OR_NULL(core->pmdomains[i]))
+-				continue;
+-			dev_pm_domain_detach(core->pmdomains[i], true);
+-		}
++	for (i = 0; i < res->vcodec_pmdomains_num; i++) {
++		if (IS_ERR_OR_NULL(core->pmdomains[i]))
++			continue;
++		dev_pm_domain_detach(core->pmdomains[i], true);
+ 	}
++
+ 	return ret;
+ }
+ 
+@@ -826,9 +817,6 @@ static void vcodec_domains_put(struct device *dev)
+ 	if (!res->vcodec_pmdomains_num)
+ 		goto skip_pmdomains;
+ 
+-	if (core->pd_dl_venus)
+-		device_link_del(core->pd_dl_venus);
+-
+ 	for (i = 0; i < res->vcodec_pmdomains_num; i++) {
+ 		if (IS_ERR_OR_NULL(core->pmdomains[i]))
+ 			continue;
+@@ -916,16 +904,30 @@ static void core_put_v4(struct device *dev)
+ static int core_power_v4(struct device *dev, int on)
+ {
+ 	struct venus_core *core = dev_get_drvdata(dev);
++	struct device *pmctrl = core->pmdomains[0];
+ 	int ret = 0;
+ 
+ 	if (on == POWER_ON) {
++		if (pmctrl) {
++			ret = pm_runtime_get_sync(pmctrl);
++			if (ret < 0) {
++				pm_runtime_put_noidle(pmctrl);
++				return ret;
++			}
++		}
++
+ 		ret = core_clks_enable(core);
++		if (ret < 0 && pmctrl)
++			pm_runtime_put_sync(pmctrl);
+ 	} else {
+ 		/* Drop the performance state vote */
+ 		if (core->opp_pmdomain)
+ 			dev_pm_opp_set_rate(dev, 0);
+ 
+ 		core_clks_disable(core);
++
++		if (pmctrl)
++			pm_runtime_put_sync(pmctrl);
+ 	}
+ 
+ 	return ret;
 -- 
 2.34.1
 
