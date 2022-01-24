@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E327498C8F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:23:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47731498AD3
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:07:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345430AbiAXTXV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:23:21 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:43174 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349106AbiAXTUP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:20:15 -0500
+        id S1346700AbiAXTHO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:07:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46094 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346191AbiAXTFK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:05:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0DC4C08C5C0;
+        Mon, 24 Jan 2022 10:59:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 816F7B81233;
-        Mon, 24 Jan 2022 19:20:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF6F7C340E5;
-        Mon, 24 Jan 2022 19:20:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AF9E7B81215;
+        Mon, 24 Jan 2022 18:59:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C79EFC340E7;
+        Mon, 24 Jan 2022 18:59:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052013;
-        bh=FNVb3dcHIBLomxyIdcLDZf6bDvbLp1BTjjK8xjoWU5A=;
+        s=korg; t=1643050778;
+        bh=n+OG6gPeo3Ix3CdWwgkqT9r920PvemF2ny3sKHTPWSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0A+q92prHDfR3XAGLy/4WSH7WfDVvdPQjqOe6TVMwRPRQJcl37twItikpUs1q/MyX
-         BvKQbC6VHBb8lnkZ9q91ygqIzlVCkrPfWhAzprsJ68eazyKE98JjJ/t3zaNK7OwEBy
-         oPSrBqtcKYmN80Vc4q4X6pIW81H4fCVfdJW8JUAo=
+        b=WwUdcj1SCUKCCYP8DIdu5XwZLKM78EsbifiY+g6N7ZDSDYW4O1/mlr7y0S9z6SS8k
+         ujP88jYxgEz7q++31Pw+n9ZNmpdVeCIYJTofVD63XjuoVcQAi9Wt4iAu1QMoTimSG+
+         5Yc1gUENDH4acaftA+znb3xZxIH3QxFKkdyE5wlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Langsdorf <mlangsdo@redhat.com>,
-        Bob Moore <robert.moore@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Julia Lawall <Julia.Lawall@lip6.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 160/239] ACPICA: actypes.h: Expand the ACPI_ACCESS_ definitions
+Subject: [PATCH 4.9 108/157] powerpc/btext: add missing of_node_put
 Date:   Mon, 24 Jan 2022 19:43:18 +0100
-Message-Id: <20220124183948.185753446@linuxfoundation.org>
+Message-Id: <20220124183936.198527817@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,54 +48,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Langsdorf <mlangsdo@redhat.com>
+From: Julia Lawall <Julia.Lawall@lip6.fr>
 
-[ Upstream commit f81bdeaf816142e0729eea0cc84c395ec9673151 ]
+[ Upstream commit a1d2b210ffa52d60acabbf7b6af3ef7e1e69cda0 ]
 
-ACPICA commit bc02c76d518135531483dfc276ed28b7ee632ce1
+for_each_node_by_type performs an of_node_get on each iteration, so
+a break out of the loop requires an of_node_put.
 
-The current ACPI_ACCESS_*_WIDTH defines do not provide a way to
-test that size is small enough to not cause an overflow when
-applied to a 32-bit integer.
+A simplified version of the semantic patch that fixes this problem is as
+follows (http://coccinelle.lip6.fr):
 
-Rather than adding more magic numbers, add ACPI_ACCESS_*_SHIFT,
-ACPI_ACCESS_*_MAX, and ACPI_ACCESS_*_DEFAULT #defines and
-redefine ACPI_ACCESS_*_WIDTH in terms of the new #defines.
+// <smpl>
+@@
+local idexpression n;
+expression e;
+@@
 
-This was inititally reported on Linux where a size of 102 in
-ACPI_ACCESS_BIT_WIDTH caused an overflow error in the SPCR
-initialization code.
+ for_each_node_by_type(n,...) {
+   ...
+(
+   of_node_put(n);
+|
+   e = n
+|
++  of_node_put(n);
+?  break;
+)
+   ...
+ }
+... when != n
+// </smpl>
 
-Link: https://github.com/acpica/acpica/commit/bc02c76d
-Signed-off-by: Mark Langsdorf <mlangsdo@redhat.com>
-Signed-off-by: Bob Moore <robert.moore@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1448051604-25256-6-git-send-email-Julia.Lawall@lip6.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/acpi/actypes.h | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ arch/powerpc/kernel/btext.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/include/acpi/actypes.h b/include/acpi/actypes.h
-index 2939a6cd7fecb..9fc1dfc7f4c32 100644
---- a/include/acpi/actypes.h
-+++ b/include/acpi/actypes.h
-@@ -532,8 +532,14 @@ typedef u64 acpi_integer;
-  * Can be used with access_width of struct acpi_generic_address and access_size of
-  * struct acpi_resource_generic_register.
-  */
--#define ACPI_ACCESS_BIT_WIDTH(size)     (1 << ((size) + 2))
--#define ACPI_ACCESS_BYTE_WIDTH(size)    (1 << ((size) - 1))
-+#define ACPI_ACCESS_BIT_SHIFT		2
-+#define ACPI_ACCESS_BYTE_SHIFT		-1
-+#define ACPI_ACCESS_BIT_MAX		(31 - ACPI_ACCESS_BIT_SHIFT)
-+#define ACPI_ACCESS_BYTE_MAX		(31 - ACPI_ACCESS_BYTE_SHIFT)
-+#define ACPI_ACCESS_BIT_DEFAULT		(8 - ACPI_ACCESS_BIT_SHIFT)
-+#define ACPI_ACCESS_BYTE_DEFAULT	(8 - ACPI_ACCESS_BYTE_SHIFT)
-+#define ACPI_ACCESS_BIT_WIDTH(size)	(1 << ((size) + ACPI_ACCESS_BIT_SHIFT))
-+#define ACPI_ACCESS_BYTE_WIDTH(size)	(1 << ((size) + ACPI_ACCESS_BYTE_SHIFT))
- 
- /*******************************************************************************
-  *
+diff --git a/arch/powerpc/kernel/btext.c b/arch/powerpc/kernel/btext.c
+index 8275858a434d9..2d91ba38b4524 100644
+--- a/arch/powerpc/kernel/btext.c
++++ b/arch/powerpc/kernel/btext.c
+@@ -257,8 +257,10 @@ int __init btext_find_display(int allow_nonstdout)
+ 			rc = btext_initialize(np);
+ 			printk("result: %d\n", rc);
+ 		}
+-		if (rc == 0)
++		if (rc == 0) {
++			of_node_put(np);
+ 			break;
++		}
+ 	}
+ 	return rc;
+ }
 -- 
 2.34.1
 
