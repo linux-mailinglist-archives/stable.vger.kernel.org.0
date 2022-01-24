@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03C8F49A9CC
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:28:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 897A049A8D4
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:16:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1323560AbiAYD2v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:28:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47582 "EHLO
+        id S1349798AbiAYDQh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:16:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353277AbiAXVFL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:05:11 -0500
+        with ESMTP id S1345731AbiAXTJS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:09:18 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5259C068096;
-        Mon, 24 Jan 2022 12:04:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D430C061359;
+        Mon, 24 Jan 2022 11:02:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7538F6131F;
-        Mon, 24 Jan 2022 20:04:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E1BBC340E5;
-        Mon, 24 Jan 2022 20:04:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FA9460E8D;
+        Mon, 24 Jan 2022 19:02:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D289C340E5;
+        Mon, 24 Jan 2022 19:02:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054698;
-        bh=9eZ9Mv8v14jvy7gY6J9fTqWGXGy5n8+bAcU7ppON4YQ=;
+        s=korg; t=1643050936;
+        bh=/21cnJbkG4LiQeLMdTF15F+v5kVgRMWcxYcW/eO6v+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EMMgGAmXsth3PYc29O0U2WxswzUEIevB10IuTBl5cxqev+v7MTHZQPGTLupZNINBV
-         53tc389HaKFQ42Hyzx2/hS7zgPk2RsecGAxceBUENoyzm7/9DEST+kT1rY0FvJjpIK
-         ZNRi14T78zh1GAkhvrfFiQZQaxhIDf/LzJRUqFMo=
+        b=oQuYxTqezyjmotmt6jGWhRbtTdZBbyWREdV5ZMMcOO61LeIwCRWWOsy1FgpO8cwCW
+         FnkDg6xnw0/r8Enr5U469CWDvr+RAvqjCQ5DhcrzfLQacJcEa9ts4b/rS1ZkdfPZ93
+         7PzVo9EzwNZXNtmhtlGVKvqBiJKQng4bkgQ6u2Tg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Harshad Shirwadkar <harshadshirwadkar@gmail.com>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.10 475/563] ext4: initialize err_blk before calling __ext4_get_inode_loc
-Date:   Mon, 24 Jan 2022 19:44:00 +0100
-Message-Id: <20220124184040.900353306@linuxfoundation.org>
+        Paul Moore <paul@paul-moore.com>,
+        syzbot+9ec037722d2603a9f52e@syzkaller.appspotmail.com,
+        "David S. Miller" <davem@davemloft.net>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.9 151/157] cipso,calipso: resolve a number of problems with the DOI refcounts
+Date:   Mon, 24 Jan 2022 19:44:01 +0100
+Message-Id: <20220124183937.549864875@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,43 +49,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
+From: Paul Moore <paul@paul-moore.com>
 
-commit c27c29c6af4f3f4ce925a2111c256733c5a5b430 upstream.
+commit ad5d07f4a9cd671233ae20983848874731102c08 upstream.
 
-It is not guaranteed that __ext4_get_inode_loc will definitely set
-err_blk pointer when it returns EIO. To avoid using uninitialized
-variables, let's first set err_blk to 0.
+The current CIPSO and CALIPSO refcounting scheme for the DOI
+definitions is a bit flawed in that we:
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
-Link: https://lore.kernel.org/r/20211201163421.2631661-1-harshads@google.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+1. Don't correctly match gets/puts in netlbl_cipsov4_list().
+2. Decrement the refcount on each attempt to remove the DOI from the
+   DOI list, only removing it from the list once the refcount drops
+   to zero.
+
+This patch fixes these problems by adding the missing "puts" to
+netlbl_cipsov4_list() and introduces a more conventional, i.e.
+not-buggy, refcounting mechanism to the DOI definitions.  Upon the
+addition of a DOI to the DOI list, it is initialized with a refcount
+of one, removing a DOI from the list removes it from the list and
+drops the refcount by one; "gets" and "puts" behave as expected with
+respect to refcounts, increasing and decreasing the DOI's refcount by
+one.
+
+Fixes: b1edeb102397 ("netlabel: Replace protocol/NetLabel linking with refrerence counts")
+Fixes: d7cce01504a0 ("netlabel: Add support for removing a CALIPSO DOI.")
+Reported-by: syzbot+9ec037722d2603a9f52e@syzkaller.appspotmail.com
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[bwh: Backported to 4.9: adjust context]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ipv4/cipso_ipv4.c            |   11 +----------
+ net/ipv6/calipso.c               |   14 +++++---------
+ net/netlabel/netlabel_cipso_v4.c |    3 +++
+ 3 files changed, 9 insertions(+), 19 deletions(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -4445,7 +4445,7 @@ has_buffer:
- static int __ext4_get_inode_loc_noinmem(struct inode *inode,
- 					struct ext4_iloc *iloc)
- {
--	ext4_fsblk_t err_blk;
-+	ext4_fsblk_t err_blk = 0;
- 	int ret;
+--- a/net/ipv4/cipso_ipv4.c
++++ b/net/ipv4/cipso_ipv4.c
+@@ -534,16 +534,10 @@ int cipso_v4_doi_remove(u32 doi, struct
+ 		ret_val = -ENOENT;
+ 		goto doi_remove_return;
+ 	}
+-	if (!atomic_dec_and_test(&doi_def->refcount)) {
+-		spin_unlock(&cipso_v4_doi_list_lock);
+-		ret_val = -EBUSY;
+-		goto doi_remove_return;
+-	}
+ 	list_del_rcu(&doi_def->list);
+ 	spin_unlock(&cipso_v4_doi_list_lock);
  
- 	ret = __ext4_get_inode_loc(inode->i_sb, inode->i_ino, iloc, 0,
-@@ -4460,7 +4460,7 @@ static int __ext4_get_inode_loc_noinmem(
+-	cipso_v4_cache_invalidate();
+-	call_rcu(&doi_def->rcu, cipso_v4_doi_free_rcu);
++	cipso_v4_doi_putdef(doi_def);
+ 	ret_val = 0;
  
- int ext4_get_inode_loc(struct inode *inode, struct ext4_iloc *iloc)
- {
--	ext4_fsblk_t err_blk;
-+	ext4_fsblk_t err_blk = 0;
- 	int ret;
+ doi_remove_return:
+@@ -600,9 +594,6 @@ void cipso_v4_doi_putdef(struct cipso_v4
  
- 	/* We have all inode data except xattrs in memory here. */
+ 	if (!atomic_dec_and_test(&doi_def->refcount))
+ 		return;
+-	spin_lock(&cipso_v4_doi_list_lock);
+-	list_del_rcu(&doi_def->list);
+-	spin_unlock(&cipso_v4_doi_list_lock);
+ 
+ 	cipso_v4_cache_invalidate();
+ 	call_rcu(&doi_def->rcu, cipso_v4_doi_free_rcu);
+--- a/net/ipv6/calipso.c
++++ b/net/ipv6/calipso.c
+@@ -97,6 +97,9 @@ struct calipso_map_cache_entry {
+ 
+ static struct calipso_map_cache_bkt *calipso_cache;
+ 
++static void calipso_cache_invalidate(void);
++static void calipso_doi_putdef(struct calipso_doi *doi_def);
++
+ /* Label Mapping Cache Functions
+  */
+ 
+@@ -458,15 +461,10 @@ static int calipso_doi_remove(u32 doi, s
+ 		ret_val = -ENOENT;
+ 		goto doi_remove_return;
+ 	}
+-	if (!atomic_dec_and_test(&doi_def->refcount)) {
+-		spin_unlock(&calipso_doi_list_lock);
+-		ret_val = -EBUSY;
+-		goto doi_remove_return;
+-	}
+ 	list_del_rcu(&doi_def->list);
+ 	spin_unlock(&calipso_doi_list_lock);
+ 
+-	call_rcu(&doi_def->rcu, calipso_doi_free_rcu);
++	calipso_doi_putdef(doi_def);
+ 	ret_val = 0;
+ 
+ doi_remove_return:
+@@ -522,10 +520,8 @@ static void calipso_doi_putdef(struct ca
+ 
+ 	if (!atomic_dec_and_test(&doi_def->refcount))
+ 		return;
+-	spin_lock(&calipso_doi_list_lock);
+-	list_del_rcu(&doi_def->list);
+-	spin_unlock(&calipso_doi_list_lock);
+ 
++	calipso_cache_invalidate();
+ 	call_rcu(&doi_def->rcu, calipso_doi_free_rcu);
+ }
+ 
+--- a/net/netlabel/netlabel_cipso_v4.c
++++ b/net/netlabel/netlabel_cipso_v4.c
+@@ -587,6 +587,7 @@ list_start:
+ 
+ 		break;
+ 	}
++	cipso_v4_doi_putdef(doi_def);
+ 	rcu_read_unlock();
+ 
+ 	genlmsg_end(ans_skb, data);
+@@ -595,12 +596,14 @@ list_start:
+ list_retry:
+ 	/* XXX - this limit is a guesstimate */
+ 	if (nlsze_mult < 4) {
++		cipso_v4_doi_putdef(doi_def);
+ 		rcu_read_unlock();
+ 		kfree_skb(ans_skb);
+ 		nlsze_mult *= 2;
+ 		goto list_start;
+ 	}
+ list_failure_lock:
++	cipso_v4_doi_putdef(doi_def);
+ 	rcu_read_unlock();
+ list_failure:
+ 	kfree_skb(ans_skb);
 
 
