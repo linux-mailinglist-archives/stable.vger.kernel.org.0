@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2591449A982
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:25:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D97249A957
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:23:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1322639AbiAYDWM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:22:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38490 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356738AbiAXUce (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:32:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E33F9C07E5FF;
-        Mon, 24 Jan 2022 11:44:06 -0800 (PST)
+        id S1322488AbiAYDVx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:21:53 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:34424 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1383317AbiAXU1I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:27:08 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FCDD6131E;
-        Mon, 24 Jan 2022 19:44:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B22FC340E5;
-        Mon, 24 Jan 2022 19:44:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 24DAAB81229;
+        Mon, 24 Jan 2022 20:27:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FF71C340E5;
+        Mon, 24 Jan 2022 20:27:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053446;
-        bh=3FxDnd5tdF3uG58BoU/HCrS2q0GC+iXbM6f0zyUjWJM=;
+        s=korg; t=1643056025;
+        bh=mjBorZuh81adqdEcOrTZhe5u/IELOWwaGcD5RCrxOGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z0OO7gRHPku2WuFIeJ6uI49TU335lnRs11KvnaTiSxE9yvcabTRm9TKeueXMwJMdv
-         IOCiPxna8Huis2su7vCgps4y//kD03tnNKkbHsjv7oVGj3jVRHx0qCsjpQ5unr+fGa
-         R5E6AFKxCfDBce/vzj2aTZaO22bM/uXfn6lo055Y=
+        b=b5mW+c/gVUkQJDW+TTcgF+4FCtqLyx8HNriRcUWn0huL7XxyRzDKHL5a6Jm4Hz0fw
+         4MjY1scImaRBvtlchYy3FJjuu/V7ZvsDj0/tcR1Tt31x0/RNM8k4S/ti3R9lvoTHSa
+         VTE/T4oF+yC5+Mlhsfd0DAs2JYMBy5u8qhX0FJ8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tsuchiya Yuto <kitakar@gmail.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Moshe Shemesh <moshe@nvidia.com>,
+        Eran Ben Elisha <eranbe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 066/563] media: atomisp: fix punit_ddr_dvfs_enable() argument for mrfld_power up case
-Date:   Mon, 24 Jan 2022 19:37:11 +0100
-Message-Id: <20220124184026.696478758@linuxfoundation.org>
+Subject: [PATCH 5.15 345/846] net/mlx5: Set command entry semaphore up once got index free
+Date:   Mon, 24 Jan 2022 19:37:42 +0100
+Message-Id: <20220124184112.833270532@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,86 +46,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tsuchiya Yuto <kitakar@gmail.com>
+From: Moshe Shemesh <moshe@nvidia.com>
 
-[ Upstream commit 5bfbf65fcca7325e4d89d289b3c286e11220e386 ]
+[ Upstream commit 8e715cd613a1e872b9d918e912d90b399785761a ]
 
-When comparing with intel-aero atomisp [1], it looks like
-punit_ddr_dvfs_enable() should take `false` as an argument on mrfld_power
-up case.
+Avoid a race where command work handler may fail to allocate command
+entry index, by holding the command semaphore down till command entry
+index is being freed.
 
-Code from the intel-aero kernel [1]:
-
-        int atomisp_mrfld_power_down(struct atomisp_device *isp)
-        {
-        [...]
-		/*WA:Enable DVFS*/
-		if (IS_CHT)
-			punit_ddr_dvfs_enable(true);
-
-        int atomisp_mrfld_power_up(struct atomisp_device *isp)
-        {
-        [...]
-		/*WA for PUNIT, if DVFS enabled, ISP timeout observed*/
-		if (IS_CHT)
-			punit_ddr_dvfs_enable(false);
-
-This patch fixes the inverted argument as per the intel-aero code, as
-well as its comment. While here, fix space issues for comments in
-atomisp_mrfld_power().
-
-Note that it does not seem to be possible to unify the up/down cases for
-punit_ddr_dvfs_enable(), i.e., we can't do something like the following:
-
-        if (IS_CHT)
-		punit_ddr_dvfs_enable(!enable);
-
-because according to the intel-aero code [1], the DVFS is disabled
-before "writing 0x0 to ISPSSPM0 bit[1:0]" and the DVFS is enabled after
-"writing 0x3 to ISPSSPM0 bit[1:0]".
-
-[1] https://github.com/intel-aero/linux-kernel/blob/a1b673258feb915268377275130c5c5df0eafc82/drivers/media/pci/atomisp/atomisp_driver/atomisp_v4l2.c#L431-L514
-
-Fixes: 0f441fd70b1e ("media: atomisp: simplify the power down/up code")
-Signed-off-by: Tsuchiya Yuto <kitakar@gmail.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 410bd754cd73 ("net/mlx5: Add retry mechanism to the command entry index allocation")
+Signed-off-by: Moshe Shemesh <moshe@nvidia.com>
+Reviewed-by: Eran Ben Elisha <eranbe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/atomisp/pci/atomisp_v4l2.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/cmd.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/staging/media/atomisp/pci/atomisp_v4l2.c b/drivers/staging/media/atomisp/pci/atomisp_v4l2.c
-index d35506f643609..687e94e8b6ce5 100644
---- a/drivers/staging/media/atomisp/pci/atomisp_v4l2.c
-+++ b/drivers/staging/media/atomisp/pci/atomisp_v4l2.c
-@@ -711,15 +711,15 @@ static int atomisp_mrfld_power(struct atomisp_device *isp, bool enable)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+index bea35530c2d0b..a0704be46e507 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/cmd.c
+@@ -147,8 +147,12 @@ static void cmd_ent_put(struct mlx5_cmd_work_ent *ent)
+ 	if (!refcount_dec_and_test(&ent->refcnt))
+ 		return;
  
- 	dev_dbg(isp->dev, "IUNIT power-%s.\n", enable ? "on" : "off");
+-	if (ent->idx >= 0)
+-		cmd_free_index(ent->cmd, ent->idx);
++	if (ent->idx >= 0) {
++		struct mlx5_cmd *cmd = ent->cmd;
++
++		cmd_free_index(cmd, ent->idx);
++		up(ent->page_queue ? &cmd->pages_sem : &cmd->sem);
++	}
  
--	/*WA:Enable DVFS*/
-+	/* WA for P-Unit, if DVFS enabled, ISP timeout observed */
- 	if (IS_CHT && enable)
--		punit_ddr_dvfs_enable(true);
-+		punit_ddr_dvfs_enable(false);
+ 	cmd_free_ent(ent);
+ }
+@@ -1594,8 +1598,6 @@ static void mlx5_cmd_comp_handler(struct mlx5_core_dev *dev, u64 vec, bool force
+ 	vector = vec & 0xffffffff;
+ 	for (i = 0; i < (1 << cmd->log_sz); i++) {
+ 		if (test_bit(i, &vector)) {
+-			struct semaphore *sem;
+-
+ 			ent = cmd->ent_arr[i];
  
- 	/*
- 	 * FIXME:WA for ECS28A, with this sleep, CTS
- 	 * android.hardware.camera2.cts.CameraDeviceTest#testCameraDeviceAbort
- 	 * PASS, no impact on other platforms
--	*/
-+	 */
- 	if (IS_BYT && enable)
- 		msleep(10);
+ 			/* if we already completed the command, ignore it */
+@@ -1618,10 +1620,6 @@ static void mlx5_cmd_comp_handler(struct mlx5_core_dev *dev, u64 vec, bool force
+ 			    dev->state == MLX5_DEVICE_STATE_INTERNAL_ERROR)
+ 				cmd_ent_put(ent);
  
-@@ -727,7 +727,7 @@ static int atomisp_mrfld_power(struct atomisp_device *isp, bool enable)
- 	iosf_mbi_modify(BT_MBI_UNIT_PMC, MBI_REG_READ, MRFLD_ISPSSPM0,
- 			val, MRFLD_ISPSSPM0_ISPSSC_MASK);
- 
--	/*WA:Enable DVFS*/
-+	/* WA:Enable DVFS */
- 	if (IS_CHT && !enable)
- 		punit_ddr_dvfs_enable(true);
- 
+-			if (ent->page_queue)
+-				sem = &cmd->pages_sem;
+-			else
+-				sem = &cmd->sem;
+ 			ent->ts2 = ktime_get_ns();
+ 			memcpy(ent->out->first.data, ent->lay->out, sizeof(ent->lay->out));
+ 			dump_command(dev, ent, 0);
+@@ -1675,7 +1673,6 @@ static void mlx5_cmd_comp_handler(struct mlx5_core_dev *dev, u64 vec, bool force
+ 				 */
+ 				complete(&ent->done);
+ 			}
+-			up(sem);
+ 		}
+ 	}
+ }
 -- 
 2.34.1
 
