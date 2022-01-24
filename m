@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 276B24997F3
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:34:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62DA3499960
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:44:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377196AbiAXVRq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:17:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49882 "EHLO
+        id S1455160AbiAXVew (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:34:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1449108AbiAXVOy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:14:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13B28C09F498;
-        Mon, 24 Jan 2022 12:11:15 -0800 (PST)
+        with ESMTP id S1449130AbiAXVO5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:14:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8719C06E012;
+        Mon, 24 Jan 2022 12:11:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A7C7C61416;
-        Mon, 24 Jan 2022 20:11:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C81CC340E5;
-        Mon, 24 Jan 2022 20:11:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 76B90B811F9;
+        Mon, 24 Jan 2022 20:11:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9380CC340E5;
+        Mon, 24 Jan 2022 20:11:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055074;
-        bh=MFXndqI8cxiHslc/dNlSaB1r9JTjhtiZBSwFf6F0MWk=;
+        s=korg; t=1643055077;
+        bh=pOMuClDdtMKtaAUzzkfbJsxX0oBaFCtga5RqV+vM42Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TMW4MvKojikzLmh8wnnIvCspanRyTW8crQxvKmXm1OhIZRG4QG+49kL8DeD7kZzps
-         5WxUfqf6XyljOxAcRzwyhlyrCx6uP27p4e+z3J35y+cXS56C4nzsCIUIhOvxjl6otA
-         5U7NR6Bq9M/1U6W1qxVV9TVoFCdhocarstvngyRQ=
+        b=cN11vv9K2qqGNn2/Hme/J0zpPLTZfc8e32bXuIHT4BjfPtanbwx5Eb+xubRW8Sy9J
+         qKKR6TOe/EKwSzQgcFf9puXXYzdK1rL+oa6WpjNAngmK8r5YWYqtSIg6cVxOTNpm5S
+         IgBu80wTv0AOBxMBwyWr4KMECIS/BBn8UruKt55k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
-        Nobuhiro Iwamatsu <iwamatsu@nigauri.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5.15 032/846] rtc: cmos: take rtc_lock while reading from CMOS
-Date:   Mon, 24 Jan 2022 19:32:29 +0100
-Message-Id: <20220124184102.037242793@linuxfoundation.org>
+        Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 033/846] net: phy: marvell: add Marvell specific PHY loopback
+Date:   Mon, 24 Jan 2022 19:32:30 +0100
+Message-Id: <20220124184102.076987359@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -50,46 +48,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mateusz Jończyk <mat.jonczyk@o2.pl>
+From: Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
 
-commit 454f47ff464325223129b9b5b8d0b61946ec704d upstream.
+commit 020a45aff1190c32b1087cd75b57fbf6bff46ea6 upstream.
 
-Reading from the CMOS involves writing to the index register and then
-reading from the data register. Therefore access to the CMOS has to be
-serialized with rtc_lock. This invocation of CMOS_READ was not
-serialized, which could cause trouble when other code is accessing CMOS
-at the same time.
+Existing genphy_loopback() is not applicable for Marvell PHY. Besides
+configuring bit-6 and bit-13 in Page 0 Register 0 (Copper Control
+Register), it is also required to configure same bits  in Page 2
+Register 21 (MAC Specific Control Register 2) according to speed of
+the loopback is operating.
 
-Use spin_lock_irq() like the rest of the function.
+Tested working on Marvell88E1510 PHY for all speeds (1000/100/10Mbps).
 
-Nothing in kernel modifies the RTC_DM_BINARY bit, so there could be a
-separate pair of spin_lock_irq() / spin_unlock_irq() before doing the
-math.
+FIXME: Based on trial and error test, it seem 1G need to have delay between
+soft reset and loopback enablement.
 
-Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
-Reviewed-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20211210200131.153887-2-mat.jonczyk@o2.pl
+Fixes: 014068dcb5b1 ("net: phy: genphy_loopback: add link speed configuration")
+Cc: <stable@vger.kernel.org> # 5.15.x
+Signed-off-by: Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rtc/rtc-cmos.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/phy/marvell.c |   56 +++++++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 55 insertions(+), 1 deletion(-)
 
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -457,7 +457,10 @@ static int cmos_set_alarm(struct device
- 	min = t->time.tm_min;
- 	sec = t->time.tm_sec;
+--- a/drivers/net/phy/marvell.c
++++ b/drivers/net/phy/marvell.c
+@@ -189,6 +189,8 @@
+ #define MII_88E1510_GEN_CTRL_REG_1_MODE_RGMII_SGMII	0x4
+ #define MII_88E1510_GEN_CTRL_REG_1_RESET	0x8000	/* Soft reset */
  
-+	spin_lock_irq(&rtc_lock);
- 	rtc_control = CMOS_READ(RTC_CONTROL);
-+	spin_unlock_irq(&rtc_lock);
++#define MII_88E1510_MSCR_2		0x15
 +
- 	if (!(rtc_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
- 		/* Writing 0xff means "don't care" or "match all".  */
- 		mon = (mon <= 12) ? bin2bcd(mon) : 0xff;
+ #define MII_VCT5_TX_RX_MDI0_COUPLING	0x10
+ #define MII_VCT5_TX_RX_MDI1_COUPLING	0x11
+ #define MII_VCT5_TX_RX_MDI2_COUPLING	0x12
+@@ -1932,6 +1934,58 @@ static void marvell_get_stats(struct phy
+ 		data[i] = marvell_get_stat(phydev, i);
+ }
+ 
++static int m88e1510_loopback(struct phy_device *phydev, bool enable)
++{
++	int err;
++
++	if (enable) {
++		u16 bmcr_ctl = 0, mscr2_ctl = 0;
++
++		if (phydev->speed == SPEED_1000)
++			bmcr_ctl = BMCR_SPEED1000;
++		else if (phydev->speed == SPEED_100)
++			bmcr_ctl = BMCR_SPEED100;
++
++		if (phydev->duplex == DUPLEX_FULL)
++			bmcr_ctl |= BMCR_FULLDPLX;
++
++		err = phy_write(phydev, MII_BMCR, bmcr_ctl);
++		if (err < 0)
++			return err;
++
++		if (phydev->speed == SPEED_1000)
++			mscr2_ctl = BMCR_SPEED1000;
++		else if (phydev->speed == SPEED_100)
++			mscr2_ctl = BMCR_SPEED100;
++
++		err = phy_modify_paged(phydev, MII_MARVELL_MSCR_PAGE,
++				       MII_88E1510_MSCR_2, BMCR_SPEED1000 |
++				       BMCR_SPEED100, mscr2_ctl);
++		if (err < 0)
++			return err;
++
++		/* Need soft reset to have speed configuration takes effect */
++		err = genphy_soft_reset(phydev);
++		if (err < 0)
++			return err;
++
++		/* FIXME: Based on trial and error test, it seem 1G need to have
++		 * delay between soft reset and loopback enablement.
++		 */
++		if (phydev->speed == SPEED_1000)
++			msleep(1000);
++
++		return phy_modify(phydev, MII_BMCR, BMCR_LOOPBACK,
++				  BMCR_LOOPBACK);
++	} else {
++		err = phy_modify(phydev, MII_BMCR, BMCR_LOOPBACK, 0);
++		if (err < 0)
++			return err;
++
++		return phy_config_aneg(phydev);
++	}
++}
++
+ static int marvell_vct5_wait_complete(struct phy_device *phydev)
+ {
+ 	int i;
+@@ -3078,7 +3132,7 @@ static struct phy_driver marvell_drivers
+ 		.get_sset_count = marvell_get_sset_count,
+ 		.get_strings = marvell_get_strings,
+ 		.get_stats = marvell_get_stats,
+-		.set_loopback = genphy_loopback,
++		.set_loopback = m88e1510_loopback,
+ 		.get_tunable = m88e1011_get_tunable,
+ 		.set_tunable = m88e1011_set_tunable,
+ 		.cable_test_start = marvell_vct7_cable_test_start,
 
 
