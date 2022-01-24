@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D787499600
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:16:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7860E499616
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:16:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359679AbiAXU6K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:58:10 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:47958 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1442362AbiAXUy1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:54:27 -0500
+        id S1442738AbiAXU7G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:59:06 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:51024 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1442407AbiAXUyd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:54:33 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 341156124A;
-        Mon, 24 Jan 2022 20:54:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 162EDC340E5;
-        Mon, 24 Jan 2022 20:54:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 08A51B811A9;
+        Mon, 24 Jan 2022 20:54:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27391C340E5;
+        Mon, 24 Jan 2022 20:54:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057665;
-        bh=VH5ozs5BLXy+4Jx5uCAGo22XB/FZvRGLoQpaQE8nOHQ=;
+        s=korg; t=1643057668;
+        bh=4Rcfa26QnKDhYc/Gk76a2mLesjusuoehfEIjDeff2BA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eI8sr5mxDANRbAuPhmOZIoCOlzgzABC2AQPZSyz5h2Le13Vy4H5Gp+AJGT+kRhBpx
-         nBwYJBl6Ksnq2e6Mv7M80pm0+iSXhrEQeJ8hvI/dHKTcrxYONweeP/sOvcYgeXlZT3
-         OMlqe4MHyYEPvVi9AdVYwq1Dx+AxyjNYrsejlnPk=
+        b=xEqc5CECRqqS4JYCO5KoQxBMvpWKuC45TFUhJK2py8rLe5jvLHL+dEHdqondbHwXF
+         BGcFC52K4nUoGWeIVl8ECt+HR80iPGMo+EK35ePkXeTRSTS6s580SUGvJtfgoh2IHL
+         igMNc08PmsQR7wdKuVX7e4AcLR2DBRP/RxlMxy5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Namjae Jeon <linkinjeon@kernel.org>,
         Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.16 0039/1039] ksmbd: move credit charge deduction under processing request
-Date:   Mon, 24 Jan 2022 19:30:28 +0100
-Message-Id: <20220124184126.446053646@linuxfoundation.org>
+Subject: [PATCH 5.16 0040/1039] ksmbd: limits exceeding the maximum allowable outstanding requests
+Date:   Mon, 24 Jan 2022 19:30:29 +0100
+Message-Id: <20220124184126.488263460@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -46,85 +46,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Namjae Jeon <linkinjeon@kernel.org>
 
-commit 914d7e5709ac59ded70bea7956d408fe2acd7c3c upstream.
+commit b589f5db6d4af8f14d70e31e1276b4c017668a26 upstream.
 
-Moves the credit charge deduction from total_credits under the processing
-a request. When repeating smb2 lock request and other command request,
-there will be a problem that ->total_credits does not decrease.
+If the client ignores the CreditResponse received from the server and
+continues to send the request, ksmbd limits the requests if it exceeds
+smb2 max credits.
 
 Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
 Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ksmbd/smb2misc.c |    7 ++-----
- fs/ksmbd/smb2pdu.c  |   16 ++++++++++------
- 2 files changed, 12 insertions(+), 11 deletions(-)
+ fs/ksmbd/connection.c |    1 +
+ fs/ksmbd/connection.h |    3 ++-
+ fs/ksmbd/smb2misc.c   |    9 +++++++++
+ fs/ksmbd/smb2pdu.c    |    1 +
+ 4 files changed, 13 insertions(+), 1 deletion(-)
 
+--- a/fs/ksmbd/connection.c
++++ b/fs/ksmbd/connection.c
+@@ -62,6 +62,7 @@ struct ksmbd_conn *ksmbd_conn_alloc(void
+ 	atomic_set(&conn->req_running, 0);
+ 	atomic_set(&conn->r_count, 0);
+ 	conn->total_credits = 1;
++	conn->outstanding_credits = 1;
+ 
+ 	init_waitqueue_head(&conn->req_running_q);
+ 	INIT_LIST_HEAD(&conn->conns_list);
+--- a/fs/ksmbd/connection.h
++++ b/fs/ksmbd/connection.h
+@@ -61,7 +61,8 @@ struct ksmbd_conn {
+ 	atomic_t			req_running;
+ 	/* References which are made for this Server object*/
+ 	atomic_t			r_count;
+-	unsigned short			total_credits;
++	unsigned int			total_credits;
++	unsigned int			outstanding_credits;
+ 	spinlock_t			credits_lock;
+ 	wait_queue_head_t		req_running_q;
+ 	/* Lock to protect requests list*/
 --- a/fs/ksmbd/smb2misc.c
 +++ b/fs/ksmbd/smb2misc.c
-@@ -289,7 +289,7 @@ static int smb2_validate_credit_charge(s
- 	unsigned int req_len = 0, expect_resp_len = 0, calc_credit_num, max_len;
- 	unsigned short credit_charge = le16_to_cpu(hdr->CreditCharge);
- 	void *__hdr = hdr;
--	int ret;
-+	int ret = 0;
- 
- 	switch (hdr->Command) {
- 	case SMB2_QUERY_INFO:
-@@ -332,10 +332,7 @@ static int smb2_validate_credit_charge(s
- 	}
- 
- 	spin_lock(&conn->credits_lock);
--	if (credit_charge <= conn->total_credits) {
--		conn->total_credits -= credit_charge;
--		ret = 0;
--	} else {
-+	if (credit_charge > conn->total_credits) {
- 		ksmbd_debug(SMB, "Insufficient credits granted, given: %u, granted: %u\n",
+@@ -337,7 +337,16 @@ static int smb2_validate_credit_charge(s
  			    credit_charge, conn->total_credits);
  		ret = 1;
+ 	}
++
++	if ((u64)conn->outstanding_credits + credit_charge > conn->vals->max_credits) {
++		ksmbd_debug(SMB, "Limits exceeding the maximum allowable outstanding requests, given : %u, pending : %u\n",
++			    credit_charge, conn->outstanding_credits);
++		ret = 1;
++	} else
++		conn->outstanding_credits += credit_charge;
++
+ 	spin_unlock(&conn->credits_lock);
++
+ 	return ret;
+ }
+ 
 --- a/fs/ksmbd/smb2pdu.c
 +++ b/fs/ksmbd/smb2pdu.c
-@@ -299,9 +299,8 @@ int smb2_set_rsp_credits(struct ksmbd_wo
- 	struct smb2_hdr *req_hdr = ksmbd_req_buf_next(work);
- 	struct smb2_hdr *hdr = ksmbd_resp_buf_next(work);
- 	struct ksmbd_conn *conn = work->conn;
--	unsigned short credits_requested;
-+	unsigned short credits_requested, aux_max;
- 	unsigned short credit_charge, credits_granted = 0;
--	unsigned short aux_max, aux_credits;
+@@ -322,6 +322,7 @@ int smb2_set_rsp_credits(struct ksmbd_wo
+ 	}
  
- 	if (work->send_no_response)
- 		return 0;
-@@ -316,6 +315,13 @@ int smb2_set_rsp_credits(struct ksmbd_wo
- 
- 	credit_charge = max_t(unsigned short,
- 			      le16_to_cpu(req_hdr->CreditCharge), 1);
-+	if (credit_charge > conn->total_credits) {
-+		ksmbd_debug(SMB, "Insufficient credits granted, given: %u, granted: %u\n",
-+			    credit_charge, conn->total_credits);
-+		return -EINVAL;
-+	}
-+
-+	conn->total_credits -= credit_charge;
+ 	conn->total_credits -= credit_charge;
++	conn->outstanding_credits -= credit_charge;
  	credits_requested = max_t(unsigned short,
  				  le16_to_cpu(req_hdr->CreditRequest), 1);
  
-@@ -325,13 +331,11 @@ int smb2_set_rsp_credits(struct ksmbd_wo
- 	 * TODO: Need to adjuct CreditRequest value according to
- 	 * current cpu load
- 	 */
--	aux_credits = credits_requested - 1;
- 	if (hdr->Command == SMB2_NEGOTIATE)
--		aux_max = 0;
-+		aux_max = 1;
- 	else
- 		aux_max = conn->vals->max_credits - credit_charge;
--	aux_credits = min_t(unsigned short, aux_credits, aux_max);
--	credits_granted = credit_charge + aux_credits;
-+	credits_granted = min_t(unsigned short, credits_requested, aux_max);
- 
- 	if (conn->vals->max_credits - conn->total_credits < credits_granted)
- 		credits_granted = conn->vals->max_credits -
 
 
