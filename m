@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68C3D49A54C
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:11:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A01DC49A372
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:03:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2370758AbiAYAGI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:06:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54726 "EHLO
+        id S1846008AbiAXX6C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:58:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351191AbiAXXdx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:33:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1248EC041887;
-        Mon, 24 Jan 2022 11:53:37 -0800 (PST)
+        with ESMTP id S1846029AbiAXXOO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:14:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6BF5C06F8CE;
+        Mon, 24 Jan 2022 13:22:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A5CF36090B;
-        Mon, 24 Jan 2022 19:53:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7978DC340E5;
-        Mon, 24 Jan 2022 19:53:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 620CAB81243;
+        Mon, 24 Jan 2022 21:22:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49840C340E4;
+        Mon, 24 Jan 2022 21:22:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054016;
-        bh=GGL5qBjAJAJlWnNI7YGaJP/NQE4ZhQ0sFC6FbR+0c/A=;
+        s=korg; t=1643059374;
+        bh=FtVstA5Qd9mauR9+4JEDWKdV8yzsC6t8OYr2IPene8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e32gB4WGgUQzHLXQqiXqCNopSoVhguL0IjLDoPEGy9nT+FXghqPpt36GMyuFSRSGw
-         4XbLsY5ZVpyjesbZ2gtIVy3m5Aivi9Io9TrMwrbI3uBD88NDME/pK0Zh6KjjJW/kR6
-         zwSOlIHRqt1fccxVjux0S1LDrVe8EiUL6EJng1xY=
+        b=qCjpmZEVdcEk5hcIBmkBnJIYQHuTJSips7LRyKcoq0PIquEEh4nPELyQBo1FW8eW4
+         4H8DaEpuQ6TB0vyaJOrGtl+rb6waWwmbGDHD7boEc+EkSRmNwQjc8m2GH8ibCdSMfn
+         +mdRAA3/p5yNORAkfAg3Ja5BpDxNvmAVliSLVQ8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 218/563] HID: hid-uclogic-params: Invalid parameter check in uclogic_params_frame_init_v1_buttonpad
-Date:   Mon, 24 Jan 2022 19:39:43 +0100
-Message-Id: <20220124184031.985855200@linuxfoundation.org>
+        stable@vger.kernel.org, Stephan Mueller <smueller@chronox.de>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0595/1039] crypto: jitter - consider 32 LSB for APT
+Date:   Mon, 24 Jan 2022 19:39:44 +0100
+Message-Id: <20220124184145.331956167@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,47 +48,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Stephan Müller <smueller@chronox.de>
 
-[ Upstream commit aa320fdbbbb482c19100f51461bd0069753ce3d7 ]
+[ Upstream commit 552d03a223eda3df84526ab2c1f4d82e15eaee7a ]
 
-The function performs a check on the hdev input parameters, however, it
-is used before the check.
+The APT compares the current time stamp with a pre-set value. The
+current code only considered the 4 LSB only. Yet, after reviews by
+mathematicians of the user space Jitter RNG version >= 3.1.0, it was
+concluded that the APT can be calculated on the 32 LSB of the time
+delta. Thi change is applied to the kernel.
 
-Initialize the udev variable after the sanity check to avoid a
-possible NULL pointer dereference.
+This fixes a bug where an AMD EPYC fails this test as its RDTSC value
+contains zeros in the LSB. The most appropriate fix would have been to
+apply a GCD calculation and divide the time stamp by the GCD. Yet, this
+is a significant code change that will be considered for a future
+update. Note, tests showed that constantly the GCD always was 32 on
+these systems, i.e. the 5 LSB were always zero (thus failing the APT
+since it only considered the 4 LSB for its calculation).
 
-Fixes: 9614219e9310e ("HID: uclogic: Extract tablet parameter discovery into a module")
-Addresses-Coverity-ID: 1443763 ("Null pointer dereference")
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Stephan Mueller <smueller@chronox.de>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-uclogic-params.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ crypto/jitterentropy.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
-index df12178a80da5..38f9bbad81c17 100644
---- a/drivers/hid/hid-uclogic-params.c
-+++ b/drivers/hid/hid-uclogic-params.c
-@@ -451,7 +451,7 @@ static int uclogic_params_frame_init_v1_buttonpad(
+diff --git a/crypto/jitterentropy.c b/crypto/jitterentropy.c
+index 4dc2261cdeefb..788d90749715a 100644
+--- a/crypto/jitterentropy.c
++++ b/crypto/jitterentropy.c
+@@ -265,7 +265,6 @@ static int jent_stuck(struct rand_data *ec, __u64 current_delta)
  {
- 	int rc;
- 	bool found = false;
--	struct usb_device *usb_dev = hid_to_usb_dev(hdev);
-+	struct usb_device *usb_dev;
- 	char *str_buf = NULL;
- 	const size_t str_len = 16;
+ 	__u64 delta2 = jent_delta(ec->last_delta, current_delta);
+ 	__u64 delta3 = jent_delta(ec->last_delta2, delta2);
+-	unsigned int delta_masked = current_delta & JENT_APT_WORD_MASK;
  
-@@ -461,6 +461,8 @@ static int uclogic_params_frame_init_v1_buttonpad(
- 		goto cleanup;
- 	}
- 
-+	usb_dev = hid_to_usb_dev(hdev);
-+
- 	/*
- 	 * Enable generic button mode
+ 	ec->last_delta = current_delta;
+ 	ec->last_delta2 = delta2;
+@@ -274,7 +273,7 @@ static int jent_stuck(struct rand_data *ec, __u64 current_delta)
+ 	 * Insert the result of the comparison of two back-to-back time
+ 	 * deltas.
  	 */
+-	jent_apt_insert(ec, delta_masked);
++	jent_apt_insert(ec, current_delta);
+ 
+ 	if (!current_delta || !delta2 || !delta3) {
+ 		/* RCT with a stuck bit */
 -- 
 2.34.1
 
