@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 101104991B7
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:14:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1C3D499126
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:12:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345003AbiAXUNw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:13:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34364 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355389AbiAXUNh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:13:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F26ABC06175B;
-        Mon, 24 Jan 2022 11:35:05 -0800 (PST)
+        id S1354866AbiAXUJb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:09:31 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60764 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1349002AbiAXUE0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:04:26 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B1ABB8122C;
-        Mon, 24 Jan 2022 19:35:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4694C340E5;
-        Mon, 24 Jan 2022 19:35:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EDB7860FEA;
+        Mon, 24 Jan 2022 20:04:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B71ACC340E5;
+        Mon, 24 Jan 2022 20:04:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052904;
-        bh=YMTmdgspCZHdunm2O2C28dMwUyvgjGcIM5w9bO9muWc=;
+        s=korg; t=1643054665;
+        bh=4KlIyUwdaU0SslnKI/s1L0XxnUs5SxyM+C11F7GRPMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DpiRk5FcO17xLe1ezQXBLK3xGzLsukQMYIktdhhGYSbeGsm5ItZcRYcUnoTbj7LhE
-         Lt89OWZ4yaIWhGUjuHlkBOEjoX+YOQVb3n6fvRGAbYeQQAKLIERgyPK4l3K7dCrxz5
-         FbRB8aECi0W83QIm8ZjyzLD9mELdFRSCbPC39r8s=
+        b=SHgLwC+iY8Y+ZOVRA/jYhPn3zDdQVw8AB/FkbIWP3tPQ+QRpsFG3z+1DI1jmfyord
+         ui/lKPol8rZr06Xw5eXfGodWdD7+tS5+lvm2HXd1FE126POsXgtFwusaYLlQWEsirj
+         k8ONNkjRFXSm3PQop4MDQbMH01fj7UWcqRkDizIM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 212/320] btrfs: remove BUG_ON(!eie) in find_parent_nodes
+        stable@vger.kernel.org,
+        syzbot+9ca499bb57a2b9e4c652@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 431/563] udf: Fix error handling in udf_new_inode()
 Date:   Mon, 24 Jan 2022 19:43:16 +0100
-Message-Id: <20220124184000.839504289@linuxfoundation.org>
+Message-Id: <20220124184039.356522375@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,52 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 9f05c09d6baef789726346397438cca4ec43c3ee ]
+[ Upstream commit f05f2429eec60851b98bdde213de31dab697c01b ]
 
-If we're looking for leafs that point to a data extent we want to record
-the extent items that point at our bytenr.  At this point we have the
-reference and we know for a fact that this leaf should have a reference
-to our bytenr.  However if there's some sort of corruption we may not
-find any references to our leaf, and thus could end up with eie == NULL.
-Replace this BUG_ON() with an ASSERT() and then return -EUCLEAN for the
-mortals.
+When memory allocation of iinfo or block allocation fails, already
+allocated struct udf_inode_info gets freed with iput() and
+udf_evict_inode() may look at inode fields which are not properly
+initialized. Fix it by marking inode bad before dropping reference to it
+in udf_new_inode().
 
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Reported-by: syzbot+9ca499bb57a2b9e4c652@syzkaller.appspotmail.com
+Signed-off-by: Jan Kara <jack@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/backref.c | 14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ fs/udf/ialloc.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
-index 9044e7282d0b2..c701a19fac533 100644
---- a/fs/btrfs/backref.c
-+++ b/fs/btrfs/backref.c
-@@ -1361,10 +1361,18 @@ again:
- 				goto out;
- 			if (!ret && extent_item_pos) {
- 				/*
--				 * we've recorded that parent, so we must extend
--				 * its inode list here
-+				 * We've recorded that parent, so we must extend
-+				 * its inode list here.
-+				 *
-+				 * However if there was corruption we may not
-+				 * have found an eie, return an error in this
-+				 * case.
- 				 */
--				BUG_ON(!eie);
-+				ASSERT(eie);
-+				if (!eie) {
-+					ret = -EUCLEAN;
-+					goto out;
-+				}
- 				while (eie->next)
- 					eie = eie->next;
- 				eie->next = ref->inode_list;
+diff --git a/fs/udf/ialloc.c b/fs/udf/ialloc.c
+index 84ed23edebfd3..87a77bf70ee19 100644
+--- a/fs/udf/ialloc.c
++++ b/fs/udf/ialloc.c
+@@ -77,6 +77,7 @@ struct inode *udf_new_inode(struct inode *dir, umode_t mode)
+ 					GFP_KERNEL);
+ 	}
+ 	if (!iinfo->i_data) {
++		make_bad_inode(inode);
+ 		iput(inode);
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+@@ -86,6 +87,7 @@ struct inode *udf_new_inode(struct inode *dir, umode_t mode)
+ 			      dinfo->i_location.partitionReferenceNum,
+ 			      start, &err);
+ 	if (err) {
++		make_bad_inode(inode);
+ 		iput(inode);
+ 		return ERR_PTR(err);
+ 	}
 -- 
 2.34.1
 
