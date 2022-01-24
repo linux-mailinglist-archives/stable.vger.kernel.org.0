@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31DF4499080
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:04:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 159FD499157
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353166AbiAXUA4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:00:56 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:42064 "EHLO
+        id S1379112AbiAXUKW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:10:22 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:42094 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352711AbiAXT5N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:57:13 -0500
+        with ESMTP id S1352176AbiAXT5R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:57:17 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DFBB5B81239;
-        Mon, 24 Jan 2022 19:57:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 153BDC340E5;
-        Mon, 24 Jan 2022 19:57:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DB54CB811FB;
+        Mon, 24 Jan 2022 19:57:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF375C340E5;
+        Mon, 24 Jan 2022 19:57:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054231;
-        bh=DEHeXxGMoZ459O6MpLMINR8caHq/plgIdLNric1bdMU=;
+        s=korg; t=1643054234;
+        bh=Qbnpal6S+UxOf65CG/ERZROcEXBzaAoH3S2RJUPcGq0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kkT6cP7bagKRZeOYhMYNZVSu6fDAEABIIrECFkwKxH7ZnBA7ZuymsaPuviBdCZcBC
-         SAHS4zDeg+Pg1ZSqtSn+oVDi2AS5uVGdWm5DpDjUsHo98Lo7ICzEw3mLTWdkc5UHEB
-         at3AXMlt0pTxm1fgPdZA/k0D0XY4J6LOQ7xrBcOw=
+        b=lKmDTKwSKKx+k9xWQVpkoi2Zrts/e9ist8g0ha93Im7bryycYQaU7t9L8dyVVaW14
+         8ckgWWVmB2cIFKMh2jOW52/b6khYOiTZA1+bBKQCAt9Dn3++FFtKQAEgYwQhrYJOJD
+         8wLW2LEopzb7ugxX80DFvnoWprDjlXql3IDRWLoo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sameer Pujar <spujar@nvidia.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 288/563] arm64: tegra: Remove non existent Tegra194 reset
-Date:   Mon, 24 Jan 2022 19:40:53 +0100
-Message-Id: <20220124184034.409760358@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 289/563] mips: lantiq: add support for clk_set_parent()
+Date:   Mon, 24 Jan 2022 19:40:54 +0100
+Message-Id: <20220124184034.446478280@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -44,38 +47,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sameer Pujar <spujar@nvidia.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 146b3a77af8091cabbd1decc51d67799e69682d2 ]
+[ Upstream commit 76f66dfd60dc5d2f9dec22d99091fea1035c5d03 ]
 
-Tegra194 does not really have "hda2codec_2x" related reset. Hence drop
-this entry to reflect actual HW.
+Provide a simple implementation of clk_set_parent() in the lantiq
+subarch so that callers of it will build without errors.
 
-Fixes: 4878cc0c9fab ("arm64: tegra: Add HDA controller on Tegra194")
-Signed-off-by: Sameer Pujar <spujar@nvidia.com>
-Link: https://lore.kernel.org/r/1640260431-11613-4-git-send-email-spujar@nvidia.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes these build errors:
+
+ERROR: modpost: "clk_set_parent" [sound/soc/jz4740/snd-soc-jz4740-i2s.ko] undefined!
+ERROR: modpost: "clk_set_parent" [sound/soc/atmel/snd-soc-atmel-i2s.ko] undefined!
+
+Fixes: 171bb2f19ed6 ("MIPS: Lantiq: Add initial support for Lantiq SoCs")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+--to=linux-mips@vger.kernel.org --cc="John Crispin <john@phrozen.org>" --cc="Jonathan Cameron <jic23@kernel.org>" --cc="Russell King <linux@armlinux.org.uk>" --cc="Andy Shevchenko <andy.shevchenko@gmail.com>" --cc=alsa-devel@alsa-project.org --to="Thomas Bogendoerfer <tsbogend@alpha.franken.de>"
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/nvidia/tegra194.dtsi | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ arch/mips/lantiq/clk.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra194.dtsi b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-index 815df654e6387..05cf606b85c9f 100644
---- a/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra194.dtsi
-@@ -786,9 +786,8 @@
- 				 <&bpmp TEGRA194_CLK_HDA2CODEC_2X>;
- 			clock-names = "hda", "hda2hdmi", "hda2codec_2x";
- 			resets = <&bpmp TEGRA194_RESET_HDA>,
--				 <&bpmp TEGRA194_RESET_HDA2HDMICODEC>,
--				 <&bpmp TEGRA194_RESET_HDA2CODEC_2X>;
--			reset-names = "hda", "hda2hdmi", "hda2codec_2x";
-+				 <&bpmp TEGRA194_RESET_HDA2HDMICODEC>;
-+			reset-names = "hda", "hda2hdmi";
- 			power-domains = <&bpmp TEGRA194_POWER_DOMAIN_DISP>;
- 			interconnects = <&mc TEGRA194_MEMORY_CLIENT_HDAR &emc>,
- 					<&mc TEGRA194_MEMORY_CLIENT_HDAW &emc>;
+diff --git a/arch/mips/lantiq/clk.c b/arch/mips/lantiq/clk.c
+index 4916cccf378fd..7a623684d9b5e 100644
+--- a/arch/mips/lantiq/clk.c
++++ b/arch/mips/lantiq/clk.c
+@@ -164,6 +164,12 @@ struct clk *clk_get_parent(struct clk *clk)
+ }
+ EXPORT_SYMBOL(clk_get_parent);
+ 
++int clk_set_parent(struct clk *clk, struct clk *parent)
++{
++	return 0;
++}
++EXPORT_SYMBOL(clk_set_parent);
++
+ static inline u32 get_counter_resolution(void)
+ {
+ 	u32 res;
 -- 
 2.34.1
 
