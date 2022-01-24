@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 355A049A3F2
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:04:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DFE8B49A3F1
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:04:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2369200AbiAYABP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:01:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50614 "EHLO
+        id S2369193AbiAYABN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:01:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1847039AbiAXXSV (ORCPT
+        with ESMTP id S1847043AbiAXXSV (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:18:21 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E61DDC06F8D7;
-        Mon, 24 Jan 2022 13:26:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08A4EC06F8DC;
+        Mon, 24 Jan 2022 13:26:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AC560B81218;
-        Mon, 24 Jan 2022 21:26:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE852C340E4;
-        Mon, 24 Jan 2022 21:26:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C30F1B81218;
+        Mon, 24 Jan 2022 21:26:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9932C340E4;
+        Mon, 24 Jan 2022 21:26:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059601;
-        bh=xaOjFriQ6amaUUYsrE142p7G3EPJVhpiLBHT/0meCKk=;
+        s=korg; t=1643059607;
+        bh=Ln5pXCPiLRQod5l8K2X8n7F8SxbEbRRMQFlbWA/g4/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nFOTfOz/V69nN7vZgZ1AZ/i/S2GX9gJcpajAaWEfxHEvSyY1p1/PiMN0ZqFYBDK/6
-         rMWXvIYX+Kjd2xvD4nxv1wkKsvT56wGHShTr+673jMofdzbbblwzh9Hlp/129k9VCw
-         Ejd+3SirqTmF4UP4FS39Bu/ADK6OLdXcbb9iJ5/I=
+        b=NXHzSVZO/8C8HpyudxwZ2/Jixle9FKfEF4mBbYuA/L95TovHKS5hJFhESA7VUzj5o
+         Ot2QjOQArAQy4vIjb+lb9+OQYRe7mfDulWlfjSUt9xr4NiJy5hESdj3SR3L3zOTjxY
+         eWJe2mdg8LlaUpmBRBdX6fy1ftMHPLO8iqm3X4Vw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        stable@vger.kernel.org, Xing Song <xing.song@mediatek.com>,
         Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0671/1039] mt76: connac: fix a theoretical NULL pointer dereference in mt76_connac_get_phy_mode
-Date:   Mon, 24 Jan 2022 19:41:00 +0100
-Message-Id: <20220124184147.929924729@linuxfoundation.org>
+Subject: [PATCH 5.16 0672/1039] mt76: do not pass the received frame with decryption error
+Date:   Mon, 24 Jan 2022 19:41:01 +0100
+Message-Id: <20220124184147.961149629@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -47,43 +47,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Xing Song <xing.song@mediatek.com>
 
-[ Upstream commit c9dbeac4988f6d4c4211b3747ec9c9c75ea87967 ]
+[ Upstream commit dd28dea52ad9376d2b243a8981726646e1f60b1a ]
 
-Even if it is not a real bug since mt76_connac_get_phy_mode runs just
-for mt7921 where only STA is supported, fix a theoretical NULL pointer
-dereference if new added modes do not support HE
+MAC80211 doesn't care any decryption error in 802.3 path, so received
+frame will be dropped if HW tell us that the cipher configuration is not
+matched as well as the header has been translated to 802.3. This case only
+appears when IEEE80211_FCTL_PROTECTED is 0 and cipher suit is not none in
+the corresponding HW entry.
 
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+The received frame is only reported to monitor interface if HW decryption
+block tell us there is ICV error or CCMP/BIP/WPI MIC error. Note in this
+case the reported frame is decrypted 802.11 frame and the payload may be
+malformed due to mismatched key.
+
+Signed-off-by: Xing Song <xing.song@mediatek.com>
 Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7603/mac.c | 4 ++++
+ drivers/net/wireless/mediatek/mt76/mt7615/mac.c | 9 ++++++++-
+ drivers/net/wireless/mediatek/mt76/mt7915/mac.c | 9 ++++++++-
+ drivers/net/wireless/mediatek/mt76/mt7921/mac.c | 9 ++++++++-
+ 4 files changed, 28 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
-index a5857a788da50..7733c8fad2413 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
-@@ -1180,7 +1180,7 @@ mt76_connac_get_phy_mode(struct mt76_phy *phy, struct ieee80211_vif *vif,
- 		if (ht_cap->ht_supported)
- 			mode |= PHY_MODE_GN;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7603/mac.c b/drivers/net/wireless/mediatek/mt76/mt7603/mac.c
+index fe03e31989bb1..a9ac61b9f854a 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7603/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7603/mac.c
+@@ -525,6 +525,10 @@ mt7603_mac_fill_rx(struct mt7603_dev *dev, struct sk_buff *skb)
+ 	if (rxd2 & MT_RXD2_NORMAL_TKIP_MIC_ERR)
+ 		status->flag |= RX_FLAG_MMIC_ERROR;
  
--		if (he_cap->has_he)
-+		if (he_cap && he_cap->has_he)
- 			mode |= PHY_MODE_AX_24G;
- 	} else if (band == NL80211_BAND_5GHZ || band == NL80211_BAND_6GHZ) {
- 		mode |= PHY_MODE_A;
-@@ -1191,7 +1191,7 @@ mt76_connac_get_phy_mode(struct mt76_phy *phy, struct ieee80211_vif *vif,
- 		if (vht_cap->vht_supported)
- 			mode |= PHY_MODE_AC;
++	/* ICV error or CCMP/BIP/WPI MIC error */
++	if (rxd2 & MT_RXD2_NORMAL_ICV_ERR)
++		status->flag |= RX_FLAG_ONLY_MONITOR;
++
+ 	if (FIELD_GET(MT_RXD2_NORMAL_SEC_MODE, rxd2) != 0 &&
+ 	    !(rxd2 & (MT_RXD2_NORMAL_CLM | MT_RXD2_NORMAL_CM))) {
+ 		status->flag |= RX_FLAG_DECRYPTED;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
+index 423f69015e3ec..c79abce543f3b 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
+@@ -286,9 +286,16 @@ static int mt7615_mac_fill_rx(struct mt7615_dev *dev, struct sk_buff *skb)
+ 	if (rxd2 & MT_RXD2_NORMAL_AMSDU_ERR)
+ 		return -EINVAL;
  
--		if (he_cap->has_he) {
-+		if (he_cap && he_cap->has_he) {
- 			if (band == NL80211_BAND_6GHZ)
- 				mode |= PHY_MODE_AX_6G;
- 			else
++	hdr_trans = rxd1 & MT_RXD1_NORMAL_HDR_TRANS;
++	if (hdr_trans && (rxd2 & MT_RXD2_NORMAL_CM))
++		return -EINVAL;
++
++	/* ICV error or CCMP/BIP/WPI MIC error */
++	if (rxd2 & MT_RXD2_NORMAL_ICV_ERR)
++		status->flag |= RX_FLAG_ONLY_MONITOR;
++
+ 	unicast = (rxd1 & MT_RXD1_NORMAL_ADDR_TYPE) == MT_RXD1_NORMAL_U2M;
+ 	idx = FIELD_GET(MT_RXD2_NORMAL_WLAN_IDX, rxd2);
+-	hdr_trans = rxd1 & MT_RXD1_NORMAL_HDR_TRANS;
+ 	status->wcid = mt7615_rx_get_wcid(dev, idx, unicast);
+ 
+ 	if (status->wcid) {
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
+index 809dc18e5083c..38d66411444a1 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
+@@ -426,9 +426,16 @@ mt7915_mac_fill_rx(struct mt7915_dev *dev, struct sk_buff *skb)
+ 	if (rxd2 & MT_RXD2_NORMAL_AMSDU_ERR)
+ 		return -EINVAL;
+ 
++	hdr_trans = rxd2 & MT_RXD2_NORMAL_HDR_TRANS;
++	if (hdr_trans && (rxd1 & MT_RXD1_NORMAL_CM))
++		return -EINVAL;
++
++	/* ICV error or CCMP/BIP/WPI MIC error */
++	if (rxd1 & MT_RXD1_NORMAL_ICV_ERR)
++		status->flag |= RX_FLAG_ONLY_MONITOR;
++
+ 	unicast = FIELD_GET(MT_RXD3_NORMAL_ADDR_TYPE, rxd3) == MT_RXD3_NORMAL_U2M;
+ 	idx = FIELD_GET(MT_RXD1_NORMAL_WLAN_IDX, rxd1);
+-	hdr_trans = rxd2 & MT_RXD2_NORMAL_HDR_TRANS;
+ 	status->wcid = mt7915_rx_get_wcid(dev, idx, unicast);
+ 
+ 	if (status->wcid) {
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
+index 321d9f1d3f865..7228b34c66436 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
+@@ -428,10 +428,17 @@ mt7921_mac_fill_rx(struct mt7921_dev *dev, struct sk_buff *skb)
+ 	if (rxd2 & MT_RXD2_NORMAL_AMSDU_ERR)
+ 		return -EINVAL;
+ 
++	hdr_trans = rxd2 & MT_RXD2_NORMAL_HDR_TRANS;
++	if (hdr_trans && (rxd1 & MT_RXD1_NORMAL_CM))
++		return -EINVAL;
++
++	/* ICV error or CCMP/BIP/WPI MIC error */
++	if (rxd1 & MT_RXD1_NORMAL_ICV_ERR)
++		status->flag |= RX_FLAG_ONLY_MONITOR;
++
+ 	chfreq = FIELD_GET(MT_RXD3_NORMAL_CH_FREQ, rxd3);
+ 	unicast = FIELD_GET(MT_RXD3_NORMAL_ADDR_TYPE, rxd3) == MT_RXD3_NORMAL_U2M;
+ 	idx = FIELD_GET(MT_RXD1_NORMAL_WLAN_IDX, rxd1);
+-	hdr_trans = rxd2 & MT_RXD2_NORMAL_HDR_TRANS;
+ 	status->wcid = mt7921_rx_get_wcid(dev, idx, unicast);
+ 
+ 	if (status->wcid) {
 -- 
 2.34.1
 
