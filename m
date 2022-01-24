@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6968649A951
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:23:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5A6649A8F9
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:18:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1322447AbiAYDVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:21:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37040 "EHLO
+        id S1321746AbiAYDTi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:19:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355493AbiAXUWb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:22:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 011A5C0417CF;
-        Mon, 24 Jan 2022 11:40:16 -0800 (PST)
+        with ESMTP id S244557AbiAXTsh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:48:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50DD3C02B8D6;
+        Mon, 24 Jan 2022 11:23:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 93417612E9;
-        Mon, 24 Jan 2022 19:40:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53B61C340E5;
-        Mon, 24 Jan 2022 19:40:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C60EFB810BD;
+        Mon, 24 Jan 2022 19:23:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D666EC340E5;
+        Mon, 24 Jan 2022 19:23:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053215;
-        bh=9wTFvCDXsLGr2ff4ZSyAlfnhmj5VqNbcLjP9DYhL73E=;
+        s=korg; t=1643052213;
+        bh=Cxrhw0mczMyhZ1QX+B6rSfeV8iyoAeiPu4kVy1aqEBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0MBK2adB3ZfirpDsAaEk+ej3glhLr53h5y0xvfkBc7iuOku5VatHsSsThQv+eclma
-         QugK/cgxGny1a53ANo4kMERw0kGjdhMjnbsFCnECsIuNyN2ruHq7foRgoZYExmidgW
-         qZEgylkrfqZ1qBP3Fijzm7HUcTbEC+KU6dZiMmao=
+        b=j9NYMuchI3L3FabQl2ozMpKyWh+hWM47Ze3vf2wXBvy+FoJYilbReAXwcAF+vU8A9
+         WlkPAYUZnyUFMxXHjwn9YJtZyojMirPL6NKPGSVBfG5muOZgXrvDy0qh7phTfH1VLt
+         yS0vaVChfKh2QZPh5lvzkFxDXKTXZThEmpL4RT3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Akira Yokosawa <akiyks@gmail.com>,
-        Jonathan Corbet <corbet@lwn.net>
-Subject: [PATCH 5.4 280/320] Documentation: fix firewire.rst ABI file path error
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 226/239] netns: add schedule point in ops_exit_list()
 Date:   Mon, 24 Jan 2022 19:44:24 +0100
-Message-Id: <20220124184003.504380023@linuxfoundation.org>
+Message-Id: <20220124183950.294608115@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,46 +48,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit b0ac702f3329cdc8a06dcaac73183d4b5a2b942d upstream.
+commit 2836615aa22de55b8fca5e32fe1b27a67cda625e upstream.
 
-Adjust the path of the ABI files for firewire.rst to prevent a
-documentation build error. Prevents this problem:
+When under stress, cleanup_net() can have to dismantle
+netns in big numbers. ops_exit_list() currently calls
+many helpers [1] that have no schedule point, and we can
+end up with soft lockups, particularly on hosts
+with many cpus.
 
-Sphinx parallel build error:
-docutils.utils.SystemMessage: Documentation/driver-api/firewire.rst:22: (SEVERE/4) Problems with "include" directive path:
-InputError: [Errno 2] No such file or directory: '../Documentation/driver-api/ABI/stable/firewire-cdev'.
+Even for moderate amount of netns processed by cleanup_net()
+this patch avoids latency spikes.
 
-Fixes: 2f4830ef96d2 ("FireWire: add driver-api Introduction section")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Tested-by: Akira Yokosawa <akiyks@gmail.com>
-Link: https://lore.kernel.org/r/20220119033905.4779-1-rdunlap@infradead.org
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+[1] Some of these helpers like fib_sync_up() and fib_sync_down_dev()
+are very slow because net/ipv4/fib_semantics.c uses host-wide hash tables,
+and ifindex is used as the only input of two hash functions.
+    ifindexes tend to be the same for all netns (lo.ifindex==1 per instance)
+    This will be fixed in a separate patch.
+
+Fixes: 72ad937abd0a ("net: Add support for batching network namespace cleanups")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/driver-api/firewire.rst |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/core/net_namespace.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/Documentation/driver-api/firewire.rst
-+++ b/Documentation/driver-api/firewire.rst
-@@ -19,7 +19,7 @@ of kernel interfaces is available via ex
- Firewire char device data structures
- ====================================
- 
--.. include:: /ABI/stable/firewire-cdev
-+.. include:: ../ABI/stable/firewire-cdev
-     :literal:
- 
- .. kernel-doc:: include/uapi/linux/firewire-cdev.h
-@@ -28,7 +28,7 @@ Firewire char device data structures
- Firewire device probing and sysfs interfaces
- ============================================
- 
--.. include:: /ABI/stable/sysfs-bus-firewire
-+.. include:: ../ABI/stable/sysfs-bus-firewire
-     :literal:
- 
- .. kernel-doc:: drivers/firewire/core-device.c
+--- a/net/core/net_namespace.c
++++ b/net/core/net_namespace.c
+@@ -149,8 +149,10 @@ static void ops_exit_list(const struct p
+ {
+ 	struct net *net;
+ 	if (ops->exit) {
+-		list_for_each_entry(net, net_exit_list, exit_list)
++		list_for_each_entry(net, net_exit_list, exit_list) {
+ 			ops->exit(net);
++			cond_resched();
++		}
+ 	}
+ 	if (ops->exit_batch)
+ 		ops->exit_batch(net_exit_list);
 
 
