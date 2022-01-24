@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 780FA498F33
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:51:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01ED549917C
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346566AbiAXTvP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:51:15 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:59726 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347434AbiAXTiv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:38:51 -0500
+        id S1379321AbiAXULK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:11:10 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:33622 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378229AbiAXUGg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:06:36 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3C71FB8122A;
-        Mon, 24 Jan 2022 19:38:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55578C340E5;
-        Mon, 24 Jan 2022 19:38:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C0E3D60FEA;
+        Mon, 24 Jan 2022 20:06:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98314C340E5;
+        Mon, 24 Jan 2022 20:06:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053128;
-        bh=jWDHRme/ITQfZrL35IpdVL6ftOshaIh0+geEM+S1LeU=;
+        s=korg; t=1643054795;
+        bh=qlfGHbOjwuWJJj7g3mrICRmEQ360zRztaKRh34ZW7F8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yWEyj7zVcL395Fi/ZBfH/+I9cpbYAoAFVGkZ/h+ndPEG4HntPNkq9VtkcZCKLtwaK
-         y+VJ3MjacJobmaFLK0VRIaAbuk8/QZxXGl0MxyzRYK/ckRoyXIzVYlQfuLSCbqYKws
-         hgh19JuG254xgYZmGxjTiD8siUM1fh3CPcLEeqsc=
+        b=aCycsy53BRJGVdHkDhaTPyDxX/sSlAO0wC0qtQiFc7aPvtm61Dfr7FeqX4OnzuoEQ
+         3WTbk2uy6KnUl3wcadIgFGVoIFuhpjjG6X38UlGafUx9V+KqiKmHlQ3+HWrn3C5lDi
+         TS6mg1Bi9s3+FRAXY8RGGsti+pt4pJL0HkPBlJWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 286/320] powerpc/cell: Fix clang -Wimplicit-fallthrough warning
-Date:   Mon, 24 Jan 2022 19:44:30 +0100
-Message-Id: <20220124184003.692330656@linuxfoundation.org>
+        stable@vger.kernel.org, Quentin Monnet <quentin@isovalent.com>,
+        Andrii Nakryiko <andrii@kernel.org>
+Subject: [PATCH 5.10 506/563] bpftool: Remove inclusion of utilities.mak from Makefiles
+Date:   Mon, 24 Jan 2022 19:44:31 +0100
+Message-Id: <20220124184041.971920320@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,47 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anders Roxell <anders.roxell@linaro.org>
+From: Quentin Monnet <quentin@isovalent.com>
 
-commit e89257e28e844f5d1d39081bb901d9f1183a7705 upstream.
+commit 48f5aef4c458c19ab337eed8c95a6486cc014aa3 upstream.
 
-Clang warns:
+Bpftool's Makefile, and the Makefile for its documentation, both include
+scripts/utilities.mak, but they use none of the items defined in this
+file. Remove the includes.
 
-arch/powerpc/platforms/cell/pervasive.c:81:2: error: unannotated fall-through between switch labels
-        case SRR1_WAKEEE:
-        ^
-arch/powerpc/platforms/cell/pervasive.c:81:2: note: insert 'break;' to avoid fall-through
-        case SRR1_WAKEEE:
-        ^
-        break;
-1 error generated.
-
-Clang is more pedantic than GCC, which does not warn when failing
-through to a case that is just break or return. Clang's version is more
-in line with the kernel's own stance in deprecated.rst. Add athe missing
-break to silence the warning.
-
-Fixes: 6e83985b0f6e ("powerpc/cbe: Do not process external or decremeter interrupts from sreset")
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211207110228.698956-1-anders.roxell@linaro.org
+Fixes: 71bb428fe2c1 ("tools: bpf: add bpftool")
+Signed-off-by: Quentin Monnet <quentin@isovalent.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20211110114632.24537-3-quentin@isovalent.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/cell/pervasive.c |    1 +
- 1 file changed, 1 insertion(+)
+ tools/bpf/bpftool/Documentation/Makefile |    1 -
+ tools/bpf/bpftool/Makefile               |    1 -
+ 2 files changed, 2 deletions(-)
 
---- a/arch/powerpc/platforms/cell/pervasive.c
-+++ b/arch/powerpc/platforms/cell/pervasive.c
-@@ -77,6 +77,7 @@ static int cbe_system_reset_exception(st
- 	switch (regs->msr & SRR1_WAKEMASK) {
- 	case SRR1_WAKEDEC:
- 		set_dec(1);
-+		break;
- 	case SRR1_WAKEEE:
- 		/*
- 		 * Handle these when interrupts get re-enabled and we take
+--- a/tools/bpf/bpftool/Documentation/Makefile
++++ b/tools/bpf/bpftool/Documentation/Makefile
+@@ -1,6 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ include ../../../scripts/Makefile.include
+-include ../../../scripts/utilities.mak
+ 
+ INSTALL ?= install
+ RM ?= rm -f
+--- a/tools/bpf/bpftool/Makefile
++++ b/tools/bpf/bpftool/Makefile
+@@ -1,6 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ include ../../scripts/Makefile.include
+-include ../../scripts/utilities.mak
+ 
+ ifeq ($(srctree),)
+ srctree := $(patsubst %/,%,$(dir $(CURDIR)))
 
 
