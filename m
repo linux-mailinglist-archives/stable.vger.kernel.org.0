@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDDD049927B
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:21:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68678499267
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:21:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381550AbiAXUVP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:21:15 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:56450 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380841AbiAXUQ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:16:59 -0500
+        id S1351180AbiAXUTa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:19:30 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:42938 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1380870AbiAXURB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:17:01 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F5E2B811F9;
-        Mon, 24 Jan 2022 20:16:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 584DEC340E7;
-        Mon, 24 Jan 2022 20:16:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BFD761371;
+        Mon, 24 Jan 2022 20:17:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83B65C340E5;
+        Mon, 24 Jan 2022 20:16:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055416;
-        bh=AuuH0Kty7H2/ZTZUm98NLAwa0+UopAyoe2zfWSIK1HU=;
+        s=korg; t=1643055420;
+        bh=MkNJ0R11zL6n7hF6vlIkD+vGmpNLfrFTWV3DUt/AYkk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mhc5G9KkBQIoRR6uJp8MJsrdALGqcZB3axbSB3ZTmtsD/cHBnQmtN+PwCh79jJKfK
-         mZjXWWoWImtwt9TVfTCl+R3GDuPgO2YXC7TYKttqhdEI1HPoIkISLVo0oAJyRx2ea0
-         jXSAIam47xkEEgCv1Bw/PapDosYNQtYFCMxRpiGM=
+        b=cHdkHUI3CHO24dizMh3z827SZXQ0TGj1qIhNDWQRBAIyqt8WZXlTH1u13q43FQYNC
+         TDlUx3qz3tQ/oC7PfBitnj6nNgaxgHzHYkqM+cP93hAQSxygnPdH7BlOvgPdftJja2
+         Hu92ceU1ZfY9V9/kPlPmiSXYjTf5RAuxKcCxJTOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thara Gopinath <thara.gopinath@linaro.org>,
-        Lukasz Luba <lukasz.luba@arm.com>,
+        stable@vger.kernel.org,
+        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 143/846] cpufreq: qcom-cpufreq-hw: Update offline CPUs per-cpu thermal pressure
-Date:   Mon, 24 Jan 2022 19:34:20 +0100
-Message-Id: <20220124184105.911964992@linuxfoundation.org>
+Subject: [PATCH 5.15 144/846] cpufreq: qcom-hw: Fix probable nested interrupt handling
+Date:   Mon, 24 Jan 2022 19:34:21 +0100
+Message-Id: <20220124184105.953052126@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -46,45 +48,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukasz Luba <lukasz.luba@arm.com>
+From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
 
-[ Upstream commit 93d9e6f93e1586fcc97498c764be2e8c8401f4bd ]
+[ Upstream commit e0e27c3d4e20dab861566f1c348ae44e4b498630 ]
 
-The thermal pressure signal gives information to the scheduler about
-reduced CPU capacity due to thermal. It is based on a value stored in
-a per-cpu 'thermal_pressure' variable. The online CPUs will get the
-new value there, while the offline won't. Unfortunately, when the CPU
-is back online, the value read from per-cpu variable might be wrong
-(stale data).  This might affect the scheduler decisions, since it
-sees the CPU capacity differently than what is actually available.
+Re-enabling an interrupt from its own interrupt handler may cause
+an interrupt storm, if there is a pending interrupt and because its
+handling is disabled due to already done entrance into the handler
+above in the stack.
 
-Fix it by making sure that all online+offline CPUs would get the
-proper value in their per-cpu variable when there is throttling
-or throttling is removed.
+Also, apparently it is improper to lock a mutex in an interrupt contex.
 
-Fixes: 275157b367f479 ("cpufreq: qcom-cpufreq-hw: Add dcvs interrupt support")
-Reviewed-by: Thara Gopinath <thara.gopinath@linaro.org>
-Signed-off-by: Lukasz Luba <lukasz.luba@arm.com>
+Fixes: 275157b367f4 ("cpufreq: qcom-cpufreq-hw: Add dcvs interrupt support")
+Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/qcom-cpufreq-hw.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/cpufreq/qcom-cpufreq-hw.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/cpufreq/qcom-cpufreq-hw.c b/drivers/cpufreq/qcom-cpufreq-hw.c
-index a2be0df7e1747..0138b2ec406dc 100644
+index 0138b2ec406dc..35d93361fda1a 100644
 --- a/drivers/cpufreq/qcom-cpufreq-hw.c
 +++ b/drivers/cpufreq/qcom-cpufreq-hw.c
-@@ -304,7 +304,8 @@ static void qcom_lmh_dcvs_notify(struct qcom_cpufreq_data *data)
- 	if (capacity > max_capacity)
- 		capacity = max_capacity;
+@@ -343,9 +343,9 @@ static irqreturn_t qcom_lmh_dcvs_handle_irq(int irq, void *data)
  
--	arch_set_thermal_pressure(policy->cpus, max_capacity - capacity);
-+	arch_set_thermal_pressure(policy->related_cpus,
-+				  max_capacity - capacity);
+ 	/* Disable interrupt and enable polling */
+ 	disable_irq_nosync(c_data->throttle_irq);
+-	qcom_lmh_dcvs_notify(c_data);
++	schedule_delayed_work(&c_data->throttle_work, 0);
  
- 	/*
- 	 * In the unlikely case policy is unregistered do not enable
+-	return 0;
++	return IRQ_HANDLED;
+ }
+ 
+ static const struct qcom_cpufreq_soc_data qcom_soc_data = {
 -- 
 2.34.1
 
