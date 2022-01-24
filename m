@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 073B8499667
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:18:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F7BF4999A3
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:46:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346861AbiAXVDm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:03:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45164 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350425AbiAXU5F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:57:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2076C110F33;
-        Mon, 24 Jan 2022 11:18:28 -0800 (PST)
+        id S1455897AbiAXVgn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:36:43 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:49694 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1453840AbiAXVbD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:31:03 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5191A60918;
-        Mon, 24 Jan 2022 19:18:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31F0CC340E5;
-        Mon, 24 Jan 2022 19:18:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8631A60C60;
+        Mon, 24 Jan 2022 21:31:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 618BCC340E7;
+        Mon, 24 Jan 2022 21:31:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051907;
-        bh=I5g32WXKgHPSR8SEIEeB0HviWhU+yo4ohTjx1FEUO9I=;
+        s=korg; t=1643059863;
+        bh=MRETdH0R/JG+t6ZDfa9LEIzPGElTchgZ8fjTDMT/5lk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UDrCgavj08fU8wtHvmDBD7op80DCQqCWzr8BQS6w1bFO6J2MGCV6IEHiY3F26rzVD
-         vBuDQLULRdNw3WHi0MD93rSwIodCGZ9l6qijFXTSAMhn00Mw2FWAyuVi0eGi5OgRcj
-         PFVpS1cyPv24M0MTBqOYhzH3GB+rwz66w/4mZC08=
+        b=1zc1pKfjKv7vnWb9z2J2vTtEV5vBZXkfceLR7vULQrameQ0zC5GXfFwfesq116SIS
+         LKdYzTgqaPWMYGgngMvOefoPYQZX6sAmWDtbsywBWXkyfzMcCBlrSTUKQV4pE4b9Bw
+         nAQgSNHVaczLGHpyQaYHXXFTf0li0d1jl0HaTRoc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Hector Martin <marcan@marcan.st>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 108/239] iommu/io-pgtable-arm: Fix table descriptor paddr formatting
-Date:   Mon, 24 Jan 2022 19:42:26 +0100
-Message-Id: <20220124183946.539996444@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0758/1039] powerpc/40x: Map 32Mbytes of memory at startup
+Date:   Mon, 24 Jan 2022 19:42:27 +0100
+Message-Id: <20220124184150.810213382@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,67 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hector Martin <marcan@marcan.st>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 9abe2ac834851a7d0b0756e295cf7a292c45ca53 ]
+[ Upstream commit 06e7cbc29e97b4713b4ea6def04ae8501a7d1a59 ]
 
-Table descriptors were being installed without properly formatting the
-address using paddr_to_iopte, which does not match up with the
-iopte_deref in __arm_lpae_map. This is incorrect for the LPAE pte
-format, as it does not handle the high bits properly.
+As reported by Carlo, 16Mbytes is not enough with modern kernels
+that tend to be a bit big, so map another 16M page at boot.
 
-This was found on Apple T6000 DARTs, which require a new pte format
-(different shift); adding support for that to
-paddr_to_iopte/iopte_to_paddr caused it to break badly, as even <48-bit
-addresses would end up incorrect in that case.
-
-Fixes: 6c89928ff7a0 ("iommu/io-pgtable-arm: Support 52-bit physical address")
-Acked-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Hector Martin <marcan@marcan.st>
-Link: https://lore.kernel.org/r/20211120031343.88034-1-marcan@marcan.st
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/89b5f974a7fa5011206682cd092e2c905530ff46.1632755552.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/io-pgtable-arm.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ arch/powerpc/kernel/head_40x.S | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/io-pgtable-arm.c b/drivers/iommu/io-pgtable-arm.c
-index 2f79efd16a052..4bd2dd70acaec 100644
---- a/drivers/iommu/io-pgtable-arm.c
-+++ b/drivers/iommu/io-pgtable-arm.c
-@@ -346,11 +346,12 @@ static int arm_lpae_init_pte(struct arm_lpae_io_pgtable *data,
- static arm_lpae_iopte arm_lpae_install_table(arm_lpae_iopte *table,
- 					     arm_lpae_iopte *ptep,
- 					     arm_lpae_iopte curr,
--					     struct io_pgtable_cfg *cfg)
-+					     struct arm_lpae_io_pgtable *data)
- {
- 	arm_lpae_iopte old, new;
-+	struct io_pgtable_cfg *cfg = &data->iop.cfg;
+diff --git a/arch/powerpc/kernel/head_40x.S b/arch/powerpc/kernel/head_40x.S
+index 7d72ee5ab387c..e783860bea838 100644
+--- a/arch/powerpc/kernel/head_40x.S
++++ b/arch/powerpc/kernel/head_40x.S
+@@ -27,6 +27,7 @@
  
--	new = __pa(table) | ARM_LPAE_PTE_TYPE_TABLE;
-+	new = paddr_to_iopte(__pa(table), data) | ARM_LPAE_PTE_TYPE_TABLE;
- 	if (cfg->quirks & IO_PGTABLE_QUIRK_ARM_NS)
- 		new |= ARM_LPAE_PTE_NSTABLE;
+ #include <linux/init.h>
+ #include <linux/pgtable.h>
++#include <linux/sizes.h>
+ #include <asm/processor.h>
+ #include <asm/page.h>
+ #include <asm/mmu.h>
+@@ -650,7 +651,7 @@ start_here:
+ 	b	.		/* prevent prefetch past rfi */
  
-@@ -402,7 +403,7 @@ static int __arm_lpae_map(struct arm_lpae_io_pgtable *data, unsigned long iova,
- 		if (!cptep)
- 			return -ENOMEM;
+ /* Set up the initial MMU state so we can do the first level of
+- * kernel initialization.  This maps the first 16 MBytes of memory 1:1
++ * kernel initialization.  This maps the first 32 MBytes of memory 1:1
+  * virtual to physical and more importantly sets the cache mode.
+  */
+ initial_mmu:
+@@ -687,6 +688,12 @@ initial_mmu:
+ 	tlbwe	r4,r0,TLB_DATA		/* Load the data portion of the entry */
+ 	tlbwe	r3,r0,TLB_TAG		/* Load the tag portion of the entry */
  
--		pte = arm_lpae_install_table(cptep, ptep, 0, cfg);
-+		pte = arm_lpae_install_table(cptep, ptep, 0, data);
- 		if (pte)
- 			__arm_lpae_free_pages(cptep, tblsz, cfg);
- 	} else if (!(cfg->quirks & IO_PGTABLE_QUIRK_NO_DMA) &&
-@@ -562,7 +563,7 @@ static size_t arm_lpae_split_blk_unmap(struct arm_lpae_io_pgtable *data,
- 		__arm_lpae_init_pte(data, blk_paddr, pte, lvl, &tablep[i]);
- 	}
++	li	r0,62			/* TLB slot 62 */
++	addis	r4,r4,SZ_16M@h
++	addis	r3,r3,SZ_16M@h
++	tlbwe	r4,r0,TLB_DATA		/* Load the data portion of the entry */
++	tlbwe	r3,r0,TLB_TAG		/* Load the tag portion of the entry */
++
+ 	isync
  
--	pte = arm_lpae_install_table(tablep, ptep, blk_pte, cfg);
-+	pte = arm_lpae_install_table(tablep, ptep, blk_pte, data);
- 	if (pte != blk_pte) {
- 		__arm_lpae_free_pages(tablep, tablesz, cfg);
- 		/*
+ 	/* Establish the exception vector base
 -- 
 2.34.1
 
