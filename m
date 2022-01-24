@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95CB649911A
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:09:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 702FF498B53
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:13:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353770AbiAXUJM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:09:12 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:60038 "EHLO
+        id S1346871AbiAXTMx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:12:53 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:35354 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376685AbiAXUDe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:03:34 -0500
+        with ESMTP id S1346740AbiAXTJ1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:09:27 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A03E6131E;
-        Mon, 24 Jan 2022 20:03:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A066C340E5;
-        Mon, 24 Jan 2022 20:03:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 69B1D60917;
+        Mon, 24 Jan 2022 19:09:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FE0EC340E5;
+        Mon, 24 Jan 2022 19:09:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054613;
-        bh=9YkuKF8cpwuIWjIHtOGRypGioyQeoLf8mYpkm6MpMf8=;
+        s=korg; t=1643051365;
+        bh=yNneMOoQvQQmJG7O7bWEOtcq/cm7Q7vMIAyMICcbcwk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mbvbB2ASsm1EhDFU0quxdyq+w8VRsvC+S0qvBgBonNJlOYv9KkYpRfbS1m9rSrag9
-         ljHWg3vSbPm4/ylcGB+uDTk5eBuRqmWZvM+3FONxcrGpoXeB6x3uBhl+POxEUJcm1b
-         NHvz4IIvSZUGwKEpzbWRCFjx50edI5TQ471eArHo=
+        b=GUL0Rb1HHBhFrYHWRlwEjnDu1/H5qD+jxgSTDiBJbjBQhFbLqsnYvKedfvK93TpZR
+         pr6uu9oO/hScMJYg6fE3WiTpT6aa2W4EaTHhl/QMg0vz90pZIj8bKi7nsLc6rC6SQM
+         xGHfj8lDEzMfeyM3aj42dB+MvjxAjwZBgcxU8lsU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 446/563] spi: uniphier: Fix a bug that doesnt point to private data correctly
-Date:   Mon, 24 Jan 2022 19:43:31 +0100
-Message-Id: <20220124184039.877813877@linuxfoundation.org>
+        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 137/186] i2c: i801: Dont silently correct invalid transfer size
+Date:   Mon, 24 Jan 2022 19:43:32 +0100
+Message-Id: <20220124183941.512341856@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
+References: <20220124183937.101330125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,46 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-commit 80bb73a9fbcde4ecc55e12f10c73fabbe68a24d1 upstream.
+[ Upstream commit effa453168a7eeb8a562ff4edc1dbf9067360a61 ]
 
-In uniphier_spi_remove(), there is a wrong code to get private data from
-the platform device, so the driver can't be removed properly.
+If an invalid block size is provided, reject it instead of silently
+changing it to a supported value. Especially critical I see the case of
+a write transfer with block length 0. In this case we have no guarantee
+that the byte we would write is valid. When silently reducing a read to
+32 bytes then we don't return an error and the caller may falsely
+assume that we returned the full requested data.
 
-The driver should get spi_master from the platform device and retrieve
-the private data from it.
+If this change should break any (broken) caller, then I think we should
+fix the caller.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 5ba155a4d4cc ("spi: add SPI controller driver for UniPhier SoC")
-Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
-Link: https://lore.kernel.org/r/1640148492-32178-1-git-send-email-hayashi.kunihiko@socionext.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi-uniphier.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/i2c/busses/i2c-i801.c | 15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
---- a/drivers/spi/spi-uniphier.c
-+++ b/drivers/spi/spi-uniphier.c
-@@ -767,12 +767,13 @@ out_master_put:
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 7b1654b0fb6db..c817e3d4b52b8 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -769,6 +769,11 @@ static int i801_block_transaction(struct i801_priv *priv,
+ 	int result = 0;
+ 	unsigned char hostc;
  
- static int uniphier_spi_remove(struct platform_device *pdev)
- {
--	struct uniphier_spi_priv *priv = platform_get_drvdata(pdev);
-+	struct spi_master *master = platform_get_drvdata(pdev);
-+	struct uniphier_spi_priv *priv = spi_master_get_devdata(master);
++	if (read_write == I2C_SMBUS_READ && command == I2C_SMBUS_BLOCK_DATA)
++		data->block[0] = I2C_SMBUS_BLOCK_MAX;
++	else if (data->block[0] < 1 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
++		return -EPROTO;
++
+ 	if (command == I2C_SMBUS_I2C_BLOCK_DATA) {
+ 		if (read_write == I2C_SMBUS_WRITE) {
+ 			/* set I2C_EN bit in configuration register */
+@@ -782,16 +787,6 @@ static int i801_block_transaction(struct i801_priv *priv,
+ 		}
+ 	}
  
--	if (priv->master->dma_tx)
--		dma_release_channel(priv->master->dma_tx);
--	if (priv->master->dma_rx)
--		dma_release_channel(priv->master->dma_rx);
-+	if (master->dma_tx)
-+		dma_release_channel(master->dma_tx);
-+	if (master->dma_rx)
-+		dma_release_channel(master->dma_rx);
- 
- 	clk_disable_unprepare(priv->clk);
- 
+-	if (read_write == I2C_SMBUS_WRITE
+-	 || command == I2C_SMBUS_I2C_BLOCK_DATA) {
+-		if (data->block[0] < 1)
+-			data->block[0] = 1;
+-		if (data->block[0] > I2C_SMBUS_BLOCK_MAX)
+-			data->block[0] = I2C_SMBUS_BLOCK_MAX;
+-	} else {
+-		data->block[0] = 32;	/* max for SMBus block reads */
+-	}
+-
+ 	/* Experience has shown that the block buffer can only be used for
+ 	   SMBus (not I2C) block transactions, even though the datasheet
+ 	   doesn't mention this limitation. */
+-- 
+2.34.1
+
 
 
