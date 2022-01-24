@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC60549968D
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:19:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2873F499693
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:19:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1445777AbiAXVE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:04:58 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:51470 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1444251AbiAXVAb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:00:31 -0500
+        id S1445825AbiAXVFB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:05:01 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:55078 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1444340AbiAXVAm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:00:42 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A09AB61320;
-        Mon, 24 Jan 2022 21:00:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 820B1C340E5;
-        Mon, 24 Jan 2022 21:00:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 74154B8122A;
+        Mon, 24 Jan 2022 21:00:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A07D2C340E5;
+        Mon, 24 Jan 2022 21:00:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058030;
-        bh=fH45R+ON9VtofQLm2ZUtUvYmVRrVZ/+s/iF2FwrMnWw=;
+        s=korg; t=1643058039;
+        bh=OzkQojU2CQWWU1b+Ypc3Ses6ysxsIjIUCCxdS7saOgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aM0r7OA3fNQxv+OS44+WIQSfqyRgk7S0h9kqfVFDgGhWnj4GWwGjJPF/Shco50pjF
-         cIsf4jPLwQ12gm2Uff/l6rBmkG6XsH7zmJVQzJTZn11/rT0q0BGME2D1PsoBRTZN22
-         RPFPRXDKPsr9dACznJiY3t+I8PQFK5eARywtwM1I=
+        b=ZVL9n6yX8EluVa/R9Be3ppbyDeGfERmbteLWX9qkeJSfBj7CDpEjBLp/BYPT6/5r0
+         KKNHC5LMOAJ6nuJR2QzT94WurbPxTHSrpzROIh/3O3zgI1eXqKC4TjU2TxqKMhfG7H
+         fxhFZ7NK6heoq+GuYAh+JPcfjjTgj0NyyJT/fnAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tsuchiya Yuto <kitakar@gmail.com>,
+        stable@vger.kernel.org,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0125/1039] media: atomisp: fix inverted error check for ia_css_mipi_is_source_port_valid()
-Date:   Mon, 24 Jan 2022 19:31:54 +0100
-Message-Id: <20220124184129.346371798@linuxfoundation.org>
+Subject: [PATCH 5.16 0128/1039] media: atomisp: fix enum formats logic
+Date:   Mon, 24 Jan 2022 19:31:57 +0100
+Message-Id: <20220124184129.459538078@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -45,76 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tsuchiya Yuto <kitakar@gmail.com>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit d21ce8c2f7bf6d737b60c09f86db141b9e8e47f0 ]
+[ Upstream commit fae46cb0531b45c789e39128f676f2bafa3a7b47 ]
 
-The function ia_css_mipi_is_source_port_valid() returns true if the port
-is valid. So, we can't use the existing err variable as is.
+Changeset 374d62e7aa50 ("media: v4l2-subdev: Verify v4l2_subdev_call() pad config argument")
+added an extra verification for a pads parameter for enum mbus
+format code.
 
-To fix this issue while reusing that variable, invert the return value
-when assigning it to the variable.
+Such change broke atomisp, because now the V4L2 core
+refuses to enum MBUS formats if the state is empty.
 
-Fixes: 3c0538fbad9f ("media: atomisp: get rid of most checks for ISP2401 version")
-Signed-off-by: Tsuchiya Yuto <kitakar@gmail.com>
+So, add .which field in order to select the active formats,
+in order to make it work again.
+
+While here, improve error messages.
+
+Fixes: 374d62e7aa50 ("media: v4l2-subdev: Verify v4l2_subdev_call() pad config argument")
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../staging/media/atomisp/pci/sh_css_mipi.c   | 24 ++++++++++++-------
- 1 file changed, 15 insertions(+), 9 deletions(-)
+ .../staging/media/atomisp/pci/atomisp_ioctl.c | 23 ++++++++++++++-----
+ 1 file changed, 17 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/staging/media/atomisp/pci/sh_css_mipi.c b/drivers/staging/media/atomisp/pci/sh_css_mipi.c
-index 65fc93c5d56bc..c1f2f6151c5f8 100644
---- a/drivers/staging/media/atomisp/pci/sh_css_mipi.c
-+++ b/drivers/staging/media/atomisp/pci/sh_css_mipi.c
-@@ -423,10 +423,12 @@ allocate_mipi_frames(struct ia_css_pipe *pipe,
- 		return 0; /* AM TODO: Check  */
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_ioctl.c b/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
+index a57e640fbf791..29826f8e4143d 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
++++ b/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
+@@ -773,7 +773,10 @@ static int atomisp_enum_fmt_cap(struct file *file, void *fh,
+ 	struct video_device *vdev = video_devdata(file);
+ 	struct atomisp_device *isp = video_get_drvdata(vdev);
+ 	struct atomisp_sub_device *asd = atomisp_to_video_pipe(vdev)->asd;
+-	struct v4l2_subdev_mbus_code_enum code = { 0 };
++	struct v4l2_subdev_mbus_code_enum code = {
++		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
++	};
++	struct v4l2_subdev *camera;
+ 	unsigned int i, fi = 0;
+ 	int rval;
+ 
+@@ -783,14 +786,20 @@ static int atomisp_enum_fmt_cap(struct file *file, void *fh,
+ 		return -EINVAL;
  	}
  
--	if (!IS_ISP2401)
-+	if (!IS_ISP2401) {
- 		port = (unsigned int)pipe->stream->config.source.port.port;
--	else
--		err = ia_css_mipi_is_source_port_valid(pipe, &port);
-+	} else {
-+		/* Returns true if port is valid. So, invert it */
-+		err = !ia_css_mipi_is_source_port_valid(pipe, &port);
++	camera = isp->inputs[asd->input_curr].camera;
++	if(!camera) {
++		dev_err(isp->dev, "%s(): camera is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
 +	}
- 
- 	assert(port < N_CSI_PORTS);
- 
-@@ -553,10 +555,12 @@ free_mipi_frames(struct ia_css_pipe *pipe)
- 			return err;
- 		}
- 
--		if (!IS_ISP2401)
-+		if (!IS_ISP2401) {
- 			port = (unsigned int)pipe->stream->config.source.port.port;
--		else
--			err = ia_css_mipi_is_source_port_valid(pipe, &port);
-+		} else {
-+			/* Returns true if port is valid. So, invert it */
-+			err = !ia_css_mipi_is_source_port_valid(pipe, &port);
-+		}
- 
- 		assert(port < N_CSI_PORTS);
- 
-@@ -665,10 +669,12 @@ send_mipi_frames(struct ia_css_pipe *pipe)
- 		/* TODO: AM: maybe this should be returning an error. */
++
+ 	rt_mutex_lock(&isp->mutex);
+-	rval = v4l2_subdev_call(isp->inputs[asd->input_curr].camera, pad,
+-				enum_mbus_code, NULL, &code);
++
++	rval = v4l2_subdev_call(camera, pad, enum_mbus_code, NULL, &code);
+ 	if (rval == -ENOIOCTLCMD) {
+ 		dev_warn(isp->dev,
+-			 "enum_mbus_code pad op not supported. Please fix your sensor driver!\n");
+-		//	rval = v4l2_subdev_call(isp->inputs[asd->input_curr].camera,
+-		//				video, enum_mbus_fmt, 0, &code.code);
++			 "enum_mbus_code pad op not supported by %s. Please fix your sensor driver!\n",
++			 camera->name);
  	}
+ 	rt_mutex_unlock(&isp->mutex);
  
--	if (!IS_ISP2401)
-+	if (!IS_ISP2401) {
- 		port = (unsigned int)pipe->stream->config.source.port.port;
--	else
--		err = ia_css_mipi_is_source_port_valid(pipe, &port);
-+	} else {
-+		/* Returns true if port is valid. So, invert it */
-+		err = !ia_css_mipi_is_source_port_valid(pipe, &port);
-+	}
+@@ -820,6 +829,8 @@ static int atomisp_enum_fmt_cap(struct file *file, void *fh,
+ 		f->pixelformat = format->pixelformat;
+ 		return 0;
+ 	}
++	dev_err(isp->dev, "%s(): format for code %x not found.\n",
++		__func__, code.code);
  
- 	assert(port < N_CSI_PORTS);
- 
+ 	return -EINVAL;
+ }
 -- 
 2.34.1
 
