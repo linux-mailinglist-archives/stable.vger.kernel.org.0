@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94DFA49995B
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:44:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 289A0499516
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:08:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1455074AbiAXVem (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:34:42 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:46400 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1452425AbiAXVZe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:25:34 -0500
+        id S1392205AbiAXUui (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:50:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42314 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358760AbiAXUnA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:43:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E9B0C019B28;
+        Mon, 24 Jan 2022 11:53:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 10E556136E;
-        Mon, 24 Jan 2022 21:25:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F149EC340E4;
-        Mon, 24 Jan 2022 21:25:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C6B260B4E;
+        Mon, 24 Jan 2022 19:53:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36289C340E5;
+        Mon, 24 Jan 2022 19:53:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059533;
-        bh=MwjSNMBDiKF0+H5jqz5A2By0pk1oW/OfxKi+IgH4XTU=;
+        s=korg; t=1643054000;
+        bh=SJHZKZITEzpGaG9cSq85dVyeEN1YWr4QBwoeChZ5/jo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cfo0KKNNaNtE5Y9Xutoz1CTIeELoJPmKANksg10GCe4f6FdwgVevTd6hp6rB7zRrw
-         v+cu9jdApbGgh5CxPdGM6kjWZvqRiGX7qPa3dp33x3cFCbQiO76/GyTPIyQnQt24v7
-         agMV4qz2iTKCdJQ8UyuueKc5k03gCrpX5ZSiKCJc=
+        b=OhBxBrR3BeUyH+jGm1b98aATxWxIIRBW8ikyWE02P7vARdUxpmXbGPCK67vzIclRe
+         qqLBlMlDt+By/4RX+Humpup7DtE3hhDVD9F74jRN1Fi/UGLqG+KLK6DRD+q1qbUXJN
+         wp9xxTkN6B1RBYTjTmMJlj5neQ7SRShFEesFlMT4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Tsuchiya Yuto <kitakar@gmail.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0620/1039] media: atomisp: fix "variable dereferenced before check asd"
-Date:   Mon, 24 Jan 2022 19:40:09 +0100
-Message-Id: <20220124184146.177661596@linuxfoundation.org>
+        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Abel Vesa <abel.vesa@nxp.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 245/563] clk: imx8mn: Fix imx8mn_clko1_sels
+Date:   Mon, 24 Jan 2022 19:40:10 +0100
+Message-Id: <20220124184032.897969484@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,67 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tsuchiya Yuto <kitakar@gmail.com>
+From: Adam Ford <aford173@gmail.com>
 
-[ Upstream commit ac56760a8bbb4e654b2fd54e5de79dd5d72f937d ]
+[ Upstream commit 570727e9acfac1c2330a01dd5e1272e9c3acec08 ]
 
-There are two occurrences where the variable 'asd' is dereferenced
-before check. Fix this issue by using the variable after the check.
+When attempting to use sys_pll1_80m as the parent for clko1, the
+system hangs.  This is due to the fact that the source select
+for sys_pll1_80m was incorrectly pointing to m7_alt_pll_clk, which
+doesn't yet exist.
 
-Link: https://lore.kernel.org/linux-media/20211122074122.GA6581@kili/
+According to Rev 3 of the TRM, The imx8mn_clko1_sels also incorrectly
+references an osc_27m which does not exist, nor does an entry for
+source select bits 010b.  Fix both by inserting a dummy clock into
+the missing space in the table and renaming the incorrectly name clock
+with dummy.
 
-Link: https://lore.kernel.org/linux-media/20211201141904.47231-1-kitakar@gmail.com
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Tsuchiya Yuto <kitakar@gmail.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 96d6392b54db ("clk: imx: Add support for i.MX8MN clock driver")
+Signed-off-by: Adam Ford <aford173@gmail.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Link: https://lore.kernel.org/r/20211117133202.775633-1-aford173@gmail.com
+Signed-off-by: Abel Vesa <abel.vesa@nxp.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/atomisp/pci/atomisp_cmd.c   | 3 ++-
- drivers/staging/media/atomisp/pci/atomisp_ioctl.c | 3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/clk/imx/clk-imx8mn.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/media/atomisp/pci/atomisp_cmd.c b/drivers/staging/media/atomisp/pci/atomisp_cmd.c
-index 1ddb9c815a3cb..ef0b0963cf930 100644
---- a/drivers/staging/media/atomisp/pci/atomisp_cmd.c
-+++ b/drivers/staging/media/atomisp/pci/atomisp_cmd.c
-@@ -5224,7 +5224,7 @@ static int atomisp_set_fmt_to_isp(struct video_device *vdev,
- 	int (*configure_pp_input)(struct atomisp_sub_device *asd,
- 				  unsigned int width, unsigned int height) =
- 				      configure_pp_input_nop;
--	u16 stream_index = atomisp_source_pad_to_stream_id(asd, source_pad);
-+	u16 stream_index;
- 	const struct atomisp_in_fmt_conv *fc;
- 	int ret, i;
+diff --git a/drivers/clk/imx/clk-imx8mn.c b/drivers/clk/imx/clk-imx8mn.c
+index 33a7ddc23cd24..db122d94db583 100644
+--- a/drivers/clk/imx/clk-imx8mn.c
++++ b/drivers/clk/imx/clk-imx8mn.c
+@@ -274,9 +274,9 @@ static const char * const imx8mn_pdm_sels[] = {"osc_24m", "sys_pll2_100m", "audi
  
-@@ -5233,6 +5233,7 @@ static int atomisp_set_fmt_to_isp(struct video_device *vdev,
- 			__func__, vdev->name);
- 		return -EINVAL;
- 	}
-+	stream_index = atomisp_source_pad_to_stream_id(asd, source_pad);
+ static const char * const imx8mn_dram_core_sels[] = {"dram_pll_out", "dram_alt_root", };
  
- 	v4l2_fh_init(&fh.vfh, vdev);
- 
-diff --git a/drivers/staging/media/atomisp/pci/atomisp_ioctl.c b/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
-index 54624f8814e04..b7dda4b96d49c 100644
---- a/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
-+++ b/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
-@@ -1123,7 +1123,7 @@ int __atomisp_reqbufs(struct file *file, void *fh,
- 	struct ia_css_frame *frame;
- 	struct videobuf_vmalloc_memory *vm_mem;
- 	u16 source_pad = atomisp_subdev_source_pad(vdev);
--	u16 stream_id = atomisp_source_pad_to_stream_id(asd, source_pad);
-+	u16 stream_id;
- 	int ret = 0, i = 0;
- 
- 	if (!asd) {
-@@ -1131,6 +1131,7 @@ int __atomisp_reqbufs(struct file *file, void *fh,
- 			__func__, vdev->name);
- 		return -EINVAL;
- 	}
-+	stream_id = atomisp_source_pad_to_stream_id(asd, source_pad);
- 
- 	if (req->count == 0) {
- 		mutex_lock(&pipe->capq.vb_lock);
+-static const char * const imx8mn_clko1_sels[] = {"osc_24m", "sys_pll1_800m", "osc_27m",
+-						 "sys_pll1_200m", "audio_pll2_out", "vpu_pll",
+-						 "sys_pll1_80m", };
++static const char * const imx8mn_clko1_sels[] = {"osc_24m", "sys_pll1_800m", "dummy",
++						 "sys_pll1_200m", "audio_pll2_out", "sys_pll2_500m",
++						 "dummy", "sys_pll1_80m", };
+ static const char * const imx8mn_clko2_sels[] = {"osc_24m", "sys_pll2_200m", "sys_pll1_400m",
+ 						 "sys_pll2_166m", "sys_pll3_out", "audio_pll1_out",
+ 						 "video_pll1_out", "osc_32k", };
 -- 
 2.34.1
 
