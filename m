@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3346499057
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2166499058
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359429AbiAXT7m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:59:42 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:42064 "EHLO
+        id S1359435AbiAXT7n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:59:43 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:42094 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358435AbiAXTzM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:55:12 -0500
+        with ESMTP id S1358442AbiAXTzO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:55:14 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1DE37B81247;
-        Mon, 24 Jan 2022 19:55:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CAEDC340E5;
-        Mon, 24 Jan 2022 19:55:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75341B811FB;
+        Mon, 24 Jan 2022 19:55:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CC3FC340E5;
+        Mon, 24 Jan 2022 19:55:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054108;
-        bh=hAIdkZCY+ok1pRLnYWR59O3Yuc/U9rnIQHy6AiirbO0=;
+        s=korg; t=1643054112;
+        bh=9OYIhp4tcNcPNdnDiXHPbH5wBCGJndxbPgN1unI9o3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WgeS+0lOjHJ7ZDCfavc7duewwlnkbT2xUyWwKJDvZPEatUayu4UezJm+hivaHHjo5
-         Tz+r6FZ72EwgDxoDVUHOhukNMK6lx+/XfK5iczRVXpf13mX1jw0O2xaxn5s8kDjhPU
-         1m4fJCtDRuc5zWaBjQOpl2i/9TOv7hoVR2hPWHZ4=
+        b=nygkoRjbjeinuWg3fuba3ch9mudvbRLMwhMgkeAGVIi3+tCMg5UXUOEZjlUKaGgWL
+         REGkDUlGEzlN7kYCbihFpIKrf2sBE7aVbW5UAnL/LAUJUGxZLg3y6Pvnbcpc1OV1DO
+         a7mlxvLSsn9G5GPvMq/W7YrhXalltLAk8+POro28=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 280/563] iommu/iova: Fix race between FQ timeout and teardown
-Date:   Mon, 24 Jan 2022 19:40:45 +0100
-Message-Id: <20220124184034.126466350@linuxfoundation.org>
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Xiang Chen <chenxiang66@hisilicon.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>,
+        John Garry <john.garry@huawei.com>
+Subject: [PATCH 5.10 281/563] scsi: block: pm: Always set request queue runtime active in blk_post_runtime_resume()
+Date:   Mon, 24 Jan 2022 19:40:46 +0100
+Message-Id: <20220124184034.158011166@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -46,51 +48,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-[ Upstream commit d7061627d701c90e1cac1e1e60c45292f64f3470 ]
+[ Upstream commit 6e1fcab00a23f7fe9f4fe9704905a790efa1eeab ]
 
-It turns out to be possible for hotplugging out a device to reach the
-stage of tearing down the device's group and default domain before the
-domain's flush queue has drained naturally. At this point, it is then
-possible for the timeout to expire just before the del_timer() call
-in free_iova_flush_queue(), such that we then proceed to free the FQ
-resources while fq_flush_timeout() is still accessing them on another
-CPU. Crashes due to this have been observed in the wild while removing
-NVMe devices.
+John Garry reported a deadlock that occurs when trying to access a
+runtime-suspended SATA device.  For obscure reasons, the rescan procedure
+causes the link to be hard-reset, which disconnects the device.
 
-Close the race window by using del_timer_sync() to safely wait for any
-active timeout handler to finish before we start to free things. We
-already avoid any locking in free_iova_flush_queue() since the FQ is
-supposed to be inactive anyway, so the potential deadlock scenario does
-not apply.
+The rescan tries to carry out a runtime resume when accessing the device.
+scsi_rescan_device() holds the SCSI device lock and won't release it until
+it can put commands onto the device's block queue.  This can't happen until
+the queue is successfully runtime-resumed or the device is unregistered.
+But the runtime resume fails because the device is disconnected, and
+__scsi_remove_device() can't do the unregistration because it can't get the
+device lock.
 
-Fixes: 9a005a800ae8 ("iommu/iova: Add flush timer")
-Reviewed-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-[ rm: rewrite commit message ]
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/0a365e5b07f14b7344677ad6a9a734966a8422ce.1639753638.git.robin.murphy@arm.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+The best way to resolve this deadlock appears to be to allow the block
+queue to start running again even after an unsuccessful runtime resume.
+The idea is that the driver or the SCSI error handler will need to be able
+to use the queue to resolve the runtime resume failure.
+
+This patch removes the err argument to blk_post_runtime_resume() and makes
+the routine act as though the resume was successful always.  This fixes the
+deadlock.
+
+Link: https://lore.kernel.org/r/1639999298-244569-4-git-send-email-chenxiang66@hisilicon.com
+Fixes: e27829dc92e5 ("scsi: serialize ->rescan against ->remove")
+Reported-and-tested-by: John Garry <john.garry@huawei.com>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/iova.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ block/blk-pm.c         | 22 +++++++---------------
+ drivers/scsi/scsi_pm.c |  2 +-
+ include/linux/blk-pm.h |  2 +-
+ 3 files changed, 9 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/iommu/iova.c b/drivers/iommu/iova.c
-index 30d969a4c5fde..1164d1a42cbc5 100644
---- a/drivers/iommu/iova.c
-+++ b/drivers/iommu/iova.c
-@@ -64,8 +64,7 @@ static void free_iova_flush_queue(struct iova_domain *iovad)
- 	if (!has_iova_flush_queue(iovad))
- 		return;
+diff --git a/block/blk-pm.c b/block/blk-pm.c
+index 17bd020268d42..2dad62cc15727 100644
+--- a/block/blk-pm.c
++++ b/block/blk-pm.c
+@@ -163,27 +163,19 @@ EXPORT_SYMBOL(blk_pre_runtime_resume);
+ /**
+  * blk_post_runtime_resume - Post runtime resume processing
+  * @q: the queue of the device
+- * @err: return value of the device's runtime_resume function
+  *
+  * Description:
+- *    Update the queue's runtime status according to the return value of the
+- *    device's runtime_resume function. If the resume was successful, call
+- *    blk_set_runtime_active() to do the real work of restarting the queue.
++ *    For historical reasons, this routine merely calls blk_set_runtime_active()
++ *    to do the real work of restarting the queue.  It does this regardless of
++ *    whether the device's runtime-resume succeeded; even if it failed the
++ *    driver or error handler will need to communicate with the device.
+  *
+  *    This function should be called near the end of the device's
+  *    runtime_resume callback.
+  */
+-void blk_post_runtime_resume(struct request_queue *q, int err)
++void blk_post_runtime_resume(struct request_queue *q)
+ {
+-	if (!q->dev)
+-		return;
+-	if (!err) {
+-		blk_set_runtime_active(q);
+-	} else {
+-		spin_lock_irq(&q->queue_lock);
+-		q->rpm_status = RPM_SUSPENDED;
+-		spin_unlock_irq(&q->queue_lock);
+-	}
++	blk_set_runtime_active(q);
+ }
+ EXPORT_SYMBOL(blk_post_runtime_resume);
  
--	if (timer_pending(&iovad->fq_timer))
--		del_timer(&iovad->fq_timer);
-+	del_timer_sync(&iovad->fq_timer);
+@@ -201,7 +193,7 @@ EXPORT_SYMBOL(blk_post_runtime_resume);
+  * runtime PM status and re-enable peeking requests from the queue. It
+  * should be called before first request is added to the queue.
+  *
+- * This function is also called by blk_post_runtime_resume() for successful
++ * This function is also called by blk_post_runtime_resume() for
+  * runtime resumes.  It does everything necessary to restart the queue.
+  */
+ void blk_set_runtime_active(struct request_queue *q)
+diff --git a/drivers/scsi/scsi_pm.c b/drivers/scsi/scsi_pm.c
+index 3717eea37ecb3..e91a0a5bc7a3e 100644
+--- a/drivers/scsi/scsi_pm.c
++++ b/drivers/scsi/scsi_pm.c
+@@ -262,7 +262,7 @@ static int sdev_runtime_resume(struct device *dev)
+ 	blk_pre_runtime_resume(sdev->request_queue);
+ 	if (pm && pm->runtime_resume)
+ 		err = pm->runtime_resume(dev);
+-	blk_post_runtime_resume(sdev->request_queue, err);
++	blk_post_runtime_resume(sdev->request_queue);
  
- 	fq_destroy_all_entries(iovad);
- 
+ 	return err;
+ }
+diff --git a/include/linux/blk-pm.h b/include/linux/blk-pm.h
+index b80c65aba2493..2580e05a8ab67 100644
+--- a/include/linux/blk-pm.h
++++ b/include/linux/blk-pm.h
+@@ -14,7 +14,7 @@ extern void blk_pm_runtime_init(struct request_queue *q, struct device *dev);
+ extern int blk_pre_runtime_suspend(struct request_queue *q);
+ extern void blk_post_runtime_suspend(struct request_queue *q, int err);
+ extern void blk_pre_runtime_resume(struct request_queue *q);
+-extern void blk_post_runtime_resume(struct request_queue *q, int err);
++extern void blk_post_runtime_resume(struct request_queue *q);
+ extern void blk_set_runtime_active(struct request_queue *q);
+ #else
+ static inline void blk_pm_runtime_init(struct request_queue *q,
 -- 
 2.34.1
 
