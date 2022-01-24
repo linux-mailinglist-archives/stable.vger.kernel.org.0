@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BED2049A3F0
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:04:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 355A049A3F2
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:04:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2369190AbiAYABL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:01:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50612 "EHLO
+        id S2369200AbiAYABP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:01:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1847031AbiAXXSV (ORCPT
+        with ESMTP id S1847039AbiAXXSV (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:18:21 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40BAEC06F8D6;
-        Mon, 24 Jan 2022 13:26:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E61DDC06F8D7;
+        Mon, 24 Jan 2022 13:26:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D9215B81243;
-        Mon, 24 Jan 2022 21:26:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3513CC340E4;
-        Mon, 24 Jan 2022 21:26:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AC560B81218;
+        Mon, 24 Jan 2022 21:26:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE852C340E4;
+        Mon, 24 Jan 2022 21:26:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059589;
-        bh=N5cFYl5qlbcsInQjVrE7IG8gddEZ3I2S9BMXo0GCtUU=;
+        s=korg; t=1643059601;
+        bh=xaOjFriQ6amaUUYsrE142p7G3EPJVhpiLBHT/0meCKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BzEp380x6h16gR8g8EOhKZv+NWfjAHNeDq1I0pAqYh+09nKOHVy3He2ojtly21bAW
-         hbL5fy+rXRMRb4EEJI8s7PBIY2E+5Znc5Rpo8GMiuQcDR/0e/NEFQ8j++IcPUkRWmh
-         YZrqcbt4rXhcDhQHF9Zb1oM2dqndvCMZIS57dRRs=
+        b=nFOTfOz/V69nN7vZgZ1AZ/i/S2GX9gJcpajAaWEfxHEvSyY1p1/PiMN0ZqFYBDK/6
+         rMWXvIYX+Kjd2xvD4nxv1wkKsvT56wGHShTr+673jMofdzbbblwzh9Hlp/129k9VCw
+         Ejd+3SirqTmF4UP4FS39Bu/ADK6OLdXcbb9iJ5/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0667/1039] cpufreq: Fix initialization of min and max frequency QoS requests
-Date:   Mon, 24 Jan 2022 19:40:56 +0100
-Message-Id: <20220124184147.797717994@linuxfoundation.org>
+        stable@vger.kernel.org, Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0671/1039] mt76: connac: fix a theoretical NULL pointer dereference in mt76_connac_get_phy_mode
+Date:   Mon, 24 Jan 2022 19:41:00 +0100
+Message-Id: <20220124184147.929924729@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -49,52 +47,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 521223d8b3ec078f670c7c35a1a04b1b2af07966 ]
+[ Upstream commit c9dbeac4988f6d4c4211b3747ec9c9c75ea87967 ]
 
-The min and max frequency QoS requests in the cpufreq core are
-initialized to whatever the current min and max frequency values are
-at the init time, but if any of these values change later (for
-example, cpuinfo.max_freq is updated by the driver), these initial
-request values will be limiting the CPU frequency unnecessarily
-unless they are changed by user space via sysfs.
+Even if it is not a real bug since mt76_connac_get_phy_mode runs just
+for mt7921 where only STA is supported, fix a theoretical NULL pointer
+dereference if new added modes do not support HE
 
-To address this, initialize min_freq_req and max_freq_req to
-FREQ_QOS_MIN_DEFAULT_VALUE and FREQ_QOS_MAX_DEFAULT_VALUE,
-respectively, so they don't really limit anything until user
-space updates them.
-
-Reported-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Tested-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/cpufreq.c | 4 ++--
+ drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
-index 096c3848fa415..76ffdaf8c8b5e 100644
---- a/drivers/cpufreq/cpufreq.c
-+++ b/drivers/cpufreq/cpufreq.c
-@@ -1403,7 +1403,7 @@ static int cpufreq_online(unsigned int cpu)
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
+index a5857a788da50..7733c8fad2413 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mcu.c
+@@ -1180,7 +1180,7 @@ mt76_connac_get_phy_mode(struct mt76_phy *phy, struct ieee80211_vif *vif,
+ 		if (ht_cap->ht_supported)
+ 			mode |= PHY_MODE_GN;
  
- 		ret = freq_qos_add_request(&policy->constraints,
- 					   policy->min_freq_req, FREQ_QOS_MIN,
--					   policy->min);
-+					   FREQ_QOS_MIN_DEFAULT_VALUE);
- 		if (ret < 0) {
- 			/*
- 			 * So we don't call freq_qos_remove_request() for an
-@@ -1423,7 +1423,7 @@ static int cpufreq_online(unsigned int cpu)
+-		if (he_cap->has_he)
++		if (he_cap && he_cap->has_he)
+ 			mode |= PHY_MODE_AX_24G;
+ 	} else if (band == NL80211_BAND_5GHZ || band == NL80211_BAND_6GHZ) {
+ 		mode |= PHY_MODE_A;
+@@ -1191,7 +1191,7 @@ mt76_connac_get_phy_mode(struct mt76_phy *phy, struct ieee80211_vif *vif,
+ 		if (vht_cap->vht_supported)
+ 			mode |= PHY_MODE_AC;
  
- 		ret = freq_qos_add_request(&policy->constraints,
- 					   policy->max_freq_req, FREQ_QOS_MAX,
--					   policy->max);
-+					   FREQ_QOS_MAX_DEFAULT_VALUE);
- 		if (ret < 0) {
- 			policy->max_freq_req = NULL;
- 			goto out_destroy_policy;
+-		if (he_cap->has_he) {
++		if (he_cap && he_cap->has_he) {
+ 			if (band == NL80211_BAND_6GHZ)
+ 				mode |= PHY_MODE_AX_6G;
+ 			else
 -- 
 2.34.1
 
