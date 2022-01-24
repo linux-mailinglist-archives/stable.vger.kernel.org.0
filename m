@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CCEE4989E0
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:59:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1D164988BD
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:51:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344716AbiAXS65 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:58:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44136 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241949AbiAXS45 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:56:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA025C061749;
-        Mon, 24 Jan 2022 10:54:49 -0800 (PST)
+        id S245348AbiAXSuP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:50:15 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49550 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245487AbiAXSt3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:49:29 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 790156153F;
-        Mon, 24 Jan 2022 18:54:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B3F7C340E5;
-        Mon, 24 Jan 2022 18:54:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BB6B6B8121A;
+        Mon, 24 Jan 2022 18:49:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D552DC340E8;
+        Mon, 24 Jan 2022 18:49:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050488;
+        s=korg; t=1643050167;
         bh=MH0E6NCxT8S0JirUSBlxUe9H0Emh2ArelTUEIROEmLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AkocO5/ZiQ1v/VtUn9cGdmw4W+NwMg525k028K0R0dpzJahYjWm+anCOL1AZlranh
-         enXTLMdMZznHF0Q/pzDXsc+Bt101Mp+ZlEhriN1bGQWlxhnlGAV54SvLxM3lBF9vxX
-         i5TSftihCY0fY8aWoCqE2CIOvVfgmnUQbGxtNmYA=
+        b=j/qFVMPpL+T9rEI8FjSFew5b4iyA56JOFoDk56L7JCrfIBqqYB1odrWw/NB3LeCxq
+         zMDhj0Zy2uxmWmYix5IcM2Usi486bk8k3B3z14Xk9Yi2hjbVxAJJdq44Ygg5/C43cl
+         ZoNKitaYmWv8fv6q4AVRRUbrixkbRJdyZ6kbPCto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.9 019/157] media: em28xx: fix control-message timeouts
+Subject: [PATCH 4.4 014/114] media: em28xx: fix control-message timeouts
 Date:   Mon, 24 Jan 2022 19:41:49 +0100
-Message-Id: <20220124183933.405332952@linuxfoundation.org>
+Message-Id: <20220124183927.552845234@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
-References: <20220124183932.787526760@linuxfoundation.org>
+In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
+References: <20220124183927.095545464@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
