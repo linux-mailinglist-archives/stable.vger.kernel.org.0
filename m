@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD839498B2E
+	by mail.lfdr.de (Postfix) with ESMTP id 0C898498B2C
 	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:12:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344813AbiAXTMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:12:14 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34358 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345654AbiAXTGY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:06:24 -0500
+        id S1345740AbiAXTMM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:12:12 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:36290 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345767AbiAXTGX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:06:23 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E94EAB81239;
-        Mon, 24 Jan 2022 19:06:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AC80C340E5;
-        Mon, 24 Jan 2022 19:06:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 21FD560B86;
+        Mon, 24 Jan 2022 19:06:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE1DCC340E5;
+        Mon, 24 Jan 2022 19:06:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051178;
-        bh=RtIo5JOYlq8YpCO9arDpjnQVZP64mqVCmyYXczOJcOs=;
+        s=korg; t=1643051181;
+        bh=MJJ8negSy+ve/uRVf/CAfpvBZyQ7XE5bk9WJWThHUtc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=laAhjQCyDu7VdK3of0ECehIzhzjoN2P9sXRZaZBS8PTowl7q4NKKBSVdxNWWyF0mf
-         cWH6H9YbVJTxMoCwgA+q95H1SVlO6tKkKVwZPmDpePcgWSEvvYGriZtrZzwLHWjPYT
-         4IFvrQgGw+7UUGJ/KjSKk0SkQI3wQDWwGt/LHY6c=
+        b=RXp2D6WK0eRxyZspcmqIH1LTsRNznofiBCIEM/IzB8pS5bbBhd3XH1OoOdmiq7xIg
+         /9VBjB7XAfr5Jr4/gIFrOZcACu8k3tNRP/uRMb4LPPwyz7hWUY/i0tIatB9AT/5Jnb
+         9DlfGGSHSZAytdt7+rxOIQBcDgZUtX/6Zo4tZUOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 080/186] iommu/iova: Fix race between FQ timeout and teardown
-Date:   Mon, 24 Jan 2022 19:42:35 +0100
-Message-Id: <20220124183939.695751989@linuxfoundation.org>
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 081/186] ASoC: samsung: idma: Check of ioremap return value
+Date:   Mon, 24 Jan 2022 19:42:36 +0100
+Message-Id: <20220124183939.725682278@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
 References: <20220124183937.101330125@linuxfoundation.org>
@@ -46,51 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit d7061627d701c90e1cac1e1e60c45292f64f3470 ]
+[ Upstream commit 3ecb46755eb85456b459a1a9f952c52986bce8ec ]
 
-It turns out to be possible for hotplugging out a device to reach the
-stage of tearing down the device's group and default domain before the
-domain's flush queue has drained naturally. At this point, it is then
-possible for the timeout to expire just before the del_timer() call
-in free_iova_flush_queue(), such that we then proceed to free the FQ
-resources while fq_flush_timeout() is still accessing them on another
-CPU. Crashes due to this have been observed in the wild while removing
-NVMe devices.
+Because of the potential failure of the ioremap(), the buf->area could
+be NULL.
+Therefore, we need to check it and return -ENOMEM in order to transfer
+the error.
 
-Close the race window by using del_timer_sync() to safely wait for any
-active timeout handler to finish before we start to free things. We
-already avoid any locking in free_iova_flush_queue() since the FQ is
-supposed to be inactive anyway, so the potential deadlock scenario does
-not apply.
-
-Fixes: 9a005a800ae8 ("iommu/iova: Add flush timer")
-Reviewed-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-[ rm: rewrite commit message ]
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/0a365e5b07f14b7344677ad6a9a734966a8422ce.1639753638.git.robin.murphy@arm.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: f09aecd50f39 ("ASoC: SAMSUNG: Add I2S0 internal dma driver")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20211228034026.1659385-1-jiasheng@iscas.ac.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/iova.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ sound/soc/samsung/idma.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/iommu/iova.c b/drivers/iommu/iova.c
-index 2c97d2552c5bd..ebee9e191b3ee 100644
---- a/drivers/iommu/iova.c
-+++ b/drivers/iommu/iova.c
-@@ -68,8 +68,7 @@ static void free_iova_flush_queue(struct iova_domain *iovad)
- 	if (!has_iova_flush_queue(iovad))
- 		return;
+diff --git a/sound/soc/samsung/idma.c b/sound/soc/samsung/idma.c
+index a635df61f928c..2a6ffb2abb338 100644
+--- a/sound/soc/samsung/idma.c
++++ b/sound/soc/samsung/idma.c
+@@ -369,6 +369,8 @@ static int preallocate_idma_buffer(struct snd_pcm *pcm, int stream)
+ 	buf->addr = idma.lp_tx_addr;
+ 	buf->bytes = idma_hardware.buffer_bytes_max;
+ 	buf->area = (unsigned char * __force)ioremap(buf->addr, buf->bytes);
++	if (!buf->area)
++		return -ENOMEM;
  
--	if (timer_pending(&iovad->fq_timer))
--		del_timer(&iovad->fq_timer);
-+	del_timer_sync(&iovad->fq_timer);
- 
- 	fq_destroy_all_entries(iovad);
- 
+ 	return 0;
+ }
 -- 
 2.34.1
 
