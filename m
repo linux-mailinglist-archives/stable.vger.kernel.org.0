@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DD53497FAF
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 13:37:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55D58497FB0
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 13:37:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241707AbiAXMhk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 07:37:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38572 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241667AbiAXMhj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 07:37:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FFB8C06173B
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 04:37:39 -0800 (PST)
+        id S241571AbiAXMht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 07:37:49 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:47530 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241520AbiAXMht (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 07:37:49 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FD3360FF9
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 12:37:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C71D6C340E1;
-        Mon, 24 Jan 2022 12:37:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 09773B80F98
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 12:37:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18A00C340E1;
+        Mon, 24 Jan 2022 12:37:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643027858;
-        bh=ep+v+mxrHjnexH/8n/3/HMxkJSxOL71gs2ay+2QOxKs=;
+        s=korg; t=1643027866;
+        bh=q+84MD5UEB8hwdYj4mjJyE5pi+9cXxD3JFFo9RzYXRs=;
         h=Subject:To:Cc:From:Date:From;
-        b=LUeKVT+HQT+dTrx2mMR1PEhd2cd07IRUA5vUjD3VS9LgYyIDGMpZmmFpqhvImUyzC
-         /oQhMbej/aXeKkOY+fvXyvo/frwb1vGphn23wRZW9LE333XwvKyhSZE/WiRwynv+yW
-         mkigF+n5vfdpwRy275JjAu1FZm8NO6kbP7qG/7gs=
-Subject: FAILED: patch "[PATCH] net: axienet: increase reset timeout" failed to apply to 4.4-stable tree
+        b=FXuP3JjQ101BVXWQhzEiWgfzALRUFM8Bf0N6P9V/1OZRGOmsBcsquqKfJf1nEum3V
+         kg1BywTWNt9ojDpHZJdQYxElW+GR993rZSxioXu3v9SfbIJBksiskFDIP5AVI+n8VQ
+         KxuZz0Y82ILP/kM7OmAvy6R7YFzr45VT2ywjbLSY=
+Subject: FAILED: patch "[PATCH] net: axienet: increase reset timeout" failed to apply to 4.14-stable tree
 To:     robert.hancock@calian.com, andrew@lunn.ch, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 13:37:35 +0100
-Message-ID: <16430278551578@kroah.com>
+Date:   Mon, 24 Jan 2022 13:37:36 +0100
+Message-ID: <164302785610959@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
