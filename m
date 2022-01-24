@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F14B499D5B
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:59:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5B00499D5D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:59:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1583414AbiAXWRn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:17:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34738 "EHLO
+        id S1583421AbiAXWRo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:17:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34802 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1581211AbiAXWLY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:11:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 924AEC0DF2FE;
-        Mon, 24 Jan 2022 12:43:34 -0800 (PST)
+        with ESMTP id S1581298AbiAXWLd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:11:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18B5DC0E03C9;
+        Mon, 24 Jan 2022 12:43:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E164360907;
-        Mon, 24 Jan 2022 20:43:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABA5DC340E5;
-        Mon, 24 Jan 2022 20:43:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90342B8105C;
+        Mon, 24 Jan 2022 20:43:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0F31C340E5;
+        Mon, 24 Jan 2022 20:43:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057013;
-        bh=ddcl4cBea324E6KzDBct/pV9ygz8c88MAFzgAN9niJk=;
+        s=korg; t=1643057016;
+        bh=fKi7ZwPG8n0+BGVYMxk00IA52PoG1YjyUx5UZx1Vb/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fCS3moWeixOMvs3MW9U7sILYSO73qsoLA1n2geE3c2TvS8MghnhBJ4WzkN7ZJOPzs
-         xvsAGvtB+sJvuqbxcV0t+miLP/AKXDd1G2gBRrwmNA+8aFMsRR6kRvWXSPV++oKapN
-         keeJsAOkNAeAL6lxcBUqP8Xmtdead9vPmj8SUFkM=
+        b=qbLoCf6WI6Qbf6Df81SSBMp7RNMkXQkeT0T1GqWy9DMct2ZcnzdQwz8GNDc9QznnY
+         EaMQSbf/8UrbIyA200lhTJFqXDVaJIwI0rVjIMXBAVd9FvVnW9I4WSewfZ6FRXWIgl
+         FNmPavPysb2yOSEtJYqkE0e7NKH4g5/c+t1tLXQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lino Sanfilippo <LinoSanfilippo@gmx.de>,
-        Stefan Berger <stefanb@linux.ibm.com>,
+        stable@vger.kernel.org, Patrick Williams <patrick@stwcx.xyz>,
         Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.15 673/846] tpm: fix potential NULL pointer access in tpm_del_char_device
-Date:   Mon, 24 Jan 2022 19:43:10 +0100
-Message-Id: <20220124184124.292354647@linuxfoundation.org>
+Subject: [PATCH 5.15 674/846] tpm: fix NPE on probe for missing device
+Date:   Mon, 24 Jan 2022 19:43:11 +0100
+Message-Id: <20220124184124.324993444@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -48,64 +47,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lino Sanfilippo <LinoSanfilippo@gmx.de>
+From: Patrick Williams <patrick@stwcx.xyz>
 
-commit eabad7ba2c752392ae50f24a795093fb115b686d upstream.
+commit 84cc69589700b90a4c8d27b481a51fce8cca6051 upstream.
 
-Some SPI controller drivers unregister the controller in the shutdown
-handler (e.g. BCM2835). If such a controller is used with a TPM 2 slave
-chip->ops may be accessed when it is already NULL:
+When using the tpm_tis-spi driver on a system missing the physical TPM,
+a null pointer exception was observed.
 
-At system shutdown the pre-shutdown handler tpm_class_shutdown() shuts down
-TPM 2 and sets chip->ops to NULL. Then at SPI controller unregistration
-tpm_tis_spi_remove() is called and eventually calls tpm_del_char_device()
-which tries to shut down TPM 2 again. Thereby it accesses chip->ops again:
-(tpm_del_char_device calls tpm_chip_start which calls tpm_clk_enable which
-calls chip->ops->clk_enable).
+    [    0.938677] Unable to handle kernel NULL pointer dereference at virtual address 00000004
+    [    0.939020] pgd = 10c753cb
+    [    0.939237] [00000004] *pgd=00000000
+    [    0.939808] Internal error: Oops: 5 [#1] SMP ARM
+    [    0.940157] CPU: 0 PID: 48 Comm: kworker/u4:1 Not tainted 5.15.10-dd1e40c #1
+    [    0.940364] Hardware name: Generic DT based system
+    [    0.940601] Workqueue: events_unbound async_run_entry_fn
+    [    0.941048] PC is at tpm_tis_remove+0x28/0xb4
+    [    0.941196] LR is at tpm_tis_core_init+0x170/0x6ac
 
-Avoid the NULL pointer access by testing if chip->ops is valid and skipping
-the TPM 2 shutdown procedure in case it is NULL.
+This is due to an attempt in 'tpm_tis_remove' to use the drvdata, which
+was not initialized in 'tpm_tis_core_init' prior to the first error.
 
+Move the initialization of drvdata earlier so 'tpm_tis_remove' has
+access to it.
+
+Signed-off-by: Patrick Williams <patrick@stwcx.xyz>
+Fixes: 79ca6f74dae0 ("tpm: fix Atmel TPM crash caused by too frequent queries")
 Cc: stable@vger.kernel.org
-Signed-off-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Fixes: 39d0099f9439 ("powerpc/pseries: Add shutdown() to vio_driver and vio_bus")
-Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
-Tested-by: Stefan Berger <stefanb@linux.ibm.com>
 Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm-chip.c |   18 +++++++++++++-----
- 1 file changed, 13 insertions(+), 5 deletions(-)
+ drivers/char/tpm/tpm_tis_core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/char/tpm/tpm-chip.c
-+++ b/drivers/char/tpm/tpm-chip.c
-@@ -474,13 +474,21 @@ static void tpm_del_char_device(struct t
+--- a/drivers/char/tpm/tpm_tis_core.c
++++ b/drivers/char/tpm/tpm_tis_core.c
+@@ -950,6 +950,8 @@ int tpm_tis_core_init(struct device *dev
+ 	priv->timeout_max = TPM_TIMEOUT_USECS_MAX;
+ 	priv->phy_ops = phy_ops;
  
- 	/* Make the driver uncallable. */
- 	down_write(&chip->ops_sem);
--	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
--		if (!tpm_chip_start(chip)) {
--			tpm2_shutdown(chip, TPM2_SU_CLEAR);
--			tpm_chip_stop(chip);
++	dev_set_drvdata(&chip->dev, priv);
 +
-+	/*
-+	 * Check if chip->ops is still valid: In case that the controller
-+	 * drivers shutdown handler unregisters the controller in its
-+	 * shutdown handler we are called twice and chip->ops to NULL.
-+	 */
-+	if (chip->ops) {
-+		if (chip->flags & TPM_CHIP_FLAG_TPM2) {
-+			if (!tpm_chip_start(chip)) {
-+				tpm2_shutdown(chip, TPM2_SU_CLEAR);
-+				tpm_chip_stop(chip);
-+			}
- 		}
-+		chip->ops = NULL;
+ 	rc = tpm_tis_read32(priv, TPM_DID_VID(0), &vendor);
+ 	if (rc < 0)
+ 		return rc;
+@@ -962,8 +964,6 @@ int tpm_tis_core_init(struct device *dev
+ 		priv->timeout_max = TIS_TIMEOUT_MAX_ATML;
  	}
--	chip->ops = NULL;
- 	up_write(&chip->ops_sem);
- }
  
+-	dev_set_drvdata(&chip->dev, priv);
+-
+ 	if (is_bsw()) {
+ 		priv->ilb_base_addr = ioremap(INTEL_LEGACY_BLK_BASE_ADDR,
+ 					ILB_REMAP_SIZE);
 
 
