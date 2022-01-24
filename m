@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E7D7498A4D
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:02:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC62B498A53
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:02:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344971AbiAXTC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:02:26 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:57490 "EHLO
+        id S1345053AbiAXTCe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:02:34 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:57520 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345493AbiAXTAW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:00:22 -0500
+        with ESMTP id S1345559AbiAXTA3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:00:29 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32722B8121F;
-        Mon, 24 Jan 2022 19:00:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D2D5C340EA;
-        Mon, 24 Jan 2022 19:00:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C2212B81235;
+        Mon, 24 Jan 2022 19:00:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9B55C340E5;
+        Mon, 24 Jan 2022 19:00:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050820;
-        bh=Z845udqUw2rjUiaPdUgkj+7y6/B6zzKwPohCDuK4TyE=;
+        s=korg; t=1643050826;
+        bh=+mVVBcmYiWFq57Eundfb2TBRXsBxz7QMderfc/I7INw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iGsG7OmRp3gvFtjJpUUOOQqyALY0JbkJWcFrPvQTwT2myob/RIOnqtZ5suV30y0IX
-         BuX/gaxcnASuDnDFKex4x4pQ1la6/HcyTb9DNkdrKWjthJwUEKZ3OofvXeegLUhm+v
-         gugSkbxrX7Emxsks9G7df5aoZG1wb57O7yRrQ4fY=
+        b=gHDUDjLPGuNfRngHIKJ7SbP98SdwFWYJSX0wr81N/DmVPYw0kBukQ8m0u6jNcyQxw
+         emCxWA9Zx+xGT2OvMMuxho6Ta6rlPYD0jw8UtSWqWON5xbMCOE9GJsWtuZ11hG3dyI
+         1sH8lt8FRbWUFHrzS6p+niExjra7P6FyJdn2mhDs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        stable@kernel.org
-Subject: [PATCH 4.9 123/157] ext4: Fix BUG_ON in ext4_bread when write quota data
-Date:   Mon, 24 Jan 2022 19:43:33 +0100
-Message-Id: <20220124183936.676801278@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+f427adf9324b92652ccc@syzkaller.appspotmail.com,
+        Miklos Szeredi <mszeredi@redhat.com>, Jan Kara <jack@suse.cz>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.9 125/157] fuse: fix bad inode
+Date:   Mon, 24 Jan 2022 19:43:35 +0100
+Message-Id: <20220124183936.738513760@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
 References: <20220124183932.787526760@linuxfoundation.org>
@@ -45,103 +46,400 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-commit 380a0091cab482489e9b19e07f2a166ad2b76d5c upstream.
+commit 5d069dbe8aaf2a197142558b6fb2978189ba3454 upstream.
 
-We got issue as follows when run syzkaller:
-[  167.936972] EXT4-fs error (device loop0): __ext4_remount:6314: comm rep: Abort forced by user
-[  167.938306] EXT4-fs (loop0): Remounting filesystem read-only
-[  167.981637] Assertion failure in ext4_getblk() at fs/ext4/inode.c:847: '(EXT4_SB(inode->i_sb)->s_mount_state & EXT4_FC_REPLAY) || handle != NULL || create == 0'
-[  167.983601] ------------[ cut here ]------------
-[  167.984245] kernel BUG at fs/ext4/inode.c:847!
-[  167.984882] invalid opcode: 0000 [#1] PREEMPT SMP KASAN PTI
-[  167.985624] CPU: 7 PID: 2290 Comm: rep Tainted: G    B             5.16.0-rc5-next-20211217+ #123
-[  167.986823] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_073836-buildvm-ppc64le-16.ppc.fedoraproject.org-3.fc31 04/01/2014
-[  167.988590] RIP: 0010:ext4_getblk+0x17e/0x504
-[  167.989189] Code: c6 01 74 28 49 c7 c0 a0 a3 5c 9b b9 4f 03 00 00 48 c7 c2 80 9c 5c 9b 48 c7 c6 40 b6 5c 9b 48 c7 c7 20 a4 5c 9b e8 77 e3 fd ff <0f> 0b 8b 04 244
-[  167.991679] RSP: 0018:ffff8881736f7398 EFLAGS: 00010282
-[  167.992385] RAX: 0000000000000094 RBX: 1ffff1102e6dee75 RCX: 0000000000000000
-[  167.993337] RDX: 0000000000000001 RSI: ffffffff9b6e29e0 RDI: ffffed102e6dee66
-[  167.994292] RBP: ffff88816a076210 R08: 0000000000000094 R09: ffffed107363fa09
-[  167.995252] R10: ffff88839b1fd047 R11: ffffed107363fa08 R12: ffff88816a0761e8
-[  167.996205] R13: 0000000000000000 R14: 0000000000000021 R15: 0000000000000001
-[  167.997158] FS:  00007f6a1428c740(0000) GS:ffff88839b000000(0000) knlGS:0000000000000000
-[  167.998238] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  167.999025] CR2: 00007f6a140716c8 CR3: 0000000133216000 CR4: 00000000000006e0
-[  167.999987] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  168.000944] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  168.001899] Call Trace:
-[  168.002235]  <TASK>
-[  168.007167]  ext4_bread+0xd/0x53
-[  168.007612]  ext4_quota_write+0x20c/0x5c0
-[  168.010457]  write_blk+0x100/0x220
-[  168.010944]  remove_free_dqentry+0x1c6/0x440
-[  168.011525]  free_dqentry.isra.0+0x565/0x830
-[  168.012133]  remove_tree+0x318/0x6d0
-[  168.014744]  remove_tree+0x1eb/0x6d0
-[  168.017346]  remove_tree+0x1eb/0x6d0
-[  168.019969]  remove_tree+0x1eb/0x6d0
-[  168.022128]  qtree_release_dquot+0x291/0x340
-[  168.023297]  v2_release_dquot+0xce/0x120
-[  168.023847]  dquot_release+0x197/0x3e0
-[  168.024358]  ext4_release_dquot+0x22a/0x2d0
-[  168.024932]  dqput.part.0+0x1c9/0x900
-[  168.025430]  __dquot_drop+0x120/0x190
-[  168.025942]  ext4_clear_inode+0x86/0x220
-[  168.026472]  ext4_evict_inode+0x9e8/0xa22
-[  168.028200]  evict+0x29e/0x4f0
-[  168.028625]  dispose_list+0x102/0x1f0
-[  168.029148]  evict_inodes+0x2c1/0x3e0
-[  168.030188]  generic_shutdown_super+0xa4/0x3b0
-[  168.030817]  kill_block_super+0x95/0xd0
-[  168.031360]  deactivate_locked_super+0x85/0xd0
-[  168.031977]  cleanup_mnt+0x2bc/0x480
-[  168.033062]  task_work_run+0xd1/0x170
-[  168.033565]  do_exit+0xa4f/0x2b50
-[  168.037155]  do_group_exit+0xef/0x2d0
-[  168.037666]  __x64_sys_exit_group+0x3a/0x50
-[  168.038237]  do_syscall_64+0x3b/0x90
-[  168.038751]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+Jan Kara's analysis of the syzbot report (edited):
 
-In order to reproduce this problem, the following conditions need to be met:
-1. Ext4 filesystem with no journal;
-2. Filesystem image with incorrect quota data;
-3. Abort filesystem forced by user;
-4. umount filesystem;
+  The reproducer opens a directory on FUSE filesystem, it then attaches
+  dnotify mark to the open directory.  After that a fuse_do_getattr() call
+  finds that attributes returned by the server are inconsistent, and calls
+  make_bad_inode() which, among other things does:
 
-As in ext4_quota_write:
-...
-         if (EXT4_SB(sb)->s_journal && !handle) {
-                 ext4_msg(sb, KERN_WARNING, "Quota write (off=%llu, len=%llu)"
-                         " cancelled because transaction is not started",
-                         (unsigned long long)off, (unsigned long long)len);
-                 return -EIO;
-         }
-...
-We only check handle if NULL when filesystem has journal. There is need
-check handle if NULL even when filesystem has no journal.
+          inode->i_mode = S_IFREG;
 
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20211223015506.297766-1-yebin10@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+  This then confuses dnotify which doesn't tear down its structures
+  properly and eventually crashes.
+
+Avoid calling make_bad_inode() on a live inode: switch to a private flag on
+the fuse inode.  Also add the test to ops which the bad_inode_ops would
+have caught.
+
+This bug goes back to the initial merge of fuse in 2.6.14...
+
+Reported-by: syzbot+f427adf9324b92652ccc@syzkaller.appspotmail.com
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Tested-by: Jan Kara <jack@suse.cz>
+Cc: <stable@vger.kernel.org>
+[bwh: Backported to 4.9:
+ - Drop changes in fuse_dir_fsync(), fuse_readahead(), fuse_evict_inode()
+ - In fuse_get_link(), return ERR_PTR(-EIO) for bad inodes
+ - Convert some additional calls to is_bad_inode()
+ - Adjust filename, context]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/fuse/acl.c    |    6 ++++++
+ fs/fuse/dir.c    |   40 +++++++++++++++++++++++++++++++++++-----
+ fs/fuse/file.c   |   27 ++++++++++++++++++---------
+ fs/fuse/fuse_i.h |   12 ++++++++++++
+ fs/fuse/inode.c  |    2 +-
+ fs/fuse/xattr.c  |    9 +++++++++
+ 6 files changed, 81 insertions(+), 15 deletions(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -5602,7 +5602,7 @@ static ssize_t ext4_quota_write(struct s
- 	struct buffer_head *bh;
- 	handle_t *handle = journal_current_handle();
+--- a/fs/fuse/acl.c
++++ b/fs/fuse/acl.c
+@@ -19,6 +19,9 @@ struct posix_acl *fuse_get_acl(struct in
+ 	void *value = NULL;
+ 	struct posix_acl *acl;
  
--	if (EXT4_SB(sb)->s_journal && !handle) {
-+	if (!handle) {
- 		ext4_msg(sb, KERN_WARNING, "Quota write (off=%llu, len=%llu)"
- 			" cancelled because transaction is not started",
- 			(unsigned long long)off, (unsigned long long)len);
++	if (fuse_is_bad(inode))
++		return ERR_PTR(-EIO);
++
+ 	if (!fc->posix_acl || fc->no_getxattr)
+ 		return NULL;
+ 
+@@ -53,6 +56,9 @@ int fuse_set_acl(struct inode *inode, st
+ 	const char *name;
+ 	int ret;
+ 
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	if (!fc->posix_acl || fc->no_setxattr)
+ 		return -EOPNOTSUPP;
+ 
+--- a/fs/fuse/dir.c
++++ b/fs/fuse/dir.c
+@@ -187,7 +187,7 @@ static int fuse_dentry_revalidate(struct
+ 	int ret;
+ 
+ 	inode = d_inode_rcu(entry);
+-	if (inode && is_bad_inode(inode))
++	if (inode && fuse_is_bad(inode))
+ 		goto invalid;
+ 	else if (time_before64(fuse_dentry_time(entry), get_jiffies_64()) ||
+ 		 (flags & LOOKUP_REVAL)) {
+@@ -364,6 +364,9 @@ static struct dentry *fuse_lookup(struct
+ 	bool outarg_valid = true;
+ 	bool locked;
+ 
++	if (fuse_is_bad(dir))
++		return ERR_PTR(-EIO);
++
+ 	locked = fuse_lock_inode(dir);
+ 	err = fuse_lookup_name(dir->i_sb, get_node_id(dir), &entry->d_name,
+ 			       &outarg, &inode);
+@@ -504,6 +507,9 @@ static int fuse_atomic_open(struct inode
+ 	struct fuse_conn *fc = get_fuse_conn(dir);
+ 	struct dentry *res = NULL;
+ 
++	if (fuse_is_bad(dir))
++		return -EIO;
++
+ 	if (d_in_lookup(entry)) {
+ 		res = fuse_lookup(dir, entry, 0);
+ 		if (IS_ERR(res))
+@@ -551,6 +557,9 @@ static int create_new_entry(struct fuse_
+ 	int err;
+ 	struct fuse_forget_link *forget;
+ 
++	if (fuse_is_bad(dir))
++		return -EIO;
++
+ 	forget = fuse_alloc_forget();
+ 	if (!forget)
+ 		return -ENOMEM;
+@@ -672,6 +681,9 @@ static int fuse_unlink(struct inode *dir
+ 	struct fuse_conn *fc = get_fuse_conn(dir);
+ 	FUSE_ARGS(args);
+ 
++	if (fuse_is_bad(dir))
++		return -EIO;
++
+ 	args.in.h.opcode = FUSE_UNLINK;
+ 	args.in.h.nodeid = get_node_id(dir);
+ 	args.in.numargs = 1;
+@@ -708,6 +720,9 @@ static int fuse_rmdir(struct inode *dir,
+ 	struct fuse_conn *fc = get_fuse_conn(dir);
+ 	FUSE_ARGS(args);
+ 
++	if (fuse_is_bad(dir))
++		return -EIO;
++
+ 	args.in.h.opcode = FUSE_RMDIR;
+ 	args.in.h.nodeid = get_node_id(dir);
+ 	args.in.numargs = 1;
+@@ -786,6 +801,9 @@ static int fuse_rename2(struct inode *ol
+ 	struct fuse_conn *fc = get_fuse_conn(olddir);
+ 	int err;
+ 
++	if (fuse_is_bad(olddir))
++		return -EIO;
++
+ 	if (flags & ~(RENAME_NOREPLACE | RENAME_EXCHANGE))
+ 		return -EINVAL;
+ 
+@@ -921,7 +939,7 @@ static int fuse_do_getattr(struct inode
+ 	if (!err) {
+ 		if (fuse_invalid_attr(&outarg.attr) ||
+ 		    (inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
+-			make_bad_inode(inode);
++			fuse_make_bad(inode);
+ 			err = -EIO;
+ 		} else {
+ 			fuse_change_attributes(inode, &outarg.attr,
+@@ -1114,6 +1132,9 @@ static int fuse_permission(struct inode
+ 	bool refreshed = false;
+ 	int err = 0;
+ 
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	if (!fuse_allow_current_process(fc))
+ 		return -EACCES;
+ 
+@@ -1251,7 +1272,7 @@ retry:
+ 			dput(dentry);
+ 			goto retry;
+ 		}
+-		if (is_bad_inode(inode)) {
++		if (fuse_is_bad(inode)) {
+ 			dput(dentry);
+ 			return -EIO;
+ 		}
+@@ -1349,7 +1370,7 @@ static int fuse_readdir(struct file *fil
+ 	u64 attr_version = 0;
+ 	bool locked;
+ 
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		return -EIO;
+ 
+ 	req = fuse_get_req(fc, 1);
+@@ -1409,6 +1430,9 @@ static const char *fuse_get_link(struct
+ 	if (!dentry)
+ 		return ERR_PTR(-ECHILD);
+ 
++	if (fuse_is_bad(inode))
++		return ERR_PTR(-EIO);
++
+ 	link = kmalloc(PAGE_SIZE, GFP_KERNEL);
+ 	if (!link)
+ 		return ERR_PTR(-ENOMEM);
+@@ -1707,7 +1731,7 @@ int fuse_do_setattr(struct dentry *dentr
+ 
+ 	if (fuse_invalid_attr(&outarg.attr) ||
+ 	    (inode->i_mode ^ outarg.attr.mode) & S_IFMT) {
+-		make_bad_inode(inode);
++		fuse_make_bad(inode);
+ 		err = -EIO;
+ 		goto error;
+ 	}
+@@ -1763,6 +1787,9 @@ static int fuse_setattr(struct dentry *e
+ 	struct file *file = (attr->ia_valid & ATTR_FILE) ? attr->ia_file : NULL;
+ 	int ret;
+ 
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	if (!fuse_allow_current_process(get_fuse_conn(inode)))
+ 		return -EACCES;
+ 
+@@ -1821,6 +1848,9 @@ static int fuse_getattr(struct vfsmount
+ 	struct inode *inode = d_inode(entry);
+ 	struct fuse_conn *fc = get_fuse_conn(inode);
+ 
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	if (!fuse_allow_current_process(fc))
+ 		return -EACCES;
+ 
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -206,6 +206,9 @@ int fuse_open_common(struct inode *inode
+ 			  fc->atomic_o_trunc &&
+ 			  fc->writeback_cache;
+ 
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	err = generic_file_open(inode, file);
+ 	if (err)
+ 		return err;
+@@ -411,7 +414,7 @@ static int fuse_flush(struct file *file,
+ 	struct fuse_flush_in inarg;
+ 	int err;
+ 
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		return -EIO;
+ 
+ 	if (fc->no_flush)
+@@ -459,7 +462,7 @@ int fuse_fsync_common(struct file *file,
+ 	struct fuse_fsync_in inarg;
+ 	int err;
+ 
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		return -EIO;
+ 
+ 	inode_lock(inode);
+@@ -771,7 +774,7 @@ static int fuse_readpage(struct file *fi
+ 	int err;
+ 
+ 	err = -EIO;
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		goto out;
+ 
+ 	err = fuse_do_readpage(file, page);
+@@ -898,7 +901,7 @@ static int fuse_readpages(struct file *f
+ 	int nr_alloc = min_t(unsigned, nr_pages, FUSE_MAX_PAGES_PER_REQ);
+ 
+ 	err = -EIO;
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		goto out;
+ 
+ 	data.file = file;
+@@ -928,6 +931,9 @@ static ssize_t fuse_file_read_iter(struc
+ 	struct inode *inode = iocb->ki_filp->f_mapping->host;
+ 	struct fuse_conn *fc = get_fuse_conn(inode);
+ 
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	/*
+ 	 * In auto invalidate mode, always update attributes on read.
+ 	 * Otherwise, only update if we attempt to read past EOF (to ensure
+@@ -1123,7 +1129,7 @@ static ssize_t fuse_perform_write(struct
+ 	int err = 0;
+ 	ssize_t res = 0;
+ 
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		return -EIO;
+ 
+ 	if (inode->i_size < pos + iov_iter_count(ii))
+@@ -1180,6 +1186,9 @@ static ssize_t fuse_file_write_iter(stru
+ 	ssize_t err;
+ 	loff_t endbyte = 0;
+ 
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	if (get_fuse_conn(inode)->writeback_cache) {
+ 		/* Update size (EOF optimization) and mode (SUID clearing) */
+ 		err = fuse_update_attributes(mapping->host, NULL, file, NULL);
+@@ -1415,7 +1424,7 @@ static ssize_t __fuse_direct_read(struct
+ 	struct file *file = io->file;
+ 	struct inode *inode = file_inode(file);
+ 
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		return -EIO;
+ 
+ 	res = fuse_direct_io(io, iter, ppos, 0);
+@@ -1438,7 +1447,7 @@ static ssize_t fuse_direct_write_iter(st
+ 	struct fuse_io_priv io = FUSE_IO_PRIV_SYNC(file);
+ 	ssize_t res;
+ 
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		return -EIO;
+ 
+ 	/* Don't allow parallel writes to the same file */
+@@ -1911,7 +1920,7 @@ static int fuse_writepages(struct addres
+ 	int err;
+ 
+ 	err = -EIO;
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		goto out;
+ 
+ 	data.inode = inode;
+@@ -2687,7 +2696,7 @@ long fuse_ioctl_common(struct file *file
+ 	if (!fuse_allow_current_process(fc))
+ 		return -EACCES;
+ 
+-	if (is_bad_inode(inode))
++	if (fuse_is_bad(inode))
+ 		return -EIO;
+ 
+ 	return fuse_do_ioctl(file, cmd, arg, flags);
+--- a/fs/fuse/fuse_i.h
++++ b/fs/fuse/fuse_i.h
+@@ -115,6 +115,8 @@ enum {
+ 	FUSE_I_INIT_RDPLUS,
+ 	/** An operation changing file size is in progress  */
+ 	FUSE_I_SIZE_UNSTABLE,
++	/* Bad inode */
++	FUSE_I_BAD,
+ };
+ 
+ struct fuse_conn;
+@@ -688,6 +690,16 @@ static inline u64 get_node_id(struct ino
+ 	return get_fuse_inode(inode)->nodeid;
+ }
+ 
++static inline void fuse_make_bad(struct inode *inode)
++{
++	set_bit(FUSE_I_BAD, &get_fuse_inode(inode)->state);
++}
++
++static inline bool fuse_is_bad(struct inode *inode)
++{
++	return unlikely(test_bit(FUSE_I_BAD, &get_fuse_inode(inode)->state));
++}
++
+ /** Device operations */
+ extern const struct file_operations fuse_dev_operations;
+ 
+--- a/fs/fuse/inode.c
++++ b/fs/fuse/inode.c
+@@ -316,7 +316,7 @@ struct inode *fuse_iget(struct super_blo
+ 		unlock_new_inode(inode);
+ 	} else if ((inode->i_mode ^ attr->mode) & S_IFMT) {
+ 		/* Inode has changed type, any I/O on the old should fail */
+-		make_bad_inode(inode);
++		fuse_make_bad(inode);
+ 		iput(inode);
+ 		goto retry;
+ 	}
+--- a/fs/fuse/xattr.c
++++ b/fs/fuse/xattr.c
+@@ -113,6 +113,9 @@ ssize_t fuse_listxattr(struct dentry *en
+ 	struct fuse_getxattr_out outarg;
+ 	ssize_t ret;
+ 
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	if (!fuse_allow_current_process(fc))
+ 		return -EACCES;
+ 
+@@ -178,6 +181,9 @@ static int fuse_xattr_get(const struct x
+ 			 struct dentry *dentry, struct inode *inode,
+ 			 const char *name, void *value, size_t size)
+ {
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	return fuse_getxattr(inode, name, value, size);
+ }
+ 
+@@ -186,6 +192,9 @@ static int fuse_xattr_set(const struct x
+ 			  const char *name, const void *value, size_t size,
+ 			  int flags)
+ {
++	if (fuse_is_bad(inode))
++		return -EIO;
++
+ 	if (!value)
+ 		return fuse_removexattr(inode, name);
+ 
 
 
