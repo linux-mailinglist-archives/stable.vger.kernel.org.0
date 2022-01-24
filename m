@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24EFA4999F6
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:48:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B33F4995ED
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:14:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378265AbiAXViy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:38:54 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:48094 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1449160AbiAXV2I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:28:08 -0500
+        id S1443599AbiAXU5f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:57:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44704 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359047AbiAXUxE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:53:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 157F1C02B86B;
+        Mon, 24 Jan 2022 11:59:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C7E096131F;
-        Mon, 24 Jan 2022 21:28:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A4D2C340E7;
-        Mon, 24 Jan 2022 21:28:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A7DE260B43;
+        Mon, 24 Jan 2022 19:59:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73670C340E5;
+        Mon, 24 Jan 2022 19:59:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059686;
-        bh=6YAm3CPq34GvsX3b4vYCVruJOM6/PYsnnpJpjUe6TT0=;
+        s=korg; t=1643054341;
+        bh=nTQQoOcwOSWdtjW4HqwT3MpwSNGEGW1hkZI3TJyvSr4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nCq6X5Wn5cr7GXQVCBQllI5oVo8Y64dfGPvDN55mZKlGSBlJps32bjE9pxeZJuPsc
-         jnDmpTVP3efLZmGEm7TEktKplF1Sfo0YvNamqfykg4SvuBHpBvMxHB/csHsEzhtGtW
-         3B0M8nQt5iMcBgXHuLRN2Nvy0MeuL7CdlLNrTYHQ=
+        b=lAg2F0TzMBdQ7GBQIlVp37H+WD8oXlmL6xlHLLJxw4B8V+QHijRzfneXvjVSqAvxk
+         JBLU+O07iynz5J0ozM/FA1BpeF+mmQjSIjTzbwVzjNpPbSHbDmSq9vjcz3CXtiiV9U
+         zKrK+lJKN0IjUW8LsDD/G47iZFM5XBRlXdpaGyfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Bob Moore <robert.moore@intel.com>,
+        stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
+        Sherry Sun <sherry.sun@nxp.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0700/1039] ACPICA: Hardware: Do not flush CPU cache when entering S4 and S5
+Subject: [PATCH 5.10 324/563] tty: serial: imx: disable UCR4_OREN in .stop_rx() instead of .shutdown()
 Date:   Mon, 24 Jan 2022 19:41:29 +0100
-Message-Id: <20220124184148.869834985@linuxfoundation.org>
+Message-Id: <20220124184035.638726101@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,80 +48,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+From: Fugang Duan <fugang.duan@nxp.com>
 
-[ Upstream commit 1d4e0b3abb168b2ee1eca99c527cffa1b80b6161 ]
+[ Upstream commit 028e083832b06fdeeb290e1e57dc1f6702c4c215 ]
 
-ACPICA commit 3dd7e1f3996456ef81bfe14cba29860e8d42949e
+The UCR4_OREN should be disabled before disabling the uart receiver in
+.stop_rx() instead of in the .shutdown().
 
-According to ACPI 6.4, Section 16.2, the CPU cache flushing is
-required on entering to S1, S2, and S3, but the ACPICA code
-flushes the CPU cache regardless of the sleep state.
+Otherwise, if we have the overrun error during the receiver disable
+process, the overrun interrupt will keep trigging until we disable the
+OREN interrupt in the .shutdown(), because the ORE status can only be
+cleared when read the rx FIFO or reset the controller.  Although the
+called time between the receiver disable and OREN disable in .shutdown()
+is very short, there is still the risk of endless interrupt during this
+short period of time. So here change to disable OREN before the receiver
+been disabled in .stop_rx().
 
-Blind cache flush on entering S5 causes problems for TDX.
-
-Flushing happens with WBINVD that is not supported in the TDX
-environment.
-
-TDX only supports S5 and adjusting ACPICA code to conform to the
-spec more strictly fixes the issue.
-
-Link: https://github.com/acpica/acpica/commit/3dd7e1f3
-Signed-off-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-[ rjw: Subject and changelog edits ]
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Bob Moore <robert.moore@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Link: https://lore.kernel.org/r/20211125020349.4980-1-sherry.sun@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/hwesleep.c  | 4 +++-
- drivers/acpi/acpica/hwsleep.c   | 4 +++-
- drivers/acpi/acpica/hwxfsleep.c | 2 --
- 3 files changed, 6 insertions(+), 4 deletions(-)
+ drivers/tty/serial/imx.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/acpica/hwesleep.c b/drivers/acpi/acpica/hwesleep.c
-index 808fdf54aeebf..7ee2939c08cd4 100644
---- a/drivers/acpi/acpica/hwesleep.c
-+++ b/drivers/acpi/acpica/hwesleep.c
-@@ -104,7 +104,9 @@ acpi_status acpi_hw_extended_sleep(u8 sleep_state)
+diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
+index 28cc328ddb6eb..93cd8ad57f385 100644
+--- a/drivers/tty/serial/imx.c
++++ b/drivers/tty/serial/imx.c
+@@ -508,18 +508,21 @@ static void imx_uart_stop_tx(struct uart_port *port)
+ static void imx_uart_stop_rx(struct uart_port *port)
+ {
+ 	struct imx_port *sport = (struct imx_port *)port;
+-	u32 ucr1, ucr2;
++	u32 ucr1, ucr2, ucr4;
  
- 	/* Flush caches, as per ACPI specification */
+ 	ucr1 = imx_uart_readl(sport, UCR1);
+ 	ucr2 = imx_uart_readl(sport, UCR2);
++	ucr4 = imx_uart_readl(sport, UCR4);
  
--	ACPI_FLUSH_CPU_CACHE();
-+	if (sleep_state < ACPI_STATE_S4) {
-+		ACPI_FLUSH_CPU_CACHE();
-+	}
- 
- 	status = acpi_os_enter_sleep(sleep_state, sleep_control, 0);
- 	if (status == AE_CTRL_TERMINATE) {
-diff --git a/drivers/acpi/acpica/hwsleep.c b/drivers/acpi/acpica/hwsleep.c
-index 34a3825f25d37..5efa3d8e483e0 100644
---- a/drivers/acpi/acpica/hwsleep.c
-+++ b/drivers/acpi/acpica/hwsleep.c
-@@ -110,7 +110,9 @@ acpi_status acpi_hw_legacy_sleep(u8 sleep_state)
- 
- 	/* Flush caches, as per ACPI specification */
- 
--	ACPI_FLUSH_CPU_CACHE();
-+	if (sleep_state < ACPI_STATE_S4) {
-+		ACPI_FLUSH_CPU_CACHE();
-+	}
- 
- 	status = acpi_os_enter_sleep(sleep_state, pm1a_control, pm1b_control);
- 	if (status == AE_CTRL_TERMINATE) {
-diff --git a/drivers/acpi/acpica/hwxfsleep.c b/drivers/acpi/acpica/hwxfsleep.c
-index e4cde23a29061..ba77598ee43e8 100644
---- a/drivers/acpi/acpica/hwxfsleep.c
-+++ b/drivers/acpi/acpica/hwxfsleep.c
-@@ -162,8 +162,6 @@ acpi_status acpi_enter_sleep_state_s4bios(void)
- 		return_ACPI_STATUS(status);
+ 	if (sport->dma_is_enabled) {
+ 		ucr1 &= ~(UCR1_RXDMAEN | UCR1_ATDMAEN);
+ 	} else {
+ 		ucr1 &= ~UCR1_RRDYEN;
+ 		ucr2 &= ~UCR2_ATEN;
++		ucr4 &= ~UCR4_OREN;
  	}
+ 	imx_uart_writel(sport, ucr1, UCR1);
++	imx_uart_writel(sport, ucr4, UCR4);
  
--	ACPI_FLUSH_CPU_CACHE();
--
- 	status = acpi_hw_write_port(acpi_gbl_FADT.smi_command,
- 				    (u32)acpi_gbl_FADT.s4_bios_request, 8);
- 	if (ACPI_FAILURE(status)) {
+ 	ucr2 &= ~UCR2_RXEN;
+ 	imx_uart_writel(sport, ucr2, UCR2);
+@@ -1576,7 +1579,7 @@ static void imx_uart_shutdown(struct uart_port *port)
+ 	imx_uart_writel(sport, ucr1, UCR1);
+ 
+ 	ucr4 = imx_uart_readl(sport, UCR4);
+-	ucr4 &= ~(UCR4_OREN | UCR4_TCEN);
++	ucr4 &= ~UCR4_TCEN;
+ 	imx_uart_writel(sport, ucr4, UCR4);
+ 
+ 	spin_unlock_irqrestore(&sport->port.lock, flags);
 -- 
 2.34.1
 
