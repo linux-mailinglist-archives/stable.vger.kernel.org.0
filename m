@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB15B497D65
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 11:50:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EFE3497D64
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 11:50:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235576AbiAXKuR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 05:50:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41934 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236799AbiAXKuR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 05:50:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39744C06173B
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 02:50:17 -0800 (PST)
+        id S236787AbiAXKuF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 05:50:05 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:36980 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235576AbiAXKuF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 05:50:05 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 34AC6612E5
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 10:50:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E372AC340E1;
-        Mon, 24 Jan 2022 10:50:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0FBFEB80B36
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 10:50:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5198C340E1;
+        Mon, 24 Jan 2022 10:50:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643021415;
-        bh=mZSvZg+lAgVCMnURbbQf7SawHM1srUmoQ7y7eaKwk9I=;
+        s=korg; t=1643021402;
+        bh=qu797eEG76dstsnJXGEBOtsyRkG7EF1j4FCFlp1InmI=;
         h=Subject:To:Cc:From:Date:From;
-        b=gVognKfPqBY4vqR+vKiC+pVTuNDWSr14wpijOpnAkWoAtgSisn73mTxVA5VF9UIZa
-         oscc3Llfwoj/omysRa1d1CKMP0HNFxfJvIQ7H8Pk7HrO6mvze/+MTU15XQCVnZOeJ8
-         gX5Wn68eXx5AqvCemKVAZWqIR+s/v6IPxEa4dG7I=
-Subject: FAILED: patch "[PATCH] drm/vc4: hdmi: Make sure the device is powered with CEC" failed to apply to 4.19-stable tree
+        b=xUiEY4yyJLKDnWNwxxz00TSIKB5cqEqKXGRBc2bUA3TbH/EQCHdW2rUHo3coJDwKd
+         Hn4+UMaWG9kb5iCcIy5hZbEtyu2xXCrO870uW7G1WagkRLOJKJqrC5MrCkwLDMZrr0
+         Nwbg4TpMBsNDrXJpAIfq68J4GBIl9xaLGuQ9M5hc=
+Subject: FAILED: patch "[PATCH] drm/vc4: hdmi: Make sure the device is powered with CEC" failed to apply to 4.14-stable tree
 To:     maxime@cerno.tech, dave.stevenson@raspberrypi.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 24 Jan 2022 11:49:59 +0100
-Message-ID: <1643021399119166@kroah.com>
+Message-ID: <164302139953187@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
