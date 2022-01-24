@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E1CE499948
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:44:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B2DB4998FF
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:39:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1453897AbiAXVbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:31:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51520 "EHLO
+        id S1453913AbiAXVbN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:31:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1450852AbiAXVVf (ORCPT
+        with ESMTP id S1450848AbiAXVVf (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:21:35 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D671C0604DA;
-        Mon, 24 Jan 2022 12:15:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11DC5C0604DB;
+        Mon, 24 Jan 2022 12:16:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6029B8122A;
-        Mon, 24 Jan 2022 20:15:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E035C340E5;
-        Mon, 24 Jan 2022 20:15:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C51CFB8122F;
+        Mon, 24 Jan 2022 20:16:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06FD8C340E5;
+        Mon, 24 Jan 2022 20:15:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055356;
-        bh=dLuDQRzMUeeFfFZdQZT99nYWumh4Iox5ujdhWHcDORI=;
+        s=korg; t=1643055359;
+        bh=IGQ79+0mpLsLx4VvMW/Aa9wP8BnjBB2PhCNUg0bhnrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PhkKARdBa1b58ssH2vlrAALeWe34wiCsHbEHduvmOgqPW8BYrQ5u52UGNd+8dm/Gy
-         q6NY9TPgyhq3DZspRwxiHNfSv089vxOLc7DjWP4TreuX+AYLUiKXihl0AK+Juk+a1c
-         TX6uMbXEURHzleFhji6NBMend6IkecG74Zy+o2HE=
+        b=1IwviWoj1hevjRqkf0U8WLKLkvHXNIAitY+aIjuSKyADdSGe4AIq8vFOxqBJOAvzM
+         o/ZrjrBAnF92O3UzryUldUDEb35iuLjfGKknX65S6zAwnoTN6WJg0L62d0UIRWQkxr
+         5j+hQA1d7PWHFhQvSv7m39mSQnNsC44l5tr7IVx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Biju Das <biju.das.jz@bp.renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 125/846] memory: renesas-rpc-if: Return error in case devm_ioremap_resource() fails
-Date:   Mon, 24 Jan 2022 19:34:02 +0100
-Message-Id: <20220124184105.287955195@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+e3fcb9c4f3c2a931dc40@syzkaller.appspotmail.com
+Subject: [PATCH 5.15 126/846] Bluetooth: stop proccessing malicious adv data
+Date:   Mon, 24 Jan 2022 19:34:03 +0100
+Message-Id: <20220124184105.320087206@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -52,38 +49,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 818fdfa89baac77a8df5a2c30f4fb798cc937aa0 ]
+[ Upstream commit 3a56ef719f0b9682afb8a86d64b2399e36faa4e6 ]
 
-Make sure we return error in case devm_ioremap_resource() fails for dirmap
-resource.
+Syzbot reported slab-out-of-bounds read in hci_le_adv_report_evt(). The
+problem was in missing validaion check.
 
-Fixes: ca7d8b980b67 ("memory: add Renesas RPC-IF driver")
-Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Reviewed-by: Biju Das <biju.das.jz@bp.renesas.com>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20211025205631.21151-6-prabhakar.mahadev-lad.rj@bp.renesas.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+We should check if data is not malicious and we can read next data block.
+If we won't check ptr validness, code can read a way beyond skb->end and
+it can cause problems, of course.
+
+Fixes: e95beb414168 ("Bluetooth: hci_le_adv_report_evt code refactoring")
+Reported-and-tested-by: syzbot+e3fcb9c4f3c2a931dc40@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/renesas-rpc-if.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/hci_event.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/memory/renesas-rpc-if.c b/drivers/memory/renesas-rpc-if.c
-index 77a011d5ff8c1..8618702233002 100644
---- a/drivers/memory/renesas-rpc-if.c
-+++ b/drivers/memory/renesas-rpc-if.c
-@@ -244,7 +244,7 @@ int rpcif_sw_init(struct rpcif *rpc, struct device *dev)
- 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "dirmap");
- 	rpc->dirmap = devm_ioremap_resource(&pdev->dev, res);
- 	if (IS_ERR(rpc->dirmap))
--		rpc->dirmap = NULL;
-+		return PTR_ERR(rpc->dirmap);
- 	rpc->size = resource_size(res);
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index 0bca035bf2dcc..50d1d62c15ec8 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -5780,7 +5780,8 @@ static void hci_le_adv_report_evt(struct hci_dev *hdev, struct sk_buff *skb)
+ 		struct hci_ev_le_advertising_info *ev = ptr;
+ 		s8 rssi;
  
- 	rpc->rstc = devm_reset_control_get_exclusive(&pdev->dev, NULL);
+-		if (ev->length <= HCI_MAX_AD_LENGTH) {
++		if (ev->length <= HCI_MAX_AD_LENGTH &&
++		    ev->data + ev->length <= skb_tail_pointer(skb)) {
+ 			rssi = ev->data[ev->length];
+ 			process_adv_report(hdev, ev->evt_type, &ev->bdaddr,
+ 					   ev->bdaddr_type, NULL, 0, rssi,
+@@ -5790,6 +5791,11 @@ static void hci_le_adv_report_evt(struct hci_dev *hdev, struct sk_buff *skb)
+ 		}
+ 
+ 		ptr += sizeof(*ev) + ev->length + 1;
++
++		if (ptr > (void *) skb_tail_pointer(skb) - sizeof(*ev)) {
++			bt_dev_err(hdev, "Malicious advertising data. Stopping processing");
++			break;
++		}
+ 	}
+ 
+ 	hci_dev_unlock(hdev);
 -- 
 2.34.1
 
