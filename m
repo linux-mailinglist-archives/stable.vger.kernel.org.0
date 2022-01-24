@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCEEB498E49
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:44:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C01EF498AA3
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:07:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355163AbiAXTkF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:40:05 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58070 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354158AbiAXTgI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:36:08 -0500
+        id S237312AbiAXTGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:06:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45326 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344246AbiAXTDN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:03:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1045AC061753;
+        Mon, 24 Jan 2022 10:59:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0C12B810AF;
-        Mon, 24 Jan 2022 19:36:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9AD4C340E5;
-        Mon, 24 Jan 2022 19:36:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A17E86020F;
+        Mon, 24 Jan 2022 18:59:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7257EC340E7;
+        Mon, 24 Jan 2022 18:59:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052965;
-        bh=17uZWNwcuXXwaurrShXeLBZ0t+Jwvjam9BBI+xKfecg=;
+        s=korg; t=1643050743;
+        bh=1LsIV7lL5lJ40dfUxO8pKqDVJSLOtPvkZEuXKWupjx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QsCObvFyeFtQSKB2P5j/QDzrQ/02w3AEol8NWkA8I7OsyHK5OVMAi/cPFWxzg8+1q
-         FlYyp+zpZ4+Jop5nyfK70XRunHYXwyqeLvdW7pLX//Rh29FPha0e1L4pGQoS+a704R
-         U3q/b2ZYB/x9KhMpEmqt0Qr6aw3Qk9HP4grLMVaI=
+        b=k0nQjD9z2HTYmojl9TbYPZWt96gPnaPgE6OsqV44iyClLzRf0HpDxd+5pLRb3P9Lo
+         9tT8gXVK/zDXV8n+DsBzLhPhfzlarpLG2tSMk8MGPXvIAnrYli/kvWXyTEitCjIZgZ
+         pXG+dBIxDlvXmSgJV78chz1t+5G8A5IpKdj4bMso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Langsdorf <mlangsdo@redhat.com>,
-        Bob Moore <robert.moore@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 204/320] ACPICA: actypes.h: Expand the ACPI_ACCESS_ definitions
+Subject: [PATCH 4.9 098/157] btrfs: remove BUG_ON(!eie) in find_parent_nodes
 Date:   Mon, 24 Jan 2022 19:43:08 +0100
-Message-Id: <20220124184000.573255237@linuxfoundation.org>
+Message-Id: <20220124183935.878229190@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,54 +48,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Langsdorf <mlangsdo@redhat.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit f81bdeaf816142e0729eea0cc84c395ec9673151 ]
+[ Upstream commit 9f05c09d6baef789726346397438cca4ec43c3ee ]
 
-ACPICA commit bc02c76d518135531483dfc276ed28b7ee632ce1
+If we're looking for leafs that point to a data extent we want to record
+the extent items that point at our bytenr.  At this point we have the
+reference and we know for a fact that this leaf should have a reference
+to our bytenr.  However if there's some sort of corruption we may not
+find any references to our leaf, and thus could end up with eie == NULL.
+Replace this BUG_ON() with an ASSERT() and then return -EUCLEAN for the
+mortals.
 
-The current ACPI_ACCESS_*_WIDTH defines do not provide a way to
-test that size is small enough to not cause an overflow when
-applied to a 32-bit integer.
-
-Rather than adding more magic numbers, add ACPI_ACCESS_*_SHIFT,
-ACPI_ACCESS_*_MAX, and ACPI_ACCESS_*_DEFAULT #defines and
-redefine ACPI_ACCESS_*_WIDTH in terms of the new #defines.
-
-This was inititally reported on Linux where a size of 102 in
-ACPI_ACCESS_BIT_WIDTH caused an overflow error in the SPCR
-initialization code.
-
-Link: https://github.com/acpica/acpica/commit/bc02c76d
-Signed-off-by: Mark Langsdorf <mlangsdo@redhat.com>
-Signed-off-by: Bob Moore <robert.moore@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/acpi/actypes.h | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ fs/btrfs/backref.c | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/include/acpi/actypes.h b/include/acpi/actypes.h
-index 9373662cdb44f..ff5fecff51167 100644
---- a/include/acpi/actypes.h
-+++ b/include/acpi/actypes.h
-@@ -536,8 +536,14 @@ typedef u64 acpi_integer;
-  * Can be used with access_width of struct acpi_generic_address and access_size of
-  * struct acpi_resource_generic_register.
-  */
--#define ACPI_ACCESS_BIT_WIDTH(size)     (1 << ((size) + 2))
--#define ACPI_ACCESS_BYTE_WIDTH(size)    (1 << ((size) - 1))
-+#define ACPI_ACCESS_BIT_SHIFT		2
-+#define ACPI_ACCESS_BYTE_SHIFT		-1
-+#define ACPI_ACCESS_BIT_MAX		(31 - ACPI_ACCESS_BIT_SHIFT)
-+#define ACPI_ACCESS_BYTE_MAX		(31 - ACPI_ACCESS_BYTE_SHIFT)
-+#define ACPI_ACCESS_BIT_DEFAULT		(8 - ACPI_ACCESS_BIT_SHIFT)
-+#define ACPI_ACCESS_BYTE_DEFAULT	(8 - ACPI_ACCESS_BYTE_SHIFT)
-+#define ACPI_ACCESS_BIT_WIDTH(size)	(1 << ((size) + ACPI_ACCESS_BIT_SHIFT))
-+#define ACPI_ACCESS_BYTE_WIDTH(size)	(1 << ((size) + ACPI_ACCESS_BYTE_SHIFT))
- 
- /*******************************************************************************
-  *
+diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
+index 29a19bc2abe18..16169b35ab6e5 100644
+--- a/fs/btrfs/backref.c
++++ b/fs/btrfs/backref.c
+@@ -1437,10 +1437,18 @@ again:
+ 				goto out;
+ 			if (!ret && extent_item_pos) {
+ 				/*
+-				 * we've recorded that parent, so we must extend
+-				 * its inode list here
++				 * We've recorded that parent, so we must extend
++				 * its inode list here.
++				 *
++				 * However if there was corruption we may not
++				 * have found an eie, return an error in this
++				 * case.
+ 				 */
+-				BUG_ON(!eie);
++				ASSERT(eie);
++				if (!eie) {
++					ret = -EUCLEAN;
++					goto out;
++				}
+ 				while (eie->next)
+ 					eie = eie->next;
+ 				eie->next = ref->inode_list;
 -- 
 2.34.1
 
