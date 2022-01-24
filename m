@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE590498D27
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:33:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 414EC499042
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348214AbiAXT2M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:28:12 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:53838 "EHLO
+        id S1353093AbiAXT7V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:59:21 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:49206 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351195AbiAXT0K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:26:10 -0500
+        with ESMTP id S1344298AbiAXTxv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:53:51 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D2C9E60BB9;
-        Mon, 24 Jan 2022 19:26:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3B38C340E5;
-        Mon, 24 Jan 2022 19:26:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 48A0C601B6;
+        Mon, 24 Jan 2022 19:53:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 308B5C340E5;
+        Mon, 24 Jan 2022 19:53:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052368;
-        bh=DU3CIw3p50KSKQOPg73wZG2FU2DsWzcnpkARL7xOBgw=;
+        s=korg; t=1643054028;
+        bh=lOJCY7buUeLtrTZHe3ywJbkc8zqpQTJvczT/ZH8x97Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oLsZQQBrFp/dTzspCjDI3uyxslHknsdGV9FbJhmZdRRCq+hgrE3wTyG8KFHFaLGfC
-         xuJ/r/AV/CdChrQ+YnVwFCxbeOD3Yq+oPOt1ZeD1U0kD1TamkzrU9M9McbdEXmiTfP
-         HmsX2IoLQqK8jvbWfyU8Zk03R3im5PjHKhdi3yGI=
+        b=op4XRG0VRxo1CxhAFEmKH8ZTzdogegbVt8GyyIHXyUsgQIq51oIgXx+hQTOlgEGRX
+         K03TT/CfqMOZdfvj7JDtzh6D0zNSaC5rb/H5zn12HGDPPpfNrigm0QtwJ/4v3mWF9M
+         njJPO7Ea980N/njNGpzWBFJ3osKS7pf+Ler8xnxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Chen-Yu Tsai <wenst@chromium.org>,
-        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
-        <nfraprado@collabora.com>, Heiko Stuebner <heiko@sntech.de>,
+        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 036/320] drm/rockchip: dsi: Fix unbalanced clock on probe error
-Date:   Mon, 24 Jan 2022 19:40:20 +0100
-Message-Id: <20220124183954.978288662@linuxfoundation.org>
+Subject: [PATCH 5.10 256/563] clocksource: Avoid accidental unstable marking of clocksources
+Date:   Mon, 24 Jan 2022 19:40:21 +0100
+Message-Id: <20220124184033.272071853@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,43 +45,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Waiman Long <longman@redhat.com>
 
-[ Upstream commit 251888398753924059f3bb247a44153a2853137f ]
+[ Upstream commit c86ff8c55b8ae68837b2fa59dc0c203907e9a15f ]
 
-Our probe() function never enabled this clock, so we shouldn't disable
-it if we fail to probe the bridge.
+Since commit db3a34e17433 ("clocksource: Retry clock read if long delays
+detected") and commit 2e27e793e280 ("clocksource: Reduce clocksource-skew
+threshold"), it is found that tsc clocksource fallback to hpet can
+sometimes happen on both Intel and AMD systems especially when they are
+running stressful benchmarking workloads. Of the 23 systems tested with
+a v5.14 kernel, 10 of them have switched to hpet clock source during
+the test run.
 
-Noted by inspection.
+The result of falling back to hpet is a drastic reduction of performance
+when running benchmarks. For example, the fio performance tests can
+drop up to 70% whereas the iperf3 performance can drop up to 80%.
 
-Fixes: 2d4f7bdafd70 ("drm/rockchip: dsi: migrate to use dw-mipi-dsi bridge driver")
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
-Tested-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210928143413.v3.3.Ie8ceefb51ab6065a1151869b6fcda41a467d4d2c@changeid
+4 hpet fallbacks happened during bootup. They were:
+
+  [    8.749399] clocksource: timekeeping watchdog on CPU13: hpet read-back delay of 263750ns, attempt 4, marking unstable
+  [   12.044610] clocksource: timekeeping watchdog on CPU19: hpet read-back delay of 186166ns, attempt 4, marking unstable
+  [   17.336941] clocksource: timekeeping watchdog on CPU28: hpet read-back delay of 182291ns, attempt 4, marking unstable
+  [   17.518565] clocksource: timekeeping watchdog on CPU34: hpet read-back delay of 252196ns, attempt 4, marking unstable
+
+Other fallbacks happen when the systems were running stressful
+benchmarks. For example:
+
+  [ 2685.867873] clocksource: timekeeping watchdog on CPU117: hpet read-back delay of 57269ns, attempt 4, marking unstable
+  [46215.471228] clocksource: timekeeping watchdog on CPU8: hpet read-back delay of 61460ns, attempt 4, marking unstable
+
+Commit 2e27e793e280 ("clocksource: Reduce clocksource-skew threshold"),
+changed the skew margin from 100us to 50us. I think this is too small
+and can easily be exceeded when running some stressful workloads on a
+thermally stressed system.  So it is switched back to 100us.
+
+Even a maximum skew margin of 100us may be too small in for some systems
+when booting up especially if those systems are under thermal stress. To
+eliminate the case that the large skew is due to the system being too
+busy slowing down the reading of both the watchdog and the clocksource,
+an extra consecutive read of watchdog clock is being done to check this.
+
+The consecutive watchdog read delay is compared against
+WATCHDOG_MAX_SKEW/2. If the delay exceeds the limit, we assume that
+the system is just too busy. A warning will be printed to the console
+and the clock skew check is skipped for this round.
+
+Fixes: db3a34e17433 ("clocksource: Retry clock read if long delays detected")
+Fixes: 2e27e793e280 ("clocksource: Reduce clocksource-skew threshold")
+Signed-off-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c |    6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ kernel/time/clocksource.c | 50 ++++++++++++++++++++++++++++++++-------
+ 1 file changed, 41 insertions(+), 9 deletions(-)
 
---- a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-+++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-@@ -1023,14 +1023,10 @@ static int dw_mipi_dsi_rockchip_probe(st
- 		if (ret != -EPROBE_DEFER)
- 			DRM_DEV_ERROR(dev,
- 				      "Failed to probe dw_mipi_dsi: %d\n", ret);
--		goto err_clkdisable;
-+		return ret;
+diff --git a/kernel/time/clocksource.c b/kernel/time/clocksource.c
+index d0803a69a2009..e34ceb91f4c5a 100644
+--- a/kernel/time/clocksource.c
++++ b/kernel/time/clocksource.c
+@@ -105,7 +105,7 @@ static u64 suspend_start;
+  * This delay could be due to SMIs, NMIs, or to VCPU preemptions.  Used as
+  * a lower bound for cs->uncertainty_margin values when registering clocks.
+  */
+-#define WATCHDOG_MAX_SKEW (50 * NSEC_PER_USEC)
++#define WATCHDOG_MAX_SKEW (100 * NSEC_PER_USEC)
+ 
+ #ifdef CONFIG_CLOCKSOURCE_WATCHDOG
+ static void clocksource_watchdog_work(struct work_struct *work);
+@@ -200,17 +200,24 @@ void clocksource_mark_unstable(struct clocksource *cs)
+ static ulong max_cswd_read_retries = 3;
+ module_param(max_cswd_read_retries, ulong, 0644);
+ 
+-static bool cs_watchdog_read(struct clocksource *cs, u64 *csnow, u64 *wdnow)
++enum wd_read_status {
++	WD_READ_SUCCESS,
++	WD_READ_UNSTABLE,
++	WD_READ_SKIP
++};
++
++static enum wd_read_status cs_watchdog_read(struct clocksource *cs, u64 *csnow, u64 *wdnow)
+ {
+ 	unsigned int nretries;
+-	u64 wd_end, wd_delta;
+-	int64_t wd_delay;
++	u64 wd_end, wd_end2, wd_delta;
++	int64_t wd_delay, wd_seq_delay;
+ 
+ 	for (nretries = 0; nretries <= max_cswd_read_retries; nretries++) {
+ 		local_irq_disable();
+ 		*wdnow = watchdog->read(watchdog);
+ 		*csnow = cs->read(cs);
+ 		wd_end = watchdog->read(watchdog);
++		wd_end2 = watchdog->read(watchdog);
+ 		local_irq_enable();
+ 
+ 		wd_delta = clocksource_delta(wd_end, *wdnow, watchdog->mask);
+@@ -221,13 +228,34 @@ static bool cs_watchdog_read(struct clocksource *cs, u64 *csnow, u64 *wdnow)
+ 				pr_warn("timekeeping watchdog on CPU%d: %s retried %d times before success\n",
+ 					smp_processor_id(), watchdog->name, nretries);
+ 			}
+-			return true;
++			return WD_READ_SUCCESS;
+ 		}
++
++		/*
++		 * Now compute delay in consecutive watchdog read to see if
++		 * there is too much external interferences that cause
++		 * significant delay in reading both clocksource and watchdog.
++		 *
++		 * If consecutive WD read-back delay > WATCHDOG_MAX_SKEW/2,
++		 * report system busy, reinit the watchdog and skip the current
++		 * watchdog test.
++		 */
++		wd_delta = clocksource_delta(wd_end2, wd_end, watchdog->mask);
++		wd_seq_delay = clocksource_cyc2ns(wd_delta, watchdog->mult, watchdog->shift);
++		if (wd_seq_delay > WATCHDOG_MAX_SKEW/2)
++			goto skip_test;
  	}
  
- 	return 0;
--
--err_clkdisable:
--	clk_disable_unprepare(dsi->pllref_clk);
--	return ret;
+ 	pr_warn("timekeeping watchdog on CPU%d: %s read-back delay of %lldns, attempt %d, marking unstable\n",
+ 		smp_processor_id(), watchdog->name, wd_delay, nretries);
+-	return false;
++	return WD_READ_UNSTABLE;
++
++skip_test:
++	pr_info("timekeeping watchdog on CPU%d: %s wd-wd read-back delay of %lldns\n",
++		smp_processor_id(), watchdog->name, wd_seq_delay);
++	pr_info("wd-%s-wd read-back delay of %lldns, clock-skew test skipped!\n",
++		cs->name, wd_delay);
++	return WD_READ_SKIP;
  }
  
- static int dw_mipi_dsi_rockchip_remove(struct platform_device *pdev)
+ static u64 csnow_mid;
+@@ -290,6 +318,7 @@ static void clocksource_watchdog(struct timer_list *unused)
+ 	int next_cpu, reset_pending;
+ 	int64_t wd_nsec, cs_nsec;
+ 	struct clocksource *cs;
++	enum wd_read_status read_ret;
+ 	u32 md;
+ 
+ 	spin_lock(&watchdog_lock);
+@@ -307,9 +336,12 @@ static void clocksource_watchdog(struct timer_list *unused)
+ 			continue;
+ 		}
+ 
+-		if (!cs_watchdog_read(cs, &csnow, &wdnow)) {
+-			/* Clock readout unreliable, so give it up. */
+-			__clocksource_unstable(cs);
++		read_ret = cs_watchdog_read(cs, &csnow, &wdnow);
++
++		if (read_ret != WD_READ_SUCCESS) {
++			if (read_ret == WD_READ_UNSTABLE)
++				/* Clock readout unreliable, so give it up. */
++				__clocksource_unstable(cs);
+ 			continue;
+ 		}
+ 
+-- 
+2.34.1
+
 
 
