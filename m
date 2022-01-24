@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2681497E5E
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 12:57:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B50BB497E61
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 12:59:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238032AbiAXL5m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 06:57:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57230 "EHLO
+        id S238011AbiAXL7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 06:59:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234568AbiAXL5m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 06:57:42 -0500
+        with ESMTP id S234568AbiAXL7P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 06:59:15 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17CCCC06173B
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 03:57:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B028C06173B
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 03:59:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BFCF6B80EFE
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 11:57:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA258C340E4;
-        Mon, 24 Jan 2022 11:57:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 412D5B80EFD
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 11:59:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A017C340E1;
+        Mon, 24 Jan 2022 11:59:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643025459;
-        bh=NSvFAIOVwbyD1CMtRvdGhWvB1PtiTHjrBciR/eBIexA=;
+        s=korg; t=1643025553;
+        bh=KHcKynQ2xBeK7G6emUUna/TIgE5elU5TtaPtmKjHPTE=;
         h=Subject:To:Cc:From:Date:From;
-        b=rkJ4OrM3j5j5kwgaGKWyhAhIpdguyXgSrx1Qmks8UGEaGQM+SfNZAYbKikw7pDvSD
-         DWDV5eheHqgZvppHoNzw0s5SnHehr8M75NZbHiE1C1O66TIuH7YQsRswC4gE8DreIG
-         Rc+XSFlEZrlmfyhITQ2r6/ufkgxk5PbjH3rVpO1M=
-Subject: FAILED: patch "[PATCH] arm64/bpf: Remove 128MB limit for BPF JIT programs" failed to apply to 5.4-stable tree
-To:     russell.king@oracle.com, alan.maguire@oracle.com,
-        ard.biesheuvel@linaro.org, daniel@iogearbox.net
+        b=KCtGAvh1FVfQFpao9QLCmkD5WFwd6O6n6IPz7NkyW8wY7T6jdeNG76yevwo89/e+I
+         Agb3xjHmIXm1oknVcJrp7FzHXAWzIWfj9j22cG62dIbZ9SKSp8T67tKYvyFeHZacn1
+         /9Dq57rXq7a2hqaYDzYxkRBlF9lL+OEFC9bqibEg=
+Subject: FAILED: patch "[PATCH] bpf: Make per_cpu_ptr return rdonly PTR_TO_MEM." failed to apply to 5.16-stable tree
+To:     haoluo@google.com, ast@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 12:57:36 +0100
-Message-ID: <1643025456171217@kroah.com>
+Date:   Mon, 24 Jan 2022 12:59:10 +0100
+Message-ID: <164302555013434@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -54,117 +53,114 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From b89ddf4cca43f1269093942cf5c4e457fd45c335 Mon Sep 17 00:00:00 2001
-From: Russell King <russell.king@oracle.com>
-Date: Fri, 5 Nov 2021 16:50:45 +0000
-Subject: [PATCH] arm64/bpf: Remove 128MB limit for BPF JIT programs
+From 34d3a78c681e8e7844b43d1a2f4671a04249c821 Mon Sep 17 00:00:00 2001
+From: Hao Luo <haoluo@google.com>
+Date: Thu, 16 Dec 2021 16:31:50 -0800
+Subject: [PATCH] bpf: Make per_cpu_ptr return rdonly PTR_TO_MEM.
 
-Commit 91fc957c9b1d ("arm64/bpf: don't allocate BPF JIT programs in module
-memory") restricts BPF JIT program allocation to a 128MB region to ensure
-BPF programs are still in branching range of each other. However this
-restriction should not apply to the aarch64 JIT, since BPF_JMP | BPF_CALL
-are implemented as a 64-bit move into a register and then a BLR instruction -
-which has the effect of being able to call anything without proximity
-limitation.
+Tag the return type of {per, this}_cpu_ptr with RDONLY_MEM. The
+returned value of this pair of helpers is kernel object, which
+can not be updated by bpf programs. Previously these two helpers
+return PTR_OT_MEM for kernel objects of scalar type, which allows
+one to directly modify the memory. Now with RDONLY_MEM tagging,
+the verifier will reject programs that write into RDONLY_MEM.
 
-The practical reason to relax this restriction on JIT memory is that 128MB of
-JIT memory can be quickly exhausted, especially where PAGE_SIZE is 64KB - one
-page is needed per program. In cases where seccomp filters are applied to
-multiple VMs on VM launch - such filters are classic BPF but converted to
-BPF - this can severely limit the number of VMs that can be launched. In a
-world where we support BPF JIT always on, turning off the JIT isn't always an
-option either.
+Fixes: 63d9b80dcf2c ("bpf: Introducte bpf_this_cpu_ptr()")
+Fixes: eaa6bcb71ef6 ("bpf: Introduce bpf_per_cpu_ptr()")
+Fixes: 4976b718c355 ("bpf: Introduce pseudo_btf_id")
+Signed-off-by: Hao Luo <haoluo@google.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20211217003152.48334-8-haoluo@google.com
 
-Fixes: 91fc957c9b1d ("arm64/bpf: don't allocate BPF JIT programs in module memory")
-Suggested-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Russell King <russell.king@oracle.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Tested-by: Alan Maguire <alan.maguire@oracle.com>
-Link: https://lore.kernel.org/bpf/1636131046-5982-2-git-send-email-alan.maguire@oracle.com
-
-diff --git a/arch/arm64/include/asm/extable.h b/arch/arm64/include/asm/extable.h
-index 8b300dd28def..72b0e71cc3de 100644
---- a/arch/arm64/include/asm/extable.h
-+++ b/arch/arm64/include/asm/extable.h
-@@ -33,15 +33,6 @@ do {							\
- 	(b)->data = (tmp).data;				\
- } while (0)
+diff --git a/kernel/bpf/helpers.c b/kernel/bpf/helpers.c
+index c49dc5cbe0a7..6a65e2a62b01 100644
+--- a/kernel/bpf/helpers.c
++++ b/kernel/bpf/helpers.c
+@@ -682,7 +682,7 @@ BPF_CALL_2(bpf_per_cpu_ptr, const void *, ptr, u32, cpu)
+ const struct bpf_func_proto bpf_per_cpu_ptr_proto = {
+ 	.func		= bpf_per_cpu_ptr,
+ 	.gpl_only	= false,
+-	.ret_type	= RET_PTR_TO_MEM_OR_BTF_ID | PTR_MAYBE_NULL,
++	.ret_type	= RET_PTR_TO_MEM_OR_BTF_ID | PTR_MAYBE_NULL | MEM_RDONLY,
+ 	.arg1_type	= ARG_PTR_TO_PERCPU_BTF_ID,
+ 	.arg2_type	= ARG_ANYTHING,
+ };
+@@ -695,7 +695,7 @@ BPF_CALL_1(bpf_this_cpu_ptr, const void *, percpu_ptr)
+ const struct bpf_func_proto bpf_this_cpu_ptr_proto = {
+ 	.func		= bpf_this_cpu_ptr,
+ 	.gpl_only	= false,
+-	.ret_type	= RET_PTR_TO_MEM_OR_BTF_ID,
++	.ret_type	= RET_PTR_TO_MEM_OR_BTF_ID | MEM_RDONLY,
+ 	.arg1_type	= ARG_PTR_TO_PERCPU_BTF_ID,
+ };
  
--static inline bool in_bpf_jit(struct pt_regs *regs)
--{
--	if (!IS_ENABLED(CONFIG_BPF_JIT))
--		return false;
--
--	return regs->pc >= BPF_JIT_REGION_START &&
--	       regs->pc < BPF_JIT_REGION_END;
--}
--
- #ifdef CONFIG_BPF_JIT
- bool ex_handler_bpf(const struct exception_table_entry *ex,
- 		    struct pt_regs *regs);
-diff --git a/arch/arm64/include/asm/memory.h b/arch/arm64/include/asm/memory.h
-index 1b9a1e242612..0af70d9abede 100644
---- a/arch/arm64/include/asm/memory.h
-+++ b/arch/arm64/include/asm/memory.h
-@@ -44,11 +44,8 @@
- #define _PAGE_OFFSET(va)	(-(UL(1) << (va)))
- #define PAGE_OFFSET		(_PAGE_OFFSET(VA_BITS))
- #define KIMAGE_VADDR		(MODULES_END)
--#define BPF_JIT_REGION_START	(_PAGE_END(VA_BITS_MIN))
--#define BPF_JIT_REGION_SIZE	(SZ_128M)
--#define BPF_JIT_REGION_END	(BPF_JIT_REGION_START + BPF_JIT_REGION_SIZE)
- #define MODULES_END		(MODULES_VADDR + MODULES_VSIZE)
--#define MODULES_VADDR		(BPF_JIT_REGION_END)
-+#define MODULES_VADDR		(_PAGE_END(VA_BITS_MIN))
- #define MODULES_VSIZE		(SZ_128M)
- #define VMEMMAP_START		(-(UL(1) << (VA_BITS - VMEMMAP_SHIFT)))
- #define VMEMMAP_END		(VMEMMAP_START + VMEMMAP_SIZE)
-diff --git a/arch/arm64/kernel/traps.c b/arch/arm64/kernel/traps.c
-index 7b21213a570f..e8986e6067a9 100644
---- a/arch/arm64/kernel/traps.c
-+++ b/arch/arm64/kernel/traps.c
-@@ -994,7 +994,7 @@ static struct break_hook bug_break_hook = {
- static int reserved_fault_handler(struct pt_regs *regs, unsigned int esr)
- {
- 	pr_err("%s generated an invalid instruction at %pS!\n",
--		in_bpf_jit(regs) ? "BPF JIT" : "Kernel text patching",
-+		"Kernel text patching",
- 		(void *)instruction_pointer(regs));
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 9073337ac66f..f49b3d334f4e 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -4399,15 +4399,30 @@ static int check_mem_access(struct bpf_verifier_env *env, int insn_idx, u32 regn
+ 				mark_reg_unknown(env, regs, value_regno);
+ 			}
+ 		}
+-	} else if (reg->type == PTR_TO_MEM) {
++	} else if (base_type(reg->type) == PTR_TO_MEM) {
++		bool rdonly_mem = type_is_rdonly_mem(reg->type);
++
++		if (type_may_be_null(reg->type)) {
++			verbose(env, "R%d invalid mem access '%s'\n", regno,
++				reg_type_str(env, reg->type));
++			return -EACCES;
++		}
++
++		if (t == BPF_WRITE && rdonly_mem) {
++			verbose(env, "R%d cannot write into %s\n",
++				regno, reg_type_str(env, reg->type));
++			return -EACCES;
++		}
++
+ 		if (t == BPF_WRITE && value_regno >= 0 &&
+ 		    is_pointer_value(env, value_regno)) {
+ 			verbose(env, "R%d leaks addr into mem\n", value_regno);
+ 			return -EACCES;
+ 		}
++
+ 		err = check_mem_region_access(env, regno, off, size,
+ 					      reg->mem_size, false);
+-		if (!err && t == BPF_READ && value_regno >= 0)
++		if (!err && value_regno >= 0 && (t == BPF_READ || rdonly_mem))
+ 			mark_reg_unknown(env, regs, value_regno);
+ 	} else if (reg->type == PTR_TO_CTX) {
+ 		enum bpf_reg_type reg_type = SCALAR_VALUE;
+@@ -6654,6 +6669,13 @@ static int check_helper_call(struct bpf_verifier_env *env, struct bpf_insn *insn
+ 			regs[BPF_REG_0].type = PTR_TO_MEM | ret_flag;
+ 			regs[BPF_REG_0].mem_size = tsize;
+ 		} else {
++			/* MEM_RDONLY may be carried from ret_flag, but it
++			 * doesn't apply on PTR_TO_BTF_ID. Fold it, otherwise
++			 * it will confuse the check of PTR_TO_BTF_ID in
++			 * check_mem_access().
++			 */
++			ret_flag &= ~MEM_RDONLY;
++
+ 			regs[BPF_REG_0].type = PTR_TO_BTF_ID | ret_flag;
+ 			regs[BPF_REG_0].btf = meta.ret_btf;
+ 			regs[BPF_REG_0].btf_id = meta.ret_btf_id;
+@@ -9455,7 +9477,7 @@ static int check_ld_imm(struct bpf_verifier_env *env, struct bpf_insn *insn)
+ 		mark_reg_known_zero(env, regs, insn->dst_reg);
  
- 	/* We cannot handle this */
-diff --git a/arch/arm64/mm/ptdump.c b/arch/arm64/mm/ptdump.c
-index 1c403536c9bb..9bc4066c5bf3 100644
---- a/arch/arm64/mm/ptdump.c
-+++ b/arch/arm64/mm/ptdump.c
-@@ -41,8 +41,6 @@ static struct addr_marker address_markers[] = {
- 	{ 0 /* KASAN_SHADOW_START */,	"Kasan shadow start" },
- 	{ KASAN_SHADOW_END,		"Kasan shadow end" },
- #endif
--	{ BPF_JIT_REGION_START,		"BPF start" },
--	{ BPF_JIT_REGION_END,		"BPF end" },
- 	{ MODULES_VADDR,		"Modules start" },
- 	{ MODULES_END,			"Modules end" },
- 	{ VMALLOC_START,		"vmalloc() area" },
-diff --git a/arch/arm64/net/bpf_jit_comp.c b/arch/arm64/net/bpf_jit_comp.c
-index 3a8a7140a9bf..86c9dc0681cc 100644
---- a/arch/arm64/net/bpf_jit_comp.c
-+++ b/arch/arm64/net/bpf_jit_comp.c
-@@ -1141,15 +1141,12 @@ struct bpf_prog *bpf_int_jit_compile(struct bpf_prog *prog)
- 
- u64 bpf_jit_alloc_exec_limit(void)
- {
--	return BPF_JIT_REGION_SIZE;
-+	return VMALLOC_END - VMALLOC_START;
- }
- 
- void *bpf_jit_alloc_exec(unsigned long size)
- {
--	return __vmalloc_node_range(size, PAGE_SIZE, BPF_JIT_REGION_START,
--				    BPF_JIT_REGION_END, GFP_KERNEL,
--				    PAGE_KERNEL, 0, NUMA_NO_NODE,
--				    __builtin_return_address(0));
-+	return vmalloc(size);
- }
- 
- void bpf_jit_free_exec(void *addr)
+ 		dst_reg->type = aux->btf_var.reg_type;
+-		switch (dst_reg->type) {
++		switch (base_type(dst_reg->type)) {
+ 		case PTR_TO_MEM:
+ 			dst_reg->mem_size = aux->btf_var.mem_size;
+ 			break;
+@@ -11678,7 +11700,7 @@ static int check_pseudo_btf_id(struct bpf_verifier_env *env,
+ 			err = -EINVAL;
+ 			goto err_put;
+ 		}
+-		aux->btf_var.reg_type = PTR_TO_MEM;
++		aux->btf_var.reg_type = PTR_TO_MEM | MEM_RDONLY;
+ 		aux->btf_var.mem_size = tsize;
+ 	} else {
+ 		aux->btf_var.reg_type = PTR_TO_BTF_ID;
 
