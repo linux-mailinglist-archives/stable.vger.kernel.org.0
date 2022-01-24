@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 836D049A35D
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:02:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CEF649A360
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:03:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2365247AbiAXXua (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:50:30 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:48184 "EHLO
+        id S2365282AbiAXXud (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:50:33 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:48228 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1389762AbiAXVgg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:36:36 -0500
+        with ESMTP id S1455879AbiAXVgm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:36:42 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B9AF0B8121C;
-        Mon, 24 Jan 2022 21:36:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC4D0C340E4;
-        Mon, 24 Jan 2022 21:36:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 76241B8123D;
+        Mon, 24 Jan 2022 21:36:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0959C340E4;
+        Mon, 24 Jan 2022 21:36:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060193;
-        bh=llqmotql0dU1BNpAsfO0Bt9goMpDGsF/FGV07efugkg=;
+        s=korg; t=1643060199;
+        bh=ddcl4cBea324E6KzDBct/pV9ygz8c88MAFzgAN9niJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i9qnq/lDhbb59LbB5CmK6zDdxBbqt7rFN3ifeTA35257P33Cs6RpA8voh8gg7WoSv
-         abaGI6EY5gZxOCmV8qobdSmy7SEY8OKNuozcM76veOqGo1pMK5MZC+kra2HaszvlLi
-         LQ0sWk6wH40nC/HC5xa8YarfwttrNErDZ6I0lNew=
+        b=0I4TpHxm+HYQ6Ibu9Bzb0qd+8VuGgR2AbFu65EHkH2qSfLVHXXcAKzGEwUBlBNp89
+         +2MJmsumvntznRLUNYi1NFCJxvrGbpnuuOGvautVsw3Pw+UbEwLIqJBtOTMrKyPXJW
+         xbIOiuHMB9KQbN3fs9fysZ00kP3cUtqy1pIfWg/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Meng Li <Meng.Li@windriver.com>,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.16 0838/1039] crypto: caam - replace this_cpu_ptr with raw_cpu_ptr
-Date:   Mon, 24 Jan 2022 19:43:47 +0100
-Message-Id: <20220124184153.461557090@linuxfoundation.org>
+        stable@vger.kernel.org, Lino Sanfilippo <LinoSanfilippo@gmx.de>,
+        Stefan Berger <stefanb@linux.ibm.com>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Subject: [PATCH 5.16 0840/1039] tpm: fix potential NULL pointer access in tpm_del_char_device
+Date:   Mon, 24 Jan 2022 19:43:49 +0100
+Message-Id: <20220124184153.532359847@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -45,54 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Meng Li <Meng.Li@windriver.com>
+From: Lino Sanfilippo <LinoSanfilippo@gmx.de>
 
-commit efd21e10fc3bf4c6da122470a5ae89ec4ed8d180 upstream.
+commit eabad7ba2c752392ae50f24a795093fb115b686d upstream.
 
-When enable the kernel debug config, there is below calltrace detected:
-BUG: using smp_processor_id() in preemptible [00000000] code: cryptomgr_test/339
-caller is debug_smp_processor_id+0x20/0x30
-CPU: 9 PID: 339 Comm: cryptomgr_test Not tainted 5.10.63-yocto-standard #1
-Hardware name: NXP Layerscape LX2160ARDB (DT)
-Call trace:
- dump_backtrace+0x0/0x1a0
- show_stack+0x24/0x30
- dump_stack+0xf0/0x13c
- check_preemption_disabled+0x100/0x110
- debug_smp_processor_id+0x20/0x30
- dpaa2_caam_enqueue+0x10c/0x25c
- ......
- cryptomgr_test+0x38/0x60
- kthread+0x158/0x164
- ret_from_fork+0x10/0x38
-According to the comment in commit ac5d15b4519f("crypto: caam/qi2
- - use affine DPIOs "), because preemption is no longer disabled
-while trying to enqueue an FQID, it might be possible to run the
-enqueue on a different CPU(due to migration, when in process context),
-however this wouldn't be a functionality issue. But there will be
-above calltrace when enable kernel debug config. So, replace this_cpu_ptr
-with raw_cpu_ptr to avoid above call trace.
+Some SPI controller drivers unregister the controller in the shutdown
+handler (e.g. BCM2835). If such a controller is used with a TPM 2 slave
+chip->ops may be accessed when it is already NULL:
 
-Fixes: ac5d15b4519f ("crypto: caam/qi2 - use affine DPIOs")
+At system shutdown the pre-shutdown handler tpm_class_shutdown() shuts down
+TPM 2 and sets chip->ops to NULL. Then at SPI controller unregistration
+tpm_tis_spi_remove() is called and eventually calls tpm_del_char_device()
+which tries to shut down TPM 2 again. Thereby it accesses chip->ops again:
+(tpm_del_char_device calls tpm_chip_start which calls tpm_clk_enable which
+calls chip->ops->clk_enable).
+
+Avoid the NULL pointer access by testing if chip->ops is valid and skipping
+the TPM 2 shutdown procedure in case it is NULL.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Meng Li <Meng.Li@windriver.com>
-Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
+Fixes: 39d0099f9439 ("powerpc/pseries: Add shutdown() to vio_driver and vio_bus")
+Reviewed-by: Stefan Berger <stefanb@linux.ibm.com>
+Tested-by: Stefan Berger <stefanb@linux.ibm.com>
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/caam/caamalg_qi2.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/char/tpm/tpm-chip.c |   18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
 
---- a/drivers/crypto/caam/caamalg_qi2.c
-+++ b/drivers/crypto/caam/caamalg_qi2.c
-@@ -5470,7 +5470,7 @@ int dpaa2_caam_enqueue(struct device *de
- 	dpaa2_fd_set_len(&fd, dpaa2_fl_get_len(&req->fd_flt[1]));
- 	dpaa2_fd_set_flc(&fd, req->flc_dma);
+--- a/drivers/char/tpm/tpm-chip.c
++++ b/drivers/char/tpm/tpm-chip.c
+@@ -474,13 +474,21 @@ static void tpm_del_char_device(struct t
  
--	ppriv = this_cpu_ptr(priv->ppriv);
-+	ppriv = raw_cpu_ptr(priv->ppriv);
- 	for (i = 0; i < (priv->dpseci_attr.num_tx_queues << 1); i++) {
- 		err = dpaa2_io_service_enqueue_fq(ppriv->dpio, ppriv->req_fqid,
- 						  &fd);
+ 	/* Make the driver uncallable. */
+ 	down_write(&chip->ops_sem);
+-	if (chip->flags & TPM_CHIP_FLAG_TPM2) {
+-		if (!tpm_chip_start(chip)) {
+-			tpm2_shutdown(chip, TPM2_SU_CLEAR);
+-			tpm_chip_stop(chip);
++
++	/*
++	 * Check if chip->ops is still valid: In case that the controller
++	 * drivers shutdown handler unregisters the controller in its
++	 * shutdown handler we are called twice and chip->ops to NULL.
++	 */
++	if (chip->ops) {
++		if (chip->flags & TPM_CHIP_FLAG_TPM2) {
++			if (!tpm_chip_start(chip)) {
++				tpm2_shutdown(chip, TPM2_SU_CLEAR);
++				tpm_chip_stop(chip);
++			}
+ 		}
++		chip->ops = NULL;
+ 	}
+-	chip->ops = NULL;
+ 	up_write(&chip->ops_sem);
+ }
+ 
 
 
