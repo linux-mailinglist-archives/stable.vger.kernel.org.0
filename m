@@ -2,44 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B735349928D
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:21:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54C9E49917D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381659AbiAXUVm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:21:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36250 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351141AbiAXUT0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:19:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF446C0612F5;
-        Mon, 24 Jan 2022 11:38:59 -0800 (PST)
+        id S1379337AbiAXULN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:11:13 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49662 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378266AbiAXUGn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:06:43 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75DE8B81229;
-        Mon, 24 Jan 2022 19:38:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9970DC340E5;
-        Mon, 24 Jan 2022 19:38:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0E42CB8124F;
+        Mon, 24 Jan 2022 20:06:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36C61C340E5;
+        Mon, 24 Jan 2022 20:06:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053137;
-        bh=v3qNmppBobj181G6eIp2mj/h+JGFuzf+50jMrh4mUIc=;
+        s=korg; t=1643054800;
+        bh=8qphzB9DIKFYeekh22vyIkpyTJNnlON5enOGNgmM+ZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r62/BZaFwG/AOLCJgFhSFU688fQP0OhmUd3y9YwJGRsLgarMFv5KHWljaU/Ew5MuQ
-         aEQh5DVsRPdrL+7RoGiDbi3rXBT790osk+2oQZhozEfBt4XTsTaksFGwktgeG+wqHO
-         T/TQUrOxkyzfNHOvt/6MtS3gSYnftzwwRaC2L5p0=
+        b=XHtu7o+AGXFMas5iaCTdivZ6VNdOZPxB8S64VaEPBQIKfmyQ+rFC/PL1eUSeOQ3bO
+         kcvu10d05oBhQJqCEgJVxbVy42gUbBOH6pc3/bHGfWbfQXPZBlt0vqN+UP/WSGnQnl
+         NYxhXv70r36mAvNN4PdTOgsFJkVVn6O5y6t8gvRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.4 289/320] ipv4: avoid quadratic behavior in netns dismantle
+        stable@vger.kernel.org, Chase Conklin <chase.conklin@arm.com>,
+        German Gomez <german.gomez@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Song Liu <songliubraving@fb.com>,
+        Stephane Eranian <eranian@google.com>,
+        Yonghong Song <yhs@fb.com>, bpf@vger.kernel.org,
+        netdev@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.10 508/563] perf evsel: Override attr->sample_period for non-libpfm4 events
 Date:   Mon, 24 Jan 2022 19:44:33 +0100
-Message-Id: <20220124184003.787440229@linuxfoundation.org>
+Message-Id: <20220124184042.036113932@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,139 +55,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: German Gomez <german.gomez@arm.com>
 
-commit d07418afea8f1d9896aaf9dc5ae47ac4f45b220c upstream.
+commit 3606c0e1a1050d397ad759a62607e419fd8b0ccb upstream.
 
-net/ipv4/fib_semantics.c uses an hash table of 256 slots,
-keyed by device ifindexes: fib_info_devhash[DEVINDEX_HASHSIZE]
+A previous patch preventing "attr->sample_period" values from being
+overridden in pfm events changed a related behaviour in arm-spe.
 
-Problem is that with network namespaces, devices tend
-to use the same ifindex.
+Before said patch:
 
-lo device for instance has a fixed ifindex of one,
-for all network namespaces.
+  perf record -c 10000 -e arm_spe_0// -- sleep 1
 
-This means that hosts with thousands of netns spend
-a lot of time looking at some hash buckets with thousands
-of elements, notably at netns dismantle.
+Would yield an SPE event with period=10000. After the patch, the period
+in "-c 10000" was being ignored because the arm-spe code initializes
+sample_period to a non-zero value.
 
-Simply add a per netns perturbation (net_hash_mix())
-to spread elements more uniformely.
+This patch restores the previous behaviour for non-libpfm4 events.
 
-Also change fib_devindex_hashfn() to use more entropy.
-
-Fixes: aa79e66eee5d ("net: Make ifindex generation per-net namespace")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: ae5dcc8abe31 (“perf record: Prevent override of attr->sample_period for libpfm4 events”)
+Reported-by: Chase Conklin <chase.conklin@arm.com>
+Signed-off-by: German Gomez <german.gomez@arm.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Cc: KP Singh <kpsingh@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Yonghong Song <yhs@fb.com>
+Cc: bpf@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20220118144054.2541-1-german.gomez@arm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/fib_semantics.c |   36 +++++++++++++++++-------------------
- 1 file changed, 17 insertions(+), 19 deletions(-)
+ tools/perf/util/evsel.c |   25 +++++++++++++++++--------
+ 1 file changed, 17 insertions(+), 8 deletions(-)
 
---- a/net/ipv4/fib_semantics.c
-+++ b/net/ipv4/fib_semantics.c
-@@ -29,6 +29,7 @@
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/netlink.h>
-+#include <linux/hash.h>
- 
- #include <net/arp.h>
- #include <net/ip.h>
-@@ -318,11 +319,15 @@ static inline int nh_comp(struct fib_inf
- 
- static inline unsigned int fib_devindex_hashfn(unsigned int val)
- {
--	unsigned int mask = DEVINDEX_HASHSIZE - 1;
-+	return hash_32(val, DEVINDEX_HASHBITS);
-+}
-+
-+static struct hlist_head *
-+fib_info_devhash_bucket(const struct net_device *dev)
-+{
-+	u32 val = net_hash_mix(dev_net(dev)) ^ dev->ifindex;
- 
--	return (val ^
--		(val >> DEVINDEX_HASHBITS) ^
--		(val >> (DEVINDEX_HASHBITS * 2))) & mask;
-+	return &fib_info_devhash[fib_devindex_hashfn(val)];
+--- a/tools/perf/util/evsel.c
++++ b/tools/perf/util/evsel.c
+@@ -1014,6 +1014,17 @@ struct evsel_config_term *__evsel__get_c
+ 	return found_term;
  }
  
- static unsigned int fib_info_hashfn_1(int init_val, u8 protocol, u8 scope,
-@@ -432,12 +437,11 @@ int ip_fib_check_default(__be32 gw, stru
- {
- 	struct hlist_head *head;
- 	struct fib_nh *nh;
--	unsigned int hash;
- 
- 	spin_lock(&fib_info_lock);
- 
--	hash = fib_devindex_hashfn(dev->ifindex);
--	head = &fib_info_devhash[hash];
-+	head = fib_info_devhash_bucket(dev);
++static void evsel__set_default_freq_period(struct record_opts *opts,
++					   struct perf_event_attr *attr)
++{
++	if (opts->freq) {
++		attr->freq = 1;
++		attr->sample_freq = opts->freq;
++	} else {
++		attr->sample_period = opts->default_interval;
++	}
++}
 +
- 	hlist_for_each_entry(nh, head, nh_hash) {
- 		if (nh->fib_nh_dev == dev &&
- 		    nh->fib_nh_gw4 == gw &&
-@@ -1594,12 +1598,10 @@ link_it:
- 	} else {
- 		change_nexthops(fi) {
- 			struct hlist_head *head;
--			unsigned int hash;
- 
- 			if (!nexthop_nh->fib_nh_dev)
- 				continue;
--			hash = fib_devindex_hashfn(nexthop_nh->fib_nh_dev->ifindex);
--			head = &fib_info_devhash[hash];
-+			head = fib_info_devhash_bucket(nexthop_nh->fib_nh_dev);
- 			hlist_add_head(&nexthop_nh->nh_hash, head);
- 		} endfor_nexthops(fi)
- 	}
-@@ -1940,8 +1942,7 @@ void fib_nhc_update_mtu(struct fib_nh_co
- 
- void fib_sync_mtu(struct net_device *dev, u32 orig_mtu)
- {
--	unsigned int hash = fib_devindex_hashfn(dev->ifindex);
--	struct hlist_head *head = &fib_info_devhash[hash];
-+	struct hlist_head *head = fib_info_devhash_bucket(dev);
- 	struct fib_nh *nh;
- 
- 	hlist_for_each_entry(nh, head, nh_hash) {
-@@ -1960,12 +1961,11 @@ void fib_sync_mtu(struct net_device *dev
-  */
- int fib_sync_down_dev(struct net_device *dev, unsigned long event, bool force)
- {
--	int ret = 0;
--	int scope = RT_SCOPE_NOWHERE;
-+	struct hlist_head *head = fib_info_devhash_bucket(dev);
- 	struct fib_info *prev_fi = NULL;
--	unsigned int hash = fib_devindex_hashfn(dev->ifindex);
--	struct hlist_head *head = &fib_info_devhash[hash];
-+	int scope = RT_SCOPE_NOWHERE;
- 	struct fib_nh *nh;
-+	int ret = 0;
- 
- 	if (force)
- 		scope = -1;
-@@ -2110,7 +2110,6 @@ out:
- int fib_sync_up(struct net_device *dev, unsigned char nh_flags)
- {
- 	struct fib_info *prev_fi;
--	unsigned int hash;
- 	struct hlist_head *head;
- 	struct fib_nh *nh;
- 	int ret;
-@@ -2126,8 +2125,7 @@ int fib_sync_up(struct net_device *dev,
- 	}
- 
- 	prev_fi = NULL;
--	hash = fib_devindex_hashfn(dev->ifindex);
--	head = &fib_info_devhash[hash];
-+	head = fib_info_devhash_bucket(dev);
- 	ret = 0;
- 
- 	hlist_for_each_entry(nh, head, nh_hash) {
+ /*
+  * The enable_on_exec/disabled value strategy:
+  *
+@@ -1080,14 +1091,12 @@ void evsel__config(struct evsel *evsel,
+ 	 * We default some events to have a default interval. But keep
+ 	 * it a weak assumption overridable by the user.
+ 	 */
+-	if (!attr->sample_period) {
+-		if (opts->freq) {
+-			attr->freq		= 1;
+-			attr->sample_freq	= opts->freq;
+-		} else {
+-			attr->sample_period = opts->default_interval;
+-		}
+-	}
++	if ((evsel->is_libpfm_event && !attr->sample_period) ||
++	    (!evsel->is_libpfm_event && (!attr->sample_period ||
++					 opts->user_freq != UINT_MAX ||
++					 opts->user_interval != ULLONG_MAX)))
++		evsel__set_default_freq_period(opts, attr);
++
+ 	/*
+ 	 * If attr->freq was set (here or earlier), ask for period
+ 	 * to be sampled.
 
 
