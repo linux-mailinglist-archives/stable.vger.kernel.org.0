@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AAF8498D68
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:34:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D096E498BA4
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:15:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347504AbiAXTcC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:32:02 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49014 "EHLO
+        id S1345864AbiAXTPj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:15:39 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:37356 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348197AbiAXT2L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:28:11 -0500
+        with ESMTP id S241855AbiAXTNM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:13:12 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 62A72B8121A;
-        Mon, 24 Jan 2022 19:28:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90400C340E5;
-        Mon, 24 Jan 2022 19:28:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E9DEB8121F;
+        Mon, 24 Jan 2022 19:13:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD9D6C340E5;
+        Mon, 24 Jan 2022 19:13:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052488;
-        bh=8x76DRlB8IfR/34mTMkzRlPwJKUqVUcLK23r2U2ikrY=;
+        s=korg; t=1643051589;
+        bh=OJgXraE3CkdOVHg29qdBH/iVtI++R1ULCOak5Wi3edk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ndXtwCZU80x33cDBMe/2cFS9/OwN9DGSZIIaL9AVS32uuCcPEhr3flajYPSHN5ITB
-         2nSl2Y/z7r4Hjta+6gCK+ZT8zh6ymVSJFm2r3hTpMkbR8MpQK8rd+dK6ingvc8E/D8
-         kRkAOohrZ+nRvAtuw2Bs+JufSO5bEHtjnK++lnfA=
+        b=FeZ5CurVbh2PzeNrAXKlJ4PWscSchjn/RbbD9gMaDTq9cK3VEMMWuPIw6WTR/an85
+         F7LebyR2n8kiI5kmcHIsxj4W/fBpzPDvNWcXKmH4gW09b9StxbFqJyFNu7YY4nha87
+         EsWkDXRruZOhg2LR6BumvH5RdoFLVbjD/hbKPVis=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neeraj Upadhyay <quic_neeraju@quicinc.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Uladzislau Rezki <urezki@gmail.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 076/320] rcu/exp: Mark current CPU as exp-QS in IPI loop second pass
-Date:   Mon, 24 Jan 2022 19:41:00 +0100
-Message-Id: <20220124183956.321184458@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
+        Ping Cheng <ping.cheng@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.19 023/239] HID: wacom: Reset expected and received contact counts at the same time
+Date:   Mon, 24 Jan 2022 19:41:01 +0100
+Message-Id: <20220124183943.857676857@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,61 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederic Weisbecker <frederic@kernel.org>
+From: Jason Gerecke <killertofu@gmail.com>
 
-[ Upstream commit 81f6d49cce2d2fe507e3fddcc4a6db021d9c2e7b ]
+commit 546e41ac994cc185ef3de610ca849a294b5df3ba upstream.
 
-Expedited RCU grace periods invoke sync_rcu_exp_select_node_cpus(), which
-takes two passes over the leaf rcu_node structure's CPUs.  The first
-pass gathers up the current CPU and CPUs that are in dynticks idle mode.
-The workqueue will report a quiescent state on their behalf later.
-The second pass sends IPIs to the rest of the CPUs, but excludes the
-current CPU, incorrectly assuming it has been included in the first
-pass's list of CPUs.
+These two values go hand-in-hand and must be valid for the driver to
+behave correctly. We are currently lazy about updating the values and
+rely on the "expected" code flow to take care of making sure they're
+valid at the point they're needed. The "expected" flow changed somewhat
+with commit f8b6a74719b5 ("HID: wacom: generic: Support multiple tools
+per report"), however. This led to problems with the DTH-2452 due (in
+part) to *all* contacts being fully processed -- even those past the
+expected contact count. Specifically, the received count gets reset to
+0 once all expected fingers are processed, but not the expected count.
+The rest of the contacts in the report are then *also* processed since
+now the driver thinks we've only processed 0 of N expected contacts.
 
-Unfortunately the current CPU may have changed between the first and
-second pass, due to the fact that the various rcu_node structures'
-->lock fields have been dropped, thus momentarily enabling preemption.
-This means that if the second pass's CPU was not on the first pass's
-list, it will be ignored completely.  There will be no IPI sent to
-it, and there will be no reporting of quiescent states on its behalf.
-Unfortunately, the expedited grace period will nevertheless be waiting
-for that CPU to report a quiescent state, but with that CPU having no
-reason to believe that such a report is needed.
+Later commits such as 7fb0413baa7f (HID: wacom: Use "Confidence" flag to
+prevent reporting invalid contacts) worked around the DTH-2452 issue by
+skipping the invalid contacts at the end of the report, but this is not
+a complete fix. The confidence flag cannot be relied on when a contact
+is removed (see the following patch), and dealing with that condition
+re-introduces the DTH-2452 issue unless we also address this contact
+count laziness. By resetting expected and received counts at the same
+time we ensure the driver understands that there are 0 more contacts
+expected in the report. Similarly, we also make sure to reset the
+received count if for some reason we're out of sync in the pre-report
+phase.
 
-The result will be an expedited grace period stall.
-
-Fix this by no longer excluding the current CPU from consideration during
-the second pass.
-
-Fixes: b9ad4d6ed18e ("rcu: Avoid self-IPI in sync_rcu_exp_select_node_cpus()")
-Reviewed-by: Neeraj Upadhyay <quic_neeraju@quicinc.com>
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Cc: Uladzislau Rezki <urezki@gmail.com>
-Cc: Neeraj Upadhyay <quic_neeraju@quicinc.com>
-Cc: Boqun Feng <boqun.feng@gmail.com>
-Cc: Josh Triplett <josh@joshtriplett.org>
-Cc: Joel Fernandes <joel@joelfernandes.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://github.com/linuxwacom/input-wacom/issues/288
+Fixes: f8b6a74719b5 ("HID: wacom: generic: Support multiple tools per report")
+CC: stable@vger.kernel.org
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/rcu/tree_exp.h | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/wacom_wac.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/rcu/tree_exp.h b/kernel/rcu/tree_exp.h
-index 4c4d7683a4e5b..173e3ce607900 100644
---- a/kernel/rcu/tree_exp.h
-+++ b/kernel/rcu/tree_exp.h
-@@ -382,6 +382,7 @@ retry_ipi:
- 			continue;
- 		}
- 		if (get_cpu() == cpu) {
-+			mask_ofl_test |= mask;
- 			put_cpu();
- 			continue;
- 		}
--- 
-2.34.1
-
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2620,11 +2620,14 @@ static void wacom_wac_finger_pre_report(
+ 	    hid_data->cc_index >= 0) {
+ 		struct hid_field *field = report->field[hid_data->cc_index];
+ 		int value = field->value[hid_data->cc_value_index];
+-		if (value)
++		if (value) {
+ 			hid_data->num_expected = value;
++			hid_data->num_received = 0;
++		}
+ 	}
+ 	else {
+ 		hid_data->num_expected = wacom_wac->features.touch_max;
++		hid_data->num_received = 0;
+ 	}
+ }
+ 
+@@ -2648,6 +2651,7 @@ static void wacom_wac_finger_report(stru
+ 
+ 	input_sync(input);
+ 	wacom_wac->hid_data.num_received = 0;
++	wacom_wac->hid_data.num_expected = 0;
+ 
+ 	/* keep touch state for pen event */
+ 	wacom_wac->shared->touch_down = wacom_wac_finger_count_touches(wacom_wac);
 
 
