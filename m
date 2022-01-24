@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 070E3498C7B
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:23:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B8D04991B5
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:14:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345707AbiAXTWl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:22:41 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:43174 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346908AbiAXTSO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:18:14 -0500
+        id S1355521AbiAXUNp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:13:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33860 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1355388AbiAXUNh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:13:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41619C06175A;
+        Mon, 24 Jan 2022 11:34:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EE2FDB81239;
-        Mon, 24 Jan 2022 19:18:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31119C340E5;
-        Mon, 24 Jan 2022 19:18:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3945B811F9;
+        Mon, 24 Jan 2022 19:34:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58496C340E5;
+        Mon, 24 Jan 2022 19:34:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051891;
-        bh=LPPlPD6ORgm9S9P5/5krIKf+1DfSqW/soWywH7Rs4lk=;
+        s=korg; t=1643052891;
+        bh=QAoycasiljDcdSm6faYBKX2CXMKw6Rx++/AvlQpD6PI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IDnwQuX1tPjDNwcQExFSpFh285XAwzIReErdZKnSQCRcxIBK5ojzX76Ez/Lk2uIIL
-         iAlS6r2WNBbPN6ijHxXpm9KVAoxGnaNL2CPuj/0Ul1K0EvN5b2GCKWeeFDjbiKuJI7
-         AH2qG0tWvypT0yP8xD9guoQQL+NPeSLmGh8xm0lA=
+        b=iB5PKUAy98OwqndIR+5L3aq5aQjwOe6O3XW1IRp+6rcXSU7LunMdjgfFetk117KRy
+         yvuzmij82p3aAPvKASeiy+ZiIAKiAFpTnHRQfyxLC0pBJIJtAbnxuIBofWENHKiMZ3
+         nQ8D5D6DgKMjHYb8Vk6b61yY4JZLUf60DIL+m9aY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 121/239] fs: dlm: filter user dlm messages for kernel locks
+        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
+        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 175/320] x86/mm: Flush global TLB when switching to trampoline page-table
 Date:   Mon, 24 Jan 2022 19:42:39 +0100
-Message-Id: <20220124183946.950983553@linuxfoundation.org>
+Message-Id: <20220124183959.610833735@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,116 +47,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-[ Upstream commit 6c2e3bf68f3e5e5a647aa52be246d5f552d7496d ]
+[ Upstream commit 71d5049b053876afbde6c3273250b76935494ab2 ]
 
-This patch fixes the following crash by receiving a invalid message:
+Move the switching code into a function so that it can be re-used and
+add a global TLB flush. This makes sure that usage of memory which is
+not mapped in the trampoline page-table is reliably caught.
 
-[  160.672220] ==================================================================
-[  160.676206] BUG: KASAN: user-memory-access in dlm_user_add_ast+0xc3/0x370
-[  160.679659] Read of size 8 at addr 00000000deadbeef by task kworker/u32:13/319
-[  160.681447]
-[  160.681824] CPU: 10 PID: 319 Comm: kworker/u32:13 Not tainted 5.14.0-rc2+ #399
-[  160.683472] Hardware name: Red Hat KVM/RHEL-AV, BIOS 1.14.0-1.module+el8.6.0+12648+6ede71a5 04/01/2014
-[  160.685574] Workqueue: dlm_recv process_recv_sockets
-[  160.686721] Call Trace:
-[  160.687310]  dump_stack_lvl+0x56/0x6f
-[  160.688169]  ? dlm_user_add_ast+0xc3/0x370
-[  160.689116]  kasan_report.cold.14+0x116/0x11b
-[  160.690138]  ? dlm_user_add_ast+0xc3/0x370
-[  160.690832]  dlm_user_add_ast+0xc3/0x370
-[  160.691502]  _receive_unlock_reply+0x103/0x170
-[  160.692241]  _receive_message+0x11df/0x1ec0
-[  160.692926]  ? rcu_read_lock_sched_held+0xa1/0xd0
-[  160.693700]  ? rcu_read_lock_bh_held+0xb0/0xb0
-[  160.694427]  ? lock_acquire+0x175/0x400
-[  160.695058]  ? do_purge.isra.51+0x200/0x200
-[  160.695744]  ? lock_acquired+0x360/0x5d0
-[  160.696400]  ? lock_contended+0x6a0/0x6a0
-[  160.697055]  ? lock_release+0x21d/0x5e0
-[  160.697686]  ? lock_is_held_type+0xe0/0x110
-[  160.698352]  ? lock_is_held_type+0xe0/0x110
-[  160.699026]  ? ___might_sleep+0x1cc/0x1e0
-[  160.699698]  ? dlm_wait_requestqueue+0x94/0x140
-[  160.700451]  ? dlm_process_requestqueue+0x240/0x240
-[  160.701249]  ? down_write_killable+0x2b0/0x2b0
-[  160.701988]  ? do_raw_spin_unlock+0xa2/0x130
-[  160.702690]  dlm_receive_buffer+0x1a5/0x210
-[  160.703385]  dlm_process_incoming_buffer+0x726/0x9f0
-[  160.704210]  receive_from_sock+0x1c0/0x3b0
-[  160.704886]  ? dlm_tcp_shutdown+0x30/0x30
-[  160.705561]  ? lock_acquire+0x175/0x400
-[  160.706197]  ? rcu_read_lock_sched_held+0xa1/0xd0
-[  160.706941]  ? rcu_read_lock_bh_held+0xb0/0xb0
-[  160.707681]  process_recv_sockets+0x32/0x40
-[  160.708366]  process_one_work+0x55e/0xad0
-[  160.709045]  ? pwq_dec_nr_in_flight+0x110/0x110
-[  160.709820]  worker_thread+0x65/0x5e0
-[  160.710423]  ? process_one_work+0xad0/0xad0
-[  160.711087]  kthread+0x1ed/0x220
-[  160.711628]  ? set_kthread_struct+0x80/0x80
-[  160.712314]  ret_from_fork+0x22/0x30
+Also move the clearing of CR4.PCIDE before the CR3 switch because the
+cr4_clear_bits() function will access data not mapped into the
+trampoline page-table.
 
-The issue is that we received a DLM message for a user lock but the
-destination lock is a kernel lock. Note that the address which is trying
-to derefence is 00000000deadbeef, which is in a kernel lock
-lkb->lkb_astparam, this field should never be derefenced by the DLM
-kernel stack. In case of a user lock lkb->lkb_astparam is lkb->lkb_ua
-(memory is shared by a union field). The struct lkb_ua will be handled
-by the DLM kernel stack but on a kernel lock it will contain invalid
-data and ends in most likely crashing the kernel.
-
-It can be reproduced with two cluster nodes.
-
-node 2:
-dlm_tool join test
-echo "862 fooobaar 1 2 1" > /sys/kernel/debug/dlm/test_locks
-echo "862 3 1" > /sys/kernel/debug/dlm/test_waiters
-
-node 1:
-dlm_tool join test
-
-python:
-foo = DLM(h_cmd=3, o_nextcmd=1, h_nodeid=1, h_lockspace=0x77222027, \
-          m_type=7, m_flags=0x1, m_remid=0x862, m_result=0xFFFEFFFE)
-newFile = open("/sys/kernel/debug/dlm/comms/2/rawmsg", "wb")
-newFile.write(bytes(foo))
-
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20211202153226.22946-4-joro@8bytes.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/lock.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ arch/x86/include/asm/realmode.h |  1 +
+ arch/x86/kernel/reboot.c        | 12 ++----------
+ arch/x86/realmode/init.c        | 26 ++++++++++++++++++++++++++
+ 3 files changed, 29 insertions(+), 10 deletions(-)
 
-diff --git a/fs/dlm/lock.c b/fs/dlm/lock.c
-index a928ba008d7d7..26a4847efccca 100644
---- a/fs/dlm/lock.c
-+++ b/fs/dlm/lock.c
-@@ -3977,6 +3977,14 @@ static int validate_message(struct dlm_lkb *lkb, struct dlm_message *ms)
- 	int from = ms->m_header.h_nodeid;
- 	int error = 0;
+diff --git a/arch/x86/include/asm/realmode.h b/arch/x86/include/asm/realmode.h
+index 09ecc32f65248..52d7512ea91ab 100644
+--- a/arch/x86/include/asm/realmode.h
++++ b/arch/x86/include/asm/realmode.h
+@@ -82,6 +82,7 @@ static inline void set_real_mode_mem(phys_addr_t mem)
+ }
  
-+	/* currently mixing of user/kernel locks are not supported */
-+	if (ms->m_flags & DLM_IFL_USER && ~lkb->lkb_flags & DLM_IFL_USER) {
-+		log_error(lkb->lkb_resource->res_ls,
-+			  "got user dlm message for a kernel lock");
-+		error = -EINVAL;
-+		goto out;
-+	}
+ void reserve_real_mode(void);
++void load_trampoline_pgtable(void);
+ 
+ #endif /* __ASSEMBLY__ */
+ 
+diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
+index d65d1afb27161..fdef27a84d713 100644
+--- a/arch/x86/kernel/reboot.c
++++ b/arch/x86/kernel/reboot.c
+@@ -113,17 +113,9 @@ void __noreturn machine_real_restart(unsigned int type)
+ 	spin_unlock(&rtc_lock);
+ 
+ 	/*
+-	 * Switch back to the initial page table.
++	 * Switch to the trampoline page table.
+ 	 */
+-#ifdef CONFIG_X86_32
+-	load_cr3(initial_page_table);
+-#else
+-	write_cr3(real_mode_header->trampoline_pgd);
+-
+-	/* Exiting long mode will fail if CR4.PCIDE is set. */
+-	if (boot_cpu_has(X86_FEATURE_PCID))
+-		cr4_clear_bits(X86_CR4_PCIDE);
+-#endif
++	load_trampoline_pgtable();
+ 
+ 	/* Jump to the identity-mapped low memory code */
+ #ifdef CONFIG_X86_32
+diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
+index de371e52cfa85..fac50ebb122b5 100644
+--- a/arch/x86/realmode/init.c
++++ b/arch/x86/realmode/init.c
+@@ -16,6 +16,32 @@ u32 *trampoline_cr4_features;
+ /* Hold the pgd entry used on booting additional CPUs */
+ pgd_t trampoline_pgd_entry;
+ 
++void load_trampoline_pgtable(void)
++{
++#ifdef CONFIG_X86_32
++	load_cr3(initial_page_table);
++#else
++	/*
++	 * This function is called before exiting to real-mode and that will
++	 * fail with CR4.PCIDE still set.
++	 */
++	if (boot_cpu_has(X86_FEATURE_PCID))
++		cr4_clear_bits(X86_CR4_PCIDE);
 +
- 	switch (ms->m_type) {
- 	case DLM_MSG_CONVERT:
- 	case DLM_MSG_UNLOCK:
-@@ -4005,6 +4013,7 @@ static int validate_message(struct dlm_lkb *lkb, struct dlm_message *ms)
- 		error = -EINVAL;
- 	}
- 
-+out:
- 	if (error)
- 		log_error(lkb->lkb_resource->res_ls,
- 			  "ignore invalid message %d from %d %x %x %x %d",
++	write_cr3(real_mode_header->trampoline_pgd);
++#endif
++
++	/*
++	 * The CR3 write above will not flush global TLB entries.
++	 * Stale, global entries from previous page tables may still be
++	 * present.  Flush those stale entries.
++	 *
++	 * This ensures that memory accessed while running with
++	 * trampoline_pgd is *actually* mapped into trampoline_pgd.
++	 */
++	__flush_tlb_all();
++}
++
+ void __init reserve_real_mode(void)
+ {
+ 	phys_addr_t mem;
 -- 
 2.34.1
 
