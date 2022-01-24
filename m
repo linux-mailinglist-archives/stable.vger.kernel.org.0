@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EFFA498EA3
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:48:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74847498A69
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:03:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237369AbiAXToL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:44:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55008 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234964AbiAXTmC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:42:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93EF4C0401F9;
-        Mon, 24 Jan 2022 11:21:40 -0800 (PST)
+        id S1345320AbiAXTDU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:03:20 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:58270 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345828AbiAXTBJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:01:09 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 504B9B8122C;
-        Mon, 24 Jan 2022 19:21:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EC7DC340E5;
-        Mon, 24 Jan 2022 19:21:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1950B8121C;
+        Mon, 24 Jan 2022 19:01:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C81FCC340E7;
+        Mon, 24 Jan 2022 19:01:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052098;
-        bh=9uuTNGN4fd8TIPEbjUjg8u469Jw6qL+92O7t1DCz5R4=;
+        s=korg; t=1643050867;
+        bh=DthYjh+AUf6U0msGHmNsk3EuOaLtsWRn1QyFhfakDLQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=joy4VfxCgwXNO5CKZ3PEVyOgDrHjzP0SWn1jc79vdMbZou66o8UbZeG6LrWJtBREz
-         vv+bTAT1GVLWJZo2zr11ssBFNE7ogCKCp8n8ZLQqTucS1ZAbp+4yoZ5bCUUJYcqk2V
-         pE3bcNUfWqougSF7MxdxypuZzbUyXrmCCA7wUljA=
+        b=YFSCilqkMJHcSTX1pWHLZ3sz3II/V5twquvf8qj6nvjhBgB/ExhaS54Xm9dZW2ZOe
+         DeDq+z64SvA3vO6TO2+VlJ51TYkW3bKraZL08AQ8GeeXRfCafSL3+fpds08lFH1dX/
+         JILezTZdUW6NFWi8hfdMsKA/gE83SLw+n8/ZOnHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Ye Guojin <ye.guojin@zte.com.cn>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 189/239] MIPS: OCTEON: add put_device() after of_find_device_by_node()
+        stable@vger.kernel.org, Guillaume Nault <gnault@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 137/157] libcxgb: Dont accidentally set RTO_ONLINK in cxgb_find_route()
 Date:   Mon, 24 Jan 2022 19:43:47 +0100
-Message-Id: <20220124183949.123070769@linuxfoundation.org>
+Message-Id: <20220124183937.121091212@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,67 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Guojin <ye.guojin@zte.com.cn>
+From: Guillaume Nault <gnault@redhat.com>
 
-[ Upstream commit 858779df1c0787d3fec827fb705708df9ebdb15b ]
+commit a915deaa9abe4fb3a440312c954253a6a733608e upstream.
 
-This was found by coccicheck:
-./arch/mips/cavium-octeon/octeon-platform.c, 332, 1-7, ERROR missing
-put_device; call of_find_device_by_node on line 324, but without a
-corresponding object release within this function.
-./arch/mips/cavium-octeon/octeon-platform.c, 395, 1-7, ERROR missing
-put_device; call of_find_device_by_node on line 387, but without a
-corresponding object release within this function.
-./arch/mips/cavium-octeon/octeon-usb.c, 512, 3-9, ERROR missing
-put_device; call of_find_device_by_node on line 515, but without a
-corresponding object release within this function.
-./arch/mips/cavium-octeon/octeon-usb.c, 543, 1-7, ERROR missing
-put_device; call of_find_device_by_node on line 515, but without a
-corresponding object release within this function.
+Mask the ECN bits before calling ip_route_output_ports(). The tos
+variable might be passed directly from an IPv4 header, so it may have
+the last ECN bit set. This interferes with the route lookup process as
+ip_route_output_key_hash() interpretes this bit specially (to restrict
+the route scope).
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Ye Guojin <ye.guojin@zte.com.cn>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Found by code inspection, compile tested only.
+
+Fixes: 804c2f3e36ef ("libcxgb,iw_cxgb4,cxgbit: add cxgb_find_route()")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/cavium-octeon/octeon-platform.c | 2 ++
- arch/mips/cavium-octeon/octeon-usb.c      | 1 +
- 2 files changed, 3 insertions(+)
+ drivers/net/ethernet/chelsio/libcxgb/libcxgb_cm.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/cavium-octeon/octeon-platform.c b/arch/mips/cavium-octeon/octeon-platform.c
-index 5ba181e87d2c1..4d83f5bc7211c 100644
---- a/arch/mips/cavium-octeon/octeon-platform.c
-+++ b/arch/mips/cavium-octeon/octeon-platform.c
-@@ -328,6 +328,7 @@ static int __init octeon_ehci_device_init(void)
+--- a/drivers/net/ethernet/chelsio/libcxgb/libcxgb_cm.c
++++ b/drivers/net/ethernet/chelsio/libcxgb/libcxgb_cm.c
+@@ -32,6 +32,7 @@
  
- 	pd->dev.platform_data = &octeon_ehci_pdata;
- 	octeon_ehci_hw_start(&pd->dev);
-+	put_device(&pd->dev);
+ #include <linux/tcp.h>
+ #include <linux/ipv6.h>
++#include <net/inet_ecn.h>
+ #include <net/route.h>
+ #include <net/ip6_route.h>
  
- 	return ret;
- }
-@@ -391,6 +392,7 @@ static int __init octeon_ohci_device_init(void)
+@@ -99,7 +100,7 @@ cxgb_find_route(struct cxgb4_lld_info *l
  
- 	pd->dev.platform_data = &octeon_ohci_pdata;
- 	octeon_ohci_hw_start(&pd->dev);
-+	put_device(&pd->dev);
- 
- 	return ret;
- }
-diff --git a/arch/mips/cavium-octeon/octeon-usb.c b/arch/mips/cavium-octeon/octeon-usb.c
-index 75189ff2f3c78..3465452e28195 100644
---- a/arch/mips/cavium-octeon/octeon-usb.c
-+++ b/arch/mips/cavium-octeon/octeon-usb.c
-@@ -543,6 +543,7 @@ static int __init dwc3_octeon_device_init(void)
- 			devm_iounmap(&pdev->dev, base);
- 			devm_release_mem_region(&pdev->dev, res->start,
- 						resource_size(res));
-+			put_device(&pdev->dev);
- 		}
- 	} while (node != NULL);
- 
--- 
-2.34.1
-
+ 	rt = ip_route_output_ports(&init_net, &fl4, NULL, peer_ip, local_ip,
+ 				   peer_port, local_port, IPPROTO_TCP,
+-				   tos, 0);
++				   tos & ~INET_ECN_MASK, 0);
+ 	if (IS_ERR(rt))
+ 		return NULL;
+ 	n = dst_neigh_lookup(&rt->dst, &peer_ip);
 
 
