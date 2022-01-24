@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C1D849A9F2
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:29:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2903249A936
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:20:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1323867AbiAYD3s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:29:48 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58932 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349099AbiAXVGs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:06:48 -0500
+        id S1322325AbiAYDVd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:21:33 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:42826 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1381098AbiAXUSy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:18:54 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4B566B81188;
-        Mon, 24 Jan 2022 21:06:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F0AFC340E5;
-        Mon, 24 Jan 2022 21:06:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E483B6091A;
+        Mon, 24 Jan 2022 20:18:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4C9CC340E5;
+        Mon, 24 Jan 2022 20:18:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058402;
-        bh=uJ1++earz7G6KZn++LZyYdU2fw7m5hLElXi2bBZLUwM=;
+        s=korg; t=1643055533;
+        bh=0KzNRX1TV9/vmHxdGek7P+d4sSMlyXHggMI8sTCNUXs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pNUg5T9OGsWu/bCGV2bQVrDQdzDKjlIYJWCYzGg/OVLya0+Lhnt1pffYVGa7Gpo//
-         5v7LG7GtzCpA7QuNLRAQlrhWRmyCJt7M+TbIWC8+s0dskEUy4FLJb/16X5Sdx6cd/L
-         GCAp2gtDGZH9L26HbMOrY3M6+dKNyqwGXCHYmpOg=
+        b=Heyzn+khn4zysVzeFD2ql03b4/HnPlZ0wlzpofqDU3tClNlvcCoHKv8PadA6irtXg
+         WHaK7ztHHzqkrG7qqApWG8peLe8FfiKAqF9tIBG0FRuPrPCb0q/MRZzNZpJtrCm4VN
+         N1+a9IcThYZOQpvZinb2L+oIdiH4kCZqfpFleDlU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Weili Qian <qianweili@huawei.com>,
+        stable@vger.kernel.org,
+        Marco Chiappero <marco.chiappero@intel.com>,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
         Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0278/1039] crypto: hisilicon/qm - fix incorrect return value of hisi_qm_resume()
+Subject: [PATCH 5.15 150/846] crypto: qat - make pfvf send message direction agnostic
 Date:   Mon, 24 Jan 2022 19:34:27 +0100
-Message-Id: <20220124184134.628311296@linuxfoundation.org>
+Message-Id: <20220124184106.160325228@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,35 +47,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Weili Qian <qianweili@huawei.com>
+From: Marco Chiappero <marco.chiappero@intel.com>
 
-[ Upstream commit 3f9dd4c802b96626e869b2d29c8e401dabadd23e ]
+[ Upstream commit 6e680f94bc31d0fd0ff01123c964d895ea8040fa ]
 
-When hisi_qm_resume() returns 0, it indicates that the device has started
-successfully.  If the device fails to start, hisi_qm_resume() needs to
-return the actual error code to the caller instead of 0.
+The functions adf_iov_putmsg() and __adf_iov_putmsg() are shared by both
+PF and VF. Any logging or documentation should not refer to any specific
+direction.
 
-Fixes: d7ea53395b72 ("crypto: hisilicon - add runtime PM ops")
-Signed-off-by: Weili Qian <qianweili@huawei.com>
+Make comments and log messages direction agnostic by replacing PF2VF
+with PFVF. Also fix the wording for some related comments.
+
+Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
+Co-developed-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/hisilicon/qm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/qat/qat_common/adf_pf2vf_msg.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/crypto/hisilicon/qm.c b/drivers/crypto/hisilicon/qm.c
-index 52d6cca6262e2..70b0405494db5 100644
---- a/drivers/crypto/hisilicon/qm.c
-+++ b/drivers/crypto/hisilicon/qm.c
-@@ -6038,7 +6038,7 @@ int hisi_qm_resume(struct device *dev)
- 	if (ret)
- 		pci_err(pdev, "failed to start qm(%d)\n", ret);
+diff --git a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
+index d3f6ff68d45d9..d5a7261ddd928 100644
+--- a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
++++ b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
+@@ -117,11 +117,11 @@ static int __adf_iov_putmsg(struct adf_accel_dev *accel_dev, u32 msg, u8 vf_nr)
  
--	return 0;
-+	return ret;
+ 	mutex_lock(lock);
+ 
+-	/* Check if PF2VF CSR is in use by remote function */
++	/* Check if the PFVF CSR is in use by remote function */
+ 	val = ADF_CSR_RD(pmisc_bar_addr, pf2vf_offset);
+ 	if ((val & remote_in_use_mask) == remote_in_use_pattern) {
+ 		dev_dbg(&GET_DEV(accel_dev),
+-			"PF2VF CSR in use by remote function\n");
++			"PFVF CSR in use by remote function\n");
+ 		ret = -EBUSY;
+ 		goto out;
+ 	}
+@@ -129,7 +129,7 @@ static int __adf_iov_putmsg(struct adf_accel_dev *accel_dev, u32 msg, u8 vf_nr)
+ 	msg &= ~local_in_use_mask;
+ 	msg |= local_in_use_pattern;
+ 
+-	/* Attempt to get ownership of the PF2VF CSR */
++	/* Attempt to get ownership of the PFVF CSR */
+ 	ADF_CSR_WR(pmisc_bar_addr, pf2vf_offset, msg | int_bit);
+ 
+ 	/* Wait for confirmation from remote func it received the message */
+@@ -151,7 +151,7 @@ static int __adf_iov_putmsg(struct adf_accel_dev *accel_dev, u32 msg, u8 vf_nr)
+ 		ret = -EIO;
+ 	}
+ 
+-	/* Finished with PF2VF CSR; relinquish it and leave msg in CSR */
++	/* Finished with the PFVF CSR; relinquish it and leave msg in CSR */
+ 	ADF_CSR_WR(pmisc_bar_addr, pf2vf_offset, val & ~local_in_use_mask);
+ out:
+ 	mutex_unlock(lock);
+@@ -159,12 +159,13 @@ out:
  }
- EXPORT_SYMBOL_GPL(hisi_qm_resume);
  
+ /**
+- * adf_iov_putmsg() - send PF2VF message
++ * adf_iov_putmsg() - send PFVF message
+  * @accel_dev:  Pointer to acceleration device.
+  * @msg:	Message to send
+- * @vf_nr:	VF number to which the message will be sent
++ * @vf_nr:	VF number to which the message will be sent if on PF, ignored
++ *		otherwise
+  *
+- * Function sends a message from the PF to a VF
++ * Function sends a message through the PFVF channel
+  *
+  * Return: 0 on success, error code otherwise.
+  */
 -- 
 2.34.1
 
