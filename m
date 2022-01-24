@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 850E649A562
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:11:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B9D049A353
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:02:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2370815AbiAYAGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:06:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54808 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387192AbiAXXeJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:34:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B2D7C07597F;
-        Mon, 24 Jan 2022 13:36:12 -0800 (PST)
+        id S2365142AbiAXXuS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:50:18 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:48032 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1455782AbiAXVgQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:36:16 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 38C9DB8121C;
-        Mon, 24 Jan 2022 21:36:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D8C2C340E4;
-        Mon, 24 Jan 2022 21:36:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 46D50B81233;
+        Mon, 24 Jan 2022 21:36:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63AD5C340E4;
+        Mon, 24 Jan 2022 21:36:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060170;
-        bh=nlpsVFFBLXH+IEIkEIU95YTgMgVg2K0Hj1A5Aq2u94E=;
+        s=korg; t=1643060173;
+        bh=xI5hEJ3lhDIHA1QI9owRidjMV8Rm3Aur9/+X8usPUKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DC3y3AaZ+AbIaeAHwep9VUnqMyojbvA7GbjpAx6kay5AvrdZMlGq4iWGq1wNCP+Dk
-         wpivzixp1pZANCBiKUM/chkn3BZXRXY3vm2yzxgQqNTbi6pPgsXH1tRAY83j7Cb5u1
-         2iejhdn89phDH/spQX24pZtxbQIBbwcylGT4Xzls=
+        b=c9gSHT6RFJqkagUTkO5V6rLHtk5AikfZPhghrWzP6PU/+q6zkiUpvw3Fl2YtFy2fK
+         Wi4BI50lf3tvgM3C53BkJeWkTdnv4+mJSbxgeA0m7+FGbbPzwZgOfcIhF/uyr/mA8S
+         Ly0FJeTmEDCFW+vz7lnjwSSWJHDnEMvpwg1sg+3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yizhuo Zhai <yzhai003@ucr.edu>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.16 0861/1039] drm/amd/display: Fix the uninitialized variable in enable_stream_features()
-Date:   Mon, 24 Jan 2022 19:44:10 +0100
-Message-Id: <20220124184154.238652206@linuxfoundation.org>
+        stable@vger.kernel.org, "Nathan E. Egge" <unlord@xiph.org>,
+        Ilia Mirkin <imirkin@alum.mit.edu>,
+        Ben Skeggs <bskeggs@redhat.com>,
+        Karol Herbst <kherbst@redhat.com>
+Subject: [PATCH 5.16 0862/1039] drm/nouveau/kms/nv04: use vzalloc for nv04_display
+Date:   Mon, 24 Jan 2022 19:44:11 +0100
+Message-Id: <20220124184154.268640046@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -47,34 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yizhuo Zhai <yzhai003@ucr.edu>
+From: Ilia Mirkin <imirkin@alum.mit.edu>
 
-commit 0726ed3065eeb910f9cea0c933bc021a848e00b3 upstream.
+commit bd6e07e72f37f34535bec7eebc807e5fcfe37b43 upstream.
 
-In function enable_stream_features(), the variable "old_downspread.raw"
-could be uninitialized if core_link_read_dpcd() fails, however, it is
-used in the later if statement, and further, core_link_write_dpcd()
-may write random value, which is potentially unsafe.
+The struct is giant, and triggers an order-7 allocation (512K). There is
+no reason for this to be kmalloc-type memory, so switch to vmalloc. This
+should help loading nouveau on low-memory and/or long-running systems.
 
-Fixes: 6016cd9dba0f ("drm/amd/display: add helper for enabling mst stream features")
+Reported-by: Nathan E. Egge <unlord@xiph.org>
+Signed-off-by: Ilia Mirkin <imirkin@alum.mit.edu>
 Cc: stable@vger.kernel.org
-Signed-off-by: Yizhuo Zhai <yzhai003@ucr.edu>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Reviewed-by: Karol Herbst <kherbst@redhat.com>
+Signed-off-by: Karol Herbst <kherbst@redhat.com>
+Link: https://gitlab.freedesktop.org/drm/nouveau/-/merge_requests/10
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/nouveau/dispnv04/disp.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-@@ -1844,6 +1844,8 @@ static void enable_stream_features(struc
- 		union down_spread_ctrl old_downspread;
- 		union down_spread_ctrl new_downspread;
+--- a/drivers/gpu/drm/nouveau/dispnv04/disp.c
++++ b/drivers/gpu/drm/nouveau/dispnv04/disp.c
+@@ -205,7 +205,7 @@ nv04_display_destroy(struct drm_device *
+ 	nvif_notify_dtor(&disp->flip);
  
-+		memset(&old_downspread, 0, sizeof(old_downspread));
-+
- 		core_link_read_dpcd(link, DP_DOWNSPREAD_CTRL,
- 				&old_downspread.raw, sizeof(old_downspread));
+ 	nouveau_display(dev)->priv = NULL;
+-	kfree(disp);
++	vfree(disp);
+ 
+ 	nvif_object_unmap(&drm->client.device.object);
+ }
+@@ -223,7 +223,7 @@ nv04_display_create(struct drm_device *d
+ 	struct nv04_display *disp;
+ 	int i, ret;
+ 
+-	disp = kzalloc(sizeof(*disp), GFP_KERNEL);
++	disp = vzalloc(sizeof(*disp));
+ 	if (!disp)
+ 		return -ENOMEM;
  
 
 
