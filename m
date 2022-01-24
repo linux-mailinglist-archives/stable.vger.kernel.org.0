@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5501F499036
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88AAD49904D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352269AbiAXT7F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:59:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58214 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357927AbiAXTxW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:53:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0716C061254;
-        Mon, 24 Jan 2022 11:26:51 -0800 (PST)
+        id S1359349AbiAXT7e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:59:34 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:51530 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358135AbiAXTyc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:54:32 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F16161447;
-        Mon, 24 Jan 2022 19:26:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EDC2C340E7;
-        Mon, 24 Jan 2022 19:26:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 31AD060B88;
+        Mon, 24 Jan 2022 19:54:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F783C340E5;
+        Mon, 24 Jan 2022 19:54:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052410;
-        bh=KIWtqTmSiuBT2qbKK6tGpxzLx9BdKMIp2SxoYq1fvlo=;
+        s=korg; t=1643054068;
+        bh=trFRVxPpwQP5j5PpHCK0jByQ6eNg8p9rOMd216bDq5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M5Dp3QuZBV6phYXLJRa2xperGyjZGTunKqr0qAq6dLmddLagMJpVdz0GiJG1+iTjP
-         mPPAzLcRfXC8AIXcMgqPC2jj1C0Yxn+JcfdjZ+Myta+vU50fQ4BZS2SoEAVxQLAc+s
-         iKk/Kc5gYUBtK7SAIaPsYidf09653xoubuWVDkDg=
+        b=DpKVVVd7h48U6EEB02P20CG4+cFiLyz4IomYwKjGffx0UI8Zbz1JAIlgQIpVMFcAE
+         Tkxbs3CKYMRoWNL76O9sCkgwrgxceYzg7feUebOOSG8H2+2kFOIhfp5HZAxEDA15t3
+         4VyfAmpMlN55OeugKEyyYA5oNgd06bebwsCGQskY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sumit Garg <sumit.garg@linaro.org>,
-        Jens Wiklander <jens.wiklander@linaro.org>,
+        stable@vger.kernel.org, Avihai Horon <avihaih@nvidia.com>,
+        Mark Zhang <markzhang@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 049/320] tee: fix put order in teedev_close_context()
+Subject: [PATCH 5.10 268/563] RDMA/core: Let ib_find_gid() continue search even after empty entry
 Date:   Mon, 24 Jan 2022 19:40:33 +0100
-Message-Id: <20220124183955.408084829@linuxfoundation.org>
+Message-Id: <20220124184033.719964552@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,39 +47,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Wiklander <jens.wiklander@linaro.org>
+From: Avihai Horon <avihaih@nvidia.com>
 
-[ Upstream commit f18397ab3ae23e8e43bba9986e66af6d4497f2ad ]
+[ Upstream commit 483d805191a23191f8294bbf9b4e94836f5d92e4 ]
 
-Prior to this patch was teedev_close_context() calling tee_device_put()
-before teedev_ctx_put() leading to teedev_ctx_release() accessing
-ctx->teedev just after the reference counter was decreased on the
-teedev. Fix this by calling teedev_ctx_put() before tee_device_put().
+Currently, ib_find_gid() will stop searching after encountering the first
+empty GID table entry. This behavior is wrong since neither IB nor RoCE
+spec enforce tightly packed GID tables.
 
-Fixes: 217e0250cccb ("tee: use reference counting for tee_context")
-Reviewed-by: Sumit Garg <sumit.garg@linaro.org>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
+For example, when a valid GID entry exists at index N, and if a GID entry
+is empty at index N-1, ib_find_gid() will fail to find the valid entry.
+
+Fix it by making ib_find_gid() continue searching even after encountering
+missing entries.
+
+Fixes: 5eb620c81ce3 ("IB/core: Add helpers for uncached GID and P_Key searches")
+Link: https://lore.kernel.org/r/e55d331b96cecfc2cf19803d16e7109ea966882d.1639055490.git.leonro@nvidia.com
+Signed-off-by: Avihai Horon <avihaih@nvidia.com>
+Reviewed-by: Mark Zhang <markzhang@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tee/tee_core.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/infiniband/core/device.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/tee/tee_core.c b/drivers/tee/tee_core.c
-index 0f16d9ffd8d12..85e0cef9e917e 100644
---- a/drivers/tee/tee_core.c
-+++ b/drivers/tee/tee_core.c
-@@ -84,8 +84,10 @@ void teedev_ctx_put(struct tee_context *ctx)
- 
- static void teedev_close_context(struct tee_context *ctx)
- {
--	tee_device_put(ctx->teedev);
-+	struct tee_device *teedev = ctx->teedev;
+diff --git a/drivers/infiniband/core/device.c b/drivers/infiniband/core/device.c
+index 76b9c436edcd2..aa526c5ca0cf3 100644
+--- a/drivers/infiniband/core/device.c
++++ b/drivers/infiniband/core/device.c
+@@ -2411,7 +2411,8 @@ int ib_find_gid(struct ib_device *device, union ib_gid *gid,
+ 		     ++i) {
+ 			ret = rdma_query_gid(device, port, i, &tmp_gid);
+ 			if (ret)
+-				return ret;
++				continue;
 +
- 	teedev_ctx_put(ctx);
-+	tee_device_put(teedev);
- }
- 
- static int tee_open(struct inode *inode, struct file *filp)
+ 			if (!memcmp(&tmp_gid, gid, sizeof *gid)) {
+ 				*port_num = port;
+ 				if (index)
 -- 
 2.34.1
 
