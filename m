@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F807497DF7
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 12:30:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4613D497DF1
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 12:30:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237543AbiAXLaP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 06:30:15 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49634 "EHLO
+        id S237337AbiAXLaF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 06:30:05 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49592 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237540AbiAXLaM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 06:30:12 -0500
+        with ESMTP id S237495AbiAXLaE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 06:30:04 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 27081B80EF9
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 11:30:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27646C340E1;
-        Mon, 24 Jan 2022 11:30:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A43E1B80CD1
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 11:30:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7330EC340E1;
+        Mon, 24 Jan 2022 11:30:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643023809;
-        bh=NtWmUVqhAvHl5TBXPPmrgfib708z5T5mMCOLjK2aBOM=;
+        s=korg; t=1643023801;
+        bh=Xphg88AYtBzleAmnj7Atd/yk6Q1K6avcZrwEPqM8kbs=;
         h=Subject:To:Cc:From:Date:From;
-        b=cKkN0YQZ4QFfFGvqfeG/uvuHIVQBDA16AvllWrRKVU8/Olyq+9SM4AUAyChwKLvNI
-         1xacDnRFMY2L77CQn61cwaQ2nQGNUJblWm6pJUJgRXVzmGR2BiQCvymD7snB2CJdca
-         5nMk4ud2tvbHQtBpYspEm/9gNdsTciJG1iChHrqI=
-Subject: FAILED: patch "[PATCH] drm/vc4: hdmi: Add a spinlock to protect register access" failed to apply to 5.16-stable tree
+        b=SRBZfF2TU1G4Mrm9n1esKr9pwDhfzJ5MhAXrKXYlRVqP/b7L5AVqvqViv2F79TAsm
+         otwWmuE6Dg8L6aZH4mbvZKcp+8LAnJAIC4cKUMnELWuJPf2T3m1z3yqtIvkcWVfcKx
+         YdaTZJv+X2KPNM7csXvZ12/9T/9rvyyczEKqf/uM=
+Subject: FAILED: patch "[PATCH] drm/vc4: hdmi: Add a spinlock to protect register access" failed to apply to 5.15-stable tree
 To:     maxime@cerno.tech, daniel.vetter@ffwll.ch
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 24 Jan 2022 12:29:58 +0100
-Message-ID: <16430237983156@kroah.com>
+Message-ID: <1643023798170205@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.16-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
