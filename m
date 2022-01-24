@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C3D34991A4
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:14:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B92BF49919F
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:14:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354854AbiAXUMt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:12:49 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:36982 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379187AbiAXUKc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:10:32 -0500
+        id S244228AbiAXUMm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:12:42 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:52018 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1379215AbiAXUKg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:10:36 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A9F26611CD;
-        Mon, 24 Jan 2022 20:10:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B5DAC340E5;
-        Mon, 24 Jan 2022 20:10:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4FEBDB8119E;
+        Mon, 24 Jan 2022 20:10:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 799E6C340E5;
+        Mon, 24 Jan 2022 20:10:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055031;
-        bh=m6ghTn5MEElojWEjAHfRtUFtSmV8Q58RWFp1gRVwjwA=;
+        s=korg; t=1643055034;
+        bh=w6SHKE6jX4ZUVWOWECRb9u1Z6a+zZf7mElpRsXhmPcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dNkAfMZ8HlBrqF9sU7KMEocmgyQR21/JWGa20f53n8LdxI/Oh8DkvT9XFuouwCIQR
-         BSgAQI/kX1WRwhDge7KUxLoWrQnveb6510pYWzAeMYEZe+rmoWb38Vxtgtu1W3kfSW
-         tHbPXS/rPg0PNhxtyHu6HRMxbVLT8FSPn344jgNA=
+        b=lFcDVWb9kQuzWRWXzRQvsqMfTiocTmtQFymTvnk92mInjEAIMPDnIuPslLWSEh0gj
+         417eN6lngrFI0CgurwxnReTKgEIZa+nuvTEIq1tYOdt58qnoNvNB1xIeyPrRM/HHM9
+         Sx7+iD/+6zSg6ENJqbvkGNb6f7JI/H5cCK81+mTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
         Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.15 019/846] mtd: rawnand: Export nand_read_page_hwecc_oob_first()
-Date:   Mon, 24 Jan 2022 19:32:16 +0100
-Message-Id: <20220124184101.583448151@linuxfoundation.org>
+Subject: [PATCH 5.15 020/846] mtd: rawnand: ingenic: JZ4740 needs oob_first read page function
+Date:   Mon, 24 Jan 2022 19:32:17 +0100
+Message-Id: <20220124184101.614244813@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -46,195 +46,57 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Paul Cercueil <paul@crapouillou.net>
 
-commit d8466f73010faf71effb21228ae1cbf577dab130 upstream.
+commit 0171480007d64f663aae9226303f1b1e4621229e upstream.
 
-Move the function nand_read_page_hwecc_oob_first() (previously
-nand_davinci_read_page_hwecc_oob_first()) to nand_base.c, and export it
-as a GPL symbol, so that it can be used by more modules.
+The ECC engine on the JZ4740 SoC requires the ECC data to be read before
+the page; using the default page reading function does not work. Indeed,
+the old JZ4740 NAND driver (removed in 5.4) did use the 'OOB first' flag
+that existed back then.
+
+Use the newly created nand_read_page_hwecc_oob_first() to address this
+issue.
+
+This issue was not found when the new ingenic-nand driver was developed,
+most likely because the Device Tree used had the nand-ecc-mode set to
+"hw_oob_first", which seems to not be supported anymore.
 
 Cc: <stable@vger.kernel.org> # v5.2
 Fixes: a0ac778eb82c ("mtd: rawnand: ingenic: Add support for the JZ4740")
 Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20211016132228.40254-4-paul@crapouillou.net
+Link: https://lore.kernel.org/linux-mtd/20211016132228.40254-5-paul@crapouillou.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/davinci_nand.c |   69 ------------------------------------
- drivers/mtd/nand/raw/nand_base.c    |   67 ++++++++++++++++++++++++++++++++++
- include/linux/mtd/rawnand.h         |    2 +
- 3 files changed, 70 insertions(+), 68 deletions(-)
+ drivers/mtd/nand/raw/ingenic/ingenic_nand_drv.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/drivers/mtd/nand/raw/davinci_nand.c
-+++ b/drivers/mtd/nand/raw/davinci_nand.c
-@@ -371,73 +371,6 @@ correct:
- 	return corrected;
- }
+--- a/drivers/mtd/nand/raw/ingenic/ingenic_nand_drv.c
++++ b/drivers/mtd/nand/raw/ingenic/ingenic_nand_drv.c
+@@ -32,6 +32,7 @@ struct jz_soc_info {
+ 	unsigned long addr_offset;
+ 	unsigned long cmd_offset;
+ 	const struct mtd_ooblayout_ops *oob_layout;
++	bool oob_first;
+ };
  
--/**
-- * nand_davinci_read_page_hwecc_oob_first - Hardware ECC page read with ECC
-- *                                          data read from OOB area
-- * @chip: nand chip info structure
-- * @buf: buffer to store read data
-- * @oob_required: caller requires OOB data read to chip->oob_poi
-- * @page: page number to read
-- *
-- * Hardware ECC for large page chips, which requires the ECC data to be
-- * extracted from the OOB before the actual data is read.
-- */
--static int nand_davinci_read_page_hwecc_oob_first(struct nand_chip *chip,
--						  uint8_t *buf,
--						  int oob_required, int page)
--{
--	struct mtd_info *mtd = nand_to_mtd(chip);
--	int i, eccsize = chip->ecc.size, ret;
--	int eccbytes = chip->ecc.bytes;
--	int eccsteps = chip->ecc.steps;
--	uint8_t *p = buf;
--	uint8_t *ecc_code = chip->ecc.code_buf;
--	unsigned int max_bitflips = 0;
--
--	/* Read the OOB area first */
--	ret = nand_read_oob_op(chip, page, 0, chip->oob_poi, mtd->oobsize);
--	if (ret)
--		return ret;
--
--	/* Move read cursor to start of page */
--	ret = nand_change_read_column_op(chip, 0, NULL, 0, false);
--	if (ret)
--		return ret;
--
--	ret = mtd_ooblayout_get_eccbytes(mtd, ecc_code, chip->oob_poi, 0,
--					 chip->ecc.total);
--	if (ret)
--		return ret;
--
--	for (i = 0; eccsteps; eccsteps--, i += eccbytes, p += eccsize) {
--		int stat;
--
--		chip->ecc.hwctl(chip, NAND_ECC_READ);
--
--		ret = nand_read_data_op(chip, p, eccsize, false, false);
--		if (ret)
--			return ret;
--
--		stat = chip->ecc.correct(chip, p, &ecc_code[i], NULL);
--		if (stat == -EBADMSG &&
--		    (chip->ecc.options & NAND_ECC_GENERIC_ERASED_CHECK)) {
--			/* check for empty pages with bitflips */
--			stat = nand_check_erased_ecc_chunk(p, eccsize,
--							   &ecc_code[i],
--							   eccbytes, NULL, 0,
--							   chip->ecc.strength);
--		}
--
--		if (stat < 0) {
--			mtd->ecc_stats.failed++;
--		} else {
--			mtd->ecc_stats.corrected += stat;
--			max_bitflips = max_t(unsigned int, max_bitflips, stat);
--		}
--	}
--	return max_bitflips;
--}
--
- /*----------------------------------------------------------------------*/
+ struct ingenic_nand_cs {
+@@ -240,6 +241,9 @@ static int ingenic_nand_attach_chip(stru
+ 	if (chip->bbt_options & NAND_BBT_USE_FLASH)
+ 		chip->bbt_options |= NAND_BBT_NO_OOB;
  
- /* An ECC layout for using 4-bit ECC with small-page flash, storing
-@@ -647,7 +580,7 @@ static int davinci_nand_attach_chip(stru
- 			} else if (chunks == 4 || chunks == 8) {
- 				mtd_set_ooblayout(mtd,
- 						  nand_get_large_page_ooblayout());
--				chip->ecc.read_page = nand_davinci_read_page_hwecc_oob_first;
-+				chip->ecc.read_page = nand_read_page_hwecc_oob_first;
- 			} else {
- 				return -EIO;
- 			}
---- a/drivers/mtd/nand/raw/nand_base.c
-+++ b/drivers/mtd/nand/raw/nand_base.c
-@@ -3161,6 +3161,73 @@ static int nand_read_page_hwecc(struct n
- }
++	if (nfc->soc_info->oob_first)
++		chip->ecc.read_page = nand_read_page_hwecc_oob_first;
++
+ 	/* For legacy reasons we use a different layout on the qi,lb60 board. */
+ 	if (of_machine_is_compatible("qi,lb60"))
+ 		mtd_set_ooblayout(mtd, &qi_lb60_ooblayout_ops);
+@@ -534,6 +538,7 @@ static const struct jz_soc_info jz4740_s
+ 	.data_offset = 0x00000000,
+ 	.cmd_offset = 0x00008000,
+ 	.addr_offset = 0x00010000,
++	.oob_first = true,
+ };
  
- /**
-+ * nand_read_page_hwecc_oob_first - Hardware ECC page read with ECC
-+ *                                  data read from OOB area
-+ * @chip: nand chip info structure
-+ * @buf: buffer to store read data
-+ * @oob_required: caller requires OOB data read to chip->oob_poi
-+ * @page: page number to read
-+ *
-+ * Hardware ECC for large page chips, which requires the ECC data to be
-+ * extracted from the OOB before the actual data is read.
-+ */
-+int nand_read_page_hwecc_oob_first(struct nand_chip *chip, uint8_t *buf,
-+				   int oob_required, int page)
-+{
-+	struct mtd_info *mtd = nand_to_mtd(chip);
-+	int i, eccsize = chip->ecc.size, ret;
-+	int eccbytes = chip->ecc.bytes;
-+	int eccsteps = chip->ecc.steps;
-+	uint8_t *p = buf;
-+	uint8_t *ecc_code = chip->ecc.code_buf;
-+	unsigned int max_bitflips = 0;
-+
-+	/* Read the OOB area first */
-+	ret = nand_read_oob_op(chip, page, 0, chip->oob_poi, mtd->oobsize);
-+	if (ret)
-+		return ret;
-+
-+	/* Move read cursor to start of page */
-+	ret = nand_change_read_column_op(chip, 0, NULL, 0, false);
-+	if (ret)
-+		return ret;
-+
-+	ret = mtd_ooblayout_get_eccbytes(mtd, ecc_code, chip->oob_poi, 0,
-+					 chip->ecc.total);
-+	if (ret)
-+		return ret;
-+
-+	for (i = 0; eccsteps; eccsteps--, i += eccbytes, p += eccsize) {
-+		int stat;
-+
-+		chip->ecc.hwctl(chip, NAND_ECC_READ);
-+
-+		ret = nand_read_data_op(chip, p, eccsize, false, false);
-+		if (ret)
-+			return ret;
-+
-+		stat = chip->ecc.correct(chip, p, &ecc_code[i], NULL);
-+		if (stat == -EBADMSG &&
-+		    (chip->ecc.options & NAND_ECC_GENERIC_ERASED_CHECK)) {
-+			/* check for empty pages with bitflips */
-+			stat = nand_check_erased_ecc_chunk(p, eccsize,
-+							   &ecc_code[i],
-+							   eccbytes, NULL, 0,
-+							   chip->ecc.strength);
-+		}
-+
-+		if (stat < 0) {
-+			mtd->ecc_stats.failed++;
-+		} else {
-+			mtd->ecc_stats.corrected += stat;
-+			max_bitflips = max_t(unsigned int, max_bitflips, stat);
-+		}
-+	}
-+	return max_bitflips;
-+}
-+EXPORT_SYMBOL_GPL(nand_read_page_hwecc_oob_first);
-+
-+/**
-  * nand_read_page_syndrome - [REPLACEABLE] hardware ECC syndrome based page read
-  * @chip: nand chip info structure
-  * @buf: buffer to store read data
---- a/include/linux/mtd/rawnand.h
-+++ b/include/linux/mtd/rawnand.h
-@@ -1539,6 +1539,8 @@ int nand_read_data_op(struct nand_chip *
- 		      bool force_8bit, bool check_only);
- int nand_write_data_op(struct nand_chip *chip, const void *buf,
- 		       unsigned int len, bool force_8bit);
-+int nand_read_page_hwecc_oob_first(struct nand_chip *chip, uint8_t *buf,
-+				   int oob_required, int page);
- 
- /* Scan and identify a NAND device */
- int nand_scan_with_ids(struct nand_chip *chip, unsigned int max_chips,
+ static const struct jz_soc_info jz4725b_soc_info = {
 
 
