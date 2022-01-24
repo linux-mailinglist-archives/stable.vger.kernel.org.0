@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A72E4990C8
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:07:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F547498AA6
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:07:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376884AbiAXUEV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:04:21 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47026 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354144AbiAXUCU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:02:20 -0500
+        id S1344419AbiAXTGM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:06:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46096 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345275AbiAXTDN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:03:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C24DC06174E;
+        Mon, 24 Jan 2022 10:58:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00DD0B8119E;
-        Mon, 24 Jan 2022 20:02:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 273ADC340E5;
-        Mon, 24 Jan 2022 20:02:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CCE11B8122C;
+        Mon, 24 Jan 2022 18:58:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01645C340E5;
+        Mon, 24 Jan 2022 18:58:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054537;
-        bh=e21FpSYim1ygMkk92DWrzZG+FchegcpQRTza2xVC53M=;
+        s=korg; t=1643050736;
+        bh=yqra3Bl1aJz0zvUd6eMq6pYqBx4bxEbp699g1+233U8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vD5DOltpALMmFmalo5t2YDxcVjeGyDkpNyMy2SeN7ML2W5NxOWaldCZGs+QQ7zYEH
-         HzGIdj8DX1Hw/0pCvLMPh7KdRvGaJTD2EcB+cIqpiCa2aWpKkMPhd8s9oMBaqG02kQ
-         DttIORv1dxX+PQJnHaCSBSpNAyvatbexRrJ8S3Hk=
+        b=UXgy7v9U9uhiD4IxrqTiDfjUijmZXa+FX02gK6+40Vj1io9mpAk0XVkhKO9zOmmWI
+         vWf+cNYBsriQfjxFBivKh0yRGsn+5+a/T6nsRzqKLPUTHa10V5TuepBrVNgc0B/1Sk
+         gfWagipdpcotfL2saiEFBneb1JD46l8diePGlesY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Fabiano Rosas <farosas@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Lenny Szubowicz <lszubowi@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Bob Moore <robert.moore@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 420/563] KVM: PPC: Book3S: Suppress failed alloc warning in H_COPY_TOFROM_GUEST
-Date:   Mon, 24 Jan 2022 19:43:05 +0100
-Message-Id: <20220124184038.983374046@linuxfoundation.org>
+Subject: [PATCH 4.9 096/157] ACPICA: Executer: Fix the REFCLASS_REFOF case in acpi_ex_opcode_1A_0T_1R()
+Date:   Mon, 24 Jan 2022 19:43:06 +0100
+Message-Id: <20220124183935.819994578@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,41 +49,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 792020907b11c6f9246c21977cab3bad985ae4b6 ]
+[ Upstream commit 24ea5f90ec9548044a6209685c5010edd66ffe8f ]
 
-H_COPY_TOFROM_GUEST is an hcall for an upper level VM to access its nested
-VMs memory. The userspace can trigger WARN_ON_ONCE(!(gfp & __GFP_NOWARN))
-in __alloc_pages() by constructing a tiny VM which only does
-H_COPY_TOFROM_GUEST with a too big GPR9 (number of bytes to copy).
+ACPICA commit d984f12041392fa4156b52e2f7e5c5e7bc38ad9e
 
-This silences the warning by adding __GFP_NOWARN.
+If Operand[0] is a reference of the ACPI_REFCLASS_REFOF class,
+acpi_ex_opcode_1A_0T_1R () calls acpi_ns_get_attached_object () to
+obtain return_desc which may require additional resolution with
+the help of acpi_ex_read_data_from_field (). If the latter fails,
+the reference counter of the original return_desc is decremented
+which is incorrect, because acpi_ns_get_attached_object () does not
+increment the reference counter of the object returned by it.
 
-Spotted by syzkaller.
+This issue may lead to premature deletion of the attached object
+while it is still attached and a use-after-free and crash in the
+host OS.  For example, this may happen when on evaluation of ref_of()
+a local region field where there is no registered handler for the
+given Operation Region.
 
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Reviewed-by: Fabiano Rosas <farosas@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210901084550.1658699-1-aik@ozlabs.ru
+Fix it by making acpi_ex_opcode_1A_0T_1R () return Status right away
+after a acpi_ex_read_data_from_field () failure.
+
+Link: https://github.com/acpica/acpica/commit/d984f120
+Link: https://github.com/acpica/acpica/pull/685
+Reported-by: Lenny Szubowicz <lszubowi@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Bob Moore <robert.moore@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/book3s_hv_nested.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/acpi/acpica/exoparg1.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kvm/book3s_hv_nested.c b/arch/powerpc/kvm/book3s_hv_nested.c
-index a5f1ae892ba68..d0b6c8c16c48a 100644
---- a/arch/powerpc/kvm/book3s_hv_nested.c
-+++ b/arch/powerpc/kvm/book3s_hv_nested.c
-@@ -510,7 +510,7 @@ long kvmhv_copy_tofrom_guest_nested(struct kvm_vcpu *vcpu)
- 	if (eaddr & (0xFFFUL << 52))
- 		return H_PARAMETER;
+diff --git a/drivers/acpi/acpica/exoparg1.c b/drivers/acpi/acpica/exoparg1.c
+index 007300433cdea..1cea26a741474 100644
+--- a/drivers/acpi/acpica/exoparg1.c
++++ b/drivers/acpi/acpica/exoparg1.c
+@@ -1029,7 +1029,8 @@ acpi_status acpi_ex_opcode_1A_0T_1R(struct acpi_walk_state *walk_state)
+ 						    (walk_state, return_desc,
+ 						     &temp_desc);
+ 						if (ACPI_FAILURE(status)) {
+-							goto cleanup;
++							return_ACPI_STATUS
++							    (status);
+ 						}
  
--	buf = kzalloc(n, GFP_KERNEL);
-+	buf = kzalloc(n, GFP_KERNEL | __GFP_NOWARN);
- 	if (!buf)
- 		return H_NO_MEM;
- 
+ 						return_desc = temp_desc;
 -- 
 2.34.1
 
