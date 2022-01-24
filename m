@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C0BD4995B7
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:13:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BAC1499B2C
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:59:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352975AbiAXUyT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:54:19 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:43504 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1441878AbiAXUvs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:51:48 -0500
+        id S1574735AbiAXVuK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:50:10 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:52066 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1457381AbiAXVld (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:41:33 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DCC436091C;
-        Mon, 24 Jan 2022 20:51:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A2AAC340E5;
-        Mon, 24 Jan 2022 20:51:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2A81BB811FC;
+        Mon, 24 Jan 2022 21:41:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 804F2C340E4;
+        Mon, 24 Jan 2022 21:41:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057507;
-        bh=E8N01BRn+ZSoMWY1IVzzlzEZ8SnabB6tW00fO7KDffU=;
+        s=korg; t=1643060490;
+        bh=EtWA7L7BqdpMoJktY/5B7XDbMJPG7DdHQWCd5GNvgoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tgbLG2AWXDil7q8OwwCldyyBm7K/8WNf3PwLDBEypoMrVWUTmNpYSlWmsJZ2FhnRb
-         ixvaFuco4menxURH8VDPTL90k1vm14EfH6N0UBKEuueNICWZTkoqhgBWHqZSbcc5hX
-         ztOpF17x5BheAACcDCTBdmfk4ZIKLsQMvzLa+QPc=
+        b=c6comMHNeu4CT1rHyCM3kaHIu63EOlQfy/T2qE31EGGVrRivTFWz34SQAQU6c/CLJ
+         5rceZjERHwYfCBp8ATYsLGzA6mQvlwKbzoFhZA0XmvOKaDwx6auq5PZy2A8xHpuBpE
+         8NqpcdfpUgG7cc1VSHmmwZiAejeFdxIx2xN+2VfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 836/846] net: phy: micrel: use kszphy_suspend()/kszphy_resume for irq aware devices
-Date:   Mon, 24 Jan 2022 19:45:53 +0100
-Message-Id: <20220124184129.751977334@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: [PATCH 5.16 0965/1039] gpio: idt3243x: Fix IRQ check in idt_gpio_probe
+Date:   Mon, 24 Jan 2022 19:45:54 +0100
+Message-Id: <20220124184157.726618119@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,140 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit f1131b9c23fb4a3540a774828ff49f421619f902 upstream.
+commit 30fee1d7462a446ade399c0819717a830cbdca69 upstream.
 
-On a setup with KSZ9131 and MACB drivers it happens on suspend path, from
-time to time, that the PHY interrupt arrives after PHY and MACB were
-suspended (PHY via genphy_suspend(), MACB via macb_suspend()). In this
-case the phy_read() at the beginning of kszphy_handle_interrupt() will
-fail (as MACB driver is suspended at this time) leading to phy_error()
-being called and a stack trace being displayed on console. To solve this
-.suspend/.resume functions for all KSZ devices implementing
-.handle_interrupt were replaced with kszphy_suspend()/kszphy_resume()
-which disable/enable interrupt before/after calling
-genphy_suspend()/genphy_resume().
+platform_get_irq() returns negative error number instead 0 on failure.
+And the doc of platform_get_irq() provides a usage example:
 
-The fix has been adapted for all KSZ devices which implements
-.handle_interrupt but it has been tested only on KSZ9131.
+    int irq = platform_get_irq(pdev, 0);
+    if (irq < 0)
+        return irq;
 
-Fixes: 59ca4e58b917 ("net: phy: micrel: implement generic .handle_interrupt() callback")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix the check of return value to catch errors correctly.
+
+Fixes: 4195926aedca ("gpio: Add support for IDT 79RC3243x GPIO controller")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/micrel.c |   36 ++++++++++++++++++------------------
- 1 file changed, 18 insertions(+), 18 deletions(-)
+ drivers/gpio/gpio-idt3243x.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/phy/micrel.c
-+++ b/drivers/net/phy/micrel.c
-@@ -1547,8 +1547,8 @@ static struct phy_driver ksphy_driver[]
- 	.config_init	= kszphy_config_init,
- 	.config_intr	= kszphy_config_intr,
- 	.handle_interrupt = kszphy_handle_interrupt,
--	.suspend	= genphy_suspend,
--	.resume		= genphy_resume,
-+	.suspend	= kszphy_suspend,
-+	.resume		= kszphy_resume,
- }, {
- 	.phy_id		= PHY_ID_KSZ8021,
- 	.phy_id_mask	= 0x00ffffff,
-@@ -1562,8 +1562,8 @@ static struct phy_driver ksphy_driver[]
- 	.get_sset_count = kszphy_get_sset_count,
- 	.get_strings	= kszphy_get_strings,
- 	.get_stats	= kszphy_get_stats,
--	.suspend	= genphy_suspend,
--	.resume		= genphy_resume,
-+	.suspend	= kszphy_suspend,
-+	.resume		= kszphy_resume,
- }, {
- 	.phy_id		= PHY_ID_KSZ8031,
- 	.phy_id_mask	= 0x00ffffff,
-@@ -1577,8 +1577,8 @@ static struct phy_driver ksphy_driver[]
- 	.get_sset_count = kszphy_get_sset_count,
- 	.get_strings	= kszphy_get_strings,
- 	.get_stats	= kszphy_get_stats,
--	.suspend	= genphy_suspend,
--	.resume		= genphy_resume,
-+	.suspend	= kszphy_suspend,
-+	.resume		= kszphy_resume,
- }, {
- 	.phy_id		= PHY_ID_KSZ8041,
- 	.phy_id_mask	= MICREL_PHY_ID_MASK,
-@@ -1609,8 +1609,8 @@ static struct phy_driver ksphy_driver[]
- 	.get_sset_count = kszphy_get_sset_count,
- 	.get_strings	= kszphy_get_strings,
- 	.get_stats	= kszphy_get_stats,
--	.suspend	= genphy_suspend,
--	.resume		= genphy_resume,
-+	.suspend	= kszphy_suspend,
-+	.resume		= kszphy_resume,
- }, {
- 	.name		= "Micrel KSZ8051",
- 	/* PHY_BASIC_FEATURES */
-@@ -1623,8 +1623,8 @@ static struct phy_driver ksphy_driver[]
- 	.get_strings	= kszphy_get_strings,
- 	.get_stats	= kszphy_get_stats,
- 	.match_phy_device = ksz8051_match_phy_device,
--	.suspend	= genphy_suspend,
--	.resume		= genphy_resume,
-+	.suspend	= kszphy_suspend,
-+	.resume		= kszphy_resume,
- }, {
- 	.phy_id		= PHY_ID_KSZ8001,
- 	.name		= "Micrel KSZ8001 or KS8721",
-@@ -1638,8 +1638,8 @@ static struct phy_driver ksphy_driver[]
- 	.get_sset_count = kszphy_get_sset_count,
- 	.get_strings	= kszphy_get_strings,
- 	.get_stats	= kszphy_get_stats,
--	.suspend	= genphy_suspend,
--	.resume		= genphy_resume,
-+	.suspend	= kszphy_suspend,
-+	.resume		= kszphy_resume,
- }, {
- 	.phy_id		= PHY_ID_KSZ8081,
- 	.name		= "Micrel KSZ8081 or KSZ8091",
-@@ -1669,8 +1669,8 @@ static struct phy_driver ksphy_driver[]
- 	.config_init	= ksz8061_config_init,
- 	.config_intr	= kszphy_config_intr,
- 	.handle_interrupt = kszphy_handle_interrupt,
--	.suspend	= genphy_suspend,
--	.resume		= genphy_resume,
-+	.suspend	= kszphy_suspend,
-+	.resume		= kszphy_resume,
- }, {
- 	.phy_id		= PHY_ID_KSZ9021,
- 	.phy_id_mask	= 0x000ffffe,
-@@ -1685,8 +1685,8 @@ static struct phy_driver ksphy_driver[]
- 	.get_sset_count = kszphy_get_sset_count,
- 	.get_strings	= kszphy_get_strings,
- 	.get_stats	= kszphy_get_stats,
--	.suspend	= genphy_suspend,
--	.resume		= genphy_resume,
-+	.suspend	= kszphy_suspend,
-+	.resume		= kszphy_resume,
- 	.read_mmd	= genphy_read_mmd_unsupported,
- 	.write_mmd	= genphy_write_mmd_unsupported,
- }, {
-@@ -1704,7 +1704,7 @@ static struct phy_driver ksphy_driver[]
- 	.get_sset_count = kszphy_get_sset_count,
- 	.get_strings	= kszphy_get_strings,
- 	.get_stats	= kszphy_get_stats,
--	.suspend	= genphy_suspend,
-+	.suspend	= kszphy_suspend,
- 	.resume		= kszphy_resume,
- }, {
- 	.phy_id		= PHY_ID_LAN8814,
-@@ -1732,7 +1732,7 @@ static struct phy_driver ksphy_driver[]
- 	.get_sset_count = kszphy_get_sset_count,
- 	.get_strings	= kszphy_get_strings,
- 	.get_stats	= kszphy_get_stats,
--	.suspend	= genphy_suspend,
-+	.suspend	= kszphy_suspend,
- 	.resume		= kszphy_resume,
- }, {
- 	.phy_id		= PHY_ID_KSZ8873MLL,
+--- a/drivers/gpio/gpio-idt3243x.c
++++ b/drivers/gpio/gpio-idt3243x.c
+@@ -164,8 +164,8 @@ static int idt_gpio_probe(struct platfor
+ 			return PTR_ERR(ctrl->pic);
+ 
+ 		parent_irq = platform_get_irq(pdev, 0);
+-		if (!parent_irq)
+-			return -EINVAL;
++		if (parent_irq < 0)
++			return parent_irq;
+ 
+ 		girq = &ctrl->gc.irq;
+ 		girq->chip = &idt_gpio_irqchip;
 
 
