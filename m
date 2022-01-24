@@ -2,44 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CA93499279
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:21:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D340498E61
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:44:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381515AbiAXUVL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:21:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35440 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380332AbiAXUQK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:16:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44438C01D7E0;
-        Mon, 24 Jan 2022 11:38:12 -0800 (PST)
+        id S240913AbiAXTk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:40:56 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:35730 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348643AbiAXTiP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:38:15 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D4CF96154A;
-        Mon, 24 Jan 2022 19:38:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2FA2C340E5;
-        Mon, 24 Jan 2022 19:38:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A844D6152B;
+        Mon, 24 Jan 2022 19:38:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CFEFC340E5;
+        Mon, 24 Jan 2022 19:38:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053091;
-        bh=Qf6XnIzeElSZlaTPE0+w9iFReX52uTDmquC2axMPOMY=;
+        s=korg; t=1643053094;
+        bh=SO3cHiV5I28ThnTZPDoMcc4LPiomENv4E0MOcsvj+qg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OTcGpv+U3vVVMP6IptEVcSy1u6Ww2b9VSEUNdUwwDExXm5ETLYAJTE9aDu6CsiYG7
-         vjmlBTOKXcxL4PEJASqJkZCmC+eDg4N/+yz8+RBvIOz9/2NPad9aHSjJb8CXAGQFKr
-         em5b4fj8yplrQJLP1NeeJ12QmI4lsDTl6fcZPO5k=
+        b=g/AjQLa+O5bQuEBXygm/0vpXJSucQDiue2/kWWR7YqtoOHxJtivrwPG9S+aDijxke
+         1DDNKWg5zW8GthO2uWgro/y3FJC2lTlSnyOsf3SCykRGp6xPwjg9YmpAFzX2rahahc
+         5RdGxVoAsMlGs/ibOu0SGIIpY/0jg1IyQMVJ6exM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Baoquan He <bhe@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 241/320] MIPS: Octeon: Fix build errors using clang
-Date:   Mon, 24 Jan 2022 19:43:45 +0100
-Message-Id: <20220124184002.188735294@linuxfoundation.org>
+Subject: [PATCH 5.4 242/320] scsi: sr: Dont use GFP_DMA
+Date:   Mon, 24 Jan 2022 19:43:46 +0100
+Message-Id: <20220124184002.221437620@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
 References: <20220124183953.750177707@linuxfoundation.org>
@@ -51,57 +46,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit 95339b70677dc6f9a2d669c4716058e71b8dc1c7 ]
+[ Upstream commit d94d94969a4ba07a43d62429c60372320519c391 ]
 
-A large number of the following errors is reported when compiling
-with clang:
+The allocated buffers are used as a command payload, for which the block
+layer and/or DMA API do the proper bounce buffering if needed.
 
-  cvmx-bootinfo.h:326:3: error: adding 'int' to a string does not append to the string [-Werror,-Wstring-plus-int]
-                  ENUM_BRD_TYPE_CASE(CVMX_BOARD_TYPE_NULL)
-                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  cvmx-bootinfo.h:321:20: note: expanded from macro 'ENUM_BRD_TYPE_CASE'
-          case x: return(#x + 16);        /* Skip CVMX_BOARD_TYPE_ */
-                         ~~~^~~~
-  cvmx-bootinfo.h:326:3: note: use array indexing to silence this warning
-  cvmx-bootinfo.h:321:20: note: expanded from macro 'ENUM_BRD_TYPE_CASE'
-          case x: return(#x + 16);        /* Skip CVMX_BOARD_TYPE_ */
-                          ^
-
-Follow the prompts to use the address operator '&' to fix this error.
-
-Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Link: https://lore.kernel.org/r/20211222090842.920724-1-hch@lst.de
+Reported-by: Baoquan He <bhe@redhat.com>
+Reviewed-by: Baoquan He <bhe@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/octeon/cvmx-bootinfo.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/sr.c        | 2 +-
+ drivers/scsi/sr_vendor.c | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/mips/include/asm/octeon/cvmx-bootinfo.h b/arch/mips/include/asm/octeon/cvmx-bootinfo.h
-index 62787765575ef..ce6e5fddce0bf 100644
---- a/arch/mips/include/asm/octeon/cvmx-bootinfo.h
-+++ b/arch/mips/include/asm/octeon/cvmx-bootinfo.h
-@@ -315,7 +315,7 @@ enum cvmx_chip_types_enum {
+diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
+index 279dea628620d..310da62cda263 100644
+--- a/drivers/scsi/sr.c
++++ b/drivers/scsi/sr.c
+@@ -887,7 +887,7 @@ static void get_capabilities(struct scsi_cd *cd)
  
- /* Functions to return string based on type */
- #define ENUM_BRD_TYPE_CASE(x) \
--	case x: return(#x + 16);	/* Skip CVMX_BOARD_TYPE_ */
-+	case x: return (&#x[16]);	/* Skip CVMX_BOARD_TYPE_ */
- static inline const char *cvmx_board_type_to_string(enum
- 						    cvmx_board_types_enum type)
- {
-@@ -404,7 +404,7 @@ static inline const char *cvmx_board_type_to_string(enum
- }
  
- #define ENUM_CHIP_TYPE_CASE(x) \
--	case x: return(#x + 15);	/* Skip CVMX_CHIP_TYPE */
-+	case x: return (&#x[15]);	/* Skip CVMX_CHIP_TYPE */
- static inline const char *cvmx_chip_type_to_string(enum
- 						   cvmx_chip_types_enum type)
- {
+ 	/* allocate transfer buffer */
+-	buffer = kmalloc(512, GFP_KERNEL | GFP_DMA);
++	buffer = kmalloc(512, GFP_KERNEL);
+ 	if (!buffer) {
+ 		sr_printk(KERN_ERR, cd, "out of memory.\n");
+ 		return;
+diff --git a/drivers/scsi/sr_vendor.c b/drivers/scsi/sr_vendor.c
+index b9db2ec6d0361..996bccadd3866 100644
+--- a/drivers/scsi/sr_vendor.c
++++ b/drivers/scsi/sr_vendor.c
+@@ -113,7 +113,7 @@ int sr_set_blocklength(Scsi_CD *cd, int blocklength)
+ 	if (cd->vendor == VENDOR_TOSHIBA)
+ 		density = (blocklength > 2048) ? 0x81 : 0x83;
+ 
+-	buffer = kmalloc(512, GFP_KERNEL | GFP_DMA);
++	buffer = kmalloc(512, GFP_KERNEL);
+ 	if (!buffer)
+ 		return -ENOMEM;
+ 
+@@ -161,7 +161,7 @@ int sr_cd_check(struct cdrom_device_info *cdi)
+ 	if (cd->cdi.mask & CDC_MULTI_SESSION)
+ 		return 0;
+ 
+-	buffer = kmalloc(512, GFP_KERNEL | GFP_DMA);
++	buffer = kmalloc(512, GFP_KERNEL);
+ 	if (!buffer)
+ 		return -ENOMEM;
+ 
 -- 
 2.34.1
 
