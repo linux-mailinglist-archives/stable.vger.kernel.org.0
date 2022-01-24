@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45EB549A026
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:25:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A09E1499FA8
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:20:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1841972AbiAXXA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1841980AbiAXXA3 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 24 Jan 2022 18:00:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40992 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1835837AbiAXWhj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:37:39 -0500
+        with ESMTP id S1835912AbiAXWhq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:37:46 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59DADC054854;
-        Mon, 24 Jan 2022 12:59:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89F9BC054863;
+        Mon, 24 Jan 2022 12:59:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 221D8B81243;
-        Mon, 24 Jan 2022 20:59:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EEE2C36AE9;
-        Mon, 24 Jan 2022 20:59:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 529D5B811A9;
+        Mon, 24 Jan 2022 20:59:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68B35C340E5;
+        Mon, 24 Jan 2022 20:59:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057956;
-        bh=m1F5fWtgDM8E6XKmaqCuV0mNrGXhTgIpzHKN+ItcTok=;
+        s=korg; t=1643057966;
+        bh=KhFuWy6pIgFqeK/ZBpQXBDs+iXmN2Kr+UX1z8tFIAGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rRtcMcj+ydkrlBppQcJfJa1tdZBAnZGY6/4Tnckg+uypoMOwCn+FZ4wUlHTpfKqeK
-         1eqxyaalIh93Bn2nfC4+MIrgKfMd9N37qVk4qbj8l6Clbfvo6sr6YPSIfqQ/FdUAQz
-         jtKf7/+KnmY/ovREVzYIHEuIsDDzUn8cYcyFv2eM=
+        b=qNVkHIOgSvNqL/49xO2xzzVtxJnXYo/XDwmz03w6+Yh/WomJUaGC+k7l5qynnk4+f
+         yfYuIFYhnzL5A5IXQpV5zTOaK9++8uNjOJCv9sCJHtmeZtM0+jbkYi1FTI28KHFrw2
+         eY3ug/l+KjrttxB++Q5sYojpRmPEyjhsyPX8syzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Christian Hewitt <christianshewitt@gmail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
+        Biju Das <biju.das.jz@bp.renesas.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0135/1039] arm64: dts: meson-gxbb-wetek: fix HDMI in early boot
-Date:   Mon, 24 Jan 2022 19:32:04 +0100
-Message-Id: <20220124184129.707355171@linuxfoundation.org>
+Subject: [PATCH 5.16 0138/1039] memory: renesas-rpc-if: Return error in case devm_ioremap_resource() fails
+Date:   Mon, 24 Jan 2022 19:32:07 +0100
+Message-Id: <20220124184129.813519102@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -49,44 +52,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Hewitt <christianshewitt@gmail.com>
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-[ Upstream commit 8182a35868db5f053111d5d9d4da8fcb3f99259d ]
+[ Upstream commit 818fdfa89baac77a8df5a2c30f4fb798cc937aa0 ]
 
-Mark the VDDIO_AO18 regulator always-on and set hdmi-supply for the hdmi_tx
-node to ensure HDMI is powered in the early stages of boot.
+Make sure we return error in case devm_ioremap_resource() fails for dirmap
+resource.
 
-Fixes: fb72c03e0e32 ("ARM64: dts: meson-gxbb-wetek: add a wetek specific dtsi to cleanup hub and play2")
-
-Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20211012052522.30873-2-christianshewitt@gmail.com
+Fixes: ca7d8b980b67 ("memory: add Renesas RPC-IF driver")
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Reviewed-by: Biju Das <biju.das.jz@bp.renesas.com>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20211025205631.21151-6-prabhakar.mahadev-lad.rj@bp.renesas.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-gxbb-wetek.dtsi | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/memory/renesas-rpc-if.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gxbb-wetek.dtsi b/arch/arm64/boot/dts/amlogic/meson-gxbb-wetek.dtsi
-index a350fee1264d7..8e2af986cebaf 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gxbb-wetek.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-gxbb-wetek.dtsi
-@@ -64,6 +64,7 @@
- 		regulator-name = "VDDIO_AO18";
- 		regulator-min-microvolt = <1800000>;
- 		regulator-max-microvolt = <1800000>;
-+		regulator-always-on;
- 	};
+diff --git a/drivers/memory/renesas-rpc-if.c b/drivers/memory/renesas-rpc-if.c
+index 7435baad00075..ff8bcbccac637 100644
+--- a/drivers/memory/renesas-rpc-if.c
++++ b/drivers/memory/renesas-rpc-if.c
+@@ -243,7 +243,7 @@ int rpcif_sw_init(struct rpcif *rpc, struct device *dev)
+ 	res = platform_get_resource_byname(pdev, IORESOURCE_MEM, "dirmap");
+ 	rpc->dirmap = devm_ioremap_resource(&pdev->dev, res);
+ 	if (IS_ERR(rpc->dirmap))
+-		rpc->dirmap = NULL;
++		return PTR_ERR(rpc->dirmap);
+ 	rpc->size = resource_size(res);
  
- 	vcc_3v3: regulator-vcc_3v3 {
-@@ -161,6 +162,7 @@
- 	status = "okay";
- 	pinctrl-0 = <&hdmi_hpd_pins>, <&hdmi_i2c_pins>;
- 	pinctrl-names = "default";
-+	hdmi-supply = <&vddio_ao18>;
- };
- 
- &hdmi_tx_tmds_port {
+ 	rpc->rstc = devm_reset_control_get_exclusive(&pdev->dev, NULL);
 -- 
 2.34.1
 
