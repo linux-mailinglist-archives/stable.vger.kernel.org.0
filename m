@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5173498D87
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:34:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7201499148
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346614AbiAXTc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:32:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52784 "EHLO
+        id S1378960AbiAXUKG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:10:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352698AbiAXTa5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:30:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20EE6C028C15;
-        Mon, 24 Jan 2022 11:14:00 -0800 (PST)
+        with ESMTP id S1359630AbiAXT75 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:59:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D647C04D63B;
+        Mon, 24 Jan 2022 11:28:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B2CB36124E;
-        Mon, 24 Jan 2022 19:13:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E809C340E5;
-        Mon, 24 Jan 2022 19:13:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4579AB8119D;
+        Mon, 24 Jan 2022 19:28:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DDB8C340E5;
+        Mon, 24 Jan 2022 19:28:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051639;
-        bh=6tmTeqTNP3KBX1hcRrZiqO7BaY+kpbpNKJCvnuGuh6c=;
+        s=korg; t=1643052497;
+        bh=f9JKyd9rol/S9GiU0MrQzzrG3hpPdnm2HGeVfi+YH18=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GrNhsCSFPrj8msPQ3tFhOQs89F3Es9XQu4kPkU9Dz+SnyZpLOxvDynXDOQ4Adq3ng
-         klH0QriPDdY9Qz8vKbbgYCCURKN3a3QB8bI3a3sm5EPq62zbcCAHVXS22PfuUc3DwP
-         GrIRB+q52kyfS2wktdJUq71RCUIgwZ5AeqCQLzww=
+        b=EpzoPg5OHAXl7SlfhfbsvrXD4iDYoeB9SUr6zfsLyvbACBLjKhC4GTGS3mbVRPNOR
+         DYRKf+0x8kE6hZvsB+1DlYDpkGwsripCuQt4AguEUVRBnV2jdwy2fV8PhKfis/AYug
+         KzhGnJDmcwfwqeQB+faynSJGwSy7bYn1L+ZsZbNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.19 007/239] can: gs_usb: fix use of uninitialized variable, detach device on reception of invalid USB data
+        stable@vger.kernel.org,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 061/320] arm64: dts: qcom: msm8916: fix MMC controller aliases
 Date:   Mon, 24 Jan 2022 19:40:45 +0100
-Message-Id: <20220124183943.347749020@linuxfoundation.org>
+Message-Id: <20220124183955.808212535@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,51 +49,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-commit 4a8737ff068724f509d583fef404d349adba80d6 upstream.
+[ Upstream commit b0293c19d42f6d6951c2fab9a47fed50baf2c14d ]
 
-The received data contains the channel the received data is associated
-with. If the channel number is bigger than the actual number of
-channels assume broken or malicious USB device and shut it down.
+Change sdhcN aliases to mmcN to make them actually work. Currently the
+board uses non-standard aliases sdhcN, which do not work, resulting in
+mmc0 and mmc1 hosts randomly changing indices between boots.
 
-This fixes the error found by clang:
-
-| drivers/net/can/usb/gs_usb.c:386:6: error: variable 'dev' is used
-|                                     uninitialized whenever 'if' condition is true
-|         if (hf->channel >= GS_MAX_INTF)
-|             ^~~~~~~~~~~~~~~~~~~~~~~~~~
-| drivers/net/can/usb/gs_usb.c:474:10: note: uninitialized use occurs here
-|                           hf, dev->gs_hf_size, gs_usb_receive_bulk_callback,
-|                               ^~~
-
-Link: https://lore.kernel.org/all/20211210091158.408326-1-mkl@pengutronix.de
-Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
-Cc: stable@vger.kernel.org
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c4da5a561627 ("arm64: dts: qcom: Add msm8916 sdhci configuration nodes")
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20211201020559.1611890-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/usb/gs_usb.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/msm8916.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/can/usb/gs_usb.c
-+++ b/drivers/net/can/usb/gs_usb.c
-@@ -328,7 +328,7 @@ static void gs_usb_receive_bulk_callback
+diff --git a/arch/arm64/boot/dts/qcom/msm8916.dtsi b/arch/arm64/boot/dts/qcom/msm8916.dtsi
+index 449843f2184d8..301c1c467c0b7 100644
+--- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
++++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
+@@ -16,8 +16,8 @@
+ 	#size-cells = <2>;
  
- 	/* device reports out of range channel id */
- 	if (hf->channel >= GS_MAX_INTF)
--		goto resubmit_urb;
-+		goto device_detach;
+ 	aliases {
+-		sdhc1 = &sdhc_1; /* SDC1 eMMC slot */
+-		sdhc2 = &sdhc_2; /* SDC2 SD card slot */
++		mmc0 = &sdhc_1; /* SDC1 eMMC slot */
++		mmc1 = &sdhc_2; /* SDC2 SD card slot */
+ 	};
  
- 	dev = usbcan->canch[hf->channel];
- 
-@@ -413,6 +413,7 @@ static void gs_usb_receive_bulk_callback
- 
- 	/* USB failure take down all interfaces */
- 	if (rc == -ENODEV) {
-+ device_detach:
- 		for (rc = 0; rc < GS_MAX_INTF; rc++) {
- 			if (usbcan->canch[rc])
- 				netif_device_detach(usbcan->canch[rc]->netdev);
+ 	chosen { };
+-- 
+2.34.1
+
 
 
