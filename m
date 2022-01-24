@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6DD7A49904B
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1CC8499033
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359332AbiAXT7d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:59:33 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:41656 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347076AbiAXTyT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:54:19 -0500
+        id S1351862AbiAXT7B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:59:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57632 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344754AbiAXTxF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:53:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BC2EC061340;
+        Mon, 24 Jan 2022 11:26:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8DF6AB81239;
-        Mon, 24 Jan 2022 19:54:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7F2AC340E5;
-        Mon, 24 Jan 2022 19:54:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1AE7F6149A;
+        Mon, 24 Jan 2022 19:26:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEB4DC340E5;
+        Mon, 24 Jan 2022 19:26:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054056;
-        bh=kQeVpgjXMWBkDkt3qPRgjWIZf9hgcZyZSnVYNAKMg0U=;
+        s=korg; t=1643052404;
+        bh=TwdPhdXhXkecM3Z8zXwBoX/gGUgexIZjp4FmZkHH3so=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N2ClNA0/MBMVsoksSHrWeCDzauK+90quhQU53DSnmEf2xikH/KOPN9rc7nMyKXdqn
-         tlEozhIaNYUsINy8tUhFcvMBXMrxSKSIFn7n/zFWLSd9YzfBEGa0VLFlINwZGClz8i
-         w/6vfNRZHsTTh+xRtMRSEqD19O8JUBrlE6tP2eVE=
+        b=XtJrgN1w+SOUYt6L9S4kkQcS4VbrYqRtMXktbxFMuBOOVyxhYWKB+ZpITpJRFrToD
+         wkBAw/sNi2IRRGbT/mRVhq+BbjHCYD3HVFFS4mM1xlgJpIvUHsOFs0ywkhzGH4N469
+         k3X751Mig6UDTcConL6tEi9buKv2xnGX/adtXz3s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
-        =?UTF-8?q?Michal=20Kalderon=C2=A0?= <michal.kalderon@marvell.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org,
+        Christian Hewitt <christianshewitt@gmail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 265/563] RDMA/qedr: Fix reporting max_{send/recv}_wr attrs
-Date:   Mon, 24 Jan 2022 19:40:30 +0100
-Message-Id: <20220124184033.600036014@linuxfoundation.org>
+Subject: [PATCH 5.4 047/320] arm64: dts: meson-gxbb-wetek: fix missing GPIO binding
+Date:   Mon, 24 Jan 2022 19:40:31 +0100
+Message-Id: <20220124183955.346783603@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,44 +49,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Heib <kamalheib1@gmail.com>
+From: Christian Hewitt <christianshewitt@gmail.com>
 
-[ Upstream commit b1a4da64bfc189510e08df1ccb1c589e667dc7a3 ]
+[ Upstream commit c019abb2feba3cbbd7cf7178f8e6499c4fa6fced ]
 
-Fix the wrongly reported max_send_wr and max_recv_wr attributes for user
-QP by making sure to save their valuse on QP creation, so when query QP is
-called the attributes will be reported correctly.
+The absence of this binding appears to be harmless in Linux but it breaks
+Ethernet support in mainline u-boot. So add the binding (which is present
+in all other u-boot supported GXBB device-trees).
 
-Fixes: cecbcddf6461 ("qedr: Add support for QP verbs")
-Link: https://lore.kernel.org/r/20211206201314.124947-1-kamalheib1@gmail.com
-Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
-Acked-by: Michal Kalderon <michal.kalderon@marvell.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: fb72c03e0e32 ("ARM64: dts: meson-gxbb-wetek: add a wetek specific dtsi to cleanup hub and play2")
+
+Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20211012052522.30873-3-christianshewitt@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/qedr/verbs.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm64/boot/dts/amlogic/meson-gxbb-wetek.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/infiniband/hw/qedr/verbs.c b/drivers/infiniband/hw/qedr/verbs.c
-index 16d5283651894..eeb87f31cd252 100644
---- a/drivers/infiniband/hw/qedr/verbs.c
-+++ b/drivers/infiniband/hw/qedr/verbs.c
-@@ -1918,6 +1918,7 @@ static int qedr_create_user_qp(struct qedr_dev *dev,
- 	/* db offset was calculated in copy_qp_uresp, now set in the user q */
- 	if (qedr_qp_has_sq(qp)) {
- 		qp->usq.db_addr = ctx->dpi_addr + uresp.sq_db_offset;
-+		qp->sq.max_wr = attrs->cap.max_send_wr;
- 		rc = qedr_db_recovery_add(dev, qp->usq.db_addr,
- 					  &qp->usq.db_rec_data->db_data,
- 					  DB_REC_WIDTH_32B,
-@@ -1928,6 +1929,7 @@ static int qedr_create_user_qp(struct qedr_dev *dev,
+diff --git a/arch/arm64/boot/dts/amlogic/meson-gxbb-wetek.dtsi b/arch/arm64/boot/dts/amlogic/meson-gxbb-wetek.dtsi
+index d7d0b65713841..e94f09c2d4e32 100644
+--- a/arch/arm64/boot/dts/amlogic/meson-gxbb-wetek.dtsi
++++ b/arch/arm64/boot/dts/amlogic/meson-gxbb-wetek.dtsi
+@@ -6,6 +6,7 @@
+  */
  
- 	if (qedr_qp_has_rq(qp)) {
- 		qp->urq.db_addr = ctx->dpi_addr + uresp.rq_db_offset;
-+		qp->rq.max_wr = attrs->cap.max_recv_wr;
- 		rc = qedr_db_recovery_add(dev, qp->urq.db_addr,
- 					  &qp->urq.db_rec_data->db_data,
- 					  DB_REC_WIDTH_32B,
+ #include "meson-gxbb.dtsi"
++#include <dt-bindings/gpio/gpio.h>
+ 
+ / {
+ 	aliases {
 -- 
 2.34.1
 
