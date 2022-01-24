@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0028C499AB5
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:56:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17C4349958A
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:13:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1573587AbiAXVpR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:45:17 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:50594 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377582AbiAXViv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:38:51 -0500
+        id S1442080AbiAXUwq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:52:46 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:43164 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1352486AbiAXUt1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:49:27 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE3E2B815AC;
-        Mon, 24 Jan 2022 21:38:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 056B6C36AEB;
-        Mon, 24 Jan 2022 21:38:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8859060916;
+        Mon, 24 Jan 2022 20:49:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A173C340E5;
+        Mon, 24 Jan 2022 20:49:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060327;
-        bh=/CkJZbBS/noqHTVzt9gb1OaMJAK407vUfQxtvkkrFfs=;
+        s=korg; t=1643057359;
+        bh=bvHOw9ERgB7iEz1yUKq8HHn8qQmBpOq3NOnQT7Kd3hg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0o463h19Qf/HjpGwKPT8ghXEAfITqpgz57SAWuZ/ySZMZk02aFm2Mhh54VEmL9FDe
-         ge3h+ONg1TyJgVTcDL72YOzGLSQsxCMaKP5QJfLDfi/VGlLNnvJq0RAFoaUpzpPSOj
-         32h09wrtzyPPGOrjZ2bB3LFPvldQCb1O8YkKQJXU=
+        b=gB3SZQ8pZip0M74uqCWBrTsv5iOvt04MFWvklg1a8Be9ZEbaOx0fE83LgMZMFFsV+
+         6mpxr3H34Pqd/kNOeOroGj4NsESyGrqvrygYM8qb0j9j70SZRBNS9kpaLIKBBTnWWM
+         mUA9NTFuE719c+QW62+9YCYZo6a8bi3bdCwoqAg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.16 0912/1039] Documentation: ACPI: Fix data node reference documentation
-Date:   Mon, 24 Jan 2022 19:45:01 +0100
-Message-Id: <20220124184155.959228329@linuxfoundation.org>
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.15 785/846] clk: Emit a stern warning with writable debugfs enabled
+Date:   Mon, 24 Jan 2022 19:45:02 +0100
+Message-Id: <20220124184128.029688795@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,66 +45,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Stephen Boyd <sboyd@kernel.org>
 
-commit a11174952205d082f1658fab4314f0caf706e0a8 upstream.
+commit 489a71964f9d74e697a12cd0ace20ed829eb1f93 upstream.
 
-The data node reference documentation was missing a package that must
-contain the property values, instead property name and multiple values
-being present in a single package. This is not aligned with the _DSD
-spec.
+We don't want vendors to be enabling this part of the clk code and
+shipping it to customers. Exposing the ability to change clk frequencies
+and parents via debugfs is potentially damaging to the system if folks
+don't know what they're doing. Emit a strong warning so that the message
+is clear: don't enable this outside of development systems.
 
-Fix it by adding the package for the values.
-
-Also add the missing "reg" properties to two numbered nodes.
-
-Fixes: b10134a3643d ("ACPI: property: Document hierarchical data extension references")
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 37215da5553e ("clk: Add support for setting clk_rate via debugfs")
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20211210014237.2130300-1-sboyd@kernel.org
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/firmware-guide/acpi/dsd/data-node-references.rst |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/clk/clk.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/Documentation/firmware-guide/acpi/dsd/data-node-references.rst
-+++ b/Documentation/firmware-guide/acpi/dsd/data-node-references.rst
-@@ -5,7 +5,7 @@
- Referencing hierarchical data nodes
- ===================================
+--- a/drivers/clk/clk.c
++++ b/drivers/clk/clk.c
+@@ -3340,6 +3340,24 @@ static int __init clk_debug_init(void)
+ {
+ 	struct clk_core *core;
  
--:Copyright: |copy| 2018 Intel Corporation
-+:Copyright: |copy| 2018, 2021 Intel Corporation
- :Author: Sakari Ailus <sakari.ailus@linux.intel.com>
++#ifdef CLOCK_ALLOW_WRITE_DEBUGFS
++	pr_warn("\n");
++	pr_warn("********************************************************************\n");
++	pr_warn("**     NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE           **\n");
++	pr_warn("**                                                                **\n");
++	pr_warn("**  WRITEABLE clk DebugFS SUPPORT HAS BEEN ENABLED IN THIS KERNEL **\n");
++	pr_warn("**                                                                **\n");
++	pr_warn("** This means that this kernel is built to expose clk operations  **\n");
++	pr_warn("** such as parent or rate setting, enabling, disabling, etc.      **\n");
++	pr_warn("** to userspace, which may compromise security on your system.    **\n");
++	pr_warn("**                                                                **\n");
++	pr_warn("** If you see this message and you are not debugging the          **\n");
++	pr_warn("** kernel, report this immediately to your vendor!                **\n");
++	pr_warn("**                                                                **\n");
++	pr_warn("**     NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE           **\n");
++	pr_warn("********************************************************************\n");
++#endif
++
+ 	rootdir = debugfs_create_dir("clk", NULL);
  
- ACPI in general allows referring to device objects in the tree only.
-@@ -52,12 +52,14 @@ the ANOD object which is also the final
- 	    Name (NOD0, Package() {
- 		ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
- 		Package () {
-+		    Package () { "reg", 0 },
- 		    Package () { "random-property", 3 },
- 		}
- 	    })
- 	    Name (NOD1, Package() {
- 		ToUUID("dbb8e3e6-5886-4ba6-8795-1319f52a966b"),
- 		Package () {
-+		    Package () { "reg", 1 },
- 		    Package () { "anothernode", "ANOD" },
- 		}
- 	    })
-@@ -74,7 +76,11 @@ the ANOD object which is also the final
- 	    Name (_DSD, Package () {
- 		ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
- 		Package () {
--		    Package () { "reference", ^DEV0, "node@1", "anothernode" },
-+		    Package () {
-+			"reference", Package () {
-+			    ^DEV0, "node@1", "anothernode"
-+			}
-+		    },
- 		}
- 	    })
- 	}
+ 	debugfs_create_file("clk_summary", 0444, rootdir, &all_lists,
 
 
