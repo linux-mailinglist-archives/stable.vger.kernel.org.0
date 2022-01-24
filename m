@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD0A3498514
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 17:44:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0235549851C
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 17:45:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243678AbiAXQoa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 11:44:30 -0500
-Received: from maynard.decadent.org.uk ([95.217.213.242]:42354 "EHLO
+        id S243876AbiAXQpF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 11:45:05 -0500
+Received: from maynard.decadent.org.uk ([95.217.213.242]:42362 "EHLO
         maynard.decadent.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241172AbiAXQo3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 11:44:29 -0500
+        with ESMTP id S243874AbiAXQpD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 11:45:03 -0500
 Received: from 168.7-181-91.adsl-dyn.isp.belgacom.be ([91.181.7.168] helo=deadeye)
         by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1nC2SC-00073Z-Oj; Mon, 24 Jan 2022 17:44:28 +0100
+        id 1nC2Sj-00073r-OD; Mon, 24 Jan 2022 17:45:01 +0100
 Received: from ben by deadeye with local (Exim 4.95)
         (envelope-from <ben@decadent.org.uk>)
-        id 1nC2SB-009zKK-WF;
-        Mon, 24 Jan 2022 17:44:28 +0100
-Date:   Mon, 24 Jan 2022 17:44:27 +0100
+        id 1nC2Si-009zKv-Vk;
+        Mon, 24 Jan 2022 17:45:00 +0100
+Date:   Mon, 24 Jan 2022 17:45:00 +0100
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     stable@vger.kernel.org
 Cc:     Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        David Stevens <stevensd@google.com>
-Subject: [PATCH 4.9 3/4] KVM: Use kvm_pfn_t for local PFN variable in
- hva_to_pfn_remapped()
-Message-ID: <Ye7Xa599VFy2WEkC@decadent.org.uk>
+        Nicholas Piggin <npiggin@gmail.com>
+Subject: [PATCH 4.9 4/4] KVM: do not allow mapping valid but
+ non-reference-counted pages
+Message-ID: <Ye7XjLxf61gjp8w2@decadent.org.uk>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="h5kn63of9/+umgus"
+        protocol="application/pgp-signature"; boundary="bO0PXj4JUsqXi3Rq"
 Content-Disposition: inline
 In-Reply-To: <Ye7WqMoYNyxOqWId@decadent.org.uk>
 X-SA-Exim-Connect-IP: 91.181.7.168
@@ -42,80 +41,99 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---h5kn63of9/+umgus
-Content-Type: text/plain; charset=utf-8
+--bO0PXj4JUsqXi3Rq
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-=46rom: Sean Christopherson <seanjc@google.com>
+=46rom: Nicholas Piggin <npiggin@gmail.com>
 
-commit a9545779ee9e9e103648f6f2552e73cfe808d0f4 upstream.
+commit f8be156be163a052a067306417cd0ff679068c97 upstream.
 
-Use kvm_pfn_t, a.k.a. u64, for the local 'pfn' variable when retrieving
-a so called "remapped" hva/pfn pair.  In theory, the hva could resolve to
-a pfn in high memory on a 32-bit kernel.
+It's possible to create a region which maps valid but non-refcounted
+pages (e.g., tail pages of non-compound higher order allocations). These
+host pages can then be returned by gfn_to_page, gfn_to_pfn, etc., family
+of APIs, which take a reference to the page, which takes it from 0 to 1.
+When the reference is dropped, this will free the page incorrectly.
 
-This bug was inadvertantly exposed by commit bd2fae8da794 ("KVM: do not
-assume PTE is writable after follow_pfn"), which added an error PFN value
-to the mix, causing gcc to comlain about overflowing the unsigned long.
+Fix this by only taking a reference on valid pages if it was non-zero,
+which indicates it is participating in normal refcounting (and can be
+released with put_page).
 
-  arch/x86/kvm/../../../virt/kvm/kvm_main.c: In function =E2=80=98hva_to_pf=
-n_remapped=E2=80=99:
-  include/linux/kvm_host.h:89:30: error: conversion from =E2=80=98long long=
- unsigned int=E2=80=99
-                                  to =E2=80=98long unsigned int=E2=80=99 ch=
-anges value from
-                                  =E2=80=989218868437227405314=E2=80=99 to =
-=E2=80=982=E2=80=99 [-Werror=3Doverflow]
-   89 | #define KVM_PFN_ERR_RO_FAULT (KVM_PFN_ERR_MASK + 2)
-      |                              ^
-virt/kvm/kvm_main.c:1935:9: note: in expansion of macro =E2=80=98KVM_PFN_ER=
-R_RO_FAULT=E2=80=99
+This addresses CVE-2021-22543.
 
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Tested-by: Paolo Bonzini <pbonzini@redhat.com>
 Cc: stable@vger.kernel.org
-Fixes: add6a0cd1c5b ("KVM: MMU: try to fix up page faults before giving up")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210208201940.1258328-1-seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- virt/kvm/kvm_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ virt/kvm/kvm_main.c | 19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
 diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
-index 2729704f836e..dc7b60c81039 100644
+index dc7b60c81039..d9b7001227e3 100644
 --- a/virt/kvm/kvm_main.c
 +++ b/virt/kvm/kvm_main.c
-@@ -1518,7 +1518,7 @@ static int hva_to_pfn_remapped(struct vm_area_struct =
-*vma,
+@@ -1513,6 +1513,13 @@ static bool vma_is_valid(struct vm_area_struct *vma,=
+ bool write_fault)
+ 	return true;
+ }
+=20
++static int kvm_try_get_pfn(kvm_pfn_t pfn)
++{
++	if (kvm_is_reserved_pfn(pfn))
++		return 1;
++	return get_page_unless_zero(pfn_to_page(pfn));
++}
++
+ static int hva_to_pfn_remapped(struct vm_area_struct *vma,
+ 			       unsigned long addr, bool *async,
  			       bool write_fault, bool *writable,
- 			       kvm_pfn_t *p_pfn)
- {
--	unsigned long pfn;
-+	kvm_pfn_t pfn;
- 	pte_t *ptep;
- 	spinlock_t *ptl;
- 	int r;
+@@ -1562,13 +1569,21 @@ static int hva_to_pfn_remapped(struct vm_area_struc=
+t *vma,
+ 	 * Whoever called remap_pfn_range is also going to call e.g.
+ 	 * unmap_mapping_range before the underlying pages are freed,
+ 	 * causing a call to our MMU notifier.
++	 *
++	 * Certain IO or PFNMAP mappings can be backed with valid
++	 * struct pages, but be allocated without refcounting e.g.,
++	 * tail pages of non-compound higher order allocations, which
++	 * would then underflow the refcount when the caller does the
++	 * required put_page. Don't allow those pages here.
+ 	 */=20
+-	kvm_get_pfn(pfn);
++	if (!kvm_try_get_pfn(pfn))
++		r =3D -EFAULT;
+=20
+ out:
+ 	pte_unmap_unlock(ptep, ptl);
+ 	*p_pfn =3D pfn;
+-	return 0;
++
++	return r;
+ }
+=20
+ /*
 
-
---h5kn63of9/+umgus
+--bO0PXj4JUsqXi3Rq
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmHu12sACgkQ57/I7JWG
-EQmXBQ//fQpd7Vn46JRprSlHbIhSFi7S72VXVi+scUIBGyYDt/QVo2BhRpfJaW1w
-/3KF3+fw6+PY541p+39lp5sM56vu10L6ZznTShF8z3Z2MnYkfx+q/PnGLBFuc5pd
-ciGdDqf52sOuC375xoefSXjuEnibHal7FTuEhx3lKGREf84DBkUPqz+bEWW4rwCv
-Fu1eJVaW28R9/1rq9LP6CC7QuoNpK+y9Le4jKxVKs01EzrKK23csFvn9Jc2AfdVh
-wDfvw/z6o1/AZmkAEHPAXtF4Z8K0xMPn5h+moifgXy9vv3Y2jYeFmmMmgUNlNkVA
-YMxTI/1AI2UeFjnGAm2ZiD5Q49qJtKej8dbbMiDejP+WuNcsFCMMIutXw4wwfxdf
-8HHnPqfu1pQu8DrEtF9qkpP16giVm+Adj5/NbDpu+WG3HqQQiQ5Nzb4rEdseD6LH
-1HGg6uSw4HK8r/JTsF5tvD78ApjOpyVIWGg3aoL386dDi9zMAsu+vxaNKWr2wKpd
-7OTaUtPV3vAyklXDl46T8bQ/8QfTR4WNIAYcuyCb2pgrCNvRDBBRPU6gDlZnxOTF
-/T4epDoboH4ybRyrd0xbd7nvAe4rU+PlbWksbhOhinM3cQ8xYsCwlvx3cPokLTZO
-OSa85XkvXnwjg2oYiL1wRKheubifXQ4O+VQkF/s/35bdQqrerHc=
-=8jjO
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmHu14wACgkQ57/I7JWG
+EQn9Ww//SPa5UkNujSgCZHSur49Srl/1wFkNWsVUNiEHzr6cI35Ykup1eZM1Amsf
+Z75jznbNha2t1f4VfmJkgfvDSQ1XSdhIUOEdbBegMhoCuDRcZMk6oXC+mBqELXC3
+IGBoPJAsGFwlm8sRI3RNcJSdGL+YFOEm30LeyuvPwCs36DOXDVr21RrccrVD02EX
+xsXlsFkVWA5zATzdlUlL2pnVyII/kwCvkWzd6KPZiB9GcBVlIY0onEQOtOMfxFI+
+Ni1xMNqiCWbtcTXs7cXM7FvD1Yb4+ZjrejwCNwurQ0XDwuvjKDIF6Dz9O/6gGeS8
+Mk49r5c3vc+lrVtJNbNJ/mireQg/1YCAH87jUfUUABGlwXODoUIA4PGbWDFKnV1O
+7ZtPBjy/7Nx3sqPeh7tGJjUo4e9EanvVCNIiqdffjrv/TlY+7bJlfMVnpc0PEXCD
+2kjeo8lx/qGBieogKfvmZEW9hJdfTYqWx9XZxHDwnyMXn+ARtWsMGwLYP1DjILaD
+9sfSKrJLmTB5Ye1Hfsb0JzWsOOtS+MPsNU5+ZezVmY+jo/AQnnJiRk8KkcQ6ql8E
+ZZthm+J84Q4JzbmwWUBQ4oEyDcrczqVWZKZu+IyUjPCg/7UEA68BGMTNtF1ErZ23
+h/ZJxj9AaKFPoRTMhB2YyxUVsr7SgfeiPc2Wew394YPx3X29g3I=
+=dCPv
 -----END PGP SIGNATURE-----
 
---h5kn63of9/+umgus--
+--bO0PXj4JUsqXi3Rq--
