@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C88A7499B12
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:59:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 305974999E1
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:47:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376704AbiAXVtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:49:25 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:58172 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1456656AbiAXVjp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:39:45 -0500
+        id S1456301AbiAXVia (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:38:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48094 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1447543AbiAXVK6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:10:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB8AFC09D326;
+        Mon, 24 Jan 2022 12:09:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C57F961320;
-        Mon, 24 Jan 2022 21:39:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C0D1C340E4;
-        Mon, 24 Jan 2022 21:39:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98B68B8122C;
+        Mon, 24 Jan 2022 20:09:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2782C340E5;
+        Mon, 24 Jan 2022 20:09:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060382;
-        bh=+BDUmWzDpbNKA6uaUxFGDtNlu/yX6lufH5trVT1hoQ8=;
+        s=korg; t=1643054941;
+        bh=r8GhSghsTWhs/kPYweBGTn+V7itGNTAEK1ngaeBmVa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hZdl742s60GrL+W/FNMoCM0YsskyQimzX1d/RkPOy4SFCInSEj/fYZW/Hp0wrDtHC
-         l1SLUnQtZw2j35YBLX1JK6KyPNfQTez7TqivhdV23rogdz8yoOKmjzpsnqtpuYblLE
-         JKCITLp2pxtScglynkYt/yxH/uJpDMc2yVz2G7bE=
+        b=CzUXSVPVkV6kzN9cwHe9FW41GizXazz4rfaqvLwAY76PTe1R5fig+xoWNrIgZRCTV
+         XM3hpdigPno6om4joDqTAPkPDtJcUug2yJlBynZYTDmVNRmf/oO+bcF72Bg5LRx9gs
+         PzP6zJC3FXPrQz5q6TfX+V2aQPkkgg6m5o5ZYzrk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.16 0929/1039] powerpc/cell: Fix clang -Wimplicit-fallthrough warning
+        stable@vger.kernel.org,
+        =?UTF-8?q?=E7=85=A7=E5=B1=B1=E5=91=A8=E4=B8=80=E9=83=8E?= 
+        <teruyama@springboard-inc.jp>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 553/563] net: sfp: fix high power modules without diagnostic monitoring
 Date:   Mon, 24 Jan 2022 19:45:18 +0100
-Message-Id: <20220124184156.519856258@linuxfoundation.org>
+Message-Id: <20220124184043.566189264@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,47 +50,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anders Roxell <anders.roxell@linaro.org>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-commit e89257e28e844f5d1d39081bb901d9f1183a7705 upstream.
+commit 5765cee119bf5a36c94d20eceb37c445508934be upstream.
 
-Clang warns:
+Commit 7cfa9c92d0a3 ("net: sfp: avoid power switch on address-change
+modules") unintetionally changed the semantics for high power modules
+without the digital diagnostics monitoring. We repeatedly attempt to
+read the power status from the non-existing 0xa2 address in a futile
+hope this failure is temporary:
 
-arch/powerpc/platforms/cell/pervasive.c:81:2: error: unannotated fall-through between switch labels
-        case SRR1_WAKEEE:
-        ^
-arch/powerpc/platforms/cell/pervasive.c:81:2: note: insert 'break;' to avoid fall-through
-        case SRR1_WAKEEE:
-        ^
-        break;
-1 error generated.
+[    8.856051] sfp sfp-eth3: module NTT              0000000000000000 rev 0000  sn 0000000000000000 dc 160408
+[    8.865843] mvpp2 f4000000.ethernet eth3: switched to inband/1000base-x link mode
+[    8.873469] sfp sfp-eth3: Failed to read EEPROM: -5
+[    8.983251] sfp sfp-eth3: Failed to read EEPROM: -5
+[    9.103250] sfp sfp-eth3: Failed to read EEPROM: -5
 
-Clang is more pedantic than GCC, which does not warn when failing
-through to a case that is just break or return. Clang's version is more
-in line with the kernel's own stance in deprecated.rst. Add athe missing
-break to silence the warning.
+We previosuly assumed such modules were powered up in the correct mode,
+continuing without further configuration as long as the required power
+class was supported by the host.
 
-Fixes: 6e83985b0f6e ("powerpc/cbe: Do not process external or decremeter interrupts from sreset")
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20211207110228.698956-1-anders.roxell@linaro.org
+Restore this behaviour, while preserving the intent of subsequent
+patches to avoid the "Address Change Sequence not supported" warning
+if we are not going to be accessing the DDM address.
+
+Fixes: 7cfa9c92d0a3 ("net: sfp: avoid power switch on address-change modules")
+Reported-by: 照山周一郎 <teruyama@springboard-inc.jp>
+Tested-by: 照山周一郎 <teruyama@springboard-inc.jp>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/cell/pervasive.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/phy/sfp.c |   25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
 
---- a/arch/powerpc/platforms/cell/pervasive.c
-+++ b/arch/powerpc/platforms/cell/pervasive.c
-@@ -78,6 +78,7 @@ static int cbe_system_reset_exception(st
- 	switch (regs->msr & SRR1_WAKEMASK) {
- 	case SRR1_WAKEDEC:
- 		set_dec(1);
-+		break;
- 	case SRR1_WAKEEE:
- 		/*
- 		 * Handle these when interrupts get re-enabled and we take
+--- a/drivers/net/phy/sfp.c
++++ b/drivers/net/phy/sfp.c
+@@ -1589,17 +1589,20 @@ static int sfp_sm_probe_for_phy(struct s
+ static int sfp_module_parse_power(struct sfp *sfp)
+ {
+ 	u32 power_mW = 1000;
++	bool supports_a2;
+ 
+ 	if (sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_POWER_DECL))
+ 		power_mW = 1500;
+ 	if (sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_HIGH_POWER_LEVEL))
+ 		power_mW = 2000;
+ 
++	supports_a2 = sfp->id.ext.sff8472_compliance !=
++				SFP_SFF8472_COMPLIANCE_NONE ||
++		      sfp->id.ext.diagmon & SFP_DIAGMON_DDM;
++
+ 	if (power_mW > sfp->max_power_mW) {
+ 		/* Module power specification exceeds the allowed maximum. */
+-		if (sfp->id.ext.sff8472_compliance ==
+-			SFP_SFF8472_COMPLIANCE_NONE &&
+-		    !(sfp->id.ext.diagmon & SFP_DIAGMON_DDM)) {
++		if (!supports_a2) {
+ 			/* The module appears not to implement bus address
+ 			 * 0xa2, so assume that the module powers up in the
+ 			 * indicated mode.
+@@ -1616,11 +1619,25 @@ static int sfp_module_parse_power(struct
+ 		}
+ 	}
+ 
++	if (power_mW <= 1000) {
++		/* Modules below 1W do not require a power change sequence */
++		sfp->module_power_mW = power_mW;
++		return 0;
++	}
++
++	if (!supports_a2) {
++		/* The module power level is below the host maximum and the
++		 * module appears not to implement bus address 0xa2, so assume
++		 * that the module powers up in the indicated mode.
++		 */
++		return 0;
++	}
++
+ 	/* If the module requires a higher power mode, but also requires
+ 	 * an address change sequence, warn the user that the module may
+ 	 * not be functional.
+ 	 */
+-	if (sfp->id.ext.diagmon & SFP_DIAGMON_ADDRMODE && power_mW > 1000) {
++	if (sfp->id.ext.diagmon & SFP_DIAGMON_ADDRMODE) {
+ 		dev_warn(sfp->dev,
+ 			 "Address Change Sequence not supported but module requires %u.%uW, module may not be functional\n",
+ 			 power_mW / 1000, (power_mW / 100) % 10);
 
 
