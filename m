@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 679D9498BAD
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:15:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F6AA498E1C
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:43:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237559AbiAXTPo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:15:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47522 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347528AbiAXTNP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:13:15 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12AB0C08EAD5;
-        Mon, 24 Jan 2022 11:04:35 -0800 (PST)
+        id S1354802AbiAXTjW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:39:22 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60324 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345782AbiAXTc4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:32:56 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE99CB8121C;
-        Mon, 24 Jan 2022 19:04:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E18FDC340E5;
-        Mon, 24 Jan 2022 19:04:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DC5B61518;
+        Mon, 24 Jan 2022 19:32:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26316C340E5;
+        Mon, 24 Jan 2022 19:32:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051072;
-        bh=1mrzt70eK8Bpjwb9bz0Zpesg7wK3CuPqN4GrLE1sW2U=;
+        s=korg; t=1643052775;
+        bh=jIFB4DyR65lRtbEr6tbrfuZymy0Zzuv0IAIULieUXJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yt9/RG1zBXnpiHnxprVBg5m76cg8F51Qpluk7k2kIpgIAMbJGluc0AOgwAx+QBYNG
-         8zVrGIyUUWrGBgm5ozozobtGCI6CFrrETgertClfOO1l9iM2mYy1sStmIyBlVXr9e6
-         JeWXMomhFVqiS6rIu85fZ7y1FYzIsQMrtux7YYwQ=
+        b=BM+DAkhcjtr8kFMl2r/DgPc3UkRnCtr2jYoq/tJ+MiJBKL12t0HC4sgEWHoJ3vGUl
+         TrTLua4CS3JigNsbGKsuk7ZMbwYc1ia6BrScS16j/qLM1N0H77i8fpkgG45m/8YSDH
+         Qyy6DgfGME3LN6wSWWHdnbftGa+y9xsVqgr71roc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Erhard Furtner <erhard_f@mailbox.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 046/186] drm/amdgpu: Fix a NULL pointer dereference in amdgpu_connector_lcd_native_mode()
+Subject: [PATCH 5.4 137/320] powerpc/powermac: Add additional missing lockdep_register_key()
 Date:   Mon, 24 Jan 2022 19:42:01 +0100
-Message-Id: <20220124183938.612322753@linuxfoundation.org>
+Message-Id: <20220124183958.317521976@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,62 +46,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit b220110e4cd442156f36e1d9b4914bb9e87b0d00 ]
+[ Upstream commit b149d5d45ac9171ed699a256f026c8ebef901112 ]
 
-In amdgpu_connector_lcd_native_mode(), the return value of
-drm_mode_duplicate() is assigned to mode, and there is a dereference
-of it in amdgpu_connector_lcd_native_mode(), which will lead to a NULL
-pointer dereference on failure of drm_mode_duplicate().
+Commit df1f679d19ed ("powerpc/powermac: Add missing
+lockdep_register_key()") fixed a problem that was causing a WARNING.
 
-Fix this bug add a check of mode.
+There are two other places in the same file with the same problem
+originating from commit 9e607f72748d ("i2c_powermac: shut up lockdep
+warning").
 
-This bug was found by a static analyzer. The analysis employs
-differential checking to identify inconsistent security operations
-(e.g., checks or kfrees) between two code paths and confirms that the
-inconsistent operations are not recovered in the current function or
-the callers, so they constitute bugs.
+Add missing lockdep_register_key()
 
-Note that, as a bug found by static analysis, it can be a false
-positive or hard to trigger. Multiple researchers have cross-reviewed
-the bug.
-
-Builds with CONFIG_DRM_AMDGPU=m show no new warnings, and
-our static analyzer no longer warns about this code.
-
-Fixes: d38ceaf99ed0 ("drm/amdgpu: add core driver (v4)")
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 9e607f72748d ("i2c_powermac: shut up lockdep warning")
+Reported-by: Erhard Furtner <erhard_f@mailbox.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Depends-on: df1f679d19ed ("powerpc/powermac: Add missing lockdep_register_key()")
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=200055
+Link: https://lore.kernel.org/r/2c7e421874e21b2fb87813d768cf662f630c2ad4.1638984999.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/powerpc/platforms/powermac/low_i2c.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-index 54f414279037e..0894bb98dc517 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-@@ -404,6 +404,9 @@ amdgpu_connector_lcd_native_mode(struct drm_encoder *encoder)
- 	    native_mode->vdisplay != 0 &&
- 	    native_mode->clock != 0) {
- 		mode = drm_mode_duplicate(dev, native_mode);
-+		if (!mode)
-+			return NULL;
-+
- 		mode->type = DRM_MODE_TYPE_PREFERRED | DRM_MODE_TYPE_DRIVER;
- 		drm_mode_set_name(mode);
- 
-@@ -418,6 +421,9 @@ amdgpu_connector_lcd_native_mode(struct drm_encoder *encoder)
- 		 * simpler.
- 		 */
- 		mode = drm_cvt_mode(dev, native_mode->hdisplay, native_mode->vdisplay, 60, true, false, false);
-+		if (!mode)
-+			return NULL;
-+
- 		mode->type = DRM_MODE_TYPE_PREFERRED | DRM_MODE_TYPE_DRIVER;
- 		DRM_DEBUG_KMS("Adding cvt approximation of native panel mode %s\n", mode->name);
- 	}
+diff --git a/arch/powerpc/platforms/powermac/low_i2c.c b/arch/powerpc/platforms/powermac/low_i2c.c
+index bf4be4b53b44d..a366233d8ac2d 100644
+--- a/arch/powerpc/platforms/powermac/low_i2c.c
++++ b/arch/powerpc/platforms/powermac/low_i2c.c
+@@ -811,6 +811,7 @@ static void __init pmu_i2c_probe(void)
+ 		bus->hostdata = bus + 1;
+ 		bus->xfer = pmu_i2c_xfer;
+ 		mutex_init(&bus->mutex);
++		lockdep_register_key(&bus->lock_key);
+ 		lockdep_set_class(&bus->mutex, &bus->lock_key);
+ 		bus->flags = pmac_i2c_multibus;
+ 		list_add(&bus->link, &pmac_i2c_busses);
+@@ -934,6 +935,7 @@ static void __init smu_i2c_probe(void)
+ 		bus->hostdata = bus + 1;
+ 		bus->xfer = smu_i2c_xfer;
+ 		mutex_init(&bus->mutex);
++		lockdep_register_key(&bus->lock_key);
+ 		lockdep_set_class(&bus->mutex, &bus->lock_key);
+ 		bus->flags = 0;
+ 		list_add(&bus->link, &pmac_i2c_busses);
 -- 
 2.34.1
 
