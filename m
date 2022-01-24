@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 964D54999D0
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:47:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ED9C499794
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:28:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1456079AbiAXVhm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:37:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53994 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1454159AbiAXVbw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:31:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77A2BC075D00;
-        Mon, 24 Jan 2022 12:21:06 -0800 (PST)
+        id S1378115AbiAXVNq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:13:46 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:60210 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1447251AbiAXVKS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:10:18 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1C5EEB81253;
-        Mon, 24 Jan 2022 20:21:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77E74C340E5;
-        Mon, 24 Jan 2022 20:21:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F782B810BD;
+        Mon, 24 Jan 2022 21:10:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0FCFC340E5;
+        Mon, 24 Jan 2022 21:10:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055664;
-        bh=1OCU8aAHy4eeHhArMemfLOrwPEkLMKAa91DZOy2xNDg=;
+        s=korg; t=1643058615;
+        bh=dpr/6SmkftpYgHSoOA96Mr8yGDl3BpFvFZ1P7MbL7hc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qm1rp/+rlQga/E3Voy08hzIIAigatRos8aZjcjPKZS2a0qhVt14bCcZIWCjXnKiOC
-         +YqysQq0g74dJw9+/gHOHxqFBzMZFv6g1n95lr05BVGjTs1IzU+FirnhodSljLe5Dd
-         e4dmxxJWnUbH0OCgWHFf8+yhVYBQCmBYWGwhOj7o=
+        b=t3sbXaXykg7TQalfkWM7B99UpeMqtmxMMtaMyqFJkLNhpUZJ5z/aXzlB51114NdA7
+         PdIdzsGzxXRNQ21XmDTA7ClhLIJYnp9smfnmhuZtgHUC1Ts4no5e9M6gKxO9JjEj07
+         0f+w/i9x98RpekQCtHY62DujjhYeeB8hdIYalV/g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
-        Mark Chen <mark-yw.chen@mediatek.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org,
+        Marijn Suijten <marijn.suijten@somainline.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@somainline.org>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Lee Jones <lee.jones@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 218/846] Bluetooth: btusb: Handle download_firmware failure cases
-Date:   Mon, 24 Jan 2022 19:35:35 +0100
-Message-Id: <20220124184108.447194634@linuxfoundation.org>
+Subject: [PATCH 5.16 0347/1039] backlight: qcom-wled: Override default length with qcom,enabled-strings
+Date:   Mon, 24 Jan 2022 19:35:36 +0100
+Message-Id: <20220124184136.958390768@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,39 +49,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Chen <mark-yw.chen@mediatek.com>
+From: Marijn Suijten <marijn.suijten@somainline.org>
 
-[ Upstream commit 00c0ee9850b7b0cb7c40b8daba806ae2245e59d4 ]
+[ Upstream commit 2b4b49602f9feca7b7a84eaa33ad9e666c8aa695 ]
 
-For Mediatek chipset, it can not enabled if there are something wrong
-in btmtk_setup_firmware_79xx(). Thus, the process must be terminated
-and returned error code.
+The length of qcom,enabled-strings as property array is enough to
+determine the number of strings to be enabled, without needing to set
+qcom,num-strings to override the default number of strings when less
+than the default (which is also the maximum) is provided in DT.
 
-Fixes: fc342c4dc4087 ("Bluetooth: btusb: Add protocol support for MediaTek MT7921U USB devices")
-Co-developed-by: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: Sean Wang <sean.wang@mediatek.com>
-Signed-off-by: Mark Chen <mark-yw.chen@mediatek.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+This also introduces an extra warning when qcom,num-strings is set,
+denoting that it is not necessary to set both anymore.  It is usually
+more concise to set just qcom,num-length when a zero-based, contiguous
+range of strings is needed (the majority of the cases), or to only set
+qcom,enabled-strings when a specific set of indices is desired.
+
+Fixes: 775d2ffb4af6 ("backlight: qcom-wled: Restructure the driver for WLED3")
+Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+Reviewed-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Link: https://lore.kernel.org/r/20211115203459.1634079-6-marijn.suijten@somainline.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/video/backlight/qcom-wled.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index fa44828562d32..c99e1e994cd41 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -2856,6 +2856,10 @@ static int btusb_mtk_setup(struct hci_dev *hdev)
- 			"mediatek/BT_RAM_CODE_MT%04x_1_%x_hdr.bin",
- 			 dev_id & 0xffff, (fw_version & 0xff) + 1);
- 		err = btusb_mtk_setup_firmware_79xx(hdev, fw_bin_name);
-+		if (err < 0) {
-+			bt_dev_err(hdev, "Failed to set up firmware (%d)", err);
-+			return err;
-+		}
+diff --git a/drivers/video/backlight/qcom-wled.c b/drivers/video/backlight/qcom-wled.c
+index dbcbeda655192..c057368e5056e 100644
+--- a/drivers/video/backlight/qcom-wled.c
++++ b/drivers/video/backlight/qcom-wled.c
+@@ -1521,6 +1521,8 @@ static int wled_configure(struct wled *wled)
+ 				return -EINVAL;
+ 			}
+ 		}
++
++		cfg->num_strings = string_len;
+ 	}
  
- 		/* It's Device EndPoint Reset Option Register */
- 		btusb_mtk_uhw_reg_write(data, MTK_EP_RST_OPT, MTK_EP_RST_IN_OUT_OPT);
+ 	rc = of_property_read_u32(dev->of_node, "qcom,num-strings", &val);
+@@ -1531,9 +1533,13 @@ static int wled_configure(struct wled *wled)
+ 			return -EINVAL;
+ 		}
+ 
+-		if (string_len > 0 && val > string_len) {
+-			dev_err(dev, "qcom,num-strings exceeds qcom,enabled-strings\n");
+-			return -EINVAL;
++		if (string_len > 0) {
++			dev_warn(dev, "Only one of qcom,num-strings or qcom,enabled-strings"
++				      " should be set\n");
++			if (val > string_len) {
++				dev_err(dev, "qcom,num-strings exceeds qcom,enabled-strings\n");
++				return -EINVAL;
++			}
+ 		}
+ 
+ 		cfg->num_strings = val;
 -- 
 2.34.1
 
