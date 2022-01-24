@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65C36498B5B
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:13:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17F1B498F3C
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:51:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346917AbiAXTM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:12:58 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:36618 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345803AbiAXTLi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:11:38 -0500
+        id S1357715AbiAXTve (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:51:34 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:34880 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1352064AbiAXThW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:37:22 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F8B9B81223;
-        Mon, 24 Jan 2022 19:11:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4118C340E5;
-        Mon, 24 Jan 2022 19:11:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5DB9D6153C;
+        Mon, 24 Jan 2022 19:37:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C913C34106;
+        Mon, 24 Jan 2022 19:37:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051495;
-        bh=F4nmS/uUMjatDum9Kt6VZLEzJ7zD8NK6+V1mBofGU74=;
+        s=korg; t=1643053039;
+        bh=DgL0M9pJ+5hLvwUAh76NXDtoQtsqUyxfMwlZsYc7D1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=03SXH7z4AZNwQJQWNH8Aht8n6GLKi+1LF4uFUWThkDBtJB4nAdiuVZDKlhBODUBrS
-         wMYBsUrem/0VcR0nxeBLoGOFGRbyVhicpf7MAe+UzIOrjPtT2cwYdVJjZWZrT4LndL
-         ZZQo8YIKujTErj7egpCqzolQ/fHZ1qTMESKw1aAQ=
+        b=p92n6uhRTGDEcdnRZ8ekt0nGqU3vh7Rj8VqKRxTtrpuoX/ycpjifppOUGS3vQxOim
+         Y6rmS444GAZPFFMNYZoTbHtBsj8TuqyjjiNeXwbCmIvfUdqxymAGKc1VI8tL9klv9P
+         FVf59je3EEjbgxLL8wCJ3QGn1X9cHrNn/IjiMgsw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Cvachoucek <cvachoucek@gmail.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 4.14 148/186] ubifs: Error path in ubifs_remount_rw() seems to wrongly free write buffers
+        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
+        Ye Guojin <ye.guojin@zte.com.cn>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 239/320] MIPS: OCTEON: add put_device() after of_find_device_by_node()
 Date:   Mon, 24 Jan 2022 19:43:43 +0100
-Message-Id: <20220124183941.863688304@linuxfoundation.org>
+Message-Id: <20220124184002.119676205@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,105 +46,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Cvachoucek <cvachoucek@gmail.com>
+From: Ye Guojin <ye.guojin@zte.com.cn>
 
-commit 3fea4d9d160186617ff40490ae01f4f4f36b28ff upstream.
+[ Upstream commit 858779df1c0787d3fec827fb705708df9ebdb15b ]
 
-it seems freeing the write buffers in the error path of the
-ubifs_remount_rw() is wrong. It leads later to a kernel oops like this:
+This was found by coccicheck:
+./arch/mips/cavium-octeon/octeon-platform.c, 332, 1-7, ERROR missing
+put_device; call of_find_device_by_node on line 324, but without a
+corresponding object release within this function.
+./arch/mips/cavium-octeon/octeon-platform.c, 395, 1-7, ERROR missing
+put_device; call of_find_device_by_node on line 387, but without a
+corresponding object release within this function.
+./arch/mips/cavium-octeon/octeon-usb.c, 512, 3-9, ERROR missing
+put_device; call of_find_device_by_node on line 515, but without a
+corresponding object release within this function.
+./arch/mips/cavium-octeon/octeon-usb.c, 543, 1-7, ERROR missing
+put_device; call of_find_device_by_node on line 515, but without a
+corresponding object release within this function.
 
-[10016.431274] UBIFS (ubi0:0): start fixing up free space
-[10090.810042] UBIFS (ubi0:0): free space fixup complete
-[10090.814623] UBIFS error (ubi0:0 pid 512): ubifs_remount_fs: cannot
-spawn "ubifs_bgt0_0", error -4
-[10101.915108] UBIFS (ubi0:0): background thread "ubifs_bgt0_0" started,
-PID 517
-[10105.275498] Unable to handle kernel NULL pointer dereference at
-virtual address 0000000000000030
-[10105.284352] Mem abort info:
-[10105.287160]   ESR = 0x96000006
-[10105.290252]   EC = 0x25: DABT (current EL), IL = 32 bits
-[10105.295592]   SET = 0, FnV = 0
-[10105.298652]   EA = 0, S1PTW = 0
-[10105.301848] Data abort info:
-[10105.304723]   ISV = 0, ISS = 0x00000006
-[10105.308573]   CM = 0, WnR = 0
-[10105.311564] user pgtable: 4k pages, 48-bit VAs, pgdp=00000000f03d1000
-[10105.318034] [0000000000000030] pgd=00000000f6cee003,
-pud=00000000f4884003, pmd=0000000000000000
-[10105.326783] Internal error: Oops: 96000006 [#1] PREEMPT SMP
-[10105.332355] Modules linked in: ath10k_pci ath10k_core ath mac80211
-libarc4 cfg80211 nvme nvme_core cryptodev(O)
-[10105.342468] CPU: 3 PID: 518 Comm: touch Tainted: G           O
-5.4.3 #1
-[10105.349517] Hardware name: HYPEX CPU (DT)
-[10105.353525] pstate: 40000005 (nZcv daif -PAN -UAO)
-[10105.358324] pc : atomic64_try_cmpxchg_acquire.constprop.22+0x8/0x34
-[10105.364596] lr : mutex_lock+0x1c/0x34
-[10105.368253] sp : ffff000075633aa0
-[10105.371563] x29: ffff000075633aa0 x28: 0000000000000001
-[10105.376874] x27: ffff000076fa80c8 x26: 0000000000000004
-[10105.382185] x25: 0000000000000030 x24: 0000000000000000
-[10105.387495] x23: 0000000000000000 x22: 0000000000000038
-[10105.392807] x21: 000000000000000c x20: ffff000076fa80c8
-[10105.398119] x19: ffff000076fa8000 x18: 0000000000000000
-[10105.403429] x17: 0000000000000000 x16: 0000000000000000
-[10105.408741] x15: 0000000000000000 x14: fefefefefefefeff
-[10105.414052] x13: 0000000000000000 x12: 0000000000000fe0
-[10105.419364] x11: 0000000000000fe0 x10: ffff000076709020
-[10105.424675] x9 : 0000000000000000 x8 : 00000000000000a0
-[10105.429986] x7 : ffff000076fa80f4 x6 : 0000000000000030
-[10105.435297] x5 : 0000000000000000 x4 : 0000000000000000
-[10105.440609] x3 : 0000000000000000 x2 : ffff00006f276040
-[10105.445920] x1 : ffff000075633ab8 x0 : 0000000000000030
-[10105.451232] Call trace:
-[10105.453676]  atomic64_try_cmpxchg_acquire.constprop.22+0x8/0x34
-[10105.459600]  ubifs_garbage_collect+0xb4/0x334
-[10105.463956]  ubifs_budget_space+0x398/0x458
-[10105.468139]  ubifs_create+0x50/0x180
-[10105.471712]  path_openat+0x6a0/0x9b0
-[10105.475284]  do_filp_open+0x34/0x7c
-[10105.478771]  do_sys_open+0x78/0xe4
-[10105.482170]  __arm64_sys_openat+0x1c/0x24
-[10105.486180]  el0_svc_handler+0x84/0xc8
-[10105.489928]  el0_svc+0x8/0xc
-[10105.492808] Code: 52800013 17fffffb d2800003 f9800011 (c85ffc05)
-[10105.498903] ---[ end trace 46b721d93267a586 ]---
-
-To reproduce the problem:
-
-1. Filesystem initially mounted read-only, free space fixup flag set.
-
-2. mount -o remount,rw <mountpoint>
-
-3. it takes some time (free space fixup running)
-    ... try to terminate running mount by CTRL-C
-    ... does not respond, only after free space fixup is complete
-    ... then "ubifs_remount_fs: cannot spawn "ubifs_bgt0_0", error -4"
-
-4. mount -o remount,rw <mountpoint>
-    ... now finished instantly (fixup already done).
-
-5. Create file or just unmount the filesystem and we get the oops.
-
-Cc: <stable@vger.kernel.org>
-Fixes: b50b9f408502 ("UBIFS: do not free write-buffers when in R/O mode")
-Signed-off-by: Petr Cvachoucek <cvachoucek@gmail.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Zeal Robot <zealci@zte.com.cn>
+Signed-off-by: Ye Guojin <ye.guojin@zte.com.cn>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ubifs/super.c |    1 -
- 1 file changed, 1 deletion(-)
+ arch/mips/cavium-octeon/octeon-platform.c | 2 ++
+ arch/mips/cavium-octeon/octeon-usb.c      | 1 +
+ 2 files changed, 3 insertions(+)
 
---- a/fs/ubifs/super.c
-+++ b/fs/ubifs/super.c
-@@ -1706,7 +1706,6 @@ out:
- 		kthread_stop(c->bgt);
- 		c->bgt = NULL;
- 	}
--	free_wbufs(c);
- 	kfree(c->write_reserve_buf);
- 	c->write_reserve_buf = NULL;
- 	vfree(c->ileb_buf);
+diff --git a/arch/mips/cavium-octeon/octeon-platform.c b/arch/mips/cavium-octeon/octeon-platform.c
+index 51685f893eab0..c214fe4e678bb 100644
+--- a/arch/mips/cavium-octeon/octeon-platform.c
++++ b/arch/mips/cavium-octeon/octeon-platform.c
+@@ -328,6 +328,7 @@ static int __init octeon_ehci_device_init(void)
+ 
+ 	pd->dev.platform_data = &octeon_ehci_pdata;
+ 	octeon_ehci_hw_start(&pd->dev);
++	put_device(&pd->dev);
+ 
+ 	return ret;
+ }
+@@ -391,6 +392,7 @@ static int __init octeon_ohci_device_init(void)
+ 
+ 	pd->dev.platform_data = &octeon_ohci_pdata;
+ 	octeon_ohci_hw_start(&pd->dev);
++	put_device(&pd->dev);
+ 
+ 	return ret;
+ }
+diff --git a/arch/mips/cavium-octeon/octeon-usb.c b/arch/mips/cavium-octeon/octeon-usb.c
+index 4017398519cf9..e092d86e63581 100644
+--- a/arch/mips/cavium-octeon/octeon-usb.c
++++ b/arch/mips/cavium-octeon/octeon-usb.c
+@@ -544,6 +544,7 @@ static int __init dwc3_octeon_device_init(void)
+ 			devm_iounmap(&pdev->dev, base);
+ 			devm_release_mem_region(&pdev->dev, res->start,
+ 						resource_size(res));
++			put_device(&pdev->dev);
+ 		}
+ 	} while (node != NULL);
+ 
+-- 
+2.34.1
+
 
 
