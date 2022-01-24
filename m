@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B5ED499344
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:34:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05150499346
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:34:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356833AbiAXUcl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:32:41 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:48710 "EHLO
+        id S1356845AbiAXUcm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:32:42 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:46800 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345948AbiAXUWq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:22:46 -0500
+        with ESMTP id S1349067AbiAXUWs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:22:48 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FBEB61383;
-        Mon, 24 Jan 2022 20:22:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04A3BC340E5;
-        Mon, 24 Jan 2022 20:22:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 579CC61502;
+        Mon, 24 Jan 2022 20:22:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F8E8C340E5;
+        Mon, 24 Jan 2022 20:22:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055764;
-        bh=LZ+oF8h5/aRb0d/1iD3kpr3uBL7mUhoFezCNIr6lF/E=;
+        s=korg; t=1643055767;
+        bh=RkngHeAeVCkGRFWJ2UEUeqVNrmIJmwasCnUlDu8quqk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B0ZOxOyu4d7axJpWV5SanvvjU7DDeIlsikQAgal4Zo8sKRlkvH63HuOqEwowZRwrQ
-         kpsyyfhOOKzBJ6m5j1YbO1qp+yWhSYebTnvwvin7NrOSrz1HMffyTgy3tYS3IUTxwl
-         uzEHOzOP0QEicb8RZl2R3Ww73T7hyd4/XWk+LkIQ=
+        b=fhuRwTXJ/vX6b3dKAjx5k0ucZ/OjqlAfwNJcI2WmPeJ4qZRAnGqBCDmuUmZvoVK3a
+         t0JGgpia5CMAY1EDEvQ2zztQVSbeoAKFqVwqX3PGTVgtTYALDHY2WQAtFugNJZsGAR
+         ndAL4gNLQmyKqkdAOwWdzPX0Q3ObMLCKUzsYHv8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        Rob Clark <robdclark@chromium.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 225/846] drm/msm/dsi: fix initialization in the bonded DSI case
-Date:   Mon, 24 Jan 2022 19:35:42 +0100
-Message-Id: <20220124184108.678922106@linuxfoundation.org>
+        stable@vger.kernel.org, Douglas Anderson <dianders@chromium.org>,
+        TOTE Robot <oslab@tsinghua.edu.cn>,
+        Brian Norris <briannorris@chromium.org>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 226/846] mwifiex: Fix possible ABBA deadlock
+Date:   Mon, 24 Jan 2022 19:35:43 +0100
+Message-Id: <20220124184108.712569914@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -47,94 +46,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Brian Norris <briannorris@chromium.org>
 
-[ Upstream commit 92cb1bedde9dba78d802fe2510949743a2581aed ]
+[ Upstream commit 1b8bb8919ef81bfc8873d223b9361f1685f2106d ]
 
-Commit 739b4e7756d3 ("drm/msm/dsi: Fix an error code in
-msm_dsi_modeset_init()") changed msm_dsi_modeset_init() to return an
-error code in case msm_dsi_manager_validate_current_config() returns
-false. However this is not an error case, but a slave DSI of the bonded
-DSI link. In this case msm_dsi_modeset_init() should return 0, but just
-skip connector and bridge initialization.
+Quoting Jia-Ju Bai <baijiaju1990@gmail.com>:
 
-To reduce possible confusion, drop the
-msm_dsi_manager_validate_current_config() function, and specif 'bonded
-&& !master' condition directly in the msm_dsi_modeset_init().
+  mwifiex_dequeue_tx_packet()
+     spin_lock_bh(&priv->wmm.ra_list_spinlock); --> Line 1432 (Lock A)
+     mwifiex_send_addba()
+       spin_lock_bh(&priv->sta_list_spinlock); --> Line 608 (Lock B)
 
-Fixes: 739b4e7756d3 ("drm/msm/dsi: Fix an error code in msm_dsi_modeset_init()")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Reviewed-by: Abhinav Kumar <quic_abhinavk@quicinc.com>
-Link: https://lore.kernel.org/r/20211125180114.561278-1-dmitry.baryshkov@linaro.org
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+  mwifiex_process_sta_tx_pause()
+     spin_lock_bh(&priv->sta_list_spinlock); --> Line 398 (Lock B)
+     mwifiex_update_ralist_tx_pause()
+       spin_lock_bh(&priv->wmm.ra_list_spinlock); --> Line 941 (Lock A)
+
+Similar report for mwifiex_process_uap_tx_pause().
+
+While the locking expectations in this driver are a bit unclear, the
+Fixed commit only intended to protect the sta_ptr, so we can drop the
+lock as soon as we're done with it.
+
+IIUC, this deadlock cannot actually happen, because command event
+processing (which calls mwifiex_process_sta_tx_pause()) is
+sequentialized with TX packet processing (e.g.,
+mwifiex_dequeue_tx_packet()) via the main loop (mwifiex_main_process()).
+But it's good not to leave this potential issue lurking.
+
+Fixes: f0f7c2275fb9 ("mwifiex: minor cleanups w/ sta_list_spinlock in cfg80211.c")
+Cc: Douglas Anderson <dianders@chromium.org>
+Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
+Link: https://lore.kernel.org/linux-wireless/0e495b14-efbb-e0da-37bd-af6bd677ee2c@gmail.com/
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/YaV0pllJ5p/EuUat@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/dsi/dsi.c         | 10 +++++++---
- drivers/gpu/drm/msm/dsi/dsi.h         |  1 -
- drivers/gpu/drm/msm/dsi/dsi_manager.c | 17 -----------------
- 3 files changed, 7 insertions(+), 21 deletions(-)
+ drivers/net/wireless/marvell/mwifiex/sta_event.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/dsi/dsi.c b/drivers/gpu/drm/msm/dsi/dsi.c
-index 75ae3008b68f4..fc280cc434943 100644
---- a/drivers/gpu/drm/msm/dsi/dsi.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi.c
-@@ -215,9 +215,13 @@ int msm_dsi_modeset_init(struct msm_dsi *msm_dsi, struct drm_device *dev,
- 		goto fail;
+diff --git a/drivers/net/wireless/marvell/mwifiex/sta_event.c b/drivers/net/wireless/marvell/mwifiex/sta_event.c
+index 68c63268e2e6b..2b2e6e0166e14 100644
+--- a/drivers/net/wireless/marvell/mwifiex/sta_event.c
++++ b/drivers/net/wireless/marvell/mwifiex/sta_event.c
+@@ -365,10 +365,12 @@ static void mwifiex_process_uap_tx_pause(struct mwifiex_private *priv,
+ 		sta_ptr = mwifiex_get_sta_entry(priv, tp->peermac);
+ 		if (sta_ptr && sta_ptr->tx_pause != tp->tx_pause) {
+ 			sta_ptr->tx_pause = tp->tx_pause;
++			spin_unlock_bh(&priv->sta_list_spinlock);
+ 			mwifiex_update_ralist_tx_pause(priv, tp->peermac,
+ 						       tp->tx_pause);
++		} else {
++			spin_unlock_bh(&priv->sta_list_spinlock);
+ 		}
+-		spin_unlock_bh(&priv->sta_list_spinlock);
  	}
- 
--	if (!msm_dsi_manager_validate_current_config(msm_dsi->id)) {
--		ret = -EINVAL;
--		goto fail;
-+	if (msm_dsi_is_bonded_dsi(msm_dsi) &&
-+	    !msm_dsi_is_master_dsi(msm_dsi)) {
-+		/*
-+		 * Do not return an eror here,
-+		 * Just skip creating encoder/connector for the slave-DSI.
-+		 */
-+		return 0;
- 	}
- 
- 	msm_dsi->encoder = encoder;
-diff --git a/drivers/gpu/drm/msm/dsi/dsi.h b/drivers/gpu/drm/msm/dsi/dsi.h
-index 569c8ff062ba4..a63666e59d19e 100644
---- a/drivers/gpu/drm/msm/dsi/dsi.h
-+++ b/drivers/gpu/drm/msm/dsi/dsi.h
-@@ -82,7 +82,6 @@ int msm_dsi_manager_cmd_xfer(int id, const struct mipi_dsi_msg *msg);
- bool msm_dsi_manager_cmd_xfer_trigger(int id, u32 dma_base, u32 len);
- int msm_dsi_manager_register(struct msm_dsi *msm_dsi);
- void msm_dsi_manager_unregister(struct msm_dsi *msm_dsi);
--bool msm_dsi_manager_validate_current_config(u8 id);
- void msm_dsi_manager_tpg_enable(void);
- 
- /* msm dsi */
-diff --git a/drivers/gpu/drm/msm/dsi/dsi_manager.c b/drivers/gpu/drm/msm/dsi/dsi_manager.c
-index fb4ccffdcfe13..fa4c396df6a92 100644
---- a/drivers/gpu/drm/msm/dsi/dsi_manager.c
-+++ b/drivers/gpu/drm/msm/dsi/dsi_manager.c
-@@ -647,23 +647,6 @@ fail:
- 	return ERR_PTR(ret);
  }
  
--bool msm_dsi_manager_validate_current_config(u8 id)
--{
--	bool is_bonded_dsi = IS_BONDED_DSI();
--
--	/*
--	 * For bonded DSI, we only have one drm panel. For this
--	 * use case, we register only one bridge/connector.
--	 * Skip bridge/connector initialisation if it is
--	 * slave-DSI for bonded DSI configuration.
--	 */
--	if (is_bonded_dsi && !IS_MASTER_DSI_LINK(id)) {
--		DBG("Skip bridge registration for slave DSI->id: %d\n", id);
--		return false;
--	}
--	return true;
--}
--
- /* initialize bridge */
- struct drm_bridge *msm_dsi_manager_bridge_init(u8 id)
- {
+@@ -400,11 +402,13 @@ static void mwifiex_process_sta_tx_pause(struct mwifiex_private *priv,
+ 			sta_ptr = mwifiex_get_sta_entry(priv, tp->peermac);
+ 			if (sta_ptr && sta_ptr->tx_pause != tp->tx_pause) {
+ 				sta_ptr->tx_pause = tp->tx_pause;
++				spin_unlock_bh(&priv->sta_list_spinlock);
+ 				mwifiex_update_ralist_tx_pause(priv,
+ 							       tp->peermac,
+ 							       tp->tx_pause);
++			} else {
++				spin_unlock_bh(&priv->sta_list_spinlock);
+ 			}
+-			spin_unlock_bh(&priv->sta_list_spinlock);
+ 		}
+ 	}
+ }
 -- 
 2.34.1
 
