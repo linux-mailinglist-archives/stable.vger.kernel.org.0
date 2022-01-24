@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DAA2498ACB
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:07:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62CDB498E1A
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:43:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345328AbiAXTG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:06:57 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:34852 "EHLO
+        id S1347365AbiAXTjT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:39:19 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60258 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345669AbiAXTEa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:04:30 -0500
+        with ESMTP id S1353129AbiAXTcx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:32:53 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA50660BFB;
-        Mon, 24 Jan 2022 19:04:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5BC1C340E8;
-        Mon, 24 Jan 2022 19:04:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 180136151B;
+        Mon, 24 Jan 2022 19:32:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECF9AC340E5;
+        Mon, 24 Jan 2022 19:32:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051069;
-        bh=Xd1d9E2W2oLl5/hSvALHK3QW8GbMXU+W17RMmgqOxnc=;
+        s=korg; t=1643052772;
+        bh=1k00qKxoOl45JtrC5qwUDU82EQxxTUOYt/FuVoHXc9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PUCe8dkfWF6SFTbN6Zc8LuHmQKwnOXpuNb39/3ToOckGHnRr1aQGF28EX/K8TROjL
-         bxjsabq+JR3r4l4C3Flfv0RnRv2JHH/kMwLScXveiwXi0oIlcDOZfUpSwx076HKDQb
-         JGhDUnZOJAFJ/3Y1OuBhTgLPTnsdg/Xe84Pru9HU=
+        b=EBO4XBby+WP+3fQ0cw/97mF13/PPVW50vbxJYKXi4Tgx8gtxOAnZAkBBAkIRD/ZMd
+         VNU01rKMo4JIwHb3MCNsM3iSZcmXgLZirlM7HKPCdZ1aJuVz9bVK+UlBY4OFp+3MBP
+         tIRcgCyrIpy1T4+uZgYFQ3GEWHmklvvdQcA/s8pw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Juergen Gross <jgross@suse.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 045/186] arm64: dts: qcom: msm8916: fix MMC controller aliases
+Subject: [PATCH 5.4 136/320] PCI/MSI: Fix pci_irq_vector()/pci_irq_get_affinity()
 Date:   Mon, 24 Jan 2022 19:42:00 +0100
-Message-Id: <20220124183938.581354232@linuxfoundation.org>
+Message-Id: <20220124183958.285126187@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,38 +47,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit b0293c19d42f6d6951c2fab9a47fed50baf2c14d ]
+[ Upstream commit 29bbc35e29d9b6347780dcacde2deb4b39344167 ]
 
-Change sdhcN aliases to mmcN to make them actually work. Currently the
-board uses non-standard aliases sdhcN, which do not work, resulting in
-mmc0 and mmc1 hosts randomly changing indices between boots.
+pci_irq_vector() and pci_irq_get_affinity() use the list position to find the
+MSI-X descriptor at a given index. That's correct for the normal case where
+the entry number is the same as the list position.
 
-Fixes: c4da5a561627 ("arm64: dts: qcom: Add msm8916 sdhci configuration nodes")
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20211201020559.1611890-1-dmitry.baryshkov@linaro.org
+But it's wrong for cases where MSI-X was allocated with an entries array
+describing sparse entry numbers into the hardware message descriptor
+table. That's inconsistent at best.
+
+Make it always check the entry number because that's what the zero base
+index really means. This change won't break existing users which use a
+sparse entries array for allocation because these users retrieve the Linux
+interrupt number from the entries array after allocation and none of them
+uses pci_irq_vector() or pci_irq_get_affinity().
+
+Fixes: aff171641d18 ("PCI: Provide sensible IRQ vector alloc/free routines")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Link: https://lore.kernel.org/r/20211206210223.929792157@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8916.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/pci/msi.c | 26 ++++++++++++++++++--------
+ 1 file changed, 18 insertions(+), 8 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8916.dtsi b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-index 94697bab3805f..a961b81060004 100644
---- a/arch/arm64/boot/dts/qcom/msm8916.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8916.dtsi
-@@ -26,8 +26,8 @@
- 	#size-cells = <2>;
+diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
+index 7dc10c2b4785d..715c85d4e688d 100644
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -1294,19 +1294,24 @@ EXPORT_SYMBOL(pci_free_irq_vectors);
  
- 	aliases {
--		sdhc1 = &sdhc_1; /* SDC1 eMMC slot */
--		sdhc2 = &sdhc_2; /* SDC2 SD card slot */
-+		mmc0 = &sdhc_1; /* SDC1 eMMC slot */
-+		mmc1 = &sdhc_2; /* SDC2 SD card slot */
- 	};
+ /**
+  * pci_irq_vector - return Linux IRQ number of a device vector
+- * @dev: PCI device to operate on
+- * @nr: device-relative interrupt vector index (0-based).
++ * @dev:	PCI device to operate on
++ * @nr:		Interrupt vector index (0-based)
++ *
++ * @nr has the following meanings depending on the interrupt mode:
++ *   MSI-X:	The index in the MSI-X vector table
++ *   MSI:	The index of the enabled MSI vectors
++ *   INTx:	Must be 0
++ *
++ * Return: The Linux interrupt number or -EINVAl if @nr is out of range.
+  */
+ int pci_irq_vector(struct pci_dev *dev, unsigned int nr)
+ {
+ 	if (dev->msix_enabled) {
+ 		struct msi_desc *entry;
+-		int i = 0;
  
- 	chosen { };
+ 		for_each_pci_msi_entry(entry, dev) {
+-			if (i == nr)
++			if (entry->msi_attrib.entry_nr == nr)
+ 				return entry->irq;
+-			i++;
+ 		}
+ 		WARN_ON_ONCE(1);
+ 		return -EINVAL;
+@@ -1330,17 +1335,22 @@ EXPORT_SYMBOL(pci_irq_vector);
+  * pci_irq_get_affinity - return the affinity of a particular MSI vector
+  * @dev:	PCI device to operate on
+  * @nr:		device-relative interrupt vector index (0-based).
++ *
++ * @nr has the following meanings depending on the interrupt mode:
++ *   MSI-X:	The index in the MSI-X vector table
++ *   MSI:	The index of the enabled MSI vectors
++ *   INTx:	Must be 0
++ *
++ * Return: A cpumask pointer or NULL if @nr is out of range
+  */
+ const struct cpumask *pci_irq_get_affinity(struct pci_dev *dev, int nr)
+ {
+ 	if (dev->msix_enabled) {
+ 		struct msi_desc *entry;
+-		int i = 0;
+ 
+ 		for_each_pci_msi_entry(entry, dev) {
+-			if (i == nr)
++			if (entry->msi_attrib.entry_nr == nr)
+ 				return &entry->affinity->mask;
+-			i++;
+ 		}
+ 		WARN_ON_ONCE(1);
+ 		return NULL;
 -- 
 2.34.1
 
