@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88C7849960F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:16:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 281F0499656
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:18:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1443739AbiAXU6x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:58:53 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:50276 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1442810AbiAXUzY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:55:24 -0500
+        id S1359554AbiAXVDL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:03:11 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:48982 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1442839AbiAXUzb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:55:31 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58B59B8105C;
-        Mon, 24 Jan 2022 20:55:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DB13C340E5;
-        Mon, 24 Jan 2022 20:55:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CA816091C;
+        Mon, 24 Jan 2022 20:55:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D0C6C340E5;
+        Mon, 24 Jan 2022 20:55:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057722;
-        bh=l+gtYq5zMqIJC9T7FFg/WoG6gd4YYnKZA2mw7RhH/1s=;
+        s=korg; t=1643057730;
+        bh=ZysuhQ7Pz6OFnxju1Jqcw21yLpfW3eWSCctuI/N59A8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aqFLcsiR+XlvMopzzu8l53+x4PZ59325kFSFLrjyu5PEQhdx4Gq2jo2QXYyLv21W7
-         R9TW9YO5jS24UqrBgBkEOD4NRyedNDzOjpagisDdw31MEYrx6W4PoSsPpD4pgfSe7M
-         9vA055luz9pmECekrDoeOgZNbzhM2Wj6DWdlk2/Q=
+        b=Rj4OPZATGG8MX/u9rdnGo5zB0EAFxQI3eTA7CqTMl2SOJOASaladN5IpdFjAZbmSc
+         dSVVB2RmFQLA4NRUkeOMKi2RO2Nsz9tkic/XIj0R+8IYdVRSf9DzS0sgSYr1GKQzK0
+         vDv4HReNo+NBSAv78IWlFVacqaxHEBRZW3aCWYjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Pengutronix Kernel Team <kernel@pengutronix.de>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
-        Stable@vger.kernel.org
-Subject: [PATCH 5.16 0058/1039] iio: trigger: Fix a scheduling whilst atomic issue seen on tsc2046
-Date:   Mon, 24 Jan 2022 19:30:47 +0100
-Message-Id: <20220124184127.096367441@linuxfoundation.org>
+        stable@vger.kernel.org, Manivannan Sadhasivam <mani@kernel.org>,
+        Bhaumik Bhatt <quic_bbhatt@quicinc.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Subject: [PATCH 5.16 0061/1039] bus: mhi: core: Fix reading wake_capable channel configuration
+Date:   Mon, 24 Jan 2022 19:30:50 +0100
+Message-Id: <20220124184127.196002038@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -48,121 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Bhaumik Bhatt <quic_bbhatt@quicinc.com>
 
-commit 9020ef659885f2622cfb386cc229b6d618362895 upstream.
+commit 42c4668f7efe1485dfc382517b412c0c6ab102b8 upstream.
 
-IIO triggers are software IRQ chips that split an incoming IRQ into
-separate IRQs routed to all devices using the trigger.
-When all consumers are done then a trigger callback reenable() is
-called.  There are a few circumstances under which this can happen
-in atomic context.
+The 'wake-capable' entry in channel configuration is not set when
+parsing the configuration specified by the controller driver. Add
+the missing entry to ensure channel is correctly specified as a
+'wake-capable' channel.
 
-1) A single user of the trigger that calls the iio_trigger_done()
-function from interrupt context.
-2) A race between disconnecting the last device from a trigger and
-the trigger itself sucessfully being disabled.
-
-To avoid a resulting scheduling whilst atomic, close this second corner
-by using schedule_work() to ensure the reenable is not done in atomic
-context.
-
-Note that drivers must be careful to manage the interaction of
-set_state() and reenable() callbacks to ensure appropriate reference
-counting if they are relying on the same hardware controls.
-
-Deliberately taking this the slow path rather than via a fixes tree
-because the error has hard to hit and I would like it to soak for a while
-before hitting a release kernel.
-
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Pengutronix Kernel Team <kernel@pengutronix.de>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Tested-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211017172209.112387-1-jic23@kernel.org
+Link: https://lore.kernel.org/r/1638320491-13382-1-git-send-email-quic_bbhatt@quicinc.com
+Fixes: 0cbf260820fa ("bus: mhi: core: Add support for registering MHI controllers")
+Cc: stable@vger.kernel.org
+Reviewed-by: Manivannan Sadhasivam <mani@kernel.org>
+Signed-off-by: Bhaumik Bhatt <quic_bbhatt@quicinc.com>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Link: https://lore.kernel.org/r/20211216081227.237749-7-manivannan.sadhasivam@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/industrialio-trigger.c |   36 +++++++++++++++++++++++++++++++++++-
- include/linux/iio/trigger.h        |    2 ++
- 2 files changed, 37 insertions(+), 1 deletion(-)
+ drivers/bus/mhi/core/init.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/iio/industrialio-trigger.c
-+++ b/drivers/iio/industrialio-trigger.c
-@@ -162,6 +162,39 @@ static struct iio_trigger *iio_trigger_a
- 	return trig;
- }
+--- a/drivers/bus/mhi/core/init.c
++++ b/drivers/bus/mhi/core/init.c
+@@ -788,6 +788,7 @@ static int parse_ch_cfg(struct mhi_contr
+ 		mhi_chan->offload_ch = ch_cfg->offload_channel;
+ 		mhi_chan->db_cfg.reset_req = ch_cfg->doorbell_mode_switch;
+ 		mhi_chan->pre_alloc = ch_cfg->auto_queue;
++		mhi_chan->wake_capable = ch_cfg->wake_capable;
  
-+static void iio_reenable_work_fn(struct work_struct *work)
-+{
-+	struct iio_trigger *trig = container_of(work, struct iio_trigger,
-+						reenable_work);
-+
-+	/*
-+	 * This 'might' occur after the trigger state is set to disabled -
-+	 * in that case the driver should skip reenabling.
-+	 */
-+	trig->ops->reenable(trig);
-+}
-+
-+/*
-+ * In general, reenable callbacks may need to sleep and this path is
-+ * not performance sensitive, so just queue up a work item
-+ * to reneable the trigger for us.
-+ *
-+ * Races that can cause this.
-+ * 1) A handler occurs entirely in interrupt context so the counter
-+ *    the final decrement is still in this interrupt.
-+ * 2) The trigger has been removed, but one last interrupt gets through.
-+ *
-+ * For (1) we must call reenable, but not in atomic context.
-+ * For (2) it should be safe to call reenanble, if drivers never blindly
-+ * reenable after state is off.
-+ */
-+static void iio_trigger_notify_done_atomic(struct iio_trigger *trig)
-+{
-+	if (atomic_dec_and_test(&trig->use_count) && trig->ops &&
-+	    trig->ops->reenable)
-+		schedule_work(&trig->reenable_work);
-+}
-+
- void iio_trigger_poll(struct iio_trigger *trig)
- {
- 	int i;
-@@ -173,7 +206,7 @@ void iio_trigger_poll(struct iio_trigger
- 			if (trig->subirqs[i].enabled)
- 				generic_handle_irq(trig->subirq_base + i);
- 			else
--				iio_trigger_notify_done(trig);
-+				iio_trigger_notify_done_atomic(trig);
- 		}
- 	}
- }
-@@ -535,6 +568,7 @@ struct iio_trigger *viio_trigger_alloc(s
- 	trig->dev.type = &iio_trig_type;
- 	trig->dev.bus = &iio_bus_type;
- 	device_initialize(&trig->dev);
-+	INIT_WORK(&trig->reenable_work, iio_reenable_work_fn);
- 
- 	mutex_init(&trig->pool_lock);
- 	trig->subirq_base = irq_alloc_descs(-1, 0,
---- a/include/linux/iio/trigger.h
-+++ b/include/linux/iio/trigger.h
-@@ -55,6 +55,7 @@ struct iio_trigger_ops {
-  * @attached_own_device:[INTERN] if we are using our own device as trigger,
-  *			i.e. if we registered a poll function to the same
-  *			device as the one providing the trigger.
-+ * @reenable_work:	[INTERN] work item used to ensure reenable can sleep.
-  **/
- struct iio_trigger {
- 	const struct iio_trigger_ops	*ops;
-@@ -74,6 +75,7 @@ struct iio_trigger {
- 	unsigned long pool[BITS_TO_LONGS(CONFIG_IIO_CONSUMERS_PER_TRIGGER)];
- 	struct mutex			pool_lock;
- 	bool				attached_own_device;
-+	struct work_struct		reenable_work;
- };
- 
- 
+ 		/*
+ 		 * If MHI host allocates buffers, then the channel direction
 
 
