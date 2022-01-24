@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBA1D4981AA
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 15:03:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 524454981B0
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 15:05:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238340AbiAXODg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 09:03:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59022 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238343AbiAXODf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 09:03:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 737CFC06173B
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 06:03:35 -0800 (PST)
+        id S238366AbiAXOFN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 09:05:13 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:59442 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230156AbiAXOFM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 09:05:12 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C2C3612F5
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 14:03:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9EA0C340E9;
-        Mon, 24 Jan 2022 14:03:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 76598B80CCF
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 14:05:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BEDEC340E1;
+        Mon, 24 Jan 2022 14:05:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643033014;
-        bh=kAo814QD7LCIOOgTNB9dpPWOrCbWP+088TTb6wpnKFM=;
+        s=korg; t=1643033110;
+        bh=xyf3q8+kWw4gQ/zDd7LoaMTMoGh/uMN4LPI61R+TNbA=;
         h=Subject:To:Cc:From:Date:From;
-        b=TGnBzf6VfBoQOyu/QfEaYH8VfP3SRhFcbcY2eVqIPq+7G7Jxr90EMHe2Rqen2Fy4t
-         1obDyxol5wYjF5CIEa+8HlfmwopQ8Hdey8Hno8T+QR3Ex3kiZgoDnLDB3tNeNm97x4
-         CreLcu/l3nEwlcjRGEq7TRUD/A76q3ljoAAi9jOo=
-Subject: FAILED: patch "[PATCH] ath11k: add support for WCN6855 hw2.1" failed to apply to 5.10-stable tree
-To:     quic_bqiang@quicinc.com, quic_kvalo@quicinc.com
+        b=Ax0kAjHJMeWu6eUsD3zmwmD+wixMgAOAGVOHLSQv1UCAiLeFg0Vqo/lTwui/Uky1y
+         Np3Xn7mi1M/i/+IIw7w+OnSGIdv/YzJyZTmIDZRmLLylY6VJhn1zSxv1yUmbEvd63m
+         +2kjrxx2EZExndeOmbMjsLSrKIPh1nQzhVbFaHJg=
+Subject: FAILED: patch "[PATCH] blk-mq: fix tag_get wait task can't be awakened" failed to apply to 4.4-stable tree
+To:     qiulaibin@huawei.com, andriy.shevchenko@linux.intel.com,
+        axboe@kernel.dk, john.garry@huawei.com, ming.lei@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 15:01:11 +0100
-Message-ID: <164303287116930@kroah.com>
+Date:   Mon, 24 Jan 2022 15:05:06 +0100
+Message-ID: <164303310640243@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -53,158 +51,174 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d1147a316b53df9cb0152e415ec41dcb6ea62c1c Mon Sep 17 00:00:00 2001
-From: Baochen Qiang <quic_bqiang@quicinc.com>
-Date: Mon, 29 Nov 2021 10:56:12 +0800
-Subject: [PATCH] ath11k: add support for WCN6855 hw2.1
+From 180dccb0dba4f5e84a4a70c1be1d34cbb6528b32 Mon Sep 17 00:00:00 2001
+From: Laibin Qiu <qiulaibin@huawei.com>
+Date: Thu, 13 Jan 2022 10:55:36 +0800
+Subject: [PATCH] blk-mq: fix tag_get wait task can't be awakened
 
-Ath11k fails to probe WCN6855 hw2.1 chip:
+In case of shared tags, there might be more than one hctx which
+allocates from the same tags, and each hctx is limited to allocate at
+most:
+        hctx_max_depth = max((bt->sb.depth + users - 1) / users, 4U);
 
-[ 6.983821] ath11k_pci 0000:06:00.0: enabling device (0000 -> 0002)
-[ 6.983841] ath11k_pci 0000:06:00.0: Unsupported WCN6855 SOC hardware version: 18 17
+tag idle detection is lazy, and may be delayed for 30sec, so there
+could be just one real active hctx(queue) but all others are actually
+idle and still accounted as active because of the lazy idle detection.
+Then if wake_batch is > hctx_max_depth, driver tag allocation may wait
+forever on this real active hctx.
 
-This is caused by the wrong bit mask setting of hardware major version:
-for QCA6390/QCN6855, it should be BIT8-11, not BIT8-16, so change the
-definition to GENMASK(11, 8).
+Fix this by recalculating wake_batch when inc or dec active_queues.
 
-Also, add a separate entry for WCN6855 hw2.1 in ath11k_hw_params.
+Fixes: 0d2602ca30e41 ("blk-mq: improve support for shared tags maps")
+Suggested-by: Ming Lei <ming.lei@redhat.com>
+Suggested-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Laibin Qiu <qiulaibin@huawei.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20220113025536.1479653-1-qiulaibin@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-Please note that currently WCN6855 hw2.1 shares the same firmwares
-as hw2.0, so users of this chip need to create a symlink as below:
-
-	ln -s hw2.0 hw2.1
-
-Tested-on: WCN6855 hw2.1 PCI WLAN.HSP.1.1-01720.1-QCAHSPSWPL_V1_V2_SILICONZ_LITE-1
-Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-01720.1-QCAHSPSWPL_V1_V2_SILICONZ_LITE-1
-Tested-on: QCA6390 hw2.0 PCI WLAN.HST.1.0.1-01740-QCAHSTSWPLZ_V2_TO_X86-1
-
-Fixes: 18ac1665e785 ("ath11k: pci: check TCSR_SOC_HW_VERSION")
-Signed-off-by: Baochen Qiang <quic_bqiang@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20211129025613.21594-1-quic_bqiang@quicinc.com
-
-diff --git a/drivers/net/wireless/ath/ath11k/core.c b/drivers/net/wireless/ath/ath11k/core.c
-index dd1a1bb078c3..5f6bdee26f31 100644
---- a/drivers/net/wireless/ath/ath11k/core.c
-+++ b/drivers/net/wireless/ath/ath11k/core.c
-@@ -284,6 +284,59 @@ static const struct ath11k_hw_params ath11k_hw_params[] = {
- 			.max_fft_bins = 0,
- 		},
+diff --git a/block/blk-mq-tag.c b/block/blk-mq-tag.c
+index e55a6834c9a6..845f74e8dd7b 100644
+--- a/block/blk-mq-tag.c
++++ b/block/blk-mq-tag.c
+@@ -16,6 +16,21 @@
+ #include "blk-mq-sched.h"
+ #include "blk-mq-tag.h"
  
-+		.interface_modes = BIT(NL80211_IFTYPE_STATION) |
-+					BIT(NL80211_IFTYPE_AP),
-+		.supports_monitor = false,
-+		.supports_shadow_regs = true,
-+		.idle_ps = true,
-+		.supports_sta_ps = true,
-+		.cold_boot_calib = false,
-+		.supports_suspend = true,
-+		.hal_desc_sz = sizeof(struct hal_rx_desc_wcn6855),
-+		.fix_l1ss = false,
-+		.credit_flow = true,
-+		.max_tx_ring = DP_TCL_NUM_RING_MAX_QCA6390,
-+		.hal_params = &ath11k_hw_hal_params_qca6390,
-+		.supports_dynamic_smps_6ghz = false,
-+		.alloc_cacheable_memory = false,
-+		.wakeup_mhi = true,
-+	},
-+	{
-+		.name = "wcn6855 hw2.1",
-+		.hw_rev = ATH11K_HW_WCN6855_HW21,
-+		.fw = {
-+			.dir = "WCN6855/hw2.1",
-+			.board_size = 256 * 1024,
-+			.cal_offset = 128 * 1024,
-+		},
-+		.max_radios = 3,
-+		.bdf_addr = 0x4B0C0000,
-+		.hw_ops = &wcn6855_ops,
-+		.ring_mask = &ath11k_hw_ring_mask_qca6390,
-+		.internal_sleep_clock = true,
-+		.regs = &wcn6855_regs,
-+		.qmi_service_ins_id = ATH11K_QMI_WLFW_SERVICE_INS_ID_V01_QCA6390,
-+		.host_ce_config = ath11k_host_ce_config_qca6390,
-+		.ce_count = 9,
-+		.target_ce_config = ath11k_target_ce_config_wlan_qca6390,
-+		.target_ce_count = 9,
-+		.svc_to_ce_map = ath11k_target_service_to_ce_map_wlan_qca6390,
-+		.svc_to_ce_map_len = 14,
-+		.single_pdev_only = true,
-+		.rxdma1_enable = false,
-+		.num_rxmda_per_pdev = 2,
-+		.rx_mac_buf_ring = true,
-+		.vdev_start_delay = true,
-+		.htt_peer_map_v2 = false,
++/*
++ * Recalculate wakeup batch when tag is shared by hctx.
++ */
++static void blk_mq_update_wake_batch(struct blk_mq_tags *tags,
++		unsigned int users)
++{
++	if (!users)
++		return;
 +
-+		.spectral = {
-+			.fft_sz = 0,
-+			.fft_pad_sz = 0,
-+			.summary_pad_sz = 0,
-+			.fft_hdr_len = 0,
-+			.max_fft_bins = 0,
-+		},
++	sbitmap_queue_recalculate_wake_batch(&tags->bitmap_tags,
++			users);
++	sbitmap_queue_recalculate_wake_batch(&tags->breserved_tags,
++			users);
++}
 +
- 		.interface_modes = BIT(NL80211_IFTYPE_STATION) |
- 					BIT(NL80211_IFTYPE_AP),
- 		.supports_monitor = false,
-diff --git a/drivers/net/wireless/ath/ath11k/core.h b/drivers/net/wireless/ath/ath11k/core.h
-index 0103cfd0508d..1d13e6124693 100644
---- a/drivers/net/wireless/ath/ath11k/core.h
-+++ b/drivers/net/wireless/ath/ath11k/core.h
-@@ -117,6 +117,7 @@ enum ath11k_hw_rev {
- 	ATH11K_HW_IPQ6018_HW10,
- 	ATH11K_HW_QCN9074_HW10,
- 	ATH11K_HW_WCN6855_HW20,
-+	ATH11K_HW_WCN6855_HW21,
- };
+ /*
+  * If a previously inactive queue goes active, bump the active user count.
+  * We need to do this before try to allocate driver tag, then even if fail
+@@ -24,18 +39,26 @@
+  */
+ bool __blk_mq_tag_busy(struct blk_mq_hw_ctx *hctx)
+ {
++	unsigned int users;
++
+ 	if (blk_mq_is_shared_tags(hctx->flags)) {
+ 		struct request_queue *q = hctx->queue;
  
- enum ath11k_firmware_mode {
-diff --git a/drivers/net/wireless/ath/ath11k/mhi.c b/drivers/net/wireless/ath/ath11k/mhi.c
-index d0f94a785a59..9a8e61ca9964 100644
---- a/drivers/net/wireless/ath/ath11k/mhi.c
-+++ b/drivers/net/wireless/ath/ath11k/mhi.c
-@@ -366,6 +366,7 @@ int ath11k_mhi_register(struct ath11k_pci *ab_pci)
- 		break;
- 	case ATH11K_HW_QCA6390_HW20:
- 	case ATH11K_HW_WCN6855_HW20:
-+	case ATH11K_HW_WCN6855_HW21:
- 		ath11k_mhi_config = &ath11k_mhi_config_qca6390;
- 		break;
- 	default:
-diff --git a/drivers/net/wireless/ath/ath11k/pci.c b/drivers/net/wireless/ath/ath11k/pci.c
-index 1898b1a33960..0a2b2ba4ae07 100644
---- a/drivers/net/wireless/ath/ath11k/pci.c
-+++ b/drivers/net/wireless/ath/ath11k/pci.c
-@@ -26,7 +26,7 @@
- #define WINDOW_RANGE_MASK		GENMASK(18, 0)
+-		if (!test_bit(QUEUE_FLAG_HCTX_ACTIVE, &q->queue_flags) &&
+-		    !test_and_set_bit(QUEUE_FLAG_HCTX_ACTIVE, &q->queue_flags))
+-			atomic_inc(&hctx->tags->active_queues);
++		if (test_bit(QUEUE_FLAG_HCTX_ACTIVE, &q->queue_flags) ||
++		    test_and_set_bit(QUEUE_FLAG_HCTX_ACTIVE, &q->queue_flags)) {
++			return true;
++		}
+ 	} else {
+-		if (!test_bit(BLK_MQ_S_TAG_ACTIVE, &hctx->state) &&
+-		    !test_and_set_bit(BLK_MQ_S_TAG_ACTIVE, &hctx->state))
+-			atomic_inc(&hctx->tags->active_queues);
++		if (test_bit(BLK_MQ_S_TAG_ACTIVE, &hctx->state) ||
++		    test_and_set_bit(BLK_MQ_S_TAG_ACTIVE, &hctx->state)) {
++			return true;
++		}
+ 	}
  
- #define TCSR_SOC_HW_VERSION		0x0224
--#define TCSR_SOC_HW_VERSION_MAJOR_MASK	GENMASK(16, 8)
-+#define TCSR_SOC_HW_VERSION_MAJOR_MASK	GENMASK(11, 8)
- #define TCSR_SOC_HW_VERSION_MINOR_MASK	GENMASK(7, 0)
++	users = atomic_inc_return(&hctx->tags->active_queues);
++
++	blk_mq_update_wake_batch(hctx->tags, users);
++
+ 	return true;
+ }
  
- /* BAR0 + 4k is always accessible, and no
-@@ -1409,9 +1409,21 @@ static int ath11k_pci_probe(struct pci_dev *pdev,
- 					   &soc_hw_version_minor);
- 		switch (soc_hw_version_major) {
- 		case 2:
--			ab->hw_rev = ATH11K_HW_WCN6855_HW20;
-+			switch (soc_hw_version_minor) {
-+			case 0x00:
-+			case 0x01:
-+				ab->hw_rev = ATH11K_HW_WCN6855_HW20;
-+				break;
-+			case 0x10:
-+			case 0x11:
-+				ab->hw_rev = ATH11K_HW_WCN6855_HW21;
-+				break;
-+			default:
-+				goto unsupported_wcn6855_soc;
-+			}
- 			break;
- 		default:
-+unsupported_wcn6855_soc:
- 			dev_err(&pdev->dev, "Unsupported WCN6855 SOC hardware version: %d %d\n",
- 				soc_hw_version_major, soc_hw_version_minor);
- 			ret = -EOPNOTSUPP;
+@@ -56,6 +79,7 @@ void blk_mq_tag_wakeup_all(struct blk_mq_tags *tags, bool include_reserve)
+ void __blk_mq_tag_idle(struct blk_mq_hw_ctx *hctx)
+ {
+ 	struct blk_mq_tags *tags = hctx->tags;
++	unsigned int users;
+ 
+ 	if (blk_mq_is_shared_tags(hctx->flags)) {
+ 		struct request_queue *q = hctx->queue;
+@@ -68,7 +92,9 @@ void __blk_mq_tag_idle(struct blk_mq_hw_ctx *hctx)
+ 			return;
+ 	}
+ 
+-	atomic_dec(&tags->active_queues);
++	users = atomic_dec_return(&tags->active_queues);
++
++	blk_mq_update_wake_batch(tags, users);
+ 
+ 	blk_mq_tag_wakeup_all(tags, false);
+ }
+diff --git a/include/linux/sbitmap.h b/include/linux/sbitmap.h
+index fc0357a6e19b..95df357ec009 100644
+--- a/include/linux/sbitmap.h
++++ b/include/linux/sbitmap.h
+@@ -415,6 +415,17 @@ static inline void sbitmap_queue_free(struct sbitmap_queue *sbq)
+ 	sbitmap_free(&sbq->sb);
+ }
+ 
++/**
++ * sbitmap_queue_recalculate_wake_batch() - Recalculate wake batch
++ * @sbq: Bitmap queue to recalculate wake batch.
++ * @users: Number of shares.
++ *
++ * Like sbitmap_queue_update_wake_batch(), this will calculate wake batch
++ * by depth. This interface is for HCTX shared tags or queue shared tags.
++ */
++void sbitmap_queue_recalculate_wake_batch(struct sbitmap_queue *sbq,
++					    unsigned int users);
++
+ /**
+  * sbitmap_queue_resize() - Resize a &struct sbitmap_queue.
+  * @sbq: Bitmap queue to resize.
+diff --git a/lib/sbitmap.c b/lib/sbitmap.c
+index 2709ab825499..6220fa67fb7e 100644
+--- a/lib/sbitmap.c
++++ b/lib/sbitmap.c
+@@ -457,10 +457,9 @@ int sbitmap_queue_init_node(struct sbitmap_queue *sbq, unsigned int depth,
+ }
+ EXPORT_SYMBOL_GPL(sbitmap_queue_init_node);
+ 
+-static void sbitmap_queue_update_wake_batch(struct sbitmap_queue *sbq,
+-					    unsigned int depth)
++static inline void __sbitmap_queue_update_wake_batch(struct sbitmap_queue *sbq,
++					    unsigned int wake_batch)
+ {
+-	unsigned int wake_batch = sbq_calc_wake_batch(sbq, depth);
+ 	int i;
+ 
+ 	if (sbq->wake_batch != wake_batch) {
+@@ -476,6 +475,26 @@ static void sbitmap_queue_update_wake_batch(struct sbitmap_queue *sbq,
+ 	}
+ }
+ 
++static void sbitmap_queue_update_wake_batch(struct sbitmap_queue *sbq,
++					    unsigned int depth)
++{
++	unsigned int wake_batch;
++
++	wake_batch = sbq_calc_wake_batch(sbq, depth);
++	__sbitmap_queue_update_wake_batch(sbq, wake_batch);
++}
++
++void sbitmap_queue_recalculate_wake_batch(struct sbitmap_queue *sbq,
++					    unsigned int users)
++{
++	unsigned int wake_batch;
++
++	wake_batch = clamp_val((sbq->sb.depth + users - 1) /
++			users, 4, SBQ_WAKE_BATCH);
++	__sbitmap_queue_update_wake_batch(sbq, wake_batch);
++}
++EXPORT_SYMBOL_GPL(sbitmap_queue_recalculate_wake_batch);
++
+ void sbitmap_queue_resize(struct sbitmap_queue *sbq, unsigned int depth)
+ {
+ 	sbitmap_queue_update_wake_batch(sbq, depth);
 
