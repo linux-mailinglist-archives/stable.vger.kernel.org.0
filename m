@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88AAD49904D
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75AC0498F51
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:52:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359349AbiAXT7e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:59:34 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:51530 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358135AbiAXTyc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:54:32 -0500
+        id S1345706AbiAXTv7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:51:59 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:50302 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1351367AbiAXT07 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:26:59 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 31AD060B88;
-        Mon, 24 Jan 2022 19:54:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F783C340E5;
-        Mon, 24 Jan 2022 19:54:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1FD60B8123F;
+        Mon, 24 Jan 2022 19:26:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42889C340E5;
+        Mon, 24 Jan 2022 19:26:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054068;
-        bh=trFRVxPpwQP5j5PpHCK0jByQ6eNg8p9rOMd216bDq5o=;
+        s=korg; t=1643052413;
+        bh=qne+I7FLNYBtN/84TB3R3SwarzcOPorxaSIPNuVN8VA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DpKVVVd7h48U6EEB02P20CG4+cFiLyz4IomYwKjGffx0UI8Zbz1JAIlgQIpVMFcAE
-         Tkxbs3CKYMRoWNL76O9sCkgwrgxceYzg7feUebOOSG8H2+2kFOIhfp5HZAxEDA15t3
-         4VyfAmpMlN55OeugKEyyYA5oNgd06bebwsCGQskY=
+        b=yTsU0/sb/71i7om2RPQYuVI/s7vfCalvk02l7z7Hox2PNpx/IFfRzgGE97o4RtM2F
+         sBCwc8Ie4YEZosGlPtuQcEPnnihTbwhlvpTGiCADnbiAXPNfjnQYCX0InG856L9xAU
+         L+ZUsPrtq24gl82adLDn8eT0ivwCAPxt6CSkNQeI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avihai Horon <avihaih@nvidia.com>,
-        Mark Zhang <markzhang@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 268/563] RDMA/core: Let ib_find_gid() continue search even after empty entry
-Date:   Mon, 24 Jan 2022 19:40:33 +0100
-Message-Id: <20220124184033.719964552@linuxfoundation.org>
+Subject: [PATCH 5.4 050/320] media: dmxdev: fix UAF when dvb_register_device() fails
+Date:   Mon, 24 Jan 2022 19:40:34 +0100
+Message-Id: <20220124183955.437735171@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,45 +46,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Avihai Horon <avihaih@nvidia.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 483d805191a23191f8294bbf9b4e94836f5d92e4 ]
+[ Upstream commit ab599eb11882f834951c436cc080c3455ba32b9b ]
 
-Currently, ib_find_gid() will stop searching after encountering the first
-empty GID table entry. This behavior is wrong since neither IB nor RoCE
-spec enforce tightly packed GID tables.
+I got a use-after-free report:
 
-For example, when a valid GID entry exists at index N, and if a GID entry
-is empty at index N-1, ib_find_gid() will fail to find the valid entry.
+dvbdev: dvb_register_device: failed to create device dvb1.dvr0 (-12)
+...
+==================================================================
+BUG: KASAN: use-after-free in dvb_dmxdev_release+0xce/0x2f0
+...
+Call Trace:
+ dump_stack_lvl+0x6c/0x8b
+ print_address_description.constprop.0+0x48/0x70
+ kasan_report.cold+0x82/0xdb
+ __asan_load4+0x6b/0x90
+ dvb_dmxdev_release+0xce/0x2f0
+...
+Allocated by task 7666:
+ kasan_save_stack+0x23/0x50
+ __kasan_kmalloc+0x83/0xa0
+ kmem_cache_alloc_trace+0x22e/0x470
+ dvb_register_device+0x12f/0x980
+ dvb_dmxdev_init+0x1f3/0x230
+...
+Freed by task 7666:
+ kasan_save_stack+0x23/0x50
+ kasan_set_track+0x20/0x30
+ kasan_set_free_info+0x24/0x40
+ __kasan_slab_free+0xf2/0x130
+ kfree+0xd1/0x5c0
+ dvb_register_device.cold+0x1ac/0x1fa
+ dvb_dmxdev_init+0x1f3/0x230
+...
 
-Fix it by making ib_find_gid() continue searching even after encountering
-missing entries.
+When dvb_register_device() in dvb_dmxdev_init() fails, dvb_dmxdev_init()
+does not return a failure, and the memory pointed to by dvbdev or
+dvr_dvbdev is invalid at this point. If they are used subsequently, it
+will result in UFA or null-ptr-deref.
 
-Fixes: 5eb620c81ce3 ("IB/core: Add helpers for uncached GID and P_Key searches")
-Link: https://lore.kernel.org/r/e55d331b96cecfc2cf19803d16e7109ea966882d.1639055490.git.leonro@nvidia.com
-Signed-off-by: Avihai Horon <avihaih@nvidia.com>
-Reviewed-by: Mark Zhang <markzhang@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+If dvb_register_device() in dvb_dmxdev_init() fails, fix the bug by making
+dvb_dmxdev_init() return an error as well.
+
+Link: https://lore.kernel.org/linux-media/20211015085741.1203283-1-wanghai38@huawei.com
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/device.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/dvb-core/dmxdev.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/infiniband/core/device.c b/drivers/infiniband/core/device.c
-index 76b9c436edcd2..aa526c5ca0cf3 100644
---- a/drivers/infiniband/core/device.c
-+++ b/drivers/infiniband/core/device.c
-@@ -2411,7 +2411,8 @@ int ib_find_gid(struct ib_device *device, union ib_gid *gid,
- 		     ++i) {
- 			ret = rdma_query_gid(device, port, i, &tmp_gid);
- 			if (ret)
--				return ret;
-+				continue;
+diff --git a/drivers/media/dvb-core/dmxdev.c b/drivers/media/dvb-core/dmxdev.c
+index f14a872d12687..e58cb8434dafe 100644
+--- a/drivers/media/dvb-core/dmxdev.c
++++ b/drivers/media/dvb-core/dmxdev.c
+@@ -1413,7 +1413,7 @@ static const struct dvb_device dvbdev_dvr = {
+ };
+ int dvb_dmxdev_init(struct dmxdev *dmxdev, struct dvb_adapter *dvb_adapter)
+ {
+-	int i;
++	int i, ret;
+ 
+ 	if (dmxdev->demux->open(dmxdev->demux) < 0)
+ 		return -EUSERS;
+@@ -1432,14 +1432,26 @@ int dvb_dmxdev_init(struct dmxdev *dmxdev, struct dvb_adapter *dvb_adapter)
+ 					    DMXDEV_STATE_FREE);
+ 	}
+ 
+-	dvb_register_device(dvb_adapter, &dmxdev->dvbdev, &dvbdev_demux, dmxdev,
++	ret = dvb_register_device(dvb_adapter, &dmxdev->dvbdev, &dvbdev_demux, dmxdev,
+ 			    DVB_DEVICE_DEMUX, dmxdev->filternum);
+-	dvb_register_device(dvb_adapter, &dmxdev->dvr_dvbdev, &dvbdev_dvr,
++	if (ret < 0)
++		goto err_register_dvbdev;
 +
- 			if (!memcmp(&tmp_gid, gid, sizeof *gid)) {
- 				*port_num = port;
- 				if (index)
++	ret = dvb_register_device(dvb_adapter, &dmxdev->dvr_dvbdev, &dvbdev_dvr,
+ 			    dmxdev, DVB_DEVICE_DVR, dmxdev->filternum);
++	if (ret < 0)
++		goto err_register_dvr_dvbdev;
+ 
+ 	dvb_ringbuffer_init(&dmxdev->dvr_buffer, NULL, 8192);
+ 
+ 	return 0;
++
++err_register_dvr_dvbdev:
++	dvb_unregister_device(dmxdev->dvbdev);
++err_register_dvbdev:
++	vfree(dmxdev->filter);
++	dmxdev->filter = NULL;
++	return ret;
+ }
+ 
+ EXPORT_SYMBOL(dvb_dmxdev_init);
 -- 
 2.34.1
 
