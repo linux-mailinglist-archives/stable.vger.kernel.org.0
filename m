@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DECE4499532
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:09:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 270BF499967
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:44:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1392413AbiAXUvK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:51:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41682 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390172AbiAXUpD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:45:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 159FEC0617BD;
-        Mon, 24 Jan 2022 11:54:42 -0800 (PST)
+        id S1455198AbiAXVez (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:34:55 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:46448 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1452467AbiAXVZk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:25:40 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AAC876090A;
-        Mon, 24 Jan 2022 19:54:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F42BC340E5;
-        Mon, 24 Jan 2022 19:54:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 29DA6614B4;
+        Mon, 24 Jan 2022 21:25:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7115C340E4;
+        Mon, 24 Jan 2022 21:25:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054081;
-        bh=Kdgl4eAeB8QZQJOvxda19BG6ULeDMmWdoInfnJAQYOg=;
+        s=korg; t=1643059539;
+        bh=Z9z2k7+ea3Dsq7vTSGa3vYhfE6fXQi4kHtwHMBIPnx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T5DSkxv14Dv/vA6fKbRnHS8g8fsNiYVQL05IAbrSSa+vdSK6wm/Jtr/2J07FO2zjo
-         N2kJtpbtIBTKrB2AzKfwMz9Mss23SRXt6i7FmJG7haWma/lhRprF+4Xj6rYKQmQasr
-         +Klvnf+fHpUZYbFraVqvlsCpSAE0ZSTGvf7VX+NU=
+        b=VXamC/nZmF05uPxeTdFdWAT4J5vAeAK6Bp4fixSIsjISIzKPGerc7P/BHWbs3uEtn
+         Hg9+Wp61Ttyy91dVdlpnDtFF+dwq6vMGjDMEfYWZJ3W98c356CIkLe+xQLQ9txDKbJ
+         LN/ctKYQSCGBBa1owhCJAKae8Uy2+RkNzuhASr1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Frank Rowand <frank.rowand@sony.com>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 272/563] of: unittest: 64 bit dma address test requires arch support
+        stable@vger.kernel.org, Felix Kuehling <Felix.Kuehling@amd.com>,
+        Zhou Qingyang <zhou1615@umn.edu>,
+        Philip Yang <Philip.Yang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0648/1039] drm/amdkfd: Fix error handling in svm_range_add
 Date:   Mon, 24 Jan 2022 19:40:37 +0100
-Message-Id: <20220124184033.844760247@linuxfoundation.org>
+Message-Id: <20220124184147.136072350@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,38 +47,237 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Rowand <frank.rowand@sony.com>
+From: Felix Kuehling <Felix.Kuehling@amd.com>
 
-[ Upstream commit 9fd4cf5d3571b27d746b8ead494a3f051485b679 ]
+[ Upstream commit 726be40607264b180a2b336c81e1dcff941de618 ]
 
-If an architecture does not support 64 bit dma addresses then testing
-for an expected dma address >= 0x100000000 will fail.
+Add null-pointer check after the last svm_range_new call. This was
+originally reported by Zhou Qingyang <zhou1615@umn.edu> based on a
+static analyzer.
 
-Fixes: e0d072782c73 ("dma-mapping: introduce DMA range map, supplanting dma_pfn_offset")
-Signed-off-by: Frank Rowand <frank.rowand@sony.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20211212221852.233295-1-frowand.list@gmail.com
+To avoid duplicating the unwinding code from svm_range_handle_overlap,
+I merged the two functions into one.
+
+Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Cc: Zhou Qingyang <zhou1615@umn.edu>
+Reviewed-by: Philip Yang <Philip.Yang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/unittest.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdkfd/kfd_svm.c | 138 ++++++++++-----------------
+ 1 file changed, 49 insertions(+), 89 deletions(-)
 
-diff --git a/drivers/of/unittest.c b/drivers/of/unittest.c
-index a5c4c77b6f3e2..5407bbdb64395 100644
---- a/drivers/of/unittest.c
-+++ b/drivers/of/unittest.c
-@@ -941,8 +941,9 @@ static void __init of_unittest_parse_dma_ranges(void)
- {
- 	of_unittest_dma_ranges_one("/testcase-data/address-tests/device@70000000",
- 		0x0, 0x20000000);
--	of_unittest_dma_ranges_one("/testcase-data/address-tests/bus@80000000/device@1000",
--		0x100000000, 0x20000000);
-+	if (IS_ENABLED(CONFIG_ARCH_DMA_ADDR_T_64BIT))
-+		of_unittest_dma_ranges_one("/testcase-data/address-tests/bus@80000000/device@1000",
-+			0x100000000, 0x20000000);
- 	of_unittest_dma_ranges_one("/testcase-data/address-tests/pci@90000000",
- 		0x80000000, 0x20000000);
+diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
+index 3cb4681c5f539..c0b8f4ff80b8a 100644
+--- a/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
++++ b/drivers/gpu/drm/amd/amdkfd/kfd_svm.c
+@@ -943,7 +943,7 @@ svm_range_split(struct svm_range *prange, uint64_t start, uint64_t last,
  }
+ 
+ static int
+-svm_range_split_tail(struct svm_range *prange, struct svm_range *new,
++svm_range_split_tail(struct svm_range *prange,
+ 		     uint64_t new_last, struct list_head *insert_list)
+ {
+ 	struct svm_range *tail;
+@@ -955,7 +955,7 @@ svm_range_split_tail(struct svm_range *prange, struct svm_range *new,
+ }
+ 
+ static int
+-svm_range_split_head(struct svm_range *prange, struct svm_range *new,
++svm_range_split_head(struct svm_range *prange,
+ 		     uint64_t new_start, struct list_head *insert_list)
+ {
+ 	struct svm_range *head;
+@@ -1764,49 +1764,54 @@ static struct svm_range *svm_range_clone(struct svm_range *old)
+ }
+ 
+ /**
+- * svm_range_handle_overlap - split overlap ranges
+- * @svms: svm range list header
+- * @new: range added with this attributes
+- * @start: range added start address, in pages
+- * @last: range last address, in pages
+- * @update_list: output, the ranges attributes are updated. For set_attr, this
+- *               will do validation and map to GPUs. For unmap, this will be
+- *               removed and unmap from GPUs
+- * @insert_list: output, the ranges will be inserted into svms, attributes are
+- *               not changes. For set_attr, this will add into svms.
+- * @remove_list:output, the ranges will be removed from svms
+- * @left: the remaining range after overlap, For set_attr, this will be added
+- *        as new range.
++ * svm_range_add - add svm range and handle overlap
++ * @p: the range add to this process svms
++ * @start: page size aligned
++ * @size: page size aligned
++ * @nattr: number of attributes
++ * @attrs: array of attributes
++ * @update_list: output, the ranges need validate and update GPU mapping
++ * @insert_list: output, the ranges need insert to svms
++ * @remove_list: output, the ranges are replaced and need remove from svms
+  *
+- * Total have 5 overlap cases.
++ * Check if the virtual address range has overlap with any existing ranges,
++ * split partly overlapping ranges and add new ranges in the gaps. All changes
++ * should be applied to the range_list and interval tree transactionally. If
++ * any range split or allocation fails, the entire update fails. Therefore any
++ * existing overlapping svm_ranges are cloned and the original svm_ranges left
++ * unchanged.
+  *
+- * This function handles overlap of an address interval with existing
+- * struct svm_ranges for applying new attributes. This may require
+- * splitting existing struct svm_ranges. All changes should be applied to
+- * the range_list and interval tree transactionally. If any split operation
+- * fails, the entire update fails. Therefore the existing overlapping
+- * svm_ranges are cloned and the original svm_ranges left unchanged. If the
+- * transaction succeeds, the modified clones are added and the originals
+- * freed. Otherwise the clones are removed and the old svm_ranges remain.
++ * If the transaction succeeds, the caller can update and insert clones and
++ * new ranges, then free the originals.
+  *
+- * Context: The caller must hold svms->lock
++ * Otherwise the caller can free the clones and new ranges, while the old
++ * svm_ranges remain unchanged.
++ *
++ * Context: Process context, caller must hold svms->lock
++ *
++ * Return:
++ * 0 - OK, otherwise error code
+  */
+ static int
+-svm_range_handle_overlap(struct svm_range_list *svms, struct svm_range *new,
+-			 unsigned long start, unsigned long last,
+-			 struct list_head *update_list,
+-			 struct list_head *insert_list,
+-			 struct list_head *remove_list,
+-			 unsigned long *left)
++svm_range_add(struct kfd_process *p, uint64_t start, uint64_t size,
++	      uint32_t nattr, struct kfd_ioctl_svm_attribute *attrs,
++	      struct list_head *update_list, struct list_head *insert_list,
++	      struct list_head *remove_list)
+ {
++	unsigned long last = start + size - 1UL;
++	struct svm_range_list *svms = &p->svms;
+ 	struct interval_tree_node *node;
++	struct svm_range new = {0};
+ 	struct svm_range *prange;
+ 	struct svm_range *tmp;
+ 	int r = 0;
+ 
++	pr_debug("svms 0x%p [0x%llx 0x%lx]\n", &p->svms, start, last);
++
+ 	INIT_LIST_HEAD(update_list);
+ 	INIT_LIST_HEAD(insert_list);
+ 	INIT_LIST_HEAD(remove_list);
++	svm_range_apply_attrs(p, &new, nattr, attrs);
+ 
+ 	node = interval_tree_iter_first(&svms->objects, start, last);
+ 	while (node) {
+@@ -1834,14 +1839,14 @@ svm_range_handle_overlap(struct svm_range_list *svms, struct svm_range *new,
+ 
+ 			if (node->start < start) {
+ 				pr_debug("change old range start\n");
+-				r = svm_range_split_head(prange, new, start,
++				r = svm_range_split_head(prange, start,
+ 							 insert_list);
+ 				if (r)
+ 					goto out;
+ 			}
+ 			if (node->last > last) {
+ 				pr_debug("change old range last\n");
+-				r = svm_range_split_tail(prange, new, last,
++				r = svm_range_split_tail(prange, last,
+ 							 insert_list);
+ 				if (r)
+ 					goto out;
+@@ -1853,7 +1858,7 @@ svm_range_handle_overlap(struct svm_range_list *svms, struct svm_range *new,
+ 			prange = old;
+ 		}
+ 
+-		if (!svm_range_is_same_attrs(prange, new))
++		if (!svm_range_is_same_attrs(prange, &new))
+ 			list_add(&prange->update_list, update_list);
+ 
+ 		/* insert a new node if needed */
+@@ -1873,8 +1878,16 @@ svm_range_handle_overlap(struct svm_range_list *svms, struct svm_range *new,
+ 		start = next_start;
+ 	}
+ 
+-	if (left && start <= last)
+-		*left = last - start + 1;
++	/* add a final range at the end if needed */
++	if (start <= last) {
++		prange = svm_range_new(svms, start, last);
++		if (!prange) {
++			r = -ENOMEM;
++			goto out;
++		}
++		list_add(&prange->insert_list, insert_list);
++		list_add(&prange->update_list, update_list);
++	}
+ 
+ out:
+ 	if (r)
+@@ -2894,59 +2907,6 @@ svm_range_is_valid(struct kfd_process *p, uint64_t start, uint64_t size)
+ 				  NULL);
+ }
+ 
+-/**
+- * svm_range_add - add svm range and handle overlap
+- * @p: the range add to this process svms
+- * @start: page size aligned
+- * @size: page size aligned
+- * @nattr: number of attributes
+- * @attrs: array of attributes
+- * @update_list: output, the ranges need validate and update GPU mapping
+- * @insert_list: output, the ranges need insert to svms
+- * @remove_list: output, the ranges are replaced and need remove from svms
+- *
+- * Check if the virtual address range has overlap with the registered ranges,
+- * split the overlapped range, copy and adjust pages address and vram nodes in
+- * old and new ranges.
+- *
+- * Context: Process context, caller must hold svms->lock
+- *
+- * Return:
+- * 0 - OK, otherwise error code
+- */
+-static int
+-svm_range_add(struct kfd_process *p, uint64_t start, uint64_t size,
+-	      uint32_t nattr, struct kfd_ioctl_svm_attribute *attrs,
+-	      struct list_head *update_list, struct list_head *insert_list,
+-	      struct list_head *remove_list)
+-{
+-	uint64_t last = start + size - 1UL;
+-	struct svm_range_list *svms;
+-	struct svm_range new = {0};
+-	struct svm_range *prange;
+-	unsigned long left = 0;
+-	int r = 0;
+-
+-	pr_debug("svms 0x%p [0x%llx 0x%llx]\n", &p->svms, start, last);
+-
+-	svm_range_apply_attrs(p, &new, nattr, attrs);
+-
+-	svms = &p->svms;
+-
+-	r = svm_range_handle_overlap(svms, &new, start, last, update_list,
+-				     insert_list, remove_list, &left);
+-	if (r)
+-		return r;
+-
+-	if (left) {
+-		prange = svm_range_new(svms, last - left + 1, last);
+-		list_add(&prange->insert_list, insert_list);
+-		list_add(&prange->update_list, update_list);
+-	}
+-
+-	return 0;
+-}
+-
+ /**
+  * svm_range_best_prefetch_location - decide the best prefetch location
+  * @prange: svm range structure
 -- 
 2.34.1
 
