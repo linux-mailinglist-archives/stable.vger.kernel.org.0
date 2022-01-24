@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42C0849A43B
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:08:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FA5E49A44C
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:09:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2371281AbiAYAHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:07:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58772 "EHLO
+        id S2371313AbiAYAHc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:07:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2366246AbiAXXwd (ORCPT
+        with ESMTP id S2366247AbiAXXwd (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:52:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E1B0C047CFC;
-        Mon, 24 Jan 2022 13:45:31 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67A39C047CFE;
+        Mon, 24 Jan 2022 13:45:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C68B60917;
-        Mon, 24 Jan 2022 21:45:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 243C2C340E4;
-        Mon, 24 Jan 2022 21:45:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 24814B8119E;
+        Mon, 24 Jan 2022 21:45:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46C03C340E4;
+        Mon, 24 Jan 2022 21:45:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060730;
-        bh=Fr/LKWtC4UyTPQgHsHi1fEAW/E12tFtoUubYw4q27BA=;
+        s=korg; t=1643060736;
+        bh=b9l0gqvoTDt6A/0QvDZYMLVha/WUwb9rjfjzdWEXvYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HO/slpzrqBNDA/9Zn8+FjhamuHxH0vSK5IMXIv2W4xUARQCFvc4A/NHOcuztWcNph
-         NioWHizEP/8QSJguwrtULXW6/FVZdBBk/w2CsaV6aEeZp7QsPbVzTgX8G+60PsIGIO
-         8oWFJoZ3SwRShgIsKuMbdhwoLmMwBtddl0gs/1ac=
+        b=TCWDIm27rgeqmYEuIs4j5I57MelnxAAxMujpSo9DvFgoU6jMi85H5xGHkEu+FPiMR
+         4JHhGC6R99mu7TXD9v0+8uaz464nuGsLOT2Agv6H1Qsh5u3WrraLSr7RCBe1C2YBcj
+         oLwzaBdE36NXoaOSm2sRCWuIEIFgCjRyZ06DbVn8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Rix <trix@redhat.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?=E7=85=A7=E5=B1=B1=E5=91=A8=E4=B8=80=E9=83=8E?= 
+        <teruyama@springboard-inc.jp>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.16 1016/1039] net: ethernet: mtk_eth_soc: fix error checking in mtk_mac_config()
-Date:   Mon, 24 Jan 2022 19:46:45 +0100
-Message-Id: <20220124184159.451000912@linuxfoundation.org>
+Subject: [PATCH 5.16 1018/1039] net: sfp: fix high power modules without diagnostic monitoring
+Date:   Mon, 24 Jan 2022 19:46:47 +0100
+Message-Id: <20220124184159.511708556@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -47,37 +50,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-commit 214b3369ab9b0a6f28d6c970220c209417edbc65 upstream.
+commit 5765cee119bf5a36c94d20eceb37c445508934be upstream.
 
-Clang static analysis reports this problem
-mtk_eth_soc.c:394:7: warning: Branch condition evaluates
-  to a garbage value
-                if (err)
-                    ^~~
+Commit 7cfa9c92d0a3 ("net: sfp: avoid power switch on address-change
+modules") unintetionally changed the semantics for high power modules
+without the digital diagnostics monitoring. We repeatedly attempt to
+read the power status from the non-existing 0xa2 address in a futile
+hope this failure is temporary:
 
-err is not initialized and only conditionally set.
-So intitialize err.
+[    8.856051] sfp sfp-eth3: module NTT              0000000000000000 rev 0000  sn 0000000000000000 dc 160408
+[    8.865843] mvpp2 f4000000.ethernet eth3: switched to inband/1000base-x link mode
+[    8.873469] sfp sfp-eth3: Failed to read EEPROM: -5
+[    8.983251] sfp sfp-eth3: Failed to read EEPROM: -5
+[    9.103250] sfp sfp-eth3: Failed to read EEPROM: -5
 
-Fixes: 7e538372694b ("net: ethernet: mediatek: Re-add support SGMII")
-Signed-off-by: Tom Rix <trix@redhat.com>
+We previosuly assumed such modules were powered up in the correct mode,
+continuing without further configuration as long as the required power
+class was supported by the host.
+
+Restore this behaviour, while preserving the intent of subsequent
+patches to avoid the "Address Change Sequence not supported" warning
+if we are not going to be accessing the DDM address.
+
+Fixes: 7cfa9c92d0a3 ("net: sfp: avoid power switch on address-change modules")
+Reported-by: 照山周一郎 <teruyama@springboard-inc.jp>
+Tested-by: 照山周一郎 <teruyama@springboard-inc.jp>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mediatek/mtk_eth_soc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/phy/sfp.c |   25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -224,7 +224,7 @@ static void mtk_mac_config(struct phylin
- 					   phylink_config);
- 	struct mtk_eth *eth = mac->hw;
- 	u32 mcr_cur, mcr_new, sid, i;
--	int val, ge_mode, err;
-+	int val, ge_mode, err = 0;
+--- a/drivers/net/phy/sfp.c
++++ b/drivers/net/phy/sfp.c
+@@ -1641,17 +1641,20 @@ static int sfp_sm_probe_for_phy(struct s
+ static int sfp_module_parse_power(struct sfp *sfp)
+ {
+ 	u32 power_mW = 1000;
++	bool supports_a2;
  
- 	/* MT76x8 has no hardware settings between for the MAC */
- 	if (!MTK_HAS_CAPS(eth->soc->caps, MTK_SOC_MT7628) &&
+ 	if (sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_POWER_DECL))
+ 		power_mW = 1500;
+ 	if (sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_HIGH_POWER_LEVEL))
+ 		power_mW = 2000;
+ 
++	supports_a2 = sfp->id.ext.sff8472_compliance !=
++				SFP_SFF8472_COMPLIANCE_NONE ||
++		      sfp->id.ext.diagmon & SFP_DIAGMON_DDM;
++
+ 	if (power_mW > sfp->max_power_mW) {
+ 		/* Module power specification exceeds the allowed maximum. */
+-		if (sfp->id.ext.sff8472_compliance ==
+-			SFP_SFF8472_COMPLIANCE_NONE &&
+-		    !(sfp->id.ext.diagmon & SFP_DIAGMON_DDM)) {
++		if (!supports_a2) {
+ 			/* The module appears not to implement bus address
+ 			 * 0xa2, so assume that the module powers up in the
+ 			 * indicated mode.
+@@ -1668,11 +1671,25 @@ static int sfp_module_parse_power(struct
+ 		}
+ 	}
+ 
++	if (power_mW <= 1000) {
++		/* Modules below 1W do not require a power change sequence */
++		sfp->module_power_mW = power_mW;
++		return 0;
++	}
++
++	if (!supports_a2) {
++		/* The module power level is below the host maximum and the
++		 * module appears not to implement bus address 0xa2, so assume
++		 * that the module powers up in the indicated mode.
++		 */
++		return 0;
++	}
++
+ 	/* If the module requires a higher power mode, but also requires
+ 	 * an address change sequence, warn the user that the module may
+ 	 * not be functional.
+ 	 */
+-	if (sfp->id.ext.diagmon & SFP_DIAGMON_ADDRMODE && power_mW > 1000) {
++	if (sfp->id.ext.diagmon & SFP_DIAGMON_ADDRMODE) {
+ 		dev_warn(sfp->dev,
+ 			 "Address Change Sequence not supported but module requires %u.%uW, module may not be functional\n",
+ 			 power_mW / 1000, (power_mW / 100) % 10);
 
 
