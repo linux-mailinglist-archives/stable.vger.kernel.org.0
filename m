@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07060498896
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:48:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87BF44989E5
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:59:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245276AbiAXSs2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:48:28 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:47378 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245261AbiAXSs1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:48:27 -0500
+        id S1343553AbiAXS7F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:59:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44174 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1343568AbiAXS5F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:57:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 331D7C061759;
+        Mon, 24 Jan 2022 10:55:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 50590614CF;
-        Mon, 24 Jan 2022 18:48:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13C07C340E5;
-        Mon, 24 Jan 2022 18:48:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C702E61509;
+        Mon, 24 Jan 2022 18:55:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B2F4C340E5;
+        Mon, 24 Jan 2022 18:55:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050106;
-        bh=nMY3jNJlD6R1fXSSHrV1arx8jCTkhdTfQMrJ4L7TSn8=;
+        s=korg; t=1643050511;
+        bh=qAKyD/fvJ7v//yJ2hNYiXSdEGeERP8oQyMU7qc6xpG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J4di5Kff7FxG3x/j90L8bFKSceSZER39GPFEmm4tmDL6ZVF8CBlj5KVRGb6qhlKgN
-         sAx/mA3lJkDYoZXyKF24XYZ9g1O9X5KvGkSfhsGEpE/j0kllWgENc71gAl/lfM973g
-         Xsye0Zi4GuOS4o3aiSAwiSU2ExeV5bOiipm/TjXA=
+        b=qj5r8VgBucjV9A9U5ciASlC0KsRaOkI172OpLnXETypxg2Q3ubMQqU/tWLkgPtUwD
+         CpiQNE8VsdmIig8BBMxG36OR1SyH4jRnquHbr5FbMlXXLV3bWAU4ka67HXEF+Xbl3l
+         2WAuvZ7ovovcQxvubnEkqMtaKbxCZNTZqZm7kzjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        syzbot+3ae6a2b06f131ab9849f@syzkaller.appspotmail.com
-Subject: [PATCH 4.4 003/114] USB: Fix "slab-out-of-bounds Write" bug in usb_hcd_poll_rh_status
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>
+Subject: [PATCH 4.9 008/157] random: fix data race on crng init time
 Date:   Mon, 24 Jan 2022 19:41:38 +0100
-Message-Id: <20220124183927.207781595@linuxfoundation.org>
+Message-Id: <20220124183933.050687345@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
-References: <20220124183927.095545464@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,65 +48,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 1d7d4c07932e04355d6e6528d44a2f2c9e354346 upstream.
+commit 009ba8568be497c640cab7571f7bfd18345d7b24 upstream.
 
-When the USB core code for getting root-hub status reports was
-originally written, it was assumed that the hub driver would be its
-only caller.  But this isn't true now; user programs can use usbfs to
-communicate with root hubs and get status reports.  When they do this,
-they may use a transfer_buffer that is smaller than the data returned
-by the HCD, which will lead to a buffer overflow error when
-usb_hcd_poll_rh_status() tries to store the status data.  This was
-discovered by syzbot:
+_extract_crng() does plain loads of crng->init_time and
+crng_global_init_time, which causes undefined behavior if
+crng_reseed() and RNDRESEEDCRNG modify these corrently.
 
-BUG: KASAN: slab-out-of-bounds in memcpy include/linux/fortify-string.h:225 [inline]
-BUG: KASAN: slab-out-of-bounds in usb_hcd_poll_rh_status+0x5f4/0x780 drivers/usb/core/hcd.c:776
-Write of size 2 at addr ffff88801da403c0 by task syz-executor133/4062
+Use READ_ONCE() and WRITE_ONCE() to make the behavior defined.
 
-This patch fixes the bug by reducing the amount of status data if it
-won't fit in the transfer_buffer.  If some data gets discarded then
-the URB's completion status is set to -EOVERFLOW rather than 0, to let
-the user know what happened.
+Don't fix the race on crng->init_time by protecting it with crng->lock,
+since it's not a problem for duplicate reseedings to occur.  I.e., the
+lockless access with READ_ONCE() is fine.
 
-Reported-and-tested-by: syzbot+3ae6a2b06f131ab9849f@syzkaller.appspotmail.com
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/Yc+3UIQJ2STbxNua@rowland.harvard.edu
+Fixes: d848e5f8e1eb ("random: add new ioctl RNDRESEEDCRNG")
+Fixes: e192be9d9a30 ("random: replace non-blocking pool with a Chacha20-based CRNG")
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Acked-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hcd.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/char/random.c |   17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/core/hcd.c
-+++ b/drivers/usb/core/hcd.c
-@@ -731,6 +731,7 @@ void usb_hcd_poll_rh_status(struct usb_h
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -908,7 +908,7 @@ static void crng_reseed(struct crng_stat
+ 		crng->state[i+4] ^= buf.key[i] ^ rv;
+ 	}
+ 	memzero_explicit(&buf, sizeof(buf));
+-	crng->init_time = jiffies;
++	WRITE_ONCE(crng->init_time, jiffies);
+ 	if (crng == &primary_crng && crng_init < 2) {
+ 		numa_crng_init();
+ 		crng_init = 2;
+@@ -946,12 +946,15 @@ static inline void crng_wait_ready(void)
+ static void _extract_crng(struct crng_state *crng,
+ 			  __u8 out[CHACHA20_BLOCK_SIZE])
  {
- 	struct urb	*urb;
- 	int		length;
-+	int		status;
- 	unsigned long	flags;
- 	char		buffer[6];	/* Any root hubs with > 31 ports? */
+-	unsigned long v, flags;
++	unsigned long v, flags, init_time;
  
-@@ -748,11 +749,17 @@ void usb_hcd_poll_rh_status(struct usb_h
- 		if (urb) {
- 			clear_bit(HCD_FLAG_POLL_PENDING, &hcd->flags);
- 			hcd->status_urb = NULL;
-+			if (urb->transfer_buffer_length >= length) {
-+				status = 0;
-+			} else {
-+				status = -EOVERFLOW;
-+				length = urb->transfer_buffer_length;
-+			}
- 			urb->actual_length = length;
- 			memcpy(urb->transfer_buffer, buffer, length);
- 
- 			usb_hcd_unlink_urb_from_ep(hcd, urb);
--			usb_hcd_giveback_urb(hcd, urb, 0);
-+			usb_hcd_giveback_urb(hcd, urb, status);
- 		} else {
- 			length = 0;
- 			set_bit(HCD_FLAG_POLL_PENDING, &hcd->flags);
+-	if (crng_ready() &&
+-	    (time_after(crng_global_init_time, crng->init_time) ||
+-	     time_after(jiffies, crng->init_time + CRNG_RESEED_INTERVAL)))
+-		crng_reseed(crng, crng == &primary_crng ? &input_pool : NULL);
++	if (crng_ready()) {
++		init_time = READ_ONCE(crng->init_time);
++		if (time_after(READ_ONCE(crng_global_init_time), init_time) ||
++		    time_after(jiffies, init_time + CRNG_RESEED_INTERVAL))
++			crng_reseed(crng, crng == &primary_crng ?
++				    &input_pool : NULL);
++	}
+ 	spin_lock_irqsave(&crng->lock, flags);
+ 	if (arch_get_random_long(&v))
+ 		crng->state[14] ^= v;
+@@ -1916,7 +1919,7 @@ static long random_ioctl(struct file *f,
+ 		if (crng_init < 2)
+ 			return -ENODATA;
+ 		crng_reseed(&primary_crng, &input_pool);
+-		crng_global_init_time = jiffies - 1;
++		WRITE_ONCE(crng_global_init_time, jiffies - 1);
+ 		return 0;
+ 	default:
+ 		return -EINVAL;
 
 
