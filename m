@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42214499582
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:13:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77F8F499ACB
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:57:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1442054AbiAXUwl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:52:41 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42206 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1391637AbiAXUsQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:48:16 -0500
+        id S1454070AbiAXVqg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:46:36 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:47836 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1456141AbiAXVhy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:37:54 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7824D60C39;
-        Mon, 24 Jan 2022 20:48:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D846FC340E5;
-        Mon, 24 Jan 2022 20:48:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6F1F6B81057;
+        Mon, 24 Jan 2022 21:37:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D14AC340E4;
+        Mon, 24 Jan 2022 21:37:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057294;
-        bh=alN1nGi9d01VTi67hSzdh6Vdn9Sl4cPFqezMOL+KxcI=;
+        s=korg; t=1643060271;
+        bh=PBfU0sjDKHjPEXXIWzNxqIfWzz3fkDv5Yi5PMouzK2E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NCd0Y4mOqUU5kYq9kf6aDvlrqp9c3KBtLXrrzQASSXguZtOeYu/QnnyxY614SVAoP
-         UO9E/pyyuPoTut4HRTLzavBJvVRJwtP8TE5NLp7R5oxi4olun11przFxzMWdr4dRwQ
-         od/W1CNBZQwf1bFoA8Le7DG3JpJ/3UC3F+YXgd4w=
+        b=oIjF/J5mId3BnWPHmy6wSoJ8S7tr0LInJNen2iOvYe8bSEEGm8nVOXPMZiWort9wQ
+         HzxK+ekBFsAHxT7MBkN4v3Mcv6dQoHMWyJqiqKcF9Vipt/uz0dyoJ9UJJmafKf+Z1F
+         LeztVQFN+HNH5l8ZQ0eewuYa9XMb9BmsIPeRQa4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Yafang Shao <laoar.shao@gmail.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        David Howells <dhowells@redhat.com>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 5.15 766/846] bpf: Fix mount source show for bpffs
+        stable@vger.kernel.org,
+        Jeroen van Wolffelaar <jeroen@wolffelaar.nl>,
+        =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>,
+        Theodore Tso <tytso@mit.edu>, stable@kernel.org
+Subject: [PATCH 5.16 0894/1039] ext4: set csum seed in tmp inode while migrating to extents
 Date:   Mon, 24 Jan 2022 19:44:43 +0100
-Message-Id: <20220124184127.381781059@linuxfoundation.org>
+Message-Id: <20220124184155.332890868@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,80 +46,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yafang Shao <laoar.shao@gmail.com>
+From: Luís Henriques <lhenriques@suse.de>
 
-commit 1e9d74660d4df625b0889e77018f9e94727ceacd upstream.
+commit e81c9302a6c3c008f5c30beb73b38adb0170ff2d upstream.
 
-We noticed our tc ebpf tools can't start after we upgrade our in-house kernel
-version from 4.19 to 5.10. That is because of the behaviour change in bpffs
-caused by commit d2935de7e4fd ("vfs: Convert bpf to use the new mount API").
+When migrating to extents, the temporary inode will have it's own checksum
+seed.  This means that, when swapping the inodes data, the inode checksums
+will be incorrect.
 
-In our tc ebpf tools, we do strict environment check. If the environment is
-not matched, we won't allow to start the ebpf progs. One of the check is whether
-bpffs is properly mounted. The mount information of bpffs in kernel-4.19 and
-kernel-5.10 are as follows:
+This can be fixed by recalculating the extents checksums again.  Or simply
+by copying the seed into the temporary inode.
 
-- kernel 4.19
-$ mount -t bpf bpffs /sys/fs/bpf
-$ mount -t bpf
-bpffs on /sys/fs/bpf type bpf (rw,relatime)
-
-- kernel 5.10
-$ mount -t bpf bpffs /sys/fs/bpf
-$ mount -t bpf
-none on /sys/fs/bpf type bpf (rw,relatime)
-
-The device name in kernel-5.10 is displayed as none instead of bpffs, then our
-environment check fails. Currently we modify the tools to adopt to the kernel
-behaviour change, but I think we'd better change the kernel code to keep the
-behavior consistent.
-
-After this change, the mount information will be displayed the same with the
-behavior in kernel-4.19, for example:
-
-$ mount -t bpf bpffs /sys/fs/bpf
-$ mount -t bpf
-bpffs on /sys/fs/bpf type bpf (rw,relatime)
-
-Fixes: d2935de7e4fd ("vfs: Convert bpf to use the new mount API")
-Suggested-by: Daniel Borkmann <daniel@iogearbox.net>
-Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: David Howells <dhowells@redhat.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Link: https://lore.kernel.org/bpf/20220108134623.32467-1-laoar.shao@gmail.com
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=213357
+Reported-by: Jeroen van Wolffelaar <jeroen@wolffelaar.nl>
+Signed-off-by: Luís Henriques <lhenriques@suse.de>
+Link: https://lore.kernel.org/r/20211214175058.19511-1-lhenriques@suse.de
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/inode.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ fs/ext4/migrate.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/kernel/bpf/inode.c
-+++ b/kernel/bpf/inode.c
-@@ -648,12 +648,22 @@ static int bpf_parse_param(struct fs_con
- 	int opt;
+--- a/fs/ext4/migrate.c
++++ b/fs/ext4/migrate.c
+@@ -459,6 +459,17 @@ int ext4_ext_migrate(struct inode *inode
+ 		ext4_journal_stop(handle);
+ 		goto out_unlock;
+ 	}
++	/*
++	 * Use the correct seed for checksum (i.e. the seed from 'inode').  This
++	 * is so that the metadata blocks will have the correct checksum after
++	 * the migration.
++	 *
++	 * Note however that, if a crash occurs during the migration process,
++	 * the recovery process is broken because the tmp_inode checksums will
++	 * be wrong and the orphans cleanup will fail.
++	 */
++	ei = EXT4_I(inode);
++	EXT4_I(tmp_inode)->i_csum_seed = ei->i_csum_seed;
+ 	i_size_write(tmp_inode, i_size_read(inode));
+ 	/*
+ 	 * Set the i_nlink to zero so it will be deleted later
+@@ -502,7 +513,6 @@ int ext4_ext_migrate(struct inode *inode
+ 		goto out_tmp_inode;
+ 	}
  
- 	opt = fs_parse(fc, bpf_fs_parameters, param, &result);
--	if (opt < 0)
-+	if (opt < 0) {
- 		/* We might like to report bad mount options here, but
- 		 * traditionally we've ignored all mount options, so we'd
- 		 * better continue to ignore non-existing options for bpf.
- 		 */
--		return opt == -ENOPARAM ? 0 : opt;
-+		if (opt == -ENOPARAM) {
-+			opt = vfs_parse_fs_param_source(fc, param);
-+			if (opt != -ENOPARAM)
-+				return opt;
-+
-+			return 0;
-+		}
-+
-+		if (opt < 0)
-+			return opt;
-+	}
+-	ei = EXT4_I(inode);
+ 	i_data = ei->i_data;
+ 	memset(&lb, 0, sizeof(lb));
  
- 	switch (opt) {
- 	case OPT_MODE:
 
 
