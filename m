@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 34CDE4988E2
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:51:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2FE5498A2D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:02:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245642AbiAXSvY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:51:24 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:50044 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245677AbiAXSuX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:50:23 -0500
+        id S1344057AbiAXTBr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:01:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44554 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345215AbiAXS74 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:59:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9892EC0619C9;
+        Mon, 24 Jan 2022 10:56:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 34CB6B8121A;
-        Mon, 24 Jan 2022 18:50:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52E4BC340E7;
-        Mon, 24 Jan 2022 18:50:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6097EB81235;
+        Mon, 24 Jan 2022 18:56:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77125C340E5;
+        Mon, 24 Jan 2022 18:56:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050220;
-        bh=qvukJeWuPH2cNPFvVyAkRgKIPsGmzXQ3XKZOb3xPYf4=;
+        s=korg; t=1643050593;
+        bh=3hDW7gIhEOondEF4Jh+0/sHITCd+cZaNzno8dlPJPuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Or/PiTuGquJvvVEFrTahnO6HHw38/JzNj2ces5m7QcY1/bqMxwnxat7gVCFR5L5yp
-         FV5ZjMP91OexFjUIMesMeq3tbCT2hq1qZsIFsljqpxywP4vc2hZsNQmbSlCGaFxTEr
-         HvuaW9pXLdM//Z5mJW3SXrgwfgvKe8df83BPAQ1s=
+        b=a4EoOBrvqpSR4wmb492altdE034+NALGsrJOwGz6dtDhog0lFOtal7baH9ZDG3l5D
+         kdtZ+7E0qrNuBiO+H0JJ9ivlGE9pGdb0vBkcn/k0SFmXbaYTGbVN5GHiGI9REiwrSL
+         gmZZ9GvX4Hfo317adxJPfsDXbJP3IsbxpbkXuR+w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bixuan Cui <cuibixuan@linux.alibaba.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 047/114] ALSA: oss: fix compile error when OSS_DEBUG is enabled
+        stable@vger.kernel.org,
+        Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 052/157] can: softing: softing_startstop(): fix set but not used variable warning
 Date:   Mon, 24 Jan 2022 19:42:22 +0100
-Message-Id: <20220124183928.557739669@linuxfoundation.org>
+Message-Id: <20220124183934.438803830@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
-References: <20220124183927.095545464@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +49,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bixuan Cui <cuibixuan@linux.alibaba.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 8e7daf318d97f25e18b2fc7eb5909e34cd903575 ]
+[ Upstream commit 370d988cc529598ebaec6487d4f84c2115dc696b ]
 
-Fix compile error when OSS_DEBUG is enabled:
-    sound/core/oss/pcm_oss.c: In function 'snd_pcm_oss_set_trigger':
-    sound/core/oss/pcm_oss.c:2055:10: error: 'substream' undeclared (first
-    use in this function); did you mean 'csubstream'?
-      pcm_dbg(substream->pcm, "pcm_oss: trigger = 0x%x\n", trigger);
-              ^
+In the function softing_startstop() the variable error_reporting is
+assigned but not used. The code that uses this variable is commented
+out. Its stated that the functionality is not finally verified.
 
-Fixes: 61efcee8608c ("ALSA: oss: Use standard printk helpers")
-Signed-off-by: Bixuan Cui <cuibixuan@linux.alibaba.com>
-Link: https://lore.kernel.org/r/1638349134-110369-1-git-send-email-cuibixuan@linux.alibaba.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+To fix the warning:
+
+| drivers/net/can/softing/softing_fw.c:424:9: error: variable 'error_reporting' set but not used [-Werror,-Wunused-but-set-variable]
+
+remove the comment, activate the code, but add a "0 &&" to the if
+expression and rely on the optimizer rather than the preprocessor to
+remove the code.
+
+Link: https://lore.kernel.org/all/20220109103126.1872833-1-mkl@pengutronix.de
+Fixes: 03fd3cf5a179 ("can: add driver for Softing card")
+Cc: Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/oss/pcm_oss.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/softing/softing_fw.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/sound/core/oss/pcm_oss.c b/sound/core/oss/pcm_oss.c
-index 593791d9a334f..6af4afe23e373 100644
---- a/sound/core/oss/pcm_oss.c
-+++ b/sound/core/oss/pcm_oss.c
-@@ -2121,7 +2121,7 @@ static int snd_pcm_oss_set_trigger(struct snd_pcm_oss_file *pcm_oss_file, int tr
- 	int err, cmd;
- 
- #ifdef OSS_DEBUG
--	pcm_dbg(substream->pcm, "pcm_oss: trigger = 0x%x\n", trigger);
-+	pr_debug("pcm_oss: trigger = 0x%x\n", trigger);
- #endif
- 	
- 	psubstream = pcm_oss_file->streams[SNDRV_PCM_STREAM_PLAYBACK];
+diff --git a/drivers/net/can/softing/softing_fw.c b/drivers/net/can/softing/softing_fw.c
+index 52fe50725d749..a74c779feb90e 100644
+--- a/drivers/net/can/softing/softing_fw.c
++++ b/drivers/net/can/softing/softing_fw.c
+@@ -576,18 +576,19 @@ int softing_startstop(struct net_device *dev, int up)
+ 		if (ret < 0)
+ 			goto failed;
+ 	}
+-	/* enable_error_frame */
+-	/*
++
++	/* enable_error_frame
++	 *
+ 	 * Error reporting is switched off at the moment since
+ 	 * the receiving of them is not yet 100% verified
+ 	 * This should be enabled sooner or later
+-	 *
+-	if (error_reporting) {
++	 */
++	if (0 && error_reporting) {
+ 		ret = softing_fct_cmd(card, 51, "enable_error_frame");
+ 		if (ret < 0)
+ 			goto failed;
+ 	}
+-	*/
++
+ 	/* initialize interface */
+ 	iowrite16(1, &card->dpram[DPRAM_FCT_PARAM + 2]);
+ 	iowrite16(1, &card->dpram[DPRAM_FCT_PARAM + 4]);
 -- 
 2.34.1
 
