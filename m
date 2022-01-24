@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11E4A49912F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:12:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAE18498D89
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:34:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376574AbiAXUJj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:09:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60548 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377246AbiAXUFL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:05:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DA4BC08E81D;
-        Mon, 24 Jan 2022 11:30:58 -0800 (PST)
+        id S1347471AbiAXTdC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:33:02 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:57822 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1352737AbiAXTa7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:30:59 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D8F63B810BD;
-        Mon, 24 Jan 2022 19:30:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2398C340E5;
-        Mon, 24 Jan 2022 19:30:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B29E61451;
+        Mon, 24 Jan 2022 19:30:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0AECC340E5;
+        Mon, 24 Jan 2022 19:30:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052655;
-        bh=5zh1rubP8abvPORWa1hoNnaR/LUIf5kg/5MAFni13VQ=;
+        s=korg; t=1643052658;
+        bh=VH00fZM9pyIofkfidA394IRA/tvTVzVfdo6kQGUBlR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s5zg3uTBrXJ7MEAvB8caQ1TKK2ZeqKpfz3CY7ZfwmZmGFBlPLr+kPJSntLlkT3v2q
-         aY0OC2zIi+xOKcK8YwOaVNpFbx/EAKC+qjwIin4IFWKKWRoSLedLzT8qpTA8yQqMvj
-         vhz6IZBJM9ju2qaIHg4d/rH7DollekxnQ/dp942g=
+        b=qh9JH5MIwkZymtv/x2RWoVzxzntiO9J590bQ8OwuN/NQE8nNgTt/IAM6IkoXJuAqr
+         Ov34oI3i9ahbNKuf36XrC5bZTLR4KmaCL6jiR6OAbOsi7HEa0DRagvAK5ejM7PALwN
+         NS5puPIAGq1SWeO9ki/LDmQkoS4Rmc1npFCbi7eM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 098/320] ACPI: scan: Create platform device for BCM4752 and LNV4752 ACPI nodes
-Date:   Mon, 24 Jan 2022 19:41:22 +0100
-Message-Id: <20220124183957.057409767@linuxfoundation.org>
+Subject: [PATCH 5.4 099/320] pcmcia: rsrc_nonstatic: Fix a NULL pointer dereference in __nonstatic_find_io_region()
+Date:   Mon, 24 Jan 2022 19:41:23 +0100
+Message-Id: <20220124183957.089588188@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
 References: <20220124183953.750177707@linuxfoundation.org>
@@ -48,77 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Zhou Qingyang <zhou1615@umn.edu>
 
-[ Upstream commit f85196bdd5a50da74670250564740fc852b3c239 ]
+[ Upstream commit ca0fe0d7c35c97528bdf621fdca75f13157c27af ]
 
-BCM4752 and LNV4752 ACPI nodes describe a Broadcom 4752 GPS module
-attached to an UART of the system.
+In __nonstatic_find_io_region(), pcmcia_make_resource() is assigned to
+res and used in pci_bus_alloc_resource(). There is a dereference of res
+in pci_bus_alloc_resource(), which could lead to a NULL pointer
+dereference on failure of pcmcia_make_resource().
 
-The GPS modules talk a custom protocol which only works with a closed-
-source Android gpsd daemon which knows this protocol.
+Fix this bug by adding a check of res.
 
-The ACPI nodes also describe GPIOs to turn the GPS on/off these are
-handled by the net/rfkill/rfkill-gpio.c code. This handling predates the
-addition of enumeration of ACPI instantiated serdevs to the kernel and
-was broken by that addition, because the ACPI scan code now no longer
-instantiates platform_device-s for these nodes.
+This bug was found by a static analyzer. The analysis employs
+differential checking to identify inconsistent security operations
+(e.g., checks or kfrees) between two code paths and confirms that the
+inconsistent operations are not recovered in the current function or
+the callers, so they constitute bugs.
 
-Rename the i2c_multi_instantiate_ids HID list to ignore_serial_bus_ids
-and add the BCM4752 and LNV4752 HIDs, so that rfkill-gpio gets
-a platform_device to bind to again; and so that a tty cdev for gpsd
-gets created for these.
+Note that, as a bug found by static analysis, it can be a false
+positive or hard to trigger. Multiple researchers have cross-reviewed
+the bug.
 
-Fixes: e361d1f85855 ("ACPI / scan: Fix enumeration for special UART devices")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Builds with CONFIG_PCCARD_NONSTATIC=y show no new warnings,
+and our static analyzer no longer warns about this code.
+
+Fixes: 49b1153adfe1 ("pcmcia: move all pcmcia_resource_ops providers into one module")
+Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
+[linux@dominikbrodowski.net: Fix typo in commit message]
+Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/scan.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ drivers/pcmcia/rsrc_nonstatic.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index 95d119ff76b65..5d4be80ee6cb4 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -1577,6 +1577,7 @@ static bool acpi_device_enumeration_by_parent(struct acpi_device *device)
- {
- 	struct list_head resource_list;
- 	bool is_serial_bus_slave = false;
-+	static const struct acpi_device_id ignore_serial_bus_ids[] = {
- 	/*
- 	 * These devices have multiple I2cSerialBus resources and an i2c-client
- 	 * must be instantiated for each, each with its own i2c_device_id.
-@@ -1585,11 +1586,18 @@ static bool acpi_device_enumeration_by_parent(struct acpi_device *device)
- 	 * drivers/platform/x86/i2c-multi-instantiate.c driver, which knows
- 	 * which i2c_device_id to use for each resource.
- 	 */
--	static const struct acpi_device_id i2c_multi_instantiate_ids[] = {
- 		{"BSG1160", },
- 		{"BSG2150", },
- 		{"INT33FE", },
- 		{"INT3515", },
-+	/*
-+	 * HIDs of device with an UartSerialBusV2 resource for which userspace
-+	 * expects a regular tty cdev to be created (instead of the in kernel
-+	 * serdev) and which have a kernel driver which expects a platform_dev
-+	 * such as the rfkill-gpio driver.
-+	 */
-+		{"BCM4752", },
-+		{"LNV4752", },
- 		{}
- 	};
+diff --git a/drivers/pcmcia/rsrc_nonstatic.c b/drivers/pcmcia/rsrc_nonstatic.c
+index 9e6922c08ef62..03ae998675e87 100644
+--- a/drivers/pcmcia/rsrc_nonstatic.c
++++ b/drivers/pcmcia/rsrc_nonstatic.c
+@@ -690,6 +690,9 @@ static struct resource *__nonstatic_find_io_region(struct pcmcia_socket *s,
+ 	unsigned long min = base;
+ 	int ret;
  
-@@ -1603,8 +1611,7 @@ static bool acpi_device_enumeration_by_parent(struct acpi_device *device)
- 	     fwnode_property_present(&device->fwnode, "baud")))
- 		return true;
- 
--	/* Instantiate a pdev for the i2c-multi-instantiate drv to bind to */
--	if (!acpi_match_device_ids(device, i2c_multi_instantiate_ids))
-+	if (!acpi_match_device_ids(device, ignore_serial_bus_ids))
- 		return false;
- 
- 	INIT_LIST_HEAD(&resource_list);
++	if (!res)
++		return NULL;
++
+ 	data.mask = align - 1;
+ 	data.offset = base & data.mask;
+ 	data.map = &s_data->io_db;
 -- 
 2.34.1
 
