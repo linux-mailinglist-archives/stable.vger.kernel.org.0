@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA871497FE4
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 13:48:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E18C6497FE5
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 13:49:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242462AbiAXMss (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 07:48:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41202 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242415AbiAXMsr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 07:48:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADF97C06173B
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 04:48:47 -0800 (PST)
+        id S240338AbiAXMtM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 07:49:12 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60800 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240173AbiAXMtL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 07:49:11 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D34561046
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 12:48:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A637C340E1;
-        Mon, 24 Jan 2022 12:48:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FDBD60FFB
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 12:49:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C5B6C340E1;
+        Mon, 24 Jan 2022 12:49:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643028526;
-        bh=0uETOjJ5ircefV+/tQ/nDBmjCNegWCv5wIEkQkGv7ME=;
+        s=korg; t=1643028551;
+        bh=Yg0mPdYvRd5dpUPavqT0iIqcDU40LYE0CPnvMlCX1kg=;
         h=Subject:To:Cc:From:Date:From;
-        b=yC+DwRr3iGhURDE2MtaGlGShQSzS6tkeSx7We3KKtk1OJEN0wReSgcml8w+VxuW6i
-         sEC/ZN3ECp5Wl3xB5Y32OwGnRDT7prKvBujkK01WMOg7MaOVID8uaGGrijq0+qyhuj
-         98ZGo/VZLPub7O9XzYfAd3dKzhoU70HgaeynYTRQ=
-Subject: FAILED: patch "[PATCH] net: axienet: Fix TX ring slot available check" failed to apply to 5.4-stable tree
+        b=S8JHUrZNGgYyFB5RxBCANp9H5YYLUw3bDtZR9neyq20PvrO8hegZ/MV+/diiy++Y/
+         LirP3yDx2t0VQAioI25MdkXwQOLrKT/HuTIV2jW0feEB3az/TasfcxfsD03bqqKhyF
+         Zl5mHRj+gcDCXj3yYkDEZ727QeY4IO9pFYqf0SlM=
+Subject: FAILED: patch "[PATCH] net: axienet: fix for TX busy handling" failed to apply to 4.4-stable tree
 To:     robert.hancock@calian.com, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 13:48:32 +0100
-Message-ID: <164302851224188@kroah.com>
+Date:   Mon, 24 Jan 2022 13:49:08 +0100
+Message-ID: <164302854825212@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -53,49 +50,147 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 996defd7f8b5dafc1d480b7585c7c62437f80c3c Mon Sep 17 00:00:00 2001
+From bb193e3db8b86a63f26889c99e14fd30c9ebd72a Mon Sep 17 00:00:00 2001
 From: Robert Hancock <robert.hancock@calian.com>
-Date: Tue, 18 Jan 2022 15:41:29 -0600
-Subject: [PATCH] net: axienet: Fix TX ring slot available check
+Date: Tue, 18 Jan 2022 15:41:31 -0600
+Subject: [PATCH] net: axienet: fix for TX busy handling
 
-The check for whether a TX ring slot was available was incorrect,
-since a slot which had been loaded with transmit data but the device had
-not started transmitting would be treated as available, potentially
-causing non-transmitted slots to be overwritten. The control field in
-the descriptor should be checked, rather than the status field (which may
-only be updated when the device completes the entry).
+Network driver documentation indicates we should be avoiding returning
+NETDEV_TX_BUSY from ndo_start_xmit in normal cases, since it requires
+the packets to be requeued. Instead the queue should be stopped after
+a packet is added to the TX ring when there may not be enough room for an
+additional one. Also, when TX ring entries are completed, we should only
+wake the queue if we know there is room for another full maximally
+fragmented packet.
+
+Print a warning if there is insufficient space at the start of start_xmit,
+since this should no longer happen.
+
+Combined with increasing the default TX ring size (in a subsequent
+patch), this appears to recover the TX performance lost by previous changes
+to actually manage the TX ring state properly.
 
 Fixes: 8a3b7a252dca9 ("drivers/net/ethernet/xilinx: added Xilinx AXI Ethernet driver")
 Signed-off-by: Robert Hancock <robert.hancock@calian.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 
 diff --git a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-index 3f92001bacaf..85fe2b3bd37a 100644
+index 8dc9e92e05d2..b4f42ee9b75d 100644
 --- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
 +++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-@@ -643,7 +643,6 @@ static int axienet_free_tx_chain(struct net_device *ndev, u32 first_bd,
- 		if (cur_p->skb && (status & XAXIDMA_BD_STS_COMPLETE_MASK))
- 			dev_consume_skb_irq(cur_p->skb);
- 
--		cur_p->cntrl = 0;
- 		cur_p->app0 = 0;
- 		cur_p->app1 = 0;
- 		cur_p->app2 = 0;
-@@ -651,6 +650,7 @@ static int axienet_free_tx_chain(struct net_device *ndev, u32 first_bd,
- 		cur_p->skb = NULL;
- 		/* ensure our transmit path and device don't prematurely see status cleared */
- 		wmb();
-+		cur_p->cntrl = 0;
- 		cur_p->status = 0;
- 
- 		if (sizep)
-@@ -713,7 +713,7 @@ static inline int axienet_check_tx_bd_space(struct axienet_local *lp,
- 	/* Ensure we see all descriptor updates from device or TX IRQ path */
- 	rmb();
- 	cur_p = &lp->tx_bd_v[(lp->tx_bd_tail + num_frag) % lp->tx_bd_num];
--	if (cur_p->status & XAXIDMA_BD_STS_ALL_MASK)
-+	if (cur_p->cntrl)
- 		return NETDEV_TX_BUSY;
- 	return 0;
+@@ -660,6 +660,32 @@ static int axienet_free_tx_chain(struct net_device *ndev, u32 first_bd,
+ 	return i;
  }
+ 
++/**
++ * axienet_check_tx_bd_space - Checks if a BD/group of BDs are currently busy
++ * @lp:		Pointer to the axienet_local structure
++ * @num_frag:	The number of BDs to check for
++ *
++ * Return: 0, on success
++ *	    NETDEV_TX_BUSY, if any of the descriptors are not free
++ *
++ * This function is invoked before BDs are allocated and transmission starts.
++ * This function returns 0 if a BD or group of BDs can be allocated for
++ * transmission. If the BD or any of the BDs are not free the function
++ * returns a busy status. This is invoked from axienet_start_xmit.
++ */
++static inline int axienet_check_tx_bd_space(struct axienet_local *lp,
++					    int num_frag)
++{
++	struct axidma_bd *cur_p;
++
++	/* Ensure we see all descriptor updates from device or TX IRQ path */
++	rmb();
++	cur_p = &lp->tx_bd_v[(lp->tx_bd_tail + num_frag) % lp->tx_bd_num];
++	if (cur_p->cntrl)
++		return NETDEV_TX_BUSY;
++	return 0;
++}
++
+ /**
+  * axienet_start_xmit_done - Invoked once a transmit is completed by the
+  * Axi DMA Tx channel.
+@@ -689,33 +715,8 @@ static void axienet_start_xmit_done(struct net_device *ndev)
+ 	/* Matches barrier in axienet_start_xmit */
+ 	smp_mb();
+ 
+-	netif_wake_queue(ndev);
+-}
+-
+-/**
+- * axienet_check_tx_bd_space - Checks if a BD/group of BDs are currently busy
+- * @lp:		Pointer to the axienet_local structure
+- * @num_frag:	The number of BDs to check for
+- *
+- * Return: 0, on success
+- *	    NETDEV_TX_BUSY, if any of the descriptors are not free
+- *
+- * This function is invoked before BDs are allocated and transmission starts.
+- * This function returns 0 if a BD or group of BDs can be allocated for
+- * transmission. If the BD or any of the BDs are not free the function
+- * returns a busy status. This is invoked from axienet_start_xmit.
+- */
+-static inline int axienet_check_tx_bd_space(struct axienet_local *lp,
+-					    int num_frag)
+-{
+-	struct axidma_bd *cur_p;
+-
+-	/* Ensure we see all descriptor updates from device or TX IRQ path */
+-	rmb();
+-	cur_p = &lp->tx_bd_v[(lp->tx_bd_tail + num_frag) % lp->tx_bd_num];
+-	if (cur_p->cntrl)
+-		return NETDEV_TX_BUSY;
+-	return 0;
++	if (!axienet_check_tx_bd_space(lp, MAX_SKB_FRAGS + 1))
++		netif_wake_queue(ndev);
+ }
+ 
+ /**
+@@ -748,19 +749,14 @@ axienet_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ 	cur_p = &lp->tx_bd_v[lp->tx_bd_tail];
+ 
+ 	if (axienet_check_tx_bd_space(lp, num_frag + 1)) {
+-		if (netif_queue_stopped(ndev))
+-			return NETDEV_TX_BUSY;
+-
++		/* Should not happen as last start_xmit call should have
++		 * checked for sufficient space and queue should only be
++		 * woken when sufficient space is available.
++		 */
+ 		netif_stop_queue(ndev);
+-
+-		/* Matches barrier in axienet_start_xmit_done */
+-		smp_mb();
+-
+-		/* Space might have just been freed - check again */
+-		if (axienet_check_tx_bd_space(lp, num_frag + 1))
+-			return NETDEV_TX_BUSY;
+-
+-		netif_wake_queue(ndev);
++		if (net_ratelimit())
++			netdev_warn(ndev, "TX ring unexpectedly full\n");
++		return NETDEV_TX_BUSY;
+ 	}
+ 
+ 	if (skb->ip_summed == CHECKSUM_PARTIAL) {
+@@ -821,6 +817,18 @@ axienet_start_xmit(struct sk_buff *skb, struct net_device *ndev)
+ 	if (++lp->tx_bd_tail >= lp->tx_bd_num)
+ 		lp->tx_bd_tail = 0;
+ 
++	/* Stop queue if next transmit may not have space */
++	if (axienet_check_tx_bd_space(lp, MAX_SKB_FRAGS + 1)) {
++		netif_stop_queue(ndev);
++
++		/* Matches barrier in axienet_start_xmit_done */
++		smp_mb();
++
++		/* Space might have just been freed - check again */
++		if (!axienet_check_tx_bd_space(lp, MAX_SKB_FRAGS + 1))
++			netif_wake_queue(ndev);
++	}
++
+ 	return NETDEV_TX_OK;
+ }
+ 
 
