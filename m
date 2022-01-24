@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FCF0499548
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:09:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 441AD499C3E
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:07:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1392519AbiAXUvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:51:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42546 "EHLO
+        id S1578839AbiAXWDs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:03:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390641AbiAXUp7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:45:59 -0500
+        with ESMTP id S1577000AbiAXV5F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:57:05 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6C7EC0613BD;
-        Mon, 24 Jan 2022 11:55:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14005C09426C;
+        Mon, 24 Jan 2022 12:38:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C04EB80FA1;
-        Mon, 24 Jan 2022 19:55:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A11DFC340E5;
-        Mon, 24 Jan 2022 19:55:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF3E9B81218;
+        Mon, 24 Jan 2022 20:38:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C0C0C340E5;
+        Mon, 24 Jan 2022 20:38:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054149;
-        bh=uDbfPJ73HUWqhPHuTRXhY7UbI0yEEfy4ihntlu9sniM=;
+        s=korg; t=1643056715;
+        bh=sUaXfDJ9Sn5dKwepOQtj6siD2em1urOqxKMAIkUatHY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QZv3l+6Q3hPPdY4o8Xr4Qt2aqiqio2hdWf/RhiYubfvr9J46JjG/asJEggVE1DfIi
-         glBJ5lEeC6cleNGp8Bwp5Pz3IT6tLjstmr9Lr3kOuWslU/0wrJ/DAyx6oajaT0LJWx
-         ze5zCeOrcDsZmspy3PP3PUgPZwGMPZZHZEea44VU=
+        b=K5P6qHCm77e5PcSVKe91pZRDTsIVk1UX3rIUlQSaMGrY+Vzqg9s2plJZmyHGlphMt
+         F5lm8GaLzXoJGJARlLPyYY+qZ5M5Qfua2uTnr316Pdr/XCkBxNNxRc8u2nZ0WcsyJV
+         Me0DHZvmTFyBRC6CkCTe+ajNPFmVYN9lVg40C7c4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Conor Dooley <conor.dooley@microchip.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 295/563] clk: bm1880: remove kfrees on static allocations
+Subject: [PATCH 5.15 543/846] x86/mce: Mark mce_panic() noinstr
 Date:   Mon, 24 Jan 2022 19:41:00 +0100
-Message-Id: <20220124184034.638740619@linuxfoundation.org>
+Message-Id: <20220124184119.759494910@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,82 +47,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Conor Dooley <conor.dooley@microchip.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit c861c1be3897845313a0df47804b1db37c7052e1 ]
+[ Upstream commit 3c7ce80a818fa7950be123cac80cd078e5ac1013 ]
 
-bm1880_clk_unregister_pll & bm1880_clk_unregister_div both try to
-free statically allocated variables, so remove those kfrees.
+And allow instrumentation inside it because it does calls to other
+facilities which will not be tagged noinstr.
 
-For example, if we take L703 kfree(div_hw):
-- div_hw is a bm1880_div_hw_clock pointer
-- in bm1880_clk_register_plls this is pointed to an element of arg1:
-  struct bm1880_div_hw_clock *clks
-- in the probe, where bm1880_clk_register_plls is called arg1 is
-  bm1880_div_clks, defined on L371:
-  static struct bm1880_div_hw_clock bm1880_div_clks[]
+Fixes
 
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-Fixes: 1ab4601da55b ("clk: Add common clock driver for BM1880 SoC")
-Link: https://lore.kernel.org/r/20211223154244.1024062-1-conor.dooley@microchip.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+  vmlinux.o: warning: objtool: do_machine_check()+0xc73: call to mce_panic() leaves .noinstr.text section
+
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20211208111343.8130-8-bp@alien8.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-bm1880.c | 20 ++------------------
- 1 file changed, 2 insertions(+), 18 deletions(-)
+ arch/x86/kernel/cpu/mce/core.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clk/clk-bm1880.c b/drivers/clk/clk-bm1880.c
-index e6d6599d310a1..fad78a22218e8 100644
---- a/drivers/clk/clk-bm1880.c
-+++ b/drivers/clk/clk-bm1880.c
-@@ -522,14 +522,6 @@ static struct clk_hw *bm1880_clk_register_pll(struct bm1880_pll_hw_clock *pll_cl
- 	return hw;
+diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
+index c8d121085c8f7..c5a1022463bcc 100644
+--- a/arch/x86/kernel/cpu/mce/core.c
++++ b/arch/x86/kernel/cpu/mce/core.c
+@@ -295,11 +295,17 @@ static void wait_for_panic(void)
+ 	panic("Panicing machine check CPU died");
  }
  
--static void bm1880_clk_unregister_pll(struct clk_hw *hw)
--{
--	struct bm1880_pll_hw_clock *pll_hw = to_bm1880_pll_clk(hw);
--
--	clk_hw_unregister(hw);
--	kfree(pll_hw);
--}
--
- static int bm1880_clk_register_plls(struct bm1880_pll_hw_clock *clks,
- 				    int num_clks,
- 				    struct bm1880_clock_data *data)
-@@ -555,7 +547,7 @@ static int bm1880_clk_register_plls(struct bm1880_pll_hw_clock *clks,
+-static void mce_panic(const char *msg, struct mce *final, char *exp)
++static noinstr void mce_panic(const char *msg, struct mce *final, char *exp)
+ {
+-	int apei_err = 0;
+ 	struct llist_node *pending;
+ 	struct mce_evt_llist *l;
++	int apei_err = 0;
++
++	/*
++	 * Allow instrumentation around external facilities usage. Not that it
++	 * matters a whole lot since the machine is going to panic anyway.
++	 */
++	instrumentation_begin();
  
- err_clk:
- 	while (i--)
--		bm1880_clk_unregister_pll(data->hw_data.hws[clks[i].pll.id]);
-+		clk_hw_unregister(data->hw_data.hws[clks[i].pll.id]);
- 
- 	return PTR_ERR(hw);
+ 	if (!fake_panic) {
+ 		/*
+@@ -314,7 +320,7 @@ static void mce_panic(const char *msg, struct mce *final, char *exp)
+ 	} else {
+ 		/* Don't log too much for fake panic */
+ 		if (atomic_inc_return(&mce_fake_panicked) > 1)
+-			return;
++			goto out;
+ 	}
+ 	pending = mce_gen_pool_prepare_records();
+ 	/* First print corrected ones that are still unlogged */
+@@ -352,6 +358,9 @@ static void mce_panic(const char *msg, struct mce *final, char *exp)
+ 		panic(msg);
+ 	} else
+ 		pr_emerg(HW_ERR "Fake kernel panic: %s\n", msg);
++
++out:
++	instrumentation_end();
  }
-@@ -695,14 +687,6 @@ static struct clk_hw *bm1880_clk_register_div(struct bm1880_div_hw_clock *div_cl
- 	return hw;
- }
  
--static void bm1880_clk_unregister_div(struct clk_hw *hw)
--{
--	struct bm1880_div_hw_clock *div_hw = to_bm1880_div_clk(hw);
--
--	clk_hw_unregister(hw);
--	kfree(div_hw);
--}
--
- static int bm1880_clk_register_divs(struct bm1880_div_hw_clock *clks,
- 				    int num_clks,
- 				    struct bm1880_clock_data *data)
-@@ -729,7 +713,7 @@ static int bm1880_clk_register_divs(struct bm1880_div_hw_clock *clks,
- 
- err_clk:
- 	while (i--)
--		bm1880_clk_unregister_div(data->hw_data.hws[clks[i].div.id]);
-+		clk_hw_unregister(data->hw_data.hws[clks[i].div.id]);
- 
- 	return PTR_ERR(hw);
- }
+ /* Support code for software error injection */
 -- 
 2.34.1
 
