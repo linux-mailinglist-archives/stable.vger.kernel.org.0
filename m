@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C08C9499263
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:21:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ACB949927A
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:21:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348842AbiAXUTW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:19:22 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42826 "EHLO
+        id S1381521AbiAXUVO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:21:14 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:42868 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380744AbiAXUQv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:16:51 -0500
+        with ESMTP id S1380773AbiAXUQy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:16:54 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2CC686091A;
-        Mon, 24 Jan 2022 20:16:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 068BFC340E5;
-        Mon, 24 Jan 2022 20:16:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 52006611CD;
+        Mon, 24 Jan 2022 20:16:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C0D6C340E5;
+        Mon, 24 Jan 2022 20:16:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055410;
-        bh=LXCnAdlwZsWaJMfvC9G5RI+dkOsFueE+RgYoeHYqS7c=;
+        s=korg; t=1643055413;
+        bh=fDKZb5ZOGOoDpGNIT4AzWS/7B5dYfdm2X4IfhgXunug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AVAKlyiFwc3dfccxVeIck1ptZmzCoyRr1JPuEoh+lTjAaEYBjoMjzbe1mkfzGCAhx
-         DMO81/O6HdPHvAfSoRhqnHJ0NqywDWOdIjZiE3vqo5rabi6oFwgsWH+8aduvEbyLTz
-         iAmvFhEa/0IYaqPzrP0akHonkN39jyD621/Zs2ns=
+        b=TLeQaNHkoDidG2B7Z5YbZ+9Qv3ald6qR9Lv54viNO0duV7LSl6Wcbq46szZba2j2n
+         PWLhsYGfhvLSH3B5x25LnrIV7L3M5AIujks/FrI8ceUa3gZjawIxpn30aC3P8X2l6n
+         gBg8eWHWnmY8c+YuP/EcMBhV7t7q+JwcrQcHbZyA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Prasad Malisetty <pmaliset@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org,
+        "George G. Davis" <davis.george@siemens.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 141/846] arm64: dts: qcom: sc7280: Fix incorrect clock name
-Date:   Mon, 24 Jan 2022 19:34:18 +0100
-Message-Id: <20220124184105.850912402@linuxfoundation.org>
+Subject: [PATCH 5.15 142/846] mtd: hyperbus: rpc-if: fix bug in rpcif_hb_remove
+Date:   Mon, 24 Jan 2022 19:34:19 +0100
+Message-Id: <20220124184105.881191629@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -46,36 +46,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prasad Malisetty <pmaliset@codeaurora.org>
+From: George G. Davis <davis.george@siemens.com>
 
-[ Upstream commit fa09b2248714c64644576d8064e9bd292a504a0e ]
+[ Upstream commit baaf965f94308301d2dc554d72a87d7432cd5ce6 ]
 
-Replace pcie_1_pipe-clk clock name with pcie_1_pipe_clk
-To match with dt binding.
+The following KASAN BUG is observed when testing the rpc-if driver on
+rcar-gen3:
 
-Fixes: ab7772de8612 ("arm64: dts: qcom: SC7280: Add rpmhcc clock controller node")
-Signed-off-by: Prasad Malisetty <pmaliset@codeaurora.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/1637060508-30375-2-git-send-email-pmaliset@codeaurora.org
+root@rcar-gen3:~# modprobe -r rpc-if
+[  101.930146] ==================================================================
+[  101.937408] BUG: KASAN: slab-out-of-bounds in __lock_acquire+0x518/0x25d0
+[  101.944240] Read of size 8 at addr ffff0004c5be2750 by task modprobe/664
+[  101.950959]
+[  101.952466] CPU: 2 PID: 664 Comm: modprobe Not tainted 5.14.0-rc1-00342-g1a1464d7aa31 #1
+[  101.960578] Hardware name: Renesas H3ULCB board based on r8a77951 (DT)
+[  101.967120] Call trace:
+[  101.969580]  dump_backtrace+0x0/0x2c0
+[  101.973275]  show_stack+0x1c/0x30
+[  101.976616]  dump_stack_lvl+0x9c/0xd8
+[  101.980301]  print_address_description.constprop.0+0x74/0x2b8
+[  101.986071]  kasan_report+0x1f4/0x26c
+[  101.989757]  __asan_load8+0x98/0xd4
+[  101.993266]  __lock_acquire+0x518/0x25d0
+[  101.997215]  lock_acquire.part.0+0x18c/0x360
+[  102.001506]  lock_acquire+0x74/0x90
+[  102.005013]  _raw_spin_lock_irq+0x98/0x130
+[  102.009131]  __pm_runtime_disable+0x30/0x210
+[  102.013427]  rpcif_hb_remove+0x5c/0x70 [rpc_if]
+[  102.018001]  platform_remove+0x40/0x80
+[  102.021771]  __device_release_driver+0x234/0x350
+[  102.026412]  driver_detach+0x158/0x20c
+[  102.030179]  bus_remove_driver+0xa0/0x140
+[  102.034212]  driver_unregister+0x48/0x80
+[  102.038153]  platform_driver_unregister+0x18/0x24
+[  102.042879]  rpcif_platform_driver_exit+0x1c/0x34 [rpc_if]
+[  102.048400]  __arm64_sys_delete_module+0x210/0x310
+[  102.053212]  invoke_syscall+0x60/0x190
+[  102.056986]  el0_svc_common+0x12c/0x144
+[  102.060844]  do_el0_svc+0x88/0xac
+[  102.064181]  el0_svc+0x24/0x3c
+[  102.067257]  el0t_64_sync_handler+0x1a8/0x1b0
+[  102.071634]  el0t_64_sync+0x198/0x19c
+[  102.075315]
+[  102.076815] Allocated by task 628:
+[  102.080781]
+[  102.082280] Last potentially related work creation:
+[  102.087524]
+[  102.089022] The buggy address belongs to the object at ffff0004c5be2000
+[  102.089022]  which belongs to the cache kmalloc-2k of size 2048
+[  102.101555] The buggy address is located 1872 bytes inside of
+[  102.101555]  2048-byte region [ffff0004c5be2000, ffff0004c5be2800)
+[  102.113486] The buggy address belongs to the page:
+[  102.118409]
+[  102.119908] Memory state around the buggy address:
+[  102.124711]  ffff0004c5be2600: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  102.131947]  ffff0004c5be2680: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  102.139181] >ffff0004c5be2700: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  102.146412]                                                  ^
+[  102.152257]  ffff0004c5be2780: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  102.159491]  ffff0004c5be2800: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  102.166723] ==================================================================
+
+The above bug is caused by use of the wrong pointer in the
+rpcif_disable_rpm() call. Fix the bug by using the correct pointer.
+
+Fixes: 5de15b610f78 ("mtd: hyperbus: add Renesas RPC-IF driver")
+Signed-off-by: George G. Davis <davis.george@siemens.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Link: https://lore.kernel.org/r/20210716204935.25859-1-george_davis@mentor.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/sc7280.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/hyperbus/rpc-if.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/sc7280.dtsi b/arch/arm64/boot/dts/qcom/sc7280.dtsi
-index f58336536a92a..692973c4f4344 100644
---- a/arch/arm64/boot/dts/qcom/sc7280.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7280.dtsi
-@@ -429,7 +429,7 @@
- 				 <&rpmhcc RPMH_CXO_CLK_A>, <&sleep_clk>,
- 				 <0>, <0>, <0>, <0>, <0>, <0>;
- 			clock-names = "bi_tcxo", "bi_tcxo_ao", "sleep_clk",
--				      "pcie_0_pipe_clk", "pcie_1_pipe-clk",
-+				      "pcie_0_pipe_clk", "pcie_1_pipe_clk",
- 				      "ufs_phy_rx_symbol_0_clk", "ufs_phy_rx_symbol_1_clk",
- 				      "ufs_phy_tx_symbol_0_clk",
- 				      "usb3_phy_wrapper_gcc_usb30_pipe_clk";
+diff --git a/drivers/mtd/hyperbus/rpc-if.c b/drivers/mtd/hyperbus/rpc-if.c
+index 367b0d72bf622..dc164c18f8429 100644
+--- a/drivers/mtd/hyperbus/rpc-if.c
++++ b/drivers/mtd/hyperbus/rpc-if.c
+@@ -152,9 +152,9 @@ static int rpcif_hb_remove(struct platform_device *pdev)
+ {
+ 	struct rpcif_hyperbus *hyperbus = platform_get_drvdata(pdev);
+ 	int error = hyperbus_unregister_device(&hyperbus->hbdev);
+-	struct rpcif *rpc = dev_get_drvdata(pdev->dev.parent);
+ 
+-	rpcif_disable_rpm(rpc);
++	rpcif_disable_rpm(&hyperbus->rpc);
++
+ 	return error;
+ }
+ 
 -- 
 2.34.1
 
