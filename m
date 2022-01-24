@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 388B549A4E6
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:10:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20DBE49A4D8
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:10:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2372051AbiAYAKc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:10:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57716 "EHLO
+        id S2371998AbiAYAKW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:10:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2363962AbiAXXq1 (ORCPT
+        with ESMTP id S2363964AbiAXXq1 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:46:27 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F0FBC05A1B8;
-        Mon, 24 Jan 2022 13:39:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9715EC05A1B9;
+        Mon, 24 Jan 2022 13:40:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3DEB961491;
-        Mon, 24 Jan 2022 21:39:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22288C340E4;
-        Mon, 24 Jan 2022 21:39:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 384F36150F;
+        Mon, 24 Jan 2022 21:40:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 126E1C340E4;
+        Mon, 24 Jan 2022 21:40:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060397;
-        bh=q7ihR5Snu2W1wGEKLmd6hmJZ58qgPjBl7VGdE/uxV+E=;
+        s=korg; t=1643060403;
+        bh=NYew2eLHnOVBJzWS0JUQya8E9KMDLrukBSAFBS4kna0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v1C8hbOsZ2GcszqahXsaeLkNHyFOcn3ClA1PT7wS5k5JV/Lxtr6fzB9a1hDrhJ1tQ
-         DFqZzUGa7lF73adRGrd06EtMWVV3ceLYjNcLIXW+/2pxcEhz5FiBpHukCX5EWZ56xB
-         y1mJ1RlnNy1k7ZiJVxwz1OKGn0tN8m8ZvEooO6WQ=
+        b=SUa+wJcQp/cwSvWoEV0Cu+UpbdIN6GCRF8tct1O9jXO9bIIutOisSU8ctgACfDhhl
+         0m11cNhYFmtJyAlLu+BAmh0LV5AD0UncC2uyT9zEqEhXQqm5Ang1cIgeQi3vft+FJx
+         n6jEHBXkC3H2nl+9GwxA0MN3qfuUPg5L2xZEmtl4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
         Maxime Ripard <maxime@cerno.tech>
-Subject: [PATCH 5.16 0933/1039] drm/vc4: crtc: Drop feed_txp from state
-Date:   Mon, 24 Jan 2022 19:45:22 +0100
-Message-Id: <20220124184156.652900148@linuxfoundation.org>
+Subject: [PATCH 5.16 0935/1039] drm/vc4: crtc: Copy assigned channel to the CRTC
+Date:   Mon, 24 Jan 2022 19:45:24 +0100
+Message-Id: <20220124184156.717792487@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -49,146 +49,108 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Maxime Ripard <maxime@cerno.tech>
 
-commit a16c66401fd831f70a02d33e9bcaac585637c29f upstream.
+commit eeb6ab4639590130d25670204ab7b6011333d685 upstream.
 
 Accessing the crtc->state pointer from outside the modesetting context
 is not allowed. We thus need to copy whatever we need from the KMS state
 to our structure in order to access it.
 
 In VC4, a number of users of that pointers have crept in over the years,
-the first one being whether or not the downstream controller of the
-pixelvalve is our writeback controller.
+and the previous commits removed them all but the HVS channel a CRTC has
+been assigned.
 
-Fortunately for us, Since commit 39fcb2808376 ("drm/vc4: txp: Turn the
-TXP into a CRTC of its own") this is no longer something that can change
-from one commit to the other and is hardcoded.
-
-Let's set this flag in struct vc4_crtc if we happen to be the TXP, and
-drop the flag from our private state structure.
+Let's move this channel in struct vc4_crtc at atomic_begin() time, drop
+it from our private state structure, and remove our use of crtc->state
+from our vblank handler entirely.
 
 Link: https://lore.kernel.org/all/YWgteNaNeaS9uWDe@phenom.ffwll.local/
-Link: https://lore.kernel.org/r/20211025141113.702757-2-maxime@cerno.tech
-Fixes: 008095e065a8 ("drm/vc4: Add support for the transposer block")
+Link: https://lore.kernel.org/r/20211025141113.702757-4-maxime@cerno.tech
+Fixes: 87ebcd42fb7b ("drm/vc4: crtc: Assign output to channel automatically")
 Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
 Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/vc4/vc4_crtc.c |    3 +--
- drivers/gpu/drm/vc4/vc4_drv.h  |    6 +++++-
- drivers/gpu/drm/vc4/vc4_hvs.c  |    7 +++----
- drivers/gpu/drm/vc4/vc4_kms.c  |    3 ++-
- drivers/gpu/drm/vc4/vc4_txp.c  |    3 +--
- 5 files changed, 12 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/vc4/vc4_crtc.c |    4 ++--
+ drivers/gpu/drm/vc4/vc4_drv.h  |    9 +++++++++
+ drivers/gpu/drm/vc4/vc4_hvs.c  |   12 ++++++++++++
+ drivers/gpu/drm/vc4/vc4_txp.c  |    1 +
+ 4 files changed, 24 insertions(+), 2 deletions(-)
 
 --- a/drivers/gpu/drm/vc4/vc4_crtc.c
 +++ b/drivers/gpu/drm/vc4/vc4_crtc.c
-@@ -715,7 +715,7 @@ static void vc4_crtc_handle_page_flip(st
+@@ -708,8 +708,7 @@ static void vc4_crtc_handle_page_flip(st
+ 	struct drm_crtc *crtc = &vc4_crtc->base;
+ 	struct drm_device *dev = crtc->dev;
+ 	struct vc4_dev *vc4 = to_vc4_dev(dev);
+-	struct vc4_crtc_state *vc4_state = to_vc4_crtc_state(crtc->state);
+-	u32 chan = vc4_state->assigned_channel;
++	u32 chan = vc4_crtc->current_hvs_channel;
+ 	unsigned long flags;
+ 
  	spin_lock_irqsave(&dev->event_lock, flags);
- 	if (vc4_crtc->event &&
- 	    (vc4_state->mm.start == HVS_READ(SCALER_DISPLACTX(chan)) ||
--	     vc4_state->feed_txp)) {
-+	     vc4_crtc->feeds_txp)) {
- 		drm_crtc_send_vblank_event(crtc, vc4_crtc->event);
- 		vc4_crtc->event = NULL;
- 		drm_crtc_vblank_put(crtc);
-@@ -893,7 +893,6 @@ struct drm_crtc_state *vc4_crtc_duplicat
- 		return NULL;
- 
- 	old_vc4_state = to_vc4_crtc_state(crtc->state);
--	vc4_state->feed_txp = old_vc4_state->feed_txp;
- 	vc4_state->margins = old_vc4_state->margins;
- 	vc4_state->assigned_channel = old_vc4_state->assigned_channel;
- 
+@@ -955,6 +954,7 @@ static const struct drm_crtc_funcs vc4_c
+ static const struct drm_crtc_helper_funcs vc4_crtc_helper_funcs = {
+ 	.mode_valid = vc4_crtc_mode_valid,
+ 	.atomic_check = vc4_crtc_atomic_check,
++	.atomic_begin = vc4_hvs_atomic_begin,
+ 	.atomic_flush = vc4_hvs_atomic_flush,
+ 	.atomic_enable = vc4_crtc_atomic_enable,
+ 	.atomic_disable = vc4_crtc_atomic_disable,
 --- a/drivers/gpu/drm/vc4/vc4_drv.h
 +++ b/drivers/gpu/drm/vc4/vc4_drv.h
-@@ -495,6 +495,11 @@ struct vc4_crtc {
- 	struct drm_pending_vblank_event *event;
- 
- 	struct debugfs_regset32 regset;
+@@ -514,6 +514,14 @@ struct vc4_crtc {
+ 	 * handler to have access to that value.
+ 	 */
+ 	unsigned int current_dlist;
 +
 +	/**
-+	 * @feeds_txp: True if the CRTC feeds our writeback controller.
++	 * @current_hvs_channel: HVS channel currently assigned to the
++	 * CRTC. Protected by @irq_lock, and copied in
++	 * vc4_hvs_atomic_begin() for the CRTC interrupt handler to have
++	 * access to that value.
 +	 */
-+	bool feeds_txp;
++	unsigned int current_hvs_channel;
  };
  
  static inline struct vc4_crtc *
-@@ -521,7 +526,6 @@ struct vc4_crtc_state {
- 	struct drm_crtc_state base;
- 	/* Dlist area for this CRTC configuration. */
- 	struct drm_mm_node mm;
--	bool feed_txp;
- 	bool txp_armed;
- 	unsigned int assigned_channel;
- 
+@@ -926,6 +934,7 @@ extern struct platform_driver vc4_hvs_dr
+ void vc4_hvs_stop_channel(struct drm_device *dev, unsigned int output);
+ int vc4_hvs_get_fifo_from_output(struct drm_device *dev, unsigned int output);
+ int vc4_hvs_atomic_check(struct drm_crtc *crtc, struct drm_atomic_state *state);
++void vc4_hvs_atomic_begin(struct drm_crtc *crtc, struct drm_atomic_state *state);
+ void vc4_hvs_atomic_enable(struct drm_crtc *crtc, struct drm_atomic_state *state);
+ void vc4_hvs_atomic_disable(struct drm_crtc *crtc, struct drm_atomic_state *state);
+ void vc4_hvs_atomic_flush(struct drm_crtc *crtc, struct drm_atomic_state *state);
 --- a/drivers/gpu/drm/vc4/vc4_hvs.c
 +++ b/drivers/gpu/drm/vc4/vc4_hvs.c
-@@ -375,7 +375,7 @@ static void vc4_hvs_update_dlist(struct
+@@ -393,6 +393,18 @@ static void vc4_hvs_update_dlist(struct
+ 	spin_unlock_irqrestore(&vc4_crtc->irq_lock, flags);
+ }
  
- 		spin_lock_irqsave(&dev->event_lock, flags);
- 
--		if (!vc4_state->feed_txp || vc4_state->txp_armed) {
-+		if (!vc4_crtc->feeds_txp || vc4_state->txp_armed) {
- 			vc4_crtc->event = crtc->state->event;
- 			crtc->state->event = NULL;
- 		}
-@@ -395,10 +395,9 @@ void vc4_hvs_atomic_enable(struct drm_cr
- {
- 	struct drm_device *dev = crtc->dev;
- 	struct vc4_dev *vc4 = to_vc4_dev(dev);
--	struct drm_crtc_state *new_crtc_state = drm_atomic_get_new_crtc_state(state, crtc);
--	struct vc4_crtc_state *vc4_state = to_vc4_crtc_state(new_crtc_state);
- 	struct drm_display_mode *mode = &crtc->state->adjusted_mode;
--	bool oneshot = vc4_state->feed_txp;
++void vc4_hvs_atomic_begin(struct drm_crtc *crtc,
++			  struct drm_atomic_state *state)
++{
 +	struct vc4_crtc *vc4_crtc = to_vc4_crtc(crtc);
-+	bool oneshot = vc4_crtc->feeds_txp;
- 
- 	vc4_hvs_update_dlist(crtc);
- 	vc4_hvs_init_channel(vc4, crtc, mode, oneshot);
---- a/drivers/gpu/drm/vc4/vc4_kms.c
-+++ b/drivers/gpu/drm/vc4/vc4_kms.c
-@@ -233,6 +233,7 @@ static void vc4_hvs_pv_muxing_commit(str
- 	unsigned int i;
- 
- 	for_each_new_crtc_in_state(state, crtc, crtc_state, i) {
-+		struct vc4_crtc *vc4_crtc = to_vc4_crtc(crtc);
- 		struct vc4_crtc_state *vc4_state = to_vc4_crtc_state(crtc_state);
- 		u32 dispctrl;
- 		u32 dsp3_mux;
-@@ -253,7 +254,7 @@ static void vc4_hvs_pv_muxing_commit(str
- 		 * TXP IP, and we need to disable the FIFO2 -> pixelvalve1
- 		 * route.
- 		 */
--		if (vc4_state->feed_txp)
-+		if (vc4_crtc->feeds_txp)
- 			dsp3_mux = VC4_SET_FIELD(3, SCALER_DISPCTRL_DSP3_MUX);
- 		else
- 			dsp3_mux = VC4_SET_FIELD(2, SCALER_DISPCTRL_DSP3_MUX);
++	struct vc4_crtc_state *vc4_state = to_vc4_crtc_state(crtc->state);
++	unsigned long flags;
++
++	spin_lock_irqsave(&vc4_crtc->irq_lock, flags);
++	vc4_crtc->current_hvs_channel = vc4_state->assigned_channel;
++	spin_unlock_irqrestore(&vc4_crtc->irq_lock, flags);
++}
++
+ void vc4_hvs_atomic_enable(struct drm_crtc *crtc,
+ 			   struct drm_atomic_state *state)
+ {
 --- a/drivers/gpu/drm/vc4/vc4_txp.c
 +++ b/drivers/gpu/drm/vc4/vc4_txp.c
-@@ -391,7 +391,6 @@ static int vc4_txp_atomic_check(struct d
- {
- 	struct drm_crtc_state *crtc_state = drm_atomic_get_new_crtc_state(state,
- 									  crtc);
--	struct vc4_crtc_state *vc4_state = to_vc4_crtc_state(crtc_state);
- 	int ret;
+@@ -435,6 +435,7 @@ static void vc4_txp_atomic_disable(struc
  
- 	ret = vc4_hvs_atomic_check(crtc, state);
-@@ -399,7 +398,6 @@ static int vc4_txp_atomic_check(struct d
- 		return ret;
- 
- 	crtc_state->no_vblank = true;
--	vc4_state->feed_txp = true;
- 
- 	return 0;
- }
-@@ -482,6 +480,7 @@ static int vc4_txp_bind(struct device *d
- 
- 	vc4_crtc->pdev = pdev;
- 	vc4_crtc->data = &vc4_txp_crtc_data;
-+	vc4_crtc->feeds_txp = true;
- 
- 	txp->pdev = pdev;
- 
+ static const struct drm_crtc_helper_funcs vc4_txp_crtc_helper_funcs = {
+ 	.atomic_check	= vc4_txp_atomic_check,
++	.atomic_begin	= vc4_hvs_atomic_begin,
+ 	.atomic_flush	= vc4_hvs_atomic_flush,
+ 	.atomic_enable	= vc4_txp_atomic_enable,
+ 	.atomic_disable	= vc4_txp_atomic_disable,
 
 
