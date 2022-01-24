@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15001498EC2
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:48:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B091849920B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:19:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347125AbiAXTsY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:48:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55724 "EHLO
+        id S1352132AbiAXURI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:17:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355648AbiAXTnC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:43:02 -0500
+        with ESMTP id S1355459AbiAXUNl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:13:41 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BCDBC09424B;
-        Mon, 24 Jan 2022 11:22:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D013AC0604D1;
+        Mon, 24 Jan 2022 11:37:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E082B613B3;
-        Mon, 24 Jan 2022 19:22:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94F55C340E5;
-        Mon, 24 Jan 2022 19:22:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E11F614FC;
+        Mon, 24 Jan 2022 19:37:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49DAFC340E5;
+        Mon, 24 Jan 2022 19:37:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052123;
-        bh=H7nvbYrauUoPT2xybAP6oulzQf5nTaPhNr5TPD56VnU=;
+        s=korg; t=1643053021;
+        bh=QR8yZAhBM7iYkAK09ew+ffn9nmVg2lFDcim+AuhC6z0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WTiCqKDFWBPoD/a6m3b618L43Cjj6xD1Wzr7K2v2YQmdu6GO8PVCstNA+UgVFcaoJ
-         xoApaWTO6gwHbzD2OT+7XDymG0dd8cUfEpNEsbqlDHUiI+X6knYsUuTnhogt1mC/35
-         vBSisPJPAoRCMyKrycVIuY5uUbuil8oTIcDr0ncs=
+        b=uaMph8oNPNHKHUdVllV9XuoCJCC1k2saptmg2JZ5XO/DJVM7hR06mMKxM3mkRZLK+
+         kG6bK7MFXdQaktSytk6gIgTrJ4pOJLNKSWkZi9WfJCcujhUzu0Y4tKlH61TM/yCjA7
+         6DXfihI26P8vaMbszc8dUSkh/2Bk3JAvNbxXv3G0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Cvachoucek <cvachoucek@gmail.com>,
-        Richard Weinberger <richard@nod.at>
-Subject: [PATCH 4.19 196/239] ubifs: Error path in ubifs_remount_rw() seems to wrongly free write buffers
-Date:   Mon, 24 Jan 2022 19:43:54 +0100
-Message-Id: <20220124183949.342700197@linuxfoundation.org>
+        stable@vger.kernel.org, Rafael Gago Castano <rgc@hms.se>,
+        Jan Kiszka <jan.kiszka@siemens.com>,
+        Su Bao Cheng <baocheng.su@siemens.com>,
+        Lukas Wunner <lukas@wunner.de>
+Subject: [PATCH 5.4 251/320] serial: Fix incorrect rs485 polarity on uart open
+Date:   Mon, 24 Jan 2022 19:43:55 +0100
+Message-Id: <20220124184002.524758989@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,105 +49,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Cvachoucek <cvachoucek@gmail.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit 3fea4d9d160186617ff40490ae01f4f4f36b28ff upstream.
+commit d3b3404df318504ec084213ab1065b73f49b0f1d upstream.
 
-it seems freeing the write buffers in the error path of the
-ubifs_remount_rw() is wrong. It leads later to a kernel oops like this:
+Commit a6845e1e1b78 ("serial: core: Consider rs485 settings to drive
+RTS") sought to deassert RTS when opening an rs485-enabled uart port.
+That way, the transceiver does not occupy the bus until it transmits
+data.
 
-[10016.431274] UBIFS (ubi0:0): start fixing up free space
-[10090.810042] UBIFS (ubi0:0): free space fixup complete
-[10090.814623] UBIFS error (ubi0:0 pid 512): ubifs_remount_fs: cannot
-spawn "ubifs_bgt0_0", error -4
-[10101.915108] UBIFS (ubi0:0): background thread "ubifs_bgt0_0" started,
-PID 517
-[10105.275498] Unable to handle kernel NULL pointer dereference at
-virtual address 0000000000000030
-[10105.284352] Mem abort info:
-[10105.287160]   ESR = 0x96000006
-[10105.290252]   EC = 0x25: DABT (current EL), IL = 32 bits
-[10105.295592]   SET = 0, FnV = 0
-[10105.298652]   EA = 0, S1PTW = 0
-[10105.301848] Data abort info:
-[10105.304723]   ISV = 0, ISS = 0x00000006
-[10105.308573]   CM = 0, WnR = 0
-[10105.311564] user pgtable: 4k pages, 48-bit VAs, pgdp=00000000f03d1000
-[10105.318034] [0000000000000030] pgd=00000000f6cee003,
-pud=00000000f4884003, pmd=0000000000000000
-[10105.326783] Internal error: Oops: 96000006 [#1] PREEMPT SMP
-[10105.332355] Modules linked in: ath10k_pci ath10k_core ath mac80211
-libarc4 cfg80211 nvme nvme_core cryptodev(O)
-[10105.342468] CPU: 3 PID: 518 Comm: touch Tainted: G           O
-5.4.3 #1
-[10105.349517] Hardware name: HYPEX CPU (DT)
-[10105.353525] pstate: 40000005 (nZcv daif -PAN -UAO)
-[10105.358324] pc : atomic64_try_cmpxchg_acquire.constprop.22+0x8/0x34
-[10105.364596] lr : mutex_lock+0x1c/0x34
-[10105.368253] sp : ffff000075633aa0
-[10105.371563] x29: ffff000075633aa0 x28: 0000000000000001
-[10105.376874] x27: ffff000076fa80c8 x26: 0000000000000004
-[10105.382185] x25: 0000000000000030 x24: 0000000000000000
-[10105.387495] x23: 0000000000000000 x22: 0000000000000038
-[10105.392807] x21: 000000000000000c x20: ffff000076fa80c8
-[10105.398119] x19: ffff000076fa8000 x18: 0000000000000000
-[10105.403429] x17: 0000000000000000 x16: 0000000000000000
-[10105.408741] x15: 0000000000000000 x14: fefefefefefefeff
-[10105.414052] x13: 0000000000000000 x12: 0000000000000fe0
-[10105.419364] x11: 0000000000000fe0 x10: ffff000076709020
-[10105.424675] x9 : 0000000000000000 x8 : 00000000000000a0
-[10105.429986] x7 : ffff000076fa80f4 x6 : 0000000000000030
-[10105.435297] x5 : 0000000000000000 x4 : 0000000000000000
-[10105.440609] x3 : 0000000000000000 x2 : ffff00006f276040
-[10105.445920] x1 : ffff000075633ab8 x0 : 0000000000000030
-[10105.451232] Call trace:
-[10105.453676]  atomic64_try_cmpxchg_acquire.constprop.22+0x8/0x34
-[10105.459600]  ubifs_garbage_collect+0xb4/0x334
-[10105.463956]  ubifs_budget_space+0x398/0x458
-[10105.468139]  ubifs_create+0x50/0x180
-[10105.471712]  path_openat+0x6a0/0x9b0
-[10105.475284]  do_filp_open+0x34/0x7c
-[10105.478771]  do_sys_open+0x78/0xe4
-[10105.482170]  __arm64_sys_openat+0x1c/0x24
-[10105.486180]  el0_svc_handler+0x84/0xc8
-[10105.489928]  el0_svc+0x8/0xc
-[10105.492808] Code: 52800013 17fffffb d2800003 f9800011 (c85ffc05)
-[10105.498903] ---[ end trace 46b721d93267a586 ]---
+Unfortunately, the commit mixed up the logic and *asserted* RTS instead
+of *deasserting* it:
 
-To reproduce the problem:
+The commit amended uart_port_dtr_rts(), which raises DTR and RTS when
+opening an rs232 port.  "Raising" actually means lowering the signal
+that's coming out of the uart, because an rs232 transceiver not only
+changes a signal's voltage level, it also *inverts* the signal.  See
+the simplified schematic in the MAX232 datasheet for an example:
+https://www.ti.com/lit/ds/symlink/max232.pdf
 
-1. Filesystem initially mounted read-only, free space fixup flag set.
+So, to raise RTS on an rs232 port, TIOCM_RTS is *set* in port->mctrl
+and that results in the signal being driven low.
 
-2. mount -o remount,rw <mountpoint>
+In contrast to rs232, the signal level for rs485 Transmit Enable is the
+identity, not the inversion:  If the transceiver expects a "high" RTS
+signal for Transmit Enable, the signal coming out of the uart must also
+be high, so TIOCM_RTS must be *cleared* in port->mctrl.
 
-3. it takes some time (free space fixup running)
-    ... try to terminate running mount by CTRL-C
-    ... does not respond, only after free space fixup is complete
-    ... then "ubifs_remount_fs: cannot spawn "ubifs_bgt0_0", error -4"
+The commit did the exact opposite, but it's easy to see why given the
+confusing semantics of rs232 and rs485.  Fix it.
 
-4. mount -o remount,rw <mountpoint>
-    ... now finished instantly (fixup already done).
-
-5. Create file or just unmount the filesystem and we get the oops.
-
-Cc: <stable@vger.kernel.org>
-Fixes: b50b9f408502 ("UBIFS: do not free write-buffers when in R/O mode")
-Signed-off-by: Petr Cvachoucek <cvachoucek@gmail.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: a6845e1e1b78 ("serial: core: Consider rs485 settings to drive RTS")
+Cc: stable@vger.kernel.org # v4.14+
+Cc: Rafael Gago Castano <rgc@hms.se>
+Cc: Jan Kiszka <jan.kiszka@siemens.com>
+Cc: Su Bao Cheng <baocheng.su@siemens.com>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Link: https://lore.kernel.org/r/9395767847833f2f3193c49cde38501eeb3b5669.1639821059.git.lukas@wunner.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ubifs/super.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/tty/serial/serial_core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/ubifs/super.c
-+++ b/fs/ubifs/super.c
-@@ -1730,7 +1730,6 @@ out:
- 		kthread_stop(c->bgt);
- 		c->bgt = NULL;
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -160,7 +160,7 @@ static void uart_port_dtr_rts(struct uar
+ 	int RTS_after_send = !!(uport->rs485.flags & SER_RS485_RTS_AFTER_SEND);
+ 
+ 	if (raise) {
+-		if (rs485_on && !RTS_after_send) {
++		if (rs485_on && RTS_after_send) {
+ 			uart_set_mctrl(uport, TIOCM_DTR);
+ 			uart_clear_mctrl(uport, TIOCM_RTS);
+ 		} else {
+@@ -169,7 +169,7 @@ static void uart_port_dtr_rts(struct uar
+ 	} else {
+ 		unsigned int clear = TIOCM_DTR;
+ 
+-		clear |= (!rs485_on || !RTS_after_send) ? TIOCM_RTS : 0;
++		clear |= (!rs485_on || RTS_after_send) ? TIOCM_RTS : 0;
+ 		uart_clear_mctrl(uport, clear);
  	}
--	free_wbufs(c);
- 	kfree(c->write_reserve_buf);
- 	c->write_reserve_buf = NULL;
- 	vfree(c->ileb_buf);
+ }
 
 
