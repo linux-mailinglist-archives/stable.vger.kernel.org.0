@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EC72499FA7
+	by mail.lfdr.de (Postfix) with ESMTP id 014A8499FA6
 	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:20:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1841964AbiAXXA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:00:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40438 "EHLO
+        id S1841968AbiAXXA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:00:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41412 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1835751AbiAXWhZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:37:25 -0500
+        with ESMTP id S1835803AbiAXWhf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:37:35 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A85D7C0E9BA9;
-        Mon, 24 Jan 2022 12:59:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFE18C054844;
+        Mon, 24 Jan 2022 12:59:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 47CAA61342;
-        Mon, 24 Jan 2022 20:59:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28421C340E5;
-        Mon, 24 Jan 2022 20:59:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E01761355;
+        Mon, 24 Jan 2022 20:59:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3196EC340E5;
+        Mon, 24 Jan 2022 20:59:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057941;
-        bh=AwFJn6/pMMxcV4YXEZ5zf98OztZsn5CIgYkwv9snTGE=;
+        s=korg; t=1643057947;
+        bh=RxIigBhFTeZ+GtzDVEchnUoTO75Wyk7sQHW98SGKpKA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EuSZKPIKHC5pEHdOEMxZhpeKSKzu7q82fEh9QlJo6XI9tWosZiIucrIhwCCTUMg+/
-         O+Sw3iix5zJELd2lmILtSdGQc/wc8OfnuvKQjrktDophKEbNF+BCmT7HyljHAUJvul
-         bBUkmUJruCffxPzTW9RFoITg20PSvfFBoiYgTaFE=
+        b=Ik06TuR3iEiaYNl9Yt+iGYlz3qaiCnxnl7splqYDFuM9TbL63KUKTOyXxvZIM30P2
+         Jx9pW0oWBfGZe1UDdt0Q9BVTWe833lrTe65aOnbSEViD2qARMzPNbGF95K1qTRI7/N
+         wyVL90yDGsV2VcECCqmYOK6tuLmWsbsj9lMIE0kk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jammy Huang <jammy_huang@aspeedtech.com>,
         Paul Menzel <pmenzel@molgen.mpg.de>,
-        Joel Stanley <joel@jms.id.au>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0130/1039] media: aspeed: fix mode-detect always time out at 2nd run
-Date:   Mon, 24 Jan 2022 19:31:59 +0100
-Message-Id: <20220124184129.533329949@linuxfoundation.org>
+Subject: [PATCH 5.16 0132/1039] media: aspeed: Update signal status immediately to ensure sane hw state
+Date:   Mon, 24 Jan 2022 19:32:01 +0100
+Message-Id: <20220124184129.596914928@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -53,52 +52,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jammy Huang <jammy_huang@aspeedtech.com>
 
-[ Upstream commit 62cea52ad4bead0ae4be2cfe1142eb0aae0e9fbd ]
+[ Upstream commit af6d1bde395cac174ee71adcd3fa43f6435c7206 ]
 
-aspeed_video_get_resolution() will try to do res-detect again if the
-timing got in last try is invalid. But it will always time out because
-VE_SEQ_CTRL_TRIG_MODE_DET is only cleared after 1st mode-detect.
+If res-chg, VE_INTERRUPT_MODE_DETECT_WD irq will be raised. But
+v4l2_input_status won't be updated to no-signal immediately until
+aspeed_video_get_resolution() in aspeed_video_resolution_work().
 
-To fix the problem, just clear VE_SEQ_CTRL_TRIG_MODE_DET before setting
-it in aspeed_video_enable_mode_detect().
+During the period of time, aspeed_video_start_frame() could be called
+because it doesn't know signal becomes unstable now. If it goes with
+aspeed_video_init_regs() of aspeed_video_irq_res_change()
+simultaneously, it will mess up hw state.
+
+To fix this problem, v4l2_input_status is updated to no-signal
+immediately for VE_INTERRUPT_MODE_DETECT_WD irq.
 
 Fixes: d2b4387f3bdf ("media: platform: Add Aspeed Video Engine driver")
 Signed-off-by: Jammy Huang <jammy_huang@aspeedtech.com>
 Acked-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Reviewed-by: Joel Stanley <joel@jms.id.au>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/aspeed-video.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/media/platform/aspeed-video.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/media/platform/aspeed-video.c b/drivers/media/platform/aspeed-video.c
-index cad3f97515aef..136383ad0e97c 100644
+index 136383ad0e97c..7a24daf7165a4 100644
 --- a/drivers/media/platform/aspeed-video.c
 +++ b/drivers/media/platform/aspeed-video.c
-@@ -539,6 +539,10 @@ static void aspeed_video_enable_mode_detect(struct aspeed_video *video)
- 	aspeed_video_update(video, VE_INTERRUPT_CTRL, 0,
- 			    VE_INTERRUPT_MODE_DETECT);
+@@ -595,6 +595,8 @@ static void aspeed_video_irq_res_change(struct aspeed_video *video, ulong delay)
+ 	set_bit(VIDEO_RES_CHANGE, &video->flags);
+ 	clear_bit(VIDEO_FRAME_INPRG, &video->flags);
  
-+	/* Disable mode detect in order to re-trigger */
-+	aspeed_video_update(video, VE_SEQ_CTRL,
-+			    VE_SEQ_CTRL_TRIG_MODE_DET, 0);
++	video->v4l2_input_status = V4L2_IN_ST_NO_SIGNAL;
 +
- 	/* Trigger mode detect */
- 	aspeed_video_update(video, VE_SEQ_CTRL, 0, VE_SEQ_CTRL_TRIG_MODE_DET);
- }
-@@ -824,10 +828,6 @@ static void aspeed_video_get_resolution(struct aspeed_video *video)
- 			return;
- 		}
+ 	aspeed_video_off(video);
+ 	aspeed_video_bufs_done(video, VB2_BUF_STATE_ERROR);
  
--		/* Disable mode detect in order to re-trigger */
--		aspeed_video_update(video, VE_SEQ_CTRL,
--				    VE_SEQ_CTRL_TRIG_MODE_DET, 0);
--
- 		aspeed_video_check_and_set_polarity(video);
+@@ -1375,7 +1377,6 @@ static void aspeed_video_resolution_work(struct work_struct *work)
+ 	struct delayed_work *dwork = to_delayed_work(work);
+ 	struct aspeed_video *video = container_of(dwork, struct aspeed_video,
+ 						  res_work);
+-	u32 input_status = video->v4l2_input_status;
  
- 		aspeed_video_enable_mode_detect(video);
+ 	aspeed_video_on(video);
+ 
+@@ -1388,8 +1389,7 @@ static void aspeed_video_resolution_work(struct work_struct *work)
+ 	aspeed_video_get_resolution(video);
+ 
+ 	if (video->detected_timings.width != video->active_timings.width ||
+-	    video->detected_timings.height != video->active_timings.height ||
+-	    input_status != video->v4l2_input_status) {
++	    video->detected_timings.height != video->active_timings.height) {
+ 		static const struct v4l2_event ev = {
+ 			.type = V4L2_EVENT_SOURCE_CHANGE,
+ 			.u.src_change.changes = V4L2_EVENT_SRC_CH_RESOLUTION,
 -- 
 2.34.1
 
