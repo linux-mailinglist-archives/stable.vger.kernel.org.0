@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8022F499BDF
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:05:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C18B8499911
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:43:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1576511AbiAXVzK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:55:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57980 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379357AbiAXVsu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:48:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F608C0811A1;
-        Mon, 24 Jan 2022 12:33:02 -0800 (PST)
+        id S1454096AbiAXVbp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:31:45 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:38990 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1451378AbiAXVWr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:22:47 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A527E6153D;
-        Mon, 24 Jan 2022 20:33:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87855C340E5;
-        Mon, 24 Jan 2022 20:33:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 65179B811FB;
+        Mon, 24 Jan 2022 21:22:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A06AC340E4;
+        Mon, 24 Jan 2022 21:22:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056381;
-        bh=Jmr/r+DKlgP8D2OIcz4/zMDpgMnOFOLO1c0h1VM4wBk=;
+        s=korg; t=1643059365;
+        bh=k0ORuEQnGTqteUEkwb9luAXHUAo6NBshCwtibeD8tfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gBjurC1l9wvsRKLWTp0wiBJEtc1fEkCOmeMd4Wdqkla4H66oaadosCZygavlmE0oC
-         45O/YKXY0TOUOhZ9y30tQwYlu2+5IJhtXMBaPeN1xVr6mkFl4REWsz14zueXdoG/Nl
-         p0dDh+Rz5wenVASG3E6JZvUpFFN9Tglx16uJeHPU=
+        b=bvcFThnE3I6AMwvUwonYiRAEcMYT00DI8ShSUUMWcHF9yurk9tAKeEBZcvg0rl5r2
+         YXcaATV5Ro3tO1kmjLqgtnhPrjbY0+6K3reDAs+jd4APiSJdzwc3E8JGIgGdALL0HR
+         DC3Wrk4qIUVv+x7XyDZGvils3RRHZgfGte8YMspk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 464/846] libbpf: Validate that .BTF and .BTF.ext sections contain data
+        stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
+        Sherry Sun <sherry.sun@nxp.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0592/1039] tty: serial: imx: disable UCR4_OREN in .stop_rx() instead of .shutdown()
 Date:   Mon, 24 Jan 2022 19:39:41 +0100
-Message-Id: <20220124184116.991402743@linuxfoundation.org>
+Message-Id: <20220124184145.230409176@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,41 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Fugang Duan <fugang.duan@nxp.com>
 
-[ Upstream commit 62554d52e71797eefa3fc15b54008038837bb2d4 ]
+[ Upstream commit 028e083832b06fdeeb290e1e57dc1f6702c4c215 ]
 
-.BTF and .BTF.ext ELF sections should have SHT_PROGBITS type and contain
-data. If they are not, ELF is invalid or corrupted, so bail out.
-Otherwise this can lead to data->d_buf being NULL and SIGSEGV later on.
-Reported by oss-fuzz project.
+The UCR4_OREN should be disabled before disabling the uart receiver in
+.stop_rx() instead of in the .shutdown().
 
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20211103173213.1376990-4-andrii@kernel.org
+Otherwise, if we have the overrun error during the receiver disable
+process, the overrun interrupt will keep trigging until we disable the
+OREN interrupt in the .shutdown(), because the ORE status can only be
+cleared when read the rx FIFO or reset the controller.  Although the
+called time between the receiver disable and OREN disable in .shutdown()
+is very short, there is still the risk of endless interrupt during this
+short period of time. So here change to disable OREN before the receiver
+been disabled in .stop_rx().
+
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+Link: https://lore.kernel.org/r/20211125020349.4980-1-sherry.sun@nxp.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/tty/serial/imx.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-index 0ad29203cbfbf..b7d278b8f4527 100644
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -3035,8 +3035,12 @@ static int bpf_object__elf_collect(struct bpf_object *obj)
- 		} else if (strcmp(name, MAPS_ELF_SEC) == 0) {
- 			obj->efile.btf_maps_shndx = idx;
- 		} else if (strcmp(name, BTF_ELF_SEC) == 0) {
-+			if (sh->sh_type != SHT_PROGBITS)
-+				return -LIBBPF_ERRNO__FORMAT;
- 			btf_data = data;
- 		} else if (strcmp(name, BTF_EXT_ELF_SEC) == 0) {
-+			if (sh->sh_type != SHT_PROGBITS)
-+				return -LIBBPF_ERRNO__FORMAT;
- 			btf_ext_data = data;
- 		} else if (sh.sh_type == SHT_SYMTAB) {
- 			/* already processed during the first pass above */
+diff --git a/drivers/tty/serial/imx.c b/drivers/tty/serial/imx.c
+index 90f82e6c54e46..6f7f382d0b1fa 100644
+--- a/drivers/tty/serial/imx.c
++++ b/drivers/tty/serial/imx.c
+@@ -486,18 +486,21 @@ static void imx_uart_stop_tx(struct uart_port *port)
+ static void imx_uart_stop_rx(struct uart_port *port)
+ {
+ 	struct imx_port *sport = (struct imx_port *)port;
+-	u32 ucr1, ucr2;
++	u32 ucr1, ucr2, ucr4;
+ 
+ 	ucr1 = imx_uart_readl(sport, UCR1);
+ 	ucr2 = imx_uart_readl(sport, UCR2);
++	ucr4 = imx_uart_readl(sport, UCR4);
+ 
+ 	if (sport->dma_is_enabled) {
+ 		ucr1 &= ~(UCR1_RXDMAEN | UCR1_ATDMAEN);
+ 	} else {
+ 		ucr1 &= ~UCR1_RRDYEN;
+ 		ucr2 &= ~UCR2_ATEN;
++		ucr4 &= ~UCR4_OREN;
+ 	}
+ 	imx_uart_writel(sport, ucr1, UCR1);
++	imx_uart_writel(sport, ucr4, UCR4);
+ 
+ 	ucr2 &= ~UCR2_RXEN;
+ 	imx_uart_writel(sport, ucr2, UCR2);
+@@ -1544,7 +1547,7 @@ static void imx_uart_shutdown(struct uart_port *port)
+ 	imx_uart_writel(sport, ucr1, UCR1);
+ 
+ 	ucr4 = imx_uart_readl(sport, UCR4);
+-	ucr4 &= ~(UCR4_OREN | UCR4_TCEN);
++	ucr4 &= ~UCR4_TCEN;
+ 	imx_uart_writel(sport, ucr4, UCR4);
+ 
+ 	spin_unlock_irqrestore(&sport->port.lock, flags);
 -- 
 2.34.1
 
