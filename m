@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57BA84981B6
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 15:05:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88B4E4981BB
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 15:06:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238176AbiAXOFa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 09:05:30 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:40560 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238356AbiAXOFa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 09:05:30 -0500
+        id S238490AbiAXOGX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 09:06:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59696 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238495AbiAXOGR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 09:06:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 831ABC06173B
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 06:06:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DEA3D61313
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 14:05:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7BA1C340E1;
-        Mon, 24 Jan 2022 14:05:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FA56612DE
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 14:06:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0037C340E4;
+        Mon, 24 Jan 2022 14:06:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643033129;
-        bh=H2MuTrTBdZIoI553JKkmHVE18S9ZP+dj61XLrCkSU2w=;
+        s=korg; t=1643033176;
+        bh=3HPKlajUaene2vlOU36k/gvkniOzDo3jUQ3O6vKl37Y=;
         h=Subject:To:Cc:From:Date:From;
-        b=c/Fzxacy1Msu8mILsg/5BaU6MlnHK1W8rkHFUvFvUKWhoLbr1XSMkpp8e4xQBfSbm
-         htTJfm4V6+UkO8T2YEWAekLYHxjRKA5aUm4VDjOeGUJFQpuTuLWt1vpAJKdxcosm1a
-         i7LojlB5Gd1skpl8CfmbAilLn/ny+fpdPjCNGUdc=
-Subject: FAILED: patch "[PATCH] blk-mq: fix tag_get wait task can't be awakened" failed to apply to 5.15-stable tree
-To:     qiulaibin@huawei.com, andriy.shevchenko@linux.intel.com,
-        axboe@kernel.dk, john.garry@huawei.com, ming.lei@redhat.com
+        b=LefG//nFhXyc1ffpegJyJf4w/PGKdvu2uLF+UYsOZy84ICnW3ZB8aAHSRdCZIu2aI
+         +tzIGFm8kUACtHUxV2zmDlrmenyyC/MOGcWE3pOyIxeaQ9oDW1D3+D4Nsp3o+JluMj
+         OAhOdDkmLpCnazNlXZU0JAk971ZxwCkOwfSCsh1E=
+Subject: FAILED: patch "[PATCH] mm/hmm.c: allow VM_MIXEDMAP to work with hmm_range_fault" failed to apply to 4.14-stable tree
+To:     apopple@nvidia.com, Felix.Kuehling@amd.com,
+        akpm@linux-foundation.org, jgg@nvidia.com, jglisse@redhat.com,
+        jhubbard@nvidia.com, rcampbell@nvidia.com,
+        torvalds@linux-foundation.org, ziy@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 15:05:11 +0100
-Message-ID: <164303311128164@kroah.com>
+Date:   Mon, 24 Jan 2022 15:06:13 +0100
+Message-ID: <16430331734710@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +45,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -51,174 +56,147 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 180dccb0dba4f5e84a4a70c1be1d34cbb6528b32 Mon Sep 17 00:00:00 2001
-From: Laibin Qiu <qiulaibin@huawei.com>
-Date: Thu, 13 Jan 2022 10:55:36 +0800
-Subject: [PATCH] blk-mq: fix tag_get wait task can't be awakened
+From 87c01d57fa23de82fff593a7d070933d08755801 Mon Sep 17 00:00:00 2001
+From: Alistair Popple <apopple@nvidia.com>
+Date: Fri, 14 Jan 2022 14:09:31 -0800
+Subject: [PATCH] mm/hmm.c: allow VM_MIXEDMAP to work with hmm_range_fault
 
-In case of shared tags, there might be more than one hctx which
-allocates from the same tags, and each hctx is limited to allocate at
-most:
-        hctx_max_depth = max((bt->sb.depth + users - 1) / users, 4U);
+hmm_range_fault() can be used instead of get_user_pages() for devices
+which allow faulting however unlike get_user_pages() it will return an
+error when used on a VM_MIXEDMAP range.
 
-tag idle detection is lazy, and may be delayed for 30sec, so there
-could be just one real active hctx(queue) but all others are actually
-idle and still accounted as active because of the lazy idle detection.
-Then if wake_batch is > hctx_max_depth, driver tag allocation may wait
-forever on this real active hctx.
+To make hmm_range_fault() more closely match get_user_pages() remove
+this restriction.  This requires dealing with the !ARCH_HAS_PTE_SPECIAL
+case in hmm_vma_handle_pte().  Rather than replicating the logic of
+vm_normal_page() call it directly and do a check for the zero pfn
+similar to what get_user_pages() currently does.
 
-Fix this by recalculating wake_batch when inc or dec active_queues.
+Also add a test to hmm selftest to verify functionality.
 
-Fixes: 0d2602ca30e41 ("blk-mq: improve support for shared tags maps")
-Suggested-by: Ming Lei <ming.lei@redhat.com>
-Suggested-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Laibin Qiu <qiulaibin@huawei.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20220113025536.1479653-1-qiulaibin@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lkml.kernel.org/r/20211104012001.2555676-1-apopple@nvidia.com
+Fixes: da4c3c735ea4 ("mm/hmm/mirror: helper to snapshot CPU page table")
+Signed-off-by: Alistair Popple <apopple@nvidia.com>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Jerome Glisse <jglisse@redhat.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Zi Yan <ziy@nvidia.com>
+Cc: Ralph Campbell <rcampbell@nvidia.com>
+Cc: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 
-diff --git a/block/blk-mq-tag.c b/block/blk-mq-tag.c
-index e55a6834c9a6..845f74e8dd7b 100644
---- a/block/blk-mq-tag.c
-+++ b/block/blk-mq-tag.c
-@@ -16,6 +16,21 @@
- #include "blk-mq-sched.h"
- #include "blk-mq-tag.h"
+diff --git a/lib/test_hmm.c b/lib/test_hmm.c
+index e2ce8f9b7605..767538089a62 100644
+--- a/lib/test_hmm.c
++++ b/lib/test_hmm.c
+@@ -1086,9 +1086,33 @@ static long dmirror_fops_unlocked_ioctl(struct file *filp,
+ 	return 0;
+ }
+ 
++static int dmirror_fops_mmap(struct file *file, struct vm_area_struct *vma)
++{
++	unsigned long addr;
++
++	for (addr = vma->vm_start; addr < vma->vm_end; addr += PAGE_SIZE) {
++		struct page *page;
++		int ret;
++
++		page = alloc_page(GFP_KERNEL | __GFP_ZERO);
++		if (!page)
++			return -ENOMEM;
++
++		ret = vm_insert_page(vma, addr, page);
++		if (ret) {
++			__free_page(page);
++			return ret;
++		}
++		put_page(page);
++	}
++
++	return 0;
++}
++
+ static const struct file_operations dmirror_fops = {
+ 	.open		= dmirror_fops_open,
+ 	.release	= dmirror_fops_release,
++	.mmap		= dmirror_fops_mmap,
+ 	.unlocked_ioctl = dmirror_fops_unlocked_ioctl,
+ 	.llseek		= default_llseek,
+ 	.owner		= THIS_MODULE,
+diff --git a/mm/hmm.c b/mm/hmm.c
+index 842e26599238..bd56641c79d4 100644
+--- a/mm/hmm.c
++++ b/mm/hmm.c
+@@ -300,7 +300,8 @@ static int hmm_vma_handle_pte(struct mm_walk *walk, unsigned long addr,
+ 	 * Since each architecture defines a struct page for the zero page, just
+ 	 * fall through and treat it like a normal page.
+ 	 */
+-	if (pte_special(pte) && !pte_devmap(pte) &&
++	if (!vm_normal_page(walk->vma, addr, pte) &&
++	    !pte_devmap(pte) &&
+ 	    !is_zero_pfn(pte_pfn(pte))) {
+ 		if (hmm_pte_need_fault(hmm_vma_walk, pfn_req_flags, 0)) {
+ 			pte_unmap(ptep);
+@@ -518,7 +519,7 @@ static int hmm_vma_walk_test(unsigned long start, unsigned long end,
+ 	struct hmm_range *range = hmm_vma_walk->range;
+ 	struct vm_area_struct *vma = walk->vma;
+ 
+-	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP | VM_MIXEDMAP)) &&
++	if (!(vma->vm_flags & (VM_IO | VM_PFNMAP)) &&
+ 	    vma->vm_flags & VM_READ)
+ 		return 0;
+ 
+diff --git a/tools/testing/selftests/vm/hmm-tests.c b/tools/testing/selftests/vm/hmm-tests.c
+index 864f126ffd78..203323967b50 100644
+--- a/tools/testing/selftests/vm/hmm-tests.c
++++ b/tools/testing/selftests/vm/hmm-tests.c
+@@ -1248,6 +1248,48 @@ TEST_F(hmm, anon_teardown)
+ 	}
+ }
  
 +/*
-+ * Recalculate wakeup batch when tag is shared by hctx.
++ * Test memory snapshot without faulting in pages accessed by the device.
 + */
-+static void blk_mq_update_wake_batch(struct blk_mq_tags *tags,
-+		unsigned int users)
++TEST_F(hmm, mixedmap)
 +{
-+	if (!users)
-+		return;
++	struct hmm_buffer *buffer;
++	unsigned long npages;
++	unsigned long size;
++	unsigned char *m;
++	int ret;
 +
-+	sbitmap_queue_recalculate_wake_batch(&tags->bitmap_tags,
-+			users);
-+	sbitmap_queue_recalculate_wake_batch(&tags->breserved_tags,
-+			users);
++	npages = 1;
++	size = npages << self->page_shift;
++
++	buffer = malloc(sizeof(*buffer));
++	ASSERT_NE(buffer, NULL);
++
++	buffer->fd = -1;
++	buffer->size = size;
++	buffer->mirror = malloc(npages);
++	ASSERT_NE(buffer->mirror, NULL);
++
++
++	/* Reserve a range of addresses. */
++	buffer->ptr = mmap(NULL, size,
++			   PROT_READ | PROT_WRITE,
++			   MAP_PRIVATE,
++			   self->fd, 0);
++	ASSERT_NE(buffer->ptr, MAP_FAILED);
++
++	/* Simulate a device snapshotting CPU pagetables. */
++	ret = hmm_dmirror_cmd(self->fd, HMM_DMIRROR_SNAPSHOT, buffer, npages);
++	ASSERT_EQ(ret, 0);
++	ASSERT_EQ(buffer->cpages, npages);
++
++	/* Check what the device saw. */
++	m = buffer->mirror;
++	ASSERT_EQ(m[0], HMM_DMIRROR_PROT_READ);
++
++	hmm_buffer_free(buffer);
 +}
 +
  /*
-  * If a previously inactive queue goes active, bump the active user count.
-  * We need to do this before try to allocate driver tag, then even if fail
-@@ -24,18 +39,26 @@
+  * Test memory snapshot without faulting in pages accessed by the device.
   */
- bool __blk_mq_tag_busy(struct blk_mq_hw_ctx *hctx)
- {
-+	unsigned int users;
-+
- 	if (blk_mq_is_shared_tags(hctx->flags)) {
- 		struct request_queue *q = hctx->queue;
- 
--		if (!test_bit(QUEUE_FLAG_HCTX_ACTIVE, &q->queue_flags) &&
--		    !test_and_set_bit(QUEUE_FLAG_HCTX_ACTIVE, &q->queue_flags))
--			atomic_inc(&hctx->tags->active_queues);
-+		if (test_bit(QUEUE_FLAG_HCTX_ACTIVE, &q->queue_flags) ||
-+		    test_and_set_bit(QUEUE_FLAG_HCTX_ACTIVE, &q->queue_flags)) {
-+			return true;
-+		}
- 	} else {
--		if (!test_bit(BLK_MQ_S_TAG_ACTIVE, &hctx->state) &&
--		    !test_and_set_bit(BLK_MQ_S_TAG_ACTIVE, &hctx->state))
--			atomic_inc(&hctx->tags->active_queues);
-+		if (test_bit(BLK_MQ_S_TAG_ACTIVE, &hctx->state) ||
-+		    test_and_set_bit(BLK_MQ_S_TAG_ACTIVE, &hctx->state)) {
-+			return true;
-+		}
- 	}
- 
-+	users = atomic_inc_return(&hctx->tags->active_queues);
-+
-+	blk_mq_update_wake_batch(hctx->tags, users);
-+
- 	return true;
- }
- 
-@@ -56,6 +79,7 @@ void blk_mq_tag_wakeup_all(struct blk_mq_tags *tags, bool include_reserve)
- void __blk_mq_tag_idle(struct blk_mq_hw_ctx *hctx)
- {
- 	struct blk_mq_tags *tags = hctx->tags;
-+	unsigned int users;
- 
- 	if (blk_mq_is_shared_tags(hctx->flags)) {
- 		struct request_queue *q = hctx->queue;
-@@ -68,7 +92,9 @@ void __blk_mq_tag_idle(struct blk_mq_hw_ctx *hctx)
- 			return;
- 	}
- 
--	atomic_dec(&tags->active_queues);
-+	users = atomic_dec_return(&tags->active_queues);
-+
-+	blk_mq_update_wake_batch(tags, users);
- 
- 	blk_mq_tag_wakeup_all(tags, false);
- }
-diff --git a/include/linux/sbitmap.h b/include/linux/sbitmap.h
-index fc0357a6e19b..95df357ec009 100644
---- a/include/linux/sbitmap.h
-+++ b/include/linux/sbitmap.h
-@@ -415,6 +415,17 @@ static inline void sbitmap_queue_free(struct sbitmap_queue *sbq)
- 	sbitmap_free(&sbq->sb);
- }
- 
-+/**
-+ * sbitmap_queue_recalculate_wake_batch() - Recalculate wake batch
-+ * @sbq: Bitmap queue to recalculate wake batch.
-+ * @users: Number of shares.
-+ *
-+ * Like sbitmap_queue_update_wake_batch(), this will calculate wake batch
-+ * by depth. This interface is for HCTX shared tags or queue shared tags.
-+ */
-+void sbitmap_queue_recalculate_wake_batch(struct sbitmap_queue *sbq,
-+					    unsigned int users);
-+
- /**
-  * sbitmap_queue_resize() - Resize a &struct sbitmap_queue.
-  * @sbq: Bitmap queue to resize.
-diff --git a/lib/sbitmap.c b/lib/sbitmap.c
-index 2709ab825499..6220fa67fb7e 100644
---- a/lib/sbitmap.c
-+++ b/lib/sbitmap.c
-@@ -457,10 +457,9 @@ int sbitmap_queue_init_node(struct sbitmap_queue *sbq, unsigned int depth,
- }
- EXPORT_SYMBOL_GPL(sbitmap_queue_init_node);
- 
--static void sbitmap_queue_update_wake_batch(struct sbitmap_queue *sbq,
--					    unsigned int depth)
-+static inline void __sbitmap_queue_update_wake_batch(struct sbitmap_queue *sbq,
-+					    unsigned int wake_batch)
- {
--	unsigned int wake_batch = sbq_calc_wake_batch(sbq, depth);
- 	int i;
- 
- 	if (sbq->wake_batch != wake_batch) {
-@@ -476,6 +475,26 @@ static void sbitmap_queue_update_wake_batch(struct sbitmap_queue *sbq,
- 	}
- }
- 
-+static void sbitmap_queue_update_wake_batch(struct sbitmap_queue *sbq,
-+					    unsigned int depth)
-+{
-+	unsigned int wake_batch;
-+
-+	wake_batch = sbq_calc_wake_batch(sbq, depth);
-+	__sbitmap_queue_update_wake_batch(sbq, wake_batch);
-+}
-+
-+void sbitmap_queue_recalculate_wake_batch(struct sbitmap_queue *sbq,
-+					    unsigned int users)
-+{
-+	unsigned int wake_batch;
-+
-+	wake_batch = clamp_val((sbq->sb.depth + users - 1) /
-+			users, 4, SBQ_WAKE_BATCH);
-+	__sbitmap_queue_update_wake_batch(sbq, wake_batch);
-+}
-+EXPORT_SYMBOL_GPL(sbitmap_queue_recalculate_wake_batch);
-+
- void sbitmap_queue_resize(struct sbitmap_queue *sbq, unsigned int depth)
- {
- 	sbitmap_queue_update_wake_batch(sbq, depth);
 
