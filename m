@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB2D0498ABE
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:07:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C02249946A
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:43:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345844AbiAXTGb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:06:31 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:60484 "EHLO
+        id S1346737AbiAXUlh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:41:37 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:40788 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345651AbiAXTEX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:04:23 -0500
+        with ESMTP id S1388174AbiAXUiQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:38:16 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1F21EB8119D;
-        Mon, 24 Jan 2022 19:04:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 795F7C340E5;
-        Mon, 24 Jan 2022 19:04:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B45DFB80FA1;
+        Mon, 24 Jan 2022 20:38:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA563C340E5;
+        Mon, 24 Jan 2022 20:38:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051059;
-        bh=ztpCR6A4cAUTgphjykzOYVXIwmG7Xly0eAPKd2e9hcA=;
+        s=korg; t=1643056693;
+        bh=RrUyY9uG7ZVfU+KF3Jfwg3xQPcg+XRDfLecSIqdmf5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K+bJ2xUlUtARD9fRlUQoUOtHsYNxd1ceoTNvf2vXOlNAnkyGnccH6QPHyjyMA8Bsw
-         tBrHZ2VdePCbIQv3S2bfOW6M4pSxPqwkpcg9x9k6jPxd71+2keZxKAyHrU0fSv9fE8
-         fGgWuHd322e5FRm/aqsy8kBqGmXuF9TvyTrQt0sQ=
+        b=kEDrvfHoxUVkaxwJyknSQ/9yvGNFzxa0bQeUvvJ9SSPOb5WomTbj4BdQd1kTPegeA
+         wSbtzJgiUM6+K8CmwOQxvOXEB5bf29G4su1GKeaQe7ZLUJNTv/WgpLuJgTOkv3+Ecr
+         gmkxhjE7dlCx/3IhRqze6eCD6sUWecQnqVc8PNcA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 4.14 009/186] staging: wlan-ng: Avoid bitwise vs logical OR warning in hfa384x_usb_throttlefn()
-Date:   Mon, 24 Jan 2022 19:41:24 +0100
-Message-Id: <20220124183937.412518722@linuxfoundation.org>
+        stable@vger.kernel.org, Xing Song <xing.song@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 568/846] mt76: do not pass the received frame with decryption error
+Date:   Mon, 24 Jan 2022 19:41:25 +0100
+Message-Id: <20220124184120.626138799@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,68 +44,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Xing Song <xing.song@mediatek.com>
 
-commit 502408a61f4b7eb4713f44bd77f4a48e6cb1b59a upstream.
+[ Upstream commit dd28dea52ad9376d2b243a8981726646e1f60b1a ]
 
-A new warning in clang points out a place in this file where a bitwise
-OR is being used with boolean expressions:
+MAC80211 doesn't care any decryption error in 802.3 path, so received
+frame will be dropped if HW tell us that the cipher configuration is not
+matched as well as the header has been translated to 802.3. This case only
+appears when IEEE80211_FCTL_PROTECTED is 0 and cipher suit is not none in
+the corresponding HW entry.
 
-In file included from drivers/staging/wlan-ng/prism2usb.c:2:
-drivers/staging/wlan-ng/hfa384x_usb.c:3787:7: warning: use of bitwise '|' with boolean operands [-Wbitwise-instead-of-logical]
-            ((test_and_clear_bit(THROTTLE_RX, &hw->usb_flags) &&
-            ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/staging/wlan-ng/hfa384x_usb.c:3787:7: note: cast one or both operands to int to silence this warning
-1 warning generated.
+The received frame is only reported to monitor interface if HW decryption
+block tell us there is ICV error or CCMP/BIP/WPI MIC error. Note in this
+case the reported frame is decrypted 802.11 frame and the payload may be
+malformed due to mismatched key.
 
-The comment explains that short circuiting here is undesirable, as the
-calls to test_and_{clear,set}_bit() need to happen for both sides of the
-expression.
-
-Clang's suggestion would work to silence the warning but the readability
-of the expression would suffer even more. To clean up the warning and
-make the block more readable, use a variable for each side of the
-bitwise expression.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1478
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/20211014215703.3705371-1-nathan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Xing Song <xing.song@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/wlan-ng/hfa384x_usb.c |   22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7603/mac.c | 4 ++++
+ drivers/net/wireless/mediatek/mt76/mt7615/mac.c | 9 ++++++++-
+ drivers/net/wireless/mediatek/mt76/mt7915/mac.c | 9 ++++++++-
+ drivers/net/wireless/mediatek/mt76/mt7921/mac.c | 9 ++++++++-
+ 4 files changed, 28 insertions(+), 3 deletions(-)
 
---- a/drivers/staging/wlan-ng/hfa384x_usb.c
-+++ b/drivers/staging/wlan-ng/hfa384x_usb.c
-@@ -3904,18 +3904,18 @@ static void hfa384x_usb_throttlefn(unsig
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7603/mac.c b/drivers/net/wireless/mediatek/mt76/mt7603/mac.c
+index 3972c56136a20..65f1f2bb80835 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7603/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7603/mac.c
+@@ -525,6 +525,10 @@ mt7603_mac_fill_rx(struct mt7603_dev *dev, struct sk_buff *skb)
+ 	if (rxd2 & MT_RXD2_NORMAL_TKIP_MIC_ERR)
+ 		status->flag |= RX_FLAG_MMIC_ERROR;
  
- 	spin_lock_irqsave(&hw->ctlxq.lock, flags);
++	/* ICV error or CCMP/BIP/WPI MIC error */
++	if (rxd2 & MT_RXD2_NORMAL_ICV_ERR)
++		status->flag |= RX_FLAG_ONLY_MONITOR;
++
+ 	if (FIELD_GET(MT_RXD2_NORMAL_SEC_MODE, rxd2) != 0 &&
+ 	    !(rxd2 & (MT_RXD2_NORMAL_CLM | MT_RXD2_NORMAL_CM))) {
+ 		status->flag |= RX_FLAG_DECRYPTED;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
+index 5455231f51881..f2704149834a0 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
+@@ -286,9 +286,16 @@ static int mt7615_mac_fill_rx(struct mt7615_dev *dev, struct sk_buff *skb)
+ 	if (rxd2 & MT_RXD2_NORMAL_AMSDU_ERR)
+ 		return -EINVAL;
  
--	/*
--	 * We need to check BOTH the RX and the TX throttle controls,
--	 * so we use the bitwise OR instead of the logical OR.
--	 */
- 	pr_debug("flags=0x%lx\n", hw->usb_flags);
--	if (!hw->wlandev->hwremoved &&
--	    ((test_and_clear_bit(THROTTLE_RX, &hw->usb_flags) &&
--	      !test_and_set_bit(WORK_RX_RESUME, &hw->usb_flags)) |
--	     (test_and_clear_bit(THROTTLE_TX, &hw->usb_flags) &&
--	      !test_and_set_bit(WORK_TX_RESUME, &hw->usb_flags))
--	    )) {
--		schedule_work(&hw->usb_work);
-+	if (!hw->wlandev->hwremoved) {
-+		bool rx_throttle = test_and_clear_bit(THROTTLE_RX, &hw->usb_flags) &&
-+				   !test_and_set_bit(WORK_RX_RESUME, &hw->usb_flags);
-+		bool tx_throttle = test_and_clear_bit(THROTTLE_TX, &hw->usb_flags) &&
-+				   !test_and_set_bit(WORK_TX_RESUME, &hw->usb_flags);
-+		/*
-+		 * We need to check BOTH the RX and the TX throttle controls,
-+		 * so we use the bitwise OR instead of the logical OR.
-+		 */
-+		if (rx_throttle | tx_throttle)
-+			schedule_work(&hw->usb_work);
- 	}
++	hdr_trans = rxd1 & MT_RXD1_NORMAL_HDR_TRANS;
++	if (hdr_trans && (rxd2 & MT_RXD2_NORMAL_CM))
++		return -EINVAL;
++
++	/* ICV error or CCMP/BIP/WPI MIC error */
++	if (rxd2 & MT_RXD2_NORMAL_ICV_ERR)
++		status->flag |= RX_FLAG_ONLY_MONITOR;
++
+ 	unicast = (rxd1 & MT_RXD1_NORMAL_ADDR_TYPE) == MT_RXD1_NORMAL_U2M;
+ 	idx = FIELD_GET(MT_RXD2_NORMAL_WLAN_IDX, rxd2);
+-	hdr_trans = rxd1 & MT_RXD1_NORMAL_HDR_TRANS;
+ 	status->wcid = mt7615_rx_get_wcid(dev, idx, unicast);
  
- 	spin_unlock_irqrestore(&hw->ctlxq.lock, flags);
+ 	if (status->wcid) {
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
+index bbc996f86b5c3..ff613d7056119 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
+@@ -349,9 +349,16 @@ mt7915_mac_fill_rx(struct mt7915_dev *dev, struct sk_buff *skb)
+ 	if (rxd2 & MT_RXD2_NORMAL_AMSDU_ERR)
+ 		return -EINVAL;
+ 
++	hdr_trans = rxd2 & MT_RXD2_NORMAL_HDR_TRANS;
++	if (hdr_trans && (rxd1 & MT_RXD1_NORMAL_CM))
++		return -EINVAL;
++
++	/* ICV error or CCMP/BIP/WPI MIC error */
++	if (rxd1 & MT_RXD1_NORMAL_ICV_ERR)
++		status->flag |= RX_FLAG_ONLY_MONITOR;
++
+ 	unicast = FIELD_GET(MT_RXD3_NORMAL_ADDR_TYPE, rxd3) == MT_RXD3_NORMAL_U2M;
+ 	idx = FIELD_GET(MT_RXD1_NORMAL_WLAN_IDX, rxd1);
+-	hdr_trans = rxd2 & MT_RXD2_NORMAL_HDR_TRANS;
+ 	status->wcid = mt7915_rx_get_wcid(dev, idx, unicast);
+ 
+ 	if (status->wcid) {
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
+index 8a16f3f4d5253..04a288029c98e 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
+@@ -383,10 +383,17 @@ int mt7921_mac_fill_rx(struct mt7921_dev *dev, struct sk_buff *skb)
+ 	if (rxd2 & MT_RXD2_NORMAL_AMSDU_ERR)
+ 		return -EINVAL;
+ 
++	hdr_trans = rxd2 & MT_RXD2_NORMAL_HDR_TRANS;
++	if (hdr_trans && (rxd1 & MT_RXD1_NORMAL_CM))
++		return -EINVAL;
++
++	/* ICV error or CCMP/BIP/WPI MIC error */
++	if (rxd1 & MT_RXD1_NORMAL_ICV_ERR)
++		status->flag |= RX_FLAG_ONLY_MONITOR;
++
+ 	chfreq = FIELD_GET(MT_RXD3_NORMAL_CH_FREQ, rxd3);
+ 	unicast = FIELD_GET(MT_RXD3_NORMAL_ADDR_TYPE, rxd3) == MT_RXD3_NORMAL_U2M;
+ 	idx = FIELD_GET(MT_RXD1_NORMAL_WLAN_IDX, rxd1);
+-	hdr_trans = rxd2 & MT_RXD2_NORMAL_HDR_TRANS;
+ 	status->wcid = mt7921_rx_get_wcid(dev, idx, unicast);
+ 
+ 	if (status->wcid) {
+-- 
+2.34.1
+
 
 
