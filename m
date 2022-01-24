@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15550499124
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:12:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8930F4990B7
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:07:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354563AbiAXUJY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:09:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60814 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376856AbiAXUEN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:04:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29173C094258;
-        Mon, 24 Jan 2022 11:07:02 -0800 (PST)
+        id S1376617AbiAXUDV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:03:21 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:57754 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237325AbiAXUBP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:01:15 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DB4B0B8122C;
-        Mon, 24 Jan 2022 19:07:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1113AC340E7;
-        Mon, 24 Jan 2022 19:06:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 502156130A;
+        Mon, 24 Jan 2022 20:01:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2762CC36AFC;
+        Mon, 24 Jan 2022 20:01:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051219;
-        bh=4I2F3w+qvMx8ERrKqBcHEf041oDFYR5vHFs3Gc44x9s=;
+        s=korg; t=1643054474;
+        bh=oxD4SZxbk/IfGdi8uub6L4h5OJsot3+ZJKCvxuH8tI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KYhjk5T9Txb6s+1PBWiUmJx+RswW2GXduWVwA1236c4CFCRPpz9cAoMl2BCQaqZ5/
-         bGHNvYYsv40MCgBGPG5XCI+xofKL7LbhrDjaNYazW61Q/+6jZ/qvVA+fxZEuJ1eHg1
-         HZrV5i/wslwxsRmxA9JE0XZwqeRZYwF1FSBgfN2I=
+        b=Orj4BpxmUTGD9q9NAzzfw8567ARnugOzCwzCXFVZzatpCxh5wOl6wtKidzTeN0p16
+         SZh1FPKLAiHoZTkzctSFmCJzjKf6LSMcvadgyLiDbFs8ybV5SJIqcL5FkcZ2ylEUvH
+         CbXpSsU335OFUd5z3FH6e95VWqLRemzVme2D2tR0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org,
+        Konrad Dybcio <konrad.dybcio@somainline.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 092/186] media: b2c2: Add missing check in flexcop_pci_isr:
+Subject: [PATCH 5.10 402/563] regulator: qcom_smd: Align probe function with rpmh-regulator
 Date:   Mon, 24 Jan 2022 19:42:47 +0100
-Message-Id: <20220124183940.081728504@linuxfoundation.org>
+Message-Id: <20220124184038.345900414@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,161 +46,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Konrad Dybcio <konrad.dybcio@somainline.org>
 
-[ Upstream commit b13203032e679674c7c518f52a7ec0801ca3a829 ]
+[ Upstream commit 14e2976fbabdacb01335d7f91eeebbc89c67ddb1 ]
 
-A out-of-bounds bug can be triggered by an interrupt, the reason for
-this bug is the lack of checking of register values.
+The RPMh regulator driver is much newer and gets more attention, which in
+consequence makes it do a few things better. Update qcom_smd-regulator's
+probe function to mimic what rpmh-regulator does to address a couple of
+issues:
 
-In flexcop_pci_isr, the driver reads value from a register and uses it as
-a dma address. Finally, this address will be passed to the count parameter
-of find_next_packet. If this value is larger than the size of dma, the
-index of buffer will be out-of-bounds.
+- Probe defer now works correctly, before it used to, well,
+  kinda just die.. This fixes reliable probing on (at least) PM8994,
+  because Linux apparently cannot deal with supply map dependencies yet..
 
-Fix this by adding a check after reading the value of the register.
+- Regulator data is now matched more sanely: regulator data is matched
+  against each individual regulator node name and throwing an -EINVAL if
+  data is missing, instead of just assuming everything is fine and
+  iterating over all subsequent array members.
 
-The following KASAN report reveals it:
+- status = "disabled" will now work for disabling individual regulators in
+  DT. Previously it didn't seem to do much if anything at all.
 
-BUG: KASAN: slab-out-of-bounds in find_next_packet
-drivers/media/dvb-core/dvb_demux.c:528 [inline]
-BUG: KASAN: slab-out-of-bounds in _dvb_dmx_swfilter
-drivers/media/dvb-core/dvb_demux.c:572 [inline]
-BUG: KASAN: slab-out-of-bounds in dvb_dmx_swfilter+0x3fa/0x420
-drivers/media/dvb-core/dvb_demux.c:603
-Read of size 1 at addr ffff8880608c00a0 by task swapper/2/0
-
-CPU: 2 PID: 0 Comm: swapper/2 Not tainted 4.19.177-gdba4159c14ef #25
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-Call Trace:
- <IRQ>
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0xec/0x156 lib/dump_stack.c:118
- print_address_description+0x78/0x290 mm/kasan/report.c:256
- kasan_report_error mm/kasan/report.c:354 [inline]
- kasan_report+0x25b/0x380 mm/kasan/report.c:412
- __asan_report_load1_noabort+0x19/0x20 mm/kasan/report.c:430
- find_next_packet drivers/media/dvb-core/dvb_demux.c:528 [inline]
- _dvb_dmx_swfilter drivers/media/dvb-core/dvb_demux.c:572 [inline]
- dvb_dmx_swfilter+0x3fa/0x420 drivers/media/dvb-core/dvb_demux.c:603
- flexcop_pass_dmx_data+0x2e/0x40 drivers/media/common/b2c2/flexcop.c:167
- flexcop_pci_isr+0x3d1/0x5d0 drivers/media/pci/b2c2/flexcop-pci.c:212
- __handle_irq_event_percpu+0xfb/0x770 kernel/irq/handle.c:149
- handle_irq_event_percpu+0x79/0x150 kernel/irq/handle.c:189
- handle_irq_event+0xac/0x140 kernel/irq/handle.c:206
- handle_fasteoi_irq+0x232/0x5c0 kernel/irq/chip.c:725
- generic_handle_irq_desc include/linux/irqdesc.h:155 [inline]
- handle_irq+0x230/0x3a0 arch/x86/kernel/irq_64.c:87
- do_IRQ+0xa7/0x1e0 arch/x86/kernel/irq.c:247
- common_interrupt+0xf/0xf arch/x86/entry/entry_64.S:670
- </IRQ>
-RIP: 0010:native_safe_halt+0x28/0x30 arch/x86/include/asm/irqflags.h:61
-Code: 00 00 55 be 04 00 00 00 48 c7 c7 00 62 2f 8c 48 89 e5 e8 fb 31
-e8 f8 8b 05 75 4f 8e 03 85 c0 7e 07 0f 00 2d 8a 61 66 00 fb f4 <5d> c3
-90 90 90 90 90 90 0f 1f 44 00 00 55 48 89 e5 41 57 41 56 41
-RSP: 0018:ffff88806b71fcc8 EFLAGS: 00000246 ORIG_RAX: ffffffffffffffde
-RAX: 0000000000000000 RBX: ffffffff8bde44c8 RCX: ffffffff88a11285
-RDX: 0000000000000000 RSI: 0000000000000004 RDI: ffffffff8c2f6200
-RBP: ffff88806b71fcc8 R08: fffffbfff185ec40 R09: fffffbfff185ec40
-R10: 0000000000000001 R11: fffffbfff185ec40 R12: 0000000000000002
-R13: ffffffff8be9d6e0 R14: 0000000000000000 R15: 0000000000000000
- arch_safe_halt arch/x86/include/asm/paravirt.h:94 [inline]
- default_idle+0x6f/0x360 arch/x86/kernel/process.c:557
- arch_cpu_idle+0xf/0x20 arch/x86/kernel/process.c:548
- default_idle_call+0x3b/0x60 kernel/sched/idle.c:93
- cpuidle_idle_call kernel/sched/idle.c:153 [inline]
- do_idle+0x2ab/0x3c0 kernel/sched/idle.c:263
- cpu_startup_entry+0xcb/0xe0 kernel/sched/idle.c:369
- start_secondary+0x3b8/0x4e0 arch/x86/kernel/smpboot.c:271
- secondary_startup_64+0xa4/0xb0 arch/x86/kernel/head_64.S:243
-
-Allocated by task 1:
- save_stack+0x43/0xd0 mm/kasan/kasan.c:448
- set_track mm/kasan/kasan.c:460 [inline]
- kasan_kmalloc+0xad/0xe0 mm/kasan/kasan.c:553
- kasan_slab_alloc+0x11/0x20 mm/kasan/kasan.c:490
- slab_post_alloc_hook mm/slab.h:445 [inline]
- slab_alloc_node mm/slub.c:2741 [inline]
- slab_alloc mm/slub.c:2749 [inline]
- kmem_cache_alloc+0xeb/0x280 mm/slub.c:2754
- kmem_cache_zalloc include/linux/slab.h:699 [inline]
- __kernfs_new_node+0xe2/0x6f0 fs/kernfs/dir.c:633
- kernfs_new_node+0x9a/0x120 fs/kernfs/dir.c:693
- __kernfs_create_file+0x5f/0x340 fs/kernfs/file.c:992
- sysfs_add_file_mode_ns+0x22a/0x4e0 fs/sysfs/file.c:306
- create_files fs/sysfs/group.c:63 [inline]
- internal_create_group+0x34e/0xc30 fs/sysfs/group.c:147
- sysfs_create_group fs/sysfs/group.c:173 [inline]
- sysfs_create_groups+0x9c/0x140 fs/sysfs/group.c:200
- driver_add_groups+0x3e/0x50 drivers/base/driver.c:129
- bus_add_driver+0x3a5/0x790 drivers/base/bus.c:684
- driver_register+0x1cd/0x410 drivers/base/driver.c:170
- __pci_register_driver+0x197/0x200 drivers/pci/pci-driver.c:1411
- cx88_audio_pci_driver_init+0x23/0x25 drivers/media/pci/cx88/cx88-alsa.c:
- 1017
- do_one_initcall+0xe0/0x610 init/main.c:884
- do_initcall_level init/main.c:952 [inline]
- do_initcalls init/main.c:960 [inline]
- do_basic_setup init/main.c:978 [inline]
- kernel_init_freeable+0x4d0/0x592 init/main.c:1145
- kernel_init+0x18/0x190 init/main.c:1062
- ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:415
-
-Freed by task 0:
-(stack is not available)
-
-The buggy address belongs to the object at ffff8880608c0000
- which belongs to the cache kernfs_node_cache of size 160
-The buggy address is located 0 bytes to the right of
- 160-byte region [ffff8880608c0000, ffff8880608c00a0)
-The buggy address belongs to the page:
-page:ffffea0001823000 count:1 mapcount:0 mapping:ffff88806bed1e00
-index:0x0 compound_mapcount: 0
-flags: 0x100000000008100(slab|head)
-raw: 0100000000008100 dead000000000100 dead000000000200 ffff88806bed1e00
-raw: 0000000000000000 0000000000240024 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- ffff8880608bff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- ffff8880608c0000: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->ffff8880608c0080: 00 00 00 00 fc fc fc fc fc fc fc fc 00 00 00 00
-                               ^
- ffff8880608c0100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
- ffff8880608c0180: fc fc fc fc fc fc fc fc 00 00 00 00 00 00 00 00
-==================================================================
-
-Link: https://lore.kernel.org/linux-media/1620723603-30912-1-git-send-email-zheyuma97@gmail.com
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Konrad Dybcio <konrad.dybcio@somainline.org>
+Link: https://lore.kernel.org/r/20211230023442.1123424-1-konrad.dybcio@somainline.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/b2c2/flexcop-pci.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/regulator/qcom_smd-regulator.c | 100 +++++++++++++++++--------
+ 1 file changed, 70 insertions(+), 30 deletions(-)
 
-diff --git a/drivers/media/pci/b2c2/flexcop-pci.c b/drivers/media/pci/b2c2/flexcop-pci.c
-index cc6527e355373..b7d8e34ffd5da 100644
---- a/drivers/media/pci/b2c2/flexcop-pci.c
-+++ b/drivers/media/pci/b2c2/flexcop-pci.c
-@@ -184,6 +184,8 @@ static irqreturn_t flexcop_pci_isr(int irq, void *dev_id)
- 		dma_addr_t cur_addr =
- 			fc->read_ibi_reg(fc,dma1_008).dma_0x8.dma_cur_addr << 2;
- 		u32 cur_pos = cur_addr - fc_pci->dma[0].dma_addr0;
-+		if (cur_pos > fc_pci->dma[0].size * 2)
-+			goto error;
+diff --git a/drivers/regulator/qcom_smd-regulator.c b/drivers/regulator/qcom_smd-regulator.c
+index bb944ee5fe3b1..03e146e98abd5 100644
+--- a/drivers/regulator/qcom_smd-regulator.c
++++ b/drivers/regulator/qcom_smd-regulator.c
+@@ -9,6 +9,7 @@
+ #include <linux/of_device.h>
+ #include <linux/platform_device.h>
+ #include <linux/regulator/driver.h>
++#include <linux/regulator/of_regulator.h>
+ #include <linux/soc/qcom/smd-rpm.h>
  
- 		deb_irq("%u irq: %08x cur_addr: %llx: cur_pos: %08x, last_cur_pos: %08x ",
- 				jiffies_to_usecs(jiffies - fc_pci->last_irq),
-@@ -224,6 +226,7 @@ static irqreturn_t flexcop_pci_isr(int irq, void *dev_id)
- 		ret = IRQ_NONE;
+ struct qcom_rpm_reg {
+@@ -1107,52 +1108,91 @@ static const struct of_device_id rpm_of_match[] = {
+ };
+ MODULE_DEVICE_TABLE(of, rpm_of_match);
+ 
+-static int rpm_reg_probe(struct platform_device *pdev)
++/**
++ * rpm_regulator_init_vreg() - initialize all attributes of a qcom_smd-regulator
++ * @vreg:		Pointer to the individual qcom_smd-regulator resource
++ * @dev:		Pointer to the top level qcom_smd-regulator PMIC device
++ * @node:		Pointer to the individual qcom_smd-regulator resource
++ *			device node
++ * @rpm:		Pointer to the rpm bus node
++ * @pmic_rpm_data:	Pointer to a null-terminated array of qcom_smd-regulator
++ *			resources defined for the top level PMIC device
++ *
++ * Return: 0 on success, errno on failure
++ */
++static int rpm_regulator_init_vreg(struct qcom_rpm_reg *vreg, struct device *dev,
++				   struct device_node *node, struct qcom_smd_rpm *rpm,
++				   const struct rpm_regulator_data *pmic_rpm_data)
+ {
+-	const struct rpm_regulator_data *reg;
+-	const struct of_device_id *match;
+-	struct regulator_config config = { };
++	struct regulator_config config = {};
++	const struct rpm_regulator_data *rpm_data;
+ 	struct regulator_dev *rdev;
++	int ret;
++
++	for (rpm_data = pmic_rpm_data; rpm_data->name; rpm_data++)
++		if (of_node_name_eq(node, rpm_data->name))
++			break;
++
++	if (!rpm_data->name) {
++		dev_err(dev, "Unknown regulator %pOFn\n", node);
++		return -EINVAL;
++	}
++
++	vreg->dev	= dev;
++	vreg->rpm	= rpm;
++	vreg->type	= rpm_data->type;
++	vreg->id	= rpm_data->id;
++
++	memcpy(&vreg->desc, rpm_data->desc, sizeof(vreg->desc));
++	vreg->desc.name = rpm_data->name;
++	vreg->desc.supply_name = rpm_data->supply;
++	vreg->desc.owner = THIS_MODULE;
++	vreg->desc.type = REGULATOR_VOLTAGE;
++	vreg->desc.of_match = rpm_data->name;
++
++	config.dev		= dev;
++	config.of_node		= node;
++	config.driver_data	= vreg;
++
++	rdev = devm_regulator_register(dev, &vreg->desc, &config);
++	if (IS_ERR(rdev)) {
++		ret = PTR_ERR(rdev);
++		dev_err(dev, "%pOFn: devm_regulator_register() failed, ret=%d\n", node, ret);
++		return ret;
++	}
++
++	return 0;
++}
++
++static int rpm_reg_probe(struct platform_device *pdev)
++{
++	struct device *dev = &pdev->dev;
++	const struct rpm_regulator_data *vreg_data;
++	struct device_node *node;
+ 	struct qcom_rpm_reg *vreg;
+ 	struct qcom_smd_rpm *rpm;
++	int ret;
+ 
+ 	rpm = dev_get_drvdata(pdev->dev.parent);
+ 	if (!rpm) {
+-		dev_err(&pdev->dev, "unable to retrieve handle to rpm\n");
++		dev_err(&pdev->dev, "Unable to retrieve handle to rpm\n");
+ 		return -ENODEV;
  	}
  
-+error:
- 	spin_unlock_irqrestore(&fc_pci->irq_lock, flags);
- 	return ret;
- }
+-	match = of_match_device(rpm_of_match, &pdev->dev);
+-	if (!match) {
+-		dev_err(&pdev->dev, "failed to match device\n");
++	vreg_data = of_device_get_match_data(dev);
++	if (!vreg_data)
+ 		return -ENODEV;
+-	}
+ 
+-	for (reg = match->data; reg->name; reg++) {
++	for_each_available_child_of_node(dev->of_node, node) {
+ 		vreg = devm_kzalloc(&pdev->dev, sizeof(*vreg), GFP_KERNEL);
+ 		if (!vreg)
+ 			return -ENOMEM;
+ 
+-		vreg->dev = &pdev->dev;
+-		vreg->type = reg->type;
+-		vreg->id = reg->id;
+-		vreg->rpm = rpm;
+-
+-		memcpy(&vreg->desc, reg->desc, sizeof(vreg->desc));
+-
+-		vreg->desc.id = -1;
+-		vreg->desc.owner = THIS_MODULE;
+-		vreg->desc.type = REGULATOR_VOLTAGE;
+-		vreg->desc.name = reg->name;
+-		vreg->desc.supply_name = reg->supply;
+-		vreg->desc.of_match = reg->name;
+-
+-		config.dev = &pdev->dev;
+-		config.driver_data = vreg;
+-		rdev = devm_regulator_register(&pdev->dev, &vreg->desc, &config);
+-		if (IS_ERR(rdev)) {
+-			dev_err(&pdev->dev, "failed to register %s\n", reg->name);
+-			return PTR_ERR(rdev);
++		ret = rpm_regulator_init_vreg(vreg, dev, node, rpm, vreg_data);
++
++		if (ret < 0) {
++			of_node_put(node);
++			return ret;
+ 		}
+ 	}
+ 
 -- 
 2.34.1
 
