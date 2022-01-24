@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5B6E49907E
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:04:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0389F498D22
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:33:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353736AbiAXUAz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:00:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58624 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352132AbiAXT5K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:57:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1915C047CCC;
-        Mon, 24 Jan 2022 11:27:38 -0800 (PST)
+        id S1348190AbiAXT2G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:28:06 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:48994 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1351152AbiAXT0E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:26:04 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 51A7261489;
-        Mon, 24 Jan 2022 19:27:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30CD5C340E5;
-        Mon, 24 Jan 2022 19:27:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8A2A4B8121A;
+        Mon, 24 Jan 2022 19:26:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80ED6C340E5;
+        Mon, 24 Jan 2022 19:26:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052457;
-        bh=tCpkJdo/lVhf/9FgRTea5S8mpKM/e4FwMDtYImGTn0k=;
+        s=korg; t=1643052362;
+        bh=ZYoNT/gKCF32h7AuxcVFTRr05fgo4y6nVkWi1qiO7ks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EaFy3bWH26c/tYxvVmdMe4mRrDjAc9l1Dj7cCiqIaLsZ5P84ENm6BFtGaCF7Hih3c
-         vSzuDTSsqr3DEpVpWlxbNsUKCEpvqJPqTvXI1VXD2oCQKwpsw8W/kYqiGak231WWnC
-         xXNchRwQvppQfF2/dWdxudjS9aG39r4betxmd05c=
+        b=cxAXBC9mUDIp13dJYDGLDL6vf1iDp4cphOJ8919jiKbm3QMFJJIvHGbzCyN6xfaQ5
+         2srBJiKmt0fcfWFw3nU8+8jZ3pyorI7w3uoTWN7MhHC35zT6/PeldI1toGFSoKtOzs
+         AiI3Lc3clHto8lYD2KQsdEuT2lfaPFTyqjRun1Ss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Chen-Yu Tsai <wenst@chromium.org>,
-        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
-        <nfraprado@collabora.com>, Heiko Stuebner <heiko@sntech.de>
-Subject: [PATCH 5.4 033/320] drm/rockchip: dsi: Reconfigure hardware on resume()
-Date:   Mon, 24 Jan 2022 19:40:17 +0100
-Message-Id: <20220124183954.879107046@linuxfoundation.org>
+        Sam Ravnborg <sam@ravnborg.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 034/320] drm/panel: kingdisplay-kd097d04: Delete panel on attach() failure
+Date:   Mon, 24 Jan 2022 19:40:18 +0100
+Message-Id: <20220124183954.911443634@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
 References: <20220124183953.750177707@linuxfoundation.org>
@@ -51,110 +47,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Brian Norris <briannorris@chromium.org>
 
-commit e584cdc1549932f87a2707b56bc588cfac5d89e0 upstream.
+[ Upstream commit 5f31dbeae8a88f31c3eb4eb526ab4807c40da241 ]
 
-Since commit 43c2de1002d2 ("drm/rockchip: dsi: move all lane config except
-LCDC mux to bind()"), we perform most HW configuration in the bind()
-function. This configuration may be lost on suspend/resume, so we
-need to call it again. That may lead to errors like this after system
-suspend/resume:
+If we fail to attach (e.g., because 1 of 2 dual-DSI controllers aren't
+ready), we leave a dangling drm_panel reference to freed memory. Clean
+that up on failure.
 
-  dw-mipi-dsi-rockchip ff968000.mipi: failed to write command FIFO
-  panel-kingdisplay-kd097d04 ff960000.mipi.0: failed write init cmds: -110
-
-Tested on Acer Chromebook Tab 10 (RK3399 Gru-Scarlet).
-
-Note that early mailing list versions of this driver borrowed Rockchip's
-downstream/BSP solution, to do HW configuration in mode_set() (which
-*is* called at the appropriate pre-enable() times), but that was
-discarded along the way. I've avoided that still, because mode_set()
-documentation doesn't suggest this kind of purpose as far as I can tell.
-
-Fixes: 43c2de1002d2 ("drm/rockchip: dsi: move all lane config except LCDC mux to bind()")
-Cc: <stable@vger.kernel.org>
+Fixes: 2a994cbed6b2 ("drm/panel: Add Kingdisplay KD097D04 panel driver")
 Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
-Tested-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210928143413.v3.2.I4e9d93aadb00b1ffc7d506e3186a25492bf0b732@changeid
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210923173336.1.Icb4d9dbc1817f4e826361a4f1cea7461541668f0@changeid
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c |   37 ++++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
+ drivers/gpu/drm/panel/panel-kingdisplay-kd097d04.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-+++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-@@ -231,6 +231,8 @@ struct dw_mipi_dsi_rockchip {
- 	struct dw_mipi_dsi *dmd;
- 	const struct rockchip_dw_dsi_chip_data *cdata;
- 	struct dw_mipi_dsi_plat_data pdata;
-+
-+	bool dsi_bound;
- };
+diff --git a/drivers/gpu/drm/panel/panel-kingdisplay-kd097d04.c b/drivers/gpu/drm/panel/panel-kingdisplay-kd097d04.c
+index 3ac04eb8d0fe5..1e7fecab72a9f 100644
+--- a/drivers/gpu/drm/panel/panel-kingdisplay-kd097d04.c
++++ b/drivers/gpu/drm/panel/panel-kingdisplay-kd097d04.c
+@@ -424,7 +424,13 @@ static int kingdisplay_panel_probe(struct mipi_dsi_device *dsi)
+ 	if (err < 0)
+ 		return err;
  
- struct dphy_pll_parameter_map {
-@@ -821,6 +823,8 @@ static int dw_mipi_dsi_rockchip_bind(str
- 		goto out_pm_runtime;
- 	}
- 
-+	dsi->dsi_bound = true;
-+
- 	return 0;
- 
- out_pm_runtime:
-@@ -840,6 +844,8 @@ static void dw_mipi_dsi_rockchip_unbind(
- 	if (dsi->is_slave)
- 		return;
- 
-+	dsi->dsi_bound = false;
-+
- 	dw_mipi_dsi_unbind(dsi->dmd);
- 
- 	clk_disable_unprepare(dsi->pllref_clk);
-@@ -904,6 +910,36 @@ static const struct dw_mipi_dsi_host_ops
- 	.detach = dw_mipi_dsi_rockchip_host_detach,
- };
- 
-+static int __maybe_unused dw_mipi_dsi_rockchip_resume(struct device *dev)
-+{
-+	struct dw_mipi_dsi_rockchip *dsi = dev_get_drvdata(dev);
-+	int ret;
-+
-+	/*
-+	 * Re-configure DSI state, if we were previously initialized. We need
-+	 * to do this before rockchip_drm_drv tries to re-enable() any panels.
-+	 */
-+	if (dsi->dsi_bound) {
-+		ret = clk_prepare_enable(dsi->grf_clk);
-+		if (ret) {
-+			DRM_DEV_ERROR(dsi->dev, "Failed to enable grf_clk: %d\n", ret);
-+			return ret;
-+		}
-+
-+		dw_mipi_dsi_rockchip_config(dsi);
-+		if (dsi->slave)
-+			dw_mipi_dsi_rockchip_config(dsi->slave);
-+
-+		clk_disable_unprepare(dsi->grf_clk);
+-	return mipi_dsi_attach(dsi);
++	err = mipi_dsi_attach(dsi);
++	if (err < 0) {
++		kingdisplay_panel_del(kingdisplay);
++		return err;
 +	}
 +
 +	return 0;
-+}
-+
-+static const struct dev_pm_ops dw_mipi_dsi_rockchip_pm_ops = {
-+	SET_LATE_SYSTEM_SLEEP_PM_OPS(NULL, dw_mipi_dsi_rockchip_resume)
-+};
-+
- static int dw_mipi_dsi_rockchip_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
-@@ -1089,6 +1125,7 @@ struct platform_driver dw_mipi_dsi_rockc
- 	.remove		= dw_mipi_dsi_rockchip_remove,
- 	.driver		= {
- 		.of_match_table = dw_mipi_dsi_rockchip_dt_ids,
-+		.pm	= &dw_mipi_dsi_rockchip_pm_ops,
- 		.name	= "dw-mipi-dsi-rockchip",
- 	},
- };
+ }
+ 
+ static int kingdisplay_panel_remove(struct mipi_dsi_device *dsi)
+-- 
+2.34.1
+
 
 
