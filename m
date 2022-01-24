@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C09ED499427
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:41:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82346499021
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:02:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1388571AbiAXUji (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:39:38 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:38894 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385738AbiAXUeR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:34:17 -0500
+        id S1347492AbiAXT6j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:58:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57526 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348424AbiAXTwj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:52:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26D99C0617BD;
+        Mon, 24 Jan 2022 11:25:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 337C8B8121A;
-        Mon, 24 Jan 2022 20:34:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E0CBC340E5;
-        Mon, 24 Jan 2022 20:34:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8D5F61483;
+        Mon, 24 Jan 2022 19:25:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA75AC340E5;
+        Mon, 24 Jan 2022 19:25:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056453;
-        bh=nWfx+5I8ePLDtAMpHsHpCuInFeM3n1fhygFY6A3KG1I=;
+        s=korg; t=1643052328;
+        bh=x8ZQ3S8zIVTHi8vfagOrUccfQLdVTDvY8UlvC4IZUdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gkbvTp8PJEGzkv/ksLKXB7dzBEckWkPIoBnoe3hvz6i/oZowVQnKDS29QmpSKFMAm
-         OEMbeZodYkaikKg990SMLt+CDRKABPEBjIoYrMYBAoOiwHL01cETRJNJbzo1xWnocZ
-         kSb6sG2MP6v8TaExtdFFuQqEV+tyxACliFyM9pGU=
+        b=NmGxnUIHU4ZFabSU6Fxs0F4D6n0+HkeXqnqA5x2SYESg956U6mf+uV9U56oLZ/Mce
+         1XjAesKJxykWAFGi8tupqjHlsaobsZ/EA1i10CZwoKcgtwEEQByN6ILq5xTwazwNtR
+         fevI2ejUtVHe/SKhMNr7LMtnXTgPrVnAPFK+nfJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abaci Robot <abaci@linux.alibaba.com>,
-        Yang Li <yang.lee@linux.alibaba.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 489/846] ethernet: renesas: Use div64_ul instead of do_div
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.4 022/320] media: pvrusb2: fix control-message timeouts
 Date:   Mon, 24 Jan 2022 19:40:06 +0100
-Message-Id: <20220124184117.878667952@linuxfoundation.org>
+Message-Id: <20220124183954.505885405@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,56 +48,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Li <yang.lee@linux.alibaba.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit d9f31aeaa1e5aefa68130878af3c3513d41c1e2d ]
+commit b82bf9b9dc305d7d3d93eab106d70dbf2171b43e upstream.
 
-do_div() does a 64-by-32 division. Here the divisor is an
-unsigned long which on some platforms is 64 bit wide. So use
-div64_ul instead of do_div to avoid a possible truncation.
+USB control-message timeouts are specified in milliseconds and should
+specifically not vary with CONFIG_HZ.
 
-Eliminate the following coccicheck warning:
-./drivers/net/ethernet/renesas/ravb_main.c:2492:1-7: WARNING:
-do_div() does a 64-by-32 division, please consider using div64_ul
-instead.
-
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Link: https://lore.kernel.org/r/1637228883-100100-1-git-send-email-yang.lee@linux.alibaba.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: d855497edbfb ("V4L/DVB (4228a): pvrusb2 to kernel 2.6.18")
+Cc: stable@vger.kernel.org      # 2.6.18
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/renesas/ravb_main.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/media/usb/pvrusb2/pvrusb2-hdw.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
-index 0f85f2d97b18d..4e08b7219403c 100644
---- a/drivers/net/ethernet/renesas/ravb_main.c
-+++ b/drivers/net/ethernet/renesas/ravb_main.c
-@@ -30,8 +30,7 @@
- #include <linux/spinlock.h>
- #include <linux/sys_soc.h>
- #include <linux/reset.h>
--
--#include <asm/div64.h>
-+#include <linux/math64.h>
+--- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
++++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
+@@ -1468,7 +1468,7 @@ static int pvr2_upload_firmware1(struct
+ 	for (address = 0; address < fwsize; address += 0x800) {
+ 		memcpy(fw_ptr, fw_entry->data + address, 0x800);
+ 		ret += usb_control_msg(hdw->usb_dev, pipe, 0xa0, 0x40, address,
+-				       0, fw_ptr, 0x800, HZ);
++				       0, fw_ptr, 0x800, 1000);
+ 	}
  
- #include "ravb.h"
+ 	trace_firmware("Upload done, releasing device's CPU");
+@@ -1606,7 +1606,7 @@ int pvr2_upload_firmware2(struct pvr2_hd
+ 			((u32 *)fw_ptr)[icnt] = swab32(((u32 *)fw_ptr)[icnt]);
  
-@@ -2061,8 +2060,7 @@ static int ravb_set_gti(struct net_device *ndev)
- 	if (!rate)
- 		return -EINVAL;
+ 		ret |= usb_bulk_msg(hdw->usb_dev, pipe, fw_ptr,bcnt,
+-				    &actual_length, HZ);
++				    &actual_length, 1000);
+ 		ret |= (actual_length != bcnt);
+ 		if (ret) break;
+ 		fw_done += bcnt;
+@@ -3439,7 +3439,7 @@ void pvr2_hdw_cpufw_set_enabled(struct p
+ 						      0xa0,0xc0,
+ 						      address,0,
+ 						      hdw->fw_buffer+address,
+-						      0x800,HZ);
++						      0x800,1000);
+ 				if (ret < 0) break;
+ 			}
  
--	inc = 1000000000ULL << 20;
--	do_div(inc, rate);
-+	inc = div64_ul(1000000000ULL << 20, rate);
- 
- 	if (inc < GTI_TIV_MIN || inc > GTI_TIV_MAX) {
- 		dev_err(dev, "gti.tiv increment 0x%llx is outside the range 0x%x - 0x%x\n",
--- 
-2.34.1
-
+@@ -3978,7 +3978,7 @@ void pvr2_hdw_cpureset_assert(struct pvr
+ 	/* Write the CPUCS register on the 8051.  The lsb of the register
+ 	   is the reset bit; a 1 asserts reset while a 0 clears it. */
+ 	pipe = usb_sndctrlpipe(hdw->usb_dev, 0);
+-	ret = usb_control_msg(hdw->usb_dev,pipe,0xa0,0x40,0xe600,0,da,1,HZ);
++	ret = usb_control_msg(hdw->usb_dev,pipe,0xa0,0x40,0xe600,0,da,1,1000);
+ 	if (ret < 0) {
+ 		pvr2_trace(PVR2_TRACE_ERROR_LEGS,
+ 			   "cpureset_assert(%d) error=%d",val,ret);
 
 
