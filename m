@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D2A349A938
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:20:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD2A449A944
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:20:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1322335AbiAYDVe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:21:34 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58004 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381083AbiAXUSy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:18:54 -0500
+        id S1322390AbiAYDVk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:21:40 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:46800 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1356723AbiAXUUq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:20:46 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B870AB8119E;
-        Mon, 24 Jan 2022 20:18:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD8DAC340E5;
-        Mon, 24 Jan 2022 20:18:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF0CF61496;
+        Mon, 24 Jan 2022 20:20:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEF72C340E5;
+        Mon, 24 Jan 2022 20:20:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055530;
-        bh=v6/FXpNGzXAE6TYf3fSLBuAkE9l9oQwNd47fnT/FRjA=;
+        s=korg; t=1643055644;
+        bh=b7tX3ZlHFJtdTxVMz/rlSEv/QGf1NcHRNgd6ZSQZdFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=maZo45ouBSjT4Gpoq1HLVWP7l/fCr0nSJhh4Q81XveaD2SYwUolUWHDP/yxPbbsOg
-         P9jI4oE+MxjELk6rB0jDYof+tkImxnFDvFBPvJVtBTBVNTxFUyzLNFv9/AH8QTlYsf
-         SUCkM2kY/vWAlNc7+VcLxAyqfqOzAfAHyzMb+hWU=
+        b=2o4DZ2A+OjpQ/GQJp3oOCLTyaATTc/mtZgHuXMO1A/jblHz/AnHmBcAuzrU20n7Wd
+         APeI2KROYkD9Z0mXm9ggGpLJYPQmx3wheQh84l7764X6iL7zGjMRwjfqg3QUropOcM
+         kIZwtv+vRo/vKR9uj/uirrw3R9ri5jPb9nHG0TW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        William Kucharski <william.kucharski@oracle.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 180/846] cgroup: Trace event cgroup id fields should be u64
-Date:   Mon, 24 Jan 2022 19:34:57 +0100
-Message-Id: <20220124184107.194884445@linuxfoundation.org>
+        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 185/846] libbpf: Clean gen_loaders attach kind.
+Date:   Mon, 24 Jan 2022 19:35:02 +0100
+Message-Id: <20220124184107.359387999@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -46,84 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: William Kucharski <william.kucharski@oracle.com>
+From: Alexei Starovoitov <ast@kernel.org>
 
-[ Upstream commit e14da77113bb890d7bf9e5d17031bdd476a7ce5e ]
+[ Upstream commit 19250f5fc0c283892a61f3abf9d65e6325f63897 ]
 
-Various trace event fields that store cgroup IDs were declared as
-ints, but cgroup_id(() returns a u64 and the structures and associated
-TP_printk() calls were not updated to reflect this.
+The gen_loader has to clear attach_kind otherwise the programs
+without attach_btf_id will fail load if they follow programs
+with attach_btf_id.
 
-Fixes: 743210386c03 ("cgroup: use cgrp->kn->id as the cgroup ID")
-Signed-off-by: William Kucharski <william.kucharski@oracle.com>
-Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+Fixes: 67234743736a ("libbpf: Generate loader program out of BPF ELF file.")
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Acked-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20211201181040.23337-12-alexei.starovoitov@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/cgroup.h | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ tools/lib/bpf/gen_loader.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/include/trace/events/cgroup.h b/include/trace/events/cgroup.h
-index 7f42a3de59e6b..dd7d7c9efecdf 100644
---- a/include/trace/events/cgroup.h
-+++ b/include/trace/events/cgroup.h
-@@ -59,8 +59,8 @@ DECLARE_EVENT_CLASS(cgroup,
- 
- 	TP_STRUCT__entry(
- 		__field(	int,		root			)
--		__field(	int,		id			)
- 		__field(	int,		level			)
-+		__field(	u64,		id			)
- 		__string(	path,		path			)
- 	),
- 
-@@ -71,7 +71,7 @@ DECLARE_EVENT_CLASS(cgroup,
- 		__assign_str(path, path);
- 	),
- 
--	TP_printk("root=%d id=%d level=%d path=%s",
-+	TP_printk("root=%d id=%llu level=%d path=%s",
- 		  __entry->root, __entry->id, __entry->level, __get_str(path))
- );
- 
-@@ -126,8 +126,8 @@ DECLARE_EVENT_CLASS(cgroup_migrate,
- 
- 	TP_STRUCT__entry(
- 		__field(	int,		dst_root		)
--		__field(	int,		dst_id			)
- 		__field(	int,		dst_level		)
-+		__field(	u64,		dst_id			)
- 		__field(	int,		pid			)
- 		__string(	dst_path,	path			)
- 		__string(	comm,		task->comm		)
-@@ -142,7 +142,7 @@ DECLARE_EVENT_CLASS(cgroup_migrate,
- 		__assign_str(comm, task->comm);
- 	),
- 
--	TP_printk("dst_root=%d dst_id=%d dst_level=%d dst_path=%s pid=%d comm=%s",
-+	TP_printk("dst_root=%d dst_id=%llu dst_level=%d dst_path=%s pid=%d comm=%s",
- 		  __entry->dst_root, __entry->dst_id, __entry->dst_level,
- 		  __get_str(dst_path), __entry->pid, __get_str(comm))
- );
-@@ -171,8 +171,8 @@ DECLARE_EVENT_CLASS(cgroup_event,
- 
- 	TP_STRUCT__entry(
- 		__field(	int,		root			)
--		__field(	int,		id			)
- 		__field(	int,		level			)
-+		__field(	u64,		id			)
- 		__string(	path,		path			)
- 		__field(	int,		val			)
- 	),
-@@ -185,7 +185,7 @@ DECLARE_EVENT_CLASS(cgroup_event,
- 		__entry->val = val;
- 	),
- 
--	TP_printk("root=%d id=%d level=%d path=%s val=%d",
-+	TP_printk("root=%d id=%llu level=%d path=%s val=%d",
- 		  __entry->root, __entry->id, __entry->level, __get_str(path),
- 		  __entry->val)
- );
+diff --git a/tools/lib/bpf/gen_loader.c b/tools/lib/bpf/gen_loader.c
+index 8df718a6b142d..33c19590ee434 100644
+--- a/tools/lib/bpf/gen_loader.c
++++ b/tools/lib/bpf/gen_loader.c
+@@ -663,9 +663,11 @@ void bpf_gen__prog_load(struct bpf_gen *gen,
+ 	debug_ret(gen, "prog_load %s insn_cnt %d", attr.prog_name, attr.insn_cnt);
+ 	/* successful or not, close btf module FDs used in extern ksyms and attach_btf_obj_fd */
+ 	cleanup_relos(gen, insns);
+-	if (gen->attach_kind)
++	if (gen->attach_kind) {
+ 		emit_sys_close_blob(gen,
+ 				    attr_field(prog_load_attr, attach_btf_obj_fd));
++		gen->attach_kind = 0;
++	}
+ 	emit_check_err(gen);
+ 	/* remember prog_fd in the stack, if successful */
+ 	emit(gen, BPF_STX_MEM(BPF_W, BPF_REG_10, BPF_REG_7,
 -- 
 2.34.1
 
