@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1E50499BC2
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:05:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF20C499BC6
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:05:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1449749AbiAXVyz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:54:55 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:52814 "EHLO
+        id S1456746AbiAXVzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:55:02 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:52876 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1573632AbiAXVp1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:45:27 -0500
+        with ESMTP id S1573671AbiAXVpg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:45:36 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B3AA1B81142;
-        Mon, 24 Jan 2022 21:45:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9F03C340E4;
-        Mon, 24 Jan 2022 21:45:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2694CB80FA1;
+        Mon, 24 Jan 2022 21:45:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 244AEC340E5;
+        Mon, 24 Jan 2022 21:45:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060724;
-        bh=Na2LqFnocrrciGh3URNev+L8WFIemNTWltVKqlnZUVA=;
+        s=korg; t=1643060733;
+        bh=uyerVO+UteF3ZIZcetYXxzLHy9BxVQRYWe9gb8chIxo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N10CC9Wm8JRm/uYORiqQOBISvFYkiSWQhzuVA82WVMFpUod7mW/CoM5DSZBhXICxI
-         NBg81sPcjLZ0klst11lvfeOb38F3Nj6fgikj1vp8kqOvlwRlh1Y+cNvd7OwyBRnaxS
-         YG84eou+JDYE8zBk7Cczjt/gRMLAOUzOKym/mLcg=
+        b=FYaJF6mKTujXVkF00S0VJt32QmhX0oQpnf52i8xK1cfEnx0bwPr8Ezje61NchESpw
+         FHyJx19L4WjTqScOPO41cXLy4NAyNP89/TVpTyStMibGUBcJn9HXGl158Bhp+002Y5
+         LPsr4ETpT8wYT1rj5eCloJCZCuKjh28dHFjIk4Ik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        stable@vger.kernel.org,
+        Horatiu Vultur <horatiu.vultur@microchip.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.16 1014/1039] net: mscc: ocelot: dont dereference NULL pointers with shared tc filters
-Date:   Mon, 24 Jan 2022 19:46:43 +0100
-Message-Id: <20220124184159.379780388@linuxfoundation.org>
+Subject: [PATCH 5.16 1017/1039] net: ocelot: Fix the call to switchdev_bridge_port_offload
+Date:   Mon, 24 Jan 2022 19:46:46 +0100
+Message-Id: <20220124184159.481452009@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -44,156 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Horatiu Vultur <horatiu.vultur@microchip.com>
 
-commit 80f15f3bef9e9c2cc29888a6773df44de0a0c65f upstream.
+commit c0b7f7d7e0ad44f35745c01964b3fa2833e298cb upstream.
 
-The following command sequence:
+In the blamed commit, the call to the function
+switchdev_bridge_port_offload was passing the wrong argument for
+atomic_nb. It was ocelot_netdevice_nb instead of ocelot_swtchdev_nb.
+This patch fixes this issue.
 
-tc qdisc del dev swp0 clsact
-tc qdisc add dev swp0 ingress_block 1 clsact
-tc qdisc add dev swp1 ingress_block 1 clsact
-tc filter add block 1 flower action drop
-tc qdisc del dev swp0 clsact
-
-produces the following NPD:
-
-Unable to handle kernel NULL pointer dereference at virtual address 0000000000000014
-pc : vcap_entry_set+0x14/0x70
-lr : ocelot_vcap_filter_del+0x198/0x234
-Call trace:
- vcap_entry_set+0x14/0x70
- ocelot_vcap_filter_del+0x198/0x234
- ocelot_cls_flower_destroy+0x94/0xe4
- felix_cls_flower_del+0x70/0x84
- dsa_slave_setup_tc_block_cb+0x13c/0x60c
- dsa_slave_setup_tc_block_cb_ig+0x20/0x30
- tc_setup_cb_reoffload+0x44/0x120
- fl_reoffload+0x280/0x320
- tcf_block_playback_offloads+0x6c/0x184
- tcf_block_unbind+0x80/0xe0
- tcf_block_setup+0x174/0x214
- tcf_block_offload_cmd.isra.0+0x100/0x13c
- tcf_block_offload_unbind+0x5c/0xa0
- __tcf_block_put+0x54/0x174
- tcf_block_put_ext+0x5c/0x74
- clsact_destroy+0x40/0x60
- qdisc_destroy+0x4c/0x150
- qdisc_put+0x70/0x90
- qdisc_graft+0x3f0/0x4c0
- tc_get_qdisc+0x1cc/0x364
- rtnetlink_rcv_msg+0x124/0x340
-
-The reason is that the driver isn't prepared to receive two tc filters
-with the same cookie. It unconditionally creates a new struct
-ocelot_vcap_filter for each tc filter, and it adds all filters with the
-same identifier (cookie) to the ocelot_vcap_block.
-
-The problem is here, in ocelot_vcap_filter_del():
-
-	/* Gets index of the filter */
-	index = ocelot_vcap_block_get_filter_index(block, filter);
-	if (index < 0)
-		return index;
-
-	/* Delete filter */
-	ocelot_vcap_block_remove_filter(ocelot, block, filter);
-
-	/* Move up all the blocks over the deleted filter */
-	for (i = index; i < block->count; i++) {
-		struct ocelot_vcap_filter *tmp;
-
-		tmp = ocelot_vcap_block_find_filter_by_index(block, i);
-		vcap_entry_set(ocelot, i, tmp);
-	}
-
-what will happen is ocelot_vcap_block_get_filter_index() will return the
-index (@index) of the first filter found with that cookie. This is _not_
-the index of _this_ filter, but the other one with the same cookie,
-because ocelot_vcap_filter_equal() gets fooled.
-
-Then later, ocelot_vcap_block_remove_filter() is coded to remove all
-filters that are ocelot_vcap_filter_equal() with the passed @filter.
-So unexpectedly, both filters get deleted from the list.
-
-Then ocelot_vcap_filter_del() will attempt to move all the other filters
-up, again finding them by index (@i). The block count is 2, @index was 0,
-so it will attempt to move up filter @i=0 and @i=1. It assigns tmp =
-ocelot_vcap_block_find_filter_by_index(block, i), which is now a NULL
-pointer because ocelot_vcap_block_remove_filter() has removed more than
-one filter.
-
-As far as I can see, this problem has been there since the introduction
-of tc offload support, however I cannot test beyond the blamed commit
-due to hardware availability. In any case, any fix cannot be backported
-that far, due to lots of changes to the code base.
-
-Therefore, let's go for the correct solution, which is to not call
-ocelot_vcap_filter_add() and ocelot_vcap_filter_del(), unless the filter
-is actually unique and not shared. For the shared filters, we should
-just modify the ingress port mask and call ocelot_vcap_filter_replace(),
-a function introduced by commit 95706be13b9f ("net: mscc: ocelot: create
-a function that replaces an existing VCAP filter"). This way,
-block->rules will only contain filters with unique cookies, by design.
-
-Fixes: 07d985eef073 ("net: dsa: felix: Wire up the ocelot cls_flower methods")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Fixes: 4e51bf44a03af6 ("net: bridge: move the switchdev object replay helpers to "push" mode")
+Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
+Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mscc/ocelot_flower.c |   29 ++++++++++++++++++++++++++++-
- 1 file changed, 28 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mscc/ocelot_net.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/mscc/ocelot_flower.c
-+++ b/drivers/net/ethernet/mscc/ocelot_flower.c
-@@ -763,13 +763,34 @@ int ocelot_cls_flower_replace(struct oce
- 	struct netlink_ext_ack *extack = f->common.extack;
- 	struct ocelot_vcap_filter *filter;
- 	int chain = f->common.chain_index;
--	int ret;
-+	int block_id, ret;
+--- a/drivers/net/ethernet/mscc/ocelot_net.c
++++ b/drivers/net/ethernet/mscc/ocelot_net.c
+@@ -1168,7 +1168,7 @@ static int ocelot_netdevice_bridge_join(
+ 	ocelot_port_bridge_join(ocelot, port, bridge);
  
- 	if (chain && !ocelot_find_vcap_filter_that_points_at(ocelot, chain)) {
- 		NL_SET_ERR_MSG_MOD(extack, "No default GOTO action points to this chain");
- 		return -EOPNOTSUPP;
- 	}
+ 	err = switchdev_bridge_port_offload(brport_dev, dev, priv,
+-					    &ocelot_netdevice_nb,
++					    &ocelot_switchdev_nb,
+ 					    &ocelot_switchdev_blocking_nb,
+ 					    false, extack);
+ 	if (err)
+@@ -1182,7 +1182,7 @@ static int ocelot_netdevice_bridge_join(
  
-+	block_id = ocelot_chain_to_block(chain, ingress);
-+	if (block_id < 0) {
-+		NL_SET_ERR_MSG_MOD(extack, "Cannot offload to this chain");
-+		return -EOPNOTSUPP;
-+	}
-+
-+	filter = ocelot_vcap_block_find_filter_by_id(&ocelot->block[block_id],
-+						     f->cookie, true);
-+	if (filter) {
-+		/* Filter already exists on other ports */
-+		if (!ingress) {
-+			NL_SET_ERR_MSG_MOD(extack, "VCAP ES0 does not support shared filters");
-+			return -EOPNOTSUPP;
-+		}
-+
-+		filter->ingress_port_mask |= BIT(port);
-+
-+		return ocelot_vcap_filter_replace(ocelot, filter);
-+	}
-+
-+	/* Filter didn't exist, create it now */
- 	filter = ocelot_vcap_filter_create(ocelot, port, ingress, f);
- 	if (!filter)
- 		return -ENOMEM;
-@@ -816,6 +837,12 @@ int ocelot_cls_flower_destroy(struct oce
- 	if (filter->type == OCELOT_VCAP_FILTER_DUMMY)
- 		return ocelot_vcap_dummy_filter_del(ocelot, filter);
+ err_switchdev_sync:
+ 	switchdev_bridge_port_unoffload(brport_dev, priv,
+-					&ocelot_netdevice_nb,
++					&ocelot_switchdev_nb,
+ 					&ocelot_switchdev_blocking_nb);
+ err_switchdev_offload:
+ 	ocelot_port_bridge_leave(ocelot, port, bridge);
+@@ -1195,7 +1195,7 @@ static void ocelot_netdevice_pre_bridge_
+ 	struct ocelot_port_private *priv = netdev_priv(dev);
  
-+	if (ingress) {
-+		filter->ingress_port_mask &= ~BIT(port);
-+		if (filter->ingress_port_mask)
-+			return ocelot_vcap_filter_replace(ocelot, filter);
-+	}
-+
- 	return ocelot_vcap_filter_del(ocelot, filter);
+ 	switchdev_bridge_port_unoffload(brport_dev, priv,
+-					&ocelot_netdevice_nb,
++					&ocelot_switchdev_nb,
+ 					&ocelot_switchdev_blocking_nb);
  }
- EXPORT_SYMBOL_GPL(ocelot_cls_flower_destroy);
+ 
 
 
