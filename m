@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 780FB49A95F
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:23:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B3CE49A975
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:24:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1322512AbiAYDV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:21:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37730 "EHLO
+        id S1322597AbiAYDWI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:22:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384162AbiAXU3T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:29:19 -0500
+        with ESMTP id S1385152AbiAXUba (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:31:30 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0D52C082571;
-        Mon, 24 Jan 2022 11:42:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17A34C061770;
+        Mon, 24 Jan 2022 11:43:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7CD32B80FA1;
-        Mon, 24 Jan 2022 19:42:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B23CC340E5;
-        Mon, 24 Jan 2022 19:42:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B12D8B811FB;
+        Mon, 24 Jan 2022 19:43:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF20BC340E5;
+        Mon, 24 Jan 2022 19:43:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053339;
-        bh=uwBEOBweT8nlFVJJg0CeubIROq7ixtblezKhAsWjI78=;
+        s=korg; t=1643053400;
+        bh=N7iqN2dtcEyo4qkf5F6uhGxw3W2pDTN7WGAfMlTzNYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ouLjJSPP9nvx2WNcfXshbJPIHnc3Z13uxOexjRFiC99z7S7wu/d3UdgBYI3GdBhkp
-         j87PmjwbNQT2v9INa9txKy4VmXqPkBms9g+j1xUD99ZCH+cX2NUqf5zDNReZnqR+2r
-         uvUm0QY1/0/8Kq0tpsgTulPy9xWBQ2QGSVtTcUXw=
+        b=YEb/uNPJdAMv0TcET6taoAGqFUwT7eddseuBadkveWtDCUg5XV6zvz/09XQeN8H86
+         AN5Xl3vuC/s6YirB7KRI1T604aZh2EumlpW2KIRN9n7fLHRCxmlVDp8EXo/H8iVV6G
+         qoakHZkT44kZE0n3J6dkuK2yS8iVTx5dhwsbiVlI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kunyang Fan <Kunyang_Fan@aaeon.com.tw>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Stable@vger.kernel.org
-Subject: [PATCH 5.10 031/563] iio: adc: ti-adc081c: Partial revert of removal of ACPI IDs
-Date:   Mon, 24 Jan 2022 19:36:36 +0100
-Message-Id: <20220124184025.503755457@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        Sumit Semwal <sumit.semwal@linaro.org>,
+        Gustavo Padovan <gustavo@padovan.org>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        linux-media@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        linaro-mm-sig@lists.linaro.org,
+        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
+        <thomas.hellstrom@linux.intel.com>
+Subject: [PATCH 5.10 035/563] dma_fence_array: Fix PENDING_ERROR leak in dma_fence_array_signaled()
+Date:   Mon, 24 Jan 2022 19:36:40 +0100
+Message-Id: <20220124184025.645252287@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -49,88 +53,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Thomas Hellström <thomas.hellstrom@linux.intel.com>
 
-commit c9791a94384af07592d29504004d2255dbaf8663 upstream.
+commit 95d35838880fb040ccb9fe4a48816bd0c8b62df5 upstream.
 
-Unfortuanately a non standards compliant ACPI ID is known to be
-in the wild on some AAEON boards.
+If a dma_fence_array is reported signaled by a call to
+dma_fence_is_signaled(), it may leak the PENDING_ERROR status.
 
-Partly revert the removal of these IDs so that ADC081C will again
-work + add a comment to that affect for future reference.
+Fix this by clearing the PENDING_ERROR status if we return true in
+dma_fence_array_signaled().
 
-Whilst here use generic firmware properties rather than the ACPI
-specific handling previously found in this driver.
+v2:
+- Update Cc list, and add R-b.
 
-Reported-by: Kunyang Fan <Kunyang_Fan@aaeon.com.tw>
-Fixes: c458b7ca3fd0 ("iio:adc:ti-adc081c: Drop ACPI ids that seem very unlikely to be official.")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: Andy Shevchenko <andy.shevchenko@gmail.com>
-Tested-by: Kunyang Fan <Kunyang_Fan@aaeon.com.tw> #UP-extremei11
-Link: https://lore.kernel.org/r/20211205172728.2826512-1-jic23@kernel.org
-Cc: <Stable@vger.kernel.org>
+Fixes: 1f70b8b812f3 ("dma-fence: Propagate errors to dma-fence-array container")
+Cc: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: Sumit Semwal <sumit.semwal@linaro.org>
+Cc: Gustavo Padovan <gustavo@padovan.org>
+Cc: Christian König <christian.koenig@amd.com>
+Cc: "Christian König" <christian.koenig@amd.com>
+Cc: linux-media@vger.kernel.org
+Cc: dri-devel@lists.freedesktop.org
+Cc: linaro-mm-sig@lists.linaro.org
+Cc: <stable@vger.kernel.org> # v5.4+
+Signed-off-by: Thomas Hellström <thomas.hellstrom@linux.intel.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211129152727.448908-1-thomas.hellstrom@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/ti-adc081c.c |   22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ drivers/dma-buf/dma-fence-array.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/adc/ti-adc081c.c
-+++ b/drivers/iio/adc/ti-adc081c.c
-@@ -19,6 +19,7 @@
- #include <linux/i2c.h>
- #include <linux/module.h>
- #include <linux/mod_devicetable.h>
-+#include <linux/property.h>
- 
- #include <linux/iio/iio.h>
- #include <linux/iio/buffer.h>
-@@ -151,13 +152,16 @@ static int adc081c_probe(struct i2c_clie
+--- a/drivers/dma-buf/dma-fence-array.c
++++ b/drivers/dma-buf/dma-fence-array.c
+@@ -104,7 +104,11 @@ static bool dma_fence_array_signaled(str
  {
- 	struct iio_dev *iio;
- 	struct adc081c *adc;
--	struct adcxx1c_model *model;
-+	const struct adcxx1c_model *model;
- 	int err;
+ 	struct dma_fence_array *array = to_dma_fence_array(fence);
  
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_SMBUS_WORD_DATA))
- 		return -EOPNOTSUPP;
- 
--	model = &adcxx1c_models[id->driver_data];
-+	if (dev_fwnode(&client->dev))
-+		model = device_get_match_data(&client->dev);
-+	else
-+		model = &adcxx1c_models[id->driver_data];
- 
- 	iio = devm_iio_device_alloc(&client->dev, sizeof(*adc));
- 	if (!iio)
-@@ -224,10 +228,17 @@ static const struct i2c_device_id adc081
- };
- MODULE_DEVICE_TABLE(i2c, adc081c_id);
- 
-+static const struct acpi_device_id adc081c_acpi_match[] = {
-+	/* Used on some AAEON boards */
-+	{ "ADC081C", (kernel_ulong_t)&adcxx1c_models[ADC081C] },
-+	{ }
-+};
-+MODULE_DEVICE_TABLE(acpi, adc081c_acpi_match);
+-	return atomic_read(&array->num_pending) <= 0;
++	if (atomic_read(&array->num_pending) > 0)
++		return false;
 +
- static const struct of_device_id adc081c_of_match[] = {
--	{ .compatible = "ti,adc081c" },
--	{ .compatible = "ti,adc101c" },
--	{ .compatible = "ti,adc121c" },
-+	{ .compatible = "ti,adc081c", .data = &adcxx1c_models[ADC081C] },
-+	{ .compatible = "ti,adc101c", .data = &adcxx1c_models[ADC101C] },
-+	{ .compatible = "ti,adc121c", .data = &adcxx1c_models[ADC121C] },
- 	{ }
- };
- MODULE_DEVICE_TABLE(of, adc081c_of_match);
-@@ -236,6 +247,7 @@ static struct i2c_driver adc081c_driver
- 	.driver = {
- 		.name = "adc081c",
- 		.of_match_table = adc081c_of_match,
-+		.acpi_match_table = adc081c_acpi_match,
- 	},
- 	.probe = adc081c_probe,
- 	.remove = adc081c_remove,
++	dma_fence_array_clear_pending_error(array);
++	return true;
+ }
+ 
+ static void dma_fence_array_release(struct dma_fence *fence)
 
 
