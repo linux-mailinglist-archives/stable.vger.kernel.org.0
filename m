@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8C744980BA
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:14:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 342C24980BB
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:14:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229819AbiAXNOx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 08:14:53 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:45026 "EHLO
+        id S234786AbiAXNO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 08:14:56 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:45052 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229833AbiAXNOw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:14:52 -0500
+        with ESMTP id S229833AbiAXNO4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:14:56 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 77CB561226
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:14:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AA0AC340E1;
-        Mon, 24 Jan 2022 13:14:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A761B61033
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:14:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84AB4C340E1;
+        Mon, 24 Jan 2022 13:14:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643030091;
-        bh=jHZdt7aRxsig3JdG0bVTqrUUSF8g7vpPZf+nzH7EESI=;
+        s=korg; t=1643030095;
+        bh=wu9EvMowYmzhYqIEyEoUGZxzd2RRh7vdA57AxFrznJI=;
         h=Subject:To:Cc:From:Date:From;
-        b=tys/9s6TKWBVW5zt+2N6Bg+gdEUWwLXiBtlpZxsuFN6NIRD1MutppVF1Uvil+Yutf
-         G8HHpxzvU+YJScHnP9m5dOfSfMiABu90H7ox5hXbkNhDQYEIPciSVrle+x0f9XIYMl
-         HrBaE/89K6Ey8G+g9qMOdH72RyCrd4iYFwI7V0PI=
-Subject: FAILED: patch "[PATCH] xfrm: Don't accidentally set RTO_ONLINK in decode_session4()" failed to apply to 4.9-stable tree
+        b=JI9Cz2F9kePHSKVgxbMleGCX1lPKcluTLH8aFLVOer5D7iSO+uP+YWT7rxcuLu1w4
+         39Ig03K2bPJWtD1nRtv4AI+edTFrOdFdwNAMWw/k1RH32pBRGOi8RecJKbXsClvd76
+         bTbtFVGioesDgywOjC55piTGkQtESErD3c+zIAWE=
+Subject: FAILED: patch "[PATCH] xfrm: Don't accidentally set RTO_ONLINK in decode_session4()" failed to apply to 4.19-stable tree
 To:     gnault@redhat.com, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 14:14:38 +0100
-Message-ID: <1643030078236210@kroah.com>
+Date:   Mon, 24 Jan 2022 14:14:39 +0100
+Message-ID: <16430300795760@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
