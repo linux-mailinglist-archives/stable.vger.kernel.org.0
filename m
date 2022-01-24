@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9743E498E91
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:47:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0035F498E3F
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:44:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355654AbiAXTnD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:43:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54238 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349109AbiAXTlB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:41:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7386C07A96F;
-        Mon, 24 Jan 2022 11:20:23 -0800 (PST)
+        id S1355080AbiAXTj5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:39:57 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:57572 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1353746AbiAXTfT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:35:19 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7195761361;
-        Mon, 24 Jan 2022 19:20:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 307ACC340E5;
-        Mon, 24 Jan 2022 19:20:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2BEE2B8121C;
+        Mon, 24 Jan 2022 19:35:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57F64C340E5;
+        Mon, 24 Jan 2022 19:35:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052022;
-        bh=vRc4FKxoBlp4SE/upsbfd9TZfulO9790g5FOheuat9w=;
+        s=korg; t=1643052916;
+        bh=Bf2KpLKl42cxGt39Tk6pcrnnOXoTk3V933L/qa6WQzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mmlyMMWV6JmWCnD/Nr77xDNHTqpURnPqLCDYOavtDA3uDiai7A0nKwtb85MesVjaE
-         k4abunRlLa+sc1jKMCjlLN4etx6NEaWLpOcIH2ea3yC+u3+loJrGPZnr2WYTVpfLlT
-         aB4eHnJkTnGS0RADEaNm/SMbAyvURu8qCM23FBz0=
+        b=n/Sp8akf+NfLGVPpgv69FDqtG7vE8pgdS/F+nIvntrWhpJr8DppL0Gkyrkbz+4Jpw
+         aQSPjcSvygtaZvH1hIntEpTEnsAmSGlyPFOcECDEVGDV561Q1dqDY89wqGm7iOQ6rI
+         IXAEBm+hUlEpL732upXRuTTaqEZQsO3Z3XwiSuuc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lenny Szubowicz <lszubowi@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Bob Moore <robert.moore@intel.com>,
+        stable@vger.kernel.org, Joe Thornber <ejt@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 162/239] ACPICA: Executer: Fix the REFCLASS_REFOF case in acpi_ex_opcode_1A_0T_1R()
+Subject: [PATCH 5.4 216/320] dm space map common: add bounds check to sm_ll_lookup_bitmap()
 Date:   Mon, 24 Jan 2022 19:43:20 +0100
-Message-Id: <20220124183948.249471660@linuxfoundation.org>
+Message-Id: <20220124184000.992054632@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,54 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Joe Thornber <ejt@redhat.com>
 
-[ Upstream commit 24ea5f90ec9548044a6209685c5010edd66ffe8f ]
+[ Upstream commit cba23ac158db7f3cd48a923d6861bee2eb7a2978 ]
 
-ACPICA commit d984f12041392fa4156b52e2f7e5c5e7bc38ad9e
+Corrupted metadata could warrant returning error from sm_ll_lookup_bitmap().
 
-If Operand[0] is a reference of the ACPI_REFCLASS_REFOF class,
-acpi_ex_opcode_1A_0T_1R () calls acpi_ns_get_attached_object () to
-obtain return_desc which may require additional resolution with
-the help of acpi_ex_read_data_from_field (). If the latter fails,
-the reference counter of the original return_desc is decremented
-which is incorrect, because acpi_ns_get_attached_object () does not
-increment the reference counter of the object returned by it.
-
-This issue may lead to premature deletion of the attached object
-while it is still attached and a use-after-free and crash in the
-host OS.  For example, this may happen when on evaluation of ref_of()
-a local region field where there is no registered handler for the
-given Operation Region.
-
-Fix it by making acpi_ex_opcode_1A_0T_1R () return Status right away
-after a acpi_ex_read_data_from_field () failure.
-
-Link: https://github.com/acpica/acpica/commit/d984f120
-Link: https://github.com/acpica/acpica/pull/685
-Reported-by: Lenny Szubowicz <lszubowi@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Bob Moore <robert.moore@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Joe Thornber <ejt@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/exoparg1.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/md/persistent-data/dm-space-map-common.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/acpi/acpica/exoparg1.c b/drivers/acpi/acpica/exoparg1.c
-index ba9fbae0cf91f..319f4bc6a8394 100644
---- a/drivers/acpi/acpica/exoparg1.c
-+++ b/drivers/acpi/acpica/exoparg1.c
-@@ -1007,7 +1007,8 @@ acpi_status acpi_ex_opcode_1A_0T_1R(struct acpi_walk_state *walk_state)
- 						    (walk_state, return_desc,
- 						     &temp_desc);
- 						if (ACPI_FAILURE(status)) {
--							goto cleanup;
-+							return_ACPI_STATUS
-+							    (status);
- 						}
+diff --git a/drivers/md/persistent-data/dm-space-map-common.c b/drivers/md/persistent-data/dm-space-map-common.c
+index a213bf11738fb..85853ab629717 100644
+--- a/drivers/md/persistent-data/dm-space-map-common.c
++++ b/drivers/md/persistent-data/dm-space-map-common.c
+@@ -281,6 +281,11 @@ int sm_ll_lookup_bitmap(struct ll_disk *ll, dm_block_t b, uint32_t *result)
+ 	struct disk_index_entry ie_disk;
+ 	struct dm_block *blk;
  
- 						return_desc = temp_desc;
++	if (b >= ll->nr_blocks) {
++		DMERR_LIMIT("metadata block out of bounds");
++		return -EINVAL;
++	}
++
+ 	b = do_div(index, ll->entries_per_block);
+ 	r = ll->load_ie(ll, index, &ie_disk);
+ 	if (r < 0)
 -- 
 2.34.1
 
