@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8926149A97A
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:24:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD7E349A90D
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:18:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1322610AbiAYDWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:22:09 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34664 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385267AbiAXUb5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:31:57 -0500
+        id S1321975AbiAYDUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:20:17 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:47724 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244739AbiAXTuz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:50:55 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06AABB8123D;
-        Mon, 24 Jan 2022 20:31:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2558FC340E5;
-        Mon, 24 Jan 2022 20:31:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD61660B89;
+        Mon, 24 Jan 2022 19:50:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 913FDC340E5;
+        Mon, 24 Jan 2022 19:50:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056312;
-        bh=wxcf2td4nock/WupOP7KOGXdCb7aoLTxQcRZqO5Uhzg=;
+        s=korg; t=1643053848;
+        bh=m0OcBpcxmIF16T15F0g3LId9WJ1aV0DdmBGbFIrLcTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=moM19WuAU3dIJcASYrz+Hb6m+zpibfp2HJp/Jso0I5266/eeIg7SuoUaOdH9XhQ8H
-         UHjNdjEsZxEqDtSHHdt9sLbPW0JogdFVWehBo1U9vjqL0JHFT8qtz+X+wZ890WapPD
-         38CIhMV8BYSKSJTu2N7DjGY8Zd1D/a0OiaFP5xM4=
+        b=OaE0icx0hWyDhWWo7DwsUxozoPxmPiax0t06ZKDGT1hDGlVFRzATL5crgxwTF9t7X
+         abAy0V7KCL35/e8LPRK/wmaS8C0KnV2/5Lpae8LxQADq3Sgf8OzrebZwfBw6RHXH7T
+         gBs36dgu87Zh1Fpvdt2Xy/hzgx4897Dm4ur5JYIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Christian A. Ehrhardt" <lk@c--e.de>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 443/846] ALSA: hda/cs8409: Increase delay during jack detection
-Date:   Mon, 24 Jan 2022 19:39:20 +0100
-Message-Id: <20220124184116.263137916@linuxfoundation.org>
+        stable@vger.kernel.org, Panicker Harish <quic_pharish@quicinc.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 196/563] Bluetooth: hci_qca: Stop IBS timer during BT OFF
+Date:   Mon, 24 Jan 2022 19:39:21 +0100
+Message-Id: <20220124184031.210103661@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian A. Ehrhardt <lk@c--e.de>
+From: Panicker Harish <quic_pharish@quicinc.com>
 
-[ Upstream commit 8cd07657177006b67cc1610e4466cc75ad781c05 ]
+[ Upstream commit df1e5c51492fd93ffc293acdcc6f00698d19fedc ]
 
-Commit c8b4f0865e82 reduced delays related to cs42l42 jack
-detection. However, the change was too aggressive. As a result
-internal speakers on DELL Inspirion 3501 are not detected.
+The IBS timers are not stopped properly once BT OFF is triggered.
+we could see IBS commands being sent along with version command,
+so stopped IBS timers while Bluetooth is off.
 
-Increase the delay in cs42l42_run_jack_detect() a bit.
-
-Fixes: c8b4f0865e82 ("ALSA: hda/cs8409: Remove unnecessary delays")
-Signed-off-by: Christian A. Ehrhardt <lk@c--e.de>
-Link: https://lore.kernel.org/r/20211231131221.itwotyfk5qomn7n6@cae.in-ulm.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 3e4be65eb82c ("Bluetooth: hci_qca: Add poweroff support during hci down for wcn3990")
+Signed-off-by: Panicker Harish <quic_pharish@quicinc.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_cs8409.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/bluetooth/hci_qca.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/sound/pci/hda/patch_cs8409.c b/sound/pci/hda/patch_cs8409.c
-index 039b9f2f8e947..bf5d7f0c6ba55 100644
---- a/sound/pci/hda/patch_cs8409.c
-+++ b/sound/pci/hda/patch_cs8409.c
-@@ -628,8 +628,8 @@ static void cs42l42_run_jack_detect(struct sub_codec *cs42l42)
- 	cs8409_i2c_write(cs42l42, 0x1b74, 0x07);
- 	cs8409_i2c_write(cs42l42, 0x131b, 0xFD);
- 	cs8409_i2c_write(cs42l42, 0x1120, 0x80);
--	/* Wait ~100us*/
--	usleep_range(100, 200);
-+	/* Wait ~20ms*/
-+	usleep_range(20000, 25000);
- 	cs8409_i2c_write(cs42l42, 0x111f, 0x77);
- 	cs8409_i2c_write(cs42l42, 0x1120, 0xc0);
- }
+diff --git a/drivers/bluetooth/hci_qca.c b/drivers/bluetooth/hci_qca.c
+index 4184faef9f169..4f8a32601c1b6 100644
+--- a/drivers/bluetooth/hci_qca.c
++++ b/drivers/bluetooth/hci_qca.c
+@@ -1844,6 +1844,9 @@ static int qca_power_off(struct hci_dev *hdev)
+ 	hu->hdev->hw_error = NULL;
+ 	hu->hdev->cmd_timeout = NULL;
+ 
++	del_timer_sync(&qca->wake_retrans_timer);
++	del_timer_sync(&qca->tx_idle_timer);
++
+ 	/* Stop sending shutdown command if soc crashes. */
+ 	if (soc_type != QCA_ROME
+ 		&& qca->memdump_state == QCA_MEMDUMP_IDLE) {
 -- 
 2.34.1
 
