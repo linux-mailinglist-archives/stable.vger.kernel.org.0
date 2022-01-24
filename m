@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95A2749A3FF
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:08:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C1CC49A402
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:08:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2371192AbiAYAHL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S2371198AbiAYAHL (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 24 Jan 2022 19:07:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57780 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2364046AbiAXXqi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:46:38 -0500
+        with ESMTP id S2364062AbiAXXqn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:46:43 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CDADC0613A7;
-        Mon, 24 Jan 2022 13:41:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10003C0613A8;
+        Mon, 24 Jan 2022 13:41:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DDB88B8105C;
-        Mon, 24 Jan 2022 21:41:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08A12C340E4;
-        Mon, 24 Jan 2022 21:41:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CB19DB8105C;
+        Mon, 24 Jan 2022 21:41:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02551C340E4;
+        Mon, 24 Jan 2022 21:41:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060505;
-        bh=+xKvTa4o3uapaDC5MbBlg9DwFPgbwt6w97UiymgDyMY=;
+        s=korg; t=1643060511;
+        bh=qEjckpQvRmxcTRNa+OgIplbRP5NSdJP2K0D8QWEZUBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qbau/ox+x+9oAWI2Z2qOTLOi9gth4ZR6jh8swySEZpL2vd9kXEOH64QSJd+kZ/K1B
-         Nxyevixh5w5B3RpvA07XWFSZef3Z9sOsVWu6VKI6RsiW4jfD4jkQHx9gJFyEeOLxmx
-         rAmT1tYC6ePFWWcTjuyGhuHQnthxTtO6Kkk0bH5o=
+        b=mBxC5oWjT+Lj7cRzeyPhlkxo8DrYc4UX+EUZSZl9gincvlCzc62g+z7f1CzP5Ok4N
+         GZDJigELz1ia09k168OCHIGVsnxNmV3UVXHIBW3oTWfe9ty9g4xW02XJSpveDxeLB7
+         BnpwJZuy8ObEbpkTF9s5+/LZQiTG/V9bL5QHKnfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.16 0969/1039] net: axienet: reset core on initialization prior to MDIO access
-Date:   Mon, 24 Jan 2022 19:45:58 +0100
-Message-Id: <20220124184157.863231207@linuxfoundation.org>
+Subject: [PATCH 5.16 0971/1039] net: axienet: limit minimum TX ring size
+Date:   Mon, 24 Jan 2022 19:46:00 +0100
+Message-Id: <20220124184157.930377306@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -50,38 +49,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Robert Hancock <robert.hancock@calian.com>
 
-commit 04cc2da39698efd7eb2e30c112538922d26f848e upstream.
+commit 70f5817deddbc6ef3faa35841cab83c280cc653a upstream.
 
-In some cases where the Xilinx Ethernet core was used in 1000Base-X or
-SGMII modes, which use the internal PCS/PMA PHY, and the MGT
-transceiver clock source for the PCS was not running at the time the
-FPGA logic was loaded, the core would come up in a state where the
-PCS could not be found on the MDIO bus. To fix this, the Ethernet core
-(including the PCS) should be reset after enabling the clocks, prior to
-attempting to access the PCS using of_mdio_find_device.
+The driver will not work properly if the TX ring size is set to below
+MAX_SKB_FRAGS + 1 since it needs to hold at least one full maximally
+fragmented packet in the TX ring. Limit setting the ring size to below
+this value.
 
-Fixes: 1a02556086fc (net: axienet: Properly handle PCS/PMA PHY for 1000BaseX mode)
+Fixes: 8b09ca823ffb4 ("net: axienet: Make RX/TX ring sizes configurable")
 Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/xilinx/xilinx_axienet_main.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/xilinx/xilinx_axienet_main.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 --- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
 +++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-@@ -2089,6 +2089,11 @@ static int axienet_probe(struct platform
- 	lp->coalesce_count_rx = XAXIDMA_DFT_RX_THRESHOLD;
- 	lp->coalesce_count_tx = XAXIDMA_DFT_TX_THRESHOLD;
+@@ -43,6 +43,7 @@
+ /* Descriptors defines for Tx and Rx DMA */
+ #define TX_BD_NUM_DEFAULT		64
+ #define RX_BD_NUM_DEFAULT		1024
++#define TX_BD_NUM_MIN			(MAX_SKB_FRAGS + 1)
+ #define TX_BD_NUM_MAX			4096
+ #define RX_BD_NUM_MAX			4096
  
-+	/* Reset core now that clocks are enabled, prior to accessing MDIO */
-+	ret = __axienet_device_reset(lp);
-+	if (ret)
-+		goto cleanup_clk;
-+
- 	lp->phy_node = of_parse_phandle(pdev->dev.of_node, "phy-handle", 0);
- 	if (lp->phy_node) {
- 		ret = axienet_mdio_setup(lp);
+@@ -1364,7 +1365,8 @@ static int axienet_ethtools_set_ringpara
+ 	if (ering->rx_pending > RX_BD_NUM_MAX ||
+ 	    ering->rx_mini_pending ||
+ 	    ering->rx_jumbo_pending ||
+-	    ering->rx_pending > TX_BD_NUM_MAX)
++	    ering->tx_pending < TX_BD_NUM_MIN ||
++	    ering->tx_pending > TX_BD_NUM_MAX)
+ 		return -EINVAL;
+ 
+ 	if (netif_running(ndev))
 
 
