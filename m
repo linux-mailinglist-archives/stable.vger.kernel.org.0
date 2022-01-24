@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EB21499056
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A0BD499053
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359417AbiAXT7l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:59:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58614 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358413AbiAXTzI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:55:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C036C0418B1;
-        Mon, 24 Jan 2022 11:27:20 -0800 (PST)
+        id S1359398AbiAXT7j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:59:39 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:41972 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358344AbiAXTy7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:54:59 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 05889B81243;
-        Mon, 24 Jan 2022 19:27:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33E35C340E7;
-        Mon, 24 Jan 2022 19:27:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 075A4B8123A;
+        Mon, 24 Jan 2022 19:54:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36963C340E5;
+        Mon, 24 Jan 2022 19:54:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052437;
-        bh=fntRpshkPH1kBf19IZiQRtlhXjIeJ4hCEiSlfehiMwY=;
+        s=korg; t=1643054096;
+        bh=lNSuvqnoauz/uGYK36agIlf1ZmxRGgCihca25HQzVt0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IOqHTpz7uQp39FFBwlM+7FHzveyW3T7IZ82Uzf3+bFIzRKQ0ZQ67oVietWCnM0Iv1
-         eTdU+0AR5xHwL2TYgacdTENGOuPw9q5qoTtRGdmvj15kd8CYvJ/V7EE0DjQ0NW5BmL
-         84H9mPijXCfacmKhlP4O9XtiWWXMEmfxGWIAdVlM=
+        b=Cmnifa937lJ/Jt28iTecV3Xi1GPwP1o8rdbNTZmu+1s5e25zx1boqxkrVKjV0WZtv
+         ernBBSser6wLsPvelwhR5BD3Y47GzvCXKJgmy2KTM0bNTC3+4OA/s7LhHz1K39ivfL
+         oCpqk4waHe8/2aSaJiaFiBbtI9ZW4JqCTwY4PWZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Mark Brown <broonie@kernel.org>, Vinod Koul <vkoul@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 057/320] media: si470x-i2c: fix possible memory leak in si470x_i2c_probe()
+Subject: [PATCH 5.10 276/563] dmaengine: pxa/mmp: stop referencing config->slave_id
 Date:   Mon, 24 Jan 2022 19:40:41 +0100
-Message-Id: <20220124183955.677433044@linuxfoundation.org>
+Message-Id: <20220124184033.985754932@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,60 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit ef054e345ed8c79ce1121a3599b5a2dfd78e57a0 ]
+[ Upstream commit 134c37fa250a87a7e77c80a7c59ae16c462e46e0 ]
 
-n the 'radio->hdl.error' error handling, ctrl handler allocated by
-v4l2_ctrl_new_std() does not released, and caused memory leak as
-follows:
+The last driver referencing the slave_id on Marvell PXA and MMP platforms
+was the SPI driver, but this stopped doing so a long time ago, so the
+TODO from the earlier patch can no be removed.
 
-unreferenced object 0xffff888033d54200 (size 256):
-  comm "i2c-si470x-19", pid 909, jiffies 4294914203 (age 8.072s)
-  hex dump (first 32 bytes):
-    e8 69 11 03 80 88 ff ff 00 46 d5 33 80 88 ff ff  .i.......F.3....
-    10 42 d5 33 80 88 ff ff 10 42 d5 33 80 88 ff ff  .B.3.....B.3....
-  backtrace:
-    [<00000000086bd4ed>] __kmalloc_node+0x1eb/0x360
-    [<00000000bdb68871>] kvmalloc_node+0x66/0x120
-    [<00000000fac74e4c>] v4l2_ctrl_new+0x7b9/0x1c60 [videodev]
-    [<00000000693bf940>] v4l2_ctrl_new_std+0x19b/0x270 [videodev]
-    [<00000000c0cb91bc>] si470x_i2c_probe+0x2d3/0x9a0 [radio_si470x_i2c]
-    [<0000000056a6f01f>] i2c_device_probe+0x4d8/0xbe0
-
-Fix the error handling path to avoid memory leak.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 8c081b6f9a9b ("media: radio: Critical v4l2 registration...")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: b729bf34535e ("spi/pxa2xx: Don't use slave_id of dma_slave_config")
+Fixes: 13b3006b8ebd ("dma: mmp_pdma: add filter function")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20211122222203.4103644-7-arnd@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/radio/si470x/radio-si470x-i2c.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/dma/mmp_pdma.c | 6 ------
+ drivers/dma/pxa_dma.c  | 7 -------
+ 2 files changed, 13 deletions(-)
 
-diff --git a/drivers/media/radio/si470x/radio-si470x-i2c.c b/drivers/media/radio/si470x/radio-si470x-i2c.c
-index a972c0705ac79..76d39e2e87706 100644
---- a/drivers/media/radio/si470x/radio-si470x-i2c.c
-+++ b/drivers/media/radio/si470x/radio-si470x-i2c.c
-@@ -368,7 +368,7 @@ static int si470x_i2c_probe(struct i2c_client *client)
- 	if (radio->hdl.error) {
- 		retval = radio->hdl.error;
- 		dev_err(&client->dev, "couldn't register control\n");
--		goto err_dev;
-+		goto err_all;
- 	}
+diff --git a/drivers/dma/mmp_pdma.c b/drivers/dma/mmp_pdma.c
+index b84303be8edf5..4eb63f1ad2247 100644
+--- a/drivers/dma/mmp_pdma.c
++++ b/drivers/dma/mmp_pdma.c
+@@ -728,12 +728,6 @@ static int mmp_pdma_config_write(struct dma_chan *dchan,
  
- 	/* video device initialization */
-@@ -463,7 +463,6 @@ static int si470x_i2c_probe(struct i2c_client *client)
+ 	chan->dir = direction;
+ 	chan->dev_addr = addr;
+-	/* FIXME: drivers should be ported over to use the filter
+-	 * function. Once that's done, the following two lines can
+-	 * be removed.
+-	 */
+-	if (cfg->slave_id)
+-		chan->drcmr = cfg->slave_id;
+ 
  	return 0;
- err_all:
- 	v4l2_ctrl_handler_free(&radio->hdl);
--err_dev:
- 	v4l2_device_unregister(&radio->v4l2_dev);
- err_initial:
- 	return retval;
+ }
+diff --git a/drivers/dma/pxa_dma.c b/drivers/dma/pxa_dma.c
+index 349fb312c8725..b4ef4f19f7dec 100644
+--- a/drivers/dma/pxa_dma.c
++++ b/drivers/dma/pxa_dma.c
+@@ -911,13 +911,6 @@ static void pxad_get_config(struct pxad_chan *chan,
+ 		*dcmd |= PXA_DCMD_BURST16;
+ 	else if (maxburst == 32)
+ 		*dcmd |= PXA_DCMD_BURST32;
+-
+-	/* FIXME: drivers should be ported over to use the filter
+-	 * function. Once that's done, the following two lines can
+-	 * be removed.
+-	 */
+-	if (chan->cfg.slave_id)
+-		chan->drcmr = chan->cfg.slave_id;
+ }
+ 
+ static struct dma_async_tx_descriptor *
 -- 
 2.34.1
 
