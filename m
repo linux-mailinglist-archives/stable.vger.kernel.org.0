@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FCE1499703
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:21:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 367CE4998E7
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:39:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346698AbiAXVIu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:08:50 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:55874 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1445481AbiAXVDj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:03:39 -0500
+        id S1453684AbiAXVai (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:30:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51392 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1450606AbiAXVVC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:21:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 045D4C028C1F;
+        Mon, 24 Jan 2022 12:14:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F37F36135E;
-        Mon, 24 Jan 2022 21:03:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC0BFC340E5;
-        Mon, 24 Jan 2022 21:03:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3CBCB811FB;
+        Mon, 24 Jan 2022 20:14:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFE70C340E5;
+        Mon, 24 Jan 2022 20:14:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058217;
-        bh=+GukFv+UmmsfgFRsXbDyesdwasvKERbn/wIBoWXygSw=;
+        s=korg; t=1643055252;
+        bh=Ox4yzlZMvY7YFn/MCM8rYLIMnTGeZmHgf511Cyk3+2o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qJn3qcG2H4QbqJYIXyg12LovNdCqxZB1wk+Y7sDIeV8q2SQTYtd7AIobTSsmy7nlD
-         +92qgXUkdPzQY9Lo9a0YoUk7Xh8g6aiAqzDMDHKb/xpSJ0EN+hIHGUW9QJfvGTovTK
-         lEt8l6HyAoA8/cIIrnBl5p4E1jSpRcJFyBf8ZoAs=
+        b=ta+htMQHVY86gyQtu9/YXswWOPqXndSwi6qGCwgkGx1XwZi9nw3wfmIdzIAiQ+xx9
+         gqxMARZpsxjlJQMaXAGqGAwWYX1eTq6y/RvWBGo5JThcoQijSSyPHQxEvxa/56zzhD
+         WQvQEAc73NDfmW2YH9BdlGCWvtWTvEeoGhNPujw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gaurav Jain <gaurav.jain@nxp.com>,
-        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Nicolas Saenz Julienne <nsaenz@kernel.org>,
+        Michael Stapelberg <michael@stapelberg.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0217/1039] crypto: caam - save caam memory to support crypto engine retry mechanism.
-Date:   Mon, 24 Jan 2022 19:33:26 +0100
-Message-Id: <20220124184132.637954486@linuxfoundation.org>
+Subject: [PATCH 5.15 091/846] drm/vc4: hdmi: Make sure the controller is powered in detect
+Date:   Mon, 24 Jan 2022 19:33:28 +0100
+Message-Id: <20220124184104.125679917@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,83 +50,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaurav Jain <gaurav.jain@nxp.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 087e1d715bccf25dc0e83294576e416b0386ba20 ]
+[ Upstream commit 0f5251339eda7f7eb7bd4467607ae1d01b24e129 ]
 
-When caam queue is full (-ENOSPC), caam frees descriptor memory.
-crypto-engine checks if retry support is true and h/w queue
-is full(-ENOSPC), then requeue the crypto request.
-During processing the requested descriptor again, caam gives below error.
-(caam_jr 30902000.jr: 40000006: DECO: desc idx 0: Invalid KEY Command).
+If the HPD GPIO is not available and drm_probe_ddc fails, we end up
+reading the HDMI_HOTPLUG register, but the controller might be powered
+off resulting in a CPU hang. Make sure we have the power domain and the
+HSM clock powered during the detect cycle to prevent the hang from
+happening.
 
-This patch adds a check to return when caam input ring is full
-and retry support is true. so descriptor memory is not freed
-and requeued request can be processed again.
-
-Fixes: 2d653936eb2cf ("crypto: caam - enable crypto-engine retry mechanism")
-Signed-off-by: Gaurav Jain <gaurav.jain@nxp.com>
-Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 4f6e3d66ac52 ("drm/vc4: Add runtime PM support to the HDMI encoder driver")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Reviewed-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
+Tested-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
+Tested-by: Michael Stapelberg <michael@stapelberg.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210922125419.4125779-6-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/caam/caamalg.c  | 6 ++++++
- drivers/crypto/caam/caamhash.c | 3 +++
- drivers/crypto/caam/caampkc.c  | 3 +++
- 3 files changed, 12 insertions(+)
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/crypto/caam/caamalg.c b/drivers/crypto/caam/caamalg.c
-index 8697ae53b0633..d3d8bb0a69900 100644
---- a/drivers/crypto/caam/caamalg.c
-+++ b/drivers/crypto/caam/caamalg.c
-@@ -1533,6 +1533,9 @@ static int aead_do_one_req(struct crypto_engine *engine, void *areq)
+diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
+index 6b0700d0b408e..21510ae31a9ec 100644
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -168,6 +168,8 @@ vc4_hdmi_connector_detect(struct drm_connector *connector, bool force)
+ 	struct vc4_hdmi *vc4_hdmi = connector_to_vc4_hdmi(connector);
+ 	bool connected = false;
  
- 	ret = caam_jr_enqueue(ctx->jrdev, desc, aead_crypt_done, req);
- 
-+	if (ret == -ENOSPC && engine->retry_support)
-+		return ret;
++	WARN_ON(pm_runtime_resume_and_get(&vc4_hdmi->pdev->dev));
 +
- 	if (ret != -EINPROGRESS) {
- 		aead_unmap(ctx->jrdev, rctx->edesc, req);
- 		kfree(rctx->edesc);
-@@ -1762,6 +1765,9 @@ static int skcipher_do_one_req(struct crypto_engine *engine, void *areq)
+ 	if (vc4_hdmi->hpd_gpio &&
+ 	    gpiod_get_value_cansleep(vc4_hdmi->hpd_gpio)) {
+ 		connected = true;
+@@ -188,10 +190,12 @@ vc4_hdmi_connector_detect(struct drm_connector *connector, bool force)
+ 			}
+ 		}
  
- 	ret = caam_jr_enqueue(ctx->jrdev, desc, skcipher_crypt_done, req);
++		pm_runtime_put(&vc4_hdmi->pdev->dev);
+ 		return connector_status_connected;
+ 	}
  
-+	if (ret == -ENOSPC && engine->retry_support)
-+		return ret;
-+
- 	if (ret != -EINPROGRESS) {
- 		skcipher_unmap(ctx->jrdev, rctx->edesc, req);
- 		kfree(rctx->edesc);
-diff --git a/drivers/crypto/caam/caamhash.c b/drivers/crypto/caam/caamhash.c
-index e8a6d8bc43b5d..36ef738e4a181 100644
---- a/drivers/crypto/caam/caamhash.c
-+++ b/drivers/crypto/caam/caamhash.c
-@@ -765,6 +765,9 @@ static int ahash_do_one_req(struct crypto_engine *engine, void *areq)
+ 	cec_phys_addr_invalidate(vc4_hdmi->cec_adap);
++	pm_runtime_put(&vc4_hdmi->pdev->dev);
+ 	return connector_status_disconnected;
+ }
  
- 	ret = caam_jr_enqueue(jrdev, desc, state->ahash_op_done, req);
- 
-+	if (ret == -ENOSPC && engine->retry_support)
-+		return ret;
-+
- 	if (ret != -EINPROGRESS) {
- 		ahash_unmap(jrdev, state->edesc, req, 0);
- 		kfree(state->edesc);
-diff --git a/drivers/crypto/caam/caampkc.c b/drivers/crypto/caam/caampkc.c
-index bf6275ffc4aad..8867275767101 100644
---- a/drivers/crypto/caam/caampkc.c
-+++ b/drivers/crypto/caam/caampkc.c
-@@ -380,6 +380,9 @@ static int akcipher_do_one_req(struct crypto_engine *engine, void *areq)
- 
- 	ret = caam_jr_enqueue(jrdev, desc, req_ctx->akcipher_op_done, req);
- 
-+	if (ret == -ENOSPC && engine->retry_support)
-+		return ret;
-+
- 	if (ret != -EINPROGRESS) {
- 		rsa_pub_unmap(jrdev, req_ctx->edesc, req);
- 		rsa_io_unmap(jrdev, req_ctx->edesc, req);
 -- 
 2.34.1
 
