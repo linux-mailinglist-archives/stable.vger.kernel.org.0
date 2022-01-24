@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E731B49971C
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:24:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EDC549992C
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:43:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1446833AbiAXVJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:09:29 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:53558 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1445759AbiAXVEz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:04:55 -0500
+        id S1454153AbiAXVbw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:31:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51868 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1451490AbiAXVXC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:23:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0547EC08E912;
+        Mon, 24 Jan 2022 12:17:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6DA666131F;
-        Mon, 24 Jan 2022 21:04:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51288C340E5;
-        Mon, 24 Jan 2022 21:04:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C283BB8123F;
+        Mon, 24 Jan 2022 20:17:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7B59C340E5;
+        Mon, 24 Jan 2022 20:17:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058293;
-        bh=MONWWN5Pw6rnKPiBEgg31qpoflv/TBpsiZxOuGbiM5U=;
+        s=korg; t=1643055429;
+        bh=OzkQojU2CQWWU1b+Ypc3Ses6ysxsIjIUCCxdS7saOgE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qdWULLho5spHXQocU6/tTGN3Cbp2Giwa4H5GNCDEvv0xdLr5t/YWHNcPQhVBYIxLH
-         IU7txAEktGkSa2oBxEWou4Km4fEk8zJevHeJQAOyO1b2R/eE3qN3Kzo46IiCjD04UO
-         nvXr1XhaMzSEQAJwV9h9kFczxWBgg98+v7+1n840=
+        b=Q05cig/Ai807AGXvSpd3DvYWJd8Hrpn6/JiteG1mU9R5LIV3dsu9xdQwqWesvS0QT
+         OXWgodHqK+XudV4Lir1PmMhTy9b2TPHzcX3ugsXCaazmdBkHZZzfZJ9i5+Qjp4EzGk
+         31KJ631my0TF3q39ZBBNLgQ4t+jlv8Acki1UIhqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0243/1039] samples: bpf: Fix unknown warning group build warning on Clang
+Subject: [PATCH 5.15 115/846] media: atomisp: fix enum formats logic
 Date:   Mon, 24 Jan 2022 19:33:52 +0100
-Message-Id: <20220124184133.493287897@linuxfoundation.org>
+Message-Id: <20220124184104.936369564@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,47 +48,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit 6f670d06e47c774bc065aaa84a527a4838f34bd8 ]
+[ Upstream commit fae46cb0531b45c789e39128f676f2bafa3a7b47 ]
 
-Clang doesn't have 'stringop-truncation' group like GCC does, and
-complains about it when building samples which use xdp_sample_user
-infra:
+Changeset 374d62e7aa50 ("media: v4l2-subdev: Verify v4l2_subdev_call() pad config argument")
+added an extra verification for a pads parameter for enum mbus
+format code.
 
- samples/bpf/xdp_sample_user.h:48:32: warning: unknown warning group '-Wstringop-truncation', ignored [-Wunknown-warning-option]
- #pragma GCC diagnostic ignored "-Wstringop-truncation"
-                                ^
-[ repeat ]
+Such change broke atomisp, because now the V4L2 core
+refuses to enum MBUS formats if the state is empty.
 
-Those are harmless, but avoidable when guarding it with ifdef.
-I could guard push/pop as well, but this would require one more
-ifdef cruft around a single line which I don't think is reasonable.
+So, add .which field in order to select the active formats,
+in order to make it work again.
 
-Fixes: 156f886cf697 ("samples: bpf: Add basic infrastructure for XDP samples")
-Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Link: https://lore.kernel.org/bpf/20211203195004.5803-3-alexandr.lobakin@intel.com
+While here, improve error messages.
+
+Fixes: 374d62e7aa50 ("media: v4l2-subdev: Verify v4l2_subdev_call() pad config argument")
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/xdp_sample_user.h | 2 ++
- 1 file changed, 2 insertions(+)
+ .../staging/media/atomisp/pci/atomisp_ioctl.c | 23 ++++++++++++++-----
+ 1 file changed, 17 insertions(+), 6 deletions(-)
 
-diff --git a/samples/bpf/xdp_sample_user.h b/samples/bpf/xdp_sample_user.h
-index d97465ff8c62c..5f44b877ecf5f 100644
---- a/samples/bpf/xdp_sample_user.h
-+++ b/samples/bpf/xdp_sample_user.h
-@@ -45,7 +45,9 @@ const char *get_driver_name(int ifindex);
- int get_mac_addr(int ifindex, void *mac_addr);
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_ioctl.c b/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
+index a57e640fbf791..29826f8e4143d 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
++++ b/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
+@@ -773,7 +773,10 @@ static int atomisp_enum_fmt_cap(struct file *file, void *fh,
+ 	struct video_device *vdev = video_devdata(file);
+ 	struct atomisp_device *isp = video_get_drvdata(vdev);
+ 	struct atomisp_sub_device *asd = atomisp_to_video_pipe(vdev)->asd;
+-	struct v4l2_subdev_mbus_code_enum code = { 0 };
++	struct v4l2_subdev_mbus_code_enum code = {
++		.which = V4L2_SUBDEV_FORMAT_ACTIVE,
++	};
++	struct v4l2_subdev *camera;
+ 	unsigned int i, fi = 0;
+ 	int rval;
  
- #pragma GCC diagnostic push
-+#ifndef __clang__
- #pragma GCC diagnostic ignored "-Wstringop-truncation"
-+#endif
- __attribute__((unused))
- static inline char *safe_strncpy(char *dst, const char *src, size_t size)
- {
+@@ -783,14 +786,20 @@ static int atomisp_enum_fmt_cap(struct file *file, void *fh,
+ 		return -EINVAL;
+ 	}
+ 
++	camera = isp->inputs[asd->input_curr].camera;
++	if(!camera) {
++		dev_err(isp->dev, "%s(): camera is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	rt_mutex_lock(&isp->mutex);
+-	rval = v4l2_subdev_call(isp->inputs[asd->input_curr].camera, pad,
+-				enum_mbus_code, NULL, &code);
++
++	rval = v4l2_subdev_call(camera, pad, enum_mbus_code, NULL, &code);
+ 	if (rval == -ENOIOCTLCMD) {
+ 		dev_warn(isp->dev,
+-			 "enum_mbus_code pad op not supported. Please fix your sensor driver!\n");
+-		//	rval = v4l2_subdev_call(isp->inputs[asd->input_curr].camera,
+-		//				video, enum_mbus_fmt, 0, &code.code);
++			 "enum_mbus_code pad op not supported by %s. Please fix your sensor driver!\n",
++			 camera->name);
+ 	}
+ 	rt_mutex_unlock(&isp->mutex);
+ 
+@@ -820,6 +829,8 @@ static int atomisp_enum_fmt_cap(struct file *file, void *fh,
+ 		f->pixelformat = format->pixelformat;
+ 		return 0;
+ 	}
++	dev_err(isp->dev, "%s(): format for code %x not found.\n",
++		__func__, code.code);
+ 
+ 	return -EINVAL;
+ }
 -- 
 2.34.1
 
