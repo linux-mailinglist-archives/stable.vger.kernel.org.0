@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B55B2498A99
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:06:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89315498C89
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:23:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344951AbiAXTFy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:05:54 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:59542 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345162AbiAXTCt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:02:49 -0500
+        id S1346420AbiAXTXI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:23:08 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:43896 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347071AbiAXTOc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:14:32 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DDCCEB8122F;
-        Mon, 24 Jan 2022 19:02:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E8B0C340E5;
-        Mon, 24 Jan 2022 19:02:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 762CF6090A;
+        Mon, 24 Jan 2022 19:14:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D7BBC340E5;
+        Mon, 24 Jan 2022 19:14:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050966;
-        bh=iQYLBwzLMi48bseQjprm7HaXg8owdAOoP16c2+NUHWs=;
+        s=korg; t=1643051670;
+        bh=d4twU/xt8Evsjk78l3La49ircXkQ1OuoTKgMSn0/0D8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DC115jhZyzdXOYOacuYls6ZnGf+gfSLh/IlDgECaVEnkrRvfiLebjuFtjyWYoXx8X
-         t90rvPYTyPC9jW9OklBtaEBGJMn2Yvez1cFeDRW+e6JTapGh/PLT039Sag6QNHzCi7
-         QtTwdv8rtfKbVfGzOcvkQk4bMv5YZ1ZHRpUJyw0U=
+        b=TPrR0ymUlNpdCeeCTRMIkuxzExjbLgoJhXsAImRBii6tr1GrnwhhhOmccNXjh+FrZ
+         Rk45hLiaOTJAprlOR2PjeMgVrX7ZWzPFvdRyifSHRl/ScuArQyVKqSVS28vQtJCMm5
+         8zXPhOMx5iPLt5Y3u8JQbsb5fA/pOpUmCAYkG4rk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.14 012/186] media: uvcvideo: fix division by zero at stream start
-Date:   Mon, 24 Jan 2022 19:41:27 +0100
-Message-Id: <20220124183937.507289946@linuxfoundation.org>
+        stable@vger.kernel.org, Dillon Min <dillon.minfei@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 050/239] media: videobuf2: Fix the size printk format
+Date:   Mon, 24 Jan 2022 19:41:28 +0100
+Message-Id: <20220124183944.727868893@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,43 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Dillon Min <dillon.minfei@gmail.com>
 
-commit 8aa637bf6d70d2fb2ad4d708d8b9dd02b1c095df upstream.
+[ Upstream commit c9ee220d76775e42f35d634479c978d9350077d3 ]
 
-Add the missing bulk-endpoint max-packet sanity check to
-uvc_video_start_transfer() to avoid division by zero in
-uvc_alloc_urb_buffers() in case a malicious device has broken
-descriptors (or when doing descriptor fuzz testing).
+Since the type of parameter size is unsigned long,
+it should printk by %lu, instead of %ld, fix it.
 
-Note that USB core will reject URBs submitted for endpoints with zero
-wMaxPacketSize but that drivers doing packet-size calculations still
-need to handle this (cf. commit 2548288b4fb0 ("USB: Fix: Don't skip
-endpoint descriptors with maxpacket=0")).
-
-Fixes: c0efd232929c ("V4L/DVB (8145a): USB Video Class driver")
-Cc: stable@vger.kernel.org      # 2.6.26
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Fixes: 7952be9b6ece ("media: drivers/media/common/videobuf2: rename from videobuf")
+Signed-off-by: Dillon Min <dillon.minfei@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_video.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/media/common/videobuf2/videobuf2-dma-contig.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/media/usb/uvc/uvc_video.c
-+++ b/drivers/media/usb/uvc/uvc_video.c
-@@ -1711,6 +1711,10 @@ static int uvc_init_video(struct uvc_str
- 		if (ep == NULL)
- 			return -EIO;
- 
-+		/* Reject broken descriptors. */
-+		if (usb_endpoint_maxp(&ep->desc) == 0)
-+			return -EIO;
-+
- 		ret = uvc_init_video_bulk(stream, ep, gfp_flags);
+diff --git a/drivers/media/common/videobuf2/videobuf2-dma-contig.c b/drivers/media/common/videobuf2/videobuf2-dma-contig.c
+index aff0ab7bf83d5..bbd5716d4c9cb 100644
+--- a/drivers/media/common/videobuf2/videobuf2-dma-contig.c
++++ b/drivers/media/common/videobuf2/videobuf2-dma-contig.c
+@@ -154,7 +154,7 @@ static void *vb2_dc_alloc(struct device *dev, unsigned long attrs,
+ 	buf->cookie = dma_alloc_attrs(dev, size, &buf->dma_addr,
+ 					GFP_KERNEL | gfp_flags, buf->attrs);
+ 	if (!buf->cookie) {
+-		dev_err(dev, "dma_alloc_coherent of size %ld failed\n", size);
++		dev_err(dev, "dma_alloc_coherent of size %lu failed\n", size);
+ 		kfree(buf);
+ 		return ERR_PTR(-ENOMEM);
  	}
+@@ -206,9 +206,9 @@ static int vb2_dc_mmap(void *buf_priv, struct vm_area_struct *vma)
  
+ 	vma->vm_ops->open(vma);
+ 
+-	pr_debug("%s: mapped dma addr 0x%08lx at 0x%08lx, size %ld\n",
+-		__func__, (unsigned long)buf->dma_addr, vma->vm_start,
+-		buf->size);
++	pr_debug("%s: mapped dma addr 0x%08lx at 0x%08lx, size %lu\n",
++		 __func__, (unsigned long)buf->dma_addr, vma->vm_start,
++		 buf->size);
+ 
+ 	return 0;
+ }
+-- 
+2.34.1
+
 
 
