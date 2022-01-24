@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E6EC49808C
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:11:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EDDF49808D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:12:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242946AbiAXNLc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 08:11:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46690 "EHLO
+        id S242891AbiAXNMh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 08:12:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242754AbiAXNLb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:11:31 -0500
+        with ESMTP id S242813AbiAXNMg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:12:36 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BFA2C06173B
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 05:11:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C742C06173B
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 05:12:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 04839B80FA8
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:11:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB602C340E1;
-        Mon, 24 Jan 2022 13:11:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 42C1CB80F98
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:12:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52B3DC340E1;
+        Mon, 24 Jan 2022 13:12:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643029888;
-        bh=GhMA4d4SUN+IOcf++lnciMoRuyMPKRGzki8sxsfCkUc=;
+        s=korg; t=1643029954;
+        bh=2ALel0y7j2VsoFPpP4zhOjjv0v6XYl8J6/XTwtmpREU=;
         h=Subject:To:Cc:From:Date:From;
-        b=WU4xw50g24ne/rWHRDCKdBJq0p+lqfMywAh6OJ0yFlEuOPmf0lZf+lZPPqWtYFI6p
-         RYxtrT3JLvtfz/9LCy7lZ8kqCXER5RNZA6ojipAkxd9CCR42rjH90hSAZdsBp/+8en
-         pbqQLlTvawOq9BM0HJ27XmR8a4m2L9W4D+s5zSOk=
-Subject: FAILED: patch "[PATCH] taskstats: Cleanup the use of task->exit_code" failed to apply to 5.4-stable tree
-To:     ebiederm@xmission.com, bsingharora@gmail.com
+        b=M1qw4IoguFbPToHQZ3kg627UHHVIOVxnrDIc+HH1B+tqRJBeRSBCyYN6R+VhMqWBx
+         5VXtqMV9rO8W2wCCK134uadfIduHv0zyrWNgfhWGhanxOGJWZMhlTp5c3cS4O0n/WR
+         Nhh3DUj90zGsSe6cOj9a/ZcTk65YEnDXRM/pNdyE=
+Subject: FAILED: patch "[PATCH] misc: at25: Check proper value of chip length in FRAM case" failed to apply to 5.15-stable tree
+To:     andriy.shevchenko@linux.intel.com, arnd@arndb.de,
+        gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 14:11:16 +0100
-Message-ID: <164302987619021@kroah.com>
+Date:   Mon, 24 Jan 2022 14:12:31 +0100
+Message-ID: <164302995120086@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -53,57 +54,34 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1b5a42d9c85f0e731f01c8d1129001fd8531a8a0 Mon Sep 17 00:00:00 2001
-From: "Eric W. Biederman" <ebiederm@xmission.com>
-Date: Mon, 3 Jan 2022 11:32:36 -0600
-Subject: [PATCH] taskstats: Cleanup the use of task->exit_code
+From 58589a75bba96f43b62d8069b35be081bc00d7c3 Mon Sep 17 00:00:00 2001
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Date: Thu, 25 Nov 2021 23:27:29 +0200
+Subject: [PATCH] misc: at25: Check proper value of chip length in FRAM case
 
-In the function bacct_add_task the code reading task->exit_code was
-introduced in commit f3cef7a99469 ("[PATCH] csa: basic accounting over
-taskstats"), and it is not entirely clear what the taskstats interface
-is trying to return as only returning the exit_code of the first task
-in a process doesn't make a lot of sense.
+Obviously the byte_len value should be checked from the chip
+and not from at25->chip.
 
-As best as I can figure the intent is to return task->exit_code after
-a task exits.  The field is returned with per task fields, so the
-exit_code of the entire process is not wanted.  Only the value of the
-first task is returned so this is not a useful way to get the per task
-ptrace stop code.  The ordinary case of returning this value is
-returning after a task exits, which also precludes use for getting
-a ptrace value.
+Fixes: fd307a4ad332 ("nvmem: prepare basics for FRAM support")
+Acked-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20211125212729.86585-4-andriy.shevchenko@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-It is common to for the first task of a process to also be the last
-task of a process so this field may have done something reasonable by
-accident in testing.
-
-Make ac_exitcode a reliable per task value by always returning it for
-every exited task.
-
-Setting ac_exitcode in a sensible mannter makes it possible to continue
-to provide this value going forward.
-
-Cc: Balbir Singh <bsingharora@gmail.com>
-Fixes: f3cef7a99469 ("[PATCH] csa: basic accounting over taskstats")
-Link: https://lkml.kernel.org/r/20220103213312.9144-5-ebiederm@xmission.com
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-
-diff --git a/kernel/tsacct.c b/kernel/tsacct.c
-index f00de83d0246..1d261fbe367b 100644
---- a/kernel/tsacct.c
-+++ b/kernel/tsacct.c
-@@ -38,11 +38,10 @@ void bacct_add_tsk(struct user_namespace *user_ns,
- 	stats->ac_btime = clamp_t(time64_t, btime, 0, U32_MAX);
- 	stats->ac_btime64 = btime;
+diff --git a/drivers/misc/eeprom/at25.c b/drivers/misc/eeprom/at25.c
+index f0b0efc30ee6..e21216541b0f 100644
+--- a/drivers/misc/eeprom/at25.c
++++ b/drivers/misc/eeprom/at25.c
+@@ -433,9 +433,9 @@ static int at25_probe(struct spi_device *spi)
+ 			dev_err(&spi->dev, "Error: unsupported size (id %02x)\n", id[7]);
+ 			return -ENODEV;
+ 		}
+-		chip.byte_len = int_pow(2, id[7] - 0x21 + 4) * 1024;
  
--	if (thread_group_leader(tsk)) {
-+	if (tsk->flags & PF_EXITING)
- 		stats->ac_exitcode = tsk->exit_code;
--		if (tsk->flags & PF_FORKNOEXEC)
--			stats->ac_flag |= AFORK;
--	}
-+	if (thread_group_leader(tsk) && (tsk->flags & PF_FORKNOEXEC))
-+		stats->ac_flag |= AFORK;
- 	if (tsk->flags & PF_SUPERPRIV)
- 		stats->ac_flag |= ASU;
- 	if (tsk->flags & PF_DUMPCORE)
+-		if (at25->chip.byte_len > 64 * 1024)
++		chip.byte_len = int_pow(2, id[7] - 0x21 + 4) * 1024;
++		if (chip.byte_len > 64 * 1024)
+ 			at25->chip.flags |= EE_ADDR3;
+ 		else
+ 			at25->chip.flags |= EE_ADDR2;
 
