@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AC6049A4B3
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:10:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 264D249A449
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:09:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2371684AbiAYAJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:09:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58222 "EHLO
+        id S2371310AbiAYAH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:07:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2364587AbiAXXse (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:48:34 -0500
+        with ESMTP id S2366256AbiAXXwd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:52:33 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2982C07E32C;
-        Mon, 24 Jan 2022 13:43:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A099AC0419D9;
+        Mon, 24 Jan 2022 13:45:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 68BB8B812A5;
-        Mon, 24 Jan 2022 21:43:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FD08C340E5;
-        Mon, 24 Jan 2022 21:43:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 45538B8119E;
+        Mon, 24 Jan 2022 21:45:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5206DC340E4;
+        Mon, 24 Jan 2022 21:45:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060622;
-        bh=T7Qh6ncURuM95zleYtc/I17OlL/HQAyS5maJpXJereo=;
+        s=korg; t=1643060740;
+        bh=50Ir92TQOFxSdBGUViRw6ImhL/CgOB1Kfhjsy+Ly+iM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B24HB/VInSjEUzu1V/eOMNp09xh0p0tJDMUVR8qNcy+p9LwDp7MUuU9HMvnWTzs7F
-         dwDuoRoJ9w/iamWdeJKfQlvzyU/e3KcVh8gY8lfwcEioZqgz7ju6i56Q98WyhhkkVK
-         eMgpPkQqIhFut9o0eRvTiUE+A7MXQi0UIzeTSZIM=
+        b=oWBr1KHcf2MWXLBBfXxYGMEkDQBRbIf+QF+2xTppVvbiz/ZeBruFm8mrI8K+ZhsMB
+         FBoWGxlcUzoGBr/wUon08Tk8+6hiK7+WcdJT7VTWlC5rVmTun2OCS6G2ywnr0ZNh2Q
+         4JljHLpcXj4w9MPui0EBY5najiDcqfJrtErPcRiU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miroslav Lichvar <mlichvar@redhat.com>,
-        Yangbo Lu <yangbo.lu@nxp.com>,
+        stable@vger.kernel.org, Jie Wang <wangjie125@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.16 1008/1039] net: fix sock_timestamping_bind_phc() to release device
-Date:   Mon, 24 Jan 2022 19:46:37 +0100
-Message-Id: <20220124184159.173240015@linuxfoundation.org>
+Subject: [PATCH 5.16 1009/1039] net: bonding: fix bond_xmit_broadcast return value error bug
+Date:   Mon, 24 Jan 2022 19:46:38 +0100
+Message-Id: <20220124184159.210894789@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -48,32 +48,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miroslav Lichvar <mlichvar@redhat.com>
+From: Jie Wang <wangjie125@huawei.com>
 
-commit 2a4d75bfe41232608f5596a6d1369f92ccb20817 upstream.
+commit 4e5bd03ae34652cd932ab4c91c71c511793df75c upstream.
 
-Don't forget to release the device in sock_timestamping_bind_phc() after
-it was used to get the vclock indices.
+In Linux bonding scenario, one packet is copied to several copies and sent
+by all slave device of bond0 in mode 3(broadcast mode). The mode 3 xmit
+function bond_xmit_broadcast() only ueses the last slave device's tx result
+as the final result. In this case, if the last slave device is down, then
+it always return NET_XMIT_DROP, even though the other slave devices xmit
+success. It may cause the tx statistics error, and cause the application
+(e.g. scp) consider the network is unreachable.
 
-Fixes: d463126e23f1 ("net: sock: extend SO_TIMESTAMPING for PHC binding")
-Signed-off-by: Miroslav Lichvar <mlichvar@redhat.com>
-Cc: Yangbo Lu <yangbo.lu@nxp.com>
+For example, use the following command to configure server A.
+
+echo 3 > /sys/class/net/bond0/bonding/mode
+ifconfig bond0 up
+ifenslave bond0 eth0 eth1
+ifconfig bond0 192.168.1.125
+ifconfig eth0 up
+ifconfig eth1 down
+The slave device eth0 and eth1 are connected to server B(192.168.1.107).
+Run the ping 192.168.1.107 -c 3 -i 0.2 command, the following information
+is displayed.
+
+PING 192.168.1.107 (192.168.1.107) 56(84) bytes of data.
+64 bytes from 192.168.1.107: icmp_seq=1 ttl=64 time=0.077 ms
+64 bytes from 192.168.1.107: icmp_seq=2 ttl=64 time=0.056 ms
+64 bytes from 192.168.1.107: icmp_seq=3 ttl=64 time=0.051 ms
+
+ 192.168.1.107 ping statistics
+0 packets transmitted, 3 received
+
+Actually, the slave device eth0 of the bond successfully sends three
+ICMP packets, but the result shows that 0 packets are transmitted.
+
+Also if we use scp command to get remote files, the command end with the
+following printings.
+
+ssh_exchange_identification: read: Connection timed out
+
+So this patch modifies the bond_xmit_broadcast to return NET_XMIT_SUCCESS
+if one slave device in the bond sends packets successfully. If all slave
+devices send packets fail, the discarded packets stats is increased. The
+skb is released when there is no slave device in the bond or the last slave
+device is down.
+
+Fixes: ae46f184bc1f ("bonding: propagate transmit status")
+Signed-off-by: Jie Wang <wangjie125@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/sock.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/bonding/bond_main.c |   30 ++++++++++++++++++++++--------
+ 1 file changed, 22 insertions(+), 8 deletions(-)
 
---- a/net/core/sock.c
-+++ b/net/core/sock.c
-@@ -843,6 +843,8 @@ static int sock_timestamping_bind_phc(st
- 	}
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -4843,25 +4843,39 @@ static netdev_tx_t bond_xmit_broadcast(s
+ 	struct bonding *bond = netdev_priv(bond_dev);
+ 	struct slave *slave = NULL;
+ 	struct list_head *iter;
++	bool xmit_suc = false;
++	bool skb_used = false;
  
- 	num = ethtool_get_phc_vclocks(dev, &vclock_index);
-+	dev_put(dev);
+ 	bond_for_each_slave_rcu(bond, slave, iter) {
+-		if (bond_is_last_slave(bond, slave))
+-			break;
+-		if (bond_slave_is_up(slave) && slave->link == BOND_LINK_UP) {
+-			struct sk_buff *skb2 = skb_clone(skb, GFP_ATOMIC);
++		struct sk_buff *skb2;
+ 
++		if (!(bond_slave_is_up(slave) && slave->link == BOND_LINK_UP))
++			continue;
 +
- 	for (i = 0; i < num; i++) {
- 		if (*(vclock_index + i) == phc_index) {
- 			match = true;
++		if (bond_is_last_slave(bond, slave)) {
++			skb2 = skb;
++			skb_used = true;
++		} else {
++			skb2 = skb_clone(skb, GFP_ATOMIC);
+ 			if (!skb2) {
+ 				net_err_ratelimited("%s: Error: %s: skb_clone() failed\n",
+ 						    bond_dev->name, __func__);
+ 				continue;
+ 			}
+-			bond_dev_queue_xmit(bond, skb2, slave->dev);
+ 		}
++
++		if (bond_dev_queue_xmit(bond, skb2, slave->dev) == NETDEV_TX_OK)
++			xmit_suc = true;
+ 	}
+-	if (slave && bond_slave_is_up(slave) && slave->link == BOND_LINK_UP)
+-		return bond_dev_queue_xmit(bond, skb, slave->dev);
+ 
+-	return bond_tx_drop(bond_dev, skb);
++	if (!skb_used)
++		dev_kfree_skb_any(skb);
++
++	if (xmit_suc)
++		return NETDEV_TX_OK;
++
++	atomic_long_inc(&bond_dev->tx_dropped);
++	return NET_XMIT_DROP;
+ }
+ 
+ /*------------------------- Device initialization ---------------------------*/
 
 
