@@ -2,43 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DFC549A90E
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:19:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F38449A9EC
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:29:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1321982AbiAYDUR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:20:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57176 "EHLO
+        id S1323834AbiAYD3o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:29:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357622AbiAXTvE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:51:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CA81C019B22;
-        Mon, 24 Jan 2022 11:24:06 -0800 (PST)
+        with ESMTP id S1376524AbiAXVGc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:06:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C01E3C0613E9;
+        Mon, 24 Jan 2022 12:06:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA728B810BD;
-        Mon, 24 Jan 2022 19:24:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEFC9C340E5;
-        Mon, 24 Jan 2022 19:24:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 610596131F;
+        Mon, 24 Jan 2022 20:06:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6428BC340E7;
+        Mon, 24 Jan 2022 20:06:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052244;
-        bh=/WuAenPvtHoOYxe2cLjzMTFFnpRHp7Hh7oLwX6A9/98=;
+        s=korg; t=1643054803;
+        bh=o4+DfOCig2plLCN2WaUQs6Fkq3E43q2XrxEr3ptjrwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U7IBz2xxnlE7JW5mKZ9tGtXyPaR73ch53Dmd+wXg+ngc0pYtNtn2VZimYn/hiKins
-         Qp27xI5ewwuwz2GHMqe4ulAjy2RJRpu6x/TzxGNBBctVVwBtE0KtbraO/jpwLlBdZy
-         XyhqELjop+L1UPX27RVNE7Sce5dmfO/C5/zhJvhw=
+        b=12kuqJmWze7PNgCQohmY9/V6whUFqYN7wZOTD0XbxuUPRMIguZAMFvN3kOyxLw4kP
+         lIYDFuLQ1VEWD+rNjlfdK09U0/Iw38IVsUY+uJru4bws/6sq1P4/0RkcYA4qo05jPC
+         jBI2vv0avgg2Md20/ohkcGtWOJu3eTfA6any9R8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        David Laight <David.Laight@ACULAB.COM>,
+        Ido Schimmel <idosch@mellanox.com>,
+        Jiri Pirko <jiri@mellanox.com>,
+        Ido Schimmel <idosch@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 235/239] lib82596: Fix IRQ check in sni_82596_probe
-Date:   Mon, 24 Jan 2022 19:44:33 +0100
-Message-Id: <20220124183950.574194009@linuxfoundation.org>
+Subject: [PATCH 5.10 509/563] ipv4: update fib_info_cnt under spinlock protection
+Date:   Mon, 24 Jan 2022 19:44:34 +0100
+Message-Id: <20220124184042.068531951@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,40 +52,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 99218cbf81bf21355a3de61cd46a706d36e900e6 upstream.
+commit 0a6e6b3c7db6c34e3d149f09cd714972f8753e3f upstream.
 
-platform_get_irq() returns negative error number instead 0 on failure.
-And the doc of platform_get_irq() provides a usage example:
+In the past, free_fib_info() was supposed to be called
+under RTNL protection.
 
-    int irq = platform_get_irq(pdev, 0);
-    if (irq < 0)
-        return irq;
+This eventually was no longer the case.
 
-Fix the check of return value to catch errors correctly.
+Instead of enforcing RTNL it seems we simply can
+move fib_info_cnt changes to occur when fib_info_lock
+is held.
 
-Fixes: 115978859272 ("i825xx: Move the Intel 82586/82593/82596 based drivers")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+v2: David Laight suggested to update fib_info_cnt
+only when an entry is added/deleted to/from the hash table,
+as fib_info_cnt is used to make sure hash table size
+is optimal.
+
+BUG: KCSAN: data-race in fib_create_info / free_fib_info
+
+write to 0xffffffff86e243a0 of 4 bytes by task 26429 on cpu 0:
+ fib_create_info+0xe78/0x3440 net/ipv4/fib_semantics.c:1428
+ fib_table_insert+0x148/0x10c0 net/ipv4/fib_trie.c:1224
+ fib_magic+0x195/0x1e0 net/ipv4/fib_frontend.c:1087
+ fib_add_ifaddr+0xd0/0x2e0 net/ipv4/fib_frontend.c:1109
+ fib_netdev_event+0x178/0x510 net/ipv4/fib_frontend.c:1466
+ notifier_call_chain kernel/notifier.c:83 [inline]
+ raw_notifier_call_chain+0x53/0xb0 kernel/notifier.c:391
+ __dev_notify_flags+0x1d3/0x3b0
+ dev_change_flags+0xa2/0xc0 net/core/dev.c:8872
+ do_setlink+0x810/0x2410 net/core/rtnetlink.c:2719
+ rtnl_group_changelink net/core/rtnetlink.c:3242 [inline]
+ __rtnl_newlink net/core/rtnetlink.c:3396 [inline]
+ rtnl_newlink+0xb10/0x13b0 net/core/rtnetlink.c:3506
+ rtnetlink_rcv_msg+0x745/0x7e0 net/core/rtnetlink.c:5571
+ netlink_rcv_skb+0x14e/0x250 net/netlink/af_netlink.c:2496
+ rtnetlink_rcv+0x18/0x20 net/core/rtnetlink.c:5589
+ netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
+ netlink_unicast+0x5fc/0x6c0 net/netlink/af_netlink.c:1345
+ netlink_sendmsg+0x726/0x840 net/netlink/af_netlink.c:1921
+ sock_sendmsg_nosec net/socket.c:704 [inline]
+ sock_sendmsg net/socket.c:724 [inline]
+ ____sys_sendmsg+0x39a/0x510 net/socket.c:2409
+ ___sys_sendmsg net/socket.c:2463 [inline]
+ __sys_sendmsg+0x195/0x230 net/socket.c:2492
+ __do_sys_sendmsg net/socket.c:2501 [inline]
+ __se_sys_sendmsg net/socket.c:2499 [inline]
+ __x64_sys_sendmsg+0x42/0x50 net/socket.c:2499
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x44/0xd0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+read to 0xffffffff86e243a0 of 4 bytes by task 31505 on cpu 1:
+ free_fib_info+0x35/0x80 net/ipv4/fib_semantics.c:252
+ fib_info_put include/net/ip_fib.h:575 [inline]
+ nsim_fib4_rt_destroy drivers/net/netdevsim/fib.c:294 [inline]
+ nsim_fib4_rt_replace drivers/net/netdevsim/fib.c:403 [inline]
+ nsim_fib4_rt_insert drivers/net/netdevsim/fib.c:431 [inline]
+ nsim_fib4_event drivers/net/netdevsim/fib.c:461 [inline]
+ nsim_fib_event drivers/net/netdevsim/fib.c:881 [inline]
+ nsim_fib_event_work+0x15ca/0x2cf0 drivers/net/netdevsim/fib.c:1477
+ process_one_work+0x3fc/0x980 kernel/workqueue.c:2298
+ process_scheduled_works kernel/workqueue.c:2361 [inline]
+ worker_thread+0x7df/0xa70 kernel/workqueue.c:2447
+ kthread+0x2c7/0x2e0 kernel/kthread.c:327
+ ret_from_fork+0x1f/0x30
+
+value changed: 0x00000d2d -> 0x00000d2e
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 1 PID: 31505 Comm: kworker/1:21 Not tainted 5.16.0-rc6-syzkaller #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+Workqueue: events nsim_fib_event_work
+
+Fixes: 48bb9eb47b27 ("netdevsim: fib: Add dummy implementation for FIB offload")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Cc: David Laight <David.Laight@ACULAB.COM>
+Cc: Ido Schimmel <idosch@mellanox.com>
+Cc: Jiri Pirko <jiri@mellanox.com>
+Reviewed-by: Ido Schimmel <idosch@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/i825xx/sni_82596.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv4/fib_semantics.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/i825xx/sni_82596.c
-+++ b/drivers/net/ethernet/i825xx/sni_82596.c
-@@ -122,9 +122,10 @@ static int sni_82596_probe(struct platfo
- 	netdevice->dev_addr[5] = readb(eth_addr + 0x06);
- 	iounmap(eth_addr);
+--- a/net/ipv4/fib_semantics.c
++++ b/net/ipv4/fib_semantics.c
+@@ -251,7 +251,6 @@ void free_fib_info(struct fib_info *fi)
+ 		pr_warn("Freeing alive fib_info %p\n", fi);
+ 		return;
+ 	}
+-	fib_info_cnt--;
  
--	if (!netdevice->irq) {
-+	if (netdevice->irq < 0) {
- 		printk(KERN_ERR "%s: IRQ not found for i82596 at 0x%lx\n",
- 			__FILE__, netdevice->base_addr);
-+		retval = netdevice->irq;
- 		goto probe_failed;
+ 	call_rcu(&fi->rcu, free_fib_info_rcu);
+ }
+@@ -262,6 +261,10 @@ void fib_release_info(struct fib_info *f
+ 	spin_lock_bh(&fib_info_lock);
+ 	if (fi && --fi->fib_treeref == 0) {
+ 		hlist_del(&fi->fib_hash);
++
++		/* Paired with READ_ONCE() in fib_create_info(). */
++		WRITE_ONCE(fib_info_cnt, fib_info_cnt - 1);
++
+ 		if (fi->fib_prefsrc)
+ 			hlist_del(&fi->fib_lhash);
+ 		if (fi->nh) {
+@@ -1431,7 +1434,9 @@ struct fib_info *fib_create_info(struct
+ #endif
+ 
+ 	err = -ENOBUFS;
+-	if (fib_info_cnt >= fib_info_hash_size) {
++
++	/* Paired with WRITE_ONCE() in fib_release_info() */
++	if (READ_ONCE(fib_info_cnt) >= fib_info_hash_size) {
+ 		unsigned int new_size = fib_info_hash_size << 1;
+ 		struct hlist_head *new_info_hash;
+ 		struct hlist_head *new_laddrhash;
+@@ -1463,7 +1468,6 @@ struct fib_info *fib_create_info(struct
+ 		return ERR_PTR(err);
  	}
  
+-	fib_info_cnt++;
+ 	fi->fib_net = net;
+ 	fi->fib_protocol = cfg->fc_protocol;
+ 	fi->fib_scope = cfg->fc_scope;
+@@ -1590,6 +1594,7 @@ link_it:
+ 	fi->fib_treeref++;
+ 	refcount_set(&fi->fib_clntref, 1);
+ 	spin_lock_bh(&fib_info_lock);
++	fib_info_cnt++;
+ 	hlist_add_head(&fi->fib_hash,
+ 		       &fib_info_hash[fib_info_hashfn(fi)]);
+ 	if (fi->fib_prefsrc) {
 
 
