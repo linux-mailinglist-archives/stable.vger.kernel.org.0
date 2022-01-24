@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9E094998C7
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:38:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D14FD4996FD
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:20:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1453336AbiAXV3y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:29:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50956 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1448616AbiAXVTI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:19:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ABCDC06F8E2;
-        Mon, 24 Jan 2022 12:13:28 -0800 (PST)
+        id S1446514AbiAXVIi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:08:38 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:53558 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1445345AbiAXVCw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:02:52 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32579B81239;
-        Mon, 24 Jan 2022 20:13:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FA14C340E5;
-        Mon, 24 Jan 2022 20:13:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7486F61320;
+        Mon, 24 Jan 2022 21:02:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F357C340E5;
+        Mon, 24 Jan 2022 21:02:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055205;
-        bh=pbiV7BCRK/z0h1ZYuZ0k/5J2gwKHFemZ5Ubyd0yUkMY=;
+        s=korg; t=1643058170;
+        bh=c119dTtFJ/UsDiNJRoA+V53VfW8MDbBahmzYfXdX0aE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=McsjnwEAOSimANPh/O+T63pv6p91CbEXDAmanzHdlq2a0O7USp9LcU9lghUCqMp9M
-         vdLByWLrlotLp6WDX+1u87fy4hXCmqGietNc2/UYCePWeTd3Ksxk1HMRmkwsHYKZR9
-         XJ+jWHES+Bnm4KHe2ycTA8Kot9f9hHKwqyt+aENQ=
+        b=0WUuNBlWta3mzI4mxH9Io1Q3rM2DbTuet8xmodACbe+Ud0fMJp3NSKJyuNtLUe17W
+         0rnK+OYQdaoZpPGBbQlYFRM/5o4VjMYxOlJjydn05NEZfYmNWTQ3EWMWE9+QIkp3u1
+         VJx9z5EQZ2NkWZ7j8XUPSy/pzF58NDokivxl8EtQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gang Li <ligang.bdlg@bytedance.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 074/846] shmem: fix a race between shmem_unused_huge_shrink and shmem_evict_inode
-Date:   Mon, 24 Jan 2022 19:33:11 +0100
-Message-Id: <20220124184103.536915604@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Eirik Fuller <efuller@redhat.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0203/1039] powerpc: Avoid discarding flags in system_call_exception()
+Date:   Mon, 24 Jan 2022 19:33:12 +0100
+Message-Id: <20220124184132.148938792@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,172 +48,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gang Li <ligang.bdlg@bytedance.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-commit 62c9827cbb996c2c04f615ecd783ce28bcea894b upstream.
+[ Upstream commit 08b0af5b2affbe7419853e8dd1330e4b3fe27125 ]
 
-Fix a data race in commit 779750d20b93 ("shmem: split huge pages beyond
-i_size under memory pressure").
+Some thread flags can be set remotely, and so even when IRQs are disabled,
+the flags can change under our feet. Thus, when setting flags we must use
+an atomic operation rather than a plain read-modify-write sequence, as a
+plain read-modify-write may discard flags which are concurrently set by a
+remote thread, e.g.
 
-Here are call traces causing race:
+	// task A			// task B
+	tmp = A->thread_info.flags;
+					set_tsk_thread_flag(A, NEWFLAG_B);
+	tmp |= NEWFLAG_A;
+	A->thread_info.flags = tmp;
 
-   Call Trace 1:
-     shmem_unused_huge_shrink+0x3ae/0x410
-     ? __list_lru_walk_one.isra.5+0x33/0x160
-     super_cache_scan+0x17c/0x190
-     shrink_slab.part.55+0x1ef/0x3f0
-     shrink_node+0x10e/0x330
-     kswapd+0x380/0x740
-     kthread+0xfc/0x130
-     ? mem_cgroup_shrink_node+0x170/0x170
-     ? kthread_create_on_node+0x70/0x70
-     ret_from_fork+0x1f/0x30
+arch/powerpc/kernel/interrupt.c's system_call_exception() sets
+_TIF_RESTOREALL in the thread info flags with a read-modify-write, which
+may result in other flags being discarded.
 
-   Call Trace 2:
-     shmem_evict_inode+0xd8/0x190
-     evict+0xbe/0x1c0
-     do_unlinkat+0x137/0x330
-     do_syscall_64+0x76/0x120
-     entry_SYSCALL_64_after_hwframe+0x3d/0xa2
+Elsewhere in the file it uses clear_bits() to atomically remove flag bits,
+so use set_bits() here for consistency with those.
 
-A simple explanation:
+There may be reasons (e.g. instrumentation) that prevent the use of
+set_thread_flag() and clear_thread_flag() here, which would otherwise be
+preferable.
 
-Image there are 3 items in the local list (@list).  In the first
-traversal, A is not deleted from @list.
-
-  1)    A->B->C
-        ^
-        |
-        pos (leave)
-
-In the second traversal, B is deleted from @list.  Concurrently, A is
-deleted from @list through shmem_evict_inode() since last reference
-counter of inode is dropped by other thread.  Then the @list is corrupted.
-
-  2)    A->B->C
-        ^  ^
-        |  |
-     evict pos (drop)
-
-We should make sure the inode is either on the global list or deleted from
-any local list before iput().
-
-Fixed by moving inodes back to global list before we put them.
-
-[akpm@linux-foundation.org: coding style fixes]
-
-Link: https://lkml.kernel.org/r/20211125064502.99983-1-ligang.bdlg@bytedance.com
-Fixes: 779750d20b93 ("shmem: split huge pages beyond i_size under memory pressure")
-Signed-off-by: Gang Li <ligang.bdlg@bytedance.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ae7aaecc3f2f78b7 ("powerpc/64s: system call rfscv workaround for TM bugs")
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Eirik Fuller <efuller@redhat.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Link: https://lore.kernel.org/r/20211129130653.2037928-10-mark.rutland@arm.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/shmem.c |   37 +++++++++++++++++++++----------------
- 1 file changed, 21 insertions(+), 16 deletions(-)
+ arch/powerpc/kernel/interrupt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/mm/shmem.c
-+++ b/mm/shmem.c
-@@ -555,7 +555,7 @@ static unsigned long shmem_unused_huge_s
- 	struct shmem_inode_info *info;
- 	struct page *page;
- 	unsigned long batch = sc ? sc->nr_to_scan : 128;
--	int removed = 0, split = 0;
-+	int split = 0;
+diff --git a/arch/powerpc/kernel/interrupt.c b/arch/powerpc/kernel/interrupt.c
+index 835b626cd4760..df048e331cbfe 100644
+--- a/arch/powerpc/kernel/interrupt.c
++++ b/arch/powerpc/kernel/interrupt.c
+@@ -148,7 +148,7 @@ notrace long system_call_exception(long r3, long r4, long r5,
+ 	 */
+ 	if (IS_ENABLED(CONFIG_PPC_TRANSACTIONAL_MEM) &&
+ 			unlikely(MSR_TM_TRANSACTIONAL(regs->msr)))
+-		current_thread_info()->flags |= _TIF_RESTOREALL;
++		set_bits(_TIF_RESTOREALL, &current_thread_info()->flags);
  
- 	if (list_empty(&sbinfo->shrinklist))
- 		return SHRINK_STOP;
-@@ -570,7 +570,6 @@ static unsigned long shmem_unused_huge_s
- 		/* inode is about to be evicted */
- 		if (!inode) {
- 			list_del_init(&info->shrinklist);
--			removed++;
- 			goto next;
- 		}
- 
-@@ -578,12 +577,12 @@ static unsigned long shmem_unused_huge_s
- 		if (round_up(inode->i_size, PAGE_SIZE) ==
- 				round_up(inode->i_size, HPAGE_PMD_SIZE)) {
- 			list_move(&info->shrinklist, &to_remove);
--			removed++;
- 			goto next;
- 		}
- 
- 		list_move(&info->shrinklist, &list);
- next:
-+		sbinfo->shrinklist_len--;
- 		if (!--batch)
- 			break;
- 	}
-@@ -603,7 +602,7 @@ next:
- 		inode = &info->vfs_inode;
- 
- 		if (nr_to_split && split >= nr_to_split)
--			goto leave;
-+			goto move_back;
- 
- 		page = find_get_page(inode->i_mapping,
- 				(inode->i_size & HPAGE_PMD_MASK) >> PAGE_SHIFT);
-@@ -617,38 +616,44 @@ next:
- 		}
- 
- 		/*
--		 * Leave the inode on the list if we failed to lock
--		 * the page at this time.
-+		 * Move the inode on the list back to shrinklist if we failed
-+		 * to lock the page at this time.
- 		 *
- 		 * Waiting for the lock may lead to deadlock in the
- 		 * reclaim path.
- 		 */
- 		if (!trylock_page(page)) {
- 			put_page(page);
--			goto leave;
-+			goto move_back;
- 		}
- 
- 		ret = split_huge_page(page);
- 		unlock_page(page);
- 		put_page(page);
- 
--		/* If split failed leave the inode on the list */
-+		/* If split failed move the inode on the list back to shrinklist */
- 		if (ret)
--			goto leave;
-+			goto move_back;
- 
- 		split++;
- drop:
- 		list_del_init(&info->shrinklist);
--		removed++;
--leave:
-+		goto put;
-+move_back:
-+		/*
-+		 * Make sure the inode is either on the global list or deleted
-+		 * from any local list before iput() since it could be deleted
-+		 * in another thread once we put the inode (then the local list
-+		 * is corrupted).
-+		 */
-+		spin_lock(&sbinfo->shrinklist_lock);
-+		list_move(&info->shrinklist, &sbinfo->shrinklist);
-+		sbinfo->shrinklist_len++;
-+		spin_unlock(&sbinfo->shrinklist_lock);
-+put:
- 		iput(inode);
- 	}
- 
--	spin_lock(&sbinfo->shrinklist_lock);
--	list_splice_tail(&list, &sbinfo->shrinklist);
--	sbinfo->shrinklist_len -= removed;
--	spin_unlock(&sbinfo->shrinklist_lock);
--
- 	return split;
- }
- 
+ 	/*
+ 	 * If the system call was made with a transaction active, doom it and
+-- 
+2.34.1
+
 
 
