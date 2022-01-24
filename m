@@ -2,128 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDF854981F4
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 15:22:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6715A49823D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 15:29:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237539AbiAXOWY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 09:22:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35218 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237478AbiAXOWX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 09:22:23 -0500
-Received: from mail-pg1-x530.google.com (mail-pg1-x530.google.com [IPv6:2607:f8b0:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F9EAC06173B
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 06:22:23 -0800 (PST)
-Received: by mail-pg1-x530.google.com with SMTP id t32so15519048pgm.7
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 06:22:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=n5E22zn4kwtsSU2cvHFegf54bTjPVRoAvyMGgKVkW3I=;
-        b=yi+oLi1lRX1nc6XjeFQq0GjBs8uzNGysau0jrVCzJddfXsn6TAnqJQPqbgksAH2S8C
-         +CHu7zNEjkE6pb4Mcj2p4Uaw128qCzvaVhmfdz+1WERr9lIqJzfgOarwDfUyxg591Gum
-         3fSttnqL9mGmoIaxpoT8ZioJ6OFY82vvPe5j2BovX9V2xYOCSEcCnvCcR03bYCSzno+e
-         IZ98veVUI3mV4+YYvNWlOx2lLR6+hmUirBnxR+TrwVttXqKnqivuHE4gTFyPUwMlSgz5
-         6ovQiHc5JFIfCBZnoQy9pmB+2MFlKEk4jkvB7zCRxd23lqLzxDGmegESkPfkwuZGI5c2
-         Db8A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=n5E22zn4kwtsSU2cvHFegf54bTjPVRoAvyMGgKVkW3I=;
-        b=tqy1M0ziG7Y/GqrGK3IXQ9NXzhIXFz9UOmVEAoGPXDjg8pW7t0oPPCUnpwoh52lI0n
-         Un+sPPd3OToGEPAz8S1l6SVTTqIet9b0ro13U8+QzjHfTkcFrKEigT9iBu49FGg9WSkC
-         6x76awLhPRhiH976hsYh7k0INPbAKtOZImOVyudk03lz07/N0/RQymP4zEKUp4uClAB8
-         J493kcTxz3KXrA+Dd3v3nyp6uBYnQjN9XEv3XT+xJkNIaIALn6m4p/VORouZ3p9kx1qz
-         wnIAQGhxInRguYS5qCMC7/oBkNK+cItLku1v5WdeYv60lEtneX2x2ny9agzPvuXRsD/c
-         7xoA==
-X-Gm-Message-State: AOAM531DIyHSqU0PPdEZLFdZoeRXQCqsXDPWTTGdEdidQtvO6JjXQlhd
-        AdAbYJrDquJpe5hUd1aFwcvDBwOC6groyqZV
-X-Google-Smtp-Source: ABdhPJwrQ4EfEb5HhQw/0/TpDDJ0wbijOYcGqELMbXbfsFElQ+UY/gq8x8z6WfrGSDWKVIezKy/PcQ==
-X-Received: by 2002:a05:6a00:2182:b0:4a7:ec46:29da with SMTP id h2-20020a056a00218200b004a7ec4629damr13995169pfi.68.1643034142532;
-        Mon, 24 Jan 2022 06:22:22 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z10sm16770993pfh.77.2022.01.24.06.22.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Jan 2022 06:22:19 -0800 (PST)
-Message-ID: <61eeb61b.1c69fb81.9ec5f.ca3d@mx.google.com>
-Date:   Mon, 24 Jan 2022 06:22:19 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S238730AbiAXO3f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 09:29:35 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:41588 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238549AbiAXO3Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 09:29:24 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 52FF3B81059;
+        Mon, 24 Jan 2022 14:29:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FCA7C340E1;
+        Mon, 24 Jan 2022 14:29:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1643034562;
+        bh=wM6dq5JYKAC/xsOtX29ndceFMgecyE5AD5Ktxf69ZVo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=zc8vphqew11LXKyNPYzGUD+3ajt5GlBKNKr2lV4BStUSnILil08sDD1f2ruPHQ1h4
+         FNyL+8QllqINAvxkNz2MNF8PxttYuCYyMstYFDXzu48nlovDDqciJ/XByZ4uyNkisM
+         8XMo72tbWAuomPw3aIOt3yYpUA2iqCFtzbtH+ebg=
+Date:   Mon, 24 Jan 2022 15:29:19 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Frieder Schrempf <frieder.schrempf@kontron.de>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        sashal@kernel.org, linux-mtd@lists.infradead.org,
+        linux-kernel@vger.kernel.org, vigneshr@ti.com,
+        miquel.raynal@bootlin.com,
+        Yoshio Furuyama <ytc-mb-yfuruyama7@kioxia.com>, richard@nod.at,
+        Stoll Eberhard <Eberhard.Stoll@kontron.de>
+Subject: Re: [PATCH v2 1/2] Fix corner case in bad block table handling.
+Message-ID: <Ye63v1ypd0H7FYyD@kroah.com>
+References: <cover.1616635406.git.ytc-mb-yfuruyama7@kioxia.com>
+ <774a92693f311e7de01e5935e720a179fb1b2468.1616635406.git.ytc-mb-yfuruyama7@kioxia.com>
+ <9af5a4ae-e919-a545-809d-451217cf40f5@kontron.de>
+ <ccc99c80-6771-4f04-11d9-752b7b13a5a4@kontron.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.9.297-124-g1de5c6722df5
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.9
-Subject: stable-rc/queue/4.9 baseline: 139 runs,
- 1 regressions (v4.9.297-124-g1de5c6722df5)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ccc99c80-6771-4f04-11d9-752b7b13a5a4@kontron.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 139 runs, 1 regressions (v4.9.297-124-g1de5c6=
-722df5)
+On Mon, Jan 24, 2022 at 03:11:14PM +0100, Frieder Schrempf wrote:
+> Hi Greg, Sasha,
+> 
+> just a gentle ping for the backport request below.
+> 
+> Thanks!
+> 
+> Am 11.01.22 um 16:33 schrieb Frieder Schrempf:
+> > Hi stable maintainers,
+> > 
+> > On 06.04.21 03:47, Yoshio Furuyama wrote:
+> >> From: "Doyle, Patrick" <pdoyle@irobot.com>
+> >>
+> >> In the unlikely event that both blocks 10 and 11 are marked as bad (on a
+> >> 32 bit machine), then the process of marking block 10 as bad stomps on
+> >> cached entry for block 11.  There are (of course) other examples.
+> >>
+> >> Signed-off-by: Patrick Doyle <pdoyle@irobot.com>
+> >> Reviewed-by: Richard Weinberger <richard@nod.at>
+> > 
+> > We have systems on which this patch fixes real failures. Could you
+> > please add the upstream patch fd0d8d85f723 ("mtd: nand: bbt: Fix corner
+> > case in bad block table handling") to the stable queues for 4.19, 5.4, 5.10?
+> > 
+> > Thanks!
+> > 
+> > Cc: stable@vger.kernel.org
+> > Fixes: 9c3736a3de21 ("mtd: nand: Add core infrastructure to deal with
+> > NAND devices")
 
-Regressions Summary
--------------------
+Odd, I did not see this anywhere in my inbox.
 
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-rk3288-veyron-jaq | arm  | lab-collabora | gcc-10   | multi_v7_defconfig | =
-1          =
+Now queued up, thanks.
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.297-124-g1de5c6722df5/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.297-124-g1de5c6722df5
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      1de5c6722df5788cd798039dae9427a15a8ecb4a =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform          | arch | lab           | compiler | defconfig          | =
-regressions
-------------------+------+---------------+----------+--------------------+-=
------------
-rk3288-veyron-jaq | arm  | lab-collabora | gcc-10   | multi_v7_defconfig | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61ee80af3f460ad028abbd11
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.297-1=
-24-g1de5c6722df5/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-rk328=
-8-veyron-jaq.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.297-1=
-24-g1de5c6722df5/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-rk328=
-8-veyron-jaq.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220115.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61ee80af3f460ad028abb=
-d12
-        new failure (last pass: v4.9.297-121-g25c9df465ed4) =
-
- =20
+greg k-h
