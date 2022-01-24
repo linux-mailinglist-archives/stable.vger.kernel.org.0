@@ -2,50 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAB28498D09
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:33:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C27FA498A6B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:03:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344773AbiAXT1V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:27:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50462 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346809AbiAXTXZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:23:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63D5AC061244;
-        Mon, 24 Jan 2022 11:10:22 -0800 (PST)
+        id S241868AbiAXTD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:03:28 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:59964 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1343931AbiAXTB0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:01:26 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 00AD36121F;
-        Mon, 24 Jan 2022 19:10:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDCC4C340E5;
-        Mon, 24 Jan 2022 19:10:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 748EB6090A;
+        Mon, 24 Jan 2022 19:01:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54F45C340E5;
+        Mon, 24 Jan 2022 19:01:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051421;
-        bh=WO3Y96d8ujRmduRbZRHZ6fINYqgCWEHggCq4NSV+Gr0=;
+        s=korg; t=1643050885;
+        bh=wPbWj41fVhAncbHUubc2p8HpbyvviYRKFxe/qjP5LuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=120WpT3DMAm5gwTtnDcLqpTrylMDnHHv2SCS5IVegT57QiGZUqCGGfY53BFDfEp+f
-         DhwVq9WwZ76FAx4GjwiWEssvIgWxGmZKszJ+y5cK0FE3/G2biqzSq4KeanhgYgNUSm
-         NYJ5ZLH8fZXy9B/oA9TuNUgf/M1J49/GUF41dq40=
+        b=otbGtsh06I1ifYrHM5wbt/nwDcwqoZgG4JJeQpw0jO1EKQweMF9bYy6SrPhEsUJGD
+         MHSVFflZJ366+vzB4pOSM6XdOlO0qRY4eZlPWDrHLRgO6w4RP5PTISO3OA4aRdDviN
+         FLK4ARpHcrhhPmSBIwtIjwkG9zupHicgoJLgczTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Fabien Dessenne <fabien.dessenne@st.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Lionel Debieve <lionel.debieve@st.com>,
-        Nicolas Toromanoff <nicolas.toromanoff@st.com>,
-        linux-arm-kernel@lists.infradead.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>
-Subject: [PATCH 4.14 157/186] crypto: stm32/crc32 - Fix kernel BUG triggered in probe()
+        stable@vger.kernel.org, Kevin Bracey <kevin@bracey.fi>,
+        Eric Dumazet <edumazet@google.com>,
+        Jiri Pirko <jiri@resnulli.us>, Vimalkumar <j.vimal@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.9 142/157] net_sched: restore "mpu xxx" handling
 Date:   Mon, 24 Jan 2022 19:43:52 +0100
-Message-Id: <20220124183942.146431609@linuxfoundation.org>
+Message-Id: <20220124183937.272967858@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,64 +46,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Kevin Bracey <kevin@bracey.fi>
 
-commit 29009604ad4e3ef784fd9b9fef6f23610ddf633d upstream.
+commit fb80445c438c78b40b547d12b8d56596ce4ccfeb upstream.
 
-The include/linux/crypto.h struct crypto_alg field cra_driver_name description
-states "Unique name of the transformation provider. " ... " this contains the
-name of the chip or provider and the name of the transformation algorithm."
+commit 56b765b79e9a ("htb: improved accuracy at high rates") broke
+"overhead X", "linklayer atm" and "mpu X" attributes.
 
-In case of the stm32-crc driver, field cra_driver_name is identical for all
-registered transformation providers and set to the name of the driver itself,
-which is incorrect. This patch fixes it by assigning a unique cra_driver_name
-to each registered transformation provider.
+"overhead X" and "linklayer atm" have already been fixed. This restores
+the "mpu X" handling, as might be used by DOCSIS or Ethernet shaping:
 
-The kernel crash is triggered when the driver calls crypto_register_shashes()
-which calls crypto_register_shash(), which calls crypto_register_alg(), which
-calls __crypto_register_alg(), which returns -EEXIST, which is propagated
-back through this call chain. Upon -EEXIST from crypto_register_shash(), the
-crypto_register_shashes() starts unregistering the providers back, and calls
-crypto_unregister_shash(), which calls crypto_unregister_alg(), and this is
-where the BUG() triggers due to incorrect cra_refcnt.
+    tc class add ... htb rate X overhead 4 mpu 64
 
-Fixes: b51dbe90912a ("crypto: stm32 - Support for STM32 CRC32 crypto module")
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: <stable@vger.kernel.org> # 4.12+
-Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
-Cc: Fabien Dessenne <fabien.dessenne@st.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: Lionel Debieve <lionel.debieve@st.com>
-Cc: Nicolas Toromanoff <nicolas.toromanoff@st.com>
-Cc: linux-arm-kernel@lists.infradead.org
-Cc: linux-stm32@st-md-mailman.stormreply.com
-To: linux-crypto@vger.kernel.org
-Acked-by: Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+The code being fixed is used by htb, tbf and act_police. Cake has its
+own mpu handling. qdisc_calculate_pkt_len still uses the size table
+containing values adjusted for mpu by user space.
+
+iproute2 tc has always passed mpu into the kernel via a tc_ratespec
+structure, but the kernel never directly acted on it, merely stored it
+so that it could be read back by `tc class show`.
+
+Rather, tc would generate length-to-time tables that included the mpu
+(and linklayer) in their construction, and the kernel used those tables.
+
+Since v3.7, the tables were no longer used. Along with "mpu", this also
+broke "overhead" and "linklayer" which were fixed in 01cb71d2d47b
+("net_sched: restore "overhead xxx" handling", v3.10) and 8a8e3d84b171
+("net_sched: restore "linklayer atm" handling", v3.11).
+
+"overhead" was fixed by simply restoring use of tc_ratespec::overhead -
+this had originally been used by the kernel but was initially omitted
+from the new non-table-based calculations.
+
+"linklayer" had been handled in the table like "mpu", but the mode was
+not originally passed in tc_ratespec. The new implementation was made to
+handle it by getting new versions of tc to pass the mode in an extended
+tc_ratespec, and for older versions of tc the table contents were analysed
+at load time to deduce linklayer.
+
+As "mpu" has always been given to the kernel in tc_ratespec,
+accompanying the mpu-based table, we can restore system functionality
+with no userspace change by making the kernel act on the tc_ratespec
+value.
+
+Fixes: 56b765b79e9a ("htb: improved accuracy at high rates")
+Signed-off-by: Kevin Bracey <kevin@bracey.fi>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Cc: Vimalkumar <j.vimal@gmail.com>
+Link: https://lore.kernel.org/r/20220112170210.1014351-1-kevin@bracey.fi
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/stm32/stm32_crc32.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/net/sch_generic.h |    5 +++++
+ net/sched/sch_generic.c   |    1 +
+ 2 files changed, 6 insertions(+)
 
---- a/drivers/crypto/stm32/stm32_crc32.c
-+++ b/drivers/crypto/stm32/stm32_crc32.c
-@@ -206,7 +206,7 @@ static struct shash_alg algs[] = {
- 		.digestsize     = CHKSUM_DIGEST_SIZE,
- 		.base           = {
- 			.cra_name               = "crc32",
--			.cra_driver_name        = DRIVER_NAME,
-+			.cra_driver_name        = "stm32-crc32-crc32",
- 			.cra_priority           = 200,
- 			.cra_flags		= CRYPTO_ALG_OPTIONAL_KEY,
- 			.cra_blocksize          = CHKSUM_BLOCK_SIZE,
-@@ -228,7 +228,7 @@ static struct shash_alg algs[] = {
- 		.digestsize     = CHKSUM_DIGEST_SIZE,
- 		.base           = {
- 			.cra_name               = "crc32c",
--			.cra_driver_name        = DRIVER_NAME,
-+			.cra_driver_name        = "stm32-crc32-crc32c",
- 			.cra_priority           = 200,
- 			.cra_flags		= CRYPTO_ALG_OPTIONAL_KEY,
- 			.cra_blocksize          = CHKSUM_BLOCK_SIZE,
+--- a/include/net/sch_generic.h
++++ b/include/net/sch_generic.h
+@@ -837,6 +837,7 @@ struct psched_ratecfg {
+ 	u64	rate_bytes_ps; /* bytes per second */
+ 	u32	mult;
+ 	u16	overhead;
++	u16	mpu;
+ 	u8	linklayer;
+ 	u8	shift;
+ };
+@@ -846,6 +847,9 @@ static inline u64 psched_l2t_ns(const st
+ {
+ 	len += r->overhead;
+ 
++	if (len < r->mpu)
++		len = r->mpu;
++
+ 	if (unlikely(r->linklayer == TC_LINKLAYER_ATM))
+ 		return ((u64)(DIV_ROUND_UP(len,48)*53) * r->mult) >> r->shift;
+ 
+@@ -868,6 +872,7 @@ static inline void psched_ratecfg_getrat
+ 	res->rate = min_t(u64, r->rate_bytes_ps, ~0U);
+ 
+ 	res->overhead = r->overhead;
++	res->mpu = r->mpu;
+ 	res->linklayer = (r->linklayer & TC_LINKLAYER_MASK);
+ }
+ 
+--- a/net/sched/sch_generic.c
++++ b/net/sched/sch_generic.c
+@@ -996,6 +996,7 @@ void psched_ratecfg_precompute(struct ps
+ {
+ 	memset(r, 0, sizeof(*r));
+ 	r->overhead = conf->overhead;
++	r->mpu = conf->mpu;
+ 	r->rate_bytes_ps = max_t(u64, conf->rate, rate64);
+ 	r->linklayer = (conf->linklayer & TC_LINKLAYER_MASK);
+ 	r->mult = 1;
 
 
