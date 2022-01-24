@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C7C9499602
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:16:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6645C499614
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:16:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1391587AbiAXU6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:58:16 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:50036 "EHLO
+        id S1443758AbiAXU7E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:59:04 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:50058 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358894AbiAXUxE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:53:04 -0500
+        with ESMTP id S1351823AbiAXUxH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:53:07 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D732AB80FA3;
-        Mon, 24 Jan 2022 20:53:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0BB8C340E5;
-        Mon, 24 Jan 2022 20:53:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA121B80CCF;
+        Mon, 24 Jan 2022 20:53:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F262FC340E7;
+        Mon, 24 Jan 2022 20:53:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057581;
-        bh=KIinkNyzt4ugcO55WTubE68+yAEKo88iRuWUobe4O7E=;
+        s=korg; t=1643057584;
+        bh=vSGR6VHbNUyq1gjucRiTGoZ958d6JifO3hYpyr6RMI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nWqZ7aoKx2+JCdiS6tSLs00XHfrkZ/ShzHpXAdYrrcGXd23bddO2ueMPCZeoRX/xJ
-         Cd/Ho9kJBgodvqhIw86kpgHtB8s6D7x9DOf446WUff7N4hr+Rv2qvnmCGBQHJ51Iek
-         KvVNV86hRoq+B8pcS8coiVHiE+wOpBpuJeYS9bzM=
+        b=mFR9xQD1Cb7VPZO9LQcPAjVzqTkY1WAO83f6WwrZLA5hUv6rZ3dny6fLz5G1WPxk4
+         IEhNNuN/QCMQKrmk/qm2YI2IjkhDbJmr0bHt1GnGGCykQKKaoJNPNyRExjLLXWwbt8
+         aaLwlqe/aqUF/pPRsmB1dab1GDAzI82hDs7jbyLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Karl Kurbjun <kkurbjun@gmail.com>,
+        stable@vger.kernel.org, Jann Horn <jannh@google.com>,
         Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.16 0003/1039] HID: Ignore battery for Elan touchscreen on HP Envy X360 15t-dr100
-Date:   Mon, 24 Jan 2022 19:29:52 +0100
-Message-Id: <20220124184125.251451486@linuxfoundation.org>
+Subject: [PATCH 5.16 0004/1039] HID: uhid: Fix worker destroying device without any protection
+Date:   Mon, 24 Jan 2022 19:29:53 +0100
+Message-Id: <20220124184125.288410926@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -44,46 +44,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karl Kurbjun <kkurbjun@gmail.com>
+From: Jann Horn <jannh@google.com>
 
-commit f3193ea1b6779023334faa72b214ece457e02656 upstream.
+commit 4ea5763fb79ed89b3bdad455ebf3f33416a81624 upstream.
 
-Battery status on Elan tablet driver is reported for the HP ENVY x360
-15t-dr100. There is no separate battery for the Elan controller resulting in a
-battery level report of 0% or 1% depending on whether a stylus has interacted
-with the screen. These low battery level reports causes a variety of bad
-behavior in desktop environments. This patch adds the appropriate quirk to
-indicate that the batery status is unused for this target.
+uhid has to run hid_add_device() from workqueue context while allowing
+parallel use of the userspace API (which is protected with ->devlock).
+But hid_add_device() can fail. Currently, that is handled by immediately
+destroying the associated HID device, without using ->devlock - but if
+there are concurrent requests from userspace, that's wrong and leads to
+NULL dereferences and/or memory corruption (via use-after-free).
+
+Fix it by leaving the HID device as-is in the worker. We can clean it up
+later, either in the UHID_DESTROY command handler or in the ->release()
+handler.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Karl Kurbjun <kkurbjun@gmail.com>
+Fixes: 67f8ecc550b5 ("HID: uhid: fix timeout when probe races with IO")
+Signed-off-by: Jann Horn <jannh@google.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-ids.h   |    1 +
- drivers/hid/hid-input.c |    2 ++
- 2 files changed, 3 insertions(+)
+ drivers/hid/uhid.c |   29 +++++++++++++++++++++++++----
+ 1 file changed, 25 insertions(+), 4 deletions(-)
 
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -398,6 +398,7 @@
- #define USB_DEVICE_ID_HP_X2		0x074d
- #define USB_DEVICE_ID_HP_X2_10_COVER	0x0755
- #define I2C_DEVICE_ID_HP_ENVY_X360_15	0x2d05
-+#define I2C_DEVICE_ID_HP_ENVY_X360_15T_DR100	0x29CF
- #define I2C_DEVICE_ID_HP_SPECTRE_X360_15	0x2817
- #define USB_DEVICE_ID_ASUS_UX550VE_TOUCHSCREEN	0x2544
- #define USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN	0x2706
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -329,6 +329,8 @@ static const struct hid_device_id hid_ba
- 	  HID_BATTERY_QUIRK_IGNORE },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_ENVY_X360_15),
- 	  HID_BATTERY_QUIRK_IGNORE },
-+	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_ENVY_X360_15T_DR100),
-+	  HID_BATTERY_QUIRK_IGNORE },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_SPECTRE_X360_15),
- 	  HID_BATTERY_QUIRK_IGNORE },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN),
+--- a/drivers/hid/uhid.c
++++ b/drivers/hid/uhid.c
+@@ -28,11 +28,22 @@
+ 
+ struct uhid_device {
+ 	struct mutex devlock;
++
++	/* This flag tracks whether the HID device is usable for commands from
++	 * userspace. The flag is already set before hid_add_device(), which
++	 * runs in workqueue context, to allow hid_add_device() to communicate
++	 * with userspace.
++	 * However, if hid_add_device() fails, the flag is cleared without
++	 * holding devlock.
++	 * We guarantee that if @running changes from true to false while you're
++	 * holding @devlock, it's still fine to access @hid.
++	 */
+ 	bool running;
+ 
+ 	__u8 *rd_data;
+ 	uint rd_size;
+ 
++	/* When this is NULL, userspace may use UHID_CREATE/UHID_CREATE2. */
+ 	struct hid_device *hid;
+ 	struct uhid_event input_buf;
+ 
+@@ -63,9 +74,18 @@ static void uhid_device_add_worker(struc
+ 	if (ret) {
+ 		hid_err(uhid->hid, "Cannot register HID device: error %d\n", ret);
+ 
+-		hid_destroy_device(uhid->hid);
+-		uhid->hid = NULL;
++		/* We used to call hid_destroy_device() here, but that's really
++		 * messy to get right because we have to coordinate with
++		 * concurrent writes from userspace that might be in the middle
++		 * of using uhid->hid.
++		 * Just leave uhid->hid as-is for now, and clean it up when
++		 * userspace tries to close or reinitialize the uhid instance.
++		 *
++		 * However, we do have to clear the ->running flag and do a
++		 * wakeup to make sure userspace knows that the device is gone.
++		 */
+ 		uhid->running = false;
++		wake_up_interruptible(&uhid->report_wait);
+ 	}
+ }
+ 
+@@ -474,7 +494,7 @@ static int uhid_dev_create2(struct uhid_
+ 	void *rd_data;
+ 	int ret;
+ 
+-	if (uhid->running)
++	if (uhid->hid)
+ 		return -EALREADY;
+ 
+ 	rd_size = ev->u.create2.rd_size;
+@@ -556,7 +576,7 @@ static int uhid_dev_create(struct uhid_d
+ 
+ static int uhid_dev_destroy(struct uhid_device *uhid)
+ {
+-	if (!uhid->running)
++	if (!uhid->hid)
+ 		return -EINVAL;
+ 
+ 	uhid->running = false;
+@@ -565,6 +585,7 @@ static int uhid_dev_destroy(struct uhid_
+ 	cancel_work_sync(&uhid->worker);
+ 
+ 	hid_destroy_device(uhid->hid);
++	uhid->hid = NULL;
+ 	kfree(uhid->rd_data);
+ 
+ 	return 0;
 
 
