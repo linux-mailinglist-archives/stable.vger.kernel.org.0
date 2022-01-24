@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 583DD4990EE
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:08:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6437B4990F3
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:08:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378520AbiAXUHd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:07:33 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:48564 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240634AbiAXTvW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:51:22 -0500
+        id S1347287AbiAXUHz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:07:55 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:39910 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1354724AbiAXTv1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:51:27 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 90F336090A;
-        Mon, 24 Jan 2022 19:51:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71283C340E5;
-        Mon, 24 Jan 2022 19:51:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 37A9CB811F3;
+        Mon, 24 Jan 2022 19:51:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69D57C340E5;
+        Mon, 24 Jan 2022 19:51:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053881;
-        bh=EWuSD09ncRWFckeaGe1epERgKjEawSin+XEHc36Lp5E=;
+        s=korg; t=1643053884;
+        bh=RTtE72TEKRptEnT9avhBLidZKHxVwDtJvr7QQ0QGyVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y7+c6ARAUg6fbnj0mtSJ9nWqwUYweW7GeW+p0YK9siKKhHYfoPQxmke0ZsO6/KLq1
-         biULhaoLoljGfW4QeXzkYrogcEpu0Ot619vCSuHoYgpJvsqQga4HIMYHKF7OwXXuTC
-         Cqj3KK3dLuQ9S/fAMUKmvFvgfsuT/5nxnHI42pkY=
+        b=F+TUmL3nh3/phT4BMuw7tcwY4ABe9QcDEegr32klRSRrRkC+JWzyKLVp3Cs2n30Bs
+         2VC/wRG5eWsU6DEZ/KTT5JtT9t2hYc0wI+AjUN6k3vxn8KwaQTKtEZswTqmXOmv/KO
+         2xd6N4HmAbXG1Je4994OevbprSPzpzyK++xi6B2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kuniyuki Iwashima <kuniyu@amazon.co.jp>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org, etkaar <lists.netfilter.org@prvy.eu>,
+        Florian Westphal <fw@strlen.de>,
+        Stefano Brivio <sbrivio@redhat.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 206/563] bpf: Fix SO_RCVBUF/SO_SNDBUF handling in _bpf_setsockopt().
-Date:   Mon, 24 Jan 2022 19:39:31 +0100
-Message-Id: <20220124184031.552229798@linuxfoundation.org>
+Subject: [PATCH 5.10 207/563] netfilter: nft_set_pipapo: allocate pcpu scratch maps on clone
+Date:   Mon, 24 Jan 2022 19:39:32 +0100
+Message-Id: <20220124184031.583468907@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -45,44 +47,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 04c350b1ae6bdb12b84009a4d0bf5ab4e621c47b ]
+[ Upstream commit 23c54263efd7cb605e2f7af72717a2a951999217 ]
 
-The commit 4057765f2dee ("sock: consistent handling of extreme
-SO_SNDBUF/SO_RCVBUF values") added a change to prevent underflow
-in setsockopt() around SO_SNDBUF/SO_RCVBUF.
+This is needed in case a new transaction is made that doesn't insert any
+new elements into an already existing set.
 
-This patch adds the same change to _bpf_setsockopt().
+Else, after second 'nft -f ruleset.txt', lookups in such a set will fail
+because ->lookup() encounters raw_cpu_ptr(m->scratch) == NULL.
 
-Fixes: 4057765f2dee ("sock: consistent handling of extreme SO_SNDBUF/SO_RCVBUF values")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.co.jp>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20220104013153.97906-2-kuniyu@amazon.co.jp
+For the initial rule load, insertion of elements takes care of the
+allocation, but for rule reloads this isn't guaranteed: we might not
+have additions to the set.
+
+Fixes: 3c4287f62044a90e ("nf_tables: Add set type for arbitrary concatenation of ranges")
+Reported-by: etkaar <lists.netfilter.org@prvy.eu>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/filter.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/netfilter/nft_set_pipapo.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/net/core/filter.c b/net/core/filter.c
-index abd58dce49bbc..706c31ae65b01 100644
---- a/net/core/filter.c
-+++ b/net/core/filter.c
-@@ -4711,12 +4711,14 @@ static int _bpf_setsockopt(struct sock *sk, int level, int optname,
- 		switch (optname) {
- 		case SO_RCVBUF:
- 			val = min_t(u32, val, sysctl_rmem_max);
-+			val = min_t(int, val, INT_MAX / 2);
- 			sk->sk_userlocks |= SOCK_RCVBUF_LOCK;
- 			WRITE_ONCE(sk->sk_rcvbuf,
- 				   max_t(int, val * 2, SOCK_MIN_RCVBUF));
- 			break;
- 		case SO_SNDBUF:
- 			val = min_t(u32, val, sysctl_wmem_max);
-+			val = min_t(int, val, INT_MAX / 2);
- 			sk->sk_userlocks |= SOCK_SNDBUF_LOCK;
- 			WRITE_ONCE(sk->sk_sndbuf,
- 				   max_t(int, val * 2, SOCK_MIN_SNDBUF));
+diff --git a/net/netfilter/nft_set_pipapo.c b/net/netfilter/nft_set_pipapo.c
+index 2d73f265b12c9..f67c4436c5d31 100644
+--- a/net/netfilter/nft_set_pipapo.c
++++ b/net/netfilter/nft_set_pipapo.c
+@@ -1290,6 +1290,11 @@ static struct nft_pipapo_match *pipapo_clone(struct nft_pipapo_match *old)
+ 	if (!new->scratch_aligned)
+ 		goto out_scratch;
+ #endif
++	for_each_possible_cpu(i)
++		*per_cpu_ptr(new->scratch, i) = NULL;
++
++	if (pipapo_realloc_scratch(new, old->bsize_max))
++		goto out_scratch_realloc;
+ 
+ 	rcu_head_init(&new->rcu);
+ 
+@@ -1334,6 +1339,9 @@ out_lt:
+ 		kvfree(dst->lt);
+ 		dst--;
+ 	}
++out_scratch_realloc:
++	for_each_possible_cpu(i)
++		kfree(*per_cpu_ptr(new->scratch, i));
+ #ifdef NFT_PIPAPO_ALIGN
+ 	free_percpu(new->scratch_aligned);
+ #endif
 -- 
 2.34.1
 
