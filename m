@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B5F9497FE2
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 13:48:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BA56497FE1
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 13:48:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242414AbiAXMsq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 07:48:46 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:52268 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234951AbiAXMsq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 07:48:46 -0500
+        id S240290AbiAXMsp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 07:48:45 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60558 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242389AbiAXMsl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 07:48:41 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E79BFB80F9F
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 12:48:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 328EBC340E7;
-        Mon, 24 Jan 2022 12:48:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 408E26103F
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 12:48:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52979C340E7;
+        Mon, 24 Jan 2022 12:48:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643028523;
-        bh=MolkYpjPJqlNSJPBK3/1YFRPNfAwxWFJr7K6nk39owg=;
+        s=korg; t=1643028520;
+        bh=AV3YxxoWbOVOUmEHa2q2yo72KAsnqCMGF+lZKM8ixB4=;
         h=Subject:To:Cc:From:Date:From;
-        b=ItPCKDnpRIdUfqu8K0JU/9aMwAIvqj38Ho/Q91Q7V1oZ2N5QsFh1HBV3WUXG4SHi0
-         FCdip0Q3hmvDJ1WywpgRYWgPXUpKSLTjTZadebDDUyPj+doaEEJeRt35WTYXKYhEk4
-         2IRoDJcp/sXPVYesSAJyfeueqH61zDFaz8U3TGO8=
-Subject: FAILED: patch "[PATCH] net: axienet: Fix TX ring slot available check" failed to apply to 4.14-stable tree
+        b=cxxRRoYDZ4Qf6lZcmRj8TCsESnlOr41IBTUh3OZP8y2nt5m3gYPno/52JfG0iLB+d
+         a2P46MMqj8qE4pxLzWRhI9POPRKWBpIbOIexBjfhR8xx44+juzQX3bJ48tCZyYLy1A
+         wPjjQlW4Qx+DKy+s7f/mpXqojg4EUc4tLGwXqctw=
+Subject: FAILED: patch "[PATCH] net: axienet: Fix TX ring slot available check" failed to apply to 4.19-stable tree
 To:     robert.hancock@calian.com, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 24 Jan 2022 13:48:31 +0100
-Message-ID: <164302851186166@kroah.com>
+Message-ID: <164302851122136@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
