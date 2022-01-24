@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D00D499B10
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:59:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EE1F4997D3
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:33:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376826AbiAXVtP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:49:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55270 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1456541AbiAXVjb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:39:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D74B6C0417C6;
-        Mon, 24 Jan 2022 12:24:43 -0800 (PST)
+        id S1392005AbiAXVQq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:16:46 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:34022 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1448405AbiAXVMg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:12:36 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3A4AB8122A;
-        Mon, 24 Jan 2022 20:24:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CE79C340E5;
-        Mon, 24 Jan 2022 20:24:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E771B8123A;
+        Mon, 24 Jan 2022 21:12:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FA87C340E5;
+        Mon, 24 Jan 2022 21:12:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055877;
-        bh=dxGuISMhA9ZEc5sX9BfzvJSZLkFpxqiBwP7QfUE9xig=;
+        s=korg; t=1643058753;
+        bh=hmaQm9JcV2b+UORMYGh52WT9l5TZ+1UROquwJJVRB+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bdG70i3+6KaY4DUBdjPdcLM5Qfpo1wWE9jLIEp36c88bsXrAhgvHh/+R+o6dkIfxw
-         APNW84xGxjw+kc5xTGdjiYKaYjsSa9DL2pOsnY5QBMGSvSxxT3khpAsc8OdT3LqfiF
-         z+JyqwLshC9cYOLrh15+P0On/0nCuYX/sHbur9OI=
+        b=EOCq9iVQ0jJcmVA/0hTVI13SjUpzMVsQ3vfbPVLsG4mLHtpKmNB0kT5l5IptSMktU
+         e5zs7bpiW6h/rn787/YZdTLZn85EDxRvQhp1sqfudK0PUGcqsyDK+bW8HfCEi7RAZG
+         YaYUfM7rkRWbF6BOiUQ+6KZxI2fZIaKHcbWAWBoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
+        stable@vger.kernel.org,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
+        John Keeping <john@metanate.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 262/846] usb: ftdi-elan: fix memory leak on device disconnect
-Date:   Mon, 24 Jan 2022 19:36:19 +0100
-Message-Id: <20220124184109.961327544@linuxfoundation.org>
+Subject: [PATCH 5.16 0391/1039] usb: dwc2: gadget: initialize max_speed from params
+Date:   Mon, 24 Jan 2022 19:36:20 +0100
+Message-Id: <20220124184138.458149131@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,50 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: John Keeping <john@metanate.com>
 
-[ Upstream commit 1646566b5e0c556f779180a8514e521ac735de1e ]
+[ Upstream commit 92ef98a4caacad6d4a1490dda45d81ae5ccf5bc9 ]
 
-'ftdi' is alloced when probe device, but not free on device disconnect,
-this cause a memory leak as follows:
+DWC2 may be paired with a full-speed PHY which is not capable of
+high-speed operation.  Report this correctly to the gadget core by
+setting max_speed from the core parameters.
 
-unreferenced object 0xffff88800d584000 (size 8400):
-  comm "kworker/0:2", pid 3809, jiffies 4295453055 (age 13.784s)
-  hex dump (first 32 bytes):
-    00 40 58 0d 80 88 ff ff 00 40 58 0d 80 88 ff ff  .@X......@X.....
-    00 00 00 00 00 00 00 00 00 00 00 00 ad 4e ad de  .............N..
-  backtrace:
-    [<000000000d47f947>] kmalloc_order_trace+0x19/0x110 mm/slab_common.c:960
-    [<000000008548ac68>] ftdi_elan_probe+0x8c/0x880 drivers/usb/misc/ftdi-elan.c:2647
-    [<000000007f73e422>] usb_probe_interface+0x31b/0x800 drivers/usb/core/driver.c:396
-    [<00000000fe8d07fc>] really_probe+0x299/0xc30 drivers/base/dd.c:517
-    [<0000000005da7d32>] __driver_probe_device+0x357/0x500 drivers/base/dd.c:751
-    [<000000003c2c9579>] driver_probe_device+0x4e/0x140 drivers/base/dd.c:781
+Prior to commit 5324bad66f09f ("usb: dwc2: gadget: implement
+udc_set_speed()") this didn't cause the hardware to be configured
+incorrectly, although the speed may have been reported incorrectly.  But
+after that commit params.speed is updated based on a value passed in by
+the gadget core which may set it to a faster speed than is supported by
+the hardware.  Initialising the max_speed parameter ensures the speed
+passed to dwc2_gadget_set_speed() will be one supported by the hardware.
 
-Fix it by freeing 'ftdi' after nobody use it.
-
-Fixes: a5c66e4b2418 ("USB: ftdi-elan: client driver for ELAN Uxxx adapters")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Link: https://lore.kernel.org/r/20211217083428.2441-1-weiyongjun1@huawei.com
+Fixes: 5324bad66f09f ("usb: dwc2: gadget: implement udc_set_speed()")
+Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Signed-off-by: John Keeping <john@metanate.com>
+Link: https://lore.kernel.org/r/20220106115731.1473909-1-john@metanate.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/misc/ftdi-elan.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/dwc2/gadget.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/misc/ftdi-elan.c b/drivers/usb/misc/ftdi-elan.c
-index e5a8fcdbb78e7..6c38c62d29b26 100644
---- a/drivers/usb/misc/ftdi-elan.c
-+++ b/drivers/usb/misc/ftdi-elan.c
-@@ -202,6 +202,7 @@ static void ftdi_elan_delete(struct kref *kref)
- 	mutex_unlock(&ftdi_module_lock);
- 	kfree(ftdi->bulk_in_buffer);
- 	ftdi->bulk_in_buffer = NULL;
-+	kfree(ftdi);
- }
+diff --git a/drivers/usb/dwc2/gadget.c b/drivers/usb/dwc2/gadget.c
+index ab8d7dad9f567..43cf49c4e5e59 100644
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -4974,7 +4974,18 @@ int dwc2_gadget_init(struct dwc2_hsotg *hsotg)
+ 		hsotg->params.g_np_tx_fifo_size);
+ 	dev_dbg(dev, "RXFIFO size: %d\n", hsotg->params.g_rx_fifo_size);
  
- static void ftdi_elan_put_kref(struct usb_ftdi *ftdi)
+-	hsotg->gadget.max_speed = USB_SPEED_HIGH;
++	switch (hsotg->params.speed) {
++	case DWC2_SPEED_PARAM_LOW:
++		hsotg->gadget.max_speed = USB_SPEED_LOW;
++		break;
++	case DWC2_SPEED_PARAM_FULL:
++		hsotg->gadget.max_speed = USB_SPEED_FULL;
++		break;
++	default:
++		hsotg->gadget.max_speed = USB_SPEED_HIGH;
++		break;
++	}
++
+ 	hsotg->gadget.ops = &dwc2_hsotg_gadget_ops;
+ 	hsotg->gadget.name = dev_name(dev);
+ 	hsotg->gadget.otg_caps = &hsotg->params.otg_caps;
 -- 
 2.34.1
 
