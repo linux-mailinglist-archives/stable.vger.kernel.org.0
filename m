@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86FF24997C2
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:29:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 143D2499A85
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347513AbiAXVQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:16:16 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:33760 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1448020AbiAXVLy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:11:54 -0500
+        id S1573296AbiAXVor (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:44:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54860 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1455569AbiAXVfk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:35:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4F30C05A186;
+        Mon, 24 Jan 2022 12:22:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F31D6B8121C;
-        Mon, 24 Jan 2022 21:11:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D495C340E5;
-        Mon, 24 Jan 2022 21:11:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B6ECB8122D;
+        Mon, 24 Jan 2022 20:22:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8DD7C340E7;
+        Mon, 24 Jan 2022 20:22:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058711;
-        bh=AqUHJMQ2oY0NsP6WS7PPXKuOprmnYcXcK6FdrOhbVas=;
+        s=korg; t=1643055746;
+        bh=kOahFSvEW43v6s3fzF/seoeZFzaSHPDFkEhMXFiTIMQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PewUrMZpCqOV30LoK6McSnp1HXenZbUZpU/EZH9Z2Dz80cGj9sTsSnXSgwXz9lyNT
-         AACOs+vrgGvxmPXSeK48F/n4hXp9zgYzAP+4hQySTrER080KcxJ2w9WZBHTOCyAvnE
-         0puTROgrWaK9FwqwdC7GVaahhdeQWp2TTpo/08sI=
+        b=wmsPccyqcWxMyDRXCgMtVB9K1001TSoMPV+mpZ/oLNB655FyAqSgbVWL70hAtkE/R
+         tuoOUUCZ/iN9rOiDtacCnlScVks2bKjDex9rdOJnGeQpHrtNCQ230tFgq0Gw9WG05W
+         hSuduQfpchjWGWO2sf/KOJZwx1AlzHC1uXu2ieXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Qiang Wang <wangqiang.wq.frank@bytedance.com>,
-        Chengming Zhou <zhouchengming@bytedance.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Hengqi Chen <hengqi.chen@gmail.com>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Steev Klimaszewski <steev@kali.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0378/1039] libbpf: Use probe_name for legacy kprobe
-Date:   Mon, 24 Jan 2022 19:36:07 +0100
-Message-Id: <20220124184138.019901056@linuxfoundation.org>
+Subject: [PATCH 5.15 251/846] arm64: dts: qcom: c630: Fix soundcard setup
+Date:   Mon, 24 Jan 2022 19:36:08 +0100
+Message-Id: <20220124184109.603304599@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,39 +50,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qiang Wang <wangqiang.wq.frank@bytedance.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit 71cff670baff5cc6a6eeb0181e2cc55579c5e1e0 ]
+[ Upstream commit c02b360ca67ebeb9de07b47b2fe53f964c2561d1 ]
 
-Fix a bug in commit 46ed5fc33db9, which wrongly used the
-func_name instead of probe_name to register legacy kprobe.
+Currently Soundcard has 1 rx device for headset and SoundWire Speaker Playback.
 
-Fixes: 46ed5fc33db9 ("libbpf: Refactor and simplify legacy kprobe code")
-Co-developed-by: Chengming Zhou <zhouchengming@bytedance.com>
-Signed-off-by: Qiang Wang <wangqiang.wq.frank@bytedance.com>
-Signed-off-by: Chengming Zhou <zhouchengming@bytedance.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Tested-by: Hengqi Chen <hengqi.chen@gmail.com>
-Reviewed-by: Hengqi Chen <hengqi.chen@gmail.com>
-Link: https://lore.kernel.org/bpf/20211227130713.66933-1-wangqiang.wq.frank@bytedance.com
+This setup has issues, ex if we try to play on headset the audio stream is
+also sent to SoundWire Speakers and we will hear sound in both headsets and speakers.
+
+Make a separate device for Speakers and Headset so that the streams are
+different and handled properly.
+
+Fixes: 45021d35fcb2 ("arm64: dts: qcom: c630: Enable audio support")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Tested-by: Steev Klimaszewski <steev@kali.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20211209175342.20386-2-srinivas.kandagatla@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../boot/dts/qcom/sdm850-lenovo-yoga-c630.dts | 27 +++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
-diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-index fd25e30e70cc2..2696f0b7f0acc 100644
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -9769,7 +9769,7 @@ bpf_program__attach_kprobe_opts(const struct bpf_program *prog,
- 		gen_kprobe_legacy_event_name(probe_name, sizeof(probe_name),
- 					     func_name, offset);
+diff --git a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
+index 2ba23aa582a18..617a634ac9051 100644
+--- a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
++++ b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
+@@ -518,6 +518,10 @@
+ 	dai@1 {
+ 		reg = <1>;
+ 	};
++
++	dai@2 {
++		reg = <2>;
++	};
+ };
  
--		legacy_probe = strdup(func_name);
-+		legacy_probe = strdup(probe_name);
- 		if (!legacy_probe)
- 			return libbpf_err_ptr(-ENOMEM);
+ &sound {
+@@ -530,6 +534,7 @@
+ 		"SpkrLeft IN", "SPK1 OUT",
+ 		"SpkrRight IN", "SPK2 OUT",
+ 		"MM_DL1",  "MultiMedia1 Playback",
++		"MM_DL3",  "MultiMedia3 Playback",
+ 		"MultiMedia2 Capture", "MM_UL2";
  
+ 	mm1-dai-link {
+@@ -546,6 +551,13 @@
+ 		};
+ 	};
+ 
++	mm3-dai-link {
++		link-name = "MultiMedia3";
++		cpu {
++			sound-dai = <&q6asmdai  MSM_FRONTEND_DAI_MULTIMEDIA3>;
++		};
++	};
++
+ 	slim-dai-link {
+ 		link-name = "SLIM Playback";
+ 		cpu {
+@@ -575,6 +587,21 @@
+ 			sound-dai = <&wcd9340 1>;
+ 		};
+ 	};
++
++	slim-wcd-dai-link {
++		link-name = "SLIM WCD Playback";
++		cpu {
++			sound-dai = <&q6afedai SLIMBUS_1_RX>;
++		};
++
++		platform {
++			sound-dai = <&q6routing>;
++		};
++
++		codec {
++			sound-dai =  <&wcd9340 2>;
++		};
++	};
+ };
+ 
+ &tlmm {
 -- 
 2.34.1
 
