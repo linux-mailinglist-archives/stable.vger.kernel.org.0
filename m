@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1E88497D92
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 12:03:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F118497D9B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 12:08:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237183AbiAXLDe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 06:03:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44904 "EHLO
+        id S237196AbiAXLIe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 06:08:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46008 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237180AbiAXLDe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 06:03:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3654FC06173B
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 03:03:34 -0800 (PST)
+        with ESMTP id S234207AbiAXLIe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 06:08:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1073EC06173B
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 03:08:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E70C3B80EF9
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 11:03:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F78AC340E1;
-        Mon, 24 Jan 2022 11:03:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9ECE2612F5
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 11:08:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A76FC340E7;
+        Mon, 24 Jan 2022 11:08:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643022211;
-        bh=dbIfn+6qs32Ahlcir3w9jxP1IYE0xT6YZ1OAv7XS8kU=;
+        s=korg; t=1643022513;
+        bh=0eIlHduPT2RCW2U0cr4naBCV3vU3aKIiaRf/zJ3XJzE=;
         h=Subject:To:Cc:From:Date:From;
-        b=z6XaRzfswsSLLPmQmGcgLKiF8i/SLiX+MJiDL4LIAAKO3fxLPhAvYyV0TfP8LOZSq
-         JLvhn4bKjshxSXh6WtqsUSii7c/tB4d43DuzZBrwXT6e5+auNMeeh315DH5KToBJ5W
-         8koetyaVVsvKU9p1kN10cisHsennTIZXSHkWR1lI=
-Subject: FAILED: patch "[PATCH] scsi: ufs: Improve SCSI abort handling further" failed to apply to 4.4-stable tree
-To:     bvanassche@acm.org, adrian.hunter@intel.com, beanhuo@micron.com,
-        martin.petersen@oracle.com
+        b=DCs/GBv9gOi76icSWJk4ucBvErGBxH7qnEPnSZLFq/j4yLhQMksaiFLCS0MhTN9hc
+         X4gYcW5liqzZH98fkKO9m3D1P1x/BjCCbXGnY5SF70XMiGcZm2SEe/XSl3+0ehP4tP
+         nOW7x2x8QNu759yOVEFCc4ttues0v/0ZKvZTfj/8=
+Subject: FAILED: patch "[PATCH] dmaengine: idxd: fix descriptor flushing locking" failed to apply to 5.15-stable tree
+To:     dave.jiang@intel.com, vkoul@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 12:03:07 +0100
-Message-ID: <164302218723442@kroah.com>
+Date:   Mon, 24 Jan 2022 12:08:29 +0100
+Message-ID: <164302250940169@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -54,52 +53,74 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1fbaa02dfd05229312404aaef8bc9317b4ff8750 Mon Sep 17 00:00:00 2001
-From: Bart Van Assche <bvanassche@acm.org>
-Date: Fri, 3 Dec 2021 15:19:46 -0800
-Subject: [PATCH] scsi: ufs: Improve SCSI abort handling further
+From 23a50c8035655c5a1d9b52c878b3ebf7b6b83eea Mon Sep 17 00:00:00 2001
+From: Dave Jiang <dave.jiang@intel.com>
+Date: Mon, 13 Dec 2021 11:51:29 -0700
+Subject: [PATCH] dmaengine: idxd: fix descriptor flushing locking
 
-Release resources when aborting a command. Make sure that aborted commands
-are completed once by clearing the corresponding tag bit from
-hba->outstanding_reqs. This patch is an improved version of commit
-3ff1f6b6ba6f ("scsi: ufs: core: Improve SCSI abort handling").
+The descriptor flushing for shutdown is not holding the irq_entry list
+lock. If there's ongoing interrupt completion handling, this can corrupt
+the list. Add locking to protect list walking. Also refactor the code so
+it's more compact.
 
-Link: https://lore.kernel.org/r/20211203231950.193369-14-bvanassche@acm.org
-Fixes: 7a3e97b0dc4b ("[SCSI] ufshcd: UFS Host controller driver")
-Tested-by: Bean Huo <beanhuo@micron.com>
-Reviewed-by: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Bean Huo <beanhuo@micron.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 8f47d1a5e545 ("dmaengine: idxd: connect idxd to dmaengine subsystem")
+Signed-off-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/163942148935.2412839.18282664745572777280.stgit@djiang5-desk3.ch.intel.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 5a641610dd74..06954a6e9d5d 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -6984,6 +6984,7 @@ static int ufshcd_abort(struct scsi_cmnd *cmd)
- 	struct ufshcd_lrb *lrbp = &hba->lrb[tag];
- 	unsigned long flags;
- 	int err = FAILED;
-+	bool outstanding;
- 	u32 reg;
+diff --git a/drivers/dma/idxd/init.c b/drivers/dma/idxd/init.c
+index 29c732a94027..03c735727f68 100644
+--- a/drivers/dma/idxd/init.c
++++ b/drivers/dma/idxd/init.c
+@@ -689,26 +689,28 @@ static int idxd_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	return rc;
+ }
  
- 	WARN_ONCE(tag < 0, "Invalid tag %d\n", tag);
-@@ -7061,6 +7062,17 @@ static int ufshcd_abort(struct scsi_cmnd *cmd)
- 		goto release;
+-static void idxd_flush_pending_llist(struct idxd_irq_entry *ie)
++static void idxd_flush_pending_descs(struct idxd_irq_entry *ie)
+ {
+ 	struct idxd_desc *desc, *itr;
+ 	struct llist_node *head;
++	LIST_HEAD(flist);
++	enum idxd_complete_type ctype;
+ 
++	spin_lock(&ie->list_lock);
+ 	head = llist_del_all(&ie->pending_llist);
+-	if (!head)
+-		return;
+-
+-	llist_for_each_entry_safe(desc, itr, head, llnode)
+-		idxd_dma_complete_txd(desc, IDXD_COMPLETE_ABORT, true);
+-}
++	if (head) {
++		llist_for_each_entry_safe(desc, itr, head, llnode)
++			list_add_tail(&desc->list, &ie->work_list);
++	}
+ 
+-static void idxd_flush_work_list(struct idxd_irq_entry *ie)
+-{
+-	struct idxd_desc *desc, *iter;
++	list_for_each_entry_safe(desc, itr, &ie->work_list, list)
++		list_move_tail(&desc->list, &flist);
++	spin_unlock(&ie->list_lock);
+ 
+-	list_for_each_entry_safe(desc, iter, &ie->work_list, list) {
++	list_for_each_entry_safe(desc, itr, &flist, list) {
+ 		list_del(&desc->list);
+-		idxd_dma_complete_txd(desc, IDXD_COMPLETE_ABORT, true);
++		ctype = desc->completion->status ? IDXD_COMPLETE_NORMAL : IDXD_COMPLETE_ABORT;
++		idxd_dma_complete_txd(desc, ctype, true);
  	}
+ }
  
-+	/*
-+	 * Clear the corresponding bit from outstanding_reqs since the command
-+	 * has been aborted successfully.
-+	 */
-+	spin_lock_irqsave(&hba->outstanding_lock, flags);
-+	outstanding = __test_and_clear_bit(tag, &hba->outstanding_reqs);
-+	spin_unlock_irqrestore(&hba->outstanding_lock, flags);
-+
-+	if (outstanding)
-+		ufshcd_release_scsi_cmd(hba, lrbp);
-+
- 	err = SUCCESS;
- 
- release:
+@@ -762,8 +764,7 @@ static void idxd_shutdown(struct pci_dev *pdev)
+ 		synchronize_irq(irq_entry->vector);
+ 		if (i == 0)
+ 			continue;
+-		idxd_flush_pending_llist(irq_entry);
+-		idxd_flush_work_list(irq_entry);
++		idxd_flush_pending_descs(irq_entry);
+ 	}
+ 	flush_workqueue(idxd->wq);
+ }
 
