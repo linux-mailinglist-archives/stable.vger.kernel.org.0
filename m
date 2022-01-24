@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78938499F8F
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:19:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B8E5499F94
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:20:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1841562AbiAXW7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:59:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39004 "EHLO
+        id S1841617AbiAXW7g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:59:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1588117AbiAXWbl (ORCPT
+        with ESMTP id S1588114AbiAXWbl (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:31:41 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58267C047CD3;
-        Mon, 24 Jan 2022 12:55:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 802BDC047CD5;
+        Mon, 24 Jan 2022 12:56:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 21450B811FB;
-        Mon, 24 Jan 2022 20:55:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56A7DC340E8;
-        Mon, 24 Jan 2022 20:55:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 471E0B811FB;
+        Mon, 24 Jan 2022 20:55:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B56EC340E5;
+        Mon, 24 Jan 2022 20:55:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057754;
-        bh=X/qys7L9pCMYpCx7HVypXrulSy7QADU69CUKRClP4vA=;
+        s=korg; t=1643057758;
+        bh=JtuOwGjrs+4E0N1ONfB/JKaOLTOJtjSWdNVu1Zx8gZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tq8qV9jsEY2yblDnS2vfzMZbHKUraQTyHIuIHqZAZCmfcdgQmvlutU0KxNiGXHqXw
-         jTI/3usimchehX88j56jlcHelntT+A8XsTd1NlrCpq+DM+5E+Zktn7ERNmSFQGlbv+
-         NnjCe82QqtI9gpp9wCkCfooWDQBpehXu1YRSO7bg=
+        b=wwqv7bgQQXywz3tLgwsHYf5C6JZBWPVnHsmZGEEC3wlsGI8IZKZijUFd/9hstYG3C
+         W7vbhMbtdXqL5NoIQE8LK8ynnkZcUnhhRQj6XSDE7SoXLWr312zuB+lq9y4z6aJZeH
+         rPcTThsE3F/NHNKPE1k59ZJM1YE75TNACaFYA850=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunfei Wang <yf.wang@mediatek.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.16 0068/1039] iommu/io-pgtable-arm-v7s: Add error handle for page table allocation failure
-Date:   Mon, 24 Jan 2022 19:30:57 +0100
-Message-Id: <20220124184127.456391982@linuxfoundation.org>
+        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
+        Thierry Reding <treding@nvidia.com>
+Subject: [PATCH 5.16 0069/1039] gpu: host1x: Add back arm_iommu_detach_device()
+Date:   Mon, 24 Jan 2022 19:30:58 +0100
+Message-Id: <20220124184127.487355503@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -48,49 +47,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunfei Wang <yf.wang@mediatek.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit a556cfe4cabc6d79cbb7733f118bbb420b376fe6 upstream.
+commit d5185965c3b59073c4520bad7dd2adf725b9abba upstream.
 
-In __arm_v7s_alloc_table function:
-iommu call kmem_cache_alloc to allocate page table, this function
-allocate memory may fail, when kmem_cache_alloc fails to allocate
-table, call virt_to_phys will be abnomal and return unexpected phys
-and goto out_free, then call kmem_cache_free to release table will
-trigger KE, __get_free_pages and free_pages have similar problem,
-so add error handle for page table allocation failure.
+Host1x DMA buffer isn't mapped properly when CONFIG_ARM_DMA_USE_IOMMU=y.
+The memory management code of Host1x driver has a longstanding overhaul
+overdue and it's not obvious where the problem is in this case. Hence
+let's add back the old workaround which we already had sometime before.
+It explicitly detaches Host1x device from the offending implicit IOMMU
+domain. This fixes a completely broken Host1x DMA in case of ARM32
+multiplatform kernel config.
 
-Fixes: 29859aeb8a6e ("iommu/io-pgtable-arm-v7s: Abort allocation when table address overflows the PTE")
-Signed-off-by: Yunfei Wang <yf.wang@mediatek.com>
-Cc: <stable@vger.kernel.org> # 5.10.*
-Acked-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/20211207113315.29109-1-yf.wang@mediatek.com
-Signed-off-by: Will Deacon <will@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: af1cbfb9bf0f ("gpu: host1x: Support DMA mapping of buffers")
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iommu/io-pgtable-arm-v7s.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/gpu/host1x/dev.c |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
---- a/drivers/iommu/io-pgtable-arm-v7s.c
-+++ b/drivers/iommu/io-pgtable-arm-v7s.c
-@@ -246,13 +246,17 @@ static void *__arm_v7s_alloc_table(int l
- 			__GFP_ZERO | ARM_V7S_TABLE_GFP_DMA, get_order(size));
- 	else if (lvl == 2)
- 		table = kmem_cache_zalloc(data->l2_tables, gfp);
+--- a/drivers/gpu/host1x/dev.c
++++ b/drivers/gpu/host1x/dev.c
+@@ -18,6 +18,10 @@
+ #include <trace/events/host1x.h>
+ #undef CREATE_TRACE_POINTS
+ 
++#if IS_ENABLED(CONFIG_ARM_DMA_USE_IOMMU)
++#include <asm/dma-iommu.h>
++#endif
 +
-+	if (!table)
-+		return NULL;
+ #include "bus.h"
+ #include "channel.h"
+ #include "debug.h"
+@@ -238,6 +242,17 @@ static struct iommu_domain *host1x_iommu
+ 	struct iommu_domain *domain = iommu_get_domain_for_dev(host->dev);
+ 	int err;
+ 
++#if IS_ENABLED(CONFIG_ARM_DMA_USE_IOMMU)
++	if (host->dev->archdata.mapping) {
++		struct dma_iommu_mapping *mapping =
++				to_dma_iommu_mapping(host->dev);
++		arm_iommu_detach_device(host->dev);
++		arm_iommu_release_mapping(mapping);
 +
- 	phys = virt_to_phys(table);
- 	if (phys != (arm_v7s_iopte)phys) {
- 		/* Doesn't fit in PTE */
- 		dev_err(dev, "Page table does not fit in PTE: %pa", &phys);
- 		goto out_free;
- 	}
--	if (table && !cfg->coherent_walk) {
-+	if (!cfg->coherent_walk) {
- 		dma = dma_map_single(dev, table, size, DMA_TO_DEVICE);
- 		if (dma_mapping_error(dev, dma))
- 			goto out_free;
++		domain = iommu_get_domain_for_dev(host->dev);
++	}
++#endif
++
+ 	/*
+ 	 * We may not always want to enable IOMMU support (for example if the
+ 	 * host1x firewall is already enabled and we don't support addressing
 
 
