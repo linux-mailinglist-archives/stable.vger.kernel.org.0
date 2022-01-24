@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D56C49A3E3
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:04:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B1D749A2E5
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:01:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2369114AbiAYAA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:00:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51036 "EHLO
+        id S2366008AbiAXXwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:52:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1584585AbiAXXSO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:18:14 -0500
+        with ESMTP id S1843474AbiAXXED (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:04:03 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16ABFC07E28A;
-        Mon, 24 Jan 2022 11:44:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89AA7C06C5AC;
+        Mon, 24 Jan 2022 13:15:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AA8DE61554;
-        Mon, 24 Jan 2022 19:44:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80E67C340E5;
-        Mon, 24 Jan 2022 19:44:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 275E661425;
+        Mon, 24 Jan 2022 21:15:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE212C340E5;
+        Mon, 24 Jan 2022 21:15:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053470;
-        bh=4nEF6vs37MRNU+7bIdqhL7iZYdxIXNA2Bc+gWhM3i0U=;
+        s=korg; t=1643058911;
+        bh=jCLuVy28HwBiuUUxs7Ez/SG8B5g+9UJE++jF70kFQIw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KFywy1OsKymUSsCEd3KQY/9tjWJHvDyAIlnJTrsSgDoIVEgjLgPYuCusFvikENExL
-         QOQPPdtKSXeK+te8fqGnTbmy+AiB8iDOylJQ5mkkuYKlN+zZiQ0giHaFljDgJMotCQ
-         tk2+23Ik2qkQcGZp8IJ+ytz/wophWDyiMvxju7Dk=
+        b=dMKO6dQw36Sz86pGfU69dsVHVksUa6ale4o1YE4JczNWWHm4OEfRoqX78YGQ56mgs
+         B0UdcZviDa3qEfPwfAWV0XGgBouXDmrHaMl59fa/94y0dcYa23/tyXWJ0627NGLHcA
+         s1CeiA0Lci1EiVRXhm0rHExqcUwREluUQ147ZZBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunfei Wang <yf.wang@mediatek.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.10 033/563] iommu/io-pgtable-arm-v7s: Add error handle for page table allocation failure
-Date:   Mon, 24 Jan 2022 19:36:38 +0100
-Message-Id: <20220124184025.573063034@linuxfoundation.org>
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Gal Pressman <gal@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0410/1039] Revert "net/mlx5e: Block offload of outer header csum for GRE tunnel"
+Date:   Mon, 24 Jan 2022 19:36:39 +0100
+Message-Id: <20220124184139.096166047@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,49 +49,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunfei Wang <yf.wang@mediatek.com>
+From: Aya Levin <ayal@nvidia.com>
 
-commit a556cfe4cabc6d79cbb7733f118bbb420b376fe6 upstream.
+[ Upstream commit 01c3fd113ef50490ffd43f78f347ef6bb008510b ]
 
-In __arm_v7s_alloc_table function:
-iommu call kmem_cache_alloc to allocate page table, this function
-allocate memory may fail, when kmem_cache_alloc fails to allocate
-table, call virt_to_phys will be abnomal and return unexpected phys
-and goto out_free, then call kmem_cache_free to release table will
-trigger KE, __get_free_pages and free_pages have similar problem,
-so add error handle for page table allocation failure.
+This reverts commit 54e1217b90486c94b26f24dcee1ee5ef5372f832.
 
-Fixes: 29859aeb8a6e ("iommu/io-pgtable-arm-v7s: Abort allocation when table address overflows the PTE")
-Signed-off-by: Yunfei Wang <yf.wang@mediatek.com>
-Cc: <stable@vger.kernel.org> # 5.10.*
-Acked-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/20211207113315.29109-1-yf.wang@mediatek.com
-Signed-off-by: Will Deacon <will@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Although the NIC doesn't support offload of outer header CSUM, using
+gso_partial_features allows offloading the tunnel's segmentation. The
+driver relies on the stack CSUM calculation of the outer header. For
+this, NETIF_F_GSO_GRE_CSUM must be a member of the device's features.
+
+Fixes: 54e1217b9048 ("net/mlx5e: Block offload of outer header csum for GRE tunnel")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Gal Pressman <gal@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/io-pgtable-arm-v7s.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
---- a/drivers/iommu/io-pgtable-arm-v7s.c
-+++ b/drivers/iommu/io-pgtable-arm-v7s.c
-@@ -242,13 +242,17 @@ static void *__arm_v7s_alloc_table(int l
- 			__GFP_ZERO | ARM_V7S_TABLE_GFP_DMA, get_order(size));
- 	else if (lvl == 2)
- 		table = kmem_cache_zalloc(data->l2_tables, gfp);
-+
-+	if (!table)
-+		return NULL;
-+
- 	phys = virt_to_phys(table);
- 	if (phys != (arm_v7s_iopte)phys) {
- 		/* Doesn't fit in PTE */
- 		dev_err(dev, "Page table does not fit in PTE: %pa", &phys);
- 		goto out_free;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index de8acd3217c18..d92b82cdfd4e1 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -4799,9 +4799,12 @@ static void mlx5e_build_nic_netdev(struct net_device *netdev)
  	}
--	if (table && !cfg->coherent_walk) {
-+	if (!cfg->coherent_walk) {
- 		dma = dma_map_single(dev, table, size, DMA_TO_DEVICE);
- 		if (dma_mapping_error(dev, dma))
- 			goto out_free;
+ 
+ 	if (mlx5e_tunnel_proto_supported_tx(mdev, IPPROTO_GRE)) {
+-		netdev->hw_features     |= NETIF_F_GSO_GRE;
+-		netdev->hw_enc_features |= NETIF_F_GSO_GRE;
+-		netdev->gso_partial_features |= NETIF_F_GSO_GRE;
++		netdev->hw_features     |= NETIF_F_GSO_GRE |
++					   NETIF_F_GSO_GRE_CSUM;
++		netdev->hw_enc_features |= NETIF_F_GSO_GRE |
++					   NETIF_F_GSO_GRE_CSUM;
++		netdev->gso_partial_features |= NETIF_F_GSO_GRE |
++						NETIF_F_GSO_GRE_CSUM;
+ 	}
+ 
+ 	if (mlx5e_tunnel_proto_supported_tx(mdev, IPPROTO_IPIP)) {
+-- 
+2.34.1
+
 
 
