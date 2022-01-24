@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFD9B49A978
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:24:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6818A49A8F8
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:18:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1322603AbiAYDWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:22:08 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:54132 "EHLO
+        id S1321729AbiAYDTc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:19:32 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:45628 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385205AbiAXUbo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:31:44 -0500
+        with ESMTP id S1347817AbiAXTs0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:48:26 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0EA1861382;
-        Mon, 24 Jan 2022 20:31:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA8B6C340E5;
-        Mon, 24 Jan 2022 20:31:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6F97C612E9;
+        Mon, 24 Jan 2022 19:48:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57B78C340E5;
+        Mon, 24 Jan 2022 19:48:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056300;
-        bh=jYIRWSiUZSWF2+JFSFBxoVE0otIiJf+SdqOpEdwYg0E=;
+        s=korg; t=1643053704;
+        bh=485Pel/umrmGTI7pbf0TizhUtAcoT/WJdPbsQcA5Gb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=apku6Q1OctwavvNQ5sjJsMGZlqVWYYk9401xdpKnp3wqe6xu2UEIPYQ0pMvB2GD0X
-         ZzmSjXnbaA/ycgIChNrHcKw7lfXev7A3lNRGn/962kSxdNDUMCFo5YwxDdBRRFAxFZ
-         9NrXzYlmjV4MsiI1hFLw3M8ClandQp/KdwlNiK1M=
+        b=w7pCNwDnkVRmKWv9J8izLv8/dX856/Axt+/B8OvTIXYtCj8t9HY0IVkbYjxlA6VRX
+         ii2HxKlztTU4CRuzubEsFWwjr3vzF841HCHDV6Ul9KLcY/SjtMGEq4UjcMlIVwaNZd
+         HspaySBgkNRxKFvN/WS7637AYD3yFsaLYNeL+wvg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Anders Roxell <anders.roxell@linaro.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 396/846] misc: at25: Make driver OF independent again
-Date:   Mon, 24 Jan 2022 19:38:33 +0100
-Message-Id: <20220124184114.618403515@linuxfoundation.org>
+Subject: [PATCH 5.10 151/563] selftests: clone3: clone3: add case CLONE3_ARGS_NO_TEST
+Date:   Mon, 24 Jan 2022 19:38:36 +0100
+Message-Id: <20220124184029.628320367@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Anders Roxell <anders.roxell@linaro.org>
 
-[ Upstream commit 5b557298d7d09cce04e0565a535fbca63661724a ]
+[ Upstream commit a531b0c23c0fc68ad758cc31a74cf612a4dafeb0 ]
 
-The commit f60e7074902a ("misc: at25: Make use of device property API")
-made a good job by enabling the driver for non-OF platforms, but the
-recent commit 604288bc6196 ("nvmem: eeprom: at25: fix type compiler warnings")
-brought that back.
+Building selftests/clone3 with clang warns about enumeration not handled
+in switch case:
 
-Restore greatness of the driver once again.
+clone3.c:54:10: warning: enumeration value 'CLONE3_ARGS_NO_TEST' not handled in switch [-Wswitch]
+        switch (test_mode) {
+                ^
 
-Fixes: eab61fb1cc2e ("nvmem: eeprom: at25: fram discovery simplification")
-Fixes: fd307a4ad332 ("nvmem: prepare basics for FRAM support")
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20211125212729.86585-2-andriy.shevchenko@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Add the missing switch case with a comment.
+
+Fixes: 17a810699c18 ("selftests: add tests for clone3()")
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/eeprom/at25.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ tools/testing/selftests/clone3/clone3.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/misc/eeprom/at25.c b/drivers/misc/eeprom/at25.c
-index b38978a3b3ffa..9193b812bc07e 100644
---- a/drivers/misc/eeprom/at25.c
-+++ b/drivers/misc/eeprom/at25.c
-@@ -17,8 +17,6 @@
- #include <linux/spi/spi.h>
- #include <linux/spi/eeprom.h>
- #include <linux/property.h>
--#include <linux/of.h>
--#include <linux/of_device.h>
- #include <linux/math.h>
+diff --git a/tools/testing/selftests/clone3/clone3.c b/tools/testing/selftests/clone3/clone3.c
+index 42be3b9258301..076cf4325f783 100644
+--- a/tools/testing/selftests/clone3/clone3.c
++++ b/tools/testing/selftests/clone3/clone3.c
+@@ -52,6 +52,12 @@ static int call_clone3(uint64_t flags, size_t size, enum test_mode test_mode)
+ 		size = sizeof(struct __clone_args);
  
- /*
-@@ -380,13 +378,14 @@ static int at25_probe(struct spi_device *spi)
- 	int			sr;
- 	u8 id[FM25_ID_LEN];
- 	u8 sernum[FM25_SN_LEN];
-+	bool is_fram;
- 	int i;
--	const struct of_device_id *match;
--	bool is_fram = 0;
- 
--	match = of_match_device(of_match_ptr(at25_of_match), &spi->dev);
--	if (match && !strcmp(match->compatible, "cypress,fm25"))
--		is_fram = 1;
-+	err = device_property_match_string(&spi->dev, "compatible", "cypress,fm25");
-+	if (err >= 0)
-+		is_fram = true;
-+	else
-+		is_fram = false;
- 
- 	at25 = devm_kzalloc(&spi->dev, sizeof(struct at25_data), GFP_KERNEL);
- 	if (!at25)
+ 	switch (test_mode) {
++	case CLONE3_ARGS_NO_TEST:
++		/*
++		 * Uses default 'flags' and 'SIGCHLD'
++		 * assignment.
++		 */
++		break;
+ 	case CLONE3_ARGS_ALL_0:
+ 		args.flags = 0;
+ 		args.exit_signal = 0;
 -- 
 2.34.1
 
