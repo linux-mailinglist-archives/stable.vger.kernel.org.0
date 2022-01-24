@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E8D14998AE
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:38:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE28F4998B3
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:38:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346650AbiAXV26 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:28:58 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38478 "EHLO
+        id S1449918AbiAXV3E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:29:04 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:41166 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1449926AbiAXVRc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:17:32 -0500
+        with ESMTP id S1450007AbiAXVRo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:17:44 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D18676148B;
-        Mon, 24 Jan 2022 21:17:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AED41C340E4;
-        Mon, 24 Jan 2022 21:17:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E119861425;
+        Mon, 24 Jan 2022 21:17:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8E49C340E4;
+        Mon, 24 Jan 2022 21:17:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059051;
-        bh=OVzwfhHa7Q06DLO2v8bPDfakvQ8TrsmIfo76CKfzYyg=;
+        s=korg; t=1643059060;
+        bh=tZ0YmxvMOQXfzZx00GnW7zNtkxAb1Ipi6CFgNNh80E0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aIRL7IYY7/mrZpAy2dRHZQKDKlYRKTN/Ayn4OycD+OJ7/aEF2jP7CiA35umidDtI5
-         7wqqzItyiO74VATmizBgZtk4v+Mi7nwnhRWUtOvTgGH0S1SqLh4UsqyBnvB7Rej0Cp
-         kt5XqLfRq+Noce/GFQ0Kq+kD/dcPUfugrecWIS7I=
+        b=wrdxCP3qcmaHaDUPuFowYA/8jBaIHAQbP5CgC4Jx6DwxLuoZTci7KfKEcKOGc16ey
+         DIKNGtDRdvZnzQEQj+n4w1ZK5rjC17KZigR17ZVKBwInM6FtnEBlWC/YK96s3uT8By
+         lMqqVzr0NyF1QLyT5FsNUDyc7Ghp8JobR8KTNf4o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dillon Min <dillon.minfei@gmail.com>,
-        Patrice Chotard <patrice.chotard@foss.st.com>,
-        Gabriel Fernandez <gabriel.fernandez@foss.st.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Mark Brown <broonie@kernel.org>, Vinod Koul <vkoul@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0489/1039] clk: stm32: Fix ltdcs clock turn off by clk_disable_unused() after system enter shell
-Date:   Mon, 24 Jan 2022 19:37:58 +0100
-Message-Id: <20220124184141.704984135@linuxfoundation.org>
+Subject: [PATCH 5.16 0492/1039] dmaengine: pxa/mmp: stop referencing config->slave_id
+Date:   Mon, 24 Jan 2022 19:38:01 +0100
+Message-Id: <20220124184141.798000209@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -47,72 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dillon Min <dillon.minfei@gmail.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 6fc058a72f3b7b07fc4de6d66ad1f68951b00f6e ]
+[ Upstream commit 134c37fa250a87a7e77c80a7c59ae16c462e46e0 ]
 
-stm32's clk driver register two ltdc gate clk to clk core by
-clk_hw_register_gate() and clk_hw_register_composite()
+The last driver referencing the slave_id on Marvell PXA and MMP platforms
+was the SPI driver, but this stopped doing so a long time ago, so the
+TODO from the earlier patch can no be removed.
 
-first: 'stm32f429_gates[]', clk name is 'ltdc', which no user to use.
-second: 'stm32f429_aux_clk[]', clk name is 'lcd-tft', used by ltdc driver
-
-both of them point to the same offset of stm32's RCC register. after
-kernel enter console, clk core turn off ltdc's clk as 'stm32f429_gates[]'
-is no one to use. but, actually 'stm32f429_aux_clk[]' is in use.
-
-stm32f469/746/769 have the same issue, fix it.
-
-Fixes: daf2d117cbca ("clk: stm32f4: Add lcd-tft clock")
-Link: https://lore.kernel.org/linux-arm-kernel/1590564453-24499-7-git-send-email-dillon.minfei@gmail.com/
-Link: https://lore.kernel.org/lkml/CAPTRvHkf0cK_4ZidM17rPo99gWDmxgqFt4CDUjqFFwkOeQeFDg@mail.gmail.com/
-Signed-off-by: Dillon Min <dillon.minfei@gmail.com>
-Reviewed-by: Patrice Chotard <patrice.chotard@foss.st.com>
-Acked-by: Gabriel Fernandez <gabriel.fernandez@foss.st.com>
-Acked-by: Stephen Boyd <sboyd@kernel.org>
-Link: https://lore.kernel.org/r/1635232282-3992-10-git-send-email-dillon.minfei@gmail.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: b729bf34535e ("spi/pxa2xx: Don't use slave_id of dma_slave_config")
+Fixes: 13b3006b8ebd ("dma: mmp_pdma: add filter function")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20211122222203.4103644-7-arnd@kernel.org
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-stm32f4.c | 4 ----
- 1 file changed, 4 deletions(-)
+ drivers/dma/mmp_pdma.c | 6 ------
+ drivers/dma/pxa_dma.c  | 7 -------
+ 2 files changed, 13 deletions(-)
 
-diff --git a/drivers/clk/clk-stm32f4.c b/drivers/clk/clk-stm32f4.c
-index af46176ad0539..473dfe632cc57 100644
---- a/drivers/clk/clk-stm32f4.c
-+++ b/drivers/clk/clk-stm32f4.c
-@@ -129,7 +129,6 @@ static const struct stm32f4_gate_data stm32f429_gates[] __initconst = {
- 	{ STM32F4_RCC_APB2ENR, 20,	"spi5",		"apb2_div" },
- 	{ STM32F4_RCC_APB2ENR, 21,	"spi6",		"apb2_div" },
- 	{ STM32F4_RCC_APB2ENR, 22,	"sai1",		"apb2_div" },
--	{ STM32F4_RCC_APB2ENR, 26,	"ltdc",		"apb2_div" },
- };
+diff --git a/drivers/dma/mmp_pdma.c b/drivers/dma/mmp_pdma.c
+index a23563cd118b7..5a53d7fcef018 100644
+--- a/drivers/dma/mmp_pdma.c
++++ b/drivers/dma/mmp_pdma.c
+@@ -727,12 +727,6 @@ static int mmp_pdma_config_write(struct dma_chan *dchan,
  
- static const struct stm32f4_gate_data stm32f469_gates[] __initconst = {
-@@ -211,7 +210,6 @@ static const struct stm32f4_gate_data stm32f469_gates[] __initconst = {
- 	{ STM32F4_RCC_APB2ENR, 20,	"spi5",		"apb2_div" },
- 	{ STM32F4_RCC_APB2ENR, 21,	"spi6",		"apb2_div" },
- 	{ STM32F4_RCC_APB2ENR, 22,	"sai1",		"apb2_div" },
--	{ STM32F4_RCC_APB2ENR, 26,	"ltdc",		"apb2_div" },
- };
+ 	chan->dir = direction;
+ 	chan->dev_addr = addr;
+-	/* FIXME: drivers should be ported over to use the filter
+-	 * function. Once that's done, the following two lines can
+-	 * be removed.
+-	 */
+-	if (cfg->slave_id)
+-		chan->drcmr = cfg->slave_id;
  
- static const struct stm32f4_gate_data stm32f746_gates[] __initconst = {
-@@ -286,7 +284,6 @@ static const struct stm32f4_gate_data stm32f746_gates[] __initconst = {
- 	{ STM32F4_RCC_APB2ENR, 21,	"spi6",		"apb2_div" },
- 	{ STM32F4_RCC_APB2ENR, 22,	"sai1",		"apb2_div" },
- 	{ STM32F4_RCC_APB2ENR, 23,	"sai2",		"apb2_div" },
--	{ STM32F4_RCC_APB2ENR, 26,	"ltdc",		"apb2_div" },
- };
+ 	return 0;
+ }
+diff --git a/drivers/dma/pxa_dma.c b/drivers/dma/pxa_dma.c
+index 52d04641e3611..6078cc81892e4 100644
+--- a/drivers/dma/pxa_dma.c
++++ b/drivers/dma/pxa_dma.c
+@@ -909,13 +909,6 @@ static void pxad_get_config(struct pxad_chan *chan,
+ 		*dcmd |= PXA_DCMD_BURST16;
+ 	else if (maxburst == 32)
+ 		*dcmd |= PXA_DCMD_BURST32;
+-
+-	/* FIXME: drivers should be ported over to use the filter
+-	 * function. Once that's done, the following two lines can
+-	 * be removed.
+-	 */
+-	if (chan->cfg.slave_id)
+-		chan->drcmr = chan->cfg.slave_id;
+ }
  
- static const struct stm32f4_gate_data stm32f769_gates[] __initconst = {
-@@ -364,7 +361,6 @@ static const struct stm32f4_gate_data stm32f769_gates[] __initconst = {
- 	{ STM32F4_RCC_APB2ENR, 21,	"spi6",		"apb2_div" },
- 	{ STM32F4_RCC_APB2ENR, 22,	"sai1",		"apb2_div" },
- 	{ STM32F4_RCC_APB2ENR, 23,	"sai2",		"apb2_div" },
--	{ STM32F4_RCC_APB2ENR, 26,	"ltdc",		"apb2_div" },
- 	{ STM32F4_RCC_APB2ENR, 30,	"mdio",		"apb2_div" },
- };
- 
+ static struct dma_async_tx_descriptor *
 -- 
 2.34.1
 
