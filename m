@@ -2,47 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA26B498AF5
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:08:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C81E8498E44
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:44:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346824AbiAXTIT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:08:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45848 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237315AbiAXTGS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:06:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC49AC061794;
-        Mon, 24 Jan 2022 11:01:23 -0800 (PST)
+        id S1355146AbiAXTkE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:40:04 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:33930 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1353941AbiAXTfg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:35:36 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CB9560BB7;
-        Mon, 24 Jan 2022 19:01:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75DBAC340E5;
-        Mon, 24 Jan 2022 19:01:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2342961502;
+        Mon, 24 Jan 2022 19:35:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 032ECC340E5;
+        Mon, 24 Jan 2022 19:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050882;
-        bh=Qf6XnIzeElSZlaTPE0+w9iFReX52uTDmquC2axMPOMY=;
+        s=korg; t=1643052935;
+        bh=3/QdR6SGlH1mYgnJ4NwJ66sQHw5xtbVGngxoo/WjW6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uherd27hb+yB2e/005qIB2XgwTj+NH5xUNY69YCzq6s7oefdU2Qvf51m5YITh0qx5
-         jS2AE0ftcnvU/TbO0o0zxS/h9VQKqNr0ZRJBy0FZ84eZyY7X8lIBjnKYb0ydhiJR7W
-         0Riwxe/gjnXOdUOiJRysB1aBb/p6qtaGMpPIm8QY=
+        b=jBfhDZJ9p+km6S4QYFs4gMnrcHK2YMjq3uIWADZf2tO5BSk35IpkpI9sUb64jKs58
+         jvaie+Vv/vv/DrJr6FlJtl2kt/FjZ/ekIkRWJW0ERErNKFH2iCZVJtOJysryORZ/mI
+         bGc1hfMaLzCRJJVIVWOZN1Pp0SJ948B3ZWAnOMMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 115/157] MIPS: Octeon: Fix build errors using clang
+Subject: [PATCH 5.4 221/320] serial: core: Keep mctrl register state and cached copy in sync
 Date:   Mon, 24 Jan 2022 19:43:25 +0100
-Message-Id: <20220124183936.423191959@linuxfoundation.org>
+Message-Id: <20220124184001.178038152@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
-References: <20220124183932.787526760@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,57 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit 95339b70677dc6f9a2d669c4716058e71b8dc1c7 ]
+[ Upstream commit 93a770b7e16772530196674ffc79bb13fa927dc6 ]
 
-A large number of the following errors is reported when compiling
-with clang:
+struct uart_port contains a cached copy of the Modem Control signals.
+It is used to skip register writes in uart_update_mctrl() if the new
+signal state equals the old signal state.  It also avoids a register
+read to obtain the current state of output signals.
 
-  cvmx-bootinfo.h:326:3: error: adding 'int' to a string does not append to the string [-Werror,-Wstring-plus-int]
-                  ENUM_BRD_TYPE_CASE(CVMX_BOARD_TYPE_NULL)
-                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  cvmx-bootinfo.h:321:20: note: expanded from macro 'ENUM_BRD_TYPE_CASE'
-          case x: return(#x + 16);        /* Skip CVMX_BOARD_TYPE_ */
-                         ~~~^~~~
-  cvmx-bootinfo.h:326:3: note: use array indexing to silence this warning
-  cvmx-bootinfo.h:321:20: note: expanded from macro 'ENUM_BRD_TYPE_CASE'
-          case x: return(#x + 16);        /* Skip CVMX_BOARD_TYPE_ */
-                          ^
+When a uart_port is registered, uart_configure_port() changes signal
+state but neglects to keep the cached copy in sync.  That may cause
+a subsequent register write to be incorrectly skipped.  Fix it before
+it trips somebody up.
 
-Follow the prompts to use the address operator '&' to fix this error.
+This behavior has been present ever since the serial core was introduced
+in 2002:
+https://git.kernel.org/history/history/c/33c0d1b0c3eb
 
-Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+So far it was never an issue because the cached copy is initialized to 0
+by kzalloc() and when uart_configure_port() is executed, at most DTR has
+been set by uart_set_options() or sunsu_console_setup().  Therefore,
+a stable designation seems unnecessary.
+
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Link: https://lore.kernel.org/r/bceeaba030b028ed810272d55d5fc6f3656ddddb.1641129752.git.lukas@wunner.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/octeon/cvmx-bootinfo.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/serial_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/mips/include/asm/octeon/cvmx-bootinfo.h b/arch/mips/include/asm/octeon/cvmx-bootinfo.h
-index 62787765575ef..ce6e5fddce0bf 100644
---- a/arch/mips/include/asm/octeon/cvmx-bootinfo.h
-+++ b/arch/mips/include/asm/octeon/cvmx-bootinfo.h
-@@ -315,7 +315,7 @@ enum cvmx_chip_types_enum {
+diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
+index aad640b9e3f4b..c8a047ba76ebe 100644
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -2395,7 +2395,8 @@ uart_configure_port(struct uart_driver *drv, struct uart_state *state,
+ 		 * We probably don't need a spinlock around this, but
+ 		 */
+ 		spin_lock_irqsave(&port->lock, flags);
+-		port->ops->set_mctrl(port, port->mctrl & TIOCM_DTR);
++		port->mctrl &= TIOCM_DTR;
++		port->ops->set_mctrl(port, port->mctrl);
+ 		spin_unlock_irqrestore(&port->lock, flags);
  
- /* Functions to return string based on type */
- #define ENUM_BRD_TYPE_CASE(x) \
--	case x: return(#x + 16);	/* Skip CVMX_BOARD_TYPE_ */
-+	case x: return (&#x[16]);	/* Skip CVMX_BOARD_TYPE_ */
- static inline const char *cvmx_board_type_to_string(enum
- 						    cvmx_board_types_enum type)
- {
-@@ -404,7 +404,7 @@ static inline const char *cvmx_board_type_to_string(enum
- }
- 
- #define ENUM_CHIP_TYPE_CASE(x) \
--	case x: return(#x + 15);	/* Skip CVMX_CHIP_TYPE */
-+	case x: return (&#x[15]);	/* Skip CVMX_CHIP_TYPE */
- static inline const char *cvmx_chip_type_to_string(enum
- 						   cvmx_chip_types_enum type)
- {
+ 		/*
 -- 
 2.34.1
 
