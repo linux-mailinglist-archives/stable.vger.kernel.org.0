@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0E78499BCA
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:05:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E108B4998EB
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:39:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1576523AbiAXVzL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:55:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57072 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379384AbiAXVtF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:49:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6609EC07A972;
-        Mon, 24 Jan 2022 12:33:29 -0800 (PST)
+        id S1453744AbiAXVas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:30:48 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:43552 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1450620AbiAXVVG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:21:06 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0655E61536;
-        Mon, 24 Jan 2022 20:33:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB0AAC340E5;
-        Mon, 24 Jan 2022 20:33:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 51211614BE;
+        Mon, 24 Jan 2022 21:21:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18178C340E4;
+        Mon, 24 Jan 2022 21:21:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056408;
-        bh=4F+FoEJCjA5dc535C82+wg9z4q7LEbCQMztv5Eb7YX0=;
+        s=korg; t=1643059265;
+        bh=oN+riz2KPBpT4JWOx2X4OywlB2pWHJD4t8/cTC9SMSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lr47FUoYbcd3GQhA//ZCh+UCvZM2QLvc3BXUml73BHV5ylvmeoYimLcjL5WyRteS0
-         Y5G/RljycoHWIZ8ZDfVfB2BSC3wLMUUHdT8Xg2WCgZCagv8JniE4vrtiqU6AosSspU
-         kDek/qWkduNkcTk8oVRe2XQZYwnafgO477le/lc0=
+        b=fRr+zAaL11a8UdbmQwnlmeQZwCH8lGtb8PkqKRZ03aRcWxVrI1I6kTUsXE4Y8snvK
+         IlzB2w8M0HNvkELK6NtLSfgfkuOSpdksHmZHQpxYkCnMpirI6+8cPHS/fuUJl5yBsH
+         sp2Aefp/SCNEfMUzLVcWKQpU8SON8bVBKuaCOpcI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 431/846] ASoC: mediatek: Check for error clk pointer
+Subject: [PATCH 5.16 0559/1039] media: atomisp: check before deference asd variable
 Date:   Mon, 24 Jan 2022 19:39:08 +0100
-Message-Id: <20220124184115.850880321@linuxfoundation.org>
+Message-Id: <20220124184144.099289157@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,66 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit 9de2b9286a6dd16966959b3cb34fc2ddfd39213e ]
+[ Upstream commit 71665d816214124d6bc4eb80314ac8f84ecacd78 ]
 
-Yes, you are right and now the return code depending on the
-init_clks().
+The asd->isp was referenced before checking if asd is not
+NULL.
 
-Fixes: 6078c651947a ("soc: mediatek: Refine scpsys to support multiple platform")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20211222015157.1025853-1-jiasheng@iscas.ac.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This fixes this warning:
+
+	../drivers/staging/media/atomisp/pci/atomisp_cmd.c:5548 atomisp_set_fmt_to_snr() warn: variable dereferenced before check 'asd' (see line 5540)
+
+While here, avoid getting the pipe pointer twice.
+
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/mediatek/mtk-scpsys.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/staging/media/atomisp/pci/atomisp_cmd.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/soc/mediatek/mtk-scpsys.c b/drivers/soc/mediatek/mtk-scpsys.c
-index ca75b14931ec9..670cc82d17dc2 100644
---- a/drivers/soc/mediatek/mtk-scpsys.c
-+++ b/drivers/soc/mediatek/mtk-scpsys.c
-@@ -411,12 +411,17 @@ out:
- 	return ret;
- }
- 
--static void init_clks(struct platform_device *pdev, struct clk **clk)
-+static int init_clks(struct platform_device *pdev, struct clk **clk)
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_cmd.c b/drivers/staging/media/atomisp/pci/atomisp_cmd.c
+index 75a531667d743..1ddb9c815a3cb 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_cmd.c
++++ b/drivers/staging/media/atomisp/pci/atomisp_cmd.c
+@@ -5529,8 +5529,8 @@ static int atomisp_set_fmt_to_snr(struct video_device *vdev,
+ 				  unsigned int padding_w, unsigned int padding_h,
+ 				  unsigned int dvs_env_w, unsigned int dvs_env_h)
  {
- 	int i;
+-	struct atomisp_sub_device *asd = atomisp_to_video_pipe(vdev)->asd;
+ 	struct atomisp_video_pipe *pipe = atomisp_to_video_pipe(vdev);
++	struct atomisp_sub_device *asd = pipe->asd;
+ 	const struct atomisp_format_bridge *format;
+ 	struct v4l2_subdev_pad_config pad_cfg;
+ 	struct v4l2_subdev_state pad_state = {
+@@ -5541,7 +5541,7 @@ static int atomisp_set_fmt_to_snr(struct video_device *vdev,
+ 	};
+ 	struct v4l2_mbus_framefmt *ffmt = &vformat.format;
+ 	struct v4l2_mbus_framefmt *req_ffmt;
+-	struct atomisp_device *isp = asd->isp;
++	struct atomisp_device *isp;
+ 	struct atomisp_input_stream_info *stream_info =
+ 	    (struct atomisp_input_stream_info *)ffmt->reserved;
+ 	u16 stream_index = ATOMISP_INPUT_STREAM_GENERAL;
+@@ -5555,6 +5555,8 @@ static int atomisp_set_fmt_to_snr(struct video_device *vdev,
+ 		return -EINVAL;
+ 	}
  
--	for (i = CLK_NONE + 1; i < CLK_MAX; i++)
-+	for (i = CLK_NONE + 1; i < CLK_MAX; i++) {
- 		clk[i] = devm_clk_get(&pdev->dev, clk_names[i]);
-+		if (IS_ERR(clk[i]))
-+			return PTR_ERR(clk[i]);
-+	}
++	isp = asd->isp;
 +
-+	return 0;
- }
+ 	v4l2_fh_init(&fh.vfh, vdev);
  
- static struct scp *init_scp(struct platform_device *pdev,
-@@ -426,7 +431,7 @@ static struct scp *init_scp(struct platform_device *pdev,
- {
- 	struct genpd_onecell_data *pd_data;
- 	struct resource *res;
--	int i, j;
-+	int i, j, ret;
- 	struct scp *scp;
- 	struct clk *clk[CLK_MAX];
- 
-@@ -481,7 +486,9 @@ static struct scp *init_scp(struct platform_device *pdev,
- 
- 	pd_data->num_domains = num;
- 
--	init_clks(pdev, clk);
-+	ret = init_clks(pdev, clk);
-+	if (ret)
-+		return ERR_PTR(ret);
- 
- 	for (i = 0; i < num; i++) {
- 		struct scp_domain *scpd = &scp->domains[i];
+ 	stream_index = atomisp_source_pad_to_stream_id(asd, source_pad);
 -- 
 2.34.1
 
