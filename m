@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 697A3498BB5
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:15:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95A9A499143
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344874AbiAXTPu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:15:50 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:39036 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347913AbiAXTNc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:13:32 -0500
+        id S1378919AbiAXUKE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:10:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60096 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376279AbiAXUBO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:01:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3C07C055AA1;
+        Mon, 24 Jan 2022 11:28:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69519B8122F;
-        Mon, 24 Jan 2022 19:13:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 865FBC340E5;
-        Mon, 24 Jan 2022 19:13:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2C679B811F9;
+        Mon, 24 Jan 2022 19:28:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55BDCC340E7;
+        Mon, 24 Jan 2022 19:28:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051608;
-        bh=vyqw9JCEbFyxhmvCDNiK7lJwnozf/joACBAFI2qbUfM=;
+        s=korg; t=1643052511;
+        bh=jk1ge3taTyitFvNleTQFEhhdkorjAlJ4cQqbVWREqhA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bA9Fy/3LDysX5pq5d4+XUJzJzf8Xm/etjfUvDvFcsi504WTZqLEopym7uPCkvwJNw
-         Ygv/97n2BOHupuCbza+w14DTwfVnWJxSaEgKHjb5smILEZ2Rat3dt5pKx/VBGlh7KO
-         d4gF0GHOwdYFYmMPIMMGfflmWR416qSWIlmOniwo=
+        b=UVKTiM53M/leRUXzoLUhBFDVUaFo1LPom7Eg+QVw6FoKXw2s+UHrhB8PIAiKsVja+
+         VcrdUrlphZppWBWLzppvoPz/tlwYKbSIHn7/W58KUZAsFYUdhxJ11umo5ALs1uusYQ
+         ccZPYUmtTHLArS7qRZEm8K7AmpNG9c+ZscY2p6IU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas De Marchi <lucas.demarchi@intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 4.19 029/239] x86/gpu: Reserve stolen memory for first integrated Intel GPU
+        stable@vger.kernel.org, Anton Vasilyev <vasilyev@ispras.ru>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 083/320] media: dw2102: Fix use after free
 Date:   Mon, 24 Jan 2022 19:41:07 +0100
-Message-Id: <20220124183944.052597788@linuxfoundation.org>
+Message-Id: <20220124183956.564966355@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +48,407 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas De Marchi <lucas.demarchi@intel.com>
+From: Anton Vasilyev <vasilyev@ispras.ru>
 
-commit 9c494ca4d3a535f9ca11ad6af1813983c1c6cbdd upstream.
+[ Upstream commit 589a9f0eb799f77de2c09583bf5bad221fa5d685 ]
 
-"Stolen memory" is memory set aside for use by an Intel integrated GPU.
-The intel_graphics_quirks() early quirk reserves this memory when it is
-called for a GPU that appears in the intel_early_ids[] table of integrated
-GPUs.
+dvb_usb_device_init stores parts of properties at d->props
+and d->desc and uses it on dvb_usb_device_exit.
+Free of properties on module probe leads to use after free.
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204597
 
-Previously intel_graphics_quirks() was marked as QFLAG_APPLY_ONCE, so it
-was called only for the first Intel GPU found.  If a discrete GPU happened
-to be enumerated first, intel_graphics_quirks() was called for it but not
-for any integrated GPU found later.  Therefore, stolen memory for such an
-integrated GPU was never reserved.
+The patch makes properties static instead of allocated on heap to prevent
+memleak and use after free.
+Also fixes s421_properties.devices initialization to have 2 element
+instead of 6 copied from p7500_properties.
 
-For example, this problem occurs in this Alderlake-P (integrated) + DG2
-(discrete) topology where the DG2 is found first, but stolen memory is
-associated with the integrated GPU:
-
-  - 00:01.0 Bridge
-    `- 03:00.0 DG2 discrete GPU
-  - 00:02.0 Integrated GPU (with stolen memory)
-
-Remove the QFLAG_APPLY_ONCE flag and call intel_graphics_quirks() for every
-Intel GPU.  Reserve stolen memory for the first GPU that appears in
-intel_early_ids[].
-
-[bhelgaas: commit log, add code comment, squash in
-https://lore.kernel.org/r/20220118190558.2ququ4vdfjuahicm@ldmartin-desk2]
-Link: https://lore.kernel.org/r/20220114002843.2083382-1-lucas.demarchi@intel.com
-Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[mchehab: fix function call alignments]
+Link: https://lore.kernel.org/linux-media/20190822104147.4420-1-vasilyev@ispras.ru
+Signed-off-by: Anton Vasilyev <vasilyev@ispras.ru>
+Fixes: 299c7007e936 ("media: dw2102: Fix memleak on sequence of probes")
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/early-quirks.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/media/usb/dvb-usb/dw2102.c | 338 ++++++++++++++++++-----------
+ 1 file changed, 215 insertions(+), 123 deletions(-)
 
---- a/arch/x86/kernel/early-quirks.c
-+++ b/arch/x86/kernel/early-quirks.c
-@@ -515,6 +515,7 @@ static const struct intel_early_ops gen1
- 	.stolen_size = gen9_stolen_size,
+diff --git a/drivers/media/usb/dvb-usb/dw2102.c b/drivers/media/usb/dvb-usb/dw2102.c
+index b960abd00d483..8493ebb377c4d 100644
+--- a/drivers/media/usb/dvb-usb/dw2102.c
++++ b/drivers/media/usb/dvb-usb/dw2102.c
+@@ -2098,46 +2098,153 @@ static struct dvb_usb_device_properties s6x0_properties = {
+ 	}
  };
  
-+/* Intel integrated GPUs for which we need to reserve "stolen memory" */
- static const struct pci_device_id intel_early_ids[] __initconst = {
- 	INTEL_I830_IDS(&i830_early_ops),
- 	INTEL_I845G_IDS(&i845_early_ops),
-@@ -584,6 +585,13 @@ static void __init intel_graphics_quirks
- 	u16 device;
- 	int i;
+-static const struct dvb_usb_device_description d1100 = {
+-	"Prof 1100 USB ",
+-	{&dw2102_table[PROF_1100], NULL},
+-	{NULL},
+-};
++static struct dvb_usb_device_properties p1100_properties = {
++	.caps = DVB_USB_IS_AN_I2C_ADAPTER,
++	.usb_ctrl = DEVICE_SPECIFIC,
++	.size_of_priv = sizeof(struct dw2102_state),
++	.firmware = P1100_FIRMWARE,
++	.no_reconnect = 1,
  
-+	/*
-+	 * Reserve "stolen memory" for an integrated GPU.  If we've already
-+	 * found one, there's nothing to do for other (discrete) GPUs.
-+	 */
-+	if (resource_size(&intel_graphics_stolen_res))
-+		return;
+-static const struct dvb_usb_device_description d660 = {
+-	"TeVii S660 USB",
+-	{&dw2102_table[TEVII_S660], NULL},
+-	{NULL},
+-};
++	.i2c_algo = &s6x0_i2c_algo,
++	.rc.core = {
++		.rc_interval = 150,
++		.rc_codes = RC_MAP_TBS_NEC,
++		.module_name = "dw2102",
++		.allowed_protos   = RC_PROTO_BIT_NEC,
++		.rc_query = prof_rc_query,
++	},
+ 
+-static const struct dvb_usb_device_description d480_1 = {
+-	"TeVii S480.1 USB",
+-	{&dw2102_table[TEVII_S480_1], NULL},
+-	{NULL},
++	.generic_bulk_ctrl_endpoint = 0x81,
++	.num_adapters = 1,
++	.download_firmware = dw2102_load_firmware,
++	.read_mac_address = s6x0_read_mac_address,
++	.adapter = {
++		{
++			.num_frontends = 1,
++			.fe = {{
++				.frontend_attach = stv0288_frontend_attach,
++				.stream = {
++					.type = USB_BULK,
++					.count = 8,
++					.endpoint = 0x82,
++					.u = {
++						.bulk = {
++							.buffersize = 4096,
++						}
++					}
++				},
++			} },
++		}
++	},
++	.num_device_descs = 1,
++	.devices = {
++		{"Prof 1100 USB ",
++			{&dw2102_table[PROF_1100], NULL},
++			{NULL},
++		},
++	}
+ };
+ 
+-static const struct dvb_usb_device_description d480_2 = {
+-	"TeVii S480.2 USB",
+-	{&dw2102_table[TEVII_S480_2], NULL},
+-	{NULL},
+-};
++static struct dvb_usb_device_properties s660_properties = {
++	.caps = DVB_USB_IS_AN_I2C_ADAPTER,
++	.usb_ctrl = DEVICE_SPECIFIC,
++	.size_of_priv = sizeof(struct dw2102_state),
++	.firmware = S660_FIRMWARE,
++	.no_reconnect = 1,
+ 
+-static const struct dvb_usb_device_description d7500 = {
+-	"Prof 7500 USB DVB-S2",
+-	{&dw2102_table[PROF_7500], NULL},
+-	{NULL},
+-};
++	.i2c_algo = &s6x0_i2c_algo,
++	.rc.core = {
++		.rc_interval = 150,
++		.rc_codes = RC_MAP_TEVII_NEC,
++		.module_name = "dw2102",
++		.allowed_protos   = RC_PROTO_BIT_NEC,
++		.rc_query = dw2102_rc_query,
++	},
+ 
+-static const struct dvb_usb_device_description d421 = {
+-	"TeVii S421 PCI",
+-	{&dw2102_table[TEVII_S421], NULL},
+-	{NULL},
++	.generic_bulk_ctrl_endpoint = 0x81,
++	.num_adapters = 1,
++	.download_firmware = dw2102_load_firmware,
++	.read_mac_address = s6x0_read_mac_address,
++	.adapter = {
++		{
++			.num_frontends = 1,
++			.fe = {{
++				.frontend_attach = ds3000_frontend_attach,
++				.stream = {
++					.type = USB_BULK,
++					.count = 8,
++					.endpoint = 0x82,
++					.u = {
++						.bulk = {
++							.buffersize = 4096,
++						}
++					}
++				},
++			} },
++		}
++	},
++	.num_device_descs = 3,
++	.devices = {
++		{"TeVii S660 USB",
++			{&dw2102_table[TEVII_S660], NULL},
++			{NULL},
++		},
++		{"TeVii S480.1 USB",
++			{&dw2102_table[TEVII_S480_1], NULL},
++			{NULL},
++		},
++		{"TeVii S480.2 USB",
++			{&dw2102_table[TEVII_S480_2], NULL},
++			{NULL},
++		},
++	}
+ };
+ 
+-static const struct dvb_usb_device_description d632 = {
+-	"TeVii S632 USB",
+-	{&dw2102_table[TEVII_S632], NULL},
+-	{NULL},
++static struct dvb_usb_device_properties p7500_properties = {
++	.caps = DVB_USB_IS_AN_I2C_ADAPTER,
++	.usb_ctrl = DEVICE_SPECIFIC,
++	.size_of_priv = sizeof(struct dw2102_state),
++	.firmware = P7500_FIRMWARE,
++	.no_reconnect = 1,
 +
- 	device = read_pci_config_16(num, slot, func, PCI_DEVICE_ID);
++	.i2c_algo = &s6x0_i2c_algo,
++	.rc.core = {
++		.rc_interval = 150,
++		.rc_codes = RC_MAP_TBS_NEC,
++		.module_name = "dw2102",
++		.allowed_protos   = RC_PROTO_BIT_NEC,
++		.rc_query = prof_rc_query,
++	},
++
++	.generic_bulk_ctrl_endpoint = 0x81,
++	.num_adapters = 1,
++	.download_firmware = dw2102_load_firmware,
++	.read_mac_address = s6x0_read_mac_address,
++	.adapter = {
++		{
++			.num_frontends = 1,
++			.fe = {{
++				.frontend_attach = prof_7500_frontend_attach,
++				.stream = {
++					.type = USB_BULK,
++					.count = 8,
++					.endpoint = 0x82,
++					.u = {
++						.bulk = {
++							.buffersize = 4096,
++						}
++					}
++				},
++			} },
++		}
++	},
++	.num_device_descs = 1,
++	.devices = {
++		{"Prof 7500 USB DVB-S2",
++			{&dw2102_table[PROF_7500], NULL},
++			{NULL},
++		},
++	}
+ };
  
- 	for (i = 0; i < ARRAY_SIZE(intel_early_ids); i++) {
-@@ -696,7 +704,7 @@ static struct chipset early_qrk[] __init
- 	{ PCI_VENDOR_ID_INTEL, 0x3406, PCI_CLASS_BRIDGE_HOST,
- 	  PCI_BASE_CLASS_BRIDGE, 0, intel_remapping_check },
- 	{ PCI_VENDOR_ID_INTEL, PCI_ANY_ID, PCI_CLASS_DISPLAY_VGA, PCI_ANY_ID,
--	  QFLAG_APPLY_ONCE, intel_graphics_quirks },
-+	  0, intel_graphics_quirks },
- 	/*
- 	 * HPET on the current version of the Baytrail platform has accuracy
- 	 * problems: it will halt in deep idle state - so we disable it.
+ static struct dvb_usb_device_properties su3000_properties = {
+@@ -2209,6 +2316,59 @@ static struct dvb_usb_device_properties su3000_properties = {
+ 	}
+ };
+ 
++static struct dvb_usb_device_properties s421_properties = {
++	.caps = DVB_USB_IS_AN_I2C_ADAPTER,
++	.usb_ctrl = DEVICE_SPECIFIC,
++	.size_of_priv = sizeof(struct dw2102_state),
++	.power_ctrl = su3000_power_ctrl,
++	.num_adapters = 1,
++	.identify_state	= su3000_identify_state,
++	.i2c_algo = &su3000_i2c_algo,
++
++	.rc.core = {
++		.rc_interval = 150,
++		.rc_codes = RC_MAP_SU3000,
++		.module_name = "dw2102",
++		.allowed_protos   = RC_PROTO_BIT_RC5,
++		.rc_query = su3000_rc_query,
++	},
++
++	.read_mac_address = su3000_read_mac_address,
++
++	.generic_bulk_ctrl_endpoint = 0x01,
++
++	.adapter = {
++		{
++		.num_frontends = 1,
++		.fe = {{
++			.streaming_ctrl   = su3000_streaming_ctrl,
++			.frontend_attach  = m88rs2000_frontend_attach,
++			.stream = {
++				.type = USB_BULK,
++				.count = 8,
++				.endpoint = 0x82,
++				.u = {
++					.bulk = {
++						.buffersize = 4096,
++					}
++				}
++			}
++		} },
++		}
++	},
++	.num_device_descs = 2,
++	.devices = {
++		{ "TeVii S421 PCI",
++			{ &dw2102_table[TEVII_S421], NULL },
++			{ NULL },
++		},
++		{ "TeVii S632 USB",
++			{ &dw2102_table[TEVII_S632], NULL },
++			{ NULL },
++		},
++	}
++};
++
+ static struct dvb_usb_device_properties t220_properties = {
+ 	.caps = DVB_USB_IS_AN_I2C_ADAPTER,
+ 	.usb_ctrl = DEVICE_SPECIFIC,
+@@ -2326,101 +2486,33 @@ static struct dvb_usb_device_properties tt_s2_4600_properties = {
+ static int dw2102_probe(struct usb_interface *intf,
+ 		const struct usb_device_id *id)
+ {
+-	int retval = -ENOMEM;
+-	struct dvb_usb_device_properties *p1100;
+-	struct dvb_usb_device_properties *s660;
+-	struct dvb_usb_device_properties *p7500;
+-	struct dvb_usb_device_properties *s421;
+-
+-	p1100 = kmemdup(&s6x0_properties,
+-			sizeof(struct dvb_usb_device_properties), GFP_KERNEL);
+-	if (!p1100)
+-		goto err0;
+-
+-	/* copy default structure */
+-	/* fill only different fields */
+-	p1100->firmware = P1100_FIRMWARE;
+-	p1100->devices[0] = d1100;
+-	p1100->rc.core.rc_query = prof_rc_query;
+-	p1100->rc.core.rc_codes = RC_MAP_TBS_NEC;
+-	p1100->adapter->fe[0].frontend_attach = stv0288_frontend_attach;
+-
+-	s660 = kmemdup(&s6x0_properties,
+-		       sizeof(struct dvb_usb_device_properties), GFP_KERNEL);
+-	if (!s660)
+-		goto err1;
+-
+-	s660->firmware = S660_FIRMWARE;
+-	s660->num_device_descs = 3;
+-	s660->devices[0] = d660;
+-	s660->devices[1] = d480_1;
+-	s660->devices[2] = d480_2;
+-	s660->adapter->fe[0].frontend_attach = ds3000_frontend_attach;
+-
+-	p7500 = kmemdup(&s6x0_properties,
+-			sizeof(struct dvb_usb_device_properties), GFP_KERNEL);
+-	if (!p7500)
+-		goto err2;
+-
+-	p7500->firmware = P7500_FIRMWARE;
+-	p7500->devices[0] = d7500;
+-	p7500->rc.core.rc_query = prof_rc_query;
+-	p7500->rc.core.rc_codes = RC_MAP_TBS_NEC;
+-	p7500->adapter->fe[0].frontend_attach = prof_7500_frontend_attach;
+-
+-
+-	s421 = kmemdup(&su3000_properties,
+-		       sizeof(struct dvb_usb_device_properties), GFP_KERNEL);
+-	if (!s421)
+-		goto err3;
+-
+-	s421->num_device_descs = 2;
+-	s421->devices[0] = d421;
+-	s421->devices[1] = d632;
+-	s421->adapter->fe[0].frontend_attach = m88rs2000_frontend_attach;
+-
+-	if (0 == dvb_usb_device_init(intf, &dw2102_properties,
+-			THIS_MODULE, NULL, adapter_nr) ||
+-	    0 == dvb_usb_device_init(intf, &dw2104_properties,
+-			THIS_MODULE, NULL, adapter_nr) ||
+-	    0 == dvb_usb_device_init(intf, &dw3101_properties,
+-			THIS_MODULE, NULL, adapter_nr) ||
+-	    0 == dvb_usb_device_init(intf, &s6x0_properties,
+-			THIS_MODULE, NULL, adapter_nr) ||
+-	    0 == dvb_usb_device_init(intf, p1100,
+-			THIS_MODULE, NULL, adapter_nr) ||
+-	    0 == dvb_usb_device_init(intf, s660,
+-			THIS_MODULE, NULL, adapter_nr) ||
+-	    0 == dvb_usb_device_init(intf, p7500,
+-			THIS_MODULE, NULL, adapter_nr) ||
+-	    0 == dvb_usb_device_init(intf, s421,
+-			THIS_MODULE, NULL, adapter_nr) ||
+-	    0 == dvb_usb_device_init(intf, &su3000_properties,
+-			 THIS_MODULE, NULL, adapter_nr) ||
+-	    0 == dvb_usb_device_init(intf, &t220_properties,
+-			 THIS_MODULE, NULL, adapter_nr) ||
+-	    0 == dvb_usb_device_init(intf, &tt_s2_4600_properties,
+-			 THIS_MODULE, NULL, adapter_nr)) {
+-
+-		/* clean up copied properties */
+-		kfree(s421);
+-		kfree(p7500);
+-		kfree(s660);
+-		kfree(p1100);
++	if (!(dvb_usb_device_init(intf, &dw2102_properties,
++			          THIS_MODULE, NULL, adapter_nr) &&
++	      dvb_usb_device_init(intf, &dw2104_properties,
++				  THIS_MODULE, NULL, adapter_nr) &&
++	      dvb_usb_device_init(intf, &dw3101_properties,
++			          THIS_MODULE, NULL, adapter_nr) &&
++	      dvb_usb_device_init(intf, &s6x0_properties,
++			          THIS_MODULE, NULL, adapter_nr) &&
++	      dvb_usb_device_init(intf, &p1100_properties,
++			          THIS_MODULE, NULL, adapter_nr) &&
++	      dvb_usb_device_init(intf, &s660_properties,
++				  THIS_MODULE, NULL, adapter_nr) &&
++	      dvb_usb_device_init(intf, &p7500_properties,
++				  THIS_MODULE, NULL, adapter_nr) &&
++	      dvb_usb_device_init(intf, &s421_properties,
++				  THIS_MODULE, NULL, adapter_nr) &&
++	      dvb_usb_device_init(intf, &su3000_properties,
++				  THIS_MODULE, NULL, adapter_nr) &&
++	      dvb_usb_device_init(intf, &t220_properties,
++				  THIS_MODULE, NULL, adapter_nr) &&
++	      dvb_usb_device_init(intf, &tt_s2_4600_properties,
++				  THIS_MODULE, NULL, adapter_nr))) {
+ 
+ 		return 0;
+ 	}
+ 
+-	retval = -ENODEV;
+-	kfree(s421);
+-err3:
+-	kfree(p7500);
+-err2:
+-	kfree(s660);
+-err1:
+-	kfree(p1100);
+-err0:
+-	return retval;
++	return -ENODEV;
+ }
+ 
+ static void dw2102_disconnect(struct usb_interface *intf)
+-- 
+2.34.1
+
 
 
