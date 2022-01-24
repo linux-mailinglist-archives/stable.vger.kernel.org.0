@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1ACA499453
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:42:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9086E499401
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:40:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1389090AbiAXUk1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:40:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40322 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387637AbiAXUhA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:37:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74175C02B8D6;
-        Mon, 24 Jan 2022 11:50:59 -0800 (PST)
+        id S1388190AbiAXUiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:38:16 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:37414 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1350425AbiAXUcH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:32:07 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3C6D0B81142;
-        Mon, 24 Jan 2022 19:50:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 623D9C340E7;
-        Mon, 24 Jan 2022 19:50:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2BFC9B8121A;
+        Mon, 24 Jan 2022 20:32:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51C3FC340E7;
+        Mon, 24 Jan 2022 20:32:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053857;
-        bh=45UaNH9/HbIDxSHTUqBMSe0RI4AGTAFns1A7plVdQbQ=;
+        s=korg; t=1643056324;
+        bh=URWHLSJH7EmPR6Venvvxop3L87OYrS7QRxfHT+dHLTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2kR5rSrXsU7acP5lNDg4l/UjH6mpfm4VgNCZoGW3J2/Y/w4rvmQD3XFtva4HFypJI
-         IOki6eSTNjgPbueuWP9wBjHq0ORPi07BDkqTHk9R3YqSl03+P4lqwsArvKT+hReyib
-         tOEvoSse2oR1Uy1fWBJ30s7Epi7XPZSgbmWCnJH0=
+        b=v1AX9AgkeVQKCLHECwsqQIKJcBYwg3BmZcixnlEn7WXCfJsxZVw4Awm7MjIb6nigj
+         Nl5CXH/W5uR5iFBV/8Mr/4r2IT6terUB7gtPrzn5rHNJLy6/q65ZmxGQNmC1XK6iaP
+         qbVT2QYCacNYv7g2mmzkXTBoYALLrNVxf6mB1x2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Zixun <zhang133010@icloud.com>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 199/563] x86/mce/inject: Avoid out-of-bounds write when setting flags
+        stable@vger.kernel.org, Shengjiu Wang <shengjiu.wang@nxp.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 447/846] ASoC: imx-card: Need special setting for ak4497 on i.MX8MQ
 Date:   Mon, 24 Jan 2022 19:39:24 +0100
-Message-Id: <20220124184031.312888807@linuxfoundation.org>
+Message-Id: <20220124184116.415121458@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,53 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Zixun <zhang133010@icloud.com>
+From: Shengjiu Wang <shengjiu.wang@nxp.com>
 
-[ Upstream commit de768416b203ac84e02a757b782a32efb388476f ]
+[ Upstream commit 3349b3d0c63b8b6fcca58156d72407f0b2e101ac ]
 
-A contrived zero-length write, for example, by using write(2):
+The SAI on i.MX8MQ don't support one2one ratio for mclk:bclk, so
+the mclk frequency exceeds the supported range of codec for
+the case that sample rate is larger than 705kHZ and format is
+S32_LE. Update the supported width for such case.
 
-  ...
-  ret = write(fd, str, 0);
-  ...
-
-to the "flags" file causes:
-
-  BUG: KASAN: stack-out-of-bounds in flags_write
-  Write of size 1 at addr ffff888019be7ddf by task writefile/3787
-
-  CPU: 4 PID: 3787 Comm: writefile Not tainted 5.16.0-rc7+ #12
-  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
-
-due to accessing buf one char before its start.
-
-Prevent such out-of-bounds access.
-
-  [ bp: Productize into a proper patch. Link below is the next best
-    thing because the original mail didn't get archived on lore. ]
-
-Fixes: 0451d14d0561 ("EDAC, mce_amd_inj: Modify flags attribute to use string arguments")
-Signed-off-by: Zhang Zixun <zhang133010@icloud.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/linux-edac/YcnePfF1OOqoQwrX@zn.tnic/
+Fixes: aa736700f42f ("ASoC: imx-card: Add imx-card machine driver")
+Signed-off-by: Shengjiu Wang <shengjiu.wang@nxp.com>
+Link: https://lore.kernel.org/r/1641292835-19085-2-git-send-email-shengjiu.wang@nxp.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/mce/inject.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/fsl/imx-card.c | 17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/cpu/mce/inject.c b/arch/x86/kernel/cpu/mce/inject.c
-index 3a44346f22766..e7808309d4710 100644
---- a/arch/x86/kernel/cpu/mce/inject.c
-+++ b/arch/x86/kernel/cpu/mce/inject.c
-@@ -347,7 +347,7 @@ static ssize_t flags_write(struct file *filp, const char __user *ubuf,
- 	char buf[MAX_FLAG_OPT_SIZE], *__buf;
- 	int err;
+diff --git a/sound/soc/fsl/imx-card.c b/sound/soc/fsl/imx-card.c
+index 58fd0639a0698..f6b54de76dc3c 100644
+--- a/sound/soc/fsl/imx-card.c
++++ b/sound/soc/fsl/imx-card.c
+@@ -553,8 +553,23 @@ static int imx_card_parse_of(struct imx_card_data *data)
+ 			link_data->cpu_sysclk_id = FSL_SAI_CLK_MAST1;
  
--	if (cnt > MAX_FLAG_OPT_SIZE)
-+	if (!cnt || cnt > MAX_FLAG_OPT_SIZE)
- 		return -EINVAL;
+ 			/* sai may support mclk/bclk = 1 */
+-			if (of_find_property(np, "fsl,mclk-equal-bclk", NULL))
++			if (of_find_property(np, "fsl,mclk-equal-bclk", NULL)) {
+ 				link_data->one2one_ratio = true;
++			} else {
++				int i;
++
++				/*
++				 * i.MX8MQ don't support one2one ratio, then
++				 * with ak4497 only 16bit case is supported.
++				 */
++				for (i = 0; i < ARRAY_SIZE(ak4497_fs_mul); i++) {
++					if (ak4497_fs_mul[i].rmin == 705600 &&
++					    ak4497_fs_mul[i].rmax == 768000) {
++						ak4497_fs_mul[i].wmin = 32;
++						ak4497_fs_mul[i].wmax = 32;
++					}
++				}
++			}
+ 		}
  
- 	if (copy_from_user(&buf, ubuf, cnt))
+ 		link->cpus->of_node = args.np;
 -- 
 2.34.1
 
