@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 713194989CF
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:59:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB54649888F
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:48:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343902AbiAXS62 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:58:28 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:54730 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242005AbiAXS40 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:56:26 -0500
+        id S241754AbiAXSsP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:48:15 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:47214 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235540AbiAXSsO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:48:14 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1180B8121F;
-        Mon, 24 Jan 2022 18:56:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28248C340E5;
-        Mon, 24 Jan 2022 18:56:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FD7B614CF;
+        Mon, 24 Jan 2022 18:48:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D801FC340E5;
+        Mon, 24 Jan 2022 18:48:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050583;
-        bh=28t1sweoB4qHEe4T76xab8j4fhECdC4c7ySIQE2cgDk=;
+        s=korg; t=1643050093;
+        bh=xI6llgryZevp/nVf9AEsHltZv4F4p8aDwlzP7X09vS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GaiUig8efS81yFkK8fBJJuG377O1NOHG8BrG4Q78OzBJpGi/nVp8+j3PEYH8zzQz0
-         50oPYl1w3n1GXkZpZXrc4ip5rOuQ2WRhezTMGZb682qmULZPqe8nZ9/W6ehglSeFVm
-         kP+j/I/JcXekOYOMyxBg3kNjP4Q0agr9aAhK23YE=
+        b=oVygVloGnAzJ50vZKwFg/p/1+Wtf2OU11hlNbOhy7vGhuGtFKSnVhCmibaNYH99Dl
+         Mq8FBPZl+fqiTJGKrBV95QEI9CrAGjlRl2BY64RJhbgy24Ly9YoSEJFN2MH+C7KmLI
+         KlZhLH/D/rpf1exvBnmaGY0sEhpORXHQoMPBmbPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Brian Silverman <brian.silverman@bluerivertech.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>
-Subject: [PATCH 4.9 006/157] can: gs_usb: gs_can_start_xmit(): zero-initialize hf->{flags,reserved}
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 4.4 001/114] Bluetooth: bfusb: fix division by zero in send path
 Date:   Mon, 24 Jan 2022 19:41:36 +0100
-Message-Id: <20220124183932.989219541@linuxfoundation.org>
+Message-Id: <20220124183927.147715568@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
-References: <20220124183932.787526760@linuxfoundation.org>
+In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
+References: <20220124183927.095545464@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,39 +46,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Silverman <brian.silverman@bluerivertech.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 89d58aebe14a365c25ba6645414afdbf4e41cea4 upstream.
+commit b5e6fa7a12572c82f1e7f2f51fbb02a322291291 upstream.
 
-No information is deliberately sent in hf->flags in host -> device
-communications, but the open-source candleLight firmware echoes it
-back, which can result in the GS_CAN_FLAG_OVERFLOW flag being set and
-generating spurious ERRORFRAMEs.
+Add the missing bulk-out endpoint sanity check to probe() to avoid
+division by zero in bfusb_send_frame() in case a malicious device has
+broken descriptors (or when doing descriptor fuzz testing).
 
-While there also initialize the reserved member with 0.
+Note that USB core will reject URBs submitted for endpoints with zero
+wMaxPacketSize but that drivers doing packet-size calculations still
+need to handle this (cf. commit 2548288b4fb0 ("USB: Fix: Don't skip
+endpoint descriptors with maxpacket=0")).
 
-Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
-Link: https://lore.kernel.org/all/20220106002952.25883-1-brian.silverman@bluerivertech.com
-Link: https://github.com/candle-usb/candleLight_fw/issues/87
 Cc: stable@vger.kernel.org
-Signed-off-by: Brian Silverman <brian.silverman@bluerivertech.com>
-[mkl: initialize the reserved member, too]
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/can/usb/gs_usb.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/bluetooth/bfusb.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/can/usb/gs_usb.c
-+++ b/drivers/net/can/usb/gs_usb.c
-@@ -515,6 +515,8 @@ static netdev_tx_t gs_can_start_xmit(str
+--- a/drivers/bluetooth/bfusb.c
++++ b/drivers/bluetooth/bfusb.c
+@@ -645,6 +645,9 @@ static int bfusb_probe(struct usb_interf
+ 	data->bulk_out_ep   = bulk_out_ep->desc.bEndpointAddress;
+ 	data->bulk_pkt_size = le16_to_cpu(bulk_out_ep->desc.wMaxPacketSize);
  
- 	hf->echo_id = idx;
- 	hf->channel = dev->channel;
-+	hf->flags = 0;
-+	hf->reserved = 0;
++	if (!data->bulk_pkt_size)
++		goto done;
++
+ 	rwlock_init(&data->lock);
  
- 	cf = (struct can_frame *)skb->data;
- 
+ 	data->reassembly = NULL;
 
 
