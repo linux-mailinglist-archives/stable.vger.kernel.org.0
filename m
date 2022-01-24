@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88AE249A37B
+	by mail.lfdr.de (Postfix) with ESMTP id 3E84B49A378
 	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:03:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385403AbiAXX6a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:58:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49676 "EHLO
+        id S1385431AbiAXX6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:58:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1846072AbiAXXOW (ORCPT
+        with ESMTP id S1846073AbiAXXOW (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:14:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDABEC06F8D0;
-        Mon, 24 Jan 2022 13:22:58 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46AF6C061748;
+        Mon, 24 Jan 2022 13:23:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71719B81243;
-        Mon, 24 Jan 2022 21:22:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95CAAC340E4;
-        Mon, 24 Jan 2022 21:22:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DC59A614B7;
+        Mon, 24 Jan 2022 21:23:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7C66C340E4;
+        Mon, 24 Jan 2022 21:23:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059377;
-        bh=lGJRpRCjDTX1CV5Q8d9zP8u0eeWcNT5bB1+N9cZQVD8=;
+        s=korg; t=1643059383;
+        bh=3qRhBNKvmScCvIXd2l25/NHmnMaxhw46rXHT+wEJ4FI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KKhY1akFeoIumrQEN38z2ru4SxCsc0WRxYze5fhYWVrX0lcCjGunYca9pl6UD17jm
-         cBFji3CWtPgUwkFl9F2WJmnyVXK/in0Gygt0X+aa3zMqmV4jkBpxBBj3ANQLGd2dW7
-         HvEVKuYDJDHPsiilMkQoou8QugojanOvY6bxHcIo=
+        b=tqqjxlXRkJuzmdCP9zbhaJa3BMkgkAXPbl/kN/PEyJAATRu/m9ct8HvKlphw3CzYR
+         o3iBvtm/Cs15ruFyVJzHaw1aJpndpiO4Tzje1mQ+0br4Ee3aphdtTrSlUpiYHPtSV6
+         kG9G9KDdKwLWETv92LaqY7ill68w8kbiBR0qZimA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Ping-Ke Shih <pkshih@realtek.com>,
+        stable@vger.kernel.org, Brendan Dolan-Gavitt <brendandg@nyu.edu>,
+        Zekun Shen <bruceshenzk@gmail.com>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0596/1039] rtw89: fix potentially access out of range of RF register array
-Date:   Mon, 24 Jan 2022 19:39:45 +0100
-Message-Id: <20220124184145.369990067@linuxfoundation.org>
+Subject: [PATCH 5.16 0598/1039] rsi: Fix use-after-free in rsi_rx_done_handler()
+Date:   Mon, 24 Jan 2022 19:39:47 +0100
+Message-Id: <20220124184145.439873933@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -49,87 +49,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ping-Ke Shih <pkshih@realtek.com>
+From: Zekun Shen <bruceshenzk@gmail.com>
 
-[ Upstream commit 30101812a09b37bc8aa409a83f603d4c072198f2 ]
+[ Upstream commit b07e3c6ebc0c20c772c0f54042e430acec2945c3 ]
 
-The RF register array is used to help firmware to restore RF settings.
-The original code can potentially access out of range, if the size is
-between (RTW89_H2C_RF_PAGE_SIZE * RTW89_H2C_RF_PAGE_NUM + 1) to
-((RTW89_H2C_RF_PAGE_SIZE + 1) * RTW89_H2C_RF_PAGE_NUM). Fortunately,
-current used size doesn't fall into the wrong case, and the size will not
-change if we don't update RF parameter.
+When freeing rx_cb->rx_skb, the pointer is not set to NULL,
+a later rsi_rx_done_handler call will try to read the freed
+address.
+This bug will very likley lead to double free, although
+detected early as use-after-free bug.
 
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+The bug is triggerable with a compromised/malfunctional usb
+device. After applying the patch, the same input no longer
+triggers the use-after-free.
+
+Attached is the kasan report from fuzzing.
+
+BUG: KASAN: use-after-free in rsi_rx_done_handler+0x354/0x430 [rsi_usb]
+Read of size 4 at addr ffff8880188e5930 by task modprobe/231
+Call Trace:
+ <IRQ>
+ dump_stack+0x76/0xa0
+ print_address_description.constprop.0+0x16/0x200
+ ? rsi_rx_done_handler+0x354/0x430 [rsi_usb]
+ ? rsi_rx_done_handler+0x354/0x430 [rsi_usb]
+ __kasan_report.cold+0x37/0x7c
+ ? dma_direct_unmap_page+0x90/0x110
+ ? rsi_rx_done_handler+0x354/0x430 [rsi_usb]
+ kasan_report+0xe/0x20
+ rsi_rx_done_handler+0x354/0x430 [rsi_usb]
+ __usb_hcd_giveback_urb+0x1e4/0x380
+ usb_giveback_urb_bh+0x241/0x4f0
+ ? __usb_hcd_giveback_urb+0x380/0x380
+ ? apic_timer_interrupt+0xa/0x20
+ tasklet_action_common.isra.0+0x135/0x330
+ __do_softirq+0x18c/0x634
+ ? handle_irq_event+0xcd/0x157
+ ? handle_edge_irq+0x1eb/0x7b0
+ irq_exit+0x114/0x140
+ do_IRQ+0x91/0x1e0
+ common_interrupt+0xf/0xf
+ </IRQ>
+
+Reported-by: Brendan Dolan-Gavitt <brendandg@nyu.edu>
+Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211119055729.12826-1-pkshih@realtek.com
+Link: https://lore.kernel.org/r/YXxQL/vIiYcZUu/j@10-18-43-117.dynapool.wireless.nyu.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw89/phy.c | 33 ++++++++++++++----------
- 1 file changed, 19 insertions(+), 14 deletions(-)
+ drivers/net/wireless/rsi/rsi_91x_usb.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw89/phy.c b/drivers/net/wireless/realtek/rtw89/phy.c
-index ab134856baac7..d75e9de8df7c6 100644
---- a/drivers/net/wireless/realtek/rtw89/phy.c
-+++ b/drivers/net/wireless/realtek/rtw89/phy.c
-@@ -654,6 +654,12 @@ rtw89_phy_cofig_rf_reg_store(struct rtw89_dev *rtwdev,
- 	u16 idx = info->curr_idx % RTW89_H2C_RF_PAGE_SIZE;
- 	u8 page = info->curr_idx / RTW89_H2C_RF_PAGE_SIZE;
+diff --git a/drivers/net/wireless/rsi/rsi_91x_usb.c b/drivers/net/wireless/rsi/rsi_91x_usb.c
+index 6821ea9918956..3cca1823c458a 100644
+--- a/drivers/net/wireless/rsi/rsi_91x_usb.c
++++ b/drivers/net/wireless/rsi/rsi_91x_usb.c
+@@ -269,8 +269,12 @@ static void rsi_rx_done_handler(struct urb *urb)
+ 	struct rsi_91x_usbdev *dev = (struct rsi_91x_usbdev *)rx_cb->data;
+ 	int status = -EINVAL;
  
-+	if (page >= RTW89_H2C_RF_PAGE_NUM) {
-+		rtw89_warn(rtwdev, "RF parameters exceed size. path=%d, idx=%d",
-+			   rf_path, info->curr_idx);
++	if (!rx_cb->rx_skb)
 +		return;
-+	}
 +
- 	info->rtw89_phy_config_rf_h2c[page][idx] =
- 		cpu_to_le32((reg->addr << 20) | reg->data);
- 	info->curr_idx++;
-@@ -662,30 +668,29 @@ rtw89_phy_cofig_rf_reg_store(struct rtw89_dev *rtwdev,
- static int rtw89_phy_config_rf_reg_fw(struct rtw89_dev *rtwdev,
- 				      struct rtw89_fw_h2c_rf_reg_info *info)
- {
--	u16 page = info->curr_idx / RTW89_H2C_RF_PAGE_SIZE;
--	u16 len = (info->curr_idx % RTW89_H2C_RF_PAGE_SIZE) * 4;
-+	u16 remain = info->curr_idx;
-+	u16 len = 0;
- 	u8 i;
- 	int ret = 0;
- 
--	if (page > RTW89_H2C_RF_PAGE_NUM) {
-+	if (remain > RTW89_H2C_RF_PAGE_NUM * RTW89_H2C_RF_PAGE_SIZE) {
- 		rtw89_warn(rtwdev,
--			   "rf reg h2c total page num %d larger than %d (RTW89_H2C_RF_PAGE_NUM)\n",
--			   page, RTW89_H2C_RF_PAGE_NUM);
--		return -EINVAL;
-+			   "rf reg h2c total len %d larger than %d\n",
-+			   remain, RTW89_H2C_RF_PAGE_NUM * RTW89_H2C_RF_PAGE_SIZE);
-+		ret = -EINVAL;
-+		goto out;
+ 	if (urb->status) {
+ 		dev_kfree_skb(rx_cb->rx_skb);
++		rx_cb->rx_skb = NULL;
+ 		return;
  	}
  
--	for (i = 0; i < page; i++) {
--		ret = rtw89_fw_h2c_rf_reg(rtwdev, info,
--					  RTW89_H2C_RF_PAGE_SIZE * 4, i);
-+	for (i = 0; i < RTW89_H2C_RF_PAGE_NUM && remain; i++, remain -= len) {
-+		len = remain > RTW89_H2C_RF_PAGE_SIZE ? RTW89_H2C_RF_PAGE_SIZE : remain;
-+		ret = rtw89_fw_h2c_rf_reg(rtwdev, info, len * 4, i);
- 		if (ret)
--			return ret;
-+			goto out;
- 	}
--	ret = rtw89_fw_h2c_rf_reg(rtwdev, info, len, i);
--	if (ret)
--		return ret;
-+out:
- 	info->curr_idx = 0;
+@@ -294,8 +298,10 @@ out:
+ 	if (rsi_rx_urb_submit(dev->priv, rx_cb->ep_num, GFP_ATOMIC))
+ 		rsi_dbg(ERR_ZONE, "%s: Failed in urb submission", __func__);
  
--	return 0;
-+	return ret;
+-	if (status)
++	if (status) {
+ 		dev_kfree_skb(rx_cb->rx_skb);
++		rx_cb->rx_skb = NULL;
++	}
  }
  
- static void rtw89_phy_config_rf_reg(struct rtw89_dev *rtwdev,
+ static void rsi_rx_urb_kill(struct rsi_hw *adapter, u8 ep_num)
 -- 
 2.34.1
 
