@@ -2,214 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06C9B498864
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:32:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D867498865
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:33:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235753AbiAXSct (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:32:49 -0500
-Received: from maynard.decadent.org.uk ([95.217.213.242]:42466 "EHLO
-        maynard.decadent.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235727AbiAXSct (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:32:49 -0500
-Received: from 168.7-181-91.adsl-dyn.isp.belgacom.be ([91.181.7.168] helo=deadeye)
-        by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1nC491-0007EB-22; Mon, 24 Jan 2022 19:32:47 +0100
-Received: from ben by deadeye with local (Exim 4.95)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1nC490-00A1wH-Gh;
-        Mon, 24 Jan 2022 19:32:46 +0100
-Date:   Mon, 24 Jan 2022 19:32:46 +0100
-From:   Ben Hutchings <ben@decadent.org.uk>
+        id S235842AbiAXSdG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:33:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39070 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235727AbiAXSdG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:33:06 -0500
+Received: from mail-pj1-x104a.google.com (mail-pj1-x104a.google.com [IPv6:2607:f8b0:4864:20::104a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F084C06173B
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 10:33:06 -0800 (PST)
+Received: by mail-pj1-x104a.google.com with SMTP id s13-20020a17090a5d0d00b001b4f4299cf9so11184443pji.3
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 10:33:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=Jnwu+woDxcibOo/+wn55NaxxHfm1r1qBmOUjR9zyXTY=;
+        b=g/oj857SheeQ1doPp7kxZCMBJk8ewEKfui2UNrGtfj7aC1Ck0wwwQfc43vo97bSY8T
+         fuglPZgULJjJhPMLndYcxcMSaqByWsHHhpJw0PLtYfjI2II/RtShSaNl96Nv6OhoTlLF
+         8Zeydmcq3sb4VfLZgSIya95IzbYTPDIq9070rbqX7MrediEjQVZ3xcoECOfT9I7Xg89A
+         iPQCrTCfGseSf/iE8WrrlfkhGO19ZUTtA83OrPOSN3aVQSkWqtLdaIZR1S0HyFBjYQhB
+         +0FLltADWp32hVFIoe2WJx3AmXSOTbVhVMwS8H4bOW7tveDjjpioh/yWzXWraUzwzZJa
+         ZheA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=Jnwu+woDxcibOo/+wn55NaxxHfm1r1qBmOUjR9zyXTY=;
+        b=j/2A/8bFBwsY3vHK26niN8ld4FmVap2WP7QAkrvMGk+XQ0mZmbgurRvq9T+ecUxTE0
+         /sz+eN31j9GRs13/sYQaSQIJ3cNoh5AgFPH/m5PqZkoBCTOMaxtN66B+shm1jts9VB8m
+         37WeaV6n09klcay77efDfyVsHSxclMNN3ucFKmAwFFG4jnDYJ6qsx5KkDRnSBHhEcuAU
+         ImzgTeEwY0mNPSfQ8Z6a3Q1mJHYUyWEvjaMNS4AQ/9xDzQK5q0KoJl6xT1SiTwZHzxsJ
+         MC4uzgsOCURFrEVilvRwQo4AQakNzPs0WvBx/qibIw3dlwCULZ8RreebieBE1o80FkFl
+         ePxA==
+X-Gm-Message-State: AOAM5303Y654vR0yFED6vFN4i6ayV3fh/9vDWmSUUOO2onxG7o5Tjwje
+        WkpKpGgSaMm3am5V42y9+wC8xVPWSL4JR5IQ/fxwT/Iyx3xkmryg+HbHXQUUhcPYML4rdKBX7Qt
+        SKGiVD2QXaUntpWbv3XjUhWKX6w+A0S8U11iFlxERa353qj/KuI29e9e3CHscHLyOaZ0=
+X-Google-Smtp-Source: ABdhPJwJgN3fFXTM50dJcwLziTJGr1fDNn/VaCah7SFjzJROQ894PtJwSTglOYYJDGSMQnQCsaxp4lWdF55VRA==
+X-Received: from dmatlack-heavy.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:19cd])
+ (user=dmatlack job=sendgmr) by 2002:a17:902:9a0a:b0:149:7da0:af27 with SMTP
+ id v10-20020a1709029a0a00b001497da0af27mr15309287plp.49.1643049185330; Mon,
+ 24 Jan 2022 10:33:05 -0800 (PST)
+Date:   Mon, 24 Jan 2022 18:33:02 +0000
+Message-Id: <20220124183302.263017-1-dmatlack@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.35.0.rc0.227.g00780c9af4-goog
+Subject: [PATCH 5.10] KVM: x86/mmu: Fix write-protection of PTs mapped by the
+ TDP MMU
+From:   David Matlack <dmatlack@google.com>
 To:     stable@vger.kernel.org
-Cc:     Paolo Bonzini <pbonzini@redhat.com>,
-        Xiao Guangrong <xiaoguangrong@tencent.com>,
-        Radim =?utf-8?B?S3LEjW3DocWZ?= <rkrcmar@redhat.com>
-Subject: [PATCH 4.9 1/2] KVM: nVMX: fix EPT permissions as reported in exit
- qualification
-Message-ID: <Ye7wziIF+4bAna9E@decadent.org.uk>
-MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="RncygzH9GHQCZJ8Z"
-Content-Disposition: inline
-X-SA-Exim-Connect-IP: 91.181.7.168
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on maynard); SAEximRunCond expanded to false
+Cc:     gregkh@linuxfoundation.org, pbonzini@redhat.com, seanjc@google.com,
+        David Matlack <dmatlack@google.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+commit 7c8a4742c4abe205ec9daf416c9d42fd6b406e8e upstream.
 
---RncygzH9GHQCZJ8Z
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+When the TDP MMU is write-protection GFNs for page table protection (as
+opposed to for dirty logging, or due to the HVA not being writable), it
+checks if the SPTE is already write-protected and if so skips modifying
+the SPTE and the TLB flush.
 
-=46rom: Paolo Bonzini <pbonzini@redhat.com>
+This behavior is incorrect because it fails to check if the SPTE
+is write-protected for page table protection, i.e. fails to check
+that MMU-writable is '0'.  If the SPTE was write-protected for dirty
+logging but not page table protection, the SPTE could locklessly be made
+writable, and vCPUs could still be running with writable mappings cached
+in their TLB.
 
-commit 0780516a18f87e881e42ed815f189279b0a1743c upstream.
+Fix this by only skipping setting the SPTE if the SPTE is already
+write-protected *and* MMU-writable is already clear.  Technically,
+checking only MMU-writable would suffice; a SPTE cannot be writable
+without MMU-writable being set.  But check both to be paranoid and
+because it arguably yields more readable code.
 
-This fixes the new ept_access_test_read_only and ept_access_test_read_write
-testcases from vmx.flat.
-
-The problem is that gpte_access moves bits around to switch from EPT
-bit order (XWR) to ACC_*_MASK bit order (RWX).  This results in an
-incorrect exit qualification.  To fix this, make pt_access and
-pte_access operate on raw PTE values (only with NX flipped to mean
-"can execute") and call gpte_access at the end of the walk.  This
-lets us use pte_access to compute the exit qualification with XWR
-bit order.
-
+Fixes: 46044f72c382 ("kvm: x86/mmu: Support write protection for nesting in tdp MMU")
+Cc: stable@vger.kernel.org
+Signed-off-by: David Matlack <dmatlack@google.com>
+Message-Id: <20220113233020.3986005-2-dmatlack@google.com>
+Reviewed-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Reviewed-by: Xiao Guangrong <xiaoguangrong@tencent.com>
-Signed-off-by: Radim Kr=C4=8Dm=C3=A1=C5=99 <rkrcmar@redhat.com>
-[bwh: Backported to 4.9:
- - There's no support for EPT accessed/dirty bits, so do not use
-   have_ad flag
- - Adjust context]
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/x86/kvm/paging_tmpl.h | 34 +++++++++++++++++++++-------------
- 1 file changed, 21 insertions(+), 13 deletions(-)
+ arch/x86/kvm/mmu/tdp_mmu.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/kvm/paging_tmpl.h b/arch/x86/kvm/paging_tmpl.h
-index e03225e707b2..47ba1e1b35f9 100644
---- a/arch/x86/kvm/paging_tmpl.h
-+++ b/arch/x86/kvm/paging_tmpl.h
-@@ -285,9 +285,11 @@ static int FNAME(walk_addr_generic)(struct guest_walke=
-r *walker,
- 	pt_element_t pte;
- 	pt_element_t __user *uninitialized_var(ptep_user);
- 	gfn_t table_gfn;
--	unsigned index, pt_access, pte_access, accessed_dirty, pte_pkey;
-+	u64 pt_access, pte_access;
-+	unsigned index, accessed_dirty, pte_pkey;
- 	gpa_t pte_gpa;
- 	int offset;
-+	u64 walk_nx_mask =3D 0;
- 	const int write_fault =3D access & PFERR_WRITE_MASK;
- 	const int user_fault  =3D access & PFERR_USER_MASK;
- 	const int fetch_fault =3D access & PFERR_FETCH_MASK;
-@@ -301,6 +303,7 @@ static int FNAME(walk_addr_generic)(struct guest_walker=
- *walker,
- 	pte           =3D mmu->get_cr3(vcpu);
-=20
- #if PTTYPE =3D=3D 64
-+	walk_nx_mask =3D 1ULL << PT64_NX_SHIFT;
- 	if (walker->level =3D=3D PT32E_ROOT_LEVEL) {
- 		pte =3D mmu->get_pdptr(vcpu, (addr >> 30) & 3);
- 		trace_kvm_mmu_paging_element(pte, walker->level);
-@@ -312,15 +315,14 @@ static int FNAME(walk_addr_generic)(struct guest_walk=
-er *walker,
- 	walker->max_level =3D walker->level;
- 	ASSERT(!(is_long_mode(vcpu) && !is_pae(vcpu)));
-=20
--	accessed_dirty =3D PT_GUEST_ACCESSED_MASK;
--	pt_access =3D pte_access =3D ACC_ALL;
-+	pte_access =3D ~0;
- 	++walker->level;
-=20
- 	do {
- 		gfn_t real_gfn;
- 		unsigned long host_addr;
-=20
--		pt_access &=3D pte_access;
-+		pt_access =3D pte_access;
- 		--walker->level;
-=20
- 		index =3D PT_INDEX(addr, walker->level);
-@@ -363,6 +365,12 @@ static int FNAME(walk_addr_generic)(struct guest_walke=
-r *walker,
-=20
- 		trace_kvm_mmu_paging_element(pte, walker->level);
-=20
-+		/*
-+		 * Inverting the NX it lets us AND it like other
-+		 * permission bits.
-+		 */
-+		pte_access =3D pt_access & (pte ^ walk_nx_mask);
-+
- 		if (unlikely(!FNAME(is_present_gpte)(pte)))
- 			goto error;
-=20
-@@ -371,14 +379,16 @@ static int FNAME(walk_addr_generic)(struct guest_walk=
-er *walker,
- 			goto error;
- 		}
-=20
--		accessed_dirty &=3D pte;
--		pte_access =3D pt_access & FNAME(gpte_access)(vcpu, pte);
+diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
+index f2ddf663e72e..7e08efb06839 100644
+--- a/arch/x86/kvm/mmu/tdp_mmu.c
++++ b/arch/x86/kvm/mmu/tdp_mmu.c
+@@ -1130,12 +1130,12 @@ static bool write_protect_gfn(struct kvm *kvm, struct kvm_mmu_page *root,
+ 	bool spte_set = false;
+ 
+ 	tdp_root_for_each_leaf_pte(iter, root, gfn, gfn + 1) {
+-		if (!is_writable_pte(iter.old_spte))
+-			break;
 -
- 		walker->ptes[walker->level - 1] =3D pte;
- 	} while (!is_last_gpte(mmu, walker->level, pte));
-=20
- 	pte_pkey =3D FNAME(gpte_pkeys)(vcpu, pte);
--	errcode =3D permission_fault(vcpu, mmu, pte_access, pte_pkey, access);
-+	accessed_dirty =3D pte_access & PT_GUEST_ACCESSED_MASK;
+ 		new_spte = iter.old_spte &
+ 			~(PT_WRITABLE_MASK | SPTE_MMU_WRITEABLE);
+ 
++		if (new_spte == iter.old_spte)
++			break;
 +
-+	/* Convert to ACC_*_MASK flags for struct guest_walker.  */
-+	walker->pt_access =3D FNAME(gpte_access)(vcpu, pt_access ^ walk_nx_mask);
-+	walker->pte_access =3D FNAME(gpte_access)(vcpu, pte_access ^ walk_nx_mask=
-);
-+	errcode =3D permission_fault(vcpu, mmu, walker->pte_access, pte_pkey, acc=
-ess);
- 	if (unlikely(errcode))
- 		goto error;
-=20
-@@ -395,7 +405,7 @@ static int FNAME(walk_addr_generic)(struct guest_walker=
- *walker,
- 	walker->gfn =3D real_gpa >> PAGE_SHIFT;
-=20
- 	if (!write_fault)
--		FNAME(protect_clean_gpte)(&pte_access, pte);
-+		FNAME(protect_clean_gpte)(&walker->pte_access, pte);
- 	else
- 		/*
- 		 * On a write fault, fold the dirty bit into accessed_dirty.
-@@ -413,10 +423,8 @@ static int FNAME(walk_addr_generic)(struct guest_walke=
-r *walker,
- 			goto retry_walk;
+ 		tdp_mmu_set_spte(kvm, &iter, new_spte);
+ 		spte_set = true;
  	}
-=20
--	walker->pt_access =3D pt_access;
--	walker->pte_access =3D pte_access;
- 	pgprintk("%s: pte %llx pte_access %x pt_access %x\n",
--		 __func__, (u64)pte, pte_access, pt_access);
-+		 __func__, (u64)pte, walker->pte_access, walker->pt_access);
- 	return 1;
-=20
- error:
-@@ -444,7 +452,7 @@ static int FNAME(walk_addr_generic)(struct guest_walker=
- *walker,
- 	 */
- 	if (!(errcode & PFERR_RSVD_MASK)) {
- 		vcpu->arch.exit_qualification &=3D 0x187;
--		vcpu->arch.exit_qualification |=3D ((pt_access & pte) & 0x7) << 3;
-+		vcpu->arch.exit_qualification |=3D (pte_access & 0x7) << 3;
- 	}
- #endif
- 	walker->fault.address =3D addr;
 
+base-commit: fd187a4925578f8743d4f266c821c7544d3cddae
+-- 
+2.35.0.rc0.227.g00780c9af4-goog
 
---RncygzH9GHQCZJ8Z
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmHu8MkACgkQ57/I7JWG
-EQl2/w//dWYeJtovADfJvpp4wttdG9GOEi/NN3JXAXE8OUXbboToQPfBwcQFeZ+n
-OBX5JdguZm8p1hAD5UYePfNyHQIkxXq09Kx4zVKdOqMSae8bh9oDuuGIZAc6pmK4
-zOkRveF0edB+HWPVBtlEYn/11Ya5ksd184T9nj3rFlCV04wKS/skmHwmcoJM0iM2
-Oi4m8++HcEMYRlrsmviISp4Xh1dThqQsKXGM5c52HBWP6ltKeavBw7TaYLlDiQRM
-VlKmDIGaYvDW3tFZeaDl3sxoHJ4nnFDM3q9csaN7jpUFFg/+246+n2Lng/nJICBf
-tiE0yB94dotJJyISDDPNXOF0IsemfxZfVljZVu8vtH17mGhpQTTpDiPiZLwp0Z5+
-3cTkbKpY8Vfy725amoNA7uLBlheNYFC1X3vwod54XMfHHADI3TZkNJbfgkNz5Bf3
-5KY2G14S7uTun5x+PXkRMWsHo56ti4hkDgFG2Af3o2PiYnnxrIvH7FGruACeBdDJ
-AZ0gHUxoSoWW4vcc5MQFzCX3jtpEYGGC5O66Gnic0h444lRUrqr4cv2DG2jgc/b1
-bI17RbkPOUHfZboTBMKNtdmIdvQSoDb9edDu13iRMarPz+MWfNCgFMFHh/fFAMaU
-CCt25ie9X8i10qQfu7hX3NQswxIjhTqIOGIVJjJQqjpNxpFRKaE=
-=Nb3+
------END PGP SIGNATURE-----
-
---RncygzH9GHQCZJ8Z--
