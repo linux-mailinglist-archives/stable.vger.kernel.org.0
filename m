@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2865E498BA5
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:15:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D65C498C0E
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:19:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345700AbiAXTPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:15:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47510 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241800AbiAXTNO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:13:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3456CC08EA44;
-        Mon, 24 Jan 2022 11:04:27 -0800 (PST)
+        id S1347790AbiAXTTN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:19:13 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:42402 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347914AbiAXTRM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:17:12 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C4F9860010;
-        Mon, 24 Jan 2022 19:04:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0800C340E5;
-        Mon, 24 Jan 2022 19:04:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A50D3B81232;
+        Mon, 24 Jan 2022 19:17:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE194C340E5;
+        Mon, 24 Jan 2022 19:17:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051066;
-        bh=+yHQkpZqkv1wHMW7qRo2WHGJBgSOI2MtONsWBWU49Z0=;
+        s=korg; t=1643051829;
+        bh=ZpzskAMDsXMc0AdS51AL/fglH6GoxgYxnHsplx/d8gI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cfeHxaDCPPAKrSf4VbLSG3GUDSZL7K1Z3u1gAhVEXbPW5NNVgyMG69aZEme72ZF/a
-         9lm05van6ZupGLRrOpEdqfIO0aZPfQwxQNAEkzCqcYsZK3YM27P8Q7usWTqmvOd5dd
-         HHWpl5Xo321czefxFT8MRkDlB8l0tWLbjHyf2gCY=
+        b=jdPtLMtqs51dOTWw01SqFOXfxozffEuMRpty9oRC/jx5Zw1/wGAOhEMYAk1vFROJ/
+         JgMZ+b5veHGPlHiuGAPAx7kziYBE0+DEVVE8vW36X4NsvjSHHQUlSDhso8XN1p4imy
+         YaDuVH2+8jPmNrFpe1NrCHkT1LTJPUpnllsppCjo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 036/186] wcn36xx: Indicate beacon not connection loss on MISSED_BEACON_IND
+Subject: [PATCH 4.19 073/239] xfrm: fix a small bug in xfrm_sa_len()
 Date:   Mon, 24 Jan 2022 19:41:51 +0100
-Message-Id: <20220124183938.288430717@linuxfoundation.org>
+Message-Id: <20220124183945.447070797@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,49 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 588b45c88ae130fe373a8c50edaf54735c3f4fe3 ]
+[ Upstream commit 7770a39d7c63faec6c4f33666d49a8cb664d0482 ]
 
-Firmware can trigger a missed beacon indication, this is not the same as a
-lost signal.
+copy_user_offload() will actually push a struct struct xfrm_user_offload,
+which is different than (struct xfrm_state *)->xso
+(struct xfrm_state_offload)
 
-Flag to Linux the missed beacon and let the WiFi stack decide for itself if
-the link is up or down by sending its own probe to determine this.
-
-We should only be signalling the link is lost when the firmware indicates
-
-Fixes: 8e84c2582169 ("wcn36xx: mac80211 driver for Qualcomm WCN3660/WCN3680 hardware")
-Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211027232529.657764-1-bryan.odonoghue@linaro.org
+Fixes: d77e38e612a01 ("xfrm: Add an IPsec hardware offloading API")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/wcn36xx/smd.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/xfrm/xfrm_user.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/wcn36xx/smd.c b/drivers/net/wireless/ath/wcn36xx/smd.c
-index c5b5fbcd2066c..3073c5af7dae8 100644
---- a/drivers/net/wireless/ath/wcn36xx/smd.c
-+++ b/drivers/net/wireless/ath/wcn36xx/smd.c
-@@ -2053,7 +2053,7 @@ static int wcn36xx_smd_missed_beacon_ind(struct wcn36xx *wcn,
- 			wcn36xx_dbg(WCN36XX_DBG_HAL, "beacon missed bss_index %d\n",
- 				    tmp->bss_index);
- 			vif = wcn36xx_priv_to_vif(tmp);
--			ieee80211_connection_loss(vif);
-+			ieee80211_beacon_loss(vif);
- 		}
- 		return 0;
- 	}
-@@ -2068,7 +2068,7 @@ static int wcn36xx_smd_missed_beacon_ind(struct wcn36xx *wcn,
- 			wcn36xx_dbg(WCN36XX_DBG_HAL, "beacon missed bss_index %d\n",
- 				    rsp->bss_index);
- 			vif = wcn36xx_priv_to_vif(tmp);
--			ieee80211_connection_loss(vif);
-+			ieee80211_beacon_loss(vif);
- 			return 0;
- 		}
- 	}
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index f94abe1fdd58f..87932f6ad9d75 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -2813,7 +2813,7 @@ static inline unsigned int xfrm_sa_len(struct xfrm_state *x)
+ 	if (x->props.extra_flags)
+ 		l += nla_total_size(sizeof(x->props.extra_flags));
+ 	if (x->xso.dev)
+-		 l += nla_total_size(sizeof(x->xso));
++		 l += nla_total_size(sizeof(struct xfrm_user_offload));
+ 	if (x->props.smark.v | x->props.smark.m) {
+ 		l += nla_total_size(sizeof(x->props.smark.v));
+ 		l += nla_total_size(sizeof(x->props.smark.m));
 -- 
 2.34.1
 
