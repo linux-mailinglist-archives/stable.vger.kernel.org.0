@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0592F497E03
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 12:31:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63BAD497E04
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 12:31:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237517AbiAXLbS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 06:31:18 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:50184 "EHLO
+        id S237554AbiAXLb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 06:31:27 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:50224 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237234AbiAXLbR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 06:31:17 -0500
+        with ESMTP id S237234AbiAXLb0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 06:31:26 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9DB72B80AE3
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 11:31:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4201C340E1;
-        Mon, 24 Jan 2022 11:31:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9AFEB80EF7
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 11:31:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA26DC340E1;
+        Mon, 24 Jan 2022 11:31:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643023875;
-        bh=FoiFidFRtJglsI+G8ZU157MDaIOu/+kShfpMcZ4NBz4=;
+        s=korg; t=1643023884;
+        bh=GZ/ebugmDXHLXyDWYLTz/odAqTcUe9jorckSus8Se4M=;
         h=Subject:To:Cc:From:Date:From;
-        b=z7hgFFyev+jTVjdoBuXoHF+gUjZu8DD84QSSGgDppbBL21IRCcnEwcz4xpcZTLf7C
-         4NHe2U5LGeeH/X7UrRY7aDum2OZD0bHxDk3L7KxcED+X0BoiwuJdTuggnjuzxTHIMi
-         eVywMyPZ3MNtUYkcchFGxxa2y3h1LODFcjN/O1Yg=
-Subject: FAILED: patch "[PATCH] drm/vc4: kms: Wait for the commit before increasing our clock" failed to apply to 5.15-stable tree
+        b=eTIwkNM/6F0PJQqzjhsFzUkRMqAj/pNAn0FqdnU5seaEj0DnUSNIVUSbKN2pXqy1Q
+         m2eWNpFp1P1OM+VKg+1K+mivdWrhJdMHRx4wQV9FrpcZt5xmbOYYRyE3xLVkqp4Ypa
+         V0hdgyR7F3e2SQvxNBTOuhZMoFs2rh4sDnVkZTpw=
+Subject: FAILED: patch "[PATCH] drm/vc4: kms: Wait for the commit before increasing our clock" failed to apply to 5.16-stable tree
 To:     maxime@cerno.tech, daniel.vetter@intel.com,
         dave.stevenson@raspberrypi.com, jhp@endlessos.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 12:31:12 +0100
-Message-ID: <164302387278254@kroah.com>
+Date:   Mon, 24 Jan 2022 12:31:13 +0100
+Message-ID: <164302387391228@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
