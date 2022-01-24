@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C55FE499973
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:45:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 394F549999C
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:46:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1455422AbiAXVfX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:35:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52384 "EHLO
+        id S1378391AbiAXVgd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:36:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1452869AbiAXV1O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:27:14 -0500
+        with ESMTP id S1453010AbiAXV1j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:27:39 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5864C073231;
-        Mon, 24 Jan 2022 12:18:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F921C07323B;
+        Mon, 24 Jan 2022 12:18:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 93468B8122A;
-        Mon, 24 Jan 2022 20:18:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5069C340EA;
-        Mon, 24 Jan 2022 20:18:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A8406B8121A;
+        Mon, 24 Jan 2022 20:18:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6DE0C340E8;
+        Mon, 24 Jan 2022 20:18:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055512;
-        bh=HQ6B0uKdxL/T2Pekmm6f9Rm+C360B4Crjd3KMEbBmYU=;
+        s=korg; t=1643055518;
+        bh=c119dTtFJ/UsDiNJRoA+V53VfW8MDbBahmzYfXdX0aE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NHblJ2R3m7pMsa53/4bzNDb2Oija7HkIlWO//NeSHw/W4SYH6JfvPb5+6+kWiADhE
-         DOF3/SdLqGZd7z2kdLHESyFPoVYdCZy63sbDbwYB3kvVjWX4B7XFR5TPfMx4SoWwKo
-         LinsKi7Sn/Uw01ij1de2DL+8lC8OowD/wQOqogGc=
+        b=W6VVtflGs00qpVGfLhQwZSBzk1vio/DCHqT6mCSyhaR75yg70ObXsPpOdE/LjAV/n
+         UyFY1waa1332msbIjN4aDwJa93HIYiPOn6KhP9/4YguXgJd1o0PEyz2c1lKN9lNQor
+         ZlLTdpOBY38aWZ/iMkeeeHBSNrP7fFD+gLZFoNH8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>, Amish Chana <amish@3g.co.za>
-Subject: [PATCH 5.15 175/846] netfilter: bridge: add support for pppoe filtering
-Date:   Mon, 24 Jan 2022 19:34:52 +0100
-Message-Id: <20220124184107.013149632@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Eirik Fuller <efuller@redhat.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 176/846] powerpc: Avoid discarding flags in system_call_exception()
+Date:   Mon, 24 Jan 2022 19:34:53 +0100
+Message-Id: <20220124184107.044834827@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -48,75 +51,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit 28b78ecffea8078d81466b2e01bb5a154509f1ba ]
+[ Upstream commit 08b0af5b2affbe7419853e8dd1330e4b3fe27125 ]
 
-This makes 'bridge-nf-filter-pppoe-tagged' sysctl work for
-bridged traffic.
+Some thread flags can be set remotely, and so even when IRQs are disabled,
+the flags can change under our feet. Thus, when setting flags we must use
+an atomic operation rather than a plain read-modify-write sequence, as a
+plain read-modify-write may discard flags which are concurrently set by a
+remote thread, e.g.
 
-Looking at the original commit it doesn't appear this ever worked:
+	// task A			// task B
+	tmp = A->thread_info.flags;
+					set_tsk_thread_flag(A, NEWFLAG_B);
+	tmp |= NEWFLAG_A;
+	A->thread_info.flags = tmp;
 
- static unsigned int br_nf_post_routing(unsigned int hook, struct sk_buff **pskb,
-[..]
-        if (skb->protocol == htons(ETH_P_8021Q)) {
-                skb_pull(skb, VLAN_HLEN);
-                skb->network_header += VLAN_HLEN;
-+       } else if (skb->protocol == htons(ETH_P_PPP_SES)) {
-+               skb_pull(skb, PPPOE_SES_HLEN);
-+               skb->network_header += PPPOE_SES_HLEN;
-        }
- [..]
-	NF_HOOK(... POST_ROUTING, ...)
+arch/powerpc/kernel/interrupt.c's system_call_exception() sets
+_TIF_RESTOREALL in the thread info flags with a read-modify-write, which
+may result in other flags being discarded.
 
-... but the adjusted offsets are never restored.
+Elsewhere in the file it uses clear_bits() to atomically remove flag bits,
+so use set_bits() here for consistency with those.
 
-The alternative would be to rip this code out for good,
-but otoh we'd have to keep this anyway for the vlan handling
-(which works because vlan tag info is in the skb, not the packet
- payload).
+There may be reasons (e.g. instrumentation) that prevent the use of
+set_thread_flag() and clear_thread_flag() here, which would otherwise be
+preferable.
 
-Reported-and-tested-by: Amish Chana <amish@3g.co.za>
-Fixes: 516299d2f5b6f97 ("[NETFILTER]: bridge-nf: filter bridged IPv4/IPv6 encapsulated in pppoe traffic")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: ae7aaecc3f2f78b7 ("powerpc/64s: system call rfscv workaround for TM bugs")
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: Eirik Fuller <efuller@redhat.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Nicholas Piggin <npiggin@gmail.com>
+Link: https://lore.kernel.org/r/20211129130653.2037928-10-mark.rutland@arm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/br_netfilter_hooks.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ arch/powerpc/kernel/interrupt.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-index 8edfb98ae1d58..68c0d0f928908 100644
---- a/net/bridge/br_netfilter_hooks.c
-+++ b/net/bridge/br_netfilter_hooks.c
-@@ -743,6 +743,9 @@ static int br_nf_dev_queue_xmit(struct net *net, struct sock *sk, struct sk_buff
- 	if (nf_bridge->frag_max_size && nf_bridge->frag_max_size < mtu)
- 		mtu = nf_bridge->frag_max_size;
+diff --git a/arch/powerpc/kernel/interrupt.c b/arch/powerpc/kernel/interrupt.c
+index 835b626cd4760..df048e331cbfe 100644
+--- a/arch/powerpc/kernel/interrupt.c
++++ b/arch/powerpc/kernel/interrupt.c
+@@ -148,7 +148,7 @@ notrace long system_call_exception(long r3, long r4, long r5,
+ 	 */
+ 	if (IS_ENABLED(CONFIG_PPC_TRANSACTIONAL_MEM) &&
+ 			unlikely(MSR_TM_TRANSACTIONAL(regs->msr)))
+-		current_thread_info()->flags |= _TIF_RESTOREALL;
++		set_bits(_TIF_RESTOREALL, &current_thread_info()->flags);
  
-+	nf_bridge_update_protocol(skb);
-+	nf_bridge_push_encap_header(skb);
-+
- 	if (skb_is_gso(skb) || skb->len + mtu_reserved <= mtu) {
- 		nf_bridge_info_free(skb);
- 		return br_dev_queue_push_xmit(net, sk, skb);
-@@ -760,8 +763,6 @@ static int br_nf_dev_queue_xmit(struct net *net, struct sock *sk, struct sk_buff
- 
- 		IPCB(skb)->frag_max_size = nf_bridge->frag_max_size;
- 
--		nf_bridge_update_protocol(skb);
--
- 		data = this_cpu_ptr(&brnf_frag_data_storage);
- 
- 		if (skb_vlan_tag_present(skb)) {
-@@ -789,8 +790,6 @@ static int br_nf_dev_queue_xmit(struct net *net, struct sock *sk, struct sk_buff
- 
- 		IP6CB(skb)->frag_max_size = nf_bridge->frag_max_size;
- 
--		nf_bridge_update_protocol(skb);
--
- 		data = this_cpu_ptr(&brnf_frag_data_storage);
- 		data->encap_size = nf_bridge_encap_header_len(skb);
- 		data->size = ETH_HLEN + data->encap_size;
+ 	/*
+ 	 * If the system call was made with a transaction active, doom it and
 -- 
 2.34.1
 
