@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1562499697
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:19:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D86C6499C47
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:07:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1445854AbiAXVFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:05:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42276 "EHLO
+        id S1379621AbiAXWEP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:04:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1391192AbiAXUrD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:47:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09341C0424D8;
-        Mon, 24 Jan 2022 11:57:32 -0800 (PST)
+        with ESMTP id S1575047AbiAXV7F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:59:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AE81C02B8D1;
+        Mon, 24 Jan 2022 12:39:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80781B81218;
-        Mon, 24 Jan 2022 19:57:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FDFBC33DA0;
-        Mon, 24 Jan 2022 19:57:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CD9661008;
+        Mon, 24 Jan 2022 20:39:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BAAFC340E5;
+        Mon, 24 Jan 2022 20:39:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054250;
-        bh=mMVMuisXCIt+zCi8F5XYc+fsmSAixmNaldXMRbfRe4I=;
+        s=korg; t=1643056766;
+        bh=0db0lA3LF46u41ABe7SmiK02EzboUvOSIxyIoCE8fDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TU/o+f6rnXqlsgW1HlLNttZdlrrgw1ptwsndQYtQ3t4OlPardNnFSaRTgtNl8Zl35
-         mxhGQojMAp3tABAGz0zIPRURJ7ZK57LOqOXLVCJuo4pUBUILo0gI5SyxHUp9Cf9UZ3
-         YPKDJsbCs1UlEmfRsW74b49rKq1i8mh6Q1uyNUa8=
+        b=CTEnvNpH+o9IK1yeabcl4AdHkQw+5AsvDaA21VhiGKaqt12i61AXPtQ5gHA9USYxk
+         E3mFlZdhM7b7LLENAhXpv8d9sal3ObXR8uhGbZLizwjdrjsFmv6DeBFK1gs5icjXNR
+         N580xb//mERHJtp0aVQ7EMhvgK846QaI1lFXx6VE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brendan Dolan-Gavitt <brendandg@nyu.edu>,
-        Zekun Shen <bruceshenzk@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 328/563] mwifiex: Fix skb_over_panic in mwifiex_usb_recv()
+Subject: [PATCH 5.15 576/846] iwlwifi: remove module loading failure message
 Date:   Mon, 24 Jan 2022 19:41:33 +0100
-Message-Id: <20220124184035.773561830@linuxfoundation.org>
+Message-Id: <20220124184120.908064995@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,66 +48,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 04d80663f67ccef893061b49ec8a42ff7045ae84 ]
+[ Upstream commit 6518f83ffa51131daaf439b66094f684da3fb0ae ]
 
-Currently, with an unknown recv_type, mwifiex_usb_recv
-just return -1 without restoring the skb. Next time
-mwifiex_usb_rx_complete is invoked with the same skb,
-calling skb_put causes skb_over_panic.
+When CONFIG_DEBUG_TEST_DRIVER_REMOVE is set, iwlwifi crashes
+when the opmode module cannot be loaded, due to completing
+the completion before using drv->dev, which can then already
+be freed.
 
-The bug is triggerable with a compromised/malfunctioning
-usb device. After applying the patch, skb_over_panic
-no longer shows up with the same input.
+Fix this by removing the (fairly useless) message. Moving the
+completion later causes a deadlock instead, so that's not an
+option.
 
-Attached is the panic report from fuzzing.
-skbuff: skb_over_panic: text:000000003bf1b5fa
- len:2048 put:4 head:00000000dd6a115b data:000000000a9445d8
- tail:0x844 end:0x840 dev:<NULL>
-kernel BUG at net/core/skbuff.c:109!
-invalid opcode: 0000 [#1] SMP KASAN NOPTI
-CPU: 0 PID: 198 Comm: in:imklog Not tainted 5.6.0 #60
-RIP: 0010:skb_panic+0x15f/0x161
-Call Trace:
- <IRQ>
- ? mwifiex_usb_rx_complete+0x26b/0xfcd [mwifiex_usb]
- skb_put.cold+0x24/0x24
- mwifiex_usb_rx_complete+0x26b/0xfcd [mwifiex_usb]
- __usb_hcd_giveback_urb+0x1e4/0x380
- usb_giveback_urb_bh+0x241/0x4f0
- ? __hrtimer_run_queues+0x316/0x740
- ? __usb_hcd_giveback_urb+0x380/0x380
- tasklet_action_common.isra.0+0x135/0x330
- __do_softirq+0x18c/0x634
- irq_exit+0x114/0x140
- smp_apic_timer_interrupt+0xde/0x380
- apic_timer_interrupt+0xf/0x20
- </IRQ>
-
-Reported-by: Brendan Dolan-Gavitt <brendandg@nyu.edu>
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/YX4CqjfRcTa6bVL+@Zekuns-MBP-16.fios-router.home
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/20211210091245.289008-2-luca@coelho.fi
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/usb.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/iwl-drv.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/usb.c b/drivers/net/wireless/marvell/mwifiex/usb.c
-index 9736aa0ab7fd4..8f01fcbe93961 100644
---- a/drivers/net/wireless/marvell/mwifiex/usb.c
-+++ b/drivers/net/wireless/marvell/mwifiex/usb.c
-@@ -130,7 +130,8 @@ static int mwifiex_usb_recv(struct mwifiex_adapter *adapter,
- 		default:
- 			mwifiex_dbg(adapter, ERROR,
- 				    "unknown recv_type %#x\n", recv_type);
--			return -1;
-+			ret = -1;
-+			goto exit_restore_skb;
- 		}
- 		break;
- 	case MWIFIEX_USB_EP_DATA:
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
+index 2206f66f69940..b7f7b9c5b670c 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
+@@ -1597,15 +1597,8 @@ static void iwl_req_fw_callback(const struct firmware *ucode_raw, void *context)
+ 	 * else from proceeding if the module fails to load
+ 	 * or hangs loading.
+ 	 */
+-	if (load_module) {
++	if (load_module)
+ 		request_module("%s", op->name);
+-#ifdef CONFIG_IWLWIFI_OPMODE_MODULAR
+-		if (err)
+-			IWL_ERR(drv,
+-				"failed to load module %s (error %d), is dynamic loading enabled?\n",
+-				op->name, err);
+-#endif
+-	}
+ 	failure = false;
+ 	goto free;
+ 
 -- 
 2.34.1
 
