@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA3684996DC
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:20:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 781A149992E
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:43:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1445775AbiAXVHZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:07:25 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:55586 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1444767AbiAXVBc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:01:32 -0500
+        id S1454179AbiAXVbz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:31:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50402 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1449775AbiAXVQ7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:16:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B408C09F4BD;
+        Mon, 24 Jan 2022 12:12:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 827B5B81063;
-        Mon, 24 Jan 2022 21:01:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B814BC340E5;
-        Mon, 24 Jan 2022 21:01:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD38E61368;
+        Mon, 24 Jan 2022 20:12:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9976FC340E5;
+        Mon, 24 Jan 2022 20:12:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058088;
-        bh=BEB192YSk8J7M70ks8jXvP3kVrZQ28TXQvGWZkv04+k=;
+        s=korg; t=1643055126;
+        bh=PSnOz8+2zdvBrxOTMHC/DW/3Ey4OxIgreWCpGuumD1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N2UdX3pGZSDM/lDL/AJDOgi1Ko7jvZdnfy0IieA8s0QBTx5LfdM0H6sC6oJB1pY3U
-         iohkoNVI7LSYUya29hJohZ0AM1WczxJKjOTXKej+bhcJokK3RwL2S6DVDmSG1MQodX
-         TguAgOAnUBqiisd6eTmfq4QG/5X3cpb0FKSM3Du4=
+        b=zT/AZwEcU4loj1CCEnluBLL2rXG8buQCZg+z7mU00YynQkcCKjvlap2eQkwZChNzW
+         6p/aI4dtsRp/Qmiqz/577JJ17lHUkH6yN/3yh6l8k142VYotP7MXtkx7F0Xmxgp+kQ
+         XK9nEG3yzLfw1IRfJQ1t28bXNNXs76mtOYF01YfQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Richard Genoud <richard.genoud@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0177/1039] tty: serial: atmel: Check return code of dmaengine_submit()
-Date:   Mon, 24 Jan 2022 19:32:46 +0100
-Message-Id: <20220124184131.217361811@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.15 050/846] media: pvrusb2: fix control-message timeouts
+Date:   Mon, 24 Jan 2022 19:32:47 +0100
+Message-Id: <20220124184102.679166775@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,59 +48,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tudor Ambarus <tudor.ambarus@microchip.com>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 1e67bd2b8cb90b66e89562598e9c2046246832d3 ]
+commit b82bf9b9dc305d7d3d93eab106d70dbf2171b43e upstream.
 
-The tx_submit() method of struct dma_async_tx_descriptor is entitled
-to do sanity checks and return errors if encountered. It's not the
-case for the DMA controller drivers that this client is using
-(at_h/xdmac), because they currently don't do sanity checks and always
-return a positive cookie at tx_submit() method. In case the controller
-drivers will implement sanity checks and return errors, print a message
-so that the client will be informed that something went wrong at
-tx_submit() level.
+USB control-message timeouts are specified in milliseconds and should
+specifically not vary with CONFIG_HZ.
 
-Fixes: 08f738be88bb ("serial: at91: add tx dma support")
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Acked-by: Richard Genoud <richard.genoud@gmail.com>
-Link: https://lore.kernel.org/r/20211125090028.786832-3-tudor.ambarus@microchip.com
+Fixes: d855497edbfb ("V4L/DVB (4228a): pvrusb2 to kernel 2.6.18")
+Cc: stable@vger.kernel.org      # 2.6.18
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/atmel_serial.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/media/usb/pvrusb2/pvrusb2-hdw.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/tty/serial/atmel_serial.c b/drivers/tty/serial/atmel_serial.c
-index 2c99a47a25357..376f7a9c2868a 100644
---- a/drivers/tty/serial/atmel_serial.c
-+++ b/drivers/tty/serial/atmel_serial.c
-@@ -1004,6 +1004,11 @@ static void atmel_tx_dma(struct uart_port *port)
- 		desc->callback = atmel_complete_tx_dma;
- 		desc->callback_param = atmel_port;
- 		atmel_port->cookie_tx = dmaengine_submit(desc);
-+		if (dma_submit_error(atmel_port->cookie_tx)) {
-+			dev_err(port->dev, "dma_submit_error %d\n",
-+				atmel_port->cookie_tx);
-+			return;
-+		}
+--- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
++++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
+@@ -1467,7 +1467,7 @@ static int pvr2_upload_firmware1(struct
+ 	for (address = 0; address < fwsize; address += 0x800) {
+ 		memcpy(fw_ptr, fw_entry->data + address, 0x800);
+ 		ret += usb_control_msg(hdw->usb_dev, pipe, 0xa0, 0x40, address,
+-				       0, fw_ptr, 0x800, HZ);
++				       0, fw_ptr, 0x800, 1000);
  	}
  
- 	if (uart_circ_chars_pending(xmit) < WAKEUP_CHARS)
-@@ -1258,6 +1263,11 @@ static int atmel_prepare_rx_dma(struct uart_port *port)
- 	desc->callback_param = port;
- 	atmel_port->desc_rx = desc;
- 	atmel_port->cookie_rx = dmaengine_submit(desc);
-+	if (dma_submit_error(atmel_port->cookie_rx)) {
-+		dev_err(port->dev, "dma_submit_error %d\n",
-+			atmel_port->cookie_rx);
-+		goto chan_err;
-+	}
+ 	trace_firmware("Upload done, releasing device's CPU");
+@@ -1605,7 +1605,7 @@ int pvr2_upload_firmware2(struct pvr2_hd
+ 			((u32 *)fw_ptr)[icnt] = swab32(((u32 *)fw_ptr)[icnt]);
  
- 	return 0;
+ 		ret |= usb_bulk_msg(hdw->usb_dev, pipe, fw_ptr,bcnt,
+-				    &actual_length, HZ);
++				    &actual_length, 1000);
+ 		ret |= (actual_length != bcnt);
+ 		if (ret) break;
+ 		fw_done += bcnt;
+@@ -3438,7 +3438,7 @@ void pvr2_hdw_cpufw_set_enabled(struct p
+ 						      0xa0,0xc0,
+ 						      address,0,
+ 						      hdw->fw_buffer+address,
+-						      0x800,HZ);
++						      0x800,1000);
+ 				if (ret < 0) break;
+ 			}
  
--- 
-2.34.1
-
+@@ -3977,7 +3977,7 @@ void pvr2_hdw_cpureset_assert(struct pvr
+ 	/* Write the CPUCS register on the 8051.  The lsb of the register
+ 	   is the reset bit; a 1 asserts reset while a 0 clears it. */
+ 	pipe = usb_sndctrlpipe(hdw->usb_dev, 0);
+-	ret = usb_control_msg(hdw->usb_dev,pipe,0xa0,0x40,0xe600,0,da,1,HZ);
++	ret = usb_control_msg(hdw->usb_dev,pipe,0xa0,0x40,0xe600,0,da,1,1000);
+ 	if (ret < 0) {
+ 		pvr2_trace(PVR2_TRACE_ERROR_LEGS,
+ 			   "cpureset_assert(%d) error=%d",val,ret);
 
 
