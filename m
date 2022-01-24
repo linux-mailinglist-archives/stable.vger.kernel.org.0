@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 97EBD4998FE
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:39:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 061CC499725
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:25:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1453906AbiAXVbK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:31:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51528 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1450847AbiAXVVf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:21:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDA1FC0604DC;
-        Mon, 24 Jan 2022 12:16:10 -0800 (PST)
+        id S1446888AbiAXVJh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:09:37 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:58320 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1354151AbiAXVFt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:05:49 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95B25B8122A;
-        Mon, 24 Jan 2022 20:16:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02DC2C340E5;
-        Mon, 24 Jan 2022 20:16:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B5F8B811FB;
+        Mon, 24 Jan 2022 21:05:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 535D3C340E5;
+        Mon, 24 Jan 2022 21:05:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055368;
-        bh=RaMl5+ISXyTRiKTb8Ed11NgVfcYQt+qBb892HL6Q3T4=;
+        s=korg; t=1643058345;
+        bh=X6EgPPABSu9qIS8VsK+/BZjQrgBbZL9LjiIth+gV+38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kJ8laAa6YE94NZWFmubzh1aio0qEdqigYEW8v2jCMysJ5Wa/dRGo/QM4sRPikxnJ+
-         AX6W7gOThZ2MW86rn5txYbqBf0WgPF2WWqTXfq8xpZy8IE5qjgMzGWbwxeemhp0c74
-         0n0BUYQR2b7CFnBeNSkK+c0bLyK7Hkysp7Z3rpl8=
+        b=D02rKWm/L+Nbuqn1eioq6F07MTd1pOyGPCoHKHPjHeuvgDIdCBEveGDmQCP9Cz80d
+         G9C/kUn925Ii7ujc+yBqc8NRthdYDgRFfXY0E9hzYSmMFFLjeKO12zBDhaS5fbj/7F
+         /Zd19ikI7/bEEyDHbE6K1WchiV8bUQdH2IZXOzXU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Venkateswara Naralasetty <vnaralas@codeaurora.org>,
-        Sven Eckelmann <sven@narfation.org>,
-        Karthikeyan Kathirvel <kathirve@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        Pavle Kotarac <Pavle.Kotarac@amd.com>,
+        Wayne Lin <Wayne.Lin@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 129/846] ath11k: reset RSN/WPA present state for open BSS
-Date:   Mon, 24 Jan 2022 19:34:06 +0100
-Message-Id: <20220124184105.443452636@linuxfoundation.org>
+Subject: [PATCH 5.16 0258/1039] drm/amd/display: Fix bug in debugfs crc_win_update entry
+Date:   Mon, 24 Jan 2022 19:34:07 +0100
+Message-Id: <20220124184133.986450956@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,57 +49,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karthikeyan Kathirvel <kathirve@codeaurora.org>
+From: Wayne Lin <Wayne.Lin@amd.com>
 
-[ Upstream commit 64bc3aa02ae78b1fcb1b850e0eb1f0622002bfaa ]
+[ Upstream commit 4bef85d4c9491415b7931407b07f24841c1e0390 ]
 
-The ath11k driver is caching the information about RSN/WPA IE in the
-configured beacon template. The cached information is used during
-associations to figure out whether 4-way PKT/2-way GTK peer flags need to
-be set or not.
+[Why]
+crc_rd_wrk shouldn't be null in crc_win_update_set(). Current programming
+logic is inconsistent in crc_win_update_set().
 
-But the code never cleared the state when no such IE was found. This can
-for example happen when moving from an WPA/RSN to an open setup. The
-(seemingly connected) peer was then not able to communicate over the
-link because the firmware assumed a different (encryption enabled) state
-for the peer.
+[How]
+Initially, return if crc_rd_wrk is NULL. Later on, we can use member of
+crc_rd_wrk safely.
 
-Tested-on: IPQ6018 hw1.0 AHB WLAN.HK.2.5.0.1-01100-QCAHKSWPL_SILICONZ-1
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Fixes: 9a65df193108 ("drm/amd/display: Use PSP TA to read out crc")
 
-Fixes: 01e34233c645 ("ath11k: fix wmi peer flags in peer assoc command")
-Cc: Venkateswara Naralasetty <vnaralas@codeaurora.org>
-Reported-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Karthikeyan Kathirvel <kathirve@codeaurora.org>
-[sven@narfation.org: split into separate patches, clean up commit message]
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211115100441.33771-2-sven@narfation.org
+Reviewed-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Acked-by: Pavle Kotarac <Pavle.Kotarac@amd.com>
+Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/mac.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
-index aac10740f5752..2df60c74809d3 100644
---- a/drivers/net/wireless/ath/ath11k/mac.c
-+++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -767,11 +767,15 @@ static int ath11k_mac_setup_bcn_tmpl(struct ath11k_vif *arvif)
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
+index 9d43ecb1f692d..f4e829ec8e108 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
+@@ -2909,10 +2909,13 @@ static int crc_win_update_set(void *data, u64 val)
+ 	struct amdgpu_device *adev = drm_to_adev(new_crtc->dev);
+ 	struct crc_rd_work *crc_rd_wrk = adev->dm.crc_rd_wrk;
  
- 	if (cfg80211_find_ie(WLAN_EID_RSN, ies, (skb_tail_pointer(bcn) - ies)))
- 		arvif->rsnie_present = true;
-+	else
-+		arvif->rsnie_present = false;
- 
- 	if (cfg80211_find_vendor_ie(WLAN_OUI_MICROSOFT,
- 				    WLAN_OUI_TYPE_MICROSOFT_WPA,
- 				    ies, (skb_tail_pointer(bcn) - ies)))
- 		arvif->wpaie_present = true;
-+	else
-+		arvif->wpaie_present = false;
- 
- 	ret = ath11k_wmi_bcn_tmpl(ar, arvif->vdev_id, &offs, bcn);
- 
++	if (!crc_rd_wrk)
++		return 0;
++
+ 	if (val) {
+ 		spin_lock_irq(&adev_to_drm(adev)->event_lock);
+ 		spin_lock_irq(&crc_rd_wrk->crc_rd_work_lock);
+-		if (crc_rd_wrk && crc_rd_wrk->crtc) {
++		if (crc_rd_wrk->crtc) {
+ 			old_crtc = crc_rd_wrk->crtc;
+ 			old_acrtc = to_amdgpu_crtc(old_crtc);
+ 		}
 -- 
 2.34.1
 
