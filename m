@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9B0449902A
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF9FC499043
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350640AbiAXT6s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:58:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58066 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352195AbiAXTwp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:52:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB36DC061394;
-        Mon, 24 Jan 2022 11:26:16 -0800 (PST)
+        id S1358391AbiAXT7W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:59:22 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:41452 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358063AbiAXTx6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:53:58 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7286CB81239;
-        Mon, 24 Jan 2022 19:26:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90EB5C340E5;
-        Mon, 24 Jan 2022 19:26:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11214B8121C;
+        Mon, 24 Jan 2022 19:53:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28A77C340E5;
+        Mon, 24 Jan 2022 19:53:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052374;
-        bh=l2qkhwyajAQCjSYqn/KNwyizSyty6BnN/EXpCzFQ+wo=;
+        s=korg; t=1643054034;
+        bh=1bb9Wix4RTwcEXFOmAXngaH3mepogma1vLiG3AebptE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tLW8eWyoX1+p02EU0QUytJiG+npQONmDhc1fatLSU7/guTU/fPsJrMGzhBQFOWNQr
-         AyVep+D4wolJ3HWpddkHuHTsdjJ/3djIeQH7QGvmz8rXkSf6Rrftxtb3/k4Y9rAcjE
-         Q5rpfscjmnVTkmzi9kYigTqRk2/YHP9fvxByMWXQ=
+        b=loeyF9ill8TJsll04WbbIZmeTVryDWx0KGNBbWL5Tx5nelHaYQUHcviuq1i6JruvX
+         EBFUOICUle4CYMoYMvjbFqs1zCdeiu/jBsPfveWTCyfmFGTzviWRiD2KVKYw0rJhSD
+         X/CWnwlPaQ6ErnAa7S3WIjhkzgyuLA+BG13wD1rk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Nicolas Saenz Julienne <nsaenz@kernel.org>,
-        Michael Stapelberg <michael@stapelberg.ch>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 038/320] clk: bcm-2835: Pick the closest clock rate
-Date:   Mon, 24 Jan 2022 19:40:22 +0100
-Message-Id: <20220124183955.050123837@linuxfoundation.org>
+Subject: [PATCH 5.10 258/563] ALSA: usb-audio: Drop superfluous 0 in Presonus Studio 1810cs ID
+Date:   Mon, 24 Jan 2022 19:40:23 +0100
+Message-Id: <20220124184033.343663272@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,44 +44,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 5517357a4733d7cf7c17fc79d0530cfa47add372 ]
+[ Upstream commit 1e583aef12aa74afd37c1418255cc4b74e023236 ]
 
-The driver currently tries to pick the closest rate that is lower than
-the rate being requested.
+The vendor ID of Presonus Studio 1810c had a superfluous '0' in its
+USB ID.  Drop it.
 
-This causes an issue with clk_set_min_rate() since it actively checks
-for the rounded rate to be above the minimum that was just set.
-
-Let's change the logic a bit to pick the closest rate to the requested
-rate, no matter if it's actually higher or lower.
-
-Fixes: 6d18b8adbe67 ("clk: bcm2835: Support for clock parent selection")
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Acked-by: Stephen Boyd <sboyd@kernel.org>
-Reviewed-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
-Tested-by: Nicolas Saenz Julienne <nsaenz@kernel.org> # boot and basic functionality
-Tested-by: Michael Stapelberg <michael@stapelberg.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210922125419.4125779-2-maxime@cerno.tech
+Fixes: 8dc5efe3d17c ("ALSA: usb-audio: Add support for Presonus Studio 1810c")
+Link: https://lore.kernel.org/r/20211202083833.17784-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/bcm/clk-bcm2835.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/usb/format.c       | 2 +-
+ sound/usb/mixer_quirks.c | 2 +-
+ sound/usb/quirks.c       | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
-index c5486537b9284..b2af320d1b6c5 100644
---- a/drivers/clk/bcm/clk-bcm2835.c
-+++ b/drivers/clk/bcm/clk-bcm2835.c
-@@ -1216,7 +1216,7 @@ static int bcm2835_clock_determine_rate(struct clk_hw *hw,
- 		rate = bcm2835_clock_choose_div_and_prate(hw, i, req->rate,
- 							  &div, &prate,
- 							  &avgrate);
--		if (rate > best_rate && rate <= req->rate) {
-+		if (abs(req->rate - rate) < abs(req->rate - best_rate)) {
- 			best_parent = parent;
- 			best_prate = prate;
- 			best_rate = rate;
+diff --git a/sound/usb/format.c b/sound/usb/format.c
+index 4693384db0695..e8a63ea2189d1 100644
+--- a/sound/usb/format.c
++++ b/sound/usb/format.c
+@@ -365,7 +365,7 @@ static int parse_uac2_sample_rate_range(struct snd_usb_audio *chip,
+ 		for (rate = min; rate <= max; rate += res) {
+ 
+ 			/* Filter out invalid rates on Presonus Studio 1810c */
+-			if (chip->usb_id == USB_ID(0x0194f, 0x010c) &&
++			if (chip->usb_id == USB_ID(0x194f, 0x010c) &&
+ 			    !s1810c_valid_sample_rate(fp, rate))
+ 				goto skip_rate;
+ 
+diff --git a/sound/usb/mixer_quirks.c b/sound/usb/mixer_quirks.c
+index 8297117f4766e..86fdd669f3fd7 100644
+--- a/sound/usb/mixer_quirks.c
++++ b/sound/usb/mixer_quirks.c
+@@ -3033,7 +3033,7 @@ int snd_usb_mixer_apply_create_quirk(struct usb_mixer_interface *mixer)
+ 		err = snd_rme_controls_create(mixer);
+ 		break;
+ 
+-	case USB_ID(0x0194f, 0x010c): /* Presonus Studio 1810c */
++	case USB_ID(0x194f, 0x010c): /* Presonus Studio 1810c */
+ 		err = snd_sc1810_init_mixer(mixer);
+ 		break;
+ 	case USB_ID(0x2a39, 0x3fb0): /* RME Babyface Pro FS */
+diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
+index 75d4d317b34b6..6333a2ecb848a 100644
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -1310,7 +1310,7 @@ int snd_usb_apply_interface_quirk(struct snd_usb_audio *chip,
+ 	if (chip->usb_id == USB_ID(0x0763, 0x2012))
+ 		return fasttrackpro_skip_setting_quirk(chip, iface, altno);
+ 	/* presonus studio 1810c: skip altsets incompatible with device_setup */
+-	if (chip->usb_id == USB_ID(0x0194f, 0x010c))
++	if (chip->usb_id == USB_ID(0x194f, 0x010c))
+ 		return s1810c_skip_setting_quirk(chip, iface, altno);
+ 
+ 
 -- 
 2.34.1
 
