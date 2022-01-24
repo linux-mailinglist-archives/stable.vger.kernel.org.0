@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 868D9498C63
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:22:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96B2249913D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349881AbiAXTVr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:21:47 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:43682 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347324AbiAXTS4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:18:56 -0500
+        id S1378865AbiAXUJ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:09:59 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:58044 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1353254AbiAXUBa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:01:30 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97FA2B81238;
-        Mon, 24 Jan 2022 19:18:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB02DC340E5;
-        Mon, 24 Jan 2022 19:18:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB49D611CD;
+        Mon, 24 Jan 2022 20:01:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABCE4C340E7;
+        Mon, 24 Jan 2022 20:01:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051933;
-        bh=yASnKoJ36bqi+XEUG0nb+NCnUaJoGBfW7yEqt+nlY9c=;
+        s=korg; t=1643054488;
+        bh=sPspLDjSwcA/+CaLh+o2OAKsp197ZqFntPnughJxxdU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IYrSKzXh+sKLkno7vv7GXMHmebHEgH4EHIbeM0AVDbsXkfOiE4pF0lteyaZfy9obx
-         4kLxnC1sFomiRJsyD7gKaFI0UauQ9gzZWGfZWJjg/M9ojI6r1C0VQq2lyfMrrbFA7E
-         W4mxK9XAh+T8aBS0IEnzFnqq97YFraQ5x26m+paU=
+        b=bMyVPtQHdupblyZELIrIHw0ilOaQ4oMflYrHtVw0OZWyNwYkUbtfmAQEr9DtbVNsy
+         yXA8S7kQQ+02LZtfo+olYtY3orM4uFf/ISFn7JteGO0Z1bYk5qOXwyzRRYj9xAssxM
+         SRF6ubw+27MIxRaISSNH+Sj0zwM/4bTrsTzxWPKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brendan Dolan-Gavitt <brendandg@nyu.edu>,
-        Zekun Shen <bruceshenzk@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 133/239] rsi: Fix out-of-bounds read in rsi_read_pkt()
+        stable@vger.kernel.org, John David Anglin <dave.anglin@bell.net>,
+        Helge Deller <deller@gmx.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 406/563] parisc: Avoid calling faulthandler_disabled() twice
 Date:   Mon, 24 Jan 2022 19:42:51 +0100
-Message-Id: <20220124183947.339549577@linuxfoundation.org>
+Message-Id: <20220124184038.488134638@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,106 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: John David Anglin <dave.anglin@bell.net>
 
-[ Upstream commit f1cb3476e48b60c450ec3a1d7da0805bffc6e43a ]
+[ Upstream commit 9e9d4b460f23bab61672eae397417d03917d116c ]
 
-rsi_get_* functions rely on an offset variable from usb
-input. The size of usb input is RSI_MAX_RX_USB_PKT_SIZE(3000),
-while 2-byte offset can be up to 0xFFFF. Thus a large offset
-can cause out-of-bounds read.
+In handle_interruption(), we call faulthandler_disabled() to check whether the
+fault handler is not disabled. If the fault handler is disabled, we immediately
+call do_page_fault(). It then calls faulthandler_disabled(). If disabled,
+do_page_fault() attempts to fixup the exception by jumping to no_context:
 
-The patch adds a bound checking condition when rcv_pkt_len is 0,
-indicating it's USB. It's unclear whether this is triggerable
-from other type of bus. The following check might help in that case.
-offset > rcv_pkt_len - FRAME_DESC_SZ
+no_context:
 
-The bug is trigerrable with conpromised/malfunctioning USB devices.
-I tested the patch with the crashing input and got no more bug report.
+        if (!user_mode(regs) && fixup_exception(regs)) {
+                return;
+        }
 
-Attached is the KASAN report from fuzzing.
+        parisc_terminate("Bad Address (null pointer deref?)", regs, code, address);
 
-BUG: KASAN: slab-out-of-bounds in rsi_read_pkt+0x42e/0x500 [rsi_91x]
-Read of size 2 at addr ffff888019439fdb by task RX-Thread/227
+Apart from the error messages, the two blocks of code perform the same
+function.
 
-CPU: 0 PID: 227 Comm: RX-Thread Not tainted 5.6.0 #66
-Call Trace:
- dump_stack+0x76/0xa0
- print_address_description.constprop.0+0x16/0x200
- ? rsi_read_pkt+0x42e/0x500 [rsi_91x]
- ? rsi_read_pkt+0x42e/0x500 [rsi_91x]
- __kasan_report.cold+0x37/0x7c
- ? rsi_read_pkt+0x42e/0x500 [rsi_91x]
- kasan_report+0xe/0x20
- rsi_read_pkt+0x42e/0x500 [rsi_91x]
- rsi_usb_rx_thread+0x1b1/0x2fc [rsi_usb]
- ? rsi_probe+0x16a0/0x16a0 [rsi_usb]
- ? _raw_spin_lock_irqsave+0x7b/0xd0
- ? _raw_spin_trylock_bh+0x120/0x120
- ? __wake_up_common+0x10b/0x520
- ? rsi_probe+0x16a0/0x16a0 [rsi_usb]
- kthread+0x2b5/0x3b0
- ? kthread_create_on_node+0xd0/0xd0
- ret_from_fork+0x22/0x40
+We can avoid two calls to faulthandler_disabled() by a simple revision
+to the code in handle_interruption().
 
-Reported-by: Brendan Dolan-Gavitt <brendandg@nyu.edu>
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/YXxXS4wgu2OsmlVv@10-18-43-117.dynapool.wireless.nyu.edu
+Note: I didn't try to fix the formatting of this code block.
+
+Signed-off-by: John David Anglin <dave.anglin@bell.net>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/rsi/rsi_91x_main.c | 4 ++++
- drivers/net/wireless/rsi/rsi_91x_usb.c  | 1 -
- drivers/net/wireless/rsi/rsi_usb.h      | 2 ++
- 3 files changed, 6 insertions(+), 1 deletion(-)
+ arch/parisc/kernel/traps.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/rsi/rsi_91x_main.c b/drivers/net/wireless/rsi/rsi_91x_main.c
-index d90d8ab56fa28..c6f5c46cc88e7 100644
---- a/drivers/net/wireless/rsi/rsi_91x_main.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_main.c
-@@ -23,6 +23,7 @@
- #include "rsi_common.h"
- #include "rsi_coex.h"
- #include "rsi_hal.h"
-+#include "rsi_usb.h"
+diff --git a/arch/parisc/kernel/traps.c b/arch/parisc/kernel/traps.c
+index 43f56335759a4..269b737d26299 100644
+--- a/arch/parisc/kernel/traps.c
++++ b/arch/parisc/kernel/traps.c
+@@ -784,7 +784,7 @@ void notrace handle_interruption(int code, struct pt_regs *regs)
+ 	     * unless pagefault_disable() was called before.
+ 	     */
  
- u32 rsi_zone_enabled = /* INFO_ZONE |
- 			INIT_ZONE |
-@@ -173,6 +174,9 @@ int rsi_read_pkt(struct rsi_common *common, u8 *rx_pkt, s32 rcv_pkt_len)
- 		frame_desc = &rx_pkt[index];
- 		actual_length = *(u16 *)&frame_desc[0];
- 		offset = *(u16 *)&frame_desc[2];
-+		if (!rcv_pkt_len && offset >
-+			RSI_MAX_RX_USB_PKT_SIZE - FRAME_DESC_SZ)
-+			goto fail;
- 
- 		queueno = rsi_get_queueno(frame_desc, offset);
- 		length = rsi_get_length(frame_desc, offset);
-diff --git a/drivers/net/wireless/rsi/rsi_91x_usb.c b/drivers/net/wireless/rsi/rsi_91x_usb.c
-index 984f99ad40960..da09e130710e0 100644
---- a/drivers/net/wireless/rsi/rsi_91x_usb.c
-+++ b/drivers/net/wireless/rsi/rsi_91x_usb.c
-@@ -312,7 +312,6 @@ static int rsi_rx_urb_submit(struct rsi_hw *adapter, u8 ep_num, gfp_t mem_flags)
- 	struct sk_buff *skb;
- 	u8 dword_align_bytes = 0;
- 
--#define RSI_MAX_RX_USB_PKT_SIZE	3000
- 	skb = dev_alloc_skb(RSI_MAX_RX_USB_PKT_SIZE);
- 	if (!skb)
- 		return -ENOMEM;
-diff --git a/drivers/net/wireless/rsi/rsi_usb.h b/drivers/net/wireless/rsi/rsi_usb.h
-index 5b2eddd1a2ee5..3d3d2643088d0 100644
---- a/drivers/net/wireless/rsi/rsi_usb.h
-+++ b/drivers/net/wireless/rsi/rsi_usb.h
-@@ -43,6 +43,8 @@
- #define RSI_USB_BUF_SIZE	     4096
- #define RSI_USB_CTRL_BUF_SIZE	     0x04
- 
-+#define RSI_MAX_RX_USB_PKT_SIZE	3000
-+
- struct rx_usb_ctrl_block {
- 	u8 *data;
- 	struct urb *rx_urb;
+-	    if (fault_space == 0 && !faulthandler_disabled())
++	    if (faulthandler_disabled() || fault_space == 0)
+ 	    {
+ 		/* Clean up and return if in exception table. */
+ 		if (fixup_exception(regs))
 -- 
 2.34.1
 
