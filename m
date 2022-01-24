@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ACD3F49938E
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:38:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61864499428
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:41:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385888AbiAXUen (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:34:43 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:51138 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383608AbiAXU11 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:27:27 -0500
+        id S1388577AbiAXUjk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:39:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39772 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1385529AbiAXUdd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:33:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C33EC07E2A6;
+        Mon, 24 Jan 2022 11:46:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 090E361502;
-        Mon, 24 Jan 2022 20:27:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E01ABC340E5;
-        Mon, 24 Jan 2022 20:27:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B92276154E;
+        Mon, 24 Jan 2022 19:46:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1E8FC340E5;
+        Mon, 24 Jan 2022 19:46:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056046;
-        bh=zrfxcHLGusgtamEGQCTI+icznpvNbZqhf7dBNr17trg=;
+        s=korg; t=1643053579;
+        bh=lLAkhTF9mn3pG3+LBJokmhIVH1QLXwMkT+mZu/HSBUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wIfdRS8MWj1807QBkkKllAnKb7UOFUQ6bsy88P9nOTvhrBEgBR8N1jVQibXJMpA3+
-         jyHNSSzhr2pUIqr9n1kisynQ/VDnYb2SBcq4bN8jjR2IAqm7t0XlCaQOC0+UpXPnNe
-         D8A/BHwPTmaUaVJIsCO9nPkA4rVqAfF1Ci7Yaf38=
+        b=SLdDwTeSNGiydRxGenViheksmLFiwnQw7dUiN1At38EIwYf93XPS2GgXre9s8pCx+
+         XtVXFajazqVNzLCnwzoZb1MazbmblrDz/rZtfwLA5/VsPGUe2y62IZxY67uKsOy/Rl
+         pB4acwaS0HH61HemsFCRgLPYEiJi19g/7rl6U38w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Subbaraya Sundeep <sbhatta@marvell.com>,
-        Sunil Goutham <sgoutham@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Richard Genoud <richard.genoud@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 352/846] octeontx2-af: Increment ptp refcount before use
+Subject: [PATCH 5.10 104/563] tty: serial: atmel: Check return code of dmaengine_submit()
 Date:   Mon, 24 Jan 2022 19:37:49 +0100
-Message-Id: <20220124184113.097587510@linuxfoundation.org>
+Message-Id: <20220124184027.996894655@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,35 +49,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Subbaraya Sundeep <sbhatta@marvell.com>
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-[ Upstream commit 93440f4888cf049dbd22b41aaf94d2e2153b3eb8 ]
+[ Upstream commit 1e67bd2b8cb90b66e89562598e9c2046246832d3 ]
 
-Before using the ptp pci device by AF driver increment
-the reference count of it.
+The tx_submit() method of struct dma_async_tx_descriptor is entitled
+to do sanity checks and return errors if encountered. It's not the
+case for the DMA controller drivers that this client is using
+(at_h/xdmac), because they currently don't do sanity checks and always
+return a positive cookie at tx_submit() method. In case the controller
+drivers will implement sanity checks and return errors, print a message
+so that the client will be informed that something went wrong at
+tx_submit() level.
 
-Fixes: a8b90c9d26d6 ("octeontx2-af: Add PTP device id for CN10K and 95O silcons")
-Signed-off-by: Subbaraya Sundeep <sbhatta@marvell.com>
-Signed-off-by: Sunil Goutham <sgoutham@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 08f738be88bb ("serial: at91: add tx dma support")
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Acked-by: Richard Genoud <richard.genoud@gmail.com>
+Link: https://lore.kernel.org/r/20211125090028.786832-3-tudor.ambarus@microchip.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/octeontx2/af/ptp.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/tty/serial/atmel_serial.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/net/ethernet/marvell/octeontx2/af/ptp.c b/drivers/net/ethernet/marvell/octeontx2/af/ptp.c
-index 9b8e59f4c206d..77cb52b80c60f 100644
---- a/drivers/net/ethernet/marvell/octeontx2/af/ptp.c
-+++ b/drivers/net/ethernet/marvell/octeontx2/af/ptp.c
-@@ -85,6 +85,8 @@ struct ptp *ptp_get(void)
- 	/* Check driver is bound to PTP block */
- 	if (!ptp)
- 		ptp = ERR_PTR(-EPROBE_DEFER);
-+	else
-+		pci_dev_get(ptp->pdev);
+diff --git a/drivers/tty/serial/atmel_serial.c b/drivers/tty/serial/atmel_serial.c
+index a24e5c2b30bc9..396fe8c51f93b 100644
+--- a/drivers/tty/serial/atmel_serial.c
++++ b/drivers/tty/serial/atmel_serial.c
+@@ -1004,6 +1004,11 @@ static void atmel_tx_dma(struct uart_port *port)
+ 		desc->callback = atmel_complete_tx_dma;
+ 		desc->callback_param = atmel_port;
+ 		atmel_port->cookie_tx = dmaengine_submit(desc);
++		if (dma_submit_error(atmel_port->cookie_tx)) {
++			dev_err(port->dev, "dma_submit_error %d\n",
++				atmel_port->cookie_tx);
++			return;
++		}
+ 	}
  
- 	return ptp;
- }
+ 	if (uart_circ_chars_pending(xmit) < WAKEUP_CHARS)
+@@ -1264,6 +1269,11 @@ static int atmel_prepare_rx_dma(struct uart_port *port)
+ 	desc->callback_param = port;
+ 	atmel_port->desc_rx = desc;
+ 	atmel_port->cookie_rx = dmaengine_submit(desc);
++	if (dma_submit_error(atmel_port->cookie_rx)) {
++		dev_err(port->dev, "dma_submit_error %d\n",
++			atmel_port->cookie_rx);
++		goto chan_err;
++	}
+ 
+ 	return 0;
+ 
 -- 
 2.34.1
 
