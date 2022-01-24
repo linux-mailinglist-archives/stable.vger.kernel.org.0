@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 561344989D7
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:59:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57219498A29
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:02:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343711AbiAXS6l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:58:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43132 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344424AbiAXSyj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:54:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5369FC061744;
-        Mon, 24 Jan 2022 10:53:23 -0800 (PST)
+        id S245589AbiAXTBo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:01:44 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56022 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345105AbiAXS7u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:59:50 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E6644614D4;
-        Mon, 24 Jan 2022 18:53:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6C64C340E5;
-        Mon, 24 Jan 2022 18:53:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4A893B8123A;
+        Mon, 24 Jan 2022 18:59:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CA31C340E8;
+        Mon, 24 Jan 2022 18:59:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050402;
-        bh=zvNxJIBpGYAJAFDVKjkPscRL8chuDPUd05tL6Yf77iQ=;
+        s=korg; t=1643050788;
+        bh=ztCq9ANAcBkHdS4/TOCP4mgItl7HAp3oyahqlUf+rPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zC4+w1UmkXksjyvnXnn4xgET5iiB7agvo774wmlKVqkYXYAZHsS73o/YWTAk0llgM
-         +I3IQ/1CiYjuMmYLt3NEUtDoEjt1AG+alPCD27B88sjWM3WQfXkvPW+Egq0SXOu2Gt
-         hq3OzhksnZmGKdYggVL0L/ErF3RJl+CtjOT+fdCw=
+        b=FGx6sWtYwNjCULfuIZmxOrmX+8f7oaet0NivhRDIfNdnHxHlirS2NEmzpkb5NWqlP
+         doiBetpbyCHKvCv2c1pkFnyfPUKEY7qSotuNQGjc1kqWajKHYnyy229bhC6oQ0OPaN
+         6LmJKWlgXDsQPQ6iVMVmvqQs3E0A8M7hUTi3t5Nc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 106/114] net: axienet: fix number of TX ring slots for available check
+        stable@vger.kernel.org,
+        Joakim Tjernlund <joakim.tjernlund@infinera.com>,
+        Scott Wood <oss@buserror.net>, Wolfram Sang <wsa@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 111/157] i2c: mpc: Correct I2C reset procedure
 Date:   Mon, 24 Jan 2022 19:43:21 +0100
-Message-Id: <20220124183930.380100924@linuxfoundation.org>
+Message-Id: <20220124183936.296733102@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
-References: <20220124183927.095545464@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,41 +46,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Joakim Tjernlund <joakim.tjernlund@infinera.com>
 
-commit aba57a823d2985a2cc8c74a2535f3a88e68d9424 upstream.
+[ Upstream commit ebe82cf92cd4825c3029434cabfcd2f1780e64be ]
 
-The check for the number of available TX ring slots was off by 1 since a
-slot is required for the skb header as well as each fragment. This could
-result in overwriting a TX ring slot that was still in use.
+Current I2C reset procedure is broken in two ways:
+1) It only generate 1 START instead of 9 STARTs and STOP.
+2) It leaves the bus Busy so every I2C xfer after the first
+   fixup calls the reset routine again, for every xfer there after.
 
-Fixes: 8a3b7a252dca9 ("drivers/net/ethernet/xilinx: added Xilinx AXI Ethernet driver")
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This fixes both errors.
+
+Signed-off-by: Joakim Tjernlund <joakim.tjernlund@infinera.com>
+Acked-by: Scott Wood <oss@buserror.net>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/xilinx/xilinx_axienet_main.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-mpc.c | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
---- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-@@ -681,7 +681,7 @@ axienet_start_xmit(struct sk_buff *skb,
- 	num_frag = skb_shinfo(skb)->nr_frags;
- 	cur_p = &lp->tx_bd_v[lp->tx_bd_tail];
+diff --git a/drivers/i2c/busses/i2c-mpc.c b/drivers/i2c/busses/i2c-mpc.c
+index 90e4f839eb1cb..d153fc28e6bfb 100644
+--- a/drivers/i2c/busses/i2c-mpc.c
++++ b/drivers/i2c/busses/i2c-mpc.c
+@@ -107,23 +107,30 @@ static irqreturn_t mpc_i2c_isr(int irq, void *dev_id)
+ /* Sometimes 9th clock pulse isn't generated, and slave doesn't release
+  * the bus, because it wants to send ACK.
+  * Following sequence of enabling/disabling and sending start/stop generates
+- * the 9 pulses, so it's all OK.
++ * the 9 pulses, each with a START then ending with STOP, so it's all OK.
+  */
+ static void mpc_i2c_fixup(struct mpc_i2c *i2c)
+ {
+ 	int k;
+-	u32 delay_val = 1000000 / i2c->real_clk + 1;
+-
+-	if (delay_val < 2)
+-		delay_val = 2;
++	unsigned long flags;
  
--	if (axienet_check_tx_bd_space(lp, num_frag)) {
-+	if (axienet_check_tx_bd_space(lp, num_frag + 1)) {
- 		if (netif_queue_stopped(ndev))
- 			return NETDEV_TX_BUSY;
+ 	for (k = 9; k; k--) {
+ 		writeccr(i2c, 0);
+-		writeccr(i2c, CCR_MSTA | CCR_MTX | CCR_MEN);
++		writeb(0, i2c->base + MPC_I2C_SR); /* clear any status bits */
++		writeccr(i2c, CCR_MEN | CCR_MSTA); /* START */
++		readb(i2c->base + MPC_I2C_DR); /* init xfer */
++		udelay(15); /* let it hit the bus */
++		local_irq_save(flags); /* should not be delayed further */
++		writeccr(i2c, CCR_MEN | CCR_MSTA | CCR_RSTA); /* delay SDA */
+ 		readb(i2c->base + MPC_I2C_DR);
+-		writeccr(i2c, CCR_MEN);
+-		udelay(delay_val << 1);
++		if (k != 1)
++			udelay(5);
++		local_irq_restore(flags);
+ 	}
++	writeccr(i2c, CCR_MEN); /* Initiate STOP */
++	readb(i2c->base + MPC_I2C_DR);
++	udelay(15); /* Let STOP propagate */
++	writeccr(i2c, 0);
+ }
  
-@@ -691,7 +691,7 @@ axienet_start_xmit(struct sk_buff *skb,
- 		smp_mb();
- 
- 		/* Space might have just been freed - check again */
--		if (axienet_check_tx_bd_space(lp, num_frag))
-+		if (axienet_check_tx_bd_space(lp, num_frag + 1))
- 			return NETDEV_TX_BUSY;
- 
- 		netif_wake_queue(ndev);
+ static int i2c_wait(struct mpc_i2c *i2c, unsigned timeout, int writing)
+-- 
+2.34.1
+
 
 
