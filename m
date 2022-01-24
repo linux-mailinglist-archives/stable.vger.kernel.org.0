@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CBCC49A419
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:08:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C058249A489
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:09:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2369384AbiAYABi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:01:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51132 "EHLO
+        id S2369534AbiAYACD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:02:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1848470AbiAXXWe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:22:34 -0500
+        with ESMTP id S1383051AbiAXX2E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:28:04 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46BE0C073089;
-        Mon, 24 Jan 2022 13:29:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A768CC01D7F3;
+        Mon, 24 Jan 2022 13:31:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D8EFB614DC;
-        Mon, 24 Jan 2022 21:29:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA2A0C340ED;
-        Mon, 24 Jan 2022 21:29:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 480A2614F3;
+        Mon, 24 Jan 2022 21:31:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30D27C340E9;
+        Mon, 24 Jan 2022 21:31:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059760;
-        bh=AOczSnWdWced6oq1iyNUhjT2AeFnG/1hKhyVL7vUbzw=;
+        s=korg; t=1643059883;
+        bh=OBTuXiREeeRTt0kQKSBldCdfbCJ4bnAco+QXL8c1owQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hRzZEr5aQUszG5Ok3Yc2vzyJS5MGBvjbwu9FcFwJd4i8DpeE1Q2DwZ8rIpPv13Ufo
-         E4Abacu6rWlzy2kv0dWl2JCU/ZYvMbX+SHfquP9gJSq/8as4Qu5bsa+ViYtBIGPnXG
-         303DEQ3kd6p8EopQnhmh2p+ThkeDrrU1mCVy5okM=
+        b=lUGvagDkcMAsSO7hKt1pFZDtAyzUCFiYiY6ofM7Hm+cSAHHUFLS8kxQrrN86XqKOj
+         orG1xFw7XseDgT/FVZzn9mfk0j7r+pOMD4Pd9DIJD9SECRyk+8N/ERSgwnsjVZeycS
+         crPTzo/6coEbwagCkuMRToZKVtc7lBgdFjf+UJnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        stable@vger.kernel.org,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0723/1039] serial: core: Keep mctrl register state and cached copy in sync
-Date:   Mon, 24 Jan 2022 19:41:52 +0100
-Message-Id: <20220124184149.637956247@linuxfoundation.org>
+Subject: [PATCH 5.16 0724/1039] random: do not throw away excess input to crng_fast_load
+Date:   Mon, 24 Jan 2022 19:41:53 +0100
+Message-Id: <20220124184149.668774250@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -47,51 +49,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit 93a770b7e16772530196674ffc79bb13fa927dc6 ]
+[ Upstream commit 73c7733f122e8d0107f88655a12011f68f69e74b ]
 
-struct uart_port contains a cached copy of the Modem Control signals.
-It is used to skip register writes in uart_update_mctrl() if the new
-signal state equals the old signal state.  It also avoids a register
-read to obtain the current state of output signals.
+When crng_fast_load() is called by add_hwgenerator_randomness(), we
+currently will advance to crng_init==1 once we've acquired 64 bytes, and
+then throw away the rest of the buffer. Usually, that is not a problem:
+When add_hwgenerator_randomness() gets called via EFI or DT during
+setup_arch(), there won't be any IRQ randomness. Therefore, the 64 bytes
+passed by EFI exactly matches what is needed to advance to crng_init==1.
+Usually, DT seems to pass 64 bytes as well -- with one notable exception
+being kexec, which hands over 128 bytes of entropy to the kexec'd kernel.
+In that case, we'll advance to crng_init==1 once 64 of those bytes are
+consumed by crng_fast_load(), but won't continue onward feeding in bytes
+to progress to crng_init==2. This commit fixes the issue by feeding
+any leftover bytes into the next phase in add_hwgenerator_randomness().
 
-When a uart_port is registered, uart_configure_port() changes signal
-state but neglects to keep the cached copy in sync.  That may cause
-a subsequent register write to be incorrectly skipped.  Fix it before
-it trips somebody up.
-
-This behavior has been present ever since the serial core was introduced
-in 2002:
-https://git.kernel.org/history/history/c/33c0d1b0c3eb
-
-So far it was never an issue because the cached copy is initialized to 0
-by kzalloc() and when uart_configure_port() is executed, at most DTR has
-been set by uart_set_options() or sunsu_console_setup().  Therefore,
-a stable designation seems unnecessary.
-
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Link: https://lore.kernel.org/r/bceeaba030b028ed810272d55d5fc6f3656ddddb.1641129752.git.lukas@wunner.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[linux@dominikbrodowski.net: rewrite commit message]
+Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/serial_core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/char/random.c | 19 ++++++++++++-------
+ 1 file changed, 12 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
-index 61e3dd0222af1..9e7e624a6c9db 100644
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -2393,7 +2393,8 @@ uart_configure_port(struct uart_driver *drv, struct uart_state *state,
- 		 * We probably don't need a spinlock around this, but
- 		 */
- 		spin_lock_irqsave(&port->lock, flags);
--		port->ops->set_mctrl(port, port->mctrl & TIOCM_DTR);
-+		port->mctrl &= TIOCM_DTR;
-+		port->ops->set_mctrl(port, port->mctrl);
- 		spin_unlock_irqrestore(&port->lock, flags);
+diff --git a/drivers/char/random.c b/drivers/char/random.c
+index 7470ee24db2f9..a27ae3999ff32 100644
+--- a/drivers/char/random.c
++++ b/drivers/char/random.c
+@@ -912,12 +912,14 @@ static struct crng_state *select_crng(void)
  
- 		/*
+ /*
+  * crng_fast_load() can be called by code in the interrupt service
+- * path.  So we can't afford to dilly-dally.
++ * path.  So we can't afford to dilly-dally. Returns the number of
++ * bytes processed from cp.
+  */
+-static int crng_fast_load(const char *cp, size_t len)
++static size_t crng_fast_load(const char *cp, size_t len)
+ {
+ 	unsigned long flags;
+ 	char *p;
++	size_t ret = 0;
+ 
+ 	if (!spin_trylock_irqsave(&primary_crng.lock, flags))
+ 		return 0;
+@@ -928,7 +930,7 @@ static int crng_fast_load(const char *cp, size_t len)
+ 	p = (unsigned char *) &primary_crng.state[4];
+ 	while (len > 0 && crng_init_cnt < CRNG_INIT_CNT_THRESH) {
+ 		p[crng_init_cnt % CHACHA_KEY_SIZE] ^= *cp;
+-		cp++; crng_init_cnt++; len--;
++		cp++; crng_init_cnt++; len--; ret++;
+ 	}
+ 	spin_unlock_irqrestore(&primary_crng.lock, flags);
+ 	if (crng_init_cnt >= CRNG_INIT_CNT_THRESH) {
+@@ -936,7 +938,7 @@ static int crng_fast_load(const char *cp, size_t len)
+ 		crng_init = 1;
+ 		pr_notice("fast init done\n");
+ 	}
+-	return 1;
++	return ret;
+ }
+ 
+ /*
+@@ -1287,7 +1289,7 @@ void add_interrupt_randomness(int irq, int irq_flags)
+ 	if (unlikely(crng_init == 0)) {
+ 		if ((fast_pool->count >= 64) &&
+ 		    crng_fast_load((char *) fast_pool->pool,
+-				   sizeof(fast_pool->pool))) {
++				   sizeof(fast_pool->pool)) > 0) {
+ 			fast_pool->count = 0;
+ 			fast_pool->last = now;
+ 		}
+@@ -2295,8 +2297,11 @@ void add_hwgenerator_randomness(const char *buffer, size_t count,
+ 	struct entropy_store *poolp = &input_pool;
+ 
+ 	if (unlikely(crng_init == 0)) {
+-		crng_fast_load(buffer, count);
+-		return;
++		size_t ret = crng_fast_load(buffer, count);
++		count -= ret;
++		buffer += ret;
++		if (!count || crng_init == 0)
++			return;
+ 	}
+ 
+ 	/* Suspend writing if we're above the trickle threshold.
 -- 
 2.34.1
 
