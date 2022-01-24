@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 280C749A4D2
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:10:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B2EB49A4DB
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:10:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2371969AbiAYAKO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:10:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57718 "EHLO
+        id S2372015AbiAYAKY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:10:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2363971AbiAXXq1 (ORCPT
+        with ESMTP id S2363952AbiAXXq1 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:46:27 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0A95C05A1BA;
-        Mon, 24 Jan 2022 13:40:07 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFFCAC0BD12D;
+        Mon, 24 Jan 2022 13:40:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D52D6150F;
-        Mon, 24 Jan 2022 21:40:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DFADC340E4;
-        Mon, 24 Jan 2022 21:40:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EC166150E;
+        Mon, 24 Jan 2022 21:40:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FC27C340E7;
+        Mon, 24 Jan 2022 21:40:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060406;
-        bh=GEPTA5WbQg+7Raj5vrdh/6V20f+eelTVgqL11f2YC6k=;
+        s=korg; t=1643060433;
+        bh=Bf7idONjgD/oBEZ0+ZWnrASVJYEbrOEFixMhi+GyhwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i2MXvWyqMgkcDVmujtTsxFAm7n/OBwPo7Em9DpzIhJqnmsRaxpebtB5lPPJ5yVCMB
-         Ikzup0xjtQ1zMsM15oT/c7d7OGwaXiHxpMx0DQ0p85bIGsePEzXvKQa+xEGQxMCaFI
-         WabjAlsgXeFipsutH/vSI8HZtPMf7qA/HLxxcV9E=
+        b=HusHj/c4eu3BgWBYAJDqbUZ4jRbcyIvLbVeVUH64doxBevSKo9/+6fy6HirQDp/74
+         p1ti1UNhBdGmnjHDfRLvhsXJTYhi8/clqDA1I/e3OesQBmkpJRidsFLnWJdoWkgli5
+         Z64f08CgB/7Pc1e1qdywWVt7U7jiWbSEFBdkrvow=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Dave Marchevsky <davemarchevsky@fb.com>
-Subject: [PATCH 5.16 0936/1039] libbpf: Remove deprecation attribute from struct bpf_prog_prep_result
-Date:   Mon, 24 Jan 2022 19:45:25 +0100
-Message-Id: <20220124184156.752157099@linuxfoundation.org>
+        stable@vger.kernel.org, Quentin Monnet <quentin@isovalent.com>,
+        Andrii Nakryiko <andrii@kernel.org>
+Subject: [PATCH 5.16 0939/1039] bpftool: Fix indent in option lists in the documentation
+Date:   Mon, 24 Jan 2022 19:45:28 +0100
+Message-Id: <20220124184156.849678945@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -48,39 +47,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Quentin Monnet <quentin@isovalent.com>
 
-commit 5c5edcdebfcf3a95257b0d8ef27a60af0e0ea03a upstream.
+commit 986dec18bbf41f50edc2e0aa4ac5ef8e0f64f328 upstream.
 
-This deprecation annotation has no effect because for struct deprecation
-attribute has to be declared after struct definition. But instead of
-moving it to the end of struct definition, remove it. When deprecation
-will go in effect at libbpf v0.7, this deprecation attribute will cause
-libbpf's own source code compilation to trigger deprecation warnings,
-which is unavoidable because libbpf still has to support that API.
+Mixed indentation levels in the lists of options in bpftool's
+documentation produces some unexpected results. For the "bpftool" man
+page, it prints a warning:
 
-So keep deprecation of APIs, but don't mark structs used in API as
-deprecated.
+    $ make -C bpftool.8
+      GEN     bpftool.8
+    <stdin>:26: (ERROR/3) Unexpected indentation.
 
-Fixes: e21d585cb3db ("libbpf: Deprecate multi-instance bpf_program APIs")
+For other pages, there is no warning, but it results in a line break
+appearing in the option lists in the generated man pages.
+
+RST paragraphs should have a uniform indentation level. Let's fix it.
+
+Fixes: c07ba629df97 ("tools: bpftool: Update and synchronise option list in doc and help msg")
+Fixes: 8cc8c6357c8f ("tools: bpftool: Document and add bash completion for -L, -B options")
+Signed-off-by: Quentin Monnet <quentin@isovalent.com>
 Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Dave Marchevsky <davemarchevsky@fb.com>
-Link: https://lore.kernel.org/bpf/20211103220845.2676888-8-andrii@kernel.org
+Link: https://lore.kernel.org/bpf/20211110114632.24537-5-quentin@isovalent.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/lib/bpf/libbpf.h |    1 -
- 1 file changed, 1 deletion(-)
+ tools/bpf/bpftool/Documentation/bpftool-btf.rst    |    2 +-
+ tools/bpf/bpftool/Documentation/bpftool-cgroup.rst |    2 +-
+ tools/bpf/bpftool/Documentation/bpftool-gen.rst    |    2 +-
+ tools/bpf/bpftool/Documentation/bpftool-link.rst   |    2 +-
+ tools/bpf/bpftool/Documentation/bpftool-map.rst    |    6 +++---
+ tools/bpf/bpftool/Documentation/bpftool-prog.rst   |    8 ++++----
+ tools/bpf/bpftool/Documentation/bpftool.rst        |    6 +++---
+ 7 files changed, 14 insertions(+), 14 deletions(-)
 
---- a/tools/lib/bpf/libbpf.h
-+++ b/tools/lib/bpf/libbpf.h
-@@ -431,7 +431,6 @@ bpf_program__attach_iter(const struct bp
-  * one instance. In this case bpf_program__fd(prog) is equal to
-  * bpf_program__nth_fd(prog, 0).
-  */
--LIBBPF_DEPRECATED_SINCE(0, 7, "use bpf_program__insns() for getting bpf_program instructions")
- struct bpf_prog_prep_result {
- 	/*
- 	 * If not NULL, load new instruction array.
+--- a/tools/bpf/bpftool/Documentation/bpftool-btf.rst
++++ b/tools/bpf/bpftool/Documentation/bpftool-btf.rst
+@@ -13,7 +13,7 @@ SYNOPSIS
+ 	**bpftool** [*OPTIONS*] **btf** *COMMAND*
+ 
+ 	*OPTIONS* := { { **-j** | **--json** } [{ **-p** | **--pretty** }] | {**-d** | **--debug** } |
+-		{ **-B** | **--base-btf** } }
++	{ **-B** | **--base-btf** } }
+ 
+ 	*COMMANDS* := { **dump** | **help** }
+ 
+--- a/tools/bpf/bpftool/Documentation/bpftool-cgroup.rst
++++ b/tools/bpf/bpftool/Documentation/bpftool-cgroup.rst
+@@ -13,7 +13,7 @@ SYNOPSIS
+ 	**bpftool** [*OPTIONS*] **cgroup** *COMMAND*
+ 
+ 	*OPTIONS* := { { **-j** | **--json** } [{ **-p** | **--pretty** }] | { **-d** | **--debug** } |
+-		{ **-f** | **--bpffs** } }
++	{ **-f** | **--bpffs** } }
+ 
+ 	*COMMANDS* :=
+ 	{ **show** | **list** | **tree** | **attach** | **detach** | **help** }
+--- a/tools/bpf/bpftool/Documentation/bpftool-gen.rst
++++ b/tools/bpf/bpftool/Documentation/bpftool-gen.rst
+@@ -13,7 +13,7 @@ SYNOPSIS
+ 	**bpftool** [*OPTIONS*] **gen** *COMMAND*
+ 
+ 	*OPTIONS* := { { **-j** | **--json** } [{ **-p** | **--pretty** }] | { **-d** | **--debug** } |
+-		{ **-L** | **--use-loader** } }
++	{ **-L** | **--use-loader** } }
+ 
+ 	*COMMAND* := { **object** | **skeleton** | **help** }
+ 
+--- a/tools/bpf/bpftool/Documentation/bpftool-link.rst
++++ b/tools/bpf/bpftool/Documentation/bpftool-link.rst
+@@ -13,7 +13,7 @@ SYNOPSIS
+ 	**bpftool** [*OPTIONS*] **link** *COMMAND*
+ 
+ 	*OPTIONS* := { { **-j** | **--json** } [{ **-p** | **--pretty** }] | { **-d** | **--debug** } |
+-		{ **-f** | **--bpffs** } | { **-n** | **--nomount** } }
++	{ **-f** | **--bpffs** } | { **-n** | **--nomount** } }
+ 
+ 	*COMMANDS* := { **show** | **list** | **pin** | **help** }
+ 
+--- a/tools/bpf/bpftool/Documentation/bpftool-map.rst
++++ b/tools/bpf/bpftool/Documentation/bpftool-map.rst
+@@ -13,11 +13,11 @@ SYNOPSIS
+ 	**bpftool** [*OPTIONS*] **map** *COMMAND*
+ 
+ 	*OPTIONS* := { { **-j** | **--json** } [{ **-p** | **--pretty** }] | { **-d** | **--debug** } |
+-		{ **-f** | **--bpffs** } | { **-n** | **--nomount** } }
++	{ **-f** | **--bpffs** } | { **-n** | **--nomount** } }
+ 
+ 	*COMMANDS* :=
+-	{ **show** | **list** | **create** | **dump** | **update** | **lookup** | **getnext**
+-	| **delete** | **pin** | **help** }
++	{ **show** | **list** | **create** | **dump** | **update** | **lookup** | **getnext** |
++	**delete** | **pin** | **help** }
+ 
+ MAP COMMANDS
+ =============
+--- a/tools/bpf/bpftool/Documentation/bpftool-prog.rst
++++ b/tools/bpf/bpftool/Documentation/bpftool-prog.rst
+@@ -13,12 +13,12 @@ SYNOPSIS
+ 	**bpftool** [*OPTIONS*] **prog** *COMMAND*
+ 
+ 	*OPTIONS* := { { **-j** | **--json** } [{ **-p** | **--pretty** }] | { **-d** | **--debug** } |
+-		{ **-f** | **--bpffs** } | { **-m** | **--mapcompat** } | { **-n** | **--nomount** } |
+-		{ **-L** | **--use-loader** } }
++	{ **-f** | **--bpffs** } | { **-m** | **--mapcompat** } | { **-n** | **--nomount** } |
++	{ **-L** | **--use-loader** } }
+ 
+ 	*COMMANDS* :=
+-	{ **show** | **list** | **dump xlated** | **dump jited** | **pin** | **load**
+-	| **loadall** | **help** }
++	{ **show** | **list** | **dump xlated** | **dump jited** | **pin** | **load** |
++	**loadall** | **help** }
+ 
+ PROG COMMANDS
+ =============
+--- a/tools/bpf/bpftool/Documentation/bpftool.rst
++++ b/tools/bpf/bpftool/Documentation/bpftool.rst
+@@ -19,14 +19,14 @@ SYNOPSIS
+ 	*OBJECT* := { **map** | **program** | **cgroup** | **perf** | **net** | **feature** }
+ 
+ 	*OPTIONS* := { { **-V** | **--version** } |
+-		{ **-j** | **--json** } [{ **-p** | **--pretty** }] | { **-d** | **--debug** } }
++	{ **-j** | **--json** } [{ **-p** | **--pretty** }] | { **-d** | **--debug** } }
+ 
+ 	*MAP-COMMANDS* :=
+ 	{ **show** | **list** | **create** | **dump** | **update** | **lookup** | **getnext** |
+-		**delete** | **pin** | **event_pipe** | **help** }
++	**delete** | **pin** | **event_pipe** | **help** }
+ 
+ 	*PROG-COMMANDS* := { **show** | **list** | **dump jited** | **dump xlated** | **pin** |
+-		**load** | **attach** | **detach** | **help** }
++	**load** | **attach** | **detach** | **help** }
+ 
+ 	*CGROUP-COMMANDS* := { **show** | **list** | **attach** | **detach** | **help** }
+ 
 
 
