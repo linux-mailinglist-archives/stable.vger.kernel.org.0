@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DA7249A9FE
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:30:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52E9E49A9BE
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:27:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1323941AbiAYD3z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:29:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42572 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S3413913AbiAYAlT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 19:41:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87EFBC06F8C8;
-        Mon, 24 Jan 2022 12:12:57 -0800 (PST)
+        id S1323384AbiAYD2I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:28:08 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:57096 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1353146AbiAXVEV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:04:21 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F0F64B8119E;
-        Mon, 24 Jan 2022 20:12:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EF8BC340E5;
-        Mon, 24 Jan 2022 20:12:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3B9BBB811A9;
+        Mon, 24 Jan 2022 21:04:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 674D4C340E5;
+        Mon, 24 Jan 2022 21:04:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055174;
-        bh=JtuOwGjrs+4E0N1ONfB/JKaOLTOJtjSWdNVu1Zx8gZU=;
+        s=korg; t=1643058257;
+        bh=Px/8V69LgBn1lpcu7IMMdtgNlAppZ3FW1twrHtuTLLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JTrEt8S1RokD0kXJRKESv6nS7FYriTAkcgFYnCJbWZmoPi4tgkimcM1mxxIVCySOP
-         ZbzYo7oB9u/s1AEuDn7dzMJxxGY3YpbBlzHR1wWjUXBDqcLa2AfYZkMD8anVvQgUtO
-         R0SzFTnM6VlGRY1BVSds+UbzKFSzy5V6cDA+2774=
+        b=EqJrYtDm5q7UQmvolC+Ts37A8wRAXxKyJ/Ljy+z8zDkN2XZ/73GmAqp4p4752IIm4
+         tJHv8Ot9Zxa0cNrI+/Ldb4tytoL1IQGuaMWI2+oj5HtgrTKIOyopbJQKkvUMTkdWyU
+         fzKbuz4XS7Z0zjRxcnKXzEBh8Oz7WLLPL+AAevL8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 5.15 065/846] gpu: host1x: Add back arm_iommu_detach_device()
-Date:   Mon, 24 Jan 2022 19:33:02 +0100
-Message-Id: <20220124184103.206921316@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Stanimir Varbanov <stanimir.varbanov@linaro.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0197/1039] media: venus: core: Fix a resource leak in the error handling path of venus_probe()
+Date:   Mon, 24 Jan 2022 19:33:06 +0100
+Message-Id: <20220124184131.950143884@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,57 +47,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit d5185965c3b59073c4520bad7dd2adf725b9abba upstream.
+[ Upstream commit 8cc7a1b2aca067397a016cdb971a5e6ad9b640c7 ]
 
-Host1x DMA buffer isn't mapped properly when CONFIG_ARM_DMA_USE_IOMMU=y.
-The memory management code of Host1x driver has a longstanding overhaul
-overdue and it's not obvious where the problem is in this case. Hence
-let's add back the old workaround which we already had sometime before.
-It explicitly detaches Host1x device from the offending implicit IOMMU
-domain. This fixes a completely broken Host1x DMA in case of ARM32
-multiplatform kernel config.
+A successful 'of_platform_populate()' call should be balanced by a
+corresponding 'of_platform_depopulate()' call in the error handling path
+of the probe, as already done in the remove function.
 
-Cc: stable@vger.kernel.org
-Fixes: af1cbfb9bf0f ("gpu: host1x: Support DMA mapping of buffers")
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+A successful 'venus_firmware_init()' call should be balanced by a
+corresponding 'venus_firmware_deinit()' call in the error handling path
+of the probe, as already done in the remove function.
+
+Update the error handling path accordingly.
+
+Fixes: f9799fcce4bb ("media: venus: firmware: register separate platform_device for firmware loader")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Stanimir Varbanov <stanimir.varbanov@linaro.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/host1x/dev.c |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/media/platform/qcom/venus/core.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/host1x/dev.c
-+++ b/drivers/gpu/host1x/dev.c
-@@ -18,6 +18,10 @@
- #include <trace/events/host1x.h>
- #undef CREATE_TRACE_POINTS
+diff --git a/drivers/media/platform/qcom/venus/core.c b/drivers/media/platform/qcom/venus/core.c
+index fd32385485fa6..877eca1258037 100644
+--- a/drivers/media/platform/qcom/venus/core.c
++++ b/drivers/media/platform/qcom/venus/core.c
+@@ -350,11 +350,11 @@ static int venus_probe(struct platform_device *pdev)
  
-+#if IS_ENABLED(CONFIG_ARM_DMA_USE_IOMMU)
-+#include <asm/dma-iommu.h>
-+#endif
-+
- #include "bus.h"
- #include "channel.h"
- #include "debug.h"
-@@ -238,6 +242,17 @@ static struct iommu_domain *host1x_iommu
- 	struct iommu_domain *domain = iommu_get_domain_for_dev(host->dev);
- 	int err;
+ 	ret = venus_firmware_init(core);
+ 	if (ret)
+-		goto err_runtime_disable;
++		goto err_of_depopulate;
  
-+#if IS_ENABLED(CONFIG_ARM_DMA_USE_IOMMU)
-+	if (host->dev->archdata.mapping) {
-+		struct dma_iommu_mapping *mapping =
-+				to_dma_iommu_mapping(host->dev);
-+		arm_iommu_detach_device(host->dev);
-+		arm_iommu_release_mapping(mapping);
-+
-+		domain = iommu_get_domain_for_dev(host->dev);
-+	}
-+#endif
-+
- 	/*
- 	 * We may not always want to enable IOMMU support (for example if the
- 	 * host1x firewall is already enabled and we don't support addressing
+ 	ret = venus_boot(core);
+ 	if (ret)
+-		goto err_runtime_disable;
++		goto err_firmware_deinit;
+ 
+ 	ret = hfi_core_resume(core, true);
+ 	if (ret)
+@@ -386,6 +386,10 @@ err_dev_unregister:
+ 	v4l2_device_unregister(&core->v4l2_dev);
+ err_venus_shutdown:
+ 	venus_shutdown(core);
++err_firmware_deinit:
++	venus_firmware_deinit(core);
++err_of_depopulate:
++	of_platform_depopulate(dev);
+ err_runtime_disable:
+ 	pm_runtime_put_noidle(dev);
+ 	pm_runtime_set_suspended(dev);
+-- 
+2.34.1
+
 
 
