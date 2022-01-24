@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 820AB499C0D
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:06:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6865499508
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:08:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1576021AbiAXV7H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:59:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58524 "EHLO
+        id S1392078AbiAXUuY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:50:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1575985AbiAXVwv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:52:51 -0500
+        with ESMTP id S1358518AbiAXUmZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:42:25 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D382C0939A3;
-        Mon, 24 Jan 2022 12:34:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62F1FC04966E;
+        Mon, 24 Jan 2022 11:52:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC51761507;
-        Mon, 24 Jan 2022 20:34:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90761C340E5;
-        Mon, 24 Jan 2022 20:34:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F3D3360B43;
+        Mon, 24 Jan 2022 19:52:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC940C340E8;
+        Mon, 24 Jan 2022 19:52:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056441;
-        bh=1eGvT1lId2539jG7iFL1ASpJvwAMqNQSqRD+eUPISvY=;
+        s=korg; t=1643053975;
+        bh=stAZSoMPzPSb71CrbNvLWrWhQ3nE4fD5aHfcj2BwaxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u6ir2J6ZG7Ma5dR1WReeGq8QOESkMgk6/881d0bZX0T16zaUqCNOqmDzo5K7WeR02
-         202iXUEtxIfOQHU9hzVe7QrRu2k1pXn7djX+kK+9doUt0ud6ArNc3soJPf5eSOHnt8
-         2L8Lkr2o9asPWC+A9dn85PHhOexOlr/RFVSAaXeE=
+        b=SZgEKaoam9ojbWuVvHT7zYb6PRW7Xm9pav5Qlrp863Gss8KZ3pM89ubHxFpprqALY
+         RWv0Nn/qrqfPbrWEoVT53UosoSDiwWnwGKmkv4rh+eX38LQlg6Lw5lcrd3Op7seDFM
+         6Y8cj4ykqkUkEOajxN3CuqB4LGPPJgP6xNDI2EvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 486/846] HID: apple: Do not reset quirks when the Fn key is not found
+        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 238/563] ext4: avoid trim error on fs with small groups
 Date:   Mon, 24 Jan 2022 19:40:03 +0100
-Message-Id: <20220124184117.778553740@linuxfoundation.org>
+Message-Id: <20220124184032.672243166@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,33 +48,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit a5fe7864d8ada170f19cc47d176bf8260ffb4263 ]
+[ Upstream commit 173b6e383d2a204c9921ffc1eca3b87aa2106c33 ]
 
-When a keyboard without a function key is detected, instead of removing
-all quirks, remove only the APPLE_HAS_FN quirk.
+A user reported FITRIM ioctl failing for him on ext4 on some devices
+without apparent reason.  After some debugging we've found out that
+these devices (being LVM volumes) report rather large discard
+granularity of 42MB and the filesystem had 1k blocksize and thus group
+size of 8MB. Because ext4 FITRIM implementation puts discard
+granularity into minlen, ext4_trim_fs() declared the trim request as
+invalid. However just silently doing nothing seems to be a more
+appropriate reaction to such combination of parameters since user did
+not specify anything wrong.
 
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+CC: Lukas Czerner <lczerner@redhat.com>
+Fixes: 5c2ed62fd447 ("ext4: Adjust minlen with discard_granularity in the FITRIM ioctl")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20211112152202.26614-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-apple.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ext4/ioctl.c   | 2 --
+ fs/ext4/mballoc.c | 8 ++++++++
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-apple.c b/drivers/hid/hid-apple.c
-index 6ccfa0cb997ab..b683c0e8557d4 100644
---- a/drivers/hid/hid-apple.c
-+++ b/drivers/hid/hid-apple.c
-@@ -429,7 +429,7 @@ static int apple_input_configured(struct hid_device *hdev,
+diff --git a/fs/ext4/ioctl.c b/fs/ext4/ioctl.c
+index cb54ea6461fd8..413bf3d2f7844 100644
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -1123,8 +1123,6 @@ resizefs_out:
+ 		    sizeof(range)))
+ 			return -EFAULT;
  
- 	if ((asc->quirks & APPLE_HAS_FN) && !asc->fn_found) {
- 		hid_info(hdev, "Fn key not found (Apple Wireless Keyboard clone?), disabling Fn key handling\n");
--		asc->quirks = 0;
-+		asc->quirks &= ~APPLE_HAS_FN;
- 	}
- 
- 	return 0;
+-		range.minlen = max((unsigned int)range.minlen,
+-				   q->limits.discard_granularity);
+ 		ret = ext4_trim_fs(sb, &range);
+ 		if (ret < 0)
+ 			return ret;
+diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
+index d7cb7d719ee58..60aef7fdd61d0 100644
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -5815,6 +5815,7 @@ out:
+  */
+ int ext4_trim_fs(struct super_block *sb, struct fstrim_range *range)
+ {
++	struct request_queue *q = bdev_get_queue(sb->s_bdev);
+ 	struct ext4_group_info *grp;
+ 	ext4_group_t group, first_group, last_group;
+ 	ext4_grpblk_t cnt = 0, first_cluster, last_cluster;
+@@ -5833,6 +5834,13 @@ int ext4_trim_fs(struct super_block *sb, struct fstrim_range *range)
+ 	    start >= max_blks ||
+ 	    range->len < sb->s_blocksize)
+ 		return -EINVAL;
++	/* No point to try to trim less than discard granularity */
++	if (range->minlen < q->limits.discard_granularity) {
++		minlen = EXT4_NUM_B2C(EXT4_SB(sb),
++			q->limits.discard_granularity >> sb->s_blocksize_bits);
++		if (minlen > EXT4_CLUSTERS_PER_GROUP(sb))
++			goto out;
++	}
+ 	if (end >= max_blks)
+ 		end = max_blks - 1;
+ 	if (end <= first_data_blk)
 -- 
 2.34.1
 
