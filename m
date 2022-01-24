@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 082AF499FDA
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:24:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DC22499E49
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:08:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1842246AbiAXXBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:01:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41896 "EHLO
+        id S1588290AbiAXWbv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:31:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1579821AbiAXWnj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:43:39 -0500
+        with ESMTP id S1584587AbiAXWV3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:21:29 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E84ADC05A1B4;
-        Mon, 24 Jan 2022 11:39:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56999C0424E2;
+        Mon, 24 Jan 2022 12:51:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D592B810BD;
-        Mon, 24 Jan 2022 19:39:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AA0AC340E5;
-        Mon, 24 Jan 2022 19:39:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1E789B81061;
+        Mon, 24 Jan 2022 20:51:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D111C340E5;
+        Mon, 24 Jan 2022 20:51:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053165;
-        bh=GQv7LOP06zbfKaH6OrGhewLZ8+JM8W6ZxwkO/Q4Zfm4=;
+        s=korg; t=1643057491;
+        bh=ZFkvLrbQuEXn14yPP2X0Q5NlzUl9AI4o2OqopNOvoAY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XDwG35NSccQJbJ/soHUtOJLEu3Hl+fgWorfiMMephf2a1MUcwQ0aXBVhMVp0ZGAtz
-         0pjcOOoNLm+Fw+BZaM68D48xx/B2MqYUqxBpNdGsUwjZk+aYewzd57UarKvbc2RUp8
-         OBWDsIo13xG8dC0sh4Y4Vhzz5CPfcYeSKjaf1PZI=
+        b=OHzykWs7qiIA7c7VZ9rDOUOQyWnHdQpYBolNIfyMhESmb3lZxAlH9RYUdFhqcJNPb
+         ZnD/yvsVWOn4cchjpIY7F0BGEXqN8pxGq5L414ToutLgiu8oA15chuFmYC7b4cHuS7
+         XmXtzXO2Fq2IFWD7Lm7k6pPJecY9Q1ZknojZlnC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 297/320] net: axienet: increase default TX ring size to 128
-Date:   Mon, 24 Jan 2022 19:44:41 +0100
-Message-Id: <20220124184004.051571050@linuxfoundation.org>
+        stable@vger.kernel.org, John Keeping <john@metanate.com>,
+        Linus Walleij <linus.walleij@linaro.org>
+Subject: [PATCH 5.15 787/846] pinctrl/rockchip: fix gpio device creation
+Date:   Mon, 24 Jan 2022 19:45:04 +0100
+Message-Id: <20220124184128.105321929@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,35 +47,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: John Keeping <john@metanate.com>
 
-commit 2d19c3fd80178160dd505ccd7fed1643831227a5 upstream.
+commit bceb6732f3fd2a55d8f2e518cced1c7555e216b6 upstream.
 
-With previous changes to make the driver handle the TX ring size more
-correctly, the default TX ring size of 64 appears to significantly
-bottleneck TX performance to around 600 Mbps on a 1 Gbps link on ZynqMP.
-Increasing this to 128 seems to bring performance up to near line rate and
-shouldn't cause excess bufferbloat (this driver doesn't yet support modern
-byte-based queue management).
+GPIO nodes are not themselves busses, so passing rockchip_bank_match
+here is wrong.  Passing NULL instead uses the standard bus match table
+which is more appropriate.
 
-Fixes: 8a3b7a252dca9 ("drivers/net/ethernet/xilinx: added Xilinx AXI Ethernet driver")
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+devm_of_platform_populate() shows that this is the normal way to call
+of_platform_populate() from a device driver, so in order to match that
+more closely also add the pinctrl device as the parent for the newly
+created GPIO controllers.
+
+Specifically, using the wrong match here can break dynamic GPIO hogs as
+marking the GPIO bank as a bus means that of_platform_notify() will set
+OF_POPULATED on new child nodes and if this happens before
+of_gpio_notify() is called then the new hog will be skipped as
+OF_POPULATED is already set.
+
+Fixes: 9ce9a02039de ("pinctrl/rockchip: drop the gpio related codes")
+Signed-off-by: John Keeping <john@metanate.com>
+Link: https://lore.kernel.org/r/20211126151352.1509583-1-john@metanate.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/xilinx/xilinx_axienet_main.c |    2 +-
+ drivers/pinctrl/pinctrl-rockchip.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-@@ -41,7 +41,7 @@
- #include "xilinx_axienet.h"
+--- a/drivers/pinctrl/pinctrl-rockchip.c
++++ b/drivers/pinctrl/pinctrl-rockchip.c
+@@ -2748,7 +2748,7 @@ static int rockchip_pinctrl_probe(struct
  
- /* Descriptors defines for Tx and Rx DMA */
--#define TX_BD_NUM_DEFAULT		64
-+#define TX_BD_NUM_DEFAULT		128
- #define RX_BD_NUM_DEFAULT		1024
- #define TX_BD_NUM_MIN			(MAX_SKB_FRAGS + 1)
- #define TX_BD_NUM_MAX			4096
+ 	platform_set_drvdata(pdev, info);
+ 
+-	ret = of_platform_populate(np, rockchip_bank_match, NULL, NULL);
++	ret = of_platform_populate(np, NULL, NULL, &pdev->dev);
+ 	if (ret) {
+ 		dev_err(&pdev->dev, "failed to register gpio device\n");
+ 		return ret;
 
 
