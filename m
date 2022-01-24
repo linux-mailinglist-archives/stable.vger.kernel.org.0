@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFE8B49A3F1
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:04:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ED7549A3FE
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:08:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2369193AbiAYABN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:01:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50120 "EHLO
+        id S2369238AbiAYABR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:01:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1847043AbiAXXSV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:18:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08A4EC06F8DC;
-        Mon, 24 Jan 2022 13:26:50 -0800 (PST)
+        with ESMTP id S1847056AbiAXXSY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:18:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 291DEC06F8E3;
+        Mon, 24 Jan 2022 13:27:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C30F1B81218;
-        Mon, 24 Jan 2022 21:26:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9932C340E4;
-        Mon, 24 Jan 2022 21:26:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA542614D8;
+        Mon, 24 Jan 2022 21:26:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D0A0C340E4;
+        Mon, 24 Jan 2022 21:26:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059607;
-        bh=Ln5pXCPiLRQod5l8K2X8n7F8SxbEbRRMQFlbWA/g4/U=;
+        s=korg; t=1643059619;
+        bh=XOsj6tMeo3byH1VXmZp4CqHcytz5W+S7VP6NCTNikdo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NXHzSVZO/8C8HpyudxwZ2/Jixle9FKfEF4mBbYuA/L95TovHKS5hJFhESA7VUzj5o
-         Ot2QjOQArAQy4vIjb+lb9+OQYRe7mfDulWlfjSUt9xr4NiJy5hESdj3SR3L3zOTjxY
-         eWJe2mdg8LlaUpmBRBdX6fy1ftMHPLO8iqm3X4Vw=
+        b=aAQw4PKpaRo9L1HWXQ4bAQh8Y9gCzbaelRDt8oAwWfEeTWJmE1gZI8OrJq1/CYYSf
+         8fFy+CxyF/wFWhXrWXXdGe644EqAb/FzJc68jtB3/qZ9HriWZIMcS5sfz60aPgq84l
+         SiC4zTxpxHiovLPveo/MJan+p0HT/0lZur9L98/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xing Song <xing.song@mediatek.com>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0672/1039] mt76: do not pass the received frame with decryption error
-Date:   Mon, 24 Jan 2022 19:41:01 +0100
-Message-Id: <20220124184147.961149629@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot <syzbot+31d54c60c5b254d6f75b@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0676/1039] ath9k_htc: fix NULL pointer dereference at ath9k_htc_tx_get_packet()
+Date:   Mon, 24 Jan 2022 19:41:05 +0100
+Message-Id: <20220124184148.088458097@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -47,113 +50,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xing Song <xing.song@mediatek.com>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 
-[ Upstream commit dd28dea52ad9376d2b243a8981726646e1f60b1a ]
+[ Upstream commit 8b3046abc99eefe11438090bcc4ec3a3994b55d0 ]
 
-MAC80211 doesn't care any decryption error in 802.3 path, so received
-frame will be dropped if HW tell us that the cipher configuration is not
-matched as well as the header has been translated to 802.3. This case only
-appears when IEEE80211_FCTL_PROTECTED is 0 and cipher suit is not none in
-the corresponding HW entry.
+syzbot is reporting lockdep warning at ath9k_wmi_event_tasklet() followed
+by kernel panic at get_htc_epid_queue() from ath9k_htc_tx_get_packet() from
+ath9k_htc_txstatus() [1], for ath9k_wmi_event_tasklet(WMI_TXSTATUS_EVENTID)
+depends on spin_lock_init() from ath9k_init_priv() being already completed.
 
-The received frame is only reported to monitor interface if HW decryption
-block tell us there is ICV error or CCMP/BIP/WPI MIC error. Note in this
-case the reported frame is decrypted 802.11 frame and the payload may be
-malformed due to mismatched key.
+Since ath9k_wmi_event_tasklet() is set by ath9k_init_wmi() from
+ath9k_htc_probe_device(), it is possible that ath9k_wmi_event_tasklet() is
+called via tasklet interrupt before spin_lock_init() from ath9k_init_priv()
+ from ath9k_init_device() from ath9k_htc_probe_device() is called.
 
-Signed-off-by: Xing Song <xing.song@mediatek.com>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Let's hold ath9k_wmi_event_tasklet(WMI_TXSTATUS_EVENTID) no-op until
+ath9k_tx_init() completes.
+
+Link: https://syzkaller.appspot.com/bug?extid=31d54c60c5b254d6f75b [1]
+Reported-by: syzbot <syzbot+31d54c60c5b254d6f75b@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Tested-by: syzbot <syzbot+31d54c60c5b254d6f75b@syzkaller.appspotmail.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/77b76ac8-2bee-6444-d26c-8c30858b8daa@i-love.sakura.ne.jp
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7603/mac.c | 4 ++++
- drivers/net/wireless/mediatek/mt76/mt7615/mac.c | 9 ++++++++-
- drivers/net/wireless/mediatek/mt76/mt7915/mac.c | 9 ++++++++-
- drivers/net/wireless/mediatek/mt76/mt7921/mac.c | 9 ++++++++-
- 4 files changed, 28 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/ath9k/htc.h          | 1 +
+ drivers/net/wireless/ath/ath9k/htc_drv_txrx.c | 5 +++++
+ drivers/net/wireless/ath/ath9k/wmi.c          | 4 ++++
+ 3 files changed, 10 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7603/mac.c b/drivers/net/wireless/mediatek/mt76/mt7603/mac.c
-index fe03e31989bb1..a9ac61b9f854a 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7603/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7603/mac.c
-@@ -525,6 +525,10 @@ mt7603_mac_fill_rx(struct mt7603_dev *dev, struct sk_buff *skb)
- 	if (rxd2 & MT_RXD2_NORMAL_TKIP_MIC_ERR)
- 		status->flag |= RX_FLAG_MMIC_ERROR;
+diff --git a/drivers/net/wireless/ath/ath9k/htc.h b/drivers/net/wireless/ath/ath9k/htc.h
+index 4f71e962279af..6b45e63fae4ba 100644
+--- a/drivers/net/wireless/ath/ath9k/htc.h
++++ b/drivers/net/wireless/ath/ath9k/htc.h
+@@ -306,6 +306,7 @@ struct ath9k_htc_tx {
+ 	DECLARE_BITMAP(tx_slot, MAX_TX_BUF_NUM);
+ 	struct timer_list cleanup_timer;
+ 	spinlock_t tx_lock;
++	bool initialized;
+ };
  
-+	/* ICV error or CCMP/BIP/WPI MIC error */
-+	if (rxd2 & MT_RXD2_NORMAL_ICV_ERR)
-+		status->flag |= RX_FLAG_ONLY_MONITOR;
+ struct ath9k_htc_tx_ctl {
+diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
+index e7a21eaf3a68d..6a850a0bfa8ad 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
++++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
+@@ -813,6 +813,11 @@ int ath9k_tx_init(struct ath9k_htc_priv *priv)
+ 	skb_queue_head_init(&priv->tx.data_vi_queue);
+ 	skb_queue_head_init(&priv->tx.data_vo_queue);
+ 	skb_queue_head_init(&priv->tx.tx_failed);
 +
- 	if (FIELD_GET(MT_RXD2_NORMAL_SEC_MODE, rxd2) != 0 &&
- 	    !(rxd2 & (MT_RXD2_NORMAL_CLM | MT_RXD2_NORMAL_CM))) {
- 		status->flag |= RX_FLAG_DECRYPTED;
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-index 423f69015e3ec..c79abce543f3b 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/mac.c
-@@ -286,9 +286,16 @@ static int mt7615_mac_fill_rx(struct mt7615_dev *dev, struct sk_buff *skb)
- 	if (rxd2 & MT_RXD2_NORMAL_AMSDU_ERR)
- 		return -EINVAL;
++	/* Allow ath9k_wmi_event_tasklet(WMI_TXSTATUS_EVENTID) to operate. */
++	smp_wmb();
++	priv->tx.initialized = true;
++
+ 	return 0;
+ }
  
-+	hdr_trans = rxd1 & MT_RXD1_NORMAL_HDR_TRANS;
-+	if (hdr_trans && (rxd2 & MT_RXD2_NORMAL_CM))
-+		return -EINVAL;
+diff --git a/drivers/net/wireless/ath/ath9k/wmi.c b/drivers/net/wireless/ath/ath9k/wmi.c
+index fe29ad4b9023c..f315c54bd3ac0 100644
+--- a/drivers/net/wireless/ath/ath9k/wmi.c
++++ b/drivers/net/wireless/ath/ath9k/wmi.c
+@@ -169,6 +169,10 @@ void ath9k_wmi_event_tasklet(struct tasklet_struct *t)
+ 					     &wmi->drv_priv->fatal_work);
+ 			break;
+ 		case WMI_TXSTATUS_EVENTID:
++			/* Check if ath9k_tx_init() completed. */
++			if (!data_race(priv->tx.initialized))
++				break;
 +
-+	/* ICV error or CCMP/BIP/WPI MIC error */
-+	if (rxd2 & MT_RXD2_NORMAL_ICV_ERR)
-+		status->flag |= RX_FLAG_ONLY_MONITOR;
-+
- 	unicast = (rxd1 & MT_RXD1_NORMAL_ADDR_TYPE) == MT_RXD1_NORMAL_U2M;
- 	idx = FIELD_GET(MT_RXD2_NORMAL_WLAN_IDX, rxd2);
--	hdr_trans = rxd1 & MT_RXD1_NORMAL_HDR_TRANS;
- 	status->wcid = mt7615_rx_get_wcid(dev, idx, unicast);
- 
- 	if (status->wcid) {
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-index 809dc18e5083c..38d66411444a1 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7915/mac.c
-@@ -426,9 +426,16 @@ mt7915_mac_fill_rx(struct mt7915_dev *dev, struct sk_buff *skb)
- 	if (rxd2 & MT_RXD2_NORMAL_AMSDU_ERR)
- 		return -EINVAL;
- 
-+	hdr_trans = rxd2 & MT_RXD2_NORMAL_HDR_TRANS;
-+	if (hdr_trans && (rxd1 & MT_RXD1_NORMAL_CM))
-+		return -EINVAL;
-+
-+	/* ICV error or CCMP/BIP/WPI MIC error */
-+	if (rxd1 & MT_RXD1_NORMAL_ICV_ERR)
-+		status->flag |= RX_FLAG_ONLY_MONITOR;
-+
- 	unicast = FIELD_GET(MT_RXD3_NORMAL_ADDR_TYPE, rxd3) == MT_RXD3_NORMAL_U2M;
- 	idx = FIELD_GET(MT_RXD1_NORMAL_WLAN_IDX, rxd1);
--	hdr_trans = rxd2 & MT_RXD2_NORMAL_HDR_TRANS;
- 	status->wcid = mt7915_rx_get_wcid(dev, idx, unicast);
- 
- 	if (status->wcid) {
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-index 321d9f1d3f865..7228b34c66436 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/mac.c
-@@ -428,10 +428,17 @@ mt7921_mac_fill_rx(struct mt7921_dev *dev, struct sk_buff *skb)
- 	if (rxd2 & MT_RXD2_NORMAL_AMSDU_ERR)
- 		return -EINVAL;
- 
-+	hdr_trans = rxd2 & MT_RXD2_NORMAL_HDR_TRANS;
-+	if (hdr_trans && (rxd1 & MT_RXD1_NORMAL_CM))
-+		return -EINVAL;
-+
-+	/* ICV error or CCMP/BIP/WPI MIC error */
-+	if (rxd1 & MT_RXD1_NORMAL_ICV_ERR)
-+		status->flag |= RX_FLAG_ONLY_MONITOR;
-+
- 	chfreq = FIELD_GET(MT_RXD3_NORMAL_CH_FREQ, rxd3);
- 	unicast = FIELD_GET(MT_RXD3_NORMAL_ADDR_TYPE, rxd3) == MT_RXD3_NORMAL_U2M;
- 	idx = FIELD_GET(MT_RXD1_NORMAL_WLAN_IDX, rxd1);
--	hdr_trans = rxd2 & MT_RXD2_NORMAL_HDR_TRANS;
- 	status->wcid = mt7921_rx_get_wcid(dev, idx, unicast);
- 
- 	if (status->wcid) {
+ 			spin_lock_bh(&priv->tx.tx_lock);
+ 			if (priv->tx.flags & ATH9K_HTC_OP_TX_DRAIN) {
+ 				spin_unlock_bh(&priv->tx.tx_lock);
 -- 
 2.34.1
 
