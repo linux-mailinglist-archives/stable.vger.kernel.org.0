@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EE18499120
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:09:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A15F6498BEC
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:17:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359390AbiAXUJV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:09:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60758 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359502AbiAXUEB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:04:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB183C02B745;
-        Mon, 24 Jan 2022 11:30:26 -0800 (PST)
+        id S1346139AbiAXTRg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:17:36 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:40558 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1343524AbiAXTPf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:15:35 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 78651612A5;
-        Mon, 24 Jan 2022 19:30:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 270B9C340E5;
-        Mon, 24 Jan 2022 19:30:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0EB5AB8121F;
+        Mon, 24 Jan 2022 19:15:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3045CC340E5;
+        Mon, 24 Jan 2022 19:15:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052625;
-        bh=Otfz0U8maTLEn+Irs0y44lE82ilMaXIVy8OqHKRQp7I=;
+        s=korg; t=1643051732;
+        bh=pUEzmvsB/pzJ/e1MCSvYHZXzc52nrVDsD0HUPDnJMUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x8j55t85zem42R5ZQP7MP6I84aIQmNy7oLgvmPMN6MRVLjLiBri5feAnPtB2IvkAe
-         LK7D9VUjaiygkN8TG0SJFbL23hI0XyDW16WsL/SlluSD8K88sR+79QzbrN9U3O1p+Y
-         SjmS9z9Qodpc84YgBKZBRblvfA2lfzD3J1u4Yye8=
+        b=Zmb3wxAgIIl9gCA5oU5qdvjIlPOu3XbwZSIY3bPzg5FFf20nRAUCg7CAnXopDvj1U
+         kCouvpIwz3qT9vkNzG2JzdfoOE/+xqzney9oVD7oocFQ3ONKOWtyq90KLK4GiiroEA
+         d6Mc1keKlZLdYadLDQpab9vkAJ3jyL1pWpEPfYU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+003c0a286b9af5412510@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 121/320] net: mcs7830: handle usb read errors properly
-Date:   Mon, 24 Jan 2022 19:41:45 +0100
-Message-Id: <20220124183957.797813600@linuxfoundation.org>
+        stable@vger.kernel.org, Tasos Sahanidis <tasos@tasossah.com>,
+        Denis Efremov <efremov@linux.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 068/239] floppy: Fix hang in watchdog when disk is ejected
+Date:   Mon, 24 Jan 2022 19:41:46 +0100
+Message-Id: <20220124183945.297103403@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,54 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Tasos Sahanidis <tasos@tasossah.com>
 
-[ Upstream commit d668769eb9c52b150753f1653f7f5a0aeb8239d2 ]
+[ Upstream commit fb48febce7e30baed94dd791e19521abd2c3fd83 ]
 
-Syzbot reported uninit value in mcs7830_bind(). The problem was in
-missing validation check for bytes read via usbnet_read_cmd().
+When the watchdog detects a disk change, it calls cancel_activity(),
+which in turn tries to cancel the fd_timer delayed work.
 
-usbnet_read_cmd() internally calls usb_control_msg(), that returns
-number of bytes read. Code should validate that requested number of bytes
-was actually read.
+In the above scenario, fd_timer_fn is set to fd_watchdog(), meaning
+it is trying to cancel its own work.
+This results in a hang as cancel_delayed_work_sync() is waiting for the
+watchdog (itself) to return, which never happens.
 
-So, this patch adds missing size validation check inside
-mcs7830_get_reg() to prevent uninit value bugs
+This can be reproduced relatively consistently by attempting to read a
+broken floppy, and ejecting it while IO is being attempted and retried.
 
-Reported-and-tested-by: syzbot+003c0a286b9af5412510@syzkaller.appspotmail.com
-Fixes: 2a36d7083438 ("USB: driver for mcs7830 (aka DeLOCK) USB ethernet adapter")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20220106225716.7425-1-paskripkin@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+To resolve this, this patch calls cancel_delayed_work() instead, which
+cancels the work without waiting for the watchdog to return and finish.
+
+Before this regression was introduced, the code in this section used
+del_timer(), and not del_timer_sync() to delete the watchdog timer.
+
+Link: https://lore.kernel.org/r/399e486c-6540-db27-76aa-7a271b061f76@tasossah.com
+Fixes: 070ad7e793dc ("floppy: convert to delayed work and single-thread wq")
+Signed-off-by: Tasos Sahanidis <tasos@tasossah.com>
+Signed-off-by: Denis Efremov <efremov@linux.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/mcs7830.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/block/floppy.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/mcs7830.c b/drivers/net/usb/mcs7830.c
-index 09bfa6a4dfbc1..7e40e2e2f3723 100644
---- a/drivers/net/usb/mcs7830.c
-+++ b/drivers/net/usb/mcs7830.c
-@@ -108,8 +108,16 @@ static const char driver_name[] = "MOSCHIP usb-ethernet driver";
- 
- static int mcs7830_get_reg(struct usbnet *dev, u16 index, u16 size, void *data)
+diff --git a/drivers/block/floppy.c b/drivers/block/floppy.c
+index 8f444b375761c..49ac9596c862e 100644
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -1002,7 +1002,7 @@ static DECLARE_DELAYED_WORK(fd_timer, fd_timer_workfn);
+ static void cancel_activity(void)
  {
--	return usbnet_read_cmd(dev, MCS7830_RD_BREQ, MCS7830_RD_BMREQ,
--				0x0000, index, data, size);
-+	int ret;
-+
-+	ret = usbnet_read_cmd(dev, MCS7830_RD_BREQ, MCS7830_RD_BMREQ,
-+			      0x0000, index, data, size);
-+	if (ret < 0)
-+		return ret;
-+	else if (ret < size)
-+		return -ENODATA;
-+
-+	return ret;
+ 	do_floppy = NULL;
+-	cancel_delayed_work_sync(&fd_timer);
++	cancel_delayed_work(&fd_timer);
+ 	cancel_work_sync(&floppy_work);
  }
  
- static int mcs7830_set_reg(struct usbnet *dev, u16 index, u16 size, const void *data)
 -- 
 2.34.1
 
