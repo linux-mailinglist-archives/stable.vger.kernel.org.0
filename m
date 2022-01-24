@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 768BA498F53
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:52:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D287499034
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347155AbiAXTwD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:52:03 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:54262 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345185AbiAXT0g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:26:36 -0500
+        id S1352149AbiAXT7C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:59:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58152 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1356682AbiAXTxF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:53:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1824C0613A6;
+        Mon, 24 Jan 2022 11:26:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD54A614DC;
-        Mon, 24 Jan 2022 19:26:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C39EDC340EE;
-        Mon, 24 Jan 2022 19:26:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7D6CCB81240;
+        Mon, 24 Jan 2022 19:26:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6E1DC339CC;
+        Mon, 24 Jan 2022 19:26:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052395;
-        bh=bfB2/RcW2K+xexjn5NVIMB7nOFtsU1aTuXcNAlD80bY=;
+        s=korg; t=1643052398;
+        bh=lUHBLmJPWPHY9xfX0f7oW/LhUvOKBWyNMSXZN69tKvo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MqzU+wtmBNolgyk/XqOY5A1m9sJYf2czZjn3E+pLtUWGZ132sT5b9hC+4JLBXLx1e
-         uIRE+pEheD0DhfCx2tlV0VeBM02AnKzbScyQPtqU2wwEp2XDCWaPU8yJ0uQz00ABEb
-         bdD0HCH1kgy46lNgUJ9aikcZ5VloWGUTf7ZcsJFI=
+        b=J1esuzkOf5o2e8ciRTwNfR4YdyyQ6fV3vkARvZxCqG0npTBw/jUuMLUnCF9fLYfuI
+         Gx8XXGsjtdYWpRMeZuFdOhkF4W/dspi4seoyCxlkw9Mj9B1CDF4bX8orH4BizaPRLw
+         YadGTTkNl23zjDvDyqbolR2bLgKRK0NsNcwHoYN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        syzkaller <syzkaller@googlegroups.com>,
+        stable@vger.kernel.org, Jammy Huang <jammy_huang@aspeedtech.com>,
+        Paul Menzel <pmenzel@molgen.mpg.de>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 044/320] media: em28xx: fix memory leak in em28xx_init_dev
-Date:   Mon, 24 Jan 2022 19:40:28 +0100
-Message-Id: <20220124183955.247242999@linuxfoundation.org>
+Subject: [PATCH 5.4 045/320] media: aspeed: Update signal status immediately to ensure sane hw state
+Date:   Mon, 24 Jan 2022 19:40:29 +0100
+Message-Id: <20220124183955.277750504@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
 References: <20220124183953.750177707@linuxfoundation.org>
@@ -48,79 +50,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Jammy Huang <jammy_huang@aspeedtech.com>
 
-[ Upstream commit 22be5a10d0b24eec9e45decd15d7e6112b25f080 ]
+[ Upstream commit af6d1bde395cac174ee71adcd3fa43f6435c7206 ]
 
-In the em28xx_init_rev, if em28xx_audio_setup fails, this function fails
-to deallocate the media_dev allocated in the em28xx_media_device_init.
+If res-chg, VE_INTERRUPT_MODE_DETECT_WD irq will be raised. But
+v4l2_input_status won't be updated to no-signal immediately until
+aspeed_video_get_resolution() in aspeed_video_resolution_work().
 
-Fix this by adding em28xx_unregister_media_device to free media_dev.
+During the period of time, aspeed_video_start_frame() could be called
+because it doesn't know signal becomes unstable now. If it goes with
+aspeed_video_init_regs() of aspeed_video_irq_res_change()
+simultaneously, it will mess up hw state.
 
-BTW, this patch is tested in my local syzkaller instance, and it can
-prevent the memory leak from occurring again.
+To fix this problem, v4l2_input_status is updated to no-signal
+immediately for VE_INTERRUPT_MODE_DETECT_WD irq.
 
-CC: Pavel Skripkin <paskripkin@gmail.com>
-Fixes: 37ecc7b1278f ("[media] em28xx: add media controller support")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Reported-by: syzkaller <syzkaller@googlegroups.com>
+Fixes: d2b4387f3bdf ("media: platform: Add Aspeed Video Engine driver")
+Signed-off-by: Jammy Huang <jammy_huang@aspeedtech.com>
+Acked-by: Paul Menzel <pmenzel@molgen.mpg.de>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/em28xx/em28xx-cards.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/media/platform/aspeed-video.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/usb/em28xx/em28xx-cards.c b/drivers/media/usb/em28xx/em28xx-cards.c
-index 3e96b4b711d75..bfca9d0a1fe15 100644
---- a/drivers/media/usb/em28xx/em28xx-cards.c
-+++ b/drivers/media/usb/em28xx/em28xx-cards.c
-@@ -3515,8 +3515,10 @@ static int em28xx_init_dev(struct em28xx *dev, struct usb_device *udev,
+diff --git a/drivers/media/platform/aspeed-video.c b/drivers/media/platform/aspeed-video.c
+index be1238f22b8ae..1e0867016bf37 100644
+--- a/drivers/media/platform/aspeed-video.c
++++ b/drivers/media/platform/aspeed-video.c
+@@ -533,6 +533,8 @@ static void aspeed_video_irq_res_change(struct aspeed_video *video, ulong delay)
+ 	set_bit(VIDEO_RES_CHANGE, &video->flags);
+ 	clear_bit(VIDEO_FRAME_INPRG, &video->flags);
  
- 	if (dev->is_audio_only) {
- 		retval = em28xx_audio_setup(dev);
--		if (retval)
--			return -ENODEV;
-+		if (retval) {
-+			retval = -ENODEV;
-+			goto err_deinit_media;
-+		}
- 		em28xx_init_extension(dev);
- 
- 		return 0;
-@@ -3535,7 +3537,7 @@ static int em28xx_init_dev(struct em28xx *dev, struct usb_device *udev,
- 		dev_err(&dev->intf->dev,
- 			"%s: em28xx_i2c_register bus 0 - error [%d]!\n",
- 		       __func__, retval);
--		return retval;
-+		goto err_deinit_media;
- 	}
- 
- 	/* register i2c bus 1 */
-@@ -3551,9 +3553,7 @@ static int em28xx_init_dev(struct em28xx *dev, struct usb_device *udev,
- 				"%s: em28xx_i2c_register bus 1 - error [%d]!\n",
- 				__func__, retval);
- 
--			em28xx_i2c_unregister(dev, 0);
--
--			return retval;
-+			goto err_unreg_i2c;
- 		}
- 	}
- 
-@@ -3561,6 +3561,12 @@ static int em28xx_init_dev(struct em28xx *dev, struct usb_device *udev,
- 	em28xx_card_setup(dev);
- 
- 	return 0;
++	video->v4l2_input_status = V4L2_IN_ST_NO_SIGNAL;
 +
-+err_unreg_i2c:
-+	em28xx_i2c_unregister(dev, 0);
-+err_deinit_media:
-+	em28xx_unregister_media_device(dev);
-+	return retval;
- }
+ 	aspeed_video_off(video);
+ 	aspeed_video_bufs_done(video, VB2_BUF_STATE_ERROR);
  
- static int em28xx_duplicate_dev(struct em28xx *dev)
+@@ -1315,7 +1317,6 @@ static void aspeed_video_resolution_work(struct work_struct *work)
+ 	struct delayed_work *dwork = to_delayed_work(work);
+ 	struct aspeed_video *video = container_of(dwork, struct aspeed_video,
+ 						  res_work);
+-	u32 input_status = video->v4l2_input_status;
+ 
+ 	aspeed_video_on(video);
+ 
+@@ -1328,8 +1329,7 @@ static void aspeed_video_resolution_work(struct work_struct *work)
+ 	aspeed_video_get_resolution(video);
+ 
+ 	if (video->detected_timings.width != video->active_timings.width ||
+-	    video->detected_timings.height != video->active_timings.height ||
+-	    input_status != video->v4l2_input_status) {
++	    video->detected_timings.height != video->active_timings.height) {
+ 		static const struct v4l2_event ev = {
+ 			.type = V4L2_EVENT_SOURCE_CHANGE,
+ 			.u.src_change.changes = V4L2_EVENT_SRC_CH_RESOLUTION,
 -- 
 2.34.1
 
