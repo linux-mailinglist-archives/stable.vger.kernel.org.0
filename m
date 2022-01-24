@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4D6E498F35
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:51:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53E2C498B82
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:14:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240621AbiAXTvV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:51:21 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58832 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348618AbiAXThn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:37:43 -0500
+        id S1346544AbiAXTOH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:14:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47444 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347729AbiAXTLG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:11:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03CB1C08E859;
+        Mon, 24 Jan 2022 11:02:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 229FBB81142;
-        Mon, 24 Jan 2022 19:37:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48681C340E5;
-        Mon, 24 Jan 2022 19:37:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9753660BA1;
+        Mon, 24 Jan 2022 19:02:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EC85C340E5;
+        Mon, 24 Jan 2022 19:02:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053058;
-        bh=4ZpRgW4Bcsrip4PUdaaioMGM1mw8+zX2JCcZ9hwNATU=;
+        s=korg; t=1643050952;
+        bh=lLizqx2R7dEZHunY5+u8UHZgY3PhUH6NOT0/2mmLldk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O/3oiWqqZsasGCurFi6nMFcEcsgoR1onGCPjIGl2R0P41bkVwakii9O51CYHl8Jam
-         keJm8fH0Ail9xYVipzS64SN6LR7iZ9lFKWRsw5ogXImFwkLD+tihii3HKFOjIpESC8
-         z9tQgZ81fCVqHOL5AV8Dq2N5SctRKJsIUKtjCwFs=
+        b=2GPPgn8T+zqhbrrJdteiZRalR3kG6OFIyyOBEcpe5N3BTN6bjIHxi/ce+A+VykPm8
+         VFunTvtr/g0UqRQuwrN1tXJkbMpIYQhjjq8t7L0Gbtg3Tc1WAvisId1xO2ZJ8Zz4ip
+         y1S6vJXV57Pkema3aM4n0F2oPqmXrw4NVUK0kNlM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.4 262/320] PCI: pci-bridge-emul: Correctly set PCIe capabilities
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.9 156/157] KVM: Use kvm_pfn_t for local PFN variable in hva_to_pfn_remapped()
 Date:   Mon, 24 Jan 2022 19:44:06 +0100
-Message-Id: <20220124184002.900020903@linuxfoundation.org>
+Message-Id: <20220124183937.704306868@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,86 +48,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 1f1050c5e1fefb34ac90a506b43e9da803b5f8f7 upstream.
+commit a9545779ee9e9e103648f6f2552e73cfe808d0f4 upstream.
 
-Older mvebu hardware provides PCIe Capability structure only in version 1.
-New mvebu and aardvark hardware provides it in version 2. So do not force
-version to 2 in pci_bridge_emul_init() and rather allow drivers to set
-correct version. Drivers need to set version in pcie_conf.cap field without
-overwriting PCI_CAP_LIST_ID register. Both drivers (mvebu and aardvark) do
-not provide slot support yet, so do not set PCI_EXP_FLAGS_SLOT flag.
+Use kvm_pfn_t, a.k.a. u64, for the local 'pfn' variable when retrieving
+a so called "remapped" hva/pfn pair.  In theory, the hva could resolve to
+a pfn in high memory on a 32-bit kernel.
 
-Link: https://lore.kernel.org/r/20211124155944.1290-6-pali@kernel.org
-Fixes: 23a5fba4d941 ("PCI: Introduce PCI bridge emulated config space common logic")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+This bug was inadvertantly exposed by commit bd2fae8da794 ("KVM: do not
+assume PTE is writable after follow_pfn"), which added an error PFN value
+to the mix, causing gcc to comlain about overflowing the unsigned long.
+
+  arch/x86/kvm/../../../virt/kvm/kvm_main.c: In function ‘hva_to_pfn_remapped’:
+  include/linux/kvm_host.h:89:30: error: conversion from ‘long long unsigned int’
+                                  to ‘long unsigned int’ changes value from
+                                  ‘9218868437227405314’ to ‘2’ [-Werror=overflow]
+   89 | #define KVM_PFN_ERR_RO_FAULT (KVM_PFN_ERR_MASK + 2)
+      |                              ^
+virt/kvm/kvm_main.c:1935:9: note: in expansion of macro ‘KVM_PFN_ERR_RO_FAULT’
+
 Cc: stable@vger.kernel.org
+Fixes: add6a0cd1c5b ("KVM: MMU: try to fix up page faults before giving up")
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210208201940.1258328-1-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-aardvark.c |    4 +++-
- drivers/pci/controller/pci-mvebu.c    |    8 ++++++++
- drivers/pci/pci-bridge-emul.c         |    5 +----
- 3 files changed, 12 insertions(+), 5 deletions(-)
+ virt/kvm/kvm_main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/pci/controller/pci-aardvark.c
-+++ b/drivers/pci/controller/pci-aardvark.c
-@@ -863,7 +863,6 @@ advk_pci_bridge_emul_pcie_conf_read(stru
- 		return PCI_BRIDGE_EMUL_HANDLED;
- 	}
- 
--	case PCI_CAP_LIST_ID:
- 	case PCI_EXP_DEVCAP:
- 	case PCI_EXP_DEVCTL:
- 		*value = advk_readl(pcie, PCIE_CORE_PCIEXP_CAP + reg);
-@@ -944,6 +943,9 @@ static int advk_sw_pci_bridge_init(struc
- 	/* Support interrupt A for MSI feature */
- 	bridge->conf.intpin = PCIE_CORE_INT_A_ASSERT_ENABLE;
- 
-+	/* Aardvark HW provides PCIe Capability structure in version 2 */
-+	bridge->pcie_conf.cap = cpu_to_le16(2);
-+
- 	/* Indicates supports for Completion Retry Status */
- 	bridge->pcie_conf.rootcap = cpu_to_le16(PCI_EXP_RTCAP_CRSVIS);
- 
---- a/drivers/pci/controller/pci-mvebu.c
-+++ b/drivers/pci/controller/pci-mvebu.c
-@@ -576,6 +576,8 @@ struct pci_bridge_emul_ops mvebu_pci_bri
- static void mvebu_pci_bridge_emul_init(struct mvebu_pcie_port *port)
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1518,7 +1518,7 @@ static int hva_to_pfn_remapped(struct vm
+ 			       bool write_fault, bool *writable,
+ 			       kvm_pfn_t *p_pfn)
  {
- 	struct pci_bridge_emul *bridge = &port->bridge;
-+	u32 pcie_cap = mvebu_readl(port, PCIE_CAP_PCIEXP);
-+	u8 pcie_cap_ver = ((pcie_cap >> 16) & PCI_EXP_FLAGS_VERS);
- 
- 	bridge->conf.vendor = PCI_VENDOR_ID_MARVELL;
- 	bridge->conf.device = mvebu_readl(port, PCIE_DEV_ID_OFF) >> 16;
-@@ -588,6 +590,12 @@ static void mvebu_pci_bridge_emul_init(s
- 		bridge->conf.iolimit = PCI_IO_RANGE_TYPE_32;
- 	}
- 
-+	/*
-+	 * Older mvebu hardware provides PCIe Capability structure only in
-+	 * version 1. New hardware provides it in version 2.
-+	 */
-+	bridge->pcie_conf.cap = cpu_to_le16(pcie_cap_ver);
-+
- 	bridge->has_pcie = true;
- 	bridge->data = port;
- 	bridge->ops = &mvebu_pci_bridge_emul_ops;
---- a/drivers/pci/pci-bridge-emul.c
-+++ b/drivers/pci/pci-bridge-emul.c
-@@ -288,10 +288,7 @@ int pci_bridge_emul_init(struct pci_brid
- 	if (bridge->has_pcie) {
- 		bridge->conf.capabilities_pointer = PCI_CAP_PCIE_START;
- 		bridge->pcie_conf.cap_id = PCI_CAP_ID_EXP;
--		/* Set PCIe v2, root port, slot support */
--		bridge->pcie_conf.cap =
--			cpu_to_le16(PCI_EXP_TYPE_ROOT_PORT << 4 | 2 |
--				    PCI_EXP_FLAGS_SLOT);
-+		bridge->pcie_conf.cap |= cpu_to_le16(PCI_EXP_TYPE_ROOT_PORT << 4);
- 		bridge->pcie_cap_regs_behavior =
- 			kmemdup(pcie_cap_regs_behavior,
- 				sizeof(pcie_cap_regs_behavior),
+-	unsigned long pfn;
++	kvm_pfn_t pfn;
+ 	pte_t *ptep;
+ 	spinlock_t *ptl;
+ 	int r;
 
 
