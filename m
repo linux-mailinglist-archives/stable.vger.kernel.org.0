@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F09A499B00
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:59:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27C324998BD
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:38:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348640AbiAXVsn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:48:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55810 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1457498AbiAXVlo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:41:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96AB2C07E327;
-        Mon, 24 Jan 2022 12:28:41 -0800 (PST)
+        id S1352412AbiAXV3g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:29:36 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:37814 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377371AbiAXVSj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:18:39 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3B0CEB80FA1;
-        Mon, 24 Jan 2022 20:28:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62714C340E5;
-        Mon, 24 Jan 2022 20:28:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 32C92B812A7;
+        Mon, 24 Jan 2022 21:18:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57A72C340E5;
+        Mon, 24 Jan 2022 21:18:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056120;
-        bh=aSGRryT8CX9zcMXnbNFnHw3ZKZPdNaaFhHni5Gc/+NI=;
+        s=korg; t=1643059115;
+        bh=zW8E6nDHYA+IOGgYE859eoZ7bTAfChWLdJJ/+NaK2gA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PyjHjhgJOV3e2Y1Sw/714Ua4/7RIkFSZRm19XcLBLb9+6+qsxkgS8acQiW08yLyRP
-         wLe60VMdHJQKGCNu5ndiBQSEwEX+NipTU9KaF0WSCKujuBltr9+NUL44KhbVMjPLwg
-         nuH4+rpW/YzhlkY9wS6vAZyE5JlblLp9DHQYfSG8=
+        b=sIunj2+sdZxA66iYdpBgZ3Tz5WmqwY5TRk0Ka5d38w34UvrVKSHkOm6EQvf2T21HR
+         v3FzIEEhYsDdi9tgmHrlPhZf78gTnFcQ95HdGEgrjkBkBDEWa6vyNCn8/Pdeh7W4T0
+         7GQvHAii1+jziBMKTRhsnmjxI/KqwHKsBI+ue3o8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Selvin Xavier <selvin.xavier@broadcom.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 378/846] RDMA/bnxt_re: Scan the whole bitmap when checking if "disabling RCFW with pending cmd-bit"
-Date:   Mon, 24 Jan 2022 19:38:15 +0100
-Message-Id: <20220124184113.967830355@linuxfoundation.org>
+Subject: [PATCH 5.16 0508/1039] powerpc/64s: Use EMIT_WARN_ENTRY for SRR debug warnings
+Date:   Mon, 24 Jan 2022 19:38:17 +0100
+Message-Id: <20220124184142.359193641@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,67 +44,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit a917dfb66c0a1fa1caacf3d71edcafcab48e6ff0 ]
+[ Upstream commit fd1eaaaaa6864b5fb8f99880fcefb49760b8fe4e ]
 
-The 'cmdq->cmdq_bitmap' bitmap is 'rcfw->cmdq_depth' bits long.  The size
-stored in 'cmdq->bmap_size' is the size of the bitmap in bytes.
+When CONFIG_PPC_RFI_SRR_DEBUG=y we check the SRR values before returning
+from interrupts. This is done in asm using EMIT_BUG_ENTRY, and passing
+BUGFLAG_WARNING.
 
-Remove this erroneous 'bmap_size' and use 'rcfw->cmdq_depth' directly in
-'bnxt_qplib_disable_rcfw_channel()'. Otherwise some error messages may be
-missing.
+However that fails to create an exception table entry for the warning,
+and so do_program_check() fails the exception table search and proceeds
+to call _exception(), resulting in an oops like:
 
-Other uses of 'cmdq_bitmap' already take into account 'rcfw->cmdq_depth'
-directly.
+  Oops: Exception in kernel mode, sig: 5 [#1]
+  LE PAGE_SIZE=64K MMU=Radix SMP NR_CPUS=2048 NUMA pSeries
+  Modules linked in:
+  CPU: 2 PID: 1204 Comm: sigreturn_unali Tainted: P                  5.16.0-rc2-00194-g91ca3d4f77c5 #12
+  NIP:  c00000000000c5b0 LR: 0000000000000000 CTR: 0000000000000000
+  ...
+  NIP [c00000000000c5b0] system_call_common+0x150/0x268
+  LR [0000000000000000] 0x0
+  Call Trace:
+  [c00000000db73e10] [c00000000000c558] system_call_common+0xf8/0x268 (unreliable)
+  ...
+  Instruction dump:
+  7cc803a6 888d0931 2c240000 4082001c 38800000 988d0931 e8810170 e8a10178
+  7c9a03a6 7cbb03a6 7d7a02a6 e9810170 <7f0b6088> 7d7b02a6 e9810178 7f0b6088
 
-Fixes: 1ac5a4047975 ("RDMA/bnxt_re: Add bnxt_re RoCE driver")
-Link: https://lore.kernel.org/r/47ed717c3070a1d0f53e7b4c768a4fd11caf365d.1636707421.git.christophe.jaillet@wanadoo.fr
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Acked-by: Selvin Xavier <selvin.xavier@broadcom.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+We should instead use EMIT_WARN_ENTRY, which creates an exception table
+entry for the warning, allowing the warning to be correctly recognised,
+and the code to resume after printing the warning.
+
+Note however that because this warning is buried deep in the interrupt
+return path, we are not able to recover from it (due to MSR_RI being
+clear), so we still end up in die() with an unrecoverable exception.
+
+Fixes: 59dc5bfca0cb ("powerpc/64s: avoid reloading (H)SRR registers if they are still valid")
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211221135101.2085547-2-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/bnxt_re/qplib_rcfw.c | 6 ++----
- drivers/infiniband/hw/bnxt_re/qplib_rcfw.h | 1 -
- 2 files changed, 2 insertions(+), 5 deletions(-)
+ arch/powerpc/kernel/interrupt_64.S | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/hw/bnxt_re/qplib_rcfw.c b/drivers/infiniband/hw/bnxt_re/qplib_rcfw.c
-index 5d384def5e5fe..d2d39126f1852 100644
---- a/drivers/infiniband/hw/bnxt_re/qplib_rcfw.c
-+++ b/drivers/infiniband/hw/bnxt_re/qplib_rcfw.c
-@@ -618,8 +618,6 @@ int bnxt_qplib_alloc_rcfw_channel(struct bnxt_qplib_res *res,
- 	if (!cmdq->cmdq_bitmap)
- 		goto fail;
- 
--	cmdq->bmap_size = bmap_size;
--
- 	/* Allocate one extra to hold the QP1 entries */
- 	rcfw->qp_tbl_size = qp_tbl_sz + 1;
- 	rcfw->qp_tbl = kcalloc(rcfw->qp_tbl_size, sizeof(struct bnxt_qplib_qp_node),
-@@ -667,8 +665,8 @@ void bnxt_qplib_disable_rcfw_channel(struct bnxt_qplib_rcfw *rcfw)
- 	iounmap(cmdq->cmdq_mbox.reg.bar_reg);
- 	iounmap(creq->creq_db.reg.bar_reg);
- 
--	indx = find_first_bit(cmdq->cmdq_bitmap, cmdq->bmap_size);
--	if (indx != cmdq->bmap_size)
-+	indx = find_first_bit(cmdq->cmdq_bitmap, rcfw->cmdq_depth);
-+	if (indx != rcfw->cmdq_depth)
- 		dev_err(&rcfw->pdev->dev,
- 			"disabling RCFW with pending cmd-bit %lx\n", indx);
- 
-diff --git a/drivers/infiniband/hw/bnxt_re/qplib_rcfw.h b/drivers/infiniband/hw/bnxt_re/qplib_rcfw.h
-index 9474c00465821..0c6d0b70ce890 100644
---- a/drivers/infiniband/hw/bnxt_re/qplib_rcfw.h
-+++ b/drivers/infiniband/hw/bnxt_re/qplib_rcfw.h
-@@ -152,7 +152,6 @@ struct bnxt_qplib_cmdq_ctx {
- 	wait_queue_head_t		waitq;
- 	unsigned long			flags;
- 	unsigned long			*cmdq_bitmap;
--	u32				bmap_size;
- 	u32				seq_num;
- };
- 
+diff --git a/arch/powerpc/kernel/interrupt_64.S b/arch/powerpc/kernel/interrupt_64.S
+index 894588b2381e5..4b1ff94e67eb4 100644
+--- a/arch/powerpc/kernel/interrupt_64.S
++++ b/arch/powerpc/kernel/interrupt_64.S
+@@ -32,21 +32,21 @@ COMPAT_SYS_CALL_TABLE:
+ 	ld	r12,_NIP(r1)
+ 	clrrdi  r12,r12,2
+ 100:	tdne	r11,r12
+-	EMIT_BUG_ENTRY 100b,__FILE__,__LINE__,(BUGFLAG_WARNING | BUGFLAG_ONCE)
++	EMIT_WARN_ENTRY 100b,__FILE__,__LINE__,(BUGFLAG_WARNING | BUGFLAG_ONCE)
+ 	mfspr	r11,SPRN_SRR1
+ 	ld	r12,_MSR(r1)
+ 100:	tdne	r11,r12
+-	EMIT_BUG_ENTRY 100b,__FILE__,__LINE__,(BUGFLAG_WARNING | BUGFLAG_ONCE)
++	EMIT_WARN_ENTRY 100b,__FILE__,__LINE__,(BUGFLAG_WARNING | BUGFLAG_ONCE)
+ 	.else
+ 	mfspr	r11,SPRN_HSRR0
+ 	ld	r12,_NIP(r1)
+ 	clrrdi  r12,r12,2
+ 100:	tdne	r11,r12
+-	EMIT_BUG_ENTRY 100b,__FILE__,__LINE__,(BUGFLAG_WARNING | BUGFLAG_ONCE)
++	EMIT_WARN_ENTRY 100b,__FILE__,__LINE__,(BUGFLAG_WARNING | BUGFLAG_ONCE)
+ 	mfspr	r11,SPRN_HSRR1
+ 	ld	r12,_MSR(r1)
+ 100:	tdne	r11,r12
+-	EMIT_BUG_ENTRY 100b,__FILE__,__LINE__,(BUGFLAG_WARNING | BUGFLAG_ONCE)
++	EMIT_WARN_ENTRY 100b,__FILE__,__LINE__,(BUGFLAG_WARNING | BUGFLAG_ONCE)
+ 	.endif
+ #endif
+ .endm
 -- 
 2.34.1
 
