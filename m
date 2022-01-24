@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECF8349A993
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:26:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1463149A964
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:23:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381714AbiAYDX6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:23:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40272 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387510AbiAXUgx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:36:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04B17C02B8CC;
-        Mon, 24 Jan 2022 11:49:48 -0800 (PST)
+        id S1322550AbiAYDWC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:22:02 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:54068 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1384352AbiAXU3e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:29:34 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9648660989;
-        Mon, 24 Jan 2022 19:49:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F529C340E5;
-        Mon, 24 Jan 2022 19:49:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B8C361507;
+        Mon, 24 Jan 2022 20:29:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A8DAC340E5;
+        Mon, 24 Jan 2022 20:29:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053787;
-        bh=zC2koczZ0VUmYS5Z+Ioxhq+/po4DCrtzwVL/2B+YlmA=;
+        s=korg; t=1643056173;
+        bh=1h+/Z/DAiDZoSEbnMDcCn4AXxNjDsVzS3lRJAXu21lc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LRoUY7tF+/fLueG1Q1hxyZGzmn82+Yz392E+dmd+hmswTjShoRR9Mgb0phEaDSGib
-         5XaesjozojW0o4LxDxZkc2SoidZ2ZcRUHf2tgaGIh4HVPtHq4gUZK4JMlHcjvd4d2h
-         BHIEm7+DD3ljEi7zFkItOxwnhhLrbWvFZBEfitOQ=
+        b=B85DGnvCshbpf+rM24EBp7gIRmu3yCkGF1Oe4b8/Mcmh8UnAMwinVBWrsQRiXerkG
+         phVuJQJSwxe9Ono0EbTl6sya1luaVwOE6zn4nP0Ku7YbaoeWFRmnQsbPYefFG32Qfr
+         Z+jykpdx5xYQPnCIrDYdZtwYhko0lT6ndBJv5Wo8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Li Hua <hucool.lihua@huawei.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 145/563] sched/rt: Try to restart rt period timer when rt runtime exceeded
-Date:   Mon, 24 Jan 2022 19:38:30 +0100
-Message-Id: <20220124184029.412445053@linuxfoundation.org>
+        stable@vger.kernel.org, Bixuan Cui <cuibixuan@linux.alibaba.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 394/846] ALSA: oss: fix compile error when OSS_DEBUG is enabled
+Date:   Mon, 24 Jan 2022 19:38:31 +0100
+Message-Id: <20220124184114.549648871@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,97 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Hua <hucool.lihua@huawei.com>
+From: Bixuan Cui <cuibixuan@linux.alibaba.com>
 
-[ Upstream commit 9b58e976b3b391c0cf02e038d53dd0478ed3013c ]
+[ Upstream commit 8e7daf318d97f25e18b2fc7eb5909e34cd903575 ]
 
-When rt_runtime is modified from -1 to a valid control value, it may
-cause the task to be throttled all the time. Operations like the following
-will trigger the bug. E.g:
+Fix compile error when OSS_DEBUG is enabled:
+    sound/core/oss/pcm_oss.c: In function 'snd_pcm_oss_set_trigger':
+    sound/core/oss/pcm_oss.c:2055:10: error: 'substream' undeclared (first
+    use in this function); did you mean 'csubstream'?
+      pcm_dbg(substream->pcm, "pcm_oss: trigger = 0x%x\n", trigger);
+              ^
 
-  1. echo -1 > /proc/sys/kernel/sched_rt_runtime_us
-  2. Run a FIFO task named A that executes while(1)
-  3. echo 950000 > /proc/sys/kernel/sched_rt_runtime_us
-
-When rt_runtime is -1, The rt period timer will not be activated when task
-A enqueued. And then the task will be throttled after setting rt_runtime to
-950,000. The task will always be throttled because the rt period timer is
-not activated.
-
-Fixes: d0b27fa77854 ("sched: rt-group: synchonised bandwidth period")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Li Hua <hucool.lihua@huawei.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20211203033618.11895-1-hucool.lihua@huawei.com
+Fixes: 61efcee8608c ("ALSA: oss: Use standard printk helpers")
+Signed-off-by: Bixuan Cui <cuibixuan@linux.alibaba.com>
+Link: https://lore.kernel.org/r/1638349134-110369-1-git-send-email-cuibixuan@linux.alibaba.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/rt.c | 23 ++++++++++++++++++-----
- 1 file changed, 18 insertions(+), 5 deletions(-)
+ sound/core/oss/pcm_oss.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
-index b5cf418e2e3fe..41b14d9242039 100644
---- a/kernel/sched/rt.c
-+++ b/kernel/sched/rt.c
-@@ -52,11 +52,8 @@ void init_rt_bandwidth(struct rt_bandwidth *rt_b, u64 period, u64 runtime)
- 	rt_b->rt_period_timer.function = sched_rt_period_timer;
- }
+diff --git a/sound/core/oss/pcm_oss.c b/sound/core/oss/pcm_oss.c
+index 20a0a4771b9a8..3ee9edf858156 100644
+--- a/sound/core/oss/pcm_oss.c
++++ b/sound/core/oss/pcm_oss.c
+@@ -2065,7 +2065,7 @@ static int snd_pcm_oss_set_trigger(struct snd_pcm_oss_file *pcm_oss_file, int tr
+ 	int err, cmd;
  
--static void start_rt_bandwidth(struct rt_bandwidth *rt_b)
-+static inline void do_start_rt_bandwidth(struct rt_bandwidth *rt_b)
- {
--	if (!rt_bandwidth_enabled() || rt_b->rt_runtime == RUNTIME_INF)
--		return;
--
- 	raw_spin_lock(&rt_b->rt_runtime_lock);
- 	if (!rt_b->rt_period_active) {
- 		rt_b->rt_period_active = 1;
-@@ -75,6 +72,14 @@ static void start_rt_bandwidth(struct rt_bandwidth *rt_b)
- 	raw_spin_unlock(&rt_b->rt_runtime_lock);
- }
- 
-+static void start_rt_bandwidth(struct rt_bandwidth *rt_b)
-+{
-+	if (!rt_bandwidth_enabled() || rt_b->rt_runtime == RUNTIME_INF)
-+		return;
-+
-+	do_start_rt_bandwidth(rt_b);
-+}
-+
- void init_rt_rq(struct rt_rq *rt_rq)
- {
- 	struct rt_prio_array *array;
-@@ -1022,13 +1027,17 @@ static void update_curr_rt(struct rq *rq)
- 
- 	for_each_sched_rt_entity(rt_se) {
- 		struct rt_rq *rt_rq = rt_rq_of_se(rt_se);
-+		int exceeded;
- 
- 		if (sched_rt_runtime(rt_rq) != RUNTIME_INF) {
- 			raw_spin_lock(&rt_rq->rt_runtime_lock);
- 			rt_rq->rt_time += delta_exec;
--			if (sched_rt_runtime_exceeded(rt_rq))
-+			exceeded = sched_rt_runtime_exceeded(rt_rq);
-+			if (exceeded)
- 				resched_curr(rq);
- 			raw_spin_unlock(&rt_rq->rt_runtime_lock);
-+			if (exceeded)
-+				do_start_rt_bandwidth(sched_rt_bandwidth(rt_rq));
- 		}
- 	}
- }
-@@ -2727,8 +2736,12 @@ static int sched_rt_global_validate(void)
- 
- static void sched_rt_do_global(void)
- {
-+	unsigned long flags;
-+
-+	raw_spin_lock_irqsave(&def_rt_bandwidth.rt_runtime_lock, flags);
- 	def_rt_bandwidth.rt_runtime = global_rt_runtime();
- 	def_rt_bandwidth.rt_period = ns_to_ktime(global_rt_period());
-+	raw_spin_unlock_irqrestore(&def_rt_bandwidth.rt_runtime_lock, flags);
- }
- 
- int sched_rt_handler(struct ctl_table *table, int write, void *buffer,
+ #ifdef OSS_DEBUG
+-	pcm_dbg(substream->pcm, "pcm_oss: trigger = 0x%x\n", trigger);
++	pr_debug("pcm_oss: trigger = 0x%x\n", trigger);
+ #endif
+ 	
+ 	psubstream = pcm_oss_file->streams[SNDRV_PCM_STREAM_PLAYBACK];
 -- 
 2.34.1
 
