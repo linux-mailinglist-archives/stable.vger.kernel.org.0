@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1B6B49A5C9
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:13:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6971149A5D0
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:13:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2371139AbiAYAHD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:07:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56380 "EHLO
+        id S2371143AbiAYAHF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:07:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2362636AbiAXXmo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:42:44 -0500
+        with ESMTP id S2362669AbiAXXmp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:42:45 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 347E6C0FCED3;
-        Mon, 24 Jan 2022 13:39:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19713C0BD10F;
+        Mon, 24 Jan 2022 13:39:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE47FB8123A;
-        Mon, 24 Jan 2022 21:39:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A8FAC340E4;
-        Mon, 24 Jan 2022 21:38:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C7DFBB8123D;
+        Mon, 24 Jan 2022 21:39:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CF09C36B02;
+        Mon, 24 Jan 2022 21:39:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060339;
-        bh=9wTFvCDXsLGr2ff4ZSyAlfnhmj5VqNbcLjP9DYhL73E=;
+        s=korg; t=1643060342;
+        bh=q6x/bI0ZH2aNMZANdaqG3USj1WkC9T8TO3G2sZLfuoQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mBgNh3yAdHUczciJxBxhQYcUIbwFzmPfGMz+AY5TJQ/Jwv0WlFeU0Cz8bnqur0OjI
-         ppsNvQLcva3XaKSQ2H2um6u9MXJHiZbHs6Q039DC8eFHPLbOAn6LwboB+dckzd+yVN
-         3OraCji/JPHeCIeXCyBoN82akUTC8Sy3/cWRBZUs=
+        b=HNs78kNM1HfuAFojoJFJL4w8qJpQARaqiAF+JCOarJ7vdBZ+htgHUBBal5gSihlRO
+         3zwnFrCOJeir1kOdZsb1mtVRJA5M7omOlHhRB/WMOPMnPdkjgN0xpczRdgU5IfqyDh
+         +/ibjxzj9FPK4T8YipRDK4n/PEvvSAjVgBhgbJKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Akira Yokosawa <akiyks@gmail.com>,
-        Jonathan Corbet <corbet@lwn.net>
-Subject: [PATCH 5.16 0916/1039] Documentation: fix firewire.rst ABI file path error
-Date:   Mon, 24 Jan 2022 19:45:05 +0100
-Message-Id: <20220124184156.084771133@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
+        Mark Chen <mark-yw.chen@mediatek.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 5.16 0917/1039] Bluetooth: btusb: Return error code when getting patch status failed
+Date:   Mon, 24 Jan 2022 19:45:06 +0100
+Message-Id: <20220124184156.119846200@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -48,46 +48,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Mark Chen <mark-yw.chen@mediatek.com>
 
-commit b0ac702f3329cdc8a06dcaac73183d4b5a2b942d upstream.
+commit 995d948cf2e45834275f07afc1c9881a9902e73c upstream.
 
-Adjust the path of the ABI files for firewire.rst to prevent a
-documentation build error. Prevents this problem:
+If there are failure cases in getting patch status, it should return the
+error code (-EIO).
 
-Sphinx parallel build error:
-docutils.utils.SystemMessage: Documentation/driver-api/firewire.rst:22: (SEVERE/4) Problems with "include" directive path:
-InputError: [Errno 2] No such file or directory: '../Documentation/driver-api/ABI/stable/firewire-cdev'.
-
-Fixes: 2f4830ef96d2 ("FireWire: add driver-api Introduction section")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Tested-by: Akira Yokosawa <akiyks@gmail.com>
-Link: https://lore.kernel.org/r/20220119033905.4779-1-rdunlap@infradead.org
-Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+Fixes: fc342c4dc4087 ("Bluetooth: btusb: Add protocol support for MediaTek MT7921U USB devices")
+Co-developed-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Mark Chen <mark-yw.chen@mediatek.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/driver-api/firewire.rst |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/bluetooth/btusb.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/Documentation/driver-api/firewire.rst
-+++ b/Documentation/driver-api/firewire.rst
-@@ -19,7 +19,7 @@ of kernel interfaces is available via ex
- Firewire char device data structures
- ====================================
- 
--.. include:: /ABI/stable/firewire-cdev
-+.. include:: ../ABI/stable/firewire-cdev
-     :literal:
- 
- .. kernel-doc:: include/uapi/linux/firewire-cdev.h
-@@ -28,7 +28,7 @@ Firewire char device data structures
- Firewire device probing and sysfs interfaces
- ============================================
- 
--.. include:: /ABI/stable/sysfs-bus-firewire
-+.. include:: ../ABI/stable/sysfs-bus-firewire
-     :literal:
- 
- .. kernel-doc:: drivers/firewire/core-device.c
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -2600,6 +2600,7 @@ static int btusb_mtk_setup_firmware_79xx
+ 				} else {
+ 					bt_dev_err(hdev, "Failed wmt patch dwnld status (%d)",
+ 						   status);
++					err = -EIO;
+ 					goto err_release_fw;
+ 				}
+ 			}
 
 
