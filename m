@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06820498C7E
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:23:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F625498E27
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:44:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345180AbiAXTWo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:22:44 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:43482 "EHLO
+        id S1354894AbiAXTjf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:39:35 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56438 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347169AbiAXTSm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:18:42 -0500
+        with ESMTP id S1353222AbiAXTdd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:33:33 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8366FB811F9;
-        Mon, 24 Jan 2022 19:18:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABCE6C340E5;
-        Mon, 24 Jan 2022 19:18:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0FF84B811FB;
+        Mon, 24 Jan 2022 19:33:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29B2AC340E5;
+        Mon, 24 Jan 2022 19:33:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051917;
-        bh=teqJf60VfZfCyKR10hz8RbabCK/klAXvLnO3Vng0KDM=;
+        s=korg; t=1643052810;
+        bh=z3KHjrtjkrAJ1l60+JVSkvpB2u2zxdDMwLh9FzYWkM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d8s/QQ9gpValdTBTlqYLQrdjYJdc/QtBplUDCzx+2ma0+P0HXDxbhEmvo7uvIvc1P
-         hhWtvTCTLPQwXYGwLtMEMacZCjypecJ5wA73yqdGbi9Gif48CQpgtJvNooQQCZVPRk
-         igzzB5/JuAh9tvM95MLt2Jx0E+fGqgq7Ag/rjBZM=
+        b=eaT2bYcJPpqC4kXQPUSVMzK5zNTwDVesxhNLr4dm1ZEV/ob+7bsIO1BBCypGGWCLO
+         py8fYe2WwjLjAB5rMvK7QByA1B06mPenxald7olN2nwRf7LJIXRmjx4WMNKnf8aUjW
+         rTkJlfggZ34iAsA0FCzAd2WFq2mtDBs4aQPvUaSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Biederman <ebiederm@xmission.com>,
-        Danielle Ratson <danieller@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 128/239] mlxsw: pci: Add shutdown method in PCI driver
+Subject: [PATCH 5.4 182/320] net: phy: prefer 1000baseT over 1000baseKX
 Date:   Mon, 24 Jan 2022 19:42:46 +0100
-Message-Id: <20220124183947.181183438@linuxfoundation.org>
+Message-Id: <20220124183959.854124738@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,94 +48,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Danielle Ratson <danieller@nvidia.com>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit c1020d3cf4752f61a6a413f632ea2ce2370e150d ]
+[ Upstream commit f20f94f7f52c4685c81754f489ffcc72186e8bdb ]
 
-On an arm64 platform with the Spectrum ASIC, after loading and executing
-a new kernel via kexec, the following trace [1] is observed. This seems
-to be caused by the fact that the device is not properly shutdown before
-executing the new kernel.
+The PHY settings table is supposed to be sorted by descending match
+priority - in other words, earlier entries are preferred over later
+entries.
 
-Fix this by implementing a shutdown method which mirrors the remove
-method, as recommended by the kexec maintainer [2][3].
+The order of 1000baseKX/Full and 1000baseT/Full is such that we
+prefer 1000baseKX/Full over 1000baseT/Full, but 1000baseKX/Full is
+a lot rarer than 1000baseT/Full, and thus is much less likely to
+be preferred.
 
-[1]
-BUG: Bad page state in process devlink pfn:22f73d
-page:fffffe00089dcf40 refcount:-1 mapcount:0 mapping:0000000000000000 index:0x0
-flags: 0x2ffff00000000000()
-raw: 2ffff00000000000 0000000000000000 ffffffff089d0201 0000000000000000
-raw: 0000000000000000 0000000000000000 ffffffffffffffff 0000000000000000
-page dumped because: nonzero _refcount
-Modules linked in:
-CPU: 1 PID: 16346 Comm: devlink Tainted: G B 5.8.0-rc6-custom-273020-gac6b365b1bf5 #44
-Hardware name: Marvell Armada 7040 TX4810M (DT)
-Call trace:
- dump_backtrace+0x0/0x1d0
- show_stack+0x1c/0x28
- dump_stack+0xbc/0x118
- bad_page+0xcc/0xf8
- check_free_page_bad+0x80/0x88
- __free_pages_ok+0x3f8/0x418
- __free_pages+0x38/0x60
- kmem_freepages+0x200/0x2a8
- slab_destroy+0x28/0x68
- slabs_destroy+0x60/0x90
- ___cache_free+0x1b4/0x358
- kfree+0xc0/0x1d0
- skb_free_head+0x2c/0x38
- skb_release_data+0x110/0x1a0
- skb_release_all+0x2c/0x38
- consume_skb+0x38/0x130
- __dev_kfree_skb_any+0x44/0x50
- mlxsw_pci_rdq_fini+0x8c/0xb0
- mlxsw_pci_queue_fini.isra.0+0x28/0x58
- mlxsw_pci_queue_group_fini+0x58/0x88
- mlxsw_pci_aqs_fini+0x2c/0x60
- mlxsw_pci_fini+0x34/0x50
- mlxsw_core_bus_device_unregister+0x104/0x1d0
- mlxsw_devlink_core_bus_device_reload_down+0x2c/0x48
- devlink_reload+0x44/0x158
- devlink_nl_cmd_reload+0x270/0x290
- genl_rcv_msg+0x188/0x2f0
- netlink_rcv_skb+0x5c/0x118
- genl_rcv+0x3c/0x50
- netlink_unicast+0x1bc/0x278
- netlink_sendmsg+0x194/0x390
- __sys_sendto+0xe0/0x158
- __arm64_sys_sendto+0x2c/0x38
- el0_svc_common.constprop.0+0x70/0x168
- do_el0_svc+0x28/0x88
- el0_sync_handler+0x88/0x190
- el0_sync+0x140/0x180
+This causes phylink problems - it means a fixed link specifying a
+speed of 1G and full duplex gets an ethtool linkmode of 1000baseKX/Full
+rather than 1000baseT/Full as would be expected - and since we offer
+userspace a software emulation of a conventional copper PHY, we want
+to offer copper modes in preference to anything else. However, we do
+still want to allow the rarer modes as well.
 
-[2]
-https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1195432.html
+Hence, let's reorder these two modes to prefer copper.
 
-[3]
-https://patchwork.kernel.org/project/linux-scsi/patch/20170212214920.28866-1-anton@ozlabs.org/#20116693
-
-Cc: Eric Biederman <ebiederm@xmission.com>
-Signed-off-by: Danielle Ratson <danieller@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Tested-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reported-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/E1muvFO-00F6jY-1K@rmk-PC.armlinux.org.uk
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/pci.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/phy/phy-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/pci.c b/drivers/net/ethernet/mellanox/mlxsw/pci.c
-index a903e97793f9a..addd5765576d9 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/pci.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/pci.c
-@@ -1825,6 +1825,7 @@ int mlxsw_pci_driver_register(struct pci_driver *pci_driver)
- {
- 	pci_driver->probe = mlxsw_pci_probe;
- 	pci_driver->remove = mlxsw_pci_remove;
-+	pci_driver->shutdown = mlxsw_pci_remove;
- 	return pci_register_driver(pci_driver);
- }
- EXPORT_SYMBOL(mlxsw_pci_driver_register);
+diff --git a/drivers/net/phy/phy-core.c b/drivers/net/phy/phy-core.c
+index 9412669b579c7..84064120918f0 100644
+--- a/drivers/net/phy/phy-core.c
++++ b/drivers/net/phy/phy-core.c
+@@ -128,11 +128,11 @@ static const struct phy_setting settings[] = {
+ 	PHY_SETTING(   2500, FULL,   2500baseT_Full		),
+ 	PHY_SETTING(   2500, FULL,   2500baseX_Full		),
+ 	/* 1G */
+-	PHY_SETTING(   1000, FULL,   1000baseKX_Full		),
+ 	PHY_SETTING(   1000, FULL,   1000baseT_Full		),
+ 	PHY_SETTING(   1000, HALF,   1000baseT_Half		),
+ 	PHY_SETTING(   1000, FULL,   1000baseT1_Full		),
+ 	PHY_SETTING(   1000, FULL,   1000baseX_Full		),
++	PHY_SETTING(   1000, FULL,   1000baseKX_Full		),
+ 	/* 100M */
+ 	PHY_SETTING(    100, FULL,    100baseT_Full		),
+ 	PHY_SETTING(    100, FULL,    100baseT1_Full		),
 -- 
 2.34.1
 
