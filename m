@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED6334988C6
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:51:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8FC24988C3
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:51:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245698AbiAXSu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:50:28 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49730 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241971AbiAXSty (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:49:54 -0500
+        id S245685AbiAXSuZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:50:25 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:48420 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245546AbiAXStr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:49:47 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DFA92B81227;
-        Mon, 24 Jan 2022 18:49:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFFBBC340E5;
-        Mon, 24 Jan 2022 18:49:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5BBE1614C9;
+        Mon, 24 Jan 2022 18:49:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27344C340E5;
+        Mon, 24 Jan 2022 18:49:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050183;
-        bh=J4IP5pvWFW9dfShp8XiaAsZ1GggdgqBAu+DMu39gvzc=;
+        s=korg; t=1643050186;
+        bh=u+aBQpTuCtY9LJk5bEHF2dL9U4aLOFqYV4b54fbW9AY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qnI0tQzsjCooMeVAK5nIlx5su+nLed/RZ3u2uBgS5EZIISkwNzMPLD/8jhPqcDlJ+
-         UEV/NEGf3Xw3zoPqkcN9je73RokvY634nqmKoSt5MIBOVawDHlVrF9eQNOyIKiyZ1K
-         B26qEG8RFQ8dtNyLnxEdh0J8Ylk0WmbHkHBS9TZo=
+        b=gDnALDqm8Fbits8VUxpINVGxvgG/ewHq9slqwU0Av52W9ic/g+Ayxpu2A9l2bzWfV
+         CgFymSykZFW7/T6jlw8GV8EH621tVIjnT56F2qxLl6M4xDKFeOT3FeCntTEpEHzUcc
+         CX/YNotzuLz5nEURoGRjm1DxohU5Vc57m7/1nOQo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Paul Mackerras <paulus@samba.org>, linux-ppp@vger.kernel.org,
-        syzbot <syzkaller@googlegroups.com>,
-        Guillaume Nault <gnault@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 036/114] ppp: ensure minimum packet size in ppp_write()
-Date:   Mon, 24 Jan 2022 19:42:11 +0100
-Message-Id: <20220124183928.230569342@linuxfoundation.org>
+Subject: [PATCH 4.4 037/114] spi: spi-meson-spifc: Add missing pm_runtime_disable() in meson_spifc_probe
+Date:   Mon, 24 Jan 2022 19:42:12 +0100
+Message-Id: <20220124183928.260103655@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
 References: <20220124183927.095545464@linuxfoundation.org>
@@ -48,102 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 44073187990d5629804ce0627525f6ea5cfef171 ]
+[ Upstream commit 69c1b87516e327a60b39f96b778fe683259408bf ]
 
-It seems pretty clear ppp layer assumed user space
-would always be kind to provide enough data
-in their write() to a ppp device.
+If the probe fails, we should use pm_runtime_disable() to balance
+pm_runtime_enable().
+Add missing pm_runtime_disable() for meson_spifc_probe.
 
-This patch makes sure user provides at least
-2 bytes.
-
-It adds PPP_PROTO_LEN macro that could replace
-in net-next many occurrences of hard-coded 2 value.
-
-I replaced only one occurrence to ease backports
-to stable kernels.
-
-The bug manifests in the following report:
-
-BUG: KMSAN: uninit-value in ppp_send_frame+0x28d/0x27c0 drivers/net/ppp/ppp_generic.c:1740
- ppp_send_frame+0x28d/0x27c0 drivers/net/ppp/ppp_generic.c:1740
- __ppp_xmit_process+0x23e/0x4b0 drivers/net/ppp/ppp_generic.c:1640
- ppp_xmit_process+0x1fe/0x480 drivers/net/ppp/ppp_generic.c:1661
- ppp_write+0x5cb/0x5e0 drivers/net/ppp/ppp_generic.c:513
- do_iter_write+0xb0c/0x1500 fs/read_write.c:853
- vfs_writev fs/read_write.c:924 [inline]
- do_writev+0x645/0xe00 fs/read_write.c:967
- __do_sys_writev fs/read_write.c:1040 [inline]
- __se_sys_writev fs/read_write.c:1037 [inline]
- __x64_sys_writev+0xe5/0x120 fs/read_write.c:1037
- do_syscall_x64 arch/x86/entry/common.c:51 [inline]
- do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Uninit was created at:
- slab_post_alloc_hook mm/slab.h:524 [inline]
- slab_alloc_node mm/slub.c:3251 [inline]
- __kmalloc_node_track_caller+0xe0c/0x1510 mm/slub.c:4974
- kmalloc_reserve net/core/skbuff.c:354 [inline]
- __alloc_skb+0x545/0xf90 net/core/skbuff.c:426
- alloc_skb include/linux/skbuff.h:1126 [inline]
- ppp_write+0x11d/0x5e0 drivers/net/ppp/ppp_generic.c:501
- do_iter_write+0xb0c/0x1500 fs/read_write.c:853
- vfs_writev fs/read_write.c:924 [inline]
- do_writev+0x645/0xe00 fs/read_write.c:967
- __do_sys_writev fs/read_write.c:1040 [inline]
- __se_sys_writev fs/read_write.c:1037 [inline]
- __x64_sys_writev+0xe5/0x120 fs/read_write.c:1037
- do_syscall_x64 arch/x86/entry/common.c:51 [inline]
- do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: linux-ppp@vger.kernel.org
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Acked-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: c3e4bc5434d2 ("spi: meson: Add support for Amlogic Meson SPIFC")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220107075424.7774-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ppp/ppp_generic.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/spi/spi-meson-spifc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ppp/ppp_generic.c b/drivers/net/ppp/ppp_generic.c
-index 46448d7e32902..679b14759379f 100644
---- a/drivers/net/ppp/ppp_generic.c
-+++ b/drivers/net/ppp/ppp_generic.c
-@@ -70,6 +70,8 @@
- #define MPHDRLEN	6	/* multilink protocol header length */
- #define MPHDRLEN_SSN	4	/* ditto with short sequence numbers */
- 
-+#define PPP_PROTO_LEN	2
-+
- /*
-  * An instance of /dev/ppp can be associated with either a ppp
-  * interface unit or a ppp channel.  In both cases, file->private_data
-@@ -487,6 +489,9 @@ static ssize_t ppp_write(struct file *file, const char __user *buf,
- 
- 	if (!pf)
- 		return -ENXIO;
-+	/* All PPP packets should start with the 2-byte protocol */
-+	if (count < PPP_PROTO_LEN)
-+		return -EINVAL;
- 	ret = -ENOMEM;
- 	skb = alloc_skb(count + pf->hdrlen, GFP_KERNEL);
- 	if (!skb)
-@@ -1293,7 +1298,7 @@ ppp_send_frame(struct ppp *ppp, struct sk_buff *skb)
- 	}
- 
- 	++ppp->stats64.tx_packets;
--	ppp->stats64.tx_bytes += skb->len - 2;
-+	ppp->stats64.tx_bytes += skb->len - PPP_PROTO_LEN;
- 
- 	switch (proto) {
- 	case PPP_IP:
+diff --git a/drivers/spi/spi-meson-spifc.c b/drivers/spi/spi-meson-spifc.c
+index 2465259f62411..8e662e7a35181 100644
+--- a/drivers/spi/spi-meson-spifc.c
++++ b/drivers/spi/spi-meson-spifc.c
+@@ -357,6 +357,7 @@ static int meson_spifc_probe(struct platform_device *pdev)
+ 	return 0;
+ out_clk:
+ 	clk_disable_unprepare(spifc->clk);
++	pm_runtime_disable(spifc->dev);
+ out_err:
+ 	spi_master_put(master);
+ 	return ret;
 -- 
 2.34.1
 
