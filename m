@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DFC28499977
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:45:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2228E499556
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:09:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1455450AbiAXVf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:35:26 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:42362 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1452840AbiAXV1N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:27:13 -0500
+        id S1392588AbiAXUve (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:51:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42142 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1390869AbiAXUqc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:46:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE25DC061254;
+        Mon, 24 Jan 2022 11:56:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F0B06B8121C;
-        Mon, 24 Jan 2022 21:27:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 511E2C340E4;
-        Mon, 24 Jan 2022 21:27:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E3C860B89;
+        Mon, 24 Jan 2022 19:56:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D15CC340E5;
+        Mon, 24 Jan 2022 19:56:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059630;
-        bh=3JX4NxME83wn+3Sx/vJIXU37WPkZe9zA5CufjNXYz9A=;
+        s=korg; t=1643054179;
+        bh=lIX2r7eSQ/EpCjwtdMC7rJeKPE+cTnyydeIsvHazwQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GNkatMxy8fR61nQ4g5mdkTTZ4nzeaXS/JfuPgYmHsbWuYrIYH1l1eu0EjPluFtGJq
-         0hiCjEx0yI/5rFnn6I5YHh+PGW9WbuTJT/+rdWPl8/F6nW15JfXIj9Eb7vt2HoSQyg
-         7FEjWyzzJMGtww3pyn7AJL2irrf4ZglgHvyfGinA=
+        b=FByfYnQhKGOYE43K5Bpt4OFYXJwGb0B+QxkS+tYqyo6vVkpSIPgDwaTGfKwzrtr6T
+         qcTmRfOx0KjcWrx73TBNuXKFW9vrGkRYJtAbIgqhtPX6PAxfHzVrNfss8x0WGYJeoj
+         AZtmZLGeEaRelhNgmHqOpbNXTdjz1YRYKu6/E4fg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sam Edwards <CFSworks@gmail.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0680/1039] iwlwifi: recognize missing PNVM data and then log filename
+Subject: [PATCH 5.10 304/563] drm/bridge: dw-hdmi: handle ELD when DRM_BRIDGE_ATTACH_NO_CONNECTOR
 Date:   Mon, 24 Jan 2022 19:41:09 +0100
-Message-Id: <20220124184148.222339339@linuxfoundation.org>
+Message-Id: <20220124184034.955939214@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,108 +50,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Coelho <luciano.coelho@intel.com>
+From: Neil Armstrong <narmstrong@baylibre.com>
 
-[ Upstream commit 1db385c668d3ccb04ccdb5f0f190fd17b2db29c6 ]
+[ Upstream commit 3f2532d65a571ca02258b547b5b68ab2e9406fdb ]
 
-We can detect that a FW SYSASSERT is due to missing PNVM data by
-checking the assertion code.  When this happens, it's is useful for
-the user if we print the filename where the driver is looking for the
-data.
+The current ELD handling takes the internal connector ELD buffer and
+shares it to the I2S and AHB sub-driver.
 
-Add the PNVM missing assertion code to the dump list and print out the
-name of the file we're looking for when this happens.
+But with DRM_BRIDGE_ATTACH_NO_CONNECTOR, the connector is created
+elsewhere (or not), and an eventual connector is known only
+if the bridge chain up to a connector is enabled.
 
-Reported-by: Sam Edwards <CFSworks@gmail.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20211210090244.1d8725b7518a.I0c36617a7282bd445cda484d97ac4a83022706ee@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+The current dw-hdmi code gets the current connector from
+atomic_enable() so use the already stored connector pointer and
+replace the buffer pointer with a callback returning the current
+connector ELD buffer.
+
+Since a connector is not always available, either pass an empty
+ELD to the alsa HDMI driver or don't call snd_pcm_hw_constraint_eld()
+in AHB driver.
+
+Reported-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+[narmstrong: fixed typo in commit log]
+Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211029135947.3022875-1-narmstrong@baylibre.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/fw/dump.c | 9 +++++++++
- drivers/net/wireless/intel/iwlwifi/fw/img.c  | 6 +++---
- drivers/net/wireless/intel/iwlwifi/fw/img.h  | 4 ++++
- 3 files changed, 16 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/bridge/synopsys/dw-hdmi-ahb-audio.c | 10 +++++++---
+ drivers/gpu/drm/bridge/synopsys/dw-hdmi-audio.h     |  4 ++--
+ drivers/gpu/drm/bridge/synopsys/dw-hdmi-i2s-audio.c |  9 ++++++++-
+ drivers/gpu/drm/bridge/synopsys/dw-hdmi.c           | 12 ++++++++++--
+ 4 files changed, 27 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/fw/dump.c b/drivers/net/wireless/intel/iwlwifi/fw/dump.c
-index 016b3a4c5f513..6a37933a02169 100644
---- a/drivers/net/wireless/intel/iwlwifi/fw/dump.c
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/dump.c
-@@ -12,6 +12,7 @@
- #include "iwl-io.h"
- #include "iwl-prph.h"
- #include "iwl-csr.h"
-+#include "pnvm.h"
+diff --git a/drivers/gpu/drm/bridge/synopsys/dw-hdmi-ahb-audio.c b/drivers/gpu/drm/bridge/synopsys/dw-hdmi-ahb-audio.c
+index d0db1acf11d73..7d2ed0ed2fe26 100644
+--- a/drivers/gpu/drm/bridge/synopsys/dw-hdmi-ahb-audio.c
++++ b/drivers/gpu/drm/bridge/synopsys/dw-hdmi-ahb-audio.c
+@@ -320,13 +320,17 @@ static int dw_hdmi_open(struct snd_pcm_substream *substream)
+ 	struct snd_pcm_runtime *runtime = substream->runtime;
+ 	struct snd_dw_hdmi *dw = substream->private_data;
+ 	void __iomem *base = dw->data.base;
++	u8 *eld;
+ 	int ret;
  
- /*
-  * Note: This structure is read from the device with IO accesses,
-@@ -147,6 +148,7 @@ static void iwl_fwrt_dump_umac_error_log(struct iwl_fw_runtime *fwrt)
- 	struct iwl_trans *trans = fwrt->trans;
- 	struct iwl_umac_error_event_table table = {};
- 	u32 base = fwrt->trans->dbg.umac_error_event_table;
-+	char pnvm_name[MAX_PNVM_NAME];
+ 	runtime->hw = dw_hdmi_hw;
  
- 	if (!base &&
- 	    !(fwrt->trans->dbg.error_event_table_tlv_status &
-@@ -164,6 +166,13 @@ static void iwl_fwrt_dump_umac_error_log(struct iwl_fw_runtime *fwrt)
- 			fwrt->trans->status, table.valid);
- 	}
- 
-+	if ((table.error_id & ~FW_SYSASSERT_CPU_MASK) ==
-+	    FW_SYSASSERT_PNVM_MISSING) {
-+		iwl_pnvm_get_fs_name(trans, pnvm_name, sizeof(pnvm_name));
-+		IWL_ERR(fwrt, "PNVM data is missing, please install %s\n",
-+			pnvm_name);
+-	ret = snd_pcm_hw_constraint_eld(runtime, dw->data.eld);
+-	if (ret < 0)
+-		return ret;
++	eld = dw->data.get_eld(dw->data.hdmi);
++	if (eld) {
++		ret = snd_pcm_hw_constraint_eld(runtime, eld);
++		if (ret < 0)
++			return ret;
 +	}
-+
- 	IWL_ERR(fwrt, "0x%08X | %s\n", table.error_id,
- 		iwl_fw_lookup_assert_desc(table.error_id));
- 	IWL_ERR(fwrt, "0x%08X | umac branchlink1\n", table.blink1);
-diff --git a/drivers/net/wireless/intel/iwlwifi/fw/img.c b/drivers/net/wireless/intel/iwlwifi/fw/img.c
-index 24a9666736913..530674a35eeb2 100644
---- a/drivers/net/wireless/intel/iwlwifi/fw/img.c
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/img.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0 OR BSD-3-Clause
- /*
-- * Copyright(c) 2019 - 2020 Intel Corporation
-+ * Copyright(c) 2019 - 2021 Intel Corporation
-  */
  
- #include "img.h"
-@@ -49,10 +49,9 @@ u8 iwl_fw_lookup_notif_ver(const struct iwl_fw *fw, u8 grp, u8 cmd, u8 def)
- }
- EXPORT_SYMBOL_GPL(iwl_fw_lookup_notif_ver);
- 
--#define FW_SYSASSERT_CPU_MASK 0xf0000000
- static const struct {
- 	const char *name;
--	u8 num;
-+	u32 num;
- } advanced_lookup[] = {
- 	{ "NMI_INTERRUPT_WDG", 0x34 },
- 	{ "SYSASSERT", 0x35 },
-@@ -73,6 +72,7 @@ static const struct {
- 	{ "NMI_INTERRUPT_ACTION_PT", 0x7C },
- 	{ "NMI_INTERRUPT_UNKNOWN", 0x84 },
- 	{ "NMI_INTERRUPT_INST_ACTION_PT", 0x86 },
-+	{ "PNVM_MISSING", FW_SYSASSERT_PNVM_MISSING },
- 	{ "ADVANCED_SYSASSERT", 0 },
+ 	ret = snd_pcm_limit_hw_rates(runtime);
+ 	if (ret < 0)
+diff --git a/drivers/gpu/drm/bridge/synopsys/dw-hdmi-audio.h b/drivers/gpu/drm/bridge/synopsys/dw-hdmi-audio.h
+index cb07dc0da5a70..f72d27208ebef 100644
+--- a/drivers/gpu/drm/bridge/synopsys/dw-hdmi-audio.h
++++ b/drivers/gpu/drm/bridge/synopsys/dw-hdmi-audio.h
+@@ -9,15 +9,15 @@ struct dw_hdmi_audio_data {
+ 	void __iomem *base;
+ 	int irq;
+ 	struct dw_hdmi *hdmi;
+-	u8 *eld;
++	u8 *(*get_eld)(struct dw_hdmi *hdmi);
  };
  
-diff --git a/drivers/net/wireless/intel/iwlwifi/fw/img.h b/drivers/net/wireless/intel/iwlwifi/fw/img.h
-index 993bda17fa309..fa7b1780064c2 100644
---- a/drivers/net/wireless/intel/iwlwifi/fw/img.h
-+++ b/drivers/net/wireless/intel/iwlwifi/fw/img.h
-@@ -279,4 +279,8 @@ u8 iwl_fw_lookup_cmd_ver(const struct iwl_fw *fw, u8 grp, u8 cmd, u8 def);
+ struct dw_hdmi_i2s_audio_data {
+ 	struct dw_hdmi *hdmi;
+-	u8 *eld;
  
- u8 iwl_fw_lookup_notif_ver(const struct iwl_fw *fw, u8 grp, u8 cmd, u8 def);
- const char *iwl_fw_lookup_assert_desc(u32 num);
+ 	void (*write)(struct dw_hdmi *hdmi, u8 val, int offset);
+ 	u8 (*read)(struct dw_hdmi *hdmi, int offset);
++	u8 *(*get_eld)(struct dw_hdmi *hdmi);
+ };
+ 
+ #endif
+diff --git a/drivers/gpu/drm/bridge/synopsys/dw-hdmi-i2s-audio.c b/drivers/gpu/drm/bridge/synopsys/dw-hdmi-i2s-audio.c
+index 9fef6413741dc..9682416056ed6 100644
+--- a/drivers/gpu/drm/bridge/synopsys/dw-hdmi-i2s-audio.c
++++ b/drivers/gpu/drm/bridge/synopsys/dw-hdmi-i2s-audio.c
+@@ -135,8 +135,15 @@ static int dw_hdmi_i2s_get_eld(struct device *dev, void *data, uint8_t *buf,
+ 			       size_t len)
+ {
+ 	struct dw_hdmi_i2s_audio_data *audio = data;
++	u8 *eld;
 +
-+#define FW_SYSASSERT_CPU_MASK		0xf0000000
-+#define FW_SYSASSERT_PNVM_MISSING	0x0010070d
++	eld = audio->get_eld(audio->hdmi);
++	if (eld)
++		memcpy(buf, eld, min_t(size_t, MAX_ELD_BYTES, len));
++	else
++		/* Pass en empty ELD if connector not available */
++		memset(buf, 0, len);
+ 
+-	memcpy(buf, audio->eld, min_t(size_t, MAX_ELD_BYTES, len));
+ 	return 0;
+ }
+ 
+diff --git a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
+index 0c79a9ba48bb6..29c0eb4bd7546 100644
+--- a/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
++++ b/drivers/gpu/drm/bridge/synopsys/dw-hdmi.c
+@@ -756,6 +756,14 @@ static void hdmi_enable_audio_clk(struct dw_hdmi *hdmi, bool enable)
+ 	hdmi_writeb(hdmi, hdmi->mc_clkdis, HDMI_MC_CLKDIS);
+ }
+ 
++static u8 *hdmi_audio_get_eld(struct dw_hdmi *hdmi)
++{
++	if (!hdmi->curr_conn)
++		return NULL;
 +
- #endif  /* __iwl_fw_img_h__ */
++	return hdmi->curr_conn->eld;
++}
++
+ static void dw_hdmi_ahb_audio_enable(struct dw_hdmi *hdmi)
+ {
+ 	hdmi_set_cts_n(hdmi, hdmi->audio_cts, hdmi->audio_n);
+@@ -3395,7 +3403,7 @@ struct dw_hdmi *dw_hdmi_probe(struct platform_device *pdev,
+ 		audio.base = hdmi->regs;
+ 		audio.irq = irq;
+ 		audio.hdmi = hdmi;
+-		audio.eld = hdmi->connector.eld;
++		audio.get_eld = hdmi_audio_get_eld;
+ 		hdmi->enable_audio = dw_hdmi_ahb_audio_enable;
+ 		hdmi->disable_audio = dw_hdmi_ahb_audio_disable;
+ 
+@@ -3408,7 +3416,7 @@ struct dw_hdmi *dw_hdmi_probe(struct platform_device *pdev,
+ 		struct dw_hdmi_i2s_audio_data audio;
+ 
+ 		audio.hdmi	= hdmi;
+-		audio.eld	= hdmi->connector.eld;
++		audio.get_eld	= hdmi_audio_get_eld;
+ 		audio.write	= hdmi_writeb;
+ 		audio.read	= hdmi_readb;
+ 		hdmi->enable_audio = dw_hdmi_i2s_audio_enable;
 -- 
 2.34.1
 
