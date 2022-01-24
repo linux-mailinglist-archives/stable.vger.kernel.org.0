@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC3AC499D9C
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:00:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A148499A83
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1585749AbiAXWYz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:24:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36632 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1448508AbiAXWRS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:17:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEAACC04A2D1;
-        Mon, 24 Jan 2022 12:45:35 -0800 (PST)
+        id S1573197AbiAXVom (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:44:42 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:54276 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1455265AbiAXVfF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:35:05 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75981B810BD;
-        Mon, 24 Jan 2022 20:45:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3DA5C340E5;
-        Mon, 24 Jan 2022 20:45:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 587EF614CB;
+        Mon, 24 Jan 2022 21:35:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CD02C340E4;
+        Mon, 24 Jan 2022 21:35:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057133;
-        bh=Cywg6D33HdGmIRuFqk7UwcBQNdWaQwlKLxan2QdZVIA=;
+        s=korg; t=1643060103;
+        bh=fKi7ZwPG8n0+BGVYMxk00IA52PoG1YjyUx5UZx1Vb/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QONuGLKgFeXuhR9pKS9KQDsHoG6YfeI2TTbkPyxgyLtxIEODp9e+4TvxzCU9+dHHt
-         One8eeqU85M1vQUlZGy+P5/EIgX50Yg7i6CvHD9ItiSfUyqcC+KA+cSrKEyryVysHx
-         klh7gGjuiAAbH8SXsVmUL4VkJvhbbsUbqf2GyuHU=
+        b=CyfW4dx0pc5FES4nKvQR4mnD3JTTXE2D/wa0BIue+FuRULxdHE3FOkN6pXuD+7+Vw
+         /suHcanx2ZVWRcsH96PN7M2jTmIxt/8fCvpKYhFg6gJcD+Fv3TfiOuu9n9Z+Tg3VuB
+         AxpAIdfIaG6ahWQaXUc0JgDYNxfxInXXSNcQb1fE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 711/846] btrfs: check the root node for uptodate before returning it
-Date:   Mon, 24 Jan 2022 19:43:48 +0100
-Message-Id: <20220124184125.555230264@linuxfoundation.org>
+        stable@vger.kernel.org, Patrick Williams <patrick@stwcx.xyz>,
+        Jarkko Sakkinen <jarkko@kernel.org>
+Subject: [PATCH 5.16 0841/1039] tpm: fix NPE on probe for missing device
+Date:   Mon, 24 Jan 2022 19:43:50 +0100
+Message-Id: <20220124184153.564796737@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,68 +44,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Patrick Williams <patrick@stwcx.xyz>
 
-commit 120de408e4b97504a2d9b5ca534b383de2c73d49 upstream.
+commit 84cc69589700b90a4c8d27b481a51fce8cca6051 upstream.
 
-Now that we clear the extent buffer uptodate if we fail to write it out
-we need to check to see if our root node is uptodate before we search
-down it.  Otherwise we could return stale data (or potentially corrupt
-data that was caught by the write verification step) and think that the
-path is OK to search down.
+When using the tpm_tis-spi driver on a system missing the physical TPM,
+a null pointer exception was observed.
 
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Nikolay Borisov <nborisov@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+    [    0.938677] Unable to handle kernel NULL pointer dereference at virtual address 00000004
+    [    0.939020] pgd = 10c753cb
+    [    0.939237] [00000004] *pgd=00000000
+    [    0.939808] Internal error: Oops: 5 [#1] SMP ARM
+    [    0.940157] CPU: 0 PID: 48 Comm: kworker/u4:1 Not tainted 5.15.10-dd1e40c #1
+    [    0.940364] Hardware name: Generic DT based system
+    [    0.940601] Workqueue: events_unbound async_run_entry_fn
+    [    0.941048] PC is at tpm_tis_remove+0x28/0xb4
+    [    0.941196] LR is at tpm_tis_core_init+0x170/0x6ac
+
+This is due to an attempt in 'tpm_tis_remove' to use the drvdata, which
+was not initialized in 'tpm_tis_core_init' prior to the first error.
+
+Move the initialization of drvdata earlier so 'tpm_tis_remove' has
+access to it.
+
+Signed-off-by: Patrick Williams <patrick@stwcx.xyz>
+Fixes: 79ca6f74dae0 ("tpm: fix Atmel TPM crash caused by too frequent queries")
+Cc: stable@vger.kernel.org
+Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/ctree.c |   19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ drivers/char/tpm/tpm_tis_core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/ctree.c
-+++ b/fs/btrfs/ctree.c
-@@ -1568,12 +1568,9 @@ static struct extent_buffer *btrfs_searc
- {
- 	struct btrfs_fs_info *fs_info = root->fs_info;
- 	struct extent_buffer *b;
--	int root_lock;
-+	int root_lock = 0;
- 	int level = 0;
+--- a/drivers/char/tpm/tpm_tis_core.c
++++ b/drivers/char/tpm/tpm_tis_core.c
+@@ -950,6 +950,8 @@ int tpm_tis_core_init(struct device *dev
+ 	priv->timeout_max = TPM_TIMEOUT_USECS_MAX;
+ 	priv->phy_ops = phy_ops;
  
--	/* We try very hard to do read locks on the root */
--	root_lock = BTRFS_READ_LOCK;
--
- 	if (p->search_commit_root) {
- 		/*
- 		 * The commit roots are read only so we always do read locks,
-@@ -1611,6 +1608,9 @@ static struct extent_buffer *btrfs_searc
- 		goto out;
++	dev_set_drvdata(&chip->dev, priv);
++
+ 	rc = tpm_tis_read32(priv, TPM_DID_VID(0), &vendor);
+ 	if (rc < 0)
+ 		return rc;
+@@ -962,8 +964,6 @@ int tpm_tis_core_init(struct device *dev
+ 		priv->timeout_max = TIS_TIMEOUT_MAX_ATML;
  	}
  
-+	/* We try very hard to do read locks on the root */
-+	root_lock = BTRFS_READ_LOCK;
-+
- 	/*
- 	 * If the level is set to maximum, we can skip trying to get the read
- 	 * lock.
-@@ -1637,6 +1637,17 @@ static struct extent_buffer *btrfs_searc
- 	level = btrfs_header_level(b);
- 
- out:
-+	/*
-+	 * The root may have failed to write out at some point, and thus is no
-+	 * longer valid, return an error in this case.
-+	 */
-+	if (!extent_buffer_uptodate(b)) {
-+		if (root_lock)
-+			btrfs_tree_unlock_rw(b, root_lock);
-+		free_extent_buffer(b);
-+		return ERR_PTR(-EIO);
-+	}
-+
- 	p->nodes[level] = b;
- 	if (!p->skip_locking)
- 		p->locks[level] = root_lock;
+-	dev_set_drvdata(&chip->dev, priv);
+-
+ 	if (is_bsw()) {
+ 		priv->ilb_base_addr = ioremap(INTEL_LEGACY_BLK_BASE_ADDR,
+ 					ILB_REMAP_SIZE);
 
 
