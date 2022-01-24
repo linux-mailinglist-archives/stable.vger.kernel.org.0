@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 524454981B0
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 15:05:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A2204981B1
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 15:05:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238366AbiAXOFN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 09:05:13 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:59442 "EHLO
+        id S230156AbiAXOFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 09:05:16 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:59466 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230156AbiAXOFM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 09:05:12 -0500
+        with ESMTP id S238176AbiAXOFQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 09:05:16 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 76598B80CCF
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 14:05:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BEDEC340E1;
-        Mon, 24 Jan 2022 14:05:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0FECFB81057
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 14:05:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D05AC340E1;
+        Mon, 24 Jan 2022 14:05:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643033110;
-        bh=xyf3q8+kWw4gQ/zDd7LoaMTMoGh/uMN4LPI61R+TNbA=;
+        s=korg; t=1643033113;
+        bh=MrSiMBY7xuAEKzVGEZDhwLDaiLVXwGqypMKN22ZHkX0=;
         h=Subject:To:Cc:From:Date:From;
-        b=Ax0kAjHJMeWu6eUsD3zmwmD+wixMgAOAGVOHLSQv1UCAiLeFg0Vqo/lTwui/Uky1y
-         Np3Xn7mi1M/i/+IIw7w+OnSGIdv/YzJyZTmIDZRmLLylY6VJhn1zSxv1yUmbEvd63m
-         +2kjrxx2EZExndeOmbMjsLSrKIPh1nQzhVbFaHJg=
-Subject: FAILED: patch "[PATCH] blk-mq: fix tag_get wait task can't be awakened" failed to apply to 4.4-stable tree
+        b=ZfC/9065+/lVrZJfz91yyGx7f1IfNW5Bi2hjJAwmK27XlG2ZDND6v7D0hVlQGXkU3
+         s4qgrQ5AKFAOsQTECs3UAo4ARV5ZUtQsso0b6nG8LGjjVOkh/DgGk5UUWg8HJRoWaM
+         fKXfslrM1qpwmZ1pWrLjwG6PAl43JLa8UJz25FfQ=
+Subject: FAILED: patch "[PATCH] blk-mq: fix tag_get wait task can't be awakened" failed to apply to 4.9-stable tree
 To:     qiulaibin@huawei.com, andriy.shevchenko@linux.intel.com,
         axboe@kernel.dk, john.garry@huawei.com, ming.lei@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 15:05:06 +0100
-Message-ID: <164303310640243@kroah.com>
+Date:   Mon, 24 Jan 2022 15:05:07 +0100
+Message-ID: <164303310783191@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
