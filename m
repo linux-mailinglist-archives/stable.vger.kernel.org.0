@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B26D549A309
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:02:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8562049A310
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:02:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2366090AbiAXXwR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:52:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47702 "EHLO
+        id S2366112AbiAXXwU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:52:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1844210AbiAXXII (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:08:08 -0500
+        with ESMTP id S1844233AbiAXXIM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:08:12 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB473C09F49F;
-        Mon, 24 Jan 2022 13:17:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E77FC09F4A2;
+        Mon, 24 Jan 2022 13:17:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A079B81243;
-        Mon, 24 Jan 2022 21:17:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96C26C340E5;
-        Mon, 24 Jan 2022 21:17:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A6B8CB811A2;
+        Mon, 24 Jan 2022 21:17:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C73DBC340E4;
+        Mon, 24 Jan 2022 21:17:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059054;
-        bh=TeYp5QSifAzy2E8GygoVq7w2IL6PghiUOAK0zkgnnm4=;
+        s=korg; t=1643059057;
+        bh=ipmEVIXRYyq7vp4hJryUoLzFfRdVsSjgjmRpnw7mLfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RAgi0R2nI4efGaC99IXeg+Mw8j0t7qPkEwPeRI/YLf2Kz3a+sDsoeakCV/8TSh/bo
-         XpC8AP5Z85M7YNKqkEPsk3l1l4lcqfpqXLnnfJcASCN5uflEwJokVumlN3pKlhMEz3
-         XLI9W5whvSBT9GQ5DG6fExu/cLpqMBC5mhlXPNy8=
+        b=mEfjjrRP/8VRbvOKHqKl7jQdQPvZrB00+p7bLoGhtTC6BtIzVScTN4tvvsJWFALgv
+         MI1KzaOq2EFI+jal7ulwepY8BKZV74EwBBUHnq5IOa/M87fViKKJrqni+9fxdCf3bz
+         UwbPJyvsnm1NF6sr/SNTiknO2bIQXznQ6RuN2izM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0490/1039] mips: add SYS_HAS_CPU_MIPS64_R5 config for MIPS Release 5 support
-Date:   Mon, 24 Jan 2022 19:37:59 +0100
-Message-Id: <20220124184141.736245824@linuxfoundation.org>
+Subject: [PATCH 5.16 0491/1039] mips: fix Kconfig reference to PHYS_ADDR_T_64BIT
+Date:   Mon, 24 Jan 2022 19:38:00 +0100
+Message-Id: <20220124184141.767752121@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -50,48 +51,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
 
-[ Upstream commit fd4eb90b164442cb1e9909f7845e12a0835ac699 ]
+[ Upstream commit a670c82d9ca4f1e7385d9d6f26ff41a50fbdd944 ]
 
-Commit ab7c01fdc3cf ("mips: Add MIPS Release 5 support") adds the two
-configs CPU_MIPS32_R5 and CPU_MIPS64_R5, which depend on the corresponding
-SYS_HAS_CPU_MIPS32_R5 and SYS_HAS_CPU_MIPS64_R5, respectively.
+Commit d4a451d5fc84 ("arch: remove the ARCH_PHYS_ADDR_T_64BIT config
+symbol") removes config ARCH_PHYS_ADDR_T_64BIT with all instances of that
+config refactored appropriately. Since then, it is recommended to use the
+config PHYS_ADDR_T_64BIT instead.
 
-The config SYS_HAS_CPU_MIPS32_R5 was already introduced with commit
-c5b367835cfc ("MIPS: Add support for XPA."); the config
-SYS_HAS_CPU_MIPS64_R5, however, was never introduced.
+Commit 171543e75272 ("MIPS: Disallow CPU_SUPPORTS_HUGEPAGES for XPA,EVA")
+introduces the expression "!(32BIT && (ARCH_PHYS_ADDR_T_64BIT || EVA))"
+for config CPU_SUPPORTS_HUGEPAGES, which unintentionally refers to the
+non-existing symbol ARCH_PHYS_ADDR_T_64BIT instead of the intended
+PHYS_ADDR_T_64BIT.
 
-Hence, ./scripts/checkkconfigsymbols.py warns:
+Fix this Kconfig reference to the intended PHYS_ADDR_T_64BIT.
 
-  SYS_HAS_CPU_MIPS64_R5
-  Referencing files: arch/mips/Kconfig, arch/mips/include/asm/cpu-type.h
+This issue was identified with the script ./scripts/checkkconfigsymbols.py.
+I then reported it on the mailing list and Paul confirmed the mistake in
+the linked email thread.
 
-Add the definition for config SYS_HAS_CPU_MIPS64_R5 under the assumption
-that SYS_HAS_CPU_MIPS64_R5 follows the same pattern as the existing
-SYS_HAS_CPU_MIPS32_R5 and SYS_HAS_CPU_MIPS64_R6.
-
-Fixes: ab7c01fdc3cf ("mips: Add MIPS Release 5 support")
+Link: https://lore.kernel.org/lkml/H8IU3R.H5QVNRA077PT@crapouillou.net/
+Suggested-by: Paul Cercueil <paul@crapouillou.net>
+Fixes: 171543e75272 ("MIPS: Disallow CPU_SUPPORTS_HUGEPAGES for XPA,EVA")
 Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
 Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/Kconfig | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/mips/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index 0215dc1529e9a..91ce1c57af005 100644
+index 91ce1c57af005..c5826236d913a 100644
 --- a/arch/mips/Kconfig
 +++ b/arch/mips/Kconfig
-@@ -1907,6 +1907,10 @@ config SYS_HAS_CPU_MIPS64_R1
- config SYS_HAS_CPU_MIPS64_R2
+@@ -2069,7 +2069,7 @@ config CPU_SUPPORTS_ADDRWINCFG
  	bool
- 
-+config SYS_HAS_CPU_MIPS64_R5
-+	bool
-+	select ARCH_HAS_SYNC_DMA_FOR_CPU if DMA_NONCOHERENT
-+
- config SYS_HAS_CPU_MIPS64_R6
+ config CPU_SUPPORTS_HUGEPAGES
  	bool
- 	select ARCH_HAS_SYNC_DMA_FOR_CPU if DMA_NONCOHERENT
+-	depends on !(32BIT && (ARCH_PHYS_ADDR_T_64BIT || EVA))
++	depends on !(32BIT && (PHYS_ADDR_T_64BIT || EVA))
+ config MIPS_PGD_C0_CONTEXT
+ 	bool
+ 	depends on 64BIT
 -- 
 2.34.1
 
