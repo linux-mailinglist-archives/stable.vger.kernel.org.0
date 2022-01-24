@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E624498B1F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:12:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94F7D49912C
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:12:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343705AbiAXTMB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:12:01 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:60874 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346074AbiAXTFD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:05:03 -0500
+        id S1376284AbiAXUJh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:09:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60540 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377244AbiAXUFL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:05:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B849C08E814;
+        Mon, 24 Jan 2022 11:30:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01C34B81215;
-        Mon, 24 Jan 2022 19:05:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10983C340E5;
-        Mon, 24 Jan 2022 19:04:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B0CA60917;
+        Mon, 24 Jan 2022 19:30:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C7EDC340E5;
+        Mon, 24 Jan 2022 19:30:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051100;
-        bh=T7KWPVUlwwGeP3+Ec471D8gVEnDQ0SQYVaxxQ4HTt44=;
+        s=korg; t=1643052649;
+        bh=VNXFk8BJ3Gnx1wh3auxgPrTluzAXvo1QXEFYQZslIsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VLys8Cu7gsPs+jGEeW2h7gnUWY+/3UVB0+CqLKpH3Q3UhdQL5mLRS4lp5u/BkSktC
-         Jkxdxl9KMVLPKKnNi/5iNsnSfaFYmjEz9sEKAoNKEhivYxW6KWuIxGk8/Tv+TLU/OD
-         3Wt/43dgp2w9LP8DIWX35NRu7iC8EIAEm2LZbNYM=
+        b=s+izFP24edvCMHawF7ws5/XV9XdtEVcBEbvmb2TONiM0HiT8zdN2Hjok+OuVEmoO8
+         mpYDFEKLcjPTyqcAZ6Gndoea49P3whrJpi6FQ1iQqje+iFyhYaVwgVmrgmEzN8xSNM
+         hiAd/UG+qBgj1nu6fwQT0bKhytrUbnf3O0u7Gvso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        syzkaller <syzkaller@googlegroups.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Peiwei Hu <jlu.hpw@foxmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 037/186] media: em28xx: fix memory leak in em28xx_init_dev
+Subject: [PATCH 5.4 128/320] powerpc/prom_init: Fix improper check of prom_getprop()
 Date:   Mon, 24 Jan 2022 19:41:52 +0100
-Message-Id: <20220124183938.318318966@linuxfoundation.org>
+Message-Id: <20220124183958.031926322@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,79 +48,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Peiwei Hu <jlu.hpw@foxmail.com>
 
-[ Upstream commit 22be5a10d0b24eec9e45decd15d7e6112b25f080 ]
+[ Upstream commit 869fb7e5aecbc163003f93f36dcc26d0554319f6 ]
 
-In the em28xx_init_rev, if em28xx_audio_setup fails, this function fails
-to deallocate the media_dev allocated in the em28xx_media_device_init.
+prom_getprop() can return PROM_ERROR. Binary operator can not identify
+it.
 
-Fix this by adding em28xx_unregister_media_device to free media_dev.
-
-BTW, this patch is tested in my local syzkaller instance, and it can
-prevent the memory leak from occurring again.
-
-CC: Pavel Skripkin <paskripkin@gmail.com>
-Fixes: 37ecc7b1278f ("[media] em28xx: add media controller support")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Reported-by: syzkaller <syzkaller@googlegroups.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 94d2dde738a5 ("[POWERPC] Efika: prune fixups and make them more carefull")
+Signed-off-by: Peiwei Hu <jlu.hpw@foxmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/tencent_BA28CC6897B7C95A92EB8C580B5D18589105@qq.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/em28xx/em28xx-cards.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ arch/powerpc/kernel/prom_init.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/em28xx/em28xx-cards.c b/drivers/media/usb/em28xx/em28xx-cards.c
-index 9747e23aad271..b736c027a0bd0 100644
---- a/drivers/media/usb/em28xx/em28xx-cards.c
-+++ b/drivers/media/usb/em28xx/em28xx-cards.c
-@@ -3386,8 +3386,10 @@ static int em28xx_init_dev(struct em28xx *dev, struct usb_device *udev,
+diff --git a/arch/powerpc/kernel/prom_init.c b/arch/powerpc/kernel/prom_init.c
+index 1b65fb7c0bdaa..7f4e2c031a9ab 100644
+--- a/arch/powerpc/kernel/prom_init.c
++++ b/arch/powerpc/kernel/prom_init.c
+@@ -2919,7 +2919,7 @@ static void __init fixup_device_tree_efika_add_phy(void)
  
- 	if (dev->is_audio_only) {
- 		retval = em28xx_audio_setup(dev);
--		if (retval)
--			return -ENODEV;
-+		if (retval) {
-+			retval = -ENODEV;
-+			goto err_deinit_media;
-+		}
- 		em28xx_init_extension(dev);
+ 	/* Check if the phy-handle property exists - bail if it does */
+ 	rv = prom_getprop(node, "phy-handle", prop, sizeof(prop));
+-	if (!rv)
++	if (rv <= 0)
+ 		return;
  
- 		return 0;
-@@ -3417,7 +3419,7 @@ static int em28xx_init_dev(struct em28xx *dev, struct usb_device *udev,
- 		dev_err(&dev->intf->dev,
- 			"%s: em28xx_i2c_register bus 0 - error [%d]!\n",
- 		       __func__, retval);
--		return retval;
-+		goto err_deinit_media;
- 	}
- 
- 	/* register i2c bus 1 */
-@@ -3433,9 +3435,7 @@ static int em28xx_init_dev(struct em28xx *dev, struct usb_device *udev,
- 			       "%s: em28xx_i2c_register bus 1 - error [%d]!\n",
- 			       __func__, retval);
- 
--			em28xx_i2c_unregister(dev, 0);
--
--			return retval;
-+			goto err_unreg_i2c;
- 		}
- 	}
- 
-@@ -3443,6 +3443,12 @@ static int em28xx_init_dev(struct em28xx *dev, struct usb_device *udev,
- 	em28xx_card_setup(dev);
- 
- 	return 0;
-+
-+err_unreg_i2c:
-+	em28xx_i2c_unregister(dev, 0);
-+err_deinit_media:
-+	em28xx_unregister_media_device(dev);
-+	return retval;
- }
- 
- /* high bandwidth multiplier, as encoded in highspeed endpoint descriptors */
+ 	/*
 -- 
 2.34.1
 
