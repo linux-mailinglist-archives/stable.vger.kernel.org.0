@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A69CB49A044
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:26:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B29C949A03E
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:25:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1843598AbiAXXFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:05:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44860 "EHLO
+        id S1843576AbiAXXE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:04:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44852 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382592AbiAXW4D (ORCPT
+        with ESMTP id S1382519AbiAXW4D (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:56:03 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59AF1C055AA2;
-        Mon, 24 Jan 2022 13:10:45 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4457AC055AA3;
+        Mon, 24 Jan 2022 13:10:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 187BBB80CCF;
-        Mon, 24 Jan 2022 21:10:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F544C340E5;
-        Mon, 24 Jan 2022 21:10:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 010F2B8121C;
+        Mon, 24 Jan 2022 21:10:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F551C340E5;
+        Mon, 24 Jan 2022 21:10:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058642;
-        bh=dK3hIHSJOFGdVBAyhBXTzS2yjHybOl79EpD320zhCR4=;
+        s=korg; t=1643058648;
+        bh=3Fu7+CpOM2je09bja5KFR0o3WRmslcWj3YAGQSVyIFU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K7h8D2FQP9GbQ4zW8Jf1nudySIkIJNUv2KCD9fnwMiCHin/UydFHqIehuE+QUYmGe
-         Ihlm19hn9QYeossWXY+csriTUefqBa810pDGi1R3DcFAGFM59R7IBiS0i8n7Rjd+HY
-         ITj5EM4vlYQFwtRqZjXxp/U0Qf2u8kdGf+Odoz3o=
+        b=Hd2uPuG6f380x4G1oKDviaDJyiSvLbpPX4upUnxzhrJg7JgDwpoNH55TWhf4jqg8m
+         6vgHfGfda9mEGxjbh+cPOJEFPO8j0cGEURXvVvX0Xckv51Fqvjz9WVqimmVqxp4+z9
+         Pqm2MoLICdSVsAOVmVXTKimbctWIVD15qkNvFQ1g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org,
+        Marijn Suijten <marijn.suijten@somainline.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@somainline.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0355/1039] crypto: octeontx2 - prevent underflow in get_cores_bmap()
-Date:   Mon, 24 Jan 2022 19:35:44 +0100
-Message-Id: <20220124184137.215571101@linuxfoundation.org>
+Subject: [PATCH 5.16 0357/1039] regulator: qcom-labibb: OCP interrupts are not a failure while disabled
+Date:   Mon, 24 Jan 2022 19:35:46 +0100
+Message-Id: <20220124184137.282853958@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -48,35 +51,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Marijn Suijten <marijn.suijten@somainline.org>
 
-[ Upstream commit 10371b6212bb682f13247733d6b76b91b2b80f9a ]
+[ Upstream commit d27bb69dc83f00f86a830298c967052cded6e784 ]
 
-If we're going to cap "eng_grp->g->engs_num" upper bounds then we should
-cap the lower bounds as well.
+Receiving the Over-Current Protection interrupt while the regulator is
+disabled does not count as unhandled/failure (IRQ_NONE, or 0 as it were)
+but a "fake event", usually due to inrush as the is regulator about to
+be enabled.
 
-Fixes: 43ac0b824f1c ("crypto: octeontx2 - load microcode and create engine groups")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 390af53e0411 ("regulator: qcom-labibb: Implement short-circuit and over-current IRQs")
+Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
+Link: https://lore.kernel.org/r/20211224113450.107958-1-marijn.suijten@somainline.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/marvell/octeontx2/otx2_cptpf_ucode.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/regulator/qcom-labibb-regulator.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/marvell/octeontx2/otx2_cptpf_ucode.c b/drivers/crypto/marvell/octeontx2/otx2_cptpf_ucode.c
-index dff34b3ec09e1..7c1b92aaab398 100644
---- a/drivers/crypto/marvell/octeontx2/otx2_cptpf_ucode.c
-+++ b/drivers/crypto/marvell/octeontx2/otx2_cptpf_ucode.c
-@@ -29,7 +29,8 @@ static struct otx2_cpt_bitmap get_cores_bmap(struct device *dev,
- 	bool found = false;
- 	int i;
+diff --git a/drivers/regulator/qcom-labibb-regulator.c b/drivers/regulator/qcom-labibb-regulator.c
+index b3da0dc58782f..639b71eb41ffe 100644
+--- a/drivers/regulator/qcom-labibb-regulator.c
++++ b/drivers/regulator/qcom-labibb-regulator.c
+@@ -260,7 +260,7 @@ static irqreturn_t qcom_labibb_ocp_isr(int irq, void *chip)
  
--	if (eng_grp->g->engs_num > OTX2_CPT_MAX_ENGINES) {
-+	if (eng_grp->g->engs_num < 0 ||
-+	    eng_grp->g->engs_num > OTX2_CPT_MAX_ENGINES) {
- 		dev_err(dev, "unsupported number of engines %d on octeontx2\n",
- 			eng_grp->g->engs_num);
- 		return bmap;
+ 	/* If the regulator is not enabled, this is a fake event */
+ 	if (!ops->is_enabled(vreg->rdev))
+-		return 0;
++		return IRQ_HANDLED;
+ 
+ 	/* If we tried to recover for too many times it's not getting better */
+ 	if (vreg->ocp_irq_count > LABIBB_MAX_OCP_COUNT)
 -- 
 2.34.1
 
