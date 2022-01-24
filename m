@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F1E5499407
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:40:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18F08499039
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350626AbiAXUi0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:38:26 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:35322 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383994AbiAXUdF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:33:05 -0500
+        id S1358165AbiAXT7N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:59:13 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:48564 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1354409AbiAXTx1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:53:27 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 537F5B8121C;
-        Mon, 24 Jan 2022 20:32:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0BBCC340E5;
-        Mon, 24 Jan 2022 20:32:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CB0060B02;
+        Mon, 24 Jan 2022 19:53:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AB79C340E5;
+        Mon, 24 Jan 2022 19:53:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056378;
-        bh=uJoyLqhseUQJo0ZE3D2WIiitPdPERSXYICGFZS49XR4=;
+        s=korg; t=1643054006;
+        bh=hPIfp+xb0nCIRiWKRjRo3dFFJQLH9qNfIauxYLsotvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lEnD/lM2kbG7BJ2pmx4Q0jcpONWlaCSuxwKQeuM3rERaFc8KD4TPhQqjxYsYjAYZO
-         L1x2tsGHMhL5OHS8lJeNAt70BU0dsfETrO3IcWtcc6A3GJK/ZmGSdCztj60M7/RaIJ
-         1qR/FREjYB9iQ38vr1dmwFo0qzvzlOaJlhEOrF/Y=
+        b=BkCuA0JnRtlxv/AsFIMJzXZKZ/S1AnAVq9J7+iWGQcgYdNq9j9YucJC1/CUOLkP5t
+         5VCoVztMOK2JITcevTChfVioDNfIR7oBVLyaJvPRkhWW2FAV8tQKMVTnzPyepRbxwQ
+         O2tUmWCEYohf8Nn1p4zsOw+nj4luhmoot6O4EG9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 463/846] fs: dlm: filter user dlm messages for kernel locks
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 215/563] HID: hid-uclogic-params: Invalid parameter check in uclogic_params_init
 Date:   Mon, 24 Jan 2022 19:39:40 +0100
-Message-Id: <20220124184116.949672695@linuxfoundation.org>
+Message-Id: <20220124184031.886701421@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,116 +45,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: José Expósito <jose.exposito89@gmail.com>
 
-[ Upstream commit 6c2e3bf68f3e5e5a647aa52be246d5f552d7496d ]
+[ Upstream commit f364c571a5c77e96de2d32062ff019d6b8d2e2bc ]
 
-This patch fixes the following crash by receiving a invalid message:
+The function performs a check on its input parameters, however, the
+hdev parameter is used before the check.
 
-[  160.672220] ==================================================================
-[  160.676206] BUG: KASAN: user-memory-access in dlm_user_add_ast+0xc3/0x370
-[  160.679659] Read of size 8 at addr 00000000deadbeef by task kworker/u32:13/319
-[  160.681447]
-[  160.681824] CPU: 10 PID: 319 Comm: kworker/u32:13 Not tainted 5.14.0-rc2+ #399
-[  160.683472] Hardware name: Red Hat KVM/RHEL-AV, BIOS 1.14.0-1.module+el8.6.0+12648+6ede71a5 04/01/2014
-[  160.685574] Workqueue: dlm_recv process_recv_sockets
-[  160.686721] Call Trace:
-[  160.687310]  dump_stack_lvl+0x56/0x6f
-[  160.688169]  ? dlm_user_add_ast+0xc3/0x370
-[  160.689116]  kasan_report.cold.14+0x116/0x11b
-[  160.690138]  ? dlm_user_add_ast+0xc3/0x370
-[  160.690832]  dlm_user_add_ast+0xc3/0x370
-[  160.691502]  _receive_unlock_reply+0x103/0x170
-[  160.692241]  _receive_message+0x11df/0x1ec0
-[  160.692926]  ? rcu_read_lock_sched_held+0xa1/0xd0
-[  160.693700]  ? rcu_read_lock_bh_held+0xb0/0xb0
-[  160.694427]  ? lock_acquire+0x175/0x400
-[  160.695058]  ? do_purge.isra.51+0x200/0x200
-[  160.695744]  ? lock_acquired+0x360/0x5d0
-[  160.696400]  ? lock_contended+0x6a0/0x6a0
-[  160.697055]  ? lock_release+0x21d/0x5e0
-[  160.697686]  ? lock_is_held_type+0xe0/0x110
-[  160.698352]  ? lock_is_held_type+0xe0/0x110
-[  160.699026]  ? ___might_sleep+0x1cc/0x1e0
-[  160.699698]  ? dlm_wait_requestqueue+0x94/0x140
-[  160.700451]  ? dlm_process_requestqueue+0x240/0x240
-[  160.701249]  ? down_write_killable+0x2b0/0x2b0
-[  160.701988]  ? do_raw_spin_unlock+0xa2/0x130
-[  160.702690]  dlm_receive_buffer+0x1a5/0x210
-[  160.703385]  dlm_process_incoming_buffer+0x726/0x9f0
-[  160.704210]  receive_from_sock+0x1c0/0x3b0
-[  160.704886]  ? dlm_tcp_shutdown+0x30/0x30
-[  160.705561]  ? lock_acquire+0x175/0x400
-[  160.706197]  ? rcu_read_lock_sched_held+0xa1/0xd0
-[  160.706941]  ? rcu_read_lock_bh_held+0xb0/0xb0
-[  160.707681]  process_recv_sockets+0x32/0x40
-[  160.708366]  process_one_work+0x55e/0xad0
-[  160.709045]  ? pwq_dec_nr_in_flight+0x110/0x110
-[  160.709820]  worker_thread+0x65/0x5e0
-[  160.710423]  ? process_one_work+0xad0/0xad0
-[  160.711087]  kthread+0x1ed/0x220
-[  160.711628]  ? set_kthread_struct+0x80/0x80
-[  160.712314]  ret_from_fork+0x22/0x30
+Initialize the stack variables after checking the input parameters to
+avoid a possible NULL pointer dereference.
 
-The issue is that we received a DLM message for a user lock but the
-destination lock is a kernel lock. Note that the address which is trying
-to derefence is 00000000deadbeef, which is in a kernel lock
-lkb->lkb_astparam, this field should never be derefenced by the DLM
-kernel stack. In case of a user lock lkb->lkb_astparam is lkb->lkb_ua
-(memory is shared by a union field). The struct lkb_ua will be handled
-by the DLM kernel stack but on a kernel lock it will contain invalid
-data and ends in most likely crashing the kernel.
-
-It can be reproduced with two cluster nodes.
-
-node 2:
-dlm_tool join test
-echo "862 fooobaar 1 2 1" > /sys/kernel/debug/dlm/test_locks
-echo "862 3 1" > /sys/kernel/debug/dlm/test_waiters
-
-node 1:
-dlm_tool join test
-
-python:
-foo = DLM(h_cmd=3, o_nextcmd=1, h_nodeid=1, h_lockspace=0x77222027, \
-          m_type=7, m_flags=0x1, m_remid=0x862, m_result=0xFFFEFFFE)
-newFile = open("/sys/kernel/debug/dlm/comms/2/rawmsg", "wb")
-newFile.write(bytes(foo))
-
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+Fixes: 9614219e9310e ("HID: uclogic: Extract tablet parameter discovery into a module")
+Addresses-Coverity-ID: 1443831 ("Null pointer dereference")
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/lock.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/hid/hid-uclogic-params.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/fs/dlm/lock.c b/fs/dlm/lock.c
-index c502c065d0075..28d1f35b11a4d 100644
---- a/fs/dlm/lock.c
-+++ b/fs/dlm/lock.c
-@@ -3973,6 +3973,14 @@ static int validate_message(struct dlm_lkb *lkb, struct dlm_message *ms)
- 	int from = ms->m_header.h_nodeid;
- 	int error = 0;
- 
-+	/* currently mixing of user/kernel locks are not supported */
-+	if (ms->m_flags & DLM_IFL_USER && ~lkb->lkb_flags & DLM_IFL_USER) {
-+		log_error(lkb->lkb_resource->res_ls,
-+			  "got user dlm message for a kernel lock");
-+		error = -EINVAL;
-+		goto out;
-+	}
-+
- 	switch (ms->m_type) {
- 	case DLM_MSG_CONVERT:
- 	case DLM_MSG_UNLOCK:
-@@ -4001,6 +4009,7 @@ static int validate_message(struct dlm_lkb *lkb, struct dlm_message *ms)
- 		error = -EINVAL;
+diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
+index dd05bed4ca53a..851ab8e24f9d7 100644
+--- a/drivers/hid/hid-uclogic-params.c
++++ b/drivers/hid/hid-uclogic-params.c
+@@ -832,10 +832,10 @@ int uclogic_params_init(struct uclogic_params *params,
+ 			struct hid_device *hdev)
+ {
+ 	int rc;
+-	struct usb_device *udev = hid_to_usb_dev(hdev);
+-	__u8  bNumInterfaces = udev->config->desc.bNumInterfaces;
+-	struct usb_interface *iface = to_usb_interface(hdev->dev.parent);
+-	__u8 bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
++	struct usb_device *udev;
++	__u8  bNumInterfaces;
++	struct usb_interface *iface;
++	__u8 bInterfaceNumber;
+ 	bool found;
+ 	/* The resulting parameters (noop) */
+ 	struct uclogic_params p = {0, };
+@@ -846,6 +846,11 @@ int uclogic_params_init(struct uclogic_params *params,
+ 		goto cleanup;
  	}
  
-+out:
- 	if (error)
- 		log_error(lkb->lkb_resource->res_ls,
- 			  "ignore invalid message %d from %d %x %x %x %d",
++	udev = hid_to_usb_dev(hdev);
++	bNumInterfaces = udev->config->desc.bNumInterfaces;
++	iface = to_usb_interface(hdev->dev.parent);
++	bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
++
+ 	/*
+ 	 * Set replacement report descriptor if the original matches the
+ 	 * specified size. Otherwise keep interface unchanged.
 -- 
 2.34.1
 
