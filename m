@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 760BF49A486
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:09:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BEB049A3B2
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:03:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2369530AbiAYACC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:02:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53364 "EHLO
+        id S2365587AbiAXXvT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:51:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1383050AbiAXX2E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:28:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3B0DC01D7EC;
-        Mon, 24 Jan 2022 13:31:01 -0800 (PST)
+        with ESMTP id S1578510AbiAXWDD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:03:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6978C0C093F;
+        Mon, 24 Jan 2022 12:41:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4AD71B8122A;
-        Mon, 24 Jan 2022 21:31:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77A88C340E4;
-        Mon, 24 Jan 2022 21:30:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 727E161008;
+        Mon, 24 Jan 2022 20:41:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 531E6C340E5;
+        Mon, 24 Jan 2022 20:41:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059860;
-        bh=9aUcXT3IAkm0wq9zoAJHhvROrGWTCBthzqq60iNgH8g=;
+        s=korg; t=1643056877;
+        bh=3cmUl0Kng61V5pxa0ERWvC6ByxCde87qlfadGwheNM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CeQyGaISh2khsOeIiZXuAz4/KnypXx++/PLwgmGMlommWrLPTIx4Lcv4vMCD/7vnJ
-         urLBio6qi9tajkZ9g5IHsUCYJtbNbTOG4y8MNNcFsdUvFq/NfZIQGAdg3hnG+EtlLF
-         N6AKNazmOKq83djYHnmsAqAKOHuAqdso0aahNdw4=
+        b=wEQ6S8YQNfy0Pisb2KfukdubQa8Z7lQhl+wGCaJpKFm/gcK1lLmRlBTDfRDGm0wO5
+         92kYLZrLJcbv0g2uehF55MOcZNNPNRkDYUEJXzkN82T5QCK1DJTt5zqSFzqe836b5/
+         4Sfe7IyijmOishsZowA6mxfBzHBVTuWzIDxNJ5ao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ryutaroh Matsumoto <ryutaroh@ict.e.titech.ac.jp>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0757/1039] MIPS: Loongson64: Use three arguments for slti
+Subject: [PATCH 5.15 629/846] i2c: i801: Dont silently correct invalid transfer size
 Date:   Mon, 24 Jan 2022 19:42:26 +0100
-Message-Id: <20220124184150.779947895@linuxfoundation.org>
+Message-Id: <20220124184122.734921413@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,60 +48,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit f2c6c22fa83ab2577619009057b3ebcb5305bb03 ]
+[ Upstream commit effa453168a7eeb8a562ff4edc1dbf9067360a61 ]
 
-LLVM's integrated assembler does not support 'slti <reg>, <imm>':
+If an invalid block size is provided, reject it instead of silently
+changing it to a supported value. Especially critical I see the case of
+a write transfer with block length 0. In this case we have no guarantee
+that the byte we would write is valid. When silently reducing a read to
+32 bytes then we don't return an error and the caller may falsely
+assume that we returned the full requested data.
 
-<instantiation>:16:12: error: invalid operand for instruction
- slti $12, (0x6300 | 0x0008)
-           ^
-arch/mips/kernel/head.S:86:2: note: while in macro instantiation
- kernel_entry_setup # cpu specific setup
- ^
-<instantiation>:16:12: error: invalid operand for instruction
- slti $12, (0x6300 | 0x0008)
-           ^
-arch/mips/kernel/head.S:150:2: note: while in macro instantiation
- smp_slave_setup
- ^
+If this change should break any (broken) caller, then I think we should
+fix the caller.
 
-To increase compatibility with LLVM's integrated assembler, use the full
-form of 'slti <reg>, <reg>, <imm>', which matches the rest of
-arch/mips/. This does not result in any change for GNU as.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1526
-Reported-by: Ryutaroh Matsumoto <ryutaroh@ict.e.titech.ac.jp>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/mach-loongson64/kernel-entry-init.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-i801.c | 15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
-diff --git a/arch/mips/include/asm/mach-loongson64/kernel-entry-init.h b/arch/mips/include/asm/mach-loongson64/kernel-entry-init.h
-index 13373c5144f89..efb41b3519747 100644
---- a/arch/mips/include/asm/mach-loongson64/kernel-entry-init.h
-+++ b/arch/mips/include/asm/mach-loongson64/kernel-entry-init.h
-@@ -32,7 +32,7 @@
- 	nop
- 	/* Loongson-3A R2/R3 */
- 	andi	t0, (PRID_IMP_MASK | PRID_REV_MASK)
--	slti	t0, (PRID_IMP_LOONGSON_64C | PRID_REV_LOONGSON3A_R2_0)
-+	slti	t0, t0, (PRID_IMP_LOONGSON_64C | PRID_REV_LOONGSON3A_R2_0)
- 	bnez	t0, 2f
- 	nop
- 1:
-@@ -63,7 +63,7 @@
- 	nop
- 	/* Loongson-3A R2/R3 */
- 	andi	t0, (PRID_IMP_MASK | PRID_REV_MASK)
--	slti	t0, (PRID_IMP_LOONGSON_64C | PRID_REV_LOONGSON3A_R2_0)
-+	slti	t0, t0, (PRID_IMP_LOONGSON_64C | PRID_REV_LOONGSON3A_R2_0)
- 	bnez	t0, 2f
- 	nop
- 1:
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 1f929e6c30bea..98e39a17fb830 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -763,6 +763,11 @@ static int i801_block_transaction(struct i801_priv *priv, union i2c_smbus_data *
+ 	int result = 0;
+ 	unsigned char hostc;
+ 
++	if (read_write == I2C_SMBUS_READ && command == I2C_SMBUS_BLOCK_DATA)
++		data->block[0] = I2C_SMBUS_BLOCK_MAX;
++	else if (data->block[0] < 1 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
++		return -EPROTO;
++
+ 	if (command == I2C_SMBUS_I2C_BLOCK_DATA) {
+ 		if (read_write == I2C_SMBUS_WRITE) {
+ 			/* set I2C_EN bit in configuration register */
+@@ -776,16 +781,6 @@ static int i801_block_transaction(struct i801_priv *priv, union i2c_smbus_data *
+ 		}
+ 	}
+ 
+-	if (read_write == I2C_SMBUS_WRITE
+-	 || command == I2C_SMBUS_I2C_BLOCK_DATA) {
+-		if (data->block[0] < 1)
+-			data->block[0] = 1;
+-		if (data->block[0] > I2C_SMBUS_BLOCK_MAX)
+-			data->block[0] = I2C_SMBUS_BLOCK_MAX;
+-	} else {
+-		data->block[0] = 32;	/* max for SMBus block reads */
+-	}
+-
+ 	/* Experience has shown that the block buffer can only be used for
+ 	   SMBus (not I2C) block transactions, even though the datasheet
+ 	   doesn't mention this limitation. */
 -- 
 2.34.1
 
