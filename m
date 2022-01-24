@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A168E49A403
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:08:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ACA549A411
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:08:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2369253AbiAYABS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:01:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51460 "EHLO
+        id S2369283AbiAYABZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:01:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1847533AbiAXXT7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:19:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAB45C06F8FD;
-        Mon, 24 Jan 2022 13:27:43 -0800 (PST)
+        with ESMTP id S1847527AbiAXXUA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:20:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40850C08E8AC;
+        Mon, 24 Jan 2022 13:27:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 58A1661490;
-        Mon, 24 Jan 2022 21:27:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32F10C340E4;
-        Mon, 24 Jan 2022 21:27:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F2C72B81257;
+        Mon, 24 Jan 2022 21:27:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2492EC340E4;
+        Mon, 24 Jan 2022 21:27:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059662;
-        bh=P6eFo3h9qX3r6YCHPSkuPE/RNoXMNV1Mnn7M6uecedU=;
+        s=korg; t=1643059665;
+        bh=I1V/IFg+vIvu92mF4fyATCy5Y+5SKhi/PFtWjx0XmD8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N3lw26p6aQ1Hj4Z3y9cV57qYeVMJDllBK7VX0EoFPkiKtSKJZa1XN4XFha0CU6Y3Z
-         C3AvWagQL10P9eidMGSNoS6odpK8QNHNc7kK6q0E+wrF+N4EfEIy+CXIOICROof+ST
-         jivP42Ae9JZDq/K89YlD030tJFO07mzhyF1mSEXo=
+        b=PW9BXlYfoRcCqRYVO80Go9uCV5fX/SaW4b4DEGFGTihZZ6cZaoeg6+zMDiiCvNr4B
+         O5M7N0isTqRZb8C3Kwv5y3CJGK99Z61VPoETuYXUTDnLqRCFAnSEf8R2Y21OW/ZmJo
+         nqBM0g8klskmJfFcdulaLzs9LUlDWdxmSaX52UV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Horace Chen <horace.chen@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0658/1039] drm/amd/amdgpu: fix psp tmr bo pin count leak in SRIOV
-Date:   Mon, 24 Jan 2022 19:40:47 +0100
-Message-Id: <20220124184147.486025851@linuxfoundation.org>
+Subject: [PATCH 5.16 0659/1039] drm/amd/amdgpu: fix gmc bo pin count leak in SRIOV
+Date:   Mon, 24 Jan 2022 19:40:48 +0100
+Message-Id: <20220124184147.516227710@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -51,10 +51,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jingwen Chen <Jingwen.Chen2@amd.com>
 
-[ Upstream commit 85dfc1d692c9434c37842e610be37cd4ae4e0081 ]
+[ Upstream commit 948e7ce01413b71395723aaf846015062aea3a43 ]
 
 [Why]
-psp tmr bo will be pinned during loading amdgpu and reset in SRIOV while
+gmc bo will be pinned during loading amdgpu and reset in SRIOV while
 only unpinned in unload amdgpu
 
 [How]
@@ -67,30 +67,48 @@ Reviewed-by: Horace Chen <horace.chen@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c | 4 ++++
+ drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c  | 4 ++++
+ 2 files changed, 8 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-index c641f84649d6b..d011ae7e50a54 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
-@@ -2017,12 +2017,16 @@ static int psp_hw_start(struct psp_context *psp)
- 		return ret;
+diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c
+index 3ec5ff5a6dbe6..61ec6145bbb16 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gmc_v10_0.c
+@@ -992,10 +992,14 @@ static int gmc_v10_0_gart_enable(struct amdgpu_device *adev)
+ 		return -EINVAL;
  	}
  
 +	if (amdgpu_sriov_vf(adev) && amdgpu_in_reset(adev))
 +		goto skip_pin_bo;
 +
- 	ret = psp_tmr_init(psp);
- 	if (ret) {
- 		DRM_ERROR("PSP tmr init failed!\n");
- 		return ret;
- 	}
+ 	r = amdgpu_gart_table_vram_pin(adev);
+ 	if (r)
+ 		return r;
  
 +skip_pin_bo:
- 	/*
- 	 * For ASICs with DF Cstate management centralized
- 	 * to PMFW, TMR setup should be performed after PMFW
+ 	r = adev->gfxhub.funcs->gart_enable(adev);
+ 	if (r)
+ 		return r;
+diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
+index d84523cf5f759..4420c264c554c 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
+@@ -1714,10 +1714,14 @@ static int gmc_v9_0_gart_enable(struct amdgpu_device *adev)
+ 		return -EINVAL;
+ 	}
+ 
++	if (amdgpu_sriov_vf(adev) && amdgpu_in_reset(adev))
++		goto skip_pin_bo;
++
+ 	r = amdgpu_gart_table_vram_pin(adev);
+ 	if (r)
+ 		return r;
+ 
++skip_pin_bo:
+ 	r = adev->gfxhub.funcs->gart_enable(adev);
+ 	if (r)
+ 		return r;
 -- 
 2.34.1
 
