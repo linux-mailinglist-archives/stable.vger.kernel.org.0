@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7825E499A9B
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEEBD49969E
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:19:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1573581AbiAXVpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:45:16 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:48206 "EHLO
+        id S1345549AbiAXVFK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:05:10 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:47186 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378062AbiAXVio (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:38:44 -0500
+        with ESMTP id S1391084AbiAXUqz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:46:55 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B55CEB81188;
-        Mon, 24 Jan 2022 21:38:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9EB0C340E4;
-        Mon, 24 Jan 2022 21:38:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9510DB812A4;
+        Mon, 24 Jan 2022 20:46:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9761C340E5;
+        Mon, 24 Jan 2022 20:46:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060321;
-        bh=AZdeogpZIVfXj08F3oNVbYOQIuzVXxnygZlttam14NE=;
+        s=korg; t=1643057213;
+        bh=/CkJZbBS/noqHTVzt9gb1OaMJAK407vUfQxtvkkrFfs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zl1T89EY4+98IcslDj/QAVT/46j/Agx3z1hkgNjSyKaxLdM05hunVmXfymHEaevvn
-         X/7jSkAF3OqdGtl2S1Pin4QZKmr4d3foZBa6ys6Z54jUDp+zeTl3B7o5/uEdGOXrpo
-         y8tEtUTS7YWhXE7IjP0c1rgABfBL/E1XDZbv9c9s=
+        b=DfwMs2jyL1H7yxkWFiogEhGmI6bFvi4chSMeM3WiB7BDIT/2BWoOm0+e/di7vabBE
+         TBamEpfM5SoZPvQ7+tsTITRzlelkME2fPxM3y43cjs8DZL0eYUsozakPnDPUFFVx3a
+         5LzidQX+yv7Gxv/8jVC23rBKsrDz1CfdHu+8F/24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
-        James Smart <jsmart2021@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 5.16 0866/1039] scsi: lpfc: Fix lpfc_force_rscn ndlp kref imbalance
+        stable@vger.kernel.org,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.15 738/846] Documentation: ACPI: Fix data node reference documentation
 Date:   Mon, 24 Jan 2022 19:44:15 +0100
-Message-Id: <20220124184154.404731249@linuxfoundation.org>
+Message-Id: <20220124184126.451066352@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,45 +46,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-commit 7576d48c64f36f6fea9df2882f710a474fa35f40 upstream.
+commit a11174952205d082f1658fab4314f0caf706e0a8 upstream.
 
-Issuing lpfc_force_rscn twice results in an ndlp kref use-after-free call
-trace.
+The data node reference documentation was missing a package that must
+contain the property values, instead property name and multiple values
+being present in a single package. This is not aligned with the _DSD
+spec.
 
-A prior patch reworked the get/put handling by ensuring nlp_get was done
-before WQE submission and a put was done in the completion path.
-Unfortunately, the issue_els_rscn path had a piece of legacy code that did
-a nlp_put, causing an imbalance on the ref counts.
+Fix it by adding the package for the values.
 
-Fixed by removing the unnecessary legacy code snippet.
+Also add the missing "reg" properties to two numbered nodes.
 
-Link: https://lore.kernel.org/r/20211204002644.116455-4-jsmart2021@gmail.com
-Fixes: 4430f7fd09ec ("scsi: lpfc: Rework locations of ndlp reference taking")
-Cc: <stable@vger.kernel.org> # v5.11+
-Co-developed-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: Justin Tee <justin.tee@broadcom.com>
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: b10134a3643d ("ACPI: property: Document hierarchical data extension references")
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/lpfc/lpfc_els.c |    5 -----
- 1 file changed, 5 deletions(-)
+ Documentation/firmware-guide/acpi/dsd/data-node-references.rst |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/drivers/scsi/lpfc/lpfc_els.c
-+++ b/drivers/scsi/lpfc/lpfc_els.c
-@@ -3538,11 +3538,6 @@ lpfc_issue_els_rscn(struct lpfc_vport *v
- 		return 1;
+--- a/Documentation/firmware-guide/acpi/dsd/data-node-references.rst
++++ b/Documentation/firmware-guide/acpi/dsd/data-node-references.rst
+@@ -5,7 +5,7 @@
+ Referencing hierarchical data nodes
+ ===================================
+ 
+-:Copyright: |copy| 2018 Intel Corporation
++:Copyright: |copy| 2018, 2021 Intel Corporation
+ :Author: Sakari Ailus <sakari.ailus@linux.intel.com>
+ 
+ ACPI in general allows referring to device objects in the tree only.
+@@ -52,12 +52,14 @@ the ANOD object which is also the final
+ 	    Name (NOD0, Package() {
+ 		ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+ 		Package () {
++		    Package () { "reg", 0 },
+ 		    Package () { "random-property", 3 },
+ 		}
+ 	    })
+ 	    Name (NOD1, Package() {
+ 		ToUUID("dbb8e3e6-5886-4ba6-8795-1319f52a966b"),
+ 		Package () {
++		    Package () { "reg", 1 },
+ 		    Package () { "anothernode", "ANOD" },
+ 		}
+ 	    })
+@@ -74,7 +76,11 @@ the ANOD object which is also the final
+ 	    Name (_DSD, Package () {
+ 		ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
+ 		Package () {
+-		    Package () { "reference", ^DEV0, "node@1", "anothernode" },
++		    Package () {
++			"reference", Package () {
++			    ^DEV0, "node@1", "anothernode"
++			}
++		    },
+ 		}
+ 	    })
  	}
- 
--	/* This will cause the callback-function lpfc_cmpl_els_cmd to
--	 * trigger the release of node.
--	 */
--	if (!(vport->fc_flag & FC_PT2PT))
--		lpfc_nlp_put(ndlp);
- 	return 0;
- }
- 
 
 
