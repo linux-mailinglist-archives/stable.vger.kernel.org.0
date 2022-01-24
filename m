@@ -2,126 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF27A4986A3
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 18:25:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A9EA4986B6
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 18:27:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241585AbiAXRZq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 12:25:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50952 "EHLO
+        id S244579AbiAXR07 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 12:26:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232076AbiAXRZq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 12:25:46 -0500
-Received: from mail-io1-xd2b.google.com (mail-io1-xd2b.google.com [IPv6:2607:f8b0:4864:20::d2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1443AC06173B;
-        Mon, 24 Jan 2022 09:25:46 -0800 (PST)
-Received: by mail-io1-xd2b.google.com with SMTP id w7so20412514ioj.5;
-        Mon, 24 Jan 2022 09:25:46 -0800 (PST)
+        with ESMTP id S244581AbiAXR05 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 12:26:57 -0500
+Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBB53C06173D
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 09:26:56 -0800 (PST)
+Received: by mail-pj1-x1036.google.com with SMTP id my12-20020a17090b4c8c00b001b528ba1cd7so475720pjb.1
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 09:26:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=xryK/mEgi9MgM4urrErNLEfDy5dITW8r2qeFkYk3a0c=;
-        b=qei7F8QNutg9V2rXEzUW7gnZppcqvD7+oKb9evsAApMMCgAScr35oSnti9hkeqMIEu
-         lb9CT69JKpgXHKiIKO5QvzDPsluVr0r00TQSeYQCVgpFBJ0k8qZSBCBgv+MqNfldTbZd
-         Mi1O1wWBWNEqBadRKGMfzz6Ffd/LNi9pYYxiWvsXGE2A1pO7/cpCMeuE7bugLS+3HG2n
-         7oG+s8OJnfP1j1MQEpeRUOj/mSglD/aIFWL3IRhHY0WpePTJgnegdHqYvifCVCO3qVlS
-         qp/s5GjoANHv+3RoF9pol4gZAtTaHGK06ywBdWBLXvgEYzZxnIsU4dh7wouWhlc9018q
-         N6Lg==
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=pIG7bqbcrRfwBrBEO23YURvyZTmv6ER+4jcJH0n36TE=;
+        b=SToeYmIp5JOQZbs5CH+J4vKLppCYfB2k8jqDvBOFCk1hMN2PXv35OH1H5lwqw+uNqi
+         nRQqcavTP4IGkcz7GZfdP95rl4VuOeNztobrcsuzGuHwft2m/WsigI/0D8eoQ2bVykUT
+         Hn5XmyBOSw+R8O7fIgfS8KjpNie9lfJDWI713MJ42Ow4uQ6H99yf0hTaaFy4yO/wMJRn
+         kNMf/xSkpOnYOEdZPiwtlLhp8rpbjYUM6Ej5rlDARTfDU2l7NcT+QbPE2R/VxqdIOzoR
+         2FlrGo1t8GvfJdj4GbPJBQbwzagclO5Gp4RMZVCOXMyNpnEnbD2Bu3sfcYQVZdmqS1hU
+         1lPg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=xryK/mEgi9MgM4urrErNLEfDy5dITW8r2qeFkYk3a0c=;
-        b=nTOiRDiezEN7l0yy3HjarNIov4vU0dUbEP3DKcfRMEUBUN6aweXyggJhce48jiLbAw
-         HsWeTzQuFHxtoQQkkzN7NbTqIcvICgh+ECaVQMhNIOpXZzgxRhax+WF496kbFPuzLhfw
-         CrQVe3SdcJ+JnV/XN3077uPmV+8yuJY3Efha7y/J+LeR+HAqW2SMCw8bAoSO7EKAsn2d
-         F+Dmbmy2gPcbUATj9V0E/ODPszxWAmpQCj3CbBQv4V2hh4KXTp6BeI/f8iqXmTHbakc4
-         EiZaoMweekVzalbm/CduKOKovX6RkgNu/o8ALaJ3N3XqiZzKzwICY0AuB73MFH63SVNa
-         6C0w==
-X-Gm-Message-State: AOAM530Rk28G6i6nY32I0GVAkL/UdoEto+bK5eslH7TGZvPK4Ip9QHbf
-        2yaSjxcTrOpek3mF86rVSNhoJGuVbN/lTbGUJTM=
-X-Google-Smtp-Source: ABdhPJzR+lLTq4j43wUwhYZcdWFOEBfVtN2enYkw/321gz3RwwgrQbOyjjt20T0R02kxJiMgNhiL4h88dgoJc7A+xPA=
-X-Received: by 2002:a05:6602:1646:: with SMTP id y6mr8654444iow.99.1643045145518;
- Mon, 24 Jan 2022 09:25:45 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=pIG7bqbcrRfwBrBEO23YURvyZTmv6ER+4jcJH0n36TE=;
+        b=3bAAIb1jiT9LRJYEIIh1/rz2KoW1uYZxklHjqnF6vXXHKMKylb/Fcwnn+nhmLQWwXY
+         Y1QEdnbMRBVDdcynESdmpNEBiqeWJFScgyEFLkcBVQ8eIM8jcPxcoWGrajjS51hNfI0m
+         dPgcv4XeL2WKYmVYuGA0HBerjraF3TZ79AOdGimdntfl7dmRWu6JaMmlUFeUDjsFgOHf
+         g81tbHR/TbZfxWaJJCc8ocmoXVXieaHaK7s8W8bMvCICpUPqKd//M2U+Pt07NA3ya066
+         NeufF1Yj8PvJghP1E8ZJXcrn2Zwcn1xf2YN4SCM6P/7hWOkWkG0x3ceg+jZWw1fjnXxu
+         CB3Q==
+X-Gm-Message-State: AOAM533B529k1HjG8TqpIOysusB1Jo9CHXIvTsPJrkLplvqIJaoQkKFR
+        NwlO9Zf+JfwgrTtDUdpbvyZ5rkJfslLZsQ==
+X-Google-Smtp-Source: ABdhPJytryBwKdTfdv8G9wIlxQA+n9LtZmSgH8yZNG/WYWUuLtc7P5j91jqQwsCp1BNbvmkx5NrmJA==
+X-Received: by 2002:a17:902:bc82:b0:148:eb68:f6dd with SMTP id bb2-20020a170902bc8200b00148eb68f6ddmr15339136plb.98.1643045216267;
+        Mon, 24 Jan 2022 09:26:56 -0800 (PST)
+Received: from localhost.localdomain ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id pc7sm15194530pjb.0.2022.01.24.09.26.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Jan 2022 09:26:55 -0800 (PST)
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+To:     pbonzini@redhat.com
+Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Jim Mattson <jmattson@google.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, kvm@vger.kernel.org,
+        stable@vger.kernel.org,
+        syzbot+6cde2282daa792c49ab8@syzkaller.appspotmail.com
+Subject: [PATCH RESEND] KVM: x86/mmu: fix UAF in paging_update_accessed_dirty_bits
+Date:   Mon, 24 Jan 2022 09:26:33 -0800
+Message-Id: <20220124172633.103323-1-tadeusz.struk@linaro.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-References: <20220120020148.1632253-1-pcc@google.com> <CA+fCnZeC5K+YoFbMg30Gasyq6AXp5WFCxagrsftkT+mJPuBZkQ@mail.gmail.com>
-In-Reply-To: <CA+fCnZeC5K+YoFbMg30Gasyq6AXp5WFCxagrsftkT+mJPuBZkQ@mail.gmail.com>
-From:   Andrey Konovalov <andreyknvl@gmail.com>
-Date:   Mon, 24 Jan 2022 18:25:34 +0100
-Message-ID: <CA+fCnZfQ557MGc33jpSu9+ctUyXOaHR+tzsScPa3jZdkDiLjvA@mail.gmail.com>
-Subject: Re: [PATCH v3] mm: use compare-exchange operation to set KASAN page tag
-To:     Peter Collingbourne <pcc@google.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 24, 2022 at 6:22 PM Andrey Konovalov <andreyknvl@gmail.com> wrote:
->
-> On Thu, Jan 20, 2022 at 3:02 AM Peter Collingbourne <pcc@google.com> wrote:
-> >
-> > It has been reported that the tag setting operation on newly-allocated
-> > pages can cause the page flags to be corrupted when performed
-> > concurrently with other flag updates as a result of the use of
-> > non-atomic operations. Fix the problem by using a compare-exchange
-> > loop to update the tag.
-> >
-> > Signed-off-by: Peter Collingbourne <pcc@google.com>
-> > Link: https://linux-review.googlesource.com/id/I456b24a2b9067d93968d43b4bb3351c0cec63101
-> > Fixes: 2813b9c02962 ("kasan, mm, arm64: tag non slab memory allocated via pagealloc")
-> > Cc: stable@vger.kernel.org
-> > ---
-> > v3:
-> > - use try_cmpxchg() as suggested by Peter Zijlstra on another
-> >   patch
-> >
-> > v2:
-> > - use READ_ONCE()
-> >
-> >  include/linux/mm.h | 17 ++++++++++++-----
-> >  1 file changed, 12 insertions(+), 5 deletions(-)
-> >
-> > diff --git a/include/linux/mm.h b/include/linux/mm.h
-> > index c768a7c81b0b..87473fe52c3f 100644
-> > --- a/include/linux/mm.h
-> > +++ b/include/linux/mm.h
-> > @@ -1531,11 +1531,18 @@ static inline u8 page_kasan_tag(const struct page *page)
-> >
-> >  static inline void page_kasan_tag_set(struct page *page, u8 tag)
-> >  {
-> > -       if (kasan_enabled()) {
-> > -               tag ^= 0xff;
-> > -               page->flags &= ~(KASAN_TAG_MASK << KASAN_TAG_PGSHIFT);
-> > -               page->flags |= (tag & KASAN_TAG_MASK) << KASAN_TAG_PGSHIFT;
-> > -       }
-> > +       unsigned long old_flags, flags;
-> > +
-> > +       if (!kasan_enabled())
-> > +               return;
-> > +
-> > +       tag ^= 0xff;
-> > +       old_flags = READ_ONCE(page->flags);
-> > +       do {
-> > +               flags = old_flags;
-> > +               flags &= ~(KASAN_TAG_MASK << KASAN_TAG_PGSHIFT);
-> > +               flags |= (tag & KASAN_TAG_MASK) << KASAN_TAG_PGSHIFT;
-> > +       } while (unlikely(!try_cmpxchg(&page->flags, &old_flags, flags)));
-> >  }
-> >
-> >  static inline void page_kasan_tag_reset(struct page *page)
-> > --
-> > 2.34.1.703.g22d0c6ccf7-goog
-> >
->
-> Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
->
-> FWIW, try_cmpxchg() doesn't seem to be doing annotated atomic accesses
-> when accessing old_flags, so using READ_ONCE() in page_kasan_tag_set()
-> seems pointless after all.
+Syzbot reported an use-after-free bug in update_accessed_dirty_bits().
+Fix this by checking if the memremap'ed pointer is still valid.
 
-Ah, nevermind. For a second I thought that try_cmpxchg() is actually
-accessing page->flags through its second argument.
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Sean Christopherson <seanjc@google.com>
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+Cc: Wanpeng Li <wanpengli@tencent.com>
+Cc: Jim Mattson <jmattson@google.com>
+Cc: Joerg Roedel <joro@8bytes.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: x86@kernel.org
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: kvm@vger.kernel.org
+Cc: <stable@vger.kernel.org>
+Fixes: bd53cb35a3e9 ("X86/KVM: Handle PFNs outside of kernel reach when touching GPTEs")
+Link: https://syzkaller.appspot.com/bug?id=6cb6102a0a7b0c52060753dd62d070a1d1e71347
+Reported-by: syzbot+6cde2282daa792c49ab8@syzkaller.appspotmail.com
+Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+---
+ arch/x86/kvm/mmu/paging_tmpl.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/arch/x86/kvm/mmu/paging_tmpl.h b/arch/x86/kvm/mmu/paging_tmpl.h
+index 5b5bdac97c7b..d25b72d7b1b1 100644
+--- a/arch/x86/kvm/mmu/paging_tmpl.h
++++ b/arch/x86/kvm/mmu/paging_tmpl.h
+@@ -174,7 +174,7 @@ static int FNAME(cmpxchg_gpte)(struct kvm_vcpu *vcpu, struct kvm_mmu *mmu,
+ 		pfn = ((vaddr - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
+ 		paddr = pfn << PAGE_SHIFT;
+ 		table = memremap(paddr, PAGE_SIZE, MEMREMAP_WB);
+-		if (!table) {
++		if (!table || !access_ok(table, PAGE_SIZE)) {
+ 			mmap_read_unlock(current->mm);
+ 			return -EFAULT;
+ 		}
+-- 
+2.34.1
+
