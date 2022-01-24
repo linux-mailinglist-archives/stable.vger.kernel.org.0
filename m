@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3D34498ED0
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:49:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7F6E498E9D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:48:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348569AbiAXTso (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:48:44 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:33730 "EHLO
+        id S237023AbiAXTnb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:43:31 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:33804 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355426AbiAXTlX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:41:23 -0500
+        with ESMTP id S1355453AbiAXTlY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:41:24 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 56AAEB81229;
-        Mon, 24 Jan 2022 19:41:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80FF2C340E5;
-        Mon, 24 Jan 2022 19:41:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35FDBB8122A;
+        Mon, 24 Jan 2022 19:41:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9099EC340E5;
+        Mon, 24 Jan 2022 19:41:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053278;
-        bh=H0WDixWq1G9g12I0MwbrOEaV0Q3A4KaDbq65bdNHOcY=;
+        s=korg; t=1643053280;
+        bh=oBieQZ3SwdWDNJAbWyZOdHNTR2Z5uh3/Q1LKFni/fOI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CxRRgGb/moBju43CN2N2iKsBtkP98OffwHvzJwvyjZQB7Uj16I81wW1A/ZkEEy5XA
-         j5lGTfWk0/jeZ4qmuGFElshBAShSa9SHcaVa/OKnOk6TeuVomksyUTMzw7zzcE+2tv
-         IdSpHBuA8pMIYsI9vNszJKeRZZUxOXsl20UqfBpI=
+        b=H040+lF+JPzXkXO4p86+BqVwTAwGcA0p1ZEcoZL/etVns62zScvRey3eYZdoUldgT
+         0XkdRN6AEQM4A+THy8GUkLN/u33FYkVnAbuZB29cTA8u67kiipzb4dacW+nH4MT5Tp
+         jZm91U1l+rQiyGeq9G3Dydu17MLb888K7WoMxa/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas De Marchi <lucas.demarchi@intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.10 014/563] x86/gpu: Reserve stolen memory for first integrated Intel GPU
-Date:   Mon, 24 Jan 2022 19:36:19 +0100
-Message-Id: <20220124184024.911676383@linuxfoundation.org>
+        stable@vger.kernel.org, Bedirhan KURT <windowz414@gnuweeb.org>,
+        Louvian Lyndal <louvianlyndal@gmail.com>,
+        Peter Cordes <peter@cordes.ca>,
+        Ammar Faizi <ammar.faizi@students.amikom.ac.id>,
+        Willy Tarreau <w@1wt.eu>,
+        "Paul E. McKenney" <paulmck@kernel.org>
+Subject: [PATCH 5.10 015/563] tools/nolibc: x86-64: Fix startup code bug
+Date:   Mon, 24 Jan 2022 19:36:20 +0100
+Message-Id: <20220124184024.942825013@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -44,76 +48,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas De Marchi <lucas.demarchi@intel.com>
+From: Ammar Faizi <ammar.faizi@students.amikom.ac.id>
 
-commit 9c494ca4d3a535f9ca11ad6af1813983c1c6cbdd upstream.
+commit 937ed91c712273131de6d2a02caafd3ee84e0c72 upstream.
 
-"Stolen memory" is memory set aside for use by an Intel integrated GPU.
-The intel_graphics_quirks() early quirk reserves this memory when it is
-called for a GPU that appears in the intel_early_ids[] table of integrated
-GPUs.
+Before this patch, the `_start` function looks like this:
+```
+0000000000001170 <_start>:
+    1170:	pop    %rdi
+    1171:	mov    %rsp,%rsi
+    1174:	lea    0x8(%rsi,%rdi,8),%rdx
+    1179:	and    $0xfffffffffffffff0,%rsp
+    117d:	sub    $0x8,%rsp
+    1181:	call   1000 <main>
+    1186:	movzbq %al,%rdi
+    118a:	mov    $0x3c,%rax
+    1191:	syscall
+    1193:	hlt
+    1194:	data16 cs nopw 0x0(%rax,%rax,1)
+    119f:	nop
+```
+Note the "and" to %rsp with $-16, it makes the %rsp be 16-byte aligned,
+but then there is a "sub" with $0x8 which makes the %rsp no longer
+16-byte aligned, then it calls main. That's the bug!
 
-Previously intel_graphics_quirks() was marked as QFLAG_APPLY_ONCE, so it
-was called only for the first Intel GPU found.  If a discrete GPU happened
-to be enumerated first, intel_graphics_quirks() was called for it but not
-for any integrated GPU found later.  Therefore, stolen memory for such an
-integrated GPU was never reserved.
+What actually the x86-64 System V ABI mandates is that right before the
+"call", the %rsp must be 16-byte aligned, not after the "call". So the
+"sub" with $0x8 here breaks the alignment. Remove it.
 
-For example, this problem occurs in this Alderlake-P (integrated) + DG2
-(discrete) topology where the DG2 is found first, but stolen memory is
-associated with the integrated GPU:
+An example where this rule matters is when the callee needs to align
+its stack at 16-byte for aligned move instruction, like `movdqa` and
+`movaps`. If the callee can't align its stack properly, it will result
+in segmentation fault.
 
-  - 00:01.0 Bridge
-    `- 03:00.0 DG2 discrete GPU
-  - 00:02.0 Integrated GPU (with stolen memory)
+x86-64 System V ABI also mandates the deepest stack frame should be
+zero. Just to be safe, let's zero the %rbp on startup as the content
+of %rbp may be unspecified when the program starts. Now it looks like
+this:
+```
+0000000000001170 <_start>:
+    1170:	pop    %rdi
+    1171:	mov    %rsp,%rsi
+    1174:	lea    0x8(%rsi,%rdi,8),%rdx
+    1179:	xor    %ebp,%ebp                # zero the %rbp
+    117b:	and    $0xfffffffffffffff0,%rsp # align the %rsp
+    117f:	call   1000 <main>
+    1184:	movzbq %al,%rdi
+    1188:	mov    $0x3c,%rax
+    118f:	syscall
+    1191:	hlt
+    1192:	data16 cs nopw 0x0(%rax,%rax,1)
+    119d:	nopl   (%rax)
+```
 
-Remove the QFLAG_APPLY_ONCE flag and call intel_graphics_quirks() for every
-Intel GPU.  Reserve stolen memory for the first GPU that appears in
-intel_early_ids[].
-
-[bhelgaas: commit log, add code comment, squash in
-https://lore.kernel.org/r/20220118190558.2ququ4vdfjuahicm@ldmartin-desk2]
-Link: https://lore.kernel.org/r/20220114002843.2083382-1-lucas.demarchi@intel.com
-Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Bedirhan KURT <windowz414@gnuweeb.org>
+Cc: Louvian Lyndal <louvianlyndal@gmail.com>
+Reported-by: Peter Cordes <peter@cordes.ca>
+Signed-off-by: Ammar Faizi <ammar.faizi@students.amikom.ac.id>
+[wt: I did this on purpose due to a misunderstanding of the spec, other
+     archs will thus have to be rechecked, particularly i386]
 Cc: stable@vger.kernel.org
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/early-quirks.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ tools/include/nolibc/nolibc.h |   10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
---- a/arch/x86/kernel/early-quirks.c
-+++ b/arch/x86/kernel/early-quirks.c
-@@ -515,6 +515,7 @@ static const struct intel_early_ops gen1
- 	.stolen_size = gen9_stolen_size,
- };
+--- a/tools/include/nolibc/nolibc.h
++++ b/tools/include/nolibc/nolibc.h
+@@ -422,14 +422,20 @@ struct stat {
+ })
  
-+/* Intel integrated GPUs for which we need to reserve "stolen memory" */
- static const struct pci_device_id intel_early_ids[] __initconst = {
- 	INTEL_I830_IDS(&i830_early_ops),
- 	INTEL_I845G_IDS(&i845_early_ops),
-@@ -588,6 +589,13 @@ static void __init intel_graphics_quirks
- 	u16 device;
- 	int i;
- 
-+	/*
-+	 * Reserve "stolen memory" for an integrated GPU.  If we've already
-+	 * found one, there's nothing to do for other (discrete) GPUs.
-+	 */
-+	if (resource_size(&intel_graphics_stolen_res))
-+		return;
-+
- 	device = read_pci_config_16(num, slot, func, PCI_DEVICE_ID);
- 
- 	for (i = 0; i < ARRAY_SIZE(intel_early_ids); i++) {
-@@ -700,7 +708,7 @@ static struct chipset early_qrk[] __init
- 	{ PCI_VENDOR_ID_INTEL, 0x3406, PCI_CLASS_BRIDGE_HOST,
- 	  PCI_BASE_CLASS_BRIDGE, 0, intel_remapping_check },
- 	{ PCI_VENDOR_ID_INTEL, PCI_ANY_ID, PCI_CLASS_DISPLAY_VGA, PCI_ANY_ID,
--	  QFLAG_APPLY_ONCE, intel_graphics_quirks },
-+	  0, intel_graphics_quirks },
- 	/*
- 	 * HPET on the current version of the Baytrail platform has accuracy
- 	 * problems: it will halt in deep idle state - so we disable it.
+ /* startup code */
++/*
++ * x86-64 System V ABI mandates:
++ * 1) %rsp must be 16-byte aligned right before the function call.
++ * 2) The deepest stack frame should be zero (the %rbp).
++ *
++ */
+ asm(".section .text\n"
+     ".global _start\n"
+     "_start:\n"
+     "pop %rdi\n"                // argc   (first arg, %rdi)
+     "mov %rsp, %rsi\n"          // argv[] (second arg, %rsi)
+     "lea 8(%rsi,%rdi,8),%rdx\n" // then a NULL then envp (third arg, %rdx)
+-    "and $-16, %rsp\n"          // x86 ABI : esp must be 16-byte aligned when
+-    "sub $8, %rsp\n"            // entering the callee
++    "xor %ebp, %ebp\n"          // zero the stack frame
++    "and $-16, %rsp\n"          // x86 ABI : esp must be 16-byte aligned before call
+     "call main\n"               // main() returns the status code, we'll exit with it.
+     "movzb %al, %rdi\n"         // retrieve exit code from 8 lower bits
+     "mov $60, %rax\n"           // NR_exit == 60
 
 
