@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53E2C498B82
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:14:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE1F6498E5B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:44:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346544AbiAXTOH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:14:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47444 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347729AbiAXTLG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:11:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03CB1C08E859;
-        Mon, 24 Jan 2022 11:02:33 -0800 (PST)
+        id S239472AbiAXTkq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:40:46 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:58860 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1349723AbiAXTho (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:37:44 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9753660BA1;
-        Mon, 24 Jan 2022 19:02:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EC85C340E5;
-        Mon, 24 Jan 2022 19:02:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 189ABB8121C;
+        Mon, 24 Jan 2022 19:37:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F5CAC340E5;
+        Mon, 24 Jan 2022 19:37:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050952;
-        bh=lLizqx2R7dEZHunY5+u8UHZgY3PhUH6NOT0/2mmLldk=;
+        s=korg; t=1643053061;
+        bh=gvwNwUL2uzlUhdpiHJOTQEv4OnE/kqW5SjOPiiqcIDI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2GPPgn8T+zqhbrrJdteiZRalR3kG6OFIyyOBEcpe5N3BTN6bjIHxi/ce+A+VykPm8
-         VFunTvtr/g0UqRQuwrN1tXJkbMpIYQhjjq8t7L0Gbtg3Tc1WAvisId1xO2ZJ8Zz4ip
-         y1S6vJXV57Pkema3aM4n0F2oPqmXrw4NVUK0kNlM=
+        b=izp9fJBeCiTso3o57AIVNTnTZPlu3thMaFxTI/4in5HL5PBkc/dDjnXy7gWey8X7s
+         dtp+18TtSiq9pglijoHILVBH7pElMA6oRk+NWZZKV0o2THsepPiHoUHEfOC94LX+lX
+         aoZFD90hKVDfpQVM8zsHoNR880Mn6q/BN0mp7Ns0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.9 156/157] KVM: Use kvm_pfn_t for local PFN variable in hva_to_pfn_remapped()
-Date:   Mon, 24 Jan 2022 19:44:06 +0100
-Message-Id: <20220124183937.704306868@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Subject: [PATCH 5.4 263/320] PCI: pci-bridge-emul: Set PCI_STATUS_CAP_LIST for PCIe device
+Date:   Mon, 24 Jan 2022 19:44:07 +0100
+Message-Id: <20220124184002.931227601@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
-References: <20220124183932.787526760@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,47 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Pali Rohár <pali@kernel.org>
 
-commit a9545779ee9e9e103648f6f2552e73cfe808d0f4 upstream.
+commit 3be9d243b21724d49b65043d4520d688b6040b36 upstream.
 
-Use kvm_pfn_t, a.k.a. u64, for the local 'pfn' variable when retrieving
-a so called "remapped" hva/pfn pair.  In theory, the hva could resolve to
-a pfn in high memory on a 32-bit kernel.
+Since all PCI Express device Functions are required to implement the PCI
+Express Capability structure, Capabilities List bit in PCI Status Register
+must be hardwired to 1b. Capabilities Pointer register (which is already
+set by pci-bride-emul.c driver) is valid only when Capabilities List is set
+to 1b.
 
-This bug was inadvertantly exposed by commit bd2fae8da794 ("KVM: do not
-assume PTE is writable after follow_pfn"), which added an error PFN value
-to the mix, causing gcc to comlain about overflowing the unsigned long.
-
-  arch/x86/kvm/../../../virt/kvm/kvm_main.c: In function ‘hva_to_pfn_remapped’:
-  include/linux/kvm_host.h:89:30: error: conversion from ‘long long unsigned int’
-                                  to ‘long unsigned int’ changes value from
-                                  ‘9218868437227405314’ to ‘2’ [-Werror=overflow]
-   89 | #define KVM_PFN_ERR_RO_FAULT (KVM_PFN_ERR_MASK + 2)
-      |                              ^
-virt/kvm/kvm_main.c:1935:9: note: in expansion of macro ‘KVM_PFN_ERR_RO_FAULT’
-
+Link: https://lore.kernel.org/r/20211124155944.1290-7-pali@kernel.org
+Fixes: 23a5fba4d941 ("PCI: Introduce PCI bridge emulated config space common logic")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Cc: stable@vger.kernel.org
-Fixes: add6a0cd1c5b ("KVM: MMU: try to fix up page faults before giving up")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210208201940.1258328-1-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- virt/kvm/kvm_main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/pci-bridge-emul.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -1518,7 +1518,7 @@ static int hva_to_pfn_remapped(struct vm
- 			       bool write_fault, bool *writable,
- 			       kvm_pfn_t *p_pfn)
- {
--	unsigned long pfn;
-+	kvm_pfn_t pfn;
- 	pte_t *ptep;
- 	spinlock_t *ptl;
- 	int r;
+--- a/drivers/pci/pci-bridge-emul.c
++++ b/drivers/pci/pci-bridge-emul.c
+@@ -287,6 +287,7 @@ int pci_bridge_emul_init(struct pci_brid
+ 
+ 	if (bridge->has_pcie) {
+ 		bridge->conf.capabilities_pointer = PCI_CAP_PCIE_START;
++		bridge->conf.status |= cpu_to_le16(PCI_STATUS_CAP_LIST);
+ 		bridge->pcie_conf.cap_id = PCI_CAP_ID_EXP;
+ 		bridge->pcie_conf.cap |= cpu_to_le16(PCI_EXP_TYPE_ROOT_PORT << 4);
+ 		bridge->pcie_cap_regs_behavior =
 
 
