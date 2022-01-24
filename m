@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE4304981A9
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 15:03:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBA1D4981AA
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 15:03:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238156AbiAXODc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 09:03:32 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:39772 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238340AbiAXODc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 09:03:32 -0500
+        id S238340AbiAXODg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 09:03:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59022 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238343AbiAXODf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 09:03:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 737CFC06173B
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 06:03:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA7116130C
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 14:03:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C54B7C340E9;
-        Mon, 24 Jan 2022 14:03:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C2C3612F5
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 14:03:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9EA0C340E9;
+        Mon, 24 Jan 2022 14:03:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643033011;
-        bh=Kj/xP6cUB7vhJzllhPOCn2fK0VO6ojy9VQyTU2ZEOME=;
+        s=korg; t=1643033014;
+        bh=kAo814QD7LCIOOgTNB9dpPWOrCbWP+088TTb6wpnKFM=;
         h=Subject:To:Cc:From:Date:From;
-        b=sFgZ9V+s61lRZxYv2mt/c4KDuPSFl5OG/flD7F46Upqe42oxvAILwNnW9bOKWBLc1
-         wlo7In2fdYIqHkyIX4L/GhODeirKQeJZ0AOCRkALZeGOHrqZqcu/u7LNf8hXE36BJG
-         vNo2xYTjG79aQl4dEvkz0G7Tv2cmhVPpQawHrXrE=
-Subject: FAILED: patch "[PATCH] ASoC: SOF: handle paused streams during system suspend" failed to apply to 5.16-stable tree
-To:     ranjani.sridharan@linux.intel.com, bard.liao@intel.com,
-        broonie@kernel.org, kai.vehmanen@linux.intel.com,
-        paul.olaru@oss.nxp.com, pierre-louis.bossart@linux.intel.com
+        b=TGnBzf6VfBoQOyu/QfEaYH8VfP3SRhFcbcY2eVqIPq+7G7Jxr90EMHe2Rqen2Fy4t
+         1obDyxol5wYjF5CIEa+8HlfmwopQ8Hdey8Hno8T+QR3Ex3kiZgoDnLDB3tNeNm97x4
+         CreLcu/l3nEwlcjRGEq7TRUD/A76q3ljoAAi9jOo=
+Subject: FAILED: patch "[PATCH] ath11k: add support for WCN6855 hw2.1" failed to apply to 5.10-stable tree
+To:     quic_bqiang@quicinc.com, quic_kvalo@quicinc.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 15:00:09 +0100
-Message-ID: <1643032809235135@kroah.com>
+Date:   Mon, 24 Jan 2022 15:01:11 +0100
+Message-ID: <164303287116930@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -41,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.16-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -52,156 +53,158 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 96da174024b9c63bd5d3358668d0bc12677be877 Mon Sep 17 00:00:00 2001
-From: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Date: Tue, 23 Nov 2021 19:16:06 +0200
-Subject: [PATCH] ASoC: SOF: handle paused streams during system suspend
+From d1147a316b53df9cb0152e415ec41dcb6ea62c1c Mon Sep 17 00:00:00 2001
+From: Baochen Qiang <quic_bqiang@quicinc.com>
+Date: Mon, 29 Nov 2021 10:56:12 +0800
+Subject: [PATCH] ath11k: add support for WCN6855 hw2.1
 
-During system suspend, paused streams do not get suspended.
-Therefore, we need to explicitly free these PCMs in the DSP
-and free the associated DAPM widgets so that they can be set
-up again during resume.
+Ath11k fails to probe WCN6855 hw2.1 chip:
 
-Fixes: 5fcdbb2d45df ("ASoC: SOF: Add support for dynamic pipelines")
-Signed-off-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Paul Olaru <paul.olaru@oss.nxp.com>
-Reviewed-by: Bard Liao <bard.liao@intel.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20211123171606.129350-3-kai.vehmanen@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+[ 6.983821] ath11k_pci 0000:06:00.0: enabling device (0000 -> 0002)
+[ 6.983841] ath11k_pci 0000:06:00.0: Unsupported WCN6855 SOC hardware version: 18 17
 
-diff --git a/sound/soc/sof/pcm.c b/sound/soc/sof/pcm.c
-index 31dd79b794f1..0ceb1a9cbf73 100644
---- a/sound/soc/sof/pcm.c
-+++ b/sound/soc/sof/pcm.c
-@@ -100,9 +100,8 @@ void snd_sof_pcm_period_elapsed(struct snd_pcm_substream *substream)
- }
- EXPORT_SYMBOL(snd_sof_pcm_period_elapsed);
+This is caused by the wrong bit mask setting of hardware major version:
+for QCA6390/QCN6855, it should be BIT8-11, not BIT8-16, so change the
+definition to GENMASK(11, 8).
+
+Also, add a separate entry for WCN6855 hw2.1 in ath11k_hw_params.
+
+Please note that currently WCN6855 hw2.1 shares the same firmwares
+as hw2.0, so users of this chip need to create a symlink as below:
+
+	ln -s hw2.0 hw2.1
+
+Tested-on: WCN6855 hw2.1 PCI WLAN.HSP.1.1-01720.1-QCAHSPSWPL_V1_V2_SILICONZ_LITE-1
+Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-01720.1-QCAHSPSWPL_V1_V2_SILICONZ_LITE-1
+Tested-on: QCA6390 hw2.0 PCI WLAN.HST.1.0.1-01740-QCAHSTSWPLZ_V2_TO_X86-1
+
+Fixes: 18ac1665e785 ("ath11k: pci: check TCSR_SOC_HW_VERSION")
+Signed-off-by: Baochen Qiang <quic_bqiang@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20211129025613.21594-1-quic_bqiang@quicinc.com
+
+diff --git a/drivers/net/wireless/ath/ath11k/core.c b/drivers/net/wireless/ath/ath11k/core.c
+index dd1a1bb078c3..5f6bdee26f31 100644
+--- a/drivers/net/wireless/ath/ath11k/core.c
++++ b/drivers/net/wireless/ath/ath11k/core.c
+@@ -284,6 +284,59 @@ static const struct ath11k_hw_params ath11k_hw_params[] = {
+ 			.max_fft_bins = 0,
+ 		},
  
--static int sof_pcm_dsp_pcm_free(struct snd_pcm_substream *substream,
--				struct snd_sof_dev *sdev,
--				struct snd_sof_pcm *spcm)
-+int sof_pcm_dsp_pcm_free(struct snd_pcm_substream *substream, struct snd_sof_dev *sdev,
-+			 struct snd_sof_pcm *spcm)
- {
- 	struct sof_ipc_stream stream;
- 	struct sof_ipc_reply reply;
-diff --git a/sound/soc/sof/sof-audio.c b/sound/soc/sof/sof-audio.c
-index f4e142ec0fbd..e00ce275052f 100644
---- a/sound/soc/sof/sof-audio.c
-+++ b/sound/soc/sof/sof-audio.c
-@@ -129,6 +129,14 @@ int sof_widget_free(struct snd_sof_dev *sdev, struct snd_sof_widget *swidget)
- 	case snd_soc_dapm_buffer:
- 		ipc_free.hdr.cmd |= SOF_IPC_TPLG_BUFFER_FREE;
- 		break;
-+	case snd_soc_dapm_dai_in:
-+	case snd_soc_dapm_dai_out:
++		.interface_modes = BIT(NL80211_IFTYPE_STATION) |
++					BIT(NL80211_IFTYPE_AP),
++		.supports_monitor = false,
++		.supports_shadow_regs = true,
++		.idle_ps = true,
++		.supports_sta_ps = true,
++		.cold_boot_calib = false,
++		.supports_suspend = true,
++		.hal_desc_sz = sizeof(struct hal_rx_desc_wcn6855),
++		.fix_l1ss = false,
++		.credit_flow = true,
++		.max_tx_ring = DP_TCL_NUM_RING_MAX_QCA6390,
++		.hal_params = &ath11k_hw_hal_params_qca6390,
++		.supports_dynamic_smps_6ghz = false,
++		.alloc_cacheable_memory = false,
++		.wakeup_mhi = true,
++	},
 +	{
-+		struct snd_sof_dai *dai = swidget->private;
++		.name = "wcn6855 hw2.1",
++		.hw_rev = ATH11K_HW_WCN6855_HW21,
++		.fw = {
++			.dir = "WCN6855/hw2.1",
++			.board_size = 256 * 1024,
++			.cal_offset = 128 * 1024,
++		},
++		.max_radios = 3,
++		.bdf_addr = 0x4B0C0000,
++		.hw_ops = &wcn6855_ops,
++		.ring_mask = &ath11k_hw_ring_mask_qca6390,
++		.internal_sleep_clock = true,
++		.regs = &wcn6855_regs,
++		.qmi_service_ins_id = ATH11K_QMI_WLFW_SERVICE_INS_ID_V01_QCA6390,
++		.host_ce_config = ath11k_host_ce_config_qca6390,
++		.ce_count = 9,
++		.target_ce_config = ath11k_target_ce_config_wlan_qca6390,
++		.target_ce_count = 9,
++		.svc_to_ce_map = ath11k_target_service_to_ce_map_wlan_qca6390,
++		.svc_to_ce_map_len = 14,
++		.single_pdev_only = true,
++		.rxdma1_enable = false,
++		.num_rxmda_per_pdev = 2,
++		.rx_mac_buf_ring = true,
++		.vdev_start_delay = true,
++		.htt_peer_map_v2 = false,
 +
-+		dai->configured = false;
-+		fallthrough;
-+	}
- 	default:
- 		ipc_free.hdr.cmd |= SOF_IPC_TPLG_COMP_FREE;
++		.spectral = {
++			.fft_sz = 0,
++			.fft_pad_sz = 0,
++			.summary_pad_sz = 0,
++			.fft_hdr_len = 0,
++			.max_fft_bins = 0,
++		},
++
+ 		.interface_modes = BIT(NL80211_IFTYPE_STATION) |
+ 					BIT(NL80211_IFTYPE_AP),
+ 		.supports_monitor = false,
+diff --git a/drivers/net/wireless/ath/ath11k/core.h b/drivers/net/wireless/ath/ath11k/core.h
+index 0103cfd0508d..1d13e6124693 100644
+--- a/drivers/net/wireless/ath/ath11k/core.h
++++ b/drivers/net/wireless/ath/ath11k/core.h
+@@ -117,6 +117,7 @@ enum ath11k_hw_rev {
+ 	ATH11K_HW_IPQ6018_HW10,
+ 	ATH11K_HW_QCN9074_HW10,
+ 	ATH11K_HW_WCN6855_HW20,
++	ATH11K_HW_WCN6855_HW21,
+ };
+ 
+ enum ath11k_firmware_mode {
+diff --git a/drivers/net/wireless/ath/ath11k/mhi.c b/drivers/net/wireless/ath/ath11k/mhi.c
+index d0f94a785a59..9a8e61ca9964 100644
+--- a/drivers/net/wireless/ath/ath11k/mhi.c
++++ b/drivers/net/wireless/ath/ath11k/mhi.c
+@@ -366,6 +366,7 @@ int ath11k_mhi_register(struct ath11k_pci *ab_pci)
  		break;
-@@ -720,6 +728,55 @@ int sof_set_up_pipelines(struct snd_sof_dev *sdev, bool verify)
- 	return 0;
- }
+ 	case ATH11K_HW_QCA6390_HW20:
+ 	case ATH11K_HW_WCN6855_HW20:
++	case ATH11K_HW_WCN6855_HW21:
+ 		ath11k_mhi_config = &ath11k_mhi_config_qca6390;
+ 		break;
+ 	default:
+diff --git a/drivers/net/wireless/ath/ath11k/pci.c b/drivers/net/wireless/ath/ath11k/pci.c
+index 1898b1a33960..0a2b2ba4ae07 100644
+--- a/drivers/net/wireless/ath/ath11k/pci.c
++++ b/drivers/net/wireless/ath/ath11k/pci.c
+@@ -26,7 +26,7 @@
+ #define WINDOW_RANGE_MASK		GENMASK(18, 0)
  
-+/*
-+ * Free the PCM, its associated widgets and set the prepared flag to false for all PCMs that
-+ * did not get suspended(ex: paused streams) so the widgets can be set up again during resume.
-+ */
-+static int sof_tear_down_left_over_pipelines(struct snd_sof_dev *sdev)
-+{
-+	struct snd_sof_widget *swidget;
-+	struct snd_sof_pcm *spcm;
-+	int dir, ret;
-+
-+	/*
-+	 * free all PCMs and their associated DAPM widgets if their connected DAPM widget
-+	 * list is not NULL. This should only be true for paused streams at this point.
-+	 * This is equivalent to the handling of FE DAI suspend trigger for running streams.
-+	 */
-+	list_for_each_entry(spcm, &sdev->pcm_list, list)
-+		for_each_pcm_streams(dir) {
-+			struct snd_pcm_substream *substream = spcm->stream[dir].substream;
-+
-+			if (!substream || !substream->runtime)
-+				continue;
-+
-+			if (spcm->stream[dir].list) {
-+				ret = sof_pcm_dsp_pcm_free(substream, sdev, spcm);
-+				if (ret < 0)
-+					return ret;
-+
-+				ret = sof_widget_list_free(sdev, spcm, dir);
-+				if (ret < 0) {
-+					dev_err(sdev->dev, "failed to free widgets during suspend\n");
-+					return ret;
-+				}
+ #define TCSR_SOC_HW_VERSION		0x0224
+-#define TCSR_SOC_HW_VERSION_MAJOR_MASK	GENMASK(16, 8)
++#define TCSR_SOC_HW_VERSION_MAJOR_MASK	GENMASK(11, 8)
+ #define TCSR_SOC_HW_VERSION_MINOR_MASK	GENMASK(7, 0)
+ 
+ /* BAR0 + 4k is always accessible, and no
+@@ -1409,9 +1409,21 @@ static int ath11k_pci_probe(struct pci_dev *pdev,
+ 					   &soc_hw_version_minor);
+ 		switch (soc_hw_version_major) {
+ 		case 2:
+-			ab->hw_rev = ATH11K_HW_WCN6855_HW20;
++			switch (soc_hw_version_minor) {
++			case 0x00:
++			case 0x01:
++				ab->hw_rev = ATH11K_HW_WCN6855_HW20;
++				break;
++			case 0x10:
++			case 0x11:
++				ab->hw_rev = ATH11K_HW_WCN6855_HW21;
++				break;
++			default:
++				goto unsupported_wcn6855_soc;
 +			}
-+		}
-+
-+	/*
-+	 * free any left over DAI widgets. This is equivalent to the handling of suspend trigger
-+	 * for the BE DAI for running streams.
-+	 */
-+	list_for_each_entry(swidget, &sdev->widget_list, list)
-+		if (WIDGET_IS_DAI(swidget->id) && swidget->use_count == 1) {
-+			ret = sof_widget_free(sdev, swidget);
-+			if (ret < 0)
-+				return ret;
-+		}
-+
-+	return 0;
-+}
-+
- /*
-  * For older firmware, this function doesn't free widgets for static pipelines during suspend.
-  * It only resets use_count for all widgets.
-@@ -734,8 +791,8 @@ int sof_tear_down_pipelines(struct snd_sof_dev *sdev, bool verify)
- 	/*
- 	 * This function is called during suspend and for one-time topology verification during
- 	 * first boot. In both cases, there is no need to protect swidget->use_count and
--	 * sroute->setup because during suspend all streams are suspended and during topology
--	 * loading the sound card unavailable to open PCMs.
-+	 * sroute->setup because during suspend all running streams are suspended and during
-+	 * topology loading the sound card unavailable to open PCMs.
- 	 */
- 	list_for_each_entry(swidget, &sdev->widget_list, list) {
- 		if (swidget->dynamic_pipeline_widget)
-@@ -754,6 +811,19 @@ int sof_tear_down_pipelines(struct snd_sof_dev *sdev, bool verify)
- 			return ret;
- 	}
- 
-+	/*
-+	 * Tear down all pipelines associated with PCMs that did not get suspended
-+	 * and unset the prepare flag so that they can be set up again during resume.
-+	 * Skip this step for older firmware.
-+	 */
-+	if (!verify && v->abi_version >= SOF_ABI_VER(3, 19, 0)) {
-+		ret = sof_tear_down_left_over_pipelines(sdev);
-+		if (ret < 0) {
-+			dev_err(sdev->dev, "failed to tear down paused pipelines\n");
-+			return ret;
-+		}
-+	}
-+
- 	list_for_each_entry(sroute, &sdev->route_list, list)
- 		sroute->setup = false;
- 
-diff --git a/sound/soc/sof/sof-audio.h b/sound/soc/sof/sof-audio.h
-index 389d56ac3aba..1c4f59d34717 100644
---- a/sound/soc/sof/sof-audio.h
-+++ b/sound/soc/sof/sof-audio.h
-@@ -265,4 +265,6 @@ int sof_widget_free(struct snd_sof_dev *sdev, struct snd_sof_widget *swidget);
- /* PCM */
- int sof_widget_list_setup(struct snd_sof_dev *sdev, struct snd_sof_pcm *spcm, int dir);
- int sof_widget_list_free(struct snd_sof_dev *sdev, struct snd_sof_pcm *spcm, int dir);
-+int sof_pcm_dsp_pcm_free(struct snd_pcm_substream *substream, struct snd_sof_dev *sdev,
-+			 struct snd_sof_pcm *spcm);
- #endif
+ 			break;
+ 		default:
++unsupported_wcn6855_soc:
+ 			dev_err(&pdev->dev, "Unsupported WCN6855 SOC hardware version: %d %d\n",
+ 				soc_hw_version_major, soc_hw_version_minor);
+ 			ret = -EOPNOTSUPP;
 
