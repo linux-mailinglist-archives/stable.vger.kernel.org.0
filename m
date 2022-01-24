@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A74DE499919
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:43:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3F64499C76
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:08:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1454171AbiAXVbx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:31:53 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:40324 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1451595AbiAXVXM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:23:12 -0500
+        id S1579413AbiAXWFd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:05:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59504 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1450740AbiAXVyz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:54:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BA90C0C0910;
+        Mon, 24 Jan 2022 12:35:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C93EFB81188;
-        Mon, 24 Jan 2022 21:23:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3D1CC340E5;
-        Mon, 24 Jan 2022 21:23:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BBB2B614EC;
+        Mon, 24 Jan 2022 20:35:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A47E3C340E5;
+        Mon, 24 Jan 2022 20:35:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059389;
-        bh=oFdvVlvLXbZXX4XWSa9QLTGZFtzreFcGxde9rBTrLdI=;
+        s=korg; t=1643056501;
+        bh=vIl/gclyF80YoCxy9zzgOrGGbUlqzJB+spj0los22ZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2NUygbFYQ490/wyb7en+VG5z+kzAJPzCWnwWHr8lcFdaQtwvwthTP90lrmspBNzIQ
-         pkzJwlYaikokh4fTvOMbfYFKfCZ+ZXMWQm1BWhFdKji4sC/Ng3CRUXfh5QApWa/yj/
-         B7d4b7KYkabOhEkoXM8/1oim61YAgyKZ5ykpfrNY=
+        b=v3KSrniHtHmtx401ynOYyIc5O5VRlTSD1YZOSlNmLe864Ze04hh0chowweu8L5i7e
+         uRmtTFEcZwwFrLT7B3eakrGzP9JjCyJ3blVlIZclAMuVQY1VbpKbuac7QA15qNPTh2
+         OMUky1v9xytSmChCI7wLhLUUuQCF37e9xcc5eJ+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sriram R <quic_srirrama@quicinc.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Tsuchiya Yuto <kitakar@gmail.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0600/1039] ath11k: Avoid NULL ptr access during mgmt tx cleanup
-Date:   Mon, 24 Jan 2022 19:39:49 +0100
-Message-Id: <20220124184145.512012358@linuxfoundation.org>
+Subject: [PATCH 5.15 473/846] media: atomisp: set per-devices default mode
+Date:   Mon, 24 Jan 2022 19:39:50 +0100
+Message-Id: <20220124184117.319775146@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,117 +48,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sriram R <quic_srirrama@quicinc.com>
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-[ Upstream commit a93789ae541c7d5c1c2a4942013adb6bcc5e2848 ]
+[ Upstream commit 2c45e343c581091835c9047ed5298518aa133163 ]
 
-Currently 'ar' reference is not added in skb_cb during
-WMI mgmt tx. Though this is generally not used during tx completion
-callbacks, on interface removal the remaining idr cleanup callback
-uses the ar ptr from skb_cb from mgmt txmgmt_idr. Hence
-fill them during tx call for proper usage.
+The atomisp driver originally used the s_parm command to
+initialize the run_mode type to the driver. So, before start
+setting up the streaming, s_parm should be called.
 
-Also free the skb which is missing currently in these
-callbacks.
+So, even having 5 "normal" video devices, one meant to be used
+for each type, the run_mode was actually selected when
+s_parm is called.
 
-Crash_info:
+Without setting the run mode, applications that don't call
+VIDIOC_SET_PARM with a custom atomisp parameters won't work, as
+the pipeline won't be set:
 
-[19282.489476] Unable to handle kernel NULL pointer dereference at virtual address 00000000
-[19282.489515] pgd = 91eb8000
-[19282.496702] [00000000] *pgd=00000000
-[19282.502524] Internal error: Oops: 5 [#1] PREEMPT SMP ARM
-[19282.783728] PC is at ath11k_mac_vif_txmgmt_idr_remove+0x28/0xd8 [ath11k]
-[19282.789170] LR is at idr_for_each+0xa0/0xc8
+	atomisp-isp2 0000:00:03.0: can't create streams
+	atomisp-isp2 0000:00:03.0: __get_frame_info 1600x1200 (padded to 0) returned -22
 
-Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.5.0.1-00729-QCAHKSWPL_SILICONZ-3 v2
-Signed-off-by: Sriram R <quic_srirrama@quicinc.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1637832614-13831-1-git-send-email-quic_srirrama@quicinc.com
+However, commit 8a7c5594c020 ("media: v4l2-ioctl: clear fields in s_parm")
+broke support for it, with a good reason, as drivers shoudn't be
+extending the API for their own purposes.
+
+So, as an step to allow generic apps to use this driver, put
+the device's run_mode in preview after open.
+
+After this patch, using v4l2grab starts to work on preview
+mode (/dev/video2):
+
+	$ v4l2grab -f YUYV -x 1600 -y 1200 -d /dev/video2 -n 1 -u
+	$ feh out000.pnm
+
+So, let's just setup the default run_mode that each video devnode
+should assume, setting it at open() time.
+
+Reported-by: Tsuchiya Yuto <kitakar@gmail.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/mac.c | 35 +++++++++++++++------------
- 1 file changed, 20 insertions(+), 15 deletions(-)
+ drivers/staging/media/atomisp/pci/atomisp_fops.c  |  5 +++++
+ .../staging/media/atomisp/pci/atomisp_subdev.c    | 15 ++++++++++-----
+ .../staging/media/atomisp/pci/atomisp_subdev.h    |  3 +++
+ drivers/staging/media/atomisp/pci/atomisp_v4l2.c  |  4 +++-
+ drivers/staging/media/atomisp/pci/atomisp_v4l2.h  |  3 ++-
+ 5 files changed, 23 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
-index cb41c3e5708cb..a7400ade7a0cf 100644
---- a/drivers/net/wireless/ath/ath11k/mac.c
-+++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -1,6 +1,7 @@
- // SPDX-License-Identifier: BSD-3-Clause-Clear
- /*
-  * Copyright (c) 2018-2019 The Linux Foundation. All rights reserved.
-+ * Copyright (c) 2021 Qualcomm Innovation Center, Inc. All rights reserved.
-  */
- 
- #include <net/mac80211.h>
-@@ -4935,23 +4936,32 @@ static int __ath11k_set_antenna(struct ath11k *ar, u32 tx_ant, u32 rx_ant)
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_fops.c b/drivers/staging/media/atomisp/pci/atomisp_fops.c
+index 02c19b92bdccb..18fff47bd25d2 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_fops.c
++++ b/drivers/staging/media/atomisp/pci/atomisp_fops.c
+@@ -877,6 +877,11 @@ done:
+ 	else
+ 		pipe->users++;
+ 	rt_mutex_unlock(&isp->mutex);
++
++	/* Ensure that a mode is set */
++	if (asd)
++		v4l2_ctrl_s_ctrl(asd->run_mode, pipe->default_run_mode);
++
  	return 0;
- }
  
--int ath11k_mac_tx_mgmt_pending_free(int buf_id, void *skb, void *ctx)
-+static void ath11k_mac_tx_mgmt_free(struct ath11k *ar, int buf_id)
+ css_error:
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_subdev.c b/drivers/staging/media/atomisp/pci/atomisp_subdev.c
+index 12f22ad007c73..ffaf11e0b0ad8 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_subdev.c
++++ b/drivers/staging/media/atomisp/pci/atomisp_subdev.c
+@@ -1164,23 +1164,28 @@ static int isp_subdev_init_entities(struct atomisp_sub_device *asd)
+ 
+ 	atomisp_init_acc_pipe(asd, &asd->video_acc);
+ 
+-	ret = atomisp_video_init(&asd->video_in, "MEMORY");
++	ret = atomisp_video_init(&asd->video_in, "MEMORY",
++				 ATOMISP_RUN_MODE_SDV);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	ret = atomisp_video_init(&asd->video_out_capture, "CAPTURE");
++	ret = atomisp_video_init(&asd->video_out_capture, "CAPTURE",
++				 ATOMISP_RUN_MODE_STILL_CAPTURE);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	ret = atomisp_video_init(&asd->video_out_vf, "VIEWFINDER");
++	ret = atomisp_video_init(&asd->video_out_vf, "VIEWFINDER",
++				 ATOMISP_RUN_MODE_CONTINUOUS_CAPTURE);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	ret = atomisp_video_init(&asd->video_out_preview, "PREVIEW");
++	ret = atomisp_video_init(&asd->video_out_preview, "PREVIEW",
++				 ATOMISP_RUN_MODE_PREVIEW);
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	ret = atomisp_video_init(&asd->video_out_video_capture, "VIDEO");
++	ret = atomisp_video_init(&asd->video_out_video_capture, "VIDEO",
++				 ATOMISP_RUN_MODE_VIDEO);
+ 	if (ret < 0)
+ 		return ret;
+ 
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_subdev.h b/drivers/staging/media/atomisp/pci/atomisp_subdev.h
+index d6fcfab6352d7..a8d210ea5f8be 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_subdev.h
++++ b/drivers/staging/media/atomisp/pci/atomisp_subdev.h
+@@ -81,6 +81,9 @@ struct atomisp_video_pipe {
+ 	/* the link list to store per_frame parameters */
+ 	struct list_head per_frame_params;
+ 
++	/* Store here the initial run mode */
++	unsigned int default_run_mode;
++
+ 	unsigned int buffers_in_css;
+ 
+ 	/* irq_lock is used to protect video buffer state change operations and
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_v4l2.c b/drivers/staging/media/atomisp/pci/atomisp_v4l2.c
+index 7982cc143374a..14c39b8987c95 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_v4l2.c
++++ b/drivers/staging/media/atomisp/pci/atomisp_v4l2.c
+@@ -447,7 +447,8 @@ const struct atomisp_dfs_config dfs_config_cht_soc = {
+ 	.dfs_table_size = ARRAY_SIZE(dfs_rules_cht_soc),
+ };
+ 
+-int atomisp_video_init(struct atomisp_video_pipe *video, const char *name)
++int atomisp_video_init(struct atomisp_video_pipe *video, const char *name,
++		       unsigned int run_mode)
  {
--	struct sk_buff *msdu = skb;
-+	struct sk_buff *msdu;
- 	struct ieee80211_tx_info *info;
--	struct ath11k *ar = ctx;
--	struct ath11k_base *ab = ar->ab;
- 
- 	spin_lock_bh(&ar->txmgmt_idr_lock);
--	idr_remove(&ar->txmgmt_idr, buf_id);
-+	msdu = idr_remove(&ar->txmgmt_idr, buf_id);
- 	spin_unlock_bh(&ar->txmgmt_idr_lock);
--	dma_unmap_single(ab->dev, ATH11K_SKB_CB(msdu)->paddr, msdu->len,
-+
-+	if (!msdu)
-+		return;
-+
-+	dma_unmap_single(ar->ab->dev, ATH11K_SKB_CB(msdu)->paddr, msdu->len,
- 			 DMA_TO_DEVICE);
- 
- 	info = IEEE80211_SKB_CB(msdu);
- 	memset(&info->status, 0, sizeof(info->status));
- 
- 	ieee80211_free_txskb(ar->hw, msdu);
-+}
-+
-+int ath11k_mac_tx_mgmt_pending_free(int buf_id, void *skb, void *ctx)
-+{
-+	struct ath11k *ar = ctx;
-+
-+	ath11k_mac_tx_mgmt_free(ar, buf_id);
- 
- 	return 0;
- }
-@@ -4960,17 +4970,10 @@ static int ath11k_mac_vif_txmgmt_idr_remove(int buf_id, void *skb, void *ctx)
- {
- 	struct ieee80211_vif *vif = ctx;
- 	struct ath11k_skb_cb *skb_cb = ATH11K_SKB_CB((struct sk_buff *)skb);
--	struct sk_buff *msdu = skb;
- 	struct ath11k *ar = skb_cb->ar;
--	struct ath11k_base *ab = ar->ab;
- 
--	if (skb_cb->vif == vif) {
--		spin_lock_bh(&ar->txmgmt_idr_lock);
--		idr_remove(&ar->txmgmt_idr, buf_id);
--		spin_unlock_bh(&ar->txmgmt_idr_lock);
--		dma_unmap_single(ab->dev, skb_cb->paddr, msdu->len,
--				 DMA_TO_DEVICE);
--	}
-+	if (skb_cb->vif == vif)
-+		ath11k_mac_tx_mgmt_free(ar, buf_id);
- 
- 	return 0;
- }
-@@ -4985,6 +4988,8 @@ static int ath11k_mac_mgmt_tx_wmi(struct ath11k *ar, struct ath11k_vif *arvif,
- 	int buf_id;
  	int ret;
+ 	const char *direction;
+@@ -478,6 +479,7 @@ int atomisp_video_init(struct atomisp_video_pipe *video, const char *name)
+ 		 "ATOMISP ISP %s %s", name, direction);
+ 	video->vdev.release = video_device_release_empty;
+ 	video_set_drvdata(&video->vdev, video->isp);
++	video->default_run_mode = run_mode;
  
-+	ATH11K_SKB_CB(skb)->ar = ar;
-+
- 	spin_lock_bh(&ar->txmgmt_idr_lock);
- 	buf_id = idr_alloc(&ar->txmgmt_idr, skb, 0,
- 			   ATH11K_TX_MGMT_NUM_PENDING_MAX, GFP_ATOMIC);
+ 	return 0;
+ }
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_v4l2.h b/drivers/staging/media/atomisp/pci/atomisp_v4l2.h
+index 81bb356b81720..72611b8286a4a 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_v4l2.h
++++ b/drivers/staging/media/atomisp/pci/atomisp_v4l2.h
+@@ -27,7 +27,8 @@ struct v4l2_device;
+ struct atomisp_device;
+ struct firmware;
+ 
+-int atomisp_video_init(struct atomisp_video_pipe *video, const char *name);
++int atomisp_video_init(struct atomisp_video_pipe *video, const char *name,
++		       unsigned int run_mode);
+ void atomisp_acc_init(struct atomisp_acc_pipe *video, const char *name);
+ void atomisp_video_unregister(struct atomisp_video_pipe *video);
+ void atomisp_acc_unregister(struct atomisp_acc_pipe *video);
 -- 
 2.34.1
 
