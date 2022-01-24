@@ -2,50 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85484499188
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76C8449918A
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244115AbiAXULh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:11:37 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:51016 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378769AbiAXUIk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:08:40 -0500
+        id S1379554AbiAXULn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:11:43 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:33698 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348836AbiAXUIs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:08:48 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9C892B8122D;
-        Mon, 24 Jan 2022 20:08:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E3AEC340E5;
-        Mon, 24 Jan 2022 20:08:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AC24F6131F;
+        Mon, 24 Jan 2022 20:08:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93A5AC340E5;
+        Mon, 24 Jan 2022 20:08:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054917;
-        bh=3EHpRrMUpsj/gfEbrNR8bSyf7OM4VIACXy4nSoKp2rc=;
+        s=korg; t=1643054926;
+        bh=QYooLD2Iy4Ex5XNIjipp54FHDkWtZ0Nl+hc6wluX0oI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xfrzQlxpK13KwJkElNoHGWvpYm60uEl9oFEZqquI2LCliQrp8W/Gb37S/Ckq+9b9t
-         qVvfQFeTJ1fbFWHfl9TqSuLTtGz+K6hGLVzMaLYQHr5p7S99Eaxl7MTdeC4svJoQFM
-         37JF5bG+x4QWMhhYpqabiNwWzJkTI+l+EdllUSbQ=
+        b=sb7bDZvEOJ/CuWmeXwywSTsTcAmvO0G+NyEISXub9Almwv0Bgsruj8N8shpHo8O7f
+         Px8mWQRwTpXcs2hp3FjRvs3ZFElalzGBPjME4CYfGV0CLI0fIl879yifaxT/gPyUPN
+         hoAbLCfrbsbgZO/A8P9QObG1jaQSxfeqyKLHhvbk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zechuan Chen <chenzechuan1@huawei.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Jianlin Lv <Jianlin.Lv@arm.com>,
-        Jin Yao <yao.jin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Namhyung Kim <namhyung@kernel.org>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
-        Yang Jihong <yangjihong1@huawei.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.10 546/563] perf probe: Fix ppc64 perf probe add events failed case
-Date:   Mon, 24 Jan 2022 19:45:11 +0100
-Message-Id: <20220124184043.309725982@linuxfoundation.org>
+        stable@vger.kernel.org, Jie Wang <wangjie125@huawei.com>,
+        Guangbin Huang <huangguangbin2@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 549/563] net: bonding: fix bond_xmit_broadcast return value error bug
+Date:   Mon, 24 Jan 2022 19:45:14 +0100
+Message-Id: <20220124184043.423578112@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -57,62 +45,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zechuan Chen <chenzechuan1@huawei.com>
+From: Jie Wang <wangjie125@huawei.com>
 
-commit 4624f199327a704dd1069aca1c3cadb8f2a28c6f upstream.
+commit 4e5bd03ae34652cd932ab4c91c71c511793df75c upstream.
 
-Because of commit bf794bf52a80c627 ("powerpc/kprobes: Fix kallsyms
-lookup across powerpc ABIv1 and ABIv2"), in ppc64 ABIv1, our perf
-command eliminates the need to use the prefix "." at the symbol name.
+In Linux bonding scenario, one packet is copied to several copies and sent
+by all slave device of bond0 in mode 3(broadcast mode). The mode 3 xmit
+function bond_xmit_broadcast() only ueses the last slave device's tx result
+as the final result. In this case, if the last slave device is down, then
+it always return NET_XMIT_DROP, even though the other slave devices xmit
+success. It may cause the tx statistics error, and cause the application
+(e.g. scp) consider the network is unreachable.
 
-But when the command "perf probe -a schedule" is executed on ppc64
-ABIv1, it obtains two symbol address information through /proc/kallsyms,
-for example:
+For example, use the following command to configure server A.
 
-  cat /proc/kallsyms | grep -w schedule
-  c000000000657020 T .schedule
-  c000000000d4fdb8 D schedule
+echo 3 > /sys/class/net/bond0/bonding/mode
+ifconfig bond0 up
+ifenslave bond0 eth0 eth1
+ifconfig bond0 192.168.1.125
+ifconfig eth0 up
+ifconfig eth1 down
+The slave device eth0 and eth1 are connected to server B(192.168.1.107).
+Run the ping 192.168.1.107 -c 3 -i 0.2 command, the following information
+is displayed.
 
-The symbol "D schedule" is not a function symbol, and perf will print:
-"p:probe/schedule _text+13958584"Failed to write event: Invalid argument
+PING 192.168.1.107 (192.168.1.107) 56(84) bytes of data.
+64 bytes from 192.168.1.107: icmp_seq=1 ttl=64 time=0.077 ms
+64 bytes from 192.168.1.107: icmp_seq=2 ttl=64 time=0.056 ms
+64 bytes from 192.168.1.107: icmp_seq=3 ttl=64 time=0.051 ms
 
-Therefore, when searching symbols from map and adding probe point for
-them, a symbol type check is added. If the type of symbol is not a
-function, skip it.
+ 192.168.1.107 ping statistics
+0 packets transmitted, 3 received
 
-Fixes: bf794bf52a80c627 ("powerpc/kprobes: Fix kallsyms lookup across powerpc ABIv1 and ABIv2")
-Signed-off-by: Zechuan Chen <chenzechuan1@huawei.com>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jianlin Lv <Jianlin.Lv@arm.com>
-Cc: Jin Yao <yao.jin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
-Cc: Yang Jihong <yangjihong1@huawei.com>
-Link: https://lore.kernel.org/r/20211228111338.218602-1-chenzechuan1@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Actually, the slave device eth0 of the bond successfully sends three
+ICMP packets, but the result shows that 0 packets are transmitted.
+
+Also if we use scp command to get remote files, the command end with the
+following printings.
+
+ssh_exchange_identification: read: Connection timed out
+
+So this patch modifies the bond_xmit_broadcast to return NET_XMIT_SUCCESS
+if one slave device in the bond sends packets successfully. If all slave
+devices send packets fail, the discarded packets stats is increased. The
+skb is released when there is no slave device in the bond or the last slave
+device is down.
+
+Fixes: ae46f184bc1f ("bonding: propagate transmit status")
+Signed-off-by: Jie Wang <wangjie125@huawei.com>
+Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/probe-event.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/bonding/bond_main.c |   30 ++++++++++++++++++++++--------
+ 1 file changed, 22 insertions(+), 8 deletions(-)
 
---- a/tools/perf/util/probe-event.c
-+++ b/tools/perf/util/probe-event.c
-@@ -3035,6 +3035,9 @@ static int find_probe_trace_events_from_
- 	for (j = 0; j < num_matched_functions; j++) {
- 		sym = syms[j];
+--- a/drivers/net/bonding/bond_main.c
++++ b/drivers/net/bonding/bond_main.c
+@@ -4562,25 +4562,39 @@ static netdev_tx_t bond_xmit_broadcast(s
+ 	struct bonding *bond = netdev_priv(bond_dev);
+ 	struct slave *slave = NULL;
+ 	struct list_head *iter;
++	bool xmit_suc = false;
++	bool skb_used = false;
  
-+		if (sym->type != STT_FUNC)
+ 	bond_for_each_slave_rcu(bond, slave, iter) {
+-		if (bond_is_last_slave(bond, slave))
+-			break;
+-		if (bond_slave_is_up(slave) && slave->link == BOND_LINK_UP) {
+-			struct sk_buff *skb2 = skb_clone(skb, GFP_ATOMIC);
++		struct sk_buff *skb2;
+ 
++		if (!(bond_slave_is_up(slave) && slave->link == BOND_LINK_UP))
 +			continue;
 +
- 		/* There can be duplicated symbols in the map */
- 		for (i = 0; i < j; i++)
- 			if (sym->start == syms[i]->start) {
++		if (bond_is_last_slave(bond, slave)) {
++			skb2 = skb;
++			skb_used = true;
++		} else {
++			skb2 = skb_clone(skb, GFP_ATOMIC);
+ 			if (!skb2) {
+ 				net_err_ratelimited("%s: Error: %s: skb_clone() failed\n",
+ 						    bond_dev->name, __func__);
+ 				continue;
+ 			}
+-			bond_dev_queue_xmit(bond, skb2, slave->dev);
+ 		}
++
++		if (bond_dev_queue_xmit(bond, skb2, slave->dev) == NETDEV_TX_OK)
++			xmit_suc = true;
+ 	}
+-	if (slave && bond_slave_is_up(slave) && slave->link == BOND_LINK_UP)
+-		return bond_dev_queue_xmit(bond, skb, slave->dev);
+ 
+-	return bond_tx_drop(bond_dev, skb);
++	if (!skb_used)
++		dev_kfree_skb_any(skb);
++
++	if (xmit_suc)
++		return NETDEV_TX_OK;
++
++	atomic_long_inc(&bond_dev->tx_dropped);
++	return NET_XMIT_DROP;
+ }
+ 
+ /*------------------------- Device initialization ---------------------------*/
 
 
