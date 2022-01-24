@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC69E498D01
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:33:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBFDD498D04
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:33:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350634AbiAXT1Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:27:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50422 "EHLO
+        id S239756AbiAXT1S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:27:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350037AbiAXTXR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:23:17 -0500
+        with ESMTP id S1345479AbiAXTXV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:23:21 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A162C061345;
-        Mon, 24 Jan 2022 11:09:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46E7BC061346;
+        Mon, 24 Jan 2022 11:09:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CAD7460B86;
-        Mon, 24 Jan 2022 19:09:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76A0CC340E5;
-        Mon, 24 Jan 2022 19:09:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D817C61298;
+        Mon, 24 Jan 2022 19:09:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC41BC340E5;
+        Mon, 24 Jan 2022 19:09:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051390;
-        bh=TJQQhk+LtbsaVOiLRJNVbeEVkSaz5diuewmKJ4vB+uI=;
+        s=korg; t=1643051393;
+        bh=Ev5tX5NfFR/j1wYm53oMVJTmjKW5T16TtnSYsQF+7uk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FCCbwUqVS3GPRf2UIpOiaxQOap7nwyO3SMJPyLev/8IZmajh0GXsJ+EPxudVmR2+H
-         QI9UOhgAf4M3jQUJEgIND0p67rXSgmVwn8dWUnlRQK3q9k/hR8JYSLOBODsrtWJFpJ
-         uaFuffLqhjSBqppLWD6SVMqPtIP4evi6mron5EXw=
+        b=qnulgZsQgwxVp+6sQnlbGaZUV4Wnz7eg+D8DEMwA390f8Eg6JnthfTcPln4z3Z02m
+         f8mhQNmUlNn4G49xg73fRumO0893IGSBzTb+QXMwlLIe5I6se0tWNyWQqNFxOzkGUq
+         7GN0CzUKa0saCdVJEGu/5DkrXtuKac47P/trlM5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zekun Shen <bruceshenzk@gmail.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 113/186] ath9k: Fix out-of-bound memcpy in ath9k_hif_usb_rx_stream
-Date:   Mon, 24 Jan 2022 19:43:08 +0100
-Message-Id: <20220124183940.748943459@linuxfoundation.org>
+Subject: [PATCH 4.14 114/186] iwlwifi: fix leaks/bad data after failed firmware load
+Date:   Mon, 24 Jan 2022 19:43:09 +0100
+Message-Id: <20220124183940.780099707@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
 References: <20220124183937.101330125@linuxfoundation.org>
@@ -48,88 +48,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 6ce708f54cc8d73beca213cec66ede5ce100a781 ]
+[ Upstream commit ab07506b0454bea606095951e19e72c282bfbb42 ]
 
-Large pkt_len can lead to out-out-bound memcpy. Current
-ath9k_hif_usb_rx_stream allows combining the content of two urb
-inputs to one pkt. The first input can indicate the size of the
-pkt. Any remaining size is saved in hif_dev->rx_remain_len.
-While processing the next input, memcpy is used with rx_remain_len.
+If firmware load fails after having loaded some parts of the
+firmware, e.g. the IML image, then this would leak. For the
+host command list we'd end up running into a WARN on the next
+attempt to load another firmware image.
 
-4-byte pkt_len can go up to 0xffff, while a single input is 0x4000
-maximum in size (MAX_RX_BUF_SIZE). Thus, the patch adds a check for
-pkt_len which must not exceed 2 * MAX_RX_BUG_SIZE.
+Fix this by calling iwl_dealloc_ucode() on failures, and make
+that also clear the data so we start fresh on the next round.
 
-BUG: KASAN: slab-out-of-bounds in ath9k_hif_usb_rx_cb+0x490/0xed7 [ath9k_htc]
-Read of size 46393 at addr ffff888018798000 by task kworker/0:1/23
-
-CPU: 0 PID: 23 Comm: kworker/0:1 Not tainted 5.6.0 #63
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
-BIOS rel-1.10.2-0-g5f4c7b1-prebuilt.qemu-project.org 04/01/2014
-Workqueue: events request_firmware_work_func
-Call Trace:
- <IRQ>
- dump_stack+0x76/0xa0
- print_address_description.constprop.0+0x16/0x200
- ? ath9k_hif_usb_rx_cb+0x490/0xed7 [ath9k_htc]
- ? ath9k_hif_usb_rx_cb+0x490/0xed7 [ath9k_htc]
- __kasan_report.cold+0x37/0x7c
- ? ath9k_hif_usb_rx_cb+0x490/0xed7 [ath9k_htc]
- kasan_report+0xe/0x20
- check_memory_region+0x15a/0x1d0
- memcpy+0x20/0x50
- ath9k_hif_usb_rx_cb+0x490/0xed7 [ath9k_htc]
- ? hif_usb_mgmt_cb+0x2d9/0x2d9 [ath9k_htc]
- ? _raw_spin_lock_irqsave+0x7b/0xd0
- ? _raw_spin_trylock_bh+0x120/0x120
- ? __usb_unanchor_urb+0x12f/0x210
- __usb_hcd_giveback_urb+0x1e4/0x380
- usb_giveback_urb_bh+0x241/0x4f0
- ? __hrtimer_run_queues+0x316/0x740
- ? __usb_hcd_giveback_urb+0x380/0x380
- tasklet_action_common.isra.0+0x135/0x330
- __do_softirq+0x18c/0x634
- irq_exit+0x114/0x140
- smp_apic_timer_interrupt+0xde/0x380
- apic_timer_interrupt+0xf/0x20
-
-I found the bug using a custome USBFuzz port. It's a research work
-to fuzz USB stack/drivers. I modified it to fuzz ath9k driver only,
-providing hand-crafted usb descriptors to QEMU.
-
-After fixing the value of pkt_tag to ATH_USB_RX_STREAM_MODE_TAG in QEMU
-emulation, I found the KASAN report. The bug is triggerable whenever
-pkt_len is above two MAX_RX_BUG_SIZE. I used the same input that crashes
-to test the driver works when applying the patch.
-
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/YXsidrRuK6zBJicZ@10-18-43-117.dynapool.wireless.nyu.edu
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20211210110539.1f742f0eb58a.I1315f22f6aa632d94ae2069f85e1bca5e734dce0@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/hif_usb.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/net/wireless/intel/iwlwifi/iwl-drv.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
-index ce3a785212740..8125f17526519 100644
---- a/drivers/net/wireless/ath/ath9k/hif_usb.c
-+++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
-@@ -588,6 +588,13 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
- 			return;
- 		}
+diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
+index 6c10b8c4ddbe5..95101f66a886e 100644
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
+@@ -182,6 +182,9 @@ static void iwl_dealloc_ucode(struct iwl_drv *drv)
  
-+		if (pkt_len > 2 * MAX_RX_BUF_SIZE) {
-+			dev_err(&hif_dev->udev->dev,
-+				"ath9k_htc: invalid pkt_len (%x)\n", pkt_len);
-+			RX_STAT_INC(skb_dropped);
-+			return;
-+		}
+ 	for (i = 0; i < IWL_UCODE_TYPE_MAX; i++)
+ 		iwl_free_fw_img(drv, drv->fw.img + i);
 +
- 		pad_len = 4 - (pkt_len & 0x3);
- 		if (pad_len == 4)
- 			pad_len = 0;
++	/* clear the data for the aborted load case */
++	memset(&drv->fw, 0, sizeof(drv->fw));
+ }
+ 
+ static int iwl_alloc_fw_desc(struct iwl_drv *drv, struct fw_desc *desc,
+@@ -1271,6 +1274,7 @@ static void iwl_req_fw_callback(const struct firmware *ucode_raw, void *context)
+ 	int i;
+ 	bool load_module = false;
+ 	bool usniffer_images = false;
++	bool failure = true;
+ 
+ 	fw->ucode_capa.max_probe_length = IWL_DEFAULT_MAX_PROBE_LENGTH;
+ 	fw->ucode_capa.standard_phy_calibration_size =
+@@ -1499,6 +1503,7 @@ static void iwl_req_fw_callback(const struct firmware *ucode_raw, void *context)
+ 				op->name, err);
+ #endif
+ 	}
++	failure = false;
+ 	goto free;
+ 
+  try_again:
+@@ -1514,6 +1519,9 @@ static void iwl_req_fw_callback(const struct firmware *ucode_raw, void *context)
+ 	complete(&drv->request_firmware_complete);
+ 	device_release_driver(drv->trans->dev);
+  free:
++	if (failure)
++		iwl_dealloc_ucode(drv);
++
+ 	if (pieces) {
+ 		for (i = 0; i < ARRAY_SIZE(pieces->img); i++)
+ 			kfree(pieces->img[i].sec);
 -- 
 2.34.1
 
