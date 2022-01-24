@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AB7A498981
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:56:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 691B8498A26
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:02:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343496AbiAXS4f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:56:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42934 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344263AbiAXSyF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:54:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DC11C0613E9;
-        Mon, 24 Jan 2022 10:53:10 -0800 (PST)
+        id S1344595AbiAXTBm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:01:42 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:57212 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344997AbiAXS7o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:59:44 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A04C614E3;
-        Mon, 24 Jan 2022 18:53:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3D30C340E5;
-        Mon, 24 Jan 2022 18:53:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E1830B81215;
+        Mon, 24 Jan 2022 18:59:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01E89C340E5;
+        Mon, 24 Jan 2022 18:59:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050389;
-        bh=sGOvretFgauqF2/LGbvj1iZr7JxVo+3umuYUrti16Ho=;
+        s=korg; t=1643050781;
+        bh=Nnp6w8GL4hiQozY8T/6HlO69LhX6+pjDvbt3rnlGots=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dOEMyXdMc+GAwbXcsr7qK+YVSIRsvynzpBmj/4Qq50u08KpAYmNXD79FIiVRGZAW7
-         56NHAyXF2ps5H6wYRVaB7UJs2u/I0wQW8Rm19J+/W7/vJFV24demf0IiYvwJ8w7kWm
-         o6e4HykwupjITpgzla2MroBLwisd5B1UBgh+2YQc=
+        b=JpN2lQH1L0GC35MmICwqcFQCpWOO2W37sGPbuNkzpnLwYi7FmGhSd59WYdC4B7Yqr
+         yKuShdZRPrkASHIURUAE1hX9jxshFXaHsAQbHNi4LWGH+RAEyuIHt5ezNT36JpCByL
+         xIa765JWGnn9M2bd5iFQYrIoLf2L75iEHpTyZKsg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.4 103/114] parisc: pdc_stable: Fix memory leak in pdcs_register_pathentries
-Date:   Mon, 24 Jan 2022 19:43:18 +0100
-Message-Id: <20220124183930.290507116@linuxfoundation.org>
+        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 109/157] i2c: i801: Dont silently correct invalid transfer size
+Date:   Mon, 24 Jan 2022 19:43:19 +0100
+Message-Id: <20220124183936.231220313@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
-References: <20220124183927.095545464@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,39 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-commit d24846a4246b6e61ecbd036880a4adf61681d241 upstream.
+[ Upstream commit effa453168a7eeb8a562ff4edc1dbf9067360a61 ]
 
-kobject_init_and_add() takes reference even when it fails.
-According to the doc of kobject_init_and_add()：
+If an invalid block size is provided, reject it instead of silently
+changing it to a supported value. Especially critical I see the case of
+a write transfer with block length 0. In this case we have no guarantee
+that the byte we would write is valid. When silently reducing a read to
+32 bytes then we don't return an error and the caller may falsely
+assume that we returned the full requested data.
 
-   If this function returns an error, kobject_put() must be called to
-   properly clean up the memory associated with the object.
+If this change should break any (broken) caller, then I think we should
+fix the caller.
 
-Fix memory leak by calling kobject_put().
-
-Fixes: 73f368cf679b ("Kobject: change drivers/parisc/pdc_stable.c to use kobject_init_and_add")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/parisc/pdc_stable.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-i801.c | 15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
---- a/drivers/parisc/pdc_stable.c
-+++ b/drivers/parisc/pdc_stable.c
-@@ -992,8 +992,10 @@ pdcs_register_pathentries(void)
- 		entry->kobj.kset = paths_kset;
- 		err = kobject_init_and_add(&entry->kobj, &ktype_pdcspath, NULL,
- 					   "%s", entry->name);
--		if (err)
-+		if (err) {
-+			kobject_put(&entry->kobj);
- 			return err;
-+		}
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index 0e04b27e3158d..b577c64f3b3ec 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -762,6 +762,11 @@ static int i801_block_transaction(struct i801_priv *priv,
+ 	int result = 0;
+ 	unsigned char hostc;
  
- 		/* kobject is now registered */
- 		write_lock(&entry->rw_lock);
++	if (read_write == I2C_SMBUS_READ && command == I2C_SMBUS_BLOCK_DATA)
++		data->block[0] = I2C_SMBUS_BLOCK_MAX;
++	else if (data->block[0] < 1 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
++		return -EPROTO;
++
+ 	if (command == I2C_SMBUS_I2C_BLOCK_DATA) {
+ 		if (read_write == I2C_SMBUS_WRITE) {
+ 			/* set I2C_EN bit in configuration register */
+@@ -775,16 +780,6 @@ static int i801_block_transaction(struct i801_priv *priv,
+ 		}
+ 	}
+ 
+-	if (read_write == I2C_SMBUS_WRITE
+-	 || command == I2C_SMBUS_I2C_BLOCK_DATA) {
+-		if (data->block[0] < 1)
+-			data->block[0] = 1;
+-		if (data->block[0] > I2C_SMBUS_BLOCK_MAX)
+-			data->block[0] = I2C_SMBUS_BLOCK_MAX;
+-	} else {
+-		data->block[0] = 32;	/* max for SMBus block reads */
+-	}
+-
+ 	/* Experience has shown that the block buffer can only be used for
+ 	   SMBus (not I2C) block transactions, even though the datasheet
+ 	   doesn't mention this limitation. */
+-- 
+2.34.1
+
 
 
