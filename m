@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBAC74997D5
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:33:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 410D1499D86
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:00:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376994AbiAXVQw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:16:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49360 "EHLO
+        id S1583893AbiAXWYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:24:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355870AbiAXVMp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:12:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFA53C02B776;
-        Mon, 24 Jan 2022 12:09:28 -0800 (PST)
+        with ESMTP id S1583666AbiAXWTY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:19:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E8E2C06125A;
+        Mon, 24 Jan 2022 12:49:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6BD01B8122A;
-        Mon, 24 Jan 2022 20:09:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93358C340E5;
-        Mon, 24 Jan 2022 20:09:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F05FE60C19;
+        Mon, 24 Jan 2022 20:49:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C90D9C340E5;
+        Mon, 24 Jan 2022 20:49:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054966;
-        bh=4KubBFmDsVrKB9scUEaiucazOFxFpJPrDKsfzlgOojM=;
+        s=korg; t=1643057352;
+        bh=vtrHks515mWWDB8VUuf53R07+1bjr6PyWKO1q/bUdAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J6iB2Uo3t1BimrgNJpJAEVLjlVcj1h2nrX++ZsjcBioapAccf1oqFBXcfLgxZfazp
-         BFAFHVJuB919e6yNG4GlYw0dW/Q49fQ+WHm/EfO98jHgrrWczMGHx1qqNrCqbMjwyn
-         vcwz+bn8pXzRxIXOIlnCGVV/SVkIDlSGkYUotKvw=
+        b=XuYn9ko7T1riLHUCNxGTQx8tifdek2T39IJNT0CEODfrQp3UgBQTfHM+mpmNhndph
+         tHuYpKayrJFR521rwcUhVGsLFKK8GV6dVSd9vDhFlTWjnmSpKWkKxBT8gsJjdtb2Sl
+         FJ7tlJWKfEUO9KdVgSXzPB5CxIzSnXmPPd+FAFss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 534/563] inet: frags: annotate races around fqdir->dead and fqdir->high_thresh
-Date:   Mon, 24 Jan 2022 19:44:59 +0100
-Message-Id: <20220124184042.911703298@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Subject: [PATCH 5.15 783/846] crypto: octeontx2 - uninitialized variable in kvf_limits_store()
+Date:   Mon, 24 Jan 2022 19:45:00 +0100
+Message-Id: <20220124184127.968997311@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,94 +47,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 91341fa0003befd097e190ec2a4bf63ad957c49a upstream.
+commit 0ea275df84c389e910a3575a9233075118c173ee upstream.
 
-Both fields can be read/written without synchronization,
-add proper accessors and documentation.
+If kstrtoint() fails then "lfs_num" is uninitialized and the warning
+doesn't make any sense.  Just delete it.
 
-Fixes: d5dd88794a13 ("inet: fix various use-after-free in defrags units")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 8ec8015a3168 ("crypto: octeontx2 - add support to process the crypto request")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/inet_frag.h  |   11 +++++++++--
- include/net/ipv6_frag.h  |    3 ++-
- net/ipv4/inet_fragment.c |    8 +++++---
- net/ipv4/ip_fragment.c   |    3 ++-
- 4 files changed, 18 insertions(+), 7 deletions(-)
+ drivers/crypto/marvell/octeontx2/otx2_cptpf_main.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/include/net/inet_frag.h
-+++ b/include/net/inet_frag.h
-@@ -116,8 +116,15 @@ int fqdir_init(struct fqdir **fqdirp, st
- 
- static inline void fqdir_pre_exit(struct fqdir *fqdir)
+--- a/drivers/crypto/marvell/octeontx2/otx2_cptpf_main.c
++++ b/drivers/crypto/marvell/octeontx2/otx2_cptpf_main.c
+@@ -494,12 +494,11 @@ static ssize_t kvf_limits_store(struct d
  {
--	fqdir->high_thresh = 0; /* prevent creation of new frags */
--	fqdir->dead = true;
-+	/* Prevent creation of new frags.
-+	 * Pairs with READ_ONCE() in inet_frag_find().
-+	 */
-+	WRITE_ONCE(fqdir->high_thresh, 0);
-+
-+	/* Pairs with READ_ONCE() in inet_frag_kill(), ip_expire()
-+	 * and ip6frag_expire_frag_queue().
-+	 */
-+	WRITE_ONCE(fqdir->dead, true);
- }
- void fqdir_exit(struct fqdir *fqdir);
+ 	struct otx2_cptpf_dev *cptpf = dev_get_drvdata(dev);
+ 	int lfs_num;
++	int ret;
  
---- a/include/net/ipv6_frag.h
-+++ b/include/net/ipv6_frag.h
-@@ -67,7 +67,8 @@ ip6frag_expire_frag_queue(struct net *ne
- 	struct sk_buff *head;
- 
- 	rcu_read_lock();
--	if (fq->q.fqdir->dead)
-+	/* Paired with the WRITE_ONCE() in fqdir_pre_exit(). */
-+	if (READ_ONCE(fq->q.fqdir->dead))
- 		goto out_rcu_unlock;
- 	spin_lock(&fq->q.lock);
- 
---- a/net/ipv4/inet_fragment.c
-+++ b/net/ipv4/inet_fragment.c
-@@ -204,9 +204,9 @@ void inet_frag_kill(struct inet_frag_que
- 		/* The RCU read lock provides a memory barrier
- 		 * guaranteeing that if fqdir->dead is false then
- 		 * the hash table destruction will not start until
--		 * after we unlock.  Paired with inet_frags_exit_net().
-+		 * after we unlock.  Paired with fqdir_pre_exit().
- 		 */
--		if (!fqdir->dead) {
-+		if (!READ_ONCE(fqdir->dead)) {
- 			rhashtable_remove_fast(&fqdir->rhashtable, &fq->node,
- 					       fqdir->f->rhash_params);
- 			refcount_dec(&fq->refcnt);
-@@ -321,9 +321,11 @@ static struct inet_frag_queue *inet_frag
- /* TODO : call from rcu_read_lock() and no longer use refcount_inc_not_zero() */
- struct inet_frag_queue *inet_frag_find(struct fqdir *fqdir, void *key)
- {
-+	/* This pairs with WRITE_ONCE() in fqdir_pre_exit(). */
-+	long high_thresh = READ_ONCE(fqdir->high_thresh);
- 	struct inet_frag_queue *fq = NULL, *prev;
- 
--	if (!fqdir->high_thresh || frag_mem_limit(fqdir) > fqdir->high_thresh)
-+	if (!high_thresh || frag_mem_limit(fqdir) > high_thresh)
- 		return NULL;
- 
- 	rcu_read_lock();
---- a/net/ipv4/ip_fragment.c
-+++ b/net/ipv4/ip_fragment.c
-@@ -144,7 +144,8 @@ static void ip_expire(struct timer_list
- 
- 	rcu_read_lock();
- 
--	if (qp->q.fqdir->dead)
-+	/* Paired with WRITE_ONCE() in fqdir_pre_exit(). */
-+	if (READ_ONCE(qp->q.fqdir->dead))
- 		goto out_rcu_unlock;
- 
- 	spin_lock(&qp->q.lock);
+-	if (kstrtoint(buf, 0, &lfs_num)) {
+-		dev_err(dev, "lfs count %d must be in range [1 - %d]\n",
+-			lfs_num, num_online_cpus());
+-		return -EINVAL;
+-	}
++	ret = kstrtoint(buf, 0, &lfs_num);
++	if (ret)
++		return ret;
+ 	if (lfs_num < 1 || lfs_num > num_online_cpus()) {
+ 		dev_err(dev, "lfs count %d must be in range [1 - %d]\n",
+ 			lfs_num, num_online_cpus());
 
 
