@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C463499AB8
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:56:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83799499963
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:44:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1573630AbiAXVp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:45:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55304 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1456552AbiAXVjb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:39:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FA00C0417CC;
-        Mon, 24 Jan 2022 12:25:05 -0800 (PST)
+        id S1455167AbiAXVex (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:34:53 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:37956 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1449092AbiAXVOx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:14:53 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BC0AC61502;
-        Mon, 24 Jan 2022 20:25:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90950C340E5;
-        Mon, 24 Jan 2022 20:25:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B879A6148C;
+        Mon, 24 Jan 2022 21:14:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B11FC340E5;
+        Mon, 24 Jan 2022 21:14:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055904;
-        bh=g5jYcDdJTtAaQIzC6WDSvOuOlk9FXh7FUac05QGiE4c=;
+        s=korg; t=1643058890;
+        bh=+JaUykpnnx79VM58DA0Rf4NkTtZca3z8xnJ8tFJjt9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yKzkLk7K1Qkf1uOXTEU3pp8bcUxcCbautSWJjfGRXjoN8Lj8xBdmiPGlrCEbaHlM7
-         QQMdjMG30aGDrBO3ytYDME8GXVAyFPl8EPYnivhwDDZ4/y9sDaxdudQfsjpP8PdHHZ
-         TnoOLB1QlfeOxc0A7Cj547eg7I4dxxk6m2QZNS0Q=
+        b=kGriY2EruQgDsVFHpKh2FGyU+/yLaQlImyLHgFKFGSKXzJ5k3AZoWdY0k9gW8NJJW
+         1R/Nkt3N9VRXcsOhW3m4dfuq1Ehke10fVUyJkCBZtlVumm5nuZWs8J8Ph28qr/BF61
+         N9TLUD3javKwddh7bsGLZZG7rhDVuxhYBc2E+6xE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Raed Salem <raeds@nvidia.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 305/846] net/xfrm: IPsec tunnel mode fix inner_ipproto setting in sec_path
-Date:   Mon, 24 Jan 2022 19:37:02 +0100
-Message-Id: <20220124184111.422529364@linuxfoundation.org>
+Subject: [PATCH 5.16 0434/1039] can: xilinx_can: xcan_probe(): check for error irq
+Date:   Mon, 24 Jan 2022 19:37:03 +0100
+Message-Id: <20220124184139.890185367@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,83 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raed Salem <raeds@nvidia.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 45a98ef4922def8c679ca7c454403d1957fe70e7 ]
+[ Upstream commit c6564c13dae25cd7f8e1de5127b4da4500ee5844 ]
 
-The inner_ipproto saves the inner IP protocol of the plain
-text packet. This allows vendor's IPsec feature making offload
-decision at skb's features_check and configuring hardware at
-ndo_start_xmit, current code implenetation did not handle the
-case where IPsec is used in tunnel mode.
+For the possible failure of the platform_get_irq(), the returned irq
+could be error number and will finally cause the failure of the
+request_irq().
 
-Fix by handling the case when IPsec is used in tunnel mode by
-reading the protocol of the plain text packet IP protocol.
+Consider that platform_get_irq() can now in certain cases return
+-EPROBE_DEFER, and the consequences of letting request_irq()
+effectively convert that into -EINVAL, even at probe time rather than
+later on. So it might be better to check just now.
 
-Fixes: fa4535238fb5 ("net/xfrm: Add inner_ipproto into sec_path")
-Signed-off-by: Raed Salem <raeds@nvidia.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Fixes: b1201e44f50b ("can: xilinx CAN controller support")
+Link: https://lore.kernel.org/all/20211224021324.1447494-1-jiasheng@iscas.ac.cn
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_output.c | 30 +++++++++++++++++++++++++-----
- 1 file changed, 25 insertions(+), 5 deletions(-)
+ drivers/net/can/xilinx_can.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/net/xfrm/xfrm_output.c b/net/xfrm/xfrm_output.c
-index 229544bc70c21..4dc4a7bbe51cf 100644
---- a/net/xfrm/xfrm_output.c
-+++ b/net/xfrm/xfrm_output.c
-@@ -647,10 +647,12 @@ static int xfrm_output_gso(struct net *net, struct sock *sk, struct sk_buff *skb
-  * This requires hardware to know the inner packet type to calculate
-  * the inner header checksum. Save inner ip protocol here to avoid
-  * traversing the packet in the vendor's xmit code.
-- * If the encap type is IPIP, just save skb->inner_ipproto. Otherwise,
-- * get the ip protocol from the IP header.
-+ * For IPsec tunnel mode save the ip protocol from the IP header of the
-+ * plain text packet. Otherwise If the encap type is IPIP, just save
-+ * skb->inner_ipproto in any other case get the ip protocol from the IP
-+ * header.
-  */
--static void xfrm_get_inner_ipproto(struct sk_buff *skb)
-+static void xfrm_get_inner_ipproto(struct sk_buff *skb, struct xfrm_state *x)
- {
- 	struct xfrm_offload *xo = xfrm_offload(skb);
- 	const struct ethhdr *eth;
-@@ -658,6 +660,25 @@ static void xfrm_get_inner_ipproto(struct sk_buff *skb)
- 	if (!xo)
- 		return;
+diff --git a/drivers/net/can/xilinx_can.c b/drivers/net/can/xilinx_can.c
+index e2b15d29d15eb..af4a2adc85983 100644
+--- a/drivers/net/can/xilinx_can.c
++++ b/drivers/net/can/xilinx_can.c
+@@ -1761,7 +1761,12 @@ static int xcan_probe(struct platform_device *pdev)
+ 	spin_lock_init(&priv->tx_lock);
  
-+	if (x->outer_mode.encap == XFRM_MODE_TUNNEL) {
-+		switch (x->outer_mode.family) {
-+		case AF_INET:
-+			xo->inner_ipproto = ip_hdr(skb)->protocol;
-+			break;
-+		case AF_INET6:
-+			xo->inner_ipproto = ipv6_hdr(skb)->nexthdr;
-+			break;
-+		default:
-+			break;
-+		}
+ 	/* Get IRQ for the device */
+-	ndev->irq = platform_get_irq(pdev, 0);
++	ret = platform_get_irq(pdev, 0);
++	if (ret < 0)
++		goto err_free;
 +
-+		return;
-+	}
++	ndev->irq = ret;
 +
-+	/* non-Tunnel Mode */
-+	if (!skb->encapsulation)
-+		return;
-+
- 	if (skb->inner_protocol_type == ENCAP_TYPE_IPPROTO) {
- 		xo->inner_ipproto = skb->inner_ipproto;
- 		return;
-@@ -712,8 +733,7 @@ int xfrm_output(struct sock *sk, struct sk_buff *skb)
- 		sp->xvec[sp->len++] = x;
- 		xfrm_state_hold(x);
+ 	ndev->flags |= IFF_ECHO;	/* We support local echo */
  
--		if (skb->encapsulation)
--			xfrm_get_inner_ipproto(skb);
-+		xfrm_get_inner_ipproto(skb, x);
- 		skb->encapsulation = 1;
- 
- 		if (skb_is_gso(skb)) {
+ 	platform_set_drvdata(pdev, ndev);
 -- 
 2.34.1
 
