@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89315498C89
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:23:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 363A7498AC0
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:07:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346420AbiAXTXI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:23:08 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:43896 "EHLO
+        id S1343556AbiAXTGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:06:35 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56912 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347071AbiAXTOc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:14:32 -0500
+        with ESMTP id S1345178AbiAXTCu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:02:50 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 762CF6090A;
-        Mon, 24 Jan 2022 19:14:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D7BBC340E5;
-        Mon, 24 Jan 2022 19:14:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 55F9360BAC;
+        Mon, 24 Jan 2022 19:02:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35337C340E5;
+        Mon, 24 Jan 2022 19:02:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051670;
-        bh=d4twU/xt8Evsjk78l3La49ircXkQ1OuoTKgMSn0/0D8=;
+        s=korg; t=1643050969;
+        bh=S+oUhieKCUVWkr3cNVSk7UFZZl4vLzAmix0sjkOrXIc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TPrR0ymUlNpdCeeCTRMIkuxzExjbLgoJhXsAImRBii6tr1GrnwhhhOmccNXjh+FrZ
-         Rk45hLiaOTJAprlOR2PjeMgVrX7ZWzPFvdRyifSHRl/ScuArQyVKqSVS28vQtJCMm5
-         8zXPhOMx5iPLt5Y3u8JQbsb5fA/pOpUmCAYkG4rk=
+        b=bhlRyYdR5mIvU7RtyLzAMW1xI7L/0dHjsPVM5h+7PUc6itsHhiMcfxCccpHjF1sKu
+         zA90sL+irKBnxyXBKMuTbgujs4bslbpmXYPmbfsEKGuU5Ht2H7hIv6k6e/K6LEJUXr
+         EwMD6svhJb76IJaHJIx+CVKtxoqwGyg/kUxObjCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dillon Min <dillon.minfei@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 050/239] media: videobuf2: Fix the size printk format
+        stable@vger.kernel.org,
+        syzbot+cce1ee31614c171f5595@syzkaller.appspotmail.com,
+        Larry Finger <Larry.Finger@lwfinger.net>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 4.14 013/186] rtlwifi: rtl8192cu: Fix WARNING when calling local_irq_restore() with interrupts enabled
 Date:   Mon, 24 Jan 2022 19:41:28 +0100
-Message-Id: <20220124183944.727868893@linuxfoundation.org>
+Message-Id: <20220124183937.537903618@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
+References: <20220124183937.101330125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,50 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dillon Min <dillon.minfei@gmail.com>
+From: Larry Finger <Larry.Finger@lwfinger.net>
 
-[ Upstream commit c9ee220d76775e42f35d634479c978d9350077d3 ]
+commit 8b144dedb928e4e2f433a328d58f44c3c098d63e upstream.
 
-Since the type of parameter size is unsigned long,
-it should printk by %lu, instead of %ld, fix it.
+Syzbot reports the following WARNING:
 
-Fixes: 7952be9b6ece ("media: drivers/media/common/videobuf2: rename from videobuf")
-Signed-off-by: Dillon Min <dillon.minfei@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[200~raw_local_irq_restore() called with IRQs enabled
+WARNING: CPU: 1 PID: 1206 at kernel/locking/irqflag-debug.c:10
+   warn_bogus_irq_restore+0x1d/0x20 kernel/locking/irqflag-debug.c:10
+
+Hardware initialization for the rtl8188cu can run for as long as 350 ms,
+and the routine may be called with interrupts disabled. To avoid locking
+the machine for this long, the current routine saves the interrupt flags
+and enables local interrupts. The problem is that it restores the flags
+at the end without disabling local interrupts first.
+
+This patch fixes commit a53268be0cb9 ("rtlwifi: rtl8192cu: Fix too long
+disable of IRQs").
+
+Reported-by: syzbot+cce1ee31614c171f5595@syzkaller.appspotmail.com
+Cc: stable@vger.kernel.org
+Fixes: a53268be0cb9 ("rtlwifi: rtl8192cu: Fix too long disable of IRQs")
+Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20211215171105.20623-1-Larry.Finger@lwfinger.net
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/common/videobuf2/videobuf2-dma-contig.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/common/videobuf2/videobuf2-dma-contig.c b/drivers/media/common/videobuf2/videobuf2-dma-contig.c
-index aff0ab7bf83d5..bbd5716d4c9cb 100644
---- a/drivers/media/common/videobuf2/videobuf2-dma-contig.c
-+++ b/drivers/media/common/videobuf2/videobuf2-dma-contig.c
-@@ -154,7 +154,7 @@ static void *vb2_dc_alloc(struct device *dev, unsigned long attrs,
- 	buf->cookie = dma_alloc_attrs(dev, size, &buf->dma_addr,
- 					GFP_KERNEL | gfp_flags, buf->attrs);
- 	if (!buf->cookie) {
--		dev_err(dev, "dma_alloc_coherent of size %ld failed\n", size);
-+		dev_err(dev, "dma_alloc_coherent of size %lu failed\n", size);
- 		kfree(buf);
- 		return ERR_PTR(-ENOMEM);
- 	}
-@@ -206,9 +206,9 @@ static int vb2_dc_mmap(void *buf_priv, struct vm_area_struct *vma)
- 
- 	vma->vm_ops->open(vma);
- 
--	pr_debug("%s: mapped dma addr 0x%08lx at 0x%08lx, size %ld\n",
--		__func__, (unsigned long)buf->dma_addr, vma->vm_start,
--		buf->size);
-+	pr_debug("%s: mapped dma addr 0x%08lx at 0x%08lx, size %lu\n",
-+		 __func__, (unsigned long)buf->dma_addr, vma->vm_start,
-+		 buf->size);
- 
- 	return 0;
+--- a/drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c
++++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c
+@@ -1020,6 +1020,7 @@ int rtl92cu_hw_init(struct ieee80211_hw
+ 	_InitPABias(hw);
+ 	rtl92c_dm_init(hw);
+ exit:
++	local_irq_disable();
+ 	local_irq_restore(flags);
+ 	return err;
  }
--- 
-2.34.1
-
 
 
