@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0E29499156
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE51C499219
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:19:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379105AbiAXUKT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:10:19 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:48466 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377085AbiAXUEz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:04:55 -0500
+        id S1381006AbiAXURZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:17:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34406 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344625AbiAXUNq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:13:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA60DC0604D6;
+        Mon, 24 Jan 2022 11:37:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26F3CB8119E;
-        Mon, 24 Jan 2022 20:04:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CE63C340E5;
-        Mon, 24 Jan 2022 20:04:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 41C7A61515;
+        Mon, 24 Jan 2022 19:37:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27847C340E5;
+        Mon, 24 Jan 2022 19:37:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054692;
-        bh=1LRY7Hc5xtjb83pWWXrGzUxDQvG9QongWQv+GtMJcTY=;
+        s=korg; t=1643053030;
+        bh=5vWYp7qQngVJfxFk9KUiSt3vvkHtUkiSXrq/kc/duEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kyy7XG4vtS8pRQ793/7MnU2HJbsREvqwXNrlC6h6PNnViIvKl1wTOaW3BJUHMRx13
-         7M2xncIRzQJaWCG4IYv/TrfNUt4yWj9VuODTIsO7/UPn97aT+KF4Ddvb/gc26wJkQr
-         LsFDWuQf8u8Wz4SHb9SJ6HeTq7YM9/L9mosJWD10=
+        b=clEYfLh8Wbn18xnBz484lDJNaAadC1LG2fsUvQKFTKUGQi/Y3qT6HQP0TQPT3qoPg
+         PsaTBeAdKcqkQWyTqjutf2kUliGltWL/MMjfUY6k09d5TxCG8ZApg9OVC83Qhgcy5x
+         a8e/ILj3xQvgv1LMOIwwfqmrxou5QspLtRU8c9UY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kara <jack@suse.cz>, stable@kernel.org,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 473/563] ext4: make sure quota gets properly shutdown on error
+        stable@vger.kernel.org, Ilan Peer <ilan.peer@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>
+Subject: [PATCH 5.4 254/320] iwlwifi: mvm: Increase the scan timeout guard to 30 seconds
 Date:   Mon, 24 Jan 2022 19:43:58 +0100
-Message-Id: <20220124184040.829568391@linuxfoundation.org>
+Message-Id: <20220124184002.631982996@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +47,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Ilan Peer <ilan.peer@intel.com>
 
-commit 15fc69bbbbbc8c72e5f6cc4e1be0f51283c5448e upstream.
+commit ced50f1133af12f7521bb777fcf4046ca908fb77 upstream.
 
-When we hit an error when enabling quotas and setting inode flags, we do
-not properly shutdown quota subsystem despite returning error from
-Q_QUOTAON quotactl. This can lead to some odd situations like kernel
-using quota file while it is still writeable for userspace. Make sure we
-properly cleanup the quota subsystem in case of error.
+With the introduction of 6GHz channels the scan guard timeout should
+be adjusted to account for the following extreme case:
 
-Signed-off-by: Jan Kara <jack@suse.cz>
-Cc: stable@kernel.org
-Link: https://lore.kernel.org/r/20211007155336.12493-2-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+- All 6GHz channels are scanned passively: 58 channels.
+- The scan is fragmented with the following parameters: 3 fragments,
+  95 TUs suspend time, 44 TUs maximal out of channel time.
+
+The above would result with scan time of more than 24 seconds. Thus,
+set the timeout to 30 seconds.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Ilan Peer <ilan.peer@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20211210090244.3c851b93aef5.I346fa2e1d79220a6770496e773c6f87a2ad9e6c4@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/super.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/scan.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -6341,10 +6341,7 @@ static int ext4_quota_on(struct super_bl
- 
- 	lockdep_set_quota_inode(path->dentry->d_inode, I_DATA_SEM_QUOTA);
- 	err = dquot_quota_on(sb, type, format_id, path);
--	if (err) {
--		lockdep_set_quota_inode(path->dentry->d_inode,
--					     I_DATA_SEM_NORMAL);
--	} else {
-+	if (!err) {
- 		struct inode *inode = d_inode(path->dentry);
- 		handle_t *handle;
- 
-@@ -6364,7 +6361,12 @@ static int ext4_quota_on(struct super_bl
- 		ext4_journal_stop(handle);
- 	unlock_inode:
- 		inode_unlock(inode);
-+		if (err)
-+			dquot_quota_off(sb, type);
- 	}
-+	if (err)
-+		lockdep_set_quota_inode(path->dentry->d_inode,
-+					     I_DATA_SEM_NORMAL);
- 	return err;
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/scan.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/scan.c
+@@ -1700,7 +1700,7 @@ static int iwl_mvm_check_running_scans(s
+ 	return -EIO;
  }
  
+-#define SCAN_TIMEOUT 20000
++#define SCAN_TIMEOUT 30000
+ 
+ void iwl_mvm_scan_timeout_wk(struct work_struct *work)
+ {
 
 
