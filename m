@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E542498D80
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:34:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4271B498D63
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:34:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353098AbiAXTco (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:32:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51654 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352436AbiAXTa1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:30:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08E77C02982E;
-        Mon, 24 Jan 2022 11:13:53 -0800 (PST)
+        id S1346739AbiAXTb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:31:57 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:50650 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1343521AbiAXT1X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:27:23 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F52FB81223;
-        Mon, 24 Jan 2022 19:13:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 590DFC340E5;
-        Mon, 24 Jan 2022 19:13:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 21FC1B8124B;
+        Mon, 24 Jan 2022 19:27:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 243A1C340E5;
+        Mon, 24 Jan 2022 19:27:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051630;
-        bh=MOM5gMZz79kna8oNQJ7UrBfangfUqQQv7yzRdLAipa0=;
+        s=korg; t=1643052440;
+        bh=vdjIyARKgv9EcTFHB7v6+qdFjZqx2Du06oVGbIDEcyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OFDqsX10xXkD8/5yTkjQXSyX4XTi//8APmcAVnIQVrwm1+3kGQ9736iWMiyJt4o4y
-         tMk2Uz+UebLuseEck9aUiH89ebOK/I3TA2mPLPnBqxWJwHnKm7xFsEEgD7HuSJYx8Z
-         33BI+aeMDAEs2Wq/vERWmqAztaOwpOWfiSU9TKr8=
+        b=fxN6cgpAKc1PLy2f+50C0JHmsI1wG2iE7xQ6l9pRm2Cm02Di0CMFeiZ9j6TPYniHF
+         JgC89bKTrX4BC9Jg6od3Rx4i/Cdq/bS2u6GaHFd+3Nlaupgj3urHq1JERonnkJzpO+
+         bhkoDDd9iXz4KGilBQsitd5gqYVXTA2dY87l7tMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Anna-Maria Gleixner <anna-maria@linutronix.de>,
-        Oliver Hartkopp <socketcan@hartkopp.net>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Ziyang Xuan <william.xuanziyang@huawei.com>
-Subject: [PATCH 4.19 004/239] can: bcm: switch timer to HRTIMER_MODE_SOFT and remove hrtimer_tasklet
+        stable@vger.kernel.org,
+        Dafna Hirschfeld <dafna.hirschfeld@collabora.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 058/320] media: mtk-vcodec: call v4l2_m2m_ctx_release first when file is released
 Date:   Mon, 24 Jan 2022 19:40:42 +0100
-Message-Id: <20220124183943.254127396@linuxfoundation.org>
+Message-Id: <20220124183955.713557769@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,318 +47,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
 
-commit bf74aa86e111aa3b2fbb25db37e3a3fab71b5b68 upstream.
+[ Upstream commit 9f89c881bffbdffe4060ffaef3489a2830a6dd9c ]
 
-This patch switches the timer to HRTIMER_MODE_SOFT, which executed the
-timer callback in softirq context and removes the hrtimer_tasklet.
+The func v4l2_m2m_ctx_release waits for currently running jobs
+to finish and then stop streaming both queues and frees the buffers.
+All this should be done before the call to mtk_vcodec_enc_release
+which frees the encoder handler. This fixes null-pointer dereference bug:
 
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Anna-Maria Gleixner <anna-maria@linutronix.de>
-Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[  638.028076] Mem abort info:
+[  638.030932]   ESR = 0x96000004
+[  638.033978]   EC = 0x25: DABT (current EL), IL = 32 bits
+[  638.039293]   SET = 0, FnV = 0
+[  638.042338]   EA = 0, S1PTW = 0
+[  638.045474]   FSC = 0x04: level 0 translation fault
+[  638.050349] Data abort info:
+[  638.053224]   ISV = 0, ISS = 0x00000004
+[  638.057055]   CM = 0, WnR = 0
+[  638.060018] user pgtable: 4k pages, 48-bit VAs, pgdp=000000012b6db000
+[  638.066485] [00000000000001a0] pgd=0000000000000000, p4d=0000000000000000
+[  638.073277] Internal error: Oops: 96000004 [#1] SMP
+[  638.078145] Modules linked in: rfkill mtk_vcodec_dec mtk_vcodec_enc uvcvideo mtk_mdp mtk_vcodec_common videobuf2_dma_contig v4l2_h264 cdc_ether v4l2_mem2mem videobuf2_vmalloc usbnet videobuf2_memops videobuf2_v4l2 r8152 videobuf2_common videodev cros_ec_sensors cros_ec_sensors_core industrialio_triggered_buffer kfifo_buf elan_i2c elants_i2c sbs_battery mc cros_usbpd_charger cros_ec_chardev cros_usbpd_logger crct10dif_ce mtk_vpu fuse ip_tables x_tables ipv6
+[  638.118583] CPU: 0 PID: 212 Comm: kworker/u8:5 Not tainted 5.15.0-06427-g58a1d4dcfc74-dirty #109
+[  638.127357] Hardware name: Google Elm (DT)
+[  638.131444] Workqueue: mtk-vcodec-enc mtk_venc_worker [mtk_vcodec_enc]
+[  638.137974] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+[  638.144925] pc : vp8_enc_encode+0x34/0x2b0 [mtk_vcodec_enc]
+[  638.150493] lr : venc_if_encode+0xac/0x1b0 [mtk_vcodec_enc]
+[  638.156060] sp : ffff8000124d3c40
+[  638.159364] x29: ffff8000124d3c40 x28: 0000000000000000 x27: 0000000000000000
+[  638.166493] x26: 0000000000000000 x25: ffff0000e7f252d0 x24: ffff8000124d3d58
+[  638.173621] x23: ffff8000124d3d58 x22: ffff8000124d3d60 x21: 0000000000000001
+[  638.180750] x20: ffff80001137e000 x19: 0000000000000000 x18: 0000000000000001
+[  638.187878] x17: 000000040044ffff x16: 00400032b5503510 x15: 0000000000000000
+[  638.195006] x14: ffff8000118536c0 x13: ffff8000ee1da000 x12: 0000000030d4d91d
+[  638.202134] x11: 0000000000000000 x10: 0000000000000980 x9 : ffff8000124d3b20
+[  638.209262] x8 : ffff0000c18d4ea0 x7 : ffff0000c18d44c0 x6 : ffff0000c18d44c0
+[  638.216391] x5 : ffff80000904a3b0 x4 : ffff8000124d3d58 x3 : ffff8000124d3d60
+[  638.223519] x2 : ffff8000124d3d78 x1 : 0000000000000001 x0 : ffff80001137efb8
+[  638.230648] Call trace:
+[  638.233084]  vp8_enc_encode+0x34/0x2b0 [mtk_vcodec_enc]
+[  638.238304]  venc_if_encode+0xac/0x1b0 [mtk_vcodec_enc]
+[  638.243525]  mtk_venc_worker+0x110/0x250 [mtk_vcodec_enc]
+[  638.248918]  process_one_work+0x1f8/0x498
+[  638.252923]  worker_thread+0x140/0x538
+[  638.256664]  kthread+0x148/0x158
+[  638.259884]  ret_from_fork+0x10/0x20
+[  638.263455] Code: f90023f9 2a0103f5 aa0303f6 aa0403f8 (f940d277)
+[  638.269538] ---[ end trace e374fc10f8e181f5 ]---
+
+[gst-master] root@debian:~/gst-build# [  638.019193] Unable to handle kernel NULL pointer dereference at virtual address 00000000000001a0
+Fixes: 4e855a6efa547 ("[media] vcodec: mediatek: Add Mediatek V4L2 Video Encoder Driver")
+Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/bcm.c |  156 +++++++++++++++++++---------------------------------------
- 1 file changed, 52 insertions(+), 104 deletions(-)
+ drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/can/bcm.c
-+++ b/net/can/bcm.c
-@@ -105,7 +105,6 @@ struct bcm_op {
- 	unsigned long frames_abs, frames_filtered;
- 	struct bcm_timeval ival1, ival2;
- 	struct hrtimer timer, thrtimer;
--	struct tasklet_struct tsklet, thrtsklet;
- 	ktime_t rx_stamp, kt_ival1, kt_ival2, kt_lastmsg;
- 	int rx_ifindex;
- 	int cfsiz;
-@@ -374,25 +373,34 @@ static void bcm_send_to_user(struct bcm_
- 	}
- }
+diff --git a/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.c b/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.c
+index 1d82aa2b6017c..dea0ee2cb7245 100644
+--- a/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.c
++++ b/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.c
+@@ -209,11 +209,11 @@ static int fops_vcodec_release(struct file *file)
+ 	mtk_v4l2_debug(1, "[%d] encoder", ctx->id);
+ 	mutex_lock(&dev->dev_mutex);
  
--static void bcm_tx_start_timer(struct bcm_op *op)
-+static bool bcm_tx_set_expiry(struct bcm_op *op, struct hrtimer *hrt)
- {
-+	ktime_t ival;
-+
- 	if (op->kt_ival1 && op->count)
--		hrtimer_start(&op->timer,
--			      ktime_add(ktime_get(), op->kt_ival1),
--			      HRTIMER_MODE_ABS);
-+		ival = op->kt_ival1;
- 	else if (op->kt_ival2)
--		hrtimer_start(&op->timer,
--			      ktime_add(ktime_get(), op->kt_ival2),
--			      HRTIMER_MODE_ABS);
-+		ival = op->kt_ival2;
-+	else
-+		return false;
-+
-+	hrtimer_set_expires(hrt, ktime_add(ktime_get(), ival));
-+	return true;
- }
++	v4l2_m2m_ctx_release(ctx->m2m_ctx);
+ 	mtk_vcodec_enc_release(ctx);
+ 	v4l2_fh_del(&ctx->fh);
+ 	v4l2_fh_exit(&ctx->fh);
+ 	v4l2_ctrl_handler_free(&ctx->ctrl_hdl);
+-	v4l2_m2m_ctx_release(ctx->m2m_ctx);
  
--static void bcm_tx_timeout_tsklet(unsigned long data)
-+static void bcm_tx_start_timer(struct bcm_op *op)
- {
--	struct bcm_op *op = (struct bcm_op *)data;
-+	if (bcm_tx_set_expiry(op, &op->timer))
-+		hrtimer_start_expires(&op->timer, HRTIMER_MODE_ABS_SOFT);
-+}
-+
-+/* bcm_tx_timeout_handler - performs cyclic CAN frame transmissions */
-+static enum hrtimer_restart bcm_tx_timeout_handler(struct hrtimer *hrtimer)
-+{
-+	struct bcm_op *op = container_of(hrtimer, struct bcm_op, timer);
- 	struct bcm_msg_head msg_head;
- 
- 	if (op->kt_ival1 && (op->count > 0)) {
--
- 		op->count--;
- 		if (!op->count && (op->flags & TX_COUNTEVT)) {
- 
-@@ -410,22 +418,12 @@ static void bcm_tx_timeout_tsklet(unsign
- 		}
- 		bcm_can_tx(op);
- 
--	} else if (op->kt_ival2)
-+	} else if (op->kt_ival2) {
- 		bcm_can_tx(op);
-+	}
- 
--	bcm_tx_start_timer(op);
--}
--
--/*
-- * bcm_tx_timeout_handler - performs cyclic CAN frame transmissions
-- */
--static enum hrtimer_restart bcm_tx_timeout_handler(struct hrtimer *hrtimer)
--{
--	struct bcm_op *op = container_of(hrtimer, struct bcm_op, timer);
--
--	tasklet_schedule(&op->tsklet);
--
--	return HRTIMER_NORESTART;
-+	return bcm_tx_set_expiry(op, &op->timer) ?
-+		HRTIMER_RESTART : HRTIMER_NORESTART;
- }
- 
- /*
-@@ -492,7 +490,7 @@ static void bcm_rx_update_and_send(struc
- 		/* do not send the saved data - only start throttle timer */
- 		hrtimer_start(&op->thrtimer,
- 			      ktime_add(op->kt_lastmsg, op->kt_ival2),
--			      HRTIMER_MODE_ABS);
-+			      HRTIMER_MODE_ABS_SOFT);
- 		return;
- 	}
- 
-@@ -551,14 +549,21 @@ static void bcm_rx_starttimer(struct bcm
- 		return;
- 
- 	if (op->kt_ival1)
--		hrtimer_start(&op->timer, op->kt_ival1, HRTIMER_MODE_REL);
-+		hrtimer_start(&op->timer, op->kt_ival1, HRTIMER_MODE_REL_SOFT);
- }
- 
--static void bcm_rx_timeout_tsklet(unsigned long data)
-+/* bcm_rx_timeout_handler - when the (cyclic) CAN frame reception timed out */
-+static enum hrtimer_restart bcm_rx_timeout_handler(struct hrtimer *hrtimer)
- {
--	struct bcm_op *op = (struct bcm_op *)data;
-+	struct bcm_op *op = container_of(hrtimer, struct bcm_op, timer);
- 	struct bcm_msg_head msg_head;
- 
-+	/* if user wants to be informed, when cyclic CAN-Messages come back */
-+	if ((op->flags & RX_ANNOUNCE_RESUME) && op->last_frames) {
-+		/* clear received CAN frames to indicate 'nothing received' */
-+		memset(op->last_frames, 0, op->nframes * op->cfsiz);
-+	}
-+
- 	/* create notification to user */
- 	memset(&msg_head, 0, sizeof(msg_head));
- 	msg_head.opcode  = RX_TIMEOUT;
-@@ -570,25 +575,6 @@ static void bcm_rx_timeout_tsklet(unsign
- 	msg_head.nframes = 0;
- 
- 	bcm_send_to_user(op, &msg_head, NULL, 0);
--}
--
--/*
-- * bcm_rx_timeout_handler - when the (cyclic) CAN frame reception timed out
-- */
--static enum hrtimer_restart bcm_rx_timeout_handler(struct hrtimer *hrtimer)
--{
--	struct bcm_op *op = container_of(hrtimer, struct bcm_op, timer);
--
--	/* schedule before NET_RX_SOFTIRQ */
--	tasklet_hi_schedule(&op->tsklet);
--
--	/* no restart of the timer is done here! */
--
--	/* if user wants to be informed, when cyclic CAN-Messages come back */
--	if ((op->flags & RX_ANNOUNCE_RESUME) && op->last_frames) {
--		/* clear received CAN frames to indicate 'nothing received' */
--		memset(op->last_frames, 0, op->nframes * op->cfsiz);
--	}
- 
- 	return HRTIMER_NORESTART;
- }
-@@ -596,14 +582,12 @@ static enum hrtimer_restart bcm_rx_timeo
- /*
-  * bcm_rx_do_flush - helper for bcm_rx_thr_flush
-  */
--static inline int bcm_rx_do_flush(struct bcm_op *op, int update,
--				  unsigned int index)
-+static inline int bcm_rx_do_flush(struct bcm_op *op, unsigned int index)
- {
- 	struct canfd_frame *lcf = op->last_frames + op->cfsiz * index;
- 
- 	if ((op->last_frames) && (lcf->flags & RX_THR)) {
--		if (update)
--			bcm_rx_changed(op, lcf);
-+		bcm_rx_changed(op, lcf);
- 		return 1;
- 	}
- 	return 0;
-@@ -611,11 +595,8 @@ static inline int bcm_rx_do_flush(struct
- 
- /*
-  * bcm_rx_thr_flush - Check for throttled data and send it to the userspace
-- *
-- * update == 0 : just check if throttled data is available  (any irq context)
-- * update == 1 : check and send throttled data to userspace (soft_irq context)
-  */
--static int bcm_rx_thr_flush(struct bcm_op *op, int update)
-+static int bcm_rx_thr_flush(struct bcm_op *op)
- {
- 	int updated = 0;
- 
-@@ -624,24 +605,16 @@ static int bcm_rx_thr_flush(struct bcm_o
- 
- 		/* for MUX filter we start at index 1 */
- 		for (i = 1; i < op->nframes; i++)
--			updated += bcm_rx_do_flush(op, update, i);
-+			updated += bcm_rx_do_flush(op, i);
- 
- 	} else {
- 		/* for RX_FILTER_ID and simple filter */
--		updated += bcm_rx_do_flush(op, update, 0);
-+		updated += bcm_rx_do_flush(op, 0);
- 	}
- 
- 	return updated;
- }
- 
--static void bcm_rx_thr_tsklet(unsigned long data)
--{
--	struct bcm_op *op = (struct bcm_op *)data;
--
--	/* push the changed data to the userspace */
--	bcm_rx_thr_flush(op, 1);
--}
--
- /*
-  * bcm_rx_thr_handler - the time for blocked content updates is over now:
-  *                      Check for throttled data and send it to the userspace
-@@ -650,9 +623,7 @@ static enum hrtimer_restart bcm_rx_thr_h
- {
- 	struct bcm_op *op = container_of(hrtimer, struct bcm_op, thrtimer);
- 
--	tasklet_schedule(&op->thrtsklet);
--
--	if (bcm_rx_thr_flush(op, 0)) {
-+	if (bcm_rx_thr_flush(op)) {
- 		hrtimer_forward(hrtimer, ktime_get(), op->kt_ival2);
- 		return HRTIMER_RESTART;
- 	} else {
-@@ -748,23 +719,8 @@ static struct bcm_op *bcm_find_op(struct
- 
- static void bcm_remove_op(struct bcm_op *op)
- {
--	if (op->tsklet.func) {
--		while (test_bit(TASKLET_STATE_SCHED, &op->tsklet.state) ||
--		       test_bit(TASKLET_STATE_RUN, &op->tsklet.state) ||
--		       hrtimer_active(&op->timer)) {
--			hrtimer_cancel(&op->timer);
--			tasklet_kill(&op->tsklet);
--		}
--	}
--
--	if (op->thrtsklet.func) {
--		while (test_bit(TASKLET_STATE_SCHED, &op->thrtsklet.state) ||
--		       test_bit(TASKLET_STATE_RUN, &op->thrtsklet.state) ||
--		       hrtimer_active(&op->thrtimer)) {
--			hrtimer_cancel(&op->thrtimer);
--			tasklet_kill(&op->thrtsklet);
--		}
--	}
-+	hrtimer_cancel(&op->timer);
-+	hrtimer_cancel(&op->thrtimer);
- 
- 	if ((op->frames) && (op->frames != &op->sframe))
- 		kfree(op->frames);
-@@ -998,15 +954,13 @@ static int bcm_tx_setup(struct bcm_msg_h
- 		op->ifindex = ifindex;
- 
- 		/* initialize uninitialized (kzalloc) structure */
--		hrtimer_init(&op->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-+		hrtimer_init(&op->timer, CLOCK_MONOTONIC,
-+			     HRTIMER_MODE_REL_SOFT);
- 		op->timer.function = bcm_tx_timeout_handler;
- 
--		/* initialize tasklet for tx countevent notification */
--		tasklet_init(&op->tsklet, bcm_tx_timeout_tsklet,
--			     (unsigned long) op);
--
- 		/* currently unused in tx_ops */
--		hrtimer_init(&op->thrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-+		hrtimer_init(&op->thrtimer, CLOCK_MONOTONIC,
-+			     HRTIMER_MODE_REL_SOFT);
- 
- 		/* add this bcm_op to the list of the tx_ops */
- 		list_add(&op->list, &bo->tx_ops);
-@@ -1175,20 +1129,14 @@ static int bcm_rx_setup(struct bcm_msg_h
- 		op->rx_ifindex = ifindex;
- 
- 		/* initialize uninitialized (kzalloc) structure */
--		hrtimer_init(&op->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-+		hrtimer_init(&op->timer, CLOCK_MONOTONIC,
-+			     HRTIMER_MODE_REL_SOFT);
- 		op->timer.function = bcm_rx_timeout_handler;
- 
--		/* initialize tasklet for rx timeout notification */
--		tasklet_init(&op->tsklet, bcm_rx_timeout_tsklet,
--			     (unsigned long) op);
--
--		hrtimer_init(&op->thrtimer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
-+		hrtimer_init(&op->thrtimer, CLOCK_MONOTONIC,
-+			     HRTIMER_MODE_REL_SOFT);
- 		op->thrtimer.function = bcm_rx_thr_handler;
- 
--		/* initialize tasklet for rx throttle handling */
--		tasklet_init(&op->thrtsklet, bcm_rx_thr_tsklet,
--			     (unsigned long) op);
--
- 		/* add this bcm_op to the list of the rx_ops */
- 		list_add(&op->list, &bo->rx_ops);
- 
-@@ -1234,12 +1182,12 @@ static int bcm_rx_setup(struct bcm_msg_h
- 			 */
- 			op->kt_lastmsg = 0;
- 			hrtimer_cancel(&op->thrtimer);
--			bcm_rx_thr_flush(op, 1);
-+			bcm_rx_thr_flush(op);
- 		}
- 
- 		if ((op->flags & STARTTIMER) && op->kt_ival1)
- 			hrtimer_start(&op->timer, op->kt_ival1,
--				      HRTIMER_MODE_REL);
-+				      HRTIMER_MODE_REL_SOFT);
- 	}
- 
- 	/* now we can register for can_ids, if we added a new bcm_op */
+ 	list_del_init(&ctx->list);
+ 	kfree(ctx);
+-- 
+2.34.1
+
 
 
