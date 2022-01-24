@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB9AD499916
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:43:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B59649992A
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:43:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1454148AbiAXVbw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:31:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51870 "EHLO
+        id S1454105AbiAXVbt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:31:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1451494AbiAXVXC (ORCPT
+        with ESMTP id S1451493AbiAXVXC (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:23:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 011E0C028C32;
-        Mon, 24 Jan 2022 12:17:18 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E960C028C33;
+        Mon, 24 Jan 2022 12:17:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AF28AB8121C;
-        Mon, 24 Jan 2022 20:17:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD003C340E5;
-        Mon, 24 Jan 2022 20:17:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BC156149E;
+        Mon, 24 Jan 2022 20:17:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE800C340E5;
+        Mon, 24 Jan 2022 20:17:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055435;
-        bh=nkRbVp2W10K033deshM2ceJteFE6A6KthK5vUO20h1o=;
+        s=korg; t=1643055438;
+        bh=BLOgM/qEZEaWm+wF2EqNfKAit9z/KekYzEWR/+WaUNc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X8UunnzvNkrfIR/NbcVxlvxOJLXPVvzyDYj/0ivthqTKTHitQ6Bi65zSwO3VxIdZC
-         Pvf9niyeaEDnzUgUJ8pjEvAztBZVDlmgEOmN02u3boKFyBmcwXWxrd5qVIbGlIKOHv
-         Q8uN6zfZR5xTfT54kDnNsf7GLMjjIBYRswr1Gwfo=
+        b=sETNr2RmogfRo+vtk4CezCdkNjVndE4QqOlgptg6tYYkHmzSUpIZ3JHd/vmgWEXDm
+         BF4YBuvu//3VPIZAT1ZnAMWQyX2GhABQzfRjvWrsmQKfsSANx1EAbWhwuFzibr8fHr
+         2nvKyYvuh4UMWyebUWv9ykYa9gwwcm39FnsSPdnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jammy Huang <jammy_huang@aspeedtech.com>,
-        Paul Menzel <pmenzel@molgen.mpg.de>,
-        Joel Stanley <joel@jms.id.au>,
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        syzkaller <syzkaller@googlegroups.com>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 117/846] media: aspeed: fix mode-detect always time out at 2nd run
-Date:   Mon, 24 Jan 2022 19:33:54 +0100
-Message-Id: <20220124184105.009738998@linuxfoundation.org>
+Subject: [PATCH 5.15 118/846] media: em28xx: fix memory leak in em28xx_init_dev
+Date:   Mon, 24 Jan 2022 19:33:55 +0100
+Message-Id: <20220124184105.040452542@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -51,54 +51,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jammy Huang <jammy_huang@aspeedtech.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 62cea52ad4bead0ae4be2cfe1142eb0aae0e9fbd ]
+[ Upstream commit 22be5a10d0b24eec9e45decd15d7e6112b25f080 ]
 
-aspeed_video_get_resolution() will try to do res-detect again if the
-timing got in last try is invalid. But it will always time out because
-VE_SEQ_CTRL_TRIG_MODE_DET is only cleared after 1st mode-detect.
+In the em28xx_init_rev, if em28xx_audio_setup fails, this function fails
+to deallocate the media_dev allocated in the em28xx_media_device_init.
 
-To fix the problem, just clear VE_SEQ_CTRL_TRIG_MODE_DET before setting
-it in aspeed_video_enable_mode_detect().
+Fix this by adding em28xx_unregister_media_device to free media_dev.
 
-Fixes: d2b4387f3bdf ("media: platform: Add Aspeed Video Engine driver")
-Signed-off-by: Jammy Huang <jammy_huang@aspeedtech.com>
-Acked-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Reviewed-by: Joel Stanley <joel@jms.id.au>
+BTW, this patch is tested in my local syzkaller instance, and it can
+prevent the memory leak from occurring again.
+
+CC: Pavel Skripkin <paskripkin@gmail.com>
+Fixes: 37ecc7b1278f ("[media] em28xx: add media controller support")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Reported-by: syzkaller <syzkaller@googlegroups.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/aspeed-video.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/media/usb/em28xx/em28xx-cards.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/media/platform/aspeed-video.c b/drivers/media/platform/aspeed-video.c
-index 7bb6babdcade0..23c41c545c536 100644
---- a/drivers/media/platform/aspeed-video.c
-+++ b/drivers/media/platform/aspeed-video.c
-@@ -500,6 +500,10 @@ static void aspeed_video_enable_mode_detect(struct aspeed_video *video)
- 	aspeed_video_update(video, VE_INTERRUPT_CTRL, 0,
- 			    VE_INTERRUPT_MODE_DETECT);
+diff --git a/drivers/media/usb/em28xx/em28xx-cards.c b/drivers/media/usb/em28xx/em28xx-cards.c
+index 948e22e29b42a..ebc430b05f21c 100644
+--- a/drivers/media/usb/em28xx/em28xx-cards.c
++++ b/drivers/media/usb/em28xx/em28xx-cards.c
+@@ -3625,8 +3625,10 @@ static int em28xx_init_dev(struct em28xx *dev, struct usb_device *udev,
  
-+	/* Disable mode detect in order to re-trigger */
-+	aspeed_video_update(video, VE_SEQ_CTRL,
-+			    VE_SEQ_CTRL_TRIG_MODE_DET, 0);
-+
- 	/* Trigger mode detect */
- 	aspeed_video_update(video, VE_SEQ_CTRL, 0, VE_SEQ_CTRL_TRIG_MODE_DET);
- }
-@@ -786,10 +790,6 @@ static void aspeed_video_get_resolution(struct aspeed_video *video)
- 			return;
- 		}
+ 	if (dev->is_audio_only) {
+ 		retval = em28xx_audio_setup(dev);
+-		if (retval)
+-			return -ENODEV;
++		if (retval) {
++			retval = -ENODEV;
++			goto err_deinit_media;
++		}
+ 		em28xx_init_extension(dev);
  
--		/* Disable mode detect in order to re-trigger */
--		aspeed_video_update(video, VE_SEQ_CTRL,
--				    VE_SEQ_CTRL_TRIG_MODE_DET, 0);
+ 		return 0;
+@@ -3645,7 +3647,7 @@ static int em28xx_init_dev(struct em28xx *dev, struct usb_device *udev,
+ 		dev_err(&dev->intf->dev,
+ 			"%s: em28xx_i2c_register bus 0 - error [%d]!\n",
+ 		       __func__, retval);
+-		return retval;
++		goto err_deinit_media;
+ 	}
+ 
+ 	/* register i2c bus 1 */
+@@ -3661,9 +3663,7 @@ static int em28xx_init_dev(struct em28xx *dev, struct usb_device *udev,
+ 				"%s: em28xx_i2c_register bus 1 - error [%d]!\n",
+ 				__func__, retval);
+ 
+-			em28xx_i2c_unregister(dev, 0);
 -
- 		aspeed_video_check_and_set_polarity(video);
+-			return retval;
++			goto err_unreg_i2c;
+ 		}
+ 	}
  
- 		aspeed_video_enable_mode_detect(video);
+@@ -3671,6 +3671,12 @@ static int em28xx_init_dev(struct em28xx *dev, struct usb_device *udev,
+ 	em28xx_card_setup(dev);
+ 
+ 	return 0;
++
++err_unreg_i2c:
++	em28xx_i2c_unregister(dev, 0);
++err_deinit_media:
++	em28xx_unregister_media_device(dev);
++	return retval;
+ }
+ 
+ static int em28xx_duplicate_dev(struct em28xx *dev)
 -- 
 2.34.1
 
