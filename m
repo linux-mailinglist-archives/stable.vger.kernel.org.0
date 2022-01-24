@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37B15499111
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:09:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42750498EDE
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:49:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356431AbiAXUJA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:09:00 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:59946 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353551AbiAXUDa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:03:30 -0500
+        id S1355402AbiAXTtI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:49:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54678 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348964AbiAXTk7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:40:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A579C0613EC;
+        Mon, 24 Jan 2022 11:19:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE3B06131D;
-        Mon, 24 Jan 2022 20:03:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D28C1C340E5;
-        Mon, 24 Jan 2022 20:03:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11E1FB8121A;
+        Mon, 24 Jan 2022 19:19:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22CB1C340E5;
+        Mon, 24 Jan 2022 19:19:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054607;
-        bh=LeyIUgvkFtpWE6KUzBcR44hgBmbAuYis0U7utztFNFY=;
+        s=korg; t=1643051994;
+        bh=Y61sEYe89JMN62S2d5pSk0ZMtlqtnSfDmA0d2mMjqnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QGQQDY/HwEHrisLD+MRjFojNdAvqI2VNuD0uR73/qjU4UzxCv/pkYQxsuudeHM7+g
-         LgnNG/OfJty2WPuxkI7psdJmCH9gVjBjkbEDzW4lpbWDWWd9dzsYgyhDWHih1RkLSf
-         G91rT9bndQbhB8zH9JaF5XNUMLzf48uG56DZE2IY=
+        b=0mJ8wv5/ZvWiEPD9Zt/YAWeueIp0QcxsDpsEANzzzkNAtikYmHuZl6I+c+k6BWHgP
+         1MZU9ypJ46E3l3Fh2Av+UEcJWFzvnsqZ0yFwEMUydRqN6J+3vWBgtHP95QL/9blTRl
+         It42y0AZy0aN9n5M1SAEXGPtph9l3A0bWIYBOiso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Zekun Shen <bruceshenzk@gmail.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 427/563] powerpc/40x: Map 32Mbytes of memory at startup
+Subject: [PATCH 4.19 154/239] ath9k: Fix out-of-bound memcpy in ath9k_hif_usb_rx_stream
 Date:   Mon, 24 Jan 2022 19:43:12 +0100
-Message-Id: <20220124184039.220968113@linuxfoundation.org>
+Message-Id: <20220124183947.989896492@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +48,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Zekun Shen <bruceshenzk@gmail.com>
 
-[ Upstream commit 06e7cbc29e97b4713b4ea6def04ae8501a7d1a59 ]
+[ Upstream commit 6ce708f54cc8d73beca213cec66ede5ce100a781 ]
 
-As reported by Carlo, 16Mbytes is not enough with modern kernels
-that tend to be a bit big, so map another 16M page at boot.
+Large pkt_len can lead to out-out-bound memcpy. Current
+ath9k_hif_usb_rx_stream allows combining the content of two urb
+inputs to one pkt. The first input can indicate the size of the
+pkt. Any remaining size is saved in hif_dev->rx_remain_len.
+While processing the next input, memcpy is used with rx_remain_len.
 
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/89b5f974a7fa5011206682cd092e2c905530ff46.1632755552.git.christophe.leroy@csgroup.eu
+4-byte pkt_len can go up to 0xffff, while a single input is 0x4000
+maximum in size (MAX_RX_BUF_SIZE). Thus, the patch adds a check for
+pkt_len which must not exceed 2 * MAX_RX_BUG_SIZE.
+
+BUG: KASAN: slab-out-of-bounds in ath9k_hif_usb_rx_cb+0x490/0xed7 [ath9k_htc]
+Read of size 46393 at addr ffff888018798000 by task kworker/0:1/23
+
+CPU: 0 PID: 23 Comm: kworker/0:1 Not tainted 5.6.0 #63
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
+BIOS rel-1.10.2-0-g5f4c7b1-prebuilt.qemu-project.org 04/01/2014
+Workqueue: events request_firmware_work_func
+Call Trace:
+ <IRQ>
+ dump_stack+0x76/0xa0
+ print_address_description.constprop.0+0x16/0x200
+ ? ath9k_hif_usb_rx_cb+0x490/0xed7 [ath9k_htc]
+ ? ath9k_hif_usb_rx_cb+0x490/0xed7 [ath9k_htc]
+ __kasan_report.cold+0x37/0x7c
+ ? ath9k_hif_usb_rx_cb+0x490/0xed7 [ath9k_htc]
+ kasan_report+0xe/0x20
+ check_memory_region+0x15a/0x1d0
+ memcpy+0x20/0x50
+ ath9k_hif_usb_rx_cb+0x490/0xed7 [ath9k_htc]
+ ? hif_usb_mgmt_cb+0x2d9/0x2d9 [ath9k_htc]
+ ? _raw_spin_lock_irqsave+0x7b/0xd0
+ ? _raw_spin_trylock_bh+0x120/0x120
+ ? __usb_unanchor_urb+0x12f/0x210
+ __usb_hcd_giveback_urb+0x1e4/0x380
+ usb_giveback_urb_bh+0x241/0x4f0
+ ? __hrtimer_run_queues+0x316/0x740
+ ? __usb_hcd_giveback_urb+0x380/0x380
+ tasklet_action_common.isra.0+0x135/0x330
+ __do_softirq+0x18c/0x634
+ irq_exit+0x114/0x140
+ smp_apic_timer_interrupt+0xde/0x380
+ apic_timer_interrupt+0xf/0x20
+
+I found the bug using a custome USBFuzz port. It's a research work
+to fuzz USB stack/drivers. I modified it to fuzz ath9k driver only,
+providing hand-crafted usb descriptors to QEMU.
+
+After fixing the value of pkt_tag to ATH_USB_RX_STREAM_MODE_TAG in QEMU
+emulation, I found the KASAN report. The bug is triggerable whenever
+pkt_len is above two MAX_RX_BUG_SIZE. I used the same input that crashes
+to test the driver works when applying the patch.
+
+Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/YXsidrRuK6zBJicZ@10-18-43-117.dynapool.wireless.nyu.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/head_40x.S | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath9k/hif_usb.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/powerpc/kernel/head_40x.S b/arch/powerpc/kernel/head_40x.S
-index a1ae00689e0f4..aeb9bc9958749 100644
---- a/arch/powerpc/kernel/head_40x.S
-+++ b/arch/powerpc/kernel/head_40x.S
-@@ -27,6 +27,7 @@
+diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
+index 2ed98aaed6fb5..c8c7afe0e343e 100644
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.c
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
+@@ -590,6 +590,13 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
+ 			return;
+ 		}
  
- #include <linux/init.h>
- #include <linux/pgtable.h>
-+#include <linux/sizes.h>
- #include <asm/processor.h>
- #include <asm/page.h>
- #include <asm/mmu.h>
-@@ -626,7 +627,7 @@ start_here:
- 	b	.		/* prevent prefetch past rfi */
- 
- /* Set up the initial MMU state so we can do the first level of
-- * kernel initialization.  This maps the first 16 MBytes of memory 1:1
-+ * kernel initialization.  This maps the first 32 MBytes of memory 1:1
-  * virtual to physical and more importantly sets the cache mode.
-  */
- initial_mmu:
-@@ -663,6 +664,12 @@ initial_mmu:
- 	tlbwe	r4,r0,TLB_DATA		/* Load the data portion of the entry */
- 	tlbwe	r3,r0,TLB_TAG		/* Load the tag portion of the entry */
- 
-+	li	r0,62			/* TLB slot 62 */
-+	addis	r4,r4,SZ_16M@h
-+	addis	r3,r3,SZ_16M@h
-+	tlbwe	r4,r0,TLB_DATA		/* Load the data portion of the entry */
-+	tlbwe	r3,r0,TLB_TAG		/* Load the tag portion of the entry */
++		if (pkt_len > 2 * MAX_RX_BUF_SIZE) {
++			dev_err(&hif_dev->udev->dev,
++				"ath9k_htc: invalid pkt_len (%x)\n", pkt_len);
++			RX_STAT_INC(skb_dropped);
++			return;
++		}
 +
- 	isync
- 
- 	/* Establish the exception vector base
+ 		pad_len = 4 - (pkt_len & 0x3);
+ 		if (pad_len == 4)
+ 			pad_len = 0;
 -- 
 2.34.1
 
