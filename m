@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F28049A366
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:03:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C610649A468
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:09:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2368055AbiAXX5p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:57:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49158 "EHLO
+        id S2369484AbiAYABy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:01:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1846022AbiAXXOO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:14:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19DEEC067A78;
-        Mon, 24 Jan 2022 13:22:15 -0800 (PST)
+        with ESMTP id S1849686AbiAXX02 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:26:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4698C02B850;
+        Mon, 24 Jan 2022 11:51:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A22B561469;
-        Mon, 24 Jan 2022 21:22:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77B64C340E5;
-        Mon, 24 Jan 2022 21:22:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 62736B811F3;
+        Mon, 24 Jan 2022 19:51:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9190AC340E5;
+        Mon, 24 Jan 2022 19:51:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059334;
-        bh=S72zmxOG0k3L7U4zKehJLaSpMyumIyBnV8FZbTgUH0Q=;
+        s=korg; t=1643053878;
+        bh=uZdjnvYVh5IOLTVLrRpVEx2N2444vhjRxBkWWJxrb8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=avMkpndoVQuWigQsiY/V/OP5DG0njWSTlVoPRUy9ODjnAuH5O1KCjX3k1HVRmhs9q
-         o1gF8NX/CtnRlvK0yF1QT7Y/AoDwdre0h58Al2+MJkAsM31yc/b3Z5e/Ha1ISOGR5y
-         zQh+tefodzTSfsbtS6IyH76I3tYHzkFBI5CQhmak=
+        b=eWx+7w4j4QHNnqUL5scAumNWSVkPtVVTWnm4NchvK5pZxgSNKi40Paf8tDcMKRxou
+         2vE72MatsHAp17zyBQnDHpqfoAiUtyr/j4v0auqU065FTiHCAKMQxpEhLp6xNDz9Us
+         Whk3/OMhw1LY4jvzzEoojpF2R5UzPs6I2msEnXVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>, Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0580/1039] ARM: imx: rename DEBUG_IMX21_IMX27_UART to DEBUG_IMX27_UART
-Date:   Mon, 24 Jan 2022 19:39:29 +0100
-Message-Id: <20220124184144.841835919@linuxfoundation.org>
+Subject: [PATCH 5.10 205/563] bpf: Dont promote bogus looking registers after null check.
+Date:   Mon, 24 Jan 2022 19:39:30 +0100
+Message-Id: <20220124184031.520807730@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,119 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit b0100bce4ff82ec1ccd3c1f3d339fd2df6a81784 ]
+[ Upstream commit e60b0d12a95dcf16a63225cead4541567f5cb517 ]
 
-Since commit 4b563a066611 ("ARM: imx: Remove imx21 support"), the config
-DEBUG_IMX21_IMX27_UART is really only debug support for IMX27.
+If we ever get to a point again where we convert a bogus looking <ptr>_or_null
+typed register containing a non-zero fixed or variable offset, then lets not
+reset these bounds to zero since they are not and also don't promote the register
+to a <ptr> type, but instead leave it as <ptr>_or_null. Converting to a unknown
+register could be an avenue as well, but then if we run into this case it would
+allow to leak a kernel pointer this way.
 
-So, rename this option to DEBUG_IMX27_UART and adjust dependencies in
-Kconfig and rename the definitions to IMX27 as further clean-up.
-
-This issue was discovered with ./scripts/checkkconfigsymbols.py, which
-reported that DEBUG_IMX21_IMX27_UART depends on the non-existing config
-SOC_IMX21.
-
-Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: f1174f77b50c ("bpf/verifier: rework value tracking")
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/Kconfig.debug            | 14 +++++++-------
- arch/arm/include/debug/imx-uart.h | 18 +++++++++---------
- 2 files changed, 16 insertions(+), 16 deletions(-)
+ kernel/bpf/verifier.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/Kconfig.debug b/arch/arm/Kconfig.debug
-index 98436702e0c7e..644875d73ba15 100644
---- a/arch/arm/Kconfig.debug
-+++ b/arch/arm/Kconfig.debug
-@@ -410,12 +410,12 @@ choice
- 		  Say Y here if you want kernel low-level debugging support
- 		  on i.MX25.
- 
--	config DEBUG_IMX21_IMX27_UART
--		bool "i.MX21 and i.MX27 Debug UART"
--		depends on SOC_IMX21 || SOC_IMX27
-+	config DEBUG_IMX27_UART
-+		bool "i.MX27 Debug UART"
-+		depends on SOC_IMX27
- 		help
- 		  Say Y here if you want kernel low-level debugging support
--		  on i.MX21 or i.MX27.
-+		  on i.MX27.
- 
- 	config DEBUG_IMX28_UART
- 		bool "i.MX28 Debug UART"
-@@ -1481,7 +1481,7 @@ config DEBUG_IMX_UART_PORT
- 	int "i.MX Debug UART Port Selection"
- 	depends on DEBUG_IMX1_UART || \
- 		   DEBUG_IMX25_UART || \
--		   DEBUG_IMX21_IMX27_UART || \
-+		   DEBUG_IMX27_UART || \
- 		   DEBUG_IMX31_UART || \
- 		   DEBUG_IMX35_UART || \
- 		   DEBUG_IMX50_UART || \
-@@ -1540,12 +1540,12 @@ config DEBUG_LL_INCLUDE
- 	default "debug/icedcc.S" if DEBUG_ICEDCC
- 	default "debug/imx.S" if DEBUG_IMX1_UART || \
- 				 DEBUG_IMX25_UART || \
--				 DEBUG_IMX21_IMX27_UART || \
-+				 DEBUG_IMX27_UART || \
- 				 DEBUG_IMX31_UART || \
- 				 DEBUG_IMX35_UART || \
- 				 DEBUG_IMX50_UART || \
- 				 DEBUG_IMX51_UART || \
--				 DEBUG_IMX53_UART ||\
-+				 DEBUG_IMX53_UART || \
- 				 DEBUG_IMX6Q_UART || \
- 				 DEBUG_IMX6SL_UART || \
- 				 DEBUG_IMX6SX_UART || \
-diff --git a/arch/arm/include/debug/imx-uart.h b/arch/arm/include/debug/imx-uart.h
-index c8eb83d4b8964..3edbb3c5b42bf 100644
---- a/arch/arm/include/debug/imx-uart.h
-+++ b/arch/arm/include/debug/imx-uart.h
-@@ -11,13 +11,6 @@
- #define IMX1_UART_BASE_ADDR(n)	IMX1_UART##n##_BASE_ADDR
- #define IMX1_UART_BASE(n)	IMX1_UART_BASE_ADDR(n)
- 
--#define IMX21_UART1_BASE_ADDR	0x1000a000
--#define IMX21_UART2_BASE_ADDR	0x1000b000
--#define IMX21_UART3_BASE_ADDR	0x1000c000
--#define IMX21_UART4_BASE_ADDR	0x1000d000
--#define IMX21_UART_BASE_ADDR(n)	IMX21_UART##n##_BASE_ADDR
--#define IMX21_UART_BASE(n)	IMX21_UART_BASE_ADDR(n)
--
- #define IMX25_UART1_BASE_ADDR	0x43f90000
- #define IMX25_UART2_BASE_ADDR	0x43f94000
- #define IMX25_UART3_BASE_ADDR	0x5000c000
-@@ -26,6 +19,13 @@
- #define IMX25_UART_BASE_ADDR(n)	IMX25_UART##n##_BASE_ADDR
- #define IMX25_UART_BASE(n)	IMX25_UART_BASE_ADDR(n)
- 
-+#define IMX27_UART1_BASE_ADDR	0x1000a000
-+#define IMX27_UART2_BASE_ADDR	0x1000b000
-+#define IMX27_UART3_BASE_ADDR	0x1000c000
-+#define IMX27_UART4_BASE_ADDR	0x1000d000
-+#define IMX27_UART_BASE_ADDR(n)	IMX27_UART##n##_BASE_ADDR
-+#define IMX27_UART_BASE(n)	IMX27_UART_BASE_ADDR(n)
-+
- #define IMX31_UART1_BASE_ADDR	0x43f90000
- #define IMX31_UART2_BASE_ADDR	0x43f94000
- #define IMX31_UART3_BASE_ADDR	0x5000c000
-@@ -112,10 +112,10 @@
- 
- #ifdef CONFIG_DEBUG_IMX1_UART
- #define UART_PADDR	IMX_DEBUG_UART_BASE(IMX1)
--#elif defined(CONFIG_DEBUG_IMX21_IMX27_UART)
--#define UART_PADDR	IMX_DEBUG_UART_BASE(IMX21)
- #elif defined(CONFIG_DEBUG_IMX25_UART)
- #define UART_PADDR	IMX_DEBUG_UART_BASE(IMX25)
-+#elif defined(CONFIG_DEBUG_IMX27_UART)
-+#define UART_PADDR	IMX_DEBUG_UART_BASE(IMX27)
- #elif defined(CONFIG_DEBUG_IMX31_UART)
- #define UART_PADDR	IMX_DEBUG_UART_BASE(IMX31)
- #elif defined(CONFIG_DEBUG_IMX35_UART)
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index c623c3e549210..015bf2ba4a0b6 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -7725,15 +7725,15 @@ static void mark_ptr_or_null_reg(struct bpf_func_state *state,
+ {
+ 	if (reg_type_may_be_null(reg->type) && reg->id == id &&
+ 	    !WARN_ON_ONCE(!reg->id)) {
+-		/* Old offset (both fixed and variable parts) should
+-		 * have been known-zero, because we don't allow pointer
+-		 * arithmetic on pointers that might be NULL.
+-		 */
+ 		if (WARN_ON_ONCE(reg->smin_value || reg->smax_value ||
+ 				 !tnum_equals_const(reg->var_off, 0) ||
+ 				 reg->off)) {
+-			__mark_reg_known_zero(reg);
+-			reg->off = 0;
++			/* Old offset (both fixed and variable parts) should
++			 * have been known-zero, because we don't allow pointer
++			 * arithmetic on pointers that might be NULL. If we
++			 * see this happening, don't convert the register.
++			 */
++			return;
+ 		}
+ 		if (is_null) {
+ 			reg->type = SCALAR_VALUE;
 -- 
 2.34.1
 
