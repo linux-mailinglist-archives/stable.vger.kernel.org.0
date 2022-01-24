@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 984E7499095
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:04:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 898AB498F49
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:52:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354008AbiAXUBp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:01:45 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:55680 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358273AbiAXT7V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:59:21 -0500
+        id S1350437AbiAXTvr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:51:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53492 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1354033AbiAXTfs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:35:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDDE8C0617AB;
+        Mon, 24 Jan 2022 11:16:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 995BA60B43;
-        Mon, 24 Jan 2022 19:59:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69E57C340E5;
-        Mon, 24 Jan 2022 19:59:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9A64CB81232;
+        Mon, 24 Jan 2022 19:16:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6D92C340E5;
+        Mon, 24 Jan 2022 19:16:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054359;
-        bh=Mmov4kXM/0WU3bh6vK5IbxHSy3H97/BMQnWmsVg6fm0=;
+        s=korg; t=1643051804;
+        bh=gZSDVsfYlsAxlWnp9Aw1egp1OcnEtoIW76K3GdYQkMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LDhG/HCEdfzq1g5EX3iyT5513seI2/TyI8kg7XEwg/t6oJtYDpB1wcxLzEqRI9ZI0
-         /OICjauJmL5K8n/dmrHz7bGugg9X7VDM7Co/fmasvqOHE8qXLpDIaQljPP+kVSlcSQ
-         eNfHVtiriLPMGS+XxwgjI5ZPs9DM8W9OJQ+64GkY=
+        b=LjV9gJ9aeM2maLmAyiEZQSqDoLDOZbsIP+3dD1nnVNI6FdzN1ItZ4gAEgW6TpysRJ
+         G6q8HkRjd0+OCIS6hskPzQtdQohXzWurutm0+zCCwMKrMBo9lmlXdblHMz71A6ZQec
+         UoXD19wbg6yu4++3DAHyKl24KHp+DQyTsqvT8nJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 364/563] media: saa7146: hexium_gemini: Fix a NULL pointer dereference in hexium_attach()
-Date:   Mon, 24 Jan 2022 19:42:09 +0100
-Message-Id: <20220124184037.002398444@linuxfoundation.org>
+Subject: [PATCH 4.19 092/239] spi: spi-meson-spifc: Add missing pm_runtime_disable() in meson_spifc_probe
+Date:   Mon, 24 Jan 2022 19:42:10 +0100
+Message-Id: <20220124183946.040344577@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,71 +48,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 3af86b046933ba513d08399dba0d4d8b50d607d0 ]
+[ Upstream commit 69c1b87516e327a60b39f96b778fe683259408bf ]
 
-In hexium_attach(dev, info), saa7146_vv_init() is called to allocate
-a new memory for dev->vv_data. saa7146_vv_release() will be called on
-failure of saa7146_register_device(). There is a dereference of
-dev->vv_data in saa7146_vv_release(), which could lead to a NULL
-pointer dereference on failure of saa7146_vv_init().
+If the probe fails, we should use pm_runtime_disable() to balance
+pm_runtime_enable().
+Add missing pm_runtime_disable() for meson_spifc_probe.
 
-Fix this bug by adding a check of saa7146_vv_init().
-
-This bug was found by a static analyzer. The analysis employs
-differential checking to identify inconsistent security operations
-(e.g., checks or kfrees) between two code paths and confirms that the
-inconsistent operations are not recovered in the current function or
-the callers, so they constitute bugs.
-
-Note that, as a bug found by static analysis, it can be a false
-positive or hard to trigger. Multiple researchers have cross-reviewed
-the bug.
-
-Builds with CONFIG_VIDEO_HEXIUM_GEMINI=m show no new warnings,
-and our static analyzer no longer warns about this code.
-
-Link: https://lore.kernel.org/linux-media/20211203154030.111210-1-zhou1615@umn.edu
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: c3e4bc5434d2 ("spi: meson: Add support for Amlogic Meson SPIFC")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220107075424.7774-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/common/saa7146/saa7146_fops.c | 2 +-
- drivers/media/pci/saa7146/hexium_gemini.c   | 7 ++++++-
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ drivers/spi/spi-meson-spifc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/common/saa7146/saa7146_fops.c b/drivers/media/common/saa7146/saa7146_fops.c
-index d6531874faa65..8047e305f3d01 100644
---- a/drivers/media/common/saa7146/saa7146_fops.c
-+++ b/drivers/media/common/saa7146/saa7146_fops.c
-@@ -523,7 +523,7 @@ int saa7146_vv_init(struct saa7146_dev* dev, struct saa7146_ext_vv *ext_vv)
- 		ERR("out of memory. aborting.\n");
- 		kfree(vv);
- 		v4l2_ctrl_handler_free(hdl);
--		return -1;
-+		return -ENOMEM;
- 	}
- 
- 	saa7146_video_uops.init(dev,vv);
-diff --git a/drivers/media/pci/saa7146/hexium_gemini.c b/drivers/media/pci/saa7146/hexium_gemini.c
-index 2214c74bbbf15..3947701cd6c7e 100644
---- a/drivers/media/pci/saa7146/hexium_gemini.c
-+++ b/drivers/media/pci/saa7146/hexium_gemini.c
-@@ -284,7 +284,12 @@ static int hexium_attach(struct saa7146_dev *dev, struct saa7146_pci_extension_d
- 	hexium_set_input(hexium, 0);
- 	hexium->cur_input = 0;
- 
--	saa7146_vv_init(dev, &vv_data);
-+	ret = saa7146_vv_init(dev, &vv_data);
-+	if (ret) {
-+		i2c_del_adapter(&hexium->i2c_adapter);
-+		kfree(hexium);
-+		return ret;
-+	}
- 
- 	vv_data.vid_ops.vidioc_enum_input = vidioc_enum_input;
- 	vv_data.vid_ops.vidioc_g_input = vidioc_g_input;
+diff --git a/drivers/spi/spi-meson-spifc.c b/drivers/spi/spi-meson-spifc.c
+index 616566e793c62..28975b6f054fa 100644
+--- a/drivers/spi/spi-meson-spifc.c
++++ b/drivers/spi/spi-meson-spifc.c
+@@ -357,6 +357,7 @@ static int meson_spifc_probe(struct platform_device *pdev)
+ 	return 0;
+ out_clk:
+ 	clk_disable_unprepare(spifc->clk);
++	pm_runtime_disable(spifc->dev);
+ out_err:
+ 	spi_master_put(master);
+ 	return ret;
 -- 
 2.34.1
 
