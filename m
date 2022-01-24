@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 36D9649969F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:19:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E12354998CF
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:39:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358388AbiAXVFM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:05:12 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:53582 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1444404AbiAXVAw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:00:52 -0500
+        id S1453430AbiAXVaI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:30:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51090 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1450069AbiAXVTl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:19:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5478C06F8EF;
+        Mon, 24 Jan 2022 12:13:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D62B96135E;
-        Mon, 24 Jan 2022 21:00:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0C19C340E5;
-        Mon, 24 Jan 2022 21:00:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6CBEFB810BD;
+        Mon, 24 Jan 2022 20:13:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7917FC340E5;
+        Mon, 24 Jan 2022 20:13:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058051;
-        bh=Z0DFj+IIA3ZacqhuK/HbkR0W3oq/NemNEIJFwRpukc4=;
+        s=korg; t=1643055227;
+        bh=olKOp1fP6GqohxFV6u2yGgn8fWqUo03Gd4u6tv86pMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0wXlWcS4Kn1JSOKUgzxBLFOfy2DJdqqOxWYjYneHrLVKOuDYZq17z0MsapiNMdSmA
-         U7Ge25Jj1BRygFn8wnUhXjB2cCKW5d31RwZUpKOofREhCpw9850uGTgasmwS3ds4qH
-         w9uR1xFMKlrSoYKbg+iOrIRj+gRJGL0D11FPN09I=
+        b=Q5sAYIY26DEBSxvo4CH5Ld/nxcCrezuRdPjW4Cwg4uURhqTm+l3sqKg1q4Ns7vg4A
+         V9ci+2UJHlb9iy4iuTSEFfaoZOAFWQ+yAcGUfNbi7gUKulhFvB03ax9bKVbw6RebcW
+         Fo5zOAtuU5I3lvo2vPKEJWcD4LD2cpZrBanf30ko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adam Ford <aford173@gmail.com>,
-        Fabio Estevam <festevam@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0166/1039] soc: imx: gpcv2: keep i.MX8MM VPU-H1 bus clock active
-Date:   Mon, 24 Jan 2022 19:32:35 +0100
-Message-Id: <20220124184130.802467525@linuxfoundation.org>
+        stable@vger.kernel.org, Namjae Jeon <linkinjeon@kernel.org>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.15 039/846] ksmbd: add reserved room in ipc request/response
+Date:   Mon, 24 Jan 2022 19:32:36 +0100
+Message-Id: <20220124184102.289979131@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,36 +47,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: Namjae Jeon <linkinjeon@kernel.org>
 
-[ Upstream commit 8361b8b29f9389084b679db854cf733375c64763 ]
+commit 41dbda16a0902798e732abc6599de256b9dc3b27 upstream.
 
-Enable the vpu-h1 clock when the domain is active because reading
-or writing to the VPU-H1 IP block cause the system to hang.
+Whenever new parameter is added to smb configuration, It is possible
+to break the execution of the IPC daemon by mismatch size of
+request/response. This patch tries to reserve space in ipc request/response
+in advance to prevent that.
 
-Fixes: 656ade7aa42a ("soc: imx: gpcv2: keep i.MX8M* bus clocks enabled")
-Signed-off-by: Adam Ford <aford173@gmail.com>
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/imx/gpcv2.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/ksmbd/ksmbd_netlink.h |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/soc/imx/gpcv2.c b/drivers/soc/imx/gpcv2.c
-index b8d52d8d29dbb..7b6dfa33dcb9f 100644
---- a/drivers/soc/imx/gpcv2.c
-+++ b/drivers/soc/imx/gpcv2.c
-@@ -734,6 +734,7 @@ static const struct imx_pgc_domain imx8mm_pgc_domains[] = {
- 			.map = IMX8MM_VPUH1_A53_DOMAIN,
- 		},
- 		.pgc   = BIT(IMX8MM_PGC_VPUH1),
-+		.keep_clocks = true,
- 	},
+--- a/fs/ksmbd/ksmbd_netlink.h
++++ b/fs/ksmbd/ksmbd_netlink.h
+@@ -104,6 +104,7 @@ struct ksmbd_startup_request {
+ 					 */
+ 	__u32	sub_auth[3];		/* Subauth value for Security ID */
+ 	__u32	smb2_max_credits;	/* MAX credits */
++	__u32	reserved[128];		/* Reserved room */
+ 	__u32	ifc_list_sz;		/* interfaces list size */
+ 	__s8	____payload[];
+ };
+@@ -114,7 +115,7 @@ struct ksmbd_startup_request {
+  * IPC request to shutdown ksmbd server.
+  */
+ struct ksmbd_shutdown_request {
+-	__s32	reserved;
++	__s32	reserved[16];
+ };
  
- 	[IMX8MM_POWER_DOMAIN_DISPMIX] = {
--- 
-2.34.1
-
+ /*
+@@ -123,6 +124,7 @@ struct ksmbd_shutdown_request {
+ struct ksmbd_login_request {
+ 	__u32	handle;
+ 	__s8	account[KSMBD_REQ_MAX_ACCOUNT_NAME_SZ]; /* user account name */
++	__u32	reserved[16];				/* Reserved room */
+ };
+ 
+ /*
+@@ -136,6 +138,7 @@ struct ksmbd_login_response {
+ 	__u16	status;
+ 	__u16	hash_sz;			/* hash size */
+ 	__s8	hash[KSMBD_REQ_MAX_HASH_SZ];	/* password hash */
++	__u32	reserved[16];			/* Reserved room */
+ };
+ 
+ /*
+@@ -144,6 +147,7 @@ struct ksmbd_login_response {
+ struct ksmbd_share_config_request {
+ 	__u32	handle;
+ 	__s8	share_name[KSMBD_REQ_MAX_SHARE_NAME]; /* share name */
++	__u32	reserved[16];		/* Reserved room */
+ };
+ 
+ /*
+@@ -158,6 +162,7 @@ struct ksmbd_share_config_response {
+ 	__u16	force_directory_mode;
+ 	__u16	force_uid;
+ 	__u16	force_gid;
++	__u32	reserved[128];		/* Reserved room */
+ 	__u32	veto_list_sz;
+ 	__s8	____payload[];
+ };
+@@ -188,6 +193,7 @@ struct ksmbd_tree_connect_request {
+ 	__s8	account[KSMBD_REQ_MAX_ACCOUNT_NAME_SZ];
+ 	__s8	share[KSMBD_REQ_MAX_SHARE_NAME];
+ 	__s8	peer_addr[64];
++	__u32	reserved[16];		/* Reserved room */
+ };
+ 
+ /*
+@@ -197,6 +203,7 @@ struct ksmbd_tree_connect_response {
+ 	__u32	handle;
+ 	__u16	status;
+ 	__u16	connection_flags;
++	__u32	reserved[16];		/* Reserved room */
+ };
+ 
+ /*
+@@ -205,6 +212,7 @@ struct ksmbd_tree_connect_response {
+ struct ksmbd_tree_disconnect_request {
+ 	__u64	session_id;	/* session id */
+ 	__u64	connect_id;	/* tree connection id */
++	__u32	reserved[16];	/* Reserved room */
+ };
+ 
+ /*
+@@ -213,6 +221,7 @@ struct ksmbd_tree_disconnect_request {
+ struct ksmbd_logout_request {
+ 	__s8	account[KSMBD_REQ_MAX_ACCOUNT_NAME_SZ]; /* user account name */
+ 	__u32	account_flags;
++	__u32	reserved[16];				/* Reserved room */
+ };
+ 
+ /*
 
 
