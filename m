@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6865499508
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:08:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89900499923
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:43:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1392078AbiAXUuY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:50:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41038 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358518AbiAXUmZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:42:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62F1FC04966E;
-        Mon, 24 Jan 2022 11:52:56 -0800 (PST)
+        id S1454253AbiAXVcD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:32:03 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:40648 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1452068AbiAXVYA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:24:00 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F3D3360B43;
-        Mon, 24 Jan 2022 19:52:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC940C340E8;
-        Mon, 24 Jan 2022 19:52:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 69977B81061;
+        Mon, 24 Jan 2022 21:23:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 978EFC340E4;
+        Mon, 24 Jan 2022 21:23:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053975;
-        bh=stAZSoMPzPSb71CrbNvLWrWhQ3nE4fD5aHfcj2BwaxA=;
+        s=korg; t=1643059438;
+        bh=TUevLlaSeZ88VMn9sFIiIZszuttY6WAT23dC+cuSNSo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SZgEKaoam9ojbWuVvHT7zYb6PRW7Xm9pav5Qlrp863Gss8KZ3pM89ubHxFpprqALY
-         RWv0Nn/qrqfPbrWEoVT53UosoSDiwWnwGKmkv4rh+eX38LQlg6Lw5lcrd3Op7seDFM
-         6Y8cj4ykqkUkEOajxN3CuqB4LGPPJgP6xNDI2EvE=
+        b=tWjRy4ZUhvPzBxnsp6SO6V5In7UFCy7mZcANsNT/NzbZBWlNvMwmg3gP+H3LEtmwM
+         WxDAYAIYIzudB68fpznJ57H9uupN8F00FwNG1jldbs+J3dxbGME2aSwBt7a77zF1FQ
+         DDNXPEEKRTOk/3JLedyzm2wzsgmEqXWmMBqLEoic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 238/563] ext4: avoid trim error on fs with small groups
+        stable@vger.kernel.org,
+        syzbot+23a02c7df2cf2bc93fa2@syzkaller.appspotmail.com,
+        Xiongwei Song <sxwjean@gmail.com>,
+        Denis Efremov <efremov@linux.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0614/1039] floppy: Add max size check for user space request
 Date:   Mon, 24 Jan 2022 19:40:03 +0100
-Message-Id: <20220124184032.672243166@linuxfoundation.org>
+Message-Id: <20220124184145.974975271@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,70 +47,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Xiongwei Song <sxwjean@gmail.com>
 
-[ Upstream commit 173b6e383d2a204c9921ffc1eca3b87aa2106c33 ]
+[ Upstream commit 545a32498c536ee152331cd2e7d2416aa0f20e01 ]
 
-A user reported FITRIM ioctl failing for him on ext4 on some devices
-without apparent reason.  After some debugging we've found out that
-these devices (being LVM volumes) report rather large discard
-granularity of 42MB and the filesystem had 1k blocksize and thus group
-size of 8MB. Because ext4 FITRIM implementation puts discard
-granularity into minlen, ext4_trim_fs() declared the trim request as
-invalid. However just silently doing nothing seems to be a more
-appropriate reaction to such combination of parameters since user did
-not specify anything wrong.
+We need to check the max request size that is from user space before
+allocating pages. If the request size exceeds the limit, return -EINVAL.
+This check can avoid the warning below from page allocator.
 
-CC: Lukas Czerner <lczerner@redhat.com>
-Fixes: 5c2ed62fd447 ("ext4: Adjust minlen with discard_granularity in the FITRIM ioctl")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20211112152202.26614-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+WARNING: CPU: 3 PID: 16525 at mm/page_alloc.c:5344 current_gfp_context include/linux/sched/mm.h:195 [inline]
+WARNING: CPU: 3 PID: 16525 at mm/page_alloc.c:5344 __alloc_pages+0x45d/0x500 mm/page_alloc.c:5356
+Modules linked in:
+CPU: 3 PID: 16525 Comm: syz-executor.3 Not tainted 5.15.0-syzkaller #0
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.14.0-2 04/01/2014
+RIP: 0010:__alloc_pages+0x45d/0x500 mm/page_alloc.c:5344
+Code: be c9 00 00 00 48 c7 c7 20 4a 97 89 c6 05 62 32 a7 0b 01 e8 74 9a 42 07 e9 6a ff ff ff 0f 0b e9 a0 fd ff ff 40 80 e5 3f eb 88 <0f> 0b e9 18 ff ff ff 4c 89 ef 44 89 e6 45 31 ed e8 1e 76 ff ff e9
+RSP: 0018:ffffc90023b87850 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: 1ffff92004770f0b RCX: dffffc0000000000
+RDX: 0000000000000000 RSI: 0000000000000033 RDI: 0000000000010cc1
+RBP: 0000000000000000 R08: 0000000000000000 R09: 0000000000000001
+R10: ffffffff81bb4686 R11: 0000000000000001 R12: ffffffff902c1960
+R13: 0000000000000033 R14: 0000000000000000 R15: ffff88804cf64a30
+FS:  0000000000000000(0000) GS:ffff88802cd00000(0063) knlGS:00000000f44b4b40
+CS:  0010 DS: 002b ES: 002b CR0: 0000000080050033
+CR2: 000000002c921000 CR3: 000000004f507000 CR4: 0000000000150ee0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <TASK>
+ alloc_pages+0x1a7/0x300 mm/mempolicy.c:2191
+ __get_free_pages+0x8/0x40 mm/page_alloc.c:5418
+ raw_cmd_copyin drivers/block/floppy.c:3113 [inline]
+ raw_cmd_ioctl drivers/block/floppy.c:3160 [inline]
+ fd_locked_ioctl+0x12e5/0x2820 drivers/block/floppy.c:3528
+ fd_ioctl drivers/block/floppy.c:3555 [inline]
+ fd_compat_ioctl+0x891/0x1b60 drivers/block/floppy.c:3869
+ compat_blkdev_ioctl+0x3b8/0x810 block/ioctl.c:662
+ __do_compat_sys_ioctl+0x1c7/0x290 fs/ioctl.c:972
+ do_syscall_32_irqs_on arch/x86/entry/common.c:112 [inline]
+ __do_fast_syscall_32+0x65/0xf0 arch/x86/entry/common.c:178
+ do_fast_syscall_32+0x2f/0x70 arch/x86/entry/common.c:203
+ entry_SYSENTER_compat_after_hwframe+0x4d/0x5c
+
+Reported-by: syzbot+23a02c7df2cf2bc93fa2@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20211116131033.27685-1-sxwjean@me.com
+Signed-off-by: Xiongwei Song <sxwjean@gmail.com>
+Signed-off-by: Denis Efremov <efremov@linux.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/ioctl.c   | 2 --
- fs/ext4/mballoc.c | 8 ++++++++
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/block/floppy.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/ext4/ioctl.c b/fs/ext4/ioctl.c
-index cb54ea6461fd8..413bf3d2f7844 100644
---- a/fs/ext4/ioctl.c
-+++ b/fs/ext4/ioctl.c
-@@ -1123,8 +1123,6 @@ resizefs_out:
- 		    sizeof(range)))
- 			return -EFAULT;
+diff --git a/drivers/block/floppy.c b/drivers/block/floppy.c
+index 02ba1db5b8046..8026125037ae8 100644
+--- a/drivers/block/floppy.c
++++ b/drivers/block/floppy.c
+@@ -3081,6 +3081,8 @@ static void raw_cmd_free(struct floppy_raw_cmd **ptr)
+ 	}
+ }
  
--		range.minlen = max((unsigned int)range.minlen,
--				   q->limits.discard_granularity);
- 		ret = ext4_trim_fs(sb, &range);
- 		if (ret < 0)
- 			return ret;
-diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
-index d7cb7d719ee58..60aef7fdd61d0 100644
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -5815,6 +5815,7 @@ out:
-  */
- int ext4_trim_fs(struct super_block *sb, struct fstrim_range *range)
++#define MAX_LEN (1UL << MAX_ORDER << PAGE_SHIFT)
++
+ static int raw_cmd_copyin(int cmd, void __user *param,
+ 				 struct floppy_raw_cmd **rcmd)
  {
-+	struct request_queue *q = bdev_get_queue(sb->s_bdev);
- 	struct ext4_group_info *grp;
- 	ext4_group_t group, first_group, last_group;
- 	ext4_grpblk_t cnt = 0, first_cluster, last_cluster;
-@@ -5833,6 +5834,13 @@ int ext4_trim_fs(struct super_block *sb, struct fstrim_range *range)
- 	    start >= max_blks ||
- 	    range->len < sb->s_blocksize)
- 		return -EINVAL;
-+	/* No point to try to trim less than discard granularity */
-+	if (range->minlen < q->limits.discard_granularity) {
-+		minlen = EXT4_NUM_B2C(EXT4_SB(sb),
-+			q->limits.discard_granularity >> sb->s_blocksize_bits);
-+		if (minlen > EXT4_CLUSTERS_PER_GROUP(sb))
-+			goto out;
-+	}
- 	if (end >= max_blks)
- 		end = max_blks - 1;
- 	if (end <= first_data_blk)
+@@ -3108,7 +3110,7 @@ loop:
+ 	ptr->resultcode = 0;
+ 
+ 	if (ptr->flags & (FD_RAW_READ | FD_RAW_WRITE)) {
+-		if (ptr->length <= 0)
++		if (ptr->length <= 0 || ptr->length >= MAX_LEN)
+ 			return -EINVAL;
+ 		ptr->kernel_data = (char *)fd_dma_mem_alloc(ptr->length);
+ 		fallback_on_nodma_alloc(&ptr->kernel_data, ptr->length);
 -- 
 2.34.1
 
