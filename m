@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E497E49906D
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:04:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0748498D6A
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:34:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345383AbiAXUAX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:00:23 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:42774 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359078AbiAXT4T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:56:19 -0500
+        id S1347543AbiAXTcG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:32:06 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56252 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348432AbiAXT2h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:28:37 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 36882B80FA1;
-        Mon, 24 Jan 2022 19:56:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 609C8C340E5;
-        Mon, 24 Jan 2022 19:56:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BB53861488;
+        Mon, 24 Jan 2022 19:28:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87120C340E5;
+        Mon, 24 Jan 2022 19:28:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054177;
-        bh=z9Xl0iPAzJD3iaKf5VYmbyxLHCGM/Ya1QMtZ25AxyiM=;
+        s=korg; t=1643052515;
+        bh=dqbWfEMlNE/Ni041E7Yb6Yct9cWyfdGrWOafYB2jzak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AatUUandzzMuOyC2mo9IVIb5iOdkUWAWHH2Dzo2CElXtqso4TM3+fd+B4HnKCnwSr
-         8VUN3SMCH2WMkZbKyJufVP2m2Lw9mj1x8OkvTv28nouIwpNfYzTKEWbxtObxnPP+yH
-         G2xxxHoY1fiEZZt0ZBBZCb2UNidR6LmBe4n0x6oY=
+        b=06DEDYjITSgUU2c0Yx2z00e8+8xIDS6eGTmnw2WSg5LqJ8ua6VDSQOVe6mrsFKT78
+         JyR6K/MfATqR6C2oNTB3435nb5pbgYT5ewL4eUMlx1s/Ae4j6srli+uYKT114x1JkM
+         OuDelCKLd3O/KHQH+x/P5ts4bUVs9iio97TCAUV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zekun Shen <bruceshenzk@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 303/563] ar5523: Fix null-ptr-deref with unexpected WDCMSG_TARGET_START reply
+Subject: [PATCH 5.4 084/320] media: msi001: fix possible null-ptr-deref in msi001_probe()
 Date:   Mon, 24 Jan 2022 19:41:08 +0100
-Message-Id: <20220124184034.924621595@linuxfoundation.org>
+Message-Id: <20220124183956.605918298@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit ae80b6033834342601e99f74f6a62ff5092b1cee ]
+[ Upstream commit 3d5831a40d3464eea158180eb12cbd81c5edfb6a ]
 
-Unexpected WDCMSG_TARGET_START replay can lead to null-ptr-deref
-when ar->tx_cmd->odata is NULL. The patch adds a null check to
-prevent such case.
+I got a null-ptr-deref report:
 
-KASAN: null-ptr-deref in range [0x0000000000000000-0x0000000000000007]
- ar5523_cmd+0x46a/0x581 [ar5523]
- ar5523_probe.cold+0x1b7/0x18da [ar5523]
- ? ar5523_cmd_rx_cb+0x7a0/0x7a0 [ar5523]
- ? __pm_runtime_set_status+0x54a/0x8f0
- ? _raw_spin_trylock_bh+0x120/0x120
- ? pm_runtime_barrier+0x220/0x220
- ? __pm_runtime_resume+0xb1/0xf0
- usb_probe_interface+0x25b/0x710
- really_probe+0x209/0x5d0
- driver_probe_device+0xc6/0x1b0
- device_driver_attach+0xe2/0x120
+BUG: kernel NULL pointer dereference, address: 0000000000000060
+...
+RIP: 0010:v4l2_ctrl_auto_cluster+0x57/0x270
+...
+Call Trace:
+ msi001_probe+0x13b/0x24b [msi001]
+ spi_probe+0xeb/0x130
+...
+ do_syscall_64+0x35/0xb0
 
-I found the bug using a custome USBFuzz port. It's a research work
-to fuzz USB stack/drivers. I modified it to fuzz ath9k driver only,
-providing hand-crafted usb descriptors to QEMU.
+In msi001_probe(), if the creation of control for bandwidth_auto
+fails, there will be a null-ptr-deref issue when it is used in
+v4l2_ctrl_auto_cluster().
 
-After fixing the code (fourth byte in usb packet) to WDCMSG_TARGET_START,
-I got the null-ptr-deref bug. I believe the bug is triggerable whenever
-cmd->odata is NULL. After patching, I tested with the same input and no
-longer see the KASAN report.
+Check dev->hdl.error before v4l2_ctrl_auto_cluster() to fix this bug.
 
-This was NOT tested on a real device.
-
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/YXsmPQ3awHFLuAj2@10-18-43-117.dynapool.wireless.nyu.edu
+Link: https://lore.kernel.org/linux-media/20211026112348.2878040-1-wanghai38@huawei.com
+Fixes: 93203dd6c7c4 ("[media] msi001: Mirics MSi001 silicon tuner driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ar5523/ar5523.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/media/tuners/msi001.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ar5523/ar5523.c b/drivers/net/wireless/ath/ar5523/ar5523.c
-index 49cc4b7ed5163..1baec4b412c8d 100644
---- a/drivers/net/wireless/ath/ar5523/ar5523.c
-+++ b/drivers/net/wireless/ath/ar5523/ar5523.c
-@@ -153,6 +153,10 @@ static void ar5523_cmd_rx_cb(struct urb *urb)
- 			ar5523_err(ar, "Invalid reply to WDCMSG_TARGET_START");
- 			return;
- 		}
-+		if (!cmd->odata) {
-+			ar5523_err(ar, "Unexpected WDCMSG_TARGET_START reply");
-+			return;
-+		}
- 		memcpy(cmd->odata, hdr + 1, sizeof(u32));
- 		cmd->olen = sizeof(u32);
- 		cmd->res = 0;
+diff --git a/drivers/media/tuners/msi001.c b/drivers/media/tuners/msi001.c
+index 78e6fd600d8ef..44247049a3190 100644
+--- a/drivers/media/tuners/msi001.c
++++ b/drivers/media/tuners/msi001.c
+@@ -442,6 +442,13 @@ static int msi001_probe(struct spi_device *spi)
+ 			V4L2_CID_RF_TUNER_BANDWIDTH_AUTO, 0, 1, 1, 1);
+ 	dev->bandwidth = v4l2_ctrl_new_std(&dev->hdl, &msi001_ctrl_ops,
+ 			V4L2_CID_RF_TUNER_BANDWIDTH, 200000, 8000000, 1, 200000);
++	if (dev->hdl.error) {
++		ret = dev->hdl.error;
++		dev_err(&spi->dev, "Could not initialize controls\n");
++		/* control init failed, free handler */
++		goto err_ctrl_handler_free;
++	}
++
+ 	v4l2_ctrl_auto_cluster(2, &dev->bandwidth_auto, 0, false);
+ 	dev->lna_gain = v4l2_ctrl_new_std(&dev->hdl, &msi001_ctrl_ops,
+ 			V4L2_CID_RF_TUNER_LNA_GAIN, 0, 1, 1, 1);
 -- 
 2.34.1
 
