@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D09D4499DBF
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:00:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6299249958B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:13:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1586169AbiAXWZs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:25:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36186 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1583725AbiAXWT3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:19:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90D7FC0619C9;
-        Mon, 24 Jan 2022 12:49:27 -0800 (PST)
+        id S1356917AbiAXUwr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:52:47 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:41702 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357541AbiAXUt3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:49:29 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 57025B811A9;
-        Mon, 24 Jan 2022 20:49:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AC10C340E5;
-        Mon, 24 Jan 2022 20:49:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9CC1C6090B;
+        Mon, 24 Jan 2022 20:49:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E3B5C340E5;
+        Mon, 24 Jan 2022 20:49:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057365;
-        bh=3U9VP1OuruVXeNmVCUIDrfmA01G3vDMoXgFxbdOhwwE=;
+        s=korg; t=1643057368;
+        bh=dx/qqfHaqsrI53eoI4nrZXwWfm8wRxcE9Pn+R9RZmHQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qdHY+Id+wTWMavVFd6Vn5W3TJlqYvG2USon6TvfHXnyH1MII29HZi2SyKBe9RRORR
-         JGF6PNuGdphsIqcbIdpJLel0GHmQfZwSRVz/q5vAGkhzgOZ9wFaypdv9wYredYGm9m
-         s3CivBDQh0iC+zLfPQ1HMdTHJ8sYwHzCax+WHUOA=
+        b=CEJhgWNJNqglqkjraxFWReAg7d3NIV5Apfrx5jw/9hOUoZVRpqGnZdAjVDL4CLl7r
+         ywktb4Dfe3mFfktPBwMciv47YkiSFJGFlqLiuOS/59zx+t1JK3yO4i9gExZ3w4yFTR
+         6HRZq1YMG7eBukfgvHIF8SEi/j8aqiNBshLCT6Gc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tobias Waldekranz <tobias@waldekranz.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 756/846] powerpc/fsl/dts: Enable WA for erratum A-009885 on fman3l MDIO buses
-Date:   Mon, 24 Jan 2022 19:44:33 +0100
-Message-Id: <20220124184127.054924390@linuxfoundation.org>
+        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.15 757/846] block: fix async_depth sysfs interface for mq-deadline
+Date:   Mon, 24 Jan 2022 19:44:34 +0100
+Message-Id: <20220124184127.087380239@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -47,38 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tobias Waldekranz <tobias@waldekranz.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 0d375d610fa96524e2ee2b46830a46a7bfa92a9f upstream.
+commit 46cdc45acb089c811d9a54fd50af33b96e5fae9d upstream.
 
-This block is used in (at least) T1024 and T1040, including their
-variants like T1023 etc.
+A previous commit added this feature, but it inadvertently used the wrong
+variable to show/store the setting from/to, victimized by copy/paste. Fix
+it up so that the async_depth sysfs interface reads and writes from the
+right setting.
 
-Fixes: d55ad2967d89 ("powerpc/mpc85xx: Create dts components for the FSL QorIQ DPAA FMan")
-Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 07757588e507 ("block/mq-deadline: Reserve 25% of scheduler tags for synchronous requests")
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=215485
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/boot/dts/fsl/qoriq-fman3l-0.dtsi |    2 ++
- 1 file changed, 2 insertions(+)
+ block/mq-deadline.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/powerpc/boot/dts/fsl/qoriq-fman3l-0.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3l-0.dtsi
-@@ -79,6 +79,7 @@ fman0: fman@400000 {
- 		#size-cells = <0>;
- 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
- 		reg = <0xfc000 0x1000>;
-+		fsl,erratum-a009885;
- 	};
- 
- 	xmdio0: mdio@fd000 {
-@@ -86,6 +87,7 @@ fman0: fman@400000 {
- 		#size-cells = <0>;
- 		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
- 		reg = <0xfd000 0x1000>;
-+		fsl,erratum-a009885;
- 	};
- };
- 
+--- a/block/mq-deadline.c
++++ b/block/mq-deadline.c
+@@ -811,7 +811,7 @@ SHOW_JIFFIES(deadline_read_expire_show,
+ SHOW_JIFFIES(deadline_write_expire_show, dd->fifo_expire[DD_WRITE]);
+ SHOW_INT(deadline_writes_starved_show, dd->writes_starved);
+ SHOW_INT(deadline_front_merges_show, dd->front_merges);
+-SHOW_INT(deadline_async_depth_show, dd->front_merges);
++SHOW_INT(deadline_async_depth_show, dd->async_depth);
+ SHOW_INT(deadline_fifo_batch_show, dd->fifo_batch);
+ #undef SHOW_INT
+ #undef SHOW_JIFFIES
+@@ -840,7 +840,7 @@ STORE_JIFFIES(deadline_read_expire_store
+ STORE_JIFFIES(deadline_write_expire_store, &dd->fifo_expire[DD_WRITE], 0, INT_MAX);
+ STORE_INT(deadline_writes_starved_store, &dd->writes_starved, INT_MIN, INT_MAX);
+ STORE_INT(deadline_front_merges_store, &dd->front_merges, 0, 1);
+-STORE_INT(deadline_async_depth_store, &dd->front_merges, 1, INT_MAX);
++STORE_INT(deadline_async_depth_store, &dd->async_depth, 1, INT_MAX);
+ STORE_INT(deadline_fifo_batch_store, &dd->fifo_batch, 0, INT_MAX);
+ #undef STORE_FUNCTION
+ #undef STORE_INT
 
 
