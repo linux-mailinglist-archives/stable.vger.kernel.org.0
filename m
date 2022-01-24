@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C9C849A03F
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:25:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A69CB49A044
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:26:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1843570AbiAXXE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:04:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45804 "EHLO
+        id S1843598AbiAXXFE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:05:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44860 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382512AbiAXW4E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:56:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D65E7C055AA1;
-        Mon, 24 Jan 2022 13:10:40 -0800 (PST)
+        with ESMTP id S1382592AbiAXW4D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:56:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59AF1C055AA2;
+        Mon, 24 Jan 2022 13:10:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 73AD76141C;
-        Mon, 24 Jan 2022 21:10:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F88FC340E5;
-        Mon, 24 Jan 2022 21:10:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 187BBB80CCF;
+        Mon, 24 Jan 2022 21:10:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F544C340E5;
+        Mon, 24 Jan 2022 21:10:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058639;
-        bh=3brKqyaqybEcUH8yC/phuL2yfofUBG/ciXNRmRgItE8=;
+        s=korg; t=1643058642;
+        bh=dK3hIHSJOFGdVBAyhBXTzS2yjHybOl79EpD320zhCR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wCBbpwPRLDpBeKMxZ+FAAPXw5/nvqvoXOut4iPIs+9v2lfbs1NUdSthNAzm4R+efT
-         fdhAhXrF5jNH/nyYH434jIfSHs5I3uKZrJ1Tg5vzC1zAtk0N2QVps9vdWYAmFkq0N6
-         n/Mlq5Xwb8mm5+ffWUIm4Lad8+FWmth0MyNaTAvY=
+        b=K7h8D2FQP9GbQ4zW8Jf1nudySIkIJNUv2KCD9fnwMiCHin/UydFHqIehuE+QUYmGe
+         Ihlm19hn9QYeossWXY+csriTUefqBa810pDGi1R3DcFAGFM59R7IBiS0i8n7Rjd+HY
+         ITj5EM4vlYQFwtRqZjXxp/U0Qf2u8kdGf+Odoz3o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0354/1039] x86/boot/compressed: Move CLANG_FLAGS to beginning of KBUILD_CFLAGS
-Date:   Mon, 24 Jan 2022 19:35:43 +0100
-Message-Id: <20220124184137.179404474@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0355/1039] crypto: octeontx2 - prevent underflow in get_cores_bmap()
+Date:   Mon, 24 Jan 2022 19:35:44 +0100
+Message-Id: <20220124184137.215571101@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -47,67 +48,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 5fe392ff9d1f7254a1fbb3f72d9893088e4d23eb ]
+[ Upstream commit 10371b6212bb682f13247733d6b76b91b2b80f9a ]
 
-When cross compiling i386_defconfig on an arm64 host with clang, there
-are a few instances of '-Waddress-of-packed-member' and
-'-Wgnu-variable-sized-type-not-at-end' in arch/x86/boot/compressed/,
-which should both be disabled with the cc-disable-warning calls in that
-directory's Makefile, which indicates that cc-disable-warning is failing
-at the point of testing these flags.
+If we're going to cap "eng_grp->g->engs_num" upper bounds then we should
+cap the lower bounds as well.
 
-The cc-disable-warning calls fail because at the point that the flags
-are tested, KBUILD_CFLAGS has '-march=i386' without $(CLANG_FLAGS),
-which has the '--target=' flag to tell clang what architecture it is
-targeting. Without the '--target=' flag, the host architecture (arm64)
-is used and i386 is not a valid value for '-march=' in that case. This
-error can be seen by adding some logging to try-run:
-
-  clang-14: error: the clang compiler does not support '-march=i386'
-
-Invoking the compiler has to succeed prior to calling cc-option or
-cc-disable-warning in order to accurately test whether or not the flag
-is supported; if it doesn't, the requested flag can never be added to
-the compiler flags. Move $(CLANG_FLAGS) to the beginning of KBUILD_FLAGS
-so that any new flags that might be added in the future can be
-accurately tested.
-
-Fixes: d5cbd80e302d ("x86/boot: Add $(CLANG_FLAGS) to compressed KBUILD_CFLAGS")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20211222163040.1961481-1-nathan@kernel.org
+Fixes: 43ac0b824f1c ("crypto: octeontx2 - load microcode and create engine groups")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/boot/compressed/Makefile | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/crypto/marvell/octeontx2/otx2_cptpf_ucode.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/boot/compressed/Makefile b/arch/x86/boot/compressed/Makefile
-index 431bf7f846c3c..e118136460518 100644
---- a/arch/x86/boot/compressed/Makefile
-+++ b/arch/x86/boot/compressed/Makefile
-@@ -28,7 +28,11 @@ KCOV_INSTRUMENT		:= n
- targets := vmlinux vmlinux.bin vmlinux.bin.gz vmlinux.bin.bz2 vmlinux.bin.lzma \
- 	vmlinux.bin.xz vmlinux.bin.lzo vmlinux.bin.lz4 vmlinux.bin.zst
+diff --git a/drivers/crypto/marvell/octeontx2/otx2_cptpf_ucode.c b/drivers/crypto/marvell/octeontx2/otx2_cptpf_ucode.c
+index dff34b3ec09e1..7c1b92aaab398 100644
+--- a/drivers/crypto/marvell/octeontx2/otx2_cptpf_ucode.c
++++ b/drivers/crypto/marvell/octeontx2/otx2_cptpf_ucode.c
+@@ -29,7 +29,8 @@ static struct otx2_cpt_bitmap get_cores_bmap(struct device *dev,
+ 	bool found = false;
+ 	int i;
  
--KBUILD_CFLAGS := -m$(BITS) -O2
-+# CLANG_FLAGS must come before any cc-disable-warning or cc-option calls in
-+# case of cross compiling, as it has the '--target=' flag, which is needed to
-+# avoid errors with '-march=i386', and future flags may depend on the target to
-+# be valid.
-+KBUILD_CFLAGS := -m$(BITS) -O2 $(CLANG_FLAGS)
- KBUILD_CFLAGS += -fno-strict-aliasing -fPIE
- KBUILD_CFLAGS += -Wundef
- KBUILD_CFLAGS += -DDISABLE_BRANCH_PROFILING
-@@ -47,7 +51,6 @@ KBUILD_CFLAGS += -D__DISABLE_EXPORTS
- # Disable relocation relaxation in case the link is not PIE.
- KBUILD_CFLAGS += $(call as-option,-Wa$(comma)-mrelax-relocations=no)
- KBUILD_CFLAGS += -include $(srctree)/include/linux/hidden.h
--KBUILD_CFLAGS += $(CLANG_FLAGS)
- 
- # sev.c indirectly inludes inat-table.h which is generated during
- # compilation and stored in $(objtree). Add the directory to the includes so
+-	if (eng_grp->g->engs_num > OTX2_CPT_MAX_ENGINES) {
++	if (eng_grp->g->engs_num < 0 ||
++	    eng_grp->g->engs_num > OTX2_CPT_MAX_ENGINES) {
+ 		dev_err(dev, "unsupported number of engines %d on octeontx2\n",
+ 			eng_grp->g->engs_num);
+ 		return bmap;
 -- 
 2.34.1
 
