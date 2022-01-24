@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF1AA49A246
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 02:59:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3448649A453
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:09:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2365655AbiAXXv0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:51:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33266 "EHLO
+        id S2369446AbiAYABq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:01:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1578647AbiAXWDP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:03:15 -0500
+        with ESMTP id S1849617AbiAXX0Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:26:16 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 573A9C036BF6;
-        Mon, 24 Jan 2022 12:41:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C473EC01D7E5;
+        Mon, 24 Jan 2022 13:30:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EBA7061008;
-        Mon, 24 Jan 2022 20:41:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE042C340E5;
-        Mon, 24 Jan 2022 20:41:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F9C160C44;
+        Mon, 24 Jan 2022 21:30:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 373D6C340E4;
+        Mon, 24 Jan 2022 21:30:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056908;
-        bh=8FkV0WtrVsrhL39FmDN47upyPEIVbo4YCWDOsiA95Uk=;
+        s=korg; t=1643059818;
+        bh=uC02QHBoKcdv9ttW/OShKG68uyhUyvnpqZMr6byhIJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XsbMrF+F9Cwif76Fr1tJ+mkbM2TSikyv420/XVj9tHBpIhqCLmtNDD9sVN1dcs0/J
-         xOWTJx1B9dc0floapjRIbE4aOWHYbq1JZCalSjKIyWoLtwhAaeMnKmEed7+t87I9H4
-         zmLNyCb4NwVVAieXWmf/SJA1rJy69m+LlMq0/Adw=
+        b=AlzLalvQqRHz7XlCccJVvgo+okXE+vE2qA1qC6xIbQxjWceuwQ84HyoYeJzRaESU3
+         j6nf54HXmGwf63uEdhbcUwd1LYbEuAK56oEBp8KgVnhDzng1aZNgALt7gI7QAPP4aX
+         Ch6L0YSDVjiaEkYB62zgPH50Nlt29162fRRwlog0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Lukas Wunner <lukas@wunner.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 612/846] serial: pl011: Drop CR register reset on set_termios
-Date:   Mon, 24 Jan 2022 19:42:09 +0100
-Message-Id: <20220124184122.148545675@linuxfoundation.org>
+        stable@vger.kernel.org, Erhard Furtner <erhard_f@mailbox.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0744/1039] powerpc/powermac: Add missing lockdep_register_key()
+Date:   Mon, 24 Jan 2022 19:42:13 +0100
+Message-Id: <20220124184150.342455460@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,60 +49,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit e368cc656fd6d0075f1c3ab9676e2001451e3e04 ]
+[ Upstream commit df1f679d19edb9eeb67cc2f96b29375f21991945 ]
 
-pl011_set_termios() briefly resets the CR register to zero, thereby
-glitching DTR/RTS signals.  With rs485 this may result in the bus being
-occupied for no reason.
+KeyWest i2c @0xf8001003 irq 42 /uni-n@f8000000/i2c@f8001000
+BUG: key c2d00cbc has not been registered!
+------------[ cut here ]------------
+DEBUG_LOCKS_WARN_ON(1)
+WARNING: CPU: 0 PID: 1 at kernel/locking/lockdep.c:4801 lockdep_init_map_type+0x4c0/0xb4c
+Modules linked in:
+CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.15.5-gentoo-PowerMacG4 #9
+NIP:  c01a9428 LR: c01a9428 CTR: 00000000
+REGS: e1033cf0 TRAP: 0700   Not tainted  (5.15.5-gentoo-PowerMacG4)
+MSR:  00029032 <EE,ME,IR,DR,RI>  CR: 24002002  XER: 00000000
 
-Where does this register write originate from?
+GPR00: c01a9428 e1033db0 c2d1cf20 00000016 00000004 00000001 c01c0630 e1033a73
+GPR08: 00000000 00000000 00000000 e1033db0 24002004 00000000 f8729377 00000003
+GPR16: c1829a9c 00000000 18305357 c1416fc0 c1416f80 c006ac60 c2d00ca8 c1416f00
+GPR24: 00000000 c21586f0 c2160000 00000000 c2d00cbc c2170000 c216e1a0 c2160000
+NIP [c01a9428] lockdep_init_map_type+0x4c0/0xb4c
+LR [c01a9428] lockdep_init_map_type+0x4c0/0xb4c
+Call Trace:
+[e1033db0] [c01a9428] lockdep_init_map_type+0x4c0/0xb4c (unreliable)
+[e1033df0] [c1c177b8] kw_i2c_add+0x334/0x424
+[e1033e20] [c1c18294] pmac_i2c_init+0x9ec/0xa9c
+[e1033e80] [c1c1a790] smp_core99_probe+0xbc/0x35c
+[e1033eb0] [c1c03cb0] kernel_init_freeable+0x190/0x5a4
+[e1033f10] [c000946c] kernel_init+0x28/0x154
+[e1033f30] [c0035148] ret_from_kernel_thread+0x14/0x1c
 
-The PL011 driver was forked from the PL010 driver in 2004:
-https://git.kernel.org/history/history/c/157c0342e591
+Add missing lockdep_register_key()
 
-Until this commit, the PL010 driver's IRQ handler ambauart_int()
-modified the CR register without holding the port spinlock.
-
-ambauart_set_termios() also modified that register.  To prevent
-concurrent read-modify-writes by the IRQ handler and to prevent
-transmission while changing baudrate, ambauart_set_termios() had to
-disable interrupts.  On the PL010, that is achieved by writing zero to
-the CR register.
-
-However, on the PL011, interrupts are disabled in the IMSC register,
-not in the CR register.
-
-Additionally, the commit amended both the PL010 and PL011 driver to
-acquire the port spinlock in the IRQ handler, obviating the need to
-disable interrupts in ->set_termios().
-
-So the CR register write is obsolete for two reasons.  Drop it.
-
-Cc: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Link: https://lore.kernel.org/r/f49f945375f5ccb979893c49f1129f51651ac738.1641129062.git.lukas@wunner.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Erhard Furtner <erhard_f@mailbox.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/69e4f55565bb45ebb0843977801b245af0c666fe.1638264741.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/amba-pl011.c | 2 --
- 1 file changed, 2 deletions(-)
+ arch/powerpc/platforms/powermac/low_i2c.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/serial/amba-pl011.c b/drivers/tty/serial/amba-pl011.c
-index b831d4d64c0a2..6ec34260d6b18 100644
---- a/drivers/tty/serial/amba-pl011.c
-+++ b/drivers/tty/serial/amba-pl011.c
-@@ -2105,9 +2105,7 @@ pl011_set_termios(struct uart_port *port, struct ktermios *termios,
- 	if (port->rs485.flags & SER_RS485_ENABLED)
- 		termios->c_cflag &= ~CRTSCTS;
- 
--	/* first, disable everything */
- 	old_cr = pl011_read(uap, REG_CR);
--	pl011_write(0, uap, REG_CR);
- 
- 	if (termios->c_cflag & CRTSCTS) {
- 		if (old_cr & UART011_CR_RTS)
+diff --git a/arch/powerpc/platforms/powermac/low_i2c.c b/arch/powerpc/platforms/powermac/low_i2c.c
+index 09bfe4b8f25aa..df89d916236d9 100644
+--- a/arch/powerpc/platforms/powermac/low_i2c.c
++++ b/arch/powerpc/platforms/powermac/low_i2c.c
+@@ -582,6 +582,7 @@ static void __init kw_i2c_add(struct pmac_i2c_host_kw *host,
+ 	bus->close = kw_i2c_close;
+ 	bus->xfer = kw_i2c_xfer;
+ 	mutex_init(&bus->mutex);
++	lockdep_register_key(&bus->lock_key);
+ 	lockdep_set_class(&bus->mutex, &bus->lock_key);
+ 	if (controller == busnode)
+ 		bus->flags = pmac_i2c_multibus;
 -- 
 2.34.1
 
