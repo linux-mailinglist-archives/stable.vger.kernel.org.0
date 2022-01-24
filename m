@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5C8F499B1B
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:59:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2919499AD9
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:58:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1574547AbiAXVtp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:49:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54440 "EHLO
+        id S1376552AbiAXVrV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:47:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1456128AbiAXVhw (ORCPT
+        with ESMTP id S1456125AbiAXVhw (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:37:52 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B64BC0BD131;
-        Mon, 24 Jan 2022 12:24:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5B4EC05A1BA;
+        Mon, 24 Jan 2022 12:24:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B3757B8122D;
-        Mon, 24 Jan 2022 20:24:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB273C340E7;
-        Mon, 24 Jan 2022 20:24:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F9F9B8122D;
+        Mon, 24 Jan 2022 20:24:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8AC5C340E5;
+        Mon, 24 Jan 2022 20:24:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055844;
-        bh=Sg3S3kOi4mnZWSbiDwAh4Yx1tel3YqVXV3twfkoYhCA=;
+        s=korg; t=1643055847;
+        bh=nbudAHV5Id/HIQCDuN+n30CdC18eMXg3cLWyw/aOG2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AnwWz4Iv68gJ/G4cLcfJKZaIWhaqLl7tO8JcTNzxuE4oUPG5D0KCJd2pVNFV138oC
-         61x+MLP7BjiBdN4ajZobrO/p2CoNWlCnoIOhLmo0f2xSsauVMFG4u+cwX88q3ZbyJ2
-         b/aoxUeKx2xMJNltTIB7whr/pWQ0W2I66dVFp0WA=
+        b=RMT7UME8z65lgVs+pCJMEH15jKJm7tCnx2gKpEOjq+y9DQBCxjheY9uBCa4HI0Ezv
+         Jsf8TFGfPyONWwL6NlIVdp1c+nlzGXKOAzfsuriUOCuPiIW+r1nw2PjiUdxvAxlydc
+         gmotoVY2CVhoB9a+1Awgwq+O4+2aza5Mtuu5GkH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 283/846] um: virtio_uml: Fix time-travel external time propagation
-Date:   Mon, 24 Jan 2022 19:36:40 +0100
-Message-Id: <20220124184110.684609033@linuxfoundation.org>
+Subject: [PATCH 5.15 284/846] Bluetooth: L2CAP: Fix using wrong mode
+Date:   Mon, 24 Jan 2022 19:36:41 +0100
+Message-Id: <20220124184110.724640275@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -48,57 +49,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 85e73968a040c642fd38f6cba5b73b61f5d0f052 ]
+[ Upstream commit 30d57722732d9736554f85f75f9d7ad5402d192e ]
 
-When creating an external event, the current time needs to
-be propagated to other participants of a simulation. This
-is done in the places here where we kick a virtq etc.
+If user has a set to use SOCK_STREAM the socket would default to
+L2CAP_MODE_ERTM which later needs to be adjusted if the destination
+address is LE which doesn't support such mode.
 
-However, it must be done for _all_ external events, and
-that includes making the initial socket connection and
-later closing it. Call time_travel_propagate_time() to do
-this before making or closing the socket connection.
-
-Apparently, at least for the initial connection creation,
-due to the remote side in my use cases using microseconds
-(rather than nanoseconds), this wasn't a problem yet; only
-started failing between 5.14-rc1 and 5.15-rc1 (didn't test
-others much), or possibly depending on the configuration,
-where more delays happen before the virtio devices are
-initialized.
-
-Fixes: 88ce64249233 ("um: Implement time-travel=ext")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Fixes: 15f02b9105625 ("Bluetooth: L2CAP: Add initial code for Enhanced Credit Based Mode")
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/drivers/virtio_uml.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/bluetooth/l2cap_sock.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/arch/um/drivers/virtio_uml.c b/arch/um/drivers/virtio_uml.c
-index d51e445df7976..7755cb4ff9fc6 100644
---- a/arch/um/drivers/virtio_uml.c
-+++ b/arch/um/drivers/virtio_uml.c
-@@ -1090,6 +1090,8 @@ static void virtio_uml_release_dev(struct device *d)
- 			container_of(d, struct virtio_device, dev);
- 	struct virtio_uml_device *vu_dev = to_virtio_uml_device(vdev);
+diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
+index 4574c5cb1b596..251017c69ab7f 100644
+--- a/net/bluetooth/l2cap_sock.c
++++ b/net/bluetooth/l2cap_sock.c
+@@ -161,7 +161,11 @@ static int l2cap_sock_bind(struct socket *sock, struct sockaddr *addr, int alen)
+ 		break;
+ 	}
  
-+	time_travel_propagate_time();
-+
- 	/* might not have been opened due to not negotiating the feature */
- 	if (vu_dev->req_fd >= 0) {
- 		um_free_irq(vu_dev->irq, vu_dev);
-@@ -1136,6 +1138,8 @@ static int virtio_uml_probe(struct platform_device *pdev)
- 	vu_dev->pdev = pdev;
- 	vu_dev->req_fd = -1;
+-	if (chan->psm && bdaddr_type_is_le(chan->src_type))
++	/* Use L2CAP_MODE_LE_FLOWCTL (CoC) in case of LE address and
++	 * L2CAP_MODE_EXT_FLOWCTL (ECRED) has not been set.
++	 */
++	if (chan->psm && bdaddr_type_is_le(chan->src_type) &&
++	    chan->mode != L2CAP_MODE_EXT_FLOWCTL)
+ 		chan->mode = L2CAP_MODE_LE_FLOWCTL;
  
-+	time_travel_propagate_time();
-+
- 	do {
- 		rc = os_connect_socket(pdata->socket_path);
- 	} while (rc == -EINTR);
+ 	chan->state = BT_BOUND;
+@@ -255,7 +259,11 @@ static int l2cap_sock_connect(struct socket *sock, struct sockaddr *addr,
+ 			return -EINVAL;
+ 	}
+ 
+-	if (chan->psm && bdaddr_type_is_le(chan->src_type) && !chan->mode)
++	/* Use L2CAP_MODE_LE_FLOWCTL (CoC) in case of LE address and
++	 * L2CAP_MODE_EXT_FLOWCTL (ECRED) has not been set.
++	 */
++	if (chan->psm && bdaddr_type_is_le(chan->src_type) &&
++	    chan->mode != L2CAP_MODE_EXT_FLOWCTL)
+ 		chan->mode = L2CAP_MODE_LE_FLOWCTL;
+ 
+ 	l2cap_sock_init_pid(sk);
 -- 
 2.34.1
 
