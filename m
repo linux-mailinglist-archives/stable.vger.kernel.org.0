@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4A4E499670
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:18:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54BCD4996AE
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:19:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1389064AbiAXVD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:03:58 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:50404 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346823AbiAXU5p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:57:45 -0500
+        id S1442183AbiAXVFt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:05:49 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:51108 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1391368AbiAXU6Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:58:16 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 895CAB81063;
-        Mon, 24 Jan 2022 20:57:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B05F4C340E5;
-        Mon, 24 Jan 2022 20:57:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D37F261320;
+        Mon, 24 Jan 2022 20:58:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E9AEC340E5;
+        Mon, 24 Jan 2022 20:58:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057859;
-        bh=U3wisKp1DQL3P73XQGZFVVCkj4o+R4Zq2mDuqeIwGBc=;
+        s=korg; t=1643057893;
+        bh=eSFAMSNBJ2+1DUCDbG0cVf4bszUJGYhA/TtF+L2iozU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OoHBVsX3KdlPyCky4LlG1wx3XhhkLIVoQET7K8MPdcuQ4IGiyl2r6XkeQTDfO/HK+
-         iHA00JWa6l38gBYBDjqAgsKfZiUoM6UEz1+6Rv5q96A21P+ND3Jg9PAdDakn4gi5J4
-         GpMR+KVnRsm47vFeMMsBok4axMXwKxX0bjf9Sy3Y=
+        b=TTZjFucKDsoK/YCRKc5ycnGUFfuB6oai/7PDpSEhOagZqBStMETuxzDVFyzQisVmF
+         Epry6mK+fnmBqS1Si/E1cWU8oqLWldzl8BBaUNMzSGgwXZ6/2qyAzTVkSYPkiFcupD
+         b8Ahmjnnf/lORUiz/LRcLxBKPYCoxU6e0UzV5A8E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0085/1039] Bluetooth: L2CAP: Fix not initializing sk_peer_pid
-Date:   Mon, 24 Jan 2022 19:31:14 +0100
-Message-Id: <20220124184128.011755111@linuxfoundation.org>
+Subject: [PATCH 5.16 0086/1039] drm/bridge: display-connector: fix an uninitialized pointer in probe()
+Date:   Mon, 24 Jan 2022 19:31:15 +0100
+Message-Id: <20220124184128.057152528@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -46,66 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit f5ff291098f70a70b344df1e388596755c3c8315 ]
+[ Upstream commit 189723fbe9aca18d6f7d638c59a40288030932b5 ]
 
-In order to group sockets being connected using L2CAP_MODE_EXT_FLOWCTL
-the pid is used but sk_peer_pid was not being initialized as it is
-currently only done for af_unix.
+The "label" pointer is used for debug output.  The code assumes that it
+is either NULL or valid, but it is never set to NULL.  It is either
+valid or uninitialized.
 
-Fixes: b48596d1dc25 ("Bluetooth: L2CAP: Add get_peer_pid callback")
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 0c275c30176b ("drm/bridge: Add bridge driver for display connectors")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211013080825.GE6010@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_sock.c | 19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ drivers/gpu/drm/bridge/display-connector.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
-index 160c016a5dfb9..4574c5cb1b596 100644
---- a/net/bluetooth/l2cap_sock.c
-+++ b/net/bluetooth/l2cap_sock.c
-@@ -172,6 +172,21 @@ done:
- 	return err;
- }
- 
-+static void l2cap_sock_init_pid(struct sock *sk)
-+{
-+	struct l2cap_chan *chan = l2cap_pi(sk)->chan;
-+
-+	/* Only L2CAP_MODE_EXT_FLOWCTL ever need to access the PID in order to
-+	 * group the channels being requested.
-+	 */
-+	if (chan->mode != L2CAP_MODE_EXT_FLOWCTL)
-+		return;
-+
-+	spin_lock(&sk->sk_peer_lock);
-+	sk->sk_peer_pid = get_pid(task_tgid(current));
-+	spin_unlock(&sk->sk_peer_lock);
-+}
-+
- static int l2cap_sock_connect(struct socket *sock, struct sockaddr *addr,
- 			      int alen, int flags)
+diff --git a/drivers/gpu/drm/bridge/display-connector.c b/drivers/gpu/drm/bridge/display-connector.c
+index 05eb759da6fc6..847a0dce7f1d3 100644
+--- a/drivers/gpu/drm/bridge/display-connector.c
++++ b/drivers/gpu/drm/bridge/display-connector.c
+@@ -107,7 +107,7 @@ static int display_connector_probe(struct platform_device *pdev)
  {
-@@ -243,6 +258,8 @@ static int l2cap_sock_connect(struct socket *sock, struct sockaddr *addr,
- 	if (chan->psm && bdaddr_type_is_le(chan->src_type) && !chan->mode)
- 		chan->mode = L2CAP_MODE_LE_FLOWCTL;
+ 	struct display_connector *conn;
+ 	unsigned int type;
+-	const char *label;
++	const char *label = NULL;
+ 	int ret;
  
-+	l2cap_sock_init_pid(sk);
-+
- 	err = l2cap_chan_connect(chan, la.l2_psm, __le16_to_cpu(la.l2_cid),
- 				 &la.l2_bdaddr, la.l2_bdaddr_type);
- 	if (err)
-@@ -298,6 +315,8 @@ static int l2cap_sock_listen(struct socket *sock, int backlog)
- 		goto done;
- 	}
- 
-+	l2cap_sock_init_pid(sk);
-+
- 	sk->sk_max_ack_backlog = backlog;
- 	sk->sk_ack_backlog = 0;
- 
+ 	conn = devm_kzalloc(&pdev->dev, sizeof(*conn), GFP_KERNEL);
 -- 
 2.34.1
 
