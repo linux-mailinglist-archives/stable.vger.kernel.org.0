@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80990498F1B
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:51:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CFDC6499362
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:34:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357473AbiAXTuH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:50:07 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34996 "EHLO
+        id S1350329AbiAXUda (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:33:30 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:33322 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355380AbiAXTnR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:43:17 -0500
+        with ESMTP id S1381903AbiAXUYv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:24:51 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8C6BFB8122F;
-        Mon, 24 Jan 2022 19:43:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B442EC340E5;
-        Mon, 24 Jan 2022 19:43:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7FBA7B8122D;
+        Mon, 24 Jan 2022 20:24:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8A64C340E5;
+        Mon, 24 Jan 2022 20:24:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053394;
-        bh=5mn8xY2Rw2yKpuokmAWh9/JaNI4qxPL/snAS97h6juY=;
+        s=korg; t=1643055889;
+        bh=2BQlgnQsNwEwfMzcRqMA7YHREraPyfZU8xrRYkLHLTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t5SGBHZ69m7cnE/Sb+cN4p4cvdwSjYL3U6dSJ0g7NNCiuz+o1rilw6aICK8cRlpOn
-         b0wI0DmDqIJSVvedvmFbiR9nNhpX5JjCuKtiQIf7sMMXQvYVRIVye2Vln8syWWtjw6
-         TQixsHEWZMU3pxR1TbAmLdnNN0LTZGhZz9Bznbr4=
+        b=yRiNHgldUO/VVSXDFHA06Y2Yji+DGCYi5sNDFrB/e8tvjkWf9oovMkgGDeFQDcjNK
+         +VA4agv0GB7D8Qtx1tcYcwV6mUyLXsME7w9nSRr7UNxHl2y/5fh8GU3z3yzBTQazHT
+         Mah8KcEaZjJgoBIY+/9ioorcCYqgIEBDz/n8AWks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 051/563] Bluetooth: cmtp: fix possible panic when cmtp_init_sockets() fails
-Date:   Mon, 24 Jan 2022 19:36:56 +0100
-Message-Id: <20220124184026.193971287@linuxfoundation.org>
+Subject: [PATCH 5.15 300/846] serial: 8250_bcm7271: Propagate error codes from brcmuart_probe()
+Date:   Mon, 24 Jan 2022 19:36:57 +0100
+Message-Id: <20220124184111.259530397@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
 
-[ Upstream commit 2a7ca7459d905febf519163bd9e3eed894de6bb7 ]
+[ Upstream commit c195438f1e84de8fa46b4f5264d12379bee6e9a1 ]
 
-I got a kernel BUG report when doing fault injection test:
+In case of failures brcmuart_probe() always returned -ENODEV, this
+isn't correct for example platform_get_irq_byname() may return
+-EPROBE_DEFER to handle such cases propagate error codes in
+brcmuart_probe() in case of failures.
 
-------------[ cut here ]------------
-kernel BUG at lib/list_debug.c:45!
-...
-RIP: 0010:__list_del_entry_valid.cold+0x12/0x4d
-...
-Call Trace:
- proto_unregister+0x83/0x220
- cmtp_cleanup_sockets+0x37/0x40 [cmtp]
- cmtp_exit+0xe/0x1f [cmtp]
- do_syscall_64+0x35/0xb0
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-If cmtp_init_sockets() in cmtp_init() fails, cmtp_init() still returns
-success. This will cause a kernel bug when accessing uncreated ctmp
-related data when the module exits.
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 41a469482de25 ("serial: 8250: Add new 8250-core based Broadcom STB driver")
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+Link: https://lore.kernel.org/r/20211224142917.6966-4-prabhakar.mahadev-lad.rj@bp.renesas.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/cmtp/core.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/tty/serial/8250/8250_bcm7271.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/net/bluetooth/cmtp/core.c b/net/bluetooth/cmtp/core.c
-index 0a2d78e811cf5..83eb84e8e688f 100644
---- a/net/bluetooth/cmtp/core.c
-+++ b/net/bluetooth/cmtp/core.c
-@@ -501,9 +501,7 @@ static int __init cmtp_init(void)
- {
- 	BT_INFO("CMTP (CAPI Emulation) ver %s", VERSION);
+diff --git a/drivers/tty/serial/8250/8250_bcm7271.c b/drivers/tty/serial/8250/8250_bcm7271.c
+index 5163d60756b73..0877cf24f7de0 100644
+--- a/drivers/tty/serial/8250/8250_bcm7271.c
++++ b/drivers/tty/serial/8250/8250_bcm7271.c
+@@ -1076,14 +1076,18 @@ static int brcmuart_probe(struct platform_device *pdev)
+ 		priv->rx_bufs = dma_alloc_coherent(dev,
+ 						   priv->rx_size,
+ 						   &priv->rx_addr, GFP_KERNEL);
+-		if (!priv->rx_bufs)
++		if (!priv->rx_bufs) {
++			ret = -EINVAL;
+ 			goto err;
++		}
+ 		priv->tx_size = UART_XMIT_SIZE;
+ 		priv->tx_buf = dma_alloc_coherent(dev,
+ 						  priv->tx_size,
+ 						  &priv->tx_addr, GFP_KERNEL);
+-		if (!priv->tx_buf)
++		if (!priv->tx_buf) {
++			ret = -EINVAL;
+ 			goto err;
++		}
+ 	}
  
--	cmtp_init_sockets();
--
--	return 0;
-+	return cmtp_init_sockets();
+ 	ret = serial8250_register_8250_port(&up);
+@@ -1097,6 +1101,7 @@ static int brcmuart_probe(struct platform_device *pdev)
+ 	if (priv->dma_enabled) {
+ 		dma_irq = platform_get_irq_byname(pdev,  "dma");
+ 		if (dma_irq < 0) {
++			ret = dma_irq;
+ 			dev_err(dev, "no IRQ resource info\n");
+ 			goto err1;
+ 		}
+@@ -1116,7 +1121,7 @@ err1:
+ err:
+ 	brcmuart_free_bufs(dev, priv);
+ 	brcmuart_arbitration(priv, 0);
+-	return -ENODEV;
++	return ret;
  }
  
- static void __exit cmtp_exit(void)
+ static int brcmuart_remove(struct platform_device *pdev)
 -- 
 2.34.1
 
