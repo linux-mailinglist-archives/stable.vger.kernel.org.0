@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84215499BFA
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:06:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56310499931
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:43:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239840AbiAXV6h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:58:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58102 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1575134AbiAXVvE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:51:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 813EBC09398A;
-        Mon, 24 Jan 2022 12:33:51 -0800 (PST)
+        id S1454204AbiAXVcA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:32:00 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:45388 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1451880AbiAXVXn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:23:43 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49DD2B8122C;
-        Mon, 24 Jan 2022 20:33:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DE72C340E5;
-        Mon, 24 Jan 2022 20:33:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B99C60C44;
+        Mon, 24 Jan 2022 21:23:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E9B2C340E4;
+        Mon, 24 Jan 2022 21:23:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056429;
-        bh=PIlHMzSJcbtlID3nr+KRYnPjFbUreuFKXZbjpwgQed0=;
+        s=korg; t=1643059423;
+        bh=+bH8S50HUOJv3r/LvFSv6imiapSYgEoH4Jcf7BfElYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Olo1C9cVOKExLkTnuojmxZjQWgNLmriQezdwzopFY/lSaWww70gzL8UsgBfu1yOHP
-         q3tIuJ4v95Vq/pssr8aOSlpHkKgLDsfI3DZqbWHdpzL6qFgqTtuwP/AW3WmqhpKrEm
-         EPwww2PDbYXqs4GH2bPZpY7i2jUQ5m1u1Ms/rX58=
+        b=Zz71QydKz5+9oqVV3gNQrZ4Y3YEzcZsmU5Nj9h1VmB6Urbx8wcbuuxKv+cUsEvA6T
+         aVDaTnurEGZMf+JAaOkDDP+7D5H/Yrm3ONwPD7g/LmUTNnmEzQiQiy5AEXFIRBZOyn
+         H34SgBjDPMZMHIrvH0NWLL1g1lOoVg1F/dAuYL0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Keeping <john@metanate.com>,
-        Pavankumar Kondeti <quic_pkondeti@quicinc.com>,
+        stable@vger.kernel.org,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Vlad Zahorodnii <vlad.zahorodnii@kde.org>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 482/846] usb: gadget: f_fs: Use stream_open() for endpoint files
+Subject: [PATCH 5.16 0610/1039] drm/amd/display: Use oriented source size when checking cursor scaling
 Date:   Mon, 24 Jan 2022 19:39:59 +0100
-Message-Id: <20220124184117.638999670@linuxfoundation.org>
+Message-Id: <20220124184145.846608151@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,63 +47,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavankumar Kondeti <quic_pkondeti@quicinc.com>
+From: Vlad Zahorodnii <vlad.zahorodnii@kde.org>
 
-[ Upstream commit c76ef96fc00eb398c8fc836b0eb2f82bcc619dc7 ]
+[ Upstream commit 69cb56290d9d10cdcc461aa2685e67e540507a96 ]
 
-Function fs endpoint file operations are synchronized via an interruptible
-mutex wait. However we see threads that do ep file operations concurrently
-are getting blocked for the mutex lock in __fdget_pos(). This is an
-uninterruptible wait and we see hung task warnings and kernel panic
-if hung_task_panic systcl is enabled if host does not send/receive
-the data for long time.
+dm_check_crtc_cursor() doesn't take into account plane transforms when
+calculating plane scaling, this can result in false positives.
 
-The reason for threads getting blocked in __fdget_pos() is due to
-the file position protection introduced by the commit 9c225f2655e3
-("vfs: atomic f_pos accesses as per POSIX"). Since function fs
-endpoint files does not have the notion of the file position, switch
-to the stream mode. This will bypass the file position mutex and
-threads will be blocked in interruptible state for the function fs
-mutex.
+For example, if there's an output with resolution 3840x2160 and the
+output is rotated 90 degrees, CRTC_W and CRTC_H will be 3840 and 2160,
+respectively, but SRC_W and SRC_H will be 2160 and 3840, respectively.
 
-It should not affects user space as we are only changing the task state
-changes the task state from UNINTERRUPTIBLE to INTERRUPTIBLE while waiting
-for the USB transfers to be finished. However there is a slight change to
-the O_NONBLOCK behavior. Earlier threads that are using O_NONBLOCK are also
-getting blocked inside fdget_pos(). Now they reach to function fs and error
-code is returned. The non blocking behavior is actually honoured now.
+Since the cursor plane usually has a square buffer attached to it, the
+dm_check_crtc_cursor() will think that there's a scale factor mismatch
+even though there isn't really.
 
-Reviewed-by: John Keeping <john@metanate.com>
-Signed-off-by: Pavankumar Kondeti <quic_pkondeti@quicinc.com>
-Link: https://lore.kernel.org/r/1636712682-1226-1-git-send-email-quic_pkondeti@quicinc.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This fixes an issue where kwin fails to use hardware plane transforms.
+
+Changes since version 1:
+- s/orientated/oriented/g
+
+Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Vlad Zahorodnii <vlad.zahorodnii@kde.org>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_fs.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ .../gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 35 ++++++++++++++-----
+ 1 file changed, 27 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-index aac343f7d7d3d..782d67c2c6e0d 100644
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -614,7 +614,7 @@ static int ffs_ep0_open(struct inode *inode, struct file *file)
- 	file->private_data = ffs;
- 	ffs_data_opened(ffs);
- 
--	return 0;
-+	return stream_open(inode, file);
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index e12f841d1d110..46d38d528468c 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -10662,6 +10662,24 @@ static int dm_update_plane_state(struct dc *dc,
+ 	return ret;
  }
  
- static int ffs_ep0_release(struct inode *inode, struct file *file)
-@@ -1154,7 +1154,7 @@ ffs_epfile_open(struct inode *inode, struct file *file)
- 	file->private_data = epfile;
- 	ffs_data_opened(epfile->ffs);
++static void dm_get_oriented_plane_size(struct drm_plane_state *plane_state,
++				       int *src_w, int *src_h)
++{
++	switch (plane_state->rotation & DRM_MODE_ROTATE_MASK) {
++	case DRM_MODE_ROTATE_90:
++	case DRM_MODE_ROTATE_270:
++		*src_w = plane_state->src_h >> 16;
++		*src_h = plane_state->src_w >> 16;
++		break;
++	case DRM_MODE_ROTATE_0:
++	case DRM_MODE_ROTATE_180:
++	default:
++		*src_w = plane_state->src_w >> 16;
++		*src_h = plane_state->src_h >> 16;
++		break;
++	}
++}
++
+ static int dm_check_crtc_cursor(struct drm_atomic_state *state,
+ 				struct drm_crtc *crtc,
+ 				struct drm_crtc_state *new_crtc_state)
+@@ -10670,6 +10688,8 @@ static int dm_check_crtc_cursor(struct drm_atomic_state *state,
+ 	struct drm_plane_state *new_cursor_state, *new_underlying_state;
+ 	int i;
+ 	int cursor_scale_w, cursor_scale_h, underlying_scale_w, underlying_scale_h;
++	int cursor_src_w, cursor_src_h;
++	int underlying_src_w, underlying_src_h;
  
--	return 0;
-+	return stream_open(inode, file);
- }
+ 	/* On DCE and DCN there is no dedicated hardware cursor plane. We get a
+ 	 * cursor per pipe but it's going to inherit the scaling and
+@@ -10681,10 +10701,9 @@ static int dm_check_crtc_cursor(struct drm_atomic_state *state,
+ 		return 0;
+ 	}
  
- static int ffs_aio_cancel(struct kiocb *kiocb)
+-	cursor_scale_w = new_cursor_state->crtc_w * 1000 /
+-			 (new_cursor_state->src_w >> 16);
+-	cursor_scale_h = new_cursor_state->crtc_h * 1000 /
+-			 (new_cursor_state->src_h >> 16);
++	dm_get_oriented_plane_size(new_cursor_state, &cursor_src_w, &cursor_src_h);
++	cursor_scale_w = new_cursor_state->crtc_w * 1000 / cursor_src_w;
++	cursor_scale_h = new_cursor_state->crtc_h * 1000 / cursor_src_h;
+ 
+ 	for_each_new_plane_in_state_reverse(state, underlying, new_underlying_state, i) {
+ 		/* Narrow down to non-cursor planes on the same CRTC as the cursor */
+@@ -10695,10 +10714,10 @@ static int dm_check_crtc_cursor(struct drm_atomic_state *state,
+ 		if (!new_underlying_state->fb)
+ 			continue;
+ 
+-		underlying_scale_w = new_underlying_state->crtc_w * 1000 /
+-				     (new_underlying_state->src_w >> 16);
+-		underlying_scale_h = new_underlying_state->crtc_h * 1000 /
+-				     (new_underlying_state->src_h >> 16);
++		dm_get_oriented_plane_size(new_underlying_state,
++					   &underlying_src_w, &underlying_src_h);
++		underlying_scale_w = new_underlying_state->crtc_w * 1000 / underlying_src_w;
++		underlying_scale_h = new_underlying_state->crtc_h * 1000 / underlying_src_h;
+ 
+ 		if (cursor_scale_w != underlying_scale_w ||
+ 		    cursor_scale_h != underlying_scale_h) {
 -- 
 2.34.1
 
