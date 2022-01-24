@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D532349A9AD
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:27:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD18C49A9AF
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:27:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356880AbiAYD0b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:26:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46662 "EHLO
+        id S1384181AbiAYD0m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:26:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387203AbiAXVDP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:03:15 -0500
+        with ESMTP id S1445371AbiAXVDQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:03:16 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 501C1C06B5AE;
-        Mon, 24 Jan 2022 12:03:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79DA9C06B5B3;
+        Mon, 24 Jan 2022 12:04:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0CF80B811FB;
-        Mon, 24 Jan 2022 20:03:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1741BC340E8;
-        Mon, 24 Jan 2022 20:03:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 307E3B81218;
+        Mon, 24 Jan 2022 20:03:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63BB5C340E5;
+        Mon, 24 Jan 2022 20:03:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054628;
-        bh=C0SHw/HBGJeYO40tcsni0/1HVx1c5uqo7CZO59eKrpo=;
+        s=korg; t=1643054637;
+        bh=RaPK8Eyr4HE56rbewWn9cmr8Bv4VqvqGAd5d/J3fTwk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tavopEPZxX4z99dK4v3mfaOUtCnxcEmA51k8qw+ydS6kl4Uy+q14mfHN/SJ7kAuT1
-         YN0LKHL6lea8gMdYDvjQuPmBpQ/jLeu7Ve7Dz4N5WyXk/aK+F0Y5D4vFWM+UCRDL3J
-         kREggO16RP+OxpsW99S/fVUiU4nAabqkY+utDdVQ=
+        b=cRB2HHyUF7be83aSlFQIe6AX3kKbjHY6XT6gkLHbX3ZDVw5pfeg9o8HxKvURo196t
+         31OnVBqL0gVuPQOfUYCa47lfDzkqEN0LWuYiHY5REs69BEaChuOWXRQaPJIlCn68aw
+         HdUjlK4ugOSdELlFdyNMTyi77tFY5sX4FCeRuc+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
-        Xiangyang Zhang <xyz.sun.ok@gmail.com>,
-        Steven Rostedt <rostedt@goodmis.org>
-Subject: [PATCH 5.10 451/563] tracing/kprobes: nmissed not showed correctly for kretprobe
-Date:   Mon, 24 Jan 2022 19:43:36 +0100
-Message-Id: <20220124184040.047274925@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.10 454/563] device property: Fix fwnode_graph_devcon_match() fwnode leak
+Date:   Mon, 24 Jan 2022 19:43:39 +0100
+Message-Id: <20220124184040.143479590@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -48,48 +49,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiangyang Zhang <xyz.sun.ok@gmail.com>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-commit dfea08a2116fe327f79d8f4d4b2cf6e0c88be11f upstream.
+commit 4a7f4110f79163fd53ea65438041994ed615e3af upstream.
 
-The 'nmissed' column of the 'kprobe_profile' file for kretprobe is
-not showed correctly, kretprobe can be skipped by two reasons,
-shortage of kretprobe_instance which is counted by tk->rp.nmissed,
-and kprobe itself is missed by some reason, so to show the sum.
+For each endpoint it encounters, fwnode_graph_devcon_match() checks
+whether the endpoint's remote port parent device is available. If it is
+not, it ignores the endpoint but does not put the reference to the remote
+endpoint port parent fwnode. For available devices the fwnode handle
+reference is put as expected.
 
-Link: https://lkml.kernel.org/r/20220107150242.5019-1-xyz.sun.ok@gmail.com
+Put the reference for unavailable devices now.
 
-Cc: stable@vger.kernel.org
-Fixes: 4a846b443b4e ("tracing/kprobes: Cleanup kprobe tracer code")
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Signed-off-by: Xiangyang Zhang <xyz.sun.ok@gmail.com>
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
+Fixes: 637e9e52b185 ("device connection: Find device connections also from device graphs")
+Cc: 5.1+ <stable@vger.kernel.org> # 5.1+
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_kprobe.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/base/property.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/kernel/trace/trace_kprobe.c
-+++ b/kernel/trace/trace_kprobe.c
-@@ -1183,15 +1183,18 @@ static int probes_profile_seq_show(struc
- {
- 	struct dyn_event *ev = v;
- 	struct trace_kprobe *tk;
-+	unsigned long nmissed;
+--- a/drivers/base/property.c
++++ b/drivers/base/property.c
+@@ -1195,8 +1195,10 @@ fwnode_graph_devcon_match(struct fwnode_
  
- 	if (!is_trace_kprobe(ev))
- 		return 0;
+ 	fwnode_graph_for_each_endpoint(fwnode, ep) {
+ 		node = fwnode_graph_get_remote_port_parent(ep);
+-		if (!fwnode_device_is_available(node))
++		if (!fwnode_device_is_available(node)) {
++			fwnode_handle_put(node);
+ 			continue;
++		}
  
- 	tk = to_trace_kprobe(ev);
-+	nmissed = trace_kprobe_is_return(tk) ?
-+		tk->rp.kp.nmissed + tk->rp.nmissed : tk->rp.kp.nmissed;
- 	seq_printf(m, "  %-44s %15lu %15lu\n",
- 		   trace_probe_name(&tk->tp),
- 		   trace_kprobe_nhit(tk),
--		   tk->rp.kp.nmissed);
-+		   nmissed);
- 
- 	return 0;
- }
+ 		ret = match(node, con_id, data);
+ 		fwnode_handle_put(node);
 
 
