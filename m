@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82346499021
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:02:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDA1B498D14
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:33:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347492AbiAXT6j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:58:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57526 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348424AbiAXTwj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:52:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26D99C0617BD;
-        Mon, 24 Jan 2022 11:25:29 -0800 (PST)
+        id S1351618AbiAXT1i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:27:38 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:53432 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1350901AbiAXTZc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:25:32 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B8D5F61483;
-        Mon, 24 Jan 2022 19:25:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA75AC340E5;
-        Mon, 24 Jan 2022 19:25:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA5A96129A;
+        Mon, 24 Jan 2022 19:25:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D0A2C340E5;
+        Mon, 24 Jan 2022 19:25:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052328;
-        bh=x8ZQ3S8zIVTHi8vfagOrUccfQLdVTDvY8UlvC4IZUdc=;
+        s=korg; t=1643052331;
+        bh=237rbF9pS7DmapYAq12bvUaL8GTC3vSFTf2z40fMX3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NmGxnUIHU4ZFabSU6Fxs0F4D6n0+HkeXqnqA5x2SYESg956U6mf+uV9U56oLZ/Mce
-         1XjAesKJxykWAFGi8tupqjHlsaobsZ/EA1i10CZwoKcgtwEEQByN6ILq5xTwazwNtR
-         fevI2ejUtVHe/SKhMNr7LMtnXTgPrVnAPFK+nfJ4=
+        b=UhOsn9d+K0dHGio5CuuRniwFy3Su7KpAj/eNl2iwQ8G/aZINzbAbTJyZK8PapQFqL
+         lbyc7vltM8J5dr9+bpvwXjnmctGwtQSjlgwB45V+ClVcatsYVX1UXM/rEdMLnbsRrs
+         +Pr4uL7Be6mzj7PZDS1186fYfbN58IWVTPDe2FhI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.4 022/320] media: pvrusb2: fix control-message timeouts
-Date:   Mon, 24 Jan 2022 19:40:06 +0100
-Message-Id: <20220124183954.505885405@linuxfoundation.org>
+Subject: [PATCH 5.4 023/320] media: stk1160: fix control-message timeouts
+Date:   Mon, 24 Jan 2022 19:40:07 +0100
+Message-Id: <20220124183954.546983378@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
 References: <20220124183953.750177707@linuxfoundation.org>
@@ -50,58 +47,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-commit b82bf9b9dc305d7d3d93eab106d70dbf2171b43e upstream.
+commit 6aa6e70cdb5b863a57bad61310bf89b6617a5d2d upstream.
 
 USB control-message timeouts are specified in milliseconds and should
 specifically not vary with CONFIG_HZ.
 
-Fixes: d855497edbfb ("V4L/DVB (4228a): pvrusb2 to kernel 2.6.18")
-Cc: stable@vger.kernel.org      # 2.6.18
+Fixes: 9cb2173e6ea8 ("[media] media: Add stk1160 new driver (easycap replacement)")
+Cc: stable@vger.kernel.org      # 3.7
 Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/pvrusb2/pvrusb2-hdw.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/media/usb/stk1160/stk1160-core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-+++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-@@ -1468,7 +1468,7 @@ static int pvr2_upload_firmware1(struct
- 	for (address = 0; address < fwsize; address += 0x800) {
- 		memcpy(fw_ptr, fw_entry->data + address, 0x800);
- 		ret += usb_control_msg(hdw->usb_dev, pipe, 0xa0, 0x40, address,
--				       0, fw_ptr, 0x800, HZ);
-+				       0, fw_ptr, 0x800, 1000);
- 	}
- 
- 	trace_firmware("Upload done, releasing device's CPU");
-@@ -1606,7 +1606,7 @@ int pvr2_upload_firmware2(struct pvr2_hd
- 			((u32 *)fw_ptr)[icnt] = swab32(((u32 *)fw_ptr)[icnt]);
- 
- 		ret |= usb_bulk_msg(hdw->usb_dev, pipe, fw_ptr,bcnt,
--				    &actual_length, HZ);
-+				    &actual_length, 1000);
- 		ret |= (actual_length != bcnt);
- 		if (ret) break;
- 		fw_done += bcnt;
-@@ -3439,7 +3439,7 @@ void pvr2_hdw_cpufw_set_enabled(struct p
- 						      0xa0,0xc0,
- 						      address,0,
- 						      hdw->fw_buffer+address,
--						      0x800,HZ);
-+						      0x800,1000);
- 				if (ret < 0) break;
- 			}
- 
-@@ -3978,7 +3978,7 @@ void pvr2_hdw_cpureset_assert(struct pvr
- 	/* Write the CPUCS register on the 8051.  The lsb of the register
- 	   is the reset bit; a 1 asserts reset while a 0 clears it. */
- 	pipe = usb_sndctrlpipe(hdw->usb_dev, 0);
--	ret = usb_control_msg(hdw->usb_dev,pipe,0xa0,0x40,0xe600,0,da,1,HZ);
-+	ret = usb_control_msg(hdw->usb_dev,pipe,0xa0,0x40,0xe600,0,da,1,1000);
+--- a/drivers/media/usb/stk1160/stk1160-core.c
++++ b/drivers/media/usb/stk1160/stk1160-core.c
+@@ -65,7 +65,7 @@ int stk1160_read_reg(struct stk1160 *dev
+ 		return -ENOMEM;
+ 	ret = usb_control_msg(dev->udev, pipe, 0x00,
+ 			USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+-			0x00, reg, buf, sizeof(u8), HZ);
++			0x00, reg, buf, sizeof(u8), 1000);
  	if (ret < 0) {
- 		pvr2_trace(PVR2_TRACE_ERROR_LEGS,
- 			   "cpureset_assert(%d) error=%d",val,ret);
+ 		stk1160_err("read failed on reg 0x%x (%d)\n",
+ 			reg, ret);
+@@ -85,7 +85,7 @@ int stk1160_write_reg(struct stk1160 *de
+ 
+ 	ret =  usb_control_msg(dev->udev, pipe, 0x01,
+ 			USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+-			value, reg, NULL, 0, HZ);
++			value, reg, NULL, 0, 1000);
+ 	if (ret < 0) {
+ 		stk1160_err("write failed on reg 0x%x (%d)\n",
+ 			reg, ret);
 
 
