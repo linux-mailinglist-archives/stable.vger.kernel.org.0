@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46C794997CF
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:33:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4605D499B0E
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:59:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352564AbiAXVQg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:16:36 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:33960 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1448321AbiAXVM1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:12:27 -0500
+        id S1574450AbiAXVtX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:49:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55274 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1456529AbiAXVj3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:39:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74889C0613A2;
+        Mon, 24 Jan 2022 12:24:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1A2CAB8123D;
-        Mon, 24 Jan 2022 21:12:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68BEBC340E5;
-        Mon, 24 Jan 2022 21:12:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EB06BB811F9;
+        Mon, 24 Jan 2022 20:24:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F452C340E5;
+        Mon, 24 Jan 2022 20:24:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058744;
-        bh=cZlP7inydCpcNyjSPOxf7NCHLOzHE2ldB8dKrIBV8pU=;
+        s=korg; t=1643055871;
+        bh=WXG9DE4l41tkq1K1dZtis6c/+68uvRHriGktdbzlswM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BsJe1Io6TcIskWxCC+vmN/DsR5+3H+q/EBAeI37DQMpmh4mbcNm3lNo2gb2XqBRsc
-         0DX0Sli9O1mnkh3PekaSub3thsJHU8A14XfZ7WEpIgAXUBEfwCj9wDQuSMkDseCfyO
-         Iyzouan8N3yUTRrP4pSuG1krBMZJmviWfIi3jTBg=
+        b=xnC70p8SzntVtehnCq3SxWPWmdNRlk+7TaFV9/NqYrn/X2URjQVZwvm7vUcJ42P7o
+         tIeWhjHTUiRL160rMSl4qQrTSpCY0m4Lz1E16dZFJwaBsJ3cgEJEVcvhDGrZKlaV/3
+         kyMbGFI1jYChKAJYzbtNku1G3ykZ7tZ3kXhM0UV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Karsten Graul <kgraul@linux.ibm.com>,
-        Wen Gu <guwen@linux.alibaba.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Antony Antony <antony.antony@secunet.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0388/1039] net/smc: Reset conn->lgr when link group registration fails
+Subject: [PATCH 5.15 260/846] xfrm: state and policy should fail if XFRMA_IF_ID 0
 Date:   Mon, 24 Jan 2022 19:36:17 +0100
-Message-Id: <20220124184138.361043091@linuxfoundation.org>
+Message-Id: <20220124184109.892793038@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,120 +48,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Gu <guwen@linux.alibaba.com>
+From: Antony Antony <antony.antony@secunet.com>
 
-[ Upstream commit 36595d8ad46d9e4c41cc7c48c4405b7c3322deac ]
+[ Upstream commit 68ac0f3810e76a853b5f7b90601a05c3048b8b54 ]
 
-SMC connections might fail to be registered in a link group due to
-unable to find a usable link during its creation. As a result,
-smc_conn_create() will return a failure and most resources related
-to the connection won't be applied or initialized, such as
-conn->abort_work or conn->lnk.
+xfrm ineterface does not allow xfrm if_id = 0
+fail to create or update xfrm state and policy.
 
-If smc_conn_free() is invoked later, it will try to access the
-uninitialized resources related to the connection, thus causing
-a warning or crash.
+With this commit:
+ ip xfrm policy add src 192.0.2.1 dst 192.0.2.2 dir out if_id 0
+ RTNETLINK answers: Invalid argument
 
-This patch tries to fix this by resetting conn->lgr to NULL if an
-abnormal exit occurs in smc_lgr_register_conn(), thus avoiding the
-access to uninitialized resources in smc_conn_free().
+ ip xfrm state add src 192.0.2.1 dst 192.0.2.2 proto esp spi 1 \
+            reqid 1 mode tunnel aead 'rfc4106(gcm(aes))' \
+            0x1111111111111111111111111111111111111111 96 if_id 0
+ RTNETLINK answers: Invalid argument
 
-Meanwhile, the new created link group should be terminated if smc
-connections can't be registered in it. So smc_lgr_cleanup_early() is
-modified to take care of link group only and invoked to terminate
-unusable link group by smc_conn_create(). The call to smc_conn_free()
-is moved out from smc_lgr_cleanup_early() to smc_conn_abort().
+v1->v2 change:
+ - add Fixes: tag
 
-Fixes: 56bc3b2094b4 ("net/smc: assign link to a new connection")
-Suggested-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: Wen Gu <guwen@linux.alibaba.com>
-Acked-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 9f8550e4bd9d ("xfrm: fix disable_xfrm sysctl when used on xfrm interfaces")
+Signed-off-by: Antony Antony <antony.antony@secunet.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/af_smc.c   |  8 +++++---
- net/smc/smc_core.c | 12 +++++++-----
- net/smc/smc_core.h |  2 +-
- 3 files changed, 13 insertions(+), 9 deletions(-)
+ net/xfrm/xfrm_user.c | 21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index 1c9289f56dc47..211cd91b6c408 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -632,10 +632,12 @@ static int smc_connect_decline_fallback(struct smc_sock *smc, int reason_code,
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index 11574314de09f..5ad7530f65457 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -621,8 +621,13 @@ static struct xfrm_state *xfrm_state_construct(struct net *net,
  
- static void smc_conn_abort(struct smc_sock *smc, int local_first)
- {
-+	struct smc_connection *conn = &smc->conn;
-+	struct smc_link_group *lgr = conn->lgr;
-+
-+	smc_conn_free(conn);
- 	if (local_first)
--		smc_lgr_cleanup_early(&smc->conn);
--	else
--		smc_conn_free(&smc->conn);
-+		smc_lgr_cleanup_early(lgr);
- }
+ 	xfrm_smark_init(attrs, &x->props.smark);
  
- /* check if there is a rdma device available for this connection. */
-diff --git a/net/smc/smc_core.c b/net/smc/smc_core.c
-index a6849362f4ddd..c9a8092c4ac96 100644
---- a/net/smc/smc_core.c
-+++ b/net/smc/smc_core.c
-@@ -171,8 +171,10 @@ static int smc_lgr_register_conn(struct smc_connection *conn, bool first)
- 
- 	if (!conn->lgr->is_smcd) {
- 		rc = smcr_lgr_conn_assign_link(conn, first);
--		if (rc)
-+		if (rc) {
-+			conn->lgr = NULL;
- 			return rc;
+-	if (attrs[XFRMA_IF_ID])
++	if (attrs[XFRMA_IF_ID]) {
+ 		x->if_id = nla_get_u32(attrs[XFRMA_IF_ID]);
++		if (!x->if_id) {
++			err = -EINVAL;
++			goto error;
 +		}
- 	}
- 	/* find a new alert_token_local value not yet used by some connection
- 	 * in this link group
-@@ -622,15 +624,13 @@ int smcd_nl_get_lgr(struct sk_buff *skb, struct netlink_callback *cb)
- 	return skb->len;
- }
++	}
  
--void smc_lgr_cleanup_early(struct smc_connection *conn)
-+void smc_lgr_cleanup_early(struct smc_link_group *lgr)
- {
--	struct smc_link_group *lgr = conn->lgr;
- 	spinlock_t *lgr_lock;
+ 	err = __xfrm_init_state(x, false, attrs[XFRMA_OFFLOAD_DEV]);
+ 	if (err)
+@@ -1413,8 +1418,13 @@ static int xfrm_alloc_userspi(struct sk_buff *skb, struct nlmsghdr *nlh,
  
- 	if (!lgr)
- 		return;
+ 	mark = xfrm_mark_get(attrs, &m);
  
--	smc_conn_free(conn);
- 	smc_lgr_list_head(lgr, &lgr_lock);
- 	spin_lock_bh(lgr_lock);
- 	/* do not use this link group for new connections */
-@@ -1832,8 +1832,10 @@ create:
- 		write_lock_bh(&lgr->conns_lock);
- 		rc = smc_lgr_register_conn(conn, true);
- 		write_unlock_bh(&lgr->conns_lock);
--		if (rc)
-+		if (rc) {
-+			smc_lgr_cleanup_early(lgr);
- 			goto out;
+-	if (attrs[XFRMA_IF_ID])
++	if (attrs[XFRMA_IF_ID]) {
+ 		if_id = nla_get_u32(attrs[XFRMA_IF_ID]);
++		if (!if_id) {
++			err = -EINVAL;
++			goto out_noput;
 +		}
- 	}
- 	conn->local_tx_ctrl.common.type = SMC_CDC_MSG_TYPE;
- 	conn->local_tx_ctrl.len = SMC_WR_TX_SIZE;
-diff --git a/net/smc/smc_core.h b/net/smc/smc_core.h
-index d63b08274197e..73d0c35d3eb77 100644
---- a/net/smc/smc_core.h
-+++ b/net/smc/smc_core.h
-@@ -468,7 +468,7 @@ static inline void smc_set_pci_values(struct pci_dev *pci_dev,
- struct smc_sock;
- struct smc_clc_msg_accept_confirm;
++	}
  
--void smc_lgr_cleanup_early(struct smc_connection *conn);
-+void smc_lgr_cleanup_early(struct smc_link_group *lgr);
- void smc_lgr_terminate_sched(struct smc_link_group *lgr);
- void smcr_port_add(struct smc_ib_device *smcibdev, u8 ibport);
- void smcr_port_err(struct smc_ib_device *smcibdev, u8 ibport);
+ 	if (p->info.seq) {
+ 		x = xfrm_find_acq_byseq(net, mark, p->info.seq);
+@@ -1727,8 +1737,13 @@ static struct xfrm_policy *xfrm_policy_construct(struct net *net, struct xfrm_us
+ 
+ 	xfrm_mark_get(attrs, &xp->mark);
+ 
+-	if (attrs[XFRMA_IF_ID])
++	if (attrs[XFRMA_IF_ID]) {
+ 		xp->if_id = nla_get_u32(attrs[XFRMA_IF_ID]);
++		if (!xp->if_id) {
++			err = -EINVAL;
++			goto error;
++		}
++	}
+ 
+ 	return xp;
+  error:
 -- 
 2.34.1
 
