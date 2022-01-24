@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7E38497D89
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 12:03:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BDBE497D8E
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 12:03:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235193AbiAXLDK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 06:03:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44778 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229610AbiAXLDK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 06:03:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECC1BC06173B
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 03:03:09 -0800 (PST)
+        id S237177AbiAXLDV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 06:03:21 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38818 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237132AbiAXLDU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 06:03:20 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BEBCEB80EF5
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 11:03:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED891C340E1;
-        Mon, 24 Jan 2022 11:03:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D4D1E612D6
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 11:03:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A90DEC340E1;
+        Mon, 24 Jan 2022 11:03:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643022187;
-        bh=xe+ec79U1Nuv9Ywwuklr/cfNHhdUsJJtV7m2oo2Fy3k=;
+        s=korg; t=1643022199;
+        bh=M6b6u0iB3ojNEOLLjtHoqjns3+gXV7GLNwO0JuzYruQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=WjWRrxkUSG3MD1AlKMimJzTtsCT2ttQEHII9bi5UB6urtP5RauG3Jtm6+5f3gtQm6
-         lpbSzvZWSLwm7XP1eQ8KQBKGFeKZNchi5WwRxqFcN6nFYVcBfCzTqxQ4bjie3lzehH
-         l5CsP0qgdB2/2KGeiDMnq9UEfXwPInDsMnCgf2Gc=
-Subject: FAILED: patch "[PATCH] scsi: ufs: Improve SCSI abort handling further" failed to apply to 5.16-stable tree
+        b=LiLswufVPXTiDUaCnGvoYBMcS5KmxrOTSRDsRZb9De1nc2/30yAHX+V7T8hkb90S3
+         FGbAeh5Z03pO0nekIREeQ0FwcUIkqMA3vwML7a9GophDq9+5n08Y/1sTOaqHXVozZz
+         hXEpLMUNmQ4Mx5Wbhe/PRflwyqPSlUohcT+NnoWU=
+Subject: FAILED: patch "[PATCH] scsi: ufs: Improve SCSI abort handling further" failed to apply to 5.15-stable tree
 To:     bvanassche@acm.org, adrian.hunter@intel.com, beanhuo@micron.com,
         martin.petersen@oracle.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 12:03:04 +0100
-Message-ID: <1643022184244219@kroah.com>
+Date:   Mon, 24 Jan 2022 12:03:05 +0100
+Message-ID: <1643022185206217@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.16-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
