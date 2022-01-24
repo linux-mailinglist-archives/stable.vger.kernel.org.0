@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B326D49A96F
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:24:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4B9149A974
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:24:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1322588AbiAYDWG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:22:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39176 "EHLO
+        id S1322594AbiAYDWH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:22:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385053AbiAXUbZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:31:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45844C07A96F;
-        Mon, 24 Jan 2022 11:43:12 -0800 (PST)
+        with ESMTP id S1385105AbiAXUb0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:31:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFEBCC06175E;
+        Mon, 24 Jan 2022 11:43:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D7FD66153B;
-        Mon, 24 Jan 2022 19:43:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0592C340E8;
-        Mon, 24 Jan 2022 19:43:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9CF3EB811FB;
+        Mon, 24 Jan 2022 19:43:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB211C340E8;
+        Mon, 24 Jan 2022 19:43:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053391;
-        bh=RSMJmFAYFn44dqCpz6Ef7WGavdzCauuu95FS6ErIU1g=;
+        s=korg; t=1643053397;
+        bh=qLM9D+upM06dDkWRzpDwXfJwaCBmj2fiCs77Q3WGh3c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kvsgo2YtIWJ/mJfmTDqMNCQOXHevbyS90knen1gBpfnR+OyZ+LLvIgjo6A5VEEqY4
-         f1+EshkVXWf0Pb5eAA6KmCdFkyoKjHFfl8+t7h9cfubbpQUenAevsSaBX+9mc35ANY
-         2y8lxFPnYxGkX/CuPFMdLRMfd7tOtQl0F8SZRZrM=
+        b=EdVXV5UmIW3ISshZUc/toBLR3nY4fi2vIFte7Shrq91BlVFZFtXdHCX1i4Gx35jMO
+         pN2Ii8ldv1ehi5tZ44NXeC1PwW62JZqzwkq9dycnuKWX8WEOqj0GPijORWB3R+chOa
+         RFZ0xMvzaeDDN1PpF3ZKSbrogTLe+IdAzhF2SpfM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Chen-Yu Tsai <wenst@chromium.org>,
-        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
-        <nfraprado@collabora.com>, Heiko Stuebner <heiko@sntech.de>
-Subject: [PATCH 5.10 050/563] drm/rockchip: dsi: Reconfigure hardware on resume()
-Date:   Mon, 24 Jan 2022 19:36:55 +0100
-Message-Id: <20220124184026.156578432@linuxfoundation.org>
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Nicolas Saenz Julienne <nsaenz@kernel.org>,
+        Michael Stapelberg <michael@stapelberg.ch>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 052/563] clk: bcm-2835: Pick the closest clock rate
+Date:   Mon, 24 Jan 2022 19:36:57 +0100
+Message-Id: <20220124184026.223043474@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -49,112 +50,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Brian Norris <briannorris@chromium.org>
+From: Maxime Ripard <maxime@cerno.tech>
 
-commit e584cdc1549932f87a2707b56bc588cfac5d89e0 upstream.
+[ Upstream commit 5517357a4733d7cf7c17fc79d0530cfa47add372 ]
 
-Since commit 43c2de1002d2 ("drm/rockchip: dsi: move all lane config except
-LCDC mux to bind()"), we perform most HW configuration in the bind()
-function. This configuration may be lost on suspend/resume, so we
-need to call it again. That may lead to errors like this after system
-suspend/resume:
+The driver currently tries to pick the closest rate that is lower than
+the rate being requested.
 
-  dw-mipi-dsi-rockchip ff968000.mipi: failed to write command FIFO
-  panel-kingdisplay-kd097d04 ff960000.mipi.0: failed write init cmds: -110
+This causes an issue with clk_set_min_rate() since it actively checks
+for the rounded rate to be above the minimum that was just set.
 
-Tested on Acer Chromebook Tab 10 (RK3399 Gru-Scarlet).
+Let's change the logic a bit to pick the closest rate to the requested
+rate, no matter if it's actually higher or lower.
 
-Note that early mailing list versions of this driver borrowed Rockchip's
-downstream/BSP solution, to do HW configuration in mode_set() (which
-*is* called at the appropriate pre-enable() times), but that was
-discarded along the way. I've avoided that still, because mode_set()
-documentation doesn't suggest this kind of purpose as far as I can tell.
-
-Fixes: 43c2de1002d2 ("drm/rockchip: dsi: move all lane config except LCDC mux to bind()")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Brian Norris <briannorris@chromium.org>
-Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
-Tested-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210928143413.v3.2.I4e9d93aadb00b1ffc7d506e3186a25492bf0b732@changeid
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 6d18b8adbe67 ("clk: bcm2835: Support for clock parent selection")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Acked-by: Stephen Boyd <sboyd@kernel.org>
+Reviewed-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
+Tested-by: Nicolas Saenz Julienne <nsaenz@kernel.org> # boot and basic functionality
+Tested-by: Michael Stapelberg <michael@stapelberg.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210922125419.4125779-2-maxime@cerno.tech
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c |   37 ++++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
+ drivers/clk/bcm/clk-bcm2835.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-+++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
-@@ -243,6 +243,8 @@ struct dw_mipi_dsi_rockchip {
- 	struct dw_mipi_dsi *dmd;
- 	const struct rockchip_dw_dsi_chip_data *cdata;
- 	struct dw_mipi_dsi_plat_data pdata;
-+
-+	bool dsi_bound;
- };
- 
- struct dphy_pll_parameter_map {
-@@ -944,6 +946,8 @@ static int dw_mipi_dsi_rockchip_bind(str
- 		goto out_pll_clk;
- 	}
- 
-+	dsi->dsi_bound = true;
-+
- 	return 0;
- 
- out_pll_clk:
-@@ -965,6 +969,8 @@ static void dw_mipi_dsi_rockchip_unbind(
- 	if (dsi->is_slave)
- 		return;
- 
-+	dsi->dsi_bound = false;
-+
- 	dw_mipi_dsi_unbind(dsi->dmd);
- 
- 	clk_disable_unprepare(dsi->pllref_clk);
-@@ -1029,6 +1035,36 @@ static const struct dw_mipi_dsi_host_ops
- 	.detach = dw_mipi_dsi_rockchip_host_detach,
- };
- 
-+static int __maybe_unused dw_mipi_dsi_rockchip_resume(struct device *dev)
-+{
-+	struct dw_mipi_dsi_rockchip *dsi = dev_get_drvdata(dev);
-+	int ret;
-+
-+	/*
-+	 * Re-configure DSI state, if we were previously initialized. We need
-+	 * to do this before rockchip_drm_drv tries to re-enable() any panels.
-+	 */
-+	if (dsi->dsi_bound) {
-+		ret = clk_prepare_enable(dsi->grf_clk);
-+		if (ret) {
-+			DRM_DEV_ERROR(dsi->dev, "Failed to enable grf_clk: %d\n", ret);
-+			return ret;
-+		}
-+
-+		dw_mipi_dsi_rockchip_config(dsi);
-+		if (dsi->slave)
-+			dw_mipi_dsi_rockchip_config(dsi->slave);
-+
-+		clk_disable_unprepare(dsi->grf_clk);
-+	}
-+
-+	return 0;
-+}
-+
-+static const struct dev_pm_ops dw_mipi_dsi_rockchip_pm_ops = {
-+	SET_LATE_SYSTEM_SLEEP_PM_OPS(NULL, dw_mipi_dsi_rockchip_resume)
-+};
-+
- static int dw_mipi_dsi_rockchip_probe(struct platform_device *pdev)
- {
- 	struct device *dev = &pdev->dev;
-@@ -1248,6 +1284,7 @@ struct platform_driver dw_mipi_dsi_rockc
- 	.remove		= dw_mipi_dsi_rockchip_remove,
- 	.driver		= {
- 		.of_match_table = dw_mipi_dsi_rockchip_dt_ids,
-+		.pm	= &dw_mipi_dsi_rockchip_pm_ops,
- 		.name	= "dw-mipi-dsi-rockchip",
- 	},
- };
+diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
+index 1ac803e14fa3e..a919ee9c3fcb8 100644
+--- a/drivers/clk/bcm/clk-bcm2835.c
++++ b/drivers/clk/bcm/clk-bcm2835.c
+@@ -1217,7 +1217,7 @@ static int bcm2835_clock_determine_rate(struct clk_hw *hw,
+ 		rate = bcm2835_clock_choose_div_and_prate(hw, i, req->rate,
+ 							  &div, &prate,
+ 							  &avgrate);
+-		if (rate > best_rate && rate <= req->rate) {
++		if (abs(req->rate - rate) < abs(req->rate - best_rate)) {
+ 			best_parent = parent;
+ 			best_prate = prate;
+ 			best_rate = rate;
+-- 
+2.34.1
+
 
 
