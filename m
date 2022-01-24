@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B3AB498D6F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:34:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 190D6499090
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:04:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348459AbiAXTcT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:32:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51320 "EHLO
+        id S1348618AbiAXUBO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:01:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351849AbiAXT24 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:28:56 -0500
+        with ESMTP id S1356913AbiAXT7I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:59:08 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CACEC029808;
-        Mon, 24 Jan 2022 11:13:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30145C04D604;
+        Mon, 24 Jan 2022 11:28:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B183060BFB;
-        Mon, 24 Jan 2022 19:13:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89091C36AE9;
-        Mon, 24 Jan 2022 19:13:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C165C6121F;
+        Mon, 24 Jan 2022 19:28:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 900C9C340E5;
+        Mon, 24 Jan 2022 19:28:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051583;
-        bh=ZXmHV626MKlRKHjGTecpf95Tig3baN8fCoHHphGTCvw=;
+        s=korg; t=1643052485;
+        bh=SDmuqKKJKCdfPSdrmdGO3w9+OKJGRiaeqpCfaCY7LT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gGpat4eUAtJ/+3P/xfxt7mgRVYPLiG3jddVajW7ftWXL8vaBUP/8oTnhH6WSBUFpv
-         1yVz1PRMhaRJtRsAHfaFg7mZtbw3ReB7k+2DEEcPzlgsU4OCcXASzdqC4DazBR4Hgm
-         cY1X5a6MsgK1A7Cmc4JQc9tSyFl+2p4cYNKucZX4=
+        b=It96iIimv5JktXAlcIPXhmrtFmuGmSDsVFyhqg+eD97QizqUkBm2jV5HptkGCS9wu
+         UYvrr7FLESPkDSKy9Ebf4IVgCQxWBxDCaRvCeFXyJTpzgQ5R2ZaFw6aDZE9HiMx62R
+         FzSIEVoO32T9dZoqv96qLRLNh51rq2rAqYo6CE20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christian Lachner <gladiac@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 021/239] ALSA: hda/realtek - Fix silent output on Gigabyte X570 Aorus Master after reboot from Windows
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Li Hua <hucool.lihua@huawei.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 075/320] sched/rt: Try to restart rt period timer when rt runtime exceeded
 Date:   Mon, 24 Jan 2022 19:40:59 +0100
-Message-Id: <20220124183943.796509349@linuxfoundation.org>
+Message-Id: <20220124183956.280235644@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,105 +49,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lachner <gladiac@gmail.com>
+From: Li Hua <hucool.lihua@huawei.com>
 
-commit c1933008679586b20437280463110c967d66f865 upstream.
+[ Upstream commit 9b58e976b3b391c0cf02e038d53dd0478ed3013c ]
 
-This patch addresses an issue where after rebooting from Windows into Linux
-there would be no audio output.
+When rt_runtime is modified from -1 to a valid control value, it may
+cause the task to be throttled all the time. Operations like the following
+will trigger the bug. E.g:
 
-It turns out that the Realtek Audio driver on Windows changes some coeffs
-which are not being reset/reinitialized when rebooting the machine. As a
-result, there is no audio output until these coeffs are being reset to
-their initial state. This patch takes care of that by setting known-good
-(initial) values to the coeffs.
+  1. echo -1 > /proc/sys/kernel/sched_rt_runtime_us
+  2. Run a FIFO task named A that executes while(1)
+  3. echo 950000 > /proc/sys/kernel/sched_rt_runtime_us
 
-We initially relied upon alc1220_fixup_clevo_p950() to fix some pins in the
-connection list. However, it also sets coef 0x7 which does not need to be
-touched. Furthermore, to prevent mixing device-specific quirks I introduced
-a new alc1220_fixup_gb_x570() which is heavily based on
-alc1220_fixup_clevo_p950() but does not set coeff 0x7 and fixes the coeffs
-that are actually needed instead.
+When rt_runtime is -1, The rt period timer will not be activated when task
+A enqueued. And then the task will be throttled after setting rt_runtime to
+950,000. The task will always be throttled because the rt period timer is
+not activated.
 
-This new alc1220_fixup_gb_x570() is believed to also work for other boards,
-like the Gigabyte X570 Aorus Extreme and the newer Gigabyte Aorus X570S
-Master. However, as there is no way for me to test these I initially only
-enable this new behaviour for the mainboard I have which is the Gigabyte
-X570(non-S) Aorus Master.
-
-I tested this patch on the 5.15 branch as well as on master and it is
-working well for me.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205275
-Signed-off-by: Christian Lachner <gladiac@gmail.com>
-Fixes: 0d45e86d2267d ("ALSA: hda/realtek - Fix silent output on Gigabyte X570 Aorus Master")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220103140517.30273-2-gladiac@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: d0b27fa77854 ("sched: rt-group: synchonised bandwidth period")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Li Hua <hucool.lihua@huawei.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20211203033618.11895-1-hucool.lihua@huawei.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |   30 +++++++++++++++++++++++++++++-
- 1 file changed, 29 insertions(+), 1 deletion(-)
+ kernel/sched/rt.c | 23 ++++++++++++++++++-----
+ 1 file changed, 18 insertions(+), 5 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -1910,6 +1910,7 @@ enum {
- 	ALC887_FIXUP_ASUS_BASS,
- 	ALC887_FIXUP_BASS_CHMAP,
- 	ALC1220_FIXUP_GB_DUAL_CODECS,
-+	ALC1220_FIXUP_GB_X570,
- 	ALC1220_FIXUP_CLEVO_P950,
- 	ALC1220_FIXUP_CLEVO_PB51ED,
- 	ALC1220_FIXUP_CLEVO_PB51ED_PINS,
-@@ -2099,6 +2100,29 @@ static void alc1220_fixup_gb_dual_codecs
- 	}
+diff --git a/kernel/sched/rt.c b/kernel/sched/rt.c
+index 2dffb8762e16b..28c82dee13ea9 100644
+--- a/kernel/sched/rt.c
++++ b/kernel/sched/rt.c
+@@ -52,11 +52,8 @@ void init_rt_bandwidth(struct rt_bandwidth *rt_b, u64 period, u64 runtime)
+ 	rt_b->rt_period_timer.function = sched_rt_period_timer;
  }
  
-+static void alc1220_fixup_gb_x570(struct hda_codec *codec,
-+				     const struct hda_fixup *fix,
-+				     int action)
+-static void start_rt_bandwidth(struct rt_bandwidth *rt_b)
++static inline void do_start_rt_bandwidth(struct rt_bandwidth *rt_b)
+ {
+-	if (!rt_bandwidth_enabled() || rt_b->rt_runtime == RUNTIME_INF)
+-		return;
+-
+ 	raw_spin_lock(&rt_b->rt_runtime_lock);
+ 	if (!rt_b->rt_period_active) {
+ 		rt_b->rt_period_active = 1;
+@@ -75,6 +72,14 @@ static void start_rt_bandwidth(struct rt_bandwidth *rt_b)
+ 	raw_spin_unlock(&rt_b->rt_runtime_lock);
+ }
+ 
++static void start_rt_bandwidth(struct rt_bandwidth *rt_b)
 +{
-+	static const hda_nid_t conn1[] = { 0x0c };
-+	static const struct coef_fw gb_x570_coefs[] = {
-+		WRITE_COEF(0x1a, 0x01c1),
-+		WRITE_COEF(0x1b, 0x0202),
-+		WRITE_COEF(0x43, 0x3005),
-+		{}
-+	};
++	if (!rt_bandwidth_enabled() || rt_b->rt_runtime == RUNTIME_INF)
++		return;
 +
-+	switch (action) {
-+	case HDA_FIXUP_ACT_PRE_PROBE:
-+		snd_hda_override_conn_list(codec, 0x14, ARRAY_SIZE(conn1), conn1);
-+		snd_hda_override_conn_list(codec, 0x1b, ARRAY_SIZE(conn1), conn1);
-+		break;
-+	case HDA_FIXUP_ACT_INIT:
-+		alc_process_coef_fw(codec, gb_x570_coefs);
-+		break;
-+	}
++	do_start_rt_bandwidth(rt_b);
 +}
 +
- static void alc1220_fixup_clevo_p950(struct hda_codec *codec,
- 				     const struct hda_fixup *fix,
- 				     int action)
-@@ -2401,6 +2425,10 @@ static const struct hda_fixup alc882_fix
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc1220_fixup_gb_dual_codecs,
- 	},
-+	[ALC1220_FIXUP_GB_X570] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc1220_fixup_gb_x570,
-+	},
- 	[ALC1220_FIXUP_CLEVO_P950] = {
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc1220_fixup_clevo_p950,
-@@ -2503,7 +2531,7 @@ static const struct snd_pci_quirk alc882
- 	SND_PCI_QUIRK(0x13fe, 0x1009, "Advantech MIT-W101", ALC886_FIXUP_EAPD),
- 	SND_PCI_QUIRK(0x1458, 0xa002, "Gigabyte EP45-DS3/Z87X-UD3H", ALC889_FIXUP_FRONT_HP_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1458, 0xa0b8, "Gigabyte AZ370-Gaming", ALC1220_FIXUP_GB_DUAL_CODECS),
--	SND_PCI_QUIRK(0x1458, 0xa0cd, "Gigabyte X570 Aorus Master", ALC1220_FIXUP_CLEVO_P950),
-+	SND_PCI_QUIRK(0x1458, 0xa0cd, "Gigabyte X570 Aorus Master", ALC1220_FIXUP_GB_X570),
- 	SND_PCI_QUIRK(0x1458, 0xa0ce, "Gigabyte X570 Aorus Xtreme", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x11f7, "MSI-GE63", ALC1220_FIXUP_CLEVO_P950),
- 	SND_PCI_QUIRK(0x1462, 0x1228, "MSI-GP63", ALC1220_FIXUP_CLEVO_P950),
+ void init_rt_rq(struct rt_rq *rt_rq)
+ {
+ 	struct rt_prio_array *array;
+@@ -983,13 +988,17 @@ static void update_curr_rt(struct rq *rq)
+ 
+ 	for_each_sched_rt_entity(rt_se) {
+ 		struct rt_rq *rt_rq = rt_rq_of_se(rt_se);
++		int exceeded;
+ 
+ 		if (sched_rt_runtime(rt_rq) != RUNTIME_INF) {
+ 			raw_spin_lock(&rt_rq->rt_runtime_lock);
+ 			rt_rq->rt_time += delta_exec;
+-			if (sched_rt_runtime_exceeded(rt_rq))
++			exceeded = sched_rt_runtime_exceeded(rt_rq);
++			if (exceeded)
+ 				resched_curr(rq);
+ 			raw_spin_unlock(&rt_rq->rt_runtime_lock);
++			if (exceeded)
++				do_start_rt_bandwidth(sched_rt_bandwidth(rt_rq));
+ 		}
+ 	}
+ }
+@@ -2659,8 +2668,12 @@ static int sched_rt_global_validate(void)
+ 
+ static void sched_rt_do_global(void)
+ {
++	unsigned long flags;
++
++	raw_spin_lock_irqsave(&def_rt_bandwidth.rt_runtime_lock, flags);
+ 	def_rt_bandwidth.rt_runtime = global_rt_runtime();
+ 	def_rt_bandwidth.rt_period = ns_to_ktime(global_rt_period());
++	raw_spin_unlock_irqrestore(&def_rt_bandwidth.rt_runtime_lock, flags);
+ }
+ 
+ int sched_rt_handler(struct ctl_table *table, int write,
+-- 
+2.34.1
+
 
 
