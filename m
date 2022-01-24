@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FA624997F1
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:34:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 763BD499AC7
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:57:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1450010AbiAXVRo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:17:44 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:35284 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1448850AbiAXVN7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:13:59 -0500
+        id S1378729AbiAXVqX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:46:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55820 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1456654AbiAXVjo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:39:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B27DC0419C4;
+        Mon, 24 Jan 2022 12:26:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9713F61469;
-        Mon, 24 Jan 2022 21:13:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6CE87C340E5;
-        Mon, 24 Jan 2022 21:13:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01D42B811F9;
+        Mon, 24 Jan 2022 20:26:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 003D2C340E5;
+        Mon, 24 Jan 2022 20:26:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058838;
-        bh=4Xtodu3zTAwAMpuKMCIK/bIZ2u4C1XrKH2z0fYjbXBA=;
+        s=korg; t=1643055969;
+        bh=VGIkT8JLELxZFrOomgUDtxo9zPRY+QxiAo2uv+JBIW8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qchwmpts16Qt1u53wOHHjfgdjcwZj1Vyi86ugZaUYws1lM2gaWW/i8K31ZUacDLij
-         /7/gX8EKsjSRWOsu0iK/0mYD21ecErM2yfOGpXkh21vhp7YZzqgTqGq1gSZmjhNkn8
-         ZBso9g0lKXt1lM5LTP2qnqf9/gIKazhIG4nso/TQ=
+        b=nffYg3gI5D9OTfbkOQpR+veEEyeIvzVRy3i//W0X9L9s598J3SAxEvUqEuvmuPOzj
+         sr/viwpFz1eO/+z3W799nNSJ1xwUpsF8w7NLLXh6qd43C4l2xDXPpzlQpsESJNAYiJ
+         zSCsS58gEN0EAQyVZ0XZGENM7krtExeOfyAiQlW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        Geliang Tang <geliang.tang@suse.com>
-Subject: [PATCH 5.16 0419/1039] mptcp: fix opt size when sending DSS + MP_FAIL
-Date:   Mon, 24 Jan 2022 19:36:48 +0100
-Message-Id: <20220124184139.391651474@linuxfoundation.org>
+        stable@vger.kernel.org, Panicker Harish <quic_pharish@quicinc.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 293/846] Bluetooth: hci_qca: Stop IBS timer during BT OFF
+Date:   Mon, 24 Jan 2022 19:36:50 +0100
+Message-Id: <20220124184111.033095201@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,51 +48,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthieu Baerts <matthieu.baerts@tessares.net>
+From: Panicker Harish <quic_pharish@quicinc.com>
 
-[ Upstream commit 04fac2cae9422a3401c172571afbcfdd58fa5c7e ]
+[ Upstream commit df1e5c51492fd93ffc293acdcc6f00698d19fedc ]
 
-When these two options had to be sent -- which is not common -- the DSS
-size was not being taken into account in the remaining size.
+The IBS timers are not stopped properly once BT OFF is triggered.
+we could see IBS commands being sent along with version command,
+so stopped IBS timers while Bluetooth is off.
 
-Additionally in this situation, the reported size was only the one of
-the MP_FAIL which can cause issue if at the end, we need to write more
-in the TCP options than previously said.
-
-Here we use a dedicated variable for MP_FAIL size to keep the
-WARN_ON_ONCE() just after.
-
-Fixes: c25aeb4e0953 ("mptcp: MP_FAIL suboption sending")
-Acked-and-tested-by: Geliang Tang <geliang.tang@suse.com>
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 3e4be65eb82c ("Bluetooth: hci_qca: Add poweroff support during hci down for wcn3990")
+Signed-off-by: Panicker Harish <quic_pharish@quicinc.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/options.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/bluetooth/hci_qca.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/mptcp/options.c b/net/mptcp/options.c
-index fe98e4f475baa..96c6efdd48bcc 100644
---- a/net/mptcp/options.c
-+++ b/net/mptcp/options.c
-@@ -821,10 +821,13 @@ bool mptcp_established_options(struct sock *sk, struct sk_buff *skb,
- 	if (mptcp_established_options_mp(sk, skb, snd_data_fin, &opt_size, remaining, opts))
- 		ret = true;
- 	else if (mptcp_established_options_dss(sk, skb, snd_data_fin, &opt_size, remaining, opts)) {
-+		unsigned int mp_fail_size;
+diff --git a/drivers/bluetooth/hci_qca.c b/drivers/bluetooth/hci_qca.c
+index 53deea2eb7b4d..3c26fc8463923 100644
+--- a/drivers/bluetooth/hci_qca.c
++++ b/drivers/bluetooth/hci_qca.c
+@@ -1927,6 +1927,9 @@ static int qca_power_off(struct hci_dev *hdev)
+ 	hu->hdev->hw_error = NULL;
+ 	hu->hdev->cmd_timeout = NULL;
+ 
++	del_timer_sync(&qca->wake_retrans_timer);
++	del_timer_sync(&qca->tx_idle_timer);
 +
- 		ret = true;
--		if (mptcp_established_options_mp_fail(sk, &opt_size, remaining, opts)) {
--			*size += opt_size;
--			remaining -= opt_size;
-+		if (mptcp_established_options_mp_fail(sk, &mp_fail_size,
-+						      remaining - opt_size, opts)) {
-+			*size += opt_size + mp_fail_size;
-+			remaining -= opt_size - mp_fail_size;
- 			return true;
- 		}
- 	}
+ 	/* Stop sending shutdown command if soc crashes. */
+ 	if (soc_type != QCA_ROME
+ 		&& qca->memdump_state == QCA_MEMDUMP_IDLE) {
 -- 
 2.34.1
 
