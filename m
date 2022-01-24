@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03B6B499903
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:40:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2B0249991A
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:43:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1453987AbiAXVbV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:31:21 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42788 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1450922AbiAXVVp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:21:45 -0500
+        id S1454173AbiAXVby (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:31:54 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:39622 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1450961AbiAXVVx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:21:53 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 08B8D614D7;
-        Mon, 24 Jan 2022 21:21:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DDFEDC340E5;
-        Mon, 24 Jan 2022 21:21:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7562BB81061;
+        Mon, 24 Jan 2022 21:21:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1016C340E4;
+        Mon, 24 Jan 2022 21:21:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059304;
-        bh=1EyoLpH3u/C9VtsMId1mXlNNHGrLClCkoMSf0/DC940=;
+        s=korg; t=1643059310;
+        bh=VHl5CcFlqtJS0OW13GvtjPnDZoxUPw8nr8FYBIbsZDY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k/FmX+09eWrSgJu6p8wX+1pctsjho6cztan9bAa/gEW3jMEwNP33IP9MqjSQ5rccA
-         PH8GQ4faDN4PSgd+S7oZ+Je7HA4IgLqYAD6YShyYp89pH+19j5uDTyFv4Z9D770EKe
-         3RztkRamvQIedk723y8ynB5yTagIGnJuRTIwayuw=
+        b=ugBPNr06RWcL3GjGhgk2G1dzQIBms340P59zVa1dkIcAJq4cfupXuwvEsMCRJoF//
+         RbvI28fgVSfAHSWsAKPriQ2Q4quyWgqv+Qf0PTxPwbd2AHqBDpX+e0euiYpFX7yzuV
+         i6VL47HFIbmc04KS+ZSp56p/FXp5DX8UkmFe93FY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0571/1039] HID: magicmouse: Report battery level over USB
-Date:   Mon, 24 Jan 2022 19:39:20 +0100
-Message-Id: <20220124184144.527010715@linuxfoundation.org>
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0573/1039] media: b2c2: Add missing check in flexcop_pci_isr:
+Date:   Mon, 24 Jan 2022 19:39:22 +0100
+Message-Id: <20220124184144.607023851@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -45,184 +45,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 0b91b4e4dae63cd43871fc2012370b86ee588f91 ]
+[ Upstream commit b13203032e679674c7c518f52a7ec0801ca3a829 ]
 
-When connected over USB, the Apple Magic Mouse 2 and the Apple Magic
-Trackpad 2 register multiple interfaces, one of them is used to report
-the battery level.
+A out-of-bounds bug can be triggered by an interrupt, the reason for
+this bug is the lack of checking of register values.
 
-However, unlike when connected over Bluetooth, the battery level is not
-reported automatically and it is required to fetch it manually.
+In flexcop_pci_isr, the driver reads value from a register and uses it as
+a dma address. Finally, this address will be passed to the count parameter
+of find_next_packet. If this value is larger than the size of dma, the
+index of buffer will be out-of-bounds.
 
-Fix the battery report descriptor and add a timer to fetch the battery
-level.
+Fix this by adding a check after reading the value of the register.
 
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+The following KASAN report reveals it:
+
+BUG: KASAN: slab-out-of-bounds in find_next_packet
+drivers/media/dvb-core/dvb_demux.c:528 [inline]
+BUG: KASAN: slab-out-of-bounds in _dvb_dmx_swfilter
+drivers/media/dvb-core/dvb_demux.c:572 [inline]
+BUG: KASAN: slab-out-of-bounds in dvb_dmx_swfilter+0x3fa/0x420
+drivers/media/dvb-core/dvb_demux.c:603
+Read of size 1 at addr ffff8880608c00a0 by task swapper/2/0
+
+CPU: 2 PID: 0 Comm: swapper/2 Not tainted 4.19.177-gdba4159c14ef #25
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+rel-1.12.0-59-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0xec/0x156 lib/dump_stack.c:118
+ print_address_description+0x78/0x290 mm/kasan/report.c:256
+ kasan_report_error mm/kasan/report.c:354 [inline]
+ kasan_report+0x25b/0x380 mm/kasan/report.c:412
+ __asan_report_load1_noabort+0x19/0x20 mm/kasan/report.c:430
+ find_next_packet drivers/media/dvb-core/dvb_demux.c:528 [inline]
+ _dvb_dmx_swfilter drivers/media/dvb-core/dvb_demux.c:572 [inline]
+ dvb_dmx_swfilter+0x3fa/0x420 drivers/media/dvb-core/dvb_demux.c:603
+ flexcop_pass_dmx_data+0x2e/0x40 drivers/media/common/b2c2/flexcop.c:167
+ flexcop_pci_isr+0x3d1/0x5d0 drivers/media/pci/b2c2/flexcop-pci.c:212
+ __handle_irq_event_percpu+0xfb/0x770 kernel/irq/handle.c:149
+ handle_irq_event_percpu+0x79/0x150 kernel/irq/handle.c:189
+ handle_irq_event+0xac/0x140 kernel/irq/handle.c:206
+ handle_fasteoi_irq+0x232/0x5c0 kernel/irq/chip.c:725
+ generic_handle_irq_desc include/linux/irqdesc.h:155 [inline]
+ handle_irq+0x230/0x3a0 arch/x86/kernel/irq_64.c:87
+ do_IRQ+0xa7/0x1e0 arch/x86/kernel/irq.c:247
+ common_interrupt+0xf/0xf arch/x86/entry/entry_64.S:670
+ </IRQ>
+RIP: 0010:native_safe_halt+0x28/0x30 arch/x86/include/asm/irqflags.h:61
+Code: 00 00 55 be 04 00 00 00 48 c7 c7 00 62 2f 8c 48 89 e5 e8 fb 31
+e8 f8 8b 05 75 4f 8e 03 85 c0 7e 07 0f 00 2d 8a 61 66 00 fb f4 <5d> c3
+90 90 90 90 90 90 0f 1f 44 00 00 55 48 89 e5 41 57 41 56 41
+RSP: 0018:ffff88806b71fcc8 EFLAGS: 00000246 ORIG_RAX: ffffffffffffffde
+RAX: 0000000000000000 RBX: ffffffff8bde44c8 RCX: ffffffff88a11285
+RDX: 0000000000000000 RSI: 0000000000000004 RDI: ffffffff8c2f6200
+RBP: ffff88806b71fcc8 R08: fffffbfff185ec40 R09: fffffbfff185ec40
+R10: 0000000000000001 R11: fffffbfff185ec40 R12: 0000000000000002
+R13: ffffffff8be9d6e0 R14: 0000000000000000 R15: 0000000000000000
+ arch_safe_halt arch/x86/include/asm/paravirt.h:94 [inline]
+ default_idle+0x6f/0x360 arch/x86/kernel/process.c:557
+ arch_cpu_idle+0xf/0x20 arch/x86/kernel/process.c:548
+ default_idle_call+0x3b/0x60 kernel/sched/idle.c:93
+ cpuidle_idle_call kernel/sched/idle.c:153 [inline]
+ do_idle+0x2ab/0x3c0 kernel/sched/idle.c:263
+ cpu_startup_entry+0xcb/0xe0 kernel/sched/idle.c:369
+ start_secondary+0x3b8/0x4e0 arch/x86/kernel/smpboot.c:271
+ secondary_startup_64+0xa4/0xb0 arch/x86/kernel/head_64.S:243
+
+Allocated by task 1:
+ save_stack+0x43/0xd0 mm/kasan/kasan.c:448
+ set_track mm/kasan/kasan.c:460 [inline]
+ kasan_kmalloc+0xad/0xe0 mm/kasan/kasan.c:553
+ kasan_slab_alloc+0x11/0x20 mm/kasan/kasan.c:490
+ slab_post_alloc_hook mm/slab.h:445 [inline]
+ slab_alloc_node mm/slub.c:2741 [inline]
+ slab_alloc mm/slub.c:2749 [inline]
+ kmem_cache_alloc+0xeb/0x280 mm/slub.c:2754
+ kmem_cache_zalloc include/linux/slab.h:699 [inline]
+ __kernfs_new_node+0xe2/0x6f0 fs/kernfs/dir.c:633
+ kernfs_new_node+0x9a/0x120 fs/kernfs/dir.c:693
+ __kernfs_create_file+0x5f/0x340 fs/kernfs/file.c:992
+ sysfs_add_file_mode_ns+0x22a/0x4e0 fs/sysfs/file.c:306
+ create_files fs/sysfs/group.c:63 [inline]
+ internal_create_group+0x34e/0xc30 fs/sysfs/group.c:147
+ sysfs_create_group fs/sysfs/group.c:173 [inline]
+ sysfs_create_groups+0x9c/0x140 fs/sysfs/group.c:200
+ driver_add_groups+0x3e/0x50 drivers/base/driver.c:129
+ bus_add_driver+0x3a5/0x790 drivers/base/bus.c:684
+ driver_register+0x1cd/0x410 drivers/base/driver.c:170
+ __pci_register_driver+0x197/0x200 drivers/pci/pci-driver.c:1411
+ cx88_audio_pci_driver_init+0x23/0x25 drivers/media/pci/cx88/cx88-alsa.c:
+ 1017
+ do_one_initcall+0xe0/0x610 init/main.c:884
+ do_initcall_level init/main.c:952 [inline]
+ do_initcalls init/main.c:960 [inline]
+ do_basic_setup init/main.c:978 [inline]
+ kernel_init_freeable+0x4d0/0x592 init/main.c:1145
+ kernel_init+0x18/0x190 init/main.c:1062
+ ret_from_fork+0x24/0x30 arch/x86/entry/entry_64.S:415
+
+Freed by task 0:
+(stack is not available)
+
+The buggy address belongs to the object at ffff8880608c0000
+ which belongs to the cache kernfs_node_cache of size 160
+The buggy address is located 0 bytes to the right of
+ 160-byte region [ffff8880608c0000, ffff8880608c00a0)
+The buggy address belongs to the page:
+page:ffffea0001823000 count:1 mapcount:0 mapping:ffff88806bed1e00
+index:0x0 compound_mapcount: 0
+flags: 0x100000000008100(slab|head)
+raw: 0100000000008100 dead000000000100 dead000000000200 ffff88806bed1e00
+raw: 0000000000000000 0000000000240024 00000001ffffffff 0000000000000000
+page dumped because: kasan: bad access detected
+
+Memory state around the buggy address:
+ ffff8880608bff80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffff8880608c0000: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>ffff8880608c0080: 00 00 00 00 fc fc fc fc fc fc fc fc 00 00 00 00
+                               ^
+ ffff8880608c0100: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffff8880608c0180: fc fc fc fc fc fc fc fc 00 00 00 00 00 00 00 00
+==================================================================
+
+Link: https://lore.kernel.org/linux-media/1620723603-30912-1-git-send-email-zheyuma97@gmail.com
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-magicmouse.c | 94 +++++++++++++++++++++++++++++++++---
- 1 file changed, 88 insertions(+), 6 deletions(-)
+ drivers/media/pci/b2c2/flexcop-pci.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
-index d7687ce706144..eba1e8087bfd1 100644
---- a/drivers/hid/hid-magicmouse.c
-+++ b/drivers/hid/hid-magicmouse.c
-@@ -57,6 +57,8 @@ MODULE_PARM_DESC(report_undeciphered, "Report undeciphered multi-touch state fie
- #define MOUSE_REPORT_ID    0x29
- #define MOUSE2_REPORT_ID   0x12
- #define DOUBLE_REPORT_ID   0xf7
-+#define USB_BATTERY_TIMEOUT_MS 60000
-+
- /* These definitions are not precise, but they're close enough.  (Bits
-  * 0x03 seem to indicate the aspect ratio of the touch, bits 0x70 seem
-  * to be some kind of bit mask -- 0x20 may be a near-field reading,
-@@ -140,6 +142,7 @@ struct magicmouse_sc {
+diff --git a/drivers/media/pci/b2c2/flexcop-pci.c b/drivers/media/pci/b2c2/flexcop-pci.c
+index 6a4c7cb0ad0f9..486c8ec0fa60d 100644
+--- a/drivers/media/pci/b2c2/flexcop-pci.c
++++ b/drivers/media/pci/b2c2/flexcop-pci.c
+@@ -185,6 +185,8 @@ static irqreturn_t flexcop_pci_isr(int irq, void *dev_id)
+ 		dma_addr_t cur_addr =
+ 			fc->read_ibi_reg(fc,dma1_008).dma_0x8.dma_cur_addr << 2;
+ 		u32 cur_pos = cur_addr - fc_pci->dma[0].dma_addr0;
++		if (cur_pos > fc_pci->dma[0].size * 2)
++			goto error;
  
- 	struct hid_device *hdev;
- 	struct delayed_work work;
-+	struct timer_list battery_timer;
- };
- 
- static int magicmouse_firm_touch(struct magicmouse_sc *msc)
-@@ -738,6 +741,44 @@ static void magicmouse_enable_mt_work(struct work_struct *work)
- 		hid_err(msc->hdev, "unable to request touch data (%d)\n", ret);
- }
- 
-+static int magicmouse_fetch_battery(struct hid_device *hdev)
-+{
-+#ifdef CONFIG_HID_BATTERY_STRENGTH
-+	struct hid_report_enum *report_enum;
-+	struct hid_report *report;
-+
-+	if (!hdev->battery || hdev->vendor != USB_VENDOR_ID_APPLE ||
-+	    (hdev->product != USB_DEVICE_ID_APPLE_MAGICMOUSE2 &&
-+	     hdev->product != USB_DEVICE_ID_APPLE_MAGICTRACKPAD2))
-+		return -1;
-+
-+	report_enum = &hdev->report_enum[hdev->battery_report_type];
-+	report = report_enum->report_id_hash[hdev->battery_report_id];
-+
-+	if (!report || report->maxfield < 1)
-+		return -1;
-+
-+	if (hdev->battery_capacity == hdev->battery_max)
-+		return -1;
-+
-+	hid_hw_request(hdev, report, HID_REQ_GET_REPORT);
-+	return 0;
-+#else
-+	return -1;
-+#endif
-+}
-+
-+static void magicmouse_battery_timer_tick(struct timer_list *t)
-+{
-+	struct magicmouse_sc *msc = from_timer(msc, t, battery_timer);
-+	struct hid_device *hdev = msc->hdev;
-+
-+	if (magicmouse_fetch_battery(hdev) == 0) {
-+		mod_timer(&msc->battery_timer,
-+			  jiffies + msecs_to_jiffies(USB_BATTERY_TIMEOUT_MS));
-+	}
-+}
-+
- static int magicmouse_probe(struct hid_device *hdev,
- 	const struct hid_device_id *id)
- {
-@@ -745,11 +786,6 @@ static int magicmouse_probe(struct hid_device *hdev,
- 	struct hid_report *report;
- 	int ret;
- 
--	if (id->vendor == USB_VENDOR_ID_APPLE &&
--	    id->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2 &&
--	    hdev->type != HID_TYPE_USBMOUSE)
--		return -ENODEV;
--
- 	msc = devm_kzalloc(&hdev->dev, sizeof(*msc), GFP_KERNEL);
- 	if (msc == NULL) {
- 		hid_err(hdev, "can't alloc magicmouse descriptor\n");
-@@ -775,6 +811,16 @@ static int magicmouse_probe(struct hid_device *hdev,
- 		return ret;
+ 		deb_irq("%u irq: %08x cur_addr: %llx: cur_pos: %08x, last_cur_pos: %08x ",
+ 				jiffies_to_usecs(jiffies - fc_pci->last_irq),
+@@ -225,6 +227,7 @@ static irqreturn_t flexcop_pci_isr(int irq, void *dev_id)
+ 		ret = IRQ_NONE;
  	}
  
-+	timer_setup(&msc->battery_timer, magicmouse_battery_timer_tick, 0);
-+	mod_timer(&msc->battery_timer,
-+		  jiffies + msecs_to_jiffies(USB_BATTERY_TIMEOUT_MS));
-+	magicmouse_fetch_battery(hdev);
-+
-+	if (id->vendor == USB_VENDOR_ID_APPLE &&
-+	    (id->product == USB_DEVICE_ID_APPLE_MAGICMOUSE2 ||
-+	     (id->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2 && hdev->type != HID_TYPE_USBMOUSE)))
-+		return 0;
-+
- 	if (!msc->input) {
- 		hid_err(hdev, "magicmouse input not registered\n");
- 		ret = -ENOMEM;
-@@ -835,17 +881,52 @@ static void magicmouse_remove(struct hid_device *hdev)
- {
- 	struct magicmouse_sc *msc = hid_get_drvdata(hdev);
- 
--	if (msc)
-+	if (msc) {
- 		cancel_delayed_work_sync(&msc->work);
-+		del_timer_sync(&msc->battery_timer);
-+	}
- 
- 	hid_hw_stop(hdev);
++error:
+ 	spin_unlock_irqrestore(&fc_pci->irq_lock, flags);
+ 	return ret;
  }
- 
-+static __u8 *magicmouse_report_fixup(struct hid_device *hdev, __u8 *rdesc,
-+				     unsigned int *rsize)
-+{
-+	/*
-+	 * Change the usage from:
-+	 *   0x06, 0x00, 0xff, // Usage Page (Vendor Defined Page 1)  0
-+	 *   0x09, 0x0b,       // Usage (Vendor Usage 0x0b)           3
-+	 * To:
-+	 *   0x05, 0x01,       // Usage Page (Generic Desktop)        0
-+	 *   0x09, 0x02,       // Usage (Mouse)                       2
-+	 */
-+	if (hdev->vendor == USB_VENDOR_ID_APPLE &&
-+	    (hdev->product == USB_DEVICE_ID_APPLE_MAGICMOUSE2 ||
-+	     hdev->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2) &&
-+	    *rsize == 83 && rdesc[46] == 0x84 && rdesc[58] == 0x85) {
-+		hid_info(hdev,
-+			 "fixing up magicmouse battery report descriptor\n");
-+		*rsize = *rsize - 1;
-+		rdesc = kmemdup(rdesc + 1, *rsize, GFP_KERNEL);
-+		if (!rdesc)
-+			return NULL;
-+
-+		rdesc[0] = 0x05;
-+		rdesc[1] = 0x01;
-+		rdesc[2] = 0x09;
-+		rdesc[3] = 0x02;
-+	}
-+
-+	return rdesc;
-+}
-+
- static const struct hid_device_id magic_mice[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
- 		USB_DEVICE_ID_APPLE_MAGICMOUSE), .driver_data = 0 },
- 	{ HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE,
- 		USB_DEVICE_ID_APPLE_MAGICMOUSE2), .driver_data = 0 },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_APPLE,
-+		USB_DEVICE_ID_APPLE_MAGICMOUSE2), .driver_data = 0 },
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_APPLE,
- 		USB_DEVICE_ID_APPLE_MAGICTRACKPAD), .driver_data = 0 },
- 	{ HID_BLUETOOTH_DEVICE(BT_VENDOR_ID_APPLE,
-@@ -861,6 +942,7 @@ static struct hid_driver magicmouse_driver = {
- 	.id_table = magic_mice,
- 	.probe = magicmouse_probe,
- 	.remove = magicmouse_remove,
-+	.report_fixup = magicmouse_report_fixup,
- 	.raw_event = magicmouse_raw_event,
- 	.event = magicmouse_event,
- 	.input_mapping = magicmouse_input_mapping,
 -- 
 2.34.1
 
