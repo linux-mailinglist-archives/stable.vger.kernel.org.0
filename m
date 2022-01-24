@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99CAA499351
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:34:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D27FF499198
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383558AbiAXUc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:32:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37252 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356459AbiAXUXV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:23:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93EADC0417D2;
-        Mon, 24 Jan 2022 11:40:35 -0800 (PST)
+        id S1349632AbiAXUM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:12:26 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:36612 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378832AbiAXUJy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:09:54 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D529B810AF;
-        Mon, 24 Jan 2022 19:40:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FCEDC340E5;
-        Mon, 24 Jan 2022 19:40:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9251960B56;
+        Mon, 24 Jan 2022 20:09:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56CCAC340E7;
+        Mon, 24 Jan 2022 20:09:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053233;
-        bh=ANb36/vL4AN6qiRw1rm/W3zBn10mTgx73/eymUafD68=;
+        s=korg; t=1643054994;
+        bh=TdBfH9yDEX18SMwX7BpD8oKnsT0/eTI2XzEfRHK2+LY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cdCHQpNgput25IMFtLRIA/+UQio7M6su2Sl3TjNRac8nQP78PfBpvQ1mzkQhX3vc5
-         0QXEAwpMSfU0v7i+x/fuo64aOFwVBUoQ3aZFOjLBoBgifWPfUoW61/oLlNNEYW4aRQ
-         4/Cd+zb0OHpIWHzOASra1/Ye4xboSZgGdk+nYIuw=
+        b=MlwejpFuhShu/0/fWaogsZMrCq765qpfDHwp+Hix7YTAnVg7DhW8y7LOzWpRkcOf4
+         ALr2AjEYvpkTbm9sJjCwIFQDDf7+LszOR7KMOfnHQq5dpsQ/ecZ776Jq572gQgx8px
+         1X/G9G3K/R7XRsqyuKdKQQ1PocJzSrbiX/dVfn4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>
-Subject: [PATCH 5.4 320/320] Revert "ia64: kprobes: Use generic kretprobe trampoline handler"
-Date:   Mon, 24 Jan 2022 19:45:04 +0100
-Message-Id: <20220124184004.817741092@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.10 540/563] dmaengine: at_xdmac: Dont start transactions at tx_submit level
+Date:   Mon, 24 Jan 2022 19:45:05 +0100
+Message-Id: <20220124184043.114975053@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,126 +45,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masami Hiramatsu <mhiramat@kernel.org>
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-This reverts commit 77fa5e15c933a1ec812de61ad709c00aa51e96ae.
+commit bccfb96b59179d4f96cbbd1ddff8fac6d335eae4 upstream.
 
-Since the upstream commit e792ff804f49720ce003b3e4c618b5d996256a18
-depends on the generic kretprobe trampoline handler, which was
-introduced by commit 66ada2ccae4e ("kprobes: Add generic kretprobe
-trampoline handler") but that is not ported to the stable kernel
-because it is not a bugfix series.
-So revert this commit to fix a build error.
+tx_submit is supposed to push the current transaction descriptor to a
+pending queue, waiting for issue_pending() to be called. issue_pending()
+must start the transfer, not tx_submit(), thus remove
+at_xdmac_start_xfer() from at_xdmac_tx_submit(). Clients of at_xdmac that
+assume that tx_submit() starts the transfer must be updated and call
+dma_async_issue_pending() if they miss to call it (one example is
+atmel_serial).
 
-NOTE: I keep commit a7fe2378454c ("ia64: kprobes: Fix to pass
-correct trampoline address to the handler") on the tree, that seems
-just a cleanup without the original reverted commit, but it would
-be better to use dereference_function_descriptor() macro instead
-of accessing descriptor's field directly.
+As the at_xdmac_start_xfer() is now called only from
+at_xdmac_advance_work() when !at_xdmac_chan_is_enabled(), the
+at_xdmac_chan_is_enabled() check is no longer needed in
+at_xdmac_start_xfer(), thus remove it.
 
-Fixes: 77fa5e15c933 ("ia64: kprobes: Use generic kretprobe trampoline handler")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Fixes: e1f7c9eee707 ("dmaengine: at_xdmac: creation of the atmel eXtended DMA Controller driver")
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Link: https://lore.kernel.org/r/20211215110115.191749-2-tudor.ambarus@microchip.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/ia64/kernel/kprobes.c |   78 +++++++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 75 insertions(+), 3 deletions(-)
+ drivers/dma/at_xdmac.c |    6 ------
+ 1 file changed, 6 deletions(-)
 
---- a/arch/ia64/kernel/kprobes.c
-+++ b/arch/ia64/kernel/kprobes.c
-@@ -396,10 +396,83 @@ static void kretprobe_trampoline(void)
- {
+--- a/drivers/dma/at_xdmac.c
++++ b/drivers/dma/at_xdmac.c
+@@ -338,9 +338,6 @@ static void at_xdmac_start_xfer(struct a
+ 
+ 	dev_vdbg(chan2dev(&atchan->chan), "%s: desc 0x%p\n", __func__, first);
+ 
+-	if (at_xdmac_chan_is_enabled(atchan))
+-		return;
+-
+ 	/* Set transfer as active to not try to start it again. */
+ 	first->active_xfer = true;
+ 
+@@ -430,9 +427,6 @@ static dma_cookie_t at_xdmac_tx_submit(s
+ 	dev_vdbg(chan2dev(tx->chan), "%s: atchan 0x%p, add desc 0x%p to xfers_list\n",
+ 		 __func__, atchan, desc);
+ 	list_add_tail(&desc->xfer_node, &atchan->xfers_list);
+-	if (list_is_singular(&atchan->xfers_list))
+-		at_xdmac_start_xfer(atchan, desc);
+-
+ 	spin_unlock_irqrestore(&atchan->lock, irqflags);
+ 	return cookie;
  }
- 
-+/*
-+ * At this point the target function has been tricked into
-+ * returning into our trampoline.  Lookup the associated instance
-+ * and then:
-+ *    - call the handler function
-+ *    - cleanup by marking the instance as unused
-+ *    - long jump back to the original return address
-+ */
- int __kprobes trampoline_probe_handler(struct kprobe *p, struct pt_regs *regs)
- {
--	regs->cr_iip = __kretprobe_trampoline_handler(regs,
--		dereference_function_descriptor(kretprobe_trampoline), NULL);
-+	struct kretprobe_instance *ri = NULL;
-+	struct hlist_head *head, empty_rp;
-+	struct hlist_node *tmp;
-+	unsigned long flags, orig_ret_address = 0;
-+	unsigned long trampoline_address =
-+		(unsigned long)dereference_function_descriptor(kretprobe_trampoline);
-+
-+	INIT_HLIST_HEAD(&empty_rp);
-+	kretprobe_hash_lock(current, &head, &flags);
-+
-+	/*
-+	 * It is possible to have multiple instances associated with a given
-+	 * task either because an multiple functions in the call path
-+	 * have a return probe installed on them, and/or more than one return
-+	 * return probe was registered for a target function.
-+	 *
-+	 * We can handle this because:
-+	 *     - instances are always inserted at the head of the list
-+	 *     - when multiple return probes are registered for the same
-+	 *       function, the first instance's ret_addr will point to the
-+	 *       real return address, and all the rest will point to
-+	 *       kretprobe_trampoline
-+	 */
-+	hlist_for_each_entry_safe(ri, tmp, head, hlist) {
-+		if (ri->task != current)
-+			/* another task is sharing our hash bucket */
-+			continue;
-+
-+		orig_ret_address = (unsigned long)ri->ret_addr;
-+		if (orig_ret_address != trampoline_address)
-+			/*
-+			 * This is the real return address. Any other
-+			 * instances associated with this task are for
-+			 * other calls deeper on the call stack
-+			 */
-+			break;
-+	}
-+
-+	regs->cr_iip = orig_ret_address;
-+
-+	hlist_for_each_entry_safe(ri, tmp, head, hlist) {
-+		if (ri->task != current)
-+			/* another task is sharing our hash bucket */
-+			continue;
-+
-+		if (ri->rp && ri->rp->handler)
-+			ri->rp->handler(ri, regs);
-+
-+		orig_ret_address = (unsigned long)ri->ret_addr;
-+		recycle_rp_inst(ri, &empty_rp);
-+
-+		if (orig_ret_address != trampoline_address)
-+			/*
-+			 * This is the real return address. Any other
-+			 * instances associated with this task are for
-+			 * other calls deeper on the call stack
-+			 */
-+			break;
-+	}
-+	kretprobe_assert(ri, orig_ret_address, trampoline_address);
-+
-+	kretprobe_hash_unlock(current, &flags);
-+
-+	hlist_for_each_entry_safe(ri, tmp, &empty_rp, hlist) {
-+		hlist_del(&ri->hlist);
-+		kfree(ri);
-+	}
- 	/*
- 	 * By returning a non-zero value, we are telling
- 	 * kprobe_handler() that we don't want the post_handler
-@@ -412,7 +485,6 @@ void __kprobes arch_prepare_kretprobe(st
- 				      struct pt_regs *regs)
- {
- 	ri->ret_addr = (kprobe_opcode_t *)regs->b0;
--	ri->fp = NULL;
- 
- 	/* Replace the return addr with trampoline addr */
- 	regs->b0 = (unsigned long)dereference_function_descriptor(kretprobe_trampoline);
 
 
