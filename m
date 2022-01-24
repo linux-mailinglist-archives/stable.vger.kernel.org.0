@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F42D499184
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79698498E7B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:44:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379423AbiAXUL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:11:27 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47728 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378550AbiAXUHi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:07:38 -0500
+        id S237501AbiAXTmC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:42:02 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:37498 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1355098AbiAXTkB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:40:01 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 22F22B811FB;
-        Mon, 24 Jan 2022 20:07:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36191C340E5;
-        Mon, 24 Jan 2022 20:07:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C2D7D61523;
+        Mon, 24 Jan 2022 19:39:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E309C340E5;
+        Mon, 24 Jan 2022 19:39:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054855;
-        bh=z/kUukaJylcFxGt8AABs3R9KeYEcCOvB/8aKXDK3HDc=;
+        s=korg; t=1643053199;
+        bh=Jxtv+A1161cRIGR/Gk7IFvyFKod5JdGJGCILTRds53I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PQplKajHiTtnXeC+jhbpNd+tvTqfjfueO/1fV6SqZeWrnnkDmhEsBwSOttlTA1hvP
-         5cqu3aIEqv5ZAA0rBtkfrPJKpHJuJCXIXRGjQnTrwL0mBww2EPyUApaKAnB2Rco/pV
-         3yBU6guxfpl89b4hfcxipEMCv078EolmWZ+GntLM=
+        b=txNtJGR/Epvaq8MkmgwEtWJ6NTHCniCAssO7nTA6Ce2HUgp7b4GdZrwqP0D/7cWmw
+         x19iE08VDaxKLeH76msEOD34MyOpJ+RfYWBTp7v6Es/IyOorMNbZm7tOqRty7zBPwt
+         OMvSav/oUz6bQdGe8JWtJxipwsoGx/BkytyIebxg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 525/563] net: axienet: Fix TX ring slot available check
-Date:   Mon, 24 Jan 2022 19:44:50 +0100
-Message-Id: <20220124184042.593953437@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Tudor Ambarus <tudor.ambarus@microchip.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.4 307/320] dmaengine: at_xdmac: Fix concurrency over xfers_list
+Date:   Mon, 24 Jan 2022 19:44:51 +0100
+Message-Id: <20220124184004.387740545@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,51 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Tudor Ambarus <tudor.ambarus@microchip.com>
 
-commit 996defd7f8b5dafc1d480b7585c7c62437f80c3c upstream.
+commit 18deddea9184b62941395889ff7659529c877326 upstream.
 
-The check for whether a TX ring slot was available was incorrect,
-since a slot which had been loaded with transmit data but the device had
-not started transmitting would be treated as available, potentially
-causing non-transmitted slots to be overwritten. The control field in
-the descriptor should be checked, rather than the status field (which may
-only be updated when the device completes the entry).
+Since tx_submit can be called from a hard IRQ, xfers_list must be
+protected with a lock to avoid concurency on the list's elements.
+Since at_xdmac_handle_cyclic() is called from a tasklet, spin_lock_irq
+is enough to protect from a hard IRQ.
 
-Fixes: 8a3b7a252dca9 ("drivers/net/ethernet/xilinx: added Xilinx AXI Ethernet driver")
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e1f7c9eee707 ("dmaengine: at_xdmac: creation of the atmel eXtended DMA Controller driver")
+Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
+Link: https://lore.kernel.org/r/20211215110115.191749-8-tudor.ambarus@microchip.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/xilinx/xilinx_axienet_main.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/dma/at_xdmac.c |   17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
 
---- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-@@ -643,7 +643,6 @@ static int axienet_free_tx_chain(struct
- 		if (cur_p->skb && (status & XAXIDMA_BD_STS_COMPLETE_MASK))
- 			dev_consume_skb_irq(cur_p->skb);
+--- a/drivers/dma/at_xdmac.c
++++ b/drivers/dma/at_xdmac.c
+@@ -1564,14 +1564,17 @@ static void at_xdmac_handle_cyclic(struc
+ 	struct at_xdmac_desc		*desc;
+ 	struct dma_async_tx_descriptor	*txd;
  
--		cur_p->cntrl = 0;
- 		cur_p->app0 = 0;
- 		cur_p->app1 = 0;
- 		cur_p->app2 = 0;
-@@ -651,6 +650,7 @@ static int axienet_free_tx_chain(struct
- 		cur_p->skb = NULL;
- 		/* ensure our transmit path and device don't prematurely see status cleared */
- 		wmb();
-+		cur_p->cntrl = 0;
- 		cur_p->status = 0;
- 
- 		if (sizep)
-@@ -713,7 +713,7 @@ static inline int axienet_check_tx_bd_sp
- 	/* Ensure we see all descriptor updates from device or TX IRQ path */
- 	rmb();
- 	cur_p = &lp->tx_bd_v[(lp->tx_bd_tail + num_frag) % lp->tx_bd_num];
--	if (cur_p->status & XAXIDMA_BD_STS_ALL_MASK)
-+	if (cur_p->cntrl)
- 		return NETDEV_TX_BUSY;
- 	return 0;
+-	if (!list_empty(&atchan->xfers_list)) {
+-		desc = list_first_entry(&atchan->xfers_list,
+-					struct at_xdmac_desc, xfer_node);
+-		txd = &desc->tx_dma_desc;
+-
+-		if (txd->flags & DMA_PREP_INTERRUPT)
+-			dmaengine_desc_get_callback_invoke(txd, NULL);
++	spin_lock_irq(&atchan->lock);
++	if (list_empty(&atchan->xfers_list)) {
++		spin_unlock_irq(&atchan->lock);
++		return;
+ 	}
++	desc = list_first_entry(&atchan->xfers_list, struct at_xdmac_desc,
++				xfer_node);
++	spin_unlock_irq(&atchan->lock);
++	txd = &desc->tx_dma_desc;
++	if (txd->flags & DMA_PREP_INTERRUPT)
++		dmaengine_desc_get_callback_invoke(txd, NULL);
  }
+ 
+ static void at_xdmac_handle_error(struct at_xdmac_chan *atchan)
 
 
