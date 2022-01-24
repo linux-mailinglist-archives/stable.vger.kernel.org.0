@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5E92499513
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:08:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEC5A49951B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:08:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1392184AbiAXUuf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:50:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41692 "EHLO
+        id S1392214AbiAXUun (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:50:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358714AbiAXUm7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:42:59 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77791C019B17;
-        Mon, 24 Jan 2022 11:53:09 -0800 (PST)
+        with ESMTP id S1351749AbiAXUnA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:43:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52073C019B20;
+        Mon, 24 Jan 2022 11:53:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 17C7A60B56;
-        Mon, 24 Jan 2022 19:53:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7E3AC340E5;
-        Mon, 24 Jan 2022 19:53:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1AF15B81218;
+        Mon, 24 Jan 2022 19:53:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20DF8C340E7;
+        Mon, 24 Jan 2022 19:53:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053988;
-        bh=zfKn7wh8I2H8T5QJWZmD5y1h6MOrm2419lqsY1J2kOA=;
+        s=korg; t=1643053991;
+        bh=EFTGqwFfNZIupBXAaiJo6wPohOcD99sfHVhnWJuEJKI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fJ8NX6+AagUndKNoXu5DdxdPD5H9JAacMiTlmeAXADt6sOZAafDjkfuA6gfFqo0U7
-         OZZITNLoSP97K5H3tDYUTuTYGQ3C7iWk6zIuYRpxtr15y3lNCe3JXoBO53GMhzhN4C
-         BawuE3xKt3WEeLgtJ06sYfoZFyzumdXnsqVoVlb0=
+        b=C8aDu1tEDxxJMcqeVyOZraOMYzEriyZxNSqXjrZZqiDkM2h/GRrYhJ78C33ERK9ku
+         SgW5NUkbCVV51aJk9VB2KxtjIIdDpcbFJ5XMDPgAwlcM/vtFHZjsWixDBrEKcrufWN
+         Vx/dsobeI/m//NAHypWwodxw7b0DES6fvEmFodj4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Selvin Xavier <selvin.xavier@broadcom.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 241/563] ALSA: hda: Add missing rwsem around snd_ctl_remove() calls
-Date:   Mon, 24 Jan 2022 19:40:06 +0100
-Message-Id: <20220124184032.765181648@linuxfoundation.org>
+Subject: [PATCH 5.10 242/563] RDMA/bnxt_re: Scan the whole bitmap when checking if "disabling RCFW with pending cmd-bit"
+Date:   Mon, 24 Jan 2022 19:40:07 +0100
+Message-Id: <20220124184032.798069203@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -47,38 +50,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 80bd64af75b4bb11c0329bc66c35da2ddfb66d88 ]
+[ Upstream commit a917dfb66c0a1fa1caacf3d71edcafcab48e6ff0 ]
 
-snd_ctl_remove() has to be called with card->controls_rwsem held (when
-called after the card instantiation).  This patch add the missing
-rwsem calls around it.
+The 'cmdq->cmdq_bitmap' bitmap is 'rcfw->cmdq_depth' bits long.  The size
+stored in 'cmdq->bmap_size' is the size of the bitmap in bytes.
 
-Fixes: d13bd412dce2 ("ALSA: hda - Manage kcontrol lists")
-Link: https://lore.kernel.org/r/20211116071314.15065-3-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Remove this erroneous 'bmap_size' and use 'rcfw->cmdq_depth' directly in
+'bnxt_qplib_disable_rcfw_channel()'. Otherwise some error messages may be
+missing.
+
+Other uses of 'cmdq_bitmap' already take into account 'rcfw->cmdq_depth'
+directly.
+
+Fixes: 1ac5a4047975 ("RDMA/bnxt_re: Add bnxt_re RoCE driver")
+Link: https://lore.kernel.org/r/47ed717c3070a1d0f53e7b4c768a4fd11caf365d.1636707421.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: Selvin Xavier <selvin.xavier@broadcom.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_codec.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/infiniband/hw/bnxt_re/qplib_rcfw.c | 6 ++----
+ drivers/infiniband/hw/bnxt_re/qplib_rcfw.h | 1 -
+ 2 files changed, 2 insertions(+), 5 deletions(-)
 
-diff --git a/sound/pci/hda/hda_codec.c b/sound/pci/hda/hda_codec.c
-index 6dece719be669..39281106477eb 100644
---- a/sound/pci/hda/hda_codec.c
-+++ b/sound/pci/hda/hda_codec.c
-@@ -1727,8 +1727,11 @@ void snd_hda_ctls_clear(struct hda_codec *codec)
- {
- 	int i;
- 	struct hda_nid_item *items = codec->mixers.list;
-+
-+	down_write(&codec->card->controls_rwsem);
- 	for (i = 0; i < codec->mixers.used; i++)
- 		snd_ctl_remove(codec->card, items[i].kctl);
-+	up_write(&codec->card->controls_rwsem);
- 	snd_array_free(&codec->mixers);
- 	snd_array_free(&codec->nids);
- }
+diff --git a/drivers/infiniband/hw/bnxt_re/qplib_rcfw.c b/drivers/infiniband/hw/bnxt_re/qplib_rcfw.c
+index 441eb421e5e59..5759027914b01 100644
+--- a/drivers/infiniband/hw/bnxt_re/qplib_rcfw.c
++++ b/drivers/infiniband/hw/bnxt_re/qplib_rcfw.c
+@@ -614,8 +614,6 @@ int bnxt_qplib_alloc_rcfw_channel(struct bnxt_qplib_res *res,
+ 	if (!cmdq->cmdq_bitmap)
+ 		goto fail;
+ 
+-	cmdq->bmap_size = bmap_size;
+-
+ 	/* Allocate one extra to hold the QP1 entries */
+ 	rcfw->qp_tbl_size = qp_tbl_sz + 1;
+ 	rcfw->qp_tbl = kcalloc(rcfw->qp_tbl_size, sizeof(struct bnxt_qplib_qp_node),
+@@ -663,8 +661,8 @@ void bnxt_qplib_disable_rcfw_channel(struct bnxt_qplib_rcfw *rcfw)
+ 	iounmap(cmdq->cmdq_mbox.reg.bar_reg);
+ 	iounmap(creq->creq_db.reg.bar_reg);
+ 
+-	indx = find_first_bit(cmdq->cmdq_bitmap, cmdq->bmap_size);
+-	if (indx != cmdq->bmap_size)
++	indx = find_first_bit(cmdq->cmdq_bitmap, rcfw->cmdq_depth);
++	if (indx != rcfw->cmdq_depth)
+ 		dev_err(&rcfw->pdev->dev,
+ 			"disabling RCFW with pending cmd-bit %lx\n", indx);
+ 
+diff --git a/drivers/infiniband/hw/bnxt_re/qplib_rcfw.h b/drivers/infiniband/hw/bnxt_re/qplib_rcfw.h
+index 5f2f0a5a3560f..6953f4e53dd20 100644
+--- a/drivers/infiniband/hw/bnxt_re/qplib_rcfw.h
++++ b/drivers/infiniband/hw/bnxt_re/qplib_rcfw.h
+@@ -150,7 +150,6 @@ struct bnxt_qplib_cmdq_ctx {
+ 	wait_queue_head_t		waitq;
+ 	unsigned long			flags;
+ 	unsigned long			*cmdq_bitmap;
+-	u32				bmap_size;
+ 	u32				seq_num;
+ };
+ 
 -- 
 2.34.1
 
