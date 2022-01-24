@@ -2,116 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25A8949AA1D
+	by mail.lfdr.de (Postfix) with ESMTP id B44B249AA1E
 	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:35:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243288AbiAYDc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:32:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48734 "EHLO
+        id S1347493AbiAYDeU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:34:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1321192AbiAYDP6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 22:15:58 -0500
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD0B7C0E9B97;
-        Mon, 24 Jan 2022 14:48:44 -0800 (PST)
-Received: by mail-pj1-x1029.google.com with SMTP id h12so17807796pjq.3;
-        Mon, 24 Jan 2022 14:48:44 -0800 (PST)
+        with ESMTP id S3417633AbiAYDYr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 22:24:47 -0500
+Received: from mail-ot1-x32b.google.com (mail-ot1-x32b.google.com [IPv6:2607:f8b0:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42868C058CA7
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 14:50:49 -0800 (PST)
+Received: by mail-ot1-x32b.google.com with SMTP id g15-20020a9d6b0f000000b005a062b0dc12so2933778otp.4
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 14:50:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
+        d=linaro.org; s=google;
         h=message-id:date:mime-version:user-agent:subject:content-language:to
          :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=2U/8DYGL090LEe2kk8stQI2Ud1/LbI8mVv8nBxOTVk0=;
-        b=SCy31hux4wYZUjl1mQCGsAYnmGP8MS09esRtEf0uAgEGq/0+PpvSSeQug7QuEemUJ5
-         K9mym8A2R42TPh4uSLcWwice1TqlW0N/bYhBTM35LB0lJ5WqbypcnhaIbpXuBY+mZhR1
-         bN7GCWDrY8N8GymuQfO+l+OWYGAns/glHxGrlr1a/i4wF1vyZeomj9fG2hQqGgMOy2Mv
-         eWZTJm7gUgyv4ZKLJ3Ce0gijKUw+mE3mLN0wx7O3ENBplcak93gcJLuo7k6CvCgoVHKx
-         D/Td5yU0zvLN+fQ2scGZ+kEVMbWs2/OZ2m3/NZM8m5uX8zrI+xJy8smyvMtrwjaLIo9x
-         DytQ==
+        bh=PtqrHf0yIm4rhTcrPnNb9htroYp3oCFjuET72eP4bEg=;
+        b=MtvSDul2MqyVPeBjE/g5ny8qv43GKzh5Zzh1OBD7sqUE4HHpCl4yTos8VBDSJ5F1cM
+         4mX9P94pIJF3VgNu3QRBLbXx7LdLnK7o66sU3mpnbGIhNb04zj8/Qol7lWIaq0WBcChW
+         RZtNwXLHjDfF27vr54Sb3dJdT4caoZXCtnD66VvsbDlK5AnW6KFTbECe23JM/4tVug0Y
+         vb242iMbx1GfSKRpaWt2KGWuR2YSd+zN6WsV8As81HaL82vA/BLAZWK1Us6AMRFlXrDr
+         3TQd2rfm9idHMpN5f5VJ0TvjLbK5QjD7aYFqbUSi4W0DCWsvaNj9Fk9md7jPBblikum4
+         xbYA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
          :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=2U/8DYGL090LEe2kk8stQI2Ud1/LbI8mVv8nBxOTVk0=;
-        b=baaCKqVzFUZLEPUzZqHCITmmiyU3/LyJsAeh6/04A+PIZ9zf2Dt9h3PRWYWOEk/PSY
-         BRa7mHm5t20Rn1yqvQpSNcc5/0JkVBmdfZn8J1bRMFoaD+zSKb5kRNtTBlRmQvx0FyUG
-         1xWVxRRi0uMlC2qb1xCJ1rf4AbTKsTEBgN/yrdn826hqUaaSqwWPspYyY1QbWPpmODLD
-         2iRU95tYgxAX/BZauW5WaTKw7m0Y8lNdB5p529TVV72F/wB8JBF7iThIvy+r8TC6+y1F
-         xXwhWPrtM2JTBKC+rZE+hVOt0cnLt234R/SZwjq+nvViQtV/9WFcgLTp1/HryfRutl5j
-         SV7Q==
-X-Gm-Message-State: AOAM532sZAM72yv7wO/pjaQtyV01KGKJmul07F2g//SLD2UuFXJZ2t3o
-        bc+PcTKQrX0sS+VUKyGXffp3V2WYErE=
-X-Google-Smtp-Source: ABdhPJwoETm2C6v0ZHW+1FJIIwDKXjxr/4H1UbB5BOgnodoIZ3vFd/wSBUnk7Z1O0NQkwBZTBamYaQ==
-X-Received: by 2002:a17:90a:9a7:: with SMTP id 36mr485057pjo.154.1643064524350;
-        Mon, 24 Jan 2022 14:48:44 -0800 (PST)
-Received: from [192.168.11.5] (KD106167171201.ppp-bb.dion.ne.jp. [106.167.171.201])
-        by smtp.gmail.com with ESMTPSA id nu7sm342266pjb.30.2022.01.24.14.48.42
+        bh=PtqrHf0yIm4rhTcrPnNb9htroYp3oCFjuET72eP4bEg=;
+        b=j6iTMrnITa3xkxLTPxWtGKGVExHJj5Mxr76ZXtaTQDc9HVY9BILcJE5co5MbgaPf+h
+         qMBmwBgHXWblTFVuE4p1BqXrwBe7GSvzCEznvVibWnUno69T6ngSDo4jjBQAwEIOqSgu
+         V/9T928H1cqTqzNHc3Aj/ianI+KuVse5Mx4OBl1mbpQ+e/3fZDoB4MTl8xSe9YarOxb4
+         jyG+iDsIKJNovhdG5R64hBxjT1knjKByBzoIX2Docbk5qX+4KnQmXBlYGESm4GVK7qKG
+         pO50CkLBDUUnS6Y1fiRbUU9EBa18LN10AkK6+dAGVZoYOARLNyYbuBWrdd4yb216CB2V
+         BFyQ==
+X-Gm-Message-State: AOAM533HHtksbC6jueySG4qSY2G/jtC7oXpK1ceGtGDDmWL2eZO5Tvve
+        nFmOWm0erVFWcN3PXzy2ZIOGyg==
+X-Google-Smtp-Source: ABdhPJyB45kVnFKre7voatLM55kjnn1OciVJYBGVaOn1d1Lxqn8m8Dji3FWoSZx6BMhl4jrU5VsvqA==
+X-Received: by 2002:a05:6830:4110:: with SMTP id w16mr13104510ott.66.1643064648609;
+        Mon, 24 Jan 2022 14:50:48 -0800 (PST)
+Received: from [192.168.17.16] ([189.219.72.83])
+        by smtp.gmail.com with ESMTPSA id t2sm6003500otp.71.2022.01.24.14.50.46
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 24 Jan 2022 14:48:44 -0800 (PST)
-Message-ID: <ba541d48-826c-3d39-b3e1-05642fa6edd6@gmail.com>
-Date:   Tue, 25 Jan 2022 07:48:39 +0900
+        Mon, 24 Jan 2022 14:50:48 -0800 (PST)
+Message-ID: <374e9357-35eb-3555-3fe5-7b72c3a77a39@linaro.org>
+Date:   Mon, 24 Jan 2022 16:50:45 -0600
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
  Thunderbird/91.5.0
-Subject: Re: [PATCH 5.16 0728/1039] scripts: sphinx-pre-install: Fix ctex
- support on Debian
+Subject: Re: [PATCH 5.15 000/846] 5.15.17-rc1 review
 Content-Language: en-US
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Sasha Levin <sashal@kernel.org>
-References: <20220124184125.121143506@linuxfoundation.org>
- <20220124184149.801920838@linuxfoundation.org>
-From:   Akira Yokosawa <akiyks@gmail.com>
-In-Reply-To: <20220124184149.801920838@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        stable@vger.kernel.org
+References: <20220124184100.867127425@linuxfoundation.org>
+From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+Hello!
 
-On Mon, 24 Jan 2022 19:41:57 +0100,
-Greg Kroah-Hartman wrote:
-> From: Mauro Carvalho Chehab <mchehab@kernel.org>
+On 1/24/22 12:31, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.17 release.
+> There are 846 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> [ Upstream commit 87d6576ddf8ac25f36597bc93ca17f6628289c16 ]
+> Responses should be made by Wed, 26 Jan 2022 18:39:11 +0000.
+> Anything received after that time might be too late.
 > 
-> The name of the package with ctexhook.sty is different on
-> Debian/Ubuntu.
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.17-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
 > 
-> Reported-by: Akira Yokosawa <akiyks@gmail.com>
-> Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
-> Tested-by: Akira Yokosawa <akiyks@gmail.com>
-> Link: https://lore.kernel.org/r/63882425609a2820fac78f5e94620abeb7ed5f6f.1641429634.git.mchehab@kernel.org
-> Signed-off-by: Jonathan Corbet <corbet@lwn.net>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-
-This "Fix" is against upstream commit 7baab965896e ("scripts:
-sphinx-pre-install: add required ctex dependency") which is
-also new to v5.17-rc1.
-
-So I don't think this is worth backporting to stable branches.
-
-        Thanks, Akira
-
-> ---
->  scripts/sphinx-pre-install | 3 +++
->  1 file changed, 3 insertions(+)
+> thanks,
 > 
-> diff --git a/scripts/sphinx-pre-install b/scripts/sphinx-pre-install
-> index 288e86a9d1e58..61a79ce705ccf 100755
-> --- a/scripts/sphinx-pre-install
-> +++ b/scripts/sphinx-pre-install
-> @@ -369,6 +369,9 @@ sub give_debian_hints()
->  	);
->  
->  	if ($pdf) {
-> +		check_missing_file(["/usr/share/texlive/texmf-dist/tex/latex/ctex/ctexhook.sty"],
-> +				   "texlive-lang-chinese", 2);
-> +
->  		check_missing_file(["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"],
->  				   "fonts-dejavu", 2);
->  
+> greg k-h
+
+Regressions detected on arm, arm64, i386, x86.
+
+This is one from arm64:
+   /builds/linux/arch/arm64/mm/extable.c: In function 'fixup_exception':
+   /builds/linux/arch/arm64/mm/extable.c:17:13: error: implicit declaration of function 'in_bpf_jit' [-Werror=implicit-function-declaration]
+      17 |         if (in_bpf_jit(regs))
+         |             ^~~~~~~~~~
+   cc1: some warnings being treated as errors
+   make[3]: *** [/builds/linux/scripts/Makefile.build:277: arch/arm64/mm/extable.o] Error 1
+
+This is another one, in Perf (arm, arm64, i386, x86):
+   libbpf.c: In function 'bpf_object__elf_collect':
+   libbpf.c:3038:31: error: invalid type argument of '->' (have 'GElf_Shdr' {aka 'Elf64_Shdr'})
+    3038 |                         if (sh->sh_type != SHT_PROGBITS)
+         |                               ^~
+   libbpf.c:3042:31: error: invalid type argument of '->' (have 'GElf_Shdr' {aka 'Elf64_Shdr'})
+    3042 |                         if (sh->sh_type != SHT_PROGBITS)
+         |                               ^~
+   make[4]: *** [/builds/linux/tools/build/Makefile.build:97: /home/tuxbuild/.cache/tuxmake/builds/current/staticobjs/libbpf.o] Error 1
+
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+Greetings!
+
+Daniel Díaz
+daniel.diaz@linaro.org
