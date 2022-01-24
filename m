@@ -2,48 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72BF4499C0F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:06:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C24249990C
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:43:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1576213AbiAXV7J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:59:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57022 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1573880AbiAXVqs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:46:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27799C08B4CE;
-        Mon, 24 Jan 2022 12:32:27 -0800 (PST)
+        id S1454031AbiAXVb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:31:28 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:44732 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1451155AbiAXVWS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:22:18 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FDDE6157D;
-        Mon, 24 Jan 2022 20:32:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 877D5C340E5;
-        Mon, 24 Jan 2022 20:32:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B68861469;
+        Mon, 24 Jan 2022 21:22:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70DE1C340E4;
+        Mon, 24 Jan 2022 21:22:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056346;
-        bh=oFIl2lMl4yMt8gerjJ+NCCv4bVevmsWfQhKTrOw/WJY=;
+        s=korg; t=1643059337;
+        bh=HFolmNo+c+aMlXO4NpVNNdLLeHerT2CSqgdw0YSR8sc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HvLC/q5i1AWyJhSXadqc2sp1+lNWSlTDgO/Sex18iHV7tQC/OXFzFwv5ksmoIqOsC
-         QU+fVQ3rc/1Blnc5Kf8EbiEqc4wMBMyQEkuq+wuOEeqtHMyI56HS6kU0vSadLP7Q/1
-         21FU90gzZSHPOBZA3nq+E0qEFOPHSgw9zCtX1Hd8=
+        b=PS1WVTHwgWsa3AXLC/FIFz+X8dECP8jyRRpaTelFkbfI6mijmzmqZS/bp36XV7ABA
+         yLS+Y3f7Rf78AW0uGrhtgjWjnDvtt9oawO3/x/PcjkvMfnlqOFe+Uf2hTjcwb1aYxx
+         Yy06IiGLnHuNZ4HejDAZ3XAQAsPFWyYbIXLqpkpo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Rapoport <rppt@kernel.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Nicolas Boichat <drinkcat@chromium.org>,
-        Quentin Perret <qperret@google.com>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 453/846] of/fdt: Dont worry about non-memory region overlap for no-map
+        stable@vger.kernel.org, Anilkumar Kolli <akolli@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0581/1039] ath11k: Fix mon status ring rx tlv processing
 Date:   Mon, 24 Jan 2022 19:39:30 +0100
-Message-Id: <20220124184116.611818964@linuxfoundation.org>
+Message-Id: <20220124184144.872005397@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,89 +45,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Anilkumar Kolli <akolli@codeaurora.org>
 
-[ Upstream commit da17d6905d29ddcdc04b2fdc37ed8cf1e8437cc8 ]
+[ Upstream commit 09f16f7390f302937409738d6cb6ce99b265f455 ]
 
-In commit 8a5a75e5e9e5 ("of/fdt: Make sure no-map does not remove
-already reserved regions") we returned -EBUSY when trying to mark
-regions as no-map when they intersect with reserved memory. The goal was
-to find bad no-map reserved memory DT nodes that would unmap the kernel
-text/data sections.
+In HE monitor capture, HAL_TLV_STATUS_PPDU_DONE is received
+on processing multiple skb. Do not clear the ppdu_info
+till the HAL_TLV_STATUS_PPDU_DONE is received.
 
-The problem is the reserved memory check will still trigger if the DT
-has a /memreserve/ that completely subsumes the no-map memory carveouts
-in the reserved memory node _and_ that region is also not part of the
-memory reg property. For example in sc7180.dtsi we have the following
-reserved-memory and memory node:
+This fixes below warning and packet drops in monitor mode.
+ "Rate marked as an HE rate but data is invalid: MCS: 6, NSS: 0"
+ WARNING: at
+ PC is at ieee80211_rx_napi+0x624/0x840 [mac80211]
 
-      memory@80000000 {
-          /* We expect the bootloader to fill in the size */
-          reg = <0 0x80000000 0 0>;
-      };
+Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.4.0.1-01693-QCAHKSWPL_SILICONZ-1
 
-      smem_mem: memory@80900000 {
-              reg = <0x0 0x80900000 0x0 0x200000>;
-              no-map;
-      };
-
-and the memreserve filled in by the bootloader is
-
-      /memreserve/ 0x80800000 0x400000;
-
-while the /memory node is transformed into
-
-      memory@80000000 {
-          /* The bootloader fills in the size, and adds another region */
-          reg = <0 0x80000000 0 0x00800000>,
-                <0 0x80c00000 0 0x7f200000>;
-      };
-
-The smem region is doubly reserved via /memreserve/ and by not being
-part of the /memory reg property. This leads to the following warning
-printed at boot.
-
- OF: fdt: Reserved memory: failed to reserve memory for node 'memory@80900000': base 0x0000000080900000, size 2 MiB
-
-Otherwise nothing really goes wrong because the smem region is not going
-to be mapped by the kernel's direct linear mapping given that it isn't
-part of the memory node. Therefore, let's only consider this to be a
-problem if we're trying to mark a region as no-map and it is actually
-memory that we're intending to keep out of the kernel's direct mapping
-but it's already been reserved.
-
-Acked-by: Mike Rapoport <rppt@kernel.org>
-Cc: Douglas Anderson <dianders@chromium.org>
-Cc: Nicolas Boichat <drinkcat@chromium.org>
-Cc: Quentin Perret <qperret@google.com>
-Cc: Jan Kiszka <jan.kiszka@siemens.com>
-Fixes: 8a5a75e5e9e5 ("of/fdt: Make sure no-map does not remove already reserved regions")
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20220107194233.2793146-1-swboyd@chromium.org
+Signed-off-by: Anilkumar Kolli <akolli@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1637249433-10316-1-git-send-email-akolli@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/fdt.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath11k/dp_rx.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
-index 32e5e782d43da..59a7a9ee58ef7 100644
---- a/drivers/of/fdt.c
-+++ b/drivers/of/fdt.c
-@@ -482,9 +482,11 @@ static int __init early_init_dt_reserve_memory_arch(phys_addr_t base,
- 	if (nomap) {
- 		/*
- 		 * If the memory is already reserved (by another region), we
--		 * should not allow it to be marked nomap.
-+		 * should not allow it to be marked nomap, but don't worry
-+		 * if the region isn't memory as it won't be mapped.
- 		 */
--		if (memblock_is_region_reserved(base, size))
-+		if (memblock_overlaps_region(&memblock.memory, base, size) &&
-+		    memblock_is_region_reserved(base, size))
- 			return -EBUSY;
+diff --git a/drivers/net/wireless/ath/ath11k/dp_rx.c b/drivers/net/wireless/ath/ath11k/dp_rx.c
+index 22b6b6a470d4c..621372c568d2c 100644
+--- a/drivers/net/wireless/ath/ath11k/dp_rx.c
++++ b/drivers/net/wireless/ath/ath11k/dp_rx.c
+@@ -3064,10 +3064,10 @@ int ath11k_dp_rx_process_mon_status(struct ath11k_base *ab, int mac_id,
+ 	if (!num_buffs_reaped)
+ 		goto exit;
  
- 		return memblock_mark_nomap(base, size);
+-	while ((skb = __skb_dequeue(&skb_list))) {
+-		memset(&ppdu_info, 0, sizeof(ppdu_info));
+-		ppdu_info.peer_id = HAL_INVALID_PEERID;
++	memset(&ppdu_info, 0, sizeof(ppdu_info));
++	ppdu_info.peer_id = HAL_INVALID_PEERID;
+ 
++	while ((skb = __skb_dequeue(&skb_list))) {
+ 		if (ath11k_debugfs_is_pktlog_lite_mode_enabled(ar)) {
+ 			log_type = ATH11K_PKTLOG_TYPE_LITE_RX;
+ 			rx_buf_sz = DP_RX_BUFFER_SIZE_LITE;
+@@ -3095,10 +3095,7 @@ int ath11k_dp_rx_process_mon_status(struct ath11k_base *ab, int mac_id,
+ 			ath11k_dbg(ab, ATH11K_DBG_DATA,
+ 				   "failed to find the peer with peer_id %d\n",
+ 				   ppdu_info.peer_id);
+-			spin_unlock_bh(&ab->base_lock);
+-			rcu_read_unlock();
+-			dev_kfree_skb_any(skb);
+-			continue;
++			goto next_skb;
+ 		}
+ 
+ 		arsta = (struct ath11k_sta *)peer->sta->drv_priv;
+@@ -3107,10 +3104,13 @@ int ath11k_dp_rx_process_mon_status(struct ath11k_base *ab, int mac_id,
+ 		if (ath11k_debugfs_is_pktlog_peer_valid(ar, peer->addr))
+ 			trace_ath11k_htt_rxdesc(ar, skb->data, log_type, rx_buf_sz);
+ 
++next_skb:
+ 		spin_unlock_bh(&ab->base_lock);
+ 		rcu_read_unlock();
+ 
+ 		dev_kfree_skb_any(skb);
++		memset(&ppdu_info, 0, sizeof(ppdu_info));
++		ppdu_info.peer_id = HAL_INVALID_PEERID;
+ 	}
+ exit:
+ 	return num_buffs_reaped;
 -- 
 2.34.1
 
