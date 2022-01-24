@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A737C499FEA
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:24:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6FCA499FDD
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:24:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1842367AbiAXXBo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:01:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44796 "EHLO
+        id S1842277AbiAXXB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:01:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1839748AbiAXWvx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:51:53 -0500
+        with ESMTP id S1838084AbiAXWpw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:45:52 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9396C09D9F7;
-        Mon, 24 Jan 2022 13:08:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF01EC0550F3;
+        Mon, 24 Jan 2022 13:06:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 71B50B81057;
-        Mon, 24 Jan 2022 21:08:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1ECFC340E5;
-        Mon, 24 Jan 2022 21:07:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3A796B81142;
+        Mon, 24 Jan 2022 21:06:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A4F4C340E8;
+        Mon, 24 Jan 2022 21:06:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058479;
-        bh=485Pel/umrmGTI7pbf0TizhUtAcoT/WJdPbsQcA5Gb0=;
+        s=korg; t=1643058380;
+        bh=f21MzGFvooadYexLUcwxb1T6t4IyhWjyJE0ILpkgpd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=viZIaBjaN+YzeMo/jKDS89p2LZG23lpMRVS/nn9k4XoShFJDDnatlkTlDPCgL6gsF
-         qYrLWJLRpqGKxY7YGEjHRsKm6uZhLe3mvoJYbzlU5ibqo/UP2nL327ascOqDJaEZMO
-         /Y7/dnw3Oi1QvvSc2Z+Tm3vNdvMXBzzsvFgpAFCE=
+        b=jH6hmUVDhaWDu7YwmiQg+VHVb1c7XtnKVGbc/arLMIRuf+5/bJErMC324d3rfwlrj
+         QjARalrp/S6m8nvVieTNArxCcErgfLT6OXF8Az6HPPiHrYIWRwnDa1o6WdYvNkGCLC
+         rMTf9uC45wpcvKICEeBenvtve1SqYEzOzOlgsDKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anders Roxell <anders.roxell@linaro.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
+        stable@vger.kernel.org,
+        Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0269/1039] selftests: clone3: clone3: add case CLONE3_ARGS_NO_TEST
-Date:   Mon, 24 Jan 2022 19:34:18 +0100
-Message-Id: <20220124184134.343027218@linuxfoundation.org>
+Subject: [PATCH 5.16 0271/1039] crypto: stm32/cryp - fix CTR counter carry
+Date:   Mon, 24 Jan 2022 19:34:20 +0100
+Message-Id: <20220124184134.410347685@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -49,45 +49,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anders Roxell <anders.roxell@linaro.org>
+From: Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>
 
-[ Upstream commit a531b0c23c0fc68ad758cc31a74cf612a4dafeb0 ]
+[ Upstream commit 41c76690b0990efacd15d35cfb4e77318cd80ebb ]
 
-Building selftests/clone3 with clang warns about enumeration not handled
-in switch case:
+STM32 CRYP hardware doesn't manage CTR counter bigger than max U32, as
+a workaround, at each block the current IV is saved, if the saved IV
+lower u32 is 0xFFFFFFFF, the full IV is manually incremented, and set
+in hardware.
+Fixes: bbb2832620ac ("crypto: stm32 - Fix sparse warnings")
 
-clone3.c:54:10: warning: enumeration value 'CLONE3_ARGS_NO_TEST' not handled in switch [-Wswitch]
-        switch (test_mode) {
-                ^
-
-Add the missing switch case with a comment.
-
-Fixes: 17a810699c18 ("selftests: add tests for clone3()")
-Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/clone3/clone3.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/crypto/stm32/stm32-cryp.c | 27 +++++++++++++--------------
+ 1 file changed, 13 insertions(+), 14 deletions(-)
 
-diff --git a/tools/testing/selftests/clone3/clone3.c b/tools/testing/selftests/clone3/clone3.c
-index 42be3b9258301..076cf4325f783 100644
---- a/tools/testing/selftests/clone3/clone3.c
-+++ b/tools/testing/selftests/clone3/clone3.c
-@@ -52,6 +52,12 @@ static int call_clone3(uint64_t flags, size_t size, enum test_mode test_mode)
- 		size = sizeof(struct __clone_args);
+diff --git a/drivers/crypto/stm32/stm32-cryp.c b/drivers/crypto/stm32/stm32-cryp.c
+index 7389a0536ff02..d13b262b36252 100644
+--- a/drivers/crypto/stm32/stm32-cryp.c
++++ b/drivers/crypto/stm32/stm32-cryp.c
+@@ -163,7 +163,7 @@ struct stm32_cryp {
+ 	struct scatter_walk     in_walk;
+ 	struct scatter_walk     out_walk;
  
- 	switch (test_mode) {
-+	case CLONE3_ARGS_NO_TEST:
+-	u32                     last_ctr[4];
++	__be32                  last_ctr[4];
+ 	u32                     gcm_ctr;
+ };
+ 
+@@ -1217,27 +1217,26 @@ static void stm32_cryp_check_ctr_counter(struct stm32_cryp *cryp)
+ {
+ 	u32 cr;
+ 
+-	if (unlikely(cryp->last_ctr[3] == 0xFFFFFFFF)) {
+-		cryp->last_ctr[3] = 0;
+-		cryp->last_ctr[2]++;
+-		if (!cryp->last_ctr[2]) {
+-			cryp->last_ctr[1]++;
+-			if (!cryp->last_ctr[1])
+-				cryp->last_ctr[0]++;
+-		}
++	if (unlikely(cryp->last_ctr[3] == cpu_to_be32(0xFFFFFFFF))) {
 +		/*
-+		 * Uses default 'flags' and 'SIGCHLD'
-+		 * assignment.
++		 * In this case, we need to increment manually the ctr counter,
++		 * as HW doesn't handle the U32 carry.
 +		 */
-+		break;
- 	case CLONE3_ARGS_ALL_0:
- 		args.flags = 0;
- 		args.exit_signal = 0;
++		crypto_inc((u8 *)cryp->last_ctr, sizeof(cryp->last_ctr));
+ 
+ 		cr = stm32_cryp_read(cryp, CRYP_CR);
+ 		stm32_cryp_write(cryp, CRYP_CR, cr & ~CR_CRYPEN);
+ 
+-		stm32_cryp_hw_write_iv(cryp, (__be32 *)cryp->last_ctr);
++		stm32_cryp_hw_write_iv(cryp, cryp->last_ctr);
+ 
+ 		stm32_cryp_write(cryp, CRYP_CR, cr);
+ 	}
+ 
+-	cryp->last_ctr[0] = stm32_cryp_read(cryp, CRYP_IV0LR);
+-	cryp->last_ctr[1] = stm32_cryp_read(cryp, CRYP_IV0RR);
+-	cryp->last_ctr[2] = stm32_cryp_read(cryp, CRYP_IV1LR);
+-	cryp->last_ctr[3] = stm32_cryp_read(cryp, CRYP_IV1RR);
++	/* The IV registers are BE  */
++	cryp->last_ctr[0] = cpu_to_be32(stm32_cryp_read(cryp, CRYP_IV0LR));
++	cryp->last_ctr[1] = cpu_to_be32(stm32_cryp_read(cryp, CRYP_IV0RR));
++	cryp->last_ctr[2] = cpu_to_be32(stm32_cryp_read(cryp, CRYP_IV1LR));
++	cryp->last_ctr[3] = cpu_to_be32(stm32_cryp_read(cryp, CRYP_IV1RR));
+ }
+ 
+ static bool stm32_cryp_irq_read_data(struct stm32_cryp *cryp)
 -- 
 2.34.1
 
