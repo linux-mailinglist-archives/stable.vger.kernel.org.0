@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BEC9499525
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:09:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67A7649996A
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:44:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1392270AbiAXUu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:50:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41672 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390166AbiAXUpD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:45:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16915C0617BC;
-        Mon, 24 Jan 2022 11:54:22 -0800 (PST)
+        id S1455272AbiAXVfF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:35:05 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:40648 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1452646AbiAXV0C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:26:02 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D217BB81229;
-        Mon, 24 Jan 2022 19:54:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0B12C340E5;
-        Mon, 24 Jan 2022 19:54:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA4F8B81061;
+        Mon, 24 Jan 2022 21:26:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE4FBC340E4;
+        Mon, 24 Jan 2022 21:25:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054059;
-        bh=1yWpEKWsnxvzT9qXhc23Xqk5jPQ5wA/WL2CuYle5s9Y=;
+        s=korg; t=1643059560;
+        bh=02LVYUDW/mrOuwuMTZ8bCkojsOTTzLhDWhfOpPkpTUw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vSqtI6WQBOkbn7uqz0o5zwgtz9lmp/u1OU2/gzHgYRwNR2UOpN0b/xf2Q0bfFEAS3
-         iihx8PtZzjgsCPWPiDmsfuJjBJuAtS/QD1RD/fdMKvzC1NjTHaQWhigoOBSAhUffTl
-         ooxA6hMl2zF9VMPkuO9yimlpZUL0bBGPf3YJDShs=
+        b=yC07YOnhMlQ3Fm93NDeAhkzLk4r8QqqwpC/cqUZD/eYmhRCHugdXta8g7Uxq3AUQS
+         lC4rmMqhc4UMu4xOkfdDrPcqCqVHppOSLBYdw1c9OT+MVf/gf+qyYEgqolufPaVq7Q
+         jKk1PABQNzq5+SMWdGCp7Mjdg9x5R0F4/QgZE6J0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 248/563] dt-bindings: thermal: Fix definition of cooling-maps contribution property
+        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
+        Maximilian Ernestus <maximilian@ernestus.de>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0624/1039] iwlwifi: mvm: synchronize with FW after multicast commands
 Date:   Mon, 24 Jan 2022 19:40:13 +0100
-Message-Id: <20220124184032.992904339@linuxfoundation.org>
+Message-Id: <20220124184146.311973043@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,61 +48,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 49bcb1506f2e095262c01bda7fd1c0db524c91e2 ]
+[ Upstream commit db66abeea3aefed481391ecc564fb7b7fb31d742 ]
 
-When converting the thermal-zones bindings to yaml the definition of the
-contribution property changed. The intention is the same, an integer
-value expressing a ratio of a sum on how much cooling is provided by the
-device to the zone. But after the conversion the integer value is
-limited to the range 0 to 100 and expressed as a percentage.
+If userspace installs a lot of multicast groups very quickly, then
+we may run out of command queue space as we send the updates in an
+asynchronous fashion (due to locking concerns), and the CPU can
+create them faster than the firmware can process them. This is true
+even when mac80211 has a work struct that gets scheduled.
 
-This is problematic for two reasons.
+Fix this by synchronizing with the firmware after sending all those
+commands - outside of the iteration we can send a synchronous echo
+command that just has the effect of the CPU waiting for the prior
+asynchronous commands to finish. This also will cause fewer of the
+commands to be sent to the firmware overall, because the work will
+only run once when rescheduled multiple times while it's running.
 
-- This do not match how the binding is used. Out of the 18 files that
-  make use of the property only two (ste-dbx5x0.dtsi and
-  ste-hrefv60plus.dtsi) sets it at a value that satisfy the binding,
-  100. The remaining 16 files set the value higher and fail to validate.
-
-- Expressing the value as a percentage instead of a ratio of the sum is
-  confusing as there is nothing to enforce the sum in the zone is not
-  greater then 100.
-
-This patch restore the pre yaml conversion description and removes the
-value limitation allowing the usage of the bindings to validate.
-
-Fixes: 1202a442a31fd2e5 ("dt-bindings: thermal: Add yaml bindings for thermal zones")
-Reported-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Link: https://lore.kernel.org/r/20211109103045.1403686-1-niklas.soderlund+renesas@ragnatech.se
-Signed-off-by: Rob Herring <robh@kernel.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=213649
+Suggested-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Reported-by: Maximilian Ernestus <maximilian@ernestus.de>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20211204083238.51aea5b79ea4.I88a44798efda16e9fe480fb3e94224931d311b29@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../devicetree/bindings/thermal/thermal-zones.yaml       | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+ .../net/wireless/intel/iwlwifi/mvm/mac80211.c   | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/Documentation/devicetree/bindings/thermal/thermal-zones.yaml b/Documentation/devicetree/bindings/thermal/thermal-zones.yaml
-index 164f71598c595..1b3954aa71c15 100644
---- a/Documentation/devicetree/bindings/thermal/thermal-zones.yaml
-+++ b/Documentation/devicetree/bindings/thermal/thermal-zones.yaml
-@@ -199,12 +199,11 @@ patternProperties:
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+index 897e3b91ddb2f..9c5c10908f013 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/mac80211.c
+@@ -1688,6 +1688,7 @@ static void iwl_mvm_recalc_multicast(struct iwl_mvm *mvm)
+ 	struct iwl_mvm_mc_iter_data iter_data = {
+ 		.mvm = mvm,
+ 	};
++	int ret;
  
-               contribution:
-                 $ref: /schemas/types.yaml#/definitions/uint32
--                minimum: 0
--                maximum: 100
-                 description:
--                  The percentage contribution of the cooling devices at the
--                  specific trip temperature referenced in this map
--                  to this thermal zone
-+                  The cooling contribution to the thermal zone of the referred
-+                  cooling device at the referred trip point. The contribution is
-+                  a ratio of the sum of all cooling contributions within a
-+                  thermal zone.
+ 	lockdep_assert_held(&mvm->mutex);
  
-             required:
-               - trip
+@@ -1697,6 +1698,22 @@ static void iwl_mvm_recalc_multicast(struct iwl_mvm *mvm)
+ 	ieee80211_iterate_active_interfaces_atomic(
+ 		mvm->hw, IEEE80211_IFACE_ITER_NORMAL,
+ 		iwl_mvm_mc_iface_iterator, &iter_data);
++
++	/*
++	 * Send a (synchronous) ech command so that we wait for the
++	 * multiple asynchronous MCAST_FILTER_CMD commands sent by
++	 * the interface iterator. Otherwise, we might get here over
++	 * and over again (by userspace just sending a lot of these)
++	 * and the CPU can send them faster than the firmware can
++	 * process them.
++	 * Note that the CPU is still faster - but with this we'll
++	 * actually send fewer commands overall because the CPU will
++	 * not schedule the work in mac80211 as frequently if it's
++	 * still running when rescheduled (possibly multiple times).
++	 */
++	ret = iwl_mvm_send_cmd_pdu(mvm, ECHO_CMD, 0, 0, NULL);
++	if (ret)
++		IWL_ERR(mvm, "Failed to synchronize multicast groups update\n");
+ }
+ 
+ static u64 iwl_mvm_prepare_multicast(struct ieee80211_hw *hw,
 -- 
 2.34.1
 
