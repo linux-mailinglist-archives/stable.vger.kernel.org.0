@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B42F849A926
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:19:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D50C49AA19
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:35:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1322201AbiAYDVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:21:25 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:36132 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353904AbiAXUJR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:09:17 -0500
+        id S1324084AbiAYDaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:30:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47492 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1319411AbiAYDIt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 22:08:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93500C0FE698;
+        Mon, 24 Jan 2022 13:44:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 22C266131D;
-        Mon, 24 Jan 2022 20:09:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D26F6C340E7;
-        Mon, 24 Jan 2022 20:09:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 596DFB811FB;
+        Mon, 24 Jan 2022 21:44:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 740D0C340E4;
+        Mon, 24 Jan 2022 21:44:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054956;
-        bh=yu+IE5+gItyP4e2FuDlpjTgxMD8d6Lf0tXsdlecCLis=;
+        s=korg; t=1643060669;
+        bh=jHBt4D2LHkfF9t7FKzh7y8T3seROGWJIg2IRNcojcvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pVO0uHo6LQESZ87fvNf0/m7MXcHpOYI+TVmnpIxLXmrXz+SUZ/8SQC68SdvzXHQIK
-         4MpMfdIF3G/OG76/Rab7EU7TT8WJG0ey4eceYRerFUEGo49Lzvt71+5PVmmPKAgyHf
-         d9elk8Gzvfm52d9Nk9kUoXvXbRYu6ngF1v451RoA=
+        b=ucyyQiGOdoiSgLTnPHBAKn6Jgualeyrd7DjNcaryeIkLqdUgucHF0yt4DzG1DWly4
+         6INCzf4oLHUsnbxgTjP/2PjWGfXO9NCscTscSMeB07GMFEOtzrFSEzkH3XFfUtRMII
+         Gp+dZOXAjDQaNa3LMGf2pKy3wgnOqntR3FSsKNy4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
-        Frank Rowand <frank.rowand@sony.com>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 5.10 558/563] scripts/dtc: dtx_diff: remove broken example from help text
-Date:   Mon, 24 Jan 2022 19:45:23 +0100
-Message-Id: <20220124184043.747104714@linuxfoundation.org>
+        stable@vger.kernel.org, Maxim Mikityanskiy <maximmi@nvidia.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.16 1025/1039] sch_api: Dont skip qdisc attach on ingress
+Date:   Mon, 24 Jan 2022 19:46:54 +0100
+Message-Id: <20220124184159.746106739@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,46 +48,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+From: Maxim Mikityanskiy <maximmi@nvidia.com>
 
-commit d8adf5b92a9d2205620874d498c39923ecea8749 upstream.
+commit de2d807b294d3d2ce5e59043ae2634016765d076 upstream.
 
-dtx_diff suggests to use <(...) syntax to pipe two inputs into it, but
-this has never worked: The /proc/self/fds/... paths passed by the shell
-will fail the `[ -f "${dtx}" ] && [ -r "${dtx}" ]` check in compile_to_dts,
-but even with this check removed, the function cannot work: hexdump will
-eat up the DTB magic, making the subsequent dtc call fail, as a pipe
-cannot be rewound.
+The attach callback of struct Qdisc_ops is used by only a few qdiscs:
+mq, mqprio and htb. qdisc_graft() contains the following logic
+(pseudocode):
 
-Simply remove this broken example, as there is already an alternative one
-that works fine.
+    if (!qdisc->ops->attach) {
+        if (ingress)
+            do ingress stuff;
+        else
+            do egress stuff;
+    }
+    if (!ingress) {
+        ...
+        if (qdisc->ops->attach)
+            qdisc->ops->attach(qdisc);
+    } else {
+        ...
+    }
 
-Fixes: 10eadc253ddf ("dtc: create tool to diff device trees")
-Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Reviewed-by: Frank Rowand <frank.rowand@sony.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20220113081918.10387-1-matthias.schiffer@ew.tq-group.com
+As we see, the attach callback is not called if the qdisc is being
+attached to ingress (TC_H_INGRESS). That wasn't a problem for mq and
+mqprio, since they contain a check that they are attached to TC_H_ROOT,
+and they can't be attached to TC_H_INGRESS anyway.
+
+However, the commit cited below added the attach callback to htb. It is
+needed for the hardware offload, but in the non-offload mode it
+simulates the "do egress stuff" part of the pseudocode above. The
+problem is that when htb is attached to ingress, neither "do ingress
+stuff" nor attach() is called. It results in an inconsistency, and the
+following message is printed to dmesg:
+
+unregister_netdevice: waiting for lo to become free. Usage count = 2
+
+This commit addresses the issue by running "do ingress stuff" in the
+ingress flow even in the attach callback is present, which is fine,
+because attach isn't going to be called afterwards.
+
+The bug was found by syzbot and reported by Eric.
+
+Fixes: d03b195b5aa0 ("sch_htb: Hierarchical QoS hardware offload")
+Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
+Reported-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/dtc/dtx_diff |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ net/sched/sch_api.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/scripts/dtc/dtx_diff
-+++ b/scripts/dtc/dtx_diff
-@@ -59,12 +59,8 @@ Otherwise DTx is treated as a dts source
-    or '/include/' to be processed.
+--- a/net/sched/sch_api.c
++++ b/net/sched/sch_api.c
+@@ -1062,7 +1062,7 @@ static int qdisc_graft(struct net_device
  
-    If DTx_1 and DTx_2 are in different architectures, then this script
--   may not work since \${ARCH} is part of the include path.  Two possible
--   workarounds:
--
--      `basename $0` \\
--          <(ARCH=arch_of_dtx_1 `basename $0` DTx_1) \\
--          <(ARCH=arch_of_dtx_2 `basename $0` DTx_2)
-+   may not work since \${ARCH} is part of the include path.  The following
-+   workaround can be used:
+ 		qdisc_offload_graft_root(dev, new, old, extack);
  
-       `basename $0` ARCH=arch_of_dtx_1 DTx_1 >tmp_dtx_1.dts
-       `basename $0` ARCH=arch_of_dtx_2 DTx_2 >tmp_dtx_2.dts
+-		if (new && new->ops->attach)
++		if (new && new->ops->attach && !ingress)
+ 			goto skip;
+ 
+ 		for (i = 0; i < num_q; i++) {
 
 
