@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 392A549960D
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:16:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E59A7499689
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:19:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244955AbiAXU6q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:58:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45168 "EHLO
+        id S1445719AbiAXVEs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:04:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1442670AbiAXUzE (ORCPT
+        with ESMTP id S1442672AbiAXUzE (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:55:04 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0240AC047CE5;
-        Mon, 24 Jan 2022 12:00:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 195BBC047CE8;
+        Mon, 24 Jan 2022 12:00:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9ECC6B81218;
-        Mon, 24 Jan 2022 20:00:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B44C9C340E5;
-        Mon, 24 Jan 2022 19:59:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CB431B81229;
+        Mon, 24 Jan 2022 20:00:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03D62C340E7;
+        Mon, 24 Jan 2022 20:00:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054400;
-        bh=sDAo1XnIxCI4a6omn15xDtLahALW8/Pua+mmxRBmHWo=;
+        s=korg; t=1643054403;
+        bh=Gvxsjpd5cfIoDoJ7uJZx2+ip3PN++DHEoQrmqb82lSg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A5CcKB8hTvaBfwx4Xo4Qk+4E+Z6SurcG42hoPzA6WS18o39zqv96Klwdr/iUa66Hj
-         bc/9y7wRrCElb1QEwTKpsNDF/eKp02pTcAA9i4bzFdLi5twCOl9oJdtnBbmeyMt5e1
-         G3B0nq6HpYbWOw0p/Uw+Ruw7F+ishBm0hO4Wl94U=
+        b=Nr0mLG+lVb03ubTfVTQeFJwSsrEo8MMDIFYEPwiMWKzAdn/paT791TTsPxSbIQUqH
+         UmnGTvKb73zxnASzbaSRQvceh8tZHv90jISRXyd+qlBTBJj6HS8jKf9D6P8YX5nP5A
+         2kdWxoRMBIZ5IgMTLPtxSOynut564IsjOl2GY+6Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilan Peer <ilan.peer@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 377/563] iwlwifi: mvm: Fix calculation of frame length
-Date:   Mon, 24 Jan 2022 19:42:22 +0100
-Message-Id: <20220124184037.466685641@linuxfoundation.org>
+Subject: [PATCH 5.10 378/563] iwlwifi: pcie: make sure prph_info is set when treating wakeup IRQ
+Date:   Mon, 24 Jan 2022 19:42:23 +0100
+Message-Id: <20220124184037.498455575@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -48,70 +47,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilan Peer <ilan.peer@intel.com>
+From: Luca Coelho <luciano.coelho@intel.com>
 
-[ Upstream commit 40a0b38d7a7f91a6027287e0df54f5f547e8d27e ]
+[ Upstream commit 459fc0f2c6b0f6e280bfa0f230c100c9dfe3a199 ]
 
-The RADA might include in the Rx frame the MIC and CRC bytes.
-These bytes should be removed for non monitor interfaces and
-should not be passed to mac80211.
+In some rare cases when the HW is in a bad state, we may get this
+interrupt when prph_info is not set yet.  Then we will try to
+dereference it to check the sleep_notif element, which will cause an
+oops.
 
-Fix the Rx processing to remove the extra bytes on non monitor
-cases.
+Fix that by ignoring the interrupt if prph_info is not set yet.
 
-Signed-off-by: Ilan Peer <ilan.peer@intel.com>
 Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20211219121514.098be12c801e.I1d81733d8a75b84c3b20eb6e0d14ab3405ca6a86@changeid
+Link: https://lore.kernel.org/r/iwlwifi.20211219132536.0537aa562313.I183bb336345b9b3da196ba9e596a6f189fbcbd09@changeid
 Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c | 27 +++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ drivers/net/wireless/intel/iwlwifi/pcie/rx.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
-index 838734fec5023..86b3fb321dfdd 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
-@@ -177,12 +177,39 @@ static int iwl_mvm_create_skb(struct iwl_mvm *mvm, struct sk_buff *skb,
- 	struct iwl_rx_mpdu_desc *desc = (void *)pkt->data;
- 	unsigned int headlen, fraglen, pad_len = 0;
- 	unsigned int hdrlen = ieee80211_hdrlen(hdr->frame_control);
-+	u8 mic_crc_len = u8_get_bits(desc->mac_flags1,
-+				     IWL_RX_MPDU_MFLG1_MIC_CRC_LEN_MASK) << 1;
- 
- 	if (desc->mac_flags2 & IWL_RX_MPDU_MFLG2_PAD) {
- 		len -= 2;
- 		pad_len = 2;
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/rx.c b/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
+index 2c13fa8f28200..6aedf5762571d 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
+@@ -2260,7 +2260,12 @@ irqreturn_t iwl_pcie_irq_msix_handler(int irq, void *dev_id)
+ 		}
  	}
  
+-	if (inta_hw & MSIX_HW_INT_CAUSES_REG_WAKEUP) {
 +	/*
-+	 * For non monitor interface strip the bytes the RADA might not have
-+	 * removed. As monitor interface cannot exist with other interfaces
-+	 * this removal is safe.
++	 * In some rare cases when the HW is in a bad state, we may
++	 * get this interrupt too early, when prph_info is still NULL.
++	 * So make sure that it's not NULL to prevent crashing.
 +	 */
-+	if (mic_crc_len && !ieee80211_hw_check(mvm->hw, RX_INCLUDES_FCS)) {
-+		u32 pkt_flags = le32_to_cpu(pkt->len_n_flags);
-+
-+		/*
-+		 * If RADA was not enabled then decryption was not performed so
-+		 * the MIC cannot be removed.
-+		 */
-+		if (!(pkt_flags & FH_RSCSR_RADA_EN)) {
-+			if (WARN_ON(crypt_len > mic_crc_len))
-+				return -EINVAL;
-+
-+			mic_crc_len -= crypt_len;
-+		}
-+
-+		if (WARN_ON(mic_crc_len > len))
-+			return -EINVAL;
-+
-+		len -= mic_crc_len;
-+	}
-+
- 	/* If frame is small enough to fit in skb->head, pull it completely.
- 	 * If not, only pull ieee80211_hdr (including crypto if present, and
- 	 * an additional 8 bytes for SNAP/ethertype, see below) so that
++	if (inta_hw & MSIX_HW_INT_CAUSES_REG_WAKEUP && trans_pcie->prph_info) {
+ 		u32 sleep_notif =
+ 			le32_to_cpu(trans_pcie->prph_info->sleep_notif);
+ 		if (sleep_notif == IWL_D3_SLEEP_STATUS_SUSPEND ||
 -- 
 2.34.1
 
