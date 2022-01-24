@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A1D749818C
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:59:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCCCF49818D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:59:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237605AbiAXN7V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 08:59:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57896 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237526AbiAXN7U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:59:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04A7EC06173B
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 05:59:20 -0800 (PST)
+        id S237604AbiAXN7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 08:59:24 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56282 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237526AbiAXN7Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:59:24 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 98D96612F3
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:59:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CC65C340E1;
-        Mon, 24 Jan 2022 13:59:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5F5E6B81057
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:59:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A711C340E1;
+        Mon, 24 Jan 2022 13:59:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643032759;
-        bh=3m6LlE/4yqlOZl9WkCcdoNp08bf86xDLdgrIQU+GrFo=;
+        s=korg; t=1643032762;
+        bh=lS5WnRc2Ui5dt6kAobcax19vG3I3Zv8kw44/lS9DJCw=;
         h=Subject:To:Cc:From:Date:From;
-        b=WPX8DLCYAOiN64xVYGp5Z/xjMnNF2Il29BeQCtUXdJwoKnx3CK7h4XRQ1nz02ufkZ
-         wbcFJLLOFoLXTo5156EenxrCHFNNHHHI8gG6XnpNv0gI2RjxVlS/rdnApT6XM9cmdV
-         F1ycfNIs37DA2UDnDJwGgXh2Ol4L1IED3be6cPzY=
-Subject: FAILED: patch "[PATCH] net: mscc: ocelot: don't dereference NULL pointers with" failed to apply to 5.15-stable tree
+        b=Ka8j5uYv4ySsz/nn7TVzlTGXDAsWuxo4XEcBh72RqjPiZX0vHyFEGeVzQH1Zs2CpY
+         k3EgLFuuTCpPRlNmb8ghZKq24IpFkiDz4x0rc0fLJu3ZHNBW/OYAsmjAJ6s9I9kRF5
+         VRR6kmr/t8V0cOrK6R4j2sg5TlE04z8ioMSfeJc8=
+Subject: FAILED: patch "[PATCH] net: mscc: ocelot: don't dereference NULL pointers with" failed to apply to 5.10-stable tree
 To:     vladimir.oltean@nxp.com, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 14:57:16 +0100
-Message-ID: <1643032636199208@kroah.com>
+Date:   Mon, 24 Jan 2022 14:58:33 +0100
+Message-ID: <164303271327100@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
