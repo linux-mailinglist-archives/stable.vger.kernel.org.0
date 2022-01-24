@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0F3349A984
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:25:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB2CB49A972
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:24:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1322649AbiAYDWN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:22:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38526 "EHLO
+        id S1322584AbiAYDWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:22:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382509AbiAXUcg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:32:36 -0500
+        with ESMTP id S1385055AbiAXUbZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:31:25 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 483FEC07E286;
-        Mon, 24 Jan 2022 11:44:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BABAC07A96D;
+        Mon, 24 Jan 2022 11:43:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0FFC4B8121C;
-        Mon, 24 Jan 2022 19:44:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BA94C340E5;
-        Mon, 24 Jan 2022 19:44:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B4BCDB811FB;
+        Mon, 24 Jan 2022 19:43:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBE84C340EA;
+        Mon, 24 Jan 2022 19:43:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053460;
-        bh=QhyT2bS2KUOxuRjcFZtcIPFGFLrQN5ZORdtoOHjRbOg=;
+        s=korg; t=1643053388;
+        bh=4RUcMj1GoLMRgwa1w50kVg3OcRDZyoHyt2bFDIJJZb8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YDK+xjSnbQLZMKS5w3FvvXMlJPlxh2vWl+d7QlI60HtfBCDrGnf1df91r25McJkGC
-         6xvnfWxdphYERRHAjKj4wAeXLOwZuR8z9L06l2ekl7MwQ/GhbZlz0d5IKncmYP5gOy
-         AlKS0jDGJOjafIAhFUektZh0aC7V27onmHccKiag=
+        b=VHdSzKk/RHT40JtqLLfiiAl6yHbOYIUqiBYzCb+OuXKUGxht4qVhOkxznM4/v5z7f
+         mfguVqrFhgW0lmhQq69PKiNgLSmcfLlqAbFyV53v/2O903l3/pK9YlPwyUSnpQIwY/
+         pWXozx2ayk736W+ZPQh1/ei1VxNJqRduSJ55pDMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Gang Li <ligang.bdlg@bytedance.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 040/563] shmem: fix a race between shmem_unused_huge_shrink and shmem_evict_inode
-Date:   Mon, 24 Jan 2022 19:36:45 +0100
-Message-Id: <20220124184025.818939676@linuxfoundation.org>
+        stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
+        Chen-Yu Tsai <wenst@chromium.org>,
+        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
+        <nfraprado@collabora.com>, Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 049/563] drm/rockchip: dsi: Disable PLL clock on bind error
+Date:   Mon, 24 Jan 2022 19:36:54 +0100
+Message-Id: <20220124184026.116047314@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -51,172 +50,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gang Li <ligang.bdlg@bytedance.com>
+From: Brian Norris <briannorris@chromium.org>
 
-commit 62c9827cbb996c2c04f615ecd783ce28bcea894b upstream.
+[ Upstream commit 5a614570172e1c9f59035d259dd735acd4f1c01b ]
 
-Fix a data race in commit 779750d20b93 ("shmem: split huge pages beyond
-i_size under memory pressure").
+Fix some error handling here noticed in review of other changes.
 
-Here are call traces causing race:
-
-   Call Trace 1:
-     shmem_unused_huge_shrink+0x3ae/0x410
-     ? __list_lru_walk_one.isra.5+0x33/0x160
-     super_cache_scan+0x17c/0x190
-     shrink_slab.part.55+0x1ef/0x3f0
-     shrink_node+0x10e/0x330
-     kswapd+0x380/0x740
-     kthread+0xfc/0x130
-     ? mem_cgroup_shrink_node+0x170/0x170
-     ? kthread_create_on_node+0x70/0x70
-     ret_from_fork+0x1f/0x30
-
-   Call Trace 2:
-     shmem_evict_inode+0xd8/0x190
-     evict+0xbe/0x1c0
-     do_unlinkat+0x137/0x330
-     do_syscall_64+0x76/0x120
-     entry_SYSCALL_64_after_hwframe+0x3d/0xa2
-
-A simple explanation:
-
-Image there are 3 items in the local list (@list).  In the first
-traversal, A is not deleted from @list.
-
-  1)    A->B->C
-        ^
-        |
-        pos (leave)
-
-In the second traversal, B is deleted from @list.  Concurrently, A is
-deleted from @list through shmem_evict_inode() since last reference
-counter of inode is dropped by other thread.  Then the @list is corrupted.
-
-  2)    A->B->C
-        ^  ^
-        |  |
-     evict pos (drop)
-
-We should make sure the inode is either on the global list or deleted from
-any local list before iput().
-
-Fixed by moving inodes back to global list before we put them.
-
-[akpm@linux-foundation.org: coding style fixes]
-
-Link: https://lkml.kernel.org/r/20211125064502.99983-1-ligang.bdlg@bytedance.com
-Fixes: 779750d20b93 ("shmem: split huge pages beyond i_size under memory pressure")
-Signed-off-by: Gang Li <ligang.bdlg@bytedance.com>
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 2d4f7bdafd70 ("drm/rockchip: dsi: migrate to use dw-mipi-dsi bridge driver")
+Signed-off-by: Brian Norris <briannorris@chromium.org>
+Reported-by: Chen-Yu Tsai <wenst@chromium.org>
+Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
+Tested-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210928143413.v3.4.I8bb7a91ecc411d56bc155763faa15f289d7fc074@changeid
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/shmem.c |   37 +++++++++++++++++++++----------------
- 1 file changed, 21 insertions(+), 16 deletions(-)
+ drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/mm/shmem.c
-+++ b/mm/shmem.c
-@@ -527,7 +527,7 @@ static unsigned long shmem_unused_huge_s
- 	struct shmem_inode_info *info;
- 	struct page *page;
- 	unsigned long batch = sc ? sc->nr_to_scan : 128;
--	int removed = 0, split = 0;
-+	int split = 0;
- 
- 	if (list_empty(&sbinfo->shrinklist))
- 		return SHRINK_STOP;
-@@ -542,7 +542,6 @@ static unsigned long shmem_unused_huge_s
- 		/* inode is about to be evicted */
- 		if (!inode) {
- 			list_del_init(&info->shrinklist);
--			removed++;
- 			goto next;
- 		}
- 
-@@ -550,12 +549,12 @@ static unsigned long shmem_unused_huge_s
- 		if (round_up(inode->i_size, PAGE_SIZE) ==
- 				round_up(inode->i_size, HPAGE_PMD_SIZE)) {
- 			list_move(&info->shrinklist, &to_remove);
--			removed++;
- 			goto next;
- 		}
- 
- 		list_move(&info->shrinklist, &list);
- next:
-+		sbinfo->shrinklist_len--;
- 		if (!--batch)
- 			break;
- 	}
-@@ -575,7 +574,7 @@ next:
- 		inode = &info->vfs_inode;
- 
- 		if (nr_to_split && split >= nr_to_split)
--			goto leave;
-+			goto move_back;
- 
- 		page = find_get_page(inode->i_mapping,
- 				(inode->i_size & HPAGE_PMD_MASK) >> PAGE_SHIFT);
-@@ -589,38 +588,44 @@ next:
- 		}
- 
- 		/*
--		 * Leave the inode on the list if we failed to lock
--		 * the page at this time.
-+		 * Move the inode on the list back to shrinklist if we failed
-+		 * to lock the page at this time.
- 		 *
- 		 * Waiting for the lock may lead to deadlock in the
- 		 * reclaim path.
- 		 */
- 		if (!trylock_page(page)) {
- 			put_page(page);
--			goto leave;
-+			goto move_back;
- 		}
- 
- 		ret = split_huge_page(page);
- 		unlock_page(page);
- 		put_page(page);
- 
--		/* If split failed leave the inode on the list */
-+		/* If split failed move the inode on the list back to shrinklist */
- 		if (ret)
--			goto leave;
-+			goto move_back;
- 
- 		split++;
- drop:
- 		list_del_init(&info->shrinklist);
--		removed++;
--leave:
-+		goto put;
-+move_back:
-+		/*
-+		 * Make sure the inode is either on the global list or deleted
-+		 * from any local list before iput() since it could be deleted
-+		 * in another thread once we put the inode (then the local list
-+		 * is corrupted).
-+		 */
-+		spin_lock(&sbinfo->shrinklist_lock);
-+		list_move(&info->shrinklist, &sbinfo->shrinklist);
-+		sbinfo->shrinklist_len++;
-+		spin_unlock(&sbinfo->shrinklist_lock);
-+put:
- 		iput(inode);
+diff --git a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
+index d3cea42dde436..6691e45230126 100644
+--- a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
++++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
+@@ -923,7 +923,7 @@ static int dw_mipi_dsi_rockchip_bind(struct device *dev,
+ 	ret = clk_prepare_enable(dsi->grf_clk);
+ 	if (ret) {
+ 		DRM_DEV_ERROR(dsi->dev, "Failed to enable grf_clk: %d\n", ret);
+-		goto out_pm_runtime;
++		goto out_pll_clk;
  	}
  
--	spin_lock(&sbinfo->shrinklist_lock);
--	list_splice_tail(&list, &sbinfo->shrinklist);
--	sbinfo->shrinklist_len -= removed;
--	spin_unlock(&sbinfo->shrinklist_lock);
--
- 	return split;
- }
+ 	dw_mipi_dsi_rockchip_config(dsi);
+@@ -935,17 +935,19 @@ static int dw_mipi_dsi_rockchip_bind(struct device *dev,
+ 	ret = rockchip_dsi_drm_create_encoder(dsi, drm_dev);
+ 	if (ret) {
+ 		DRM_DEV_ERROR(dev, "Failed to create drm encoder\n");
+-		goto out_pm_runtime;
++		goto out_pll_clk;
+ 	}
  
+ 	ret = dw_mipi_dsi_bind(dsi->dmd, &dsi->encoder);
+ 	if (ret) {
+ 		DRM_DEV_ERROR(dev, "Failed to bind: %d\n", ret);
+-		goto out_pm_runtime;
++		goto out_pll_clk;
+ 	}
+ 
+ 	return 0;
+ 
++out_pll_clk:
++	clk_disable_unprepare(dsi->pllref_clk);
+ out_pm_runtime:
+ 	pm_runtime_put(dsi->dev);
+ 	if (dsi->slave)
+-- 
+2.34.1
+
 
 
