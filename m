@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1037B499887
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:37:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC0B6499A93
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1452879AbiAXV1O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:27:14 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38218 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1449256AbiAXVPJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:15:09 -0500
+        id S1573537AbiAXVpI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:45:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54874 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377544AbiAXVhm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:37:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 719CFC0BD12B;
+        Mon, 24 Jan 2022 12:23:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0ADD561451;
-        Mon, 24 Jan 2022 21:15:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8F3EC340E5;
-        Mon, 24 Jan 2022 21:15:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE8D96090A;
+        Mon, 24 Jan 2022 20:23:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7D8CC340E5;
+        Mon, 24 Jan 2022 20:23:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058908;
-        bh=d6R36MrvRchoiac2EDIDDPVYsSqO0GHpTgvcUZB/b70=;
+        s=korg; t=1643055838;
+        bh=l7UtJdL8SBoqJm1jldU5+fDq8XyAWe8H5vJ8rXhBJ5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WCELllb+ympGW39y/wUa1ruvBXBLG9A8/3AfyPhHRBJ3J8DHGdreCtUYfIM3UmZOD
-         1zC1LZ0iPzxe5rUXjCe6vLjiQCVHnTVv5EwE10gsNKKHKdWXUTnvgRd5b4CuLUeNyW
-         VSpkoeUGpY0TQUq8BNwA4DSwM2Kzd2ruBkkxyAPg=
+        b=znh9VTSLc/tTsENBSJQJGG0K7MI0ei3pIzurkaSVMsQrEX6w0Defk96eVplwbSGlf
+         O+U3mYoGs/JxB7b5T881u5zSe2eP+oL87Qgk5sHrfT5fCqA9vomnXDXyRvPPAzp2W5
+         xMmxBaDQAndOPepUA5qFmo4Axq84GDCdlb2gBRtQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
-        Gal Pressman <gal@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0409/1039] Revert "net/mlx5e: Block offload of outer header csum for UDP tunnels"
-Date:   Mon, 24 Jan 2022 19:36:38 +0100
-Message-Id: <20220124184139.064960266@linuxfoundation.org>
+Subject: [PATCH 5.15 282/846] lib/logic_iomem: Fix operation on 32-bit
+Date:   Mon, 24 Jan 2022 19:36:39 +0100
+Message-Id: <20220124184110.654106787@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,48 +48,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@nvidia.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 64050cdad0983ad8060e33c3f4b5aee2366bcebd ]
+[ Upstream commit 4e8a5edac5010820e7c5303fc96f5a262e096bb6 ]
 
-This reverts commit 6d6727dddc7f93fcc155cb8d0c49c29ae0e71122.
+On 32-bit, the first entry might be at 0/NULL, but that's
+strange and leads to issues, e.g. where we check "if (ret)".
+Use a IOREMAP_BIAS/IOREMAP_MASK of 0x80000000UL to avoid
+this. This then requires reducing the number of areas (via
+MAX_AREAS), but we still have 128 areas, which is enough.
 
-Although the NIC doesn't support offload of outer header CSUM, using
-gso_partial_features allows offloading the tunnel's segmentation. The
-driver relies on the stack CSUM calculation of the outer header. For
-this, NETIF_F_GSO_UDP_TUNNEL_CSUM must be a member of the device's
-features.
-
-Fixes: 6d6727dddc7f ("net/mlx5e: Block offload of outer header csum for UDP tunnels")
-Signed-off-by: Aya Levin <ayal@nvidia.com>
-Reviewed-by: Gal Pressman <gal@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: ca2e334232b6 ("lib: add iomem emulation (logic_iomem)")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ lib/logic_iomem.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index 41379844eee1f..de8acd3217c18 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -4789,9 +4789,13 @@ static void mlx5e_build_nic_netdev(struct net_device *netdev)
- 	}
+diff --git a/lib/logic_iomem.c b/lib/logic_iomem.c
+index 54fa601f3300b..549b22d4bcde1 100644
+--- a/lib/logic_iomem.c
++++ b/lib/logic_iomem.c
+@@ -21,15 +21,15 @@ struct logic_iomem_area {
  
- 	if (mlx5_vxlan_allowed(mdev->vxlan) || mlx5_geneve_tx_allowed(mdev)) {
--		netdev->hw_features     |= NETIF_F_GSO_UDP_TUNNEL;
--		netdev->hw_enc_features |= NETIF_F_GSO_UDP_TUNNEL;
--		netdev->vlan_features |= NETIF_F_GSO_UDP_TUNNEL;
-+		netdev->hw_features     |= NETIF_F_GSO_UDP_TUNNEL |
-+					   NETIF_F_GSO_UDP_TUNNEL_CSUM;
-+		netdev->hw_enc_features |= NETIF_F_GSO_UDP_TUNNEL |
-+					   NETIF_F_GSO_UDP_TUNNEL_CSUM;
-+		netdev->gso_partial_features = NETIF_F_GSO_UDP_TUNNEL_CSUM;
-+		netdev->vlan_features |= NETIF_F_GSO_UDP_TUNNEL |
-+					 NETIF_F_GSO_UDP_TUNNEL_CSUM;
- 	}
+ #define AREA_SHIFT	24
+ #define MAX_AREA_SIZE	(1 << AREA_SHIFT)
+-#define MAX_AREAS	((1ULL<<32) / MAX_AREA_SIZE)
++#define MAX_AREAS	((1U << 31) / MAX_AREA_SIZE)
+ #define AREA_BITS	((MAX_AREAS - 1) << AREA_SHIFT)
+ #define AREA_MASK	(MAX_AREA_SIZE - 1)
+ #ifdef CONFIG_64BIT
+ #define IOREMAP_BIAS	0xDEAD000000000000UL
+ #define IOREMAP_MASK	0xFFFFFFFF00000000UL
+ #else
+-#define IOREMAP_BIAS	0
+-#define IOREMAP_MASK	0
++#define IOREMAP_BIAS	0x80000000UL
++#define IOREMAP_MASK	0x80000000UL
+ #endif
  
- 	if (mlx5e_tunnel_proto_supported_tx(mdev, IPPROTO_GRE)) {
+ static DEFINE_MUTEX(regions_mtx);
 -- 
 2.34.1
 
