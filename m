@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53834498A3C
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:02:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42BBC498A11
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:02:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344849AbiAXTCR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:02:17 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:55930 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344568AbiAXS6F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:58:05 -0500
+        id S1343786AbiAXTBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:01:25 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:57124 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344583AbiAXS6H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:58:07 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 32804B8124B;
-        Mon, 24 Jan 2022 18:58:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14570C340E7;
-        Mon, 24 Jan 2022 18:58:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ACA5C614DF;
+        Mon, 24 Jan 2022 18:58:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89928C340E5;
+        Mon, 24 Jan 2022 18:58:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050682;
-        bh=IyEZm5VJ9DTUvGD5ch3pdHZ+oyGhrNtAXW8JkE7kfH0=;
+        s=korg; t=1643050686;
+        bh=WwExldU9G39L2ssPdcPuqzKK5FM6hA2PmC/gQghHkmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vH8qIMtzoL8JA/VQ/vI6GvytJJPsr43Qbt7FlRxLpZl5SkHZ3kixjchVrLFwVV2ib
-         Gp51JgB6skfbOgZ/h1TxCiT2agl2AkWKE0/vXyll9mwnNqy206hXa8fMB4DTsNG+Qk
-         B5RPyAKZJedxmvw1iyYVBgNua11RNDW9OgVlJp1I=
+        b=fLG4xhSVTCarQQ/e7clHoCz5CRBvHUGWg3IvTvHEnmwmn5IyZ9c6/TOmOlPKIuE1B
+         ipu9zJgH0iLt32UtesLsNr0uFJ2a/Fm2pkqb3Mk26iYSHx1MUFJ7ZQgDgmxDUhY7S/
+         vdyPx+Zd+Po9jijonhj9ZrF4QB/t4b75ryASaZJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
         Dominik Brodowski <linux@dominikbrodowski.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 047/157] pcmcia: rsrc_nonstatic: Fix a NULL pointer dereference in __nonstatic_find_io_region()
-Date:   Mon, 24 Jan 2022 19:42:17 +0100
-Message-Id: <20220124183934.283948361@linuxfoundation.org>
+Subject: [PATCH 4.9 048/157] pcmcia: rsrc_nonstatic: Fix a NULL pointer dereference in nonstatic_find_mem_region()
+Date:   Mon, 24 Jan 2022 19:42:18 +0100
+Message-Id: <20220124183934.314338325@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
 References: <20220124183932.787526760@linuxfoundation.org>
@@ -47,10 +47,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhou Qingyang <zhou1615@umn.edu>
 
-[ Upstream commit ca0fe0d7c35c97528bdf621fdca75f13157c27af ]
+[ Upstream commit 977d2e7c63c3d04d07ba340b39987742e3241554 ]
 
-In __nonstatic_find_io_region(), pcmcia_make_resource() is assigned to
-res and used in pci_bus_alloc_resource(). There is a dereference of res
+In nonstatic_find_mem_region(), pcmcia_make_resource() is assigned to
+res and used in pci_bus_alloc_resource(). There a dereference of res
 in pci_bus_alloc_resource(), which could lead to a NULL pointer
 dereference on failure of pcmcia_make_resource().
 
@@ -71,7 +71,6 @@ and our static analyzer no longer warns about this code.
 
 Fixes: 49b1153adfe1 ("pcmcia: move all pcmcia_resource_ops providers into one module")
 Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-[linux@dominikbrodowski.net: Fix typo in commit message]
 Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
@@ -79,19 +78,19 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+)
 
 diff --git a/drivers/pcmcia/rsrc_nonstatic.c b/drivers/pcmcia/rsrc_nonstatic.c
-index 5ef7b46a25786..4d244014f423f 100644
+index 4d244014f423f..2e96d9273b780 100644
 --- a/drivers/pcmcia/rsrc_nonstatic.c
 +++ b/drivers/pcmcia/rsrc_nonstatic.c
-@@ -693,6 +693,9 @@ static struct resource *__nonstatic_find_io_region(struct pcmcia_socket *s,
- 	unsigned long min = base;
- 	int ret;
+@@ -815,6 +815,9 @@ static struct resource *nonstatic_find_mem_region(u_long base, u_long num,
+ 	unsigned long min, max;
+ 	int ret, i, j;
  
 +	if (!res)
 +		return NULL;
 +
+ 	low = low || !(s->features & SS_CAP_PAGE_REGS);
+ 
  	data.mask = align - 1;
- 	data.offset = base & data.mask;
- 	data.map = &s_data->io_db;
 -- 
 2.34.1
 
