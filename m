@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 143D2499A85
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DAC4C4997CD
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:33:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1573296AbiAXVor (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:44:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54860 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1455569AbiAXVfk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:35:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4F30C05A186;
-        Mon, 24 Jan 2022 12:22:27 -0800 (PST)
+        id S1358061AbiAXVQb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:16:31 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:35284 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1448046AbiAXVLz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:11:55 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B6ECB8122D;
-        Mon, 24 Jan 2022 20:22:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8DD7C340E7;
-        Mon, 24 Jan 2022 20:22:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3ADD861451;
+        Mon, 24 Jan 2022 21:11:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 132CDC340E5;
+        Mon, 24 Jan 2022 21:11:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055746;
-        bh=kOahFSvEW43v6s3fzF/seoeZFzaSHPDFkEhMXFiTIMQ=;
+        s=korg; t=1643058714;
+        bh=tZoRqKshpb0jYNvvz3638yINcJjRi1Ic87BJvrzDhSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wmsPccyqcWxMyDRXCgMtVB9K1001TSoMPV+mpZ/oLNB655FyAqSgbVWL70hAtkE/R
-         tuoOUUCZ/iN9rOiDtacCnlScVks2bKjDex9rdOJnGeQpHrtNCQ230tFgq0Gw9WG05W
-         hSuduQfpchjWGWO2sf/KOJZwx1AlzHC1uXu2ieXk=
+        b=ZK5JmYtm34pamy+HKlwb9Bep+hRqSn46QRoQ3cSy0sYQUit3PnLQ1sS99egt1n4Yw
+         Fz/v5NY4QMUctYMJ8fLy5TFfPMbjBfO6Vse3TVvldECtXNYC4FgpmY7FW/IEf5JRTP
+         8SJJW1xGYjV+qFU1/qPTzpiWnv9AmawboRiOqXoE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Steev Klimaszewski <steev@kali.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 251/846] arm64: dts: qcom: c630: Fix soundcard setup
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Steffen Weinreich <steve@weinreich.org>
+Subject: [PATCH 5.16 0379/1039] netfilter: nft_payload: do not update layer 4 checksum when mangling fragments
 Date:   Mon, 24 Jan 2022 19:36:08 +0100
-Message-Id: <20220124184109.603304599@linuxfoundation.org>
+Message-Id: <20220124184138.051803190@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,87 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit c02b360ca67ebeb9de07b47b2fe53f964c2561d1 ]
+[ Upstream commit 4e1860a3863707e8177329c006d10f9e37e097a8 ]
 
-Currently Soundcard has 1 rx device for headset and SoundWire Speaker Playback.
+IP fragments do not come with the transport header, hence skip bogus
+layer 4 checksum updates.
 
-This setup has issues, ex if we try to play on headset the audio stream is
-also sent to SoundWire Speakers and we will hear sound in both headsets and speakers.
-
-Make a separate device for Speakers and Headset so that the streams are
-different and handled properly.
-
-Fixes: 45021d35fcb2 ("arm64: dts: qcom: c630: Enable audio support")
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Tested-by: Steev Klimaszewski <steev@kali.org>
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Link: https://lore.kernel.org/r/20211209175342.20386-2-srinivas.kandagatla@linaro.org
+Fixes: 1814096980bb ("netfilter: nft_payload: layer 4 checksum adjustment for pseudoheader fields")
+Reported-and-tested-by: Steffen Weinreich <steve@weinreich.org>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../boot/dts/qcom/sdm850-lenovo-yoga-c630.dts | 27 +++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ net/netfilter/nft_payload.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
-index 2ba23aa582a18..617a634ac9051 100644
---- a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
-+++ b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
-@@ -518,6 +518,10 @@
- 	dai@1 {
- 		reg = <1>;
- 	};
+diff --git a/net/netfilter/nft_payload.c b/net/netfilter/nft_payload.c
+index bd689938a2e0c..58e96a0fe0b4c 100644
+--- a/net/netfilter/nft_payload.c
++++ b/net/netfilter/nft_payload.c
+@@ -546,6 +546,9 @@ static int nft_payload_l4csum_offset(const struct nft_pktinfo *pkt,
+ 				     struct sk_buff *skb,
+ 				     unsigned int *l4csum_offset)
+ {
++	if (pkt->fragoff)
++		return -1;
 +
-+	dai@2 {
-+		reg = <2>;
-+	};
- };
- 
- &sound {
-@@ -530,6 +534,7 @@
- 		"SpkrLeft IN", "SPK1 OUT",
- 		"SpkrRight IN", "SPK2 OUT",
- 		"MM_DL1",  "MultiMedia1 Playback",
-+		"MM_DL3",  "MultiMedia3 Playback",
- 		"MultiMedia2 Capture", "MM_UL2";
- 
- 	mm1-dai-link {
-@@ -546,6 +551,13 @@
- 		};
- 	};
- 
-+	mm3-dai-link {
-+		link-name = "MultiMedia3";
-+		cpu {
-+			sound-dai = <&q6asmdai  MSM_FRONTEND_DAI_MULTIMEDIA3>;
-+		};
-+	};
-+
- 	slim-dai-link {
- 		link-name = "SLIM Playback";
- 		cpu {
-@@ -575,6 +587,21 @@
- 			sound-dai = <&wcd9340 1>;
- 		};
- 	};
-+
-+	slim-wcd-dai-link {
-+		link-name = "SLIM WCD Playback";
-+		cpu {
-+			sound-dai = <&q6afedai SLIMBUS_1_RX>;
-+		};
-+
-+		platform {
-+			sound-dai = <&q6routing>;
-+		};
-+
-+		codec {
-+			sound-dai =  <&wcd9340 2>;
-+		};
-+	};
- };
- 
- &tlmm {
+ 	switch (pkt->tprot) {
+ 	case IPPROTO_TCP:
+ 		*l4csum_offset = offsetof(struct tcphdr, check);
 -- 
 2.34.1
 
