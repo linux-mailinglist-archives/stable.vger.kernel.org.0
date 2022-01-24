@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFC5A499C8B
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:09:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 53C2A499C86
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:09:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1579574AbiAXWGA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:06:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60476 "EHLO
+        id S1579566AbiAXWF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:05:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1577768AbiAXWBE (ORCPT
+        with ESMTP id S1577771AbiAXWBE (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:01:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78140C0C0939;
-        Mon, 24 Jan 2022 12:40:08 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03170C02B8F7;
+        Mon, 24 Jan 2022 12:40:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 356E4B80FA3;
-        Mon, 24 Jan 2022 20:40:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 600F4C340E7;
-        Mon, 24 Jan 2022 20:40:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9466461542;
+        Mon, 24 Jan 2022 20:40:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 652B6C340ED;
+        Mon, 24 Jan 2022 20:40:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056806;
-        bh=+j/hF9KUbkWpVpF0TWD+CJhI+JZR0eec5rq0R+03JEU=;
+        s=korg; t=1643056809;
+        bh=TElkjlzuCBV3Gc3JqGNMR1z/jwiZxTMPgmvaZtwLM8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZQNb8KtzpzDaOuVZeYkOziX0n47YcGA5TiTyxESXbFzXvqgnHmQ66tNvI8ogDS8nx
-         g6nJhrgduBDPc9FcJ126OthgQtMZ+FoGUkya8tyMjSr9hvFIaUdOtETSnf0uouWXfJ
-         uO+OWcXCXkhKM3S165QyQ+sCmzlnVUVJfu1GFSpA=
+        b=aeVCzfIXdKwKxfkskB6/9LZu2DXY9g83p5QcEPuSuf+7WS2WFzdmWmoQKbXZhVOpp
+         oSFlFSwaD78z6aTi3JBhyFj24cKiDaX6qE+zQFu4oR1Y5pj2bAfiWn/dB07QWEm9q1
+         XPK4abMrcJ2WVwTTDVCx/u4h2duLy6aGceltKOgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Thornber <ejt@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 605/846] dm space map common: add bounds check to sm_ll_lookup_bitmap()
-Date:   Mon, 24 Jan 2022 19:42:02 +0100
-Message-Id: <20220124184121.892034238@linuxfoundation.org>
+        stable@vger.kernel.org, Hangbin Liu <haliu@redhat.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Jussi Maki <joamaki@gmail.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 606/846] bpf/selftests: Fix namespace mount setup in tc_redirect
+Date:   Mon, 24 Jan 2022 19:42:03 +0100
+Message-Id: <20220124184121.927835297@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -48,35 +49,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Thornber <ejt@redhat.com>
+From: Jiri Olsa <jolsa@redhat.com>
 
-[ Upstream commit cba23ac158db7f3cd48a923d6861bee2eb7a2978 ]
+[ Upstream commit 5e22dd18626726028a93ff1350a8a71a00fd843d ]
 
-Corrupted metadata could warrant returning error from sm_ll_lookup_bitmap().
+The tc_redirect umounts /sys in the new namespace, which can be
+mounted as shared and cause global umount. The lazy umount also
+takes down mounted trees under /sys like debugfs, which won't be
+available after sysfs mounts again and could cause fails in other
+tests.
 
-Signed-off-by: Joe Thornber <ejt@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+  # cat /proc/self/mountinfo | grep debugfs
+  34 23 0:7 / /sys/kernel/debug rw,nosuid,nodev,noexec,relatime shared:14 - debugfs debugfs rw
+  # cat /proc/self/mountinfo | grep sysfs
+  23 86 0:22 / /sys rw,nosuid,nodev,noexec,relatime shared:2 - sysfs sysfs rw
+  # mount | grep debugfs
+  debugfs on /sys/kernel/debug type debugfs (rw,nosuid,nodev,noexec,relatime)
+
+  # ./test_progs -t tc_redirect
+  #164 tc_redirect:OK
+  Summary: 1/4 PASSED, 0 SKIPPED, 0 FAILED
+
+  # mount | grep debugfs
+  # cat /proc/self/mountinfo | grep debugfs
+  # cat /proc/self/mountinfo | grep sysfs
+  25 86 0:22 / /sys rw,relatime shared:2 - sysfs sysfs rw
+
+Making the sysfs private under the new namespace so the umount won't
+trigger the global sysfs umount.
+
+Reported-by: Hangbin Liu <haliu@redhat.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Cc: Jussi Maki <joamaki@gmail.com>
+Link: https://lore.kernel.org/bpf/20220104121030.138216-1-jolsa@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/persistent-data/dm-space-map-common.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ tools/testing/selftests/bpf/prog_tests/tc_redirect.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/md/persistent-data/dm-space-map-common.c b/drivers/md/persistent-data/dm-space-map-common.c
-index 4a6a2a9b4eb49..bfbfa750e0160 100644
---- a/drivers/md/persistent-data/dm-space-map-common.c
-+++ b/drivers/md/persistent-data/dm-space-map-common.c
-@@ -283,6 +283,11 @@ int sm_ll_lookup_bitmap(struct ll_disk *ll, dm_block_t b, uint32_t *result)
- 	struct disk_index_entry ie_disk;
- 	struct dm_block *blk;
+diff --git a/tools/testing/selftests/bpf/prog_tests/tc_redirect.c b/tools/testing/selftests/bpf/prog_tests/tc_redirect.c
+index e7201ba29ccd6..47e3159729d21 100644
+--- a/tools/testing/selftests/bpf/prog_tests/tc_redirect.c
++++ b/tools/testing/selftests/bpf/prog_tests/tc_redirect.c
+@@ -105,6 +105,13 @@ static int setns_by_fd(int nsfd)
+ 	if (!ASSERT_OK(err, "unshare"))
+ 		return err;
  
-+	if (b >= ll->nr_blocks) {
-+		DMERR_LIMIT("metadata block out of bounds");
-+		return -EINVAL;
-+	}
++	/* Make our /sys mount private, so the following umount won't
++	 * trigger the global umount in case it's shared.
++	 */
++	err = mount("none", "/sys", NULL, MS_PRIVATE, NULL);
++	if (!ASSERT_OK(err, "remount private /sys"))
++		return err;
 +
- 	b = do_div(index, ll->entries_per_block);
- 	r = ll->load_ie(ll, index, &ie_disk);
- 	if (r < 0)
+ 	err = umount2("/sys", MNT_DETACH);
+ 	if (!ASSERT_OK(err, "umount2 /sys"))
+ 		return err;
 -- 
 2.34.1
 
