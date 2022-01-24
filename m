@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 074D149906F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:04:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8EB9498D70
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:34:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346082AbiAXUA1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:00:27 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:42930 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359180AbiAXT4e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:56:34 -0500
+        id S1347903AbiAXTcR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:32:17 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56514 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344466AbiAXT2y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:28:54 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4A311B811F3;
-        Mon, 24 Jan 2022 19:56:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C1E5C340E5;
-        Mon, 24 Jan 2022 19:56:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 804976129A;
+        Mon, 24 Jan 2022 19:28:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64A69C340E5;
+        Mon, 24 Jan 2022 19:28:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054192;
-        bh=enBE6ig5rLsNPHOkyfXqmaui5X7hjG1/VviCzIM8hng=;
+        s=korg; t=1643052532;
+        bh=oZ9fV1EcOdeX0gDXQYcufvalv4b+Oij4mIKQz1XPDRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qj1PmETPHp8h/x9Drf4j5qoyau9nwuKFRdGuTs15i6YIPswnRMDNX1mKZUh927o8k
-         AheN/DgVRL58TF/xHBh8NiUWWDf2AolgRPF9v7WFMxrxjPPMAMNe4kXauMbWnM7xfl
-         Dw1dq6/gddMA9XtqtBftCqmbaXvIezGYoeAZ7W3Q=
+        b=jjwZ4GHqZxfqIH0PPaUQqbvcoNXHlM5OiGxO5LOcE6CIUJ9Srw6nQSHT9zFCiJP18
+         ChrPAFaT6o7srHJl1PPvsOS1jbGT6Q1zu+p4JLGUnJ6hLZkgix48InUnBAyC/Y6d7O
+         qjbvwxsRqHhd/Lm2HPbrOkB7WwjVGC9eoQJBXfAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Antony Antony <antony.antony@secunet.com>,
+        Eyal Birger <eyal.birger@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 308/563] media: atomisp-ov2680: Fix ov2680_set_fmt() clobbering the exposure
+Subject: [PATCH 5.4 089/320] xfrm: interface with if_id 0 should return error
 Date:   Mon, 24 Jan 2022 19:41:13 +0100
-Message-Id: <20220124184035.093100551@linuxfoundation.org>
+Message-Id: <20220124183956.767515091@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,137 +46,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Antony Antony <antony.antony@secunet.com>
 
-[ Upstream commit 4492289c31364d28c2680b43b18883385a5d216c ]
+[ Upstream commit 8dce43919566f06e865f7e8949f5c10d8c2493f5 ]
 
-Now that we restore the default or last user set exposure setting on
-power_up() there is no need for the registers written by ov2680_set_fmt()
-to write to the exposure register.
+xfrm interface if_id = 0 would cause xfrm policy lookup errors since
+Commit 9f8550e4bd9d.
 
-Not doing so fixes the exposure always being reset to the value from
-the res->regs array after a set_fmt().
+Now explicitly fail to create an xfrm interface when if_id = 0
 
-Link: https://lore.kernel.org/linux-media/20211107171549.267583-11-hdegoede@redhat.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+With this commit:
+ ip link add ipsec0  type xfrm dev lo  if_id 0
+ Error: if_id must be non zero.
+
+v1->v2 change:
+ - add Fixes: tag
+
+Fixes: 9f8550e4bd9d ("xfrm: fix disable_xfrm sysctl when used on xfrm interfaces")
+Signed-off-by: Antony Antony <antony.antony@secunet.com>
+Reviewed-by: Eyal Birger <eyal.birger@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/atomisp/i2c/ov2680.h | 24 ----------------------
- 1 file changed, 24 deletions(-)
+ net/xfrm/xfrm_interface.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/media/atomisp/i2c/ov2680.h b/drivers/staging/media/atomisp/i2c/ov2680.h
-index 49920245e0647..cafb798a71abe 100644
---- a/drivers/staging/media/atomisp/i2c/ov2680.h
-+++ b/drivers/staging/media/atomisp/i2c/ov2680.h
-@@ -289,8 +289,6 @@ static struct ov2680_reg const ov2680_global_setting[] = {
-  */
- static struct ov2680_reg const ov2680_QCIF_30fps[] = {
- 	{0x3086, 0x01},
--	{0x3501, 0x24},
--	{0x3502, 0x40},
- 	{0x370a, 0x23},
- 	{0x3801, 0xa0},
- 	{0x3802, 0x00},
-@@ -334,8 +332,6 @@ static struct ov2680_reg const ov2680_QCIF_30fps[] = {
-  */
- static struct ov2680_reg const ov2680_CIF_30fps[] = {
- 	{0x3086, 0x01},
--	{0x3501, 0x24},
--	{0x3502, 0x40},
- 	{0x370a, 0x23},
- 	{0x3801, 0xa0},
- 	{0x3802, 0x00},
-@@ -377,8 +373,6 @@ static struct ov2680_reg const ov2680_CIF_30fps[] = {
-  */
- static struct ov2680_reg const ov2680_QVGA_30fps[] = {
- 	{0x3086, 0x01},
--	{0x3501, 0x24},
--	{0x3502, 0x40},
- 	{0x370a, 0x23},
- 	{0x3801, 0xa0},
- 	{0x3802, 0x00},
-@@ -420,8 +414,6 @@ static struct ov2680_reg const ov2680_QVGA_30fps[] = {
-  */
- static struct ov2680_reg const ov2680_656x496_30fps[] = {
- 	{0x3086, 0x01},
--	{0x3501, 0x24},
--	{0x3502, 0x40},
- 	{0x370a, 0x23},
- 	{0x3801, 0xa0},
- 	{0x3802, 0x00},
-@@ -463,8 +455,6 @@ static struct ov2680_reg const ov2680_656x496_30fps[] = {
- */
- static struct ov2680_reg const ov2680_720x592_30fps[] = {
- 	{0x3086, 0x01},
--	{0x3501, 0x26},
--	{0x3502, 0x40},
- 	{0x370a, 0x23},
- 	{0x3801, 0x00}, // X_ADDR_START;
- 	{0x3802, 0x00},
-@@ -508,8 +498,6 @@ static struct ov2680_reg const ov2680_720x592_30fps[] = {
- */
- static struct ov2680_reg const ov2680_800x600_30fps[] = {
- 	{0x3086, 0x01},
--	{0x3501, 0x26},
--	{0x3502, 0x40},
- 	{0x370a, 0x23},
- 	{0x3801, 0x00},
- 	{0x3802, 0x00},
-@@ -551,8 +539,6 @@ static struct ov2680_reg const ov2680_800x600_30fps[] = {
-  */
- static struct ov2680_reg const ov2680_720p_30fps[] = {
- 	{0x3086, 0x00},
--	{0x3501, 0x48},
--	{0x3502, 0xe0},
- 	{0x370a, 0x21},
- 	{0x3801, 0xa0},
- 	{0x3802, 0x00},
-@@ -594,8 +580,6 @@ static struct ov2680_reg const ov2680_720p_30fps[] = {
-  */
- static struct ov2680_reg const ov2680_1296x976_30fps[] = {
- 	{0x3086, 0x00},
--	{0x3501, 0x48},
--	{0x3502, 0xe0},
- 	{0x370a, 0x21},
- 	{0x3801, 0xa0},
- 	{0x3802, 0x00},
-@@ -637,8 +621,6 @@ static struct ov2680_reg const ov2680_1296x976_30fps[] = {
- */
- static struct ov2680_reg const ov2680_1456x1096_30fps[] = {
- 	{0x3086, 0x00},
--	{0x3501, 0x48},
--	{0x3502, 0xe0},
- 	{0x370a, 0x21},
- 	{0x3801, 0x90},
- 	{0x3802, 0x00},
-@@ -682,8 +664,6 @@ static struct ov2680_reg const ov2680_1456x1096_30fps[] = {
+diff --git a/net/xfrm/xfrm_interface.c b/net/xfrm/xfrm_interface.c
+index 74e90d78c3b46..08343201513a9 100644
+--- a/net/xfrm/xfrm_interface.c
++++ b/net/xfrm/xfrm_interface.c
+@@ -659,11 +659,16 @@ static int xfrmi_newlink(struct net *src_net, struct net_device *dev,
+ 			struct netlink_ext_ack *extack)
+ {
+ 	struct net *net = dev_net(dev);
+-	struct xfrm_if_parms p;
++	struct xfrm_if_parms p = {};
+ 	struct xfrm_if *xi;
+ 	int err;
  
- static struct ov2680_reg const ov2680_1616x916_30fps[] = {
- 	{0x3086, 0x00},
--	{0x3501, 0x48},
--	{0x3502, 0xe0},
- 	{0x370a, 0x21},
- 	{0x3801, 0x00},
- 	{0x3802, 0x00},
-@@ -726,8 +706,6 @@ static struct ov2680_reg const ov2680_1616x916_30fps[] = {
- #if 0
- static struct ov2680_reg const ov2680_1616x1082_30fps[] = {
- 	{0x3086, 0x00},
--	{0x3501, 0x48},
--	{0x3502, 0xe0},
- 	{0x370a, 0x21},
- 	{0x3801, 0x00},
- 	{0x3802, 0x00},
-@@ -769,8 +747,6 @@ static struct ov2680_reg const ov2680_1616x1082_30fps[] = {
-  */
- static struct ov2680_reg const ov2680_1616x1216_30fps[] = {
- 	{0x3086, 0x00},
--	{0x3501, 0x48},
--	{0x3502, 0xe0},
- 	{0x370a, 0x21},
- 	{0x3801, 0x00},
- 	{0x3802, 0x00},
+ 	xfrmi_netlink_parms(data, &p);
++	if (!p.if_id) {
++		NL_SET_ERR_MSG(extack, "if_id must be non zero");
++		return -EINVAL;
++	}
++
+ 	xi = xfrmi_locate(net, &p);
+ 	if (xi)
+ 		return -EEXIST;
+@@ -688,7 +693,12 @@ static int xfrmi_changelink(struct net_device *dev, struct nlattr *tb[],
+ {
+ 	struct xfrm_if *xi = netdev_priv(dev);
+ 	struct net *net = xi->net;
+-	struct xfrm_if_parms p;
++	struct xfrm_if_parms p = {};
++
++	if (!p.if_id) {
++		NL_SET_ERR_MSG(extack, "if_id must be non zero");
++		return -EINVAL;
++	}
+ 
+ 	xfrmi_netlink_parms(data, &p);
+ 	xi = xfrmi_locate(net, &p);
 -- 
 2.34.1
 
