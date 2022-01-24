@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95051499031
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87EAC499443
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:42:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351680AbiAXT7A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:59:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57630 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357862AbiAXTxF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:53:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 549C6C0613AD;
-        Mon, 24 Jan 2022 11:26:42 -0800 (PST)
+        id S1388975AbiAXUkT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:40:19 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:39462 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1386309AbiAXUfY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:35:24 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E77C261540;
-        Mon, 24 Jan 2022 19:26:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC3CAC339E5;
-        Mon, 24 Jan 2022 19:26:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E0A5B811F9;
+        Mon, 24 Jan 2022 20:35:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87756C340E5;
+        Mon, 24 Jan 2022 20:35:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052401;
-        bh=gTOwM/AJNlhw90ddlzY29TznZrDBWvCqLnrdpaZbPLA=;
+        s=korg; t=1643056522;
+        bh=PJa9pJriew9OaMlnsA9qTXusUtpxB4DAsf4xRVD7nJw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S3eE/dmDcBjqnlRuL5n84dzpdETRFksU2dWqyG1utm0aGg+DnN8j9CFAuoEbS0moG
-         1gjlKguPgjXbVcQ0Fk3kgOkG13nNkmsFJsQzW/vgwBCGR1UWWICjyWJiOG5nNzsRhR
-         i4JrqAowEon06cvAKfRoQ/hJ65YJvAKNApCpklFE=
+        b=12EJ+tR/iM1zwgjcdIJwkzxe2kTuOkWe3bxIzlbWqmyWm5fFTpV+6s2MriLJrJ2h9
+         k32xv8wl8hB4wEVnfoCE7DOngDEYoQXOaJoMuV2pqL+5F7mLW+TQnghvRcanEu6GXF
+         X4SYsSfpVJ/KD1C01bW+li71C7Js+6nmrjQLjO1w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Hewitt <christianshewitt@gmail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 046/320] arm64: dts: meson-gxbb-wetek: fix HDMI in early boot
+Subject: [PATCH 5.15 513/846] ACPI / x86: Drop PWM2 device on Lenovo Yoga Book from always present table
 Date:   Mon, 24 Jan 2022 19:40:30 +0100
-Message-Id: <20220124183955.313991239@linuxfoundation.org>
+Message-Id: <20220124184118.707485797@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,44 +45,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Hewitt <christianshewitt@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 8182a35868db5f053111d5d9d4da8fcb3f99259d ]
+[ Upstream commit d431dfb764b145369be820fcdfd50f2159b9bbc2 ]
 
-Mark the VDDIO_AO18 regulator always-on and set hdmi-supply for the hdmi_tx
-node to ensure HDMI is powered in the early stages of boot.
+It turns out that there is a WMI object which controls the PWM2 device
+used for the keyboard backlight and that WMI object also provides some
+other useful functionality.
 
-Fixes: fb72c03e0e32 ("ARM64: dts: meson-gxbb-wetek: add a wetek specific dtsi to cleanup hub and play2")
+The upcoming lenovo-yogabook-wmi driver will offer both backlight
+control and the other functionality, so there no longer is a need
+to have the lpss-pwm driver binding to PWM2 for backlight control;
+and this is now actually undesirable because this will cause both
+the WMI code and the lpss-pwm driver to poke at the same PWM
+controller.
 
-Signed-off-by: Christian Hewitt <christianshewitt@gmail.com>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20211012052522.30873-2-christianshewitt@gmail.com
+Drop the always-present quirk for the PWM2 ACPI-device, so that the
+ lpss-pwm controller will no longer bind to it.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-gxbb-wetek.dtsi | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/acpi/x86/utils.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gxbb-wetek.dtsi b/arch/arm64/boot/dts/amlogic/meson-gxbb-wetek.dtsi
-index e3d17569d98ad..d7d0b65713841 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gxbb-wetek.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-gxbb-wetek.dtsi
-@@ -64,6 +64,7 @@
- 		regulator-name = "VDDIO_AO18";
- 		regulator-min-microvolt = <1800000>;
- 		regulator-max-microvolt = <1800000>;
-+		regulator-always-on;
- 	};
+diff --git a/drivers/acpi/x86/utils.c b/drivers/acpi/x86/utils.c
+index f22f23933063b..3bcac98f6eca6 100644
+--- a/drivers/acpi/x86/utils.c
++++ b/drivers/acpi/x86/utils.c
+@@ -54,10 +54,6 @@ static const struct always_present_id always_present_ids[] = {
+ 	ENTRY("80860F09", "1", X86_MATCH(ATOM_SILVERMONT), {}),
+ 	ENTRY("80862288", "1", X86_MATCH(ATOM_AIRMONT), {}),
  
- 	vcc_3v3: regulator-vcc_3v3 {
-@@ -157,6 +158,7 @@
- 	status = "okay";
- 	pinctrl-0 = <&hdmi_hpd_pins>, <&hdmi_i2c_pins>;
- 	pinctrl-names = "default";
-+	hdmi-supply = <&vddio_ao18>;
- };
- 
- &hdmi_tx_tmds_port {
+-	/* Lenovo Yoga Book uses PWM2 for keyboard backlight control */
+-	ENTRY("80862289", "2", X86_MATCH(ATOM_AIRMONT), {
+-			DMI_MATCH(DMI_PRODUCT_NAME, "Lenovo YB1-X9"),
+-		}),
+ 	/*
+ 	 * The INT0002 device is necessary to clear wakeup interrupt sources
+ 	 * on Cherry Trail devices, without it we get nobody cared IRQ msgs.
 -- 
 2.34.1
 
