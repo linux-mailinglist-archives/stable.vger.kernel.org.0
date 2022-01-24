@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B3C5498C95
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:23:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B11D498B21
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:12:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348126AbiAXTXa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:23:30 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:44700 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349302AbiAXTUe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:20:34 -0500
+        id S1345590AbiAXTME (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:12:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46108 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346225AbiAXTFN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:05:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FC14C0613E4;
+        Mon, 24 Jan 2022 11:00:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4405BB8119D;
-        Mon, 24 Jan 2022 19:20:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A82CC340E5;
-        Mon, 24 Jan 2022 19:20:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA2B9B8122C;
+        Mon, 24 Jan 2022 19:00:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DBC8C340E5;
+        Mon, 24 Jan 2022 19:00:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052032;
-        bh=fvew88oc9rXfBgGTAJEf7GitKFB3blNqbg6pMgytd3s=;
+        s=korg; t=1643050813;
+        bh=1j7mayRmOuGQ+nRLdXsL59wVA+c5vHDalgnqM39ocY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YjZhMRTBr66WL2EE89plmcLMb8PvXDD+cxQDlRErASYkKDWYf/6yN7Kaj+dEFT4vT
-         PyjItSInFhlLjt7OwZ0UbcklySoBDDgl/yU0f6jkAgalBdbVynJZgA/Qe7kKgEVGmM
-         HZE8bUX7UVcJFUsydPPmyOR65YwSOoeNgB06WlaQ=
+        b=jKANspLH371SZXx7seO4q4AbvOaqoeDpxtiBzWuxbClsW5DyYF1P8id/r50S/vvaC
+         uCY6/30J7H9hEcxw827vzUkuZkHau6OpbaRbH6mqoYXF91MpWfXVwyKJ5Z6q48TNWl
+         nIiZOwxb6Cs6clPY0F1hgguj4tFl/IlM+OO7CQpk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 165/239] ACPI: battery: Add the ThinkPad "Not Charging" quirk
+        stable@vger.kernel.org, Zqiang <qiang.zhang1211@gmail.com>,
+        syzbot+bb950e68b400ab4f65f8@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 113/157] ALSA: seq: Set upper limit of processed events
 Date:   Mon, 24 Jan 2022 19:43:23 +0100
-Message-Id: <20220124183948.340959603@linuxfoundation.org>
+Message-Id: <20220124183936.354960884@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,80 +48,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Weißschuh <linux@weissschuh.net>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit e96c1197aca628f7d2480a1cc3214912b40b3414 ]
+[ Upstream commit 6fadb494a638d8b8a55864ecc6ac58194f03f327 ]
 
-The EC/ACPI firmware on Lenovo ThinkPads used to report a status
-of "Unknown" when the battery is between the charge start and
-charge stop thresholds. On Windows, it reports "Not Charging"
-so the quirk has been added to also report correctly.
+Currently ALSA sequencer core tries to process the queued events as
+much as possible when they become dispatchable.  If applications try
+to queue too massive events to be processed at the very same timing,
+the sequencer core would still try to process such all events, either
+in the interrupt context or via some notifier; in either away, it
+might be a cause of RCU stall or such problems.
 
-Now the "status" attribute returns "Not Charging" when the
-battery on ThinkPads is not physicaly charging.
+As a potential workaround for those problems, this patch adds the
+upper limit of the amount of events to be processed.  The remaining
+events are processed in the next batch, so they won't be lost.
 
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+For the time being, it's limited up to 1000 events per queue, which
+should be high enough for any normal usages.
+
+Reported-by: Zqiang <qiang.zhang1211@gmail.com>
+Reported-by: syzbot+bb950e68b400ab4f65f8@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20211102033222.3849-1-qiang.zhang1211@gmail.com
+Link: https://lore.kernel.org/r/20211207165146.2888-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/battery.c | 22 ++++++++++++++++++++++
- 1 file changed, 22 insertions(+)
+ sound/core/seq/seq_queue.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
-index 0bbf8b453ebf2..d4e42a578e186 100644
---- a/drivers/acpi/battery.c
-+++ b/drivers/acpi/battery.c
-@@ -78,6 +78,7 @@ static int battery_bix_broken_package;
- static int battery_notification_delay_ms;
- static int battery_ac_is_broken;
- static int battery_check_pmic = 1;
-+static int battery_quirk_notcharging;
- static unsigned int cache_time = 1000;
- module_param(cache_time, uint, 0644);
- MODULE_PARM_DESC(cache_time, "cache time in milliseconds");
-@@ -246,6 +247,8 @@ static int acpi_battery_get_property(struct power_supply *psy,
- 			val->intval = POWER_SUPPLY_STATUS_CHARGING;
- 		else if (acpi_battery_is_charged(battery))
- 			val->intval = POWER_SUPPLY_STATUS_FULL;
-+		else if (battery_quirk_notcharging)
-+			val->intval = POWER_SUPPLY_STATUS_NOT_CHARGING;
- 		else
- 			val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
- 		break;
-@@ -1350,6 +1353,12 @@ battery_do_not_check_pmic_quirk(const struct dmi_system_id *d)
- 	return 0;
- }
+diff --git a/sound/core/seq/seq_queue.c b/sound/core/seq/seq_queue.c
+index ea1aa07962761..b923059a22276 100644
+--- a/sound/core/seq/seq_queue.c
++++ b/sound/core/seq/seq_queue.c
+@@ -257,12 +257,15 @@ struct snd_seq_queue *snd_seq_queue_find_name(char *name)
  
-+static int __init battery_quirk_not_charging(const struct dmi_system_id *d)
-+{
-+	battery_quirk_notcharging = 1;
-+	return 0;
-+}
+ /* -------------------------------------------------------- */
+ 
++#define MAX_CELL_PROCESSES_IN_QUEUE	1000
 +
- static const struct dmi_system_id bat_dmi_table[] __initconst = {
- 	{
- 		/* NEC LZ750/LS */
-@@ -1394,6 +1403,19 @@ static const struct dmi_system_id bat_dmi_table[] __initconst = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Lenovo MIIX 320-10ICR"),
- 		},
- 	},
-+	{
-+		/*
-+		 * On Lenovo ThinkPads the BIOS specification defines
-+		 * a state when the bits for charging and discharging
-+		 * are both set to 0. That state is "Not Charging".
-+		 */
-+		.callback = battery_quirk_not_charging,
-+		.ident = "Lenovo ThinkPad",
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad"),
-+		},
-+	},
- 	{},
- };
+ void snd_seq_check_queue(struct snd_seq_queue *q, int atomic, int hop)
+ {
+ 	unsigned long flags;
+ 	struct snd_seq_event_cell *cell;
+ 	snd_seq_tick_time_t cur_tick;
+ 	snd_seq_real_time_t cur_time;
++	int processed = 0;
  
+ 	if (q == NULL)
+ 		return;
+@@ -285,6 +288,8 @@ void snd_seq_check_queue(struct snd_seq_queue *q, int atomic, int hop)
+ 		if (!cell)
+ 			break;
+ 		snd_seq_dispatch_event(cell, atomic, hop);
++		if (++processed >= MAX_CELL_PROCESSES_IN_QUEUE)
++			goto out; /* the rest processed at the next batch */
+ 	}
+ 
+ 	/* Process time queue... */
+@@ -294,14 +299,19 @@ void snd_seq_check_queue(struct snd_seq_queue *q, int atomic, int hop)
+ 		if (!cell)
+ 			break;
+ 		snd_seq_dispatch_event(cell, atomic, hop);
++		if (++processed >= MAX_CELL_PROCESSES_IN_QUEUE)
++			goto out; /* the rest processed at the next batch */
+ 	}
+ 
++ out:
+ 	/* free lock */
+ 	spin_lock_irqsave(&q->check_lock, flags);
+ 	if (q->check_again) {
+ 		q->check_again = 0;
+-		spin_unlock_irqrestore(&q->check_lock, flags);
+-		goto __again;
++		if (processed < MAX_CELL_PROCESSES_IN_QUEUE) {
++			spin_unlock_irqrestore(&q->check_lock, flags);
++			goto __again;
++		}
+ 	}
+ 	q->check_blocked = 0;
+ 	spin_unlock_irqrestore(&q->check_lock, flags);
 -- 
 2.34.1
 
