@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C30D4997DD
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:34:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1F684996B3
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:19:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352217AbiAXVRD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:17:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49424 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390922AbiAXVM6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:12:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B8B4C02980D;
-        Mon, 24 Jan 2022 12:10:04 -0800 (PST)
+        id S1344238AbiAXVGC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:06:02 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:54160 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1443770AbiAXU7H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:59:07 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CD04060B89;
-        Mon, 24 Jan 2022 20:10:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6151C340E7;
-        Mon, 24 Jan 2022 20:10:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D9D10B81057;
+        Mon, 24 Jan 2022 20:59:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1FE3BC340E5;
+        Mon, 24 Jan 2022 20:59:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055003;
-        bh=6fZMCQloQ2t3ladZ5ITB1GxhYi5y6jBkCeqwFsjnSLI=;
+        s=korg; t=1643057944;
+        bh=GEUWqZa4Mds9xpkPoeSkjkmS/DNRRSRnYjCMluj7qrE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w5c9Ms3UPEXjoLNHv2gVV/3cIOr6lC1uT1jve9Ea/axewzurEplsRjvt/vEIaNbNf
-         aoz1KdBWulbRWw+arlGVd9Ze+2byh8OwT01XBTdHbOYP1BkheI41C7Jy+I56HYI+qQ
-         MiT2gAtgLAPT0eLg5Ef0xA6ydVN+AhUEz0TTQGZs=
+        b=YfEEV+jhElUuQ6XTgLJ7fnb4lTvM5h60mGcEXvb7GIEf1+zYrzCt14uQmqrd77eSi
+         PtCZSTQCYhAC5jFaIDPb1l3bsj4HGpIaznTyNRviX7D4cklm6L+SH1wK+HonDY/BXZ
+         edQtSyFQx5fmUMrd+ZAMUJKT7T5c68lgGdxWZnu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcelo Tosatti <mtosatti@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.15 002/846] KVM: VMX: switch blocked_vcpu_on_cpu_lock to raw spinlock
-Date:   Mon, 24 Jan 2022 19:31:59 +0100
-Message-Id: <20220124184100.961890363@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        syzkaller <syzkaller@googlegroups.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0131/1039] media: em28xx: fix memory leak in em28xx_init_dev
+Date:   Mon, 24 Jan 2022 19:32:00 +0100
+Message-Id: <20220124184129.565373621@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,105 +48,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcelo Tosatti <mtosatti@redhat.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit 5f02ef741a785678930f3ff0a8b6b2b0ef1bb402 upstream.
+[ Upstream commit 22be5a10d0b24eec9e45decd15d7e6112b25f080 ]
 
-blocked_vcpu_on_cpu_lock is taken from hard interrupt context
-(pi_wakeup_handler), therefore it cannot sleep.
+In the em28xx_init_rev, if em28xx_audio_setup fails, this function fails
+to deallocate the media_dev allocated in the em28xx_media_device_init.
 
-Switch it to a raw spinlock.
+Fix this by adding em28xx_unregister_media_device to free media_dev.
 
-Fixes:
+BTW, this patch is tested in my local syzkaller instance, and it can
+prevent the memory leak from occurring again.
 
-[41297.066254] BUG: scheduling while atomic: CPU 0/KVM/635218/0x00010001
-[41297.066323] Preemption disabled at:
-[41297.066324] [<ffffffff902ee47f>] irq_enter_rcu+0xf/0x60
-[41297.066339] Call Trace:
-[41297.066342]  <IRQ>
-[41297.066346]  dump_stack_lvl+0x34/0x44
-[41297.066353]  ? irq_enter_rcu+0xf/0x60
-[41297.066356]  __schedule_bug.cold+0x7d/0x8b
-[41297.066361]  __schedule+0x439/0x5b0
-[41297.066365]  ? task_blocks_on_rt_mutex.constprop.0.isra.0+0x1b0/0x440
-[41297.066369]  schedule_rtlock+0x1e/0x40
-[41297.066371]  rtlock_slowlock_locked+0xf1/0x260
-[41297.066374]  rt_spin_lock+0x3b/0x60
-[41297.066378]  pi_wakeup_handler+0x31/0x90 [kvm_intel]
-[41297.066388]  sysvec_kvm_posted_intr_wakeup_ipi+0x9d/0xd0
-[41297.066392]  </IRQ>
-[41297.066392]  asm_sysvec_kvm_posted_intr_wakeup_ipi+0x12/0x20
-...
-
-Signed-off-by: Marcelo Tosatti <mtosatti@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC: Pavel Skripkin <paskripkin@gmail.com>
+Fixes: 37ecc7b1278f ("[media] em28xx: add media controller support")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/posted_intr.c |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/media/usb/em28xx/em28xx-cards.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
---- a/arch/x86/kvm/vmx/posted_intr.c
-+++ b/arch/x86/kvm/vmx/posted_intr.c
-@@ -15,7 +15,7 @@
-  * can find which vCPU should be waken up.
-  */
- static DEFINE_PER_CPU(struct list_head, blocked_vcpu_on_cpu);
--static DEFINE_PER_CPU(spinlock_t, blocked_vcpu_on_cpu_lock);
-+static DEFINE_PER_CPU(raw_spinlock_t, blocked_vcpu_on_cpu_lock);
+diff --git a/drivers/media/usb/em28xx/em28xx-cards.c b/drivers/media/usb/em28xx/em28xx-cards.c
+index b207f34af5c6f..b451ce3cb169a 100644
+--- a/drivers/media/usb/em28xx/em28xx-cards.c
++++ b/drivers/media/usb/em28xx/em28xx-cards.c
+@@ -3630,8 +3630,10 @@ static int em28xx_init_dev(struct em28xx *dev, struct usb_device *udev,
  
- static inline struct pi_desc *vcpu_to_pi_desc(struct kvm_vcpu *vcpu)
- {
-@@ -121,9 +121,9 @@ static void __pi_post_block(struct kvm_v
- 			   new.control) != old.control);
+ 	if (dev->is_audio_only) {
+ 		retval = em28xx_audio_setup(dev);
+-		if (retval)
+-			return -ENODEV;
++		if (retval) {
++			retval = -ENODEV;
++			goto err_deinit_media;
++		}
+ 		em28xx_init_extension(dev);
  
- 	if (!WARN_ON_ONCE(vcpu->pre_pcpu == -1)) {
--		spin_lock(&per_cpu(blocked_vcpu_on_cpu_lock, vcpu->pre_pcpu));
-+		raw_spin_lock(&per_cpu(blocked_vcpu_on_cpu_lock, vcpu->pre_pcpu));
- 		list_del(&vcpu->blocked_vcpu_list);
--		spin_unlock(&per_cpu(blocked_vcpu_on_cpu_lock, vcpu->pre_pcpu));
-+		raw_spin_unlock(&per_cpu(blocked_vcpu_on_cpu_lock, vcpu->pre_pcpu));
- 		vcpu->pre_pcpu = -1;
- 	}
- }
-@@ -154,11 +154,11 @@ int pi_pre_block(struct kvm_vcpu *vcpu)
- 	local_irq_disable();
- 	if (!WARN_ON_ONCE(vcpu->pre_pcpu != -1)) {
- 		vcpu->pre_pcpu = vcpu->cpu;
--		spin_lock(&per_cpu(blocked_vcpu_on_cpu_lock, vcpu->pre_pcpu));
-+		raw_spin_lock(&per_cpu(blocked_vcpu_on_cpu_lock, vcpu->pre_pcpu));
- 		list_add_tail(&vcpu->blocked_vcpu_list,
- 			      &per_cpu(blocked_vcpu_on_cpu,
- 				       vcpu->pre_pcpu));
--		spin_unlock(&per_cpu(blocked_vcpu_on_cpu_lock, vcpu->pre_pcpu));
-+		raw_spin_unlock(&per_cpu(blocked_vcpu_on_cpu_lock, vcpu->pre_pcpu));
+ 		return 0;
+@@ -3650,7 +3652,7 @@ static int em28xx_init_dev(struct em28xx *dev, struct usb_device *udev,
+ 		dev_err(&dev->intf->dev,
+ 			"%s: em28xx_i2c_register bus 0 - error [%d]!\n",
+ 		       __func__, retval);
+-		return retval;
++		goto err_deinit_media;
  	}
  
- 	do {
-@@ -215,7 +215,7 @@ void pi_wakeup_handler(void)
- 	struct kvm_vcpu *vcpu;
- 	int cpu = smp_processor_id();
+ 	/* register i2c bus 1 */
+@@ -3666,9 +3668,7 @@ static int em28xx_init_dev(struct em28xx *dev, struct usb_device *udev,
+ 				"%s: em28xx_i2c_register bus 1 - error [%d]!\n",
+ 				__func__, retval);
  
--	spin_lock(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
-+	raw_spin_lock(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
- 	list_for_each_entry(vcpu, &per_cpu(blocked_vcpu_on_cpu, cpu),
- 			blocked_vcpu_list) {
- 		struct pi_desc *pi_desc = vcpu_to_pi_desc(vcpu);
-@@ -223,13 +223,13 @@ void pi_wakeup_handler(void)
- 		if (pi_test_on(pi_desc) == 1)
- 			kvm_vcpu_kick(vcpu);
+-			em28xx_i2c_unregister(dev, 0);
+-
+-			return retval;
++			goto err_unreg_i2c;
+ 		}
  	}
--	spin_unlock(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
-+	raw_spin_unlock(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
+ 
+@@ -3676,6 +3676,12 @@ static int em28xx_init_dev(struct em28xx *dev, struct usb_device *udev,
+ 	em28xx_card_setup(dev);
+ 
+ 	return 0;
++
++err_unreg_i2c:
++	em28xx_i2c_unregister(dev, 0);
++err_deinit_media:
++	em28xx_unregister_media_device(dev);
++	return retval;
  }
  
- void __init pi_init_cpu(int cpu)
- {
- 	INIT_LIST_HEAD(&per_cpu(blocked_vcpu_on_cpu, cpu));
--	spin_lock_init(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
-+	raw_spin_lock_init(&per_cpu(blocked_vcpu_on_cpu_lock, cpu));
- }
- 
- bool pi_has_pending_interrupt(struct kvm_vcpu *vcpu)
+ static int em28xx_duplicate_dev(struct em28xx *dev)
+-- 
+2.34.1
+
 
 
