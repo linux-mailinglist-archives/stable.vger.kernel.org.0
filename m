@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7844F498C6F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:23:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43C314990FD
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:08:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345967AbiAXTW2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:22:28 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:42540 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345805AbiAXTT0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:19:26 -0500
+        id S1359833AbiAXUIS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:08:18 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56682 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346099AbiAXUA2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:00:28 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 87007B8123F;
-        Mon, 24 Jan 2022 19:19:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3E0EC340E5;
-        Mon, 24 Jan 2022 19:19:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A4913612F0;
+        Mon, 24 Jan 2022 20:00:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D8DDC340E8;
+        Mon, 24 Jan 2022 20:00:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051964;
-        bh=iS+y03BfRF0LeTvWUGV0QoMfW2bryzaHTzsrUFwQqKk=;
+        s=korg; t=1643054425;
+        bh=9zqniQmnmRj2EP7QeluyIKIoG9IT21ZtY1hW7QzQH5Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wj/s0s3BBdivZ9XZX35DB2RmMoWXJXqnwiDSFi+mbd52AhlH9R9vI3f5ktK9eTajg
-         o3dqqveVXQ38l09ymNTNxLZVNleTO7Zm3JWknJcRMPKM/7UvexD6/V+N7++Y3ez6iI
-         2fhtGGOFlF378Y4tG8FHKu5Sfs4s4bBoq27YlS0g=
+        b=FfVQ6AYg0Ov9apoImHL8kelULttcaV+qOqMh++Rb8hV95yRSq3ncHy1XSWcETYfhh
+         6i3K4QVT9Oxv7sI1NYNxCAJi8hF9PX9lHNVjkES0EhOQVw25woGsZWh4EHJzvbjf5a
+         WUOuIwxSHwPZIhjbJ62pqUxrM7vi6ATniNlCWQbw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Kyeong Yoo <kyeong.yoo@alliedtelesis.co.nz>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 111/239] ASoC: rt5663: Handle device_property_read_u32_array error codes
+Subject: [PATCH 5.10 384/563] jffs2: GC deadlock reading a page that is used in jffs2_write_begin()
 Date:   Mon, 24 Jan 2022 19:42:29 +0100
-Message-Id: <20220124183946.631656385@linuxfoundation.org>
+Message-Id: <20220124184037.702968319@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +46,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Kyeong Yoo <kyeong.yoo@alliedtelesis.co.nz>
 
-[ Upstream commit 2167c0b205960607fb136b4bb3c556a62be1569a ]
+[ Upstream commit aa39cc675799bc92da153af9a13d6f969c348e82 ]
 
-The return value of device_property_read_u32_array() is not always 0.
-To catch the exception in case that devm_kzalloc failed and the
-rt5663->imp_table was NULL, which caused the failure of
-device_property_read_u32_array.
+GC task can deadlock in read_cache_page() because it may attempt
+to release a page that is actually allocated by another task in
+jffs2_write_begin().
+The reason is that in jffs2_write_begin() there is a small window
+a cache page is allocated for use but not set Uptodate yet.
 
-Fixes: 450f0f6a8fb4 ("ASoC: rt5663: Add the manual offset field to compensate the DC offset")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20211215031550.70702-1-jiasheng@iscas.ac.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This ends up with a deadlock between two tasks:
+1) A task (e.g. file copy)
+   - jffs2_write_begin() locks a cache page
+   - jffs2_write_end() tries to lock "alloc_sem" from
+	 jffs2_reserve_space() <-- STUCK
+2) GC task (jffs2_gcd_mtd3)
+   - jffs2_garbage_collect_pass() locks "alloc_sem"
+   - try to lock the same cache page in read_cache_page() <-- STUCK
+
+So to avoid this deadlock, hold "alloc_sem" in jffs2_write_begin()
+while reading data in a cache page.
+
+Signed-off-by: Kyeong Yoo <kyeong.yoo@alliedtelesis.co.nz>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5663.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ fs/jffs2/file.c | 40 +++++++++++++++++++++++++---------------
+ 1 file changed, 25 insertions(+), 15 deletions(-)
 
-diff --git a/sound/soc/codecs/rt5663.c b/sound/soc/codecs/rt5663.c
-index 9bd24ad422407..dd77f131ce6c5 100644
---- a/sound/soc/codecs/rt5663.c
-+++ b/sound/soc/codecs/rt5663.c
-@@ -3446,6 +3446,7 @@ static void rt5663_calibrate(struct rt5663_priv *rt5663)
- static int rt5663_parse_dp(struct rt5663_priv *rt5663, struct device *dev)
- {
- 	int table_size;
-+	int ret;
+diff --git a/fs/jffs2/file.c b/fs/jffs2/file.c
+index 4fc8cd698d1a4..bd7d58d27bfc6 100644
+--- a/fs/jffs2/file.c
++++ b/fs/jffs2/file.c
+@@ -136,20 +136,15 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 	struct page *pg;
+ 	struct inode *inode = mapping->host;
+ 	struct jffs2_inode_info *f = JFFS2_INODE_INFO(inode);
++	struct jffs2_sb_info *c = JFFS2_SB_INFO(inode->i_sb);
+ 	pgoff_t index = pos >> PAGE_SHIFT;
+ 	uint32_t pageofs = index << PAGE_SHIFT;
+ 	int ret = 0;
  
- 	device_property_read_u32(dev, "realtek,dc_offset_l_manual",
- 		&rt5663->pdata.dc_offset_l_manual);
-@@ -3462,9 +3463,11 @@ static int rt5663_parse_dp(struct rt5663_priv *rt5663, struct device *dev)
- 		table_size = sizeof(struct impedance_mapping_table) *
- 			rt5663->pdata.impedance_sensing_num;
- 		rt5663->imp_table = devm_kzalloc(dev, table_size, GFP_KERNEL);
--		device_property_read_u32_array(dev,
-+		ret = device_property_read_u32_array(dev,
- 			"realtek,impedance_sensing_table",
- 			(u32 *)rt5663->imp_table, table_size);
-+		if (ret)
-+			return ret;
+-	pg = grab_cache_page_write_begin(mapping, index, flags);
+-	if (!pg)
+-		return -ENOMEM;
+-	*pagep = pg;
+-
+ 	jffs2_dbg(1, "%s()\n", __func__);
+ 
+ 	if (pageofs > inode->i_size) {
+ 		/* Make new hole frag from old EOF to new page */
+-		struct jffs2_sb_info *c = JFFS2_SB_INFO(inode->i_sb);
+ 		struct jffs2_raw_inode ri;
+ 		struct jffs2_full_dnode *fn;
+ 		uint32_t alloc_len;
+@@ -160,7 +155,7 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 		ret = jffs2_reserve_space(c, sizeof(ri), &alloc_len,
+ 					  ALLOC_NORMAL, JFFS2_SUMMARY_INODE_SIZE);
+ 		if (ret)
+-			goto out_page;
++			goto out_err;
+ 
+ 		mutex_lock(&f->sem);
+ 		memset(&ri, 0, sizeof(ri));
+@@ -190,7 +185,7 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 			ret = PTR_ERR(fn);
+ 			jffs2_complete_reservation(c);
+ 			mutex_unlock(&f->sem);
+-			goto out_page;
++			goto out_err;
+ 		}
+ 		ret = jffs2_add_full_dnode_to_inode(c, f, fn);
+ 		if (f->metadata) {
+@@ -205,13 +200,26 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 			jffs2_free_full_dnode(fn);
+ 			jffs2_complete_reservation(c);
+ 			mutex_unlock(&f->sem);
+-			goto out_page;
++			goto out_err;
+ 		}
+ 		jffs2_complete_reservation(c);
+ 		inode->i_size = pageofs;
+ 		mutex_unlock(&f->sem);
  	}
  
- 	return 0;
-@@ -3489,8 +3492,11 @@ static int rt5663_i2c_probe(struct i2c_client *i2c,
- 
- 	if (pdata)
- 		rt5663->pdata = *pdata;
--	else
--		rt5663_parse_dp(rt5663, &i2c->dev);
-+	else {
-+		ret = rt5663_parse_dp(rt5663, &i2c->dev);
-+		if (ret)
-+			return ret;
++	/*
++	 * While getting a page and reading data in, lock c->alloc_sem until
++	 * the page is Uptodate. Otherwise GC task may attempt to read the same
++	 * page in read_cache_page(), which causes a deadlock.
++	 */
++	mutex_lock(&c->alloc_sem);
++	pg = grab_cache_page_write_begin(mapping, index, flags);
++	if (!pg) {
++		ret = -ENOMEM;
++		goto release_sem;
 +	}
++	*pagep = pg;
++
+ 	/*
+ 	 * Read in the page if it wasn't already present. Cannot optimize away
+ 	 * the whole page write case until jffs2_write_end can handle the
+@@ -221,15 +229,17 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 		mutex_lock(&f->sem);
+ 		ret = jffs2_do_readpage_nolock(inode, pg);
+ 		mutex_unlock(&f->sem);
+-		if (ret)
+-			goto out_page;
++		if (ret) {
++			unlock_page(pg);
++			put_page(pg);
++			goto release_sem;
++		}
+ 	}
+ 	jffs2_dbg(1, "end write_begin(). pg->flags %lx\n", pg->flags);
+-	return ret;
  
- 	regmap = devm_regmap_init_i2c(i2c, &temp_regmap);
- 	if (IS_ERR(regmap)) {
+-out_page:
+-	unlock_page(pg);
+-	put_page(pg);
++release_sem:
++	mutex_unlock(&c->alloc_sem);
++out_err:
+ 	return ret;
+ }
+ 
 -- 
 2.34.1
 
