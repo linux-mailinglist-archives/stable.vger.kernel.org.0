@@ -2,41 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1191A49993D
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:44:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E198349952F
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:09:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1454940AbiAXVeL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:34:11 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:43196 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1452318AbiAXVYf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:24:35 -0500
+        id S1392401AbiAXUvH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:51:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42278 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1390195AbiAXUpD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:45:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E984C061394;
+        Mon, 24 Jan 2022 11:55:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B8E6B614C9;
-        Mon, 24 Jan 2022 21:24:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E801C340E4;
-        Mon, 24 Jan 2022 21:24:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 65756B8124E;
+        Mon, 24 Jan 2022 19:55:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70CF8C340E5;
+        Mon, 24 Jan 2022 19:55:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059474;
-        bh=CCXcUbv79c6OgRxLCfKNg69L1bZIn2FYzhbRijAZ03M=;
+        s=korg; t=1643054125;
+        bh=NTMoDJhmBuJyFroywjtdJV/f8o+rFALBpZ1AX8ZMNqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xTsSDThlHVeIOd6AN4cA9fTqovJN9joZmcsmZ34NIWOxWZyKrOdckfRSY4LA51xRT
-         HnG52IaYqSnF6SQG/fXIDr8EUubugkTUNgmr3Lgt/H0zc79phkXKBW6pPN/gh6S6Xq
-         TJDQcTAo8/TW7Wshrx6iIVO6DgerhILxSL3oaz+k=
+        b=bvCW21ORHSv+vR3VDD+JoDW0+Gh9ZHTpa1mdMjfocuELHK74iKyJEHi8kBwCniWqW
+         /PWms3uZorRws2ft5XdHP5jEi91SeHXJLTskQhem/3V8vdukDFZzopEB9yPEP8uySz
+         kZbgiszV3lE0zZBCb1F1Mpen99lCiJh6ouF0lNiU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Gong <quic_wgong@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Nageswara R Sastry <nasastry@in.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
+        Nageswara R Sastry <rnsastry@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0628/1039] ath11k: avoid deadlock by change ieee80211_queue_work for regd_update_work
-Date:   Mon, 24 Jan 2022 19:40:17 +0100
-Message-Id: <20220124184146.455345363@linuxfoundation.org>
+Subject: [PATCH 5.10 253/563] powerpc/perf: Fix PMU callbacks to clear pending PMI before resetting an overflown PMC
+Date:   Mon, 24 Jan 2022 19:40:18 +0100
+Message-Id: <20220124184033.177864222@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,202 +52,272 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Gong <quic_wgong@quicinc.com>
+From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
 
-[ Upstream commit ed05c7cf1286d7e31e7623bce55ff135723591bf ]
+[ Upstream commit 2c9ac51b850d84ee496b0a5d832ce66d411ae552 ]
 
-When enable debug config, it print below warning while shut down wlan
-interface shuh as run "ifconfig wlan0 down".
+Running perf fuzzer showed below in dmesg logs:
+  "Can't find PMC that caused IRQ"
 
-The reason is because ar->regd_update_work is ran once, and it is will
-call wiphy_lock(ar->hw->wiphy) in function ath11k_regd_update() which
-is running in workqueue of ieee80211_local queued by ieee80211_queue_work().
-Another thread from "ifconfig wlan0 down" will also accuqire the lock
-by wiphy_lock(sdata->local->hw.wiphy) in function ieee80211_stop(), and
-then it call ieee80211_stop_device() to flush_workqueue(local->workqueue),
-this will wait the workqueue of ieee80211_local finished. Then deadlock
-will happen easily if the two thread run meanwhile.
+This means a PMU exception happened, but none of the PMC's (Performance
+Monitor Counter) were found to be overflown. There are some corner cases
+that clears the PMCs after PMI gets masked. In such cases, the perf
+interrupt handler will not find the active PMC values that had caused
+the overflow and thus leads to this message while replaying.
 
-Below warning disappeared after this change.
+Case 1: PMU Interrupt happens during replay of other interrupts and
+counter values gets cleared by PMU callbacks before replay:
 
-[  914.088798] ath11k_pci 0000:05:00.0: mac remove interface (vdev 0)
-[  914.088806] ath11k_pci 0000:05:00.0: mac stop 11d scan
-[  914.088810] ath11k_pci 0000:05:00.0: mac stop 11d vdev id 0
-[  914.088827] ath11k_pci 0000:05:00.0: htc ep 2 consumed 1 credits (total 0)
-[  914.088841] ath11k_pci 0000:05:00.0: send 11d scan stop vdev id 0
-[  914.088849] ath11k_pci 0000:05:00.0: htc insufficient credits ep 2 required 1 available 0
-[  914.088856] ath11k_pci 0000:05:00.0: htc insufficient credits ep 2 required 1 available 0
-[  914.096434] ath11k_pci 0000:05:00.0: rx ce pipe 2 len 16
-[  914.096442] ath11k_pci 0000:05:00.0: htc ep 2 got 1 credits (total 1)
-[  914.096481] ath11k_pci 0000:05:00.0: htc ep 2 consumed 1 credits (total 0)
-[  914.096491] ath11k_pci 0000:05:00.0: WMI vdev delete id 0
-[  914.111598] ath11k_pci 0000:05:00.0: rx ce pipe 2 len 16
-[  914.111628] ath11k_pci 0000:05:00.0: htc ep 2 got 1 credits (total 1)
-[  914.114659] ath11k_pci 0000:05:00.0: rx ce pipe 2 len 20
-[  914.114742] ath11k_pci 0000:05:00.0: htc rx completion ep 2 skb         pK-error
-[  914.115977] ath11k_pci 0000:05:00.0: vdev delete resp for vdev id 0
-[  914.116685] ath11k_pci 0000:05:00.0: vdev 00:03:7f:29:61:11 deleted, vdev_id 0
+During replay of interrupts like timer, __do_irq() and doorbell
+exception, we conditionally enable interrupts via may_hard_irq_enable().
+This could potentially create a window to generate a PMI. Since irq soft
+mask is set to ALL_DISABLED, the PMI will get masked here. We could get
+IPIs run before perf interrupt is replayed and the PMU events could
+be deleted or stopped. This will change the PMU SPR values and resets
+the counters. Snippet of ftrace log showing PMU callbacks invoked in
+__do_irq():
 
-[  914.117583] ======================================================
-[  914.117592] WARNING: possible circular locking dependency detected
-[  914.117600] 5.16.0-rc1-wt-ath+ #1 Tainted: G           OE
-[  914.117611] ------------------------------------------------------
-[  914.117618] ifconfig/2805 is trying to acquire lock:
-[  914.117628] ffff9c00a62bb548 ((wq_completion)phy0){+.+.}-{0:0}, at: flush_workqueue+0x87/0x470
-[  914.117674]
-               but task is already holding lock:
-[  914.117682] ffff9c00baea07d0 (&rdev->wiphy.mtx){+.+.}-{4:4}, at: ieee80211_stop+0x38/0x180 [mac80211]
-[  914.117872]
-               which lock already depends on the new lock.
+  <idle>-0 [051] dns. 132025441306354: __do_irq <-call_do_irq
+  <idle>-0 [051] dns. 132025441306430: irq_enter <-__do_irq
+  <idle>-0 [051] dns. 132025441306503: irq_enter_rcu <-__do_irq
+  <idle>-0 [051] dnH. 132025441306599: xive_get_irq <-__do_irq
+  <<>>
+  <idle>-0 [051] dnH. 132025441307770: generic_smp_call_function_single_interrupt <-smp_ipi_demux_relaxed
+  <idle>-0 [051] dnH. 132025441307839: flush_smp_call_function_queue <-smp_ipi_demux_relaxed
+  <idle>-0 [051] dnH. 132025441308057: _raw_spin_lock <-event_function
+  <idle>-0 [051] dnH. 132025441308206: power_pmu_disable <-perf_pmu_disable
+  <idle>-0 [051] dnH. 132025441308337: power_pmu_del <-event_sched_out
+  <idle>-0 [051] dnH. 132025441308407: power_pmu_read <-power_pmu_del
+  <idle>-0 [051] dnH. 132025441308477: read_pmc <-power_pmu_read
+  <idle>-0 [051] dnH. 132025441308590: isa207_disable_pmc <-power_pmu_del
+  <idle>-0 [051] dnH. 132025441308663: write_pmc <-power_pmu_del
+  <idle>-0 [051] dnH. 132025441308787: power_pmu_event_idx <-perf_event_update_userpage
+  <idle>-0 [051] dnH. 132025441308859: rcu_read_unlock_strict <-perf_event_update_userpage
+  <idle>-0 [051] dnH. 132025441308975: power_pmu_enable <-perf_pmu_enable
+  <<>>
+  <idle>-0 [051] dnH. 132025441311108: irq_exit <-__do_irq
+  <idle>-0 [051] dns. 132025441311319: performance_monitor_exception <-replay_soft_interrupts
 
-[  914.117880]
-               the existing dependency chain (in reverse order) is:
-[  914.117888]
-               -> #3 (&rdev->wiphy.mtx){+.+.}-{4:4}:
-[  914.117910]        __mutex_lock+0xa0/0x9c0
-[  914.117930]        mutex_lock_nested+0x1b/0x20
-[  914.117944]        reg_process_self_managed_hints+0x3a/0xb0 [cfg80211]
-[  914.118093]        wiphy_regulatory_register+0x47/0x80 [cfg80211]
-[  914.118229]        wiphy_register+0x84f/0x9c0 [cfg80211]
-[  914.118353]        ieee80211_register_hw+0x6b1/0xd90 [mac80211]
-[  914.118486]        ath11k_mac_register+0x6af/0xb60 [ath11k]
-[  914.118550]        ath11k_core_qmi_firmware_ready+0x383/0x4a0 [ath11k]
-[  914.118598]        ath11k_qmi_driver_event_work+0x347/0x4a0 [ath11k]
-[  914.118656]        process_one_work+0x228/0x670
-[  914.118669]        worker_thread+0x4d/0x440
-[  914.118680]        kthread+0x16d/0x1b0
-[  914.118697]        ret_from_fork+0x22/0x30
-[  914.118714]
-               -> #2 (rtnl_mutex){+.+.}-{4:4}:
-[  914.118736]        __mutex_lock+0xa0/0x9c0
-[  914.118751]        mutex_lock_nested+0x1b/0x20
-[  914.118767]        rtnl_lock+0x17/0x20
-[  914.118783]        ath11k_regd_update+0x15a/0x260 [ath11k]
-[  914.118841]        ath11k_regd_update_work+0x15/0x20 [ath11k]
-[  914.118897]        process_one_work+0x228/0x670
-[  914.118909]        worker_thread+0x4d/0x440
-[  914.118920]        kthread+0x16d/0x1b0
-[  914.118934]        ret_from_fork+0x22/0x30
-[  914.118948]
-               -> #1 ((work_completion)(&ar->regd_update_work)){+.+.}-{0:0}:
-[  914.118972]        process_one_work+0x1fa/0x670
-[  914.118984]        worker_thread+0x4d/0x440
-[  914.118996]        kthread+0x16d/0x1b0
-[  914.119010]        ret_from_fork+0x22/0x30
-[  914.119023]
-               -> #0 ((wq_completion)phy0){+.+.}-{0:0}:
-[  914.119045]        __lock_acquire+0x146d/0x1cf0
-[  914.119057]        lock_acquire+0x19b/0x360
-[  914.119067]        flush_workqueue+0xae/0x470
-[  914.119084]        ieee80211_stop_device+0x3b/0x50 [mac80211]
-[  914.119260]        ieee80211_do_stop+0x5d7/0x830 [mac80211]
-[  914.119409]        ieee80211_stop+0x45/0x180 [mac80211]
-[  914.119557]        __dev_close_many+0xb3/0x120
-[  914.119573]        __dev_change_flags+0xc3/0x1d0
-[  914.119590]        dev_change_flags+0x29/0x70
-[  914.119605]        devinet_ioctl+0x653/0x810
-[  914.119620]        inet_ioctl+0x193/0x1e0
-[  914.119631]        sock_do_ioctl+0x4d/0xf0
-[  914.119649]        sock_ioctl+0x262/0x340
-[  914.119665]        __x64_sys_ioctl+0x96/0xd0
-[  914.119678]        do_syscall_64+0x3d/0xd0
-[  914.119694]        entry_SYSCALL_64_after_hwframe+0x44/0xae
-[  914.119709]
-               other info that might help us debug this:
+Case 2: PMI's masked during local_* operations, example local_add(). If
+the local_add() operation happens within a local_irq_save(), replay of
+PMI will be during local_irq_restore(). Similar to case 1, this could
+also create a window before replay where PMU events gets deleted or
+stopped.
 
-[  914.119717] Chain exists of:
-                 (wq_completion)phy0 --> rtnl_mutex --> &rdev->wiphy.mtx
+Fix it by updating the PMU callback function power_pmu_disable() to
+check for pending perf interrupt. If there is an overflown PMC and
+pending perf interrupt indicated in paca, clear the PMI bit in paca to
+drop that sample. Clearing of PMI bit is done in power_pmu_disable()
+since disable is invoked before any event gets deleted/stopped. With
+this fix, if there are more than one event running in the PMU, there is
+a chance that we clear the PMI bit for the event which is not getting
+deleted/stopped. The other events may still remain active. Hence to make
+sure we don't drop valid sample in such cases, another check is added in
+power_pmu_enable. This checks if there is an overflown PMC found among
+the active events and if so enable back the PMI bit. Two new helper
+functions are introduced to clear/set the PMI, ie
+clear_pmi_irq_pending() and set_pmi_irq_pending(). Helper function
+pmi_irq_pending() is introduced to give a warning if there is pending
+PMI bit in paca, but no PMC is overflown.
 
-[  914.119745]  Possible unsafe locking scenario:
+Also there are corner cases which result in performance monitor
+interrupts being triggered during power_pmu_disable(). This happens
+since PMXE bit is not cleared along with disabling of other MMCR0 bits
+in the pmu_disable. Such PMI's could leave the PMU running and could
+trigger PMI again which will set MMCR0 PMAO bit. This could lead to
+spurious interrupts in some corner cases. Example, a timer after
+power_pmu_del() which will re-enable interrupts and triggers a PMI again
+since PMAO bit is still set. But fails to find valid overflow since PMC
+was cleared in power_pmu_del(). Fix that by disabling PMXE along with
+disabling of other MMCR0 bits in power_pmu_disable().
 
-[  914.119752]        CPU0                    CPU1
-[  914.119758]        ----                    ----
-[  914.119765]   lock(&rdev->wiphy.mtx);
-[  914.119778]                                lock(rtnl_mutex);
-[  914.119792]                                lock(&rdev->wiphy.mtx);
-[  914.119807]   lock((wq_completion)phy0);
-[  914.119819]
-                *** DEADLOCK ***
+We can't just replay PMI any time. Hence this approach is preferred
+rather than replaying PMI before resetting overflown PMC. Patch also
+documents core-book3s on a race condition which can trigger these PMC
+messages during idle path in PowerNV.
 
-[  914.119827] 2 locks held by ifconfig/2805:
-[  914.119837]  #0: ffffffffba3dc010 (rtnl_mutex){+.+.}-{4:4}, at: rtnl_lock+0x17/0x20
-[  914.119872]  #1: ffff9c00baea07d0 (&rdev->wiphy.mtx){+.+.}-{4:4}, at: ieee80211_stop+0x38/0x180 [mac80211]
-[  914.120039]
-               stack backtrace:
-[  914.120048] CPU: 0 PID: 2805 Comm: ifconfig Tainted: G           OE     5.16.0-rc1-wt-ath+ #1
-[  914.120064] Hardware name: LENOVO 418065C/418065C, BIOS 83ET63WW (1.33 ) 07/29/2011
-[  914.120074] Call Trace:
-[  914.120084]  <TASK>
-[  914.120094]  dump_stack_lvl+0x73/0xa4
-[  914.120119]  dump_stack+0x10/0x12
-[  914.120135]  print_circular_bug.isra.44+0x221/0x2e0
-[  914.120165]  check_noncircular+0x106/0x150
-[  914.120203]  __lock_acquire+0x146d/0x1cf0
-[  914.120215]  ? __lock_acquire+0x146d/0x1cf0
-[  914.120245]  lock_acquire+0x19b/0x360
-[  914.120259]  ? flush_workqueue+0x87/0x470
-[  914.120286]  ? lockdep_init_map_type+0x6b/0x250
-[  914.120310]  flush_workqueue+0xae/0x470
-[  914.120327]  ? flush_workqueue+0x87/0x470
-[  914.120344]  ? lockdep_hardirqs_on+0xd7/0x150
-[  914.120391]  ieee80211_stop_device+0x3b/0x50 [mac80211]
-[  914.120565]  ? ieee80211_stop_device+0x3b/0x50 [mac80211]
-[  914.120736]  ieee80211_do_stop+0x5d7/0x830 [mac80211]
-[  914.120906]  ieee80211_stop+0x45/0x180 [mac80211]
-[  914.121060]  __dev_close_many+0xb3/0x120
-[  914.121081]  __dev_change_flags+0xc3/0x1d0
-[  914.121109]  dev_change_flags+0x29/0x70
-[  914.121131]  devinet_ioctl+0x653/0x810
-[  914.121149]  ? __might_fault+0x77/0x80
-[  914.121179]  inet_ioctl+0x193/0x1e0
-[  914.121194]  ? inet_ioctl+0x193/0x1e0
-[  914.121218]  ? __might_fault+0x77/0x80
-[  914.121238]  ? _copy_to_user+0x68/0x80
-[  914.121266]  sock_do_ioctl+0x4d/0xf0
-[  914.121283]  ? inet_stream_connect+0x60/0x60
-[  914.121297]  ? sock_do_ioctl+0x4d/0xf0
-[  914.121329]  sock_ioctl+0x262/0x340
-[  914.121347]  ? sock_ioctl+0x262/0x340
-[  914.121362]  ? exit_to_user_mode_prepare+0x13b/0x280
-[  914.121388]  ? syscall_enter_from_user_mode+0x20/0x50
-[  914.121416]  __x64_sys_ioctl+0x96/0xd0
-[  914.121430]  ? br_ioctl_call+0x90/0x90
-[  914.121445]  ? __x64_sys_ioctl+0x96/0xd0
-[  914.121465]  do_syscall_64+0x3d/0xd0
-[  914.121482]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-[  914.121497] RIP: 0033:0x7f0ed051737b
-[  914.121513] Code: 0f 1e fa 48 8b 05 15 3b 0d 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 0f 1f 44 00 00 f3 0f 1e fa b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d e5 3a 0d 00 f7 d8 64 89 01 48
-[  914.121527] RSP: 002b:00007fff7be38b98 EFLAGS: 00000202 ORIG_RAX: 0000000000000010
-[  914.121544] RAX: ffffffffffffffda RBX: 00007fff7be38ba0 RCX: 00007f0ed051737b
-[  914.121555] RDX: 00007fff7be38ba0 RSI: 0000000000008914 RDI: 0000000000000004
-[  914.121566] RBP: 00007fff7be38c60 R08: 000000000000000a R09: 0000000000000001
-[  914.121576] R10: 0000000000000000 R11: 0000000000000202 R12: 00000000fffffffe
-[  914.121586] R13: 0000000000000004 R14: 0000000000000000 R15: 0000000000000000
-[  914.121620]  </TASK>
-
-Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-01720.1-QCAHSPSWPL_V1_V2_SILICONZ_LITE-1
-
-Signed-off-by: Wen Gong <quic_wgong@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/20211201071745.17746-2-quic_wgong@quicinc.com
+Fixes: f442d004806e ("powerpc/64s: Add support to mask perf interrupts and replay them")
+Reported-by: Nageswara R Sastry <nasastry@in.ibm.com>
+Suggested-by: Nicholas Piggin <npiggin@gmail.com>
+Suggested-by: Madhavan Srinivasan <maddy@linux.ibm.com>
+Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+Tested-by: Nageswara R Sastry <rnsastry@linux.ibm.com>
+Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
+[mpe: Make pmi_irq_pending() return bool, reflow/reword some comments]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1626846509-1350-2-git-send-email-atrajeev@linux.vnet.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/wmi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/include/asm/hw_irq.h | 40 +++++++++++++++++++++
+ arch/powerpc/perf/core-book3s.c   | 58 ++++++++++++++++++++++++++++++-
+ 2 files changed, 97 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/wmi.c b/drivers/net/wireless/ath/ath11k/wmi.c
-index 621a63d6c8c6d..c3699bd0452c9 100644
---- a/drivers/net/wireless/ath/ath11k/wmi.c
-+++ b/drivers/net/wireless/ath/ath11k/wmi.c
-@@ -5912,7 +5912,7 @@ static int ath11k_reg_chan_list_event(struct ath11k_base *ab, struct sk_buff *sk
- 		ar = ab->pdevs[pdev_idx].ar;
- 		kfree(ab->new_regd[pdev_idx]);
- 		ab->new_regd[pdev_idx] = regd;
--		ieee80211_queue_work(ar->hw, &ar->regd_update_work);
-+		queue_work(ab->workqueue, &ar->regd_update_work);
- 	} else {
- 		/* This regd would be applied during mac registration and is
- 		 * held constant throughout for regd intersection purpose
+diff --git a/arch/powerpc/include/asm/hw_irq.h b/arch/powerpc/include/asm/hw_irq.h
+index da94cab528dd4..0f2acbb966740 100644
+--- a/arch/powerpc/include/asm/hw_irq.h
++++ b/arch/powerpc/include/asm/hw_irq.h
+@@ -175,6 +175,42 @@ static inline bool arch_irqs_disabled(void)
+ 	return arch_irqs_disabled_flags(arch_local_save_flags());
+ }
+ 
++static inline void set_pmi_irq_pending(void)
++{
++	/*
++	 * Invoked from PMU callback functions to set PMI bit in the paca.
++	 * This has to be called with irq's disabled (via hard_irq_disable()).
++	 */
++	if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG))
++		WARN_ON_ONCE(mfmsr() & MSR_EE);
++
++	get_paca()->irq_happened |= PACA_IRQ_PMI;
++}
++
++static inline void clear_pmi_irq_pending(void)
++{
++	/*
++	 * Invoked from PMU callback functions to clear the pending PMI bit
++	 * in the paca.
++	 */
++	if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG))
++		WARN_ON_ONCE(mfmsr() & MSR_EE);
++
++	get_paca()->irq_happened &= ~PACA_IRQ_PMI;
++}
++
++static inline bool pmi_irq_pending(void)
++{
++	/*
++	 * Invoked from PMU callback functions to check if there is a pending
++	 * PMI bit in the paca.
++	 */
++	if (get_paca()->irq_happened & PACA_IRQ_PMI)
++		return true;
++
++	return false;
++}
++
+ #ifdef CONFIG_PPC_BOOK3S
+ /*
+  * To support disabling and enabling of irq with PMI, set of
+@@ -368,6 +404,10 @@ static inline bool arch_irq_disabled_regs(struct pt_regs *regs)
+ 
+ static inline void may_hard_irq_enable(void) { }
+ 
++static inline void clear_pmi_irq_pending(void) { }
++static inline void set_pmi_irq_pending(void) { }
++static inline bool pmi_irq_pending(void) { return false; }
++
+ static inline void irq_soft_mask_regs_set_state(struct pt_regs *regs, unsigned long val)
+ {
+ }
+diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
+index b5cac8ddcf5bc..bd34e062bd290 100644
+--- a/arch/powerpc/perf/core-book3s.c
++++ b/arch/powerpc/perf/core-book3s.c
+@@ -805,6 +805,19 @@ static void write_pmc(int idx, unsigned long val)
+ 	}
+ }
+ 
++static int any_pmc_overflown(struct cpu_hw_events *cpuhw)
++{
++	int i, idx;
++
++	for (i = 0; i < cpuhw->n_events; i++) {
++		idx = cpuhw->event[i]->hw.idx;
++		if ((idx) && ((int)read_pmc(idx) < 0))
++			return idx;
++	}
++
++	return 0;
++}
++
+ /* Called from sysrq_handle_showregs() */
+ void perf_event_print_debug(void)
+ {
+@@ -1228,11 +1241,13 @@ static void power_pmu_disable(struct pmu *pmu)
+ 
+ 		/*
+ 		 * Set the 'freeze counters' bit, clear EBE/BHRBA/PMCC/PMAO/FC56
++		 * Also clear PMXE to disable PMI's getting triggered in some
++		 * corner cases during PMU disable.
+ 		 */
+ 		val  = mmcr0 = mfspr(SPRN_MMCR0);
+ 		val |= MMCR0_FC;
+ 		val &= ~(MMCR0_EBE | MMCR0_BHRBA | MMCR0_PMCC | MMCR0_PMAO |
+-			 MMCR0_FC56);
++			 MMCR0_PMXE | MMCR0_FC56);
+ 		/* Set mmcr0 PMCCEXT for p10 */
+ 		if (ppmu->flags & PPMU_ARCH_31)
+ 			val |= MMCR0_PMCCEXT;
+@@ -1246,6 +1261,23 @@ static void power_pmu_disable(struct pmu *pmu)
+ 		mb();
+ 		isync();
+ 
++		/*
++		 * Some corner cases could clear the PMU counter overflow
++		 * while a masked PMI is pending. One such case is when
++		 * a PMI happens during interrupt replay and perf counter
++		 * values are cleared by PMU callbacks before replay.
++		 *
++		 * If any PMC corresponding to the active PMU events are
++		 * overflown, disable the interrupt by clearing the paca
++		 * bit for PMI since we are disabling the PMU now.
++		 * Otherwise provide a warning if there is PMI pending, but
++		 * no counter is found overflown.
++		 */
++		if (any_pmc_overflown(cpuhw))
++			clear_pmi_irq_pending();
++		else
++			WARN_ON(pmi_irq_pending());
++
+ 		val = mmcra = cpuhw->mmcr.mmcra;
+ 
+ 		/*
+@@ -1337,6 +1369,15 @@ static void power_pmu_enable(struct pmu *pmu)
+ 	 * (possibly updated for removal of events).
+ 	 */
+ 	if (!cpuhw->n_added) {
++		/*
++		 * If there is any active event with an overflown PMC
++		 * value, set back PACA_IRQ_PMI which would have been
++		 * cleared in power_pmu_disable().
++		 */
++		hard_irq_disable();
++		if (any_pmc_overflown(cpuhw))
++			set_pmi_irq_pending();
++
+ 		mtspr(SPRN_MMCRA, cpuhw->mmcr.mmcra & ~MMCRA_SAMPLE_ENABLE);
+ 		mtspr(SPRN_MMCR1, cpuhw->mmcr.mmcr1);
+ 		if (ppmu->flags & PPMU_ARCH_31)
+@@ -2274,6 +2315,14 @@ static void __perf_event_interrupt(struct pt_regs *regs)
+ 				break;
+ 			}
+ 		}
++
++		/*
++		 * Clear PACA_IRQ_PMI in case it was set by
++		 * set_pmi_irq_pending() when PMU was enabled
++		 * after accounting for interrupts.
++		 */
++		clear_pmi_irq_pending();
++
+ 		if (!active)
+ 			/* reset non active counters that have overflowed */
+ 			write_pmc(i + 1, 0);
+@@ -2293,6 +2342,13 @@ static void __perf_event_interrupt(struct pt_regs *regs)
+ 			}
+ 		}
+ 	}
++
++	/*
++	 * During system wide profling or while specific CPU is monitored for an
++	 * event, some corner cases could cause PMC to overflow in idle path. This
++	 * will trigger a PMI after waking up from idle. Since counter values are _not_
++	 * saved/restored in idle path, can lead to below "Can't find PMC" message.
++	 */
+ 	if (unlikely(!found) && !arch_irq_disabled_regs(regs))
+ 		printk_ratelimited(KERN_WARNING "Can't find PMC that caused IRQ\n");
+ 
 -- 
 2.34.1
 
