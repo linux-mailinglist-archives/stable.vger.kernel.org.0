@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 462714991D3
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:18:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2753498CFE
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:33:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345699AbiAXUOd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:14:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33860 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355438AbiAXUNl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:13:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75D8CC061777;
-        Mon, 24 Jan 2022 11:36:23 -0800 (PST)
+        id S1351454AbiAXT1E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:27:04 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:49180 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346367AbiAXTXG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:23:06 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F5D8B81240;
-        Mon, 24 Jan 2022 19:36:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7139CC340E5;
-        Mon, 24 Jan 2022 19:36:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BEC9C61490;
+        Mon, 24 Jan 2022 19:23:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BECAC36AE3;
+        Mon, 24 Jan 2022 19:23:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052981;
-        bh=eIli/jZZdbrp+7cIzVhZHbCgnb9mpafPIXG0izMYOVw=;
+        s=korg; t=1643052182;
+        bh=fqghv2tM9KQdZtwnpamw7ZoE6favq2oByT6WYmfaJKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zE27nK49nnXFx/96M1VM1Iz8gMlO3RI+SsQKd/vFnt0fdb/Ecc6ELmEdREGpjFxZ3
-         Qo0+YPZ/DzX1O84KhGg0REyp2V9zkz+r9HU9XAH8Y4cqY/kDWgErQlxBVVmWfAYjLK
-         GwtZHWRPQO/tVFNt7u08dl7UqjdISAHN4Xu8bzLQ=
+        b=VOaSXvOxxv9voBj/zuy+k6rmOPU+tc98sbAO+R8u5Y6osuPSnQLYLRxFi0Wlz/85Y
+         RSHuP4sfm3wvWbzTMV0JYM91G7gtSPV5aK3W6csp7BNqfnmDnPyr378wrGiXp91RBj
+         rlXlDXH4GllLagTIVum6HJAl6tKj0xa0rkc+nnWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Laurent Dufour <ldufour@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 235/320] w1: Misuse of get_user()/put_user() reported by sparse
-Date:   Mon, 24 Jan 2022 19:43:39 +0100
-Message-Id: <20220124184001.980402858@linuxfoundation.org>
+Subject: [PATCH 4.19 182/239] powerpc/watchdog: Fix missed watchdog reset due to memory ordering race
+Date:   Mon, 24 Jan 2022 19:43:40 +0100
+Message-Id: <20220124183948.881059269@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,84 +46,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 33dc3e3e99e626ce51f462d883b05856c6c30b1d ]
+[ Upstream commit 5dad4ba68a2483fc80d70b9dc90bbe16e1f27263 ]
 
-sparse warnings: (new ones prefixed by >>)
->> drivers/w1/slaves/w1_ds28e04.c:342:13: sparse: sparse: incorrect type in initializer (different address spaces) @@     expected char [noderef] __user *_pu_addr @@     got char *buf @@
-   drivers/w1/slaves/w1_ds28e04.c:342:13: sparse:     expected char [noderef] __user *_pu_addr
-   drivers/w1/slaves/w1_ds28e04.c:342:13: sparse:     got char *buf
->> drivers/w1/slaves/w1_ds28e04.c:356:13: sparse: sparse: incorrect type in initializer (different address spaces) @@     expected char const [noderef] __user *_gu_addr @@     got char const *buf @@
-   drivers/w1/slaves/w1_ds28e04.c:356:13: sparse:     expected char const [noderef] __user *_gu_addr
-   drivers/w1/slaves/w1_ds28e04.c:356:13: sparse:     got char const *buf
+It is possible for all CPUs to miss the pending cpumask becoming clear,
+and then nobody resetting it, which will cause the lockup detector to
+stop working. It will eventually expire, but watchdog_smp_panic will
+avoid doing anything if the pending mask is clear and it will never be
+reset.
 
-The buffer buf is a failsafe buffer in kernel space, it's not user
-memory hence doesn't deserve the use of get_user() or put_user().
+Order the cpumask clear vs the subsequent test to close this race.
 
-Access 'buf' content directly.
+Add an extra check for an empty pending mask when the watchdog fires and
+finds its bit still clear, to try to catch any other possible races or
+bugs here and keep the watchdog working. The extra test in
+arch_touch_nmi_watchdog is required to prevent the new warning from
+firing off.
 
-Link: https://lore.kernel.org/lkml/202111190526.K5vb7NWC-lkp@intel.com/T/
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Link: https://lore.kernel.org/r/d14ed8d71ad4372e6839ae427f91441d3ba0e94d.1637946316.git.christophe.leroy@csgroup.eu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Reviewed-by: Laurent Dufour <ldufour@linux.ibm.com>
+Debugged-by: Laurent Dufour <ldufour@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211110025056.2084347-2-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/w1/slaves/w1_ds28e04.c | 26 ++++++--------------------
- 1 file changed, 6 insertions(+), 20 deletions(-)
+ arch/powerpc/kernel/watchdog.c | 41 +++++++++++++++++++++++++++++++++-
+ 1 file changed, 40 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/w1/slaves/w1_ds28e04.c b/drivers/w1/slaves/w1_ds28e04.c
-index 8a640f1590784..06a9966f8c933 100644
---- a/drivers/w1/slaves/w1_ds28e04.c
-+++ b/drivers/w1/slaves/w1_ds28e04.c
-@@ -32,7 +32,7 @@ static int w1_strong_pullup = 1;
- module_param_named(strong_pullup, w1_strong_pullup, int, 0);
- 
- /* enable/disable CRC checking on DS28E04-100 memory accesses */
--static char w1_enable_crccheck = 1;
-+static bool w1_enable_crccheck = true;
- 
- #define W1_EEPROM_SIZE		512
- #define W1_PAGE_COUNT		16
-@@ -339,32 +339,18 @@ static BIN_ATTR_RW(pio, 1);
- static ssize_t crccheck_show(struct device *dev, struct device_attribute *attr,
- 			     char *buf)
+diff --git a/arch/powerpc/kernel/watchdog.c b/arch/powerpc/kernel/watchdog.c
+index af3c15a1d41eb..75b2a6c4db5a5 100644
+--- a/arch/powerpc/kernel/watchdog.c
++++ b/arch/powerpc/kernel/watchdog.c
+@@ -132,6 +132,10 @@ static void set_cpumask_stuck(const struct cpumask *cpumask, u64 tb)
  {
--	if (put_user(w1_enable_crccheck + 0x30, buf))
--		return -EFAULT;
--
--	return sizeof(w1_enable_crccheck);
-+	return sysfs_emit(buf, "%d\n", w1_enable_crccheck);
- }
+ 	cpumask_or(&wd_smp_cpus_stuck, &wd_smp_cpus_stuck, cpumask);
+ 	cpumask_andnot(&wd_smp_cpus_pending, &wd_smp_cpus_pending, cpumask);
++	/*
++	 * See wd_smp_clear_cpu_pending()
++	 */
++	smp_mb();
+ 	if (cpumask_empty(&wd_smp_cpus_pending)) {
+ 		wd_smp_last_reset_tb = tb;
+ 		cpumask_andnot(&wd_smp_cpus_pending,
+@@ -217,13 +221,44 @@ static void wd_smp_clear_cpu_pending(int cpu, u64 tb)
  
- static ssize_t crccheck_store(struct device *dev, struct device_attribute *attr,
- 			      const char *buf, size_t count)
+ 			cpumask_clear_cpu(cpu, &wd_smp_cpus_stuck);
+ 			wd_smp_unlock(&flags);
++		} else {
++			/*
++			 * The last CPU to clear pending should have reset the
++			 * watchdog so we generally should not find it empty
++			 * here if our CPU was clear. However it could happen
++			 * due to a rare race with another CPU taking the
++			 * last CPU out of the mask concurrently.
++			 *
++			 * We can't add a warning for it. But just in case
++			 * there is a problem with the watchdog that is causing
++			 * the mask to not be reset, try to kick it along here.
++			 */
++			if (unlikely(cpumask_empty(&wd_smp_cpus_pending)))
++				goto none_pending;
+ 		}
+ 		return;
+ 	}
++
+ 	cpumask_clear_cpu(cpu, &wd_smp_cpus_pending);
++
++	/*
++	 * Order the store to clear pending with the load(s) to check all
++	 * words in the pending mask to check they are all empty. This orders
++	 * with the same barrier on another CPU. This prevents two CPUs
++	 * clearing the last 2 pending bits, but neither seeing the other's
++	 * store when checking if the mask is empty, and missing an empty
++	 * mask, which ends with a false positive.
++	 */
++	smp_mb();
+ 	if (cpumask_empty(&wd_smp_cpus_pending)) {
+ 		unsigned long flags;
+ 
++none_pending:
++		/*
++		 * Double check under lock because more than one CPU could see
++		 * a clear mask with the lockless check after clearing their
++		 * pending bits.
++		 */
+ 		wd_smp_lock(&flags);
+ 		if (cpumask_empty(&wd_smp_cpus_pending)) {
+ 			wd_smp_last_reset_tb = tb;
+@@ -314,8 +349,12 @@ void arch_touch_nmi_watchdog(void)
  {
--	char val;
--
--	if (count != 1 || !buf)
--		return -EINVAL;
-+	int err = kstrtobool(buf, &w1_enable_crccheck);
+ 	unsigned long ticks = tb_ticks_per_usec * wd_timer_period_ms * 1000;
+ 	int cpu = smp_processor_id();
+-	u64 tb = get_tb();
++	u64 tb;
  
--	if (get_user(val, buf))
--		return -EFAULT;
-+	if (err)
-+		return err;
- 
--	/* convert to decimal */
--	val = val - 0x30;
--	if (val != 0 && val != 1)
--		return -EINVAL;
--
--	/* set the new value */
--	w1_enable_crccheck = val;
--
--	return sizeof(w1_enable_crccheck);
-+	return count;
- }
- 
- static DEVICE_ATTR_RW(crccheck);
++	if (!cpumask_test_cpu(cpu, &watchdog_cpumask))
++		return;
++
++	tb = get_tb();
+ 	if (tb - per_cpu(wd_timer_tb, cpu) >= ticks) {
+ 		per_cpu(wd_timer_tb, cpu) = tb;
+ 		wd_smp_clear_cpu_pending(cpu, tb);
 -- 
 2.34.1
 
