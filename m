@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E595498F25
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:51:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94448498F27
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:51:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351188AbiAXTus (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:50:48 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:41458 "EHLO
+        id S1357606AbiAXTvD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:51:03 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:39434 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345383AbiAXToA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:44:00 -0500
+        with ESMTP id S1355810AbiAXToB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:44:01 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 79DFA6153B;
-        Mon, 24 Jan 2022 19:43:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55C7FC340E5;
-        Mon, 24 Jan 2022 19:43:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EAB961551;
+        Mon, 24 Jan 2022 19:44:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B611C340E5;
+        Mon, 24 Jan 2022 19:43:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053436;
-        bh=UhT0JaI55mgQA7ptyJJ/KmDglLAZ1One7Pak05Uef7I=;
+        s=korg; t=1643053439;
+        bh=6QMkhBO2A5xRflXt1DL3EZsmSg63ySjvEOpDd53WQDI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TK6izvzpgciGi1Vdu2gZB9GhUD2roEZ6vMPvWSASP/d8j4ICgK+pTyfC9w5vM/1fi
-         JyeHC2SxfcpFYX7RJvtx/cwxCNUPRZ/FsK06OMGUCRZs4W9NxVGh96kMAQBZo8QFF+
-         kkwR38F8KCHdduydG4EQ4b1YoOAxEXEd0v2oT0R8=
+        b=00//uaMMfHT9pOlNg+UzgBTfkhWXJkjkG/NTcFR0piyPQCBZcmjq6BhJaytBRkzgp
+         QfmTbegaLXEZigDycrYOg17cPKfMIULqhksedhbDYUzfW+NKCvhG0ZJqBZDnnvKIkn
+         CnIufwUDDFqN3w34wbfZoeTyIHlefjP9WNvqgOrE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
-        Biju Das <biju.das.jz@bp.renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        stable@vger.kernel.org, Dillon Min <dillon.minfei@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 063/563] mtd: hyperbus: rpc-if: Check return value of rpcif_sw_init()
-Date:   Mon, 24 Jan 2022 19:37:08 +0100
-Message-Id: <20220124184026.590890267@linuxfoundation.org>
+Subject: [PATCH 5.10 064/563] media: videobuf2: Fix the size printk format
+Date:   Mon, 24 Jan 2022 19:37:09 +0100
+Message-Id: <20220124184026.623024397@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -49,40 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
+From: Dillon Min <dillon.minfei@gmail.com>
 
-[ Upstream commit 981387ed06b96908223a607f5fba6efa42728fc2 ]
+[ Upstream commit c9ee220d76775e42f35d634479c978d9350077d3 ]
 
-rpcif_sw_init() can fail so make sure we check the return value
-of it and on error exit rpcif_hb_probe() callback with error code.
+Since the type of parameter size is unsigned long,
+it should printk by %lu, instead of %ld, fix it.
 
-Fixes: 5de15b610f78 ("mtd: hyperbus: add Renesas RPC-IF driver")
-Signed-off-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
-Reviewed-by: Biju Das <biju.das.jz@bp.renesas.com>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Link: https://lore.kernel.org/r/20211025205631.21151-5-prabhakar.mahadev-lad.rj@bp.renesas.com
+Fixes: 7952be9b6ece ("media: drivers/media/common/videobuf2: rename from videobuf")
+Signed-off-by: Dillon Min <dillon.minfei@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/hyperbus/rpc-if.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/common/videobuf2/videobuf2-dma-contig.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mtd/hyperbus/rpc-if.c b/drivers/mtd/hyperbus/rpc-if.c
-index ecb050ba95cdf..367b0d72bf622 100644
---- a/drivers/mtd/hyperbus/rpc-if.c
-+++ b/drivers/mtd/hyperbus/rpc-if.c
-@@ -124,7 +124,9 @@ static int rpcif_hb_probe(struct platform_device *pdev)
- 	if (!hyperbus)
- 		return -ENOMEM;
+diff --git a/drivers/media/common/videobuf2/videobuf2-dma-contig.c b/drivers/media/common/videobuf2/videobuf2-dma-contig.c
+index 2f3a5996d3fc9..fe626109ef4db 100644
+--- a/drivers/media/common/videobuf2/videobuf2-dma-contig.c
++++ b/drivers/media/common/videobuf2/videobuf2-dma-contig.c
+@@ -150,7 +150,7 @@ static void *vb2_dc_alloc(struct device *dev, unsigned long attrs,
+ 	buf->cookie = dma_alloc_attrs(dev, size, &buf->dma_addr,
+ 					GFP_KERNEL | gfp_flags, buf->attrs);
+ 	if (!buf->cookie) {
+-		dev_err(dev, "dma_alloc_coherent of size %ld failed\n", size);
++		dev_err(dev, "dma_alloc_coherent of size %lu failed\n", size);
+ 		kfree(buf);
+ 		return ERR_PTR(-ENOMEM);
+ 	}
+@@ -196,9 +196,9 @@ static int vb2_dc_mmap(void *buf_priv, struct vm_area_struct *vma)
  
--	rpcif_sw_init(&hyperbus->rpc, pdev->dev.parent);
-+	error = rpcif_sw_init(&hyperbus->rpc, pdev->dev.parent);
-+	if (error)
-+		return error;
+ 	vma->vm_ops->open(vma);
  
- 	platform_set_drvdata(pdev, hyperbus);
+-	pr_debug("%s: mapped dma addr 0x%08lx at 0x%08lx, size %ld\n",
+-		__func__, (unsigned long)buf->dma_addr, vma->vm_start,
+-		buf->size);
++	pr_debug("%s: mapped dma addr 0x%08lx at 0x%08lx, size %lu\n",
++		 __func__, (unsigned long)buf->dma_addr, vma->vm_start,
++		 buf->size);
  
+ 	return 0;
+ }
 -- 
 2.34.1
 
