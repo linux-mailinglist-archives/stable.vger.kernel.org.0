@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFC66499678
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:18:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B3DE499664
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:18:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1445582AbiAXVEL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:04:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45162 "EHLO
+        id S1345254AbiAXVDk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:03:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1443767AbiAXU7G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:59:06 -0500
+        with ESMTP id S1443215AbiAXU4b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:56:31 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07E0DC047CFD;
-        Mon, 24 Jan 2022 12:01:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28A47C0D9431;
+        Mon, 24 Jan 2022 11:18:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C4376B8124B;
-        Mon, 24 Jan 2022 20:01:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F28A4C340ED;
-        Mon, 24 Jan 2022 20:01:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E55BAB8123D;
+        Mon, 24 Jan 2022 19:18:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1B52C340E5;
+        Mon, 24 Jan 2022 19:18:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054462;
-        bh=gftabYyXkMadHg19oaBWLurzEcg5g5knoVByzQVVmhk=;
+        s=korg; t=1643051882;
+        bh=TYR6G0G1NNZYgGiHfvo4P7O8iCjHHs0h9Uv+G6h0s/I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F7/zu80a3Bopj72SBDmJCSs5oCV3NSpsysnYFI2ocvhfQTK0CyC8b+k4RfIHiO5QI
-         r/riSSqJ3ZDVNzfmTxFZ1FGg9gCeb4FrQfC1IgkGBw8VJuQmjtkgbCj3ObKC10SBhY
-         ShlkRy/cy9c6x/xO19sfLaZa3XQ37E33Cflp0N/g=
+        b=JDPGAkDSImTTwFUOZ4m02MmyNheI3dwy3yO6hGF15Kwcwjf9yFWO2f9VNTMfdfm3c
+         4TecFQFjVezSt4smLjhHWwiKNzyFiJOXym/6+4MaeYtmN97LQXd4gMi21s3aKTSqHE
+         vJicPHssYQ6kf/xDjWGmZhwfupSettaK2DH/v3eA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zongmin Zhou <zhouzongmin@kylinos.cn>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 390/563] drm/amdgpu: fixup bad vram size on gmc v8
-Date:   Mon, 24 Jan 2022 19:42:35 +0100
-Message-Id: <20220124184037.921732618@linuxfoundation.org>
+Subject: [PATCH 4.19 118/239] mips: bcm63xx: add support for clk_set_parent()
+Date:   Mon, 24 Jan 2022 19:42:36 +0100
+Message-Id: <20220124183946.860857778@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,59 +50,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zongmin Zhou <zhouzongmin@kylinos.cn>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 11544d77e3974924c5a9c8a8320b996a3e9b2f8b ]
+[ Upstream commit 6f03055d508ff4feb8db02ba3df9303a1db8d381 ]
 
-Some boards(like RX550) seem to have garbage in the upper
-16 bits of the vram size register.  Check for
-this and clamp the size properly.  Fixes
-boards reporting bogus amounts of vram.
+The MIPS BMC63XX subarch does not provide/support clk_set_parent().
+This causes build errors in a few drivers, so add a simple implementation
+of that function so that callers of it will build without errors.
 
-after add this patch,the maximum GPU VRAM size is 64GB,
-otherwise only 64GB vram size will be used.
+Fixes these build errors:
 
-Signed-off-by: Zongmin Zhou<zhouzongmin@kylinos.cn>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+ERROR: modpost: "clk_set_parent" [sound/soc/jz4740/snd-soc-jz4740-i2s.ko] undefined!
+ERROR: modpost: "clk_set_parent" [sound/soc/atmel/snd-soc-atmel-i2s.ko] undefined!
+
+Fixes: e7300d04bd08 ("MIPS: BCM63xx: Add support for the Broadcom BCM63xx family of SOCs." )
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ arch/mips/bcm63xx/clk.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c
-index 9ab65ca7df777..873bc33912e23 100644
---- a/drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gmc_v8_0.c
-@@ -524,10 +524,10 @@ static void gmc_v8_0_mc_program(struct amdgpu_device *adev)
- static int gmc_v8_0_mc_init(struct amdgpu_device *adev)
+diff --git a/arch/mips/bcm63xx/clk.c b/arch/mips/bcm63xx/clk.c
+index aba6e2d6a736c..dcfa0ea912fe1 100644
+--- a/arch/mips/bcm63xx/clk.c
++++ b/arch/mips/bcm63xx/clk.c
+@@ -387,6 +387,12 @@ struct clk *clk_get_parent(struct clk *clk)
+ }
+ EXPORT_SYMBOL(clk_get_parent);
+ 
++int clk_set_parent(struct clk *clk, struct clk *parent)
++{
++	return 0;
++}
++EXPORT_SYMBOL(clk_set_parent);
++
+ unsigned long clk_get_rate(struct clk *clk)
  {
- 	int r;
-+	u32 tmp;
- 
- 	adev->gmc.vram_width = amdgpu_atombios_get_vram_width(adev);
- 	if (!adev->gmc.vram_width) {
--		u32 tmp;
- 		int chansize, numchan;
- 
- 		/* Get VRAM informations */
-@@ -571,8 +571,15 @@ static int gmc_v8_0_mc_init(struct amdgpu_device *adev)
- 		adev->gmc.vram_width = numchan * chansize;
- 	}
- 	/* size in MB on si */
--	adev->gmc.mc_vram_size = RREG32(mmCONFIG_MEMSIZE) * 1024ULL * 1024ULL;
--	adev->gmc.real_vram_size = RREG32(mmCONFIG_MEMSIZE) * 1024ULL * 1024ULL;
-+	tmp = RREG32(mmCONFIG_MEMSIZE);
-+	/* some boards may have garbage in the upper 16 bits */
-+	if (tmp & 0xffff0000) {
-+		DRM_INFO("Probable bad vram size: 0x%08x\n", tmp);
-+		if (tmp & 0xffff)
-+			tmp &= 0xffff;
-+	}
-+	adev->gmc.mc_vram_size = tmp * 1024ULL * 1024ULL;
-+	adev->gmc.real_vram_size = adev->gmc.mc_vram_size;
- 
- 	if (!(adev->flags & AMD_IS_APU)) {
- 		r = amdgpu_device_resize_fb_bar(adev);
+ 	if (!clk)
 -- 
 2.34.1
 
