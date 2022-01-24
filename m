@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9138499D85
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:00:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 34069499A9D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356814AbiAXWYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:24:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36144 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1583669AbiAXWTY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:19:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0D27C0619C2;
-        Mon, 24 Jan 2022 12:49:22 -0800 (PST)
+        id S1573591AbiAXVpR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:45:17 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:50734 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1456372AbiAXVi7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:38:59 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 910BA60C19;
-        Mon, 24 Jan 2022 20:49:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72111C340E5;
-        Mon, 24 Jan 2022 20:49:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15E88B811FB;
+        Mon, 24 Jan 2022 21:38:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21B00C340E4;
+        Mon, 24 Jan 2022 21:38:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057362;
-        bh=c2qXLrMSjxDS76K9hZdCjkLK1zTrQr41ndm8rdt8eUA=;
+        s=korg; t=1643060333;
+        bh=tpCWaT3Bd7B0AOsiFmTZT3SF5MRyfmUBt4R9vgcOsE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t3NCnk4IRDDr5hsj+zac+FY0Dj9HCQClW/0jaREVfjmtdRRqkKnmBr07ubCCBLnvM
-         2luZE7aR0zZ1I5GL1aJzA7/+ZKpZ/REgfF2N991KsFxZu/o6mDKImyK4p220YaNos3
-         zf1ewVaul8v8Ab+ATXc06GsZWuhgneVnXdWs1dsI=
+        b=xDku7ZZWOsxvCBu1B9Z1LI4N6j9uv44No8FlvNlCSvgaNTe2MYgSW18VV6yrIPXWV
+         +TASSdMWAuptafsCHhxDEJGMdlNtui+8jn6cjGj39h3kBYA4Xjm2wcfHH2j/UvnFlk
+         pBCBMRi+c40M7EO+S58SURc4+gXepUaIdWreYHxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 5.15 786/846] clk: si5341: Fix clock HW provider cleanup
+        stable@vger.kernel.org,
+        Alexandre Ghiti <alexandre.ghiti@canonical.com>,
+        Steve French <smfrench@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.16 0914/1039] Documentation, arch: Remove leftovers from CIFS_WEAK_PW_HASH
 Date:   Mon, 24 Jan 2022 19:45:03 +0100
-Message-Id: <20220124184128.070367352@linuxfoundation.org>
+Message-Id: <20220124184156.022751489@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,34 +47,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Alexandre Ghiti <alexandre.ghiti@canonical.com>
 
-commit 49a8f2bc8d88702783c7e163ec84374e9a022f71 upstream.
+commit 2ac7069ad7647cd1d9ca5b08765a1e116e13cdc4 upstream.
 
-The call to of_clk_add_hw_provider was not undone on remove or on probe
-failure, which could cause an oops on a subsequent attempt to retrieve
-clocks for the removed device. Switch to the devm version of the
-function to avoid this issue.
+This config was removed so remove all references to it.
 
-Fixes: 3044a860fd09 ("clk: Add Si5341/Si5340 driver")
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Link: https://lore.kernel.org/r/20220112203816.1784610-1-robert.hancock@calian.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 76a3c92ec9e0 ("cifs: remove support for NTLM and weaker authentication algorithms")
+Signed-off-by: Alexandre Ghiti <alexandre.ghiti@canonical.com>
+Reviewed-by: Steve French <smfrench@gmail.com>
+Acked-by: Arnd Bergmann <arnd@arndb.de> [arch/arm/configs]
+Acked-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/clk-si5341.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/admin-guide/cifs/usage.rst    |    7 +++----
+ arch/arm/configs/cm_x300_defconfig          |    1 -
+ arch/arm/configs/ezx_defconfig              |    1 -
+ arch/arm/configs/imote2_defconfig           |    1 -
+ arch/arm/configs/nhk8815_defconfig          |    1 -
+ arch/arm/configs/pxa_defconfig              |    1 -
+ arch/mips/configs/fuloong2e_defconfig       |    1 -
+ arch/mips/configs/malta_qemu_32r6_defconfig |    1 -
+ arch/mips/configs/maltaaprp_defconfig       |    1 -
+ arch/mips/configs/maltasmvp_defconfig       |    1 -
+ arch/mips/configs/maltasmvp_eva_defconfig   |    1 -
+ arch/mips/configs/maltaup_defconfig         |    1 -
+ arch/powerpc/configs/ppc6xx_defconfig       |    1 -
+ arch/sh/configs/titan_defconfig             |    1 -
+ 14 files changed, 3 insertions(+), 17 deletions(-)
 
---- a/drivers/clk/clk-si5341.c
-+++ b/drivers/clk/clk-si5341.c
-@@ -1740,7 +1740,7 @@ static int si5341_probe(struct i2c_clien
- 			clk_prepare(data->clk[i].hw.clk);
- 	}
- 
--	err = of_clk_add_hw_provider(client->dev.of_node, of_clk_si5341_get,
-+	err = devm_of_clk_add_hw_provider(&client->dev, of_clk_si5341_get,
- 			data);
- 	if (err) {
- 		dev_err(&client->dev, "unable to add clk provider\n");
+--- a/Documentation/admin-guide/cifs/usage.rst
++++ b/Documentation/admin-guide/cifs/usage.rst
+@@ -734,10 +734,9 @@ SecurityFlags		Flags which control secur
+ 			using weaker password hashes is 0x37037 (lanman,
+ 			plaintext, ntlm, ntlmv2, signing allowed).  Some
+ 			SecurityFlags require the corresponding menuconfig
+-			options to be enabled (lanman and plaintext require
+-			CONFIG_CIFS_WEAK_PW_HASH for example).  Enabling
+-			plaintext authentication currently requires also
+-			enabling lanman authentication in the security flags
++			options to be enabled.  Enabling plaintext
++			authentication currently requires also enabling
++			lanman authentication in the security flags
+ 			because the cifs module only supports sending
+ 			laintext passwords using the older lanman dialect
+ 			form of the session setup SMB.  (e.g. for authentication
+--- a/arch/arm/configs/cm_x300_defconfig
++++ b/arch/arm/configs/cm_x300_defconfig
+@@ -146,7 +146,6 @@ CONFIG_NFS_V3_ACL=y
+ CONFIG_NFS_V4=y
+ CONFIG_ROOT_NFS=y
+ CONFIG_CIFS=m
+-CONFIG_CIFS_WEAK_PW_HASH=y
+ CONFIG_PARTITION_ADVANCED=y
+ CONFIG_NLS_CODEPAGE_437=m
+ CONFIG_NLS_ISO8859_1=m
+--- a/arch/arm/configs/ezx_defconfig
++++ b/arch/arm/configs/ezx_defconfig
+@@ -314,7 +314,6 @@ CONFIG_NFSD_V3_ACL=y
+ CONFIG_SMB_FS=m
+ CONFIG_CIFS=m
+ CONFIG_CIFS_STATS=y
+-CONFIG_CIFS_WEAK_PW_HASH=y
+ CONFIG_CIFS_XATTR=y
+ CONFIG_CIFS_POSIX=y
+ CONFIG_NLS_CODEPAGE_437=m
+--- a/arch/arm/configs/imote2_defconfig
++++ b/arch/arm/configs/imote2_defconfig
+@@ -288,7 +288,6 @@ CONFIG_NFSD_V3_ACL=y
+ CONFIG_SMB_FS=m
+ CONFIG_CIFS=m
+ CONFIG_CIFS_STATS=y
+-CONFIG_CIFS_WEAK_PW_HASH=y
+ CONFIG_CIFS_XATTR=y
+ CONFIG_CIFS_POSIX=y
+ CONFIG_NLS_CODEPAGE_437=m
+--- a/arch/arm/configs/nhk8815_defconfig
++++ b/arch/arm/configs/nhk8815_defconfig
+@@ -127,7 +127,6 @@ CONFIG_NFS_FS=y
+ CONFIG_NFS_V3_ACL=y
+ CONFIG_ROOT_NFS=y
+ CONFIG_CIFS=m
+-CONFIG_CIFS_WEAK_PW_HASH=y
+ CONFIG_NLS_CODEPAGE_437=y
+ CONFIG_NLS_ASCII=y
+ CONFIG_NLS_ISO8859_1=y
+--- a/arch/arm/configs/pxa_defconfig
++++ b/arch/arm/configs/pxa_defconfig
+@@ -699,7 +699,6 @@ CONFIG_NFSD_V3_ACL=y
+ CONFIG_NFSD_V4=y
+ CONFIG_CIFS=m
+ CONFIG_CIFS_STATS=y
+-CONFIG_CIFS_WEAK_PW_HASH=y
+ CONFIG_CIFS_XATTR=y
+ CONFIG_CIFS_POSIX=y
+ CONFIG_NLS_DEFAULT="utf8"
+--- a/arch/mips/configs/fuloong2e_defconfig
++++ b/arch/mips/configs/fuloong2e_defconfig
+@@ -206,7 +206,6 @@ CONFIG_NFSD_V3_ACL=y
+ CONFIG_NFSD_V4=y
+ CONFIG_CIFS=m
+ CONFIG_CIFS_STATS2=y
+-CONFIG_CIFS_WEAK_PW_HASH=y
+ CONFIG_CIFS_XATTR=y
+ CONFIG_CIFS_POSIX=y
+ CONFIG_CIFS_DEBUG2=y
+--- a/arch/mips/configs/malta_qemu_32r6_defconfig
++++ b/arch/mips/configs/malta_qemu_32r6_defconfig
+@@ -165,7 +165,6 @@ CONFIG_TMPFS=y
+ CONFIG_NFS_FS=y
+ CONFIG_ROOT_NFS=y
+ CONFIG_CIFS=m
+-CONFIG_CIFS_WEAK_PW_HASH=y
+ CONFIG_CIFS_XATTR=y
+ CONFIG_CIFS_POSIX=y
+ CONFIG_NLS_CODEPAGE_437=m
+--- a/arch/mips/configs/maltaaprp_defconfig
++++ b/arch/mips/configs/maltaaprp_defconfig
+@@ -166,7 +166,6 @@ CONFIG_TMPFS=y
+ CONFIG_NFS_FS=y
+ CONFIG_ROOT_NFS=y
+ CONFIG_CIFS=m
+-CONFIG_CIFS_WEAK_PW_HASH=y
+ CONFIG_CIFS_XATTR=y
+ CONFIG_CIFS_POSIX=y
+ CONFIG_NLS_CODEPAGE_437=m
+--- a/arch/mips/configs/maltasmvp_defconfig
++++ b/arch/mips/configs/maltasmvp_defconfig
+@@ -167,7 +167,6 @@ CONFIG_TMPFS=y
+ CONFIG_NFS_FS=y
+ CONFIG_ROOT_NFS=y
+ CONFIG_CIFS=m
+-CONFIG_CIFS_WEAK_PW_HASH=y
+ CONFIG_CIFS_XATTR=y
+ CONFIG_CIFS_POSIX=y
+ CONFIG_NLS_CODEPAGE_437=m
+--- a/arch/mips/configs/maltasmvp_eva_defconfig
++++ b/arch/mips/configs/maltasmvp_eva_defconfig
+@@ -169,7 +169,6 @@ CONFIG_TMPFS=y
+ CONFIG_NFS_FS=y
+ CONFIG_ROOT_NFS=y
+ CONFIG_CIFS=m
+-CONFIG_CIFS_WEAK_PW_HASH=y
+ CONFIG_CIFS_XATTR=y
+ CONFIG_CIFS_POSIX=y
+ CONFIG_NLS_CODEPAGE_437=m
+--- a/arch/mips/configs/maltaup_defconfig
++++ b/arch/mips/configs/maltaup_defconfig
+@@ -165,7 +165,6 @@ CONFIG_TMPFS=y
+ CONFIG_NFS_FS=y
+ CONFIG_ROOT_NFS=y
+ CONFIG_CIFS=m
+-CONFIG_CIFS_WEAK_PW_HASH=y
+ CONFIG_CIFS_XATTR=y
+ CONFIG_CIFS_POSIX=y
+ CONFIG_NLS_CODEPAGE_437=m
+--- a/arch/powerpc/configs/ppc6xx_defconfig
++++ b/arch/powerpc/configs/ppc6xx_defconfig
+@@ -1022,7 +1022,6 @@ CONFIG_NFSD=m
+ CONFIG_NFSD_V3_ACL=y
+ CONFIG_NFSD_V4=y
+ CONFIG_CIFS=m
+-CONFIG_CIFS_WEAK_PW_HASH=y
+ CONFIG_CIFS_UPCALL=y
+ CONFIG_CIFS_XATTR=y
+ CONFIG_CIFS_POSIX=y
+--- a/arch/sh/configs/titan_defconfig
++++ b/arch/sh/configs/titan_defconfig
+@@ -242,7 +242,6 @@ CONFIG_NFSD=y
+ CONFIG_NFSD_V3=y
+ CONFIG_SMB_FS=m
+ CONFIG_CIFS=m
+-CONFIG_CIFS_WEAK_PW_HASH=y
+ CONFIG_PARTITION_ADVANCED=y
+ CONFIG_NLS_CODEPAGE_437=m
+ CONFIG_NLS_ASCII=m
 
 
