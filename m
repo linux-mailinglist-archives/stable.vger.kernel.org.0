@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F3544499FA9
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:20:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 585BD499FAE
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:20:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1841985AbiAXXAa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:00:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40998 "EHLO
+        id S1842010AbiAXXAf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:00:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1835925AbiAXWhr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:37:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 349ACC05486B;
-        Mon, 24 Jan 2022 12:59:47 -0800 (PST)
+        with ESMTP id S1835930AbiAXWhs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:37:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A846C02B86F;
+        Mon, 24 Jan 2022 12:59:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A1A5CB811FB;
-        Mon, 24 Jan 2022 20:59:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA694C340E5;
-        Mon, 24 Jan 2022 20:59:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 27FDC61317;
+        Mon, 24 Jan 2022 20:59:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D51D4C340E5;
+        Mon, 24 Jan 2022 20:59:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057984;
-        bh=ZAAVcAfRBcJykvbAOIAdnOcapjFkib2az6P5abi5NX4=;
+        s=korg; t=1643057987;
+        bh=WZ3y8zEoAZCa0dRNCAuVij8BF5EdE9FA38K3vuCAJqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b1nelFjewmZ37pP7RyZcGdO/Kbc4U0FVJ2vQ6Z8dSNoGGCtfcqIZ1PCanB8JeUu1v
-         SUKAoqcPVNWuWGusJhJe/hQP49zAfRyAfJM07MmlXNg2kU7xMYq5fwB79s3l5Fi3e0
-         CD0RjJGU9KWsezBns5TL2B38aCOV3HQUkelkHgMQ=
+        b=JkszGgGnFvjZPy0qaamFfoJWYt47ArtFGWJgizq334c0rGXbjnMDxdMZ0EuzAPq4l
+         37Pr3x3tshQ8BoO03EmGzR66LOY7PXyGF6cSVYRquoecNeq01+fhAVqOAh8CqJW/Gs
+         AjShAvv4UuXT5AjiXu3fmmQOR0o8wNbqIuPzchmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Venkateswara Naralasetty <vnaralas@codeaurora.org>,
-        Sven Eckelmann <sven@narfation.org>,
-        Karthikeyan Kathirvel <kathirve@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, oujiefeng <oujiefeng@huawei.com>,
+        Jay Fang <f.fangjian@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0143/1039] ath11k: reset RSN/WPA present state for open BSS
-Date:   Mon, 24 Jan 2022 19:32:12 +0100
-Message-Id: <20220124184129.982882234@linuxfoundation.org>
+Subject: [PATCH 5.16 0144/1039] spi: hisi-kunpeng: Fix the debugfs directory name incorrect
+Date:   Mon, 24 Jan 2022 19:32:13 +0100
+Message-Id: <20220124184130.014248113@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -51,57 +49,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karthikeyan Kathirvel <kathirve@codeaurora.org>
+From: oujiefeng <oujiefeng@huawei.com>
 
-[ Upstream commit 64bc3aa02ae78b1fcb1b850e0eb1f0622002bfaa ]
+[ Upstream commit 40fafc8eca3f0d41b9dade5c10afb2dad723aad7 ]
 
-The ath11k driver is caching the information about RSN/WPA IE in the
-configured beacon template. The cached information is used during
-associations to figure out whether 4-way PKT/2-way GTK peer flags need to
-be set or not.
+Change the debugfs directory name from hisi_spi65535 to hisi_spi0.
 
-But the code never cleared the state when no such IE was found. This can
-for example happen when moving from an WPA/RSN to an open setup. The
-(seemingly connected) peer was then not able to communicate over the
-link because the firmware assumed a different (encryption enabled) state
-for the peer.
-
-Tested-on: IPQ6018 hw1.0 AHB WLAN.HK.2.5.0.1-01100-QCAHKSWPL_SILICONZ-1
-
-Fixes: 01e34233c645 ("ath11k: fix wmi peer flags in peer assoc command")
-Cc: Venkateswara Naralasetty <vnaralas@codeaurora.org>
-Reported-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Karthikeyan Kathirvel <kathirve@codeaurora.org>
-[sven@narfation.org: split into separate patches, clean up commit message]
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211115100441.33771-2-sven@narfation.org
+Fixes: 2b2142f247eb ("spi: hisi-kunpeng: Add debugfs support")
+Signed-off-by: oujiefeng <oujiefeng@huawei.com>
+Signed-off-by: Jay Fang <f.fangjian@huawei.com>
+Link: https://lore.kernel.org/r/20211117012119.55558-1-f.fangjian@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/mac.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/spi/spi-hisi-kunpeng.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
-index cdee7545e876a..9ed7eb09bdb70 100644
---- a/drivers/net/wireless/ath/ath11k/mac.c
-+++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -1137,11 +1137,15 @@ static int ath11k_mac_setup_bcn_tmpl(struct ath11k_vif *arvif)
+diff --git a/drivers/spi/spi-hisi-kunpeng.c b/drivers/spi/spi-hisi-kunpeng.c
+index 58b823a16fc4d..525cc0143a305 100644
+--- a/drivers/spi/spi-hisi-kunpeng.c
++++ b/drivers/spi/spi-hisi-kunpeng.c
+@@ -127,7 +127,6 @@ struct hisi_spi {
+ 	void __iomem		*regs;
+ 	int			irq;
+ 	u32			fifo_len; /* depth of the FIFO buffer */
+-	u16			bus_num;
  
- 	if (cfg80211_find_ie(WLAN_EID_RSN, ies, (skb_tail_pointer(bcn) - ies)))
- 		arvif->rsnie_present = true;
-+	else
-+		arvif->rsnie_present = false;
+ 	/* Current message transfer state info */
+ 	const void		*tx;
+@@ -165,7 +164,10 @@ static int hisi_spi_debugfs_init(struct hisi_spi *hs)
+ {
+ 	char name[32];
  
- 	if (cfg80211_find_vendor_ie(WLAN_OUI_MICROSOFT,
- 				    WLAN_OUI_TYPE_MICROSOFT_WPA,
- 				    ies, (skb_tail_pointer(bcn) - ies)))
- 		arvif->wpaie_present = true;
-+	else
-+		arvif->wpaie_present = false;
+-	snprintf(name, 32, "hisi_spi%d", hs->bus_num);
++	struct spi_controller *master;
++
++	master = container_of(hs->dev, struct spi_controller, dev);
++	snprintf(name, 32, "hisi_spi%d", master->bus_num);
+ 	hs->debugfs = debugfs_create_dir(name, NULL);
+ 	if (!hs->debugfs)
+ 		return -ENOMEM;
+@@ -467,7 +469,6 @@ static int hisi_spi_probe(struct platform_device *pdev)
+ 	hs = spi_controller_get_devdata(master);
+ 	hs->dev = dev;
+ 	hs->irq = irq;
+-	hs->bus_num = pdev->id;
  
- 	ret = ath11k_wmi_bcn_tmpl(ar, arvif->vdev_id, &offs, bcn);
+ 	hs->regs = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(hs->regs))
+@@ -490,7 +491,7 @@ static int hisi_spi_probe(struct platform_device *pdev)
+ 	master->use_gpio_descriptors = true;
+ 	master->mode_bits = SPI_CPOL | SPI_CPHA | SPI_CS_HIGH | SPI_LOOP;
+ 	master->bits_per_word_mask = SPI_BPW_RANGE_MASK(4, 32);
+-	master->bus_num = hs->bus_num;
++	master->bus_num = pdev->id;
+ 	master->setup = hisi_spi_setup;
+ 	master->cleanup = hisi_spi_cleanup;
+ 	master->transfer_one = hisi_spi_transfer_one;
+@@ -506,15 +507,15 @@ static int hisi_spi_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
  
+-	if (hisi_spi_debugfs_init(hs))
+-		dev_info(dev, "failed to create debugfs dir\n");
+-
+ 	ret = spi_register_controller(master);
+ 	if (ret) {
+ 		dev_err(dev, "failed to register spi master, ret=%d\n", ret);
+ 		return ret;
+ 	}
+ 
++	if (hisi_spi_debugfs_init(hs))
++		dev_info(dev, "failed to create debugfs dir\n");
++
+ 	dev_info(dev, "hw version:0x%x max-freq:%u kHz\n",
+ 		readl(hs->regs + HISI_SPI_VERSION),
+ 		master->max_speed_hz / 1000);
 -- 
 2.34.1
 
