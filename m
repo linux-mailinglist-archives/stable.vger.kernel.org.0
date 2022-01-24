@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B703E499927
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:43:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25D904996F4
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:20:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1454271AbiAXVcG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:32:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48946 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1449134AbiAXVO5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:14:57 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28B72C06E01F;
-        Mon, 24 Jan 2022 12:11:24 -0800 (PST)
+        id S1446443AbiAXVIR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:08:17 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:54954 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1445206AbiAXVCb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:02:31 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD92D612FC;
-        Mon, 24 Jan 2022 20:11:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F3FCC340E5;
-        Mon, 24 Jan 2022 20:11:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59544B810BD;
+        Mon, 24 Jan 2022 21:02:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8087DC340E5;
+        Mon, 24 Jan 2022 21:02:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055083;
-        bh=l5GlaMQWhaM9tQ49nzfGO/tk9HkHi8Ff5Xjw5ttxKI8=;
+        s=korg; t=1643058149;
+        bh=3yYTdBly+sCfC5UGnyLhL5seRIkMZilstI3NlwH1Dqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yIA8l46UaBzHaBr/1pa11keJhtRnoLzAbJ7OluIZclsVfBlHGulwV2k8DTCqCSdec
-         dUND3KHFp6C0KMyeMnW+E01VqYZTRcR3api5SLPP058FnuokxnblZU3sRC4PtnAHqc
-         TPaUexmNs88HIjXvwS1bj2KQ+uSuRgWXhSrTJ+Ik=
+        b=lapmvaEAW4oQx/orCfXlCnT4qetT40vD2LXeRUIK5QVsX9TLM6dizz9rXb25linHe
+         qWM3odPOTF948e9GpW0yHZyy6mMZoSVz7YdnjPvqWRRGQamgb9X2cGqsjZy25iWbql
+         nT+Kc5E7ykheCpbTdUg3E+Ap54UALevJ1Hrat8VU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.15 034/846] ksmbd: uninitialized variable in create_socket()
-Date:   Mon, 24 Jan 2022 19:32:31 +0100
-Message-Id: <20220124184102.124037410@linuxfoundation.org>
+        stable@vger.kernel.org, Prasad Malisetty <pmaliset@codeaurora.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0163/1039] arm64: dts: qcom: sc7280: Fix interrupt-map parent address cells
+Date:   Mon, 24 Jan 2022 19:32:32 +0100
+Message-Id: <20220124184130.691686284@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,40 +46,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Prasad Malisetty <pmaliset@codeaurora.org>
 
-commit b207602fb04537cb21ac38fabd7577eca2fa05ae upstream.
+[ Upstream commit 66b788133030f0c69a0ecc7f72f7939b119c9a69 ]
 
-The "ksmbd_socket" variable is not initialized on this error path.
+Update interrupt-map parent address cells for sc7280
+Similar to existing Qcom SoCs.
 
-Cc: stable@vger.kernel.org
-Fixes: 0626e6641f6b ("cifsd: add server handler for central processing and tranport layers")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 92e0ee9f8 ("arm64: dts: qcom: sc7280: Add PCIe and PHY related nodes")
+Signed-off-by: Prasad Malisetty <pmaliset@codeaurora.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/1637060508-30375-4-git-send-email-pmaliset@codeaurora.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/transport_tcp.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/qcom/sc7280.dtsi | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/ksmbd/transport_tcp.c
-+++ b/fs/ksmbd/transport_tcp.c
-@@ -404,7 +404,7 @@ static int create_socket(struct interfac
- 				  &ksmbd_socket);
- 		if (ret) {
- 			pr_err("Can't create socket for ipv4: %d\n", ret);
--			goto out_error;
-+			goto out_clear;
- 		}
+diff --git a/arch/arm64/boot/dts/qcom/sc7280.dtsi b/arch/arm64/boot/dts/qcom/sc7280.dtsi
+index cb94b877d6246..6e27a1beaa33a 100644
+--- a/arch/arm64/boot/dts/qcom/sc7280.dtsi
++++ b/arch/arm64/boot/dts/qcom/sc7280.dtsi
+@@ -1592,10 +1592,10 @@
+ 			interrupt-names = "msi";
+ 			#interrupt-cells = <1>;
+ 			interrupt-map-mask = <0 0 0 0x7>;
+-			interrupt-map = <0 0 0 1 &intc 0 434 IRQ_TYPE_LEVEL_HIGH>,
+-					<0 0 0 2 &intc 0 435 IRQ_TYPE_LEVEL_HIGH>,
+-					<0 0 0 3 &intc 0 438 IRQ_TYPE_LEVEL_HIGH>,
+-					<0 0 0 4 &intc 0 439 IRQ_TYPE_LEVEL_HIGH>;
++			interrupt-map = <0 0 0 1 &intc 0 0 0 434 IRQ_TYPE_LEVEL_HIGH>,
++					<0 0 0 2 &intc 0 0 0 435 IRQ_TYPE_LEVEL_HIGH>,
++					<0 0 0 3 &intc 0 0 0 438 IRQ_TYPE_LEVEL_HIGH>,
++					<0 0 0 4 &intc 0 0 0 439 IRQ_TYPE_LEVEL_HIGH>;
  
- 		sin.sin_family = PF_INET;
-@@ -462,6 +462,7 @@ static int create_socket(struct interfac
- 
- out_error:
- 	tcp_destroy_socket(ksmbd_socket);
-+out_clear:
- 	iface->ksmbd_socket = NULL;
- 	return ret;
- }
+ 			clocks = <&gcc GCC_PCIE_1_PIPE_CLK>,
+ 				 <&gcc GCC_PCIE_1_PIPE_CLK_SRC>,
+-- 
+2.34.1
+
 
 
