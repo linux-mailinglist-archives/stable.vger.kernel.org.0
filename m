@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBC4849A49F
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:10:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 957BA49A4BD
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:10:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2369559AbiAYACJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:02:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52958 "EHLO
+        id S2369605AbiAYACO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:02:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53426 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1458085AbiAXX2P (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:28:15 -0500
+        with ESMTP id S1572900AbiAXX2Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:28:16 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE344C01D7FC;
-        Mon, 24 Jan 2022 13:32:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D07FBC01D7FD;
+        Mon, 24 Jan 2022 13:32:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 934D2B8105C;
-        Mon, 24 Jan 2022 21:32:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0C85C340E4;
-        Mon, 24 Jan 2022 21:32:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98E1EB8105C;
+        Mon, 24 Jan 2022 21:32:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC73BC340E4;
+        Mon, 24 Jan 2022 21:32:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059938;
-        bh=EA7dMKNdQg24nhqA/oLL+3Ocd+cZ/ldxMW1D3CxdYDs=;
+        s=korg; t=1643059944;
+        bh=vqNbZ/QgN62kkNQGfD6HduBejctEmovphbmTpQUP7KY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pqFGKyYR7JYddE/dLIoxcTABiKng5hTcmFmNrIxhq3u706tAqsme+ybkJSXLIhaS4
-         +7ffZPwdHPUEwNZlYQHPYMcIn2XQ9wXALgsQJE8WVAsdCjqunf4kQwuMhOa8crUOJu
-         5Vik0YAwXhsBb2mwJo5qFILq4UFClwN2+YkE8qsc=
+        b=p7fR+ZSS1Q2jhLpUR3LqYDADPC44hGRpt+x+T/MoQQaCXxQLKyCPuf97coRGlysDG
+         S81rR5lTZeh0QyteKg7vk3flmz88MEYvCdek0t7OG66byPkGIQz4zSIiqHD2567cNc
+         siH97xj94usC7Ezxpp/8eSc14CjI0aAjn38q2ECI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tim Harvey <tharvey@gateworks.com>,
+        stable@vger.kernel.org, Hector Martin <marcan@marcan.st>,
         Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Rob Herring <robh@kernel.org>,
-        Richard Zhu <hongxing.zhu@nxp.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0785/1039] PCI: dwc: Do not remap invalid res
-Date:   Mon, 24 Jan 2022 19:42:54 +0100
-Message-Id: <20220124184151.676819654@linuxfoundation.org>
+        Marc Zyngier <maz@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0787/1039] PCI: apple: Fix REFCLK1 enable/poll logic
+Date:   Mon, 24 Jan 2022 19:42:56 +0100
+Message-Id: <20220124184151.746567209@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -50,47 +48,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Harvey <tharvey@gateworks.com>
+From: Hector Martin <marcan@marcan.st>
 
-[ Upstream commit 6e5ebc96ec651b67131f816d7e3bf286c635e749 ]
+[ Upstream commit 75d36df6807838f3c826c21c0fa51cdc079667d1 ]
 
-On imx6 and perhaps others when pcie probes you get a:
-imx6q-pcie 33800000.pcie: invalid resource
+REFCLK1 has req/ack bits that need to be programmed, just like REFCLK0.
 
-This occurs because the atu is not specified in the DT and as such it
-should not be remapped.
-
-Link: https://lore.kernel.org/r/20211101180243.23761-1-tharvey@gateworks.com
-Fixes: 281f1f99cf3a ("PCI: dwc: Detect number of iATU windows")
-Signed-off-by: Tim Harvey <tharvey@gateworks.com>
+Link: https://lore.kernel.org/r/20211117140044.193865-1-marcan@marcan.st
+Fixes: 1e33888fbe44 ("PCI: apple: Add initial hardware bring-up")
+Signed-off-by: Hector Martin <marcan@marcan.st>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Acked-by: Richard Zhu <hongxing.zhu@nxp.com>
-Cc: Richard Zhu <hongxing.zhu@nxp.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pcie-designware.c | 7 ++++---
+ drivers/pci/controller/pcie-apple.c | 7 ++++---
  1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/controller/dwc/pcie-designware.c b/drivers/pci/controller/dwc/pcie-designware.c
-index 850b4533f4ef5..d92c8a25094fa 100644
---- a/drivers/pci/controller/dwc/pcie-designware.c
-+++ b/drivers/pci/controller/dwc/pcie-designware.c
-@@ -672,10 +672,11 @@ void dw_pcie_iatu_detect(struct dw_pcie *pci)
- 		if (!pci->atu_base) {
- 			struct resource *res =
- 				platform_get_resource_byname(pdev, IORESOURCE_MEM, "atu");
--			if (res)
-+			if (res) {
- 				pci->atu_size = resource_size(res);
--			pci->atu_base = devm_ioremap_resource(dev, res);
--			if (IS_ERR(pci->atu_base))
-+				pci->atu_base = devm_ioremap_resource(dev, res);
-+			}
-+			if (!pci->atu_base || IS_ERR(pci->atu_base))
- 				pci->atu_base = pci->dbi_base + DEFAULT_DBI_ATU_OFFSET;
- 		}
+diff --git a/drivers/pci/controller/pcie-apple.c b/drivers/pci/controller/pcie-apple.c
+index b090924b41fee..537ac9fe2e842 100644
+--- a/drivers/pci/controller/pcie-apple.c
++++ b/drivers/pci/controller/pcie-apple.c
+@@ -42,8 +42,9 @@
+ #define   CORE_FABRIC_STAT_MASK		0x001F001F
+ #define CORE_LANE_CFG(port)		(0x84000 + 0x4000 * (port))
+ #define   CORE_LANE_CFG_REFCLK0REQ	BIT(0)
+-#define   CORE_LANE_CFG_REFCLK1		BIT(1)
++#define   CORE_LANE_CFG_REFCLK1REQ	BIT(1)
+ #define   CORE_LANE_CFG_REFCLK0ACK	BIT(2)
++#define   CORE_LANE_CFG_REFCLK1ACK	BIT(3)
+ #define   CORE_LANE_CFG_REFCLKEN	(BIT(9) | BIT(10))
+ #define CORE_LANE_CTL(port)		(0x84004 + 0x4000 * (port))
+ #define   CORE_LANE_CTL_CFGACC		BIT(15)
+@@ -482,9 +483,9 @@ static int apple_pcie_setup_refclk(struct apple_pcie *pcie,
+ 	if (res < 0)
+ 		return res;
  
+-	rmw_set(CORE_LANE_CFG_REFCLK1, pcie->base + CORE_LANE_CFG(port->idx));
++	rmw_set(CORE_LANE_CFG_REFCLK1REQ, pcie->base + CORE_LANE_CFG(port->idx));
+ 	res = readl_relaxed_poll_timeout(pcie->base + CORE_LANE_CFG(port->idx),
+-					 stat, stat & CORE_LANE_CFG_REFCLK1,
++					 stat, stat & CORE_LANE_CFG_REFCLK1ACK,
+ 					 100, 50000);
+ 
+ 	if (res < 0)
 -- 
 2.34.1
 
