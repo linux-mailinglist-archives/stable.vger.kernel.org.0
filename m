@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C125F499FE6
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:24:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A733499FE5
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:24:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1842320AbiAXXBi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:01:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43892 "EHLO
+        id S1842309AbiAXXBf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:01:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43898 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1838729AbiAXWr6 (ORCPT
+        with ESMTP id S1838727AbiAXWr6 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:47:58 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4615C06B5BC;
-        Mon, 24 Jan 2022 13:07:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA7AEC068091;
+        Mon, 24 Jan 2022 13:07:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4522C61320;
-        Mon, 24 Jan 2022 21:07:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CC69C340E5;
-        Mon, 24 Jan 2022 21:07:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 581B161320;
+        Mon, 24 Jan 2022 21:07:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D45FC340E5;
+        Mon, 24 Jan 2022 21:07:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058432;
-        bh=R+WX8tRh9BhkMM3bYGELy4TMhMrbAv10+Nlt5zhG0vg=;
+        s=korg; t=1643058435;
+        bh=UJoBk2AX7uagF3E4lBveV8DtzXXk/DzkBuDh3DUoHyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PzAMTE8Q3fYvRSivvG2A+F/PnnvpJ7/lui00eIGGG7qyDa33dfUBHreGFyPa/clFi
-         Ld4/mhoORRSObDhA/5iovarN0CsP6wxcTsQ+4g9I8Hnem8Xrg6wXzL6gAGgd5/WyJL
-         9DRk51ihkdfhlosDpVLmtiNajD1Ks32hVRKUM6YQ=
+        b=qpqlgGnQy+FusC03hE5tN1sdYoIcHwBsl+UVeu4DkcyPhZQwsGQrAa9R0GeXl3F1g
+         /S7n54KU3wWHVEe2G9fLKNBUQIyjCOi6TPTtgjY3Xq0fyneBYIWupp2GJp6naqB7fR
+         sdOEZ2HQPfT+xj9czzSharJFOFpBLfinfgIHuXzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0287/1039] media: coda/imx-vdoa: Handle dma_set_coherent_mask error codes
-Date:   Mon, 24 Jan 2022 19:34:36 +0100
-Message-Id: <20220124184134.932125326@linuxfoundation.org>
+Subject: [PATCH 5.16 0288/1039] ath11k: Fix a NULL pointer dereference in ath11k_mac_op_hw_scan()
+Date:   Mon, 24 Jan 2022 19:34:37 +0100
+Message-Id: <20220124184134.963810672@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -48,39 +48,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Zhou Qingyang <zhou1615@umn.edu>
 
-[ Upstream commit 43f0633f89947df57fe0b5025bdd741768007708 ]
+[ Upstream commit eccd25136386a04ebf46a64f3a34e8e0fab6d9e1 ]
 
-The return value of dma_set_coherent_mask() is not always 0.
-To catch the exception in case that dma is not support the mask.
+In ath11k_mac_op_hw_scan(), the return value of kzalloc() is directly
+used in memcpy(), which may lead to a NULL pointer dereference on
+failure of kzalloc().
 
-Link: https://lore.kernel.org/linux-media/20211206022201.1639460-1-jiasheng@iscas.ac.cn
-Fixes: b0444f18e0b1 ("[media] coda: add i.MX6 VDOA driver")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fix this bug by adding a check of arg.extraie.ptr.
+
+This bug was found by a static analyzer. The analysis employs
+differential checking to identify inconsistent security operations
+(e.g., checks or kfrees) between two code paths and confirms that the
+inconsistent operations are not recovered in the current function or
+the callers, so they constitute bugs.
+
+Note that, as a bug found by static analysis, it can be a false
+positive or hard to trigger. Multiple researchers have cross-reviewed
+the bug.
+
+Builds with CONFIG_ATH11K=m show no new warnings, and our static
+analyzer no longer warns about this code.
+
+Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
+Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20211202155348.71315-1-zhou1615@umn.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/coda/imx-vdoa.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath11k/mac.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/coda/imx-vdoa.c b/drivers/media/platform/coda/imx-vdoa.c
-index 6996d4571e363..00643f37b3e6f 100644
---- a/drivers/media/platform/coda/imx-vdoa.c
-+++ b/drivers/media/platform/coda/imx-vdoa.c
-@@ -287,7 +287,11 @@ static int vdoa_probe(struct platform_device *pdev)
- 	struct resource *res;
- 	int ret;
+diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
+index 67be109eda910..5d49a7ea51fae 100644
+--- a/drivers/net/wireless/ath/ath11k/mac.c
++++ b/drivers/net/wireless/ath/ath11k/mac.c
+@@ -3241,9 +3241,12 @@ static int ath11k_mac_op_hw_scan(struct ieee80211_hw *hw,
+ 	arg.scan_id = ATH11K_SCAN_ID;
  
--	dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(32));
-+	ret = dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(32));
-+	if (ret) {
-+		dev_err(&pdev->dev, "DMA enable failed\n");
-+		return ret;
-+	}
+ 	if (req->ie_len) {
++		arg.extraie.ptr = kmemdup(req->ie, req->ie_len, GFP_KERNEL);
++		if (!arg.extraie.ptr) {
++			ret = -ENOMEM;
++			goto exit;
++		}
+ 		arg.extraie.len = req->ie_len;
+-		arg.extraie.ptr = kzalloc(req->ie_len, GFP_KERNEL);
+-		memcpy(arg.extraie.ptr, req->ie, req->ie_len);
+ 	}
  
- 	vdoa = devm_kzalloc(&pdev->dev, sizeof(*vdoa), GFP_KERNEL);
- 	if (!vdoa)
+ 	if (req->n_ssids) {
 -- 
 2.34.1
 
