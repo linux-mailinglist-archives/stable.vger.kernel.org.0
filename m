@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62A75498E07
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:43:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4792498B66
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:13:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347341AbiAXTir (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:38:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51944 "EHLO
+        id S237413AbiAXTNR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:13:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345699AbiAXTb3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:31:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94042C028BE5;
-        Mon, 24 Jan 2022 11:14:41 -0800 (PST)
+        with ESMTP id S1343901AbiAXTLO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:11:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0A68C061368;
+        Mon, 24 Jan 2022 11:03:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3198560B88;
-        Mon, 24 Jan 2022 19:14:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0840C340E5;
-        Mon, 24 Jan 2022 19:14:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 967BAB81229;
+        Mon, 24 Jan 2022 19:03:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A776DC340E5;
+        Mon, 24 Jan 2022 19:03:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051680;
-        bh=PlQem231B9ZJ6Nur+9/SuZiPSNd25scKJOTzlt/aIAA=;
+        s=korg; t=1643050982;
+        bh=FcXJOa7bHUqybc6OliOtg4d1gBGX7CtOJSWvToOBRD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kbWY//bPDKL2aJJT24wqzv/JiJ7Pcy9WtnKENWRSX3tXHt4tOyyhnbdQ3EaWI9YRT
-         GEFsnhwaTu+mTlYOnxnhZAlvo6Llp+SKbuBBItJJgy5IzAJgdjIdv/s41DIKZ/MNvU
-         Sj7e6tK1U4nxxvrUVRdS6Z2TbWzQ4ZIXCWbQtTEQ=
+        b=A7NCosljaeGHOF2lvubczr8C3tRGddlfQvNQAU9Bct9J/4+/1s/Po6L8JVyMKg7YI
+         Cm2MWhSvxwSgQX4BsKCriApin3jG9GAF9bQiErwGYWHCudU7qZE+QFfnrY+uxkcA+7
+         FwCM97fE9VIjNVhVam7pxwTF5Z9NulakTbbjTx88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+e3fcb9c4f3c2a931dc40@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 053/239] Bluetooth: stop proccessing malicious adv data
-Date:   Mon, 24 Jan 2022 19:41:31 +0100
-Message-Id: <20220124183944.821850135@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
+        Ping Cheng <ping.cheng@wacom.com>,
+        Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 4.14 017/186] HID: wacom: Ignore the confidence flag when a touch is removed
+Date:   Mon, 24 Jan 2022 19:41:32 +0100
+Message-Id: <20220124183937.670548203@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
+References: <20220124183937.101330125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,54 +48,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Jason Gerecke <killertofu@gmail.com>
 
-[ Upstream commit 3a56ef719f0b9682afb8a86d64b2399e36faa4e6 ]
+commit df03e9bd6d4806619b4cdc91a3d7695818a8e2b7 upstream.
 
-Syzbot reported slab-out-of-bounds read in hci_le_adv_report_evt(). The
-problem was in missing validaion check.
+AES hardware may internally re-classify a contact that it thought was
+intentional as a palm. Intentional contacts are reported as "down" with
+the confidence bit set. When this re-classification occurs, however, the
+state transitions to "up" with the confidence bit cleared. This kind of
+transition appears to be legal according to Microsoft docs, but we do
+not handle it correctly. Because the confidence bit is clear, we don't
+call `wacom_wac_finger_slot` and update userspace. This causes hung
+touches that confuse userspace and interfere with pen arbitration.
 
-We should check if data is not malicious and we can read next data block.
-If we won't check ptr validness, code can read a way beyond skb->end and
-it can cause problems, of course.
+This commit adds a special case to ignore the confidence flag if a contact
+is reported as removed. This ensures we do not leave a hung touch if one
+of these re-classification events occured. Ideally we'd have some way to
+also let userspace know that the touch has been re-classified as a palm
+and needs to be canceled, but that's not possible right now :)
 
-Fixes: e95beb414168 ("Bluetooth: hci_le_adv_report_evt code refactoring")
-Reported-and-tested-by: syzbot+e3fcb9c4f3c2a931dc40@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://github.com/linuxwacom/input-wacom/issues/288
+Fixes: 7fb0413baa7f (HID: wacom: Use "Confidence" flag to prevent reporting invalid contacts)
+CC: stable@vger.kernel.org
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/hci_event.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/hid/wacom_wac.c |   29 ++++++++++++++++++++++++++---
+ 1 file changed, 26 insertions(+), 3 deletions(-)
 
-diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
-index 937cada5595ee..c0dbb8ad00376 100644
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -5391,7 +5391,8 @@ static void hci_le_adv_report_evt(struct hci_dev *hdev, struct sk_buff *skb)
- 		struct hci_ev_le_advertising_info *ev = ptr;
- 		s8 rssi;
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2424,6 +2424,24 @@ static void wacom_wac_finger_slot(struct
+ 	}
+ }
  
--		if (ev->length <= HCI_MAX_AD_LENGTH) {
-+		if (ev->length <= HCI_MAX_AD_LENGTH &&
-+		    ev->data + ev->length <= skb_tail_pointer(skb)) {
- 			rssi = ev->data[ev->length];
- 			process_adv_report(hdev, ev->evt_type, &ev->bdaddr,
- 					   ev->bdaddr_type, NULL, 0, rssi,
-@@ -5401,6 +5402,11 @@ static void hci_le_adv_report_evt(struct hci_dev *hdev, struct sk_buff *skb)
- 		}
- 
- 		ptr += sizeof(*ev) + ev->length + 1;
++static bool wacom_wac_slot_is_active(struct input_dev *dev, int key)
++{
++	struct input_mt *mt = dev->mt;
++	struct input_mt_slot *s;
 +
-+		if (ptr > (void *) skb_tail_pointer(skb) - sizeof(*ev)) {
-+			bt_dev_err(hdev, "Malicious advertising data. Stopping processing");
-+			break;
++	if (!mt)
++		return false;
++
++	for (s = mt->slots; s != mt->slots + mt->num_slots; s++) {
++		if (s->key == key &&
++			input_mt_get_value(s, ABS_MT_TRACKING_ID) >= 0) {
++			return true;
++		}
++	}
++
++	return false;
++}
++
+ static void wacom_wac_finger_event(struct hid_device *hdev,
+ 		struct hid_field *field, struct hid_usage *usage, __s32 value)
+ {
+@@ -2466,9 +2484,14 @@ static void wacom_wac_finger_event(struc
+ 
+ 
+ 	if (usage->usage_index + 1 == field->report_count) {
+-		if (equivalent_usage == wacom_wac->hid_data.last_slot_field &&
+-		    wacom_wac->hid_data.confidence)
+-			wacom_wac_finger_slot(wacom_wac, wacom_wac->touch_input);
++		if (equivalent_usage == wacom_wac->hid_data.last_slot_field) {
++			bool touch_removed = wacom_wac_slot_is_active(wacom_wac->touch_input,
++				wacom_wac->hid_data.id) && !wacom_wac->hid_data.tipswitch;
++
++			if (wacom_wac->hid_data.confidence || touch_removed) {
++				wacom_wac_finger_slot(wacom_wac, wacom_wac->touch_input);
++			}
 +		}
  	}
+ }
  
- 	hci_dev_unlock(hdev);
--- 
-2.34.1
-
 
 
