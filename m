@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86C0449A3CF
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:03:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5A0849A2DE
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:01:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2368826AbiAYAAM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:00:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50120 "EHLO
+        id S1385538AbiAXXyT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:54:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1846534AbiAXXQT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:16:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 215B9C061782;
-        Mon, 24 Jan 2022 11:49:06 -0800 (PST)
+        with ESMTP id S1845967AbiAXXOG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:14:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A2F4C0A02BB;
+        Mon, 24 Jan 2022 13:20:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B64446090C;
-        Mon, 24 Jan 2022 19:49:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81743C340E7;
-        Mon, 24 Jan 2022 19:49:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EB804B80CCF;
+        Mon, 24 Jan 2022 21:20:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 223F2C340E4;
+        Mon, 24 Jan 2022 21:20:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053745;
-        bh=T0FPNymCAN8k/yoVmKFGjUu17l0MP2sercr6kWrpFfA=;
+        s=korg; t=1643059208;
+        bh=9AfX050h7vqtW4uHKfS+QEoh4ELln8/kbkjaziam404=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mS2lhCSwgoioYSw9EtbmaD0RpWsZwv2fRTliw9G+XRRafKkxlTStf68bjV8nlLUqZ
-         OEWF0Id6cVTKwoL6AQifOWCZhEJ2acmVqJITlp/a7CgN2/mYk+1a1WljwW/7G7fwvv
-         Zie+/Pml/OwtrwmQe/8ctyJ4azHty6GORA12qFDg=
+        b=g9To24djME78oELHXqHMg5/fIoRyUzMyFhSkb26Ojm7xKw4aSHYB809KV1BC6i/nI
+         e1t9+xF++fyNnGNoM8ni2APkp9rJfZXUXZc5a7OmFcZtjPSKsVCu0la3/2CnSVWiqL
+         Kt2AiOH02X+R49T0St9oh6Ur5O+k1mH6shDDG1qU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anton Vasilyev <vasilyev@ispras.ru>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Nguyen Dinh Phi <phind.uet@gmail.com>,
+        syzbot+4c4ffd1e1094dae61035@syzkaller.appspotmail.com,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 163/563] media: dw2102: Fix use after free
+Subject: [PATCH 5.16 0539/1039] Bluetooth: hci_sock: purge socket queues in the destruct() callback
 Date:   Mon, 24 Jan 2022 19:38:48 +0100
-Message-Id: <20220124184030.037105414@linuxfoundation.org>
+Message-Id: <20220124184143.393483007@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,405 +49,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anton Vasilyev <vasilyev@ispras.ru>
+From: Nguyen Dinh Phi <phind.uet@gmail.com>
 
-[ Upstream commit 589a9f0eb799f77de2c09583bf5bad221fa5d685 ]
+[ Upstream commit 709fca500067524381e28a5f481882930eebac88 ]
 
-dvb_usb_device_init stores parts of properties at d->props
-and d->desc and uses it on dvb_usb_device_exit.
-Free of properties on module probe leads to use after free.
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204597
+The receive path may take the socket right before hci_sock_release(),
+but it may enqueue the packets to the socket queues after the call to
+skb_queue_purge(), therefore the socket can be destroyed without clear
+its queues completely.
 
-The patch makes properties static instead of allocated on heap to prevent
-memleak and use after free.
-Also fixes s421_properties.devices initialization to have 2 element
-instead of 6 copied from p7500_properties.
+Moving these skb_queue_purge() to the hci_sock_destruct() will fix this
+issue, because nothing is referencing the socket at this point.
 
-[mchehab: fix function call alignments]
-Link: https://lore.kernel.org/linux-media/20190822104147.4420-1-vasilyev@ispras.ru
-Signed-off-by: Anton Vasilyev <vasilyev@ispras.ru>
-Fixes: 299c7007e936 ("media: dw2102: Fix memleak on sequence of probes")
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
+Reported-by: syzbot+4c4ffd1e1094dae61035@syzkaller.appspotmail.com
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/dw2102.c | 338 ++++++++++++++++++-----------
- 1 file changed, 215 insertions(+), 123 deletions(-)
+ net/bluetooth/hci_sock.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/usb/dvb-usb/dw2102.c b/drivers/media/usb/dvb-usb/dw2102.c
-index a27a684403252..aa929db56db1f 100644
---- a/drivers/media/usb/dvb-usb/dw2102.c
-+++ b/drivers/media/usb/dvb-usb/dw2102.c
-@@ -2148,46 +2148,153 @@ static struct dvb_usb_device_properties s6x0_properties = {
- 	}
- };
- 
--static const struct dvb_usb_device_description d1100 = {
--	"Prof 1100 USB ",
--	{&dw2102_table[PROF_1100], NULL},
--	{NULL},
--};
-+static struct dvb_usb_device_properties p1100_properties = {
-+	.caps = DVB_USB_IS_AN_I2C_ADAPTER,
-+	.usb_ctrl = DEVICE_SPECIFIC,
-+	.size_of_priv = sizeof(struct dw2102_state),
-+	.firmware = P1100_FIRMWARE,
-+	.no_reconnect = 1,
- 
--static const struct dvb_usb_device_description d660 = {
--	"TeVii S660 USB",
--	{&dw2102_table[TEVII_S660], NULL},
--	{NULL},
--};
-+	.i2c_algo = &s6x0_i2c_algo,
-+	.rc.core = {
-+		.rc_interval = 150,
-+		.rc_codes = RC_MAP_TBS_NEC,
-+		.module_name = "dw2102",
-+		.allowed_protos   = RC_PROTO_BIT_NEC,
-+		.rc_query = prof_rc_query,
-+	},
- 
--static const struct dvb_usb_device_description d480_1 = {
--	"TeVii S480.1 USB",
--	{&dw2102_table[TEVII_S480_1], NULL},
--	{NULL},
-+	.generic_bulk_ctrl_endpoint = 0x81,
-+	.num_adapters = 1,
-+	.download_firmware = dw2102_load_firmware,
-+	.read_mac_address = s6x0_read_mac_address,
-+	.adapter = {
-+		{
-+			.num_frontends = 1,
-+			.fe = {{
-+				.frontend_attach = stv0288_frontend_attach,
-+				.stream = {
-+					.type = USB_BULK,
-+					.count = 8,
-+					.endpoint = 0x82,
-+					.u = {
-+						.bulk = {
-+							.buffersize = 4096,
-+						}
-+					}
-+				},
-+			} },
-+		}
-+	},
-+	.num_device_descs = 1,
-+	.devices = {
-+		{"Prof 1100 USB ",
-+			{&dw2102_table[PROF_1100], NULL},
-+			{NULL},
-+		},
-+	}
- };
- 
--static const struct dvb_usb_device_description d480_2 = {
--	"TeVii S480.2 USB",
--	{&dw2102_table[TEVII_S480_2], NULL},
--	{NULL},
--};
-+static struct dvb_usb_device_properties s660_properties = {
-+	.caps = DVB_USB_IS_AN_I2C_ADAPTER,
-+	.usb_ctrl = DEVICE_SPECIFIC,
-+	.size_of_priv = sizeof(struct dw2102_state),
-+	.firmware = S660_FIRMWARE,
-+	.no_reconnect = 1,
- 
--static const struct dvb_usb_device_description d7500 = {
--	"Prof 7500 USB DVB-S2",
--	{&dw2102_table[PROF_7500], NULL},
--	{NULL},
--};
-+	.i2c_algo = &s6x0_i2c_algo,
-+	.rc.core = {
-+		.rc_interval = 150,
-+		.rc_codes = RC_MAP_TEVII_NEC,
-+		.module_name = "dw2102",
-+		.allowed_protos   = RC_PROTO_BIT_NEC,
-+		.rc_query = dw2102_rc_query,
-+	},
- 
--static const struct dvb_usb_device_description d421 = {
--	"TeVii S421 PCI",
--	{&dw2102_table[TEVII_S421], NULL},
--	{NULL},
-+	.generic_bulk_ctrl_endpoint = 0x81,
-+	.num_adapters = 1,
-+	.download_firmware = dw2102_load_firmware,
-+	.read_mac_address = s6x0_read_mac_address,
-+	.adapter = {
-+		{
-+			.num_frontends = 1,
-+			.fe = {{
-+				.frontend_attach = ds3000_frontend_attach,
-+				.stream = {
-+					.type = USB_BULK,
-+					.count = 8,
-+					.endpoint = 0x82,
-+					.u = {
-+						.bulk = {
-+							.buffersize = 4096,
-+						}
-+					}
-+				},
-+			} },
-+		}
-+	},
-+	.num_device_descs = 3,
-+	.devices = {
-+		{"TeVii S660 USB",
-+			{&dw2102_table[TEVII_S660], NULL},
-+			{NULL},
-+		},
-+		{"TeVii S480.1 USB",
-+			{&dw2102_table[TEVII_S480_1], NULL},
-+			{NULL},
-+		},
-+		{"TeVii S480.2 USB",
-+			{&dw2102_table[TEVII_S480_2], NULL},
-+			{NULL},
-+		},
-+	}
- };
- 
--static const struct dvb_usb_device_description d632 = {
--	"TeVii S632 USB",
--	{&dw2102_table[TEVII_S632], NULL},
--	{NULL},
-+static struct dvb_usb_device_properties p7500_properties = {
-+	.caps = DVB_USB_IS_AN_I2C_ADAPTER,
-+	.usb_ctrl = DEVICE_SPECIFIC,
-+	.size_of_priv = sizeof(struct dw2102_state),
-+	.firmware = P7500_FIRMWARE,
-+	.no_reconnect = 1,
-+
-+	.i2c_algo = &s6x0_i2c_algo,
-+	.rc.core = {
-+		.rc_interval = 150,
-+		.rc_codes = RC_MAP_TBS_NEC,
-+		.module_name = "dw2102",
-+		.allowed_protos   = RC_PROTO_BIT_NEC,
-+		.rc_query = prof_rc_query,
-+	},
-+
-+	.generic_bulk_ctrl_endpoint = 0x81,
-+	.num_adapters = 1,
-+	.download_firmware = dw2102_load_firmware,
-+	.read_mac_address = s6x0_read_mac_address,
-+	.adapter = {
-+		{
-+			.num_frontends = 1,
-+			.fe = {{
-+				.frontend_attach = prof_7500_frontend_attach,
-+				.stream = {
-+					.type = USB_BULK,
-+					.count = 8,
-+					.endpoint = 0x82,
-+					.u = {
-+						.bulk = {
-+							.buffersize = 4096,
-+						}
-+					}
-+				},
-+			} },
-+		}
-+	},
-+	.num_device_descs = 1,
-+	.devices = {
-+		{"Prof 7500 USB DVB-S2",
-+			{&dw2102_table[PROF_7500], NULL},
-+			{NULL},
-+		},
-+	}
- };
- 
- static struct dvb_usb_device_properties su3000_properties = {
-@@ -2267,6 +2374,59 @@ static struct dvb_usb_device_properties su3000_properties = {
- 	}
- };
- 
-+static struct dvb_usb_device_properties s421_properties = {
-+	.caps = DVB_USB_IS_AN_I2C_ADAPTER,
-+	.usb_ctrl = DEVICE_SPECIFIC,
-+	.size_of_priv = sizeof(struct dw2102_state),
-+	.power_ctrl = su3000_power_ctrl,
-+	.num_adapters = 1,
-+	.identify_state	= su3000_identify_state,
-+	.i2c_algo = &su3000_i2c_algo,
-+
-+	.rc.core = {
-+		.rc_interval = 150,
-+		.rc_codes = RC_MAP_SU3000,
-+		.module_name = "dw2102",
-+		.allowed_protos   = RC_PROTO_BIT_RC5,
-+		.rc_query = su3000_rc_query,
-+	},
-+
-+	.read_mac_address = su3000_read_mac_address,
-+
-+	.generic_bulk_ctrl_endpoint = 0x01,
-+
-+	.adapter = {
-+		{
-+		.num_frontends = 1,
-+		.fe = {{
-+			.streaming_ctrl   = su3000_streaming_ctrl,
-+			.frontend_attach  = m88rs2000_frontend_attach,
-+			.stream = {
-+				.type = USB_BULK,
-+				.count = 8,
-+				.endpoint = 0x82,
-+				.u = {
-+					.bulk = {
-+						.buffersize = 4096,
-+					}
-+				}
-+			}
-+		} },
-+		}
-+	},
-+	.num_device_descs = 2,
-+	.devices = {
-+		{ "TeVii S421 PCI",
-+			{ &dw2102_table[TEVII_S421], NULL },
-+			{ NULL },
-+		},
-+		{ "TeVii S632 USB",
-+			{ &dw2102_table[TEVII_S632], NULL },
-+			{ NULL },
-+		},
-+	}
-+};
-+
- static struct dvb_usb_device_properties t220_properties = {
- 	.caps = DVB_USB_IS_AN_I2C_ADAPTER,
- 	.usb_ctrl = DEVICE_SPECIFIC,
-@@ -2384,101 +2544,33 @@ static struct dvb_usb_device_properties tt_s2_4600_properties = {
- static int dw2102_probe(struct usb_interface *intf,
- 		const struct usb_device_id *id)
- {
--	int retval = -ENOMEM;
--	struct dvb_usb_device_properties *p1100;
--	struct dvb_usb_device_properties *s660;
--	struct dvb_usb_device_properties *p7500;
--	struct dvb_usb_device_properties *s421;
--
--	p1100 = kmemdup(&s6x0_properties,
--			sizeof(struct dvb_usb_device_properties), GFP_KERNEL);
--	if (!p1100)
--		goto err0;
--
--	/* copy default structure */
--	/* fill only different fields */
--	p1100->firmware = P1100_FIRMWARE;
--	p1100->devices[0] = d1100;
--	p1100->rc.core.rc_query = prof_rc_query;
--	p1100->rc.core.rc_codes = RC_MAP_TBS_NEC;
--	p1100->adapter->fe[0].frontend_attach = stv0288_frontend_attach;
--
--	s660 = kmemdup(&s6x0_properties,
--		       sizeof(struct dvb_usb_device_properties), GFP_KERNEL);
--	if (!s660)
--		goto err1;
--
--	s660->firmware = S660_FIRMWARE;
--	s660->num_device_descs = 3;
--	s660->devices[0] = d660;
--	s660->devices[1] = d480_1;
--	s660->devices[2] = d480_2;
--	s660->adapter->fe[0].frontend_attach = ds3000_frontend_attach;
--
--	p7500 = kmemdup(&s6x0_properties,
--			sizeof(struct dvb_usb_device_properties), GFP_KERNEL);
--	if (!p7500)
--		goto err2;
--
--	p7500->firmware = P7500_FIRMWARE;
--	p7500->devices[0] = d7500;
--	p7500->rc.core.rc_query = prof_rc_query;
--	p7500->rc.core.rc_codes = RC_MAP_TBS_NEC;
--	p7500->adapter->fe[0].frontend_attach = prof_7500_frontend_attach;
--
--
--	s421 = kmemdup(&su3000_properties,
--		       sizeof(struct dvb_usb_device_properties), GFP_KERNEL);
--	if (!s421)
--		goto err3;
--
--	s421->num_device_descs = 2;
--	s421->devices[0] = d421;
--	s421->devices[1] = d632;
--	s421->adapter->fe[0].frontend_attach = m88rs2000_frontend_attach;
--
--	if (0 == dvb_usb_device_init(intf, &dw2102_properties,
--			THIS_MODULE, NULL, adapter_nr) ||
--	    0 == dvb_usb_device_init(intf, &dw2104_properties,
--			THIS_MODULE, NULL, adapter_nr) ||
--	    0 == dvb_usb_device_init(intf, &dw3101_properties,
--			THIS_MODULE, NULL, adapter_nr) ||
--	    0 == dvb_usb_device_init(intf, &s6x0_properties,
--			THIS_MODULE, NULL, adapter_nr) ||
--	    0 == dvb_usb_device_init(intf, p1100,
--			THIS_MODULE, NULL, adapter_nr) ||
--	    0 == dvb_usb_device_init(intf, s660,
--			THIS_MODULE, NULL, adapter_nr) ||
--	    0 == dvb_usb_device_init(intf, p7500,
--			THIS_MODULE, NULL, adapter_nr) ||
--	    0 == dvb_usb_device_init(intf, s421,
--			THIS_MODULE, NULL, adapter_nr) ||
--	    0 == dvb_usb_device_init(intf, &su3000_properties,
--			 THIS_MODULE, NULL, adapter_nr) ||
--	    0 == dvb_usb_device_init(intf, &t220_properties,
--			 THIS_MODULE, NULL, adapter_nr) ||
--	    0 == dvb_usb_device_init(intf, &tt_s2_4600_properties,
--			 THIS_MODULE, NULL, adapter_nr)) {
--
--		/* clean up copied properties */
--		kfree(s421);
--		kfree(p7500);
--		kfree(s660);
--		kfree(p1100);
-+	if (!(dvb_usb_device_init(intf, &dw2102_properties,
-+			          THIS_MODULE, NULL, adapter_nr) &&
-+	      dvb_usb_device_init(intf, &dw2104_properties,
-+				  THIS_MODULE, NULL, adapter_nr) &&
-+	      dvb_usb_device_init(intf, &dw3101_properties,
-+			          THIS_MODULE, NULL, adapter_nr) &&
-+	      dvb_usb_device_init(intf, &s6x0_properties,
-+			          THIS_MODULE, NULL, adapter_nr) &&
-+	      dvb_usb_device_init(intf, &p1100_properties,
-+			          THIS_MODULE, NULL, adapter_nr) &&
-+	      dvb_usb_device_init(intf, &s660_properties,
-+				  THIS_MODULE, NULL, adapter_nr) &&
-+	      dvb_usb_device_init(intf, &p7500_properties,
-+				  THIS_MODULE, NULL, adapter_nr) &&
-+	      dvb_usb_device_init(intf, &s421_properties,
-+				  THIS_MODULE, NULL, adapter_nr) &&
-+	      dvb_usb_device_init(intf, &su3000_properties,
-+				  THIS_MODULE, NULL, adapter_nr) &&
-+	      dvb_usb_device_init(intf, &t220_properties,
-+				  THIS_MODULE, NULL, adapter_nr) &&
-+	      dvb_usb_device_init(intf, &tt_s2_4600_properties,
-+				  THIS_MODULE, NULL, adapter_nr))) {
- 
- 		return 0;
+diff --git a/net/bluetooth/hci_sock.c b/net/bluetooth/hci_sock.c
+index f2506e656f3e4..33b3c0ffc3399 100644
+--- a/net/bluetooth/hci_sock.c
++++ b/net/bluetooth/hci_sock.c
+@@ -889,10 +889,6 @@ static int hci_sock_release(struct socket *sock)
  	}
  
--	retval = -ENODEV;
--	kfree(s421);
--err3:
--	kfree(p7500);
--err2:
--	kfree(s660);
--err1:
--	kfree(p1100);
--err0:
--	return retval;
-+	return -ENODEV;
+ 	sock_orphan(sk);
+-
+-	skb_queue_purge(&sk->sk_receive_queue);
+-	skb_queue_purge(&sk->sk_write_queue);
+-
+ 	release_sock(sk);
+ 	sock_put(sk);
+ 	return 0;
+@@ -2059,6 +2055,12 @@ static int hci_sock_getsockopt(struct socket *sock, int level, int optname,
+ 	return err;
  }
  
- static void dw2102_disconnect(struct usb_interface *intf)
++static void hci_sock_destruct(struct sock *sk)
++{
++	skb_queue_purge(&sk->sk_receive_queue);
++	skb_queue_purge(&sk->sk_write_queue);
++}
++
+ static const struct proto_ops hci_sock_ops = {
+ 	.family		= PF_BLUETOOTH,
+ 	.owner		= THIS_MODULE,
+@@ -2112,6 +2114,7 @@ static int hci_sock_create(struct net *net, struct socket *sock, int protocol,
+ 
+ 	sock->state = SS_UNCONNECTED;
+ 	sk->sk_state = BT_OPEN;
++	sk->sk_destruct = hci_sock_destruct;
+ 
+ 	bt_sock_link(&hci_sk_list, sk);
+ 	return 0;
 -- 
 2.34.1
 
