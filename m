@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 110E9498EF1
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:50:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C583498CEC
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:32:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357263AbiAXTtl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:49:41 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:34938 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354702AbiAXThY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:37:24 -0500
+        id S1346440AbiAXT0i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:26:38 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:46340 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345996AbiAXTWa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:22:30 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 490C16151C;
-        Mon, 24 Jan 2022 19:37:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F7A4C340E7;
-        Mon, 24 Jan 2022 19:37:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 804B3B81215;
+        Mon, 24 Jan 2022 19:22:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B8A8C340E5;
+        Mon, 24 Jan 2022 19:22:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053042;
-        bh=gyITbsjSlZfuVM4xh3vWN9UM7eV8Mkj+uIUGaq071sI=;
+        s=korg; t=1643052145;
+        bh=zhxegM3sBBiujj8RPue3C+DEmvIsUk70MnMMWX3SENk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hPOxRa5IrLo0DOSVItR5nS63HUjEfb/qcgpyNv0wZKxOHm6IfIBuvNBw0/aE58vdv
-         ytLlb/OvuL1gv//NwNzqnq0GqqZMKDwy+UXZvtxlOsPm4w8NTC8uPBXAyHzihLZl1X
-         vFkAdqsZzjw/yG+qSatJEgqebaTi+PBIXjSRSPPo=
+        b=XCVlsu39ayCxeh4HNEb9u8yEXiR15U3Kopnr60OESxzlGMQR+tL3llQ827NHI7DCL
+         IbN7BcYx1W3tSDbsl/3A/5kcUiYYHxqjLDYFXvlYSJCiwT5+ogOAGmkDpgy61euPXC
+         mOm0CCPP5QHQE9t+EYEQCBu6VZZgUPxzU9FN8pPE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Nathan E. Egge" <unlord@xiph.org>,
-        Ilia Mirkin <imirkin@alum.mit.edu>,
-        Ben Skeggs <bskeggs@redhat.com>,
-        Karol Herbst <kherbst@redhat.com>
-Subject: [PATCH 5.4 257/320] drm/nouveau/kms/nv04: use vzalloc for nv04_display
+        stable@vger.kernel.org, Jan Kara <jack@suse.cz>, stable@kernel.org,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.19 203/239] ext4: make sure quota gets properly shutdown on error
 Date:   Mon, 24 Jan 2022 19:44:01 +0100
-Message-Id: <20220124184002.734088357@linuxfoundation.org>
+Message-Id: <20220124183949.561283422@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,45 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilia Mirkin <imirkin@alum.mit.edu>
+From: Jan Kara <jack@suse.cz>
 
-commit bd6e07e72f37f34535bec7eebc807e5fcfe37b43 upstream.
+commit 15fc69bbbbbc8c72e5f6cc4e1be0f51283c5448e upstream.
 
-The struct is giant, and triggers an order-7 allocation (512K). There is
-no reason for this to be kmalloc-type memory, so switch to vmalloc. This
-should help loading nouveau on low-memory and/or long-running systems.
+When we hit an error when enabling quotas and setting inode flags, we do
+not properly shutdown quota subsystem despite returning error from
+Q_QUOTAON quotactl. This can lead to some odd situations like kernel
+using quota file while it is still writeable for userspace. Make sure we
+properly cleanup the quota subsystem in case of error.
 
-Reported-by: Nathan E. Egge <unlord@xiph.org>
-Signed-off-by: Ilia Mirkin <imirkin@alum.mit.edu>
-Cc: stable@vger.kernel.org
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
-Reviewed-by: Karol Herbst <kherbst@redhat.com>
-Signed-off-by: Karol Herbst <kherbst@redhat.com>
-Link: https://gitlab.freedesktop.org/drm/nouveau/-/merge_requests/10
+Signed-off-by: Jan Kara <jack@suse.cz>
+Cc: stable@kernel.org
+Link: https://lore.kernel.org/r/20211007155336.12493-2-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/nouveau/dispnv04/disp.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/ext4/super.c |   10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/nouveau/dispnv04/disp.c
-+++ b/drivers/gpu/drm/nouveau/dispnv04/disp.c
-@@ -179,7 +179,7 @@ nv04_display_destroy(struct drm_device *
- 	nvif_notify_fini(&disp->flip);
+--- a/fs/ext4/super.c
++++ b/fs/ext4/super.c
+@@ -5797,10 +5797,7 @@ static int ext4_quota_on(struct super_bl
  
- 	nouveau_display(dev)->priv = NULL;
--	kfree(disp);
-+	vfree(disp);
+ 	lockdep_set_quota_inode(path->dentry->d_inode, I_DATA_SEM_QUOTA);
+ 	err = dquot_quota_on(sb, type, format_id, path);
+-	if (err) {
+-		lockdep_set_quota_inode(path->dentry->d_inode,
+-					     I_DATA_SEM_NORMAL);
+-	} else {
++	if (!err) {
+ 		struct inode *inode = d_inode(path->dentry);
+ 		handle_t *handle;
  
- 	nvif_object_unmap(&drm->client.device.object);
+@@ -5820,7 +5817,12 @@ static int ext4_quota_on(struct super_bl
+ 		ext4_journal_stop(handle);
+ 	unlock_inode:
+ 		inode_unlock(inode);
++		if (err)
++			dquot_quota_off(sb, type);
+ 	}
++	if (err)
++		lockdep_set_quota_inode(path->dentry->d_inode,
++					     I_DATA_SEM_NORMAL);
+ 	return err;
  }
-@@ -197,7 +197,7 @@ nv04_display_create(struct drm_device *d
- 	struct nv04_display *disp;
- 	int i, ret;
- 
--	disp = kzalloc(sizeof(*disp), GFP_KERNEL);
-+	disp = vzalloc(sizeof(*disp));
- 	if (!disp)
- 		return -ENOMEM;
  
 
 
