@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1249B499A49
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:54:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E23D3499594
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:13:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354232AbiAXVnS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:43:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48194 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1447759AbiAXVLZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:11:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72AF4C09D339;
-        Mon, 24 Jan 2022 12:09:11 -0800 (PST)
+        id S1442089AbiAXUxH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:53:07 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:43884 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1391988AbiAXUuL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:50:11 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 12DEE611CD;
-        Mon, 24 Jan 2022 20:09:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D896EC340E5;
-        Mon, 24 Jan 2022 20:09:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CB05860C2A;
+        Mon, 24 Jan 2022 20:50:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAB58C340E5;
+        Mon, 24 Jan 2022 20:50:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054950;
-        bh=Q+kbtrSzN3sW0F+y05oRP18A4WGq9IVLlwKWgshlVIM=;
+        s=korg; t=1643057410;
+        bh=rTzjsPOM+kVOAAhf7w4z3TQ9XVsck917kVkeBLIXDsM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FsXvZ3alGTP+0jMPAlurJmPPGzBvb660x9X3LYpi5LN7QmqK6MRL1Gmqho78tcQtT
-         XRqnmHWGxP4AcFg0EQUIlqbWp9czMQH9NqOHaE7JQLYMwZWGWJVC3EtmUkqw2uOZwX
-         XEo33MN6M+bIli19mnLLBA1WNe7XXH7DsjHOVYlA=
+        b=hRof/DEkF/7ryjJKdcOfyk8T6sz09DFgp5FAiAwJI44xEoIQF3bChx5itjwTrA+kb
+         SMFd1cp05+Cz0gA2HbJVdq+SMfo9Bv3yYrmhDnv/kWnk3dmBDUIeCkg1UgJ5fznG19
+         AxwSlsmli4HbEODkUMzJhQrqBmE40qLJO25b/PQ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Stein <alexander.stein@mailbox.org>,
-        Rob Herring <robh@kernel.org>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Subject: [PATCH 5.10 556/563] dt-bindings: display: meson-vpu: Add missing amlogic,canvas property
+        stable@vger.kernel.org, Eli Cohen <elic@nvidia.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Parav Pandit <parav@nvidia.com>,
+        Jason Wang <jasowang@redhat.com>,
+        Si-Wei Liu <si-wei.liu@oracle.com>
+Subject: [PATCH 5.15 804/846] vdpa/mlx5: Fix wrong configuration of virtio_version_1_0
 Date:   Mon, 24 Jan 2022 19:45:21 +0100
-Message-Id: <20220124184043.665712880@linuxfoundation.org>
+Message-Id: <20220124184128.673051881@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,54 +47,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Stein <alexander.stein@mailbox.org>
+From: Eli Cohen <elic@nvidia.com>
 
-commit 640f35b871d29cd685ce0ea0762636381beeb98a upstream.
+commit 97143b70aa847f2b0a1f959dde126b76ff7b5376 upstream.
 
-This property was already mentioned in the old textual bindings
-amlogic,meson-vpu.txt, but got dropped during conversion.
-Adding it back similar to amlogic,gx-vdec.yaml.
+Remove overriding of virtio_version_1_0 which forced the virtqueue
+object to version 1.
 
-Fixes: 6b9ebf1e0e67 ("dt-bindings: display: amlogic, meson-vpu: convert to yaml")
-Signed-off-by: Alexander Stein <alexander.stein@mailbox.org>
-Acked-by: Rob Herring <robh@kernel.org>
-Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211219094155.177206-1-alexander.stein@mailbox.org
+Fixes: 1a86b377aa21 ("vdpa/mlx5: Add VDPA driver for supported mlx5 devices")
+Signed-off-by: Eli Cohen <elic@nvidia.com>
+Link: https://lore.kernel.org/r/20211230142024.142979-1-elic@nvidia.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Parav Pandit <parav@nvidia.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Reviewed-by: Si-Wei Liu <si-wei.liu@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/display/amlogic,meson-vpu.yaml |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/vdpa/mlx5/net/mlx5_vnet.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/Documentation/devicetree/bindings/display/amlogic,meson-vpu.yaml
-+++ b/Documentation/devicetree/bindings/display/amlogic,meson-vpu.yaml
-@@ -78,6 +78,10 @@ properties:
-   interrupts:
-     maxItems: 1
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -873,8 +873,6 @@ static int create_virtqueue(struct mlx5_
+ 	MLX5_SET(virtio_q, vq_ctx, umem_3_id, mvq->umem3.id);
+ 	MLX5_SET(virtio_q, vq_ctx, umem_3_size, mvq->umem3.size);
+ 	MLX5_SET(virtio_q, vq_ctx, pd, ndev->mvdev.res.pdn);
+-	if (MLX5_CAP_DEV_VDPA_EMULATION(ndev->mvdev.mdev, eth_frame_offload_type))
+-		MLX5_SET(virtio_q, vq_ctx, virtio_version_1_0, 1);
  
-+  amlogic,canvas:
-+    description: should point to a canvas provider node
-+    $ref: /schemas/types.yaml#/definitions/phandle
-+
-   power-domains:
-     maxItems: 1
-     description: phandle to the associated power domain
-@@ -106,6 +110,7 @@ required:
-   - port@1
-   - "#address-cells"
-   - "#size-cells"
-+  - amlogic,canvas
- 
- additionalProperties: false
- 
-@@ -118,6 +123,7 @@ examples:
-         interrupts = <3>;
-         #address-cells = <1>;
-         #size-cells = <0>;
-+        amlogic,canvas = <&canvas>;
- 
-         /* CVBS VDAC output port */
-         port@0 {
+ 	err = mlx5_cmd_exec(ndev->mvdev.mdev, in, inlen, out, sizeof(out));
+ 	if (err)
 
 
