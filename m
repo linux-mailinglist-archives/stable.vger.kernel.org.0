@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44CE24991AD
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:14:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38AB4498B02
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:09:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355218AbiAXUNY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:13:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33790 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1379369AbiAXULV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:11:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEA51C06F8E2;
-        Mon, 24 Jan 2022 11:33:28 -0800 (PST)
+        id S1345345AbiAXTJD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:09:03 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:33282 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238066AbiAXTHB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:07:01 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DCC161504;
-        Mon, 24 Jan 2022 19:33:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35EA3C340E5;
-        Mon, 24 Jan 2022 19:33:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0165060BFB;
+        Mon, 24 Jan 2022 19:06:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9B5FC340E5;
+        Mon, 24 Jan 2022 19:06:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052807;
-        bh=9aYQODP5szAojPD5WJTQP+8gls/HiWPful1vla/RVVY=;
+        s=korg; t=1643051213;
+        bh=UUCikyKIDcs3Go+mASe8ngo1/9EOj+3ZGtzTSW63IPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g5sMzs0k5IrgxWb2Iu8ZgxWcC68zEGo6FZrUQm9wBXJnk4Zz4qschzkWEvThmK//L
-         IVPCHZzIU+Xx6VwKFt3CY6mH76r6sd0DAWifmgLMqCfGh49fUdllGsTCI6DrQIkF59
-         VQ54o4A9mp7+B0o3ZL5ac/5bqBCwb4oUiqn9uAuw=
+        b=rfIthHfbCgbR07fdvGhHvjdW8V1Yf7WPPskGidsZuYIVZ1tLUoGu28Qel9zrLpRD5
+         v2pgiWAN+jT/KOtHJsGstvp2Lr3bnxHDmJz7VJ1hFvlIcKGrQQmdK/APhvPlu/vo46
+         R6vFjHPPxmwBBkijdgGiGRqRtD3g+m9u4ZCU1P+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Antoine Tenart <atenart@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, John Keeping <john@metanate.com>,
+        Pavankumar Kondeti <quic_pkondeti@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 181/320] net-sysfs: update the queue counts in the unregistration path
+Subject: [PATCH 4.14 090/186] usb: gadget: f_fs: Use stream_open() for endpoint files
 Date:   Mon, 24 Jan 2022 19:42:45 +0100
-Message-Id: <20220124183959.824749734@linuxfoundation.org>
+Message-Id: <20220124183940.007016835@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
+References: <20220124183937.101330125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,36 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Antoine Tenart <atenart@kernel.org>
+From: Pavankumar Kondeti <quic_pkondeti@quicinc.com>
 
-[ Upstream commit d7dac083414eb5bb99a6d2ed53dc2c1b405224e5 ]
+[ Upstream commit c76ef96fc00eb398c8fc836b0eb2f82bcc619dc7 ]
 
-When updating Rx and Tx queue kobjects, the queue count should always be
-updated to match the queue kobjects count. This was not done in the net
-device unregistration path, fix it. Tracking all queue count updates
-will allow in a following up patch to detect illegal updates.
+Function fs endpoint file operations are synchronized via an interruptible
+mutex wait. However we see threads that do ep file operations concurrently
+are getting blocked for the mutex lock in __fdget_pos(). This is an
+uninterruptible wait and we see hung task warnings and kernel panic
+if hung_task_panic systcl is enabled if host does not send/receive
+the data for long time.
 
-Signed-off-by: Antoine Tenart <atenart@kernel.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The reason for threads getting blocked in __fdget_pos() is due to
+the file position protection introduced by the commit 9c225f2655e3
+("vfs: atomic f_pos accesses as per POSIX"). Since function fs
+endpoint files does not have the notion of the file position, switch
+to the stream mode. This will bypass the file position mutex and
+threads will be blocked in interruptible state for the function fs
+mutex.
+
+It should not affects user space as we are only changing the task state
+changes the task state from UNINTERRUPTIBLE to INTERRUPTIBLE while waiting
+for the USB transfers to be finished. However there is a slight change to
+the O_NONBLOCK behavior. Earlier threads that are using O_NONBLOCK are also
+getting blocked inside fdget_pos(). Now they reach to function fs and error
+code is returned. The non blocking behavior is actually honoured now.
+
+Reviewed-by: John Keeping <john@metanate.com>
+Signed-off-by: Pavankumar Kondeti <quic_pkondeti@quicinc.com>
+Link: https://lore.kernel.org/r/1636712682-1226-1-git-send-email-quic_pkondeti@quicinc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/net-sysfs.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/gadget/function/f_fs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/net-sysfs.c b/net/core/net-sysfs.c
-index 05b0c60bfba2b..bcad7028bbf45 100644
---- a/net/core/net-sysfs.c
-+++ b/net/core/net-sysfs.c
-@@ -1661,6 +1661,9 @@ static void remove_queue_kobjects(struct net_device *dev)
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index 6029f9b00b4a0..61795025f11b6 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -608,7 +608,7 @@ static int ffs_ep0_open(struct inode *inode, struct file *file)
+ 	file->private_data = ffs;
+ 	ffs_data_opened(ffs);
  
- 	net_rx_queue_update_kobjects(dev, real_rx, 0);
- 	netdev_queue_update_kobjects(dev, real_tx, 0);
-+
-+	dev->real_num_rx_queues = 0;
-+	dev->real_num_tx_queues = 0;
- #ifdef CONFIG_SYSFS
- 	kset_unregister(dev->queues_kset);
- #endif
+-	return 0;
++	return stream_open(inode, file);
+ }
+ 
+ static int ffs_ep0_release(struct inode *inode, struct file *file)
+@@ -1072,7 +1072,7 @@ ffs_epfile_open(struct inode *inode, struct file *file)
+ 	file->private_data = epfile;
+ 	ffs_data_opened(epfile->ffs);
+ 
+-	return 0;
++	return stream_open(inode, file);
+ }
+ 
+ static int ffs_aio_cancel(struct kiocb *kiocb)
 -- 
 2.34.1
 
