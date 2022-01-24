@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 486BF499D7F
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:00:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E435499DC1
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:01:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1585533AbiAXWXl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:23:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36674 "EHLO
+        id S1586198AbiAXWZv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:25:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1583217AbiAXWR1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:17:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F114DC0617BF;
-        Mon, 24 Jan 2022 12:48:04 -0800 (PST)
+        with ESMTP id S1358273AbiAXWRZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:17:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E05EC061381;
+        Mon, 24 Jan 2022 12:48:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B9B2DB81057;
-        Mon, 24 Jan 2022 20:48:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB1F4C340E5;
-        Mon, 24 Jan 2022 20:48:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E0FFA60B03;
+        Mon, 24 Jan 2022 20:48:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1437C340E5;
+        Mon, 24 Jan 2022 20:48:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057282;
-        bh=DipoW+9j9osrZ+kfOvN/q/9oNghSGZj1flwFPyKMQQU=;
+        s=korg; t=1643057285;
+        bh=qlfGHbOjwuWJJj7g3mrICRmEQ360zRztaKRh34ZW7F8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZnvxrbDGmxJhowmb2nC92JlQocGFYtoa4PNDN7JE1Z5LDzF9rqlX1CN/+Bc+lc3Hd
-         fs1cGlIiBwNV0b9Dj8wa1MmYMauoA25HfiD11fo1xTH7d2CtZQ9ihvccWFtPSSJHH4
-         FLJDs7m8AZiCFJppqU0u2rd4TQK7hz3gdxNUow4o=
+        b=LrNIGsdme0xN4KRF6p4YXdbT7VeZYIdpWi5CzMxRPC2IXkVmyyUJYxWcCzC/KBfht
+         K4+trk6RBUHvZdLMFdJgKy9DlcSoHu7Leqw58x5VpY9FB15WQSw9D6eQVRAh/nlyXg
+         W9sOSdOSdaRpNm9W1Vw4luJCWK+uljsyIYudbaMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Russell King <russell.king@oracle.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Alan Maguire <alan.maguire@oracle.com>
-Subject: [PATCH 5.15 762/846] arm64/bpf: Remove 128MB limit for BPF JIT programs
-Date:   Mon, 24 Jan 2022 19:44:39 +0100
-Message-Id: <20220124184127.244740766@linuxfoundation.org>
+        stable@vger.kernel.org, Quentin Monnet <quentin@isovalent.com>,
+        Andrii Nakryiko <andrii@kernel.org>
+Subject: [PATCH 5.15 763/846] bpftool: Remove inclusion of utilities.mak from Makefiles
+Date:   Mon, 24 Jan 2022 19:44:40 +0100
+Message-Id: <20220124184127.279189287@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -49,115 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <russell.king@oracle.com>
+From: Quentin Monnet <quentin@isovalent.com>
 
-commit b89ddf4cca43f1269093942cf5c4e457fd45c335 upstream.
+commit 48f5aef4c458c19ab337eed8c95a6486cc014aa3 upstream.
 
-Commit 91fc957c9b1d ("arm64/bpf: don't allocate BPF JIT programs in module
-memory") restricts BPF JIT program allocation to a 128MB region to ensure
-BPF programs are still in branching range of each other. However this
-restriction should not apply to the aarch64 JIT, since BPF_JMP | BPF_CALL
-are implemented as a 64-bit move into a register and then a BLR instruction -
-which has the effect of being able to call anything without proximity
-limitation.
+Bpftool's Makefile, and the Makefile for its documentation, both include
+scripts/utilities.mak, but they use none of the items defined in this
+file. Remove the includes.
 
-The practical reason to relax this restriction on JIT memory is that 128MB of
-JIT memory can be quickly exhausted, especially where PAGE_SIZE is 64KB - one
-page is needed per program. In cases where seccomp filters are applied to
-multiple VMs on VM launch - such filters are classic BPF but converted to
-BPF - this can severely limit the number of VMs that can be launched. In a
-world where we support BPF JIT always on, turning off the JIT isn't always an
-option either.
-
-Fixes: 91fc957c9b1d ("arm64/bpf: don't allocate BPF JIT programs in module memory")
-Suggested-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Russell King <russell.king@oracle.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Tested-by: Alan Maguire <alan.maguire@oracle.com>
-Link: https://lore.kernel.org/bpf/1636131046-5982-2-git-send-email-alan.maguire@oracle.com
+Fixes: 71bb428fe2c1 ("tools: bpf: add bpftool")
+Signed-off-by: Quentin Monnet <quentin@isovalent.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20211110114632.24537-3-quentin@isovalent.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/include/asm/extable.h |    9 ---------
- arch/arm64/include/asm/memory.h  |    5 +----
- arch/arm64/kernel/traps.c        |    2 +-
- arch/arm64/mm/ptdump.c           |    2 --
- arch/arm64/net/bpf_jit_comp.c    |    7 ++-----
- 5 files changed, 4 insertions(+), 21 deletions(-)
+ tools/bpf/bpftool/Documentation/Makefile |    1 -
+ tools/bpf/bpftool/Makefile               |    1 -
+ 2 files changed, 2 deletions(-)
 
---- a/arch/arm64/include/asm/extable.h
-+++ b/arch/arm64/include/asm/extable.h
-@@ -22,15 +22,6 @@ struct exception_table_entry
+--- a/tools/bpf/bpftool/Documentation/Makefile
++++ b/tools/bpf/bpftool/Documentation/Makefile
+@@ -1,6 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ include ../../../scripts/Makefile.include
+-include ../../../scripts/utilities.mak
  
- #define ARCH_HAS_RELATIVE_EXTABLE
+ INSTALL ?= install
+ RM ?= rm -f
+--- a/tools/bpf/bpftool/Makefile
++++ b/tools/bpf/bpftool/Makefile
+@@ -1,6 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ include ../../scripts/Makefile.include
+-include ../../scripts/utilities.mak
  
--static inline bool in_bpf_jit(struct pt_regs *regs)
--{
--	if (!IS_ENABLED(CONFIG_BPF_JIT))
--		return false;
--
--	return regs->pc >= BPF_JIT_REGION_START &&
--	       regs->pc < BPF_JIT_REGION_END;
--}
--
- #ifdef CONFIG_BPF_JIT
- int arm64_bpf_fixup_exception(const struct exception_table_entry *ex,
- 			      struct pt_regs *regs);
---- a/arch/arm64/include/asm/memory.h
-+++ b/arch/arm64/include/asm/memory.h
-@@ -44,11 +44,8 @@
- #define _PAGE_OFFSET(va)	(-(UL(1) << (va)))
- #define PAGE_OFFSET		(_PAGE_OFFSET(VA_BITS))
- #define KIMAGE_VADDR		(MODULES_END)
--#define BPF_JIT_REGION_START	(_PAGE_END(VA_BITS_MIN))
--#define BPF_JIT_REGION_SIZE	(SZ_128M)
--#define BPF_JIT_REGION_END	(BPF_JIT_REGION_START + BPF_JIT_REGION_SIZE)
- #define MODULES_END		(MODULES_VADDR + MODULES_VSIZE)
--#define MODULES_VADDR		(BPF_JIT_REGION_END)
-+#define MODULES_VADDR		(_PAGE_END(VA_BITS_MIN))
- #define MODULES_VSIZE		(SZ_128M)
- #define VMEMMAP_START		(-(UL(1) << (VA_BITS - VMEMMAP_SHIFT)))
- #define VMEMMAP_END		(VMEMMAP_START + VMEMMAP_SIZE)
---- a/arch/arm64/kernel/traps.c
-+++ b/arch/arm64/kernel/traps.c
-@@ -988,7 +988,7 @@ static struct break_hook bug_break_hook
- static int reserved_fault_handler(struct pt_regs *regs, unsigned int esr)
- {
- 	pr_err("%s generated an invalid instruction at %pS!\n",
--		in_bpf_jit(regs) ? "BPF JIT" : "Kernel text patching",
-+		"Kernel text patching",
- 		(void *)instruction_pointer(regs));
- 
- 	/* We cannot handle this */
---- a/arch/arm64/mm/ptdump.c
-+++ b/arch/arm64/mm/ptdump.c
-@@ -41,8 +41,6 @@ static struct addr_marker address_marker
- 	{ 0 /* KASAN_SHADOW_START */,	"Kasan shadow start" },
- 	{ KASAN_SHADOW_END,		"Kasan shadow end" },
- #endif
--	{ BPF_JIT_REGION_START,		"BPF start" },
--	{ BPF_JIT_REGION_END,		"BPF end" },
- 	{ MODULES_VADDR,		"Modules start" },
- 	{ MODULES_END,			"Modules end" },
- 	{ VMALLOC_START,		"vmalloc() area" },
---- a/arch/arm64/net/bpf_jit_comp.c
-+++ b/arch/arm64/net/bpf_jit_comp.c
-@@ -1138,15 +1138,12 @@ out:
- 
- u64 bpf_jit_alloc_exec_limit(void)
- {
--	return BPF_JIT_REGION_SIZE;
-+	return VMALLOC_END - VMALLOC_START;
- }
- 
- void *bpf_jit_alloc_exec(unsigned long size)
- {
--	return __vmalloc_node_range(size, PAGE_SIZE, BPF_JIT_REGION_START,
--				    BPF_JIT_REGION_END, GFP_KERNEL,
--				    PAGE_KERNEL, 0, NUMA_NO_NODE,
--				    __builtin_return_address(0));
-+	return vmalloc(size);
- }
- 
- void bpf_jit_free_exec(void *addr)
+ ifeq ($(srctree),)
+ srctree := $(patsubst %/,%,$(dir $(CURDIR)))
 
 
