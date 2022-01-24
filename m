@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 644D3499691
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:19:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A1794999CB
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:47:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1445805AbiAXVFA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:05:00 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:48146 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358575AbiAXUs4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:48:56 -0500
+        id S1456033AbiAXVhg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:37:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47106 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1445327AbiAXVHQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:07:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18482C0680AB;
+        Mon, 24 Jan 2022 12:07:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8694AB810A8;
-        Mon, 24 Jan 2022 20:48:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B59A2C340E5;
-        Mon, 24 Jan 2022 20:48:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AB82261342;
+        Mon, 24 Jan 2022 20:07:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 874C8C340E8;
+        Mon, 24 Jan 2022 20:07:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057328;
-        bh=+BUX2ce92f50v3eT6BDPKhljeKXX+4pxIuGRPS/+NDY=;
+        s=korg; t=1643054871;
+        bh=n3qzIhkJTs5Zt29pol17QM7Ob/p00R3z1XaX+um3/So=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YpmNQMycz7TJ+9dUGE+LOOYNP/3jjQVie5EoMbCaSgjOUCpdxiECgVupod+wZ7d89
-         SDXM6Nsxe/w//H6wpzx4+Nvz2GBDZs5aLTluyiEr4LZ2w89KQMh18vUhYCqw+l5uYU
-         GEcuklZfVX6hY7N0fzYjCNto+Sr3PyDZK9hDNQOs=
+        b=lQT6qKdvrc31rtgLBAB6NYabBNLYnEt3Zz5Z4zfvsgq+3wJUHuQCjFAExA61UKm8X
+         HVnARTy0hk+lBaVuaONX/vs0+LPBd92wA2k9K0uwV10QfSul59M63Ld8FrySIHNivg
+         UJEN9U+g/XcYYh+Wi3zALDQnhUCyYBV3d8Q9wVi0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zack Rusin <zackr@vmware.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        =?UTF-8?q?Thomas=20Hellstr=C3=B6m?= 
-        <thomas.hellstrom@linux.intel.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Martin Krastev <krastevm@vmware.com>,
-        Maaz Mombasawala <mombasawalam@vmware.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH 5.15 776/846] drm/vmwgfx: Remove explicit transparent hugepages support
-Date:   Mon, 24 Jan 2022 19:44:53 +0100
-Message-Id: <20220124184127.723436959@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>,
+        Stephen Boyd <swboyd@chromium.org>
+Subject: [PATCH 5.10 529/563] HID: vivaldi: fix handling devices not using numbered reports
+Date:   Mon, 24 Jan 2022 19:44:54 +0100
+Message-Id: <20220124184042.736548769@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,277 +49,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zack Rusin <zackr@vmware.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-commit bc701a28c74e78d7b5aa2b8628cb3608d4785d14 upstream.
+commit 3fe6acd4dc922237b30e55473c9349c6ce0690f3 upstream.
 
-Old versions of the svga device used to export virtual vram, handling of
-which was optimized on top of transparent hugepages support. Only very
-old devices (OpenGL 2.1 support and earlier) used this code and at this
-point performance differences are negligible.
+Unfortunately details of USB HID transport bled into HID core and
+handling of numbered/unnumbered reports is quite a mess, with
+hid_report_len() calculating the length according to USB rules,
+and hid_hw_raw_request() adding report ID to the buffer for both
+numbered and unnumbered reports.
 
-Because the code requires very old hardware versions to run it has
-been largely untested and unused for a long time.
+Untangling it all requres a lot of changes in HID, so for now let's
+handle this in the driver.
 
-Furthermore removal of the ttm hugepages support in:
-commit 0d979509539e ("drm/ttm: remove ttm_bo_vm_insert_huge()")
-broke the coherency mode in vmwgfx when running with hugepages.
-
-Fixes: 0d979509539e ("drm/ttm: remove ttm_bo_vm_insert_huge()")
-Signed-off-by: Zack Rusin <zackr@vmware.com>
-Cc: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Thomas Hellström <thomas.hellstrom@linux.intel.com>
-Cc: Christian König <christian.koenig@amd.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Reviewed-by: Martin Krastev <krastevm@vmware.com>
-Reviewed-by: Maaz Mombasawala <mombasawalam@vmware.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211215184147.3688785-2-zack@kde.org
-(cherry picked from commit 49d535d64d52945e2c874f380705675e20a02b6a)
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+[jkosina@suse.cz: microoptimize field->report->id to report->id]
+Fixes: 14c9c014babe ("HID: add vivaldi HID driver")
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Tested-by: Stephen Boyd <swboyd@chromium.org> # CoachZ
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/vmwgfx/Makefile     |    1 
- drivers/gpu/drm/vmwgfx/vmwgfx_drv.c |    8 -
- drivers/gpu/drm/vmwgfx/vmwgfx_drv.h |    5 
- drivers/gpu/drm/vmwgfx/vmwgfx_thp.c |  184 ------------------------------------
- 4 files changed, 198 deletions(-)
- delete mode 100644 drivers/gpu/drm/vmwgfx/vmwgfx_thp.c
+ drivers/hid/hid-vivaldi.c |   34 ++++++++++++++++++++++++++++------
+ 1 file changed, 28 insertions(+), 6 deletions(-)
 
---- a/drivers/gpu/drm/vmwgfx/Makefile
-+++ b/drivers/gpu/drm/vmwgfx/Makefile
-@@ -12,6 +12,5 @@ vmwgfx-y := vmwgfx_execbuf.o vmwgfx_gmr.
- 	    vmwgfx_devcaps.o ttm_object.o ttm_memory.o vmwgfx_system_manager.o
- 
- vmwgfx-$(CONFIG_DRM_FBDEV_EMULATION) += vmwgfx_fb.o
--vmwgfx-$(CONFIG_TRANSPARENT_HUGEPAGE) += vmwgfx_thp.o
- 
- obj-$(CONFIG_DRM_VMWGFX) := vmwgfx.o
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.c
-@@ -707,23 +707,15 @@ static int vmw_dma_masks(struct vmw_priv
- static int vmw_vram_manager_init(struct vmw_private *dev_priv)
+--- a/drivers/hid/hid-vivaldi.c
++++ b/drivers/hid/hid-vivaldi.c
+@@ -74,10 +74,11 @@ static void vivaldi_feature_mapping(stru
+ 				    struct hid_usage *usage)
  {
+ 	struct vivaldi_data *drvdata = hid_get_drvdata(hdev);
++	struct hid_report *report = field->report;
+ 	int fn_key;
  	int ret;
--#ifdef CONFIG_TRANSPARENT_HUGEPAGE
--	ret = vmw_thp_init(dev_priv);
--#else
- 	ret = ttm_range_man_init(&dev_priv->bdev, TTM_PL_VRAM, false,
- 				 dev_priv->vram_size >> PAGE_SHIFT);
--#endif
- 	ttm_resource_manager_set_used(ttm_manager_type(&dev_priv->bdev, TTM_PL_VRAM), false);
- 	return ret;
- }
+ 	u32 report_len;
+-	u8 *buf;
++	u8 *report_data, *buf;
  
- static void vmw_vram_manager_fini(struct vmw_private *dev_priv)
- {
--#ifdef CONFIG_TRANSPARENT_HUGEPAGE
--	vmw_thp_fini(dev_priv);
--#else
- 	ttm_range_man_fini(&dev_priv->bdev, TTM_PL_VRAM);
--#endif
- }
+ 	if (field->logical != HID_USAGE_FN_ROW_PHYSMAP ||
+ 	    (usage->hid & HID_USAGE_PAGE) != HID_UP_ORDINAL)
+@@ -89,12 +90,24 @@ static void vivaldi_feature_mapping(stru
+ 	if (fn_key > drvdata->max_function_row_key)
+ 		drvdata->max_function_row_key = fn_key;
  
- static int vmw_setup_pci_resources(struct vmw_private *dev,
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_drv.h
-@@ -1557,11 +1557,6 @@ void vmw_bo_dirty_unmap(struct vmw_buffe
- vm_fault_t vmw_bo_vm_fault(struct vm_fault *vmf);
- vm_fault_t vmw_bo_vm_mkwrite(struct vm_fault *vmf);
+-	buf = hid_alloc_report_buf(field->report, GFP_KERNEL);
+-	if (!buf)
++	report_data = buf = hid_alloc_report_buf(report, GFP_KERNEL);
++	if (!report_data)
+ 		return;
  
--/* Transparent hugepage support - vmwgfx_thp.c */
--#ifdef CONFIG_TRANSPARENT_HUGEPAGE
--extern int vmw_thp_init(struct vmw_private *dev_priv);
--void vmw_thp_fini(struct vmw_private *dev_priv);
--#endif
+-	report_len = hid_report_len(field->report);
+-	ret = hid_hw_raw_request(hdev, field->report->id, buf,
++	report_len = hid_report_len(report);
++	if (!report->id) {
++		/*
++		 * hid_hw_raw_request() will stuff report ID (which will be 0)
++		 * into the first byte of the buffer even for unnumbered
++		 * reports, so we need to account for this to avoid getting
++		 * -EOVERFLOW in return.
++		 * Note that hid_alloc_report_buf() adds 7 bytes to the size
++		 * so we can safely say that we have space for an extra byte.
++		 */
++		report_len++;
++	}
++
++	ret = hid_hw_raw_request(hdev, report->id, report_data,
+ 				 report_len, HID_FEATURE_REPORT,
+ 				 HID_REQ_GET_REPORT);
+ 	if (ret < 0) {
+@@ -103,7 +116,16 @@ static void vivaldi_feature_mapping(stru
+ 		goto out;
+ 	}
  
- /**
-  * VMW_DEBUG_KMS - Debug output for kernel mode-setting
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_thp.c
-+++ /dev/null
-@@ -1,184 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0 OR MIT
--/*
-- * Huge page-table-entry support for IO memory.
-- *
-- * Copyright (C) 2007-2019 Vmware, Inc. All rights reservedd.
-- */
--#include "vmwgfx_drv.h"
--#include <drm/ttm/ttm_bo_driver.h>
--#include <drm/ttm/ttm_placement.h>
--#include <drm/ttm/ttm_range_manager.h>
--
--/**
-- * struct vmw_thp_manager - Range manager implementing huge page alignment
-- *
-- * @manager: TTM resource manager.
-- * @mm: The underlying range manager. Protected by @lock.
-- * @lock: Manager lock.
-- */
--struct vmw_thp_manager {
--	struct ttm_resource_manager manager;
--	struct drm_mm mm;
--	spinlock_t lock;
--};
--
--static struct vmw_thp_manager *to_thp_manager(struct ttm_resource_manager *man)
--{
--	return container_of(man, struct vmw_thp_manager, manager);
--}
--
--static const struct ttm_resource_manager_func vmw_thp_func;
--
--static int vmw_thp_insert_aligned(struct ttm_buffer_object *bo,
--				  struct drm_mm *mm, struct drm_mm_node *node,
--				  unsigned long align_pages,
--				  const struct ttm_place *place,
--				  struct ttm_resource *mem,
--				  unsigned long lpfn,
--				  enum drm_mm_insert_mode mode)
--{
--	if (align_pages >= bo->page_alignment &&
--	    (!bo->page_alignment || align_pages % bo->page_alignment == 0)) {
--		return drm_mm_insert_node_in_range(mm, node,
--						   mem->num_pages,
--						   align_pages, 0,
--						   place->fpfn, lpfn, mode);
--	}
--
--	return -ENOSPC;
--}
--
--static int vmw_thp_get_node(struct ttm_resource_manager *man,
--			    struct ttm_buffer_object *bo,
--			    const struct ttm_place *place,
--			    struct ttm_resource **res)
--{
--	struct vmw_thp_manager *rman = to_thp_manager(man);
--	struct drm_mm *mm = &rman->mm;
--	struct ttm_range_mgr_node *node;
--	unsigned long align_pages;
--	unsigned long lpfn;
--	enum drm_mm_insert_mode mode = DRM_MM_INSERT_BEST;
--	int ret;
--
--	node = kzalloc(struct_size(node, mm_nodes, 1), GFP_KERNEL);
--	if (!node)
--		return -ENOMEM;
--
--	ttm_resource_init(bo, place, &node->base);
--
--	lpfn = place->lpfn;
--	if (!lpfn)
--		lpfn = man->size;
--
--	mode = DRM_MM_INSERT_BEST;
--	if (place->flags & TTM_PL_FLAG_TOPDOWN)
--		mode = DRM_MM_INSERT_HIGH;
--
--	spin_lock(&rman->lock);
--	if (IS_ENABLED(CONFIG_HAVE_ARCH_TRANSPARENT_HUGEPAGE_PUD)) {
--		align_pages = (HPAGE_PUD_SIZE >> PAGE_SHIFT);
--		if (node->base.num_pages >= align_pages) {
--			ret = vmw_thp_insert_aligned(bo, mm, &node->mm_nodes[0],
--						     align_pages, place,
--						     &node->base, lpfn, mode);
--			if (!ret)
--				goto found_unlock;
--		}
--	}
--
--	align_pages = (HPAGE_PMD_SIZE >> PAGE_SHIFT);
--	if (node->base.num_pages >= align_pages) {
--		ret = vmw_thp_insert_aligned(bo, mm, &node->mm_nodes[0],
--					     align_pages, place, &node->base,
--					     lpfn, mode);
--		if (!ret)
--			goto found_unlock;
--	}
--
--	ret = drm_mm_insert_node_in_range(mm, &node->mm_nodes[0],
--					  node->base.num_pages,
--					  bo->page_alignment, 0,
--					  place->fpfn, lpfn, mode);
--found_unlock:
--	spin_unlock(&rman->lock);
--
--	if (unlikely(ret)) {
--		kfree(node);
--	} else {
--		node->base.start = node->mm_nodes[0].start;
--		*res = &node->base;
--	}
--
--	return ret;
--}
--
--static void vmw_thp_put_node(struct ttm_resource_manager *man,
--			     struct ttm_resource *res)
--{
--	struct ttm_range_mgr_node *node = to_ttm_range_mgr_node(res);
--	struct vmw_thp_manager *rman = to_thp_manager(man);
--
--	spin_lock(&rman->lock);
--	drm_mm_remove_node(&node->mm_nodes[0]);
--	spin_unlock(&rman->lock);
--
--	kfree(node);
--}
--
--int vmw_thp_init(struct vmw_private *dev_priv)
--{
--	struct vmw_thp_manager *rman;
--
--	rman = kzalloc(sizeof(*rman), GFP_KERNEL);
--	if (!rman)
--		return -ENOMEM;
--
--	ttm_resource_manager_init(&rman->manager,
--				  dev_priv->vram_size >> PAGE_SHIFT);
--
--	rman->manager.func = &vmw_thp_func;
--	drm_mm_init(&rman->mm, 0, rman->manager.size);
--	spin_lock_init(&rman->lock);
--
--	ttm_set_driver_manager(&dev_priv->bdev, TTM_PL_VRAM, &rman->manager);
--	ttm_resource_manager_set_used(&rman->manager, true);
--	return 0;
--}
--
--void vmw_thp_fini(struct vmw_private *dev_priv)
--{
--	struct ttm_resource_manager *man = ttm_manager_type(&dev_priv->bdev, TTM_PL_VRAM);
--	struct vmw_thp_manager *rman = to_thp_manager(man);
--	struct drm_mm *mm = &rman->mm;
--	int ret;
--
--	ttm_resource_manager_set_used(man, false);
--
--	ret = ttm_resource_manager_evict_all(&dev_priv->bdev, man);
--	if (ret)
--		return;
--	spin_lock(&rman->lock);
--	drm_mm_clean(mm);
--	drm_mm_takedown(mm);
--	spin_unlock(&rman->lock);
--	ttm_resource_manager_cleanup(man);
--	ttm_set_driver_manager(&dev_priv->bdev, TTM_PL_VRAM, NULL);
--	kfree(rman);
--}
--
--static void vmw_thp_debug(struct ttm_resource_manager *man,
--			  struct drm_printer *printer)
--{
--	struct vmw_thp_manager *rman = to_thp_manager(man);
--
--	spin_lock(&rman->lock);
--	drm_mm_print(&rman->mm, printer);
--	spin_unlock(&rman->lock);
--}
--
--static const struct ttm_resource_manager_func vmw_thp_func = {
--	.alloc = vmw_thp_get_node,
--	.free = vmw_thp_put_node,
--	.debug = vmw_thp_debug
--};
+-	ret = hid_report_raw_event(hdev, HID_FEATURE_REPORT, buf,
++	if (!report->id) {
++		/*
++		 * Undo the damage from hid_hw_raw_request() for unnumbered
++		 * reports.
++		 */
++		report_data++;
++		report_len--;
++	}
++
++	ret = hid_report_raw_event(hdev, HID_FEATURE_REPORT, report_data,
+ 				   report_len, 0);
+ 	if (ret) {
+ 		dev_warn(&hdev->dev, "failed to report feature %d\n",
 
 
