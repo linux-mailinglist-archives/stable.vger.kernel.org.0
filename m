@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2A5049A8F7
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:18:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB91649A961
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:23:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1321691AbiAYDT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:19:28 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:37996 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244239AbiAXTsT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:48:19 -0500
+        id S1322520AbiAYDV7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:21:59 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:53904 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1384175AbiAXU3U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:29:20 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE296B81215;
-        Mon, 24 Jan 2022 19:48:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFFD6C340E5;
-        Mon, 24 Jan 2022 19:48:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 62C92614ED;
+        Mon, 24 Jan 2022 20:29:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44AD0C340E7;
+        Mon, 24 Jan 2022 20:29:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053695;
-        bh=16LNaUCzIzb/T+JoyZ/ziwN0gPqMj0yFnQdm07T7pxI=;
+        s=korg; t=1643056155;
+        bh=s9tsxmFlqICboirL075gBp3+3Ny1m13WJnEkExbZ/tc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=shcIEfWvnM0gbpdkALGEjXiDVd3xiWRmKG35WGE8uVqi+u762JnRbPFx6TpIANYbA
-         uZ9OuijgvGMpkD1Ec6q+TMgA+NeYwywhh/SdwjWQ0aok3IhDEgJsjbJqnhUAs5SSoc
-         kRu/YdOSaT7QNgMqLFxG7alHqNqiIr5o0Pm2yRno=
+        b=QUxNbe/OF5cxS/WlafLfIFS/xhKbxOqS5XKW0T7tebS96tskocMFmyAZQCUc99wXM
+         L7U1GYvyNRW9S9ihnjdCZplP5fz0YIB439v0l/yz1jUksOZatArFdbdYo0iZY0Oser
+         dviO12K0Z8uAlOOseTPZfocDlUXOBPTCE09z7Z7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Reiji Watanabe <reijiw@google.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 140/563] arm64: clear_page() shouldnt use DC ZVA when DCZID_EL0.DZP == 1
-Date:   Mon, 24 Jan 2022 19:38:25 +0100
-Message-Id: <20220124184029.244698891@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 389/846] dt-bindings: thermal: Fix definition of cooling-maps contribution property
+Date:   Mon, 24 Jan 2022 19:38:26 +0100
+Message-Id: <20220124184114.356394547@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,52 +47,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reiji Watanabe <reijiw@google.com>
+From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
 
-[ Upstream commit f0616abd4e67143b45b04b565839148458857347 ]
+[ Upstream commit 49bcb1506f2e095262c01bda7fd1c0db524c91e2 ]
 
-Currently, clear_page() uses DC ZVA instruction unconditionally.  But it
-should make sure that DCZID_EL0.DZP, which indicates whether or not use
-of DC ZVA instruction is prohibited, is zero when using the instruction.
-Use STNP instead when DCZID_EL0.DZP == 1.
+When converting the thermal-zones bindings to yaml the definition of the
+contribution property changed. The intention is the same, an integer
+value expressing a ratio of a sum on how much cooling is provided by the
+device to the zone. But after the conversion the integer value is
+limited to the range 0 to 100 and expressed as a percentage.
 
-Fixes: f27bb139c387 ("arm64: Miscellaneous library functions")
-Signed-off-by: Reiji Watanabe <reijiw@google.com>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/20211206004736.1520989-2-reijiw@google.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+This is problematic for two reasons.
+
+- This do not match how the binding is used. Out of the 18 files that
+  make use of the property only two (ste-dbx5x0.dtsi and
+  ste-hrefv60plus.dtsi) sets it at a value that satisfy the binding,
+  100. The remaining 16 files set the value higher and fail to validate.
+
+- Expressing the value as a percentage instead of a ratio of the sum is
+  confusing as there is nothing to enforce the sum in the zone is not
+  greater then 100.
+
+This patch restore the pre yaml conversion description and removes the
+value limitation allowing the usage of the bindings to validate.
+
+Fixes: 1202a442a31fd2e5 ("dt-bindings: thermal: Add yaml bindings for thermal zones")
+Reported-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Link: https://lore.kernel.org/r/20211109103045.1403686-1-niklas.soderlund+renesas@ragnatech.se
+Signed-off-by: Rob Herring <robh@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/lib/clear_page.S | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ .../devicetree/bindings/thermal/thermal-zones.yaml       | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/lib/clear_page.S b/arch/arm64/lib/clear_page.S
-index b84b179edba3a..1fd5d790ab800 100644
---- a/arch/arm64/lib/clear_page.S
-+++ b/arch/arm64/lib/clear_page.S
-@@ -16,6 +16,7 @@
-  */
- SYM_FUNC_START_PI(clear_page)
- 	mrs	x1, dczid_el0
-+	tbnz	x1, #4, 2f	/* Branch if DC ZVA is prohibited */
- 	and	w1, w1, #0xf
- 	mov	x2, #4
- 	lsl	x1, x2, x1
-@@ -25,5 +26,14 @@ SYM_FUNC_START_PI(clear_page)
- 	tst	x0, #(PAGE_SIZE - 1)
- 	b.ne	1b
- 	ret
-+
-+2:	stnp	xzr, xzr, [x0]
-+	stnp	xzr, xzr, [x0, #16]
-+	stnp	xzr, xzr, [x0, #32]
-+	stnp	xzr, xzr, [x0, #48]
-+	add	x0, x0, #64
-+	tst	x0, #(PAGE_SIZE - 1)
-+	b.ne	2b
-+	ret
- SYM_FUNC_END_PI(clear_page)
- EXPORT_SYMBOL(clear_page)
+diff --git a/Documentation/devicetree/bindings/thermal/thermal-zones.yaml b/Documentation/devicetree/bindings/thermal/thermal-zones.yaml
+index a07de5ed0ca6a..2d34f3ccb2572 100644
+--- a/Documentation/devicetree/bindings/thermal/thermal-zones.yaml
++++ b/Documentation/devicetree/bindings/thermal/thermal-zones.yaml
+@@ -199,12 +199,11 @@ patternProperties:
+ 
+               contribution:
+                 $ref: /schemas/types.yaml#/definitions/uint32
+-                minimum: 0
+-                maximum: 100
+                 description:
+-                  The percentage contribution of the cooling devices at the
+-                  specific trip temperature referenced in this map
+-                  to this thermal zone
++                  The cooling contribution to the thermal zone of the referred
++                  cooling device at the referred trip point. The contribution is
++                  a ratio of the sum of all cooling contributions within a
++                  thermal zone.
+ 
+             required:
+               - trip
 -- 
 2.34.1
 
