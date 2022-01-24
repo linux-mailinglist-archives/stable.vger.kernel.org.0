@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9CA7498F6F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:54:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 18436499419
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:40:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351656AbiAXTw3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:52:29 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:44236 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356679AbiAXTrC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:47:02 -0500
+        id S1388513AbiAXUjD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:39:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38776 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1385587AbiAXUdl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:33:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB847C07E2AD;
+        Mon, 24 Jan 2022 11:47:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F1196154E;
-        Mon, 24 Jan 2022 19:47:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58F1EC340E5;
-        Mon, 24 Jan 2022 19:47:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A193614B8;
+        Mon, 24 Jan 2022 19:47:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D653C340E5;
+        Mon, 24 Jan 2022 19:47:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053620;
-        bh=FCtfFY34iZEwAr7Qu9zfh7qbShfAkumL+e4sa31RBqc=;
+        s=korg; t=1643053623;
+        bh=jx1N4Rd3GlsC3NaUvDqMpAjvLpvG+Fd4xSC4Sv7bXzg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i4eWQ5Uzipr0o2KXi+umApYeWrZQQozPShsC/iTD1jhjzm5n1KpX92u1+8vS9y0kc
-         c2XaLwKYTDVYlduJI92zKqwz/RW3vlpds/UFzqcePD3wJW4wQ4Vy/sgDWrNA9VHGge
-         /mxM1aZq82t19UHlKUZtFKD+PVZ3kL7nm2eMfJjk=
+        b=euQz5/cS34Xjzu+LSNRvpP8ohKDv3PpKTidhbJ3NtBg2xZuiAvQYoMWXh2uGKWZYL
+         WAWjIPxj+9QDWL5ebOMQkv32E7cHjIZEzGVqZr7gYY/+/tuMf7CDmTxhvx9oPrqGH3
+         zWpcZMZwfv11JyB+CWiFBGHbGyx0Djky98k1+DQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Zhou Qingyang <zhou1615@umn.edu>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 123/563] drm/amdgpu: Fix a NULL pointer dereference in amdgpu_connector_lcd_native_mode()
-Date:   Mon, 24 Jan 2022 19:38:08 +0100
-Message-Id: <20220124184028.654486911@linuxfoundation.org>
+Subject: [PATCH 5.10 124/563] drm/radeon/radeon_kms: Fix a NULL pointer dereference in radeon_driver_open_kms()
+Date:   Mon, 24 Jan 2022 19:38:09 +0100
+Message-Id: <20220124184028.691188732@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -47,14 +52,15 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhou Qingyang <zhou1615@umn.edu>
 
-[ Upstream commit b220110e4cd442156f36e1d9b4914bb9e87b0d00 ]
+[ Upstream commit ab50cb9df8896b39aae65c537a30de2c79c19735 ]
 
-In amdgpu_connector_lcd_native_mode(), the return value of
-drm_mode_duplicate() is assigned to mode, and there is a dereference
-of it in amdgpu_connector_lcd_native_mode(), which will lead to a NULL
-pointer dereference on failure of drm_mode_duplicate().
+In radeon_driver_open_kms(), radeon_vm_bo_add() is assigned to
+vm->ib_bo_va and passes and used in radeon_vm_bo_set_addr(). In
+radeon_vm_bo_set_addr(), there is a dereference of vm->ib_bo_va,
+which could lead to a NULL pointer dereference on failure of
+radeon_vm_bo_add().
 
-Fix this bug add a check of mode.
+Fix this bug by adding a check of vm->ib_bo_va.
 
 This bug was found by a static analyzer. The analysis employs
 differential checking to identify inconsistent security operations
@@ -66,41 +72,94 @@ Note that, as a bug found by static analysis, it can be a false
 positive or hard to trigger. Multiple researchers have cross-reviewed
 the bug.
 
-Builds with CONFIG_DRM_AMDGPU=m show no new warnings, and
-our static analyzer no longer warns about this code.
+Builds with CONFIG_DRM_RADEON=m show no new warnings,
+and our static analyzer no longer warns about this code.
 
-Fixes: d38ceaf99ed0 ("drm/amdgpu: add core driver (v4)")
+Fixes: cc9e67e3d700 ("drm/radeon: fix VM IB handling")
+Reviewed-by: Christian König <christian.koenig@amd.com>
 Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/radeon/radeon_kms.c | 36 ++++++++++++++++-------------
+ 1 file changed, 20 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-index 0de66f59adb8a..df1f9b88a53f9 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_connectors.c
-@@ -387,6 +387,9 @@ amdgpu_connector_lcd_native_mode(struct drm_encoder *encoder)
- 	    native_mode->vdisplay != 0 &&
- 	    native_mode->clock != 0) {
- 		mode = drm_mode_duplicate(dev, native_mode);
-+		if (!mode)
-+			return NULL;
-+
- 		mode->type = DRM_MODE_TYPE_PREFERRED | DRM_MODE_TYPE_DRIVER;
- 		drm_mode_set_name(mode);
+diff --git a/drivers/gpu/drm/radeon/radeon_kms.c b/drivers/gpu/drm/radeon/radeon_kms.c
+index 8c0a572940e82..204634b239283 100644
+--- a/drivers/gpu/drm/radeon/radeon_kms.c
++++ b/drivers/gpu/drm/radeon/radeon_kms.c
+@@ -634,6 +634,8 @@ void radeon_driver_lastclose_kms(struct drm_device *dev)
+ int radeon_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
+ {
+ 	struct radeon_device *rdev = dev->dev_private;
++	struct radeon_fpriv *fpriv;
++	struct radeon_vm *vm;
+ 	int r;
  
-@@ -401,6 +404,9 @@ amdgpu_connector_lcd_native_mode(struct drm_encoder *encoder)
- 		 * simpler.
- 		 */
- 		mode = drm_cvt_mode(dev, native_mode->hdisplay, native_mode->vdisplay, 60, true, false, false);
-+		if (!mode)
-+			return NULL;
+ 	file_priv->driver_priv = NULL;
+@@ -646,8 +648,6 @@ int radeon_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
+ 
+ 	/* new gpu have virtual address space support */
+ 	if (rdev->family >= CHIP_CAYMAN) {
+-		struct radeon_fpriv *fpriv;
+-		struct radeon_vm *vm;
+ 
+ 		fpriv = kzalloc(sizeof(*fpriv), GFP_KERNEL);
+ 		if (unlikely(!fpriv)) {
+@@ -658,35 +658,39 @@ int radeon_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
+ 		if (rdev->accel_working) {
+ 			vm = &fpriv->vm;
+ 			r = radeon_vm_init(rdev, vm);
+-			if (r) {
+-				kfree(fpriv);
+-				goto out_suspend;
+-			}
++			if (r)
++				goto out_fpriv;
+ 
+ 			r = radeon_bo_reserve(rdev->ring_tmp_bo.bo, false);
+-			if (r) {
+-				radeon_vm_fini(rdev, vm);
+-				kfree(fpriv);
+-				goto out_suspend;
+-			}
++			if (r)
++				goto out_vm_fini;
+ 
+ 			/* map the ib pool buffer read only into
+ 			 * virtual address space */
+ 			vm->ib_bo_va = radeon_vm_bo_add(rdev, vm,
+ 							rdev->ring_tmp_bo.bo);
++			if (!vm->ib_bo_va) {
++				r = -ENOMEM;
++				goto out_vm_fini;
++			}
 +
- 		mode->type = DRM_MODE_TYPE_PREFERRED | DRM_MODE_TYPE_DRIVER;
- 		DRM_DEBUG_KMS("Adding cvt approximation of native panel mode %s\n", mode->name);
+ 			r = radeon_vm_bo_set_addr(rdev, vm->ib_bo_va,
+ 						  RADEON_VA_IB_OFFSET,
+ 						  RADEON_VM_PAGE_READABLE |
+ 						  RADEON_VM_PAGE_SNOOPED);
+-			if (r) {
+-				radeon_vm_fini(rdev, vm);
+-				kfree(fpriv);
+-				goto out_suspend;
+-			}
++			if (r)
++				goto out_vm_fini;
+ 		}
+ 		file_priv->driver_priv = fpriv;
  	}
+ 
++	if (!r)
++		goto out_suspend;
++
++out_vm_fini:
++	radeon_vm_fini(rdev, vm);
++out_fpriv:
++	kfree(fpriv);
+ out_suspend:
+ 	pm_runtime_mark_last_busy(dev->dev);
+ 	pm_runtime_put_autosuspend(dev->dev);
 -- 
 2.34.1
 
