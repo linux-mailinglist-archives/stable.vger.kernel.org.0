@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFC4749A5B5
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:12:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49CEC49A5B9
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:12:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2371089AbiAYAG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:06:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55712 "EHLO
+        id S2371110AbiAYAHA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:07:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2361415AbiAXXkB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:40:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3F78C078512;
-        Mon, 24 Jan 2022 13:38:30 -0800 (PST)
+        with ESMTP id S2361483AbiAXXkM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:40:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48E55C078521;
+        Mon, 24 Jan 2022 13:38:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5045861502;
-        Mon, 24 Jan 2022 21:38:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AFFBC340E4;
-        Mon, 24 Jan 2022 21:38:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0FB70B80FA1;
+        Mon, 24 Jan 2022 21:38:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AEE4C340E4;
+        Mon, 24 Jan 2022 21:38:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060309;
-        bh=Ewihb/s7hmwafORVRqMeu0MC+lgGBymeShU96pQLBU4=;
+        s=korg; t=1643060312;
+        bh=NF5lkOBelGBSG7Nu/ygvh5DLxM3dmsWRSeyfgkNPk/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F+FATGPBITqPMUPhLka/fClfX4WLZXuy8M7RZlqCWBjcAbyrL+d1um89CjkVyaT/H
-         t214J0EVRGpjPoC3iT/1b59ej96trrntM0ovYR5SObOpYfi2AEJDMo3q59HHbkW4/i
-         PECknk+sOTrWrpU9YBH4101rFXPZEApv/GRcqC68=
+        b=aiVcppDAcaEvU4SyZYFbP5zfLWoHq0nJ3le6ON6c2jweNDbg/w3fnkie2F/kKqZN2
+         UO0bfG3/W9NbCp2wvN41pc9nlyv1EZ7dnVYxrpSv0mU/OUcBIbDgbOsIrHONMtWafI
+         txgPy7fmkBPNnQbVzF3CKLVlMrrApWjtOw1eZPRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
-        Rob Herring <robh@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>
-Subject: [PATCH 5.16 0872/1039] PCI: xgene: Fix IB window setup
-Date:   Mon, 24 Jan 2022 19:44:21 +0100
-Message-Id: <20220124184154.612147474@linuxfoundation.org>
+        stable@vger.kernel.org, "Theodore Tso" <tytso@mit.edu>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Lukas Wunner <lukas@wunner.de>
+Subject: [PATCH 5.16 0873/1039] PCI: pciehp: Use down_read/write_nested(reset_lock) to fix lockdep errors
+Date:   Mon, 24 Jan 2022 19:44:22 +0100
+Message-Id: <20220124184154.642601971@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -50,43 +49,190 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit c7a75d07827a1f33d566e18e6098379cc2a0c2b2 upstream.
+commit 085a9f43433f30cbe8a1ade62d9d7827c3217f4d upstream.
 
-Commit 6dce5aa59e0b ("PCI: xgene: Use inbound resources for setup")
-broke PCI support on XGene. The cause is the IB resources are now sorted
-in address order instead of being in DT dma-ranges order. The result is
-which inbound registers are used for each region are swapped. I don't
-know the details about this h/w, but it appears that IB region 0
-registers can't handle a size greater than 4GB. In any case, limiting
-the size for region 0 is enough to get back to the original assignment
-of dma-ranges to regions.
+Use down_read_nested() and down_write_nested() when taking the
+ctrl->reset_lock rw-sem, passing the number of PCIe hotplug controllers in
+the path to the PCI root bus as lock subclass parameter.
 
-Link: https://lore.kernel.org/all/CA+enf=v9rY_xnZML01oEgKLmvY1NGBUUhnSJaETmXtDtXfaczA@mail.gmail.com/
-Link: https://lore.kernel.org/r/20211129173637.303201-1-robh@kernel.org
-Fixes: 6dce5aa59e0b ("PCI: xgene: Use inbound resources for setup")
-Reported-by: Stéphane Graber <stgraber@ubuntu.com>
-Tested-by: Stéphane Graber <stgraber@ubuntu.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Krzysztof Wilczyński <kw@linux.com>
-Cc: stable@vger.kernel.org # v5.5+
+This fixes the following false-positive lockdep report when unplugging a
+Lenovo X1C8 from a Lenovo 2nd gen TB3 dock:
+
+  pcieport 0000:06:01.0: pciehp: Slot(1): Link Down
+  pcieport 0000:06:01.0: pciehp: Slot(1): Card not present
+  ============================================
+  WARNING: possible recursive locking detected
+  5.16.0-rc2+ #621 Not tainted
+  --------------------------------------------
+  irq/124-pciehp/86 is trying to acquire lock:
+  ffff8e5ac4299ef8 (&ctrl->reset_lock){.+.+}-{3:3}, at: pciehp_check_presence+0x23/0x80
+
+  but task is already holding lock:
+  ffff8e5ac4298af8 (&ctrl->reset_lock){.+.+}-{3:3}, at: pciehp_ist+0xf3/0x180
+
+   other info that might help us debug this:
+   Possible unsafe locking scenario:
+
+	 CPU0
+	 ----
+    lock(&ctrl->reset_lock);
+    lock(&ctrl->reset_lock);
+
+   *** DEADLOCK ***
+
+   May be due to missing lock nesting notation
+
+  3 locks held by irq/124-pciehp/86:
+   #0: ffff8e5ac4298af8 (&ctrl->reset_lock){.+.+}-{3:3}, at: pciehp_ist+0xf3/0x180
+   #1: ffffffffa3b024e8 (pci_rescan_remove_lock){+.+.}-{3:3}, at: pciehp_unconfigure_device+0x31/0x110
+   #2: ffff8e5ac1ee2248 (&dev->mutex){....}-{3:3}, at: device_release_driver+0x1c/0x40
+
+  stack backtrace:
+  CPU: 4 PID: 86 Comm: irq/124-pciehp Not tainted 5.16.0-rc2+ #621
+  Hardware name: LENOVO 20U90SIT19/20U90SIT19, BIOS N2WET30W (1.20 ) 08/26/2021
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x59/0x73
+   __lock_acquire.cold+0xc5/0x2c6
+   lock_acquire+0xb5/0x2b0
+   down_read+0x3e/0x50
+   pciehp_check_presence+0x23/0x80
+   pciehp_runtime_resume+0x5c/0xa0
+   device_for_each_child+0x45/0x70
+   pcie_port_device_runtime_resume+0x20/0x30
+   pci_pm_runtime_resume+0xa7/0xc0
+   __rpm_callback+0x41/0x110
+   rpm_callback+0x59/0x70
+   rpm_resume+0x512/0x7b0
+   __pm_runtime_resume+0x4a/0x90
+   __device_release_driver+0x28/0x240
+   device_release_driver+0x26/0x40
+   pci_stop_bus_device+0x68/0x90
+   pci_stop_bus_device+0x2c/0x90
+   pci_stop_and_remove_bus_device+0xe/0x20
+   pciehp_unconfigure_device+0x6c/0x110
+   pciehp_disable_slot+0x5b/0xe0
+   pciehp_handle_presence_or_link_change+0xc3/0x2f0
+   pciehp_ist+0x179/0x180
+
+This lockdep warning is triggered because with Thunderbolt, hotplug ports
+are nested. When removing multiple devices in a daisy-chain, each hotplug
+port's reset_lock may be acquired recursively. It's never the same lock, so
+the lockdep splat is a false positive.
+
+Because locks at the same hierarchy level are never acquired recursively, a
+per-level lockdep class is sufficient to fix the lockdep warning.
+
+The choice to use one lockdep subclass per pcie-hotplug controller in the
+path to the root-bus was made to conserve class keys because their number
+is limited and the complexity grows quadratically with number of keys
+according to Documentation/locking/lockdep-design.rst.
+
+Link: https://lore.kernel.org/linux-pci/20190402021933.GA2966@mit.edu/
+Link: https://lore.kernel.org/linux-pci/de684a28-9038-8fc6-27ca-3f6f2f6400d7@redhat.com/
+Link: https://lore.kernel.org/r/20211217141709.379663-1-hdegoede@redhat.com
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=208855
+Reported-by: "Theodore Ts'o" <tytso@mit.edu>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Lukas Wunner <lukas@wunner.de>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/pci-xgene.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/hotplug/pciehp.h      |    3 +++
+ drivers/pci/hotplug/pciehp_core.c |    2 +-
+ drivers/pci/hotplug/pciehp_hpc.c  |   21 ++++++++++++++++++---
+ 3 files changed, 22 insertions(+), 4 deletions(-)
 
---- a/drivers/pci/controller/pci-xgene.c
-+++ b/drivers/pci/controller/pci-xgene.c
-@@ -465,7 +465,7 @@ static int xgene_pcie_select_ib_reg(u8 *
- 		return 1;
- 	}
+--- a/drivers/pci/hotplug/pciehp.h
++++ b/drivers/pci/hotplug/pciehp.h
+@@ -75,6 +75,8 @@ extern int pciehp_poll_time;
+  * @reset_lock: prevents access to the Data Link Layer Link Active bit in the
+  *	Link Status register and to the Presence Detect State bit in the Slot
+  *	Status register during a slot reset which may cause them to flap
++ * @depth: Number of additional hotplug ports in the path to the root bus,
++ *	used as lock subclass for @reset_lock
+  * @ist_running: flag to keep user request waiting while IRQ thread is running
+  * @request_result: result of last user request submitted to the IRQ thread
+  * @requester: wait queue to wake up on completion of user request,
+@@ -106,6 +108,7 @@ struct controller {
  
--	if ((size > SZ_1K) && (size < SZ_1T) && !(*ib_reg_mask & (1 << 0))) {
-+	if ((size > SZ_1K) && (size < SZ_4G) && !(*ib_reg_mask & (1 << 0))) {
- 		*ib_reg_mask |= (1 << 0);
+ 	struct hotplug_slot hotplug_slot;	/* hotplug core interface */
+ 	struct rw_semaphore reset_lock;
++	unsigned int depth;
+ 	unsigned int ist_running;
+ 	int request_result;
+ 	wait_queue_head_t requester;
+--- a/drivers/pci/hotplug/pciehp_core.c
++++ b/drivers/pci/hotplug/pciehp_core.c
+@@ -166,7 +166,7 @@ static void pciehp_check_presence(struct
+ {
+ 	int occupied;
+ 
+-	down_read(&ctrl->reset_lock);
++	down_read_nested(&ctrl->reset_lock, ctrl->depth);
+ 	mutex_lock(&ctrl->state_lock);
+ 
+ 	occupied = pciehp_card_present_or_link_active(ctrl);
+--- a/drivers/pci/hotplug/pciehp_hpc.c
++++ b/drivers/pci/hotplug/pciehp_hpc.c
+@@ -583,7 +583,7 @@ static void pciehp_ignore_dpc_link_chang
+ 	 * the corresponding link change may have been ignored above.
+ 	 * Synthesize it to ensure that it is acted on.
+ 	 */
+-	down_read(&ctrl->reset_lock);
++	down_read_nested(&ctrl->reset_lock, ctrl->depth);
+ 	if (!pciehp_check_link_active(ctrl))
+ 		pciehp_request(ctrl, PCI_EXP_SLTSTA_DLLSC);
+ 	up_read(&ctrl->reset_lock);
+@@ -746,7 +746,7 @@ static irqreturn_t pciehp_ist(int irq, v
+ 	 * Disable requests have higher priority than Presence Detect Changed
+ 	 * or Data Link Layer State Changed events.
+ 	 */
+-	down_read(&ctrl->reset_lock);
++	down_read_nested(&ctrl->reset_lock, ctrl->depth);
+ 	if (events & DISABLE_SLOT)
+ 		pciehp_handle_disable_request(ctrl);
+ 	else if (events & (PCI_EXP_SLTSTA_PDC | PCI_EXP_SLTSTA_DLLSC))
+@@ -906,7 +906,7 @@ int pciehp_reset_slot(struct hotplug_slo
+ 	if (probe)
  		return 0;
- 	}
+ 
+-	down_write(&ctrl->reset_lock);
++	down_write_nested(&ctrl->reset_lock, ctrl->depth);
+ 
+ 	if (!ATTN_BUTTN(ctrl)) {
+ 		ctrl_mask |= PCI_EXP_SLTCTL_PDCE;
+@@ -962,6 +962,20 @@ static inline void dbg_ctrl(struct contr
+ 
+ #define FLAG(x, y)	(((x) & (y)) ? '+' : '-')
+ 
++static inline int pcie_hotplug_depth(struct pci_dev *dev)
++{
++	struct pci_bus *bus = dev->bus;
++	int depth = 0;
++
++	while (bus->parent) {
++		bus = bus->parent;
++		if (bus->self && bus->self->is_hotplug_bridge)
++			depth++;
++	}
++
++	return depth;
++}
++
+ struct controller *pcie_init(struct pcie_device *dev)
+ {
+ 	struct controller *ctrl;
+@@ -975,6 +989,7 @@ struct controller *pcie_init(struct pcie
+ 		return NULL;
+ 
+ 	ctrl->pcie = dev;
++	ctrl->depth = pcie_hotplug_depth(dev->port);
+ 	pcie_capability_read_dword(pdev, PCI_EXP_SLTCAP, &slot_cap);
+ 
+ 	if (pdev->hotplug_user_indicators)
 
 
