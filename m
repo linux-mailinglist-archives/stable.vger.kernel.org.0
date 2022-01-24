@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9841E49A9C3
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:28:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B50AD49A9C6
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:28:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1323441AbiAYD2a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:28:30 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:55086 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1445674AbiAXVEm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:04:42 -0500
+        id S1323490AbiAYD2g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:28:36 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:57696 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1445899AbiAXVFJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:05:09 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 32AFB60916;
-        Mon, 24 Jan 2022 21:04:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DAA9C340E5;
-        Mon, 24 Jan 2022 21:04:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A0356B8122A;
+        Mon, 24 Jan 2022 21:05:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7DF8C340E5;
+        Mon, 24 Jan 2022 21:05:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058278;
-        bh=0s33lcfy4P2jFzKILFRE4pEzm1ozOlLG3JQ6R6GELwE=;
+        s=korg; t=1643058306;
+        bh=VPdI+TVD86eHiCgBauoaGl9SJlHqgi95GTzmkIVc46U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UWrrlVXvWikm81fC6mbwm1uu1cbEGRaX5jJrz8HAge+Hm8hCNnzBx9J2eqEI7cpnv
-         l4wL3y+mGSnFooDMrsuDeECbW7T5oy6LKzmOFXeAbpjfct7o4Plpoim4HQlSucLkA/
-         +OlJnlv5tr84gG5YTxzFpyOnoVjmUjGr4LD1tqgw=
+        b=Ji5ocejVTWbk28PUsfCJG3Qh58gU8F47onLnUJw5VkViF8aT1en6URwydPEFtwASu
+         2XqoG2FZ4IluDfnFN6nrZf537j+f5ItwG7BXBlFN65j4G7gd6NY7VcAZaRJAW4r+r7
+         mdQcCKnCsBly7fQc4l6zG/vqmikFSkzk47Zx/3+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Reiji Watanabe <reijiw@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org, Ricardo Ribalda <ribalda@chromium.org>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0238/1039] arm64: mte: DC {GVA,GZVA} shouldnt be used when DCZID_EL0.DZP == 1
-Date:   Mon, 24 Jan 2022 19:33:47 +0100
-Message-Id: <20220124184133.321609644@linuxfoundation.org>
+Subject: [PATCH 5.16 0246/1039] media: uvcvideo: Avoid returning invalid controls
+Date:   Mon, 24 Jan 2022 19:33:55 +0100
+Message-Id: <20220124184133.593956076@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -45,84 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reiji Watanabe <reijiw@google.com>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-[ Upstream commit 685e2564daa1493053fcd7f1dbed38b35ee2f3cb ]
+[ Upstream commit 414d3b49d9fd4a0bb16a13d929027847fd094f3f ]
 
-Currently, mte_set_mem_tag_range() and mte_zero_clear_page_tags() use
-DC {GVA,GZVA} unconditionally.  But, they should make sure that
-DCZID_EL0.DZP, which indicates whether or not use of those instructions
-is prohibited, is zero when using those instructions.
-Use ST{G,ZG,Z2G} instead when DCZID_EL0.DZP == 1.
+If the memory where ctrl_found is placed has the value of uvc_ctrl and
+__uvc_find_control does not find the control we will return an invalid
+index.
 
-Fixes: 013bb59dbb7c ("arm64: mte: handle tags zeroing at page allocation time")
-Fixes: 3d0cca0b02ac ("kasan: speed up mte_set_mem_tag_range")
-Signed-off-by: Reiji Watanabe <reijiw@google.com>
-Link: https://lore.kernel.org/r/20211206004736.1520989-3-reijiw@google.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Fixes: 6350d6a4ed487 ("media: uvcvideo: Set error_idx during ctrl_commit errors")
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/mte-kasan.h | 8 +++++---
- arch/arm64/lib/mte.S               | 8 +++++++-
- 2 files changed, 12 insertions(+), 4 deletions(-)
+ drivers/media/usb/uvc/uvc_ctrl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm64/include/asm/mte-kasan.h b/arch/arm64/include/asm/mte-kasan.h
-index 478b9bcf69ad1..e4704a403237e 100644
---- a/arch/arm64/include/asm/mte-kasan.h
-+++ b/arch/arm64/include/asm/mte-kasan.h
-@@ -84,10 +84,12 @@ static inline void __dc_gzva(u64 p)
- static inline void mte_set_mem_tag_range(void *addr, size_t size, u8 tag,
- 					 bool init)
+diff --git a/drivers/media/usb/uvc/uvc_ctrl.c b/drivers/media/usb/uvc/uvc_ctrl.c
+index 9a25d60292558..b4f6edf968bc0 100644
+--- a/drivers/media/usb/uvc/uvc_ctrl.c
++++ b/drivers/media/usb/uvc/uvc_ctrl.c
+@@ -1639,7 +1639,7 @@ static int uvc_ctrl_find_ctrl_idx(struct uvc_entity *entity,
+ 				  struct uvc_control *uvc_control)
  {
--	u64 curr, mask, dczid_bs, end1, end2, end3;
-+	u64 curr, mask, dczid, dczid_bs, dczid_dzp, end1, end2, end3;
+ 	struct uvc_control_mapping *mapping = NULL;
+-	struct uvc_control *ctrl_found;
++	struct uvc_control *ctrl_found = NULL;
+ 	unsigned int i;
  
- 	/* Read DC G(Z)VA block size from the system register. */
--	dczid_bs = 4ul << (read_cpuid(DCZID_EL0) & 0xf);
-+	dczid = read_cpuid(DCZID_EL0);
-+	dczid_bs = 4ul << (dczid & 0xf);
-+	dczid_dzp = (dczid >> 4) & 1;
- 
- 	curr = (u64)__tag_set(addr, tag);
- 	mask = dczid_bs - 1;
-@@ -106,7 +108,7 @@ static inline void mte_set_mem_tag_range(void *addr, size_t size, u8 tag,
- 	 */
- #define SET_MEMTAG_RANGE(stg_post, dc_gva)		\
- 	do {						\
--		if (size >= 2 * dczid_bs) {		\
-+		if (!dczid_dzp && size >= 2 * dczid_bs) {\
- 			do {				\
- 				curr = stg_post(curr);	\
- 			} while (curr < end1);		\
-diff --git a/arch/arm64/lib/mte.S b/arch/arm64/lib/mte.S
-index e83643b3995f4..f531dcb95174a 100644
---- a/arch/arm64/lib/mte.S
-+++ b/arch/arm64/lib/mte.S
-@@ -43,17 +43,23 @@ SYM_FUNC_END(mte_clear_page_tags)
-  *	x0 - address to the beginning of the page
-  */
- SYM_FUNC_START(mte_zero_clear_page_tags)
-+	and	x0, x0, #(1 << MTE_TAG_SHIFT) - 1	// clear the tag
- 	mrs	x1, dczid_el0
-+	tbnz	x1, #4, 2f	// Branch if DC GZVA is prohibited
- 	and	w1, w1, #0xf
- 	mov	x2, #4
- 	lsl	x1, x2, x1
--	and	x0, x0, #(1 << MTE_TAG_SHIFT) - 1	// clear the tag
- 
- 1:	dc	gzva, x0
- 	add	x0, x0, x1
- 	tst	x0, #(PAGE_SIZE - 1)
- 	b.ne	1b
- 	ret
-+
-+2:	stz2g	x0, [x0], #(MTE_GRANULE_SIZE * 2)
-+	tst	x0, #(PAGE_SIZE - 1)
-+	b.ne	2b
-+	ret
- SYM_FUNC_END(mte_zero_clear_page_tags)
- 
- /*
+ 	if (!entity)
 -- 
 2.34.1
 
