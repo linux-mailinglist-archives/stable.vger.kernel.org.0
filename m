@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E2F54988CA
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:51:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17DF74988CC
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:51:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245714AbiAXSu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:50:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42922 "EHLO
+        id S245726AbiAXSub (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:50:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245375AbiAXStz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:49:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A32BC061759;
-        Mon, 24 Jan 2022 10:49:55 -0800 (PST)
+        with ESMTP id S245391AbiAXSt5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:49:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0015BC06176E;
+        Mon, 24 Jan 2022 10:49:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3268EB8121B;
-        Mon, 24 Jan 2022 18:49:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E125C340E7;
-        Mon, 24 Jan 2022 18:49:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 946F3614E8;
+        Mon, 24 Jan 2022 18:49:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7455DC340E5;
+        Mon, 24 Jan 2022 18:49:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050193;
-        bh=1iwX9fiVdN109SENSvLbS9g6OOk2fPkxM7KXrvSR8zU=;
+        s=korg; t=1643050196;
+        bh=tnFxo+X8MhMhJfzopAdktpTd6isKsEkPQG4eerdzgBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B3I/OgOW5w8tqXNrkt1vSIwsGHsYx4WKwUsNOZk7PP8wgWdT78ujJHASRQ2NbEVk2
-         P0K2DRDOVNC9o+RgBlJAUiYunvtnbzSO6O2/hrlcuVxVYO1Rla6OkuC4vyCki1J181
-         5QIG5yBJaQp3MAYJU+bU170KbzKFaedqsrRXfprk=
+        b=GCRhfs1xSmzSFyX9AaCXh5hNaX+LDyG1xFA0oFB+ZnpOwVemYz07io4c49iQXwZd7
+         lrWGOh0OjrYRgndCVrxA1qJHapACoo3ZRzfWT/gLJnPuWixO2NzIwD+zeArI8CWbUH
+         Bv3CjOWm8C9De4meJ/jPwnJ6Uxss8eDHUX2/DMsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Al Viro <viro@ZenIV.linux.org.uk>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 039/114] can: xilinx_can: xcan_probe(): check for error irq
-Date:   Mon, 24 Jan 2022 19:42:14 +0100
-Message-Id: <20220124183928.318364577@linuxfoundation.org>
+Subject: [PATCH 4.4 040/114] pcmcia: fix setting of kthread task states
+Date:   Mon, 24 Jan 2022 19:42:15 +0100
+Message-Id: <20220124183928.348724102@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
 References: <20220124183927.095545464@linuxfoundation.org>
@@ -48,46 +49,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Dominik Brodowski <linux@dominikbrodowski.net>
 
-[ Upstream commit c6564c13dae25cd7f8e1de5127b4da4500ee5844 ]
+[ Upstream commit fbb3485f1f931102d8ba606f1c28123f5b48afa3 ]
 
-For the possible failure of the platform_get_irq(), the returned irq
-could be error number and will finally cause the failure of the
-request_irq().
+We need to set TASK_INTERRUPTIBLE before calling kthread_should_stop().
+Otherwise, kthread_stop() might see that the pccardd thread is still
+in TASK_RUNNING state and fail to wake it up.
 
-Consider that platform_get_irq() can now in certain cases return
--EPROBE_DEFER, and the consequences of letting request_irq()
-effectively convert that into -EINVAL, even at probe time rather than
-later on. So it might be better to check just now.
+Additionally, we only need to set the state back to TASK_RUNNING if
+kthread_should_stop() breaks the loop.
 
-Fixes: b1201e44f50b ("can: xilinx CAN controller support")
-Link: https://lore.kernel.org/all/20211224021324.1447494-1-jiasheng@iscas.ac.cn
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Al Viro <viro@ZenIV.linux.org.uk>
+Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Fixes: d3046ba809ce ("pcmcia: fix a boot time warning in pcmcia cs code")
+Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/xilinx_can.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/pcmcia/cs.c | 8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/can/xilinx_can.c b/drivers/net/can/xilinx_can.c
-index 700b98d9c2500..19745e88774e2 100644
---- a/drivers/net/can/xilinx_can.c
-+++ b/drivers/net/can/xilinx_can.c
-@@ -1284,7 +1284,12 @@ static int xcan_probe(struct platform_device *pdev)
- 	spin_lock_init(&priv->tx_lock);
+diff --git a/drivers/pcmcia/cs.c b/drivers/pcmcia/cs.c
+index c3b615c94b4bf..a92cbc952b70b 100644
+--- a/drivers/pcmcia/cs.c
++++ b/drivers/pcmcia/cs.c
+@@ -665,18 +665,16 @@ static int pccardd(void *__skt)
+ 		if (events || sysfs_events)
+ 			continue;
  
- 	/* Get IRQ for the device */
--	ndev->irq = platform_get_irq(pdev, 0);
-+	ret = platform_get_irq(pdev, 0);
-+	if (ret < 0)
-+		goto err_free;
-+
-+	ndev->irq = ret;
-+
- 	ndev->flags |= IFF_ECHO;	/* We support local echo */
++		set_current_state(TASK_INTERRUPTIBLE);
+ 		if (kthread_should_stop())
+ 			break;
  
- 	platform_set_drvdata(pdev, ndev);
+-		set_current_state(TASK_INTERRUPTIBLE);
+-
+ 		schedule();
+ 
+-		/* make sure we are running */
+-		__set_current_state(TASK_RUNNING);
+-
+ 		try_to_freeze();
+ 	}
++	/* make sure we are running before we exit */
++	__set_current_state(TASK_RUNNING);
+ 
+ 	/* shut down socket, if a device is still present */
+ 	if (skt->state & SOCKET_PRESENT) {
 -- 
 2.34.1
 
