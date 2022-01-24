@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABED549A291
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:00:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01A1649A2B0
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:00:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2365833AbiAXXvs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:51:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45684 "EHLO
+        id S2365933AbiAXXwA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:52:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1840878AbiAXWzj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:55:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDD8CC0680A6;
-        Mon, 24 Jan 2022 13:09:32 -0800 (PST)
+        with ESMTP id S1837273AbiAXW4L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:56:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40E73C055AB8;
+        Mon, 24 Jan 2022 13:11:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8D6B161451;
-        Mon, 24 Jan 2022 21:09:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AD62C340E5;
-        Mon, 24 Jan 2022 21:09:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F260CB8121C;
+        Mon, 24 Jan 2022 21:11:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20A21C340E5;
+        Mon, 24 Jan 2022 21:11:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058572;
-        bh=/CjwGGaAUdmDEBm/a/YjAd8KE0FRV4xADIfrAnFqqX8=;
+        s=korg; t=1643058687;
+        bh=Wcrj+rKfUeDaiHz1P3RN61MxAqpAvccw1pIYIr8pwPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zF0v6gTZSEUTpfCTtpF3so4tOZMrDhuNyje+5hE4c4D0vgQUvPAylWRZ6aUeAccM2
-         MkKuWZHNC+MavCXmWOKt87zuGM7uPam7mx5SJFHmVthh/mDbXMrXzCUUSbH0qalGVx
-         HdTISxWGS0OAkIjL+n+V2Q2kaRG6QLEPPNSgXtJQ=
+        b=ZN68W2rRsvVUyr6A0+TkAcHIAlPj5ovSPQBpx/HJBFOASrE+AND0dob6WbwhrUf2U
+         N3jA1eED2e7xfSU6+aqInHNZK4xIfTnoXWIsJQzh0m7klYH8X7ApCpIVDWivaIVrqW
+         tsV4UY7JHMc8G6glg7XaQJo2CW9XS/SXnrA9meKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avraham Stern <avraham.stern@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0331/1039] iwlwifi: mvm: set protected flag only for NDP ranging
-Date:   Mon, 24 Jan 2022 19:35:20 +0100
-Message-Id: <20220124184136.439036135@linuxfoundation.org>
+Subject: [PATCH 5.16 0337/1039] um: rename set_signals() to um_set_signals()
+Date:   Mon, 24 Jan 2022 19:35:26 +0100
+Message-Id: <20220124184136.630151170@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -48,37 +49,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Avraham Stern <avraham.stern@intel.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 6bb2ea37c02db98cb677f978cfcb833ca608c5eb ]
+[ Upstream commit bbe33504d4a7fdab9011211e55e262c869b3f6cc ]
 
-Don't use protected ranging negotiation for FTM ranging as responders
-that support only FTM ranging don't expect the FTM request to be
-protected.
+Rename set_signals() as there's at least one driver that
+uses the same name and can now be built on UM due to PCI
+support, and thus we can get symbol conflicts.
 
-Signed-off-by: Avraham Stern <avraham.stern@intel.com>
-Fixes: 517a5eb9fab2 ("iwlwifi: mvm: when associated with PMF, use protected NDP ranging negotiation")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20211219132536.f50ed0e3c6b3.Ibff247ee9d4e6e0a1a2d08a3c8a4bbb37e6829dd@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Also rename set_signals_trace() to be consistent.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Fixes: 68f5d3f3b654 ("um: add PCI over virtio emulation driver")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/um/include/asm/irqflags.h   | 4 ++--
+ arch/um/include/shared/longjmp.h | 2 +-
+ arch/um/include/shared/os.h      | 4 ++--
+ arch/um/kernel/ksyms.c           | 2 +-
+ arch/um/os-Linux/sigio.c         | 6 +++---
+ arch/um/os-Linux/signal.c        | 8 ++++----
+ 6 files changed, 13 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c b/drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c
-index 3e6c13fc74eb0..9449d1af3c11a 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c
-@@ -511,7 +511,7 @@ iwl_mvm_ftm_put_target(struct iwl_mvm *mvm, struct ieee80211_vif *vif,
- 		rcu_read_lock();
+diff --git a/arch/um/include/asm/irqflags.h b/arch/um/include/asm/irqflags.h
+index dab5744e9253d..1e69ef5bc35e0 100644
+--- a/arch/um/include/asm/irqflags.h
++++ b/arch/um/include/asm/irqflags.h
+@@ -3,7 +3,7 @@
+ #define __UM_IRQFLAGS_H
  
- 		sta = rcu_dereference(mvm->fw_id_to_mac_id[mvmvif->ap_sta_id]);
--		if (sta->mfp)
-+		if (sta->mfp && (peer->ftm.trigger_based || peer->ftm.non_trigger_based))
- 			FTM_PUT_FLAG(PMF);
+ extern int signals_enabled;
+-int set_signals(int enable);
++int um_set_signals(int enable);
+ void block_signals(void);
+ void unblock_signals(void);
  
- 		rcu_read_unlock();
+@@ -16,7 +16,7 @@ static inline unsigned long arch_local_save_flags(void)
+ #define arch_local_irq_restore arch_local_irq_restore
+ static inline void arch_local_irq_restore(unsigned long flags)
+ {
+-	set_signals(flags);
++	um_set_signals(flags);
+ }
+ 
+ #define arch_local_irq_enable arch_local_irq_enable
+diff --git a/arch/um/include/shared/longjmp.h b/arch/um/include/shared/longjmp.h
+index bdb2869b72b31..8863319039f3d 100644
+--- a/arch/um/include/shared/longjmp.h
++++ b/arch/um/include/shared/longjmp.h
+@@ -18,7 +18,7 @@ extern void longjmp(jmp_buf, int);
+ 	enable = *(volatile int *)&signals_enabled;	\
+ 	n = setjmp(*buf);				\
+ 	if(n != 0)					\
+-		set_signals_trace(enable);		\
++		um_set_signals_trace(enable);		\
+ 	n; })
+ 
+ #endif
+diff --git a/arch/um/include/shared/os.h b/arch/um/include/shared/os.h
+index 96d400387c93e..03ffbdddcc480 100644
+--- a/arch/um/include/shared/os.h
++++ b/arch/um/include/shared/os.h
+@@ -238,8 +238,8 @@ extern void send_sigio_to_self(void);
+ extern int change_sig(int signal, int on);
+ extern void block_signals(void);
+ extern void unblock_signals(void);
+-extern int set_signals(int enable);
+-extern int set_signals_trace(int enable);
++extern int um_set_signals(int enable);
++extern int um_set_signals_trace(int enable);
+ extern int os_is_signal_stack(void);
+ extern void deliver_alarm(void);
+ extern void register_pm_wake_signal(void);
+diff --git a/arch/um/kernel/ksyms.c b/arch/um/kernel/ksyms.c
+index b1e5634398d09..3a85bde3e1734 100644
+--- a/arch/um/kernel/ksyms.c
++++ b/arch/um/kernel/ksyms.c
+@@ -6,7 +6,7 @@
+ #include <linux/module.h>
+ #include <os.h>
+ 
+-EXPORT_SYMBOL(set_signals);
++EXPORT_SYMBOL(um_set_signals);
+ EXPORT_SYMBOL(signals_enabled);
+ 
+ EXPORT_SYMBOL(os_stat_fd);
+diff --git a/arch/um/os-Linux/sigio.c b/arch/um/os-Linux/sigio.c
+index 6597ea1986ffa..9e71794839e87 100644
+--- a/arch/um/os-Linux/sigio.c
++++ b/arch/um/os-Linux/sigio.c
+@@ -132,7 +132,7 @@ static void update_thread(void)
+ 	int n;
+ 	char c;
+ 
+-	flags = set_signals_trace(0);
++	flags = um_set_signals_trace(0);
+ 	CATCH_EINTR(n = write(sigio_private[0], &c, sizeof(c)));
+ 	if (n != sizeof(c)) {
+ 		printk(UM_KERN_ERR "update_thread : write failed, err = %d\n",
+@@ -147,7 +147,7 @@ static void update_thread(void)
+ 		goto fail;
+ 	}
+ 
+-	set_signals_trace(flags);
++	um_set_signals_trace(flags);
+ 	return;
+  fail:
+ 	/* Critical section start */
+@@ -161,7 +161,7 @@ static void update_thread(void)
+ 	close(write_sigio_fds[0]);
+ 	close(write_sigio_fds[1]);
+ 	/* Critical section end */
+-	set_signals_trace(flags);
++	um_set_signals_trace(flags);
+ }
+ 
+ int __add_sigio_fd(int fd)
+diff --git a/arch/um/os-Linux/signal.c b/arch/um/os-Linux/signal.c
+index 6cf098c23a394..24a403a70a020 100644
+--- a/arch/um/os-Linux/signal.c
++++ b/arch/um/os-Linux/signal.c
+@@ -94,7 +94,7 @@ void sig_handler(int sig, struct siginfo *si, mcontext_t *mc)
+ 
+ 	sig_handler_common(sig, si, mc);
+ 
+-	set_signals_trace(enabled);
++	um_set_signals_trace(enabled);
+ }
+ 
+ static void timer_real_alarm_handler(mcontext_t *mc)
+@@ -126,7 +126,7 @@ void timer_alarm_handler(int sig, struct siginfo *unused_si, mcontext_t *mc)
+ 
+ 	signals_active &= ~SIGALRM_MASK;
+ 
+-	set_signals_trace(enabled);
++	um_set_signals_trace(enabled);
+ }
+ 
+ void deliver_alarm(void) {
+@@ -348,7 +348,7 @@ void unblock_signals(void)
+ 	}
+ }
+ 
+-int set_signals(int enable)
++int um_set_signals(int enable)
+ {
+ 	int ret;
+ 	if (signals_enabled == enable)
+@@ -362,7 +362,7 @@ int set_signals(int enable)
+ 	return ret;
+ }
+ 
+-int set_signals_trace(int enable)
++int um_set_signals_trace(int enable)
+ {
+ 	int ret;
+ 	if (signals_enabled == enable)
 -- 
 2.34.1
 
