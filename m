@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB7F14998F0
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:39:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92AF2499945
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:44:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1453767AbiAXVav (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:30:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50936 "EHLO
+        id S1453794AbiAXVa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:30:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1450653AbiAXVVI (ORCPT
+        with ESMTP id S1450656AbiAXVVI (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:21:08 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DBE7C028C2B;
-        Mon, 24 Jan 2022 12:14:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C0DFC028C2C;
+        Mon, 24 Jan 2022 12:14:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C25561491;
-        Mon, 24 Jan 2022 20:14:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0143FC340E5;
-        Mon, 24 Jan 2022 20:14:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 38C2E61480;
+        Mon, 24 Jan 2022 20:14:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CEB4C340E5;
+        Mon, 24 Jan 2022 20:14:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055291;
-        bh=bk5v1u8Hg9MWexuPCgwEWZSSVhmQfiM7lztRzglm+zo=;
+        s=korg; t=1643055294;
+        bh=3wN2OE+OEQFsWXtPWuTp7a3MuoDX2737OupCB9T/cko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v9LQSK7lKg0NoM67f7PWieZOcJ7XXD8iR9UaUu31Y8B9xPyKlVOnchPyZsbTxmgD1
-         WzBa0OVyz28MHLFjKjuWaAuWCxbLn7OaSzzL2PxExTKDP73oDkh6hhoLyKUdfTjF6N
-         /4d4GwiacFFX4SiLd98GnJkpxBvYSdQ8VJxxgUqA=
+        b=RJP2inGgVzQB0QwLlmVJOtKDmJx0dGqfVnMig//iBc/rojysuYw9Ti7rCKLsyBjYZ
+         +DZMaeMSXB7P4Wf1UmJun5/6W2ICLVYU1fErbBrTBIssd68bSScXME6jhF2aRhht1e
+         IqGhLswd1Q2UkdhgNIOvBgJXi6hD0vncgfdaJlvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Benjamin Li <benl@squareup.com>,
-        Loic Poulain <loic.poulain@linaro.org>,
+        stable@vger.kernel.org,
+        Sathishkumar Muruganandam <murugana@codeaurora.org>,
+        Rameshkumar Sundaram <ramess@codeaurora.org>,
+        Jouni Malinen <jouni@codeaurora.org>,
         Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 103/846] wcn36xx: fix RX BD rate mapping for 5GHz legacy rates
-Date:   Mon, 24 Jan 2022 19:33:40 +0100
-Message-Id: <20220124184104.551939229@linuxfoundation.org>
+Subject: [PATCH 5.15 104/846] ath11k: Send PPDU_STATS_CFG with proper pdev mask to firmware
+Date:   Mon, 24 Jan 2022 19:33:41 +0100
+Message-Id: <20220124184104.582042818@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -49,50 +51,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Li <benl@squareup.com>
+From: Rameshkumar Sundaram <ramess@codeaurora.org>
 
-[ Upstream commit cfdf6b19e750f7de8ae71a26932f63b52e3bf74c ]
+[ Upstream commit 16a2c3d5406f95ef6139de52669c60a39443f5f7 ]
 
-The linear mapping between the BD rate field and the driver's 5GHz
-legacy rates table (wcn_5ghz_rates) does not only apply for the latter
-four rates -- it applies to all eight rates.
+HTT_PPDU_STATS_CFG_PDEV_ID bit mask for target FW PPDU stats request message
+was set as bit 8 to 15. Bit 8 is reserved for soc stats and pdev id starts from
+bit 9. Hence change the bitmask as bit 9 to 15 and fill the proper pdev id in
+the request message.
 
-Fixes: 6ea131acea98 ("wcn36xx: Fix warning due to bad rate_idx")
-Signed-off-by: Benjamin Li <benl@squareup.com>
-Tested-by: Loic Poulain <loic.poulain@linaro.org>
+In commit 701e48a43e15 ("ath11k: add packet log support for QCA6390"), both
+HTT_PPDU_STATS_CFG_PDEV_ID and pdev_mask were changed, but this pdev_mask
+calculation is not valid for platforms which has multiple pdevs with 1 rxdma
+per pdev, as this is writing same value(i.e. 2) for all pdevs.  Hence fixed it
+to consider pdev_idx as well, to make it compatible for both single and multi
+pd cases.
+
+Tested on: IPQ8074 hw2.0 AHB WLAN.HK.2.5.0.1-01092-QCAHKSWPL_SILICONZ-1
+Tested on: IPQ6018 hw1.0 WLAN.HK.2.5.0.1-01067-QCAHKSWPL_SILICONZ-1
+
+Fixes: 701e48a43e15 ("ath11k: add packet log support for QCA6390")
+
+Co-developed-by: Sathishkumar Muruganandam <murugana@codeaurora.org>
+Signed-off-by: Sathishkumar Muruganandam <murugana@codeaurora.org>
+Signed-off-by: Rameshkumar Sundaram <ramess@codeaurora.org>
+Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
 Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211104010548.1107405-3-benl@squareup.com
+Link: https://lore.kernel.org/r/20210721212029.142388-10-jouni@codeaurora.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/wcn36xx/txrx.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/wireless/ath/ath11k/dp.h    | 3 ++-
+ drivers/net/wireless/ath/ath11k/dp_tx.c | 2 +-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/wcn36xx/txrx.c b/drivers/net/wireless/ath/wcn36xx/txrx.c
-index f76de106570d2..f33e7228a1010 100644
---- a/drivers/net/wireless/ath/wcn36xx/txrx.c
-+++ b/drivers/net/wireless/ath/wcn36xx/txrx.c
-@@ -237,7 +237,6 @@ int wcn36xx_rx_skb(struct wcn36xx *wcn, struct sk_buff *skb)
- 	const struct wcn36xx_rate *rate;
- 	struct ieee80211_hdr *hdr;
- 	struct wcn36xx_rx_bd *bd;
--	struct ieee80211_supported_band *sband;
- 	u16 fc, sn;
+diff --git a/drivers/net/wireless/ath/ath11k/dp.h b/drivers/net/wireless/ath/ath11k/dp.h
+index ee768ccce46e1..d3e50e34f23dd 100644
+--- a/drivers/net/wireless/ath/ath11k/dp.h
++++ b/drivers/net/wireless/ath/ath11k/dp.h
+@@ -515,7 +515,8 @@ struct htt_ppdu_stats_cfg_cmd {
+ } __packed;
  
- 	/*
-@@ -295,12 +294,11 @@ int wcn36xx_rx_skb(struct wcn36xx *wcn, struct sk_buff *skb)
- 		status.enc_flags = rate->encoding_flags;
- 		status.bw = rate->bw;
- 		status.rate_idx = rate->mcs_or_legacy_index;
--		sband = wcn->hw->wiphy->bands[status.band];
- 		status.nss = 1;
+ #define HTT_PPDU_STATS_CFG_MSG_TYPE		GENMASK(7, 0)
+-#define HTT_PPDU_STATS_CFG_PDEV_ID		GENMASK(15, 8)
++#define HTT_PPDU_STATS_CFG_SOC_STATS		BIT(8)
++#define HTT_PPDU_STATS_CFG_PDEV_ID		GENMASK(15, 9)
+ #define HTT_PPDU_STATS_CFG_TLV_TYPE_BITMASK	GENMASK(31, 16)
  
- 		if (status.band == NL80211_BAND_5GHZ &&
- 		    status.encoding == RX_ENC_LEGACY &&
--		    status.rate_idx >= sband->n_bitrates) {
-+		    status.rate_idx >= 4) {
- 			/* no dsss rates in 5Ghz rates table */
- 			status.rate_idx -= 4;
- 		}
+ enum htt_ppdu_stats_tag_type {
+diff --git a/drivers/net/wireless/ath/ath11k/dp_tx.c b/drivers/net/wireless/ath/ath11k/dp_tx.c
+index 8bba5234f81fc..bb8744ccfa00c 100644
+--- a/drivers/net/wireless/ath/ath11k/dp_tx.c
++++ b/drivers/net/wireless/ath/ath11k/dp_tx.c
+@@ -895,7 +895,7 @@ int ath11k_dp_tx_htt_h2t_ppdu_stats_req(struct ath11k *ar, u32 mask)
+ 		cmd->msg = FIELD_PREP(HTT_PPDU_STATS_CFG_MSG_TYPE,
+ 				      HTT_H2T_MSG_TYPE_PPDU_STATS_CFG);
+ 
+-		pdev_mask = 1 << (i + 1);
++		pdev_mask = 1 << (ar->pdev_idx + i);
+ 		cmd->msg |= FIELD_PREP(HTT_PPDU_STATS_CFG_PDEV_ID, pdev_mask);
+ 		cmd->msg |= FIELD_PREP(HTT_PPDU_STATS_CFG_TLV_TYPE_BITMASK, mask);
+ 
 -- 
 2.34.1
 
