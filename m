@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A5D4499B32
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:00:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E8D14998AE
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:38:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1574805AbiAXVuY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:50:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55878 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1457580AbiAXVly (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:41:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 262FBC07E33A;
-        Mon, 24 Jan 2022 12:29:58 -0800 (PST)
+        id S1346650AbiAXV26 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:28:58 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38478 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1449926AbiAXVRc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:17:32 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B71056152C;
-        Mon, 24 Jan 2022 20:29:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AA53C340E5;
-        Mon, 24 Jan 2022 20:29:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D18676148B;
+        Mon, 24 Jan 2022 21:17:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AED41C340E4;
+        Mon, 24 Jan 2022 21:17:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056197;
-        bh=TN7LR9zQraMcE/5Se4VlH6rtFQ7PCy00oEF0dn5DcGw=;
+        s=korg; t=1643059051;
+        bh=OVzwfhHa7Q06DLO2v8bPDfakvQ8TrsmIfo76CKfzYyg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uzhOp2ZyughnK3DXUIlqDMAesKh9r3Km1sB8CJMU8+sXKwv9y8blNRBemkexBBSrY
-         HaTEx7wAWIZMo5hIy2AtMB57i3Bi4Ud7dFtI5xlxZMKhocqWECw2Sgg0YPVFJp8jjF
-         Y91ziaG/ORxQmHt6olzdXIg2zNkBVM+1ra+IxVOk=
+        b=aIRL7IYY7/mrZpAy2dRHZQKDKlYRKTN/Ayn4OycD+OJ7/aEF2jP7CiA35umidDtI5
+         7wqqzItyiO74VATmizBgZtk4v+Mi7nwnhRWUtOvTgGH0S1SqLh4UsqyBnvB7Rej0Cp
+         kt5XqLfRq+Noce/GFQ0Kq+kD/dcPUfugrecWIS7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Dillon Min <dillon.minfei@gmail.com>,
+        Patrice Chotard <patrice.chotard@foss.st.com>,
+        Gabriel Fernandez <gabriel.fernandez@foss.st.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 361/846] can: xilinx_can: xcan_probe(): check for error irq
+Subject: [PATCH 5.16 0489/1039] clk: stm32: Fix ltdcs clock turn off by clk_disable_unused() after system enter shell
 Date:   Mon, 24 Jan 2022 19:37:58 +0100
-Message-Id: <20220124184113.379628255@linuxfoundation.org>
+Message-Id: <20220124184141.704984135@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,46 +47,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Dillon Min <dillon.minfei@gmail.com>
 
-[ Upstream commit c6564c13dae25cd7f8e1de5127b4da4500ee5844 ]
+[ Upstream commit 6fc058a72f3b7b07fc4de6d66ad1f68951b00f6e ]
 
-For the possible failure of the platform_get_irq(), the returned irq
-could be error number and will finally cause the failure of the
-request_irq().
+stm32's clk driver register two ltdc gate clk to clk core by
+clk_hw_register_gate() and clk_hw_register_composite()
 
-Consider that platform_get_irq() can now in certain cases return
--EPROBE_DEFER, and the consequences of letting request_irq()
-effectively convert that into -EINVAL, even at probe time rather than
-later on. So it might be better to check just now.
+first: 'stm32f429_gates[]', clk name is 'ltdc', which no user to use.
+second: 'stm32f429_aux_clk[]', clk name is 'lcd-tft', used by ltdc driver
 
-Fixes: b1201e44f50b ("can: xilinx CAN controller support")
-Link: https://lore.kernel.org/all/20211224021324.1447494-1-jiasheng@iscas.ac.cn
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+both of them point to the same offset of stm32's RCC register. after
+kernel enter console, clk core turn off ltdc's clk as 'stm32f429_gates[]'
+is no one to use. but, actually 'stm32f429_aux_clk[]' is in use.
+
+stm32f469/746/769 have the same issue, fix it.
+
+Fixes: daf2d117cbca ("clk: stm32f4: Add lcd-tft clock")
+Link: https://lore.kernel.org/linux-arm-kernel/1590564453-24499-7-git-send-email-dillon.minfei@gmail.com/
+Link: https://lore.kernel.org/lkml/CAPTRvHkf0cK_4ZidM17rPo99gWDmxgqFt4CDUjqFFwkOeQeFDg@mail.gmail.com/
+Signed-off-by: Dillon Min <dillon.minfei@gmail.com>
+Reviewed-by: Patrice Chotard <patrice.chotard@foss.st.com>
+Acked-by: Gabriel Fernandez <gabriel.fernandez@foss.st.com>
+Acked-by: Stephen Boyd <sboyd@kernel.org>
+Link: https://lore.kernel.org/r/1635232282-3992-10-git-send-email-dillon.minfei@gmail.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/xilinx_can.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/clk/clk-stm32f4.c | 4 ----
+ 1 file changed, 4 deletions(-)
 
-diff --git a/drivers/net/can/xilinx_can.c b/drivers/net/can/xilinx_can.c
-index 3b883e607d8ba..a579b9b791ede 100644
---- a/drivers/net/can/xilinx_can.c
-+++ b/drivers/net/can/xilinx_can.c
-@@ -1762,7 +1762,12 @@ static int xcan_probe(struct platform_device *pdev)
- 	spin_lock_init(&priv->tx_lock);
+diff --git a/drivers/clk/clk-stm32f4.c b/drivers/clk/clk-stm32f4.c
+index af46176ad0539..473dfe632cc57 100644
+--- a/drivers/clk/clk-stm32f4.c
++++ b/drivers/clk/clk-stm32f4.c
+@@ -129,7 +129,6 @@ static const struct stm32f4_gate_data stm32f429_gates[] __initconst = {
+ 	{ STM32F4_RCC_APB2ENR, 20,	"spi5",		"apb2_div" },
+ 	{ STM32F4_RCC_APB2ENR, 21,	"spi6",		"apb2_div" },
+ 	{ STM32F4_RCC_APB2ENR, 22,	"sai1",		"apb2_div" },
+-	{ STM32F4_RCC_APB2ENR, 26,	"ltdc",		"apb2_div" },
+ };
  
- 	/* Get IRQ for the device */
--	ndev->irq = platform_get_irq(pdev, 0);
-+	ret = platform_get_irq(pdev, 0);
-+	if (ret < 0)
-+		goto err_free;
-+
-+	ndev->irq = ret;
-+
- 	ndev->flags |= IFF_ECHO;	/* We support local echo */
+ static const struct stm32f4_gate_data stm32f469_gates[] __initconst = {
+@@ -211,7 +210,6 @@ static const struct stm32f4_gate_data stm32f469_gates[] __initconst = {
+ 	{ STM32F4_RCC_APB2ENR, 20,	"spi5",		"apb2_div" },
+ 	{ STM32F4_RCC_APB2ENR, 21,	"spi6",		"apb2_div" },
+ 	{ STM32F4_RCC_APB2ENR, 22,	"sai1",		"apb2_div" },
+-	{ STM32F4_RCC_APB2ENR, 26,	"ltdc",		"apb2_div" },
+ };
  
- 	platform_set_drvdata(pdev, ndev);
+ static const struct stm32f4_gate_data stm32f746_gates[] __initconst = {
+@@ -286,7 +284,6 @@ static const struct stm32f4_gate_data stm32f746_gates[] __initconst = {
+ 	{ STM32F4_RCC_APB2ENR, 21,	"spi6",		"apb2_div" },
+ 	{ STM32F4_RCC_APB2ENR, 22,	"sai1",		"apb2_div" },
+ 	{ STM32F4_RCC_APB2ENR, 23,	"sai2",		"apb2_div" },
+-	{ STM32F4_RCC_APB2ENR, 26,	"ltdc",		"apb2_div" },
+ };
+ 
+ static const struct stm32f4_gate_data stm32f769_gates[] __initconst = {
+@@ -364,7 +361,6 @@ static const struct stm32f4_gate_data stm32f769_gates[] __initconst = {
+ 	{ STM32F4_RCC_APB2ENR, 21,	"spi6",		"apb2_div" },
+ 	{ STM32F4_RCC_APB2ENR, 22,	"sai1",		"apb2_div" },
+ 	{ STM32F4_RCC_APB2ENR, 23,	"sai2",		"apb2_div" },
+-	{ STM32F4_RCC_APB2ENR, 26,	"ltdc",		"apb2_div" },
+ 	{ STM32F4_RCC_APB2ENR, 30,	"mdio",		"apb2_div" },
+ };
+ 
 -- 
 2.34.1
 
