@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E044C498AF8
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:08:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A3D54990C6
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:07:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344307AbiAXTIc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:08:32 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:32836 "EHLO
+        id S1353751AbiAXUEQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:04:16 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56384 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345813AbiAXTGZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:06:25 -0500
+        with ESMTP id S1347130AbiAXUCM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:02:12 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6141E603DE;
-        Mon, 24 Jan 2022 19:06:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25BAAC340E5;
-        Mon, 24 Jan 2022 19:06:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 21480612FC;
+        Mon, 24 Jan 2022 20:02:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D7FAC340E5;
+        Mon, 24 Jan 2022 20:02:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051184;
-        bh=2C18HuDLscgc4+tKatxU9QstG6/auVKahETKdInN1gE=;
+        s=korg; t=1643054531;
+        bh=pA7FEnnPlBTN/gEJTGTmLjbB1t5AvBXv4YRugod206k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iqhaJDh1lxqDHj3g3dngicRQ2tjXlGkIsyZpRGZPZWgBIRKxrFbdTmcwPnYEboUdl
-         YYSrn9eAdqVB7h5fScfsQzLVqvNI3N0a0gs5ZgfdDIfj/BcMnl7fgLKaWxY59SsMRt
-         Ct8zxF8c56ROrpSm9BKUKH88pZkWEYJSBk2Kjin0=
+        b=vqCfbHpF2a5RtNT+Flz8YDknCkNad7KHdTXUtMmvYBvtcrtUk1EmdgUrWeUYGLe3o
+         9c4gSlvD77YnGJmXLjbaGkvpA7dhBQFs235HuHpcIjRBAH4JT3ifXu7afC3mlLvN1w
+         iXNg4WWvC42Wmwq7ztVlMH3EuGlEuogBKvUgsTD4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
+        Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 082/186] misc: lattice-ecp3-config: Fix task hung when firmware load failed
+Subject: [PATCH 5.10 392/563] ACPI: battery: Add the ThinkPad "Not Charging" quirk
 Date:   Mon, 24 Jan 2022 19:42:37 +0100
-Message-Id: <20220124183939.758150635@linuxfoundation.org>
+Message-Id: <20220124184037.993195557@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,92 +47,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Thomas Weißschuh <linux@weissschuh.net>
 
-[ Upstream commit fcee5ce50bdb21116711e38635e3865594af907e ]
+[ Upstream commit e96c1197aca628f7d2480a1cc3214912b40b3414 ]
 
-When firmware load failed, kernel report task hung as follows:
+The EC/ACPI firmware on Lenovo ThinkPads used to report a status
+of "Unknown" when the battery is between the charge start and
+charge stop thresholds. On Windows, it reports "Not Charging"
+so the quirk has been added to also report correctly.
 
-INFO: task xrun:5191 blocked for more than 147 seconds.
-      Tainted: G        W         5.16.0-rc5-next-20211220+ #11
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:xrun            state:D stack:    0 pid: 5191 ppid:   270 flags:0x00000004
-Call Trace:
- __schedule+0xc12/0x4b50 kernel/sched/core.c:4986
- schedule+0xd7/0x260 kernel/sched/core.c:6369 (discriminator 1)
- schedule_timeout+0x7aa/0xa80 kernel/time/timer.c:1857
- wait_for_completion+0x181/0x290 kernel/sched/completion.c:85
- lattice_ecp3_remove+0x32/0x40 drivers/misc/lattice-ecp3-config.c:221
- spi_remove+0x72/0xb0 drivers/spi/spi.c:409
+Now the "status" attribute returns "Not Charging" when the
+battery on ThinkPads is not physicaly charging.
 
-lattice_ecp3_remove() wait for signals from firmware loading, but when
-load failed, firmware_load() does not send this signal. This cause
-device remove hung. Fix it by sending signal even if load failed.
-
-Fixes: 781551df57c7 ("misc: Add Lattice ECP3 FPGA configuration via SPI")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Link: https://lore.kernel.org/r/20211228125522.3122284-1-weiyongjun1@huawei.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/lattice-ecp3-config.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/acpi/battery.c | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
-diff --git a/drivers/misc/lattice-ecp3-config.c b/drivers/misc/lattice-ecp3-config.c
-index 626fdcaf25101..645d26536114f 100644
---- a/drivers/misc/lattice-ecp3-config.c
-+++ b/drivers/misc/lattice-ecp3-config.c
-@@ -81,12 +81,12 @@ static void firmware_load(const struct firmware *fw, void *context)
- 
- 	if (fw == NULL) {
- 		dev_err(&spi->dev, "Cannot load firmware, aborting\n");
--		return;
-+		goto out;
- 	}
- 
- 	if (fw->size == 0) {
- 		dev_err(&spi->dev, "Error: Firmware size is 0!\n");
--		return;
-+		goto out;
- 	}
- 
- 	/* Fill dummy data (24 stuffing bits for commands) */
-@@ -108,7 +108,7 @@ static void firmware_load(const struct firmware *fw, void *context)
- 		dev_err(&spi->dev,
- 			"Error: No supported FPGA detected (JEDEC_ID=%08x)!\n",
- 			jedec_id);
--		return;
-+		goto out;
- 	}
- 
- 	dev_info(&spi->dev, "FPGA %s detected\n", ecp3_dev[i].name);
-@@ -121,7 +121,7 @@ static void firmware_load(const struct firmware *fw, void *context)
- 	buffer = kzalloc(fw->size + 8, GFP_KERNEL);
- 	if (!buffer) {
- 		dev_err(&spi->dev, "Error: Can't allocate memory!\n");
--		return;
-+		goto out;
- 	}
- 
- 	/*
-@@ -160,7 +160,7 @@ static void firmware_load(const struct firmware *fw, void *context)
- 			"Error: Timeout waiting for FPGA to clear (status=%08x)!\n",
- 			status);
- 		kfree(buffer);
--		return;
-+		goto out;
- 	}
- 
- 	dev_info(&spi->dev, "Configuring the FPGA...\n");
-@@ -186,7 +186,7 @@ static void firmware_load(const struct firmware *fw, void *context)
- 	release_firmware(fw);
- 
- 	kfree(buffer);
--
-+out:
- 	complete(&data->fw_loaded);
+diff --git a/drivers/acpi/battery.c b/drivers/acpi/battery.c
+index e04352c1dc2ce..2376f57b3617a 100644
+--- a/drivers/acpi/battery.c
++++ b/drivers/acpi/battery.c
+@@ -59,6 +59,7 @@ static int battery_bix_broken_package;
+ static int battery_notification_delay_ms;
+ static int battery_ac_is_broken;
+ static int battery_check_pmic = 1;
++static int battery_quirk_notcharging;
+ static unsigned int cache_time = 1000;
+ module_param(cache_time, uint, 0644);
+ MODULE_PARM_DESC(cache_time, "cache time in milliseconds");
+@@ -222,6 +223,8 @@ static int acpi_battery_get_property(struct power_supply *psy,
+ 			val->intval = POWER_SUPPLY_STATUS_CHARGING;
+ 		else if (acpi_battery_is_charged(battery))
+ 			val->intval = POWER_SUPPLY_STATUS_FULL;
++		else if (battery_quirk_notcharging)
++			val->intval = POWER_SUPPLY_STATUS_NOT_CHARGING;
+ 		else
+ 			val->intval = POWER_SUPPLY_STATUS_UNKNOWN;
+ 		break;
+@@ -1105,6 +1108,12 @@ battery_do_not_check_pmic_quirk(const struct dmi_system_id *d)
+ 	return 0;
  }
+ 
++static int __init battery_quirk_not_charging(const struct dmi_system_id *d)
++{
++	battery_quirk_notcharging = 1;
++	return 0;
++}
++
+ static const struct dmi_system_id bat_dmi_table[] __initconst = {
+ 	{
+ 		/* NEC LZ750/LS */
+@@ -1149,6 +1158,19 @@ static const struct dmi_system_id bat_dmi_table[] __initconst = {
+ 			DMI_MATCH(DMI_PRODUCT_VERSION, "Lenovo MIIX 320-10ICR"),
+ 		},
+ 	},
++	{
++		/*
++		 * On Lenovo ThinkPads the BIOS specification defines
++		 * a state when the bits for charging and discharging
++		 * are both set to 0. That state is "Not Charging".
++		 */
++		.callback = battery_quirk_not_charging,
++		.ident = "Lenovo ThinkPad",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_MATCH(DMI_PRODUCT_VERSION, "ThinkPad"),
++		},
++	},
+ 	{},
+ };
  
 -- 
 2.34.1
