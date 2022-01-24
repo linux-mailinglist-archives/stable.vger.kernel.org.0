@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47838498B76
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:13:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BAEB499107
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:08:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346214AbiAXTNt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:13:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47476 "EHLO
+        id S241889AbiAXUIk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:08:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347772AbiAXTLI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:11:08 -0500
+        with ESMTP id S1346369AbiAXUCt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:02:49 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5569AC08E877;
-        Mon, 24 Jan 2022 11:02:39 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4385C068097;
+        Mon, 24 Jan 2022 11:29:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EE363B8119D;
-        Mon, 24 Jan 2022 19:02:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A227C340E5;
-        Mon, 24 Jan 2022 19:02:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CE687B8122F;
+        Mon, 24 Jan 2022 19:29:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E920C340E5;
+        Mon, 24 Jan 2022 19:29:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050957;
-        bh=CBPENbkco7iWTiGBptNuAshMijpXyfLZVEct9/ZpMIs=;
+        s=korg; t=1643052541;
+        bh=WHWLhQoZZnT8xOEB9aZ3Z5FX6A3t6ikqFX0N6eVEfK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z+qlmu2OIvbUmYBk9+ewZdVqnUV/bpbkWt1M4BODtxeJCSifctJJpZs6mbA0CoLRh
-         3WEGTJcblWkrxdMXyYBv4X4+QK676wyySMVRSygJHQfMI+RnAwbHE/R3hvEJ5ro2QC
-         70YutqK/d28dIcs9JAMexXIJMTvdBXQbins818Ws=
+        b=LSEKNFEIxzhQWTiutiaSc3x1P9y11BffA/IvKg+ISFUXFerFdLH5QIOSk3dWpqns7
+         GkPHGhMpUl2QfZL+DcHwDrnHR/eE07N9JDRSwyp6/IyhKdI4qPL1DwGjUNCgFSR+Py
+         /bI3yLm6gIadcT6gNXADQvtyFgmFk4G/vX/LPd3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 4.14 001/186] Bluetooth: bfusb: fix division by zero in send path
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 092/320] usb: ftdi-elan: fix memory leak on device disconnect
 Date:   Mon, 24 Jan 2022 19:41:16 +0100
-Message-Id: <20220124183937.153147463@linuxfoundation.org>
+Message-Id: <20220124183956.872044331@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -49,38 +48,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit b5e6fa7a12572c82f1e7f2f51fbb02a322291291 upstream.
+[ Upstream commit 1646566b5e0c556f779180a8514e521ac735de1e ]
 
-Add the missing bulk-out endpoint sanity check to probe() to avoid
-division by zero in bfusb_send_frame() in case a malicious device has
-broken descriptors (or when doing descriptor fuzz testing).
+'ftdi' is alloced when probe device, but not free on device disconnect,
+this cause a memory leak as follows:
 
-Note that USB core will reject URBs submitted for endpoints with zero
-wMaxPacketSize but that drivers doing packet-size calculations still
-need to handle this (cf. commit 2548288b4fb0 ("USB: Fix: Don't skip
-endpoint descriptors with maxpacket=0")).
+unreferenced object 0xffff88800d584000 (size 8400):
+  comm "kworker/0:2", pid 3809, jiffies 4295453055 (age 13.784s)
+  hex dump (first 32 bytes):
+    00 40 58 0d 80 88 ff ff 00 40 58 0d 80 88 ff ff  .@X......@X.....
+    00 00 00 00 00 00 00 00 00 00 00 00 ad 4e ad de  .............N..
+  backtrace:
+    [<000000000d47f947>] kmalloc_order_trace+0x19/0x110 mm/slab_common.c:960
+    [<000000008548ac68>] ftdi_elan_probe+0x8c/0x880 drivers/usb/misc/ftdi-elan.c:2647
+    [<000000007f73e422>] usb_probe_interface+0x31b/0x800 drivers/usb/core/driver.c:396
+    [<00000000fe8d07fc>] really_probe+0x299/0xc30 drivers/base/dd.c:517
+    [<0000000005da7d32>] __driver_probe_device+0x357/0x500 drivers/base/dd.c:751
+    [<000000003c2c9579>] driver_probe_device+0x4e/0x140 drivers/base/dd.c:781
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fix it by freeing 'ftdi' after nobody use it.
+
+Fixes: a5c66e4b2418 ("USB: ftdi-elan: client driver for ELAN Uxxx adapters")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Link: https://lore.kernel.org/r/20211217083428.2441-1-weiyongjun1@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/bfusb.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/misc/ftdi-elan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/bluetooth/bfusb.c
-+++ b/drivers/bluetooth/bfusb.c
-@@ -644,6 +644,9 @@ static int bfusb_probe(struct usb_interf
- 	data->bulk_out_ep   = bulk_out_ep->desc.bEndpointAddress;
- 	data->bulk_pkt_size = le16_to_cpu(bulk_out_ep->desc.wMaxPacketSize);
+diff --git a/drivers/usb/misc/ftdi-elan.c b/drivers/usb/misc/ftdi-elan.c
+index cdee3af33ad7b..684800c66bb4d 100644
+--- a/drivers/usb/misc/ftdi-elan.c
++++ b/drivers/usb/misc/ftdi-elan.c
+@@ -202,6 +202,7 @@ static void ftdi_elan_delete(struct kref *kref)
+ 	mutex_unlock(&ftdi_module_lock);
+ 	kfree(ftdi->bulk_in_buffer);
+ 	ftdi->bulk_in_buffer = NULL;
++	kfree(ftdi);
+ }
  
-+	if (!data->bulk_pkt_size)
-+		goto done;
-+
- 	rwlock_init(&data->lock);
- 
- 	data->reassembly = NULL;
+ static void ftdi_elan_put_kref(struct usb_ftdi *ftdi)
+-- 
+2.34.1
+
 
 
