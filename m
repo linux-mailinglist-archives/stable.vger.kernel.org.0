@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15BA349A90A
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:18:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DFC549A90E
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:19:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1321966AbiAYDUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:20:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57540 "EHLO
+        id S1321982AbiAYDUR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:20:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351000AbiAXTul (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:50:41 -0500
+        with ESMTP id S1357622AbiAXTvE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:51:04 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBFDFC019B19;
-        Mon, 24 Jan 2022 11:24:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CA81C019B22;
+        Mon, 24 Jan 2022 11:24:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B514BB8121F;
-        Mon, 24 Jan 2022 19:24:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9DF7C340E7;
-        Mon, 24 Jan 2022 19:24:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CA728B810BD;
+        Mon, 24 Jan 2022 19:24:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEFC9C340E5;
+        Mon, 24 Jan 2022 19:24:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052241;
-        bh=4vD56yFlgUBC5atksTz50D4Z2EyBrU/6DhqxbVI8tNM=;
+        s=korg; t=1643052244;
+        bh=/WuAenPvtHoOYxe2cLjzMTFFnpRHp7Hh7oLwX6A9/98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z0HYXFlXUDqFI/JPxUjk9Vy5wHkU+xn05tf7HLTnyyay4Iq9YcBSO3ZUS/CFHj3Vg
-         +Cyreyk9QfxnyyzRAhMR6fzxSJDVWWMSnfSB6RZx0in/Yz2Ml4GkJPhjNc1Zk3xsGc
-         4KFp7GX2BJ00I4PE/bdXoXjp/FaCXk+EktQJxNwk=
+        b=U7IBz2xxnlE7JW5mKZ9tGtXyPaR73ch53Dmd+wXg+ngc0pYtNtn2VZimYn/hiKins
+         Qp27xI5ewwuwz2GHMqe4ulAjy2RJRpu6x/TzxGNBBctVVwBtE0KtbraO/jpwLlBdZy
+         XyhqELjop+L1UPX27RVNE7Sce5dmfO/C5/zhJvhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Matthias Schiffer <matthias.schiffer@ew.tq-group.com>,
-        Frank Rowand <frank.rowand@sony.com>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 4.19 234/239] scripts/dtc: dtx_diff: remove broken example from help text
-Date:   Mon, 24 Jan 2022 19:44:32 +0100
-Message-Id: <20220124183950.543102350@linuxfoundation.org>
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 235/239] lib82596: Fix IRQ check in sni_82596_probe
+Date:   Mon, 24 Jan 2022 19:44:33 +0100
+Message-Id: <20220124183950.574194009@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
 References: <20220124183943.102762895@linuxfoundation.org>
@@ -49,46 +47,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-commit d8adf5b92a9d2205620874d498c39923ecea8749 upstream.
+commit 99218cbf81bf21355a3de61cd46a706d36e900e6 upstream.
 
-dtx_diff suggests to use <(...) syntax to pipe two inputs into it, but
-this has never worked: The /proc/self/fds/... paths passed by the shell
-will fail the `[ -f "${dtx}" ] && [ -r "${dtx}" ]` check in compile_to_dts,
-but even with this check removed, the function cannot work: hexdump will
-eat up the DTB magic, making the subsequent dtc call fail, as a pipe
-cannot be rewound.
+platform_get_irq() returns negative error number instead 0 on failure.
+And the doc of platform_get_irq() provides a usage example:
 
-Simply remove this broken example, as there is already an alternative one
-that works fine.
+    int irq = platform_get_irq(pdev, 0);
+    if (irq < 0)
+        return irq;
 
-Fixes: 10eadc253ddf ("dtc: create tool to diff device trees")
-Signed-off-by: Matthias Schiffer <matthias.schiffer@ew.tq-group.com>
-Reviewed-by: Frank Rowand <frank.rowand@sony.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Link: https://lore.kernel.org/r/20220113081918.10387-1-matthias.schiffer@ew.tq-group.com
+Fix the check of return value to catch errors correctly.
+
+Fixes: 115978859272 ("i825xx: Move the Intel 82586/82593/82596 based drivers")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/dtc/dtx_diff |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/i825xx/sni_82596.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/scripts/dtc/dtx_diff
-+++ b/scripts/dtc/dtx_diff
-@@ -56,12 +56,8 @@ Otherwise DTx is treated as a dts source
-    or '/include/' to be processed.
+--- a/drivers/net/ethernet/i825xx/sni_82596.c
++++ b/drivers/net/ethernet/i825xx/sni_82596.c
+@@ -122,9 +122,10 @@ static int sni_82596_probe(struct platfo
+ 	netdevice->dev_addr[5] = readb(eth_addr + 0x06);
+ 	iounmap(eth_addr);
  
-    If DTx_1 and DTx_2 are in different architectures, then this script
--   may not work since \${ARCH} is part of the include path.  Two possible
--   workarounds:
--
--      `basename $0` \\
--          <(ARCH=arch_of_dtx_1 `basename $0` DTx_1) \\
--          <(ARCH=arch_of_dtx_2 `basename $0` DTx_2)
-+   may not work since \${ARCH} is part of the include path.  The following
-+   workaround can be used:
+-	if (!netdevice->irq) {
++	if (netdevice->irq < 0) {
+ 		printk(KERN_ERR "%s: IRQ not found for i82596 at 0x%lx\n",
+ 			__FILE__, netdevice->base_addr);
++		retval = netdevice->irq;
+ 		goto probe_failed;
+ 	}
  
-       `basename $0` ARCH=arch_of_dtx_1 DTx_1 >tmp_dtx_1.dts
-       `basename $0` ARCH=arch_of_dtx_2 DTx_2 >tmp_dtx_2.dts
 
 
