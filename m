@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EFD004999B2
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:46:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CAE2499BEB
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:05:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1455102AbiAXVep (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:34:45 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:40466 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1451757AbiAXVXd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:23:33 -0500
+        id S244475AbiAXV5o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:57:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57516 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1574971AbiAXVuu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:50:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6299DC0885AF;
+        Mon, 24 Jan 2022 12:33:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3220CB81218;
-        Mon, 24 Jan 2022 21:23:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59BF2C340E4;
-        Mon, 24 Jan 2022 21:23:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E19B161536;
+        Mon, 24 Jan 2022 20:33:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD779C340E5;
+        Mon, 24 Jan 2022 20:33:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059410;
-        bh=QbywbAkiZZf7B4uSrLQeF2h38uZrBQBQWJ34uLHNb1A=;
+        s=korg; t=1643056420;
+        bh=hqOSIFfEPM25jf3JyI4blFrW5FBGZ6DQgxd28kjbXpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z1IDNVGNiszmyuJ3jsCwp6ht6Qnjn72AvDhXgAKDgBQAp3SGbLs1jw9/ns29gnPsV
-         XjAqQKgTUsUx3vlKXSXC2Qpm8/oiGKbSo7pWcR20FSjWXPHYHN0waoGMWTBaWvGeB0
-         blEDMkcscTqyplD7XE8WEyf24dy/hDU3lDDnDXWg=
+        b=T5AHOhibo8JLFqm0tiiUIPucRYoTne7teMdegizH2GYdIGc22XdrFdLKzCYcoUrUC
+         UWvveMdI8xuMvSAnvyL/Ih/QcLhS+zO8uugqGLyPIszxuZnvi0luQg6VyNDsRm8TWi
+         K8fwitxxkX9IuBX3dU++Vj+SqClBY0fbhXpCSmWE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Baochen Qiang <bqiang@codeaurora.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0606/1039] ACPI: Change acpi_device_always_present() into acpi_device_override_status()
-Date:   Mon, 24 Jan 2022 19:39:55 +0100
-Message-Id: <20220124184145.702227161@linuxfoundation.org>
+Subject: [PATCH 5.15 479/846] ath11k: Fix crash caused by uninitialized TX ring
+Date:   Mon, 24 Jan 2022 19:39:56 +0100
+Message-Id: <20220124184117.544956395@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,206 +48,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Baochen Qiang <bqiang@codeaurora.org>
 
-[ Upstream commit 1a68b346a2c9969c05e80a3b99a9ab160b5655c0 ]
+[ Upstream commit 273703ebdb01b6c5f1aaf4b98fb57b177609055c ]
 
-Currently, acpi_bus_get_status() calls acpi_device_always_present() to
-allow platform quirks to override the _STA return to report that a
-device is present (status = ACPI_STA_DEFAULT) independent of the _STA
-return.
+Commit 31582373a4a8 ("ath11k: Change number of TCL rings to one for
+QCA6390") avoids initializing the other entries of dp->tx_ring cause
+the corresponding TX rings on QCA6390/WCN6855 are not used, but leaves
+those ring masks in ath11k_hw_ring_mask_qca6390.tx unchanged. Normally
+this is OK because we will only get interrupts from the first TX ring
+on these chips and thus only the first entry of dp->tx_ring is involved.
 
-In some cases it might also be useful to have the opposite functionality
-and have a platform quirk which marks a device as not present (status = 0)
-to work around ACPI table bugs.
+In case of one MSI vector, all DP rings share the same IRQ. For each
+interrupt, all rings have to be checked, which means the other entries
+of dp->tx_ring are involved. However since they are not initialized,
+system crashes.
 
-Change acpi_device_always_present() into a more generic
-acpi_device_override_status() function to allow this.
+Fix this issue by simply removing those ring masks.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+crash stack:
+[  102.907438] BUG: kernel NULL pointer dereference, address: 0000000000000028
+[  102.907447] #PF: supervisor read access in kernel mode
+[  102.907451] #PF: error_code(0x0000) - not-present page
+[  102.907453] PGD 1081f0067 P4D 1081f0067 PUD 1081f1067 PMD 0
+[  102.907460] Oops: 0000 [#1] SMP DEBUG_PAGEALLOC NOPTI
+[  102.907465] CPU: 0 PID: 3511 Comm: apt-check Kdump: loaded Tainted: G            E     5.15.0-rc4-wt-ath+ #20
+[  102.907470] Hardware name: AMD Celadon-RN/Celadon-RN, BIOS RCD1005E 10/08/2020
+[  102.907472] RIP: 0010:ath11k_dp_tx_completion_handler+0x201/0x830 [ath11k]
+[  102.907497] Code: 3c 24 4e 8d ac 37 10 04 00 00 4a 8d bc 37 68 04 00 00 48 89 3c 24 48 63 c8 89 83 84 18 00 00 48 c1 e1 05 48 03 8b 78 18 00 00 <8b> 51 08 89 d6 83 e6 07 89 74 24 24 83 fe 03 74 04 85 f6 75 63 41
+[  102.907501] RSP: 0000:ffff9b7340003e08 EFLAGS: 00010202
+[  102.907505] RAX: 0000000000000001 RBX: ffff8e21530c0100 RCX: 0000000000000020
+[  102.907508] RDX: 0000000000000000 RSI: 00000000fffffe00 RDI: ffff8e21530c1938
+[  102.907511] RBP: ffff8e21530c0000 R08: 0000000000000001 R09: 0000000000000000
+[  102.907513] R10: ffff8e2145534c10 R11: 0000000000000001 R12: ffff8e21530c2938
+[  102.907515] R13: ffff8e21530c18e0 R14: 0000000000000100 R15: ffff8e21530c2978
+[  102.907518] FS:  00007f5d4297e740(0000) GS:ffff8e243d600000(0000) knlGS:0000000000000000
+[  102.907521] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  102.907524] CR2: 0000000000000028 CR3: 00000001034ea000 CR4: 0000000000350ef0
+[  102.907527] Call Trace:
+[  102.907531]  <IRQ>
+[  102.907537]  ath11k_dp_service_srng+0x5c/0x2f0 [ath11k]
+[  102.907556]  ath11k_pci_ext_grp_napi_poll+0x21/0x70 [ath11k_pci]
+[  102.907562]  __napi_poll+0x2c/0x160
+[  102.907570]  net_rx_action+0x251/0x310
+[  102.907576]  __do_softirq+0x107/0x2fc
+[  102.907585]  irq_exit_rcu+0x74/0x90
+[  102.907593]  common_interrupt+0x83/0xa0
+[  102.907600]  </IRQ>
+[  102.907601]  asm_common_interrupt+0x1e/0x40
+
+Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-01720.1-QCAHSPSWPL_V1_V2_SILICONZ_LITE-1
+
+Signed-off-by: Baochen Qiang <bqiang@codeaurora.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20211026011605.58615-1-quic_bqiang@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/bus.c       |  4 +--
- drivers/acpi/x86/utils.c | 64 +++++++++++++++++++++++-----------------
- include/acpi/acpi_bus.h  |  5 ++--
- 3 files changed, 42 insertions(+), 31 deletions(-)
+ drivers/net/wireless/ath/ath11k/hw.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/acpi/bus.c b/drivers/acpi/bus.c
-index fa923a9292244..dd535b4b9a160 100644
---- a/drivers/acpi/bus.c
-+++ b/drivers/acpi/bus.c
-@@ -98,8 +98,8 @@ int acpi_bus_get_status(struct acpi_device *device)
- 	acpi_status status;
- 	unsigned long long sta;
- 
--	if (acpi_device_always_present(device)) {
--		acpi_set_device_status(device, ACPI_STA_DEFAULT);
-+	if (acpi_device_override_status(device, &sta)) {
-+		acpi_set_device_status(device, sta);
- 		return 0;
- 	}
- 
-diff --git a/drivers/acpi/x86/utils.c b/drivers/acpi/x86/utils.c
-index 3bcac98f6eca6..edb4f3fd93dc3 100644
---- a/drivers/acpi/x86/utils.c
-+++ b/drivers/acpi/x86/utils.c
-@@ -22,54 +22,63 @@
-  * Some BIOS-es (temporarily) hide specific APCI devices to work around Windows
-  * driver bugs. We use DMI matching to match known cases of this.
-  *
-- * We work around this by always reporting ACPI_STA_DEFAULT for these
-- * devices. Note this MUST only be done for devices where this is safe.
-+ * Likewise sometimes some not-actually present devices are sometimes
-+ * reported as present, which may cause issues.
-  *
-- * This forcing of devices to be present is limited to specific CPU (SoC)
-- * models both to avoid potentially causing trouble on other models and
-- * because some HIDs are re-used on different SoCs for completely
-- * different devices.
-+ * We work around this by using the below quirk list to override the status
-+ * reported by the _STA method with a fixed value (ACPI_STA_DEFAULT or 0).
-+ * Note this MUST only be done for devices where this is safe.
-+ *
-+ * This status overriding is limited to specific CPU (SoC) models both to
-+ * avoid potentially causing trouble on other models and because some HIDs
-+ * are re-used on different SoCs for completely different devices.
-  */
--struct always_present_id {
-+struct override_status_id {
- 	struct acpi_device_id hid[2];
- 	struct x86_cpu_id cpu_ids[2];
- 	struct dmi_system_id dmi_ids[2]; /* Optional */
- 	const char *uid;
-+	unsigned long long status;
- };
- 
--#define X86_MATCH(model)	X86_MATCH_INTEL_FAM6_MODEL(model, NULL)
--
--#define ENTRY(hid, uid, cpu_models, dmi...) {				\
-+#define ENTRY(status, hid, uid, cpu_model, dmi...) {			\
- 	{ { hid, }, {} },						\
--	{ cpu_models, {} },						\
-+	{ X86_MATCH_INTEL_FAM6_MODEL(cpu_model, NULL), {} },		\
- 	{ { .matches = dmi }, {} },					\
- 	uid,								\
-+	status,								\
- }
- 
--static const struct always_present_id always_present_ids[] = {
-+#define PRESENT_ENTRY_HID(hid, uid, cpu_model, dmi...) \
-+	ENTRY(ACPI_STA_DEFAULT, hid, uid, cpu_model, dmi)
-+
-+#define NOT_PRESENT_ENTRY_HID(hid, uid, cpu_model, dmi...) \
-+	ENTRY(0, hid, uid, cpu_model, dmi)
-+
-+static const struct override_status_id override_status_ids[] = {
- 	/*
- 	 * Bay / Cherry Trail PWM directly poked by GPU driver in win10,
- 	 * but Linux uses a separate PWM driver, harmless if not used.
- 	 */
--	ENTRY("80860F09", "1", X86_MATCH(ATOM_SILVERMONT), {}),
--	ENTRY("80862288", "1", X86_MATCH(ATOM_AIRMONT), {}),
-+	PRESENT_ENTRY_HID("80860F09", "1", ATOM_SILVERMONT, {}),
-+	PRESENT_ENTRY_HID("80862288", "1", ATOM_AIRMONT, {}),
- 
- 	/*
- 	 * The INT0002 device is necessary to clear wakeup interrupt sources
- 	 * on Cherry Trail devices, without it we get nobody cared IRQ msgs.
- 	 */
--	ENTRY("INT0002", "1", X86_MATCH(ATOM_AIRMONT), {}),
-+	PRESENT_ENTRY_HID("INT0002", "1", ATOM_AIRMONT, {}),
- 	/*
- 	 * On the Dell Venue 11 Pro 7130 and 7139, the DSDT hides
- 	 * the touchscreen ACPI device until a certain time
- 	 * after _SB.PCI0.GFX0.LCD.LCD1._ON gets called has passed
- 	 * *and* _STA has been called at least 3 times since.
- 	 */
--	ENTRY("SYNA7500", "1", X86_MATCH(HASWELL_L), {
-+	PRESENT_ENTRY_HID("SYNA7500", "1", HASWELL_L, {
- 		DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
- 		DMI_MATCH(DMI_PRODUCT_NAME, "Venue 11 Pro 7130"),
- 	      }),
--	ENTRY("SYNA7500", "1", X86_MATCH(HASWELL_L), {
-+	PRESENT_ENTRY_HID("SYNA7500", "1", HASWELL_L, {
- 		DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
- 		DMI_MATCH(DMI_PRODUCT_NAME, "Venue 11 Pro 7139"),
- 	      }),
-@@ -85,19 +94,19 @@ static const struct always_present_id always_present_ids[] = {
- 	 * was copy-pasted from the GPD win, so it has a disabled KIOX000A
- 	 * node which we should not enable, thus we also check the BIOS date.
- 	 */
--	ENTRY("KIOX000A", "1", X86_MATCH(ATOM_AIRMONT), {
-+	PRESENT_ENTRY_HID("KIOX000A", "1", ATOM_AIRMONT, {
- 		DMI_MATCH(DMI_BOARD_VENDOR, "AMI Corporation"),
- 		DMI_MATCH(DMI_BOARD_NAME, "Default string"),
- 		DMI_MATCH(DMI_PRODUCT_NAME, "Default string"),
- 		DMI_MATCH(DMI_BIOS_DATE, "02/21/2017")
- 	      }),
--	ENTRY("KIOX000A", "1", X86_MATCH(ATOM_AIRMONT), {
-+	PRESENT_ENTRY_HID("KIOX000A", "1", ATOM_AIRMONT, {
- 		DMI_MATCH(DMI_BOARD_VENDOR, "AMI Corporation"),
- 		DMI_MATCH(DMI_BOARD_NAME, "Default string"),
- 		DMI_MATCH(DMI_PRODUCT_NAME, "Default string"),
- 		DMI_MATCH(DMI_BIOS_DATE, "03/20/2017")
- 	      }),
--	ENTRY("KIOX000A", "1", X86_MATCH(ATOM_AIRMONT), {
-+	PRESENT_ENTRY_HID("KIOX000A", "1", ATOM_AIRMONT, {
- 		DMI_MATCH(DMI_BOARD_VENDOR, "AMI Corporation"),
- 		DMI_MATCH(DMI_BOARD_NAME, "Default string"),
- 		DMI_MATCH(DMI_PRODUCT_NAME, "Default string"),
-@@ -105,26 +114,27 @@ static const struct always_present_id always_present_ids[] = {
- 	      }),
- };
- 
--bool acpi_device_always_present(struct acpi_device *adev)
-+bool acpi_device_override_status(struct acpi_device *adev, unsigned long long *status)
- {
- 	bool ret = false;
- 	unsigned int i;
- 
--	for (i = 0; i < ARRAY_SIZE(always_present_ids); i++) {
--		if (acpi_match_device_ids(adev, always_present_ids[i].hid))
-+	for (i = 0; i < ARRAY_SIZE(override_status_ids); i++) {
-+		if (acpi_match_device_ids(adev, override_status_ids[i].hid))
- 			continue;
- 
- 		if (!adev->pnp.unique_id ||
--		    strcmp(adev->pnp.unique_id, always_present_ids[i].uid))
-+		    strcmp(adev->pnp.unique_id, override_status_ids[i].uid))
- 			continue;
- 
--		if (!x86_match_cpu(always_present_ids[i].cpu_ids))
-+		if (!x86_match_cpu(override_status_ids[i].cpu_ids))
- 			continue;
- 
--		if (always_present_ids[i].dmi_ids[0].matches[0].slot &&
--		    !dmi_check_system(always_present_ids[i].dmi_ids))
-+		if (override_status_ids[i].dmi_ids[0].matches[0].slot &&
-+		    !dmi_check_system(override_status_ids[i].dmi_ids))
- 			continue;
- 
-+		*status = override_status_ids[i].status;
- 		ret = true;
- 		break;
- 	}
-diff --git a/include/acpi/acpi_bus.h b/include/acpi/acpi_bus.h
-index 480f9207a4c6b..d6fe27b695c3d 100644
---- a/include/acpi/acpi_bus.h
-+++ b/include/acpi/acpi_bus.h
-@@ -613,9 +613,10 @@ int acpi_enable_wakeup_device_power(struct acpi_device *dev, int state);
- int acpi_disable_wakeup_device_power(struct acpi_device *dev);
- 
- #ifdef CONFIG_X86
--bool acpi_device_always_present(struct acpi_device *adev);
-+bool acpi_device_override_status(struct acpi_device *adev, unsigned long long *status);
- #else
--static inline bool acpi_device_always_present(struct acpi_device *adev)
-+static inline bool acpi_device_override_status(struct acpi_device *adev,
-+					       unsigned long long *status)
- {
- 	return false;
- }
+diff --git a/drivers/net/wireless/ath/ath11k/hw.c b/drivers/net/wireless/ath/ath11k/hw.c
+index d9596903b0a58..3e92cc7cfe4c9 100644
+--- a/drivers/net/wireless/ath/ath11k/hw.c
++++ b/drivers/net/wireless/ath/ath11k/hw.c
+@@ -1015,8 +1015,6 @@ const struct ath11k_hw_ring_mask ath11k_hw_ring_mask_ipq8074 = {
+ const struct ath11k_hw_ring_mask ath11k_hw_ring_mask_qca6390 = {
+ 	.tx  = {
+ 		ATH11K_TX_RING_MASK_0,
+-		ATH11K_TX_RING_MASK_1,
+-		ATH11K_TX_RING_MASK_2,
+ 	},
+ 	.rx_mon_status = {
+ 		0, 0, 0, 0,
 -- 
 2.34.1
 
