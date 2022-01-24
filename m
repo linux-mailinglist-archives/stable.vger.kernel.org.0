@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CF96499950
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:44:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25F4049994F
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:44:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1453983AbiAXVbV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:31:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51562 "EHLO
+        id S1453974AbiAXVbU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:31:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1450889AbiAXVVn (ORCPT
+        with ESMTP id S1450888AbiAXVVn (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:21:43 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9809BC0604E1;
-        Mon, 24 Jan 2022 12:16:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92C9FC0604E3;
+        Mon, 24 Jan 2022 12:16:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 35A4C611CD;
-        Mon, 24 Jan 2022 20:16:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0DBCC340E5;
-        Mon, 24 Jan 2022 20:16:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 30AF661480;
+        Mon, 24 Jan 2022 20:16:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00002C340E7;
+        Mon, 24 Jan 2022 20:16:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055383;
-        bh=Gj/ZBJfXwO4Vq/uUWw7uOBpKsabtffRUsI+FbzQkHyo=;
+        s=korg; t=1643055386;
+        bh=bTwDCjyp1FfNlpPdJ01CRAf9JzQtnnaDyzG6MorJD20=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XYL3eOyhzNXhwQc6rpHK39Tjeq0jyLZ0mg15AECcrLlvHRIdXjYPIN+jErH4iWlty
-         kOPtUpEDyYhx6fh0SyNwvND9YUS2vAb3L/j+5Q5MMnWMWrdqkTHc1gyDP58quzx3rq
-         TSZCTHwHXhQbaPDpHLcMbzrYSUykd0pvYyayKLtw=
+        b=ZSClZUqWt9E7f8FSzceuWeLcdtj+yBgojGyXR7K/p5CvfPHlvknw1LXuyBEdvR+Rp
+         2QWWkZYq5z8Ntg1PpojVk9ahlP2VSitS0ksTo7FUu7LPnQkBxKhEwE96hHeC1s6GYg
+         MpIUj/Y2497KHD4Ps7VQMmQztP8vhMaljZpKdSdU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lyude Paul <lyude@redhat.com>,
-        Douglas Anderson <dianders@chromium.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 133/846] drm/dp: Dont read back backlight mode in drm_edp_backlight_enable()
-Date:   Mon, 24 Jan 2022 19:34:10 +0100
-Message-Id: <20220124184105.572031601@linuxfoundation.org>
+Subject: [PATCH 5.15 134/846] drm/vboxvideo: fix a NULL vs IS_ERR() check
+Date:   Mon, 24 Jan 2022 19:34:11 +0100
+Message-Id: <20220124184105.613729259@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -48,96 +48,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lyude Paul <lyude@redhat.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 646596485e1ed2182adf293dfd5aec4a96c46330 ]
+[ Upstream commit cebbb5c46d0cb0615fd0c62dea9b44273d0a9780 ]
 
-As it turns out, apparently some machines will actually leave additional
-backlight functionality like dynamic backlight control on before the OS
-loads. Currently we don't take care to disable unsupported features when
-writing back the backlight mode, which can lead to some rather strange
-looking behavior when adjusting the backlight.
+The devm_gen_pool_create() function never returns NULL, it returns
+error pointers.
 
-So, let's fix this by just not reading back the current backlight mode on
-initial enable. I don't think there should really be any downsides to this,
-and this will ensure we don't leave any unsupported functionality enabled.
-
-This should fix at least one (but not all) of the issues seen with DPCD
-backlight support on fi-bdw-samus
-
-v5:
-* Just avoid reading back DPCD register - Doug Anderson
-
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Fixes: 867cf9cd73c3 ("drm/dp: Extract i915's eDP backlight code into DRM helpers")
-Reviewed-by: Douglas Anderson <dianders@chromium.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211105183342.130810-4-lyude@redhat.com
+Fixes: 4cc9b565454b ("drm/vboxvideo: Use devm_gen_pool_create")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211118111233.GA1147@kili
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/drm_dp_helper.c | 40 ++++++++++-----------------------
- 1 file changed, 12 insertions(+), 28 deletions(-)
+ drivers/gpu/drm/vboxvideo/vbox_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_dp_helper.c b/drivers/gpu/drm/drm_dp_helper.c
-index 6d0f2c447f3b9..7bb24523a7493 100644
---- a/drivers/gpu/drm/drm_dp_helper.c
-+++ b/drivers/gpu/drm/drm_dp_helper.c
-@@ -3214,27 +3214,13 @@ int drm_edp_backlight_enable(struct drm_dp_aux *aux, const struct drm_edp_backli
- 			     const u16 level)
- {
- 	int ret;
--	u8 dpcd_buf, new_dpcd_buf;
-+	u8 dpcd_buf = DP_EDP_BACKLIGHT_CONTROL_MODE_DPCD;
+diff --git a/drivers/gpu/drm/vboxvideo/vbox_main.c b/drivers/gpu/drm/vboxvideo/vbox_main.c
+index f28779715ccda..c9e8b3a63c621 100644
+--- a/drivers/gpu/drm/vboxvideo/vbox_main.c
++++ b/drivers/gpu/drm/vboxvideo/vbox_main.c
+@@ -127,8 +127,8 @@ int vbox_hw_init(struct vbox_private *vbox)
+ 	/* Create guest-heap mem-pool use 2^4 = 16 byte chunks */
+ 	vbox->guest_pool = devm_gen_pool_create(vbox->ddev.dev, 4, -1,
+ 						"vboxvideo-accel");
+-	if (!vbox->guest_pool)
+-		return -ENOMEM;
++	if (IS_ERR(vbox->guest_pool))
++		return PTR_ERR(vbox->guest_pool);
  
--	ret = drm_dp_dpcd_readb(aux, DP_EDP_BACKLIGHT_MODE_SET_REGISTER, &dpcd_buf);
--	if (ret != 1) {
--		drm_dbg_kms(aux->drm_dev,
--			    "%s: Failed to read backlight mode: %d\n", aux->name, ret);
--		return ret < 0 ? ret : -EIO;
--	}
--
--	new_dpcd_buf = dpcd_buf;
--
--	if ((dpcd_buf & DP_EDP_BACKLIGHT_CONTROL_MODE_MASK) != DP_EDP_BACKLIGHT_CONTROL_MODE_DPCD) {
--		new_dpcd_buf &= ~DP_EDP_BACKLIGHT_CONTROL_MODE_MASK;
--		new_dpcd_buf |= DP_EDP_BACKLIGHT_CONTROL_MODE_DPCD;
--
--		if (bl->pwmgen_bit_count) {
--			ret = drm_dp_dpcd_writeb(aux, DP_EDP_PWMGEN_BIT_COUNT, bl->pwmgen_bit_count);
--			if (ret != 1)
--				drm_dbg_kms(aux->drm_dev, "%s: Failed to write aux pwmgen bit count: %d\n",
--					    aux->name, ret);
--		}
-+	if (bl->pwmgen_bit_count) {
-+		ret = drm_dp_dpcd_writeb(aux, DP_EDP_PWMGEN_BIT_COUNT, bl->pwmgen_bit_count);
-+		if (ret != 1)
-+			drm_dbg_kms(aux->drm_dev, "%s: Failed to write aux pwmgen bit count: %d\n",
-+				    aux->name, ret);
- 	}
- 
- 	if (bl->pwm_freq_pre_divider) {
-@@ -3244,16 +3230,14 @@ int drm_edp_backlight_enable(struct drm_dp_aux *aux, const struct drm_edp_backli
- 				    "%s: Failed to write aux backlight frequency: %d\n",
- 				    aux->name, ret);
- 		else
--			new_dpcd_buf |= DP_EDP_BACKLIGHT_FREQ_AUX_SET_ENABLE;
-+			dpcd_buf |= DP_EDP_BACKLIGHT_FREQ_AUX_SET_ENABLE;
- 	}
- 
--	if (new_dpcd_buf != dpcd_buf) {
--		ret = drm_dp_dpcd_writeb(aux, DP_EDP_BACKLIGHT_MODE_SET_REGISTER, new_dpcd_buf);
--		if (ret != 1) {
--			drm_dbg_kms(aux->drm_dev, "%s: Failed to write aux backlight mode: %d\n",
--				    aux->name, ret);
--			return ret < 0 ? ret : -EIO;
--		}
-+	ret = drm_dp_dpcd_writeb(aux, DP_EDP_BACKLIGHT_MODE_SET_REGISTER, dpcd_buf);
-+	if (ret != 1) {
-+		drm_dbg_kms(aux->drm_dev, "%s: Failed to write aux backlight mode: %d\n",
-+			    aux->name, ret);
-+		return ret < 0 ? ret : -EIO;
- 	}
- 
- 	ret = drm_edp_backlight_set_level(aux, bl, level);
+ 	ret = gen_pool_add_virt(vbox->guest_pool,
+ 				(unsigned long)vbox->guest_heap,
 -- 
 2.34.1
 
