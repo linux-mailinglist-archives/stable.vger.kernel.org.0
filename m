@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2166499058
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D19FE498BB7
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:15:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359435AbiAXT7n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:59:43 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:42094 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358442AbiAXTzO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:55:14 -0500
+        id S1345010AbiAXTPv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:15:51 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:43500 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344337AbiAXTOD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:14:03 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75341B811FB;
-        Mon, 24 Jan 2022 19:55:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CC3FC340E5;
-        Mon, 24 Jan 2022 19:55:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F147960BB9;
+        Mon, 24 Jan 2022 19:14:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E208C36AE3;
+        Mon, 24 Jan 2022 19:14:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054112;
-        bh=9OYIhp4tcNcPNdnDiXHPbH5wBCGJndxbPgN1unI9o3Y=;
+        s=korg; t=1643051642;
+        bh=28t1sweoB4qHEe4T76xab8j4fhECdC4c7ySIQE2cgDk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nygkoRjbjeinuWg3fuba3ch9mudvbRLMwhMgkeAGVIi3+tCMg5UXUOEZjlUKaGgWL
-         REGkDUlGEzlN7kYCbihFpIKrf2sBE7aVbW5UAnL/LAUJUGxZLg3y6Pvnbcpc1OV1DO
-         a7mlxvLSsn9G5GPvMq/W7YrhXalltLAk8+POro28=
+        b=e+Qtbu8CBTTVxA0q10fGAzfb0SBEGFvIeukKCD1wdr+1rf4KFD6N3RX/xzcvCG7Ed
+         lZ28s0mwFnEoZbBc4aXuhWlLW48urr2GGiV7sSeiwDzLR7bc0VQ8sq2pA0Y512BEhL
+         mnvkiVbHPHvn0Z4IUvnYrf/cs4KrX//okKdw/Tt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Xiang Chen <chenxiang66@hisilicon.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        John Garry <john.garry@huawei.com>
-Subject: [PATCH 5.10 281/563] scsi: block: pm: Always set request queue runtime active in blk_post_runtime_resume()
+        stable@vger.kernel.org,
+        Brian Silverman <brian.silverman@bluerivertech.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 4.19 008/239] can: gs_usb: gs_can_start_xmit(): zero-initialize hf->{flags,reserved}
 Date:   Mon, 24 Jan 2022 19:40:46 +0100
-Message-Id: <20220124184034.158011166@linuxfoundation.org>
+Message-Id: <20220124183943.377652679@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,120 +45,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Brian Silverman <brian.silverman@bluerivertech.com>
 
-[ Upstream commit 6e1fcab00a23f7fe9f4fe9704905a790efa1eeab ]
+commit 89d58aebe14a365c25ba6645414afdbf4e41cea4 upstream.
 
-John Garry reported a deadlock that occurs when trying to access a
-runtime-suspended SATA device.  For obscure reasons, the rescan procedure
-causes the link to be hard-reset, which disconnects the device.
+No information is deliberately sent in hf->flags in host -> device
+communications, but the open-source candleLight firmware echoes it
+back, which can result in the GS_CAN_FLAG_OVERFLOW flag being set and
+generating spurious ERRORFRAMEs.
 
-The rescan tries to carry out a runtime resume when accessing the device.
-scsi_rescan_device() holds the SCSI device lock and won't release it until
-it can put commands onto the device's block queue.  This can't happen until
-the queue is successfully runtime-resumed or the device is unregistered.
-But the runtime resume fails because the device is disconnected, and
-__scsi_remove_device() can't do the unregistration because it can't get the
-device lock.
+While there also initialize the reserved member with 0.
 
-The best way to resolve this deadlock appears to be to allow the block
-queue to start running again even after an unsuccessful runtime resume.
-The idea is that the driver or the SCSI error handler will need to be able
-to use the queue to resolve the runtime resume failure.
-
-This patch removes the err argument to blk_post_runtime_resume() and makes
-the routine act as though the resume was successful always.  This fixes the
-deadlock.
-
-Link: https://lore.kernel.org/r/1639999298-244569-4-git-send-email-chenxiang66@hisilicon.com
-Fixes: e27829dc92e5 ("scsi: serialize ->rescan against ->remove")
-Reported-and-tested-by: John Garry <john.garry@huawei.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: d08e973a77d1 ("can: gs_usb: Added support for the GS_USB CAN devices")
+Link: https://lore.kernel.org/all/20220106002952.25883-1-brian.silverman@bluerivertech.com
+Link: https://github.com/candle-usb/candleLight_fw/issues/87
+Cc: stable@vger.kernel.org
+Signed-off-by: Brian Silverman <brian.silverman@bluerivertech.com>
+[mkl: initialize the reserved member, too]
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-pm.c         | 22 +++++++---------------
- drivers/scsi/scsi_pm.c |  2 +-
- include/linux/blk-pm.h |  2 +-
- 3 files changed, 9 insertions(+), 17 deletions(-)
+ drivers/net/can/usb/gs_usb.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/block/blk-pm.c b/block/blk-pm.c
-index 17bd020268d42..2dad62cc15727 100644
---- a/block/blk-pm.c
-+++ b/block/blk-pm.c
-@@ -163,27 +163,19 @@ EXPORT_SYMBOL(blk_pre_runtime_resume);
- /**
-  * blk_post_runtime_resume - Post runtime resume processing
-  * @q: the queue of the device
-- * @err: return value of the device's runtime_resume function
-  *
-  * Description:
-- *    Update the queue's runtime status according to the return value of the
-- *    device's runtime_resume function. If the resume was successful, call
-- *    blk_set_runtime_active() to do the real work of restarting the queue.
-+ *    For historical reasons, this routine merely calls blk_set_runtime_active()
-+ *    to do the real work of restarting the queue.  It does this regardless of
-+ *    whether the device's runtime-resume succeeded; even if it failed the
-+ *    driver or error handler will need to communicate with the device.
-  *
-  *    This function should be called near the end of the device's
-  *    runtime_resume callback.
-  */
--void blk_post_runtime_resume(struct request_queue *q, int err)
-+void blk_post_runtime_resume(struct request_queue *q)
- {
--	if (!q->dev)
--		return;
--	if (!err) {
--		blk_set_runtime_active(q);
--	} else {
--		spin_lock_irq(&q->queue_lock);
--		q->rpm_status = RPM_SUSPENDED;
--		spin_unlock_irq(&q->queue_lock);
--	}
-+	blk_set_runtime_active(q);
- }
- EXPORT_SYMBOL(blk_post_runtime_resume);
+--- a/drivers/net/can/usb/gs_usb.c
++++ b/drivers/net/can/usb/gs_usb.c
+@@ -515,6 +515,8 @@ static netdev_tx_t gs_can_start_xmit(str
  
-@@ -201,7 +193,7 @@ EXPORT_SYMBOL(blk_post_runtime_resume);
-  * runtime PM status and re-enable peeking requests from the queue. It
-  * should be called before first request is added to the queue.
-  *
-- * This function is also called by blk_post_runtime_resume() for successful
-+ * This function is also called by blk_post_runtime_resume() for
-  * runtime resumes.  It does everything necessary to restart the queue.
-  */
- void blk_set_runtime_active(struct request_queue *q)
-diff --git a/drivers/scsi/scsi_pm.c b/drivers/scsi/scsi_pm.c
-index 3717eea37ecb3..e91a0a5bc7a3e 100644
---- a/drivers/scsi/scsi_pm.c
-+++ b/drivers/scsi/scsi_pm.c
-@@ -262,7 +262,7 @@ static int sdev_runtime_resume(struct device *dev)
- 	blk_pre_runtime_resume(sdev->request_queue);
- 	if (pm && pm->runtime_resume)
- 		err = pm->runtime_resume(dev);
--	blk_post_runtime_resume(sdev->request_queue, err);
-+	blk_post_runtime_resume(sdev->request_queue);
+ 	hf->echo_id = idx;
+ 	hf->channel = dev->channel;
++	hf->flags = 0;
++	hf->reserved = 0;
  
- 	return err;
- }
-diff --git a/include/linux/blk-pm.h b/include/linux/blk-pm.h
-index b80c65aba2493..2580e05a8ab67 100644
---- a/include/linux/blk-pm.h
-+++ b/include/linux/blk-pm.h
-@@ -14,7 +14,7 @@ extern void blk_pm_runtime_init(struct request_queue *q, struct device *dev);
- extern int blk_pre_runtime_suspend(struct request_queue *q);
- extern void blk_post_runtime_suspend(struct request_queue *q, int err);
- extern void blk_pre_runtime_resume(struct request_queue *q);
--extern void blk_post_runtime_resume(struct request_queue *q, int err);
-+extern void blk_post_runtime_resume(struct request_queue *q);
- extern void blk_set_runtime_active(struct request_queue *q);
- #else
- static inline void blk_pm_runtime_init(struct request_queue *q,
--- 
-2.34.1
-
+ 	cf = (struct can_frame *)skb->data;
+ 
 
 
