@@ -2,43 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 744EB499385
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:38:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DC01498ECC
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:49:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344371AbiAXUe3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:34:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37000 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382937AbiAXU0c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:26:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94260C07E32E;
-        Mon, 24 Jan 2022 11:41:32 -0800 (PST)
+        id S1346290AbiAXTsl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:48:41 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:34990 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1349360AbiAXTle (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:41:34 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52461B8121A;
-        Mon, 24 Jan 2022 19:41:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4799C340E5;
-        Mon, 24 Jan 2022 19:41:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B2CC660909;
+        Mon, 24 Jan 2022 19:41:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 921A3C340E5;
+        Mon, 24 Jan 2022 19:41:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053290;
-        bh=Q3d16Erybi8ks3P6I31MKaCH6TV11ACxsCvMgjcQY2M=;
+        s=korg; t=1643053293;
+        bh=YjlPCUQsX6ZOi4P4YXnLzathnCSeTn8OqQk/kDirQX8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bvYTvkpFZ/QlxS159i2MpHNGjNGcu5akkQpNqqmGguT+4C5kKDwTn0UVDEewPMtT4
-         7cJYm/QdoOMTRcm0GiZ1xN21+anzpepo6WN+yMwQsofwGyWBlTaOhyhU6qdVbI9ZDO
-         izrh7l0Wn3/FWTX3CXTVqh/yK2pfMS+pCRSU2B08=
+        b=EXnAgrr4NYgsYjODuLP8D477icX5JHmlseOTNg5keQjrsJeuTFAIIw/XHbYaa5o6A
+         ZfYqD5siDWHQaLkSCRUsFFqfvce+U8eW4pOsi/kq3Jk1UMQDA/cOw4vgQtNePEUgI7
+         NvTcNGoKgx/O+1hPxbg1Qp/zPXTqmvOMv0hYH3bY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
-        Nobuhiro Iwamatsu <iwamatsu@nigauri.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>
-Subject: [PATCH 5.10 018/563] rtc: cmos: take rtc_lock while reading from CMOS
-Date:   Mon, 24 Jan 2022 19:36:23 +0100
-Message-Id: <20220124184025.048026288@linuxfoundation.org>
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.10 019/563] media: v4l2-ioctl.c: readbuffers depends on V4L2_CAP_READWRITE
+Date:   Mon, 24 Jan 2022 19:36:24 +0100
+Message-Id: <20220124184025.078488823@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -50,46 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mateusz Jończyk <mat.jonczyk@o2.pl>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-commit 454f47ff464325223129b9b5b8d0b61946ec704d upstream.
+commit cd9d9377ed235b294a492a094e1666178a5e78fd upstream.
 
-Reading from the CMOS involves writing to the index register and then
-reading from the data register. Therefore access to the CMOS has to be
-serialized with rtc_lock. This invocation of CMOS_READ was not
-serialized, which could cause trouble when other code is accessing CMOS
-at the same time.
+If V4L2_CAP_READWRITE is not set, then readbuffers must be set to 0,
+otherwise v4l2-compliance will complain.
 
-Use spin_lock_irq() like the rest of the function.
+A note on the Fixes tag below: this patch does not really fix that commit,
+but it can be applied from that commit onwards. For older code there is no
+guarantee that device_caps is set, so even though this patch would apply,
+it will not work reliably.
 
-Nothing in kernel modifies the RTC_DM_BINARY bit, so there could be a
-separate pair of spin_lock_irq() / spin_unlock_irq() before doing the
-math.
-
-Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
-Reviewed-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
-Cc: Alessandro Zummo <a.zummo@towertech.it>
-Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20211210200131.153887-2-mat.jonczyk@o2.pl
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 049e684f2de9 (media: v4l2-dev: fix WARN_ON(!vdev->device_caps))
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rtc/rtc-cmos.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/media/v4l2-core/v4l2-ioctl.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/rtc/rtc-cmos.c
-+++ b/drivers/rtc/rtc-cmos.c
-@@ -463,7 +463,10 @@ static int cmos_set_alarm(struct device
- 	min = t->time.tm_min;
- 	sec = t->time.tm_sec;
- 
-+	spin_lock_irq(&rtc_lock);
- 	rtc_control = CMOS_READ(RTC_CONTROL);
-+	spin_unlock_irq(&rtc_lock);
-+
- 	if (!(rtc_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
- 		/* Writing 0xff means "don't care" or "match all".  */
- 		mon = (mon <= 12) ? bin2bcd(mon) : 0xff;
+--- a/drivers/media/v4l2-core/v4l2-ioctl.c
++++ b/drivers/media/v4l2-core/v4l2-ioctl.c
+@@ -2127,6 +2127,7 @@ static int v4l_prepare_buf(const struct
+ static int v4l_g_parm(const struct v4l2_ioctl_ops *ops,
+ 				struct file *file, void *fh, void *arg)
+ {
++	struct video_device *vfd = video_devdata(file);
+ 	struct v4l2_streamparm *p = arg;
+ 	v4l2_std_id std;
+ 	int ret = check_fmt(file, p->type);
+@@ -2138,7 +2139,8 @@ static int v4l_g_parm(const struct v4l2_
+ 	if (p->type != V4L2_BUF_TYPE_VIDEO_CAPTURE &&
+ 	    p->type != V4L2_BUF_TYPE_VIDEO_CAPTURE_MPLANE)
+ 		return -EINVAL;
+-	p->parm.capture.readbuffers = 2;
++	if (vfd->device_caps & V4L2_CAP_READWRITE)
++		p->parm.capture.readbuffers = 2;
+ 	ret = ops->vidioc_g_std(file, fh, &std);
+ 	if (ret == 0)
+ 		v4l2_video_std_frame_period(std, &p->parm.capture.timeperframe);
 
 
