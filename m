@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B719498508
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 17:41:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 67850498512
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 17:43:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243523AbiAXQlQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 11:41:16 -0500
-Received: from maynard.decadent.org.uk ([95.217.213.242]:42316 "EHLO
+        id S243842AbiAXQnw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 11:43:52 -0500
+Received: from maynard.decadent.org.uk ([95.217.213.242]:42338 "EHLO
         maynard.decadent.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243816AbiAXQlP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 11:41:15 -0500
+        with ESMTP id S243843AbiAXQnu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 11:43:50 -0500
 Received: from 168.7-181-91.adsl-dyn.isp.belgacom.be ([91.181.7.168] helo=deadeye)
         by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1nC2P2-00072V-Ve; Mon, 24 Jan 2022 17:41:12 +0100
+        id 1nC2RX-00072z-RA; Mon, 24 Jan 2022 17:43:47 +0100
 Received: from ben by deadeye with local (Exim 4.95)
         (envelope-from <ben@decadent.org.uk>)
-        id 1nC2P2-009zHq-7F;
-        Mon, 24 Jan 2022 17:41:12 +0100
-Date:   Mon, 24 Jan 2022 17:41:12 +0100
+        id 1nC2RX-009zJP-27;
+        Mon, 24 Jan 2022 17:43:47 +0100
+Date:   Mon, 24 Jan 2022 17:43:47 +0100
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     stable@vger.kernel.org
 Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+        David Stevens <stevensd@google.com>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>,
         Ross Zwisler <ross.zwisler@linux.intel.com>,
-        ". Andrew Morton" <akpm@linux-foundation.org>
-Subject: [PATCH 4.9 1/4] mm: add follow_pte_pmd()
-Message-ID: <Ye7WqMoYNyxOqWId@decadent.org.uk>
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.9 2/4] KVM: do not assume PTE is writable after follow_pfn
+Message-ID: <Ye7XQ+uWAtNM+OlG@decadent.org.uk>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="7PJpdcUOVP20QEjC"
+        protocol="application/pgp-signature"; boundary="4QeLih73rQ0GAnPj"
 Content-Disposition: inline
+In-Reply-To: <Ye7WqMoYNyxOqWId@decadent.org.uk>
 X-SA-Exim-Connect-IP: 91.181.7.168
 X-SA-Exim-Mail-From: ben@decadent.org.uk
 X-SA-Exim-Scanned: No (on maynard); SAEximRunCond expanded to false
@@ -40,154 +43,122 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---7PJpdcUOVP20QEjC
+--4QeLih73rQ0GAnPj
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-=46rom: Ross Zwisler <ross.zwisler@linux.intel.com>
+=46rom: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 097963959594c5eccaba42510f7033f703211bda upstream.
+commit bd2fae8da794b55bf2ac02632da3a151b10e664c upstream.
 
-Patch series "Write protect DAX PMDs in *sync path".
+In order to convert an HVA to a PFN, KVM usually tries to use
+the get_user_pages family of functinso.  This however is not
+possible for VM_IO vmas; in that case, KVM instead uses follow_pfn.
 
-Currently dax_mapping_entry_mkclean() fails to clean and write protect
-the pmd_t of a DAX PMD entry during an *sync operation.  This can result
-in data loss, as detailed in patch 2.
+In doing this however KVM loses the information on whether the
+PFN is writable.  That is usually not a problem because the main
+use of VM_IO vmas with KVM is for BARs in PCI device assignment,
+however it is a bug.  To fix it, use follow_pte and check pte_write
+while under the protection of the PTE lock.  The information can
+be used to fail hva_to_pfn_remapped or passed back to the
+caller via *writable.
 
-This series is based on Dan's "libnvdimm-pending" branch, which is the
-current home for Jan's "dax: Page invalidation fixes" series.  You can
-find a working tree here:
+Usage of follow_pfn was introduced in commit add6a0cd1c5b ("KVM: MMU: try t=
+o fix
+up page faults before giving up", 2016-07-05); however, even older version
+have the same issue, all the way back to commit 2e2e3738af33 ("KVM:
+Handle vma regions with no backing page", 2008-07-20), as they also did
+not check whether the PFN was writable.
 
-  https://git.kernel.org/cgit/linux/kernel/git/zwisler/linux.git/log/?h=3Dd=
-ax_pmd_clean
-
-This patch (of 2):
-
-Similar to follow_pte(), follow_pte_pmd() allows either a PTE leaf or a
-huge page PMD leaf to be found and returned.
-
-Link: http://lkml.kernel.org/r/1482272586-21177-2-git-send-email-ross.zwisl=
-er@linux.intel.com
-Signed-off-by: Ross Zwisler <ross.zwisler@linux.intel.com>
-Suggested-by: Dave Hansen <dave.hansen@intel.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Christoph Hellwig <hch@lst.de>
-Cc: Dan Williams <dan.j.williams@intel.com>
-Cc: Dave Chinner <david@fromorbit.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Matthew Wilcox <mawilcox@microsoft.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-[bwh: Backported to 4.9: adjust context]
+Fixes: 2e2e3738af33 ("KVM: Handle vma regions with no backing page")
+Reported-by: David Stevens <stevensd@google.com>
+Cc: 3pvd@google.com
+Cc: Jann Horn <jannh@google.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+[OP: backport to 4.19, adjust follow_pte() -> follow_pte_pmd()]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[bwh: Backport to 4.9: follow_pte_pmd() does not take start or end
+ parameters]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- include/linux/mm.h |  2 ++
- mm/memory.c        | 37 ++++++++++++++++++++++++++++++-------
- 2 files changed, 32 insertions(+), 7 deletions(-)
+ virt/kvm/kvm_main.c | 15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index 7a4c035b187f..81ee5d0b2642 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -1269,6 +1269,8 @@ int copy_page_range(struct mm_struct *dst, struct mm_=
-struct *src,
- 			struct vm_area_struct *vma);
- void unmap_mapping_range(struct address_space *mapping,
- 		loff_t const holebegin, loff_t const holelen, int even_cows);
-+int follow_pte_pmd(struct mm_struct *mm, unsigned long address,
-+			     pte_t **ptepp, pmd_t **pmdpp, spinlock_t **ptlp);
- int follow_pfn(struct vm_area_struct *vma, unsigned long address,
- 	unsigned long *pfn);
- int follow_phys(struct vm_area_struct *vma, unsigned long address,
-diff --git a/mm/memory.c b/mm/memory.c
-index c2890dc104d9..2b2cc69ddcce 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -3780,8 +3780,8 @@ int __pmd_alloc(struct mm_struct *mm, pud_t *pud, uns=
-igned long address)
- }
- #endif /* __PAGETABLE_PMD_FOLDED */
-=20
--static int __follow_pte(struct mm_struct *mm, unsigned long address,
--		pte_t **ptepp, spinlock_t **ptlp)
-+static int __follow_pte_pmd(struct mm_struct *mm, unsigned long address,
-+		pte_t **ptepp, pmd_t **pmdpp, spinlock_t **ptlp)
+diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+index db859b595dba..2729704f836e 100644
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1519,9 +1519,11 @@ static int hva_to_pfn_remapped(struct vm_area_struct=
+ *vma,
+ 			       kvm_pfn_t *p_pfn)
  {
- 	pgd_t *pgd;
- 	pud_t *pud;
-@@ -3798,11 +3798,20 @@ static int __follow_pte(struct mm_struct *mm, unsig=
-ned long address,
+ 	unsigned long pfn;
++	pte_t *ptep;
++	spinlock_t *ptl;
+ 	int r;
 =20
- 	pmd =3D pmd_offset(pud, address);
- 	VM_BUG_ON(pmd_trans_huge(*pmd));
--	if (pmd_none(*pmd) || unlikely(pmd_bad(*pmd)))
--		goto out;
+-	r =3D follow_pfn(vma, addr, &pfn);
++	r =3D follow_pte_pmd(vma->vm_mm, addr, &ptep, NULL, &ptl);
+ 	if (r) {
+ 		/*
+ 		 * get_user_pages fails for VM_IO and VM_PFNMAP vmas and does
+@@ -1536,14 +1538,19 @@ static int hva_to_pfn_remapped(struct vm_area_struc=
+t *vma,
+ 		if (r)
+ 			return r;
 =20
--	/* We cannot handle huge page PFN maps. Luckily they don't exist. */
--	if (pmd_huge(*pmd))
-+	if (pmd_huge(*pmd)) {
-+		if (!pmdpp)
-+			goto out;
-+
-+		*ptlp =3D pmd_lock(mm, pmd);
-+		if (pmd_huge(*pmd)) {
-+			*pmdpp =3D pmd;
-+			return 0;
-+		}
-+		spin_unlock(*ptlp);
+-		r =3D follow_pfn(vma, addr, &pfn);
++		r =3D follow_pte_pmd(vma->vm_mm, addr, &ptep, NULL, &ptl);
+ 		if (r)
+ 			return r;
 +	}
-+
-+	if (pmd_none(*pmd) || unlikely(pmd_bad(*pmd)))
- 		goto out;
 =20
- 	ptep =3D pte_offset_map_lock(mm, pmd, address, ptlp);
-@@ -3825,9 +3834,23 @@ static inline int follow_pte(struct mm_struct *mm, u=
-nsigned long address,
++	if (write_fault && !pte_write(*ptep)) {
++		pfn =3D KVM_PFN_ERR_RO_FAULT;
++		goto out;
+ 	}
 =20
- 	/* (void) is needed to make gcc happy */
- 	(void) __cond_lock(*ptlp,
--			   !(res =3D __follow_pte(mm, address, ptepp, ptlp)));
-+			   !(res =3D __follow_pte_pmd(mm, address, ptepp, NULL,
-+					   ptlp)));
-+	return res;
-+}
-+
-+int follow_pte_pmd(struct mm_struct *mm, unsigned long address,
-+			     pte_t **ptepp, pmd_t **pmdpp, spinlock_t **ptlp)
-+{
-+	int res;
-+
-+	/* (void) is needed to make gcc happy */
-+	(void) __cond_lock(*ptlp,
-+			   !(res =3D __follow_pte_pmd(mm, address, ptepp, pmdpp,
-+					   ptlp)));
- 	return res;
+ 	if (writable)
+-		*writable =3D true;
++		*writable =3D pte_write(*ptep);
++	pfn =3D pte_pfn(*ptep);
+=20
+ 	/*
+ 	 * Get a reference here because callers of *hva_to_pfn* and
+@@ -1558,6 +1565,8 @@ static int hva_to_pfn_remapped(struct vm_area_struct =
+*vma,
+ 	 */=20
+ 	kvm_get_pfn(pfn);
+=20
++out:
++	pte_unmap_unlock(ptep, ptl);
+ 	*p_pfn =3D pfn;
+ 	return 0;
  }
-+EXPORT_SYMBOL(follow_pte_pmd);
-=20
- /**
-  * follow_pfn - look up PFN at a user virtual address
 
 
---7PJpdcUOVP20QEjC
+--4QeLih73rQ0GAnPj
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmHu1qMACgkQ57/I7JWG
-EQms6hAAxRicDzU+Es6jYRDrqNQSe4g+va/ooFHsaWOyCRYsCeOZtcY2C7CGi5dz
-WqzE1XkFi1a8NTQ6ZAGh7n4s2K37w/z+jn+2QGiT5buT7ZY8rtmuJpn6rcHmpAk4
-mFfPKwyoiwees33tzwjjVI4v1oT1TlE5WcvR9O3pSENA+jsGulx8bCE14zD0HECm
-mfMcAvX4tDMEJI2RRqdfUPB34D/5zf8rcl1xrg2fCsDYVeNmYlPqv+YXbqUa/Kpn
-BiuZ5OT7CEAcL+axg6IWb5c9IELMh7s0QTwG35TosQlTfVi7pqJTV9KQkCC5EeP8
-VY5iBiVN8NLzFIJwoApUdq+w31GKyQf364/f5iGZ+yeCD5dAtFwpDNwEn8zfbuwZ
-sdNBDLTmotd7iqYobrZ9aQH9pQvBxNQM7S92AmA2DozJbY2UXkbacok+cyKf0HAk
-s3gi3aW69bnPmyKD4pxZEKPdtvu9nMgxgN5Jx8rMshGAw6PkZzR0EDjkyss/Piwf
-pm3tG2KS9v6a08JsWmEsD0JDKpvBhvmLoK0zJH1o9avrN4CuE2wb61Jn3R0Q1j9b
-cpc+GDA/wBjG8OxklcLOPx/viHZbFOZFL30yviArNY2ghwpAq2aDunn5tGKMHb9F
-tyWxQM7EIRWeORx8CsFQGbV4YO6lZjd/CwydeJmrsVzqYKRutls=
-=IjFR
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmHu10IACgkQ57/I7JWG
+EQn9nw/+PycD1kYltDKXr4W+P1BIcYha7CJgYlqcVAELLqPBo2wm3SA7M5B5I6fm
+Rb4dfQ0A3LbtrrJ3Nd2p+4BZ8q6BeNa5dtGKsi0ojLWcm0NvuT6IaC0S7pSKtFKW
++ND7shgoquIfEw2WfYKWj4Hoet3dGdwT8hP63Jom/Wywva4jJIIQxcLcZ+E3H+8P
+KhUOCXRF7a/omwYyfFzIb7k1uvYFJQ1TCf2NKAs019FeDM8szMt/zqe//7rjL3qr
+JoMN+O/CjAfn/azR02SvvcMK/PbbOXM/hJpUS0Bc1NoYyryg+dys7yRejfQrPhk7
+bu5NiSfte9AdiLvS/FFDviBWxjqLd/ftDCdMOGQb1H0nZXEB26zaJFE3hnozHTFj
+FDsnohcG/ciNTKdrc3h2V9nhuqhNP6PsTkT4nxmHoK+EkMyYT/vQJTyWt2TDC7+k
+Re2KRsQvHCfGVvz5Zmq6hkdnZEOuSjs7UU+00ywKWb9BEIJrA+mp0Veatq/E4fzw
+rbWKZpwwYaalG1IYfD46GUm0U8O0yWbwK8Oj8O/RlRKbJmqHZWny6MNX34yHl8AU
+0PTs4eg3i/8TdGMU+p6+C7nI6XSf1JvOrAfFlQ3mAjPMJKLtg3SgO0xVJWJzFOvg
+ijKngntjnUJIDBaRs9X1Kic/DUrNujuwvvt3b9SHPVEceti+PaA=
+=EQVd
 -----END PGP SIGNATURE-----
 
---7PJpdcUOVP20QEjC--
+--4QeLih73rQ0GAnPj--
