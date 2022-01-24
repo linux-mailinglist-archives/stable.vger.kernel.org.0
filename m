@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04BD549909A
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:04:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE18B498B29
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:12:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245534AbiAXUBt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:01:49 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:44866 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359363AbiAXT7i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:59:38 -0500
+        id S1345821AbiAXTML (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:12:11 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:35354 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346307AbiAXTFU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:05:20 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DAA2FB8119E;
-        Mon, 24 Jan 2022 19:59:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 349C7C340E5;
-        Mon, 24 Jan 2022 19:59:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A1BFC6090C;
+        Mon, 24 Jan 2022 19:05:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87ABFC340E5;
+        Mon, 24 Jan 2022 19:05:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054373;
-        bh=H866M6xCOcdYv+r6p734DGCGRCl35R3+8VLYrg5bNJg=;
+        s=korg; t=1643051119;
+        bh=L+D8ygZg8nA3DH0SFS5Lyv8rS0iugtNq3Ryw1EXoYQw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yoTZEiippC5IVv/nLR4Eg0BBkU0gMnf57zNBtRV+n0vOnV7tj4pu4zepahpVu+dV7
-         qNOzD89nXidFLNcGMBc3yu4u46xVA/WlZpDQUdPVjxGi8v64rkv6jqotcW9d0s85i9
-         ZbJnTz5JmuPGpk2nfcevw93PswewyecgAE9DXGto=
+        b=bmqszoxtkFaxTpuoRKKo8suU2gLo47ESdbHp7J+W6TCC9p5eMI9mCHKPp3XgKK3Yi
+         wpwhnxiEgBsitkUOXA8JlQPo9zlnCK1lrmZOokd1WhYsKV5wSDcUIUUbJi2Sx8lOaT
+         W+drb5PUcRv5eaMROhcpHWZHuAN9YkUP2lETSggo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Paul Mackerras <paulus@samba.org>, linux-ppp@vger.kernel.org,
+        syzbot <syzkaller@googlegroups.com>,
+        Guillaume Nault <gnault@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 369/563] PM: runtime: Add safety net to supplier device release
-Date:   Mon, 24 Jan 2022 19:42:14 +0100
-Message-Id: <20220124184037.180762615@linuxfoundation.org>
+Subject: [PATCH 4.14 060/186] ppp: ensure minimum packet size in ppp_write()
+Date:   Mon, 24 Jan 2022 19:42:15 +0100
+Message-Id: <20220124183939.055809667@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
+References: <20220124183937.101330125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,135 +48,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit d1579e61192e0e686faa4208500ef4c3b529b16c ]
+[ Upstream commit 44073187990d5629804ce0627525f6ea5cfef171 ]
 
-Because refcount_dec_not_one() returns true if the target refcount
-becomes saturated, it is generally unsafe to use its return value as
-a loop termination condition, but that is what happens when a device
-link's supplier device is released during runtime PM suspend
-operations and on device link removal.
+It seems pretty clear ppp layer assumed user space
+would always be kind to provide enough data
+in their write() to a ppp device.
 
-To address this, introduce pm_runtime_release_supplier() to be used
-in the above cases which will check the supplier device's runtime
-PM usage counter in addition to the refcount_dec_not_one() return
-value, so the loop can be terminated in case the rpm_active refcount
-value becomes invalid, and update the code in question to use it as
-appropriate.
+This patch makes sure user provides at least
+2 bytes.
 
-This change is not expected to have any visible functional impact.
+It adds PPP_PROTO_LEN macro that could replace
+in net-next many occurrences of hard-coded 2 value.
 
-Reported-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+I replaced only one occurrence to ease backports
+to stable kernels.
+
+The bug manifests in the following report:
+
+BUG: KMSAN: uninit-value in ppp_send_frame+0x28d/0x27c0 drivers/net/ppp/ppp_generic.c:1740
+ ppp_send_frame+0x28d/0x27c0 drivers/net/ppp/ppp_generic.c:1740
+ __ppp_xmit_process+0x23e/0x4b0 drivers/net/ppp/ppp_generic.c:1640
+ ppp_xmit_process+0x1fe/0x480 drivers/net/ppp/ppp_generic.c:1661
+ ppp_write+0x5cb/0x5e0 drivers/net/ppp/ppp_generic.c:513
+ do_iter_write+0xb0c/0x1500 fs/read_write.c:853
+ vfs_writev fs/read_write.c:924 [inline]
+ do_writev+0x645/0xe00 fs/read_write.c:967
+ __do_sys_writev fs/read_write.c:1040 [inline]
+ __se_sys_writev fs/read_write.c:1037 [inline]
+ __x64_sys_writev+0xe5/0x120 fs/read_write.c:1037
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:524 [inline]
+ slab_alloc_node mm/slub.c:3251 [inline]
+ __kmalloc_node_track_caller+0xe0c/0x1510 mm/slub.c:4974
+ kmalloc_reserve net/core/skbuff.c:354 [inline]
+ __alloc_skb+0x545/0xf90 net/core/skbuff.c:426
+ alloc_skb include/linux/skbuff.h:1126 [inline]
+ ppp_write+0x11d/0x5e0 drivers/net/ppp/ppp_generic.c:501
+ do_iter_write+0xb0c/0x1500 fs/read_write.c:853
+ vfs_writev fs/read_write.c:924 [inline]
+ do_writev+0x645/0xe00 fs/read_write.c:967
+ __do_sys_writev fs/read_write.c:1040 [inline]
+ __se_sys_writev fs/read_write.c:1037 [inline]
+ __x64_sys_writev+0xe5/0x120 fs/read_write.c:1037
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: linux-ppp@vger.kernel.org
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Acked-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/core.c          |  3 +--
- drivers/base/power/runtime.c | 41 ++++++++++++++++++++++++++----------
- include/linux/pm_runtime.h   |  3 +++
- 3 files changed, 34 insertions(+), 13 deletions(-)
+ drivers/net/ppp/ppp_generic.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index 389d13616d1df..c0566aff53551 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -348,8 +348,7 @@ static void device_link_release_fn(struct work_struct *work)
- 	/* Ensure that all references to the link object have been dropped. */
- 	device_link_synchronize_removal();
+diff --git a/drivers/net/ppp/ppp_generic.c b/drivers/net/ppp/ppp_generic.c
+index c6e067aae9551..81a4fe9706be6 100644
+--- a/drivers/net/ppp/ppp_generic.c
++++ b/drivers/net/ppp/ppp_generic.c
+@@ -72,6 +72,8 @@
+ #define MPHDRLEN	6	/* multilink protocol header length */
+ #define MPHDRLEN_SSN	4	/* ditto with short sequence numbers */
  
--	while (refcount_dec_not_one(&link->rpm_active))
--		pm_runtime_put(link->supplier);
-+	pm_runtime_release_supplier(link, true);
- 
- 	put_device(link->consumer);
- 	put_device(link->supplier);
-diff --git a/drivers/base/power/runtime.c b/drivers/base/power/runtime.c
-index bc649da4899a0..1573319404888 100644
---- a/drivers/base/power/runtime.c
-+++ b/drivers/base/power/runtime.c
-@@ -305,19 +305,40 @@ static int rpm_get_suppliers(struct device *dev)
- 	return 0;
- }
- 
-+/**
-+ * pm_runtime_release_supplier - Drop references to device link's supplier.
-+ * @link: Target device link.
-+ * @check_idle: Whether or not to check if the supplier device is idle.
-+ *
-+ * Drop all runtime PM references associated with @link to its supplier device
-+ * and if @check_idle is set, check if that device is idle (and so it can be
-+ * suspended).
-+ */
-+void pm_runtime_release_supplier(struct device_link *link, bool check_idle)
-+{
-+	struct device *supplier = link->supplier;
++#define PPP_PROTO_LEN	2
 +
-+	/*
-+	 * The additional power.usage_count check is a safety net in case
-+	 * the rpm_active refcount becomes saturated, in which case
-+	 * refcount_dec_not_one() would return true forever, but it is not
-+	 * strictly necessary.
-+	 */
-+	while (refcount_dec_not_one(&link->rpm_active) &&
-+	       atomic_read(&supplier->power.usage_count) > 0)
-+		pm_runtime_put_noidle(supplier);
-+
-+	if (check_idle)
-+		pm_request_idle(supplier);
-+}
-+
- static void __rpm_put_suppliers(struct device *dev, bool try_to_suspend)
- {
- 	struct device_link *link;
+ /*
+  * An instance of /dev/ppp can be associated with either a ppp
+  * interface unit or a ppp channel.  In both cases, file->private_data
+@@ -501,6 +503,9 @@ static ssize_t ppp_write(struct file *file, const char __user *buf,
  
- 	list_for_each_entry_rcu(link, &dev->links.suppliers, c_node,
--				device_links_read_lock_held()) {
--
--		while (refcount_dec_not_one(&link->rpm_active))
--			pm_runtime_put_noidle(link->supplier);
--
--		if (try_to_suspend)
--			pm_request_idle(link->supplier);
--	}
-+				device_links_read_lock_held())
-+		pm_runtime_release_supplier(link, try_to_suspend);
- }
+ 	if (!pf)
+ 		return -ENXIO;
++	/* All PPP packets should start with the 2-byte protocol */
++	if (count < PPP_PROTO_LEN)
++		return -EINVAL;
+ 	ret = -ENOMEM;
+ 	skb = alloc_skb(count + pf->hdrlen, GFP_KERNEL);
+ 	if (!skb)
+@@ -1564,7 +1569,7 @@ ppp_send_frame(struct ppp *ppp, struct sk_buff *skb)
+ 	}
  
- static void rpm_put_suppliers(struct device *dev)
-@@ -1755,9 +1776,7 @@ void pm_runtime_drop_link(struct device_link *link)
- 		return;
+ 	++ppp->stats64.tx_packets;
+-	ppp->stats64.tx_bytes += skb->len - 2;
++	ppp->stats64.tx_bytes += skb->len - PPP_PROTO_LEN;
  
- 	pm_runtime_drop_link_count(link->consumer);
--
--	while (refcount_dec_not_one(&link->rpm_active))
--		pm_runtime_put(link->supplier);
-+	pm_runtime_release_supplier(link, true);
- }
- 
- static bool pm_runtime_need_not_resume(struct device *dev)
-diff --git a/include/linux/pm_runtime.h b/include/linux/pm_runtime.h
-index 161acd4ede448..30091ab5de287 100644
---- a/include/linux/pm_runtime.h
-+++ b/include/linux/pm_runtime.h
-@@ -58,6 +58,7 @@ extern void pm_runtime_get_suppliers(struct device *dev);
- extern void pm_runtime_put_suppliers(struct device *dev);
- extern void pm_runtime_new_link(struct device *dev);
- extern void pm_runtime_drop_link(struct device_link *link);
-+extern void pm_runtime_release_supplier(struct device_link *link, bool check_idle);
- 
- /**
-  * pm_runtime_get_if_in_use - Conditionally bump up runtime PM usage counter.
-@@ -279,6 +280,8 @@ static inline void pm_runtime_get_suppliers(struct device *dev) {}
- static inline void pm_runtime_put_suppliers(struct device *dev) {}
- static inline void pm_runtime_new_link(struct device *dev) {}
- static inline void pm_runtime_drop_link(struct device_link *link) {}
-+static inline void pm_runtime_release_supplier(struct device_link *link,
-+					       bool check_idle) {}
- 
- #endif /* !CONFIG_PM */
- 
+ 	switch (proto) {
+ 	case PPP_IP:
 -- 
 2.34.1
 
