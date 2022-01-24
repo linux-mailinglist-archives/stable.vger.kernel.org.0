@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6080C499984
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:45:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 208FB499CA7
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:13:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1455571AbiAXVfk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:35:40 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:46086 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377233AbiAXV3J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:29:09 -0500
+        id S1579512AbiAXWFu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:05:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59504 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1574933AbiAXV7G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:59:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53DEFC02B8C4;
+        Mon, 24 Jan 2022 12:39:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DB37D614D9;
-        Mon, 24 Jan 2022 21:29:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C41EFC340F8;
-        Mon, 24 Jan 2022 21:29:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CAA7EB811FB;
+        Mon, 24 Jan 2022 20:39:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01E93C340E5;
+        Mon, 24 Jan 2022 20:39:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059748;
-        bh=CZwN9XuDQUkbNMVEEIxVWPpXVAE2UgZwHjhnWnLbtBI=;
+        s=korg; t=1643056757;
+        bh=RrkQfr1N8/D9I56nK7YQ11YiOSyDN+pImc2mLPrVi0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bEkeCw1KDaLX3y0l/Mx19GMH+hOge4tM6E6UKj7SeD5Qt58TsQ++f9GiFaRkYhEUk
-         UQfTqC8UX+MrR68+wRZNFwlfrTtMBJwwv5UiCZapSaHm59vxrBUjpfdAHD0Pc7wVTI
-         U2P557Q5gqhhzXq12mtNa3XivpNGZxoylpDZPwiw=
+        b=Nt6oV2pOroFqKlgSmfNrX5gI+VLaoGd2p40qcLR0SalB0bi2/6HS4EbTbDdHH6yYe
+         WfKoSLewVg0jiPGOKzrvJikjo6z4G8DjH63ICwI7aWqdFlsoCYgMzvkxDmLzkc0RXu
+         PjKPXdgU4ofuumxBwc5YXXOJJ53y/dzDEOXuLhEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Corentin Labbe <clabbe.montjoie@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Lenny Szubowicz <lszubowi@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Bob Moore <robert.moore@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0719/1039] net: gemini: allow any RGMII interface mode
+Subject: [PATCH 5.15 591/846] ACPICA: Executer: Fix the REFCLASS_REFOF case in acpi_ex_opcode_1A_0T_1R()
 Date:   Mon, 24 Jan 2022 19:41:48 +0100
-Message-Id: <20220124184149.498059748@linuxfoundation.org>
+Message-Id: <20220124184121.419404333@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,69 +49,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 4e4f325a0a55907b14f579e6b1a38c53755e3de2 ]
+[ Upstream commit 24ea5f90ec9548044a6209685c5010edd66ffe8f ]
 
-The four RGMII interface modes take care of the required RGMII delay
-configuration at the PHY and should not be limited by the network MAC
-driver. Sadly, gemini was only permitting RGMII mode with no delays,
-which would require the required delay to be inserted via PCB tracking
-or by the MAC.
+ACPICA commit d984f12041392fa4156b52e2f7e5c5e7bc38ad9e
 
-However, there are designs that require the PHY to add the delay, which
-is impossible without Gemini permitting the other three PHY interface
-modes. Fix the driver to allow these.
+If Operand[0] is a reference of the ACPI_REFCLASS_REFOF class,
+acpi_ex_opcode_1A_0T_1R () calls acpi_ns_get_attached_object () to
+obtain return_desc which may require additional resolution with
+the help of acpi_ex_read_data_from_field (). If the latter fails,
+the reference counter of the original return_desc is decremented
+which is incorrect, because acpi_ns_get_attached_object () does not
+increment the reference counter of the object returned by it.
 
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Tested-by: Corentin Labbe <clabbe.montjoie@gmail.com>
-Link: https://lore.kernel.org/r/E1n4mpT-002PLd-Ha@rmk-PC.armlinux.org.uk
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This issue may lead to premature deletion of the attached object
+while it is still attached and a use-after-free and crash in the
+host OS.  For example, this may happen when on evaluation of ref_of()
+a local region field where there is no registered handler for the
+given Operation Region.
+
+Fix it by making acpi_ex_opcode_1A_0T_1R () return Status right away
+after a acpi_ex_read_data_from_field () failure.
+
+Link: https://github.com/acpica/acpica/commit/d984f120
+Link: https://github.com/acpica/acpica/pull/685
+Reported-by: Lenny Szubowicz <lszubowi@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Bob Moore <robert.moore@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cortina/gemini.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/acpi/acpica/exoparg1.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/cortina/gemini.c b/drivers/net/ethernet/cortina/gemini.c
-index 941f175fb911e..0ff40a9b06cec 100644
---- a/drivers/net/ethernet/cortina/gemini.c
-+++ b/drivers/net/ethernet/cortina/gemini.c
-@@ -305,21 +305,21 @@ static void gmac_speed_set(struct net_device *netdev)
- 	switch (phydev->speed) {
- 	case 1000:
- 		status.bits.speed = GMAC_SPEED_1000;
--		if (phydev->interface == PHY_INTERFACE_MODE_RGMII)
-+		if (phy_interface_mode_is_rgmii(phydev->interface))
- 			status.bits.mii_rmii = GMAC_PHY_RGMII_1000;
- 		netdev_dbg(netdev, "connect %s to RGMII @ 1Gbit\n",
- 			   phydev_name(phydev));
- 		break;
- 	case 100:
- 		status.bits.speed = GMAC_SPEED_100;
--		if (phydev->interface == PHY_INTERFACE_MODE_RGMII)
-+		if (phy_interface_mode_is_rgmii(phydev->interface))
- 			status.bits.mii_rmii = GMAC_PHY_RGMII_100_10;
- 		netdev_dbg(netdev, "connect %s to RGMII @ 100 Mbit\n",
- 			   phydev_name(phydev));
- 		break;
- 	case 10:
- 		status.bits.speed = GMAC_SPEED_10;
--		if (phydev->interface == PHY_INTERFACE_MODE_RGMII)
-+		if (phy_interface_mode_is_rgmii(phydev->interface))
- 			status.bits.mii_rmii = GMAC_PHY_RGMII_100_10;
- 		netdev_dbg(netdev, "connect %s to RGMII @ 10 Mbit\n",
- 			   phydev_name(phydev));
-@@ -389,6 +389,9 @@ static int gmac_setup_phy(struct net_device *netdev)
- 		status.bits.mii_rmii = GMAC_PHY_GMII;
- 		break;
- 	case PHY_INTERFACE_MODE_RGMII:
-+	case PHY_INTERFACE_MODE_RGMII_ID:
-+	case PHY_INTERFACE_MODE_RGMII_TXID:
-+	case PHY_INTERFACE_MODE_RGMII_RXID:
- 		netdev_dbg(netdev,
- 			   "RGMII: set GMAC0 and GMAC1 to MII/RGMII mode\n");
- 		status.bits.mii_rmii = GMAC_PHY_RGMII_100_10;
+diff --git a/drivers/acpi/acpica/exoparg1.c b/drivers/acpi/acpica/exoparg1.c
+index b639e930d6429..44b7c350ed5ca 100644
+--- a/drivers/acpi/acpica/exoparg1.c
++++ b/drivers/acpi/acpica/exoparg1.c
+@@ -1007,7 +1007,8 @@ acpi_status acpi_ex_opcode_1A_0T_1R(struct acpi_walk_state *walk_state)
+ 						    (walk_state, return_desc,
+ 						     &temp_desc);
+ 						if (ACPI_FAILURE(status)) {
+-							goto cleanup;
++							return_ACPI_STATUS
++							    (status);
+ 						}
+ 
+ 						return_desc = temp_desc;
 -- 
 2.34.1
 
