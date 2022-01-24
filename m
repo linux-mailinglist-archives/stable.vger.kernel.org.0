@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4F67499A8F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F706499AE3
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:58:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1573518AbiAXVpC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:45:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55294 "EHLO
+        id S1379133AbiAXVrh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:47:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378443AbiAXVha (ORCPT
+        with ESMTP id S1378450AbiAXVha (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:37:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84C58C05A1AD;
-        Mon, 24 Jan 2022 12:23:42 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CEBDCC0BD11F;
+        Mon, 24 Jan 2022 12:23:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 42605B81229;
-        Mon, 24 Jan 2022 20:23:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75DF1C340E5;
-        Mon, 24 Jan 2022 20:23:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6ED1061508;
+        Mon, 24 Jan 2022 20:23:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56A98C340E5;
+        Mon, 24 Jan 2022 20:23:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055820;
-        bh=wfcsLF7GIouIju6cw/S1WOUfuc/YG6E3MeAJ34xQqVk=;
+        s=korg; t=1643055822;
+        bh=QpiE+taEYJblwXqiRaGhxJmlRwyfXr5z1r7JVboBS40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jsSmn6vQnSZrTBpIllBXkq0Ib4cv3EEMINfpjAk1eRxfWOwKLsHDLBoW4qf4fECMU
-         0tWpKsk2+rT6UXcacfLy3qUPwLVr4XUAMOOTlouXzUmp0LoC4MbozFa5pNCZQzTHM+
-         Xi24UyV1nVgY8qgq3kSBQl9h0ZE2TXgo9qxSIdt4=
+        b=m+YHDcP5U3gNO+pqiirB5BpN8QKCAcQxlhMB7Pm2SO0G4j/bL0BojXgaAxAr4klBw
+         1rWC/mWih6DzL76BnypzMse7MWCdA6JYXfyP7FbAFp3XanpJjpuB9aHP9odmlP7eoz
+         liMYcUli98AkkgolUvSYZFYg9iwf+SCqMwCNPs9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+28a66a9fbc621c939000@syzkaller.appspotmail.com>,
-        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Bernard Zhao <bernard@vivo.com>,
+        Paul Moore <paul@paul-moore.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 276/846] block: fix error unwinding in device_add_disk
-Date:   Mon, 24 Jan 2022 19:36:33 +0100
-Message-Id: <20220124184110.463545039@linuxfoundation.org>
+Subject: [PATCH 5.15 277/846] selinux: fix potential memleak in selinux_add_opt()
+Date:   Mon, 24 Jan 2022 19:36:34 +0100
+Message-Id: <20220124184110.492248490@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -49,65 +48,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Bernard Zhao <bernard@vivo.com>
 
-[ Upstream commit 99d8690aae4b2f0d1d90075de355ac087f820a66 ]
+[ Upstream commit 2e08df3c7c4e4e74e3dd5104c100f0bf6288aaa8 ]
 
-One device_add is called disk->ev will be freed by disk_release, so we
-should free it twice.  Fix this by allocating disk->ev after device_add
-so that the extra local unwinding can be removed entirely.
+This patch try to fix potential memleak in error branch.
 
-Based on an earlier patch from Tetsuo Handa.
-
-Reported-by: syzbot <syzbot+28a66a9fbc621c939000@syzkaller.appspotmail.com>
-Tested-by: syzbot <syzbot+28a66a9fbc621c939000@syzkaller.appspotmail.com>
-Fixes: 83cbce9574462c6b ("block: add error handling for device_add_disk / add_disk")
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20211221161851.788424-1-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: ba6418623385 ("selinux: new helper - selinux_add_opt()")
+Signed-off-by: Bernard Zhao <bernard@vivo.com>
+[PM: tweak the subject line, add Fixes tag]
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/genhd.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ security/selinux/hooks.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/block/genhd.c b/block/genhd.c
-index f091a60dcf1ea..22f899615801c 100644
---- a/block/genhd.c
-+++ b/block/genhd.c
-@@ -432,10 +432,6 @@ int device_add_disk(struct device *parent, struct gendisk *disk,
- 		disk->flags |= GENHD_FL_EXT_DEVT;
+diff --git a/security/selinux/hooks.c b/security/selinux/hooks.c
+index 9309e62d46eda..baa12d1007c7c 100644
+--- a/security/selinux/hooks.c
++++ b/security/selinux/hooks.c
+@@ -987,18 +987,22 @@ out:
+ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
+ {
+ 	struct selinux_mnt_opts *opts = *mnt_opts;
++	bool is_alloc_opts = false;
+ 
+ 	if (token == Opt_seclabel)	/* eaten and completely ignored */
+ 		return 0;
+ 
++	if (!s)
++		return -ENOMEM;
++
+ 	if (!opts) {
+ 		opts = kzalloc(sizeof(struct selinux_mnt_opts), GFP_KERNEL);
+ 		if (!opts)
+ 			return -ENOMEM;
+ 		*mnt_opts = opts;
++		is_alloc_opts = true;
  	}
- 
--	ret = disk_alloc_events(disk);
--	if (ret)
--		goto out_free_ext_minor;
--
- 	/* delay uevents, until we scanned partition table */
- 	dev_set_uevent_suppress(ddev, 1);
- 
-@@ -446,7 +442,12 @@ int device_add_disk(struct device *parent, struct gendisk *disk,
- 		ddev->devt = MKDEV(disk->major, disk->first_minor);
- 	ret = device_add(ddev);
- 	if (ret)
--		goto out_disk_release_events;
-+		goto out_free_ext_minor;
+-	if (!s)
+-		return -ENOMEM;
 +
-+	ret = disk_alloc_events(disk);
-+	if (ret)
-+		goto out_device_del;
-+
- 	if (!sysfs_deprecated) {
- 		ret = sysfs_create_link(block_depr, &ddev->kobj,
- 					kobject_name(&ddev->kobj));
-@@ -534,8 +535,6 @@ out_del_block_link:
- 		sysfs_remove_link(block_depr, dev_name(ddev));
- out_device_del:
- 	device_del(ddev);
--out_disk_release_events:
--	disk_release_events(disk);
- out_free_ext_minor:
- 	if (disk->major == BLOCK_EXT_MAJOR)
- 		blk_free_ext_minor(disk->first_minor);
+ 	switch (token) {
+ 	case Opt_context:
+ 		if (opts->context || opts->defcontext)
+@@ -1023,6 +1027,10 @@ static int selinux_add_opt(int token, const char *s, void **mnt_opts)
+ 	}
+ 	return 0;
+ Einval:
++	if (is_alloc_opts) {
++		kfree(opts);
++		*mnt_opts = NULL;
++	}
+ 	pr_warn(SEL_MOUNT_FAIL_MSG);
+ 	return -EINVAL;
+ }
 -- 
 2.34.1
 
