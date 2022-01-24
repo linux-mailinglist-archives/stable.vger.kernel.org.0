@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7181D499531
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:09:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6830A499C11
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:06:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1392406AbiAXUvK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:51:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42256 "EHLO
+        id S1577148AbiAXV7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:59:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390184AbiAXUpD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:45:03 -0500
+        with ESMTP id S1456750AbiAXVzC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:55:02 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DD76C061381;
-        Mon, 24 Jan 2022 11:54:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61500C07E295;
+        Mon, 24 Jan 2022 12:36:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C6CD61012;
-        Mon, 24 Jan 2022 19:54:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82AE6C340E5;
-        Mon, 24 Jan 2022 19:54:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 01C4E61536;
+        Mon, 24 Jan 2022 20:36:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D111CC340E5;
+        Mon, 24 Jan 2022 20:35:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054090;
-        bh=6j0VPUnXttJfHiteE5SxThT+4Mz+16P0Y0QVdGbg2/k=;
+        s=korg; t=1643056559;
+        bh=mVwKOa9TdbM1aRje2DNNGkcxM/BY7WVf6u62VGJnVNo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y2RpqiQnpMLiWlVt3opMIG63jgQtApxmGOwApqSbp6SkeWEr95vxgV2bwTC6o/RKg
-         piawuthXqJXp2NrIcVfL0nYTYP9RaMRRPn9qIORHCS3tC61YqZOCDNSTQDj9hmyZQB
-         G+7gct8lGddLL8Cee3eBP60w2Elfw7+h/W9CAGrg=
+        b=gTUsgdr899ihHNllE6u+2f8mw2tcMhBipmfFdg6peEWTnH+xzZ4iWosNBhc5UE2fm
+         J0VEYiLoMqUH0xiU/Yz1CCBgJ3uowk8h6IvcQN3HPOb1LKx+BA7p2yRMi9QWd6IZgc
+         2P9J4m8mvfahU0O9NQb/1jx+Dvseh/YzitPTD53U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
+        <niklas.soderlund+renesas@ragnatech.se>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 275/563] mips: fix Kconfig reference to PHYS_ADDR_T_64BIT
-Date:   Mon, 24 Jan 2022 19:40:40 +0100
-Message-Id: <20220124184033.951928346@linuxfoundation.org>
+Subject: [PATCH 5.15 524/846] media: rcar-vin: Update format alignment constraints
+Date:   Mon, 24 Jan 2022 19:40:41 +0100
+Message-Id: <20220124184119.088634474@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,50 +51,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+From: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
 
-[ Upstream commit a670c82d9ca4f1e7385d9d6f26ff41a50fbdd944 ]
+[ Upstream commit da6911f330d40cfe115a37249e47643eff555e82 ]
 
-Commit d4a451d5fc84 ("arch: remove the ARCH_PHYS_ADDR_T_64BIT config
-symbol") removes config ARCH_PHYS_ADDR_T_64BIT with all instances of that
-config refactored appropriately. Since then, it is recommended to use the
-config PHYS_ADDR_T_64BIT instead.
+This change fixes two issues with the size constraints for buffers.
 
-Commit 171543e75272 ("MIPS: Disallow CPU_SUPPORTS_HUGEPAGES for XPA,EVA")
-introduces the expression "!(32BIT && (ARCH_PHYS_ADDR_T_64BIT || EVA))"
-for config CPU_SUPPORTS_HUGEPAGES, which unintentionally refers to the
-non-existing symbol ARCH_PHYS_ADDR_T_64BIT instead of the intended
-PHYS_ADDR_T_64BIT.
+- There is no width alignment constraint for RGB formats. Prior to this
+  change they were treated as YUV and as a result were more restricted
+  than needed. Add a new check to differentiate between the two.
 
-Fix this Kconfig reference to the intended PHYS_ADDR_T_64BIT.
+- The minimum width and height supported is 5x2, not 2x4, this is an
+  artifact from the driver's soc-camera days. Fix this incorrect
+  assumption.
 
-This issue was identified with the script ./scripts/checkkconfigsymbols.py.
-I then reported it on the mailing list and Paul confirmed the mistake in
-the linked email thread.
-
-Link: https://lore.kernel.org/lkml/H8IU3R.H5QVNRA077PT@crapouillou.net/
-Suggested-by: Paul Cercueil <paul@crapouillou.net>
-Fixes: 171543e75272 ("MIPS: Disallow CPU_SUPPORTS_HUGEPAGES for XPA,EVA")
-Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/platform/rcar-vin/rcar-v4l2.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
-diff --git a/arch/mips/Kconfig b/arch/mips/Kconfig
-index db8fe5d7a2377..3442bdd4314cb 100644
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -2150,7 +2150,7 @@ config CPU_SUPPORTS_ADDRWINCFG
- 	bool
- config CPU_SUPPORTS_HUGEPAGES
- 	bool
--	depends on !(32BIT && (ARCH_PHYS_ADDR_T_64BIT || EVA))
-+	depends on !(32BIT && (PHYS_ADDR_T_64BIT || EVA))
- config MIPS_PGD_C0_CONTEXT
- 	bool
- 	default y if 64BIT && (CPU_MIPSR2 || CPU_MIPSR6) && !CPU_XLP
+diff --git a/drivers/media/platform/rcar-vin/rcar-v4l2.c b/drivers/media/platform/rcar-vin/rcar-v4l2.c
+index 0d141155f0e3e..eb8c79bac540f 100644
+--- a/drivers/media/platform/rcar-vin/rcar-v4l2.c
++++ b/drivers/media/platform/rcar-vin/rcar-v4l2.c
+@@ -175,20 +175,27 @@ static void rvin_format_align(struct rvin_dev *vin, struct v4l2_pix_format *pix)
+ 		break;
+ 	}
+ 
+-	/* HW limit width to a multiple of 32 (2^5) for NV12/16 else 2 (2^1) */
++	/* Hardware limits width alignment based on format. */
+ 	switch (pix->pixelformat) {
++	/* Multiple of 32 (2^5) for NV12/16. */
+ 	case V4L2_PIX_FMT_NV12:
+ 	case V4L2_PIX_FMT_NV16:
+ 		walign = 5;
+ 		break;
+-	default:
++	/* Multiple of 2 (2^1) for YUV. */
++	case V4L2_PIX_FMT_YUYV:
++	case V4L2_PIX_FMT_UYVY:
+ 		walign = 1;
+ 		break;
++	/* No multiple for RGB. */
++	default:
++		walign = 0;
++		break;
+ 	}
+ 
+ 	/* Limit to VIN capabilities */
+-	v4l_bound_align_image(&pix->width, 2, vin->info->max_width, walign,
+-			      &pix->height, 4, vin->info->max_height, 2, 0);
++	v4l_bound_align_image(&pix->width, 5, vin->info->max_width, walign,
++			      &pix->height, 2, vin->info->max_height, 0, 0);
+ 
+ 	pix->bytesperline = rvin_format_bytesperline(vin, pix);
+ 	pix->sizeimage = rvin_format_sizeimage(pix);
 -- 
 2.34.1
 
