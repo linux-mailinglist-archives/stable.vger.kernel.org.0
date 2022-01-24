@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 77EFF49A30F
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:02:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BB9F49A485
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:09:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386884AbiAXXtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:49:25 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:46378 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1454535AbiAXVdG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:33:06 -0500
+        id S2369526AbiAYACB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:02:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53370 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1383546AbiAXX2E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:28:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 078F0C01D7F4;
+        Mon, 24 Jan 2022 13:31:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A8912B81188;
-        Mon, 24 Jan 2022 21:33:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6736C340E4;
-        Mon, 24 Jan 2022 21:33:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B7411B8123A;
+        Mon, 24 Jan 2022 21:31:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D92EDC340E4;
+        Mon, 24 Jan 2022 21:31:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059983;
-        bh=UAjvnhTZ2Yn5EHOvdWzEPrFzvMqBIFWTeR/luTOCF24=;
+        s=korg; t=1643059889;
+        bh=fgpNcpGwTQOlUCWiGZGZm/cuplCzU4SORglq/H8Knog=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TlfP+4xjHb3Z7W5gchzDF72Lrf7xEZDa6et5uscVWw9uGDttsCQAyAIwjFiIv/smj
-         9r72BWXzHyKLhlNfPoOzBbZ5Iqib9ZEQKr+YEyb0vEeeYIgKHIjztm8MkDgnl5gl3C
-         7fxkYkjz2sPSqFnPlTBHn5ExRy2sC/TxpO6ng+m4=
+        b=DOEPQTnoQ4QCsWO3YTxIGx5181+xQOzM0bMSKw/6O6vlvShj6yg1haeA5P+HslsY1
+         3VGf7kYQYvH9RHCAJau7g5o+wmXPtJkGxO/NJLhuB9m4DvYgcCOPbRhn3ywkZF/VJY
+         5nb0q+xixIcuL4X9oB6iEJCm9tu6tDTktM3d6Hrw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qi Liu <liuqi115@huawei.com>,
-        John Garry <john.garry@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0767/1039] scsi: hisi_sas: Prevent parallel FLR and controller reset
-Date:   Mon, 24 Jan 2022 19:42:36 +0100
-Message-Id: <20220124184151.096712073@linuxfoundation.org>
+Subject: [PATCH 5.16 0769/1039] selftests/powerpc: Add a test of sigreturning to the kernel
+Date:   Mon, 24 Jan 2022 19:42:38 +0100
+Message-Id: <20220124184151.159121523@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -46,95 +47,185 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qi Liu <liuqi115@huawei.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 16775db613c2bdea09705dcb876942c0641a1098 ]
+[ Upstream commit a8968521cfdc3e339fe69473d6632e0aa8d7202a ]
 
-If we issue a controller reset command during executing a FLR a hung task
-may be found:
+We have a general signal fuzzer, sigfuz, which can modify the MSR & NIP
+before sigreturn. But the chance of it hitting a kernel address and also
+clearing MSR_PR is fairly slim.
 
- Call trace:
-  __switch_to+0x158/0x1cc
-  __schedule+0x2e8/0x85c
-  schedule+0x7c/0x110
-  schedule_timeout+0x190/0x1cc
-  __down+0x7c/0xd4
-  down+0x5c/0x7c
-  hisi_sas_task_exec+0x510/0x680 [hisi_sas_main]
-  hisi_sas_queue_command+0x24/0x30 [hisi_sas_main]
-  smp_execute_task_sg+0xf4/0x23c [libsas]
-  sas_smp_phy_control+0x110/0x1e0 [libsas]
-  transport_sas_phy_reset+0xc8/0x190 [libsas]
-  phy_reset_work+0x2c/0x40 [libsas]
-  process_one_work+0x1dc/0x48c
-  worker_thread+0x15c/0x464
-  kthread+0x160/0x170
-  ret_from_fork+0x10/0x18
+So add a specific test of sigreturn to a kernel address, both with and
+without attempting to clear MSR_PR (which the kernel must block).
 
-This is a race condition which occurs when the FLR completes first.
-
-Here the host HISI_SAS_RESETTING_BIT flag out gets of sync as
-HISI_SAS_RESETTING_BIT is not always cleared with the hisi_hba.sem held, so
-now only set/unset HISI_SAS_RESETTING_BIT under hisi_hba.sem .
-
-Link: https://lore.kernel.org/r/1639579061-179473-7-git-send-email-john.garry@huawei.com
-Signed-off-by: Qi Liu <liuqi115@huawei.com>
-Signed-off-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211209115944.4062384-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/hisi_sas/hisi_sas_main.c  | 8 +++++---
- drivers/scsi/hisi_sas/hisi_sas_v3_hw.c | 1 +
- 2 files changed, 6 insertions(+), 3 deletions(-)
+ .../selftests/powerpc/signal/.gitignore       |   1 +
+ .../testing/selftests/powerpc/signal/Makefile |   1 +
+ .../powerpc/signal/sigreturn_kernel.c         | 132 ++++++++++++++++++
+ 3 files changed, 134 insertions(+)
+ create mode 100644 tools/testing/selftests/powerpc/signal/sigreturn_kernel.c
 
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
-index f206c433de325..8a13bc08d6575 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_main.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
-@@ -1581,7 +1581,6 @@ void hisi_sas_controller_reset_prepare(struct hisi_hba *hisi_hba)
- {
- 	struct Scsi_Host *shost = hisi_hba->shost;
+diff --git a/tools/testing/selftests/powerpc/signal/.gitignore b/tools/testing/selftests/powerpc/signal/.gitignore
+index ce3375cd8e73e..8f6c816099a48 100644
+--- a/tools/testing/selftests/powerpc/signal/.gitignore
++++ b/tools/testing/selftests/powerpc/signal/.gitignore
+@@ -4,3 +4,4 @@ signal_tm
+ sigfuz
+ sigreturn_vdso
+ sig_sc_double_restart
++sigreturn_kernel
+diff --git a/tools/testing/selftests/powerpc/signal/Makefile b/tools/testing/selftests/powerpc/signal/Makefile
+index d6ae54663aed7..84e201572466d 100644
+--- a/tools/testing/selftests/powerpc/signal/Makefile
++++ b/tools/testing/selftests/powerpc/signal/Makefile
+@@ -1,5 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0
+ TEST_GEN_PROGS := signal signal_tm sigfuz sigreturn_vdso sig_sc_double_restart
++TEST_GEN_PROGS += sigreturn_kernel
  
--	down(&hisi_hba->sem);
- 	hisi_hba->phy_state = hisi_hba->hw->get_phys_state(hisi_hba);
- 
- 	scsi_block_requests(shost);
-@@ -1606,9 +1605,9 @@ void hisi_sas_controller_reset_done(struct hisi_hba *hisi_hba)
- 	if (hisi_hba->reject_stp_links_msk)
- 		hisi_sas_terminate_stp_reject(hisi_hba);
- 	hisi_sas_reset_init_all_devices(hisi_hba);
--	up(&hisi_hba->sem);
- 	scsi_unblock_requests(shost);
- 	clear_bit(HISI_SAS_RESETTING_BIT, &hisi_hba->flags);
-+	up(&hisi_hba->sem);
- 
- 	hisi_sas_rescan_topology(hisi_hba, hisi_hba->phy_state);
- }
-@@ -1619,8 +1618,11 @@ static int hisi_sas_controller_prereset(struct hisi_hba *hisi_hba)
- 	if (!hisi_hba->hw->soft_reset)
- 		return -1;
- 
--	if (test_and_set_bit(HISI_SAS_RESETTING_BIT, &hisi_hba->flags))
-+	down(&hisi_hba->sem);
-+	if (test_and_set_bit(HISI_SAS_RESETTING_BIT, &hisi_hba->flags)) {
-+		up(&hisi_hba->sem);
- 		return -1;
+ CFLAGS += -maltivec
+ $(OUTPUT)/signal_tm: CFLAGS += -mhtm
+diff --git a/tools/testing/selftests/powerpc/signal/sigreturn_kernel.c b/tools/testing/selftests/powerpc/signal/sigreturn_kernel.c
+new file mode 100644
+index 0000000000000..0a1b6e591eeed
+--- /dev/null
++++ b/tools/testing/selftests/powerpc/signal/sigreturn_kernel.c
+@@ -0,0 +1,132 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Test that we can't sigreturn to kernel addresses, or to kernel mode.
++ */
++
++#define _GNU_SOURCE
++
++#include <stdio.h>
++#include <signal.h>
++#include <stdlib.h>
++#include <sys/types.h>
++#include <sys/wait.h>
++#include <unistd.h>
++
++#include "utils.h"
++
++#define MSR_PR (1ul << 14)
++
++static volatile unsigned long long sigreturn_addr;
++static volatile unsigned long long sigreturn_msr_mask;
++
++static void sigusr1_handler(int signo, siginfo_t *si, void *uc_ptr)
++{
++	ucontext_t *uc = (ucontext_t *)uc_ptr;
++
++	if (sigreturn_addr)
++		UCONTEXT_NIA(uc) = sigreturn_addr;
++
++	if (sigreturn_msr_mask)
++		UCONTEXT_MSR(uc) &= sigreturn_msr_mask;
++}
++
++static pid_t fork_child(void)
++{
++	pid_t pid;
++
++	pid = fork();
++	if (pid == 0) {
++		raise(SIGUSR1);
++		exit(0);
 +	}
- 
- 	if (hisi_sas_debugfs_enable && hisi_hba->debugfs_itct[0].itct)
- 		hisi_hba->hw->debugfs_snapshot_regs(hisi_hba);
-diff --git a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-index 0ef6c21bf0811..11a44d9dd9b2d 100644
---- a/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-+++ b/drivers/scsi/hisi_sas/hisi_sas_v3_hw.c
-@@ -4848,6 +4848,7 @@ static void hisi_sas_reset_prepare_v3_hw(struct pci_dev *pdev)
- 	int rc;
- 
- 	dev_info(dev, "FLR prepare\n");
-+	down(&hisi_hba->sem);
- 	set_bit(HISI_SAS_RESETTING_BIT, &hisi_hba->flags);
- 	hisi_sas_controller_reset_prepare(hisi_hba);
- 
++
++	return pid;
++}
++
++static int expect_segv(pid_t pid)
++{
++	int child_ret;
++
++	waitpid(pid, &child_ret, 0);
++	FAIL_IF(WIFEXITED(child_ret));
++	FAIL_IF(!WIFSIGNALED(child_ret));
++	FAIL_IF(WTERMSIG(child_ret) != 11);
++
++	return 0;
++}
++
++int test_sigreturn_kernel(void)
++{
++	struct sigaction act;
++	int child_ret, i;
++	pid_t pid;
++
++	act.sa_sigaction = sigusr1_handler;
++	act.sa_flags = SA_SIGINFO;
++	sigemptyset(&act.sa_mask);
++
++	FAIL_IF(sigaction(SIGUSR1, &act, NULL));
++
++	for (i = 0; i < 2; i++) {
++		// Return to kernel
++		sigreturn_addr = 0xcull << 60;
++		pid = fork_child();
++		expect_segv(pid);
++
++		// Return to kernel virtual
++		sigreturn_addr = 0xc008ull << 48;
++		pid = fork_child();
++		expect_segv(pid);
++
++		// Return out of range
++		sigreturn_addr = 0xc010ull << 48;
++		pid = fork_child();
++		expect_segv(pid);
++
++		// Return to no-man's land, just below PAGE_OFFSET
++		sigreturn_addr = (0xcull << 60) - (64 * 1024);
++		pid = fork_child();
++		expect_segv(pid);
++
++		// Return to no-man's land, above TASK_SIZE_4PB
++		sigreturn_addr = 0x1ull << 52;
++		pid = fork_child();
++		expect_segv(pid);
++
++		// Return to 0xd space
++		sigreturn_addr = 0xdull << 60;
++		pid = fork_child();
++		expect_segv(pid);
++
++		// Return to 0xe space
++		sigreturn_addr = 0xeull << 60;
++		pid = fork_child();
++		expect_segv(pid);
++
++		// Return to 0xf space
++		sigreturn_addr = 0xfull << 60;
++		pid = fork_child();
++		expect_segv(pid);
++
++		// Attempt to set PR=0 for 2nd loop (should be blocked by kernel)
++		sigreturn_msr_mask = ~MSR_PR;
++	}
++
++	printf("All children killed as expected\n");
++
++	// Don't change address, just MSR, should return to user as normal
++	sigreturn_addr = 0;
++	sigreturn_msr_mask = ~MSR_PR;
++	pid = fork_child();
++	waitpid(pid, &child_ret, 0);
++	FAIL_IF(!WIFEXITED(child_ret));
++	FAIL_IF(WIFSIGNALED(child_ret));
++	FAIL_IF(WEXITSTATUS(child_ret) != 0);
++
++	return 0;
++}
++
++int main(void)
++{
++	return test_harness(test_sigreturn_kernel, "sigreturn_kernel");
++}
 -- 
 2.34.1
 
