@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C94649895A
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:55:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CCB31498A2A
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:02:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343727AbiAXSzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:55:25 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:52078 "EHLO
+        id S1344539AbiAXTBl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:01:41 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56362 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343982AbiAXSwy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:52:54 -0500
+        with ESMTP id S1344839AbiAXS7U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:59:20 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB390614BE;
-        Mon, 24 Jan 2022 18:52:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2613C340E5;
-        Mon, 24 Jan 2022 18:52:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 357ED608D4;
+        Mon, 24 Jan 2022 18:59:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1149C340E7;
+        Mon, 24 Jan 2022 18:59:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050373;
-        bh=W46B476feYqGoB0BzzWIPhXASw9qeqBJiY3JXo5Z8qE=;
+        s=korg; t=1643050759;
+        bh=JcvhSTU1IQqq+oYId9prgK7Cki2I3kfKY0v6RsGm2zU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UUzn2C5cBpCuTGlw2zb2KlsqeQ/2uu2HPOaZzIbLKmmHdt1Oc15c7TVQGZo63n2n2
-         0vdfp4hth7/9f30os2CV6OgNuCjySd36hC2C/lqD0ERP1sAdQ6zziq+YCuMx+vSVTe
-         nWM6qo1hFPb7y/LobVPXuRTMrT0ulm3MRv2T4RGE=
+        b=ZZRCyZTDZyPus2+l4q0LdJRch7rrwToPzmfdrchKkx/NsSdfTlSMdLQF/BawoYX8a
+         78FylcI1c47+0HY0hSsCRTaC3ztSh4zN+vYf/UKxh6hRkGW3ZNVBI1n63z6ONdxhCN
+         NoIbIxqzJVm8rMtd9dTd/t3lX7NhyLH4ECZvBlPw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jeroen van Wolffelaar <jeroen@wolffelaar.nl>,
-        =?UTF-8?q?Lu=C3=ADs=20Henriques?= <lhenriques@suse.de>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 4.4 098/114] ext4: set csum seed in tmp inode while migrating to extents
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 103/157] serial: core: Keep mctrl register state and cached copy in sync
 Date:   Mon, 24 Jan 2022 19:43:13 +0100
-Message-Id: <20220124183930.140510144@linuxfoundation.org>
+Message-Id: <20220124183936.032114999@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
-References: <20220124183927.095545464@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,55 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luís Henriques <lhenriques@suse.de>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit e81c9302a6c3c008f5c30beb73b38adb0170ff2d upstream.
+[ Upstream commit 93a770b7e16772530196674ffc79bb13fa927dc6 ]
 
-When migrating to extents, the temporary inode will have it's own checksum
-seed.  This means that, when swapping the inodes data, the inode checksums
-will be incorrect.
+struct uart_port contains a cached copy of the Modem Control signals.
+It is used to skip register writes in uart_update_mctrl() if the new
+signal state equals the old signal state.  It also avoids a register
+read to obtain the current state of output signals.
 
-This can be fixed by recalculating the extents checksums again.  Or simply
-by copying the seed into the temporary inode.
+When a uart_port is registered, uart_configure_port() changes signal
+state but neglects to keep the cached copy in sync.  That may cause
+a subsequent register write to be incorrectly skipped.  Fix it before
+it trips somebody up.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=213357
-Reported-by: Jeroen van Wolffelaar <jeroen@wolffelaar.nl>
-Signed-off-by: Luís Henriques <lhenriques@suse.de>
-Link: https://lore.kernel.org/r/20211214175058.19511-1-lhenriques@suse.de
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+This behavior has been present ever since the serial core was introduced
+in 2002:
+https://git.kernel.org/history/history/c/33c0d1b0c3eb
+
+So far it was never an issue because the cached copy is initialized to 0
+by kzalloc() and when uart_configure_port() is executed, at most DTR has
+been set by uart_set_options() or sunsu_console_setup().  Therefore,
+a stable designation seems unnecessary.
+
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Link: https://lore.kernel.org/r/bceeaba030b028ed810272d55d5fc6f3656ddddb.1641129752.git.lukas@wunner.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/migrate.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/tty/serial/serial_core.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/migrate.c
-+++ b/fs/ext4/migrate.c
-@@ -481,6 +481,17 @@ int ext4_ext_migrate(struct inode *inode
- 		ext4_journal_stop(handle);
- 		return retval;
- 	}
-+	/*
-+	 * Use the correct seed for checksum (i.e. the seed from 'inode').  This
-+	 * is so that the metadata blocks will have the correct checksum after
-+	 * the migration.
-+	 *
-+	 * Note however that, if a crash occurs during the migration process,
-+	 * the recovery process is broken because the tmp_inode checksums will
-+	 * be wrong and the orphans cleanup will fail.
-+	 */
-+	ei = EXT4_I(inode);
-+	EXT4_I(tmp_inode)->i_csum_seed = ei->i_csum_seed;
- 	i_size_write(tmp_inode, i_size_read(inode));
- 	/*
- 	 * Set the i_nlink to zero so it will be deleted later
-@@ -524,7 +535,6 @@ int ext4_ext_migrate(struct inode *inode
- 		goto out;
- 	}
+diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
+index e97961dc3622d..ec458add38833 100644
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -2349,7 +2349,8 @@ uart_configure_port(struct uart_driver *drv, struct uart_state *state,
+ 		 * We probably don't need a spinlock around this, but
+ 		 */
+ 		spin_lock_irqsave(&port->lock, flags);
+-		port->ops->set_mctrl(port, port->mctrl & TIOCM_DTR);
++		port->mctrl &= TIOCM_DTR;
++		port->ops->set_mctrl(port, port->mctrl);
+ 		spin_unlock_irqrestore(&port->lock, flags);
  
--	ei = EXT4_I(inode);
- 	i_data = ei->i_data;
- 	memset(&lb, 0, sizeof(lb));
- 
+ 		/*
+-- 
+2.34.1
+
 
 
