@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAA744988DA
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:51:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F26DF4989D3
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:59:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245578AbiAXSvM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:51:12 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:48972 "EHLO
+        id S1343920AbiAXS6c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:58:32 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:55670 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242005AbiAXSuP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:50:15 -0500
+        with ESMTP id S1343931AbiAXS4b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:56:31 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 258E0614EE;
-        Mon, 24 Jan 2022 18:50:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01E44C340EC;
-        Mon, 24 Jan 2022 18:50:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E607614C9;
+        Mon, 24 Jan 2022 18:56:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D096C340E5;
+        Mon, 24 Jan 2022 18:56:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050214;
-        bh=u4rdTNfjLYwAFzUQETfWg9clXMBotXlWIY1suq3Pf0k=;
+        s=korg; t=1643050589;
+        bh=gZSDVsfYlsAxlWnp9Aw1egp1OcnEtoIW76K3GdYQkMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eloj5W58uMgn3cktv3oEmNS/OY5acNiWJLdwLyimvooXnK+vyYdpUIqH4ue1Tx+Zv
-         yZPiYcaGJ9BRQzbEEE7Rup5fjkCooJJXFnbG9sFXe9tU2EhC3m5x1oSX6oDhKVcP7/
-         /aU1Pme6qn54UP/Qx0kqKz/JuQXvr50tc0Ke0h4U=
+        b=FdlosXZgziQHF0HO1F7gJ5gKYQtfkpKKD5C7+296vhR5vCs3t6rcCpIWjNjPEXNrc
+         FAeG8TeSLGpIxck5xe5e6VsVmcjwbOc74Pq1GDfqL3lVf24dtiDh29D5KyY/6LqIZq
+         l++23GjZfQ6X9YD4D6sEVMaWhZSWZE1Ay8iw1YPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 045/114] ALSA: hda: Add missing rwsem around snd_ctl_remove() calls
-Date:   Mon, 24 Jan 2022 19:42:20 +0100
-Message-Id: <20220124183928.497524144@linuxfoundation.org>
+Subject: [PATCH 4.9 051/157] spi: spi-meson-spifc: Add missing pm_runtime_disable() in meson_spifc_probe
+Date:   Mon, 24 Jan 2022 19:42:21 +0100
+Message-Id: <20220124183934.407264436@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
-References: <20220124183927.095545464@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,38 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 80bd64af75b4bb11c0329bc66c35da2ddfb66d88 ]
+[ Upstream commit 69c1b87516e327a60b39f96b778fe683259408bf ]
 
-snd_ctl_remove() has to be called with card->controls_rwsem held (when
-called after the card instantiation).  This patch add the missing
-rwsem calls around it.
+If the probe fails, we should use pm_runtime_disable() to balance
+pm_runtime_enable().
+Add missing pm_runtime_disable() for meson_spifc_probe.
 
-Fixes: d13bd412dce2 ("ALSA: hda - Manage kcontrol lists")
-Link: https://lore.kernel.org/r/20211116071314.15065-3-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: c3e4bc5434d2 ("spi: meson: Add support for Amlogic Meson SPIFC")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Link: https://lore.kernel.org/r/20220107075424.7774-1-linmq006@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/hda_codec.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/spi/spi-meson-spifc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/pci/hda/hda_codec.c b/sound/pci/hda/hda_codec.c
-index 4962a9d8a572b..7533f8860c57e 100644
---- a/sound/pci/hda/hda_codec.c
-+++ b/sound/pci/hda/hda_codec.c
-@@ -1608,8 +1608,11 @@ void snd_hda_ctls_clear(struct hda_codec *codec)
- {
- 	int i;
- 	struct hda_nid_item *items = codec->mixers.list;
-+
-+	down_write(&codec->card->controls_rwsem);
- 	for (i = 0; i < codec->mixers.used; i++)
- 		snd_ctl_remove(codec->card, items[i].kctl);
-+	up_write(&codec->card->controls_rwsem);
- 	snd_array_free(&codec->mixers);
- 	snd_array_free(&codec->nids);
- }
+diff --git a/drivers/spi/spi-meson-spifc.c b/drivers/spi/spi-meson-spifc.c
+index 616566e793c62..28975b6f054fa 100644
+--- a/drivers/spi/spi-meson-spifc.c
++++ b/drivers/spi/spi-meson-spifc.c
+@@ -357,6 +357,7 @@ static int meson_spifc_probe(struct platform_device *pdev)
+ 	return 0;
+ out_clk:
+ 	clk_disable_unprepare(spifc->clk);
++	pm_runtime_disable(spifc->dev);
+ out_err:
+ 	spi_master_put(master);
+ 	return ret;
 -- 
 2.34.1
 
