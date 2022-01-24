@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8EB1E49A9E1
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:29:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6E4649A9D2
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:28:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1323762AbiAYD3k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:29:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46764 "EHLO
+        id S1323650AbiAYD3M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:29:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353048AbiAXVFl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:05:41 -0500
+        with ESMTP id S1353979AbiAXVFL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:05:11 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15913C06176C;
-        Mon, 24 Jan 2022 12:06:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52D34C068092;
+        Mon, 24 Jan 2022 12:04:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 87613B8122F;
-        Mon, 24 Jan 2022 20:06:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC94CC340E5;
-        Mon, 24 Jan 2022 20:06:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 18F25B8119E;
+        Mon, 24 Jan 2022 20:04:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45333C340E5;
+        Mon, 24 Jan 2022 20:04:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054774;
-        bh=AaF7euI3kYHd/11AknQCQrpr2iggUpjasga3Y3juYgM=;
+        s=korg; t=1643054683;
+        bh=reE3UCFEJ7VrG77GGUJOYXy17lvnA1Oi9FlqzgLl1Bw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rY9NJH9q3AgnYvZolDffUSAKiC2S6rhogsgQiBohOQWXdZ0zGAJHg6J2vkZCwPbXY
-         oIbNU73lzT7O6GCuUnQL1rSHNMY6FDgrTk9wkVOfTpgr58/bYFvU5Syvdlil44+UTb
-         sZmnlqvvow5sWdX5DlQMcEDjMJdUQw+irFf0ctm8=
+        b=uG+o+3Ifbjd7f870GCdrKYGyNCHHNQb+fRIwwtCeS0O457BmqCbMqfM2G9K89uZ9X
+         ha1a7Y9bo3iAHYOCSEVNBMbPI292tz0IaEX9F3+HjLl/+Bt2oA/MQtPL+GFv50jpn0
+         ovyx5mcTo/TzRl6MlePFzDHAmHaSYxyoYX69x++Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.10 465/563] PCI: pci-bridge-emul: Fix definitions of reserved bits
-Date:   Mon, 24 Jan 2022 19:43:50 +0100
-Message-Id: <20220124184040.541717331@linuxfoundation.org>
+        stable@vger.kernel.org, Nikolay Borisov <nborisov@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.10 470/563] btrfs: check the root node for uptodate before returning it
+Date:   Mon, 24 Jan 2022 19:43:55 +0100
+Message-Id: <20220124184040.722129554@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -48,94 +48,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 12998087d9f48b66965b97412069c7826502cd7e upstream.
+commit 120de408e4b97504a2d9b5ca534b383de2c73d49 upstream.
 
-Some bits in PCI_EXP registers are reserved for non-root ports. Driver
-pci-bridge-emul.c implements PCIe Root Port device therefore it should not
-allow setting reserved bits of registers.
+Now that we clear the extent buffer uptodate if we fail to write it out
+we need to check to see if our root node is uptodate before we search
+down it.  Otherwise we could return stale data (or potentially corrupt
+data that was caught by the write verification step) and think that the
+path is OK to search down.
 
-Properly define non-reserved bits for all PCI_EXP registers.
-
-Link: https://lore.kernel.org/r/20211124155944.1290-5-pali@kernel.org
-Fixes: 23a5fba4d941 ("PCI: Introduce PCI bridge emulated config space common logic")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Cc: stable@vger.kernel.org
+CC: stable@vger.kernel.org # 5.4+
+Reviewed-by: Nikolay Borisov <nborisov@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/pci-bridge-emul.c |   36 +++++++++++++++++++++++++-----------
- 1 file changed, 25 insertions(+), 11 deletions(-)
+ fs/btrfs/ctree.c |   19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
---- a/drivers/pci/pci-bridge-emul.c
-+++ b/drivers/pci/pci-bridge-emul.c
-@@ -176,41 +176,55 @@ struct pci_bridge_reg_behavior pcie_cap_
- 	[PCI_CAP_LIST_ID / 4] = {
+--- a/fs/btrfs/ctree.c
++++ b/fs/btrfs/ctree.c
+@@ -2589,12 +2589,9 @@ static struct extent_buffer *btrfs_searc
+ {
+ 	struct btrfs_fs_info *fs_info = root->fs_info;
+ 	struct extent_buffer *b;
+-	int root_lock;
++	int root_lock = 0;
+ 	int level = 0;
+ 
+-	/* We try very hard to do read locks on the root */
+-	root_lock = BTRFS_READ_LOCK;
+-
+ 	if (p->search_commit_root) {
  		/*
- 		 * Capability ID, Next Capability Pointer and
--		 * Capabilities register are all read-only.
-+		 * bits [14:0] of Capabilities register are all read-only.
-+		 * Bit 15 of Capabilities register is reserved.
- 		 */
--		.ro = ~0,
-+		.ro = GENMASK(30, 0),
- 	},
+ 		 * The commit roots are read only so we always do read locks,
+@@ -2632,6 +2629,9 @@ static struct extent_buffer *btrfs_searc
+ 		goto out;
+ 	}
  
- 	[PCI_EXP_DEVCAP / 4] = {
--		.ro = ~0,
-+		/*
-+		 * Bits [31:29] and [17:16] are reserved.
-+		 * Bits [27:18] are reserved for non-upstream ports.
-+		 * Bits 28 and [14:6] are reserved for non-endpoint devices.
-+		 * Other bits are read-only.
-+		 */
-+		.ro = BIT(15) | GENMASK(5, 0),
- 	},
++	/* We try very hard to do read locks on the root */
++	root_lock = BTRFS_READ_LOCK;
++
+ 	/*
+ 	 * If the level is set to maximum, we can skip trying to get the read
+ 	 * lock.
+@@ -2658,6 +2658,17 @@ static struct extent_buffer *btrfs_searc
+ 	level = btrfs_header_level(b);
  
- 	[PCI_EXP_DEVCTL / 4] = {
--		/* Device control register is RW */
--		.rw = GENMASK(15, 0),
-+		/*
-+		 * Device control register is RW, except bit 15 which is
-+		 * reserved for non-endpoints or non-PCIe-to-PCI/X bridges.
-+		 */
-+		.rw = GENMASK(14, 0),
- 
- 		/*
- 		 * Device status register has bits 6 and [3:0] W1C, [5:4] RO,
--		 * the rest is reserved
-+		 * the rest is reserved. Also bit 6 is reserved for non-upstream
-+		 * ports.
- 		 */
--		.w1c = (BIT(6) | GENMASK(3, 0)) << 16,
-+		.w1c = GENMASK(3, 0) << 16,
- 		.ro = GENMASK(5, 4) << 16,
- 	},
- 
- 	[PCI_EXP_LNKCAP / 4] = {
--		/* All bits are RO, except bit 23 which is reserved */
--		.ro = lower_32_bits(~BIT(23)),
-+		/*
-+		 * All bits are RO, except bit 23 which is reserved and
-+		 * bit 18 which is reserved for non-upstream ports.
-+		 */
-+		.ro = lower_32_bits(~(BIT(23) | PCI_EXP_LNKCAP_CLKPM)),
- 	},
- 
- 	[PCI_EXP_LNKCTL / 4] = {
- 		/*
- 		 * Link control has bits [15:14], [11:3] and [1:0] RW, the
--		 * rest is reserved.
-+		 * rest is reserved. Bit 8 is reserved for non-upstream ports.
- 		 *
- 		 * Link status has bits [13:0] RO, and bits [15:14]
- 		 * W1C.
- 		 */
--		.rw = GENMASK(15, 14) | GENMASK(11, 3) | GENMASK(1, 0),
-+		.rw = GENMASK(15, 14) | GENMASK(11, 9) | GENMASK(7, 3) | GENMASK(1, 0),
- 		.ro = GENMASK(13, 0) << 16,
- 		.w1c = GENMASK(15, 14) << 16,
- 	},
+ out:
++	/*
++	 * The root may have failed to write out at some point, and thus is no
++	 * longer valid, return an error in this case.
++	 */
++	if (!extent_buffer_uptodate(b)) {
++		if (root_lock)
++			btrfs_tree_unlock_rw(b, root_lock);
++		free_extent_buffer(b);
++		return ERR_PTR(-EIO);
++	}
++
+ 	p->nodes[level] = b;
+ 	if (!p->skip_locking)
+ 		p->locks[level] = root_lock;
 
 
