@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29358499522
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:09:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F8CA499954
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:44:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1392261AbiAXUu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:50:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41480 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1389821AbiAXUo3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:44:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4ED38C019B3B;
-        Mon, 24 Jan 2022 11:54:00 -0800 (PST)
+        id S1455003AbiAXVeg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:34:36 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:46066 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376793AbiAXVZA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:25:00 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0B80BB811F3;
-        Mon, 24 Jan 2022 19:53:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A07FC340E5;
-        Mon, 24 Jan 2022 19:53:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6613961469;
+        Mon, 24 Jan 2022 21:24:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 335E1C340E4;
+        Mon, 24 Jan 2022 21:24:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054037;
-        bh=0KD1eiKFQZ+15lvlwGjcpA2CZ9608oocxiXbhgHw+rM=;
+        s=korg; t=1643059497;
+        bh=NsNmxlzJcp4bHdt1JVI79chzoIVKauwC5RQte6uzHu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tSEiW+xc5XXiw6IDYHjSjbiap39Q6jkCZe6hRFdOGgd2BmRjC6tmyeJJ9ZHHssVwz
-         dnMNZWZoiEj5VmhDSqVPvd6i0njJfBXtKVgkprM3FW8TaHRsahSwZpdRXdIKX1v0aO
-         IqeoV+7d61GaQtnH6MRR58gaW5dVUcWQbQVOHtQU=
+        b=YfETxqB4EkckEr6KgubzH4oOV2JDEYGuSE1mDs4hDozpoJHiNLomr+NQdTXaUN9hz
+         YM5H3WAwwXR29AT2juotLcwA004u0bQHBsLDaPZEpHmWDM3Fzd6wHASuBZ3iyMdAOj
+         +Zx1DPnauuScXjLHPJGOeU0HmwqI3hYVTMTbWRNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 259/563] char/mwave: Adjust io port register size
-Date:   Mon, 24 Jan 2022 19:40:24 +0100
-Message-Id: <20220124184033.382939940@linuxfoundation.org>
+Subject: [PATCH 5.16 0636/1039] selftests/ftrace: make kprobe profile testcase description unique
+Date:   Mon, 24 Jan 2022 19:40:25 +0100
+Message-Id: <20220124184146.724019608@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,49 +48,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit f5912cc19acd7c24b2dbf65a6340bf194244f085 ]
+[ Upstream commit e5992f373c6eed6d09e5858e9623df1259b3ce30 ]
 
-Using MKWORD() on a byte-sized variable results in OOB read. Expand the
-size of the reserved area so both MKWORD and MKBYTE continue to work
-without overflow. Silences this warning on a -Warray-bounds build:
+Commit 32f6e5da83c7 ("selftests/ftrace: Add kprobe profile testcase")
+added a new kprobes testcase, but has a description which does not
+describe what the test case is doing and is duplicating the description
+of another test case.
 
-drivers/char/mwave/3780i.h:346:22: error: array subscript 'short unsigned int[0]' is partly outside array bounds of 'DSP_ISA_SLAVE_CONTROL[1]' [-Werror=array-bounds]
-  346 | #define MKWORD(var) (*((unsigned short *)(&var)))
-      |                     ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/char/mwave/3780i.h:356:40: note: in definition of macro 'OutWordDsp'
-  356 | #define OutWordDsp(index,value)   outw(value,usDspBaseIO+index)
-      |                                        ^~~~~
-drivers/char/mwave/3780i.c:373:41: note: in expansion of macro 'MKWORD'
-  373 |         OutWordDsp(DSP_IsaSlaveControl, MKWORD(rSlaveControl));
-      |                                         ^~~~~~
-drivers/char/mwave/3780i.c:358:31: note: while referencing 'rSlaveControl'
-  358 |         DSP_ISA_SLAVE_CONTROL rSlaveControl;
-      |                               ^~~~~~~~~~~~~
+Therefore change the test case description, so it is unique and then
+allows easily to tell which test case actually passed or failed.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20211203084206.3104326-1-keescook@chromium.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/mwave/3780i.h | 2 +-
+ tools/testing/selftests/ftrace/test.d/kprobe/profile.tc | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/char/mwave/3780i.h b/drivers/char/mwave/3780i.h
-index 9ccb6b270b071..95164246afd1a 100644
---- a/drivers/char/mwave/3780i.h
-+++ b/drivers/char/mwave/3780i.h
-@@ -68,7 +68,7 @@ typedef struct {
- 	unsigned char ClockControl:1;	/* RW: Clock control: 0=normal, 1=stop 3780i clocks */
- 	unsigned char SoftReset:1;	/* RW: Soft reset 0=normal, 1=soft reset active */
- 	unsigned char ConfigMode:1;	/* RW: Configuration mode, 0=normal, 1=config mode */
--	unsigned char Reserved:5;	/* 0: Reserved */
-+	unsigned short Reserved:13;	/* 0: Reserved */
- } DSP_ISA_SLAVE_CONTROL;
+diff --git a/tools/testing/selftests/ftrace/test.d/kprobe/profile.tc b/tools/testing/selftests/ftrace/test.d/kprobe/profile.tc
+index 98166fa3eb91c..34fb89b0c61fa 100644
+--- a/tools/testing/selftests/ftrace/test.d/kprobe/profile.tc
++++ b/tools/testing/selftests/ftrace/test.d/kprobe/profile.tc
+@@ -1,6 +1,6 @@
+ #!/bin/sh
+ # SPDX-License-Identifier: GPL-2.0
+-# description: Kprobe dynamic event - adding and removing
++# description: Kprobe profile
+ # requires: kprobe_events
  
- 
+ ! grep -q 'myevent' kprobe_profile
 -- 
 2.34.1
 
