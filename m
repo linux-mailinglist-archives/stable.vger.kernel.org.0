@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1D264999E5
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:47:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB777499A6C
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1456310AbiAXVif (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:38:35 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:34330 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1447449AbiAXVKr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:10:47 -0500
+        id S1354632AbiAXVnw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:43:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53304 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1454565AbiAXVdI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:33:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4818EC075D06;
+        Mon, 24 Jan 2022 12:21:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 75E2C6146E;
-        Mon, 24 Jan 2022 21:10:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5274DC340E5;
-        Mon, 24 Jan 2022 21:10:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 03408B810BD;
+        Mon, 24 Jan 2022 20:21:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EFF9C340E8;
+        Mon, 24 Jan 2022 20:21:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058645;
-        bh=QfXVEBS5CJYobEpr5tZk3+nLG5aBcq5DD0u6HnQqvQc=;
+        s=korg; t=1643055673;
+        bh=485Pel/umrmGTI7pbf0TizhUtAcoT/WJdPbsQcA5Gb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oxdwS3dDVPPin4pc9AgCZYH9e/5dbk/Co3qyw6hhuCr4MKf4TdSQhJEk3PHwvKeNi
-         y5jB48n7meRhdPeOgswcbd0RizUJxjv7W5fQ/pcypZskSCWQjfZzDoNCAqKeWFJXdL
-         EZbql0VzYYp6nf/N80mIUAIZ8/cs8do1iBonEfbY=
+        b=Vi1PhsmsfhP4cyFTKGRgKOYU6Gmp3migt0Re946tPbFWyMUe7RILFVt3hsakJpDnt
+         1ZoJoNqjVZ8eDjIIHqMLVToVG60cHfojV8Gf6DUUEmfZWzQ2yE8fWr4CSCR6UmMYnG
+         XgIEPThRwRwUzj8RM8wFppaikjTm54DV/G0et0Pc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Anders Roxell <anders.roxell@linaro.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0356/1039] block: null_blk: only set set->nr_maps as 3 if active poll_queues is > 0
-Date:   Mon, 24 Jan 2022 19:35:45 +0100
-Message-Id: <20220124184137.245958548@linuxfoundation.org>
+Subject: [PATCH 5.15 229/846] selftests: clone3: clone3: add case CLONE3_ARGS_NO_TEST
+Date:   Mon, 24 Jan 2022 19:35:46 +0100
+Message-Id: <20220124184108.822268012@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,40 +49,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Anders Roxell <anders.roxell@linaro.org>
 
-[ Upstream commit 19768f80cf23834e65482f1667ff54192d469fee ]
+[ Upstream commit a531b0c23c0fc68ad758cc31a74cf612a4dafeb0 ]
 
-It isn't correct to set set->nr_maps as 3 if g_poll_queues is > 0 since
-we can change it via configfs for null_blk device created there, so only
-set it as 3 if active poll_queues is > 0.
+Building selftests/clone3 with clang warns about enumeration not handled
+in switch case:
 
-Fixes divide zero exception reported by Shinichiro.
+clone3.c:54:10: warning: enumeration value 'CLONE3_ARGS_NO_TEST' not handled in switch [-Wswitch]
+        switch (test_mode) {
+                ^
 
-Fixes: 2bfdbe8b7ebd ("null_blk: allow zero poll queues")
-Reported-by: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Reviewed-by: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Link: https://lore.kernel.org/r/20211224010831.1521805-1-ming.lei@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Add the missing switch case with a comment.
+
+Fixes: 17a810699c18 ("selftests: add tests for clone3()")
+Signed-off-by: Anders Roxell <anders.roxell@linaro.org>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/null_blk/main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/clone3/clone3.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/block/null_blk/main.c b/drivers/block/null_blk/main.c
-index fc1317060db54..e23aac1a83f73 100644
---- a/drivers/block/null_blk/main.c
-+++ b/drivers/block/null_blk/main.c
-@@ -1891,7 +1891,7 @@ static int null_init_tag_set(struct nullb *nullb, struct blk_mq_tag_set *set)
- 	if (g_shared_tag_bitmap)
- 		set->flags |= BLK_MQ_F_TAG_HCTX_SHARED;
- 	set->driver_data = nullb;
--	if (g_poll_queues)
-+	if (poll_queues)
- 		set->nr_maps = 3;
- 	else
- 		set->nr_maps = 1;
+diff --git a/tools/testing/selftests/clone3/clone3.c b/tools/testing/selftests/clone3/clone3.c
+index 42be3b9258301..076cf4325f783 100644
+--- a/tools/testing/selftests/clone3/clone3.c
++++ b/tools/testing/selftests/clone3/clone3.c
+@@ -52,6 +52,12 @@ static int call_clone3(uint64_t flags, size_t size, enum test_mode test_mode)
+ 		size = sizeof(struct __clone_args);
+ 
+ 	switch (test_mode) {
++	case CLONE3_ARGS_NO_TEST:
++		/*
++		 * Uses default 'flags' and 'SIGCHLD'
++		 * assignment.
++		 */
++		break;
+ 	case CLONE3_ARGS_ALL_0:
+ 		args.flags = 0;
+ 		args.exit_signal = 0;
 -- 
 2.34.1
 
