@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD3E649921D
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:19:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A67BF498A9F
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:06:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1381022AbiAXUR3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:17:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34808 "EHLO
+        id S1345566AbiAXTGE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:06:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355347AbiAXUNa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:13:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC501C06174E;
-        Mon, 24 Jan 2022 11:34:34 -0800 (PST)
+        with ESMTP id S1345233AbiAXTDG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:03:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31D51C061777;
+        Mon, 24 Jan 2022 10:58:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 54E62B811FC;
-        Mon, 24 Jan 2022 19:34:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83B43C340E5;
-        Mon, 24 Jan 2022 19:34:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C70526154A;
+        Mon, 24 Jan 2022 18:58:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD559C340E7;
+        Mon, 24 Jan 2022 18:58:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052873;
-        bh=5jWSEyoXOPCc+nJwcvUbZBzSLJhgsecoSxLzR5hVwFw=;
+        s=korg; t=1643050727;
+        bh=6+/Oo9XO52MP/CUVThTtWd/19ICfGPzvfT5bMIBO7hI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=saNl67Fq3l52jnTQABG/5BqJ9nYI20DY3PaxyadRAMhn1F9+bp4dsJu0UMgSxNdk0
-         V+DZHLOvbqqKChBABfCNZUsZGm8wf/uFDbMmujwJuuQcnPv3F//n1ik+qPv3hst5mJ
-         NVLZxDqDfj2bH7Hdqedk7rxThXuaSJ8AuYYUnH5k=
+        b=qQXLW2WF2vGdgzBnrfuEZUvUHM5Sr8Kwta/4Cc8Grr16DKLR94CTZo0egmPH6AnbQ
+         OFWu9AHkExApbG7RmSdBGkYI5xa1iFAH3uz3jKk0LApjw5bDQuN0eyHN5tOLb9jrWK
+         N3WS6u7y4UEuOVYP+yLhPRUaHE34ysRmRzxe7nJA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org,
+        Kyeong Yoo <kyeong.yoo@alliedtelesis.co.nz>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 200/320] iwlwifi: remove module loading failure message
+Subject: [PATCH 4.9 094/157] jffs2: GC deadlock reading a page that is used in jffs2_write_begin()
 Date:   Mon, 24 Jan 2022 19:43:04 +0100
-Message-Id: <20220124184000.439618211@linuxfoundation.org>
+Message-Id: <20220124183935.760570016@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,48 +49,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Kyeong Yoo <kyeong.yoo@alliedtelesis.co.nz>
 
-[ Upstream commit 6518f83ffa51131daaf439b66094f684da3fb0ae ]
+[ Upstream commit aa39cc675799bc92da153af9a13d6f969c348e82 ]
 
-When CONFIG_DEBUG_TEST_DRIVER_REMOVE is set, iwlwifi crashes
-when the opmode module cannot be loaded, due to completing
-the completion before using drv->dev, which can then already
-be freed.
+GC task can deadlock in read_cache_page() because it may attempt
+to release a page that is actually allocated by another task in
+jffs2_write_begin().
+The reason is that in jffs2_write_begin() there is a small window
+a cache page is allocated for use but not set Uptodate yet.
 
-Fix this by removing the (fairly useless) message. Moving the
-completion later causes a deadlock instead, so that's not an
-option.
+This ends up with a deadlock between two tasks:
+1) A task (e.g. file copy)
+   - jffs2_write_begin() locks a cache page
+   - jffs2_write_end() tries to lock "alloc_sem" from
+	 jffs2_reserve_space() <-- STUCK
+2) GC task (jffs2_gcd_mtd3)
+   - jffs2_garbage_collect_pass() locks "alloc_sem"
+   - try to lock the same cache page in read_cache_page() <-- STUCK
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/20211210091245.289008-2-luca@coelho.fi
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+So to avoid this deadlock, hold "alloc_sem" in jffs2_write_begin()
+while reading data in a cache page.
+
+Signed-off-by: Kyeong Yoo <kyeong.yoo@alliedtelesis.co.nz>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/iwl-drv.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ fs/jffs2/file.c | 40 +++++++++++++++++++++++++---------------
+ 1 file changed, 25 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
-index c1a2fb154fe91..83cb2ad03451b 100644
---- a/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-drv.c
-@@ -1599,15 +1599,8 @@ static void iwl_req_fw_callback(const struct firmware *ucode_raw, void *context)
- 	 * else from proceeding if the module fails to load
- 	 * or hangs loading.
- 	 */
--	if (load_module) {
-+	if (load_module)
- 		request_module("%s", op->name);
--#ifdef CONFIG_IWLWIFI_OPMODE_MODULAR
--		if (err)
--			IWL_ERR(drv,
--				"failed to load module %s (error %d), is dynamic loading enabled?\n",
--				op->name, err);
--#endif
--	}
- 	failure = false;
- 	goto free;
+diff --git a/fs/jffs2/file.c b/fs/jffs2/file.c
+index c12476e309c67..eb4e4d784d26e 100644
+--- a/fs/jffs2/file.c
++++ b/fs/jffs2/file.c
+@@ -135,20 +135,15 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 	struct page *pg;
+ 	struct inode *inode = mapping->host;
+ 	struct jffs2_inode_info *f = JFFS2_INODE_INFO(inode);
++	struct jffs2_sb_info *c = JFFS2_SB_INFO(inode->i_sb);
+ 	pgoff_t index = pos >> PAGE_SHIFT;
+ 	uint32_t pageofs = index << PAGE_SHIFT;
+ 	int ret = 0;
+ 
+-	pg = grab_cache_page_write_begin(mapping, index, flags);
+-	if (!pg)
+-		return -ENOMEM;
+-	*pagep = pg;
+-
+ 	jffs2_dbg(1, "%s()\n", __func__);
+ 
+ 	if (pageofs > inode->i_size) {
+ 		/* Make new hole frag from old EOF to new page */
+-		struct jffs2_sb_info *c = JFFS2_SB_INFO(inode->i_sb);
+ 		struct jffs2_raw_inode ri;
+ 		struct jffs2_full_dnode *fn;
+ 		uint32_t alloc_len;
+@@ -159,7 +154,7 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 		ret = jffs2_reserve_space(c, sizeof(ri), &alloc_len,
+ 					  ALLOC_NORMAL, JFFS2_SUMMARY_INODE_SIZE);
+ 		if (ret)
+-			goto out_page;
++			goto out_err;
+ 
+ 		mutex_lock(&f->sem);
+ 		memset(&ri, 0, sizeof(ri));
+@@ -189,7 +184,7 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 			ret = PTR_ERR(fn);
+ 			jffs2_complete_reservation(c);
+ 			mutex_unlock(&f->sem);
+-			goto out_page;
++			goto out_err;
+ 		}
+ 		ret = jffs2_add_full_dnode_to_inode(c, f, fn);
+ 		if (f->metadata) {
+@@ -204,13 +199,26 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 			jffs2_free_full_dnode(fn);
+ 			jffs2_complete_reservation(c);
+ 			mutex_unlock(&f->sem);
+-			goto out_page;
++			goto out_err;
+ 		}
+ 		jffs2_complete_reservation(c);
+ 		inode->i_size = pageofs;
+ 		mutex_unlock(&f->sem);
+ 	}
+ 
++	/*
++	 * While getting a page and reading data in, lock c->alloc_sem until
++	 * the page is Uptodate. Otherwise GC task may attempt to read the same
++	 * page in read_cache_page(), which causes a deadlock.
++	 */
++	mutex_lock(&c->alloc_sem);
++	pg = grab_cache_page_write_begin(mapping, index, flags);
++	if (!pg) {
++		ret = -ENOMEM;
++		goto release_sem;
++	}
++	*pagep = pg;
++
+ 	/*
+ 	 * Read in the page if it wasn't already present. Cannot optimize away
+ 	 * the whole page write case until jffs2_write_end can handle the
+@@ -220,15 +228,17 @@ static int jffs2_write_begin(struct file *filp, struct address_space *mapping,
+ 		mutex_lock(&f->sem);
+ 		ret = jffs2_do_readpage_nolock(inode, pg);
+ 		mutex_unlock(&f->sem);
+-		if (ret)
+-			goto out_page;
++		if (ret) {
++			unlock_page(pg);
++			put_page(pg);
++			goto release_sem;
++		}
+ 	}
+ 	jffs2_dbg(1, "end write_begin(). pg->flags %lx\n", pg->flags);
+-	return ret;
+ 
+-out_page:
+-	unlock_page(pg);
+-	put_page(pg);
++release_sem:
++	mutex_unlock(&c->alloc_sem);
++out_err:
+ 	return ret;
+ }
  
 -- 
 2.34.1
