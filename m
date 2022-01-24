@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01120498F4D
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:52:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1BAA49910B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:09:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357821AbiAXTvz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:51:55 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:51910 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242910AbiAXT3S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:29:18 -0500
+        id S1352215AbiAXUIs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:08:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60548 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1354592AbiAXUDK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:03:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21817C0680A1;
+        Mon, 24 Jan 2022 11:29:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3AD25B8119D;
-        Mon, 24 Jan 2022 19:29:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69F3BC340E5;
-        Mon, 24 Jan 2022 19:29:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B475E6121F;
+        Mon, 24 Jan 2022 19:29:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FC1AC340E5;
+        Mon, 24 Jan 2022 19:29:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052552;
-        bh=WiPti4Hvt08D59RYFB4prrRHKNnMGFuDb65RGfn33H0=;
+        s=korg; t=1643052555;
+        bh=Io6GojHjOIH5iEGY0sX45+CZjrtUYNzXyKuwv4OimYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jGDroVWFT4yS9dm+z81FB5LvgDhdV6hfxWIC6bHJOHJukfmqKXhb2Ohh7F9yGBFmV
-         C1iQpjiZxd+lrzzE0o8E7qQEh0sZqNGfh8QytwFM4qVYHNzzP3v8Nz4BSOAxun/sWj
-         sYfJslEFULqRl7VfUkSog0ALnPx1Yo3djChamkh4=
+        b=zGOH3KS/iO5ybjej1z6bKqm0+LEBRkqAYZhOeKVkuZmtyJrsPi9WcJfw6hJkWsyop
+         O7o285oy82OzB92UrSq4FgY2JfgQpG9Ni2P6D6W/ncPOa+ODC7isVuRWTbZceHYzkQ
+         Lx9nrDL2jA9WaM5uUK3+47X+5t6tOT6C98bQ+eyU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Zhou Qingyang <zhou1615@umn.edu>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
+        Nishanth Menon <nm@ti.com>, Pratyush Yadav <p.yadav@ti.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 064/320] drm/radeon/radeon_kms: Fix a NULL pointer dereference in radeon_driver_open_kms()
-Date:   Mon, 24 Jan 2022 19:40:48 +0100
-Message-Id: <20220124183955.904758423@linuxfoundation.org>
+Subject: [PATCH 5.4 065/320] arm64: dts: ti: k3-j721e: Fix the L2 cache sets
+Date:   Mon, 24 Jan 2022 19:40:49 +0100
+Message-Id: <20220124183955.936018891@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
 References: <20220124183953.750177707@linuxfoundation.org>
@@ -47,116 +49,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Nishanth Menon <nm@ti.com>
 
-[ Upstream commit ab50cb9df8896b39aae65c537a30de2c79c19735 ]
+[ Upstream commit e9ba3a5bc6fdc2c796c69fdaf5ed6c9957cf9f9d ]
 
-In radeon_driver_open_kms(), radeon_vm_bo_add() is assigned to
-vm->ib_bo_va and passes and used in radeon_vm_bo_set_addr(). In
-radeon_vm_bo_set_addr(), there is a dereference of vm->ib_bo_va,
-which could lead to a NULL pointer dereference on failure of
-radeon_vm_bo_add().
+A72's L2 cache[1] on J721e[2] is 1MB. A72's L2 is fixed line length of
+64 bytes and 16-way set-associative cache structure.
 
-Fix this bug by adding a check of vm->ib_bo_va.
+1MB of L2 / 64 (line length) = 16384 ways
+16384 ways / 16 = 1024 sets
 
-This bug was found by a static analyzer. The analysis employs
-differential checking to identify inconsistent security operations
-(e.g., checks or kfrees) between two code paths and confirms that the
-inconsistent operations are not recovered in the current function or
-the callers, so they constitute bugs.
+Fix the l2 cache-sets.
 
-Note that, as a bug found by static analysis, it can be a false
-positive or hard to trigger. Multiple researchers have cross-reviewed
-the bug.
+[1] https://developer.arm.com/documentation/100095/0003/Level-2-Memory-System/About-the-L2-memory-system
+[2] http://www.ti.com/lit/pdf/spruil1
 
-Builds with CONFIG_DRM_RADEON=m show no new warnings,
-and our static analyzer no longer warns about this code.
-
-Fixes: cc9e67e3d700 ("drm/radeon: fix VM IB handling")
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 2d87061e70de ("arm64: dts: ti: Add Support for J721E SoC")
+Reported-by: Peng Fan <peng.fan@nxp.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Reviewed-by: Pratyush Yadav <p.yadav@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Link: https://lore.kernel.org/r/20211113043639.4413-1-nm@ti.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_kms.c | 36 ++++++++++++++++-------------
- 1 file changed, 20 insertions(+), 16 deletions(-)
+ arch/arm64/boot/dts/ti/k3-j721e.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_kms.c b/drivers/gpu/drm/radeon/radeon_kms.c
-index 03d3550ecc7cb..5d04dd744af3d 100644
---- a/drivers/gpu/drm/radeon/radeon_kms.c
-+++ b/drivers/gpu/drm/radeon/radeon_kms.c
-@@ -634,6 +634,8 @@ void radeon_driver_lastclose_kms(struct drm_device *dev)
- int radeon_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
- {
- 	struct radeon_device *rdev = dev->dev_private;
-+	struct radeon_fpriv *fpriv;
-+	struct radeon_vm *vm;
- 	int r;
+diff --git a/arch/arm64/boot/dts/ti/k3-j721e.dtsi b/arch/arm64/boot/dts/ti/k3-j721e.dtsi
+index f4d8f3b37d5bb..5a6e74636d6fc 100644
+--- a/arch/arm64/boot/dts/ti/k3-j721e.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-j721e.dtsi
+@@ -84,7 +84,7 @@
+ 		cache-level = <2>;
+ 		cache-size = <0x100000>;
+ 		cache-line-size = <64>;
+-		cache-sets = <2048>;
++		cache-sets = <1024>;
+ 		next-level-cache = <&msmc_l3>;
+ 	};
  
- 	file_priv->driver_priv = NULL;
-@@ -646,8 +648,6 @@ int radeon_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
- 
- 	/* new gpu have virtual address space support */
- 	if (rdev->family >= CHIP_CAYMAN) {
--		struct radeon_fpriv *fpriv;
--		struct radeon_vm *vm;
- 
- 		fpriv = kzalloc(sizeof(*fpriv), GFP_KERNEL);
- 		if (unlikely(!fpriv)) {
-@@ -658,35 +658,39 @@ int radeon_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
- 		if (rdev->accel_working) {
- 			vm = &fpriv->vm;
- 			r = radeon_vm_init(rdev, vm);
--			if (r) {
--				kfree(fpriv);
--				goto out_suspend;
--			}
-+			if (r)
-+				goto out_fpriv;
- 
- 			r = radeon_bo_reserve(rdev->ring_tmp_bo.bo, false);
--			if (r) {
--				radeon_vm_fini(rdev, vm);
--				kfree(fpriv);
--				goto out_suspend;
--			}
-+			if (r)
-+				goto out_vm_fini;
- 
- 			/* map the ib pool buffer read only into
- 			 * virtual address space */
- 			vm->ib_bo_va = radeon_vm_bo_add(rdev, vm,
- 							rdev->ring_tmp_bo.bo);
-+			if (!vm->ib_bo_va) {
-+				r = -ENOMEM;
-+				goto out_vm_fini;
-+			}
-+
- 			r = radeon_vm_bo_set_addr(rdev, vm->ib_bo_va,
- 						  RADEON_VA_IB_OFFSET,
- 						  RADEON_VM_PAGE_READABLE |
- 						  RADEON_VM_PAGE_SNOOPED);
--			if (r) {
--				radeon_vm_fini(rdev, vm);
--				kfree(fpriv);
--				goto out_suspend;
--			}
-+			if (r)
-+				goto out_vm_fini;
- 		}
- 		file_priv->driver_priv = fpriv;
- 	}
- 
-+	if (!r)
-+		goto out_suspend;
-+
-+out_vm_fini:
-+	radeon_vm_fini(rdev, vm);
-+out_fpriv:
-+	kfree(fpriv);
- out_suspend:
- 	pm_runtime_mark_last_busy(dev->dev);
- 	pm_runtime_put_autosuspend(dev->dev);
 -- 
 2.34.1
 
