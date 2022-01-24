@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A95649906C
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:04:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 697A3498BB5
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:15:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242817AbiAXUAV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:00:21 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:42720 "EHLO
+        id S1344874AbiAXTPu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:15:50 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:39036 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359054AbiAXT4Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:56:16 -0500
+        with ESMTP id S1347913AbiAXTNc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:13:32 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 46BDFB810AF;
-        Mon, 24 Jan 2022 19:56:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EBACC340E5;
-        Mon, 24 Jan 2022 19:56:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 69519B8122F;
+        Mon, 24 Jan 2022 19:13:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 865FBC340E5;
+        Mon, 24 Jan 2022 19:13:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054174;
-        bh=Adkz8tW47vbwofh7NrAPeUglOkNTCxORjd0loYPv954=;
+        s=korg; t=1643051608;
+        bh=vyqw9JCEbFyxhmvCDNiK7lJwnozf/joACBAFI2qbUfM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fy8hekyhvUx3/KYKgpDljlJgHe6E/pzcuY7mDViEQqP4oY+XCa7IGmy7tgxog3hAn
-         aMHNiwfEujmboC2dbnydhKUyZ52k1OLo0yUou34jY31XhbCsionnZYCBUjsIYbKsp1
-         fy7vrI59KSUu46t8x3go5TDcpOE793O66CX8wCYg=
+        b=bA9Fy/3LDysX5pq5d4+XUJzJzf8Xm/etjfUvDvFcsi504WTZqLEopym7uPCkvwJNw
+         Ygv/97n2BOHupuCbza+w14DTwfVnWJxSaEgKHjb5smILEZ2Rat3dt5pKx/VBGlh7KO
+         d4gF0GHOwdYFYmMPIMMGfflmWR416qSWIlmOniwo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Hengqi Chen <hengqi.chen@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 302/563] selftests/bpf: Fix bpf_object leak in skb_ctx selftest
+        stable@vger.kernel.org, Lucas De Marchi <lucas.demarchi@intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>
+Subject: [PATCH 4.19 029/239] x86/gpu: Reserve stolen memory for first integrated Intel GPU
 Date:   Mon, 24 Jan 2022 19:41:07 +0100
-Message-Id: <20220124184034.893760003@linuxfoundation.org>
+Message-Id: <20220124183944.052597788@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,36 +44,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Lucas De Marchi <lucas.demarchi@intel.com>
 
-[ Upstream commit 8c7a95520184b6677ca6075e12df9c208d57d088 ]
+commit 9c494ca4d3a535f9ca11ad6af1813983c1c6cbdd upstream.
 
-skb_ctx selftest didn't close bpf_object implicitly allocated by
-bpf_prog_test_load() helper. Fix the problem by explicitly calling
-bpf_object__close() at the end of the test.
+"Stolen memory" is memory set aside for use by an Intel integrated GPU.
+The intel_graphics_quirks() early quirk reserves this memory when it is
+called for a GPU that appears in the intel_early_ids[] table of integrated
+GPUs.
 
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Reviewed-by: Hengqi Chen <hengqi.chen@gmail.com>
-Link: https://lore.kernel.org/bpf/20211107165521.9240-10-andrii@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Previously intel_graphics_quirks() was marked as QFLAG_APPLY_ONCE, so it
+was called only for the first Intel GPU found.  If a discrete GPU happened
+to be enumerated first, intel_graphics_quirks() was called for it but not
+for any integrated GPU found later.  Therefore, stolen memory for such an
+integrated GPU was never reserved.
+
+For example, this problem occurs in this Alderlake-P (integrated) + DG2
+(discrete) topology where the DG2 is found first, but stolen memory is
+associated with the integrated GPU:
+
+  - 00:01.0 Bridge
+    `- 03:00.0 DG2 discrete GPU
+  - 00:02.0 Integrated GPU (with stolen memory)
+
+Remove the QFLAG_APPLY_ONCE flag and call intel_graphics_quirks() for every
+Intel GPU.  Reserve stolen memory for the first GPU that appears in
+intel_early_ids[].
+
+[bhelgaas: commit log, add code comment, squash in
+https://lore.kernel.org/r/20220118190558.2ququ4vdfjuahicm@ldmartin-desk2]
+Link: https://lore.kernel.org/r/20220114002843.2083382-1-lucas.demarchi@intel.com
+Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/prog_tests/skb_ctx.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/x86/kernel/early-quirks.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/skb_ctx.c b/tools/testing/selftests/bpf/prog_tests/skb_ctx.c
-index fafeddaad6a99..23915be6172d6 100644
---- a/tools/testing/selftests/bpf/prog_tests/skb_ctx.c
-+++ b/tools/testing/selftests/bpf/prog_tests/skb_ctx.c
-@@ -105,4 +105,6 @@ void test_skb_ctx(void)
- 		   "ctx_out_mark",
- 		   "skb->mark == %u, expected %d\n",
- 		   skb.mark, 10);
+--- a/arch/x86/kernel/early-quirks.c
++++ b/arch/x86/kernel/early-quirks.c
+@@ -515,6 +515,7 @@ static const struct intel_early_ops gen1
+ 	.stolen_size = gen9_stolen_size,
+ };
+ 
++/* Intel integrated GPUs for which we need to reserve "stolen memory" */
+ static const struct pci_device_id intel_early_ids[] __initconst = {
+ 	INTEL_I830_IDS(&i830_early_ops),
+ 	INTEL_I845G_IDS(&i845_early_ops),
+@@ -584,6 +585,13 @@ static void __init intel_graphics_quirks
+ 	u16 device;
+ 	int i;
+ 
++	/*
++	 * Reserve "stolen memory" for an integrated GPU.  If we've already
++	 * found one, there's nothing to do for other (discrete) GPUs.
++	 */
++	if (resource_size(&intel_graphics_stolen_res))
++		return;
 +
-+	bpf_object__close(obj);
- }
--- 
-2.34.1
-
+ 	device = read_pci_config_16(num, slot, func, PCI_DEVICE_ID);
+ 
+ 	for (i = 0; i < ARRAY_SIZE(intel_early_ids); i++) {
+@@ -696,7 +704,7 @@ static struct chipset early_qrk[] __init
+ 	{ PCI_VENDOR_ID_INTEL, 0x3406, PCI_CLASS_BRIDGE_HOST,
+ 	  PCI_BASE_CLASS_BRIDGE, 0, intel_remapping_check },
+ 	{ PCI_VENDOR_ID_INTEL, PCI_ANY_ID, PCI_CLASS_DISPLAY_VGA, PCI_ANY_ID,
+-	  QFLAG_APPLY_ONCE, intel_graphics_quirks },
++	  0, intel_graphics_quirks },
+ 	/*
+ 	 * HPET on the current version of the Baytrail platform has accuracy
+ 	 * problems: it will halt in deep idle state - so we disable it.
 
 
