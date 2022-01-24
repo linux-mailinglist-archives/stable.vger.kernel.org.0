@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 541F9497E01
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 12:31:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26847497E02
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 12:31:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237567AbiAXLbB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 06:31:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51190 "EHLO
+        id S237569AbiAXLbJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 06:31:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237517AbiAXLbA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 06:31:00 -0500
+        with ESMTP id S237517AbiAXLbJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 06:31:09 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15CB5C06173B
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 03:31:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4A43C06173B
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 03:31:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D08CEB80CD1
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 11:30:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDE6EC340E1;
-        Mon, 24 Jan 2022 11:30:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6CE03B80EEB
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 11:31:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FC51C340E1;
+        Mon, 24 Jan 2022 11:31:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643023857;
-        bh=JYA+XQRW9R37r/C20mYdGi+BRwrjAFOm1mpVGoCLC28=;
+        s=korg; t=1643023866;
+        bh=ZMiTk7Jn4ccSARAUJGKnYRw2TTEv+ef4JTdtSLOxsYQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=nwpnqqInOtj8ZHRZKa23zoYQoBQgIqdEx1vFuCjhlRiMCMt/RzSiQAV1y/uN1KeTc
-         wChh8qx0QVmBtTfU6/m7xIrBitxTrxXLnLjrmeMEIL74G8+lJIKzUqHzp2zGmam3h7
-         SIsO3clxGxjhXhsc1y+kYo3ptU8AsLuqTF0hpv9A=
-Subject: FAILED: patch "[PATCH] drm/vc4: hdmi: Fix HPD GPIO detection" failed to apply to 5.15-stable tree
+        b=piSH6e70cjNOwBup7GFcQeCpZoFi3UPNgF+NZhJFgfmXxddrJY3cVbUff+okDf8R2
+         aMNxmDn8k/CdsUWWDqlQzhqbiSoAmoDk1x6qUIi/92pl3AZPowO+l+/Sov0ZVsD7Ww
+         6zxwm4iWeT9QIwCul2OkwAvpkgsiCdDPe9FABMFU=
+Subject: FAILED: patch "[PATCH] drm/vc4: hdmi: Fix HPD GPIO detection" failed to apply to 5.16-stable tree
 To:     maxime@cerno.tech, dave.stevenson@raspberrypi.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 12:30:54 +0100
-Message-ID: <1643023854125129@kroah.com>
+Date:   Mon, 24 Jan 2022 12:30:55 +0100
+Message-ID: <1643023855110151@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
