@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 03590498EEB
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:50:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E624498B1F
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:12:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350243AbiAXTtd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:49:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53492 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354759AbiAXThv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:37:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33F1CC0085BD;
-        Mon, 24 Jan 2022 11:17:32 -0800 (PST)
+        id S1343705AbiAXTMB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:12:01 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:60874 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346074AbiAXTFD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:05:03 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B13E56131D;
-        Mon, 24 Jan 2022 19:17:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84D45C340E5;
-        Mon, 24 Jan 2022 19:17:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01C34B81215;
+        Mon, 24 Jan 2022 19:05:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10983C340E5;
+        Mon, 24 Jan 2022 19:04:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051851;
-        bh=MVcReX3W2UATrsEc/FCbBHApTKVMcOq6AMGjgtU5CP0=;
+        s=korg; t=1643051100;
+        bh=T7KWPVUlwwGeP3+Ec471D8gVEnDQ0SQYVaxxQ4HTt44=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fJocDCPBDEdIOz8mb18qcqcXQoWCfRbwohMsxnW1k7S1bzTiKMo+P0tMdSpiQ/LA/
-         NexNgklJVF/Uzwvcyfm5Mt2dU6Z0k177UJPrKqyehVSAp+6L8BrCvS5wL7ApFVmLWh
-         hkzokrZ9qgoF4t1m4h2v/iBhTBGpC2jm057/uiVc=
+        b=VLys8Cu7gsPs+jGEeW2h7gnUWY+/3UVB0+CqLKpH3Q3UhdQL5mLRS4lp5u/BkSktC
+         Jkxdxl9KMVLPKKnNi/5iNsnSfaFYmjEz9sEKAoNKEhivYxW6KWuIxGk8/Tv+TLU/OD
+         3Wt/43dgp2w9LP8DIWX35NRu7iC8EIAEm2LZbNYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
-        Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        syzkaller <syzkaller@googlegroups.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 074/239] crypto: stm32/cryp - fix double pm exit
+Subject: [PATCH 4.14 037/186] media: em28xx: fix memory leak in em28xx_init_dev
 Date:   Mon, 24 Jan 2022 19:41:52 +0100
-Message-Id: <20220124183945.477087875@linuxfoundation.org>
+Message-Id: <20220124183938.318318966@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
+References: <20220124183937.101330125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,36 +48,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 6c12e742785bf9333faf60bfb96575bdd763448e ]
+[ Upstream commit 22be5a10d0b24eec9e45decd15d7e6112b25f080 ]
 
-Delete extraneous lines in probe error handling code: pm was
-disabled twice.
+In the em28xx_init_rev, if em28xx_audio_setup fails, this function fails
+to deallocate the media_dev allocated in the em28xx_media_device_init.
 
-Fixes: 65f9aa36ee47 ("crypto: stm32/cryp - Add power management support")
+Fix this by adding em28xx_unregister_media_device to free media_dev.
 
-Reported-by: Marek Vasut <marex@denx.de>
-Signed-off-by: Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+BTW, this patch is tested in my local syzkaller instance, and it can
+prevent the memory leak from occurring again.
+
+CC: Pavel Skripkin <paskripkin@gmail.com>
+Fixes: 37ecc7b1278f ("[media] em28xx: add media controller support")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/stm32/stm32-cryp.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/media/usb/em28xx/em28xx-cards.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/crypto/stm32/stm32-cryp.c b/drivers/crypto/stm32/stm32-cryp.c
-index 23b0b7bd64c7f..b3b49dce11369 100644
---- a/drivers/crypto/stm32/stm32-cryp.c
-+++ b/drivers/crypto/stm32/stm32-cryp.c
-@@ -2036,8 +2036,6 @@ err_engine1:
- 	list_del(&cryp->list);
- 	spin_unlock(&cryp_list.lock);
+diff --git a/drivers/media/usb/em28xx/em28xx-cards.c b/drivers/media/usb/em28xx/em28xx-cards.c
+index 9747e23aad271..b736c027a0bd0 100644
+--- a/drivers/media/usb/em28xx/em28xx-cards.c
++++ b/drivers/media/usb/em28xx/em28xx-cards.c
+@@ -3386,8 +3386,10 @@ static int em28xx_init_dev(struct em28xx *dev, struct usb_device *udev,
  
--	pm_runtime_disable(dev);
--	pm_runtime_put_noidle(dev);
- 	pm_runtime_disable(dev);
- 	pm_runtime_put_noidle(dev);
+ 	if (dev->is_audio_only) {
+ 		retval = em28xx_audio_setup(dev);
+-		if (retval)
+-			return -ENODEV;
++		if (retval) {
++			retval = -ENODEV;
++			goto err_deinit_media;
++		}
+ 		em28xx_init_extension(dev);
  
+ 		return 0;
+@@ -3417,7 +3419,7 @@ static int em28xx_init_dev(struct em28xx *dev, struct usb_device *udev,
+ 		dev_err(&dev->intf->dev,
+ 			"%s: em28xx_i2c_register bus 0 - error [%d]!\n",
+ 		       __func__, retval);
+-		return retval;
++		goto err_deinit_media;
+ 	}
+ 
+ 	/* register i2c bus 1 */
+@@ -3433,9 +3435,7 @@ static int em28xx_init_dev(struct em28xx *dev, struct usb_device *udev,
+ 			       "%s: em28xx_i2c_register bus 1 - error [%d]!\n",
+ 			       __func__, retval);
+ 
+-			em28xx_i2c_unregister(dev, 0);
+-
+-			return retval;
++			goto err_unreg_i2c;
+ 		}
+ 	}
+ 
+@@ -3443,6 +3443,12 @@ static int em28xx_init_dev(struct em28xx *dev, struct usb_device *udev,
+ 	em28xx_card_setup(dev);
+ 
+ 	return 0;
++
++err_unreg_i2c:
++	em28xx_i2c_unregister(dev, 0);
++err_deinit_media:
++	em28xx_unregister_media_device(dev);
++	return retval;
+ }
+ 
+ /* high bandwidth multiplier, as encoded in highspeed endpoint descriptors */
 -- 
 2.34.1
 
