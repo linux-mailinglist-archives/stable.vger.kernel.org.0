@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B465A498BAE
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:15:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC8A049914A
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237285AbiAXTPp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:15:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48030 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239966AbiAXTNU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:13:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DCDDC06174E;
-        Mon, 24 Jan 2022 11:05:24 -0800 (PST)
+        id S1378979AbiAXUKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:10:09 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:55976 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359401AbiAXT7l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:59:41 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D036B8122C;
-        Mon, 24 Jan 2022 19:05:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87773C340E5;
-        Mon, 24 Jan 2022 19:05:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F1F4F60B89;
+        Mon, 24 Jan 2022 19:59:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EA32C340E5;
+        Mon, 24 Jan 2022 19:59:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051122;
-        bh=stK8Y7QMLRFNEDBUeM2Pagi3Dg0w4T++8SxV+gFMA0Y=;
+        s=korg; t=1643054379;
+        bh=gihdcPke+Avb3ww8X3kO4UJgUteet+I3HWKLaDdFe5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ENFfhVJx0TLykLMPdmKoczKx2022t5Gr6z614/bJ2z0RJgw9eVa8XBvfTcR1Z7rHQ
-         iAxJThvGIDVchrifONlNqvXd0XjafKedHiWkhNDrbre5HbNL3xcFFzgdvTkwzCmuRW
-         rgXNd70PKMNzF8rD+GIfYd7AOQ8xcoJxUrbkGxRU=
+        b=wsb4Nmg0jd1cWko3wZ3czK43vtxeaUZI6pd6GETlcAfGqW+7XarFmyrOmkdrEtsPC
+         DWn11nCgSp5sQe3KYTc+ANzi1zQbdWHBrT8sZ9DN95/foGjD4AnuDcLnpoxfK5DHMU
+         ImOGgqM2851ZfcSvRKjsvqJ/SZHvFNzJivwHZN7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 061/186] fsl/fman: Check for null pointer after calling devm_ioremap
+Subject: [PATCH 5.10 371/563] usb: hub: Add delay for SuperSpeed hub resume to let links transit to U0
 Date:   Mon, 24 Jan 2022 19:42:16 +0100
-Message-Id: <20220124183939.086302861@linuxfoundation.org>
+Message-Id: <20220124184037.242998014@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,94 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit d5a73ec96cc57cf67e51b12820fc2354e7ca46f8 ]
+[ Upstream commit 00558586382891540c59c9febc671062425a6e47 ]
 
-As the possible failure of the allocation, the devm_ioremap() may return
-NULL pointer.
-Take tgec_initialization() as an example.
-If allocation fails, the params->base_addr will be NULL pointer and will
-be assigned to tgec->regs in tgec_config().
-Then it will cause the dereference of NULL pointer in set_mac_address(),
-which is called by tgec_init().
-Therefore, it should be better to add the sanity check after the calling
-of the devm_ioremap().
+When a new USB device gets plugged to nested hubs, the affected hub,
+which connects to usb 2-1.4-port2, doesn't report there's any change,
+hence the nested hubs go back to runtime suspend like nothing happened:
+[  281.032951] usb usb2: usb wakeup-resume
+[  281.032959] usb usb2: usb auto-resume
+[  281.032974] hub 2-0:1.0: hub_resume
+[  281.033011] usb usb2-port1: status 0263 change 0000
+[  281.033077] hub 2-0:1.0: state 7 ports 4 chg 0000 evt 0000
+[  281.049797] usb 2-1: usb wakeup-resume
+[  281.069800] usb 2-1: Waited 0ms for CONNECT
+[  281.069810] usb 2-1: finish resume
+[  281.070026] hub 2-1:1.0: hub_resume
+[  281.070250] usb 2-1-port4: status 0203 change 0000
+[  281.070272] usb usb2-port1: resume, status 0
+[  281.070282] hub 2-1:1.0: state 7 ports 4 chg 0010 evt 0000
+[  281.089813] usb 2-1.4: usb wakeup-resume
+[  281.109792] usb 2-1.4: Waited 0ms for CONNECT
+[  281.109801] usb 2-1.4: finish resume
+[  281.109991] hub 2-1.4:1.0: hub_resume
+[  281.110147] usb 2-1.4-port2: status 0263 change 0000
+[  281.110234] usb 2-1-port4: resume, status 0
+[  281.110239] usb 2-1-port4: status 0203, change 0000, 10.0 Gb/s
+[  281.110266] hub 2-1.4:1.0: state 7 ports 4 chg 0000 evt 0000
+[  281.110426] hub 2-1.4:1.0: hub_suspend
+[  281.110565] usb 2-1.4: usb auto-suspend, wakeup 1
+[  281.130998] hub 2-1:1.0: hub_suspend
+[  281.137788] usb 2-1: usb auto-suspend, wakeup 1
+[  281.142935] hub 2-0:1.0: state 7 ports 4 chg 0000 evt 0000
+[  281.177828] usb 2-1: usb wakeup-resume
+[  281.197839] usb 2-1: Waited 0ms for CONNECT
+[  281.197850] usb 2-1: finish resume
+[  281.197984] hub 2-1:1.0: hub_resume
+[  281.198203] usb 2-1-port4: status 0203 change 0000
+[  281.198228] usb usb2-port1: resume, status 0
+[  281.198237] hub 2-1:1.0: state 7 ports 4 chg 0010 evt 0000
+[  281.217835] usb 2-1.4: usb wakeup-resume
+[  281.237834] usb 2-1.4: Waited 0ms for CONNECT
+[  281.237845] usb 2-1.4: finish resume
+[  281.237990] hub 2-1.4:1.0: hub_resume
+[  281.238067] usb 2-1.4-port2: status 0263 change 0000
+[  281.238148] usb 2-1-port4: resume, status 0
+[  281.238152] usb 2-1-port4: status 0203, change 0000, 10.0 Gb/s
+[  281.238166] hub 2-1.4:1.0: state 7 ports 4 chg 0000 evt 0000
+[  281.238385] hub 2-1.4:1.0: hub_suspend
+[  281.238523] usb 2-1.4: usb auto-suspend, wakeup 1
+[  281.258076] hub 2-1:1.0: hub_suspend
+[  281.265744] usb 2-1: usb auto-suspend, wakeup 1
+[  281.285976] hub 2-0:1.0: hub_suspend
+[  281.285988] usb usb2: bus auto-suspend, wakeup 1
 
-Fixes: 3933961682a3 ("fsl/fman: Add FMan MAC driver")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+USB 3.2 spec, 9.2.5.4 "Changing Function Suspend State" says that "If
+the link is in a non-U0 state, then the device must transition the link
+to U0 prior to sending the remote wake message", but the hub only
+transits the link to U0 after signaling remote wakeup.
+
+So be more forgiving and use a 20ms delay to let the link transit to U0
+for remote wakeup.
+
+Suggested-by: Alan Stern <stern@rowland.harvard.edu>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20211215120108.336597-1-kai.heng.feng@canonical.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/fman/mac.c | 21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ drivers/usb/core/hub.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/freescale/fman/mac.c b/drivers/net/ethernet/freescale/fman/mac.c
-index 387eb4a88b723..3221a54202638 100644
---- a/drivers/net/ethernet/freescale/fman/mac.c
-+++ b/drivers/net/ethernet/freescale/fman/mac.c
-@@ -96,14 +96,17 @@ static void mac_exception(void *handle, enum fman_mac_exceptions ex)
- 		__func__, ex);
- }
- 
--static void set_fman_mac_params(struct mac_device *mac_dev,
--				struct fman_mac_params *params)
-+static int set_fman_mac_params(struct mac_device *mac_dev,
-+			       struct fman_mac_params *params)
- {
- 	struct mac_priv_s *priv = mac_dev->priv;
- 
- 	params->base_addr = (typeof(params->base_addr))
- 		devm_ioremap(priv->dev, mac_dev->res->start,
- 			     resource_size(mac_dev->res));
-+	if (!params->base_addr)
-+		return -ENOMEM;
+diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+index af15dbe6bb141..18ee3914b4686 100644
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -1109,7 +1109,10 @@ static void hub_activate(struct usb_hub *hub, enum hub_activation_type type)
+ 		} else {
+ 			hub_power_on(hub, true);
+ 		}
+-	}
++	/* Give some time on remote wakeup to let links to transit to U0 */
++	} else if (hub_is_superspeed(hub->hdev))
++		msleep(20);
 +
- 	memcpy(&params->addr, mac_dev->addr, sizeof(mac_dev->addr));
- 	params->max_speed	= priv->max_speed;
- 	params->phy_if		= priv->phy_if;
-@@ -114,6 +117,8 @@ static void set_fman_mac_params(struct mac_device *mac_dev,
- 	params->event_cb	= mac_exception;
- 	params->dev_id		= mac_dev;
- 	params->internal_phy_node = priv->internal_phy_node;
-+
-+	return 0;
- }
+  init2:
  
- static int tgec_initialization(struct mac_device *mac_dev)
-@@ -125,7 +130,9 @@ static int tgec_initialization(struct mac_device *mac_dev)
- 
- 	priv = mac_dev->priv;
- 
--	set_fman_mac_params(mac_dev, &params);
-+	err = set_fman_mac_params(mac_dev, &params);
-+	if (err)
-+		goto _return;
- 
- 	mac_dev->fman_mac = tgec_config(&params);
- 	if (!mac_dev->fman_mac) {
-@@ -171,7 +178,9 @@ static int dtsec_initialization(struct mac_device *mac_dev)
- 
- 	priv = mac_dev->priv;
- 
--	set_fman_mac_params(mac_dev, &params);
-+	err = set_fman_mac_params(mac_dev, &params);
-+	if (err)
-+		goto _return;
- 
- 	mac_dev->fman_mac = dtsec_config(&params);
- 	if (!mac_dev->fman_mac) {
-@@ -220,7 +229,9 @@ static int memac_initialization(struct mac_device *mac_dev)
- 
- 	priv = mac_dev->priv;
- 
--	set_fman_mac_params(mac_dev, &params);
-+	err = set_fman_mac_params(mac_dev, &params);
-+	if (err)
-+		goto _return;
- 
- 	if (priv->max_speed == SPEED_10000)
- 		params.phy_if = PHY_INTERFACE_MODE_XGMII;
+ 	/*
 -- 
 2.34.1
 
