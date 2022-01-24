@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF934498E6D
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:44:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22C48498D0C
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:33:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348143AbiAXTlb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:41:31 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:59836 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353888AbiAXTjG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:39:06 -0500
+        id S1346751AbiAXT1Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:27:25 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:52506 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348369AbiAXTYL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:24:11 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D85BBB81229;
-        Mon, 24 Jan 2022 19:39:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF2C3C340E5;
-        Mon, 24 Jan 2022 19:39:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 701D760010;
+        Mon, 24 Jan 2022 19:24:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BE41C340E5;
+        Mon, 24 Jan 2022 19:24:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053143;
-        bh=x1ittnNsJWwt1zDpNreQd8A+qpmVXaypmHKKZugegkE=;
+        s=korg; t=1643052250;
+        bh=+CWjJhb3LHq2nkKWhUKIM9khMf6V6/hB/5bZ3Edscmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rqBkDYjrtWrcC3YRCwJNbRzKtfFhJ3tfGHF4eNredVWQLfINxwGIbrw5wlyFw17FS
-         dXbtDksydOg+iowWt7avfLblP/ohkffcTwocpwvk6Gd/PHV32AtS+oe/O8PiTDWMC7
-         O7JBLkX4Q9yjWJZ5HlfKvS8oK4DrioeVexT6qnyk=
+        b=XdLidgITTPvkiMhvT638G1YDoxJOlWinwWKOquAN6Zf8FIU1LAv2v2QJd5dcliS6P
+         oyNNV2rtOXbjzHmuIAnNYhr3x61CVSrMmQF5F0dg1oBt/EeULLwO+fHSLuJmyNPND9
+         EoPP4EyVzb5Es3zqMDaz8YkqZvULIHSNFsmaHzqQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.4 291/320] parisc: pdc_stable: Fix memory leak in pdcs_register_pathentries
+        Suren Baghdasaryan <surenb@google.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.19 237/239] mips,s390,sh,sparc: gup: Work around the "COW can break either way" issue
 Date:   Mon, 24 Jan 2022 19:44:35 +0100
-Message-Id: <20220124184003.848145150@linuxfoundation.org>
+Message-Id: <20220124183950.633915249@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,39 +44,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Ben Hutchings <ben@decadent.org.uk>
 
-commit d24846a4246b6e61ecbd036880a4adf61681d241 upstream.
+In Linux 4.14 and 4.19 these architectures still have their own
+implementations of get_user_pages_fast().  These also need to force
+the write flag on when taking the fast path.
 
-kobject_init_and_add() takes reference even when it fails.
-According to the doc of kobject_init_and_add()：
-
-   If this function returns an error, kobject_put() must be called to
-   properly clean up the memory associated with the object.
-
-Fix memory leak by calling kobject_put().
-
-Fixes: 73f368cf679b ("Kobject: change drivers/parisc/pdc_stable.c to use kobject_init_and_add")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Helge Deller <deller@gmx.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 407faed92b4a ("gup: document and work around "COW can break either way" issue")
+Fixes: 5e24029791e8 ("gup: document and work around "COW can break either way" issue")
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- drivers/parisc/pdc_stable.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/mips/mm/gup.c  |    9 ++++++++-
+ arch/s390/mm/gup.c  |    9 ++++++++-
+ arch/sh/mm/gup.c    |    9 ++++++++-
+ arch/sparc/mm/gup.c |    9 ++++++++-
+ 4 files changed, 32 insertions(+), 4 deletions(-)
 
---- a/drivers/parisc/pdc_stable.c
-+++ b/drivers/parisc/pdc_stable.c
-@@ -979,8 +979,10 @@ pdcs_register_pathentries(void)
- 		entry->kobj.kset = paths_kset;
- 		err = kobject_init_and_add(&entry->kobj, &ktype_pdcspath, NULL,
- 					   "%s", entry->name);
--		if (err)
-+		if (err) {
-+			kobject_put(&entry->kobj);
- 			return err;
-+		}
+--- a/arch/mips/mm/gup.c
++++ b/arch/mips/mm/gup.c
+@@ -274,7 +274,14 @@ int get_user_pages_fast(unsigned long st
+ 		next = pgd_addr_end(addr, end);
+ 		if (pgd_none(pgd))
+ 			goto slow;
+-		if (!gup_pud_range(pgd, addr, next, write, pages, &nr))
++		/*
++		 * The FAST_GUP case requires FOLL_WRITE even for pure reads,
++		 * because get_user_pages() may need to cause an early COW in
++		 * order to avoid confusing the normal COW routines. So only
++		 * targets that are already writable are safe to do by just
++		 * looking at the page tables.
++		 */
++		if (!gup_pud_range(pgd, addr, next, 1, pages, &nr))
+ 			goto slow;
+ 	} while (pgdp++, addr = next, addr != end);
+ 	local_irq_enable();
+--- a/arch/s390/mm/gup.c
++++ b/arch/s390/mm/gup.c
+@@ -287,7 +287,14 @@ int get_user_pages_fast(unsigned long st
  
- 		/* kobject is now registered */
- 		write_lock(&entry->rw_lock);
+ 	might_sleep();
+ 	start &= PAGE_MASK;
+-	nr = __get_user_pages_fast(start, nr_pages, write, pages);
++	/*
++	 * The FAST_GUP case requires FOLL_WRITE even for pure reads,
++	 * because get_user_pages() may need to cause an early COW in
++	 * order to avoid confusing the normal COW routines. So only
++	 * targets that are already writable are safe to do by just
++	 * looking at the page tables.
++	 */
++	nr = __get_user_pages_fast(start, nr_pages, 1, pages);
+ 	if (nr == nr_pages)
+ 		return nr;
+ 
+--- a/arch/sh/mm/gup.c
++++ b/arch/sh/mm/gup.c
+@@ -242,7 +242,14 @@ int get_user_pages_fast(unsigned long st
+ 		next = pgd_addr_end(addr, end);
+ 		if (pgd_none(pgd))
+ 			goto slow;
+-		if (!gup_pud_range(pgd, addr, next, write, pages, &nr))
++		/*
++		 * The FAST_GUP case requires FOLL_WRITE even for pure reads,
++		 * because get_user_pages() may need to cause an early COW in
++		 * order to avoid confusing the normal COW routines. So only
++		 * targets that are already writable are safe to do by just
++		 * looking at the page tables.
++		 */
++		if (!gup_pud_range(pgd, addr, next, 1, pages, &nr))
+ 			goto slow;
+ 	} while (pgdp++, addr = next, addr != end);
+ 	local_irq_enable();
+--- a/arch/sparc/mm/gup.c
++++ b/arch/sparc/mm/gup.c
+@@ -303,7 +303,14 @@ int get_user_pages_fast(unsigned long st
+ 		next = pgd_addr_end(addr, end);
+ 		if (pgd_none(pgd))
+ 			goto slow;
+-		if (!gup_pud_range(pgd, addr, next, write, pages, &nr))
++		/*
++		 * The FAST_GUP case requires FOLL_WRITE even for pure reads,
++		 * because get_user_pages() may need to cause an early COW in
++		 * order to avoid confusing the normal COW routines. So only
++		 * targets that are already writable are safe to do by just
++		 * looking at the page tables.
++		 */
++		if (!gup_pud_range(pgd, addr, next, 1, pages, &nr))
+ 			goto slow;
+ 	} while (pgdp++, addr = next, addr != end);
+ 
 
 
