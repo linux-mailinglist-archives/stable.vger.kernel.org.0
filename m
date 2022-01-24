@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5C85498D8B
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:34:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 806F5498BC9
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:17:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349029AbiAXTdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:33:09 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:54102 "EHLO
+        id S241689AbiAXTQ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:16:26 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:39968 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352812AbiAXTbG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:31:06 -0500
+        with ESMTP id S1344966AbiAXTOY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:14:24 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE9E6B8121B;
-        Mon, 24 Jan 2022 19:31:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD8CEC340E5;
-        Mon, 24 Jan 2022 19:31:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BEC00B8122C;
+        Mon, 24 Jan 2022 19:14:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2BC4C340E8;
+        Mon, 24 Jan 2022 19:14:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052664;
-        bh=ojLv2A8YiZqQBiDKnhqmW0NP9PBK7G+zSluVkxtI0IA=;
+        s=korg; t=1643051661;
+        bh=itRsrbdPtq5naXO7FpQgj9HMS4CyX4drNFJAl/zuj1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lfyu98jfTxtiuJfCC18FGhkwArO/yLNz7l1027LZgoFume2GuYJSRiDsuR61dUT7z
-         gl14gsUjCXLZuII55rR/+lVe3wn4wm+zRTJkLQ6L3zZtYcBm9yxLHB9CkPY7cadiiA
-         qixTcQ4lZt6AwaboNPTnndYLIBc1Q/lXITS51uVo=
+        b=x2n7nx5WlBayHqkcheHhrqHzPfIgkU5EaL3TIWUe3M8WHF0rnbLL8cOMh73eg+khJ
+         B1oGtqZz1Hj4gppkrHp7+F0S0XARj8mCubRm76EM0H3N7fNZW9op6+aE+ZeBP26foS
+         dKzjpUl+besAqA4BizykvspdtMhjAoNvek+PERUE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xin Xiong <xiongx18@fudan.edu.cn>,
-        Xiyu Yang <xiyuyang19@fudan.edu.cn>,
-        Xin Tan <tanxin.ctf@gmail.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Nicolas Saenz Julienne <nsaenz@kernel.org>,
+        Michael Stapelberg <michael@stapelberg.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 101/320] netfilter: ipt_CLUSTERIP: fix refcount leak in clusterip_tg_check()
+Subject: [PATCH 4.19 047/239] clk: bcm-2835: Remove rounding up the dividers
 Date:   Mon, 24 Jan 2022 19:41:25 +0100
-Message-Id: <20220124183957.161789148@linuxfoundation.org>
+Message-Id: <20220124183944.634413447@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,46 +47,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Xiong <xiongx18@fudan.edu.cn>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit d94a69cb2cfa77294921aae9afcfb866e723a2da ]
+[ Upstream commit 8ca011ef4af48a7af7b15afd8a4a44039dd04cea ]
 
-The issue takes place in one error path of clusterip_tg_check(). When
-memcmp() returns nonzero, the function simply returns the error code,
-forgetting to decrease the reference count of a clusterip_config
-object, which is bumped earlier by clusterip_config_find_get(). This
-may incur reference count leak.
+The driver, once it found a divider, tries to round it up by increasing
+the least significant bit of the fractional part by one when the
+round_up argument is set and there's a remainder.
 
-Fix this issue by decrementing the refcount of the object in specific
-error path.
+However, since it increases the divider it will actually reduce the
+clock rate below what we were asking for, leading to issues with
+clk_set_min_rate() that will complain that our rounded clock rate is
+below the minimum of the rate.
 
-Fixes: 06aa151ad1fc74 ("netfilter: ipt_CLUSTERIP: check MAC address when duplicate config is set")
-Signed-off-by: Xin Xiong <xiongx18@fudan.edu.cn>
-Signed-off-by: Xiyu Yang <xiyuyang19@fudan.edu.cn>
-Signed-off-by: Xin Tan <tanxin.ctf@gmail.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Since the dividers are fairly precise already, let's remove that part so
+that we can have clk_set_min_rate() working.
+
+This is effectively a revert of 9c95b32ca093 ("clk: bcm2835: add a round
+up ability to the clock divisor").
+
+Fixes: 9c95b32ca093 ("clk: bcm2835: add a round up ability to the clock divisor")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Acked-by: Stephen Boyd <sboyd@kernel.org>
+Reviewed-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
+Tested-by: Nicolas Saenz Julienne <nsaenz@kernel.org> # boot and basic functionality
+Tested-by: Michael Stapelberg <michael@stapelberg.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210922125419.4125779-3-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/netfilter/ipt_CLUSTERIP.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/clk/bcm/clk-bcm2835.c | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
-diff --git a/net/ipv4/netfilter/ipt_CLUSTERIP.c b/net/ipv4/netfilter/ipt_CLUSTERIP.c
-index 6bdb1ab8af617..63ebb87d85331 100644
---- a/net/ipv4/netfilter/ipt_CLUSTERIP.c
-+++ b/net/ipv4/netfilter/ipt_CLUSTERIP.c
-@@ -505,8 +505,11 @@ static int clusterip_tg_check(const struct xt_tgchk_param *par)
- 			if (IS_ERR(config))
- 				return PTR_ERR(config);
- 		}
--	} else if (memcmp(&config->clustermac, &cipinfo->clustermac, ETH_ALEN))
-+	} else if (memcmp(&config->clustermac, &cipinfo->clustermac, ETH_ALEN)) {
-+		clusterip_config_entry_put(config);
-+		clusterip_config_put(config);
- 		return -EINVAL;
-+	}
+diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
+index b14aa9ddd9456..fd78dd5356ed7 100644
+--- a/drivers/clk/bcm/clk-bcm2835.c
++++ b/drivers/clk/bcm/clk-bcm2835.c
+@@ -915,8 +915,7 @@ static int bcm2835_clock_is_on(struct clk_hw *hw)
  
- 	ret = nf_ct_netns_get(par->net, par->family);
- 	if (ret < 0) {
+ static u32 bcm2835_clock_choose_div(struct clk_hw *hw,
+ 				    unsigned long rate,
+-				    unsigned long parent_rate,
+-				    bool round_up)
++				    unsigned long parent_rate)
+ {
+ 	struct bcm2835_clock *clock = bcm2835_clock_from_hw(hw);
+ 	const struct bcm2835_clock_data *data = clock->data;
+@@ -928,10 +927,6 @@ static u32 bcm2835_clock_choose_div(struct clk_hw *hw,
+ 
+ 	rem = do_div(temp, rate);
+ 	div = temp;
+-
+-	/* Round up and mask off the unused bits */
+-	if (round_up && ((div & unused_frac_mask) != 0 || rem != 0))
+-		div += unused_frac_mask + 1;
+ 	div &= ~unused_frac_mask;
+ 
+ 	/* different clamping limits apply for a mash clock */
+@@ -1062,7 +1057,7 @@ static int bcm2835_clock_set_rate(struct clk_hw *hw,
+ 	struct bcm2835_clock *clock = bcm2835_clock_from_hw(hw);
+ 	struct bcm2835_cprman *cprman = clock->cprman;
+ 	const struct bcm2835_clock_data *data = clock->data;
+-	u32 div = bcm2835_clock_choose_div(hw, rate, parent_rate, false);
++	u32 div = bcm2835_clock_choose_div(hw, rate, parent_rate);
+ 	u32 ctl;
+ 
+ 	spin_lock(&cprman->regs_lock);
+@@ -1113,7 +1108,7 @@ static unsigned long bcm2835_clock_choose_div_and_prate(struct clk_hw *hw,
+ 
+ 	if (!(BIT(parent_idx) & data->set_rate_parent)) {
+ 		*prate = clk_hw_get_rate(parent);
+-		*div = bcm2835_clock_choose_div(hw, rate, *prate, true);
++		*div = bcm2835_clock_choose_div(hw, rate, *prate);
+ 
+ 		*avgrate = bcm2835_clock_rate_from_divisor(clock, *prate, *div);
+ 
 -- 
 2.34.1
 
