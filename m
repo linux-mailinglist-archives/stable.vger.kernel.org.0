@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6187B4990F9
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:08:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D985B498A97
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:06:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354588AbiAXUIL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:08:11 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:54938 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352572AbiAXT6h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:58:37 -0500
+        id S237024AbiAXTFw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:05:52 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:59458 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345129AbiAXTCs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:02:48 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CCCDA60B88;
-        Mon, 24 Jan 2022 19:58:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B405BC340E5;
-        Mon, 24 Jan 2022 19:58:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DB7C0B81240;
+        Mon, 24 Jan 2022 19:02:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0813EC340E5;
+        Mon, 24 Jan 2022 19:02:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054314;
-        bh=bECX07xkx2k484fsrIWFoWPuZFgoO91gV/NWmls1Tc4=;
+        s=korg; t=1643050963;
+        bh=9cL7YfU2Tl2x+HNhay8gNcf5LyL2e/h7o6fZeBMPIRg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eT410Q8XZ6uHkHpUutT5UGdWLZbQbNMx1OgWIym4+Ofx4phN+001ID/h/WL/MnZTW
-         qmQjPOnGKObxD3BzflVNj27mvrFJLLaTPwAXBRPqh7Dj2WjWqqcdmPenr92cP3V2lL
-         LVnW+VMCTWc22comb2TM/LvIsCqgPJEW4sy2nARI=
+        b=aj0IAuDcg7EhRUo7UZz6YdppdiqUXXytAXq7bMHZ8BwwUd/kRi54vUoUR0RwXDqjB
+         3cia4tgbG4WIig+d4K58Ys/NwTssRJC6qOOV+6f169dCXz3ZToX9bWfPFKmutRZ3n6
+         Ne64RAsTFTRkojLua3cbktq1oEJslRS+I0L8zVgc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@siemens.com>,
-        Suman Anna <s-anna@ti.com>, Nishanth Menon <nm@ti.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 321/563] soc: ti: pruss: fix referenced node in error message
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Mike Marshall <hubcap@omnibond.com>
+Subject: [PATCH 4.14 011/186] orangefs: Fix the size of a memory allocation in orangefs_bufmap_alloc()
 Date:   Mon, 24 Jan 2022 19:41:26 +0100
-Message-Id: <20220124184035.537585419@linuxfoundation.org>
+Message-Id: <20220124183937.477418496@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
+References: <20220124183937.101330125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +45,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kiszka <jan.kiszka@siemens.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 8aa35e0bb5eaa42bac415ad0847985daa7b4890c ]
+commit 40a74870b2d1d3d44e13b3b73c6571dd34f5614d upstream.
 
-So far, "(null)" is reported for the node that is missing clocks.
+'buffer_index_array' really looks like a bitmap. So it should be allocated
+as such.
+When kzalloc is called, a number of bytes is expected, but a number of
+longs is passed instead.
 
-Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
-Acked-by: Suman Anna <s-anna@ti.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Link: https://lore.kernel.org/r/d6e24953-ea89-fd1c-6e16-7a0142118054@siemens.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In get(), if not enough memory is allocated, un-allocated memory may be
+read or written.
+
+So use bitmap_zalloc() to safely allocate the correct memory size and
+avoid un-expected behavior.
+
+While at it, change the corresponding kfree() into bitmap_free() to keep
+the semantic.
+
+Fixes: ea2c9c9f6574 ("orangefs: bufmap rewrite")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Mike Marshall <hubcap@omnibond.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/soc/ti/pruss.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/orangefs/orangefs-bufmap.c |    7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/soc/ti/pruss.c b/drivers/soc/ti/pruss.c
-index cc0b4ad7a3d34..30695172a508f 100644
---- a/drivers/soc/ti/pruss.c
-+++ b/drivers/soc/ti/pruss.c
-@@ -131,7 +131,7 @@ static int pruss_clk_init(struct pruss *pruss, struct device_node *cfg_node)
+--- a/fs/orangefs/orangefs-bufmap.c
++++ b/fs/orangefs/orangefs-bufmap.c
+@@ -179,7 +179,7 @@ orangefs_bufmap_free(struct orangefs_buf
+ {
+ 	kfree(bufmap->page_array);
+ 	kfree(bufmap->desc_array);
+-	kfree(bufmap->buffer_index_array);
++	bitmap_free(bufmap->buffer_index_array);
+ 	kfree(bufmap);
+ }
  
- 	clks_np = of_get_child_by_name(cfg_node, "clocks");
- 	if (!clks_np) {
--		dev_err(dev, "%pOF is missing its 'clocks' node\n", clks_np);
-+		dev_err(dev, "%pOF is missing its 'clocks' node\n", cfg_node);
- 		return -ENODEV;
- 	}
+@@ -243,8 +243,7 @@ orangefs_bufmap_alloc(struct ORANGEFS_de
+ 	bufmap->desc_size = user_desc->size;
+ 	bufmap->desc_shift = ilog2(bufmap->desc_size);
  
--- 
-2.34.1
-
+-	bufmap->buffer_index_array =
+-		kzalloc(DIV_ROUND_UP(bufmap->desc_count, BITS_PER_LONG), GFP_KERNEL);
++	bufmap->buffer_index_array = bitmap_zalloc(bufmap->desc_count, GFP_KERNEL);
+ 	if (!bufmap->buffer_index_array)
+ 		goto out_free_bufmap;
+ 
+@@ -267,7 +266,7 @@ orangefs_bufmap_alloc(struct ORANGEFS_de
+ out_free_desc_array:
+ 	kfree(bufmap->desc_array);
+ out_free_index_array:
+-	kfree(bufmap->buffer_index_array);
++	bitmap_free(bufmap->buffer_index_array);
+ out_free_bufmap:
+ 	kfree(bufmap);
+ out:
 
 
