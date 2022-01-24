@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F4FD49A93E
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:20:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA86449A942
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:20:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1322362AbiAYDVh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:21:37 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58856 "EHLO
+        id S1322373AbiAYDVi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:21:38 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:59038 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354550AbiAXUU0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:20:26 -0500
+        with ESMTP id S1351922AbiAXUUl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:20:41 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B04CB8123D;
-        Mon, 24 Jan 2022 20:20:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4B49C340E5;
-        Mon, 24 Jan 2022 20:20:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D14AEB80FA1;
+        Mon, 24 Jan 2022 20:20:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1235FC340E5;
+        Mon, 24 Jan 2022 20:20:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055620;
-        bh=Yp1NnFfvlH+1ASCwb2Hc7AdUpcyrvhhExdH1MabsrVw=;
+        s=korg; t=1643055638;
+        bh=ifGgMmen1cyaOXM+NRu5jbJ4DCqJtINvOqPJVVb1E1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YGv3F3rJT6OfTmZIm4jkEtpG6JP7dlGn0ocg0Y14HnpcK0U5BpiLOClblbpKDN9qb
-         AzWqrtHhpfCqwUwNyVxuO88TvmTL4tRzAvQb12CirlxdhKa58PCTOiIwuGIWKpjX5a
-         +ty/XIjeWIdhOMOVtw1GOBF9bDaY5T95OZGXrL3g=
+        b=nMX7nlKQUP/Wsi57ASo313z/Zu7fqodH1eJKAiy8zKwDlGiivDYc7JLz8EOmZSqoc
+         bU9szMElzdndnzuf3l0t+U95R7JhrcgL7abTSf9H+QZx8C5s5Omyo9CGmxkY6Y9Nqz
+         UxGZ9E2lECVvMUm1PxrF9lPLjBqs8FjPEXXxPgms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Fabio Estevam <festevam@denx.de>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 210/846] media: dib8000: Fix a memleak in dib8000_init()
-Date:   Mon, 24 Jan 2022 19:35:27 +0100
-Message-Id: <20220124184108.167517880@linuxfoundation.org>
+Subject: [PATCH 5.15 215/846] ath10k: Fix the MTU size on QCA9377 SDIO
+Date:   Mon, 24 Jan 2022 19:35:32 +0100
+Message-Id: <20220124184108.342853250@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -46,52 +45,212 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Fabio Estevam <festevam@denx.de>
 
-[ Upstream commit 8dbdcc7269a83305ee9d677b75064d3530a48ee2 ]
+[ Upstream commit 09b8cd69edcf2be04a781e1781e98e52a775c9ad ]
 
-In dib8000_init(), the variable fe is not freed or passed out on the
-failure of dib8000_identify(&state->i2c), which could lead to a memleak.
+On an imx6dl-pico-pi board with a QCA9377 SDIO chip, simply trying to
+connect via ssh to another machine causes:
 
-Fix this bug by adding a kfree of fe in the error path.
+[   55.824159] ath10k_sdio mmc1:0001:1: failed to transmit packet, dropping: -12
+[   55.832169] ath10k_sdio mmc1:0001:1: failed to submit frame: -12
+[   55.838529] ath10k_sdio mmc1:0001:1: failed to push frame: -12
+[   55.905863] ath10k_sdio mmc1:0001:1: failed to transmit packet, dropping: -12
+[   55.913650] ath10k_sdio mmc1:0001:1: failed to submit frame: -12
+[   55.919887] ath10k_sdio mmc1:0001:1: failed to push frame: -12
 
-This bug was found by a static analyzer. The analysis employs
-differential checking to identify inconsistent security operations
-(e.g., checks or kfrees) between two code paths and confirms that the
-inconsistent operations are not recovered in the current function or
-the callers, so they constitute bugs.
+, leading to an ssh connection failure.
 
-Note that, as a bug found by static analysis, it can be a false
-positive or hard to trigger. Multiple researchers have cross-reviewed
-the bug.
+One user inspected the size of frames on Wireshark and reported
+the followig:
 
-Builds with CONFIG_DVB_DIB8000=m show no new warnings,
-and our static analyzer no longer warns about this code.
+"I was able to narrow the issue down to the mtu. If I set the mtu for
+the wlan0 device to 1486 instead of 1500, the issue does not happen.
 
-Fixes: 77e2c0f5d471 ("V4L/DVB (12900): DiB8000: added support for DiBcom ISDB-T/ISDB-Tsb demodulator DiB8000")
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+The size of frames that I see on Wireshark is exactly 1500 after
+setting it to 1486."
+
+Clearing the HI_ACS_FLAGS_ALT_DATA_CREDIT_SIZE avoids the problem and
+the ssh command works successfully after that.
+
+Introduce a 'credit_size_workaround' field to ath10k_hw_params for
+the QCA9377 SDIO, so that the HI_ACS_FLAGS_ALT_DATA_CREDIT_SIZE
+is not set in this case.
+
+Tested with QCA9377 SDIO with firmware WLAN.TF.1.1.1-00061-QCATFSWPZ-1.
+
+Fixes: 2f918ea98606 ("ath10k: enable alt data of TX path for sdio")
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20211124131047.713756-1-festevam@denx.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/dib8000.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath10k/core.c | 19 ++++++++++++++++++-
+ drivers/net/wireless/ath/ath10k/hw.h   |  3 +++
+ 2 files changed, 21 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/dvb-frontends/dib8000.c b/drivers/media/dvb-frontends/dib8000.c
-index bb02354a48b81..d67f2dd997d06 100644
---- a/drivers/media/dvb-frontends/dib8000.c
-+++ b/drivers/media/dvb-frontends/dib8000.c
-@@ -4473,8 +4473,10 @@ static struct dvb_frontend *dib8000_init(struct i2c_adapter *i2c_adap, u8 i2c_ad
+diff --git a/drivers/net/wireless/ath/ath10k/core.c b/drivers/net/wireless/ath/ath10k/core.c
+index 64c7145b51a2e..58e86e662ab83 100644
+--- a/drivers/net/wireless/ath/ath10k/core.c
++++ b/drivers/net/wireless/ath/ath10k/core.c
+@@ -89,6 +89,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = true,
+ 		.dynamic_sar_support = false,
+ 	},
+@@ -124,6 +125,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = true,
+ 		.dynamic_sar_support = false,
+ 	},
+@@ -160,6 +162,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 		.dynamic_sar_support = false,
+ 	},
+@@ -190,6 +193,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.num_wds_entries = 0x20,
+ 		.uart_pin_workaround = true,
+ 		.tx_stats_over_pktlog = false,
++		.credit_size_workaround = false,
+ 		.bmi_large_size_download = true,
+ 		.supports_peer_stats_info = true,
+ 		.dynamic_sar_support = true,
+@@ -226,6 +230,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 		.dynamic_sar_support = false,
+ 	},
+@@ -261,6 +266,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 		.dynamic_sar_support = false,
+ 	},
+@@ -296,6 +302,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 		.dynamic_sar_support = false,
+ 	},
+@@ -334,6 +341,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = true,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 		.supports_peer_stats_info = true,
+ 		.dynamic_sar_support = true,
+@@ -376,6 +384,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 		.dynamic_sar_support = false,
+ 	},
+@@ -424,6 +433,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 		.dynamic_sar_support = false,
+ 	},
+@@ -469,6 +479,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 		.dynamic_sar_support = false,
+ 	},
+@@ -504,6 +515,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 		.dynamic_sar_support = false,
+ 	},
+@@ -541,6 +553,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = true,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 		.dynamic_sar_support = false,
+ 	},
+@@ -570,6 +583,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.ast_skid_limit = 0x10,
+ 		.num_wds_entries = 0x20,
+ 		.uart_pin_workaround = true,
++		.credit_size_workaround = true,
+ 		.dynamic_sar_support = false,
+ 	},
+ 	{
+@@ -611,6 +625,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = false,
+ 		.hw_filter_reset_required = true,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 		.dynamic_sar_support = false,
+ 	},
+@@ -639,6 +654,7 @@ static const struct ath10k_hw_params ath10k_hw_params_list[] = {
+ 		.rri_on_ddr = true,
+ 		.hw_filter_reset_required = false,
+ 		.fw_diag_ce_download = false,
++		.credit_size_workaround = false,
+ 		.tx_stats_over_pktlog = false,
+ 		.dynamic_sar_support = true,
+ 	},
+@@ -714,6 +730,7 @@ static void ath10k_send_suspend_complete(struct ath10k *ar)
  
- 	state->timf_default = cfg->pll->timf;
+ static int ath10k_init_sdio(struct ath10k *ar, enum ath10k_firmware_mode mode)
+ {
++	bool mtu_workaround = ar->hw_params.credit_size_workaround;
+ 	int ret;
+ 	u32 param = 0;
  
--	if (dib8000_identify(&state->i2c) == 0)
-+	if (dib8000_identify(&state->i2c) == 0) {
-+		kfree(fe);
- 		goto error;
-+	}
+@@ -731,7 +748,7 @@ static int ath10k_init_sdio(struct ath10k *ar, enum ath10k_firmware_mode mode)
  
- 	dibx000_init_i2c_master(&state->i2c_master, DIB8000, state->i2c.adap, state->i2c.addr);
+ 	param |= HI_ACS_FLAGS_SDIO_REDUCE_TX_COMPL_SET;
+ 
+-	if (mode == ATH10K_FIRMWARE_MODE_NORMAL)
++	if (mode == ATH10K_FIRMWARE_MODE_NORMAL && !mtu_workaround)
+ 		param |= HI_ACS_FLAGS_ALT_DATA_CREDIT_SIZE;
+ 	else
+ 		param &= ~HI_ACS_FLAGS_ALT_DATA_CREDIT_SIZE;
+diff --git a/drivers/net/wireless/ath/ath10k/hw.h b/drivers/net/wireless/ath/ath10k/hw.h
+index 6b03c7787e36a..591ef7416b613 100644
+--- a/drivers/net/wireless/ath/ath10k/hw.h
++++ b/drivers/net/wireless/ath/ath10k/hw.h
+@@ -618,6 +618,9 @@ struct ath10k_hw_params {
+ 	 */
+ 	bool uart_pin_workaround;
+ 
++	/* Workaround for the credit size calculation */
++	bool credit_size_workaround;
++
+ 	/* tx stats support over pktlog */
+ 	bool tx_stats_over_pktlog;
  
 -- 
 2.34.1
