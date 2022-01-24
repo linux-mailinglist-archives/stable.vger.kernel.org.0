@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23D22499A7F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14CD14996FF
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:21:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1573146AbiAXVoe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:44:34 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:53848 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1455023AbiAXVei (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:34:38 -0500
+        id S1446615AbiAXVIs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:08:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46754 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1445466AbiAXVDi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:03:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 184A1C068083;
+        Mon, 24 Jan 2022 12:04:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 76D396131F;
-        Mon, 24 Jan 2022 21:34:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56670C340E4;
-        Mon, 24 Jan 2022 21:34:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A983E60FEA;
+        Mon, 24 Jan 2022 20:04:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67DA3C340E7;
+        Mon, 24 Jan 2022 20:04:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060076;
-        bh=SmVEn4GoyNBFLoGjar7lW6qHLF92Ww9k0BA4JayBMZ0=;
+        s=korg; t=1643054644;
+        bh=A2EUI144kMYsLayEJBAsTA84cPoFnieVulthcDcdZcE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qkv81Vm24chKsgTqfEHX5mcodchLieY+C+w2iw/461Psz0bZsrlFbs4OQwwQikg2K
-         28Xbym+QZzdGwNd8QX3HpzYEG6bMFp4wmUyJg/ln3ZN4PkgeIqMWAKENktmm57sVTq
-         5FthXt6wO0AJMMRNEqMN9SloA6DcF1B6jsegkBYQ=
+        b=QN20Q08l/ulH2jwDs6tYhK8rSb6xKLVQHNwLEqlHfaiRKTtPjHzEfiVEXgIc0srkK
+         B6g4oLXSDqBAQh0991bXHYpVmx5tptN1ReIe0IOJlvGMsvJnVemOSCFAklQqMEpcTY
+         OgCH/jLgK0iWz7fKEnUStBEI87VjxS17bKZSyxwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Konovalov <andreyknvl@google.com>,
-        Marco Elver <elver@google.com>,
-        Alexander Potapenko <glider@google.com>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0830/1039] kasan: fix quarantine conflicting with init_on_free
-Date:   Mon, 24 Jan 2022 19:43:39 +0100
-Message-Id: <20220124184153.183232888@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: [PATCH 5.10 455/563] drm/etnaviv: limit submit sizes
+Date:   Mon, 24 Jan 2022 19:43:40 +0100
+Message-Id: <20220124184040.184257696@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,63 +48,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Konovalov <andreyknvl@google.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit 26dca996ea7b1ac7008b6b6063fc88b849e3ac3e ]
+commit 6dfa2fab8ddd46faa771a102672176bee7a065de upstream.
 
-KASAN's quarantine might save its metadata inside freed objects.  As
-this happens after the memory is zeroed by the slab allocator when
-init_on_free is enabled, the memory coming out of quarantine is not
-properly zeroed.
+Currently we allow rediculous amounts of kernel memory being allocated
+via the etnaviv GEM_SUBMIT ioctl, which is a pretty easy DoS vector. Put
+some reasonable limits in to fix this.
 
-This causes lib/test_meminit.c tests to fail with Generic KASAN.
+The commandstream size is limited to 64KB, which was already a soft limit
+on older kernels after which the kernel only took submits on a best effort
+base, so there is no userspace that tries to submit commandstreams larger
+than this. Even if the whole commandstream is a single incrementing address
+load, the size limit also limits the number of potential relocs and
+referenced buffers to slightly under 64K, so use the same limit for those
+arguments. The performance monitoring infrastructure currently supports
+less than 50 performance counter signals, so limiting them to 128 on a
+single submit seems like a reasonably future-proof number for now. This
+number can be bumped if needed without breaking the interface.
 
-Zero the metadata when the object is removed from quarantine.
-
-Link: https://lkml.kernel.org/r/2805da5df4b57138fdacd671f5d227d58950ba54.1640037083.git.andreyknvl@google.com
-Fixes: 6471384af2a6 ("mm: security: introduce init_on_alloc=1 and init_on_free=1 boot options")
-Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
-Reviewed-by: Marco Elver <elver@google.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/kasan/quarantine.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/mm/kasan/quarantine.c b/mm/kasan/quarantine.c
-index d8ccff4c1275e..47ed4fc33a29e 100644
---- a/mm/kasan/quarantine.c
-+++ b/mm/kasan/quarantine.c
-@@ -132,11 +132,22 @@ static void *qlink_to_object(struct qlist_node *qlink, struct kmem_cache *cache)
- static void qlink_free(struct qlist_node *qlink, struct kmem_cache *cache)
- {
- 	void *object = qlink_to_object(qlink, cache);
-+	struct kasan_free_meta *meta = kasan_get_free_meta(cache, object);
- 	unsigned long flags;
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c
+@@ -469,6 +469,12 @@ int etnaviv_ioctl_gem_submit(struct drm_
+ 		return -EINVAL;
+ 	}
  
- 	if (IS_ENABLED(CONFIG_SLAB))
- 		local_irq_save(flags);
- 
-+	/*
-+	 * If init_on_free is enabled and KASAN's free metadata is stored in
-+	 * the object, zero the metadata. Otherwise, the object's memory will
-+	 * not be properly zeroed, as KASAN saves the metadata after the slab
-+	 * allocator zeroes the object.
-+	 */
-+	if (slab_want_init_on_free(cache) &&
-+	    cache->kasan_info.free_meta_offset == 0)
-+		memzero_explicit(meta, sizeof(*meta));
++	if (args->stream_size > SZ_64K || args->nr_relocs > SZ_64K ||
++	    args->nr_bos > SZ_64K || args->nr_pmrs > 128) {
++		DRM_ERROR("submit arguments out of size limits\n");
++		return -EINVAL;
++	}
 +
  	/*
- 	 * As the object now gets freed from the quarantine, assume that its
- 	 * free track is no longer valid.
--- 
-2.34.1
-
+ 	 * Copy the command submission and bo array to kernel space in
+ 	 * one go, and do this outside of any locks.
 
 
