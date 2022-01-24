@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE193499938
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:44:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DF6E499BC8
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:05:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1451798AbiAXVdz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:33:55 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:45706 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1452206AbiAXVYR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:24:17 -0500
+        id S1574386AbiAXVzI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:55:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57030 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1452445AbiAXVsu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:48:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 183F4C081197;
+        Mon, 24 Jan 2022 12:32:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D16D6614CB;
-        Mon, 24 Jan 2022 21:24:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4DC8C340E4;
-        Mon, 24 Jan 2022 21:24:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE1B26153A;
+        Mon, 24 Jan 2022 20:32:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D43F5C340E5;
+        Mon, 24 Jan 2022 20:32:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059456;
-        bh=3kPQFQXrFwsqTMtVM9ew+ZI2qMLU4r4nNQNU7LoZqa0=;
+        s=korg; t=1643056375;
+        bh=bvRgmzztybuxgeiocEHbhGy+hF9oTXJZSdyxIsdtvhY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pnCDK0m1xmVUdGxArAjBoIOM+r0ggwcZZQQT1NwzHH/p4ryshzsu/K94aUhPeZiw1
-         kVp5FtBMymFvcQPzNqbc5re5acb+GQBhDiQsKfRQPpuzEm8Z605f6IbbHnVBPqMpuf
-         wofZLctTVLk5xJelg7o+wv3Ss8hIDayiJc/JVL1I=
+        b=qG3OFeHORoese6DMlw7khWFIT4h5SxVWwhwoSiUtwWJqmK+8eNS5/2aiV9YPXjMzc
+         ABNtl4bocVxZS3tWnNtB9JsZUjokS9LJ+BYNakhomNtxLKh8RJ+afWACepNf6SitrA
+         yK9Jc6SDYQIKrZRe3eFm7IFXbUOHpnzq0limcy1c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jslaby@suse.cz>,
+        stable@vger.kernel.org, Archie Pusaka <apusaka@chromium.org>,
+        Sonny Sasaka <sonnysasaka@chromium.org>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0589/1039] mxser: dont throttle manually
-Date:   Mon, 24 Jan 2022 19:39:38 +0100
-Message-Id: <20220124184145.134971912@linuxfoundation.org>
+Subject: [PATCH 5.15 462/846] Bluetooth: Fix removing adv when processing cmd complete
+Date:   Mon, 24 Jan 2022 19:39:39 +0100
+Message-Id: <20220124184116.918866562@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,159 +49,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby <jslaby@suse.cz>
+From: Archie Pusaka <apusaka@chromium.org>
 
-[ Upstream commit c6693e6e07805f1b7822b13a5b482bf2b6a1f312 ]
+[ Upstream commit 2128939fe2e771645dd88e1938c27fdf96bd1cd0 ]
 
-First, checking tty->receive_room to signalize whether there is enough space
-in the tty buffers does not make much sense. Provided the tty buffers
-are in tty_port and those are not checked at all.
+If we remove one instance of adv using Set Extended Adv Enable, there
+is a possibility of issue occurs when processing the Command Complete
+event. Especially, the adv_info might not be found since we already
+remove it in hci_req_clear_adv_instance() -> hci_remove_adv_instance().
+If that's the case, we will mistakenly proceed to remove all adv
+instances instead of just one single instance.
 
-Second, if the rx path is throttled, with CRTSCTS, RTS is deasserted,
-but is never asserted again. This leads to port "lockup", not accepting
-any more input.
+This patch fixes the issue by checking the content of the HCI command
+instead of checking whether the adv_info is found.
 
-So:
-1) stty -F /dev/ttyMI0 crtscts # the mxser port
-2) stty -F /dev/ttyS6 crtscts # the connected port
-3) cat /dev/ttyMI0
-4) "write in a loop" to /dev/ttyS6
-5) cat from 3) produces the bytes from 4)
-6) killall -STOP cat (the 3)'s one)
-7) wait for RTS to drop on /dev/ttyMI0
-8) killall -CONT cat (again the 3)'s one)
-
-cat erroneously produces no more output now (i.e. no data sent from
-ttyS6 to ttyMI can be seen).
-
-Note that the step 7) is performed twice: once from n_tty by
-tty_throttle_safe(), once by mxser_stoprx() from the receive path. Then
-after step 7), n_tty correctly unthrottles the input, but mxser calls
-mxser_stoprx() again as there is still only a little space in n_tty
-buffers (tty->receive_room mentioned at the beginning), but the device's
-FIFO is/can be already filled.
-
-After this patch, the output is correctly resumed, i.e. n_tty both
-throttles and unthrottles without interfering with mxser's attempts.
-
-This allows us to get rid of the non-standard ldisc_stop_rx flag from
-struct mxser_port.
-
-Signed-off-by: Jiri Slaby <jslaby@suse.cz>
-Link: https://lore.kernel.org/r/20211118073125.12283-15-jslaby@suse.cz
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Archie Pusaka <apusaka@chromium.org>
+Reviewed-by: Sonny Sasaka <sonnysasaka@chromium.org>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/mxser.c | 36 ++++++------------------------------
- 1 file changed, 6 insertions(+), 30 deletions(-)
+ net/bluetooth/hci_event.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/mxser.c b/drivers/tty/mxser.c
-index 27caa2f9ba79b..3b5d193b7f245 100644
---- a/drivers/tty/mxser.c
-+++ b/drivers/tty/mxser.c
-@@ -251,8 +251,6 @@ struct mxser_port {
- 	u8 MCR;			/* Modem control register */
- 	u8 FCR;			/* FIFO control register */
- 
--	bool ldisc_stop_rx;
--
- 	struct async_icount icount; /* kernel counters for 4 input interrupts */
- 	unsigned int timeout;
- 
-@@ -1323,11 +1321,14 @@ static int mxser_get_icount(struct tty_struct *tty,
- 	return 0;
- }
- 
--static void mxser_stoprx(struct tty_struct *tty)
-+/*
-+ * This routine is called by the upper-layer tty layer to signal that
-+ * incoming characters should be throttled.
-+ */
-+static void mxser_throttle(struct tty_struct *tty)
- {
- 	struct mxser_port *info = tty->driver_data;
- 
--	info->ldisc_stop_rx = true;
- 	if (I_IXOFF(tty)) {
- 		if (info->board->must_hwid) {
- 			info->IER &= ~MOXA_MUST_RECV_ISR;
-@@ -1346,21 +1347,11 @@ static void mxser_stoprx(struct tty_struct *tty)
- 	}
- }
- 
--/*
-- * This routine is called by the upper-layer tty layer to signal that
-- * incoming characters should be throttled.
-- */
--static void mxser_throttle(struct tty_struct *tty)
--{
--	mxser_stoprx(tty);
--}
--
- static void mxser_unthrottle(struct tty_struct *tty)
- {
- 	struct mxser_port *info = tty->driver_data;
- 
- 	/* startrx */
--	info->ldisc_stop_rx = false;
- 	if (I_IXOFF(tty)) {
- 		if (info->x_char)
- 			info->x_char = 0;
-@@ -1543,9 +1534,6 @@ static bool mxser_receive_chars_new(struct tty_struct *tty,
- 	if (hwid == MOXA_MUST_MU150_HWID)
- 		gdl &= MOXA_MUST_GDL_MASK;
- 
--	if (gdl >= tty->receive_room && !port->ldisc_stop_rx)
--		mxser_stoprx(tty);
--
- 	while (gdl--) {
- 		u8 ch = inb(port->ioaddr + UART_RX);
- 		tty_insert_flip_char(&port->port, ch, 0);
-@@ -1558,10 +1546,8 @@ static u8 mxser_receive_chars_old(struct tty_struct *tty,
- 		                struct mxser_port *port, u8 status)
- {
- 	enum mxser_must_hwid hwid = port->board->must_hwid;
--	int recv_room = tty->receive_room;
- 	int ignored = 0;
- 	int max = 256;
--	int cnt = 0;
- 	u8 ch;
- 
- 	do {
-@@ -1596,14 +1582,8 @@ static u8 mxser_receive_chars_old(struct tty_struct *tty,
- 					port->icount.overrun++;
- 				}
- 			}
--			tty_insert_flip_char(&port->port, ch, flag);
--			cnt++;
--			if (cnt >= recv_room) {
--				if (!port->ldisc_stop_rx)
--					mxser_stoprx(tty);
-+			if (!tty_insert_flip_char(&port->port, ch, flag))
- 				break;
--			}
--
- 		}
- 
- 		if (hwid)
-@@ -1618,9 +1598,6 @@ static u8 mxser_receive_chars_old(struct tty_struct *tty,
- static u8 mxser_receive_chars(struct tty_struct *tty,
- 		struct mxser_port *port, u8 status)
- {
--	if (tty->receive_room == 0 && !port->ldisc_stop_rx)
--		mxser_stoprx(tty);
--
- 	if (!mxser_receive_chars_new(tty, port, status))
- 		status = mxser_receive_chars_old(tty, port, status);
- 
-@@ -1833,7 +1810,6 @@ static void mxser_initbrd(struct mxser_board *brd, bool high_baud)
- 		tty_port_init(&info->port);
- 		info->port.ops = &mxser_port_ops;
- 		info->board = brd;
--		info->ldisc_stop_rx = false;
- 
- 		/* Enhance mode enabled here */
- 		if (brd->must_hwid != MOXA_OTHER_UART)
+diff --git a/net/bluetooth/hci_event.c b/net/bluetooth/hci_event.c
+index 50d1d62c15ec8..20e36126bbdae 100644
+--- a/net/bluetooth/hci_event.c
++++ b/net/bluetooth/hci_event.c
+@@ -1325,8 +1325,10 @@ static void hci_cc_le_set_ext_adv_enable(struct hci_dev *hdev,
+ 					   &conn->le_conn_timeout,
+ 					   conn->conn_timeout);
+ 	} else {
+-		if (adv) {
+-			adv->enabled = false;
++		if (cp->num_of_sets) {
++			if (adv)
++				adv->enabled = false;
++
+ 			/* If just one instance was disabled check if there are
+ 			 * any other instance enabled before clearing HCI_LE_ADV
+ 			 */
 -- 
 2.34.1
 
