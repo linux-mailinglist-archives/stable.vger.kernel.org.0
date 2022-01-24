@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 45AC949A071
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:29:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E009949A05F
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:29:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1384021AbiAXXHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:07:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45202 "EHLO
+        id S1843883AbiAXXGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:06:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1841091AbiAXW5g (ORCPT
+        with ESMTP id S1841089AbiAXW5g (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:57:36 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA85FC055ABE;
-        Mon, 24 Jan 2022 13:12:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5EC5C055ABF;
+        Mon, 24 Jan 2022 13:12:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B8A66147D;
-        Mon, 24 Jan 2022 21:12:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 506B0C340E5;
-        Mon, 24 Jan 2022 21:12:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 762CE6131F;
+        Mon, 24 Jan 2022 21:12:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 614E9C340E5;
+        Mon, 24 Jan 2022 21:12:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058720;
-        bh=RLQt645kFXrizzQINI9AoTr4vJ0Bgr5GYFhh/k5hya0=;
+        s=korg; t=1643058723;
+        bh=WGPI17vQVAo2cE77Umhe/pZ01t6CYtWwSryzGlKR4Ac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tnEOIYi8EPGNwvbEhbseyNOl7+paVpl9TdrCp6r/4fyZIIyhq5lL1zlyz8jRlqPo6
-         xoZmCEoHtP6rkeTHOM8gCPt6qt+vIPT2f/RbmJeq9oKpZjBdKVq8zhlQSUffy5o7rI
-         iCwc/jia0U+5DtJUDKQKLk7eaQxFsDOLvefXz8Bo=
+        b=fAX2Xyov3G8BudDESXrh4rUzLqRV0kO/7KoSsy5bamKnkwTJhAKDk9QBQHGqmH66f
+         MVxTbgJ27fcU1CUgXeWUOCas2V02N+rUj6DrnYkkdZ/kI47QfRvVemC+w8mPiPEqXL
+         +50M0G9rUhvb6ZAMiYVL/jjtoDcra5rds6UQZTyM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miroslav Lichvar <mlichvar@redhat.com>,
-        Yangbo Lu <yangbo.lu@nxp.com>,
-        Richard Cochran <richardcochran@gmail.com>,
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Paul Mackerras <paulus@samba.org>, linux-ppp@vger.kernel.org,
+        syzbot <syzkaller@googlegroups.com>,
+        Guillaume Nault <gnault@redhat.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0381/1039] net: fix SOF_TIMESTAMPING_BIND_PHC to work with multiple sockets
-Date:   Mon, 24 Jan 2022 19:36:10 +0100
-Message-Id: <20220124184138.119678932@linuxfoundation.org>
+Subject: [PATCH 5.16 0382/1039] ppp: ensure minimum packet size in ppp_write()
+Date:   Mon, 24 Jan 2022 19:36:11 +0100
+Message-Id: <20220124184138.152052701@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -50,128 +51,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miroslav Lichvar <mlichvar@redhat.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 007747a984ea5e895b7d8b056b24ebf431e1e71d ]
+[ Upstream commit 44073187990d5629804ce0627525f6ea5cfef171 ]
 
-When multiple sockets using the SOF_TIMESTAMPING_BIND_PHC flag received
-a packet with a hardware timestamp (e.g. multiple PTP instances in
-different PTP domains using the UDPv4/v6 multicast or L2 transport),
-the timestamps received on some sockets were corrupted due to repeated
-conversion of the same timestamp (by the same or different vclocks).
+It seems pretty clear ppp layer assumed user space
+would always be kind to provide enough data
+in their write() to a ppp device.
 
-Fix ptp_convert_timestamp() to not modify the shared skb timestamp
-and return the converted timestamp as a ktime_t instead. If the
-conversion fails, return 0 to not confuse the application with
-timestamps corresponding to an unexpected PHC.
+This patch makes sure user provides at least
+2 bytes.
 
-Fixes: d7c088265588 ("net: socket: support hardware timestamp conversion to PHC bound")
-Signed-off-by: Miroslav Lichvar <mlichvar@redhat.com>
-Cc: Yangbo Lu <yangbo.lu@nxp.com>
-Cc: Richard Cochran <richardcochran@gmail.com>
-Acked-by: Richard Cochran <richardcochran@gmail.com>
+It adds PPP_PROTO_LEN macro that could replace
+in net-next many occurrences of hard-coded 2 value.
+
+I replaced only one occurrence to ease backports
+to stable kernels.
+
+The bug manifests in the following report:
+
+BUG: KMSAN: uninit-value in ppp_send_frame+0x28d/0x27c0 drivers/net/ppp/ppp_generic.c:1740
+ ppp_send_frame+0x28d/0x27c0 drivers/net/ppp/ppp_generic.c:1740
+ __ppp_xmit_process+0x23e/0x4b0 drivers/net/ppp/ppp_generic.c:1640
+ ppp_xmit_process+0x1fe/0x480 drivers/net/ppp/ppp_generic.c:1661
+ ppp_write+0x5cb/0x5e0 drivers/net/ppp/ppp_generic.c:513
+ do_iter_write+0xb0c/0x1500 fs/read_write.c:853
+ vfs_writev fs/read_write.c:924 [inline]
+ do_writev+0x645/0xe00 fs/read_write.c:967
+ __do_sys_writev fs/read_write.c:1040 [inline]
+ __se_sys_writev fs/read_write.c:1037 [inline]
+ __x64_sys_writev+0xe5/0x120 fs/read_write.c:1037
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Uninit was created at:
+ slab_post_alloc_hook mm/slab.h:524 [inline]
+ slab_alloc_node mm/slub.c:3251 [inline]
+ __kmalloc_node_track_caller+0xe0c/0x1510 mm/slub.c:4974
+ kmalloc_reserve net/core/skbuff.c:354 [inline]
+ __alloc_skb+0x545/0xf90 net/core/skbuff.c:426
+ alloc_skb include/linux/skbuff.h:1126 [inline]
+ ppp_write+0x11d/0x5e0 drivers/net/ppp/ppp_generic.c:501
+ do_iter_write+0xb0c/0x1500 fs/read_write.c:853
+ vfs_writev fs/read_write.c:924 [inline]
+ do_writev+0x645/0xe00 fs/read_write.c:967
+ __do_sys_writev fs/read_write.c:1040 [inline]
+ __se_sys_writev fs/read_write.c:1037 [inline]
+ __x64_sys_writev+0xe5/0x120 fs/read_write.c:1037
+ do_syscall_x64 arch/x86/entry/common.c:51 [inline]
+ do_syscall_64+0x54/0xd0 arch/x86/entry/common.c:82
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: linux-ppp@vger.kernel.org
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Acked-by: Guillaume Nault <gnault@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ptp/ptp_vclock.c         | 10 +++++-----
- include/linux/ptp_clock_kernel.h | 12 +++++++-----
- net/socket.c                     |  9 ++++++---
- 3 files changed, 18 insertions(+), 13 deletions(-)
+ drivers/net/ppp/ppp_generic.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/ptp/ptp_vclock.c b/drivers/ptp/ptp_vclock.c
-index baee0379482bc..ab1d233173e13 100644
---- a/drivers/ptp/ptp_vclock.c
-+++ b/drivers/ptp/ptp_vclock.c
-@@ -185,8 +185,8 @@ out:
- }
- EXPORT_SYMBOL(ptp_get_vclocks_index);
+diff --git a/drivers/net/ppp/ppp_generic.c b/drivers/net/ppp/ppp_generic.c
+index 1180a0e2445fb..3ab24988198fe 100644
+--- a/drivers/net/ppp/ppp_generic.c
++++ b/drivers/net/ppp/ppp_generic.c
+@@ -69,6 +69,8 @@
+ #define MPHDRLEN	6	/* multilink protocol header length */
+ #define MPHDRLEN_SSN	4	/* ditto with short sequence numbers */
  
--void ptp_convert_timestamp(struct skb_shared_hwtstamps *hwtstamps,
--			   int vclock_index)
-+ktime_t ptp_convert_timestamp(const struct skb_shared_hwtstamps *hwtstamps,
-+			      int vclock_index)
- {
- 	char name[PTP_CLOCK_NAME_LEN] = "";
- 	struct ptp_vclock *vclock;
-@@ -198,12 +198,12 @@ void ptp_convert_timestamp(struct skb_shared_hwtstamps *hwtstamps,
- 	snprintf(name, PTP_CLOCK_NAME_LEN, "ptp%d", vclock_index);
- 	dev = class_find_device_by_name(ptp_class, name);
- 	if (!dev)
--		return;
-+		return 0;
++#define PPP_PROTO_LEN	2
++
+ /*
+  * An instance of /dev/ppp can be associated with either a ppp
+  * interface unit or a ppp channel.  In both cases, file->private_data
+@@ -497,6 +499,9 @@ static ssize_t ppp_write(struct file *file, const char __user *buf,
  
- 	ptp = dev_get_drvdata(dev);
- 	if (!ptp->is_virtual_clock) {
- 		put_device(dev);
--		return;
-+		return 0;
+ 	if (!pf)
+ 		return -ENXIO;
++	/* All PPP packets should start with the 2-byte protocol */
++	if (count < PPP_PROTO_LEN)
++		return -EINVAL;
+ 	ret = -ENOMEM;
+ 	skb = alloc_skb(count + pf->hdrlen, GFP_KERNEL);
+ 	if (!skb)
+@@ -1764,7 +1769,7 @@ ppp_send_frame(struct ppp *ppp, struct sk_buff *skb)
  	}
  
- 	vclock = info_to_vclock(ptp->info);
-@@ -215,7 +215,7 @@ void ptp_convert_timestamp(struct skb_shared_hwtstamps *hwtstamps,
- 	spin_unlock_irqrestore(&vclock->lock, flags);
+ 	++ppp->stats64.tx_packets;
+-	ppp->stats64.tx_bytes += skb->len - 2;
++	ppp->stats64.tx_bytes += skb->len - PPP_PROTO_LEN;
  
- 	put_device(dev);
--	hwtstamps->hwtstamp = ns_to_ktime(ns);
-+	return ns_to_ktime(ns);
- }
- EXPORT_SYMBOL(ptp_convert_timestamp);
- #endif
-diff --git a/include/linux/ptp_clock_kernel.h b/include/linux/ptp_clock_kernel.h
-index 2e5565067355b..554454cb86931 100644
---- a/include/linux/ptp_clock_kernel.h
-+++ b/include/linux/ptp_clock_kernel.h
-@@ -351,15 +351,17 @@ int ptp_get_vclocks_index(int pclock_index, int **vclock_index);
-  *
-  * @hwtstamps:    skb_shared_hwtstamps structure pointer
-  * @vclock_index: phc index of ptp vclock.
-+ *
-+ * Returns converted timestamp, or 0 on error.
-  */
--void ptp_convert_timestamp(struct skb_shared_hwtstamps *hwtstamps,
--			   int vclock_index);
-+ktime_t ptp_convert_timestamp(const struct skb_shared_hwtstamps *hwtstamps,
-+			      int vclock_index);
- #else
- static inline int ptp_get_vclocks_index(int pclock_index, int **vclock_index)
- { return 0; }
--static inline void ptp_convert_timestamp(struct skb_shared_hwtstamps *hwtstamps,
--					 int vclock_index)
--{ }
-+static inline ktime_t ptp_convert_timestamp(const struct skb_shared_hwtstamps *hwtstamps,
-+					    int vclock_index)
-+{ return 0; }
- 
- #endif
- 
-diff --git a/net/socket.c b/net/socket.c
-index 7f64a6eccf63f..5053eb0100e48 100644
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -829,6 +829,7 @@ void __sock_recv_timestamp(struct msghdr *msg, struct sock *sk,
- 	int empty = 1, false_tstamp = 0;
- 	struct skb_shared_hwtstamps *shhwtstamps =
- 		skb_hwtstamps(skb);
-+	ktime_t hwtstamp;
- 
- 	/* Race occurred between timestamp enabling and packet
- 	   receiving.  Fill in the current time for now. */
-@@ -877,10 +878,12 @@ void __sock_recv_timestamp(struct msghdr *msg, struct sock *sk,
- 	    (sk->sk_tsflags & SOF_TIMESTAMPING_RAW_HARDWARE) &&
- 	    !skb_is_swtx_tstamp(skb, false_tstamp)) {
- 		if (sk->sk_tsflags & SOF_TIMESTAMPING_BIND_PHC)
--			ptp_convert_timestamp(shhwtstamps, sk->sk_bind_phc);
-+			hwtstamp = ptp_convert_timestamp(shhwtstamps,
-+							 sk->sk_bind_phc);
-+		else
-+			hwtstamp = shhwtstamps->hwtstamp;
- 
--		if (ktime_to_timespec64_cond(shhwtstamps->hwtstamp,
--					     tss.ts + 2)) {
-+		if (ktime_to_timespec64_cond(hwtstamp, tss.ts + 2)) {
- 			empty = 0;
- 
- 			if ((sk->sk_tsflags & SOF_TIMESTAMPING_OPT_PKTINFO) &&
+ 	switch (proto) {
+ 	case PPP_IP:
 -- 
 2.34.1
 
