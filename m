@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A11D9499199
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D05A649919C
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353481AbiAXUM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:12:27 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:36716 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378969AbiAXUKH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:10:07 -0500
+        id S1353718AbiAXUMa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:12:30 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49108 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1379033AbiAXUKP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:10:15 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D72FD60B89;
-        Mon, 24 Jan 2022 20:10:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E16EBC340E7;
-        Mon, 24 Jan 2022 20:10:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 051D5B81218;
+        Mon, 24 Jan 2022 20:10:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 624D8C340EA;
+        Mon, 24 Jan 2022 20:10:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055006;
-        bh=q5rAvSQSqiGCGZnKtanoWi/vKTjCm/PgYIA9eIArUYs=;
+        s=korg; t=1643055012;
+        bh=xnUn7jNRsQgFINae2Fala1LuQT7IMhQfr7FYju3KQAc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tRe7LqORmN+Y2Nefu2huYh2MoSP56z9juy1N1T8bAkmuDwZNcwyMymO9FOyzwokS0
-         lORuR+Ub/sRCSUDUxizvwluPp+9/o+7vo9tWgB+rVyENFXJchcaq2suan6ZJ35PpJV
-         uMTcRTVIXa6uPlS56musmqN+W4eZvVLBsw3sCNQ0=
+        b=KC+9YqV2sUW3S25FcpUayWZCbweUu2JFEDdUNHx9185XhO2joAOISJCMt78bq7ooQ
+         +IbJMkKgS1z0E1VyjDXfhROixtU5ahHICYQQse1UXTAHbqTt0e3ha0GurwuT3DFNvK
+         Ny3afNehFUInmQgV6eaeWGKTWxPKajXIYEgEi1yU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Karl Kurbjun <kkurbjun@gmail.com>,
+        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
+        Ping Cheng <ping.cheng@wacom.com>,
         Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 5.15 003/846] HID: Ignore battery for Elan touchscreen on HP Envy X360 15t-dr100
-Date:   Mon, 24 Jan 2022 19:32:00 +0100
-Message-Id: <20220124184100.997110508@linuxfoundation.org>
+Subject: [PATCH 5.15 005/846] HID: wacom: Reset expected and received contact counts at the same time
+Date:   Mon, 24 Jan 2022 19:32:02 +0100
+Message-Id: <20220124184101.077169233@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -44,46 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karl Kurbjun <kkurbjun@gmail.com>
+From: Jason Gerecke <killertofu@gmail.com>
 
-commit f3193ea1b6779023334faa72b214ece457e02656 upstream.
+commit 546e41ac994cc185ef3de610ca849a294b5df3ba upstream.
 
-Battery status on Elan tablet driver is reported for the HP ENVY x360
-15t-dr100. There is no separate battery for the Elan controller resulting in a
-battery level report of 0% or 1% depending on whether a stylus has interacted
-with the screen. These low battery level reports causes a variety of bad
-behavior in desktop environments. This patch adds the appropriate quirk to
-indicate that the batery status is unused for this target.
+These two values go hand-in-hand and must be valid for the driver to
+behave correctly. We are currently lazy about updating the values and
+rely on the "expected" code flow to take care of making sure they're
+valid at the point they're needed. The "expected" flow changed somewhat
+with commit f8b6a74719b5 ("HID: wacom: generic: Support multiple tools
+per report"), however. This led to problems with the DTH-2452 due (in
+part) to *all* contacts being fully processed -- even those past the
+expected contact count. Specifically, the received count gets reset to
+0 once all expected fingers are processed, but not the expected count.
+The rest of the contacts in the report are then *also* processed since
+now the driver thinks we've only processed 0 of N expected contacts.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Karl Kurbjun <kkurbjun@gmail.com>
+Later commits such as 7fb0413baa7f (HID: wacom: Use "Confidence" flag to
+prevent reporting invalid contacts) worked around the DTH-2452 issue by
+skipping the invalid contacts at the end of the report, but this is not
+a complete fix. The confidence flag cannot be relied on when a contact
+is removed (see the following patch), and dealing with that condition
+re-introduces the DTH-2452 issue unless we also address this contact
+count laziness. By resetting expected and received counts at the same
+time we ensure the driver understands that there are 0 more contacts
+expected in the report. Similarly, we also make sure to reset the
+received count if for some reason we're out of sync in the pre-report
+phase.
+
+Link: https://github.com/linuxwacom/input-wacom/issues/288
+Fixes: f8b6a74719b5 ("HID: wacom: generic: Support multiple tools per report")
+CC: stable@vger.kernel.org
+Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
+Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-ids.h   |    1 +
- drivers/hid/hid-input.c |    2 ++
- 2 files changed, 3 insertions(+)
+ drivers/hid/wacom_wac.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -394,6 +394,7 @@
- #define USB_DEVICE_ID_HP_X2		0x074d
- #define USB_DEVICE_ID_HP_X2_10_COVER	0x0755
- #define I2C_DEVICE_ID_HP_SPECTRE_X360_15	0x2817
-+#define I2C_DEVICE_ID_HP_ENVY_X360_15T_DR100	0x29CF
- #define USB_DEVICE_ID_ASUS_UX550VE_TOUCHSCREEN	0x2544
- #define USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN	0x2706
- #define I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN	0x261A
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -327,6 +327,8 @@ static const struct hid_device_id hid_ba
- 	  HID_BATTERY_QUIRK_IGNORE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ASUS_UX550VE_TOUCHSCREEN),
- 	  HID_BATTERY_QUIRK_IGNORE },
-+	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_ENVY_X360_15T_DR100),
-+	  HID_BATTERY_QUIRK_IGNORE },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_SPECTRE_X360_15),
- 	  HID_BATTERY_QUIRK_IGNORE },
- 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN),
+--- a/drivers/hid/wacom_wac.c
++++ b/drivers/hid/wacom_wac.c
+@@ -2692,11 +2692,14 @@ static void wacom_wac_finger_pre_report(
+ 	    hid_data->cc_index >= 0) {
+ 		struct hid_field *field = report->field[hid_data->cc_index];
+ 		int value = field->value[hid_data->cc_value_index];
+-		if (value)
++		if (value) {
+ 			hid_data->num_expected = value;
++			hid_data->num_received = 0;
++		}
+ 	}
+ 	else {
+ 		hid_data->num_expected = wacom_wac->features.touch_max;
++		hid_data->num_received = 0;
+ 	}
+ }
+ 
+@@ -2724,6 +2727,7 @@ static void wacom_wac_finger_report(stru
+ 
+ 	input_sync(input);
+ 	wacom_wac->hid_data.num_received = 0;
++	wacom_wac->hid_data.num_expected = 0;
+ 
+ 	/* keep touch state for pen event */
+ 	wacom_wac->shared->touch_down = wacom_wac_finger_count_touches(wacom_wac);
 
 
