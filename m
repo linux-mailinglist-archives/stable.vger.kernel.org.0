@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4397C49A96A
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:23:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29B8149A902
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:18:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1322566AbiAYDWE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:22:04 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:36182 "EHLO
+        id S1321855AbiAYDT7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:19:59 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:38584 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384665AbiAXUaX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:30:23 -0500
+        with ESMTP id S1355704AbiAXTtL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:49:11 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37CF5B80FA1;
-        Mon, 24 Jan 2022 20:30:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BC31C340E5;
-        Mon, 24 Jan 2022 20:30:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 70291B8121C;
+        Mon, 24 Jan 2022 19:49:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98068C340E5;
+        Mon, 24 Jan 2022 19:49:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056221;
-        bh=Dmxk9fDbPs1CmD33CldiOBsy/ISVKgliYCC0qptzz6k=;
+        s=korg; t=1643053748;
+        bh=dqbWfEMlNE/Ni041E7Yb6Yct9cWyfdGrWOafYB2jzak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E6cMqDXU3pQuiPuxwaS/sXng5jh08hPw3auPx6Hsbb5vqxaWJUH4bvzlD3gCosCYh
-         gK0aDlC8YlqDfi7A/xJjUCmHkvTq1dz8fkZAjDbz53/sYZ18ZzQl48epQpww73aD1Z
-         vwQ/ZZLxmsUy2fbw0rI193eGFBmYfoYDdi6OCmXo=
+        b=nQ1X82DEufzGluepNQ7xT4TQDkp1BsveTbz9jF5alwWhU848KHF8qY+EcXckdeyFQ
+         459/RqjPvhHjUqz7baBaOwHPJvaCXRuv08Scf/5f9vZ4BlepQypCUL1IzKMKUKcUYo
+         oMH3ln2dHS9lFlp/mFwhI6ohiFrOhcGvg7+354Uw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 412/846] ASoC: rt5663: Handle device_property_read_u32_array error codes
+Subject: [PATCH 5.10 164/563] media: msi001: fix possible null-ptr-deref in msi001_probe()
 Date:   Mon, 24 Jan 2022 19:38:49 +0100
-Message-Id: <20220124184115.184179460@linuxfoundation.org>
+Message-Id: <20220124184030.067356671@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +46,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 2167c0b205960607fb136b4bb3c556a62be1569a ]
+[ Upstream commit 3d5831a40d3464eea158180eb12cbd81c5edfb6a ]
 
-The return value of device_property_read_u32_array() is not always 0.
-To catch the exception in case that devm_kzalloc failed and the
-rt5663->imp_table was NULL, which caused the failure of
-device_property_read_u32_array.
+I got a null-ptr-deref report:
 
-Fixes: 450f0f6a8fb4 ("ASoC: rt5663: Add the manual offset field to compensate the DC offset")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Link: https://lore.kernel.org/r/20211215031550.70702-1-jiasheng@iscas.ac.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+BUG: kernel NULL pointer dereference, address: 0000000000000060
+...
+RIP: 0010:v4l2_ctrl_auto_cluster+0x57/0x270
+...
+Call Trace:
+ msi001_probe+0x13b/0x24b [msi001]
+ spi_probe+0xeb/0x130
+...
+ do_syscall_64+0x35/0xb0
+
+In msi001_probe(), if the creation of control for bandwidth_auto
+fails, there will be a null-ptr-deref issue when it is used in
+v4l2_ctrl_auto_cluster().
+
+Check dev->hdl.error before v4l2_ctrl_auto_cluster() to fix this bug.
+
+Link: https://lore.kernel.org/linux-media/20211026112348.2878040-1-wanghai38@huawei.com
+Fixes: 93203dd6c7c4 ("[media] msi001: Mirics MSi001 silicon tuner driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt5663.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/media/tuners/msi001.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/sound/soc/codecs/rt5663.c b/sound/soc/codecs/rt5663.c
-index be9fc58ff6812..ee09ccd448dcd 100644
---- a/sound/soc/codecs/rt5663.c
-+++ b/sound/soc/codecs/rt5663.c
-@@ -3461,6 +3461,7 @@ static void rt5663_calibrate(struct rt5663_priv *rt5663)
- static int rt5663_parse_dp(struct rt5663_priv *rt5663, struct device *dev)
- {
- 	int table_size;
-+	int ret;
- 
- 	device_property_read_u32(dev, "realtek,dc_offset_l_manual",
- 		&rt5663->pdata.dc_offset_l_manual);
-@@ -3477,9 +3478,11 @@ static int rt5663_parse_dp(struct rt5663_priv *rt5663, struct device *dev)
- 		table_size = sizeof(struct impedance_mapping_table) *
- 			rt5663->pdata.impedance_sensing_num;
- 		rt5663->imp_table = devm_kzalloc(dev, table_size, GFP_KERNEL);
--		device_property_read_u32_array(dev,
-+		ret = device_property_read_u32_array(dev,
- 			"realtek,impedance_sensing_table",
- 			(u32 *)rt5663->imp_table, table_size);
-+		if (ret)
-+			return ret;
- 	}
- 
- 	return 0;
-@@ -3504,8 +3507,11 @@ static int rt5663_i2c_probe(struct i2c_client *i2c,
- 
- 	if (pdata)
- 		rt5663->pdata = *pdata;
--	else
--		rt5663_parse_dp(rt5663, &i2c->dev);
-+	else {
-+		ret = rt5663_parse_dp(rt5663, &i2c->dev);
-+		if (ret)
-+			return ret;
+diff --git a/drivers/media/tuners/msi001.c b/drivers/media/tuners/msi001.c
+index 78e6fd600d8ef..44247049a3190 100644
+--- a/drivers/media/tuners/msi001.c
++++ b/drivers/media/tuners/msi001.c
+@@ -442,6 +442,13 @@ static int msi001_probe(struct spi_device *spi)
+ 			V4L2_CID_RF_TUNER_BANDWIDTH_AUTO, 0, 1, 1, 1);
+ 	dev->bandwidth = v4l2_ctrl_new_std(&dev->hdl, &msi001_ctrl_ops,
+ 			V4L2_CID_RF_TUNER_BANDWIDTH, 200000, 8000000, 1, 200000);
++	if (dev->hdl.error) {
++		ret = dev->hdl.error;
++		dev_err(&spi->dev, "Could not initialize controls\n");
++		/* control init failed, free handler */
++		goto err_ctrl_handler_free;
 +	}
- 
- 	for (i = 0; i < ARRAY_SIZE(rt5663->supplies); i++)
- 		rt5663->supplies[i].supply = rt5663_supply_names[i];
++
+ 	v4l2_ctrl_auto_cluster(2, &dev->bandwidth_auto, 0, false);
+ 	dev->lna_gain = v4l2_ctrl_new_std(&dev->hdl, &msi001_ctrl_ops,
+ 			V4L2_CID_RF_TUNER_LNA_GAIN, 0, 1, 1, 1);
 -- 
 2.34.1
 
