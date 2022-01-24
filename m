@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D91749913B
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:12:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE3FF498E54
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:44:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378837AbiAXUJz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:09:55 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47992 "EHLO
+        id S1344850AbiAXTkg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:40:36 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:58162 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348481AbiAXUDy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:03:54 -0500
+        with ESMTP id S1354238AbiAXTgS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:36:18 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 03253B810AF;
-        Mon, 24 Jan 2022 20:03:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 285A3C340E5;
-        Mon, 24 Jan 2022 20:03:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2AD13B8123F;
+        Mon, 24 Jan 2022 19:36:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C1FCC340E5;
+        Mon, 24 Jan 2022 19:36:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054631;
-        bh=LQm4QQc6Vgl5DIjwrQyP6wFXQa7I4UmfCDLYWKaa/SU=;
+        s=korg; t=1643052974;
+        bh=Y9TME6GlDVGP6wYbQYgCTOaBbsZDcv5Z3Juog3mJdW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=asi5nIvn7/ti63HNTs9rs9D7q6oK59Y8XYvWNZTGLFeLVtQj1p5MUlPUt0VruZcYu
-         B5dZLUt97sSN8hWLGOHih7vsYP3HN78b9XEAAhh+ujPF8Ab+TnxZKRrOw85sogPzsZ
-         rwR8YCa0vi8wMfhNQw3jJqeoNyY35nGT9GWUfKqg=
+        b=Z84osmP1Hq/rz7cZLGAYfAfeBHbq7mDXgbis3VgbkVwmEThBU1REOnfRltPaxWjm+
+         hcOd3PxV7uyN9HUdq7ABEDAng9kwrBuIJg7MPsgqGwz6Vy+q6dh7zudNOcPTHGUOiI
+         7sV+MOUX7Ml2XlS759bD44+n1UO/5bCh/1WzyAhc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ilan Peer <ilan.peer@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>
-Subject: [PATCH 5.10 452/563] iwlwifi: mvm: Increase the scan timeout guard to 30 seconds
+        stable@vger.kernel.org, Erhard Furtner <erhard_f@mailbox.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 233/320] powerpc/powermac: Add missing lockdep_register_key()
 Date:   Mon, 24 Jan 2022 19:43:37 +0100
-Message-Id: <20220124184040.077391893@linuxfoundation.org>
+Message-Id: <20220124184001.905370240@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,40 +46,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilan Peer <ilan.peer@intel.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-commit ced50f1133af12f7521bb777fcf4046ca908fb77 upstream.
+[ Upstream commit df1f679d19edb9eeb67cc2f96b29375f21991945 ]
 
-With the introduction of 6GHz channels the scan guard timeout should
-be adjusted to account for the following extreme case:
+KeyWest i2c @0xf8001003 irq 42 /uni-n@f8000000/i2c@f8001000
+BUG: key c2d00cbc has not been registered!
+------------[ cut here ]------------
+DEBUG_LOCKS_WARN_ON(1)
+WARNING: CPU: 0 PID: 1 at kernel/locking/lockdep.c:4801 lockdep_init_map_type+0x4c0/0xb4c
+Modules linked in:
+CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.15.5-gentoo-PowerMacG4 #9
+NIP:  c01a9428 LR: c01a9428 CTR: 00000000
+REGS: e1033cf0 TRAP: 0700   Not tainted  (5.15.5-gentoo-PowerMacG4)
+MSR:  00029032 <EE,ME,IR,DR,RI>  CR: 24002002  XER: 00000000
 
-- All 6GHz channels are scanned passively: 58 channels.
-- The scan is fragmented with the following parameters: 3 fragments,
-  95 TUs suspend time, 44 TUs maximal out of channel time.
+GPR00: c01a9428 e1033db0 c2d1cf20 00000016 00000004 00000001 c01c0630 e1033a73
+GPR08: 00000000 00000000 00000000 e1033db0 24002004 00000000 f8729377 00000003
+GPR16: c1829a9c 00000000 18305357 c1416fc0 c1416f80 c006ac60 c2d00ca8 c1416f00
+GPR24: 00000000 c21586f0 c2160000 00000000 c2d00cbc c2170000 c216e1a0 c2160000
+NIP [c01a9428] lockdep_init_map_type+0x4c0/0xb4c
+LR [c01a9428] lockdep_init_map_type+0x4c0/0xb4c
+Call Trace:
+[e1033db0] [c01a9428] lockdep_init_map_type+0x4c0/0xb4c (unreliable)
+[e1033df0] [c1c177b8] kw_i2c_add+0x334/0x424
+[e1033e20] [c1c18294] pmac_i2c_init+0x9ec/0xa9c
+[e1033e80] [c1c1a790] smp_core99_probe+0xbc/0x35c
+[e1033eb0] [c1c03cb0] kernel_init_freeable+0x190/0x5a4
+[e1033f10] [c000946c] kernel_init+0x28/0x154
+[e1033f30] [c0035148] ret_from_kernel_thread+0x14/0x1c
 
-The above would result with scan time of more than 24 seconds. Thus,
-set the timeout to 30 seconds.
+Add missing lockdep_register_key()
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Ilan Peer <ilan.peer@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20211210090244.3c851b93aef5.I346fa2e1d79220a6770496e773c6f87a2ad9e6c4@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Erhard Furtner <erhard_f@mailbox.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/69e4f55565bb45ebb0843977801b245af0c666fe.1638264741.git.christophe.leroy@csgroup.eu
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/scan.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/platforms/powermac/low_i2c.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/wireless/intel/iwlwifi/mvm/scan.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/scan.c
-@@ -2157,7 +2157,7 @@ static int iwl_mvm_check_running_scans(s
- 	return -EIO;
- }
- 
--#define SCAN_TIMEOUT 20000
-+#define SCAN_TIMEOUT 30000
- 
- void iwl_mvm_scan_timeout_wk(struct work_struct *work)
- {
+diff --git a/arch/powerpc/platforms/powermac/low_i2c.c b/arch/powerpc/platforms/powermac/low_i2c.c
+index a366233d8ac2d..210435a43bf95 100644
+--- a/arch/powerpc/platforms/powermac/low_i2c.c
++++ b/arch/powerpc/platforms/powermac/low_i2c.c
+@@ -582,6 +582,7 @@ static void __init kw_i2c_add(struct pmac_i2c_host_kw *host,
+ 	bus->close = kw_i2c_close;
+ 	bus->xfer = kw_i2c_xfer;
+ 	mutex_init(&bus->mutex);
++	lockdep_register_key(&bus->lock_key);
+ 	lockdep_set_class(&bus->mutex, &bus->lock_key);
+ 	if (controller == busnode)
+ 		bus->flags = pmac_i2c_multibus;
+-- 
+2.34.1
+
 
 
