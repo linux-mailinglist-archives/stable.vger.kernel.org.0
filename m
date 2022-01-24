@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D60B2499686
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:19:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 255974994F8
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:07:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1445710AbiAXVEq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:04:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44224 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1442663AbiAXUzE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:55:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22589C095422;
-        Mon, 24 Jan 2022 11:59:39 -0800 (PST)
+        id S1391928AbiAXUuD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:50:03 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:35578 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1389324AbiAXUkq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:40:46 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D341DB810AF;
-        Mon, 24 Jan 2022 19:59:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 141A7C340E5;
-        Mon, 24 Jan 2022 19:59:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 935E161540;
+        Mon, 24 Jan 2022 20:40:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75B84C340E5;
+        Mon, 24 Jan 2022 20:40:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054376;
-        bh=EUtzGHwc0AI9vPC/gyGm26EPy+dyA+8wOf2lTLuS7Gs=;
+        s=korg; t=1643056846;
+        bh=csDPm90U76rsS2TRvT3VQSdssrRCu4Q7DK66RQylqBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nrLlu/9gMCGTK5N5yQLYTwch7A9431s+MIO+BdFS4/fg//dKPxNzTAISxudFl1Y35
-         f4cOzp2g82Y5Ab7REXdb0IKvp4YQ6JKGjwzBJRafqA3CI0jp2trGO4ceB5OdvCERHM
-         IOMCIUw6quRBPQcV2ErSYF6MULYFqgac65Ki0DkU=
+        b=CIEHJk981PBCBpIws47uqtg9NSrHGqSmF/zs0x/ncKyHmog50AZehd0P3mDB1MWpC
+         udYNFRm/PT53og06CLi7i7V+hO82eMM0fb0dTOy520vwzzm4i1ANu+r7aqB0v91ycP
+         ByriBWE6PsqHLEnGvRpPJe1rzaU0C39yj0LQu87M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 370/563] cpufreq: Fix initialization of min and max frequency QoS requests
-Date:   Mon, 24 Jan 2022 19:42:15 +0100
-Message-Id: <20220124184037.212017964@linuxfoundation.org>
+Subject: [PATCH 5.15 620/846] can: flexcan: rename RX modes
+Date:   Mon, 24 Jan 2022 19:42:17 +0100
+Message-Id: <20220124184122.429125143@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,52 +44,198 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 521223d8b3ec078f670c7c35a1a04b1b2af07966 ]
+[ Upstream commit 34ea4e1c99f1f177f87e4ae7896caef238dd741a ]
 
-The min and max frequency QoS requests in the cpufreq core are
-initialized to whatever the current min and max frequency values are
-at the init time, but if any of these values change later (for
-example, cpuinfo.max_freq is updated by the driver), these initial
-request values will be limiting the CPU frequency unnecessarily
-unless they are changed by user space via sysfs.
+Most flexcan IP cores support 2 RX modes:
+- FIFO
+- mailbox
 
-To address this, initialize min_freq_req and max_freq_req to
-FREQ_QOS_MIN_DEFAULT_VALUE and FREQ_QOS_MAX_DEFAULT_VALUE,
-respectively, so they don't really limit anything until user
-space updates them.
+The names for these modes were chosen to reflect the name of the
+rx-offload mode they are using.
 
-Reported-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Tested-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+The name of the RX modes should better reflect their difference with
+regards the flexcan IP core. So this patch renames the various
+occurrences of OFF_FIFO to RX_FIFO and OFF_TIMESTAMP to RX_MAILBOX:
+
+| FLEXCAN_TX_MB_RESERVED_OFF_FIFO -> FLEXCAN_TX_MB_RESERVED_RX_FIFO
+| FLEXCAN_TX_MB_RESERVED_OFF_TIMESTAMP -> FLEXCAN_TX_MB_RESERVED_RX_MAILBOX
+| FLEXCAN_QUIRK_USE_OFF_TIMESTAMP -> FLEXCAN_QUIRK_USE_RX_MAILBOX
+
+Link: https://lore.kernel.org/all/20220107193105.1699523-4-mkl@pengutronix.de
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/cpufreq.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/can/flexcan.c | 48 +++++++++++++++++++--------------------
+ 1 file changed, 24 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/cpufreq/cpufreq.c b/drivers/cpufreq/cpufreq.c
-index 8e159fb6af9cd..30dafe8fc5054 100644
---- a/drivers/cpufreq/cpufreq.c
-+++ b/drivers/cpufreq/cpufreq.c
-@@ -1400,7 +1400,7 @@ static int cpufreq_online(unsigned int cpu)
+diff --git a/drivers/net/can/flexcan.c b/drivers/net/can/flexcan.c
+index 3178557e40208..02299befe2852 100644
+--- a/drivers/net/can/flexcan.c
++++ b/drivers/net/can/flexcan.c
+@@ -173,9 +173,9 @@
  
- 		ret = freq_qos_add_request(&policy->constraints,
- 					   policy->min_freq_req, FREQ_QOS_MIN,
--					   policy->min);
-+					   FREQ_QOS_MIN_DEFAULT_VALUE);
- 		if (ret < 0) {
- 			/*
- 			 * So we don't call freq_qos_remove_request() for an
-@@ -1420,7 +1420,7 @@ static int cpufreq_online(unsigned int cpu)
+ /* FLEXCAN interrupt flag register (IFLAG) bits */
+ /* Errata ERR005829 step7: Reserve first valid MB */
+-#define FLEXCAN_TX_MB_RESERVED_OFF_FIFO		8
+-#define FLEXCAN_TX_MB_RESERVED_OFF_TIMESTAMP	0
+-#define FLEXCAN_RX_MB_OFF_TIMESTAMP_FIRST	(FLEXCAN_TX_MB_RESERVED_OFF_TIMESTAMP + 1)
++#define FLEXCAN_TX_MB_RESERVED_RX_FIFO	8
++#define FLEXCAN_TX_MB_RESERVED_RX_MAILBOX	0
++#define FLEXCAN_RX_MB_RX_MAILBOX_FIRST	(FLEXCAN_TX_MB_RESERVED_RX_MAILBOX + 1)
+ #define FLEXCAN_IFLAG_MB(x)		BIT_ULL(x)
+ #define FLEXCAN_IFLAG_RX_FIFO_OVERFLOW	BIT(7)
+ #define FLEXCAN_IFLAG_RX_FIFO_WARN	BIT(6)
+@@ -234,8 +234,8 @@
+ #define FLEXCAN_QUIRK_ENABLE_EACEN_RRS  BIT(3)
+ /* Disable non-correctable errors interrupt and freeze mode */
+ #define FLEXCAN_QUIRK_DISABLE_MECR BIT(4)
+-/* Use timestamp based offloading */
+-#define FLEXCAN_QUIRK_USE_OFF_TIMESTAMP BIT(5)
++/* Use mailboxes (not FIFO) for RX path */
++#define FLEXCAN_QUIRK_USE_RX_MAILBOX BIT(5)
+ /* No interrupt for error passive */
+ #define FLEXCAN_QUIRK_BROKEN_PERR_STATE BIT(6)
+ /* default to BE register access */
+@@ -402,38 +402,38 @@ static const struct flexcan_devtype_data fsl_imx28_devtype_data = {
  
- 		ret = freq_qos_add_request(&policy->constraints,
- 					   policy->max_freq_req, FREQ_QOS_MAX,
--					   policy->max);
-+					   FREQ_QOS_MAX_DEFAULT_VALUE);
- 		if (ret < 0) {
- 			policy->max_freq_req = NULL;
- 			goto out_destroy_policy;
+ static const struct flexcan_devtype_data fsl_imx6q_devtype_data = {
+ 	.quirks = FLEXCAN_QUIRK_DISABLE_RXFG | FLEXCAN_QUIRK_ENABLE_EACEN_RRS |
+-		FLEXCAN_QUIRK_USE_OFF_TIMESTAMP | FLEXCAN_QUIRK_BROKEN_PERR_STATE |
++		FLEXCAN_QUIRK_USE_RX_MAILBOX | FLEXCAN_QUIRK_BROKEN_PERR_STATE |
+ 		FLEXCAN_QUIRK_SETUP_STOP_MODE_GPR,
+ };
+ 
+ static const struct flexcan_devtype_data fsl_imx8qm_devtype_data = {
+ 	.quirks = FLEXCAN_QUIRK_DISABLE_RXFG | FLEXCAN_QUIRK_ENABLE_EACEN_RRS |
+-		FLEXCAN_QUIRK_USE_OFF_TIMESTAMP | FLEXCAN_QUIRK_BROKEN_PERR_STATE |
++		FLEXCAN_QUIRK_USE_RX_MAILBOX | FLEXCAN_QUIRK_BROKEN_PERR_STATE |
+ 		FLEXCAN_QUIRK_SUPPORT_FD | FLEXCAN_QUIRK_SETUP_STOP_MODE_SCFW,
+ };
+ 
+ static struct flexcan_devtype_data fsl_imx8mp_devtype_data = {
+ 	.quirks = FLEXCAN_QUIRK_DISABLE_RXFG | FLEXCAN_QUIRK_ENABLE_EACEN_RRS |
+-		FLEXCAN_QUIRK_DISABLE_MECR | FLEXCAN_QUIRK_USE_OFF_TIMESTAMP |
++		FLEXCAN_QUIRK_DISABLE_MECR | FLEXCAN_QUIRK_USE_RX_MAILBOX |
+ 		FLEXCAN_QUIRK_BROKEN_PERR_STATE | FLEXCAN_QUIRK_SETUP_STOP_MODE_GPR |
+ 		FLEXCAN_QUIRK_SUPPORT_FD | FLEXCAN_QUIRK_SUPPORT_ECC,
+ };
+ 
+ static const struct flexcan_devtype_data fsl_vf610_devtype_data = {
+ 	.quirks = FLEXCAN_QUIRK_DISABLE_RXFG | FLEXCAN_QUIRK_ENABLE_EACEN_RRS |
+-		FLEXCAN_QUIRK_DISABLE_MECR | FLEXCAN_QUIRK_USE_OFF_TIMESTAMP |
++		FLEXCAN_QUIRK_DISABLE_MECR | FLEXCAN_QUIRK_USE_RX_MAILBOX |
+ 		FLEXCAN_QUIRK_BROKEN_PERR_STATE | FLEXCAN_QUIRK_SUPPORT_ECC,
+ };
+ 
+ static const struct flexcan_devtype_data fsl_ls1021a_r2_devtype_data = {
+ 	.quirks = FLEXCAN_QUIRK_DISABLE_RXFG | FLEXCAN_QUIRK_ENABLE_EACEN_RRS |
+-		FLEXCAN_QUIRK_BROKEN_PERR_STATE | FLEXCAN_QUIRK_USE_OFF_TIMESTAMP,
++		FLEXCAN_QUIRK_BROKEN_PERR_STATE | FLEXCAN_QUIRK_USE_RX_MAILBOX,
+ };
+ 
+ static const struct flexcan_devtype_data fsl_lx2160a_r1_devtype_data = {
+ 	.quirks = FLEXCAN_QUIRK_DISABLE_RXFG | FLEXCAN_QUIRK_ENABLE_EACEN_RRS |
+ 		FLEXCAN_QUIRK_DISABLE_MECR | FLEXCAN_QUIRK_BROKEN_PERR_STATE |
+-		FLEXCAN_QUIRK_USE_OFF_TIMESTAMP | FLEXCAN_QUIRK_SUPPORT_FD |
++		FLEXCAN_QUIRK_USE_RX_MAILBOX | FLEXCAN_QUIRK_SUPPORT_FD |
+ 		FLEXCAN_QUIRK_SUPPORT_ECC,
+ };
+ 
+@@ -1018,7 +1018,7 @@ static struct sk_buff *flexcan_mailbox_read(struct can_rx_offload *offload,
+ 
+ 	mb = flexcan_get_mb(priv, n);
+ 
+-	if (priv->devtype_data.quirks & FLEXCAN_QUIRK_USE_OFF_TIMESTAMP) {
++	if (priv->devtype_data.quirks & FLEXCAN_QUIRK_USE_RX_MAILBOX) {
+ 		u32 code;
+ 
+ 		do {
+@@ -1083,7 +1083,7 @@ static struct sk_buff *flexcan_mailbox_read(struct can_rx_offload *offload,
+ 	}
+ 
+  mark_as_read:
+-	if (priv->devtype_data.quirks & FLEXCAN_QUIRK_USE_OFF_TIMESTAMP)
++	if (priv->devtype_data.quirks & FLEXCAN_QUIRK_USE_RX_MAILBOX)
+ 		flexcan_write64(priv, FLEXCAN_IFLAG_MB(n), &regs->iflag1);
+ 	else
+ 		priv->write(FLEXCAN_IFLAG_RX_FIFO_AVAILABLE, &regs->iflag1);
+@@ -1109,7 +1109,7 @@ static irqreturn_t flexcan_irq(int irq, void *dev_id)
+ 	enum can_state last_state = priv->can.state;
+ 
+ 	/* reception interrupt */
+-	if (priv->devtype_data.quirks & FLEXCAN_QUIRK_USE_OFF_TIMESTAMP) {
++	if (priv->devtype_data.quirks & FLEXCAN_QUIRK_USE_RX_MAILBOX) {
+ 		u64 reg_iflag_rx;
+ 		int ret;
+ 
+@@ -1429,20 +1429,20 @@ static int flexcan_rx_offload_setup(struct net_device *dev)
+ 		priv->mb_count = (sizeof(priv->regs->mb[0]) / priv->mb_size) +
+ 				 (sizeof(priv->regs->mb[1]) / priv->mb_size);
+ 
+-	if (priv->devtype_data.quirks & FLEXCAN_QUIRK_USE_OFF_TIMESTAMP)
++	if (priv->devtype_data.quirks & FLEXCAN_QUIRK_USE_RX_MAILBOX)
+ 		priv->tx_mb_reserved =
+-			flexcan_get_mb(priv, FLEXCAN_TX_MB_RESERVED_OFF_TIMESTAMP);
++			flexcan_get_mb(priv, FLEXCAN_TX_MB_RESERVED_RX_MAILBOX);
+ 	else
+ 		priv->tx_mb_reserved =
+-			flexcan_get_mb(priv, FLEXCAN_TX_MB_RESERVED_OFF_FIFO);
++			flexcan_get_mb(priv, FLEXCAN_TX_MB_RESERVED_RX_FIFO);
+ 	priv->tx_mb_idx = priv->mb_count - 1;
+ 	priv->tx_mb = flexcan_get_mb(priv, priv->tx_mb_idx);
+ 	priv->tx_mask = FLEXCAN_IFLAG_MB(priv->tx_mb_idx);
+ 
+ 	priv->offload.mailbox_read = flexcan_mailbox_read;
+ 
+-	if (priv->devtype_data.quirks & FLEXCAN_QUIRK_USE_OFF_TIMESTAMP) {
+-		priv->offload.mb_first = FLEXCAN_RX_MB_OFF_TIMESTAMP_FIRST;
++	if (priv->devtype_data.quirks & FLEXCAN_QUIRK_USE_RX_MAILBOX) {
++		priv->offload.mb_first = FLEXCAN_RX_MB_RX_MAILBOX_FIRST;
+ 		priv->offload.mb_last = priv->mb_count - 2;
+ 
+ 		priv->rx_mask = GENMASK_ULL(priv->offload.mb_last,
+@@ -1532,10 +1532,10 @@ static int flexcan_chip_start(struct net_device *dev)
+ 	/* MCR
+ 	 *
+ 	 * FIFO:
+-	 * - disable for timestamp mode
++	 * - disable for mailbox mode
+ 	 * - enable for FIFO mode
+ 	 */
+-	if (priv->devtype_data.quirks & FLEXCAN_QUIRK_USE_OFF_TIMESTAMP)
++	if (priv->devtype_data.quirks & FLEXCAN_QUIRK_USE_RX_MAILBOX)
+ 		reg_mcr &= ~FLEXCAN_MCR_FEN;
+ 	else
+ 		reg_mcr |= FLEXCAN_MCR_FEN;
+@@ -1631,7 +1631,7 @@ static int flexcan_chip_start(struct net_device *dev)
+ 		priv->write(reg_fdctrl, &regs->fdctrl);
+ 	}
+ 
+-	if (priv->devtype_data.quirks & FLEXCAN_QUIRK_USE_OFF_TIMESTAMP) {
++	if (priv->devtype_data.quirks & FLEXCAN_QUIRK_USE_RX_MAILBOX) {
+ 		for (i = priv->offload.mb_first; i <= priv->offload.mb_last; i++) {
+ 			mb = flexcan_get_mb(priv, i);
+ 			priv->write(FLEXCAN_MB_CODE_RX_EMPTY,
+@@ -1639,7 +1639,7 @@ static int flexcan_chip_start(struct net_device *dev)
+ 		}
+ 	} else {
+ 		/* clear and invalidate unused mailboxes first */
+-		for (i = FLEXCAN_TX_MB_RESERVED_OFF_FIFO; i < priv->mb_count; i++) {
++		for (i = FLEXCAN_TX_MB_RESERVED_RX_FIFO; i < priv->mb_count; i++) {
+ 			mb = flexcan_get_mb(priv, i);
+ 			priv->write(FLEXCAN_MB_CODE_RX_INACTIVE,
+ 				    &mb->can_ctrl);
+@@ -2164,7 +2164,7 @@ static int flexcan_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ 
+ 	if ((devtype_data->quirks & FLEXCAN_QUIRK_SUPPORT_FD) &&
+-	    !(devtype_data->quirks & FLEXCAN_QUIRK_USE_OFF_TIMESTAMP)) {
++	    !(devtype_data->quirks & FLEXCAN_QUIRK_USE_RX_MAILBOX)) {
+ 		dev_err(&pdev->dev, "CAN-FD mode doesn't work with FIFO mode!\n");
+ 		return -EINVAL;
+ 	}
 -- 
 2.34.1
 
