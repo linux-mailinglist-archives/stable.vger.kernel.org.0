@@ -2,104 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A7BC4979BF
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 08:42:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF6DF4979CD
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 08:53:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235498AbiAXHmc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 02:42:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55056 "EHLO
+        id S235644AbiAXHxb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 02:53:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232425AbiAXHma (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 02:42:30 -0500
-Received: from mail-ot1-x32c.google.com (mail-ot1-x32c.google.com [IPv6:2607:f8b0:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA04BC06173B
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 23:42:30 -0800 (PST)
-Received: by mail-ot1-x32c.google.com with SMTP id t9-20020a9d7489000000b0059e4c1adceaso6348508otk.5
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 23:42:30 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=zOHJbgxEeKcTUS1M3dbg/CCHL8zxNc7o7Y1pwSiNVNQ=;
-        b=OOajz/WXuYuu/25maeEZ0tv6YkzWiGIvay8poKBX+qHC5MGhVTyVWFrvx8r73S3BX4
-         bAfjWuTmQj93eV0e5Alaz/eOXbcYQGq9AhFtY2qurms9mdj9U+HKZ3bOXLrfySxY1MLy
-         m+kOjQNGWwWaBOWrSTacTqY20TrLMWIazx5m22BOXxDx7q0PAPfsx9gWIDer+vWZDRJ4
-         nfSh/VFyFsoaAFc/C/8yBVoid6FNLDQ50z/UFK9i+V+XqE8TBojWNtWjMJmf6/Sso77H
-         UgGvXPDaPOp7XgUyq1m56wPfTeSKrW+Sa5DEYz+ivWOk9bAyy47ZwC8lqMyttKCIonEz
-         icsQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to:content-transfer-encoding;
-        bh=zOHJbgxEeKcTUS1M3dbg/CCHL8zxNc7o7Y1pwSiNVNQ=;
-        b=doa+THT0/fJNJ+0xKOOrVa7rskZ64F5Hh7zBDHsWf/pCeE9iDnEFSqwBKMYPhw4zUf
-         nifEx44x4285/lJrw6xGmT8J/gSn8lZo3IbbPjUBp6skeMK2mfW/8K1NhRq5bJLB9twx
-         YH+tJSicLV6TAGCtBpCKTSmbZfR7YPdLALezgQVq/IjF/YWkWq7jiPyU3iPAUBU9Ca5f
-         oDbiWbKC7TsUwLrSteWWSumf1Vo6u4ICLbQ6W1yOHpRoxGDpWOx0td5RoS0Q3ZxIyF2h
-         IAYS8xSme6x2TVv2MGJ4VaWrgXlLayXHHBFqfSB7CzLPU4IzV6FCiHc+eV0aJDpzTjZI
-         UTcA==
-X-Gm-Message-State: AOAM532M9LA/42Dzf3Y9hIOIKIvEiOhdkyOnMxEbtwN9MLKmZUYGtU+O
-        M0PWRnBdx5/JIEvzRQzrxA7bB4nEfxJxoXOVpWk=
-X-Google-Smtp-Source: ABdhPJzVnUcThvva+05OoLNCwXuITvV6myJXOCM7O3i35xYUH0nSQg6n+ssFMF9nPZZ8MmJ3vWJiaHxXnCZDU+3j/ys=
-X-Received: by 2002:a05:6830:1115:: with SMTP id w21mr10914494otq.367.1643010150051;
- Sun, 23 Jan 2022 23:42:30 -0800 (PST)
+        with ESMTP id S230401AbiAXHxa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 02:53:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2FBDBC06173B
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 23:53:30 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E25DEB80CA2
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 07:53:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A3A3C340E1;
+        Mon, 24 Jan 2022 07:53:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1643010807;
+        bh=z5g4GGnwyw0H2qlaKT1m/jqEL8Ye2QM3Nu1bxrWRq9A=;
+        h=Subject:To:Cc:From:Date:From;
+        b=LnntBKfudgELgXLb1iC4o2+ThQ1YvWyPqFX+WTIsHJUg3Tj/43hdpPT+kT2JcT1iV
+         OXbRQqVRxVSHhmtGcCO/zE/knDGdWx2aRiiaeL4uyPN14wLkuJARZkpShf4NS4EgL0
+         L6y3tVpwXaNQiusSiTXJ7xZQLSU6ImgwCgYWjvZc=
+Subject: FAILED: patch "[PATCH] ext4: fix an use-after-free issue about data=journal" failed to apply to 5.10-stable tree
+To:     yi.zhang@huawei.com, tytso@mit.edu
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 24 Jan 2022 08:53:24 +0100
+Message-ID: <164301080413062@kroah.com>
 MIME-Version: 1.0
-Sender: blessmegod87@gmail.com
-Received: by 2002:a05:6838:441f:0:0:0:0 with HTTP; Sun, 23 Jan 2022 23:42:29
- -0800 (PST)
-From:   DINA MCKENNA <dinamckennahowley@gmail.com>
-Date:   Mon, 24 Jan 2022 07:42:29 +0000
-X-Google-Sender-Auth: 7D8B2z8otx8TqQxmfBLhWnnhhjA
-Message-ID: <CACOw96m2pkoubSXn_CRbR9cW1YQNQjjw3dt43=FWMX589cyvug@mail.gmail.com>
-Subject: Calvary greetings.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello my dear,
 
- I sent this mail praying it will get to you in a good condition of
-health, since I myself are in a very critical health condition in
-which I sleep every night without knowing if I may be alive to see the
-next day. I bring peace and love to you. It is by the grace of God, I
-had no choice than to do what is lawful and right in the sight of God
-for eternal life and in the sight of man, for witness of God=E2=80=99s merc=
-y
-and glory upon my life. I am Mrs. Dina. Howley Mckenna, a widow. I am
-suffering from a long time brain tumor, It has defiled all forms of
-medical treatment, and right now I have about a few months to leave,
-according to medical experts. The situation has gotten complicated
-recently with my inability to hear proper, am communicating with you
-with the help of the chief nurse herein the hospital, from all
-indication my conditions is really deteriorating and it is quite
-obvious that, according to my doctors they have advised me that I may
-not live too long, Because this illness has gotten to a very bad
-stage. I plead that you will not expose or betray this trust and
-confidence that I am about to repose on you for the mutual benefit of
-the orphans and the less privilege. I have some funds I inherited from
-my late husband, the sum of ($ 11,000,000.00, Eleven Million Dollars).
-Having known my condition, I decided to donate this fund to you
-believing that you will utilize it the way i am going to instruct
-herein. I need you to assist me and reclaim this money and use it for
-Charity works therein your country  for orphanages and gives justice
-and help to the poor, needy and widows says The Lord." Jeremiah
-22:15-16.=E2=80=9C and also build schools for less privilege that will be
-named after my late husband if possible and to promote the word of God
-and the effort that the house of God is maintained. I do not want a
-situation where this money will be used in an ungodly manner. That's
-why I'm taking this decision. I'm not afraid of death, so I know where
-I'm going. I accept this decision because I do not have any child who
-will inherit this money after I die.. Please I want your sincerely and
-urgent answer to know if you will be able to execute this project for
-the glory of God, and I will give you more information on how the fund
-will be transferred to your bank account. May the grace, peace, love
-and the truth in the Word of God be with you and all those that you
-love and care for.
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-I'm waiting for your immediate reply..
+thanks,
 
-May God Bless you,
-Mrs. Dina. Howley Mckenna.
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 5c48a7df91499e371ef725895b2e2d21a126e227 Mon Sep 17 00:00:00 2001
+From: Zhang Yi <yi.zhang@huawei.com>
+Date: Sat, 25 Dec 2021 17:09:37 +0800
+Subject: [PATCH] ext4: fix an use-after-free issue about data=journal
+ writeback mode
+
+Our syzkaller report an use-after-free issue that accessing the freed
+buffer_head on the writeback page in __ext4_journalled_writepage(). The
+problem is that if there was a truncate racing with the data=journalled
+writeback procedure, the writeback length could become zero and
+bget_one() refuse to get buffer_head's refcount, then the truncate
+procedure release buffer once we drop page lock, finally, the last
+ext4_walk_page_buffers() trigger the use-after-free problem.
+
+sync                               truncate
+ext4_sync_file()
+ file_write_and_wait_range()
+                                   ext4_setattr(0)
+                                    inode->i_size = 0
+  ext4_writepage()
+   len = 0
+   __ext4_journalled_writepage()
+    page_bufs = page_buffers(page)
+    ext4_walk_page_buffers(bget_one) <- does not get refcount
+                                    do_invalidatepage()
+                                      free_buffer_head()
+    ext4_walk_page_buffers(page_bufs) <- trigger use-after-free
+
+After commit bdf96838aea6 ("ext4: fix race between truncate and
+__ext4_journalled_writepage()"), we have already handled the racing
+case, so the bget_one() and bput_one() are not needed. So this patch
+simply remove these hunk, and recheck the i_size to make it safe.
+
+Fixes: bdf96838aea6 ("ext4: fix race between truncate and __ext4_journalled_writepage()")
+Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20211225090937.712867-1-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+
+diff --git a/fs/ext4/inode.c b/fs/ext4/inode.c
+index bca9951634d9..68070f34f0cf 100644
+--- a/fs/ext4/inode.c
++++ b/fs/ext4/inode.c
+@@ -1845,30 +1845,16 @@ int ext4_da_get_block_prep(struct inode *inode, sector_t iblock,
+ 	return 0;
+ }
+ 
+-static int bget_one(handle_t *handle, struct inode *inode,
+-		    struct buffer_head *bh)
+-{
+-	get_bh(bh);
+-	return 0;
+-}
+-
+-static int bput_one(handle_t *handle, struct inode *inode,
+-		    struct buffer_head *bh)
+-{
+-	put_bh(bh);
+-	return 0;
+-}
+-
+ static int __ext4_journalled_writepage(struct page *page,
+ 				       unsigned int len)
+ {
+ 	struct address_space *mapping = page->mapping;
+ 	struct inode *inode = mapping->host;
+-	struct buffer_head *page_bufs = NULL;
+ 	handle_t *handle = NULL;
+ 	int ret = 0, err = 0;
+ 	int inline_data = ext4_has_inline_data(inode);
+ 	struct buffer_head *inode_bh = NULL;
++	loff_t size;
+ 
+ 	ClearPageChecked(page);
+ 
+@@ -1878,14 +1864,6 @@ static int __ext4_journalled_writepage(struct page *page,
+ 		inode_bh = ext4_journalled_write_inline_data(inode, len, page);
+ 		if (inode_bh == NULL)
+ 			goto out;
+-	} else {
+-		page_bufs = page_buffers(page);
+-		if (!page_bufs) {
+-			BUG();
+-			goto out;
+-		}
+-		ext4_walk_page_buffers(handle, inode, page_bufs, 0, len,
+-				       NULL, bget_one);
+ 	}
+ 	/*
+ 	 * We need to release the page lock before we start the
+@@ -1906,7 +1884,8 @@ static int __ext4_journalled_writepage(struct page *page,
+ 
+ 	lock_page(page);
+ 	put_page(page);
+-	if (page->mapping != mapping) {
++	size = i_size_read(inode);
++	if (page->mapping != mapping || page_offset(page) > size) {
+ 		/* The page got truncated from under us */
+ 		ext4_journal_stop(handle);
+ 		ret = 0;
+@@ -1916,6 +1895,13 @@ static int __ext4_journalled_writepage(struct page *page,
+ 	if (inline_data) {
+ 		ret = ext4_mark_inode_dirty(handle, inode);
+ 	} else {
++		struct buffer_head *page_bufs = page_buffers(page);
++
++		if (page->index == size >> PAGE_SHIFT)
++			len = size & ~PAGE_MASK;
++		else
++			len = PAGE_SIZE;
++
+ 		ret = ext4_walk_page_buffers(handle, inode, page_bufs, 0, len,
+ 					     NULL, do_journal_get_write_access);
+ 
+@@ -1936,9 +1922,6 @@ static int __ext4_journalled_writepage(struct page *page,
+ out:
+ 	unlock_page(page);
+ out_no_pagelock:
+-	if (!inline_data && page_bufs)
+-		ext4_walk_page_buffers(NULL, inode, page_bufs, 0, len,
+-				       NULL, bput_one);
+ 	brelse(inode_bh);
+ 	return ret;
+ }
+
