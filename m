@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6187749953C
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:09:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B8CF499539
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:09:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1392472AbiAXUvR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:51:17 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:45928 "EHLO
+        id S1392461AbiAXUvP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:51:15 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:46062 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390120AbiAXUpE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:45:04 -0500
+        with ESMTP id S1390191AbiAXUpD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:45:03 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF728B8105C;
-        Mon, 24 Jan 2022 20:44:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 025D6C340E5;
-        Mon, 24 Jan 2022 20:44:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 15CC6B81218;
+        Mon, 24 Jan 2022 20:44:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A500C340E5;
+        Mon, 24 Jan 2022 20:44:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057090;
-        bh=/paNw/aLh4zOhsOcCfYIE6TgpdsDcZS8cyQNRKJgtqU=;
+        s=korg; t=1643057096;
+        bh=ucs4b6QzXOxOc1YICXU0kEQvXUrqmGp6H4umnOvh/+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eNqIh8J1qJHdTZFm96CP2E+/xk5kjFQMbIE7/YTKR8/7hU/fUjxtHjH2Fi+IwQ51a
-         YijMFWzC6V29ZokQGpin4HkoIBVjLx0d+hMYY/b0cxXaRQZaMOvfbMam51hPpgE4Vp
-         bm+2E0EXFTn7rzdN4W0SlfBgD/1p+zHGeGMYi/yw=
+        b=ozD0Z8Nz6hFjbp996eVDqvwxP53beMTdjZZZ0pwJLRiEOkOvMAN7xfVSTtvWx8rP3
+         nGRbNZb+MaDFDkvYS9uTmM26+9vQTSvsyPLoVR+CMBr5elkMvv9kiYvCmVfGh2suJN
+         YwXo5PFkJSXXW5yyAUz8JWJWTf5TD+KvL0cxHF1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Clint Taylor <clinton.a.taylor@intel.com>,
-        =?UTF-8?q?Jos=C3=A9=20Roberto=20de=20Souza?= <jose.souza@intel.com>,
-        Clint Taylor <Clinton.A.Taylor@intel.com>,
-        Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Subject: [PATCH 5.15 699/846] drm/i915/display/ehl: Update voltage swing table
-Date:   Mon, 24 Jan 2022 19:43:36 +0100
-Message-Id: <20220124184125.165919188@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
+        Rob Herring <robh@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>
+Subject: [PATCH 5.15 700/846] PCI: xgene: Fix IB window setup
+Date:   Mon, 24 Jan 2022 19:43:37 +0100
+Message-Id: <20220124184125.203088385@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -46,46 +47,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Roberto de Souza <jose.souza@intel.com>
+From: Rob Herring <robh@kernel.org>
 
-commit ef3ac01564067a4337bb798b8eddc6ea7b78fd10 upstream.
+commit c7a75d07827a1f33d566e18e6098379cc2a0c2b2 upstream.
 
-EHL table was recently updated with some minor fixes.
+Commit 6dce5aa59e0b ("PCI: xgene: Use inbound resources for setup")
+broke PCI support on XGene. The cause is the IB resources are now sorted
+in address order instead of being in DT dma-ranges order. The result is
+which inbound registers are used for each region are swapped. I don't
+know the details about this h/w, but it appears that IB region 0
+registers can't handle a size greater than 4GB. In any case, limiting
+the size for region 0 is enough to get back to the original assignment
+of dma-ranges to regions.
 
-BSpec: 21257
-Cc: stable@vger.kernel.org
-Cc: Clint Taylor <clinton.a.taylor@intel.com>
-Signed-off-by: José Roberto de Souza <jose.souza@intel.com>
-Reviewed-by: Clint Taylor <Clinton.A.Taylor@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220113160437.49059-1-jose.souza@intel.com
-(cherry picked from commit 5ec7baef52c367cdbda964aa662f7135c25bab1f)
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Link: https://lore.kernel.org/all/CA+enf=v9rY_xnZML01oEgKLmvY1NGBUUhnSJaETmXtDtXfaczA@mail.gmail.com/
+Link: https://lore.kernel.org/r/20211129173637.303201-1-robh@kernel.org
+Fixes: 6dce5aa59e0b ("PCI: xgene: Use inbound resources for setup")
+Reported-by: Stéphane Graber <stgraber@ubuntu.com>
+Tested-by: Stéphane Graber <stgraber@ubuntu.com>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Krzysztof Wilczyński <kw@linux.com>
+Cc: stable@vger.kernel.org # v5.5+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_ddi_buf_trans.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/pci/controller/pci-xgene.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/display/intel_ddi_buf_trans.c
-+++ b/drivers/gpu/drm/i915/display/intel_ddi_buf_trans.c
-@@ -476,14 +476,14 @@ static const struct intel_ddi_buf_trans
- static const union intel_ddi_buf_trans_entry _ehl_combo_phy_ddi_translations_dp[] = {
- 							/* NT mV Trans mV db    */
- 	{ .icl = { 0xA, 0x33, 0x3F, 0x00, 0x00 } },	/* 350   350      0.0   */
--	{ .icl = { 0xA, 0x47, 0x36, 0x00, 0x09 } },	/* 350   500      3.1   */
--	{ .icl = { 0xC, 0x64, 0x34, 0x00, 0x0B } },	/* 350   700      6.0   */
--	{ .icl = { 0x6, 0x7F, 0x30, 0x00, 0x0F } },	/* 350   900      8.2   */
-+	{ .icl = { 0xA, 0x47, 0x38, 0x00, 0x07 } },	/* 350   500      3.1   */
-+	{ .icl = { 0xC, 0x64, 0x33, 0x00, 0x0C } },	/* 350   700      6.0   */
-+	{ .icl = { 0x6, 0x7F, 0x2F, 0x00, 0x10 } },	/* 350   900      8.2   */
- 	{ .icl = { 0xA, 0x46, 0x3F, 0x00, 0x00 } },	/* 500   500      0.0   */
--	{ .icl = { 0xC, 0x64, 0x38, 0x00, 0x07 } },	/* 500   700      2.9   */
-+	{ .icl = { 0xC, 0x64, 0x37, 0x00, 0x08 } },	/* 500   700      2.9   */
- 	{ .icl = { 0x6, 0x7F, 0x32, 0x00, 0x0D } },	/* 500   900      5.1   */
- 	{ .icl = { 0xC, 0x61, 0x3F, 0x00, 0x00 } },	/* 650   700      0.6   */
--	{ .icl = { 0x6, 0x7F, 0x38, 0x00, 0x07 } },	/* 600   900      3.5   */
-+	{ .icl = { 0x6, 0x7F, 0x37, 0x00, 0x08 } },	/* 600   900      3.5   */
- 	{ .icl = { 0x6, 0x7F, 0x3F, 0x00, 0x00 } },	/* 900   900      0.0   */
- };
+--- a/drivers/pci/controller/pci-xgene.c
++++ b/drivers/pci/controller/pci-xgene.c
+@@ -466,7 +466,7 @@ static int xgene_pcie_select_ib_reg(u8 *
+ 		return 1;
+ 	}
  
+-	if ((size > SZ_1K) && (size < SZ_1T) && !(*ib_reg_mask & (1 << 0))) {
++	if ((size > SZ_1K) && (size < SZ_4G) && !(*ib_reg_mask & (1 << 0))) {
+ 		*ib_reg_mask |= (1 << 0);
+ 		return 0;
+ 	}
 
 
