@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BF5B4991CD
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:18:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F235D49913C
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346945AbiAXUO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:14:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33858 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355430AbiAXUNj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:13:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EB48C06176A;
-        Mon, 24 Jan 2022 11:36:19 -0800 (PST)
+        id S1378841AbiAXUJz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:09:55 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60318 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1353095AbiAXUDz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:03:55 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0FEA6141C;
-        Mon, 24 Jan 2022 19:36:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57271C340E5;
-        Mon, 24 Jan 2022 19:36:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D5A86130A;
+        Mon, 24 Jan 2022 20:03:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39301C340E7;
+        Mon, 24 Jan 2022 20:03:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052978;
-        bh=DJwUah2wb4mGa/stOhablhtuouRRLYBx1Hq4he3e6dE=;
+        s=korg; t=1643054634;
+        bh=TFPhLY7a+S1lP7pzZ62if65Bl194tX+Ki4DpuTF2t9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2syqsrfWaeeXOk6P5o37PNNaf6m2JyPBV22UXoUegp2TIxoTpaBK2wnno5ih4g1EG
-         D0Bmsd55mq2HSIuWDFiVI64y/rqHTHImQKP8kkSYJ+nMXQmPBufklyM9JbWw6nExk8
-         Cpfp7mHNdMfRA5pQzAsbpTlenlgQIGentScrPVRs=
+        b=p4A2Y2fG95+iMnqOlgRjgZKEDnx6L+uxuC4wN8wuAj52Y35s2XkEb1uuYilBeRlAy
+         b/cqE5QGVrAPrP4j1xw+Wu7QNSXPA/pwVRUbXyxIqAVAPgOq26iggZPr5gUpXvBZxt
+         j6U3eFmSRHwJnVE20aflizPJk9bq5+KFvACD71GA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
-        Fabiano Rosas <farosas@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 234/320] KVM: PPC: Book3S: Suppress failed alloc warning in H_COPY_TOFROM_GUEST
+        stable@vger.kernel.org, Vlastimil Babka <vbabka@suse.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.10 453/563] s390/mm: fix 2KB pgtable release race
 Date:   Mon, 24 Jan 2022 19:43:38 +0100
-Message-Id: <20220124184001.940082249@linuxfoundation.org>
+Message-Id: <20220124184040.107858769@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,43 +46,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Kardashevskiy <aik@ozlabs.ru>
+From: Alexander Gordeev <agordeev@linux.ibm.com>
 
-[ Upstream commit 792020907b11c6f9246c21977cab3bad985ae4b6 ]
+commit c2c224932fd0ee6854d6ebfc8d059c2bcad86606 upstream.
 
-H_COPY_TOFROM_GUEST is an hcall for an upper level VM to access its nested
-VMs memory. The userspace can trigger WARN_ON_ONCE(!(gfp & __GFP_NOWARN))
-in __alloc_pages() by constructing a tiny VM which only does
-H_COPY_TOFROM_GUEST with a too big GPR9 (number of bytes to copy).
+There is a race on concurrent 2KB-pgtables release paths when
+both upper and lower halves of the containing parent page are
+freed, one via page_table_free_rcu() + __tlb_remove_table(),
+and the other via page_table_free(). The race might lead to a
+corruption as result of remove of list item in page_table_free()
+concurrently with __free_page() in __tlb_remove_table().
 
-This silences the warning by adding __GFP_NOWARN.
+Let's assume first the lower and next the upper 2KB-pgtables are
+freed from a page. Since both halves of the page are allocated
+the tracking byte (bits 24-31 of the page _refcount) has value
+of 0x03 initially:
 
-Spotted by syzkaller.
+CPU0				CPU1
+----				----
 
-Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
-Reviewed-by: Fabiano Rosas <farosas@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210901084550.1658699-1-aik@ozlabs.ru
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+page_table_free_rcu() // lower half
+{
+	// _refcount[31..24] == 0x03
+	...
+	atomic_xor_bits(&page->_refcount,
+			0x11U << (0 + 24));
+	// _refcount[31..24] <= 0x12
+	...
+	table = table | (1U << 0);
+	tlb_remove_table(tlb, table);
+}
+...
+__tlb_remove_table()
+{
+	// _refcount[31..24] == 0x12
+	mask = _table & 3;
+	// mask <= 0x01
+	...
+
+				page_table_free() // upper half
+				{
+					// _refcount[31..24] == 0x12
+					...
+					atomic_xor_bits(
+						&page->_refcount,
+						1U << (1 + 24));
+					// _refcount[31..24] <= 0x10
+					// mask <= 0x10
+					...
+	atomic_xor_bits(&page->_refcount,
+			mask << (4 + 24));
+	// _refcount[31..24] <= 0x00
+	// mask <= 0x00
+	...
+	if (mask != 0) // == false
+		break;
+	fallthrough;
+	...
+					if (mask & 3) // == false
+						...
+					else
+	__free_page(page);			list_del(&page->lru);
+	^^^^^^^^^^^^^^^^^^	RACE!		^^^^^^^^^^^^^^^^^^^^^
+}					...
+				}
+
+The problem is page_table_free() releases the page as result of
+lower nibble unset and __tlb_remove_table() observing zero too
+early. With this update page_table_free() will use the similar
+logic as page_table_free_rcu() + __tlb_remove_table(), and mark
+the fragment as pending for removal in the upper nibble until
+after the list_del().
+
+In other words, the parent page is considered as unreferenced and
+safe to release only when the lower nibble is cleared already and
+unsetting a bit in upper nibble results in that nibble turned zero.
+
+Cc: stable@vger.kernel.org
+Suggested-by: Vlastimil Babka <vbabka@suse.com>
+Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kvm/book3s_hv_nested.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/mm/pgalloc.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kvm/book3s_hv_nested.c b/arch/powerpc/kvm/book3s_hv_nested.c
-index 9906d203d9d39..613d24b707abe 100644
---- a/arch/powerpc/kvm/book3s_hv_nested.c
-+++ b/arch/powerpc/kvm/book3s_hv_nested.c
-@@ -510,7 +510,7 @@ long kvmhv_copy_tofrom_guest_nested(struct kvm_vcpu *vcpu)
- 	if (eaddr & (0xFFFUL << 52))
- 		return H_PARAMETER;
- 
--	buf = kzalloc(n, GFP_KERNEL);
-+	buf = kzalloc(n, GFP_KERNEL | __GFP_NOWARN);
- 	if (!buf)
- 		return H_NO_MEM;
- 
--- 
-2.34.1
-
+--- a/arch/s390/mm/pgalloc.c
++++ b/arch/s390/mm/pgalloc.c
+@@ -253,13 +253,15 @@ void page_table_free(struct mm_struct *m
+ 		/* Free 2K page table fragment of a 4K page */
+ 		bit = (__pa(table) & ~PAGE_MASK)/(PTRS_PER_PTE*sizeof(pte_t));
+ 		spin_lock_bh(&mm->context.lock);
+-		mask = atomic_xor_bits(&page->_refcount, 1U << (bit + 24));
++		mask = atomic_xor_bits(&page->_refcount, 0x11U << (bit + 24));
+ 		mask >>= 24;
+ 		if (mask & 3)
+ 			list_add(&page->lru, &mm->context.pgtable_list);
+ 		else
+ 			list_del(&page->lru);
+ 		spin_unlock_bh(&mm->context.lock);
++		mask = atomic_xor_bits(&page->_refcount, 0x10U << (bit + 24));
++		mask >>= 24;
+ 		if (mask != 0)
+ 			return;
+ 	} else {
 
 
