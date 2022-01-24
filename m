@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 587CB497E80
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 13:09:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6797497E87
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 13:09:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238171AbiAXMJW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 07:09:22 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34480 "EHLO
+        id S238293AbiAXMJd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 07:09:33 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:34526 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238134AbiAXMJV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 07:09:21 -0500
+        with ESMTP id S238305AbiAXMJa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 07:09:30 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DC610B80EFA
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 12:09:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBF26C340E1;
-        Mon, 24 Jan 2022 12:09:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 86476B80F9A
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 12:09:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A498EC340E1;
+        Mon, 24 Jan 2022 12:09:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643026159;
-        bh=v3kttT/BRwIbQp+8AV2QG1ExUjjtohhvXr67VoflewA=;
+        s=korg; t=1643026168;
+        bh=2iN/DO8aOgjyIXLe/L0iDU06/tU4QdvQCkWvhKGRIeo=;
         h=Subject:To:Cc:From:Date:From;
-        b=wbf+L3N4G43NUI+jwEYkRLRlUx4FekVdUFj3ycJI7eBa2PaQnxBo/pTRfqhLRWmBi
-         MBLhuaeFKhQts7pik4WTvQJdkIwza/FACjMXtDNpMVrjrBDPfa2fo9/EbOnsGHr06H
-         IRx1ozLUh+fL11iXF/ZLXWPT4IFwB6TLTxI7pHCE=
-Subject: FAILED: patch "[PATCH] ipv4: avoid quadratic behavior in netns dismantle" failed to apply to 4.4-stable tree
+        b=2kZ6SDDaYgRJRc/OR9wCBdKcUGWbWfTRYpufxwBdI1iqjLNi9PzhmTVBenquoyvaM
+         wozGWiz32lOMtAK3nDG+GJ7CbPzJW8hjOBE884z9NE907KJ9J+DtOGxWgrnaZsqkTt
+         1iHTx4MvXcPjr1h9d+mqinkadseBESCqCoSwBCxA=
+Subject: FAILED: patch "[PATCH] ipv4: avoid quadratic behavior in netns dismantle" failed to apply to 4.9-stable tree
 To:     edumazet@google.com, dsahern@kernel.org, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 13:09:16 +0100
-Message-ID: <16430261561186@kroah.com>
+Date:   Mon, 24 Jan 2022 13:09:17 +0100
+Message-ID: <1643026157100116@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
