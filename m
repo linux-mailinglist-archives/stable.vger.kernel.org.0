@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E59A7499689
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:19:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1DA64999FD
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:48:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1445719AbiAXVEs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:04:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44232 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1442672AbiAXUzE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:55:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 195BBC047CE8;
-        Mon, 24 Jan 2022 12:00:06 -0800 (PST)
+        id S1378303AbiAXVjB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:39:01 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:51424 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1453775AbiAXVay (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:30:54 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CB431B81229;
-        Mon, 24 Jan 2022 20:00:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03D62C340E7;
-        Mon, 24 Jan 2022 20:00:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F71A614DD;
+        Mon, 24 Jan 2022 21:30:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7A7FC340E7;
+        Mon, 24 Jan 2022 21:30:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054403;
-        bh=Gvxsjpd5cfIoDoJ7uJZx2+ip3PN++DHEoQrmqb82lSg=;
+        s=korg; t=1643059851;
+        bh=PVz8ZLaocFB/t0tWMTtejzI8NBaFzsQAP49wgSYBZck=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nr0mLG+lVb03ubTfVTQeFJwSsrEo8MMDIFYEPwiMWKzAdn/paT791TTsPxSbIQUqH
-         UmnGTvKb73zxnASzbaSRQvceh8tZHv90jISRXyd+qlBTBJj6HS8jKf9D6P8YX5nP5A
-         2kdWxoRMBIZ5IgMTLPtxSOynut564IsjOl2GY+6Q=
+        b=OoMghYkZMvsWBRrs4lRyGxHTP0niN1mzwX7Slqele+2yX0yRFg3o/Jr2HRnV8W89v
+         +a8+QdPzR9S0vbv14jTZj0ot7vCqf1IuFKO8dRpSrCCG5ztTYw2eyfUKy0syei6InN
+         Q1OaCcnyRhEKuPFFEfbrmg+tKDfJjhhtelK5yIXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, Justin Tee <justin.tee@broadcom.com>,
+        James Smart <jsmart2021@gmail.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 378/563] iwlwifi: pcie: make sure prph_info is set when treating wakeup IRQ
+Subject: [PATCH 5.16 0754/1039] scsi: lpfc: Fix leaked lpfc_dmabuf mbox allocations with NPIV
 Date:   Mon, 24 Jan 2022 19:42:23 +0100
-Message-Id: <20220124184037.498455575@linuxfoundation.org>
+Message-Id: <20220124184150.679689672@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,43 +46,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luca Coelho <luciano.coelho@intel.com>
+From: James Smart <jsmart2021@gmail.com>
 
-[ Upstream commit 459fc0f2c6b0f6e280bfa0f230c100c9dfe3a199 ]
+[ Upstream commit f0d3919697492950f57a26a1093aee53880d669d ]
 
-In some rare cases when the HW is in a bad state, we may get this
-interrupt when prph_info is not set yet.  Then we will try to
-dereference it to check the sleep_notif element, which will cause an
-oops.
+During rmmod testing, messages appeared indicating lpfc_mbuf_pool entries
+were still busy. This situation was only seen doing rmmod after at least 1
+vport (NPIV) instance was created and destroyed. The number of messages
+scaled with the number of vports created.
 
-Fix that by ignoring the interrupt if prph_info is not set yet.
+When a vport is created, it can receive a PLOGI from another initiator
+Nport.  When this happens, the driver prepares to ack the PLOGI and
+prepares an RPI for registration (via mbx cmd) which includes an mbuf
+allocation. During the unsolicited PLOGI processing and after the RPI
+preparation, the driver recognizes it is one of the vport instances and
+decides to reject the PLOGI. During the LS_RJT preparation for the PLOGI,
+the mailbox struct allocated for RPI registration is freed, but the mbuf
+that was also allocated is not released.
 
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20211219132536.0537aa562313.I183bb336345b9b3da196ba9e596a6f189fbcbd09@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Fix by freeing the mbuf with the mailbox struct in the LS_RJT path.
+
+As part of the code review to figure the issue out a couple of other areas
+where found that also would not have released the mbuf. Those are cleaned
+up as well.
+
+Link: https://lore.kernel.org/r/20211204002644.116455-2-jsmart2021@gmail.com
+Co-developed-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: Justin Tee <justin.tee@broadcom.com>
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/pcie/rx.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/scsi/lpfc/lpfc_els.c       | 6 +++++-
+ drivers/scsi/lpfc/lpfc_init.c      | 8 ++++++--
+ drivers/scsi/lpfc/lpfc_nportdisc.c | 6 ++++++
+ 3 files changed, 17 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/rx.c b/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
-index 2c13fa8f28200..6aedf5762571d 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/rx.c
-@@ -2260,7 +2260,12 @@ irqreturn_t iwl_pcie_irq_msix_handler(int irq, void *dev_id)
- 		}
+diff --git a/drivers/scsi/lpfc/lpfc_els.c b/drivers/scsi/lpfc/lpfc_els.c
+index e83453bea2aee..5c10416c1c75a 100644
+--- a/drivers/scsi/lpfc/lpfc_els.c
++++ b/drivers/scsi/lpfc/lpfc_els.c
+@@ -6899,6 +6899,7 @@ static int
+ lpfc_get_rdp_info(struct lpfc_hba *phba, struct lpfc_rdp_context *rdp_context)
+ {
+ 	LPFC_MBOXQ_t *mbox = NULL;
++	struct lpfc_dmabuf *mp;
+ 	int rc;
+ 
+ 	mbox = mempool_alloc(phba->mbox_mem_pool, GFP_KERNEL);
+@@ -6914,8 +6915,11 @@ lpfc_get_rdp_info(struct lpfc_hba *phba, struct lpfc_rdp_context *rdp_context)
+ 	mbox->mbox_cmpl = lpfc_mbx_cmpl_rdp_page_a0;
+ 	mbox->ctx_ndlp = (struct lpfc_rdp_context *)rdp_context;
+ 	rc = lpfc_sli_issue_mbox(phba, mbox, MBX_NOWAIT);
+-	if (rc == MBX_NOT_FINISHED)
++	if (rc == MBX_NOT_FINISHED) {
++		mp = (struct lpfc_dmabuf *)mbox->ctx_buf;
++		lpfc_mbuf_free(phba, mp->virt, mp->phys);
+ 		goto issue_mbox_fail;
++	}
+ 
+ 	return 0;
+ 
+diff --git a/drivers/scsi/lpfc/lpfc_init.c b/drivers/scsi/lpfc/lpfc_init.c
+index ba17a8f740a95..7628b0634c57a 100644
+--- a/drivers/scsi/lpfc/lpfc_init.c
++++ b/drivers/scsi/lpfc/lpfc_init.c
+@@ -5373,8 +5373,10 @@ lpfc_sli4_async_link_evt(struct lpfc_hba *phba,
+ 	 */
+ 	if (!(phba->hba_flag & HBA_FCOE_MODE)) {
+ 		rc = lpfc_sli_issue_mbox(phba, pmb, MBX_NOWAIT);
+-		if (rc == MBX_NOT_FINISHED)
++		if (rc == MBX_NOT_FINISHED) {
++			lpfc_mbuf_free(phba, mp->virt, mp->phys);
+ 			goto out_free_dmabuf;
++		}
+ 		return;
+ 	}
+ 	/*
+@@ -6337,8 +6339,10 @@ lpfc_sli4_async_fc_evt(struct lpfc_hba *phba, struct lpfc_acqe_fc_la *acqe_fc)
  	}
  
--	if (inta_hw & MSIX_HW_INT_CAUSES_REG_WAKEUP) {
-+	/*
-+	 * In some rare cases when the HW is in a bad state, we may
-+	 * get this interrupt too early, when prph_info is still NULL.
-+	 * So make sure that it's not NULL to prevent crashing.
-+	 */
-+	if (inta_hw & MSIX_HW_INT_CAUSES_REG_WAKEUP && trans_pcie->prph_info) {
- 		u32 sleep_notif =
- 			le32_to_cpu(trans_pcie->prph_info->sleep_notif);
- 		if (sleep_notif == IWL_D3_SLEEP_STATUS_SUSPEND ||
+ 	rc = lpfc_sli_issue_mbox(phba, pmb, MBX_NOWAIT);
+-	if (rc == MBX_NOT_FINISHED)
++	if (rc == MBX_NOT_FINISHED) {
++		lpfc_mbuf_free(phba, mp->virt, mp->phys);
+ 		goto out_free_dmabuf;
++	}
+ 	return;
+ 
+ out_free_dmabuf:
+diff --git a/drivers/scsi/lpfc/lpfc_nportdisc.c b/drivers/scsi/lpfc/lpfc_nportdisc.c
+index 27263f02ab9f6..7d717a4ac14d1 100644
+--- a/drivers/scsi/lpfc/lpfc_nportdisc.c
++++ b/drivers/scsi/lpfc/lpfc_nportdisc.c
+@@ -322,6 +322,7 @@ lpfc_rcv_plogi(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
+ {
+ 	struct lpfc_hba    *phba = vport->phba;
+ 	struct lpfc_dmabuf *pcmd;
++	struct lpfc_dmabuf *mp;
+ 	uint64_t nlp_portwwn = 0;
+ 	uint32_t *lp;
+ 	IOCB_t *icmd;
+@@ -571,6 +572,11 @@ lpfc_rcv_plogi(struct lpfc_vport *vport, struct lpfc_nodelist *ndlp,
+ 		 * a default RPI.
+ 		 */
+ 		if (phba->sli_rev == LPFC_SLI_REV4) {
++			mp = (struct lpfc_dmabuf *)login_mbox->ctx_buf;
++			if (mp) {
++				lpfc_mbuf_free(phba, mp->virt, mp->phys);
++				kfree(mp);
++			}
+ 			mempool_free(login_mbox, phba->mbox_mem_pool);
+ 			login_mbox = NULL;
+ 		} else {
 -- 
 2.34.1
 
