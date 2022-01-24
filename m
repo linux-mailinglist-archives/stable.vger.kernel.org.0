@@ -2,47 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 315804990B9
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:07:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04172499462
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:43:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1354700AbiAXUDd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:03:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59150 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376355AbiAXUBb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:01:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D26CBC055AB8;
-        Mon, 24 Jan 2022 11:28:45 -0800 (PST)
+        id S1389494AbiAXUlW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:41:22 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:40348 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1387885AbiAXUh3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:37:29 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A6D2B811F9;
-        Mon, 24 Jan 2022 19:28:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98D1BC340E5;
-        Mon, 24 Jan 2022 19:28:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B839BB81060;
+        Mon, 24 Jan 2022 20:37:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B42DC340E5;
+        Mon, 24 Jan 2022 20:37:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052524;
-        bh=yIwPMOuMtW3hepi44yX+nWOd3v69Bk/KG7AjPaytj0o=;
+        s=korg; t=1643056646;
+        bh=zzwXETvO8DRgU0B6/KjTgVdtgOFdMCxyOYkTNdKrc3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NoImzNL4ceY496bR3mNdzs6EvbubgY+GTIFsuZS9M/NpTqkhKH0fFzVLWrR/1bCZJ
-         pHdmrEvlJ2v7M9HRURNyL/1jXke5qLKiVVyT6rc/MGyfNasLcqBPzf+LhP/SOdciWo
-         bbf3L9Zl6VC+lScN4Ewys9zYfM9OI2aZ9xm32c9A=
+        b=l2HUbUl4K4GDXOe1I79HbT6YPuac2NnZqrUz98Mhh+j1Ugn+bMM37Tir8sV2cvi4o
+         5dxXk5XYPmldMAFcIjcga1stilzRJuhPz8egDNHwu8DPC9olKbM2k/2GnY3akAN9S+
+         CkTlDqpVyFSwbRclccVD8mxhncrN3C0oVovwMRRk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Clark <robdclark@chromium.org>,
-        Douglas Anderson <dianders@chromium.org>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Robert Foss <robert.foss@linaro.org>,
+        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 087/320] drm/bridge: ti-sn65dsi86: Set max register for regmap
+Subject: [PATCH 5.15 554/846] media: saa7146: hexium_gemini: Fix a NULL pointer dereference in hexium_attach()
 Date:   Mon, 24 Jan 2022 19:41:11 +0100
-Message-Id: <20220124183956.698481483@linuxfoundation.org>
+Message-Id: <20220124184120.137322515@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,38 +45,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Zhou Qingyang <zhou1615@umn.edu>
 
-[ Upstream commit 0b665d4af35837f0a0ae63135b84a3c187c1db3b ]
+[ Upstream commit 3af86b046933ba513d08399dba0d4d8b50d607d0 ]
 
-Set the maximum register to 0xff so we can dump the registers for this
-device in debugfs.
+In hexium_attach(dev, info), saa7146_vv_init() is called to allocate
+a new memory for dev->vv_data. saa7146_vv_release() will be called on
+failure of saa7146_register_device(). There is a dereference of
+dev->vv_data in saa7146_vv_release(), which could lead to a NULL
+pointer dereference on failure of saa7146_vv_init().
 
-Fixes: a095f15c00e2 ("drm/bridge: add support for sn65dsi86 bridge driver")
-Cc: Rob Clark <robdclark@chromium.org>
-Cc: Douglas Anderson <dianders@chromium.org>
-Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Robert Foss <robert.foss@linaro.org>
-Signed-off-by: Robert Foss <robert.foss@linaro.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211215002529.382383-1-swboyd@chromium.org
+Fix this bug by adding a check of saa7146_vv_init().
+
+This bug was found by a static analyzer. The analysis employs
+differential checking to identify inconsistent security operations
+(e.g., checks or kfrees) between two code paths and confirms that the
+inconsistent operations are not recovered in the current function or
+the callers, so they constitute bugs.
+
+Note that, as a bug found by static analysis, it can be a false
+positive or hard to trigger. Multiple researchers have cross-reviewed
+the bug.
+
+Builds with CONFIG_VIDEO_HEXIUM_GEMINI=m show no new warnings,
+and our static analyzer no longer warns about this code.
+
+Link: https://lore.kernel.org/linux-media/20211203154030.111210-1-zhou1615@umn.edu
+Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/bridge/ti-sn65dsi86.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/common/saa7146/saa7146_fops.c | 2 +-
+ drivers/media/pci/saa7146/hexium_gemini.c   | 7 ++++++-
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/bridge/ti-sn65dsi86.c b/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-index f1de4bb6558ca..dbb4a374cb646 100644
---- a/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-+++ b/drivers/gpu/drm/bridge/ti-sn65dsi86.c
-@@ -115,6 +115,7 @@ static const struct regmap_config ti_sn_bridge_regmap_config = {
- 	.val_bits = 8,
- 	.volatile_table = &ti_sn_bridge_volatile_table,
- 	.cache_type = REGCACHE_NONE,
-+	.max_register = 0xFF,
- };
+diff --git a/drivers/media/common/saa7146/saa7146_fops.c b/drivers/media/common/saa7146/saa7146_fops.c
+index baf5772c52a96..be32159777142 100644
+--- a/drivers/media/common/saa7146/saa7146_fops.c
++++ b/drivers/media/common/saa7146/saa7146_fops.c
+@@ -521,7 +521,7 @@ int saa7146_vv_init(struct saa7146_dev* dev, struct saa7146_ext_vv *ext_vv)
+ 		ERR("out of memory. aborting.\n");
+ 		kfree(vv);
+ 		v4l2_ctrl_handler_free(hdl);
+-		return -1;
++		return -ENOMEM;
+ 	}
  
- static void ti_sn_bridge_write_u16(struct ti_sn_bridge *pdata,
+ 	saa7146_video_uops.init(dev,vv);
+diff --git a/drivers/media/pci/saa7146/hexium_gemini.c b/drivers/media/pci/saa7146/hexium_gemini.c
+index 2214c74bbbf15..3947701cd6c7e 100644
+--- a/drivers/media/pci/saa7146/hexium_gemini.c
++++ b/drivers/media/pci/saa7146/hexium_gemini.c
+@@ -284,7 +284,12 @@ static int hexium_attach(struct saa7146_dev *dev, struct saa7146_pci_extension_d
+ 	hexium_set_input(hexium, 0);
+ 	hexium->cur_input = 0;
+ 
+-	saa7146_vv_init(dev, &vv_data);
++	ret = saa7146_vv_init(dev, &vv_data);
++	if (ret) {
++		i2c_del_adapter(&hexium->i2c_adapter);
++		kfree(hexium);
++		return ret;
++	}
+ 
+ 	vv_data.vid_ops.vidioc_enum_input = vidioc_enum_input;
+ 	vv_data.vid_ops.vidioc_g_input = vidioc_g_input;
 -- 
 2.34.1
 
