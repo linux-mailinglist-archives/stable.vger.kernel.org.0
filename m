@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D528349913F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F39C3499087
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:04:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378904AbiAXUKD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:10:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60764 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1376449AbiAXUEB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:04:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57117C02B746;
-        Mon, 24 Jan 2022 11:30:31 -0800 (PST)
+        id S1350335AbiAXUBC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:01:02 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:54610 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359280AbiAXT6O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:58:14 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20122B8121B;
-        Mon, 24 Jan 2022 19:30:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C86EC340E5;
-        Mon, 24 Jan 2022 19:30:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E9C160916;
+        Mon, 24 Jan 2022 19:58:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 111CFC340EA;
+        Mon, 24 Jan 2022 19:58:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052628;
-        bh=vqngZsueMLG4oC2+ytBbZp2PDn5MOvaO/WQkUAEK5qM=;
+        s=korg; t=1643054292;
+        bh=WQCIdyoCBqzT1RiVCy6TIWZuU6QVvUeH/y9HpzGEJrU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C96JYqPNzUJZEOUMbWOZH7U7AMkKjf2JO+qi+tKbLNN13U8ykvyn+xhSJ+aTQ/get
-         kzImV1qXn8tBbIZZIlU66v3GOI1nqFcEdgKq7LnlJPNMpzOkE7YXoFYKTGQjhBIHzw
-         ypub8CG1tE+qNbxBbPIqJPnkzHN+uE8eqMI8McbY=
+        b=wLTuJfk0AksQz20HkkHE+WIfjZQFjixYTiWjqGjJ7ysQiTnpVWxZtCsrHB5XK9e9e
+         fMxW0dBa+4FtNvIExqIfbr9/FCNUyYeeg2V3LrH2MeuoMByL2KZg/7Zyt0K5nan3hD
+         g2bFzW2/47g5FncWQI0vZGNRiQZBF9dCs/8vE2J0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
-        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
+        stable@vger.kernel.org,
+        Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 122/320] ext4: avoid trim error on fs with small groups
+Subject: [PATCH 5.10 341/563] drm: rcar-du: Fix CRTC timings when CMM is used
 Date:   Mon, 24 Jan 2022 19:41:46 +0100
-Message-Id: <20220124183957.835668821@linuxfoundation.org>
+Message-Id: <20220124184036.217959039@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,70 +45,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 
-[ Upstream commit 173b6e383d2a204c9921ffc1eca3b87aa2106c33 ]
+[ Upstream commit f0ce591dc9a97067c6e783a2eaccd22c5476144d ]
 
-A user reported FITRIM ioctl failing for him on ext4 on some devices
-without apparent reason.  After some debugging we've found out that
-these devices (being LVM volumes) report rather large discard
-granularity of 42MB and the filesystem had 1k blocksize and thus group
-size of 8MB. Because ext4 FITRIM implementation puts discard
-granularity into minlen, ext4_trim_fs() declared the trim request as
-invalid. However just silently doing nothing seems to be a more
-appropriate reaction to such combination of parameters since user did
-not specify anything wrong.
+When the CMM is enabled, an offset of 25 pixels must be subtracted from
+the HDS (horizontal display start) and HDE (horizontal display end)
+registers. Fix the timings calculation, and take this into account in
+the mode validation.
 
-CC: Lukas Czerner <lczerner@redhat.com>
-Fixes: 5c2ed62fd447 ("ext4: Adjust minlen with discard_granularity in the FITRIM ioctl")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20211112152202.26614-1-jack@suse.cz
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+This fixes a visible horizontal offset in the image with VGA monitors.
+HDMI monitors seem to be generally more tolerant to incorrect timings,
+but may be affected too.
+
+Signed-off-by: Laurent Pinchart <laurent.pinchart+renesas@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/ioctl.c   | 2 --
- fs/ext4/mballoc.c | 8 ++++++++
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/rcar-du/rcar_du_crtc.c | 20 ++++++++++++++++----
+ 1 file changed, 16 insertions(+), 4 deletions(-)
 
-diff --git a/fs/ext4/ioctl.c b/fs/ext4/ioctl.c
-index ba13fbb443d58..9fa20f9ba52b5 100644
---- a/fs/ext4/ioctl.c
-+++ b/fs/ext4/ioctl.c
-@@ -1120,8 +1120,6 @@ resizefs_out:
- 		    sizeof(range)))
- 			return -EFAULT;
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
+index 1b9738e44909d..065604c5837de 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
++++ b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
+@@ -215,6 +215,7 @@ static void rcar_du_crtc_set_display_timing(struct rcar_du_crtc *rcrtc)
+ 	const struct drm_display_mode *mode = &rcrtc->crtc.state->adjusted_mode;
+ 	struct rcar_du_device *rcdu = rcrtc->dev;
+ 	unsigned long mode_clock = mode->clock * 1000;
++	unsigned int hdse_offset;
+ 	u32 dsmr;
+ 	u32 escr;
  
--		range.minlen = max((unsigned int)range.minlen,
--				   q->limits.discard_granularity);
- 		ret = ext4_trim_fs(sb, &range);
- 		if (ret < 0)
- 			return ret;
-diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
-index b67ea979f0cf7..0307702d114db 100644
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -5270,6 +5270,7 @@ out:
-  */
- int ext4_trim_fs(struct super_block *sb, struct fstrim_range *range)
- {
-+	struct request_queue *q = bdev_get_queue(sb->s_bdev);
- 	struct ext4_group_info *grp;
- 	ext4_group_t group, first_group, last_group;
- 	ext4_grpblk_t cnt = 0, first_cluster, last_cluster;
-@@ -5288,6 +5289,13 @@ int ext4_trim_fs(struct super_block *sb, struct fstrim_range *range)
- 	    start >= max_blks ||
- 	    range->len < sb->s_blocksize)
- 		return -EINVAL;
-+	/* No point to try to trim less than discard granularity */
-+	if (range->minlen < q->limits.discard_granularity) {
-+		minlen = EXT4_NUM_B2C(EXT4_SB(sb),
-+			q->limits.discard_granularity >> sb->s_blocksize_bits);
-+		if (minlen > EXT4_CLUSTERS_PER_GROUP(sb))
-+			goto out;
-+	}
- 	if (end >= max_blks)
- 		end = max_blks - 1;
- 	if (end <= first_data_blk)
+@@ -298,10 +299,15 @@ static void rcar_du_crtc_set_display_timing(struct rcar_du_crtc *rcrtc)
+ 	     | DSMR_DIPM_DISP | DSMR_CSPM;
+ 	rcar_du_crtc_write(rcrtc, DSMR, dsmr);
+ 
++	hdse_offset = 19;
++	if (rcrtc->group->cmms_mask & BIT(rcrtc->index % 2))
++		hdse_offset += 25;
++
+ 	/* Display timings */
+-	rcar_du_crtc_write(rcrtc, HDSR, mode->htotal - mode->hsync_start - 19);
++	rcar_du_crtc_write(rcrtc, HDSR, mode->htotal - mode->hsync_start -
++					hdse_offset);
+ 	rcar_du_crtc_write(rcrtc, HDER, mode->htotal - mode->hsync_start +
+-					mode->hdisplay - 19);
++					mode->hdisplay - hdse_offset);
+ 	rcar_du_crtc_write(rcrtc, HSWR, mode->hsync_end -
+ 					mode->hsync_start - 1);
+ 	rcar_du_crtc_write(rcrtc, HCR,  mode->htotal - 1);
+@@ -831,6 +837,7 @@ rcar_du_crtc_mode_valid(struct drm_crtc *crtc,
+ 	struct rcar_du_crtc *rcrtc = to_rcar_crtc(crtc);
+ 	struct rcar_du_device *rcdu = rcrtc->dev;
+ 	bool interlaced = mode->flags & DRM_MODE_FLAG_INTERLACE;
++	unsigned int min_sync_porch;
+ 	unsigned int vbp;
+ 
+ 	if (interlaced && !rcar_du_has(rcdu, RCAR_DU_FEATURE_INTERLACED))
+@@ -838,9 +845,14 @@ rcar_du_crtc_mode_valid(struct drm_crtc *crtc,
+ 
+ 	/*
+ 	 * The hardware requires a minimum combined horizontal sync and back
+-	 * porch of 20 pixels and a minimum vertical back porch of 3 lines.
++	 * porch of 20 pixels (when CMM isn't used) or 45 pixels (when CMM is
++	 * used), and a minimum vertical back porch of 3 lines.
+ 	 */
+-	if (mode->htotal - mode->hsync_start < 20)
++	min_sync_porch = 20;
++	if (rcrtc->group->cmms_mask & BIT(rcrtc->index % 2))
++		min_sync_porch += 25;
++
++	if (mode->htotal - mode->hsync_start < min_sync_porch)
+ 		return MODE_HBLANK_NARROW;
+ 
+ 	vbp = (mode->vtotal - mode->vsync_end) / (interlaced ? 2 : 1);
 -- 
 2.34.1
 
