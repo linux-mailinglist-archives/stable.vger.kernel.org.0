@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E7F1499C51
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:07:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39C754996D6
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:20:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1380797AbiAXWEc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:04:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60472 "EHLO
+        id S237449AbiAXVHF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:07:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1577773AbiAXWBE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:01:04 -0500
+        with ESMTP id S1391733AbiAXUs3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:48:29 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB367C02B8FA;
-        Mon, 24 Jan 2022 12:40:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D677C0424F9;
+        Mon, 24 Jan 2022 11:57:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B39861507;
-        Mon, 24 Jan 2022 20:40:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 690D5C340E5;
-        Mon, 24 Jan 2022 20:40:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E21A460916;
+        Mon, 24 Jan 2022 19:57:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B421EC340E5;
+        Mon, 24 Jan 2022 19:57:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056818;
-        bh=TmhTFttc8Wf3beYe9Qj83vMhnXvOXEgoEjdWci6e82c=;
+        s=korg; t=1643054259;
+        bh=yVqrQMm+dBFHy3tLs5xHzr01Bu1+kQu+9Yzb3HWeDUs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sCuelulV5zhIirrpaCpawDWgRGxa06M8Nl3ZeddF0Qj8orT6/NDxgYS3qrAtwKrJA
-         cysFheCmvrMGW6lFI8DKA3zOOAx12llSqGLBOtbjMo3/wRh2PbvVx/B4sW0BmW8dYq
-         fl8qbh7INES6AX+QYAwnH4jLkfxAPp5YOqfIwP24=
+        b=XkBvo8EOVUpUms/CDuHFD8cqaW6VnDlmcWTlKmw+s2ZMfIfDJh5x6D4IPUShoO3/r
+         Ku/KgZHk3fiWLzQCbYcknHN06d5Z+ha168/EMunviQI4lGWivFvEccf634BnJnM3BP
+         TZwQr+MkIGiBiVfBZjecMW6aGX763DX81SyLktX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avraham Stern <avraham.stern@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, Sriram R <quic_srirrama@quicinc.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 578/846] iwlwifi: mvm: fix AUX ROC removal
-Date:   Mon, 24 Jan 2022 19:41:35 +0100
-Message-Id: <20220124184120.976171915@linuxfoundation.org>
+Subject: [PATCH 5.10 331/563] ath11k: Avoid NULL ptr access during mgmt tx cleanup
+Date:   Mon, 24 Jan 2022 19:41:36 +0100
+Message-Id: <20220124184035.873094415@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,57 +48,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Avraham Stern <avraham.stern@intel.com>
+From: Sriram R <quic_srirrama@quicinc.com>
 
-[ Upstream commit f0337cb48f3bf5f0bbccc985d8a0a8c4aa4934b7 ]
+[ Upstream commit a93789ae541c7d5c1c2a4942013adb6bcc5e2848 ]
 
-When IWL_UCODE_TLV_CAPA_SESSION_PROT_CMD is set, removing a time event
-always tries to cancel session protection. However, AUX ROC does
-not use session protection so it was never removed. As a result,
-if the driver tries to allocate another AUX ROC event right after
-cancelling the first one, it will fail with a warning.
-In addition, the time event data passed to iwl_mvm_remove_aux_roc_te()
-is incorrect. Fix it.
+Currently 'ar' reference is not added in skb_cb during
+WMI mgmt tx. Though this is generally not used during tx completion
+callbacks, on interface removal the remaining idr cleanup callback
+uses the ar ptr from skb_cb from mgmt txmgmt_idr. Hence
+fill them during tx call for proper usage.
 
-Signed-off-by: Avraham Stern <avraham.stern@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20211219132536.915e1f69f062.Id837e917f1c2beaca7c1eb33333d622548918a76@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Also free the skb which is missing currently in these
+callbacks.
+
+Crash_info:
+
+[19282.489476] Unable to handle kernel NULL pointer dereference at virtual address 00000000
+[19282.489515] pgd = 91eb8000
+[19282.496702] [00000000] *pgd=00000000
+[19282.502524] Internal error: Oops: 5 [#1] PREEMPT SMP ARM
+[19282.783728] PC is at ath11k_mac_vif_txmgmt_idr_remove+0x28/0xd8 [ath11k]
+[19282.789170] LR is at idr_for_each+0xa0/0xc8
+
+Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.5.0.1-00729-QCAHKSWPL_SILICONZ-3 v2
+Signed-off-by: Sriram R <quic_srirrama@quicinc.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1637832614-13831-1-git-send-email-quic_srirrama@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/time-event.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/net/wireless/ath/ath11k/mac.c | 35 +++++++++++++++------------
+ 1 file changed, 20 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c b/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
-index b8c645b9880fc..ab06dcda1462a 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/time-event.c
-@@ -696,11 +696,14 @@ static bool __iwl_mvm_remove_time_event(struct iwl_mvm *mvm,
- 	iwl_mvm_te_clear_data(mvm, te_data);
- 	spin_unlock_bh(&mvm->time_event_lock);
+diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
+index 18e841e1a016d..cc9122f420243 100644
+--- a/drivers/net/wireless/ath/ath11k/mac.c
++++ b/drivers/net/wireless/ath/ath11k/mac.c
+@@ -1,6 +1,7 @@
+ // SPDX-License-Identifier: BSD-3-Clause-Clear
+ /*
+  * Copyright (c) 2018-2019 The Linux Foundation. All rights reserved.
++ * Copyright (c) 2021 Qualcomm Innovation Center, Inc. All rights reserved.
+  */
  
--	/* When session protection is supported, the te_data->id field
-+	/* When session protection is used, the te_data->id field
- 	 * is reused to save session protection's configuration.
-+	 * For AUX ROC, HOT_SPOT_CMD is used and the te_data->id field is set
-+	 * to HOT_SPOT_CMD.
- 	 */
- 	if (fw_has_capa(&mvm->fw->ucode_capa,
--			IWL_UCODE_TLV_CAPA_SESSION_PROT_CMD)) {
-+			IWL_UCODE_TLV_CAPA_SESSION_PROT_CMD) &&
-+	    id != HOT_SPOT_CMD) {
- 		if (mvmvif && id < SESSION_PROTECT_CONF_MAX_ID) {
- 			/* Session protection is still ongoing. Cancel it */
- 			iwl_mvm_cancel_session_protection(mvm, mvmvif, id);
-@@ -1036,7 +1039,7 @@ void iwl_mvm_stop_roc(struct iwl_mvm *mvm, struct ieee80211_vif *vif)
- 			iwl_mvm_p2p_roc_finished(mvm);
- 		} else {
- 			iwl_mvm_remove_aux_roc_te(mvm, mvmvif,
--						  &mvmvif->time_event_data);
-+						  &mvmvif->hs_time_event_data);
- 			iwl_mvm_roc_finished(mvm);
- 		}
+ #include <net/mac80211.h>
+@@ -3883,23 +3884,32 @@ static int __ath11k_set_antenna(struct ath11k *ar, u32 tx_ant, u32 rx_ant)
+ 	return 0;
+ }
  
+-int ath11k_mac_tx_mgmt_pending_free(int buf_id, void *skb, void *ctx)
++static void ath11k_mac_tx_mgmt_free(struct ath11k *ar, int buf_id)
+ {
+-	struct sk_buff *msdu = skb;
++	struct sk_buff *msdu;
+ 	struct ieee80211_tx_info *info;
+-	struct ath11k *ar = ctx;
+-	struct ath11k_base *ab = ar->ab;
+ 
+ 	spin_lock_bh(&ar->txmgmt_idr_lock);
+-	idr_remove(&ar->txmgmt_idr, buf_id);
++	msdu = idr_remove(&ar->txmgmt_idr, buf_id);
+ 	spin_unlock_bh(&ar->txmgmt_idr_lock);
+-	dma_unmap_single(ab->dev, ATH11K_SKB_CB(msdu)->paddr, msdu->len,
++
++	if (!msdu)
++		return;
++
++	dma_unmap_single(ar->ab->dev, ATH11K_SKB_CB(msdu)->paddr, msdu->len,
+ 			 DMA_TO_DEVICE);
+ 
+ 	info = IEEE80211_SKB_CB(msdu);
+ 	memset(&info->status, 0, sizeof(info->status));
+ 
+ 	ieee80211_free_txskb(ar->hw, msdu);
++}
++
++int ath11k_mac_tx_mgmt_pending_free(int buf_id, void *skb, void *ctx)
++{
++	struct ath11k *ar = ctx;
++
++	ath11k_mac_tx_mgmt_free(ar, buf_id);
+ 
+ 	return 0;
+ }
+@@ -3908,17 +3918,10 @@ static int ath11k_mac_vif_txmgmt_idr_remove(int buf_id, void *skb, void *ctx)
+ {
+ 	struct ieee80211_vif *vif = ctx;
+ 	struct ath11k_skb_cb *skb_cb = ATH11K_SKB_CB((struct sk_buff *)skb);
+-	struct sk_buff *msdu = skb;
+ 	struct ath11k *ar = skb_cb->ar;
+-	struct ath11k_base *ab = ar->ab;
+ 
+-	if (skb_cb->vif == vif) {
+-		spin_lock_bh(&ar->txmgmt_idr_lock);
+-		idr_remove(&ar->txmgmt_idr, buf_id);
+-		spin_unlock_bh(&ar->txmgmt_idr_lock);
+-		dma_unmap_single(ab->dev, skb_cb->paddr, msdu->len,
+-				 DMA_TO_DEVICE);
+-	}
++	if (skb_cb->vif == vif)
++		ath11k_mac_tx_mgmt_free(ar, buf_id);
+ 
+ 	return 0;
+ }
+@@ -3933,6 +3936,8 @@ static int ath11k_mac_mgmt_tx_wmi(struct ath11k *ar, struct ath11k_vif *arvif,
+ 	int buf_id;
+ 	int ret;
+ 
++	ATH11K_SKB_CB(skb)->ar = ar;
++
+ 	spin_lock_bh(&ar->txmgmt_idr_lock);
+ 	buf_id = idr_alloc(&ar->txmgmt_idr, skb, 0,
+ 			   ATH11K_TX_MGMT_NUM_PENDING_MAX, GFP_ATOMIC);
 -- 
 2.34.1
 
