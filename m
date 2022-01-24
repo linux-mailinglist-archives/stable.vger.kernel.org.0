@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E115D49914D
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDA84498BA0
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:15:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379037AbiAXUKO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:10:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59478 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347462AbiAXT6o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:58:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A134C047CFB;
-        Mon, 24 Jan 2022 11:27:59 -0800 (PST)
+        id S1344859AbiAXTPg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:15:36 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:40126 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237218AbiAXTMy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:12:54 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82712B8122F;
-        Mon, 24 Jan 2022 19:27:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2F0AC340E5;
-        Mon, 24 Jan 2022 19:27:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DDBF612A5;
+        Mon, 24 Jan 2022 19:12:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 295A1C340E5;
+        Mon, 24 Jan 2022 19:12:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052476;
-        bh=Yp1NnFfvlH+1ASCwb2Hc7AdUpcyrvhhExdH1MabsrVw=;
+        s=korg; t=1643051573;
+        bh=OvvClgg8tVQtTWn8Qm3ypBSAwn/4B4w1SBC5HNpllfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0Xjq6jHOahJydU2phcUygrU3kn7I8+7JflXeRkRiUKW6Hwn9DjbzDRL7YXQxUIyHR
-         WQuNP26z2Cy1b+JLIPCcnpSnPFWaeqAD7GTrc/4uvSz3QBsJV5rdra7KfAYTo3lTnt
-         vuxXB3guWeDgWUAzifDlen4dApS8AeYcmnQT+EOk=
+        b=nC9NwQUv3mTm4sKWSKqhN/V4/KpfdCp+owOENuDimkxCqvznqZthb583JxinWBvwD
+         NtY7fRn+nnPwILDKqJIRKNrl42n0KqAwegFCSyfN9mFaeJ+os2WjjZ3ida2IWm7C/L
+         tdANfK/DfDoItfbjc64NA8jIBHCufka2CrylgUpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 072/320] media: dib8000: Fix a memleak in dib8000_init()
-Date:   Mon, 24 Jan 2022 19:40:56 +0100
-Message-Id: <20220124183956.175905593@linuxfoundation.org>
+        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
+        Kees Cook <keescook@chromium.org>,
+        Johan Hovold <johan@kernel.org>,
+        "Michael S. Tsirkin" <mst@redhat.com>
+Subject: [PATCH 4.19 019/239] firmware: qemu_fw_cfg: fix NULL-pointer deref on duplicate entries
+Date:   Mon, 24 Jan 2022 19:40:57 +0100
+Message-Id: <20220124183943.732948213@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,55 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 8dbdcc7269a83305ee9d677b75064d3530a48ee2 ]
+commit d3e305592d69e21e36b76d24ca3c01971a2d09be upstream.
 
-In dib8000_init(), the variable fe is not freed or passed out on the
-failure of dib8000_identify(&state->i2c), which could lead to a memleak.
+Commit fe3c60684377 ("firmware: Fix a reference count leak.") "fixed"
+a kobject leak in the file registration helper by properly calling
+kobject_put() for the entry in case registration of the object fails
+(e.g. due to a name collision).
 
-Fix this bug by adding a kfree of fe in the error path.
+This would however result in a NULL pointer dereference when the
+release function tries to remove the never added entry from the
+fw_cfg_entry_cache list.
 
-This bug was found by a static analyzer. The analysis employs
-differential checking to identify inconsistent security operations
-(e.g., checks or kfrees) between two code paths and confirms that the
-inconsistent operations are not recovered in the current function or
-the callers, so they constitute bugs.
+Fix this by moving the list-removal out of the release function.
 
-Note that, as a bug found by static analysis, it can be a false
-positive or hard to trigger. Multiple researchers have cross-reviewed
-the bug.
+Note that the offending commit was one of the benign looking umn.edu
+fixes which was reviewed but not reverted. [1][2]
 
-Builds with CONFIG_DVB_DIB8000=m show no new warnings,
-and our static analyzer no longer warns about this code.
+[1] https://lore.kernel.org/r/202105051005.49BFABCE@keescook
+[2] https://lore.kernel.org/all/YIg7ZOZvS3a8LjSv@kroah.com
 
-Fixes: 77e2c0f5d471 ("V4L/DVB (12900): DiB8000: added support for DiBcom ISDB-T/ISDB-Tsb demodulator DiB8000")
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: fe3c60684377 ("firmware: Fix a reference count leak.")
+Cc: stable@vger.kernel.org      # 5.8
+Cc: Qiushi Wu <wu000273@umn.edu>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20211201132528.30025-2-johan@kernel.org
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/dvb-frontends/dib8000.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/firmware/qemu_fw_cfg.c |    5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/dib8000.c b/drivers/media/dvb-frontends/dib8000.c
-index bb02354a48b81..d67f2dd997d06 100644
---- a/drivers/media/dvb-frontends/dib8000.c
-+++ b/drivers/media/dvb-frontends/dib8000.c
-@@ -4473,8 +4473,10 @@ static struct dvb_frontend *dib8000_init(struct i2c_adapter *i2c_adap, u8 i2c_ad
+--- a/drivers/firmware/qemu_fw_cfg.c
++++ b/drivers/firmware/qemu_fw_cfg.c
+@@ -385,9 +385,7 @@ static void fw_cfg_sysfs_cache_cleanup(v
+ 	struct fw_cfg_sysfs_entry *entry, *next;
  
- 	state->timf_default = cfg->pll->timf;
+ 	list_for_each_entry_safe(entry, next, &fw_cfg_entry_cache, list) {
+-		/* will end up invoking fw_cfg_sysfs_cache_delist()
+-		 * via each object's release() method (i.e. destructor)
+-		 */
++		fw_cfg_sysfs_cache_delist(entry);
+ 		kobject_put(&entry->kobj);
+ 	}
+ }
+@@ -445,7 +443,6 @@ static void fw_cfg_sysfs_release_entry(s
+ {
+ 	struct fw_cfg_sysfs_entry *entry = to_entry(kobj);
  
--	if (dib8000_identify(&state->i2c) == 0)
-+	if (dib8000_identify(&state->i2c) == 0) {
-+		kfree(fe);
- 		goto error;
-+	}
+-	fw_cfg_sysfs_cache_delist(entry);
+ 	kfree(entry);
+ }
  
- 	dibx000_init_i2c_master(&state->i2c_master, DIB8000, state->i2c.adap, state->i2c.addr);
- 
--- 
-2.34.1
-
 
 
