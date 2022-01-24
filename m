@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 409A8498D0A
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:33:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39347498A95
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:06:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344706AbiAXT1X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:27:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50476 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348030AbiAXTXZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:23:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5BD7C06125B;
-        Mon, 24 Jan 2022 11:11:04 -0800 (PST)
+        id S236874AbiAXTFr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:05:47 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:59288 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345003AbiAXTCb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:02:31 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 86C3460909;
-        Mon, 24 Jan 2022 19:11:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41EF1C340E5;
-        Mon, 24 Jan 2022 19:11:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2A3A1B8122C;
+        Mon, 24 Jan 2022 19:02:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36388C340E7;
+        Mon, 24 Jan 2022 19:02:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051464;
-        bh=mDquujr8OPPM9a1khBGrB/a/+a3dDoDKnUi8nbhr/iA=;
+        s=korg; t=1643050948;
+        bh=QaK4PqTesDZysa0f8zUBvmQkPai+vOO0lmowdkVMUL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pXtjxPc2g47ApNpC7wJeR6hMQ/zW19Rp6XaJ9+0/YRomuIA+2a/6hxCVazNl7qfAY
-         Lqao7v6MgQTHIXFau9DijvFXiclHVgZEdb57sh40iMTSOuOlHUp3uQ0BN1EDRadHfi
-         1sz0NZXUU4ACjhHZ/aK7TxCL8tpeQZFVWyQRmBCw=
+        b=o2Eb4J0eLdwaZfd2Ns5P2lNx43B5GVA9lI7+2eUYpl6e4ceeM3kcG8tPsEAHQRYhJ
+         hOHUwAvOZRELv3FaNi3Jso6S1NWQVlu9GVnY0OXZEm0bCuOsaE3yFFC+tgJFotAM0T
+         gpy8UCjn4UnI6ANhW66vxygr5EVkStSfMT2yVFUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 170/186] netns: add schedule point in ops_exit_list()
+        David Stevens <stevensd@google.com>, 3pvd@google.com,
+        Jann Horn <jannh@google.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.9 155/157] KVM: do not assume PTE is writable after follow_pfn
 Date:   Mon, 24 Jan 2022 19:44:05 +0100
-Message-Id: <20220124183942.584678820@linuxfoundation.org>
+Message-Id: <20220124183937.673291168@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,47 +47,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Paolo Bonzini <pbonzini@redhat.com>
 
-commit 2836615aa22de55b8fca5e32fe1b27a67cda625e upstream.
+commit bd2fae8da794b55bf2ac02632da3a151b10e664c upstream.
 
-When under stress, cleanup_net() can have to dismantle
-netns in big numbers. ops_exit_list() currently calls
-many helpers [1] that have no schedule point, and we can
-end up with soft lockups, particularly on hosts
-with many cpus.
+In order to convert an HVA to a PFN, KVM usually tries to use
+the get_user_pages family of functinso.  This however is not
+possible for VM_IO vmas; in that case, KVM instead uses follow_pfn.
 
-Even for moderate amount of netns processed by cleanup_net()
-this patch avoids latency spikes.
+In doing this however KVM loses the information on whether the
+PFN is writable.  That is usually not a problem because the main
+use of VM_IO vmas with KVM is for BARs in PCI device assignment,
+however it is a bug.  To fix it, use follow_pte and check pte_write
+while under the protection of the PTE lock.  The information can
+be used to fail hva_to_pfn_remapped or passed back to the
+caller via *writable.
 
-[1] Some of these helpers like fib_sync_up() and fib_sync_down_dev()
-are very slow because net/ipv4/fib_semantics.c uses host-wide hash tables,
-and ifindex is used as the only input of two hash functions.
-    ifindexes tend to be the same for all netns (lo.ifindex==1 per instance)
-    This will be fixed in a separate patch.
+Usage of follow_pfn was introduced in commit add6a0cd1c5b ("KVM: MMU: try to fix
+up page faults before giving up", 2016-07-05); however, even older version
+have the same issue, all the way back to commit 2e2e3738af33 ("KVM:
+Handle vma regions with no backing page", 2008-07-20), as they also did
+not check whether the PFN was writable.
 
-Fixes: 72ad937abd0a ("net: Add support for batching network namespace cleanups")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 2e2e3738af33 ("KVM: Handle vma regions with no backing page")
+Reported-by: David Stevens <stevensd@google.com>
+Cc: 3pvd@google.com
+Cc: Jann Horn <jannh@google.com>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+[OP: backport to 4.19, adjust follow_pte() -> follow_pte_pmd()]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[bwh: Backport to 4.9: follow_pte_pmd() does not take start or end
+ parameters]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/net_namespace.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ virt/kvm/kvm_main.c |   15 ++++++++++++---
+ 1 file changed, 12 insertions(+), 3 deletions(-)
 
---- a/net/core/net_namespace.c
-+++ b/net/core/net_namespace.c
-@@ -138,8 +138,10 @@ static void ops_exit_list(const struct p
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -1519,9 +1519,11 @@ static int hva_to_pfn_remapped(struct vm
+ 			       kvm_pfn_t *p_pfn)
  {
- 	struct net *net;
- 	if (ops->exit) {
--		list_for_each_entry(net, net_exit_list, exit_list)
-+		list_for_each_entry(net, net_exit_list, exit_list) {
- 			ops->exit(net);
-+			cond_resched();
-+		}
+ 	unsigned long pfn;
++	pte_t *ptep;
++	spinlock_t *ptl;
+ 	int r;
+ 
+-	r = follow_pfn(vma, addr, &pfn);
++	r = follow_pte_pmd(vma->vm_mm, addr, &ptep, NULL, &ptl);
+ 	if (r) {
+ 		/*
+ 		 * get_user_pages fails for VM_IO and VM_PFNMAP vmas and does
+@@ -1536,14 +1538,19 @@ static int hva_to_pfn_remapped(struct vm
+ 		if (r)
+ 			return r;
+ 
+-		r = follow_pfn(vma, addr, &pfn);
++		r = follow_pte_pmd(vma->vm_mm, addr, &ptep, NULL, &ptl);
+ 		if (r)
+ 			return r;
++	}
+ 
++	if (write_fault && !pte_write(*ptep)) {
++		pfn = KVM_PFN_ERR_RO_FAULT;
++		goto out;
  	}
- 	if (ops->exit_batch)
- 		ops->exit_batch(net_exit_list);
+ 
+ 	if (writable)
+-		*writable = true;
++		*writable = pte_write(*ptep);
++	pfn = pte_pfn(*ptep);
+ 
+ 	/*
+ 	 * Get a reference here because callers of *hva_to_pfn* and
+@@ -1558,6 +1565,8 @@ static int hva_to_pfn_remapped(struct vm
+ 	 */ 
+ 	kvm_get_pfn(pfn);
+ 
++out:
++	pte_unmap_unlock(ptep, ptl);
+ 	*p_pfn = pfn;
+ 	return 0;
+ }
 
 
