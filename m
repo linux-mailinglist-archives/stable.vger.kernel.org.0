@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96877499901
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:39:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2486749971F
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:25:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1453965AbiAXVbT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:31:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51526 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1450845AbiAXVVf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:21:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31D17C028C2F;
-        Mon, 24 Jan 2022 12:16:04 -0800 (PST)
+        id S1446848AbiAXVJb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:09:31 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:58150 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1343668AbiAXVFf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:05:35 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B714B8122F;
-        Mon, 24 Jan 2022 20:16:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2F39C340E5;
-        Mon, 24 Jan 2022 20:16:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 909EE60B28;
+        Mon, 24 Jan 2022 21:05:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73449C340E5;
+        Mon, 24 Jan 2022 21:05:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055362;
-        bh=OoSssbfB0G+eaEjRAZifozZHpb7w4wG5r3DAky/TyYo=;
+        s=korg; t=1643058334;
+        bh=IXvHj7ag7A4+SqD1sdKZ1WXEP0mkxaXoEEPyd+zXsEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rHB8bXMLPBVOudXgrHZqIlnKN1AGFra5TJphBhBUQbwxIPsM3P7S5TbbUX1qnbCH8
-         xmltSBrbTdgPd69LLdXUcXbv5GquufIVHO47hrQvR+xefhfKdSlg2E8ft1vKqFEMmD
-         jpX6f3NQWW7AOIj2iPR7qngWTjKEY4LqJ/fRmrSY=
+        b=yy96po9LsKgR34jz7lR5etnZsSl2jaArpNG70T4Zxg2Unn0uxT0XnFZhf3j3Ga+zM
+         0OXIfe6W/0L4enXdS/okhwz1WuE3Jtpf3BLyWIbELE/mf2w1mWYv/KsojeGA5egk7B
+         9KD+2Ms2twznq/eWGZqbCBwn6i1JNsQjrH6fUkJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org,
+        Seevalamuthu Mariappan <quic_seevalam@quicinc.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 127/846] ath11k: Fix ETSI regd with weather radar overlap
+Subject: [PATCH 5.16 0255/1039] ath11k: Fix QMI file type enum value
 Date:   Mon, 24 Jan 2022 19:34:04 +0100
-Message-Id: <20220124184105.367194548@linuxfoundation.org>
+Message-Id: <20220124184133.888375036@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,238 +46,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sven Eckelmann <sven@narfation.org>
+From: Seevalamuthu Mariappan <quic_seevalam@quicinc.com>
 
-[ Upstream commit 086c921a354089f209318501038d43c98d3f409f ]
+[ Upstream commit 18ae1ab04525507ae5528245a6df004cacd0d39a ]
 
-Some ETSI countries have a small overlap in the wireless-regdb with an ETSI
-channel (5590-5650). A good example is Australia:
+bdf_type for caldata in QMI_WLANFW_BDF_DOWNLOAD_REQ_V01 is wrongly
+sent as 1. But, expected bdf_type value for caldata and EEPROM is 2 and 3
+respectively. It leads to firmware crash. Fix ath11k_qmi_file_type enum
+values.
 
-  country AU: DFS-ETSI
-  	(2400 - 2483.5 @ 40), (36)
-  	(5150 - 5250 @ 80), (23), NO-OUTDOOR, AUTO-BW
-  	(5250 - 5350 @ 80), (20), NO-OUTDOOR, AUTO-BW, DFS
-  	(5470 - 5600 @ 80), (27), DFS
-  	(5650 - 5730 @ 80), (27), DFS
-  	(5730 - 5850 @ 80), (36)
-  	(57000 - 66000 @ 2160), (43), NO-OUTDOOR
+Tested-on: QCN9074 hw1.0 PCI WLAN.HK.2.5.0.1-01100-QCAHKSWPL_SILICONZ-1
+Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.4.0.1-00192-QCAHKSWPL_SILICONZ-1
 
-If the firmware (or the BDF) is shipped with these rules then there is only
-a 10 MHz overlap with the weather radar:
-
-* below: 5470 - 5590
-* weather radar: 5590 - 5600
-* above: (none for the rule "5470 - 5600 @ 80")
-
-There are several wrong assumption in the ath11k code:
-
-* there is always a valid range below the weather radar
-  (actually: there could be no range below the weather radar range OR range
-   could be smaller than 20 MHz)
-* intersected range in the weather radar range is valid
-  (actually: the range could be smaller than 20 MHz)
-* range above weather radar is either empty or valid
-  (actually: the range could be smaller than 20 MHz)
-
-These wrong assumption will lead in this example to a rule
-
-  (5590 - 5600 @ 20), (N/A, 27), (600000 ms), DFS, AUTO-BW
-
-which is invalid according to is_valid_reg_rule() because the freq_diff is
-only 10 MHz but the max_bandwidth is set to 20 MHz. Which results in a
-rejection like:
-
-  WARNING: at backports-20210222_001-4.4.60-b157d2276/net/wireless/reg.c:3984
-  [...]
-  Call trace:
-  [<ffffffbffc3d2e50>] reg_get_max_bandwidth+0x300/0x3a8 [cfg80211]
-  [<ffffffbffc3d3d0c>] regulatory_set_wiphy_regd_sync+0x3c/0x98 [cfg80211]
-  [<ffffffbffc651598>] ath11k_regd_update+0x1a8/0x210 [ath11k]
-  [<ffffffbffc652108>] ath11k_regd_update_work+0x18/0x20 [ath11k]
-  [<ffffffc0000a93e0>] process_one_work+0x1f8/0x340
-  [<ffffffc0000a9784>] worker_thread+0x25c/0x448
-  [<ffffffc0000aedc8>] kthread+0xd0/0xd8
-  [<ffffffc000085550>] ret_from_fork+0x10/0x40
-  ath11k c000000.wifi: failed to perform regd update : -22
-  Invalid regulatory domain detected
-
-To avoid this, the algorithm has to be changed slightly. Instead of
-splitting a rule which overlaps with the weather radar range into 3 pieces
-and accepting the first two parts blindly, it must actually be checked for
-each piece whether it is a valid range. And only if it is valid, add it to
-the output array.
-
-When these checks are in place, the processed rules for AU would end up as
-
-  country AU: DFS-ETSI
-          (2400 - 2483 @ 40), (N/A, 36), (N/A)
-          (5150 - 5250 @ 80), (6, 23), (N/A), NO-OUTDOOR, AUTO-BW
-          (5250 - 5350 @ 80), (6, 20), (0 ms), NO-OUTDOOR, DFS, AUTO-BW
-          (5470 - 5590 @ 80), (6, 27), (0 ms), DFS, AUTO-BW
-          (5650 - 5730 @ 80), (6, 27), (0 ms), DFS, AUTO-BW
-          (5730 - 5850 @ 80), (6, 36), (N/A), AUTO-BW
-
-and will be accepted by the wireless regulatory code.
-
-Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211112153116.1214421-1-sven@narfation.org
+Fixes: 336e7b53c82f ("ath11k: clean up BDF download functions")
+Signed-off-by: Seevalamuthu Mariappan <quic_seevalam@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/1638182754-18408-1-git-send-email-quic_seevalam@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/reg.c | 103 ++++++++++++++------------
- 1 file changed, 56 insertions(+), 47 deletions(-)
+ drivers/net/wireless/ath/ath11k/qmi.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/reg.c b/drivers/net/wireless/ath/ath11k/reg.c
-index 92c59009a8ac2..f793324ad0b73 100644
---- a/drivers/net/wireless/ath/ath11k/reg.c
-+++ b/drivers/net/wireless/ath/ath11k/reg.c
-@@ -459,6 +459,9 @@ ath11k_reg_adjust_bw(u16 start_freq, u16 end_freq, u16 max_bw)
- {
- 	u16 bw;
+diff --git a/drivers/net/wireless/ath/ath11k/qmi.h b/drivers/net/wireless/ath/ath11k/qmi.h
+index 3bb0f9ef79968..d9e95b7007653 100644
+--- a/drivers/net/wireless/ath/ath11k/qmi.h
++++ b/drivers/net/wireless/ath/ath11k/qmi.h
+@@ -41,7 +41,7 @@ struct ath11k_base;
  
-+	if (end_freq <= start_freq)
-+		return 0;
-+
- 	bw = end_freq - start_freq;
- 	bw = min_t(u16, bw, max_bw);
- 
-@@ -466,8 +469,10 @@ ath11k_reg_adjust_bw(u16 start_freq, u16 end_freq, u16 max_bw)
- 		bw = 80;
- 	else if (bw >= 40 && bw < 80)
- 		bw = 40;
--	else if (bw < 40)
-+	else if (bw >= 20 && bw < 40)
- 		bw = 20;
-+	else
-+		bw = 0;
- 
- 	return bw;
- }
-@@ -491,73 +496,77 @@ ath11k_reg_update_weather_radar_band(struct ath11k_base *ab,
- 				     struct cur_reg_rule *reg_rule,
- 				     u8 *rule_idx, u32 flags, u16 max_bw)
- {
-+	u32 start_freq;
- 	u32 end_freq;
- 	u16 bw;
- 	u8 i;
- 
- 	i = *rule_idx;
- 
-+	/* there might be situations when even the input rule must be dropped */
-+	i--;
-+
-+	/* frequencies below weather radar */
- 	bw = ath11k_reg_adjust_bw(reg_rule->start_freq,
- 				  ETSI_WEATHER_RADAR_BAND_LOW, max_bw);
-+	if (bw > 0) {
-+		i++;
- 
--	ath11k_reg_update_rule(regd->reg_rules + i, reg_rule->start_freq,
--			       ETSI_WEATHER_RADAR_BAND_LOW, bw,
--			       reg_rule->ant_gain, reg_rule->reg_power,
--			       flags);
-+		ath11k_reg_update_rule(regd->reg_rules + i,
-+				       reg_rule->start_freq,
-+				       ETSI_WEATHER_RADAR_BAND_LOW, bw,
-+				       reg_rule->ant_gain, reg_rule->reg_power,
-+				       flags);
- 
--	ath11k_dbg(ab, ATH11K_DBG_REG,
--		   "\t%d. (%d - %d @ %d) (%d, %d) (%d ms) (FLAGS %d)\n",
--		   i + 1, reg_rule->start_freq, ETSI_WEATHER_RADAR_BAND_LOW,
--		   bw, reg_rule->ant_gain, reg_rule->reg_power,
--		   regd->reg_rules[i].dfs_cac_ms,
--		   flags);
--
--	if (reg_rule->end_freq > ETSI_WEATHER_RADAR_BAND_HIGH)
--		end_freq = ETSI_WEATHER_RADAR_BAND_HIGH;
--	else
--		end_freq = reg_rule->end_freq;
-+		ath11k_dbg(ab, ATH11K_DBG_REG,
-+			   "\t%d. (%d - %d @ %d) (%d, %d) (%d ms) (FLAGS %d)\n",
-+			   i + 1, reg_rule->start_freq,
-+			   ETSI_WEATHER_RADAR_BAND_LOW, bw, reg_rule->ant_gain,
-+			   reg_rule->reg_power, regd->reg_rules[i].dfs_cac_ms,
-+			   flags);
-+	}
- 
--	bw = ath11k_reg_adjust_bw(ETSI_WEATHER_RADAR_BAND_LOW, end_freq,
--				  max_bw);
-+	/* weather radar frequencies */
-+	start_freq = max_t(u32, reg_rule->start_freq,
-+			   ETSI_WEATHER_RADAR_BAND_LOW);
-+	end_freq = min_t(u32, reg_rule->end_freq, ETSI_WEATHER_RADAR_BAND_HIGH);
- 
--	i++;
-+	bw = ath11k_reg_adjust_bw(start_freq, end_freq, max_bw);
-+	if (bw > 0) {
-+		i++;
- 
--	ath11k_reg_update_rule(regd->reg_rules + i,
--			       ETSI_WEATHER_RADAR_BAND_LOW, end_freq, bw,
--			       reg_rule->ant_gain, reg_rule->reg_power,
--			       flags);
-+		ath11k_reg_update_rule(regd->reg_rules + i, start_freq,
-+				       end_freq, bw, reg_rule->ant_gain,
-+				       reg_rule->reg_power, flags);
- 
--	regd->reg_rules[i].dfs_cac_ms = ETSI_WEATHER_RADAR_BAND_CAC_TIMEOUT;
-+		regd->reg_rules[i].dfs_cac_ms = ETSI_WEATHER_RADAR_BAND_CAC_TIMEOUT;
- 
--	ath11k_dbg(ab, ATH11K_DBG_REG,
--		   "\t%d. (%d - %d @ %d) (%d, %d) (%d ms) (FLAGS %d)\n",
--		   i + 1, ETSI_WEATHER_RADAR_BAND_LOW, end_freq,
--		   bw, reg_rule->ant_gain, reg_rule->reg_power,
--		   regd->reg_rules[i].dfs_cac_ms,
--		   flags);
--
--	if (end_freq == reg_rule->end_freq) {
--		regd->n_reg_rules--;
--		*rule_idx = i;
--		return;
-+		ath11k_dbg(ab, ATH11K_DBG_REG,
-+			   "\t%d. (%d - %d @ %d) (%d, %d) (%d ms) (FLAGS %d)\n",
-+			   i + 1, start_freq, end_freq, bw,
-+			   reg_rule->ant_gain, reg_rule->reg_power,
-+			   regd->reg_rules[i].dfs_cac_ms, flags);
- 	}
- 
-+	/* frequencies above weather radar */
- 	bw = ath11k_reg_adjust_bw(ETSI_WEATHER_RADAR_BAND_HIGH,
- 				  reg_rule->end_freq, max_bw);
-+	if (bw > 0) {
-+		i++;
- 
--	i++;
--
--	ath11k_reg_update_rule(regd->reg_rules + i, ETSI_WEATHER_RADAR_BAND_HIGH,
--			       reg_rule->end_freq, bw,
--			       reg_rule->ant_gain, reg_rule->reg_power,
--			       flags);
-+		ath11k_reg_update_rule(regd->reg_rules + i,
-+				       ETSI_WEATHER_RADAR_BAND_HIGH,
-+				       reg_rule->end_freq, bw,
-+				       reg_rule->ant_gain, reg_rule->reg_power,
-+				       flags);
- 
--	ath11k_dbg(ab, ATH11K_DBG_REG,
--		   "\t%d. (%d - %d @ %d) (%d, %d) (%d ms) (FLAGS %d)\n",
--		   i + 1, ETSI_WEATHER_RADAR_BAND_HIGH, reg_rule->end_freq,
--		   bw, reg_rule->ant_gain, reg_rule->reg_power,
--		   regd->reg_rules[i].dfs_cac_ms,
--		   flags);
-+		ath11k_dbg(ab, ATH11K_DBG_REG,
-+			   "\t%d. (%d - %d @ %d) (%d, %d) (%d ms) (FLAGS %d)\n",
-+			   i + 1, ETSI_WEATHER_RADAR_BAND_HIGH,
-+			   reg_rule->end_freq, bw, reg_rule->ant_gain,
-+			   reg_rule->reg_power, regd->reg_rules[i].dfs_cac_ms,
-+			   flags);
-+	}
- 
- 	*rule_idx = i;
- }
+ enum ath11k_qmi_file_type {
+ 	ATH11K_QMI_FILE_TYPE_BDF_GOLDEN,
+-	ATH11K_QMI_FILE_TYPE_CALDATA,
++	ATH11K_QMI_FILE_TYPE_CALDATA = 2,
+ 	ATH11K_QMI_FILE_TYPE_EEPROM,
+ 	ATH11K_QMI_MAX_FILE_TYPE,
+ };
 -- 
 2.34.1
 
