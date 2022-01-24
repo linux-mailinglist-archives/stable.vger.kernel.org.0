@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58A5F49953E
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:09:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C19F49953F
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:09:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1392482AbiAXUvT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:51:19 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:40554 "EHLO
+        id S1392489AbiAXUvU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:51:20 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:40588 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390362AbiAXUpM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:45:12 -0500
+        with ESMTP id S1390379AbiAXUpQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:45:16 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D2A06091C;
-        Mon, 24 Jan 2022 20:45:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8B2FC340E5;
-        Mon, 24 Jan 2022 20:45:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D07A6090B;
+        Mon, 24 Jan 2022 20:45:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6BF1C340E5;
+        Mon, 24 Jan 2022 20:45:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057111;
-        bh=AaF7euI3kYHd/11AknQCQrpr2iggUpjasga3Y3juYgM=;
+        s=korg; t=1643057114;
+        bh=VjVNFNZYLdWE1D2e2Jn90kZ2pJELTAUL5P54vETBVJg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aJATeTYH705c+wuUSMiKjJxSwyRnbJaGjBhohoXn+rBYnNZsD9DdeDZ9br0oYgXCg
-         Xjfev1+UN1NJPw37njPx/RCacCUXHxXSjRHSW289xscxcF74quEhojFsytlHJNqTb+
-         WFtLstbnBARq/9Q0lfzGBvMc6HUReG0pkuE8Oodg=
+        b=MpkrIAfteKgvTmwOZnLZPZaQssV8V/IzqbhqA3dFmJWdQvKU2xFwjkbdMY5r/FaUd
+         Tw40mQc6cnakpvpnZ9gCc18JujUIDWvHUvSNW2hOoZppewnSffICJoi689mtkAN729
+         2x79vUDzD5gfF+7KMOV9iUaAsQwjkDaJgRjnnaO4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
         Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Subject: [PATCH 5.15 705/846] PCI: pci-bridge-emul: Fix definitions of reserved bits
-Date:   Mon, 24 Jan 2022 19:43:42 +0100
-Message-Id: <20220124184125.371304108@linuxfoundation.org>
+Subject: [PATCH 5.15 706/846] PCI: pci-bridge-emul: Correctly set PCIe capabilities
+Date:   Mon, 24 Jan 2022 19:43:43 +0100
+Message-Id: <20220124184125.401171629@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -47,92 +47,84 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pali Rohár <pali@kernel.org>
 
-commit 12998087d9f48b66965b97412069c7826502cd7e upstream.
+commit 1f1050c5e1fefb34ac90a506b43e9da803b5f8f7 upstream.
 
-Some bits in PCI_EXP registers are reserved for non-root ports. Driver
-pci-bridge-emul.c implements PCIe Root Port device therefore it should not
-allow setting reserved bits of registers.
+Older mvebu hardware provides PCIe Capability structure only in version 1.
+New mvebu and aardvark hardware provides it in version 2. So do not force
+version to 2 in pci_bridge_emul_init() and rather allow drivers to set
+correct version. Drivers need to set version in pcie_conf.cap field without
+overwriting PCI_CAP_LIST_ID register. Both drivers (mvebu and aardvark) do
+not provide slot support yet, so do not set PCI_EXP_FLAGS_SLOT flag.
 
-Properly define non-reserved bits for all PCI_EXP registers.
-
-Link: https://lore.kernel.org/r/20211124155944.1290-5-pali@kernel.org
+Link: https://lore.kernel.org/r/20211124155944.1290-6-pali@kernel.org
 Fixes: 23a5fba4d941 ("PCI: Introduce PCI bridge emulated config space common logic")
 Signed-off-by: Pali Rohár <pali@kernel.org>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/pci-bridge-emul.c |   36 +++++++++++++++++++++++++-----------
- 1 file changed, 25 insertions(+), 11 deletions(-)
+ drivers/pci/controller/pci-aardvark.c |    4 +++-
+ drivers/pci/controller/pci-mvebu.c    |    8 ++++++++
+ drivers/pci/pci-bridge-emul.c         |    5 +----
+ 3 files changed, 12 insertions(+), 5 deletions(-)
 
+--- a/drivers/pci/controller/pci-aardvark.c
++++ b/drivers/pci/controller/pci-aardvark.c
+@@ -872,7 +872,6 @@ advk_pci_bridge_emul_pcie_conf_read(stru
+ 		return PCI_BRIDGE_EMUL_HANDLED;
+ 	}
+ 
+-	case PCI_CAP_LIST_ID:
+ 	case PCI_EXP_DEVCAP:
+ 	case PCI_EXP_DEVCTL:
+ 		*value = advk_readl(pcie, PCIE_CORE_PCIEXP_CAP + reg);
+@@ -953,6 +952,9 @@ static int advk_sw_pci_bridge_init(struc
+ 	/* Support interrupt A for MSI feature */
+ 	bridge->conf.intpin = PCIE_CORE_INT_A_ASSERT_ENABLE;
+ 
++	/* Aardvark HW provides PCIe Capability structure in version 2 */
++	bridge->pcie_conf.cap = cpu_to_le16(2);
++
+ 	/* Indicates supports for Completion Retry Status */
+ 	bridge->pcie_conf.rootcap = cpu_to_le16(PCI_EXP_RTCAP_CRSVIS);
+ 
+--- a/drivers/pci/controller/pci-mvebu.c
++++ b/drivers/pci/controller/pci-mvebu.c
+@@ -573,6 +573,8 @@ static struct pci_bridge_emul_ops mvebu_
+ static void mvebu_pci_bridge_emul_init(struct mvebu_pcie_port *port)
+ {
+ 	struct pci_bridge_emul *bridge = &port->bridge;
++	u32 pcie_cap = mvebu_readl(port, PCIE_CAP_PCIEXP);
++	u8 pcie_cap_ver = ((pcie_cap >> 16) & PCI_EXP_FLAGS_VERS);
+ 
+ 	bridge->conf.vendor = PCI_VENDOR_ID_MARVELL;
+ 	bridge->conf.device = mvebu_readl(port, PCIE_DEV_ID_OFF) >> 16;
+@@ -585,6 +587,12 @@ static void mvebu_pci_bridge_emul_init(s
+ 		bridge->conf.iolimit = PCI_IO_RANGE_TYPE_32;
+ 	}
+ 
++	/*
++	 * Older mvebu hardware provides PCIe Capability structure only in
++	 * version 1. New hardware provides it in version 2.
++	 */
++	bridge->pcie_conf.cap = cpu_to_le16(pcie_cap_ver);
++
+ 	bridge->has_pcie = true;
+ 	bridge->data = port;
+ 	bridge->ops = &mvebu_pci_bridge_emul_ops;
 --- a/drivers/pci/pci-bridge-emul.c
 +++ b/drivers/pci/pci-bridge-emul.c
-@@ -176,41 +176,55 @@ struct pci_bridge_reg_behavior pcie_cap_
- 	[PCI_CAP_LIST_ID / 4] = {
- 		/*
- 		 * Capability ID, Next Capability Pointer and
--		 * Capabilities register are all read-only.
-+		 * bits [14:0] of Capabilities register are all read-only.
-+		 * Bit 15 of Capabilities register is reserved.
- 		 */
--		.ro = ~0,
-+		.ro = GENMASK(30, 0),
- 	},
- 
- 	[PCI_EXP_DEVCAP / 4] = {
--		.ro = ~0,
-+		/*
-+		 * Bits [31:29] and [17:16] are reserved.
-+		 * Bits [27:18] are reserved for non-upstream ports.
-+		 * Bits 28 and [14:6] are reserved for non-endpoint devices.
-+		 * Other bits are read-only.
-+		 */
-+		.ro = BIT(15) | GENMASK(5, 0),
- 	},
- 
- 	[PCI_EXP_DEVCTL / 4] = {
--		/* Device control register is RW */
--		.rw = GENMASK(15, 0),
-+		/*
-+		 * Device control register is RW, except bit 15 which is
-+		 * reserved for non-endpoints or non-PCIe-to-PCI/X bridges.
-+		 */
-+		.rw = GENMASK(14, 0),
- 
- 		/*
- 		 * Device status register has bits 6 and [3:0] W1C, [5:4] RO,
--		 * the rest is reserved
-+		 * the rest is reserved. Also bit 6 is reserved for non-upstream
-+		 * ports.
- 		 */
--		.w1c = (BIT(6) | GENMASK(3, 0)) << 16,
-+		.w1c = GENMASK(3, 0) << 16,
- 		.ro = GENMASK(5, 4) << 16,
- 	},
- 
- 	[PCI_EXP_LNKCAP / 4] = {
--		/* All bits are RO, except bit 23 which is reserved */
--		.ro = lower_32_bits(~BIT(23)),
-+		/*
-+		 * All bits are RO, except bit 23 which is reserved and
-+		 * bit 18 which is reserved for non-upstream ports.
-+		 */
-+		.ro = lower_32_bits(~(BIT(23) | PCI_EXP_LNKCAP_CLKPM)),
- 	},
- 
- 	[PCI_EXP_LNKCTL / 4] = {
- 		/*
- 		 * Link control has bits [15:14], [11:3] and [1:0] RW, the
--		 * rest is reserved.
-+		 * rest is reserved. Bit 8 is reserved for non-upstream ports.
- 		 *
- 		 * Link status has bits [13:0] RO, and bits [15:14]
- 		 * W1C.
- 		 */
--		.rw = GENMASK(15, 14) | GENMASK(11, 3) | GENMASK(1, 0),
-+		.rw = GENMASK(15, 14) | GENMASK(11, 9) | GENMASK(7, 3) | GENMASK(1, 0),
- 		.ro = GENMASK(13, 0) << 16,
- 		.w1c = GENMASK(15, 14) << 16,
- 	},
+@@ -297,10 +297,7 @@ int pci_bridge_emul_init(struct pci_brid
+ 	if (bridge->has_pcie) {
+ 		bridge->conf.capabilities_pointer = PCI_CAP_PCIE_START;
+ 		bridge->pcie_conf.cap_id = PCI_CAP_ID_EXP;
+-		/* Set PCIe v2, root port, slot support */
+-		bridge->pcie_conf.cap =
+-			cpu_to_le16(PCI_EXP_TYPE_ROOT_PORT << 4 | 2 |
+-				    PCI_EXP_FLAGS_SLOT);
++		bridge->pcie_conf.cap |= cpu_to_le16(PCI_EXP_TYPE_ROOT_PORT << 4);
+ 		bridge->pcie_cap_regs_behavior =
+ 			kmemdup(pcie_cap_regs_behavior,
+ 				sizeof(pcie_cap_regs_behavior),
 
 
