@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3847497F50
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 13:24:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24E9D497F52
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 13:24:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239521AbiAXMYM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 07:24:12 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:41516 "EHLO
+        id S239508AbiAXMYU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 07:24:20 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:41556 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239523AbiAXMYL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 07:24:11 -0500
+        with ESMTP id S230132AbiAXMYU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 07:24:20 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D60BDB80F9A
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 12:24:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 951BCC340E1;
-        Mon, 24 Jan 2022 12:24:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1022B80F02
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 12:24:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EA36C340E1;
+        Mon, 24 Jan 2022 12:24:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643027048;
-        bh=9AhJSuu1iFr/X6zDk6wjzv6UuLa6/bR/SVZXWjM2q/M=;
+        s=korg; t=1643027057;
+        bh=XAnJyc8pucRxaOI+l2Orr8n2zhISLZCJHX0p/KNBy04=;
         h=Subject:To:Cc:From:Date:From;
-        b=IfFQFga3mO+bsOgfoStlyfO4W+0zspvxUV0YQEdaAr/a2GC7TpsLxx622AX6huGMI
-         mnoCbIYgNsdWhCnAP1qSLfmphjosZ8t9vK05qS4dqPUwmBODCItmh4fgFB/Ee3tzdc
-         vzda+1viBlXXWR9ADnU6ZfWiZ4T6UvtmcUiiREk8=
-Subject: FAILED: patch "[PATCH] drm/vmwgfx: Remove the dedicated memory accounting" failed to apply to 5.15-stable tree
+        b=BkUNwx7uN8yxO2wBrDkm6bccfAB6MWKODF0gBzmr/xUhImaK0TK85IttlYtVVhUF0
+         VEUNIkqjKD/svZ7CIzi5r9HQFZGMHOPHQDjCPTgjt3JxRNc/qSaW1q4l/UbETP9+Re
+         J70UKE2fSYyX3C6SY1U6BYoJIoGSylZ13UuUCWwU=
+Subject: FAILED: patch "[PATCH] drm/vmwgfx: Remove the dedicated memory accounting" failed to apply to 5.16-stable tree
 To:     zackr@vmware.com, krastevm@vmware.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 13:24:05 +0100
-Message-ID: <164302704513977@kroah.com>
+Date:   Mon, 24 Jan 2022 13:24:06 +0100
+Message-ID: <1643027046900@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
