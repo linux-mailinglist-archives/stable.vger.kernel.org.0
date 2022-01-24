@@ -2,83 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67C484982AF
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 15:49:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF1E34982B2
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 15:50:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230271AbiAXOtO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 09:49:14 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:52758 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230099AbiAXOtN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 09:49:13 -0500
+        id S232210AbiAXOuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 09:50:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41898 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229710AbiAXOuL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 09:50:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA0CCC06173B
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 06:50:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3A93DB810B2
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 14:49:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AD52C340E7;
-        Mon, 24 Jan 2022 14:49:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8973B61388
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 14:50:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F8ECC340E8;
+        Mon, 24 Jan 2022 14:50:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643035751;
-        bh=DqzlwRf0uEAjRthd1qzLAsY5I0b/pGUv5r5Jk88d+UY=;
+        s=korg; t=1643035810;
+        bh=Wr2DbBY/UaZYgrth7oRUc0g3WWDKb57ADWn3ehfCTUA=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=LIRJto3o40Kffd11Y7KPKHkz5FAi15i2aewNGTJKsjFwwgWu5hSt+6kr8lIM+CaV/
-         Wapq709ISaIJJyiBsmYP/sD6t6ceuTv07v4V73ZfejCjZ68oKQJ710PEJWC6HQNvbh
-         uliqGI/Lz/rLCyI6u8RmQDkiGMdeYqq5zlefvsQs=
-Date:   Mon, 24 Jan 2022 15:49:08 +0100
+        b=GVsd6hT65qDpgHNaW2Bz+I9C9bnp3pHm994rNGfnOYa8IBTQNqXxpTULcW+4DUT2i
+         AU3UfttInCmuiPs9UehKB20C3fGRmLBVZ51yMJnJiULL9tvT7v+QnQJ3MCujSqxuoh
+         qnH+7lZtPtyYPPGCXCT6tNA705W8NR1HjhgA0kCg=
+Date:   Mon, 24 Jan 2022 15:50:07 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     john.p.donnelly@oracle.com
-Cc:     bhe@redhat.com, 42.hyeyoo@gmail.com, David.Laight@aculab.com,
-        akpm@linux-foundation.org, bp@alien8.de, cl@linux.com,
-        david@redhat.com, hch@lst.de, iamjoonsoo.kim@lge.com,
-        m.szyprowski@samsung.com, penberg@kernel.org, rientjes@google.com,
-        robin.murphy@arm.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, vbabka@suse.cz
-Subject: Re: FAILED: patch "[PATCH] dma/pool: create dma atomic pool only if
- dma zone has managed" failed to apply to 5.4-stable tree
-Message-ID: <Ye68ZHq02pB59PF/@kroah.com>
-References: <164294819620733@kroah.com>
- <d9eec78f-e0e8-cc6d-ffe4-fbd31c8bb6a9@oracle.com>
+To:     Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Cc:     broonie@kernel.org, kai.vehmanen@linux.intel.com,
+        ranjani.sridharan@linux.intel.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] ASoC: SOF: sof-audio: setup sched widgets
+ during pipeline" failed to apply to 5.16-stable tree
+Message-ID: <Ye68n3TJEfqieJS8@kroah.com>
+References: <16430327951439@kroah.com>
+ <306d7c1b-32e9-7078-cdb9-191165d394b4@linux.intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <d9eec78f-e0e8-cc6d-ffe4-fbd31c8bb6a9@oracle.com>
+In-Reply-To: <306d7c1b-32e9-7078-cdb9-191165d394b4@linux.intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 24, 2022 at 08:37:43AM -0600, john.p.donnelly@oracle.com wrote:
-> On 1/23/22 8:29 AM, gregkh@linuxfoundation.org wrote:
+On Mon, Jan 24, 2022 at 08:32:26AM -0600, Pierre-Louis Bossart wrote:
+> 
+> 
+> On 1/24/22 07:59, gregkh@linuxfoundation.org wrote:
 > > 
-> > The patch below does not apply to the 5.4-stable tree.
+> > The patch below does not apply to the 5.16-stable tree.
 > > If someone wants it applied there, or to any other stable or longterm
 > > tree, then please email the backport, including the original git commit
 > > id to <stable@vger.kernel.org>.
-> > 
-> > thanks,
-> > 
-> > greg k-h
 > 
+> Yes, it looks like we've missing two dependencies. the following
+> sequence applies on top of v5.16.2
 > 
-> Hi,
+> git cherry-pick 7cc7b9ba21d4978d19f0e3edc2b00d44c9d66ff6
+> git cherry-pick b2ebcf42a48f4560862bb811f3268767d17ebdcd
 > 
+> and then this commit
+> git cherry-pick 01429183f479c54c1b5d15453a8ce574ea43e525
 > 
-> FWIIW :
-> 
-> We picked up the suspect "Fixes"  commit :
-> 
-> 2020-10-01 | x86/kdump: Always reserve the low 1M when the crashkernel
-> option is specified
-> 
-> In an LTS update:  5.4.68,  and I do not see the issue reported in the
-> summary :  "DMA: preallocated 128 KiB GFP_KERNEL pool for atomic allocations
-> " , when a kdump is invoked. We test kdump quite regularly on a variety of
-> platforms.
+> I would recommend adding these three patches to avoid issues with
+> dynamic pipelines.
 
-That commit was in 5.4.69, not .68.  Or am I confused here?
-
-that is why the 5.4 FAILED email was sent.
-
-thanks,
+Thanks, all now queued up.
 
 greg k-h
