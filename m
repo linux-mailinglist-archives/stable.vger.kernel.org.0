@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D72549A93F
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:20:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F4FD49A93E
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:20:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1322358AbiAYDVh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1322362AbiAYDVh (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 24 Jan 2022 22:21:37 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58810 "EHLO
+Received: from ams.source.kernel.org ([145.40.68.75]:58856 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381432AbiAXUUT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:20:19 -0500
+        with ESMTP id S1354550AbiAXUU0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:20:26 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7E062B8121C;
-        Mon, 24 Jan 2022 20:20:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A8D9C340E5;
-        Mon, 24 Jan 2022 20:20:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8B04CB8123D;
+        Mon, 24 Jan 2022 20:20:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4B49C340E5;
+        Mon, 24 Jan 2022 20:20:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055617;
-        bh=MONWWN5Pw6rnKPiBEgg31qpoflv/TBpsiZxOuGbiM5U=;
+        s=korg; t=1643055620;
+        bh=Yp1NnFfvlH+1ASCwb2Hc7AdUpcyrvhhExdH1MabsrVw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kg3R5esM/WAn8Ee8IpdxAdNChw8OZJabuEFCNJ52mDX384F4n+oq6o4Mx4s5iiDVw
-         IRC4GTGK4wHzKZAwUnArwxSsynmtjBGXJgEQU8rhq/THID55os9Ccub558jH/2yvUl
-         SIDQh4SdQYIBHD6/MXdgdWNp2QYiK20ANHKM43+U=
+        b=YGv3F3rJT6OfTmZIm4jkEtpG6JP7dlGn0ocg0Y14HnpcK0U5BpiLOClblbpKDN9qb
+         AzWqrtHhpfCqwUwNyVxuO88TvmTL4tRzAvQb12CirlxdhKa58PCTOiIwuGIWKpjX5a
+         +ty/XIjeWIdhOMOVtw1GOBF9bDaY5T95OZGXrL3g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 209/846] samples: bpf: Fix unknown warning group build warning on Clang
-Date:   Mon, 24 Jan 2022 19:35:26 +0100
-Message-Id: <20220124184108.131751511@linuxfoundation.org>
+Subject: [PATCH 5.15 210/846] media: dib8000: Fix a memleak in dib8000_init()
+Date:   Mon, 24 Jan 2022 19:35:27 +0100
+Message-Id: <20220124184108.167517880@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -47,47 +46,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Lobakin <alexandr.lobakin@intel.com>
+From: Zhou Qingyang <zhou1615@umn.edu>
 
-[ Upstream commit 6f670d06e47c774bc065aaa84a527a4838f34bd8 ]
+[ Upstream commit 8dbdcc7269a83305ee9d677b75064d3530a48ee2 ]
 
-Clang doesn't have 'stringop-truncation' group like GCC does, and
-complains about it when building samples which use xdp_sample_user
-infra:
+In dib8000_init(), the variable fe is not freed or passed out on the
+failure of dib8000_identify(&state->i2c), which could lead to a memleak.
 
- samples/bpf/xdp_sample_user.h:48:32: warning: unknown warning group '-Wstringop-truncation', ignored [-Wunknown-warning-option]
- #pragma GCC diagnostic ignored "-Wstringop-truncation"
-                                ^
-[ repeat ]
+Fix this bug by adding a kfree of fe in the error path.
 
-Those are harmless, but avoidable when guarding it with ifdef.
-I could guard push/pop as well, but this would require one more
-ifdef cruft around a single line which I don't think is reasonable.
+This bug was found by a static analyzer. The analysis employs
+differential checking to identify inconsistent security operations
+(e.g., checks or kfrees) between two code paths and confirms that the
+inconsistent operations are not recovered in the current function or
+the callers, so they constitute bugs.
 
-Fixes: 156f886cf697 ("samples: bpf: Add basic infrastructure for XDP samples")
-Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
-Link: https://lore.kernel.org/bpf/20211203195004.5803-3-alexandr.lobakin@intel.com
+Note that, as a bug found by static analysis, it can be a false
+positive or hard to trigger. Multiple researchers have cross-reviewed
+the bug.
+
+Builds with CONFIG_DVB_DIB8000=m show no new warnings,
+and our static analyzer no longer warns about this code.
+
+Fixes: 77e2c0f5d471 ("V4L/DVB (12900): DiB8000: added support for DiBcom ISDB-T/ISDB-Tsb demodulator DiB8000")
+Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/xdp_sample_user.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/media/dvb-frontends/dib8000.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/samples/bpf/xdp_sample_user.h b/samples/bpf/xdp_sample_user.h
-index d97465ff8c62c..5f44b877ecf5f 100644
---- a/samples/bpf/xdp_sample_user.h
-+++ b/samples/bpf/xdp_sample_user.h
-@@ -45,7 +45,9 @@ const char *get_driver_name(int ifindex);
- int get_mac_addr(int ifindex, void *mac_addr);
+diff --git a/drivers/media/dvb-frontends/dib8000.c b/drivers/media/dvb-frontends/dib8000.c
+index bb02354a48b81..d67f2dd997d06 100644
+--- a/drivers/media/dvb-frontends/dib8000.c
++++ b/drivers/media/dvb-frontends/dib8000.c
+@@ -4473,8 +4473,10 @@ static struct dvb_frontend *dib8000_init(struct i2c_adapter *i2c_adap, u8 i2c_ad
  
- #pragma GCC diagnostic push
-+#ifndef __clang__
- #pragma GCC diagnostic ignored "-Wstringop-truncation"
-+#endif
- __attribute__((unused))
- static inline char *safe_strncpy(char *dst, const char *src, size_t size)
- {
+ 	state->timf_default = cfg->pll->timf;
+ 
+-	if (dib8000_identify(&state->i2c) == 0)
++	if (dib8000_identify(&state->i2c) == 0) {
++		kfree(fe);
+ 		goto error;
++	}
+ 
+ 	dibx000_init_i2c_master(&state->i2c_master, DIB8000, state->i2c.adap, state->i2c.addr);
+ 
 -- 
 2.34.1
 
