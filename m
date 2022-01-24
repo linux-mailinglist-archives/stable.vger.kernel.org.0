@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4271B498D63
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:34:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C59EE499439
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:42:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346739AbiAXTb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:31:57 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:50650 "EHLO
+        id S1388781AbiAXUkF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:40:05 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:39724 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343521AbiAXT1X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:27:23 -0500
+        with ESMTP id S1386882AbiAXUgF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:36:05 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 21FC1B8124B;
-        Mon, 24 Jan 2022 19:27:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 243A1C340E5;
-        Mon, 24 Jan 2022 19:27:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9A887B80FA1;
+        Mon, 24 Jan 2022 20:36:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9907C340E5;
+        Mon, 24 Jan 2022 20:36:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052440;
-        bh=vdjIyARKgv9EcTFHB7v6+qdFjZqx2Du06oVGbIDEcyk=;
+        s=korg; t=1643056562;
+        bh=JjoTPxcrsm13yYDz2X0aCGOrakWj/cvM4DjQzFBa75A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fxN6cgpAKc1PLy2f+50C0JHmsI1wG2iE7xQ6l9pRm2Cm02Di0CMFeiZ9j6TPYniHF
-         JgC89bKTrX4BC9Jg6od3Rx4i/Cdq/bS2u6GaHFd+3Nlaupgj3urHq1JERonnkJzpO+
-         bhkoDDd9iXz4KGilBQsitd5gqYVXTA2dY87l7tMc=
+        b=ChPu5YnjUmHHvGPMNRSiQ1BRcx6DQFxbuh+gUSe1ExHOXjcq5LReOYoyWbQybeNDG
+         04zp9m103iRmR2iVLnom/JlwNTfB/gexscA8SXN4BPOx2VIAjdMiWd2y1ll54a9AXj
+         7ouzwuMSiqA7mZqVDSdTY9iGJLjmL4O+wshFY6UQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dafna Hirschfeld <dafna.hirschfeld@collabora.com>,
+        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 058/320] media: mtk-vcodec: call v4l2_m2m_ctx_release first when file is released
+Subject: [PATCH 5.15 525/846] media: saa7146: hexium_orion: Fix a NULL pointer dereference in hexium_attach()
 Date:   Mon, 24 Jan 2022 19:40:42 +0100
-Message-Id: <20220124183955.713557769@linuxfoundation.org>
+Message-Id: <20220124184119.119583436@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,83 +46,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+From: Zhou Qingyang <zhou1615@umn.edu>
 
-[ Upstream commit 9f89c881bffbdffe4060ffaef3489a2830a6dd9c ]
+[ Upstream commit 348df8035301dd212e3cc2860efe4c86cb0d3303 ]
 
-The func v4l2_m2m_ctx_release waits for currently running jobs
-to finish and then stop streaming both queues and frees the buffers.
-All this should be done before the call to mtk_vcodec_enc_release
-which frees the encoder handler. This fixes null-pointer dereference bug:
+In hexium_attach(dev, info), saa7146_vv_init() is called to allocate
+a new memory for dev->vv_data. In hexium_detach(), saa7146_vv_release()
+will be called and there is a dereference of dev->vv_data in
+saa7146_vv_release(), which could lead to a NULL pointer dereference
+on failure of saa7146_vv_init() according to the following logic.
 
-[  638.028076] Mem abort info:
-[  638.030932]   ESR = 0x96000004
-[  638.033978]   EC = 0x25: DABT (current EL), IL = 32 bits
-[  638.039293]   SET = 0, FnV = 0
-[  638.042338]   EA = 0, S1PTW = 0
-[  638.045474]   FSC = 0x04: level 0 translation fault
-[  638.050349] Data abort info:
-[  638.053224]   ISV = 0, ISS = 0x00000004
-[  638.057055]   CM = 0, WnR = 0
-[  638.060018] user pgtable: 4k pages, 48-bit VAs, pgdp=000000012b6db000
-[  638.066485] [00000000000001a0] pgd=0000000000000000, p4d=0000000000000000
-[  638.073277] Internal error: Oops: 96000004 [#1] SMP
-[  638.078145] Modules linked in: rfkill mtk_vcodec_dec mtk_vcodec_enc uvcvideo mtk_mdp mtk_vcodec_common videobuf2_dma_contig v4l2_h264 cdc_ether v4l2_mem2mem videobuf2_vmalloc usbnet videobuf2_memops videobuf2_v4l2 r8152 videobuf2_common videodev cros_ec_sensors cros_ec_sensors_core industrialio_triggered_buffer kfifo_buf elan_i2c elants_i2c sbs_battery mc cros_usbpd_charger cros_ec_chardev cros_usbpd_logger crct10dif_ce mtk_vpu fuse ip_tables x_tables ipv6
-[  638.118583] CPU: 0 PID: 212 Comm: kworker/u8:5 Not tainted 5.15.0-06427-g58a1d4dcfc74-dirty #109
-[  638.127357] Hardware name: Google Elm (DT)
-[  638.131444] Workqueue: mtk-vcodec-enc mtk_venc_worker [mtk_vcodec_enc]
-[  638.137974] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[  638.144925] pc : vp8_enc_encode+0x34/0x2b0 [mtk_vcodec_enc]
-[  638.150493] lr : venc_if_encode+0xac/0x1b0 [mtk_vcodec_enc]
-[  638.156060] sp : ffff8000124d3c40
-[  638.159364] x29: ffff8000124d3c40 x28: 0000000000000000 x27: 0000000000000000
-[  638.166493] x26: 0000000000000000 x25: ffff0000e7f252d0 x24: ffff8000124d3d58
-[  638.173621] x23: ffff8000124d3d58 x22: ffff8000124d3d60 x21: 0000000000000001
-[  638.180750] x20: ffff80001137e000 x19: 0000000000000000 x18: 0000000000000001
-[  638.187878] x17: 000000040044ffff x16: 00400032b5503510 x15: 0000000000000000
-[  638.195006] x14: ffff8000118536c0 x13: ffff8000ee1da000 x12: 0000000030d4d91d
-[  638.202134] x11: 0000000000000000 x10: 0000000000000980 x9 : ffff8000124d3b20
-[  638.209262] x8 : ffff0000c18d4ea0 x7 : ffff0000c18d44c0 x6 : ffff0000c18d44c0
-[  638.216391] x5 : ffff80000904a3b0 x4 : ffff8000124d3d58 x3 : ffff8000124d3d60
-[  638.223519] x2 : ffff8000124d3d78 x1 : 0000000000000001 x0 : ffff80001137efb8
-[  638.230648] Call trace:
-[  638.233084]  vp8_enc_encode+0x34/0x2b0 [mtk_vcodec_enc]
-[  638.238304]  venc_if_encode+0xac/0x1b0 [mtk_vcodec_enc]
-[  638.243525]  mtk_venc_worker+0x110/0x250 [mtk_vcodec_enc]
-[  638.248918]  process_one_work+0x1f8/0x498
-[  638.252923]  worker_thread+0x140/0x538
-[  638.256664]  kthread+0x148/0x158
-[  638.259884]  ret_from_fork+0x10/0x20
-[  638.263455] Code: f90023f9 2a0103f5 aa0303f6 aa0403f8 (f940d277)
-[  638.269538] ---[ end trace e374fc10f8e181f5 ]---
+Both hexium_attach() and hexium_detach() are callback functions of
+the variable 'extension', so there exists a possible call chain directly
+from hexium_attach() to hexium_detach():
 
-[gst-master] root@debian:~/gst-build# [  638.019193] Unable to handle kernel NULL pointer dereference at virtual address 00000000000001a0
-Fixes: 4e855a6efa547 ("[media] vcodec: mediatek: Add Mediatek V4L2 Video Encoder Driver")
-Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+hexium_attach(dev, info) -- fail to alloc memory to dev->vv_data
+	|		    		in saa7146_vv_init().
+	|
+	|
+hexium_detach() -- a dereference of dev->vv_data in saa7146_vv_release()
+
+Fix this bug by adding a check of saa7146_vv_init().
+
+This bug was found by a static analyzer. The analysis employs
+differential checking to identify inconsistent security operations
+(e.g., checks or kfrees) between two code paths and confirms that the
+inconsistent operations are not recovered in the current function or
+the callers, so they constitute bugs.
+
+Note that, as a bug found by static analysis, it can be a false
+positive or hard to trigger. Multiple researchers have cross-reviewed
+the bug.
+
+Builds with CONFIG_VIDEO_HEXIUM_ORION=m show no new warnings,
+and our static analyzer no longer warns about this code.
+
+Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/pci/saa7146/hexium_orion.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.c b/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.c
-index 1d82aa2b6017c..dea0ee2cb7245 100644
---- a/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.c
-+++ b/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.c
-@@ -209,11 +209,11 @@ static int fops_vcodec_release(struct file *file)
- 	mtk_v4l2_debug(1, "[%d] encoder", ctx->id);
- 	mutex_lock(&dev->dev_mutex);
+diff --git a/drivers/media/pci/saa7146/hexium_orion.c b/drivers/media/pci/saa7146/hexium_orion.c
+index 39d14c179d229..2eb4bee16b71f 100644
+--- a/drivers/media/pci/saa7146/hexium_orion.c
++++ b/drivers/media/pci/saa7146/hexium_orion.c
+@@ -355,10 +355,16 @@ static struct saa7146_ext_vv vv_data;
+ static int hexium_attach(struct saa7146_dev *dev, struct saa7146_pci_extension_data *info)
+ {
+ 	struct hexium *hexium = (struct hexium *) dev->ext_priv;
++	int ret;
  
-+	v4l2_m2m_ctx_release(ctx->m2m_ctx);
- 	mtk_vcodec_enc_release(ctx);
- 	v4l2_fh_del(&ctx->fh);
- 	v4l2_fh_exit(&ctx->fh);
- 	v4l2_ctrl_handler_free(&ctx->ctrl_hdl);
--	v4l2_m2m_ctx_release(ctx->m2m_ctx);
+ 	DEB_EE("\n");
  
- 	list_del_init(&ctx->list);
- 	kfree(ctx);
+-	saa7146_vv_init(dev, &vv_data);
++	ret = saa7146_vv_init(dev, &vv_data);
++	if (ret) {
++		pr_err("Error in saa7146_vv_init()\n");
++		return ret;
++	}
++
+ 	vv_data.vid_ops.vidioc_enum_input = vidioc_enum_input;
+ 	vv_data.vid_ops.vidioc_g_input = vidioc_g_input;
+ 	vv_data.vid_ops.vidioc_s_input = vidioc_s_input;
 -- 
 2.34.1
 
