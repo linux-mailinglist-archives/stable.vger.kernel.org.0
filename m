@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D340498E61
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:44:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A69A498A64
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:03:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240913AbiAXTk4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:40:56 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:35730 "EHLO
+        id S1345240AbiAXTDI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:03:08 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:59474 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348643AbiAXTiP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:38:15 -0500
+        with ESMTP id S1345779AbiAXTBF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:01:05 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A844D6152B;
-        Mon, 24 Jan 2022 19:38:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CFEFC340E5;
-        Mon, 24 Jan 2022 19:38:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D860860915;
+        Mon, 24 Jan 2022 19:01:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C96AC340E5;
+        Mon, 24 Jan 2022 19:01:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053094;
-        bh=SO3cHiV5I28ThnTZPDoMcc4LPiomENv4E0MOcsvj+qg=;
+        s=korg; t=1643050864;
+        bh=Up43H3zYk3ZP2Hqn8ayRSbG3xGzWcLCx7omRLNqeFEY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g/AjQLa+O5bQuEBXygm/0vpXJSucQDiue2/kWWR7YqtoOHxJtivrwPG9S+aDijxke
-         1DDNKWg5zW8GthO2uWgro/y3FJC2lTlSnyOsf3SCykRGp6xPwjg9YmpAFzX2rahahc
-         5RdGxVoAsMlGs/ibOu0SGIIpY/0jg1IyQMVJ6exM=
+        b=v+glVPtiQ5nnr9QJKEPQckXmKaUF+tofXihrQ7HkpGmnt+6FKrGLIF72nxcnmWK98
+         hEo/T7zkYmsLDJoDE/vFzl+LUioWTo8GNMPBDK1r6LhxmIuBk56P0AKhBb/Nwx6zGe
+         kmvV7+YnWL34ikaqXH8d1q0tsjvLWZsubswDJItc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Baoquan He <bhe@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 242/320] scsi: sr: Dont use GFP_DMA
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 136/157] netns: add schedule point in ops_exit_list()
 Date:   Mon, 24 Jan 2022 19:43:46 +0100
-Message-Id: <20220124184002.221437620@linuxfoundation.org>
+Message-Id: <20220124183937.090378830@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,61 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit d94d94969a4ba07a43d62429c60372320519c391 ]
+commit 2836615aa22de55b8fca5e32fe1b27a67cda625e upstream.
 
-The allocated buffers are used as a command payload, for which the block
-layer and/or DMA API do the proper bounce buffering if needed.
+When under stress, cleanup_net() can have to dismantle
+netns in big numbers. ops_exit_list() currently calls
+many helpers [1] that have no schedule point, and we can
+end up with soft lockups, particularly on hosts
+with many cpus.
 
-Link: https://lore.kernel.org/r/20211222090842.920724-1-hch@lst.de
-Reported-by: Baoquan He <bhe@redhat.com>
-Reviewed-by: Baoquan He <bhe@redhat.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Even for moderate amount of netns processed by cleanup_net()
+this patch avoids latency spikes.
+
+[1] Some of these helpers like fib_sync_up() and fib_sync_down_dev()
+are very slow because net/ipv4/fib_semantics.c uses host-wide hash tables,
+and ifindex is used as the only input of two hash functions.
+    ifindexes tend to be the same for all netns (lo.ifindex==1 per instance)
+    This will be fixed in a separate patch.
+
+Fixes: 72ad937abd0a ("net: Add support for batching network namespace cleanups")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/sr.c        | 2 +-
- drivers/scsi/sr_vendor.c | 4 ++--
- 2 files changed, 3 insertions(+), 3 deletions(-)
+ net/core/net_namespace.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
-index 279dea628620d..310da62cda263 100644
---- a/drivers/scsi/sr.c
-+++ b/drivers/scsi/sr.c
-@@ -887,7 +887,7 @@ static void get_capabilities(struct scsi_cd *cd)
- 
- 
- 	/* allocate transfer buffer */
--	buffer = kmalloc(512, GFP_KERNEL | GFP_DMA);
-+	buffer = kmalloc(512, GFP_KERNEL);
- 	if (!buffer) {
- 		sr_printk(KERN_ERR, cd, "out of memory.\n");
- 		return;
-diff --git a/drivers/scsi/sr_vendor.c b/drivers/scsi/sr_vendor.c
-index b9db2ec6d0361..996bccadd3866 100644
---- a/drivers/scsi/sr_vendor.c
-+++ b/drivers/scsi/sr_vendor.c
-@@ -113,7 +113,7 @@ int sr_set_blocklength(Scsi_CD *cd, int blocklength)
- 	if (cd->vendor == VENDOR_TOSHIBA)
- 		density = (blocklength > 2048) ? 0x81 : 0x83;
- 
--	buffer = kmalloc(512, GFP_KERNEL | GFP_DMA);
-+	buffer = kmalloc(512, GFP_KERNEL);
- 	if (!buffer)
- 		return -ENOMEM;
- 
-@@ -161,7 +161,7 @@ int sr_cd_check(struct cdrom_device_info *cdi)
- 	if (cd->cdi.mask & CDC_MULTI_SESSION)
- 		return 0;
- 
--	buffer = kmalloc(512, GFP_KERNEL | GFP_DMA);
-+	buffer = kmalloc(512, GFP_KERNEL);
- 	if (!buffer)
- 		return -ENOMEM;
- 
--- 
-2.34.1
-
+--- a/net/core/net_namespace.c
++++ b/net/core/net_namespace.c
+@@ -132,8 +132,10 @@ static void ops_exit_list(const struct p
+ {
+ 	struct net *net;
+ 	if (ops->exit) {
+-		list_for_each_entry(net, net_exit_list, exit_list)
++		list_for_each_entry(net, net_exit_list, exit_list) {
+ 			ops->exit(net);
++			cond_resched();
++		}
+ 	}
+ 	if (ops->exit_batch)
+ 		ops->exit_batch(net_exit_list);
 
 
