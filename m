@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E88B49808A
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:11:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 315F049808B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:11:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242908AbiAXNLY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 08:11:24 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42974 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242887AbiAXNLX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:11:23 -0500
+        id S242863AbiAXNL3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 08:11:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46670 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242951AbiAXNL1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:11:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C086CC06173D
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 05:11:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A91CD61209
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:11:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86733C340E1;
-        Mon, 24 Jan 2022 13:11:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 88AC8B80FA8
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:11:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91E33C340E1;
+        Mon, 24 Jan 2022 13:11:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643029882;
-        bh=VpgLP3gq4gRA1Mvn3zSKpFu/1vVD4VjSN6XKVGjsiRk=;
+        s=korg; t=1643029885;
+        bh=hnjMwk4Vs231CJrfWczkABHhnrfl7ha5BuHA67orKfA=;
         h=Subject:To:Cc:From:Date:From;
-        b=CDiI8VJMy3PvttwsNNMFTdS/RVNkqHw0cdfu/nzEAfEIKPtbmnxpRwmiwMVZvglJZ
-         eUAEegyn6paoF44Sw7TD2xVSYJxNnPyFLTR1bxZZ1TAWZpCEPsAIc0x7x54N2v2pB9
-         XhVhEnJ0gX+UtYUWEjrRSQlq7KT4uQisznIznSMI=
-Subject: FAILED: patch "[PATCH] taskstats: Cleanup the use of task->exit_code" failed to apply to 4.14-stable tree
+        b=scwY9FUT2L0Z+BnO+FsaC78qkLGNwI2eS1pOSOK4wPgl01dOwVs/j6Nej1lRbh7ev
+         L+IjHRSo08RZtr5PkKJ72LIf4q7OEp0nLJpGlgLGk0C9Wi7fXLNV89qPpG5HblJeT0
+         FQStuok4xGfYerzLzzqTZZ3laYjkRo5iK7K9qUkU=
+Subject: FAILED: patch "[PATCH] taskstats: Cleanup the use of task->exit_code" failed to apply to 4.19-stable tree
 To:     ebiederm@xmission.com, bsingharora@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 14:11:14 +0100
-Message-ID: <1643029874223130@kroah.com>
+Date:   Mon, 24 Jan 2022 14:11:15 +0100
+Message-ID: <1643029875243224@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
