@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A5E4499C79
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:08:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC294499981
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:45:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1579426AbiAXWFg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:05:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59488 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1574737AbiAXV7D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:59:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77E9CC038AFD;
-        Mon, 24 Jan 2022 12:39:12 -0800 (PST)
+        id S1455556AbiAXVfh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:35:37 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:49694 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378461AbiAXV3B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:29:01 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EDDA61382;
-        Mon, 24 Jan 2022 20:39:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06A51C340E5;
-        Mon, 24 Jan 2022 20:39:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0653C61521;
+        Mon, 24 Jan 2022 21:29:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1BC5C33E60;
+        Mon, 24 Jan 2022 21:28:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056751;
-        bh=GyS828HD/W5brWBjztyF7pzethTmRJ7htmn28hD2mHA=;
+        s=korg; t=1643059739;
+        bh=Fl5rzd6FQiE4olvgjq95Hwc7BEQkLP+TG+oqGxrulSU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/FKX0xpUsRcrObP67twklf5z/cvz3Ne+HV50LrwTYZkDWaLu98zTZKxkQSKne39c
-         u6CPoo5mdp8ytkaRcciGWhGsZbrRkgH2SiwMUT6o0FaIT7Sx7Q62pXzcY/hQZvBX/V
-         LppjD0ikb8OpABnSSnRN32NIwaQRUQyUCUEh6dDk=
+        b=S5AsVKMyVxkyfI8OiwnpF4ESGaKIP9+CNk9saiGuRpyctlvDyFsaEvxsjvCFjoRnV
+         Orc2pm3fONc/4LZO8t7IZw25KAtyLxsBAH4E6IaIRqjS7o26KuFFHTvsYUjChRSubK
+         6jrjKIvlyyzR9UNZ1EkfKbjojcRbqhE5Kgw/dvRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Langsdorf <mlangsdo@redhat.com>,
-        Bob Moore <robert.moore@intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Danielle Ratson <danieller@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 589/846] ACPICA: actypes.h: Expand the ACPI_ACCESS_ definitions
+Subject: [PATCH 5.16 0717/1039] mlxsw: pci: Avoid flow control for EMAD packets
 Date:   Mon, 24 Jan 2022 19:41:46 +0100
-Message-Id: <20220124184121.358560131@linuxfoundation.org>
+Message-Id: <20220124184149.432272027@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,54 +46,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Langsdorf <mlangsdo@redhat.com>
+From: Danielle Ratson <danieller@nvidia.com>
 
-[ Upstream commit f81bdeaf816142e0729eea0cc84c395ec9673151 ]
+[ Upstream commit d43e4271747ace01a27a49a97a397cb4219f6487 ]
 
-ACPICA commit bc02c76d518135531483dfc276ed28b7ee632ce1
+Locally generated packets ingress the device through its CPU port. When
+the CPU port is congested and there are not enough credits in its
+headroom buffer, packets can be dropped.
 
-The current ACPI_ACCESS_*_WIDTH defines do not provide a way to
-test that size is small enough to not cause an overflow when
-applied to a 32-bit integer.
+While this might be acceptable for data packets that traverse the
+network, configuration packets exchanged between the host and the device
+(EMADs) should not be subjected to this flow control.
 
-Rather than adding more magic numbers, add ACPI_ACCESS_*_SHIFT,
-ACPI_ACCESS_*_MAX, and ACPI_ACCESS_*_DEFAULT #defines and
-redefine ACPI_ACCESS_*_WIDTH in terms of the new #defines.
+The "sdq_lp" bit in the SDQ (Send Descriptor Queue) context allows the
+host to instruct the device to treat packets sent on this queue as
+"local processing" and always process them, regardless of the state of
+the CPU port's headroom.
 
-This was inititally reported on Linux where a size of 102 in
-ACPI_ACCESS_BIT_WIDTH caused an overflow error in the SPCR
-initialization code.
+Add the definition of this bit and set it for the dedicated SDQ reserved
+for the transmission of EMAD packets. This makes the "local processing"
+bit in the WQE (Work Queue Element) redundant, so clear it.
 
-Link: https://github.com/acpica/acpica/commit/bc02c76d
-Signed-off-by: Mark Langsdorf <mlangsdo@redhat.com>
-Signed-off-by: Bob Moore <robert.moore@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Danielle Ratson <danieller@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/acpi/actypes.h | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/cmd.h | 12 ++++++++++++
+ drivers/net/ethernet/mellanox/mlxsw/pci.c |  6 +++++-
+ 2 files changed, 17 insertions(+), 1 deletion(-)
 
-diff --git a/include/acpi/actypes.h b/include/acpi/actypes.h
-index 92c71dfce0d5d..cefbb7ad253e0 100644
---- a/include/acpi/actypes.h
-+++ b/include/acpi/actypes.h
-@@ -536,8 +536,14 @@ typedef u64 acpi_integer;
-  * Can be used with access_width of struct acpi_generic_address and access_size of
-  * struct acpi_resource_generic_register.
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/cmd.h b/drivers/net/ethernet/mellanox/mlxsw/cmd.h
+index 392ce3cb27f72..51b260d54237e 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/cmd.h
++++ b/drivers/net/ethernet/mellanox/mlxsw/cmd.h
+@@ -935,6 +935,18 @@ static inline int mlxsw_cmd_sw2hw_rdq(struct mlxsw_core *mlxsw_core,
   */
--#define ACPI_ACCESS_BIT_WIDTH(size)     (1 << ((size) + 2))
--#define ACPI_ACCESS_BYTE_WIDTH(size)    (1 << ((size) - 1))
-+#define ACPI_ACCESS_BIT_SHIFT		2
-+#define ACPI_ACCESS_BYTE_SHIFT		-1
-+#define ACPI_ACCESS_BIT_MAX		(31 - ACPI_ACCESS_BIT_SHIFT)
-+#define ACPI_ACCESS_BYTE_MAX		(31 - ACPI_ACCESS_BYTE_SHIFT)
-+#define ACPI_ACCESS_BIT_DEFAULT		(8 - ACPI_ACCESS_BIT_SHIFT)
-+#define ACPI_ACCESS_BYTE_DEFAULT	(8 - ACPI_ACCESS_BYTE_SHIFT)
-+#define ACPI_ACCESS_BIT_WIDTH(size)	(1 << ((size) + ACPI_ACCESS_BIT_SHIFT))
-+#define ACPI_ACCESS_BYTE_WIDTH(size)	(1 << ((size) + ACPI_ACCESS_BYTE_SHIFT))
+ MLXSW_ITEM32(cmd_mbox, sw2hw_dq, cq, 0x00, 24, 8);
  
- /*******************************************************************************
-  *
++enum mlxsw_cmd_mbox_sw2hw_dq_sdq_lp {
++	MLXSW_CMD_MBOX_SW2HW_DQ_SDQ_LP_WQE,
++	MLXSW_CMD_MBOX_SW2HW_DQ_SDQ_LP_IGNORE_WQE,
++};
++
++/* cmd_mbox_sw2hw_dq_sdq_lp
++ * SDQ local Processing
++ * 0: local processing by wqe.lp
++ * 1: local processing (ignoring wqe.lp)
++ */
++MLXSW_ITEM32(cmd_mbox, sw2hw_dq, sdq_lp, 0x00, 23, 1);
++
+ /* cmd_mbox_sw2hw_dq_sdq_tclass
+  * SDQ: CPU Egress TClass
+  * RDQ: Reserved
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/pci.c b/drivers/net/ethernet/mellanox/mlxsw/pci.c
+index cd3331a077bbf..f91dde4df152b 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/pci.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/pci.c
+@@ -285,6 +285,7 @@ static int mlxsw_pci_sdq_init(struct mlxsw_pci *mlxsw_pci, char *mbox,
+ 			      struct mlxsw_pci_queue *q)
+ {
+ 	int tclass;
++	int lp;
+ 	int i;
+ 	int err;
+ 
+@@ -292,9 +293,12 @@ static int mlxsw_pci_sdq_init(struct mlxsw_pci *mlxsw_pci, char *mbox,
+ 	q->consumer_counter = 0;
+ 	tclass = q->num == MLXSW_PCI_SDQ_EMAD_INDEX ? MLXSW_PCI_SDQ_EMAD_TC :
+ 						      MLXSW_PCI_SDQ_CTL_TC;
++	lp = q->num == MLXSW_PCI_SDQ_EMAD_INDEX ? MLXSW_CMD_MBOX_SW2HW_DQ_SDQ_LP_IGNORE_WQE :
++						  MLXSW_CMD_MBOX_SW2HW_DQ_SDQ_LP_WQE;
+ 
+ 	/* Set CQ of same number of this SDQ. */
+ 	mlxsw_cmd_mbox_sw2hw_dq_cq_set(mbox, q->num);
++	mlxsw_cmd_mbox_sw2hw_dq_sdq_lp_set(mbox, lp);
+ 	mlxsw_cmd_mbox_sw2hw_dq_sdq_tclass_set(mbox, tclass);
+ 	mlxsw_cmd_mbox_sw2hw_dq_log2_dq_sz_set(mbox, 3); /* 8 pages */
+ 	for (i = 0; i < MLXSW_PCI_AQ_PAGES; i++) {
+@@ -1678,7 +1682,7 @@ static int mlxsw_pci_skb_transmit(void *bus_priv, struct sk_buff *skb,
+ 
+ 	wqe = elem_info->elem;
+ 	mlxsw_pci_wqe_c_set(wqe, 1); /* always report completion */
+-	mlxsw_pci_wqe_lp_set(wqe, !!tx_info->is_emad);
++	mlxsw_pci_wqe_lp_set(wqe, 0);
+ 	mlxsw_pci_wqe_type_set(wqe, MLXSW_PCI_WQE_TYPE_ETHERNET);
+ 
+ 	err = mlxsw_pci_wqe_frag_map(mlxsw_pci, wqe, 0, skb->data,
 -- 
 2.34.1
 
