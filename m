@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EDF9499C87
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:09:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 00B8F499603
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:16:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1579554AbiAXWF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:05:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59510 "EHLO
+        id S1391852AbiAXU6U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:58:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1576924AbiAXV5B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:57:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6B68C06178C;
-        Mon, 24 Jan 2022 12:38:18 -0800 (PST)
+        with ESMTP id S1358937AbiAXUxE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:53:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21C54C02B868;
+        Mon, 24 Jan 2022 11:58:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA133B811F9;
-        Mon, 24 Jan 2022 20:38:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4742C340E5;
-        Mon, 24 Jan 2022 20:38:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AB1AB611CD;
+        Mon, 24 Jan 2022 19:58:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F8CFC340EA;
+        Mon, 24 Jan 2022 19:58:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056696;
-        bh=G+He0CBs0oY7cJsck3Uiaa6jdKC0I2296gCo9uHeeZU=;
+        s=korg; t=1643054335;
+        bh=KSWW/ll7lDv72awejLQeJlMAMbruAtklcTYuzeueNak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UFgM/C1Bb1DHRJe1Xn525JyZos7luuY5faP8Vy83ASNwF49IEmEMCjJyydDA0T0tq
-         PiV8TGfCddre4vef+GQebmBp2XD3pnwDPvTyrvvxqwF0vlGMfsXU7PIISrkjRgupbr
-         ax5DH6qsxYCbW+/ySQI+pmK45ZJsZqjkVc2wprA0=
+        b=f4TmSegcvTUkKJZMjHP6XzSXbEUK9WcE7ANcZ5SuUcZYAaeCfIVbP4IM1kh3v9ycj
+         JQZ6IS0ZgChyU74dE5U9W/IRrX+UQbtgwyMIeF9x3V6HkfLhWhVODNI7XM9CG5T6R9
+         rK4CSwP40nQnfoB4UWcHafct4zIzrfbDvhQC44+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        stable@vger.kernel.org, Eric Biederman <ebiederm@xmission.com>,
+        Danielle Ratson <danieller@nvidia.com>,
+        Ido Schimmel <idosch@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 569/846] mt76: mt7615: improve wmm index allocation
-Date:   Mon, 24 Jan 2022 19:41:26 +0100
-Message-Id: <20220124184120.671123228@linuxfoundation.org>
+Subject: [PATCH 5.10 322/563] mlxsw: pci: Add shutdown method in PCI driver
+Date:   Mon, 24 Jan 2022 19:41:27 +0100
+Message-Id: <20220124184035.571448566@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,43 +50,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Danielle Ratson <danieller@nvidia.com>
 
-[ Upstream commit 70fb028707c8871ef9e56b3ffa3d895e14956cc4 ]
+[ Upstream commit c1020d3cf4752f61a6a413f632ea2ce2370e150d ]
 
-Typically all AP interfaces on a PHY will share the same WMM settings, while
-sta/mesh interfaces will usually inherit the settings from a remote device.
-In order minimize the likelihood of conflicting WMM settings, make all AP
-interfaces share one slot, and all non-AP interfaces another one.
+On an arm64 platform with the Spectrum ASIC, after loading and executing
+a new kernel via kexec, the following trace [1] is observed. This seems
+to be caused by the fact that the device is not properly shutdown before
+executing the new kernel.
 
-This also fixes running multiple AP interfaces on MT7613, which only has 3
-WMM slots.
+Fix this by implementing a shutdown method which mirrors the remove
+method, as recommended by the kexec maintainer [2][3].
 
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+[1]
+BUG: Bad page state in process devlink pfn:22f73d
+page:fffffe00089dcf40 refcount:-1 mapcount:0 mapping:0000000000000000 index:0x0
+flags: 0x2ffff00000000000()
+raw: 2ffff00000000000 0000000000000000 ffffffff089d0201 0000000000000000
+raw: 0000000000000000 0000000000000000 ffffffffffffffff 0000000000000000
+page dumped because: nonzero _refcount
+Modules linked in:
+CPU: 1 PID: 16346 Comm: devlink Tainted: G B 5.8.0-rc6-custom-273020-gac6b365b1bf5 #44
+Hardware name: Marvell Armada 7040 TX4810M (DT)
+Call trace:
+ dump_backtrace+0x0/0x1d0
+ show_stack+0x1c/0x28
+ dump_stack+0xbc/0x118
+ bad_page+0xcc/0xf8
+ check_free_page_bad+0x80/0x88
+ __free_pages_ok+0x3f8/0x418
+ __free_pages+0x38/0x60
+ kmem_freepages+0x200/0x2a8
+ slab_destroy+0x28/0x68
+ slabs_destroy+0x60/0x90
+ ___cache_free+0x1b4/0x358
+ kfree+0xc0/0x1d0
+ skb_free_head+0x2c/0x38
+ skb_release_data+0x110/0x1a0
+ skb_release_all+0x2c/0x38
+ consume_skb+0x38/0x130
+ __dev_kfree_skb_any+0x44/0x50
+ mlxsw_pci_rdq_fini+0x8c/0xb0
+ mlxsw_pci_queue_fini.isra.0+0x28/0x58
+ mlxsw_pci_queue_group_fini+0x58/0x88
+ mlxsw_pci_aqs_fini+0x2c/0x60
+ mlxsw_pci_fini+0x34/0x50
+ mlxsw_core_bus_device_unregister+0x104/0x1d0
+ mlxsw_devlink_core_bus_device_reload_down+0x2c/0x48
+ devlink_reload+0x44/0x158
+ devlink_nl_cmd_reload+0x270/0x290
+ genl_rcv_msg+0x188/0x2f0
+ netlink_rcv_skb+0x5c/0x118
+ genl_rcv+0x3c/0x50
+ netlink_unicast+0x1bc/0x278
+ netlink_sendmsg+0x194/0x390
+ __sys_sendto+0xe0/0x158
+ __arm64_sys_sendto+0x2c/0x38
+ el0_svc_common.constprop.0+0x70/0x168
+ do_el0_svc+0x28/0x88
+ el0_sync_handler+0x88/0x190
+ el0_sync+0x140/0x180
+
+[2]
+https://www.mail-archive.com/linux-kernel@vger.kernel.org/msg1195432.html
+
+[3]
+https://patchwork.kernel.org/project/linux-scsi/patch/20170212214920.28866-1-anton@ozlabs.org/#20116693
+
+Cc: Eric Biederman <ebiederm@xmission.com>
+Signed-off-by: Danielle Ratson <danieller@nvidia.com>
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7615/main.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/mellanox/mlxsw/pci.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7615/main.c b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
-index 51260a669d166..fc266da54fe7b 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7615/main.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7615/main.c
-@@ -211,11 +211,9 @@ static int mt7615_add_interface(struct ieee80211_hw *hw,
- 	mvif->mt76.omac_idx = idx;
- 
- 	mvif->mt76.band_idx = ext_phy;
--	if (mt7615_ext_phy(dev))
--		mvif->mt76.wmm_idx = ext_phy * (MT7615_MAX_WMM_SETS / 2) +
--				mvif->mt76.idx % (MT7615_MAX_WMM_SETS / 2);
--	else
--		mvif->mt76.wmm_idx = mvif->mt76.idx % MT7615_MAX_WMM_SETS;
-+	mvif->mt76.wmm_idx = vif->type != NL80211_IFTYPE_AP;
-+	if (ext_phy)
-+		mvif->mt76.wmm_idx += 2;
- 
- 	dev->mt76.vif_mask |= BIT(mvif->mt76.idx);
- 	dev->omac_mask |= BIT_ULL(mvif->mt76.omac_idx);
+diff --git a/drivers/net/ethernet/mellanox/mlxsw/pci.c b/drivers/net/ethernet/mellanox/mlxsw/pci.c
+index ffaeda75eec42..72d5c77bcb949 100644
+--- a/drivers/net/ethernet/mellanox/mlxsw/pci.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/pci.c
+@@ -1900,6 +1900,7 @@ int mlxsw_pci_driver_register(struct pci_driver *pci_driver)
+ {
+ 	pci_driver->probe = mlxsw_pci_probe;
+ 	pci_driver->remove = mlxsw_pci_remove;
++	pci_driver->shutdown = mlxsw_pci_remove;
+ 	return pci_register_driver(pci_driver);
+ }
+ EXPORT_SYMBOL(mlxsw_pci_driver_register);
 -- 
 2.34.1
 
