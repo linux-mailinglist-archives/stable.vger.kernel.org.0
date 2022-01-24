@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3936499410
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:40:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF57C4993E6
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:40:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357323AbiAXUil (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:38:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39750 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385517AbiAXUd3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:33:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF816C07E2A1;
-        Mon, 24 Jan 2022 11:45:48 -0800 (PST)
+        id S1385876AbiAXUem (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:34:42 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:33514 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1383483AbiAXU1R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:27:17 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A2C1B811F9;
-        Mon, 24 Jan 2022 19:45:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA6F8C340E5;
-        Mon, 24 Jan 2022 19:45:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E49C7B8121A;
+        Mon, 24 Jan 2022 20:27:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 182E3C340E5;
+        Mon, 24 Jan 2022 20:27:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053546;
-        bh=Hf36ntOYAnKrh82bMACnxeu8gNHCeUCilXw7+onLIuQ=;
+        s=korg; t=1643056034;
+        bh=uRj4HgEAsCnAHzPKf43ZhHj4VQSsgEveE66djYWwcfI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cvloL0rqGFmtYY2Nb2rQfe54ESQocfr5+M65dvmGgHItY5fcb86QBw/pgPoS4nffO
-         cnpeNI03GJ6/MDkJqRbnwFTkpusml8Z/FyLyD41AfRlGkf8PIRuNHV+sI/Lg+3hToJ
-         9qJ+p898kRoDbj7wb4EZ50Lw5nn/y0aqlPxayJE8=
+        b=izsWbj7KTg1TndUvI9gm+v6aH9pSHDslb/iQsYvJsiwA10frIXR39B7Z34WI2J75K
+         YB/Tbtu8wRM3cbpGmAzdHwum6koJivRJHl0kEfTJ+/BO68DGWNXjxEx7ItAZIRevn5
+         C5UqJq0thSMxH9yfW0NztyJ8dU8NW0KI2IwvjeTo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 099/563] crypto: qat - remove unnecessary collision prevention step in PFVF
-Date:   Mon, 24 Jan 2022 19:37:44 +0100
-Message-Id: <20220124184027.824746602@linuxfoundation.org>
+Subject: [PATCH 5.15 348/846] mptcp: fix per socket endpoint accounting
+Date:   Mon, 24 Jan 2022 19:37:45 +0100
+Message-Id: <20220124184112.957838912@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,58 +46,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Chiappero <marco.chiappero@intel.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit e17f49bb244a281fe39bfdad0306a38b3a02e7bf ]
+[ Upstream commit f7d6a237d7422809d458d754016de2844017cb4d ]
 
-The initial version of the PFVF protocol included an initial "carrier
-sensing" to get ownership of the channel.
+Since full-mesh endpoint support, the reception of a single ADD_ADDR
+option can cause multiple subflows creation. When such option is
+accepted we increment 'add_addr_accepted' by one. When we received
+a paired RM_ADDR option, we deleted all the relevant subflows,
+decrementing 'add_addr_accepted' by one for each of them.
 
-Collisions can happen anyway, the extra wait and test does not prevent
-collisions, it instead slows the communication down, so remove it.
+We have a similar issue for 'local_addr_used'
 
-Signed-off-by: Marco Chiappero <marco.chiappero@intel.com>
-Reviewed-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fix them moving the pm endpoint accounting outside the subflow
+traversal.
+
+Fixes: 1a0d6136c5f0 ("mptcp: local addresses fullmesh")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/adf_pf2vf_msg.c | 20 +------------------
- 1 file changed, 1 insertion(+), 19 deletions(-)
+ net/mptcp/pm_netlink.c | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
-index e3da97286980e..d1dbf6216de57 100644
---- a/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
-+++ b/drivers/crypto/qat/qat_common/adf_pf2vf_msg.c
-@@ -120,28 +120,10 @@ static int __adf_iov_putmsg(struct adf_accel_dev *accel_dev, u32 msg, u8 vf_nr)
- 		goto out;
+diff --git a/net/mptcp/pm_netlink.c b/net/mptcp/pm_netlink.c
+index b79251a36dcbc..d96860053816a 100644
+--- a/net/mptcp/pm_netlink.c
++++ b/net/mptcp/pm_netlink.c
+@@ -710,6 +710,8 @@ static void mptcp_pm_nl_rm_addr_or_subflow(struct mptcp_sock *msk,
+ 		return;
+ 
+ 	for (i = 0; i < rm_list->nr; i++) {
++		bool removed = false;
++
+ 		list_for_each_entry_safe(subflow, tmp, &msk->conn_list, node) {
+ 			struct sock *ssk = mptcp_subflow_tcp_sock(subflow);
+ 			int how = RCV_SHUTDOWN | SEND_SHUTDOWN;
+@@ -729,15 +731,19 @@ static void mptcp_pm_nl_rm_addr_or_subflow(struct mptcp_sock *msk,
+ 			mptcp_close_ssk(sk, ssk, subflow);
+ 			spin_lock_bh(&msk->pm.lock);
+ 
+-			if (rm_type == MPTCP_MIB_RMADDR) {
+-				msk->pm.add_addr_accepted--;
+-				WRITE_ONCE(msk->pm.accept_addr, true);
+-			} else if (rm_type == MPTCP_MIB_RMSUBFLOW) {
+-				msk->pm.local_addr_used--;
+-			}
++			removed = true;
+ 			msk->pm.subflows--;
+ 			__MPTCP_INC_STATS(sock_net(sk), rm_type);
+ 		}
++		if (!removed)
++			continue;
++
++		if (rm_type == MPTCP_MIB_RMADDR) {
++			msk->pm.add_addr_accepted--;
++			WRITE_ONCE(msk->pm.accept_addr, true);
++		} else if (rm_type == MPTCP_MIB_RMSUBFLOW) {
++			msk->pm.local_addr_used--;
++		}
  	}
+ }
  
--	/* Attempt to get ownership of PF2VF CSR */
- 	msg &= ~local_in_use_mask;
- 	msg |= local_in_use_pattern;
--	ADF_CSR_WR(pmisc_bar_addr, pf2vf_offset, msg);
- 
--	/* Wait in case remote func also attempting to get ownership */
--	msleep(ADF_IOV_MSG_COLLISION_DETECT_DELAY);
--
--	val = ADF_CSR_RD(pmisc_bar_addr, pf2vf_offset);
--	if ((val & local_in_use_mask) != local_in_use_pattern) {
--		dev_dbg(&GET_DEV(accel_dev),
--			"PF2VF CSR in use by remote - collision detected\n");
--		ret = -EBUSY;
--		goto out;
--	}
--
--	/*
--	 * This function now owns the PV2VF CSR.  The IN_USE_BY pattern must
--	 * remain in the PF2VF CSR for all writes including ACK from remote
--	 * until this local function relinquishes the CSR.  Send the message
--	 * by interrupting the remote.
--	 */
-+	/* Attempt to get ownership of the PF2VF CSR */
- 	ADF_CSR_WR(pmisc_bar_addr, pf2vf_offset, msg | int_bit);
- 
- 	/* Wait for confirmation from remote func it received the message */
 -- 
 2.34.1
 
