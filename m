@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD7E349A90D
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:18:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 511F649A979
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:24:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1321975AbiAYDUR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:20:17 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:47724 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244739AbiAXTuz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:50:55 -0500
+        id S1322613AbiAYDWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:22:09 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:37166 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1385295AbiAXUb7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:31:59 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AD61660B89;
-        Mon, 24 Jan 2022 19:50:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 913FDC340E5;
-        Mon, 24 Jan 2022 19:50:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1CAD7B81239;
+        Mon, 24 Jan 2022 20:31:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CC70C340E5;
+        Mon, 24 Jan 2022 20:31:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053848;
-        bh=m0OcBpcxmIF16T15F0g3LId9WJ1aV0DdmBGbFIrLcTo=;
+        s=korg; t=1643056315;
+        bh=HXJV0jhVF0YnUWsRplcUKIX+Ihje/JCzSZtYZ+p4VdI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OaE0icx0hWyDhWWo7DwsUxozoPxmPiax0t06ZKDGT1hDGlVFRzATL5crgxwTF9t7X
-         abAy0V7KCL35/e8LPRK/wmaS8C0KnV2/5Lpae8LxQADq3Sgf8OzrebZwfBw6RHXH7T
-         gBs36dgu87Zh1Fpvdt2Xy/hzgx4897Dm4ur5JYIY=
+        b=2DzxBhkNCuovzyLMFhQsCURNVb3t6UTFRfnjbKNfieCiZm5YC5vJq+4t3o/jarPfZ
+         5FdA/wG0dU3Pi6ECTrJsNzkhRzYBaw+vwOZh2iefDNNqtexPwuswWKH8khRJA80MR+
+         8KIJ/UvWA7W9b1kmC14GR3lREl5xc1cWcAPtTU7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Panicker Harish <quic_pharish@quicinc.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 196/563] Bluetooth: hci_qca: Stop IBS timer during BT OFF
+        stable@vger.kernel.org, "Christian A. Ehrhardt" <lk@c--e.de>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 444/846] ALSA: hda/cs8409: Fix Jack detection after resume
 Date:   Mon, 24 Jan 2022 19:39:21 +0100
-Message-Id: <20220124184031.210103661@linuxfoundation.org>
+Message-Id: <20220124184116.302124918@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,36 +44,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Panicker Harish <quic_pharish@quicinc.com>
+From: Christian A. Ehrhardt <lk@c--e.de>
 
-[ Upstream commit df1e5c51492fd93ffc293acdcc6f00698d19fedc ]
+[ Upstream commit 57f234248ff925d88caedf4019ec84e6ecb83909 ]
 
-The IBS timers are not stopped properly once BT OFF is triggered.
-we could see IBS commands being sent along with version command,
-so stopped IBS timers while Bluetooth is off.
+The suspend code unconditionally sets ->hp_jack_in and ->mic_jack_in
+to zero but without reporting this status change to the HDA core.
+To compensate for this, always assume a status change on the
+first unsol event after boot or resume.
 
-Fixes: 3e4be65eb82c ("Bluetooth: hci_qca: Add poweroff support during hci down for wcn3990")
-Signed-off-by: Panicker Harish <quic_pharish@quicinc.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 424e531b47f8 ("ALSA: hda/cs8409: Ensure Type Detection is only run on startup when necessary")
+Signed-off-by: Christian A. Ehrhardt <lk@c--e.de>
+Link: https://lore.kernel.org/r/20211231134432.atwmuzeceqiklcoa@cae.in-ulm.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_qca.c | 3 +++
- 1 file changed, 3 insertions(+)
+ sound/pci/hda/patch_cs8409-tables.c | 3 +++
+ sound/pci/hda/patch_cs8409.c        | 5 ++++-
+ sound/pci/hda/patch_cs8409.h        | 1 +
+ 3 files changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/bluetooth/hci_qca.c b/drivers/bluetooth/hci_qca.c
-index 4184faef9f169..4f8a32601c1b6 100644
---- a/drivers/bluetooth/hci_qca.c
-+++ b/drivers/bluetooth/hci_qca.c
-@@ -1844,6 +1844,9 @@ static int qca_power_off(struct hci_dev *hdev)
- 	hu->hdev->hw_error = NULL;
- 	hu->hdev->cmd_timeout = NULL;
+diff --git a/sound/pci/hda/patch_cs8409-tables.c b/sound/pci/hda/patch_cs8409-tables.c
+index 0fb0a428428b4..df0b4522babf7 100644
+--- a/sound/pci/hda/patch_cs8409-tables.c
++++ b/sound/pci/hda/patch_cs8409-tables.c
+@@ -252,6 +252,7 @@ struct sub_codec cs8409_cs42l42_codec = {
+ 	.init_seq_num = ARRAY_SIZE(cs42l42_init_reg_seq),
+ 	.hp_jack_in = 0,
+ 	.mic_jack_in = 0,
++	.force_status_change = 1,
+ 	.paged = 1,
+ 	.suspended = 1,
+ 	.no_type_dect = 0,
+@@ -443,6 +444,7 @@ struct sub_codec dolphin_cs42l42_0 = {
+ 	.init_seq_num = ARRAY_SIZE(dolphin_c0_init_reg_seq),
+ 	.hp_jack_in = 0,
+ 	.mic_jack_in = 0,
++	.force_status_change = 1,
+ 	.paged = 1,
+ 	.suspended = 1,
+ 	.no_type_dect = 0,
+@@ -456,6 +458,7 @@ struct sub_codec dolphin_cs42l42_1 = {
+ 	.init_seq_num = ARRAY_SIZE(dolphin_c1_init_reg_seq),
+ 	.hp_jack_in = 0,
+ 	.mic_jack_in = 0,
++	.force_status_change = 1,
+ 	.paged = 1,
+ 	.suspended = 1,
+ 	.no_type_dect = 1,
+diff --git a/sound/pci/hda/patch_cs8409.c b/sound/pci/hda/patch_cs8409.c
+index bf5d7f0c6ba55..aff2b5abb81ea 100644
+--- a/sound/pci/hda/patch_cs8409.c
++++ b/sound/pci/hda/patch_cs8409.c
+@@ -636,7 +636,9 @@ static void cs42l42_run_jack_detect(struct sub_codec *cs42l42)
  
-+	del_timer_sync(&qca->wake_retrans_timer);
-+	del_timer_sync(&qca->tx_idle_timer);
+ static int cs42l42_handle_tip_sense(struct sub_codec *cs42l42, unsigned int reg_ts_status)
+ {
+-	int status_changed = 0;
++	int status_changed = cs42l42->force_status_change;
 +
- 	/* Stop sending shutdown command if soc crashes. */
- 	if (soc_type != QCA_ROME
- 		&& qca->memdump_state == QCA_MEMDUMP_IDLE) {
++	cs42l42->force_status_change = 0;
+ 
+ 	/* TIP_SENSE INSERT/REMOVE */
+ 	switch (reg_ts_status) {
+@@ -791,6 +793,7 @@ static void cs42l42_suspend(struct sub_codec *cs42l42)
+ 	cs42l42->last_page = 0;
+ 	cs42l42->hp_jack_in = 0;
+ 	cs42l42->mic_jack_in = 0;
++	cs42l42->force_status_change = 1;
+ 
+ 	/* Put CS42L42 into Reset */
+ 	gpio_data = snd_hda_codec_read(codec, CS8409_PIN_AFG, 0, AC_VERB_GET_GPIO_DATA, 0);
+diff --git a/sound/pci/hda/patch_cs8409.h b/sound/pci/hda/patch_cs8409.h
+index ade2b838590cf..d0b725c7285b6 100644
+--- a/sound/pci/hda/patch_cs8409.h
++++ b/sound/pci/hda/patch_cs8409.h
+@@ -305,6 +305,7 @@ struct sub_codec {
+ 
+ 	unsigned int hp_jack_in:1;
+ 	unsigned int mic_jack_in:1;
++	unsigned int force_status_change:1;
+ 	unsigned int suspended:1;
+ 	unsigned int paged:1;
+ 	unsigned int last_page;
 -- 
 2.34.1
 
