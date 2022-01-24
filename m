@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1338C499D9E
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:00:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F5DA499A8B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1585777AbiAXWZA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:25:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36622 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1577171AbiAXWRR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:17:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3672CC04A2CF;
-        Mon, 24 Jan 2022 12:45:31 -0800 (PST)
+        id S1573495AbiAXVo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:44:59 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:48206 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1455870AbiAXVgk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:36:40 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C735460C17;
-        Mon, 24 Jan 2022 20:45:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C783C340E5;
-        Mon, 24 Jan 2022 20:45:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A7E0BB8123A;
+        Mon, 24 Jan 2022 21:36:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D92C6C340E4;
+        Mon, 24 Jan 2022 21:36:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057130;
-        bh=hfe/X2R1Opq4HzyJLzvdS46U19FqV7aHHRimDomOgMM=;
+        s=korg; t=1643060196;
+        bh=BsOquwzcCQW5R6uppJmiiyzG8hpOx4nUbKNuwlUKS3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XhLiJGu5y80Vi19Kjb9scDHp22lz7D4IsLBvT+gWvEaYbGzHE8dOfl7jyteWvn8jC
-         +IrWVihdcErlvRlOgKJ+TXzV914eL51vuuzcMJvNiC+HBSKWuAeABs1hW60mfLM1He
-         QHnJMrG8TAmfCOQWJOTkwf5P/X8fv91PoN25eSfY=
+        b=Oly5jiwSc2TIgtATrUnekt14Yakhb3Z6cbTufGCM71Px7quAjD/WvnNx5tEyPYKUt
+         kk8Ai5gdlJZj4ktHonor8YmNJAlxhMEyfyRXB4h6gX9AMrqqCttTXnLbo1QY0HCyXw
+         GUTOuyETsjzePJxMUAVrt/rBk/uUxrnu/yGGaXD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hao Sun <sunhao.th@gmail.com>,
-        Qu Wenruo <wqu@suse.com>, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.15 710/846] btrfs: fix deadlock between quota enable and other quota operations
-Date:   Mon, 24 Jan 2022 19:43:47 +0100
-Message-Id: <20220124184125.524310732@linuxfoundation.org>
+        stable@vger.kernel.org, Petr Cvachoucek <cvachoucek@gmail.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.16 0839/1039] ubifs: Error path in ubifs_remount_rw() seems to wrongly free write buffers
+Date:   Mon, 24 Jan 2022 19:43:48 +0100
+Message-Id: <20220124184153.499980607@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,128 +44,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Petr Cvachoucek <cvachoucek@gmail.com>
 
-commit 232796df8c1437c41d308d161007f0715bac0a54 upstream.
+commit 3fea4d9d160186617ff40490ae01f4f4f36b28ff upstream.
 
-When enabling quotas, we attempt to commit a transaction while holding the
-mutex fs_info->qgroup_ioctl_lock. This can result on a deadlock with other
-quota operations such as:
+it seems freeing the write buffers in the error path of the
+ubifs_remount_rw() is wrong. It leads later to a kernel oops like this:
 
-- qgroup creation and deletion, ioctl BTRFS_IOC_QGROUP_CREATE;
+[10016.431274] UBIFS (ubi0:0): start fixing up free space
+[10090.810042] UBIFS (ubi0:0): free space fixup complete
+[10090.814623] UBIFS error (ubi0:0 pid 512): ubifs_remount_fs: cannot
+spawn "ubifs_bgt0_0", error -4
+[10101.915108] UBIFS (ubi0:0): background thread "ubifs_bgt0_0" started,
+PID 517
+[10105.275498] Unable to handle kernel NULL pointer dereference at
+virtual address 0000000000000030
+[10105.284352] Mem abort info:
+[10105.287160]   ESR = 0x96000006
+[10105.290252]   EC = 0x25: DABT (current EL), IL = 32 bits
+[10105.295592]   SET = 0, FnV = 0
+[10105.298652]   EA = 0, S1PTW = 0
+[10105.301848] Data abort info:
+[10105.304723]   ISV = 0, ISS = 0x00000006
+[10105.308573]   CM = 0, WnR = 0
+[10105.311564] user pgtable: 4k pages, 48-bit VAs, pgdp=00000000f03d1000
+[10105.318034] [0000000000000030] pgd=00000000f6cee003,
+pud=00000000f4884003, pmd=0000000000000000
+[10105.326783] Internal error: Oops: 96000006 [#1] PREEMPT SMP
+[10105.332355] Modules linked in: ath10k_pci ath10k_core ath mac80211
+libarc4 cfg80211 nvme nvme_core cryptodev(O)
+[10105.342468] CPU: 3 PID: 518 Comm: touch Tainted: G           O
+5.4.3 #1
+[10105.349517] Hardware name: HYPEX CPU (DT)
+[10105.353525] pstate: 40000005 (nZcv daif -PAN -UAO)
+[10105.358324] pc : atomic64_try_cmpxchg_acquire.constprop.22+0x8/0x34
+[10105.364596] lr : mutex_lock+0x1c/0x34
+[10105.368253] sp : ffff000075633aa0
+[10105.371563] x29: ffff000075633aa0 x28: 0000000000000001
+[10105.376874] x27: ffff000076fa80c8 x26: 0000000000000004
+[10105.382185] x25: 0000000000000030 x24: 0000000000000000
+[10105.387495] x23: 0000000000000000 x22: 0000000000000038
+[10105.392807] x21: 000000000000000c x20: ffff000076fa80c8
+[10105.398119] x19: ffff000076fa8000 x18: 0000000000000000
+[10105.403429] x17: 0000000000000000 x16: 0000000000000000
+[10105.408741] x15: 0000000000000000 x14: fefefefefefefeff
+[10105.414052] x13: 0000000000000000 x12: 0000000000000fe0
+[10105.419364] x11: 0000000000000fe0 x10: ffff000076709020
+[10105.424675] x9 : 0000000000000000 x8 : 00000000000000a0
+[10105.429986] x7 : ffff000076fa80f4 x6 : 0000000000000030
+[10105.435297] x5 : 0000000000000000 x4 : 0000000000000000
+[10105.440609] x3 : 0000000000000000 x2 : ffff00006f276040
+[10105.445920] x1 : ffff000075633ab8 x0 : 0000000000000030
+[10105.451232] Call trace:
+[10105.453676]  atomic64_try_cmpxchg_acquire.constprop.22+0x8/0x34
+[10105.459600]  ubifs_garbage_collect+0xb4/0x334
+[10105.463956]  ubifs_budget_space+0x398/0x458
+[10105.468139]  ubifs_create+0x50/0x180
+[10105.471712]  path_openat+0x6a0/0x9b0
+[10105.475284]  do_filp_open+0x34/0x7c
+[10105.478771]  do_sys_open+0x78/0xe4
+[10105.482170]  __arm64_sys_openat+0x1c/0x24
+[10105.486180]  el0_svc_handler+0x84/0xc8
+[10105.489928]  el0_svc+0x8/0xc
+[10105.492808] Code: 52800013 17fffffb d2800003 f9800011 (c85ffc05)
+[10105.498903] ---[ end trace 46b721d93267a586 ]---
 
-- adding and removing qgroup relations, ioctl BTRFS_IOC_QGROUP_ASSIGN.
+To reproduce the problem:
 
-This is because these operations join a transaction and after that they
-attempt to lock the mutex fs_info->qgroup_ioctl_lock. Acquiring that mutex
-after joining or starting a transaction is a pattern followed everywhere
-in qgroups, so the quota enablement operation is the one at fault here,
-and should not commit a transaction while holding that mutex.
+1. Filesystem initially mounted read-only, free space fixup flag set.
 
-Fix this by making the transaction commit while not holding the mutex.
-We are safe from two concurrent tasks trying to enable quotas because
-we are serialized by the rw semaphore fs_info->subvol_sem at
-btrfs_ioctl_quota_ctl(), which is the only call site for enabling
-quotas.
+2. mount -o remount,rw <mountpoint>
 
-When this deadlock happens, it produces a trace like the following:
+3. it takes some time (free space fixup running)
+    ... try to terminate running mount by CTRL-C
+    ... does not respond, only after free space fixup is complete
+    ... then "ubifs_remount_fs: cannot spawn "ubifs_bgt0_0", error -4"
 
-  INFO: task syz-executor:25604 blocked for more than 143 seconds.
-  Not tainted 5.15.0-rc6 #4
-  "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-  task:syz-executor state:D stack:24800 pid:25604 ppid: 24873 flags:0x00004004
-  Call Trace:
-  context_switch kernel/sched/core.c:4940 [inline]
-  __schedule+0xcd9/0x2530 kernel/sched/core.c:6287
-  schedule+0xd3/0x270 kernel/sched/core.c:6366
-  btrfs_commit_transaction+0x994/0x2e90 fs/btrfs/transaction.c:2201
-  btrfs_quota_enable+0x95c/0x1790 fs/btrfs/qgroup.c:1120
-  btrfs_ioctl_quota_ctl fs/btrfs/ioctl.c:4229 [inline]
-  btrfs_ioctl+0x637e/0x7b70 fs/btrfs/ioctl.c:5010
-  vfs_ioctl fs/ioctl.c:51 [inline]
-  __do_sys_ioctl fs/ioctl.c:874 [inline]
-  __se_sys_ioctl fs/ioctl.c:860 [inline]
-  __x64_sys_ioctl+0x193/0x200 fs/ioctl.c:860
-  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-  do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
-  RIP: 0033:0x7f86920b2c4d
-  RSP: 002b:00007f868f61ac58 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-  RAX: ffffffffffffffda RBX: 00007f86921d90a0 RCX: 00007f86920b2c4d
-  RDX: 0000000020005e40 RSI: 00000000c0109428 RDI: 0000000000000008
-  RBP: 00007f869212bd80 R08: 0000000000000000 R09: 0000000000000000
-  R10: 0000000000000000 R11: 0000000000000246 R12: 00007f86921d90a0
-  R13: 00007fff6d233e4f R14: 00007fff6d233ff0 R15: 00007f868f61adc0
-  INFO: task syz-executor:25628 blocked for more than 143 seconds.
-  Not tainted 5.15.0-rc6 #4
-  "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-  task:syz-executor state:D stack:29080 pid:25628 ppid: 24873 flags:0x00004004
-  Call Trace:
-  context_switch kernel/sched/core.c:4940 [inline]
-  __schedule+0xcd9/0x2530 kernel/sched/core.c:6287
-  schedule+0xd3/0x270 kernel/sched/core.c:6366
-  schedule_preempt_disabled+0xf/0x20 kernel/sched/core.c:6425
-  __mutex_lock_common kernel/locking/mutex.c:669 [inline]
-  __mutex_lock+0xc96/0x1680 kernel/locking/mutex.c:729
-  btrfs_remove_qgroup+0xb7/0x7d0 fs/btrfs/qgroup.c:1548
-  btrfs_ioctl_qgroup_create fs/btrfs/ioctl.c:4333 [inline]
-  btrfs_ioctl+0x683c/0x7b70 fs/btrfs/ioctl.c:5014
-  vfs_ioctl fs/ioctl.c:51 [inline]
-  __do_sys_ioctl fs/ioctl.c:874 [inline]
-  __se_sys_ioctl fs/ioctl.c:860 [inline]
-  __x64_sys_ioctl+0x193/0x200 fs/ioctl.c:860
-  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-  do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
+4. mount -o remount,rw <mountpoint>
+    ... now finished instantly (fixup already done).
 
-Reported-by: Hao Sun <sunhao.th@gmail.com>
-Link: https://lore.kernel.org/linux-btrfs/CACkBjsZQF19bQ1C6=yetF3BvL10OSORpFUcWXTP6HErshDB4dQ@mail.gmail.com/
-Fixes: 340f1aa27f36 ("btrfs: qgroups: Move transaction management inside btrfs_quota_enable/disable")
-CC: stable@vger.kernel.org # 4.19
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+5. Create file or just unmount the filesystem and we get the oops.
+
+Cc: <stable@vger.kernel.org>
+Fixes: b50b9f408502 ("UBIFS: do not free write-buffers when in R/O mode")
+Signed-off-by: Petr Cvachoucek <cvachoucek@gmail.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/qgroup.c |   19 +++++++++++++++++++
- 1 file changed, 19 insertions(+)
+ fs/ubifs/super.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -940,6 +940,14 @@ int btrfs_quota_enable(struct btrfs_fs_i
- 	int ret = 0;
- 	int slot;
- 
-+	/*
-+	 * We need to have subvol_sem write locked, to prevent races between
-+	 * concurrent tasks trying to enable quotas, because we will unlock
-+	 * and relock qgroup_ioctl_lock before setting fs_info->quota_root
-+	 * and before setting BTRFS_FS_QUOTA_ENABLED.
-+	 */
-+	lockdep_assert_held_write(&fs_info->subvol_sem);
-+
- 	mutex_lock(&fs_info->qgroup_ioctl_lock);
- 	if (fs_info->quota_root)
- 		goto out;
-@@ -1117,8 +1125,19 @@ out_add_root:
- 		goto out_free_path;
+--- a/fs/ubifs/super.c
++++ b/fs/ubifs/super.c
+@@ -1853,7 +1853,6 @@ out:
+ 		kthread_stop(c->bgt);
+ 		c->bgt = NULL;
  	}
- 
-+	mutex_unlock(&fs_info->qgroup_ioctl_lock);
-+	/*
-+	 * Commit the transaction while not holding qgroup_ioctl_lock, to avoid
-+	 * a deadlock with tasks concurrently doing other qgroup operations, such
-+	 * adding/removing qgroups or adding/deleting qgroup relations for example,
-+	 * because all qgroup operations first start or join a transaction and then
-+	 * lock the qgroup_ioctl_lock mutex.
-+	 * We are safe from a concurrent task trying to enable quotas, by calling
-+	 * this function, since we are serialized by fs_info->subvol_sem.
-+	 */
- 	ret = btrfs_commit_transaction(trans);
- 	trans = NULL;
-+	mutex_lock(&fs_info->qgroup_ioctl_lock);
- 	if (ret)
- 		goto out_free_path;
- 
+-	free_wbufs(c);
+ 	kfree(c->write_reserve_buf);
+ 	c->write_reserve_buf = NULL;
+ 	vfree(c->ileb_buf);
 
 
