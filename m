@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CD4549810C
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:30:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4199F49810D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:30:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243160AbiAXNay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 08:30:54 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:43668 "EHLO
+        id S243066AbiAXNa4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 08:30:56 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:43706 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243066AbiAXNav (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:30:51 -0500
+        with ESMTP id S230437AbiAXNay (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:30:54 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D34F0B80FAB
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:30:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1005BC340E1;
-        Mon, 24 Jan 2022 13:30:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E2458B80FA8
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:30:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10C5FC340E1;
+        Mon, 24 Jan 2022 13:30:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643031049;
-        bh=PCNEXV1+ZgDz/Vb8VPdUvokdlgL9W7UKZWyyDEXiDek=;
+        s=korg; t=1643031052;
+        bh=ixQ2ht1j1QKqSZTyicdPD2o0uiTEZ/ZIeDb4icr1f34=;
         h=Subject:To:Cc:From:Date:From;
-        b=TjXu3CwZSiJ/NTbw3S42Goxko7ew7tupFTh/RbICPzUXpjTTpvQIvIqtqXlxiIJFa
-         l6kuuK3L7RCc2E6UoI4rMokOZSLdDGFBQxVr7QgTcqkpK+Yfg0y6MG7uZDXDB9ZfhW
-         syeEfxrJdRfvxrJRZtpvWynL+oZyO/RoXZ/Zgvfo=
-Subject: FAILED: patch "[PATCH] dmaengine: at_xdmac: Fix race for the tx desc callback" failed to apply to 4.14-stable tree
+        b=WzDfA3+plfR+EQ06rZpzdJqqUeDeVOVQVf3Y520oFtSqnC7sfB/fEVGqTeqQNWZiJ
+         NcjqUanpPWUqQb0NbZMf3/AYHZhYzCczHC6VIaxxCzT8c1at5g3Iih5H+tzReVHXMu
+         IYJUJxMOTXUVAGMMycAiyKjhPjI6es+WiO4xpQoE=
+Subject: FAILED: patch "[PATCH] dmaengine: at_xdmac: Fix race for the tx desc callback" failed to apply to 4.9-stable tree
 To:     tudor.ambarus@microchip.com, vkoul@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 24 Jan 2022 14:30:44 +0100
-Message-ID: <164303104421107@kroah.com>
+Message-ID: <164303104425368@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
