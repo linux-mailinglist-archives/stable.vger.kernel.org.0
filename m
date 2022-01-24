@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBA33498C78
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:23:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6971B498DA1
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:34:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347646AbiAXTWh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:22:37 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:44216 "EHLO
+        id S1347135AbiAXTeG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:34:06 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:59380 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347648AbiAXTRB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:17:01 -0500
+        with ESMTP id S1346571AbiAXTcB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:32:01 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E920260917;
-        Mon, 24 Jan 2022 19:17:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7865C340E5;
-        Mon, 24 Jan 2022 19:16:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 34AC66121F;
+        Mon, 24 Jan 2022 19:32:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17FBFC340E5;
+        Mon, 24 Jan 2022 19:31:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051820;
-        bh=gUBygmoEBQDPFQekCp2li5xY7NKosJ7ZgGesRhBIraQ=;
+        s=korg; t=1643052719;
+        bh=1qafoHmQHzEeYvZZ5mPQtfK7V5ZbfodQBUKQCPnWoO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SPRna9w79WLkd2jSwZBHZ5yA5EdfPbtr1bM3jd3rrE9iO7R8V0FhG/yf7y+GA0mHf
-         iUGT/4uP6lj+yFSNQsybHiAWzK2TZ8HRcOjpc9X//DZdJghZUmXcndmouiiTXHpHfc
-         ygLCwgvUVASEmje6E1NEmFAUylAAanIC7CNu18Hs=
+        b=Z1vDJuXvfXWFIXdmxt2V+JEvXAggnDSeS3cMJ3gFfIpgDLkqo7Bv3QCpBP+DZR5x0
+         AWGTAl1A689kn2uXywkQUASiFyI/rCKMx4uTouLnhhIG7BlfxYepJY+hlEhzjPanuZ
+         NOiXepZFPBLw5oprbYyype/M0XsaiFRGdklQNN5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+003c0a286b9af5412510@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 097/239] net: mcs7830: handle usb read errors properly
-Date:   Mon, 24 Jan 2022 19:42:15 +0100
-Message-Id: <20220124183946.190555778@linuxfoundation.org>
+        stable@vger.kernel.org, Wei Yongjun <weiyongjun1@huawei.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 152/320] Bluetooth: Fix debugfs entry leak in hci_register_dev()
+Date:   Mon, 24 Jan 2022 19:42:16 +0100
+Message-Id: <20220124183958.807958146@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,54 +45,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit d668769eb9c52b150753f1653f7f5a0aeb8239d2 ]
+[ Upstream commit 5a4bb6a8e981d3d0d492aa38412ee80b21033177 ]
 
-Syzbot reported uninit value in mcs7830_bind(). The problem was in
-missing validation check for bytes read via usbnet_read_cmd().
+Fault injection test report debugfs entry leak as follows:
 
-usbnet_read_cmd() internally calls usb_control_msg(), that returns
-number of bytes read. Code should validate that requested number of bytes
-was actually read.
+debugfs: Directory 'hci0' with parent 'bluetooth' already present!
 
-So, this patch adds missing size validation check inside
-mcs7830_get_reg() to prevent uninit value bugs
+When register_pm_notifier() failed in hci_register_dev(), the debugfs
+create by debugfs_create_dir() do not removed in the error handing path.
 
-Reported-and-tested-by: syzbot+003c0a286b9af5412510@syzkaller.appspotmail.com
-Fixes: 2a36d7083438 ("USB: driver for mcs7830 (aka DeLOCK) USB ethernet adapter")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20220106225716.7425-1-paskripkin@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Add the remove debugfs code to fix it.
+
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/mcs7830.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ net/bluetooth/hci_core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/usb/mcs7830.c b/drivers/net/usb/mcs7830.c
-index 5a47e5510ca82..c0f52a622964f 100644
---- a/drivers/net/usb/mcs7830.c
-+++ b/drivers/net/usb/mcs7830.c
-@@ -121,8 +121,16 @@ static const char driver_name[] = "MOSCHIP usb-ethernet driver";
+diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
+index c50e3e8afbd34..2edaa601df13a 100644
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -3387,6 +3387,7 @@ int hci_register_dev(struct hci_dev *hdev)
+ 	return id;
  
- static int mcs7830_get_reg(struct usbnet *dev, u16 index, u16 size, void *data)
- {
--	return usbnet_read_cmd(dev, MCS7830_RD_BREQ, MCS7830_RD_BMREQ,
--				0x0000, index, data, size);
-+	int ret;
-+
-+	ret = usbnet_read_cmd(dev, MCS7830_RD_BREQ, MCS7830_RD_BMREQ,
-+			      0x0000, index, data, size);
-+	if (ret < 0)
-+		return ret;
-+	else if (ret < size)
-+		return -ENODATA;
-+
-+	return ret;
- }
- 
- static int mcs7830_set_reg(struct usbnet *dev, u16 index, u16 size, const void *data)
+ err_wqueue:
++	debugfs_remove_recursive(hdev->debugfs);
+ 	destroy_workqueue(hdev->workqueue);
+ 	destroy_workqueue(hdev->req_workqueue);
+ err:
 -- 
 2.34.1
 
