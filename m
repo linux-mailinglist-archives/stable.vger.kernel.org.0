@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAEF7499FCB
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:23:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCB62499FD0
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:24:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1842179AbiAXXBK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:01:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41480 "EHLO
+        id S1842192AbiAXXBO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:01:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382818AbiAXWjs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:39:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D962C055A8C;
-        Mon, 24 Jan 2022 13:03:41 -0800 (PST)
+        with ESMTP id S1382851AbiAXWju (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:39:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5785BC04D611;
+        Mon, 24 Jan 2022 13:04:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E24C4611C8;
-        Mon, 24 Jan 2022 21:03:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6783C340E5;
-        Mon, 24 Jan 2022 21:03:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1215CB81188;
+        Mon, 24 Jan 2022 21:04:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 369C6C340E5;
+        Mon, 24 Jan 2022 21:03:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058220;
-        bh=Dm1rBUKIAFcXxvuutpMut0aM2fwHRehNyKyaSmdh4gk=;
+        s=korg; t=1643058238;
+        bh=hrXnK3lSnVgSWEh61IIYjmLnsYStkmB0E0ezQOBT4ts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jPZGN+QbNie/GxxdVxZaWaBRlIEYzW0Z0erW1cAS29Mj99XJXOBC/9cvZv80K7R9/
-         ul4CfSXLf38YzfYED++vNZUnsQ06c+1SpwrQ2icDm/RyxA8Zb9f3+NG26AzG6a05/o
-         OlsY2Uk3z7vJjvIklIH8I+PhvcWVfcD0AS4ONULY=
+        b=aHyZVB8QZ5UGCx7zdMPIUzm7mj9xhTjNwRFr3OqBxIIgox1wddEnHn5FLMcST6tD5
+         ziB0QCAvQDo1m3vwaCRCROIe9ko+zXo/2eO/7OPEH9CCuMDbogQK1E8gksBAwqcek/
+         tGVipNNosFoafNBmVwxXYctfUu0CbqB92giyNt5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
-        Nishanth Menon <nm@ti.com>, Pratyush Yadav <p.yadav@ti.com>,
-        Vignesh Raghavendra <vigneshr@ti.com>,
+        stable@vger.kernel.org, Lino Sanfilippo <LinoSanfilippo@gmx.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0218/1039] arm64: dts: ti: k3-am642: Fix the L2 cache sets
-Date:   Mon, 24 Jan 2022 19:33:27 +0100
-Message-Id: <20220124184132.668442862@linuxfoundation.org>
+Subject: [PATCH 5.16 0223/1039] serial: amba-pl011: do not request memory region twice
+Date:   Mon, 24 Jan 2022 19:33:32 +0100
+Message-Id: <20220124184132.831001304@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -49,44 +47,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nishanth Menon <nm@ti.com>
+From: Lino Sanfilippo <LinoSanfilippo@gmx.de>
 
-[ Upstream commit a27a93bf70045be54b594fa8482959ffb84166d7 ]
+[ Upstream commit d1180405c7b5c7a1c6bde79d5fc24fe931430737 ]
 
-A53's L2 cache[1] on AM642[2] is 256KB. A53's L2 is fixed line length
-of 64 bytes and 16-way set-associative cache structure.
+With commit 3873e2d7f63a ("drivers: PL011: refactor pl011_probe()") the
+function devm_ioremap() called from pl011_setup_port() was replaced with
+devm_ioremap_resource(). Since this function not only remaps but also
+requests the ports io memory region it now collides with the .config_port()
+callback which requests the same region at uart port registration.
 
-256KB of L2 / 64 (line length) = 4096 ways
-4096 ways / 16 = 256 sets
+Since devm_ioremap_resource() already claims the memory successfully, the
+request in .config_port() fails.
 
-Fix the l2 cache-sets.
+Later at uart port deregistration the attempt to release the unclaimed
+memory also fails. The failure results in a “Trying to free nonexistent
+resource" warning.
 
-[1] https://developer.arm.com/documentation/ddi0500/j/Level-2-Memory-System/About-the-L2-memory-system?lang=en
-[2] https://www.ti.com/lit/pdf/spruim2
+Fix these issues by removing the callbacks that implement the redundant
+memory allocation/release. Also make sure that changing the drivers io
+memory base address via TIOCSSERIAL is not allowed any more.
 
-Fixes: 8abae9389bdb ("arm64: dts: ti: Add support for AM642 SoC")
-Reported-by: Peng Fan <peng.fan@nxp.com>
-Signed-off-by: Nishanth Menon <nm@ti.com>
-Reviewed-by: Pratyush Yadav <p.yadav@ti.com>
-Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
-Link: https://lore.kernel.org/r/20211113043635.4296-1-nm@ti.com
+Fixes: 3873e2d7f63a ("drivers: PL011: refactor pl011_probe()")
+Signed-off-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
+Link: https://lore.kernel.org/r/20211129174238.8333-1-LinoSanfilippo@gmx.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/ti/k3-am642.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/amba-pl011.c | 27 +++------------------------
+ 1 file changed, 3 insertions(+), 24 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/ti/k3-am642.dtsi b/arch/arm64/boot/dts/ti/k3-am642.dtsi
-index e2b397c884018..8a76f4821b11b 100644
---- a/arch/arm64/boot/dts/ti/k3-am642.dtsi
-+++ b/arch/arm64/boot/dts/ti/k3-am642.dtsi
-@@ -60,6 +60,6 @@
- 		cache-level = <2>;
- 		cache-size = <0x40000>;
- 		cache-line-size = <64>;
--		cache-sets = <512>;
-+		cache-sets = <256>;
- 	};
- };
+diff --git a/drivers/tty/serial/amba-pl011.c b/drivers/tty/serial/amba-pl011.c
+index 52518a606c06a..b831d4d64c0a2 100644
+--- a/drivers/tty/serial/amba-pl011.c
++++ b/drivers/tty/serial/amba-pl011.c
+@@ -2183,32 +2183,13 @@ static const char *pl011_type(struct uart_port *port)
+ 	return uap->port.type == PORT_AMBA ? uap->type : NULL;
+ }
+ 
+-/*
+- * Release the memory region(s) being used by 'port'
+- */
+-static void pl011_release_port(struct uart_port *port)
+-{
+-	release_mem_region(port->mapbase, SZ_4K);
+-}
+-
+-/*
+- * Request the memory region(s) being used by 'port'
+- */
+-static int pl011_request_port(struct uart_port *port)
+-{
+-	return request_mem_region(port->mapbase, SZ_4K, "uart-pl011")
+-			!= NULL ? 0 : -EBUSY;
+-}
+-
+ /*
+  * Configure/autoconfigure the port.
+  */
+ static void pl011_config_port(struct uart_port *port, int flags)
+ {
+-	if (flags & UART_CONFIG_TYPE) {
++	if (flags & UART_CONFIG_TYPE)
+ 		port->type = PORT_AMBA;
+-		pl011_request_port(port);
+-	}
+ }
+ 
+ /*
+@@ -2223,6 +2204,8 @@ static int pl011_verify_port(struct uart_port *port, struct serial_struct *ser)
+ 		ret = -EINVAL;
+ 	if (ser->baud_base < 9600)
+ 		ret = -EINVAL;
++	if (port->mapbase != (unsigned long) ser->iomem_base)
++		ret = -EINVAL;
+ 	return ret;
+ }
+ 
+@@ -2275,8 +2258,6 @@ static const struct uart_ops amba_pl011_pops = {
+ 	.flush_buffer	= pl011_dma_flush_buffer,
+ 	.set_termios	= pl011_set_termios,
+ 	.type		= pl011_type,
+-	.release_port	= pl011_release_port,
+-	.request_port	= pl011_request_port,
+ 	.config_port	= pl011_config_port,
+ 	.verify_port	= pl011_verify_port,
+ #ifdef CONFIG_CONSOLE_POLL
+@@ -2306,8 +2287,6 @@ static const struct uart_ops sbsa_uart_pops = {
+ 	.shutdown	= sbsa_uart_shutdown,
+ 	.set_termios	= sbsa_uart_set_termios,
+ 	.type		= pl011_type,
+-	.release_port	= pl011_release_port,
+-	.request_port	= pl011_request_port,
+ 	.config_port	= pl011_config_port,
+ 	.verify_port	= pl011_verify_port,
+ #ifdef CONFIG_CONSOLE_POLL
 -- 
 2.34.1
 
