@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD2A449A944
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:20:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46BBC49A945
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:20:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1322390AbiAYDVk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:21:40 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:46800 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356723AbiAXUUq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:20:46 -0500
+        id S1322400AbiAYDVl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:21:41 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:59238 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1380589AbiAXUVC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:21:02 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CF0CF61496;
-        Mon, 24 Jan 2022 20:20:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEF72C340E5;
-        Mon, 24 Jan 2022 20:20:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D13DB81249;
+        Mon, 24 Jan 2022 20:20:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F375C340E5;
+        Mon, 24 Jan 2022 20:20:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055644;
-        bh=b7tX3ZlHFJtdTxVMz/rlSEv/QGf1NcHRNgd6ZSQZdFU=;
+        s=korg; t=1643055653;
+        bh=xjp7WWQ9oczjqPRlsPvPYzsUhMd43lMLHP3xvU8tHrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2o4DZ2A+OjpQ/GQJp3oOCLTyaATTc/mtZgHuXMO1A/jblHz/AnHmBcAuzrU20n7Wd
-         APeI2KROYkD9Z0mXm9ggGpLJYPQmx3wheQh84l7764X6iL7zGjMRwjfqg3QUropOcM
-         kIZwtv+vRo/vKR9uj/uirrw3R9ri5jPb9nHG0TW4=
+        b=LIFAt5lYQI9du7MIegTQzX4VlwRCCJhWXcd0j0kMKiZCJ7jyUXOdj9XdwI2DaD2iY
+         91c4e5luQ0q8BHzP2mIEnf2GyJF+XQl3gmbfTEfHKKRWu7s/RmE7Rgwp6cAUmfQbfR
+         b4FoZ3eI1haRIB6XUz+mtsphHgeWM2Tcg0L1MNa8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
+        Nishanth Menon <nm@ti.com>, Pratyush Yadav <p.yadav@ti.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 185/846] libbpf: Clean gen_loaders attach kind.
-Date:   Mon, 24 Jan 2022 19:35:02 +0100
-Message-Id: <20220124184107.359387999@linuxfoundation.org>
+Subject: [PATCH 5.15 188/846] arm64: dts: ti: k3-j7200: Fix the L2 cache sets
+Date:   Mon, 24 Jan 2022 19:35:05 +0100
+Message-Id: <20220124184107.450605487@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -45,41 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexei Starovoitov <ast@kernel.org>
+From: Nishanth Menon <nm@ti.com>
 
-[ Upstream commit 19250f5fc0c283892a61f3abf9d65e6325f63897 ]
+[ Upstream commit d0c826106f3fc11ff97285102b576b65576654ae ]
 
-The gen_loader has to clear attach_kind otherwise the programs
-without attach_btf_id will fail load if they follow programs
-with attach_btf_id.
+A72's L2 cache[1] on J7200[2] is 1MB. A72's L2 is fixed line length of
+64 bytes and 16-way set-associative cache structure.
 
-Fixes: 67234743736a ("libbpf: Generate loader program out of BPF ELF file.")
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20211201181040.23337-12-alexei.starovoitov@gmail.com
+1MB of L2 / 64 (line length) = 16384 ways
+16384 ways / 16 = 1024 sets
+
+Fix the l2 cache-sets.
+
+[1] https://developer.arm.com/documentation/100095/0003/Level-2-Memory-System/About-the-L2-memory-system
+[2] https://www.ti.com/lit/pdf/spruiu1
+
+Fixes: d361ed88455f ("arm64: dts: ti: Add support for J7200 SoC")
+Reported-by: Peng Fan <peng.fan@nxp.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Reviewed-by: Pratyush Yadav <p.yadav@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Link: https://lore.kernel.org/r/20211113043638.4358-1-nm@ti.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/gen_loader.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm64/boot/dts/ti/k3-j7200.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/lib/bpf/gen_loader.c b/tools/lib/bpf/gen_loader.c
-index 8df718a6b142d..33c19590ee434 100644
---- a/tools/lib/bpf/gen_loader.c
-+++ b/tools/lib/bpf/gen_loader.c
-@@ -663,9 +663,11 @@ void bpf_gen__prog_load(struct bpf_gen *gen,
- 	debug_ret(gen, "prog_load %s insn_cnt %d", attr.prog_name, attr.insn_cnt);
- 	/* successful or not, close btf module FDs used in extern ksyms and attach_btf_obj_fd */
- 	cleanup_relos(gen, insns);
--	if (gen->attach_kind)
-+	if (gen->attach_kind) {
- 		emit_sys_close_blob(gen,
- 				    attr_field(prog_load_attr, attach_btf_obj_fd));
-+		gen->attach_kind = 0;
-+	}
- 	emit_check_err(gen);
- 	/* remember prog_fd in the stack, if successful */
- 	emit(gen, BPF_STX_MEM(BPF_W, BPF_REG_10, BPF_REG_7,
+diff --git a/arch/arm64/boot/dts/ti/k3-j7200.dtsi b/arch/arm64/boot/dts/ti/k3-j7200.dtsi
+index b7005b8031495..df86c36c21134 100644
+--- a/arch/arm64/boot/dts/ti/k3-j7200.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-j7200.dtsi
+@@ -84,7 +84,7 @@
+ 		cache-level = <2>;
+ 		cache-size = <0x100000>;
+ 		cache-line-size = <64>;
+-		cache-sets = <2048>;
++		cache-sets = <1024>;
+ 		next-level-cache = <&msmc_l3>;
+ 	};
+ 
 -- 
 2.34.1
 
