@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B424E499674
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:18:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9561E4996B9
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:19:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1445543AbiAXVEH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:04:07 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:52116 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1443746AbiAXU65 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:58:57 -0500
+        id S1446019AbiAXVGN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:06:13 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:54492 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1443904AbiAXU7h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:59:37 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 27A2A61414;
-        Mon, 24 Jan 2022 20:58:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1729C340E5;
-        Mon, 24 Jan 2022 20:58:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6126EB8121C;
+        Mon, 24 Jan 2022 20:59:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8214FC340E5;
+        Mon, 24 Jan 2022 20:59:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057935;
-        bh=eJP1hCWniN1ltL1kT6b/7fbt3ENomNOTOg9u1vjqjEM=;
+        s=korg; t=1643057969;
+        bh=WrCqZQRVcjEqYKrOwStT6HL75yR/zqNeI3M2IfBMBcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TUs4qm5YOcvTsDQ6WdRO33cxZ82WIptEMt3LQ0/MLKj/GJOFlE29XZOXw38s27P7A
-         RlqE+hasyKXcEK5Hjfc1vjxzHHcU3L2Sw/szAOErvh0qYddZfoCr4FynrAb35JI0f2
-         jU8atx7dfde6E1MDoyFbecnKBwgp2JInFqwEIP0U=
+        b=pYaS9rcwV8D3MSNY8ueFrt07jr54a2JozT6k8ZacJXfkm00N8x3EOusDjIvEMMY7k
+         6WItLLCAD0+lXqPpqAFooG7XKIUSLYt40kdwg4Q7CwBKka4kXTrTPcVBs9YPsZglGd
+         bv0zo+oEhc8TiE5FdLanLgoUwB7hWC5kODtf/Pec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Daniel Scally <djrscally@gmail.com>,
-        Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        stable@vger.kernel.org, Tsuchiya Yuto <kitakar@gmail.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0120/1039] media: ipu3-cio2: fix error code in cio2_bridge_connect_sensor()
-Date:   Mon, 24 Jan 2022 19:31:49 +0100
-Message-Id: <20220124184129.172023559@linuxfoundation.org>
+Subject: [PATCH 5.16 0121/1039] media: atomisp: add missing media_device_cleanup() in atomisp_unregister_entities()
+Date:   Mon, 24 Jan 2022 19:31:50 +0100
+Message-Id: <20220124184129.203107110@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -48,40 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Tsuchiya Yuto <kitakar@gmail.com>
 
-[ Upstream commit 85db29d22cc521d9d06de2f5c7832981a55df157 ]
+[ Upstream commit ce3015b7212e96db426d0c36f80fd159c91155d1 ]
 
-Return -ENODEV if acpi_get_physical_device_location() fails.  Don't
-return success.
+After the commit 9832e155f1ed ("[media] media-device: split media
+initialization and registration"), calling media_device_cleanup()
+is needed it seems. However, currently it is missing for the module
+unload path.
 
-Fixes: 485aa3df0dff ("media: ipu3-cio2: Parse sensor orientation and rotation")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Daniel Scally <djrscally@gmail.com>
-Reviewed-by: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Note that for the probe failure path, it is already added in
+atomisp_register_entities().
+
+This patch adds the missing call of media_device_cleanup() in
+atomisp_unregister_entities().
+
+Fixes: a49d25364dfb ("staging/atomisp: Add support for the Intel IPU v2")
+Signed-off-by: Tsuchiya Yuto <kitakar@gmail.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/intel/ipu3/cio2-bridge.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/staging/media/atomisp/pci/atomisp_v4l2.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/pci/intel/ipu3/cio2-bridge.c b/drivers/media/pci/intel/ipu3/cio2-bridge.c
-index 67c467d3c81f9..0b586b4e537ef 100644
---- a/drivers/media/pci/intel/ipu3/cio2-bridge.c
-+++ b/drivers/media/pci/intel/ipu3/cio2-bridge.c
-@@ -238,8 +238,10 @@ static int cio2_bridge_connect_sensor(const struct cio2_sensor_config *cfg,
- 			goto err_put_adev;
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_v4l2.c b/drivers/staging/media/atomisp/pci/atomisp_v4l2.c
+index 1e324f1f656e5..0511c454e769d 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_v4l2.c
++++ b/drivers/staging/media/atomisp/pci/atomisp_v4l2.c
+@@ -1182,6 +1182,7 @@ static void atomisp_unregister_entities(struct atomisp_device *isp)
  
- 		status = acpi_get_physical_device_location(adev->handle, &sensor->pld);
--		if (ACPI_FAILURE(status))
-+		if (ACPI_FAILURE(status)) {
-+			ret = -ENODEV;
- 			goto err_put_adev;
-+		}
+ 	v4l2_device_unregister(&isp->v4l2_dev);
+ 	media_device_unregister(&isp->media_dev);
++	media_device_cleanup(&isp->media_dev);
+ }
  
- 		if (sensor->ssdb.lanes > CIO2_MAX_LANES) {
- 			dev_err(&adev->dev,
+ static int atomisp_register_entities(struct atomisp_device *isp)
 -- 
 2.34.1
 
