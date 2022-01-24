@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 277B0499F52
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:18:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3015A499F54
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:18:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1841018AbiAXW5R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:57:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33712 "EHLO
+        id S1381944AbiAXW5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:57:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1579202AbiAXWFM (ORCPT
+        with ESMTP id S1579204AbiAXWFM (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:05:12 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D984C0C6857;
-        Mon, 24 Jan 2022 12:42:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7267BC045902;
+        Mon, 24 Jan 2022 12:42:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CBBF6B80FA3;
-        Mon, 24 Jan 2022 20:42:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0DAD2C36B08;
-        Mon, 24 Jan 2022 20:42:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E9D8CB8122A;
+        Mon, 24 Jan 2022 20:42:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24F2DC340E7;
+        Mon, 24 Jan 2022 20:42:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056932;
-        bh=OBTuXiREeeRTt0kQKSBldCdfbCJ4bnAco+QXL8c1owQ=;
+        s=korg; t=1643056935;
+        bh=TvWm8VA0FL0gbTrcAIrjiYnHCBn+7z1eGZmV+NVBhVA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ikCY4LB1Dd2Ljc8C4jq+uDk5yWLB6G0uJ0mBY3kWcA4s/gJwxnz8COLbtHYddgOVK
-         q5AkxZP1ScdUn+lPHW5ArkNdAmAaLGOjHGTX/dmFzEG1+elowkjmvfDDtfVcUpvssx
-         PnKuwL3WUwHEcvzJz4GVhayWkOZvyjstoVLomMmE=
+        b=WG6/3vWeJOS83lXSK6BaFWTxzhjO3gCWfBa3kFz5K/feAHL+PBhHEZzqYsMATBp2d
+         yQnLqKxHBxYWTMYR2HvMba4KsiShSuu8AN52q+tBJXgLRH6JPCQPS56J7pZCxlHV1k
+         9pOcCRWSn2y6KswoZbaK/KE16QmJWtIHKyqqZyWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        stable@vger.kernel.org, Maher Sanalla <msanalla@nvidia.com>,
+        Maor Gottlieb <maorg@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 614/846] random: do not throw away excess input to crng_fast_load
-Date:   Mon, 24 Jan 2022 19:42:11 +0100
-Message-Id: <20220124184122.222730672@linuxfoundation.org>
+Subject: [PATCH 5.15 615/846] net/mlx5: Update log_max_qp value to FW max capability
+Date:   Mon, 24 Jan 2022 19:42:12 +0100
+Message-Id: <20220124184122.258580071@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -49,93 +49,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Maher Sanalla <msanalla@nvidia.com>
 
-[ Upstream commit 73c7733f122e8d0107f88655a12011f68f69e74b ]
+[ Upstream commit f79a609ea6bf54ad2d2c24e4de4524288b221666 ]
 
-When crng_fast_load() is called by add_hwgenerator_randomness(), we
-currently will advance to crng_init==1 once we've acquired 64 bytes, and
-then throw away the rest of the buffer. Usually, that is not a problem:
-When add_hwgenerator_randomness() gets called via EFI or DT during
-setup_arch(), there won't be any IRQ randomness. Therefore, the 64 bytes
-passed by EFI exactly matches what is needed to advance to crng_init==1.
-Usually, DT seems to pass 64 bytes as well -- with one notable exception
-being kexec, which hands over 128 bytes of entropy to the kexec'd kernel.
-In that case, we'll advance to crng_init==1 once 64 of those bytes are
-consumed by crng_fast_load(), but won't continue onward feeding in bytes
-to progress to crng_init==2. This commit fixes the issue by feeding
-any leftover bytes into the next phase in add_hwgenerator_randomness().
+log_max_qp in driver's default profile #2 was set to 18, but FW actually
+supports 17 at the most - a situation that led to the concerning print
+when the driver is loaded:
+"log_max_qp value in current profile is 18, changing to HCA capabaility
+limit (17)"
 
-[linux@dominikbrodowski.net: rewrite commit message]
-Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+The expected behavior from mlx5_profile #2 is to match the maximum FW
+capability in regards to log_max_qp. Thus, log_max_qp in profile #2 is
+initialized to a defined static value (0xff) - which basically means that
+when loading this profile, log_max_qp value  will be what the currently
+installed FW supports at most.
+
+Signed-off-by: Maher Sanalla <msanalla@nvidia.com>
+Reviewed-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/random.c | 19 ++++++++++++-------
- 1 file changed, 12 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/main.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/char/random.c b/drivers/char/random.c
-index 7470ee24db2f9..a27ae3999ff32 100644
---- a/drivers/char/random.c
-+++ b/drivers/char/random.c
-@@ -912,12 +912,14 @@ static struct crng_state *select_crng(void)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+index 92b01858d7f3e..29b7297a836a5 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+@@ -97,6 +97,8 @@ enum {
+ 	MLX5_ATOMIC_REQ_MODE_HOST_ENDIANNESS = 0x1,
+ };
  
- /*
-  * crng_fast_load() can be called by code in the interrupt service
-- * path.  So we can't afford to dilly-dally.
-+ * path.  So we can't afford to dilly-dally. Returns the number of
-+ * bytes processed from cp.
-  */
--static int crng_fast_load(const char *cp, size_t len)
-+static size_t crng_fast_load(const char *cp, size_t len)
- {
- 	unsigned long flags;
- 	char *p;
-+	size_t ret = 0;
++#define LOG_MAX_SUPPORTED_QPS 0xff
++
+ static struct mlx5_profile profile[] = {
+ 	[0] = {
+ 		.mask           = 0,
+@@ -108,7 +110,7 @@ static struct mlx5_profile profile[] = {
+ 	[2] = {
+ 		.mask		= MLX5_PROF_MASK_QP_SIZE |
+ 				  MLX5_PROF_MASK_MR_CACHE,
+-		.log_max_qp	= 18,
++		.log_max_qp	= LOG_MAX_SUPPORTED_QPS,
+ 		.mr_cache[0]	= {
+ 			.size	= 500,
+ 			.limit	= 250
+@@ -513,7 +515,9 @@ static int handle_hca_cap(struct mlx5_core_dev *dev, void *set_ctx)
+ 		 to_fw_pkey_sz(dev, 128));
  
- 	if (!spin_trylock_irqsave(&primary_crng.lock, flags))
- 		return 0;
-@@ -928,7 +930,7 @@ static int crng_fast_load(const char *cp, size_t len)
- 	p = (unsigned char *) &primary_crng.state[4];
- 	while (len > 0 && crng_init_cnt < CRNG_INIT_CNT_THRESH) {
- 		p[crng_init_cnt % CHACHA_KEY_SIZE] ^= *cp;
--		cp++; crng_init_cnt++; len--;
-+		cp++; crng_init_cnt++; len--; ret++;
- 	}
- 	spin_unlock_irqrestore(&primary_crng.lock, flags);
- 	if (crng_init_cnt >= CRNG_INIT_CNT_THRESH) {
-@@ -936,7 +938,7 @@ static int crng_fast_load(const char *cp, size_t len)
- 		crng_init = 1;
- 		pr_notice("fast init done\n");
- 	}
--	return 1;
-+	return ret;
- }
- 
- /*
-@@ -1287,7 +1289,7 @@ void add_interrupt_randomness(int irq, int irq_flags)
- 	if (unlikely(crng_init == 0)) {
- 		if ((fast_pool->count >= 64) &&
- 		    crng_fast_load((char *) fast_pool->pool,
--				   sizeof(fast_pool->pool))) {
-+				   sizeof(fast_pool->pool)) > 0) {
- 			fast_pool->count = 0;
- 			fast_pool->last = now;
- 		}
-@@ -2295,8 +2297,11 @@ void add_hwgenerator_randomness(const char *buffer, size_t count,
- 	struct entropy_store *poolp = &input_pool;
- 
- 	if (unlikely(crng_init == 0)) {
--		crng_fast_load(buffer, count);
--		return;
-+		size_t ret = crng_fast_load(buffer, count);
-+		count -= ret;
-+		buffer += ret;
-+		if (!count || crng_init == 0)
-+			return;
- 	}
- 
- 	/* Suspend writing if we're above the trickle threshold.
+ 	/* Check log_max_qp from HCA caps to set in current profile */
+-	if (MLX5_CAP_GEN_MAX(dev, log_max_qp) < prof->log_max_qp) {
++	if (prof->log_max_qp == LOG_MAX_SUPPORTED_QPS) {
++		prof->log_max_qp = MLX5_CAP_GEN_MAX(dev, log_max_qp);
++	} else if (MLX5_CAP_GEN_MAX(dev, log_max_qp) < prof->log_max_qp) {
+ 		mlx5_core_warn(dev, "log_max_qp value in current profile is %d, changing it to HCA capability limit (%d)\n",
+ 			       prof->log_max_qp,
+ 			       MLX5_CAP_GEN_MAX(dev, log_max_qp));
 -- 
 2.34.1
 
