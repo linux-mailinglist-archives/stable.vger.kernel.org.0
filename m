@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F8CC498ADB
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:07:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F2BE499125
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:12:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242637AbiAXTH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:07:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46604 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346259AbiAXTFO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:05:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FB40C0613EF;
-        Mon, 24 Jan 2022 11:01:00 -0800 (PST)
+        id S1348629AbiAXUJZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:09:25 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60596 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376878AbiAXUES (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:04:18 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1EAA1B81215;
-        Mon, 24 Jan 2022 19:00:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58EDCC340E5;
-        Mon, 24 Jan 2022 19:00:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8A495611CD;
+        Mon, 24 Jan 2022 20:04:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61E8FC340E7;
+        Mon, 24 Jan 2022 20:04:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050857;
-        bh=32uOvvkf5PwtZBQ1zKQge2AigcWs01gd5KpLT3qG+qQ=;
+        s=korg; t=1643054656;
+        bh=IvIQaEZt2ffRaMJJrLZuUpbFT8T8VG/ahiVl4TyEc7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iDScEU6juax4DqtQ9EK38rAhRgiwpp6908atMOQwgfeMmkhiMJ4hgKkZn/hXG25j1
-         UrQcXES4k8KgaTgPmhXp5gaUw4HARzpVHzRbMtAvFjcNlOn8IgFP9onrDHVRqgwlPp
-         reIMGJnVtiDkN4rU14pV2YZii6rSz5QbvdHz6ap8=
+        b=j3mRs8GUiwWC6VDVYhxMtwxFCHgELilDZ6qA9IJF/CUo9l8qzyM6b0WhSVRqO5vZw
+         WSFIz9bbwbBrRsH8WT0vwqiuBAGCq8KaM+hYtA58nFTtcEtSnsbYckqZ7hhCCV4OTr
+         vatnzB2yCJRT2njGVGGExHitiQhPB8xGTTvS352Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 134/157] net: axienet: Wait for PhyRstCmplt after core reset
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.10 459/563] powerpc/64s/radix: Fix huge vmap false positive
 Date:   Mon, 24 Jan 2022 19:43:44 +0100
-Message-Id: <20220124183937.028790889@linuxfoundation.org>
+Message-Id: <20220124184040.330083950@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
-References: <20220124183932.787526760@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,51 +44,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit b400c2f4f4c53c86594dd57098970d97d488bfde upstream.
+commit 467ba14e1660b52a2f9338b484704c461bd23019 upstream.
 
-When resetting the device, wait for the PhyRstCmplt bit to be set
-in the interrupt status register before continuing initialization, to
-ensure that the core is actually ready. When using an external PHY, this
-also ensures we do not start trying to access the PHY while it is still
-in reset. The PHY reset is initiated by the core reset which is
-triggered just above, but remains asserted for 5ms after the core is
-reset according to the documentation.
+pmd_huge() is defined to false when HUGETLB_PAGE is not configured, but
+the vmap code still installs huge PMDs. This leads to false bad PMD
+errors when vunmapping because it is not seen as a huge PTE, and the bad
+PMD check catches it. The end result may not be much more serious than
+some bad pmd warning messages, because the pmd_none_or_clear_bad() does
+what we wanted and clears the huge PTE anyway.
 
-The MgtRdy bit could also be waited for, but unfortunately when using
-7-series devices, the bit does not appear to work as documented (it
-seems to behave as some sort of link state indication and not just an
-indication the transceiver is ready) so it can't really be relied on for
-this purpose.
+Fix this by checking pmd_is_leaf(), which checks for a PTE regardless of
+config options. The whole huge/large/leaf stuff is a tangled mess but
+that's kernel-wide and not something we can improve much in arch/powerpc
+code.
 
-Fixes: 8a3b7a252dca9 ("drivers/net/ethernet/xilinx: added Xilinx AXI Ethernet driver")
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+pmd_page(), pud_page(), etc., called by vmalloc_to_page() on huge vmaps
+can similarly trigger a false VM_BUG_ON when CONFIG_HUGETLB_PAGE=n, so
+those checks are adjusted. The checks were added by commit d6eacedd1f0e
+("powerpc/book3s: Use config independent helpers for page table walk"),
+while implementing a similar fix for other page table walking functions.
+
+Fixes: d909f9109c30 ("powerpc/64s/radix: Enable HAVE_ARCH_HUGE_VMAP")
+Cc: stable@vger.kernel.org # v5.3+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211216103342.609192-1-npiggin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/xilinx/xilinx_axienet_main.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ arch/powerpc/mm/book3s64/radix_pgtable.c |    4 ++--
+ arch/powerpc/mm/pgtable_64.c             |   14 +++++++++++---
+ 2 files changed, 13 insertions(+), 5 deletions(-)
 
---- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-@@ -278,6 +278,16 @@ static int axienet_dma_bd_init(struct ne
- 	axienet_dma_out32(lp, XAXIDMA_TX_CR_OFFSET,
- 			  cr | XAXIDMA_CR_RUNSTOP_MASK);
+--- a/arch/powerpc/mm/book3s64/radix_pgtable.c
++++ b/arch/powerpc/mm/book3s64/radix_pgtable.c
+@@ -1152,7 +1152,7 @@ int pud_set_huge(pud_t *pud, phys_addr_t
  
-+	/* Wait for PhyRstCmplt bit to be set, indicating the PHY reset has finished */
-+	ret = read_poll_timeout(axienet_ior, value,
-+				value & XAE_INT_PHYRSTCMPLT_MASK,
-+				DELAY_OF_ONE_MILLISEC, 50000, false, lp,
-+				XAE_IS_OFFSET);
-+	if (ret) {
-+		dev_err(lp->dev, "%s: timeout waiting for PhyRstCmplt\n", __func__);
-+		return ret;
-+	}
-+
- 	return 0;
- out:
- 	axienet_dma_bd_release(ndev);
+ int pud_clear_huge(pud_t *pud)
+ {
+-	if (pud_huge(*pud)) {
++	if (pud_is_leaf(*pud)) {
+ 		pud_clear(pud);
+ 		return 1;
+ 	}
+@@ -1199,7 +1199,7 @@ int pmd_set_huge(pmd_t *pmd, phys_addr_t
+ 
+ int pmd_clear_huge(pmd_t *pmd)
+ {
+-	if (pmd_huge(*pmd)) {
++	if (pmd_is_leaf(*pmd)) {
+ 		pmd_clear(pmd);
+ 		return 1;
+ 	}
+--- a/arch/powerpc/mm/pgtable_64.c
++++ b/arch/powerpc/mm/pgtable_64.c
+@@ -102,7 +102,8 @@ EXPORT_SYMBOL(__pte_frag_size_shift);
+ struct page *p4d_page(p4d_t p4d)
+ {
+ 	if (p4d_is_leaf(p4d)) {
+-		VM_WARN_ON(!p4d_huge(p4d));
++		if (!IS_ENABLED(CONFIG_HAVE_ARCH_HUGE_VMAP))
++			VM_WARN_ON(!p4d_huge(p4d));
+ 		return pte_page(p4d_pte(p4d));
+ 	}
+ 	return virt_to_page(p4d_page_vaddr(p4d));
+@@ -112,7 +113,8 @@ struct page *p4d_page(p4d_t p4d)
+ struct page *pud_page(pud_t pud)
+ {
+ 	if (pud_is_leaf(pud)) {
+-		VM_WARN_ON(!pud_huge(pud));
++		if (!IS_ENABLED(CONFIG_HAVE_ARCH_HUGE_VMAP))
++			VM_WARN_ON(!pud_huge(pud));
+ 		return pte_page(pud_pte(pud));
+ 	}
+ 	return virt_to_page(pud_page_vaddr(pud));
+@@ -125,7 +127,13 @@ struct page *pud_page(pud_t pud)
+ struct page *pmd_page(pmd_t pmd)
+ {
+ 	if (pmd_is_leaf(pmd)) {
+-		VM_WARN_ON(!(pmd_large(pmd) || pmd_huge(pmd)));
++		/*
++		 * vmalloc_to_page may be called on any vmap address (not only
++		 * vmalloc), and it uses pmd_page() etc., when huge vmap is
++		 * enabled so these checks can't be used.
++		 */
++		if (!IS_ENABLED(CONFIG_HAVE_ARCH_HUGE_VMAP))
++			VM_WARN_ON(!(pmd_large(pmd) || pmd_huge(pmd)));
+ 		return pte_page(pmd_pte(pmd));
+ 	}
+ 	return virt_to_page(pmd_page_vaddr(pmd));
 
 
