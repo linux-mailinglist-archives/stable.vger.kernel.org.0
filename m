@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31412499F78
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:19:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CBB28499E5A
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:08:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383966AbiAXW62 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:58:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38582 "EHLO
+        id S1351890AbiAXWcq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:32:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1587735AbiAXW3h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:29:37 -0500
+        with ESMTP id S1585400AbiAXWXb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:23:31 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6475C095405;
-        Mon, 24 Jan 2022 12:55:12 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 024DEC054327;
+        Mon, 24 Jan 2022 12:53:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 75FDF60916;
-        Mon, 24 Jan 2022 20:55:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A85FC340E5;
-        Mon, 24 Jan 2022 20:55:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 943BF612A5;
+        Mon, 24 Jan 2022 20:53:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76ED4C340E7;
+        Mon, 24 Jan 2022 20:53:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057711;
-        bh=m6ghTn5MEElojWEjAHfRtUFtSmV8Q58RWFp1gRVwjwA=;
+        s=korg; t=1643057614;
+        bh=zp/NYWIKoE3tOdV+Shax2CsA4xFUZ7F/J0Kgo/s5+RE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AZvSCwwwCOqNuDtBciFmaV7pasjx+IQXNolwpO01CC/zmIAmwYZJkJi/+sPwYjT20
-         LzZv0dTeB5KLDHA5MPXgukDoQ/gVaK+YZQ43TV8b0Fhz72bptyckyF36+1nXOkjK8T
-         GqV4SFMzjTK7jnqxiiXWvdAhUj2wYKa/RJ2P3YlY=
+        b=QwEjs399aMahFGomivA6kCJH/ZAhZDcSDJeJ4L5OHkg3s4cgGmEa/piTRZhKMgoiH
+         EUbjnErx4uGLTkfGErUvcwg93RrqQkfcXYTgaqgbo8Cc4zDT7dbB23PCo/Ov3CkFRW
+         MTZSUMAHaV2eo/BpJJzJ5Q8zCOiNlcB90pC/04x4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
-        Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.16 0021/1039] mtd: rawnand: Export nand_read_page_hwecc_oob_first()
-Date:   Mon, 24 Jan 2022 19:30:10 +0100
-Message-Id: <20220124184125.851098591@linuxfoundation.org>
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Alexandre Ghiti <alexandre.ghiti@canonical.com>,
+        Conor Dooley <Conor.Dooley@microchip.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.16 0023/1039] riscv: Get rid of MAXPHYSMEM configs
+Date:   Mon, 24 Jan 2022 19:30:12 +0100
+Message-Id: <20220124184125.914468792@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -47,197 +49,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Alexandre Ghiti <alexandre.ghiti@canonical.com>
 
-commit d8466f73010faf71effb21228ae1cbf577dab130 upstream.
+commit db1503d355a79d1d4255a9996f20e72848b74a56 upstream.
 
-Move the function nand_read_page_hwecc_oob_first() (previously
-nand_davinci_read_page_hwecc_oob_first()) to nand_base.c, and export it
-as a GPL symbol, so that it can be used by more modules.
+CONFIG_MAXPHYSMEM_* are actually never used, even the nommu defconfigs
+selecting the MAXPHYSMEM_2GB had no effects on PAGE_OFFSET since it was
+preempted by !MMU case right before.
 
-Cc: <stable@vger.kernel.org> # v5.2
-Fixes: a0ac778eb82c ("mtd: rawnand: ingenic: Add support for the JZ4740")
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20211016132228.40254-4-paul@crapouillou.net
+In addition, the move of the kernel mapping at the end of the address
+space broke the use of MAXPHYSMEM_2G with MMU since it defines PAGE_OFFSET
+at the same address as the kernel mapping.
+
+Reported-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Fixes: 2bfc6cd81bd1 ("riscv: Move kernel mapping outside of linear mapping")
+Signed-off-by: Alexandre Ghiti <alexandre.ghiti@canonical.com>
+Tested-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Tested-by: Conor Dooley <Conor.Dooley@microchip.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/davinci_nand.c |   69 ------------------------------------
- drivers/mtd/nand/raw/nand_base.c    |   67 ++++++++++++++++++++++++++++++++++
- include/linux/mtd/rawnand.h         |    2 +
- 3 files changed, 70 insertions(+), 68 deletions(-)
+ arch/riscv/Kconfig                             |   23 ++---------------------
+ arch/riscv/configs/nommu_k210_defconfig        |    2 --
+ arch/riscv/configs/nommu_k210_sdcard_defconfig |    2 --
+ arch/riscv/configs/nommu_virt_defconfig        |    1 -
+ 4 files changed, 2 insertions(+), 26 deletions(-)
 
---- a/drivers/mtd/nand/raw/davinci_nand.c
-+++ b/drivers/mtd/nand/raw/davinci_nand.c
-@@ -371,73 +371,6 @@ correct:
- 	return corrected;
- }
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -158,10 +158,9 @@ config PA_BITS
  
--/**
-- * nand_davinci_read_page_hwecc_oob_first - Hardware ECC page read with ECC
-- *                                          data read from OOB area
-- * @chip: nand chip info structure
-- * @buf: buffer to store read data
-- * @oob_required: caller requires OOB data read to chip->oob_poi
-- * @page: page number to read
-- *
-- * Hardware ECC for large page chips, which requires the ECC data to be
-- * extracted from the OOB before the actual data is read.
-- */
--static int nand_davinci_read_page_hwecc_oob_first(struct nand_chip *chip,
--						  uint8_t *buf,
--						  int oob_required, int page)
--{
--	struct mtd_info *mtd = nand_to_mtd(chip);
--	int i, eccsize = chip->ecc.size, ret;
--	int eccbytes = chip->ecc.bytes;
--	int eccsteps = chip->ecc.steps;
--	uint8_t *p = buf;
--	uint8_t *ecc_code = chip->ecc.code_buf;
--	unsigned int max_bitflips = 0;
--
--	/* Read the OOB area first */
--	ret = nand_read_oob_op(chip, page, 0, chip->oob_poi, mtd->oobsize);
--	if (ret)
--		return ret;
--
--	/* Move read cursor to start of page */
--	ret = nand_change_read_column_op(chip, 0, NULL, 0, false);
--	if (ret)
--		return ret;
--
--	ret = mtd_ooblayout_get_eccbytes(mtd, ecc_code, chip->oob_poi, 0,
--					 chip->ecc.total);
--	if (ret)
--		return ret;
--
--	for (i = 0; eccsteps; eccsteps--, i += eccbytes, p += eccsize) {
--		int stat;
--
--		chip->ecc.hwctl(chip, NAND_ECC_READ);
--
--		ret = nand_read_data_op(chip, p, eccsize, false, false);
--		if (ret)
--			return ret;
--
--		stat = chip->ecc.correct(chip, p, &ecc_code[i], NULL);
--		if (stat == -EBADMSG &&
--		    (chip->ecc.options & NAND_ECC_GENERIC_ERASED_CHECK)) {
--			/* check for empty pages with bitflips */
--			stat = nand_check_erased_ecc_chunk(p, eccsize,
--							   &ecc_code[i],
--							   eccbytes, NULL, 0,
--							   chip->ecc.strength);
--		}
--
--		if (stat < 0) {
--			mtd->ecc_stats.failed++;
--		} else {
--			mtd->ecc_stats.corrected += stat;
--			max_bitflips = max_t(unsigned int, max_bitflips, stat);
--		}
--	}
--	return max_bitflips;
--}
--
- /*----------------------------------------------------------------------*/
+ config PAGE_OFFSET
+ 	hex
+-	default 0xC0000000 if 32BIT && MAXPHYSMEM_1GB
++	default 0xC0000000 if 32BIT
+ 	default 0x80000000 if 64BIT && !MMU
+-	default 0xffffffff80000000 if 64BIT && MAXPHYSMEM_2GB
+-	default 0xffffffe000000000 if 64BIT && MAXPHYSMEM_128GB
++	default 0xffffffe000000000 if 64BIT
  
- /* An ECC layout for using 4-bit ECC with small-page flash, storing
-@@ -647,7 +580,7 @@ static int davinci_nand_attach_chip(stru
- 			} else if (chunks == 4 || chunks == 8) {
- 				mtd_set_ooblayout(mtd,
- 						  nand_get_large_page_ooblayout());
--				chip->ecc.read_page = nand_davinci_read_page_hwecc_oob_first;
-+				chip->ecc.read_page = nand_read_page_hwecc_oob_first;
- 			} else {
- 				return -EIO;
- 			}
---- a/drivers/mtd/nand/raw/nand_base.c
-+++ b/drivers/mtd/nand/raw/nand_base.c
-@@ -3161,6 +3161,73 @@ static int nand_read_page_hwecc(struct n
- }
+ config KASAN_SHADOW_OFFSET
+ 	hex
+@@ -270,24 +269,6 @@ config MODULE_SECTIONS
+ 	bool
+ 	select HAVE_MOD_ARCH_SPECIFIC
  
- /**
-+ * nand_read_page_hwecc_oob_first - Hardware ECC page read with ECC
-+ *                                  data read from OOB area
-+ * @chip: nand chip info structure
-+ * @buf: buffer to store read data
-+ * @oob_required: caller requires OOB data read to chip->oob_poi
-+ * @page: page number to read
-+ *
-+ * Hardware ECC for large page chips, which requires the ECC data to be
-+ * extracted from the OOB before the actual data is read.
-+ */
-+int nand_read_page_hwecc_oob_first(struct nand_chip *chip, uint8_t *buf,
-+				   int oob_required, int page)
-+{
-+	struct mtd_info *mtd = nand_to_mtd(chip);
-+	int i, eccsize = chip->ecc.size, ret;
-+	int eccbytes = chip->ecc.bytes;
-+	int eccsteps = chip->ecc.steps;
-+	uint8_t *p = buf;
-+	uint8_t *ecc_code = chip->ecc.code_buf;
-+	unsigned int max_bitflips = 0;
-+
-+	/* Read the OOB area first */
-+	ret = nand_read_oob_op(chip, page, 0, chip->oob_poi, mtd->oobsize);
-+	if (ret)
-+		return ret;
-+
-+	/* Move read cursor to start of page */
-+	ret = nand_change_read_column_op(chip, 0, NULL, 0, false);
-+	if (ret)
-+		return ret;
-+
-+	ret = mtd_ooblayout_get_eccbytes(mtd, ecc_code, chip->oob_poi, 0,
-+					 chip->ecc.total);
-+	if (ret)
-+		return ret;
-+
-+	for (i = 0; eccsteps; eccsteps--, i += eccbytes, p += eccsize) {
-+		int stat;
-+
-+		chip->ecc.hwctl(chip, NAND_ECC_READ);
-+
-+		ret = nand_read_data_op(chip, p, eccsize, false, false);
-+		if (ret)
-+			return ret;
-+
-+		stat = chip->ecc.correct(chip, p, &ecc_code[i], NULL);
-+		if (stat == -EBADMSG &&
-+		    (chip->ecc.options & NAND_ECC_GENERIC_ERASED_CHECK)) {
-+			/* check for empty pages with bitflips */
-+			stat = nand_check_erased_ecc_chunk(p, eccsize,
-+							   &ecc_code[i],
-+							   eccbytes, NULL, 0,
-+							   chip->ecc.strength);
-+		}
-+
-+		if (stat < 0) {
-+			mtd->ecc_stats.failed++;
-+		} else {
-+			mtd->ecc_stats.corrected += stat;
-+			max_bitflips = max_t(unsigned int, max_bitflips, stat);
-+		}
-+	}
-+	return max_bitflips;
-+}
-+EXPORT_SYMBOL_GPL(nand_read_page_hwecc_oob_first);
-+
-+/**
-  * nand_read_page_syndrome - [REPLACEABLE] hardware ECC syndrome based page read
-  * @chip: nand chip info structure
-  * @buf: buffer to store read data
---- a/include/linux/mtd/rawnand.h
-+++ b/include/linux/mtd/rawnand.h
-@@ -1539,6 +1539,8 @@ int nand_read_data_op(struct nand_chip *
- 		      bool force_8bit, bool check_only);
- int nand_write_data_op(struct nand_chip *chip, const void *buf,
- 		       unsigned int len, bool force_8bit);
-+int nand_read_page_hwecc_oob_first(struct nand_chip *chip, uint8_t *buf,
-+				   int oob_required, int page);
- 
- /* Scan and identify a NAND device */
- int nand_scan_with_ids(struct nand_chip *chip, unsigned int max_chips,
+-choice
+-	prompt "Maximum Physical Memory"
+-	default MAXPHYSMEM_1GB if 32BIT
+-	default MAXPHYSMEM_2GB if 64BIT && CMODEL_MEDLOW
+-	default MAXPHYSMEM_128GB if 64BIT && CMODEL_MEDANY
+-
+-	config MAXPHYSMEM_1GB
+-		depends on 32BIT
+-		bool "1GiB"
+-	config MAXPHYSMEM_2GB
+-		depends on 64BIT && CMODEL_MEDLOW
+-		bool "2GiB"
+-	config MAXPHYSMEM_128GB
+-		depends on 64BIT && CMODEL_MEDANY
+-		bool "128GiB"
+-endchoice
+-
+-
+ config SMP
+ 	bool "Symmetric Multi-Processing"
+ 	help
+--- a/arch/riscv/configs/nommu_k210_defconfig
++++ b/arch/riscv/configs/nommu_k210_defconfig
+@@ -29,8 +29,6 @@ CONFIG_EMBEDDED=y
+ CONFIG_SLOB=y
+ # CONFIG_MMU is not set
+ CONFIG_SOC_CANAAN=y
+-CONFIG_SOC_CANAAN_K210_DTB_SOURCE="k210_generic"
+-CONFIG_MAXPHYSMEM_2GB=y
+ CONFIG_SMP=y
+ CONFIG_NR_CPUS=2
+ CONFIG_CMDLINE="earlycon console=ttySIF0"
+--- a/arch/riscv/configs/nommu_k210_sdcard_defconfig
++++ b/arch/riscv/configs/nommu_k210_sdcard_defconfig
+@@ -21,8 +21,6 @@ CONFIG_EMBEDDED=y
+ CONFIG_SLOB=y
+ # CONFIG_MMU is not set
+ CONFIG_SOC_CANAAN=y
+-CONFIG_SOC_CANAAN_K210_DTB_SOURCE="k210_generic"
+-CONFIG_MAXPHYSMEM_2GB=y
+ CONFIG_SMP=y
+ CONFIG_NR_CPUS=2
+ CONFIG_CMDLINE="earlycon console=ttySIF0 rootdelay=2 root=/dev/mmcblk0p1 ro"
+--- a/arch/riscv/configs/nommu_virt_defconfig
++++ b/arch/riscv/configs/nommu_virt_defconfig
+@@ -27,7 +27,6 @@ CONFIG_SLOB=y
+ # CONFIG_SLAB_MERGE_DEFAULT is not set
+ # CONFIG_MMU is not set
+ CONFIG_SOC_VIRT=y
+-CONFIG_MAXPHYSMEM_2GB=y
+ CONFIG_SMP=y
+ CONFIG_CMDLINE="root=/dev/vda rw earlycon=uart8250,mmio,0x10000000,115200n8 console=ttyS0"
+ CONFIG_CMDLINE_FORCE=y
 
 
