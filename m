@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33AFF498B73
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:13:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6187B4990F9
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:08:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245371AbiAXTNp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:13:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47492 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347805AbiAXTLL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:11:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00591C08E87C;
-        Mon, 24 Jan 2022 11:02:42 -0800 (PST)
+        id S1354588AbiAXUIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:08:11 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:54938 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1352572AbiAXT6h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:58:37 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B2C67B8119D;
-        Mon, 24 Jan 2022 19:02:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7B06C340E5;
-        Mon, 24 Jan 2022 19:02:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CCCDA60B88;
+        Mon, 24 Jan 2022 19:58:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B405BC340E5;
+        Mon, 24 Jan 2022 19:58:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050960;
-        bh=IR6MvDjAe+wJMl1IxlgonkXpDFZ0GOTFD4VnS/SjRDc=;
+        s=korg; t=1643054314;
+        bh=bECX07xkx2k484fsrIWFoWPuZFgoO91gV/NWmls1Tc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w1FwtiwjS6nHEo75YV6M/ro716I+KWV0Ul2Led8Xky3eLRyO/srG9lYaB9wp9/IcZ
-         N1SlyGMn8H2knOJteTbh7AhkZKkncrtSMM/C1TTp/V/SBrYfQGUpxkPSgAaT3A2Fh0
-         WZZKihJQJigMGPtpshKu9ylZJk/NDfkGmiPWdJwI=
+        b=eT410Q8XZ6uHkHpUutT5UGdWLZbQbNMx1OgWIym4+Ofx4phN+001ID/h/WL/MnZTW
+         qmQjPOnGKObxD3BzflVNj27mvrFJLLaTPwAXBRPqh7Dj2WjWqqcdmPenr92cP3V2lL
+         LVnW+VMCTWc22comb2TM/LvIsCqgPJEW4sy2nARI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        =?UTF-8?q?D=C3=A1vid=20Bolvansk=C3=BD?= <david.bolvansky@gmail.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>
-Subject: [PATCH 4.14 010/186] drm/i915: Avoid bitwise vs logical OR warning in snb_wm_latency_quirk()
-Date:   Mon, 24 Jan 2022 19:41:25 +0100
-Message-Id: <20220124183937.447155070@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Kiszka <jan.kiszka@siemens.com>,
+        Suman Anna <s-anna@ti.com>, Nishanth Menon <nm@ti.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 321/563] soc: ti: pruss: fix referenced node in error message
+Date:   Mon, 24 Jan 2022 19:41:26 +0100
+Message-Id: <20220124184035.537585419@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,52 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Jan Kiszka <jan.kiszka@siemens.com>
 
-commit 2e70570656adfe1c5d9a29940faa348d5f132199 upstream.
+[ Upstream commit 8aa35e0bb5eaa42bac415ad0847985daa7b4890c ]
 
-A new warning in clang points out a place in this file where a bitwise
-OR is being used with boolean types:
+So far, "(null)" is reported for the node that is missing clocks.
 
-drivers/gpu/drm/i915/intel_pm.c:3066:12: warning: use of bitwise '|' with boolean operands [-Wbitwise-instead-of-logical]
-        changed = ilk_increase_wm_latency(dev_priv, dev_priv->wm.pri_latency, 12) |
-                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-This construct is intentional, as it allows every one of the calls to
-ilk_increase_wm_latency() to occur (instead of short circuiting with
-logical OR) while still caring about the result of each call.
-
-To make this clearer to the compiler, use the '|=' operator to assign
-the result of each ilk_increase_wm_latency() call to changed, which
-keeps the meaning of the code the same but makes it obvious that every
-one of these calls is expected to happen.
-
-Link: https://github.com/ClangBuiltLinux/linux/issues/1473
-Reported-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Suggested-by: Dávid Bolvanský <david.bolvansky@gmail.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211014211916.3550122-1-nathan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jan Kiszka <jan.kiszka@siemens.com>
+Acked-by: Suman Anna <s-anna@ti.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Link: https://lore.kernel.org/r/d6e24953-ea89-fd1c-6e16-7a0142118054@siemens.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/intel_pm.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/soc/ti/pruss.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/intel_pm.c
-+++ b/drivers/gpu/drm/i915/intel_pm.c
-@@ -2985,9 +2985,9 @@ static void snb_wm_latency_quirk(struct
- 	 * The BIOS provided WM memory latency values are often
- 	 * inadequate for high resolution displays. Adjust them.
- 	 */
--	changed = ilk_increase_wm_latency(dev_priv, dev_priv->wm.pri_latency, 12) |
--		ilk_increase_wm_latency(dev_priv, dev_priv->wm.spr_latency, 12) |
--		ilk_increase_wm_latency(dev_priv, dev_priv->wm.cur_latency, 12);
-+	changed = ilk_increase_wm_latency(dev_priv, dev_priv->wm.pri_latency, 12);
-+	changed |= ilk_increase_wm_latency(dev_priv, dev_priv->wm.spr_latency, 12);
-+	changed |= ilk_increase_wm_latency(dev_priv, dev_priv->wm.cur_latency, 12);
+diff --git a/drivers/soc/ti/pruss.c b/drivers/soc/ti/pruss.c
+index cc0b4ad7a3d34..30695172a508f 100644
+--- a/drivers/soc/ti/pruss.c
++++ b/drivers/soc/ti/pruss.c
+@@ -131,7 +131,7 @@ static int pruss_clk_init(struct pruss *pruss, struct device_node *cfg_node)
  
- 	if (!changed)
- 		return;
+ 	clks_np = of_get_child_by_name(cfg_node, "clocks");
+ 	if (!clks_np) {
+-		dev_err(dev, "%pOF is missing its 'clocks' node\n", clks_np);
++		dev_err(dev, "%pOF is missing its 'clocks' node\n", cfg_node);
+ 		return -ENODEV;
+ 	}
+ 
+-- 
+2.34.1
+
 
 
