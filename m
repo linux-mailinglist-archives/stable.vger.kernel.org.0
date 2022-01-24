@@ -2,51 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 449EB499B9E
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:04:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42D954994F5
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:07:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1575202AbiAXVvI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:51:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56588 "EHLO
+        id S1391899AbiAXUt6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:49:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1458150AbiAXVmr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:42:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E4C7C07A959;
-        Mon, 24 Jan 2022 12:31:12 -0800 (PST)
+        with ESMTP id S1388853AbiAXUkN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:40:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B363AC045917;
+        Mon, 24 Jan 2022 11:51:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CCBE761536;
-        Mon, 24 Jan 2022 20:31:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB8A5C340E5;
-        Mon, 24 Jan 2022 20:31:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6FB97B81215;
+        Mon, 24 Jan 2022 19:51:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DED3C340E5;
+        Mon, 24 Jan 2022 19:51:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056271;
-        bh=31xC9mtUNmT5ViszQgZGChLa+pmB3GlMeXbvgzxJHR8=;
+        s=korg; t=1643053896;
+        bh=U+Nb0NPZWLh7Nmoze8/HV96EGs6PbpH8kYa4V7Ihd9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZEC+ROZ5fwELLGQggQwH3O7XtHiu4BKen5E3aew2BR2HA4n/Dw6lLtTpiUEXwCWcW
-         Gjaja2Yx3flS2bBHQFjpUDI6gdvp27rEwJs2W0O7GTkYiwqvZjxEdRY06UgUjavtwv
-         YBbIyX0hmx7rBuv3Z30GBhW2zVkZ4aV8t3YxElwY=
+        b=fdwQPyRlEBnQKZvj8hDHts7AT4EJSvXO0chIphy4Nz33LC55wPuZQ3WyPBXt/erFd
+         SwjLVdDzxu+mMfbF2I/FzuR2+KjFrJXILHGWI59+VF4hA3RwYlI4q2eKBtGcGrlula
+         3HqtJP5YLjwNeWHvYO0QqaKr4sd13xXplt84j7n0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-efi@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rob Herring <robh@kernel.org>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Pingfan Liu <kernelfans@gmail.com>,
-        Dave Kleikamp <dave.kleikamp@oracle.com>,
-        John Donnelly <john.p.donnelly@oracle.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        linux-arm-kernel@lists.infradead.org,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
+        Gregory CLEMENT <gregory.clement@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 427/846] of: fdt: Aggregate the processing of "linux,usable-memory-range"
+Subject: [PATCH 5.10 179/563] ARM: dts: armada-38x: Add generic compatible to UART nodes
 Date:   Mon, 24 Jan 2022 19:39:04 +0100
-Message-Id: <20220124184115.705813438@linuxfoundation.org>
+Message-Id: <20220124184030.612748962@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,97 +50,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Marek Behún <kabel@kernel.org>
 
-[ Upstream commit 8347b41748c3019157312fbe7f8a6792ae396eb7 ]
+[ Upstream commit 62480772263ab6b52e758f2346c70a526abd1d28 ]
 
-Currently, we parse the "linux,usable-memory-range" property in
-early_init_dt_scan_chosen(), to obtain the specified memory range of the
-crash kernel. We then reserve the required memory after
-early_init_dt_scan_memory() has identified all available physical memory.
-Because the two pieces of code are separated far, the readability and
-maintainability are reduced. So bring them together.
+Add generic compatible string "ns16550a" to serial port nodes of Armada
+38x.
 
-Suggested-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-(change the prototype of early_init_dt_check_for_usable_mem_range(), in
-order to use it outside)
-Signed-off-by: Pingfan Liu <kernelfans@gmail.com>
-Tested-by: Dave Kleikamp <dave.kleikamp@oracle.com>
-Acked-by: John Donnelly <john.p.donnelly@oracle.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: linux-arm-kernel@lists.infradead.org
-To: devicetree@vger.kernel.org
-To: linux-efi@vger.kernel.org
-Signed-off-by: Rob Herring <robh@kernel.org>
+This makes it possible to use earlycon.
+
+Fixes: 0d3d96ab0059 ("ARM: mvebu: add Device Tree description of the Armada 380/385 SoCs")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/fdt.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ arch/arm/boot/dts/armada-38x.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
-index 4546572af24bb..105b1a47905ab 100644
---- a/drivers/of/fdt.c
-+++ b/drivers/of/fdt.c
-@@ -969,18 +969,22 @@ static void __init early_init_dt_check_for_elfcorehdr(unsigned long node)
- 		 elfcorehdr_addr, elfcorehdr_size);
- }
+diff --git a/arch/arm/boot/dts/armada-38x.dtsi b/arch/arm/boot/dts/armada-38x.dtsi
+index 9b1a24cc5e91f..df3c8d1d8f641 100644
+--- a/arch/arm/boot/dts/armada-38x.dtsi
++++ b/arch/arm/boot/dts/armada-38x.dtsi
+@@ -168,7 +168,7 @@
+ 			};
  
--static phys_addr_t cap_mem_addr;
--static phys_addr_t cap_mem_size;
-+static unsigned long chosen_node_offset = -FDT_ERR_NOTFOUND;
+ 			uart0: serial@12000 {
+-				compatible = "marvell,armada-38x-uart";
++				compatible = "marvell,armada-38x-uart", "ns16550a";
+ 				reg = <0x12000 0x100>;
+ 				reg-shift = <2>;
+ 				interrupts = <GIC_SPI 12 IRQ_TYPE_LEVEL_HIGH>;
+@@ -178,7 +178,7 @@
+ 			};
  
- /**
-  * early_init_dt_check_for_usable_mem_range - Decode usable memory range
-  * location from flat tree
-- * @node: reference to node containing usable memory range location ('chosen')
-  */
--static void __init early_init_dt_check_for_usable_mem_range(unsigned long node)
-+static void __init early_init_dt_check_for_usable_mem_range(void)
- {
- 	const __be32 *prop;
- 	int len;
-+	phys_addr_t cap_mem_addr;
-+	phys_addr_t cap_mem_size;
-+	unsigned long node = chosen_node_offset;
-+
-+	if ((long)node < 0)
-+		return;
- 
- 	pr_debug("Looking for usable-memory-range property... ");
- 
-@@ -993,6 +997,8 @@ static void __init early_init_dt_check_for_usable_mem_range(unsigned long node)
- 
- 	pr_debug("cap_mem_start=%pa cap_mem_size=%pa\n", &cap_mem_addr,
- 		 &cap_mem_size);
-+
-+	memblock_cap_memory_range(cap_mem_addr, cap_mem_size);
- }
- 
- #ifdef CONFIG_SERIAL_EARLYCON
-@@ -1141,9 +1147,10 @@ int __init early_init_dt_scan_chosen(unsigned long node, const char *uname,
- 	    (strcmp(uname, "chosen") != 0 && strcmp(uname, "chosen@0") != 0))
- 		return 0;
- 
-+	chosen_node_offset = node;
-+
- 	early_init_dt_check_for_initrd(node);
- 	early_init_dt_check_for_elfcorehdr(node);
--	early_init_dt_check_for_usable_mem_range(node);
- 
- 	/* Retrieve command line */
- 	p = of_get_flat_dt_prop(node, "bootargs", &l);
-@@ -1279,7 +1286,7 @@ void __init early_init_dt_scan_nodes(void)
- 	of_scan_flat_dt(early_init_dt_scan_memory, NULL);
- 
- 	/* Handle linux,usable-memory-range property */
--	memblock_cap_memory_range(cap_mem_addr, cap_mem_size);
-+	early_init_dt_check_for_usable_mem_range();
- }
- 
- bool __init early_init_dt_scan(void *params)
+ 			uart1: serial@12100 {
+-				compatible = "marvell,armada-38x-uart";
++				compatible = "marvell,armada-38x-uart", "ns16550a";
+ 				reg = <0x12100 0x100>;
+ 				reg-shift = <2>;
+ 				interrupts = <GIC_SPI 13 IRQ_TYPE_LEVEL_HIGH>;
 -- 
 2.34.1
 
