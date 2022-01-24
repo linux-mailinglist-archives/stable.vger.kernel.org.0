@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6373498F54
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:52:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CECAA498F84
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:54:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245198AbiAXTwD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:52:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51652 "EHLO
+        id S1352603AbiAXTxA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:53:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238002AbiAXT01 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:26:27 -0500
+        with ESMTP id S1343914AbiAXTrs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:47:48 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D845CC02B879;
-        Mon, 24 Jan 2022 11:12:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72947C061797;
+        Mon, 24 Jan 2022 11:23:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F81DB8121A;
-        Mon, 24 Jan 2022 19:12:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A88A7C340EA;
-        Mon, 24 Jan 2022 19:12:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2E55BB8119D;
+        Mon, 24 Jan 2022 19:23:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CCE6C340E5;
+        Mon, 24 Jan 2022 19:23:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051536;
-        bh=1IvSxe8xKZxSOH1osGJiqjMhR5Nf6Fmyo66KyHc0iLw=;
+        s=korg; t=1643052203;
+        bh=eGU5BZn9pv3lxR8n0x8YyiDNk3dQsF9nkslcgbj7S0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=syak8bdGY/9AFvq+ux/NiTyWrTjfrrMXzEN8qowHGjojSHZLN6ETSDD9+8Lh1f0Mw
-         ZDwHDo9yWOdeiqLYvaOZixGQu7aPcKT4W/q68nbcVlgPL6MsYdWLFaplKkb3uxEYoj
-         xyzRMwfu6KAUTVyaYoQY3+JM5Yucpe0+hTxIAbF4=
+        b=fTFhPB0YhSaEjwXeQ/ilTQQE8jVv4OZMefVM5QjKho1wQkvqiU+/ui8+iAQlGvP+e
+         rq6sFhMwLLzcfm5vTMHh+s1xFMv4jod4YCCb1Jpdg5PDptxgvsT0xnaKdDNYED9yRg
+         ABJWQI4fOZvRQ/yQoTB7rnDat7AExnR46accAj54=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Wakabayashi <mwakabayashi@vmware.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.14 186/186] NFSv4: Initialise connection to the server in nfs4_alloc_client()
+        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 223/239] net: axienet: Wait for PhyRstCmplt after core reset
 Date:   Mon, 24 Jan 2022 19:44:21 +0100
-Message-Id: <20220124183943.090675630@linuxfoundation.org>
+Message-Id: <20220124183950.200828682@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,135 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Robert Hancock <robert.hancock@calian.com>
 
-commit dd99e9f98fbf423ff6d365b37a98e8879170f17c upstream.
+commit b400c2f4f4c53c86594dd57098970d97d488bfde upstream.
 
-Set up the connection to the NFSv4 server in nfs4_alloc_client(), before
-we've added the struct nfs_client to the net-namespace's nfs_client_list
-so that a downed server won't cause other mounts to hang in the trunking
-detection code.
+When resetting the device, wait for the PhyRstCmplt bit to be set
+in the interrupt status register before continuing initialization, to
+ensure that the core is actually ready. When using an external PHY, this
+also ensures we do not start trying to access the PHY while it is still
+in reset. The PHY reset is initiated by the core reset which is
+triggered just above, but remains asserted for 5ms after the core is
+reset according to the documentation.
 
-Reported-by: Michael Wakabayashi <mwakabayashi@vmware.com>
-Fixes: 5c6e5b60aae4 ("NFS: Fix an Oops in the pNFS files and flexfiles connection setup to the DS")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+The MgtRdy bit could also be waited for, but unfortunately when using
+7-series devices, the bit does not appear to work as documented (it
+seems to behave as some sort of link state indication and not just an
+indication the transceiver is ready) so it can't really be relied on for
+this purpose.
+
+Fixes: 8a3b7a252dca9 ("drivers/net/ethernet/xilinx: added Xilinx AXI Ethernet driver")
+Signed-off-by: Robert Hancock <robert.hancock@calian.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/nfs4client.c |   82 ++++++++++++++++++++++++++--------------------------
- 1 file changed, 42 insertions(+), 40 deletions(-)
+ drivers/net/ethernet/xilinx/xilinx_axienet_main.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/fs/nfs/nfs4client.c
-+++ b/fs/nfs/nfs4client.c
-@@ -177,8 +177,11 @@ void nfs40_shutdown_client(struct nfs_cl
+--- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
++++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
+@@ -279,6 +279,16 @@ static int axienet_dma_bd_init(struct ne
+ 	axienet_dma_out32(lp, XAXIDMA_TX_CR_OFFSET,
+ 			  cr | XAXIDMA_CR_RUNSTOP_MASK);
  
- struct nfs_client *nfs4_alloc_client(const struct nfs_client_initdata *cl_init)
- {
--	int err;
-+	char buf[INET6_ADDRSTRLEN + 1];
-+	const char *ip_addr = cl_init->ip_addr;
- 	struct nfs_client *clp = nfs_alloc_client(cl_init);
-+	int err;
-+
- 	if (IS_ERR(clp))
- 		return clp;
- 
-@@ -202,6 +205,44 @@ struct nfs_client *nfs4_alloc_client(con
- #if IS_ENABLED(CONFIG_NFS_V4_1)
- 	init_waitqueue_head(&clp->cl_lock_waitq);
- #endif
-+
-+	if (cl_init->minorversion != 0)
-+		__set_bit(NFS_CS_INFINITE_SLOTS, &clp->cl_flags);
-+	__set_bit(NFS_CS_DISCRTRY, &clp->cl_flags);
-+	__set_bit(NFS_CS_NO_RETRANS_TIMEOUT, &clp->cl_flags);
-+
-+	/*
-+	 * Set up the connection to the server before we add add to the
-+	 * global list.
-+	 */
-+	err = nfs_create_rpc_client(clp, cl_init, RPC_AUTH_GSS_KRB5I);
-+	if (err == -EINVAL)
-+		err = nfs_create_rpc_client(clp, cl_init, RPC_AUTH_UNIX);
-+	if (err < 0)
-+		goto error;
-+
-+	/* If no clientaddr= option was specified, find a usable cb address */
-+	if (ip_addr == NULL) {
-+		struct sockaddr_storage cb_addr;
-+		struct sockaddr *sap = (struct sockaddr *)&cb_addr;
-+
-+		err = rpc_localaddr(clp->cl_rpcclient, sap, sizeof(cb_addr));
-+		if (err < 0)
-+			goto error;
-+		err = rpc_ntop(sap, buf, sizeof(buf));
-+		if (err < 0)
-+			goto error;
-+		ip_addr = (const char *)buf;
++	/* Wait for PhyRstCmplt bit to be set, indicating the PHY reset has finished */
++	ret = read_poll_timeout(axienet_ior, value,
++				value & XAE_INT_PHYRSTCMPLT_MASK,
++				DELAY_OF_ONE_MILLISEC, 50000, false, lp,
++				XAE_IS_OFFSET);
++	if (ret) {
++		dev_err(lp->dev, "%s: timeout waiting for PhyRstCmplt\n", __func__);
++		return ret;
 +	}
-+	strlcpy(clp->cl_ipaddr, ip_addr, sizeof(clp->cl_ipaddr));
 +
-+	err = nfs_idmap_new(clp);
-+	if (err < 0) {
-+		dprintk("%s: failed to create idmapper. Error = %d\n",
-+			__func__, err);
-+		goto error;
-+	}
-+	__set_bit(NFS_CS_IDMAP, &clp->cl_res_state);
- 	return clp;
- 
- error:
-@@ -354,8 +395,6 @@ static int nfs4_init_client_minor_versio
- struct nfs_client *nfs4_init_client(struct nfs_client *clp,
- 				    const struct nfs_client_initdata *cl_init)
- {
--	char buf[INET6_ADDRSTRLEN + 1];
--	const char *ip_addr = cl_init->ip_addr;
- 	struct nfs_client *old;
- 	int error;
- 
-@@ -363,43 +402,6 @@ struct nfs_client *nfs4_init_client(stru
- 		/* the client is initialised already */
- 		return clp;
- 
--	/* Check NFS protocol revision and initialize RPC op vector */
--	clp->rpc_ops = &nfs_v4_clientops;
--
--	if (clp->cl_minorversion != 0)
--		__set_bit(NFS_CS_INFINITE_SLOTS, &clp->cl_flags);
--	__set_bit(NFS_CS_DISCRTRY, &clp->cl_flags);
--	__set_bit(NFS_CS_NO_RETRANS_TIMEOUT, &clp->cl_flags);
--
--	error = nfs_create_rpc_client(clp, cl_init, RPC_AUTH_GSS_KRB5I);
--	if (error == -EINVAL)
--		error = nfs_create_rpc_client(clp, cl_init, RPC_AUTH_UNIX);
--	if (error < 0)
--		goto error;
--
--	/* If no clientaddr= option was specified, find a usable cb address */
--	if (ip_addr == NULL) {
--		struct sockaddr_storage cb_addr;
--		struct sockaddr *sap = (struct sockaddr *)&cb_addr;
--
--		error = rpc_localaddr(clp->cl_rpcclient, sap, sizeof(cb_addr));
--		if (error < 0)
--			goto error;
--		error = rpc_ntop(sap, buf, sizeof(buf));
--		if (error < 0)
--			goto error;
--		ip_addr = (const char *)buf;
--	}
--	strlcpy(clp->cl_ipaddr, ip_addr, sizeof(clp->cl_ipaddr));
--
--	error = nfs_idmap_new(clp);
--	if (error < 0) {
--		dprintk("%s: failed to create idmapper. Error = %d\n",
--			__func__, error);
--		goto error;
--	}
--	__set_bit(NFS_CS_IDMAP, &clp->cl_res_state);
--
- 	error = nfs4_init_client_minor_version(clp);
- 	if (error < 0)
- 		goto error;
+ 	return 0;
+ out:
+ 	axienet_dma_bd_release(ndev);
 
 
