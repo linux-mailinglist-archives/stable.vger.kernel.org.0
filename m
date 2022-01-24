@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F56149936B
+	by mail.lfdr.de (Postfix) with ESMTP id D9EF549936C
 	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:34:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236378AbiAXUdp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:33:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36660 "EHLO
+        id S1383859AbiAXUdq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:33:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1382143AbiAXUZP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:25:15 -0500
+        with ESMTP id S1382154AbiAXUZQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:25:16 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37741C0D9401;
-        Mon, 24 Jan 2022 11:41:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57A07C07E303;
+        Mon, 24 Jan 2022 11:41:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00438B81188;
-        Mon, 24 Jan 2022 19:41:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D60FC340E7;
-        Mon, 24 Jan 2022 19:41:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 201F5B81229;
+        Mon, 24 Jan 2022 19:41:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39E93C340E5;
+        Mon, 24 Jan 2022 19:41:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053265;
-        bh=Hu92IHuIu7s4YMY6zsMPO0Pu53VdOmAY8WOxRWr2+s0=;
+        s=korg; t=1643053268;
+        bh=iC3yFsiXLxji/n8wtnpCQ/0JmVUjZqt5fHAV9bJWQ+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jrcrmInZ3HwJ1sjuuco4N097n5uHUEszy7cEd8AyT5GoW/sWOX45lSeBL+/zM0pcl
-         NavxtRxMFYbjLzu7LLPVHqWU0DhXNWvxgcPDIL9uTmOJ/6B8UIOw5rTBINZ2CAs1KD
-         tIsVTYUr/cRKJYvUObzPv0S+QVMcvwImkgnpq4to=
+        b=DfJwQRwJTcgrSMFt6CGi68c7sGMAsfO9d3WM1xd1vIySWaFLhFT9QJLj85kbAxreU
+         g6/6Rn0O4Xkg63MRSXkRWoPNn5d/ZWoH4N45QYwrNxq3hL1TPPtTYCbCJNBxiC+Sai
+         riLz20tPtut4/uxIoShBvoeqQgBgnMkIbFGyoPS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andreas Oetken <andreas.oetken@siemens-energy.com>,
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
         Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.10 010/563] mtd: Fixed breaking list in __mtd_del_partition.
-Date:   Mon, 24 Jan 2022 19:36:15 +0100
-Message-Id: <20220124184024.772483033@linuxfoundation.org>
+Subject: [PATCH 5.10 011/563] mtd: rawnand: davinci: Dont calculate ECC when reading page
+Date:   Mon, 24 Jan 2022 19:36:16 +0100
+Message-Id: <20220124184024.803953330@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -48,34 +47,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Oetken <ennoerlangen@gmail.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-commit 2966daf7d253d9904b337b040dd7a43472858b8a upstream.
+commit 71e89591502d737c10db2bd4d8fcfaa352552afb upstream.
 
-Not the child partition should be removed from the partition list
-but the partition itself. Otherwise the partition list gets broken
-and any subsequent remove operations leads to a kernel panic.
+The function nand_davinci_read_page_hwecc_oob_first() does read the ECC
+data from the OOB area. Therefore it does not need to calculate the ECC
+as it is already available.
 
-Fixes: 46b5889cc2c5 ("mtd: implement proper partition handling")
-Signed-off-by: Andreas Oetken <andreas.oetken@siemens-energy.com>
-Cc: stable@vger.kernel.org
+Cc: <stable@vger.kernel.org> # v5.2
+Fixes: a0ac778eb82c ("mtd: rawnand: ingenic: Add support for the JZ4740")
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20211102172604.2921065-1-andreas.oetken@siemens-energy.com
+Link: https://lore.kernel.org/linux-mtd/20211016132228.40254-1-paul@crapouillou.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/mtdpart.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/nand/raw/davinci_nand.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/mtd/mtdpart.c
-+++ b/drivers/mtd/mtdpart.c
-@@ -313,7 +313,7 @@ static int __mtd_del_partition(struct mt
- 	if (err)
- 		return err;
+--- a/drivers/mtd/nand/raw/davinci_nand.c
++++ b/drivers/mtd/nand/raw/davinci_nand.c
+@@ -394,7 +394,6 @@ static int nand_davinci_read_page_hwecc_
+ 	int eccsteps = chip->ecc.steps;
+ 	uint8_t *p = buf;
+ 	uint8_t *ecc_code = chip->ecc.code_buf;
+-	uint8_t *ecc_calc = chip->ecc.calc_buf;
+ 	unsigned int max_bitflips = 0;
  
--	list_del(&child->part.node);
-+	list_del(&mtd->part.node);
- 	free_partition(mtd);
+ 	/* Read the OOB area first */
+@@ -420,8 +419,6 @@ static int nand_davinci_read_page_hwecc_
+ 		if (ret)
+ 			return ret;
  
- 	return 0;
+-		chip->ecc.calculate(chip, p, &ecc_calc[i]);
+-
+ 		stat = chip->ecc.correct(chip, p, &ecc_code[i], NULL);
+ 		if (stat == -EBADMSG &&
+ 		    (chip->ecc.options & NAND_ECC_GENERIC_ERASED_CHECK)) {
 
 
