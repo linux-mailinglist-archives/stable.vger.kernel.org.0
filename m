@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92D6949A06E
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:29:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B171E49A05B
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:28:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1843986AbiAXXHW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:07:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45688 "EHLO
+        id S1843862AbiAXXGb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:06:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45680 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1841129AbiAXW5l (ORCPT
+        with ESMTP id S1841132AbiAXW5l (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:57:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B47DC0401FF;
-        Mon, 24 Jan 2022 13:12:14 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12822C08C5C0;
+        Mon, 24 Jan 2022 13:12:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00DA9B811FB;
-        Mon, 24 Jan 2022 21:12:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62CC3C340E5;
-        Mon, 24 Jan 2022 21:12:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A72996131F;
+        Mon, 24 Jan 2022 21:12:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0F17C340E5;
+        Mon, 24 Jan 2022 21:12:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058732;
-        bh=GkT1JKyiWTehfmwWT0NQjNXlQrkt2/3NKwSy1Olvcsk=;
+        s=korg; t=1643058739;
+        bh=4ttaYS0IPIApvX9jBxMH4S+arQVzSNj44W36l/3hhes=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2eUlu+PYiETeCI8Xp7tYT5u8B/V0qn8YkNSSRkC0tEbELOTT8hwXCLxww8/2mPzFQ
-         CYZ1JUMjENBPqwZIkxOrs1blm5KEruUQnj3kK5tlz6sDtkVKiNhne4wXvOBI4dz3aH
-         Np9Y5AIaoaV1lruOMdeLpb8Mc7jD+hkiaLciv630=
+        b=gp0qYonjln018BpDH5ErYiVRN7oDbW16g4Y/LYNOvN7FAFiss4F5ezQ24umFDNKpK
+         ctvqlpggVlHYLSk0MnMTeiC75R/TJ2VO2/Ek0DRp+C3KB1kteQS3wnc9NZKz3e0iAa
+         dTh9XDvtgQbxXbQ3AYqBkwKNwzhIsfORo73vWKUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0385/1039] fsl/fman: Check for null pointer after calling devm_ioremap
-Date:   Mon, 24 Jan 2022 19:36:14 +0100
-Message-Id: <20220124184138.252013946@linuxfoundation.org>
+Subject: [PATCH 5.16 0387/1039] Bluetooth: hci_qca: Fix NULL vs IS_ERR_OR_NULL check in qca_serdev_probe
+Date:   Mon, 24 Jan 2022 19:36:16 +0100
+Message-Id: <20220124184138.327483962@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -48,94 +48,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit d5a73ec96cc57cf67e51b12820fc2354e7ca46f8 ]
+[ Upstream commit 6845667146a28c09b5dfc401c1ad112374087944 ]
 
-As the possible failure of the allocation, the devm_ioremap() may return
-NULL pointer.
-Take tgec_initialization() as an example.
-If allocation fails, the params->base_addr will be NULL pointer and will
-be assigned to tgec->regs in tgec_config().
-Then it will cause the dereference of NULL pointer in set_mac_address(),
-which is called by tgec_init().
-Therefore, it should be better to add the sanity check after the calling
-of the devm_ioremap().
+The function devm_gpiod_get_index() return error pointers on error.
+Thus devm_gpiod_get_index_optional() could return NULL and error pointers.
+The same as devm_gpiod_get_optional() function. Using IS_ERR_OR_NULL()
+check to catch error pointers.
 
-Fixes: 3933961682a3 ("fsl/fman: Add FMan MAC driver")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 77131dfe ("Bluetooth: hci_qca: Replace devm_gpiod_get() with devm_gpiod_get_optional()")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/fman/mac.c | 21 ++++++++++++++++-----
- 1 file changed, 16 insertions(+), 5 deletions(-)
+ drivers/bluetooth/hci_qca.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/fman/mac.c b/drivers/net/ethernet/freescale/fman/mac.c
-index d9fc5c456bf3e..39ae965cd4f64 100644
---- a/drivers/net/ethernet/freescale/fman/mac.c
-+++ b/drivers/net/ethernet/freescale/fman/mac.c
-@@ -94,14 +94,17 @@ static void mac_exception(void *handle, enum fman_mac_exceptions ex)
- 		__func__, ex);
- }
+diff --git a/drivers/bluetooth/hci_qca.c b/drivers/bluetooth/hci_qca.c
+index 9e99311038ae8..f6e91fb432a3b 100644
+--- a/drivers/bluetooth/hci_qca.c
++++ b/drivers/bluetooth/hci_qca.c
+@@ -2059,14 +2059,14 @@ static int qca_serdev_probe(struct serdev_device *serdev)
  
--static void set_fman_mac_params(struct mac_device *mac_dev,
--				struct fman_mac_params *params)
-+static int set_fman_mac_params(struct mac_device *mac_dev,
-+			       struct fman_mac_params *params)
- {
- 	struct mac_priv_s *priv = mac_dev->priv;
+ 		qcadev->bt_en = devm_gpiod_get_optional(&serdev->dev, "enable",
+ 					       GPIOD_OUT_LOW);
+-		if (!qcadev->bt_en && data->soc_type == QCA_WCN6750) {
++		if (IS_ERR_OR_NULL(qcadev->bt_en) && data->soc_type == QCA_WCN6750) {
+ 			dev_err(&serdev->dev, "failed to acquire BT_EN gpio\n");
+ 			power_ctrl_enabled = false;
+ 		}
  
- 	params->base_addr = (typeof(params->base_addr))
- 		devm_ioremap(priv->dev, mac_dev->res->start,
- 			     resource_size(mac_dev->res));
-+	if (!params->base_addr)
-+		return -ENOMEM;
-+
- 	memcpy(&params->addr, mac_dev->addr, sizeof(mac_dev->addr));
- 	params->max_speed	= priv->max_speed;
- 	params->phy_if		= mac_dev->phy_if;
-@@ -112,6 +115,8 @@ static void set_fman_mac_params(struct mac_device *mac_dev,
- 	params->event_cb	= mac_exception;
- 	params->dev_id		= mac_dev;
- 	params->internal_phy_node = priv->internal_phy_node;
-+
-+	return 0;
- }
+ 		qcadev->sw_ctrl = devm_gpiod_get_optional(&serdev->dev, "swctrl",
+ 					       GPIOD_IN);
+-		if (!qcadev->sw_ctrl && data->soc_type == QCA_WCN6750)
++		if (IS_ERR_OR_NULL(qcadev->sw_ctrl) && data->soc_type == QCA_WCN6750)
+ 			dev_warn(&serdev->dev, "failed to acquire SW_CTRL gpio\n");
  
- static int tgec_initialization(struct mac_device *mac_dev)
-@@ -123,7 +128,9 @@ static int tgec_initialization(struct mac_device *mac_dev)
+ 		qcadev->susclk = devm_clk_get_optional(&serdev->dev, NULL);
+@@ -2088,7 +2088,7 @@ static int qca_serdev_probe(struct serdev_device *serdev)
  
- 	priv = mac_dev->priv;
- 
--	set_fman_mac_params(mac_dev, &params);
-+	err = set_fman_mac_params(mac_dev, &params);
-+	if (err)
-+		goto _return;
- 
- 	mac_dev->fman_mac = tgec_config(&params);
- 	if (!mac_dev->fman_mac) {
-@@ -169,7 +176,9 @@ static int dtsec_initialization(struct mac_device *mac_dev)
- 
- 	priv = mac_dev->priv;
- 
--	set_fman_mac_params(mac_dev, &params);
-+	err = set_fman_mac_params(mac_dev, &params);
-+	if (err)
-+		goto _return;
- 
- 	mac_dev->fman_mac = dtsec_config(&params);
- 	if (!mac_dev->fman_mac) {
-@@ -218,7 +227,9 @@ static int memac_initialization(struct mac_device *mac_dev)
- 
- 	priv = mac_dev->priv;
- 
--	set_fman_mac_params(mac_dev, &params);
-+	err = set_fman_mac_params(mac_dev, &params);
-+	if (err)
-+		goto _return;
- 
- 	if (priv->max_speed == SPEED_10000)
- 		params.phy_if = PHY_INTERFACE_MODE_XGMII;
+ 		qcadev->bt_en = devm_gpiod_get_optional(&serdev->dev, "enable",
+ 					       GPIOD_OUT_LOW);
+-		if (!qcadev->bt_en) {
++		if (IS_ERR_OR_NULL(qcadev->bt_en)) {
+ 			dev_warn(&serdev->dev, "failed to acquire enable gpio\n");
+ 			power_ctrl_enabled = false;
+ 		}
 -- 
 2.34.1
 
