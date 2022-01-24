@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F95B4984D2
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 17:30:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 227D74984DD
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 17:32:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243758AbiAXQaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 11:30:06 -0500
-Received: from maynard.decadent.org.uk ([95.217.213.242]:42284 "EHLO
+        id S243751AbiAXQcY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 11:32:24 -0500
+Received: from maynard.decadent.org.uk ([95.217.213.242]:42292 "EHLO
         maynard.decadent.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243788AbiAXQ3t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 11:29:49 -0500
+        with ESMTP id S235823AbiAXQcY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 11:32:24 -0500
 Received: from 168.7-181-91.adsl-dyn.isp.belgacom.be ([91.181.7.168] helo=deadeye)
         by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1nC2Dz-00070f-JJ; Mon, 24 Jan 2022 17:29:47 +0100
+        id 1nC2GU-000718-TM; Mon, 24 Jan 2022 17:32:22 +0100
 Received: from ben by deadeye with local (Exim 4.95)
         (envelope-from <ben@decadent.org.uk>)
-        id 1nC2Dy-009z8k-Lu;
-        Mon, 24 Jan 2022 17:29:46 +0100
-Date:   Mon, 24 Jan 2022 17:29:46 +0100
+        id 1nC2GT-009zBR-On;
+        Mon, 24 Jan 2022 17:32:21 +0100
+Date:   Mon, 24 Jan 2022 17:32:21 +0100
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     stable@vger.kernel.org
-Cc:     Michael Wakabayashi <mwakabayashi@vmware.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.14] NFSv4: Initialise connection to the server in
- nfs4_alloc_client()
-Message-ID: <Ye7T+vLMFpwBFsRW@decadent.org.uk>
+Cc:     Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 4.9] cipso,calipso: resolve a number of problems with the DOI
+ refcounts
+Message-ID: <Ye7UlciYUYBcfI31@decadent.org.uk>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="E3flWCMVqAGF9hC4"
+        protocol="application/pgp-signature"; boundary="HPnF665yLyUSjpMD"
 Content-Disposition: inline
 X-SA-Exim-Connect-IP: 91.181.7.168
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -40,168 +39,173 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---E3flWCMVqAGF9hC4
+--HPnF665yLyUSjpMD
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-=46rom: Trond Myklebust <trond.myklebust@hammerspace.com>
+=46rom: Paul Moore <paul@paul-moore.com>
 
-commit dd99e9f98fbf423ff6d365b37a98e8879170f17c upstream.
+commit ad5d07f4a9cd671233ae20983848874731102c08 upstream.
 
-Set up the connection to the NFSv4 server in nfs4_alloc_client(), before
-we've added the struct nfs_client to the net-namespace's nfs_client_list
-so that a downed server won't cause other mounts to hang in the trunking
-detection code.
+The current CIPSO and CALIPSO refcounting scheme for the DOI
+definitions is a bit flawed in that we:
 
-Reported-by: Michael Wakabayashi <mwakabayashi@vmware.com>
-Fixes: 5c6e5b60aae4 ("NFS: Fix an Oops in the pNFS files and flexfiles conn=
-ection setup to the DS")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-[bwh: Backported to 4.14: adjust context]
+1. Don't correctly match gets/puts in netlbl_cipsov4_list().
+2. Decrement the refcount on each attempt to remove the DOI from the
+   DOI list, only removing it from the list once the refcount drops
+   to zero.
+
+This patch fixes these problems by adding the missing "puts" to
+netlbl_cipsov4_list() and introduces a more conventional, i.e.
+not-buggy, refcounting mechanism to the DOI definitions.  Upon the
+addition of a DOI to the DOI list, it is initialized with a refcount
+of one, removing a DOI from the list removes it from the list and
+drops the refcount by one; "gets" and "puts" behave as expected with
+respect to refcounts, increasing and decreasing the DOI's refcount by
+one.
+
+Fixes: b1edeb102397 ("netlabel: Replace protocol/NetLabel linking with refr=
+erence counts")
+Fixes: d7cce01504a0 ("netlabel: Add support for removing a CALIPSO DOI.")
+Reported-by: syzbot+9ec037722d2603a9f52e@syzkaller.appspotmail.com
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+[bwh: Backported to 4.9: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- fs/nfs/nfs4client.c | 82 +++++++++++++++++++++++----------------------
- 1 file changed, 42 insertions(+), 40 deletions(-)
+ net/ipv4/cipso_ipv4.c            | 11 +----------
+ net/ipv6/calipso.c               | 14 +++++---------
+ net/netlabel/netlabel_cipso_v4.c |  3 +++
+ 3 files changed, 9 insertions(+), 19 deletions(-)
 
-diff --git a/fs/nfs/nfs4client.c b/fs/nfs/nfs4client.c
-index 3c8dfab8e958..02b01b4025f6 100644
---- a/fs/nfs/nfs4client.c
-+++ b/fs/nfs/nfs4client.c
-@@ -177,8 +177,11 @@ void nfs40_shutdown_client(struct nfs_client *clp)
-=20
- struct nfs_client *nfs4_alloc_client(const struct nfs_client_initdata *cl_=
-init)
- {
--	int err;
-+	char buf[INET6_ADDRSTRLEN + 1];
-+	const char *ip_addr =3D cl_init->ip_addr;
- 	struct nfs_client *clp =3D nfs_alloc_client(cl_init);
-+	int err;
-+
- 	if (IS_ERR(clp))
- 		return clp;
-=20
-@@ -202,6 +205,44 @@ struct nfs_client *nfs4_alloc_client(const struct nfs_=
-client_initdata *cl_init)
- #if IS_ENABLED(CONFIG_NFS_V4_1)
- 	init_waitqueue_head(&clp->cl_lock_waitq);
- #endif
-+
-+	if (cl_init->minorversion !=3D 0)
-+		__set_bit(NFS_CS_INFINITE_SLOTS, &clp->cl_flags);
-+	__set_bit(NFS_CS_DISCRTRY, &clp->cl_flags);
-+	__set_bit(NFS_CS_NO_RETRANS_TIMEOUT, &clp->cl_flags);
-+
-+	/*
-+	 * Set up the connection to the server before we add add to the
-+	 * global list.
-+	 */
-+	err =3D nfs_create_rpc_client(clp, cl_init, RPC_AUTH_GSS_KRB5I);
-+	if (err =3D=3D -EINVAL)
-+		err =3D nfs_create_rpc_client(clp, cl_init, RPC_AUTH_UNIX);
-+	if (err < 0)
-+		goto error;
-+
-+	/* If no clientaddr=3D option was specified, find a usable cb address */
-+	if (ip_addr =3D=3D NULL) {
-+		struct sockaddr_storage cb_addr;
-+		struct sockaddr *sap =3D (struct sockaddr *)&cb_addr;
-+
-+		err =3D rpc_localaddr(clp->cl_rpcclient, sap, sizeof(cb_addr));
-+		if (err < 0)
-+			goto error;
-+		err =3D rpc_ntop(sap, buf, sizeof(buf));
-+		if (err < 0)
-+			goto error;
-+		ip_addr =3D (const char *)buf;
-+	}
-+	strlcpy(clp->cl_ipaddr, ip_addr, sizeof(clp->cl_ipaddr));
-+
-+	err =3D nfs_idmap_new(clp);
-+	if (err < 0) {
-+		dprintk("%s: failed to create idmapper. Error =3D %d\n",
-+			__func__, err);
-+		goto error;
-+	}
-+	__set_bit(NFS_CS_IDMAP, &clp->cl_res_state);
- 	return clp;
-=20
- error:
-@@ -354,8 +395,6 @@ static int nfs4_init_client_minor_version(struct nfs_cl=
-ient *clp)
- struct nfs_client *nfs4_init_client(struct nfs_client *clp,
- 				    const struct nfs_client_initdata *cl_init)
- {
--	char buf[INET6_ADDRSTRLEN + 1];
--	const char *ip_addr =3D cl_init->ip_addr;
- 	struct nfs_client *old;
- 	int error;
-=20
-@@ -363,43 +402,6 @@ struct nfs_client *nfs4_init_client(struct nfs_client =
-*clp,
- 		/* the client is initialised already */
- 		return clp;
-=20
--	/* Check NFS protocol revision and initialize RPC op vector */
--	clp->rpc_ops =3D &nfs_v4_clientops;
--
--	if (clp->cl_minorversion !=3D 0)
--		__set_bit(NFS_CS_INFINITE_SLOTS, &clp->cl_flags);
--	__set_bit(NFS_CS_DISCRTRY, &clp->cl_flags);
--	__set_bit(NFS_CS_NO_RETRANS_TIMEOUT, &clp->cl_flags);
--
--	error =3D nfs_create_rpc_client(clp, cl_init, RPC_AUTH_GSS_KRB5I);
--	if (error =3D=3D -EINVAL)
--		error =3D nfs_create_rpc_client(clp, cl_init, RPC_AUTH_UNIX);
--	if (error < 0)
--		goto error;
--
--	/* If no clientaddr=3D option was specified, find a usable cb address */
--	if (ip_addr =3D=3D NULL) {
--		struct sockaddr_storage cb_addr;
--		struct sockaddr *sap =3D (struct sockaddr *)&cb_addr;
--
--		error =3D rpc_localaddr(clp->cl_rpcclient, sap, sizeof(cb_addr));
--		if (error < 0)
--			goto error;
--		error =3D rpc_ntop(sap, buf, sizeof(buf));
--		if (error < 0)
--			goto error;
--		ip_addr =3D (const char *)buf;
+diff --git a/net/ipv4/cipso_ipv4.c b/net/ipv4/cipso_ipv4.c
+index 553cda6f887a..b7dc20a65b64 100644
+--- a/net/ipv4/cipso_ipv4.c
++++ b/net/ipv4/cipso_ipv4.c
+@@ -534,16 +534,10 @@ int cipso_v4_doi_remove(u32 doi, struct netlbl_audit =
+*audit_info)
+ 		ret_val =3D -ENOENT;
+ 		goto doi_remove_return;
+ 	}
+-	if (!atomic_dec_and_test(&doi_def->refcount)) {
+-		spin_unlock(&cipso_v4_doi_list_lock);
+-		ret_val =3D -EBUSY;
+-		goto doi_remove_return;
 -	}
--	strlcpy(clp->cl_ipaddr, ip_addr, sizeof(clp->cl_ipaddr));
--
--	error =3D nfs_idmap_new(clp);
--	if (error < 0) {
--		dprintk("%s: failed to create idmapper. Error =3D %d\n",
--			__func__, error);
--		goto error;
+ 	list_del_rcu(&doi_def->list);
+ 	spin_unlock(&cipso_v4_doi_list_lock);
+=20
+-	cipso_v4_cache_invalidate();
+-	call_rcu(&doi_def->rcu, cipso_v4_doi_free_rcu);
++	cipso_v4_doi_putdef(doi_def);
+ 	ret_val =3D 0;
+=20
+ doi_remove_return:
+@@ -600,9 +594,6 @@ void cipso_v4_doi_putdef(struct cipso_v4_doi *doi_def)
+=20
+ 	if (!atomic_dec_and_test(&doi_def->refcount))
+ 		return;
+-	spin_lock(&cipso_v4_doi_list_lock);
+-	list_del_rcu(&doi_def->list);
+-	spin_unlock(&cipso_v4_doi_list_lock);
+=20
+ 	cipso_v4_cache_invalidate();
+ 	call_rcu(&doi_def->rcu, cipso_v4_doi_free_rcu);
+diff --git a/net/ipv6/calipso.c b/net/ipv6/calipso.c
+index b206415bbde7..7628963ddacc 100644
+--- a/net/ipv6/calipso.c
++++ b/net/ipv6/calipso.c
+@@ -97,6 +97,9 @@ struct calipso_map_cache_entry {
+=20
+ static struct calipso_map_cache_bkt *calipso_cache;
+=20
++static void calipso_cache_invalidate(void);
++static void calipso_doi_putdef(struct calipso_doi *doi_def);
++
+ /* Label Mapping Cache Functions
+  */
+=20
+@@ -458,15 +461,10 @@ static int calipso_doi_remove(u32 doi, struct netlbl_=
+audit *audit_info)
+ 		ret_val =3D -ENOENT;
+ 		goto doi_remove_return;
+ 	}
+-	if (!atomic_dec_and_test(&doi_def->refcount)) {
+-		spin_unlock(&calipso_doi_list_lock);
+-		ret_val =3D -EBUSY;
+-		goto doi_remove_return;
 -	}
--	__set_bit(NFS_CS_IDMAP, &clp->cl_res_state);
--
- 	error =3D nfs4_init_client_minor_version(clp);
- 	if (error < 0)
- 		goto error;
+ 	list_del_rcu(&doi_def->list);
+ 	spin_unlock(&calipso_doi_list_lock);
+=20
+-	call_rcu(&doi_def->rcu, calipso_doi_free_rcu);
++	calipso_doi_putdef(doi_def);
+ 	ret_val =3D 0;
+=20
+ doi_remove_return:
+@@ -522,10 +520,8 @@ static void calipso_doi_putdef(struct calipso_doi *doi=
+_def)
+=20
+ 	if (!atomic_dec_and_test(&doi_def->refcount))
+ 		return;
+-	spin_lock(&calipso_doi_list_lock);
+-	list_del_rcu(&doi_def->list);
+-	spin_unlock(&calipso_doi_list_lock);
+=20
++	calipso_cache_invalidate();
+ 	call_rcu(&doi_def->rcu, calipso_doi_free_rcu);
+ }
+=20
+diff --git a/net/netlabel/netlabel_cipso_v4.c b/net/netlabel/netlabel_cipso=
+_v4.c
+index 422fac2a4a3c..9a256d0fb957 100644
+--- a/net/netlabel/netlabel_cipso_v4.c
++++ b/net/netlabel/netlabel_cipso_v4.c
+@@ -587,6 +587,7 @@ static int netlbl_cipsov4_list(struct sk_buff *skb, str=
+uct genl_info *info)
+=20
+ 		break;
+ 	}
++	cipso_v4_doi_putdef(doi_def);
+ 	rcu_read_unlock();
+=20
+ 	genlmsg_end(ans_skb, data);
+@@ -595,12 +596,14 @@ static int netlbl_cipsov4_list(struct sk_buff *skb, s=
+truct genl_info *info)
+ list_retry:
+ 	/* XXX - this limit is a guesstimate */
+ 	if (nlsze_mult < 4) {
++		cipso_v4_doi_putdef(doi_def);
+ 		rcu_read_unlock();
+ 		kfree_skb(ans_skb);
+ 		nlsze_mult *=3D 2;
+ 		goto list_start;
+ 	}
+ list_failure_lock:
++	cipso_v4_doi_putdef(doi_def);
+ 	rcu_read_unlock();
+ list_failure:
+ 	kfree_skb(ans_skb);
 
---E3flWCMVqAGF9hC4
+--HPnF665yLyUSjpMD
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmHu0/EACgkQ57/I7JWG
-EQlS2w//aod9fqPkor9InXhpSw4Exa2SIn7d3YZxPnWvckZye3xVZAJDDI3zG8Ln
-c+Vqi2oDLLqW56lGtq60uxQE7ARf2QD8mmUeJOAunTzlcCkxD32G2HSEXcoTZhxV
-zWt80rmzRrY97L4B5uozV8dMcYmE/EIkixQG4qQWs7la7lWxw5v0O1R27DH3H7vD
-ebsY4yDSHpc16vscxUjZbx3noaH87pb6S6LHRz3WSt9QCuqO8pHmuZTAGzumPknK
-42mZHIXIhssu88bpnncTwN/lRdLwJFKHTjv8XC8qWukqzkaOoi+5v/x0uxMgz16j
-bCzZYoQjSQE8d7ChMXYcsaaxyrxrirf9uY2yQi1VPsfdIA0g2m0HXlak3G9PGsC2
-zMi8OBScoA4t391+7WfxPnwHuSfft9dCtcLIRE5xWhlgJKgeQOjrF2YN9xeZHJmS
-lS8GAsQk/0aC+BTUWFV+uIiie8/PwyiCicm+LIklGF6c7OO9IhOHO32pQRbpvd+5
-a7eUtfWZMh0ZXFBT0sBeP4Xk3W8A1Ns5aLq4rtyjZ4todr2AZd86RqNDqrdbbZ1F
-GNpguOU24VJ6bxB7x9VxiTm7L2gb38jnWGUhMMMANGrr+2KVGRtSpgY2LQxyMwXI
-/8Ds/eBoJCqwL5ctMpPGrsQA8tJtVbA7CY1plxZLOL4N4ILbOOQ=
-=DeMb
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmHu1JUACgkQ57/I7JWG
+EQkRdQ//WPkgVnhlHdFY4EIw/P/3D6EiBCrkTbAv2tW4548vPuBfOWyFuCOoFkQw
+HSwODEG1Mjz5DK0rEhYDpymADurbPpFFdxJWbryAauiWxii3nHRiuY9QTIqlqsiI
+yYgO0hv174zB8QWE7WEBFjbhYm8hfwnXotmSTxvrhFBbdUXGjXVCn4td+vIhLTZ5
+ktjYLTTwPfzYc3k2bBY9/nm01Ia/yanVgE9yxuHgSk/KEBu67Z3HOmn1So25qFYS
+OIAjiviA6mKgXL71yqSOqM9GYKoyntm07uaOV1y+Ax1wmk13uf4oafUy6MpLElKj
+ZvsscAhYPDTwSs3Ro1voE2DBDhA23lDH31J8VBw3s+lTO6w/rdm27GouasGBzj40
+ZJ+AC1aH52s/v0ikK+od280UjlWXWeFLRPmkGh6CopZdEWs+XSKkXDOVBgF5QiLF
+rvikdc+GEwNyOGftE3Y0YOkWDivo1YHVok7W57REGvNsaZ12UGd6LMzsicAgPx/S
+854rE2LyQjqpdiZ6BvY0/yf8DbTWdnLUbN+BU+y2VsZuDNWwq8Zte5S5+q6jzrp3
+yum/r/C/5V21as8SONG6jsubJccIZ5GG79H2LIbZql1kMxltdKhS0zQxRPwZb6zN
+5+3xZVKQB4gKOv9OEBcEnwjNxSa3rCYF0ludMn+NyIx/eQWnMPg=
+=SvE7
 -----END PGP SIGNATURE-----
 
---E3flWCMVqAGF9hC4--
+--HPnF665yLyUSjpMD--
