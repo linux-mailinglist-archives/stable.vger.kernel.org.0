@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F7FA49944A
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:42:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79D91499386
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:38:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1389001AbiAXUkV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:40:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38704 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385440AbiAXUdZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:33:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13F94C07E293;
-        Mon, 24 Jan 2022 11:45:06 -0800 (PST)
+        id S1346454AbiAXUed (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:34:33 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:51996 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1382985AbiAXU0e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:26:34 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D09A6B81188;
-        Mon, 24 Jan 2022 19:45:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05E06C340E5;
-        Mon, 24 Jan 2022 19:45:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 091656150F;
+        Mon, 24 Jan 2022 20:26:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA5F2C340E5;
+        Mon, 24 Jan 2022 20:26:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053503;
-        bh=cyEpis7cdHp2yQhSzlz5kj4WBDYG6wah1Bg5GbBcldQ=;
+        s=korg; t=1643055993;
+        bh=uPoj56l//6ep58k5qjt+4b1ScvoN02nYEnT+UKSM9AM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sN0blTtYlIOxxty8vxeSVJeTSguuAnZ4vj0hy8fAkxuYQNUNMarQQWWmYmmXX5/8k
-         HbP9H789XMwcWKIp77YcKAcPPo3hrQf1UBQx9ruGRXuLg5shrZ4+OqMrpEphpOfbAI
-         Q514LlppqjaHAB3TI62bRAmWse2OLvmCFFTrJJhM=
+        b=X1YrIt57k9G2DyAWfW1yxW/P/bGc0YpSSPJC6Qg7hhBMJTyA/PpyQXo27JkL85317
+         kMqAt2+nZ5VX8qxtxPLTltSxLvLPdUSLAj+wplJYuSsMHryrCIjmI+aONdMxCYE0oV
+         S5v1h/eBt/xCMeGmt/aNSn7tQYimQguIt42fWwNo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sven Eckelmann <sven@narfation.org>,
-        Karthikeyan Kathirvel <kathirve@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Erwan Le Ray <erwan.leray@foss.st.com>,
+        Valentin Caron <valentin.caron@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 087/563] ath11k: clear the keys properly via DISABLE_KEY
+Subject: [PATCH 5.15 335/846] serial: stm32: move tx dma terminate DMA to shutdown
 Date:   Mon, 24 Jan 2022 19:37:32 +0100
-Message-Id: <20220124184027.407123622@linuxfoundation.org>
+Message-Id: <20220124184112.478807405@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,62 +45,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Karthikeyan Kathirvel <kathirve@codeaurora.org>
+From: Valentin Caron <valentin.caron@foss.st.com>
 
-[ Upstream commit 436a4e88659842a7cf634d7cc088c8f2cc94ebf5 ]
+[ Upstream commit 56a23f9319e86e1d62a109896e2c7e52c414e67d ]
 
-DISABLE_KEY sets the key_len to 0, firmware will not delete the keys if
-key_len is 0. Changing from security mode to open mode will cause mcast
-to be still encrypted without vdev restart.
+Terminate DMA transaction and clear CR3_DMAT when shutdown is requested,
+instead of when remove is requested. If DMA transfer is not stopped in
+shutdown ops, driver will fail to start a new DMA transfer after next
+startup ops.
 
-Set the proper key_len for DISABLE_KEY cmd to clear the keys in
-firmware.
-
-Tested-on: IPQ6018 hw1.0 AHB WLAN.HK.2.5.0.1-01100-QCAHKSWPL_SILICONZ-1
-
-Fixes: d5c65159f289 ("ath11k: driver for Qualcomm IEEE 802.11ax devices")
-Reported-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Karthikeyan Kathirvel <kathirve@codeaurora.org>
-[sven@narfation.org: split into separate patches, clean up commit message]
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20211115100441.33771-1-sven@narfation.org
+Fixes: 3489187204eb ("serial: stm32: adding dma support")
+Signed-off-by: Erwan Le Ray <erwan.leray@foss.st.com>
+Signed-off-by: Valentin Caron <valentin.caron@foss.st.com>
+Link: https://lore.kernel.org/r/20220104182445.4195-2-valentin.caron@foss.st.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/mac.c | 4 +---
- drivers/net/wireless/ath/ath11k/wmi.c | 3 ++-
- 2 files changed, 3 insertions(+), 4 deletions(-)
+ drivers/tty/serial/stm32-usart.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
-index 0924bc8b35205..304e158f09751 100644
---- a/drivers/net/wireless/ath/ath11k/mac.c
-+++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -2395,9 +2395,7 @@ static int ath11k_install_key(struct ath11k_vif *arvif,
- 		return 0;
+diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
+index 8f032e77b954a..3366914dad7a8 100644
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -691,6 +691,11 @@ static void stm32_usart_shutdown(struct uart_port *port)
+ 	u32 val, isr;
+ 	int ret;
  
- 	if (cmd == DISABLE_KEY) {
--		/* TODO: Check if FW expects  value other than NONE for del */
--		/* arg.key_cipher = WMI_CIPHER_NONE; */
--		arg.key_len = 0;
-+		arg.key_cipher = WMI_CIPHER_NONE;
- 		arg.key_data = NULL;
- 		goto install;
++	if (stm32_port->tx_dma_busy) {
++		dmaengine_terminate_async(stm32_port->tx_ch);
++		stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_DMAT);
++	}
++
+ 	/* Disable modem control interrupts */
+ 	stm32_usart_disable_ms(port);
+ 
+@@ -1385,7 +1390,6 @@ static int stm32_usart_serial_remove(struct platform_device *pdev)
+ 	stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_DMAR);
+ 
+ 	if (stm32_port->tx_ch) {
+-		dmaengine_terminate_async(stm32_port->tx_ch);
+ 		stm32_usart_of_dma_tx_remove(stm32_port, pdev);
+ 		dma_release_channel(stm32_port->tx_ch);
  	}
-diff --git a/drivers/net/wireless/ath/ath11k/wmi.c b/drivers/net/wireless/ath/ath11k/wmi.c
-index e84127165d858..acf1641ce88fd 100644
---- a/drivers/net/wireless/ath/ath11k/wmi.c
-+++ b/drivers/net/wireless/ath/ath11k/wmi.c
-@@ -1665,7 +1665,8 @@ int ath11k_wmi_vdev_install_key(struct ath11k *ar,
- 	tlv = (struct wmi_tlv *)(skb->data + sizeof(*cmd));
- 	tlv->header = FIELD_PREP(WMI_TLV_TAG, WMI_TAG_ARRAY_BYTE) |
- 		      FIELD_PREP(WMI_TLV_LEN, key_len_aligned);
--	memcpy(tlv->value, (u8 *)arg->key_data, key_len_aligned);
-+	if (arg->key_data)
-+		memcpy(tlv->value, (u8 *)arg->key_data, key_len_aligned);
- 
- 	ret = ath11k_wmi_cmd_send(wmi, skb, WMI_VDEV_INSTALL_KEY_CMDID);
- 	if (ret) {
 -- 
 2.34.1
 
