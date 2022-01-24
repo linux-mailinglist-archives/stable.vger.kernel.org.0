@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C2E8499B42
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:00:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 90247499B96
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:04:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1574926AbiAXVuo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1574922AbiAXVuo (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 24 Jan 2022 16:50:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54740 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357695AbiAXVhM (ORCPT
+        with ESMTP id S1357731AbiAXVhM (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:37:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5660C0604FA;
-        Mon, 24 Jan 2022 12:23:18 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 436B7C0604FC;
+        Mon, 24 Jan 2022 12:23:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4D484B81239;
-        Mon, 24 Jan 2022 20:23:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E7D2C340E5;
-        Mon, 24 Jan 2022 20:23:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D5E11614EC;
+        Mon, 24 Jan 2022 20:23:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC0BAC340E5;
+        Mon, 24 Jan 2022 20:23:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055796;
-        bh=JRhg2ihMM98ffXlxRr3jbRB4CO+4DG9nSjwHNStzLd8=;
+        s=korg; t=1643055799;
+        bh=e8XSjosMnT+AVvfXTWREU5HrdWjIpTnD5X6dAIMx0uQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hQLcA5gjq91b4EPt+qfiRxKJNTmeWn++ewvJHOXSPFW38kKAEz9ExXg8GgFIs8KJN
-         UOkXTILz0dUrC/mUd2WWZXdZKo3pxOCzjtMQn3drMC4bd4oORNS4xp+KcnYgiI+NCI
-         WbJebkuM52NHuBpsp3ZwRstJzV2bTEa6lykxm6zE=
+        b=dv8NuYBbk0R+NeLUh9TxxQJkt/lolYKZ5tT3REhtDmMwIVK+IuVzI955pU6AygiDJ
+         WalxeoO2EfR6XZiGiGOHWkOEr0IYUxAlNuPojIeK3osN6+dV+T0+T9Rhe85fXTap0S
+         iDZ8J2cXWcLR21TZWiHKlRNwPZ56jQ7caMriSxmA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        Jian-Hong Pan <jhp@endlessos.org>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 269/846] rtw88: Disable PCIe ASPM while doing NAPI poll on 8821CE
-Date:   Mon, 24 Jan 2022 19:36:26 +0100
-Message-Id: <20220124184110.211646294@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 270/846] iwlwifi: mvm: fix 32-bit build in FTM
+Date:   Mon, 24 Jan 2022 19:36:27 +0100
+Message-Id: <20220124184110.240654842@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -49,176 +48,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 24f5e38a13b5ae2b6105cda8bb47c19108e62a9a ]
+[ Upstream commit 8b0f92549f2c2458200935c12a2e2a6e80234cf5 ]
 
-Many Intel based platforms face system random freeze after commit
-9e2fd29864c5 ("rtw88: add napi support").
+On a 32-bit build, the division here needs to be done
+using do_div(), otherwise the compiler will try to call
+a function that doesn't exist, thus failing to build.
 
-The commit itself shouldn't be the culprit. My guess is that the 8821CE
-only leaves ASPM L1 for a short period when IRQ is raised. Since IRQ is
-masked during NAPI polling, the PCIe link stays at L1 and makes RX DMA
-extremely slow. Eventually the RX ring becomes messed up:
-[ 1133.194697] rtw_8821ce 0000:02:00.0: pci bus timeout, check dma status
-
-Since the 8821CE hardware may fail to leave ASPM L1, manually do it in
-the driver to resolve the issue.
-
-Fixes: 9e2fd29864c5 ("rtw88: add napi support")
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=215131
-BugLink: https://bugs.launchpad.net/bugs/1927808
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Acked-by: Jian-Hong Pan <jhp@endlessos.org>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20211215114635.333767-1-kai.heng.feng@canonical.com
+Fixes: b68bd2e3143a ("iwlwifi: mvm: Add FTM initiator RTT smoothing logic")
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20211219111352.e56cbf614a4d.Ib98004ccd2c7a55fd883a8ea7eebd810f406dec6@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtw88/pci.c | 70 +++++++-----------------
- drivers/net/wireless/realtek/rtw88/pci.h |  2 +
- 2 files changed, 21 insertions(+), 51 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtw88/pci.c b/drivers/net/wireless/realtek/rtw88/pci.c
-index 3b367c9085eba..08cf66141889b 100644
---- a/drivers/net/wireless/realtek/rtw88/pci.c
-+++ b/drivers/net/wireless/realtek/rtw88/pci.c
-@@ -2,7 +2,6 @@
- /* Copyright(c) 2018-2019  Realtek Corporation
-  */
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c b/drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c
+index 03e5bf5cb9094..c7fee6a2f7fd4 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c
+@@ -1054,7 +1054,8 @@ static void iwl_mvm_ftm_rtt_smoothing(struct iwl_mvm *mvm,
+ 	overshoot = IWL_MVM_FTM_INITIATOR_SMOOTH_OVERSHOOT;
+ 	alpha = IWL_MVM_FTM_INITIATOR_SMOOTH_ALPHA;
  
--#include <linux/dmi.h>
- #include <linux/module.h>
- #include <linux/pci.h>
- #include "main.h"
-@@ -1409,7 +1408,11 @@ static void rtw_pci_link_ps(struct rtw_dev *rtwdev, bool enter)
- 	 * throughput. This is probably because the ASPM behavior slightly
- 	 * varies from different SOC.
- 	 */
--	if (rtwpci->link_ctrl & PCI_EXP_LNKCTL_ASPM_L1)
-+	if (!(rtwpci->link_ctrl & PCI_EXP_LNKCTL_ASPM_L1))
-+		return;
-+
-+	if ((enter && atomic_dec_if_positive(&rtwpci->link_usage) == 0) ||
-+	    (!enter && atomic_inc_return(&rtwpci->link_usage) == 1))
- 		rtw_pci_aspm_set(rtwdev, enter);
- }
+-	rtt_avg = (alpha * rtt + (100 - alpha) * resp->rtt_avg) / 100;
++	rtt_avg = alpha * rtt + (100 - alpha) * resp->rtt_avg;
++	do_div(rtt_avg, 100);
  
-@@ -1658,6 +1661,9 @@ static int rtw_pci_napi_poll(struct napi_struct *napi, int budget)
- 					      priv);
- 	int work_done = 0;
- 
-+	if (rtwpci->rx_no_aspm)
-+		rtw_pci_link_ps(rtwdev, false);
-+
- 	while (work_done < budget) {
- 		u32 work_done_once;
- 
-@@ -1681,6 +1687,8 @@ static int rtw_pci_napi_poll(struct napi_struct *napi, int budget)
- 		if (rtw_pci_get_hw_rx_ring_nr(rtwdev, rtwpci))
- 			napi_schedule(napi);
- 	}
-+	if (rtwpci->rx_no_aspm)
-+		rtw_pci_link_ps(rtwdev, true);
- 
- 	return work_done;
- }
-@@ -1702,59 +1710,13 @@ static void rtw_pci_napi_deinit(struct rtw_dev *rtwdev)
- 	netif_napi_del(&rtwpci->napi);
- }
- 
--enum rtw88_quirk_dis_pci_caps {
--	QUIRK_DIS_PCI_CAP_MSI,
--	QUIRK_DIS_PCI_CAP_ASPM,
--};
--
--static int disable_pci_caps(const struct dmi_system_id *dmi)
--{
--	uintptr_t dis_caps = (uintptr_t)dmi->driver_data;
--
--	if (dis_caps & BIT(QUIRK_DIS_PCI_CAP_MSI))
--		rtw_disable_msi = true;
--	if (dis_caps & BIT(QUIRK_DIS_PCI_CAP_ASPM))
--		rtw_pci_disable_aspm = true;
--
--	return 1;
--}
--
--static const struct dmi_system_id rtw88_pci_quirks[] = {
--	{
--		.callback = disable_pci_caps,
--		.ident = "Protempo Ltd L116HTN6SPW",
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "Protempo Ltd"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "L116HTN6SPW"),
--		},
--		.driver_data = (void *)BIT(QUIRK_DIS_PCI_CAP_ASPM),
--	},
--	{
--		.callback = disable_pci_caps,
--		.ident = "HP HP Pavilion Laptop 14-ce0xxx",
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion Laptop 14-ce0xxx"),
--		},
--		.driver_data = (void *)BIT(QUIRK_DIS_PCI_CAP_ASPM),
--	},
--	{
--		.callback = disable_pci_caps,
--		.ident = "HP HP 250 G7 Notebook PC",
--		.matches = {
--			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
--			DMI_MATCH(DMI_PRODUCT_NAME, "HP 250 G7 Notebook PC"),
--		},
--		.driver_data = (void *)BIT(QUIRK_DIS_PCI_CAP_ASPM),
--	},
--	{}
--};
--
- int rtw_pci_probe(struct pci_dev *pdev,
- 		  const struct pci_device_id *id)
- {
-+	struct pci_dev *bridge = pci_upstream_bridge(pdev);
- 	struct ieee80211_hw *hw;
- 	struct rtw_dev *rtwdev;
-+	struct rtw_pci *rtwpci;
- 	int drv_data_size;
- 	int ret;
- 
-@@ -1772,6 +1734,9 @@ int rtw_pci_probe(struct pci_dev *pdev,
- 	rtwdev->hci.ops = &rtw_pci_ops;
- 	rtwdev->hci.type = RTW_HCI_TYPE_PCIE;
- 
-+	rtwpci = (struct rtw_pci *)rtwdev->priv;
-+	atomic_set(&rtwpci->link_usage, 1);
-+
- 	ret = rtw_core_init(rtwdev);
- 	if (ret)
- 		goto err_release_hw;
-@@ -1800,7 +1765,10 @@ int rtw_pci_probe(struct pci_dev *pdev,
- 		goto err_destroy_pci;
- 	}
- 
--	dmi_check_system(rtw88_pci_quirks);
-+	/* Disable PCIe ASPM L1 while doing NAPI poll for 8821CE */
-+	if (pdev->device == 0xc821 && bridge->vendor == PCI_VENDOR_ID_INTEL)
-+		rtwpci->rx_no_aspm = true;
-+
- 	rtw_pci_phy_cfg(rtwdev);
- 
- 	ret = rtw_register_hw(rtwdev, hw);
-diff --git a/drivers/net/wireless/realtek/rtw88/pci.h b/drivers/net/wireless/realtek/rtw88/pci.h
-index 66f78eb7757c5..0c37efd8c66fa 100644
---- a/drivers/net/wireless/realtek/rtw88/pci.h
-+++ b/drivers/net/wireless/realtek/rtw88/pci.h
-@@ -223,6 +223,8 @@ struct rtw_pci {
- 	struct rtw_pci_tx_ring tx_rings[RTK_MAX_TX_QUEUE_NUM];
- 	struct rtw_pci_rx_ring rx_rings[RTK_MAX_RX_QUEUE_NUM];
- 	u16 link_ctrl;
-+	atomic_t link_usage;
-+	bool rx_no_aspm;
- 	DECLARE_BITMAP(flags, NUM_OF_RTW_PCI_FLAGS);
- 
- 	void __iomem *mmap;
+ 	IWL_DEBUG_INFO(mvm,
+ 		       "%pM: prev rtt_avg=%lld, new rtt_avg=%lld, rtt=%lld\n",
 -- 
 2.34.1
 
