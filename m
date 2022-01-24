@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 702FF498B53
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:13:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B16C4991CC
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:18:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346871AbiAXTMx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:12:53 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:35354 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346740AbiAXTJ1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:09:27 -0500
+        id S1344918AbiAXUO3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:14:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33854 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1349334AbiAXUNj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:13:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C5B0C061765;
+        Mon, 24 Jan 2022 11:35:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69B1D60917;
-        Mon, 24 Jan 2022 19:09:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FE0EC340E5;
-        Mon, 24 Jan 2022 19:09:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0BFB7614FC;
+        Mon, 24 Jan 2022 19:35:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3356C340E5;
+        Mon, 24 Jan 2022 19:35:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051365;
-        bh=yNneMOoQvQQmJG7O7bWEOtcq/cm7Q7vMIAyMICcbcwk=;
+        s=korg; t=1643052956;
+        bh=fqghv2tM9KQdZtwnpamw7ZoE6favq2oByT6WYmfaJKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GUL0Rb1HHBhFrYHWRlwEjnDu1/H5qD+jxgSTDiBJbjBQhFbLqsnYvKedfvK93TpZR
-         pr6uu9oO/hScMJYg6fE3WiTpT6aa2W4EaTHhl/QMg0vz90pZIj8bKi7nsLc6rC6SQM
-         xGHfj8lDEzMfeyM3aj42dB+MvjxAjwZBgcxU8lsU=
+        b=u4r6HlSDzXweTuTb2eNTILEfjgfGJ8oyVtGra3tkhSXsGLC8LjgIRcOMz6h2ZleiW
+         LRGQY4JHBlJEnuhjMzAz840sYAtzOqt72h0laZf1eeYzrl9g5eFIHXIygXFG9uUIr2
+         GlIUVcGNlxLSBurDZNUUh+lFvkpwpEMs14/2AYX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@kernel.org>,
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        Laurent Dufour <ldufour@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 137/186] i2c: i801: Dont silently correct invalid transfer size
+Subject: [PATCH 5.4 228/320] powerpc/watchdog: Fix missed watchdog reset due to memory ordering race
 Date:   Mon, 24 Jan 2022 19:43:32 +0100
-Message-Id: <20220124183941.512341856@linuxfoundation.org>
+Message-Id: <20220124184001.741509727@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,61 +49,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit effa453168a7eeb8a562ff4edc1dbf9067360a61 ]
+[ Upstream commit 5dad4ba68a2483fc80d70b9dc90bbe16e1f27263 ]
 
-If an invalid block size is provided, reject it instead of silently
-changing it to a supported value. Especially critical I see the case of
-a write transfer with block length 0. In this case we have no guarantee
-that the byte we would write is valid. When silently reducing a read to
-32 bytes then we don't return an error and the caller may falsely
-assume that we returned the full requested data.
+It is possible for all CPUs to miss the pending cpumask becoming clear,
+and then nobody resetting it, which will cause the lockup detector to
+stop working. It will eventually expire, but watchdog_smp_panic will
+avoid doing anything if the pending mask is clear and it will never be
+reset.
 
-If this change should break any (broken) caller, then I think we should
-fix the caller.
+Order the cpumask clear vs the subsequent test to close this race.
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Reviewed-by: Jean Delvare <jdelvare@suse.de>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Add an extra check for an empty pending mask when the watchdog fires and
+finds its bit still clear, to try to catch any other possible races or
+bugs here and keep the watchdog working. The extra test in
+arch_touch_nmi_watchdog is required to prevent the new warning from
+firing off.
+
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Reviewed-by: Laurent Dufour <ldufour@linux.ibm.com>
+Debugged-by: Laurent Dufour <ldufour@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20211110025056.2084347-2-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-i801.c | 15 +++++----------
- 1 file changed, 5 insertions(+), 10 deletions(-)
+ arch/powerpc/kernel/watchdog.c | 41 +++++++++++++++++++++++++++++++++-
+ 1 file changed, 40 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
-index 7b1654b0fb6db..c817e3d4b52b8 100644
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -769,6 +769,11 @@ static int i801_block_transaction(struct i801_priv *priv,
- 	int result = 0;
- 	unsigned char hostc;
+diff --git a/arch/powerpc/kernel/watchdog.c b/arch/powerpc/kernel/watchdog.c
+index af3c15a1d41eb..75b2a6c4db5a5 100644
+--- a/arch/powerpc/kernel/watchdog.c
++++ b/arch/powerpc/kernel/watchdog.c
+@@ -132,6 +132,10 @@ static void set_cpumask_stuck(const struct cpumask *cpumask, u64 tb)
+ {
+ 	cpumask_or(&wd_smp_cpus_stuck, &wd_smp_cpus_stuck, cpumask);
+ 	cpumask_andnot(&wd_smp_cpus_pending, &wd_smp_cpus_pending, cpumask);
++	/*
++	 * See wd_smp_clear_cpu_pending()
++	 */
++	smp_mb();
+ 	if (cpumask_empty(&wd_smp_cpus_pending)) {
+ 		wd_smp_last_reset_tb = tb;
+ 		cpumask_andnot(&wd_smp_cpus_pending,
+@@ -217,13 +221,44 @@ static void wd_smp_clear_cpu_pending(int cpu, u64 tb)
  
-+	if (read_write == I2C_SMBUS_READ && command == I2C_SMBUS_BLOCK_DATA)
-+		data->block[0] = I2C_SMBUS_BLOCK_MAX;
-+	else if (data->block[0] < 1 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
-+		return -EPROTO;
-+
- 	if (command == I2C_SMBUS_I2C_BLOCK_DATA) {
- 		if (read_write == I2C_SMBUS_WRITE) {
- 			/* set I2C_EN bit in configuration register */
-@@ -782,16 +787,6 @@ static int i801_block_transaction(struct i801_priv *priv,
+ 			cpumask_clear_cpu(cpu, &wd_smp_cpus_stuck);
+ 			wd_smp_unlock(&flags);
++		} else {
++			/*
++			 * The last CPU to clear pending should have reset the
++			 * watchdog so we generally should not find it empty
++			 * here if our CPU was clear. However it could happen
++			 * due to a rare race with another CPU taking the
++			 * last CPU out of the mask concurrently.
++			 *
++			 * We can't add a warning for it. But just in case
++			 * there is a problem with the watchdog that is causing
++			 * the mask to not be reset, try to kick it along here.
++			 */
++			if (unlikely(cpumask_empty(&wd_smp_cpus_pending)))
++				goto none_pending;
  		}
+ 		return;
  	}
++
+ 	cpumask_clear_cpu(cpu, &wd_smp_cpus_pending);
++
++	/*
++	 * Order the store to clear pending with the load(s) to check all
++	 * words in the pending mask to check they are all empty. This orders
++	 * with the same barrier on another CPU. This prevents two CPUs
++	 * clearing the last 2 pending bits, but neither seeing the other's
++	 * store when checking if the mask is empty, and missing an empty
++	 * mask, which ends with a false positive.
++	 */
++	smp_mb();
+ 	if (cpumask_empty(&wd_smp_cpus_pending)) {
+ 		unsigned long flags;
  
--	if (read_write == I2C_SMBUS_WRITE
--	 || command == I2C_SMBUS_I2C_BLOCK_DATA) {
--		if (data->block[0] < 1)
--			data->block[0] = 1;
--		if (data->block[0] > I2C_SMBUS_BLOCK_MAX)
--			data->block[0] = I2C_SMBUS_BLOCK_MAX;
--	} else {
--		data->block[0] = 32;	/* max for SMBus block reads */
--	}
--
- 	/* Experience has shown that the block buffer can only be used for
- 	   SMBus (not I2C) block transactions, even though the datasheet
- 	   doesn't mention this limitation. */
++none_pending:
++		/*
++		 * Double check under lock because more than one CPU could see
++		 * a clear mask with the lockless check after clearing their
++		 * pending bits.
++		 */
+ 		wd_smp_lock(&flags);
+ 		if (cpumask_empty(&wd_smp_cpus_pending)) {
+ 			wd_smp_last_reset_tb = tb;
+@@ -314,8 +349,12 @@ void arch_touch_nmi_watchdog(void)
+ {
+ 	unsigned long ticks = tb_ticks_per_usec * wd_timer_period_ms * 1000;
+ 	int cpu = smp_processor_id();
+-	u64 tb = get_tb();
++	u64 tb;
+ 
++	if (!cpumask_test_cpu(cpu, &watchdog_cpumask))
++		return;
++
++	tb = get_tb();
+ 	if (tb - per_cpu(wd_timer_tb, cpu) >= ticks) {
+ 		per_cpu(wd_timer_tb, cpu) = tb;
+ 		wd_smp_clear_cpu_pending(cpu, tb);
 -- 
 2.34.1
 
