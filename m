@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AFA9499789
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:28:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3140499788
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:28:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1447101AbiAXVNe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1448652AbiAXVNe (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 24 Jan 2022 16:13:34 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:59890 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1446436AbiAXVIO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:08:14 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60548 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1446447AbiAXVIR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:08:17 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D762BB8123A;
-        Mon, 24 Jan 2022 21:08:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E213DC340E7;
-        Mon, 24 Jan 2022 21:08:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FAC96146E;
+        Mon, 24 Jan 2022 21:08:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 077ACC340E5;
+        Mon, 24 Jan 2022 21:08:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058491;
-        bh=U+Nb0NPZWLh7Nmoze8/HV96EGs6PbpH8kYa4V7Ihd9c=;
+        s=korg; t=1643058494;
+        bh=pINW5Y06eLywlZuwRwe+6QERGMYHIR/VYj2CTS7IREY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WiYz4HNTW7rkx/X1/3zi0tj0lF+HlpmZvMgmjLHrfDNwwnvltp5K75CXRqi4gZeXP
-         4X+GQpVa7NhBSOUGPp6i594gtpN1D5M8RoSAJpMhdA0nNzSmiVASJo4uTxUl//E6i7
-         D7uD5+FhZKG6WMZx11yxKtggLxQK2Fb7HZRXSUjE=
+        b=yiDAEWbsjE+ErvOU9i4wPaZwNnGTPUwwRUlUO7VjjHx2fQ21Ypeeh5RhFq71ukiuA
+         RpOVcCFQGIvUvt/bEjt26yoVm6uvgVYHAG7uygOtU0rSldfq6wdiy5Ntjdo+1wzuZn
+         JR9Tajn+p161aylzu+W9LO1PA/4LNmBIcZXxiR1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>,
-        Gregory CLEMENT <gregory.clement@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0307/1039] ARM: dts: armada-38x: Add generic compatible to UART nodes
-Date:   Mon, 24 Jan 2022 19:34:56 +0100
-Message-Id: <20220124184135.632924047@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Wang <sean.wang@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0308/1039] mt76: mt7921: drop offload_flags overwritten
+Date:   Mon, 24 Jan 2022 19:34:57 +0100
+Message-Id: <20220124184135.664168765@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -47,46 +44,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Behún <kabel@kernel.org>
+From: Sean Wang <sean.wang@mediatek.com>
 
-[ Upstream commit 62480772263ab6b52e758f2346c70a526abd1d28 ]
+[ Upstream commit 2363b6a646b65a207345b9a9024dff0eff3fec44 ]
 
-Add generic compatible string "ns16550a" to serial port nodes of Armada
-38x.
+offload_flags have to be dropped for mt7921 because mt76.omac_idx 0 would
+always run as station mode that would cause Tx encapsulation setting
+is not applied to mac80211.
 
-This makes it possible to use earlycon.
+Also, drop IEEE80211_OFFLOAD_ENCAP_4ADDR too because it is not really
+being supported.
 
-Fixes: 0d3d96ab0059 ("ARM: mvebu: add Device Tree description of the Armada 380/385 SoCs")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Marek Behún <kabel@kernel.org>
-Signed-off-by: Gregory CLEMENT <gregory.clement@bootlin.com>
+Fixes: e0f9fdda81bd ("mt76: mt7921: add ieee80211_ops")
+Signed-off-by: Sean Wang <sean.wang@mediatek.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/armada-38x.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt7921/main.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/arch/arm/boot/dts/armada-38x.dtsi b/arch/arm/boot/dts/armada-38x.dtsi
-index 9b1a24cc5e91f..df3c8d1d8f641 100644
---- a/arch/arm/boot/dts/armada-38x.dtsi
-+++ b/arch/arm/boot/dts/armada-38x.dtsi
-@@ -168,7 +168,7 @@
- 			};
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/main.c b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
+index 633c6d2a57acd..b144f5491798a 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7921/main.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
+@@ -318,12 +318,6 @@ static int mt7921_add_interface(struct ieee80211_hw *hw,
+ 		mtxq->wcid = &mvif->sta.wcid;
+ 	}
  
- 			uart0: serial@12000 {
--				compatible = "marvell,armada-38x-uart";
-+				compatible = "marvell,armada-38x-uart", "ns16550a";
- 				reg = <0x12000 0x100>;
- 				reg-shift = <2>;
- 				interrupts = <GIC_SPI 12 IRQ_TYPE_LEVEL_HIGH>;
-@@ -178,7 +178,7 @@
- 			};
+-	if (vif->type != NL80211_IFTYPE_AP &&
+-	    (!mvif->mt76.omac_idx || mvif->mt76.omac_idx > 3))
+-		vif->offload_flags = 0;
+-
+-	vif->offload_flags |= IEEE80211_OFFLOAD_ENCAP_4ADDR;
+-
+ out:
+ 	mt7921_mutex_release(dev);
  
- 			uart1: serial@12100 {
--				compatible = "marvell,armada-38x-uart";
-+				compatible = "marvell,armada-38x-uart", "ns16550a";
- 				reg = <0x12100 0x100>;
- 				reg-shift = <2>;
- 				interrupts = <GIC_SPI 13 IRQ_TYPE_LEVEL_HIGH>;
 -- 
 2.34.1
 
