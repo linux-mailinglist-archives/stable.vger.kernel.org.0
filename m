@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1A91499C8F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:09:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9FCF4999FB
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:48:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1579600AbiAXWGD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:06:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60494 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1577850AbiAXWBL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:01:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7251C024148;
-        Mon, 24 Jan 2022 12:41:04 -0800 (PST)
+        id S1456387AbiAXVi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:38:59 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:45348 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1453740AbiAXVas (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:30:48 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 741E5B80FA3;
-        Mon, 24 Jan 2022 20:41:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A02B8C340E5;
-        Mon, 24 Jan 2022 20:41:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0921DB811FB;
+        Mon, 24 Jan 2022 21:30:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20650C340E4;
+        Mon, 24 Jan 2022 21:30:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056862;
-        bh=Tivkv/sFkps9YthhNWqLu2xQYDfifae22GMxPKEtHvI=;
+        s=korg; t=1643059845;
+        bh=B7cGSsiuqg4gQODx/pWR3gyLXkSyG0HwME+dWqp/SZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=14/xEjrhFxBozu76kD50wyowMhThuTHT0gFU4ehW2WH5Qj9j+IFi0o1f0T5Jvzrij
-         chduxtnyYq/46XBSuBU81a99LPEWN/S4o1EGHtfM9+iJvQfuwV4qFFroLtSxmIdPq+
-         JsVGMjqhXlwDpPsxTTf3+qAmhaJndRD8GOrhsCYc=
+        b=jDFhCR2Dcwo9zeivPEkSdyctHsnf/5aJNM6GvZ7OT8KRbsyTyVKJPe4dZcOsl29PQ
+         0YfZKA5EeNi4BwRX7tOgDniA72CrFmRP9Z/o+ZoSPBkreANOWFUfqHAoWnGmaM5nYH
+         ZcYWfZTujFpTAeSYxLO6zV3uCQtrFFeFvG4KlgLI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julia Lawall <Julia.Lawall@lip6.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 625/846] powerpc/cell: add missing of_node_put
+Subject: [PATCH 5.16 0753/1039] scsi: ufs: Fix a kernel crash during shutdown
 Date:   Mon, 24 Jan 2022 19:42:22 +0100
-Message-Id: <20220124184122.598411006@linuxfoundation.org>
+Message-Id: <20220124184150.648170734@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,55 +46,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julia Lawall <Julia.Lawall@lip6.fr>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit a841fd009e51c8c0a8f07c942e9ab6bb48da8858 ]
+[ Upstream commit 3489c34bd02b73a72646037d673a122a53cee174 ]
 
-for_each_node_by_name performs an of_node_get on each iteration, so
-a break out of the loop requires an of_node_put.
+Fix the following kernel crash:
 
-A simplified version of the semantic patch that fixes this problem is as
-follows (http://coccinelle.lip6.fr):
+Unable to handle kernel paging request at virtual address ffffffc91e735000
+Call trace:
+ __queue_work+0x26c/0x624
+ queue_work_on+0x6c/0xf0
+ ufshcd_hold+0x12c/0x210
+ __ufshcd_wl_suspend+0xc0/0x400
+ ufshcd_wl_shutdown+0xb8/0xcc
+ device_shutdown+0x184/0x224
+ kernel_restart+0x4c/0x124
+ __arm64_sys_reboot+0x194/0x264
+ el0_svc_common+0xc8/0x1d4
+ do_el0_svc+0x30/0x8c
+ el0_svc+0x20/0x30
+ el0_sync_handler+0x84/0xe4
+ el0_sync+0x1bc/0x1c0
 
-// <smpl>
-@@
-expression e,e1;
-local idexpression n;
-@@
+Fix this crash by ungating the clock before destroying the work queue on
+which clock gating work is queued.
 
- for_each_node_by_name(n, e1) {
-   ... when != of_node_put(n)
-       when != e = n
-(
-   return n;
-|
-+  of_node_put(n);
-?  return ...;
-)
-   ...
- }
-// </smpl>
-
-Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1448051604-25256-7-git-send-email-Julia.Lawall@lip6.fr
+Link: https://lore.kernel.org/r/20211203231950.193369-15-bvanassche@acm.org
+Tested-by: Bean Huo <beanhuo@micron.com>
+Reviewed-by: Bean Huo <beanhuo@micron.com>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/cell/iommu.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/ufs/ufshcd.c | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/arch/powerpc/platforms/cell/iommu.c b/arch/powerpc/platforms/cell/iommu.c
-index fa08699aedeb8..d32f24de84798 100644
---- a/arch/powerpc/platforms/cell/iommu.c
-+++ b/arch/powerpc/platforms/cell/iommu.c
-@@ -977,6 +977,7 @@ static int __init cell_iommu_fixed_mapping_init(void)
- 			if (hbase < dbase || (hend > (dbase + dsize))) {
- 				pr_debug("iommu: hash window doesn't fit in"
- 					 "real DMA window\n");
-+				of_node_put(np);
- 				return -1;
- 			}
- 		}
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 4394081806978..c94377aa82739 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -1666,7 +1666,8 @@ int ufshcd_hold(struct ufs_hba *hba, bool async)
+ 	bool flush_result;
+ 	unsigned long flags;
+ 
+-	if (!ufshcd_is_clkgating_allowed(hba))
++	if (!ufshcd_is_clkgating_allowed(hba) ||
++	    !hba->clk_gating.is_initialized)
+ 		goto out;
+ 	spin_lock_irqsave(hba->host->host_lock, flags);
+ 	hba->clk_gating.active_reqs++;
+@@ -1826,7 +1827,7 @@ static void __ufshcd_release(struct ufs_hba *hba)
+ 
+ 	if (hba->clk_gating.active_reqs || hba->clk_gating.is_suspended ||
+ 	    hba->ufshcd_state != UFSHCD_STATE_OPERATIONAL ||
+-	    hba->outstanding_tasks ||
++	    hba->outstanding_tasks || !hba->clk_gating.is_initialized ||
+ 	    hba->active_uic_cmd || hba->uic_async_done ||
+ 	    hba->clk_gating.state == CLKS_OFF)
+ 		return;
+@@ -1961,11 +1962,15 @@ static void ufshcd_exit_clk_gating(struct ufs_hba *hba)
+ {
+ 	if (!hba->clk_gating.is_initialized)
+ 		return;
++
+ 	ufshcd_remove_clk_gating_sysfs(hba);
+-	cancel_work_sync(&hba->clk_gating.ungate_work);
+-	cancel_delayed_work_sync(&hba->clk_gating.gate_work);
+-	destroy_workqueue(hba->clk_gating.clk_gating_workq);
++
++	/* Ungate the clock if necessary. */
++	ufshcd_hold(hba, false);
+ 	hba->clk_gating.is_initialized = false;
++	ufshcd_release(hba);
++
++	destroy_workqueue(hba->clk_gating.clk_gating_workq);
+ }
+ 
+ /* Must be called with host lock acquired */
 -- 
 2.34.1
 
