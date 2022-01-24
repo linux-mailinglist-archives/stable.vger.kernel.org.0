@@ -2,88 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C704C4983B9
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 16:43:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0AF04983BA
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 16:44:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231254AbiAXPnV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 10:43:21 -0500
-Received: from maynard.decadent.org.uk ([95.217.213.242]:42210 "EHLO
-        maynard.decadent.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240632AbiAXPnV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 10:43:21 -0500
-Received: from 168.7-181-91.adsl-dyn.isp.belgacom.be ([91.181.7.168] helo=deadeye)
-        by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1nC1V1-0006td-JA; Mon, 24 Jan 2022 16:43:19 +0100
-Received: from ben by deadeye with local (Exim 4.95)
-        (envelope-from <ben@decadent.org.uk>)
-        id 1nC1V1-009yzt-1j;
-        Mon, 24 Jan 2022 16:43:19 +0100
-Date:   Mon, 24 Jan 2022 16:43:19 +0100
-From:   Ben Hutchings <ben@decadent.org.uk>
-To:     stable@vger.kernel.org
-Cc:     Andy Spencer <aspencer@spacex.com>,
-        Michael Braun <michael-dev@fami-braun.de>,
-        Claudiu Manoil <claudiu.manoil@nxp.com>
-Subject: [stable 4.9,4.14] gianfar rx fixes
-Message-ID: <Ye7JF4yOYE3y8QEJ@decadent.org.uk>
+        id S233573AbiAXPon (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 10:44:43 -0500
+Received: from out5-smtp.messagingengine.com ([66.111.4.29]:43473 "EHLO
+        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231203AbiAXPom (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 10:44:42 -0500
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.nyi.internal (Postfix) with ESMTP id 3C9775C0150;
+        Mon, 24 Jan 2022 10:44:42 -0500 (EST)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 24 Jan 2022 10:44:42 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm2; bh=1ZCWDiwfW4eZaQgzswxbn2ITUkdxZP/Tl6+E1E
+        76Oeo=; b=EifoxRRlDc+Lh2/MYMwuTbYHSRtjPgZNDVJg4cU96LLNR9Vp91Gbgl
+        uB/U1mVoEdb88U954Xir/8BeuIv1r/C0+ksHdihGZOnxE+JuFZ8S63ElP8AXmbu0
+        /N6EEsA2HgDhVKggURtE9jOyumZyzTfdB2W8z/WXqX7WNBd5FqltTuIMRgOfG9vu
+        mvLYqYZll/qBtnYDKBCK/d/DZWlYrXHd1QxNBmbInV748XcRrgMu6JW6AQP/Nj1I
+        UPuxzz85FF0PgwGjg65ECkGgbekOoIlJog7UGxMLxz3DSBHXtSTvxhp9M7wZpMcY
+        2DzZW1u+GWkZzGY/zjVI0L6rLVkD3xwQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=1ZCWDiwfW4eZaQgzs
+        wxbn2ITUkdxZP/Tl6+E1E76Oeo=; b=OYKf8zsgbMJcwtEhJ97gtKO1LaWdYpvVe
+        qbKnQRwGziXYP4EYrGt09g56Hrqk1UJu25JmyoTtHYlVoZ94y6sO5LW1sUO/2wm7
+        devXvdJztPRhdZiT35Xcn38K1PHDJXTmnBEwuNCdtPjRBhDLzgG2Ex/13FIc19Ve
+        vmbP1ifZOO+ezprmd2javO7TS4F63A4VIcuNz2FjKcGmimPzNth3+wBwjUQ+KXiE
+        qdykS/1AkC0M4he7tQywwzt2Exp5oRVtv59WxrUAXlRDtfvko25y8vGEVHCHK8Pf
+        FrNn0YUqK0VAENyyhy3JRGRTy71R9YvZEpFNyC4AoSCsMrOxJLFFQ==
+X-ME-Sender: <xms:acnuYeVjca6yguHb6e_wwQCmz1HMO2aodhdRb7Ag9ACMl-O3hbx-uA>
+    <xme:acnuYaliGRs9-44dpZDBk8r1CN6Vl008vORuVt6_Bk6cnBZcScyev8KKq1-XM4Ule
+    tlR3zT8RdxKkg>
+X-ME-Received: <xmr:acnuYSYwn9E1U-Sw9UxtleBXE9F4G-FX13Tb7NN6IdSKk7I6kgARN3c6jOLsX4J4WELY6BK983azy7akf23ceonrsuEHtYzr>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrvdeigdekudcutefuodetggdotefrodftvf
+    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
+    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
+    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
+    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
+    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:acnuYVUQ9eEKebNkxLdXKZOtYDmHYC6X7wykoe3hqlTlJltV5PzxAw>
+    <xmx:acnuYYkWpGI9epingw_Dpm3cTsAgPK_U8gRvmKDHVUISYzF7P7m-cw>
+    <xmx:acnuYadKT4GMFpaUN2OTFMQNkiw0BdR5-s-r9lGeAQLc_vfQNTWFgQ>
+    <xmx:asnuYWaMw_wvkocB9VezBelZe0QQ-J7TlPl8Fmjsa2_iM4ub1f8S3w>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 24 Jan 2022 10:44:41 -0500 (EST)
+Date:   Mon, 24 Jan 2022 16:44:38 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Ben Hutchings <ben@decadent.org.uk>
+Cc:     stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
+        Jan Kara <jack@suse.cz>
+Subject: Re: [PATCH 4.14,4.19 1/2] fuse: fix bad inode
+Message-ID: <Ye7JZuBUQVn4O0yO@kroah.com>
+References: <Ye7C/r2HAXqKeg/7@decadent.org.uk>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="EOAzPLx7kVjRivnB"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-SA-Exim-Connect-IP: 91.181.7.168
-X-SA-Exim-Mail-From: ben@decadent.org.uk
-X-SA-Exim-Scanned: No (on maynard); SAEximRunCond expanded to false
+In-Reply-To: <Ye7C/r2HAXqKeg/7@decadent.org.uk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Jan 24, 2022 at 04:17:18PM +0100, Ben Hutchings wrote:
+> From: Miklos Szeredi <mszeredi@redhat.com>
+> 
+> commit 5d069dbe8aaf2a197142558b6fb2978189ba3454 upstream.
+> 
+> Jan Kara's analysis of the syzbot report (edited):
+> 
+>   The reproducer opens a directory on FUSE filesystem, it then attaches
+>   dnotify mark to the open directory.  After that a fuse_do_getattr() call
+>   finds that attributes returned by the server are inconsistent, and calls
+>   make_bad_inode() which, among other things does:
+> 
+>           inode->i_mode = S_IFREG;
+> 
+>   This then confuses dnotify which doesn't tear down its structures
+>   properly and eventually crashes.
+> 
+> Avoid calling make_bad_inode() on a live inode: switch to a private flag on
+> the fuse inode.  Also add the test to ops which the bad_inode_ops would
+> have caught.
+> 
+> This bug goes back to the initial merge of fuse in 2.6.14...
+> 
+> Reported-by: syzbot+f427adf9324b92652ccc@syzkaller.appspotmail.com
+> Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+> Tested-by: Jan Kara <jack@suse.cz>
+> Cc: <stable@vger.kernel.org>
+> [bwh: Backported to 4.19:
+>  - Drop changes in fuse_dir_fsync(), fuse_readahead(), fuse_evict_inode()
+>  - In fuse_get_link(), return ERR_PTR(-EIO) for bad inodes
+>  - Convert some additional calls to is_bad_inode()
+>  - Adjust filename, context]
+> Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 
---EOAzPLx7kVjRivnB
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Both now queued up, thanks!
 
-Please pick the following commits for 4.9 and 4.14.  They should apply
-cleanly.
-
-commit d903ec77118c09f93a610b384d83a6df33a64fe6
-Author: Andy Spencer <aspencer@spacex.com>
-Date:   Thu Feb 22 11:05:33 2018 -0800
-
-    gianfar: simplify FCS handling and fix memory leak
-
-commit d8861bab48b6c1fc3cdbcab8ff9d1eaea43afe7f
-Author: Michael Braun <michael-dev@fami-braun.de>
-Date:   Thu Mar 4 20:52:52 2021 +0100
-
-    gianfar: fix jumbo packets+napi+rx overrun crash
-
-Ben.
-
---=20
-Ben Hutchings
-Teamwork is essential - it allows you to blame someone else.
-
---EOAzPLx7kVjRivnB
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmHuyQ4ACgkQ57/I7JWG
-EQn2vw/8CWrnRlvB5ecDBZKOWPw2eALbfK5E7Ng5qZYSCh0PX8j2RQzSVU8d7io9
-TbbbJEYC3R4zbpOjZOhMejPvgKvrR4B7YcdBO2nxeiSWtQaBp6Kq53bftNK07DP5
-G2npCqyRHFKLOf0n8/Vtyg/dotNY8cZKfuz0xl+dnFbBAD7218rFKZPBFCWyYGEf
-tO7ldWqPtCnALqOCv2RybNC0EYhLKOtvyPNMchVnVEPmHN5GgV4Xf9ShEmSubMAx
-vbj+2ByVSmtqxVzlkuaUFR/dHwsGTrrsDUdBsFNEodrtcmjBtDU+wcTciEzd7PQE
-KOQ1TBGGcyjb/5w1kNbyIRTuhS5I9UJZTTox/DUDpryqqv+ETzBexm5knqukSERM
-OwsBYwas/hA+dpqUdVF5pVpUtYWJkQCzsf5jjJDGlgNXkDzJclFzcq5sdvlr246P
-Jy1HI5Vme8g+5V17cBvXZ3QJWIDDxRcQ+ZD+b71MfCXoFAagPifNW72Objlv9cBW
-212ZpwJhBGn6qc1rnWZRQB4UmxNmdlahM6PV+KlUuFNontqFLHQ7DiaP0D9h6Lsk
-FYjsP0sBL/kz0p0yYtmXI3/I6GP8yGGNdMuUuCTruGQCVeWw+uhxnDKBxOLrkHeN
-G+VE2bPKi2H5qwBeZKANdMtg1W31LWxVnTNg7QKGPs7ImoWRYMk=
-=PXdd
------END PGP SIGNATURE-----
-
---EOAzPLx7kVjRivnB--
+greg k-h
