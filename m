@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4D324988A9
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:50:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E7C3498999
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:57:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231534AbiAXStt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:49:49 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:47814 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245347AbiAXSs4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:48:56 -0500
+        id S1344102AbiAXS5Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:57:16 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:52686 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344808AbiAXSzU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:55:20 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 17389614D2;
-        Mon, 24 Jan 2022 18:48:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0BC7C340E5;
-        Mon, 24 Jan 2022 18:48:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BAC0EB8121A;
+        Mon, 24 Jan 2022 18:55:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE47BC340E5;
+        Mon, 24 Jan 2022 18:55:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050135;
-        bh=26YtHU7kqqE3DgJGlBPSWEyd8gKGzX2a6Y5MUgSk8X0=;
+        s=korg; t=1643050517;
+        bh=/GzlMNYkGDgORLvWcuEHRi5YFjUBD8uWWSi8uea6hA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YmDrmxUQYJ6T3auYIM8cTPolyTzQQsJnnpgoSCMgIzztnsiSEU5PS1PPWhn7ICXLL
-         dmSA13z5lZROmWjElZ8xsOfCqTgsDcIKFh2pHVxox8aU+qmZnUoeyqjbfIpVPryeuw
-         xF7De/IcZ/cF7aS0/TpFknsbu2WW0P/eISCmxcv4=
+        b=ew12jJTrQ511UesLPYy2xw3gG2kyp9KJrKxUtfW0ERFdN6dmmqAOJP3lsJ36N4ord
+         q4pN+oklL4K5HMdlKjmLFn37d6uHVtd3LAqOZzqqAXKALoNEHPWn0ME0DxXSurz7qN
+         Idjb6zqsraNgFgMdsDsP42SrCLyCqfpRXHWCERuo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chengfeng Ye <cyeaa@connect.ust.hk>,
-        Thara Gopinath <thara.gopinath@linaro.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 022/114] crypto: qce - fix uaf on qce_ahash_register_one
+        stable@vger.kernel.org, Sam Bingner <sam@bingner.com>,
+        Yifeng Li <tomli@tomli.me>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>
+Subject: [PATCH 4.9 027/157] PCI: Add function 1 DMA alias quirk for Marvell 88SE9125 SATA controller
 Date:   Mon, 24 Jan 2022 19:41:57 +0100
-Message-Id: <20220124183927.812284771@linuxfoundation.org>
+Message-Id: <20220124183933.655867157@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
-References: <20220124183927.095545464@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,39 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengfeng Ye <cyeaa@connect.ust.hk>
+From: Yifeng Li <tomli@tomli.me>
 
-[ Upstream commit b4cb4d31631912842eb7dce02b4350cbb7562d5e ]
+commit e445375882883f69018aa669b67cbb37ec873406 upstream.
 
-Pointer base points to sub field of tmpl, it
-is dereferenced after tmpl is freed. Fix
-this by accessing base before free tmpl.
+Like other SATA controller chips in the Marvell 88SE91xx series, the
+Marvell 88SE9125 has the same DMA requester ID hardware bug that prevents
+it from working under IOMMU.  Add it to the list of devices that need the
+quirk.
 
-Fixes: ec8f5d8f ("crypto: qce - Qualcomm crypto engine driver")
-Signed-off-by: Chengfeng Ye <cyeaa@connect.ust.hk>
-Acked-by: Thara Gopinath <thara.gopinath@linaro.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Without this patch, device initialization fails with DMA errors:
+
+  ata8: softreset failed (1st FIS failed)
+  DMAR: DRHD: handling fault status reg 2
+  DMAR: [DMA Write NO_PASID] Request device [03:00.1] fault addr 0xfffc0000 [fault reason 0x02] Present bit in context entry is clear
+  DMAR: DRHD: handling fault status reg 2
+  DMAR: [DMA Read NO_PASID] Request device [03:00.1] fault addr 0xfffc0000 [fault reason 0x02] Present bit in context entry is clear
+
+After applying the patch, the controller can be successfully initialized:
+
+  ata8: SATA link up 1.5 Gbps (SStatus 113 SControl 330)
+  ata8.00: ATAPI: PIONEER BD-RW   BDR-207M, 1.21, max UDMA/100
+  ata8.00: configured for UDMA/100
+  scsi 7:0:0:0: CD-ROM            PIONEER  BD-RW   BDR-207M 1.21 PQ: 0 ANSI: 5
+
+Link: https://lore.kernel.org/r/YahpKVR+McJVDdkD@work
+Reported-by: Sam Bingner <sam@bingner.com>
+Tested-by: Sam Bingner <sam@bingner.com>
+Tested-by: Yifeng Li <tomli@tomli.me>
+Signed-off-by: Yifeng Li <tomli@tomli.me>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Krzysztof Wilczyński <kw@linux.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/qce/sha.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/crypto/qce/sha.c b/drivers/crypto/qce/sha.c
-index 0c9973ec80ebd..da2e4c193953a 100644
---- a/drivers/crypto/qce/sha.c
-+++ b/drivers/crypto/qce/sha.c
-@@ -539,8 +539,8 @@ static int qce_ahash_register_one(const struct qce_ahash_def *def,
- 
- 	ret = crypto_register_ahash(alg);
- 	if (ret) {
--		kfree(tmpl);
- 		dev_err(qce->dev, "%s registration failed\n", base->cra_name);
-+		kfree(tmpl);
- 		return ret;
- 	}
- 
--- 
-2.34.1
-
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -3916,6 +3916,9 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_M
+ 			 quirk_dma_func1_alias);
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9123,
+ 			 quirk_dma_func1_alias);
++/* https://bugzilla.kernel.org/show_bug.cgi?id=42679#c136 */
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9125,
++			 quirk_dma_func1_alias);
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9128,
+ 			 quirk_dma_func1_alias);
+ /* https://bugzilla.kernel.org/show_bug.cgi?id=42679#c14 */
 
 
