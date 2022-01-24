@@ -2,112 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 553E1498773
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:00:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3976D4987DC
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:08:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244828AbiAXSAG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:00:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59054 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244819AbiAXSAD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:00:03 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48016C061757
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 10:00:02 -0800 (PST)
-Received: from gallifrey.ext.pengutronix.de ([2001:67c:670:201:5054:ff:fe8d:eefb] helo=bjornoya.blackshift.org)
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <mkl@pengutronix.de>)
-        id 1nC3dI-0005Bh-OJ
-        for stable@vger.kernel.org; Mon, 24 Jan 2022 19:00:00 +0100
-Received: from dspam.blackshift.org (localhost [127.0.0.1])
-        by bjornoya.blackshift.org (Postfix) with SMTP id CC83F210B2
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 17:59:56 +0000 (UTC)
-Received: from hardanger.blackshift.org (unknown [172.20.34.65])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-        (Client did not present a certificate)
-        by bjornoya.blackshift.org (Postfix) with ESMTPS id 55E1421089;
-        Mon, 24 Jan 2022 17:59:56 +0000 (UTC)
-Received: from blackshift.org (localhost [::1])
-        by hardanger.blackshift.org (OpenSMTPD) with ESMTP id c18f8ac8;
-        Mon, 24 Jan 2022 17:59:56 +0000 (UTC)
-From:   Marc Kleine-Budde <mkl@pengutronix.de>
-To:     netdev@vger.kernel.org
-Cc:     davem@davemloft.net, kuba@kernel.org, linux-can@vger.kernel.org,
-        kernel@pengutronix.de, Marc Kleine-Budde <mkl@pengutronix.de>,
-        stable@vger.kernel.org, Matt Kline <matt@bitbashing.io>,
-        Chandrasekar Ramakrishnan <rcsekar@samsung.com>,
-        Michael Anochin <anochin@photo-meter.com>
-Subject: [PATCH net 3/5] can: m_can: m_can_fifo_{read,write}: don't read or write from/to FIFO if length is 0
-Date:   Mon, 24 Jan 2022 18:59:53 +0100
-Message-Id: <20220124175955.3464134-4-mkl@pengutronix.de>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124175955.3464134-1-mkl@pengutronix.de>
-References: <20220124175955.3464134-1-mkl@pengutronix.de>
+        id S244866AbiAXSIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:08:01 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:58701 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S244960AbiAXSHq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:07:46 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1643047666;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=MYTZ4YsMWSk4U76dnDXD2XsmyTvHScUcCi4gHHHwZPM=;
+        b=FjeaW8s92tZfkYXYv55MqYMNpmoxcxzuWB1/DKkkngTBxxiXBzQLXilECnlOUkIVeBVO+Q
+        RZKYPGZOf5PrCD5nKc3z3E6tzdGPpAomsbCsgD8wDUAtmC7b+cIrAg3RIIqh/2NgT9ehPc
+        dnfubV8Kd09wzj/yzSWcSrjHuVTHMzo=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-673-BaOqX7LpM-KgG_wBdqEU8A-1; Mon, 24 Jan 2022 13:07:44 -0500
+X-MC-Unique: BaOqX7LpM-KgG_wBdqEU8A-1
+Received: by mail-ej1-f70.google.com with SMTP id r18-20020a17090609d200b006a6e943d09eso2428268eje.20
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 10:07:44 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=MYTZ4YsMWSk4U76dnDXD2XsmyTvHScUcCi4gHHHwZPM=;
+        b=OR7uLvPTbblDifRipBqaQq1gzFrrEJEMHOrNs51EhPnK4Zb4XetZAHi/RRV/rDFBNQ
+         Me2fwOWBhdNpD26yIDpEQV/gUTrSd9wUnzW2wYWkfzgPGfJChqG9kZS3MYD4a4Z8d3my
+         u6eWlymi6rbiix6VOsnmpx8rzpq3ceH/jr12eyj/CXEISlHfZtPRO38dEu9SMckjGlxK
+         AEWNvOVYk8ldnbv0y34bW7/MiUimhIuoQi1UFjEgH7FzakDKRlqdBBwHXJN/aCktar5F
+         ka4HliGK4aa+KA91FYrpE/xPvv417ulXV2yyXs7eSR1k0ZYUnhjDd81bOu4x/zwJRBpF
+         bCAg==
+X-Gm-Message-State: AOAM531kMtnOCB4yNPW1W6XMX2N0m53qYIwxfqngRl/jsJROQteZIiJy
+        8plE7jXeWwncBPQ1iNrdPSIguOLIzQpQdtZujhpNSWxBaieHgjF08+nnifKcyzYZQL4aOJvwgyb
+        JeMmSPYtnKeJLk25k
+X-Received: by 2002:a17:906:4c95:: with SMTP id q21mr13162701eju.173.1643047663572;
+        Mon, 24 Jan 2022 10:07:43 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJwXW8pZvNJK/4zV3t3MKOwIkrkLvJCkbKQYglLSt1Z5TlDZjbyq+OJw2XV2+3fyqwS0CJG45A==
+X-Received: by 2002:a17:906:4c95:: with SMTP id q21mr13162694eju.173.1643047663386;
+        Mon, 24 Jan 2022 10:07:43 -0800 (PST)
+Received: from ?IPV6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
+        by smtp.googlemail.com with ESMTPSA id t8sm5161408ejx.217.2022.01.24.10.07.42
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 24 Jan 2022 10:07:42 -0800 (PST)
+Message-ID: <6fd96538-b767-41e8-0cca-5b9be1dbb1c9@redhat.com>
+Date:   Mon, 24 Jan 2022 19:07:41 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 2001:67c:670:201:5054:ff:fe8d:eefb
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.4.0
+Subject: Re: [PATCH RESEND] KVM: x86/mmu: fix UAF in
+ paging_update_accessed_dirty_bits
+Content-Language: en-US
+To:     Tadeusz Struk <tadeusz.struk@linaro.org>
+Cc:     Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Jim Mattson <jmattson@google.com>,
+        Joerg Roedel <joro@8bytes.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, kvm@vger.kernel.org,
+        stable@vger.kernel.org,
+        syzbot+6cde2282daa792c49ab8@syzkaller.appspotmail.com
+References: <20220124172633.103323-1-tadeusz.struk@linaro.org>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+In-Reply-To: <20220124172633.103323-1-tadeusz.struk@linaro.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In order to optimize FIFO access, especially on m_can cores attached
-to slow busses like SPI, in patch
+On 1/24/22 18:26, Tadeusz Struk wrote:
+> Syzbot reported an use-after-free bug in update_accessed_dirty_bits().
+> Fix this by checking if the memremap'ed pointer is still valid.
 
-| e39381770ec9 ("can: m_can: Disable IRQs on FIFO bus errors")
+access_ok only checks that the pointer is in the userspace range.  Is 
+this correct?  And if so, what are the exact circumstances in which 
+access_ok returns a non-NULL but also non-userspace address?
 
-bulk read/write support has been added to the m_can_fifo_{read,write}
-functions.
+Thanks,
 
-That change leads to the tcan driver to call
-regmap_bulk_{read,write}() with a length of 0 (for CAN frames with 0
-data length). regmap treats this as an error:
+Paolo
 
-| tcan4x5x spi1.0 tcan4x5x0: FIFO write returned -22
-
-This patch fixes the problem by not calling the
-cdev->ops->{read,write)_fifo() in case of a 0 length read/write.
-
-Fixes: e39381770ec9 ("can: m_can: Disable IRQs on FIFO bus errors")
-Link: https://lore.kernel.org/all/20220114155751.2651888-1-mkl@pengutronix.de
-Cc: stable@vger.kernel.org
-Cc: Matt Kline <matt@bitbashing.io>
-Cc: Chandrasekar Ramakrishnan <rcsekar@samsung.com>
-Reported-by: Michael Anochin <anochin@photo-meter.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
----
- drivers/net/can/m_can/m_can.c | 6 ++++++
- 1 file changed, 6 insertions(+)
-
-diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
-index 5b47cd867783..1a4b56f6fa8c 100644
---- a/drivers/net/can/m_can/m_can.c
-+++ b/drivers/net/can/m_can/m_can.c
-@@ -336,6 +336,9 @@ m_can_fifo_read(struct m_can_classdev *cdev,
- 	u32 addr_offset = cdev->mcfg[MRAM_RXF0].off + fgi * RXF0_ELEMENT_SIZE +
- 		offset;
- 
-+	if (val_count == 0)
-+		return 0;
-+
- 	return cdev->ops->read_fifo(cdev, addr_offset, val, val_count);
- }
- 
-@@ -346,6 +349,9 @@ m_can_fifo_write(struct m_can_classdev *cdev,
- 	u32 addr_offset = cdev->mcfg[MRAM_TXB].off + fpi * TXB_ELEMENT_SIZE +
- 		offset;
- 
-+	if (val_count == 0)
-+		return 0;
-+
- 	return cdev->ops->write_fifo(cdev, addr_offset, val, val_count);
- }
- 
--- 
-2.34.1
-
+> Cc: Paolo Bonzini <pbonzini@redhat.com>
+> Cc: Sean Christopherson <seanjc@google.com>
+> Cc: Vitaly Kuznetsov <vkuznets@redhat.com>
+> Cc: Wanpeng Li <wanpengli@tencent.com>
+> Cc: Jim Mattson <jmattson@google.com>
+> Cc: Joerg Roedel <joro@8bytes.org>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: Borislav Petkov <bp@alien8.de>
+> Cc: Dave Hansen <dave.hansen@linux.intel.com>
+> Cc: x86@kernel.org
+> Cc: "H. Peter Anvin" <hpa@zytor.com>
+> Cc: kvm@vger.kernel.org
+> Cc: <stable@vger.kernel.org>
+> Fixes: bd53cb35a3e9 ("X86/KVM: Handle PFNs outside of kernel reach when touching GPTEs")
+> Link: https://syzkaller.appspot.com/bug?id=6cb6102a0a7b0c52060753dd62d070a1d1e71347
+> Reported-by: syzbot+6cde2282daa792c49ab8@syzkaller.appspotmail.com
+> Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+> ---
+>   arch/x86/kvm/mmu/paging_tmpl.h | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/arch/x86/kvm/mmu/paging_tmpl.h b/arch/x86/kvm/mmu/paging_tmpl.h
+> index 5b5bdac97c7b..d25b72d7b1b1 100644
+> --- a/arch/x86/kvm/mmu/paging_tmpl.h
+> +++ b/arch/x86/kvm/mmu/paging_tmpl.h
+> @@ -174,7 +174,7 @@ static int FNAME(cmpxchg_gpte)(struct kvm_vcpu *vcpu, struct kvm_mmu *mmu,
+>   		pfn = ((vaddr - vma->vm_start) >> PAGE_SHIFT) + vma->vm_pgoff;
+>   		paddr = pfn << PAGE_SHIFT;
+>   		table = memremap(paddr, PAGE_SIZE, MEMREMAP_WB);
+> -		if (!table) {
+> +		if (!table || !access_ok(table, PAGE_SIZE)) {
+>   			mmap_read_unlock(current->mm);
+>   			return -EFAULT;
+>   		}
 
