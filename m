@@ -2,40 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6ECF49A570
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:12:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D03049A573
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:12:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2370839AbiAYAGS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:06:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54862 "EHLO
+        id S2370852AbiAYAGU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:06:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54384 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2359649AbiAXXeV (ORCPT
+        with ESMTP id S2359410AbiAXXeV (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:34:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23D9FC075D1E;
-        Mon, 24 Jan 2022 13:36:30 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83F99C075D21;
+        Mon, 24 Jan 2022 13:36:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E06DCB81243;
-        Mon, 24 Jan 2022 21:36:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C01FC340E4;
-        Mon, 24 Jan 2022 21:36:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14BB3614DD;
+        Mon, 24 Jan 2022 21:36:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5F1DC340E4;
+        Mon, 24 Jan 2022 21:36:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060187;
-        bh=Vub3gPcbHXrEudD6mir+BV04nfHnrQJy1HXlwH2MdRY=;
+        s=korg; t=1643060190;
+        bh=8FTpx20CPyOOXFtNwPoa4MCozejgitLRpKaNV6dHwN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RBWuF3WFlG7PEZVMOdpNGjyZ2Ov2+t3yRo8Pviz4v3bbuMS1ZY5kmP+j0aLqZNPO0
-         X/4DilOsjh7sUKIvvQCJnQcnOp2NEqVkGag9J2YDZT7CfzZ5ddMoPeSbV2gQ/3agXl
-         07SS1ssBmLY+Q9lTi0h9ZPelka9tu36VbzqxT39w=
+        b=VMrIBqjlt3uEmfRj14uqMHbdHycYDucZ/sG3ArIIgFpKthXHC9+SlYykH4sDS3Avi
+         5iUtOvF3QYECLLiS6zDPGx0+R8JdnykcYORMRc0i7NBrThEpaEXzYAhFpoZBkmnQQh
+         0uPW1BCK/X13wKQFrvMYJV90NRcQFN+/ZUel6BxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>
-Subject: [PATCH 5.16 0836/1039] crypto: omap-aes - Fix broken pm_runtime_and_get() usage
-Date:   Mon, 24 Jan 2022 19:43:45 +0100
-Message-Id: <20220124184153.391678924@linuxfoundation.org>
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Fabien Dessenne <fabien.dessenne@st.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Lionel Debieve <lionel.debieve@st.com>,
+        Nicolas Toromanoff <nicolas.toromanoff@st.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>
+Subject: [PATCH 5.16 0837/1039] crypto: stm32/crc32 - Fix kernel BUG triggered in probe()
+Date:   Mon, 24 Jan 2022 19:43:46 +0100
+Message-Id: <20220124184153.426827249@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -47,34 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Marek Vasut <marex@denx.de>
 
-commit c2aec59be093bd44627bc4f6bc67e4614a93a7b6 upstream.
+commit 29009604ad4e3ef784fd9b9fef6f23610ddf633d upstream.
 
-This fix is basically the same as 3d6b661330a7 ("crypto: stm32 -
-Revert broken pm_runtime_resume_and_get changes"), just for the omap
-driver. If the return value isn't used, then pm_runtime_get_sync()
-has to be used for ensuring that the usage count is balanced.
+The include/linux/crypto.h struct crypto_alg field cra_driver_name description
+states "Unique name of the transformation provider. " ... " this contains the
+name of the chip or provider and the name of the transformation algorithm."
 
-Fixes: 1f34cc4a8da3 ("crypto: omap-aes - Fix PM reference leak on omap-aes.c")
-Cc: stable@vger.kernel.org
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+In case of the stm32-crc driver, field cra_driver_name is identical for all
+registered transformation providers and set to the name of the driver itself,
+which is incorrect. This patch fixes it by assigning a unique cra_driver_name
+to each registered transformation provider.
+
+The kernel crash is triggered when the driver calls crypto_register_shashes()
+which calls crypto_register_shash(), which calls crypto_register_alg(), which
+calls __crypto_register_alg(), which returns -EEXIST, which is propagated
+back through this call chain. Upon -EEXIST from crypto_register_shash(), the
+crypto_register_shashes() starts unregistering the providers back, and calls
+crypto_unregister_shash(), which calls crypto_unregister_alg(), and this is
+where the BUG() triggers due to incorrect cra_refcnt.
+
+Fixes: b51dbe90912a ("crypto: stm32 - Support for STM32 CRC32 crypto module")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: <stable@vger.kernel.org> # 4.12+
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Cc: Fabien Dessenne <fabien.dessenne@st.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Lionel Debieve <lionel.debieve@st.com>
+Cc: Nicolas Toromanoff <nicolas.toromanoff@st.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-stm32@st-md-mailman.stormreply.com
+To: linux-crypto@vger.kernel.org
+Acked-by: Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>
 Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/omap-aes.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/stm32/stm32-crc32.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/crypto/omap-aes.c
-+++ b/drivers/crypto/omap-aes.c
-@@ -1302,7 +1302,7 @@ static int omap_aes_suspend(struct devic
- 
- static int omap_aes_resume(struct device *dev)
- {
--	pm_runtime_resume_and_get(dev);
-+	pm_runtime_get_sync(dev);
- 	return 0;
- }
- #endif
+--- a/drivers/crypto/stm32/stm32-crc32.c
++++ b/drivers/crypto/stm32/stm32-crc32.c
+@@ -279,7 +279,7 @@ static struct shash_alg algs[] = {
+ 		.digestsize     = CHKSUM_DIGEST_SIZE,
+ 		.base           = {
+ 			.cra_name               = "crc32",
+-			.cra_driver_name        = DRIVER_NAME,
++			.cra_driver_name        = "stm32-crc32-crc32",
+ 			.cra_priority           = 200,
+ 			.cra_flags		= CRYPTO_ALG_OPTIONAL_KEY,
+ 			.cra_blocksize          = CHKSUM_BLOCK_SIZE,
+@@ -301,7 +301,7 @@ static struct shash_alg algs[] = {
+ 		.digestsize     = CHKSUM_DIGEST_SIZE,
+ 		.base           = {
+ 			.cra_name               = "crc32c",
+-			.cra_driver_name        = DRIVER_NAME,
++			.cra_driver_name        = "stm32-crc32-crc32c",
+ 			.cra_priority           = 200,
+ 			.cra_flags		= CRYPTO_ALG_OPTIONAL_KEY,
+ 			.cra_blocksize          = CHKSUM_BLOCK_SIZE,
 
 
