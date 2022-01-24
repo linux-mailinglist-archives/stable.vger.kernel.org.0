@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EC5A4997E9
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:34:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C2E8499B42
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:00:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378438AbiAXVRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:17:25 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34150 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1388853AbiAXVM7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:12:59 -0500
+        id S1574926AbiAXVuo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:50:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54740 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357695AbiAXVhM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:37:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5660C0604FA;
+        Mon, 24 Jan 2022 12:23:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B8EFB80FA3;
-        Mon, 24 Jan 2022 21:12:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80F82C340EB;
-        Mon, 24 Jan 2022 21:12:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D484B81239;
+        Mon, 24 Jan 2022 20:23:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E7D2C340E5;
+        Mon, 24 Jan 2022 20:23:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058772;
-        bh=jbqkzaLPuG7F9MJqasxivM+Wt50FAHFkrTX3lFvAvtw=;
+        s=korg; t=1643055796;
+        bh=JRhg2ihMM98ffXlxRr3jbRB4CO+4DG9nSjwHNStzLd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0d0DaJOjH6SnSutFUe4AIw/GpBqYfPgbtv23ZyQrfO45qQSUZGaDZ/futrtcVUG4n
-         ZBZmE5px7QYqrvsZ6bkdWyBT1/C934+eTfPsZL0RE+cgNY4C7EktvK6/FLxJIcXuzl
-         bB9JQaGSYS5ppRnhesXFc57tJGCcGHFPBi7hC750=
+        b=hQLcA5gjq91b4EPt+qfiRxKJNTmeWn++ewvJHOXSPFW38kKAEz9ExXg8GgFIs8KJN
+         UOkXTILz0dUrC/mUd2WWZXdZKo3pxOCzjtMQn3drMC4bd4oORNS4xp+KcnYgiI+NCI
+         WbJebkuM52NHuBpsp3ZwRstJzV2bTEa6lykxm6zE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0397/1039] HID: hid-uclogic-params: Invalid parameter check in uclogic_params_frame_init_v1_buttonpad
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Jian-Hong Pan <jhp@endlessos.org>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 269/846] rtw88: Disable PCIe ASPM while doing NAPI poll on 8821CE
 Date:   Mon, 24 Jan 2022 19:36:26 +0100
-Message-Id: <20220124184138.662439112@linuxfoundation.org>
+Message-Id: <20220124184110.211646294@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +49,176 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit aa320fdbbbb482c19100f51461bd0069753ce3d7 ]
+[ Upstream commit 24f5e38a13b5ae2b6105cda8bb47c19108e62a9a ]
 
-The function performs a check on the hdev input parameters, however, it
-is used before the check.
+Many Intel based platforms face system random freeze after commit
+9e2fd29864c5 ("rtw88: add napi support").
 
-Initialize the udev variable after the sanity check to avoid a
-possible NULL pointer dereference.
+The commit itself shouldn't be the culprit. My guess is that the 8821CE
+only leaves ASPM L1 for a short period when IRQ is raised. Since IRQ is
+masked during NAPI polling, the PCIe link stays at L1 and makes RX DMA
+extremely slow. Eventually the RX ring becomes messed up:
+[ 1133.194697] rtw_8821ce 0000:02:00.0: pci bus timeout, check dma status
 
-Fixes: 9614219e9310e ("HID: uclogic: Extract tablet parameter discovery into a module")
-Addresses-Coverity-ID: 1443763 ("Null pointer dereference")
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Since the 8821CE hardware may fail to leave ASPM L1, manually do it in
+the driver to resolve the issue.
+
+Fixes: 9e2fd29864c5 ("rtw88: add napi support")
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=215131
+BugLink: https://bugs.launchpad.net/bugs/1927808
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Acked-by: Jian-Hong Pan <jhp@endlessos.org>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20211215114635.333767-1-kai.heng.feng@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-uclogic-params.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/realtek/rtw88/pci.c | 70 +++++++-----------------
+ drivers/net/wireless/realtek/rtw88/pci.h |  2 +
+ 2 files changed, 21 insertions(+), 51 deletions(-)
 
-diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
-index 4136837e4d158..3e70f969fb849 100644
---- a/drivers/hid/hid-uclogic-params.c
-+++ b/drivers/hid/hid-uclogic-params.c
-@@ -452,7 +452,7 @@ static int uclogic_params_frame_init_v1_buttonpad(
- {
- 	int rc;
- 	bool found = false;
--	struct usb_device *usb_dev = hid_to_usb_dev(hdev);
-+	struct usb_device *usb_dev;
- 	char *str_buf = NULL;
- 	const size_t str_len = 16;
+diff --git a/drivers/net/wireless/realtek/rtw88/pci.c b/drivers/net/wireless/realtek/rtw88/pci.c
+index 3b367c9085eba..08cf66141889b 100644
+--- a/drivers/net/wireless/realtek/rtw88/pci.c
++++ b/drivers/net/wireless/realtek/rtw88/pci.c
+@@ -2,7 +2,6 @@
+ /* Copyright(c) 2018-2019  Realtek Corporation
+  */
  
-@@ -462,6 +462,8 @@ static int uclogic_params_frame_init_v1_buttonpad(
- 		goto cleanup;
+-#include <linux/dmi.h>
+ #include <linux/module.h>
+ #include <linux/pci.h>
+ #include "main.h"
+@@ -1409,7 +1408,11 @@ static void rtw_pci_link_ps(struct rtw_dev *rtwdev, bool enter)
+ 	 * throughput. This is probably because the ASPM behavior slightly
+ 	 * varies from different SOC.
+ 	 */
+-	if (rtwpci->link_ctrl & PCI_EXP_LNKCTL_ASPM_L1)
++	if (!(rtwpci->link_ctrl & PCI_EXP_LNKCTL_ASPM_L1))
++		return;
++
++	if ((enter && atomic_dec_if_positive(&rtwpci->link_usage) == 0) ||
++	    (!enter && atomic_inc_return(&rtwpci->link_usage) == 1))
+ 		rtw_pci_aspm_set(rtwdev, enter);
+ }
+ 
+@@ -1658,6 +1661,9 @@ static int rtw_pci_napi_poll(struct napi_struct *napi, int budget)
+ 					      priv);
+ 	int work_done = 0;
+ 
++	if (rtwpci->rx_no_aspm)
++		rtw_pci_link_ps(rtwdev, false);
++
+ 	while (work_done < budget) {
+ 		u32 work_done_once;
+ 
+@@ -1681,6 +1687,8 @@ static int rtw_pci_napi_poll(struct napi_struct *napi, int budget)
+ 		if (rtw_pci_get_hw_rx_ring_nr(rtwdev, rtwpci))
+ 			napi_schedule(napi);
+ 	}
++	if (rtwpci->rx_no_aspm)
++		rtw_pci_link_ps(rtwdev, true);
+ 
+ 	return work_done;
+ }
+@@ -1702,59 +1710,13 @@ static void rtw_pci_napi_deinit(struct rtw_dev *rtwdev)
+ 	netif_napi_del(&rtwpci->napi);
+ }
+ 
+-enum rtw88_quirk_dis_pci_caps {
+-	QUIRK_DIS_PCI_CAP_MSI,
+-	QUIRK_DIS_PCI_CAP_ASPM,
+-};
+-
+-static int disable_pci_caps(const struct dmi_system_id *dmi)
+-{
+-	uintptr_t dis_caps = (uintptr_t)dmi->driver_data;
+-
+-	if (dis_caps & BIT(QUIRK_DIS_PCI_CAP_MSI))
+-		rtw_disable_msi = true;
+-	if (dis_caps & BIT(QUIRK_DIS_PCI_CAP_ASPM))
+-		rtw_pci_disable_aspm = true;
+-
+-	return 1;
+-}
+-
+-static const struct dmi_system_id rtw88_pci_quirks[] = {
+-	{
+-		.callback = disable_pci_caps,
+-		.ident = "Protempo Ltd L116HTN6SPW",
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "Protempo Ltd"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "L116HTN6SPW"),
+-		},
+-		.driver_data = (void *)BIT(QUIRK_DIS_PCI_CAP_ASPM),
+-	},
+-	{
+-		.callback = disable_pci_caps,
+-		.ident = "HP HP Pavilion Laptop 14-ce0xxx",
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "HP Pavilion Laptop 14-ce0xxx"),
+-		},
+-		.driver_data = (void *)BIT(QUIRK_DIS_PCI_CAP_ASPM),
+-	},
+-	{
+-		.callback = disable_pci_caps,
+-		.ident = "HP HP 250 G7 Notebook PC",
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "HP"),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "HP 250 G7 Notebook PC"),
+-		},
+-		.driver_data = (void *)BIT(QUIRK_DIS_PCI_CAP_ASPM),
+-	},
+-	{}
+-};
+-
+ int rtw_pci_probe(struct pci_dev *pdev,
+ 		  const struct pci_device_id *id)
+ {
++	struct pci_dev *bridge = pci_upstream_bridge(pdev);
+ 	struct ieee80211_hw *hw;
+ 	struct rtw_dev *rtwdev;
++	struct rtw_pci *rtwpci;
+ 	int drv_data_size;
+ 	int ret;
+ 
+@@ -1772,6 +1734,9 @@ int rtw_pci_probe(struct pci_dev *pdev,
+ 	rtwdev->hci.ops = &rtw_pci_ops;
+ 	rtwdev->hci.type = RTW_HCI_TYPE_PCIE;
+ 
++	rtwpci = (struct rtw_pci *)rtwdev->priv;
++	atomic_set(&rtwpci->link_usage, 1);
++
+ 	ret = rtw_core_init(rtwdev);
+ 	if (ret)
+ 		goto err_release_hw;
+@@ -1800,7 +1765,10 @@ int rtw_pci_probe(struct pci_dev *pdev,
+ 		goto err_destroy_pci;
  	}
  
-+	usb_dev = hid_to_usb_dev(hdev);
+-	dmi_check_system(rtw88_pci_quirks);
++	/* Disable PCIe ASPM L1 while doing NAPI poll for 8821CE */
++	if (pdev->device == 0xc821 && bridge->vendor == PCI_VENDOR_ID_INTEL)
++		rtwpci->rx_no_aspm = true;
 +
- 	/*
- 	 * Enable generic button mode
- 	 */
+ 	rtw_pci_phy_cfg(rtwdev);
+ 
+ 	ret = rtw_register_hw(rtwdev, hw);
+diff --git a/drivers/net/wireless/realtek/rtw88/pci.h b/drivers/net/wireless/realtek/rtw88/pci.h
+index 66f78eb7757c5..0c37efd8c66fa 100644
+--- a/drivers/net/wireless/realtek/rtw88/pci.h
++++ b/drivers/net/wireless/realtek/rtw88/pci.h
+@@ -223,6 +223,8 @@ struct rtw_pci {
+ 	struct rtw_pci_tx_ring tx_rings[RTK_MAX_TX_QUEUE_NUM];
+ 	struct rtw_pci_rx_ring rx_rings[RTK_MAX_RX_QUEUE_NUM];
+ 	u16 link_ctrl;
++	atomic_t link_usage;
++	bool rx_no_aspm;
+ 	DECLARE_BITMAP(flags, NUM_OF_RTW_PCI_FLAGS);
+ 
+ 	void __iomem *mmap;
 -- 
 2.34.1
 
