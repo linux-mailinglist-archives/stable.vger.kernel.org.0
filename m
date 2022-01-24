@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41F25499A02
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:48:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95C41499C82
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:09:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1456464AbiAXVjN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:39:13 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:41100 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359700AbiAXV07 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:26:59 -0500
+        id S1579536AbiAXWFx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:05:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60068 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1577048AbiAXV5L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:57:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 407C6C02C307;
+        Mon, 24 Jan 2022 12:38:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F024B811A2;
-        Mon, 24 Jan 2022 21:26:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B74DFC340E4;
-        Mon, 24 Jan 2022 21:26:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AB910B811FB;
+        Mon, 24 Jan 2022 20:38:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D935BC340E5;
+        Mon, 24 Jan 2022 20:38:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059616;
-        bh=0NPR2GEkXmlKshR2DCdw5F1yXLjr3XEZ5JAnE8LMcEk=;
+        s=korg; t=1643056727;
+        bh=uSOMnpLBoWbmn1u3zPszgvPwiLRvJiLR/eIsGJPtN6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YlN9bp9oMRbjuGrcQktLgo20UfiOkYFRw0fqE8ITFyF+EaG4/8W2xIu7s5H4LdtKm
-         mPCW/6NP1pmzF5fmoOOt0dtuuFR+Qm2sVZKUFsZpaAelv9InkIH2rxfpZPyRy9El+m
-         aimCXK+ZweAMvKqnGkgEYYIfRiqhBymCLtX2IkUw=
+        b=VlnZ9FEFV8Z/vlL5DcAMmrV91gnMG2/FH1b8mLNbpap387C2v+lxDVR2ytt8xSx8r
+         DSco0Tv/RHCnJJoTw5AhxhJ/r8Od0AbdGJfcPT0gYKX9WsaJjW0T2SDnzmQ/5ydIbF
+         WtZPMkC8yCBC5R3qiIWfz6U1JR4zFwj8zAoOuH5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+4d2d56175b934b9a7bf9@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Daniel Latypov <dlatypov@google.com>,
+        David Gow <davidgow@google.com>,
+        Brendan Higgins <brendanhiggins@google.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0675/1039] ath9k_htc: fix NULL pointer dereference at ath9k_htc_rxep()
+Subject: [PATCH 5.15 547/846] kunit: Dont crash if no parameters are generated
 Date:   Mon, 24 Jan 2022 19:41:04 +0100
-Message-Id: <20220124184148.057636054@linuxfoundation.org>
+Message-Id: <20220124184119.893371050@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,72 +50,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: David Gow <davidgow@google.com>
 
-[ Upstream commit b0ec7e55fce65f125bd1d7f02e2dc4de62abee34 ]
+[ Upstream commit 37dbb4c7c7442dbfc9b651e4ddd4afe30b26afc9 ]
 
-syzbot is reporting lockdep warning followed by kernel panic at
-ath9k_htc_rxep() [1], for ath9k_htc_rxep() depends on ath9k_rx_init()
-being already completed.
+It's possible that a parameterised test could end up with zero
+parameters. At the moment, the test function will nevertheless be called
+with NULL as the parameter. Instead, don't try to run the test code, and
+just mark the test as SKIPped.
 
-Since ath9k_htc_rxep() is set by ath9k_htc_connect_svc(WMI_BEACON_SVC)
- from ath9k_init_htc_services(), it is possible that ath9k_htc_rxep() is
-called via timer interrupt before ath9k_rx_init() from ath9k_init_device()
-is called.
-
-Since we can't call ath9k_init_device() before ath9k_init_htc_services(),
-let's hold ath9k_htc_rxep() no-op until ath9k_rx_init() completes.
-
-Link: https://syzkaller.appspot.com/bug?extid=4d2d56175b934b9a7bf9 [1]
-Reported-by: syzbot <syzbot+4d2d56175b934b9a7bf9@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Tested-by: syzbot <syzbot+4d2d56175b934b9a7bf9@syzkaller.appspotmail.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/2b88f416-b2cb-7a18-d688-951e6dc3fe92@i-love.sakura.ne.jp
+Reported-by: Daniel Latypov <dlatypov@google.com>
+Signed-off-by: David Gow <davidgow@google.com>
+Reviewed-by: Daniel Latypov <dlatypov@google.com>
+Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/htc.h          | 1 +
- drivers/net/wireless/ath/ath9k/htc_drv_txrx.c | 8 ++++++++
- 2 files changed, 9 insertions(+)
+ lib/kunit/test.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/htc.h b/drivers/net/wireless/ath/ath9k/htc.h
-index 0a1634238e673..4f71e962279af 100644
---- a/drivers/net/wireless/ath/ath9k/htc.h
-+++ b/drivers/net/wireless/ath/ath9k/htc.h
-@@ -281,6 +281,7 @@ struct ath9k_htc_rxbuf {
- struct ath9k_htc_rx {
- 	struct list_head rxbuf;
- 	spinlock_t rxbuflock;
-+	bool initialized;
- };
+diff --git a/lib/kunit/test.c b/lib/kunit/test.c
+index f246b847024e3..9aef816e573c1 100644
+--- a/lib/kunit/test.c
++++ b/lib/kunit/test.c
+@@ -504,16 +504,18 @@ int kunit_run_tests(struct kunit_suite *suite)
+ 		struct kunit_result_stats param_stats = { 0 };
+ 		test_case->status = KUNIT_SKIPPED;
  
- #define ATH9K_HTC_TX_CLEANUP_INTERVAL 50 /* ms */
-diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-index 8e69e8989f6d3..e7a21eaf3a68d 100644
---- a/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_drv_txrx.c
-@@ -1130,6 +1130,10 @@ void ath9k_htc_rxep(void *drv_priv, struct sk_buff *skb,
- 	struct ath9k_htc_rxbuf *rxbuf = NULL, *tmp_buf = NULL;
- 	unsigned long flags;
+-		if (test_case->generate_params) {
++		if (!test_case->generate_params) {
++			/* Non-parameterised test. */
++			kunit_run_case_catch_errors(suite, test_case, &test);
++			kunit_update_stats(&param_stats, test.status);
++		} else {
+ 			/* Get initial param. */
+ 			param_desc[0] = '\0';
+ 			test.param_value = test_case->generate_params(NULL, param_desc);
+-		}
  
-+	/* Check if ath9k_rx_init() completed. */
-+	if (!data_race(priv->rx.initialized))
-+		goto err;
-+
- 	spin_lock_irqsave(&priv->rx.rxbuflock, flags);
- 	list_for_each_entry(tmp_buf, &priv->rx.rxbuf, list) {
- 		if (!tmp_buf->in_process) {
-@@ -1185,6 +1189,10 @@ int ath9k_rx_init(struct ath9k_htc_priv *priv)
- 		list_add_tail(&rxbuf->list, &priv->rx.rxbuf);
- 	}
+-		do {
+-			kunit_run_case_catch_errors(suite, test_case, &test);
++			while (test.param_value) {
++				kunit_run_case_catch_errors(suite, test_case, &test);
  
-+	/* Allow ath9k_htc_rxep() to operate. */
-+	smp_wmb();
-+	priv->rx.initialized = true;
-+
- 	return 0;
+-			if (test_case->generate_params) {
+ 				if (param_desc[0] == '\0') {
+ 					snprintf(param_desc, sizeof(param_desc),
+ 						 "param-%d", test.param_index);
+@@ -530,11 +532,11 @@ int kunit_run_tests(struct kunit_suite *suite)
+ 				param_desc[0] = '\0';
+ 				test.param_value = test_case->generate_params(test.param_value, param_desc);
+ 				test.param_index++;
+-			}
  
- err:
+-			kunit_update_stats(&param_stats, test.status);
++				kunit_update_stats(&param_stats, test.status);
++			}
++		}
+ 
+-		} while (test.param_value);
+ 
+ 		kunit_print_test_stats(&test, param_stats);
+ 
 -- 
 2.34.1
 
