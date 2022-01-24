@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC7E1499944
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:44:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6A7649970B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:24:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1453739AbiAXVar (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:30:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50404 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1450594AbiAXVVC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:21:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60B5BC028C21;
-        Mon, 24 Jan 2022 12:14:16 -0800 (PST)
+        id S1351679AbiAXVIy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:08:54 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56860 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1359775AbiAXVDz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:03:55 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 02D97614BC;
-        Mon, 24 Jan 2022 20:14:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEF56C340EA;
-        Mon, 24 Jan 2022 20:14:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 037DCB8121C;
+        Mon, 24 Jan 2022 21:03:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 078DAC340E5;
+        Mon, 24 Jan 2022 21:03:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055255;
-        bh=ZbJT9W9fZr4z12eRgoKUPTfiGaT2XM8p7hVz5O2s63A=;
+        s=korg; t=1643058232;
+        bh=VKX05wfh6KhMj0LJnraims849/IJbL0sepFPZ7AWILw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZpuEkGrbYvJ0+ZqLoM+AbsXa5HB8UsckAWDvQ9uN2Xi9SqCcg2L82U14BPBjsc6tE
-         2S+N32pQup51HWVTrrIj+r8QlPGeiulbQFKTJOgxbU36szsRyzppoxTDIXpztQ1w3U
-         Fwk2H69pUiEMUJTkJ2328761d7Rs+uw/cIh47jzQ=
+        b=hnFhl39v3Wx9Uo/TM9zcXZiiyG7R1roaw8hH6kMuMDqDnxEwVbCLMePeLsVLyZbkj
+         2KZQPKtbCDoXdrTT2Y/Jt11mPM8m9Wx0sWnmvE/YKSf7QDuh6dv+yGp//1hSTvNyXJ
+         8hKxg5RSmzMvwV2ilnPlGcAgJZeGw3qKoN5fe+Ng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dave Stevenson <dave.stevenson@raspberrypi.com>,
-        Maxime Ripard <maxime@cerno.tech>,
+        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
+        Nishanth Menon <nm@ti.com>, Pratyush Yadav <p.yadav@ti.com>,
+        Kishon Vijay Abraham I <kishon@ti.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 092/846] drm/vc4: hdmi: Make sure the controller is powered up during bind
-Date:   Mon, 24 Jan 2022 19:33:29 +0100
-Message-Id: <20220124184104.165167084@linuxfoundation.org>
+Subject: [PATCH 5.16 0221/1039] arm64: dts: ti: k3-j7200: Correct the d-cache-sets info
+Date:   Mon, 24 Jan 2022 19:33:30 +0100
+Message-Id: <20220124184132.769976712@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,74 +47,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Nishanth Menon <nm@ti.com>
 
-[ Upstream commit 9c6e4f6ed1d61d5f46946e5c151ceb279eedadb1 ]
+[ Upstream commit a172c86931709d6663318609d71a811333bdf4b0 ]
 
-In the bind hook, we actually need the device to have the HSM clock
-running during the final part of the display initialisation where we
-reset the controller and initialise the CEC component.
+A72 Cluster (chapter 1.3.1 [1]) has 48KB Icache, 32KB Dcache and 1MB L2 Cache
+ - ICache is 3-way set-associative
+ - Dcache is 2-way set-associative
+ - Line size are 64bytes
 
-Failing to do so will result in a complete, silent, hang of the CPU.
+32KB (Dcache)/64 (fixed line length of 64 bytes) = 512 ways
+512 ways / 2 (Dcache is 2-way per set) = 256 sets.
 
-Fixes: 411efa18e4b0 ("drm/vc4: hdmi: Move the HSM clock enable to runtime_pm")
-Link: https://patchwork.freedesktop.org/patch/msgid/20210819135931.895976-3-maxime@cerno.tech
-Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+So, correct the d-cache-sets info.
+
+[1] https://www.ti.com/lit/pdf/spruiu1
+
+Fixes: d361ed88455f ("arm64: dts: ti: Add support for J7200 SoC")
+Reported-by: Peng Fan <peng.fan@nxp.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Reviewed-by: Pratyush Yadav <p.yadav@ti.com>
+Reviewed-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Link: https://lore.kernel.org/r/20211113042640.30955-1-nm@ti.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/vc4/vc4_hdmi.c | 17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/ti/k3-j7200.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
-index 21510ae31a9ec..2087717f1cce9 100644
---- a/drivers/gpu/drm/vc4/vc4_hdmi.c
-+++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
-@@ -2190,6 +2190,18 @@ static int vc4_hdmi_bind(struct device *dev, struct device *master, void *data)
- 	if (ret)
- 		goto err_put_ddc;
+diff --git a/arch/arm64/boot/dts/ti/k3-j7200.dtsi b/arch/arm64/boot/dts/ti/k3-j7200.dtsi
+index a99a4d305b7ec..64fef4e67d76a 100644
+--- a/arch/arm64/boot/dts/ti/k3-j7200.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-j7200.dtsi
+@@ -62,7 +62,7 @@
+ 			i-cache-sets = <256>;
+ 			d-cache-size = <0x8000>;
+ 			d-cache-line-size = <64>;
+-			d-cache-sets = <128>;
++			d-cache-sets = <256>;
+ 			next-level-cache = <&L2_0>;
+ 		};
  
-+	/*
-+	 * We need to have the device powered up at this point to call
-+	 * our reset hook and for the CEC init.
-+	 */
-+	ret = vc4_hdmi_runtime_resume(dev);
-+	if (ret)
-+		goto err_put_ddc;
-+
-+	pm_runtime_get_noresume(dev);
-+	pm_runtime_set_active(dev);
-+	pm_runtime_enable(dev);
-+
- 	if (vc4_hdmi->variant->reset)
- 		vc4_hdmi->variant->reset(vc4_hdmi);
- 
-@@ -2201,8 +2213,6 @@ static int vc4_hdmi_bind(struct device *dev, struct device *master, void *data)
- 		clk_prepare_enable(vc4_hdmi->pixel_bvb_clock);
- 	}
- 
--	pm_runtime_enable(dev);
--
- 	drm_simple_encoder_init(drm, encoder, DRM_MODE_ENCODER_TMDS);
- 	drm_encoder_helper_add(encoder, &vc4_hdmi_encoder_helper_funcs);
- 
-@@ -2226,6 +2236,8 @@ static int vc4_hdmi_bind(struct device *dev, struct device *master, void *data)
- 			     vc4_hdmi_debugfs_regs,
- 			     vc4_hdmi);
- 
-+	pm_runtime_put_sync(dev);
-+
- 	return 0;
- 
- err_free_cec:
-@@ -2236,6 +2248,7 @@ err_destroy_conn:
- 	vc4_hdmi_connector_destroy(&vc4_hdmi->connector);
- err_destroy_encoder:
- 	drm_encoder_cleanup(encoder);
-+	pm_runtime_put_sync(dev);
- 	pm_runtime_disable(dev);
- err_put_ddc:
- 	put_device(&vc4_hdmi->ddc->dev);
+@@ -76,7 +76,7 @@
+ 			i-cache-sets = <256>;
+ 			d-cache-size = <0x8000>;
+ 			d-cache-line-size = <64>;
+-			d-cache-sets = <128>;
++			d-cache-sets = <256>;
+ 			next-level-cache = <&L2_0>;
+ 		};
+ 	};
 -- 
 2.34.1
 
