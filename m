@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B353649807A
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:09:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B8CC49807B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:09:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242867AbiAXNJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 08:09:07 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:41832 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242943AbiAXNJG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:09:06 -0500
+        id S242937AbiAXNJK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 08:09:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46120 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242933AbiAXNJK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:09:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA4AFC06173B
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 05:09:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 140E161209
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:09:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 101B8C340E4;
-        Mon, 24 Jan 2022 13:09:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7168B61225
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:09:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35FB6C340E1;
+        Mon, 24 Jan 2022 13:09:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643029745;
-        bh=2zSN7SIbLd7sLSPUdl0cl+XJgUe55RBaTT3gG3bluuw=;
+        s=korg; t=1643029748;
+        bh=SwzenZHvXMJT3oCeZ5WqKoXinn7RLTvfi0nbJZkDpRQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=EivUoWb4mzQrLDF0G4VTveSCnw6qegEuTbWByNASVcDUaecfdOedSuvHoY4VE7qFo
-         Kdgrg6lpvHYj+d43qag0MXAreaWFXJc8LB3EdrgiI4Rbb2sD4PbSw1w5lzn91o48ZA
-         rebe7Cgp8Pj3MXGAY3fahd+dJLzkBpAwsBJuhyZQ=
-Subject: FAILED: patch "[PATCH] rtc: cmos: Evaluate century appropriate" failed to apply to 4.4-stable tree
+        b=MmfX6lBTOs+S6ZKd7RbMj1wUj0PfBYbXEPj7mB8lbk+hz+Bgz0MjEMqSxCZArK4kK
+         xsXhhd7YpF7ie8XkhmioIXzYkSco+vKb8i+ZZ92ckeDos5DEenVvV0YtnnPnN85Djv
+         Ku7wmgkRocw9VLxobHAT/4kJ4E6OD5tangyWQuk0=
+Subject: FAILED: patch "[PATCH] rtc: cmos: Evaluate century appropriate" failed to apply to 4.14-stable tree
 To:     luriwen@kylinos.cn, alexandre.belloni@bootlin.com, e@80x24.org,
         mat.jonczyk@o2.pl
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 14:09:02 +0100
-Message-ID: <1643029742216107@kroah.com>
+Date:   Mon, 24 Jan 2022 14:09:03 +0100
+Message-ID: <164302974316890@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
