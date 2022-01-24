@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E41884994E9
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:07:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57EDF499699
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:19:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1389294AbiAXUtr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:49:47 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:33284 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357146AbiAXUiB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:38:01 -0500
+        id S1445875AbiAXVFF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:05:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42810 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1391109AbiAXUq7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:46:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9271C0619C6;
+        Mon, 24 Jan 2022 11:57:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D1206155D;
-        Mon, 24 Jan 2022 20:37:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E10BC340E5;
-        Mon, 24 Jan 2022 20:37:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 71790B81239;
+        Mon, 24 Jan 2022 19:57:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9ADE4C340E5;
+        Mon, 24 Jan 2022 19:57:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056678;
-        bh=Cb9EVCLgrdF1SQTd8o2XCnYYOhe12nsfQMzRNlY/iCA=;
+        s=korg; t=1643054222;
+        bh=bjnr579xE3xgyvjFIi7SCyvGueJvDxugpZ7TyGVGiLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x4Pru1gZYEdcwigxIrsiv6frxyEpE10KFMS/uFuoMJezpVaBrjgYMV58H6fPEiCtR
-         8Ee5MKJZ5u4lr440gWTcpWJVAulqEnPE2U4jfwDTYTh8V8oqUjamlFpehvHHLLihHk
-         4jXg5/bjQxvwfnN6j3TnpFx7wzUkymKlNpl1xA0U=
+        b=Pvq1A8wafWZLLr3CMt2WeRE9aPrW1A8M9xJ6pEsU85cksZQUcfU/8lc5z8erxWh+P
+         fSXf+A4yRHVU/Kmu+1ij3UHbmDync+UjcmrEfYpbpwflZ/TDV7ON5ZVSelU6rDFySE
+         GV5nGCPV89KSJh4roFnnVtYEdmJa42OcDNwlwbgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Dinh Nguyen <dinguyen@kernel.org>,
+        Borislav Petkov <bp@suse.de>,
+        Michal Simek <michal.simek@xilinx.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 564/846] PM: runtime: Add safety net to supplier device release
-Date:   Mon, 24 Jan 2022 19:41:21 +0100
-Message-Id: <20220124184120.492157189@linuxfoundation.org>
+Subject: [PATCH 5.10 317/563] EDAC/synopsys: Use the quirk for version instead of ddr version
+Date:   Mon, 24 Jan 2022 19:41:22 +0100
+Message-Id: <20220124184035.393469702@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,134 +49,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Dinh Nguyen <dinguyen@kernel.org>
 
-[ Upstream commit d1579e61192e0e686faa4208500ef4c3b529b16c ]
+[ Upstream commit bd1d6da17c296bd005bfa656952710d256e77dd3 ]
 
-Because refcount_dec_not_one() returns true if the target refcount
-becomes saturated, it is generally unsafe to use its return value as
-a loop termination condition, but that is what happens when a device
-link's supplier device is released during runtime PM suspend
-operations and on device link removal.
+Version 2.40a supports DDR_ECC_INTR_SUPPORT for a quirk, so use that
+quirk to determine a call to setup_address_map().
 
-To address this, introduce pm_runtime_release_supplier() to be used
-in the above cases which will check the supplier device's runtime
-PM usage counter in addition to the refcount_dec_not_one() return
-value, so the loop can be terminated in case the rpm_active refcount
-value becomes invalid, and update the code in question to use it as
-appropriate.
-
-This change is not expected to have any visible functional impact.
-
-Reported-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Signed-off-by: Dinh Nguyen <dinguyen@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Michal Simek <michal.simek@xilinx.com>
+Link: https://lkml.kernel.org/r/20211012190709.1504152-1-dinguyen@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/core.c          |  3 +--
- drivers/base/power/runtime.c | 41 ++++++++++++++++++++++++++----------
- include/linux/pm_runtime.h   |  3 +++
- 3 files changed, 34 insertions(+), 13 deletions(-)
+ drivers/edac/synopsys_edac.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index 63577de268565..8e73a34e10055 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -485,8 +485,7 @@ static void device_link_release_fn(struct work_struct *work)
- 	/* Ensure that all references to the link object have been dropped. */
- 	device_link_synchronize_removal();
+diff --git a/drivers/edac/synopsys_edac.c b/drivers/edac/synopsys_edac.c
+index 1a801a5d3b08b..92906b56b1a2b 100644
+--- a/drivers/edac/synopsys_edac.c
++++ b/drivers/edac/synopsys_edac.c
+@@ -1351,8 +1351,7 @@ static int mc_probe(struct platform_device *pdev)
+ 		}
+ 	}
  
--	while (refcount_dec_not_one(&link->rpm_active))
--		pm_runtime_put(link->supplier);
-+	pm_runtime_release_supplier(link, true);
- 
- 	put_device(link->consumer);
- 	put_device(link->supplier);
-diff --git a/drivers/base/power/runtime.c b/drivers/base/power/runtime.c
-index ec94049442b99..44ae3909e64bb 100644
---- a/drivers/base/power/runtime.c
-+++ b/drivers/base/power/runtime.c
-@@ -305,19 +305,40 @@ static int rpm_get_suppliers(struct device *dev)
- 	return 0;
- }
- 
-+/**
-+ * pm_runtime_release_supplier - Drop references to device link's supplier.
-+ * @link: Target device link.
-+ * @check_idle: Whether or not to check if the supplier device is idle.
-+ *
-+ * Drop all runtime PM references associated with @link to its supplier device
-+ * and if @check_idle is set, check if that device is idle (and so it can be
-+ * suspended).
-+ */
-+void pm_runtime_release_supplier(struct device_link *link, bool check_idle)
-+{
-+	struct device *supplier = link->supplier;
-+
-+	/*
-+	 * The additional power.usage_count check is a safety net in case
-+	 * the rpm_active refcount becomes saturated, in which case
-+	 * refcount_dec_not_one() would return true forever, but it is not
-+	 * strictly necessary.
-+	 */
-+	while (refcount_dec_not_one(&link->rpm_active) &&
-+	       atomic_read(&supplier->power.usage_count) > 0)
-+		pm_runtime_put_noidle(supplier);
-+
-+	if (check_idle)
-+		pm_request_idle(supplier);
-+}
-+
- static void __rpm_put_suppliers(struct device *dev, bool try_to_suspend)
- {
- 	struct device_link *link;
- 
- 	list_for_each_entry_rcu(link, &dev->links.suppliers, c_node,
--				device_links_read_lock_held()) {
--
--		while (refcount_dec_not_one(&link->rpm_active))
--			pm_runtime_put_noidle(link->supplier);
--
--		if (try_to_suspend)
--			pm_request_idle(link->supplier);
--	}
-+				device_links_read_lock_held())
-+		pm_runtime_release_supplier(link, try_to_suspend);
- }
- 
- static void rpm_put_suppliers(struct device *dev)
-@@ -1770,9 +1791,7 @@ void pm_runtime_drop_link(struct device_link *link)
- 		return;
- 
- 	pm_runtime_drop_link_count(link->consumer);
--
--	while (refcount_dec_not_one(&link->rpm_active))
--		pm_runtime_put(link->supplier);
-+	pm_runtime_release_supplier(link, true);
- }
- 
- static bool pm_runtime_need_not_resume(struct device *dev)
-diff --git a/include/linux/pm_runtime.h b/include/linux/pm_runtime.h
-index eddd66d426caf..016de5776b6db 100644
---- a/include/linux/pm_runtime.h
-+++ b/include/linux/pm_runtime.h
-@@ -58,6 +58,7 @@ extern void pm_runtime_get_suppliers(struct device *dev);
- extern void pm_runtime_put_suppliers(struct device *dev);
- extern void pm_runtime_new_link(struct device *dev);
- extern void pm_runtime_drop_link(struct device_link *link);
-+extern void pm_runtime_release_supplier(struct device_link *link, bool check_idle);
- 
- extern int devm_pm_runtime_enable(struct device *dev);
- 
-@@ -283,6 +284,8 @@ static inline void pm_runtime_get_suppliers(struct device *dev) {}
- static inline void pm_runtime_put_suppliers(struct device *dev) {}
- static inline void pm_runtime_new_link(struct device *dev) {}
- static inline void pm_runtime_drop_link(struct device_link *link) {}
-+static inline void pm_runtime_release_supplier(struct device_link *link,
-+					       bool check_idle) {}
- 
- #endif /* !CONFIG_PM */
+-	if (of_device_is_compatible(pdev->dev.of_node,
+-				    "xlnx,zynqmp-ddrc-2.40a"))
++	if (priv->p_data->quirks & DDR_ECC_INTR_SUPPORT)
+ 		setup_address_map(priv);
+ #endif
  
 -- 
 2.34.1
