@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7643B4996D0
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:20:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 141A04999CC
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:47:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348933AbiAXVG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:06:57 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42722 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352944AbiAXUs7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:48:59 -0500
+        id S1377545AbiAXVhj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:37:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47588 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1445465AbiAXVHQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:07:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4632DC0680AD;
+        Mon, 24 Jan 2022 12:07:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E67E060B28;
-        Mon, 24 Jan 2022 20:48:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8AB7C340E5;
-        Mon, 24 Jan 2022 20:48:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DAD186090B;
+        Mon, 24 Jan 2022 20:07:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEF63C340E5;
+        Mon, 24 Jan 2022 20:07:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057334;
-        bh=bA2NVkNRdfsC9+kYNk0cI6zBu7bM2DrL1aL/zdydw6E=;
+        s=korg; t=1643054874;
+        bh=t36Qf7OqaHp5mhLh63Ejubt/7CRwFd48SoJJMeaqkEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b/fVEkRcbkJe7tPFi9aLqOFs6oksTRlwC2GyHUdQiapjUTlLPQmCYCD7CHHVsmLCV
-         idgkX8JGxSh5otukfH2OXBTtStYO6Q7C8lJ7MTROjLFMVIxNtLxO3pVtegv2/eokeI
-         /HFPlCWM1RTe64EL8KJrlWQanxBWGGfKs43ixqOw=
+        b=aochQ6oos+JT/eCVwTKV8ak7Tn8SWuPjuNp6olUsKpATDoaq6EyFTWSnosXDeJEZk
+         /3QNGMLD2jwNjdk+U0uSaxNXbKGRmBx+eEObq8DEGKKywEy6sK5lf1Qd6mT/Gh0qcS
+         J0uUbPHkMKGZP17sKaY0gr6sMuK/zVAMwlszjLXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fengnan Chang <changfengnan@vivo.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.15 778/846] f2fs: fix remove page failed in invalidate compress pages
+        stable@vger.kernel.org, Laurence de Bruxelles <lfdebrux@gmail.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 5.10 530/563] rtc: pxa: fix null pointer dereference
 Date:   Mon, 24 Jan 2022 19:44:55 +0100
-Message-Id: <20220124184127.791801437@linuxfoundation.org>
+Message-Id: <20220124184042.775283083@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,36 +47,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fengnan Chang <changfengnan@vivo.com>
+From: Laurence de Bruxelles <lfdebrux@gmail.com>
 
-commit d1917865a7906baf6b687e15e8e6195a295a3992 upstream.
+commit 34127b3632b21e5c391756e724b1198eb9917981 upstream.
 
-Since compress inode not a regular file, generic_error_remove_page in
-f2fs_invalidate_compress_pages will always be failed, set compress
-inode as a regular file to fix it.
+With the latest stable kernel versions the rtc on the PXA based
+Zaurus does not work, when booting I see the following kernel messages:
 
-Fixes: 6ce19aff0b8c ("f2fs: compress: add compress_inode to cache compressed blocks")
-Signed-off-by: Fengnan Chang <changfengnan@vivo.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+pxa-rtc pxa-rtc: failed to find rtc clock source
+pxa-rtc pxa-rtc: Unable to init SA1100 RTC sub-device
+pxa-rtc: probe of pxa-rtc failed with error -2
+hctosys: unable to open rtc device (rtc0)
+
+I think this is because commit f2997775b111 ("rtc: sa1100: fix possible
+race condition") moved the allocation of the rtc_device struct out of
+sa1100_rtc_init and into sa1100_rtc_probe. This means that pxa_rtc_probe
+also needs to do allocation for the rtc_device struct, otherwise
+sa1100_rtc_init will try to dereference a null pointer. This patch adds
+that allocation by copying how sa1100_rtc_probe in
+drivers/rtc/rtc-sa1100.c does it; after the IRQs are set up a managed
+rtc_device is allocated.
+
+I've tested this patch with `qemu-system-arm -machine akita` and with a
+real Zaurus SL-C1000 applied to 4.19, 5.4, and 5.10.
+
+Signed-off-by: Laurence de Bruxelles <lfdebrux@gmail.com>
+Fixes: f2997775b111 ("rtc: sa1100: fix possible race condition")
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20220101154149.12026-1-lfdebrux@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/inode.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/rtc/rtc-pxa.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/fs/f2fs/inode.c
-+++ b/fs/f2fs/inode.c
-@@ -516,6 +516,11 @@ make_now:
- 	} else if (ino == F2FS_COMPRESS_INO(sbi)) {
- #ifdef CONFIG_F2FS_FS_COMPRESSION
- 		inode->i_mapping->a_ops = &f2fs_compress_aops;
-+		/*
-+		 * generic_error_remove_page only truncates pages of regular
-+		 * inode
-+		 */
-+		inode->i_mode |= S_IFREG;
- #endif
- 		mapping_set_gfp_mask(inode->i_mapping,
- 			GFP_NOFS | __GFP_HIGHMEM | __GFP_MOVABLE);
+--- a/drivers/rtc/rtc-pxa.c
++++ b/drivers/rtc/rtc-pxa.c
+@@ -330,6 +330,10 @@ static int __init pxa_rtc_probe(struct p
+ 	if (sa1100_rtc->irq_alarm < 0)
+ 		return -ENXIO;
+ 
++	sa1100_rtc->rtc = devm_rtc_allocate_device(&pdev->dev);
++	if (IS_ERR(sa1100_rtc->rtc))
++		return PTR_ERR(sa1100_rtc->rtc);
++
+ 	pxa_rtc->base = devm_ioremap(dev, pxa_rtc->ress->start,
+ 				resource_size(pxa_rtc->ress));
+ 	if (!pxa_rtc->base) {
 
 
