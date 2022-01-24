@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9587498F9E
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:55:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 208144993AB
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:38:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358043AbiAXTxo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:53:44 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:38908 "EHLO
+        id S1386099AbiAXUfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:35:09 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:35962 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357411AbiAXTt6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:49:58 -0500
+        with ESMTP id S1384555AbiAXUaE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:30:04 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5EE24B81229;
-        Mon, 24 Jan 2022 19:49:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEE6DC340E7;
-        Mon, 24 Jan 2022 19:49:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 45351B8121A;
+        Mon, 24 Jan 2022 20:30:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74BBBC340E5;
+        Mon, 24 Jan 2022 20:29:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053795;
-        bh=q0f3Kyn2K6gkI2P9btt0obaREPOGXLT3e/syK84A8O4=;
+        s=korg; t=1643056200;
+        bh=0KD1eiKFQZ+15lvlwGjcpA2CZ9608oocxiXbhgHw+rM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LeOTfpnEoJnfDqfCRQNQIouJC8n+BpE4TXRj2TUE/Jouo84+RgMuPQqMn2EKAh1tF
-         +IZl9Cmx/i7v/MxCWbd27VTzZ1109JtsNZhOS1IS/p3dZ5RFUYRX9H2jGGOxeCktvY
-         5r5RIzx4hVp2XrX51/RdnnvKFuo0+QLY5MGmw1c4=
+        b=gLC5f3Koh5ayJC2USpP6jgtjipH/3smluYrcUSBZX8++BXnmjvZiEUoKWNI0J5d8F
+         k7+g78oCxunBXwIXXjaApyf1D2DTjltW31NRsR4lazEjMBBPdcZICsClhS0IiSmQm0
+         9nn2yvJob1rCQxbJMrVAA9/Fc9vYykNSq+hyEqFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Neeraj Upadhyay <quic_neeraju@quicinc.com>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        Uladzislau Rezki <urezki@gmail.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Joel Fernandes <joel@joelfernandes.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 147/563] rcu/exp: Mark current CPU as exp-QS in IPI loop second pass
-Date:   Mon, 24 Jan 2022 19:38:32 +0100
-Message-Id: <20220124184029.484611296@linuxfoundation.org>
+Subject: [PATCH 5.15 397/846] char/mwave: Adjust io port register size
+Date:   Mon, 24 Jan 2022 19:38:34 +0100
+Message-Id: <20220124184114.649441386@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,59 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frederic Weisbecker <frederic@kernel.org>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 81f6d49cce2d2fe507e3fddcc4a6db021d9c2e7b ]
+[ Upstream commit f5912cc19acd7c24b2dbf65a6340bf194244f085 ]
 
-Expedited RCU grace periods invoke sync_rcu_exp_select_node_cpus(), which
-takes two passes over the leaf rcu_node structure's CPUs.  The first
-pass gathers up the current CPU and CPUs that are in dynticks idle mode.
-The workqueue will report a quiescent state on their behalf later.
-The second pass sends IPIs to the rest of the CPUs, but excludes the
-current CPU, incorrectly assuming it has been included in the first
-pass's list of CPUs.
+Using MKWORD() on a byte-sized variable results in OOB read. Expand the
+size of the reserved area so both MKWORD and MKBYTE continue to work
+without overflow. Silences this warning on a -Warray-bounds build:
 
-Unfortunately the current CPU may have changed between the first and
-second pass, due to the fact that the various rcu_node structures'
-->lock fields have been dropped, thus momentarily enabling preemption.
-This means that if the second pass's CPU was not on the first pass's
-list, it will be ignored completely.  There will be no IPI sent to
-it, and there will be no reporting of quiescent states on its behalf.
-Unfortunately, the expedited grace period will nevertheless be waiting
-for that CPU to report a quiescent state, but with that CPU having no
-reason to believe that such a report is needed.
+drivers/char/mwave/3780i.h:346:22: error: array subscript 'short unsigned int[0]' is partly outside array bounds of 'DSP_ISA_SLAVE_CONTROL[1]' [-Werror=array-bounds]
+  346 | #define MKWORD(var) (*((unsigned short *)(&var)))
+      |                     ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/char/mwave/3780i.h:356:40: note: in definition of macro 'OutWordDsp'
+  356 | #define OutWordDsp(index,value)   outw(value,usDspBaseIO+index)
+      |                                        ^~~~~
+drivers/char/mwave/3780i.c:373:41: note: in expansion of macro 'MKWORD'
+  373 |         OutWordDsp(DSP_IsaSlaveControl, MKWORD(rSlaveControl));
+      |                                         ^~~~~~
+drivers/char/mwave/3780i.c:358:31: note: while referencing 'rSlaveControl'
+  358 |         DSP_ISA_SLAVE_CONTROL rSlaveControl;
+      |                               ^~~~~~~~~~~~~
 
-The result will be an expedited grace period stall.
-
-Fix this by no longer excluding the current CPU from consideration during
-the second pass.
-
-Fixes: b9ad4d6ed18e ("rcu: Avoid self-IPI in sync_rcu_exp_select_node_cpus()")
-Reviewed-by: Neeraj Upadhyay <quic_neeraju@quicinc.com>
-Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
-Cc: Uladzislau Rezki <urezki@gmail.com>
-Cc: Neeraj Upadhyay <quic_neeraju@quicinc.com>
-Cc: Boqun Feng <boqun.feng@gmail.com>
-Cc: Josh Triplett <josh@joshtriplett.org>
-Cc: Joel Fernandes <joel@joelfernandes.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20211203084206.3104326-1-keescook@chromium.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree_exp.h | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/char/mwave/3780i.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/rcu/tree_exp.h b/kernel/rcu/tree_exp.h
-index 0ffe185c1f46a..0dc16345e668c 100644
---- a/kernel/rcu/tree_exp.h
-+++ b/kernel/rcu/tree_exp.h
-@@ -387,6 +387,7 @@ retry_ipi:
- 			continue;
- 		}
- 		if (get_cpu() == cpu) {
-+			mask_ofl_test |= mask;
- 			put_cpu();
- 			continue;
- 		}
+diff --git a/drivers/char/mwave/3780i.h b/drivers/char/mwave/3780i.h
+index 9ccb6b270b071..95164246afd1a 100644
+--- a/drivers/char/mwave/3780i.h
++++ b/drivers/char/mwave/3780i.h
+@@ -68,7 +68,7 @@ typedef struct {
+ 	unsigned char ClockControl:1;	/* RW: Clock control: 0=normal, 1=stop 3780i clocks */
+ 	unsigned char SoftReset:1;	/* RW: Soft reset 0=normal, 1=soft reset active */
+ 	unsigned char ConfigMode:1;	/* RW: Configuration mode, 0=normal, 1=config mode */
+-	unsigned char Reserved:5;	/* 0: Reserved */
++	unsigned short Reserved:13;	/* 0: Reserved */
+ } DSP_ISA_SLAVE_CONTROL;
+ 
+ 
 -- 
 2.34.1
 
