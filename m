@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F8FF499719
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:24:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EA1C49971A
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:24:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1446748AbiAXVJR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:09:17 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:56160 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1445725AbiAXVEu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:04:50 -0500
+        id S1446778AbiAXVJV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:09:21 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:57242 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1445742AbiAXVEy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:04:54 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31E29B810BD;
-        Mon, 24 Jan 2022 21:04:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30232C340E7;
-        Mon, 24 Jan 2022 21:04:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 83DF860E8D;
+        Mon, 24 Jan 2022 21:04:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C0CFC340E5;
+        Mon, 24 Jan 2022 21:04:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058287;
-        bh=9EwleqdRVZtL162VKfnttSjeH2nw2+PWu/If4AcMLWA=;
+        s=korg; t=1643058290;
+        bh=BqysmeVxkEVWax6vfPWYAI80fhHBzoQXcnZnF30vv98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nRIMM2zMsCrf3cbM/7NcfKiSghJftRscHFUzejC0+UUwXYYQ+Nk4hTkLJhOudN0Y3
-         7vXCVLvHgqRFgio507LRx7Har4V40XCKkfPJhngN5oNOwNAArhj7nGd6+MCmSe4VhD
-         T4mr6+5fvF1F1wRPItPbIiXQ7assZE2uWGUvUVd4=
+        b=WzjErDMfADw1jI8hE8Tt0OjRVh6JOLFzzApx8exKGHPVls7SpcI3OPdeYJzCakPBW
+         a5pexa3ZWPfIxKYBtYY4lVhIAtA8vPS4ppMFlYtF2+BFbVvM+lB1UhBNumGjb1HJ6g
+         oOP5ks5hx1bff8S1JbHVRKuJcZ6UxS8SX2LdS81E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
+        stable@vger.kernel.org,
+        Alexander Lobakin <alexandr.lobakin@intel.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0241/1039] samples/bpf: Clean up samples/bpf build failes
-Date:   Mon, 24 Jan 2022 19:33:50 +0100
-Message-Id: <20220124184133.423600481@linuxfoundation.org>
+Subject: [PATCH 5.16 0242/1039] samples: bpf: Fix xdp_sample_user.o linking with Clang
+Date:   Mon, 24 Jan 2022 19:33:51 +0100
+Message-Id: <20220124184133.462059058@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -45,99 +47,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Alexander Lobakin <alexandr.lobakin@intel.com>
 
-[ Upstream commit 527024f7aeb683ce7ef49b07ef7ce9ecf015288d ]
+[ Upstream commit e64fbcaa7a666f16329b1c67af15ea501bc84586 ]
 
-Remove xdp_samples_user.o rule redefinition which generates Makefile
-warning and instead override TPROGS_CFLAGS. This seems to work fine when
-building inside selftests/bpf.
+Clang (13) doesn't get the jokes about specifying libraries to link in
+cclags of individual .o objects:
 
-That was one big head-scratcher before I found that generic
-Makefile.target hid this surprising specialization for for xdp_samples_user.o.
+clang-13: warning: -lm: 'linker' input unused [-Wunused-command-line-argument]
+[ ... ]
+  LD  samples/bpf/xdp_redirect_cpu
+  LD  samples/bpf/xdp_redirect_map_multi
+  LD  samples/bpf/xdp_redirect_map
+  LD  samples/bpf/xdp_redirect
+  LD  samples/bpf/xdp_monitor
+/usr/bin/ld: samples/bpf/xdp_sample_user.o: in function `sample_summary_print':
+xdp_sample_user.c:(.text+0x84c): undefined reference to `floor'
+/usr/bin/ld: xdp_sample_user.c:(.text+0x870): undefined reference to `ceil'
+/usr/bin/ld: xdp_sample_user.c:(.text+0x8cf): undefined reference to `floor'
+/usr/bin/ld: xdp_sample_user.c:(.text+0x8f3): undefined reference to `ceil'
+[ more ]
 
-Main change is to use actual locally installed libbpf headers.
+Specify '-lm' as ldflags for all xdp_sample_user.o users in the main
+Makefile and remove it from ccflags of ^ in Makefile.target -- just
+like it's done for all other samples. This works with all compilers.
 
-Also drop printk macro re-definition (not even used!).
-
+Fixes: 6e1051a54e31 ("samples: bpf: Convert xdp_monitor to XDP samples helper")
+Fixes: b926c55d856c ("samples: bpf: Convert xdp_redirect to XDP samples helper")
+Fixes: e531a220cc59 ("samples: bpf: Convert xdp_redirect_cpu to XDP samples helper")
+Fixes: bbe65865aa05 ("samples: bpf: Convert xdp_redirect_map to XDP samples helper")
+Fixes: 594a116b2aa1 ("samples: bpf: Convert xdp_redirect_map_multi to XDP samples helper")
+Signed-off-by: Alexander Lobakin <alexandr.lobakin@intel.com>
 Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20211201232824.3166325-8-andrii@kernel.org
+Acked-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Link: https://lore.kernel.org/bpf/20211203195004.5803-2-alexandr.lobakin@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- samples/bpf/Makefile            | 13 ++++++++++++-
- samples/bpf/Makefile.target     | 11 -----------
- samples/bpf/lwt_len_hist_kern.c |  7 -------
- 3 files changed, 12 insertions(+), 19 deletions(-)
+ samples/bpf/Makefile | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/samples/bpf/Makefile b/samples/bpf/Makefile
-index a886dff1ba899..6ae62b1dc9388 100644
+index 6ae62b1dc9388..38638845db9d7 100644
 --- a/samples/bpf/Makefile
 +++ b/samples/bpf/Makefile
-@@ -328,7 +328,7 @@ $(BPF_SAMPLES_PATH)/*.c: verify_target_bpf $(LIBBPF)
- $(src)/*.c: verify_target_bpf $(LIBBPF)
+@@ -215,6 +215,11 @@ TPROGS_LDFLAGS := -L$(SYSROOT)/usr/lib
+ endif
  
- libbpf_hdrs: $(LIBBPF)
--$(obj)/$(TRACE_HELPERS): | libbpf_hdrs
-+$(obj)/$(TRACE_HELPERS) $(obj)/$(CGROUP_HELPERS) $(obj)/$(XDP_SAMPLE): | libbpf_hdrs
+ TPROGS_LDLIBS			+= $(LIBBPF) -lelf -lz
++TPROGLDLIBS_xdp_monitor		+= -lm
++TPROGLDLIBS_xdp_redirect	+= -lm
++TPROGLDLIBS_xdp_redirect_cpu	+= -lm
++TPROGLDLIBS_xdp_redirect_map	+= -lm
++TPROGLDLIBS_xdp_redirect_map_multi += -lm
+ TPROGLDLIBS_tracex4		+= -lrt
+ TPROGLDLIBS_trace_output	+= -lrt
+ TPROGLDLIBS_map_perf_test	+= -lrt
+@@ -345,7 +350,7 @@ $(obj)/hbm_edt_kern.o: $(src)/hbm.h $(src)/hbm_kern.h
  
- .PHONY: libbpf_hdrs
- 
-@@ -343,6 +343,17 @@ $(obj)/hbm_out_kern.o: $(src)/hbm.h $(src)/hbm_kern.h
- $(obj)/hbm.o: $(src)/hbm.h
- $(obj)/hbm_edt_kern.o: $(src)/hbm.h $(src)/hbm_kern.h
- 
-+# Override includes for xdp_sample_user.o because $(srctree)/usr/include in
-+# TPROGS_CFLAGS causes conflicts
-+XDP_SAMPLE_CFLAGS += -Wall -O2 -lm \
-+		     -I$(src)/../../tools/include \
-+		     -I$(src)/../../tools/include/uapi \
-+		     -I$(LIBBPF_INCLUDE) \
-+		     -I$(src)/../../tools/testing/selftests/bpf
-+
-+$(obj)/$(XDP_SAMPLE): TPROGS_CFLAGS = $(XDP_SAMPLE_CFLAGS)
-+$(obj)/$(XDP_SAMPLE): $(src)/xdp_sample_user.h $(src)/xdp_sample_shared.h
-+
- -include $(BPF_SAMPLES_PATH)/Makefile.target
- 
- VMLINUX_BTF_PATHS ?= $(abspath $(if $(O),$(O)/vmlinux))				\
-diff --git a/samples/bpf/Makefile.target b/samples/bpf/Makefile.target
-index 5a368affa0386..7621f55e2947d 100644
---- a/samples/bpf/Makefile.target
-+++ b/samples/bpf/Makefile.target
-@@ -73,14 +73,3 @@ quiet_cmd_tprog-cobjs	= CC  $@
-       cmd_tprog-cobjs	= $(CC) $(tprogc_flags) -c -o $@ $<
- $(tprog-cobjs): $(obj)/%.o: $(src)/%.c FORCE
- 	$(call if_changed_dep,tprog-cobjs)
--
--# Override includes for xdp_sample_user.o because $(srctree)/usr/include in
--# TPROGS_CFLAGS causes conflicts
+ # Override includes for xdp_sample_user.o because $(srctree)/usr/include in
+ # TPROGS_CFLAGS causes conflicts
 -XDP_SAMPLE_CFLAGS += -Wall -O2 -lm \
--		     -I./tools/include \
--		     -I./tools/include/uapi \
--		     -I./tools/lib \
--		     -I./tools/testing/selftests/bpf
--$(obj)/xdp_sample_user.o: $(src)/xdp_sample_user.c \
--	$(src)/xdp_sample_user.h $(src)/xdp_sample_shared.h
--	$(CC) $(XDP_SAMPLE_CFLAGS) -c -o $@ $<
-diff --git a/samples/bpf/lwt_len_hist_kern.c b/samples/bpf/lwt_len_hist_kern.c
-index 9ed63e10e1709..1fa14c54963a1 100644
---- a/samples/bpf/lwt_len_hist_kern.c
-+++ b/samples/bpf/lwt_len_hist_kern.c
-@@ -16,13 +16,6 @@
- #include <uapi/linux/in.h>
- #include <bpf/bpf_helpers.h>
- 
--# define printk(fmt, ...)						\
--		({							\
--			char ____fmt[] = fmt;				\
--			bpf_trace_printk(____fmt, sizeof(____fmt),	\
--				     ##__VA_ARGS__);			\
--		})
--
- struct bpf_elf_map {
- 	__u32 type;
- 	__u32 size_key;
++XDP_SAMPLE_CFLAGS += -Wall -O2 \
+ 		     -I$(src)/../../tools/include \
+ 		     -I$(src)/../../tools/include/uapi \
+ 		     -I$(LIBBPF_INCLUDE) \
 -- 
 2.34.1
 
