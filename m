@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA3A449917F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3051498DAA
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:37:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379349AbiAXULR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:11:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60964 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378304AbiAXUGs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:06:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA72FC02B759;
-        Mon, 24 Jan 2022 11:32:17 -0800 (PST)
+        id S1349552AbiAXTe0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:34:26 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:59702 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345179AbiAXTcU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:32:20 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B2600B81240;
-        Mon, 24 Jan 2022 19:32:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4861C340E5;
-        Mon, 24 Jan 2022 19:32:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 34B69614A8;
+        Mon, 24 Jan 2022 19:32:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AC78C340E7;
+        Mon, 24 Jan 2022 19:32:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052735;
-        bh=1VvY1q6ys+z/nxaqazZx6mlkGoBLdE1pBlUsSpD+yXA=;
+        s=korg; t=1643052738;
+        bh=k/Lz/Zo8RSedFrd/Cb57u0V3RMctMpavMVRb8b8/edc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jgpEGF8B5K7niHfmpMJtlmEnW4kfCpow/+RAdupqzyiDBOO9H8ePCj6QzMjDjvDs+
-         FwI/zjm1ohjZuto9djlNoeXPWGK6rgrj8YNxzT5rf0VXXtVW9g4o9bVr432LVymCg6
-         rQD6qdkOLNtgz7ZZXVvBMBmbkjaRy0tCEmrngOM0=
+        b=o+vFfqqBTfdJYK6XzOvdlqAYQFiNPXJx9Un/9tEIbhSbqOlDJOCFlUKGR/rsczmpP
+         eU3xqZ9ugLwIMDI4JmRNom5kU0lvxtDnFd3HbkmXDSA24ghS0AaiKfZimr7FNMW3nU
+         rZii2Ejine6TlSGPT8P8OiLEUlrnplIKqGdhc4o4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Diego Viola <diego.viola@gmail.com>,
-        Ben Skeggs <bskeggs@redhat.com>,
-        Karol Herbst <kherbst@redhat.com>,
+        stable@vger.kernel.org, Wan Jiabing <wanjiabing@vivo.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 157/320] drm/nouveau/pmu/gm200-: avoid touching PMU outside of DEVINIT/PREOS/ACR
-Date:   Mon, 24 Jan 2022 19:42:21 +0100
-Message-Id: <20220124183958.969793377@linuxfoundation.org>
+Subject: [PATCH 5.4 158/320] ARM: shmobile: rcar-gen2: Add missing of_node_put()
+Date:   Mon, 24 Jan 2022 19:42:22 +0100
+Message-Id: <20220124183959.009971247@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
 References: <20220124183953.750177707@linuxfoundation.org>
@@ -49,101 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Wan Jiabing <wanjiabing@vivo.com>
 
-[ Upstream commit 1d2271d2fb85e54bfc9630a6c30ac0feb9ffb983 ]
+[ Upstream commit 85744f2d938c5f3cfc44cb6533c157469634da93 ]
 
-There have been reports of the WFI timing out on some boards, and a
-patch was proposed to just remove it.  This stuff is rather fragile,
-and I believe the WFI might be needed with our FW prior to GM200.
+Fix following coccicheck warning:
+./arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c:156:1-33: Function
+for_each_matching_node_and_match should have of_node_put() before break
+and goto.
 
-However, we probably should not be touching PMU during init on GPUs
-where we depend on NVIDIA FW, outside of limited circumstances, so
-this should be a somewhat safer change that achieves the desired
-result.
+Early exits from for_each_matching_node_and_match() should decrement the
+node reference counter.
 
-Reported-by: Diego Viola <diego.viola@gmail.com>
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
-Reviewed-by: Karol Herbst <kherbst@redhat.com>
-Signed-off-by: Karol Herbst <kherbst@redhat.com>
-Link: https://gitlab.freedesktop.org/drm/nouveau/-/merge_requests/10
+Signed-off-by: Wan Jiabing <wanjiabing@vivo.com>
+Link: https://lore.kernel.org/r/20211018014503.7598-1-wanjiabing@vivo.com
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/nouveau/nvkm/subdev/pmu/base.c    | 37 +++++++++++--------
- 1 file changed, 21 insertions(+), 16 deletions(-)
+ arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/base.c b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/base.c
-index ea2e11771bca5..105b4be467a3e 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/base.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/pmu/base.c
-@@ -88,20 +88,13 @@ nvkm_pmu_fini(struct nvkm_subdev *subdev, bool suspend)
- 	return 0;
- }
+diff --git a/arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c b/arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c
+index ee949255ced3f..09ef73b99dd86 100644
+--- a/arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c
++++ b/arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c
+@@ -154,8 +154,10 @@ static int __init rcar_gen2_regulator_quirk(void)
+ 		return -ENODEV;
  
--static int
-+static void
- nvkm_pmu_reset(struct nvkm_pmu *pmu)
- {
- 	struct nvkm_device *device = pmu->subdev.device;
- 
- 	if (!pmu->func->enabled(pmu))
--		return 0;
--
--	/* Inhibit interrupts, and wait for idle. */
--	nvkm_wr32(device, 0x10a014, 0x0000ffff);
--	nvkm_msec(device, 2000,
--		if (!nvkm_rd32(device, 0x10a04c))
--			break;
--	);
-+		return;
- 
- 	/* Reset. */
- 	if (pmu->func->reset)
-@@ -112,25 +105,37 @@ nvkm_pmu_reset(struct nvkm_pmu *pmu)
- 		if (!(nvkm_rd32(device, 0x10a10c) & 0x00000006))
+ 	for_each_matching_node_and_match(np, rcar_gen2_quirk_match, &id) {
+-		if (!of_device_is_available(np))
++		if (!of_device_is_available(np)) {
++			of_node_put(np);
  			break;
- 	);
--
--	return 0;
- }
++		}
  
- static int
- nvkm_pmu_preinit(struct nvkm_subdev *subdev)
- {
- 	struct nvkm_pmu *pmu = nvkm_pmu(subdev);
--	return nvkm_pmu_reset(pmu);
-+	nvkm_pmu_reset(pmu);
-+	return 0;
- }
+ 		ret = of_property_read_u32(np, "reg", &addr);
+ 		if (ret)	/* Skip invalid entry and continue */
+@@ -164,6 +166,7 @@ static int __init rcar_gen2_regulator_quirk(void)
+ 		quirk = kzalloc(sizeof(*quirk), GFP_KERNEL);
+ 		if (!quirk) {
+ 			ret = -ENOMEM;
++			of_node_put(np);
+ 			goto err_mem;
+ 		}
  
- static int
- nvkm_pmu_init(struct nvkm_subdev *subdev)
- {
- 	struct nvkm_pmu *pmu = nvkm_pmu(subdev);
--	int ret = nvkm_pmu_reset(pmu);
--	if (ret == 0 && pmu->func->init)
--		ret = pmu->func->init(pmu);
--	return ret;
-+	struct nvkm_device *device = pmu->subdev.device;
-+
-+	if (!pmu->func->init)
-+		return 0;
-+
-+	if (pmu->func->enabled(pmu)) {
-+		/* Inhibit interrupts, and wait for idle. */
-+		nvkm_wr32(device, 0x10a014, 0x0000ffff);
-+		nvkm_msec(device, 2000,
-+			if (!nvkm_rd32(device, 0x10a04c))
-+				break;
-+		);
-+
-+		nvkm_pmu_reset(pmu);
-+	}
-+
-+	return pmu->func->init(pmu);
- }
- 
- static int
 -- 
 2.34.1
 
