@@ -2,121 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2835499A78
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1796D499C94
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:09:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1573064AbiAXVoS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:44:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53854 "EHLO
+        id S1579701AbiAXWGN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:06:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1454656AbiAXVdT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:33:19 -0500
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20A40C07597D
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 12:21:31 -0800 (PST)
-Received: by mail-pj1-x1031.google.com with SMTP id nn16-20020a17090b38d000b001b56b2bce31so259094pjb.3
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 12:21:31 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=vJiOsW6SYE89zyhK9CDB7xFkCAWFcy2UBYeX3SQJE/s=;
-        b=HyDAS31qrXyauLHUJ8DZfxTcQ6VgzkOAefpAW3x3cYMKF1SMhd+d2rCKhLxirzhMKh
-         qb/yPcY10RXkPObGsH9ZDJYukSoP+/XeIkJ+Ua7YOhS5/beIyCnrfZgfa3pMxdNdpNst
-         swGlJueXB49tDgMoEWv92Z8A029nKI8Tw7i/9LQG04hkUa0hsKv4AYdmCf6d0SrjBmQ6
-         alglAIP33YQSLV9JfuVAzGgc09aiK+QBg/R3A7Tl8KYGhhzHzm7rHpgJ8meRyo3mQfCb
-         n4PcWgZfN3VgwkrqLg+mVLclwxkjc+0KyylK2MC9dSQy917dgnEQipTCwKdzwf9hh7jy
-         nNww==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=vJiOsW6SYE89zyhK9CDB7xFkCAWFcy2UBYeX3SQJE/s=;
-        b=vZle/XTqmqiMu1VYctKbW0LkTQu28R2+bbPEhSCk7WVgHq/Whw+6oxuhmpqmhQXnYL
-         x/k3iYpPxjLvl1Fx697SN/HeAQjwUjNehYUBS8Zd7tmxjBy/VUMd8d3jHTlz1PJGWXcZ
-         xweGccQRj22gxK089Kwh7Wj5xCmOAo8vPC+HvKe1IVMvrxhnHgWdlBgT6ws8szmTPS9j
-         YxStQnnuCfayduVP+Ct2oxoj1wAbGZ9iOVUu3IgNgfeyZLGFstogv31BAKZtus6YsGSX
-         26PDURS/wtD6UTf2IZtQ8EPSy772QxPNq3U56CT8eQG+xZvU4UWTm4D/a0x6EwRjWF0L
-         IzLQ==
-X-Gm-Message-State: AOAM531N19ziKMFh49U9M2xuZsMkRX6aFJR9wfHu1gP9UGZUYxI4GXsS
-        NZBkJh29gaPO3LSIOS83/1EXbnwsxpf3UUrP
-X-Google-Smtp-Source: ABdhPJxaYiLNoK80uXf54PIgcr2gvFLvsZ6B8cUEZqfLtnGnzy+kuDp/BzXujcJaC4jFFmY/0AHsdA==
-X-Received: by 2002:a17:90b:1806:: with SMTP id lw6mr36408pjb.82.1643055690533;
-        Mon, 24 Jan 2022 12:21:30 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id nu15sm207767pjb.5.2022.01.24.12.21.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Jan 2022 12:21:30 -0800 (PST)
-Message-ID: <61ef0a4a.1c69fb81.b45a7.0e2f@mx.google.com>
-Date:   Mon, 24 Jan 2022 12:21:30 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1458035AbiAXVzG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:55:06 -0500
+Received: from mail.itouring.de (mail.itouring.de [IPv6:2a01:4f8:a0:4463::2])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0E27C07E2A6;
+        Mon, 24 Jan 2022 12:36:43 -0800 (PST)
+Received: from tux.applied-asynchrony.com (p5b07e69a.dip0.t-ipconnect.de [91.7.230.154])
+        by mail.itouring.de (Postfix) with ESMTPSA id 6DE0D103765;
+        Mon, 24 Jan 2022 21:36:39 +0100 (CET)
+Received: from [192.168.100.221] (hho.applied-asynchrony.com [192.168.100.221])
+        by tux.applied-asynchrony.com (Postfix) with ESMTP id 13DC6F0160A;
+        Mon, 24 Jan 2022 21:36:39 +0100 (CET)
+Subject: Re: [PATCH 5.15 000/846] 5.15.17-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>, Yonghong Song <yhs@fb.com>
+References: <20220124184100.867127425@linuxfoundation.org>
+From:   =?UTF-8?Q?Holger_Hoffst=c3=a4tte?= <holger@applied-asynchrony.com>
+Organization: Applied Asynchrony, Inc.
+Message-ID: <29a0f562-af46-f4d0-182c-09c8d99e0a93@applied-asynchrony.com>
+Date:   Mon, 24 Jan 2022 21:36:39 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.4.299-115-g214b7b038f18
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.4.y
-Subject: stable-rc/linux-4.4.y baseline: 150 runs,
- 1 regressions (v4.4.299-115-g214b7b038f18)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.4.y baseline: 150 runs, 1 regressions (v4.4.299-115-g214b=
-7b038f18)
+On 2022-01-24 19:31, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.17 release.
 
-Regressions Summary
--------------------
+Oh noes :(
 
-platform  | arch | lab     | compiler | defconfig      | regressions
-----------+------+---------+----------+----------------+------------
-qemu_i386 | i386 | lab-cip | gcc-10   | i386_defconfig | 1          =
+   DESCEND bpf/resolve_btfids
+   MKDIR     /tmp/linux-5.15.17/tools/bpf/resolve_btfids//libbpf
+   GEN     /tmp/linux-5.15.17/tools/bpf/resolve_btfids/libbpf/bpf_helper_defs.h
+   MKDIR   /tmp/linux-5.15.17/tools/bpf/resolve_btfids/libbpf/staticobjs/
+   CC      /tmp/linux-5.15.17/tools/bpf/resolve_btfids/libbpf/staticobjs/libbpf.o
+libbpf.c: In function 'bpf_object__elf_collect':
+libbpf.c:3038:31: error: invalid type argument of '->' (have 'GElf_Shdr' {aka 'Elf64_Shdr'})
+  3038 |                         if (sh->sh_type != SHT_PROGBITS)
+       |                               ^~
+libbpf.c:3042:31: error: invalid type argument of '->' (have 'GElf_Shdr' {aka 'Elf64_Shdr'})
+  3042 |                         if (sh->sh_type != SHT_PROGBITS)
+       |                               ^~
+make[4]: *** [/tmp/linux-5.15.17/tools/build/Makefile.build:97: /tmp/linux-5.15.17/tools/bpf/resolve_btfids/libbpf/staticobjs/libbpf.o] Error 1
+make[3]: *** [Makefile:158: /tmp/linux-5.15.17/tools/bpf/resolve_btfids/libbpf/staticobjs/libbpf-in.o] Error 2
+make[2]: *** [Makefile:44: /tmp/linux-5.15.17/tools/bpf/resolve_btfids//libbpf/libbpf.a] Error 2
+make[1]: *** [Makefile:72: bpf/resolve_btfids] Error 2
+make: *** [Makefile:1371: tools/bpf/resolve_btfids] Error 2
 
+Reverting "libbpf-validate-that-.btf-and-.btf.ext-sections-cont.patcht" aka
+this one:
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
-el/v4.4.299-115-g214b7b038f18/plan/baseline/
+> Andrii Nakryiko <andrii@kernel.org>
+>      libbpf: Validate that .BTF and .BTF.ext sections contain data
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.4.y
-  Describe: v4.4.299-115-g214b7b038f18
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      214b7b038f18f11e9e1a9fcb8911070b867fec64 =
+makes it build & run fine. I looked for followups but couldn't find anything that
+stood out, maybe the BPF folks (cc'ed) know what's missing/wrong.
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform  | arch | lab     | compiler | defconfig      | regressions
-----------+------+---------+----------+----------------+------------
-qemu_i386 | i386 | lab-cip | gcc-10   | i386_defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61eed7c7f60ed0fb1aabbd11
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: i386_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.299=
--115-g214b7b038f18/i386/i386_defconfig/gcc-10/lab-cip/baseline-qemu_i386.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.299=
--115-g214b7b038f18/i386/i386_defconfig/gcc-10/lab-cip/baseline-qemu_i386.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61eed7c7f60ed0fb1aabb=
-d12
-        failing since 3 days (last pass: v4.4.299-10-g5f58931b34ba, first f=
-ail: v4.4.299) =
-
- =20
+cheers
+Holger
