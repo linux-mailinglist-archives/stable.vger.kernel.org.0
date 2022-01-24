@@ -2,115 +2,233 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D867498865
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:33:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7770D498868
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:33:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235842AbiAXSdG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:33:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39070 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235727AbiAXSdG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:33:06 -0500
-Received: from mail-pj1-x104a.google.com (mail-pj1-x104a.google.com [IPv6:2607:f8b0:4864:20::104a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F084C06173B
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 10:33:06 -0800 (PST)
-Received: by mail-pj1-x104a.google.com with SMTP id s13-20020a17090a5d0d00b001b4f4299cf9so11184443pji.3
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 10:33:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:message-id:mime-version:subject:from:to:cc;
-        bh=Jnwu+woDxcibOo/+wn55NaxxHfm1r1qBmOUjR9zyXTY=;
-        b=g/oj857SheeQ1doPp7kxZCMBJk8ewEKfui2UNrGtfj7aC1Ck0wwwQfc43vo97bSY8T
-         fuglPZgULJjJhPMLndYcxcMSaqByWsHHhpJw0PLtYfjI2II/RtShSaNl96Nv6OhoTlLF
-         8Zeydmcq3sb4VfLZgSIya95IzbYTPDIq9070rbqX7MrediEjQVZ3xcoECOfT9I7Xg89A
-         iPQCrTCfGseSf/iE8WrrlfkhGO19ZUTtA83OrPOSN3aVQSkWqtLdaIZR1S0HyFBjYQhB
-         +0FLltADWp32hVFIoe2WJx3AmXSOTbVhVMwS8H4bOW7tveDjjpioh/yWzXWraUzwzZJa
-         ZheA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
-        bh=Jnwu+woDxcibOo/+wn55NaxxHfm1r1qBmOUjR9zyXTY=;
-        b=j/2A/8bFBwsY3vHK26niN8ld4FmVap2WP7QAkrvMGk+XQ0mZmbgurRvq9T+ecUxTE0
-         /sz+eN31j9GRs13/sYQaSQIJ3cNoh5AgFPH/m5PqZkoBCTOMaxtN66B+shm1jts9VB8m
-         37WeaV6n09klcay77efDfyVsHSxclMNN3ucFKmAwFFG4jnDYJ6qsx5KkDRnSBHhEcuAU
-         ImzgTeEwY0mNPSfQ8Z6a3Q1mJHYUyWEvjaMNS4AQ/9xDzQK5q0KoJl6xT1SiTwZHzxsJ
-         MC4uzgsOCURFrEVilvRwQo4AQakNzPs0WvBx/qibIw3dlwCULZ8RreebieBE1o80FkFl
-         ePxA==
-X-Gm-Message-State: AOAM5303Y654vR0yFED6vFN4i6ayV3fh/9vDWmSUUOO2onxG7o5Tjwje
-        WkpKpGgSaMm3am5V42y9+wC8xVPWSL4JR5IQ/fxwT/Iyx3xkmryg+HbHXQUUhcPYML4rdKBX7Qt
-        SKGiVD2QXaUntpWbv3XjUhWKX6w+A0S8U11iFlxERa353qj/KuI29e9e3CHscHLyOaZ0=
-X-Google-Smtp-Source: ABdhPJwJgN3fFXTM50dJcwLziTJGr1fDNn/VaCah7SFjzJROQ894PtJwSTglOYYJDGSMQnQCsaxp4lWdF55VRA==
-X-Received: from dmatlack-heavy.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:19cd])
- (user=dmatlack job=sendgmr) by 2002:a17:902:9a0a:b0:149:7da0:af27 with SMTP
- id v10-20020a1709029a0a00b001497da0af27mr15309287plp.49.1643049185330; Mon,
- 24 Jan 2022 10:33:05 -0800 (PST)
-Date:   Mon, 24 Jan 2022 18:33:02 +0000
-Message-Id: <20220124183302.263017-1-dmatlack@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.35.0.rc0.227.g00780c9af4-goog
-Subject: [PATCH 5.10] KVM: x86/mmu: Fix write-protection of PTs mapped by the
- TDP MMU
-From:   David Matlack <dmatlack@google.com>
+        id S244767AbiAXSdc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:33:32 -0500
+Received: from maynard.decadent.org.uk ([95.217.213.242]:42488 "EHLO
+        maynard.decadent.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235727AbiAXSdb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:33:31 -0500
+Received: from 168.7-181-91.adsl-dyn.isp.belgacom.be ([91.181.7.168] helo=deadeye)
+        by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1nC49i-0007Eq-9s; Mon, 24 Jan 2022 19:33:30 +0100
+Received: from ben by deadeye with local (Exim 4.95)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1nC49h-00A1xT-Bz;
+        Mon, 24 Jan 2022 19:33:29 +0100
+Date:   Mon, 24 Jan 2022 19:33:29 +0100
+From:   Ben Hutchings <ben@decadent.org.uk>
 To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, pbonzini@redhat.com, seanjc@google.com,
-        David Matlack <dmatlack@google.com>
-Content-Type: text/plain; charset="UTF-8"
+Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+        Lai Jiangshan <laijs@linux.alibaba.com>
+Subject: [PATCH 4.9 2/2] KVM: X86: MMU: Use the correct inherited permissions
+ to get shadow page
+Message-ID: <Ye7w+SHXgvSxYyv/@decadent.org.uk>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="b1h8futssbZDFl4p"
+Content-Disposition: inline
+In-Reply-To: <Ye7wziIF+4bAna9E@decadent.org.uk>
+X-SA-Exim-Connect-IP: 91.181.7.168
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on maynard); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 7c8a4742c4abe205ec9daf416c9d42fd6b406e8e upstream.
 
-When the TDP MMU is write-protection GFNs for page table protection (as
-opposed to for dirty logging, or due to the HVA not being writable), it
-checks if the SPTE is already write-protected and if so skips modifying
-the SPTE and the TLB flush.
+--b1h8futssbZDFl4p
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This behavior is incorrect because it fails to check if the SPTE
-is write-protected for page table protection, i.e. fails to check
-that MMU-writable is '0'.  If the SPTE was write-protected for dirty
-logging but not page table protection, the SPTE could locklessly be made
-writable, and vCPUs could still be running with writable mappings cached
-in their TLB.
+=46rom: Lai Jiangshan <laijs@linux.alibaba.com>
 
-Fix this by only skipping setting the SPTE if the SPTE is already
-write-protected *and* MMU-writable is already clear.  Technically,
-checking only MMU-writable would suffice; a SPTE cannot be writable
-without MMU-writable being set.  But check both to be paranoid and
-because it arguably yields more readable code.
+commit b1bd5cba3306691c771d558e94baa73e8b0b96b7 upstream.
 
-Fixes: 46044f72c382 ("kvm: x86/mmu: Support write protection for nesting in tdp MMU")
+When computing the access permissions of a shadow page, use the effective
+permissions of the walk up to that point, i.e. the logic AND of its parents'
+permissions.  Two guest PxE entries that point at the same table gfn need to
+be shadowed with different shadow pages if their parents' permissions are
+different.  KVM currently uses the effective permissions of the last
+non-leaf entry for all non-leaf entries.  Because all non-leaf SPTEs have
+full ("uwx") permissions, and the effective permissions are recorded only
+in role.access and merged into the leaves, this can lead to incorrect
+reuse of a shadow page and eventually to a missing guest protection page
+fault.
+
+For example, here is a shared pagetable:
+
+   pgd[]   pud[]        pmd[]            virtual address pointers
+                     /->pmd1(u--)->pte1(uw-)->page1 <- ptr1 (u--)
+        /->pud1(uw-)--->pmd2(uw-)->pte2(uw-)->page2 <- ptr2 (uw-)
+   pgd-|           (shared pmd[] as above)
+        \->pud2(u--)--->pmd1(u--)->pte1(uw-)->page1 <- ptr3 (u--)
+                     \->pmd2(uw-)->pte2(uw-)->page2 <- ptr4 (u--)
+
+  pud1 and pud2 point to the same pmd table, so:
+  - ptr1 and ptr3 points to the same page.
+  - ptr2 and ptr4 points to the same page.
+
+(pud1 and pud2 here are pud entries, while pmd1 and pmd2 here are pmd entri=
+es)
+
+- First, the guest reads from ptr1 first and KVM prepares a shadow
+  page table with role.access=3Du--, from ptr1's pud1 and ptr1's pmd1.
+  "u--" comes from the effective permissions of pgd, pud1 and
+  pmd1, which are stored in pt->access.  "u--" is used also to get
+  the pagetable for pud1, instead of "uw-".
+
+- Then the guest writes to ptr2 and KVM reuses pud1 which is present.
+  The hypervisor set up a shadow page for ptr2 with pt->access is "uw-"
+  even though the pud1 pmd (because of the incorrect argument to
+  kvm_mmu_get_page in the previous step) has role.access=3D"u--".
+
+- Then the guest reads from ptr3.  The hypervisor reuses pud1's
+  shadow pmd for pud2, because both use "u--" for their permissions.
+  Thus, the shadow pmd already includes entries for both pmd1 and pmd2.
+
+- At last, the guest writes to ptr4.  This causes no vmexit or pagefault,
+  because pud1's shadow page structures included an "uw-" page even though
+  its role.access was "u--".
+
+Any kind of shared pagetable might have the similar problem when in
+virtual machine without TDP enabled if the permissions are different
+=66rom different ancestors.
+
+In order to fix the problem, we change pt->access to be an array, and
+any access in it will not include permissions ANDed from child ptes.
+
+The test code is: https://lore.kernel.org/kvm/20210603050537.19605-1-jiangs=
+hanlai@gmail.com/
+Remember to test it with TDP disabled.
+
+The problem had existed long before the commit 41074d07c78b ("KVM: MMU:
+Fix inherited permissions for emulated guest pte updates"), and it
+is hard to find which is the culprit.  So there is no fixes tag here.
+
+Signed-off-by: Lai Jiangshan <laijs@linux.alibaba.com>
+Message-Id: <20210603052455.21023-1-jiangshanlai@gmail.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: David Matlack <dmatlack@google.com>
-Message-Id: <20220113233020.3986005-2-dmatlack@google.com>
-Reviewed-by: Sean Christopherson <seanjc@google.com>
+Fixes: cea0f0e7ea54 ("[PATCH] KVM: MMU: Shadow page table caching")
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+[bwh: Backported to 4.9:
+ - Keep passing vcpu argument to gpte_access functions
+ - Adjust filenames, context]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- arch/x86/kvm/mmu/tdp_mmu.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ Documentation/virtual/kvm/mmu.txt |  4 ++--
+ arch/x86/kvm/paging_tmpl.h        | 14 +++++++++-----
+ 2 files changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
-index f2ddf663e72e..7e08efb06839 100644
---- a/arch/x86/kvm/mmu/tdp_mmu.c
-+++ b/arch/x86/kvm/mmu/tdp_mmu.c
-@@ -1130,12 +1130,12 @@ static bool write_protect_gfn(struct kvm *kvm, struct kvm_mmu_page *root,
- 	bool spte_set = false;
- 
- 	tdp_root_for_each_leaf_pte(iter, root, gfn, gfn + 1) {
--		if (!is_writable_pte(iter.old_spte))
--			break;
--
- 		new_spte = iter.old_spte &
- 			~(PT_WRITABLE_MASK | SPTE_MMU_WRITEABLE);
- 
-+		if (new_spte == iter.old_spte)
-+			break;
+diff --git a/Documentation/virtual/kvm/mmu.txt b/Documentation/virtual/kvm/=
+mmu.txt
+index 481b6a9c25d5..16ddfd6bd6a1 100644
+--- a/Documentation/virtual/kvm/mmu.txt
++++ b/Documentation/virtual/kvm/mmu.txt
+@@ -152,8 +152,8 @@ The following table shows translations encoded by leaf =
+ptes, with higher-level
+     shadow pages) so role.quadrant takes values in the range 0..3.  Each
+     quadrant maps 1GB virtual address space.
+   role.access:
+-    Inherited guest access permissions in the form uwx.  Note execute
+-    permission is positive, not negative.
++    Inherited guest access permissions from the parent ptes in the form uw=
+x.
++    Note execute permission is positive, not negative.
+   role.invalid:
+     The page is invalid and should not be used.  It is a root page that is
+     currently pinned (by a cpu hardware register pointing to it); once it =
+is
+diff --git a/arch/x86/kvm/paging_tmpl.h b/arch/x86/kvm/paging_tmpl.h
+index 47ba1e1b35f9..d92c7758efad 100644
+--- a/arch/x86/kvm/paging_tmpl.h
++++ b/arch/x86/kvm/paging_tmpl.h
+@@ -100,8 +100,8 @@ struct guest_walker {
+ 	gpa_t pte_gpa[PT_MAX_FULL_LEVELS];
+ 	pt_element_t __user *ptep_user[PT_MAX_FULL_LEVELS];
+ 	bool pte_writable[PT_MAX_FULL_LEVELS];
+-	unsigned pt_access;
+-	unsigned pte_access;
++	unsigned int pt_access[PT_MAX_FULL_LEVELS];
++	unsigned int pte_access;
+ 	gfn_t gfn;
+ 	struct x86_exception fault;
+ };
+@@ -380,13 +380,15 @@ static int FNAME(walk_addr_generic)(struct guest_walk=
+er *walker,
+ 		}
+=20
+ 		walker->ptes[walker->level - 1] =3D pte;
 +
- 		tdp_mmu_set_spte(kvm, &iter, new_spte);
- 		spte_set = true;
++		/* Convert to ACC_*_MASK flags for struct guest_walker.  */
++		walker->pt_access[walker->level - 1] =3D FNAME(gpte_access)(vcpu, pt_acc=
+ess ^ walk_nx_mask);
+ 	} while (!is_last_gpte(mmu, walker->level, pte));
+=20
+ 	pte_pkey =3D FNAME(gpte_pkeys)(vcpu, pte);
+ 	accessed_dirty =3D pte_access & PT_GUEST_ACCESSED_MASK;
+=20
+ 	/* Convert to ACC_*_MASK flags for struct guest_walker.  */
+-	walker->pt_access =3D FNAME(gpte_access)(vcpu, pt_access ^ walk_nx_mask);
+ 	walker->pte_access =3D FNAME(gpte_access)(vcpu, pte_access ^ walk_nx_mask=
+);
+ 	errcode =3D permission_fault(vcpu, mmu, walker->pte_access, pte_pkey, acc=
+ess);
+ 	if (unlikely(errcode))
+@@ -424,7 +426,8 @@ static int FNAME(walk_addr_generic)(struct guest_walker=
+ *walker,
  	}
+=20
+ 	pgprintk("%s: pte %llx pte_access %x pt_access %x\n",
+-		 __func__, (u64)pte, walker->pte_access, walker->pt_access);
++		 __func__, (u64)pte, walker->pte_access,
++		 walker->pt_access[walker->level - 1]);
+ 	return 1;
+=20
+ error:
+@@ -586,7 +589,7 @@ static int FNAME(fetch)(struct kvm_vcpu *vcpu, gva_t ad=
+dr,
+ {
+ 	struct kvm_mmu_page *sp =3D NULL;
+ 	struct kvm_shadow_walk_iterator it;
+-	unsigned direct_access, access =3D gw->pt_access;
++	unsigned int direct_access, access;
+ 	int top_level, ret;
+ 	gfn_t gfn, base_gfn;
+=20
+@@ -618,6 +621,7 @@ static int FNAME(fetch)(struct kvm_vcpu *vcpu, gva_t ad=
+dr,
+ 		sp =3D NULL;
+ 		if (!is_shadow_present_pte(*it.sptep)) {
+ 			table_gfn =3D gw->table_gfn[it.level - 2];
++			access =3D gw->pt_access[it.level - 2];
+ 			sp =3D kvm_mmu_get_page(vcpu, table_gfn, addr, it.level-1,
+ 					      false, access);
+ 		}
 
-base-commit: fd187a4925578f8743d4f266c821c7544d3cddae
--- 
-2.35.0.rc0.227.g00780c9af4-goog
+--b1h8futssbZDFl4p
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmHu8PkACgkQ57/I7JWG
+EQkTBg//WnSskLk3e2ttU6wjtWGN4vypLpurdZtggt/28XngqSy061FoLH08DAEp
+/ME7e/J2N5COsRdFgAaUxoikTCsr/qdpdOnOuhjH95WfFr0qGAJeV6HB6qYf1/dW
+SM86VD3REjQTiqHzHoHICHJshYgyATscAa9OewBjYLEh85HK2VC3ehOq8Ems/niI
+puyzw1/69RNV7S79L+B/MmEdUNimYw2RdB2JUMf1lbeyVaDzYp4fT1LCcKHc1MlK
+yaQDWMe0iLPKDgwbEglxrpIklWAfIuRtT7CXyREHYMfVQLNvbmUSVIXT6UyKCG+z
+aWwPQFyYpQBIPEgT40ybm0Wpj5Zo+LXU77enZiG29QNXG6NYlLmWB4pp+QFZPlCB
+/NvPumoWmzoHEszgUB02cQ+atFdLuqpJdXhgVZWS3E3uMsSO3VLRuw5Y0fXNFbTa
+yl98AaTI6cLgkmaFuC3QsVXs/LoXvp3pixHFZiF5Ch8RaBjDfOkCgAW43q7sZKPV
+0Zic+RCmr7RPuOz0iu/ZlY7BF4KZJdXtgszlINT7eXy7b0C/MbiJHRYciiIBkZUX
+NILwMFAE8XYnFQrvxN27ouBhvqnhlQBIFk1W7I0CmUwO/qLtniLTesPXRE13DCXS
+9jkVA6i4jUsuKAEdJ05TQ76JAgFCpbOUAJ9nente4bApTg0Vqso=
+=aJNK
+-----END PGP SIGNATURE-----
+
+--b1h8futssbZDFl4p--
