@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68678499267
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:21:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92FFF49927E
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:21:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351180AbiAXUTa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:19:30 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:42938 "EHLO
+        id S1351352AbiAXUVQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:21:16 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:41806 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1380870AbiAXURB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:17:01 -0500
+        with ESMTP id S1348022AbiAXURE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:17:04 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BFD761371;
-        Mon, 24 Jan 2022 20:17:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83B65C340E5;
-        Mon, 24 Jan 2022 20:16:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D75076091B;
+        Mon, 24 Jan 2022 20:17:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 986F2C340E5;
+        Mon, 24 Jan 2022 20:17:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055420;
-        bh=MkNJ0R11zL6n7hF6vlIkD+vGmpNLfrFTWV3DUt/AYkk=;
+        s=korg; t=1643055423;
+        bh=zLZtC7ypmlhH1omlZOAIcSh+uqnfUwqd1cdnR2k5tXY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cHdkHUI3CHO24dizMh3z827SZXQ0TGj1qIhNDWQRBAIyqt8WZXlTH1u13q43FQYNC
-         TDlUx3qz3tQ/oC7PfBitnj6nNgaxgHzHYkqM+cP93hAQSxygnPdH7BlOvgPdftJja2
-         Hu92ceU1ZfY9V9/kPlPmiSXYjTf5RAuxKcCxJTOc=
+        b=Ti9oCk0MdfkncGz3gHwLfBA0mnwIB1o1IMzatwFjmsme3xANFSDFtKAZRet4n3sF2
+         yCv4n+3wAeVo8H9RKCICzUko1KUMrJetp0JnFYyBYjkTrepm7r8EN44UjzXpP+laNj
+         MOK7TBWEYYR4LslrpfJWRHmmfx/gAa2uFjflWAgI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        stable@vger.kernel.org, Dillon Min <dillon.minfei@gmail.com>,
+        kernel test robot <lkp@intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 144/846] cpufreq: qcom-hw: Fix probable nested interrupt handling
-Date:   Mon, 24 Jan 2022 19:34:21 +0100
-Message-Id: <20220124184105.953052126@linuxfoundation.org>
+Subject: [PATCH 5.15 145/846] ARM: dts: stm32: fix dtbs_check warning on ili9341 dts binding on stm32f429 disco
+Date:   Mon, 24 Jan 2022 19:34:22 +0100
+Message-Id: <20220124184105.986843693@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -48,43 +47,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
+From: Dillon Min <dillon.minfei@gmail.com>
 
-[ Upstream commit e0e27c3d4e20dab861566f1c348ae44e4b498630 ]
+[ Upstream commit b046049e59dca5e5830dc75ed16acf7657a95161 ]
 
-Re-enabling an interrupt from its own interrupt handler may cause
-an interrupt storm, if there is a pending interrupt and because its
-handling is disabled due to already done entrance into the handler
-above in the stack.
+Since the compatible string defined from ilitek,ili9341.yaml is
+"st,sf-tc240t-9370-t", "ilitek,ili9341"
 
-Also, apparently it is improper to lock a mutex in an interrupt contex.
+so, append "ilitek,ili9341" to avoid the below dtbs_check warning.
 
-Fixes: 275157b367f4 ("cpufreq: qcom-cpufreq-hw: Add dcvs interrupt support")
-Signed-off-by: Vladimir Zapolskiy <vladimir.zapolskiy@linaro.org>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+arch/arm/boot/dts/stm32f429-disco.dt.yaml: display@1: compatible:
+['st,sf-tc240t-9370-t'] is too short
+
+Fixes: a726e2f000ec ("ARM: dts: stm32: enable ltdc binding with ili9341, gyro l3gd20 on stm32429-disco board")
+Signed-off-by: Dillon Min <dillon.minfei@gmail.com>
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/qcom-cpufreq-hw.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/stm32f429-disco.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/cpufreq/qcom-cpufreq-hw.c b/drivers/cpufreq/qcom-cpufreq-hw.c
-index 0138b2ec406dc..35d93361fda1a 100644
---- a/drivers/cpufreq/qcom-cpufreq-hw.c
-+++ b/drivers/cpufreq/qcom-cpufreq-hw.c
-@@ -343,9 +343,9 @@ static irqreturn_t qcom_lmh_dcvs_handle_irq(int irq, void *data)
+diff --git a/arch/arm/boot/dts/stm32f429-disco.dts b/arch/arm/boot/dts/stm32f429-disco.dts
+index 075ac57d0bf4a..6435e099c6326 100644
+--- a/arch/arm/boot/dts/stm32f429-disco.dts
++++ b/arch/arm/boot/dts/stm32f429-disco.dts
+@@ -192,7 +192,7 @@
  
- 	/* Disable interrupt and enable polling */
- 	disable_irq_nosync(c_data->throttle_irq);
--	qcom_lmh_dcvs_notify(c_data);
-+	schedule_delayed_work(&c_data->throttle_work, 0);
- 
--	return 0;
-+	return IRQ_HANDLED;
- }
- 
- static const struct qcom_cpufreq_soc_data qcom_soc_data = {
+ 	display: display@1{
+ 		/* Connect panel-ilitek-9341 to ltdc */
+-		compatible = "st,sf-tc240t-9370-t";
++		compatible = "st,sf-tc240t-9370-t", "ilitek,ili9341";
+ 		reg = <1>;
+ 		spi-3wire;
+ 		spi-max-frequency = <10000000>;
 -- 
 2.34.1
 
