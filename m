@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B091849920B
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:19:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C634498B56
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:13:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352132AbiAXURI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:17:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34870 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355459AbiAXUNl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:13:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D013AC0604D1;
-        Mon, 24 Jan 2022 11:37:02 -0800 (PST)
+        id S1345466AbiAXTMz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:12:55 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:39938 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347443AbiAXTKb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:10:31 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6E11F614FC;
-        Mon, 24 Jan 2022 19:37:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49DAFC340E5;
-        Mon, 24 Jan 2022 19:37:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05CDA60010;
+        Mon, 24 Jan 2022 19:10:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 049F7C340E5;
+        Mon, 24 Jan 2022 19:10:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053021;
-        bh=QR8yZAhBM7iYkAK09ew+ffn9nmVg2lFDcim+AuhC6z0=;
+        s=korg; t=1643051430;
+        bh=vwRGDU4N4TbEApmcUFKQ4hpx5acenT08Vv9AbCWceh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uaMph8oNPNHKHUdVllV9XuoCJCC1k2saptmg2JZ5XO/DJVM7hR06mMKxM3mkRZLK+
-         kG6bK7MFXdQaktSytk6gIgTrJ4pOJLNKSWkZi9WfJCcujhUzu0Y4tKlH61TM/yCjA7
-         6DXfihI26P8vaMbszc8dUSkh/2Bk3JAvNbxXv3G0=
+        b=RowIxncB1llFSMkT8R7ZE3fgtuZEodIKyhfeluIQiHgzf4aHHKJsIT9J0X8Y3D3ig
+         NShOgfD1SdWvFfE09BFCDO9y/sctknW0DnHghNfRALEVTzjTowD+v4y+kkeQTDAB9N
+         TGKri1CfGFX6x+yfNDzbHGduNXXs8UVU5p+o8Eqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rafael Gago Castano <rgc@hms.se>,
-        Jan Kiszka <jan.kiszka@siemens.com>,
-        Su Bao Cheng <baocheng.su@siemens.com>,
-        Lukas Wunner <lukas@wunner.de>
-Subject: [PATCH 5.4 251/320] serial: Fix incorrect rs485 polarity on uart open
+        stable@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Jonathan Corbet <corbet@lwn.net>
+Subject: [PATCH 4.14 160/186] Documentation: refer to config RANDOMIZE_BASE for kernel address-space randomization
 Date:   Mon, 24 Jan 2022 19:43:55 +0100
-Message-Id: <20220124184002.524758989@linuxfoundation.org>
+Message-Id: <20220124183942.243699561@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
+References: <20220124183937.101330125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,67 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
 
-commit d3b3404df318504ec084213ab1065b73f49b0f1d upstream.
+commit 82ca67321f55a8d1da6ac3ed611da3c32818bb37 upstream.
 
-Commit a6845e1e1b78 ("serial: core: Consider rs485 settings to drive
-RTS") sought to deassert RTS when opening an rs485-enabled uart port.
-That way, the transceiver does not occupy the bus until it transmits
-data.
+The config RANDOMIZE_SLAB does not exist, the authors probably intended to
+refer to the config RANDOMIZE_BASE, which provides kernel address-space
+randomization. They probably just confused SLAB with BASE (these two
+four-letter words coincidentally share three common letters), as they also
+point out the config SLAB_FREELIST_RANDOM as further randomization within
+the same sentence.
 
-Unfortunately, the commit mixed up the logic and *asserted* RTS instead
-of *deasserting* it:
+Fix the reference of the config for kernel address-space randomization to
+the config that provides that.
 
-The commit amended uart_port_dtr_rts(), which raises DTR and RTS when
-opening an rs232 port.  "Raising" actually means lowering the signal
-that's coming out of the uart, because an rs232 transceiver not only
-changes a signal's voltage level, it also *inverts* the signal.  See
-the simplified schematic in the MAX232 datasheet for an example:
-https://www.ti.com/lit/ds/symlink/max232.pdf
-
-So, to raise RTS on an rs232 port, TIOCM_RTS is *set* in port->mctrl
-and that results in the signal being driven low.
-
-In contrast to rs232, the signal level for rs485 Transmit Enable is the
-identity, not the inversion:  If the transceiver expects a "high" RTS
-signal for Transmit Enable, the signal coming out of the uart must also
-be high, so TIOCM_RTS must be *cleared* in port->mctrl.
-
-The commit did the exact opposite, but it's easy to see why given the
-confusing semantics of rs232 and rs485.  Fix it.
-
-Fixes: a6845e1e1b78 ("serial: core: Consider rs485 settings to drive RTS")
-Cc: stable@vger.kernel.org # v4.14+
-Cc: Rafael Gago Castano <rgc@hms.se>
-Cc: Jan Kiszka <jan.kiszka@siemens.com>
-Cc: Su Bao Cheng <baocheng.su@siemens.com>
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Link: https://lore.kernel.org/r/9395767847833f2f3193c49cde38501eeb3b5669.1639821059.git.lukas@wunner.de
+Fixes: 6e88559470f5 ("Documentation: Add section about CPU vulnerabilities for Spectre")
+Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Link: https://lore.kernel.org/r/20211230171940.27558-1-lukas.bulwahn@gmail.com
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/serial_core.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ Documentation/admin-guide/hw-vuln/spectre.rst |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -160,7 +160,7 @@ static void uart_port_dtr_rts(struct uar
- 	int RTS_after_send = !!(uport->rs485.flags & SER_RS485_RTS_AFTER_SEND);
+--- a/Documentation/admin-guide/hw-vuln/spectre.rst
++++ b/Documentation/admin-guide/hw-vuln/spectre.rst
+@@ -468,7 +468,7 @@ Spectre variant 2
+    before invoking any firmware code to prevent Spectre variant 2 exploits
+    using the firmware.
  
- 	if (raise) {
--		if (rs485_on && !RTS_after_send) {
-+		if (rs485_on && RTS_after_send) {
- 			uart_set_mctrl(uport, TIOCM_DTR);
- 			uart_clear_mctrl(uport, TIOCM_RTS);
- 		} else {
-@@ -169,7 +169,7 @@ static void uart_port_dtr_rts(struct uar
- 	} else {
- 		unsigned int clear = TIOCM_DTR;
+-   Using kernel address space randomization (CONFIG_RANDOMIZE_SLAB=y
++   Using kernel address space randomization (CONFIG_RANDOMIZE_BASE=y
+    and CONFIG_SLAB_FREELIST_RANDOM=y in the kernel configuration) makes
+    attacks on the kernel generally more difficult.
  
--		clear |= (!rs485_on || !RTS_after_send) ? TIOCM_RTS : 0;
-+		clear |= (!rs485_on || RTS_after_send) ? TIOCM_RTS : 0;
- 		uart_clear_mctrl(uport, clear);
- 	}
- }
 
 
