@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AB0554990FA
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:08:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FF19498C09
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:19:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352926AbiAXUIN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:08:13 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:44836 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348484AbiAXT7c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:59:32 -0500
+        id S1348535AbiAXTSz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:18:55 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:46090 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243013AbiAXTQw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:16:52 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 03A60B811FB;
-        Mon, 24 Jan 2022 19:59:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 601CEC340E5;
-        Mon, 24 Jan 2022 19:59:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 35464613B3;
+        Mon, 24 Jan 2022 19:16:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17CE8C340E5;
+        Mon, 24 Jan 2022 19:16:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054367;
-        bh=oNKfQZp6IYkR3zZ/vnCBN90qRflrO3WLuupod0LlapE=;
+        s=korg; t=1643051810;
+        bh=eZnupatPIV3ci7NnZFNHGOgaYKGfQO9VVbfWgx6Ag74=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p9WitlsIe8Nu+1M5vlK6MdNUBeguSSy3bS6OU4mHL83muSvnT9F/uajUYJoXqJgr9
-         aNcztVL1AjBJgaZxdeFFS4MNZXFlweZSb6DeT5kKKuPuJrlQJy/HOeIAUyfDu1G9us
-         TNZ+h3a2vFrMawQLl8hVqMIUXsSZvxDy1dUuoIAM=
+        b=vXKlrLywV4pgrqcBvjHWqCN1gjqBiSi5+sLeoISwSZs6bNcKsZZLVPUaqwXMCy1it
+         G3nrBVqk4B3JhQuuxAwrPiStS+grNWK9Hjn0L3X7VnPxIQ/eW+YQ0cEcz4ColQe400
+         b7Nf3JI6y8WNBdb9QSrzLDwUKlNqdptfBcst9dGQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Biwen Li <biwen.li@nxp.com>,
-        Li Yang <leoyang.lil@nxp.com>, Shawn Guo <shawnguo@kernel.org>,
+        stable@vger.kernel.org,
+        Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 367/563] arm64: dts: ls1028a-qds: move rtc node to the correct i2c bus
+Subject: [PATCH 4.19 094/239] can: softing: softing_startstop(): fix set but not used variable warning
 Date:   Mon, 24 Jan 2022 19:42:12 +0100
-Message-Id: <20220124184037.119218640@linuxfoundation.org>
+Message-Id: <20220124183946.099402713@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,52 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biwen Li <biwen.li@nxp.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit cbe9d948eadfe352ad45495a7cc5bf20a1b29d90 ]
+[ Upstream commit 370d988cc529598ebaec6487d4f84c2115dc696b ]
 
-The i2c rtc is on i2c2 bus not i2c1 bus, so fix it in dts.
+In the function softing_startstop() the variable error_reporting is
+assigned but not used. The code that uses this variable is commented
+out. Its stated that the functionality is not finally verified.
 
-Signed-off-by: Biwen Li <biwen.li@nxp.com>
-Signed-off-by: Li Yang <leoyang.lil@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+To fix the warning:
+
+| drivers/net/can/softing/softing_fw.c:424:9: error: variable 'error_reporting' set but not used [-Werror,-Wunused-but-set-variable]
+
+remove the comment, activate the code, but add a "0 &&" to the if
+expression and rely on the optimizer rather than the preprocessor to
+remove the code.
+
+Link: https://lore.kernel.org/all/20220109103126.1872833-1-mkl@pengutronix.de
+Fixes: 03fd3cf5a179 ("can: add driver for Softing card")
+Cc: Kurt Van Dijck <dev.kurt@vandijck-laurijssen.be>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/fsl-ls1028a-qds.dts | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/net/can/softing/softing_fw.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1028a-qds.dts b/arch/arm64/boot/dts/freescale/fsl-ls1028a-qds.dts
-index 13cdc958ba3ea..71858c9376c25 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1028a-qds.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1028a-qds.dts
-@@ -261,11 +261,6 @@
- 				vcc-supply = <&sb_3v3>;
- 			};
- 
--			rtc@51 {
--				compatible = "nxp,pcf2129";
--				reg = <0x51>;
--			};
--
- 			eeprom@56 {
- 				compatible = "atmel,24c512";
- 				reg = <0x56>;
-@@ -307,6 +302,15 @@
- 
- };
- 
-+&i2c1 {
-+	status = "okay";
+diff --git a/drivers/net/can/softing/softing_fw.c b/drivers/net/can/softing/softing_fw.c
+index aac58ce6e371a..209eddeb822e5 100644
+--- a/drivers/net/can/softing/softing_fw.c
++++ b/drivers/net/can/softing/softing_fw.c
+@@ -576,18 +576,19 @@ int softing_startstop(struct net_device *dev, int up)
+ 		if (ret < 0)
+ 			goto failed;
+ 	}
+-	/* enable_error_frame */
+-	/*
 +
-+	rtc@51 {
-+		compatible = "nxp,pcf2129";
-+		reg = <0x51>;
-+	};
-+};
++	/* enable_error_frame
++	 *
+ 	 * Error reporting is switched off at the moment since
+ 	 * the receiving of them is not yet 100% verified
+ 	 * This should be enabled sooner or later
+-	 *
+-	if (error_reporting) {
++	 */
++	if (0 && error_reporting) {
+ 		ret = softing_fct_cmd(card, 51, "enable_error_frame");
+ 		if (ret < 0)
+ 			goto failed;
+ 	}
+-	*/
 +
- &enetc_port1 {
- 	phy-handle = <&qds_phy1>;
- 	phy-connection-type = "rgmii-id";
+ 	/* initialize interface */
+ 	iowrite16(1, &card->dpram[DPRAM_FCT_PARAM + 2]);
+ 	iowrite16(1, &card->dpram[DPRAM_FCT_PARAM + 4]);
 -- 
 2.34.1
 
