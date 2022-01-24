@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 414EC499042
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94B85498D29
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:33:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353093AbiAXT7V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:59:21 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:49206 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344298AbiAXTxv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:53:51 -0500
+        id S1348248AbiAXT2P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:28:15 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49276 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1351230AbiAXT0N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:26:13 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 48A0C601B6;
-        Mon, 24 Jan 2022 19:53:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 308B5C340E5;
-        Mon, 24 Jan 2022 19:53:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 76487B81215;
+        Mon, 24 Jan 2022 19:26:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D667CC340E5;
+        Mon, 24 Jan 2022 19:26:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054028;
-        bh=lOJCY7buUeLtrTZHe3ywJbkc8zqpQTJvczT/ZH8x97Q=;
+        s=korg; t=1643052371;
+        bh=5mn8xY2Rw2yKpuokmAWh9/JaNI4qxPL/snAS97h6juY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=op4XRG0VRxo1CxhAFEmKH8ZTzdogegbVt8GyyIHXyUsgQIq51oIgXx+hQTOlgEGRX
-         K03TT/CfqMOZdfvj7JDtzh6D0zNSaC5rb/H5zn12HGDPPpfNrigm0QtwJ/4v3mWF9M
-         njJPO7Ea980N/njNGpzWBFJ3osKS7pf+Ler8xnxA=
+        b=dOTH3XaZl5yYBguUNO/G6KM5EmJNdohXxKeyLFWqOlZn5v2urvQxpev9x4gY05qh6
+         ISXaPQqmgHQ0583d6BME7xbUPzFULUJCDd78UPVqErA8ovqs67govj7LPYuCDBQPgW
+         JqAJL0/8X8WN+G6Khsie5SBSQsKV+QVkoluYxsAM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 256/563] clocksource: Avoid accidental unstable marking of clocksources
+Subject: [PATCH 5.4 037/320] Bluetooth: cmtp: fix possible panic when cmtp_init_sockets() fails
 Date:   Mon, 24 Jan 2022 19:40:21 +0100
-Message-Id: <20220124184033.272071853@linuxfoundation.org>
+Message-Id: <20220124183955.010672799@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,162 +46,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit c86ff8c55b8ae68837b2fa59dc0c203907e9a15f ]
+[ Upstream commit 2a7ca7459d905febf519163bd9e3eed894de6bb7 ]
 
-Since commit db3a34e17433 ("clocksource: Retry clock read if long delays
-detected") and commit 2e27e793e280 ("clocksource: Reduce clocksource-skew
-threshold"), it is found that tsc clocksource fallback to hpet can
-sometimes happen on both Intel and AMD systems especially when they are
-running stressful benchmarking workloads. Of the 23 systems tested with
-a v5.14 kernel, 10 of them have switched to hpet clock source during
-the test run.
+I got a kernel BUG report when doing fault injection test:
 
-The result of falling back to hpet is a drastic reduction of performance
-when running benchmarks. For example, the fio performance tests can
-drop up to 70% whereas the iperf3 performance can drop up to 80%.
+------------[ cut here ]------------
+kernel BUG at lib/list_debug.c:45!
+...
+RIP: 0010:__list_del_entry_valid.cold+0x12/0x4d
+...
+Call Trace:
+ proto_unregister+0x83/0x220
+ cmtp_cleanup_sockets+0x37/0x40 [cmtp]
+ cmtp_exit+0xe/0x1f [cmtp]
+ do_syscall_64+0x35/0xb0
+ entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-4 hpet fallbacks happened during bootup. They were:
+If cmtp_init_sockets() in cmtp_init() fails, cmtp_init() still returns
+success. This will cause a kernel bug when accessing uncreated ctmp
+related data when the module exits.
 
-  [    8.749399] clocksource: timekeeping watchdog on CPU13: hpet read-back delay of 263750ns, attempt 4, marking unstable
-  [   12.044610] clocksource: timekeeping watchdog on CPU19: hpet read-back delay of 186166ns, attempt 4, marking unstable
-  [   17.336941] clocksource: timekeeping watchdog on CPU28: hpet read-back delay of 182291ns, attempt 4, marking unstable
-  [   17.518565] clocksource: timekeeping watchdog on CPU34: hpet read-back delay of 252196ns, attempt 4, marking unstable
-
-Other fallbacks happen when the systems were running stressful
-benchmarks. For example:
-
-  [ 2685.867873] clocksource: timekeeping watchdog on CPU117: hpet read-back delay of 57269ns, attempt 4, marking unstable
-  [46215.471228] clocksource: timekeeping watchdog on CPU8: hpet read-back delay of 61460ns, attempt 4, marking unstable
-
-Commit 2e27e793e280 ("clocksource: Reduce clocksource-skew threshold"),
-changed the skew margin from 100us to 50us. I think this is too small
-and can easily be exceeded when running some stressful workloads on a
-thermally stressed system.  So it is switched back to 100us.
-
-Even a maximum skew margin of 100us may be too small in for some systems
-when booting up especially if those systems are under thermal stress. To
-eliminate the case that the large skew is due to the system being too
-busy slowing down the reading of both the watchdog and the clocksource,
-an extra consecutive read of watchdog clock is being done to check this.
-
-The consecutive watchdog read delay is compared against
-WATCHDOG_MAX_SKEW/2. If the delay exceeds the limit, we assume that
-the system is just too busy. A warning will be printed to the console
-and the clock skew check is skipped for this round.
-
-Fixes: db3a34e17433 ("clocksource: Retry clock read if long delays detected")
-Fixes: 2e27e793e280 ("clocksource: Reduce clocksource-skew threshold")
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/clocksource.c | 50 ++++++++++++++++++++++++++++++++-------
- 1 file changed, 41 insertions(+), 9 deletions(-)
+ net/bluetooth/cmtp/core.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/kernel/time/clocksource.c b/kernel/time/clocksource.c
-index d0803a69a2009..e34ceb91f4c5a 100644
---- a/kernel/time/clocksource.c
-+++ b/kernel/time/clocksource.c
-@@ -105,7 +105,7 @@ static u64 suspend_start;
-  * This delay could be due to SMIs, NMIs, or to VCPU preemptions.  Used as
-  * a lower bound for cs->uncertainty_margin values when registering clocks.
-  */
--#define WATCHDOG_MAX_SKEW (50 * NSEC_PER_USEC)
-+#define WATCHDOG_MAX_SKEW (100 * NSEC_PER_USEC)
- 
- #ifdef CONFIG_CLOCKSOURCE_WATCHDOG
- static void clocksource_watchdog_work(struct work_struct *work);
-@@ -200,17 +200,24 @@ void clocksource_mark_unstable(struct clocksource *cs)
- static ulong max_cswd_read_retries = 3;
- module_param(max_cswd_read_retries, ulong, 0644);
- 
--static bool cs_watchdog_read(struct clocksource *cs, u64 *csnow, u64 *wdnow)
-+enum wd_read_status {
-+	WD_READ_SUCCESS,
-+	WD_READ_UNSTABLE,
-+	WD_READ_SKIP
-+};
-+
-+static enum wd_read_status cs_watchdog_read(struct clocksource *cs, u64 *csnow, u64 *wdnow)
+diff --git a/net/bluetooth/cmtp/core.c b/net/bluetooth/cmtp/core.c
+index 0a2d78e811cf5..83eb84e8e688f 100644
+--- a/net/bluetooth/cmtp/core.c
++++ b/net/bluetooth/cmtp/core.c
+@@ -501,9 +501,7 @@ static int __init cmtp_init(void)
  {
- 	unsigned int nretries;
--	u64 wd_end, wd_delta;
--	int64_t wd_delay;
-+	u64 wd_end, wd_end2, wd_delta;
-+	int64_t wd_delay, wd_seq_delay;
+ 	BT_INFO("CMTP (CAPI Emulation) ver %s", VERSION);
  
- 	for (nretries = 0; nretries <= max_cswd_read_retries; nretries++) {
- 		local_irq_disable();
- 		*wdnow = watchdog->read(watchdog);
- 		*csnow = cs->read(cs);
- 		wd_end = watchdog->read(watchdog);
-+		wd_end2 = watchdog->read(watchdog);
- 		local_irq_enable();
- 
- 		wd_delta = clocksource_delta(wd_end, *wdnow, watchdog->mask);
-@@ -221,13 +228,34 @@ static bool cs_watchdog_read(struct clocksource *cs, u64 *csnow, u64 *wdnow)
- 				pr_warn("timekeeping watchdog on CPU%d: %s retried %d times before success\n",
- 					smp_processor_id(), watchdog->name, nretries);
- 			}
--			return true;
-+			return WD_READ_SUCCESS;
- 		}
-+
-+		/*
-+		 * Now compute delay in consecutive watchdog read to see if
-+		 * there is too much external interferences that cause
-+		 * significant delay in reading both clocksource and watchdog.
-+		 *
-+		 * If consecutive WD read-back delay > WATCHDOG_MAX_SKEW/2,
-+		 * report system busy, reinit the watchdog and skip the current
-+		 * watchdog test.
-+		 */
-+		wd_delta = clocksource_delta(wd_end2, wd_end, watchdog->mask);
-+		wd_seq_delay = clocksource_cyc2ns(wd_delta, watchdog->mult, watchdog->shift);
-+		if (wd_seq_delay > WATCHDOG_MAX_SKEW/2)
-+			goto skip_test;
- 	}
- 
- 	pr_warn("timekeeping watchdog on CPU%d: %s read-back delay of %lldns, attempt %d, marking unstable\n",
- 		smp_processor_id(), watchdog->name, wd_delay, nretries);
--	return false;
-+	return WD_READ_UNSTABLE;
-+
-+skip_test:
-+	pr_info("timekeeping watchdog on CPU%d: %s wd-wd read-back delay of %lldns\n",
-+		smp_processor_id(), watchdog->name, wd_seq_delay);
-+	pr_info("wd-%s-wd read-back delay of %lldns, clock-skew test skipped!\n",
-+		cs->name, wd_delay);
-+	return WD_READ_SKIP;
+-	cmtp_init_sockets();
+-
+-	return 0;
++	return cmtp_init_sockets();
  }
  
- static u64 csnow_mid;
-@@ -290,6 +318,7 @@ static void clocksource_watchdog(struct timer_list *unused)
- 	int next_cpu, reset_pending;
- 	int64_t wd_nsec, cs_nsec;
- 	struct clocksource *cs;
-+	enum wd_read_status read_ret;
- 	u32 md;
- 
- 	spin_lock(&watchdog_lock);
-@@ -307,9 +336,12 @@ static void clocksource_watchdog(struct timer_list *unused)
- 			continue;
- 		}
- 
--		if (!cs_watchdog_read(cs, &csnow, &wdnow)) {
--			/* Clock readout unreliable, so give it up. */
--			__clocksource_unstable(cs);
-+		read_ret = cs_watchdog_read(cs, &csnow, &wdnow);
-+
-+		if (read_ret != WD_READ_SUCCESS) {
-+			if (read_ret == WD_READ_UNSTABLE)
-+				/* Clock readout unreliable, so give it up. */
-+				__clocksource_unstable(cs);
- 			continue;
- 		}
- 
+ static void __exit cmtp_exit(void)
 -- 
 2.34.1
 
