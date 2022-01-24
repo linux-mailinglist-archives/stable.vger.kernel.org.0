@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CF7C499BF0
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:05:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8249499501
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:08:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348426AbiAXV5s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:57:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57526 "EHLO
+        id S1392036AbiAXUuS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:50:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1574952AbiAXVuu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:50:50 -0500
+        with ESMTP id S1389564AbiAXUmS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:42:18 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDF23C0885A2;
-        Mon, 24 Jan 2022 12:33:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF66AC049646;
+        Mon, 24 Jan 2022 11:52:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7C52FB81229;
-        Mon, 24 Jan 2022 20:33:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95F58C340E5;
-        Mon, 24 Jan 2022 20:33:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8839EB81142;
+        Mon, 24 Jan 2022 19:52:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9937BC340E7;
+        Mon, 24 Jan 2022 19:52:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056414;
-        bh=eSOZJjsod7JXBVDUOGZX0mGYhD7AX7qWZXKijpCydxQ=;
+        s=korg; t=1643053945;
+        bh=bRrlijC1F6GBDT2Rk+XS0Jz07Rmt6OW88U30+cWYSz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nUuoS53NbokrU/t7mxrwIJeG8D+r2Q489HOPZHkCAGs9tVFmu+a9GcIBHPgFVArgA
-         Lvx/S43aBMwoIXFqg0Hk2mx7TrrGUbssU44A2NPN4k9m79eLhQcEvyQpKP5SXvK18/
-         gnuEhDP0dwWdNd41vJGp+Fs+UinR3knQnNVb7Wsg=
+        b=CNI6UYPQVKErXjOgJeMVanzoqel651bkT/6IxabeZKOhCCVzZyGrVlQNZXiPsszh2
+         PfZAoVH1FYQF+84+dJCU2iPr+pRBcbiDFReiSsdwoa5BUnJe4CvD1hzZdqCYkc+bRp
+         tpLrbqRyLsQl0Wa+jFXTdw8JOtdwHf4gjo0pmF2A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tycho Andersen <tycho@tycho.pizza>,
-        =?UTF-8?q?Linus=20L=C3=BCssing?= <linus.luessing@c0d3.blue>,
-        Sven Eckelmann <sven@narfation.org>,
-        Simon Wunderlich <sw@simonwunderlich.de>,
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
+        Fabio Estevam <festevam@denx.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 477/846] batman-adv: allow netlink usage in unprivileged containers
+Subject: [PATCH 5.10 229/563] regmap: Call regmap_debugfs_exit() prior to _init()
 Date:   Mon, 24 Jan 2022 19:39:54 +0100
-Message-Id: <20220124184117.471049406@linuxfoundation.org>
+Message-Id: <20220124184032.369790263@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,169 +48,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Lüssing <linus.luessing@c0d3.blue>
+From: Fabio Estevam <festevam@denx.de>
 
-[ Upstream commit 9057d6c23e7388ee9d037fccc9a7bc8557ce277b ]
+[ Upstream commit 530792efa6cb86f5612ff093333fec735793b582 ]
 
-Currently, creating a batman-adv interface in an unprivileged LXD
-container and attaching secondary interfaces to it with "ip" or "batctl"
-works fine. However all batctl debug and configuration commands
-fail:
+Since commit cffa4b2122f5 ("regmap: debugfs: Fix a memory leak when
+calling regmap_attach_dev"), the following debugfs error is seen
+on i.MX boards:
 
-  root@container:~# batctl originators
-  Error received: Operation not permitted
-  root@container:~# batctl orig_interval
-  1000
-  root@container:~# batctl orig_interval 2000
-  root@container:~# batctl orig_interval
-  1000
+debugfs: Directory 'dummy-iomuxc-gpr@20e0000' with parent 'regmap' already present!
 
-To fix this change the generic netlink permissions from GENL_ADMIN_PERM
-to GENL_UNS_ADMIN_PERM. This way a batman-adv interface is fully
-maintainable as root from within a user namespace, from an unprivileged
-container.
+In the attempt to fix the memory leak, the above commit added a NULL check
+for map->debugfs_name. For the first debufs entry, map->debugfs_name is NULL
+and then the new name is allocated via kasprintf().
 
-All except one batman-adv netlink setting are per interface and do not
-leak information or change settings from the host system and are
-therefore save to retrieve or modify as root from within an unprivileged
-container.
+For the second debugfs entry, map->debugfs_name() is no longer NULL, so
+it will keep using the old entry name and the duplicate name error is seen.
 
-"batctl routing_algo" / BATADV_CMD_GET_ROUTING_ALGOS is the only
-exception: It provides the batman-adv kernel module wide default routing
-algorithm. However it is read-only from netlink and an unprivileged
-container is still not allowed to modify
-/sys/module/batman_adv/parameters/routing_algo. Instead it is advised to
-use the newly introduced "batctl if create routing_algo RA_NAME" /
-IFLA_BATADV_ALGO_NAME to set the routing algorithm on interface
-creation, which already works fine in an unprivileged container.
+Quoting Mark Brown:
 
-Cc: Tycho Andersen <tycho@tycho.pizza>
-Signed-off-by: Linus Lüssing <linus.luessing@c0d3.blue>
-Signed-off-by: Sven Eckelmann <sven@narfation.org>
-Signed-off-by: Simon Wunderlich <sw@simonwunderlich.de>
+"That means that if the device gets freed we'll end up with the old debugfs
+file hanging around pointing at nothing.
+...
+To be more explicit this means we need a call to regmap_debugfs_exit()
+which will clean up all the existing debugfs stuff before we loose
+references to it."
+
+Call regmap_debugfs_exit() prior to regmap_debugfs_init() to fix
+the problem.
+
+Tested on i.MX6Q and i.MX6SX boards.
+
+Fixes: cffa4b2122f5 ("regmap: debugfs: Fix a memory leak when calling regmap_attach_dev")
+Suggested-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Link: https://lore.kernel.org/r/20220107163307.335404-1-festevam@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/batman-adv/netlink.c | 30 +++++++++++++++---------------
- 1 file changed, 15 insertions(+), 15 deletions(-)
+ drivers/base/regmap/regmap.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/batman-adv/netlink.c b/net/batman-adv/netlink.c
-index 29276284d281c..00875e1d8c44c 100644
---- a/net/batman-adv/netlink.c
-+++ b/net/batman-adv/netlink.c
-@@ -1368,21 +1368,21 @@ static const struct genl_small_ops batadv_netlink_ops[] = {
- 	{
- 		.cmd = BATADV_CMD_TP_METER,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 		.doit = batadv_netlink_tp_meter_start,
- 		.internal_flags = BATADV_FLAG_NEED_MESH,
- 	},
- 	{
- 		.cmd = BATADV_CMD_TP_METER_CANCEL,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 		.doit = batadv_netlink_tp_meter_cancel,
- 		.internal_flags = BATADV_FLAG_NEED_MESH,
- 	},
- 	{
- 		.cmd = BATADV_CMD_GET_ROUTING_ALGOS,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 		.dumpit = batadv_algo_dump,
- 	},
- 	{
-@@ -1397,68 +1397,68 @@ static const struct genl_small_ops batadv_netlink_ops[] = {
- 	{
- 		.cmd = BATADV_CMD_GET_TRANSTABLE_LOCAL,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 		.dumpit = batadv_tt_local_dump,
- 	},
- 	{
- 		.cmd = BATADV_CMD_GET_TRANSTABLE_GLOBAL,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 		.dumpit = batadv_tt_global_dump,
- 	},
- 	{
- 		.cmd = BATADV_CMD_GET_ORIGINATORS,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 		.dumpit = batadv_orig_dump,
- 	},
- 	{
- 		.cmd = BATADV_CMD_GET_NEIGHBORS,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 		.dumpit = batadv_hardif_neigh_dump,
- 	},
- 	{
- 		.cmd = BATADV_CMD_GET_GATEWAYS,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 		.dumpit = batadv_gw_dump,
- 	},
- 	{
- 		.cmd = BATADV_CMD_GET_BLA_CLAIM,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 		.dumpit = batadv_bla_claim_dump,
- 	},
- 	{
- 		.cmd = BATADV_CMD_GET_BLA_BACKBONE,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 		.dumpit = batadv_bla_backbone_dump,
- 	},
- 	{
- 		.cmd = BATADV_CMD_GET_DAT_CACHE,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 		.dumpit = batadv_dat_cache_dump,
- 	},
- 	{
- 		.cmd = BATADV_CMD_GET_MCAST_FLAGS,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 		.dumpit = batadv_mcast_flags_dump,
- 	},
- 	{
- 		.cmd = BATADV_CMD_SET_MESH,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 		.doit = batadv_netlink_set_mesh,
- 		.internal_flags = BATADV_FLAG_NEED_MESH,
- 	},
- 	{
- 		.cmd = BATADV_CMD_SET_HARDIF,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 		.doit = batadv_netlink_set_hardif,
- 		.internal_flags = BATADV_FLAG_NEED_MESH |
- 				  BATADV_FLAG_NEED_HARDIF,
-@@ -1474,7 +1474,7 @@ static const struct genl_small_ops batadv_netlink_ops[] = {
- 	{
- 		.cmd = BATADV_CMD_SET_VLAN,
- 		.validate = GENL_DONT_VALIDATE_STRICT | GENL_DONT_VALIDATE_DUMP,
--		.flags = GENL_ADMIN_PERM,
-+		.flags = GENL_UNS_ADMIN_PERM,
- 		.doit = batadv_netlink_set_vlan,
- 		.internal_flags = BATADV_FLAG_NEED_MESH |
- 				  BATADV_FLAG_NEED_VLAN,
+diff --git a/drivers/base/regmap/regmap.c b/drivers/base/regmap/regmap.c
+index 456a1787e18d0..55a30afc14a00 100644
+--- a/drivers/base/regmap/regmap.c
++++ b/drivers/base/regmap/regmap.c
+@@ -620,6 +620,7 @@ int regmap_attach_dev(struct device *dev, struct regmap *map,
+ 	if (ret)
+ 		return ret;
+ 
++	regmap_debugfs_exit(map);
+ 	regmap_debugfs_init(map);
+ 
+ 	/* Add a devres resource for dev_get_regmap() */
 -- 
 2.34.1
 
