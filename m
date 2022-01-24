@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67D464999E0
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:47:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 976A3499797
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:29:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1377926AbiAXVi3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:38:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51898 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1442669AbiAXVZK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:25:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 266F1C0A1CEE;
-        Mon, 24 Jan 2022 12:18:01 -0800 (PST)
+        id S1448804AbiAXVNs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:13:48 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:59964 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1446212AbiAXVHf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:07:35 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3EBAB81255;
-        Mon, 24 Jan 2022 20:17:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08814C36AE7;
-        Mon, 24 Jan 2022 20:17:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C957561425;
+        Mon, 24 Jan 2022 21:07:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5C2BC340E8;
+        Mon, 24 Jan 2022 21:07:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055478;
-        bh=fntRpshkPH1kBf19IZiQRtlhXjIeJ4hCEiSlfehiMwY=;
+        s=korg; t=1643058454;
+        bh=DX+nFBJs/yKtyiEOKkXjDicl5+9iBgWUYkW0pg5pwmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JI9WtABl8eZx5lJDdtvI5wsjER8U264XrPbGfeHPa8hWHjL8Ua4DMhoQejmvOWPKg
-         +PdRXeBL9M1E3VntH/BNX6amYh5HuiJ1LUWkhMMbqUBxKowFUHjE5qln0bzMwgXRyP
-         47uf2u4KboCuzKm3DzTaXZHGwlrmIoOKoNR+xxlg=
+        b=UcgmLeFWWARiCVxFiKjehv0+7jlcStqKEQpK2lCe+2iBhCoQUI32I8JwZpwSNJHXa
+         hItF1jcvXxOHRqMdrcExSM6lbcuNpjQrCPeV98piGGe6yurFG3ea5/pqdvQ9SZaUkU
+         2YaRmLCwWtWFcOjFU09v/79TQjdpat2xO3V+h84I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Steev Klimaszewski <steev@kali.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 165/846] media: si470x-i2c: fix possible memory leak in si470x_i2c_probe()
+Subject: [PATCH 5.16 0293/1039] arm64: dts: qcom: c630: Fix soundcard setup
 Date:   Mon, 24 Jan 2022 19:34:42 +0100
-Message-Id: <20220124184106.668730319@linuxfoundation.org>
+Message-Id: <20220124184135.128752743@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,60 +47,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit ef054e345ed8c79ce1121a3599b5a2dfd78e57a0 ]
+[ Upstream commit c02b360ca67ebeb9de07b47b2fe53f964c2561d1 ]
 
-n the 'radio->hdl.error' error handling, ctrl handler allocated by
-v4l2_ctrl_new_std() does not released, and caused memory leak as
-follows:
+Currently Soundcard has 1 rx device for headset and SoundWire Speaker Playback.
 
-unreferenced object 0xffff888033d54200 (size 256):
-  comm "i2c-si470x-19", pid 909, jiffies 4294914203 (age 8.072s)
-  hex dump (first 32 bytes):
-    e8 69 11 03 80 88 ff ff 00 46 d5 33 80 88 ff ff  .i.......F.3....
-    10 42 d5 33 80 88 ff ff 10 42 d5 33 80 88 ff ff  .B.3.....B.3....
-  backtrace:
-    [<00000000086bd4ed>] __kmalloc_node+0x1eb/0x360
-    [<00000000bdb68871>] kvmalloc_node+0x66/0x120
-    [<00000000fac74e4c>] v4l2_ctrl_new+0x7b9/0x1c60 [videodev]
-    [<00000000693bf940>] v4l2_ctrl_new_std+0x19b/0x270 [videodev]
-    [<00000000c0cb91bc>] si470x_i2c_probe+0x2d3/0x9a0 [radio_si470x_i2c]
-    [<0000000056a6f01f>] i2c_device_probe+0x4d8/0xbe0
+This setup has issues, ex if we try to play on headset the audio stream is
+also sent to SoundWire Speakers and we will hear sound in both headsets and speakers.
 
-Fix the error handling path to avoid memory leak.
+Make a separate device for Speakers and Headset so that the streams are
+different and handled properly.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Fixes: 8c081b6f9a9b ("media: radio: Critical v4l2 registration...")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 45021d35fcb2 ("arm64: dts: qcom: c630: Enable audio support")
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Tested-by: Steev Klimaszewski <steev@kali.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20211209175342.20386-2-srinivas.kandagatla@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/radio/si470x/radio-si470x-i2c.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ .../boot/dts/qcom/sdm850-lenovo-yoga-c630.dts | 27 +++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
-diff --git a/drivers/media/radio/si470x/radio-si470x-i2c.c b/drivers/media/radio/si470x/radio-si470x-i2c.c
-index a972c0705ac79..76d39e2e87706 100644
---- a/drivers/media/radio/si470x/radio-si470x-i2c.c
-+++ b/drivers/media/radio/si470x/radio-si470x-i2c.c
-@@ -368,7 +368,7 @@ static int si470x_i2c_probe(struct i2c_client *client)
- 	if (radio->hdl.error) {
- 		retval = radio->hdl.error;
- 		dev_err(&client->dev, "couldn't register control\n");
--		goto err_dev;
-+		goto err_all;
- 	}
+diff --git a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
+index d6b2ba4396f68..2e882a977e2c4 100644
+--- a/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
++++ b/arch/arm64/boot/dts/qcom/sdm850-lenovo-yoga-c630.dts
+@@ -523,6 +523,10 @@
+ 	dai@1 {
+ 		reg = <1>;
+ 	};
++
++	dai@2 {
++		reg = <2>;
++	};
+ };
  
- 	/* video device initialization */
-@@ -463,7 +463,6 @@ static int si470x_i2c_probe(struct i2c_client *client)
- 	return 0;
- err_all:
- 	v4l2_ctrl_handler_free(&radio->hdl);
--err_dev:
- 	v4l2_device_unregister(&radio->v4l2_dev);
- err_initial:
- 	return retval;
+ &sound {
+@@ -535,6 +539,7 @@
+ 		"SpkrLeft IN", "SPK1 OUT",
+ 		"SpkrRight IN", "SPK2 OUT",
+ 		"MM_DL1",  "MultiMedia1 Playback",
++		"MM_DL3",  "MultiMedia3 Playback",
+ 		"MultiMedia2 Capture", "MM_UL2";
+ 
+ 	mm1-dai-link {
+@@ -551,6 +556,13 @@
+ 		};
+ 	};
+ 
++	mm3-dai-link {
++		link-name = "MultiMedia3";
++		cpu {
++			sound-dai = <&q6asmdai  MSM_FRONTEND_DAI_MULTIMEDIA3>;
++		};
++	};
++
+ 	slim-dai-link {
+ 		link-name = "SLIM Playback";
+ 		cpu {
+@@ -580,6 +592,21 @@
+ 			sound-dai = <&wcd9340 1>;
+ 		};
+ 	};
++
++	slim-wcd-dai-link {
++		link-name = "SLIM WCD Playback";
++		cpu {
++			sound-dai = <&q6afedai SLIMBUS_1_RX>;
++		};
++
++		platform {
++			sound-dai = <&q6routing>;
++		};
++
++		codec {
++			sound-dai =  <&wcd9340 2>;
++		};
++	};
+ };
+ 
+ &tlmm {
 -- 
 2.34.1
 
