@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5CDE497E62
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 12:59:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2017D497E63
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 12:59:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238015AbiAXL7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 06:59:24 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:59502 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234568AbiAXL7X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 06:59:23 -0500
+        id S238067AbiAXL71 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 06:59:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57608 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238066AbiAXL71 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 06:59:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0F59C06173B
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 03:59:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DCC57B80EF9
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 11:59:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA6ECC340E1;
-        Mon, 24 Jan 2022 11:59:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AFAB8B80EFD
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 11:59:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A956C340E1;
+        Mon, 24 Jan 2022 11:59:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643025561;
-        bh=xpk3BSHi/na7gUMH23Ks1KoBdEhcIldyzVapZ5K+fNg=;
+        s=korg; t=1643025564;
+        bh=wCLQ5FvwGx72Z50NYRofFQKhzIgIoo5jObE2rLERrSk=;
         h=Subject:To:Cc:From:Date:From;
-        b=dUwcRlzkfFsn/6Ju6aCxl38bQIAqZsozSTZJ2Wk+nXebggiTGs9sZ8LQuyWo3QebE
-         TyeopLDpgthyfI1ZcE6zZEUKzj+SKVFkVQEh6N+MeD0PgC3gQFok5YzIHY4GSudXEI
-         EoCaxPpQHu5naW3jOEGfASXzG48j5/irL0AfpMYA=
-Subject: FAILED: patch "[PATCH] bpf: Make per_cpu_ptr return rdonly PTR_TO_MEM." failed to apply to 5.15-stable tree
+        b=nBAbA54S+PrJ+PMFe5YKX3ylIV2UDCgtNMOprKqOvg8yZOG7oqMAZqw2YJQ0Negic
+         qZUGpApASnE1iL+diYBkPHt7mVUYdft8+e2I74CwF90y0daCpwUBQFz0RDaCbj5gwn
+         IG0bu/kxs7thfuyTu0gtMdWaQN5c75mwhiigYB2I=
+Subject: FAILED: patch "[PATCH] bpf: Make per_cpu_ptr return rdonly PTR_TO_MEM." failed to apply to 5.10-stable tree
 To:     haoluo@google.com, ast@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 12:59:10 +0100
-Message-ID: <1643025550131153@kroah.com>
+Date:   Mon, 24 Jan 2022 12:59:11 +0100
+Message-ID: <164302555118371@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
