@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10C45497F2D
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 13:21:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3BD7E497F2C
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 13:20:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238350AbiAXMU6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 07:20:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34556 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238286AbiAXMUw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 07:20:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56CC4C06173B
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 04:20:51 -0800 (PST)
+        id S238208AbiAXMUw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 07:20:52 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:40010 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238350AbiAXMUs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 07:20:48 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1F686B80EFD
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 12:20:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5398DC340E1;
-        Mon, 24 Jan 2022 12:20:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 183E1B80F02
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 12:20:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42661C340E1;
+        Mon, 24 Jan 2022 12:20:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643026848;
-        bh=KvsJoTxlZWadqC3aJcb/XssqoMl/1owPFlzUjWJri90=;
+        s=korg; t=1643026845;
+        bh=D4i7zCwJpM28CRDPZlnNyVBJrMeAnZfdOPjgwlqUADU=;
         h=Subject:To:Cc:From:Date:From;
-        b=bSIky5eLczHEYsAGGIlRH32YymSw0Swolb+Hj2rMPbRFdFecFI6gkgOpLpzcMNfyM
-         OwNA6RtPNaPuYfpm5A6vHGCaQbgDY/3V35yLklfTbNn1M7vcjePae4xbZvNHODu+JS
-         PuOY150pXoWyNBOUSFtDF8nXeuDt1igqvPdYhEYI=
-Subject: FAILED: patch "[PATCH] net/fsl: xgmac_mdio: Add workaround for erratum A-009885" failed to apply to 4.14-stable tree
+        b=EPTiXE0VKj+OJvAN/948YBJ3lhv5MpiWTmgpU69xdq1ETEc2XEU7vQoY5T80Z3jrD
+         kQyBmvtGDN4idsdOBSJcwTxG9C1JsPlzbG31L5Qop5IJYilazcoKiGIUa2aPYxsm9H
+         zkR6lm4Z0kw5fkLun/qWeu4+ui78+CcfxWe1QvFs=
+Subject: FAILED: patch "[PATCH] net/fsl: xgmac_mdio: Add workaround for erratum A-009885" failed to apply to 4.19-stable tree
 To:     tobias@waldekranz.com, andrew@lunn.ch, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 24 Jan 2022 13:20:32 +0100
-Message-ID: <1643026832134250@kroah.com>
+Message-ID: <1643026832211188@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
