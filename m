@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B334D498A4C
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:02:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30B16498A4E
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:02:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344946AbiAXTCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:02:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45446 "EHLO
+        id S1344974AbiAXTC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:02:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345496AbiAXTAV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:00:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D144CC0617A9;
-        Mon, 24 Jan 2022 10:57:58 -0800 (PST)
+        with ESMTP id S1345520AbiAXTAY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:00:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DF58C061359;
+        Mon, 24 Jan 2022 10:58:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8EA58B81227;
-        Mon, 24 Jan 2022 18:57:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94CB4C340E5;
-        Mon, 24 Jan 2022 18:57:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E2B461537;
+        Mon, 24 Jan 2022 18:58:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEC9FC340E7;
+        Mon, 24 Jan 2022 18:57:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050676;
-        bh=5NY77zdV9ozn/+VEAlvfkSk/XENHtvV6igQMct3x6Ls=;
+        s=korg; t=1643050679;
+        bh=JmBD2R4rJpw1HEWs73qfuZLPYJpA6yiNXtyVg0d3xUc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lQaNuxM4oZGQh1j2icAQG+PnRTpPwRSjjuwuKgWTfkjVBCPB/laO4qcs7TPVcGN+d
-         bIerxKSBhgAZZx7QrVe/+ngPfRNL/n9tRudn+1JaDNKmm56mrC9UG+kp8wtPHaRzwh
-         ww5+ZD+G/Cw+N7NqcMXT2ZYflszIg3TU8UvbXvcw=
+        b=UE0MpB+k55t0zRcwLbp6/85FPXc0mN65E55eTLOwv85ib1Gf9Euq+WPwdXjqB1Wn0
+         8k3jn9clcX3y1caQhdlGSKjTe/Boimf9gJUJqhHfUOKlJEcWeVpPln7YVZ2XDgBv+G
+         VAKNzHefDuyayPnMtw+Mh16KJq+5osF2tfYNai8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 045/157] media: msi001: fix possible null-ptr-deref in msi001_probe()
-Date:   Mon, 24 Jan 2022 19:42:15 +0100
-Message-Id: <20220124183934.223028602@linuxfoundation.org>
+Subject: [PATCH 4.9 046/157] usb: ftdi-elan: fix memory leak on device disconnect
+Date:   Mon, 24 Jan 2022 19:42:16 +0100
+Message-Id: <20220124183934.253859563@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
 References: <20220124183932.787526760@linuxfoundation.org>
@@ -49,56 +48,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 3d5831a40d3464eea158180eb12cbd81c5edfb6a ]
+[ Upstream commit 1646566b5e0c556f779180a8514e521ac735de1e ]
 
-I got a null-ptr-deref report:
+'ftdi' is alloced when probe device, but not free on device disconnect,
+this cause a memory leak as follows:
 
-BUG: kernel NULL pointer dereference, address: 0000000000000060
-...
-RIP: 0010:v4l2_ctrl_auto_cluster+0x57/0x270
-...
-Call Trace:
- msi001_probe+0x13b/0x24b [msi001]
- spi_probe+0xeb/0x130
-...
- do_syscall_64+0x35/0xb0
+unreferenced object 0xffff88800d584000 (size 8400):
+  comm "kworker/0:2", pid 3809, jiffies 4295453055 (age 13.784s)
+  hex dump (first 32 bytes):
+    00 40 58 0d 80 88 ff ff 00 40 58 0d 80 88 ff ff  .@X......@X.....
+    00 00 00 00 00 00 00 00 00 00 00 00 ad 4e ad de  .............N..
+  backtrace:
+    [<000000000d47f947>] kmalloc_order_trace+0x19/0x110 mm/slab_common.c:960
+    [<000000008548ac68>] ftdi_elan_probe+0x8c/0x880 drivers/usb/misc/ftdi-elan.c:2647
+    [<000000007f73e422>] usb_probe_interface+0x31b/0x800 drivers/usb/core/driver.c:396
+    [<00000000fe8d07fc>] really_probe+0x299/0xc30 drivers/base/dd.c:517
+    [<0000000005da7d32>] __driver_probe_device+0x357/0x500 drivers/base/dd.c:751
+    [<000000003c2c9579>] driver_probe_device+0x4e/0x140 drivers/base/dd.c:781
 
-In msi001_probe(), if the creation of control for bandwidth_auto
-fails, there will be a null-ptr-deref issue when it is used in
-v4l2_ctrl_auto_cluster().
+Fix it by freeing 'ftdi' after nobody use it.
 
-Check dev->hdl.error before v4l2_ctrl_auto_cluster() to fix this bug.
-
-Link: https://lore.kernel.org/linux-media/20211026112348.2878040-1-wanghai38@huawei.com
-Fixes: 93203dd6c7c4 ("[media] msi001: Mirics MSi001 silicon tuner driver")
+Fixes: a5c66e4b2418 ("USB: ftdi-elan: client driver for ELAN Uxxx adapters")
 Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Link: https://lore.kernel.org/r/20211217083428.2441-1-weiyongjun1@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/tuners/msi001.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/usb/misc/ftdi-elan.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/tuners/msi001.c b/drivers/media/tuners/msi001.c
-index 3a12ef35682b5..64d98517f470f 100644
---- a/drivers/media/tuners/msi001.c
-+++ b/drivers/media/tuners/msi001.c
-@@ -464,6 +464,13 @@ static int msi001_probe(struct spi_device *spi)
- 			V4L2_CID_RF_TUNER_BANDWIDTH_AUTO, 0, 1, 1, 1);
- 	dev->bandwidth = v4l2_ctrl_new_std(&dev->hdl, &msi001_ctrl_ops,
- 			V4L2_CID_RF_TUNER_BANDWIDTH, 200000, 8000000, 1, 200000);
-+	if (dev->hdl.error) {
-+		ret = dev->hdl.error;
-+		dev_err(&spi->dev, "Could not initialize controls\n");
-+		/* control init failed, free handler */
-+		goto err_ctrl_handler_free;
-+	}
-+
- 	v4l2_ctrl_auto_cluster(2, &dev->bandwidth_auto, 0, false);
- 	dev->lna_gain = v4l2_ctrl_new_std(&dev->hdl, &msi001_ctrl_ops,
- 			V4L2_CID_RF_TUNER_LNA_GAIN, 0, 1, 1, 1);
+diff --git a/drivers/usb/misc/ftdi-elan.c b/drivers/usb/misc/ftdi-elan.c
+index 9a82f8308ad7f..0738078fe8b82 100644
+--- a/drivers/usb/misc/ftdi-elan.c
++++ b/drivers/usb/misc/ftdi-elan.c
+@@ -206,6 +206,7 @@ static void ftdi_elan_delete(struct kref *kref)
+ 	mutex_unlock(&ftdi_module_lock);
+ 	kfree(ftdi->bulk_in_buffer);
+ 	ftdi->bulk_in_buffer = NULL;
++	kfree(ftdi);
+ }
+ 
+ static void ftdi_elan_put_kref(struct usb_ftdi *ftdi)
 -- 
 2.34.1
 
