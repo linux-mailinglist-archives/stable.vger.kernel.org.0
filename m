@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D962499159
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B566E498F3E
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:51:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379130AbiAXUKX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:10:23 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:59400 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377101AbiAXUE5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:04:57 -0500
+        id S1357726AbiAXTvj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:51:39 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:58588 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348432AbiAXThT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:37:19 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A2976090A;
-        Mon, 24 Jan 2022 20:04:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59FA9C340E5;
-        Mon, 24 Jan 2022 20:04:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B246B810BD;
+        Mon, 24 Jan 2022 19:37:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AC02C340E8;
+        Mon, 24 Jan 2022 19:37:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054695;
-        bh=VvVGQHoLmST+7gv7HSxEUy+S9twM5XbFmDZKI+/vz+g=;
+        s=korg; t=1643053033;
+        bh=1CNTcvK4OXKHW3vcSevueM9ut4cbVVfCf3c2zi3LRCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d9Mj8ZXLF4faLsVOoL65qnjYvdsYOPW8vBrSeBA0xDiXtOnakEnyQAPNLC5cw9Nc5
-         LJo/LERedMfPGPjT35CC/y3N5JzV+otCZea22FXGELGbt3whyLpNOZN9yf+vT9XoAw
-         vwN5P49Lqc9VKjR8CEWDannU0QvmlZr8Asq5C1IQ=
+        b=JSYN3KN+u0Xq6blxPFdIrlh0uxSk8tShbmLpLbrH9JZ/CUPQI3DXVAO+h5CQewPMp
+         rukKNGC7FpJ6fw5Kjl7PwJCErdhSZmSb67sJXiDT8ZcFW8xY7q+Kw6DM4foRtfNhT2
+         a8LvGZuS+pl5h8QHQdrsXh5k1Lt4tPzbHWaqXHz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chunguang Xu <brookxu@tencent.com>,
-        kernel test robot <lkp@intel.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>, stable@kernel.org
-Subject: [PATCH 5.10 474/563] ext4: fix a possible ABBA deadlock due to busy PA
+        stable@vger.kernel.org, Vlastimil Babka <vbabka@suse.com>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.4 255/320] s390/mm: fix 2KB pgtable release race
 Date:   Mon, 24 Jan 2022 19:43:59 +0100
-Message-Id: <20220124184040.862792782@linuxfoundation.org>
+Message-Id: <20220124184002.666556675@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,154 +46,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunguang Xu <brookxu@tencent.com>
+From: Alexander Gordeev <agordeev@linux.ibm.com>
 
-commit 8c80fb312d7abf8bcd66cca1d843a80318a2c522 upstream.
+commit c2c224932fd0ee6854d6ebfc8d059c2bcad86606 upstream.
 
-We found on older kernel (3.10) that in the scenario of insufficient
-disk space, system may trigger an ABBA deadlock problem, it seems that
-this problem still exists in latest kernel, try to fix it here. The
-main process triggered by this problem is that task A occupies the PA
-and waits for the jbd2 transaction finish, the jbd2 transaction waits
-for the completion of task B's IO (plug_list), but task B waits for
-the release of PA by task A to finish discard, which indirectly forms
-an ABBA deadlock. The related calltrace is as follows:
+There is a race on concurrent 2KB-pgtables release paths when
+both upper and lower halves of the containing parent page are
+freed, one via page_table_free_rcu() + __tlb_remove_table(),
+and the other via page_table_free(). The race might lead to a
+corruption as result of remove of list item in page_table_free()
+concurrently with __free_page() in __tlb_remove_table().
 
-    Task A
-    vfs_write
-    ext4_mb_new_blocks()
-    ext4_mb_mark_diskspace_used()       JBD2
-    jbd2_journal_get_write_access()  -> jbd2_journal_commit_transaction()
-  ->schedule()                          filemap_fdatawait()
- |                                              |
- | Task B                                       |
- | do_unlinkat()                                |
- | ext4_evict_inode()                           |
- | jbd2_journal_begin_ordered_truncate()        |
- | filemap_fdatawrite_range()                   |
- | ext4_mb_new_blocks()                         |
-  -ext4_mb_discard_group_preallocations() <-----
+Let's assume first the lower and next the upper 2KB-pgtables are
+freed from a page. Since both halves of the page are allocated
+the tracking byte (bits 24-31 of the page _refcount) has value
+of 0x03 initially:
 
-Here, try to cancel ext4_mb_discard_group_preallocations() internal
-retry due to PA busy, and do a limited number of retries inside
-ext4_mb_discard_preallocations(), which can circumvent the above
-problems, but also has some advantages:
+CPU0				CPU1
+----				----
 
-1. Since the PA is in a busy state, if other groups have free PAs,
-   keeping the current PA may help to reduce fragmentation.
-2. Continue to traverse forward instead of waiting for the current
-   group PA to be released. In most scenarios, the PA discard time
-   can be reduced.
+page_table_free_rcu() // lower half
+{
+	// _refcount[31..24] == 0x03
+	...
+	atomic_xor_bits(&page->_refcount,
+			0x11U << (0 + 24));
+	// _refcount[31..24] <= 0x12
+	...
+	table = table | (1U << 0);
+	tlb_remove_table(tlb, table);
+}
+...
+__tlb_remove_table()
+{
+	// _refcount[31..24] == 0x12
+	mask = _table & 3;
+	// mask <= 0x01
+	...
 
-However, in the case of smaller free space, if only a few groups have
-space, then due to multiple traversals of the group, it may increase
-CPU overhead. But in contrast, I feel that the overall benefit is
-better than the cost.
+				page_table_free() // upper half
+				{
+					// _refcount[31..24] == 0x12
+					...
+					atomic_xor_bits(
+						&page->_refcount,
+						1U << (1 + 24));
+					// _refcount[31..24] <= 0x10
+					// mask <= 0x10
+					...
+	atomic_xor_bits(&page->_refcount,
+			mask << (4 + 24));
+	// _refcount[31..24] <= 0x00
+	// mask <= 0x00
+	...
+	if (mask != 0) // == false
+		break;
+	fallthrough;
+	...
+					if (mask & 3) // == false
+						...
+					else
+	__free_page(page);			list_del(&page->lru);
+	^^^^^^^^^^^^^^^^^^	RACE!		^^^^^^^^^^^^^^^^^^^^^
+}					...
+				}
 
-Signed-off-by: Chunguang Xu <brookxu@tencent.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/1637630277-23496-1-git-send-email-brookxu.cn@gmail.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Cc: stable@kernel.org
+The problem is page_table_free() releases the page as result of
+lower nibble unset and __tlb_remove_table() observing zero too
+early. With this update page_table_free() will use the similar
+logic as page_table_free_rcu() + __tlb_remove_table(), and mark
+the fragment as pending for removal in the upper nibble until
+after the list_del().
+
+In other words, the parent page is considered as unreferenced and
+safe to release only when the lower nibble is cleared already and
+unsetting a bit in upper nibble results in that nibble turned zero.
+
+Cc: stable@vger.kernel.org
+Suggested-by: Vlastimil Babka <vbabka@suse.com>
+Reviewed-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Signed-off-by: Alexander Gordeev <agordeev@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/mballoc.c |   40 ++++++++++++++++++----------------------
- 1 file changed, 18 insertions(+), 22 deletions(-)
+ arch/s390/mm/pgalloc.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/mballoc.c
-+++ b/fs/ext4/mballoc.c
-@@ -4234,7 +4234,7 @@ ext4_mb_release_group_pa(struct ext4_bud
-  */
- static noinline_for_stack int
- ext4_mb_discard_group_preallocations(struct super_block *sb,
--					ext4_group_t group, int needed)
-+				     ext4_group_t group, int *busy)
- {
- 	struct ext4_group_info *grp = ext4_get_group_info(sb, group);
- 	struct buffer_head *bitmap_bh = NULL;
-@@ -4242,8 +4242,7 @@ ext4_mb_discard_group_preallocations(str
- 	struct list_head list;
- 	struct ext4_buddy e4b;
- 	int err;
--	int busy = 0;
--	int free, free_total = 0;
-+	int free = 0;
- 
- 	mb_debug(sb, "discard preallocation for group %u\n", group);
- 	if (list_empty(&grp->bb_prealloc_list))
-@@ -4266,19 +4265,14 @@ ext4_mb_discard_group_preallocations(str
- 		goto out_dbg;
- 	}
- 
--	if (needed == 0)
--		needed = EXT4_CLUSTERS_PER_GROUP(sb) + 1;
--
- 	INIT_LIST_HEAD(&list);
--repeat:
--	free = 0;
- 	ext4_lock_group(sb, group);
- 	list_for_each_entry_safe(pa, tmp,
- 				&grp->bb_prealloc_list, pa_group_list) {
- 		spin_lock(&pa->pa_lock);
- 		if (atomic_read(&pa->pa_count)) {
- 			spin_unlock(&pa->pa_lock);
--			busy = 1;
-+			*busy = 1;
- 			continue;
- 		}
- 		if (pa->pa_deleted) {
-@@ -4318,22 +4312,13 @@ repeat:
- 		call_rcu(&(pa)->u.pa_rcu, ext4_mb_pa_callback);
- 	}
- 
--	free_total += free;
--
--	/* if we still need more blocks and some PAs were used, try again */
--	if (free_total < needed && busy) {
--		ext4_unlock_group(sb, group);
--		cond_resched();
--		busy = 0;
--		goto repeat;
--	}
- 	ext4_unlock_group(sb, group);
- 	ext4_mb_unload_buddy(&e4b);
- 	put_bh(bitmap_bh);
- out_dbg:
- 	mb_debug(sb, "discarded (%d) blocks preallocated for group %u bb_free (%d)\n",
--		 free_total, group, grp->bb_free);
--	return free_total;
-+		 free, group, grp->bb_free);
-+	return free;
- }
- 
- /*
-@@ -4875,13 +4860,24 @@ static int ext4_mb_discard_preallocation
- {
- 	ext4_group_t i, ngroups = ext4_get_groups_count(sb);
- 	int ret;
--	int freed = 0;
-+	int freed = 0, busy = 0;
-+	int retry = 0;
- 
- 	trace_ext4_mb_discard_preallocations(sb, needed);
-+
-+	if (needed == 0)
-+		needed = EXT4_CLUSTERS_PER_GROUP(sb) + 1;
-+ repeat:
- 	for (i = 0; i < ngroups && needed > 0; i++) {
--		ret = ext4_mb_discard_group_preallocations(sb, i, needed);
-+		ret = ext4_mb_discard_group_preallocations(sb, i, &busy);
- 		freed += ret;
- 		needed -= ret;
-+		cond_resched();
-+	}
-+
-+	if (needed > 0 && busy && ++retry < 3) {
-+		busy = 0;
-+		goto repeat;
- 	}
- 
- 	return freed;
+--- a/arch/s390/mm/pgalloc.c
++++ b/arch/s390/mm/pgalloc.c
+@@ -255,13 +255,15 @@ void page_table_free(struct mm_struct *m
+ 		/* Free 2K page table fragment of a 4K page */
+ 		bit = (__pa(table) & ~PAGE_MASK)/(PTRS_PER_PTE*sizeof(pte_t));
+ 		spin_lock_bh(&mm->context.lock);
+-		mask = atomic_xor_bits(&page->_refcount, 1U << (bit + 24));
++		mask = atomic_xor_bits(&page->_refcount, 0x11U << (bit + 24));
+ 		mask >>= 24;
+ 		if (mask & 3)
+ 			list_add(&page->lru, &mm->context.pgtable_list);
+ 		else
+ 			list_del(&page->lru);
+ 		spin_unlock_bh(&mm->context.lock);
++		mask = atomic_xor_bits(&page->_refcount, 0x10U << (bit + 24));
++		mask >>= 24;
+ 		if (mask != 0)
+ 			return;
+ 	} else {
 
 
