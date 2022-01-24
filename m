@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48AFF499359
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:34:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A45D498EA7
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:48:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345826AbiAXUdP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:33:15 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:49732 "EHLO
+        id S237642AbiAXToZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:44:25 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:35862 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349765AbiAXUXy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:23:54 -0500
+        with ESMTP id S1345396AbiAXTmX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:42:23 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A67B2614EC;
-        Mon, 24 Jan 2022 20:23:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B484C340E5;
-        Mon, 24 Jan 2022 20:23:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 42B7061031;
+        Mon, 24 Jan 2022 19:42:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F61AC340E5;
+        Mon, 24 Jan 2022 19:42:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055829;
-        bh=Wcrj+rKfUeDaiHz1P3RN61MxAqpAvccw1pIYIr8pwPQ=;
+        s=korg; t=1643053342;
+        bh=V+le2JyJO4eaQ2u2wi+xJ2j42OxrRL3YiITO6FyFsQQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cp3zu2mLuHnWA3DOZjWtumE/yx+VEUT+y/uETb4eGtAA7cAaiywf9LqIgPxh/z/ul
-         CxE0/Qs0kC+pfBn2C8iFwFmIvcJLLiiaacTrISOQVUQpWoT1TaHXRxnvW0q8fd3Urq
-         R306wTw68Lnfo70er3HnO2l88WUrz/V5X0OYscys=
+        b=tUB8XIQUT7pjBHXwg9O4Kx+RaEv8ohO4uti8S/HOHt46KVsniVxITrqsERRYfxiz8
+         gHndP1l51YLzHfX5BtHGOj7ndX9aqfA2GLlZCt5t46iwT3DtcMrIohvpmbXMg8fDIB
+         zufZmb5FcgfCbUE3FZe28wgxuyvyMOGFTmKKKPQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 279/846] um: rename set_signals() to um_set_signals()
-Date:   Mon, 24 Jan 2022 19:36:36 +0100
-Message-Id: <20220124184110.555886129@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>
+Subject: [PATCH 5.10 032/563] lkdtm: Fix content of section containing lkdtm_rodata_do_nothing()
+Date:   Mon, 24 Jan 2022 19:36:37 +0100
+Message-Id: <20220124184025.541909855@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,166 +47,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit bbe33504d4a7fdab9011211e55e262c869b3f6cc ]
+commit bc93a22a19eb2b68a16ecf04cdf4b2ed65aaf398 upstream.
 
-Rename set_signals() as there's at least one driver that
-uses the same name and can now be built on UM due to PCI
-support, and thus we can get symbol conflicts.
+On a kernel without CONFIG_STRICT_KERNEL_RWX, running EXEC_RODATA
+test leads to "Illegal instruction" failure.
 
-Also rename set_signals_trace() to be consistent.
+Looking at the content of rodata_objcopy.o, we see that the
+function content zeroes only:
 
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: 68f5d3f3b654 ("um: add PCI over virtio emulation driver")
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+	Disassembly of section .rodata:
+
+	0000000000000000 <.lkdtm_rodata_do_nothing>:
+	   0:	00 00 00 00 	.long 0x0
+
+Add the contents flag in order to keep the content of the section
+while renaming it.
+
+	Disassembly of section .rodata:
+
+	0000000000000000 <.lkdtm_rodata_do_nothing>:
+	   0:	4e 80 00 20 	blr
+
+Fixes: e9e08a07385e ("lkdtm: support llvm-objcopy")
+Cc: stable@vger.kernel.org
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/8900731fbc05fb8b0de18af7133a8fc07c3c53a1.1633712176.git.christophe.leroy@csgroup.eu
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/um/include/asm/irqflags.h   | 4 ++--
- arch/um/include/shared/longjmp.h | 2 +-
- arch/um/include/shared/os.h      | 4 ++--
- arch/um/kernel/ksyms.c           | 2 +-
- arch/um/os-Linux/sigio.c         | 6 +++---
- arch/um/os-Linux/signal.c        | 8 ++++----
- 6 files changed, 13 insertions(+), 13 deletions(-)
+ drivers/misc/lkdtm/Makefile |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/um/include/asm/irqflags.h b/arch/um/include/asm/irqflags.h
-index dab5744e9253d..1e69ef5bc35e0 100644
---- a/arch/um/include/asm/irqflags.h
-+++ b/arch/um/include/asm/irqflags.h
-@@ -3,7 +3,7 @@
- #define __UM_IRQFLAGS_H
+--- a/drivers/misc/lkdtm/Makefile
++++ b/drivers/misc/lkdtm/Makefile
+@@ -16,7 +16,7 @@ KCOV_INSTRUMENT_rodata.o	:= n
  
- extern int signals_enabled;
--int set_signals(int enable);
-+int um_set_signals(int enable);
- void block_signals(void);
- void unblock_signals(void);
- 
-@@ -16,7 +16,7 @@ static inline unsigned long arch_local_save_flags(void)
- #define arch_local_irq_restore arch_local_irq_restore
- static inline void arch_local_irq_restore(unsigned long flags)
- {
--	set_signals(flags);
-+	um_set_signals(flags);
- }
- 
- #define arch_local_irq_enable arch_local_irq_enable
-diff --git a/arch/um/include/shared/longjmp.h b/arch/um/include/shared/longjmp.h
-index bdb2869b72b31..8863319039f3d 100644
---- a/arch/um/include/shared/longjmp.h
-+++ b/arch/um/include/shared/longjmp.h
-@@ -18,7 +18,7 @@ extern void longjmp(jmp_buf, int);
- 	enable = *(volatile int *)&signals_enabled;	\
- 	n = setjmp(*buf);				\
- 	if(n != 0)					\
--		set_signals_trace(enable);		\
-+		um_set_signals_trace(enable);		\
- 	n; })
- 
- #endif
-diff --git a/arch/um/include/shared/os.h b/arch/um/include/shared/os.h
-index 96d400387c93e..03ffbdddcc480 100644
---- a/arch/um/include/shared/os.h
-+++ b/arch/um/include/shared/os.h
-@@ -238,8 +238,8 @@ extern void send_sigio_to_self(void);
- extern int change_sig(int signal, int on);
- extern void block_signals(void);
- extern void unblock_signals(void);
--extern int set_signals(int enable);
--extern int set_signals_trace(int enable);
-+extern int um_set_signals(int enable);
-+extern int um_set_signals_trace(int enable);
- extern int os_is_signal_stack(void);
- extern void deliver_alarm(void);
- extern void register_pm_wake_signal(void);
-diff --git a/arch/um/kernel/ksyms.c b/arch/um/kernel/ksyms.c
-index b1e5634398d09..3a85bde3e1734 100644
---- a/arch/um/kernel/ksyms.c
-+++ b/arch/um/kernel/ksyms.c
-@@ -6,7 +6,7 @@
- #include <linux/module.h>
- #include <os.h>
- 
--EXPORT_SYMBOL(set_signals);
-+EXPORT_SYMBOL(um_set_signals);
- EXPORT_SYMBOL(signals_enabled);
- 
- EXPORT_SYMBOL(os_stat_fd);
-diff --git a/arch/um/os-Linux/sigio.c b/arch/um/os-Linux/sigio.c
-index 6597ea1986ffa..9e71794839e87 100644
---- a/arch/um/os-Linux/sigio.c
-+++ b/arch/um/os-Linux/sigio.c
-@@ -132,7 +132,7 @@ static void update_thread(void)
- 	int n;
- 	char c;
- 
--	flags = set_signals_trace(0);
-+	flags = um_set_signals_trace(0);
- 	CATCH_EINTR(n = write(sigio_private[0], &c, sizeof(c)));
- 	if (n != sizeof(c)) {
- 		printk(UM_KERN_ERR "update_thread : write failed, err = %d\n",
-@@ -147,7 +147,7 @@ static void update_thread(void)
- 		goto fail;
- 	}
- 
--	set_signals_trace(flags);
-+	um_set_signals_trace(flags);
- 	return;
-  fail:
- 	/* Critical section start */
-@@ -161,7 +161,7 @@ static void update_thread(void)
- 	close(write_sigio_fds[0]);
- 	close(write_sigio_fds[1]);
- 	/* Critical section end */
--	set_signals_trace(flags);
-+	um_set_signals_trace(flags);
- }
- 
- int __add_sigio_fd(int fd)
-diff --git a/arch/um/os-Linux/signal.c b/arch/um/os-Linux/signal.c
-index 6cf098c23a394..24a403a70a020 100644
---- a/arch/um/os-Linux/signal.c
-+++ b/arch/um/os-Linux/signal.c
-@@ -94,7 +94,7 @@ void sig_handler(int sig, struct siginfo *si, mcontext_t *mc)
- 
- 	sig_handler_common(sig, si, mc);
- 
--	set_signals_trace(enabled);
-+	um_set_signals_trace(enabled);
- }
- 
- static void timer_real_alarm_handler(mcontext_t *mc)
-@@ -126,7 +126,7 @@ void timer_alarm_handler(int sig, struct siginfo *unused_si, mcontext_t *mc)
- 
- 	signals_active &= ~SIGALRM_MASK;
- 
--	set_signals_trace(enabled);
-+	um_set_signals_trace(enabled);
- }
- 
- void deliver_alarm(void) {
-@@ -348,7 +348,7 @@ void unblock_signals(void)
- 	}
- }
- 
--int set_signals(int enable)
-+int um_set_signals(int enable)
- {
- 	int ret;
- 	if (signals_enabled == enable)
-@@ -362,7 +362,7 @@ int set_signals(int enable)
- 	return ret;
- }
- 
--int set_signals_trace(int enable)
-+int um_set_signals_trace(int enable)
- {
- 	int ret;
- 	if (signals_enabled == enable)
--- 
-2.34.1
-
+ OBJCOPYFLAGS :=
+ OBJCOPYFLAGS_rodata_objcopy.o	:= \
+-			--rename-section .noinstr.text=.rodata,alloc,readonly,load
++			--rename-section .noinstr.text=.rodata,alloc,readonly,load,contents
+ targets += rodata.o rodata_objcopy.o
+ $(obj)/rodata_objcopy.o: $(obj)/rodata.o FORCE
+ 	$(call if_changed,objcopy)
 
 
