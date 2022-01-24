@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4AED49A41B
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:08:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A562749A367
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:03:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2371227AbiAYAHO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:07:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57708 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2365258AbiAXXud (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:50:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80D54C0BD13C;
-        Mon, 24 Jan 2022 13:44:20 -0800 (PST)
+        id S2365331AbiAXXul (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:50:41 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:53744 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1573122AbiAXVo3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:44:29 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2058A61491;
-        Mon, 24 Jan 2022 21:44:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E71D9C340E4;
-        Mon, 24 Jan 2022 21:44:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A81BFB815A2;
+        Mon, 24 Jan 2022 21:44:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAC2AC340E4;
+        Mon, 24 Jan 2022 21:44:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060659;
-        bh=A61Mjq671YKWOXyCgRwXP22r5uuFJFRpViFWZVpV9aU=;
+        s=korg; t=1643060662;
+        bh=Q+kbtrSzN3sW0F+y05oRP18A4WGq9IVLlwKWgshlVIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fbeoeLPF7rzD/QGLoDpXByiOW2iI0S2rY7Fpo4rHKGBdLzrKFSNXMpT5rOnP+5Gwb
-         sDevKBFm4ikiIexf3NMjceEH7goAWwYfSjjfPPyntnDCotMihl1yC+2DX4DxSY2XJp
-         PIIzJwWM1kvfFUXKeFJGG3v9wtVrovrCqGcYifTs=
+        b=1GbOkb+G5A3W13F6hvzJOQoSf18AaT+/IX74meYhGZGsrQEC+oACTuhJVB5GUwCjQ
+         lJCXv3v1Ek8ax/sLmuBux3A+Jzew7SxGRCOxFY2+rTglAvC9Rsc810HMCHb8391PHz
+         yH+bSlZ19Nv1KP0H8HoCRUFa+ZqeWSNdF9BLzcsU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Alexander Stein <alexander.stein@mailbox.org>,
-        Neil Armstrong <narmstrong@baylibre.com>
-Subject: [PATCH 5.16 1022/1039] dt-bindings: display: meson-dw-hdmi: add missing sound-name-prefix property
-Date:   Mon, 24 Jan 2022 19:46:51 +0100
-Message-Id: <20220124184159.649803943@linuxfoundation.org>
+        Rob Herring <robh@kernel.org>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Subject: [PATCH 5.16 1023/1039] dt-bindings: display: meson-vpu: Add missing amlogic,canvas property
+Date:   Mon, 24 Jan 2022 19:46:52 +0100
+Message-Id: <20220124184159.682617668@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -50,43 +49,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Stein <alexander.stein@mailbox.org>
 
-commit 22bf4047d26980807611b7e2030803db375afd87 upstream.
+commit 640f35b871d29cd685ce0ea0762636381beeb98a upstream.
 
-This is used in meson-gx and meson-g12. Add the property to the binding.
-This fixes the dtschema warning:
-hdmi-tx@c883a000: 'sound-name-prefix' does not match any of the
-regexes: 'pinctrl-[0-9]+'
+This property was already mentioned in the old textual bindings
+amlogic,meson-vpu.txt, but got dropped during conversion.
+Adding it back similar to amlogic,gx-vdec.yaml.
 
+Fixes: 6b9ebf1e0e67 ("dt-bindings: display: amlogic, meson-vpu: convert to yaml")
 Signed-off-by: Alexander Stein <alexander.stein@mailbox.org>
-Fixes: 376bf52deef5 ("dt-bindings: display: amlogic, meson-dw-hdmi: convert to yaml")
-Acked-by: Neil Armstrong <narmstrong@baylibre.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
 Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211223122434.39378-2-alexander.stein@mailbox.org
+Link: https://patchwork.freedesktop.org/patch/msgid/20211219094155.177206-1-alexander.stein@mailbox.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/devicetree/bindings/display/amlogic,meson-dw-hdmi.yaml |    5 +++++
- 1 file changed, 5 insertions(+)
+ Documentation/devicetree/bindings/display/amlogic,meson-vpu.yaml |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/Documentation/devicetree/bindings/display/amlogic,meson-dw-hdmi.yaml
-+++ b/Documentation/devicetree/bindings/display/amlogic,meson-dw-hdmi.yaml
-@@ -10,6 +10,9 @@ title: Amlogic specific extensions to th
- maintainers:
-   - Neil Armstrong <narmstrong@baylibre.com>
+--- a/Documentation/devicetree/bindings/display/amlogic,meson-vpu.yaml
++++ b/Documentation/devicetree/bindings/display/amlogic,meson-vpu.yaml
+@@ -78,6 +78,10 @@ properties:
+   interrupts:
+     maxItems: 1
  
-+allOf:
-+  - $ref: /schemas/sound/name-prefix.yaml#
++  amlogic,canvas:
++    description: should point to a canvas provider node
++    $ref: /schemas/types.yaml#/definitions/phandle
 +
- description: |
-   The Amlogic Meson Synopsys Designware Integration is composed of
-   - A Synopsys DesignWare HDMI Controller IP
-@@ -99,6 +102,8 @@ properties:
-   "#sound-dai-cells":
-     const: 0
+   power-domains:
+     maxItems: 1
+     description: phandle to the associated power domain
+@@ -106,6 +110,7 @@ required:
+   - port@1
+   - "#address-cells"
+   - "#size-cells"
++  - amlogic,canvas
  
-+  sound-name-prefix: true
-+
- required:
-   - compatible
-   - reg
+ additionalProperties: false
+ 
+@@ -118,6 +123,7 @@ examples:
+         interrupts = <3>;
+         #address-cells = <1>;
+         #size-cells = <0>;
++        amlogic,canvas = <&canvas>;
+ 
+         /* CVBS VDAC output port */
+         port@0 {
 
 
