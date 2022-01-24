@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC294499981
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:45:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DFDD49968B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:19:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1455556AbiAXVfh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:35:37 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:49694 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378461AbiAXV3B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:29:01 -0500
+        id S1445750AbiAXVEy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:04:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43748 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1392314AbiAXUvC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:51:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A1DDC054310;
+        Mon, 24 Jan 2022 11:58:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0653C61521;
-        Mon, 24 Jan 2022 21:29:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1BC5C33E60;
-        Mon, 24 Jan 2022 21:28:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3919260B43;
+        Mon, 24 Jan 2022 19:58:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1487FC340EA;
+        Mon, 24 Jan 2022 19:58:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059739;
-        bh=Fl5rzd6FQiE4olvgjq95Hwc7BEQkLP+TG+oqGxrulSU=;
+        s=korg; t=1643054295;
+        bh=ixHiAAhTeUJ3CTD9gpQ0BpOp0z4g1efWh7BF2ublt54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S5AsVKMyVxkyfI8OiwnpF4ESGaKIP9+CNk9saiGuRpyctlvDyFsaEvxsjvCFjoRnV
-         Orc2pm3fONc/4LZO8t7IZw25KAtyLxsBAH4E6IaIRqjS7o26KuFFHTvsYUjChRSubK
-         6jrjKIvlyyzR9UNZ1EkfKbjojcRbqhE5Kgw/dvRY=
+        b=upMIpHhkNmWpMaX6NU7iZtLVorcDJt4SdV71UbpnYQSAlzxC9LtXsec5H81r9tfKk
+         MT0TKK8mKXiXHKucX0nGuXy8KtGx9QOaMjtBoH51wt3+9+nwt4LOBvsWpvv24obIns
+         RyKllc98E57kE2z2b0GI0jnaSW/3GKzsaP3u7WPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Danielle Ratson <danieller@nvidia.com>,
-        Ido Schimmel <idosch@nvidia.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, James Hilliard <james.hilliard1@gmail.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0717/1039] mlxsw: pci: Avoid flow control for EMAD packets
-Date:   Mon, 24 Jan 2022 19:41:46 +0100
-Message-Id: <20220124184149.432272027@linuxfoundation.org>
+Subject: [PATCH 5.10 342/563] media: uvcvideo: Increase UVC_CTRL_CONTROL_TIMEOUT to 5 seconds.
+Date:   Mon, 24 Jan 2022 19:41:47 +0100
+Message-Id: <20220124184036.250507367@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,93 +49,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Danielle Ratson <danieller@nvidia.com>
+From: James Hilliard <james.hilliard1@gmail.com>
 
-[ Upstream commit d43e4271747ace01a27a49a97a397cb4219f6487 ]
+[ Upstream commit c8ed7d2f614cd8b315981d116c7a2fb01829500d ]
 
-Locally generated packets ingress the device through its CPU port. When
-the CPU port is congested and there are not enough credits in its
-headroom buffer, packets can be dropped.
+Some uvc devices appear to require the maximum allowed USB timeout
+for GET_CUR/SET_CUR requests.
 
-While this might be acceptable for data packets that traverse the
-network, configuration packets exchanged between the host and the device
-(EMADs) should not be subjected to this flow control.
+So lets just bump the UVC control timeout to 5 seconds which is the
+same as the usb ctrl get/set defaults:
+USB_CTRL_GET_TIMEOUT 5000
+USB_CTRL_SET_TIMEOUT 5000
 
-The "sdq_lp" bit in the SDQ (Send Descriptor Queue) context allows the
-host to instruct the device to treat packets sent on this queue as
-"local processing" and always process them, regardless of the state of
-the CPU port's headroom.
+It fixes the following runtime warnings:
+   Failed to query (GET_CUR) UVC control 11 on unit 2: -110 (exp. 1).
+   Failed to query (SET_CUR) UVC control 3 on unit 2: -110 (exp. 2).
 
-Add the definition of this bit and set it for the dedicated SDQ reserved
-for the transmission of EMAD packets. This makes the "local processing"
-bit in the WQE (Work Queue Element) redundant, so clear it.
-
-Signed-off-by: Danielle Ratson <danieller@nvidia.com>
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlxsw/cmd.h | 12 ++++++++++++
- drivers/net/ethernet/mellanox/mlxsw/pci.c |  6 +++++-
- 2 files changed, 17 insertions(+), 1 deletion(-)
+ drivers/media/usb/uvc/uvcvideo.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/cmd.h b/drivers/net/ethernet/mellanox/mlxsw/cmd.h
-index 392ce3cb27f72..51b260d54237e 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/cmd.h
-+++ b/drivers/net/ethernet/mellanox/mlxsw/cmd.h
-@@ -935,6 +935,18 @@ static inline int mlxsw_cmd_sw2hw_rdq(struct mlxsw_core *mlxsw_core,
-  */
- MLXSW_ITEM32(cmd_mbox, sw2hw_dq, cq, 0x00, 24, 8);
+diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
+index a3dfacf069c44..c884020b28784 100644
+--- a/drivers/media/usb/uvc/uvcvideo.h
++++ b/drivers/media/usb/uvc/uvcvideo.h
+@@ -183,7 +183,7 @@
+ /* Maximum status buffer size in bytes of interrupt URB. */
+ #define UVC_MAX_STATUS_SIZE	16
  
-+enum mlxsw_cmd_mbox_sw2hw_dq_sdq_lp {
-+	MLXSW_CMD_MBOX_SW2HW_DQ_SDQ_LP_WQE,
-+	MLXSW_CMD_MBOX_SW2HW_DQ_SDQ_LP_IGNORE_WQE,
-+};
-+
-+/* cmd_mbox_sw2hw_dq_sdq_lp
-+ * SDQ local Processing
-+ * 0: local processing by wqe.lp
-+ * 1: local processing (ignoring wqe.lp)
-+ */
-+MLXSW_ITEM32(cmd_mbox, sw2hw_dq, sdq_lp, 0x00, 23, 1);
-+
- /* cmd_mbox_sw2hw_dq_sdq_tclass
-  * SDQ: CPU Egress TClass
-  * RDQ: Reserved
-diff --git a/drivers/net/ethernet/mellanox/mlxsw/pci.c b/drivers/net/ethernet/mellanox/mlxsw/pci.c
-index cd3331a077bbf..f91dde4df152b 100644
---- a/drivers/net/ethernet/mellanox/mlxsw/pci.c
-+++ b/drivers/net/ethernet/mellanox/mlxsw/pci.c
-@@ -285,6 +285,7 @@ static int mlxsw_pci_sdq_init(struct mlxsw_pci *mlxsw_pci, char *mbox,
- 			      struct mlxsw_pci_queue *q)
- {
- 	int tclass;
-+	int lp;
- 	int i;
- 	int err;
+-#define UVC_CTRL_CONTROL_TIMEOUT	500
++#define UVC_CTRL_CONTROL_TIMEOUT	5000
+ #define UVC_CTRL_STREAMING_TIMEOUT	5000
  
-@@ -292,9 +293,12 @@ static int mlxsw_pci_sdq_init(struct mlxsw_pci *mlxsw_pci, char *mbox,
- 	q->consumer_counter = 0;
- 	tclass = q->num == MLXSW_PCI_SDQ_EMAD_INDEX ? MLXSW_PCI_SDQ_EMAD_TC :
- 						      MLXSW_PCI_SDQ_CTL_TC;
-+	lp = q->num == MLXSW_PCI_SDQ_EMAD_INDEX ? MLXSW_CMD_MBOX_SW2HW_DQ_SDQ_LP_IGNORE_WQE :
-+						  MLXSW_CMD_MBOX_SW2HW_DQ_SDQ_LP_WQE;
- 
- 	/* Set CQ of same number of this SDQ. */
- 	mlxsw_cmd_mbox_sw2hw_dq_cq_set(mbox, q->num);
-+	mlxsw_cmd_mbox_sw2hw_dq_sdq_lp_set(mbox, lp);
- 	mlxsw_cmd_mbox_sw2hw_dq_sdq_tclass_set(mbox, tclass);
- 	mlxsw_cmd_mbox_sw2hw_dq_log2_dq_sz_set(mbox, 3); /* 8 pages */
- 	for (i = 0; i < MLXSW_PCI_AQ_PAGES; i++) {
-@@ -1678,7 +1682,7 @@ static int mlxsw_pci_skb_transmit(void *bus_priv, struct sk_buff *skb,
- 
- 	wqe = elem_info->elem;
- 	mlxsw_pci_wqe_c_set(wqe, 1); /* always report completion */
--	mlxsw_pci_wqe_lp_set(wqe, !!tx_info->is_emad);
-+	mlxsw_pci_wqe_lp_set(wqe, 0);
- 	mlxsw_pci_wqe_type_set(wqe, MLXSW_PCI_WQE_TYPE_ETHERNET);
- 
- 	err = mlxsw_pci_wqe_frag_map(mlxsw_pci, wqe, 0, skb->data,
+ /* Maximum allowed number of control mappings per device */
 -- 
 2.34.1
 
