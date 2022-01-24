@@ -2,40 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BB93499A6A
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE97C4996F7
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:20:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378627AbiAXVoA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:44:00 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:53028 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1454740AbiAXVdd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:33:33 -0500
+        id S1353579AbiAXVIe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:08:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46014 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1445273AbiAXVCi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:02:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15E5EC06B580;
+        Mon, 24 Jan 2022 12:02:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1BE3361028;
-        Mon, 24 Jan 2022 21:33:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 272E6C340E4;
-        Mon, 24 Jan 2022 21:33:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A9C3D60916;
+        Mon, 24 Jan 2022 20:02:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F94BC340E5;
+        Mon, 24 Jan 2022 20:02:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060011;
-        bh=Hwn0nBZSSS2Ox64jgXZDFCc5FEy6ow4iGWRyL3BCMjM=;
+        s=korg; t=1643054577;
+        bh=HTUHJVVdTyLs2HI+l2PKLckftklMLQZY10KtFgY2Q+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eKNQhUzEOyk49WXgykN/k42uBbMRNSeXbpHuWVGbn7LfcjfnKwzxUDNSjeQzi8UGM
-         MV+hzW89MZF0IjjRqb9n1daYNjgWUBT/AC6nOThntBGILXIICMfKOeK+b+bpmUe4QN
-         Uk6pBtoGkXKwg4oIH1EfHGi5FtapmPaC1Ic492oI=
+        b=jddJedW3P03s2L2udHVHEoe1nagbxGWeDhh8wSPg2AAmHMmztmKdLg941j6raiA3Z
+         FrEzLHwKa04hLFP1UF1/VhfyCJxJnWXfxHt3V/+LEAxPrjomx1ZD5ggIeHoY9It3Oq
+         fgtSdtgwGb/RD1qWOaQVymOp6rlqfFTNTxP/tzlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        stable@vger.kernel.org,
+        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0810/1039] Revert "nfsd: skip some unnecessary stats in the v4 case"
-Date:   Mon, 24 Jan 2022 19:43:19 +0100
-Message-Id: <20220124184152.541304852@linuxfoundation.org>
+Subject: [PATCH 5.10 435/563] MIPS: Octeon: Fix build errors using clang
+Date:   Mon, 24 Jan 2022 19:43:20 +0100
+Message-Id: <20220124184039.489830457@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,139 +51,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 
-[ Upstream commit 58f258f65267542959487dbe8b5641754411843d ]
+[ Upstream commit 95339b70677dc6f9a2d669c4716058e71b8dc1c7 ]
 
-On the wire, I observed NFSv4 OPEN(CREATE) operations sometimes
-returning a reasonable-looking value in the cinfo.before field and
-zero in the cinfo.after field.
+A large number of the following errors is reported when compiling
+with clang:
 
-RFC 8881 Section 10.8.1 says:
-> When a client is making changes to a given directory, it needs to
-> determine whether there have been changes made to the directory by
-> other clients.  It does this by using the change attribute as
-> reported before and after the directory operation in the associated
-> change_info4 value returned for the operation.
+  cvmx-bootinfo.h:326:3: error: adding 'int' to a string does not append to the string [-Werror,-Wstring-plus-int]
+                  ENUM_BRD_TYPE_CASE(CVMX_BOARD_TYPE_NULL)
+                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  cvmx-bootinfo.h:321:20: note: expanded from macro 'ENUM_BRD_TYPE_CASE'
+          case x: return(#x + 16);        /* Skip CVMX_BOARD_TYPE_ */
+                         ~~~^~~~
+  cvmx-bootinfo.h:326:3: note: use array indexing to silence this warning
+  cvmx-bootinfo.h:321:20: note: expanded from macro 'ENUM_BRD_TYPE_CASE'
+          case x: return(#x + 16);        /* Skip CVMX_BOARD_TYPE_ */
+                          ^
 
-and
+Follow the prompts to use the address operator '&' to fix this error.
 
-> ... The post-operation change
-> value needs to be saved as the basis for future change_info4
-> comparisons.
-
-A good quality client implementation therefore saves the zero
-cinfo.after value. During a subsequent OPEN operation, it will
-receive a different non-zero value in the cinfo.before field for
-that directory, and it will incorrectly believe the directory has
-changed, triggering an undesirable directory cache invalidation.
-
-There are filesystem types where fs_supports_change_attribute()
-returns false, tmpfs being one. On NFSv4 mounts, this means the
-fh_getattr() call site in fill_pre_wcc() and fill_post_wcc() is
-never invoked. Subsequently, nfsd4_change_attribute() is invoked
-with an uninitialized @stat argument.
-
-In fill_pre_wcc(), @stat contains stale stack garbage, which is
-then placed on the wire. In fill_post_wcc(), ->fh_post_wc is all
-zeroes, so zero is placed on the wire. Both of these values are
-meaningless.
-
-This fix can be applied immediately to stable kernels. Once there
-are more regression tests in this area, this optimization can be
-attempted again.
-
-Fixes: 428a23d2bf0c ("nfsd: skip some unnecessary stats in the v4 case")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs3xdr.c | 44 +++++++++++++++++---------------------------
- 1 file changed, 17 insertions(+), 27 deletions(-)
+ arch/mips/include/asm/octeon/cvmx-bootinfo.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfsd/nfs3xdr.c b/fs/nfsd/nfs3xdr.c
-index c3ac1b6aa3aaa..84088581bbe09 100644
---- a/fs/nfsd/nfs3xdr.c
-+++ b/fs/nfsd/nfs3xdr.c
-@@ -487,11 +487,6 @@ neither:
- 	return true;
- }
+diff --git a/arch/mips/include/asm/octeon/cvmx-bootinfo.h b/arch/mips/include/asm/octeon/cvmx-bootinfo.h
+index c114a7ba0badd..e77e8b7c00838 100644
+--- a/arch/mips/include/asm/octeon/cvmx-bootinfo.h
++++ b/arch/mips/include/asm/octeon/cvmx-bootinfo.h
+@@ -317,7 +317,7 @@ enum cvmx_chip_types_enum {
  
--static bool fs_supports_change_attribute(struct super_block *sb)
--{
--	return sb->s_flags & SB_I_VERSION || sb->s_export_op->fetch_iversion;
--}
--
- /*
-  * Fill in the pre_op attr for the wcc data
-  */
-@@ -500,26 +495,24 @@ void fill_pre_wcc(struct svc_fh *fhp)
- 	struct inode    *inode;
- 	struct kstat	stat;
- 	bool v4 = (fhp->fh_maxsize == NFS4_FHSIZE);
-+	__be32 err;
- 
- 	if (fhp->fh_no_wcc || fhp->fh_pre_saved)
- 		return;
- 	inode = d_inode(fhp->fh_dentry);
--	if (fs_supports_change_attribute(inode->i_sb) || !v4) {
--		__be32 err = fh_getattr(fhp, &stat);
--
--		if (err) {
--			/* Grab the times from inode anyway */
--			stat.mtime = inode->i_mtime;
--			stat.ctime = inode->i_ctime;
--			stat.size  = inode->i_size;
--		}
--		fhp->fh_pre_mtime = stat.mtime;
--		fhp->fh_pre_ctime = stat.ctime;
--		fhp->fh_pre_size  = stat.size;
-+	err = fh_getattr(fhp, &stat);
-+	if (err) {
-+		/* Grab the times from inode anyway */
-+		stat.mtime = inode->i_mtime;
-+		stat.ctime = inode->i_ctime;
-+		stat.size  = inode->i_size;
- 	}
- 	if (v4)
- 		fhp->fh_pre_change = nfsd4_change_attribute(&stat, inode);
- 
-+	fhp->fh_pre_mtime = stat.mtime;
-+	fhp->fh_pre_ctime = stat.ctime;
-+	fhp->fh_pre_size  = stat.size;
- 	fhp->fh_pre_saved = true;
- }
- 
-@@ -530,6 +523,7 @@ void fill_post_wcc(struct svc_fh *fhp)
+ /* Functions to return string based on type */
+ #define ENUM_BRD_TYPE_CASE(x) \
+-	case x: return(#x + 16);	/* Skip CVMX_BOARD_TYPE_ */
++	case x: return (&#x[16]);	/* Skip CVMX_BOARD_TYPE_ */
+ static inline const char *cvmx_board_type_to_string(enum
+ 						    cvmx_board_types_enum type)
  {
- 	bool v4 = (fhp->fh_maxsize == NFS4_FHSIZE);
- 	struct inode *inode = d_inode(fhp->fh_dentry);
-+	__be32 err;
+@@ -408,7 +408,7 @@ static inline const char *cvmx_board_type_to_string(enum
+ }
  
- 	if (fhp->fh_no_wcc)
- 		return;
-@@ -537,16 +531,12 @@ void fill_post_wcc(struct svc_fh *fhp)
- 	if (fhp->fh_post_saved)
- 		printk("nfsd: inode locked twice during operation.\n");
- 
--	fhp->fh_post_saved = true;
--
--	if (fs_supports_change_attribute(inode->i_sb) || !v4) {
--		__be32 err = fh_getattr(fhp, &fhp->fh_post_attr);
--
--		if (err) {
--			fhp->fh_post_saved = false;
--			fhp->fh_post_attr.ctime = inode->i_ctime;
--		}
--	}
-+	err = fh_getattr(fhp, &fhp->fh_post_attr);
-+	if (err) {
-+		fhp->fh_post_saved = false;
-+		fhp->fh_post_attr.ctime = inode->i_ctime;
-+	} else
-+		fhp->fh_post_saved = true;
- 	if (v4)
- 		fhp->fh_post_change =
- 			nfsd4_change_attribute(&fhp->fh_post_attr, inode);
+ #define ENUM_CHIP_TYPE_CASE(x) \
+-	case x: return(#x + 15);	/* Skip CVMX_CHIP_TYPE */
++	case x: return (&#x[15]);	/* Skip CVMX_CHIP_TYPE */
+ static inline const char *cvmx_chip_type_to_string(enum
+ 						   cvmx_chip_types_enum type)
+ {
 -- 
 2.34.1
 
