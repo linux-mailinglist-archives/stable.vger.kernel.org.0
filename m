@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 501FC499AC6
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:57:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 522D24998A1
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:38:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350878AbiAXVqU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:46:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55814 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1456652AbiAXVjo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:39:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 138B4C06124C;
-        Mon, 24 Jan 2022 12:25:39 -0800 (PST)
+        id S1449406AbiAXV2W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:28:22 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:39808 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376998AbiAXVQw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:16:52 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C2C01B8121C;
-        Mon, 24 Jan 2022 20:25:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E137EC340E5;
-        Mon, 24 Jan 2022 20:25:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A911614BB;
+        Mon, 24 Jan 2022 21:16:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AC3CC36AE3;
+        Mon, 24 Jan 2022 21:16:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055936;
-        bh=GLTJnZCfJHVaIC+X5HqOOgqv8U5UHQODi6Ql/8KIEXo=;
+        s=korg; t=1643059011;
+        bh=PhEMH2TmR9SH/HlCq8r5xzc38BxxMHpemwszlBVQ4WY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AWnbQ7ED+9Gbm6c+NoSbN1dFdwkzAKv4BH4zZ3HciDaTBSxkTmyQAAUkNhmnAc+C5
-         qE7FGFbKg3PaKyWMsfJtb2VNinpbZ0FlfnTbrR+kmVP2GMbVtaD+kEvR4xQ1n9fcNs
-         WjQJ3V17ixZ4n7hvsn+Mt1DwGTpZ4oOahMSgIEAo=
+        b=M+mQOG4+xrnbK4TJSdwdCGOxTMCq6yNHqZFrCGAQ0A/obHf/P5MbgNR7cyV/9OzgI
+         ObZlCDjsMqIZWmFsONBCr91HopG5keOuOfRKQeuwe1YZ68LDbOBhfeA68NfYp0fswl
+         wxCUNcQzC8Az6M06KyRlW2y1B6ciPdcvSpvvqP0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, etkaar <lists.netfilter.org@prvy.eu>,
-        Florian Westphal <fw@strlen.de>,
-        Stefano Brivio <sbrivio@redhat.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Lukas Czerner <lczerner@redhat.com>,
+        Jan Kara <jack@suse.cz>, Theodore Tso <tytso@mit.edu>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 315/846] netfilter: nft_set_pipapo: allocate pcpu scratch maps on clone
+Subject: [PATCH 5.16 0443/1039] ext4: avoid trim error on fs with small groups
 Date:   Mon, 24 Jan 2022 19:37:12 +0100
-Message-Id: <20220124184111.779501269@linuxfoundation.org>
+Message-Id: <20220124184140.185237193@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,56 +45,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Jan Kara <jack@suse.cz>
 
-[ Upstream commit 23c54263efd7cb605e2f7af72717a2a951999217 ]
+[ Upstream commit 173b6e383d2a204c9921ffc1eca3b87aa2106c33 ]
 
-This is needed in case a new transaction is made that doesn't insert any
-new elements into an already existing set.
+A user reported FITRIM ioctl failing for him on ext4 on some devices
+without apparent reason.  After some debugging we've found out that
+these devices (being LVM volumes) report rather large discard
+granularity of 42MB and the filesystem had 1k blocksize and thus group
+size of 8MB. Because ext4 FITRIM implementation puts discard
+granularity into minlen, ext4_trim_fs() declared the trim request as
+invalid. However just silently doing nothing seems to be a more
+appropriate reaction to such combination of parameters since user did
+not specify anything wrong.
 
-Else, after second 'nft -f ruleset.txt', lookups in such a set will fail
-because ->lookup() encounters raw_cpu_ptr(m->scratch) == NULL.
-
-For the initial rule load, insertion of elements takes care of the
-allocation, but for rule reloads this isn't guaranteed: we might not
-have additions to the set.
-
-Fixes: 3c4287f62044a90e ("nf_tables: Add set type for arbitrary concatenation of ranges")
-Reported-by: etkaar <lists.netfilter.org@prvy.eu>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+CC: Lukas Czerner <lczerner@redhat.com>
+Fixes: 5c2ed62fd447 ("ext4: Adjust minlen with discard_granularity in the FITRIM ioctl")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20211112152202.26614-1-jack@suse.cz
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_set_pipapo.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/ext4/ioctl.c   | 2 --
+ fs/ext4/mballoc.c | 8 ++++++++
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nft_set_pipapo.c b/net/netfilter/nft_set_pipapo.c
-index dce866d93feed..2c8051d8cca69 100644
---- a/net/netfilter/nft_set_pipapo.c
-+++ b/net/netfilter/nft_set_pipapo.c
-@@ -1290,6 +1290,11 @@ static struct nft_pipapo_match *pipapo_clone(struct nft_pipapo_match *old)
- 	if (!new->scratch_aligned)
- 		goto out_scratch;
- #endif
-+	for_each_possible_cpu(i)
-+		*per_cpu_ptr(new->scratch, i) = NULL;
-+
-+	if (pipapo_realloc_scratch(new, old->bsize_max))
-+		goto out_scratch_realloc;
+diff --git a/fs/ext4/ioctl.c b/fs/ext4/ioctl.c
+index 606dee9e08a32..220a4c8178b5e 100644
+--- a/fs/ext4/ioctl.c
++++ b/fs/ext4/ioctl.c
+@@ -1117,8 +1117,6 @@ resizefs_out:
+ 		    sizeof(range)))
+ 			return -EFAULT;
  
- 	rcu_head_init(&new->rcu);
- 
-@@ -1334,6 +1339,9 @@ out_lt:
- 		kvfree(dst->lt);
- 		dst--;
- 	}
-+out_scratch_realloc:
-+	for_each_possible_cpu(i)
-+		kfree(*per_cpu_ptr(new->scratch, i));
- #ifdef NFT_PIPAPO_ALIGN
- 	free_percpu(new->scratch_aligned);
- #endif
+-		range.minlen = max((unsigned int)range.minlen,
+-				   q->limits.discard_granularity);
+ 		ret = ext4_trim_fs(sb, &range);
+ 		if (ret < 0)
+ 			return ret;
+diff --git a/fs/ext4/mballoc.c b/fs/ext4/mballoc.c
+index 215b7068f548a..9af83b6242ddf 100644
+--- a/fs/ext4/mballoc.c
++++ b/fs/ext4/mballoc.c
+@@ -6404,6 +6404,7 @@ ext4_trim_all_free(struct super_block *sb, ext4_group_t group,
+  */
+ int ext4_trim_fs(struct super_block *sb, struct fstrim_range *range)
+ {
++	struct request_queue *q = bdev_get_queue(sb->s_bdev);
+ 	struct ext4_group_info *grp;
+ 	ext4_group_t group, first_group, last_group;
+ 	ext4_grpblk_t cnt = 0, first_cluster, last_cluster;
+@@ -6422,6 +6423,13 @@ int ext4_trim_fs(struct super_block *sb, struct fstrim_range *range)
+ 	    start >= max_blks ||
+ 	    range->len < sb->s_blocksize)
+ 		return -EINVAL;
++	/* No point to try to trim less than discard granularity */
++	if (range->minlen < q->limits.discard_granularity) {
++		minlen = EXT4_NUM_B2C(EXT4_SB(sb),
++			q->limits.discard_granularity >> sb->s_blocksize_bits);
++		if (minlen > EXT4_CLUSTERS_PER_GROUP(sb))
++			goto out;
++	}
+ 	if (end >= max_blks)
+ 		end = max_blks - 1;
+ 	if (end <= first_data_blk)
 -- 
 2.34.1
 
