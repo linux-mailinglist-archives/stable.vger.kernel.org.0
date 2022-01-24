@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDA84498BA0
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:15:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45FD649908E
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:04:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344859AbiAXTPg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:15:36 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:40126 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237218AbiAXTMy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:12:54 -0500
+        id S1345351AbiAXUBN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:01:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58986 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347532AbiAXT6p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:58:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D49AC047CFF;
+        Mon, 24 Jan 2022 11:28:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DDBF612A5;
-        Mon, 24 Jan 2022 19:12:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 295A1C340E5;
-        Mon, 24 Jan 2022 19:12:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BAC7460917;
+        Mon, 24 Jan 2022 19:27:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94CE0C340E5;
+        Mon, 24 Jan 2022 19:27:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051573;
-        bh=OvvClgg8tVQtTWn8Qm3ypBSAwn/4B4w1SBC5HNpllfA=;
+        s=korg; t=1643052479;
+        bh=tmTLQNf5BhZCWTqkO9rUODhM5eaul2RlC0GLt8NNmhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nC9NwQUv3mTm4sKWSKqhN/V4/KpfdCp+owOENuDimkxCqvznqZthb583JxinWBvwD
-         NtY7fRn+nnPwILDKqJIRKNrl42n0KqAwegFCSyfN9mFaeJ+os2WjjZ3ida2IWm7C/L
-         tdANfK/DfDoItfbjc64NA8jIBHCufka2CrylgUpI=
+        b=qvsgcyVHEpSnCTW9ddLpVAkoW+jCybLMC++JaRnGtxw3axb4zb8QvDPZ+AStk8X6s
+         bPQVErX5Idsl5zpvuGt96huWVh+jppYfmNP4baf1lnpxiWqoSGGtj5dbIXooOzgK6q
+         6gDkB+r2ctMh3of2EVBM0UgHqaXp8fjo3sjCpcIw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qiushi Wu <wu000273@umn.edu>,
-        Kees Cook <keescook@chromium.org>,
-        Johan Hovold <johan@kernel.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>
-Subject: [PATCH 4.19 019/239] firmware: qemu_fw_cfg: fix NULL-pointer deref on duplicate entries
+        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 073/320] media: saa7146: mxb: Fix a NULL pointer dereference in mxb_attach()
 Date:   Mon, 24 Jan 2022 19:40:57 +0100
-Message-Id: <20220124183943.732948213@linuxfoundation.org>
+Message-Id: <20220124183956.213783043@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,60 +49,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Zhou Qingyang <zhou1615@umn.edu>
 
-commit d3e305592d69e21e36b76d24ca3c01971a2d09be upstream.
+[ Upstream commit 0407c49ebe330333478440157c640fffd986f41b ]
 
-Commit fe3c60684377 ("firmware: Fix a reference count leak.") "fixed"
-a kobject leak in the file registration helper by properly calling
-kobject_put() for the entry in case registration of the object fails
-(e.g. due to a name collision).
+In mxb_attach(dev, info), saa7146_vv_init() is called to allocate a
+new memory for dev->vv_data. saa7146_vv_release() will be called on
+failure of mxb_probe(dev). There is a dereference of dev->vv_data
+in saa7146_vv_release(), which could lead to a NULL pointer dereference
+on failure of saa7146_vv_init().
 
-This would however result in a NULL pointer dereference when the
-release function tries to remove the never added entry from the
-fw_cfg_entry_cache list.
+Fix this bug by adding a check of saa7146_vv_init().
 
-Fix this by moving the list-removal out of the release function.
+This bug was found by a static analyzer. The analysis employs
+differential checking to identify inconsistent security operations
+(e.g., checks or kfrees) between two code paths and confirms that the
+inconsistent operations are not recovered in the current function or
+the callers, so they constitute bugs.
 
-Note that the offending commit was one of the benign looking umn.edu
-fixes which was reviewed but not reverted. [1][2]
+Note that, as a bug found by static analysis, it can be a false
+positive or hard to trigger. Multiple researchers have cross-reviewed
+the bug.
 
-[1] https://lore.kernel.org/r/202105051005.49BFABCE@keescook
-[2] https://lore.kernel.org/all/YIg7ZOZvS3a8LjSv@kroah.com
+Builds with CONFIG_VIDEO_MXB=m show no new warnings,
+and our static analyzer no longer warns about this code.
 
-Fixes: fe3c60684377 ("firmware: Fix a reference count leak.")
-Cc: stable@vger.kernel.org      # 5.8
-Cc: Qiushi Wu <wu000273@umn.edu>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20211201132528.30025-2-johan@kernel.org
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 03b1930efd3c ("V4L/DVB: saa7146: fix regression of the av7110/budget-av driver")
+Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/qemu_fw_cfg.c |    5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/media/pci/saa7146/mxb.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
---- a/drivers/firmware/qemu_fw_cfg.c
-+++ b/drivers/firmware/qemu_fw_cfg.c
-@@ -385,9 +385,7 @@ static void fw_cfg_sysfs_cache_cleanup(v
- 	struct fw_cfg_sysfs_entry *entry, *next;
- 
- 	list_for_each_entry_safe(entry, next, &fw_cfg_entry_cache, list) {
--		/* will end up invoking fw_cfg_sysfs_cache_delist()
--		 * via each object's release() method (i.e. destructor)
--		 */
-+		fw_cfg_sysfs_cache_delist(entry);
- 		kobject_put(&entry->kobj);
- 	}
- }
-@@ -445,7 +443,6 @@ static void fw_cfg_sysfs_release_entry(s
+diff --git a/drivers/media/pci/saa7146/mxb.c b/drivers/media/pci/saa7146/mxb.c
+index 952ea250feda0..58fe4c1619eeb 100644
+--- a/drivers/media/pci/saa7146/mxb.c
++++ b/drivers/media/pci/saa7146/mxb.c
+@@ -683,10 +683,16 @@ static struct saa7146_ext_vv vv_data;
+ static int mxb_attach(struct saa7146_dev *dev, struct saa7146_pci_extension_data *info)
  {
- 	struct fw_cfg_sysfs_entry *entry = to_entry(kobj);
+ 	struct mxb *mxb;
++	int ret;
  
--	fw_cfg_sysfs_cache_delist(entry);
- 	kfree(entry);
- }
+ 	DEB_EE("dev:%p\n", dev);
  
+-	saa7146_vv_init(dev, &vv_data);
++	ret = saa7146_vv_init(dev, &vv_data);
++	if (ret) {
++		ERR("Error in saa7146_vv_init()");
++		return ret;
++	}
++
+ 	if (mxb_probe(dev)) {
+ 		saa7146_vv_release(dev);
+ 		return -1;
+-- 
+2.34.1
+
 
 
