@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 93F72498BDA
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:17:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D63F34990B3
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:07:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242841AbiAXTQ7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:16:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48852 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348163AbiAXTO5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:14:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0357BC0612F3;
-        Mon, 24 Jan 2022 11:06:12 -0800 (PST)
+        id S1352887AbiAXUDI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:03:08 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:45986 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1353190AbiAXUBC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:01:02 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7611DB8122C;
-        Mon, 24 Jan 2022 19:06:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A966BC340E7;
-        Mon, 24 Jan 2022 19:06:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A33E8B8122A;
+        Mon, 24 Jan 2022 20:01:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9175C340E5;
+        Mon, 24 Jan 2022 20:00:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051169;
-        bh=Fg6qWsA/2CLDHs+vPCi/HXNiBqMhMXgbsP60Z+tFIFg=;
+        s=korg; t=1643054459;
+        bh=NsNmxlzJcp4bHdt1JVI79chzoIVKauwC5RQte6uzHu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tdsmJFVfsmDB0BaXNdSByFVZEs4tej5YZR6A5NVQmeH2qas03gEFlqiY6hd3cooCG
-         Z1W/3YeJV/pMNsrr4hzEmJthMsREt/G7m0r+1gtqv5aRkU53UBhzEqEf9YWtdHbOoT
-         96+ADwY6PG0KNM0xvzrDbBhnEuXXzElEOz2QwpXk=
+        b=IIwQOCuU8/Q7IifiwSRKkHxsWJyta6kyLJkZBrcR2s0YqWDpdMrlQhH41ViEp8ZX0
+         EtjlVSqwW5ponDUp9IBK5wZBl8yH3Mhs6NF2lpygDuJiN1aQlP2JJDIiP1KjwKE0s9
+         NAd1kRwvqW9DnSVyRkNdRv1mYruiLGDayAIr1jKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>, Amish Chana <amish@3g.co.za>
-Subject: [PATCH 4.14 044/186] netfilter: bridge: add support for pppoe filtering
+        stable@vger.kernel.org,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 354/563] selftests/ftrace: make kprobe profile testcase description unique
 Date:   Mon, 24 Jan 2022 19:41:59 +0100
-Message-Id: <20220124183938.552224017@linuxfoundation.org>
+Message-Id: <20220124184036.659126137@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,75 +48,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Heiko Carstens <hca@linux.ibm.com>
 
-[ Upstream commit 28b78ecffea8078d81466b2e01bb5a154509f1ba ]
+[ Upstream commit e5992f373c6eed6d09e5858e9623df1259b3ce30 ]
 
-This makes 'bridge-nf-filter-pppoe-tagged' sysctl work for
-bridged traffic.
+Commit 32f6e5da83c7 ("selftests/ftrace: Add kprobe profile testcase")
+added a new kprobes testcase, but has a description which does not
+describe what the test case is doing and is duplicating the description
+of another test case.
 
-Looking at the original commit it doesn't appear this ever worked:
+Therefore change the test case description, so it is unique and then
+allows easily to tell which test case actually passed or failed.
 
- static unsigned int br_nf_post_routing(unsigned int hook, struct sk_buff **pskb,
-[..]
-        if (skb->protocol == htons(ETH_P_8021Q)) {
-                skb_pull(skb, VLAN_HLEN);
-                skb->network_header += VLAN_HLEN;
-+       } else if (skb->protocol == htons(ETH_P_PPP_SES)) {
-+               skb_pull(skb, PPPOE_SES_HLEN);
-+               skb->network_header += PPPOE_SES_HLEN;
-        }
- [..]
-	NF_HOOK(... POST_ROUTING, ...)
-
-... but the adjusted offsets are never restored.
-
-The alternative would be to rip this code out for good,
-but otoh we'd have to keep this anyway for the vlan handling
-(which works because vlan tag info is in the skb, not the packet
- payload).
-
-Reported-and-tested-by: Amish Chana <amish@3g.co.za>
-Fixes: 516299d2f5b6f97 ("[NETFILTER]: bridge-nf: filter bridged IPv4/IPv6 encapsulated in pppoe traffic")
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Reported-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/br_netfilter_hooks.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ tools/testing/selftests/ftrace/test.d/kprobe/profile.tc | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-index 8155c3d811a14..7e50bd9f36112 100644
---- a/net/bridge/br_netfilter_hooks.c
-+++ b/net/bridge/br_netfilter_hooks.c
-@@ -724,6 +724,9 @@ static int br_nf_dev_queue_xmit(struct net *net, struct sock *sk, struct sk_buff
- 	if (nf_bridge->frag_max_size && nf_bridge->frag_max_size < mtu)
- 		mtu = nf_bridge->frag_max_size;
+diff --git a/tools/testing/selftests/ftrace/test.d/kprobe/profile.tc b/tools/testing/selftests/ftrace/test.d/kprobe/profile.tc
+index 98166fa3eb91c..34fb89b0c61fa 100644
+--- a/tools/testing/selftests/ftrace/test.d/kprobe/profile.tc
++++ b/tools/testing/selftests/ftrace/test.d/kprobe/profile.tc
+@@ -1,6 +1,6 @@
+ #!/bin/sh
+ # SPDX-License-Identifier: GPL-2.0
+-# description: Kprobe dynamic event - adding and removing
++# description: Kprobe profile
+ # requires: kprobe_events
  
-+	nf_bridge_update_protocol(skb);
-+	nf_bridge_push_encap_header(skb);
-+
- 	if (skb_is_gso(skb) || skb->len + mtu_reserved <= mtu) {
- 		nf_bridge_info_free(skb);
- 		return br_dev_queue_push_xmit(net, sk, skb);
-@@ -741,8 +744,6 @@ static int br_nf_dev_queue_xmit(struct net *net, struct sock *sk, struct sk_buff
- 
- 		IPCB(skb)->frag_max_size = nf_bridge->frag_max_size;
- 
--		nf_bridge_update_protocol(skb);
--
- 		data = this_cpu_ptr(&brnf_frag_data_storage);
- 
- 		data->vlan_tci = skb->vlan_tci;
-@@ -765,8 +766,6 @@ static int br_nf_dev_queue_xmit(struct net *net, struct sock *sk, struct sk_buff
- 
- 		IP6CB(skb)->frag_max_size = nf_bridge->frag_max_size;
- 
--		nf_bridge_update_protocol(skb);
--
- 		data = this_cpu_ptr(&brnf_frag_data_storage);
- 		data->encap_size = nf_bridge_encap_header_len(skb);
- 		data->size = ETH_HLEN + data->encap_size;
+ ! grep -q 'myevent' kprobe_profile
 -- 
 2.34.1
 
