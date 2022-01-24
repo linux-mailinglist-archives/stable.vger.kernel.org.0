@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4661D49989A
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:38:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA21C499ACC
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:57:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1449093AbiAXV2B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:28:01 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:37160 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352728AbiAXVQ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:16:29 -0500
+        id S1353761AbiAXVqi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:46:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55864 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1456718AbiAXVjy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:39:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18B17C0419CB;
+        Mon, 24 Jan 2022 12:26:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3AA986149E;
-        Mon, 24 Jan 2022 21:16:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E941C340E4;
-        Mon, 24 Jan 2022 21:16:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AC4B76150D;
+        Mon, 24 Jan 2022 20:26:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94D08C340E5;
+        Mon, 24 Jan 2022 20:26:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058982;
-        bh=nVBgM0OnAk/WgY3rgw0h9PGKVpbHlF3D3agC/aIx4Qg=;
+        s=korg; t=1643055999;
+        bh=Ps18ta2PSjn+ctkFGbm3u5EjvOxYZsiEunta9c6c+Vk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G4NjSCYetsnNJNrZS8mxMQ2z3oWcoCZxTXQ3jiTyC6qE6iZpat/C5dyKQybNrHg3B
-         qhbcG5mdidip1zKhO42Qs4jqz9LqTZ6Fz4/ABGPaay19djKjHetZo8CC5qydzywgjb
-         T7Bwei9djSlZZuLdpk1VibTgf83rIgv2dw1NXFaQ=
+        b=shexEMPQcSnN0tzktB/Sg2EAvjMIG9P8Dv2p0uPqxmdXQqqbXIKcSji3l2IYblsWq
+         HJgV68nq7Kq0HwDPei6MKJX9ORj+OuJ0FoVJ4+k8NlWzzUwKkf+7VgOzETuo/NF/7q
+         32spHKY1np3m/5FKZ5lrNuFE4xguf3eFyB3MpdCA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Waiman Long <longman@redhat.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Gal Pressman <gal@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0465/1039] clocksource: Avoid accidental unstable marking of clocksources
+Subject: [PATCH 5.15 337/846] net/mlx5e: Fix page DMA map/unmap attributes
 Date:   Mon, 24 Jan 2022 19:37:34 +0100
-Message-Id: <20220124184140.907150863@linuxfoundation.org>
+Message-Id: <20220124184112.545502437@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,162 +49,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Waiman Long <longman@redhat.com>
+From: Aya Levin <ayal@nvidia.com>
 
-[ Upstream commit c86ff8c55b8ae68837b2fa59dc0c203907e9a15f ]
+[ Upstream commit 0b7cfa4082fbf550595bc0e40f05614bd83bf0cd ]
 
-Since commit db3a34e17433 ("clocksource: Retry clock read if long delays
-detected") and commit 2e27e793e280 ("clocksource: Reduce clocksource-skew
-threshold"), it is found that tsc clocksource fallback to hpet can
-sometimes happen on both Intel and AMD systems especially when they are
-running stressful benchmarking workloads. Of the 23 systems tested with
-a v5.14 kernel, 10 of them have switched to hpet clock source during
-the test run.
+Driver initiates DMA sync, hence it may skip CPU sync. Add
+DMA_ATTR_SKIP_CPU_SYNC as input attribute both to dma_map_page and
+dma_unmap_page to avoid redundant sync with the CPU.
+When forcing the device to work with SWIOTLB, the extra sync might cause
+data corruption. The driver unmaps the whole page while the hardware
+used just a part of the bounce buffer. So syncing overrides the entire
+page with bounce buffer that only partially contains real data.
 
-The result of falling back to hpet is a drastic reduction of performance
-when running benchmarks. For example, the fio performance tests can
-drop up to 70% whereas the iperf3 performance can drop up to 80%.
-
-4 hpet fallbacks happened during bootup. They were:
-
-  [    8.749399] clocksource: timekeeping watchdog on CPU13: hpet read-back delay of 263750ns, attempt 4, marking unstable
-  [   12.044610] clocksource: timekeeping watchdog on CPU19: hpet read-back delay of 186166ns, attempt 4, marking unstable
-  [   17.336941] clocksource: timekeeping watchdog on CPU28: hpet read-back delay of 182291ns, attempt 4, marking unstable
-  [   17.518565] clocksource: timekeeping watchdog on CPU34: hpet read-back delay of 252196ns, attempt 4, marking unstable
-
-Other fallbacks happen when the systems were running stressful
-benchmarks. For example:
-
-  [ 2685.867873] clocksource: timekeeping watchdog on CPU117: hpet read-back delay of 57269ns, attempt 4, marking unstable
-  [46215.471228] clocksource: timekeeping watchdog on CPU8: hpet read-back delay of 61460ns, attempt 4, marking unstable
-
-Commit 2e27e793e280 ("clocksource: Reduce clocksource-skew threshold"),
-changed the skew margin from 100us to 50us. I think this is too small
-and can easily be exceeded when running some stressful workloads on a
-thermally stressed system.  So it is switched back to 100us.
-
-Even a maximum skew margin of 100us may be too small in for some systems
-when booting up especially if those systems are under thermal stress. To
-eliminate the case that the large skew is due to the system being too
-busy slowing down the reading of both the watchdog and the clocksource,
-an extra consecutive read of watchdog clock is being done to check this.
-
-The consecutive watchdog read delay is compared against
-WATCHDOG_MAX_SKEW/2. If the delay exceeds the limit, we assume that
-the system is just too busy. A warning will be printed to the console
-and the clock skew check is skipped for this round.
-
-Fixes: db3a34e17433 ("clocksource: Retry clock read if long delays detected")
-Fixes: 2e27e793e280 ("clocksource: Reduce clocksource-skew threshold")
-Signed-off-by: Waiman Long <longman@redhat.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Fixes: bc77b240b3c5 ("net/mlx5e: Add fragmented memory support for RX multi packet WQE")
+Fixes: db05815b36cb ("net/mlx5e: Add XSK zero-copy support")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Gal Pressman <gal@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/clocksource.c | 50 ++++++++++++++++++++++++++++++++-------
- 1 file changed, 41 insertions(+), 9 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en/xsk/pool.c | 4 ++--
+ drivers/net/ethernet/mellanox/mlx5/core/en_rx.c       | 7 ++++---
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/kernel/time/clocksource.c b/kernel/time/clocksource.c
-index b8a14d2fb5ba6..bcad1a1e5dcf1 100644
---- a/kernel/time/clocksource.c
-+++ b/kernel/time/clocksource.c
-@@ -107,7 +107,7 @@ static u64 suspend_start;
-  * This delay could be due to SMIs, NMIs, or to VCPU preemptions.  Used as
-  * a lower bound for cs->uncertainty_margin values when registering clocks.
-  */
--#define WATCHDOG_MAX_SKEW (50 * NSEC_PER_USEC)
-+#define WATCHDOG_MAX_SKEW (100 * NSEC_PER_USEC)
- 
- #ifdef CONFIG_CLOCKSOURCE_WATCHDOG
- static void clocksource_watchdog_work(struct work_struct *work);
-@@ -205,17 +205,24 @@ EXPORT_SYMBOL_GPL(max_cswd_read_retries);
- static int verify_n_cpus = 8;
- module_param(verify_n_cpus, int, 0644);
- 
--static bool cs_watchdog_read(struct clocksource *cs, u64 *csnow, u64 *wdnow)
-+enum wd_read_status {
-+	WD_READ_SUCCESS,
-+	WD_READ_UNSTABLE,
-+	WD_READ_SKIP
-+};
-+
-+static enum wd_read_status cs_watchdog_read(struct clocksource *cs, u64 *csnow, u64 *wdnow)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/pool.c b/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/pool.c
+index 7b562d2c8a196..279cd8f4e79f7 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/pool.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/xsk/pool.c
+@@ -11,13 +11,13 @@ static int mlx5e_xsk_map_pool(struct mlx5e_priv *priv,
  {
- 	unsigned int nretries;
--	u64 wd_end, wd_delta;
--	int64_t wd_delay;
-+	u64 wd_end, wd_end2, wd_delta;
-+	int64_t wd_delay, wd_seq_delay;
+ 	struct device *dev = mlx5_core_dma_dev(priv->mdev);
  
- 	for (nretries = 0; nretries <= max_cswd_read_retries; nretries++) {
- 		local_irq_disable();
- 		*wdnow = watchdog->read(watchdog);
- 		*csnow = cs->read(cs);
- 		wd_end = watchdog->read(watchdog);
-+		wd_end2 = watchdog->read(watchdog);
- 		local_irq_enable();
- 
- 		wd_delta = clocksource_delta(wd_end, *wdnow, watchdog->mask);
-@@ -226,13 +233,34 @@ static bool cs_watchdog_read(struct clocksource *cs, u64 *csnow, u64 *wdnow)
- 				pr_warn("timekeeping watchdog on CPU%d: %s retried %d times before success\n",
- 					smp_processor_id(), watchdog->name, nretries);
- 			}
--			return true;
-+			return WD_READ_SUCCESS;
- 		}
-+
-+		/*
-+		 * Now compute delay in consecutive watchdog read to see if
-+		 * there is too much external interferences that cause
-+		 * significant delay in reading both clocksource and watchdog.
-+		 *
-+		 * If consecutive WD read-back delay > WATCHDOG_MAX_SKEW/2,
-+		 * report system busy, reinit the watchdog and skip the current
-+		 * watchdog test.
-+		 */
-+		wd_delta = clocksource_delta(wd_end2, wd_end, watchdog->mask);
-+		wd_seq_delay = clocksource_cyc2ns(wd_delta, watchdog->mult, watchdog->shift);
-+		if (wd_seq_delay > WATCHDOG_MAX_SKEW/2)
-+			goto skip_test;
- 	}
- 
- 	pr_warn("timekeeping watchdog on CPU%d: %s read-back delay of %lldns, attempt %d, marking unstable\n",
- 		smp_processor_id(), watchdog->name, wd_delay, nretries);
--	return false;
-+	return WD_READ_UNSTABLE;
-+
-+skip_test:
-+	pr_info("timekeeping watchdog on CPU%d: %s wd-wd read-back delay of %lldns\n",
-+		smp_processor_id(), watchdog->name, wd_seq_delay);
-+	pr_info("wd-%s-wd read-back delay of %lldns, clock-skew test skipped!\n",
-+		cs->name, wd_delay);
-+	return WD_READ_SKIP;
+-	return xsk_pool_dma_map(pool, dev, 0);
++	return xsk_pool_dma_map(pool, dev, DMA_ATTR_SKIP_CPU_SYNC);
  }
  
- static u64 csnow_mid;
-@@ -356,6 +384,7 @@ static void clocksource_watchdog(struct timer_list *unused)
- 	int next_cpu, reset_pending;
- 	int64_t wd_nsec, cs_nsec;
- 	struct clocksource *cs;
-+	enum wd_read_status read_ret;
- 	u32 md;
+ static void mlx5e_xsk_unmap_pool(struct mlx5e_priv *priv,
+ 				 struct xsk_buff_pool *pool)
+ {
+-	return xsk_pool_dma_unmap(pool, 0);
++	return xsk_pool_dma_unmap(pool, DMA_ATTR_SKIP_CPU_SYNC);
+ }
  
- 	spin_lock(&watchdog_lock);
-@@ -373,9 +402,12 @@ static void clocksource_watchdog(struct timer_list *unused)
- 			continue;
- 		}
+ static int mlx5e_xsk_get_pools(struct mlx5e_xsk *xsk)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c b/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
+index 29a6586ef28dc..0015545d5235b 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_rx.c
+@@ -271,8 +271,8 @@ static inline int mlx5e_page_alloc_pool(struct mlx5e_rq *rq,
+ 	if (unlikely(!dma_info->page))
+ 		return -ENOMEM;
  
--		if (!cs_watchdog_read(cs, &csnow, &wdnow)) {
--			/* Clock readout unreliable, so give it up. */
--			__clocksource_unstable(cs);
-+		read_ret = cs_watchdog_read(cs, &csnow, &wdnow);
-+
-+		if (read_ret != WD_READ_SUCCESS) {
-+			if (read_ret == WD_READ_UNSTABLE)
-+				/* Clock readout unreliable, so give it up. */
-+				__clocksource_unstable(cs);
- 			continue;
- 		}
+-	dma_info->addr = dma_map_page(rq->pdev, dma_info->page, 0,
+-				      PAGE_SIZE, rq->buff.map_dir);
++	dma_info->addr = dma_map_page_attrs(rq->pdev, dma_info->page, 0, PAGE_SIZE,
++					    rq->buff.map_dir, DMA_ATTR_SKIP_CPU_SYNC);
+ 	if (unlikely(dma_mapping_error(rq->pdev, dma_info->addr))) {
+ 		page_pool_recycle_direct(rq->page_pool, dma_info->page);
+ 		dma_info->page = NULL;
+@@ -293,7 +293,8 @@ static inline int mlx5e_page_alloc(struct mlx5e_rq *rq,
  
+ void mlx5e_page_dma_unmap(struct mlx5e_rq *rq, struct mlx5e_dma_info *dma_info)
+ {
+-	dma_unmap_page(rq->pdev, dma_info->addr, PAGE_SIZE, rq->buff.map_dir);
++	dma_unmap_page_attrs(rq->pdev, dma_info->addr, PAGE_SIZE, rq->buff.map_dir,
++			     DMA_ATTR_SKIP_CPU_SYNC);
+ }
+ 
+ void mlx5e_page_release_dynamic(struct mlx5e_rq *rq,
 -- 
 2.34.1
 
