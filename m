@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A573498E0C
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:43:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B65E8498AC1
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:07:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349375AbiAXTi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:38:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52010 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353006AbiAXTbq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:31:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAE94C0604CC;
-        Mon, 24 Jan 2022 11:14:53 -0800 (PST)
+        id S1345006AbiAXTGg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:06:36 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:58834 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344567AbiAXTDP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:03:15 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A58360B86;
-        Mon, 24 Jan 2022 19:14:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E0C3C340E5;
-        Mon, 24 Jan 2022 19:14:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F201260915;
+        Mon, 24 Jan 2022 19:03:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2E31C340E5;
+        Mon, 24 Jan 2022 19:03:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051692;
-        bh=2GBRf5isI7WxVEFzBNAez1QtihJLzttbdylD85HipyY=;
+        s=korg; t=1643050994;
+        bh=clj+vxpqqIICktGBM5OJvshuuNp5mLq7b+Nhg7gw3E4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tvp2kzAwL+AStvF+Bz2CyJFxHGPmFQJ4eMwL8B7BFfANagOBGNh9MWBKa7zo37eSZ
-         Kkxk9ifQWrBBJE+zvsUbhRTklJ1AkaJHRKist6ph9/4SG1ok7ZvH0tMuEftnqBRh/R
-         OG6BIjzcYyRkoq5qnq2/W2vG9EU3KUJYWioOw+mk=
+        b=Jx6USeD+Xqmrhn+A53Yvs4jMnLrWToCLXgNZ7qJglSuLw4pLqoErpmWR2HfDDQlUK
+         juTEyuLadiJcnm9xqfJTiLMbqUPBzoXBeCZI6N9DLLvh6yFAAFYUT4GHqEEbI3eyI4
+         emutt89OOXHwF6p4Ky6wqyuAMciyvEwKRg/nsHw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chengfeng Ye <cyeaa@connect.ust.hk>,
-        Thara Gopinath <thara.gopinath@linaro.org>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 056/239] crypto: qce - fix uaf on qce_ahash_register_one
-Date:   Mon, 24 Jan 2022 19:41:34 +0100
-Message-Id: <20220124183944.913708574@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
+        Nobuhiro Iwamatsu <iwamatsu@nigauri.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 4.14 020/186] rtc: cmos: take rtc_lock while reading from CMOS
+Date:   Mon, 24 Jan 2022 19:41:35 +0100
+Message-Id: <20220124183937.770167723@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
+References: <20220124183937.101330125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,39 +47,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengfeng Ye <cyeaa@connect.ust.hk>
+From: Mateusz Jończyk <mat.jonczyk@o2.pl>
 
-[ Upstream commit b4cb4d31631912842eb7dce02b4350cbb7562d5e ]
+commit 454f47ff464325223129b9b5b8d0b61946ec704d upstream.
 
-Pointer base points to sub field of tmpl, it
-is dereferenced after tmpl is freed. Fix
-this by accessing base before free tmpl.
+Reading from the CMOS involves writing to the index register and then
+reading from the data register. Therefore access to the CMOS has to be
+serialized with rtc_lock. This invocation of CMOS_READ was not
+serialized, which could cause trouble when other code is accessing CMOS
+at the same time.
 
-Fixes: ec8f5d8f ("crypto: qce - Qualcomm crypto engine driver")
-Signed-off-by: Chengfeng Ye <cyeaa@connect.ust.hk>
-Acked-by: Thara Gopinath <thara.gopinath@linaro.org>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Use spin_lock_irq() like the rest of the function.
+
+Nothing in kernel modifies the RTC_DM_BINARY bit, so there could be a
+separate pair of spin_lock_irq() / spin_unlock_irq() before doing the
+math.
+
+Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
+Reviewed-by: Nobuhiro Iwamatsu <iwamatsu@nigauri.org>
+Cc: Alessandro Zummo <a.zummo@towertech.it>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20211210200131.153887-2-mat.jonczyk@o2.pl
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/qce/sha.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/rtc/rtc-cmos.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/crypto/qce/sha.c b/drivers/crypto/qce/sha.c
-index d8a5db11b7ea1..bffd4d15145d9 100644
---- a/drivers/crypto/qce/sha.c
-+++ b/drivers/crypto/qce/sha.c
-@@ -521,8 +521,8 @@ static int qce_ahash_register_one(const struct qce_ahash_def *def,
+--- a/drivers/rtc/rtc-cmos.c
++++ b/drivers/rtc/rtc-cmos.c
+@@ -421,7 +421,10 @@ static int cmos_set_alarm(struct device
+ 	min = t->time.tm_min;
+ 	sec = t->time.tm_sec;
  
- 	ret = crypto_register_ahash(alg);
- 	if (ret) {
--		kfree(tmpl);
- 		dev_err(qce->dev, "%s registration failed\n", base->cra_name);
-+		kfree(tmpl);
- 		return ret;
- 	}
- 
--- 
-2.34.1
-
++	spin_lock_irq(&rtc_lock);
+ 	rtc_control = CMOS_READ(RTC_CONTROL);
++	spin_unlock_irq(&rtc_lock);
++
+ 	if (!(rtc_control & RTC_DM_BINARY) || RTC_ALWAYS_BCD) {
+ 		/* Writing 0xff means "don't care" or "match all".  */
+ 		mon = (mon <= 12) ? bin2bcd(mon) : 0xff;
 
 
