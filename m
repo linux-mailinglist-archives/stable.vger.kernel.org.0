@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4260A498F69
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:54:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40D31498F7A
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:54:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348323AbiAXTwV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:52:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51322 "EHLO
+        id S241706AbiAXTwr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:52:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350388AbiAXTYy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:24:54 -0500
+        with ESMTP id S1356808AbiAXTrX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:47:23 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECD97C0619C6;
-        Mon, 24 Jan 2022 11:11:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23B4EC038AE9;
+        Mon, 24 Jan 2022 11:23:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F8A4612B1;
-        Mon, 24 Jan 2022 19:11:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4153BC340E5;
-        Mon, 24 Jan 2022 19:11:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B795E60010;
+        Mon, 24 Jan 2022 19:23:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D07EC340E7;
+        Mon, 24 Jan 2022 19:23:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051489;
-        bh=gIKHEDVhwjYvzr6NVj9ZyKBbjZEWfl2bTvGRn2pl4tg=;
+        s=korg; t=1643052185;
+        bh=q5V/oWsy8/Any2yGd1E9n2BPhXEB4Nbics/VFJRxRGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v15+YIbgo8rpGqe2xcDJRxKVibf9XAjHxyUdCoLTzp7eeenfBkA+sxVuoisReNbrm
-         fNIrA6WeERxQFsW0dAjodL2C6QraJNG1DbgepknbBKTxxm1up9e318OmukfBm0FR3H
-         ePmd7fnN/4/Dd6AtiSIh43gfTbkRHllHHqyo/cq0=
+        b=kLRp1dQbdqFXE6iHDkMgd++kF/Kj+TyQPArv0PLjIcEYGnscjJzcbIa4up74XZ/6N
+         66+YPSeDJB3JHnC2atdXAvSXyUMVHaBvy71sVdrXGL24Vfe+rJ7z9521mbL+Lw7sXA
+         0Z586HCNPrLjqDoqiWeSN3uoQ3WxjzvkxrMTr7T8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tzung-Bi Shih <tzungbi@google.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
+        Jean Delvare <jdelvare@suse.de>, Wolfram Sang <wsa@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 146/186] ASoC: mediatek: mt8173: fix device_node leak
+Subject: [PATCH 4.19 183/239] i2c: i801: Dont silently correct invalid transfer size
 Date:   Mon, 24 Jan 2022 19:43:41 +0100
-Message-Id: <20220124183941.801733744@linuxfoundation.org>
+Message-Id: <20220124183948.918214094@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,76 +48,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tzung-Bi Shih <tzungbi@google.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit 493433785df0075afc0c106ab65f10a605d0b35d ]
+[ Upstream commit effa453168a7eeb8a562ff4edc1dbf9067360a61 ]
 
-Fixes the device_node leak.
+If an invalid block size is provided, reject it instead of silently
+changing it to a supported value. Especially critical I see the case of
+a write transfer with block length 0. In this case we have no guarantee
+that the byte we would write is valid. When silently reducing a read to
+32 bytes then we don't return an error and the caller may falsely
+assume that we returned the full requested data.
 
-Signed-off-by: Tzung-Bi Shih <tzungbi@google.com>
-Link: https://lore.kernel.org/r/20211224064719.2031210-2-tzungbi@google.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+If this change should break any (broken) caller, then I think we should
+fix the caller.
+
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Reviewed-by: Jean Delvare <jdelvare@suse.de>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/mediatek/mt8173/mt8173-max98090.c      | 3 +++
- sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c | 2 ++
- sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c | 2 ++
- sound/soc/mediatek/mt8173/mt8173-rt5650.c        | 2 ++
- 4 files changed, 9 insertions(+)
+ drivers/i2c/busses/i2c-i801.c | 15 +++++----------
+ 1 file changed, 5 insertions(+), 10 deletions(-)
 
-diff --git a/sound/soc/mediatek/mt8173/mt8173-max98090.c b/sound/soc/mediatek/mt8173/mt8173-max98090.c
-index e0c2b23ec7118..0adb7ded61e9c 100644
---- a/sound/soc/mediatek/mt8173/mt8173-max98090.c
-+++ b/sound/soc/mediatek/mt8173/mt8173-max98090.c
-@@ -177,6 +177,9 @@ static int mt8173_max98090_dev_probe(struct platform_device *pdev)
- 	if (ret)
- 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
- 			__func__, ret);
-+
-+	of_node_put(codec_node);
-+	of_node_put(platform_node);
- 	return ret;
- }
+diff --git a/drivers/i2c/busses/i2c-i801.c b/drivers/i2c/busses/i2c-i801.c
+index efafd028c5d16..fb0ddaad87d2e 100644
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -774,6 +774,11 @@ static int i801_block_transaction(struct i801_priv *priv,
+ 	int result = 0;
+ 	unsigned char hostc;
  
-diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
-index 99c15219dbc81..aa52e2f81760a 100644
---- a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
-+++ b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5514.c
-@@ -227,6 +227,8 @@ static int mt8173_rt5650_rt5514_dev_probe(struct platform_device *pdev)
- 	if (ret)
- 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
- 			__func__, ret);
++	if (read_write == I2C_SMBUS_READ && command == I2C_SMBUS_BLOCK_DATA)
++		data->block[0] = I2C_SMBUS_BLOCK_MAX;
++	else if (data->block[0] < 1 || data->block[0] > I2C_SMBUS_BLOCK_MAX)
++		return -EPROTO;
 +
-+	of_node_put(platform_node);
- 	return ret;
- }
+ 	if (command == I2C_SMBUS_I2C_BLOCK_DATA) {
+ 		if (read_write == I2C_SMBUS_WRITE) {
+ 			/* set I2C_EN bit in configuration register */
+@@ -787,16 +792,6 @@ static int i801_block_transaction(struct i801_priv *priv,
+ 		}
+ 	}
  
-diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c
-index 42de84ca8c844..61b0d8f8678e9 100644
---- a/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c
-+++ b/sound/soc/mediatek/mt8173/mt8173-rt5650-rt5676.c
-@@ -284,6 +284,8 @@ static int mt8173_rt5650_rt5676_dev_probe(struct platform_device *pdev)
- 	if (ret)
- 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
- 			__func__, ret);
-+
-+	of_node_put(platform_node);
- 	return ret;
- }
- 
-diff --git a/sound/soc/mediatek/mt8173/mt8173-rt5650.c b/sound/soc/mediatek/mt8173/mt8173-rt5650.c
-index e69c141d8ed4c..3492c02f72c1a 100644
---- a/sound/soc/mediatek/mt8173/mt8173-rt5650.c
-+++ b/sound/soc/mediatek/mt8173/mt8173-rt5650.c
-@@ -316,6 +316,8 @@ static int mt8173_rt5650_dev_probe(struct platform_device *pdev)
- 	if (ret)
- 		dev_err(&pdev->dev, "%s snd_soc_register_card fail %d\n",
- 			__func__, ret);
-+
-+	of_node_put(platform_node);
- 	return ret;
- }
- 
+-	if (read_write == I2C_SMBUS_WRITE
+-	 || command == I2C_SMBUS_I2C_BLOCK_DATA) {
+-		if (data->block[0] < 1)
+-			data->block[0] = 1;
+-		if (data->block[0] > I2C_SMBUS_BLOCK_MAX)
+-			data->block[0] = I2C_SMBUS_BLOCK_MAX;
+-	} else {
+-		data->block[0] = 32;	/* max for SMBus block reads */
+-	}
+-
+ 	/* Experience has shown that the block buffer can only be used for
+ 	   SMBus (not I2C) block transactions, even though the datasheet
+ 	   doesn't mention this limitation. */
 -- 
 2.34.1
 
