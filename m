@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDB1F49A9E7
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:29:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6968649A951
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:23:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1323818AbiAYD3m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:29:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46948 "EHLO
+        id S1322447AbiAYDVs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:21:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1388453AbiAXVGb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:06:31 -0500
+        with ESMTP id S1355493AbiAXUWb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:22:31 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E52B8C0612AF;
-        Mon, 24 Jan 2022 12:07:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 011A5C0417CF;
+        Mon, 24 Jan 2022 11:40:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 84B8A6131D;
-        Mon, 24 Jan 2022 20:07:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4467FC340E5;
-        Mon, 24 Jan 2022 20:07:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 93417612E9;
+        Mon, 24 Jan 2022 19:40:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53B61C340E5;
+        Mon, 24 Jan 2022 19:40:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054825;
-        bh=WPoBypGOB17l5huLIkhXPkLQEtWC0CGsthIkJnwSBrA=;
+        s=korg; t=1643053215;
+        bh=9wTFvCDXsLGr2ff4ZSyAlfnhmj5VqNbcLjP9DYhL73E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LRXB1LLJHOeJH3VjPaLIouNy/c23l65CuLbYvNWf/K+r66N2Ft+oiQql6tbjA/X9Q
-         wF+g52IN4geqpJBbtM3lDDVu22umgV4ckLM1mdY88O39zVGbejMm38MyYFlzvCbx6Q
-         J09HsTNhFuzNNQbJi5PYFzRlf6WZRAoXpWUgdJCU=
+        b=0MBK2adB3ZfirpDsAaEk+ej3glhLr53h5y0xvfkBc7iuOku5VatHsSsThQv+eclma
+         QugK/cgxGny1a53ANo4kMERw0kGjdhMjnbsFCnECsIuNyN2ruHq7foRgoZYExmidgW
+         qZEgylkrfqZ1qBP3Fijzm7HUcTbEC+KU6dZiMmao=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yixing Liu <liuyixing1@huawei.com>,
-        Wenpeng Liang <liangwenpeng@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>
-Subject: [PATCH 5.10 498/563] RDMA/hns: Modify the mapping attribute of doorbell to device
-Date:   Mon, 24 Jan 2022 19:44:23 +0100
-Message-Id: <20220124184041.674115186@linuxfoundation.org>
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Akira Yokosawa <akiyks@gmail.com>,
+        Jonathan Corbet <corbet@lwn.net>
+Subject: [PATCH 5.4 280/320] Documentation: fix firewire.rst ABI file path error
+Date:   Mon, 24 Jan 2022 19:44:24 +0100
+Message-Id: <20220124184003.504380023@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,33 +48,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yixing Liu <liuyixing1@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 39d5534b1302189c809e90641ffae8cbdc42a8fc upstream.
+commit b0ac702f3329cdc8a06dcaac73183d4b5a2b942d upstream.
 
-It is more general for ARM device drivers to use the device attribute to
-map PCI BAR spaces.
+Adjust the path of the ABI files for firewire.rst to prevent a
+documentation build error. Prevents this problem:
 
-Fixes: 9a4435375cd1 ("IB/hns: Add driver files for hns RoCE driver")
-Link: https://lore.kernel.org/r/20211206133652.27476-1-liangwenpeng@huawei.com
-Signed-off-by: Yixing Liu <liuyixing1@huawei.com>
-Signed-off-by: Wenpeng Liang <liangwenpeng@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Sphinx parallel build error:
+docutils.utils.SystemMessage: Documentation/driver-api/firewire.rst:22: (SEVERE/4) Problems with "include" directive path:
+InputError: [Errno 2] No such file or directory: '../Documentation/driver-api/ABI/stable/firewire-cdev'.
+
+Fixes: 2f4830ef96d2 ("FireWire: add driver-api Introduction section")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Tested-by: Akira Yokosawa <akiyks@gmail.com>
+Link: https://lore.kernel.org/r/20220119033905.4779-1-rdunlap@infradead.org
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/hns/hns_roce_main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/driver-api/firewire.rst |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/infiniband/hw/hns/hns_roce_main.c
-+++ b/drivers/infiniband/hw/hns/hns_roce_main.c
-@@ -359,7 +359,7 @@ static int hns_roce_mmap(struct ib_ucont
- 		return rdma_user_mmap_io(context, vma,
- 					 to_hr_ucontext(context)->uar.pfn,
- 					 PAGE_SIZE,
--					 pgprot_noncached(vma->vm_page_prot),
-+					 pgprot_device(vma->vm_page_prot),
- 					 NULL);
+--- a/Documentation/driver-api/firewire.rst
++++ b/Documentation/driver-api/firewire.rst
+@@ -19,7 +19,7 @@ of kernel interfaces is available via ex
+ Firewire char device data structures
+ ====================================
  
- 	/* vm_pgoff: 1 -- TPTR */
+-.. include:: /ABI/stable/firewire-cdev
++.. include:: ../ABI/stable/firewire-cdev
+     :literal:
+ 
+ .. kernel-doc:: include/uapi/linux/firewire-cdev.h
+@@ -28,7 +28,7 @@ Firewire char device data structures
+ Firewire device probing and sysfs interfaces
+ ============================================
+ 
+-.. include:: /ABI/stable/sysfs-bus-firewire
++.. include:: ../ABI/stable/sysfs-bus-firewire
+     :literal:
+ 
+ .. kernel-doc:: drivers/firewire/core-device.c
 
 
