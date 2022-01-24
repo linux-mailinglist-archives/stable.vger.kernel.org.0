@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBCF04997FF
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:34:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27746499B34
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:00:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353356AbiAXVSF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:18:05 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34670 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1449644AbiAXVP4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:15:56 -0500
+        id S1574824AbiAXVu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:50:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55280 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1457338AbiAXVlb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:41:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 637FFC07E31B;
+        Mon, 24 Jan 2022 12:27:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EA315B811FB;
-        Mon, 24 Jan 2022 21:15:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13060C340E4;
-        Mon, 24 Jan 2022 21:15:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 016BE61506;
+        Mon, 24 Jan 2022 20:27:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC9B5C340E5;
+        Mon, 24 Jan 2022 20:27:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058954;
-        bh=hoGmMt6X0klq0+u7iW/1fCYXghyAHMkMKI5zDTPe7y0=;
+        s=korg; t=1643056076;
+        bh=VCWqXz36B9QGd4a08A2VpVo1EMBQYp8qx7VMIPbcbn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZHGYf+q3xVRrUFTLNJYl1nBUTn9NL3kA+6SvWp7yGE91D8Tob8Og8SKcQbXGPEDWn
-         SUjULQgHlAowYsPOopJ4hLAosWnpB+FPDtlOlnvp2qzZdihwdCEl666Xwu/aCXXR9W
-         23ODV/hrD2jV4E5KGj8GHp13uf+iW9bXphkX/cls=
+        b=mhPyQjKWewB9me2T6KanM1Io+GhjxGMTECvp+3HaiduWjJLNyi/FKiDZvTrvBbG31
+         LASFYyk2bzV/vm/iTAqAnZrk/PM+NWXKk1eGkyrKJmy95liKToBwR6ENS8qJkGHklt
+         B/T7KpiOE4A4zPA60NbSd9eRnpc7pHRsxTOmxvIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0457/1039] ASoC: uniphier: drop selecting non-existing SND_SOC_UNIPHIER_AIO_DMA
+        stable@vger.kernel.org,
+        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 329/846] HID: hid-uclogic-params: Invalid parameter check in uclogic_params_get_str_desc
 Date:   Mon, 24 Jan 2022 19:37:26 +0100
-Message-Id: <20220124184140.660840865@linuxfoundation.org>
+Message-Id: <20220124184112.258380417@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,51 +48,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+From: José Expósito <jose.exposito89@gmail.com>
 
-[ Upstream commit 49f893253ab43566e34332a969324531fea463f6 ]
+[ Upstream commit 0a94131d6920916ccb6a357037c535533af08819 ]
 
-Commit f37fe2f9987b ("ASoC: uniphier: add support for UniPhier AIO common
-driver") adds configs SND_SOC_UNIPHIER_{LD11,PXS2}, which select the
-non-existing config SND_SOC_UNIPHIER_AIO_DMA.
+The function performs a check on the hdev input parameters, however, it
+is used before the check.
 
-Hence, ./scripts/checkkconfigsymbols.py warns:
+Initialize the udev variable after the sanity check to avoid a
+possible NULL pointer dereference.
 
-  SND_SOC_UNIPHIER_AIO_DMA
-  Referencing files: sound/soc/uniphier/Kconfig
-
-Probably, there is actually no further config intended to be selected
-here. So, just drop selecting the non-existing config.
-
-Fixes: f37fe2f9987b ("ASoC: uniphier: add support for UniPhier AIO common driver")
-Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
-Link: https://lore.kernel.org/r/20211125095158.8394-2-lukas.bulwahn@gmail.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 9614219e9310e ("HID: uclogic: Extract tablet parameter discovery into a module")
+Addresses-Coverity-ID: 1443827 ("Null pointer dereference")
+Signed-off-by: José Expósito <jose.exposito89@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/uniphier/Kconfig | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/hid/hid-uclogic-params.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/soc/uniphier/Kconfig b/sound/soc/uniphier/Kconfig
-index aa3592ee1358b..ddfa6424c656b 100644
---- a/sound/soc/uniphier/Kconfig
-+++ b/sound/soc/uniphier/Kconfig
-@@ -23,7 +23,6 @@ config SND_SOC_UNIPHIER_LD11
- 	tristate "UniPhier LD11/LD20 Device Driver"
- 	depends on SND_SOC_UNIPHIER
- 	select SND_SOC_UNIPHIER_AIO
--	select SND_SOC_UNIPHIER_AIO_DMA
- 	help
- 	  This adds ASoC driver for Socionext UniPhier LD11/LD20
- 	  input and output that can be used with other codecs.
-@@ -34,7 +33,6 @@ config SND_SOC_UNIPHIER_PXS2
- 	tristate "UniPhier PXs2 Device Driver"
- 	depends on SND_SOC_UNIPHIER
- 	select SND_SOC_UNIPHIER_AIO
--	select SND_SOC_UNIPHIER_AIO_DMA
- 	help
- 	  This adds ASoC driver for Socionext UniPhier PXs2
- 	  input and output that can be used with other codecs.
+diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
+index 3c10b858cf74c..3a83e2c39b4fb 100644
+--- a/drivers/hid/hid-uclogic-params.c
++++ b/drivers/hid/hid-uclogic-params.c
+@@ -66,7 +66,7 @@ static int uclogic_params_get_str_desc(__u8 **pbuf, struct hid_device *hdev,
+ 					__u8 idx, size_t len)
+ {
+ 	int rc;
+-	struct usb_device *udev = hid_to_usb_dev(hdev);
++	struct usb_device *udev;
+ 	__u8 *buf = NULL;
+ 
+ 	/* Check arguments */
+@@ -75,6 +75,8 @@ static int uclogic_params_get_str_desc(__u8 **pbuf, struct hid_device *hdev,
+ 		goto cleanup;
+ 	}
+ 
++	udev = hid_to_usb_dev(hdev);
++
+ 	buf = kmalloc(len, GFP_KERNEL);
+ 	if (buf == NULL) {
+ 		rc = -ENOMEM;
 -- 
 2.34.1
 
