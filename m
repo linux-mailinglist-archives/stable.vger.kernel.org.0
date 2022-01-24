@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72ED849A9A8
+	by mail.lfdr.de (Postfix) with ESMTP id 14C1249A9A7
 	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:27:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1323062AbiAYD0R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:26:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46600 "EHLO
+        id S1356213AbiAYD0I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:26:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46136 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1359085AbiAXVDK (ORCPT
+        with ESMTP id S1359323AbiAXVDK (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:03:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DE44C06B58F;
-        Mon, 24 Jan 2022 12:03:11 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A7BCC06B598;
+        Mon, 24 Jan 2022 12:03:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 54D57B811A2;
-        Mon, 24 Jan 2022 20:03:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8299CC340E7;
-        Mon, 24 Jan 2022 20:03:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 14F3761028;
+        Mon, 24 Jan 2022 20:03:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BE73C340E5;
+        Mon, 24 Jan 2022 20:03:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054589;
-        bh=zqxVLJAQDSMqLlm3O2uF0y8g2XadcjGY1EzyOllkM8s=;
+        s=korg; t=1643054598;
+        bh=8FTpx20CPyOOXFtNwPoa4MCozejgitLRpKaNV6dHwN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vydQOeFrIT2/cK6AHjEdEkt6aZwk6l+bQvQuBKxQKdF0QNuI3IXu4UCmDPg2TmhXc
-         AHeFOATyDI82HmdzWnyezADXmmFBRvm99iYfTcQ0t3019JSa441DZrLEdpROLZhT8X
-         ZhuCwTX7af6e8GcCcFQBxaZhYuHfJP9NH8U6VcQc=
+        b=2uXhrS5LYE7aqHTgB7Vo5vnahaQrEHrsLMtXU2KdGbMqgq4rD71hOJax6vk6AgXd4
+         52KwkKF+wE5MsKD3bL+ok0xU+JaOVqgCfKdGMhZe2qD33XFh8jSUWjAkS/NvRT8+Md
+         DaGEaBsQ/McaZgTyxNDHqWgABllFAR6wpxgRbWSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaoqian Lin <linmq006@gmail.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 439/563] phy: mediatek: Fix missing check in mtk_mipi_tx_probe
-Date:   Mon, 24 Jan 2022 19:43:24 +0100
-Message-Id: <20220124184039.621669542@linuxfoundation.org>
+        stable@vger.kernel.org, Marek Vasut <marex@denx.de>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        Fabien Dessenne <fabien.dessenne@st.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Lionel Debieve <lionel.debieve@st.com>,
+        Nicolas Toromanoff <nicolas.toromanoff@st.com>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-stm32@st-md-mailman.stormreply.com,
+        Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>
+Subject: [PATCH 5.10 442/563] crypto: stm32/crc32 - Fix kernel BUG triggered in probe()
+Date:   Mon, 24 Jan 2022 19:43:27 +0100
+Message-Id: <20220124184039.729742844@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -49,37 +54,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 399c91c3f30531593e5ff6ca7b53f47092128669 ]
+commit 29009604ad4e3ef784fd9b9fef6f23610ddf633d upstream.
 
-The of_device_get_match_data() function may return NULL.
-Add check to prevent potential null dereference.
+The include/linux/crypto.h struct crypto_alg field cra_driver_name description
+states "Unique name of the transformation provider. " ... " this contains the
+name of the chip or provider and the name of the transformation algorithm."
 
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20211224082103.7658-1-linmq006@gmail.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In case of the stm32-crc driver, field cra_driver_name is identical for all
+registered transformation providers and set to the name of the driver itself,
+which is incorrect. This patch fixes it by assigning a unique cra_driver_name
+to each registered transformation provider.
+
+The kernel crash is triggered when the driver calls crypto_register_shashes()
+which calls crypto_register_shash(), which calls crypto_register_alg(), which
+calls __crypto_register_alg(), which returns -EEXIST, which is propagated
+back through this call chain. Upon -EEXIST from crypto_register_shash(), the
+crypto_register_shashes() starts unregistering the providers back, and calls
+crypto_unregister_shash(), which calls crypto_unregister_alg(), and this is
+where the BUG() triggers due to incorrect cra_refcnt.
+
+Fixes: b51dbe90912a ("crypto: stm32 - Support for STM32 CRC32 crypto module")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Cc: <stable@vger.kernel.org> # 4.12+
+Cc: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Cc: Fabien Dessenne <fabien.dessenne@st.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: Lionel Debieve <lionel.debieve@st.com>
+Cc: Nicolas Toromanoff <nicolas.toromanoff@st.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-stm32@st-md-mailman.stormreply.com
+To: linux-crypto@vger.kernel.org
+Acked-by: Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/mediatek/mtk_mipi_tx.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/crypto/stm32/stm32-crc32.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/mediatek/mtk_mipi_tx.c b/drivers/gpu/drm/mediatek/mtk_mipi_tx.c
-index 8cee2591e7284..ccc742dc78bd9 100644
---- a/drivers/gpu/drm/mediatek/mtk_mipi_tx.c
-+++ b/drivers/gpu/drm/mediatek/mtk_mipi_tx.c
-@@ -147,6 +147,8 @@ static int mtk_mipi_tx_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	mipi_tx->driver_data = of_device_get_match_data(dev);
-+	if (!mipi_tx->driver_data)
-+		return -ENODEV;
- 
- 	mem = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	mipi_tx->regs = devm_ioremap_resource(dev, mem);
--- 
-2.34.1
-
+--- a/drivers/crypto/stm32/stm32-crc32.c
++++ b/drivers/crypto/stm32/stm32-crc32.c
+@@ -279,7 +279,7 @@ static struct shash_alg algs[] = {
+ 		.digestsize     = CHKSUM_DIGEST_SIZE,
+ 		.base           = {
+ 			.cra_name               = "crc32",
+-			.cra_driver_name        = DRIVER_NAME,
++			.cra_driver_name        = "stm32-crc32-crc32",
+ 			.cra_priority           = 200,
+ 			.cra_flags		= CRYPTO_ALG_OPTIONAL_KEY,
+ 			.cra_blocksize          = CHKSUM_BLOCK_SIZE,
+@@ -301,7 +301,7 @@ static struct shash_alg algs[] = {
+ 		.digestsize     = CHKSUM_DIGEST_SIZE,
+ 		.base           = {
+ 			.cra_name               = "crc32c",
+-			.cra_driver_name        = DRIVER_NAME,
++			.cra_driver_name        = "stm32-crc32-crc32c",
+ 			.cra_priority           = 200,
+ 			.cra_flags		= CRYPTO_ALG_OPTIONAL_KEY,
+ 			.cra_blocksize          = CHKSUM_BLOCK_SIZE,
 
 
