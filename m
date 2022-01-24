@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1A63498C4F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:22:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4569F499249
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:20:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349868AbiAXTVq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:21:46 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:47732 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347286AbiAXTSx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:18:53 -0500
+        id S1348497AbiAXUSs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:18:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33970 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1379646AbiAXUME (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:12:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E440EC0604CC;
+        Mon, 24 Jan 2022 11:33:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE5A1613FB;
-        Mon, 24 Jan 2022 19:18:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92DD8C340E5;
-        Mon, 24 Jan 2022 19:18:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2A3EB8123F;
+        Mon, 24 Jan 2022 19:33:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B49E1C340E8;
+        Mon, 24 Jan 2022 19:33:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051930;
-        bh=6Byzn/6VorrS7Ix6QruNYbVAGyhknKS2Ab5K3vt0LHg=;
+        s=korg; t=1643052826;
+        bh=O1SAMCcuK67rzVRkR2DErJDeGgGNw2d29WnTxSsn70k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kbZJbPnL7tzJgTUoM/OvbhILVbs6emz2fhNa1MQ4uhr+hh2o/HW6ZI4UWNlrCriVZ
-         buKKjYeuZkcbxk8FUXrVoCUXriKt13olv+MkILeFVR+58is2AP+nXK4fjM+Siml4+o
-         Ve84fHn4+7HycdzaTkxpUqgcqB2k+WQk3gUq7sbw=
+        b=wZcH5UggiIWXMobnnTtHw9DIxbnfpFMRtB1QGeqowCiHkgpQKVgfcUitF8tFBrilY
+         Pke2hje5X7pkUDYE4KcUwp8mo0fDEIpWvbhR/CyGGF5S9liIXbhw5APe3zFnY9NiGl
+         lqPeI+H6/qozePedtSK8E31R0ZJ6fMLGDVJQJqVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Brendan Dolan-Gavitt <brendandg@nyu.edu>,
-        Zekun Shen <bruceshenzk@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Borislav Petkov <bp@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 132/239] mwifiex: Fix skb_over_panic in mwifiex_usb_recv()
+Subject: [PATCH 5.4 186/320] x86/mce: Mark mce_read_aux() noinstr
 Date:   Mon, 24 Jan 2022 19:42:50 +0100
-Message-Id: <20220124183947.305595733@linuxfoundation.org>
+Message-Id: <20220124183959.976069776@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,66 +47,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zekun Shen <bruceshenzk@gmail.com>
+From: Borislav Petkov <bp@suse.de>
 
-[ Upstream commit 04d80663f67ccef893061b49ec8a42ff7045ae84 ]
+[ Upstream commit db6c996d6ce45dfb44891f0824a65ecec216f47a ]
 
-Currently, with an unknown recv_type, mwifiex_usb_recv
-just return -1 without restoring the skb. Next time
-mwifiex_usb_rx_complete is invoked with the same skb,
-calling skb_put causes skb_over_panic.
+Fixes
 
-The bug is triggerable with a compromised/malfunctioning
-usb device. After applying the patch, skb_over_panic
-no longer shows up with the same input.
+  vmlinux.o: warning: objtool: do_machine_check()+0x681: call to mce_read_aux() leaves .noinstr.text section
 
-Attached is the panic report from fuzzing.
-skbuff: skb_over_panic: text:000000003bf1b5fa
- len:2048 put:4 head:00000000dd6a115b data:000000000a9445d8
- tail:0x844 end:0x840 dev:<NULL>
-kernel BUG at net/core/skbuff.c:109!
-invalid opcode: 0000 [#1] SMP KASAN NOPTI
-CPU: 0 PID: 198 Comm: in:imklog Not tainted 5.6.0 #60
-RIP: 0010:skb_panic+0x15f/0x161
-Call Trace:
- <IRQ>
- ? mwifiex_usb_rx_complete+0x26b/0xfcd [mwifiex_usb]
- skb_put.cold+0x24/0x24
- mwifiex_usb_rx_complete+0x26b/0xfcd [mwifiex_usb]
- __usb_hcd_giveback_urb+0x1e4/0x380
- usb_giveback_urb_bh+0x241/0x4f0
- ? __hrtimer_run_queues+0x316/0x740
- ? __usb_hcd_giveback_urb+0x380/0x380
- tasklet_action_common.isra.0+0x135/0x330
- __do_softirq+0x18c/0x634
- irq_exit+0x114/0x140
- smp_apic_timer_interrupt+0xde/0x380
- apic_timer_interrupt+0xf/0x20
- </IRQ>
-
-Reported-by: Brendan Dolan-Gavitt <brendandg@nyu.edu>
-Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/YX4CqjfRcTa6bVL+@Zekuns-MBP-16.fios-router.home
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Link: https://lore.kernel.org/r/20211208111343.8130-10-bp@alien8.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/usb.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/kernel/cpu/mce/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/marvell/mwifiex/usb.c b/drivers/net/wireless/marvell/mwifiex/usb.c
-index e6234b53a5ca2..90490d2c6d177 100644
---- a/drivers/net/wireless/marvell/mwifiex/usb.c
-+++ b/drivers/net/wireless/marvell/mwifiex/usb.c
-@@ -130,7 +130,8 @@ static int mwifiex_usb_recv(struct mwifiex_adapter *adapter,
- 		default:
- 			mwifiex_dbg(adapter, ERROR,
- 				    "unknown recv_type %#x\n", recv_type);
--			return -1;
-+			ret = -1;
-+			goto exit_restore_skb;
- 		}
- 		break;
- 	case MWIFIEX_USB_EP_DATA:
+diff --git a/arch/x86/kernel/cpu/mce/core.c b/arch/x86/kernel/cpu/mce/core.c
+index a0f6c574c3783..8a2b8e7913149 100644
+--- a/arch/x86/kernel/cpu/mce/core.c
++++ b/arch/x86/kernel/cpu/mce/core.c
+@@ -700,7 +700,7 @@ static struct notifier_block mce_default_nb = {
+ /*
+  * Read ADDR and MISC registers.
+  */
+-static void mce_read_aux(struct mce *m, int i)
++static noinstr void mce_read_aux(struct mce *m, int i)
+ {
+ 	if (m->status & MCI_STATUS_MISCV)
+ 		m->misc = mce_rdmsrl(msr_ops.misc(i));
 -- 
 2.34.1
 
