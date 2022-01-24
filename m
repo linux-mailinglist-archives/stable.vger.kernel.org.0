@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33125499551
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:09:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F37B74999A2
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:46:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1392557AbiAXUv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:51:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43138 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390818AbiAXUq0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:46:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65AEBC0612B1;
-        Mon, 24 Jan 2022 11:56:07 -0800 (PST)
+        id S1455887AbiAXVgl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:36:41 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:42260 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1378157AbiAXV1F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:27:05 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 21550B80FA1;
-        Mon, 24 Jan 2022 19:56:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D69EC340E5;
-        Mon, 24 Jan 2022 19:56:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3BBDEB81243;
+        Mon, 24 Jan 2022 21:27:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 745C1C340E4;
+        Mon, 24 Jan 2022 21:27:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054164;
-        bh=FWtbtmARrt7YCzY3o9axlqB5+rkW6kVoS11LNDSwnWU=;
+        s=korg; t=1643059622;
+        bh=sr+Q2oFR8CNiUVEfQQFtfRQdkcamxTQq3ai2GqUz1MU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UuwgO3yRFk/VZp1rQP4IHAbDmIMh4o+4mkEKOZ5sLELe6EUM1DXnBbg3JsH6kSdCY
-         CC/ekpzhTx4HCALnSKzeqqw3jHaQI8cmpe5CRRLIy5VKv8B1x6nYzRxS5YEmza8agv
-         8WmvUpbT4sPQs/XubZIZA8sVXZZS5ge+TKn/032s=
+        b=EiZpahilmKm4KfIY17mlG/CzChoT7XAfaktrKWUwGSYAzDO4JvgagPLg1cNzlxVzQ
+         Kf/x9QCWvrHIsmW2b079HemF+dT6y/SZoVSnf988lSd5o45/rq20mq0j62w48GKOPa
+         7YtwkFi0En/msy6CKG1dDg2TcM7a4P4tuaL9e4vI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 300/563] libbpf: Validate that .BTF and .BTF.ext sections contain data
-Date:   Mon, 24 Jan 2022 19:41:05 +0100
-Message-Id: <20220124184034.824126628@linuxfoundation.org>
+        stable@vger.kernel.org, Zekun Shen <bruceshenzk@gmail.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0677/1039] ath9k: Fix out-of-bound memcpy in ath9k_hif_usb_rx_stream
+Date:   Mon, 24 Jan 2022 19:41:06 +0100
+Message-Id: <20220124184148.121802759@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,41 +45,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrii Nakryiko <andrii@kernel.org>
+From: Zekun Shen <bruceshenzk@gmail.com>
 
-[ Upstream commit 62554d52e71797eefa3fc15b54008038837bb2d4 ]
+[ Upstream commit 6ce708f54cc8d73beca213cec66ede5ce100a781 ]
 
-.BTF and .BTF.ext ELF sections should have SHT_PROGBITS type and contain
-data. If they are not, ELF is invalid or corrupted, so bail out.
-Otherwise this can lead to data->d_buf being NULL and SIGSEGV later on.
-Reported by oss-fuzz project.
+Large pkt_len can lead to out-out-bound memcpy. Current
+ath9k_hif_usb_rx_stream allows combining the content of two urb
+inputs to one pkt. The first input can indicate the size of the
+pkt. Any remaining size is saved in hif_dev->rx_remain_len.
+While processing the next input, memcpy is used with rx_remain_len.
 
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20211103173213.1376990-4-andrii@kernel.org
+4-byte pkt_len can go up to 0xffff, while a single input is 0x4000
+maximum in size (MAX_RX_BUF_SIZE). Thus, the patch adds a check for
+pkt_len which must not exceed 2 * MAX_RX_BUG_SIZE.
+
+BUG: KASAN: slab-out-of-bounds in ath9k_hif_usb_rx_cb+0x490/0xed7 [ath9k_htc]
+Read of size 46393 at addr ffff888018798000 by task kworker/0:1/23
+
+CPU: 0 PID: 23 Comm: kworker/0:1 Not tainted 5.6.0 #63
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
+BIOS rel-1.10.2-0-g5f4c7b1-prebuilt.qemu-project.org 04/01/2014
+Workqueue: events request_firmware_work_func
+Call Trace:
+ <IRQ>
+ dump_stack+0x76/0xa0
+ print_address_description.constprop.0+0x16/0x200
+ ? ath9k_hif_usb_rx_cb+0x490/0xed7 [ath9k_htc]
+ ? ath9k_hif_usb_rx_cb+0x490/0xed7 [ath9k_htc]
+ __kasan_report.cold+0x37/0x7c
+ ? ath9k_hif_usb_rx_cb+0x490/0xed7 [ath9k_htc]
+ kasan_report+0xe/0x20
+ check_memory_region+0x15a/0x1d0
+ memcpy+0x20/0x50
+ ath9k_hif_usb_rx_cb+0x490/0xed7 [ath9k_htc]
+ ? hif_usb_mgmt_cb+0x2d9/0x2d9 [ath9k_htc]
+ ? _raw_spin_lock_irqsave+0x7b/0xd0
+ ? _raw_spin_trylock_bh+0x120/0x120
+ ? __usb_unanchor_urb+0x12f/0x210
+ __usb_hcd_giveback_urb+0x1e4/0x380
+ usb_giveback_urb_bh+0x241/0x4f0
+ ? __hrtimer_run_queues+0x316/0x740
+ ? __usb_hcd_giveback_urb+0x380/0x380
+ tasklet_action_common.isra.0+0x135/0x330
+ __do_softirq+0x18c/0x634
+ irq_exit+0x114/0x140
+ smp_apic_timer_interrupt+0xde/0x380
+ apic_timer_interrupt+0xf/0x20
+
+I found the bug using a custome USBFuzz port. It's a research work
+to fuzz USB stack/drivers. I modified it to fuzz ath9k driver only,
+providing hand-crafted usb descriptors to QEMU.
+
+After fixing the value of pkt_tag to ATH_USB_RX_STREAM_MODE_TAG in QEMU
+emulation, I found the KASAN report. The bug is triggerable whenever
+pkt_len is above two MAX_RX_BUG_SIZE. I used the same input that crashes
+to test the driver works when applying the patch.
+
+Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/YXsidrRuK6zBJicZ@10-18-43-117.dynapool.wireless.nyu.edu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/lib/bpf/libbpf.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/wireless/ath/ath9k/hif_usb.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
-index b337d6f29098b..e8ad53d31044a 100644
---- a/tools/lib/bpf/libbpf.c
-+++ b/tools/lib/bpf/libbpf.c
-@@ -2870,8 +2870,12 @@ static int bpf_object__elf_collect(struct bpf_object *obj)
- 		} else if (strcmp(name, MAPS_ELF_SEC) == 0) {
- 			obj->efile.btf_maps_shndx = idx;
- 		} else if (strcmp(name, BTF_ELF_SEC) == 0) {
-+			if (sh->sh_type != SHT_PROGBITS)
-+				return -LIBBPF_ERRNO__FORMAT;
- 			btf_data = data;
- 		} else if (strcmp(name, BTF_EXT_ELF_SEC) == 0) {
-+			if (sh->sh_type != SHT_PROGBITS)
-+				return -LIBBPF_ERRNO__FORMAT;
- 			btf_ext_data = data;
- 		} else if (sh.sh_type == SHT_SYMTAB) {
- 			/* already processed during the first pass above */
+diff --git a/drivers/net/wireless/ath/ath9k/hif_usb.c b/drivers/net/wireless/ath/ath9k/hif_usb.c
+index 860da13bfb6ac..f06eec99de688 100644
+--- a/drivers/net/wireless/ath/ath9k/hif_usb.c
++++ b/drivers/net/wireless/ath/ath9k/hif_usb.c
+@@ -590,6 +590,13 @@ static void ath9k_hif_usb_rx_stream(struct hif_device_usb *hif_dev,
+ 			return;
+ 		}
+ 
++		if (pkt_len > 2 * MAX_RX_BUF_SIZE) {
++			dev_err(&hif_dev->udev->dev,
++				"ath9k_htc: invalid pkt_len (%x)\n", pkt_len);
++			RX_STAT_INC(skb_dropped);
++			return;
++		}
++
+ 		pad_len = 4 - (pkt_len & 0x3);
+ 		if (pad_len == 4)
+ 			pad_len = 0;
 -- 
 2.34.1
 
