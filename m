@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8FC5498EC1
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:48:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AED69498F0F
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:51:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346576AbiAXTsX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:48:23 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:40436 "EHLO
+        id S1357463AbiAXTuE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:50:04 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:40486 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355625AbiAXTnC (ORCPT
+        with ESMTP id S1355651AbiAXTnC (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:43:02 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D6A606135E;
-        Mon, 24 Jan 2022 19:42:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0F33C340E5;
-        Mon, 24 Jan 2022 19:42:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E0F8D614BB;
+        Mon, 24 Jan 2022 19:42:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3C7BC340E5;
+        Mon, 24 Jan 2022 19:42:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053376;
-        bh=H/tPH33St1gFh5Gacd8JGf5OOGlFWqNnI4EL4xPm4mc=;
+        s=korg; t=1643053379;
+        bh=IyH1Lh56yH9JDasMVhjm5n150Kxj6K6Tx0L9VwNIBGQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i+cX1YA652ZuRjNUDOAn1mDfKvWGzIqcS93vKaSISLVzl7fDwylVbstk0ycp8MtI/
-         EOlvuaAkJUiNlmB8KuJ4bKNXQk5SWc6qVdDXC/sNBlt75f0QohsZjMdND7OSTN/b/+
-         NzTYSFCR7Ar4xuYAqdZN98bTVBE7S+rFnbwt2jrE=
+        b=UbmEdiZwjQB5AwDcnWbwgK3SoILutKd9KHpHllGvZoJAXj+52xhpfRoxtw7jsPdPb
+         b+0k4ZXM7NLpAyylfIyXf3rMxbQADzrwOaNrAz1OPJssWhLRRlTDK5hNcFPpNOM7hZ
+         KzPm4vULMd46Umu0S9nbJZvvLyPGuVzXYOy8LIw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
         Sam Ravnborg <sam@ravnborg.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 045/563] drm/panel: kingdisplay-kd097d04: Delete panel on attach() failure
-Date:   Mon, 24 Jan 2022 19:36:50 +0100
-Message-Id: <20220124184025.969267910@linuxfoundation.org>
+Subject: [PATCH 5.10 046/563] drm/panel: innolux-p079zca: Delete panel on attach() failure
+Date:   Mon, 24 Jan 2022 19:36:51 +0100
+Message-Id: <20220124184026.007769115@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -47,40 +47,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Brian Norris <briannorris@chromium.org>
 
-[ Upstream commit 5f31dbeae8a88f31c3eb4eb526ab4807c40da241 ]
+[ Upstream commit 32a267e9c057e1636e7afdd20599aa5741a73079 ]
 
 If we fail to attach (e.g., because 1 of 2 dual-DSI controllers aren't
 ready), we leave a dangling drm_panel reference to freed memory. Clean
 that up on failure.
 
-Fixes: 2a994cbed6b2 ("drm/panel: Add Kingdisplay KD097D04 panel driver")
+This problem exists since the driver's introduction, but is especially
+relevant after refactored for dual-DSI variants.
+
+Fixes: 14c8f2e9f8ea ("drm/panel: add Innolux P079ZCA panel driver")
+Fixes: 7ad4e4636c54 ("drm/panel: p079zca: Refactor panel driver to support multiple panels")
 Signed-off-by: Brian Norris <briannorris@chromium.org>
 Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210923173336.1.Icb4d9dbc1817f4e826361a4f1cea7461541668f0@changeid
+Link: https://patchwork.freedesktop.org/patch/msgid/20210923173336.2.I9023cf8811a3abf4964ed84eb681721d8bb489d6@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panel/panel-kingdisplay-kd097d04.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/panel/panel-innolux-p079zca.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/panel/panel-kingdisplay-kd097d04.c b/drivers/gpu/drm/panel/panel-kingdisplay-kd097d04.c
-index 86e4213e8bb13..daccb1fd5fdad 100644
---- a/drivers/gpu/drm/panel/panel-kingdisplay-kd097d04.c
-+++ b/drivers/gpu/drm/panel/panel-kingdisplay-kd097d04.c
-@@ -406,7 +406,13 @@ static int kingdisplay_panel_probe(struct mipi_dsi_device *dsi)
+diff --git a/drivers/gpu/drm/panel/panel-innolux-p079zca.c b/drivers/gpu/drm/panel/panel-innolux-p079zca.c
+index aea3162253914..f194b62e290ca 100644
+--- a/drivers/gpu/drm/panel/panel-innolux-p079zca.c
++++ b/drivers/gpu/drm/panel/panel-innolux-p079zca.c
+@@ -484,6 +484,7 @@ static void innolux_panel_del(struct innolux_panel *innolux)
+ static int innolux_panel_probe(struct mipi_dsi_device *dsi)
+ {
+ 	const struct panel_desc *desc;
++	struct innolux_panel *innolux;
+ 	int err;
+ 
+ 	desc = of_device_get_match_data(&dsi->dev);
+@@ -495,7 +496,14 @@ static int innolux_panel_probe(struct mipi_dsi_device *dsi)
  	if (err < 0)
  		return err;
  
 -	return mipi_dsi_attach(dsi);
 +	err = mipi_dsi_attach(dsi);
 +	if (err < 0) {
-+		kingdisplay_panel_del(kingdisplay);
++		innolux = mipi_dsi_get_drvdata(dsi);
++		innolux_panel_del(innolux);
 +		return err;
 +	}
 +
 +	return 0;
  }
  
- static int kingdisplay_panel_remove(struct mipi_dsi_device *dsi)
+ static int innolux_panel_remove(struct mipi_dsi_device *dsi)
 -- 
 2.34.1
 
