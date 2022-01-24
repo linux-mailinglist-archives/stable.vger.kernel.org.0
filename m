@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9779D49A97F
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:24:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2591449A982
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:25:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1322635AbiAYDWL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:22:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38494 "EHLO
+        id S1322639AbiAYDWM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:22:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356726AbiAXUce (ORCPT
+        with ESMTP id S1356738AbiAXUce (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:32:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 306DDC08B4FC;
-        Mon, 24 Jan 2022 11:43:53 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E33F9C07E5FF;
+        Mon, 24 Jan 2022 11:44:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EA24DB81215;
-        Mon, 24 Jan 2022 19:43:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19548C340E5;
-        Mon, 24 Jan 2022 19:43:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FCDD6131E;
+        Mon, 24 Jan 2022 19:44:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B22FC340E5;
+        Mon, 24 Jan 2022 19:44:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053430;
-        bh=+GQuL4BuFI+r25AhMeGmdBP+JMbKMCMcrj8kpNcaSFM=;
+        s=korg; t=1643053446;
+        bh=3FxDnd5tdF3uG58BoU/HCrS2q0GC+iXbM6f0zyUjWJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FZm8GvRMEHKvST9MeBGes8bhJM1wc0G4sl6kASEy30PZl4vIXdTsNqMZidPrAqYJH
-         PxxhNVUZof1TOaLjBRV6OAfnqGk3Ufh1cq6NU32DXAEkrRqPhfk5tbt8R1jaHoB5RM
-         QohEKz2GCsGSSMWrIL7M/hJaVIq+Gdq9K9Pr5UfY=
+        b=Z0OO7gRHPku2WuFIeJ6uI49TU335lnRs11KvnaTiSxE9yvcabTRm9TKeueXMwJMdv
+         IOCiPxna8Huis2su7vCgps4y//kD03tnNKkbHsjv7oVGj3jVRHx0qCsjpQ5unr+fGa
+         R5E6AFKxCfDBce/vzj2aTZaO22bM/uXfn6lo055Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sathishkumar Muruganandam <murugana@codeaurora.org>,
-        Rameshkumar Sundaram <ramess@codeaurora.org>,
-        Jouni Malinen <jouni@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Tsuchiya Yuto <kitakar@gmail.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 062/563] ath11k: Send PPDU_STATS_CFG with proper pdev mask to firmware
-Date:   Mon, 24 Jan 2022 19:37:07 +0100
-Message-Id: <20220124184026.560291742@linuxfoundation.org>
+Subject: [PATCH 5.10 066/563] media: atomisp: fix punit_ddr_dvfs_enable() argument for mrfld_power up case
+Date:   Mon, 24 Jan 2022 19:37:11 +0100
+Message-Id: <20220124184026.696478758@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -51,65 +48,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rameshkumar Sundaram <ramess@codeaurora.org>
+From: Tsuchiya Yuto <kitakar@gmail.com>
 
-[ Upstream commit 16a2c3d5406f95ef6139de52669c60a39443f5f7 ]
+[ Upstream commit 5bfbf65fcca7325e4d89d289b3c286e11220e386 ]
 
-HTT_PPDU_STATS_CFG_PDEV_ID bit mask for target FW PPDU stats request message
-was set as bit 8 to 15. Bit 8 is reserved for soc stats and pdev id starts from
-bit 9. Hence change the bitmask as bit 9 to 15 and fill the proper pdev id in
-the request message.
+When comparing with intel-aero atomisp [1], it looks like
+punit_ddr_dvfs_enable() should take `false` as an argument on mrfld_power
+up case.
 
-In commit 701e48a43e15 ("ath11k: add packet log support for QCA6390"), both
-HTT_PPDU_STATS_CFG_PDEV_ID and pdev_mask were changed, but this pdev_mask
-calculation is not valid for platforms which has multiple pdevs with 1 rxdma
-per pdev, as this is writing same value(i.e. 2) for all pdevs.  Hence fixed it
-to consider pdev_idx as well, to make it compatible for both single and multi
-pd cases.
+Code from the intel-aero kernel [1]:
 
-Tested on: IPQ8074 hw2.0 AHB WLAN.HK.2.5.0.1-01092-QCAHKSWPL_SILICONZ-1
-Tested on: IPQ6018 hw1.0 WLAN.HK.2.5.0.1-01067-QCAHKSWPL_SILICONZ-1
+        int atomisp_mrfld_power_down(struct atomisp_device *isp)
+        {
+        [...]
+		/*WA:Enable DVFS*/
+		if (IS_CHT)
+			punit_ddr_dvfs_enable(true);
 
-Fixes: 701e48a43e15 ("ath11k: add packet log support for QCA6390")
+        int atomisp_mrfld_power_up(struct atomisp_device *isp)
+        {
+        [...]
+		/*WA for PUNIT, if DVFS enabled, ISP timeout observed*/
+		if (IS_CHT)
+			punit_ddr_dvfs_enable(false);
 
-Co-developed-by: Sathishkumar Muruganandam <murugana@codeaurora.org>
-Signed-off-by: Sathishkumar Muruganandam <murugana@codeaurora.org>
-Signed-off-by: Rameshkumar Sundaram <ramess@codeaurora.org>
-Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210721212029.142388-10-jouni@codeaurora.org
+This patch fixes the inverted argument as per the intel-aero code, as
+well as its comment. While here, fix space issues for comments in
+atomisp_mrfld_power().
+
+Note that it does not seem to be possible to unify the up/down cases for
+punit_ddr_dvfs_enable(), i.e., we can't do something like the following:
+
+        if (IS_CHT)
+		punit_ddr_dvfs_enable(!enable);
+
+because according to the intel-aero code [1], the DVFS is disabled
+before "writing 0x0 to ISPSSPM0 bit[1:0]" and the DVFS is enabled after
+"writing 0x3 to ISPSSPM0 bit[1:0]".
+
+[1] https://github.com/intel-aero/linux-kernel/blob/a1b673258feb915268377275130c5c5df0eafc82/drivers/media/pci/atomisp/atomisp_driver/atomisp_v4l2.c#L431-L514
+
+Fixes: 0f441fd70b1e ("media: atomisp: simplify the power down/up code")
+Signed-off-by: Tsuchiya Yuto <kitakar@gmail.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/dp.h    | 3 ++-
- drivers/net/wireless/ath/ath11k/dp_tx.c | 2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/staging/media/atomisp/pci/atomisp_v4l2.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/dp.h b/drivers/net/wireless/ath/ath11k/dp.h
-index ee8db812589b3..c4972233149f4 100644
---- a/drivers/net/wireless/ath/ath11k/dp.h
-+++ b/drivers/net/wireless/ath/ath11k/dp.h
-@@ -514,7 +514,8 @@ struct htt_ppdu_stats_cfg_cmd {
- } __packed;
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_v4l2.c b/drivers/staging/media/atomisp/pci/atomisp_v4l2.c
+index d35506f643609..687e94e8b6ce5 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_v4l2.c
++++ b/drivers/staging/media/atomisp/pci/atomisp_v4l2.c
+@@ -711,15 +711,15 @@ static int atomisp_mrfld_power(struct atomisp_device *isp, bool enable)
  
- #define HTT_PPDU_STATS_CFG_MSG_TYPE		GENMASK(7, 0)
--#define HTT_PPDU_STATS_CFG_PDEV_ID		GENMASK(15, 8)
-+#define HTT_PPDU_STATS_CFG_SOC_STATS		BIT(8)
-+#define HTT_PPDU_STATS_CFG_PDEV_ID		GENMASK(15, 9)
- #define HTT_PPDU_STATS_CFG_TLV_TYPE_BITMASK	GENMASK(31, 16)
+ 	dev_dbg(isp->dev, "IUNIT power-%s.\n", enable ? "on" : "off");
  
- enum htt_ppdu_stats_tag_type {
-diff --git a/drivers/net/wireless/ath/ath11k/dp_tx.c b/drivers/net/wireless/ath/ath11k/dp_tx.c
-index 21dfd08d3debb..092eee735da29 100644
---- a/drivers/net/wireless/ath/ath11k/dp_tx.c
-+++ b/drivers/net/wireless/ath/ath11k/dp_tx.c
-@@ -894,7 +894,7 @@ int ath11k_dp_tx_htt_h2t_ppdu_stats_req(struct ath11k *ar, u32 mask)
- 		cmd->msg = FIELD_PREP(HTT_PPDU_STATS_CFG_MSG_TYPE,
- 				      HTT_H2T_MSG_TYPE_PPDU_STATS_CFG);
+-	/*WA:Enable DVFS*/
++	/* WA for P-Unit, if DVFS enabled, ISP timeout observed */
+ 	if (IS_CHT && enable)
+-		punit_ddr_dvfs_enable(true);
++		punit_ddr_dvfs_enable(false);
  
--		pdev_mask = 1 << (i + 1);
-+		pdev_mask = 1 << (ar->pdev_idx + i);
- 		cmd->msg |= FIELD_PREP(HTT_PPDU_STATS_CFG_PDEV_ID, pdev_mask);
- 		cmd->msg |= FIELD_PREP(HTT_PPDU_STATS_CFG_TLV_TYPE_BITMASK, mask);
+ 	/*
+ 	 * FIXME:WA for ECS28A, with this sleep, CTS
+ 	 * android.hardware.camera2.cts.CameraDeviceTest#testCameraDeviceAbort
+ 	 * PASS, no impact on other platforms
+-	*/
++	 */
+ 	if (IS_BYT && enable)
+ 		msleep(10);
+ 
+@@ -727,7 +727,7 @@ static int atomisp_mrfld_power(struct atomisp_device *isp, bool enable)
+ 	iosf_mbi_modify(BT_MBI_UNIT_PMC, MBI_REG_READ, MRFLD_ISPSSPM0,
+ 			val, MRFLD_ISPSSPM0_ISPSSC_MASK);
+ 
+-	/*WA:Enable DVFS*/
++	/* WA:Enable DVFS */
+ 	if (IS_CHT && !enable)
+ 		punit_ddr_dvfs_enable(true);
  
 -- 
 2.34.1
