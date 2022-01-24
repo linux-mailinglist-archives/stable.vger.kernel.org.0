@@ -2,83 +2,206 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4987B4984BA
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 17:27:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F95B4984D2
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 17:30:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241129AbiAXQ1X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 11:27:23 -0500
-Received: from mx-out.tlen.pl ([193.222.135.175]:17307 "EHLO mx-out.tlen.pl"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241118AbiAXQ1W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jan 2022 11:27:22 -0500
-Received: (wp-smtpd smtp.tlen.pl 33203 invoked from network); 24 Jan 2022 17:27:19 +0100
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=o2.pl; s=1024a;
-          t=1643041639; bh=R4CZm3Rxp1TxQjSL4R5Z53tyENlRsfUkyNCS+bPfpOI=;
-          h=Subject:To:Cc:From;
-          b=uVE1IyRPXooU8vkSFr8eJ/jcNeatyckOuzgiMKmO/QX5B4AMzCSCfYV7qzKxRMjeg
-           9RvRGl1fyPhcje40ZU29zUXbOnUkNyqx9OhN07yg+p0vNdA//BzYvBl/iBucNQ9Ltq
-           KzTq4ByfqEFbmWBW5sAmolRCSdt3w4/WHYrg369w=
-Received: from aafh166.neoplus.adsl.tpnet.pl (HELO [192.168.1.22]) (mat.jonczyk@o2.pl@[83.4.137.166])
-          (envelope-sender <mat.jonczyk@o2.pl>)
-          by smtp.tlen.pl (WP-SMTPD) with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP
-          for <gregkh@linuxfoundation.org>; 24 Jan 2022 17:27:19 +0100
-Message-ID: <23a5748e-55ca-69af-c9ff-d68a413a331d@o2.pl>
-Date:   Mon, 24 Jan 2022 17:27:16 +0100
+        id S243758AbiAXQaG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 11:30:06 -0500
+Received: from maynard.decadent.org.uk ([95.217.213.242]:42284 "EHLO
+        maynard.decadent.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243788AbiAXQ3t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 11:29:49 -0500
+Received: from 168.7-181-91.adsl-dyn.isp.belgacom.be ([91.181.7.168] helo=deadeye)
+        by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1nC2Dz-00070f-JJ; Mon, 24 Jan 2022 17:29:47 +0100
+Received: from ben by deadeye with local (Exim 4.95)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1nC2Dy-009z8k-Lu;
+        Mon, 24 Jan 2022 17:29:46 +0100
+Date:   Mon, 24 Jan 2022 17:29:46 +0100
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     stable@vger.kernel.org
+Cc:     Michael Wakabayashi <mwakabayashi@vmware.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.14] NFSv4: Initialise connection to the server in
+ nfs4_alloc_client()
+Message-ID: <Ye7T+vLMFpwBFsRW@decadent.org.uk>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: FAILED: patch "[PATCH] rtc: mc146818-lib: fix RTC presence check"
- failed to apply to 5.16-stable tree
-Content-Language: en-GB
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
-        tglx@linutronix.de, stable@vger.kernel.org
-References: <164302970310788@kroah.com>
- <df1a2547-c863-f416-58c9-4f64cce1f522@o2.pl> <Ye69PKB2V/R/NxN8@kroah.com>
-From:   =?UTF-8?Q?Mateusz_Jo=c5=84czyk?= <mat.jonczyk@o2.pl>
-In-Reply-To: <Ye69PKB2V/R/NxN8@kroah.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-WP-MailID: f3cd4a24654ae1dce453c63e93482415
-X-WP-AV: skaner antywirusowy Poczty o2
-X-WP-SPAM: NO 000000A [cSOk]                               
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="E3flWCMVqAGF9hC4"
+Content-Disposition: inline
+X-SA-Exim-Connect-IP: 91.181.7.168
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on maynard); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-W dniu 24.01.2022 o 15:52, Greg KH pisze:
-> On Mon, Jan 24, 2022 at 03:45:30PM +0100, Mateusz Jończyk wrote:
->> W dniu 24.01.2022 o 14:08, gregkh@linuxfoundation.org pisze:
->>> The patch below does not apply to the 5.16-stable tree.
->>> If someone wants it applied there, or to any other stable or longterm
->>> tree, then please email the backport, including the original git commit
->>> id to <stable@vger.kernel.org>.
->>>
->>> thanks,
->>>
->>> greg k-h
->> Wait, this patch was not intended for submission into stable yet, at least not in this form.
->> Why did it end up in the stable queue?
-> Because it was marked with a "Fixes:" tag and I reviewed it and it
-> looked like it actually fixed an issue.
->
-> Is this not the case?
 
-Yes, that's correct. But I'm afraid that this patch will cause regressions on some systems.
-(Mr Alexandre Belloni said something similar of my series). So I'd like to wait till at least Linux 5.17 (final) is
-released to see if it causes any trouble.
+--E3flWCMVqAGF9hC4
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->> The return values from mc146818_get_time() changed in between,
->> so it is natural that it does not apply.
->>
->> See
->> commit d35786b3a28dee20 ("rtc: mc146818-lib: change return values of mc146818_get_time()")
-> Ok, so will a working backport be sent sometime in the future?
-> thanks,
->
-> greg k-h
+=46rom: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-Greetings,
+commit dd99e9f98fbf423ff6d365b37a98e8879170f17c upstream.
 
-Mateusz
+Set up the connection to the NFSv4 server in nfs4_alloc_client(), before
+we've added the struct nfs_client to the net-namespace's nfs_client_list
+so that a downed server won't cause other mounts to hang in the trunking
+detection code.
 
+Reported-by: Michael Wakabayashi <mwakabayashi@vmware.com>
+Fixes: 5c6e5b60aae4 ("NFS: Fix an Oops in the pNFS files and flexfiles conn=
+ection setup to the DS")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+[bwh: Backported to 4.14: adjust context]
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+---
+ fs/nfs/nfs4client.c | 82 +++++++++++++++++++++++----------------------
+ 1 file changed, 42 insertions(+), 40 deletions(-)
+
+diff --git a/fs/nfs/nfs4client.c b/fs/nfs/nfs4client.c
+index 3c8dfab8e958..02b01b4025f6 100644
+--- a/fs/nfs/nfs4client.c
++++ b/fs/nfs/nfs4client.c
+@@ -177,8 +177,11 @@ void nfs40_shutdown_client(struct nfs_client *clp)
+=20
+ struct nfs_client *nfs4_alloc_client(const struct nfs_client_initdata *cl_=
+init)
+ {
+-	int err;
++	char buf[INET6_ADDRSTRLEN + 1];
++	const char *ip_addr =3D cl_init->ip_addr;
+ 	struct nfs_client *clp =3D nfs_alloc_client(cl_init);
++	int err;
++
+ 	if (IS_ERR(clp))
+ 		return clp;
+=20
+@@ -202,6 +205,44 @@ struct nfs_client *nfs4_alloc_client(const struct nfs_=
+client_initdata *cl_init)
+ #if IS_ENABLED(CONFIG_NFS_V4_1)
+ 	init_waitqueue_head(&clp->cl_lock_waitq);
+ #endif
++
++	if (cl_init->minorversion !=3D 0)
++		__set_bit(NFS_CS_INFINITE_SLOTS, &clp->cl_flags);
++	__set_bit(NFS_CS_DISCRTRY, &clp->cl_flags);
++	__set_bit(NFS_CS_NO_RETRANS_TIMEOUT, &clp->cl_flags);
++
++	/*
++	 * Set up the connection to the server before we add add to the
++	 * global list.
++	 */
++	err =3D nfs_create_rpc_client(clp, cl_init, RPC_AUTH_GSS_KRB5I);
++	if (err =3D=3D -EINVAL)
++		err =3D nfs_create_rpc_client(clp, cl_init, RPC_AUTH_UNIX);
++	if (err < 0)
++		goto error;
++
++	/* If no clientaddr=3D option was specified, find a usable cb address */
++	if (ip_addr =3D=3D NULL) {
++		struct sockaddr_storage cb_addr;
++		struct sockaddr *sap =3D (struct sockaddr *)&cb_addr;
++
++		err =3D rpc_localaddr(clp->cl_rpcclient, sap, sizeof(cb_addr));
++		if (err < 0)
++			goto error;
++		err =3D rpc_ntop(sap, buf, sizeof(buf));
++		if (err < 0)
++			goto error;
++		ip_addr =3D (const char *)buf;
++	}
++	strlcpy(clp->cl_ipaddr, ip_addr, sizeof(clp->cl_ipaddr));
++
++	err =3D nfs_idmap_new(clp);
++	if (err < 0) {
++		dprintk("%s: failed to create idmapper. Error =3D %d\n",
++			__func__, err);
++		goto error;
++	}
++	__set_bit(NFS_CS_IDMAP, &clp->cl_res_state);
+ 	return clp;
+=20
+ error:
+@@ -354,8 +395,6 @@ static int nfs4_init_client_minor_version(struct nfs_cl=
+ient *clp)
+ struct nfs_client *nfs4_init_client(struct nfs_client *clp,
+ 				    const struct nfs_client_initdata *cl_init)
+ {
+-	char buf[INET6_ADDRSTRLEN + 1];
+-	const char *ip_addr =3D cl_init->ip_addr;
+ 	struct nfs_client *old;
+ 	int error;
+=20
+@@ -363,43 +402,6 @@ struct nfs_client *nfs4_init_client(struct nfs_client =
+*clp,
+ 		/* the client is initialised already */
+ 		return clp;
+=20
+-	/* Check NFS protocol revision and initialize RPC op vector */
+-	clp->rpc_ops =3D &nfs_v4_clientops;
+-
+-	if (clp->cl_minorversion !=3D 0)
+-		__set_bit(NFS_CS_INFINITE_SLOTS, &clp->cl_flags);
+-	__set_bit(NFS_CS_DISCRTRY, &clp->cl_flags);
+-	__set_bit(NFS_CS_NO_RETRANS_TIMEOUT, &clp->cl_flags);
+-
+-	error =3D nfs_create_rpc_client(clp, cl_init, RPC_AUTH_GSS_KRB5I);
+-	if (error =3D=3D -EINVAL)
+-		error =3D nfs_create_rpc_client(clp, cl_init, RPC_AUTH_UNIX);
+-	if (error < 0)
+-		goto error;
+-
+-	/* If no clientaddr=3D option was specified, find a usable cb address */
+-	if (ip_addr =3D=3D NULL) {
+-		struct sockaddr_storage cb_addr;
+-		struct sockaddr *sap =3D (struct sockaddr *)&cb_addr;
+-
+-		error =3D rpc_localaddr(clp->cl_rpcclient, sap, sizeof(cb_addr));
+-		if (error < 0)
+-			goto error;
+-		error =3D rpc_ntop(sap, buf, sizeof(buf));
+-		if (error < 0)
+-			goto error;
+-		ip_addr =3D (const char *)buf;
+-	}
+-	strlcpy(clp->cl_ipaddr, ip_addr, sizeof(clp->cl_ipaddr));
+-
+-	error =3D nfs_idmap_new(clp);
+-	if (error < 0) {
+-		dprintk("%s: failed to create idmapper. Error =3D %d\n",
+-			__func__, error);
+-		goto error;
+-	}
+-	__set_bit(NFS_CS_IDMAP, &clp->cl_res_state);
+-
+ 	error =3D nfs4_init_client_minor_version(clp);
+ 	if (error < 0)
+ 		goto error;
+
+--E3flWCMVqAGF9hC4
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmHu0/EACgkQ57/I7JWG
+EQlS2w//aod9fqPkor9InXhpSw4Exa2SIn7d3YZxPnWvckZye3xVZAJDDI3zG8Ln
+c+Vqi2oDLLqW56lGtq60uxQE7ARf2QD8mmUeJOAunTzlcCkxD32G2HSEXcoTZhxV
+zWt80rmzRrY97L4B5uozV8dMcYmE/EIkixQG4qQWs7la7lWxw5v0O1R27DH3H7vD
+ebsY4yDSHpc16vscxUjZbx3noaH87pb6S6LHRz3WSt9QCuqO8pHmuZTAGzumPknK
+42mZHIXIhssu88bpnncTwN/lRdLwJFKHTjv8XC8qWukqzkaOoi+5v/x0uxMgz16j
+bCzZYoQjSQE8d7ChMXYcsaaxyrxrirf9uY2yQi1VPsfdIA0g2m0HXlak3G9PGsC2
+zMi8OBScoA4t391+7WfxPnwHuSfft9dCtcLIRE5xWhlgJKgeQOjrF2YN9xeZHJmS
+lS8GAsQk/0aC+BTUWFV+uIiie8/PwyiCicm+LIklGF6c7OO9IhOHO32pQRbpvd+5
+a7eUtfWZMh0ZXFBT0sBeP4Xk3W8A1Ns5aLq4rtyjZ4todr2AZd86RqNDqrdbbZ1F
+GNpguOU24VJ6bxB7x9VxiTm7L2gb38jnWGUhMMMANGrr+2KVGRtSpgY2LQxyMwXI
+/8Ds/eBoJCqwL5ctMpPGrsQA8tJtVbA7CY1plxZLOL4N4ILbOOQ=
+=DeMb
+-----END PGP SIGNATURE-----
+
+--E3flWCMVqAGF9hC4--
