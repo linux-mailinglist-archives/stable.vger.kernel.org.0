@@ -2,39 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94B85498D29
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:33:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D9B0449902A
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348248AbiAXT2P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:28:15 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49276 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351230AbiAXT0N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:26:13 -0500
+        id S1350640AbiAXT6s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:58:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58066 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1352195AbiAXTwp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:52:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB36DC061394;
+        Mon, 24 Jan 2022 11:26:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 76487B81215;
-        Mon, 24 Jan 2022 19:26:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D667CC340E5;
-        Mon, 24 Jan 2022 19:26:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7286CB81239;
+        Mon, 24 Jan 2022 19:26:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90EB5C340E5;
+        Mon, 24 Jan 2022 19:26:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052371;
-        bh=5mn8xY2Rw2yKpuokmAWh9/JaNI4qxPL/snAS97h6juY=;
+        s=korg; t=1643052374;
+        bh=l2qkhwyajAQCjSYqn/KNwyizSyty6BnN/EXpCzFQ+wo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dOTH3XaZl5yYBguUNO/G6KM5EmJNdohXxKeyLFWqOlZn5v2urvQxpev9x4gY05qh6
-         ISXaPQqmgHQ0583d6BME7xbUPzFULUJCDd78UPVqErA8ovqs67govj7LPYuCDBQPgW
-         JqAJL0/8X8WN+G6Khsie5SBSQsKV+QVkoluYxsAM=
+        b=tLW8eWyoX1+p02EU0QUytJiG+npQONmDhc1fatLSU7/guTU/fPsJrMGzhBQFOWNQr
+         AyVep+D4wolJ3HWpddkHuHTsdjJ/3djIeQH7QGvmz8rXkSf6Rrftxtb3/k4Y9rAcjE
+         Q5rpfscjmnVTkmzi9kYigTqRk2/YHP9fvxByMWXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Hai <wanghai38@huawei.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Nicolas Saenz Julienne <nsaenz@kernel.org>,
+        Michael Stapelberg <michael@stapelberg.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 037/320] Bluetooth: cmtp: fix possible panic when cmtp_init_sockets() fails
-Date:   Mon, 24 Jan 2022 19:40:21 +0100
-Message-Id: <20220124183955.010672799@linuxfoundation.org>
+Subject: [PATCH 5.4 038/320] clk: bcm-2835: Pick the closest clock rate
+Date:   Mon, 24 Jan 2022 19:40:22 +0100
+Message-Id: <20220124183955.050123837@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
 References: <20220124183953.750177707@linuxfoundation.org>
@@ -46,52 +50,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Hai <wanghai38@huawei.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 2a7ca7459d905febf519163bd9e3eed894de6bb7 ]
+[ Upstream commit 5517357a4733d7cf7c17fc79d0530cfa47add372 ]
 
-I got a kernel BUG report when doing fault injection test:
+The driver currently tries to pick the closest rate that is lower than
+the rate being requested.
 
-------------[ cut here ]------------
-kernel BUG at lib/list_debug.c:45!
-...
-RIP: 0010:__list_del_entry_valid.cold+0x12/0x4d
-...
-Call Trace:
- proto_unregister+0x83/0x220
- cmtp_cleanup_sockets+0x37/0x40 [cmtp]
- cmtp_exit+0xe/0x1f [cmtp]
- do_syscall_64+0x35/0xb0
- entry_SYSCALL_64_after_hwframe+0x44/0xae
+This causes an issue with clk_set_min_rate() since it actively checks
+for the rounded rate to be above the minimum that was just set.
 
-If cmtp_init_sockets() in cmtp_init() fails, cmtp_init() still returns
-success. This will cause a kernel bug when accessing uncreated ctmp
-related data when the module exits.
+Let's change the logic a bit to pick the closest rate to the requested
+rate, no matter if it's actually higher or lower.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Hai <wanghai38@huawei.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 6d18b8adbe67 ("clk: bcm2835: Support for clock parent selection")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Acked-by: Stephen Boyd <sboyd@kernel.org>
+Reviewed-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
+Tested-by: Nicolas Saenz Julienne <nsaenz@kernel.org> # boot and basic functionality
+Tested-by: Michael Stapelberg <michael@stapelberg.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210922125419.4125779-2-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/cmtp/core.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/clk/bcm/clk-bcm2835.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/cmtp/core.c b/net/bluetooth/cmtp/core.c
-index 0a2d78e811cf5..83eb84e8e688f 100644
---- a/net/bluetooth/cmtp/core.c
-+++ b/net/bluetooth/cmtp/core.c
-@@ -501,9 +501,7 @@ static int __init cmtp_init(void)
- {
- 	BT_INFO("CMTP (CAPI Emulation) ver %s", VERSION);
- 
--	cmtp_init_sockets();
--
--	return 0;
-+	return cmtp_init_sockets();
- }
- 
- static void __exit cmtp_exit(void)
+diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
+index c5486537b9284..b2af320d1b6c5 100644
+--- a/drivers/clk/bcm/clk-bcm2835.c
++++ b/drivers/clk/bcm/clk-bcm2835.c
+@@ -1216,7 +1216,7 @@ static int bcm2835_clock_determine_rate(struct clk_hw *hw,
+ 		rate = bcm2835_clock_choose_div_and_prate(hw, i, req->rate,
+ 							  &div, &prate,
+ 							  &avgrate);
+-		if (rate > best_rate && rate <= req->rate) {
++		if (abs(req->rate - rate) < abs(req->rate - best_rate)) {
+ 			best_parent = parent;
+ 			best_prate = prate;
+ 			best_rate = rate;
 -- 
 2.34.1
 
