@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C15EE498AE9
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:08:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CEC36498F3A
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:51:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343505AbiAXTHp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:07:45 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:35572 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345483AbiAXTFo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:05:44 -0500
+        id S1346040AbiAXTv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:51:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53354 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1352416AbiAXThV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:37:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECAA5C034012;
+        Mon, 24 Jan 2022 11:17:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 64F8D60917;
-        Mon, 24 Jan 2022 19:05:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FF69C340E5;
-        Mon, 24 Jan 2022 19:05:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8BEE160909;
+        Mon, 24 Jan 2022 19:17:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68B11C340E5;
+        Mon, 24 Jan 2022 19:17:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051143;
-        bh=gUBygmoEBQDPFQekCp2li5xY7NKosJ7ZgGesRhBIraQ=;
+        s=korg; t=1643051845;
+        bh=hoGmMt6X0klq0+u7iW/1fCYXghyAHMkMKI5zDTPe7y0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2OtncbY9G1m/Z3Y01GYouL82l6YDa3tvcqF73UtvPftN2DQrzXHj+mRhksPgpdVNN
-         TTfDny4R5vu3fB8plnbNNfbZ/rIy0RsqSew+SBIPeN+DiZBv/ZOUluB4JQDpWJuwG8
-         ywOdYp5lZT/z9IMr5zzJsWNvLTfuxo2jivGK/e/I=
+        b=AEU2wC2z9vKDnMngquQdHrei289fV7pZjb7am5zcmYlG3Hd03M9klKGrhup5urzxq
+         UORk8tMEx1YNxFjUtl50EWFQ7JI8gU9xgNaw2mzOKfzTJCcudXx4hTrhzUZk+Jfbwk
+         xwnpantNstUOqhsN+3nbl518qt1QEMquSlhU7Exo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+003c0a286b9af5412510@syzkaller.appspotmail.com
-Subject: [PATCH 4.14 067/186] net: mcs7830: handle usb read errors properly
+        stable@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 104/239] ASoC: uniphier: drop selecting non-existing SND_SOC_UNIPHIER_AIO_DMA
 Date:   Mon, 24 Jan 2022 19:42:22 +0100
-Message-Id: <20220124183939.276113106@linuxfoundation.org>
+Message-Id: <20220124183946.409590500@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,54 +48,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
 
-[ Upstream commit d668769eb9c52b150753f1653f7f5a0aeb8239d2 ]
+[ Upstream commit 49f893253ab43566e34332a969324531fea463f6 ]
 
-Syzbot reported uninit value in mcs7830_bind(). The problem was in
-missing validation check for bytes read via usbnet_read_cmd().
+Commit f37fe2f9987b ("ASoC: uniphier: add support for UniPhier AIO common
+driver") adds configs SND_SOC_UNIPHIER_{LD11,PXS2}, which select the
+non-existing config SND_SOC_UNIPHIER_AIO_DMA.
 
-usbnet_read_cmd() internally calls usb_control_msg(), that returns
-number of bytes read. Code should validate that requested number of bytes
-was actually read.
+Hence, ./scripts/checkkconfigsymbols.py warns:
 
-So, this patch adds missing size validation check inside
-mcs7830_get_reg() to prevent uninit value bugs
+  SND_SOC_UNIPHIER_AIO_DMA
+  Referencing files: sound/soc/uniphier/Kconfig
 
-Reported-and-tested-by: syzbot+003c0a286b9af5412510@syzkaller.appspotmail.com
-Fixes: 2a36d7083438 ("USB: driver for mcs7830 (aka DeLOCK) USB ethernet adapter")
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20220106225716.7425-1-paskripkin@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Probably, there is actually no further config intended to be selected
+here. So, just drop selecting the non-existing config.
+
+Fixes: f37fe2f9987b ("ASoC: uniphier: add support for UniPhier AIO common driver")
+Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Link: https://lore.kernel.org/r/20211125095158.8394-2-lukas.bulwahn@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/mcs7830.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ sound/soc/uniphier/Kconfig | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/net/usb/mcs7830.c b/drivers/net/usb/mcs7830.c
-index 5a47e5510ca82..c0f52a622964f 100644
---- a/drivers/net/usb/mcs7830.c
-+++ b/drivers/net/usb/mcs7830.c
-@@ -121,8 +121,16 @@ static const char driver_name[] = "MOSCHIP usb-ethernet driver";
- 
- static int mcs7830_get_reg(struct usbnet *dev, u16 index, u16 size, void *data)
- {
--	return usbnet_read_cmd(dev, MCS7830_RD_BREQ, MCS7830_RD_BMREQ,
--				0x0000, index, data, size);
-+	int ret;
-+
-+	ret = usbnet_read_cmd(dev, MCS7830_RD_BREQ, MCS7830_RD_BMREQ,
-+			      0x0000, index, data, size);
-+	if (ret < 0)
-+		return ret;
-+	else if (ret < size)
-+		return -ENODATA;
-+
-+	return ret;
- }
- 
- static int mcs7830_set_reg(struct usbnet *dev, u16 index, u16 size, const void *data)
+diff --git a/sound/soc/uniphier/Kconfig b/sound/soc/uniphier/Kconfig
+index aa3592ee1358b..ddfa6424c656b 100644
+--- a/sound/soc/uniphier/Kconfig
++++ b/sound/soc/uniphier/Kconfig
+@@ -23,7 +23,6 @@ config SND_SOC_UNIPHIER_LD11
+ 	tristate "UniPhier LD11/LD20 Device Driver"
+ 	depends on SND_SOC_UNIPHIER
+ 	select SND_SOC_UNIPHIER_AIO
+-	select SND_SOC_UNIPHIER_AIO_DMA
+ 	help
+ 	  This adds ASoC driver for Socionext UniPhier LD11/LD20
+ 	  input and output that can be used with other codecs.
+@@ -34,7 +33,6 @@ config SND_SOC_UNIPHIER_PXS2
+ 	tristate "UniPhier PXs2 Device Driver"
+ 	depends on SND_SOC_UNIPHIER
+ 	select SND_SOC_UNIPHIER_AIO
+-	select SND_SOC_UNIPHIER_AIO_DMA
+ 	help
+ 	  This adds ASoC driver for Socionext UniPhier PXs2
+ 	  input and output that can be used with other codecs.
 -- 
 2.34.1
 
