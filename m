@@ -2,75 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E89CD4983B1
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 16:39:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C704C4983B9
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 16:43:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238887AbiAXPja (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 10:39:30 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:32898 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235895AbiAXPja (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 10:39:30 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B8DC16149A
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 15:39:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F8B9C340E1;
-        Mon, 24 Jan 2022 15:39:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643038769;
-        bh=SnQ+jWZvxdAuxKIQFMo20Lyk8m8bdQ1oW42zVJ9oLZw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vKcQuQu1VdFF1DSVEFuS3xVbEhop3Pg4VSGze9MhV7UNk0HDtOaeJC+Soc00WFFWr
-         a+laRV2QOQzGIfvXOfBpZA8C8dj9uHXiOkOk+uX5wmuMr/V+XEF1gG5boRD0BvfMP9
-         CKmR/2DwrHEyG9xAOopjCY/R9Vup8eWxPFNnbcK8=
-Date:   Mon, 24 Jan 2022 16:39:26 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Ben Hutchings <ben@decadent.org.uk>
-Cc:     stable@vger.kernel.org,
-        Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>,
-        Dave Airlie <airlied@redhat.com>
-Subject: Re: [PATCH 4.9,4.14] drm/ttm/nouveau: don't call tt destroy callback
- on alloc failure.
-Message-ID: <Ye7ILinO8nBVjy/9@kroah.com>
-References: <Ye7HB4Zsdbdwgt4T@decadent.org.uk>
+        id S231254AbiAXPnV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 10:43:21 -0500
+Received: from maynard.decadent.org.uk ([95.217.213.242]:42210 "EHLO
+        maynard.decadent.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240632AbiAXPnV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 10:43:21 -0500
+Received: from 168.7-181-91.adsl-dyn.isp.belgacom.be ([91.181.7.168] helo=deadeye)
+        by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1nC1V1-0006td-JA; Mon, 24 Jan 2022 16:43:19 +0100
+Received: from ben by deadeye with local (Exim 4.95)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1nC1V1-009yzt-1j;
+        Mon, 24 Jan 2022 16:43:19 +0100
+Date:   Mon, 24 Jan 2022 16:43:19 +0100
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     stable@vger.kernel.org
+Cc:     Andy Spencer <aspencer@spacex.com>,
+        Michael Braun <michael-dev@fami-braun.de>,
+        Claudiu Manoil <claudiu.manoil@nxp.com>
+Subject: [stable 4.9,4.14] gianfar rx fixes
+Message-ID: <Ye7JF4yOYE3y8QEJ@decadent.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="EOAzPLx7kVjRivnB"
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Ye7HB4Zsdbdwgt4T@decadent.org.uk>
+X-SA-Exim-Connect-IP: 91.181.7.168
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on maynard); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 24, 2022 at 04:34:31PM +0100, Ben Hutchings wrote:
-> From: Dave Airlie <airlied@redhat.com>
-> 
-> commit 5de5b6ecf97a021f29403aa272cb4e03318ef586 upstream.
-> 
-> This is confusing, and from my reading of all the drivers only
-> nouveau got this right.
-> 
-> Just make the API act under driver control of it's own allocation
-> failing, and don't call destroy, if the page table fails to
-> create there is nothing to cleanup here.
-> 
-> (I'm willing to believe I've missed something here, so please
-> review deeply).
-> 
-> Reviewed-by: Christian König <christian.koenig@amd.com>
-> Signed-off-by: Dave Airlie <airlied@redhat.com>
-> Link: https://patchwork.freedesktop.org/patch/msgid/20200728041736.20689-1-airlied@gmail.com
-> [bwh: Backported to 4.14:
->  - Drop change in ttm_sg_tt_init()
->  - Adjust context]
-> Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-> ---
->  drivers/gpu/drm/nouveau/nouveau_sgdma.c | 9 +++------
->  drivers/gpu/drm/ttm/ttm_tt.c            | 2 --
->  2 files changed, 3 insertions(+), 8 deletions(-)
 
-Now queued up, thanks for the backport!
+--EOAzPLx7kVjRivnB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-greg k-h
+Please pick the following commits for 4.9 and 4.14.  They should apply
+cleanly.
+
+commit d903ec77118c09f93a610b384d83a6df33a64fe6
+Author: Andy Spencer <aspencer@spacex.com>
+Date:   Thu Feb 22 11:05:33 2018 -0800
+
+    gianfar: simplify FCS handling and fix memory leak
+
+commit d8861bab48b6c1fc3cdbcab8ff9d1eaea43afe7f
+Author: Michael Braun <michael-dev@fami-braun.de>
+Date:   Thu Mar 4 20:52:52 2021 +0100
+
+    gianfar: fix jumbo packets+napi+rx overrun crash
+
+Ben.
+
+--=20
+Ben Hutchings
+Teamwork is essential - it allows you to blame someone else.
+
+--EOAzPLx7kVjRivnB
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmHuyQ4ACgkQ57/I7JWG
+EQn2vw/8CWrnRlvB5ecDBZKOWPw2eALbfK5E7Ng5qZYSCh0PX8j2RQzSVU8d7io9
+TbbbJEYC3R4zbpOjZOhMejPvgKvrR4B7YcdBO2nxeiSWtQaBp6Kq53bftNK07DP5
+G2npCqyRHFKLOf0n8/Vtyg/dotNY8cZKfuz0xl+dnFbBAD7218rFKZPBFCWyYGEf
+tO7ldWqPtCnALqOCv2RybNC0EYhLKOtvyPNMchVnVEPmHN5GgV4Xf9ShEmSubMAx
+vbj+2ByVSmtqxVzlkuaUFR/dHwsGTrrsDUdBsFNEodrtcmjBtDU+wcTciEzd7PQE
+KOQ1TBGGcyjb/5w1kNbyIRTuhS5I9UJZTTox/DUDpryqqv+ETzBexm5knqukSERM
+OwsBYwas/hA+dpqUdVF5pVpUtYWJkQCzsf5jjJDGlgNXkDzJclFzcq5sdvlr246P
+Jy1HI5Vme8g+5V17cBvXZ3QJWIDDxRcQ+ZD+b71MfCXoFAagPifNW72Objlv9cBW
+212ZpwJhBGn6qc1rnWZRQB4UmxNmdlahM6PV+KlUuFNontqFLHQ7DiaP0D9h6Lsk
+FYjsP0sBL/kz0p0yYtmXI3/I6GP8yGGNdMuUuCTruGQCVeWw+uhxnDKBxOLrkHeN
+G+VE2bPKi2H5qwBeZKANdMtg1W31LWxVnTNg7QKGPs7ImoWRYMk=
+=PXdd
+-----END PGP SIGNATURE-----
+
+--EOAzPLx7kVjRivnB--
