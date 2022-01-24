@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 342C24980BB
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:14:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81DCE4980C0
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:15:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234786AbiAXNO4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 08:14:56 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:45052 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229833AbiAXNO4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:14:56 -0500
+        id S234881AbiAXNPm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 08:15:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47726 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229833AbiAXNPm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:15:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 889ECC06173B
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 05:15:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A761B61033
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:14:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84AB4C340E1;
-        Mon, 24 Jan 2022 13:14:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 25FA961033
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:15:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EABF9C340E1;
+        Mon, 24 Jan 2022 13:15:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643030095;
-        bh=wu9EvMowYmzhYqIEyEoUGZxzd2RRh7vdA57AxFrznJI=;
+        s=korg; t=1643030140;
+        bh=hCp/5jQUh817ADKg0T/zeQFiDpJ5Q9UfotWLTSoJwiI=;
         h=Subject:To:Cc:From:Date:From;
-        b=JI9Cz2F9kePHSKVgxbMleGCX1lPKcluTLH8aFLVOer5D7iSO+uP+YWT7rxcuLu1w4
-         39Ig03K2bPJWtD1nRtv4AI+edTFrOdFdwNAMWw/k1RH32pBRGOi8RecJKbXsClvd76
-         bTbtFVGioesDgywOjC55piTGkQtESErD3c+zIAWE=
-Subject: FAILED: patch "[PATCH] xfrm: Don't accidentally set RTO_ONLINK in decode_session4()" failed to apply to 4.19-stable tree
-To:     gnault@redhat.com, kuba@kernel.org
+        b=vyoc7zQ9Cetbh0ZrT45U0BNY+rbbVIrZ7mFnTk+kpFnAMzoCHWeBtAstFYaI/T2sL
+         +7z6/UFMxUqCOet2eiKdorRvMI91xk2G1NSQH3CRkKjEY//Fqdr2RjQ3hrnFNCob1t
+         PcpaJzqrOezQYiR3xCe/1CX/zwocSuFSY1P+keWw=
+Subject: FAILED: patch "[PATCH] io_uring: fix UAF due to missing POLLFREE handling" failed to apply to 5.4-stable tree
+To:     asml.silence@gmail.com, axboe@kernel.dk, ebiggers@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 14:14:39 +0100
-Message-ID: <16430300795760@kroah.com>
+Date:   Mon, 24 Jan 2022 14:15:37 +0100
+Message-ID: <164303013713562@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -50,45 +53,112 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 23e7b1bfed61e301853b5e35472820d919498278 Mon Sep 17 00:00:00 2001
-From: Guillaume Nault <gnault@redhat.com>
-Date: Mon, 10 Jan 2022 14:43:06 +0100
-Subject: [PATCH] xfrm: Don't accidentally set RTO_ONLINK in decode_session4()
+From 791f3465c4afde02d7f16cf7424ca87070b69396 Mon Sep 17 00:00:00 2001
+From: Pavel Begunkov <asml.silence@gmail.com>
+Date: Fri, 14 Jan 2022 11:59:10 +0000
+Subject: [PATCH] io_uring: fix UAF due to missing POLLFREE handling
 
-Similar to commit 94e2238969e8 ("xfrm4: strip ECN bits from tos field"),
-clear the ECN bits from iph->tos when setting ->flowi4_tos.
-This ensures that the last bit of ->flowi4_tos is cleared, so
-ip_route_output_key_hash() isn't going to restrict the scope of the
-route lookup.
+Fixes a problem described in 50252e4b5e989
+("aio: fix use-after-free due to missing POLLFREE handling")
+and copies the approach used there.
 
-Use ~INET_ECN_MASK instead of IPTOS_RT_MASK, because we have no reason
-to clear the high order bits.
+In short, we have to forcibly eject a poll entry when we meet POLLFREE.
+We can't rely on io_poll_get_ownership() as can't wait for potentially
+running tw handlers, so we use the fact that wqs are RCU freed. See
+Eric's patch and comments for more details.
 
-Found by code inspection, compile tested only.
+Reported-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20211209010455.42744-6-ebiggers@kernel.org
+Reported-and-tested-by: syzbot+5426c7ed6868c705ca14@syzkaller.appspotmail.com
+Fixes: 221c5eb233823 ("io_uring: add support for IORING_OP_POLL")
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/4ed56b6f548f7ea337603a82315750449412748a.1642161259.git.asml.silence@gmail.com
+[axboe: drop non-functional change from patch]
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 
-Fixes: 4da3089f2b58 ("[IPSEC]: Use TOS when doing tunnel lookups")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-
-diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
-index dccb8f3318ef..04d1ce9b510f 100644
---- a/net/xfrm/xfrm_policy.c
-+++ b/net/xfrm/xfrm_policy.c
-@@ -31,6 +31,7 @@
- #include <linux/if_tunnel.h>
- #include <net/dst.h>
- #include <net/flow.h>
-+#include <net/inet_ecn.h>
- #include <net/xfrm.h>
- #include <net/ip.h>
- #include <net/gre.h>
-@@ -3295,7 +3296,7 @@ decode_session4(struct sk_buff *skb, struct flowi *fl, bool reverse)
- 	fl4->flowi4_proto = iph->protocol;
- 	fl4->daddr = reverse ? iph->saddr : iph->daddr;
- 	fl4->saddr = reverse ? iph->daddr : iph->saddr;
--	fl4->flowi4_tos = iph->tos;
-+	fl4->flowi4_tos = iph->tos & ~INET_ECN_MASK;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index fa3277844d2e..422d6de48688 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -5462,12 +5462,14 @@ static void io_init_poll_iocb(struct io_poll_iocb *poll, __poll_t events,
  
- 	if (!ip_is_fragment(iph)) {
- 		switch (iph->protocol) {
+ static inline void io_poll_remove_entry(struct io_poll_iocb *poll)
+ {
+-	struct wait_queue_head *head = poll->head;
++	struct wait_queue_head *head = smp_load_acquire(&poll->head);
+ 
+-	spin_lock_irq(&head->lock);
+-	list_del_init(&poll->wait.entry);
+-	poll->head = NULL;
+-	spin_unlock_irq(&head->lock);
++	if (head) {
++		spin_lock_irq(&head->lock);
++		list_del_init(&poll->wait.entry);
++		poll->head = NULL;
++		spin_unlock_irq(&head->lock);
++	}
+ }
+ 
+ static void io_poll_remove_entries(struct io_kiocb *req)
+@@ -5475,10 +5477,26 @@ static void io_poll_remove_entries(struct io_kiocb *req)
+ 	struct io_poll_iocb *poll = io_poll_get_single(req);
+ 	struct io_poll_iocb *poll_double = io_poll_get_double(req);
+ 
+-	if (poll->head)
+-		io_poll_remove_entry(poll);
+-	if (poll_double && poll_double->head)
++	/*
++	 * While we hold the waitqueue lock and the waitqueue is nonempty,
++	 * wake_up_pollfree() will wait for us.  However, taking the waitqueue
++	 * lock in the first place can race with the waitqueue being freed.
++	 *
++	 * We solve this as eventpoll does: by taking advantage of the fact that
++	 * all users of wake_up_pollfree() will RCU-delay the actual free.  If
++	 * we enter rcu_read_lock() and see that the pointer to the queue is
++	 * non-NULL, we can then lock it without the memory being freed out from
++	 * under us.
++	 *
++	 * Keep holding rcu_read_lock() as long as we hold the queue lock, in
++	 * case the caller deletes the entry from the queue, leaving it empty.
++	 * In that case, only RCU prevents the queue memory from being freed.
++	 */
++	rcu_read_lock();
++	io_poll_remove_entry(poll);
++	if (poll_double)
+ 		io_poll_remove_entry(poll_double);
++	rcu_read_unlock();
+ }
+ 
+ /*
+@@ -5618,6 +5636,30 @@ static int io_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
+ 						 wait);
+ 	__poll_t mask = key_to_poll(key);
+ 
++	if (unlikely(mask & POLLFREE)) {
++		io_poll_mark_cancelled(req);
++		/* we have to kick tw in case it's not already */
++		io_poll_execute(req, 0);
++
++		/*
++		 * If the waitqueue is being freed early but someone is already
++		 * holds ownership over it, we have to tear down the request as
++		 * best we can. That means immediately removing the request from
++		 * its waitqueue and preventing all further accesses to the
++		 * waitqueue via the request.
++		 */
++		list_del_init(&poll->wait.entry);
++
++		/*
++		 * Careful: this *must* be the last step, since as soon
++		 * as req->head is NULL'ed out, the request can be
++		 * completed and freed, since aio_poll_complete_work()
++		 * will no longer need to take the waitqueue lock.
++		 */
++		smp_store_release(&poll->head, NULL);
++		return 1;
++	}
++
+ 	/* for instances that support it check for an event match first */
+ 	if (mask && !(mask & poll->events))
+ 		return 0;
 
