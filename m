@@ -2,40 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFE1A4990BC
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:07:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9729E498C72
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:23:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346719AbiAXUDi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:03:38 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:44852 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353260AbiAXUBh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:01:37 -0500
+        id S1344101AbiAXTWc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:22:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49826 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348494AbiAXTSs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:18:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CED3EC061747;
+        Mon, 24 Jan 2022 11:07:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C155B8122F;
-        Mon, 24 Jan 2022 20:01:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D309C340E5;
-        Mon, 24 Jan 2022 20:01:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 401D760B9E;
+        Mon, 24 Jan 2022 19:07:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F14F6C340E8;
+        Mon, 24 Jan 2022 19:07:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054494;
-        bh=XKhNpFcyGUjE+sjTlejmD2OUYPSklbFBgEeUXUUIQe4=;
+        s=korg; t=1643051238;
+        bh=DuH/p4autJ8XQskDl+7eY9MfYRDLpNYDlJIzWrKJzbU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UPU4jHB/7hZKEoubXPoZsU5KKFr++YmltxEJQmdIYTQt3Alr5Rx5V8artuy2hswLq
-         9T8JADaa8ULydhnUrI0yapJBBgRhv8Xy1kz7B1Q/vYNi1uok/4SJG3TB4dADHKhMdI
-         43s/bev1ns/KgMaKHSnAHWaxxOV7keTrVcZawfNU=
+        b=1zJWnOBuawvOnrF062utUPflDifMuKaHRUs9uEhfdLMqUn2bozQiAqjdg0SSCqdSL
+         U8j+kb96q2FgusSFJQL5wWGPMdpKPKgGQ2WiXJZJlpB2DhF6HvD+c3naBh1PfpqGE0
+         CUvozCPuTiVAMB8ffd3fXO5s09H0YWVtESwMDUbg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ingo Molnar <mingo@kernel.org>,
+        stable@vger.kernel.org, Brendan Dolan-Gavitt <brendandg@nyu.edu>,
+        Zekun Shen <bruceshenzk@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 408/563] x86/kbuild: Enable CONFIG_KALLSYMS_ALL=y in the defconfigs
+Subject: [PATCH 4.14 098/186] mwifiex: Fix skb_over_panic in mwifiex_usb_recv()
 Date:   Mon, 24 Jan 2022 19:42:53 +0100
-Message-Id: <20220124184038.548917070@linuxfoundation.org>
+Message-Id: <20220124183940.267217888@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
+References: <20220124183937.101330125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,43 +49,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ingo Molnar <mingo@kernel.org>
+From: Zekun Shen <bruceshenzk@gmail.com>
 
-[ Upstream commit b6aa86cff44cf099299d3a5e66348cb709cd7964 ]
+[ Upstream commit 04d80663f67ccef893061b49ec8a42ff7045ae84 ]
 
-Most distro kernels have this option enabled, to improve debug output.
+Currently, with an unknown recv_type, mwifiex_usb_recv
+just return -1 without restoring the skb. Next time
+mwifiex_usb_rx_complete is invoked with the same skb,
+calling skb_put causes skb_over_panic.
 
-Lockdep also selects it.
+The bug is triggerable with a compromised/malfunctioning
+usb device. After applying the patch, skb_over_panic
+no longer shows up with the same input.
 
-Enable this in the defconfig kernel as well, to make it more
-representative of what people are using on x86.
+Attached is the panic report from fuzzing.
+skbuff: skb_over_panic: text:000000003bf1b5fa
+ len:2048 put:4 head:00000000dd6a115b data:000000000a9445d8
+ tail:0x844 end:0x840 dev:<NULL>
+kernel BUG at net/core/skbuff.c:109!
+invalid opcode: 0000 [#1] SMP KASAN NOPTI
+CPU: 0 PID: 198 Comm: in:imklog Not tainted 5.6.0 #60
+RIP: 0010:skb_panic+0x15f/0x161
+Call Trace:
+ <IRQ>
+ ? mwifiex_usb_rx_complete+0x26b/0xfcd [mwifiex_usb]
+ skb_put.cold+0x24/0x24
+ mwifiex_usb_rx_complete+0x26b/0xfcd [mwifiex_usb]
+ __usb_hcd_giveback_urb+0x1e4/0x380
+ usb_giveback_urb_bh+0x241/0x4f0
+ ? __hrtimer_run_queues+0x316/0x740
+ ? __usb_hcd_giveback_urb+0x380/0x380
+ tasklet_action_common.isra.0+0x135/0x330
+ __do_softirq+0x18c/0x634
+ irq_exit+0x114/0x140
+ smp_apic_timer_interrupt+0xde/0x380
+ apic_timer_interrupt+0xf/0x20
+ </IRQ>
 
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/YdTn7gssoMVDMgMw@gmail.com
+Reported-by: Brendan Dolan-Gavitt <brendandg@nyu.edu>
+Signed-off-by: Zekun Shen <bruceshenzk@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/YX4CqjfRcTa6bVL+@Zekuns-MBP-16.fios-router.home
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/configs/i386_defconfig   | 1 +
- arch/x86/configs/x86_64_defconfig | 1 +
- 2 files changed, 2 insertions(+)
+ drivers/net/wireless/marvell/mwifiex/usb.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/configs/i386_defconfig b/arch/x86/configs/i386_defconfig
-index 78210793d357c..38d7acb9610cc 100644
---- a/arch/x86/configs/i386_defconfig
-+++ b/arch/x86/configs/i386_defconfig
-@@ -264,3 +264,4 @@ CONFIG_BLK_DEV_IO_TRACE=y
- CONFIG_PROVIDE_OHCI1394_DMA_INIT=y
- CONFIG_EARLY_PRINTK_DBGP=y
- CONFIG_DEBUG_BOOT_PARAMS=y
-+CONFIG_KALLSYMS_ALL=y
-diff --git a/arch/x86/configs/x86_64_defconfig b/arch/x86/configs/x86_64_defconfig
-index 9936528e19393..c6e587a9a6f85 100644
---- a/arch/x86/configs/x86_64_defconfig
-+++ b/arch/x86/configs/x86_64_defconfig
-@@ -260,3 +260,4 @@ CONFIG_BLK_DEV_IO_TRACE=y
- CONFIG_PROVIDE_OHCI1394_DMA_INIT=y
- CONFIG_EARLY_PRINTK_DBGP=y
- CONFIG_DEBUG_BOOT_PARAMS=y
-+CONFIG_KALLSYMS_ALL=y
+diff --git a/drivers/net/wireless/marvell/mwifiex/usb.c b/drivers/net/wireless/marvell/mwifiex/usb.c
+index 202ce83cb7948..f279cd4e78ff9 100644
+--- a/drivers/net/wireless/marvell/mwifiex/usb.c
++++ b/drivers/net/wireless/marvell/mwifiex/usb.c
+@@ -130,7 +130,8 @@ static int mwifiex_usb_recv(struct mwifiex_adapter *adapter,
+ 		default:
+ 			mwifiex_dbg(adapter, ERROR,
+ 				    "unknown recv_type %#x\n", recv_type);
+-			return -1;
++			ret = -1;
++			goto exit_restore_skb;
+ 		}
+ 		break;
+ 	case MWIFIEX_USB_EP_DATA:
 -- 
 2.34.1
 
