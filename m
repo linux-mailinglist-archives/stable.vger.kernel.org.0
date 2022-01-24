@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 696764996A1
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:19:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DE814998B0
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:38:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347644AbiAXVFU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:05:20 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:55262 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1444468AbiAXVBA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:01:00 -0500
+        id S1449894AbiAXV3B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:29:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49582 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1449928AbiAXVRf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:17:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FE2AC067A67;
+        Mon, 24 Jan 2022 12:12:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2342EB80FA1;
-        Mon, 24 Jan 2022 21:00:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4650AC340E5;
-        Mon, 24 Jan 2022 21:00:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A190C6131F;
+        Mon, 24 Jan 2022 20:12:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE9AAC340E5;
+        Mon, 24 Jan 2022 20:12:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058057;
-        bh=zLZtC7ypmlhH1omlZOAIcSh+uqnfUwqd1cdnR2k5tXY=;
+        s=korg; t=1643055154;
+        bh=1xQpMaORlAjMY+OYmQAFt/yWySqQIyzA1KWUNh4bLgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vriyTdxdTJoEztgQ0Z0Gmpu+iBcH1Mad+/AeuKFPbVa4dbkuoBrLVdZrV+cEeq9nn
-         68R2MNTEsXVXGyY/DfploQ8wVjBMEXuXUhJYYH573W7dFqozBytxlNlrnPo8xre6Ak
-         EnBlUVeuhs1cwNcDVvdOXZw9f3tq/cjZkP0ERJ40=
+        b=Xa7IvfNgf8BUeSOSGVPCXM0GDH5hUL8FB1K1qWLO0DU0zV5dS7FM9gggZMoq75306
+         vO+XpGzMVe3x9FOuOmwbYyPYjv82yGGPL0pAXpvKFDi1LN40wN6ei1CXIUMc19QVPc
+         CiwLx1sYH3gtL5Yus6kVpQg1QKdjV8XgCxn4SFwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dillon Min <dillon.minfei@gmail.com>,
-        kernel test robot <lkp@intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0168/1039] ARM: dts: stm32: fix dtbs_check warning on ili9341 dts binding on stm32f429 disco
-Date:   Mon, 24 Jan 2022 19:32:37 +0100
-Message-Id: <20220124184130.866142103@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Sakari Ailus <sakari.ailus@linux.intel.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.15 041/846] media: ov8865: Disable only enabled regulators on error path
+Date:   Mon, 24 Jan 2022 19:32:38 +0100
+Message-Id: <20220124184102.363875969@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,43 +48,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dillon Min <dillon.minfei@gmail.com>
+From: Sakari Ailus <sakari.ailus@linux.intel.com>
 
-[ Upstream commit b046049e59dca5e5830dc75ed16acf7657a95161 ]
+commit cbe0b3af73bf72fad197756f026084404e2bcdc7 upstream.
 
-Since the compatible string defined from ilitek,ili9341.yaml is
-"st,sf-tc240t-9370-t", "ilitek,ili9341"
+If powering on the sensor failed, the entire power-off sequence was run
+independently of how far the power-on sequence proceeded before the error.
+This lead to disabling regulators and/or clock that was not enabled.
 
-so, append "ilitek,ili9341" to avoid the below dtbs_check warning.
+Fix this by disabling only clocks and regulators that were enabled
+previously.
 
-arch/arm/boot/dts/stm32f429-disco.dt.yaml: display@1: compatible:
-['st,sf-tc240t-9370-t'] is too short
-
-Fixes: a726e2f000ec ("ARM: dts: stm32: enable ltdc binding with ili9341, gyro l3gd20 on stm32429-disco board")
-Signed-off-by: Dillon Min <dillon.minfei@gmail.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 11c0d8fdccc5 ("media: i2c: Add support for the OV8865 image sensor")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/stm32f429-disco.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/i2c/ov8865.c |   12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/boot/dts/stm32f429-disco.dts b/arch/arm/boot/dts/stm32f429-disco.dts
-index 075ac57d0bf4a..6435e099c6326 100644
---- a/arch/arm/boot/dts/stm32f429-disco.dts
-+++ b/arch/arm/boot/dts/stm32f429-disco.dts
-@@ -192,7 +192,7 @@
+--- a/drivers/media/i2c/ov8865.c
++++ b/drivers/media/i2c/ov8865.c
+@@ -2330,27 +2330,27 @@ static int ov8865_sensor_power(struct ov
+ 		if (ret) {
+ 			dev_err(sensor->dev,
+ 				"failed to enable DOVDD regulator\n");
+-			goto disable;
++			return ret;
+ 		}
  
- 	display: display@1{
- 		/* Connect panel-ilitek-9341 to ltdc */
--		compatible = "st,sf-tc240t-9370-t";
-+		compatible = "st,sf-tc240t-9370-t", "ilitek,ili9341";
- 		reg = <1>;
- 		spi-3wire;
- 		spi-max-frequency = <10000000>;
--- 
-2.34.1
-
+ 		ret = regulator_enable(sensor->avdd);
+ 		if (ret) {
+ 			dev_err(sensor->dev,
+ 				"failed to enable AVDD regulator\n");
+-			goto disable;
++			goto disable_dovdd;
+ 		}
+ 
+ 		ret = regulator_enable(sensor->dvdd);
+ 		if (ret) {
+ 			dev_err(sensor->dev,
+ 				"failed to enable DVDD regulator\n");
+-			goto disable;
++			goto disable_avdd;
+ 		}
+ 
+ 		ret = clk_prepare_enable(sensor->extclk);
+ 		if (ret) {
+ 			dev_err(sensor->dev, "failed to enable EXTCLK clock\n");
+-			goto disable;
++			goto disable_dvdd;
+ 		}
+ 
+ 		gpiod_set_value_cansleep(sensor->reset, 0);
+@@ -2359,14 +2359,16 @@ static int ov8865_sensor_power(struct ov
+ 		/* Time to enter streaming mode according to power timings. */
+ 		usleep_range(10000, 12000);
+ 	} else {
+-disable:
+ 		gpiod_set_value_cansleep(sensor->powerdown, 1);
+ 		gpiod_set_value_cansleep(sensor->reset, 1);
+ 
+ 		clk_disable_unprepare(sensor->extclk);
+ 
++disable_dvdd:
+ 		regulator_disable(sensor->dvdd);
++disable_avdd:
+ 		regulator_disable(sensor->avdd);
++disable_dovdd:
+ 		regulator_disable(sensor->dovdd);
+ 	}
+ 
 
 
