@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B1D749A2E5
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:01:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A675E49A2DD
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:01:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2366008AbiAXXwJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:52:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47694 "EHLO
+        id S2366000AbiAXXwI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:52:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1843474AbiAXXED (ORCPT
+        with ESMTP id S1843479AbiAXXED (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:04:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89AA7C06C5AC;
-        Mon, 24 Jan 2022 13:15:12 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05DCBC06C5AD;
+        Mon, 24 Jan 2022 13:15:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 275E661425;
-        Mon, 24 Jan 2022 21:15:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE212C340E5;
-        Mon, 24 Jan 2022 21:15:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B6E9EB80CCF;
+        Mon, 24 Jan 2022 21:15:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D68B3C340E5;
+        Mon, 24 Jan 2022 21:15:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058911;
-        bh=jCLuVy28HwBiuUUxs7Ez/SG8B5g+9UJE++jF70kFQIw=;
+        s=korg; t=1643058914;
+        bh=MNP0naKwHatsb8nu+Qq1uQUPHt7r094wxZv8V9/AMEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dMKO6dQw36Sz86pGfU69dsVHVksUa6ale4o1YE4JczNWWHm4OEfRoqX78YGQ56mgs
-         B0UdcZviDa3qEfPwfAWV0XGgBouXDmrHaMl59fa/94y0dcYa23/tyXWJ0627NGLHcA
-         s1CeiA0Lci1EiVRXhm0rHExqcUwREluUQ147ZZBo=
+        b=pJZT4ewC6z7k6qoebKNNg/IY5oLqs0HwoQHdg1BYTnu6WTxfWEaXLPQfduGXvaW+x
+         nXfScedFDfsDR5gkP4OwuCcBoaQJXavfYEHqy6mZVkRIAjlxQsi9hNWVHQoo1+3i/x
+         7WDjcu6bQUcxpCwaOgqr4ugzpj7msuork4k3XdwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
-        Gal Pressman <gal@nvidia.com>,
+        stable@vger.kernel.org, Paul Blakey <paulb@nvidia.com>,
+        Oz Shlomo <ozsh@nvidia.com>, Eli Cohen <elic@nvidia.com>,
+        Roi Dayan <roid@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0410/1039] Revert "net/mlx5e: Block offload of outer header csum for GRE tunnel"
-Date:   Mon, 24 Jan 2022 19:36:39 +0100
-Message-Id: <20220124184139.096166047@linuxfoundation.org>
+Subject: [PATCH 5.16 0411/1039] net/mlx5e: Fix matching on modified inner ip_ecn bits
+Date:   Mon, 24 Jan 2022 19:36:40 +0100
+Message-Id: <20220124184139.126950750@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -49,46 +50,196 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aya Levin <ayal@nvidia.com>
+From: Paul Blakey <paulb@nvidia.com>
 
-[ Upstream commit 01c3fd113ef50490ffd43f78f347ef6bb008510b ]
+[ Upstream commit b6dfff21a170af5c695ebaa153b7f5e297ddca03 ]
 
-This reverts commit 54e1217b90486c94b26f24dcee1ee5ef5372f832.
+Tunnel device follows RFC 6040, and during decapsulation inner
+ip_ecn might change depending on inner and outer ip_ecn as follows:
 
-Although the NIC doesn't support offload of outer header CSUM, using
-gso_partial_features allows offloading the tunnel's segmentation. The
-driver relies on the stack CSUM calculation of the outer header. For
-this, NETIF_F_GSO_GRE_CSUM must be a member of the device's features.
+ +---------+----------------------------------------+
+ |Arriving |         Arriving Outer Header          |
+ |   Inner +---------+---------+---------+----------+
+ |  Header | Not-ECT | ECT(0)  | ECT(1)  |   CE     |
+ +---------+---------+---------+---------+----------+
+ | Not-ECT | Not-ECT | Not-ECT | Not-ECT | <drop>   |
+ |  ECT(0) |  ECT(0) | ECT(0)  | ECT(1)  |   CE*    |
+ |  ECT(1) |  ECT(1) | ECT(1)  | ECT(1)* |   CE*    |
+ |    CE   |   CE    |  CE     | CE      |   CE     |
+ +---------+---------+---------+---------+----------+
 
-Fixes: 54e1217b9048 ("net/mlx5e: Block offload of outer header csum for GRE tunnel")
-Signed-off-by: Aya Levin <ayal@nvidia.com>
-Reviewed-by: Gal Pressman <gal@nvidia.com>
+Cells marked above are changed from original inner packet ip_ecn value.
+
+Tc then matches on the modified inner ip_ecn, but hw offload which
+matches the inner ip_ecn value before decap, will fail.
+
+Fix that by mapping all the cases of outer and inner ip_ecn matching,
+and only supporting cases where we know inner wouldn't be changed by
+decap, or in the outer ip_ecn=CE case, inner ip_ecn didn't matter.
+
+Fixes: bcef735c59f2 ("net/mlx5e: Offload TC matching on tos/ttl for ip tunnels")
+Signed-off-by: Paul Blakey <paulb@nvidia.com>
+Reviewed-by: Oz Shlomo <ozsh@nvidia.com>
+Reviewed-by: Eli Cohen <elic@nvidia.com>
+Reviewed-by: Roi Dayan <roid@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ .../net/ethernet/mellanox/mlx5/core/en_tc.c   | 120 +++++++++++++++++-
+ 1 file changed, 116 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index de8acd3217c18..d92b82cdfd4e1 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -4799,9 +4799,12 @@ static void mlx5e_build_nic_netdev(struct net_device *netdev)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+index 5e454a14428f2..9b3adaccc9beb 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+@@ -1949,6 +1949,111 @@ u8 mlx5e_tc_get_ip_version(struct mlx5_flow_spec *spec, bool outer)
+ 	return ip_version;
+ }
+ 
++/* Tunnel device follows RFC 6040, see include/net/inet_ecn.h.
++ * And changes inner ip_ecn depending on inner and outer ip_ecn as follows:
++ *      +---------+----------------------------------------+
++ *      |Arriving |         Arriving Outer Header          |
++ *      |   Inner +---------+---------+---------+----------+
++ *      |  Header | Not-ECT | ECT(0)  | ECT(1)  |   CE     |
++ *      +---------+---------+---------+---------+----------+
++ *      | Not-ECT | Not-ECT | Not-ECT | Not-ECT | <drop>   |
++ *      |  ECT(0) |  ECT(0) | ECT(0)  | ECT(1)  |   CE*    |
++ *      |  ECT(1) |  ECT(1) | ECT(1)  | ECT(1)* |   CE*    |
++ *      |    CE   |   CE    |  CE     | CE      |   CE     |
++ *      +---------+---------+---------+---------+----------+
++ *
++ * Tc matches on inner after decapsulation on tunnel device, but hw offload matches
++ * the inner ip_ecn value before hardware decap action.
++ *
++ * Cells marked are changed from original inner packet ip_ecn value during decap, and
++ * so matching those values on inner ip_ecn before decap will fail.
++ *
++ * The following helper allows offload when inner ip_ecn won't be changed by outer ip_ecn,
++ * except for the outer ip_ecn = CE, where in all cases inner ip_ecn will be changed to CE,
++ * and such we can drop the inner ip_ecn=CE match.
++ */
++
++static int mlx5e_tc_verify_tunnel_ecn(struct mlx5e_priv *priv,
++				      struct flow_cls_offload *f,
++				      bool *match_inner_ecn)
++{
++	u8 outer_ecn_mask = 0, outer_ecn_key = 0, inner_ecn_mask = 0, inner_ecn_key = 0;
++	struct flow_rule *rule = flow_cls_offload_flow_rule(f);
++	struct netlink_ext_ack *extack = f->common.extack;
++	struct flow_match_ip match;
++
++	*match_inner_ecn = true;
++
++	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_ENC_IP)) {
++		flow_rule_match_enc_ip(rule, &match);
++		outer_ecn_key = match.key->tos & INET_ECN_MASK;
++		outer_ecn_mask = match.mask->tos & INET_ECN_MASK;
++	}
++
++	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_IP)) {
++		flow_rule_match_ip(rule, &match);
++		inner_ecn_key = match.key->tos & INET_ECN_MASK;
++		inner_ecn_mask = match.mask->tos & INET_ECN_MASK;
++	}
++
++	if (outer_ecn_mask != 0 && outer_ecn_mask != INET_ECN_MASK) {
++		NL_SET_ERR_MSG_MOD(extack, "Partial match on enc_tos ecn bits isn't supported");
++		netdev_warn(priv->netdev, "Partial match on enc_tos ecn bits isn't supported");
++		return -EOPNOTSUPP;
++	}
++
++	if (!outer_ecn_mask) {
++		if (!inner_ecn_mask)
++			return 0;
++
++		NL_SET_ERR_MSG_MOD(extack,
++				   "Matching on tos ecn bits without also matching enc_tos ecn bits isn't supported");
++		netdev_warn(priv->netdev,
++			    "Matching on tos ecn bits without also matching enc_tos ecn bits isn't supported");
++		return -EOPNOTSUPP;
++	}
++
++	if (inner_ecn_mask && inner_ecn_mask != INET_ECN_MASK) {
++		NL_SET_ERR_MSG_MOD(extack,
++				   "Partial match on tos ecn bits with match on enc_tos ecn bits isn't supported");
++		netdev_warn(priv->netdev,
++			    "Partial match on tos ecn bits with match on enc_tos ecn bits isn't supported");
++		return -EOPNOTSUPP;
++	}
++
++	if (!inner_ecn_mask)
++		return 0;
++
++	/* Both inner and outer have full mask on ecn */
++
++	if (outer_ecn_key == INET_ECN_ECT_1) {
++		/* inner ecn might change by DECAP action */
++
++		NL_SET_ERR_MSG_MOD(extack, "Match on enc_tos ecn = ECT(1) isn't supported");
++		netdev_warn(priv->netdev, "Match on enc_tos ecn = ECT(1) isn't supported");
++		return -EOPNOTSUPP;
++	}
++
++	if (outer_ecn_key != INET_ECN_CE)
++		return 0;
++
++	if (inner_ecn_key != INET_ECN_CE) {
++		/* Can't happen in software, as packet ecn will be changed to CE after decap */
++		NL_SET_ERR_MSG_MOD(extack,
++				   "Match on tos enc_tos ecn = CE while match on tos ecn != CE isn't supported");
++		netdev_warn(priv->netdev,
++			    "Match on tos enc_tos ecn = CE while match on tos ecn != CE isn't supported");
++		return -EOPNOTSUPP;
++	}
++
++	/* outer ecn = CE, inner ecn = CE, as decap will change inner ecn to CE in anycase,
++	 * drop match on inner ecn
++	 */
++	*match_inner_ecn = false;
++
++	return 0;
++}
++
+ static int parse_tunnel_attr(struct mlx5e_priv *priv,
+ 			     struct mlx5e_tc_flow *flow,
+ 			     struct mlx5_flow_spec *spec,
+@@ -2144,6 +2249,7 @@ static int __parse_cls_flower(struct mlx5e_priv *priv,
+ 	struct flow_rule *rule = flow_cls_offload_flow_rule(f);
+ 	struct flow_dissector *dissector = rule->match.dissector;
+ 	enum fs_flow_table_type fs_type;
++	bool match_inner_ecn = true;
+ 	u16 addr_type = 0;
+ 	u8 ip_proto = 0;
+ 	u8 *match_level;
+@@ -2197,6 +2303,10 @@ static int __parse_cls_flower(struct mlx5e_priv *priv,
+ 			headers_c = get_match_inner_headers_criteria(spec);
+ 			headers_v = get_match_inner_headers_value(spec);
+ 		}
++
++		err = mlx5e_tc_verify_tunnel_ecn(priv, f, &match_inner_ecn);
++		if (err)
++			return err;
  	}
  
- 	if (mlx5e_tunnel_proto_supported_tx(mdev, IPPROTO_GRE)) {
--		netdev->hw_features     |= NETIF_F_GSO_GRE;
--		netdev->hw_enc_features |= NETIF_F_GSO_GRE;
--		netdev->gso_partial_features |= NETIF_F_GSO_GRE;
-+		netdev->hw_features     |= NETIF_F_GSO_GRE |
-+					   NETIF_F_GSO_GRE_CSUM;
-+		netdev->hw_enc_features |= NETIF_F_GSO_GRE |
-+					   NETIF_F_GSO_GRE_CSUM;
-+		netdev->gso_partial_features |= NETIF_F_GSO_GRE |
-+						NETIF_F_GSO_GRE_CSUM;
- 	}
+ 	err = mlx5e_flower_parse_meta(filter_dev, f);
+@@ -2420,10 +2530,12 @@ static int __parse_cls_flower(struct mlx5e_priv *priv,
+ 		struct flow_match_ip match;
  
- 	if (mlx5e_tunnel_proto_supported_tx(mdev, IPPROTO_IPIP)) {
+ 		flow_rule_match_ip(rule, &match);
+-		MLX5_SET(fte_match_set_lyr_2_4, headers_c, ip_ecn,
+-			 match.mask->tos & 0x3);
+-		MLX5_SET(fte_match_set_lyr_2_4, headers_v, ip_ecn,
+-			 match.key->tos & 0x3);
++		if (match_inner_ecn) {
++			MLX5_SET(fte_match_set_lyr_2_4, headers_c, ip_ecn,
++				 match.mask->tos & 0x3);
++			MLX5_SET(fte_match_set_lyr_2_4, headers_v, ip_ecn,
++				 match.key->tos & 0x3);
++		}
+ 
+ 		MLX5_SET(fte_match_set_lyr_2_4, headers_c, ip_dscp,
+ 			 match.mask->tos >> 2);
 -- 
 2.34.1
 
