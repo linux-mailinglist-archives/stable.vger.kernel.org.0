@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10AD249942F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:41:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49C114993EC
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:40:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1388649AbiAXUjz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:39:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39752 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1386438AbiAXUfa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:35:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 346EAC02C3EF;
-        Mon, 24 Jan 2022 11:48:49 -0800 (PST)
+        id S1386105AbiAXUfK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:35:10 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:51730 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1384574AbiAXUaH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:30:07 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4326B81239;
-        Mon, 24 Jan 2022 19:48:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17880C340E5;
-        Mon, 24 Jan 2022 19:48:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B6F1D6152D;
+        Mon, 24 Jan 2022 20:30:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CB77C340E5;
+        Mon, 24 Jan 2022 20:30:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053726;
-        bh=Im0F7TeBzMVqLpyKF0wuta0Ts2zCgNoPJI3BvjCBY7M=;
+        s=korg; t=1643056206;
+        bh=mrzrnxbmD+5U4WQgviGOnIsr+fY8KnoUK66V9RP2bRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hN64lJdia7tRV5Lcr1DZuefAzYiXZyzKE+EBaAfEoFQ6ESFd+NTmiA/hDWCcx++kC
-         R7Zg5wxyXRpJgfRYo4LLY22kxU9dkh1mXzpHkxXHGOlpaopfVuUR5kHh11HV4flMW8
-         jjjqqKdpGoPajyJCK4+ryMrGrXsFfo0hww3f68DQ=
+        b=rQi48VY/Qhi30Tr0cQFinZZJ3csMaEeuytMRvQzayWoWcO/b45cwoYnVqUxosuInN
+         0IEIHm69Y5kJg4qQTdpltAjLmiMEQDH1cbJB3OuHNJ51CRpSdiZZ3NVzDiKtp4i4TH
+         XCd4ilWe7LhH4d0U8dJg35onavsTlb8U5mfECtPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Juergen Gross <jgross@suse.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 158/563] crypto: stm32/cryp - fix lrw chaining mode
-Date:   Mon, 24 Jan 2022 19:38:43 +0100
-Message-Id: <20220124184029.861362732@linuxfoundation.org>
+Subject: [PATCH 5.15 407/846] PCI/MSI: Fix pci_irq_vector()/pci_irq_get_affinity()
+Date:   Mon, 24 Jan 2022 19:38:44 +0100
+Message-Id: <20220124184114.998619758@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,39 +47,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit fa97dc2d48b476ea98199d808d3248d285987e99 ]
+[ Upstream commit 29bbc35e29d9b6347780dcacde2deb4b39344167 ]
 
-This fixes the lrw autotest if lrw uses the CRYP as the AES block cipher
-provider (as ecb(aes)). At end of request, CRYP should not update the IV
-in case of ECB chaining mode. Indeed the ECB chaining mode never uses
-the IV, but the software LRW chaining mode uses the IV field as
-a counter and due to the (unexpected) update done by CRYP while the AES
-block process, the counter get a wrong value when the IV overflow.
+pci_irq_vector() and pci_irq_get_affinity() use the list position to find the
+MSI-X descriptor at a given index. That's correct for the normal case where
+the entry number is the same as the list position.
 
-Fixes: 5f49f18d27cd ("crypto: stm32/cryp - update to return iv_out")
+But it's wrong for cases where MSI-X was allocated with an entries array
+describing sparse entry numbers into the hardware message descriptor
+table. That's inconsistent at best.
 
-Signed-off-by: Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Make it always check the entry number because that's what the zero base
+index really means. This change won't break existing users which use a
+sparse entries array for allocation because these users retrieve the Linux
+interrupt number from the entries array after allocation and none of them
+uses pci_irq_vector() or pci_irq_get_affinity().
+
+Fixes: aff171641d18 ("PCI: Provide sensible IRQ vector alloc/free routines")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Juergen Gross <jgross@suse.com>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Acked-by: Bjorn Helgaas <bhelgaas@google.com>
+Link: https://lore.kernel.org/r/20211206210223.929792157@linutronix.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/stm32/stm32-cryp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/pci/msi.c | 26 ++++++++++++++++++--------
+ 1 file changed, 18 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/crypto/stm32/stm32-cryp.c b/drivers/crypto/stm32/stm32-cryp.c
-index 061db567908ae..9943836a5c25c 100644
---- a/drivers/crypto/stm32/stm32-cryp.c
-+++ b/drivers/crypto/stm32/stm32-cryp.c
-@@ -644,7 +644,7 @@ static void stm32_cryp_finish_req(struct stm32_cryp *cryp, int err)
- 		/* Phase 4 : output tag */
- 		err = stm32_cryp_read_auth_tag(cryp);
+diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
+index e11530cb05699..cc4c2b8a5efd7 100644
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -1193,19 +1193,24 @@ EXPORT_SYMBOL(pci_free_irq_vectors);
  
--	if (!err && (!(is_gcm(cryp) || is_ccm(cryp))))
-+	if (!err && (!(is_gcm(cryp) || is_ccm(cryp) || is_ecb(cryp))))
- 		stm32_cryp_get_iv(cryp);
+ /**
+  * pci_irq_vector - return Linux IRQ number of a device vector
+- * @dev: PCI device to operate on
+- * @nr: device-relative interrupt vector index (0-based).
++ * @dev:	PCI device to operate on
++ * @nr:		Interrupt vector index (0-based)
++ *
++ * @nr has the following meanings depending on the interrupt mode:
++ *   MSI-X:	The index in the MSI-X vector table
++ *   MSI:	The index of the enabled MSI vectors
++ *   INTx:	Must be 0
++ *
++ * Return: The Linux interrupt number or -EINVAl if @nr is out of range.
+  */
+ int pci_irq_vector(struct pci_dev *dev, unsigned int nr)
+ {
+ 	if (dev->msix_enabled) {
+ 		struct msi_desc *entry;
+-		int i = 0;
  
- 	if (cryp->sgs_copied) {
+ 		for_each_pci_msi_entry(entry, dev) {
+-			if (i == nr)
++			if (entry->msi_attrib.entry_nr == nr)
+ 				return entry->irq;
+-			i++;
+ 		}
+ 		WARN_ON_ONCE(1);
+ 		return -EINVAL;
+@@ -1229,17 +1234,22 @@ EXPORT_SYMBOL(pci_irq_vector);
+  * pci_irq_get_affinity - return the affinity of a particular MSI vector
+  * @dev:	PCI device to operate on
+  * @nr:		device-relative interrupt vector index (0-based).
++ *
++ * @nr has the following meanings depending on the interrupt mode:
++ *   MSI-X:	The index in the MSI-X vector table
++ *   MSI:	The index of the enabled MSI vectors
++ *   INTx:	Must be 0
++ *
++ * Return: A cpumask pointer or NULL if @nr is out of range
+  */
+ const struct cpumask *pci_irq_get_affinity(struct pci_dev *dev, int nr)
+ {
+ 	if (dev->msix_enabled) {
+ 		struct msi_desc *entry;
+-		int i = 0;
+ 
+ 		for_each_pci_msi_entry(entry, dev) {
+-			if (i == nr)
++			if (entry->msi_attrib.entry_nr == nr)
+ 				return &entry->affinity->mask;
+-			i++;
+ 		}
+ 		WARN_ON_ONCE(1);
+ 		return NULL;
 -- 
 2.34.1
 
