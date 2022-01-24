@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2678A49A463
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:09:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 87EA449A46C
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:09:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1388751AbiAYAHn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:07:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57808 "EHLO
+        id S1847008AbiAYAHo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:07:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2364097AbiAXXqp (ORCPT
+        with ESMTP id S2364101AbiAXXqp (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:46:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA47BC061250;
-        Mon, 24 Jan 2022 13:42:28 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56571C07E300;
+        Mon, 24 Jan 2022 13:42:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7AB1360917;
-        Mon, 24 Jan 2022 21:42:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5783BC340E4;
-        Mon, 24 Jan 2022 21:42:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1CFDAB8123D;
+        Mon, 24 Jan 2022 21:42:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47FD4C340E4;
+        Mon, 24 Jan 2022 21:42:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060547;
-        bh=8gIy0nFAgB03VCQxnZfvFcSa3D+U6k63cyxwaTXRIKc=;
+        s=korg; t=1643060553;
+        bh=2PTn4U8QrvFxiZVeAWyU4GTHX3jAXc7OZFieR3may00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RKYoqIt/WXqc87JcD8d2UG6UPsFtnp/aA2S4LS5Do95BXAkvI9/7MeHmyq/bSZlAw
-         FGJyuyCAZ/77KkLHR8msHqQ0J+OAyCGcWCBBMHR6ya3jMztywBdVvyz5vqEhCGv2g/
-         E5hdIDikBZeuN+0If/YHhCQw2MNJuIKZb8u+20zQ=
+        b=QnbD6aNZom/jj+y0Gys3aKKHwLlmhEsKS9JGgz8ST0uAfVFGrWaJ2Y50u890SR+jf
+         YNyG0ofIapwp7Si90igGRGhewO16mMEm/FbSWmBkv2nKtvcH9qp+yo/3ypUDBfydz7
+         EhBaMVMafzA7mk38DiETsk2AcCt+MOkCywl9PXhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.16 0985/1039] inet: frags: annotate races around fqdir->dead and fqdir->high_thresh
-Date:   Mon, 24 Jan 2022 19:46:14 +0100
-Message-Id: <20220124184158.385942525@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>
+Subject: [PATCH 5.16 0987/1039] iwlwifi: fix Bz NMI behaviour
+Date:   Mon, 24 Jan 2022 19:46:16 +0100
+Message-Id: <20220124184158.456652014@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -47,94 +47,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 91341fa0003befd097e190ec2a4bf63ad957c49a upstream.
+commit fdfde0cb79264f88992e72b5a056a3a3284fcaad upstream.
 
-Both fields can be read/written without synchronization,
-add proper accessors and documentation.
+Contrary to what was stated before, the hardware hasn't changed
+the bits here yet. In any case, the new CSR is also directly
+(lower 16 bits) connected to UREG_DOORBELL_TO_ISR6, so if it
+still changes the changes would be there. Adjust the code and
+comments accordingly.
 
-Fixes: d5dd88794a13 ("inet: fix various use-after-free in defrags units")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 6c0795f1a524 ("iwlwifi: implement Bz NMI behaviour")
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20211210090244.75b6207536e3.I7d170a48a9096e6b7269c3a9f447c326f929b171@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/inet_frag.h  |   11 +++++++++--
- include/net/ipv6_frag.h  |    3 ++-
- net/ipv4/inet_fragment.c |    8 +++++---
- net/ipv4/ip_fragment.c   |    3 ++-
- 4 files changed, 18 insertions(+), 7 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/iwl-csr.h |    5 +++--
+ drivers/net/wireless/intel/iwlwifi/iwl-io.c  |    2 +-
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
---- a/include/net/inet_frag.h
-+++ b/include/net/inet_frag.h
-@@ -117,8 +117,15 @@ int fqdir_init(struct fqdir **fqdirp, st
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-csr.h
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-csr.h
+@@ -105,9 +105,10 @@
+ /* GIO Chicken Bits (PCI Express bus link power management) */
+ #define CSR_GIO_CHICKEN_BITS    (CSR_BASE+0x100)
  
- static inline void fqdir_pre_exit(struct fqdir *fqdir)
- {
--	fqdir->high_thresh = 0; /* prevent creation of new frags */
--	fqdir->dead = true;
-+	/* Prevent creation of new frags.
-+	 * Pairs with READ_ONCE() in inet_frag_find().
-+	 */
-+	WRITE_ONCE(fqdir->high_thresh, 0);
-+
-+	/* Pairs with READ_ONCE() in inet_frag_kill(), ip_expire()
-+	 * and ip6frag_expire_frag_queue().
-+	 */
-+	WRITE_ONCE(fqdir->dead, true);
+-/* Doorbell NMI (since Bz) */
++/* Doorbell - since Bz
++ * connected to UREG_DOORBELL_TO_ISR6 (lower 16 bits only)
++ */
+ #define CSR_DOORBELL_VECTOR	(CSR_BASE + 0x130)
+-#define CSR_DOORBELL_VECTOR_NMI	BIT(1)
+ 
+ /* host chicken bits */
+ #define CSR_HOST_CHICKEN	(CSR_BASE + 0x204)
+--- a/drivers/net/wireless/intel/iwlwifi/iwl-io.c
++++ b/drivers/net/wireless/intel/iwlwifi/iwl-io.c
+@@ -218,7 +218,7 @@ void iwl_force_nmi(struct iwl_trans *tra
+ 				    UREG_DOORBELL_TO_ISR6_NMI_BIT);
+ 	else
+ 		iwl_write32(trans, CSR_DOORBELL_VECTOR,
+-			    CSR_DOORBELL_VECTOR_NMI);
++			    UREG_DOORBELL_TO_ISR6_NMI_BIT);
  }
- void fqdir_exit(struct fqdir *fqdir);
+ IWL_EXPORT_SYMBOL(iwl_force_nmi);
  
---- a/include/net/ipv6_frag.h
-+++ b/include/net/ipv6_frag.h
-@@ -67,7 +67,8 @@ ip6frag_expire_frag_queue(struct net *ne
- 	struct sk_buff *head;
- 
- 	rcu_read_lock();
--	if (fq->q.fqdir->dead)
-+	/* Paired with the WRITE_ONCE() in fqdir_pre_exit(). */
-+	if (READ_ONCE(fq->q.fqdir->dead))
- 		goto out_rcu_unlock;
- 	spin_lock(&fq->q.lock);
- 
---- a/net/ipv4/inet_fragment.c
-+++ b/net/ipv4/inet_fragment.c
-@@ -235,9 +235,9 @@ void inet_frag_kill(struct inet_frag_que
- 		/* The RCU read lock provides a memory barrier
- 		 * guaranteeing that if fqdir->dead is false then
- 		 * the hash table destruction will not start until
--		 * after we unlock.  Paired with inet_frags_exit_net().
-+		 * after we unlock.  Paired with fqdir_pre_exit().
- 		 */
--		if (!fqdir->dead) {
-+		if (!READ_ONCE(fqdir->dead)) {
- 			rhashtable_remove_fast(&fqdir->rhashtable, &fq->node,
- 					       fqdir->f->rhash_params);
- 			refcount_dec(&fq->refcnt);
-@@ -352,9 +352,11 @@ static struct inet_frag_queue *inet_frag
- /* TODO : call from rcu_read_lock() and no longer use refcount_inc_not_zero() */
- struct inet_frag_queue *inet_frag_find(struct fqdir *fqdir, void *key)
- {
-+	/* This pairs with WRITE_ONCE() in fqdir_pre_exit(). */
-+	long high_thresh = READ_ONCE(fqdir->high_thresh);
- 	struct inet_frag_queue *fq = NULL, *prev;
- 
--	if (!fqdir->high_thresh || frag_mem_limit(fqdir) > fqdir->high_thresh)
-+	if (!high_thresh || frag_mem_limit(fqdir) > high_thresh)
- 		return NULL;
- 
- 	rcu_read_lock();
---- a/net/ipv4/ip_fragment.c
-+++ b/net/ipv4/ip_fragment.c
-@@ -144,7 +144,8 @@ static void ip_expire(struct timer_list
- 
- 	rcu_read_lock();
- 
--	if (qp->q.fqdir->dead)
-+	/* Paired with WRITE_ONCE() in fqdir_pre_exit(). */
-+	if (READ_ONCE(qp->q.fqdir->dead))
- 		goto out_rcu_unlock;
- 
- 	spin_lock(&qp->q.lock);
 
 
