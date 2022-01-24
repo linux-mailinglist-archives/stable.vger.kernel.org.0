@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C5E2499759
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:27:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 55984499AA0
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1448544AbiAXVNB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:13:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47926 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1446546AbiAXVIr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:08:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAD21C034610;
-        Mon, 24 Jan 2022 12:08:27 -0800 (PST)
+        id S1573611AbiAXVpY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:45:24 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:50960 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1456450AbiAXVjU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:39:20 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 67EE8B8122D;
-        Mon, 24 Jan 2022 20:08:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8132DC340E5;
-        Mon, 24 Jan 2022 20:08:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B1676B8123A;
+        Mon, 24 Jan 2022 21:39:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAB36C340E4;
+        Mon, 24 Jan 2022 21:39:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054905;
-        bh=XvKunCyUTqhoDJttVMh5EWZ4rnj0JNBQ0NSEL9yv4Ak=;
+        s=korg; t=1643060348;
+        bh=eN+mCr4skE+vq5zxPwBpW4c7azPJ/28oHfu3vTochZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KKPLzUt8ntv6MT1813HpeyS+g5VBvs4kOXYbCT44WC+idYaYU7TUO0gaoZdayCtSW
-         C03133t6VKCqeWUwntlcNzlurd1uNcKOfYMnRj/N7umByxg8zLQpWP9lKlsS0yB+l8
-         p7y540yd0RBoN98K7r7wYDwr5b7+cZVrrrcBLdB0=
+        b=LRYQvcnZc45NxvW9bQD1ZoWvYAgN9DVLIzW86aRiLjuRZC55NTzxmLpkROXHLNyVB
+         SPevsSnXmUIVAUv1bAnPZYHfqktXrXGcR9qAFLwbUB0rC86/L4vF04aQDsnT/GJr+Q
+         wsP2Cuk42bjgoY3UssCjoq0egu/EQe+G0vsZV55o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Tudor Ambarus <tudor.ambarus@microchip.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.10 542/563] dmaengine: at_xdmac: Print debug message after realeasing the lock
-Date:   Mon, 24 Jan 2022 19:45:07 +0100
-Message-Id: <20220124184043.176567848@linuxfoundation.org>
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 5.16 0919/1039] Bluetooth: hci_sync: Fix not setting adv set duration
+Date:   Mon, 24 Jan 2022 19:45:08 +0100
+Message-Id: <20220124184156.191792917@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,38 +45,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tudor Ambarus <tudor.ambarus@microchip.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-commit 5edc24ac876a928f36f407a0fcdb33b94a3a210f upstream.
+commit f16a491c65d9eb19398b25aefc10c2d3313d17b3 upstream.
 
-It is desirable to do the prints without the lock held if possible, so
-move the print after the lock is released.
+10bbffa3e88e attempted to fix the use of rotation duration as
+advertising duration but it didn't change the if condition which still
+uses the duration instead of the timeout.
 
-Fixes: e1f7c9eee707 ("dmaengine: at_xdmac: creation of the atmel eXtended DMA Controller driver")
-Signed-off-by: Tudor Ambarus <tudor.ambarus@microchip.com>
-Link: https://lore.kernel.org/r/20211215110115.191749-4-tudor.ambarus@microchip.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Fixes: 10bbffa3e88e ("Bluetooth: Fix using advertising instance duration as timeout")
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/at_xdmac.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/bluetooth/hci_request.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/dma/at_xdmac.c
-+++ b/drivers/dma/at_xdmac.c
-@@ -424,10 +424,12 @@ static dma_cookie_t at_xdmac_tx_submit(s
- 	spin_lock_irqsave(&atchan->lock, irqflags);
- 	cookie = dma_cookie_assign(tx);
+--- a/net/bluetooth/hci_request.c
++++ b/net/bluetooth/hci_request.c
+@@ -1935,7 +1935,7 @@ int __hci_req_enable_ext_advertising(str
+ 	/* Set duration per instance since controller is responsible for
+ 	 * scheduling it.
+ 	 */
+-	if (adv_instance && adv_instance->duration) {
++	if (adv_instance && adv_instance->timeout) {
+ 		u16 duration = adv_instance->timeout * MSEC_PER_SEC;
  
--	dev_vdbg(chan2dev(tx->chan), "%s: atchan 0x%p, add desc 0x%p to xfers_list\n",
--		 __func__, atchan, desc);
- 	list_add_tail(&desc->xfer_node, &atchan->xfers_list);
- 	spin_unlock_irqrestore(&atchan->lock, irqflags);
-+
-+	dev_vdbg(chan2dev(tx->chan), "%s: atchan 0x%p, add desc 0x%p to xfers_list\n",
-+		 __func__, atchan, desc);
-+
- 	return cookie;
- }
- 
+ 		/* Time = N * 10 ms */
 
 
