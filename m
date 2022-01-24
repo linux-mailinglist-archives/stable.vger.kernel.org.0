@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1434499AF1
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:58:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FD9E499800
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:34:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345771AbiAXVsN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:48:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55272 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1457337AbiAXVlb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:41:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33F85C0419D2;
-        Mon, 24 Jan 2022 12:28:00 -0800 (PST)
+        id S1349522AbiAXVSH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:18:07 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:35896 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1449681AbiAXVQA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:16:00 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C841961506;
-        Mon, 24 Jan 2022 20:27:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9C1DC340E5;
-        Mon, 24 Jan 2022 20:27:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EDB65B8105C;
+        Mon, 24 Jan 2022 21:15:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CC31C340E4;
+        Mon, 24 Jan 2022 21:15:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056079;
-        bh=7n7G5SKrA1dBR0fD9xutzkUVLmfgbdkxbUUx2QGunBg=;
+        s=korg; t=1643058957;
+        bh=8ntT8bn7mdE+kEh+TvWHhZ2ZY1wkjhRLlEw0CeWml1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YiAHZNBMqMDHLhxM6KBbceHJL+74leDr10svYpN0vgbU4q9qMsyTcYYKc3fSGEinE
-         pHRsE/AEHNDE80KrxwbWq+dg7fe3VCgp8KeJijsnaIel1uPYqJ3D0m6zmpavm46oxK
-         b0fvzh6AxsdV17AobHzx8nQmFWhgTZFUTO3gwH/Y=
+        b=2h1gwdqdSEiZ0v9FIPn89xang9+z4vx3NebePAfFKHSt6/PVyAHR8/LIpMMRYBjMz
+         K/jbjkDIfkNtvuT6HpwB16io3mBfXdhBmqWKXbIiJ/excGsicLx57/DueSwTxpM5tf
+         dpLnlRiCI6/1wnZJBP/lGoXH/aqZHOxOoOSeJAu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Jos=C3=A9=20Exp=C3=B3sito?= <jose.exposito89@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 330/846] HID: hid-uclogic-params: Invalid parameter check in uclogic_params_huion_init
+        stable@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0458/1039] ASoC: codecs: wcd938x: add SND_SOC_WCD938_SDW to codec list instead
 Date:   Mon, 24 Jan 2022 19:37:27 +0100
-Message-Id: <20220124184112.289601276@linuxfoundation.org>
+Message-Id: <20220124184140.692423841@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,53 +45,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: José Expósito <jose.exposito89@gmail.com>
+From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
 
-[ Upstream commit ff6b548afe4d9d1ff3a0f6ef79e8cbca25d8f905 ]
+[ Upstream commit 2039cc1da4bee1fd0df644e26b28ed769cd32a81 ]
 
-The function performs a check on its input parameters, however, the
-hdev parameter is used before the check.
+Commit 045442228868 ("ASoC: codecs: wcd938x: add audio routing and
+Kconfig") adds SND_SOC_WCD937X, which does not exist, and
+SND_SOC_WCD938X, which seems not really to be the intended config to be
+selected, but only a supporting config symbol to the actual config
+SND_SOC_WCD938X_SDW for the codec.
 
-Initialize the stack variables after checking the input parameters to
-avoid a possible NULL pointer dereference.
+Add SND_SOC_WCD938_SDW to the list instead of SND_SOC_WCD93{7,8}X.
 
-Fixes: 9614219e9310e ("HID: uclogic: Extract tablet parameter discovery into a module")
-Addresses-Coverity-ID: 1443804 ("Null pointer dereference")
-Signed-off-by: José Expósito <jose.exposito89@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+The issue was identified with ./scripts/checkkconfigsymbols.py.
+
+Fixes: 045442228868 ("ASoC: codecs: wcd938x: add audio routing and Kconfig")
+Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Link: https://lore.kernel.org/r/20211125095158.8394-3-lukas.bulwahn@gmail.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-uclogic-params.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ sound/soc/codecs/Kconfig | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/hid/hid-uclogic-params.c b/drivers/hid/hid-uclogic-params.c
-index 3a83e2c39b4fb..4136837e4d158 100644
---- a/drivers/hid/hid-uclogic-params.c
-+++ b/drivers/hid/hid-uclogic-params.c
-@@ -709,9 +709,9 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
- 				     struct hid_device *hdev)
- {
- 	int rc;
--	struct usb_device *udev = hid_to_usb_dev(hdev);
--	struct usb_interface *iface = to_usb_interface(hdev->dev.parent);
--	__u8 bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
-+	struct usb_device *udev;
-+	struct usb_interface *iface;
-+	__u8 bInterfaceNumber;
- 	bool found;
- 	/* The resulting parameters (noop) */
- 	struct uclogic_params p = {0, };
-@@ -725,6 +725,10 @@ static int uclogic_params_huion_init(struct uclogic_params *params,
- 		goto cleanup;
- 	}
- 
-+	udev = hid_to_usb_dev(hdev);
-+	iface = to_usb_interface(hdev->dev.parent);
-+	bInterfaceNumber = iface->cur_altsetting->desc.bInterfaceNumber;
-+
- 	/* If it's not a pen interface */
- 	if (bInterfaceNumber != 0) {
- 		/* TODO: Consider marking the interface invalid */
+diff --git a/sound/soc/codecs/Kconfig b/sound/soc/codecs/Kconfig
+index 326f2d611ad4e..3a610ba183ffb 100644
+--- a/sound/soc/codecs/Kconfig
++++ b/sound/soc/codecs/Kconfig
+@@ -241,8 +241,7 @@ config SND_SOC_ALL_CODECS
+ 	imply SND_SOC_UDA1380
+ 	imply SND_SOC_WCD9335
+ 	imply SND_SOC_WCD934X
+-	imply SND_SOC_WCD937X
+-	imply SND_SOC_WCD938X
++	imply SND_SOC_WCD938X_SDW
+ 	imply SND_SOC_LPASS_RX_MACRO
+ 	imply SND_SOC_LPASS_TX_MACRO
+ 	imply SND_SOC_WL1273
 -- 
 2.34.1
 
