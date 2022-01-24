@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F8E2498D20
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:33:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A414E499449
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:42:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348173AbiAXT2F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:28:05 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:48898 "EHLO
+        id S1388985AbiAXUkU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:40:20 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:39362 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351079AbiAXTZz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:25:55 -0500
+        with ESMTP id S1386132AbiAXUfM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:35:12 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D5A13B8121B;
-        Mon, 24 Jan 2022 19:25:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BDAAC340E5;
-        Mon, 24 Jan 2022 19:25:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 79ADEB8121C;
+        Mon, 24 Jan 2022 20:35:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B697C340E5;
+        Mon, 24 Jan 2022 20:35:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052352;
-        bh=hPRy7MHQ9qWvjx1gbXdwAJtjs8DlbBoxJ6CBGClWPjQ=;
+        s=korg; t=1643056510;
+        bh=k/Lz/Zo8RSedFrd/Cb57u0V3RMctMpavMVRb8b8/edc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JwL8vKwv4TQzpLy99jjSY+qrq4s45xmr4l7v79YUm/5FLeUGmITexEjYmEJ15j9ff
-         FmFrNloHPlX674FoxuU1jewrD9md7AbIWCpPiE/oSbVFCL/+WHSOW0gbSgt7uKj0R3
-         9BaeS6exSRrLmtZuMSd2Hn7zj7OtqRM/v3tB8M9c=
+        b=djwRMKdEp1wd99y7GeWqYI4YcYe5rY0QY9xPo2CLYfvoSV9pgKBVYQ1uZqtb72M/T
+         FXt1FShWLkFPCQPAaly9rxvjTh+tENbOM4BTDRlLUBscYh7NfOj6EknCCLJkyUT+HU
+         5TlWSxQFS3aL4BjcHgoXAPL7gQgJYpkYETlRHrUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas De Marchi <lucas.demarchi@intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>
-Subject: [PATCH 5.4 009/320] x86/gpu: Reserve stolen memory for first integrated Intel GPU
+        stable@vger.kernel.org, Wan Jiabing <wanjiabing@vivo.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 476/846] ARM: shmobile: rcar-gen2: Add missing of_node_put()
 Date:   Mon, 24 Jan 2022 19:39:53 +0100
-Message-Id: <20220124183954.083159707@linuxfoundation.org>
+Message-Id: <20220124184117.438723526@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,76 +45,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas De Marchi <lucas.demarchi@intel.com>
+From: Wan Jiabing <wanjiabing@vivo.com>
 
-commit 9c494ca4d3a535f9ca11ad6af1813983c1c6cbdd upstream.
+[ Upstream commit 85744f2d938c5f3cfc44cb6533c157469634da93 ]
 
-"Stolen memory" is memory set aside for use by an Intel integrated GPU.
-The intel_graphics_quirks() early quirk reserves this memory when it is
-called for a GPU that appears in the intel_early_ids[] table of integrated
-GPUs.
+Fix following coccicheck warning:
+./arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c:156:1-33: Function
+for_each_matching_node_and_match should have of_node_put() before break
+and goto.
 
-Previously intel_graphics_quirks() was marked as QFLAG_APPLY_ONCE, so it
-was called only for the first Intel GPU found.  If a discrete GPU happened
-to be enumerated first, intel_graphics_quirks() was called for it but not
-for any integrated GPU found later.  Therefore, stolen memory for such an
-integrated GPU was never reserved.
+Early exits from for_each_matching_node_and_match() should decrement the
+node reference counter.
 
-For example, this problem occurs in this Alderlake-P (integrated) + DG2
-(discrete) topology where the DG2 is found first, but stolen memory is
-associated with the integrated GPU:
-
-  - 00:01.0 Bridge
-    `- 03:00.0 DG2 discrete GPU
-  - 00:02.0 Integrated GPU (with stolen memory)
-
-Remove the QFLAG_APPLY_ONCE flag and call intel_graphics_quirks() for every
-Intel GPU.  Reserve stolen memory for the first GPU that appears in
-intel_early_ids[].
-
-[bhelgaas: commit log, add code comment, squash in
-https://lore.kernel.org/r/20220118190558.2ququ4vdfjuahicm@ldmartin-desk2]
-Link: https://lore.kernel.org/r/20220114002843.2083382-1-lucas.demarchi@intel.com
-Signed-off-by: Lucas De Marchi <lucas.demarchi@intel.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Wan Jiabing <wanjiabing@vivo.com>
+Link: https://lore.kernel.org/r/20211018014503.7598-1-wanjiabing@vivo.com
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/early-quirks.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/early-quirks.c
-+++ b/arch/x86/kernel/early-quirks.c
-@@ -515,6 +515,7 @@ static const struct intel_early_ops gen1
- 	.stolen_size = gen9_stolen_size,
- };
+diff --git a/arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c b/arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c
+index ee949255ced3f..09ef73b99dd86 100644
+--- a/arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c
++++ b/arch/arm/mach-shmobile/regulator-quirk-rcar-gen2.c
+@@ -154,8 +154,10 @@ static int __init rcar_gen2_regulator_quirk(void)
+ 		return -ENODEV;
  
-+/* Intel integrated GPUs for which we need to reserve "stolen memory" */
- static const struct pci_device_id intel_early_ids[] __initconst = {
- 	INTEL_I830_IDS(&i830_early_ops),
- 	INTEL_I845G_IDS(&i845_early_ops),
-@@ -587,6 +588,13 @@ static void __init intel_graphics_quirks
- 	u16 device;
- 	int i;
+ 	for_each_matching_node_and_match(np, rcar_gen2_quirk_match, &id) {
+-		if (!of_device_is_available(np))
++		if (!of_device_is_available(np)) {
++			of_node_put(np);
+ 			break;
++		}
  
-+	/*
-+	 * Reserve "stolen memory" for an integrated GPU.  If we've already
-+	 * found one, there's nothing to do for other (discrete) GPUs.
-+	 */
-+	if (resource_size(&intel_graphics_stolen_res))
-+		return;
-+
- 	device = read_pci_config_16(num, slot, func, PCI_DEVICE_ID);
+ 		ret = of_property_read_u32(np, "reg", &addr);
+ 		if (ret)	/* Skip invalid entry and continue */
+@@ -164,6 +166,7 @@ static int __init rcar_gen2_regulator_quirk(void)
+ 		quirk = kzalloc(sizeof(*quirk), GFP_KERNEL);
+ 		if (!quirk) {
+ 			ret = -ENOMEM;
++			of_node_put(np);
+ 			goto err_mem;
+ 		}
  
- 	for (i = 0; i < ARRAY_SIZE(intel_early_ids); i++) {
-@@ -699,7 +707,7 @@ static struct chipset early_qrk[] __init
- 	{ PCI_VENDOR_ID_INTEL, 0x3406, PCI_CLASS_BRIDGE_HOST,
- 	  PCI_BASE_CLASS_BRIDGE, 0, intel_remapping_check },
- 	{ PCI_VENDOR_ID_INTEL, PCI_ANY_ID, PCI_CLASS_DISPLAY_VGA, PCI_ANY_ID,
--	  QFLAG_APPLY_ONCE, intel_graphics_quirks },
-+	  0, intel_graphics_quirks },
- 	/*
- 	 * HPET on the current version of the Baytrail platform has accuracy
- 	 * problems: it will halt in deep idle state - so we disable it.
+-- 
+2.34.1
+
 
 
