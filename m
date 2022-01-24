@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2D43499AE8
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:58:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9105499A91
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1574135AbiAXVrq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:47:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54310 "EHLO
+        id S1573525AbiAXVpF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:45:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377443AbiAXVh2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:37:28 -0500
+        with ESMTP id S1378448AbiAXVha (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:37:30 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AC7EC05A1A4;
-        Mon, 24 Jan 2022 12:23:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27075C05A1A6;
+        Mon, 24 Jan 2022 12:23:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F463614E2;
-        Mon, 24 Jan 2022 20:23:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB5A4C340E5;
-        Mon, 24 Jan 2022 20:23:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8BD6614FE;
+        Mon, 24 Jan 2022 20:23:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95EE8C340E7;
+        Mon, 24 Jan 2022 20:23:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055811;
-        bh=Ze5VekDJFQ9F4Lq5FKHeY0TK6oTja4UldYieM8HT1Es=;
+        s=korg; t=1643055817;
+        bh=LkP5wPAOSpGkOD6OaRU0ev13KEb6uw1g3WHDaHfng7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WUK6yVMyIiTzvRLFDHgLopblvAh47WcHGBnHUZsflF6t1KpcRLLAQHifZlKAT9Blf
-         /loQXAZlZvDOk60F7UsCx7nCr3PjmaMCk5Ey2Wi0kVBkBbwvMk7c7AS9Fxf+TmmqnV
-         PMnsP7cw7JRl1us95nMhi9+rXgy7w9c/9Pk/7KSo=
+        b=IA9amDC4aRGmmBjLWhkAPURLcxhRFi33zx4HiDNok29c3m8KnucCE2/0Mn4yc7yWD
+         Qq3XeDCo1Rki6kIYfKOve6+VGQP7a4OqrvCCpjSqfIOAnz5oHlg3eCiAbx5oEH5xd7
+         I4UaYpNc3SfTVp2jTZ2H6cqDHOy84Pdmuyjy1WEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Avraham Stern <avraham.stern@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 273/846] iwlwifi: mvm: set protected flag only for NDP ranging
-Date:   Mon, 24 Jan 2022 19:36:30 +0100
-Message-Id: <20220124184110.349637437@linuxfoundation.org>
+Subject: [PATCH 5.15 275/846] mmc: meson-mx-sdio: add IRQ check
+Date:   Mon, 24 Jan 2022 19:36:32 +0100
+Message-Id: <20220124184110.427030706@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -48,37 +49,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Avraham Stern <avraham.stern@intel.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit 6bb2ea37c02db98cb677f978cfcb833ca608c5eb ]
+[ Upstream commit 8fc9a77bc64e1f23d07953439817d8402ac9706f ]
 
-Don't use protected ranging negotiation for FTM ranging as responders
-that support only FTM ranging don't expect the FTM request to be
-protected.
+The driver neglects to check the result of platform_get_irq()'s call and
+blithely passes the negative error codes to devm_request_threaded_irq()
+(which takes *unsigned* IRQ #), causing it to fail with -EINVAL, overriding
+an original error code. Stop calling devm_request_threaded_irq() with the
+invalid IRQ #s.
 
-Signed-off-by: Avraham Stern <avraham.stern@intel.com>
-Fixes: 517a5eb9fab2 ("iwlwifi: mvm: when associated with PMF, use protected NDP ranging negotiation")
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20211219132536.f50ed0e3c6b3.Ibff247ee9d4e6e0a1a2d08a3c8a4bbb37e6829dd@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Fixes: ed80a13bb4c4 ("mmc: meson-mx-sdio: Add a driver for the Amlogic Meson8 and Meson8b SoC")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Link: https://lore.kernel.org/r/20211217202717.10041-3-s.shtylyov@omp.ru
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/host/meson-mx-sdio.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c b/drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c
-index c7fee6a2f7fd4..6e1d37f258035 100644
---- a/drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c
-+++ b/drivers/net/wireless/intel/iwlwifi/mvm/ftm-initiator.c
-@@ -499,7 +499,7 @@ iwl_mvm_ftm_put_target(struct iwl_mvm *mvm, struct ieee80211_vif *vif,
- 		rcu_read_lock();
+diff --git a/drivers/mmc/host/meson-mx-sdio.c b/drivers/mmc/host/meson-mx-sdio.c
+index d4a48916bfb67..3a19a05ef55a7 100644
+--- a/drivers/mmc/host/meson-mx-sdio.c
++++ b/drivers/mmc/host/meson-mx-sdio.c
+@@ -662,6 +662,11 @@ static int meson_mx_mmc_probe(struct platform_device *pdev)
+ 	}
  
- 		sta = rcu_dereference(mvm->fw_id_to_mac_id[mvmvif->ap_sta_id]);
--		if (sta->mfp)
-+		if (sta->mfp && (peer->ftm.trigger_based || peer->ftm.non_trigger_based))
- 			FTM_PUT_FLAG(PMF);
- 
- 		rcu_read_unlock();
+ 	irq = platform_get_irq(pdev, 0);
++	if (irq < 0) {
++		ret = irq;
++		goto error_free_mmc;
++	}
++
+ 	ret = devm_request_threaded_irq(host->controller_dev, irq,
+ 					meson_mx_mmc_irq,
+ 					meson_mx_mmc_irq_thread, IRQF_ONESHOT,
 -- 
 2.34.1
 
