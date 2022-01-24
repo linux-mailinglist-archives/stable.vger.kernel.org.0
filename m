@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67C45498E65
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:44:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C7D2498D9D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:34:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346570AbiAXTlB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:41:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53672 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348789AbiAXTif (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:38:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6236C004999;
-        Mon, 24 Jan 2022 11:17:42 -0800 (PST)
+        id S1346831AbiAXTd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:33:57 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:57134 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242058AbiAXTbv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:31:51 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 05ACC60010;
-        Mon, 24 Jan 2022 19:17:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1AE4C340E5;
-        Mon, 24 Jan 2022 19:17:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B9840614F0;
+        Mon, 24 Jan 2022 19:31:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95700C340E5;
+        Mon, 24 Jan 2022 19:31:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051860;
-        bh=bIveQD0UNRG8aGH1KYH14F78irHWOXLBnVi87Hh4uCk=;
+        s=korg; t=1643052710;
+        bh=rD5AOzkXpRUJUGlmyD4mjgmBS/IZeXJBNqa5eZZZftQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QMt2h7F+J15k4QaMRETXMs15pafCday6gsHALymWU40yZ0WIkrfhsQcz5dKO1hZzu
-         t/MhQQJWJWQEQPYni70IZLjVzPqZ3/CI8jE/m7XxCU2HPu2MDNWxnJ7bvXteGynsvU
-         I7yj2a/U6sLj2pJ6rkaF5if4pt53x6qNaInVm9Bk=
+        b=SiFyuThU5MbVToAAB0c6JJLKtr4Aycv/P6T1gx1xFongMIedCGxgFByAcF1Kf5CCa
+         Peg7cPzshqGZTI4+Paj9nl+BpCgIcobKF3OeDN5c+PML9/YjQWrB3V4U3Wb7h80ap+
+         95B/W2vgVbYg0s+TNP+v2Dola/9v4nmUOUDPHIEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 077/239] media: coda/imx-vdoa: Handle dma_set_coherent_mask error codes
-Date:   Mon, 24 Jan 2022 19:41:55 +0100
-Message-Id: <20220124183945.566055920@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Todd Kjos <tkjos@google.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 132/320] binder: fix handling of error during copy
+Date:   Mon, 24 Jan 2022 19:41:56 +0100
+Message-Id: <20220124183958.155863213@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,39 +45,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+From: Todd Kjos <tkjos@google.com>
 
-[ Upstream commit 43f0633f89947df57fe0b5025bdd741768007708 ]
+[ Upstream commit fe6b1869243f23a485a106c214bcfdc7aa0ed593 ]
 
-The return value of dma_set_coherent_mask() is not always 0.
-To catch the exception in case that dma is not support the mask.
+If a memory copy function fails to copy the whole buffer,
+a positive integar with the remaining bytes is returned.
+In binder_translate_fd_array() this can result in an fd being
+skipped due to the failed copy, but the loop continues
+processing fds since the early return condition expects a
+negative integer on error.
 
-Link: https://lore.kernel.org/linux-media/20211206022201.1639460-1-jiasheng@iscas.ac.cn
-Fixes: b0444f18e0b1 ("[media] coda: add i.MX6 VDOA driver")
-Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fix by returning "ret > 0 ? -EINVAL : ret" to handle this case.
+
+Fixes: bb4a2e48d510 ("binder: return errors from buffer copy functions")
+Suggested-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Todd Kjos <tkjos@google.com>
+Link: https://lore.kernel.org/r/20211130185152.437403-2-tkjos@google.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/coda/imx-vdoa.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/android/binder.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/coda/imx-vdoa.c b/drivers/media/platform/coda/imx-vdoa.c
-index 96ab4b61669a3..36d50c3f9b08a 100644
---- a/drivers/media/platform/coda/imx-vdoa.c
-+++ b/drivers/media/platform/coda/imx-vdoa.c
-@@ -295,7 +295,11 @@ static int vdoa_probe(struct platform_device *pdev)
- 	struct resource *res;
- 	int ret;
- 
--	dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(32));
-+	ret = dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(32));
-+	if (ret) {
-+		dev_err(&pdev->dev, "DMA enable failed\n");
-+		return ret;
-+	}
- 
- 	vdoa = devm_kzalloc(&pdev->dev, sizeof(*vdoa), GFP_KERNEL);
- 	if (!vdoa)
+diff --git a/drivers/android/binder.c b/drivers/android/binder.c
+index 0512af0f04646..b9fb2a9269443 100644
+--- a/drivers/android/binder.c
++++ b/drivers/android/binder.c
+@@ -2660,8 +2660,8 @@ static int binder_translate_fd_array(struct binder_fd_array_object *fda,
+ 		if (!ret)
+ 			ret = binder_translate_fd(fd, offset, t, thread,
+ 						  in_reply_to);
+-		if (ret < 0)
+-			return ret;
++		if (ret)
++			return ret > 0 ? -EINVAL : ret;
+ 	}
+ 	return 0;
+ }
 -- 
 2.34.1
 
