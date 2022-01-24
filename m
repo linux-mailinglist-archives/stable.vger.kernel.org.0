@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C36E449A06C
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:29:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5BEF49A05D
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:28:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1843934AbiAXXHH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:07:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45692 "EHLO
+        id S1843867AbiAXXGe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:06:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1841130AbiAXW5l (ORCPT
+        with ESMTP id S1841133AbiAXW5l (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:57:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9D04C0797BF;
-        Mon, 24 Jan 2022 13:12:07 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D61DC0401FB;
+        Mon, 24 Jan 2022 13:12:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 47FCF6131F;
-        Mon, 24 Jan 2022 21:12:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5616BC340E5;
-        Mon, 24 Jan 2022 21:12:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 19EB5B8123A;
+        Mon, 24 Jan 2022 21:12:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A3F8C340E5;
+        Mon, 24 Jan 2022 21:12:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058726;
-        bh=Q3ypDHHx3RUbuMxMVkYb3TNXwem+cB96Bf8NslW8Bak=;
+        s=korg; t=1643058729;
+        bh=I7z8eH5nCgiPqJded8zsJpYyxh4knj/NV0JID3n0uKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QNLPMzsEr1DCoA5tGWD97m2akatrcNwQHqWquUxO9lyv/BSt6Wna3y16IVI9O/cKI
-         i++5b/VQ/faMtXxTI47sL9mcYvMHZeCURd3DD593KEIE8Tz+KYj/mWToohOBIPUG2t
-         27vaMOza4vTaC1ZkX2rKEZUiv2Z9fkupJmJ4uVLU=
+        b=SJ/MVyMVepdG/TnAmcviKoMpXLPIPC93BluJFdJUOjDfVMrpNINgAIHdMd3FrnkYO
+         z3luv+Eja5lNlyidpNjOxM2+oIINepA2tD5UETncyUXlZoPJgcsBAKapdQkt7cuuhY
+         uQ7dC+YMb3SJvMUsH28FiQe9hEgiz+7YwuXvPLuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        Jiasheng Jiang <jiasheng@iscas.ac.cn>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0383/1039] rocker: fix a sleeping in atomic bug
-Date:   Mon, 24 Jan 2022 19:36:12 +0100
-Message-Id: <20220124184138.185390373@linuxfoundation.org>
+Subject: [PATCH 5.16 0384/1039] staging: greybus: audio: Check null pointer
+Date:   Mon, 24 Jan 2022 19:36:13 +0100
+Message-Id: <20220124184138.217453976@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -48,36 +48,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit 43d012123122cc69feacab55b71369f386c19566 ]
+[ Upstream commit 2e81948177d769106754085c3e03534e6cc1f623 ]
 
-This code is holding the &ofdpa->flow_tbl_lock spinlock so it is not
-allowed to sleep.  That means we have to pass the OFDPA_OP_FLAG_NOWAIT
-flag to ofdpa_flow_tbl_del().
+As the possible alloc failure of devm_kcalloc(), it could return null
+pointer.
+Therefore, 'strings' should be checked and return NULL if alloc fails to
+prevent the dereference of the NULL pointer.
+Also, the caller should also deal with the return value of the
+gb_generate_enum_strings() and return -ENOMEM if returns NULL.
+Moreover, because the memory allocated with devm_kzalloc() will be
+freed automatically when the last reference to the device is dropped,
+the 'gbe' in gbaudio_tplg_create_enum_kctl() and
+gbaudio_tplg_create_enum_ctl() do not need to free manually.
+But the 'control' in gbaudio_tplg_create_widget() and
+gbaudio_tplg_process_kcontrols() has a specially error handle to
+cleanup.
+So it should be better to cleanup 'control' when fails.
 
-Fixes: 936bd486564a ("rocker: use FIB notifications instead of switchdev calls")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e65579e335da ("greybus: audio: topology: Enable enumerated control support")
+Reviewed-by: Alex Elder <elder@linaro.org>
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20220104150628.1987906-1-jiasheng@iscas.ac.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/rocker/rocker_ofdpa.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/staging/greybus/audio_topology.c | 15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
-diff --git a/drivers/net/ethernet/rocker/rocker_ofdpa.c b/drivers/net/ethernet/rocker/rocker_ofdpa.c
-index 3e1ca7a8d0295..bc70c6abd6a5b 100644
---- a/drivers/net/ethernet/rocker/rocker_ofdpa.c
-+++ b/drivers/net/ethernet/rocker/rocker_ofdpa.c
-@@ -2783,7 +2783,8 @@ static void ofdpa_fib4_abort(struct rocker *rocker)
- 		if (!ofdpa_port)
- 			continue;
- 		nh->fib_nh_flags &= ~RTNH_F_OFFLOAD;
--		ofdpa_flow_tbl_del(ofdpa_port, OFDPA_OP_FLAG_REMOVE,
-+		ofdpa_flow_tbl_del(ofdpa_port,
-+				   OFDPA_OP_FLAG_REMOVE | OFDPA_OP_FLAG_NOWAIT,
- 				   flow_entry);
- 	}
- 	spin_unlock_irqrestore(&ofdpa->flow_tbl_lock, flags);
+diff --git a/drivers/staging/greybus/audio_topology.c b/drivers/staging/greybus/audio_topology.c
+index 7f7d558b76d04..62d7674852bec 100644
+--- a/drivers/staging/greybus/audio_topology.c
++++ b/drivers/staging/greybus/audio_topology.c
+@@ -147,6 +147,9 @@ static const char **gb_generate_enum_strings(struct gbaudio_module_info *gb,
+ 
+ 	items = le32_to_cpu(gbenum->items);
+ 	strings = devm_kcalloc(gb->dev, items, sizeof(char *), GFP_KERNEL);
++	if (!strings)
++		return NULL;
++
+ 	data = gbenum->names;
+ 
+ 	for (i = 0; i < items; i++) {
+@@ -655,6 +658,8 @@ static int gbaudio_tplg_create_enum_kctl(struct gbaudio_module_info *gb,
+ 	/* since count=1, and reg is dummy */
+ 	gbe->items = le32_to_cpu(gb_enum->items);
+ 	gbe->texts = gb_generate_enum_strings(gb, gb_enum);
++	if (!gbe->texts)
++		return -ENOMEM;
+ 
+ 	/* debug enum info */
+ 	dev_dbg(gb->dev, "Max:%d, name_length:%d\n", gbe->items,
+@@ -862,6 +867,8 @@ static int gbaudio_tplg_create_enum_ctl(struct gbaudio_module_info *gb,
+ 	/* since count=1, and reg is dummy */
+ 	gbe->items = le32_to_cpu(gb_enum->items);
+ 	gbe->texts = gb_generate_enum_strings(gb, gb_enum);
++	if (!gbe->texts)
++		return -ENOMEM;
+ 
+ 	/* debug enum info */
+ 	dev_dbg(gb->dev, "Max:%d, name_length:%d\n", gbe->items,
+@@ -1072,6 +1079,10 @@ static int gbaudio_tplg_create_widget(struct gbaudio_module_info *module,
+ 			csize += le16_to_cpu(gbenum->names_length);
+ 			control->texts = (const char * const *)
+ 				gb_generate_enum_strings(module, gbenum);
++			if (!control->texts) {
++				ret = -ENOMEM;
++				goto error;
++			}
+ 			control->items = le32_to_cpu(gbenum->items);
+ 		} else {
+ 			csize = sizeof(struct gb_audio_control);
+@@ -1181,6 +1192,10 @@ static int gbaudio_tplg_process_kcontrols(struct gbaudio_module_info *module,
+ 			csize += le16_to_cpu(gbenum->names_length);
+ 			control->texts = (const char * const *)
+ 				gb_generate_enum_strings(module, gbenum);
++			if (!control->texts) {
++				ret = -ENOMEM;
++				goto error;
++			}
+ 			control->items = le32_to_cpu(gbenum->items);
+ 		} else {
+ 			csize = sizeof(struct gb_audio_control);
 -- 
 2.34.1
 
