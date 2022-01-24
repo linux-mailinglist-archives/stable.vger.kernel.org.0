@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF7E049955D
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:10:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94EB2499563
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:12:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1392620AbiAXUvi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1392623AbiAXUvi (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 24 Jan 2022 15:51:38 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47042 "EHLO
+Received: from ams.source.kernel.org ([145.40.68.75]:47080 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1390922AbiAXUqj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:46:39 -0500
+        with ESMTP id S1390927AbiAXUqk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:46:40 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A722B8121C;
-        Mon, 24 Jan 2022 20:46:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 818CEC340E5;
-        Mon, 24 Jan 2022 20:46:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 96893B80FA1;
+        Mon, 24 Jan 2022 20:46:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC97EC340E5;
+        Mon, 24 Jan 2022 20:46:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057195;
-        bh=4LlpM95g7CNgEA0hqrQZzMpteGnWJ4lfkbLqK14oIGw=;
+        s=korg; t=1643057198;
+        bh=BItfNGfUUbAV/nLpEBTDpo2VvhTunofOvRGfFxsF9mA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jBNSDaIFS3ZDeM5I7/pAVBBjtfU5powu4pwmVs900AGWmyioO+rkob53F99mmxWt/
-         g+dKH3vapBVztYOxF7ndAeEeXJfHZVw2ZKLspdMMLWqhwOVqWJqMwr3W9yvQU5x/5S
-         KVhpIKGH2xNKN2BjqXlWgGjfCcs5KN57PIn5BRpQ=
+        b=VLFVmRq3ZfcbmSJ8to4Dof/WNKa3XIE7lRN5Xw46n4mS3S018n3EjdWrjOHaeH8kF
+         2kGCj4GE8xVKolMOglbve1sUdkiz9er3aP33859RD/+i3Wrx0xDVXUCbXIkU/kfPhN
+         l3WEDk6ufCYHH2DVNcNWKx1N4KRH4h/O3NHaCxMc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suresh Udipi <sudipi@jp.adit-jv.com>,
-        Michael Rodin <mrodin@de.adit-jv.com>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 5.15 733/846] media: rcar-csi2: Optimize the selection PHTW register
-Date:   Mon, 24 Jan 2022 19:44:10 +0100
-Message-Id: <20220124184126.285314729@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Dave Stevenson <dave.stevenson@raspberrypi.com>,
+        Maxime Ripard <maxime@cerno.tech>
+Subject: [PATCH 5.15 734/846] drm/vc4: hdmi: Make sure the device is powered with CEC
+Date:   Mon, 24 Jan 2022 19:44:11 +0100
+Message-Id: <20220124184126.318677950@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -48,50 +45,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suresh Udipi <sudipi@jp.adit-jv.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-commit 549cc89cd09a85aaa16dc07ef3db811d5cf9bcb1 upstream.
+commit 20b0dfa86bef0e80b41b0e5ac38b92f23b6f27f9 upstream.
 
-PHTW register is selected based on default bit rate from Table[1].
-for the bit rates less than or equal to 250. Currently first
-value of default bit rate which is greater than or equal to
-the caculated mbps is selected. This selection can be further
-improved by selecting the default bit rate which is nearest to
-the calculated value.
+Similarly to what we encountered with the detect hook with DRM, nothing
+actually prevents any of the CEC callback from being run while the HDMI
+output is disabled.
 
-[1] specs r19uh0105ej0200-r-car-3rd-generation.pdf [Table 25.12]
+However, this is an issue since any register access to the controller
+when it's powered down will result in a silent hang.
 
-Fixes: 769afd212b16 ("media: rcar-csi2: add Renesas R-Car MIPI CSI-2 receiver driver")
-Signed-off-by: Suresh Udipi <sudipi@jp.adit-jv.com>
-Signed-off-by: Michael Rodin <mrodin@de.adit-jv.com>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Let's make sure we run the runtime_pm hooks when the CEC adapter is
+opened and closed by the userspace to avoid that issue.
+
+Fixes: 15b4511a4af6 ("drm/vc4: add HDMI CEC support")
+Reviewed-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210819135931.895976-6-maxime@cerno.tech
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/rcar-vin/rcar-csi2.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/vc4/vc4_hdmi.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/drivers/media/platform/rcar-vin/rcar-csi2.c
-+++ b/drivers/media/platform/rcar-vin/rcar-csi2.c
-@@ -989,10 +989,17 @@ static int rcsi2_phtw_write_mbps(struct
- 				 const struct rcsi2_mbps_reg *values, u16 code)
- {
- 	const struct rcsi2_mbps_reg *value;
-+	const struct rcsi2_mbps_reg *prev_value = NULL;
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -1735,8 +1735,14 @@ static int vc4_hdmi_cec_adap_enable(stru
+ 	struct vc4_hdmi *vc4_hdmi = cec_get_drvdata(adap);
+ 	/* clock period in microseconds */
+ 	const u32 usecs = 1000000 / CEC_CLOCK_FREQ;
+-	u32 val = HDMI_READ(HDMI_CEC_CNTRL_5);
++	u32 val;
++	int ret;
  
--	for (value = values; value->mbps; value++)
-+	for (value = values; value->mbps; value++) {
- 		if (value->mbps >= mbps)
- 			break;
-+		prev_value = value;
-+	}
++	ret = pm_runtime_resume_and_get(&vc4_hdmi->pdev->dev);
++	if (ret)
++		return ret;
 +
-+	if (prev_value &&
-+	    ((mbps - prev_value->mbps) <= (value->mbps - mbps)))
-+		value = prev_value;
++	val = HDMI_READ(HDMI_CEC_CNTRL_5);
+ 	val &= ~(VC4_HDMI_CEC_TX_SW_RESET | VC4_HDMI_CEC_RX_SW_RESET |
+ 		 VC4_HDMI_CEC_CNT_TO_4700_US_MASK |
+ 		 VC4_HDMI_CEC_CNT_TO_4500_US_MASK);
+@@ -1882,6 +1888,8 @@ static int vc4_hdmi_cec_init(struct vc4_
+ 	if (ret < 0)
+ 		goto err_remove_handlers;
  
- 	if (!value->mbps) {
- 		dev_err(priv->dev, "Unsupported PHY speed (%u Mbps)", mbps);
++	pm_runtime_put(&vc4_hdmi->pdev->dev);
++
+ 	return 0;
+ 
+ err_remove_handlers:
 
 
