@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F474499FB5
+	by mail.lfdr.de (Postfix) with ESMTP id D6DD9499FB7
 	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:20:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1842070AbiAXXAo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:00:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41418 "EHLO
+        id S1842075AbiAXXAp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:00:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1836477AbiAXWjf (ORCPT
+        with ESMTP id S1836481AbiAXWjf (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:39:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A59DEC05486D;
-        Mon, 24 Jan 2022 13:00:35 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 445C3C05486E;
+        Mon, 24 Jan 2022 13:00:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 625F3B80CCF;
-        Mon, 24 Jan 2022 21:00:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88197C340E5;
-        Mon, 24 Jan 2022 21:00:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C8FC661317;
+        Mon, 24 Jan 2022 21:00:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C4A0C340E5;
+        Mon, 24 Jan 2022 21:00:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058033;
-        bh=1O9RhcORyxP6y+2nbjiYaQB2E+++rbjfQVEUZMBHDzA=;
+        s=korg; t=1643058036;
+        bh=sSEVS1zk0Dl1JuiVm6zEkJ5WAzfZPSu9TTNRcXnze8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F7Dykl28uvvyf0OtNHh6QcupRERgVI3L3RiZ79lnSIT5bY7UBcQZwYIViR1Z/4Kk9
-         A4a2i3hGqF3Pa6+jxSoGRTrBE10YMpgsXZVqYYc7Ra6T4zhmPVMep790y5SRXq+pO5
-         UzATDt2/CbC2lCYYUSukkE28QMl3XL7S8Yt0f03o=
+        b=0rILOimZnUc2zaoyJ/bo9AAXHpONIFDaWSZuSyYUbK7wnbJFqAN9xBLbW9Q0usWJE
+         DVLnv5MEgYdZs67fqQv0t6La/I9Di1NBbl5YTQBS1mmAYbSo9xnUvO5Wn4PEk39ASf
+         M/ApmV440sTChWlqSFUltmAIsi4r8P7Pcgy6mz/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Tsuchiya Yuto <kitakar@gmail.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0126/1039] media: atomisp: fix ifdefs in sh_css.c
-Date:   Mon, 24 Jan 2022 19:31:55 +0100
-Message-Id: <20220124184129.384288150@linuxfoundation.org>
+Subject: [PATCH 5.16 0127/1039] media: atomisp: add NULL check for asd obtained from atomisp_video_pipe
+Date:   Mon, 24 Jan 2022 19:31:56 +0100
+Message-Id: <20220124184129.428402507@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -50,133 +50,458 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tsuchiya Yuto <kitakar@gmail.com>
 
-[ Upstream commit 5a1b2725558f8a3b4cbf0504f53cffae8e163034 ]
+[ Upstream commit c10bcb13462e9cf43111d17f1e08b4bb4d4401b0 ]
 
- ## `if (pipe->stream->config.mode == IA_CSS_INPUT_MODE_TPG) {` case
+This is almost a BUG report with RFC patch that just avoids kernel
+oopses. Thus, prefixed with [BUG][RFC].
 
-The intel-aero atomisp has `#if defined(IS_ISP_2400_SYSTEM)` [1]. It is
-to be defined in the following two places [2]:
+Here is the kernel log after running `v4l2-compliance -d /dev/video4`
+with this patch applied:
 
-  - css/hive_isp_css_common/system_global.h
-  - css/css_2401_csi2p_system/system_global.h
+	kern  :err   : [25507.580392] atomisp-isp2 0000:00:03.0: can't change power state from D3cold to D0 (config space inaccessible)
+	kern  :warn  : [25507.592343] isys dma store at addr(0xcd408) val(0)
+	kern  :err   : [25507.592995] atomisp-isp2 0000:00:03.0: atomisp_queryctl(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.593685] atomisp-isp2 0000:00:03.0: atomisp_g_input(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.593719] atomisp-isp2 0000:00:03.0: atomisp_g_parm(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.593727] atomisp-isp2 0000:00:03.0: atomisp_queryctl(): asd is NULL, device is ATOMISP ISP ACC
+	[omitting 42 same messages]
+	kern  :err   : [25507.593976] atomisp-isp2 0000:00:03.0: atomisp_queryctl(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.594191] atomisp-isp2 0000:00:03.0: atomisp_g_input(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.594449] atomisp-isp2 0000:00:03.0: atomisp_queryctl(): asd is NULL, device is ATOMISP ISP ACC
+	[omitting 43 same messages]
+	kern  :err   : [25507.594756] atomisp-isp2 0000:00:03.0: atomisp_queryctl(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.594779] atomisp-isp2 0000:00:03.0: atomisp_g_ctrl(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.594787] atomisp-isp2 0000:00:03.0: atomisp_s_ctrl(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.594803] atomisp-isp2 0000:00:03.0: atomisp_camera_g_ext_ctrls(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.594880] atomisp-isp2 0000:00:03.0: atomisp_enum_fmt_cap(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.594915] atomisp-isp2 0000:00:03.0: atomisp_g_parm(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.595058] atomisp-isp2 0000:00:03.0: atomisp_try_fmt(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.595089] atomisp-isp2 0000:00:03.0: atomisp_set_fmt(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.595124] atomisp-isp2 0000:00:03.0: atomisp_set_fmt(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.595221] atomisp-isp2 0000:00:03.0: atomisp_set_fmt(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.595241] atomisp-isp2 0000:00:03.0: atomisp_set_fmt(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.601571] atomisp-isp2 0000:00:03.0: can't change power state from D3cold to D0 (config space inaccessible)
+	kern  :warn  : [25507.607496] isys dma store at addr(0xcd408) val(0)
+	kern  :err   : [25507.608604] atomisp-isp2 0000:00:03.0: atomisp_queryctl(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.611988] atomisp-isp2 0000:00:03.0: can't change power state from D3cold to D0 (config space inaccessible)
+	kern  :warn  : [25507.617420] isys dma store at addr(0xcd408) val(0)
+	kern  :err   : [25507.618429] atomisp-isp2 0000:00:03.0: atomisp_queryctl(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.618811] atomisp-isp2 0000:00:03.0: atomisp_g_parm(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.622193] atomisp-isp2 0000:00:03.0: can't change power state from D3cold to D0 (config space inaccessible)
+	kern  :warn  : [25507.627355] isys dma store at addr(0xcd408) val(0)
+	kern  :err   : [25507.628391] atomisp-isp2 0000:00:03.0: atomisp_queryctl(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.631143] atomisp-isp2 0000:00:03.0: can't change power state from D3cold to D0 (config space inaccessible)
+	kern  :warn  : [25507.635813] isys dma store at addr(0xcd408) val(0)
+	kern  :err   : [25507.636489] atomisp-isp2 0000:00:03.0: atomisp_queryctl(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.636504] atomisp-isp2 0000:00:03.0: atomisp_s_input(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.636516] atomisp-isp2 0000:00:03.0: atomisp_set_fmt(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.639111] atomisp-isp2 0000:00:03.0: can't change power state from D3cold to D0 (config space inaccessible)
+	kern  :warn  : [25507.646152] isys dma store at addr(0xcd408) val(0)
+	kern  :err   : [25507.646831] atomisp-isp2 0000:00:03.0: atomisp_queryctl(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.646847] atomisp-isp2 0000:00:03.0: atomisp_s_input(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.650079] atomisp-isp2 0000:00:03.0: can't change power state from D3cold to D0 (config space inaccessible)
+	kern  :warn  : [25507.657476] isys dma store at addr(0xcd408) val(0)
+	kern  :err   : [25507.658741] atomisp-isp2 0000:00:03.0: atomisp_queryctl(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.658759] atomisp-isp2 0000:00:03.0: atomisp_s_input(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.658771] atomisp-isp2 0000:00:03.0: atomisp_set_fmt(): asd is NULL, device is ATOMISP ISP ACC
+	kern  :err   : [25507.660959] atomisp-isp2 0000:00:03.0: can't change power state from D3cold to D0 (config space inaccessible)
+	kern  :warn  : [25507.666665] isys dma store at addr(0xcd408) val(0)
+	kern  :err   : [25507.667397] atomisp-isp2 0000:00:03.0: atomisp_queryctl(): asd is NULL, device is ATOMISP ISP ACC
 
-and the former file is to be included on ISP2400 devices, too. So, it
-is to be defined for both ISP2400 and ISP2401 devices.
-
-Because the upstreamed atomisp driver now supports only ISP2400 and
-ISP2401, just remove the ISP version test again. This matches the other
-upstream commits like 3c0538fbad9f ("media: atomisp: get rid of most
-checks for ISP2401 version").
-
-While here, moved the comment for define GP_ISEL_TPG_MODE to the
-appropriate place.
-
-[1] https://github.com/intel-aero/linux-kernel/blob/a1b673258feb915268377275130c5c5df0eafc82/drivers/media/pci/atomisp/css/sh_css.c#L552-L558
-[2] https://github.com/intel-aero/linux-kernel/search?q=IS_ISP_2400_SYSTEM
-
-  ## `isys_stream_descr->polling_mode` case
-
-This does not exist on the intel-aero atomisp. This is because it is
-based on css version irci_stable_candrpv_0415_20150521_0458.
-
-On the other hand, the upstreamed atomisp is based on the following css
-version depending on the ISP version using ifdefs:
-
-  - ISP2400: irci_stable_candrpv_0415_20150521_0458
-  - ISP2401: irci_master_20150911_0724
-
-The `isys_stream_descr->polling_mode` usage was added on updating css
-version to irci_master_20150701_0213 [3].
-
-So, it is not a ISP version specific thing, but css version specific
-thing. Because the upstreamed atomisp driver uses irci_master_20150911_0724
-for ISP2401, re-add the ISP version check for now.
-
-I say "for now" because ISP2401 should eventually use the same css
-version with ISP2400 (i.e., irci_stable_candrpv_0415_20150521_0458)
-
-[3] https://raw.githubusercontent.com/intel/ProductionKernelQuilts/cht-m1stable-2016_ww31/uefi/cht-m1stable/patches/cam-0439-atomisp2-css2401-and-2401_legacy-irci_master_2015070.patch
-    ("atomisp2: css2401 and 2401_legacy-irci_master_20150701_0213")
-    Link to Intel's Android kernel patch.
-
- ## `coord = &me->config.internal_frame_origin_bqs_on_sctbl;` case
-
-it was added on commit 4f744a573db3 ("media: atomisp: make
-sh_css_sp_init_pipeline() ISP version independent") for ISP2401. Because
-the upstreamed atomisp for the ISP2401 part is based on
-irci_master_20150911_0724, hence the difference.
-
-Because the upstreamed atomisp driver uses irci_master_20150911_0724
-for ISP2401, revert the test back to `if (IS_ISP2401)`.
-
-Fixes: 27333dadef57 ("media: atomisp: adjust some code at sh_css that could be broken")
+[mchehab: fix coding style]
 Signed-off-by: Tsuchiya Yuto <kitakar@gmail.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/atomisp/pci/sh_css.c | 27 +++++++++-------------
- 1 file changed, 11 insertions(+), 16 deletions(-)
+ .../staging/media/atomisp/pci/atomisp_cmd.c   | 73 +++++++++++++++
+ .../staging/media/atomisp/pci/atomisp_fops.c  |  6 ++
+ .../staging/media/atomisp/pci/atomisp_ioctl.c | 90 +++++++++++++++++++
+ 3 files changed, 169 insertions(+)
 
-diff --git a/drivers/staging/media/atomisp/pci/sh_css.c b/drivers/staging/media/atomisp/pci/sh_css.c
-index c4b35cbab3737..ba25d0da8b811 100644
---- a/drivers/staging/media/atomisp/pci/sh_css.c
-+++ b/drivers/staging/media/atomisp/pci/sh_css.c
-@@ -522,6 +522,7 @@ ia_css_stream_input_format_bits_per_pixel(struct ia_css_stream *stream)
- 	return bpp;
- }
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_cmd.c b/drivers/staging/media/atomisp/pci/atomisp_cmd.c
+index 366161cff5602..75a531667d743 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_cmd.c
++++ b/drivers/staging/media/atomisp/pci/atomisp_cmd.c
+@@ -1715,6 +1715,12 @@ void atomisp_wdt_refresh_pipe(struct atomisp_video_pipe *pipe,
+ {
+ 	unsigned long next;
  
-+/* TODO: move define to proper file in tools */
- #define GP_ISEL_TPG_MODE 0x90058
- 
- #if !defined(ISP2401)
-@@ -573,12 +574,8 @@ sh_css_config_input_network(struct ia_css_stream *stream)
- 		vblank_cycles = vblank_lines * (width + hblank_cycles);
- 		sh_css_sp_configure_sync_gen(width, height, hblank_cycles,
- 					     vblank_cycles);
--		if (!IS_ISP2401) {
--			if (pipe->stream->config.mode == IA_CSS_INPUT_MODE_TPG) {
--				/* TODO: move define to proper file in tools */
--				ia_css_device_store_uint32(GP_ISEL_TPG_MODE, 0);
--			}
--		}
-+		if (pipe->stream->config.mode == IA_CSS_INPUT_MODE_TPG)
-+			ia_css_device_store_uint32(GP_ISEL_TPG_MODE, 0);
- 	}
- 	ia_css_debug_dtrace(IA_CSS_DEBUG_TRACE_PRIVATE,
- 			    "sh_css_config_input_network() leave:\n");
-@@ -1009,16 +1006,14 @@ static bool sh_css_translate_stream_cfg_to_isys_stream_descr(
- 	 * ia_css_isys_stream_capture_indication() instead of
- 	 * ia_css_pipeline_sp_wait_for_isys_stream_N() as isp processing of
- 	 * capture takes longer than getting an ISYS frame
--	 *
--	 * Only 2401 relevant ??
- 	 */
--#if 0 // FIXME: NOT USED on Yocto Aero
--	isys_stream_descr->polling_mode
--	    = early_polling ? INPUT_SYSTEM_POLL_ON_CAPTURE_REQUEST
--	      : INPUT_SYSTEM_POLL_ON_WAIT_FOR_FRAME;
--	ia_css_debug_dtrace(IA_CSS_DEBUG_TRACE_PRIVATE,
--			    "sh_css_translate_stream_cfg_to_isys_stream_descr() leave:\n");
--#endif
-+	if (IS_ISP2401) {
-+		isys_stream_descr->polling_mode
-+		    = early_polling ? INPUT_SYSTEM_POLL_ON_CAPTURE_REQUEST
-+		      : INPUT_SYSTEM_POLL_ON_WAIT_FOR_FRAME;
-+		ia_css_debug_dtrace(IA_CSS_DEBUG_TRACE_PRIVATE,
-+				    "sh_css_translate_stream_cfg_to_isys_stream_descr() leave:\n");
++	if (!pipe->asd) {
++		dev_err(pipe->isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, pipe->vdev.name);
++		return;
 +	}
++
+ 	if (delay != ATOMISP_WDT_KEEP_CURRENT_DELAY)
+ 		pipe->wdt_duration = delay;
  
- 	return rc;
- }
-@@ -1433,7 +1428,7 @@ static void start_pipe(
+@@ -1777,6 +1783,12 @@ void atomisp_wdt_refresh(struct atomisp_sub_device *asd, unsigned int delay)
+ /* ISP2401 */
+ void atomisp_wdt_stop_pipe(struct atomisp_video_pipe *pipe, bool sync)
+ {
++	if (!pipe->asd) {
++		dev_err(pipe->isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, pipe->vdev.name);
++		return;
++	}
++
+ 	if (!atomisp_is_wdt_running(pipe))
+ 		return;
  
- 	assert(me); /* all callers are in this file and call with non null argument */
+@@ -4109,6 +4121,12 @@ void atomisp_handle_parameter_and_buffer(struct atomisp_video_pipe *pipe)
+ 	unsigned long irqflags;
+ 	bool need_to_enqueue_buffer = false;
  
--	if (!IS_ISP2401) {
-+	if (IS_ISP2401) {
- 		coord = &me->config.internal_frame_origin_bqs_on_sctbl;
- 		params = me->stream->isp_params_configs;
- 	}
++	if (!asd) {
++		dev_err(pipe->isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, pipe->vdev.name);
++		return;
++	}
++
+ 	if (atomisp_is_vf_pipe(pipe))
+ 		return;
+ 
+@@ -4196,6 +4214,12 @@ int atomisp_set_parameters(struct video_device *vdev,
+ 	struct atomisp_css_params *css_param = &asd->params.css_param;
+ 	int ret;
+ 
++	if (!asd) {
++		dev_err(pipe->isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	if (!asd->stream_env[ATOMISP_INPUT_STREAM_GENERAL].stream) {
+ 		dev_err(asd->isp->dev, "%s: internal error!\n", __func__);
+ 		return -EINVAL;
+@@ -4857,6 +4881,12 @@ int atomisp_try_fmt(struct video_device *vdev, struct v4l2_pix_format *f,
+ 	int source_pad = atomisp_subdev_source_pad(vdev);
+ 	int ret;
+ 
++	if (!asd) {
++		dev_err(isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	if (!isp->inputs[asd->input_curr].camera)
+ 		return -EINVAL;
+ 
+@@ -5198,6 +5228,12 @@ static int atomisp_set_fmt_to_isp(struct video_device *vdev,
+ 	const struct atomisp_in_fmt_conv *fc;
+ 	int ret, i;
+ 
++	if (!asd) {
++		dev_err(isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	v4l2_fh_init(&fh.vfh, vdev);
+ 
+ 	isp_sink_crop = atomisp_subdev_get_rect(
+@@ -5494,6 +5530,7 @@ static int atomisp_set_fmt_to_snr(struct video_device *vdev,
+ 				  unsigned int dvs_env_w, unsigned int dvs_env_h)
+ {
+ 	struct atomisp_sub_device *asd = atomisp_to_video_pipe(vdev)->asd;
++	struct atomisp_video_pipe *pipe = atomisp_to_video_pipe(vdev);
+ 	const struct atomisp_format_bridge *format;
+ 	struct v4l2_subdev_pad_config pad_cfg;
+ 	struct v4l2_subdev_state pad_state = {
+@@ -5512,6 +5549,12 @@ static int atomisp_set_fmt_to_snr(struct video_device *vdev,
+ 	struct v4l2_subdev_fh fh;
+ 	int ret;
+ 
++	if (!asd) {
++		dev_err(pipe->isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	v4l2_fh_init(&fh.vfh, vdev);
+ 
+ 	stream_index = atomisp_source_pad_to_stream_id(asd, source_pad);
+@@ -5602,6 +5645,12 @@ int atomisp_set_fmt(struct video_device *vdev, struct v4l2_format *f)
+ 	struct v4l2_subdev_fh fh;
+ 	int ret;
+ 
++	if (!asd) {
++		dev_err(isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	if (source_pad >= ATOMISP_SUBDEV_PADS_NUM)
+ 		return -EINVAL;
+ 
+@@ -6034,6 +6083,12 @@ int atomisp_set_fmt_file(struct video_device *vdev, struct v4l2_format *f)
+ 	struct v4l2_subdev_fh fh;
+ 	int ret;
+ 
++	if (!asd) {
++		dev_err(isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	v4l2_fh_init(&fh.vfh, vdev);
+ 
+ 	dev_dbg(isp->dev, "setting fmt %ux%u 0x%x for file inject\n",
+@@ -6359,6 +6414,12 @@ bool atomisp_is_vf_pipe(struct atomisp_video_pipe *pipe)
+ {
+ 	struct atomisp_sub_device *asd = pipe->asd;
+ 
++	if (!asd) {
++		dev_err(pipe->isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, pipe->vdev.name);
++		return false;
++	}
++
+ 	if (pipe == &asd->video_out_vf)
+ 		return true;
+ 
+@@ -6572,6 +6633,12 @@ static int atomisp_get_pipe_id(struct atomisp_video_pipe *pipe)
+ {
+ 	struct atomisp_sub_device *asd = pipe->asd;
+ 
++	if (!asd) {
++		dev_err(pipe->isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, pipe->vdev.name);
++		return -EINVAL;
++	}
++
+ 	if (ATOMISP_USE_YUVPP(asd)) {
+ 		return IA_CSS_PIPE_ID_YUVPP;
+ 	} else if (asd->vfpp->val == ATOMISP_VFPP_DISABLE_SCALER) {
+@@ -6609,6 +6676,12 @@ int atomisp_get_invalid_frame_num(struct video_device *vdev,
+ 	struct ia_css_pipe_info p_info;
+ 	int ret;
+ 
++	if (!asd) {
++		dev_err(pipe->isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	if (asd->isp->inputs[asd->input_curr].camera_caps->
+ 	    sensor[asd->sensor_curr].stream_num > 1) {
+ 		/* External ISP */
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_fops.c b/drivers/staging/media/atomisp/pci/atomisp_fops.c
+index f82bf082aa796..02c19b92bdccb 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_fops.c
++++ b/drivers/staging/media/atomisp/pci/atomisp_fops.c
+@@ -1171,6 +1171,12 @@ static int atomisp_mmap(struct file *file, struct vm_area_struct *vma)
+ 	u32 origin_size, new_size;
+ 	int ret;
+ 
++	if (!asd) {
++		dev_err(isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	if (!(vma->vm_flags & (VM_WRITE | VM_READ)))
+ 		return -EACCES;
+ 
+diff --git a/drivers/staging/media/atomisp/pci/atomisp_ioctl.c b/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
+index c8a625667e81e..a57e640fbf791 100644
+--- a/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
++++ b/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
+@@ -646,6 +646,12 @@ static int atomisp_g_input(struct file *file, void *fh, unsigned int *input)
+ 	struct atomisp_device *isp = video_get_drvdata(vdev);
+ 	struct atomisp_sub_device *asd = atomisp_to_video_pipe(vdev)->asd;
+ 
++	if (!asd) {
++		dev_err(isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	rt_mutex_lock(&isp->mutex);
+ 	*input = asd->input_curr;
+ 	rt_mutex_unlock(&isp->mutex);
+@@ -665,6 +671,12 @@ static int atomisp_s_input(struct file *file, void *fh, unsigned int input)
+ 	struct v4l2_subdev *motor;
+ 	int ret;
+ 
++	if (!asd) {
++		dev_err(isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	rt_mutex_lock(&isp->mutex);
+ 	if (input >= ATOM_ISP_MAX_INPUTS || input >= isp->input_cnt) {
+ 		dev_dbg(isp->dev, "input_cnt: %d\n", isp->input_cnt);
+@@ -765,6 +777,12 @@ static int atomisp_enum_fmt_cap(struct file *file, void *fh,
+ 	unsigned int i, fi = 0;
+ 	int rval;
+ 
++	if (!asd) {
++		dev_err(isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	rt_mutex_lock(&isp->mutex);
+ 	rval = v4l2_subdev_call(isp->inputs[asd->input_curr].camera, pad,
+ 				enum_mbus_code, NULL, &code);
+@@ -1027,6 +1045,12 @@ int __atomisp_reqbufs(struct file *file, void *fh,
+ 	u16 stream_id = atomisp_source_pad_to_stream_id(asd, source_pad);
+ 	int ret = 0, i = 0;
+ 
++	if (!asd) {
++		dev_err(pipe->isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	if (req->count == 0) {
+ 		mutex_lock(&pipe->capq.vb_lock);
+ 		if (!list_empty(&pipe->capq.stream))
+@@ -1154,6 +1178,12 @@ static int atomisp_qbuf(struct file *file, void *fh, struct v4l2_buffer *buf)
+ 	u32 pgnr;
+ 	int ret = 0;
+ 
++	if (!asd) {
++		dev_err(isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	rt_mutex_lock(&isp->mutex);
+ 	if (isp->isp_fatal_error) {
+ 		ret = -EIO;
+@@ -1389,6 +1419,12 @@ static int atomisp_dqbuf(struct file *file, void *fh, struct v4l2_buffer *buf)
+ 	struct atomisp_device *isp = video_get_drvdata(vdev);
+ 	int ret = 0;
+ 
++	if (!asd) {
++		dev_err(isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	rt_mutex_lock(&isp->mutex);
+ 
+ 	if (isp->isp_fatal_error) {
+@@ -1640,6 +1676,12 @@ static int atomisp_streamon(struct file *file, void *fh,
+ 	int ret = 0;
+ 	unsigned long irqflags;
+ 
++	if (!asd) {
++		dev_err(isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	dev_dbg(isp->dev, "Start stream on pad %d for asd%d\n",
+ 		atomisp_subdev_source_pad(vdev), asd->index);
+ 
+@@ -1901,6 +1943,12 @@ int __atomisp_streamoff(struct file *file, void *fh, enum v4l2_buf_type type)
+ 	unsigned long flags;
+ 	bool first_streamoff = false;
+ 
++	if (!asd) {
++		dev_err(isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	dev_dbg(isp->dev, "Stop stream on pad %d for asd%d\n",
+ 		atomisp_subdev_source_pad(vdev), asd->index);
+ 
+@@ -2150,6 +2198,12 @@ static int atomisp_g_ctrl(struct file *file, void *fh,
+ 	struct atomisp_device *isp = video_get_drvdata(vdev);
+ 	int i, ret = -EINVAL;
+ 
++	if (!asd) {
++		dev_err(isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	for (i = 0; i < ctrls_num; i++) {
+ 		if (ci_v4l2_controls[i].id == control->id) {
+ 			ret = 0;
+@@ -2229,6 +2283,12 @@ static int atomisp_s_ctrl(struct file *file, void *fh,
+ 	struct atomisp_device *isp = video_get_drvdata(vdev);
+ 	int i, ret = -EINVAL;
+ 
++	if (!asd) {
++		dev_err(isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	for (i = 0; i < ctrls_num; i++) {
+ 		if (ci_v4l2_controls[i].id == control->id) {
+ 			ret = 0;
+@@ -2310,6 +2370,12 @@ static int atomisp_queryctl(struct file *file, void *fh,
+ 	struct atomisp_sub_device *asd = atomisp_to_video_pipe(vdev)->asd;
+ 	struct atomisp_device *isp = video_get_drvdata(vdev);
+ 
++	if (!asd) {
++		dev_err(isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	switch (qc->id) {
+ 	case V4L2_CID_FOCUS_ABSOLUTE:
+ 	case V4L2_CID_FOCUS_RELATIVE:
+@@ -2355,6 +2421,12 @@ static int atomisp_camera_g_ext_ctrls(struct file *file, void *fh,
+ 	int i;
+ 	int ret = 0;
+ 
++	if (!asd) {
++		dev_err(isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	if (!IS_ISP2401)
+ 		motor = isp->inputs[asd->input_curr].motor;
+ 	else
+@@ -2466,6 +2538,12 @@ static int atomisp_camera_s_ext_ctrls(struct file *file, void *fh,
+ 	int i;
+ 	int ret = 0;
+ 
++	if (!asd) {
++		dev_err(isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	if (!IS_ISP2401)
+ 		motor = isp->inputs[asd->input_curr].motor;
+ 	else
+@@ -2591,6 +2669,12 @@ static int atomisp_g_parm(struct file *file, void *fh,
+ 	struct atomisp_sub_device *asd = atomisp_to_video_pipe(vdev)->asd;
+ 	struct atomisp_device *isp = video_get_drvdata(vdev);
+ 
++	if (!asd) {
++		dev_err(isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	if (parm->type != V4L2_BUF_TYPE_VIDEO_CAPTURE) {
+ 		dev_err(isp->dev, "unsupported v4l2 buf type\n");
+ 		return -EINVAL;
+@@ -2613,6 +2697,12 @@ static int atomisp_s_parm(struct file *file, void *fh,
+ 	int rval;
+ 	int fps;
+ 
++	if (!asd) {
++		dev_err(isp->dev, "%s(): asd is NULL, device is %s\n",
++			__func__, vdev->name);
++		return -EINVAL;
++	}
++
+ 	if (parm->type != V4L2_BUF_TYPE_VIDEO_CAPTURE) {
+ 		dev_err(isp->dev, "unsupported v4l2 buf type\n");
+ 		return -EINVAL;
 -- 
 2.34.1
 
