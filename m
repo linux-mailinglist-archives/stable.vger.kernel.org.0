@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41C82499BFB
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:06:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0945499912
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:43:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1573847AbiAXV6k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:58:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56544 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1573899AbiAXVqt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:46:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1ECAC08B4D0;
-        Mon, 24 Jan 2022 12:32:32 -0800 (PST)
+        id S1454063AbiAXVbn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:31:43 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:43272 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1451345AbiAXVWn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:22:43 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 51CFE61512;
-        Mon, 24 Jan 2022 20:32:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3691CC340E5;
-        Mon, 24 Jan 2022 20:32:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C269D61305;
+        Mon, 24 Jan 2022 21:22:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1C15C340E4;
+        Mon, 24 Jan 2022 21:22:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056351;
-        bh=8hJ9WSv+1YCuUgqJuulbIBv8+KsKLIxorvnJhi8rvSU=;
+        s=korg; t=1643059362;
+        bh=K1P0TxYjsDj04lZnqfKDF20Wp9vKSWilXUlbwfumO/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zYKidgnZjQa15XMCJFCPOcnJC1cS+HSMGyI9PziKXthgqn7pP3yQLNYz6FDre7evO
-         zEbZzSJKRsB6zPf955Ihmpi93nKoNc265LVs9R2XsK6U/ntLSkl1svFenD0l8zjmJz
-         X/KrEo0MlIQjO+DABN9BtBek4otAvKkTuzTihuRs=
+        b=ggKcWDDidZeyN8vLWMo08nX3+1CWwm+jCx69VNzwC4koWY+l3BuB9aQAZN8Y3m7Ps
+         D+YWRohe0jzSc4A5GPlDJLKd+6cu50NnOMD3kCyFX8+VXK9pnzVow4PICQUe4kcDso
+         9E9kCPpQrpgp+T5JYopAnwiWaRYD/lpIpAJi0VFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Nick Terrell <terrelln@fb.com>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 455/846] MIPS: compressed: Fix build with ZSTD compression
+Subject: [PATCH 5.16 0583/1039] drm/amdgpu/display: set vblank_disable_immediate for DC
 Date:   Mon, 24 Jan 2022 19:39:32 +0100
-Message-Id: <20220124184116.671697604@linuxfoundation.org>
+Message-Id: <20220124184144.945945777@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,62 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit c5c7440fe7f74645940d5c9e2c49cd7efb706a4f ]
+[ Upstream commit 92020e81ddbeac351ea4a19bcf01743f32b9c800 ]
 
-Fix the following build issues:
+Disable vblanks immediately to save power.  I think this was
+missed when we merged DC support.
 
-mips64el-linux-ld: arch/mips/boot/compressed/decompress.o: in function `FSE_buildDTable_internal':
- decompress.c:(.text.FSE_buildDTable_internal+0x2cc): undefined reference to `__clzdi2'
-   mips64el-linux-ld: arch/mips/boot/compressed/decompress.o: in function `BIT_initDStream':
-   decompress.c:(.text.BIT_initDStream+0x7c): undefined reference to `__clzdi2'
-   mips64el-linux-ld: decompress.c:(.text.BIT_initDStream+0x158): undefined reference to `__clzdi2'
-   mips64el-linux-ld: arch/mips/boot/compressed/decompress.o: in function `ZSTD_buildFSETable_body_default.constprop.0':
- decompress.c:(.text.ZSTD_buildFSETable_body_default.constprop.0+0x2a8): undefined reference to `__clzdi2'
-   mips64el-linux-ld: arch/mips/boot/compressed/decompress.o: in function `FSE_readNCount_body_default':
- decompress.c:(.text.FSE_readNCount_body_default+0x130): undefined reference to `__ctzdi2'
- mips64el-linux-ld: decompress.c:(.text.FSE_readNCount_body_default+0x1a4): undefined reference to `__ctzdi2'
- mips64el-linux-ld: decompress.c:(.text.FSE_readNCount_body_default+0x2e4): undefined reference to `__clzdi2'
-   mips64el-linux-ld: arch/mips/boot/compressed/decompress.o: in function `HUF_readStats_body_default':
- decompress.c:(.text.HUF_readStats_body_default+0x184): undefined reference to `__clzdi2'
- mips64el-linux-ld: decompress.c:(.text.HUF_readStats_body_default+0x1b4): undefined reference to `__clzdi2'
-   mips64el-linux-ld: arch/mips/boot/compressed/decompress.o: in function `ZSTD_DCtx_getParameter':
- decompress.c:(.text.ZSTD_DCtx_getParameter+0x60): undefined reference to `__clzdi2'
-
-Fixes: a510b616131f ("MIPS: Add support for ZSTD-compressed kernels")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Nick Terrell <terrelln@fb.com>
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1781
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/boot/compressed/Makefile  | 2 +-
- arch/mips/boot/compressed/clz_ctz.c | 2 ++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c           | 1 -
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 3 +++
  2 files changed, 3 insertions(+), 1 deletion(-)
- create mode 100644 arch/mips/boot/compressed/clz_ctz.c
 
-diff --git a/arch/mips/boot/compressed/Makefile b/arch/mips/boot/compressed/Makefile
-index f53510d2f6296..705b9e7f8035a 100644
---- a/arch/mips/boot/compressed/Makefile
-+++ b/arch/mips/boot/compressed/Makefile
-@@ -56,7 +56,7 @@ $(obj)/uart-ath79.c: $(srctree)/arch/mips/ath79/early_printk.c
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c
+index cc2e0c9cfe0a1..4f3c62adccbde 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_irq.c
+@@ -333,7 +333,6 @@ int amdgpu_irq_init(struct amdgpu_device *adev)
+ 	if (!amdgpu_device_has_dc_support(adev)) {
+ 		if (!adev->enable_virtual_display)
+ 			/* Disable vblank IRQs aggressively for power-saving */
+-			/* XXX: can this be enabled for DC? */
+ 			adev_to_drm(adev)->vblank_disable_immediate = true;
  
- vmlinuzobjs-$(CONFIG_KERNEL_XZ) += $(obj)/ashldi3.o
+ 		r = drm_vblank_init(adev_to_drm(adev), adev->mode_info.num_crtc);
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 05f7ffd6a28da..e12f841d1d110 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -1597,6 +1597,9 @@ static int amdgpu_dm_init(struct amdgpu_device *adev)
+ 	adev_to_drm(adev)->mode_config.cursor_width = adev->dm.dc->caps.max_cursor_size;
+ 	adev_to_drm(adev)->mode_config.cursor_height = adev->dm.dc->caps.max_cursor_size;
  
--vmlinuzobjs-$(CONFIG_KERNEL_ZSTD) += $(obj)/bswapdi.o $(obj)/ashldi3.o
-+vmlinuzobjs-$(CONFIG_KERNEL_ZSTD) += $(obj)/bswapdi.o $(obj)/ashldi3.o $(obj)/clz_ctz.o
- 
- extra-y += ashldi3.c
- $(obj)/ashldi3.c: $(obj)/%.c: $(srctree)/lib/%.c FORCE
-diff --git a/arch/mips/boot/compressed/clz_ctz.c b/arch/mips/boot/compressed/clz_ctz.c
-new file mode 100644
-index 0000000000000..b4a1b6eb2f8ad
---- /dev/null
-+++ b/arch/mips/boot/compressed/clz_ctz.c
-@@ -0,0 +1,2 @@
-+// SPDX-License-Identifier: GPL-2.0-only
-+#include "../../../../lib/clz_ctz.c"
++	/* Disable vblank IRQs aggressively for power-saving */
++	adev_to_drm(adev)->vblank_disable_immediate = true;
++
+ 	if (drm_vblank_init(adev_to_drm(adev), adev->dm.display_indexes_num)) {
+ 		DRM_ERROR(
+ 		"amdgpu: failed to initialize sw for display support.\n");
 -- 
 2.34.1
 
