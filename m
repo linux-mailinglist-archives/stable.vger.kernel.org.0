@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96536498ACD
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:07:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4892498D91
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:34:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234038AbiAXTG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:06:59 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:34980 "EHLO
+        id S1349103AbiAXTdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:33:25 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56854 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345897AbiAXTEn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:04:43 -0500
+        with ESMTP id S1352973AbiAXTbU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:31:20 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ACD0460B88;
-        Mon, 24 Jan 2022 19:04:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73926C340E5;
-        Mon, 24 Jan 2022 19:04:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D89E60909;
+        Mon, 24 Jan 2022 19:31:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E942EC340E5;
+        Mon, 24 Jan 2022 19:31:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051082;
-        bh=DNwXRQqJ2zdm78xxZBfZY5HB4Qqc18c8IshS3hzlm+0=;
+        s=korg; t=1643052679;
+        bh=QXwHeHYX/Zqd8QEkJTWYF2EP0u+fr0fdpX7u7hy1n4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kqU/+ORPfz6FGfshyo0SEFZsw2a2ZKaXyLZweF5BInvcuq9Ayf3v6vNPEkR/yFN10
-         oQvbBMbLVgE5TQKFsuslYRnQ0jkR0GjBxFCODWiUU4Mzew41fcOmOh0KWyZLMeIOd4
-         iH1LhG4Apo8inFGvr9abflzrMEzod7TkY+Vn4h4k=
+        b=xcSZmzRcWXIdkhilnNdrboVsy4InDskp6M42jPEyisGgDvVYcXIsgTVIGrv/kiSmf
+         HwIIx9UkrlAvPuF00Njz6CycLqbt9MDVBn695C35xXPI+KnUCLeWLUYCJrfnn6FavH
+         Yrb3kfyMcXQ7J3DYAOjVJkTvNi581ESSgPbzvlkY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tasos Sahanidis <tasos@tasossah.com>,
-        Denis Efremov <efremov@linux.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 049/186] floppy: Fix hang in watchdog when disk is ejected
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 140/320] ASoC: rt5663: Handle device_property_read_u32_array error codes
 Date:   Mon, 24 Jan 2022 19:42:04 +0100
-Message-Id: <20220124183938.707913060@linuxfoundation.org>
+Message-Id: <20220124183958.411641176@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,50 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tasos Sahanidis <tasos@tasossah.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit fb48febce7e30baed94dd791e19521abd2c3fd83 ]
+[ Upstream commit 2167c0b205960607fb136b4bb3c556a62be1569a ]
 
-When the watchdog detects a disk change, it calls cancel_activity(),
-which in turn tries to cancel the fd_timer delayed work.
+The return value of device_property_read_u32_array() is not always 0.
+To catch the exception in case that devm_kzalloc failed and the
+rt5663->imp_table was NULL, which caused the failure of
+device_property_read_u32_array.
 
-In the above scenario, fd_timer_fn is set to fd_watchdog(), meaning
-it is trying to cancel its own work.
-This results in a hang as cancel_delayed_work_sync() is waiting for the
-watchdog (itself) to return, which never happens.
-
-This can be reproduced relatively consistently by attempting to read a
-broken floppy, and ejecting it while IO is being attempted and retried.
-
-To resolve this, this patch calls cancel_delayed_work() instead, which
-cancels the work without waiting for the watchdog to return and finish.
-
-Before this regression was introduced, the code in this section used
-del_timer(), and not del_timer_sync() to delete the watchdog timer.
-
-Link: https://lore.kernel.org/r/399e486c-6540-db27-76aa-7a271b061f76@tasossah.com
-Fixes: 070ad7e793dc ("floppy: convert to delayed work and single-thread wq")
-Signed-off-by: Tasos Sahanidis <tasos@tasossah.com>
-Signed-off-by: Denis Efremov <efremov@linux.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 450f0f6a8fb4 ("ASoC: rt5663: Add the manual offset field to compensate the DC offset")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20211215031550.70702-1-jiasheng@iscas.ac.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/floppy.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/rt5663.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/block/floppy.c b/drivers/block/floppy.c
-index cbf74731cfce6..b6c99cf1ce745 100644
---- a/drivers/block/floppy.c
-+++ b/drivers/block/floppy.c
-@@ -994,7 +994,7 @@ static DECLARE_DELAYED_WORK(fd_timer, fd_timer_workfn);
- static void cancel_activity(void)
+diff --git a/sound/soc/codecs/rt5663.c b/sound/soc/codecs/rt5663.c
+index 2943692f66edd..3610be1590fcc 100644
+--- a/sound/soc/codecs/rt5663.c
++++ b/sound/soc/codecs/rt5663.c
+@@ -3461,6 +3461,7 @@ static void rt5663_calibrate(struct rt5663_priv *rt5663)
+ static int rt5663_parse_dp(struct rt5663_priv *rt5663, struct device *dev)
  {
- 	do_floppy = NULL;
--	cancel_delayed_work_sync(&fd_timer);
-+	cancel_delayed_work(&fd_timer);
- 	cancel_work_sync(&floppy_work);
- }
+ 	int table_size;
++	int ret;
  
+ 	device_property_read_u32(dev, "realtek,dc_offset_l_manual",
+ 		&rt5663->pdata.dc_offset_l_manual);
+@@ -3477,9 +3478,11 @@ static int rt5663_parse_dp(struct rt5663_priv *rt5663, struct device *dev)
+ 		table_size = sizeof(struct impedance_mapping_table) *
+ 			rt5663->pdata.impedance_sensing_num;
+ 		rt5663->imp_table = devm_kzalloc(dev, table_size, GFP_KERNEL);
+-		device_property_read_u32_array(dev,
++		ret = device_property_read_u32_array(dev,
+ 			"realtek,impedance_sensing_table",
+ 			(u32 *)rt5663->imp_table, table_size);
++		if (ret)
++			return ret;
+ 	}
+ 
+ 	return 0;
+@@ -3504,8 +3507,11 @@ static int rt5663_i2c_probe(struct i2c_client *i2c,
+ 
+ 	if (pdata)
+ 		rt5663->pdata = *pdata;
+-	else
+-		rt5663_parse_dp(rt5663, &i2c->dev);
++	else {
++		ret = rt5663_parse_dp(rt5663, &i2c->dev);
++		if (ret)
++			return ret;
++	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(rt5663->supplies); i++)
+ 		rt5663->supplies[i].supply = rt5663_supply_names[i];
 -- 
 2.34.1
 
