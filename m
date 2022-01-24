@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD090499784
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:28:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6AEA499A0A
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:48:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1387577AbiAXVNN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:13:13 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:59408 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1446883AbiAXVJh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:09:37 -0500
+        id S1456574AbiAXVjd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:39:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53810 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1453928AbiAXVbS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:31:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72672C06137B;
+        Mon, 24 Jan 2022 12:20:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3DBCCB80FA1;
-        Mon, 24 Jan 2022 21:09:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57B1EC340E5;
-        Mon, 24 Jan 2022 21:09:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 305BAB8122F;
+        Mon, 24 Jan 2022 20:20:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DE94C340E5;
+        Mon, 24 Jan 2022 20:20:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058575;
-        bh=zYvhXmgk5raJcaWJoqoTorEjCgspp2OTg+ecp5a6CF8=;
+        s=korg; t=1643055604;
+        bh=Fy97BY3BCmq+EiEuDqWIRCj+/y9yRMgy604pK4Qo1iA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1hjEWtHRioKA9xbNHNNnCCd+350ZLeg/N+5D0CjFdxzrL992o7rO4QhO8BNoATinN
-         V4CkSbzoex7beFE6imUrrZGzi7r+oziw66G1b5DTggwuypVjHgDTcFvOXjMdoYdvmE
-         nqYOvJm4DkSS0dSr+qdOWj8v2mnGrThvzEPAGGuo=
+        b=undDHj5LqMSYSla+RNLhQjYKm42mbMsR8kZVfhmQxM3ZXza/MIdAJJUsmOca9Tso/
+         qQaQ/oxvtETze/e1xpOZNALDgFJuZAebT3OVFRwpsA3R8EqGKr1vGaPeYrb1kYMtKN
+         k9sMTcJ8G+kPuuZn97s7ZqlSR58R0xMb8HCjUBXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
+        stable@vger.kernel.org, Reiji Watanabe <reijiw@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0332/1039] mmc: meson-mx-sdhc: add IRQ check
-Date:   Mon, 24 Jan 2022 19:35:21 +0100
-Message-Id: <20220124184136.470730761@linuxfoundation.org>
+Subject: [PATCH 5.15 205/846] arm64: mte: DC {GVA,GZVA} shouldnt be used when DCZID_EL0.DZP == 1
+Date:   Mon, 24 Jan 2022 19:35:22 +0100
+Message-Id: <20220124184108.001144253@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,42 +48,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Reiji Watanabe <reijiw@google.com>
 
-[ Upstream commit 77bed755e0f06135faccdd3948863703f9a6e640 ]
+[ Upstream commit 685e2564daa1493053fcd7f1dbed38b35ee2f3cb ]
 
-The driver neglects to check the result of platform_get_irq()'s call and
-blithely passes the negative error codes to devm_request_threaded_irq()
-(which takes *unsigned* IRQ #), causing it to fail with -EINVAL, overriding
-an original error code. Stop calling devm_request_threaded_irq() with the
-invalid IRQ #s.
+Currently, mte_set_mem_tag_range() and mte_zero_clear_page_tags() use
+DC {GVA,GZVA} unconditionally.  But, they should make sure that
+DCZID_EL0.DZP, which indicates whether or not use of those instructions
+is prohibited, is zero when using those instructions.
+Use ST{G,ZG,Z2G} instead when DCZID_EL0.DZP == 1.
 
-Fixes: e4bf1b0970ef ("mmc: host: meson-mx-sdhc: new driver for the Amlogic Meson SDHC host")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Link: https://lore.kernel.org/r/20211217202717.10041-2-s.shtylyov@omp.ru
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: 013bb59dbb7c ("arm64: mte: handle tags zeroing at page allocation time")
+Fixes: 3d0cca0b02ac ("kasan: speed up mte_set_mem_tag_range")
+Signed-off-by: Reiji Watanabe <reijiw@google.com>
+Link: https://lore.kernel.org/r/20211206004736.1520989-3-reijiw@google.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/meson-mx-sdhc-mmc.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/arm64/include/asm/mte-kasan.h | 8 +++++---
+ arch/arm64/lib/mte.S               | 8 +++++++-
+ 2 files changed, 12 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/mmc/host/meson-mx-sdhc-mmc.c b/drivers/mmc/host/meson-mx-sdhc-mmc.c
-index 8fdd0bbbfa21f..28aa78aa08f3f 100644
---- a/drivers/mmc/host/meson-mx-sdhc-mmc.c
-+++ b/drivers/mmc/host/meson-mx-sdhc-mmc.c
-@@ -854,6 +854,11 @@ static int meson_mx_sdhc_probe(struct platform_device *pdev)
- 		goto err_disable_pclk;
+diff --git a/arch/arm64/include/asm/mte-kasan.h b/arch/arm64/include/asm/mte-kasan.h
+index 22420e1f8c037..26e013e540ae2 100644
+--- a/arch/arm64/include/asm/mte-kasan.h
++++ b/arch/arm64/include/asm/mte-kasan.h
+@@ -84,10 +84,12 @@ static inline void __dc_gzva(u64 p)
+ static inline void mte_set_mem_tag_range(void *addr, size_t size, u8 tag,
+ 					 bool init)
+ {
+-	u64 curr, mask, dczid_bs, end1, end2, end3;
++	u64 curr, mask, dczid, dczid_bs, dczid_dzp, end1, end2, end3;
  
- 	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0) {
-+		ret = irq;
-+		goto err_disable_pclk;
-+	}
+ 	/* Read DC G(Z)VA block size from the system register. */
+-	dczid_bs = 4ul << (read_cpuid(DCZID_EL0) & 0xf);
++	dczid = read_cpuid(DCZID_EL0);
++	dczid_bs = 4ul << (dczid & 0xf);
++	dczid_dzp = (dczid >> 4) & 1;
+ 
+ 	curr = (u64)__tag_set(addr, tag);
+ 	mask = dczid_bs - 1;
+@@ -106,7 +108,7 @@ static inline void mte_set_mem_tag_range(void *addr, size_t size, u8 tag,
+ 	 */
+ #define SET_MEMTAG_RANGE(stg_post, dc_gva)		\
+ 	do {						\
+-		if (size >= 2 * dczid_bs) {		\
++		if (!dczid_dzp && size >= 2 * dczid_bs) {\
+ 			do {				\
+ 				curr = stg_post(curr);	\
+ 			} while (curr < end1);		\
+diff --git a/arch/arm64/lib/mte.S b/arch/arm64/lib/mte.S
+index e83643b3995f4..f531dcb95174a 100644
+--- a/arch/arm64/lib/mte.S
++++ b/arch/arm64/lib/mte.S
+@@ -43,17 +43,23 @@ SYM_FUNC_END(mte_clear_page_tags)
+  *	x0 - address to the beginning of the page
+  */
+ SYM_FUNC_START(mte_zero_clear_page_tags)
++	and	x0, x0, #(1 << MTE_TAG_SHIFT) - 1	// clear the tag
+ 	mrs	x1, dczid_el0
++	tbnz	x1, #4, 2f	// Branch if DC GZVA is prohibited
+ 	and	w1, w1, #0xf
+ 	mov	x2, #4
+ 	lsl	x1, x2, x1
+-	and	x0, x0, #(1 << MTE_TAG_SHIFT) - 1	// clear the tag
+ 
+ 1:	dc	gzva, x0
+ 	add	x0, x0, x1
+ 	tst	x0, #(PAGE_SIZE - 1)
+ 	b.ne	1b
+ 	ret
 +
- 	ret = devm_request_threaded_irq(dev, irq, meson_mx_sdhc_irq,
- 					meson_mx_sdhc_irq_thread, IRQF_ONESHOT,
- 					NULL, host);
++2:	stz2g	x0, [x0], #(MTE_GRANULE_SIZE * 2)
++	tst	x0, #(PAGE_SIZE - 1)
++	b.ne	2b
++	ret
+ SYM_FUNC_END(mte_zero_clear_page_tags)
+ 
+ /*
 -- 
 2.34.1
 
