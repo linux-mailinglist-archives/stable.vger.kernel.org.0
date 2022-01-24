@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F896498AA2
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:07:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 207DC499109
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:09:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237375AbiAXTGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:06:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45334 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345290AbiAXTDN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:03:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80EC5C06175B;
-        Mon, 24 Jan 2022 10:59:15 -0800 (PST)
+        id S1352466AbiAXUIo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:08:44 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:59400 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348557AbiAXUCz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:02:55 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 47693B81227;
-        Mon, 24 Jan 2022 18:59:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65046C340E7;
-        Mon, 24 Jan 2022 18:59:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E11B6131F;
+        Mon, 24 Jan 2022 20:02:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FF9BC340E5;
+        Mon, 24 Jan 2022 20:02:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050753;
-        bh=PE5eRi3IE9VNLlQ1ed9CSr4cABoF8ehAGM5W/x8b8/k=;
+        s=korg; t=1643054574;
+        bh=rB6Zg+CMwhJliJX6NAPO6qIY5v6Ys7TXXUv50Yzxacg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KD91//CEVsu1WGngMaEKLrmK5aJ016cj0/OzMaCq/E69dNbzgL4crpsSy/RaXIJv4
-         UBft3QxkVOX2jshKJV4A8tqZyurGjWc7cFsC9whhgTQ/ffq0sZQ0/RXjhMMmATWM7l
-         /0wfx/cf9HdmTyjv/4Sq9cQC+w2KTWx+jivV5ayU=
+        b=sswXCAV4X248aYiQESxLlqyV3osR+9BRqNCNJESgV1o5nNvKO98mvbJyhhqqAW1NV
+         FMxZ5eZgGoASoL0wh9pZGb5jxXCIKs/LWJeQSiSD1gTJcxrbovWWO6iatoow85CnEn
+         E5MGUPLCcANaLTJSKTelFKA/Mk6M9ScmTYfFyqE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Thornber <ejt@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
+        stable@vger.kernel.org,
+        Ryutaroh Matsumoto <ryutaroh@ict.e.titech.ac.jp>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 101/157] dm space map common: add bounds check to sm_ll_lookup_bitmap()
+Subject: [PATCH 5.10 426/563] MIPS: Loongson64: Use three arguments for slti
 Date:   Mon, 24 Jan 2022 19:43:11 +0100
-Message-Id: <20220124183935.966414011@linuxfoundation.org>
+Message-Id: <20220124184039.187543162@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
-References: <20220124183932.787526760@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,35 +47,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Thornber <ejt@redhat.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit cba23ac158db7f3cd48a923d6861bee2eb7a2978 ]
+[ Upstream commit f2c6c22fa83ab2577619009057b3ebcb5305bb03 ]
 
-Corrupted metadata could warrant returning error from sm_ll_lookup_bitmap().
+LLVM's integrated assembler does not support 'slti <reg>, <imm>':
 
-Signed-off-by: Joe Thornber <ejt@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+<instantiation>:16:12: error: invalid operand for instruction
+ slti $12, (0x6300 | 0x0008)
+           ^
+arch/mips/kernel/head.S:86:2: note: while in macro instantiation
+ kernel_entry_setup # cpu specific setup
+ ^
+<instantiation>:16:12: error: invalid operand for instruction
+ slti $12, (0x6300 | 0x0008)
+           ^
+arch/mips/kernel/head.S:150:2: note: while in macro instantiation
+ smp_slave_setup
+ ^
+
+To increase compatibility with LLVM's integrated assembler, use the full
+form of 'slti <reg>, <reg>, <imm>', which matches the rest of
+arch/mips/. This does not result in any change for GNU as.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1526
+Reported-by: Ryutaroh Matsumoto <ryutaroh@ict.e.titech.ac.jp>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/persistent-data/dm-space-map-common.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ arch/mips/include/asm/mach-loongson64/kernel-entry-init.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/md/persistent-data/dm-space-map-common.c b/drivers/md/persistent-data/dm-space-map-common.c
-index ca09ad2a639c4..6fa4a68e78b0d 100644
---- a/drivers/md/persistent-data/dm-space-map-common.c
-+++ b/drivers/md/persistent-data/dm-space-map-common.c
-@@ -279,6 +279,11 @@ int sm_ll_lookup_bitmap(struct ll_disk *ll, dm_block_t b, uint32_t *result)
- 	struct disk_index_entry ie_disk;
- 	struct dm_block *blk;
- 
-+	if (b >= ll->nr_blocks) {
-+		DMERR_LIMIT("metadata block out of bounds");
-+		return -EINVAL;
-+	}
-+
- 	b = do_div(index, ll->entries_per_block);
- 	r = ll->load_ie(ll, index, &ie_disk);
- 	if (r < 0)
+diff --git a/arch/mips/include/asm/mach-loongson64/kernel-entry-init.h b/arch/mips/include/asm/mach-loongson64/kernel-entry-init.h
+index 87a5bfbf8cfe9..28572ddfb004a 100644
+--- a/arch/mips/include/asm/mach-loongson64/kernel-entry-init.h
++++ b/arch/mips/include/asm/mach-loongson64/kernel-entry-init.h
+@@ -36,7 +36,7 @@
+ 	nop
+ 	/* Loongson-3A R2/R3 */
+ 	andi	t0, (PRID_IMP_MASK | PRID_REV_MASK)
+-	slti	t0, (PRID_IMP_LOONGSON_64C | PRID_REV_LOONGSON3A_R2_0)
++	slti	t0, t0, (PRID_IMP_LOONGSON_64C | PRID_REV_LOONGSON3A_R2_0)
+ 	bnez	t0, 2f
+ 	nop
+ 1:
+@@ -71,7 +71,7 @@
+ 	nop
+ 	/* Loongson-3A R2/R3 */
+ 	andi	t0, (PRID_IMP_MASK | PRID_REV_MASK)
+-	slti	t0, (PRID_IMP_LOONGSON_64C | PRID_REV_LOONGSON3A_R2_0)
++	slti	t0, t0, (PRID_IMP_LOONGSON_64C | PRID_REV_LOONGSON3A_R2_0)
+ 	bnez	t0, 2f
+ 	nop
+ 1:
 -- 
 2.34.1
 
