@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF35C499DB2
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:00:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8F40499AC0
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:57:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1586096AbiAXWZi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:25:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36636 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1584584AbiAXWV3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:21:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B031C0424E0;
-        Mon, 24 Jan 2022 12:51:28 -0800 (PST)
+        id S1379156AbiAXVqO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:46:14 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:51144 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1456516AbiAXVj0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:39:26 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06507B810A8;
-        Mon, 24 Jan 2022 20:51:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C71EC340E5;
-        Mon, 24 Jan 2022 20:51:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA597B8121C;
+        Mon, 24 Jan 2022 21:39:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22A8BC340E4;
+        Mon, 24 Jan 2022 21:39:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057485;
-        bh=qEjckpQvRmxcTRNa+OgIplbRP5NSdJP2K0D8QWEZUBw=;
+        s=korg; t=1643060363;
+        bh=x7S04SykEtkNO6jyz+/ia/IfgXn8OU6ejHj5ebXM5TE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jSsJxzLf8hFnNqYFF17Y1p3GLL+mSNpX5E3qRJt1QHntxTByb1hHrcGQErsdDshhw
-         eQUFPImhb3MHdHvJI95rIC3miEq0F+Lt491gY91lcLCtxcoTu1xZhyjet1gNWpbn3Y
-         5MyJn5LM0fFGLHPLkbwyZ87go10uXGiskOCgsmWg=
+        b=fQLJ1GsVFYJCvPI7lxgqGbnHA6/NQTnycWzOSkw6+J1/QBT5jLh2gpDindsoUINZH
+         2g1KikLyWJ4vf0YGDRsD7YHF7cP1SPnMYGn11iKmsgkfmHl5VfmhyP1yHPSM+VCyC4
+         KU49ZW9IBeZ08zobOMXOwLND2RmE7XbaF5h7wdi4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 795/846] net: axienet: limit minimum TX ring size
+        stable@vger.kernel.org,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.16 0923/1039] dmaengine: uniphier-xdmac: Fix type of address variables
 Date:   Mon, 24 Jan 2022 19:45:12 +0100
-Message-Id: <20220124184128.378317235@linuxfoundation.org>
+Message-Id: <20220124184156.323754976@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,42 +45,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-commit 70f5817deddbc6ef3faa35841cab83c280cc653a upstream.
+commit 105a8c525675bb7d4d64871f9b2edf39460de881 upstream.
 
-The driver will not work properly if the TX ring size is set to below
-MAX_SKB_FRAGS + 1 since it needs to hold at least one full maximally
-fragmented packet in the TX ring. Limit setting the ring size to below
-this value.
+The variables src_addr and dst_addr handle DMA addresses, so these should
+be declared as dma_addr_t.
 
-Fixes: 8b09ca823ffb4 ("net: axienet: Make RX/TX ring sizes configurable")
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 667b9251440b ("dmaengine: uniphier-xdmac: Add UniPhier external DMA controller driver")
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Link: https://lore.kernel.org/r/1639456963-10232-1-git-send-email-hayashi.kunihiko@socionext.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/xilinx/xilinx_axienet_main.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/dma/uniphier-xdmac.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-@@ -43,6 +43,7 @@
- /* Descriptors defines for Tx and Rx DMA */
- #define TX_BD_NUM_DEFAULT		64
- #define RX_BD_NUM_DEFAULT		1024
-+#define TX_BD_NUM_MIN			(MAX_SKB_FRAGS + 1)
- #define TX_BD_NUM_MAX			4096
- #define RX_BD_NUM_MAX			4096
+--- a/drivers/dma/uniphier-xdmac.c
++++ b/drivers/dma/uniphier-xdmac.c
+@@ -131,8 +131,9 @@ uniphier_xdmac_next_desc(struct uniphier
+ static void uniphier_xdmac_chan_start(struct uniphier_xdmac_chan *xc,
+ 				      struct uniphier_xdmac_desc *xd)
+ {
+-	u32 src_mode, src_addr, src_width;
+-	u32 dst_mode, dst_addr, dst_width;
++	u32 src_mode, src_width;
++	u32 dst_mode, dst_width;
++	dma_addr_t src_addr, dst_addr;
+ 	u32 val, its, tnum;
+ 	enum dma_slave_buswidth buswidth;
  
-@@ -1364,7 +1365,8 @@ static int axienet_ethtools_set_ringpara
- 	if (ering->rx_pending > RX_BD_NUM_MAX ||
- 	    ering->rx_mini_pending ||
- 	    ering->rx_jumbo_pending ||
--	    ering->rx_pending > TX_BD_NUM_MAX)
-+	    ering->tx_pending < TX_BD_NUM_MIN ||
-+	    ering->tx_pending > TX_BD_NUM_MAX)
- 		return -EINVAL;
- 
- 	if (netif_running(ndev))
 
 
