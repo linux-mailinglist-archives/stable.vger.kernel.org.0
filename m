@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B62A49A954
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:23:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0A2E49A99A
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:26:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1322479AbiAYDVv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:21:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37044 "EHLO
+        id S238288AbiAYDY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:24:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1356107AbiAXUWc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:22:32 -0500
+        with ESMTP id S1444565AbiAXVBI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:01:08 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC7F5C061341;
-        Mon, 24 Jan 2022 11:09:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 067FEC04D63F;
+        Mon, 24 Jan 2022 12:02:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C29560E8D;
-        Mon, 24 Jan 2022 19:09:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69743C340E5;
-        Mon, 24 Jan 2022 19:09:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8387361307;
+        Mon, 24 Jan 2022 20:02:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5DAA2C340E5;
+        Mon, 24 Jan 2022 20:02:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051384;
-        bh=2RKnHRcMNEsbNzB2olYHLB1e0G04cMftUsVOEYp7ubg=;
+        s=korg; t=1643054544;
+        bh=Y5jlLYsWFAHRggd1xo9Vqx2B9cfFo1Wl0XfIsTSkE0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wOhGB2/8siB+KLE0AoHA/QdOW4KBP5Q9aghmR+FgcBOA6hkGpbrMqIk0AGLuURMXA
-         QbZsZEbrhxGTKkJLe222el+9YXOuqLR5QvK8AktXKJqZSrbjNs+byGFESP2x1Ghfc5
-         uPGyIBBsuWpFcGe/7CJKjjGKIeLMlTfKrYUhULUc=
+        b=o4viPQVN6EhG+4xeuxl+CLLNKiV5qPI+gC5qU6kxGRLv2JuiOJlrXHeGAK0RikqoG
+         751M43a3SUS/2QjBgjQ9Pjp1S0QhjgPlO85VK1GNQLJctjDONnREQAWEc19T489M9H
+         xPlvZOT9KiKrTd+pvuCAPTDLaUk0SxXF2KKW1PHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thierry Reding <treding@nvidia.com>,
+        stable@vger.kernel.org, Gilles BULOZ <gilles.buloz@kontron.com>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 111/186] arm64: tegra: Adjust length of CCPLEX cluster MMIO region
-Date:   Mon, 24 Jan 2022 19:43:06 +0100
-Message-Id: <20220124183940.687778352@linuxfoundation.org>
+Subject: [PATCH 5.10 422/563] nvmem: core: set size for sysfs bin file
+Date:   Mon, 24 Jan 2022 19:43:07 +0100
+Message-Id: <20220124184039.054739776@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,33 +48,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thierry Reding <treding@nvidia.com>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit 2b14cbd643feea5fc17c6e8bead4e71088c69acd ]
+[ Upstream commit 86192251033308bb42f1e9813c962989d8ed07ec ]
 
-The Tegra186 CCPLEX cluster register region is 4 MiB is length, not 4
-MiB - 1. This was likely presumed to be the "limit" rather than length.
-Fix it up.
+For some reason we never set the size for nvmem sysfs binary file.
+Set this.
 
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+Reported-by: Gilles BULOZ <gilles.buloz@kontron.com>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20211130133909.6154-1-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/nvidia/tegra186.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvmem/core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/nvidia/tegra186.dtsi b/arch/arm64/boot/dts/nvidia/tegra186.dtsi
-index a9c3eef6c4e09..3307d816050fe 100644
---- a/arch/arm64/boot/dts/nvidia/tegra186.dtsi
-+++ b/arch/arm64/boot/dts/nvidia/tegra186.dtsi
-@@ -351,7 +351,7 @@
+diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+index 6b170083cd248..21d89d80d0838 100644
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -222,6 +222,8 @@ static umode_t nvmem_bin_attr_is_visible(struct kobject *kobj,
+ 	struct device *dev = kobj_to_dev(kobj);
+ 	struct nvmem_device *nvmem = to_nvmem_device(dev);
  
- 	ccplex@e000000 {
- 		compatible = "nvidia,tegra186-ccplex-cluster";
--		reg = <0x0 0x0e000000 0x0 0x3fffff>;
-+		reg = <0x0 0x0e000000 0x0 0x400000>;
++	attr->size = nvmem->size;
++
+ 	return nvmem_bin_attr_get_umode(nvmem);
+ }
  
- 		nvidia,bpmp = <&bpmp>;
- 	};
 -- 
 2.34.1
 
