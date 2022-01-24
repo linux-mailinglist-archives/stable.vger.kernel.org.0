@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98B844990C0
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:07:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B35E6498C6A
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:23:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348771AbiAXUDy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:03:54 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:46698 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353278AbiAXUBt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:01:49 -0500
+        id S237837AbiAXTWP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:22:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49412 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347404AbiAXTTM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:19:12 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2436C02C3EF;
+        Mon, 24 Jan 2022 11:07:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE0E1B81249;
-        Mon, 24 Jan 2022 20:01:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA4EAC340E5;
-        Mon, 24 Jan 2022 20:01:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F4126090C;
+        Mon, 24 Jan 2022 19:07:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A211EC340E7;
+        Mon, 24 Jan 2022 19:07:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054506;
-        bh=ZQuvwUhzXDZlVRJIFeNsyD+aS4ESV6Ln/kKFVT98EhI=;
+        s=korg; t=1643051251;
+        bh=N8LyJ0PBbd2eAEokv8SFCwHzwDSLj3fGyV6Q+dDmoeg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Duy8CZdr3sGVuqUEmdFoFyd2xAB1wPLBWO29NcGymlIihikzAZ4OsTy+jcu3XtSGj
-         67C7gGPMWmcj2Jhj+jTddMzRLRsMeQSpQRtTijzgx8S6qKtOFcRpA5etV9ZQP5VX0V
-         s19O3q4J0ir0H2JGUOXQdG20BhALRKQbi/RSWOSg=
+        b=bJApuYFp2rvuJc3LZ/Riv2Sq4kwuaCWpapgbEySmhAvQYW0utOnz/AwADj4f8AgUK
+         pW1iJ3u2+GHzTmuKGxP8noWKQHJXdUwz3oWeL7Bga+OafNLpiXjYOHJIDxssk5nzEH
+         I4POZvydbJvImwWDZP1IuEXOkdJRK5gmy1SKksu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julia Lawall <Julia.Lawall@lip6.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, James Hilliard <james.hilliard1@gmail.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 411/563] powerpc/cell: add missing of_node_put
+Subject: [PATCH 4.14 101/186] media: uvcvideo: Increase UVC_CTRL_CONTROL_TIMEOUT to 5 seconds.
 Date:   Mon, 24 Jan 2022 19:42:56 +0100
-Message-Id: <20220124184038.658328650@linuxfoundation.org>
+Message-Id: <20220124183940.363566908@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
+References: <20220124183937.101330125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +49,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julia Lawall <Julia.Lawall@lip6.fr>
+From: James Hilliard <james.hilliard1@gmail.com>
 
-[ Upstream commit a841fd009e51c8c0a8f07c942e9ab6bb48da8858 ]
+[ Upstream commit c8ed7d2f614cd8b315981d116c7a2fb01829500d ]
 
-for_each_node_by_name performs an of_node_get on each iteration, so
-a break out of the loop requires an of_node_put.
+Some uvc devices appear to require the maximum allowed USB timeout
+for GET_CUR/SET_CUR requests.
 
-A simplified version of the semantic patch that fixes this problem is as
-follows (http://coccinelle.lip6.fr):
+So lets just bump the UVC control timeout to 5 seconds which is the
+same as the usb ctrl get/set defaults:
+USB_CTRL_GET_TIMEOUT 5000
+USB_CTRL_SET_TIMEOUT 5000
 
-// <smpl>
-@@
-expression e,e1;
-local idexpression n;
-@@
+It fixes the following runtime warnings:
+   Failed to query (GET_CUR) UVC control 11 on unit 2: -110 (exp. 1).
+   Failed to query (SET_CUR) UVC control 3 on unit 2: -110 (exp. 2).
 
- for_each_node_by_name(n, e1) {
-   ... when != of_node_put(n)
-       when != e = n
-(
-   return n;
-|
-+  of_node_put(n);
-?  return ...;
-)
-   ...
- }
-// </smpl>
-
-Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1448051604-25256-7-git-send-email-Julia.Lawall@lip6.fr
+Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/cell/iommu.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/usb/uvc/uvcvideo.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/cell/iommu.c b/arch/powerpc/platforms/cell/iommu.c
-index 2124831cf57c0..d04079b34d7c2 100644
---- a/arch/powerpc/platforms/cell/iommu.c
-+++ b/arch/powerpc/platforms/cell/iommu.c
-@@ -976,6 +976,7 @@ static int __init cell_iommu_fixed_mapping_init(void)
- 			if (hbase < dbase || (hend > (dbase + dsize))) {
- 				pr_debug("iommu: hash window doesn't fit in"
- 					 "real DMA window\n");
-+				of_node_put(np);
- 				return -1;
- 			}
- 		}
+diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
+index 05398784d1c89..acb9f95127eb2 100644
+--- a/drivers/media/usb/uvc/uvcvideo.h
++++ b/drivers/media/usb/uvc/uvcvideo.h
+@@ -167,7 +167,7 @@
+ /* Maximum status buffer size in bytes of interrupt URB. */
+ #define UVC_MAX_STATUS_SIZE	16
+ 
+-#define UVC_CTRL_CONTROL_TIMEOUT	500
++#define UVC_CTRL_CONTROL_TIMEOUT	5000
+ #define UVC_CTRL_STREAMING_TIMEOUT	5000
+ 
+ /* Maximum allowed number of control mappings per device */
 -- 
 2.34.1
 
