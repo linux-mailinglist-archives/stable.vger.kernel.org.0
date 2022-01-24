@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 23600499A82
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37F5C4999AD
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:46:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1573230AbiAXVoo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:44:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54258 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1455287AbiAXVfL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:35:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A50F2C0612FB;
-        Mon, 24 Jan 2022 12:21:55 -0800 (PST)
+        id S1455952AbiAXVgy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:36:54 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:34358 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376267AbiAXVNV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:13:21 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 16AE0B81257;
-        Mon, 24 Jan 2022 20:21:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77E40C340E5;
-        Mon, 24 Jan 2022 20:21:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BCD6EB811F3;
+        Mon, 24 Jan 2022 21:13:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8342C340E5;
+        Mon, 24 Jan 2022 21:13:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055712;
-        bh=gpWjQ0VaBNniP4xA1fEF6HlyF6wN8PjRmBVxu/REmpg=;
+        s=korg; t=1643058797;
+        bh=RPNJE7lmv9dsqBv8r2uXE3MZEddVG5SDSzixqBWmW/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EVnJN71nSyTPLS0JzkZiJ1wyP4/U6yDBSK/RIRzC9RvC0GeC98Ss3bP2x3hcRw/Hy
-         31JiSQd1t9nnY1amFrJOJe4TkEqxiOga2AjoGGm9eyf4VqNG9TnTbOuYH5QDPNan3P
-         zsZOPPMzyQOqF+sXKNO4GwKqCzSnTiBd2b0KhxLQ=
+        b=AgE8WT0K1sanm2oj7HXRNMcdmiXlHf/B6n4ef6+WxzHmXraNMZrmfAU9qBNeTj1p2
+         tpJBjUYsXJO9KdYO3qI38QCHQPiqemP+2WUsf1o6M8C43Zv/HIBay89qyogRkzo5m0
+         7B7rvWKODuVvvChJN1eSFZOjsGCInLcBv3660RNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steven Maddox <s.maddox@lantizia.me.uk>,
-        Christian Lamparter <chunkeey@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 241/846] ARM: dts: gemini: NAS4220-B: fis-index-block with 128 KiB sectors
-Date:   Mon, 24 Jan 2022 19:35:58 +0100
-Message-Id: <20220124184109.240826033@linuxfoundation.org>
+        stable@vger.kernel.org, Hou Tao <houtao1@huawei.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0372/1039] bpf, arm64: Use emit_addr_mov_i64() for BPF_PSEUDO_FUNC
+Date:   Mon, 24 Jan 2022 19:36:01 +0100
+Message-Id: <20220124184137.812097875@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,63 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Lamparter <chunkeey@gmail.com>
+From: Hou Tao <houtao1@huawei.com>
 
-[ Upstream commit 4754eab7e5a78bdefe7a960c5c260c95ebbb5fa6 ]
+[ Upstream commit e4a41c2c1fa916547e63440c73a51a5eb06247af ]
 
-Steven Maddox reported in the OpenWrt bugzilla, that his
-RaidSonic IB-NAS4220-B was no longer booting with the new
-OpenWrt 21.02 (uses linux 5.10's device-tree). However, it was
-working with the previous OpenWrt 19.07 series (uses 4.14).
+The following error is reported when running "./test_progs -t for_each"
+under arm64:
 
-|[    5.548038] No RedBoot partition table detected in 30000000.flash
-|[    5.618553] Searching for RedBoot partition table in 30000000.flash at offset 0x0
-|[    5.739093] No RedBoot partition table detected in 30000000.flash
-|...
-|[    7.039504] Waiting for root device /dev/mtdblock3...
+  bpf_jit: multi-func JIT bug 58 != 56
+  [...]
+  JIT doesn't support bpf-to-bpf calls
 
-The provided bootlog shows that the RedBoot partition parser was
-looking for the partition table "at offset 0x0". Which is strange
-since the comment in the device-tree says it should be at 0xfe0000.
+The root cause is the size of BPF_PSEUDO_FUNC instruction increases
+from 2 to 3 after the address of called bpf-function is settled and
+there are two bpf-to-bpf calls in test_pkt_access. The generated
+instructions are shown below:
 
-Further digging on the internet led to a review site that took
-some useful PCB pictures of their review unit back in February 2009.
-Their picture shows a Spansion S29GL128N11TFI01 flash chip.
+  0x48:  21 00 C0 D2    movz x1, #0x1, lsl #32
+  0x4c:  21 00 80 F2    movk x1, #0x1
 
->From Spansion's Datasheet:
-"S29GL128N: One hundred twenty-eight 64 Kword (128 Kbyte) sectors"
-Steven also provided a "cat /sys/class/mtd/mtd0/erasesize" from his
-unit: "131072".
+  0x48:  E1 3F C0 92    movn x1, #0x1ff, lsl #32
+  0x4c:  41 FE A2 F2    movk x1, #0x17f2, lsl #16
+  0x50:  81 70 9F F2    movk x1, #0xfb84
 
-With the 128 KiB Sector/Erasesize in mind. This patch changes the
-fis-index-block property to (0xfe0000 / 0x20000) = 0x7f.
+Fixing it by using emit_addr_mov_i64() for BPF_PSEUDO_FUNC, so
+the size of jited image will not change.
 
-Fixes: b5a923f8c739 ("ARM: dts: gemini: Switch to redboot partition parsing")
-Reported-by: Steven Maddox <s.maddox@lantizia.me.uk>
-Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
-Tested-by: Steven Maddox <s.maddox@lantizia.me.uk>
-Link: https://lore.kernel.org/r/20211206004334.4169408-1-linus.walleij@linaro.org'
-Bugzilla: https://bugs.openwrt.org/index.php?do=details&task_id=4137
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Fixes: 69c087ba6225 ("bpf: Add bpf_for_each_map_elem() helper")
+Signed-off-by: Hou Tao <houtao1@huawei.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20211231151018.3781550-1-houtao1@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/gemini-nas4220b.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/net/bpf_jit_comp.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/gemini-nas4220b.dts b/arch/arm/boot/dts/gemini-nas4220b.dts
-index 13112a8a5dd88..6544c730340fa 100644
---- a/arch/arm/boot/dts/gemini-nas4220b.dts
-+++ b/arch/arm/boot/dts/gemini-nas4220b.dts
-@@ -84,7 +84,7 @@
- 			partitions {
- 				compatible = "redboot-fis";
- 				/* Eraseblock at 0xfe0000 */
--				fis-index-block = <0x1fc>;
-+				fis-index-block = <0x7f>;
- 			};
- 		};
+diff --git a/arch/arm64/net/bpf_jit_comp.c b/arch/arm64/net/bpf_jit_comp.c
+index 3a8a7140a9bfb..c2d95aa1d294c 100644
+--- a/arch/arm64/net/bpf_jit_comp.c
++++ b/arch/arm64/net/bpf_jit_comp.c
+@@ -791,7 +791,10 @@ emit_cond_jmp:
+ 		u64 imm64;
  
+ 		imm64 = (u64)insn1.imm << 32 | (u32)imm;
+-		emit_a64_mov_i64(dst, imm64, ctx);
++		if (bpf_pseudo_func(insn))
++			emit_addr_mov_i64(dst, imm64, ctx);
++		else
++			emit_a64_mov_i64(dst, imm64, ctx);
+ 
+ 		return 1;
+ 	}
 -- 
 2.34.1
 
