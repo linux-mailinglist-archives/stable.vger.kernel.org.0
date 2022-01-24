@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0114D499D94
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:00:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6198749957D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:13:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1585658AbiAXWYm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:24:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36188 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1583216AbiAXWRZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:17:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD8BCC0617BE;
-        Mon, 24 Jan 2022 12:47:51 -0800 (PST)
+        id S1442017AbiAXUwf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:52:35 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:41998 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1391475AbiAXUry (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:47:54 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5A4B760B03;
-        Mon, 24 Jan 2022 20:47:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38993C340E5;
-        Mon, 24 Jan 2022 20:47:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A96C60C2A;
+        Mon, 24 Jan 2022 20:47:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A4BAC340E5;
+        Mon, 24 Jan 2022 20:47:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057270;
-        bh=gQFqGG9/fSj/hQQshBDiTsv+zM3FhzzYSeDeoKFtb3U=;
+        s=korg; t=1643057273;
+        bh=TZn8Yh7VlVGc1UIog89OIJSotNjIoF9dA/3e+R3TaEg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xy9G2aojKhhmzeGYtPJijJCxT4IuUUXX5wsCxN0qSLROndrwJk0+QFwdHc8CCKkxX
-         n+lUJRp7bl+lXVMyLyThOOqDitjCzMnhuhujNlzKFbek/Wj2D/WkmQ/qovDk3yY4ty
-         mbzH4Uj4jt6rrw3pnmKMzSNRTEcG7C/06zykmKW8=
+        b=u2N1H8IOiziJLDEqQoSI1F2C+//K4WLkz3nZca2/IXhanPn15Tvg0PZQ6iA5fIELL
+         Fd7rK8tdSpepoY8Ro/Opp58MB+J+KOUS88GtMt5lIiL5JnsiNA8Zb2CIbJ13vRkrBl
+         S3Vj1BeTWgKc7KUelKDcl88lQ144fY3UT6vOAFvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Yi <yi.zhang@huawei.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.15 724/846] ext4: fix an use-after-free issue about data=journal writeback mode
-Date:   Mon, 24 Jan 2022 19:44:01 +0100
-Message-Id: <20220124184125.981411471@linuxfoundation.org>
+        stable@vger.kernel.org, Theodore Tso <tytso@mit.edu>,
+        Lukas Czerner <lczerner@redhat.com>, stable@kernel.org
+Subject: [PATCH 5.15 725/846] ext4: dont use the orphan list when migrating an inode
+Date:   Mon, 24 Jan 2022 19:44:02 +0100
+Message-Id: <20220124184126.012473312@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -47,129 +44,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Yi <yi.zhang@huawei.com>
+From: Theodore Ts'o <tytso@mit.edu>
 
-commit 5c48a7df91499e371ef725895b2e2d21a126e227 upstream.
+commit 6eeaf88fd586f05aaf1d48cb3a139d2a5c6eb055 upstream.
 
-Our syzkaller report an use-after-free issue that accessing the freed
-buffer_head on the writeback page in __ext4_journalled_writepage(). The
-problem is that if there was a truncate racing with the data=journalled
-writeback procedure, the writeback length could become zero and
-bget_one() refuse to get buffer_head's refcount, then the truncate
-procedure release buffer once we drop page lock, finally, the last
-ext4_walk_page_buffers() trigger the use-after-free problem.
+We probably want to remove the indirect block to extents migration
+feature after a deprecation window, but until then, let's fix a
+potential data loss problem caused by the fact that we put the
+tmp_inode on the orphan list.  In the unlikely case where we crash and
+do a journal recovery, the data blocks belonging to the inode being
+migrated are also represented in the tmp_inode on the orphan list ---
+and so its data blocks will get marked unallocated, and available for
+reuse.
 
-sync                               truncate
-ext4_sync_file()
- file_write_and_wait_range()
-                                   ext4_setattr(0)
-                                    inode->i_size = 0
-  ext4_writepage()
-   len = 0
-   __ext4_journalled_writepage()
-    page_bufs = page_buffers(page)
-    ext4_walk_page_buffers(bget_one) <- does not get refcount
-                                    do_invalidatepage()
-                                      free_buffer_head()
-    ext4_walk_page_buffers(page_bufs) <- trigger use-after-free
+Instead, stop putting the tmp_inode on the oprhan list.  So in the
+case where we crash while migrating the inode, we'll leak an inode,
+which is not a disaster.  It will be easily fixed the next time we run
+fsck, and it's better than potentially having blocks getting claimed
+by two different files, and losing data as a result.
 
-After commit bdf96838aea6 ("ext4: fix race between truncate and
-__ext4_journalled_writepage()"), we have already handled the racing
-case, so the bget_one() and bput_one() are not needed. So this patch
-simply remove these hunk, and recheck the i_size to make it safe.
-
-Fixes: bdf96838aea6 ("ext4: fix race between truncate and __ext4_journalled_writepage()")
-Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20211225090937.712867-1-yi.zhang@huawei.com
 Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Reviewed-by: Lukas Czerner <lczerner@redhat.com>
+Cc: stable@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/inode.c |   37 ++++++++++---------------------------
- 1 file changed, 10 insertions(+), 27 deletions(-)
+ fs/ext4/migrate.c |   19 ++++---------------
+ 1 file changed, 4 insertions(+), 15 deletions(-)
 
---- a/fs/ext4/inode.c
-+++ b/fs/ext4/inode.c
-@@ -1845,30 +1845,16 @@ int ext4_da_get_block_prep(struct inode
- 	return 0;
- }
+--- a/fs/ext4/migrate.c
++++ b/fs/ext4/migrate.c
+@@ -437,12 +437,12 @@ int ext4_ext_migrate(struct inode *inode
+ 	percpu_down_write(&sbi->s_writepages_rwsem);
  
--static int bget_one(handle_t *handle, struct inode *inode,
--		    struct buffer_head *bh)
--{
--	get_bh(bh);
--	return 0;
--}
--
--static int bput_one(handle_t *handle, struct inode *inode,
--		    struct buffer_head *bh)
--{
--	put_bh(bh);
--	return 0;
--}
--
- static int __ext4_journalled_writepage(struct page *page,
- 				       unsigned int len)
- {
- 	struct address_space *mapping = page->mapping;
- 	struct inode *inode = mapping->host;
--	struct buffer_head *page_bufs = NULL;
- 	handle_t *handle = NULL;
- 	int ret = 0, err = 0;
- 	int inline_data = ext4_has_inline_data(inode);
- 	struct buffer_head *inode_bh = NULL;
-+	loff_t size;
- 
- 	ClearPageChecked(page);
- 
-@@ -1878,14 +1864,6 @@ static int __ext4_journalled_writepage(s
- 		inode_bh = ext4_journalled_write_inline_data(inode, len, page);
- 		if (inode_bh == NULL)
- 			goto out;
--	} else {
--		page_bufs = page_buffers(page);
--		if (!page_bufs) {
--			BUG();
--			goto out;
--		}
--		ext4_walk_page_buffers(handle, inode, page_bufs, 0, len,
--				       NULL, bget_one);
- 	}
  	/*
- 	 * We need to release the page lock before we start the
-@@ -1906,7 +1884,8 @@ static int __ext4_journalled_writepage(s
+-	 * Worst case we can touch the allocation bitmaps, a bgd
+-	 * block, and a block to link in the orphan list.  We do need
+-	 * need to worry about credits for modifying the quota inode.
++	 * Worst case we can touch the allocation bitmaps and a block
++	 * group descriptor block.  We do need need to worry about
++	 * credits for modifying the quota inode.
+ 	 */
+ 	handle = ext4_journal_start(inode, EXT4_HT_MIGRATE,
+-		4 + EXT4_MAXQUOTAS_TRANS_BLOCKS(inode->i_sb));
++		3 + EXT4_MAXQUOTAS_TRANS_BLOCKS(inode->i_sb));
  
- 	lock_page(page);
- 	put_page(page);
--	if (page->mapping != mapping) {
-+	size = i_size_read(inode);
-+	if (page->mapping != mapping || page_offset(page) > size) {
- 		/* The page got truncated from under us */
- 		ext4_journal_stop(handle);
- 		ret = 0;
-@@ -1916,6 +1895,13 @@ static int __ext4_journalled_writepage(s
- 	if (inline_data) {
- 		ret = ext4_mark_inode_dirty(handle, inode);
- 	} else {
-+		struct buffer_head *page_bufs = page_buffers(page);
-+
-+		if (page->index == size >> PAGE_SHIFT)
-+			len = size & ~PAGE_MASK;
-+		else
-+			len = PAGE_SIZE;
-+
- 		ret = ext4_walk_page_buffers(handle, inode, page_bufs, 0, len,
- 					     NULL, do_journal_get_write_access);
+ 	if (IS_ERR(handle)) {
+ 		retval = PTR_ERR(handle);
+@@ -463,10 +463,6 @@ int ext4_ext_migrate(struct inode *inode
+ 	 * Use the correct seed for checksum (i.e. the seed from 'inode').  This
+ 	 * is so that the metadata blocks will have the correct checksum after
+ 	 * the migration.
+-	 *
+-	 * Note however that, if a crash occurs during the migration process,
+-	 * the recovery process is broken because the tmp_inode checksums will
+-	 * be wrong and the orphans cleanup will fail.
+ 	 */
+ 	ei = EXT4_I(inode);
+ 	EXT4_I(tmp_inode)->i_csum_seed = ei->i_csum_seed;
+@@ -478,7 +474,6 @@ int ext4_ext_migrate(struct inode *inode
+ 	clear_nlink(tmp_inode);
  
-@@ -1936,9 +1922,6 @@ static int __ext4_journalled_writepage(s
- out:
- 	unlock_page(page);
- out_no_pagelock:
--	if (!inline_data && page_bufs)
--		ext4_walk_page_buffers(NULL, inode, page_bufs, 0, len,
--				       NULL, bput_one);
- 	brelse(inode_bh);
- 	return ret;
- }
+ 	ext4_ext_tree_init(handle, tmp_inode);
+-	ext4_orphan_add(handle, tmp_inode);
+ 	ext4_journal_stop(handle);
+ 
+ 	/*
+@@ -503,12 +498,6 @@ int ext4_ext_migrate(struct inode *inode
+ 
+ 	handle = ext4_journal_start(inode, EXT4_HT_MIGRATE, 1);
+ 	if (IS_ERR(handle)) {
+-		/*
+-		 * It is impossible to update on-disk structures without
+-		 * a handle, so just rollback in-core changes and live other
+-		 * work to orphan_list_cleanup()
+-		 */
+-		ext4_orphan_del(NULL, tmp_inode);
+ 		retval = PTR_ERR(handle);
+ 		goto out_tmp_inode;
+ 	}
 
 
