@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1578E498A73
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:04:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84ED6498B44
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:12:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245521AbiAXTDv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:03:51 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:60472 "EHLO
+        id S1346279AbiAXTMd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:12:33 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38822 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344657AbiAXTBt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:01:49 -0500
+        with ESMTP id S1346929AbiAXTJL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:09:11 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 07CED60B86;
-        Mon, 24 Jan 2022 19:01:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEEBDC340E5;
-        Mon, 24 Jan 2022 19:01:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BDF8660B88;
+        Mon, 24 Jan 2022 19:09:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAD15C340E5;
+        Mon, 24 Jan 2022 19:09:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050908;
-        bh=76HVBb0t5v3c1y4QZ4tIBcCqirxUjeVEVr/1bZHAtoI=;
+        s=korg; t=1643051350;
+        bh=GLtLK6jPA6nPtqriz3ZVOeIfZ5OpRTdv6BTEh612+3M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wI3WAnSupWwhKIgq9KjADJsPpCe+rm/9qQf7RoqQlwFn96/ngoaC7LonTivoB+TBS
-         IgP6Fyf2XsZjI6+JzyqiNmjq8kQHh7XskRXSZQBv5RnNKnm2JEJzemJz6dVh6yHnfJ
-         OW/SXcQxqHJYYbFaH92n6El4WvF+vPmfwPkKK6R8=
+        b=yZ04MY26ji0jSK5PoHw031ku+B2azKKJnYEytXp0Kckza9Vx+7zSSNW7mOU3yZXfE
+         TfFzN16nWc9h/Rnoyx/DfmTZ0QyLP7vCWK1XqPczziklmxkLfEdWIASdNHH71ExGRK
+         2CfrjkiLUh+kRldc7a9IrZ2PmAAmtkWq4Lm204/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yauhen Kharuzhy <jekhor@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Julia Lawall <Julia.Lawall@lip6.fr>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 118/157] power: bq25890: Enable continuous conversion for ADC at charging
+Subject: [PATCH 4.14 133/186] powerpc/powernv: add missing of_node_put
 Date:   Mon, 24 Jan 2022 19:43:28 +0100
-Message-Id: <20220124183936.522999069@linuxfoundation.org>
+Message-Id: <20220124183941.389960692@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
-References: <20220124183932.787526760@linuxfoundation.org>
+In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
+References: <20220124183937.101330125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,41 +45,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yauhen Kharuzhy <jekhor@gmail.com>
+From: Julia Lawall <Julia.Lawall@lip6.fr>
 
-[ Upstream commit 80211be1b9dec04cc2805d3d81e2091ecac289a1 ]
+[ Upstream commit 7d405a939ca960162eb30c1475759cb2fdf38f8c ]
 
-Instead of one shot run of ADC at beginning of charging, run continuous
-conversion to ensure that all charging-related values are monitored
-properly (input voltage, input current, themperature etc.).
+for_each_compatible_node performs an of_node_get on each iteration, so
+a break out of the loop requires an of_node_put.
 
-Signed-off-by: Yauhen Kharuzhy <jekhor@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+A simplified version of the semantic patch that fixes this problem is as
+follows (http://coccinelle.lip6.fr):
+
+// <smpl>
+@@
+local idexpression n;
+expression e;
+@@
+
+ for_each_compatible_node(n,...) {
+   ...
+(
+   of_node_put(n);
+|
+   e = n
+|
++  of_node_put(n);
+?  break;
+)
+   ...
+ }
+... when != n
+// </smpl>
+
+Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/1448051604-25256-4-git-send-email-Julia.Lawall@lip6.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/power/supply/bq25890_charger.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/platforms/powernv/opal-lpc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/power/supply/bq25890_charger.c b/drivers/power/supply/bq25890_charger.c
-index f993a55cde20f..faf2a62435674 100644
---- a/drivers/power/supply/bq25890_charger.c
-+++ b/drivers/power/supply/bq25890_charger.c
-@@ -521,12 +521,12 @@ static void bq25890_handle_state_change(struct bq25890_device *bq,
- 
- 	if (!new_state->online) {			     /* power removed */
- 		/* disable ADC */
--		ret = bq25890_field_write(bq, F_CONV_START, 0);
-+		ret = bq25890_field_write(bq, F_CONV_RATE, 0);
- 		if (ret < 0)
- 			goto error;
- 	} else if (!old_state.online) {			    /* power inserted */
- 		/* enable ADC, to have control of charge current/voltage */
--		ret = bq25890_field_write(bq, F_CONV_START, 1);
-+		ret = bq25890_field_write(bq, F_CONV_RATE, 1);
- 		if (ret < 0)
- 			goto error;
+diff --git a/arch/powerpc/platforms/powernv/opal-lpc.c b/arch/powerpc/platforms/powernv/opal-lpc.c
+index 6c7ad1d8b32ed..21f0edcfb84ad 100644
+--- a/arch/powerpc/platforms/powernv/opal-lpc.c
++++ b/arch/powerpc/platforms/powernv/opal-lpc.c
+@@ -400,6 +400,7 @@ void __init opal_lpc_init(void)
+ 		if (!of_get_property(np, "primary", NULL))
+ 			continue;
+ 		opal_lpc_chip_id = of_get_ibm_chip_id(np);
++		of_node_put(np);
+ 		break;
  	}
+ 	if (opal_lpc_chip_id < 0)
 -- 
 2.34.1
 
