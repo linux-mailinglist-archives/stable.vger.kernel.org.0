@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A2D1498BDF
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:17:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 180F6499135
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:12:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347731AbiAXTRI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:17:08 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:40326 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348225AbiAXTPE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:15:04 -0500
+        id S1378789AbiAXUJv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:09:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59736 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376711AbiAXUDm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:03:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7002AC02B87F;
+        Mon, 24 Jan 2022 11:30:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8D9E9B8121A;
-        Mon, 24 Jan 2022 19:15:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9400C340E5;
-        Mon, 24 Jan 2022 19:15:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 278BBB81235;
+        Mon, 24 Jan 2022 19:30:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B927C340E5;
+        Mon, 24 Jan 2022 19:30:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051702;
-        bh=C/D2h9OZPFVVIfo9DacnrUoGpxJYsOFF0b8+7wbpPCo=;
+        s=korg; t=1643052604;
+        bh=nc8gMN6FupTObSdJAM/kKjoEdDwv+BPG9AeILVfjHF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nt6A8gjDkrTmtkIuyIznDf0/p/PjInc+3Ep2X13TOEvDvXrGlm9Tp1oTl/p8D3x0R
-         E5iwQ0IRQHz1pKa9zReNAeqw2uRfjRQXx4XVv5bMFsIQmpWRiqh+eBAtO+9QhD14LW
-         3tLXgKUiSxgMqVxvCJQVuMV+iX0E38lk03ZUSN0s=
+        b=SVJYND4NJCtTOSJlHKveAw+MAU2g2oAkz/wtwnCzxxIn04LORxdUyaw4JDPIwnoz9
+         ENcq51ObiR9B9I/Oy1uCWWyb6XIXl+PrQ8roXV/IYZrpBGeKINgrVWeh6HPENAgYUs
+         Ja7kTEH0CUAfGZv9RjjVcG33ii1oUp59aTmRIhBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suresh Udipi <sudipi@jp.adit-jv.com>,
-        Kazuyoshi Akiyama <akiyama@nds-osk.co.jp>,
-        Michael Rodin <mrodin@de.adit-jv.com>,
-        =?UTF-8?q?Niklas=20S=C3=B6derlund?= 
-        <niklas.soderlund+renesas@ragnatech.se>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Gal Pressman <gal@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 059/239] media: rcar-csi2: Correct the selection of hsfreqrange
-Date:   Mon, 24 Jan 2022 19:41:37 +0100
-Message-Id: <20220124183945.017599609@linuxfoundation.org>
+Subject: [PATCH 5.4 114/320] Revert "net/mlx5e: Block offload of outer header csum for UDP tunnels"
+Date:   Mon, 24 Jan 2022 19:41:38 +0100
+Message-Id: <20220124183957.584887635@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,78 +49,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suresh Udipi <sudipi@jp.adit-jv.com>
+From: Aya Levin <ayal@nvidia.com>
 
-[ Upstream commit cee44d4fbacbbdfe62697ec94e76c6e4f726c5df ]
+[ Upstream commit 64050cdad0983ad8060e33c3f4b5aee2366bcebd ]
 
-hsfreqrange should be chosen based on the calculated mbps which
-is closer to the default bit rate  and within the range as per
-table[1]. But current calculation always selects first value which
-is greater than or equal to the calculated mbps which may lead
-to chosing a wrong range in some cases.
+This reverts commit 6d6727dddc7f93fcc155cb8d0c49c29ae0e71122.
 
-For example for 360 mbps for H3/M3N
-Existing logic selects
-Calculated value 360Mbps : Default 400Mbps Range [368.125 -433.125 mbps]
+Although the NIC doesn't support offload of outer header CSUM, using
+gso_partial_features allows offloading the tunnel's segmentation. The
+driver relies on the stack CSUM calculation of the outer header. For
+this, NETIF_F_GSO_UDP_TUNNEL_CSUM must be a member of the device's
+features.
 
-This hsfreqrange is out of range.
-
-The logic is changed to get the default value which is closest to the
-calculated value [1]
-
-Calculated value 360Mbps : Default 350Mbps  Range [320.625 -380.625 mpbs]
-
-[1] specs r19uh0105ej0200-r-car-3rd-generation.pdf [Table 25.9]
-
-Please note that According to Renesas in Table 25.9 the range for
-220 default value is corrected as below
-
- |Range (Mbps)     |  Default  Bit rate (Mbps) |
- -----------------------------------------------
- | 197.125-244.125 |     220                   |
- -----------------------------------------------
-
-Fixes: 769afd212b16 ("media: rcar-csi2: add Renesas R-Car MIPI CSI-2 receiver driver")
-Signed-off-by: Suresh Udipi <sudipi@jp.adit-jv.com>
-Signed-off-by: Kazuyoshi Akiyama <akiyama@nds-osk.co.jp>
-Signed-off-by: Michael Rodin <mrodin@de.adit-jv.com>
-Reviewed-by: Niklas Söderlund <niklas.soderlund+renesas@ragnatech.se>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 6d6727dddc7f ("net/mlx5e: Block offload of outer header csum for UDP tunnels")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Gal Pressman <gal@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/rcar-vin/rcar-csi2.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/platform/rcar-vin/rcar-csi2.c b/drivers/media/platform/rcar-vin/rcar-csi2.c
-index 23f55514b002a..bdcddc48e2f08 100644
---- a/drivers/media/platform/rcar-vin/rcar-csi2.c
-+++ b/drivers/media/platform/rcar-vin/rcar-csi2.c
-@@ -416,16 +416,23 @@ static int rcsi2_wait_phy_start(struct rcar_csi2 *priv)
- static int rcsi2_set_phypll(struct rcar_csi2 *priv, unsigned int mbps)
- {
- 	const struct rcsi2_mbps_reg *hsfreq;
-+	const struct rcsi2_mbps_reg *hsfreq_prev = NULL;
- 
--	for (hsfreq = priv->info->hsfreqrange; hsfreq->mbps != 0; hsfreq++)
-+	for (hsfreq = priv->info->hsfreqrange; hsfreq->mbps != 0; hsfreq++) {
- 		if (hsfreq->mbps >= mbps)
- 			break;
-+		hsfreq_prev = hsfreq;
-+	}
- 
- 	if (!hsfreq->mbps) {
- 		dev_err(priv->dev, "Unsupported PHY speed (%u Mbps)", mbps);
- 		return -ERANGE;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index dea884c94568c..2465165cbea73 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -5053,9 +5053,13 @@ static void mlx5e_build_nic_netdev(struct net_device *netdev)
  	}
  
-+	if (hsfreq_prev &&
-+	    ((mbps - hsfreq_prev->mbps) <= (hsfreq->mbps - mbps)))
-+		hsfreq = hsfreq_prev;
-+
- 	rcsi2_write(priv, PHYPLL_REG, PHYPLL_HSFREQRANGE(hsfreq->reg));
+ 	if (mlx5_vxlan_allowed(mdev->vxlan) || mlx5_geneve_tx_allowed(mdev)) {
+-		netdev->hw_features     |= NETIF_F_GSO_UDP_TUNNEL;
+-		netdev->hw_enc_features |= NETIF_F_GSO_UDP_TUNNEL;
+-		netdev->vlan_features |= NETIF_F_GSO_UDP_TUNNEL;
++		netdev->hw_features     |= NETIF_F_GSO_UDP_TUNNEL |
++					   NETIF_F_GSO_UDP_TUNNEL_CSUM;
++		netdev->hw_enc_features |= NETIF_F_GSO_UDP_TUNNEL |
++					   NETIF_F_GSO_UDP_TUNNEL_CSUM;
++		netdev->gso_partial_features = NETIF_F_GSO_UDP_TUNNEL_CSUM;
++		netdev->vlan_features |= NETIF_F_GSO_UDP_TUNNEL |
++					 NETIF_F_GSO_UDP_TUNNEL_CSUM;
+ 	}
  
- 	return 0;
+ 	if (mlx5e_tunnel_proto_supported(mdev, IPPROTO_GRE)) {
 -- 
 2.34.1
 
