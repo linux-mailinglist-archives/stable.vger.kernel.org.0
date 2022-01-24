@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9FCF4999FB
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:48:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 392A549960D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:16:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1456387AbiAXVi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:38:59 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:45348 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1453740AbiAXVas (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:30:48 -0500
+        id S244955AbiAXU6q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:58:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45168 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1442670AbiAXUzE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:55:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0240AC047CE5;
+        Mon, 24 Jan 2022 12:00:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0921DB811FB;
-        Mon, 24 Jan 2022 21:30:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20650C340E4;
-        Mon, 24 Jan 2022 21:30:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9ECC6B81218;
+        Mon, 24 Jan 2022 20:00:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B44C9C340E5;
+        Mon, 24 Jan 2022 19:59:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059845;
-        bh=B7cGSsiuqg4gQODx/pWR3gyLXkSyG0HwME+dWqp/SZM=;
+        s=korg; t=1643054400;
+        bh=sDAo1XnIxCI4a6omn15xDtLahALW8/Pua+mmxRBmHWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jDFhCR2Dcwo9zeivPEkSdyctHsnf/5aJNM6GvZ7OT8KRbsyTyVKJPe4dZcOsl29PQ
-         0YfZKA5EeNi4BwRX7tOgDniA72CrFmRP9Z/o+ZoSPBkreANOWFUfqHAoWnGmaM5nYH
-         ZcYWfZTujFpTAeSYxLO6zV3uCQtrFFeFvG4KlgLI=
+        b=A5CcKB8hTvaBfwx4Xo4Qk+4E+Z6SurcG42hoPzA6WS18o39zqv96Klwdr/iUa66Hj
+         bc/9y7wRrCElb1QEwTKpsNDF/eKp02pTcAA9i4bzFdLi5twCOl9oJdtnBbmeyMt5e1
+         G3B0nq6HpYbWOw0p/Uw+Ruw7F+ishBm0hO4Wl94U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bean Huo <beanhuo@micron.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Ilan Peer <ilan.peer@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0753/1039] scsi: ufs: Fix a kernel crash during shutdown
+Subject: [PATCH 5.10 377/563] iwlwifi: mvm: Fix calculation of frame length
 Date:   Mon, 24 Jan 2022 19:42:22 +0100
-Message-Id: <20220124184150.648170734@linuxfoundation.org>
+Message-Id: <20220124184037.466685641@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,83 +48,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Ilan Peer <ilan.peer@intel.com>
 
-[ Upstream commit 3489c34bd02b73a72646037d673a122a53cee174 ]
+[ Upstream commit 40a0b38d7a7f91a6027287e0df54f5f547e8d27e ]
 
-Fix the following kernel crash:
+The RADA might include in the Rx frame the MIC and CRC bytes.
+These bytes should be removed for non monitor interfaces and
+should not be passed to mac80211.
 
-Unable to handle kernel paging request at virtual address ffffffc91e735000
-Call trace:
- __queue_work+0x26c/0x624
- queue_work_on+0x6c/0xf0
- ufshcd_hold+0x12c/0x210
- __ufshcd_wl_suspend+0xc0/0x400
- ufshcd_wl_shutdown+0xb8/0xcc
- device_shutdown+0x184/0x224
- kernel_restart+0x4c/0x124
- __arm64_sys_reboot+0x194/0x264
- el0_svc_common+0xc8/0x1d4
- do_el0_svc+0x30/0x8c
- el0_svc+0x20/0x30
- el0_sync_handler+0x84/0xe4
- el0_sync+0x1bc/0x1c0
+Fix the Rx processing to remove the extra bytes on non monitor
+cases.
 
-Fix this crash by ungating the clock before destroying the work queue on
-which clock gating work is queued.
-
-Link: https://lore.kernel.org/r/20211203231950.193369-15-bvanassche@acm.org
-Tested-by: Bean Huo <beanhuo@micron.com>
-Reviewed-by: Bean Huo <beanhuo@micron.com>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Ilan Peer <ilan.peer@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20211219121514.098be12c801e.I1d81733d8a75b84c3b20eb6e0d14ab3405ca6a86@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c | 27 +++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 4394081806978..c94377aa82739 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -1666,7 +1666,8 @@ int ufshcd_hold(struct ufs_hba *hba, bool async)
- 	bool flush_result;
- 	unsigned long flags;
+diff --git a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
+index 838734fec5023..86b3fb321dfdd 100644
+--- a/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
++++ b/drivers/net/wireless/intel/iwlwifi/mvm/rxmq.c
+@@ -177,12 +177,39 @@ static int iwl_mvm_create_skb(struct iwl_mvm *mvm, struct sk_buff *skb,
+ 	struct iwl_rx_mpdu_desc *desc = (void *)pkt->data;
+ 	unsigned int headlen, fraglen, pad_len = 0;
+ 	unsigned int hdrlen = ieee80211_hdrlen(hdr->frame_control);
++	u8 mic_crc_len = u8_get_bits(desc->mac_flags1,
++				     IWL_RX_MPDU_MFLG1_MIC_CRC_LEN_MASK) << 1;
  
--	if (!ufshcd_is_clkgating_allowed(hba))
-+	if (!ufshcd_is_clkgating_allowed(hba) ||
-+	    !hba->clk_gating.is_initialized)
- 		goto out;
- 	spin_lock_irqsave(hba->host->host_lock, flags);
- 	hba->clk_gating.active_reqs++;
-@@ -1826,7 +1827,7 @@ static void __ufshcd_release(struct ufs_hba *hba)
+ 	if (desc->mac_flags2 & IWL_RX_MPDU_MFLG2_PAD) {
+ 		len -= 2;
+ 		pad_len = 2;
+ 	}
  
- 	if (hba->clk_gating.active_reqs || hba->clk_gating.is_suspended ||
- 	    hba->ufshcd_state != UFSHCD_STATE_OPERATIONAL ||
--	    hba->outstanding_tasks ||
-+	    hba->outstanding_tasks || !hba->clk_gating.is_initialized ||
- 	    hba->active_uic_cmd || hba->uic_async_done ||
- 	    hba->clk_gating.state == CLKS_OFF)
- 		return;
-@@ -1961,11 +1962,15 @@ static void ufshcd_exit_clk_gating(struct ufs_hba *hba)
- {
- 	if (!hba->clk_gating.is_initialized)
- 		return;
++	/*
++	 * For non monitor interface strip the bytes the RADA might not have
++	 * removed. As monitor interface cannot exist with other interfaces
++	 * this removal is safe.
++	 */
++	if (mic_crc_len && !ieee80211_hw_check(mvm->hw, RX_INCLUDES_FCS)) {
++		u32 pkt_flags = le32_to_cpu(pkt->len_n_flags);
 +
- 	ufshcd_remove_clk_gating_sysfs(hba);
--	cancel_work_sync(&hba->clk_gating.ungate_work);
--	cancel_delayed_work_sync(&hba->clk_gating.gate_work);
--	destroy_workqueue(hba->clk_gating.clk_gating_workq);
++		/*
++		 * If RADA was not enabled then decryption was not performed so
++		 * the MIC cannot be removed.
++		 */
++		if (!(pkt_flags & FH_RSCSR_RADA_EN)) {
++			if (WARN_ON(crypt_len > mic_crc_len))
++				return -EINVAL;
 +
-+	/* Ungate the clock if necessary. */
-+	ufshcd_hold(hba, false);
- 	hba->clk_gating.is_initialized = false;
-+	ufshcd_release(hba);
++			mic_crc_len -= crypt_len;
++		}
 +
-+	destroy_workqueue(hba->clk_gating.clk_gating_workq);
- }
- 
- /* Must be called with host lock acquired */
++		if (WARN_ON(mic_crc_len > len))
++			return -EINVAL;
++
++		len -= mic_crc_len;
++	}
++
+ 	/* If frame is small enough to fit in skb->head, pull it completely.
+ 	 * If not, only pull ieee80211_hdr (including crypto if present, and
+ 	 * an additional 8 bytes for SNAP/ethertype, see below) so that
 -- 
 2.34.1
 
