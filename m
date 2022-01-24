@@ -2,45 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46028499B31
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:59:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 578394998B6
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:38:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1574790AbiAXVuV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:50:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55394 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1457582AbiAXVly (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:41:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C2EBC07E337;
-        Mon, 24 Jan 2022 12:29:43 -0800 (PST)
+        id S1352686AbiAXV3U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:29:20 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:37420 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1446189AbiAXVRz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:17:55 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 19A626152E;
-        Mon, 24 Jan 2022 20:29:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E29C3C340E5;
-        Mon, 24 Jan 2022 20:29:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B7BCCB812A4;
+        Mon, 24 Jan 2022 21:17:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED44AC340E4;
+        Mon, 24 Jan 2022 21:17:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056182;
-        bh=Ppd/gYwGdixnbtSSWJJvJrtejKJg//SWtm/6//PhVhw=;
+        s=korg; t=1643059069;
+        bh=nGSKyNwHqxYnvZTzIEn47sHUm0MNCLWPaVZ1C6/ULmk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dTqqCeeew1AdLAKzQBQtntfhigJ5SehkybgxZtbZQOoebS/WWYQf9saubOwVBVcxY
-         DskjDz45GbZtKZKQlycCGtTqlZTtLEABfYB7nV81+qsw6plDJ4uBX1qXqaqWDFpOzz
-         Fsje4Jw2eoFCpX6TIngaRtVCXabyML6llzRex10c=
+        b=gPN70eBBQAoIg1orgSrU44tYdApWzduoPNyBVRhUowUTagEaw/nYlQKuTed+Ftg0Q
+         SLE3ZuScGAc/txBMBWo5KKDJGZu6nErdQ3pCS/0joFqZGG0i8C2WsEqE4cd0wu1bfM
+         eGCgMltzUEOc5DDsckiOo7ds9YiUYQO7LCkLr+/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Blakey <paulb@nvidia.com>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 366/846] net: openvswitch: Fix ct_state nat flags for conns arriving from tc
+        stable@vger.kernel.org, Maxim Levitsky <mlevitsk@redhat.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0494/1039] iommu/amd: X2apic mode: re-enable after resume
 Date:   Mon, 24 Jan 2022 19:38:03 +0100
-Message-Id: <20220124184113.561283139@linuxfoundation.org>
+Message-Id: <20220124184141.859316718@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,140 +44,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Blakey <paulb@nvidia.com>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-[ Upstream commit 6f022c2ddbcefaee79502ce5386dfe351d457070 ]
+[ Upstream commit 01b297a48a26bcb96769505ac948db4603b72bd1 ]
 
-Netfilter conntrack maintains NAT flags per connection indicating
-whether NAT was configured for the connection. Openvswitch maintains
-NAT flags on the per packet flow key ct_state field, indicating
-whether NAT was actually executed on the packet.
+Otherwise it is guaranteed to not work after the resume...
 
-When a packet misses from tc to ovs the conntrack NAT flags are set.
-However, NAT was not necessarily executed on the packet because the
-connection's state might still be in NEW state. As such, openvswitch
-wrongly assumes that NAT was executed and sets an incorrect flow key
-NAT flags.
+Fixes: 66929812955bb ("iommu/amd: Add support for X2APIC IOMMU interrupts")
 
-Fix this, by flagging to openvswitch which NAT was actually done in
-act_ct via tc_skb_ext and tc_skb_cb to the openvswitch module, so
-the packet flow key NAT flags will be correctly set.
-
-Fixes: b57dc7c13ea9 ("net/sched: Introduce action ct")
-Signed-off-by: Paul Blakey <paulb@nvidia.com>
-Acked-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Link: https://lore.kernel.org/r/20220106153804.26451-1-paulb@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Link: https://lore.kernel.org/r/20211123161038.48009-3-mlevitsk@redhat.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/skbuff.h  |  4 +++-
- include/net/pkt_sched.h |  4 +++-
- net/openvswitch/flow.c  | 16 +++++++++++++---
- net/sched/act_ct.c      |  6 ++++++
- net/sched/cls_api.c     |  2 ++
- 5 files changed, 27 insertions(+), 5 deletions(-)
+ drivers/iommu/amd/init.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
-index f92839b726dc2..532f5d402f060 100644
---- a/include/linux/skbuff.h
-+++ b/include/linux/skbuff.h
-@@ -287,7 +287,9 @@ struct tc_skb_ext {
- 	__u32 chain;
- 	__u16 mru;
- 	__u16 zone;
--	bool post_ct;
-+	u8 post_ct:1;
-+	u8 post_ct_snat:1;
-+	u8 post_ct_dnat:1;
- };
- #endif
- 
-diff --git a/include/net/pkt_sched.h b/include/net/pkt_sched.h
-index 9e71691c491b7..9e7b21c0b3a6d 100644
---- a/include/net/pkt_sched.h
-+++ b/include/net/pkt_sched.h
-@@ -197,7 +197,9 @@ struct tc_skb_cb {
- 	struct qdisc_skb_cb qdisc_cb;
- 
- 	u16 mru;
--	bool post_ct;
-+	u8 post_ct:1;
-+	u8 post_ct_snat:1;
-+	u8 post_ct_dnat:1;
- 	u16 zone; /* Only valid if post_ct = true */
- };
- 
-diff --git a/net/openvswitch/flow.c b/net/openvswitch/flow.c
-index 6d262d9aa10ea..02096f2ec6784 100644
---- a/net/openvswitch/flow.c
-+++ b/net/openvswitch/flow.c
-@@ -859,7 +859,7 @@ int ovs_flow_key_extract(const struct ip_tunnel_info *tun_info,
- #if IS_ENABLED(CONFIG_NET_TC_SKB_EXT)
- 	struct tc_skb_ext *tc_ext;
- #endif
--	bool post_ct = false;
-+	bool post_ct = false, post_ct_snat = false, post_ct_dnat = false;
- 	int res, err;
- 	u16 zone = 0;
- 
-@@ -900,6 +900,8 @@ int ovs_flow_key_extract(const struct ip_tunnel_info *tun_info,
- 		key->recirc_id = tc_ext ? tc_ext->chain : 0;
- 		OVS_CB(skb)->mru = tc_ext ? tc_ext->mru : 0;
- 		post_ct = tc_ext ? tc_ext->post_ct : false;
-+		post_ct_snat = post_ct ? tc_ext->post_ct_snat : false;
-+		post_ct_dnat = post_ct ? tc_ext->post_ct_dnat : false;
- 		zone = post_ct ? tc_ext->zone : 0;
- 	} else {
- 		key->recirc_id = 0;
-@@ -911,8 +913,16 @@ int ovs_flow_key_extract(const struct ip_tunnel_info *tun_info,
- 	err = key_extract(skb, key);
- 	if (!err) {
- 		ovs_ct_fill_key(skb, key, post_ct);   /* Must be after key_extract(). */
--		if (post_ct && !skb_get_nfct(skb))
--			key->ct_zone = zone;
-+		if (post_ct) {
-+			if (!skb_get_nfct(skb)) {
-+				key->ct_zone = zone;
-+			} else {
-+				if (!post_ct_dnat)
-+					key->ct_state &= ~OVS_CS_F_DST_NAT;
-+				if (!post_ct_snat)
-+					key->ct_state &= ~OVS_CS_F_SRC_NAT;
-+			}
-+		}
+diff --git a/drivers/iommu/amd/init.c b/drivers/iommu/amd/init.c
+index 8dae85fcfc2eb..b905604f434e1 100644
+--- a/drivers/iommu/amd/init.c
++++ b/drivers/iommu/amd/init.c
+@@ -2172,7 +2172,6 @@ static int iommu_setup_intcapxt(struct amd_iommu *iommu)
+ 		return ret;
  	}
- 	return err;
+ 
+-	iommu_feature_enable(iommu, CONTROL_INTCAPXT_EN);
+ 	return 0;
  }
-diff --git a/net/sched/act_ct.c b/net/sched/act_ct.c
-index ab3591408419f..2a17eb77c9049 100644
---- a/net/sched/act_ct.c
-+++ b/net/sched/act_ct.c
-@@ -839,6 +839,12 @@ static int ct_nat_execute(struct sk_buff *skb, struct nf_conn *ct,
- 	}
  
- 	err = nf_nat_packet(ct, ctinfo, hooknum, skb);
-+	if (err == NF_ACCEPT) {
-+		if (maniptype == NF_NAT_MANIP_SRC)
-+			tc_skb_cb(skb)->post_ct_snat = 1;
-+		if (maniptype == NF_NAT_MANIP_DST)
-+			tc_skb_cb(skb)->post_ct_dnat = 1;
-+	}
- out:
- 	return err;
- }
-diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
-index 35c74bdde848e..cc9409aa755eb 100644
---- a/net/sched/cls_api.c
-+++ b/net/sched/cls_api.c
-@@ -1625,6 +1625,8 @@ int tcf_classify(struct sk_buff *skb,
- 		ext->chain = last_executed_chain;
- 		ext->mru = cb->mru;
- 		ext->post_ct = cb->post_ct;
-+		ext->post_ct_snat = cb->post_ct_snat;
-+		ext->post_ct_dnat = cb->post_ct_dnat;
- 		ext->zone = cb->zone;
- 	}
+@@ -2195,6 +2194,10 @@ static int iommu_init_irq(struct amd_iommu *iommu)
  
+ 	iommu->int_enabled = true;
+ enable_faults:
++
++	if (amd_iommu_xt_mode == IRQ_REMAP_X2APIC_MODE)
++		iommu_feature_enable(iommu, CONTROL_INTCAPXT_EN);
++
+ 	iommu_feature_enable(iommu, CONTROL_EVT_INT_EN);
+ 
+ 	if (iommu->ppr_log != NULL)
 -- 
 2.34.1
 
