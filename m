@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78FBD4989BC
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:58:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3ACA4988C9
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:51:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344138AbiAXS6C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:58:02 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:53486 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344144AbiAXS4B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:56:01 -0500
+        id S245706AbiAXSu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:50:28 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49604 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245520AbiAXStj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:49:39 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E17FD6153F;
-        Mon, 24 Jan 2022 18:55:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1754C340E5;
-        Mon, 24 Jan 2022 18:55:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3DF00B81221;
+        Mon, 24 Jan 2022 18:49:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F3A5C340E5;
+        Mon, 24 Jan 2022 18:49:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050559;
-        bh=8CiU7b02IfI9DVn5xiIo5MTYuU5Jo6xdU+CHw3d+S2s=;
+        s=korg; t=1643050177;
+        bh=IyEZm5VJ9DTUvGD5ch3pdHZ+oyGhrNtAXW8JkE7kfH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C1VScGEM3VmKUEjCfaSbVaa1vRRg1urLgA3QtVJkojolezYzuhO+EJrDnVCapoxbW
-         RTyxgOEKl7ASFa12VwfdokGG+Ci0kobwC48H0y72UnkPtLFfgZG1zeNInhOg5jQlDA
-         CIoJAfnGSF/jRTZFo+7bJSoEVsBXhkR391vxSDw8=
+        b=LMM3g83VQvVgGF5G64GlaIBPJIvwbwi1DNMvYmCWb1665jD/vm/z5w9Zlu8tOW7Rt
+         mz4zRAbfIMwPsVU0QG+C4ihF3muHg2BNUeWZohkjCDmWqER4rfUhkckYdeXXL4dOK1
+         0Qy9NEJVWROCyJOwM9eI9FhaIEBoVgR24zL8owE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Zhou Qingyang <zhou1615@umn.edu>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 039/157] drm/radeon/radeon_kms: Fix a NULL pointer dereference in radeon_driver_open_kms()
+Subject: [PATCH 4.4 034/114] pcmcia: rsrc_nonstatic: Fix a NULL pointer dereference in __nonstatic_find_io_region()
 Date:   Mon, 24 Jan 2022 19:42:09 +0100
-Message-Id: <20220124183934.041026358@linuxfoundation.org>
+Message-Id: <20220124183928.169382566@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
-References: <20220124183932.787526760@linuxfoundation.org>
+In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
+References: <20220124183927.095545464@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,15 +47,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Zhou Qingyang <zhou1615@umn.edu>
 
-[ Upstream commit ab50cb9df8896b39aae65c537a30de2c79c19735 ]
+[ Upstream commit ca0fe0d7c35c97528bdf621fdca75f13157c27af ]
 
-In radeon_driver_open_kms(), radeon_vm_bo_add() is assigned to
-vm->ib_bo_va and passes and used in radeon_vm_bo_set_addr(). In
-radeon_vm_bo_set_addr(), there is a dereference of vm->ib_bo_va,
-which could lead to a NULL pointer dereference on failure of
-radeon_vm_bo_add().
+In __nonstatic_find_io_region(), pcmcia_make_resource() is assigned to
+res and used in pci_bus_alloc_resource(). There is a dereference of res
+in pci_bus_alloc_resource(), which could lead to a NULL pointer
+dereference on failure of pcmcia_make_resource().
 
-Fix this bug by adding a check of vm->ib_bo_va.
+Fix this bug by adding a check of res.
 
 This bug was found by a static analyzer. The analysis employs
 differential checking to identify inconsistent security operations
@@ -69,94 +66,32 @@ Note that, as a bug found by static analysis, it can be a false
 positive or hard to trigger. Multiple researchers have cross-reviewed
 the bug.
 
-Builds with CONFIG_DRM_RADEON=m show no new warnings,
+Builds with CONFIG_PCCARD_NONSTATIC=y show no new warnings,
 and our static analyzer no longer warns about this code.
 
-Fixes: cc9e67e3d700 ("drm/radeon: fix VM IB handling")
-Reviewed-by: Christian König <christian.koenig@amd.com>
+Fixes: 49b1153adfe1 ("pcmcia: move all pcmcia_resource_ops providers into one module")
 Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+[linux@dominikbrodowski.net: Fix typo in commit message]
+Signed-off-by: Dominik Brodowski <linux@dominikbrodowski.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_kms.c | 36 ++++++++++++++++-------------
- 1 file changed, 20 insertions(+), 16 deletions(-)
+ drivers/pcmcia/rsrc_nonstatic.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_kms.c b/drivers/gpu/drm/radeon/radeon_kms.c
-index 61000e3b2e793..e65afdc4838d2 100644
---- a/drivers/gpu/drm/radeon/radeon_kms.c
-+++ b/drivers/gpu/drm/radeon/radeon_kms.c
-@@ -630,6 +630,8 @@ void radeon_driver_lastclose_kms(struct drm_device *dev)
- int radeon_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
- {
- 	struct radeon_device *rdev = dev->dev_private;
-+	struct radeon_fpriv *fpriv;
-+	struct radeon_vm *vm;
- 	int r;
+diff --git a/drivers/pcmcia/rsrc_nonstatic.c b/drivers/pcmcia/rsrc_nonstatic.c
+index 5ef7b46a25786..4d244014f423f 100644
+--- a/drivers/pcmcia/rsrc_nonstatic.c
++++ b/drivers/pcmcia/rsrc_nonstatic.c
+@@ -693,6 +693,9 @@ static struct resource *__nonstatic_find_io_region(struct pcmcia_socket *s,
+ 	unsigned long min = base;
+ 	int ret;
  
- 	file_priv->driver_priv = NULL;
-@@ -642,8 +644,6 @@ int radeon_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
- 
- 	/* new gpu have virtual address space support */
- 	if (rdev->family >= CHIP_CAYMAN) {
--		struct radeon_fpriv *fpriv;
--		struct radeon_vm *vm;
- 
- 		fpriv = kzalloc(sizeof(*fpriv), GFP_KERNEL);
- 		if (unlikely(!fpriv)) {
-@@ -654,35 +654,39 @@ int radeon_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
- 		if (rdev->accel_working) {
- 			vm = &fpriv->vm;
- 			r = radeon_vm_init(rdev, vm);
--			if (r) {
--				kfree(fpriv);
--				goto out_suspend;
--			}
-+			if (r)
-+				goto out_fpriv;
- 
- 			r = radeon_bo_reserve(rdev->ring_tmp_bo.bo, false);
--			if (r) {
--				radeon_vm_fini(rdev, vm);
--				kfree(fpriv);
--				goto out_suspend;
--			}
-+			if (r)
-+				goto out_vm_fini;
- 
- 			/* map the ib pool buffer read only into
- 			 * virtual address space */
- 			vm->ib_bo_va = radeon_vm_bo_add(rdev, vm,
- 							rdev->ring_tmp_bo.bo);
-+			if (!vm->ib_bo_va) {
-+				r = -ENOMEM;
-+				goto out_vm_fini;
-+			}
++	if (!res)
++		return NULL;
 +
- 			r = radeon_vm_bo_set_addr(rdev, vm->ib_bo_va,
- 						  RADEON_VA_IB_OFFSET,
- 						  RADEON_VM_PAGE_READABLE |
- 						  RADEON_VM_PAGE_SNOOPED);
--			if (r) {
--				radeon_vm_fini(rdev, vm);
--				kfree(fpriv);
--				goto out_suspend;
--			}
-+			if (r)
-+				goto out_vm_fini;
- 		}
- 		file_priv->driver_priv = fpriv;
- 	}
- 
-+	if (!r)
-+		goto out_suspend;
-+
-+out_vm_fini:
-+	radeon_vm_fini(rdev, vm);
-+out_fpriv:
-+	kfree(fpriv);
- out_suspend:
- 	pm_runtime_mark_last_busy(dev->dev);
- 	pm_runtime_put_autosuspend(dev->dev);
+ 	data.mask = align - 1;
+ 	data.offset = base & data.mask;
+ 	data.map = &s_data->io_db;
 -- 
 2.34.1
 
