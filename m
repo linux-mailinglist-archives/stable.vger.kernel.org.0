@@ -2,46 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BAFC49A9E2
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:29:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9C7F49A8F1
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:17:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1323775AbiAYD3k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:29:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47254 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353004AbiAXVFt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:05:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4C18C06177F;
-        Mon, 24 Jan 2022 12:06:31 -0800 (PST)
+        id S1321569AbiAYDS4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:18:56 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:49702 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344886AbiAXTVd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:21:33 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8DCFEB8122F;
-        Mon, 24 Jan 2022 20:06:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5EA3C340E5;
-        Mon, 24 Jan 2022 20:06:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8814A60917;
+        Mon, 24 Jan 2022 19:21:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A2DEC340E8;
+        Mon, 24 Jan 2022 19:21:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054789;
-        bh=chR8q+WKD2uFEc4mwI/c7D3xEq11yM9yTEw/Rw4Sum0=;
+        s=korg; t=1643052092;
+        bh=8dtuI81vH2nEg04/VDZ3p6Ngyx8DAV+nwowjYqyLxQs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CB9lS/9TqAaMUT7pKMZ2q5ri4cQamdpV5U13tKEJTzgNDE/UIyMTpgSq0Eas4sbsR
-         6NfG4LqD7ixOpgTMtuNZAViadzNiXZxZKsGI4cjgDR/K13YUw1LQ06hfoXj+X+gAjp
-         L91XZPtpvjfgjVkw1P3Wxqqvqc6FCYurOOUEcP1c=
+        b=Y3ndXdzCiKxuOi0jKmNBFnnevJmLWTf5MJOE9w+izIReQPBzUsGs0mbRFf+glA9mx
+         nlRkM30bM5bIjDN42KLBjoRth8j+ewStZXV6hQmCeQ3vMJ29A4dY5Y110HxwsC1uMM
+         oW2GQ0CY8Wd9yi4x8lI0VHeP4B8nnxCvTz0Dq7ps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?St=C3=A9phane=20Graber?= <stgraber@ubuntu.com>,
-        Rob Herring <robh@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>
-Subject: [PATCH 5.10 460/563] PCI: xgene: Fix IB window setup
+        stable@vger.kernel.org, Zqiang <qiang.zhang1211@gmail.com>,
+        syzbot+bb950e68b400ab4f65f8@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 187/239] ALSA: seq: Set upper limit of processed events
 Date:   Mon, 24 Jan 2022 19:43:45 +0100
-Message-Id: <20220124184040.370956063@linuxfoundation.org>
+Message-Id: <20220124183949.046047461@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,43 +45,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rob Herring <robh@kernel.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit c7a75d07827a1f33d566e18e6098379cc2a0c2b2 upstream.
+[ Upstream commit 6fadb494a638d8b8a55864ecc6ac58194f03f327 ]
 
-Commit 6dce5aa59e0b ("PCI: xgene: Use inbound resources for setup")
-broke PCI support on XGene. The cause is the IB resources are now sorted
-in address order instead of being in DT dma-ranges order. The result is
-which inbound registers are used for each region are swapped. I don't
-know the details about this h/w, but it appears that IB region 0
-registers can't handle a size greater than 4GB. In any case, limiting
-the size for region 0 is enough to get back to the original assignment
-of dma-ranges to regions.
+Currently ALSA sequencer core tries to process the queued events as
+much as possible when they become dispatchable.  If applications try
+to queue too massive events to be processed at the very same timing,
+the sequencer core would still try to process such all events, either
+in the interrupt context or via some notifier; in either away, it
+might be a cause of RCU stall or such problems.
 
-Link: https://lore.kernel.org/all/CA+enf=v9rY_xnZML01oEgKLmvY1NGBUUhnSJaETmXtDtXfaczA@mail.gmail.com/
-Link: https://lore.kernel.org/r/20211129173637.303201-1-robh@kernel.org
-Fixes: 6dce5aa59e0b ("PCI: xgene: Use inbound resources for setup")
-Reported-by: Stéphane Graber <stgraber@ubuntu.com>
-Tested-by: Stéphane Graber <stgraber@ubuntu.com>
-Signed-off-by: Rob Herring <robh@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Krzysztof Wilczyński <kw@linux.com>
-Cc: stable@vger.kernel.org # v5.5+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+As a potential workaround for those problems, this patch adds the
+upper limit of the amount of events to be processed.  The remaining
+events are processed in the next batch, so they won't be lost.
+
+For the time being, it's limited up to 1000 events per queue, which
+should be high enough for any normal usages.
+
+Reported-by: Zqiang <qiang.zhang1211@gmail.com>
+Reported-by: syzbot+bb950e68b400ab4f65f8@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/r/20211102033222.3849-1-qiang.zhang1211@gmail.com
+Link: https://lore.kernel.org/r/20211207165146.2888-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-xgene.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/core/seq/seq_queue.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/drivers/pci/controller/pci-xgene.c
-+++ b/drivers/pci/controller/pci-xgene.c
-@@ -467,7 +467,7 @@ static int xgene_pcie_select_ib_reg(u8 *
- 		return 1;
+diff --git a/sound/core/seq/seq_queue.c b/sound/core/seq/seq_queue.c
+index 28b4dd45b8d1d..a23ba648db845 100644
+--- a/sound/core/seq/seq_queue.c
++++ b/sound/core/seq/seq_queue.c
+@@ -247,12 +247,15 @@ struct snd_seq_queue *snd_seq_queue_find_name(char *name)
+ 
+ /* -------------------------------------------------------- */
+ 
++#define MAX_CELL_PROCESSES_IN_QUEUE	1000
++
+ void snd_seq_check_queue(struct snd_seq_queue *q, int atomic, int hop)
+ {
+ 	unsigned long flags;
+ 	struct snd_seq_event_cell *cell;
+ 	snd_seq_tick_time_t cur_tick;
+ 	snd_seq_real_time_t cur_time;
++	int processed = 0;
+ 
+ 	if (q == NULL)
+ 		return;
+@@ -275,6 +278,8 @@ void snd_seq_check_queue(struct snd_seq_queue *q, int atomic, int hop)
+ 		if (!cell)
+ 			break;
+ 		snd_seq_dispatch_event(cell, atomic, hop);
++		if (++processed >= MAX_CELL_PROCESSES_IN_QUEUE)
++			goto out; /* the rest processed at the next batch */
  	}
  
--	if ((size > SZ_1K) && (size < SZ_1T) && !(*ib_reg_mask & (1 << 0))) {
-+	if ((size > SZ_1K) && (size < SZ_4G) && !(*ib_reg_mask & (1 << 0))) {
- 		*ib_reg_mask |= (1 << 0);
- 		return 0;
+ 	/* Process time queue... */
+@@ -284,14 +289,19 @@ void snd_seq_check_queue(struct snd_seq_queue *q, int atomic, int hop)
+ 		if (!cell)
+ 			break;
+ 		snd_seq_dispatch_event(cell, atomic, hop);
++		if (++processed >= MAX_CELL_PROCESSES_IN_QUEUE)
++			goto out; /* the rest processed at the next batch */
  	}
+ 
++ out:
+ 	/* free lock */
+ 	spin_lock_irqsave(&q->check_lock, flags);
+ 	if (q->check_again) {
+ 		q->check_again = 0;
+-		spin_unlock_irqrestore(&q->check_lock, flags);
+-		goto __again;
++		if (processed < MAX_CELL_PROCESSES_IN_QUEUE) {
++			spin_unlock_irqrestore(&q->check_lock, flags);
++			goto __again;
++		}
+ 	}
+ 	q->check_blocked = 0;
+ 	spin_unlock_irqrestore(&q->check_lock, flags);
+-- 
+2.34.1
+
 
 
