@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C6AFA4993AF
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:38:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47E49498EDB
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:49:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1386117AbiAXUfL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:35:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38516 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384757AbiAXUad (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:30:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C92E1C08B4D5;
-        Mon, 24 Jan 2022 11:42:49 -0800 (PST)
+        id S1351394AbiAXTtE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:49:04 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:35808 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344460AbiAXToA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:44:00 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 865F2B80FA1;
-        Mon, 24 Jan 2022 19:42:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9A43C340E5;
-        Mon, 24 Jan 2022 19:42:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F2084B80FA1;
+        Mon, 24 Jan 2022 19:43:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D43BC340E7;
+        Mon, 24 Jan 2022 19:43:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053367;
-        bh=FeZZ+ingMMeS9llhA0tL7fmg4FwHfTx7PJX3YvByI6A=;
+        s=korg; t=1643053433;
+        bh=yXIFEi0hrJpSznLM8N/k1ZoZ5zdtMovx27QVj/OKBf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h7JAahBvBFk8l/NZOpIEsvDjsdWUUXaLyEEKLapyXt0YF1RyjQ8uG0lbjH9lKx7Jo
-         UArvXGoyOmc1vDvwKArdzvGMDiyMasroJnGiBOmGW4DzOYcZt+feF+fafgRUUuHrtm
-         ng+hLd8qAs+tXDRP3wcBttFO1EQW2+5Xs8Hfa8mQ=
+        b=X50Lv/Ti5Fgva732kJp81uPt2SK0gkHCbEyybT0bcL/Co92lfyv7quZI0yf0or1J1
+         h6RPbhl3bCan7ZrvaE8YHHs04o72Ts/drm8pbn1rB7DhhuqtEXo/8GCZRU78ZmH2+v
+         74Od2aPDewPn2lKoerO+r3Gti/sR7fj5nxq4+ytY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dmitry Osipenko <digetx@gmail.com>,
-        Thierry Reding <treding@nvidia.com>
-Subject: [PATCH 5.10 034/563] gpu: host1x: Add back arm_iommu_detach_device()
-Date:   Mon, 24 Jan 2022 19:36:39 +0100
-Message-Id: <20220124184025.606765771@linuxfoundation.org>
+        stable@vger.kernel.org, Sam Bingner <sam@bingner.com>,
+        Yifeng Li <tomli@tomli.me>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>
+Subject: [PATCH 5.10 036/563] PCI: Add function 1 DMA alias quirk for Marvell 88SE9125 SATA controller
+Date:   Mon, 24 Jan 2022 19:36:41 +0100
+Message-Id: <20220124184025.677502576@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -47,57 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Yifeng Li <tomli@tomli.me>
 
-commit d5185965c3b59073c4520bad7dd2adf725b9abba upstream.
+commit e445375882883f69018aa669b67cbb37ec873406 upstream.
 
-Host1x DMA buffer isn't mapped properly when CONFIG_ARM_DMA_USE_IOMMU=y.
-The memory management code of Host1x driver has a longstanding overhaul
-overdue and it's not obvious where the problem is in this case. Hence
-let's add back the old workaround which we already had sometime before.
-It explicitly detaches Host1x device from the offending implicit IOMMU
-domain. This fixes a completely broken Host1x DMA in case of ARM32
-multiplatform kernel config.
+Like other SATA controller chips in the Marvell 88SE91xx series, the
+Marvell 88SE9125 has the same DMA requester ID hardware bug that prevents
+it from working under IOMMU.  Add it to the list of devices that need the
+quirk.
 
+Without this patch, device initialization fails with DMA errors:
+
+  ata8: softreset failed (1st FIS failed)
+  DMAR: DRHD: handling fault status reg 2
+  DMAR: [DMA Write NO_PASID] Request device [03:00.1] fault addr 0xfffc0000 [fault reason 0x02] Present bit in context entry is clear
+  DMAR: DRHD: handling fault status reg 2
+  DMAR: [DMA Read NO_PASID] Request device [03:00.1] fault addr 0xfffc0000 [fault reason 0x02] Present bit in context entry is clear
+
+After applying the patch, the controller can be successfully initialized:
+
+  ata8: SATA link up 1.5 Gbps (SStatus 113 SControl 330)
+  ata8.00: ATAPI: PIONEER BD-RW   BDR-207M, 1.21, max UDMA/100
+  ata8.00: configured for UDMA/100
+  scsi 7:0:0:0: CD-ROM            PIONEER  BD-RW   BDR-207M 1.21 PQ: 0 ANSI: 5
+
+Link: https://lore.kernel.org/r/YahpKVR+McJVDdkD@work
+Reported-by: Sam Bingner <sam@bingner.com>
+Tested-by: Sam Bingner <sam@bingner.com>
+Tested-by: Yifeng Li <tomli@tomli.me>
+Signed-off-by: Yifeng Li <tomli@tomli.me>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Krzysztof Wilczyński <kw@linux.com>
 Cc: stable@vger.kernel.org
-Fixes: af1cbfb9bf0f ("gpu: host1x: Support DMA mapping of buffers")
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/host1x/dev.c |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/pci/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/gpu/host1x/dev.c
-+++ b/drivers/gpu/host1x/dev.c
-@@ -18,6 +18,10 @@
- #include <trace/events/host1x.h>
- #undef CREATE_TRACE_POINTS
- 
-+#if IS_ENABLED(CONFIG_ARM_DMA_USE_IOMMU)
-+#include <asm/dma-iommu.h>
-+#endif
-+
- #include "bus.h"
- #include "channel.h"
- #include "debug.h"
-@@ -232,6 +236,17 @@ static struct iommu_domain *host1x_iommu
- 	struct iommu_domain *domain = iommu_get_domain_for_dev(host->dev);
- 	int err;
- 
-+#if IS_ENABLED(CONFIG_ARM_DMA_USE_IOMMU)
-+	if (host->dev->archdata.mapping) {
-+		struct dma_iommu_mapping *mapping =
-+				to_dma_iommu_mapping(host->dev);
-+		arm_iommu_detach_device(host->dev);
-+		arm_iommu_release_mapping(mapping);
-+
-+		domain = iommu_get_domain_for_dev(host->dev);
-+	}
-+#endif
-+
- 	/*
- 	 * We may not always want to enable IOMMU support (for example if the
- 	 * host1x firewall is already enabled and we don't support addressing
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -4077,6 +4077,9 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_M
+ 			 quirk_dma_func1_alias);
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9123,
+ 			 quirk_dma_func1_alias);
++/* https://bugzilla.kernel.org/show_bug.cgi?id=42679#c136 */
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9125,
++			 quirk_dma_func1_alias);
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9128,
+ 			 quirk_dma_func1_alias);
+ /* https://bugzilla.kernel.org/show_bug.cgi?id=42679#c14 */
 
 
