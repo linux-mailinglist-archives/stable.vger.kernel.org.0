@@ -2,126 +2,218 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AC2349813C
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:37:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1DB4498180
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:55:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239976AbiAXNh6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 08:37:58 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:47088 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242716AbiAXNh6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:37:58 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3EA54B80EEB
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:37:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45B95C340E1;
-        Mon, 24 Jan 2022 13:37:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643031476;
-        bh=ZT/LAvgkuHMvTBnNw91b2og76p7a++gE7HhSEdigVO4=;
-        h=Subject:To:Cc:From:Date:From;
-        b=wkuynh2WHpAjZcaURjgFlJZeGFfq0c1XNf3oIdfeeybAQInDvnFAn4aif8SRg6VhO
-         L+CyNdTkxwnngOrmXMQAumOF1NeuTCaYFls7FBIsDJLSqp6XAdM2ZDMlKmJE+wIkdI
-         WAjNufxt7VeOQNtJyw501fy5dvGjmu65yoWjsfOk=
-Subject: FAILED: patch "[PATCH] net: ipa: prevent concurrent replenish" failed to apply to 5.15-stable tree
-To:     elder@linaro.org, davem@davemloft.net
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 14:37:42 +0100
-Message-ID: <164303146220772@kroah.com>
+        id S235483AbiAXNzR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 08:55:17 -0500
+Received: from maynard.decadent.org.uk ([95.217.213.242]:41958 "EHLO
+        maynard.decadent.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229696AbiAXNzR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:55:17 -0500
+Received: from 168.7-181-91.adsl-dyn.isp.belgacom.be ([91.181.7.168] helo=deadeye)
+        by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1nBzYD-0004z6-Bv; Mon, 24 Jan 2022 14:38:29 +0100
+Received: from ben by deadeye with local (Exim 4.95)
+        (envelope-from <ben@decadent.org.uk>)
+        id 1nBzYC-009hn2-Qk;
+        Mon, 24 Jan 2022 14:38:28 +0100
+Date:   Mon, 24 Jan 2022 14:38:28 +0100
+From:   Ben Hutchings <ben@decadent.org.uk>
+To:     stable@vger.kernel.org
+Cc:     Suren Baghdasaryan <surenb@google.com>
+Subject: [PATCH 4.9 1/2] Revert "gup: document and work around "COW can break
+ either way" issue"
+Message-ID: <Ye6r1M/jrcVrUDXQ@decadent.org.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="LvqzuX1fgUNnLBkz"
+Content-Disposition: inline
+X-SA-Exim-Connect-IP: 91.181.7.168
+X-SA-Exim-Mail-From: ben@decadent.org.uk
+X-SA-Exim-Scanned: No (on maynard); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+--LvqzuX1fgUNnLBkz
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-thanks,
+This reverts commit 9bbd42e79720122334226afad9ddcac1c3e6d373, which
+was commit 17839856fd588f4ab6b789f482ed3ffd7c403e1f upstream.  The
+backport was incorrect and incomplete:
 
-greg k-h
+* It forced the write flag on in the generic __get_user_pages_fast(),
+  whereas only get_user_pages_fast() was supposed to do that.
+* It only fixed the generic RCU-based implementation used by arm,
+  arm64, and powerpc.  Before Linux 4.13, several other architectures
+  had their own implementations: mips, s390, sparc, sh, and x86.
 
------------------- original commit in Linus's tree ------------------
+This will be followed by a (hopefully) correct backport.
 
-From 998c0bd2b3715244da7639cc4e6a2062cb79c3f4 Mon Sep 17 00:00:00 2001
-From: Alex Elder <elder@linaro.org>
-Date: Wed, 12 Jan 2022 07:30:12 -0600
-Subject: [PATCH] net: ipa: prevent concurrent replenish
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+Cc: Suren Baghdasaryan <surenb@google.com>
+Cc: stable@vger.kernel.org
+---
+ mm/gup.c         | 48 ++++++++----------------------------------------
+ mm/huge_memory.c |  7 ++++---
+ 2 files changed, 12 insertions(+), 43 deletions(-)
 
-We have seen cases where an endpoint RX completion interrupt arrives
-while replenishing for the endpoint is underway.  This causes another
-instance of replenishing to begin as part of completing the receive
-transaction.  If this occurs it can lead to transaction corruption.
-
-Use a new flag to ensure only one replenish instance for an endpoint
-executes at a time.
-
-Fixes: 84f9bd12d46db ("soc: qcom: ipa: IPA endpoints")
-Signed-off-by: Alex Elder <elder@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-
-diff --git a/drivers/net/ipa/ipa_endpoint.c b/drivers/net/ipa/ipa_endpoint.c
-index cddddcedaf72..68291a3efd04 100644
---- a/drivers/net/ipa/ipa_endpoint.c
-+++ b/drivers/net/ipa/ipa_endpoint.c
-@@ -1088,15 +1088,27 @@ static void ipa_endpoint_replenish(struct ipa_endpoint *endpoint, bool add_one)
- 		return;
- 	}
- 
-+	/* If already active, just update the backlog */
-+	if (test_and_set_bit(IPA_REPLENISH_ACTIVE, endpoint->replenish_flags)) {
-+		if (add_one)
-+			atomic_inc(&endpoint->replenish_backlog);
-+		return;
-+	}
-+
- 	while (atomic_dec_not_zero(&endpoint->replenish_backlog))
- 		if (ipa_endpoint_replenish_one(endpoint))
- 			goto try_again_later;
-+
-+	clear_bit(IPA_REPLENISH_ACTIVE, endpoint->replenish_flags);
-+
- 	if (add_one)
- 		atomic_inc(&endpoint->replenish_backlog);
- 
- 	return;
- 
- try_again_later:
-+	clear_bit(IPA_REPLENISH_ACTIVE, endpoint->replenish_flags);
-+
- 	/* The last one didn't succeed, so fix the backlog */
- 	delta = add_one ? 2 : 1;
- 	backlog = atomic_add_return(delta, &endpoint->replenish_backlog);
-@@ -1691,6 +1703,7 @@ static void ipa_endpoint_setup_one(struct ipa_endpoint *endpoint)
- 		 * backlog is the same as the maximum outstanding TREs.
- 		 */
- 		clear_bit(IPA_REPLENISH_ENABLED, endpoint->replenish_flags);
-+		clear_bit(IPA_REPLENISH_ACTIVE, endpoint->replenish_flags);
- 		atomic_set(&endpoint->replenish_saved,
- 			   gsi_channel_tre_max(gsi, endpoint->channel_id));
- 		atomic_set(&endpoint->replenish_backlog, 0);
-diff --git a/drivers/net/ipa/ipa_endpoint.h b/drivers/net/ipa/ipa_endpoint.h
-index 07d5c20e5f00..0313cdc607de 100644
---- a/drivers/net/ipa/ipa_endpoint.h
-+++ b/drivers/net/ipa/ipa_endpoint.h
-@@ -44,10 +44,12 @@ enum ipa_endpoint_name {
-  * enum ipa_replenish_flag:	RX buffer replenish flags
-  *
-  * @IPA_REPLENISH_ENABLED:	Whether receive buffer replenishing is enabled
-+ * @IPA_REPLENISH_ACTIVE:	Whether replenishing is underway
-  * @IPA_REPLENISH_COUNT:	Number of defined replenish flags
+diff --git a/mm/gup.c b/mm/gup.c
+index 301dd96ef176..6bb7a8eb7f82 100644
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -61,22 +61,13 @@ static int follow_pfn_pte(struct vm_area_struct *vma, u=
+nsigned long address,
+ }
+=20
+ /*
+- * FOLL_FORCE or a forced COW break can write even to unwritable pte's,
+- * but only after we've gone through a COW cycle and they are dirty.
++ * FOLL_FORCE can write to even unwritable pte's, but only
++ * after we've gone through a COW cycle and they are dirty.
   */
- enum ipa_replenish_flag {
- 	IPA_REPLENISH_ENABLED,
-+	IPA_REPLENISH_ACTIVE,
- 	IPA_REPLENISH_COUNT,	/* Number of flags (must be last) */
- };
- 
+ static inline bool can_follow_write_pte(pte_t pte, unsigned int flags)
+ {
+-	return pte_write(pte) || ((flags & FOLL_COW) && pte_dirty(pte));
+-}
+-
+-/*
+- * A (separate) COW fault might break the page the other way and
+- * get_user_pages() would return the page from what is now the wrong
+- * VM. So we need to force a COW break at GUP time even for reads.
+- */
+-static inline bool should_force_cow_break(struct vm_area_struct *vma, unsi=
+gned int flags)
+-{
+-	return is_cow_mapping(vma->vm_flags) && (flags & FOLL_GET);
++	return pte_write(pte) ||
++		((flags & FOLL_FORCE) && (flags & FOLL_COW) && pte_dirty(pte));
+ }
+=20
+ static struct page *follow_page_pte(struct vm_area_struct *vma,
+@@ -586,18 +577,12 @@ static long __get_user_pages(struct task_struct *tsk,=
+ struct mm_struct *mm,
+ 			if (!vma || check_vma_flags(vma, gup_flags))
+ 				return i ? : -EFAULT;
+ 			if (is_vm_hugetlb_page(vma)) {
+-				if (should_force_cow_break(vma, foll_flags))
+-					foll_flags |=3D FOLL_WRITE;
+ 				i =3D follow_hugetlb_page(mm, vma, pages, vmas,
+ 						&start, &nr_pages, i,
+-						foll_flags);
++						gup_flags);
+ 				continue;
+ 			}
+ 		}
+-
+-		if (should_force_cow_break(vma, foll_flags))
+-			foll_flags |=3D FOLL_WRITE;
+-
+ retry:
+ 		/*
+ 		 * If we have a pending SIGKILL, don't keep faulting pages and
+@@ -1518,10 +1503,6 @@ static int gup_pud_range(pgd_t pgd, unsigned long ad=
+dr, unsigned long end,
+ /*
+  * Like get_user_pages_fast() except it's IRQ-safe in that it won't fall b=
+ack to
+  * the regular GUP. It will only return non-negative values.
+- *
+- * Careful, careful! COW breaking can go either way, so a non-write
+- * access can get ambiguous page results. If you call this function without
+- * 'write' set, you'd better be sure that you're ok with that ambiguity.
+  */
+ int __get_user_pages_fast(unsigned long start, int nr_pages, int write,
+ 			  struct page **pages)
+@@ -1551,12 +1532,6 @@ int __get_user_pages_fast(unsigned long start, int n=
+r_pages, int write,
+ 	 *
+ 	 * We do not adopt an rcu_read_lock(.) here as we also want to
+ 	 * block IPIs that come from THPs splitting.
+-	 *
+-	 * NOTE! We allow read-only gup_fast() here, but you'd better be
+-	 * careful about possible COW pages. You'll get _a_ COW page, but
+-	 * not necessarily the one you intended to get depending on what
+-	 * COW event happens after this. COW may break the page copy in a
+-	 * random direction.
+ 	 */
+=20
+ 	local_irq_save(flags);
+@@ -1567,22 +1542,15 @@ int __get_user_pages_fast(unsigned long start, int =
+nr_pages, int write,
+ 		next =3D pgd_addr_end(addr, end);
+ 		if (pgd_none(pgd))
+ 			break;
+-		/*
+-		 * The FAST_GUP case requires FOLL_WRITE even for pure reads,
+-		 * because get_user_pages() may need to cause an early COW in
+-		 * order to avoid confusing the normal COW routines. So only
+-		 * targets that are already writable are safe to do by just
+-		 * looking at the page tables.
+-		 */
+ 		if (unlikely(pgd_huge(pgd))) {
+-			if (!gup_huge_pgd(pgd, pgdp, addr, next, 1,
++			if (!gup_huge_pgd(pgd, pgdp, addr, next, write,
+ 					  pages, &nr))
+ 				break;
+ 		} else if (unlikely(is_hugepd(__hugepd(pgd_val(pgd))))) {
+ 			if (!gup_huge_pd(__hugepd(pgd_val(pgd)), addr,
+-					 PGDIR_SHIFT, next, 1, pages, &nr))
++					 PGDIR_SHIFT, next, write, pages, &nr))
+ 				break;
+-		} else if (!gup_pud_range(pgd, addr, next, 1, pages, &nr))
++		} else if (!gup_pud_range(pgd, addr, next, write, pages, &nr))
+ 			break;
+ 	} while (pgdp++, addr =3D next, addr !=3D end);
+ 	local_irq_restore(flags);
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 3f3a86cc62b6..91f33bb43f17 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -1135,12 +1135,13 @@ int do_huge_pmd_wp_page(struct fault_env *fe, pmd_t=
+ orig_pmd)
+ }
+=20
+ /*
+- * FOLL_FORCE or a forced COW break can write even to unwritable pmd's,
+- * but only after we've gone through a COW cycle and they are dirty.
++ * FOLL_FORCE can write to even unwritable pmd's, but only
++ * after we've gone through a COW cycle and they are dirty.
+  */
+ static inline bool can_follow_write_pmd(pmd_t pmd, unsigned int flags)
+ {
+-	return pmd_write(pmd) || ((flags & FOLL_COW) && pmd_dirty(pmd));
++	return pmd_write(pmd) ||
++	       ((flags & FOLL_FORCE) && (flags & FOLL_COW) && pmd_dirty(pmd));
+ }
+=20
+ struct page *follow_trans_huge_pmd(struct vm_area_struct *vma,
 
+
+--LvqzuX1fgUNnLBkz
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmHuq8sACgkQ57/I7JWG
+EQlyqRAAncSoGfgudY0mIvNUfmvMso7uK+aUaXgS/FydFhM6a69r1utzsN7zk5J9
+hL/A5wN/GD0PncoKNFiPC+5Sg08rIasHnckmWWZcCEsMQHs7PAb9ihSE1a2bJ+PX
+JRV4SFd08kUEfr7KS+RjONDdfgY0GBIzRnA+k040SBorZWrSYp2FLTU5WgMcXVYi
+9kEv+I9FDuwmrA/1NM/laaqyjocl384XBi1TaLgm5erXTxqhqYEXcsFXlLs5cArC
+wp2imhae7cExa3wMEuln+OlvBkqaZiIhWVwhD262qTcx8Ru07ibwPU/5jwxjjWJ1
+MdLfZOFjPABSUJdO/nzpk0xZsV/1h6PXXmgkJOFGAu5EudLfRvh6ik8RFNBqinHt
+7CGXfANt5lbPdXSbLJl/KftRAHcbM5iHy/ydX0rNXabaL40f1/DUCaVcxuO5T7eT
+DxxKhdrK05CPY7gvyu3/WzNtKLKscXfzPHsrPqz30KE9b/Yp2rf/suo3iwX3Nfie
+gXbJkYQZ+nar/8Yrc0upK08gVDj8IOHRSsh97qhrUeu3Qbm/5wMp6tXf8/YxX0ZZ
+v0h4C9bnnn+yPsgD0XKwFz1k9zs0ZIHQDFsnYr6gRcruEG5EPjhf5x6sVVrV/+bp
+5ARp3WZvGJwUlTm4naw+cwulPFj+wKRRUXuRIhL4Qkg/haq1d2E=
+=zjDh
+-----END PGP SIGNATURE-----
+
+--LvqzuX1fgUNnLBkz--
