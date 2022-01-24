@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B35E6498C6A
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:23:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 35451499214
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:19:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237837AbiAXTWP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:22:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49412 "EHLO
+        id S1380981AbiAXURX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:17:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34172 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347404AbiAXTTM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:19:12 -0500
+        with ESMTP id S1354861AbiAXUMv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:12:51 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2436C02C3EF;
-        Mon, 24 Jan 2022 11:07:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E95CDC028C2B;
+        Mon, 24 Jan 2022 11:34:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F4126090C;
-        Mon, 24 Jan 2022 19:07:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A211EC340E7;
-        Mon, 24 Jan 2022 19:07:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 82F396141C;
+        Mon, 24 Jan 2022 19:34:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CBA8C340E5;
+        Mon, 24 Jan 2022 19:34:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051251;
-        bh=N8LyJ0PBbd2eAEokv8SFCwHzwDSLj3fGyV6Q+dDmoeg=;
+        s=korg; t=1643052844;
+        bh=XtiamZuhFQg/KSWaToglrULMfVhgN5zJmScIv/wuNgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bJApuYFp2rvuJc3LZ/Riv2Sq4kwuaCWpapgbEySmhAvQYW0utOnz/AwADj4f8AgUK
-         pW1iJ3u2+GHzTmuKGxP8noWKQHJXdUwz3oWeL7Bga+OafNLpiXjYOHJIDxssk5nzEH
-         I4POZvydbJvImwWDZP1IuEXOkdJRK5gmy1SKksu0=
+        b=JHhe+c84IR0fW7CDCPmKgZtgfCslukwlWYO6Kf8DAoQfWiiwrOezC99RPpMvGlhRS
+         SsVkdQ7NKh1iedZQAFet9EmWY+jDAAUo1j1x81m0OnZIDsoPjDCHiKmG3p6fCztPjH
+         FXzZyxZ+gr1ZcuYdtjhEkZXEi5pu0ULe5bJo3jWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Hilliard <james.hilliard1@gmail.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, "H. Nikolaus Schaller" <hns@goldelico.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 101/186] media: uvcvideo: Increase UVC_CTRL_CONTROL_TIMEOUT to 5 seconds.
+Subject: [PATCH 5.4 192/320] mmc: core: Fixup storing of OCR for MMC_QUIRK_NONSTD_SDIO
 Date:   Mon, 24 Jan 2022 19:42:56 +0100
-Message-Id: <20220124183940.363566908@linuxfoundation.org>
+Message-Id: <20220124184000.180649765@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,43 +48,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Hilliard <james.hilliard1@gmail.com>
+From: Ulf Hansson <ulf.hansson@linaro.org>
 
-[ Upstream commit c8ed7d2f614cd8b315981d116c7a2fb01829500d ]
+[ Upstream commit 8c3e5b74b9e2146f564905e50ca716591c76d4f1 ]
 
-Some uvc devices appear to require the maximum allowed USB timeout
-for GET_CUR/SET_CUR requests.
+The mmc core takes a specific path to support initializing of a
+non-standard SDIO card. This is triggered by looking for the card-quirk,
+MMC_QUIRK_NONSTD_SDIO.
 
-So lets just bump the UVC control timeout to 5 seconds which is the
-same as the usb ctrl get/set defaults:
-USB_CTRL_GET_TIMEOUT 5000
-USB_CTRL_SET_TIMEOUT 5000
+In mmc_sdio_init_card() this gets rather messy, as it causes the code to
+bail out earlier, compared to the usual path. This leads to that the OCR
+doesn't get saved properly in card->ocr. Fortunately, only omap_hsmmc has
+been using the MMC_QUIRK_NONSTD_SDIO and is dealing with the issue, by
+assigning a hardcoded value (0x80) to card->ocr from an ->init_card() ops.
 
-It fixes the following runtime warnings:
-   Failed to query (GET_CUR) UVC control 11 on unit 2: -110 (exp. 1).
-   Failed to query (SET_CUR) UVC control 3 on unit 2: -110 (exp. 2).
+To make the behaviour consistent, let's instead rely on the core to save
+the OCR in card->ocr during initialization.
 
-Signed-off-by: James Hilliard <james.hilliard1@gmail.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Reported-by: H. Nikolaus Schaller <hns@goldelico.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: H. Nikolaus Schaller <hns@goldelico.com>
+Link: https://lore.kernel.org/r/e7936cff7fc24d187ef2680d3b4edb0ade58f293.1636564631.git.hns@goldelico.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvcvideo.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/core/sdio.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
-index 05398784d1c89..acb9f95127eb2 100644
---- a/drivers/media/usb/uvc/uvcvideo.h
-+++ b/drivers/media/usb/uvc/uvcvideo.h
-@@ -167,7 +167,7 @@
- /* Maximum status buffer size in bytes of interrupt URB. */
- #define UVC_MAX_STATUS_SIZE	16
+diff --git a/drivers/mmc/core/sdio.c b/drivers/mmc/core/sdio.c
+index 0bf33786fc5c5..9e0791332ef38 100644
+--- a/drivers/mmc/core/sdio.c
++++ b/drivers/mmc/core/sdio.c
+@@ -626,6 +626,8 @@ try_again:
+ 	if (host->ops->init_card)
+ 		host->ops->init_card(host, card);
  
--#define UVC_CTRL_CONTROL_TIMEOUT	500
-+#define UVC_CTRL_CONTROL_TIMEOUT	5000
- #define UVC_CTRL_STREAMING_TIMEOUT	5000
++	card->ocr = ocr_card;
++
+ 	/*
+ 	 * If the host and card support UHS-I mode request the card
+ 	 * to switch to 1.8V signaling level.  No 1.8v signalling if
+@@ -738,7 +740,7 @@ try_again:
+ 			goto mismatch;
+ 		}
+ 	}
+-	card->ocr = ocr_card;
++
+ 	mmc_fixup_device(card, sdio_fixup_methods);
  
- /* Maximum allowed number of control mappings per device */
+ 	if (card->type == MMC_TYPE_SD_COMBO) {
 -- 
 2.34.1
 
