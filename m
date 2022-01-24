@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6047449A2E4
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:01:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86C0449A3CF
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:03:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1385736AbiAXXyT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:54:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49114 "EHLO
+        id S2368826AbiAYAAM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:00:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50120 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1845966AbiAXXOG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:14:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39976C0A02BA;
-        Mon, 24 Jan 2022 13:20:05 -0800 (PST)
+        with ESMTP id S1846534AbiAXXQT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:16:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 215B9C061782;
+        Mon, 24 Jan 2022 11:49:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EAF2DB81188;
-        Mon, 24 Jan 2022 21:20:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1195EC340E4;
-        Mon, 24 Jan 2022 21:20:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B64446090C;
+        Mon, 24 Jan 2022 19:49:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81743C340E7;
+        Mon, 24 Jan 2022 19:49:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059202;
-        bh=qVTsRmkfHHvtcYhP+AfBxHTCm0Hpp40vXIcFjCKm+lI=;
+        s=korg; t=1643053745;
+        bh=T0FPNymCAN8k/yoVmKFGjUu17l0MP2sercr6kWrpFfA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MZp7poPCKQ3WGkBME7ZwfAARuiNNmLXOML4gKSOCcbP0gIfAbEfQ2qH2eRRZ/X1BH
-         eQwnmKQ1j5sWrkdd/J+RaHSPf6aWKJ/7q6msW9jlO/OqwBIBOpZAlpFZ0IkBIFPTOc
-         9j/ar9zZIZUGcj1Bj5ZzPburoCYvoNsUxqCJVQjw=
+        b=mS2lhCSwgoioYSw9EtbmaD0RpWsZwv2fRTliw9G+XRRafKkxlTStf68bjV8nlLUqZ
+         OEWF0Id6cVTKwoL6AQifOWCZhEJ2acmVqJITlp/a7CgN2/mYk+1a1WljwW/7G7fwvv
+         Zie+/Pml/OwtrwmQe/8ctyJ4azHty6GORA12qFDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Merlijn Wajer <merlijn@wizzup.org>,
-        "Sicelo A. Mhlongo" <absicsz@gmail.com>,
-        Pavel Machek <pavel@ucw.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0537/1039] ARM: dts: omap3-n900: Fix lp5523 for multi color
-Date:   Mon, 24 Jan 2022 19:38:46 +0100
-Message-Id: <20220124184143.330009016@linuxfoundation.org>
+        stable@vger.kernel.org, Anton Vasilyev <vasilyev@ispras.ru>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 163/563] media: dw2102: Fix use after free
+Date:   Mon, 24 Jan 2022 19:38:48 +0100
+Message-Id: <20220124184030.037105414@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,139 +48,405 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sicelo A. Mhlongo <absicsz@gmail.com>
+From: Anton Vasilyev <vasilyev@ispras.ru>
 
-[ Upstream commit e9af026a3b24f59d7af4609f73e0ef60a4d6d516 ]
+[ Upstream commit 589a9f0eb799f77de2c09583bf5bad221fa5d685 ]
 
-Since the LED multicolor framework support was added in commit
-92a81562e695 ("leds: lp55xx: Add multicolor framework support to lp55xx")
-LEDs on this platform stopped working.
+dvb_usb_device_init stores parts of properties at d->props
+and d->desc and uses it on dvb_usb_device_exit.
+Free of properties on module probe leads to use after free.
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=204597
 
-Fixes: 92a81562e695 ("leds: lp55xx: Add multicolor framework support to lp55xx")
-Fixes: ac219bf3c9bd ("leds: lp55xx: Convert to use GPIO descriptors")
-Signed-off-by: Merlijn Wajer <merlijn@wizzup.org>
-Signed-off-by: Sicelo A. Mhlongo <absicsz@gmail.com>
-Signed-off-by: Pavel Machek <pavel@ucw.cz>
+The patch makes properties static instead of allocated on heap to prevent
+memleak and use after free.
+Also fixes s421_properties.devices initialization to have 2 element
+instead of 6 copied from p7500_properties.
+
+[mchehab: fix function call alignments]
+Link: https://lore.kernel.org/linux-media/20190822104147.4420-1-vasilyev@ispras.ru
+Signed-off-by: Anton Vasilyev <vasilyev@ispras.ru>
+Fixes: 299c7007e936 ("media: dw2102: Fix memleak on sequence of probes")
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/omap3-n900.dts | 50 +++++++++++++++++++++++++-------
- 1 file changed, 40 insertions(+), 10 deletions(-)
+ drivers/media/usb/dvb-usb/dw2102.c | 338 ++++++++++++++++++-----------
+ 1 file changed, 215 insertions(+), 123 deletions(-)
 
-diff --git a/arch/arm/boot/dts/omap3-n900.dts b/arch/arm/boot/dts/omap3-n900.dts
-index 32335d4ce478b..d40c3d2c4914e 100644
---- a/arch/arm/boot/dts/omap3-n900.dts
-+++ b/arch/arm/boot/dts/omap3-n900.dts
-@@ -8,6 +8,7 @@
+diff --git a/drivers/media/usb/dvb-usb/dw2102.c b/drivers/media/usb/dvb-usb/dw2102.c
+index a27a684403252..aa929db56db1f 100644
+--- a/drivers/media/usb/dvb-usb/dw2102.c
++++ b/drivers/media/usb/dvb-usb/dw2102.c
+@@ -2148,46 +2148,153 @@ static struct dvb_usb_device_properties s6x0_properties = {
+ 	}
+ };
  
- #include "omap34xx.dtsi"
- #include <dt-bindings/input/input.h>
-+#include <dt-bindings/leds/common.h>
+-static const struct dvb_usb_device_description d1100 = {
+-	"Prof 1100 USB ",
+-	{&dw2102_table[PROF_1100], NULL},
+-	{NULL},
+-};
++static struct dvb_usb_device_properties p1100_properties = {
++	.caps = DVB_USB_IS_AN_I2C_ADAPTER,
++	.usb_ctrl = DEVICE_SPECIFIC,
++	.size_of_priv = sizeof(struct dw2102_state),
++	.firmware = P1100_FIRMWARE,
++	.no_reconnect = 1,
  
- /*
-  * Default secure signed bootloader (Nokia X-Loader) does not enable L3 firewall
-@@ -630,63 +631,92 @@
- 	};
+-static const struct dvb_usb_device_description d660 = {
+-	"TeVii S660 USB",
+-	{&dw2102_table[TEVII_S660], NULL},
+-	{NULL},
+-};
++	.i2c_algo = &s6x0_i2c_algo,
++	.rc.core = {
++		.rc_interval = 150,
++		.rc_codes = RC_MAP_TBS_NEC,
++		.module_name = "dw2102",
++		.allowed_protos   = RC_PROTO_BIT_NEC,
++		.rc_query = prof_rc_query,
++	},
  
- 	lp5523: lp5523@32 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
- 		compatible = "national,lp5523";
- 		reg = <0x32>;
- 		clock-mode = /bits/ 8 <0>; /* LP55XX_CLOCK_AUTO */
--		enable-gpio = <&gpio2 9 GPIO_ACTIVE_HIGH>; /* 41 */
-+		enable-gpios = <&gpio2 9 GPIO_ACTIVE_HIGH>; /* 41 */
+-static const struct dvb_usb_device_description d480_1 = {
+-	"TeVii S480.1 USB",
+-	{&dw2102_table[TEVII_S480_1], NULL},
+-	{NULL},
++	.generic_bulk_ctrl_endpoint = 0x81,
++	.num_adapters = 1,
++	.download_firmware = dw2102_load_firmware,
++	.read_mac_address = s6x0_read_mac_address,
++	.adapter = {
++		{
++			.num_frontends = 1,
++			.fe = {{
++				.frontend_attach = stv0288_frontend_attach,
++				.stream = {
++					.type = USB_BULK,
++					.count = 8,
++					.endpoint = 0x82,
++					.u = {
++						.bulk = {
++							.buffersize = 4096,
++						}
++					}
++				},
++			} },
++		}
++	},
++	.num_device_descs = 1,
++	.devices = {
++		{"Prof 1100 USB ",
++			{&dw2102_table[PROF_1100], NULL},
++			{NULL},
++		},
++	}
+ };
  
--		chan0 {
-+		led@0 {
-+			reg = <0>;
- 			chan-name = "lp5523:kb1";
- 			led-cur = /bits/ 8 <50>;
- 			max-cur = /bits/ 8 <100>;
-+			color = <LED_COLOR_ID_WHITE>;
-+			function = LED_FUNCTION_KBD_BACKLIGHT;
- 		};
+-static const struct dvb_usb_device_description d480_2 = {
+-	"TeVii S480.2 USB",
+-	{&dw2102_table[TEVII_S480_2], NULL},
+-	{NULL},
+-};
++static struct dvb_usb_device_properties s660_properties = {
++	.caps = DVB_USB_IS_AN_I2C_ADAPTER,
++	.usb_ctrl = DEVICE_SPECIFIC,
++	.size_of_priv = sizeof(struct dw2102_state),
++	.firmware = S660_FIRMWARE,
++	.no_reconnect = 1,
  
--		chan1 {
-+		led@1 {
-+			reg = <1>;
- 			chan-name = "lp5523:kb2";
- 			led-cur = /bits/ 8 <50>;
- 			max-cur = /bits/ 8 <100>;
-+			color = <LED_COLOR_ID_WHITE>;
-+			function = LED_FUNCTION_KBD_BACKLIGHT;
- 		};
+-static const struct dvb_usb_device_description d7500 = {
+-	"Prof 7500 USB DVB-S2",
+-	{&dw2102_table[PROF_7500], NULL},
+-	{NULL},
+-};
++	.i2c_algo = &s6x0_i2c_algo,
++	.rc.core = {
++		.rc_interval = 150,
++		.rc_codes = RC_MAP_TEVII_NEC,
++		.module_name = "dw2102",
++		.allowed_protos   = RC_PROTO_BIT_NEC,
++		.rc_query = dw2102_rc_query,
++	},
  
--		chan2 {
-+		led@2 {
-+			reg = <2>;
- 			chan-name = "lp5523:kb3";
- 			led-cur = /bits/ 8 <50>;
- 			max-cur = /bits/ 8 <100>;
-+			color = <LED_COLOR_ID_WHITE>;
-+			function = LED_FUNCTION_KBD_BACKLIGHT;
- 		};
+-static const struct dvb_usb_device_description d421 = {
+-	"TeVii S421 PCI",
+-	{&dw2102_table[TEVII_S421], NULL},
+-	{NULL},
++	.generic_bulk_ctrl_endpoint = 0x81,
++	.num_adapters = 1,
++	.download_firmware = dw2102_load_firmware,
++	.read_mac_address = s6x0_read_mac_address,
++	.adapter = {
++		{
++			.num_frontends = 1,
++			.fe = {{
++				.frontend_attach = ds3000_frontend_attach,
++				.stream = {
++					.type = USB_BULK,
++					.count = 8,
++					.endpoint = 0x82,
++					.u = {
++						.bulk = {
++							.buffersize = 4096,
++						}
++					}
++				},
++			} },
++		}
++	},
++	.num_device_descs = 3,
++	.devices = {
++		{"TeVii S660 USB",
++			{&dw2102_table[TEVII_S660], NULL},
++			{NULL},
++		},
++		{"TeVii S480.1 USB",
++			{&dw2102_table[TEVII_S480_1], NULL},
++			{NULL},
++		},
++		{"TeVii S480.2 USB",
++			{&dw2102_table[TEVII_S480_2], NULL},
++			{NULL},
++		},
++	}
+ };
  
--		chan3 {
-+		led@3 {
-+			reg = <3>;
- 			chan-name = "lp5523:kb4";
- 			led-cur = /bits/ 8 <50>;
- 			max-cur = /bits/ 8 <100>;
-+			color = <LED_COLOR_ID_WHITE>;
-+			function = LED_FUNCTION_KBD_BACKLIGHT;
- 		};
+-static const struct dvb_usb_device_description d632 = {
+-	"TeVii S632 USB",
+-	{&dw2102_table[TEVII_S632], NULL},
+-	{NULL},
++static struct dvb_usb_device_properties p7500_properties = {
++	.caps = DVB_USB_IS_AN_I2C_ADAPTER,
++	.usb_ctrl = DEVICE_SPECIFIC,
++	.size_of_priv = sizeof(struct dw2102_state),
++	.firmware = P7500_FIRMWARE,
++	.no_reconnect = 1,
++
++	.i2c_algo = &s6x0_i2c_algo,
++	.rc.core = {
++		.rc_interval = 150,
++		.rc_codes = RC_MAP_TBS_NEC,
++		.module_name = "dw2102",
++		.allowed_protos   = RC_PROTO_BIT_NEC,
++		.rc_query = prof_rc_query,
++	},
++
++	.generic_bulk_ctrl_endpoint = 0x81,
++	.num_adapters = 1,
++	.download_firmware = dw2102_load_firmware,
++	.read_mac_address = s6x0_read_mac_address,
++	.adapter = {
++		{
++			.num_frontends = 1,
++			.fe = {{
++				.frontend_attach = prof_7500_frontend_attach,
++				.stream = {
++					.type = USB_BULK,
++					.count = 8,
++					.endpoint = 0x82,
++					.u = {
++						.bulk = {
++							.buffersize = 4096,
++						}
++					}
++				},
++			} },
++		}
++	},
++	.num_device_descs = 1,
++	.devices = {
++		{"Prof 7500 USB DVB-S2",
++			{&dw2102_table[PROF_7500], NULL},
++			{NULL},
++		},
++	}
+ };
  
--		chan4 {
-+		led@4 {
-+			reg = <4>;
- 			chan-name = "lp5523:b";
- 			led-cur = /bits/ 8 <50>;
- 			max-cur = /bits/ 8 <100>;
-+			color = <LED_COLOR_ID_BLUE>;
-+			function = LED_FUNCTION_STATUS;
- 		};
+ static struct dvb_usb_device_properties su3000_properties = {
+@@ -2267,6 +2374,59 @@ static struct dvb_usb_device_properties su3000_properties = {
+ 	}
+ };
  
--		chan5 {
-+		led@5 {
-+			reg = <5>;
- 			chan-name = "lp5523:g";
- 			led-cur = /bits/ 8 <50>;
- 			max-cur = /bits/ 8 <100>;
-+			color = <LED_COLOR_ID_GREEN>;
-+			function = LED_FUNCTION_STATUS;
- 		};
++static struct dvb_usb_device_properties s421_properties = {
++	.caps = DVB_USB_IS_AN_I2C_ADAPTER,
++	.usb_ctrl = DEVICE_SPECIFIC,
++	.size_of_priv = sizeof(struct dw2102_state),
++	.power_ctrl = su3000_power_ctrl,
++	.num_adapters = 1,
++	.identify_state	= su3000_identify_state,
++	.i2c_algo = &su3000_i2c_algo,
++
++	.rc.core = {
++		.rc_interval = 150,
++		.rc_codes = RC_MAP_SU3000,
++		.module_name = "dw2102",
++		.allowed_protos   = RC_PROTO_BIT_RC5,
++		.rc_query = su3000_rc_query,
++	},
++
++	.read_mac_address = su3000_read_mac_address,
++
++	.generic_bulk_ctrl_endpoint = 0x01,
++
++	.adapter = {
++		{
++		.num_frontends = 1,
++		.fe = {{
++			.streaming_ctrl   = su3000_streaming_ctrl,
++			.frontend_attach  = m88rs2000_frontend_attach,
++			.stream = {
++				.type = USB_BULK,
++				.count = 8,
++				.endpoint = 0x82,
++				.u = {
++					.bulk = {
++						.buffersize = 4096,
++					}
++				}
++			}
++		} },
++		}
++	},
++	.num_device_descs = 2,
++	.devices = {
++		{ "TeVii S421 PCI",
++			{ &dw2102_table[TEVII_S421], NULL },
++			{ NULL },
++		},
++		{ "TeVii S632 USB",
++			{ &dw2102_table[TEVII_S632], NULL },
++			{ NULL },
++		},
++	}
++};
++
+ static struct dvb_usb_device_properties t220_properties = {
+ 	.caps = DVB_USB_IS_AN_I2C_ADAPTER,
+ 	.usb_ctrl = DEVICE_SPECIFIC,
+@@ -2384,101 +2544,33 @@ static struct dvb_usb_device_properties tt_s2_4600_properties = {
+ static int dw2102_probe(struct usb_interface *intf,
+ 		const struct usb_device_id *id)
+ {
+-	int retval = -ENOMEM;
+-	struct dvb_usb_device_properties *p1100;
+-	struct dvb_usb_device_properties *s660;
+-	struct dvb_usb_device_properties *p7500;
+-	struct dvb_usb_device_properties *s421;
+-
+-	p1100 = kmemdup(&s6x0_properties,
+-			sizeof(struct dvb_usb_device_properties), GFP_KERNEL);
+-	if (!p1100)
+-		goto err0;
+-
+-	/* copy default structure */
+-	/* fill only different fields */
+-	p1100->firmware = P1100_FIRMWARE;
+-	p1100->devices[0] = d1100;
+-	p1100->rc.core.rc_query = prof_rc_query;
+-	p1100->rc.core.rc_codes = RC_MAP_TBS_NEC;
+-	p1100->adapter->fe[0].frontend_attach = stv0288_frontend_attach;
+-
+-	s660 = kmemdup(&s6x0_properties,
+-		       sizeof(struct dvb_usb_device_properties), GFP_KERNEL);
+-	if (!s660)
+-		goto err1;
+-
+-	s660->firmware = S660_FIRMWARE;
+-	s660->num_device_descs = 3;
+-	s660->devices[0] = d660;
+-	s660->devices[1] = d480_1;
+-	s660->devices[2] = d480_2;
+-	s660->adapter->fe[0].frontend_attach = ds3000_frontend_attach;
+-
+-	p7500 = kmemdup(&s6x0_properties,
+-			sizeof(struct dvb_usb_device_properties), GFP_KERNEL);
+-	if (!p7500)
+-		goto err2;
+-
+-	p7500->firmware = P7500_FIRMWARE;
+-	p7500->devices[0] = d7500;
+-	p7500->rc.core.rc_query = prof_rc_query;
+-	p7500->rc.core.rc_codes = RC_MAP_TBS_NEC;
+-	p7500->adapter->fe[0].frontend_attach = prof_7500_frontend_attach;
+-
+-
+-	s421 = kmemdup(&su3000_properties,
+-		       sizeof(struct dvb_usb_device_properties), GFP_KERNEL);
+-	if (!s421)
+-		goto err3;
+-
+-	s421->num_device_descs = 2;
+-	s421->devices[0] = d421;
+-	s421->devices[1] = d632;
+-	s421->adapter->fe[0].frontend_attach = m88rs2000_frontend_attach;
+-
+-	if (0 == dvb_usb_device_init(intf, &dw2102_properties,
+-			THIS_MODULE, NULL, adapter_nr) ||
+-	    0 == dvb_usb_device_init(intf, &dw2104_properties,
+-			THIS_MODULE, NULL, adapter_nr) ||
+-	    0 == dvb_usb_device_init(intf, &dw3101_properties,
+-			THIS_MODULE, NULL, adapter_nr) ||
+-	    0 == dvb_usb_device_init(intf, &s6x0_properties,
+-			THIS_MODULE, NULL, adapter_nr) ||
+-	    0 == dvb_usb_device_init(intf, p1100,
+-			THIS_MODULE, NULL, adapter_nr) ||
+-	    0 == dvb_usb_device_init(intf, s660,
+-			THIS_MODULE, NULL, adapter_nr) ||
+-	    0 == dvb_usb_device_init(intf, p7500,
+-			THIS_MODULE, NULL, adapter_nr) ||
+-	    0 == dvb_usb_device_init(intf, s421,
+-			THIS_MODULE, NULL, adapter_nr) ||
+-	    0 == dvb_usb_device_init(intf, &su3000_properties,
+-			 THIS_MODULE, NULL, adapter_nr) ||
+-	    0 == dvb_usb_device_init(intf, &t220_properties,
+-			 THIS_MODULE, NULL, adapter_nr) ||
+-	    0 == dvb_usb_device_init(intf, &tt_s2_4600_properties,
+-			 THIS_MODULE, NULL, adapter_nr)) {
+-
+-		/* clean up copied properties */
+-		kfree(s421);
+-		kfree(p7500);
+-		kfree(s660);
+-		kfree(p1100);
++	if (!(dvb_usb_device_init(intf, &dw2102_properties,
++			          THIS_MODULE, NULL, adapter_nr) &&
++	      dvb_usb_device_init(intf, &dw2104_properties,
++				  THIS_MODULE, NULL, adapter_nr) &&
++	      dvb_usb_device_init(intf, &dw3101_properties,
++			          THIS_MODULE, NULL, adapter_nr) &&
++	      dvb_usb_device_init(intf, &s6x0_properties,
++			          THIS_MODULE, NULL, adapter_nr) &&
++	      dvb_usb_device_init(intf, &p1100_properties,
++			          THIS_MODULE, NULL, adapter_nr) &&
++	      dvb_usb_device_init(intf, &s660_properties,
++				  THIS_MODULE, NULL, adapter_nr) &&
++	      dvb_usb_device_init(intf, &p7500_properties,
++				  THIS_MODULE, NULL, adapter_nr) &&
++	      dvb_usb_device_init(intf, &s421_properties,
++				  THIS_MODULE, NULL, adapter_nr) &&
++	      dvb_usb_device_init(intf, &su3000_properties,
++				  THIS_MODULE, NULL, adapter_nr) &&
++	      dvb_usb_device_init(intf, &t220_properties,
++				  THIS_MODULE, NULL, adapter_nr) &&
++	      dvb_usb_device_init(intf, &tt_s2_4600_properties,
++				  THIS_MODULE, NULL, adapter_nr))) {
  
--		chan6 {
-+		led@6 {
-+			reg = <6>;
- 			chan-name = "lp5523:r";
- 			led-cur = /bits/ 8 <50>;
- 			max-cur = /bits/ 8 <100>;
-+			color = <LED_COLOR_ID_RED>;
-+			function = LED_FUNCTION_STATUS;
- 		};
+ 		return 0;
+ 	}
  
--		chan7 {
-+		led@7 {
-+			reg = <7>;
- 			chan-name = "lp5523:kb5";
- 			led-cur = /bits/ 8 <50>;
- 			max-cur = /bits/ 8 <100>;
-+			color = <LED_COLOR_ID_WHITE>;
-+			function = LED_FUNCTION_KBD_BACKLIGHT;
- 		};
+-	retval = -ENODEV;
+-	kfree(s421);
+-err3:
+-	kfree(p7500);
+-err2:
+-	kfree(s660);
+-err1:
+-	kfree(p1100);
+-err0:
+-	return retval;
++	return -ENODEV;
+ }
  
--		chan8 {
-+		led@8 {
-+			reg = <8>;
- 			chan-name = "lp5523:kb6";
- 			led-cur = /bits/ 8 <50>;
- 			max-cur = /bits/ 8 <100>;
-+			color = <LED_COLOR_ID_WHITE>;
-+			function = LED_FUNCTION_KBD_BACKLIGHT;
- 		};
- 	};
- 
+ static void dw2102_disconnect(struct usb_interface *intf)
 -- 
 2.34.1
 
