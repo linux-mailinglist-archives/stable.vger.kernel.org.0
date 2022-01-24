@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3936498076
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:08:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1916C498077
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:08:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242828AbiAXNI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 08:08:28 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:60116 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242762AbiAXNI1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:08:27 -0500
+        id S242762AbiAXNIh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 08:08:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45986 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239858AbiAXNIh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:08:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D897BC06173B
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 05:08:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 135A7B80FA6
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:08:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62A26C340E1;
-        Mon, 24 Jan 2022 13:08:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9E5B0B80F9F
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:08:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8173C340E1;
+        Mon, 24 Jan 2022 13:08:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643029704;
-        bh=zJz7P7I0NyiGGLpA0+0rZHK6qa0Y2iv6riO4ZhCXlv8=;
+        s=korg; t=1643029714;
+        bh=hmURCemQ9nStdKNjMvU2YmTRbhmxfsnP1fZYW7GK/gI=;
         h=Subject:To:Cc:From:Date:From;
-        b=2euZhoFEATP6q9uIbq7NVqHn2jQpWUpGkRsCJrmaw7XjUL03kh+6eUANVtN1Dk/db
-         t76QZpJtXiMTzMkIdZip7lNZ1bvFkOLjIZm704Ots+RZpSecEK9ECLnzfGeJcmy60K
-         BTywsc+prkuWY73xtKD2x1iEnEkokixHFjmcc48M=
-Subject: FAILED: patch "[PATCH] rtc: mc146818-lib: fix RTC presence check" failed to apply to 5.15-stable tree
+        b=JKid4lzyGYTJopYg90nKO3KdK3UOwspkULPZK+6uv4CyoCjnpVl6QsogoFp6sl3BM
+         iflh3w81NDG+oqvgOFiPbaFCR+MqTJmgExzG5S3DwZhxfkc3IyzN1BNF/he5zp1tkh
+         gJ42xYHUpYJrTyskBiiynjCmgnA2hud4/1+oKtr8=
+Subject: FAILED: patch "[PATCH] rtc: mc146818-lib: fix RTC presence check" failed to apply to 5.16-stable tree
 To:     mat.jonczyk@o2.pl, a.zummo@towertech.it,
         alexandre.belloni@bootlin.com, tglx@linutronix.de
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 14:08:22 +0100
-Message-ID: <1643029702121248@kroah.com>
+Date:   Mon, 24 Jan 2022 14:08:23 +0100
+Message-ID: <164302970310788@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -40,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
