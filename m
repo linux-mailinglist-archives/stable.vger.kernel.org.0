@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62F74499478
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:43:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D517498E2D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:44:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1389553AbiAXUmP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:42:15 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:33284 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1388755AbiAXUkE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:40:04 -0500
+        id S1354963AbiAXTjo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:39:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52532 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1349371AbiAXTd7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:33:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 012FBC09B04F;
+        Mon, 24 Jan 2022 11:16:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 910C56152F;
-        Mon, 24 Jan 2022 20:40:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51C65C340E5;
-        Mon, 24 Jan 2022 20:40:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 968AF6130A;
+        Mon, 24 Jan 2022 19:16:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C958C340E5;
+        Mon, 24 Jan 2022 19:16:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056803;
-        bh=0W+efpgq1FlUhJyr6MfVSm/5wkWq3CVYrdrfGADKS5w=;
+        s=korg; t=1643051773;
+        bh=ePwTLxA62Y36SORi+qh5QbEO3e+K23U1KOM0lweoOO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HHtBHhxXlovEbyzyBefJ17asWw9QCV/D/XCqgS1H5VFIq0maPtnbqXvzwXO206ujT
-         N+IEEqqkpg0FndzTAASiVjrSNCaCRNMn2rGpUUJ0h6YyKY6OXQJJi5G+UED2Y+8Yfr
-         /6a6w8cixrJ60XqN1Fe3YHcPxdDdClo2WOORrps0=
+        b=lx/c3da//267pxA023+TpriEV1jJVju4Ek5UwyTK/QX94Z5NVKBwZdDWAgcsRn4E6
+         x79x7sqc7iZ5UCorWruKDreobb2I6gGu64sXG65FzGbvh8a0jSHbXvv2VMKJWgXC6K
+         RQuD+pz6/6kHipGdOzNme8gapsjJbfs0dJAjDzu0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Thornber <ejt@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 604/846] dm btree: add a defensive bounds check to insert_at()
+Subject: [PATCH 4.19 083/239] mmc: meson-mx-sdio: add IRQ check
 Date:   Mon, 24 Jan 2022 19:42:01 +0100
-Message-Id: <20220124184121.862543373@linuxfoundation.org>
+Message-Id: <20220124183945.759993210@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,43 +49,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Thornber <ejt@redhat.com>
+From: Sergey Shtylyov <s.shtylyov@omp.ru>
 
-[ Upstream commit 85bca3c05b6cca31625437eedf2060e846c4bbad ]
+[ Upstream commit 8fc9a77bc64e1f23d07953439817d8402ac9706f ]
 
-Corrupt metadata could trigger an out of bounds write.
+The driver neglects to check the result of platform_get_irq()'s call and
+blithely passes the negative error codes to devm_request_threaded_irq()
+(which takes *unsigned* IRQ #), causing it to fail with -EINVAL, overriding
+an original error code. Stop calling devm_request_threaded_irq() with the
+invalid IRQ #s.
 
-Signed-off-by: Joe Thornber <ejt@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: ed80a13bb4c4 ("mmc: meson-mx-sdio: Add a driver for the Amlogic Meson8 and Meson8b SoC")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Link: https://lore.kernel.org/r/20211217202717.10041-3-s.shtylyov@omp.ru
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/persistent-data/dm-btree.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/mmc/host/meson-mx-sdio.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/md/persistent-data/dm-btree.c b/drivers/md/persistent-data/dm-btree.c
-index 0703ca7a7d9a4..5ce64e93aae74 100644
---- a/drivers/md/persistent-data/dm-btree.c
-+++ b/drivers/md/persistent-data/dm-btree.c
-@@ -81,14 +81,16 @@ void inc_children(struct dm_transaction_manager *tm, struct btree_node *n,
- }
+diff --git a/drivers/mmc/host/meson-mx-sdio.c b/drivers/mmc/host/meson-mx-sdio.c
+index 27837a794e7b3..1f7e4352b0677 100644
+--- a/drivers/mmc/host/meson-mx-sdio.c
++++ b/drivers/mmc/host/meson-mx-sdio.c
+@@ -668,6 +668,11 @@ static int meson_mx_mmc_probe(struct platform_device *pdev)
+ 	}
  
- static int insert_at(size_t value_size, struct btree_node *node, unsigned index,
--		      uint64_t key, void *value)
--		      __dm_written_to_disk(value)
-+		     uint64_t key, void *value)
-+	__dm_written_to_disk(value)
- {
- 	uint32_t nr_entries = le32_to_cpu(node->header.nr_entries);
-+	uint32_t max_entries = le32_to_cpu(node->header.max_entries);
- 	__le64 key_le = cpu_to_le64(key);
- 
- 	if (index > nr_entries ||
--	    index >= le32_to_cpu(node->header.max_entries)) {
-+	    index >= max_entries ||
-+	    nr_entries >= max_entries) {
- 		DMERR("too many entries in btree node for insert");
- 		__dm_unbless_for_disk(value);
- 		return -ENOMEM;
+ 	irq = platform_get_irq(pdev, 0);
++	if (irq < 0) {
++		ret = irq;
++		goto error_free_mmc;
++	}
++
+ 	ret = devm_request_threaded_irq(host->controller_dev, irq,
+ 					meson_mx_mmc_irq,
+ 					meson_mx_mmc_irq_thread, IRQF_ONESHOT,
 -- 
 2.34.1
 
