@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA9A2498EBD
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:48:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C2FF499356
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:34:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231481AbiAXTsS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:48:18 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:60392 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347600AbiAXTmh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:42:37 -0500
+        id S1384491AbiAXUdJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:33:09 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:49444 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1381767AbiAXUXe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:23:34 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 58126B8119D;
-        Mon, 24 Jan 2022 19:42:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F5DFC340E5;
-        Mon, 24 Jan 2022 19:42:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F13E861008;
+        Mon, 24 Jan 2022 20:23:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CED69C340E8;
+        Mon, 24 Jan 2022 20:23:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053352;
-        bh=SyEdvlIgdapcfev2ctZErMQFIAJu2b7NoRGv//Ys/ak=;
+        s=korg; t=1643055808;
+        bh=7FuChzgMaV2OYhpaYWC7LUUS8H6TQwy/LwWyEKCH3tY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iJwYLrta7qz5RQZF7fLEKwfZj/wrJHQcbN2QNlagzK9jcKTSSVWlIBiPuGfCmXemJ
-         aDz0HOzymOZL18vR9/n8BqMisRxbkygbtdjh6dxu3fai09ese6vZPRfhqZ6ykVStoL
-         mLEYH2RFiCtL6ynN7uWNaEmnMviqCsP3gyxnZgXc=
+        b=2aBGdLHyrHETFtjmpXFlAnlIaWS3704E7VxUL1+TTlwsrZn8TSXJeFXMT04c7GsoD
+         98vlGn2Ei/50hRvPzJl9kYTJWUl/tAihu7+/b2FZOOmq8WrjVQiITeYNDMQHOB+OpP
+         b2HpFkrovSY1SefeG2gcXfX5PmqcrTQv/kXffVVQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <chao@kernel.org>,
-        Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.10 006/563] f2fs: fix to do sanity check in is_alive()
-Date:   Mon, 24 Jan 2022 19:36:11 +0100
-Message-Id: <20220124184024.626499753@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Mikko Perttunen <mperttunen@nvidia.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 255/846] gpu: host1x: select CONFIG_DMA_SHARED_BUFFER
+Date:   Mon, 24 Jan 2022 19:36:12 +0100
+Message-Id: <20220124184109.739731686@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,34 +46,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 77900c45ee5cd5da63bd4d818a41dbdf367e81cd upstream.
+[ Upstream commit 6c7a388b62366f0de9936db3c1921d7f4e0011bc ]
 
-In fuzzed image, SSA table may indicate that a data block belongs to
-invalid node, which node ID is out-of-range (0, 1, 2 or max_nid), in
-order to avoid migrating inconsistent data in such corrupted image,
-let's do sanity check anyway before data block migration.
+Linking fails when dma-buf is disabled:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ld.lld: error: undefined symbol: dma_fence_release
+>>> referenced by fence.c
+>>>               gpu/host1x/fence.o:(host1x_syncpt_fence_enable_signaling) in archive drivers/built-in.a
+>>> referenced by fence.c
+>>>               gpu/host1x/fence.o:(host1x_fence_signal) in archive drivers/built-in.a
+>>> referenced by fence.c
+>>>               gpu/host1x/fence.o:(do_fence_timeout) in archive drivers/built-in.a
+
+Fixes: 687db2207b1b ("gpu: host1x: Add DMA fence implementation")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Mikko Perttunen <mperttunen@nvidia.com>
+Signed-off-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/gc.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/host1x/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/f2fs/gc.c
-+++ b/fs/f2fs/gc.c
-@@ -998,6 +998,9 @@ static bool is_alive(struct f2fs_sb_info
- 		set_sbi_flag(sbi, SBI_NEED_FSCK);
- 	}
- 
-+	if (f2fs_check_nid_range(sbi, dni->ino))
-+		return false;
-+
- 	*nofs = ofs_of_node(node_page);
- 	source_blkaddr = data_blkaddr(NULL, node_page, ofs_in_node);
- 	f2fs_put_page(node_page, 1);
+diff --git a/drivers/gpu/host1x/Kconfig b/drivers/gpu/host1x/Kconfig
+index 6dab94adf25e5..6815b4db17c1b 100644
+--- a/drivers/gpu/host1x/Kconfig
++++ b/drivers/gpu/host1x/Kconfig
+@@ -2,6 +2,7 @@
+ config TEGRA_HOST1X
+ 	tristate "NVIDIA Tegra host1x driver"
+ 	depends on ARCH_TEGRA || (ARM && COMPILE_TEST)
++	select DMA_SHARED_BUFFER
+ 	select IOMMU_IOVA
+ 	help
+ 	  Driver for the NVIDIA Tegra host1x hardware.
+-- 
+2.34.1
+
 
 
