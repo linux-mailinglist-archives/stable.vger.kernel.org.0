@@ -2,53 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C9FD4995AF
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:13:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA9D0499B26
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:59:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1442259AbiAXUyB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:54:01 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49244 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1392427AbiAXUvO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:51:14 -0500
+        id S1574694AbiAXVuE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:50:04 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:58872 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1457043AbiAXVkr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:40:47 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DFBA5B81057;
-        Mon, 24 Jan 2022 20:51:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEAC9C340E5;
-        Mon, 24 Jan 2022 20:51:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AE6836150C;
+        Mon, 24 Jan 2022 21:40:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8340EC340E5;
+        Mon, 24 Jan 2022 21:40:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057470;
-        bh=xi4KJIaJwSCkynoxCcarqiM8KPP5W/cAYIZDLYrFnBo=;
+        s=korg; t=1643060446;
+        bh=waB+9LUVqnckRupSe5o4AhePh0a/nlEjGKrVjtO3D4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gEXrxbQbJ4OirvWlN+siED7fjF3snJCqDCvAeNdLINtesRYJ9EqJ5QSVoLuM2fDD/
-         rimdXrPIhcMGq8M94g+W6PcPkVrsqZzKzZvVYbRETcWsEKsWll01MUmq8Rs3PhD9fh
-         5QZmBrtD/GuwHdYn2KHCAeBj4kEMW+2feJ2uIZxY=
+        b=sr4q5+2MEXM8YEePp/OcKga3dmCWG0JSBPVtHZoDznXVfq+nRYz8yH/Gfo5xqUjID
+         TEeqE3CdoODsUK8bcOqKsq6WxzfBoA49wdR6iJN2LPUB5s4JtNWfXEWkOKofz0oscU
+         e/AgqlJZYnfVOcOAeFIxW3lpVBKZFs05MXC8jKMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zechuan Chen <chenzechuan1@huawei.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Jianlin Lv <Jianlin.Lv@arm.com>,
-        Jin Yao <yao.jin@linux.intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Namhyung Kim <namhyung@kernel.org>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ravi Bangoria <ravi.bangoria@linux.ibm.com>,
-        Yang Jihong <yangjihong1@huawei.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.15 822/846] perf probe: Fix ppc64 perf probe add events failed case
-Date:   Mon, 24 Jan 2022 19:45:39 +0100
-Message-Id: <20220124184129.259153704@linuxfoundation.org>
+        stable@vger.kernel.org, Geert Uytterhoeven <geert@linux-m68k.org>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.16 0951/1039] riscv: dts: microchip: mpfs: Drop empty chosen node
+Date:   Mon, 24 Jan 2022 19:45:40 +0100
+Message-Id: <20220124184157.255161107@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,62 +46,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zechuan Chen <chenzechuan1@huawei.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
 
-commit 4624f199327a704dd1069aca1c3cadb8f2a28c6f upstream.
+commit 53ef07326ad0d6ae7fefded22bc53b427d542761 upstream.
 
-Because of commit bf794bf52a80c627 ("powerpc/kprobes: Fix kallsyms
-lookup across powerpc ABIv1 and ABIv2"), in ppc64 ABIv1, our perf
-command eliminates the need to use the prefix "." at the symbol name.
+It does not make sense to have an (empty) chosen node in an SoC-specific
+.dtsi, as chosen is meant for system-specific configuration.
+It is already provided in microchip-mpfs-icicle-kit.dts anyway.
 
-But when the command "perf probe -a schedule" is executed on ppc64
-ABIv1, it obtains two symbol address information through /proc/kallsyms,
-for example:
-
-  cat /proc/kallsyms | grep -w schedule
-  c000000000657020 T .schedule
-  c000000000d4fdb8 D schedule
-
-The symbol "D schedule" is not a function symbol, and perf will print:
-"p:probe/schedule _text+13958584"Failed to write event: Invalid argument
-
-Therefore, when searching symbols from map and adding probe point for
-them, a symbol type check is added. If the type of symbol is not a
-function, skip it.
-
-Fixes: bf794bf52a80c627 ("powerpc/kprobes: Fix kallsyms lookup across powerpc ABIv1 and ABIv2")
-Signed-off-by: Zechuan Chen <chenzechuan1@huawei.com>
-Acked-by: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Jianlin Lv <Jianlin.Lv@arm.com>
-Cc: Jin Yao <yao.jin@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Ravi Bangoria <ravi.bangoria@linux.ibm.com>
-Cc: Yang Jihong <yangjihong1@huawei.com>
-Link: https://lore.kernel.org/r/20211228111338.218602-1-chenzechuan1@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 0fa6107eca4186ad ("RISC-V: Initial DTS for Microchip ICICLE board")
+Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+Tested-by: Conor Dooley <conor.dooley@microchip.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/probe-event.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/tools/perf/util/probe-event.c
-+++ b/tools/perf/util/probe-event.c
-@@ -3083,6 +3083,9 @@ static int find_probe_trace_events_from_
- 	for (j = 0; j < num_matched_functions; j++) {
- 		sym = syms[j];
+--- a/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
++++ b/arch/riscv/boot/dts/microchip/microchip-mpfs.dtsi
+@@ -9,9 +9,6 @@
+ 	model = "Microchip PolarFire SoC";
+ 	compatible = "microchip,mpfs";
  
-+		if (sym->type != STT_FUNC)
-+			continue;
-+
- 		/* There can be duplicated symbols in the map */
- 		for (i = 0; i < j; i++)
- 			if (sym->start == syms[i]->start) {
+-	chosen {
+-	};
+-
+ 	cpus {
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
 
 
