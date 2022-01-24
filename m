@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31B3A4991C0
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:14:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE53D498A79
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:04:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351104AbiAXUON (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:14:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34360 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355416AbiAXUNi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:13:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18AADC061762;
-        Mon, 24 Jan 2022 11:35:53 -0800 (PST)
+        id S1344708AbiAXTEK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:04:10 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:58958 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1344722AbiAXTCB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:02:01 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D380CB8123D;
-        Mon, 24 Jan 2022 19:35:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BEDDC340E5;
-        Mon, 24 Jan 2022 19:35:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BE2E8B8123F;
+        Mon, 24 Jan 2022 19:01:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0E5DC340E5;
+        Mon, 24 Jan 2022 19:01:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052950;
-        bh=RV+GZ1lMaOyQ7OYXWIqi5CS12JZeAKVD0W8zLOYkvQE=;
+        s=korg; t=1643050917;
+        bh=HiMokRcWVrkWobPHLR9Q0PWQ6ThwoWIl6UQONrxaaJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ldVc8QYuoXWXE4MjuaD6BCSIjZ9iXlk9RPA26csyipxbQLbZ16bwyWsOUzjBe1DBY
-         nHSiFsfnZfBOXG7OmRJFYdcxglKaHFIRTwsGPffr5dEPQavDYcj98WbR2wA2L0lN1f
-         ZV3en8+52FwwuM9Meo51T8ZPUmgejgtgEYWA340E=
+        b=Idna65wm5caU5zLWG2RQ4s1u1fQci000oWjIEWhFHFOpwbUL1rQ3E2chFr/kNQtFM
+         pHpKSVerWno8JUpMfM1tsmIxE1eYNEaAAaDy29RTFMYRBehzRqL4nauWxPOIz7uPE1
+         +UDSIhZaFu3YbgVFbDdnz/5IF1MHHkjZeYV490zk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julia Lawall <Julia.Lawall@lip6.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 226/320] powerpc/cell: add missing of_node_put
-Date:   Mon, 24 Jan 2022 19:43:30 +0100
-Message-Id: <20220124184001.677544745@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
+        Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: [PATCH 4.9 121/157] drm/etnaviv: limit submit sizes
+Date:   Mon, 24 Jan 2022 19:43:31 +0100
+Message-Id: <20220124183936.614611281@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,57 +45,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julia Lawall <Julia.Lawall@lip6.fr>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit a841fd009e51c8c0a8f07c942e9ab6bb48da8858 ]
+commit 6dfa2fab8ddd46faa771a102672176bee7a065de upstream.
 
-for_each_node_by_name performs an of_node_get on each iteration, so
-a break out of the loop requires an of_node_put.
+Currently we allow rediculous amounts of kernel memory being allocated
+via the etnaviv GEM_SUBMIT ioctl, which is a pretty easy DoS vector. Put
+some reasonable limits in to fix this.
 
-A simplified version of the semantic patch that fixes this problem is as
-follows (http://coccinelle.lip6.fr):
+The commandstream size is limited to 64KB, which was already a soft limit
+on older kernels after which the kernel only took submits on a best effort
+base, so there is no userspace that tries to submit commandstreams larger
+than this. Even if the whole commandstream is a single incrementing address
+load, the size limit also limits the number of potential relocs and
+referenced buffers to slightly under 64K, so use the same limit for those
+arguments. The performance monitoring infrastructure currently supports
+less than 50 performance counter signals, so limiting them to 128 on a
+single submit seems like a reasonably future-proof number for now. This
+number can be bumped if needed without breaking the interface.
 
-// <smpl>
-@@
-expression e,e1;
-local idexpression n;
-@@
-
- for_each_node_by_name(n, e1) {
-   ... when != of_node_put(n)
-       when != e = n
-(
-   return n;
-|
-+  of_node_put(n);
-?  return ...;
-)
-   ...
- }
-// </smpl>
-
-Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1448051604-25256-7-git-send-email-Julia.Lawall@lip6.fr
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Reviewed-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/platforms/cell/iommu.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/powerpc/platforms/cell/iommu.c b/arch/powerpc/platforms/cell/iommu.c
-index ca9ffc1c8685d..a6a60e2b8f453 100644
---- a/arch/powerpc/platforms/cell/iommu.c
-+++ b/arch/powerpc/platforms/cell/iommu.c
-@@ -976,6 +976,7 @@ static int __init cell_iommu_fixed_mapping_init(void)
- 			if (hbase < dbase || (hend > (dbase + dsize))) {
- 				pr_debug("iommu: hash window doesn't fit in"
- 					 "real DMA window\n");
-+				of_node_put(np);
- 				return -1;
- 			}
- 		}
--- 
-2.34.1
-
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c
+@@ -325,6 +325,12 @@ int etnaviv_ioctl_gem_submit(struct drm_
+ 		return -EINVAL;
+ 	}
+ 
++	if (args->stream_size > SZ_64K || args->nr_relocs > SZ_64K ||
++	    args->nr_bos > SZ_64K || args->nr_pmrs > 128) {
++		DRM_ERROR("submit arguments out of size limits\n");
++		return -EINVAL;
++	}
++
+ 	/*
+ 	 * Copy the command submission and bo array to kernel space in
+ 	 * one go, and do this outside of any locks.
 
 
