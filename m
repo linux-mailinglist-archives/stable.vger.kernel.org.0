@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B15F049A8F4
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:18:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D18DE49A9DA
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:28:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1321627AbiAYDTK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:19:10 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:48310 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350254AbiAXTYo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:24:44 -0500
+        id S1323741AbiAYD3b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:29:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47616 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1376383AbiAXVFQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:05:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F101C0619D2;
+        Mon, 24 Jan 2022 12:05:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5B69EB8122C;
-        Mon, 24 Jan 2022 19:24:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AE68C340E5;
-        Mon, 24 Jan 2022 19:24:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8561C60989;
+        Mon, 24 Jan 2022 20:05:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 632F3C340E5;
+        Mon, 24 Jan 2022 20:05:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052282;
-        bh=64djAcdFOZX9lox2mWpaTdgR3LKocNI2zq5giDpMUEs=;
+        s=korg; t=1643054737;
+        bh=Kg6lB8gyFX7ICKo3+KWCWKtc2SOVkFcVpBWAYHfLIk4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UO5PPYXD240o8DvYSFmBoqyqQu5ooV1RJcbUqlIdwEP18RueMhAIUUvIua5NGINfR
-         stUvh8EG9RYTY8EV2H4gaq9CSoWoNYzRCLqd1Y1qPuLzlenPsLqnh7MqszRm6+rRjV
-         ja9U4k+aTMqCS/WvbAUs7JpF9UwgvNWpy7/ldfHw=
+        b=S/Fiyx4yIFqqnSTXfOvdj+OH+KMTomjInsjXyYLRssrg6eNi2rWeTkDs5EM+iVafd
+         qb0EsZZcXX5M3kU37UVx9FZytHzxj6U3CZ5sDWi3kMQcQog8okTfY/eG/tctitM8dm
+         uhoq4jglXblG+Y35bJkOtCxE4VEGHND6uAM/yups=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Julius Werner <jwerner@chromium.org>,
         Ben Hutchings <ben@decadent.org.uk>
-Subject: [PATCH 4.19 212/239] firmware: Update Kconfig help text for Google firmware
-Date:   Mon, 24 Jan 2022 19:44:10 +0100
-Message-Id: <20220124183949.855915546@linuxfoundation.org>
+Subject: [PATCH 5.10 486/563] firmware: Update Kconfig help text for Google firmware
+Date:   Mon, 24 Jan 2022 19:44:11 +0100
+Message-Id: <20220124184041.256076466@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -66,7 +69,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/firmware/google/Kconfig
 +++ b/drivers/firmware/google/Kconfig
-@@ -2,9 +2,9 @@ menuconfig GOOGLE_FIRMWARE
+@@ -3,9 +3,9 @@ menuconfig GOOGLE_FIRMWARE
  	bool "Google Firmware Drivers"
  	default n
  	help
