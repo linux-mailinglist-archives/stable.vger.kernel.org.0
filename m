@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F26449886B
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:34:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6798649886F
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:35:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245258AbiAXSeg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:34:36 -0500
-Received: from maynard.decadent.org.uk ([95.217.213.242]:42498 "EHLO
+        id S244133AbiAXSfd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:35:33 -0500
+Received: from maynard.decadent.org.uk ([95.217.213.242]:42504 "EHLO
         maynard.decadent.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235396AbiAXSee (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:34:34 -0500
+        with ESMTP id S245079AbiAXSfc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:35:32 -0500
 Received: from 168.7-181-91.adsl-dyn.isp.belgacom.be ([91.181.7.168] helo=deadeye)
         by maynard with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
         (Exim 4.92)
         (envelope-from <ben@decadent.org.uk>)
-        id 1nC4Ag-0007FK-UT; Mon, 24 Jan 2022 19:34:30 +0100
+        id 1nC4Bd-0007Fg-Va; Mon, 24 Jan 2022 19:35:29 +0100
 Received: from ben by deadeye with local (Exim 4.95)
         (envelope-from <ben@decadent.org.uk>)
-        id 1nC4Ag-00A1yc-D2;
-        Mon, 24 Jan 2022 19:34:30 +0100
-Date:   Mon, 24 Jan 2022 19:34:30 +0100
+        id 1nC4Bd-00A1zW-HC;
+        Mon, 24 Jan 2022 19:35:29 +0100
+Date:   Mon, 24 Jan 2022 19:35:29 +0100
 From:   Ben Hutchings <ben@decadent.org.uk>
 To:     stable@vger.kernel.org
-Cc:     Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Michael Wakabayashi <mwakabayashi@vmware.com>
-Subject: [PATCH 4.9] NFSv4: Initialise connection to the server in
- nfs4_alloc_client()
-Message-ID: <Ye7xNuvgVSWizxdK@decadent.org.uk>
+Cc:     Dan Carpenter <dan.carpenter@oracle.com>,
+        Luo Likang <luolikang@nsfocus.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.9] media: firewire: firedtv-avc: fix a buffer overflow in
+ avc_ca_pmt()
+Message-ID: <Ye7xcRkdnlSW+Oy2@decadent.org.uk>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="HKjkzjAEP04xpgGy"
+        protocol="application/pgp-signature"; boundary="gV35ZE8pv1mmxsa0"
 Content-Disposition: inline
 X-SA-Exim-Connect-IP: 91.181.7.168
 X-SA-Exim-Mail-From: ben@decadent.org.uk
@@ -40,168 +42,118 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---HKjkzjAEP04xpgGy
+--gV35ZE8pv1mmxsa0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-=46rom: Trond Myklebust <trond.myklebust@hammerspace.com>
+=46rom: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit dd99e9f98fbf423ff6d365b37a98e8879170f17c upstream.
+commit 35d2969ea3c7d32aee78066b1f3cf61a0d935a4e upstream.
 
-Set up the connection to the NFSv4 server in nfs4_alloc_client(), before
-we've added the struct nfs_client to the net-namespace's nfs_client_list
-so that a downed server won't cause other mounts to hang in the trunking
-detection code.
+The bounds checking in avc_ca_pmt() is not strict enough.  It should
+be checking "read_pos + 4" because it's reading 5 bytes.  If the
+"es_info_length" is non-zero then it reads a 6th byte so there needs to
+be an additional check for that.
 
-Reported-by: Michael Wakabayashi <mwakabayashi@vmware.com>
-Fixes: 5c6e5b60aae4 ("NFS: Fix an Oops in the pNFS files and flexfiles conn=
-ection setup to the DS")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+I also added checks for the "write_pos".  I don't think these are
+required because "read_pos" and "write_pos" are tied together so
+checking one ought to be enough.  But they make the code easier to
+understand for me.  The check on write_pos is:
+
+	if (write_pos + 4 >=3D sizeof(c->operand) - 4) {
+
+The first "+ 4" is because we're writing 5 bytes and the last " - 4"
+is to leave space for the CRC.
+
+The other problem is that "length" can be invalid.  It comes from
+"data_length" in fdtv_ca_pmt().
+
+Cc: stable@vger.kernel.org
+Reported-by: Luo Likang <luolikang@nsfocus.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 [bwh: Backported to 4.9: adjust context]
 Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 ---
- fs/nfs/nfs4client.c | 82 +++++++++++++++++++++++----------------------
- 1 file changed, 42 insertions(+), 40 deletions(-)
+ drivers/media/firewire/firedtv-avc.c | 14 +++++++++++---
+ drivers/media/firewire/firedtv-ci.c  |  2 ++
+ 2 files changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/fs/nfs/nfs4client.c b/fs/nfs/nfs4client.c
-index 3ee60c533217..2fb463389708 100644
---- a/fs/nfs/nfs4client.c
-+++ b/fs/nfs/nfs4client.c
-@@ -177,8 +177,11 @@ void nfs40_shutdown_client(struct nfs_client *clp)
-=20
- struct nfs_client *nfs4_alloc_client(const struct nfs_client_initdata *cl_=
-init)
- {
--	int err;
-+	char buf[INET6_ADDRSTRLEN + 1];
-+	const char *ip_addr =3D cl_init->ip_addr;
- 	struct nfs_client *clp =3D nfs_alloc_client(cl_init);
-+	int err;
-+
- 	if (IS_ERR(clp))
- 		return clp;
-=20
-@@ -202,6 +205,44 @@ struct nfs_client *nfs4_alloc_client(const struct nfs_=
-client_initdata *cl_init)
- #if IS_ENABLED(CONFIG_NFS_V4_1)
- 	init_waitqueue_head(&clp->cl_lock_waitq);
- #endif
-+
-+	if (cl_init->minorversion !=3D 0)
-+		__set_bit(NFS_CS_INFINITE_SLOTS, &clp->cl_flags);
-+	__set_bit(NFS_CS_DISCRTRY, &clp->cl_flags);
-+	__set_bit(NFS_CS_NO_RETRANS_TIMEOUT, &clp->cl_flags);
-+
-+	/*
-+	 * Set up the connection to the server before we add add to the
-+	 * global list.
-+	 */
-+	err =3D nfs_create_rpc_client(clp, cl_init, RPC_AUTH_GSS_KRB5I);
-+	if (err =3D=3D -EINVAL)
-+		err =3D nfs_create_rpc_client(clp, cl_init, RPC_AUTH_UNIX);
-+	if (err < 0)
-+		goto error;
-+
-+	/* If no clientaddr=3D option was specified, find a usable cb address */
-+	if (ip_addr =3D=3D NULL) {
-+		struct sockaddr_storage cb_addr;
-+		struct sockaddr *sap =3D (struct sockaddr *)&cb_addr;
-+
-+		err =3D rpc_localaddr(clp->cl_rpcclient, sap, sizeof(cb_addr));
-+		if (err < 0)
-+			goto error;
-+		err =3D rpc_ntop(sap, buf, sizeof(buf));
-+		if (err < 0)
-+			goto error;
-+		ip_addr =3D (const char *)buf;
-+	}
-+	strlcpy(clp->cl_ipaddr, ip_addr, sizeof(clp->cl_ipaddr));
-+
-+	err =3D nfs_idmap_new(clp);
-+	if (err < 0) {
-+		dprintk("%s: failed to create idmapper. Error =3D %d\n",
-+			__func__, err);
-+		goto error;
-+	}
-+	__set_bit(NFS_CS_IDMAP, &clp->cl_res_state);
- 	return clp;
-=20
- error:
-@@ -354,8 +395,6 @@ static int nfs4_init_client_minor_version(struct nfs_cl=
-ient *clp)
- struct nfs_client *nfs4_init_client(struct nfs_client *clp,
- 				    const struct nfs_client_initdata *cl_init)
- {
--	char buf[INET6_ADDRSTRLEN + 1];
--	const char *ip_addr =3D cl_init->ip_addr;
- 	struct nfs_client *old;
- 	int error;
-=20
-@@ -365,43 +404,6 @@ struct nfs_client *nfs4_init_client(struct nfs_client =
-*clp,
- 		return clp;
+diff --git a/drivers/media/firewire/firedtv-avc.c b/drivers/media/firewire/=
+firedtv-avc.c
+index 280b5ffea592..3a373711f5ad 100644
+--- a/drivers/media/firewire/firedtv-avc.c
++++ b/drivers/media/firewire/firedtv-avc.c
+@@ -1169,7 +1169,11 @@ int avc_ca_pmt(struct firedtv *fdtv, char *msg, int =
+length)
+ 		read_pos +=3D program_info_length;
+ 		write_pos +=3D program_info_length;
  	}
+-	while (read_pos < length) {
++	while (read_pos + 4 < length) {
++		if (write_pos + 4 >=3D sizeof(c->operand) - 4) {
++			ret =3D -EINVAL;
++			goto out;
++		}
+ 		c->operand[write_pos++] =3D msg[read_pos++];
+ 		c->operand[write_pos++] =3D msg[read_pos++];
+ 		c->operand[write_pos++] =3D msg[read_pos++];
+@@ -1181,13 +1185,17 @@ int avc_ca_pmt(struct firedtv *fdtv, char *msg, int=
+ length)
+ 		c->operand[write_pos++] =3D es_info_length >> 8;
+ 		c->operand[write_pos++] =3D es_info_length & 0xff;
+ 		if (es_info_length > 0) {
++			if (read_pos >=3D length) {
++				ret =3D -EINVAL;
++				goto out;
++			}
+ 			pmt_cmd_id =3D msg[read_pos++];
+ 			if (pmt_cmd_id !=3D 1 && pmt_cmd_id !=3D 4)
+ 				dev_err(fdtv->device, "invalid pmt_cmd_id %d "
+ 					"at stream level\n", pmt_cmd_id);
 =20
--	/* Check NFS protocol revision and initialize RPC op vector */
--	clp->rpc_ops =3D &nfs_v4_clientops;
--
--	if (clp->cl_minorversion !=3D 0)
--		__set_bit(NFS_CS_INFINITE_SLOTS, &clp->cl_flags);
--	__set_bit(NFS_CS_DISCRTRY, &clp->cl_flags);
--	__set_bit(NFS_CS_NO_RETRANS_TIMEOUT, &clp->cl_flags);
--
--	error =3D nfs_create_rpc_client(clp, cl_init, RPC_AUTH_GSS_KRB5I);
--	if (error =3D=3D -EINVAL)
--		error =3D nfs_create_rpc_client(clp, cl_init, RPC_AUTH_UNIX);
--	if (error < 0)
--		goto error;
--
--	/* If no clientaddr=3D option was specified, find a usable cb address */
--	if (ip_addr =3D=3D NULL) {
--		struct sockaddr_storage cb_addr;
--		struct sockaddr *sap =3D (struct sockaddr *)&cb_addr;
--
--		error =3D rpc_localaddr(clp->cl_rpcclient, sap, sizeof(cb_addr));
--		if (error < 0)
--			goto error;
--		error =3D rpc_ntop(sap, buf, sizeof(buf));
--		if (error < 0)
--			goto error;
--		ip_addr =3D (const char *)buf;
--	}
--	strlcpy(clp->cl_ipaddr, ip_addr, sizeof(clp->cl_ipaddr));
--
--	error =3D nfs_idmap_new(clp);
--	if (error < 0) {
--		dprintk("%s: failed to create idmapper. Error =3D %d\n",
--			__func__, error);
--		goto error;
--	}
--	__set_bit(NFS_CS_IDMAP, &clp->cl_res_state);
--
- 	error =3D nfs4_init_client_minor_version(clp);
- 	if (error < 0)
- 		goto error;
+-			if (es_info_length > sizeof(c->operand) - 4 -
+-					     write_pos) {
++			if (es_info_length > sizeof(c->operand) - 4 - write_pos ||
++			    es_info_length > length - read_pos) {
+ 				ret =3D -EINVAL;
+ 				goto out;
+ 			}
+diff --git a/drivers/media/firewire/firedtv-ci.c b/drivers/media/firewire/f=
+iredtv-ci.c
+index edbb30fdd9d9..93fb4b7312af 100644
+--- a/drivers/media/firewire/firedtv-ci.c
++++ b/drivers/media/firewire/firedtv-ci.c
+@@ -138,6 +138,8 @@ static int fdtv_ca_pmt(struct firedtv *fdtv, void *arg)
+ 	} else {
+ 		data_length =3D msg->msg[3];
+ 	}
++	if (data_length > sizeof(msg->msg) - data_pos)
++		return -EINVAL;
+=20
+ 	return avc_ca_pmt(fdtv, &msg->msg[data_pos], data_length);
+ }
 
---HKjkzjAEP04xpgGy
+--gV35ZE8pv1mmxsa0
 Content-Type: application/pgp-signature; name="signature.asc"
 
 -----BEGIN PGP SIGNATURE-----
 
-iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmHu8TYACgkQ57/I7JWG
-EQnjkg//Ys3L2BiyVt8pcHmWMYMLcV+30mHObIosuufFfNTgkiZ1iatKJLteYw3a
-uphiHqFSJQW9kQYLbk27iyrY0+z9E+NogGfc2G7eOdZl+wWLngupw1rZ1xics+9P
-n8POKX8pTQZnwPvFsTzEDGEihlsUhMHzmG0eUbC+7qR3hWnfciD2dJXRHDRvnA1r
-tBK6MQKfPAl4ufqajTg1UwadKyk5OCjhIlpjse4DSwEw3HxyINpSBs7FKGc3okts
-IbrhC5Uv8LSjLDDaf9FDbqbRlvt4v7wKrruc8Q4Dz0WnPPM1s7/CkKARinge5Bmn
-/6CRTnOIn0KNzMBrnjO4ZfPGZhz+cQfLAunBP/gAiWxx4PCRcFmQWhtOyf+TlRrF
-RnKtrmJ7kMwLtz1pYyecSZvcx66wAvKnGSockCOHv4vpDH6gR7Jd0uBFNUaYDftc
-M6y6pd3VrGrI56sJMl65o9RYg2xoMSd+tIUSJyWi9As2Goz9QydJa4a/6CqFFt8l
-QhEG7NJIPobE7E1syFIpgzD1PCHjgwC/4SQk7wri8RV4mL1zzBk79WZY182yj+0W
-NKtsZRu/e8BxXNyhPbJTfhQprBlVcelLnn3mmmHlRzMroIoq6PVQt3RB5ysO+I+i
-yEbmQk9jClRW1Gs8ohgArQyua6rLISDpvp6CPGAkyFZSdyDii3I=
-=w6c0
+iQIzBAABCgAdFiEErCspvTSmr92z9o8157/I7JWGEQkFAmHu8XEACgkQ57/I7JWG
+EQnkYg//Rwx/9Y9U7ASf/ASiFGMGup4lYhTJVre0XgBbD+SIXKiXEyf4IOBMUPda
++nHA0Uq9RFpfTNf5zD7uMMkoLfdz4fPXcKBB/XyKv7ozc7Xs5fflfTOOSSPtO14Z
+6SliMSK4xrsnH2BbXTIHwmDSij438U1zUgQClRfvUqhe/UQCztBKu5nwIJYswA3m
+XYfIf3LnSDkcxail4A+sLKl6EdECmHMV2a0UcM57pJfDBRmReVgonFO0CTsSas3k
+XQ7FDCuUDu2GN6RJyaWT2Rz/z5MN0WOY5KWSg3tlNSp6YGSTZB1UaV2gKQy9ddb3
+F33u3uuAhjQQlm8F4QXasyWQZq6SktNTUnaQ39kwvgnzpfwYociCLK5ldgOaJArR
+ivawEFLKZd0CPzKK2U4it3O9grf7TFwskkJrZvkXQ1l20KhgevFBOWRZ3XdpaoT7
+/01Cm5TNIwwX4nIj6J/M6Ck66RCPFo1E6oHdcPNztMMRxQL6KOtNVJnJ001tAblZ
+SKBdzUXu4c5OyCZD5Lxhaa2wO8Sdmy02m8dSLyF2dc0PXlGj/YxCK3B5lh7znGHN
+ZP1ay4jSWX7FNFcP0WbNJifJMD6Rj8DOTW2LnyPt2rtkpNggld/VfSCjW+aCZ0Gf
+1FFRXc4Hr779jQXALn9COBa8UWDgabOIDD74vKPfnISQ8SKMbuI=
+=v65w
 -----END PGP SIGNATURE-----
 
---HKjkzjAEP04xpgGy--
+--gV35ZE8pv1mmxsa0--
