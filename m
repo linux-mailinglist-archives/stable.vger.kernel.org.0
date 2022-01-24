@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B2974995A8
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:13:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E38B499B1C
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:59:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1442200AbiAXUxt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:53:49 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:44026 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1392091AbiAXUu0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:50:26 -0500
+        id S1574562AbiAXVtq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:49:46 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49640 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1456836AbiAXVkM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:40:12 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EE86960B1A;
-        Mon, 24 Jan 2022 20:50:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0ABBC340E5;
-        Mon, 24 Jan 2022 20:50:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1EB0EB81057;
+        Mon, 24 Jan 2022 21:40:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5206C340E4;
+        Mon, 24 Jan 2022 21:40:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057425;
-        bh=q67Yuv2lFh5A7efPX2bOzffmmlUvGKImDLhXNGY13OQ=;
+        s=korg; t=1643060409;
+        bh=j7uZC0EMg6IOGQI/zK2ZT99oLEwNN8GGLHuqvCfKBrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x17V3IUP4VZYAcaTuXmsM+HMdPzUr9yXCZAPbfDR2wBnd7QZbIr/Hr8+g7LKaGRJ8
-         hNDANS41acXLU4U2Zx7QjuNosvDKE7p4ZhVBIuCDTXBA19+0WHRqGhzefheBbf4QWz
-         w/wdGaADpcxnC3759Bdh4gYi5whjO5UvYz4G79tM=
+        b=xuThfJM5hw7ZfMJ/sBO/R1zw+2wqYMTefaqDTwcVENDJRH0vqQl+XR3xMqp15z8Xl
+         uLcSuj0gWV+H4mN9XNBBLSdAIShLNQlhH7ZQzzebPMcTxgkES6KjgTSmHJzU5atEor
+         zStdVhu8xdMnRPRMJsMXLFwcszX4eXsbvrvG04XI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 808/846] netns: add schedule point in ops_exit_list()
-Date:   Mon, 24 Jan 2022 19:45:25 +0100
-Message-Id: <20220124184128.801450579@linuxfoundation.org>
+        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Russell King <russell.king@oracle.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alan Maguire <alan.maguire@oracle.com>
+Subject: [PATCH 5.16 0937/1039] arm64/bpf: Remove 128MB limit for BPF JIT programs
+Date:   Mon, 24 Jan 2022 19:45:26 +0100
+Message-Id: <20220124184156.781671254@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +46,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Russell King <russell.king@oracle.com>
 
-commit 2836615aa22de55b8fca5e32fe1b27a67cda625e upstream.
+commit b89ddf4cca43f1269093942cf5c4e457fd45c335 upstream.
 
-When under stress, cleanup_net() can have to dismantle
-netns in big numbers. ops_exit_list() currently calls
-many helpers [1] that have no schedule point, and we can
-end up with soft lockups, particularly on hosts
-with many cpus.
+Commit 91fc957c9b1d ("arm64/bpf: don't allocate BPF JIT programs in module
+memory") restricts BPF JIT program allocation to a 128MB region to ensure
+BPF programs are still in branching range of each other. However this
+restriction should not apply to the aarch64 JIT, since BPF_JMP | BPF_CALL
+are implemented as a 64-bit move into a register and then a BLR instruction -
+which has the effect of being able to call anything without proximity
+limitation.
 
-Even for moderate amount of netns processed by cleanup_net()
-this patch avoids latency spikes.
+The practical reason to relax this restriction on JIT memory is that 128MB of
+JIT memory can be quickly exhausted, especially where PAGE_SIZE is 64KB - one
+page is needed per program. In cases where seccomp filters are applied to
+multiple VMs on VM launch - such filters are classic BPF but converted to
+BPF - this can severely limit the number of VMs that can be launched. In a
+world where we support BPF JIT always on, turning off the JIT isn't always an
+option either.
 
-[1] Some of these helpers like fib_sync_up() and fib_sync_down_dev()
-are very slow because net/ipv4/fib_semantics.c uses host-wide hash tables,
-and ifindex is used as the only input of two hash functions.
-    ifindexes tend to be the same for all netns (lo.ifindex==1 per instance)
-    This will be fixed in a separate patch.
-
-Fixes: 72ad937abd0a ("net: Add support for batching network namespace cleanups")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 91fc957c9b1d ("arm64/bpf: don't allocate BPF JIT programs in module memory")
+Suggested-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Russell King <russell.king@oracle.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Tested-by: Alan Maguire <alan.maguire@oracle.com>
+Link: https://lore.kernel.org/bpf/1636131046-5982-2-git-send-email-alan.maguire@oracle.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/net_namespace.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm64/include/asm/extable.h |    9 ---------
+ arch/arm64/include/asm/memory.h  |    5 +----
+ arch/arm64/kernel/traps.c        |    2 +-
+ arch/arm64/mm/ptdump.c           |    2 --
+ arch/arm64/net/bpf_jit_comp.c    |    7 ++-----
+ 5 files changed, 4 insertions(+), 21 deletions(-)
 
---- a/net/core/net_namespace.c
-+++ b/net/core/net_namespace.c
-@@ -164,8 +164,10 @@ static void ops_exit_list(const struct p
+--- a/arch/arm64/include/asm/extable.h
++++ b/arch/arm64/include/asm/extable.h
+@@ -33,15 +33,6 @@ do {							\
+ 	(b)->data = (tmp).data;				\
+ } while (0)
+ 
+-static inline bool in_bpf_jit(struct pt_regs *regs)
+-{
+-	if (!IS_ENABLED(CONFIG_BPF_JIT))
+-		return false;
+-
+-	return regs->pc >= BPF_JIT_REGION_START &&
+-	       regs->pc < BPF_JIT_REGION_END;
+-}
+-
+ #ifdef CONFIG_BPF_JIT
+ bool ex_handler_bpf(const struct exception_table_entry *ex,
+ 		    struct pt_regs *regs);
+--- a/arch/arm64/include/asm/memory.h
++++ b/arch/arm64/include/asm/memory.h
+@@ -44,11 +44,8 @@
+ #define _PAGE_OFFSET(va)	(-(UL(1) << (va)))
+ #define PAGE_OFFSET		(_PAGE_OFFSET(VA_BITS))
+ #define KIMAGE_VADDR		(MODULES_END)
+-#define BPF_JIT_REGION_START	(_PAGE_END(VA_BITS_MIN))
+-#define BPF_JIT_REGION_SIZE	(SZ_128M)
+-#define BPF_JIT_REGION_END	(BPF_JIT_REGION_START + BPF_JIT_REGION_SIZE)
+ #define MODULES_END		(MODULES_VADDR + MODULES_VSIZE)
+-#define MODULES_VADDR		(BPF_JIT_REGION_END)
++#define MODULES_VADDR		(_PAGE_END(VA_BITS_MIN))
+ #define MODULES_VSIZE		(SZ_128M)
+ #define VMEMMAP_START		(-(UL(1) << (VA_BITS - VMEMMAP_SHIFT)))
+ #define VMEMMAP_END		(VMEMMAP_START + VMEMMAP_SIZE)
+--- a/arch/arm64/kernel/traps.c
++++ b/arch/arm64/kernel/traps.c
+@@ -994,7 +994,7 @@ static struct break_hook bug_break_hook
+ static int reserved_fault_handler(struct pt_regs *regs, unsigned int esr)
  {
- 	struct net *net;
- 	if (ops->exit) {
--		list_for_each_entry(net, net_exit_list, exit_list)
-+		list_for_each_entry(net, net_exit_list, exit_list) {
- 			ops->exit(net);
-+			cond_resched();
-+		}
- 	}
- 	if (ops->exit_batch)
- 		ops->exit_batch(net_exit_list);
+ 	pr_err("%s generated an invalid instruction at %pS!\n",
+-		in_bpf_jit(regs) ? "BPF JIT" : "Kernel text patching",
++		"Kernel text patching",
+ 		(void *)instruction_pointer(regs));
+ 
+ 	/* We cannot handle this */
+--- a/arch/arm64/mm/ptdump.c
++++ b/arch/arm64/mm/ptdump.c
+@@ -41,8 +41,6 @@ static struct addr_marker address_marker
+ 	{ 0 /* KASAN_SHADOW_START */,	"Kasan shadow start" },
+ 	{ KASAN_SHADOW_END,		"Kasan shadow end" },
+ #endif
+-	{ BPF_JIT_REGION_START,		"BPF start" },
+-	{ BPF_JIT_REGION_END,		"BPF end" },
+ 	{ MODULES_VADDR,		"Modules start" },
+ 	{ MODULES_END,			"Modules end" },
+ 	{ VMALLOC_START,		"vmalloc() area" },
+--- a/arch/arm64/net/bpf_jit_comp.c
++++ b/arch/arm64/net/bpf_jit_comp.c
+@@ -1145,15 +1145,12 @@ out:
+ 
+ u64 bpf_jit_alloc_exec_limit(void)
+ {
+-	return BPF_JIT_REGION_SIZE;
++	return VMALLOC_END - VMALLOC_START;
+ }
+ 
+ void *bpf_jit_alloc_exec(unsigned long size)
+ {
+-	return __vmalloc_node_range(size, PAGE_SIZE, BPF_JIT_REGION_START,
+-				    BPF_JIT_REGION_END, GFP_KERNEL,
+-				    PAGE_KERNEL, 0, NUMA_NO_NODE,
+-				    __builtin_return_address(0));
++	return vmalloc(size);
+ }
+ 
+ void bpf_jit_free_exec(void *addr)
 
 
