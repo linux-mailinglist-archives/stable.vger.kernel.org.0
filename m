@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA49E49A4A0
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:10:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5129949A280
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:00:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357511AbiAYAJH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:09:07 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:59470 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1444318AbiAXVG7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:06:59 -0500
+        id S2365782AbiAXXvm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:51:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43864 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1838697AbiAXWry (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:47:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E8A8C058CB0;
+        Mon, 24 Jan 2022 13:07:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CC29061451;
-        Mon, 24 Jan 2022 21:06:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83AB5C340E5;
-        Mon, 24 Jan 2022 21:06:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E22F26131F;
+        Mon, 24 Jan 2022 21:07:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEF8CC340E5;
+        Mon, 24 Jan 2022 21:06:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058417;
-        bh=aJ5YBxeO/4QRHT8rngDaLNVmp8PG20YzWHTts758vWY=;
+        s=korg; t=1643058420;
+        bh=gpWjQ0VaBNniP4xA1fEF6HlyF6wN8PjRmBVxu/REmpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rslqiSlF3EKnu4qdJkIu3l5J51yFtfNPjEtbrzwV9Hhl3zifJ5GN8vjYpIUxrIveO
-         ENH6GYsThmlkg9LOA3Snc9YMeDw8vC8i0hpThdyHpBS1lEo6qBDwQ/EKT8ao7EYOrn
-         wWj2J2w/XqsdEl8suObpbhZxkXI7POqny9QVrYew=
+        b=0mK114W1b0NCUzMHpDwjLB2BgwSWAP8xQvV1FtOUhmqfg7v002SUPhqTb6wNb1HSV
+         qS7HQ7QSadMLYS5Gz1vTJ2MoBwP1/gkNumKF37tvEcuesGyYaKpI+WGEHsdMyfBqOk
+         bgsKPDGM1mloBozLL536JLkL2nf23EfKVcKgm6Rc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Latypov <dlatypov@google.com>,
-        David Gow <davidgow@google.com>,
-        Brendan Higgins <brendanhiggins@google.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0282/1039] kunit: tool: fix --json output for skipped tests
-Date:   Mon, 24 Jan 2022 19:34:31 +0100
-Message-Id: <20220124184134.768342225@linuxfoundation.org>
+        stable@vger.kernel.org, Steven Maddox <s.maddox@lantizia.me.uk>,
+        Christian Lamparter <chunkeey@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0283/1039] ARM: dts: gemini: NAS4220-B: fis-index-block with 128 KiB sectors
+Date:   Mon, 24 Jan 2022 19:34:32 +0100
+Message-Id: <20220124184134.800970372@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -47,64 +49,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Latypov <dlatypov@google.com>
+From: Christian Lamparter <chunkeey@gmail.com>
 
-[ Upstream commit 9a6bb30a8830bb868b09629f0b9ad5d2b5fbb2f9 ]
+[ Upstream commit 4754eab7e5a78bdefe7a960c5c260c95ebbb5fa6 ]
 
-Currently, KUnit will report SKIPPED tests as having failed if one uses
---json.
+Steven Maddox reported in the OpenWrt bugzilla, that his
+RaidSonic IB-NAS4220-B was no longer booting with the new
+OpenWrt 21.02 (uses linux 5.10's device-tree). However, it was
+working with the previous OpenWrt 19.07 series (uses 4.14).
 
-Add the missing if statement to set the appropriate status ("SKIP").
-See https://api.kernelci.org/schema-test-case.html:
-  "status": {
-      "type": "string",
-      "description": "The status of the execution of this test case",
-      "enum": ["PASS", "FAIL", "SKIP", "ERROR"],
-      "default": "PASS"
-  },
-with this, we now can properly produce all four of the statuses.
+|[    5.548038] No RedBoot partition table detected in 30000000.flash
+|[    5.618553] Searching for RedBoot partition table in 30000000.flash at offset 0x0
+|[    5.739093] No RedBoot partition table detected in 30000000.flash
+|...
+|[    7.039504] Waiting for root device /dev/mtdblock3...
 
-Fixes: 5acaf6031f53 ("kunit: tool: Support skipped tests in kunit_tool")
-Signed-off-by: Daniel Latypov <dlatypov@google.com>
-Reviewed-by: David Gow <davidgow@google.com>
-Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+The provided bootlog shows that the RedBoot partition parser was
+looking for the partition table "at offset 0x0". Which is strange
+since the comment in the device-tree says it should be at 0xfe0000.
+
+Further digging on the internet led to a review site that took
+some useful PCB pictures of their review unit back in February 2009.
+Their picture shows a Spansion S29GL128N11TFI01 flash chip.
+
+>From Spansion's Datasheet:
+"S29GL128N: One hundred twenty-eight 64 Kword (128 Kbyte) sectors"
+Steven also provided a "cat /sys/class/mtd/mtd0/erasesize" from his
+unit: "131072".
+
+With the 128 KiB Sector/Erasesize in mind. This patch changes the
+fis-index-block property to (0xfe0000 / 0x20000) = 0x7f.
+
+Fixes: b5a923f8c739 ("ARM: dts: gemini: Switch to redboot partition parsing")
+Reported-by: Steven Maddox <s.maddox@lantizia.me.uk>
+Signed-off-by: Christian Lamparter <chunkeey@gmail.com>
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Tested-by: Steven Maddox <s.maddox@lantizia.me.uk>
+Link: https://lore.kernel.org/r/20211206004334.4169408-1-linus.walleij@linaro.org'
+Bugzilla: https://bugs.openwrt.org/index.php?do=details&task_id=4137
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/kunit/kunit_json.py      | 2 ++
- tools/testing/kunit/kunit_tool_test.py | 6 ++++++
- 2 files changed, 8 insertions(+)
+ arch/arm/boot/dts/gemini-nas4220b.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/kunit/kunit_json.py b/tools/testing/kunit/kunit_json.py
-index 746bec72b9ac2..b6e66c5d64d14 100644
---- a/tools/testing/kunit/kunit_json.py
-+++ b/tools/testing/kunit/kunit_json.py
-@@ -30,6 +30,8 @@ def _get_group_json(test: Test, def_config: str,
- 			test_case = {"name": subtest.name, "status": "FAIL"}
- 			if subtest.status == TestStatus.SUCCESS:
- 				test_case["status"] = "PASS"
-+			elif subtest.status == TestStatus.SKIPPED:
-+				test_case["status"] = "SKIP"
- 			elif subtest.status == TestStatus.TEST_CRASHED:
- 				test_case["status"] = "ERROR"
- 			test_cases.append(test_case)
-diff --git a/tools/testing/kunit/kunit_tool_test.py b/tools/testing/kunit/kunit_tool_test.py
-index 9c41267314573..34cb0a12ba180 100755
---- a/tools/testing/kunit/kunit_tool_test.py
-+++ b/tools/testing/kunit/kunit_tool_test.py
-@@ -383,6 +383,12 @@ class KUnitJsonTest(unittest.TestCase):
- 			{'name': 'example_simple_test', 'status': 'ERROR'},
- 			result["sub_groups"][1]["test_cases"][0])
+diff --git a/arch/arm/boot/dts/gemini-nas4220b.dts b/arch/arm/boot/dts/gemini-nas4220b.dts
+index 13112a8a5dd88..6544c730340fa 100644
+--- a/arch/arm/boot/dts/gemini-nas4220b.dts
++++ b/arch/arm/boot/dts/gemini-nas4220b.dts
+@@ -84,7 +84,7 @@
+ 			partitions {
+ 				compatible = "redboot-fis";
+ 				/* Eraseblock at 0xfe0000 */
+-				fis-index-block = <0x1fc>;
++				fis-index-block = <0x7f>;
+ 			};
+ 		};
  
-+	def test_skipped_test_json(self):
-+		result = self._json_for('test_skip_tests.log')
-+		self.assertEqual(
-+			{'name': 'example_skip_test', 'status': 'SKIP'},
-+			result["sub_groups"][1]["test_cases"][1])
-+
- 	def test_no_tests_json(self):
- 		result = self._json_for('test_is_test_passed-no_tests_run_with_header.log')
- 		self.assertEqual(0, len(result['sub_groups']))
 -- 
 2.34.1
 
