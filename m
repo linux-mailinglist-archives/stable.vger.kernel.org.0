@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CEF9499A92
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1037B499887
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:37:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1573531AbiAXVpG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:45:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54402 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1456071AbiAXVhm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:37:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58550C0BD127;
-        Mon, 24 Jan 2022 12:23:53 -0800 (PST)
+        id S1452879AbiAXV1O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:27:14 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:38218 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1449256AbiAXVPJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:15:09 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E9E9D614F5;
-        Mon, 24 Jan 2022 20:23:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9418CC340E5;
-        Mon, 24 Jan 2022 20:23:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0ADD561451;
+        Mon, 24 Jan 2022 21:15:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8F3EC340E5;
+        Mon, 24 Jan 2022 21:15:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055832;
-        bh=EjYjonRQitSknKhd+4bksVPMqHt1V78cIUfxjZQC6x8=;
+        s=korg; t=1643058908;
+        bh=d6R36MrvRchoiac2EDIDDPVYsSqO0GHpTgvcUZB/b70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WCBXIWm5mqKw161ku+zft7OV5+mRWEgidbB92wD/oV+dCNA8dBZwwSPaChKVdkujE
-         a2fe5E7DZVms0FGYimRLyxC+iZZ6qE/v3G/p+v1F/VlzmpVTaMRvR3r9iFg6B+XLrl
-         z6A2n6ERy0A+jLl/JhYgWGNrByPYGJ5XoricaQOs=
+        b=WCELllb+ympGW39y/wUa1ruvBXBLG9A8/3AfyPhHRBJ3J8DHGdreCtUYfIM3UmZOD
+         1zC1LZ0iPzxe5rUXjCe6vLjiQCVHnTVv5EwE10gsNKKHKdWXUTnvgRd5b4CuLUeNyW
+         VSpkoeUGpY0TQUq8BNwA4DSwM2Kzd2ruBkkxyAPg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Al Viro <viro@zeniv.linux.org.uk>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Gal Pressman <gal@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 280/846] um: virt-pci: Fix 32-bit compile
-Date:   Mon, 24 Jan 2022 19:36:37 +0100
-Message-Id: <20220124184110.591715988@linuxfoundation.org>
+Subject: [PATCH 5.16 0409/1039] Revert "net/mlx5e: Block offload of outer header csum for UDP tunnels"
+Date:   Mon, 24 Jan 2022 19:36:38 +0100
+Message-Id: <20220124184139.064960266@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,54 +46,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Aya Levin <ayal@nvidia.com>
 
-[ Upstream commit d73820df6437b5d0a57be53faf39db46a0264b3a ]
+[ Upstream commit 64050cdad0983ad8060e33c3f4b5aee2366bcebd ]
 
-There were a few 32-bit compile warnings that of course
-turned into errors with -Werror, fix the 32-bit build.
+This reverts commit 6d6727dddc7f93fcc155cb8d0c49c29ae0e71122.
 
-Fixes: 68f5d3f3b654 ("um: add PCI over virtio emulation driver")
-Reported-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Although the NIC doesn't support offload of outer header CSUM, using
+gso_partial_features allows offloading the tunnel's segmentation. The
+driver relies on the stack CSUM calculation of the outer header. For
+this, NETIF_F_GSO_UDP_TUNNEL_CSUM must be a member of the device's
+features.
+
+Fixes: 6d6727dddc7f ("net/mlx5e: Block offload of outer header csum for UDP tunnels")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Gal Pressman <gal@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/drivers/virt-pci.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/arch/um/drivers/virt-pci.c b/arch/um/drivers/virt-pci.c
-index c080666330234..0ab58016db22f 100644
---- a/arch/um/drivers/virt-pci.c
-+++ b/arch/um/drivers/virt-pci.c
-@@ -181,15 +181,15 @@ static unsigned long um_pci_cfgspace_read(void *priv, unsigned int offset,
- 	/* buf->data is maximum size - we may only use parts of it */
- 	struct um_pci_message_buffer *buf;
- 	u8 *data;
--	unsigned long ret = ~0ULL;
-+	unsigned long ret = ULONG_MAX;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index 41379844eee1f..de8acd3217c18 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -4789,9 +4789,13 @@ static void mlx5e_build_nic_netdev(struct net_device *netdev)
+ 	}
  
- 	if (!dev)
--		return ~0ULL;
-+		return ULONG_MAX;
+ 	if (mlx5_vxlan_allowed(mdev->vxlan) || mlx5_geneve_tx_allowed(mdev)) {
+-		netdev->hw_features     |= NETIF_F_GSO_UDP_TUNNEL;
+-		netdev->hw_enc_features |= NETIF_F_GSO_UDP_TUNNEL;
+-		netdev->vlan_features |= NETIF_F_GSO_UDP_TUNNEL;
++		netdev->hw_features     |= NETIF_F_GSO_UDP_TUNNEL |
++					   NETIF_F_GSO_UDP_TUNNEL_CSUM;
++		netdev->hw_enc_features |= NETIF_F_GSO_UDP_TUNNEL |
++					   NETIF_F_GSO_UDP_TUNNEL_CSUM;
++		netdev->gso_partial_features = NETIF_F_GSO_UDP_TUNNEL_CSUM;
++		netdev->vlan_features |= NETIF_F_GSO_UDP_TUNNEL |
++					 NETIF_F_GSO_UDP_TUNNEL_CSUM;
+ 	}
  
- 	buf = get_cpu_var(um_pci_msg_bufs);
- 	data = buf->data;
- 
--	memset(data, 0xff, sizeof(data));
-+	memset(buf->data, 0xff, sizeof(buf->data));
- 
- 	switch (size) {
- 	case 1:
-@@ -304,7 +304,7 @@ static unsigned long um_pci_bar_read(void *priv, unsigned int offset,
- 	/* buf->data is maximum size - we may only use parts of it */
- 	struct um_pci_message_buffer *buf;
- 	u8 *data;
--	unsigned long ret = ~0ULL;
-+	unsigned long ret = ULONG_MAX;
- 
- 	buf = get_cpu_var(um_pci_msg_bufs);
- 	data = buf->data;
+ 	if (mlx5e_tunnel_proto_supported_tx(mdev, IPPROTO_GRE)) {
 -- 
 2.34.1
 
