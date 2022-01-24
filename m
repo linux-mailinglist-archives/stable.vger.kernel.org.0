@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAD9A499D88
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:00:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 488BD499D89
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:00:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346380AbiAXWYR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:24:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36192 "EHLO
+        id S1582812AbiAXWYY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:24:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1381204AbiAXWTa (ORCPT
+        with ESMTP id S1381209AbiAXWTa (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:19:30 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 904A2C0619CF;
-        Mon, 24 Jan 2022 12:49:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2F25C04A2F1;
+        Mon, 24 Jan 2022 12:49:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4E9D4B811A9;
-        Mon, 24 Jan 2022 20:49:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71CD2C340E5;
-        Mon, 24 Jan 2022 20:49:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 489C4B811A9;
+        Mon, 24 Jan 2022 20:49:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C198C340E7;
+        Mon, 24 Jan 2022 20:49:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057371;
-        bh=nCkMqPq7aczurCyrAgJsTR6iIJRd5PJT1ENTZ16rmAY=;
+        s=korg; t=1643057374;
+        bh=q7ihR5Snu2W1wGEKLmd6hmJZ58qgPjBl7VGdE/uxV+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SlUjwNoPgIH9GPDVpehCO/exdg90dAOOPhgy8fKGkVnczu4jNobVS834odNkRtmBs
-         iLa8b4df0WxuDLNCTt0ZM/hP9cOurXxWYsdvxNz4kn7zc5mZI64bCyg+KKX+KxcPFi
-         iREqIkIvg1drD83qs2QsSD5gdRFKbdwvXf1LJUok=
+        b=aFSWhDkn94emBiThBWnZx7tk9LJ4SHIWnNZmwfgQeXkg766qNEkOt661tmgESNrpW
+         bSUFrzxz+6cPUFkWXnO8yY+WYlIh7Cc9H10RI7qiVl+mRBjTcoKQvQpCSaxuKHQF2p
+         xcSzaWKTjL9T4tlgRoyI1tnvqEnl/Bo+qddipIIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ye Bin <yebin10@huawei.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 758/846] block: Fix fsync always failed if once failed
-Date:   Mon, 24 Jan 2022 19:44:35 +0100
-Message-Id: <20220124184127.118647249@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Maxime Ripard <maxime@cerno.tech>
+Subject: [PATCH 5.15 759/846] drm/vc4: crtc: Drop feed_txp from state
+Date:   Mon, 24 Jan 2022 19:44:36 +0100
+Message-Id: <20220124184127.147164301@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -47,62 +47,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-commit 8a7518931baa8ea023700987f3db31cb0a80610b upstream.
+commit a16c66401fd831f70a02d33e9bcaac585637c29f upstream.
 
-We do test with inject error fault base on v4.19, after test some time we found
-sync /dev/sda always failed.
-[root@localhost] sync /dev/sda
-sync: error syncing '/dev/sda': Input/output error
+Accessing the crtc->state pointer from outside the modesetting context
+is not allowed. We thus need to copy whatever we need from the KMS state
+to our structure in order to access it.
 
-scsi log as follows:
-[19069.812296] sd 0:0:0:0: [sda] tag#64 Send: scmd 0x00000000d03a0b6b
-[19069.812302] sd 0:0:0:0: [sda] tag#64 CDB: Synchronize Cache(10) 35 00 00 00 00 00 00 00 00 00
-[19069.812533] sd 0:0:0:0: [sda] tag#64 Done: SUCCESS Result: hostbyte=DID_OK driverbyte=DRIVER_OK
-[19069.812536] sd 0:0:0:0: [sda] tag#64 CDB: Synchronize Cache(10) 35 00 00 00 00 00 00 00 00 00
-[19069.812539] sd 0:0:0:0: [sda] tag#64 scsi host busy 1 failed 0
-[19069.812542] sd 0:0:0:0: Notifying upper driver of completion (result 0)
-[19069.812546] sd 0:0:0:0: [sda] tag#64 sd_done: completed 0 of 0 bytes
-[19069.812549] sd 0:0:0:0: [sda] tag#64 0 sectors total, 0 bytes done.
-[19069.812564] print_req_error: I/O error, dev sda, sector 0
+In VC4, a number of users of that pointers have crept in over the years,
+the first one being whether or not the downstream controller of the
+pixelvalve is our writeback controller.
 
-ftrace log as follows:
- rep-306069 [007] .... 19654.923315: block_bio_queue: 8,0 FWS 0 + 0 [rep]
- rep-306069 [007] .... 19654.923333: block_getrq: 8,0 FWS 0 + 0 [rep]
- kworker/7:1H-250   [007] .... 19654.923352: block_rq_issue: 8,0 FF 0 () 0 + 0 [kworker/7:1H]
- <idle>-0     [007] ..s. 19654.923562: block_rq_complete: 8,0 FF () 18446744073709551615 + 0 [0]
- <idle>-0     [007] d.s. 19654.923576: block_rq_complete: 8,0 WS () 0 + 0 [-5]
+Fortunately for us, Since commit 39fcb2808376 ("drm/vc4: txp: Turn the
+TXP into a CRTC of its own") this is no longer something that can change
+from one commit to the other and is hardcoded.
 
-As 8d6996630c03 introduce 'fq->rq_status', this data only update when 'flush_rq'
-reference count isn't zero. If flush request once failed and record error code
-in 'fq->rq_status'. If there is no chance to update 'fq->rq_status',then do fsync
-will always failed.
-To address this issue reset 'fq->rq_status' after return error code to upper layer.
+Let's set this flag in struct vc4_crtc if we happen to be the TXP, and
+drop the flag from our private state structure.
 
-Fixes: 8d6996630c03("block: fix null pointer dereference in blk_mq_rq_timed_out()")
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20211129012659.1553733-1-yebin10@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Link: https://lore.kernel.org/all/YWgteNaNeaS9uWDe@phenom.ffwll.local/
+Link: https://lore.kernel.org/r/20211025141113.702757-2-maxime@cerno.tech
+Fixes: 008095e065a8 ("drm/vc4: Add support for the transposer block")
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-flush.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/vc4/vc4_crtc.c |    3 +--
+ drivers/gpu/drm/vc4/vc4_drv.h  |    6 +++++-
+ drivers/gpu/drm/vc4/vc4_hvs.c  |    7 +++----
+ drivers/gpu/drm/vc4/vc4_kms.c  |    3 ++-
+ drivers/gpu/drm/vc4/vc4_txp.c  |    3 +--
+ 5 files changed, 12 insertions(+), 10 deletions(-)
 
---- a/block/blk-flush.c
-+++ b/block/blk-flush.c
-@@ -235,8 +235,10 @@ static void flush_end_io(struct request
- 	 * avoiding use-after-free.
- 	 */
- 	WRITE_ONCE(flush_rq->state, MQ_RQ_IDLE);
--	if (fq->rq_status != BLK_STS_OK)
-+	if (fq->rq_status != BLK_STS_OK) {
- 		error = fq->rq_status;
-+		fq->rq_status = BLK_STS_OK;
-+	}
+--- a/drivers/gpu/drm/vc4/vc4_crtc.c
++++ b/drivers/gpu/drm/vc4/vc4_crtc.c
+@@ -715,7 +715,7 @@ static void vc4_crtc_handle_page_flip(st
+ 	spin_lock_irqsave(&dev->event_lock, flags);
+ 	if (vc4_crtc->event &&
+ 	    (vc4_state->mm.start == HVS_READ(SCALER_DISPLACTX(chan)) ||
+-	     vc4_state->feed_txp)) {
++	     vc4_crtc->feeds_txp)) {
+ 		drm_crtc_send_vblank_event(crtc, vc4_crtc->event);
+ 		vc4_crtc->event = NULL;
+ 		drm_crtc_vblank_put(crtc);
+@@ -893,7 +893,6 @@ struct drm_crtc_state *vc4_crtc_duplicat
+ 		return NULL;
  
- 	if (!q->elevator) {
- 		flush_rq->tag = BLK_MQ_NO_TAG;
+ 	old_vc4_state = to_vc4_crtc_state(crtc->state);
+-	vc4_state->feed_txp = old_vc4_state->feed_txp;
+ 	vc4_state->margins = old_vc4_state->margins;
+ 	vc4_state->assigned_channel = old_vc4_state->assigned_channel;
+ 
+--- a/drivers/gpu/drm/vc4/vc4_drv.h
++++ b/drivers/gpu/drm/vc4/vc4_drv.h
+@@ -495,6 +495,11 @@ struct vc4_crtc {
+ 	struct drm_pending_vblank_event *event;
+ 
+ 	struct debugfs_regset32 regset;
++
++	/**
++	 * @feeds_txp: True if the CRTC feeds our writeback controller.
++	 */
++	bool feeds_txp;
+ };
+ 
+ static inline struct vc4_crtc *
+@@ -521,7 +526,6 @@ struct vc4_crtc_state {
+ 	struct drm_crtc_state base;
+ 	/* Dlist area for this CRTC configuration. */
+ 	struct drm_mm_node mm;
+-	bool feed_txp;
+ 	bool txp_armed;
+ 	unsigned int assigned_channel;
+ 
+--- a/drivers/gpu/drm/vc4/vc4_hvs.c
++++ b/drivers/gpu/drm/vc4/vc4_hvs.c
+@@ -375,7 +375,7 @@ static void vc4_hvs_update_dlist(struct
+ 
+ 		spin_lock_irqsave(&dev->event_lock, flags);
+ 
+-		if (!vc4_state->feed_txp || vc4_state->txp_armed) {
++		if (!vc4_crtc->feeds_txp || vc4_state->txp_armed) {
+ 			vc4_crtc->event = crtc->state->event;
+ 			crtc->state->event = NULL;
+ 		}
+@@ -395,10 +395,9 @@ void vc4_hvs_atomic_enable(struct drm_cr
+ {
+ 	struct drm_device *dev = crtc->dev;
+ 	struct vc4_dev *vc4 = to_vc4_dev(dev);
+-	struct drm_crtc_state *new_crtc_state = drm_atomic_get_new_crtc_state(state, crtc);
+-	struct vc4_crtc_state *vc4_state = to_vc4_crtc_state(new_crtc_state);
+ 	struct drm_display_mode *mode = &crtc->state->adjusted_mode;
+-	bool oneshot = vc4_state->feed_txp;
++	struct vc4_crtc *vc4_crtc = to_vc4_crtc(crtc);
++	bool oneshot = vc4_crtc->feeds_txp;
+ 
+ 	vc4_hvs_update_dlist(crtc);
+ 	vc4_hvs_init_channel(vc4, crtc, mode, oneshot);
+--- a/drivers/gpu/drm/vc4/vc4_kms.c
++++ b/drivers/gpu/drm/vc4/vc4_kms.c
+@@ -233,6 +233,7 @@ static void vc4_hvs_pv_muxing_commit(str
+ 	unsigned int i;
+ 
+ 	for_each_new_crtc_in_state(state, crtc, crtc_state, i) {
++		struct vc4_crtc *vc4_crtc = to_vc4_crtc(crtc);
+ 		struct vc4_crtc_state *vc4_state = to_vc4_crtc_state(crtc_state);
+ 		u32 dispctrl;
+ 		u32 dsp3_mux;
+@@ -253,7 +254,7 @@ static void vc4_hvs_pv_muxing_commit(str
+ 		 * TXP IP, and we need to disable the FIFO2 -> pixelvalve1
+ 		 * route.
+ 		 */
+-		if (vc4_state->feed_txp)
++		if (vc4_crtc->feeds_txp)
+ 			dsp3_mux = VC4_SET_FIELD(3, SCALER_DISPCTRL_DSP3_MUX);
+ 		else
+ 			dsp3_mux = VC4_SET_FIELD(2, SCALER_DISPCTRL_DSP3_MUX);
+--- a/drivers/gpu/drm/vc4/vc4_txp.c
++++ b/drivers/gpu/drm/vc4/vc4_txp.c
+@@ -391,7 +391,6 @@ static int vc4_txp_atomic_check(struct d
+ {
+ 	struct drm_crtc_state *crtc_state = drm_atomic_get_new_crtc_state(state,
+ 									  crtc);
+-	struct vc4_crtc_state *vc4_state = to_vc4_crtc_state(crtc_state);
+ 	int ret;
+ 
+ 	ret = vc4_hvs_atomic_check(crtc, state);
+@@ -399,7 +398,6 @@ static int vc4_txp_atomic_check(struct d
+ 		return ret;
+ 
+ 	crtc_state->no_vblank = true;
+-	vc4_state->feed_txp = true;
+ 
+ 	return 0;
+ }
+@@ -482,6 +480,7 @@ static int vc4_txp_bind(struct device *d
+ 
+ 	vc4_crtc->pdev = pdev;
+ 	vc4_crtc->data = &vc4_txp_crtc_data;
++	vc4_crtc->feeds_txp = true;
+ 
+ 	txp->pdev = pdev;
+ 
 
 
