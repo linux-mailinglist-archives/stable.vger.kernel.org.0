@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84ED6498B44
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:12:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAEF2498ED5
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:49:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346279AbiAXTMd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:12:33 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38822 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346929AbiAXTJL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:09:11 -0500
+        id S1351164AbiAXTs5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:48:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54700 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1354104AbiAXTlC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:41:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4B50C061744;
+        Mon, 24 Jan 2022 11:20:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BDF8660B88;
-        Mon, 24 Jan 2022 19:09:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAD15C340E5;
-        Mon, 24 Jan 2022 19:09:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 80064B811F9;
+        Mon, 24 Jan 2022 19:20:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADFE2C340E5;
+        Mon, 24 Jan 2022 19:20:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051350;
-        bh=GLtLK6jPA6nPtqriz3ZVOeIfZ5OpRTdv6BTEh612+3M=;
+        s=korg; t=1643052046;
+        bh=Up/mfvhONYj+Dx9dzEmZmji4FSEdxlZp4ge0yxhkITo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yZ04MY26ji0jSK5PoHw031ku+B2azKKJnYEytXp0Kckza9Vx+7zSSNW7mOU3yZXfE
-         TfFzN16nWc9h/Rnoyx/DfmTZ0QyLP7vCWK1XqPczziklmxkLfEdWIASdNHH71ExGRK
-         2CfrjkiLUh+kRldc7a9IrZ2PmAAmtkWq4Lm204/Y=
+        b=VlIFFoP6TC+0d/VNDowc/Gitn5lT6Ggb08ub/tzCLHoeCBQ3Nx2sJKArtjZuFp0jI
+         9xMTtbEJCnWmuejV8m3RMWnLxFz/g8WF/uLeBWeQutXHcrgYqccL8uzAKv/UqTvtPL
+         bq9SepZYsarGKfr+AYV3M2Lo49mODTw4MMnsY1Bs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julia Lawall <Julia.Lawall@lip6.fr>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Joe Thornber <ejt@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 133/186] powerpc/powernv: add missing of_node_put
+Subject: [PATCH 4.19 170/239] dm btree: add a defensive bounds check to insert_at()
 Date:   Mon, 24 Jan 2022 19:43:28 +0100
-Message-Id: <20220124183941.389960692@linuxfoundation.org>
+Message-Id: <20220124183948.506574080@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,57 +48,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julia Lawall <Julia.Lawall@lip6.fr>
+From: Joe Thornber <ejt@redhat.com>
 
-[ Upstream commit 7d405a939ca960162eb30c1475759cb2fdf38f8c ]
+[ Upstream commit 85bca3c05b6cca31625437eedf2060e846c4bbad ]
 
-for_each_compatible_node performs an of_node_get on each iteration, so
-a break out of the loop requires an of_node_put.
+Corrupt metadata could trigger an out of bounds write.
 
-A simplified version of the semantic patch that fixes this problem is as
-follows (http://coccinelle.lip6.fr):
-
-// <smpl>
-@@
-local idexpression n;
-expression e;
-@@
-
- for_each_compatible_node(n,...) {
-   ...
-(
-   of_node_put(n);
-|
-   e = n
-|
-+  of_node_put(n);
-?  break;
-)
-   ...
- }
-... when != n
-// </smpl>
-
-Signed-off-by: Julia Lawall <Julia.Lawall@lip6.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1448051604-25256-4-git-send-email-Julia.Lawall@lip6.fr
+Signed-off-by: Joe Thornber <ejt@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/powernv/opal-lpc.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/md/persistent-data/dm-btree.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/platforms/powernv/opal-lpc.c b/arch/powerpc/platforms/powernv/opal-lpc.c
-index 6c7ad1d8b32ed..21f0edcfb84ad 100644
---- a/arch/powerpc/platforms/powernv/opal-lpc.c
-+++ b/arch/powerpc/platforms/powernv/opal-lpc.c
-@@ -400,6 +400,7 @@ void __init opal_lpc_init(void)
- 		if (!of_get_property(np, "primary", NULL))
- 			continue;
- 		opal_lpc_chip_id = of_get_ibm_chip_id(np);
-+		of_node_put(np);
- 		break;
- 	}
- 	if (opal_lpc_chip_id < 0)
+diff --git a/drivers/md/persistent-data/dm-btree.c b/drivers/md/persistent-data/dm-btree.c
+index 8aae0624a2971..6383afb88f319 100644
+--- a/drivers/md/persistent-data/dm-btree.c
++++ b/drivers/md/persistent-data/dm-btree.c
+@@ -83,14 +83,16 @@ void inc_children(struct dm_transaction_manager *tm, struct btree_node *n,
+ }
+ 
+ static int insert_at(size_t value_size, struct btree_node *node, unsigned index,
+-		      uint64_t key, void *value)
+-		      __dm_written_to_disk(value)
++		     uint64_t key, void *value)
++	__dm_written_to_disk(value)
+ {
+ 	uint32_t nr_entries = le32_to_cpu(node->header.nr_entries);
++	uint32_t max_entries = le32_to_cpu(node->header.max_entries);
+ 	__le64 key_le = cpu_to_le64(key);
+ 
+ 	if (index > nr_entries ||
+-	    index >= le32_to_cpu(node->header.max_entries)) {
++	    index >= max_entries ||
++	    nr_entries >= max_entries) {
+ 		DMERR("too many entries in btree node for insert");
+ 		__dm_unbless_for_disk(value);
+ 		return -ENOMEM;
 -- 
 2.34.1
 
