@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 04172499462
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:43:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C813498DF5
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:43:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1389494AbiAXUlW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:41:22 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:40348 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387885AbiAXUh3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:37:29 -0500
+        id S1348685AbiAXTiT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:38:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51932 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1348143AbiAXT3Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:29:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E3A0C08E881;
+        Mon, 24 Jan 2022 11:13:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B839BB81060;
-        Mon, 24 Jan 2022 20:37:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B42DC340E5;
-        Mon, 24 Jan 2022 20:37:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1764760BFB;
+        Mon, 24 Jan 2022 19:13:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02F00C340E5;
+        Mon, 24 Jan 2022 19:13:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056646;
-        bh=zzwXETvO8DRgU0B6/KjTgVdtgOFdMCxyOYkTNdKrc3I=;
+        s=korg; t=1643051623;
+        bh=lDnMZdm1qIoBNi8zGpb9L19ogrWHp8r6Rf4WFn0gvus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l2HUbUl4K4GDXOe1I79HbT6YPuac2NnZqrUz98Mhh+j1Ugn+bMM37Tir8sV2cvi4o
-         5dxXk5XYPmldMAFcIjcga1stilzRJuhPz8egDNHwu8DPC9olKbM2k/2GnY3akAN9S+
-         CkTlDqpVyFSwbRclccVD8mxhncrN3C0oVovwMRRk=
+        b=ZWdQBpr4dXoOfLdqAfiYgVr1AuInPcd+krYj9KVptkkFCLtGdD7fXQpx+0THuCoux
+         Le2rCVhSoBFOIPPOTi+OwFP6vxGlIXkIgEaKD8lFCwMeulkySfCAKPV2X/Eh4Cc825
+         0QR7H8DY+QpnJbHkz1aigb64uGq2x76WB9m5TAzE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 554/846] media: saa7146: hexium_gemini: Fix a NULL pointer dereference in hexium_attach()
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.19 033/239] media: em28xx: fix control-message timeouts
 Date:   Mon, 24 Jan 2022 19:41:11 +0100
-Message-Id: <20220124184120.137322515@linuxfoundation.org>
+Message-Id: <20220124183944.177318541@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,73 +48,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit 3af86b046933ba513d08399dba0d4d8b50d607d0 ]
+commit d9b7e8df3aa9b8c10708aab60e72e79ac08237e4 upstream.
 
-In hexium_attach(dev, info), saa7146_vv_init() is called to allocate
-a new memory for dev->vv_data. saa7146_vv_release() will be called on
-failure of saa7146_register_device(). There is a dereference of
-dev->vv_data in saa7146_vv_release(), which could lead to a NULL
-pointer dereference on failure of saa7146_vv_init().
+USB control-message timeouts are specified in milliseconds and should
+specifically not vary with CONFIG_HZ.
 
-Fix this bug by adding a check of saa7146_vv_init().
-
-This bug was found by a static analyzer. The analysis employs
-differential checking to identify inconsistent security operations
-(e.g., checks or kfrees) between two code paths and confirms that the
-inconsistent operations are not recovered in the current function or
-the callers, so they constitute bugs.
-
-Note that, as a bug found by static analysis, it can be a false
-positive or hard to trigger. Multiple researchers have cross-reviewed
-the bug.
-
-Builds with CONFIG_VIDEO_HEXIUM_GEMINI=m show no new warnings,
-and our static analyzer no longer warns about this code.
-
-Link: https://lore.kernel.org/linux-media/20211203154030.111210-1-zhou1615@umn.edu
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
+Fixes: a6c2ba283565 ("[PATCH] v4l: 716: support for em28xx board family")
+Cc: stable@vger.kernel.org      # 2.6.16
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/common/saa7146/saa7146_fops.c | 2 +-
- drivers/media/pci/saa7146/hexium_gemini.c   | 7 ++++++-
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ drivers/media/usb/em28xx/em28xx-core.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/common/saa7146/saa7146_fops.c b/drivers/media/common/saa7146/saa7146_fops.c
-index baf5772c52a96..be32159777142 100644
---- a/drivers/media/common/saa7146/saa7146_fops.c
-+++ b/drivers/media/common/saa7146/saa7146_fops.c
-@@ -521,7 +521,7 @@ int saa7146_vv_init(struct saa7146_dev* dev, struct saa7146_ext_vv *ext_vv)
- 		ERR("out of memory. aborting.\n");
- 		kfree(vv);
- 		v4l2_ctrl_handler_free(hdl);
--		return -1;
-+		return -ENOMEM;
- 	}
+--- a/drivers/media/usb/em28xx/em28xx-core.c
++++ b/drivers/media/usb/em28xx/em28xx-core.c
+@@ -89,7 +89,7 @@ int em28xx_read_reg_req_len(struct em28x
+ 	mutex_lock(&dev->ctrl_urb_lock);
+ 	ret = usb_control_msg(udev, pipe, req,
+ 			      USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+-			      0x0000, reg, dev->urb_buf, len, HZ);
++			      0x0000, reg, dev->urb_buf, len, 1000);
+ 	if (ret < 0) {
+ 		em28xx_regdbg("(pipe 0x%08x): IN:  %02x %02x %02x %02x %02x %02x %02x %02x  failed with error %i\n",
+ 			      pipe,
+@@ -158,7 +158,7 @@ int em28xx_write_regs_req(struct em28xx
+ 	memcpy(dev->urb_buf, buf, len);
+ 	ret = usb_control_msg(udev, pipe, req,
+ 			      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+-			      0x0000, reg, dev->urb_buf, len, HZ);
++			      0x0000, reg, dev->urb_buf, len, 1000);
+ 	mutex_unlock(&dev->ctrl_urb_lock);
  
- 	saa7146_video_uops.init(dev,vv);
-diff --git a/drivers/media/pci/saa7146/hexium_gemini.c b/drivers/media/pci/saa7146/hexium_gemini.c
-index 2214c74bbbf15..3947701cd6c7e 100644
---- a/drivers/media/pci/saa7146/hexium_gemini.c
-+++ b/drivers/media/pci/saa7146/hexium_gemini.c
-@@ -284,7 +284,12 @@ static int hexium_attach(struct saa7146_dev *dev, struct saa7146_pci_extension_d
- 	hexium_set_input(hexium, 0);
- 	hexium->cur_input = 0;
- 
--	saa7146_vv_init(dev, &vv_data);
-+	ret = saa7146_vv_init(dev, &vv_data);
-+	if (ret) {
-+		i2c_del_adapter(&hexium->i2c_adapter);
-+		kfree(hexium);
-+		return ret;
-+	}
- 
- 	vv_data.vid_ops.vidioc_enum_input = vidioc_enum_input;
- 	vv_data.vid_ops.vidioc_g_input = vidioc_g_input;
--- 
-2.34.1
-
+ 	if (ret < 0) {
 
 
