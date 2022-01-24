@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F266C49A9B6
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:27:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E738449A9B8
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:27:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243311AbiAYD12 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:27:28 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:55618 "EHLO
+        id S1384351AbiAYD1l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:27:41 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:56842 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1445472AbiAXVDj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:03:39 -0500
+        with ESMTP id S1359519AbiAXVDw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:03:52 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8B15CB80FA1;
-        Mon, 24 Jan 2022 21:03:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8783C340E5;
-        Mon, 24 Jan 2022 21:03:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E3B21B81142;
+        Mon, 24 Jan 2022 21:03:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12289C340E5;
+        Mon, 24 Jan 2022 21:03:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058214;
-        bh=e8+VAjX8qdBaRBg1pWk9PK9HVYFtA0VS7vIlBkabhfw=;
+        s=korg; t=1643058229;
+        bh=EqTivTb+Cuvp/WUP4epMML8+2J7gXezxJBji8OHg3sI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KhfW+kHjdFpuF/zi0ADUttYl+LfXG6vr/FI3ojooYLL86Qo3NtSgaKfEUPZ92zkjv
-         26MwtuHTEMoJ4c8oNye4kHLC19gfrJixXQrV1VhyxR+domTUsGmSIl6dR5blAf8evx
-         WU02XTgimqK0wlHSYlptsp6Ti6TLIhim2/9yD9vM=
+        b=RrFOISy9YgjJT/2F64Z5tqFS8N5idDObW+4mv94KiJZTFS7LxHdHr4J8VNBgJ8tuR
+         mA4HVWNsw0oErw+oxS+a/6RJdCRIrZLi+JvKKN7NuRzXWfM7npgvVCs7EqorhUUsBG
+         RDKPI2L5Bt2yLqWS7n9lIevNCRFb/W+ASpmasoH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Peng Fan <peng.fan@nxp.com>,
+        Nishanth Menon <nm@ti.com>, Pratyush Yadav <p.yadav@ti.com>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0216/1039] null_blk: allow zero poll queues
-Date:   Mon, 24 Jan 2022 19:33:25 +0100
-Message-Id: <20220124184132.601140815@linuxfoundation.org>
+Subject: [PATCH 5.16 0220/1039] arm64: dts: ti: k3-j721e: Fix the L2 cache sets
+Date:   Mon, 24 Jan 2022 19:33:29 +0100
+Message-Id: <20220124184132.729936670@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -46,51 +46,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Nishanth Menon <nm@ti.com>
 
-[ Upstream commit 2bfdbe8b7ebd17b5331071071a910fbabc64b436 ]
+[ Upstream commit e9ba3a5bc6fdc2c796c69fdaf5ed6c9957cf9f9d ]
 
-There isn't any reason to not allow zero poll queues from user
-viewpoint.
+A72's L2 cache[1] on J721e[2] is 1MB. A72's L2 is fixed line length of
+64 bytes and 16-way set-associative cache structure.
 
-Also sometimes we need to compare io poll between poll mode and irq
-mode, so not allowing poll queues is bad.
+1MB of L2 / 64 (line length) = 16384 ways
+16384 ways / 16 = 1024 sets
 
-Fixes: 15dfc662ef31 ("null_blk: Fix handling of submit_queues and poll_queues attributes")
-Cc: Shin'ichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20211203023935.3424042-1-ming.lei@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fix the l2 cache-sets.
+
+[1] https://developer.arm.com/documentation/100095/0003/Level-2-Memory-System/About-the-L2-memory-system
+[2] http://www.ti.com/lit/pdf/spruil1
+
+Fixes: 2d87061e70de ("arm64: dts: ti: Add Support for J721E SoC")
+Reported-by: Peng Fan <peng.fan@nxp.com>
+Signed-off-by: Nishanth Menon <nm@ti.com>
+Reviewed-by: Pratyush Yadav <p.yadav@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Link: https://lore.kernel.org/r/20211113043639.4413-1-nm@ti.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/null_blk/main.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/ti/k3-j721e.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/block/null_blk/main.c b/drivers/block/null_blk/main.c
-index 323af5c9c8026..fc1317060db54 100644
---- a/drivers/block/null_blk/main.c
-+++ b/drivers/block/null_blk/main.c
-@@ -340,9 +340,9 @@ static int nullb_update_nr_hw_queues(struct nullb_device *dev,
- 		return 0;
+diff --git a/arch/arm64/boot/dts/ti/k3-j721e.dtsi b/arch/arm64/boot/dts/ti/k3-j721e.dtsi
+index a5967ba139d7e..4a3872fce5339 100644
+--- a/arch/arm64/boot/dts/ti/k3-j721e.dtsi
++++ b/arch/arm64/boot/dts/ti/k3-j721e.dtsi
+@@ -88,7 +88,7 @@
+ 		cache-level = <2>;
+ 		cache-size = <0x100000>;
+ 		cache-line-size = <64>;
+-		cache-sets = <2048>;
++		cache-sets = <1024>;
+ 		next-level-cache = <&msmc_l3>;
+ 	};
  
- 	/*
--	 * Make sure at least one queue exists for each of submit and poll.
-+	 * Make sure at least one submit queue exists.
- 	 */
--	if (!submit_queues || !poll_queues)
-+	if (!submit_queues)
- 		return -EINVAL;
- 
- 	/*
-@@ -1918,8 +1918,6 @@ static int null_validate_conf(struct nullb_device *dev)
- 
- 	if (dev->poll_queues > g_poll_queues)
- 		dev->poll_queues = g_poll_queues;
--	else if (dev->poll_queues == 0)
--		dev->poll_queues = 1;
- 	dev->prev_poll_queues = dev->poll_queues;
- 
- 	dev->queue_mode = min_t(unsigned int, dev->queue_mode, NULL_Q_MQ);
 -- 
 2.34.1
 
