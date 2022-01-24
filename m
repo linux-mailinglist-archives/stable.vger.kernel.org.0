@@ -2,110 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DBD0498470
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 17:12:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4987B4984BA
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 17:27:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243609AbiAXQMz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 11:12:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33176 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243621AbiAXQMu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 11:12:50 -0500
-Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C663BC06173B
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 08:12:49 -0800 (PST)
-Received: by mail-wr1-x435.google.com with SMTP id r14so14524604wrp.2
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 08:12:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=dZhD9/fwf2Qn5xAQQ+ZP1nCs3cqqOn+CChdr75Mg9SA=;
-        b=l3KkhKienOMvuM4phNCoYgVd54Gm7OkTn354Tp73JRjy5zLV5gpZ+YQmxh/I2RBWv1
-         LwSqzl1/l0gX7mjtMQ/ramzboMNUywOt/9feKw7tFy7NDoZilt7lidgO+n1LzE0oLCgS
-         9sahar4iog3E5wDzfjjwo5K8KxhWi0kCnb43sogGXqobkMvbEewAx8eXKM9R0r9k3XNS
-         mMgvqxet8Vg6OUlmKyHhzduSG/iPoqXABHazL4GlrHmovAK2PNmgor1tSgIm3nJEwCW2
-         cdFhjL1eEZ/bi5PYVdzHv+TiCnsy4TeXXqIZDGs4S5YRG+i3vWTH+tPpcM2Pw2GBWMMv
-         CWkg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=dZhD9/fwf2Qn5xAQQ+ZP1nCs3cqqOn+CChdr75Mg9SA=;
-        b=OR5Cll/IwcfjXc4ZHyQSV+RxLEpTKg/qZtnMoHys9dA3xelWfn9A/T8OXf4lpgFDo7
-         ogHZyAWP7EpTbePkAWKoXiASKv0w6Spkh8tp5zgLoS20DxSz9uUjBslsZkJPRWHDSFFz
-         bd57SkJIfnAq1NRxsjeTYLU5rClihg+FL8li91gx1RdzPFYshOPnS5cPXcFqX5w0cJmD
-         OQjOBzSgV5X3D61bYVpz3nDZH4ihWWIAN6VaVuFzQABRmdqGHr7zvSY6UdDYFqoDflhM
-         btuLsyMiOW4GTl/tWrdbDQu3rTP4YAgtM/1zkLLk6VsK3ss58kphEBYZBAleIcLC09Vr
-         o+xg==
-X-Gm-Message-State: AOAM532REx3CmfURQzSsP4hg8l1vR3pfNzjFuGURbBnvkiKDfTuO5lOF
-        J122kaAJZO7Tsn6LRsIBS3O3lOYXp/Rxdw==
-X-Google-Smtp-Source: ABdhPJyxF4eJkFr37OehSrk+mAWguo99XWVw97kZzbwx3gz2PkYPAJH+1n7pnB9xKdx+nfvjwpAVMw==
-X-Received: by 2002:adf:d1c2:: with SMTP id b2mr7858126wrd.411.1643040768321;
-        Mon, 24 Jan 2022 08:12:48 -0800 (PST)
-Received: from joneslee-l.roam.corp.google.com (cpc106310-bagu17-2-0-cust853.1-3.cable.virginm.net. [86.15.223.86])
-        by smtp.gmail.com with ESMTPSA id u15sm2245583wrs.17.2022.01.24.08.12.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Jan 2022 08:12:47 -0800 (PST)
-From:   Lee Jones <lee.jones@linaro.org>
-To:     lee.jones@linaro.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH 4.9 3/3] ion: Do not 'put' ION handle until after its final use
-Date:   Mon, 24 Jan 2022 16:12:43 +0000
-Message-Id: <20220124161243.1029417-3-lee.jones@linaro.org>
-X-Mailer: git-send-email 2.35.0.rc0.227.g00780c9af4-goog
-In-Reply-To: <20220124161243.1029417-1-lee.jones@linaro.org>
-References: <20220124161243.1029417-1-lee.jones@linaro.org>
+        id S241129AbiAXQ1X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 11:27:23 -0500
+Received: from mx-out.tlen.pl ([193.222.135.175]:17307 "EHLO mx-out.tlen.pl"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S241118AbiAXQ1W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jan 2022 11:27:22 -0500
+Received: (wp-smtpd smtp.tlen.pl 33203 invoked from network); 24 Jan 2022 17:27:19 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=o2.pl; s=1024a;
+          t=1643041639; bh=R4CZm3Rxp1TxQjSL4R5Z53tyENlRsfUkyNCS+bPfpOI=;
+          h=Subject:To:Cc:From;
+          b=uVE1IyRPXooU8vkSFr8eJ/jcNeatyckOuzgiMKmO/QX5B4AMzCSCfYV7qzKxRMjeg
+           9RvRGl1fyPhcje40ZU29zUXbOnUkNyqx9OhN07yg+p0vNdA//BzYvBl/iBucNQ9Ltq
+           KzTq4ByfqEFbmWBW5sAmolRCSdt3w4/WHYrg369w=
+Received: from aafh166.neoplus.adsl.tpnet.pl (HELO [192.168.1.22]) (mat.jonczyk@o2.pl@[83.4.137.166])
+          (envelope-sender <mat.jonczyk@o2.pl>)
+          by smtp.tlen.pl (WP-SMTPD) with ECDHE-RSA-AES256-GCM-SHA384 encrypted SMTP
+          for <gregkh@linuxfoundation.org>; 24 Jan 2022 17:27:19 +0100
+Message-ID: <23a5748e-55ca-69af-c9ff-d68a413a331d@o2.pl>
+Date:   Mon, 24 Jan 2022 17:27:16 +0100
 MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: FAILED: patch "[PATCH] rtc: mc146818-lib: fix RTC presence check"
+ failed to apply to 5.16-stable tree
+Content-Language: en-GB
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     a.zummo@towertech.it, alexandre.belloni@bootlin.com,
+        tglx@linutronix.de, stable@vger.kernel.org
+References: <164302970310788@kroah.com>
+ <df1a2547-c863-f416-58c9-4f64cce1f522@o2.pl> <Ye69PKB2V/R/NxN8@kroah.com>
+From:   =?UTF-8?Q?Mateusz_Jo=c5=84czyk?= <mat.jonczyk@o2.pl>
+In-Reply-To: <Ye69PKB2V/R/NxN8@kroah.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-WP-MailID: f3cd4a24654ae1dce453c63e93482415
+X-WP-AV: skaner antywirusowy Poczty o2
+X-WP-SPAM: NO 000000A [cSOk]                               
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-pass_to_user() eventually calls kref_put() on an ION handle which is
-still live, potentially allowing for it to be legitimately freed by
-the client.
+W dniu 24.01.2022 o 15:52, Greg KH pisze:
+> On Mon, Jan 24, 2022 at 03:45:30PM +0100, Mateusz Jończyk wrote:
+>> W dniu 24.01.2022 o 14:08, gregkh@linuxfoundation.org pisze:
+>>> The patch below does not apply to the 5.16-stable tree.
+>>> If someone wants it applied there, or to any other stable or longterm
+>>> tree, then please email the backport, including the original git commit
+>>> id to <stable@vger.kernel.org>.
+>>>
+>>> thanks,
+>>>
+>>> greg k-h
+>> Wait, this patch was not intended for submission into stable yet, at least not in this form.
+>> Why did it end up in the stable queue?
+> Because it was marked with a "Fixes:" tag and I reviewed it and it
+> looked like it actually fixed an issue.
+>
+> Is this not the case?
 
-Prevent this from happening before its final use in both ION_IOC_ALLOC
-and ION_IOC_IMPORT.
+Yes, that's correct. But I'm afraid that this patch will cause regressions on some systems.
+(Mr Alexandre Belloni said something similar of my series). So I'd like to wait till at least Linux 5.17 (final) is
+released to see if it causes any trouble.
 
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
----
- drivers/staging/android/ion/ion-ioctl.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+>> The return values from mc146818_get_time() changed in between,
+>> so it is natural that it does not apply.
+>>
+>> See
+>> commit d35786b3a28dee20 ("rtc: mc146818-lib: change return values of mc146818_get_time()")
+> Ok, so will a working backport be sent sometime in the future?
+> thanks,
+>
+> greg k-h
 
-diff --git a/drivers/staging/android/ion/ion-ioctl.c b/drivers/staging/android/ion/ion-ioctl.c
-index d47e9b4171e28..a27865b94416b 100644
---- a/drivers/staging/android/ion/ion-ioctl.c
-+++ b/drivers/staging/android/ion/ion-ioctl.c
-@@ -165,10 +165,9 @@ long ion_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
- 				     data.allocation.flags, true);
- 		if (IS_ERR(handle))
- 			return PTR_ERR(handle);
--		pass_to_user(handle);
- 		data.allocation.handle = handle->id;
--
- 		cleanup_handle = handle;
-+		pass_to_user(handle);
- 		break;
- 	}
- 	case ION_IOC_FREE:
-@@ -212,11 +211,12 @@ long ion_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
- 		if (IS_ERR(handle)) {
- 			ret = PTR_ERR(handle);
- 		} else {
-+			data.handle.handle = handle->id;
- 			handle = pass_to_user(handle);
--			if (IS_ERR(handle))
-+			if (IS_ERR(handle)) {
- 				ret = PTR_ERR(handle);
--			else
--				data.handle.handle = handle->id;
-+				data.handle.handle = 0;
-+			}
- 		}
- 		break;
- 	}
--- 
-2.35.0.rc0.227.g00780c9af4-goog
+Greetings,
+
+Mateusz
 
