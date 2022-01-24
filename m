@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF9FC499043
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11786498D2B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:33:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1358391AbiAXT7W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:59:22 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:41452 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1358063AbiAXTx6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:53:58 -0500
+        id S1348255AbiAXT2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:28:21 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:53914 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1351281AbiAXT0S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:26:18 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 11214B8121C;
-        Mon, 24 Jan 2022 19:53:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28A77C340E5;
-        Mon, 24 Jan 2022 19:53:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 99AB961488;
+        Mon, 24 Jan 2022 19:26:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4F67C340E5;
+        Mon, 24 Jan 2022 19:26:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054034;
-        bh=1bb9Wix4RTwcEXFOmAXngaH3mepogma1vLiG3AebptE=;
+        s=korg; t=1643052377;
+        bh=72uVLfWtCUTcy40tSIsRs3Qyj1G0Z5DXq+tMgL7Yfqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=loeyF9ill8TJsll04WbbIZmeTVryDWx0KGNBbWL5Tx5nelHaYQUHcviuq1i6JruvX
-         EBFUOICUle4CYMoYMvjbFqs1zCdeiu/jBsPfveWTCyfmFGTzviWRiD2KVKYw0rJhSD
-         X/CWnwlPaQ6ErnAa7S3WIjhkzgyuLA+BG13wD1rk=
+        b=L9QzUtzUbdFeAz7VdbD1eimFhCqzX0+QveElqTaHnMAu+quz/tE+5LMmQXeYQVSVE
+         wAhlVlUrJeTyQQmdpkRi+S8TXw/XIahpf2w2LkjNXYj/Tc9LxaYvO5HJr/sYZyyMKN
+         tx7LHd+httazakaCBgPOAg3lEH0OVl5ZwUZcPWKI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Nicolas Saenz Julienne <nsaenz@kernel.org>,
+        Michael Stapelberg <michael@stapelberg.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 258/563] ALSA: usb-audio: Drop superfluous 0 in Presonus Studio 1810cs ID
+Subject: [PATCH 5.4 039/320] clk: bcm-2835: Remove rounding up the dividers
 Date:   Mon, 24 Jan 2022 19:40:23 +0100
-Message-Id: <20220124184033.343663272@linuxfoundation.org>
+Message-Id: <20220124183955.088147075@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +47,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Maxime Ripard <maxime@cerno.tech>
 
-[ Upstream commit 1e583aef12aa74afd37c1418255cc4b74e023236 ]
+[ Upstream commit 8ca011ef4af48a7af7b15afd8a4a44039dd04cea ]
 
-The vendor ID of Presonus Studio 1810c had a superfluous '0' in its
-USB ID.  Drop it.
+The driver, once it found a divider, tries to round it up by increasing
+the least significant bit of the fractional part by one when the
+round_up argument is set and there's a remainder.
 
-Fixes: 8dc5efe3d17c ("ALSA: usb-audio: Add support for Presonus Studio 1810c")
-Link: https://lore.kernel.org/r/20211202083833.17784-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+However, since it increases the divider it will actually reduce the
+clock rate below what we were asking for, leading to issues with
+clk_set_min_rate() that will complain that our rounded clock rate is
+below the minimum of the rate.
+
+Since the dividers are fairly precise already, let's remove that part so
+that we can have clk_set_min_rate() working.
+
+This is effectively a revert of 9c95b32ca093 ("clk: bcm2835: add a round
+up ability to the clock divisor").
+
+Fixes: 9c95b32ca093 ("clk: bcm2835: add a round up ability to the clock divisor")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Acked-by: Stephen Boyd <sboyd@kernel.org>
+Reviewed-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
+Tested-by: Nicolas Saenz Julienne <nsaenz@kernel.org> # boot and basic functionality
+Tested-by: Michael Stapelberg <michael@stapelberg.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210922125419.4125779-3-maxime@cerno.tech
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/format.c       | 2 +-
- sound/usb/mixer_quirks.c | 2 +-
- sound/usb/quirks.c       | 2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ drivers/clk/bcm/clk-bcm2835.c | 11 +++--------
+ 1 file changed, 3 insertions(+), 8 deletions(-)
 
-diff --git a/sound/usb/format.c b/sound/usb/format.c
-index 4693384db0695..e8a63ea2189d1 100644
---- a/sound/usb/format.c
-+++ b/sound/usb/format.c
-@@ -365,7 +365,7 @@ static int parse_uac2_sample_rate_range(struct snd_usb_audio *chip,
- 		for (rate = min; rate <= max; rate += res) {
+diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
+index b2af320d1b6c5..e637bd6b295bd 100644
+--- a/drivers/clk/bcm/clk-bcm2835.c
++++ b/drivers/clk/bcm/clk-bcm2835.c
+@@ -932,8 +932,7 @@ static int bcm2835_clock_is_on(struct clk_hw *hw)
  
- 			/* Filter out invalid rates on Presonus Studio 1810c */
--			if (chip->usb_id == USB_ID(0x0194f, 0x010c) &&
-+			if (chip->usb_id == USB_ID(0x194f, 0x010c) &&
- 			    !s1810c_valid_sample_rate(fp, rate))
- 				goto skip_rate;
+ static u32 bcm2835_clock_choose_div(struct clk_hw *hw,
+ 				    unsigned long rate,
+-				    unsigned long parent_rate,
+-				    bool round_up)
++				    unsigned long parent_rate)
+ {
+ 	struct bcm2835_clock *clock = bcm2835_clock_from_hw(hw);
+ 	const struct bcm2835_clock_data *data = clock->data;
+@@ -945,10 +944,6 @@ static u32 bcm2835_clock_choose_div(struct clk_hw *hw,
  
-diff --git a/sound/usb/mixer_quirks.c b/sound/usb/mixer_quirks.c
-index 8297117f4766e..86fdd669f3fd7 100644
---- a/sound/usb/mixer_quirks.c
-+++ b/sound/usb/mixer_quirks.c
-@@ -3033,7 +3033,7 @@ int snd_usb_mixer_apply_create_quirk(struct usb_mixer_interface *mixer)
- 		err = snd_rme_controls_create(mixer);
- 		break;
+ 	rem = do_div(temp, rate);
+ 	div = temp;
+-
+-	/* Round up and mask off the unused bits */
+-	if (round_up && ((div & unused_frac_mask) != 0 || rem != 0))
+-		div += unused_frac_mask + 1;
+ 	div &= ~unused_frac_mask;
  
--	case USB_ID(0x0194f, 0x010c): /* Presonus Studio 1810c */
-+	case USB_ID(0x194f, 0x010c): /* Presonus Studio 1810c */
- 		err = snd_sc1810_init_mixer(mixer);
- 		break;
- 	case USB_ID(0x2a39, 0x3fb0): /* RME Babyface Pro FS */
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index 75d4d317b34b6..6333a2ecb848a 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -1310,7 +1310,7 @@ int snd_usb_apply_interface_quirk(struct snd_usb_audio *chip,
- 	if (chip->usb_id == USB_ID(0x0763, 0x2012))
- 		return fasttrackpro_skip_setting_quirk(chip, iface, altno);
- 	/* presonus studio 1810c: skip altsets incompatible with device_setup */
--	if (chip->usb_id == USB_ID(0x0194f, 0x010c))
-+	if (chip->usb_id == USB_ID(0x194f, 0x010c))
- 		return s1810c_skip_setting_quirk(chip, iface, altno);
+ 	/* different clamping limits apply for a mash clock */
+@@ -1079,7 +1074,7 @@ static int bcm2835_clock_set_rate(struct clk_hw *hw,
+ 	struct bcm2835_clock *clock = bcm2835_clock_from_hw(hw);
+ 	struct bcm2835_cprman *cprman = clock->cprman;
+ 	const struct bcm2835_clock_data *data = clock->data;
+-	u32 div = bcm2835_clock_choose_div(hw, rate, parent_rate, false);
++	u32 div = bcm2835_clock_choose_div(hw, rate, parent_rate);
+ 	u32 ctl;
  
+ 	spin_lock(&cprman->regs_lock);
+@@ -1130,7 +1125,7 @@ static unsigned long bcm2835_clock_choose_div_and_prate(struct clk_hw *hw,
+ 
+ 	if (!(BIT(parent_idx) & data->set_rate_parent)) {
+ 		*prate = clk_hw_get_rate(parent);
+-		*div = bcm2835_clock_choose_div(hw, rate, *prate, true);
++		*div = bcm2835_clock_choose_div(hw, rate, *prate);
+ 
+ 		*avgrate = bcm2835_clock_rate_from_divisor(clock, *prate, *div);
  
 -- 
 2.34.1
