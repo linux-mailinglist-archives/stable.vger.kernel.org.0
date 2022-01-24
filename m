@@ -2,200 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1E674996A0
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:19:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 354F84996E7
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:20:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376400AbiAXVFR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:05:17 -0500
-Received: from mail-mw2nam08on2075.outbound.protection.outlook.com ([40.107.101.75]:55966
-        "EHLO NAM04-MW2-obe.outbound.protection.outlook.com"
+        id S1446256AbiAXVHp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:07:45 -0500
+Received: from mail-eopbgr70102.outbound.protection.outlook.com ([40.107.7.102]:61918
+        "EHLO EUR04-HE1-obe.outbound.protection.outlook.com"
         rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1444473AbiAXVBB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jan 2022 16:01:01 -0500
+        id S1445064AbiAXVCC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 Jan 2022 16:02:02 -0500
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=RCGVEZ+Oeo1nrnHWgszdjj2FoQR5Gu7gv/ym9+cxP7MGkCvvG++FXw89r8WUPmLcUWObUZ9ug0gz2if+ESPYrQ4D41TguSoJAuQIgVvyQ1BzfB6HDCotS7syH5iVFZ6hdf7OLtjEn/gG6INYXeKQ5WrVIcoLWg3h7vy6UFlcu1q4l4uZgGXeq4zTte8gxVFJ+P3+cUGkOWq4D7RuqKIwB4XWlu0y1rcp+Dv7Tf9Ih6rpz90eYpb5r6r/ehO4bQt4SZ7xohk9OQMtrs3oCknVyCm4W2lx7eOYHFdjFfRHfjMTq5v+hdGBMU/TJO1S08R5AfmwZ4R9yuA28VanlvkvYg==
+ b=jXZxwE+iaWU08z4iRe5DSYJvQlj7E6HnF41MTQYIB43AiQ6e+MA4LEhvyt21yFKENurMJGCnyNJPTcdTYdtpenAXIN2qiPwaLaikd7zpAcW5wUBMBo7r0VkIWiiT7sLdrvYaiBeaYqh+96Lscw2dWHzEdlVPI4ZoJCrN4H67FDxEyg2wfPK6oCZC2ZcAt/4wMjM//buXeoF56RhszQYPnpvlxVIPYa/HDbvZKI14rvxMk5w9AjFVVtMJA6XkL5GEQ808eJEC1x0c4zkAYNzFvpwvDx7S57oxfF/ZjqLai+k4caLuRc4QCOMm+026D0uMO1tmEzrxy41buZr9pe+5uQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=oWixpKdwDwzkaCC1y28vBT8hlFKJJSHp563EoOuyHSM=;
- b=gLSVBpw5vrOlhzvsLmWT72+jCtyh6+vojTmJ7A30/qSQPv8CCJrVZeMSoB4xPey2OhpeipmJQIAcK8lWJeENXSr4J6oEOEBmOErcCPOJgbPViNDTaFKazi8Npv3HrgnqP6cR/WAAy/0hewQGoFRNYmVdxWaCli75G+C1iG+VvoL1OIAF471vwBKWrxzCHIjGwpM8kFdvMbaIKWZ47XXZFJA0UxQh3haFcxXzwqksOL1SHPsiTzf2cTTsrpUepp///nzLizC7mlkIpFEHhK/wC/oz3198Ssixs8g6KZmGOEpKPtYL4xzdDsc5P1vFgL7uuskWwvofsMsjEgVnbbeM9w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ bh=mdBOwHY5CVWUu102K5dLuZCzemwnxloUigYwkHngBKk=;
+ b=EMXSZMpsdjoitNEgkcHqbcRcWAS/ZEZm4JHT2N4k3TzhhgmGkIp7Q5CDA/hleGwgy5+RAHF2gWAwUcyJrTUUGS0R5bVY9yYTAxxu2qkFJB1FoEAqVawWmWxfEeBPnnIvXSTrR3OqAzwyeYjMEmfPWXkr3gI9vlMYiQeW+CNiBwhQ7TXBMzV6uk4NuMcuIG0DZxYjBVavXhp1RLDFdsWgzAJaZBlP29TohFWFx2B86m2Yg1Dms33ys3c1hXgIXALdRZ5zO7TXHxVcTBcQ1xXRXCPAv8J1+gppRyQB9w5fCgqWgMCNmWPNy0pEm1qTcXSIzTid3oQ3p5KK3zjcsTAXmQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=temperror (sender ip
+ is 217.111.95.66) smtp.rcpttodomain=phytec.de smtp.mailfrom=arri.de;
+ dmarc=none action=none header.from=arri.de; dkim=none (message not signed);
+ arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=arrigroup.onmicrosoft.com; s=selector1-arrigroup-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=oWixpKdwDwzkaCC1y28vBT8hlFKJJSHp563EoOuyHSM=;
- b=DcPGjySCFIN1y7tuO4/4VuLwGEVU49jTWHy/5Vs0K5LXTwl4ZaGVtRszSDV0riCmHnDBDVdTwKf2HgHHMZNmWg6sFCd69MS3rBkEFNTE3YoAxlF2BwRuYaKGqCY5T4PQf2llwich1ZITUgWtdJHEMorkJNCeZi+7OeSizqGr9Ns=
-Received: from BL1PR12MB5157.namprd12.prod.outlook.com (2603:10b6:208:308::15)
- by BN6PR12MB1940.namprd12.prod.outlook.com (2603:10b6:404:fd::18) with
+ bh=mdBOwHY5CVWUu102K5dLuZCzemwnxloUigYwkHngBKk=;
+ b=g7Lddq++RdAc0B/UjOuig42w5gOZKyywsk0f1CZb8h0oun1c09Sb4gdsTCDxZOTJrb8ibBTZjbazcEoBlpjC6Y3FrOMJ7h5ubwca6CrqceumK4ZTs+MEqgJhopgwIfc5KMhFe9dprB07Tnc7+tFvSkqe2U5fsXdQ4AiaTIX97n0=
+Received: from AM5PR0601CA0050.eurprd06.prod.outlook.com (2603:10a6:206::15)
+ by AM0PR07MB5490.eurprd07.prod.outlook.com (2603:10a6:208:104::27) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4909.8; Mon, 24 Jan
- 2022 21:00:58 +0000
-Received: from BL1PR12MB5157.namprd12.prod.outlook.com
- ([fe80::42f:534d:e82:b59f]) by BL1PR12MB5157.namprd12.prod.outlook.com
- ([fe80::42f:534d:e82:b59f%6]) with mapi id 15.20.4909.017; Mon, 24 Jan 2022
- 21:00:58 +0000
-From:   "Limonciello, Mario" <Mario.Limonciello@amd.com>
-To:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "hdegoede@redhat.com" <hdegoede@redhat.com>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: FAILED: patch "[PATCH] platform/x86: amd-pmc: only use callbacks
- for suspend" failed to apply to 5.16-stable tree
-Thread-Topic: FAILED: patch "[PATCH] platform/x86: amd-pmc: only use callbacks
- for suspend" failed to apply to 5.16-stable tree
-Thread-Index: AQHYEGOYSgAT0O/wlUKzjVEkNCMwu6xyp+eQ
-Date:   Mon, 24 Jan 2022 21:00:58 +0000
-Message-ID: <BL1PR12MB5157E901F4A7C12C6944E168E25E9@BL1PR12MB5157.namprd12.prod.outlook.com>
-References: <1642947284246237@kroah.com>
-In-Reply-To: <1642947284246237@kroah.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-msip_labels: MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_Enabled=true;
- MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_SetDate=2022-01-24T21:00:32Z;
- MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_Method=Privileged;
- MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_Name=Public-AIP 2.0;
- MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_SiteId=3dd8961f-e488-4e60-8e11-a82d994e183d;
- MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_ActionId=54517727-c24c-4b62-a15e-383fb9d8dcf9;
- MSIP_Label_d4243a53-6221-4f75-8154-e4b33a5707a1_ContentBits=1
-msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_enabled: true
-msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_setdate: 2022-01-24T21:00:56Z
-msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_method: Privileged
-msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_name: Public-AIP 2.0
-msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_siteid: 3dd8961f-e488-4e60-8e11-a82d994e183d
-msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_actionid: e2ab9eb1-873b-4d60-9d10-997431b34a95
-msip_label_d4243a53-6221-4f75-8154-e4b33a5707a1_contentbits: 0
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-x-ms-publictraffictype: Email
-x-ms-office365-filtering-correlation-id: 4a710efa-246c-4838-cdeb-08d9df7c9edb
-x-ms-traffictypediagnostic: BN6PR12MB1940:EE_
-x-microsoft-antispam-prvs: <BN6PR12MB19406A564BB2D1D4C5C8D195E25E9@BN6PR12MB1940.namprd12.prod.outlook.com>
-x-ms-oob-tlc-oobclassifiers: OLM:8882;
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: biiphlp7dz31A5odnnwHsumKGljMfmLFf6B1gcsREkP+Fs7pEM08yFkf7bMFPRSEkG5yioVML3w6pDh2QULSbMdcdzQO6wdvWOm7+gzovgOYoipDN5i5jHPZziHK1D2R4r6PpsBlEQ4Dr0iO9lF8gdv0Xru5PB5cXBXI4rvoqrHxxeSl/YIc8MEy4rCw6NjBHgGoCi/0eCJtAGu+DIwZMnMYXXmBTc8Cdz2qbkpkYEerlpezNA084O2KAmRcrJmxBS29vka2Jms1pZFAm00Y8ATcum/g5jO5ytTznBEP49iu5Yo695zUM1oCb9yvATB+pBiTyJzEyQrG0XbPxjEfm3LrgT5mr+9aEpTDrhlTLZqV2HU7mRX1GdiVl2VHNm+/n7EKl+7JvoYesWr+acw2dWco71jn4z1jYD6JUt0+109NoO+okTVVrxSW8gXC0kx54i1SoO9s+kaMOGFHCkOhYbcE8u4xHmL58sxHP47c30FrcY1zyyJv33Gadx1WjHNRuRv1Yd0cuQ6MGqCebfsMgja+PUCHCj2w36hcCb6aDFjDqihpMGb8HutSfpo2rlwqriI+0j7mjjtnUKE6GBXvvrHMlrzT0onhGDMMM56+3txPPjXKvLKMJmNMFh7MXUKc5w4D9DXK5L+WDqpcr0ZjIr0PEyssf1n4dwIgJlrD+qtWjTvQEIvr0i48Z9gAUkv1GFxm/bGABbnIaVDLK/IatkqG/1J3zoQ0r3bmG2odbWhRWv4DR3XhoRRXdRT36H1LqrlXwNrZI/D2twdXYdhdhALZ/7oVbfQbsLuLlsEYEwU=
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BL1PR12MB5157.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(366004)(71200400001)(86362001)(2906002)(64756008)(110136005)(66476007)(7696005)(9686003)(8936002)(45080400002)(966005)(52536014)(15650500001)(38070700005)(6506007)(53546011)(186003)(316002)(76116006)(38100700002)(5660300002)(122000001)(55016003)(33656002)(508600001)(4326008)(83380400001)(66446008)(66556008)(8676002)(66946007);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?4KhdZx6Ng/2xedIBId9d0E21OKxAnoTHyLeJVgHwPET81aCybj9qEm7PKA2P?=
- =?us-ascii?Q?1gfeiSrbK+irjVK62nu9JpjbgTJYTFoOfG9vgEaL+IXDlnufPy6PUofX/kQ9?=
- =?us-ascii?Q?0udPvo+6U6BWviyLekGvCM3tEfboE2FdVEZ/j0PUYJFvAO3GaxPw+LX4Zun3?=
- =?us-ascii?Q?d6ourIzo18T2UFPfRjUCiq0K126+OdTtziF4qeU7GgbuRfSitbDTHeJf1ZsT?=
- =?us-ascii?Q?+9eAbfmInkZcbOoBqI/d7/LnKWmcfLgiWHmSj4fWdp4rZyOd811AZl7bNKa9?=
- =?us-ascii?Q?L8w7KCyYJPSyh5BlpC7ij4X68/MKw6SVk0dYNnQQPROzZm8pfG/loVmAu2PA?=
- =?us-ascii?Q?Sj+onw7uArASXo2uji+5WowAIjMqPut86xB9rVYKp2rxFWI1rWzQHRVWlo14?=
- =?us-ascii?Q?31CGviXDYFms1UGYxAwCy3lBn3upSanGZ4ZX22t7RJqHqd2/PMKzMSUxi9k7?=
- =?us-ascii?Q?0cS1k7QQUbQAlRy4AGO0PVJGAJKBlj9m9v3BQurLqRabejy/gn+M9XRun31h?=
- =?us-ascii?Q?guQWBu+6GZmlThWNLMw50MfbmGsWCeIAGp2//ZrXvDAjhAdWBLI9JHLvZcxi?=
- =?us-ascii?Q?LLGtdzNcKweedGVWphv+xkOV1x9vqv/UGUZl/hMe1Te/a8J5HA+9ik8ccfh8?=
- =?us-ascii?Q?AAbD1QyCO3sD0ewN7gXIqZdXVHm5StKB/TVuNI/rvPGtQg69u2SP1yO06jzC?=
- =?us-ascii?Q?VxWa77jbuCBVlD90xSxTh3wZD6cY5BgQpkRl+Kr7FjFpXhp8iYRC7XF+5zj0?=
- =?us-ascii?Q?Yv2YZxebc5+rH1/RdsqFbIW4Viqs0gxailBZC28n2/mrSYNOTwR9LvvP8V82?=
- =?us-ascii?Q?zx/kjp8bHSBeNod/RLw4Y6tob8UG4eYOWAH9ofHNpEw1+ZxecnbbVQkSg57k?=
- =?us-ascii?Q?kkdS/EJzc5GUw5ZLDDiR0YBSoB81xtAYONkY1yWLqbFTz36uIyP3bHey1FrY?=
- =?us-ascii?Q?ymJ+tOhp9+z1O5C5NVQr0b1EGUf64SDOvQatfA7nb7BmUtRbeM4UvN4rA5BT?=
- =?us-ascii?Q?ZjKrI7N8YdMI3Z8fVNzt4vPTimVZLDbeDZkf9d7a3SFz4cFwlf6XBUkWHz1U?=
- =?us-ascii?Q?9GDtf3+Thr/44ytyZmvWScXOYuEHDhWGABMS8MsiAOIC9QF3f2evgzbroQFU?=
- =?us-ascii?Q?Dhzx39ZTUfGy/ZTIMv2hoGESWQdNfF1oIShqwOUIy9/sL31Agma915lOqjwQ?=
- =?us-ascii?Q?C/tn7KY1efOX/EePUyELMGkByudJkMoinr4jn/tw3uq7EXIsQVVvR3Us5S/P?=
- =?us-ascii?Q?mVfk804k26kle1PAuRKmrG+j/ygpO4C/yIDJJoUQkcZhAuVdKX5QRIazrDAf?=
- =?us-ascii?Q?agDceX7lK3GDVa9izzzlmaLZjCaCYoLTynt5HP/77YSINZ+CFvmIyjrQQ//B?=
- =?us-ascii?Q?pya+83ME9MBH+gBuTtUfCaI+3z3SQD0velRduPf4wUH2WdpokCYfpIrjQZOG?=
- =?us-ascii?Q?+h/CFFCOqz0wN8AGF15VpqAP4HGHnIUT3RK2XAbYajwNRURUDHC1uM9hm83c?=
- =?us-ascii?Q?xjyZzQasLx0PYDF9FgbbqerMOsq7TxxcXg5KbOKPTOkz12ywCmj8GXAAnD8D?=
- =?us-ascii?Q?r/fbDrI5PpCZr1Z06XJL22kWoZpsSyH5gDP/zuiSelUfgfzzl1KbUYb8GiB4?=
- =?us-ascii?Q?eGfnICtrtJMjdp9ehM8TGOR6A8iAID85QGIpMfkEZo9TCrLpGQjOSJds3sFb?=
- =?us-ascii?Q?ItTp7yBGmcLXumEdew/u3FwJznw=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4930.15; Mon, 24 Jan
+ 2022 21:01:59 +0000
+Received: from AM5EUR02FT032.eop-EUR02.prod.protection.outlook.com
+ (2603:10a6:206:0:cafe::52) by AM5PR0601CA0050.outlook.office365.com
+ (2603:10a6:206::15) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4909.8 via Frontend
+ Transport; Mon, 24 Jan 2022 21:01:59 +0000
+X-MS-Exchange-Authentication-Results: spf=temperror (sender IP is
+ 217.111.95.66) smtp.mailfrom=arri.de; dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=arri.de;
+Received-SPF: TempError (protection.outlook.com: error in processing during
+ lookup of arri.de: DNS Timeout)
+Received: from mta.arri.de (217.111.95.66) by
+ AM5EUR02FT032.mail.protection.outlook.com (10.152.8.109) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4909.7 via Frontend Transport; Mon, 24 Jan 2022 21:01:57 +0000
+Received: from localhost.localdomain (192.168.54.47) by mta.arri.de
+ (192.168.100.104) with Microsoft SMTP Server (TLS) id 14.3.498.0; Mon, 24 Jan
+ 2022 22:01:57 +0100
+From:   Christian Eggers <ceggers@arri.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Pavel Machek <pavel@denx.de>
+CC:     <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
+        Stefan Riedmueller <s.riedmueller@phytec.de>,
+        Han Xu <han.xu@nxp.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: Re: [PATCH 5.4 007/320] mtd: rawnand: gpmi: Add ERR007117 protection for nfc_apply_timings
+Date:   Mon, 24 Jan 2022 22:01:56 +0100
+Message-ID: <21366142.EfDdHjke4D@localhost.localdomain>
+Organization: Arnold & Richter Cine Technik GmbH & Co. Betriebs KG
+In-Reply-To: <20220124204148.GB19321@duo.ucw.cz>
+References: <20220124183953.750177707@linuxfoundation.org> <20220124183954.021297586@linuxfoundation.org> <20220124204148.GB19321@duo.ucw.cz>
 MIME-Version: 1.0
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BL1PR12MB5157.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4a710efa-246c-4838-cdeb-08d9df7c9edb
-X-MS-Exchange-CrossTenant-originalarrivaltime: 24 Jan 2022 21:00:58.2842
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="us-ascii"
+X-Originating-IP: [192.168.54.47]
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 1263f52c-80c4-42e9-cd72-08d9df7cc24f
+X-MS-TrafficTypeDiagnostic: AM0PR07MB5490:EE_
+X-Microsoft-Antispam-PRVS: <AM0PR07MB54907E96F39000A7CBE062E2BF5E9@AM0PR07MB5490.eurprd07.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:161;
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: YTYCkNEB6WyKtse2imyf6fUlsIk2wOX73rFbL3SjmJJ0VXg5IMRrm426GtKDeeURnrMo0VWvEI9J9bm4jEv3qA7iTfoc53rPiZRzx2VYYmIYTanwuRx3spZGfYqil+LJa6zYdf5ZloAlKcH3EkMkPGMrIp5wt/8KVxgI8pphwts6ttdYrgVUsee4yTR8b2LV1FMciN7Y91OW24A6sjZS4hKN8JsV+h2a7xZ8dFeB7GGADk4yWNGFF8fYz9aPeJvtpQWsrc119IsrgRHJZ18HAzjdUAfKXXDE9pZ5Q96J1kaHVod1LISCaB+sEN4eRCmGbwr0dSgn6vasgmcpobDK2UEUC6OwoSMKR60Mwi1t9uNDkUmSDEc2Ujhi/cKMp/lQfEYeYFitBXa3DdJFT85u089L6kZ2vg4GacPp21EhpWr1JeVZnCSdTwrSsBZQ9syUmrDuwfUdSSOd67CUaYMNLJUWEKUjO+M4gTHwxWn+FTKyQ35r+cyfEFmKm6qmQeQMUPcpxkhqmJRrYa1KrOUxZdrgvlt+taQLHUHI5QttsrQLAPMpzmfoGdY2Z3JeNw6rI3YsrGMIke0Ook5dOOC236xfmdEKLjXRjbIv3o0MRlEhx6CmYzqmlrTsQCeVCblzh5MSQbQ+3NDWp/H1RR7wt64XX3l/UdBO5IJ9dK0oqjhIFtjxsCybcVzRD+XuPGfDfNAA6yzAPvj4DzQEmqIQ1kRxD+ZASBGTioRqUIpgXK9fuSoK4tdHcdZgv+YLO0yk
+X-Forefront-Antispam-Report: CIP:217.111.95.66;CTRY:DE;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mta.arri.de;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230001)(4636009)(40470700004)(46966006)(36840700001)(508600001)(316002)(4326008)(8936002)(8676002)(82310400004)(83380400001)(81166007)(356005)(54906003)(47076005)(70206006)(70586007)(63350400001)(450100002)(110136005)(36860700001)(107886003)(55016003)(36916002)(40460700003)(426003)(336012)(186003)(26005)(16526019)(2906002)(86362001)(7696005)(5660300002)(9686003)(39026012)(36900700001)(20210929001);DIR:OUT;SFP:1102;
+X-OriginatorOrg: arri.de
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Jan 2022 21:01:57.6240
  (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: 5qsz60xX2TdjTveVUr++YGO25K9Z5aklgBBzwXjrqUk9LAVsC5viS+7WfOARnL0/ar89y88MHJTNq7D0k7m9KQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR12MB1940
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1263f52c-80c4-42e9-cd72-08d9df7cc24f
+X-MS-Exchange-CrossTenant-Id: e6a73a5a-614d-4c51-b3e3-53b660a9433a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=e6a73a5a-614d-4c51-b3e3-53b660a9433a;Ip=[217.111.95.66];Helo=[mta.arri.de]
+X-MS-Exchange-CrossTenant-AuthSource: AM5EUR02FT032.eop-EUR02.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: AM0PR07MB5490
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[Public]
+Hi Pavel,
 
-It looks to me that this was already applied for both 5.15.y and 5.16.y, so=
- that's why it won't be able to apply again, no concerns.
+On Monday, 24 January 2022, 21:41:48 CET, Pavel Machek wrote:
+> Hi!
+> 
+> > commit f53d4c109a666bf1a4883b45d546fba079258717 upstream.
+> > 
+> > gpmi_io clock needs to be gated off when changing the parent/dividers of
+> > enfc_clk_root (i.MX6Q/i.MX6UL) respectively qspi2_clk_root (i.MX6SX).
+> > Otherwise this rate change can lead to an unresponsive GPMI core which
+> > results in DMA timeouts and failed driver probe:
+> ...
+> 
+> > @@ -2429,7 +2449,9 @@ static int gpmi_nfc_exec_op(struct nand_
+> >  	 */
+> >  	if (this->hw.must_apply_timings) {
+> >  		this->hw.must_apply_timings = false;
+> > -		gpmi_nfc_apply_timings(this);
+> > +		ret = gpmi_nfc_apply_timings(this);
+> > +		if (ret)
+> > +			return ret;
+> >  	}
+> >  
+> >  	dev_dbg(this->dev, "%s: %d instructions\n", __func__, op->ninstrs);
+> >
+> 
+> AFAICT this leaks pm reference in the error case. Not sure what
+> variant is right, there, so...
+You're right, thanks for pointing this out. I think that the error path
+currently should not appear in practice, but I plan to add further patches
+in future where this could happen then.
 
-$ git log --oneline stable/linux-5.16.y drivers/platform/x86/amd-pmc.c | gr=
-ep "only use callbacks for suspend"
-09fc14061f3e platform/x86: amd-pmc: only use callbacks for suspend
-$ git log --oneline stable/linux-5.15.y drivers/platform/x86/amd-pmc.c | gr=
-ep "only use callbacks for suspend"
-a42c41be8324 platform/x86: amd-pmc: only use callbacks for suspend
+Although there's a potential new error, I think that this patch should
+improve the situation.
 
-> -----Original Message-----
-> From: gregkh@linuxfoundation.org <gregkh@linuxfoundation.org>
-> Sent: Sunday, January 23, 2022 08:15
-> To: Limonciello, Mario <Mario.Limonciello@amd.com>; hdegoede@redhat.com
-> Cc: stable@vger.kernel.org
-> Subject: FAILED: patch "[PATCH] platform/x86: amd-pmc: only use callbacks=
- for
-> suspend" failed to apply to 5.16-stable tree
->=20
->=20
-> The patch below does not apply to the 5.16-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
->=20
-> thanks,
->=20
-> greg k-h
->=20
-> ------------------ original commit in Linus's tree ------------------
->=20
-> From d386f7ef9f410266bc1f364ad6a11cb28dae09a8 Mon Sep 17 00:00:00 2001
-> From: Mario Limonciello <mario.limonciello@amd.com>
-> Date: Fri, 10 Dec 2021 08:35:29 -0600
-> Subject: [PATCH] platform/x86: amd-pmc: only use callbacks for suspend
->=20
-> This driver is intended to be used exclusively for suspend to idle
-> so callbacks to send OS_HINT during hibernate and S5 will set OS_HINT
-> at the wrong time leading to an undefined behavior.
->=20
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-> Link:
-> https://nam11.safelinks.protection.outlook.com/?url=3Dhttps%3A%2F%2Flore.=
-ker
-> nel.org%2Fr%2F20211210143529.10594-1-
-> mario.limonciello%40amd.com&amp;data=3D04%7C01%7Cmario.limonciello%40a
-> md.com%7Cec1064b7e16b4b48609208d9de7ab928%7C3dd8961fe4884e608e11
-> a82d994e183d%7C0%7C0%7C637785440946508125%7CUnknown%7CTWFpbGZ
-> sb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0
-> %3D%7C3000&amp;sdata=3DWbi1ZGIBtIaQAmTiYhLNSb%2BtnHQG93PkLtG2OPN
-> NR%2Bg%3D&amp;reserved=3D0
-> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
->=20
-> diff --git a/drivers/platform/x86/amd-pmc.c b/drivers/platform/x86/amd-pm=
-c.c
-> index c709ff993e8b..f794343d6aaa 100644
-> --- a/drivers/platform/x86/amd-pmc.c
-> +++ b/drivers/platform/x86/amd-pmc.c
-> @@ -585,7 +585,8 @@ static int __maybe_unused amd_pmc_resume(struct
-> device *dev)
->  }
->=20
->  static const struct dev_pm_ops amd_pmc_pm_ops =3D {
-> -	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(amd_pmc_suspend,
-> amd_pmc_resume)
-> +	.suspend_noirq =3D amd_pmc_suspend,
-> +	.resume_noirq =3D amd_pmc_resume,
->  };
->=20
->  static const struct pci_device_id pmc_pci_ids[] =3D {
+> 
+> Best regards,
+> 								Pavel
+> 
+> diff --git a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
+> index 1b64c5a5140d..06840cff6945 100644
+> --- a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
+> +++ b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
+> @@ -2284,8 +2284,10 @@ static int gpmi_nfc_exec_op(struct nand_chip *chip,
+>  	if (this->hw.must_apply_timings) {
+>  		this->hw.must_apply_timings = false;
+>  		ret = gpmi_nfc_apply_timings(this);
+> -		if (ret)
+> +		if (ret) {
+> +			pm_runtime_put_....(this->dev);
+>  			return ret;
+> +		}
+>  	}
+>  
+>  	dev_dbg(this->dev, "%s: %d instructions\n", __func__, op->ninstrs);
+
+I'll prepare and send a new patch tomorrow.
+
+regards
+Christian
+
+
+
+
