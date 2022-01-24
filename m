@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 481F149A900
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:18:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4397C49A96A
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:23:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1321851AbiAYDT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:19:58 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:46178 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1351224AbiAXTtA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:49:00 -0500
+        id S1322566AbiAYDWE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:22:04 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:36182 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1384665AbiAXUaX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:30:23 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A6D6F6090A;
-        Mon, 24 Jan 2022 19:48:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6119BC340E5;
-        Mon, 24 Jan 2022 19:48:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 37CF5B80FA1;
+        Mon, 24 Jan 2022 20:30:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BC31C340E5;
+        Mon, 24 Jan 2022 20:30:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053739;
-        bh=7DouWf9uGC+LpZdejRaEUyJvPvE7gEqFBc8S1BS3xPE=;
+        s=korg; t=1643056221;
+        bh=Dmxk9fDbPs1CmD33CldiOBsy/ISVKgliYCC0qptzz6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gY9OUyy24ac2hw3eIoYSRaJ4Jpti/o8vzBos1zxTEwPok/kQDZm0xTCHYGo7VCx+z
-         XyErVYn5eiMdp7z/N3hfRSGtc/ZePSXcX4H447BBtcNcwpT+mUOPh1nMPdDVI6y1X4
-         5rYYd7y5ca2IOihuOc7mffAq0prWhwApbewoz+ks=
+        b=E6cMqDXU3pQuiPuxwaS/sXng5jh08hPw3auPx6Hsbb5vqxaWJUH4bvzlD3gCosCYh
+         gK0aDlC8YlqDfi7A/xJjUCmHkvTq1dz8fkZAjDbz53/sYZ18ZzQl48epQpww73aD1Z
+         vwQ/ZZLxmsUy2fbw0rI193eGFBmYfoYDdi6OCmXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rameshkumar Sundaram <quic_ramess@quicinc.com>,
-        Kalle Valo <quic_kvalo@quicinc.com>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 161/563] ath11k: Fix deleting uninitialized kernel timer during fragment cache flush
-Date:   Mon, 24 Jan 2022 19:38:46 +0100
-Message-Id: <20220124184029.963599583@linuxfoundation.org>
+Subject: [PATCH 5.15 412/846] ASoC: rt5663: Handle device_property_read_u32_array error codes
+Date:   Mon, 24 Jan 2022 19:38:49 +0100
+Message-Id: <20220124184115.184179460@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,95 +45,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rameshkumar Sundaram <quic_ramess@quicinc.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit ba53ee7f7f38cf0592b8be1dcdabaf8f7535f8c1 ]
+[ Upstream commit 2167c0b205960607fb136b4bb3c556a62be1569a ]
 
-frag_timer will be created & initialized for stations when
-they associate and will be deleted during every key installation
-while flushing old fragments.
+The return value of device_property_read_u32_array() is not always 0.
+To catch the exception in case that devm_kzalloc failed and the
+rt5663->imp_table was NULL, which caused the failure of
+device_property_read_u32_array.
 
-For AP interface self peer will be created and Group keys
-will be installed for this peer, but there will be no real
-Station entry & hence frag_timer won't be created and
-initialized, deleting such uninitialized kernel timers causes below
-warnings and backtraces printed with CONFIG_DEBUG_OBJECTS_TIMERS
-enabled.
-
-[ 177.828008] ODEBUG: assert_init not available (active state 0) object type: timer_list hint: 0x0
-[ 177.836833] WARNING: CPU: 3 PID: 188 at lib/debugobjects.c:508 debug_print_object+0xb0/0xf0
-[ 177.845185] Modules linked in: ath11k_pci ath11k qmi_helpers qrtr_mhi qrtr ns mhi
-[ 177.852679] CPU: 3 PID: 188 Comm: hostapd Not tainted 5.14.0-rc3-32919-g4034139e1838-dirty #14
-[ 177.865805] pstate: 60000005 (nZCv daif -PAN -UAO -TCO BTYPE=--)
-[ 177.871804] pc : debug_print_object+0xb0/0xf0
-[ 177.876155] lr : debug_print_object+0xb0/0xf0
-[ 177.880505] sp : ffffffc01169b5a0
-[ 177.883810] x29: ffffffc01169b5a0 x28: ffffff80081c2320 x27: ffffff80081c4078
-[ 177.890942] x26: ffffff8003fe8f28 x25: ffffff8003de9890 x24: ffffffc01134d738
-[ 177.898075] x23: ffffffc010948f20 x22: ffffffc010b2d2e0 x21: ffffffc01169b628
-[ 177.905206] x20: ffffffc01134d700 x19: ffffffc010c80d98 x18: 00000000000003f6
-[ 177.912339] x17: 203a657079742074 x16: 63656a626f202930 x15: 0000000000000152
-[ 177.919471] x14: 0000000000000152 x13: 00000000ffffffea x12: ffffffc010d732e0
-[ 177.926603] x11: 0000000000000003 x10: ffffffc010d432a0 x9 : ffffffc010d432f8
-[ 177.933735] x8 : 000000000002ffe8 x7 : c0000000ffffdfff x6 : 0000000000000001
-[ 177.940866] x5 : 0000000000000000 x4 : 0000000000000000 x3 : 00000000ffffffff
-[ 177.947997] x2 : ffffffc010c93240 x1 : ffffff80023624c0 x0 : 0000000000000054
-[ 177.955130] Call trace:
-[ 177.957567] debug_print_object+0xb0/0xf0
-[ 177.961570] debug_object_assert_init+0x124/0x178
-[ 177.966269] try_to_del_timer_sync+0x1c/0x70
-[ 177.970536] del_timer_sync+0x30/0x50
-[ 177.974192] ath11k_peer_frags_flush+0x34/0x68 [ath11k]
-[ 177.979439] ath11k_mac_op_set_key+0x1e4/0x338 [ath11k]
-[ 177.984673] ieee80211_key_enable_hw_accel+0xc8/0x3d0
-[ 177.989722] ieee80211_key_replace+0x360/0x740
-[ 177.994160] ieee80211_key_link+0x16c/0x210
-[ 177.998337] ieee80211_add_key+0x138/0x338
-[ 178.002426] nl80211_new_key+0xfc/0x258
-[ 178.006257] genl_family_rcv_msg_doit.isra.17+0xd8/0x120
-[ 178.011565] genl_rcv_msg+0xd8/0x1c8
-[ 178.015134] netlink_rcv_skb+0x38/0xf8
-[ 178.018877] genl_rcv+0x34/0x48
-[ 178.022012] netlink_unicast+0x174/0x230
-[ 178.025928] netlink_sendmsg+0x188/0x388
-[ 178.029845] ____sys_sendmsg+0x218/0x250
-[ 178.033763] ___sys_sendmsg+0x68/0x90
-[ 178.037418] __sys_sendmsg+0x44/0x88
-[ 178.040988] __arm64_sys_sendmsg+0x20/0x28
-[ 178.045077] invoke_syscall.constprop.5+0x54/0xe0
-[ 178.049776] do_el0_svc+0x74/0xc0
-[ 178.053084] el0_svc+0x10/0x18
-[ 178.056133] el0t_64_sync_handler+0x88/0xb0
-[ 178.060310] el0t_64_sync+0x148/0x14c
-[ 178.063966] ---[ end trace 8a5cf0bf9d34a058 ]---
-
-Add changes to not to delete frag timer for peers during
-group key installation.
-
-Tested on: IPQ8074 hw2.0 AHB WLAN.HK.2.5.0.1-01092-QCAHKSWPL_SILICONZ-1
-
-Fixes: c3944a562102 ("ath11k: Clear the fragment cache during key install")
-Signed-off-by: Rameshkumar Sundaram <quic_ramess@quicinc.com>
-Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
-Link: https://lore.kernel.org/r/1639071421-25078-1-git-send-email-quic_ramess@quicinc.com
+Fixes: 450f0f6a8fb4 ("ASoC: rt5663: Add the manual offset field to compensate the DC offset")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20211215031550.70702-1-jiasheng@iscas.ac.cn
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/mac.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/rt5663.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
-index b4f8494e3c707..835ce805b63ec 100644
---- a/drivers/net/wireless/ath/ath11k/mac.c
-+++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -2531,7 +2531,7 @@ static int ath11k_mac_op_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
- 	/* flush the fragments cache during key (re)install to
- 	 * ensure all frags in the new frag list belong to the same key.
- 	 */
--	if (peer && cmd == SET_KEY)
-+	if (peer && sta && cmd == SET_KEY)
- 		ath11k_peer_frags_flush(ar, peer);
- 	spin_unlock_bh(&ab->base_lock);
+diff --git a/sound/soc/codecs/rt5663.c b/sound/soc/codecs/rt5663.c
+index be9fc58ff6812..ee09ccd448dcd 100644
+--- a/sound/soc/codecs/rt5663.c
++++ b/sound/soc/codecs/rt5663.c
+@@ -3461,6 +3461,7 @@ static void rt5663_calibrate(struct rt5663_priv *rt5663)
+ static int rt5663_parse_dp(struct rt5663_priv *rt5663, struct device *dev)
+ {
+ 	int table_size;
++	int ret;
  
+ 	device_property_read_u32(dev, "realtek,dc_offset_l_manual",
+ 		&rt5663->pdata.dc_offset_l_manual);
+@@ -3477,9 +3478,11 @@ static int rt5663_parse_dp(struct rt5663_priv *rt5663, struct device *dev)
+ 		table_size = sizeof(struct impedance_mapping_table) *
+ 			rt5663->pdata.impedance_sensing_num;
+ 		rt5663->imp_table = devm_kzalloc(dev, table_size, GFP_KERNEL);
+-		device_property_read_u32_array(dev,
++		ret = device_property_read_u32_array(dev,
+ 			"realtek,impedance_sensing_table",
+ 			(u32 *)rt5663->imp_table, table_size);
++		if (ret)
++			return ret;
+ 	}
+ 
+ 	return 0;
+@@ -3504,8 +3507,11 @@ static int rt5663_i2c_probe(struct i2c_client *i2c,
+ 
+ 	if (pdata)
+ 		rt5663->pdata = *pdata;
+-	else
+-		rt5663_parse_dp(rt5663, &i2c->dev);
++	else {
++		ret = rt5663_parse_dp(rt5663, &i2c->dev);
++		if (ret)
++			return ret;
++	}
+ 
+ 	for (i = 0; i < ARRAY_SIZE(rt5663->supplies); i++)
+ 		rt5663->supplies[i].supply = rt5663_supply_names[i];
 -- 
 2.34.1
 
