@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE812499AE4
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:58:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04960499D8A
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:00:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379085AbiAXVrf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:47:35 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49116 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1456018AbiAXVhe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:37:34 -0500
+        id S1381573AbiAXWY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:24:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36200 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1583740AbiAXWTa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:19:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95DD9C04A2F9;
+        Mon, 24 Jan 2022 12:49:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26CC5B811A2;
-        Mon, 24 Jan 2022 21:37:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B66BC340E4;
-        Mon, 24 Jan 2022 21:37:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 533E9B8122A;
+        Mon, 24 Jan 2022 20:49:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FF58C340E5;
+        Mon, 24 Jan 2022 20:49:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060249;
-        bh=H9Cd36ES4vBtIfhbCdjJQJgnY58I/rp/a5KBhpw7fX4=;
+        s=korg; t=1643057377;
+        bh=erMBbhktD/e8ZzmhSjqjLHdeMwvuoTg8BFvNKzz4T5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T8FznQkJ2iND11cPa+TxKhVA4iIJydGXqLOIY64NAgOXh5hm5fCLE4Y/V2dmOPyAJ
-         RIrzIQSyuKmuSnq6O80n+WnXwEWsKtEMvh8sL+o93iY/1QjUi2P+7+HuDptovWp8P2
-         XyhARHiDOyHbU5iQZ6opBAPtLgIiXMZv+TbGUGL8=
+        b=dWSvV1l8SxIMtm/hAdZd63CQPCY7TcQU4idySKkv7vKjSTzrXybusfsme7XYnO5WD
+         571oKWYDxS+XyMt1Fa0BxzA9c3pKMF+46/YCofF64x2yve5WNi7ddYRPGFU1YSHkOx
+         MDxP0uDazfcccerv/H25b6XySVFXDLf+473PUjXw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Naohiro Aota <naohiro.aota@wdc.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.16 0887/1039] btrfs: zoned: fix chunk allocation condition for zoned allocator
-Date:   Mon, 24 Jan 2022 19:44:36 +0100
-Message-Id: <20220124184155.103243395@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Maxime Ripard <maxime@cerno.tech>
+Subject: [PATCH 5.15 760/846] drm/vc4: Fix non-blocking commit getting stuck forever
+Date:   Mon, 24 Jan 2022 19:44:37 +0100
+Message-Id: <20220124184127.181674912@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,144 +47,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naohiro Aota <naohiro.aota@wdc.com>
+From: Maxime Ripard <maxime@cerno.tech>
 
-commit 82187d2ecdfb22ab7ee05f388402a39236d31428 upstream.
+commit 0c250c150c74a90db298bf2a8bcd0a1dabed2e2f upstream.
 
-The ZNS specification defines a limit on the number of "active"
-zones. That limit impose us to limit the number of block groups which
-can be used for an allocation at the same time. Not to exceed the
-limit, we reuse the existing active block groups as much as possible
-when we can't activate any other zones without sacrificing an already
-activated block group in commit a85f05e59bc1 ("btrfs: zoned: avoid
-chunk allocation if active block group has enough space").
+In some situation, we can end up being stuck on a non-blocking that went
+through properly.
 
-However, the check is wrong in two ways. First, it checks the
-condition for every raid index (ffe_ctl->index). Even if it reaches
-the condition and "ffe_ctl->max_extent_size >=
-ffe_ctl->min_alloc_size" is met, there can be other block groups
-having enough space to hold ffe_ctl->num_bytes. (Actually, this won't
-happen in the current zoned code as it only supports SINGLE
-profile. But, it can happen once it enables other RAID types.)
+The situation that seems to trigger it reliably is to first start a
+non-blocking commit, and then right after, and before we had any vblank
+interrupt), start a blocking commit.
 
-Second, it checks the active zone availability depending on the
-raid index. The raid index is just an index for
-space_info->block_groups, so it has nothing to do with chunk allocation.
+This will lead to the first commit workqueue to be scheduled, setup the
+display, while the second commit is waiting for the first one to be
+completed.
 
-These mistakes are causing a faulty allocation in a certain
-situation. Consider we are running zoned btrfs on a device whose
-max_active_zone == 0 (no limit). And, suppose no block group have a
-room to fit ffe_ctl->num_bytes but some room to meet
-ffe_ctl->min_alloc_size (i.e. max_extent_size > num_bytes >=
-min_alloc_size).
+The vblank interrupt will then be raised, vc4_crtc_handle_vblank() will
+run and will compare the active dlist in the HVS channel to the one
+associated with the crtc->state.
 
-In this situation, the following occur:
+However, at that point, the second commit is waiting using
+drm_atomic_helper_wait_for_dependencies that occurs after
+drm_atomic_helper_swap_state has been called, so crtc->state points to
+the second commit state. vc4_crtc_handle_vblank() will compare the two
+dlist addresses and since they don't match will ignore the interrupt.
 
-- With SINGLE raid_index, it reaches the chunk allocation checking
-  code
-- The check returns true because we can activate a new zone (no limit)
-- But, before allocating the chunk, it iterates to the next raid index
-  (RAID5)
-- Since there are no RAID5 block groups on zoned mode, it again
-  reaches the check code
-- The check returns false because of btrfs_can_activate_zone()'s "if
-  (raid_index != BTRFS_RAID_SINGLE)" part
-- That results in returning -ENOSPC without allocating a new chunk
+The vblank event will never be reported, and the first and second commit
+will wait for the first commit completion until they timeout.
 
-As a result, we end up hitting -ENOSPC too early.
+The underlying reason is that it was never safe to do so. Indeed,
+accessing the ->state pointer access synchronization is based on
+ownership guarantees that can only occur within the functions and hooks
+defined as part of the KMS framework, and obviously the irq handler
+isn't one of them. The rework to move to generic helpers only uncovered
+the underlying issue.
 
-Move the check to the right place in the can_allocate_chunk() hook,
-and do the active zone check depending on the allocation flag, not on
-the raid index.
+However, since the code path between
+drm_atomic_helper_wait_for_dependencies() and
+drm_atomic_helper_wait_for_vblanks() is serialised and we can't get two
+commits in that path at the same time, we can work around this issue by
+setting a variable associated to struct drm_crtc to the dlist we expect,
+and then using it from the vc4_crtc_handle_vblank() function.
 
-CC: stable@vger.kernel.org # 5.16
-Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Since that state is shared with the modesetting path, we also need to
+introduce a spinlock to protect the code shared between the interrupt
+handler and the modesetting path, protecting only our new variable for
+now.
+
+Link: https://lore.kernel.org/all/YWgteNaNeaS9uWDe@phenom.ffwll.local/
+Link: https://lore.kernel.org/r/20211025141113.702757-3-maxime@cerno.tech
+Fixes: 56d1fe0979dc ("drm/vc4: Make pageflip completion handling more robust.")
+Acked-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/extent-tree.c |   21 +++++++++------------
- fs/btrfs/zoned.c       |    5 ++---
- fs/btrfs/zoned.h       |    5 ++---
- 3 files changed, 13 insertions(+), 18 deletions(-)
+ drivers/gpu/drm/vc4/vc4_crtc.c |    5 ++++-
+ drivers/gpu/drm/vc4/vc4_drv.h  |   14 ++++++++++++++
+ drivers/gpu/drm/vc4/vc4_hvs.c  |    7 +++++--
+ 3 files changed, 23 insertions(+), 3 deletions(-)
 
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -3966,6 +3966,15 @@ static bool can_allocate_chunk(struct bt
- 	case BTRFS_EXTENT_ALLOC_CLUSTERED:
- 		return true;
- 	case BTRFS_EXTENT_ALLOC_ZONED:
-+		/*
-+		 * If we have enough free space left in an already
-+		 * active block group and we can't activate any other
-+		 * zone now, do not allow allocating a new chunk and
-+		 * let find_free_extent() retry with a smaller size.
-+		 */
-+		if (ffe_ctl->max_extent_size >= ffe_ctl->min_alloc_size &&
-+		    !btrfs_can_activate_zone(fs_info->fs_devices, ffe_ctl->flags))
-+			return false;
- 		return true;
- 	default:
- 		BUG();
-@@ -4012,18 +4021,6 @@ static int find_free_extent_update_loop(
- 		return 0;
+--- a/drivers/gpu/drm/vc4/vc4_crtc.c
++++ b/drivers/gpu/drm/vc4/vc4_crtc.c
+@@ -713,8 +713,9 @@ static void vc4_crtc_handle_page_flip(st
+ 	unsigned long flags;
+ 
+ 	spin_lock_irqsave(&dev->event_lock, flags);
++	spin_lock(&vc4_crtc->irq_lock);
+ 	if (vc4_crtc->event &&
+-	    (vc4_state->mm.start == HVS_READ(SCALER_DISPLACTX(chan)) ||
++	    (vc4_crtc->current_dlist == HVS_READ(SCALER_DISPLACTX(chan)) ||
+ 	     vc4_crtc->feeds_txp)) {
+ 		drm_crtc_send_vblank_event(crtc, vc4_crtc->event);
+ 		vc4_crtc->event = NULL;
+@@ -728,6 +729,7 @@ static void vc4_crtc_handle_page_flip(st
+ 		 */
+ 		vc4_hvs_unmask_underrun(dev, chan);
+ 	}
++	spin_unlock(&vc4_crtc->irq_lock);
+ 	spin_unlock_irqrestore(&dev->event_lock, flags);
+ }
+ 
+@@ -1127,6 +1129,7 @@ int vc4_crtc_init(struct drm_device *drm
+ 		return PTR_ERR(primary_plane);
  	}
  
--	if (ffe_ctl->max_extent_size >= ffe_ctl->min_alloc_size &&
--	    !btrfs_can_activate_zone(fs_info->fs_devices, ffe_ctl->index)) {
--		/*
--		 * If we have enough free space left in an already active block
--		 * group and we can't activate any other zone now, retry the
--		 * active ones with a smaller allocation size.  Returning early
--		 * from here will tell btrfs_reserve_extent() to haven the
--		 * size.
--		 */
--		return -ENOSPC;
--	}
++	spin_lock_init(&vc4_crtc->irq_lock);
+ 	drm_crtc_init_with_planes(drm, crtc, primary_plane, NULL,
+ 				  crtc_funcs, NULL);
+ 	drm_crtc_helper_add(crtc, crtc_helper_funcs);
+--- a/drivers/gpu/drm/vc4/vc4_drv.h
++++ b/drivers/gpu/drm/vc4/vc4_drv.h
+@@ -500,6 +500,20 @@ struct vc4_crtc {
+ 	 * @feeds_txp: True if the CRTC feeds our writeback controller.
+ 	 */
+ 	bool feeds_txp;
++
++	/**
++	 * @irq_lock: Spinlock protecting the resources shared between
++	 * the atomic code and our vblank handler.
++	 */
++	spinlock_t irq_lock;
++
++	/**
++	 * @current_dlist: Start offset of the display list currently
++	 * set in the HVS for that CRTC. Protected by @irq_lock, and
++	 * copied in vc4_hvs_update_dlist() for the CRTC interrupt
++	 * handler to have access to that value.
++	 */
++	unsigned int current_dlist;
+ };
+ 
+ static inline struct vc4_crtc *
+--- a/drivers/gpu/drm/vc4/vc4_hvs.c
++++ b/drivers/gpu/drm/vc4/vc4_hvs.c
+@@ -365,10 +365,9 @@ static void vc4_hvs_update_dlist(struct
+ 	struct vc4_dev *vc4 = to_vc4_dev(dev);
+ 	struct vc4_crtc *vc4_crtc = to_vc4_crtc(crtc);
+ 	struct vc4_crtc_state *vc4_state = to_vc4_crtc_state(crtc->state);
++	unsigned long flags;
+ 
+ 	if (crtc->state->event) {
+-		unsigned long flags;
 -
- 	if (ffe_ctl->loop >= LOOP_CACHING_WAIT && ffe_ctl->have_caching_bg)
- 		return 1;
+ 		crtc->state->event->pipe = drm_crtc_index(crtc);
  
---- a/fs/btrfs/zoned.c
-+++ b/fs/btrfs/zoned.c
-@@ -1934,7 +1934,7 @@ int btrfs_zone_finish(struct btrfs_block
- 	return ret;
+ 		WARN_ON(drm_crtc_vblank_get(crtc) != 0);
+@@ -388,6 +387,10 @@ static void vc4_hvs_update_dlist(struct
+ 		HVS_WRITE(SCALER_DISPLISTX(vc4_state->assigned_channel),
+ 			  vc4_state->mm.start);
+ 	}
++
++	spin_lock_irqsave(&vc4_crtc->irq_lock, flags);
++	vc4_crtc->current_dlist = vc4_state->mm.start;
++	spin_unlock_irqrestore(&vc4_crtc->irq_lock, flags);
  }
  
--bool btrfs_can_activate_zone(struct btrfs_fs_devices *fs_devices, int raid_index)
-+bool btrfs_can_activate_zone(struct btrfs_fs_devices *fs_devices, u64 flags)
- {
- 	struct btrfs_device *device;
- 	bool ret = false;
-@@ -1943,8 +1943,7 @@ bool btrfs_can_activate_zone(struct btrf
- 		return true;
- 
- 	/* Non-single profiles are not supported yet */
--	if (raid_index != BTRFS_RAID_SINGLE)
--		return false;
-+	ASSERT((flags & BTRFS_BLOCK_GROUP_PROFILE_MASK) == 0);
- 
- 	/* Check if there is a device with active zones left */
- 	mutex_lock(&fs_devices->device_list_mutex);
---- a/fs/btrfs/zoned.h
-+++ b/fs/btrfs/zoned.h
-@@ -72,8 +72,7 @@ struct btrfs_device *btrfs_zoned_get_dev
- 					    u64 logical, u64 length);
- bool btrfs_zone_activate(struct btrfs_block_group *block_group);
- int btrfs_zone_finish(struct btrfs_block_group *block_group);
--bool btrfs_can_activate_zone(struct btrfs_fs_devices *fs_devices,
--			     int raid_index);
-+bool btrfs_can_activate_zone(struct btrfs_fs_devices *fs_devices, u64 flags);
- void btrfs_zone_finish_endio(struct btrfs_fs_info *fs_info, u64 logical,
- 			     u64 length);
- void btrfs_clear_data_reloc_bg(struct btrfs_block_group *bg);
-@@ -225,7 +224,7 @@ static inline int btrfs_zone_finish(stru
- }
- 
- static inline bool btrfs_can_activate_zone(struct btrfs_fs_devices *fs_devices,
--					   int raid_index)
-+					   u64 flags)
- {
- 	return true;
- }
+ void vc4_hvs_atomic_enable(struct drm_crtc *crtc,
 
 
