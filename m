@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41F5449997D
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:45:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF2D7499C52
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:07:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1455531AbiAXVff (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:35:35 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:43790 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1453176AbiAXV2p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:28:45 -0500
+        id S1456282AbiAXWEh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:04:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60972 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1577807AbiAXWBF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:01:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2750C02B843;
+        Mon, 24 Jan 2022 12:40:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A6A11B815A3;
-        Mon, 24 Jan 2022 21:28:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9504C33E61;
-        Mon, 24 Jan 2022 21:28:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7EC7FB81057;
+        Mon, 24 Jan 2022 20:40:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4CD3C340E5;
+        Mon, 24 Jan 2022 20:40:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059722;
-        bh=rpK3+TbL9U4gIt72SS2rJL1owWGxYC3tz1KHKjGihMM=;
+        s=korg; t=1643056833;
+        bh=tzqPQmB0l/jBnxjNIcccagNcnuy3tZP8oVuJy5/u0uM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LUuhSjwaR30Iy4/Bpwi6jH1cNRQu2LIW3tc0hWzgVOta+Q6Rff9K8Bv3EhJvZFNtc
-         xndKoOnRoTQt0OZ2wrlZSBLgxrqMPOx6WtkpemX8pdl77HdCfmykHcrnnjK0UNySBf
-         7bWvhgkxyfs8Mr08fM4Xw9WYI+KzQV7MOHf4MBYQ=
+        b=f8VSnLj9AKH8FEwgxolXBhKJmhuzxNUdeVDxfV8qzCBzeDI9PVdpIa8rgHyoExfaI
+         MsOLUdLiikSobhK5///xtxbfxqiBtdxDS5chiGJbYaumfwyGpLw2bDGd10tZJbkSb3
+         We1M1rRCIwZT8a9Ev5iL6evgSSiDKzL+/tPGbzgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Bizon <mbizon@freebox.fr>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Ben Greear <greearb@candelatech.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0711/1039] net: mdio: Demote probed message to debug print
+Subject: [PATCH 5.15 583/846] ath11k: Fix napi related hang
 Date:   Mon, 24 Jan 2022 19:41:40 +0100
-Message-Id: <20220124184149.236630930@linuxfoundation.org>
+Message-Id: <20220124184121.158216137@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,40 +48,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Fainelli <f.fainelli@gmail.com>
+From: Ben Greear <greearb@candelatech.com>
 
-[ Upstream commit 7590fc6f80ac2cbf23e6b42b668bbeded070850b ]
+[ Upstream commit d943fdad7589653065be0e20aadc6dff37725ed4 ]
 
-On systems with large numbers of MDIO bus/muxes the message indicating
-that a given MDIO bus has been successfully probed is repeated for as
-many buses we have, which can eat up substantial boot time for no
-reason, demote to a debug print.
+Similar to the same bug in ath10k, a napi disable w/out it being enabled
+will hang forever.  I believe I saw this while trying rmmod after driver
+had some failure on startup.  Fix it by keeping state on whether napi is
+enabled or not.
 
-Reported-by: Maxime Bizon <mbizon@freebox.fr>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/20220103194024.2620-1-f.fainelli@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+And, remove un-used napi pointer in ath11k driver base struct.
+
+Signed-off-by: Ben Greear <greearb@candelatech.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20200903195254.29379-1-greearb@candelatech.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mdio_bus.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath11k/ahb.c  |   12 +++++++++---
+ drivers/net/wireless/ath/ath11k/core.h |    2 +-
+ drivers/net/wireless/ath/ath11k/pci.c  |   12 +++++++++---
+ 3 files changed, 19 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
-index c198722e4871d..3f7b93d5c76fe 100644
---- a/drivers/net/phy/mdio_bus.c
-+++ b/drivers/net/phy/mdio_bus.c
-@@ -594,7 +594,7 @@ int __mdiobus_register(struct mii_bus *bus, struct module *owner)
- 	mdiobus_setup_mdiodev_from_board_info(bus, mdiobus_create_device);
+--- a/drivers/net/wireless/ath/ath11k/ahb.c
++++ b/drivers/net/wireless/ath/ath11k/ahb.c
+@@ -175,8 +175,11 @@ static void __ath11k_ahb_ext_irq_disable
  
- 	bus->state = MDIOBUS_REGISTERED;
--	pr_info("%s: probed\n", bus->name);
-+	dev_dbg(&bus->dev, "probed\n");
- 	return 0;
+ 		ath11k_ahb_ext_grp_disable(irq_grp);
  
- error:
--- 
-2.34.1
-
+-		napi_synchronize(&irq_grp->napi);
+-		napi_disable(&irq_grp->napi);
++		if (irq_grp->napi_enabled) {
++			napi_synchronize(&irq_grp->napi);
++			napi_disable(&irq_grp->napi);
++			irq_grp->napi_enabled = false;
++		}
+ 	}
+ }
+ 
+@@ -300,7 +303,10 @@ static void ath11k_ahb_ext_irq_enable(st
+ 	for (i = 0; i < ATH11K_EXT_IRQ_GRP_NUM_MAX; i++) {
+ 		struct ath11k_ext_irq_grp *irq_grp = &ab->ext_irq_grp[i];
+ 
+-		napi_enable(&irq_grp->napi);
++		if (!irq_grp->napi_enabled) {
++			napi_enable(&irq_grp->napi);
++			irq_grp->napi_enabled = true;
++		}
+ 		ath11k_ahb_ext_grp_enable(irq_grp);
+ 	}
+ }
+--- a/drivers/net/wireless/ath/ath11k/core.h
++++ b/drivers/net/wireless/ath/ath11k/core.h
+@@ -137,6 +137,7 @@ struct ath11k_ext_irq_grp {
+ 	u32 num_irq;
+ 	u32 grp_id;
+ 	u64 timestamp;
++	bool napi_enabled;
+ 	struct napi_struct napi;
+ 	struct net_device napi_ndev;
+ };
+@@ -706,7 +707,6 @@ struct ath11k_base {
+ 	u32 wlan_init_status;
+ 	int irq_num[ATH11K_IRQ_NUM_MAX];
+ 	struct ath11k_ext_irq_grp ext_irq_grp[ATH11K_EXT_IRQ_GRP_NUM_MAX];
+-	struct napi_struct *napi;
+ 	struct ath11k_targ_cap target_caps;
+ 	u32 ext_service_bitmap[WMI_SERVICE_EXT_BM_SIZE];
+ 	bool pdevs_macaddr_valid;
+--- a/drivers/net/wireless/ath/ath11k/pci.c
++++ b/drivers/net/wireless/ath/ath11k/pci.c
+@@ -632,8 +632,11 @@ static void __ath11k_pci_ext_irq_disable
+ 
+ 		ath11k_pci_ext_grp_disable(irq_grp);
+ 
+-		napi_synchronize(&irq_grp->napi);
+-		napi_disable(&irq_grp->napi);
++		if (irq_grp->napi_enabled) {
++			napi_synchronize(&irq_grp->napi);
++			napi_disable(&irq_grp->napi);
++			irq_grp->napi_enabled = false;
++		}
+ 	}
+ }
+ 
+@@ -652,7 +655,10 @@ static void ath11k_pci_ext_irq_enable(st
+ 	for (i = 0; i < ATH11K_EXT_IRQ_GRP_NUM_MAX; i++) {
+ 		struct ath11k_ext_irq_grp *irq_grp = &ab->ext_irq_grp[i];
+ 
+-		napi_enable(&irq_grp->napi);
++		if (!irq_grp->napi_enabled) {
++			napi_enable(&irq_grp->napi);
++			irq_grp->napi_enabled = true;
++		}
+ 		ath11k_pci_ext_grp_enable(irq_grp);
+ 	}
+ }
 
 
