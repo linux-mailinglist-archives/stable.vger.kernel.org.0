@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D096E498BA4
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:15:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C09149905E
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:03:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345864AbiAXTPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:15:39 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:37356 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241855AbiAXTNM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:13:12 -0500
+        id S1359498AbiAXT7p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:59:45 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:49206 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1358825AbiAXTzy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:55:54 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9E9DEB8121F;
-        Mon, 24 Jan 2022 19:13:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD9D6C340E5;
-        Mon, 24 Jan 2022 19:13:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D336D60B02;
+        Mon, 24 Jan 2022 19:55:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A90E7C340E5;
+        Mon, 24 Jan 2022 19:55:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051589;
-        bh=OJgXraE3CkdOVHg29qdBH/iVtI++R1ULCOak5Wi3edk=;
+        s=korg; t=1643054152;
+        bh=eMrX1hV6akwkz8ht0zyrabETUFdYz2E50DjI7Kz+wBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FeZ5CurVbh2PzeNrAXKlJ4PWscSchjn/RbbD9gMaDTq9cK3VEMMWuPIw6WTR/an85
-         F7LebyR2n8kiI5kmcHIsxj4W/fBpzPDvNWcXKmH4gW09b9StxbFqJyFNu7YY4nha87
-         EsWkDXRruZOhg2LR6BumvH5RdoFLVbjD/hbKPVis=
+        b=nu64cdg2uXBotrs4kWdg7m3NVj24/oNOK8M8LsQFS+Werl8YTztpFY3v0/W30xD9q
+         2n1BDmDFGuEEREnWsVSI68oILrSAiJ9uTZ+iJ0CXC/vjWvSGujeQ68XRTsqVwdaHkU
+         s34tRx2cs5oYKLLYE60Fdl4+5iKphsYLq/M+xJec=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jason Gerecke <jason.gerecke@wacom.com>,
-        Ping Cheng <ping.cheng@wacom.com>,
-        Jiri Kosina <jkosina@suse.cz>
-Subject: [PATCH 4.19 023/239] HID: wacom: Reset expected and received contact counts at the same time
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        Baruch Siach <baruch@tkos.co.il>,
+        Rob Herring <robh@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 296/563] of: base: Fix phandle argument length mismatch error message
 Date:   Mon, 24 Jan 2022 19:41:01 +0100
-Message-Id: <20220124183943.857676857@linuxfoundation.org>
+Message-Id: <20220124184034.674849285@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,70 +45,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Gerecke <killertofu@gmail.com>
+From: Baruch Siach <baruch@tkos.co.il>
 
-commit 546e41ac994cc185ef3de610ca849a294b5df3ba upstream.
+[ Upstream commit 94a4950a4acff39b5847cc1fee4f65e160813493 ]
 
-These two values go hand-in-hand and must be valid for the driver to
-behave correctly. We are currently lazy about updating the values and
-rely on the "expected" code flow to take care of making sure they're
-valid at the point they're needed. The "expected" flow changed somewhat
-with commit f8b6a74719b5 ("HID: wacom: generic: Support multiple tools
-per report"), however. This led to problems with the DTH-2452 due (in
-part) to *all* contacts being fully processed -- even those past the
-expected contact count. Specifically, the received count gets reset to
-0 once all expected fingers are processed, but not the expected count.
-The rest of the contacts in the report are then *also* processed since
-now the driver thinks we've only processed 0 of N expected contacts.
+The cell_count field of of_phandle_iterator is the number of cells we
+expect in the phandle arguments list when cells_name is missing. The
+error message should show the number of cells we actually see.
 
-Later commits such as 7fb0413baa7f (HID: wacom: Use "Confidence" flag to
-prevent reporting invalid contacts) worked around the DTH-2452 issue by
-skipping the invalid contacts at the end of the report, but this is not
-a complete fix. The confidence flag cannot be relied on when a contact
-is removed (see the following patch), and dealing with that condition
-re-introduces the DTH-2452 issue unless we also address this contact
-count laziness. By resetting expected and received counts at the same
-time we ensure the driver understands that there are 0 more contacts
-expected in the report. Similarly, we also make sure to reset the
-received count if for some reason we're out of sync in the pre-report
-phase.
-
-Link: https://github.com/linuxwacom/input-wacom/issues/288
-Fixes: f8b6a74719b5 ("HID: wacom: generic: Support multiple tools per report")
-CC: stable@vger.kernel.org
-Signed-off-by: Jason Gerecke <jason.gerecke@wacom.com>
-Reviewed-by: Ping Cheng <ping.cheng@wacom.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: af3be70a3211 ("of: Improve of_phandle_iterator_next() error message")
+Cc: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Baruch Siach <baruch@tkos.co.il>
+Signed-off-by: Rob Herring <robh@kernel.org>
+Link: https://lore.kernel.org/r/96519ac55be90a63fa44afe01480c30d08535465.1640881913.git.baruch@tkos.co.il
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/wacom_wac.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/of/base.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/hid/wacom_wac.c
-+++ b/drivers/hid/wacom_wac.c
-@@ -2620,11 +2620,14 @@ static void wacom_wac_finger_pre_report(
- 	    hid_data->cc_index >= 0) {
- 		struct hid_field *field = report->field[hid_data->cc_index];
- 		int value = field->value[hid_data->cc_value_index];
--		if (value)
-+		if (value) {
- 			hid_data->num_expected = value;
-+			hid_data->num_received = 0;
-+		}
+diff --git a/drivers/of/base.c b/drivers/of/base.c
+index 161a23631472d..60cb9b44d4ecc 100644
+--- a/drivers/of/base.c
++++ b/drivers/of/base.c
+@@ -1328,9 +1328,9 @@ int of_phandle_iterator_next(struct of_phandle_iterator *it)
+ 		 * property data length
+ 		 */
+ 		if (it->cur + count > it->list_end) {
+-			pr_err("%pOF: %s = %d found %d\n",
++			pr_err("%pOF: %s = %d found %td\n",
+ 			       it->parent, it->cells_name,
+-			       count, it->cell_count);
++			       count, it->list_end - it->cur);
+ 			goto err;
+ 		}
  	}
- 	else {
- 		hid_data->num_expected = wacom_wac->features.touch_max;
-+		hid_data->num_received = 0;
- 	}
- }
- 
-@@ -2648,6 +2651,7 @@ static void wacom_wac_finger_report(stru
- 
- 	input_sync(input);
- 	wacom_wac->hid_data.num_received = 0;
-+	wacom_wac->hid_data.num_expected = 0;
- 
- 	/* keep touch state for pen event */
- 	wacom_wac->shared->touch_down = wacom_wac_finger_count_touches(wacom_wac);
+-- 
+2.34.1
+
 
 
