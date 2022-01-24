@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A7FA4989E8
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:59:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66C224988EB
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:51:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344452AbiAXS7J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:59:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44672 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343515AbiAXS5A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:57:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5515BC061755;
-        Mon, 24 Jan 2022 10:55:07 -0800 (PST)
+        id S1343715AbiAXSvh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:51:37 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:49300 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245741AbiAXSue (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:50:34 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1EA1BB8121A;
-        Mon, 24 Jan 2022 18:55:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34293C340E5;
-        Mon, 24 Jan 2022 18:55:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B00BA614B8;
+        Mon, 24 Jan 2022 18:50:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 964E3C340E7;
+        Mon, 24 Jan 2022 18:50:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050504;
-        bh=hImpkszlYouxmdM/301iwqVHx5Xo0QnkQ+plX6an+o4=;
+        s=korg; t=1643050233;
+        bh=vY09gumFJYAuICoH+Y13Ik7CFxOnZVlQler2X++ILY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zeRAw5hQAE61LH9Fazva9USpb2jGq5b0avfFCIFioCqboykEYvXhaTtl6eNCuapfy
-         AN/MLReO/HywAKt64lS83Iu5HFR/mfhuDxVPSaFaJvYnmJxwZSsVz0Q62YQYRhDdl3
-         LuS4Sl+PXEOtVfV5JioUcKb1gYl33uWSQy4/ituM=
+        b=WlzGpqCMAWHRDcc+me/bY1QWCHDagjCnKdurLVjwhTH9fbL5t5YowdFG9LGa97aNg
+         Zw92ixAeuOC3YXlPHQG+GN3jvX1wnx1RUPAt3vkv48vpH3c5bJLpdn6zWGCI+nAKi9
+         qoZvxX1YleZ9La3Iyw7S6ODkUhXtkwPJ4YHCqYMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.9 024/157] media: pvrusb2: fix control-message timeouts
+        stable@vger.kernel.org, Sam Bingner <sam@bingner.com>,
+        Yifeng Li <tomli@tomli.me>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>
+Subject: [PATCH 4.4 019/114] PCI: Add function 1 DMA alias quirk for Marvell 88SE9125 SATA controller
 Date:   Mon, 24 Jan 2022 19:41:54 +0100
-Message-Id: <20220124183933.560152782@linuxfoundation.org>
+Message-Id: <20220124183927.712313393@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
-References: <20220124183932.787526760@linuxfoundation.org>
+In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
+References: <20220124183927.095545464@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,60 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Yifeng Li <tomli@tomli.me>
 
-commit b82bf9b9dc305d7d3d93eab106d70dbf2171b43e upstream.
+commit e445375882883f69018aa669b67cbb37ec873406 upstream.
 
-USB control-message timeouts are specified in milliseconds and should
-specifically not vary with CONFIG_HZ.
+Like other SATA controller chips in the Marvell 88SE91xx series, the
+Marvell 88SE9125 has the same DMA requester ID hardware bug that prevents
+it from working under IOMMU.  Add it to the list of devices that need the
+quirk.
 
-Fixes: d855497edbfb ("V4L/DVB (4228a): pvrusb2 to kernel 2.6.18")
-Cc: stable@vger.kernel.org      # 2.6.18
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Without this patch, device initialization fails with DMA errors:
+
+  ata8: softreset failed (1st FIS failed)
+  DMAR: DRHD: handling fault status reg 2
+  DMAR: [DMA Write NO_PASID] Request device [03:00.1] fault addr 0xfffc0000 [fault reason 0x02] Present bit in context entry is clear
+  DMAR: DRHD: handling fault status reg 2
+  DMAR: [DMA Read NO_PASID] Request device [03:00.1] fault addr 0xfffc0000 [fault reason 0x02] Present bit in context entry is clear
+
+After applying the patch, the controller can be successfully initialized:
+
+  ata8: SATA link up 1.5 Gbps (SStatus 113 SControl 330)
+  ata8.00: ATAPI: PIONEER BD-RW   BDR-207M, 1.21, max UDMA/100
+  ata8.00: configured for UDMA/100
+  scsi 7:0:0:0: CD-ROM            PIONEER  BD-RW   BDR-207M 1.21 PQ: 0 ANSI: 5
+
+Link: https://lore.kernel.org/r/YahpKVR+McJVDdkD@work
+Reported-by: Sam Bingner <sam@bingner.com>
+Tested-by: Sam Bingner <sam@bingner.com>
+Tested-by: Yifeng Li <tomli@tomli.me>
+Signed-off-by: Yifeng Li <tomli@tomli.me>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Krzysztof Wilczyński <kw@linux.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/pvrusb2/pvrusb2-hdw.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/pci/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-+++ b/drivers/media/usb/pvrusb2/pvrusb2-hdw.c
-@@ -1488,7 +1488,7 @@ static int pvr2_upload_firmware1(struct
- 	for (address = 0; address < fwsize; address += 0x800) {
- 		memcpy(fw_ptr, fw_entry->data + address, 0x800);
- 		ret += usb_control_msg(hdw->usb_dev, pipe, 0xa0, 0x40, address,
--				       0, fw_ptr, 0x800, HZ);
-+				       0, fw_ptr, 0x800, 1000);
- 	}
- 
- 	trace_firmware("Upload done, releasing device's CPU");
-@@ -1627,7 +1627,7 @@ int pvr2_upload_firmware2(struct pvr2_hd
- 			((u32 *)fw_ptr)[icnt] = swab32(((u32 *)fw_ptr)[icnt]);
- 
- 		ret |= usb_bulk_msg(hdw->usb_dev, pipe, fw_ptr,bcnt,
--				    &actual_length, HZ);
-+				    &actual_length, 1000);
- 		ret |= (actual_length != bcnt);
- 		if (ret) break;
- 		fw_done += bcnt;
-@@ -3486,7 +3486,7 @@ void pvr2_hdw_cpufw_set_enabled(struct p
- 						      0xa0,0xc0,
- 						      address,0,
- 						      hdw->fw_buffer+address,
--						      0x800,HZ);
-+						      0x800,1000);
- 				if (ret < 0) break;
- 			}
- 
-@@ -4011,7 +4011,7 @@ void pvr2_hdw_cpureset_assert(struct pvr
- 	/* Write the CPUCS register on the 8051.  The lsb of the register
- 	   is the reset bit; a 1 asserts reset while a 0 clears it. */
- 	pipe = usb_sndctrlpipe(hdw->usb_dev, 0);
--	ret = usb_control_msg(hdw->usb_dev,pipe,0xa0,0x40,0xe600,0,da,1,HZ);
-+	ret = usb_control_msg(hdw->usb_dev,pipe,0xa0,0x40,0xe600,0,da,1,1000);
- 	if (ret < 0) {
- 		pvr2_trace(PVR2_TRACE_ERROR_LEGS,
- 			   "cpureset_assert(%d) error=%d",val,ret);
+--- a/drivers/pci/quirks.c
++++ b/drivers/pci/quirks.c
+@@ -3657,6 +3657,9 @@ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_M
+ 			 quirk_dma_func1_alias);
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9123,
+ 			 quirk_dma_func1_alias);
++/* https://bugzilla.kernel.org/show_bug.cgi?id=42679#c136 */
++DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9125,
++			 quirk_dma_func1_alias);
+ DECLARE_PCI_FIXUP_HEADER(PCI_VENDOR_ID_MARVELL_EXT, 0x9128,
+ 			 quirk_dma_func1_alias);
+ /* https://bugzilla.kernel.org/show_bug.cgi?id=42679#c14 */
 
 
