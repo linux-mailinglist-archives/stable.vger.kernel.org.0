@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B882649A578
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:12:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0391D49A5A6
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:12:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2370863AbiAYAGW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:06:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54950 "EHLO
+        id S2371054AbiAYAGx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:06:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1849731AbiAXXej (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:34:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA0E2C0AD1B9;
-        Mon, 24 Jan 2022 13:36:51 -0800 (PST)
+        with ESMTP id S2360821AbiAXXiL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:38:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F558C05A199;
+        Mon, 24 Jan 2022 13:37:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 474946131F;
-        Mon, 24 Jan 2022 21:36:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1407CC340E4;
-        Mon, 24 Jan 2022 21:36:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4243BB812A5;
+        Mon, 24 Jan 2022 21:37:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 622F1C340E4;
+        Mon, 24 Jan 2022 21:37:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060210;
-        bh=j4CfaJ67L6Sih9eb4i6T6w8XsJayxWU/gOmexyDIggA=;
+        s=korg; t=1643060277;
+        bh=d1hkeXXrifR0cTOtk0pASdzSQrHKudV+b+y9Amq7KG4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2uKnYvkLzNp/n+cDKHHbH4KLSeii4U0j+RxaX5qW+H+oLOmgN1LV8PvsBtMdo4B6m
-         Z4YG4ZMC5cNyNWjP1pS9xTI9Y5+/d7uhARAKdODVjVXgEhpLE2sQaLqj53XJXoMnNk
-         owjtLFxZOfgZz8PvWZrwq7fPkuSQ0DX8/tLAx0K4=
+        b=nYopirBY1FuWjXxqbDes6b47X2T9foAntB9PGTtB8Vgzm9qVwxFO+LaKzFj9riYgp
+         BwNH+qz0FcJtypPZQwvulZ4MZEv8BIzMoGdo2NBMoaC8t/3yDR22xYEOYzW2BAKq4d
+         OU3lNiOHiVdYKeadiWGP+FOuFu8b1g+F8lNfqkbA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
-        Huang Rui <ray.huang@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.16 0867/1039] drm/amdgpu: Use correct VIEWPORT_DIMENSION for DCN2
-Date:   Mon, 24 Jan 2022 19:44:16 +0100
-Message-Id: <20220124184154.442512752@linuxfoundation.org>
+        stable@vger.kernel.org, Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.16 0869/1039] drm/amdgpu: dont do resets on APUs which dont support it
+Date:   Mon, 24 Jan 2022 19:44:18 +0100
+Message-Id: <20220124184154.513082811@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -49,76 +46,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harry Wentland <harry.wentland@amd.com>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit dc5d4aff2e99c312df8abbe1ee9a731d2913bc1b upstream.
+commit e8309d50e97851ff135c4e33325d37b032666b94 upstream.
 
-For some reason this file isn't using the appropriate register
-headers for DCN headers, which means that on DCN2 we're getting
-the VIEWPORT_DIMENSION offset wrong.
+It can cause a hang.  This is normally not enabled for GPU
+hangs on these asics, but was recently enabled for handling
+aborted suspends.  This causes hangs on some platforms
+on suspend.
 
-This means that we're not correctly carving out the framebuffer
-memory correctly for a framebuffer allocated by EFI and
-therefore see corruption when loading amdgpu before the display
-driver takes over control of the framebuffer scanout.
-
-Fix this by checking the DCE_HWIP and picking the correct offset
-accordingly.
-
-Long-term we should expose this info from DC as GMC shouldn't
-need to know about DCN registers.
-
+Fixes: daf8de0874ab5b ("drm/amdgpu: always reset the asic in suspend (v2)")
 Cc: stable@vger.kernel.org
-Signed-off-by: Harry Wentland <harry.wentland@amd.com>
-Reviewed-by: Huang Rui <ray.huang@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1858
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/cik.c |    4 ++++
+ drivers/gpu/drm/amd/amdgpu/vi.c  |    4 ++++
+ 2 files changed, 8 insertions(+)
 
---- a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
-@@ -72,6 +72,9 @@
- #define mmDCHUBBUB_SDPIF_MMIO_CNTRL_0                                                                  0x049d
- #define mmDCHUBBUB_SDPIF_MMIO_CNTRL_0_BASE_IDX                                                         2
+--- a/drivers/gpu/drm/amd/amdgpu/cik.c
++++ b/drivers/gpu/drm/amd/amdgpu/cik.c
+@@ -1428,6 +1428,10 @@ static int cik_asic_reset(struct amdgpu_
+ {
+ 	int r;
  
-+#define mmHUBP0_DCSURF_PRI_VIEWPORT_DIMENSION_DCN2                                                          0x05ea
-+#define mmHUBP0_DCSURF_PRI_VIEWPORT_DIMENSION_DCN2_BASE_IDX                                                 2
++	/* APUs don't have full asic reset */
++	if (adev->flags & AMD_IS_APU)
++		return 0;
 +
+ 	if (cik_asic_reset_method(adev) == AMD_RESET_METHOD_BACO) {
+ 		dev_info(adev->dev, "BACO reset\n");
+ 		r = amdgpu_dpm_baco_reset(adev);
+--- a/drivers/gpu/drm/amd/amdgpu/vi.c
++++ b/drivers/gpu/drm/amd/amdgpu/vi.c
+@@ -956,6 +956,10 @@ static int vi_asic_reset(struct amdgpu_d
+ {
+ 	int r;
  
- static const char *gfxhub_client_ids[] = {
- 	"CB",
-@@ -1105,6 +1108,8 @@ static unsigned gmc_v9_0_get_vbios_fb_si
- 	u32 d1vga_control = RREG32_SOC15(DCE, 0, mmD1VGA_CONTROL);
- 	unsigned size;
- 
-+	/* TODO move to DC so GMC doesn't need to hard-code DCN registers */
++	/* APUs don't have full asic reset */
++	if (adev->flags & AMD_IS_APU)
++		return 0;
 +
- 	if (REG_GET_FIELD(d1vga_control, D1VGA_CONTROL, D1VGA_MODE_ENABLE)) {
- 		size = AMDGPU_VBIOS_VGA_ALLOCATION;
- 	} else {
-@@ -1113,11 +1118,18 @@ static unsigned gmc_v9_0_get_vbios_fb_si
- 		switch (adev->ip_versions[DCE_HWIP][0]) {
- 		case IP_VERSION(1, 0, 0):
- 		case IP_VERSION(1, 0, 1):
--		case IP_VERSION(2, 1, 0):
- 			viewport = RREG32_SOC15(DCE, 0, mmHUBP0_DCSURF_PRI_VIEWPORT_DIMENSION);
- 			size = (REG_GET_FIELD(viewport,
- 					      HUBP0_DCSURF_PRI_VIEWPORT_DIMENSION, PRI_VIEWPORT_HEIGHT) *
- 				REG_GET_FIELD(viewport,
-+					      HUBP0_DCSURF_PRI_VIEWPORT_DIMENSION, PRI_VIEWPORT_WIDTH) *
-+				4);
-+			break;
-+		case IP_VERSION(2, 1, 0):
-+			viewport = RREG32_SOC15(DCE, 0, mmHUBP0_DCSURF_PRI_VIEWPORT_DIMENSION_DCN2);
-+			size = (REG_GET_FIELD(viewport,
-+					      HUBP0_DCSURF_PRI_VIEWPORT_DIMENSION, PRI_VIEWPORT_HEIGHT) *
-+				REG_GET_FIELD(viewport,
- 					      HUBP0_DCSURF_PRI_VIEWPORT_DIMENSION, PRI_VIEWPORT_WIDTH) *
- 				4);
- 			break;
+ 	if (vi_asic_reset_method(adev) == AMD_RESET_METHOD_BACO) {
+ 		dev_info(adev->dev, "BACO reset\n");
+ 		r = amdgpu_dpm_baco_reset(adev);
 
 
