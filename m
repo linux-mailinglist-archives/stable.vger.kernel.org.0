@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 698A7499723
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:25:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 714354997A9
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:29:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1446880AbiAXVJg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:09:36 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:58514 "EHLO
+        id S1448990AbiAXVOb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:14:31 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:60402 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354232AbiAXVFt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:05:49 -0500
+        with ESMTP id S1446389AbiAXVIH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:08:07 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 51A8161317;
-        Mon, 24 Jan 2022 21:05:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 352E6C340E5;
-        Mon, 24 Jan 2022 21:05:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 043B56141C;
+        Mon, 24 Jan 2022 21:08:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8425C340E5;
+        Mon, 24 Jan 2022 21:08:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058348;
-        bh=Ae6xcvFdnKy3FwdPmiKqRI4OXQ4zHeuRYY0s4+yvNzc=;
+        s=korg; t=1643058485;
+        bh=R3GdNXfUaGyr8KHuooO/tDQGndAoZTEvXAMGEPVcDFc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TpiXxUIsoAD2t9TfB9w1DZdU9sD5d3Z/hBsARP22sgwCjVRFMGXFQvBDqx2Qpaacc
-         vpGjk5kATnBahR9sLtyITNOSBzZp0ax6OKWLiTmKlRq5LWwSzpvN6wiJqDgQ4U/Iwx
-         qQyYaM5FDZS2K4PPQXhwneLGBGV9Np8flBJuC7Wo=
+        b=mAC6FApmBj0yN6IWlbrksk8QfTsYuO9eKY7p1O56GhxT7snuUQfpkSQv696EqE3E7
+         ojivBOJjAPmqOYW+U3pAWA69zU/MMfP8PGtu3FQWLXKVIArsX7ZF0STrku7EUZIBPa
+         PMzVwxfPTSU3vWRme0qc15sJ2/yvXmlS9wcv1hAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
-        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, kernelbot <kernel-bot@kylinos.cn>,
+        Jackie Liu <liuyun01@kylinos.cn>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Rob Clark <robdclark@chromium.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0259/1039] drm/amd/display: Fix out of bounds access on DNC31 stream encoder regs
-Date:   Mon, 24 Jan 2022 19:34:08 +0100
-Message-Id: <20220124184134.017744254@linuxfoundation.org>
+Subject: [PATCH 5.16 0261/1039] drm/msm/dp: displayPort driver need algorithm rational
+Date:   Mon, 24 Jan 2022 19:34:10 +0100
+Message-Id: <20220124184134.081001067@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -46,45 +47,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+From: Jackie Liu <liuyun01@kylinos.cn>
 
-[ Upstream commit d374d3b493215d637b9e7be12a93f22caf4c1f97 ]
+[ Upstream commit 53d22794711ad630f40d59dd726bd260d77d585f ]
 
-[Why]
-During dcn31_stream_encoder_create, if PHYC/D get remapped to F/G on B0
-then we'll index 5 or 6 into a array of length 5 - leading to an
-access violation on some configs during device creation.
+Let's select RATIONAL with dp driver. avoid like:
 
-[How]
-Software won't be touching PHYF/PHYG directly, so just extend the
-array to cover all possible engine IDs.
+[...]
+x86_64-linux-gnu-ld: drivers/gpu/drm/msm/dp/dp_catalog.o: in function `dp_catalog_ctrl_config_msa':
+dp_catalog.c:(.text+0x57e): undefined reference to `rational_best_approximation'
 
-Even if it does by try to access one of these registers by accident
-the offset will be 0 and we'll get a warning during the access.
-
-Fixes: 2fe9a0e1173f ("drm/amd/display: Fix DCN3 B0 DP Alt Mapping")
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: c943b4948b58 ("drm/msm/dp: add displayPort driver support")
+Reported-by: kernelbot <kernel-bot@kylinos.cn>
+Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
+Link: https://lore.kernel.org/r/20211110070950.3355597-2-liu.yun@linux.dev
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/msm/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
-index 27afbe6ec0fee..f969ff65f802b 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn31/dcn31_resource.c
-@@ -493,7 +493,8 @@ static const struct dcn31_apg_mask apg_mask = {
- 	SE_DCN3_REG_LIST(id)\
- }
- 
--static const struct dcn10_stream_enc_registers stream_enc_regs[] = {
-+/* Some encoders won't be initialized here - but they're logical, not physical. */
-+static const struct dcn10_stream_enc_registers stream_enc_regs[ENGINE_ID_COUNT] = {
- 	stream_enc_regs(0),
- 	stream_enc_regs(1),
- 	stream_enc_regs(2),
+diff --git a/drivers/gpu/drm/msm/Kconfig b/drivers/gpu/drm/msm/Kconfig
+index 39197b4beea78..1eae5a9645f41 100644
+--- a/drivers/gpu/drm/msm/Kconfig
++++ b/drivers/gpu/drm/msm/Kconfig
+@@ -65,6 +65,7 @@ config DRM_MSM_HDMI_HDCP
+ config DRM_MSM_DP
+ 	bool "Enable DisplayPort support in MSM DRM driver"
+ 	depends on DRM_MSM
++	select RATIONAL
+ 	default y
+ 	help
+ 	  Compile in support for DP driver in MSM DRM driver. DP external
 -- 
 2.34.1
 
