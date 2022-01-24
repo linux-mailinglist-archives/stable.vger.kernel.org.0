@@ -2,139 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1D2E49A9FB
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:30:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25A8949AA1D
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:35:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1323902AbiAYD3w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:29:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39646 "EHLO
+        id S243288AbiAYDc6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:32:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48734 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S3410340AbiAYA3D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 19:29:03 -0500
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 555A0C046E1E
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 14:14:19 -0800 (PST)
-Received: by mail-pj1-x102a.google.com with SMTP id g9-20020a17090a67c900b001b4f1d71e4fso549187pjm.4
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 14:14:19 -0800 (PST)
+        with ESMTP id S1321192AbiAYDP6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 22:15:58 -0500
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD0B7C0E9B97;
+        Mon, 24 Jan 2022 14:48:44 -0800 (PST)
+Received: by mail-pj1-x1029.google.com with SMTP id h12so17807796pjq.3;
+        Mon, 24 Jan 2022 14:48:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=OsqfALm1JiUnP5EkzZito61oC8xEaIYvybztU73y/74=;
-        b=XAIDjpgizrq2ukNS4Ldr4jWNNvBlzFScWnAboprpP3nXwdYJ1CLF0pIXW8UF7txnoZ
-         5HGCW9a6R8gz3HY5G+UN4hjI6J3YKWpnHW3WPlGVLwaTKx7SAMi3ya7mmgdYxUKLIAn/
-         neeUsJlyZZZK/NIdbCe8XeGiLpMeo/6L1tylEVV6XE9v5xZ78+QBHpLDpOK4FqOk3y/9
-         4oBYeI4h1ZVw3Bn2xtxGzzdezEBIaL76ot5nYa/m9a9VRI/kqCmthUriqz6YlmOnF/Oi
-         qgLQQ7mpKL8XVMHa3d27aInXQpITsw2D4Gadk5sMONCgzi1nISaNdalYCSvaupUI1wja
-         +E/w==
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=2U/8DYGL090LEe2kk8stQI2Ud1/LbI8mVv8nBxOTVk0=;
+        b=SCy31hux4wYZUjl1mQCGsAYnmGP8MS09esRtEf0uAgEGq/0+PpvSSeQug7QuEemUJ5
+         K9mym8A2R42TPh4uSLcWwice1TqlW0N/bYhBTM35LB0lJ5WqbypcnhaIbpXuBY+mZhR1
+         bN7GCWDrY8N8GymuQfO+l+OWYGAns/glHxGrlr1a/i4wF1vyZeomj9fG2hQqGgMOy2Mv
+         eWZTJm7gUgyv4ZKLJ3Ce0gijKUw+mE3mLN0wx7O3ENBplcak93gcJLuo7k6CvCgoVHKx
+         D/Td5yU0zvLN+fQ2scGZ+kEVMbWs2/OZ2m3/NZM8m5uX8zrI+xJy8smyvMtrwjaLIo9x
+         DytQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=OsqfALm1JiUnP5EkzZito61oC8xEaIYvybztU73y/74=;
-        b=w0xw5rK2Q6qfhUMfH7eC2LaGMGgwucIlxfq/P99PrTOLPL8OGzElGw6UONJyl0xYD7
-         orPKN7WpS+r/DJBqz896sqKbPDuJhLtytLDdxiJYA6emC+69k/w/OQxAkgUjPYVGTFsZ
-         m0/AxB6uuYtA4/a/bgzIoV+8bavL/y+nBHnCa1Srt4vsW3uEHM28d0Mkp2lkZto/PCh3
-         QE351S80qn0jKnHIai+Vw/LgvLQzHSntfi4L7DuBlXEWIfILAHVEXvLobiM4z5hni8TQ
-         EseH90beloS4uO2svV2IqfDlcq4HsB2kIY2ogaKYCdGYMSMDczvS3HBDddfu4fxNSdsL
-         omQg==
-X-Gm-Message-State: AOAM531I0FVsEBud7E0WhK46x6UWX3YTsEWkMqON301QZpuAC5FV/3Go
-        zjBVngiKPNMCIrTtdI0g69BoTajkmsaJJAtS
-X-Google-Smtp-Source: ABdhPJzg6+QD75cD0/V3E6jSMN4+ThLieO/tq/fU0KPMPCxzPxU5prO9rA1tk/DQURgr/RfN8cK87g==
-X-Received: by 2002:a17:90b:354f:: with SMTP id lt15mr320602pjb.83.1643062458712;
-        Mon, 24 Jan 2022 14:14:18 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s23sm18836275pfg.144.2022.01.24.14.14.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Jan 2022 14:14:18 -0800 (PST)
-Message-ID: <61ef24ba.1c69fb81.9509b.2655@mx.google.com>
-Date:   Mon, 24 Jan 2022 14:14:18 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=2U/8DYGL090LEe2kk8stQI2Ud1/LbI8mVv8nBxOTVk0=;
+        b=baaCKqVzFUZLEPUzZqHCITmmiyU3/LyJsAeh6/04A+PIZ9zf2Dt9h3PRWYWOEk/PSY
+         BRa7mHm5t20Rn1yqvQpSNcc5/0JkVBmdfZn8J1bRMFoaD+zSKb5kRNtTBlRmQvx0FyUG
+         1xWVxRRi0uMlC2qb1xCJ1rf4AbTKsTEBgN/yrdn826hqUaaSqwWPspYyY1QbWPpmODLD
+         2iRU95tYgxAX/BZauW5WaTKw7m0Y8lNdB5p529TVV72F/wB8JBF7iThIvy+r8TC6+y1F
+         xXwhWPrtM2JTBKC+rZE+hVOt0cnLt234R/SZwjq+nvViQtV/9WFcgLTp1/HryfRutl5j
+         SV7Q==
+X-Gm-Message-State: AOAM532sZAM72yv7wO/pjaQtyV01KGKJmul07F2g//SLD2UuFXJZ2t3o
+        bc+PcTKQrX0sS+VUKyGXffp3V2WYErE=
+X-Google-Smtp-Source: ABdhPJwoETm2C6v0ZHW+1FJIIwDKXjxr/4H1UbB5BOgnodoIZ3vFd/wSBUnk7Z1O0NQkwBZTBamYaQ==
+X-Received: by 2002:a17:90a:9a7:: with SMTP id 36mr485057pjo.154.1643064524350;
+        Mon, 24 Jan 2022 14:48:44 -0800 (PST)
+Received: from [192.168.11.5] (KD106167171201.ppp-bb.dion.ne.jp. [106.167.171.201])
+        by smtp.gmail.com with ESMTPSA id nu7sm342266pjb.30.2022.01.24.14.48.42
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 24 Jan 2022 14:48:44 -0800 (PST)
+Message-ID: <ba541d48-826c-3d39-b3e1-05642fa6edd6@gmail.com>
+Date:   Tue, 25 Jan 2022 07:48:39 +0900
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.9.297-151-ga397812f7f1e
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y baseline: 117 runs,
- 1 regressions (v4.9.297-151-ga397812f7f1e)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH 5.16 0728/1039] scripts: sphinx-pre-install: Fix ctex
+ support on Debian
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Sasha Levin <sashal@kernel.org>
+References: <20220124184125.121143506@linuxfoundation.org>
+ <20220124184149.801920838@linuxfoundation.org>
+From:   Akira Yokosawa <akiyks@gmail.com>
+In-Reply-To: <20220124184149.801920838@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y baseline: 117 runs, 1 regressions (v4.9.297-151-ga397=
-812f7f1e)
+Hi Greg,
 
-Regressions Summary
--------------------
+On Mon, 24 Jan 2022 19:41:57 +0100,
+Greg Kroah-Hartman wrote:
+> From: Mauro Carvalho Chehab <mchehab@kernel.org>
+> 
+> [ Upstream commit 87d6576ddf8ac25f36597bc93ca17f6628289c16 ]
+> 
+> The name of the package with ctexhook.sty is different on
+> Debian/Ubuntu.
+> 
+> Reported-by: Akira Yokosawa <akiyks@gmail.com>
+> Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+> Tested-by: Akira Yokosawa <akiyks@gmail.com>
+> Link: https://lore.kernel.org/r/63882425609a2820fac78f5e94620abeb7ed5f6f.1641429634.git.mchehab@kernel.org
+> Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+This "Fix" is against upstream commit 7baab965896e ("scripts:
+sphinx-pre-install: add required ctex dependency") which is
+also new to v5.17-rc1.
 
+So I don't think this is worth backporting to stable branches.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
-el/v4.9.297-151-ga397812f7f1e/plan/baseline/
+        Thanks, Akira
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.9.y
-  Describe: v4.9.297-151-ga397812f7f1e
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      a397812f7f1e08833fe69853049f9e10dd60e967 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61eef2792626d8c965abbd24
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.297=
--151-ga397812f7f1e/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.297=
--151-ga397812f7f1e/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61eef2792626d8c=
-965abbd2a
-        failing since 21 days (last pass: v4.9.295, first fail: v4.9.295-14=
--g584e15b1cb05)
-        2 lines
-
-    2022-01-24T18:39:39.486675  [   20.137573] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2022-01-24T18:39:39.528440  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/118
-    2022-01-24T18:39:39.538120  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-230 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1
-    2022-01-24T18:39:39.554261  [   20.207397] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
+> ---
+>  scripts/sphinx-pre-install | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/scripts/sphinx-pre-install b/scripts/sphinx-pre-install
+> index 288e86a9d1e58..61a79ce705ccf 100755
+> --- a/scripts/sphinx-pre-install
+> +++ b/scripts/sphinx-pre-install
+> @@ -369,6 +369,9 @@ sub give_debian_hints()
+>  	);
+>  
+>  	if ($pdf) {
+> +		check_missing_file(["/usr/share/texlive/texmf-dist/tex/latex/ctex/ctexhook.sty"],
+> +				   "texlive-lang-chinese", 2);
+> +
+>  		check_missing_file(["/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf"],
+>  				   "fonts-dejavu", 2);
+>  
