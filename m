@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A19A649A3DD
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:04:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8483A49A34C
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:02:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2369032AbiAYAAr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:00:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50042 "EHLO
+        id S2366224AbiAXXwb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:52:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384835AbiAXXR5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:17:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD13AC07E29D;
-        Mon, 24 Jan 2022 11:45:38 -0800 (PST)
+        with ESMTP id S1845355AbiAXXMI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:12:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B04DEC067A44;
+        Mon, 24 Jan 2022 13:19:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 532CFB811F9;
-        Mon, 24 Jan 2022 19:45:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96353C340E7;
-        Mon, 24 Jan 2022 19:45:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4FC7761469;
+        Mon, 24 Jan 2022 21:19:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29807C340E5;
+        Mon, 24 Jan 2022 21:19:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053537;
-        bh=zLZtC7ypmlhH1omlZOAIcSh+uqnfUwqd1cdnR2k5tXY=;
+        s=korg; t=1643059141;
+        bh=QGCFPH1WYvDgr9p4O+VQEVXKCX82xetHO6mmGWOWw2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XAwG/kpC3nqnV8BAj6RaC34rh20c/qVQ0Iu00D5xToecRFIG7nbSwojILj3zrLuBa
-         Jp3yankdjIq/QPgB6lnWo6mzr1u1ncwP1gG7yYsOI/BNU4J5zXytQaoiNYCTQOp373
-         2hqfJG0ByNgYTtuQHBpNFNtnQypypcKbUwdi8uJI=
+        b=swGStBzQ+zlmn9eToWmrcllx0TqZ2ZFgOQxv14PT+sPSTDzOCB2aDbEOhSzpf8FlN
+         uOG0nd7gWda3gmmoMblf62BvdTeui2hmoYOvAdcuxNHRoyHFvDGcxXzje7Kww7Jjlg
+         vf7/qwMWchZk+D0ROlZSXCfbUVMd7/GfZSrZYHHM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dillon Min <dillon.minfei@gmail.com>,
-        kernel test robot <lkp@intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        stable@vger.kernel.org, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 097/563] ARM: dts: stm32: fix dtbs_check warning on ili9341 dts binding on stm32f429 disco
-Date:   Mon, 24 Jan 2022 19:37:42 +0100
-Message-Id: <20220124184027.754939919@linuxfoundation.org>
+Subject: [PATCH 5.16 0474/1039] uio: uio_dmem_genirq: Catch the Exception
+Date:   Mon, 24 Jan 2022 19:37:43 +0100
+Message-Id: <20220124184141.205188392@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,41 +47,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dillon Min <dillon.minfei@gmail.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit b046049e59dca5e5830dc75ed16acf7657a95161 ]
+[ Upstream commit eec91694f927d1026974444eb6a3adccd4f1cbc2 ]
 
-Since the compatible string defined from ilitek,ili9341.yaml is
-"st,sf-tc240t-9370-t", "ilitek,ili9341"
+The return value of dma_set_coherent_mask() is not always 0.
+To catch the exception in case that dma is not support the mask.
 
-so, append "ilitek,ili9341" to avoid the below dtbs_check warning.
-
-arch/arm/boot/dts/stm32f429-disco.dt.yaml: display@1: compatible:
-['st,sf-tc240t-9370-t'] is too short
-
-Fixes: a726e2f000ec ("ARM: dts: stm32: enable ltdc binding with ili9341, gyro l3gd20 on stm32429-disco board")
-Signed-off-by: Dillon Min <dillon.minfei@gmail.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Alexandre Torgue <alexandre.torgue@foss.st.com>
+Fixes: 0a0c3b5a24bd ("Add new uio device for dynamic memory allocation")
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Link: https://lore.kernel.org/r/20211204000326.1592687-1-jiasheng@iscas.ac.cn
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stm32f429-disco.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/uio/uio_dmem_genirq.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/stm32f429-disco.dts b/arch/arm/boot/dts/stm32f429-disco.dts
-index 075ac57d0bf4a..6435e099c6326 100644
---- a/arch/arm/boot/dts/stm32f429-disco.dts
-+++ b/arch/arm/boot/dts/stm32f429-disco.dts
-@@ -192,7 +192,7 @@
+diff --git a/drivers/uio/uio_dmem_genirq.c b/drivers/uio/uio_dmem_genirq.c
+index 6b5cfa5b06733..1106f33764047 100644
+--- a/drivers/uio/uio_dmem_genirq.c
++++ b/drivers/uio/uio_dmem_genirq.c
+@@ -188,7 +188,11 @@ static int uio_dmem_genirq_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
+ 	}
  
- 	display: display@1{
- 		/* Connect panel-ilitek-9341 to ltdc */
--		compatible = "st,sf-tc240t-9370-t";
-+		compatible = "st,sf-tc240t-9370-t", "ilitek,ili9341";
- 		reg = <1>;
- 		spi-3wire;
- 		spi-max-frequency = <10000000>;
+-	dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(32));
++	ret = dma_set_coherent_mask(&pdev->dev, DMA_BIT_MASK(32));
++	if (ret) {
++		dev_err(&pdev->dev, "DMA enable failed\n");
++		return ret;
++	}
+ 
+ 	priv->uioinfo = uioinfo;
+ 	spin_lock_init(&priv->lock);
 -- 
 2.34.1
 
