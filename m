@@ -2,138 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47BDB4979C5
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 08:47:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A7BC4979BF
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 08:42:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231782AbiAXHrr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 02:47:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56180 "EHLO
+        id S235498AbiAXHmc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 02:42:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230401AbiAXHrr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 02:47:47 -0500
-Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com [IPv6:2a00:1450:4864:20::22a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7CB5C06173B
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 23:47:46 -0800 (PST)
-Received: by mail-lj1-x22a.google.com with SMTP id c15so5596731ljf.11
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 23:47:46 -0800 (PST)
+        with ESMTP id S232425AbiAXHma (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 02:42:30 -0500
+Received: from mail-ot1-x32c.google.com (mail-ot1-x32c.google.com [IPv6:2607:f8b0:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA04BC06173B
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 23:42:30 -0800 (PST)
+Received: by mail-ot1-x32c.google.com with SMTP id t9-20020a9d7489000000b0059e4c1adceaso6348508otk.5
+        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 23:42:30 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=/x4cWx0FlqiYyWIO9v+6frfgtjqdloEnhyL562FSKqY=;
-        b=a6L/SHKUojh/M3OqLlblvh0ECUcqTu16A2CE+TO7YFkg/cul41WVSfjDgA7syUi0kf
-         z5lAGC/iWbHkI6WLbsMORQcbgnLRFyv2HieE0LXPn+diiK41nKPe/XCpOhIDc8rVXW1M
-         8TSyeVXZVgCsn097K0LVbHC/WhUiOg93u4g2c=
+        d=gmail.com; s=20210112;
+        h=mime-version:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=zOHJbgxEeKcTUS1M3dbg/CCHL8zxNc7o7Y1pwSiNVNQ=;
+        b=OOajz/WXuYuu/25maeEZ0tv6YkzWiGIvay8poKBX+qHC5MGhVTyVWFrvx8r73S3BX4
+         bAfjWuTmQj93eV0e5Alaz/eOXbcYQGq9AhFtY2qurms9mdj9U+HKZ3bOXLrfySxY1MLy
+         m+kOjQNGWwWaBOWrSTacTqY20TrLMWIazx5m22BOXxDx7q0PAPfsx9gWIDer+vWZDRJ4
+         nfSh/VFyFsoaAFc/C/8yBVoid6FNLDQ50z/UFK9i+V+XqE8TBojWNtWjMJmf6/Sso77H
+         UgGvXPDaPOp7XgUyq1m56wPfTeSKrW+Sa5DEYz+ivWOk9bAyy47ZwC8lqMyttKCIonEz
+         icsQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=/x4cWx0FlqiYyWIO9v+6frfgtjqdloEnhyL562FSKqY=;
-        b=ZsX7WgEka/TuUpxGpkBzAWAVBEuRP+ynGiA7pK0lA44GlWaiLZDKbhuyyUOLyOCco4
-         QIbhqbwHE8SE1XdWDpWVJ/LeiH7rC2nwrqiZmKFYq45RtMyxf4gfzl+dxXfRNEHma/UA
-         TCR4zbqQkFeU8hW41Xyuy96RcVlTrzeIu5+JJfTsRigbawVa0VwjK7BfntzQQqKIfV+A
-         TYF0mQF7Suvibo4f2Hlo6Y+DM8eeoTqk20gOVRPy8XSXVS/bIBMIWRhwBhZeRRQXsTW7
-         DLpcMoOusoDpoZ5HYHvv8kaVDfKLb5HFx8dRuoFH5fYZu2bq96LQIa5K6KeWPXbcr140
-         GhUA==
-X-Gm-Message-State: AOAM53052Uka63gtypgiPE6NX2JOskG7D3DDQKAGXDXijZup3WOLWFOj
-        UmRYnZhRP6Db5zNZwa7OmPlZ4/rzZ8MP6xfeuRM=
-X-Google-Smtp-Source: ABdhPJxJjbMCEzoPldTp9Qu9OMtX+0ncDQIsQ11WGIszw4WJnD/VV2nRCksGhK9+PojtJ7GpXrDPTA==
-X-Received: by 2002:a2e:8e74:: with SMTP id t20mr10926329ljk.293.1643010464767;
-        Sun, 23 Jan 2022 23:47:44 -0800 (PST)
-Received: from mail-lj1-f171.google.com (mail-lj1-f171.google.com. [209.85.208.171])
-        by smtp.gmail.com with ESMTPSA id k11sm1086559lfg.33.2022.01.23.23.47.44
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sun, 23 Jan 2022 23:47:44 -0800 (PST)
-Received: by mail-lj1-f171.google.com with SMTP id q22so2619907ljh.7
-        for <stable@vger.kernel.org>; Sun, 23 Jan 2022 23:47:44 -0800 (PST)
-X-Received: by 2002:adf:9dce:: with SMTP id q14mr11932475wre.193.1643010137698;
- Sun, 23 Jan 2022 23:42:17 -0800 (PST)
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to:content-transfer-encoding;
+        bh=zOHJbgxEeKcTUS1M3dbg/CCHL8zxNc7o7Y1pwSiNVNQ=;
+        b=doa+THT0/fJNJ+0xKOOrVa7rskZ64F5Hh7zBDHsWf/pCeE9iDnEFSqwBKMYPhw4zUf
+         nifEx44x4285/lJrw6xGmT8J/gSn8lZo3IbbPjUBp6skeMK2mfW/8K1NhRq5bJLB9twx
+         YH+tJSicLV6TAGCtBpCKTSmbZfR7YPdLALezgQVq/IjF/YWkWq7jiPyU3iPAUBU9Ca5f
+         oDbiWbKC7TsUwLrSteWWSumf1Vo6u4ICLbQ6W1yOHpRoxGDpWOx0td5RoS0Q3ZxIyF2h
+         IAYS8xSme6x2TVv2MGJ4VaWrgXlLayXHHBFqfSB7CzLPU4IzV6FCiHc+eV0aJDpzTjZI
+         UTcA==
+X-Gm-Message-State: AOAM532M9LA/42Dzf3Y9hIOIKIvEiOhdkyOnMxEbtwN9MLKmZUYGtU+O
+        M0PWRnBdx5/JIEvzRQzrxA7bB4nEfxJxoXOVpWk=
+X-Google-Smtp-Source: ABdhPJzVnUcThvva+05OoLNCwXuITvV6myJXOCM7O3i35xYUH0nSQg6n+ssFMF9nPZZ8MmJ3vWJiaHxXnCZDU+3j/ys=
+X-Received: by 2002:a05:6830:1115:: with SMTP id w21mr10914494otq.367.1643010150051;
+ Sun, 23 Jan 2022 23:42:30 -0800 (PST)
 MIME-Version: 1.0
-References: <20220123193154.14565-1-mathieu.desnoyers@efficios.com>
-In-Reply-To: <20220123193154.14565-1-mathieu.desnoyers@efficios.com>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Mon, 24 Jan 2022 09:42:01 +0200
-X-Gmail-Original-Message-ID: <CAHk-=whhEB-A-ahgeMsozDfdGNmP_MB9JVnV3bavGbeqgfpStQ@mail.gmail.com>
-Message-ID: <CAHk-=whhEB-A-ahgeMsozDfdGNmP_MB9JVnV3bavGbeqgfpStQ@mail.gmail.com>
-Subject: Re: [RFC PATCH] rseq: Fix broken uapi field layout on 32-bit little endian
-To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        "H . Peter Anvin" <hpa@zytor.com>, Paul Turner <pjt@google.com>,
-        Linux API <linux-api@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Florian Weimer <fw@deneb.enyo.de>,
-        Andy Lutomirski <luto@amacapital.net>,
-        Dave Watson <davejwatson@fb.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Russell King <linux@arm.linux.org.uk>,
-        Andi Kleen <andi@firstfloor.org>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Ben Maurer <bmaurer@fb.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Josh Triplett <josh@joshtriplett.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will.deacon@arm.com>,
-        Michael Kerrisk <mtk.manpages@gmail.com>,
-        Joel Fernandes <joelaf@google.com>
+Sender: blessmegod87@gmail.com
+Received: by 2002:a05:6838:441f:0:0:0:0 with HTTP; Sun, 23 Jan 2022 23:42:29
+ -0800 (PST)
+From:   DINA MCKENNA <dinamckennahowley@gmail.com>
+Date:   Mon, 24 Jan 2022 07:42:29 +0000
+X-Google-Sender-Auth: 7D8B2z8otx8TqQxmfBLhWnnhhjA
+Message-ID: <CACOw96m2pkoubSXn_CRbR9cW1YQNQjjw3dt43=FWMX589cyvug@mail.gmail.com>
+Subject: Calvary greetings.
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jan 23, 2022 at 9:32 PM Mathieu Desnoyers
-<mathieu.desnoyers@efficios.com> wrote:
->
-> The rseq rseq_cs.ptr.{ptr32,padding} uapi endianness handling is
-> entirely wrong on 32-bit little endian: a preprocessor logic mistake
-> wrongly uses the big endian field layout on 32-bit little endian
-> architectures.
->
-> Fortunately, those ptr32 accessors were never used within the kernel,
-> and only meant as a convenience for user-space.
+Hello my dear,
 
-Please don't double down on something that was already broken once.
+ I sent this mail praying it will get to you in a good condition of
+health, since I myself are in a very critical health condition in
+which I sleep every night without knowing if I may be alive to see the
+next day. I bring peace and love to you. It is by the grace of God, I
+had no choice than to do what is lawful and right in the sight of God
+for eternal life and in the sight of man, for witness of God=E2=80=99s merc=
+y
+and glory upon my life. I am Mrs. Dina. Howley Mckenna, a widow. I am
+suffering from a long time brain tumor, It has defiled all forms of
+medical treatment, and right now I have about a few months to leave,
+according to medical experts. The situation has gotten complicated
+recently with my inability to hear proper, am communicating with you
+with the help of the chief nurse herein the hospital, from all
+indication my conditions is really deteriorating and it is quite
+obvious that, according to my doctors they have advised me that I may
+not live too long, Because this illness has gotten to a very bad
+stage. I plead that you will not expose or betray this trust and
+confidence that I am about to repose on you for the mutual benefit of
+the orphans and the less privilege. I have some funds I inherited from
+my late husband, the sum of ($ 11,000,000.00, Eleven Million Dollars).
+Having known my condition, I decided to donate this fund to you
+believing that you will utilize it the way i am going to instruct
+herein. I need you to assist me and reclaim this money and use it for
+Charity works therein your country  for orphanages and gives justice
+and help to the poor, needy and widows says The Lord." Jeremiah
+22:15-16.=E2=80=9C and also build schools for less privilege that will be
+named after my late husband if possible and to promote the word of God
+and the effort that the house of God is maintained. I do not want a
+situation where this money will be used in an ungodly manner. That's
+why I'm taking this decision. I'm not afraid of death, so I know where
+I'm going. I accept this decision because I do not have any child who
+will inherit this money after I die.. Please I want your sincerely and
+urgent answer to know if you will be able to execute this project for
+the glory of God, and I will give you more information on how the fund
+will be transferred to your bank account. May the grace, peace, love
+and the truth in the Word of God be with you and all those that you
+love and care for.
 
-Just remove the broken 32-bit one entirely that the kernel doesn't
-even use, and make everybody use
+I'm waiting for your immediate reply..
 
-   __u64 ptr64;
-
-and be done with it.
-
-Adding a new "arch.ptr32" thing to replace the broken ptr.ptr32 is
-just not worth it. This "convenience feature" never worked correctly
-on any relevant architecture, so it clearly was never a convenience
-feature, and deciding to try to re-do it because it was broken and
-pointless the first time around isn't sane.
-
-The definition of insanity is literally to do the same broken thing over again.
-
-So just remove the broken ptr.ptr32 thing, don't add anything new to
-replace it. Existing binaries will continue to work (or not work) as
-well as they ever did. And new people getting new headers will get a
-clear and proper compile error for the broken code that they can
-trivially fix using 'ptr64' after they have actually thought about it
-for a while.
-
-Giving them a "arch.ptr32" doesn't help them at all. Quite the
-reverse. You seem to hve the intention that they should just
-mindlessly replace "ptr.ptr32" with "arch.ptr32", and now their code
-won't actually work the same. Plus it will build with one version but
-not the other.
-
-In contrast, if you just tell people "ptr.ptr32 was always broken, use
-ptr64 instead", it will actually work THE SAME with both old and new
-headers. No odd "changed behavior from syntactic patch". No odd "this
-won't work with older headers so now you have to add some
-configuration or #ifdef".
-
-The kernel cares about maintaining the ABI. The *binary* interface. If
-the API was broken, it needs to be fixed. Not made worse by keeping
-the broken fields and adding new ones for no reason.
-
-               Linus
+May God Bless you,
+Mrs. Dina. Howley Mckenna.
