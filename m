@@ -2,45 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4A2F49947E
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:43:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 17E8E498FBD
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:56:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1389011AbiAXUkW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:40:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40098 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1387137AbiAXUgZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:36:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9CAC8C038AED;
-        Mon, 24 Jan 2022 11:49:34 -0800 (PST)
+        id S1358012AbiAXTxm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:53:42 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:46772 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1357225AbiAXTtj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:49:39 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 65A54B810AF;
-        Mon, 24 Jan 2022 19:49:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBF18C340E7;
-        Mon, 24 Jan 2022 19:49:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F2886091C;
+        Mon, 24 Jan 2022 19:49:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 867CAC340E5;
+        Mon, 24 Jan 2022 19:49:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053772;
-        bh=YlU1sBgVFOIGLyn4tPFI06pq4M3DdSGDx1s/nOu7IKw=;
+        s=korg; t=1643053778;
+        bh=WzNw0oSd1gKe/M9faZwGg+IalzTanMcEGX+KVptdEPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aUHUq2w+W80nSqkDM9tFtsp+RhFb0+8miHn1rcqNkyHPVImO8IPtvrENchHntj/L4
-         +AvGTnVOE6Vx1xotzNsI0oO6mTtDPFwqmxK6Rs6UVl+yagMdG69s3t+z4129ImNjth
-         SG6RcY4ObKl8LwrkJHwRdQPuvCa6s2uZCqzEYt8c=
+        b=TcSepyyzt82KiaaIWdXx3BxTx7HKMqHV8mVziOHgPRBtmEpr1DvuR4sT69iadsslI
+         1s9voMzxfkEltQbjNjaqb2Ky1itTzxSthjpmE1ziAlnSK9rtExS9mRD7tWW5REiDb4
+         cxjwGPUKo3q1K+9DcFo/kyIFgjEVUcOKEQq1flvg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thierry Reding <thierry.reding@gmail.com>,
-        Mikko Perttunen <mperttunen@nvidia.com>,
-        dri-devel@lists.freedesktop.org,
-        Robin Murphy <robin.murphy@arm.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Thierry Reding <treding@nvidia.com>,
+        stable@vger.kernel.org, Antony Antony <antony.antony@secunet.com>,
+        Eyal Birger <eyal.birger@gmail.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 171/563] drm/tegra: vic: Fix DMA API misuse
-Date:   Mon, 24 Jan 2022 19:38:56 +0100
-Message-Id: <20220124184030.328363973@linuxfoundation.org>
+Subject: [PATCH 5.10 173/563] xfrm: interface with if_id 0 should return error
+Date:   Mon, 24 Jan 2022 19:38:58 +0100
+Message-Id: <20220124184030.397155595@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -52,55 +46,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Antony Antony <antony.antony@secunet.com>
 
-[ Upstream commit 5566174cb10a5167d59b0793871cab7990b149b8 ]
+[ Upstream commit 8dce43919566f06e865f7e8949f5c10d8c2493f5 ]
 
-Upon failure, dma_alloc_coherent() returns NULL. If that does happen,
-passing some uninitialised stack contents to dma_mapping_error() - which
-belongs to a different API in the first place - has precious little
-chance of detecting it.
+xfrm interface if_id = 0 would cause xfrm policy lookup errors since
+Commit 9f8550e4bd9d.
 
-Also include the correct header, because the fragile transitive
-inclusion currently providing it is going to break soon.
+Now explicitly fail to create an xfrm interface when if_id = 0
 
-Fixes: 20e7dce255e9 ("drm/tegra: Remove memory allocation from Falcon library")
-CC: Thierry Reding <thierry.reding@gmail.com>
-CC: Mikko Perttunen <mperttunen@nvidia.com>
-CC: dri-devel@lists.freedesktop.org
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Thierry Reding <treding@nvidia.com>
+With this commit:
+ ip link add ipsec0  type xfrm dev lo  if_id 0
+ Error: if_id must be non zero.
+
+v1->v2 change:
+ - add Fixes: tag
+
+Fixes: 9f8550e4bd9d ("xfrm: fix disable_xfrm sysctl when used on xfrm interfaces")
+Signed-off-by: Antony Antony <antony.antony@secunet.com>
+Reviewed-by: Eyal Birger <eyal.birger@gmail.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/tegra/vic.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ net/xfrm/xfrm_interface.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/tegra/vic.c b/drivers/gpu/drm/tegra/vic.c
-index b77f726303d89..ec0e4d8f0aade 100644
---- a/drivers/gpu/drm/tegra/vic.c
-+++ b/drivers/gpu/drm/tegra/vic.c
-@@ -5,6 +5,7 @@
+diff --git a/net/xfrm/xfrm_interface.c b/net/xfrm/xfrm_interface.c
+index e9ce23343f5ca..e1fae61a5bb90 100644
+--- a/net/xfrm/xfrm_interface.c
++++ b/net/xfrm/xfrm_interface.c
+@@ -643,11 +643,16 @@ static int xfrmi_newlink(struct net *src_net, struct net_device *dev,
+ 			struct netlink_ext_ack *extack)
+ {
+ 	struct net *net = dev_net(dev);
+-	struct xfrm_if_parms p;
++	struct xfrm_if_parms p = {};
+ 	struct xfrm_if *xi;
+ 	int err;
  
- #include <linux/clk.h>
- #include <linux/delay.h>
-+#include <linux/dma-mapping.h>
- #include <linux/host1x.h>
- #include <linux/iommu.h>
- #include <linux/module.h>
-@@ -265,10 +266,8 @@ static int vic_load_firmware(struct vic *vic)
+ 	xfrmi_netlink_parms(data, &p);
++	if (!p.if_id) {
++		NL_SET_ERR_MSG(extack, "if_id must be non zero");
++		return -EINVAL;
++	}
++
+ 	xi = xfrmi_locate(net, &p);
+ 	if (xi)
+ 		return -EEXIST;
+@@ -672,7 +677,12 @@ static int xfrmi_changelink(struct net_device *dev, struct nlattr *tb[],
+ {
+ 	struct xfrm_if *xi = netdev_priv(dev);
+ 	struct net *net = xi->net;
+-	struct xfrm_if_parms p;
++	struct xfrm_if_parms p = {};
++
++	if (!p.if_id) {
++		NL_SET_ERR_MSG(extack, "if_id must be non zero");
++		return -EINVAL;
++	}
  
- 	if (!client->group) {
- 		virt = dma_alloc_coherent(vic->dev, size, &iova, GFP_KERNEL);
--
--		err = dma_mapping_error(vic->dev, iova);
--		if (err < 0)
--			return err;
-+		if (!virt)
-+			return -ENOMEM;
- 	} else {
- 		virt = tegra_drm_alloc(tegra, size, &iova);
- 	}
+ 	xfrmi_netlink_parms(data, &p);
+ 	xi = xfrmi_locate(net, &p);
 -- 
 2.34.1
 
