@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C180B498AF3
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:08:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46BB0498E23
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:44:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238097AbiAXTIP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:08:15 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:36088 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237372AbiAXTGG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:06:06 -0500
+        id S1354873AbiAXTjd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:39:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53356 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1353196AbiAXTdV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:33:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED3ABC08E912;
+        Mon, 24 Jan 2022 11:16:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A6F76123A;
-        Mon, 24 Jan 2022 19:06:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D101C340E5;
-        Mon, 24 Jan 2022 19:06:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CBD960918;
+        Mon, 24 Jan 2022 19:16:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 738DCC340E5;
+        Mon, 24 Jan 2022 19:16:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051165;
-        bh=vQxa3OKPW4dCeFASeWVK/aTkRn+gKtR3N8LvRWNxdF0=;
+        s=korg; t=1643051764;
+        bh=Tlfrbg2JF29oRUFyyFYNKlReUyZNttyjxT+hByjmtTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gsm7sBaZnAR/ZI0GnNX9Qdhm4UrdFvqEHOUuJWj1uYzZUqTokTt+si8grHJCSi8jd
-         ynCWKi4JbZUUSewqsz6hbNxetZvH97VLJiodLEQ1w79fMfUFXewES029lHK0Y8sETb
-         ZZesH+/AHbQiiwVlXmYR5sCk3AM30+YNO3hsCd48=
+        b=yyWYdffHmUIzrR3kGjY8pb/ADX3rEgkWppCUjGRi2WGkBu1pmwmJSVpRAvv1B1TAh
+         wbTdRzNyibXILtlTYX0f12tYllZsiDiVC5YZ0xbmeFtrqryLo2wz3BTuDwsF3rGvpr
+         2erR2+rhMl4J4wASG7NanTrSTIsvQTPWLArR4Cv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dafna Hirschfeld <dafna.hirschfeld@collabora.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Antony Antony <antony.antony@secunet.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 043/186] media: mtk-vcodec: call v4l2_m2m_ctx_release first when file is released
+Subject: [PATCH 4.19 080/239] xfrm: state and policy should fail if XFRMA_IF_ID 0
 Date:   Mon, 24 Jan 2022 19:41:58 +0100
-Message-Id: <20220124183938.510061764@linuxfoundation.org>
+Message-Id: <20220124183945.668743375@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,83 +48,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
+From: Antony Antony <antony.antony@secunet.com>
 
-[ Upstream commit 9f89c881bffbdffe4060ffaef3489a2830a6dd9c ]
+[ Upstream commit 68ac0f3810e76a853b5f7b90601a05c3048b8b54 ]
 
-The func v4l2_m2m_ctx_release waits for currently running jobs
-to finish and then stop streaming both queues and frees the buffers.
-All this should be done before the call to mtk_vcodec_enc_release
-which frees the encoder handler. This fixes null-pointer dereference bug:
+xfrm ineterface does not allow xfrm if_id = 0
+fail to create or update xfrm state and policy.
 
-[  638.028076] Mem abort info:
-[  638.030932]   ESR = 0x96000004
-[  638.033978]   EC = 0x25: DABT (current EL), IL = 32 bits
-[  638.039293]   SET = 0, FnV = 0
-[  638.042338]   EA = 0, S1PTW = 0
-[  638.045474]   FSC = 0x04: level 0 translation fault
-[  638.050349] Data abort info:
-[  638.053224]   ISV = 0, ISS = 0x00000004
-[  638.057055]   CM = 0, WnR = 0
-[  638.060018] user pgtable: 4k pages, 48-bit VAs, pgdp=000000012b6db000
-[  638.066485] [00000000000001a0] pgd=0000000000000000, p4d=0000000000000000
-[  638.073277] Internal error: Oops: 96000004 [#1] SMP
-[  638.078145] Modules linked in: rfkill mtk_vcodec_dec mtk_vcodec_enc uvcvideo mtk_mdp mtk_vcodec_common videobuf2_dma_contig v4l2_h264 cdc_ether v4l2_mem2mem videobuf2_vmalloc usbnet videobuf2_memops videobuf2_v4l2 r8152 videobuf2_common videodev cros_ec_sensors cros_ec_sensors_core industrialio_triggered_buffer kfifo_buf elan_i2c elants_i2c sbs_battery mc cros_usbpd_charger cros_ec_chardev cros_usbpd_logger crct10dif_ce mtk_vpu fuse ip_tables x_tables ipv6
-[  638.118583] CPU: 0 PID: 212 Comm: kworker/u8:5 Not tainted 5.15.0-06427-g58a1d4dcfc74-dirty #109
-[  638.127357] Hardware name: Google Elm (DT)
-[  638.131444] Workqueue: mtk-vcodec-enc mtk_venc_worker [mtk_vcodec_enc]
-[  638.137974] pstate: 60000005 (nZCv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-[  638.144925] pc : vp8_enc_encode+0x34/0x2b0 [mtk_vcodec_enc]
-[  638.150493] lr : venc_if_encode+0xac/0x1b0 [mtk_vcodec_enc]
-[  638.156060] sp : ffff8000124d3c40
-[  638.159364] x29: ffff8000124d3c40 x28: 0000000000000000 x27: 0000000000000000
-[  638.166493] x26: 0000000000000000 x25: ffff0000e7f252d0 x24: ffff8000124d3d58
-[  638.173621] x23: ffff8000124d3d58 x22: ffff8000124d3d60 x21: 0000000000000001
-[  638.180750] x20: ffff80001137e000 x19: 0000000000000000 x18: 0000000000000001
-[  638.187878] x17: 000000040044ffff x16: 00400032b5503510 x15: 0000000000000000
-[  638.195006] x14: ffff8000118536c0 x13: ffff8000ee1da000 x12: 0000000030d4d91d
-[  638.202134] x11: 0000000000000000 x10: 0000000000000980 x9 : ffff8000124d3b20
-[  638.209262] x8 : ffff0000c18d4ea0 x7 : ffff0000c18d44c0 x6 : ffff0000c18d44c0
-[  638.216391] x5 : ffff80000904a3b0 x4 : ffff8000124d3d58 x3 : ffff8000124d3d60
-[  638.223519] x2 : ffff8000124d3d78 x1 : 0000000000000001 x0 : ffff80001137efb8
-[  638.230648] Call trace:
-[  638.233084]  vp8_enc_encode+0x34/0x2b0 [mtk_vcodec_enc]
-[  638.238304]  venc_if_encode+0xac/0x1b0 [mtk_vcodec_enc]
-[  638.243525]  mtk_venc_worker+0x110/0x250 [mtk_vcodec_enc]
-[  638.248918]  process_one_work+0x1f8/0x498
-[  638.252923]  worker_thread+0x140/0x538
-[  638.256664]  kthread+0x148/0x158
-[  638.259884]  ret_from_fork+0x10/0x20
-[  638.263455] Code: f90023f9 2a0103f5 aa0303f6 aa0403f8 (f940d277)
-[  638.269538] ---[ end trace e374fc10f8e181f5 ]---
+With this commit:
+ ip xfrm policy add src 192.0.2.1 dst 192.0.2.2 dir out if_id 0
+ RTNETLINK answers: Invalid argument
 
-[gst-master] root@debian:~/gst-build# [  638.019193] Unable to handle kernel NULL pointer dereference at virtual address 00000000000001a0
-Fixes: 4e855a6efa547 ("[media] vcodec: mediatek: Add Mediatek V4L2 Video Encoder Driver")
-Signed-off-by: Dafna Hirschfeld <dafna.hirschfeld@collabora.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+ ip xfrm state add src 192.0.2.1 dst 192.0.2.2 proto esp spi 1 \
+            reqid 1 mode tunnel aead 'rfc4106(gcm(aes))' \
+            0x1111111111111111111111111111111111111111 96 if_id 0
+ RTNETLINK answers: Invalid argument
+
+v1->v2 change:
+ - add Fixes: tag
+
+Fixes: 9f8550e4bd9d ("xfrm: fix disable_xfrm sysctl when used on xfrm interfaces")
+Signed-off-by: Antony Antony <antony.antony@secunet.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/xfrm/xfrm_user.c | 21 ++++++++++++++++++---
+ 1 file changed, 18 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.c b/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.c
-index 83f859e8509c9..b95006a864c26 100644
---- a/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.c
-+++ b/drivers/media/platform/mtk-vcodec/mtk_vcodec_enc_drv.c
-@@ -217,11 +217,11 @@ static int fops_vcodec_release(struct file *file)
- 	mtk_v4l2_debug(1, "[%d] encoder", ctx->id);
- 	mutex_lock(&dev->dev_mutex);
+diff --git a/net/xfrm/xfrm_user.c b/net/xfrm/xfrm_user.c
+index 87932f6ad9d75..8d8f9e778cd4f 100644
+--- a/net/xfrm/xfrm_user.c
++++ b/net/xfrm/xfrm_user.c
+@@ -620,8 +620,13 @@ static struct xfrm_state *xfrm_state_construct(struct net *net,
  
-+	v4l2_m2m_ctx_release(ctx->m2m_ctx);
- 	mtk_vcodec_enc_release(ctx);
- 	v4l2_fh_del(&ctx->fh);
- 	v4l2_fh_exit(&ctx->fh);
- 	v4l2_ctrl_handler_free(&ctx->ctrl_hdl);
--	v4l2_m2m_ctx_release(ctx->m2m_ctx);
+ 	xfrm_smark_init(attrs, &x->props.smark);
  
- 	list_del_init(&ctx->list);
- 	kfree(ctx);
+-	if (attrs[XFRMA_IF_ID])
++	if (attrs[XFRMA_IF_ID]) {
+ 		x->if_id = nla_get_u32(attrs[XFRMA_IF_ID]);
++		if (!x->if_id) {
++			err = -EINVAL;
++			goto error;
++		}
++	}
+ 
+ 	err = __xfrm_init_state(x, false, attrs[XFRMA_OFFLOAD_DEV]);
+ 	if (err)
+@@ -1327,8 +1332,13 @@ static int xfrm_alloc_userspi(struct sk_buff *skb, struct nlmsghdr *nlh,
+ 
+ 	mark = xfrm_mark_get(attrs, &m);
+ 
+-	if (attrs[XFRMA_IF_ID])
++	if (attrs[XFRMA_IF_ID]) {
+ 		if_id = nla_get_u32(attrs[XFRMA_IF_ID]);
++		if (!if_id) {
++			err = -EINVAL;
++			goto out_noput;
++		}
++	}
+ 
+ 	if (p->info.seq) {
+ 		x = xfrm_find_acq_byseq(net, mark, p->info.seq);
+@@ -1630,8 +1640,13 @@ static struct xfrm_policy *xfrm_policy_construct(struct net *net, struct xfrm_us
+ 
+ 	xfrm_mark_get(attrs, &xp->mark);
+ 
+-	if (attrs[XFRMA_IF_ID])
++	if (attrs[XFRMA_IF_ID]) {
+ 		xp->if_id = nla_get_u32(attrs[XFRMA_IF_ID]);
++		if (!xp->if_id) {
++			err = -EINVAL;
++			goto error;
++		}
++	}
+ 
+ 	return xp;
+  error:
 -- 
 2.34.1
 
