@@ -2,90 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 629A3498375
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 16:23:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D88449839C
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 16:33:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240242AbiAXPXU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 10:23:20 -0500
-Received: from out5-smtp.messagingengine.com ([66.111.4.29]:47537 "EHLO
-        out5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235210AbiAXPXT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 10:23:19 -0500
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.nyi.internal (Postfix) with ESMTP id 7F8A35C0032;
-        Mon, 24 Jan 2022 10:23:19 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Mon, 24 Jan 2022 10:23:19 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm2; bh=5tVOxchoRlJQ9oVa38o8Q0ocBQpIb1lhZlmRVk
-        exNP8=; b=CZtc6KQZabbwZn/VW2434m5/7jiDuK//V0ezoerup89k9a6Wdb0FcS
-        qfQmjQseL5IxZwEwjgm52VoyxVDnXJO9YfyeUVUJQB7LyXHJvvIDPqhoNnwg05OW
-        MHAXqWfJ7PW2muicmGzJ7xgaf9aOZ7Mvq70AnbtuHt+BHIN/49Ho501nHfz9OQWS
-        H80mllMjpTwCG15mD9YAVKN2m05W2noPnnA2hmr69vJYXlBbbmIbvCscSbLiqmw+
-        ygd1aJnFJ5DxE6xXKSsow4wogglHA5zsE4JhHFC+aWDd/pNOi/asBaHPGFL+2OdF
-        Kds9d8BxJh3J0FS6DPXiEvX3q0L1EyAQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=5tVOxchoRlJQ9oVa3
-        8o8Q0ocBQpIb1lhZlmRVkexNP8=; b=niMk8bEYw4a+qtmzbOWDsL5RaYRSlY7H6
-        aaThzeIOWUFMN8eQwFuRJkFfd2/iQUzPP1GAoxDrODqhiBUFy1nNH34EbeIuNrue
-        PosZG6J28p9wO8jiVGnuZxnsRvZOp2GAdNQmW+gdGoTIeA9W0bMPVbMypE8VUTlJ
-        o1A6iToqMqxxFXz2H9xYTDio8q/K5vSnEby9F2CI9sWol4F4UZCCMI36GcbOqLue
-        UlOuDuW3brIv5Wc2Jw3oseGupHEZC9A6/FQkl4sGQ79SmK+h9fcOgnZdhy/zF0wW
-        de1GVVVQ+dz1ks1XaM4vXZ56nXXUCVkmyWbdwL20Z00o6pl7Qn+sA==
-X-ME-Sender: <xms:Z8TuYeW-wnoT8XlEbkjSege-_ft6vRO5eDrObhxaouNLhFLdiCANFw>
-    <xme:Z8TuYakhfxV-vzv-_IgP4rgxgqjJLouMwmWfPKDApbGt2PyE-PdFHL4CyNd8DNc6T
-    t_s-B8qpgoq3A>
-X-ME-Received: <xmr:Z8TuYSaDi-wea9WFnWS8TllP_o6aymfGT4kxakYGqwcSrLBlYYwSs2u_FraCgzudIZgdw7o_K5N_X5rM0dnfpbHTQoujxUkF>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrvdeigdejjecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
-    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:Z8TuYVVnJi_sx-AjbtHA-FDFpRxT_RrAQ3tNd7Xxkm2sCUg5kpfX8w>
-    <xmx:Z8TuYYkh0MiDUwHGqTdkL8Kg0mnDXtU8uAsMcpUqXqtUnh67O6TNrw>
-    <xmx:Z8TuYaf58bfmQTmiSFYgHHx4ljkVTTAy3nZ8fWf1z_vZhSYCjh3IdA>
-    <xmx:Z8TuYZBplXmBaXXCArL2AFrxCdGn4nVSPQuo9uvwUbhaiQofIzC60g>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
- 24 Jan 2022 10:23:18 -0500 (EST)
-Date:   Mon, 24 Jan 2022 16:23:17 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Ben Hutchings <ben@decadent.org.uk>
-Cc:     stable@vger.kernel.org, Suren Baghdasaryan <surenb@google.com>
-Subject: Re: [PATCH 4.14,4.19] mips,s390,sh,sparc: gup: Work around the "COW
- can break either way" issue
-Message-ID: <Ye7EZaQh/nYk4Oz+@kroah.com>
-References: <Ye7BluXgj+5i9VUb@decadent.org.uk>
+        id S235503AbiAXPd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 10:33:57 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:43974 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231408AbiAXPdz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 10:33:55 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8C93DB810E0
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 15:33:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34897C340E7;
+        Mon, 24 Jan 2022 15:33:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1643038433;
+        bh=H8CSXUKprkgwQSMfZvGKY0nOZEI/6JtPV3yXxnw+z/A=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=SNFL9qB0UJ1VQJXSuOKFEx3AGgLDouh+HU85gDA7yFg1aAwkWfND3fwqfW1zMVXpj
+         +m1a69WFyyIGRRKaZEdZ4l+vgqByjAlqMI4VYUj/ubHpTSIXkYt4UEerfD5gyOQ0wc
+         x6031ocCB1OF0njWJl3IzpzJnc4xOAMgXsrxWkH+sEjNduOCUC4eVCvs6FqvCQ//2a
+         0jmFTkN+4mBzSaOwLqpxbS3/w3WqLdDgnJSHeTvGFARbxkb0u6z+bijla4Nb4+nnjI
+         ezVm3CJk3ivxMo/QyXP9mPQd2xTcfuxAHRtlIWvME3MiYERKiMNUJ92pZgq+Qp2qou
+         jrgF83b9ZevUQ==
+From:   Mark Brown <broonie@kernel.org>
+To:     Liam Girdwood <lgirdwood@gmail.com>
+Cc:     alsa-devel@alsa-project.org, Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org
+Subject: [PATCH v1 1/3] ASoC: ops: Reject out of bounds values in snd_soc_put_volsw()
+Date:   Mon, 24 Jan 2022 15:32:51 +0000
+Message-Id: <20220124153253.3548853-2-broonie@kernel.org>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20220124153253.3548853-1-broonie@kernel.org>
+References: <20220124153253.3548853-1-broonie@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Ye7BluXgj+5i9VUb@decadent.org.uk>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1419; h=from:subject; bh=H8CSXUKprkgwQSMfZvGKY0nOZEI/6JtPV3yXxnw+z/A=; b=owEBbQGS/pANAwAKASTWi3JdVIfQAcsmYgBh7saihjCo+ozwM+QwXv6Oo2x19ONjtnaIuHg+l+Hj ZU7ydiiJATMEAAEKAB0WIQSt5miqZ1cYtZ/in+ok1otyXVSH0AUCYe7GogAKCRAk1otyXVSH0CujB/ 92G0gzebzErS14s3OjhKS66JcFgczyXwFfuQ+g8KaCw4N6kuOym+f084lSn1Dnvb0KBZxOPQAvJOS2 KaLxTSIn8Hsk8y9XDtxIzWF1HOnRfxhKUHiQ8fDlmTqhs+FehCW3ovLbYoYMmjdDdDF0KUJdUeFC4w LbP/hSYAWxu3oocFVzpHxo/N/agV7WXGynh8F7mFC7o5wLefg5a0K8RB8rKkJpSfz6QtANAymcS3Vl U4+NApoS25EGOQg70bmBTYDt2ys6yf+Bk/13XsskwtstZKV0tNdFwqZkj/y+ro7AT0oJpYjYlnUiJ5 hdlIV3cKSmljqrmk79JFm8TNCjXiJ6
+X-Developer-Key: i=broonie@kernel.org; a=openpgp; fpr=3F2568AAC26998F9E813A1C5C3F436CA30F5D8EB
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 24, 2022 at 04:11:18PM +0100, Ben Hutchings wrote:
-> In Linux 4.14 and 4.19 these architectures still have their own
-> implementations of get_user_pages_fast().  These also need to force
-> the write flag on when taking the fast path.
-> 
-> Fixes: 407faed92b4a ("gup: document and work around "COW can break either way" issue")
-> Fixes: 5e24029791e8 ("gup: document and work around "COW can break either way" issue")
-> Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
-> ---
->  arch/mips/mm/gup.c  | 9 ++++++++-
->  arch/s390/mm/gup.c  | 9 ++++++++-
->  arch/sh/mm/gup.c    | 9 ++++++++-
->  arch/sparc/mm/gup.c | 9 ++++++++-
->  4 files changed, 32 insertions(+), 4 deletions(-)
+We don't currently validate that the values being set are within the range
+we advertised to userspace as being valid, do so and reject any values
+that are out of range.
 
-Thanks, now queued up.
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: stable@vger.kernel.org
+---
+ sound/soc/soc-ops.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-greg k-h
+diff --git a/sound/soc/soc-ops.c b/sound/soc/soc-ops.c
+index 08eaa9ddf191..fbe5d326b0f2 100644
+--- a/sound/soc/soc-ops.c
++++ b/sound/soc/soc-ops.c
+@@ -316,13 +316,27 @@ int snd_soc_put_volsw(struct snd_kcontrol *kcontrol,
+ 	if (sign_bit)
+ 		mask = BIT(sign_bit + 1) - 1;
+ 
+-	val = ((ucontrol->value.integer.value[0] + min) & mask);
++	val = ucontrol->value.integer.value[0];
++	if (mc->platform_max && val > mc->platform_max)
++		return -EINVAL;
++	if (val > max - min)
++		return -EINVAL;
++	if (val < 0)
++		return -EINVAL;
++	val = (val + min) & mask;
+ 	if (invert)
+ 		val = max - val;
+ 	val_mask = mask << shift;
+ 	val = val << shift;
+ 	if (snd_soc_volsw_is_stereo(mc)) {
+-		val2 = ((ucontrol->value.integer.value[1] + min) & mask);
++		val2 = ucontrol->value.integer.value[1];
++		if (mc->platform_max && val2 > mc->platform_max)
++			return -EINVAL;
++		if (val2 > max - min)
++			return -EINVAL;
++		if (val2 < 0)
++			return -EINVAL;
++		val2 = (val2 + min) & mask;
+ 		if (invert)
+ 			val2 = max - val2;
+ 		if (reg == reg2) {
+-- 
+2.30.2
+
