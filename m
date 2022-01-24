@@ -2,40 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B2EB49A4DB
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:10:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 150FB49A478
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:09:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2372015AbiAYAKY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:10:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57254 "EHLO
+        id S2371364AbiAYAHu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:07:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56858 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S2363952AbiAXXq1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:46:27 -0500
+        with ESMTP id S2364073AbiAXXqo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:46:44 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFFCAC0BD12D;
-        Mon, 24 Jan 2022 13:40:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C400C0613B2;
+        Mon, 24 Jan 2022 13:42:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EC166150E;
-        Mon, 24 Jan 2022 21:40:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FC27C340E7;
-        Mon, 24 Jan 2022 21:40:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C15F6150E;
+        Mon, 24 Jan 2022 21:42:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0449C340E4;
+        Mon, 24 Jan 2022 21:41:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643060433;
-        bh=Bf7idONjgD/oBEZ0+ZWnrASVJYEbrOEFixMhi+GyhwY=;
+        s=korg; t=1643060520;
+        bh=bZB8LXzuRpRqd1OdmxiHwhFIwlaujiAsLxkUGVGfxqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HusHj/c4eu3BgWBYAJDqbUZ4jRbcyIvLbVeVUH64doxBevSKo9/+6fy6HirQDp/74
-         p1ti1UNhBdGmnjHDfRLvhsXJTYhi8/clqDA1I/e3OesQBmkpJRidsFLnWJdoWkgli5
-         Z64f08CgB/7Pc1e1qdywWVt7U7jiWbSEFBdkrvow=
+        b=nymYwyfvy6p62pEdV4oxB9yEl7aA72qMZTqyki7Vu8K9OL9yk8q8tieh5cGHg+hLD
+         apqBqd6b25oesLzGaR9TW4ExBYCPIjDM/5xPaRWN1ZHyFAxMr09Xqm5Ym8AYzwvil3
+         +HdgwuNVxgtlVT6o4+0h3h9S3oxbsvBVRgJ5dFho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Quentin Monnet <quentin@isovalent.com>,
-        Andrii Nakryiko <andrii@kernel.org>
-Subject: [PATCH 5.16 0939/1039] bpftool: Fix indent in option lists in the documentation
-Date:   Mon, 24 Jan 2022 19:45:28 +0100
-Message-Id: <20220124184156.849678945@linuxfoundation.org>
+        stable@vger.kernel.org, Chase Conklin <chase.conklin@arm.com>,
+        German Gomez <german.gomez@arm.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ian Rogers <irogers@google.com>, Jiri Olsa <jolsa@redhat.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        KP Singh <kpsingh@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Martin KaFai Lau <kafai@fb.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Song Liu <songliubraving@fb.com>,
+        Stephane Eranian <eranian@google.com>,
+        Yonghong Song <yhs@fb.com>, bpf@vger.kernel.org,
+        netdev@vger.kernel.org, Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.16 0943/1039] perf evsel: Override attr->sample_period for non-libpfm4 events
+Date:   Mon, 24 Jan 2022 19:45:32 +0100
+Message-Id: <20220124184156.987692281@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -47,138 +58,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quentin Monnet <quentin@isovalent.com>
+From: German Gomez <german.gomez@arm.com>
 
-commit 986dec18bbf41f50edc2e0aa4ac5ef8e0f64f328 upstream.
+commit 3606c0e1a1050d397ad759a62607e419fd8b0ccb upstream.
 
-Mixed indentation levels in the lists of options in bpftool's
-documentation produces some unexpected results. For the "bpftool" man
-page, it prints a warning:
+A previous patch preventing "attr->sample_period" values from being
+overridden in pfm events changed a related behaviour in arm-spe.
 
-    $ make -C bpftool.8
-      GEN     bpftool.8
-    <stdin>:26: (ERROR/3) Unexpected indentation.
+Before said patch:
 
-For other pages, there is no warning, but it results in a line break
-appearing in the option lists in the generated man pages.
+  perf record -c 10000 -e arm_spe_0// -- sleep 1
 
-RST paragraphs should have a uniform indentation level. Let's fix it.
+Would yield an SPE event with period=10000. After the patch, the period
+in "-c 10000" was being ignored because the arm-spe code initializes
+sample_period to a non-zero value.
 
-Fixes: c07ba629df97 ("tools: bpftool: Update and synchronise option list in doc and help msg")
-Fixes: 8cc8c6357c8f ("tools: bpftool: Document and add bash completion for -L, -B options")
-Signed-off-by: Quentin Monnet <quentin@isovalent.com>
-Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20211110114632.24537-5-quentin@isovalent.com
+This patch restores the previous behaviour for non-libpfm4 events.
+
+Fixes: ae5dcc8abe31 (“perf record: Prevent override of attr->sample_period for libpfm4 events”)
+Reported-by: Chase Conklin <chase.conklin@arm.com>
+Signed-off-by: German Gomez <german.gomez@arm.com>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: John Fastabend <john.fastabend@gmail.com>
+Cc: KP Singh <kpsingh@kernel.org>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Martin KaFai Lau <kafai@fb.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Yonghong Song <yhs@fb.com>
+Cc: bpf@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20220118144054.2541-1-german.gomez@arm.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/bpf/bpftool/Documentation/bpftool-btf.rst    |    2 +-
- tools/bpf/bpftool/Documentation/bpftool-cgroup.rst |    2 +-
- tools/bpf/bpftool/Documentation/bpftool-gen.rst    |    2 +-
- tools/bpf/bpftool/Documentation/bpftool-link.rst   |    2 +-
- tools/bpf/bpftool/Documentation/bpftool-map.rst    |    6 +++---
- tools/bpf/bpftool/Documentation/bpftool-prog.rst   |    8 ++++----
- tools/bpf/bpftool/Documentation/bpftool.rst        |    6 +++---
- 7 files changed, 14 insertions(+), 14 deletions(-)
+ tools/perf/util/evsel.c |   25 +++++++++++++++++--------
+ 1 file changed, 17 insertions(+), 8 deletions(-)
 
---- a/tools/bpf/bpftool/Documentation/bpftool-btf.rst
-+++ b/tools/bpf/bpftool/Documentation/bpftool-btf.rst
-@@ -13,7 +13,7 @@ SYNOPSIS
- 	**bpftool** [*OPTIONS*] **btf** *COMMAND*
+--- a/tools/perf/util/evsel.c
++++ b/tools/perf/util/evsel.c
+@@ -1064,6 +1064,17 @@ void __weak arch_evsel__fixup_new_cycles
+ {
+ }
  
- 	*OPTIONS* := { { **-j** | **--json** } [{ **-p** | **--pretty** }] | {**-d** | **--debug** } |
--		{ **-B** | **--base-btf** } }
-+	{ **-B** | **--base-btf** } }
- 
- 	*COMMANDS* := { **dump** | **help** }
- 
---- a/tools/bpf/bpftool/Documentation/bpftool-cgroup.rst
-+++ b/tools/bpf/bpftool/Documentation/bpftool-cgroup.rst
-@@ -13,7 +13,7 @@ SYNOPSIS
- 	**bpftool** [*OPTIONS*] **cgroup** *COMMAND*
- 
- 	*OPTIONS* := { { **-j** | **--json** } [{ **-p** | **--pretty** }] | { **-d** | **--debug** } |
--		{ **-f** | **--bpffs** } }
-+	{ **-f** | **--bpffs** } }
- 
- 	*COMMANDS* :=
- 	{ **show** | **list** | **tree** | **attach** | **detach** | **help** }
---- a/tools/bpf/bpftool/Documentation/bpftool-gen.rst
-+++ b/tools/bpf/bpftool/Documentation/bpftool-gen.rst
-@@ -13,7 +13,7 @@ SYNOPSIS
- 	**bpftool** [*OPTIONS*] **gen** *COMMAND*
- 
- 	*OPTIONS* := { { **-j** | **--json** } [{ **-p** | **--pretty** }] | { **-d** | **--debug** } |
--		{ **-L** | **--use-loader** } }
-+	{ **-L** | **--use-loader** } }
- 
- 	*COMMAND* := { **object** | **skeleton** | **help** }
- 
---- a/tools/bpf/bpftool/Documentation/bpftool-link.rst
-+++ b/tools/bpf/bpftool/Documentation/bpftool-link.rst
-@@ -13,7 +13,7 @@ SYNOPSIS
- 	**bpftool** [*OPTIONS*] **link** *COMMAND*
- 
- 	*OPTIONS* := { { **-j** | **--json** } [{ **-p** | **--pretty** }] | { **-d** | **--debug** } |
--		{ **-f** | **--bpffs** } | { **-n** | **--nomount** } }
-+	{ **-f** | **--bpffs** } | { **-n** | **--nomount** } }
- 
- 	*COMMANDS* := { **show** | **list** | **pin** | **help** }
- 
---- a/tools/bpf/bpftool/Documentation/bpftool-map.rst
-+++ b/tools/bpf/bpftool/Documentation/bpftool-map.rst
-@@ -13,11 +13,11 @@ SYNOPSIS
- 	**bpftool** [*OPTIONS*] **map** *COMMAND*
- 
- 	*OPTIONS* := { { **-j** | **--json** } [{ **-p** | **--pretty** }] | { **-d** | **--debug** } |
--		{ **-f** | **--bpffs** } | { **-n** | **--nomount** } }
-+	{ **-f** | **--bpffs** } | { **-n** | **--nomount** } }
- 
- 	*COMMANDS* :=
--	{ **show** | **list** | **create** | **dump** | **update** | **lookup** | **getnext**
--	| **delete** | **pin** | **help** }
-+	{ **show** | **list** | **create** | **dump** | **update** | **lookup** | **getnext** |
-+	**delete** | **pin** | **help** }
- 
- MAP COMMANDS
- =============
---- a/tools/bpf/bpftool/Documentation/bpftool-prog.rst
-+++ b/tools/bpf/bpftool/Documentation/bpftool-prog.rst
-@@ -13,12 +13,12 @@ SYNOPSIS
- 	**bpftool** [*OPTIONS*] **prog** *COMMAND*
- 
- 	*OPTIONS* := { { **-j** | **--json** } [{ **-p** | **--pretty** }] | { **-d** | **--debug** } |
--		{ **-f** | **--bpffs** } | { **-m** | **--mapcompat** } | { **-n** | **--nomount** } |
--		{ **-L** | **--use-loader** } }
-+	{ **-f** | **--bpffs** } | { **-m** | **--mapcompat** } | { **-n** | **--nomount** } |
-+	{ **-L** | **--use-loader** } }
- 
- 	*COMMANDS* :=
--	{ **show** | **list** | **dump xlated** | **dump jited** | **pin** | **load**
--	| **loadall** | **help** }
-+	{ **show** | **list** | **dump xlated** | **dump jited** | **pin** | **load** |
-+	**loadall** | **help** }
- 
- PROG COMMANDS
- =============
---- a/tools/bpf/bpftool/Documentation/bpftool.rst
-+++ b/tools/bpf/bpftool/Documentation/bpftool.rst
-@@ -19,14 +19,14 @@ SYNOPSIS
- 	*OBJECT* := { **map** | **program** | **cgroup** | **perf** | **net** | **feature** }
- 
- 	*OPTIONS* := { { **-V** | **--version** } |
--		{ **-j** | **--json** } [{ **-p** | **--pretty** }] | { **-d** | **--debug** } }
-+	{ **-j** | **--json** } [{ **-p** | **--pretty** }] | { **-d** | **--debug** } }
- 
- 	*MAP-COMMANDS* :=
- 	{ **show** | **list** | **create** | **dump** | **update** | **lookup** | **getnext** |
--		**delete** | **pin** | **event_pipe** | **help** }
-+	**delete** | **pin** | **event_pipe** | **help** }
- 
- 	*PROG-COMMANDS* := { **show** | **list** | **dump jited** | **dump xlated** | **pin** |
--		**load** | **attach** | **detach** | **help** }
-+	**load** | **attach** | **detach** | **help** }
- 
- 	*CGROUP-COMMANDS* := { **show** | **list** | **attach** | **detach** | **help** }
- 
++static void evsel__set_default_freq_period(struct record_opts *opts,
++					   struct perf_event_attr *attr)
++{
++	if (opts->freq) {
++		attr->freq = 1;
++		attr->sample_freq = opts->freq;
++	} else {
++		attr->sample_period = opts->default_interval;
++	}
++}
++
+ /*
+  * The enable_on_exec/disabled value strategy:
+  *
+@@ -1130,14 +1141,12 @@ void evsel__config(struct evsel *evsel,
+ 	 * We default some events to have a default interval. But keep
+ 	 * it a weak assumption overridable by the user.
+ 	 */
+-	if (!attr->sample_period) {
+-		if (opts->freq) {
+-			attr->freq		= 1;
+-			attr->sample_freq	= opts->freq;
+-		} else {
+-			attr->sample_period = opts->default_interval;
+-		}
+-	}
++	if ((evsel->is_libpfm_event && !attr->sample_period) ||
++	    (!evsel->is_libpfm_event && (!attr->sample_period ||
++					 opts->user_freq != UINT_MAX ||
++					 opts->user_interval != ULLONG_MAX)))
++		evsel__set_default_freq_period(opts, attr);
++
+ 	/*
+ 	 * If attr->freq was set (here or earlier), ask for period
+ 	 * to be sampled.
 
 
