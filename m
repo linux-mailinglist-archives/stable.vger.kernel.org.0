@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49BC149A325
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:02:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AC1549A31B
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:02:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2364924AbiAXXtv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:49:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54740 "EHLO
+        id S2364876AbiAXXtj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:49:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1455294AbiAXVfL (ORCPT
+        with ESMTP id S1455300AbiAXVfL (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:35:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C326BC075D3A;
-        Mon, 24 Jan 2022 12:21:56 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53E66C075D3F;
+        Mon, 24 Jan 2022 12:22:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F9B361382;
-        Mon, 24 Jan 2022 20:21:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BB1FC340E5;
-        Mon, 24 Jan 2022 20:21:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F406B815A5;
+        Mon, 24 Jan 2022 20:22:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E441C340E5;
+        Mon, 24 Jan 2022 20:22:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055715;
-        bh=ZTyiFhQJN4fI0ohqFr2xGTdcTomL+FISSSU8k9rBfuk=;
+        s=korg; t=1643055721;
+        bh=dqbWfEMlNE/Ni041E7Yb6Yct9cWyfdGrWOafYB2jzak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lJloNfS4rl761O+hDBvql4J+EecySsbHYRxrHIz0SIa5lmWHUSP2pc8W8rSWApr7L
-         Y3QhiFAjjYJt2RkpFtX6E1zjDqzjZ6KhhbYG8UDq0sff8BJVC+ooOLHazvP8Zrb64k
-         5SF7EmCYYREXGtSad3x2pdyrEgEn3/4Mk026M4ps=
+        b=qcRj2v4cipempaCDN+qURO+0uz/Se15egnCT+4bW8SzsaOuG1TlU4dF1UH458P21H
+         vwQwRQs5r0N8LQ6ZQqNrKbd8GBWydNHKsO9eqB+xP59/OIolO2g42mReQuj+mzW9Us
+         iftiRuTKTI80A8RtQFG+ByIPq2orfsy8u7a4LEnY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 242/846] perf/arm-cmn: Fix CPU hotplug unregistration
-Date:   Mon, 24 Jan 2022 19:35:59 +0100
-Message-Id: <20220124184109.282417542@linuxfoundation.org>
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Hai <wanghai38@huawei.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 244/846] media: msi001: fix possible null-ptr-deref in msi001_probe()
+Date:   Mon, 24 Jan 2022 19:36:01 +0100
+Message-Id: <20220124184109.354390187@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -47,48 +49,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Wang Hai <wanghai38@huawei.com>
 
-[ Upstream commit 56c7c6eaf3eb8ac1ec40d56096c0f2b27250da5f ]
+[ Upstream commit 3d5831a40d3464eea158180eb12cbd81c5edfb6a ]
 
-Attempting to migrate the PMU context after we've unregistered the PMU
-device, or especially if we never successfully registered it in the
-first place, is a woefully bad idea. It's also fundamentally pointless
-anyway. Make sure to unregister an instance from the hotplug handler
-*without* invoking the teardown callback.
+I got a null-ptr-deref report:
 
-Fixes: 0ba64770a2f2 ("perf: Add Arm CMN-600 PMU driver")
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/2c221d745544774e4b07583b65b5d4d94f7e0fe4.1638530442.git.robin.murphy@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+BUG: kernel NULL pointer dereference, address: 0000000000000060
+...
+RIP: 0010:v4l2_ctrl_auto_cluster+0x57/0x270
+...
+Call Trace:
+ msi001_probe+0x13b/0x24b [msi001]
+ spi_probe+0xeb/0x130
+...
+ do_syscall_64+0x35/0xb0
+
+In msi001_probe(), if the creation of control for bandwidth_auto
+fails, there will be a null-ptr-deref issue when it is used in
+v4l2_ctrl_auto_cluster().
+
+Check dev->hdl.error before v4l2_ctrl_auto_cluster() to fix this bug.
+
+Link: https://lore.kernel.org/linux-media/20211026112348.2878040-1-wanghai38@huawei.com
+Fixes: 93203dd6c7c4 ("[media] msi001: Mirics MSi001 silicon tuner driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Hai <wanghai38@huawei.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/perf/arm-cmn.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/media/tuners/msi001.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/perf/arm-cmn.c b/drivers/perf/arm-cmn.c
-index bc3cba5f8c5dc..400eb7f579dce 100644
---- a/drivers/perf/arm-cmn.c
-+++ b/drivers/perf/arm-cmn.c
-@@ -1561,7 +1561,8 @@ static int arm_cmn_probe(struct platform_device *pdev)
- 
- 	err = perf_pmu_register(&cmn->pmu, name, -1);
- 	if (err)
--		cpuhp_state_remove_instance(arm_cmn_hp_state, &cmn->cpuhp_node);
-+		cpuhp_state_remove_instance_nocalls(arm_cmn_hp_state, &cmn->cpuhp_node);
+diff --git a/drivers/media/tuners/msi001.c b/drivers/media/tuners/msi001.c
+index 78e6fd600d8ef..44247049a3190 100644
+--- a/drivers/media/tuners/msi001.c
++++ b/drivers/media/tuners/msi001.c
+@@ -442,6 +442,13 @@ static int msi001_probe(struct spi_device *spi)
+ 			V4L2_CID_RF_TUNER_BANDWIDTH_AUTO, 0, 1, 1, 1);
+ 	dev->bandwidth = v4l2_ctrl_new_std(&dev->hdl, &msi001_ctrl_ops,
+ 			V4L2_CID_RF_TUNER_BANDWIDTH, 200000, 8000000, 1, 200000);
++	if (dev->hdl.error) {
++		ret = dev->hdl.error;
++		dev_err(&spi->dev, "Could not initialize controls\n");
++		/* control init failed, free handler */
++		goto err_ctrl_handler_free;
++	}
 +
- 	return err;
- }
- 
-@@ -1572,7 +1573,7 @@ static int arm_cmn_remove(struct platform_device *pdev)
- 	writel_relaxed(0, cmn->dtc[0].base + CMN_DT_DTC_CTL);
- 
- 	perf_pmu_unregister(&cmn->pmu);
--	cpuhp_state_remove_instance(arm_cmn_hp_state, &cmn->cpuhp_node);
-+	cpuhp_state_remove_instance_nocalls(arm_cmn_hp_state, &cmn->cpuhp_node);
- 	return 0;
- }
- 
+ 	v4l2_ctrl_auto_cluster(2, &dev->bandwidth_auto, 0, false);
+ 	dev->lna_gain = v4l2_ctrl_new_std(&dev->hdl, &msi001_ctrl_ops,
+ 			V4L2_CID_RF_TUNER_LNA_GAIN, 0, 1, 1, 1);
 -- 
 2.34.1
 
