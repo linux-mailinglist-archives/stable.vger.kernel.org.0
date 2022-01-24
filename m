@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B8D04991B5
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:14:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6945E498AFA
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:09:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355521AbiAXUNp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:13:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33860 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355388AbiAXUNh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:13:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41619C06175A;
-        Mon, 24 Jan 2022 11:34:54 -0800 (PST)
+        id S245513AbiAXTIi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:08:38 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:34852 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346466AbiAXTGc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:06:32 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F3945B811F9;
-        Mon, 24 Jan 2022 19:34:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58496C340E5;
-        Mon, 24 Jan 2022 19:34:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B657F60B7B;
+        Mon, 24 Jan 2022 19:06:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7ACFFC340E5;
+        Mon, 24 Jan 2022 19:06:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052891;
-        bh=QAoycasiljDcdSm6faYBKX2CXMKw6Rx++/AvlQpD6PI=;
+        s=korg; t=1643051191;
+        bh=6aZxP0g4u8y40VBC+MWBOQ/7B6eeg9OTY1wH6MZHeqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iB5PKUAy98OwqndIR+5L3aq5aQjwOe6O3XW1IRp+6rcXSU7LunMdjgfFetk117KRy
-         yvuzmij82p3aAPvKASeiy+ZiIAKiAFpTnHRQfyxLC0pBJIJtAbnxuIBofWENHKiMZ3
-         nQ8D5D6DgKMjHYb8Vk6b61yY4JZLUf60DIL+m9aY=
+        b=Xow3ulbR/E45AjR19OBCJSTYO9wZiAdv/GbSlm4keaFiuBVhVu5giYPDnRPPNdDUe
+         jekIX4FJunsV0bTbzYn5B14DPUAIjDxyNODXyhrV/BqUtS2yfHuUvBedlLUNArC3Tt
+         gWAtCAl+e0KR88jnFWdrkH3oOX1HU8vCHLd/Y1pI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
-        Borislav Petkov <bp@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 175/320] x86/mm: Flush global TLB when switching to trampoline page-table
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 084/186] mips: bcm63xx: add support for clk_set_parent()
 Date:   Mon, 24 Jan 2022 19:42:39 +0100
-Message-Id: <20220124183959.610833735@linuxfoundation.org>
+Message-Id: <20220124183939.819403611@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
-References: <20220124183953.750177707@linuxfoundation.org>
+In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
+References: <20220124183937.101330125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,101 +47,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 71d5049b053876afbde6c3273250b76935494ab2 ]
+[ Upstream commit 6f03055d508ff4feb8db02ba3df9303a1db8d381 ]
 
-Move the switching code into a function so that it can be re-used and
-add a global TLB flush. This makes sure that usage of memory which is
-not mapped in the trampoline page-table is reliably caught.
+The MIPS BMC63XX subarch does not provide/support clk_set_parent().
+This causes build errors in a few drivers, so add a simple implementation
+of that function so that callers of it will build without errors.
 
-Also move the clearing of CR4.PCIDE before the CR3 switch because the
-cr4_clear_bits() function will access data not mapped into the
-trampoline page-table.
+Fixes these build errors:
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lore.kernel.org/r/20211202153226.22946-4-joro@8bytes.org
+ERROR: modpost: "clk_set_parent" [sound/soc/jz4740/snd-soc-jz4740-i2s.ko] undefined!
+ERROR: modpost: "clk_set_parent" [sound/soc/atmel/snd-soc-atmel-i2s.ko] undefined!
+
+Fixes: e7300d04bd08 ("MIPS: BCM63xx: Add support for the Broadcom BCM63xx family of SOCs." )
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reviewed-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/realmode.h |  1 +
- arch/x86/kernel/reboot.c        | 12 ++----------
- arch/x86/realmode/init.c        | 26 ++++++++++++++++++++++++++
- 3 files changed, 29 insertions(+), 10 deletions(-)
+ arch/mips/bcm63xx/clk.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/arch/x86/include/asm/realmode.h b/arch/x86/include/asm/realmode.h
-index 09ecc32f65248..52d7512ea91ab 100644
---- a/arch/x86/include/asm/realmode.h
-+++ b/arch/x86/include/asm/realmode.h
-@@ -82,6 +82,7 @@ static inline void set_real_mode_mem(phys_addr_t mem)
+diff --git a/arch/mips/bcm63xx/clk.c b/arch/mips/bcm63xx/clk.c
+index d2a5054b0492b..73f2534b9676d 100644
+--- a/arch/mips/bcm63xx/clk.c
++++ b/arch/mips/bcm63xx/clk.c
+@@ -343,6 +343,12 @@ struct clk *clk_get_parent(struct clk *clk)
  }
+ EXPORT_SYMBOL(clk_get_parent);
  
- void reserve_real_mode(void);
-+void load_trampoline_pgtable(void);
- 
- #endif /* __ASSEMBLY__ */
- 
-diff --git a/arch/x86/kernel/reboot.c b/arch/x86/kernel/reboot.c
-index d65d1afb27161..fdef27a84d713 100644
---- a/arch/x86/kernel/reboot.c
-+++ b/arch/x86/kernel/reboot.c
-@@ -113,17 +113,9 @@ void __noreturn machine_real_restart(unsigned int type)
- 	spin_unlock(&rtc_lock);
- 
- 	/*
--	 * Switch back to the initial page table.
-+	 * Switch to the trampoline page table.
- 	 */
--#ifdef CONFIG_X86_32
--	load_cr3(initial_page_table);
--#else
--	write_cr3(real_mode_header->trampoline_pgd);
--
--	/* Exiting long mode will fail if CR4.PCIDE is set. */
--	if (boot_cpu_has(X86_FEATURE_PCID))
--		cr4_clear_bits(X86_CR4_PCIDE);
--#endif
-+	load_trampoline_pgtable();
- 
- 	/* Jump to the identity-mapped low memory code */
- #ifdef CONFIG_X86_32
-diff --git a/arch/x86/realmode/init.c b/arch/x86/realmode/init.c
-index de371e52cfa85..fac50ebb122b5 100644
---- a/arch/x86/realmode/init.c
-+++ b/arch/x86/realmode/init.c
-@@ -16,6 +16,32 @@ u32 *trampoline_cr4_features;
- /* Hold the pgd entry used on booting additional CPUs */
- pgd_t trampoline_pgd_entry;
- 
-+void load_trampoline_pgtable(void)
++int clk_set_parent(struct clk *clk, struct clk *parent)
 +{
-+#ifdef CONFIG_X86_32
-+	load_cr3(initial_page_table);
-+#else
-+	/*
-+	 * This function is called before exiting to real-mode and that will
-+	 * fail with CR4.PCIDE still set.
-+	 */
-+	if (boot_cpu_has(X86_FEATURE_PCID))
-+		cr4_clear_bits(X86_CR4_PCIDE);
-+
-+	write_cr3(real_mode_header->trampoline_pgd);
-+#endif
-+
-+	/*
-+	 * The CR3 write above will not flush global TLB entries.
-+	 * Stale, global entries from previous page tables may still be
-+	 * present.  Flush those stale entries.
-+	 *
-+	 * This ensures that memory accessed while running with
-+	 * trampoline_pgd is *actually* mapped into trampoline_pgd.
-+	 */
-+	__flush_tlb_all();
++	return 0;
 +}
++EXPORT_SYMBOL(clk_set_parent);
 +
- void __init reserve_real_mode(void)
+ unsigned long clk_get_rate(struct clk *clk)
  {
- 	phys_addr_t mem;
+ 	if (!clk)
 -- 
 2.34.1
 
