@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F59649970C
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:24:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E7914998EE
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:39:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1446657AbiAXVI6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:08:58 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:56946 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1445538AbiAXVEE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:04:04 -0500
+        id S1453759AbiAXVat (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:30:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50954 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1450655AbiAXVVI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:21:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5428FC0A1CC7;
+        Mon, 24 Jan 2022 12:14:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 315EFB81188;
-        Mon, 24 Jan 2022 21:04:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47D7BC340E5;
-        Mon, 24 Jan 2022 21:04:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 08674B812A5;
+        Mon, 24 Jan 2022 20:14:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CAE2C340E7;
+        Mon, 24 Jan 2022 20:14:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058241;
-        bh=ory3SVYeIybujCMEfusN/VnvpGC5oI84n45u5L7CtDw=;
+        s=korg; t=1643055276;
+        bh=1XugZksY2Q1RIc5Ov3cpXwUMSko7XlkqMP6r64FLYaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bSWDneQCLNIgrd4NGaBoFqvSRHaW+HprUszwCa5b6UOvbl93etNjsvHdTDoSR5wig
-         k0e0SHNITXu9l12XkqY5ZnHwJgoyyuyurL/5F1T3CAjnzESY02xbJv32GSXQ3xAiUa
-         1vCq6tLAxQS6RFkVWg0IDgPlCsupYj6Cnn2NoHAU=
+        b=ui4xB5DUYphgvhlHiOHh9Pb8xGCwdoroSqhtmwUejApUHTQfmIWvWegyxlNAoiGNV
+         pvD1FKHb6jRtG7IoAWuHd3+ygNcg0l6+tXORHaEVMroQls/lu+avi3W2D0PJqaHGOe
+         0yu/RaHv88IbIhcn2ZMR/1TTaQmBm87CvcWDTsME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Hengqi Chen <hengqi.chen@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0224/1039] mtd: core: provide unique name for nvmem device
-Date:   Mon, 24 Jan 2022 19:33:33 +0100
-Message-Id: <20220124184132.862206603@linuxfoundation.org>
+Subject: [PATCH 5.15 098/846] libbpf: Free up resources used by inner map definition
+Date:   Mon, 24 Jan 2022 19:33:35 +0100
+Message-Id: <20220124184104.375758757@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,72 +49,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit c048b60d39e109c201d31ed5ad3a4f939064d6c4 ]
+[ Upstream commit 8f7b239ea8cfdc8e64c875ee417fed41431a1f37 ]
 
-If there is more than one mtd device which supports OTP, there will
-be a kernel warning about duplicated sysfs entries and the probing will
-fail. This is because the nvmem device name is not unique. Make it
-unique by prepending the name of the mtd. E.g. before the name was
-"user-otp", now it will be "mtd0-user-otp".
+It's not enough to just free(map->inner_map), as inner_map itself can
+have extra memory allocated, like map name.
 
-For reference the kernel splash is:
-[    4.665531] sysfs: cannot create duplicate filename '/bus/nvmem/devices/user-otp'
-[    4.673056] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.15.0-next-20211101+ #1296
-[    4.680565] Hardware name: Kontron SMARC-sAL28 (Single PHY) on SMARC Eval 2.0 carrier (DT)
-[    4.688856] Call trace:
-[    4.691303]  dump_backtrace+0x0/0x1bc
-[    4.694984]  show_stack+0x24/0x30
-[    4.698306]  dump_stack_lvl+0x68/0x84
-[    4.701980]  dump_stack+0x18/0x34
-[    4.705302]  sysfs_warn_dup+0x70/0x90
-[    4.708973]  sysfs_do_create_link_sd+0x144/0x150
-[    4.713603]  sysfs_create_link+0x2c/0x50
-[    4.717535]  bus_add_device+0x74/0x120
-[    4.721293]  device_add+0x330/0x890
-[    4.724791]  device_register+0x2c/0x40
-[    4.728550]  nvmem_register+0x240/0x9f0
-[    4.732398]  mtd_otp_nvmem_register+0xb0/0x10c
-[    4.736854]  mtd_device_parse_register+0x28c/0x2b4
-[    4.741659]  spi_nor_probe+0x20c/0x2e0
-[    4.745418]  spi_mem_probe+0x78/0xbc
-[    4.749001]  spi_probe+0x90/0xf0
-[    4.752237]  really_probe.part.0+0xa4/0x320
-..
-[    4.873936] mtd mtd1: Failed to register OTP NVMEM device
-[    4.894468] spi-nor: probe of spi0.0 failed with error -17
-
-Fixes: 4b361cfa8624 ("mtd: core: add OTP nvmem provider support")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20211104134843.2642800-1-michael@walle.cc
+Fixes: 646f02ffdd49 ("libbpf: Add BTF-defined map-in-map support")
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Reviewed-by: Hengqi Chen <hengqi.chen@gmail.com>
+Link: https://lore.kernel.org/bpf/20211107165521.9240-3-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/mtdcore.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ tools/lib/bpf/libbpf.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/mtd/mtdcore.c b/drivers/mtd/mtdcore.c
-index 9186268d361b4..fc0bed14bfb10 100644
---- a/drivers/mtd/mtdcore.c
-+++ b/drivers/mtd/mtdcore.c
-@@ -825,8 +825,7 @@ static struct nvmem_device *mtd_otp_nvmem_register(struct mtd_info *mtd,
- 
- 	/* OTP nvmem will be registered on the physical device */
- 	config.dev = mtd->dev.parent;
--	/* just reuse the compatible as name */
--	config.name = compatible;
-+	config.name = kasprintf(GFP_KERNEL, "%s-%s", dev_name(&mtd->dev), compatible);
- 	config.id = NVMEM_DEVID_NONE;
- 	config.owner = THIS_MODULE;
- 	config.type = NVMEM_TYPE_OTP;
-@@ -842,6 +841,7 @@ static struct nvmem_device *mtd_otp_nvmem_register(struct mtd_info *mtd,
- 		nvmem = NULL;
- 
- 	of_node_put(np);
-+	kfree(config.name);
- 
- 	return nvmem;
+diff --git a/tools/lib/bpf/libbpf.c b/tools/lib/bpf/libbpf.c
+index 7145463a4a562..0ad29203cbfbf 100644
+--- a/tools/lib/bpf/libbpf.c
++++ b/tools/lib/bpf/libbpf.c
+@@ -8676,7 +8676,10 @@ int bpf_map__set_inner_map_fd(struct bpf_map *map, int fd)
+ 		pr_warn("error: inner_map_fd already specified\n");
+ 		return libbpf_err(-EINVAL);
+ 	}
+-	zfree(&map->inner_map);
++	if (map->inner_map) {
++		bpf_map__destroy(map->inner_map);
++		zfree(&map->inner_map);
++	}
+ 	map->inner_map_fd = fd;
+ 	return 0;
  }
 -- 
 2.34.1
