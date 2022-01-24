@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AED69498F0F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:51:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14B5A498EC3
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:48:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1357463AbiAXTuE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:50:04 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:40486 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355651AbiAXTnC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:43:02 -0500
+        id S1347810AbiAXTs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:48:26 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:33092 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1346385AbiAXTnG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:43:06 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E0F8D614BB;
-        Mon, 24 Jan 2022 19:42:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3C7BC340E5;
-        Mon, 24 Jan 2022 19:42:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9FA85B810AF;
+        Mon, 24 Jan 2022 19:43:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5281C340E5;
+        Mon, 24 Jan 2022 19:43:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053379;
-        bh=IyH1Lh56yH9JDasMVhjm5n150Kxj6K6Tx0L9VwNIBGQ=;
+        s=korg; t=1643053382;
+        bh=3+Q1qqp470v+gEM0d91TJ6IrB2l1J253vXc0zAZHbcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UbmEdiZwjQB5AwDcnWbwgK3SoILutKd9KHpHllGvZoJAXj+52xhpfRoxtw7jsPdPb
-         b+0k4ZXM7NLpAyylfIyXf3rMxbQADzrwOaNrAz1OPJssWhLRRlTDK5hNcFPpNOM7hZ
-         KzPm4vULMd46Umu0S9nbJZvvLyPGuVzXYOy8LIw0=
+        b=rusgf2Vg0mGAwMcU5OvFuIAE8iK0yQe/t3dFYclkDCG/QtYul49QsSyDCTU5kA+3h
+         NlUNowTK/q7Dn/hfrHe0g/X1M7lsYhotlbVPMxrZkNwllzp1ZacAq9nJfqNskFoFrB
+         V2IhF/2Ku09Yt08rKgC96OwR7dho+0Tl7JI+si24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Brian Norris <briannorris@chromium.org>,
-        Sam Ravnborg <sam@ravnborg.org>,
+        Chen-Yu Tsai <wenst@chromium.org>,
+        "=?UTF-8?q?N=C3=ADcolas=20F . =20R . =20A . =20Prado?=" 
+        <nfraprado@collabora.com>, Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 046/563] drm/panel: innolux-p079zca: Delete panel on attach() failure
-Date:   Mon, 24 Jan 2022 19:36:51 +0100
-Message-Id: <20220124184026.007769115@linuxfoundation.org>
+Subject: [PATCH 5.10 047/563] drm/rockchip: dsi: Fix unbalanced clock on probe error
+Date:   Mon, 24 Jan 2022 19:36:52 +0100
+Message-Id: <20220124184026.039348000@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -47,53 +49,44 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Brian Norris <briannorris@chromium.org>
 
-[ Upstream commit 32a267e9c057e1636e7afdd20599aa5741a73079 ]
+[ Upstream commit 251888398753924059f3bb247a44153a2853137f ]
 
-If we fail to attach (e.g., because 1 of 2 dual-DSI controllers aren't
-ready), we leave a dangling drm_panel reference to freed memory. Clean
-that up on failure.
+Our probe() function never enabled this clock, so we shouldn't disable
+it if we fail to probe the bridge.
 
-This problem exists since the driver's introduction, but is especially
-relevant after refactored for dual-DSI variants.
+Noted by inspection.
 
-Fixes: 14c8f2e9f8ea ("drm/panel: add Innolux P079ZCA panel driver")
-Fixes: 7ad4e4636c54 ("drm/panel: p079zca: Refactor panel driver to support multiple panels")
+Fixes: 2d4f7bdafd70 ("drm/rockchip: dsi: migrate to use dw-mipi-dsi bridge driver")
 Signed-off-by: Brian Norris <briannorris@chromium.org>
-Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210923173336.2.I9023cf8811a3abf4964ed84eb681721d8bb489d6@changeid
+Reviewed-by: Chen-Yu Tsai <wenst@chromium.org>
+Tested-by: Nícolas F. R. A. Prado <nfraprado@collabora.com>
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210928143413.v3.3.Ie8ceefb51ab6065a1151869b6fcda41a467d4d2c@changeid
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/panel/panel-innolux-p079zca.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/panel/panel-innolux-p079zca.c b/drivers/gpu/drm/panel/panel-innolux-p079zca.c
-index aea3162253914..f194b62e290ca 100644
---- a/drivers/gpu/drm/panel/panel-innolux-p079zca.c
-+++ b/drivers/gpu/drm/panel/panel-innolux-p079zca.c
-@@ -484,6 +484,7 @@ static void innolux_panel_del(struct innolux_panel *innolux)
- static int innolux_panel_probe(struct mipi_dsi_device *dsi)
- {
- 	const struct panel_desc *desc;
-+	struct innolux_panel *innolux;
- 	int err;
+diff --git a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
+index d0c9610ad2202..433b2f459a7d9 100644
+--- a/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
++++ b/drivers/gpu/drm/rockchip/dw-mipi-dsi-rockchip.c
+@@ -1126,14 +1126,10 @@ static int dw_mipi_dsi_rockchip_probe(struct platform_device *pdev)
+ 		if (ret != -EPROBE_DEFER)
+ 			DRM_DEV_ERROR(dev,
+ 				      "Failed to probe dw_mipi_dsi: %d\n", ret);
+-		goto err_clkdisable;
++		return ret;
+ 	}
  
- 	desc = of_device_get_match_data(&dsi->dev);
-@@ -495,7 +496,14 @@ static int innolux_panel_probe(struct mipi_dsi_device *dsi)
- 	if (err < 0)
- 		return err;
- 
--	return mipi_dsi_attach(dsi);
-+	err = mipi_dsi_attach(dsi);
-+	if (err < 0) {
-+		innolux = mipi_dsi_get_drvdata(dsi);
-+		innolux_panel_del(innolux);
-+		return err;
-+	}
-+
-+	return 0;
+ 	return 0;
+-
+-err_clkdisable:
+-	clk_disable_unprepare(dsi->pllref_clk);
+-	return ret;
  }
  
- static int innolux_panel_remove(struct mipi_dsi_device *dsi)
+ static int dw_mipi_dsi_rockchip_remove(struct platform_device *pdev)
 -- 
 2.34.1
 
