@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8690B498EC8
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:48:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76F19499364
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:34:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349908AbiAXTsb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:48:31 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:40916 "EHLO
+        id S1357498AbiAXUdd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:33:33 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:50630 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350024AbiAXTn0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:43:26 -0500
+        with ESMTP id S1381911AbiAXUYx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:24:53 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 18E186157F;
-        Mon, 24 Jan 2022 19:43:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5D72C340E5;
-        Mon, 24 Jan 2022 19:43:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AC0F26150E;
+        Mon, 24 Jan 2022 20:24:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95CA3C340E7;
+        Mon, 24 Jan 2022 20:24:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053403;
-        bh=CLs7t2yEWFzRD/JatkASUixMZjlfHYgMd0AFgAr4RcQ=;
+        s=korg; t=1643055892;
+        bh=mcKndVCkrQs2y0FsFcaS2J9ZrpVOg2ArGukaawojnpw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gTOSmYC+re10eV1EPgC/TBiRfT/cJ8g8uI7P2ETJbgOqprUtIue9fSmcIHCbph0qf
-         m+QXkILY0RbCOZYnFH/qbDvxS7C2t4zbAWHjAZr1xbj2PvyL5uYzPqJ+kgQC7s4v7T
-         qVvjGagb5XIKTSC67aH/PuMAkxkSXPrxfDV7gXpI=
+        b=h5y5vxPzYonYbOqfiP5bO49SA3snwxSKQVuuZUtritKVeb5mpkSCqo2zahFhJJ+ms
+         FozWa+4MHINk1K9tL0VYbPEMOnJzvGdy4HYzoc6jlI/Z7X9UEl+QV89hOIQkYEat7Y
+         Xt3eFDJq73FzvVTiMLZJtSdAMvI5Md+BT7RV32PY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxime Ripard <maxime@cerno.tech>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Nicolas Saenz Julienne <nsaenz@kernel.org>,
-        Michael Stapelberg <michael@stapelberg.ch>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 053/563] clk: bcm-2835: Remove rounding up the dividers
+Subject: [PATCH 5.15 301/846] ACPI: scan: Create platform device for BCM4752 and LNV4752 ACPI nodes
 Date:   Mon, 24 Jan 2022 19:36:58 +0100
-Message-Id: <20220124184026.255498322@linuxfoundation.org>
+Message-Id: <20220124184111.291619529@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,80 +45,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxime Ripard <maxime@cerno.tech>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 8ca011ef4af48a7af7b15afd8a4a44039dd04cea ]
+[ Upstream commit f85196bdd5a50da74670250564740fc852b3c239 ]
 
-The driver, once it found a divider, tries to round it up by increasing
-the least significant bit of the fractional part by one when the
-round_up argument is set and there's a remainder.
+BCM4752 and LNV4752 ACPI nodes describe a Broadcom 4752 GPS module
+attached to an UART of the system.
 
-However, since it increases the divider it will actually reduce the
-clock rate below what we were asking for, leading to issues with
-clk_set_min_rate() that will complain that our rounded clock rate is
-below the minimum of the rate.
+The GPS modules talk a custom protocol which only works with a closed-
+source Android gpsd daemon which knows this protocol.
 
-Since the dividers are fairly precise already, let's remove that part so
-that we can have clk_set_min_rate() working.
+The ACPI nodes also describe GPIOs to turn the GPS on/off these are
+handled by the net/rfkill/rfkill-gpio.c code. This handling predates the
+addition of enumeration of ACPI instantiated serdevs to the kernel and
+was broken by that addition, because the ACPI scan code now no longer
+instantiates platform_device-s for these nodes.
 
-This is effectively a revert of 9c95b32ca093 ("clk: bcm2835: add a round
-up ability to the clock divisor").
+Rename the i2c_multi_instantiate_ids HID list to ignore_serial_bus_ids
+and add the BCM4752 and LNV4752 HIDs, so that rfkill-gpio gets
+a platform_device to bind to again; and so that a tty cdev for gpsd
+gets created for these.
 
-Fixes: 9c95b32ca093 ("clk: bcm2835: add a round up ability to the clock divisor")
-Signed-off-by: Maxime Ripard <maxime@cerno.tech>
-Acked-by: Stephen Boyd <sboyd@kernel.org>
-Reviewed-by: Nicolas Saenz Julienne <nsaenz@kernel.org>
-Tested-by: Nicolas Saenz Julienne <nsaenz@kernel.org> # boot and basic functionality
-Tested-by: Michael Stapelberg <michael@stapelberg.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210922125419.4125779-3-maxime@cerno.tech
+Fixes: e361d1f85855 ("ACPI / scan: Fix enumeration for special UART devices")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/bcm/clk-bcm2835.c | 11 +++--------
- 1 file changed, 3 insertions(+), 8 deletions(-)
+ drivers/acpi/scan.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/clk/bcm/clk-bcm2835.c b/drivers/clk/bcm/clk-bcm2835.c
-index a919ee9c3fcb8..178886823b90c 100644
---- a/drivers/clk/bcm/clk-bcm2835.c
-+++ b/drivers/clk/bcm/clk-bcm2835.c
-@@ -933,8 +933,7 @@ static int bcm2835_clock_is_on(struct clk_hw *hw)
- 
- static u32 bcm2835_clock_choose_div(struct clk_hw *hw,
- 				    unsigned long rate,
--				    unsigned long parent_rate,
--				    bool round_up)
-+				    unsigned long parent_rate)
+diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
+index 5b54c80b9d32a..6e9cd41c5f9b1 100644
+--- a/drivers/acpi/scan.c
++++ b/drivers/acpi/scan.c
+@@ -1690,6 +1690,7 @@ static bool acpi_device_enumeration_by_parent(struct acpi_device *device)
  {
- 	struct bcm2835_clock *clock = bcm2835_clock_from_hw(hw);
- 	const struct bcm2835_clock_data *data = clock->data;
-@@ -946,10 +945,6 @@ static u32 bcm2835_clock_choose_div(struct clk_hw *hw,
+ 	struct list_head resource_list;
+ 	bool is_serial_bus_slave = false;
++	static const struct acpi_device_id ignore_serial_bus_ids[] = {
+ 	/*
+ 	 * These devices have multiple I2cSerialBus resources and an i2c-client
+ 	 * must be instantiated for each, each with its own i2c_device_id.
+@@ -1698,11 +1699,18 @@ static bool acpi_device_enumeration_by_parent(struct acpi_device *device)
+ 	 * drivers/platform/x86/i2c-multi-instantiate.c driver, which knows
+ 	 * which i2c_device_id to use for each resource.
+ 	 */
+-	static const struct acpi_device_id i2c_multi_instantiate_ids[] = {
+ 		{"BSG1160", },
+ 		{"BSG2150", },
+ 		{"INT33FE", },
+ 		{"INT3515", },
++	/*
++	 * HIDs of device with an UartSerialBusV2 resource for which userspace
++	 * expects a regular tty cdev to be created (instead of the in kernel
++	 * serdev) and which have a kernel driver which expects a platform_dev
++	 * such as the rfkill-gpio driver.
++	 */
++		{"BCM4752", },
++		{"LNV4752", },
+ 		{}
+ 	};
  
- 	rem = do_div(temp, rate);
- 	div = temp;
--
--	/* Round up and mask off the unused bits */
--	if (round_up && ((div & unused_frac_mask) != 0 || rem != 0))
--		div += unused_frac_mask + 1;
- 	div &= ~unused_frac_mask;
+@@ -1716,8 +1724,7 @@ static bool acpi_device_enumeration_by_parent(struct acpi_device *device)
+ 	     fwnode_property_present(&device->fwnode, "baud")))
+ 		return true;
  
- 	/* different clamping limits apply for a mash clock */
-@@ -1080,7 +1075,7 @@ static int bcm2835_clock_set_rate(struct clk_hw *hw,
- 	struct bcm2835_clock *clock = bcm2835_clock_from_hw(hw);
- 	struct bcm2835_cprman *cprman = clock->cprman;
- 	const struct bcm2835_clock_data *data = clock->data;
--	u32 div = bcm2835_clock_choose_div(hw, rate, parent_rate, false);
-+	u32 div = bcm2835_clock_choose_div(hw, rate, parent_rate);
- 	u32 ctl;
+-	/* Instantiate a pdev for the i2c-multi-instantiate drv to bind to */
+-	if (!acpi_match_device_ids(device, i2c_multi_instantiate_ids))
++	if (!acpi_match_device_ids(device, ignore_serial_bus_ids))
+ 		return false;
  
- 	spin_lock(&cprman->regs_lock);
-@@ -1131,7 +1126,7 @@ static unsigned long bcm2835_clock_choose_div_and_prate(struct clk_hw *hw,
- 
- 	if (!(BIT(parent_idx) & data->set_rate_parent)) {
- 		*prate = clk_hw_get_rate(parent);
--		*div = bcm2835_clock_choose_div(hw, rate, *prate, true);
-+		*div = bcm2835_clock_choose_div(hw, rate, *prate);
- 
- 		*avgrate = bcm2835_clock_rate_from_divisor(clock, *prate, *div);
- 
+ 	INIT_LIST_HEAD(&resource_list);
 -- 
 2.34.1
 
