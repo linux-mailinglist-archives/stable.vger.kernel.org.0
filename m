@@ -2,42 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0FC449910E
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:09:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA26B498AF5
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:08:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349139AbiAXUIy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:08:54 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:46142 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353538AbiAXUDQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:03:16 -0500
+        id S1346824AbiAXTIT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:08:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45848 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237315AbiAXTGS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:06:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC49AC061794;
+        Mon, 24 Jan 2022 11:01:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F79EB811F9;
-        Mon, 24 Jan 2022 20:03:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9BF20C340E5;
-        Mon, 24 Jan 2022 20:03:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7CB9560BB7;
+        Mon, 24 Jan 2022 19:01:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75DBAC340E5;
+        Mon, 24 Jan 2022 19:01:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054592;
-        bh=n3NJfTp/Pp/vZAidsmeEXWJbiKjAhzMri3BOT8j4izQ=;
+        s=korg; t=1643050882;
+        bh=Qf6XnIzeElSZlaTPE0+w9iFReX52uTDmquC2axMPOMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T7V656C0TMN7/D2l3skAeVWwHdhqqvm/Y0DwMtI0ngy+ZqqJcaqjV2H7jyNm3NZPN
-         byH2u+AExK/aHGBxdnYXanv/Ic8J5ulZpI4np1AX7H5p9UKzp7aV+opM/hdsNJE/oN
-         pgWZFD7S+lYgUxqtt8+q/uD1CTqY5vbu+rIBPYVw=
+        b=uherd27hb+yB2e/005qIB2XgwTj+NH5xUNY69YCzq6s7oefdU2Qvf51m5YITh0qx5
+         jS2AE0ftcnvU/TbO0o0zxS/h9VQKqNr0ZRJBy0FZ84eZyY7X8lIBjnKYb0ydhiJR7W
+         0Riwxe/gjnXOdUOiJRysB1aBb/p6qtaGMpPIm8QY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>
-Subject: [PATCH 5.10 440/563] rpmsg: core: Clean up resources on announce_create failure.
+        Tianjia Zhang <tianjia.zhang@linux.alibaba.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        =?UTF-8?q?Philippe=20Mathieu-Daud=C3=A9?= <f4bug@amsat.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 115/157] MIPS: Octeon: Fix build errors using clang
 Date:   Mon, 24 Jan 2022 19:43:25 +0100
-Message-Id: <20220124184039.652086378@linuxfoundation.org>
+Message-Id: <20220124183936.423191959@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,57 +51,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>
+From: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
 
-commit 8066c615cb69b7da8a94f59379847b037b3a5e46 upstream.
+[ Upstream commit 95339b70677dc6f9a2d669c4716058e71b8dc1c7 ]
 
-During the rpmsg_dev_probe, if rpdev->ops->announce_create returns an
-error, the rpmsg device and default endpoint should be freed before
-exiting the function.
+A large number of the following errors is reported when compiling
+with clang:
 
-Fixes: 5e619b48677c ("rpmsg: Split rpmsg core and virtio backend")
-Suggested-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20211206190758.10004-1-arnaud.pouliquen@foss.st.com
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  cvmx-bootinfo.h:326:3: error: adding 'int' to a string does not append to the string [-Werror,-Wstring-plus-int]
+                  ENUM_BRD_TYPE_CASE(CVMX_BOARD_TYPE_NULL)
+                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  cvmx-bootinfo.h:321:20: note: expanded from macro 'ENUM_BRD_TYPE_CASE'
+          case x: return(#x + 16);        /* Skip CVMX_BOARD_TYPE_ */
+                         ~~~^~~~
+  cvmx-bootinfo.h:326:3: note: use array indexing to silence this warning
+  cvmx-bootinfo.h:321:20: note: expanded from macro 'ENUM_BRD_TYPE_CASE'
+          case x: return(#x + 16);        /* Skip CVMX_BOARD_TYPE_ */
+                          ^
+
+Follow the prompts to use the address operator '&' to fix this error.
+
+Signed-off-by: Tianjia Zhang <tianjia.zhang@linux.alibaba.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Philippe Mathieu-Daudé <f4bug@amsat.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rpmsg/rpmsg_core.c |   20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+ arch/mips/include/asm/octeon/cvmx-bootinfo.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/rpmsg/rpmsg_core.c
-+++ b/drivers/rpmsg/rpmsg_core.c
-@@ -473,13 +473,25 @@ static int rpmsg_dev_probe(struct device
- 	err = rpdrv->probe(rpdev);
- 	if (err) {
- 		dev_err(dev, "%s: failed: %d\n", __func__, err);
--		if (ept)
--			rpmsg_destroy_ept(ept);
--		goto out;
-+		goto destroy_ept;
- 	}
+diff --git a/arch/mips/include/asm/octeon/cvmx-bootinfo.h b/arch/mips/include/asm/octeon/cvmx-bootinfo.h
+index 62787765575ef..ce6e5fddce0bf 100644
+--- a/arch/mips/include/asm/octeon/cvmx-bootinfo.h
++++ b/arch/mips/include/asm/octeon/cvmx-bootinfo.h
+@@ -315,7 +315,7 @@ enum cvmx_chip_types_enum {
  
--	if (ept && rpdev->ops->announce_create)
-+	if (ept && rpdev->ops->announce_create) {
- 		err = rpdev->ops->announce_create(rpdev);
-+		if (err) {
-+			dev_err(dev, "failed to announce creation\n");
-+			goto remove_rpdev;
-+		}
-+	}
-+
-+	return 0;
-+
-+remove_rpdev:
-+	if (rpdrv->remove)
-+		rpdrv->remove(rpdev);
-+destroy_ept:
-+	if (ept)
-+		rpmsg_destroy_ept(ept);
- out:
- 	return err;
+ /* Functions to return string based on type */
+ #define ENUM_BRD_TYPE_CASE(x) \
+-	case x: return(#x + 16);	/* Skip CVMX_BOARD_TYPE_ */
++	case x: return (&#x[16]);	/* Skip CVMX_BOARD_TYPE_ */
+ static inline const char *cvmx_board_type_to_string(enum
+ 						    cvmx_board_types_enum type)
+ {
+@@ -404,7 +404,7 @@ static inline const char *cvmx_board_type_to_string(enum
  }
+ 
+ #define ENUM_CHIP_TYPE_CASE(x) \
+-	case x: return(#x + 15);	/* Skip CVMX_CHIP_TYPE */
++	case x: return (&#x[15]);	/* Skip CVMX_CHIP_TYPE */
+ static inline const char *cvmx_chip_type_to_string(enum
+ 						   cvmx_chip_types_enum type)
+ {
+-- 
+2.34.1
+
 
 
