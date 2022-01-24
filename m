@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C24249990C
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:43:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4354499BC7
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:05:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1454031AbiAXVb2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:31:28 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:44732 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1451155AbiAXVWS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:22:18 -0500
+        id S1458049AbiAXVzG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:55:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57522 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1354658AbiAXVqt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:46:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42D6DC00365E;
+        Mon, 24 Jan 2022 12:32:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B68861469;
-        Mon, 24 Jan 2022 21:22:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70DE1C340E4;
-        Mon, 24 Jan 2022 21:22:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A05EB812A4;
+        Mon, 24 Jan 2022 20:32:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61CD3C340E5;
+        Mon, 24 Jan 2022 20:32:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059337;
-        bh=HFolmNo+c+aMlXO4NpVNNdLLeHerT2CSqgdw0YSR8sc=;
+        s=korg; t=1643056348;
+        bh=MVdRqYa1p9ZJ0mIo1ZiaJWdNN13LKLT2GhdK1wfH3g8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PS1WVTHwgWsa3AXLC/FIFz+X8dECP8jyRRpaTelFkbfI6mijmzmqZS/bp36XV7ABA
-         yLS+Y3f7Rf78AW0uGrhtgjWjnDvtt9oawO3/x/PcjkvMfnlqOFe+Uf2hTjcwb1aYxx
-         Yy06IiGLnHuNZ4HejDAZ3XAQAsPFWyYbIXLqpkpo=
+        b=ql97tln4FsYfckKDQCr0S7FShIhdCMxO3IKtBKvVnokqZ9bffiLy6jHfDXFuvsfkk
+         q3PjFuCoo6Am4UYrODzWL54lDKgLasF3r+QxmQgmrkiGKizcE3ZmSxVznEQcCjU+Z+
+         QyzZMqAP/Lf2BXAvF5Om5pNFJdjtlNaltl+S0Gfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anilkumar Kolli <akolli@codeaurora.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Paul Cercueil <paul@crapouillou.net>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0581/1039] ath11k: Fix mon status ring rx tlv processing
-Date:   Mon, 24 Jan 2022 19:39:30 +0100
-Message-Id: <20220124184144.872005397@linuxfoundation.org>
+Subject: [PATCH 5.15 454/846] MIPS: boot/compressed/: add __ashldi3 to target for ZSTD compression
+Date:   Mon, 24 Jan 2022 19:39:31 +0100
+Message-Id: <20220124184116.641582776@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,73 +49,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anilkumar Kolli <akolli@codeaurora.org>
+From: Paul Cercueil <paul@crapouillou.net>
 
-[ Upstream commit 09f16f7390f302937409738d6cb6ce99b265f455 ]
+[ Upstream commit fbf3bce458214bb971d3d571515b3b129eac290b ]
 
-In HE monitor capture, HAL_TLV_STATUS_PPDU_DONE is received
-on processing multiple skb. Do not clear the ppdu_info
-till the HAL_TLV_STATUS_PPDU_DONE is received.
+Just like before with __bswapdi2(), for MIPS pre-boot when
+CONFIG_KERNEL_ZSTD=y the decompressor function will use __ashldi3(), so
+the object file should be added to the target object file.
 
-This fixes below warning and packet drops in monitor mode.
- "Rate marked as an HE rate but data is invalid: MCS: 6, NSS: 0"
- WARNING: at
- PC is at ieee80211_rx_napi+0x624/0x840 [mac80211]
+Fixes these build errors:
 
-Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.4.0.1-01693-QCAHKSWPL_SILICONZ-1
+mipsel-linux-ld: arch/mips/boot/compressed/decompress.o: in function `FSE_buildDTable_internal':
+decompress.c:(.text.FSE_buildDTable_internal+0x48): undefined reference to `__ashldi3'
+mipsel-linux-ld: arch/mips/boot/compressed/decompress.o: in function `FSE_decompress_wksp_body_default':
+decompress.c:(.text.FSE_decompress_wksp_body_default+0xa8): undefined reference to `__ashldi3'
+mipsel-linux-ld: arch/mips/boot/compressed/decompress.o: in function `ZSTD_getFrameHeader_advanced':
+decompress.c:(.text.ZSTD_getFrameHeader_advanced+0x134): undefined reference to `__ashldi3'
 
-Signed-off-by: Anilkumar Kolli <akolli@codeaurora.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/1637249433-10316-1-git-send-email-akolli@codeaurora.org
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Reviewed-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath11k/dp_rx.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ arch/mips/boot/compressed/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/ath/ath11k/dp_rx.c b/drivers/net/wireless/ath/ath11k/dp_rx.c
-index 22b6b6a470d4c..621372c568d2c 100644
---- a/drivers/net/wireless/ath/ath11k/dp_rx.c
-+++ b/drivers/net/wireless/ath/ath11k/dp_rx.c
-@@ -3064,10 +3064,10 @@ int ath11k_dp_rx_process_mon_status(struct ath11k_base *ab, int mac_id,
- 	if (!num_buffs_reaped)
- 		goto exit;
+diff --git a/arch/mips/boot/compressed/Makefile b/arch/mips/boot/compressed/Makefile
+index 9112bdb86be45..f53510d2f6296 100644
+--- a/arch/mips/boot/compressed/Makefile
++++ b/arch/mips/boot/compressed/Makefile
+@@ -56,7 +56,7 @@ $(obj)/uart-ath79.c: $(srctree)/arch/mips/ath79/early_printk.c
  
--	while ((skb = __skb_dequeue(&skb_list))) {
--		memset(&ppdu_info, 0, sizeof(ppdu_info));
--		ppdu_info.peer_id = HAL_INVALID_PEERID;
-+	memset(&ppdu_info, 0, sizeof(ppdu_info));
-+	ppdu_info.peer_id = HAL_INVALID_PEERID;
+ vmlinuzobjs-$(CONFIG_KERNEL_XZ) += $(obj)/ashldi3.o
  
-+	while ((skb = __skb_dequeue(&skb_list))) {
- 		if (ath11k_debugfs_is_pktlog_lite_mode_enabled(ar)) {
- 			log_type = ATH11K_PKTLOG_TYPE_LITE_RX;
- 			rx_buf_sz = DP_RX_BUFFER_SIZE_LITE;
-@@ -3095,10 +3095,7 @@ int ath11k_dp_rx_process_mon_status(struct ath11k_base *ab, int mac_id,
- 			ath11k_dbg(ab, ATH11K_DBG_DATA,
- 				   "failed to find the peer with peer_id %d\n",
- 				   ppdu_info.peer_id);
--			spin_unlock_bh(&ab->base_lock);
--			rcu_read_unlock();
--			dev_kfree_skb_any(skb);
--			continue;
-+			goto next_skb;
- 		}
+-vmlinuzobjs-$(CONFIG_KERNEL_ZSTD) += $(obj)/bswapdi.o
++vmlinuzobjs-$(CONFIG_KERNEL_ZSTD) += $(obj)/bswapdi.o $(obj)/ashldi3.o
  
- 		arsta = (struct ath11k_sta *)peer->sta->drv_priv;
-@@ -3107,10 +3104,13 @@ int ath11k_dp_rx_process_mon_status(struct ath11k_base *ab, int mac_id,
- 		if (ath11k_debugfs_is_pktlog_peer_valid(ar, peer->addr))
- 			trace_ath11k_htt_rxdesc(ar, skb->data, log_type, rx_buf_sz);
- 
-+next_skb:
- 		spin_unlock_bh(&ab->base_lock);
- 		rcu_read_unlock();
- 
- 		dev_kfree_skb_any(skb);
-+		memset(&ppdu_info, 0, sizeof(ppdu_info));
-+		ppdu_info.peer_id = HAL_INVALID_PEERID;
- 	}
- exit:
- 	return num_buffs_reaped;
+ extra-y += ashldi3.c
+ $(obj)/ashldi3.c: $(obj)/%.c: $(srctree)/lib/%.c FORCE
 -- 
 2.34.1
 
