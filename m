@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D57904980A4
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:12:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C26B4980B8
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:14:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243022AbiAXNMt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 08:12:49 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34542 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243015AbiAXNMo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:12:44 -0500
+        id S239869AbiAXNOp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 08:14:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47496 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243089AbiAXNOn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:14:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFF74C06173D
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 05:14:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 56D28B80F98
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:12:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C8E1C340E7;
-        Mon, 24 Jan 2022 13:12:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 88164B80FA6
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:14:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE2C8C340E1;
+        Mon, 24 Jan 2022 13:14:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643029962;
-        bh=ObX5mBazAa2W3HD1FZhBwRmh2Xg0ugyb8RUR8Xy12Wo=;
+        s=korg; t=1643030080;
+        bh=IsMqBLA/Xr/GdNQ9GoMXEIrOMP8uri3BEQa0p82xC8M=;
         h=Subject:To:Cc:From:Date:From;
-        b=p7G2VPjc44bhmYop29dMWkX101dCIeakuqORyZFdnHJbH9+5aeGkfqGa/8vBjjZXa
-         ZsIkBX3Q5E6RBYacDgo09wS9LIoG/WktX7rxKZoJ/1Q8pPeYJ4s0tHMsT9dWXNPUM5
-         xpKGmiIEG0lfzKXgpiN9N+sbRUy3rg8u/HL18rSc=
-Subject: FAILED: patch "[PATCH] misc: at25: Check proper value of chip length in FRAM case" failed to apply to 5.16-stable tree
-To:     andriy.shevchenko@linux.intel.com, arnd@arndb.de,
-        gregkh@linuxfoundation.org
+        b=Kk8QvuTYNnLgGgLv1i3JkalvMMSJ68wVp7s9wE8UqS9BDNW9OWy3cYW5fEk0ukt68
+         Hmal7yEymeTNZMJRdodwCUUxjFR7lzbMezV2U5DhudxUvHMjxY/q/dIC38Zh+kWe2i
+         fwLWAOuo/uEiKaOUPsY+x4sk7V1QK3OaGLPjRmAM=
+Subject: FAILED: patch "[PATCH] xfrm: Don't accidentally set RTO_ONLINK in decode_session4()" failed to apply to 4.4-stable tree
+To:     gnault@redhat.com, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 14:12:31 +0100
-Message-ID: <16430299511111@kroah.com>
+Date:   Mon, 24 Jan 2022 14:14:37 +0100
+Message-ID: <1643030077175217@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.16-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -51,34 +53,45 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 58589a75bba96f43b62d8069b35be081bc00d7c3 Mon Sep 17 00:00:00 2001
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Date: Thu, 25 Nov 2021 23:27:29 +0200
-Subject: [PATCH] misc: at25: Check proper value of chip length in FRAM case
+From 23e7b1bfed61e301853b5e35472820d919498278 Mon Sep 17 00:00:00 2001
+From: Guillaume Nault <gnault@redhat.com>
+Date: Mon, 10 Jan 2022 14:43:06 +0100
+Subject: [PATCH] xfrm: Don't accidentally set RTO_ONLINK in decode_session4()
 
-Obviously the byte_len value should be checked from the chip
-and not from at25->chip.
+Similar to commit 94e2238969e8 ("xfrm4: strip ECN bits from tos field"),
+clear the ECN bits from iph->tos when setting ->flowi4_tos.
+This ensures that the last bit of ->flowi4_tos is cleared, so
+ip_route_output_key_hash() isn't going to restrict the scope of the
+route lookup.
 
-Fixes: fd307a4ad332 ("nvmem: prepare basics for FRAM support")
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20211125212729.86585-4-andriy.shevchenko@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Use ~INET_ECN_MASK instead of IPTOS_RT_MASK, because we have no reason
+to clear the high order bits.
 
-diff --git a/drivers/misc/eeprom/at25.c b/drivers/misc/eeprom/at25.c
-index f0b0efc30ee6..e21216541b0f 100644
---- a/drivers/misc/eeprom/at25.c
-+++ b/drivers/misc/eeprom/at25.c
-@@ -433,9 +433,9 @@ static int at25_probe(struct spi_device *spi)
- 			dev_err(&spi->dev, "Error: unsupported size (id %02x)\n", id[7]);
- 			return -ENODEV;
- 		}
--		chip.byte_len = int_pow(2, id[7] - 0x21 + 4) * 1024;
+Found by code inspection, compile tested only.
+
+Fixes: 4da3089f2b58 ("[IPSEC]: Use TOS when doing tunnel lookups")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index dccb8f3318ef..04d1ce9b510f 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -31,6 +31,7 @@
+ #include <linux/if_tunnel.h>
+ #include <net/dst.h>
+ #include <net/flow.h>
++#include <net/inet_ecn.h>
+ #include <net/xfrm.h>
+ #include <net/ip.h>
+ #include <net/gre.h>
+@@ -3295,7 +3296,7 @@ decode_session4(struct sk_buff *skb, struct flowi *fl, bool reverse)
+ 	fl4->flowi4_proto = iph->protocol;
+ 	fl4->daddr = reverse ? iph->saddr : iph->daddr;
+ 	fl4->saddr = reverse ? iph->daddr : iph->saddr;
+-	fl4->flowi4_tos = iph->tos;
++	fl4->flowi4_tos = iph->tos & ~INET_ECN_MASK;
  
--		if (at25->chip.byte_len > 64 * 1024)
-+		chip.byte_len = int_pow(2, id[7] - 0x21 + 4) * 1024;
-+		if (chip.byte_len > 64 * 1024)
- 			at25->chip.flags |= EE_ADDR3;
- 		else
- 			at25->chip.flags |= EE_ADDR2;
+ 	if (!ip_is_fragment(iph)) {
+ 		switch (iph->protocol) {
 
