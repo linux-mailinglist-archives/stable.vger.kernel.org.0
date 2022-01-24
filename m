@@ -2,113 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 294C1497897
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 06:35:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 501AE4978DD
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 07:19:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241094AbiAXFfZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 00:35:25 -0500
-Received: from relay.sw.ru ([185.231.240.75]:40866 "EHLO relay.sw.ru"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229623AbiAXFfY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 Jan 2022 00:35:24 -0500
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=virtuozzo.com; s=relay; h=MIME-Version:Message-Id:Date:Subject:From:
-        Content-Type; bh=mCdoqK58TSX7WoJa1ICg1sKUn9VUYBc0HMM9qwx04Fs=; b=DW1QxRRqv3Gf
-        DBBIF7PdePwQIZ/AgF4w+YXJhC9SMRsjePFVG3Heq0dMRRnlXLTEpEMlK3v4F13To9YQ88bGOK23j
-        jOi9cIZWRQaRGOhLXyYWRpsD84cRhPasiA4q3VxZDJL468U8IQdWVlkMZupfNbwMwI+02oa7+jw+k
-        3Da8w=;
-Received: from [192.168.15.98] (helo=cobook.home)
-        by relay.sw.ru with esmtp (Exim 4.94.2)
-        (envelope-from <nikita.yushchenko@virtuozzo.com>)
-        id 1nBs0R-007XYa-0g; Mon, 24 Jan 2022 08:35:07 +0300
-From:   Nikita Yushchenko <nikita.yushchenko@virtuozzo.com>
-To:     gregkh@linuxfoundation.org, bristot@kernel.org, rostedt@goodmis.org
-Cc:     stable@vger.kernel.org
-Subject: [PATCH 5.15.y] tracing/osnoise: Properly unhook events if start_per_cpu_kthreads() fails
-Date:   Mon, 24 Jan 2022 08:33:57 +0300
-Message-Id: <20220124053356.495768-1-nikita.yushchenko@virtuozzo.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <1642956398125157@kroah.com>
-References: <1642956398125157@kroah.com>
+        id S241574AbiAXGT3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 01:19:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36560 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241551AbiAXGT3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 01:19:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6AA3C06173B;
+        Sun, 23 Jan 2022 22:19:28 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3DE3E60FA2;
+        Mon, 24 Jan 2022 06:19:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73AD5C340E1;
+        Mon, 24 Jan 2022 06:19:26 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1643005167;
+        bh=nPNbP8694jK2hGU0MGv+hETbDJ1UjxCjyewKjVw2DuY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=BpGyY2uzKZcgIswCo896tcGOjc01klnFBZ/HPOW5u3btVHvsjeh+nFfJ2jr8tA5N6
+         XIpYxArtgNYjKegnCvA4G63jz8e7LU4H8GrAj9DxAOJZHTiFHvbDrpzt2FR+Hu7e0w
+         1IDhZ+KhOg8REByh+uflFGsd7SqfF1CYNlM+3/YY=
+Date:   Mon, 24 Jan 2022 07:19:15 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc:     Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Paul E . McKenney" <paulmck@kernel.org>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        "H . Peter Anvin" <hpa@zytor.com>, Paul Turner <pjt@google.com>,
+        linux-api@vger.kernel.org, stable@vger.kernel.org,
+        Florian Weimer <fw@deneb.enyo.de>,
+        Andy Lutomirski <luto@amacapital.net>,
+        Dave Watson <davejwatson@fb.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Russell King <linux@arm.linux.org.uk>,
+        Andi Kleen <andi@firstfloor.org>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Ben Maurer <bmaurer@fb.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will.deacon@arm.com>,
+        Michael Kerrisk <mtk.manpages@gmail.com>,
+        Joel Fernandes <joelaf@google.com>
+Subject: Re: [RFC PATCH] rseq: Fix broken uapi field layout on 32-bit little
+ endian
+Message-ID: <Ye5E46FrGwjlQlps@kroah.com>
+References: <20220123193154.14565-1-mathieu.desnoyers@efficios.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220123193154.14565-1-mathieu.desnoyers@efficios.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 0878355b51f5f26632e652c848a8e174bb02d22d upstream.
+On Sun, Jan 23, 2022 at 02:31:54PM -0500, Mathieu Desnoyers wrote:
+> The rseq rseq_cs.ptr.{ptr32,padding} uapi endianness handling is
+> entirely wrong on 32-bit little endian: a preprocessor logic mistake
+> wrongly uses the big endian field layout on 32-bit little endian
+> architectures.
+> 
+> Fortunately, those ptr32 accessors were never used within the kernel,
+> and only meant as a convenience for user-space.
+> 
+> While working on fixing the ppc32 support in librseq [1], I made sure
+> all 32-bit little endian architectures stopped depending on little
+> endian byte ordering by using the ptr32 field. It led me to discover
+> this wrong ptr32 field ordering on little endian.
+> 
+> Because it is already exposed as a UAPI, all we can do for the existing
+> fields is document the wrong behavior and encourage users to use
+> alternative mechanisms.
+> 
+> Introduce a new rseq_cs.arch field with correct field ordering. Use this
+> opportunity to improve the layout so accesses to architecture fields on
+> both 32-bit and 64-bit architectures are done through the same field
+> hierarchy, which is much nicer than the previous scheme.
+> 
+> The intended use is now:
+> 
+> * rseq_thread_area->rseq_cs.ptr64: Access the 64-bit value of the rseq_cs
+> 				   pointer. Available on all
+>                                    architectures (unchanged).
+> 
+> * rseq_thread_area->rseq_cs.arch.ptr: Access the architecture specific
+> 				      layout of the rseq_cs pointer. This
+> 				      is a 32-bit field on 32-bit
+> 				      architectures, and a 64-bit field on
+>                                       64-bit architectures.
+> 
+> Link: https://git.kernel.org/pub/scm/libs/librseq/librseq.git/ [1]
+> Fixes: ec9c82e03a74 ("rseq: uapi: Declare rseq_cs field as union, update includes")
+> Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+> Cc: Florian Weimer <fw@deneb.enyo.de>
+> Cc: Thomas Gleixner <tglx@linutronix.de>
+> Cc: linux-api@vger.kernel.org
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: Boqun Feng <boqun.feng@gmail.com>
+> Cc: Andy Lutomirski <luto@amacapital.net>
+> Cc: Dave Watson <davejwatson@fb.com>
+> Cc: Paul Turner <pjt@google.com>
+> Cc: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Russell King <linux@arm.linux.org.uk>
+> Cc: "H . Peter Anvin" <hpa@zytor.com>
+> Cc: Andi Kleen <andi@firstfloor.org>
+> Cc: Christian Brauner <christian.brauner@ubuntu.com>
+> Cc: Ben Maurer <bmaurer@fb.com>
+> Cc: Steven Rostedt <rostedt@goodmis.org>
+> Cc: Josh Triplett <josh@joshtriplett.org>
+> Cc: Linus Torvalds <torvalds@linux-foundation.org>
+> Cc: Catalin Marinas <catalin.marinas@arm.com>
+> Cc: Will Deacon <will.deacon@arm.com>
+> Cc: Michael Kerrisk <mtk.manpages@gmail.com>
+> Cc: Joel Fernandes <joelaf@google.com>
+> Cc: Paul E. McKenney <paulmck@kernel.org>
+> ---
+>  include/uapi/linux/rseq.h | 23 +++++++++++++++++++++++
+>  1 file changed, 23 insertions(+)
 
-If start_per_cpu_kthreads() called from osnoise_workload_start() returns
-error, event hooks are left in broken state: unhook_irq_events() called
-but unhook_thread_events() and unhook_softirq_events() not called, and
-trace_osnoise_callback_enabled flag not cleared.
+<formletter>
 
-On the next tracer enable, hooks get not installed due to
-trace_osnoise_callback_enabled flag.
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
 
-And on the further tracer disable an attempt to remove non-installed
-hooks happened, hitting a WARN_ON_ONCE() in tracepoint_remove_func().
-
-Fix the error path by adding the missing part of cleanup.
-While at this, introduce osnoise_unhook_events() to avoid code
-duplication between this error path and normal tracer disable.
-
-Link: https://lkml.kernel.org/r/20220109153459.3701773-1-nikita.yushchenko@virtuozzo.com
-
-Cc: stable@vger.kernel.org
-Fixes: bce29ac9ce0b ("trace: Add osnoise tracer")
-Acked-by: Daniel Bristot de Oliveira <bristot@kernel.org>
-Signed-off-by: Nikita Yushchenko <nikita.yushchenko@virtuozzo.com>
-Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
----
- kernel/trace/trace_osnoise.c | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
-
-diff --git a/kernel/trace/trace_osnoise.c b/kernel/trace/trace_osnoise.c
-index c4f14fb98aaa..65a518649997 100644
---- a/kernel/trace/trace_osnoise.c
-+++ b/kernel/trace/trace_osnoise.c
-@@ -1932,6 +1932,13 @@ static int osnoise_hook_events(void)
- 	return -EINVAL;
- }
- 
-+static void osnoise_unhook_events(void)
-+{
-+	unhook_thread_events();
-+	unhook_softirq_events();
-+	unhook_irq_events();
-+}
-+
- static int __osnoise_tracer_start(struct trace_array *tr)
- {
- 	int retval;
-@@ -1949,7 +1956,14 @@ static int __osnoise_tracer_start(struct trace_array *tr)
- 
- 	retval = start_per_cpu_kthreads(tr);
- 	if (retval) {
--		unhook_irq_events();
-+		trace_osnoise_callback_enabled = false;
-+		/*
-+		 * Make sure that ftrace_nmi_enter/exit() see
-+		 * trace_osnoise_callback_enabled as false before continuing.
-+		 */
-+		barrier();
-+
-+		osnoise_unhook_events();
- 		return retval;
- 	}
- 
-@@ -1981,9 +1995,7 @@ static void osnoise_tracer_stop(struct trace_array *tr)
- 
- 	stop_per_cpu_kthreads();
- 
--	unhook_irq_events();
--	unhook_softirq_events();
--	unhook_thread_events();
-+	osnoise_unhook_events();
- 
- 	osnoise_busy = false;
- }
--- 
-2.30.2
-
+</formletter>
