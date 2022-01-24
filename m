@@ -2,40 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F0CC498F9F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:55:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9587498F9E
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:55:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242945AbiAXTxp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:53:45 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:38884 "EHLO
+        id S1358043AbiAXTxo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:53:44 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:38908 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1357360AbiAXTtw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:49:52 -0500
+        with ESMTP id S1357411AbiAXTt6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:49:58 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8CBBAB810AF;
-        Mon, 24 Jan 2022 19:49:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D847C340E5;
-        Mon, 24 Jan 2022 19:49:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5EE24B81229;
+        Mon, 24 Jan 2022 19:49:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEE6DC340E7;
+        Mon, 24 Jan 2022 19:49:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053790;
-        bh=Hh8VGhYGSCAAIyMqk/0C8kJdzgofq8D1WaPueErDi4I=;
+        s=korg; t=1643053795;
+        bh=q0f3Kyn2K6gkI2P9btt0obaREPOGXLT3e/syK84A8O4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xvpXk4zjsBudtHWXmKClfPpYGFft4RVNuvkOT3RC85RHskFbpmdQ4SgwG198qGXUy
-         hRrq8ljouMLlzHD/mTK2d+iolETRlX4YHbKopIlmtiMCeeAQpR4AbMYEq4cHyzCuuE
-         y1UXP38m72e0OO3dH7zYUmTdKHwwt2rrvjjl0uUY=
+        b=LeOTfpnEoJnfDqfCRQNQIouJC8n+BpE4TXRj2TUE/Jouo84+RgMuPQqMn2EKAh1tF
+         +IZl9Cmx/i7v/MxCWbd27VTzZ1109JtsNZhOS1IS/p3dZ5RFUYRX9H2jGGOxeCktvY
+         5r5RIzx4hVp2XrX51/RdnnvKFuo0+QLY5MGmw1c4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernelbot <kernel-bot@kylinos.cn>,
-        Jackie Liu <liuyun01@kylinos.cn>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Neeraj Upadhyay <quic_neeraju@quicinc.com>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Uladzislau Rezki <urezki@gmail.com>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Josh Triplett <josh@joshtriplett.org>,
+        Joel Fernandes <joel@joelfernandes.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 146/563] drm/msm/dp: displayPort driver need algorithm rational
-Date:   Mon, 24 Jan 2022 19:38:31 +0100
-Message-Id: <20220124184029.449876198@linuxfoundation.org>
+Subject: [PATCH 5.10 147/563] rcu/exp: Mark current CPU as exp-QS in IPI loop second pass
+Date:   Mon, 24 Jan 2022 19:38:32 +0100
+Message-Id: <20220124184029.484611296@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -47,39 +50,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jackie Liu <liuyun01@kylinos.cn>
+From: Frederic Weisbecker <frederic@kernel.org>
 
-[ Upstream commit 53d22794711ad630f40d59dd726bd260d77d585f ]
+[ Upstream commit 81f6d49cce2d2fe507e3fddcc4a6db021d9c2e7b ]
 
-Let's select RATIONAL with dp driver. avoid like:
+Expedited RCU grace periods invoke sync_rcu_exp_select_node_cpus(), which
+takes two passes over the leaf rcu_node structure's CPUs.  The first
+pass gathers up the current CPU and CPUs that are in dynticks idle mode.
+The workqueue will report a quiescent state on their behalf later.
+The second pass sends IPIs to the rest of the CPUs, but excludes the
+current CPU, incorrectly assuming it has been included in the first
+pass's list of CPUs.
 
-[...]
-x86_64-linux-gnu-ld: drivers/gpu/drm/msm/dp/dp_catalog.o: in function `dp_catalog_ctrl_config_msa':
-dp_catalog.c:(.text+0x57e): undefined reference to `rational_best_approximation'
+Unfortunately the current CPU may have changed between the first and
+second pass, due to the fact that the various rcu_node structures'
+->lock fields have been dropped, thus momentarily enabling preemption.
+This means that if the second pass's CPU was not on the first pass's
+list, it will be ignored completely.  There will be no IPI sent to
+it, and there will be no reporting of quiescent states on its behalf.
+Unfortunately, the expedited grace period will nevertheless be waiting
+for that CPU to report a quiescent state, but with that CPU having no
+reason to believe that such a report is needed.
 
-Fixes: c943b4948b58 ("drm/msm/dp: add displayPort driver support")
-Reported-by: kernelbot <kernel-bot@kylinos.cn>
-Signed-off-by: Jackie Liu <liuyun01@kylinos.cn>
-Link: https://lore.kernel.org/r/20211110070950.3355597-2-liu.yun@linux.dev
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+The result will be an expedited grace period stall.
+
+Fix this by no longer excluding the current CPU from consideration during
+the second pass.
+
+Fixes: b9ad4d6ed18e ("rcu: Avoid self-IPI in sync_rcu_exp_select_node_cpus()")
+Reviewed-by: Neeraj Upadhyay <quic_neeraju@quicinc.com>
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
+Cc: Uladzislau Rezki <urezki@gmail.com>
+Cc: Neeraj Upadhyay <quic_neeraju@quicinc.com>
+Cc: Boqun Feng <boqun.feng@gmail.com>
+Cc: Josh Triplett <josh@joshtriplett.org>
+Cc: Joel Fernandes <joel@joelfernandes.org>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/Kconfig | 1 +
+ kernel/rcu/tree_exp.h | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/msm/Kconfig b/drivers/gpu/drm/msm/Kconfig
-index dabb4a1ccdcf7..1aad34b5ffd7f 100644
---- a/drivers/gpu/drm/msm/Kconfig
-+++ b/drivers/gpu/drm/msm/Kconfig
-@@ -60,6 +60,7 @@ config DRM_MSM_HDMI_HDCP
- config DRM_MSM_DP
- 	bool "Enable DisplayPort support in MSM DRM driver"
- 	depends on DRM_MSM
-+	select RATIONAL
- 	default y
- 	help
- 	  Compile in support for DP driver in MSM DRM driver. DP external
+diff --git a/kernel/rcu/tree_exp.h b/kernel/rcu/tree_exp.h
+index 0ffe185c1f46a..0dc16345e668c 100644
+--- a/kernel/rcu/tree_exp.h
++++ b/kernel/rcu/tree_exp.h
+@@ -387,6 +387,7 @@ retry_ipi:
+ 			continue;
+ 		}
+ 		if (get_cpu() == cpu) {
++			mask_ofl_test |= mask;
+ 			put_cpu();
+ 			continue;
+ 		}
 -- 
 2.34.1
 
