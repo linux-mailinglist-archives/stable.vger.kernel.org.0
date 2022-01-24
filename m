@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB9D84996C4
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:20:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A02B499A69
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350037AbiAXVGi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:06:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45160 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348495AbiAXU5F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:57:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78473C0D9433;
-        Mon, 24 Jan 2022 11:18:06 -0800 (PST)
+        id S1354417AbiAXVnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:43:50 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:46408 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1454580AbiAXVdJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:33:09 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 158FD60909;
-        Mon, 24 Jan 2022 19:18:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2532C340E5;
-        Mon, 24 Jan 2022 19:18:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 200F3B8121C;
+        Mon, 24 Jan 2022 21:33:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51206C340E4;
+        Mon, 24 Jan 2022 21:33:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051885;
-        bh=NGhZjXS4KdgHxuHTra3Zo18KP6/yuT5w/WsUHTf9LhQ=;
+        s=korg; t=1643059986;
+        bh=L5fMBsQ4GFTUWDax+L1PtBdZ0vB16WfrrFYjYR1GER4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nOExfnP9xjXB6Q9k/5oKpa/XT/RNn6jocwImqXaHA3CW6G/n+qqL9kJOFwrzCV3ML
-         TIBhDwRO9o9HuAjQLeMMDiyDQN/6fwkdNq5Zc3IHPVX8g0+Meb3rcwDBY7qCOvVe4l
-         JJdhqiwHQNpJ8dEbDvWkn/8ufpuazCeDKmMvyWc8=
+        b=UlZMnhP06SX2RZT2XsycRtsaAS3NL6anW+Vwd4Puv0IO/qbw8asMlu8v9jFbIVHHr
+         JuYdXkjG0JvRi5zO5Il66rJAKt3qJtlGI6jPnPy4J+mUrMceTWXSQblIC4r2m4nu6z
+         eMENmvbW4iDLWptMHtO8twOlWtBb/xYnHyJmstK0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kamal Heib <kamalheib1@gmail.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Ajit Kumar Pandey <AjitKumar.Pandey@amd.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 119/239] RDMA/cxgb4: Set queue pair state when being queried
+Subject: [PATCH 5.16 0768/1039] ASoC: SOF: ipc: Add null pointer check for substream->runtime
 Date:   Mon, 24 Jan 2022 19:42:37 +0100
-Message-Id: <20220124183946.890289842@linuxfoundation.org>
+Message-Id: <20220124184151.127977893@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,35 +48,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kamal Heib <kamalheib1@gmail.com>
+From: Ajit Kumar Pandey <AjitKumar.Pandey@amd.com>
 
-[ Upstream commit e375b9c92985e409c4bb95dd43d34915ea7f5e28 ]
+[ Upstream commit 182b682b9ab1348e07ea1bf9d8f2505cc67f9237 ]
 
-The API for ib_query_qp requires the driver to set cur_qp_state on return,
-add the missing set.
+When pcm stream is stopped "substream->runtime" pointer will be set
+to NULL by ALSA core. In case host received an ipc msg from firmware
+of type IPC_STREAM_POSITION after pcm stream is stopped, there will
+be kernel NULL pointer exception in ipc_period_elapsed(). This patch
+fixes it by adding NULL pointer check for "substream->runtime".
 
-Fixes: 67bbc05512d8 ("RDMA/cxgb4: Add query_qp support")
-Link: https://lore.kernel.org/r/20211220152530.60399-1-kamalheib1@gmail.com
-Signed-off-by: Kamal Heib <kamalheib1@gmail.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Signed-off-by: Ajit Kumar Pandey <AjitKumar.Pandey@amd.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20211216232422.345164-3-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/cxgb4/qp.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/sof/ipc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/cxgb4/qp.c b/drivers/infiniband/hw/cxgb4/qp.c
-index 20e3128f59b14..aa48627fc0bfa 100644
---- a/drivers/infiniband/hw/cxgb4/qp.c
-+++ b/drivers/infiniband/hw/cxgb4/qp.c
-@@ -2483,6 +2483,7 @@ int c4iw_ib_query_qp(struct ib_qp *ibqp, struct ib_qp_attr *attr,
- 	memset(attr, 0, sizeof *attr);
- 	memset(init_attr, 0, sizeof *init_attr);
- 	attr->qp_state = to_ib_qp_state(qhp->attr.state);
-+	attr->cur_qp_state = to_ib_qp_state(qhp->attr.state);
- 	init_attr->cap.max_send_wr = qhp->attr.sq_num_entries;
- 	init_attr->cap.max_recv_wr = qhp->attr.rq_num_entries;
- 	init_attr->cap.max_send_sge = qhp->attr.sq_max_sges;
+diff --git a/sound/soc/sof/ipc.c b/sound/soc/sof/ipc.c
+index e6c53c6c470e4..ca30c506a0fd6 100644
+--- a/sound/soc/sof/ipc.c
++++ b/sound/soc/sof/ipc.c
+@@ -547,7 +547,8 @@ static void ipc_period_elapsed(struct snd_sof_dev *sdev, u32 msg_id)
+ 
+ 	if (spcm->pcm.compress)
+ 		snd_sof_compr_fragment_elapsed(stream->cstream);
+-	else if (!stream->substream->runtime->no_period_wakeup)
++	else if (stream->substream->runtime &&
++		 !stream->substream->runtime->no_period_wakeup)
+ 		/* only inform ALSA for period_wakeup mode */
+ 		snd_sof_pcm_period_elapsed(stream->substream);
+ }
 -- 
 2.34.1
 
