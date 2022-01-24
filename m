@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 908EC498C97
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:23:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A71904990A8
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:07:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350044AbiAXTXj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:23:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49342 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349530AbiAXTUz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:20:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 012E5C02B8E1;
-        Mon, 24 Jan 2022 11:07:52 -0800 (PST)
+        id S1347180AbiAXUCl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:02:41 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56772 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347427AbiAXUAa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:00:30 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E01E60917;
-        Mon, 24 Jan 2022 19:07:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5056FC340E5;
-        Mon, 24 Jan 2022 19:07:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E159D61028;
+        Mon, 24 Jan 2022 20:00:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA22BC340E5;
+        Mon, 24 Jan 2022 20:00:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051270;
-        bh=0KD1eiKFQZ+15lvlwGjcpA2CZ9608oocxiXbhgHw+rM=;
+        s=korg; t=1643054428;
+        bh=l0GpjSvIxki+YLVBG10eC3DNjPlwaQrzUJ48btOsIBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uv6iDa8mk5B4OvSrFv1kBeoOvWwwUgyjPcRRwin8xXyv7itHmCZwamn4f9+nEAHS7
-         KWD88IxcVwZ4kcosDp99j8DG1R+on3mUrDCyg0gHZVIEWMEEsSPrO4fG1QB5xVcU6Q
-         U0utu8oGES/GmSsg9Z4U+iOTRkZ/UtfQePtO1Y9c=
+        b=F953C4IUAQVRynS524oIPrNVDYQzrydgNmibd/89IS/BpVR9UDOK9Ap/YlSRMdZ7e
+         tm/oWipR/LDaM8/bFyqpmIQxdsbb8KfstikcpN2XFrqLAkavJ2EmIZnEAlTXvB81QD
+         ldLe0OsEIsmKW9RBTUV01sJNRrEp2R1v0W6QR+PE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        stable@vger.kernel.org, Mark Langsdorf <mlangsdo@redhat.com>,
+        Bob Moore <robert.moore@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 075/186] char/mwave: Adjust io port register size
+Subject: [PATCH 5.10 385/563] ACPICA: actypes.h: Expand the ACPI_ACCESS_ definitions
 Date:   Mon, 24 Jan 2022 19:42:30 +0100
-Message-Id: <20220124183939.535970011@linuxfoundation.org>
+Message-Id: <20220124184037.743109630@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,49 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Mark Langsdorf <mlangsdo@redhat.com>
 
-[ Upstream commit f5912cc19acd7c24b2dbf65a6340bf194244f085 ]
+[ Upstream commit f81bdeaf816142e0729eea0cc84c395ec9673151 ]
 
-Using MKWORD() on a byte-sized variable results in OOB read. Expand the
-size of the reserved area so both MKWORD and MKBYTE continue to work
-without overflow. Silences this warning on a -Warray-bounds build:
+ACPICA commit bc02c76d518135531483dfc276ed28b7ee632ce1
 
-drivers/char/mwave/3780i.h:346:22: error: array subscript 'short unsigned int[0]' is partly outside array bounds of 'DSP_ISA_SLAVE_CONTROL[1]' [-Werror=array-bounds]
-  346 | #define MKWORD(var) (*((unsigned short *)(&var)))
-      |                     ~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-drivers/char/mwave/3780i.h:356:40: note: in definition of macro 'OutWordDsp'
-  356 | #define OutWordDsp(index,value)   outw(value,usDspBaseIO+index)
-      |                                        ^~~~~
-drivers/char/mwave/3780i.c:373:41: note: in expansion of macro 'MKWORD'
-  373 |         OutWordDsp(DSP_IsaSlaveControl, MKWORD(rSlaveControl));
-      |                                         ^~~~~~
-drivers/char/mwave/3780i.c:358:31: note: while referencing 'rSlaveControl'
-  358 |         DSP_ISA_SLAVE_CONTROL rSlaveControl;
-      |                               ^~~~~~~~~~~~~
+The current ACPI_ACCESS_*_WIDTH defines do not provide a way to
+test that size is small enough to not cause an overflow when
+applied to a 32-bit integer.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20211203084206.3104326-1-keescook@chromium.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Rather than adding more magic numbers, add ACPI_ACCESS_*_SHIFT,
+ACPI_ACCESS_*_MAX, and ACPI_ACCESS_*_DEFAULT #defines and
+redefine ACPI_ACCESS_*_WIDTH in terms of the new #defines.
+
+This was inititally reported on Linux where a size of 102 in
+ACPI_ACCESS_BIT_WIDTH caused an overflow error in the SPCR
+initialization code.
+
+Link: https://github.com/acpica/acpica/commit/bc02c76d
+Signed-off-by: Mark Langsdorf <mlangsdo@redhat.com>
+Signed-off-by: Bob Moore <robert.moore@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/mwave/3780i.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/acpi/actypes.h | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/char/mwave/3780i.h b/drivers/char/mwave/3780i.h
-index 9ccb6b270b071..95164246afd1a 100644
---- a/drivers/char/mwave/3780i.h
-+++ b/drivers/char/mwave/3780i.h
-@@ -68,7 +68,7 @@ typedef struct {
- 	unsigned char ClockControl:1;	/* RW: Clock control: 0=normal, 1=stop 3780i clocks */
- 	unsigned char SoftReset:1;	/* RW: Soft reset 0=normal, 1=soft reset active */
- 	unsigned char ConfigMode:1;	/* RW: Configuration mode, 0=normal, 1=config mode */
--	unsigned char Reserved:5;	/* 0: Reserved */
-+	unsigned short Reserved:13;	/* 0: Reserved */
- } DSP_ISA_SLAVE_CONTROL;
+diff --git a/include/acpi/actypes.h b/include/acpi/actypes.h
+index 647cb11d0a0a3..7334037624c5c 100644
+--- a/include/acpi/actypes.h
++++ b/include/acpi/actypes.h
+@@ -536,8 +536,14 @@ typedef u64 acpi_integer;
+  * Can be used with access_width of struct acpi_generic_address and access_size of
+  * struct acpi_resource_generic_register.
+  */
+-#define ACPI_ACCESS_BIT_WIDTH(size)     (1 << ((size) + 2))
+-#define ACPI_ACCESS_BYTE_WIDTH(size)    (1 << ((size) - 1))
++#define ACPI_ACCESS_BIT_SHIFT		2
++#define ACPI_ACCESS_BYTE_SHIFT		-1
++#define ACPI_ACCESS_BIT_MAX		(31 - ACPI_ACCESS_BIT_SHIFT)
++#define ACPI_ACCESS_BYTE_MAX		(31 - ACPI_ACCESS_BYTE_SHIFT)
++#define ACPI_ACCESS_BIT_DEFAULT		(8 - ACPI_ACCESS_BIT_SHIFT)
++#define ACPI_ACCESS_BYTE_DEFAULT	(8 - ACPI_ACCESS_BYTE_SHIFT)
++#define ACPI_ACCESS_BIT_WIDTH(size)	(1 << ((size) + ACPI_ACCESS_BIT_SHIFT))
++#define ACPI_ACCESS_BYTE_WIDTH(size)	(1 << ((size) + ACPI_ACCESS_BYTE_SHIFT))
  
- 
+ /*******************************************************************************
+  *
 -- 
 2.34.1
 
