@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D2E849979A
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:29:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F86B49979B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:29:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353830AbiAXVN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:13:57 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:60440 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1447362AbiAXVKd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:10:33 -0500
+        id S1448856AbiAXVOD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:14:03 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:34266 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1447388AbiAXVKi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:10:38 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 336E6B80FA3;
-        Mon, 24 Jan 2022 21:10:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67582C340E5;
-        Mon, 24 Jan 2022 21:10:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 99897611C8;
+        Mon, 24 Jan 2022 21:10:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66EA0C340E5;
+        Mon, 24 Jan 2022 21:10:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058631;
-        bh=w2KZk+H0QJEvW7PC3K2aXvV3aUrFbePvjqUXTQZJgbs=;
+        s=korg; t=1643058637;
+        bh=kjZCPYkaoD8O3IPDj3N9+OXUTPfaBdFPnZd6whD02Vo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TwDKjX1sLnaj+XEaA+euhACiwhKojaAKVMJMnQk09wenqmB3/1hpuC4ws25xNn2Wn
-         tQHgx3YXK/jyrbglvBGhhQijLH/kHRLtJbx/RpxhOFSMsMkwsrQecjr9zb+7uBJZVT
-         psjOorLahFUwFlYeEb8aqW+tcat7oYIllwjLUVZo=
+        b=aLcjjV9Eb3V0gyzOtqv2o6h1mTWwvNsGnMCkfZW5aOdydln5WiKGGTXT20kqMnrog
+         R4BbcgJKLECt2kF1OFmrVuzNJJCLfQ6263NzKegJOM3A/gCRzbN1mvWXNE1yL+Kgja
+         hQL50vyP6iud7r+fbMeTO8wOK+pv2wRlIvvAAIss=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Deren Wu <deren.wu@mediatek.com>,
-        Lorenzo Bianconi <lorenzo@kernel.org>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0352/1039] mt76: mt7921: fix a possible race enabling/disabling runtime-pm
-Date:   Mon, 24 Jan 2022 19:35:41 +0100
-Message-Id: <20220124184137.115148951@linuxfoundation.org>
+        stable@vger.kernel.org, Panicker Harish <quic_pharish@quicinc.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0353/1039] Bluetooth: hci_qca: Stop IBS timer during BT OFF
+Date:   Mon, 24 Jan 2022 19:35:42 +0100
+Message-Id: <20220124184137.148309494@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -45,80 +45,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Panicker Harish <quic_pharish@quicinc.com>
 
-[ Upstream commit d430dffbe9dd30759f3c64b65bf85b0245c8d8ab ]
+[ Upstream commit df1e5c51492fd93ffc293acdcc6f00698d19fedc ]
 
-Fix a possible race enabling/disabling runtime-pm between
-mt7921_pm_set() and mt7921_poll_rx() since mt7921_pm_wake_work()
-always schedules rx-napi callback and it will trigger
-mt7921_pm_power_save_work routine putting chip to in low-power state
-during mt7921_pm_set processing.
+The IBS timers are not stopped properly once BT OFF is triggered.
+we could see IBS commands being sent along with version command,
+so stopped IBS timers while Bluetooth is off.
 
-Suggested-by: Deren Wu <deren.wu@mediatek.com>
-Tested-by: Deren Wu <deren.wu@mediatek.com>
-Fixes: 1d8efc741df8 ("mt76: mt7921: introduce Runtime PM support")
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/0f3e075a2033dc05f09dab4059e5be8cbdccc239.1640094847.git.lorenzo@kernel.org
+Fixes: 3e4be65eb82c ("Bluetooth: hci_qca: Add poweroff support during hci down for wcn3990")
+Signed-off-by: Panicker Harish <quic_pharish@quicinc.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt76_connac_mac.c |  3 ---
- drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c  | 12 +++++++++---
- 2 files changed, 9 insertions(+), 6 deletions(-)
+ drivers/bluetooth/hci_qca.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt76_connac_mac.c b/drivers/net/wireless/mediatek/mt76/mt76_connac_mac.c
-index af43bcb545781..306e9eaea9177 100644
---- a/drivers/net/wireless/mediatek/mt76/mt76_connac_mac.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt76_connac_mac.c
-@@ -7,9 +7,6 @@ int mt76_connac_pm_wake(struct mt76_phy *phy, struct mt76_connac_pm *pm)
- {
- 	struct mt76_dev *dev = phy->dev;
+diff --git a/drivers/bluetooth/hci_qca.c b/drivers/bluetooth/hci_qca.c
+index dd768a8ed7cbb..9e99311038ae8 100644
+--- a/drivers/bluetooth/hci_qca.c
++++ b/drivers/bluetooth/hci_qca.c
+@@ -1928,6 +1928,9 @@ static int qca_power_off(struct hci_dev *hdev)
+ 	hu->hdev->hw_error = NULL;
+ 	hu->hdev->cmd_timeout = NULL;
  
--	if (!pm->enable)
--		return 0;
--
- 	if (mt76_is_usb(dev))
- 		return 0;
- 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c b/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
-index 7cdfdf83529f6..86fd7292b229f 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/debugfs.c
-@@ -276,7 +276,7 @@ mt7921_pm_set(void *data, u64 val)
- 	struct mt7921_dev *dev = data;
- 	struct mt76_connac_pm *pm = &dev->pm;
- 
--	mt7921_mutex_acquire(dev);
-+	mutex_lock(&dev->mt76.mutex);
- 
- 	if (val == pm->enable)
- 		goto out;
-@@ -285,7 +285,11 @@ mt7921_pm_set(void *data, u64 val)
- 		pm->stats.last_wake_event = jiffies;
- 		pm->stats.last_doze_event = jiffies;
- 	}
--	pm->enable = val;
-+	/* make sure the chip is awake here and ps_work is scheduled
-+	 * just at end of the this routine.
-+	 */
-+	pm->enable = false;
-+	mt76_connac_pm_wake(&dev->mphy, pm);
- 
- 	ieee80211_iterate_active_interfaces(mt76_hw(dev),
- 					    IEEE80211_IFACE_ITER_RESUME_ALL,
-@@ -293,8 +297,10 @@ mt7921_pm_set(void *data, u64 val)
- 
- 	mt76_connac_mcu_set_deep_sleep(&dev->mt76, pm->ds_enable);
- 
-+	pm->enable = val;
-+	mt76_connac_power_save_sched(&dev->mphy, pm);
- out:
--	mt7921_mutex_release(dev);
-+	mutex_unlock(&dev->mt76.mutex);
- 
- 	return 0;
- }
++	del_timer_sync(&qca->wake_retrans_timer);
++	del_timer_sync(&qca->tx_idle_timer);
++
+ 	/* Stop sending shutdown command if soc crashes. */
+ 	if (soc_type != QCA_ROME
+ 		&& qca->memdump_state == QCA_MEMDUMP_IDLE) {
 -- 
 2.34.1
 
