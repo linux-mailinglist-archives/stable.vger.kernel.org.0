@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05B70499181
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1826498FA5
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:55:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1379416AbiAXULZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:11:25 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:33746 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1378320AbiAXUGv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:06:51 -0500
+        id S1352919AbiAXTx4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:53:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57244 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345252AbiAXTvT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:51:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4988C019B3B;
+        Mon, 24 Jan 2022 11:24:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 95E8161324;
-        Mon, 24 Jan 2022 20:06:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93889C340E5;
-        Mon, 24 Jan 2022 20:06:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D857612FA;
+        Mon, 24 Jan 2022 19:24:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4734EC340E5;
+        Mon, 24 Jan 2022 19:24:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054810;
-        bh=SRAw0h8NYECOGKjSJjF9DsNbnXDNk3/S7oZf5Nhl9fE=;
+        s=korg; t=1643052256;
+        bh=8fEnRPti32v240Rgrcx2wQprpQYqogqlTQ6lb/w3fLk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uIsoq6NJO7/45MSw32TRI5YbyGhkdKTgEA9WrhTWrYsDRsAwbDdZUTYfQJk0HA+zV
-         EH+c3ZR9qV73Lrzyc3IFuOwWdHBAGn1+GHEZ+kEzHQGIYpyTQfrZZNi5P3ZUsW7aJ1
-         5QNWKBFbfJus/h4jZKjHybb/kNZyf2dYTAsz8K24=
+        b=x0hJoRZC/7xffE2lqPaxB2Y+sJfQpYFUpHVDNJVz8Ce4SuaPD9AwQFHtSIzXbn4rG
+         w/rF15M3quTmiN33r7l0DD/2KjlL2hodeOQFvpAdkpsGNaOwjhpYk68/2b4rFNv21w
+         +ZXTVa2w3RXlLf4sqk9qrRyLOLdRloyYlBo5nCBw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tobias Waldekranz <tobias@waldekranz.com>,
-        Andrew Lunn <andrew@lunn.ch>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 511/563] net/fsl: xgmac_mdio: Add workaround for erratum A-009885
-Date:   Mon, 24 Jan 2022 19:44:36 +0100
-Message-Id: <20220124184042.137459992@linuxfoundation.org>
+        Amir Goldstein <amir73il@gmail.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Ben Hutchings <ben@decadent.org.uk>
+Subject: [PATCH 4.19 239/239] fuse: fix live lock in fuse_iget()
+Date:   Mon, 24 Jan 2022 19:44:37 +0100
+Message-Id: <20220124183950.693455840@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,98 +48,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tobias Waldekranz <tobias@waldekranz.com>
+From: Amir Goldstein <amir73il@gmail.com>
 
-commit 6198c722019774d38018457a8bfb9ba3ed8c931e upstream.
+commit 775c5033a0d164622d9d10dd0f0a5531639ed3ed upstream.
 
-Once an MDIO read transaction is initiated, we must read back the data
-register within 16 MDC cycles after the transaction completes. Outside
-of this window, reads may return corrupt data.
+Commit 5d069dbe8aaf ("fuse: fix bad inode") replaced make_bad_inode()
+in fuse_iget() with a private implementation fuse_make_bad().
 
-Therefore, disable local interrupts in the critical section, to
-maximize the probability that we can satisfy this requirement.
+The private implementation fails to remove the bad inode from inode
+cache, so the retry loop with iget5_locked() finds the same bad inode
+and marks it bad forever.
 
-Fixes: d55ad2967d89 ("powerpc/mpc85xx: Create dts components for the FSL QorIQ DPAA FMan")
-Signed-off-by: Tobias Waldekranz <tobias@waldekranz.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+kmsg snip:
+
+[ ] rcu: INFO: rcu_sched self-detected stall on CPU
+...
+[ ]  ? bit_wait_io+0x50/0x50
+[ ]  ? fuse_init_file_inode+0x70/0x70
+[ ]  ? find_inode.isra.32+0x60/0xb0
+[ ]  ? fuse_init_file_inode+0x70/0x70
+[ ]  ilookup5_nowait+0x65/0x90
+[ ]  ? fuse_init_file_inode+0x70/0x70
+[ ]  ilookup5.part.36+0x2e/0x80
+[ ]  ? fuse_init_file_inode+0x70/0x70
+[ ]  ? fuse_inode_eq+0x20/0x20
+[ ]  iget5_locked+0x21/0x80
+[ ]  ? fuse_inode_eq+0x20/0x20
+[ ]  fuse_iget+0x96/0x1b0
+
+Fixes: 5d069dbe8aaf ("fuse: fix bad inode")
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/xgmac_mdio.c |   25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
+ fs/fuse/fuse_i.h |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/net/ethernet/freescale/xgmac_mdio.c
-+++ b/drivers/net/ethernet/freescale/xgmac_mdio.c
-@@ -49,6 +49,7 @@ struct tgec_mdio_controller {
- struct mdio_fsl_priv {
- 	struct	tgec_mdio_controller __iomem *mdio_base;
- 	bool	is_little_endian;
-+	bool	has_a009885;
- 	bool	has_a011043;
- };
+--- a/fs/fuse/fuse_i.h
++++ b/fs/fuse/fuse_i.h
+@@ -704,6 +704,7 @@ static inline u64 get_node_id(struct ino
  
-@@ -184,10 +185,10 @@ static int xgmac_mdio_read(struct mii_bu
+ static inline void fuse_make_bad(struct inode *inode)
  {
- 	struct mdio_fsl_priv *priv = (struct mdio_fsl_priv *)bus->priv;
- 	struct tgec_mdio_controller __iomem *regs = priv->mdio_base;
-+	unsigned long flags;
- 	uint16_t dev_addr;
- 	uint32_t mdio_stat;
- 	uint32_t mdio_ctl;
--	uint16_t value;
- 	int ret;
- 	bool endian = priv->is_little_endian;
- 
-@@ -219,12 +220,18 @@ static int xgmac_mdio_read(struct mii_bu
- 			return ret;
- 	}
- 
-+	if (priv->has_a009885)
-+		/* Once the operation completes, i.e. MDIO_STAT_BSY clears, we
-+		 * must read back the data register within 16 MDC cycles.
-+		 */
-+		local_irq_save(flags);
-+
- 	/* Initiate the read */
- 	xgmac_write32(mdio_ctl | MDIO_CTL_READ, &regs->mdio_ctl, endian);
- 
- 	ret = xgmac_wait_until_done(&bus->dev, regs, endian);
- 	if (ret)
--		return ret;
-+		goto irq_restore;
- 
- 	/* Return all Fs if nothing was there */
- 	if ((xgmac_read32(&regs->mdio_stat, endian) & MDIO_STAT_RD_ER) &&
-@@ -232,13 +239,17 @@ static int xgmac_mdio_read(struct mii_bu
- 		dev_dbg(&bus->dev,
- 			"Error while reading PHY%d reg at %d.%hhu\n",
- 			phy_id, dev_addr, regnum);
--		return 0xffff;
-+		ret = 0xffff;
-+	} else {
-+		ret = xgmac_read32(&regs->mdio_data, endian) & 0xffff;
-+		dev_dbg(&bus->dev, "read %04x\n", ret);
- 	}
- 
--	value = xgmac_read32(&regs->mdio_data, endian) & 0xffff;
--	dev_dbg(&bus->dev, "read %04x\n", value);
-+irq_restore:
-+	if (priv->has_a009885)
-+		local_irq_restore(flags);
- 
--	return value;
-+	return ret;
++	remove_inode_hash(inode);
+ 	set_bit(FUSE_I_BAD, &get_fuse_inode(inode)->state);
  }
- 
- static int xgmac_mdio_probe(struct platform_device *pdev)
-@@ -282,6 +293,8 @@ static int xgmac_mdio_probe(struct platf
- 	priv->is_little_endian = device_property_read_bool(&pdev->dev,
- 							   "little-endian");
- 
-+	priv->has_a009885 = device_property_read_bool(&pdev->dev,
-+						      "fsl,erratum-a009885");
- 	priv->has_a011043 = device_property_read_bool(&pdev->dev,
- 						      "fsl,erratum-a011043");
  
 
 
