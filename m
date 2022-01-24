@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38AB4498B02
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:09:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DAD5498C7D
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:23:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345345AbiAXTJD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:09:03 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:33282 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238066AbiAXTHB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:07:01 -0500
+        id S240133AbiAXTWn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:22:43 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:43438 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347567AbiAXTSh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:18:37 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0165060BFB;
-        Mon, 24 Jan 2022 19:06:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9B5FC340E5;
-        Mon, 24 Jan 2022 19:06:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5EB27B81235;
+        Mon, 24 Jan 2022 19:18:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DC20C340E5;
+        Mon, 24 Jan 2022 19:18:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643051213;
-        bh=UUCikyKIDcs3Go+mASe8ngo1/9EOj+3ZGtzTSW63IPc=;
+        s=korg; t=1643051914;
+        bh=gFwZuW3NXLcLBklwYKoFtGkp+6a7uJzR9q7GsSnsAtk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rfIthHfbCgbR07fdvGhHvjdW8V1Yf7WPPskGidsZuYIVZ1tLUoGu28Qel9zrLpRD5
-         v2pgiWAN+jT/KOtHJsGstvp2Lr3bnxHDmJz7VJ1hFvlIcKGrQQmdK/APhvPlu/vo46
-         R6vFjHPPxmwBBkijdgGiGRqRtD3g+m9u4ZCU1P+A=
+        b=eS3zvRGF60l7mHyEnKrwagv0qiv7N4zSp+kPVhF1KpKMM2uZ4phlR3x6mlW3jRiFq
+         G7/xoNR1oTO5Mg8VowYHZsmjrfCyRCiH+lbnFXx6zSou+WcijZwiNpuUwz8K/Q1scW
+         9sNA1LgIx1VtWbhzZH4p9reIpcTRGp0TOZ2/dJ5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Keeping <john@metanate.com>,
-        Pavankumar Kondeti <quic_pkondeti@quicinc.com>,
+        stable@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Arnd Bergmann <arnd@arndb.de>, Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 090/186] usb: gadget: f_fs: Use stream_open() for endpoint files
+Subject: [PATCH 4.19 127/239] ARM: imx: rename DEBUG_IMX21_IMX27_UART to DEBUG_IMX27_UART
 Date:   Mon, 24 Jan 2022 19:42:45 +0100
-Message-Id: <20220124183940.007016835@linuxfoundation.org>
+Message-Id: <20220124183947.149798691@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
-References: <20220124183937.101330125@linuxfoundation.org>
+In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
+References: <20220124183943.102762895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,63 +45,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavankumar Kondeti <quic_pkondeti@quicinc.com>
+From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
 
-[ Upstream commit c76ef96fc00eb398c8fc836b0eb2f82bcc619dc7 ]
+[ Upstream commit b0100bce4ff82ec1ccd3c1f3d339fd2df6a81784 ]
 
-Function fs endpoint file operations are synchronized via an interruptible
-mutex wait. However we see threads that do ep file operations concurrently
-are getting blocked for the mutex lock in __fdget_pos(). This is an
-uninterruptible wait and we see hung task warnings and kernel panic
-if hung_task_panic systcl is enabled if host does not send/receive
-the data for long time.
+Since commit 4b563a066611 ("ARM: imx: Remove imx21 support"), the config
+DEBUG_IMX21_IMX27_UART is really only debug support for IMX27.
 
-The reason for threads getting blocked in __fdget_pos() is due to
-the file position protection introduced by the commit 9c225f2655e3
-("vfs: atomic f_pos accesses as per POSIX"). Since function fs
-endpoint files does not have the notion of the file position, switch
-to the stream mode. This will bypass the file position mutex and
-threads will be blocked in interruptible state for the function fs
-mutex.
+So, rename this option to DEBUG_IMX27_UART and adjust dependencies in
+Kconfig and rename the definitions to IMX27 as further clean-up.
 
-It should not affects user space as we are only changing the task state
-changes the task state from UNINTERRUPTIBLE to INTERRUPTIBLE while waiting
-for the USB transfers to be finished. However there is a slight change to
-the O_NONBLOCK behavior. Earlier threads that are using O_NONBLOCK are also
-getting blocked inside fdget_pos(). Now they reach to function fs and error
-code is returned. The non blocking behavior is actually honoured now.
+This issue was discovered with ./scripts/checkkconfigsymbols.py, which
+reported that DEBUG_IMX21_IMX27_UART depends on the non-existing config
+SOC_IMX21.
 
-Reviewed-by: John Keeping <john@metanate.com>
-Signed-off-by: Pavankumar Kondeti <quic_pkondeti@quicinc.com>
-Link: https://lore.kernel.org/r/1636712682-1226-1-git-send-email-quic_pkondeti@quicinc.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_fs.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/Kconfig.debug            | 14 +++++++-------
+ arch/arm/include/debug/imx-uart.h | 18 +++++++++---------
+ 2 files changed, 16 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-index 6029f9b00b4a0..61795025f11b6 100644
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -608,7 +608,7 @@ static int ffs_ep0_open(struct inode *inode, struct file *file)
- 	file->private_data = ffs;
- 	ffs_data_opened(ffs);
+diff --git a/arch/arm/Kconfig.debug b/arch/arm/Kconfig.debug
+index 01c760929c9e4..12a023c542e45 100644
+--- a/arch/arm/Kconfig.debug
++++ b/arch/arm/Kconfig.debug
+@@ -405,12 +405,12 @@ choice
+ 		  Say Y here if you want kernel low-level debugging support
+ 		  on i.MX25.
  
--	return 0;
-+	return stream_open(inode, file);
- }
+-	config DEBUG_IMX21_IMX27_UART
+-		bool "i.MX21 and i.MX27 Debug UART"
+-		depends on SOC_IMX21 || SOC_IMX27
++	config DEBUG_IMX27_UART
++		bool "i.MX27 Debug UART"
++		depends on SOC_IMX27
+ 		help
+ 		  Say Y here if you want kernel low-level debugging support
+-		  on i.MX21 or i.MX27.
++		  on i.MX27.
  
- static int ffs_ep0_release(struct inode *inode, struct file *file)
-@@ -1072,7 +1072,7 @@ ffs_epfile_open(struct inode *inode, struct file *file)
- 	file->private_data = epfile;
- 	ffs_data_opened(epfile->ffs);
+ 	config DEBUG_IMX28_UART
+ 		bool "i.MX28 Debug UART"
+@@ -1454,7 +1454,7 @@ config DEBUG_IMX_UART_PORT
+ 	int "i.MX Debug UART Port Selection"
+ 	depends on DEBUG_IMX1_UART || \
+ 		   DEBUG_IMX25_UART || \
+-		   DEBUG_IMX21_IMX27_UART || \
++		   DEBUG_IMX27_UART || \
+ 		   DEBUG_IMX31_UART || \
+ 		   DEBUG_IMX35_UART || \
+ 		   DEBUG_IMX50_UART || \
+@@ -1507,12 +1507,12 @@ config DEBUG_LL_INCLUDE
+ 	default "debug/icedcc.S" if DEBUG_ICEDCC
+ 	default "debug/imx.S" if DEBUG_IMX1_UART || \
+ 				 DEBUG_IMX25_UART || \
+-				 DEBUG_IMX21_IMX27_UART || \
++				 DEBUG_IMX27_UART || \
+ 				 DEBUG_IMX31_UART || \
+ 				 DEBUG_IMX35_UART || \
+ 				 DEBUG_IMX50_UART || \
+ 				 DEBUG_IMX51_UART || \
+-				 DEBUG_IMX53_UART ||\
++				 DEBUG_IMX53_UART || \
+ 				 DEBUG_IMX6Q_UART || \
+ 				 DEBUG_IMX6SL_UART || \
+ 				 DEBUG_IMX6SX_UART || \
+diff --git a/arch/arm/include/debug/imx-uart.h b/arch/arm/include/debug/imx-uart.h
+index bce58e975ad1f..c750cc9876f6d 100644
+--- a/arch/arm/include/debug/imx-uart.h
++++ b/arch/arm/include/debug/imx-uart.h
+@@ -14,13 +14,6 @@
+ #define IMX1_UART_BASE_ADDR(n)	IMX1_UART##n##_BASE_ADDR
+ #define IMX1_UART_BASE(n)	IMX1_UART_BASE_ADDR(n)
  
--	return 0;
-+	return stream_open(inode, file);
- }
+-#define IMX21_UART1_BASE_ADDR	0x1000a000
+-#define IMX21_UART2_BASE_ADDR	0x1000b000
+-#define IMX21_UART3_BASE_ADDR	0x1000c000
+-#define IMX21_UART4_BASE_ADDR	0x1000d000
+-#define IMX21_UART_BASE_ADDR(n)	IMX21_UART##n##_BASE_ADDR
+-#define IMX21_UART_BASE(n)	IMX21_UART_BASE_ADDR(n)
+-
+ #define IMX25_UART1_BASE_ADDR	0x43f90000
+ #define IMX25_UART2_BASE_ADDR	0x43f94000
+ #define IMX25_UART3_BASE_ADDR	0x5000c000
+@@ -29,6 +22,13 @@
+ #define IMX25_UART_BASE_ADDR(n)	IMX25_UART##n##_BASE_ADDR
+ #define IMX25_UART_BASE(n)	IMX25_UART_BASE_ADDR(n)
  
- static int ffs_aio_cancel(struct kiocb *kiocb)
++#define IMX27_UART1_BASE_ADDR	0x1000a000
++#define IMX27_UART2_BASE_ADDR	0x1000b000
++#define IMX27_UART3_BASE_ADDR	0x1000c000
++#define IMX27_UART4_BASE_ADDR	0x1000d000
++#define IMX27_UART_BASE_ADDR(n)	IMX27_UART##n##_BASE_ADDR
++#define IMX27_UART_BASE(n)	IMX27_UART_BASE_ADDR(n)
++
+ #define IMX31_UART1_BASE_ADDR	0x43f90000
+ #define IMX31_UART2_BASE_ADDR	0x43f94000
+ #define IMX31_UART3_BASE_ADDR	0x5000c000
+@@ -115,10 +115,10 @@
+ 
+ #ifdef CONFIG_DEBUG_IMX1_UART
+ #define UART_PADDR	IMX_DEBUG_UART_BASE(IMX1)
+-#elif defined(CONFIG_DEBUG_IMX21_IMX27_UART)
+-#define UART_PADDR	IMX_DEBUG_UART_BASE(IMX21)
+ #elif defined(CONFIG_DEBUG_IMX25_UART)
+ #define UART_PADDR	IMX_DEBUG_UART_BASE(IMX25)
++#elif defined(CONFIG_DEBUG_IMX27_UART)
++#define UART_PADDR	IMX_DEBUG_UART_BASE(IMX27)
+ #elif defined(CONFIG_DEBUG_IMX31_UART)
+ #define UART_PADDR	IMX_DEBUG_UART_BASE(IMX31)
+ #elif defined(CONFIG_DEBUG_IMX35_UART)
 -- 
 2.34.1
 
