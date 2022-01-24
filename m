@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4214499A5E
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:54:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F3E97499B21
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:59:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1378567AbiAXVnd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:43:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47096 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1445275AbiAXVHP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:07:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF8B6C0680A2;
-        Mon, 24 Jan 2022 12:07:42 -0800 (PST)
+        id S1574617AbiAXVt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:49:57 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56880 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1456943AbiAXVkc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:40:32 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E0E96090A;
-        Mon, 24 Jan 2022 20:07:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C048C340E5;
-        Mon, 24 Jan 2022 20:07:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D79B61469;
+        Mon, 24 Jan 2022 21:40:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A861C340E4;
+        Mon, 24 Jan 2022 21:40:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054861;
-        bh=EjBx6VLc9soLrs83ucHSAMI+i/H49AZLt1t7DcmUv5c=;
+        s=korg; t=1643060430;
+        bh=MpuM4LnY9B+O0T3OuYSyok+AoWxmtiacIkWoare4NoE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PgZVgII2gyzAB5LA6IDlCYoJ6FvN79V54S3xe2IgGsttIZEpPw4Yemi120X4ZN3P8
-         knR+XsZvqwNiTlF15wB8V8TZ8YoR+wApNkJZzm78hADoTY/UiPFuPcebdVYpVpU8Tr
-         +xq2DTNOwZRPfZ5eBvp6RKcWv/d+yXRxxdQKFsTM=
+        b=0u8Uw0WM+bjxIerS49FlRfsRVS0GAzrZpHoz3rCtHPvw7emkxFHo1nppH3xUjpTJ+
+         2cyuDV5aTddYM8Jnd7YPuMPlJaYW5fCTJfF64ukpTNPkQnk93vYgT1cciklRKrQrcz
+         fu1vHYo664Bj3G/mEvpzzAEn5bzf7rE0ilPJJjJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 526/563] net: axienet: fix number of TX ring slots for available check
+        stable@vger.kernel.org, Felix Kuehling <Felix.Kuehling@amd.com>,
+        Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.16 0902/1039] Revert "drm/amdgpu: Dont inherit GEM object VMAs in child process"
 Date:   Mon, 24 Jan 2022 19:44:51 +0100
-Message-Id: <20220124184042.624814989@linuxfoundation.org>
+Message-Id: <20220124184155.609507835@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+References: <20220124184125.121143506@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,41 +45,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
 
-commit aba57a823d2985a2cc8c74a2535f3a88e68d9424 upstream.
+commit 8b5da5a458c95ad49571a6a6285800bf13409616 upstream.
 
-The check for the number of available TX ring slots was off by 1 since a
-slot is required for the skb header as well as each fragment. This could
-result in overwriting a TX ring slot that was still in use.
+This reverts commit fbcdbfde87509d523132b59f661a355c731139d0.
 
-Fixes: 8a3b7a252dca9 ("drivers/net/ethernet/xilinx: added Xilinx AXI Ethernet driver")
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
+Signed-off-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/xilinx/xilinx_axienet_main.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-+++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-@@ -747,7 +747,7 @@ axienet_start_xmit(struct sk_buff *skb,
- 	num_frag = skb_shinfo(skb)->nr_frags;
- 	cur_p = &lp->tx_bd_v[lp->tx_bd_tail];
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gem.c
+@@ -264,9 +264,6 @@ static int amdgpu_gem_object_mmap(struct
+ 	    !(vma->vm_flags & (VM_READ | VM_WRITE | VM_EXEC)))
+ 		vma->vm_flags &= ~VM_MAYWRITE;
  
--	if (axienet_check_tx_bd_space(lp, num_frag)) {
-+	if (axienet_check_tx_bd_space(lp, num_frag + 1)) {
- 		if (netif_queue_stopped(ndev))
- 			return NETDEV_TX_BUSY;
+-	if (bo->kfd_bo)
+-		vma->vm_flags |= VM_DONTCOPY;
+-
+ 	return drm_gem_ttm_mmap(obj, vma);
+ }
  
-@@ -757,7 +757,7 @@ axienet_start_xmit(struct sk_buff *skb,
- 		smp_mb();
- 
- 		/* Space might have just been freed - check again */
--		if (axienet_check_tx_bd_space(lp, num_frag))
-+		if (axienet_check_tx_bd_space(lp, num_frag + 1))
- 			return NETDEV_TX_BUSY;
- 
- 		netif_wake_queue(ndev);
 
 
