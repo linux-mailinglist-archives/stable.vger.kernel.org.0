@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0390049A328
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:02:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40BBB49A324
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:02:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2366154AbiAXXwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:52:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49164 "EHLO
+        id S2366150AbiAXXwY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:52:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1844754AbiAXXKO (ORCPT
+        with ESMTP id S1844746AbiAXXKO (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:10:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 716E9C0A0285;
-        Mon, 24 Jan 2022 13:18:24 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 137DCC0A0289;
+        Mon, 24 Jan 2022 13:18:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FABB614A8;
-        Mon, 24 Jan 2022 21:18:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C28A2C340E4;
-        Mon, 24 Jan 2022 21:18:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF31CB8105C;
+        Mon, 24 Jan 2022 21:18:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11577C340E4;
+        Mon, 24 Jan 2022 21:18:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059103;
-        bh=CHPzfW6i5bXLXtdsGALLpzo6sxfPO+RZtns6yyzQsS4=;
+        s=korg; t=1643059106;
+        bh=eBtV3ryZiXUZattGsksT7BmwOVTZlzKcXHsLCTSvJcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eLV/Eh/ZRff51G0ujXwdMedbVNX41Ex8/IXUBizB2xpCUvgHGHUdiUyyisPy1qnuq
-         t9c9Ez86gegZkbvBcXVEw9lv22THeFZDurmex0YE+Hm2sq67S1egD2XBQ7m58e3xw2
-         3eR23Z9MvCvtaohwkrdMCRsjVTw4L7+o9QEbg2Bs=
+        b=EDeYySaXQv6nMdJkeBNJpFn3Uhc+znhd+GBL9D5cRkZ0EwYvyOvyT93KEyfL0nnTi
+         IW27OQTkTuDaN8elrJSrWPXdDTbluylV58Bf1OCW5CQtXES+FIcNS7pg1aqoDKe5TK
+         AG68GRV+Thi1DP5x6HWJ8JX68L9rrJxpGoLQ+uc0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bart Van Assche <bvanassche@acm.org>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Xiang Chen <chenxiang66@hisilicon.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>,
-        John Garry <john.garry@huawei.com>
-Subject: [PATCH 5.16 0504/1039] scsi: block: pm: Always set request queue runtime active in blk_post_runtime_resume()
-Date:   Mon, 24 Jan 2022 19:38:13 +0100
-Message-Id: <20220124184142.209470147@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Ryuta NAKANISHI <nakanishi.ryuta@socionext.com>,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0505/1039] phy: uniphier-usb3ss: fix unintended writing zeros to PHY register
+Date:   Mon, 24 Jan 2022 19:38:14 +0100
+Message-Id: <20220124184142.248564599@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -51,118 +49,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Ryuta NAKANISHI <nakanishi.ryuta@socionext.com>
 
-[ Upstream commit 6e1fcab00a23f7fe9f4fe9704905a790efa1eeab ]
+[ Upstream commit 898c7a9ec81620125f2463714a0f4dea18ad6e54 ]
 
-John Garry reported a deadlock that occurs when trying to access a
-runtime-suspended SATA device.  For obscure reasons, the rescan procedure
-causes the link to be hard-reset, which disconnects the device.
+Similar to commit 4a90bbb478db ("phy: uniphier-pcie: Fix updating phy
+parameters"), in function uniphier_u3ssphy_set_param(), unintentionally
+write zeros to other fields when writing PHY registers.
 
-The rescan tries to carry out a runtime resume when accessing the device.
-scsi_rescan_device() holds the SCSI device lock and won't release it until
-it can put commands onto the device's block queue.  This can't happen until
-the queue is successfully runtime-resumed or the device is unregistered.
-But the runtime resume fails because the device is disconnected, and
-__scsi_remove_device() can't do the unregistration because it can't get the
-device lock.
-
-The best way to resolve this deadlock appears to be to allow the block
-queue to start running again even after an unsuccessful runtime resume.
-The idea is that the driver or the SCSI error handler will need to be able
-to use the queue to resolve the runtime resume failure.
-
-This patch removes the err argument to blk_post_runtime_resume() and makes
-the routine act as though the resume was successful always.  This fixes the
-deadlock.
-
-Link: https://lore.kernel.org/r/1639999298-244569-4-git-send-email-chenxiang66@hisilicon.com
-Fixes: e27829dc92e5 ("scsi: serialize ->rescan against ->remove")
-Reported-and-tested-by: John Garry <john.garry@huawei.com>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 5ab43d0f8697 ("phy: socionext: add USB3 PHY driver for UniPhier SoC")
+Signed-off-by: Ryuta NAKANISHI <nakanishi.ryuta@socionext.com>
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Link: https://lore.kernel.org/r/1640150369-4134-1-git-send-email-hayashi.kunihiko@socionext.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-pm.c         | 22 +++++++---------------
- drivers/scsi/scsi_pm.c |  2 +-
- include/linux/blk-pm.h |  2 +-
- 3 files changed, 9 insertions(+), 17 deletions(-)
+ drivers/phy/socionext/phy-uniphier-usb3ss.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/block/blk-pm.c b/block/blk-pm.c
-index 17bd020268d42..2dad62cc15727 100644
---- a/block/blk-pm.c
-+++ b/block/blk-pm.c
-@@ -163,27 +163,19 @@ EXPORT_SYMBOL(blk_pre_runtime_resume);
- /**
-  * blk_post_runtime_resume - Post runtime resume processing
-  * @q: the queue of the device
-- * @err: return value of the device's runtime_resume function
-  *
-  * Description:
-- *    Update the queue's runtime status according to the return value of the
-- *    device's runtime_resume function. If the resume was successful, call
-- *    blk_set_runtime_active() to do the real work of restarting the queue.
-+ *    For historical reasons, this routine merely calls blk_set_runtime_active()
-+ *    to do the real work of restarting the queue.  It does this regardless of
-+ *    whether the device's runtime-resume succeeded; even if it failed the
-+ *    driver or error handler will need to communicate with the device.
-  *
-  *    This function should be called near the end of the device's
-  *    runtime_resume callback.
-  */
--void blk_post_runtime_resume(struct request_queue *q, int err)
-+void blk_post_runtime_resume(struct request_queue *q)
- {
--	if (!q->dev)
--		return;
--	if (!err) {
--		blk_set_runtime_active(q);
--	} else {
--		spin_lock_irq(&q->queue_lock);
--		q->rpm_status = RPM_SUSPENDED;
--		spin_unlock_irq(&q->queue_lock);
--	}
-+	blk_set_runtime_active(q);
- }
- EXPORT_SYMBOL(blk_post_runtime_resume);
+diff --git a/drivers/phy/socionext/phy-uniphier-usb3ss.c b/drivers/phy/socionext/phy-uniphier-usb3ss.c
+index 6700645bcbe6b..3b5ffc16a6947 100644
+--- a/drivers/phy/socionext/phy-uniphier-usb3ss.c
++++ b/drivers/phy/socionext/phy-uniphier-usb3ss.c
+@@ -22,11 +22,13 @@
+ #include <linux/reset.h>
  
-@@ -201,7 +193,7 @@ EXPORT_SYMBOL(blk_post_runtime_resume);
-  * runtime PM status and re-enable peeking requests from the queue. It
-  * should be called before first request is added to the queue.
-  *
-- * This function is also called by blk_post_runtime_resume() for successful
-+ * This function is also called by blk_post_runtime_resume() for
-  * runtime resumes.  It does everything necessary to restart the queue.
-  */
- void blk_set_runtime_active(struct request_queue *q)
-diff --git a/drivers/scsi/scsi_pm.c b/drivers/scsi/scsi_pm.c
-index b5a858c29488a..f06ca9d2a597d 100644
---- a/drivers/scsi/scsi_pm.c
-+++ b/drivers/scsi/scsi_pm.c
-@@ -181,7 +181,7 @@ static int sdev_runtime_resume(struct device *dev)
- 	blk_pre_runtime_resume(sdev->request_queue);
- 	if (pm && pm->runtime_resume)
- 		err = pm->runtime_resume(dev);
--	blk_post_runtime_resume(sdev->request_queue, err);
-+	blk_post_runtime_resume(sdev->request_queue);
+ #define SSPHY_TESTI		0x0
+-#define SSPHY_TESTO		0x4
+ #define TESTI_DAT_MASK		GENMASK(13, 6)
+ #define TESTI_ADR_MASK		GENMASK(5, 1)
+ #define TESTI_WR_EN		BIT(0)
  
- 	return err;
- }
-diff --git a/include/linux/blk-pm.h b/include/linux/blk-pm.h
-index b80c65aba2493..2580e05a8ab67 100644
---- a/include/linux/blk-pm.h
-+++ b/include/linux/blk-pm.h
-@@ -14,7 +14,7 @@ extern void blk_pm_runtime_init(struct request_queue *q, struct device *dev);
- extern int blk_pre_runtime_suspend(struct request_queue *q);
- extern void blk_post_runtime_suspend(struct request_queue *q, int err);
- extern void blk_pre_runtime_resume(struct request_queue *q);
--extern void blk_post_runtime_resume(struct request_queue *q, int err);
-+extern void blk_post_runtime_resume(struct request_queue *q);
- extern void blk_set_runtime_active(struct request_queue *q);
- #else
- static inline void blk_pm_runtime_init(struct request_queue *q,
++#define SSPHY_TESTO		0x4
++#define TESTO_DAT_MASK		GENMASK(7, 0)
++
+ #define PHY_F(regno, msb, lsb) { (regno), (msb), (lsb) }
+ 
+ #define CDR_CPD_TRIM	PHY_F(7, 3, 0)	/* RxPLL charge pump current */
+@@ -84,12 +86,12 @@ static void uniphier_u3ssphy_set_param(struct uniphier_u3ssphy_priv *priv,
+ 	val  = FIELD_PREP(TESTI_DAT_MASK, 1);
+ 	val |= FIELD_PREP(TESTI_ADR_MASK, p->field.reg_no);
+ 	uniphier_u3ssphy_testio_write(priv, val);
+-	val = readl(priv->base + SSPHY_TESTO);
++	val = readl(priv->base + SSPHY_TESTO) & TESTO_DAT_MASK;
+ 
+ 	/* update value */
+-	val &= ~FIELD_PREP(TESTI_DAT_MASK, field_mask);
++	val &= ~field_mask;
+ 	data = field_mask & (p->value << p->field.lsb);
+-	val  = FIELD_PREP(TESTI_DAT_MASK, data);
++	val  = FIELD_PREP(TESTI_DAT_MASK, data | val);
+ 	val |= FIELD_PREP(TESTI_ADR_MASK, p->field.reg_no);
+ 	uniphier_u3ssphy_testio_write(priv, val);
+ 	uniphier_u3ssphy_testio_write(priv, val | TESTI_WR_EN);
 -- 
 2.34.1
 
