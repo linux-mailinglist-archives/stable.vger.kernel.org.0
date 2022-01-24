@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CA4D498C9B
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:23:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 669D7498B4C
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:12:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344583AbiAXTXm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:23:42 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:45170 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1349782AbiAXTVT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:21:19 -0500
+        id S1345465AbiAXTMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:12:47 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:39428 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347180AbiAXTJt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:09:49 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 68D33B81235;
-        Mon, 24 Jan 2022 19:21:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97825C340E5;
-        Mon, 24 Jan 2022 19:21:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F80760BFB;
+        Mon, 24 Jan 2022 19:09:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E78EC340E5;
+        Mon, 24 Jan 2022 19:09:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643052077;
-        bh=1Dan8dXqoNzgwNf+GccsTIVQp+glgJ3SqFIhl/iSHJc=;
+        s=korg; t=1643051387;
+        bh=JDF9WLNT8OUjG+gsNWtkTMlJcVFfSR3ifAI/6fh01z4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rz7+K3vLov8WE4g3OldmFwAjeN4xww3ku+1BX+kIp7//bjdLbD75fBHkCPS3rRIO8
-         HzBecpFGI/and9LQ2IRAeQnrALUCbX1ooUAg5n1pZ+YPxbxhlC6rI2jhmr88+m6BiF
-         hpfN2LIMeISidq5ue7Kp/gOv4CwBB7/tnLrGgzpQ=
+        b=d/2XazKrjs7Uv+lU1LzXQ//i7zlP+98OOdzE8HJRMGrTnR/gEMqd+Vtc5sgc/LttK
+         /u+Dut3L2BIi9MgDoHcGniy0rKNDu8MLabyODCtXZ2UaTXEJs0SU0yY+iCIMt6rNxx
+         GhiEncaosOEbpcEQOBKFp6DriyF6PghaAdYBowbI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 149/239] media: saa7146: hexium_gemini: Fix a NULL pointer dereference in hexium_attach()
+Subject: [PATCH 4.14 112/186] usb: hub: Add delay for SuperSpeed hub resume to let links transit to U0
 Date:   Mon, 24 Jan 2022 19:43:07 +0100
-Message-Id: <20220124183947.833217517@linuxfoundation.org>
+Message-Id: <20220124183940.720052681@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-References: <20220124183943.102762895@linuxfoundation.org>
+In-Reply-To: <20220124183937.101330125@linuxfoundation.org>
+References: <20220124183937.101330125@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,71 +45,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 3af86b046933ba513d08399dba0d4d8b50d607d0 ]
+[ Upstream commit 00558586382891540c59c9febc671062425a6e47 ]
 
-In hexium_attach(dev, info), saa7146_vv_init() is called to allocate
-a new memory for dev->vv_data. saa7146_vv_release() will be called on
-failure of saa7146_register_device(). There is a dereference of
-dev->vv_data in saa7146_vv_release(), which could lead to a NULL
-pointer dereference on failure of saa7146_vv_init().
+When a new USB device gets plugged to nested hubs, the affected hub,
+which connects to usb 2-1.4-port2, doesn't report there's any change,
+hence the nested hubs go back to runtime suspend like nothing happened:
+[  281.032951] usb usb2: usb wakeup-resume
+[  281.032959] usb usb2: usb auto-resume
+[  281.032974] hub 2-0:1.0: hub_resume
+[  281.033011] usb usb2-port1: status 0263 change 0000
+[  281.033077] hub 2-0:1.0: state 7 ports 4 chg 0000 evt 0000
+[  281.049797] usb 2-1: usb wakeup-resume
+[  281.069800] usb 2-1: Waited 0ms for CONNECT
+[  281.069810] usb 2-1: finish resume
+[  281.070026] hub 2-1:1.0: hub_resume
+[  281.070250] usb 2-1-port4: status 0203 change 0000
+[  281.070272] usb usb2-port1: resume, status 0
+[  281.070282] hub 2-1:1.0: state 7 ports 4 chg 0010 evt 0000
+[  281.089813] usb 2-1.4: usb wakeup-resume
+[  281.109792] usb 2-1.4: Waited 0ms for CONNECT
+[  281.109801] usb 2-1.4: finish resume
+[  281.109991] hub 2-1.4:1.0: hub_resume
+[  281.110147] usb 2-1.4-port2: status 0263 change 0000
+[  281.110234] usb 2-1-port4: resume, status 0
+[  281.110239] usb 2-1-port4: status 0203, change 0000, 10.0 Gb/s
+[  281.110266] hub 2-1.4:1.0: state 7 ports 4 chg 0000 evt 0000
+[  281.110426] hub 2-1.4:1.0: hub_suspend
+[  281.110565] usb 2-1.4: usb auto-suspend, wakeup 1
+[  281.130998] hub 2-1:1.0: hub_suspend
+[  281.137788] usb 2-1: usb auto-suspend, wakeup 1
+[  281.142935] hub 2-0:1.0: state 7 ports 4 chg 0000 evt 0000
+[  281.177828] usb 2-1: usb wakeup-resume
+[  281.197839] usb 2-1: Waited 0ms for CONNECT
+[  281.197850] usb 2-1: finish resume
+[  281.197984] hub 2-1:1.0: hub_resume
+[  281.198203] usb 2-1-port4: status 0203 change 0000
+[  281.198228] usb usb2-port1: resume, status 0
+[  281.198237] hub 2-1:1.0: state 7 ports 4 chg 0010 evt 0000
+[  281.217835] usb 2-1.4: usb wakeup-resume
+[  281.237834] usb 2-1.4: Waited 0ms for CONNECT
+[  281.237845] usb 2-1.4: finish resume
+[  281.237990] hub 2-1.4:1.0: hub_resume
+[  281.238067] usb 2-1.4-port2: status 0263 change 0000
+[  281.238148] usb 2-1-port4: resume, status 0
+[  281.238152] usb 2-1-port4: status 0203, change 0000, 10.0 Gb/s
+[  281.238166] hub 2-1.4:1.0: state 7 ports 4 chg 0000 evt 0000
+[  281.238385] hub 2-1.4:1.0: hub_suspend
+[  281.238523] usb 2-1.4: usb auto-suspend, wakeup 1
+[  281.258076] hub 2-1:1.0: hub_suspend
+[  281.265744] usb 2-1: usb auto-suspend, wakeup 1
+[  281.285976] hub 2-0:1.0: hub_suspend
+[  281.285988] usb usb2: bus auto-suspend, wakeup 1
 
-Fix this bug by adding a check of saa7146_vv_init().
+USB 3.2 spec, 9.2.5.4 "Changing Function Suspend State" says that "If
+the link is in a non-U0 state, then the device must transition the link
+to U0 prior to sending the remote wake message", but the hub only
+transits the link to U0 after signaling remote wakeup.
 
-This bug was found by a static analyzer. The analysis employs
-differential checking to identify inconsistent security operations
-(e.g., checks or kfrees) between two code paths and confirms that the
-inconsistent operations are not recovered in the current function or
-the callers, so they constitute bugs.
+So be more forgiving and use a 20ms delay to let the link transit to U0
+for remote wakeup.
 
-Note that, as a bug found by static analysis, it can be a false
-positive or hard to trigger. Multiple researchers have cross-reviewed
-the bug.
-
-Builds with CONFIG_VIDEO_HEXIUM_GEMINI=m show no new warnings,
-and our static analyzer no longer warns about this code.
-
-Link: https://lore.kernel.org/linux-media/20211203154030.111210-1-zhou1615@umn.edu
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Suggested-by: Alan Stern <stern@rowland.harvard.edu>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Link: https://lore.kernel.org/r/20211215120108.336597-1-kai.heng.feng@canonical.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/common/saa7146/saa7146_fops.c | 2 +-
- drivers/media/pci/saa7146/hexium_gemini.c   | 7 ++++++-
- 2 files changed, 7 insertions(+), 2 deletions(-)
+ drivers/usb/core/hub.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/common/saa7146/saa7146_fops.c b/drivers/media/common/saa7146/saa7146_fops.c
-index d4987fd05d05f..d91bd32bd1f04 100644
---- a/drivers/media/common/saa7146/saa7146_fops.c
-+++ b/drivers/media/common/saa7146/saa7146_fops.c
-@@ -524,7 +524,7 @@ int saa7146_vv_init(struct saa7146_dev* dev, struct saa7146_ext_vv *ext_vv)
- 		ERR("out of memory. aborting.\n");
- 		kfree(vv);
- 		v4l2_ctrl_handler_free(hdl);
--		return -1;
-+		return -ENOMEM;
- 	}
+diff --git a/drivers/usb/core/hub.c b/drivers/usb/core/hub.c
+index a9a57c88139df..132828b56cf83 100644
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -1077,7 +1077,10 @@ static void hub_activate(struct usb_hub *hub, enum hub_activation_type type)
+ 		} else {
+ 			hub_power_on(hub, true);
+ 		}
+-	}
++	/* Give some time on remote wakeup to let links to transit to U0 */
++	} else if (hub_is_superspeed(hub->hdev))
++		msleep(20);
++
+  init2:
  
- 	saa7146_video_uops.init(dev,vv);
-diff --git a/drivers/media/pci/saa7146/hexium_gemini.c b/drivers/media/pci/saa7146/hexium_gemini.c
-index 8c56d4c37a525..3513b1a6fcee9 100644
---- a/drivers/media/pci/saa7146/hexium_gemini.c
-+++ b/drivers/media/pci/saa7146/hexium_gemini.c
-@@ -296,7 +296,12 @@ static int hexium_attach(struct saa7146_dev *dev, struct saa7146_pci_extension_d
- 	hexium_set_input(hexium, 0);
- 	hexium->cur_input = 0;
- 
--	saa7146_vv_init(dev, &vv_data);
-+	ret = saa7146_vv_init(dev, &vv_data);
-+	if (ret) {
-+		i2c_del_adapter(&hexium->i2c_adapter);
-+		kfree(hexium);
-+		return ret;
-+	}
- 
- 	vv_data.vid_ops.vidioc_enum_input = vidioc_enum_input;
- 	vv_data.vid_ops.vidioc_g_input = vidioc_g_input;
+ 	/*
 -- 
 2.34.1
 
