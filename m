@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 208FB499CA7
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:13:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F6924995B3
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:13:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1579512AbiAXWFu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:05:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59504 "EHLO
+        id S1352732AbiAXUyH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:54:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1574933AbiAXV7G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:59:06 -0500
+        with ESMTP id S1392365AbiAXUvE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:51:04 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53DEFC02B8C4;
-        Mon, 24 Jan 2022 12:39:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98AFBC054325;
+        Mon, 24 Jan 2022 11:58:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CAA7EB811FB;
-        Mon, 24 Jan 2022 20:39:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01E93C340E5;
-        Mon, 24 Jan 2022 20:39:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 577B5B8119D;
+        Mon, 24 Jan 2022 19:58:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AD0BC340E5;
+        Mon, 24 Jan 2022 19:58:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056757;
-        bh=RrkQfr1N8/D9I56nK7YQ11YiOSyDN+pImc2mLPrVi0M=;
+        s=korg; t=1643054302;
+        bh=JjoTPxcrsm13yYDz2X0aCGOrakWj/cvM4DjQzFBa75A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nt6oV2pOroFqKlgSmfNrX5gI+VLaoGd2p40qcLR0SalB0bi2/6HS4EbTbDdHH6yYe
-         WfKoSLewVg0jiPGOKzrvJikjo6z4G8DjH63ICwI7aWqdFlsoCYgMzvkxDmLzkc0RXu
-         PjKPXdgU4ofuumxBwc5YXXOJJ53y/dzDEOXuLhEE=
+        b=uEvl33PG4PPhjxI0aEAMSxO9ikEBrIAAZuf3SNDRDbIh9df/u5cbxO3NYbiN24y6s
+         zjic6cIYomUy+OTLpXJPA4R/5jk4YUEHeSyGGJIpqt2UkMF/y9iWss0cqEPDLuQ1rE
+         bUyCoKwojDCLiifVYZ+Zm6rotJzy7fPsJAWEWceQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lenny Szubowicz <lszubowi@redhat.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Bob Moore <robert.moore@intel.com>,
+        stable@vger.kernel.org, Zhou Qingyang <zhou1615@umn.edu>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 591/846] ACPICA: Executer: Fix the REFCLASS_REFOF case in acpi_ex_opcode_1A_0T_1R()
-Date:   Mon, 24 Jan 2022 19:41:48 +0100
-Message-Id: <20220124184121.419404333@linuxfoundation.org>
+Subject: [PATCH 5.10 344/563] media: saa7146: hexium_orion: Fix a NULL pointer dereference in hexium_attach()
+Date:   Mon, 24 Jan 2022 19:41:49 +0100
+Message-Id: <20220124184036.320287570@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,54 +49,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Zhou Qingyang <zhou1615@umn.edu>
 
-[ Upstream commit 24ea5f90ec9548044a6209685c5010edd66ffe8f ]
+[ Upstream commit 348df8035301dd212e3cc2860efe4c86cb0d3303 ]
 
-ACPICA commit d984f12041392fa4156b52e2f7e5c5e7bc38ad9e
+In hexium_attach(dev, info), saa7146_vv_init() is called to allocate
+a new memory for dev->vv_data. In hexium_detach(), saa7146_vv_release()
+will be called and there is a dereference of dev->vv_data in
+saa7146_vv_release(), which could lead to a NULL pointer dereference
+on failure of saa7146_vv_init() according to the following logic.
 
-If Operand[0] is a reference of the ACPI_REFCLASS_REFOF class,
-acpi_ex_opcode_1A_0T_1R () calls acpi_ns_get_attached_object () to
-obtain return_desc which may require additional resolution with
-the help of acpi_ex_read_data_from_field (). If the latter fails,
-the reference counter of the original return_desc is decremented
-which is incorrect, because acpi_ns_get_attached_object () does not
-increment the reference counter of the object returned by it.
+Both hexium_attach() and hexium_detach() are callback functions of
+the variable 'extension', so there exists a possible call chain directly
+from hexium_attach() to hexium_detach():
 
-This issue may lead to premature deletion of the attached object
-while it is still attached and a use-after-free and crash in the
-host OS.  For example, this may happen when on evaluation of ref_of()
-a local region field where there is no registered handler for the
-given Operation Region.
+hexium_attach(dev, info) -- fail to alloc memory to dev->vv_data
+	|		    		in saa7146_vv_init().
+	|
+	|
+hexium_detach() -- a dereference of dev->vv_data in saa7146_vv_release()
 
-Fix it by making acpi_ex_opcode_1A_0T_1R () return Status right away
-after a acpi_ex_read_data_from_field () failure.
+Fix this bug by adding a check of saa7146_vv_init().
 
-Link: https://github.com/acpica/acpica/commit/d984f120
-Link: https://github.com/acpica/acpica/pull/685
-Reported-by: Lenny Szubowicz <lszubowi@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Bob Moore <robert.moore@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+This bug was found by a static analyzer. The analysis employs
+differential checking to identify inconsistent security operations
+(e.g., checks or kfrees) between two code paths and confirms that the
+inconsistent operations are not recovered in the current function or
+the callers, so they constitute bugs.
+
+Note that, as a bug found by static analysis, it can be a false
+positive or hard to trigger. Multiple researchers have cross-reviewed
+the bug.
+
+Builds with CONFIG_VIDEO_HEXIUM_ORION=m show no new warnings,
+and our static analyzer no longer warns about this code.
+
+Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/exoparg1.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/pci/saa7146/hexium_orion.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/acpica/exoparg1.c b/drivers/acpi/acpica/exoparg1.c
-index b639e930d6429..44b7c350ed5ca 100644
---- a/drivers/acpi/acpica/exoparg1.c
-+++ b/drivers/acpi/acpica/exoparg1.c
-@@ -1007,7 +1007,8 @@ acpi_status acpi_ex_opcode_1A_0T_1R(struct acpi_walk_state *walk_state)
- 						    (walk_state, return_desc,
- 						     &temp_desc);
- 						if (ACPI_FAILURE(status)) {
--							goto cleanup;
-+							return_ACPI_STATUS
-+							    (status);
- 						}
+diff --git a/drivers/media/pci/saa7146/hexium_orion.c b/drivers/media/pci/saa7146/hexium_orion.c
+index 39d14c179d229..2eb4bee16b71f 100644
+--- a/drivers/media/pci/saa7146/hexium_orion.c
++++ b/drivers/media/pci/saa7146/hexium_orion.c
+@@ -355,10 +355,16 @@ static struct saa7146_ext_vv vv_data;
+ static int hexium_attach(struct saa7146_dev *dev, struct saa7146_pci_extension_data *info)
+ {
+ 	struct hexium *hexium = (struct hexium *) dev->ext_priv;
++	int ret;
  
- 						return_desc = temp_desc;
+ 	DEB_EE("\n");
+ 
+-	saa7146_vv_init(dev, &vv_data);
++	ret = saa7146_vv_init(dev, &vv_data);
++	if (ret) {
++		pr_err("Error in saa7146_vv_init()\n");
++		return ret;
++	}
++
+ 	vv_data.vid_ops.vidioc_enum_input = vidioc_enum_input;
+ 	vv_data.vid_ops.vidioc_g_input = vidioc_g_input;
+ 	vv_data.vid_ops.vidioc_s_input = vidioc_s_input;
 -- 
 2.34.1
 
