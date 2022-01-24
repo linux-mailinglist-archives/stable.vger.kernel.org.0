@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 01B0249A9D5
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:28:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B96249A99F
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:26:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1323724AbiAYD3W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:29:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46608 "EHLO
+        id S238833AbiAYDZA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:25:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347052AbiAXVFL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:05:11 -0500
+        with ESMTP id S1355765AbiAXVDJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:03:09 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80999C055A9B;
-        Mon, 24 Jan 2022 12:04:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED392C06B584;
+        Mon, 24 Jan 2022 12:03:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0877C61304;
-        Mon, 24 Jan 2022 20:04:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11671C340E5;
-        Mon, 24 Jan 2022 20:04:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 880DF6131E;
+        Mon, 24 Jan 2022 20:03:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 994DFC340E5;
+        Mon, 24 Jan 2022 20:02:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054674;
-        bh=BWshRrCtXTPjXgm2ZsCn2D+lTq5Noo72zfMsLxKXsYU=;
+        s=korg; t=1643054580;
+        bh=etu1+QawpUz4kFPhtE4lzzUtDzxSXDESMys7UCF3mVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yaRxSTYnQIHlHc/aRruTqfyPYv2r5udOcKMq26yeaoDoJhcowhF65gSD2OIcK+A14
-         AWUcKAoYyEizVUjc1goLgiM/T5vf3PxmNC/uPB907AZzwmUAuJ8Muw/2wGkKl937gY
-         BsUj34GSGmctQ1L0sIWAG3aD5stbiNiY/KE2UxAM=
+        b=hd1ACcFDUOzjzhLAUozl24JESmzXkjYdfGfxtVlZrDzwIs4ZUcBoXCeXq6YrSBCnO
+         Ab47ThMKXfXH4Ktzv7Vz7UTlt4Ee41QE2dSHLpRZdjShpqngFqROAB26t5hn5stBYs
+         53BftVH3ZYBoss7LbyUwpuOsTlY7yk48oXInzOo8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wolfram Sang <wsa@kernel.org>,
-        Lakshmi Sowjanya D <lakshmi.sowjanya.d@intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        stable@vger.kernel.org, Baoquan He <bhe@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 434/563] i2c: designware-pci: Fix to change data types of hcnt and lcnt parameters
-Date:   Mon, 24 Jan 2022 19:43:19 +0100
-Message-Id: <20220124184039.456440317@linuxfoundation.org>
+Subject: [PATCH 5.10 436/563] scsi: sr: Dont use GFP_DMA
+Date:   Mon, 24 Jan 2022 19:43:21 +0100
+Message-Id: <20220124184039.521251314@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -50,41 +49,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lakshmi Sowjanya D <lakshmi.sowjanya.d@intel.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit d52097010078c1844348dc0e467305e5f90fd317 ]
+[ Upstream commit d94d94969a4ba07a43d62429c60372320519c391 ]
 
-The data type of hcnt and lcnt in the struct dw_i2c_dev is of type u16.
-It's better to have same data type in struct dw_scl_sda_cfg as well.
+The allocated buffers are used as a command payload, for which the block
+layer and/or DMA API do the proper bounce buffering if needed.
 
-Reported-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Lakshmi Sowjanya D <lakshmi.sowjanya.d@intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Link: https://lore.kernel.org/r/20211222090842.920724-1-hch@lst.de
+Reported-by: Baoquan He <bhe@redhat.com>
+Reviewed-by: Baoquan He <bhe@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-designware-pcidrv.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/scsi/sr.c        | 2 +-
+ drivers/scsi/sr_vendor.c | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-designware-pcidrv.c b/drivers/i2c/busses/i2c-designware-pcidrv.c
-index 55c83a7a24f36..56c87ade0e89d 100644
---- a/drivers/i2c/busses/i2c-designware-pcidrv.c
-+++ b/drivers/i2c/busses/i2c-designware-pcidrv.c
-@@ -37,10 +37,10 @@ enum dw_pci_ctl_id_t {
- };
+diff --git a/drivers/scsi/sr.c b/drivers/scsi/sr.c
+index 4cb4ab9c6137e..464418413ced0 100644
+--- a/drivers/scsi/sr.c
++++ b/drivers/scsi/sr.c
+@@ -917,7 +917,7 @@ static void get_capabilities(struct scsi_cd *cd)
  
- struct dw_scl_sda_cfg {
--	u32 ss_hcnt;
--	u32 fs_hcnt;
--	u32 ss_lcnt;
--	u32 fs_lcnt;
-+	u16 ss_hcnt;
-+	u16 fs_hcnt;
-+	u16 ss_lcnt;
-+	u16 fs_lcnt;
- 	u32 sda_hold;
- };
+ 
+ 	/* allocate transfer buffer */
+-	buffer = kmalloc(512, GFP_KERNEL | GFP_DMA);
++	buffer = kmalloc(512, GFP_KERNEL);
+ 	if (!buffer) {
+ 		sr_printk(KERN_ERR, cd, "out of memory.\n");
+ 		return;
+diff --git a/drivers/scsi/sr_vendor.c b/drivers/scsi/sr_vendor.c
+index 1f988a1b9166f..a61635326ae0a 100644
+--- a/drivers/scsi/sr_vendor.c
++++ b/drivers/scsi/sr_vendor.c
+@@ -131,7 +131,7 @@ int sr_set_blocklength(Scsi_CD *cd, int blocklength)
+ 	if (cd->vendor == VENDOR_TOSHIBA)
+ 		density = (blocklength > 2048) ? 0x81 : 0x83;
+ 
+-	buffer = kmalloc(512, GFP_KERNEL | GFP_DMA);
++	buffer = kmalloc(512, GFP_KERNEL);
+ 	if (!buffer)
+ 		return -ENOMEM;
+ 
+@@ -179,7 +179,7 @@ int sr_cd_check(struct cdrom_device_info *cdi)
+ 	if (cd->cdi.mask & CDC_MULTI_SESSION)
+ 		return 0;
+ 
+-	buffer = kmalloc(512, GFP_KERNEL | GFP_DMA);
++	buffer = kmalloc(512, GFP_KERNEL);
+ 	if (!buffer)
+ 		return -ENOMEM;
  
 -- 
 2.34.1
