@@ -2,43 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7667B499DC5
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:01:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 42214499582
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:13:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1586211AbiAXWZx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:25:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36202 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1583235AbiAXWR1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:17:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F34BBC06138E;
-        Mon, 24 Jan 2022 12:48:13 -0800 (PST)
+        id S1442054AbiAXUwl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:52:41 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:42206 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1391637AbiAXUsQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:48:16 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B272DB81063;
-        Mon, 24 Jan 2022 20:48:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA344C340E5;
-        Mon, 24 Jan 2022 20:48:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7824D60C39;
+        Mon, 24 Jan 2022 20:48:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D846FC340E5;
+        Mon, 24 Jan 2022 20:48:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057291;
-        bh=PJBaakTJqJ7uadR58mhjBkXOGvr1mslmS/bj9utbnjY=;
+        s=korg; t=1643057294;
+        bh=alN1nGi9d01VTi67hSzdh6Vdn9Sl4cPFqezMOL+KxcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wvnd/UBaVYIVaeVW/saZtL0wHhQCZlQrfTUgB5dy1z7P7t19+83K14ibXq93m//Lj
-         eB6tAGiFDJLyECektxeXiXP+2tjkrGzP6cjWlmpI+SibtF/Da7h1Wowvifvv+uwhMd
-         IyZ4KHeJuIDNCJIiKu0WK6VuqFqswQlay6GeoQIY=
+        b=NCd0Y4mOqUU5kYq9kf6aDvlrqp9c3KBtLXrrzQASSXguZtOeYu/QnnyxY614SVAoP
+         UO9E/pyyuPoTut4HRTLzavBJvVRJwtP8TE5NLp7R5oxi4olun11przFxzMWdr4dRwQ
+         od/W1CNBZQwf1bFoA8Le7DG3JpJ/3UC3F+YXgd4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+983941aa85af6ded1fd9@syzkaller.appspotmail.com,
-        Andrii Nakryiko <andrii@kernel.org>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.15 765/846] xdp: check prog type before updating BPF link
-Date:   Mon, 24 Jan 2022 19:44:42 +0100
-Message-Id: <20220124184127.349600297@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        Yafang Shao <laoar.shao@gmail.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        David Howells <dhowells@redhat.com>,
+        Al Viro <viro@zeniv.linux.org.uk>
+Subject: [PATCH 5.15 766/846] bpf: Fix mount source show for bpffs
+Date:   Mon, 24 Jan 2022 19:44:43 +0100
+Message-Id: <20220124184127.381781059@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -50,43 +47,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@redhat.com>
+From: Yafang Shao <laoar.shao@gmail.com>
 
-commit 382778edc8262b7535f00523e9eb22edba1b9816 upstream.
+commit 1e9d74660d4df625b0889e77018f9e94727ceacd upstream.
 
-The bpf_xdp_link_update() function didn't check the program type before
-updating the program, which made it possible to install any program type as
-an XDP program, which is obviously not good. Syzbot managed to trigger this
-by swapping in an LWT program on the XDP hook which would crash in a helper
-call.
+We noticed our tc ebpf tools can't start after we upgrade our in-house kernel
+version from 4.19 to 5.10. That is because of the behaviour change in bpffs
+caused by commit d2935de7e4fd ("vfs: Convert bpf to use the new mount API").
 
-Fix this by adding a check and bailing out if the types don't match.
+In our tc ebpf tools, we do strict environment check. If the environment is
+not matched, we won't allow to start the ebpf progs. One of the check is whether
+bpffs is properly mounted. The mount information of bpffs in kernel-4.19 and
+kernel-5.10 are as follows:
 
-Fixes: 026a4c28e1db ("bpf, xdp: Implement LINK_UPDATE for BPF XDP link")
-Reported-by: syzbot+983941aa85af6ded1fd9@syzkaller.appspotmail.com
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Link: https://lore.kernel.org/r/20220107221115.326171-1-toke@redhat.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+- kernel 4.19
+$ mount -t bpf bpffs /sys/fs/bpf
+$ mount -t bpf
+bpffs on /sys/fs/bpf type bpf (rw,relatime)
+
+- kernel 5.10
+$ mount -t bpf bpffs /sys/fs/bpf
+$ mount -t bpf
+none on /sys/fs/bpf type bpf (rw,relatime)
+
+The device name in kernel-5.10 is displayed as none instead of bpffs, then our
+environment check fails. Currently we modify the tools to adopt to the kernel
+behaviour change, but I think we'd better change the kernel code to keep the
+behavior consistent.
+
+After this change, the mount information will be displayed the same with the
+behavior in kernel-4.19, for example:
+
+$ mount -t bpf bpffs /sys/fs/bpf
+$ mount -t bpf
+bpffs on /sys/fs/bpf type bpf (rw,relatime)
+
+Fixes: d2935de7e4fd ("vfs: Convert bpf to use the new mount API")
+Suggested-by: Daniel Borkmann <daniel@iogearbox.net>
+Signed-off-by: Yafang Shao <laoar.shao@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: David Howells <dhowells@redhat.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Link: https://lore.kernel.org/bpf/20220108134623.32467-1-laoar.shao@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/dev.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ kernel/bpf/inode.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -9636,6 +9636,12 @@ static int bpf_xdp_link_update(struct bp
- 		goto out_unlock;
- 	}
- 	old_prog = link->prog;
-+	if (old_prog->type != new_prog->type ||
-+	    old_prog->expected_attach_type != new_prog->expected_attach_type) {
-+		err = -EINVAL;
-+		goto out_unlock;
-+	}
+--- a/kernel/bpf/inode.c
++++ b/kernel/bpf/inode.c
+@@ -648,12 +648,22 @@ static int bpf_parse_param(struct fs_con
+ 	int opt;
+ 
+ 	opt = fs_parse(fc, bpf_fs_parameters, param, &result);
+-	if (opt < 0)
++	if (opt < 0) {
+ 		/* We might like to report bad mount options here, but
+ 		 * traditionally we've ignored all mount options, so we'd
+ 		 * better continue to ignore non-existing options for bpf.
+ 		 */
+-		return opt == -ENOPARAM ? 0 : opt;
++		if (opt == -ENOPARAM) {
++			opt = vfs_parse_fs_param_source(fc, param);
++			if (opt != -ENOPARAM)
++				return opt;
 +
- 	if (old_prog == new_prog) {
- 		/* no-op, don't disturb drivers */
- 		bpf_prog_put(new_prog);
++			return 0;
++		}
++
++		if (opt < 0)
++			return opt;
++	}
+ 
+ 	switch (opt) {
+ 	case OPT_MODE:
 
 
