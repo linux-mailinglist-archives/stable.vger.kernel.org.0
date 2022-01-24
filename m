@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 401F04980B9
+	by mail.lfdr.de (Postfix) with ESMTP id B8C744980BA
 	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 14:14:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234716AbiAXNOw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 08:14:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47530 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229819AbiAXNOv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:14:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52522C06173B
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 05:14:51 -0800 (PST)
+        id S229819AbiAXNOx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 08:14:53 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:45026 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229833AbiAXNOw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 08:14:52 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1A087B80FA6
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:14:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 424AEC340E1;
-        Mon, 24 Jan 2022 13:14:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 77CB561226
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 13:14:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AA0AC340E1;
+        Mon, 24 Jan 2022 13:14:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643030088;
-        bh=A4Pif+TLy5nIIkVLSZGmYNWIL226xZnxrJOCGK4XWS0=;
+        s=korg; t=1643030091;
+        bh=jHZdt7aRxsig3JdG0bVTqrUUSF8g7vpPZf+nzH7EESI=;
         h=Subject:To:Cc:From:Date:From;
-        b=mCwv1RCDX4xW8kFV7+5AfSv6KBt7wu4diE/FDfIQn++YNNcIIRYXQdZsYuJw3lNMx
-         +Edmux7z6ongvEj/CLISmnbCSIBrRsSEuh7RkN4dvVkqT/CTblmu36j9NDAU5uPHKh
-         QwSUbfITLxNdNvG5qFaxZaGPkvfvxZ65/Agr4Kgk=
-Subject: FAILED: patch "[PATCH] xfrm: Don't accidentally set RTO_ONLINK in decode_session4()" failed to apply to 4.14-stable tree
+        b=tys/9s6TKWBVW5zt+2N6Bg+gdEUWwLXiBtlpZxsuFN6NIRD1MutppVF1Uvil+Yutf
+         G8HHpxzvU+YJScHnP9m5dOfSfMiABu90H7ox5hXbkNhDQYEIPciSVrle+x0f9XIYMl
+         HrBaE/89K6Ey8G+g9qMOdH72RyCrd4iYFwI7V0PI=
+Subject: FAILED: patch "[PATCH] xfrm: Don't accidentally set RTO_ONLINK in decode_session4()" failed to apply to 4.9-stable tree
 To:     gnault@redhat.com, kuba@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 24 Jan 2022 14:14:38 +0100
-Message-ID: <16430300784779@kroah.com>
+Message-ID: <1643030078236210@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
