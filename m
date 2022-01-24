@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EF0B49A960
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:23:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C01B349A990
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:26:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1322516AbiAYDV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:21:57 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:53938 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384209AbiAXU3U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:29:20 -0500
+        id S1355726AbiAYDXs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:23:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40698 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1387488AbiAXUgw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:36:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87A9AC061796;
+        Mon, 24 Jan 2022 11:49:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 64590614EC;
-        Mon, 24 Jan 2022 20:29:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D53EC340E5;
-        Mon, 24 Jan 2022 20:29:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4F6F4B811F9;
+        Mon, 24 Jan 2022 19:49:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 766B8C340E5;
+        Mon, 24 Jan 2022 19:49:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056158;
-        bh=uIlrJieTJOPXrJibd/ldEsy12rV/lAyNi2ogsQpvU0Q=;
+        s=korg; t=1643053781;
+        bh=ipc7IAl6/w4aJnjz2NcJSJkZF0EoOSK7yODQSB9i+8k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jaHhGsYkaIKYcOneDho8/O8SwU4J0rUgV8hyvvn7ZRtohfN9C/haZxW2bpn/0dCb6
-         v7yg3ZI6jnYfVuRF59ChA2Yl91uTAnI4hZd5IpU75VXRkiTJUECSgrFgwFKz7kqLCd
-         T7fPOwnlMQN8FkiqgLyRb/4/SRnYWVMn9RyvSR3g=
+        b=WDs71H1Uvvk2ECfvxaTmYQ+xYe24cC6J7gpDmey41bITqFKwSDACfjyzTHdgPBVao
+         8hYJED8IdtU8PIcV1T6bppJt3rI/A4t+Ie4rZwXqBUK7Tnj7m4RXhOX+EGBy3rxXKk
+         C+87Os4UiTDmdCzF5tckbB9/gxNjwKFueSxNnDyI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nageswara R Sastry <nasastry@in.ibm.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Madhavan Srinivasan <maddy@linux.ibm.com>,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Nageswara R Sastry <rnsastry@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Robert Schlabbach <robert_s@gmx.net>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 390/846] powerpc/perf: Fix PMU callbacks to clear pending PMI before resetting an overflown PMC
-Date:   Mon, 24 Jan 2022 19:38:27 +0100
-Message-Id: <20220124184114.396062972@linuxfoundation.org>
+Subject: [PATCH 5.10 143/563] media: si2157: Fix "warm" tuner state detection
+Date:   Mon, 24 Jan 2022 19:38:28 +0100
+Message-Id: <20220124184029.349318252@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,272 +48,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Robert Schlabbach <robert_s@gmx.net>
 
-[ Upstream commit 2c9ac51b850d84ee496b0a5d832ce66d411ae552 ]
+[ Upstream commit a6441ea29cb2c9314654e093a1cd8020b9b851c8 ]
 
-Running perf fuzzer showed below in dmesg logs:
-  "Can't find PMC that caused IRQ"
+Commit e955f959ac52 ("media: si2157: Better check for running tuner in
+init") completely broke the "warm" tuner detection of the si2157 driver
+due to a simple endian error: The Si2157 CRYSTAL_TRIM property code is
+0x0402 and needs to be transmitted LSB first. However, it was inserted
+MSB first, causing the warm detection to always fail and spam the kernel
+log with tuner initialization messages each time the DVB frontend
+device was closed and reopened:
 
-This means a PMU exception happened, but none of the PMC's (Performance
-Monitor Counter) were found to be overflown. There are some corner cases
-that clears the PMCs after PMI gets masked. In such cases, the perf
-interrupt handler will not find the active PMC values that had caused
-the overflow and thus leads to this message while replaying.
+[  312.215682] si2157 16-0060: found a 'Silicon Labs Si2157-A30'
+[  312.264334] si2157 16-0060: firmware version: 3.0.5
+[  342.248593] si2157 16-0060: found a 'Silicon Labs Si2157-A30'
+[  342.295743] si2157 16-0060: firmware version: 3.0.5
+[  372.328574] si2157 16-0060: found a 'Silicon Labs Si2157-A30'
+[  372.385035] si2157 16-0060: firmware version: 3.0.5
 
-Case 1: PMU Interrupt happens during replay of other interrupts and
-counter values gets cleared by PMU callbacks before replay:
+Also, the reinitializations were observed disturb _other_ tuners on
+multi-tuner cards such as the Hauppauge WinTV-QuadHD, leading to missed
+or errored packets when one of the other DVB frontend devices on that
+card was opened.
 
-During replay of interrupts like timer, __do_irq() and doorbell
-exception, we conditionally enable interrupts via may_hard_irq_enable().
-This could potentially create a window to generate a PMI. Since irq soft
-mask is set to ALL_DISABLED, the PMI will get masked here. We could get
-IPIs run before perf interrupt is replayed and the PMU events could
-be deleted or stopped. This will change the PMU SPR values and resets
-the counters. Snippet of ftrace log showing PMU callbacks invoked in
-__do_irq():
+Fix the order of the property code bytes to make the warm detection work
+again, also reducing the tuner initialization message in the kernel log
+to once per power-on, as well as fixing the interference with other
+tuners.
 
-  <idle>-0 [051] dns. 132025441306354: __do_irq <-call_do_irq
-  <idle>-0 [051] dns. 132025441306430: irq_enter <-__do_irq
-  <idle>-0 [051] dns. 132025441306503: irq_enter_rcu <-__do_irq
-  <idle>-0 [051] dnH. 132025441306599: xive_get_irq <-__do_irq
-  <<>>
-  <idle>-0 [051] dnH. 132025441307770: generic_smp_call_function_single_interrupt <-smp_ipi_demux_relaxed
-  <idle>-0 [051] dnH. 132025441307839: flush_smp_call_function_queue <-smp_ipi_demux_relaxed
-  <idle>-0 [051] dnH. 132025441308057: _raw_spin_lock <-event_function
-  <idle>-0 [051] dnH. 132025441308206: power_pmu_disable <-perf_pmu_disable
-  <idle>-0 [051] dnH. 132025441308337: power_pmu_del <-event_sched_out
-  <idle>-0 [051] dnH. 132025441308407: power_pmu_read <-power_pmu_del
-  <idle>-0 [051] dnH. 132025441308477: read_pmc <-power_pmu_read
-  <idle>-0 [051] dnH. 132025441308590: isa207_disable_pmc <-power_pmu_del
-  <idle>-0 [051] dnH. 132025441308663: write_pmc <-power_pmu_del
-  <idle>-0 [051] dnH. 132025441308787: power_pmu_event_idx <-perf_event_update_userpage
-  <idle>-0 [051] dnH. 132025441308859: rcu_read_unlock_strict <-perf_event_update_userpage
-  <idle>-0 [051] dnH. 132025441308975: power_pmu_enable <-perf_pmu_enable
-  <<>>
-  <idle>-0 [051] dnH. 132025441311108: irq_exit <-__do_irq
-  <idle>-0 [051] dns. 132025441311319: performance_monitor_exception <-replay_soft_interrupts
+Link: https://lore.kernel.org/linux-media/trinity-2a86eb9d-6264-4387-95e1-ba7b79a4050f-1638392923493@3c-app-gmx-bap03
 
-Case 2: PMI's masked during local_* operations, example local_add(). If
-the local_add() operation happens within a local_irq_save(), replay of
-PMI will be during local_irq_restore(). Similar to case 1, this could
-also create a window before replay where PMU events gets deleted or
-stopped.
-
-Fix it by updating the PMU callback function power_pmu_disable() to
-check for pending perf interrupt. If there is an overflown PMC and
-pending perf interrupt indicated in paca, clear the PMI bit in paca to
-drop that sample. Clearing of PMI bit is done in power_pmu_disable()
-since disable is invoked before any event gets deleted/stopped. With
-this fix, if there are more than one event running in the PMU, there is
-a chance that we clear the PMI bit for the event which is not getting
-deleted/stopped. The other events may still remain active. Hence to make
-sure we don't drop valid sample in such cases, another check is added in
-power_pmu_enable. This checks if there is an overflown PMC found among
-the active events and if so enable back the PMI bit. Two new helper
-functions are introduced to clear/set the PMI, ie
-clear_pmi_irq_pending() and set_pmi_irq_pending(). Helper function
-pmi_irq_pending() is introduced to give a warning if there is pending
-PMI bit in paca, but no PMC is overflown.
-
-Also there are corner cases which result in performance monitor
-interrupts being triggered during power_pmu_disable(). This happens
-since PMXE bit is not cleared along with disabling of other MMCR0 bits
-in the pmu_disable. Such PMI's could leave the PMU running and could
-trigger PMI again which will set MMCR0 PMAO bit. This could lead to
-spurious interrupts in some corner cases. Example, a timer after
-power_pmu_del() which will re-enable interrupts and triggers a PMI again
-since PMAO bit is still set. But fails to find valid overflow since PMC
-was cleared in power_pmu_del(). Fix that by disabling PMXE along with
-disabling of other MMCR0 bits in power_pmu_disable().
-
-We can't just replay PMI any time. Hence this approach is preferred
-rather than replaying PMI before resetting overflown PMC. Patch also
-documents core-book3s on a race condition which can trigger these PMC
-messages during idle path in PowerNV.
-
-Fixes: f442d004806e ("powerpc/64s: Add support to mask perf interrupts and replay them")
-Reported-by: Nageswara R Sastry <nasastry@in.ibm.com>
-Suggested-by: Nicholas Piggin <npiggin@gmail.com>
-Suggested-by: Madhavan Srinivasan <maddy@linux.ibm.com>
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-Tested-by: Nageswara R Sastry <rnsastry@linux.ibm.com>
-Reviewed-by: Nicholas Piggin <npiggin@gmail.com>
-[mpe: Make pmi_irq_pending() return bool, reflow/reword some comments]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1626846509-1350-2-git-send-email-atrajeev@linux.vnet.ibm.com
+Fixes: e955f959ac52 ("media: si2157: Better check for running tuner in init")
+Reported-by: Robert Schlabbach <robert_s@gmx.net>
+Signed-off-by: Robert Schlabbach <robert_s@gmx.net>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/hw_irq.h | 40 +++++++++++++++++++++
- arch/powerpc/perf/core-book3s.c   | 58 ++++++++++++++++++++++++++++++-
- 2 files changed, 97 insertions(+), 1 deletion(-)
+ drivers/media/tuners/si2157.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/include/asm/hw_irq.h b/arch/powerpc/include/asm/hw_irq.h
-index 21cc571ea9c2d..5c98a950eca0d 100644
---- a/arch/powerpc/include/asm/hw_irq.h
-+++ b/arch/powerpc/include/asm/hw_irq.h
-@@ -224,6 +224,42 @@ static inline bool arch_irqs_disabled(void)
- 	return arch_irqs_disabled_flags(arch_local_save_flags());
- }
+diff --git a/drivers/media/tuners/si2157.c b/drivers/media/tuners/si2157.c
+index fefb2625f6558..75ddf7ed1faff 100644
+--- a/drivers/media/tuners/si2157.c
++++ b/drivers/media/tuners/si2157.c
+@@ -90,7 +90,7 @@ static int si2157_init(struct dvb_frontend *fe)
+ 	dev_dbg(&client->dev, "\n");
  
-+static inline void set_pmi_irq_pending(void)
-+{
-+	/*
-+	 * Invoked from PMU callback functions to set PMI bit in the paca.
-+	 * This has to be called with irq's disabled (via hard_irq_disable()).
-+	 */
-+	if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG))
-+		WARN_ON_ONCE(mfmsr() & MSR_EE);
-+
-+	get_paca()->irq_happened |= PACA_IRQ_PMI;
-+}
-+
-+static inline void clear_pmi_irq_pending(void)
-+{
-+	/*
-+	 * Invoked from PMU callback functions to clear the pending PMI bit
-+	 * in the paca.
-+	 */
-+	if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG))
-+		WARN_ON_ONCE(mfmsr() & MSR_EE);
-+
-+	get_paca()->irq_happened &= ~PACA_IRQ_PMI;
-+}
-+
-+static inline bool pmi_irq_pending(void)
-+{
-+	/*
-+	 * Invoked from PMU callback functions to check if there is a pending
-+	 * PMI bit in the paca.
-+	 */
-+	if (get_paca()->irq_happened & PACA_IRQ_PMI)
-+		return true;
-+
-+	return false;
-+}
-+
- #ifdef CONFIG_PPC_BOOK3S
- /*
-  * To support disabling and enabling of irq with PMI, set of
-@@ -408,6 +444,10 @@ static inline void do_hard_irq_enable(void)
- 	BUILD_BUG();
- }
- 
-+static inline void clear_pmi_irq_pending(void) { }
-+static inline void set_pmi_irq_pending(void) { }
-+static inline bool pmi_irq_pending(void) { return false; }
-+
- static inline void irq_soft_mask_regs_set_state(struct pt_regs *regs, unsigned long val)
- {
- }
-diff --git a/arch/powerpc/perf/core-book3s.c b/arch/powerpc/perf/core-book3s.c
-index 73e62e9b179bc..bef6b1abce702 100644
---- a/arch/powerpc/perf/core-book3s.c
-+++ b/arch/powerpc/perf/core-book3s.c
-@@ -857,6 +857,19 @@ static void write_pmc(int idx, unsigned long val)
- 	}
- }
- 
-+static int any_pmc_overflown(struct cpu_hw_events *cpuhw)
-+{
-+	int i, idx;
-+
-+	for (i = 0; i < cpuhw->n_events; i++) {
-+		idx = cpuhw->event[i]->hw.idx;
-+		if ((idx) && ((int)read_pmc(idx) < 0))
-+			return idx;
-+	}
-+
-+	return 0;
-+}
-+
- /* Called from sysrq_handle_showregs() */
- void perf_event_print_debug(void)
- {
-@@ -1281,11 +1294,13 @@ static void power_pmu_disable(struct pmu *pmu)
- 
- 		/*
- 		 * Set the 'freeze counters' bit, clear EBE/BHRBA/PMCC/PMAO/FC56
-+		 * Also clear PMXE to disable PMI's getting triggered in some
-+		 * corner cases during PMU disable.
- 		 */
- 		val  = mmcr0 = mfspr(SPRN_MMCR0);
- 		val |= MMCR0_FC;
- 		val &= ~(MMCR0_EBE | MMCR0_BHRBA | MMCR0_PMCC | MMCR0_PMAO |
--			 MMCR0_FC56);
-+			 MMCR0_PMXE | MMCR0_FC56);
- 		/* Set mmcr0 PMCCEXT for p10 */
- 		if (ppmu->flags & PPMU_ARCH_31)
- 			val |= MMCR0_PMCCEXT;
-@@ -1299,6 +1314,23 @@ static void power_pmu_disable(struct pmu *pmu)
- 		mb();
- 		isync();
- 
-+		/*
-+		 * Some corner cases could clear the PMU counter overflow
-+		 * while a masked PMI is pending. One such case is when
-+		 * a PMI happens during interrupt replay and perf counter
-+		 * values are cleared by PMU callbacks before replay.
-+		 *
-+		 * If any PMC corresponding to the active PMU events are
-+		 * overflown, disable the interrupt by clearing the paca
-+		 * bit for PMI since we are disabling the PMU now.
-+		 * Otherwise provide a warning if there is PMI pending, but
-+		 * no counter is found overflown.
-+		 */
-+		if (any_pmc_overflown(cpuhw))
-+			clear_pmi_irq_pending();
-+		else
-+			WARN_ON(pmi_irq_pending());
-+
- 		val = mmcra = cpuhw->mmcr.mmcra;
- 
- 		/*
-@@ -1390,6 +1422,15 @@ static void power_pmu_enable(struct pmu *pmu)
- 	 * (possibly updated for removal of events).
- 	 */
- 	if (!cpuhw->n_added) {
-+		/*
-+		 * If there is any active event with an overflown PMC
-+		 * value, set back PACA_IRQ_PMI which would have been
-+		 * cleared in power_pmu_disable().
-+		 */
-+		hard_irq_disable();
-+		if (any_pmc_overflown(cpuhw))
-+			set_pmi_irq_pending();
-+
- 		mtspr(SPRN_MMCRA, cpuhw->mmcr.mmcra & ~MMCRA_SAMPLE_ENABLE);
- 		mtspr(SPRN_MMCR1, cpuhw->mmcr.mmcr1);
- 		if (ppmu->flags & PPMU_ARCH_31)
-@@ -2337,6 +2378,14 @@ static void __perf_event_interrupt(struct pt_regs *regs)
- 				break;
- 			}
- 		}
-+
-+		/*
-+		 * Clear PACA_IRQ_PMI in case it was set by
-+		 * set_pmi_irq_pending() when PMU was enabled
-+		 * after accounting for interrupts.
-+		 */
-+		clear_pmi_irq_pending();
-+
- 		if (!active)
- 			/* reset non active counters that have overflowed */
- 			write_pmc(i + 1, 0);
-@@ -2356,6 +2405,13 @@ static void __perf_event_interrupt(struct pt_regs *regs)
- 			}
- 		}
- 	}
-+
-+	/*
-+	 * During system wide profling or while specific CPU is monitored for an
-+	 * event, some corner cases could cause PMC to overflow in idle path. This
-+	 * will trigger a PMI after waking up from idle. Since counter values are _not_
-+	 * saved/restored in idle path, can lead to below "Can't find PMC" message.
-+	 */
- 	if (unlikely(!found) && !arch_irq_disabled_regs(regs))
- 		printk_ratelimited(KERN_WARNING "Can't find PMC that caused IRQ\n");
- 
+ 	/* Try to get Xtal trim property, to verify tuner still running */
+-	memcpy(cmd.args, "\x15\x00\x04\x02", 4);
++	memcpy(cmd.args, "\x15\x00\x02\x04", 4);
+ 	cmd.wlen = 4;
+ 	cmd.rlen = 4;
+ 	ret = si2157_cmd_execute(client, &cmd);
 -- 
 2.34.1
 
