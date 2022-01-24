@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 776E6499F77
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:19:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FBC2499F72
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:19:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1841329AbiAXW61 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:58:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39062 "EHLO
+        id S1841293AbiAXW6R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 17:58:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1587755AbiAXW3h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:29:37 -0500
+        with ESMTP id S1587671AbiAXW30 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:29:26 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A699FC095410;
-        Mon, 24 Jan 2022 12:55:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9071C0E531A;
+        Mon, 24 Jan 2022 12:54:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D196B811FB;
-        Mon, 24 Jan 2022 20:55:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07D9CC340E5;
-        Mon, 24 Jan 2022 20:55:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7DE24B81218;
+        Mon, 24 Jan 2022 20:54:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC4CCC340E5;
+        Mon, 24 Jan 2022 20:54:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057716;
-        bh=IgHUHKKQzYCKAcKqsjwDkEbLcCrTpp0xgZ/idz6puKc=;
+        s=korg; t=1643057696;
+        bh=50brnauWdiAtjqcwyntiqDSwqdYnjzoEqcJ97b19AFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JXmLUO7tcuEqok3wReiCViXl0hkF4tlIKJBjOdoDTgmyNpiAa18fW+fmJ8oz2hLqX
-         ZJG59v3pNJC3IbYApdni3w1B6nC8j9mJMbNugezCKEnR/MhiWR5ovDUZlNNY1myabb
-         vV1tecXB7BfK8J+pfkYv1LrNyWZ/mgvQ1/ciOrfs=
+        b=N9Od5PFscBQCk+um7p7rx3UDs4zAPiZKH37J+81aqIfBRMneAqgeIus6HMqJ7d9ZC
+         OzAUF4+tAG/mInb/obeKSCMya2bWVcDliquVc3PaEodWV94bziKuzrtdP8oncvN8gt
+         oWmqdbMMr7DfsmY2KnthOUMZ850o2PrcA6KhlCP0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenqing Liu <wenqingliu0120@gmail.com>,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.16 0012/1039] f2fs: fix to do sanity check on last xattr entry in __f2fs_setxattr()
-Date:   Mon, 24 Jan 2022 19:30:01 +0100
-Message-Id: <20220124184125.560804776@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Stefan Riedmueller <s.riedmueller@phytec.de>,
+        Han Xu <han.xu@nxp.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.16 0016/1039] mtd: rawnand: gpmi: Remove explicit default gpmi clock setting for i.MX6
+Date:   Mon, 24 Jan 2022 19:30:05 +0100
+Message-Id: <20220124184125.688761738@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -47,84 +49,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Stefan Riedmueller <s.riedmueller@phytec.de>
 
-commit 645a3c40ca3d40cc32b4b5972bf2620f2eb5dba6 upstream.
+commit aa1baa0e6c1aa4872e481dce4fc7fd6f3dd8496b upstream.
 
-As Wenqing Liu reported in bugzilla:
+There is no need to explicitly set the default gpmi clock rate during
+boot for the i.MX 6 since this is done during nand_detect anyway.
 
-https://bugzilla.kernel.org/show_bug.cgi?id=215235
-
-- Overview
-page fault in f2fs_setxattr() when mount and operate on corrupted image
-
-- Reproduce
-tested on kernel 5.16-rc3, 5.15.X under root
-
-1. unzip tmp7.zip
-2. ./single.sh f2fs 7
-
-Sometimes need to run the script several times
-
-- Kernel dump
-loop0: detected capacity change from 0 to 131072
-F2FS-fs (loop0): Found nat_bits in checkpoint
-F2FS-fs (loop0): Mounted with checkpoint version = 7548c2ee
-BUG: unable to handle page fault for address: ffffe47bc7123f48
-RIP: 0010:kfree+0x66/0x320
-Call Trace:
- __f2fs_setxattr+0x2aa/0xc00 [f2fs]
- f2fs_setxattr+0xfa/0x480 [f2fs]
- __f2fs_set_acl+0x19b/0x330 [f2fs]
- __vfs_removexattr+0x52/0x70
- __vfs_removexattr_locked+0xb1/0x140
- vfs_removexattr+0x56/0x100
- removexattr+0x57/0x80
- path_removexattr+0xa3/0xc0
- __x64_sys_removexattr+0x17/0x20
- do_syscall_64+0x37/0xb0
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-The root cause is in __f2fs_setxattr(), we missed to do sanity check on
-last xattr entry, result in out-of-bound memory access during updating
-inconsistent xattr data of target inode.
-
-After the fix, it can detect such xattr inconsistency as below:
-
-F2FS-fs (loop11): inode (7) has invalid last xattr entry, entry_size: 60676
-F2FS-fs (loop11): inode (8) has corrupted xattr
-F2FS-fs (loop11): inode (8) has corrupted xattr
-F2FS-fs (loop11): inode (8) has invalid last xattr entry, entry_size: 47736
-
+Signed-off-by: Stefan Riedmueller <s.riedmueller@phytec.de>
 Cc: stable@vger.kernel.org
-Reported-by: Wenqing Liu <wenqingliu0120@gmail.com>
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Acked-by: Han Xu <han.xu@nxp.com>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20211102202022.15551-1-ceggers@arri.de
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/xattr.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c |    9 ---------
+ 1 file changed, 9 deletions(-)
 
---- a/fs/f2fs/xattr.c
-+++ b/fs/f2fs/xattr.c
-@@ -684,8 +684,17 @@ static int __f2fs_setxattr(struct inode
+--- a/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
++++ b/drivers/mtd/nand/raw/gpmi-nand/gpmi-nand.c
+@@ -1052,15 +1052,6 @@ static int gpmi_get_clks(struct gpmi_nan
+ 		r->clock[i] = clk;
  	}
  
- 	last = here;
--	while (!IS_XATTR_LAST_ENTRY(last))
-+	while (!IS_XATTR_LAST_ENTRY(last)) {
-+		if ((void *)(last) + sizeof(__u32) > last_base_addr ||
-+			(void *)XATTR_NEXT_ENTRY(last) > last_base_addr) {
-+			f2fs_err(F2FS_I_SB(inode), "inode (%lu) has invalid last xattr entry, entry_size: %zu",
-+					inode->i_ino, ENTRY_SIZE(last));
-+			set_sbi_flag(F2FS_I_SB(inode), SBI_NEED_FSCK);
-+			error = -EFSCORRUPTED;
-+			goto exit;
-+		}
- 		last = XATTR_NEXT_ENTRY(last);
-+	}
+-	if (GPMI_IS_MX6(this))
+-		/*
+-		 * Set the default value for the gpmi clock.
+-		 *
+-		 * If you want to use the ONFI nand which is in the
+-		 * Synchronous Mode, you should change the clock as you need.
+-		 */
+-		clk_set_rate(r->clock[0], 22000000);
+-
+ 	return 0;
  
- 	newsize = XATTR_ALIGN(sizeof(struct f2fs_xattr_entry) + len + size);
- 
+ err_clock:
 
 
