@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16A9C497DE4
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 12:25:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 68166497DE5
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 12:25:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237491AbiAXLZD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 06:25:03 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:49468 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237484AbiAXLZD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 06:25:03 -0500
+        id S237366AbiAXLZO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 06:25:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49886 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237337AbiAXLZO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 06:25:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C06BDC06173B
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 03:25:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C24B46066C
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 11:25:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E168C340E1;
-        Mon, 24 Jan 2022 11:25:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7D627B80E91
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 11:25:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1B6DC340E1;
+        Mon, 24 Jan 2022 11:25:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643023502;
-        bh=nXvnT5bALSP7JRJPp9VotUxkGKXXm8MFn+/5bCWCByw=;
+        s=korg; t=1643023511;
+        bh=CxBOCG3/F/b1hONAD1jxyKc2msFd4GXVwTLTzqd6Ay4=;
         h=Subject:To:Cc:From:Date:From;
-        b=EPFm6t2T8X2F9dDJf1mAlD4QRqw980+sXrgjZcuFeI1pLdJxQLsH561pGKc88lLu5
-         nN/MMjF+c3JbMMzMXwX8o74JzIHxIUMMyjQvDZ3BdieHGRNrcelYEma6xHPXoWlF4K
-         8F2rQY+hPYBJKg4Q3wmQ6G7qNBOmkEgRiqgOAODU=
-Subject: FAILED: patch "[PATCH] block: Fix fsync always failed if once failed" failed to apply to 4.19-stable tree
+        b=zI3hPZIDeaP7eRkkZojmVoOwYwwf2opwZv3mNYkMtAXYpuxw37AtDEIRs8DEcJqYn
+         ht4VXlj/Bes1jQztpkSU8pBegN/HDcpyAcnaD/m8gkRtjyjPumY5oj+G6GiuFrB3mR
+         mDwNwyf0UOFZPlJGtCTWmz41vt9gvfevKWtyzccA=
+Subject: FAILED: patch "[PATCH] block: Fix fsync always failed if once failed" failed to apply to 5.4-stable tree
 To:     yebin10@huawei.com, axboe@kernel.dk, ming.lei@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 12:24:59 +0100
-Message-ID: <164302349921124@kroah.com>
+Date:   Mon, 24 Jan 2022 12:25:00 +0100
+Message-ID: <1643023500176181@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
