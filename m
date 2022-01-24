@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3DDD499C5E
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:08:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A21CC499687
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:19:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1579136AbiAXWFE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:05:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60080 "EHLO
+        id S1445713AbiAXVEr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:04:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1577990AbiAXWBY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:01:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58E87C02415F;
-        Mon, 24 Jan 2022 12:41:12 -0800 (PST)
+        with ESMTP id S1442671AbiAXUzE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:55:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BDA7C047CE9;
+        Mon, 24 Jan 2022 12:00:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ECE656153D;
-        Mon, 24 Jan 2022 20:41:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4746C340E7;
-        Mon, 24 Jan 2022 20:41:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 05637B8122C;
+        Mon, 24 Jan 2022 20:00:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30A3EC340E5;
+        Mon, 24 Jan 2022 20:00:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056871;
-        bh=huBJE9+l2qjWsYgu4trs0SBLj5tSgk3OSGlpb5Ca0FM=;
+        s=korg; t=1643054412;
+        bh=gDmFszm+/TUhgaalM12dREB18MEqRLtv9uD+Yy9sdoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rQ/u/gs5SsEPiSudaty+VZDWMdlGG4sJM3pvutBcM/8g+MXpjE++aZK51zuDZqn99
-         9jQHUgli57ocTENl7T1U3h0VP1SBp7nfgEl/M7qsbRxwKQ2YCYQZq0lwZXEq8r4Ca4
-         +RlLvsChU3kpuI5l1kh6N+/Jlk+4NUOceiMDoR5I=
+        b=jcW9SaQtTxdjRRTzBS1CGprQrajlwCmmkJvWFVyFnVK/jIeQf3d3Ksjlvp4pCMAGW
+         Z4QTJYnyleB6k/XOici5Vl+f73lGdwuOjO13QZX1UVXeqxoUb4RICereOjPD2m0/Y+
+         2IlFE3kmipludW12KPgTK5L6Wq/FxC9tLVQaaYes=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zeal Robot <zealci@zte.com.cn>,
-        Ye Guojin <ye.guojin@zte.com.cn>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 628/846] ASoC: imx-hdmi: add put_device() after of_find_device_by_node()
-Date:   Mon, 24 Jan 2022 19:42:25 +0100
-Message-Id: <20220124184122.694324615@linuxfoundation.org>
+Subject: [PATCH 5.10 381/563] Bluetooth: vhci: Set HCI_QUIRK_VALID_LE_STATES
+Date:   Mon, 24 Jan 2022 19:42:26 +0100
+Message-Id: <20220124184037.600747926@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,37 +49,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Guojin <ye.guojin@zte.com.cn>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit f670b274f7f6f4b2722d7f08d0fddf606a727e92 ]
+[ Upstream commit cfb4c313be670fd4bd09650216620fa4514cdb93 ]
 
-This was found by coccicheck:
-./sound/soc/fsl/imx-hdmi.c,209,1-7,ERROR  missing put_device; call
-of_find_device_by_node on line 119, but without a corresponding object
-release within this function.
+This set HCI_QUIRK_VALID_LE_STATES quirk which is required for the likes
+of experimental LE simultaneous roles.
 
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Signed-off-by: Ye Guojin <ye.guojin@zte.com.cn>
-Link: https://lore.kernel.org/r/20211110002910.134915-1-ye.guojin@zte.com.cn
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/imx-hdmi.c | 2 ++
+ drivers/bluetooth/hci_vhci.c | 2 ++
  1 file changed, 2 insertions(+)
 
-diff --git a/sound/soc/fsl/imx-hdmi.c b/sound/soc/fsl/imx-hdmi.c
-index 34a0dceae6216..ef8d7a65ebc61 100644
---- a/sound/soc/fsl/imx-hdmi.c
-+++ b/sound/soc/fsl/imx-hdmi.c
-@@ -145,6 +145,8 @@ static int imx_hdmi_probe(struct platform_device *pdev)
- 	data->dai.capture_only = false;
- 	data->dai.init = imx_hdmi_init;
+diff --git a/drivers/bluetooth/hci_vhci.c b/drivers/bluetooth/hci_vhci.c
+index 8ab26dec5f6e8..8469f9876dd26 100644
+--- a/drivers/bluetooth/hci_vhci.c
++++ b/drivers/bluetooth/hci_vhci.c
+@@ -121,6 +121,8 @@ static int __vhci_create_device(struct vhci_data *data, __u8 opcode)
+ 	if (opcode & 0x80)
+ 		set_bit(HCI_QUIRK_RAW_DEVICE, &hdev->quirks);
  
-+	put_device(&cpu_pdev->dev);
++	set_bit(HCI_QUIRK_VALID_LE_STATES, &hdev->quirks);
 +
- 	if (of_node_name_eq(cpu_np, "sai")) {
- 		data->cpu_priv.sysclk_id[1] = FSL_SAI_CLK_MAST1;
- 		data->cpu_priv.sysclk_id[0] = FSL_SAI_CLK_MAST1;
+ 	if (hci_register_dev(hdev) < 0) {
+ 		BT_ERR("Can't register HCI device");
+ 		hci_free_dev(hdev);
 -- 
 2.34.1
 
