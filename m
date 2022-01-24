@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62DA3499960
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:44:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B703E499927
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:43:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1455160AbiAXVew (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:34:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49902 "EHLO
+        id S1454271AbiAXVcG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:32:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1449130AbiAXVO5 (ORCPT
+        with ESMTP id S1449134AbiAXVO5 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:14:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8719C06E012;
-        Mon, 24 Jan 2022 12:11:19 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28B72C06E01F;
+        Mon, 24 Jan 2022 12:11:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 76B90B811F9;
-        Mon, 24 Jan 2022 20:11:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9380CC340E5;
-        Mon, 24 Jan 2022 20:11:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BD92D612FC;
+        Mon, 24 Jan 2022 20:11:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F3FCC340E5;
+        Mon, 24 Jan 2022 20:11:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055077;
-        bh=pOMuClDdtMKtaAUzzkfbJsxX0oBaFCtga5RqV+vM42Q=;
+        s=korg; t=1643055083;
+        bh=l5GlaMQWhaM9tQ49nzfGO/tk9HkHi8Ff5Xjw5ttxKI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cN11vv9K2qqGNn2/Hme/J0zpPLTZfc8e32bXuIHT4BjfPtanbwx5Eb+xubRW8Sy9J
-         qKKR6TOe/EKwSzQgcFf9puXXYzdK1rL+oa6WpjNAngmK8r5YWYqtSIg6cVxOTNpm5S
-         IgBu80wTv0AOBxMBwyWr4KMECIS/BBn8UruKt55k=
+        b=yIA8l46UaBzHaBr/1pa11keJhtRnoLzAbJ7OluIZclsVfBlHGulwV2k8DTCqCSdec
+         dUND3KHFp6C0KMyeMnW+E01VqYZTRcR3api5SLPP058FnuokxnblZU3sRC4PtnAHqc
+         TPaUexmNs88HIjXvwS1bj2KQ+uSuRgWXhSrTJ+Ik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 033/846] net: phy: marvell: add Marvell specific PHY loopback
-Date:   Mon, 24 Jan 2022 19:32:30 +0100
-Message-Id: <20220124184102.076987359@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.15 034/846] ksmbd: uninitialized variable in create_socket()
+Date:   Mon, 24 Jan 2022 19:32:31 +0100
+Message-Id: <20220124184102.124037410@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -48,108 +48,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 020a45aff1190c32b1087cd75b57fbf6bff46ea6 upstream.
+commit b207602fb04537cb21ac38fabd7577eca2fa05ae upstream.
 
-Existing genphy_loopback() is not applicable for Marvell PHY. Besides
-configuring bit-6 and bit-13 in Page 0 Register 0 (Copper Control
-Register), it is also required to configure same bits  in Page 2
-Register 21 (MAC Specific Control Register 2) according to speed of
-the loopback is operating.
+The "ksmbd_socket" variable is not initialized on this error path.
 
-Tested working on Marvell88E1510 PHY for all speeds (1000/100/10Mbps).
-
-FIXME: Based on trial and error test, it seem 1G need to have delay between
-soft reset and loopback enablement.
-
-Fixes: 014068dcb5b1 ("net: phy: genphy_loopback: add link speed configuration")
-Cc: <stable@vger.kernel.org> # 5.15.x
-Signed-off-by: Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Fixes: 0626e6641f6b ("cifsd: add server handler for central processing and tranport layers")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/marvell.c |   56 +++++++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 55 insertions(+), 1 deletion(-)
+ fs/ksmbd/transport_tcp.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/phy/marvell.c
-+++ b/drivers/net/phy/marvell.c
-@@ -189,6 +189,8 @@
- #define MII_88E1510_GEN_CTRL_REG_1_MODE_RGMII_SGMII	0x4
- #define MII_88E1510_GEN_CTRL_REG_1_RESET	0x8000	/* Soft reset */
+--- a/fs/ksmbd/transport_tcp.c
++++ b/fs/ksmbd/transport_tcp.c
+@@ -404,7 +404,7 @@ static int create_socket(struct interfac
+ 				  &ksmbd_socket);
+ 		if (ret) {
+ 			pr_err("Can't create socket for ipv4: %d\n", ret);
+-			goto out_error;
++			goto out_clear;
+ 		}
  
-+#define MII_88E1510_MSCR_2		0x15
-+
- #define MII_VCT5_TX_RX_MDI0_COUPLING	0x10
- #define MII_VCT5_TX_RX_MDI1_COUPLING	0x11
- #define MII_VCT5_TX_RX_MDI2_COUPLING	0x12
-@@ -1932,6 +1934,58 @@ static void marvell_get_stats(struct phy
- 		data[i] = marvell_get_stat(phydev, i);
+ 		sin.sin_family = PF_INET;
+@@ -462,6 +462,7 @@ static int create_socket(struct interfac
+ 
+ out_error:
+ 	tcp_destroy_socket(ksmbd_socket);
++out_clear:
+ 	iface->ksmbd_socket = NULL;
+ 	return ret;
  }
- 
-+static int m88e1510_loopback(struct phy_device *phydev, bool enable)
-+{
-+	int err;
-+
-+	if (enable) {
-+		u16 bmcr_ctl = 0, mscr2_ctl = 0;
-+
-+		if (phydev->speed == SPEED_1000)
-+			bmcr_ctl = BMCR_SPEED1000;
-+		else if (phydev->speed == SPEED_100)
-+			bmcr_ctl = BMCR_SPEED100;
-+
-+		if (phydev->duplex == DUPLEX_FULL)
-+			bmcr_ctl |= BMCR_FULLDPLX;
-+
-+		err = phy_write(phydev, MII_BMCR, bmcr_ctl);
-+		if (err < 0)
-+			return err;
-+
-+		if (phydev->speed == SPEED_1000)
-+			mscr2_ctl = BMCR_SPEED1000;
-+		else if (phydev->speed == SPEED_100)
-+			mscr2_ctl = BMCR_SPEED100;
-+
-+		err = phy_modify_paged(phydev, MII_MARVELL_MSCR_PAGE,
-+				       MII_88E1510_MSCR_2, BMCR_SPEED1000 |
-+				       BMCR_SPEED100, mscr2_ctl);
-+		if (err < 0)
-+			return err;
-+
-+		/* Need soft reset to have speed configuration takes effect */
-+		err = genphy_soft_reset(phydev);
-+		if (err < 0)
-+			return err;
-+
-+		/* FIXME: Based on trial and error test, it seem 1G need to have
-+		 * delay between soft reset and loopback enablement.
-+		 */
-+		if (phydev->speed == SPEED_1000)
-+			msleep(1000);
-+
-+		return phy_modify(phydev, MII_BMCR, BMCR_LOOPBACK,
-+				  BMCR_LOOPBACK);
-+	} else {
-+		err = phy_modify(phydev, MII_BMCR, BMCR_LOOPBACK, 0);
-+		if (err < 0)
-+			return err;
-+
-+		return phy_config_aneg(phydev);
-+	}
-+}
-+
- static int marvell_vct5_wait_complete(struct phy_device *phydev)
- {
- 	int i;
-@@ -3078,7 +3132,7 @@ static struct phy_driver marvell_drivers
- 		.get_sset_count = marvell_get_sset_count,
- 		.get_strings = marvell_get_strings,
- 		.get_stats = marvell_get_stats,
--		.set_loopback = genphy_loopback,
-+		.set_loopback = m88e1510_loopback,
- 		.get_tunable = m88e1011_get_tunable,
- 		.set_tunable = m88e1011_set_tunable,
- 		.cable_test_start = marvell_vct7_cable_test_start,
 
 
