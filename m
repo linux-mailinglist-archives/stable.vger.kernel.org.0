@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07ABA498A1E
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:02:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AC9449889F
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:48:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344158AbiAXTBe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:01:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44638 "EHLO
+        id S245320AbiAXSso (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:48:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344678AbiAXS6z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:58:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE6C0C0612B2;
-        Mon, 24 Jan 2022 10:56:12 -0800 (PST)
+        with ESMTP id S245278AbiAXSsk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:48:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74195C06173D;
+        Mon, 24 Jan 2022 10:48:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 933E1B81227;
-        Mon, 24 Jan 2022 18:56:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5E31C340E5;
-        Mon, 24 Jan 2022 18:56:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B078614CF;
+        Mon, 24 Jan 2022 18:48:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BCF94C340E5;
+        Mon, 24 Jan 2022 18:48:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050571;
-        bh=szx3KHnAGqYPCIQSnKc2YO2cne5YMw4r5dPOGfee4w8=;
+        s=korg; t=1643050119;
+        bh=uRF9XUPN3tK2QLeoChtYaMbHzw3CLplJcZHjEbZyBPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gDA3qoz1BCSoPeI7kQzY9xiO/MZKav2tbhtPnwK4mVJy0jld8g8oVWFZi8OkSKqMI
-         EkcPNyxjNd3H8oD2CNPmFhSGEI0pfXBlxRbTJFZ/Dbfj2BcvQLcUMjd/RAfNS/e08z
-         CfySvCJdHsUEQrJVHQYkz/t8Y9AUu27STFUrQq4M=
+        b=OgY/5zG+hkNKRDMTR9MQMeU6G38XDhkS9EJNYea1VeaHxWE90agKLt3Y7MsNKVOGq
+         WQ8v+fCqQ3s6Yx1M6LiT7wIVzBezEOJe8ocWQsF7HRyTnBm25fzoaVcq/KuilRl8cQ
+         8EWkIFM17PaZIW1AOeVOPRi+4pA8ZySuZHFdf5Xo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+cce1ee31614c171f5595@syzkaller.appspotmail.com,
-        Larry Finger <Larry.Finger@lwfinger.net>,
-        Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 4.9 012/157] rtlwifi: rtl8192cu: Fix WARNING when calling local_irq_restore() with interrupts enabled
+        stable@vger.kernel.org, Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        =?UTF-8?q?D=C3=A1vid=20Bolvansk=C3=BD?= <david.bolvansky@gmail.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>
+Subject: [PATCH 4.4 007/114] drm/i915: Avoid bitwise vs logical OR warning in snb_wm_latency_quirk()
 Date:   Mon, 24 Jan 2022 19:41:42 +0100
-Message-Id: <20220124183933.183700115@linuxfoundation.org>
+Message-Id: <20220124183927.335717809@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
-References: <20220124183932.787526760@linuxfoundation.org>
+In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
+References: <20220124183927.095545464@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,45 +50,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Larry Finger <Larry.Finger@lwfinger.net>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 8b144dedb928e4e2f433a328d58f44c3c098d63e upstream.
+commit 2e70570656adfe1c5d9a29940faa348d5f132199 upstream.
 
-Syzbot reports the following WARNING:
+A new warning in clang points out a place in this file where a bitwise
+OR is being used with boolean types:
 
-[200~raw_local_irq_restore() called with IRQs enabled
-WARNING: CPU: 1 PID: 1206 at kernel/locking/irqflag-debug.c:10
-   warn_bogus_irq_restore+0x1d/0x20 kernel/locking/irqflag-debug.c:10
+drivers/gpu/drm/i915/intel_pm.c:3066:12: warning: use of bitwise '|' with boolean operands [-Wbitwise-instead-of-logical]
+        changed = ilk_increase_wm_latency(dev_priv, dev_priv->wm.pri_latency, 12) |
+                  ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Hardware initialization for the rtl8188cu can run for as long as 350 ms,
-and the routine may be called with interrupts disabled. To avoid locking
-the machine for this long, the current routine saves the interrupt flags
-and enables local interrupts. The problem is that it restores the flags
-at the end without disabling local interrupts first.
+This construct is intentional, as it allows every one of the calls to
+ilk_increase_wm_latency() to occur (instead of short circuiting with
+logical OR) while still caring about the result of each call.
 
-This patch fixes commit a53268be0cb9 ("rtlwifi: rtl8192cu: Fix too long
-disable of IRQs").
+To make this clearer to the compiler, use the '|=' operator to assign
+the result of each ilk_increase_wm_latency() call to changed, which
+keeps the meaning of the code the same but makes it obvious that every
+one of these calls is expected to happen.
 
-Reported-by: syzbot+cce1ee31614c171f5595@syzkaller.appspotmail.com
-Cc: stable@vger.kernel.org
-Fixes: a53268be0cb9 ("rtlwifi: rtl8192cu: Fix too long disable of IRQs")
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20211215171105.20623-1-Larry.Finger@lwfinger.net
+Link: https://github.com/ClangBuiltLinux/linux/issues/1473
+Reported-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Suggested-by: Dávid Bolvanský <david.bolvansky@gmail.com>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20211014211916.3550122-1-nathan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/i915/intel_pm.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/rtl8192cu/hw.c
-@@ -1037,6 +1037,7 @@ int rtl92cu_hw_init(struct ieee80211_hw
- 	_InitPABias(hw);
- 	rtl92c_dm_init(hw);
- exit:
-+	local_irq_disable();
- 	local_irq_restore(flags);
- 	return err;
- }
+--- a/drivers/gpu/drm/i915/intel_pm.c
++++ b/drivers/gpu/drm/i915/intel_pm.c
+@@ -2245,9 +2245,9 @@ static void snb_wm_latency_quirk(struct
+ 	 * The BIOS provided WM memory latency values are often
+ 	 * inadequate for high resolution displays. Adjust them.
+ 	 */
+-	changed = ilk_increase_wm_latency(dev_priv, dev_priv->wm.pri_latency, 12) |
+-		ilk_increase_wm_latency(dev_priv, dev_priv->wm.spr_latency, 12) |
+-		ilk_increase_wm_latency(dev_priv, dev_priv->wm.cur_latency, 12);
++	changed = ilk_increase_wm_latency(dev_priv, dev_priv->wm.pri_latency, 12);
++	changed |= ilk_increase_wm_latency(dev_priv, dev_priv->wm.spr_latency, 12);
++	changed |= ilk_increase_wm_latency(dev_priv, dev_priv->wm.cur_latency, 12);
+ 
+ 	if (!changed)
+ 		return;
 
 
