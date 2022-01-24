@@ -2,49 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C529B49A3ED
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:04:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFFE949A3F3
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:04:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2369170AbiAYABI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 19:01:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50600 "EHLO
+        id S2369217AbiAYABP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:01:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1847032AbiAXXSV (ORCPT
+        with ESMTP id S1847038AbiAXXSV (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:18:21 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7F51C06F8D4;
-        Mon, 24 Jan 2022 13:26:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D2EFC06F8D5;
+        Mon, 24 Jan 2022 13:26:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6BBA2B8122A;
-        Mon, 24 Jan 2022 21:26:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A444C340E4;
-        Mon, 24 Jan 2022 21:26:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 24019B81218;
+        Mon, 24 Jan 2022 21:26:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37CFCC340E4;
+        Mon, 24 Jan 2022 21:26:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059578;
-        bh=gN8e4n+344COSfz2qoEkyox0kd95ormBrbUV3mZwg6g=;
+        s=korg; t=1643059586;
+        bh=H2yZ85oZdClgDcogorKnikqYs9clriqltHq6+8eKhf4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LGVpllKp7HJa1tcMMgYopNBb78GztmssoSTZxeDBrsQpIGTTq2SV/AIOY6o8LDoXw
-         rEyp8c3MtSEEbqcvY03ahbgDVIuMGefRvZ48/7ZEamIW/kFAq00QbTQ1OCYT4d3QP9
-         mcndbU2bBNQUkQCLl3vfPzkyIe3gHG3E6xcCUpC4=
+        b=qafCUr1A1e2l5mC3dgIR/+mBLC1JLwHbcwJd9d0j7O7V6fCJQJ7rKbSNmP9nzW6nl
+         mR86jzm0a65SGcc7RnCpxVMviPAqxbpxOOxs65JJUqJYO6eRfmBtmK46CWL0o2tBZu
+         00JDBd86kQZ+KcJunPgPcoQrnaDd/IOsdIK8yvrk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Gonda <pgonda@google.com>,
-        Marc Orr <marcorr@google.com>,
-        David Rientjes <rientjes@google.com>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Brijesh Singh <brijesh.singh@amd.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        John Allen <john.allen@amd.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        linux-crypto@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0663/1039] crypto: ccp - Move SEV_INIT retry for corrupted data
-Date:   Mon, 24 Jan 2022 19:40:52 +0100
-Message-Id: <20220124184147.658020922@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.16 0666/1039] PM: runtime: Add safety net to supplier device release
+Date:   Mon, 24 Jan 2022 19:40:55 +0100
+Message-Id: <20220124184147.764492642@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -56,93 +48,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Gonda <pgonda@google.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit e423b9d75e779d921e6adf5ac3d0b59400d6ba7e ]
+[ Upstream commit d1579e61192e0e686faa4208500ef4c3b529b16c ]
 
-Move the data corrupted retry of SEV_INIT into the
-__sev_platform_init_locked() function. This is for upcoming INIT_EX
-support as well as helping direct callers of
-__sev_platform_init_locked() which currently do not support the
-retry.
+Because refcount_dec_not_one() returns true if the target refcount
+becomes saturated, it is generally unsafe to use its return value as
+a loop termination condition, but that is what happens when a device
+link's supplier device is released during runtime PM suspend
+operations and on device link removal.
 
-Signed-off-by: Peter Gonda <pgonda@google.com>
-Reviewed-by: Marc Orr <marcorr@google.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
-Acked-by: Brijesh Singh <brijesh.singh@amd.com>
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Brijesh Singh <brijesh.singh@amd.com>
-Cc: Marc Orr <marcorr@google.com>
-Cc: Joerg Roedel <jroedel@suse.de>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: David Rientjes <rientjes@google.com>
-Cc: John Allen <john.allen@amd.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: linux-crypto@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+To address this, introduce pm_runtime_release_supplier() to be used
+in the above cases which will check the supplier device's runtime
+PM usage counter in addition to the refcount_dec_not_one() return
+value, so the loop can be terminated in case the rpm_active refcount
+value becomes invalid, and update the code in question to use it as
+appropriate.
+
+This change is not expected to have any visible functional impact.
+
+Reported-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/ccp/sev-dev.c | 30 ++++++++++++++++--------------
- 1 file changed, 16 insertions(+), 14 deletions(-)
+ drivers/base/core.c          |  3 +--
+ drivers/base/power/runtime.c | 41 ++++++++++++++++++++++++++----------
+ include/linux/pm_runtime.h   |  3 +++
+ 3 files changed, 34 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/crypto/ccp/sev-dev.c b/drivers/crypto/ccp/sev-dev.c
-index e09925d86bf36..581a1b13d5c3d 100644
---- a/drivers/crypto/ccp/sev-dev.c
-+++ b/drivers/crypto/ccp/sev-dev.c
-@@ -241,7 +241,7 @@ static int __sev_platform_init_locked(int *error)
- 	struct psp_device *psp = psp_master;
- 	struct sev_data_init data;
- 	struct sev_device *sev;
--	int rc = 0;
-+	int psp_ret, rc = 0;
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index fd034d7424472..b191bd17de891 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -485,8 +485,7 @@ static void device_link_release_fn(struct work_struct *work)
+ 	/* Ensure that all references to the link object have been dropped. */
+ 	device_link_synchronize_removal();
  
- 	if (!psp || !psp->sev_data)
- 		return -ENODEV;
-@@ -266,7 +266,21 @@ static int __sev_platform_init_locked(int *error)
- 		data.tmr_len = SEV_ES_TMR_SIZE;
- 	}
+-	while (refcount_dec_not_one(&link->rpm_active))
+-		pm_runtime_put(link->supplier);
++	pm_runtime_release_supplier(link, true);
  
--	rc = __sev_do_cmd_locked(SEV_CMD_INIT, &data, error);
-+	rc = __sev_do_cmd_locked(SEV_CMD_INIT, &data, &psp_ret);
-+	if (rc && psp_ret == SEV_RET_SECURE_DATA_INVALID) {
-+		/*
-+		 * Initialization command returned an integrity check failure
-+		 * status code, meaning that firmware load and validation of SEV
-+		 * related persistent data has failed. Retrying the
-+		 * initialization function should succeed by replacing the state
-+		 * with a reset state.
-+		 */
-+		dev_dbg(sev->dev, "SEV: retrying INIT command");
-+		rc = __sev_do_cmd_locked(SEV_CMD_INIT, &data, &psp_ret);
-+	}
-+	if (error)
-+		*error = psp_ret;
+ 	put_device(link->consumer);
+ 	put_device(link->supplier);
+diff --git a/drivers/base/power/runtime.c b/drivers/base/power/runtime.c
+index d504cd4ab3cbf..38c2e1892a00e 100644
+--- a/drivers/base/power/runtime.c
++++ b/drivers/base/power/runtime.c
+@@ -305,19 +305,40 @@ static int rpm_get_suppliers(struct device *dev)
+ 	return 0;
+ }
+ 
++/**
++ * pm_runtime_release_supplier - Drop references to device link's supplier.
++ * @link: Target device link.
++ * @check_idle: Whether or not to check if the supplier device is idle.
++ *
++ * Drop all runtime PM references associated with @link to its supplier device
++ * and if @check_idle is set, check if that device is idle (and so it can be
++ * suspended).
++ */
++void pm_runtime_release_supplier(struct device_link *link, bool check_idle)
++{
++	struct device *supplier = link->supplier;
 +
- 	if (rc)
- 		return rc;
++	/*
++	 * The additional power.usage_count check is a safety net in case
++	 * the rpm_active refcount becomes saturated, in which case
++	 * refcount_dec_not_one() would return true forever, but it is not
++	 * strictly necessary.
++	 */
++	while (refcount_dec_not_one(&link->rpm_active) &&
++	       atomic_read(&supplier->power.usage_count) > 0)
++		pm_runtime_put_noidle(supplier);
++
++	if (check_idle)
++		pm_request_idle(supplier);
++}
++
+ static void __rpm_put_suppliers(struct device *dev, bool try_to_suspend)
+ {
+ 	struct device_link *link;
  
-@@ -1091,18 +1105,6 @@ void sev_pci_init(void)
- 
- 	/* Initialize the platform */
- 	rc = sev_platform_init(&error);
--	if (rc && (error == SEV_RET_SECURE_DATA_INVALID)) {
--		/*
--		 * INIT command returned an integrity check failure
--		 * status code, meaning that firmware load and
--		 * validation of SEV related persistent data has
--		 * failed and persistent state has been erased.
--		 * Retrying INIT command here should succeed.
--		 */
--		dev_dbg(sev->dev, "SEV: retrying INIT command");
--		rc = sev_platform_init(&error);
--	}
+ 	list_for_each_entry_rcu(link, &dev->links.suppliers, c_node,
+-				device_links_read_lock_held()) {
 -
- 	if (rc) {
- 		dev_err(sev->dev, "SEV: failed to INIT error %#x\n", error);
+-		while (refcount_dec_not_one(&link->rpm_active))
+-			pm_runtime_put_noidle(link->supplier);
+-
+-		if (try_to_suspend)
+-			pm_request_idle(link->supplier);
+-	}
++				device_links_read_lock_held())
++		pm_runtime_release_supplier(link, try_to_suspend);
+ }
+ 
+ static void rpm_put_suppliers(struct device *dev)
+@@ -1772,9 +1793,7 @@ void pm_runtime_drop_link(struct device_link *link)
  		return;
+ 
+ 	pm_runtime_drop_link_count(link->consumer);
+-
+-	while (refcount_dec_not_one(&link->rpm_active))
+-		pm_runtime_put(link->supplier);
++	pm_runtime_release_supplier(link, true);
+ }
+ 
+ static bool pm_runtime_need_not_resume(struct device *dev)
+diff --git a/include/linux/pm_runtime.h b/include/linux/pm_runtime.h
+index eddd66d426caf..016de5776b6db 100644
+--- a/include/linux/pm_runtime.h
++++ b/include/linux/pm_runtime.h
+@@ -58,6 +58,7 @@ extern void pm_runtime_get_suppliers(struct device *dev);
+ extern void pm_runtime_put_suppliers(struct device *dev);
+ extern void pm_runtime_new_link(struct device *dev);
+ extern void pm_runtime_drop_link(struct device_link *link);
++extern void pm_runtime_release_supplier(struct device_link *link, bool check_idle);
+ 
+ extern int devm_pm_runtime_enable(struct device *dev);
+ 
+@@ -283,6 +284,8 @@ static inline void pm_runtime_get_suppliers(struct device *dev) {}
+ static inline void pm_runtime_put_suppliers(struct device *dev) {}
+ static inline void pm_runtime_new_link(struct device *dev) {}
+ static inline void pm_runtime_drop_link(struct device_link *link) {}
++static inline void pm_runtime_release_supplier(struct device_link *link,
++					       bool check_idle) {}
+ 
+ #endif /* !CONFIG_PM */
+ 
 -- 
 2.34.1
 
