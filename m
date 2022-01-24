@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C62AB498A2F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:02:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60CC1498921
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:53:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343610AbiAXTBt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:01:49 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:57298 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345206AbiAXS74 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:59:56 -0500
+        id S245097AbiAXSxE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:53:04 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:50968 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1343799AbiAXSvs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:51:48 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B707CB8121C;
-        Mon, 24 Jan 2022 18:59:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6AE1C340E5;
-        Mon, 24 Jan 2022 18:59:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 67BB06151E;
+        Mon, 24 Jan 2022 18:51:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30400C340E7;
+        Mon, 24 Jan 2022 18:51:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050794;
-        bh=8+gCBx0g7+QE7u/fTFVaw7lf8xg7PIrSLStF9YpUgcY=;
+        s=korg; t=1643050307;
+        bh=mOgLhHho0OlNC/JpctgxY53RxDZv8N0vDhyZlun2JZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xHKf48nyTKpw/plnmYAT6zNUOJeROWaddZQmsn9VnES2b0+MxEUWPIP2cpdIZlNfT
-         87wRhOtXh9bPkysGf7MUV0TGlP0bP8Oqk0WjAhi1TmVjSbQqK/HyLh3MXH3GS80ow+
-         pcT+y6y0Ga2knJ0ErF6xyoWvaWtBvLGnDpKRho54=
+        b=Q3pjVM0PuJMHrJ/1dWupCuo7qSBMeXSfHwpC635DEL2tsucuw5/gOXVDwDpOrcsnE
+         gg7OidspADTt1wwEPMxv5rDsOfeYaC7XPF0IIBMXUV2A/nX3o/m8QKrv2WNNm93Ovl
+         +5mFobGjRfUbnRRV1IxLI6/XAsB2nH3GnPNc/e/w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chengfeng Ye <cyeaa@connect.ust.hk>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 081/157] HSI: core: Fix return freed object in hsi_new_client
+Subject: [PATCH 4.4 076/114] btrfs: remove BUG_ON() in find_parent_nodes()
 Date:   Mon, 24 Jan 2022 19:42:51 +0100
-Message-Id: <20220124183935.354484686@linuxfoundation.org>
+Message-Id: <20220124183929.439324789@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
-References: <20220124183932.787526760@linuxfoundation.org>
+In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
+References: <20220124183927.095545464@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,33 +45,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengfeng Ye <cyeaa@connect.ust.hk>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit a1ee1c08fcd5af03187dcd41dcab12fd5b379555 ]
+[ Upstream commit fcba0120edf88328524a4878d1d6f4ad39f2ec81 ]
 
-cl is freed on error of calling device_register, but this
-object is return later, which will cause uaf issue. Fix it
-by return NULL on error.
+We search for an extent entry with .offset = -1, which shouldn't be a
+thing, but corruption happens.  Add an ASSERT() for the developers,
+return -EUCLEAN for mortals.
 
-Signed-off-by: Chengfeng Ye <cyeaa@connect.ust.hk>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hsi/hsi_core.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/backref.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hsi/hsi_core.c b/drivers/hsi/hsi_core.c
-index e9d63b966caff..4a9fd745b8cb4 100644
---- a/drivers/hsi/hsi_core.c
-+++ b/drivers/hsi/hsi_core.c
-@@ -115,6 +115,7 @@ struct hsi_client *hsi_new_client(struct hsi_port *port,
- 	if (device_register(&cl->device) < 0) {
- 		pr_err("hsi: failed to register client: %s\n", info->name);
- 		put_device(&cl->device);
-+		goto err;
- 	}
+diff --git a/fs/btrfs/backref.c b/fs/btrfs/backref.c
+index 228bfa19b745d..c59a13a53b1cc 100644
+--- a/fs/btrfs/backref.c
++++ b/fs/btrfs/backref.c
+@@ -975,7 +975,12 @@ again:
+ 	ret = btrfs_search_slot(trans, fs_info->extent_root, &key, path, 0, 0);
+ 	if (ret < 0)
+ 		goto out;
+-	BUG_ON(ret == 0);
++	if (ret == 0) {
++		/* This shouldn't happen, indicates a bug or fs corruption. */
++		ASSERT(ret != 0);
++		ret = -EUCLEAN;
++		goto out;
++	}
  
- 	return cl;
+ #ifdef CONFIG_BTRFS_FS_RUN_SANITY_TESTS
+ 	if (trans && likely(trans->type != __TRANS_DUMMY) &&
 -- 
 2.34.1
 
