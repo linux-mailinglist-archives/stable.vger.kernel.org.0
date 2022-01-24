@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 540E3498B31
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:12:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 406F7498F43
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:51:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345705AbiAXTMT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:12:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46042 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1344186AbiAXTHE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:07:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31D5FC0613A2;
-        Mon, 24 Jan 2022 11:01:31 -0800 (PST)
+        id S1346358AbiAXTvm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:51:42 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:34570 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1354648AbiAXTg5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:36:57 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3352B8123A;
-        Mon, 24 Jan 2022 19:01:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34A16C340E7;
-        Mon, 24 Jan 2022 19:01:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9ED0D614DA;
+        Mon, 24 Jan 2022 19:36:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A507C340E5;
+        Mon, 24 Jan 2022 19:36:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050888;
-        bh=YUTWzpfM84kbMmvjPcm2uVWgAWQ4ZG//iF8VVxDS8X4=;
+        s=korg; t=1643053016;
+        bh=FYe4UVnzYe2hrRUNg/CIzkMESrbopJBXhiXreviRkXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YaAuGLszN3hIfkMuMET5XXkJMn1dK/mZRXkmAodIeskjpKtTL6AgnL7Q2/fIq0RfI
-         H+TRJbnBZZ4lg8MS5QmnVKqCzbaj8BYiJjLVp9lzi6W0/EnLnuEzdKSd2V6o1sxuBl
-         2sXqAGVsL06Uvl04FnW5rWUnJlsnoOvKjSJL2leE=
+        b=gTSI4QUXZuWz/KJXvqsSWmZjMiOL90u6I6NmppcCuk9K+vc5hnd+SYR12HlGoya77
+         RNP2RTHWri8WerEpwIITf9SESWJY9FYKepnU6EsdXrnWt8Hm0eP9txNoFE69leJKsA
+         /LChZdcWFOX1OhGCaMtV+lHlpEiB7XW2/w2Vw3Zc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 143/157] bcmgenet: add WOL IRQ check
+        stable@vger.kernel.org, Petr Cvachoucek <cvachoucek@gmail.com>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 5.4 249/320] ubifs: Error path in ubifs_remount_rw() seems to wrongly free write buffers
 Date:   Mon, 24 Jan 2022 19:43:53 +0100
-Message-Id: <20220124183937.303853809@linuxfoundation.org>
+Message-Id: <20220124184002.460673837@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
-References: <20220124183932.787526760@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,42 +44,105 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omp.ru>
+From: Petr Cvachoucek <cvachoucek@gmail.com>
 
-commit 9deb48b53e7f4056c2eaa2dc2ee3338df619e4f6 upstream.
+commit 3fea4d9d160186617ff40490ae01f4f4f36b28ff upstream.
 
-The driver neglects to check the result of platform_get_irq_optional()'s
-call and blithely passes the negative error codes to devm_request_irq()
-(which takes *unsigned* IRQ #), causing it to fail with -EINVAL.
-Stop calling devm_request_irq() with the invalid IRQ #s.
+it seems freeing the write buffers in the error path of the
+ubifs_remount_rw() is wrong. It leads later to a kernel oops like this:
 
-Fixes: 8562056f267d ("net: bcmgenet: request Wake-on-LAN interrupt")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+[10016.431274] UBIFS (ubi0:0): start fixing up free space
+[10090.810042] UBIFS (ubi0:0): free space fixup complete
+[10090.814623] UBIFS error (ubi0:0 pid 512): ubifs_remount_fs: cannot
+spawn "ubifs_bgt0_0", error -4
+[10101.915108] UBIFS (ubi0:0): background thread "ubifs_bgt0_0" started,
+PID 517
+[10105.275498] Unable to handle kernel NULL pointer dereference at
+virtual address 0000000000000030
+[10105.284352] Mem abort info:
+[10105.287160]   ESR = 0x96000006
+[10105.290252]   EC = 0x25: DABT (current EL), IL = 32 bits
+[10105.295592]   SET = 0, FnV = 0
+[10105.298652]   EA = 0, S1PTW = 0
+[10105.301848] Data abort info:
+[10105.304723]   ISV = 0, ISS = 0x00000006
+[10105.308573]   CM = 0, WnR = 0
+[10105.311564] user pgtable: 4k pages, 48-bit VAs, pgdp=00000000f03d1000
+[10105.318034] [0000000000000030] pgd=00000000f6cee003,
+pud=00000000f4884003, pmd=0000000000000000
+[10105.326783] Internal error: Oops: 96000006 [#1] PREEMPT SMP
+[10105.332355] Modules linked in: ath10k_pci ath10k_core ath mac80211
+libarc4 cfg80211 nvme nvme_core cryptodev(O)
+[10105.342468] CPU: 3 PID: 518 Comm: touch Tainted: G           O
+5.4.3 #1
+[10105.349517] Hardware name: HYPEX CPU (DT)
+[10105.353525] pstate: 40000005 (nZcv daif -PAN -UAO)
+[10105.358324] pc : atomic64_try_cmpxchg_acquire.constprop.22+0x8/0x34
+[10105.364596] lr : mutex_lock+0x1c/0x34
+[10105.368253] sp : ffff000075633aa0
+[10105.371563] x29: ffff000075633aa0 x28: 0000000000000001
+[10105.376874] x27: ffff000076fa80c8 x26: 0000000000000004
+[10105.382185] x25: 0000000000000030 x24: 0000000000000000
+[10105.387495] x23: 0000000000000000 x22: 0000000000000038
+[10105.392807] x21: 000000000000000c x20: ffff000076fa80c8
+[10105.398119] x19: ffff000076fa8000 x18: 0000000000000000
+[10105.403429] x17: 0000000000000000 x16: 0000000000000000
+[10105.408741] x15: 0000000000000000 x14: fefefefefefefeff
+[10105.414052] x13: 0000000000000000 x12: 0000000000000fe0
+[10105.419364] x11: 0000000000000fe0 x10: ffff000076709020
+[10105.424675] x9 : 0000000000000000 x8 : 00000000000000a0
+[10105.429986] x7 : ffff000076fa80f4 x6 : 0000000000000030
+[10105.435297] x5 : 0000000000000000 x4 : 0000000000000000
+[10105.440609] x3 : 0000000000000000 x2 : ffff00006f276040
+[10105.445920] x1 : ffff000075633ab8 x0 : 0000000000000030
+[10105.451232] Call trace:
+[10105.453676]  atomic64_try_cmpxchg_acquire.constprop.22+0x8/0x34
+[10105.459600]  ubifs_garbage_collect+0xb4/0x334
+[10105.463956]  ubifs_budget_space+0x398/0x458
+[10105.468139]  ubifs_create+0x50/0x180
+[10105.471712]  path_openat+0x6a0/0x9b0
+[10105.475284]  do_filp_open+0x34/0x7c
+[10105.478771]  do_sys_open+0x78/0xe4
+[10105.482170]  __arm64_sys_openat+0x1c/0x24
+[10105.486180]  el0_svc_handler+0x84/0xc8
+[10105.489928]  el0_svc+0x8/0xc
+[10105.492808] Code: 52800013 17fffffb d2800003 f9800011 (c85ffc05)
+[10105.498903] ---[ end trace 46b721d93267a586 ]---
+
+To reproduce the problem:
+
+1. Filesystem initially mounted read-only, free space fixup flag set.
+
+2. mount -o remount,rw <mountpoint>
+
+3. it takes some time (free space fixup running)
+    ... try to terminate running mount by CTRL-C
+    ... does not respond, only after free space fixup is complete
+    ... then "ubifs_remount_fs: cannot spawn "ubifs_bgt0_0", error -4"
+
+4. mount -o remount,rw <mountpoint>
+    ... now finished instantly (fixup already done).
+
+5. Create file or just unmount the filesystem and we get the oops.
+
+Cc: <stable@vger.kernel.org>
+Fixes: b50b9f408502 ("UBIFS: do not free write-buffers when in R/O mode")
+Signed-off-by: Petr Cvachoucek <cvachoucek@gmail.com>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/genet/bcmgenet.c |   10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ fs/ubifs/super.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-+++ b/drivers/net/ethernet/broadcom/genet/bcmgenet.c
-@@ -3358,10 +3358,12 @@ static int bcmgenet_probe(struct platfor
- 
- 	/* Request the WOL interrupt and advertise suspend if available */
- 	priv->wol_irq_disabled = true;
--	err = devm_request_irq(&pdev->dev, priv->wol_irq, bcmgenet_wol_isr, 0,
--			       dev->name, priv);
--	if (!err)
--		device_set_wakeup_capable(&pdev->dev, 1);
-+	if (priv->wol_irq > 0) {
-+		err = devm_request_irq(&pdev->dev, priv->wol_irq,
-+				       bcmgenet_wol_isr, 0, dev->name, priv);
-+		if (!err)
-+			device_set_wakeup_capable(&pdev->dev, 1);
-+	}
- 
- 	/* Set the needed headroom to account for any possible
- 	 * features enabling/disabling at runtime
+--- a/fs/ubifs/super.c
++++ b/fs/ubifs/super.c
+@@ -1835,7 +1835,6 @@ out:
+ 		kthread_stop(c->bgt);
+ 		c->bgt = NULL;
+ 	}
+-	free_wbufs(c);
+ 	kfree(c->write_reserve_buf);
+ 	c->write_reserve_buf = NULL;
+ 	vfree(c->ileb_buf);
 
 
