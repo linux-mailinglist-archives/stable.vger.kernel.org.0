@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8CE6B4992A2
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:23:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 472DD4992A7
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:23:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355499AbiAXUWb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:22:31 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:57596 "EHLO
+        id S1354995AbiAXUXC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:23:02 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:59196 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354599AbiAXUU1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:20:27 -0500
+        with ESMTP id S1356797AbiAXUUu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:20:50 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A17E9B811FB;
-        Mon, 24 Jan 2022 20:20:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6B6BC340E5;
-        Mon, 24 Jan 2022 20:20:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 48DD9B8123F;
+        Mon, 24 Jan 2022 20:20:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AC72C340E5;
+        Mon, 24 Jan 2022 20:20:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643055623;
-        bh=EuZrEE6iroL4h8Fnk2WfPwJrm92ykgsXH1Ll7+avYoc=;
+        s=korg; t=1643055647;
+        bh=+GukFv+UmmsfgFRsXbDyesdwasvKERbn/wIBoWXygSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iiFBibZFbWLkxVsSY0JlDQwh2ONeS7HXQ432XgGui1Z5Wz6CPigyd/6mY2we3NpWq
-         BtRLxznCOUTZf4fCendq0AgpKQ9W/P/UkP9v5bAU1tPzNwOWeE2SgSF3nxGqOlXU27
-         lIw5PcEEXorukbvIdw0pOdj4U6bD7HBtZmJKgimk=
+        b=xTAokmRnHXIBRJgh/RXT9eZdpsT7IPt6g6kG+gmCBEnU7zPYuWfQxqFau1DCXCykA
+         Ef+wXHtL+/P/Zj4veK9Jae2oYyUxmq/IWMnsJhCaKolK8ELJD5jnTgTjTLwgNyJlcu
+         w//uMA5TJk+riOXUcVYOJffhQpRDca9kRsUuhsF8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Zhou Qingyang <zhou1615@umn.edu>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Gaurav Jain <gaurav.jain@nxp.com>,
+        =?UTF-8?q?Horia=20Geant=C4=83?= <horia.geanta@nxp.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 184/846] drm/radeon/radeon_kms: Fix a NULL pointer dereference in radeon_driver_open_kms()
-Date:   Mon, 24 Jan 2022 19:35:01 +0100
-Message-Id: <20220124184107.319097468@linuxfoundation.org>
+Subject: [PATCH 5.15 186/846] crypto: caam - save caam memory to support crypto engine retry mechanism.
+Date:   Mon, 24 Jan 2022 19:35:03 +0100
+Message-Id: <20220124184107.390098123@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -47,116 +46,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhou Qingyang <zhou1615@umn.edu>
+From: Gaurav Jain <gaurav.jain@nxp.com>
 
-[ Upstream commit ab50cb9df8896b39aae65c537a30de2c79c19735 ]
+[ Upstream commit 087e1d715bccf25dc0e83294576e416b0386ba20 ]
 
-In radeon_driver_open_kms(), radeon_vm_bo_add() is assigned to
-vm->ib_bo_va and passes and used in radeon_vm_bo_set_addr(). In
-radeon_vm_bo_set_addr(), there is a dereference of vm->ib_bo_va,
-which could lead to a NULL pointer dereference on failure of
-radeon_vm_bo_add().
+When caam queue is full (-ENOSPC), caam frees descriptor memory.
+crypto-engine checks if retry support is true and h/w queue
+is full(-ENOSPC), then requeue the crypto request.
+During processing the requested descriptor again, caam gives below error.
+(caam_jr 30902000.jr: 40000006: DECO: desc idx 0: Invalid KEY Command).
 
-Fix this bug by adding a check of vm->ib_bo_va.
+This patch adds a check to return when caam input ring is full
+and retry support is true. so descriptor memory is not freed
+and requeued request can be processed again.
 
-This bug was found by a static analyzer. The analysis employs
-differential checking to identify inconsistent security operations
-(e.g., checks or kfrees) between two code paths and confirms that the
-inconsistent operations are not recovered in the current function or
-the callers, so they constitute bugs.
-
-Note that, as a bug found by static analysis, it can be a false
-positive or hard to trigger. Multiple researchers have cross-reviewed
-the bug.
-
-Builds with CONFIG_DRM_RADEON=m show no new warnings,
-and our static analyzer no longer warns about this code.
-
-Fixes: cc9e67e3d700 ("drm/radeon: fix VM IB handling")
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Zhou Qingyang <zhou1615@umn.edu>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 2d653936eb2cf ("crypto: caam - enable crypto-engine retry mechanism")
+Signed-off-by: Gaurav Jain <gaurav.jain@nxp.com>
+Reviewed-by: Horia Geantă <horia.geanta@nxp.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_kms.c | 36 ++++++++++++++++-------------
- 1 file changed, 20 insertions(+), 16 deletions(-)
+ drivers/crypto/caam/caamalg.c  | 6 ++++++
+ drivers/crypto/caam/caamhash.c | 3 +++
+ drivers/crypto/caam/caampkc.c  | 3 +++
+ 3 files changed, 12 insertions(+)
 
-diff --git a/drivers/gpu/drm/radeon/radeon_kms.c b/drivers/gpu/drm/radeon/radeon_kms.c
-index 482fb0ae6cb5d..66aee48fd09d2 100644
---- a/drivers/gpu/drm/radeon/radeon_kms.c
-+++ b/drivers/gpu/drm/radeon/radeon_kms.c
-@@ -648,6 +648,8 @@ void radeon_driver_lastclose_kms(struct drm_device *dev)
- int radeon_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
- {
- 	struct radeon_device *rdev = dev->dev_private;
-+	struct radeon_fpriv *fpriv;
-+	struct radeon_vm *vm;
- 	int r;
+diff --git a/drivers/crypto/caam/caamalg.c b/drivers/crypto/caam/caamalg.c
+index 8697ae53b0633..d3d8bb0a69900 100644
+--- a/drivers/crypto/caam/caamalg.c
++++ b/drivers/crypto/caam/caamalg.c
+@@ -1533,6 +1533,9 @@ static int aead_do_one_req(struct crypto_engine *engine, void *areq)
  
- 	file_priv->driver_priv = NULL;
-@@ -660,8 +662,6 @@ int radeon_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
+ 	ret = caam_jr_enqueue(ctx->jrdev, desc, aead_crypt_done, req);
  
- 	/* new gpu have virtual address space support */
- 	if (rdev->family >= CHIP_CAYMAN) {
--		struct radeon_fpriv *fpriv;
--		struct radeon_vm *vm;
- 
- 		fpriv = kzalloc(sizeof(*fpriv), GFP_KERNEL);
- 		if (unlikely(!fpriv)) {
-@@ -672,35 +672,39 @@ int radeon_driver_open_kms(struct drm_device *dev, struct drm_file *file_priv)
- 		if (rdev->accel_working) {
- 			vm = &fpriv->vm;
- 			r = radeon_vm_init(rdev, vm);
--			if (r) {
--				kfree(fpriv);
--				goto out_suspend;
--			}
-+			if (r)
-+				goto out_fpriv;
- 
- 			r = radeon_bo_reserve(rdev->ring_tmp_bo.bo, false);
--			if (r) {
--				radeon_vm_fini(rdev, vm);
--				kfree(fpriv);
--				goto out_suspend;
--			}
-+			if (r)
-+				goto out_vm_fini;
- 
- 			/* map the ib pool buffer read only into
- 			 * virtual address space */
- 			vm->ib_bo_va = radeon_vm_bo_add(rdev, vm,
- 							rdev->ring_tmp_bo.bo);
-+			if (!vm->ib_bo_va) {
-+				r = -ENOMEM;
-+				goto out_vm_fini;
-+			}
++	if (ret == -ENOSPC && engine->retry_support)
++		return ret;
 +
- 			r = radeon_vm_bo_set_addr(rdev, vm->ib_bo_va,
- 						  RADEON_VA_IB_OFFSET,
- 						  RADEON_VM_PAGE_READABLE |
- 						  RADEON_VM_PAGE_SNOOPED);
--			if (r) {
--				radeon_vm_fini(rdev, vm);
--				kfree(fpriv);
--				goto out_suspend;
--			}
-+			if (r)
-+				goto out_vm_fini;
- 		}
- 		file_priv->driver_priv = fpriv;
- 	}
+ 	if (ret != -EINPROGRESS) {
+ 		aead_unmap(ctx->jrdev, rctx->edesc, req);
+ 		kfree(rctx->edesc);
+@@ -1762,6 +1765,9 @@ static int skcipher_do_one_req(struct crypto_engine *engine, void *areq)
  
-+	if (!r)
-+		goto out_suspend;
+ 	ret = caam_jr_enqueue(ctx->jrdev, desc, skcipher_crypt_done, req);
+ 
++	if (ret == -ENOSPC && engine->retry_support)
++		return ret;
 +
-+out_vm_fini:
-+	radeon_vm_fini(rdev, vm);
-+out_fpriv:
-+	kfree(fpriv);
- out_suspend:
- 	pm_runtime_mark_last_busy(dev->dev);
- 	pm_runtime_put_autosuspend(dev->dev);
+ 	if (ret != -EINPROGRESS) {
+ 		skcipher_unmap(ctx->jrdev, rctx->edesc, req);
+ 		kfree(rctx->edesc);
+diff --git a/drivers/crypto/caam/caamhash.c b/drivers/crypto/caam/caamhash.c
+index e8a6d8bc43b5d..36ef738e4a181 100644
+--- a/drivers/crypto/caam/caamhash.c
++++ b/drivers/crypto/caam/caamhash.c
+@@ -765,6 +765,9 @@ static int ahash_do_one_req(struct crypto_engine *engine, void *areq)
+ 
+ 	ret = caam_jr_enqueue(jrdev, desc, state->ahash_op_done, req);
+ 
++	if (ret == -ENOSPC && engine->retry_support)
++		return ret;
++
+ 	if (ret != -EINPROGRESS) {
+ 		ahash_unmap(jrdev, state->edesc, req, 0);
+ 		kfree(state->edesc);
+diff --git a/drivers/crypto/caam/caampkc.c b/drivers/crypto/caam/caampkc.c
+index bf6275ffc4aad..8867275767101 100644
+--- a/drivers/crypto/caam/caampkc.c
++++ b/drivers/crypto/caam/caampkc.c
+@@ -380,6 +380,9 @@ static int akcipher_do_one_req(struct crypto_engine *engine, void *areq)
+ 
+ 	ret = caam_jr_enqueue(jrdev, desc, req_ctx->akcipher_op_done, req);
+ 
++	if (ret == -ENOSPC && engine->retry_support)
++		return ret;
++
+ 	if (ret != -EINPROGRESS) {
+ 		rsa_pub_unmap(jrdev, req_ctx->edesc, req);
+ 		rsa_io_unmap(jrdev, req_ctx->edesc, req);
 -- 
 2.34.1
 
