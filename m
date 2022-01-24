@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BF3F4995BA
+	by mail.lfdr.de (Postfix) with ESMTP id 1947A4995B9
 	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:13:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1359432AbiAXUya (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:54:30 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:49382 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1441794AbiAXUvk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:51:40 -0500
+        id S1442348AbiAXUyX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:54:23 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:45132 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1441814AbiAXUvl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:51:41 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 529FAB811A9;
-        Mon, 24 Jan 2022 20:51:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E13EC340E5;
-        Mon, 24 Jan 2022 20:51:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FCCF60C17;
+        Mon, 24 Jan 2022 20:51:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52F55C340E5;
+        Mon, 24 Jan 2022 20:51:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057498;
-        bh=uyerVO+UteF3ZIZcetYXxzLHy9BxVQRYWe9gb8chIxo=;
+        s=korg; t=1643057500;
+        bh=b9l0gqvoTDt6A/0QvDZYMLVha/WUwb9rjfjzdWEXvYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=odWbh/BvnBsJiErCThK6d6v/d9dnpd1p4JMgPqfZ8pYCnlF4+JdoCAv5Vwdgaw6rn
-         ca7/Nt9oPtLeBJmAW53lTxTsQvc6L2zmagw4a0IzH7LgJecyICCmnzXaPqsw+2PosQ
-         18O0N3ffcqv/MdgGZWFKnj3cPOBdFGvgxfhyc4HQ=
+        b=Y4TdDGDPn9EkJBvFgooXFBeMFVg53dCYIP0VQEVawQONbPh3hO6iVdi2i870OXPPE
+         oY9i1+WHGQ9wydmTVEfjHJuE3oVtOlnGNXMcZ8/CbmqZ8t4Idcvk9msKlkZKL3jGS5
+         DUfrxCd3jOcdUJwt3XBGuJZs9eDlxd3SZmD2tcCo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Horatiu Vultur <horatiu.vultur@microchip.com>,
-        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        =?UTF-8?q?=E7=85=A7=E5=B1=B1=E5=91=A8=E4=B8=80=E9=83=8E?= 
+        <teruyama@springboard-inc.jp>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 833/846] net: ocelot: Fix the call to switchdev_bridge_port_offload
-Date:   Mon, 24 Jan 2022 19:45:50 +0100
-Message-Id: <20220124184129.650789861@linuxfoundation.org>
+Subject: [PATCH 5.15 834/846] net: sfp: fix high power modules without diagnostic monitoring
+Date:   Mon, 24 Jan 2022 19:45:51 +0100
+Message-Id: <20220124184129.683426948@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -46,52 +47,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Horatiu Vultur <horatiu.vultur@microchip.com>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-commit c0b7f7d7e0ad44f35745c01964b3fa2833e298cb upstream.
+commit 5765cee119bf5a36c94d20eceb37c445508934be upstream.
 
-In the blamed commit, the call to the function
-switchdev_bridge_port_offload was passing the wrong argument for
-atomic_nb. It was ocelot_netdevice_nb instead of ocelot_swtchdev_nb.
-This patch fixes this issue.
+Commit 7cfa9c92d0a3 ("net: sfp: avoid power switch on address-change
+modules") unintetionally changed the semantics for high power modules
+without the digital diagnostics monitoring. We repeatedly attempt to
+read the power status from the non-existing 0xa2 address in a futile
+hope this failure is temporary:
 
-Fixes: 4e51bf44a03af6 ("net: bridge: move the switchdev object replay helpers to "push" mode")
-Signed-off-by: Horatiu Vultur <horatiu.vultur@microchip.com>
-Reviewed-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+[    8.856051] sfp sfp-eth3: module NTT              0000000000000000 rev 0000  sn 0000000000000000 dc 160408
+[    8.865843] mvpp2 f4000000.ethernet eth3: switched to inband/1000base-x link mode
+[    8.873469] sfp sfp-eth3: Failed to read EEPROM: -5
+[    8.983251] sfp sfp-eth3: Failed to read EEPROM: -5
+[    9.103250] sfp sfp-eth3: Failed to read EEPROM: -5
+
+We previosuly assumed such modules were powered up in the correct mode,
+continuing without further configuration as long as the required power
+class was supported by the host.
+
+Restore this behaviour, while preserving the intent of subsequent
+patches to avoid the "Address Change Sequence not supported" warning
+if we are not going to be accessing the DDM address.
+
+Fixes: 7cfa9c92d0a3 ("net: sfp: avoid power switch on address-change modules")
+Reported-by: 照山周一郎 <teruyama@springboard-inc.jp>
+Tested-by: 照山周一郎 <teruyama@springboard-inc.jp>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mscc/ocelot_net.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/phy/sfp.c |   25 +++++++++++++++++++++----
+ 1 file changed, 21 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/mscc/ocelot_net.c
-+++ b/drivers/net/ethernet/mscc/ocelot_net.c
-@@ -1168,7 +1168,7 @@ static int ocelot_netdevice_bridge_join(
- 	ocelot_port_bridge_join(ocelot, port, bridge);
+--- a/drivers/net/phy/sfp.c
++++ b/drivers/net/phy/sfp.c
+@@ -1641,17 +1641,20 @@ static int sfp_sm_probe_for_phy(struct s
+ static int sfp_module_parse_power(struct sfp *sfp)
+ {
+ 	u32 power_mW = 1000;
++	bool supports_a2;
  
- 	err = switchdev_bridge_port_offload(brport_dev, dev, priv,
--					    &ocelot_netdevice_nb,
-+					    &ocelot_switchdev_nb,
- 					    &ocelot_switchdev_blocking_nb,
- 					    false, extack);
- 	if (err)
-@@ -1182,7 +1182,7 @@ static int ocelot_netdevice_bridge_join(
+ 	if (sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_POWER_DECL))
+ 		power_mW = 1500;
+ 	if (sfp->id.ext.options & cpu_to_be16(SFP_OPTIONS_HIGH_POWER_LEVEL))
+ 		power_mW = 2000;
  
- err_switchdev_sync:
- 	switchdev_bridge_port_unoffload(brport_dev, priv,
--					&ocelot_netdevice_nb,
-+					&ocelot_switchdev_nb,
- 					&ocelot_switchdev_blocking_nb);
- err_switchdev_offload:
- 	ocelot_port_bridge_leave(ocelot, port, bridge);
-@@ -1195,7 +1195,7 @@ static void ocelot_netdevice_pre_bridge_
- 	struct ocelot_port_private *priv = netdev_priv(dev);
++	supports_a2 = sfp->id.ext.sff8472_compliance !=
++				SFP_SFF8472_COMPLIANCE_NONE ||
++		      sfp->id.ext.diagmon & SFP_DIAGMON_DDM;
++
+ 	if (power_mW > sfp->max_power_mW) {
+ 		/* Module power specification exceeds the allowed maximum. */
+-		if (sfp->id.ext.sff8472_compliance ==
+-			SFP_SFF8472_COMPLIANCE_NONE &&
+-		    !(sfp->id.ext.diagmon & SFP_DIAGMON_DDM)) {
++		if (!supports_a2) {
+ 			/* The module appears not to implement bus address
+ 			 * 0xa2, so assume that the module powers up in the
+ 			 * indicated mode.
+@@ -1668,11 +1671,25 @@ static int sfp_module_parse_power(struct
+ 		}
+ 	}
  
- 	switchdev_bridge_port_unoffload(brport_dev, priv,
--					&ocelot_netdevice_nb,
-+					&ocelot_switchdev_nb,
- 					&ocelot_switchdev_blocking_nb);
- }
- 
++	if (power_mW <= 1000) {
++		/* Modules below 1W do not require a power change sequence */
++		sfp->module_power_mW = power_mW;
++		return 0;
++	}
++
++	if (!supports_a2) {
++		/* The module power level is below the host maximum and the
++		 * module appears not to implement bus address 0xa2, so assume
++		 * that the module powers up in the indicated mode.
++		 */
++		return 0;
++	}
++
+ 	/* If the module requires a higher power mode, but also requires
+ 	 * an address change sequence, warn the user that the module may
+ 	 * not be functional.
+ 	 */
+-	if (sfp->id.ext.diagmon & SFP_DIAGMON_ADDRMODE && power_mW > 1000) {
++	if (sfp->id.ext.diagmon & SFP_DIAGMON_ADDRMODE) {
+ 		dev_warn(sfp->dev,
+ 			 "Address Change Sequence not supported but module requires %u.%uW, module may not be functional\n",
+ 			 power_mW / 1000, (power_mW / 100) % 10);
 
 
