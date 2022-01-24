@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F27F4997C8
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:29:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 82EC5499A86
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:55:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351772AbiAXVQX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:16:23 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:35314 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1448078AbiAXVL6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:11:58 -0500
+        id S1573315AbiAXVor (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:44:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54868 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1455575AbiAXVfk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:35:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C21AC05A187;
+        Mon, 24 Jan 2022 12:22:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C34E61425;
-        Mon, 24 Jan 2022 21:11:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21D23C340E5;
-        Mon, 24 Jan 2022 21:11:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E9BCF6091A;
+        Mon, 24 Jan 2022 20:22:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B32F4C340E5;
+        Mon, 24 Jan 2022 20:22:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058717;
-        bh=GLTJnZCfJHVaIC+X5HqOOgqv8U5UHQODi6Ql/8KIEXo=;
+        s=korg; t=1643055749;
+        bh=lb6Kubue1Vv0ruLYvBFVtEUjK0zirsjHHDVqCLIdZhQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ddhQHlqBz55A3ML4VUAeeJ021W9lf4R1LqhoDrIfKYxO3n+h3qwVraNO5Uv22cLfx
-         KxOpkQd7eaDeCCxmcHROXMpram2N/iW2CF8LWZ4CG1ESEoH5bpJu4A50n965SQNW88
-         52VyjV1k93XuBtSditIwDKdKOuYge/dn3IoNSw5g=
+        b=dQZfwFjMnVot3AFPe/Jkldi0GjAMuKR8QlduX6oZcPHoadHoktXR9w2oK7Q/g6YPn
+         mN/KF77qCz/mwR+OBXAjvRAvWuu95+iBjGgK3buax80DfDw2uOeXKUUmDkz+nrNb6z
+         Q0PrPm7qM5ZdVOoCbpWuHEbI48ys8/NvlEv8Tlxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, etkaar <lists.netfilter.org@prvy.eu>,
-        Florian Westphal <fw@strlen.de>,
-        Stefano Brivio <sbrivio@redhat.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Sricharan R <sricharan@codeaurora.org>,
+        Baruch Siach <baruch@tkos.co.il>,
+        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0380/1039] netfilter: nft_set_pipapo: allocate pcpu scratch maps on clone
+Subject: [PATCH 5.15 252/846] arm64: dts: qcom: ipq6018: Fix gpio-ranges property
 Date:   Mon, 24 Jan 2022 19:36:09 +0100
-Message-Id: <20220124184138.086534019@linuxfoundation.org>
+Message-Id: <20220124184109.635593689@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,56 +50,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Baruch Siach <baruch@tkos.co.il>
 
-[ Upstream commit 23c54263efd7cb605e2f7af72717a2a951999217 ]
+[ Upstream commit 72cb4c48a46a7cfa58eb5842c0d3672ddd5bd9ad ]
 
-This is needed in case a new transaction is made that doesn't insert any
-new elements into an already existing set.
+There must be three parameters in gpio-ranges property. Fixes this not
+very helpful error message:
 
-Else, after second 'nft -f ruleset.txt', lookups in such a set will fail
-because ->lookup() encounters raw_cpu_ptr(m->scratch) == NULL.
+  OF: /soc/pinctrl@1000000: (null) = 3 found 3
 
-For the initial rule load, insertion of elements takes care of the
-allocation, but for rule reloads this isn't guaranteed: we might not
-have additions to the set.
-
-Fixes: 3c4287f62044a90e ("nf_tables: Add set type for arbitrary concatenation of ranges")
-Reported-by: etkaar <lists.netfilter.org@prvy.eu>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 1e8277854b49 ("arm64: dts: Add ipq6018 SoC and CP01 board support")
+Cc: Sricharan R <sricharan@codeaurora.org>
+Signed-off-by: Baruch Siach <baruch@tkos.co.il>
+Tested-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/8a744cfd96aff5754bfdcf7298d208ddca5b319a.1638862030.git.baruch@tkos.co.il
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_set_pipapo.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ arch/arm64/boot/dts/qcom/ipq6018.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nft_set_pipapo.c b/net/netfilter/nft_set_pipapo.c
-index dce866d93feed..2c8051d8cca69 100644
---- a/net/netfilter/nft_set_pipapo.c
-+++ b/net/netfilter/nft_set_pipapo.c
-@@ -1290,6 +1290,11 @@ static struct nft_pipapo_match *pipapo_clone(struct nft_pipapo_match *old)
- 	if (!new->scratch_aligned)
- 		goto out_scratch;
- #endif
-+	for_each_possible_cpu(i)
-+		*per_cpu_ptr(new->scratch, i) = NULL;
-+
-+	if (pipapo_realloc_scratch(new, old->bsize_max))
-+		goto out_scratch_realloc;
+diff --git a/arch/arm64/boot/dts/qcom/ipq6018.dtsi b/arch/arm64/boot/dts/qcom/ipq6018.dtsi
+index 7b6205c180df1..ce4c2b4a5fc07 100644
+--- a/arch/arm64/boot/dts/qcom/ipq6018.dtsi
++++ b/arch/arm64/boot/dts/qcom/ipq6018.dtsi
+@@ -221,7 +221,7 @@
+ 			interrupts = <GIC_SPI 208 IRQ_TYPE_LEVEL_HIGH>;
+ 			gpio-controller;
+ 			#gpio-cells = <2>;
+-			gpio-ranges = <&tlmm 0 80>;
++			gpio-ranges = <&tlmm 0 0 80>;
+ 			interrupt-controller;
+ 			#interrupt-cells = <2>;
  
- 	rcu_head_init(&new->rcu);
- 
-@@ -1334,6 +1339,9 @@ out_lt:
- 		kvfree(dst->lt);
- 		dst--;
- 	}
-+out_scratch_realloc:
-+	for_each_possible_cpu(i)
-+		kfree(*per_cpu_ptr(new->scratch, i));
- #ifdef NFT_PIPAPO_ALIGN
- 	free_percpu(new->scratch_aligned);
- #endif
 -- 
 2.34.1
 
