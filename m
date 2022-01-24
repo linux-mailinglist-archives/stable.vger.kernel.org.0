@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 887A84988E9
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:51:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6D3A4989E9
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:59:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245719AbiAXSve (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:51:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43108 "EHLO
+        id S1344759AbiAXS7K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:59:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245399AbiAXSua (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:50:30 -0500
+        with ESMTP id S1343815AbiAXS46 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:56:58 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 84A21C06175C;
-        Mon, 24 Jan 2022 10:50:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EE71C061753;
+        Mon, 24 Jan 2022 10:55:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 434FFB81221;
-        Mon, 24 Jan 2022 18:50:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 743A9C340E8;
-        Mon, 24 Jan 2022 18:50:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C0A63B8121A;
+        Mon, 24 Jan 2022 18:54:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2F0CC340EA;
+        Mon, 24 Jan 2022 18:54:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050227;
-        bh=+JGX5V6bckuGbkPso6Uwk7DIgB1lnA95aSlFuON2aDk=;
+        s=korg; t=1643050498;
+        bh=qJAm7nxkvWLXikpp65EDpvm73EhmGBm8p+/E1dgdSS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OQJeU4Duomf0w4F0llnz+DqbeK/7wjSugIvDfr6iAWkoZYWOocPn6qlO1eH5RYqxg
-         VUdQ1h0RurDx5V5SL/rPSUioAca6iKYR+1yT8gPiTmbJxSBPAQPFD6nbGtx7dSPTmp
-         gg3i78tQYfmZbdHfaFBF8jWJfxx29dHNQNXtYqvw=
+        b=A8tuTd34f10vxkcqfyyi2ZAAE120up6vp5uHkxRKar3KI/636c/AZqU5U6lN2JvvM
+         ViCytgWTSXu+1VMORszkKJmm/S2mFQqboJGR3b0VJ11SzxGa6ziEGUbGHMtREhmBMm
+         9iIdyYUczqV9ve9IHocxYp3NKXKnF8+QgS89eaDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        stable@vger.kernel.org, Michael Kuron <michael.kuron@gmail.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Subject: [PATCH 4.4 017/114] media: stk1160: fix control-message timeouts
+Subject: [PATCH 4.9 022/157] media: dib0700: fix undefined behavior in tuner shutdown
 Date:   Mon, 24 Jan 2022 19:41:52 +0100
-Message-Id: <20220124183927.645730424@linuxfoundation.org>
+Message-Id: <20220124183933.500112255@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
-References: <20220124183927.095545464@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+References: <20220124183932.787526760@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,42 +47,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Michael Kuron <michael.kuron@gmail.com>
 
-commit 6aa6e70cdb5b863a57bad61310bf89b6617a5d2d upstream.
+commit f7b77ebe6d2f49c7747b2d619586d1aa33f9ea91 upstream.
 
-USB control-message timeouts are specified in milliseconds and should
-specifically not vary with CONFIG_HZ.
+This fixes a problem where closing the tuner would leave it in a state
+where it would not tune to any channel when reopened. This problem was
+discovered as part of https://github.com/hselasky/webcamd/issues/16.
 
-Fixes: 9cb2173e6ea8 ("[media] media: Add stk1160 new driver (easycap replacement)")
-Cc: stable@vger.kernel.org      # 3.7
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Since adap->id is 0 or 1, this bit-shift overflows, which is undefined
+behavior. The driver still worked in practice as the overflow would in
+most environments result in 0, which rendered the line a no-op. When
+running the driver as part of webcamd however, the overflow could lead
+to 0xff due to optimizations by the compiler, which would, in the end,
+improperly shut down the tuner.
+
+The bug is a regression introduced in the commit referenced below. The
+present patch causes identical behavior to before that commit for
+adap->id equal to 0 or 1. The driver does not contain support for
+dib0700 devices with more adapters, assuming such even exist.
+
+Tests have been performed with the Xbox One Digital TV Tuner on amd64.
+Not all dib0700 devices are expected to be affected by the regression;
+this code path is only taken by those with incorrect endpoint numbers.
+
+Link: https://lore.kernel.org/linux-media/1d2fc36d94ced6f67c7cc21dcc469d5e5bdd8201.1632689033.git.mchehab+huawei@kernel.org
+
+Cc: stable@vger.kernel.org
+Fixes: 7757ddda6f4f ("[media] DiB0700: add function to change I2C-speed")
+Signed-off-by: Michael Kuron <michael.kuron@gmail.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/stk1160/stk1160-core.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/usb/dvb-usb/dib0700_core.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/media/usb/stk1160/stk1160-core.c
-+++ b/drivers/media/usb/stk1160/stk1160-core.c
-@@ -76,7 +76,7 @@ int stk1160_read_reg(struct stk1160 *dev
- 		return -ENOMEM;
- 	ret = usb_control_msg(dev->udev, pipe, 0x00,
- 			USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--			0x00, reg, buf, sizeof(u8), HZ);
-+			0x00, reg, buf, sizeof(u8), 1000);
- 	if (ret < 0) {
- 		stk1160_err("read failed on reg 0x%x (%d)\n",
- 			reg, ret);
-@@ -96,7 +96,7 @@ int stk1160_write_reg(struct stk1160 *de
- 
- 	ret =  usb_control_msg(dev->udev, pipe, 0x01,
- 			USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
--			value, reg, NULL, 0, HZ);
-+			value, reg, NULL, 0, 1000);
- 	if (ret < 0) {
- 		stk1160_err("write failed on reg 0x%x (%d)\n",
- 			reg, ret);
+--- a/drivers/media/usb/dvb-usb/dib0700_core.c
++++ b/drivers/media/usb/dvb-usb/dib0700_core.c
+@@ -610,8 +610,6 @@ int dib0700_streaming_ctrl(struct dvb_us
+ 		deb_info("the endpoint number (%i) is not correct, use the adapter id instead", adap->fe_adap[0].stream.props.endpoint);
+ 		if (onoff)
+ 			st->channel_state |=	1 << (adap->id);
+-		else
+-			st->channel_state |=	1 << ~(adap->id);
+ 	} else {
+ 		if (onoff)
+ 			st->channel_state |=	1 << (adap->fe_adap[0].stream.props.endpoint-2);
 
 
