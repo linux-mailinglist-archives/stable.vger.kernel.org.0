@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A313149A362
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:03:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79A3249A338
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:02:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2366293AbiAXXwf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:52:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49014 "EHLO
+        id S1386344AbiAXX5K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 18:57:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1845840AbiAXXNm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:13:42 -0500
+        with ESMTP id S1845987AbiAXXOJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:14:09 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94E6CC067A67;
-        Mon, 24 Jan 2022 13:19:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 148CDC09425D;
+        Mon, 24 Jan 2022 11:48:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DF9B4614BC;
-        Mon, 24 Jan 2022 21:19:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC714C340E4;
-        Mon, 24 Jan 2022 21:19:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A77FE614BB;
+        Mon, 24 Jan 2022 19:48:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63C47C340E5;
+        Mon, 24 Jan 2022 19:48:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059175;
-        bh=uDbfPJ73HUWqhPHuTRXhY7UbI0yEEfy4ihntlu9sniM=;
+        s=korg; t=1643053714;
+        bh=f21MzGFvooadYexLUcwxb1T6t4IyhWjyJE0ILpkgpd8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ne6N91lVdJ+FKqVi76IqA/+o+2xZ4VABOU5IcDx9e6kkL+vruqxziXi3giVXZmmuK
-         TPyl6yBXtzFDOwKoBT/F7LHxhr5waw1EBb6e/DMMoCW84hwSIvUni3pLXnTxPnQZm8
-         YEP7MFwNAaMRP4vkaczSsnfb30cxprNVtO9Am7eY=
+        b=O8SVuJYM1jxrOJ2Z4g3sQ4ijb0UCKmXO0XvDZ438zozri5UuvDBIncKfsbGsUZczC
+         InIflB162PkT5DZEuEUaUvITL0NxjUgl/NbJnzab+UrYD060m+1eesCWYwsitBLZXo
+         5wxykPTK/J+UbsUHkUP1pAS8HlfpFw/eHwSVbchg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Conor Dooley <conor.dooley@microchip.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org,
+        Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0529/1039] clk: bm1880: remove kfrees on static allocations
-Date:   Mon, 24 Jan 2022 19:38:38 +0100
-Message-Id: <20220124184143.068195143@linuxfoundation.org>
+Subject: [PATCH 5.10 154/563] crypto: stm32/cryp - fix CTR counter carry
+Date:   Mon, 24 Jan 2022 19:38:39 +0100
+Message-Id: <20220124184029.722778646@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,82 +49,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Conor Dooley <conor.dooley@microchip.com>
+From: Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>
 
-[ Upstream commit c861c1be3897845313a0df47804b1db37c7052e1 ]
+[ Upstream commit 41c76690b0990efacd15d35cfb4e77318cd80ebb ]
 
-bm1880_clk_unregister_pll & bm1880_clk_unregister_div both try to
-free statically allocated variables, so remove those kfrees.
+STM32 CRYP hardware doesn't manage CTR counter bigger than max U32, as
+a workaround, at each block the current IV is saved, if the saved IV
+lower u32 is 0xFFFFFFFF, the full IV is manually incremented, and set
+in hardware.
+Fixes: bbb2832620ac ("crypto: stm32 - Fix sparse warnings")
 
-For example, if we take L703 kfree(div_hw):
-- div_hw is a bm1880_div_hw_clock pointer
-- in bm1880_clk_register_plls this is pointed to an element of arg1:
-  struct bm1880_div_hw_clock *clks
-- in the probe, where bm1880_clk_register_plls is called arg1 is
-  bm1880_div_clks, defined on L371:
-  static struct bm1880_div_hw_clock bm1880_div_clks[]
-
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-Fixes: 1ab4601da55b ("clk: Add common clock driver for BM1880 SoC")
-Link: https://lore.kernel.org/r/20211223154244.1024062-1-conor.dooley@microchip.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Nicolas Toromanoff <nicolas.toromanoff@foss.st.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/clk-bm1880.c | 20 ++------------------
- 1 file changed, 2 insertions(+), 18 deletions(-)
+ drivers/crypto/stm32/stm32-cryp.c | 27 +++++++++++++--------------
+ 1 file changed, 13 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/clk/clk-bm1880.c b/drivers/clk/clk-bm1880.c
-index e6d6599d310a1..fad78a22218e8 100644
---- a/drivers/clk/clk-bm1880.c
-+++ b/drivers/clk/clk-bm1880.c
-@@ -522,14 +522,6 @@ static struct clk_hw *bm1880_clk_register_pll(struct bm1880_pll_hw_clock *pll_cl
- 	return hw;
+diff --git a/drivers/crypto/stm32/stm32-cryp.c b/drivers/crypto/stm32/stm32-cryp.c
+index 7389a0536ff02..d13b262b36252 100644
+--- a/drivers/crypto/stm32/stm32-cryp.c
++++ b/drivers/crypto/stm32/stm32-cryp.c
+@@ -163,7 +163,7 @@ struct stm32_cryp {
+ 	struct scatter_walk     in_walk;
+ 	struct scatter_walk     out_walk;
+ 
+-	u32                     last_ctr[4];
++	__be32                  last_ctr[4];
+ 	u32                     gcm_ctr;
+ };
+ 
+@@ -1217,27 +1217,26 @@ static void stm32_cryp_check_ctr_counter(struct stm32_cryp *cryp)
+ {
+ 	u32 cr;
+ 
+-	if (unlikely(cryp->last_ctr[3] == 0xFFFFFFFF)) {
+-		cryp->last_ctr[3] = 0;
+-		cryp->last_ctr[2]++;
+-		if (!cryp->last_ctr[2]) {
+-			cryp->last_ctr[1]++;
+-			if (!cryp->last_ctr[1])
+-				cryp->last_ctr[0]++;
+-		}
++	if (unlikely(cryp->last_ctr[3] == cpu_to_be32(0xFFFFFFFF))) {
++		/*
++		 * In this case, we need to increment manually the ctr counter,
++		 * as HW doesn't handle the U32 carry.
++		 */
++		crypto_inc((u8 *)cryp->last_ctr, sizeof(cryp->last_ctr));
+ 
+ 		cr = stm32_cryp_read(cryp, CRYP_CR);
+ 		stm32_cryp_write(cryp, CRYP_CR, cr & ~CR_CRYPEN);
+ 
+-		stm32_cryp_hw_write_iv(cryp, (__be32 *)cryp->last_ctr);
++		stm32_cryp_hw_write_iv(cryp, cryp->last_ctr);
+ 
+ 		stm32_cryp_write(cryp, CRYP_CR, cr);
+ 	}
+ 
+-	cryp->last_ctr[0] = stm32_cryp_read(cryp, CRYP_IV0LR);
+-	cryp->last_ctr[1] = stm32_cryp_read(cryp, CRYP_IV0RR);
+-	cryp->last_ctr[2] = stm32_cryp_read(cryp, CRYP_IV1LR);
+-	cryp->last_ctr[3] = stm32_cryp_read(cryp, CRYP_IV1RR);
++	/* The IV registers are BE  */
++	cryp->last_ctr[0] = cpu_to_be32(stm32_cryp_read(cryp, CRYP_IV0LR));
++	cryp->last_ctr[1] = cpu_to_be32(stm32_cryp_read(cryp, CRYP_IV0RR));
++	cryp->last_ctr[2] = cpu_to_be32(stm32_cryp_read(cryp, CRYP_IV1LR));
++	cryp->last_ctr[3] = cpu_to_be32(stm32_cryp_read(cryp, CRYP_IV1RR));
  }
  
--static void bm1880_clk_unregister_pll(struct clk_hw *hw)
--{
--	struct bm1880_pll_hw_clock *pll_hw = to_bm1880_pll_clk(hw);
--
--	clk_hw_unregister(hw);
--	kfree(pll_hw);
--}
--
- static int bm1880_clk_register_plls(struct bm1880_pll_hw_clock *clks,
- 				    int num_clks,
- 				    struct bm1880_clock_data *data)
-@@ -555,7 +547,7 @@ static int bm1880_clk_register_plls(struct bm1880_pll_hw_clock *clks,
- 
- err_clk:
- 	while (i--)
--		bm1880_clk_unregister_pll(data->hw_data.hws[clks[i].pll.id]);
-+		clk_hw_unregister(data->hw_data.hws[clks[i].pll.id]);
- 
- 	return PTR_ERR(hw);
- }
-@@ -695,14 +687,6 @@ static struct clk_hw *bm1880_clk_register_div(struct bm1880_div_hw_clock *div_cl
- 	return hw;
- }
- 
--static void bm1880_clk_unregister_div(struct clk_hw *hw)
--{
--	struct bm1880_div_hw_clock *div_hw = to_bm1880_div_clk(hw);
--
--	clk_hw_unregister(hw);
--	kfree(div_hw);
--}
--
- static int bm1880_clk_register_divs(struct bm1880_div_hw_clock *clks,
- 				    int num_clks,
- 				    struct bm1880_clock_data *data)
-@@ -729,7 +713,7 @@ static int bm1880_clk_register_divs(struct bm1880_div_hw_clock *clks,
- 
- err_clk:
- 	while (i--)
--		bm1880_clk_unregister_div(data->hw_data.hws[clks[i].div.id]);
-+		clk_hw_unregister(data->hw_data.hws[clks[i].div.id]);
- 
- 	return PTR_ERR(hw);
- }
+ static bool stm32_cryp_irq_read_data(struct stm32_cryp *cryp)
 -- 
 2.34.1
 
