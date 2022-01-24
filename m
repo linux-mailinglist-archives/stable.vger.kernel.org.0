@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E5D8499DB3
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 00:00:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C299D4995B2
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:13:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1586100AbiAXWZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 17:25:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37132 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1584585AbiAXWV3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 17:21:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77E9AC0424DE;
-        Mon, 24 Jan 2022 12:51:20 -0800 (PST)
+        id S1442270AbiAXUyE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:54:04 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:44792 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1392503AbiAXUvX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:51:23 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1986260C3E;
-        Mon, 24 Jan 2022 20:51:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F265AC340E5;
-        Mon, 24 Jan 2022 20:51:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 26A6060C3E;
+        Mon, 24 Jan 2022 20:51:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECE84C340E5;
+        Mon, 24 Jan 2022 20:51:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057479;
-        bh=uKmrqgjSA/5eJeqZdMw9hagnqck9mskx6h1Fw7fRqhA=;
+        s=korg; t=1643057482;
+        bh=DKaIZ44jXhAHBBxgsqnKrT5Vc0etjfMDYpjpcuu0RIM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cmm8p/94TW3mErVMalZBzvfpki0B0tN8nAgnOkw7i5RVjnhdFKe65qWG5QNqhI9u5
-         R3cDinLk/wfzkRPlXP9NdRYVUpq/4ji6tthKKpG473QpUpvFcKOa7RTisUiE1vOGGn
-         KXu9p5bx0GorJt5SZtDnUwWVOFKSKKqyesYR7Haw=
+        b=0ORQzSfptMvryCu3iVN7w22Ghkbc3rn2OY8GEbhL37ogeo4OGBB+rU2mHjJcgg/78
+         uYRQccBCJ6cQ9HADckGwt8NTBEj4iBZOd5SGhX0WonkpxOWzUoQnYNN7pA6x1UqzXG
+         9xWIqpdEhCwWQdSuTDaMHhJwvYJ1mB0m8P2pObVU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Robert Hancock <robert.hancock@calian.com>,
-        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 793/846] net: axienet: reset core on initialization prior to MDIO access
-Date:   Mon, 24 Jan 2022 19:45:10 +0100
-Message-Id: <20220124184128.306481427@linuxfoundation.org>
+Subject: [PATCH 5.15 794/846] net: axienet: add missing memory barriers
+Date:   Mon, 24 Jan 2022 19:45:11 +0100
+Message-Id: <20220124184128.347262824@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
 References: <20220124184100.867127425@linuxfoundation.org>
@@ -50,38 +46,65 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Robert Hancock <robert.hancock@calian.com>
 
-commit 04cc2da39698efd7eb2e30c112538922d26f848e upstream.
+commit 95978df6fa328df619c15312e65ece469c2be2d2 upstream.
 
-In some cases where the Xilinx Ethernet core was used in 1000Base-X or
-SGMII modes, which use the internal PCS/PMA PHY, and the MGT
-transceiver clock source for the PCS was not running at the time the
-FPGA logic was loaded, the core would come up in a state where the
-PCS could not be found on the MDIO bus. To fix this, the Ethernet core
-(including the PCS) should be reset after enabling the clocks, prior to
-attempting to access the PCS using of_mdio_find_device.
+This driver was missing some required memory barriers:
 
-Fixes: 1a02556086fc (net: axienet: Properly handle PCS/PMA PHY for 1000BaseX mode)
+Use dma_rmb to ensure we see all updates to the descriptor after we see
+that an entry has been completed.
+
+Use wmb and rmb to avoid stale descriptor status between the TX path and
+TX complete IRQ path.
+
+Fixes: 8a3b7a252dca9 ("drivers/net/ethernet/xilinx: added Xilinx AXI Ethernet driver")
 Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/xilinx/xilinx_axienet_main.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/ethernet/xilinx/xilinx_axienet_main.c |   11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
 --- a/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
 +++ b/drivers/net/ethernet/xilinx/xilinx_axienet_main.c
-@@ -2091,6 +2091,11 @@ static int axienet_probe(struct platform
- 	lp->coalesce_count_rx = XAXIDMA_DFT_RX_THRESHOLD;
- 	lp->coalesce_count_tx = XAXIDMA_DFT_TX_THRESHOLD;
+@@ -632,6 +632,8 @@ static int axienet_free_tx_chain(struct
+ 		if (nr_bds == -1 && !(status & XAXIDMA_BD_STS_COMPLETE_MASK))
+ 			break;
  
-+	/* Reset core now that clocks are enabled, prior to accessing MDIO */
-+	ret = __axienet_device_reset(lp);
-+	if (ret)
-+		goto cleanup_clk;
++		/* Ensure we see complete descriptor update */
++		dma_rmb();
+ 		phys = desc_get_phys_addr(lp, cur_p);
+ 		dma_unmap_single(ndev->dev.parent, phys,
+ 				 (cur_p->cntrl & XAXIDMA_BD_CTRL_LENGTH_MASK),
+@@ -645,8 +647,10 @@ static int axienet_free_tx_chain(struct
+ 		cur_p->app1 = 0;
+ 		cur_p->app2 = 0;
+ 		cur_p->app4 = 0;
+-		cur_p->status = 0;
+ 		cur_p->skb = NULL;
++		/* ensure our transmit path and device don't prematurely see status cleared */
++		wmb();
++		cur_p->status = 0;
+ 
+ 		if (sizep)
+ 			*sizep += status & XAXIDMA_BD_STS_ACTUAL_LEN_MASK;
+@@ -704,6 +708,9 @@ static inline int axienet_check_tx_bd_sp
+ 					    int num_frag)
+ {
+ 	struct axidma_bd *cur_p;
 +
- 	lp->phy_node = of_parse_phandle(pdev->dev.of_node, "phy-handle", 0);
- 	if (lp->phy_node) {
- 		ret = axienet_mdio_setup(lp);
++	/* Ensure we see all descriptor updates from device or TX IRQ path */
++	rmb();
+ 	cur_p = &lp->tx_bd_v[(lp->tx_bd_tail + num_frag) % lp->tx_bd_num];
+ 	if (cur_p->status & XAXIDMA_BD_STS_ALL_MASK)
+ 		return NETDEV_TX_BUSY;
+@@ -843,6 +850,8 @@ static void axienet_recv(struct net_devi
+ 
+ 		tail_p = lp->rx_bd_p + sizeof(*lp->rx_bd_v) * lp->rx_bd_ci;
+ 
++		/* Ensure we see complete descriptor update */
++		dma_rmb();
+ 		phys = desc_get_phys_addr(lp, cur_p);
+ 		dma_unmap_single(ndev->dev.parent, phys, lp->max_frm_size,
+ 				 DMA_FROM_DEVICE);
 
 
