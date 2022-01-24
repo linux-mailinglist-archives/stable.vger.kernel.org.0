@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB7994999E6
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:47:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B02214996B5
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:19:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1456323AbiAXVik (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:38:40 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:45900 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1454186AbiAXVb5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:31:57 -0500
+        id S1358511AbiAXVGD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:06:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46164 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1443056AbiAXU7O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:59:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73E7CC04D625;
+        Mon, 24 Jan 2022 12:01:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 82719B8123D;
-        Mon, 24 Jan 2022 21:31:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3BB1C340E4;
-        Mon, 24 Jan 2022 21:31:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2FD1BB8123A;
+        Mon, 24 Jan 2022 20:01:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F1B2C340E5;
+        Mon, 24 Jan 2022 20:01:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059915;
-        bh=79AneH/7hOkzkO4EM8/ZunoSg5Rcp9kmkH4jvoJ25uk=;
+        s=korg; t=1643054477;
+        bh=RKSEmNaXGd0qqSaJBIwGtQiobulqLStSBkj1kyOlIzM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pMOFjF6ckA/UcYmO5YQdwUq38yyfBd1is+M9TGWeq113CM29vRxi8aXLQLLyAqpH8
-         y5mLdIthrWk8JC5D5FzGxoN3i7FhJnOkQsgy+UYTKF44Qh+1kqL4c+FzzAYO/SLzoY
-         sJOJHv8BKblv6QGRtrqdRtyPDMX49AFTg5TZUdqI=
+        b=d5Rlr3Q7rf37Au/zHqCOVvn21ytUMqcNfO+pR+tm88aJPb0WZXrHgpROQRKX+jKX8
+         J+3w11LnBSykm/Ubz0wz8+YSFevfBK1gpI4Y/Q4wxnMZrSYMTUruM7sDsMxNlyYZko
+         Be4cE9LYJeqHxgZXUA8UZtF00+XlrE+46UniE33U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ohad Sharabi <osharabi@habana.ai>,
-        Oded Gabbay <ogabbay@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0778/1039] habanalabs: skip read fw errors if dynamic descriptor invalid
-Date:   Mon, 24 Jan 2022 19:42:47 +0100
-Message-Id: <20220124184151.444777961@linuxfoundation.org>
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Lukas Wunner <lukas@wunner.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 403/563] serial: pl010: Drop CR register reset on set_termios
+Date:   Mon, 24 Jan 2022 19:42:48 +0100
+Message-Id: <20220124184038.386658409@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,94 +47,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ohad Sharabi <osharabi@habana.ai>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit 4fac990f604e6c10538026835a8a30f3c1b6fcf5 ]
+[ Upstream commit 08a0c6dff91c965e39905cf200d22db989203ccb ]
 
-Reporting FW errors involves reading of the error registers.
+pl010_set_termios() briefly resets the CR register to zero.
 
-In case we have a corrupted FW descriptor we cannot do that since the
-dynamic scratchpad is potentially corrupted as well and may cause kernel
-crush when attempting access to a corrupted register offset.
+Where does this register write come from?
 
-Signed-off-by: Ohad Sharabi <osharabi@habana.ai>
-Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
+The PL010 driver's IRQ handler ambauart_int() originally modified the CR
+register without holding the port spinlock.  ambauart_set_termios() also
+modified that register.  To prevent concurrent read-modify-writes by the
+IRQ handler and to prevent transmission while changing baudrate,
+ambauart_set_termios() had to disable interrupts.  That is achieved by
+writing zero to the CR register.
+
+However in 2004 the PL010 driver was amended to acquire the port
+spinlock in the IRQ handler, obviating the need to disable interrupts in
+->set_termios():
+https://git.kernel.org/history/history/c/157c0342e591
+
+That rendered the CR register write obsolete.  Drop it.
+
+Cc: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Link: https://lore.kernel.org/r/fcaff16e5b1abb4cc3da5a2879ac13f278b99ed0.1641128728.git.lukas@wunner.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/habanalabs/common/firmware_if.c | 17 +++++++++++++++--
- drivers/misc/habanalabs/common/habanalabs.h  |  2 ++
- 2 files changed, 17 insertions(+), 2 deletions(-)
+ drivers/tty/serial/amba-pl010.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/misc/habanalabs/common/firmware_if.c b/drivers/misc/habanalabs/common/firmware_if.c
-index 4e68fb9d2a6bd..67a0be4573710 100644
---- a/drivers/misc/habanalabs/common/firmware_if.c
-+++ b/drivers/misc/habanalabs/common/firmware_if.c
-@@ -1703,6 +1703,9 @@ static int hl_fw_dynamic_validate_descriptor(struct hl_device *hdev,
- 		return rc;
- 	}
+diff --git a/drivers/tty/serial/amba-pl010.c b/drivers/tty/serial/amba-pl010.c
+index 3284f34e9dfe1..75d61e038a775 100644
+--- a/drivers/tty/serial/amba-pl010.c
++++ b/drivers/tty/serial/amba-pl010.c
+@@ -448,14 +448,11 @@ pl010_set_termios(struct uart_port *port, struct ktermios *termios,
+ 	if ((termios->c_cflag & CREAD) == 0)
+ 		uap->port.ignore_status_mask |= UART_DUMMY_RSR_RX;
  
-+	/* here we can mark the descriptor as valid as the content has been validated */
-+	fw_loader->dynamic_loader.fw_desc_valid = true;
-+
- 	return 0;
- }
+-	/* first, disable everything */
+ 	old_cr = readb(uap->port.membase + UART010_CR) & ~UART010_CR_MSIE;
  
-@@ -1759,7 +1762,13 @@ static int hl_fw_dynamic_read_and_validate_descriptor(struct hl_device *hdev,
- 		return rc;
- 	}
+ 	if (UART_ENABLE_MS(port, termios->c_cflag))
+ 		old_cr |= UART010_CR_MSIE;
  
--	/* extract address copy the descriptor from */
-+	/*
-+	 * extract address to copy the descriptor from
-+	 * in addition, as the descriptor value is going to be over-ridden by new data- we mark it
-+	 * as invalid.
-+	 * it will be marked again as valid once validated
-+	 */
-+	fw_loader->dynamic_loader.fw_desc_valid = false;
- 	src = hdev->pcie_bar[region->bar_id] + region->offset_in_bar +
- 							response->ram_offset;
- 	memcpy_fromio(fw_desc, src, sizeof(struct lkd_fw_comms_desc));
-@@ -2247,6 +2256,9 @@ static int hl_fw_dynamic_init_cpu(struct hl_device *hdev,
- 	dev_info(hdev->dev,
- 		"Loading firmware to device, may take some time...\n");
- 
-+	/* initialize FW descriptor as invalid */
-+	fw_loader->dynamic_loader.fw_desc_valid = false;
-+
- 	/*
- 	 * In this stage, "cpu_dyn_regs" contains only LKD's hard coded values!
- 	 * It will be updated from FW after hl_fw_dynamic_request_descriptor().
-@@ -2333,7 +2345,8 @@ static int hl_fw_dynamic_init_cpu(struct hl_device *hdev,
- 	return 0;
- 
- protocol_err:
--	fw_read_errors(hdev, le32_to_cpu(dyn_regs->cpu_boot_err0),
-+	if (fw_loader->dynamic_loader.fw_desc_valid)
-+		fw_read_errors(hdev, le32_to_cpu(dyn_regs->cpu_boot_err0),
- 				le32_to_cpu(dyn_regs->cpu_boot_err1),
- 				le32_to_cpu(dyn_regs->cpu_boot_dev_sts0),
- 				le32_to_cpu(dyn_regs->cpu_boot_dev_sts1));
-diff --git a/drivers/misc/habanalabs/common/habanalabs.h b/drivers/misc/habanalabs/common/habanalabs.h
-index a2002cbf794b5..ba0965667b182 100644
---- a/drivers/misc/habanalabs/common/habanalabs.h
-+++ b/drivers/misc/habanalabs/common/habanalabs.h
-@@ -1010,6 +1010,7 @@ struct fw_response {
-  * @image_region: region to copy the FW image to
-  * @fw_image_size: size of FW image to load
-  * @wait_for_bl_timeout: timeout for waiting for boot loader to respond
-+ * @fw_desc_valid: true if FW descriptor has been validated and hence the data can be used
-  */
- struct dynamic_fw_load_mgr {
- 	struct fw_response response;
-@@ -1017,6 +1018,7 @@ struct dynamic_fw_load_mgr {
- 	struct pci_mem_region *image_region;
- 	size_t fw_image_size;
- 	u32 wait_for_bl_timeout;
-+	bool fw_desc_valid;
- };
- 
- /**
+-	writel(0, uap->port.membase + UART010_CR);
+-
+ 	/* Set baud rate */
+ 	quot -= 1;
+ 	writel((quot & 0xf00) >> 8, uap->port.membase + UART010_LCRM);
 -- 
 2.34.1
 
