@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 207DC499109
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:09:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 639D4498F45
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:52:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352466AbiAXUIo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:08:44 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:59400 "EHLO
+        id S1351408AbiAXTvn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:51:43 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:34374 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1348557AbiAXUCz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:02:55 -0500
+        with ESMTP id S1354368AbiAXTge (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:36:34 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E11B6131F;
-        Mon, 24 Jan 2022 20:02:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FF9BC340E5;
-        Mon, 24 Jan 2022 20:02:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD0D960917;
+        Mon, 24 Jan 2022 19:36:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92376C340E5;
+        Mon, 24 Jan 2022 19:36:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054574;
-        bh=rB6Zg+CMwhJliJX6NAPO6qIY5v6Ys7TXXUv50Yzxacg=;
+        s=korg; t=1643052993;
+        bh=cnN5xt6O7qL5pb9YX1Cpeo6wCDkG1nZj0Zoq4vNviYg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sswXCAV4X248aYiQESxLlqyV3osR+9BRqNCNJESgV1o5nNvKO98mvbJyhhqqAW1NV
-         FMxZ5eZgGoASoL0wh9pZGb5jxXCIKs/LWJeQSiSD1gTJcxrbovWWO6iatoow85CnEn
-         E5MGUPLCcANaLTJSKTelFKA/Mk6M9ScmTYfFyqE0=
+        b=QfvE2lFWj4zW5TnyK1EiJYxH89US52rTRoCPs+D1Uu3wkC/0/fzOnG2wMRQqnuDcl
+         TnYy4o069AF2x5nRnrubgo97SG4YuAI/4WygmjFdoedh3JmKMjXGPTv1GcY9YKSv9p
+         gfizCogelMShngAawKvHsrs8cpJ4JgMOcCHlqVHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Ryutaroh Matsumoto <ryutaroh@ict.e.titech.ac.jp>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Sudeep Holla <sudeep.holla@arm.com>,
+        Bob Moore <robert.moore@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 426/563] MIPS: Loongson64: Use three arguments for slti
+Subject: [PATCH 5.4 207/320] ACPICA: Fix wrong interpretation of PCC address
 Date:   Mon, 24 Jan 2022 19:43:11 +0100
-Message-Id: <20220124184039.187543162@linuxfoundation.org>
+Message-Id: <20220124184000.674578975@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
-References: <20220124184024.407936072@linuxfoundation.org>
+In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
+References: <20220124183953.750177707@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,60 +46,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Sudeep Holla <sudeep.holla@arm.com>
 
-[ Upstream commit f2c6c22fa83ab2577619009057b3ebcb5305bb03 ]
+[ Upstream commit 9a3b8655db1ada31c82189ae13f40eb25da48c35 ]
 
-LLVM's integrated assembler does not support 'slti <reg>, <imm>':
+ACPICA commit 41be6afacfdaec2dba3a5ed368736babc2a7aa5c
 
-<instantiation>:16:12: error: invalid operand for instruction
- slti $12, (0x6300 | 0x0008)
-           ^
-arch/mips/kernel/head.S:86:2: note: while in macro instantiation
- kernel_entry_setup # cpu specific setup
- ^
-<instantiation>:16:12: error: invalid operand for instruction
- slti $12, (0x6300 | 0x0008)
-           ^
-arch/mips/kernel/head.S:150:2: note: while in macro instantiation
- smp_slave_setup
- ^
+With the PCC Opregion in the firmware and we are hitting below kernel crash:
 
-To increase compatibility with LLVM's integrated assembler, use the full
-form of 'slti <reg>, <reg>, <imm>', which matches the rest of
-arch/mips/. This does not result in any change for GNU as.
+-->8
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000010
+ Workqueue: pm pm_runtime_work
+ pstate: 80000005 (Nzcv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+ pc : __memcpy+0x54/0x260
+ lr : acpi_ex_write_data_to_field+0xb8/0x194
+ Call trace:
+  __memcpy+0x54/0x260
+  acpi_ex_store_object_to_node+0xa4/0x1d4
+  acpi_ex_store+0x44/0x164
+  acpi_ex_opcode_1A_1T_1R+0x25c/0x508
+  acpi_ds_exec_end_op+0x1b4/0x44c
+  acpi_ps_parse_loop+0x3a8/0x614
+  acpi_ps_parse_aml+0x90/0x2f4
+  acpi_ps_execute_method+0x11c/0x19c
+  acpi_ns_evaluate+0x1ec/0x2b0
+  acpi_evaluate_object+0x170/0x2b0
+  acpi_device_set_power+0x118/0x310
+  acpi_dev_suspend+0xd4/0x180
+  acpi_subsys_runtime_suspend+0x28/0x38
+  __rpm_callback+0x74/0x328
+  rpm_suspend+0x2d8/0x624
+  pm_runtime_work+0xa4/0xb8
+  process_one_work+0x194/0x25c
+  worker_thread+0x260/0x49c
+  kthread+0x14c/0x30c
+  ret_from_fork+0x10/0x20
+ Code: f9000006 f81f80a7 d65f03c0 361000c2 (b9400026)
+ ---[ end trace 24d8a032fa77b68a ]---
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1526
-Reported-by: Ryutaroh Matsumoto <ryutaroh@ict.e.titech.ac.jp>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+The reason for the crash is that the PCC channel index passed via region.address
+in acpi_ex_store_object_to_node is interpreted as the channel subtype
+incorrectly.
+
+Assuming the PCC op_region support is not used by any other type, let us
+remove the subtype check as the AML has no access to the subtype information.
+Once we remove it, the kernel crash disappears and correctly complains about
+missing PCC Opregion handler.
+
+ACPI Error: No handler for Region [PFRM] ((____ptrval____)) [PCC] (20210730/evregion-130)
+ACPI Error: Region PCC (ID=10) has no handler (20210730/exfldio-261)
+ACPI Error: Aborting method \_SB.ETH0._PS3 due to previous error (AE_NOT_EXIST) (20210730/psparse-531)
+
+Link: https://github.com/acpica/acpica/commit/41be6afa
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Bob Moore <robert.moore@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/mach-loongson64/kernel-entry-init.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/acpi/acpica/exfield.c | 7 +------
+ 1 file changed, 1 insertion(+), 6 deletions(-)
 
-diff --git a/arch/mips/include/asm/mach-loongson64/kernel-entry-init.h b/arch/mips/include/asm/mach-loongson64/kernel-entry-init.h
-index 87a5bfbf8cfe9..28572ddfb004a 100644
---- a/arch/mips/include/asm/mach-loongson64/kernel-entry-init.h
-+++ b/arch/mips/include/asm/mach-loongson64/kernel-entry-init.h
-@@ -36,7 +36,7 @@
- 	nop
- 	/* Loongson-3A R2/R3 */
- 	andi	t0, (PRID_IMP_MASK | PRID_REV_MASK)
--	slti	t0, (PRID_IMP_LOONGSON_64C | PRID_REV_LOONGSON3A_R2_0)
-+	slti	t0, t0, (PRID_IMP_LOONGSON_64C | PRID_REV_LOONGSON3A_R2_0)
- 	bnez	t0, 2f
- 	nop
- 1:
-@@ -71,7 +71,7 @@
- 	nop
- 	/* Loongson-3A R2/R3 */
- 	andi	t0, (PRID_IMP_MASK | PRID_REV_MASK)
--	slti	t0, (PRID_IMP_LOONGSON_64C | PRID_REV_LOONGSON3A_R2_0)
-+	slti	t0, t0, (PRID_IMP_LOONGSON_64C | PRID_REV_LOONGSON3A_R2_0)
- 	bnez	t0, 2f
- 	nop
- 1:
+diff --git a/drivers/acpi/acpica/exfield.c b/drivers/acpi/acpica/exfield.c
+index d3d2dbfba680c..cd3debefe990d 100644
+--- a/drivers/acpi/acpica/exfield.c
++++ b/drivers/acpi/acpica/exfield.c
+@@ -320,12 +320,7 @@ acpi_ex_write_data_to_field(union acpi_operand_object *source_desc,
+ 		       obj_desc->field.base_byte_offset,
+ 		       source_desc->buffer.pointer, data_length);
+ 
+-		if ((obj_desc->field.region_obj->region.address ==
+-		     PCC_MASTER_SUBSPACE
+-		     && MASTER_SUBSPACE_COMMAND(obj_desc->field.
+-						base_byte_offset))
+-		    || GENERIC_SUBSPACE_COMMAND(obj_desc->field.
+-						base_byte_offset)) {
++		if (MASTER_SUBSPACE_COMMAND(obj_desc->field.base_byte_offset)) {
+ 
+ 			/* Perform the write */
+ 
 -- 
 2.34.1
 
