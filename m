@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59373498EE1
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:49:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2280B498EE3
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 20:49:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356355AbiAXTtT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 14:49:19 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:60392 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355328AbiAXTkb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:40:31 -0500
+        id S1356559AbiAXTtW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 14:49:22 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:37778 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1355335AbiAXTkc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 14:40:32 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3FD71B81215;
-        Mon, 24 Jan 2022 19:40:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78AF2C340E5;
-        Mon, 24 Jan 2022 19:40:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A14F6135E;
+        Mon, 24 Jan 2022 19:40:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C863C340E5;
+        Mon, 24 Jan 2022 19:40:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643053227;
-        bh=Bl5llVI2z9O6KxJJgC5I6x36I+iAXLOaQmkkZq6i4e4=;
+        s=korg; t=1643053230;
+        bh=o4vXwjtGO5bckZbOzF25uhyLz3mbp8Clz6bUC0ZiGSE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MbA1VIYc3qNXF0Cbts0dWadhKxgOWbZNf/5LESEj0oqRF87nxH69eYvTRZ6ohZFLO
-         FLa89VX2pnfLTIzI8xcimD9tFn6M6V+ihf8ef0d84ma1Q8DngCSaaPnnX9Oklnji0x
-         FzsTQjOLcymgFmsAYfAgE4Mvc6vyXPU3miPxCnnE=
+        b=gUpzveh7nC8uOE/NkthwF7fMpdZJWvJ6fslIRb5vFAZ6ho408ZQgGpsfn+nroDBL1
+         y5Cm8pneoEDB3GR1KD4YHNegtwTQ9z5BPLCq/SO/J7NEAQ+NW14VsAG6HNLgERRbay
+         zPtrCIm/PK5cSI7362awXwwrbzNM43QchJ6//Gq4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Andrey Konovalov <andreyknvl@google.com>,
-        Marco Elver <elver@google.com>,
-        Alexander Potapenko <glider@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 318/320] lib/test_meminit: destroy cache in kmem_cache_alloc_bulk() test
-Date:   Mon, 24 Jan 2022 19:45:02 +0100
-Message-Id: <20220124184004.756506394@linuxfoundation.org>
+        stable@vger.kernel.org, Patrick Doyle <pdoyle@irobot.com>,
+        Richard Weinberger <richard@nod.at>,
+        Yoshio Furuyama <ytc-mb-yfuruyama7@kioxia.com>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
+        Frieder Schrempf <frieder.schrempf@kontron.de>
+Subject: [PATCH 5.4 319/320] mtd: nand: bbt: Fix corner case in bad block table handling
+Date:   Mon, 24 Jan 2022 19:45:03 +0100
+Message-Id: <20220124184004.787407516@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183953.750177707@linuxfoundation.org>
 References: <20220124183953.750177707@linuxfoundation.org>
@@ -49,35 +47,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Konovalov <andreyknvl@google.com>
+From: Doyle, Patrick <pdoyle@irobot.com>
 
-commit e073e5ef90298d2d6e5e7f04b545a0815e92110c upstream.
+commit fd0d8d85f7230052e638a56d1bfea170c488e6bc upstream.
 
-Make do_kmem_cache_size_bulk() destroy the cache it creates.
+In the unlikely event that both blocks 10 and 11 are marked as bad (on a
+32 bit machine), then the process of marking block 10 as bad stomps on
+cached entry for block 11.  There are (of course) other examples.
 
-Link: https://lkml.kernel.org/r/aced20a94bf04159a139f0846e41d38a1537debb.1640018297.git.andreyknvl@google.com
-Fixes: 03a9349ac0e0 ("lib/test_meminit: add a kmem_cache_alloc_bulk() test")
-Signed-off-by: Andrey Konovalov <andreyknvl@google.com>
-Reviewed-by: Marco Elver <elver@google.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Patrick Doyle <pdoyle@irobot.com>
+Reviewed-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Yoshio Furuyama <ytc-mb-yfuruyama7@kioxia.com>
+[<miquel.raynal@bootlin.com>: Fixed the title]
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Cc: Frieder Schrempf <frieder.schrempf@kontron.de>
+Link: https://lore.kernel.org/linux-mtd/774a92693f311e7de01e5935e720a179fb1b2468.1616635406.git.ytc-mb-yfuruyama7@kioxia.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/test_meminit.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/mtd/nand/bbt.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/lib/test_meminit.c
-+++ b/lib/test_meminit.c
-@@ -319,6 +319,7 @@ static int __init do_kmem_cache_size_bul
- 		if (num)
- 			kmem_cache_free_bulk(c, num, objects);
+--- a/drivers/mtd/nand/bbt.c
++++ b/drivers/mtd/nand/bbt.c
+@@ -123,7 +123,7 @@ int nanddev_bbt_set_block_status(struct
+ 		unsigned int rbits = bits_per_block + offs - BITS_PER_LONG;
+ 
+ 		pos[1] &= ~GENMASK(rbits - 1, 0);
+-		pos[1] |= val >> rbits;
++		pos[1] |= val >> (bits_per_block - rbits);
  	}
-+	kmem_cache_destroy(c);
- 	*total_failures += fail;
- 	return 1;
- }
+ 
+ 	return 0;
 
 
