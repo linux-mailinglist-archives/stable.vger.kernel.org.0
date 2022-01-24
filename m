@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 061CC499725
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:25:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69ED349994B
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:44:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1446888AbiAXVJh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:09:37 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58320 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1354151AbiAXVFt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:05:49 -0500
+        id S1453937AbiAXVbS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:31:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51532 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1450849AbiAXVVf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:21:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5B3FC0617AA;
+        Mon, 24 Jan 2022 12:16:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0B5F8B811FB;
-        Mon, 24 Jan 2022 21:05:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 535D3C340E5;
-        Mon, 24 Jan 2022 21:05:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A35D1B8122A;
+        Mon, 24 Jan 2022 20:16:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC720C340E5;
+        Mon, 24 Jan 2022 20:16:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643058345;
-        bh=X6EgPPABSu9qIS8VsK+/BZjQrgBbZL9LjiIth+gV+38=;
+        s=korg; t=1643055374;
+        bh=WZ3y8zEoAZCa0dRNCAuVij8BF5EdE9FA38K3vuCAJqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D02rKWm/L+Nbuqn1eioq6F07MTd1pOyGPCoHKHPjHeuvgDIdCBEveGDmQCP9Cz80d
-         G9C/kUn925Ii7ujc+yBqc8NRthdYDgRFfXY0E9hzYSmMFFLjeKO12zBDhaS5fbj/7F
-         /Zd19ikI7/bEEyDHbE6K1WchiV8bUQdH2IZXOzXU=
+        b=ISL+wimExMxRsQgONtqYfPK3aN2wi05YQteVJM0+fUGE/SEdCobAAZrXG15w+8FZS
+         cSAHp9t/5tZP08OdO2DBgjTS3TDsLZQLapiydW4rnC8t/BZ374DiWjwA8fiksLKArQ
+         Sg3CMmTY4IiEW19RF67XbQS4VfBA4IS4mJzvnA+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        Pavle Kotarac <Pavle.Kotarac@amd.com>,
-        Wayne Lin <Wayne.Lin@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, oujiefeng <oujiefeng@huawei.com>,
+        Jay Fang <f.fangjian@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0258/1039] drm/amd/display: Fix bug in debugfs crc_win_update entry
+Subject: [PATCH 5.15 130/846] spi: hisi-kunpeng: Fix the debugfs directory name incorrect
 Date:   Mon, 24 Jan 2022 19:34:07 +0100
-Message-Id: <20220124184133.986450956@linuxfoundation.org>
+Message-Id: <20220124184105.477739229@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -49,50 +49,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wayne Lin <Wayne.Lin@amd.com>
+From: oujiefeng <oujiefeng@huawei.com>
 
-[ Upstream commit 4bef85d4c9491415b7931407b07f24841c1e0390 ]
+[ Upstream commit 40fafc8eca3f0d41b9dade5c10afb2dad723aad7 ]
 
-[Why]
-crc_rd_wrk shouldn't be null in crc_win_update_set(). Current programming
-logic is inconsistent in crc_win_update_set().
+Change the debugfs directory name from hisi_spi65535 to hisi_spi0.
 
-[How]
-Initially, return if crc_rd_wrk is NULL. Later on, we can use member of
-crc_rd_wrk safely.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Fixes: 9a65df193108 ("drm/amd/display: Use PSP TA to read out crc")
-
-Reviewed-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Acked-by: Pavle Kotarac <Pavle.Kotarac@amd.com>
-Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 2b2142f247eb ("spi: hisi-kunpeng: Add debugfs support")
+Signed-off-by: oujiefeng <oujiefeng@huawei.com>
+Signed-off-by: Jay Fang <f.fangjian@huawei.com>
+Link: https://lore.kernel.org/r/20211117012119.55558-1-f.fangjian@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/spi/spi-hisi-kunpeng.c | 15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
-index 9d43ecb1f692d..f4e829ec8e108 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_debugfs.c
-@@ -2909,10 +2909,13 @@ static int crc_win_update_set(void *data, u64 val)
- 	struct amdgpu_device *adev = drm_to_adev(new_crtc->dev);
- 	struct crc_rd_work *crc_rd_wrk = adev->dm.crc_rd_wrk;
+diff --git a/drivers/spi/spi-hisi-kunpeng.c b/drivers/spi/spi-hisi-kunpeng.c
+index 58b823a16fc4d..525cc0143a305 100644
+--- a/drivers/spi/spi-hisi-kunpeng.c
++++ b/drivers/spi/spi-hisi-kunpeng.c
+@@ -127,7 +127,6 @@ struct hisi_spi {
+ 	void __iomem		*regs;
+ 	int			irq;
+ 	u32			fifo_len; /* depth of the FIFO buffer */
+-	u16			bus_num;
  
-+	if (!crc_rd_wrk)
-+		return 0;
+ 	/* Current message transfer state info */
+ 	const void		*tx;
+@@ -165,7 +164,10 @@ static int hisi_spi_debugfs_init(struct hisi_spi *hs)
+ {
+ 	char name[32];
+ 
+-	snprintf(name, 32, "hisi_spi%d", hs->bus_num);
++	struct spi_controller *master;
 +
- 	if (val) {
- 		spin_lock_irq(&adev_to_drm(adev)->event_lock);
- 		spin_lock_irq(&crc_rd_wrk->crc_rd_work_lock);
--		if (crc_rd_wrk && crc_rd_wrk->crtc) {
-+		if (crc_rd_wrk->crtc) {
- 			old_crtc = crc_rd_wrk->crtc;
- 			old_acrtc = to_amdgpu_crtc(old_crtc);
- 		}
++	master = container_of(hs->dev, struct spi_controller, dev);
++	snprintf(name, 32, "hisi_spi%d", master->bus_num);
+ 	hs->debugfs = debugfs_create_dir(name, NULL);
+ 	if (!hs->debugfs)
+ 		return -ENOMEM;
+@@ -467,7 +469,6 @@ static int hisi_spi_probe(struct platform_device *pdev)
+ 	hs = spi_controller_get_devdata(master);
+ 	hs->dev = dev;
+ 	hs->irq = irq;
+-	hs->bus_num = pdev->id;
+ 
+ 	hs->regs = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(hs->regs))
+@@ -490,7 +491,7 @@ static int hisi_spi_probe(struct platform_device *pdev)
+ 	master->use_gpio_descriptors = true;
+ 	master->mode_bits = SPI_CPOL | SPI_CPHA | SPI_CS_HIGH | SPI_LOOP;
+ 	master->bits_per_word_mask = SPI_BPW_RANGE_MASK(4, 32);
+-	master->bus_num = hs->bus_num;
++	master->bus_num = pdev->id;
+ 	master->setup = hisi_spi_setup;
+ 	master->cleanup = hisi_spi_cleanup;
+ 	master->transfer_one = hisi_spi_transfer_one;
+@@ -506,15 +507,15 @@ static int hisi_spi_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
+ 
+-	if (hisi_spi_debugfs_init(hs))
+-		dev_info(dev, "failed to create debugfs dir\n");
+-
+ 	ret = spi_register_controller(master);
+ 	if (ret) {
+ 		dev_err(dev, "failed to register spi master, ret=%d\n", ret);
+ 		return ret;
+ 	}
+ 
++	if (hisi_spi_debugfs_init(hs))
++		dev_info(dev, "failed to create debugfs dir\n");
++
+ 	dev_info(dev, "hw version:0x%x max-freq:%u kHz\n",
+ 		readl(hs->regs + HISI_SPI_VERSION),
+ 		master->max_speed_hz / 1000);
 -- 
 2.34.1
 
