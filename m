@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63FDC498937
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:54:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAD8449892E
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 19:53:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343513AbiAXSxg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 13:53:36 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:49716 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1343517AbiAXSwE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:52:04 -0500
+        id S1343603AbiAXSxW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 13:53:22 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:51220 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1343823AbiAXSwJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 13:52:09 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 01FEF614F0;
-        Mon, 24 Jan 2022 18:52:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB91CC340E5;
-        Mon, 24 Jan 2022 18:52:02 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BF5E0B81235;
+        Mon, 24 Jan 2022 18:52:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD2F7C340E8;
+        Mon, 24 Jan 2022 18:52:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643050323;
-        bh=PE5eRi3IE9VNLlQ1ed9CSr4cABoF8ehAGM5W/x8b8/k=;
+        s=korg; t=1643050326;
+        bh=mOa3viRnCiyugN9lsjwtjitWUVuvU+gNzpDpjLjWNzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nX8iKJ20S5qK6FiN8tZR0g3XTlf0gRIIua4AsCabxCSFbriJtJSlMJpjDKmbk7wVx
-         VHNr7KaqE5gMtlqTS/Cg6dLuUUphqdCZ41Ftmbm8FviK8RUmSyY6/SvhxtUrc+HwiD
-         Yip3K2OB2tn3Q4Xlcg8W9y+nUolsZs9xC42/T01s=
+        b=at53GGcWgI0wNYCSpoRMg5z+51aTIAv1moiu4nAxIA4UD00rFu7bIVv5xnybDkfGA
+         zHJcouBhWUIuGC3x1UVHwMw/bqOAeReTLJ++kQ3Rh8he3MYsnpvV+qmAJc6mHrVD5Q
+         33Y/rQK9yK1NIS8fk70f7Wx63865+Z38Pvz8cjLk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joe Thornber <ejt@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 080/114] dm space map common: add bounds check to sm_ll_lookup_bitmap()
-Date:   Mon, 24 Jan 2022 19:42:55 +0100
-Message-Id: <20220124183929.580137882@linuxfoundation.org>
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Lukas Wunner <lukas@wunner.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 081/114] serial: pl010: Drop CR register reset on set_termios
+Date:   Mon, 24 Jan 2022 19:42:56 +0100
+Message-Id: <20220124183929.610093670@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
 References: <20220124183927.095545464@linuxfoundation.org>
@@ -45,35 +44,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joe Thornber <ejt@redhat.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit cba23ac158db7f3cd48a923d6861bee2eb7a2978 ]
+[ Upstream commit 08a0c6dff91c965e39905cf200d22db989203ccb ]
 
-Corrupted metadata could warrant returning error from sm_ll_lookup_bitmap().
+pl010_set_termios() briefly resets the CR register to zero.
 
-Signed-off-by: Joe Thornber <ejt@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Where does this register write come from?
+
+The PL010 driver's IRQ handler ambauart_int() originally modified the CR
+register without holding the port spinlock.  ambauart_set_termios() also
+modified that register.  To prevent concurrent read-modify-writes by the
+IRQ handler and to prevent transmission while changing baudrate,
+ambauart_set_termios() had to disable interrupts.  That is achieved by
+writing zero to the CR register.
+
+However in 2004 the PL010 driver was amended to acquire the port
+spinlock in the IRQ handler, obviating the need to disable interrupts in
+->set_termios():
+https://git.kernel.org/history/history/c/157c0342e591
+
+That rendered the CR register write obsolete.  Drop it.
+
+Cc: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Link: https://lore.kernel.org/r/fcaff16e5b1abb4cc3da5a2879ac13f278b99ed0.1641128728.git.lukas@wunner.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/persistent-data/dm-space-map-common.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/tty/serial/amba-pl010.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/md/persistent-data/dm-space-map-common.c b/drivers/md/persistent-data/dm-space-map-common.c
-index ca09ad2a639c4..6fa4a68e78b0d 100644
---- a/drivers/md/persistent-data/dm-space-map-common.c
-+++ b/drivers/md/persistent-data/dm-space-map-common.c
-@@ -279,6 +279,11 @@ int sm_ll_lookup_bitmap(struct ll_disk *ll, dm_block_t b, uint32_t *result)
- 	struct disk_index_entry ie_disk;
- 	struct dm_block *blk;
+diff --git a/drivers/tty/serial/amba-pl010.c b/drivers/tty/serial/amba-pl010.c
+index 5d41d5b92619a..7f4ba92739663 100644
+--- a/drivers/tty/serial/amba-pl010.c
++++ b/drivers/tty/serial/amba-pl010.c
+@@ -465,14 +465,11 @@ pl010_set_termios(struct uart_port *port, struct ktermios *termios,
+ 	if ((termios->c_cflag & CREAD) == 0)
+ 		uap->port.ignore_status_mask |= UART_DUMMY_RSR_RX;
  
-+	if (b >= ll->nr_blocks) {
-+		DMERR_LIMIT("metadata block out of bounds");
-+		return -EINVAL;
-+	}
-+
- 	b = do_div(index, ll->entries_per_block);
- 	r = ll->load_ie(ll, index, &ie_disk);
- 	if (r < 0)
+-	/* first, disable everything */
+ 	old_cr = readb(uap->port.membase + UART010_CR) & ~UART010_CR_MSIE;
+ 
+ 	if (UART_ENABLE_MS(port, termios->c_cflag))
+ 		old_cr |= UART010_CR_MSIE;
+ 
+-	writel(0, uap->port.membase + UART010_CR);
+-
+ 	/* Set baud rate */
+ 	quot -= 1;
+ 	writel((quot & 0xf00) >> 8, uap->port.membase + UART010_LCRM);
 -- 
 2.34.1
 
