@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55FFA49A3AB
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:03:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDFE649A529
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 03:11:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S2365577AbiAXXvS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 18:51:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59506 "EHLO
+        id S2370693AbiAYAF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 19:05:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1450656AbiAXVyz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:54:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1ADCC0C090E;
-        Mon, 24 Jan 2022 12:34:59 -0800 (PST)
+        with ESMTP id S1851185AbiAXXcH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 18:32:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0F83C019B06;
+        Mon, 24 Jan 2022 11:52:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66E12B80FA1;
-        Mon, 24 Jan 2022 20:34:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91486C340E5;
-        Mon, 24 Jan 2022 20:34:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FF4E6090B;
+        Mon, 24 Jan 2022 19:52:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ACE2C340E5;
+        Mon, 24 Jan 2022 19:52:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643056498;
-        bh=7KCUkHtCZDPiU8Wu1iyvT6sSWdzlValgHc36KTlvECM=;
+        s=korg; t=1643053932;
+        bh=l6Ni9v689sSDYi8RGWJ0Fvwu5bh71a7KQRIO9ThqCxY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DTANE3LJVm878ZdnsQz2Ut4SY28U7L+5WHU7rjzzsScMdJPMJH+DN5ffeDaNiiOgg
-         ELnSAEd7MuFvZ01KMwz6wCB1elaDEi9+CQSGcm6eSC0iKNYKHZMegDlQ4VDq7MTzej
-         1z9p6gKf64dHga1t8CxuA7RhkUhaOR46XCyOPJRc=
+        b=ja2INnCtpFJvoUFie1gNGt149zvQSihO5Vbq7VquOdPjSI3br1zTWqfkRTqYWsGxl
+         8SRJ6u15r8iIoxLaqywM3xaIcyOkwynbnQDJzLTdkbM15w9zAuUWWsj0xzI0Uuqzkz
+         M/0VdTQ10uCk5VZV7CPhHFK/+XYx00eq4gi+i0vY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 472/846] media: atomisp: fix try_fmt logic
-Date:   Mon, 24 Jan 2022 19:39:49 +0100
-Message-Id: <20220124184117.289396210@linuxfoundation.org>
+Subject: [PATCH 5.10 225/563] Bluetooth: L2CAP: uninitialized variables in l2cap_sock_setsockopt()
+Date:   Mon, 24 Jan 2022 19:39:50 +0100
+Message-Id: <20220124184032.232010791@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
-References: <20220124184100.867127425@linuxfoundation.org>
+In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
+References: <20220124184024.407936072@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,113 +48,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit c9e9094c4e42124af909b2f5f6ded0498e0854ac ]
+[ Upstream commit 2b70d4f9b20635ac328836e50d183632e1930f94 ]
 
-The internal try_fmt logic is not meant to provide everything
-that the V4L2 API should provide. Also, it doesn't decrement
-the pads that are used only internally by the driver, but aren't
-part of the device's output.
+The "opt" variable is a u32, but on some paths only the top bytes
+were initialized and the others contained random stack data.
 
-Fix it.
-
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: a7b75c5a8c41 ("net: pass a sockptr_t into ->setsockopt")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../staging/media/atomisp/pci/atomisp_ioctl.c | 72 ++++++++++++++++++-
- 1 file changed, 71 insertions(+), 1 deletion(-)
+ net/bluetooth/l2cap_sock.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/staging/media/atomisp/pci/atomisp_ioctl.c b/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
-index 29826f8e4143d..54624f8814e04 100644
---- a/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
-+++ b/drivers/staging/media/atomisp/pci/atomisp_ioctl.c
-@@ -863,6 +863,72 @@ static int atomisp_g_fmt_file(struct file *file, void *fh,
- 	return 0;
- }
+diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
+index 251017c69ab7f..d2c6785205992 100644
+--- a/net/bluetooth/l2cap_sock.c
++++ b/net/bluetooth/l2cap_sock.c
+@@ -903,6 +903,8 @@ static int l2cap_sock_setsockopt(struct socket *sock, int level, int optname,
+ 	struct l2cap_conn *conn;
+ 	int len, err = 0;
+ 	u32 opt;
++	u16 mtu;
++	u8 mode;
  
-+static int atomisp_adjust_fmt(struct v4l2_format *f)
-+{
-+	const struct atomisp_format_bridge *format_bridge;
-+	u32 padded_width;
-+
-+	format_bridge = atomisp_get_format_bridge(f->fmt.pix.pixelformat);
-+
-+	padded_width = f->fmt.pix.width + pad_w;
-+
-+	if (format_bridge->planar) {
-+		f->fmt.pix.bytesperline = padded_width;
-+		f->fmt.pix.sizeimage = PAGE_ALIGN(f->fmt.pix.height *
-+						  DIV_ROUND_UP(format_bridge->depth *
-+						  padded_width, 8));
-+	} else {
-+		f->fmt.pix.bytesperline = DIV_ROUND_UP(format_bridge->depth *
-+						      padded_width, 8);
-+		f->fmt.pix.sizeimage = PAGE_ALIGN(f->fmt.pix.height * f->fmt.pix.bytesperline);
-+	}
-+
-+	if (f->fmt.pix.field == V4L2_FIELD_ANY)
-+		f->fmt.pix.field = V4L2_FIELD_NONE;
-+
-+	format_bridge = atomisp_get_format_bridge(f->fmt.pix.pixelformat);
-+	if (!format_bridge)
-+		return -EINVAL;
-+
-+	/* Currently, raw formats are broken!!! */
-+	if (format_bridge->sh_fmt == IA_CSS_FRAME_FORMAT_RAW) {
-+		f->fmt.pix.pixelformat = V4L2_PIX_FMT_YUV420;
-+
-+		format_bridge = atomisp_get_format_bridge(f->fmt.pix.pixelformat);
-+		if (!format_bridge)
-+			return -EINVAL;
-+	}
-+
-+	padded_width = f->fmt.pix.width + pad_w;
-+
-+	if (format_bridge->planar) {
-+		f->fmt.pix.bytesperline = padded_width;
-+		f->fmt.pix.sizeimage = PAGE_ALIGN(f->fmt.pix.height *
-+						  DIV_ROUND_UP(format_bridge->depth *
-+						  padded_width, 8));
-+	} else {
-+		f->fmt.pix.bytesperline = DIV_ROUND_UP(format_bridge->depth *
-+						      padded_width, 8);
-+		f->fmt.pix.sizeimage = PAGE_ALIGN(f->fmt.pix.height * f->fmt.pix.bytesperline);
-+	}
-+
-+	if (f->fmt.pix.field == V4L2_FIELD_ANY)
-+		f->fmt.pix.field = V4L2_FIELD_NONE;
-+
-+	/*
-+	 * FIXME: do we need to setup this differently, depending on the
-+	 * sensor or the pipeline?
-+	 */
-+	f->fmt.pix.colorspace = V4L2_COLORSPACE_REC709;
-+	f->fmt.pix.ycbcr_enc = V4L2_YCBCR_ENC_709;
-+	f->fmt.pix.xfer_func = V4L2_XFER_FUNC_709;
-+
-+	f->fmt.pix.width -= pad_w;
-+	f->fmt.pix.height -= pad_h;
-+
-+	return 0;
-+}
-+
- /* This function looks up the closest available resolution. */
- static int atomisp_try_fmt_cap(struct file *file, void *fh,
- 			       struct v4l2_format *f)
-@@ -874,7 +940,11 @@ static int atomisp_try_fmt_cap(struct file *file, void *fh,
- 	rt_mutex_lock(&isp->mutex);
- 	ret = atomisp_try_fmt(vdev, &f->fmt.pix, NULL);
- 	rt_mutex_unlock(&isp->mutex);
--	return ret;
-+
-+	if (ret)
-+		return ret;
-+
-+	return atomisp_adjust_fmt(f);
- }
+ 	BT_DBG("sk %p", sk);
  
- static int atomisp_s_fmt_cap(struct file *file, void *fh,
+@@ -1085,16 +1087,16 @@ static int l2cap_sock_setsockopt(struct socket *sock, int level, int optname,
+ 			break;
+ 		}
+ 
+-		if (copy_from_sockptr(&opt, optval, sizeof(u16))) {
++		if (copy_from_sockptr(&mtu, optval, sizeof(u16))) {
+ 			err = -EFAULT;
+ 			break;
+ 		}
+ 
+ 		if (chan->mode == L2CAP_MODE_EXT_FLOWCTL &&
+ 		    sk->sk_state == BT_CONNECTED)
+-			err = l2cap_chan_reconfigure(chan, opt);
++			err = l2cap_chan_reconfigure(chan, mtu);
+ 		else
+-			chan->imtu = opt;
++			chan->imtu = mtu;
+ 
+ 		break;
+ 
+@@ -1116,14 +1118,14 @@ static int l2cap_sock_setsockopt(struct socket *sock, int level, int optname,
+ 			break;
+ 		}
+ 
+-		if (copy_from_sockptr(&opt, optval, sizeof(u8))) {
++		if (copy_from_sockptr(&mode, optval, sizeof(u8))) {
+ 			err = -EFAULT;
+ 			break;
+ 		}
+ 
+-		BT_DBG("opt %u", opt);
++		BT_DBG("mode %u", mode);
+ 
+-		err = l2cap_set_mode(chan, opt);
++		err = l2cap_set_mode(chan, mode);
+ 		if (err)
+ 			break;
+ 
 -- 
 2.34.1
 
