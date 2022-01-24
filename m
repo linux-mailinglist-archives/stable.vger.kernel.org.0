@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86551499914
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:43:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D48C6499BCB
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 23:05:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1454100AbiAXVbr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 16:31:47 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:40176 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1451404AbiAXVWy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:22:54 -0500
+        id S1576527AbiAXVzL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 16:55:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57102 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1452859AbiAXVtF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 16:49:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40A98C061774;
+        Mon, 24 Jan 2022 12:33:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2F873B8123D;
-        Mon, 24 Jan 2022 21:22:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6193BC340E4;
-        Mon, 24 Jan 2022 21:22:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D4A576153A;
+        Mon, 24 Jan 2022 20:33:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9C4DC340E5;
+        Mon, 24 Jan 2022 20:33:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643059370;
-        bh=hEOXtMUwE/45Nh6ai1hbQxYP2KFHIOMKiavrEhac3jM=;
+        s=korg; t=1643056411;
+        bh=Adkz8tW47vbwofh7NrAPeUglOkNTCxORjd0loYPv954=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f+QWbv9LSAA4Rqj/ZfSXb1kmYiGni+elscsL1Huc/gCXj9cxTSVklkF2cHI4BnsLH
-         noryMqsxuTGjm2UjBirZJkhXc1YRoJzgKqSLwl2NSP2m7iWBr0cQSMiDP4FXVBQ7Qy
-         EygRvyCU5klhfb6QlHej41mUm0LplN7BgrcbPa8U=
+        b=wzgf5WcSzqXTaHsYDZlsfxt57K2S3ATp3FzBB9EYT8zgONXms9blxpdbxXEYgWDqW
+         McoZvO8LNfLzr6JfPHHe+6YqEjeBo48Pwda8sGc/b81hufoAFuN2q+xrhuh5M4FaeO
+         oFgdP8jjxFSfFltk1JD1o0qTEiodqfcB5Ivt3O3U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chengfeng Ye <cyeaa@connect.ust.hk>,
-        Sebastian Reichel <sebastian.reichel@collabora.com>,
+        stable@vger.kernel.org, Andrii Nakryiko <andrii@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Hengqi Chen <hengqi.chen@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.16 0594/1039] HSI: core: Fix return freed object in hsi_new_client
-Date:   Mon, 24 Jan 2022 19:39:43 +0100
-Message-Id: <20220124184145.299780465@linuxfoundation.org>
+Subject: [PATCH 5.15 468/846] selftests/bpf: Fix bpf_object leak in skb_ctx selftest
+Date:   Mon, 24 Jan 2022 19:39:45 +0100
+Message-Id: <20220124184117.135796081@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
-References: <20220124184125.121143506@linuxfoundation.org>
+In-Reply-To: <20220124184100.867127425@linuxfoundation.org>
+References: <20220124184100.867127425@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,33 +49,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chengfeng Ye <cyeaa@connect.ust.hk>
+From: Andrii Nakryiko <andrii@kernel.org>
 
-[ Upstream commit a1ee1c08fcd5af03187dcd41dcab12fd5b379555 ]
+[ Upstream commit 8c7a95520184b6677ca6075e12df9c208d57d088 ]
 
-cl is freed on error of calling device_register, but this
-object is return later, which will cause uaf issue. Fix it
-by return NULL on error.
+skb_ctx selftest didn't close bpf_object implicitly allocated by
+bpf_prog_test_load() helper. Fix the problem by explicitly calling
+bpf_object__close() at the end of the test.
 
-Signed-off-by: Chengfeng Ye <cyeaa@connect.ust.hk>
-Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Reviewed-by: Hengqi Chen <hengqi.chen@gmail.com>
+Link: https://lore.kernel.org/bpf/20211107165521.9240-10-andrii@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hsi/hsi_core.c | 1 +
- 1 file changed, 1 insertion(+)
+ tools/testing/selftests/bpf/prog_tests/skb_ctx.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/hsi/hsi_core.c b/drivers/hsi/hsi_core.c
-index ec90713564e32..884066109699c 100644
---- a/drivers/hsi/hsi_core.c
-+++ b/drivers/hsi/hsi_core.c
-@@ -102,6 +102,7 @@ struct hsi_client *hsi_new_client(struct hsi_port *port,
- 	if (device_register(&cl->device) < 0) {
- 		pr_err("hsi: failed to register client: %s\n", info->name);
- 		put_device(&cl->device);
-+		goto err;
- 	}
- 
- 	return cl;
+diff --git a/tools/testing/selftests/bpf/prog_tests/skb_ctx.c b/tools/testing/selftests/bpf/prog_tests/skb_ctx.c
+index fafeddaad6a99..23915be6172d6 100644
+--- a/tools/testing/selftests/bpf/prog_tests/skb_ctx.c
++++ b/tools/testing/selftests/bpf/prog_tests/skb_ctx.c
+@@ -105,4 +105,6 @@ void test_skb_ctx(void)
+ 		   "ctx_out_mark",
+ 		   "skb->mark == %u, expected %d\n",
+ 		   skb.mark, 10);
++
++	bpf_object__close(obj);
+ }
 -- 
 2.34.1
 
