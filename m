@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAC71497DFA
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 12:30:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69BBB497DFB
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 12:30:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237553AbiAXLaW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 06:30:22 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:51586 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237575AbiAXLaS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 06:30:18 -0500
+        id S237574AbiAXLa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 06:30:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51050 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237567AbiAXLa1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 06:30:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D50FC06173B
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 03:30:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 969FB60AE5
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 11:30:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BFC7C340E1;
-        Mon, 24 Jan 2022 11:30:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B35C60765
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 11:30:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52C3DC340E1;
+        Mon, 24 Jan 2022 11:30:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643023817;
-        bh=d7MwOf3chVutLSRLgtYJzhZB80Nmz4zbCw+UtusiNu0=;
+        s=korg; t=1643023826;
+        bh=P2wKlP0T7VQNlFy9ybIuors/Xniu1TPpO3TuC7plO/I=;
         h=Subject:To:Cc:From:Date:From;
-        b=TQp0vtFF3HwN/wt/F+FzriCeMeXyXmvA2axmoB24Ew5HFr89oxIRxjOfdscU3ORAU
-         50a44+LdV/rz1A8YsKdR+ReEP+ujCDB8//QqMrpuWIEcG/Ex1CBOFXDLzThyqnlXst
-         dKmwqn9htL4S6ZcdnccJZVdVnbKRtC912tT75qSg=
-Subject: FAILED: patch "[PATCH] drm/vc4: hdmi: Use a mutex to prevent concurrent framework" failed to apply to 5.15-stable tree
+        b=i0eq6lxRCyXsSh7/ChKkvg1UJd88BwFuU1YDHhm5l2aS8J3Tvl4N4JGKVpNwbvHoe
+         MRMcXKU2Uy1mJ79tA5OcxHHvmchm3ow1c++SMlzmf9hzG0lFdg01iMEWcLoeLex+74
+         AblWCyHHT61dk9GeKSJScjuXEkMNgcjZ4XesrEqM=
+Subject: FAILED: patch "[PATCH] drm/vc4: hdmi: Use a mutex to prevent concurrent framework" failed to apply to 5.16-stable tree
 To:     maxime@cerno.tech, daniel.vetter@ffwll.ch
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 Jan 2022 12:30:14 +0100
-Message-ID: <164302381417582@kroah.com>
+Date:   Mon, 24 Jan 2022 12:30:15 +0100
+Message-ID: <16430238158994@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
