@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC1BE49916F
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 554E4499170
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 21:13:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355054AbiAXUKn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1357858AbiAXUKn (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 24 Jan 2022 15:10:43 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:33364 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1377796AbiAXUF7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:05:59 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:49082 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1377971AbiAXUGE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:06:04 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C2BDB6091B;
-        Mon, 24 Jan 2022 20:05:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99B8FC340E5;
-        Mon, 24 Jan 2022 20:05:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B741EB81215;
+        Mon, 24 Jan 2022 20:06:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2F46C340E5;
+        Mon, 24 Jan 2022 20:06:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643054758;
-        bh=/CkJZbBS/noqHTVzt9gb1OaMJAK407vUfQxtvkkrFfs=;
+        s=korg; t=1643054761;
+        bh=vwRGDU4N4TbEApmcUFKQ4hpx5acenT08Vv9AbCWceh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wAwHlTmaQnsPmk55EKQYBpKpnuPCN3JKIy+dULsAwiOvk1knLAdz8+VuH/8fAf806
-         buzxp1eFG2+uHeXjBX5v6+MbF4qtKhiadRlvByV9tvy1GcYfXEDBLaoGW5E1Q2Z0Qa
-         TZGtTEAatBHuhv5TtXIjKJZFQkVZkCuOxAPVPHS4=
+        b=Kl3Nre77F2SH0prH9ZGLj73Cdb9wF5KnVrCWuM8yBiQy6AtHyK98Q5xts/uGKCEHm
+         4jmwKGZ+yJticKJmQxEAtLwDH3IRnFaxL8fjxIQWXxbLsmUZ/gstpmNUVbAv4P9BRF
+         dknzDoEJFMP2OnrFpSqp/7F06Fpwcucho1zeJrYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.10 492/563] Documentation: ACPI: Fix data node reference documentation
-Date:   Mon, 24 Jan 2022 19:44:17 +0100
-Message-Id: <20220124184041.459814937@linuxfoundation.org>
+        stable@vger.kernel.org, Lukas Bulwahn <lukas.bulwahn@gmail.com>,
+        Jonathan Corbet <corbet@lwn.net>
+Subject: [PATCH 5.10 493/563] Documentation: refer to config RANDOMIZE_BASE for kernel address-space randomization
+Date:   Mon, 24 Jan 2022 19:44:18 +0100
+Message-Id: <20220124184041.499757730@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184024.407936072@linuxfoundation.org>
 References: <20220124184024.407936072@linuxfoundation.org>
@@ -46,66 +44,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sakari Ailus <sakari.ailus@linux.intel.com>
+From: Lukas Bulwahn <lukas.bulwahn@gmail.com>
 
-commit a11174952205d082f1658fab4314f0caf706e0a8 upstream.
+commit 82ca67321f55a8d1da6ac3ed611da3c32818bb37 upstream.
 
-The data node reference documentation was missing a package that must
-contain the property values, instead property name and multiple values
-being present in a single package. This is not aligned with the _DSD
-spec.
+The config RANDOMIZE_SLAB does not exist, the authors probably intended to
+refer to the config RANDOMIZE_BASE, which provides kernel address-space
+randomization. They probably just confused SLAB with BASE (these two
+four-letter words coincidentally share three common letters), as they also
+point out the config SLAB_FREELIST_RANDOM as further randomization within
+the same sentence.
 
-Fix it by adding the package for the values.
+Fix the reference of the config for kernel address-space randomization to
+the config that provides that.
 
-Also add the missing "reg" properties to two numbered nodes.
-
-Fixes: b10134a3643d ("ACPI: property: Document hierarchical data extension references")
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: 6e88559470f5 ("Documentation: Add section about CPU vulnerabilities for Spectre")
+Signed-off-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Link: https://lore.kernel.org/r/20211230171940.27558-1-lukas.bulwahn@gmail.com
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/firmware-guide/acpi/dsd/data-node-references.rst |   10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ Documentation/admin-guide/hw-vuln/spectre.rst |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/Documentation/firmware-guide/acpi/dsd/data-node-references.rst
-+++ b/Documentation/firmware-guide/acpi/dsd/data-node-references.rst
-@@ -5,7 +5,7 @@
- Referencing hierarchical data nodes
- ===================================
+--- a/Documentation/admin-guide/hw-vuln/spectre.rst
++++ b/Documentation/admin-guide/hw-vuln/spectre.rst
+@@ -468,7 +468,7 @@ Spectre variant 2
+    before invoking any firmware code to prevent Spectre variant 2 exploits
+    using the firmware.
  
--:Copyright: |copy| 2018 Intel Corporation
-+:Copyright: |copy| 2018, 2021 Intel Corporation
- :Author: Sakari Ailus <sakari.ailus@linux.intel.com>
+-   Using kernel address space randomization (CONFIG_RANDOMIZE_SLAB=y
++   Using kernel address space randomization (CONFIG_RANDOMIZE_BASE=y
+    and CONFIG_SLAB_FREELIST_RANDOM=y in the kernel configuration) makes
+    attacks on the kernel generally more difficult.
  
- ACPI in general allows referring to device objects in the tree only.
-@@ -52,12 +52,14 @@ the ANOD object which is also the final
- 	    Name (NOD0, Package() {
- 		ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
- 		Package () {
-+		    Package () { "reg", 0 },
- 		    Package () { "random-property", 3 },
- 		}
- 	    })
- 	    Name (NOD1, Package() {
- 		ToUUID("dbb8e3e6-5886-4ba6-8795-1319f52a966b"),
- 		Package () {
-+		    Package () { "reg", 1 },
- 		    Package () { "anothernode", "ANOD" },
- 		}
- 	    })
-@@ -74,7 +76,11 @@ the ANOD object which is also the final
- 	    Name (_DSD, Package () {
- 		ToUUID("daffd814-6eba-4d8c-8a91-bc9bbf4aa301"),
- 		Package () {
--		    Package () { "reference", ^DEV0, "node@1", "anothernode" },
-+		    Package () {
-+			"reference", Package () {
-+			    ^DEV0, "node@1", "anothernode"
-+			}
-+		    },
- 		}
- 	    })
- 	}
 
 
