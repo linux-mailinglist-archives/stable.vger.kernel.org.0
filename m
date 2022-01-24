@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7860E499616
-	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:16:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 219B6499618
+	for <lists+stable@lfdr.de>; Mon, 24 Jan 2022 22:16:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1442738AbiAXU7G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 15:59:06 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:51024 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1442407AbiAXUyd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:54:33 -0500
+        id S1344630AbiAXU7H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 15:59:07 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:48414 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1442551AbiAXUyt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 15:54:49 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 08A51B811A9;
-        Mon, 24 Jan 2022 20:54:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27391C340E5;
-        Mon, 24 Jan 2022 20:54:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CB33660C17;
+        Mon, 24 Jan 2022 20:54:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80F91C340E5;
+        Mon, 24 Jan 2022 20:54:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643057668;
-        bh=4Rcfa26QnKDhYc/Gk76a2mLesjusuoehfEIjDeff2BA=;
+        s=korg; t=1643057687;
+        bh=AuyhCT3B2V3UEEjSkj4AqU0jUqp3l0eUqnqkXQA3DdE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xEqc5CECRqqS4JYCO5KoQxBMvpWKuC45TFUhJK2py8rLe5jvLHL+dEHdqondbHwXF
-         BGcFC52K4nUoGWeIVl8ECt+HR80iPGMo+EK35ePkXeTRSTS6s580SUGvJtfgoh2IHL
-         igMNc08PmsQR7wdKuVX7e4AcLR2DBRP/RxlMxy5s=
+        b=ndwoz32Yvh/GTVdEurq4l/FnH+XYpn5QQa77Pfk/lk/Wcu9rM/SMVfCanKuAkHR0j
+         KmBp8rkK7sB2vdNN6yRHjCe3D0B5X0TJ0EEFCk71S+2oEd4xA4BhszN7JTa50yBkbI
+         QDS8u4y9628MpKgPRhcmTHFoMUHfEX09RLgc8Apo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.16 0040/1039] ksmbd: limits exceeding the maximum allowable outstanding requests
-Date:   Mon, 24 Jan 2022 19:30:29 +0100
-Message-Id: <20220124184126.488263460@linuxfoundation.org>
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 5.16 0045/1039] media: flexcop-usb: fix control-message timeouts
+Date:   Mon, 24 Jan 2022 19:30:34 +0100
+Message-Id: <20220124184126.659770435@linuxfoundation.org>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
 References: <20220124184125.121143506@linuxfoundation.org>
@@ -44,74 +45,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Namjae Jeon <linkinjeon@kernel.org>
+From: Johan Hovold <johan@kernel.org>
 
-commit b589f5db6d4af8f14d70e31e1276b4c017668a26 upstream.
+commit cd1798a387825cc4a51282f5a611ad05bb1ad75f upstream.
 
-If the client ignores the CreditResponse received from the server and
-continues to send the request, ksmbd limits the requests if it exceeds
-smb2 max credits.
+USB control-message timeouts are specified in milliseconds and should
+specifically not vary with CONFIG_HZ.
 
-Signed-off-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Note that the driver was multiplying some of the timeout values with HZ
+twice resulting in 3000-second timeouts with HZ=1000.
+
+Also note that two of the timeout defines are currently unused.
+
+Fixes: 2154be651b90 ("[media] redrat3: new rc-core IR transceiver device driver")
+Cc: stable@vger.kernel.org      # 3.0
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ksmbd/connection.c |    1 +
- fs/ksmbd/connection.h |    3 ++-
- fs/ksmbd/smb2misc.c   |    9 +++++++++
- fs/ksmbd/smb2pdu.c    |    1 +
- 4 files changed, 13 insertions(+), 1 deletion(-)
+ drivers/media/usb/b2c2/flexcop-usb.c |   10 +++++-----
+ drivers/media/usb/b2c2/flexcop-usb.h |   12 ++++++------
+ 2 files changed, 11 insertions(+), 11 deletions(-)
 
---- a/fs/ksmbd/connection.c
-+++ b/fs/ksmbd/connection.c
-@@ -62,6 +62,7 @@ struct ksmbd_conn *ksmbd_conn_alloc(void
- 	atomic_set(&conn->req_running, 0);
- 	atomic_set(&conn->r_count, 0);
- 	conn->total_credits = 1;
-+	conn->outstanding_credits = 1;
+--- a/drivers/media/usb/b2c2/flexcop-usb.c
++++ b/drivers/media/usb/b2c2/flexcop-usb.c
+@@ -87,7 +87,7 @@ static int flexcop_usb_readwrite_dw(stru
+ 			0,
+ 			fc_usb->data,
+ 			sizeof(u32),
+-			B2C2_WAIT_FOR_OPERATION_RDW * HZ);
++			B2C2_WAIT_FOR_OPERATION_RDW);
  
- 	init_waitqueue_head(&conn->req_running_q);
- 	INIT_LIST_HEAD(&conn->conns_list);
---- a/fs/ksmbd/connection.h
-+++ b/fs/ksmbd/connection.h
-@@ -61,7 +61,8 @@ struct ksmbd_conn {
- 	atomic_t			req_running;
- 	/* References which are made for this Server object*/
- 	atomic_t			r_count;
--	unsigned short			total_credits;
-+	unsigned int			total_credits;
-+	unsigned int			outstanding_credits;
- 	spinlock_t			credits_lock;
- 	wait_queue_head_t		req_running_q;
- 	/* Lock to protect requests list*/
---- a/fs/ksmbd/smb2misc.c
-+++ b/fs/ksmbd/smb2misc.c
-@@ -337,7 +337,16 @@ static int smb2_validate_credit_charge(s
- 			    credit_charge, conn->total_credits);
- 		ret = 1;
- 	}
-+
-+	if ((u64)conn->outstanding_credits + credit_charge > conn->vals->max_credits) {
-+		ksmbd_debug(SMB, "Limits exceeding the maximum allowable outstanding requests, given : %u, pending : %u\n",
-+			    credit_charge, conn->outstanding_credits);
-+		ret = 1;
-+	} else
-+		conn->outstanding_credits += credit_charge;
-+
- 	spin_unlock(&conn->credits_lock);
-+
- 	return ret;
- }
+ 	if (ret != sizeof(u32)) {
+ 		err("error while %s dword from %d (%d).", read ? "reading" :
+@@ -155,7 +155,7 @@ static int flexcop_usb_v8_memory_req(str
+ 			wIndex,
+ 			fc_usb->data,
+ 			buflen,
+-			nWaitTime * HZ);
++			nWaitTime);
+ 	if (ret != buflen)
+ 		ret = -EIO;
  
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -322,6 +322,7 @@ int smb2_set_rsp_credits(struct ksmbd_wo
- 	}
+@@ -248,13 +248,13 @@ static int flexcop_usb_i2c_req(struct fl
+ 		/* DKT 020208 - add this to support special case of DiSEqC */
+ 	case USB_FUNC_I2C_CHECKWRITE:
+ 		pipe = B2C2_USB_CTRL_PIPE_OUT;
+-		nWaitTime = 2;
++		nWaitTime = 2000;
+ 		request_type |= USB_DIR_OUT;
+ 		break;
+ 	case USB_FUNC_I2C_READ:
+ 	case USB_FUNC_I2C_REPEATREAD:
+ 		pipe = B2C2_USB_CTRL_PIPE_IN;
+-		nWaitTime = 2;
++		nWaitTime = 2000;
+ 		request_type |= USB_DIR_IN;
+ 		break;
+ 	default:
+@@ -281,7 +281,7 @@ static int flexcop_usb_i2c_req(struct fl
+ 			wIndex,
+ 			fc_usb->data,
+ 			buflen,
+-			nWaitTime * HZ);
++			nWaitTime);
  
- 	conn->total_credits -= credit_charge;
-+	conn->outstanding_credits -= credit_charge;
- 	credits_requested = max_t(unsigned short,
- 				  le16_to_cpu(req_hdr->CreditRequest), 1);
+ 	if (ret != buflen)
+ 		ret = -EIO;
+--- a/drivers/media/usb/b2c2/flexcop-usb.h
++++ b/drivers/media/usb/b2c2/flexcop-usb.h
+@@ -91,13 +91,13 @@ typedef enum {
+ 	UTILITY_SRAM_TESTVERIFY     = 0x16,
+ } flexcop_usb_utility_function_t;
  
+-#define B2C2_WAIT_FOR_OPERATION_RW (1*HZ)
+-#define B2C2_WAIT_FOR_OPERATION_RDW (3*HZ)
+-#define B2C2_WAIT_FOR_OPERATION_WDW (1*HZ)
++#define B2C2_WAIT_FOR_OPERATION_RW 1000
++#define B2C2_WAIT_FOR_OPERATION_RDW 3000
++#define B2C2_WAIT_FOR_OPERATION_WDW 1000
+ 
+-#define B2C2_WAIT_FOR_OPERATION_V8READ (3*HZ)
+-#define B2C2_WAIT_FOR_OPERATION_V8WRITE (3*HZ)
+-#define B2C2_WAIT_FOR_OPERATION_V8FLASH (3*HZ)
++#define B2C2_WAIT_FOR_OPERATION_V8READ 3000
++#define B2C2_WAIT_FOR_OPERATION_V8WRITE 3000
++#define B2C2_WAIT_FOR_OPERATION_V8FLASH 3000
+ 
+ typedef enum {
+ 	V8_MEMORY_PAGE_DVB_CI = 0x20,
 
 
