@@ -2,137 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 807D349AC3E
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 07:18:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E71D49AC6D
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 07:31:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244276AbiAYGSX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jan 2022 01:18:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32780 "EHLO
+        id S1349498AbiAYGbp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jan 2022 01:31:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240765AbiAYGIi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 01:08:38 -0500
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81EDCC0424E5
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 20:27:00 -0800 (PST)
-Received: by mail-pj1-x1029.google.com with SMTP id z10-20020a17090acb0a00b001b520826011so990104pjt.5
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 20:27:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=Xe3LRACBXR7aYwQU7Toi+R6xz+1zfPMtyDDslKEgPDY=;
-        b=IttA2ts5ltp5obeAHEaggqLPleZaQ6i2doT+ftX+kW9/BgtadIDk2JyO+zOadiTkWh
-         BPYv3bjWFCaKvg6Hz+g7o5lmd8t7kktql8yUjXdK9FwBiT+ZoEPwGtD9dRjJNRlDZbe9
-         hvNATlxzUGNpDOEB7rT8uORZEtiK8ChN/ug+OvjG5fP9PeuyvP57F1MqaYKYxR+R7Nvj
-         gHZ7oGsp2FoYrTwmilpFoPswIRb7Q+tOIlO5Ikp1gJJvhU+KCry2V7z7cIlhI8VRLOkX
-         0tQzFX0Rc6fojIwyZ7uYbK14gc3m2RYR90UQYYHXah8oFoxZru1bZmS+1E7C/d+FiqoT
-         SVRg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=Xe3LRACBXR7aYwQU7Toi+R6xz+1zfPMtyDDslKEgPDY=;
-        b=4CHfnXxF8oKdMO+t4OdneNo9hr6z9OlSTblkU1fyipjwZTeXpgDMq1VI24DiJYs4R/
-         JXwjmQlPV0ahrpBPEDXgjCQLluoYjKxItfGSjidzDxi0GQPhAJco8kf7G7ltX1aaxT2e
-         mJJ1KtMUJBfpoNeiiLQFG6hsKTphNFANzH57e9OEiGR16vrx9zMjd3JhA2NiyQFLy+C5
-         foLT9deaS3iLtNVg7BbuktFu4jT5LoQUg2GNe9jg7Shi74yNnc70YM/Tpwn99wS68MRi
-         ym7MJjUZ/+MDymKv18esbH1ivd8FX47UjrVVlZGDKLvUooSVhErbXjqY94Sr2UBX8Lvb
-         Th7g==
-X-Gm-Message-State: AOAM531L7zXGWINVJtFywc+zb6rRpgGmKwJJGdOr24HhnGrZ9aZOtFNp
-        UE3fe5Dd0SH/zaSf+HXndnlDwvYXh2pknKsH
-X-Google-Smtp-Source: ABdhPJzC03QjYJ/WDg8n+UxsjdnUfZl6rZOK989YiJn2xbVkRdEdDLNn5iCMkMRZNFsK7YyQcvs8tw==
-X-Received: by 2002:a17:903:41cf:b0:14a:f1af:15cc with SMTP id u15-20020a17090341cf00b0014af1af15ccmr17160124ple.122.1643084819867;
-        Mon, 24 Jan 2022 20:26:59 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id qe12sm865332pjb.14.2022.01.24.20.26.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Jan 2022 20:26:59 -0800 (PST)
-Message-ID: <61ef7c13.1c69fb81.c6cfa.3b6e@mx.google.com>
-Date:   Mon, 24 Jan 2022 20:26:59 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S1346490AbiAYG2B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 01:28:01 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2DA3C038AC1;
+        Mon, 24 Jan 2022 20:50:07 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 2B3EECE16B3;
+        Tue, 25 Jan 2022 04:50:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFD44C340E0;
+        Tue, 25 Jan 2022 04:50:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1643086204;
+        bh=MstIM0rfaGotgpIRhr3v2d3CRHPSm8jc0mTlrOLcJxo=;
+        h=Date:From:To:Subject:From;
+        b=Lrsh0Q8tGqa0pv7IbmSLB4fvrXfcSh2y3ASf2l1GTuzXuIGsewaT+D4C+eIQBXDIz
+         CiPwR3Ts9+fIKRDmtZGkmJYzb3GezUt9V57jvUdeoEI6VwQK9Oj3RYMS+6+sMxaicr
+         bf6oMYR7+/JmS21zZseT36XuDP3+sqk8y8aJmg/8=
+Date:   Mon, 24 Jan 2022 20:50:03 -0800
+From:   akpm@linux-foundation.org
+To:     aarcange@redhat.com, akpm@linux-foundation.org,
+        alex.williamson@redhat.com, jack@suse.cz, jglisse@redhat.com,
+        jhubbard@nvidia.com, kirill.shutemov@linux.intel.com,
+        mm-commits@vger.kernel.org, peterx@redhat.com,
+        stable@vger.kernel.org
+Subject:  +
+ mm-fix-invalid-page-pointer-returned-with-foll_pin-gups.patch added to -mm
+ tree
+Message-ID: <20220125045003.H9m6c36XQ%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.19.225-240-gebabcfeda281
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.19.y
-Subject: stable-rc/linux-4.19.y baseline: 166 runs,
- 1 regressions (v4.19.225-240-gebabcfeda281)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.19.y baseline: 166 runs, 1 regressions (v4.19.225-240-geb=
-abcfeda281)
 
-Regressions Summary
--------------------
+The patch titled
+     Subject: mm/gup.c: fix invalid page pointer returned with FOLL_PIN gups
+has been added to the -mm tree.  Its filename is
+     mm-fix-invalid-page-pointer-returned-with-foll_pin-gups.patch
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-fix-invalid-page-pointer-r=
+eturned-with-foll_pin-gups.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-fix-invalid-page-pointer-r=
+eturned-with-foll_pin-gups.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing=
+ your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+=46rom: Peter Xu <peterx@redhat.com>
+Subject: mm/gup.c: fix invalid page pointer returned with FOLL_PIN gups
+
+Alex reported invalid page pointer returned with pin_user_pages_remote()
+from vfio after upstream commit 4b6c33b32296 ("vfio/type1: Prepare for
+batched pinning with struct vfio_batch").  This problem breaks NVIDIA vfio
+mdev.
+
+It turns out that it's not the fault of the vfio commit; however after
+vfio switches to a full page buffer to store the page pointers it starts
+to expose the problem easier.
+
+The problem is for VM_PFNMAP vmas we should normally fail with an -EFAULT
+then vfio will carry on to handle the MMIO regions.  However when the bug
+triggered, follow_page_mask() returned -EEXIST for such a page, which will
+jump over the current page, leaving that entry in **pages untouched.=20
+However the caller is not aware of it, hence the caller will reference the
+page as usual even if the pointer data can be anything.
+
+We had that -EEXIST logic since commit 1027e4436b6a ("mm: make GUP handle
+pfn mapping unless FOLL_GET is requested") which seems very reasonable.=20
+It could be that when we reworked GUP with FOLL_PIN we could have
+overlooked that special path in commit 3faa52c03f44 ("mm/gup: track
+FOLL_PIN pages"), even if that commit rightfully touched up
+follow_devmap_pud() on checking FOLL_PIN when it needs to return an
+-EEXIST.
+
+Since at it, add another WARN_ON_ONCE() at the -EEXIST handling to make
+sure we mustn't have **pages set when reaching there, because otherwise it
+means the caller will try to read a garbage right after __get_user_pages()
+returns.
+
+Attaching the Fixes to the FOLL_PIN rework commit, as it happened later
+than 1027e4436b6a.
+
+Link: https://lkml.kernel.org/r/20220125033700.69705-1-peterx@redhat.com
+Fixes: 3faa52c03f44 ("mm/gup: track FOLL_PIN pages")
+Signed-off-by: Peter Xu <peterx@redhat.com>
+Reported-by: Alex Williamson <alex.williamson@redhat.com>
+Debugged-by: Alex Williamson <alex.williamson@redhat.com>
+Cc: Andrea Arcangeli <aarcange@redhat.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Jan Kara <jack@suse.cz>
+Cc: J=C3=A9r=C3=B4me Glisse <jglisse@redhat.com>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
 
+ mm/gup.c |    8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.19.y/ker=
-nel/v4.19.225-240-gebabcfeda281/plan/baseline/
+--- a/mm/gup.c~mm-fix-invalid-page-pointer-returned-with-foll_pin-gups
++++ a/mm/gup.c
+@@ -440,7 +440,7 @@ static int follow_pfn_pte(struct vm_area
+ 		pte_t *pte, unsigned int flags)
+ {
+ 	/* No page to get reference */
+-	if (flags & FOLL_GET)
++	if (flags & (FOLL_GET | FOLL_PIN))
+ 		return -EFAULT;
+=20
+ 	if (flags & FOLL_TOUCH) {
+@@ -1181,7 +1181,13 @@ retry:
+ 			/*
+ 			 * Proper page table entry exists, but no corresponding
+ 			 * struct page.
++			 *
++			 * Warn if we jumped over even with a valid **pages.
++			 * It shouldn't trigger in practise, but when there's
++			 * buggy returns on -EEXIST we'll warn before returning
++			 * an invalid page pointer in the array.
+ 			 */
++			WARN_ON_ONCE(pages);
+ 			goto next_page;
+ 		} else if (IS_ERR(page)) {
+ 			ret =3D PTR_ERR(page);
+_
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.19.y
-  Describe: v4.19.225-240-gebabcfeda281
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      ebabcfeda281e1c6226b219845d71930c729dae0 =
+Patches currently in -mm which might be from peterx@redhat.com are
 
+mm-fix-invalid-page-pointer-returned-with-foll_pin-gups.patch
 
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61ef43d74373dc0c25abbd32
-
-  Results:     5 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-25-240-gebabcfeda281/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-=
-panda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.19.y/v4.19.2=
-25-240-gebabcfeda281/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-=
-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61ef43d74373dc0=
-c25abbd38
-        failing since 21 days (last pass: v4.19.223, first fail: v4.19.223-=
-28-g8a19682a2687)
-        2 lines
-
-    2022-01-25T00:26:47.830107  <8>[   21.556610] <LAVA_SIGNAL_TESTCASE TES=
-T_CASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2022-01-25T00:26:47.878621  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/109
-    2022-01-25T00:26:47.888309  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-cfc [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
-
- =20
