@@ -2,164 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D1C849B7D3
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 16:43:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E415549B78A
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 16:27:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1582104AbiAYPkW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jan 2022 10:40:22 -0500
-Received: from mail-mw2nam12on2078.outbound.protection.outlook.com ([40.107.244.78]:8949
-        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1455395AbiAYPiF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jan 2022 10:38:05 -0500
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=K9OTE7yYJaSfpPGDYFFXZc0QpNE0D+U3gtBF9Ha/BDX4aagwFHygDyNEV/R9K0qkgMm9U229mJdZDF+EKcI2vpVCpn4eQu/WH3jEUdDz1dWBU6ASocKv7X3Bw+UAERLl8Ug5muh2gCF99OmNI54e+jg06OSVotRHm9vMjJqb9pxgFzei4JLaofToArcfw2XMds1il0uhuNvkl0451eFUldlW6GmKvQfMxeDe8aJ0lBb+K03/gAFufUGmdae49VcY/y5FJ1cbbN3Y/m0biGb6L2fyoGEa197GEuOYwCu1YO4fOsktXJfrNMhT5DjzFQLhIkDFwP8I1ehlFTwULs7P5A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=j4BI9fjbpYyPdKznRjP6btbTrnHFcfHt7Yy9aXty3+4=;
- b=MbbeJnmVDkFzSq/2zin/QtXT6LHkSmrNCkCs1Mki36A+Z2P6grJMszEJ4MvsZWV0jb7OOHqi58D5OHiiJMbF5bizppeybsVXgcteUlgJflyvoej+0O/piw/sdqYEMe2HgUO+TdfuC9F77JjHS3hU5dP0Tha46VfaKrWt/1yVBGtCR8MUb32bKo9YNIcjmT1vR/E2/luckNA/oAh9sfHEt8fGMfpYnJiF3DK0BE4FvGv80ol7bL0jUjakHZr4SEVKsPoLa7EqiBJYdk2m2DRa318dpuVONfdOoi9MQFDW7a7fJC3WtVmJvjy0nIoEoBMnsBk0rSZ0QJ95vIpJc/euFA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=vger.kernel.org smtp.mailfrom=amd.com;
- dmarc=pass (p=quarantine sp=quarantine pct=100) action=none
- header.from=amd.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=j4BI9fjbpYyPdKznRjP6btbTrnHFcfHt7Yy9aXty3+4=;
- b=0vo9A5k3PxIe53aatN8fQeToW5afrsMlihEmghJg+YaauBw9M2CEGa5PkcpvdgTIgttD+atdKBdPMl1Qw4fvqS/pLFcQyKCUipaA1UB4+1xCJZIB3C2DklBonZl6B2k8PWm8VDhKfB6CQHWjCuh8PYcZwXmM/MFtECfLKcsibd8=
-Received: from DM6PR03CA0095.namprd03.prod.outlook.com (2603:10b6:5:333::28)
- by BY5PR12MB4949.namprd12.prod.outlook.com (2603:10b6:a03:1df::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4930.15; Tue, 25 Jan
- 2022 15:21:15 +0000
-Received: from DM6NAM11FT005.eop-nam11.prod.protection.outlook.com
- (2603:10b6:5:333:cafe::3c) by DM6PR03CA0095.outlook.office365.com
- (2603:10b6:5:333::28) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4909.10 via Frontend
- Transport; Tue, 25 Jan 2022 15:21:14 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=SATLEXMB04.amd.com;
-Received: from SATLEXMB04.amd.com (165.204.84.17) by
- DM6NAM11FT005.mail.protection.outlook.com (10.13.172.238) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.20.4909.7 via Frontend Transport; Tue, 25 Jan 2022 15:21:14 +0000
-Received: from AUS-LX-MLIMONCI.amd.com (10.180.168.240) by SATLEXMB04.amd.com
- (10.181.40.145) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.18; Tue, 25 Jan
- 2022 09:21:13 -0600
-From:   Mario Limonciello <mario.limonciello@amd.com>
-To:     <stable@vger.kernel.org>
-CC:     <Alexander.Deucher@amd.com>, <harry.wentland@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>
-Subject: [PATCH] drm/amdgpu: Use correct VIEWPORT_DIMENSION for DCN2
-Date:   Tue, 25 Jan 2022 09:21:11 -0600
-Message-ID: <20220125152111.22515-1-mario.limonciello@amd.com>
-X-Mailer: git-send-email 2.25.1
+        id S1345735AbiAYP1D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jan 2022 10:27:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50670 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1349806AbiAYPYl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 10:24:41 -0500
+Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40A3CC061748
+        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 07:24:12 -0800 (PST)
+Received: by mail-pl1-x62e.google.com with SMTP id h14so2786903plf.1
+        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 07:24:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=5+LGruMmo07z1KI4Z4ngBCWsuhquz8xY2TMOu9SY3mg=;
+        b=lJxD3kEN4VAkwwwBSIizHXXwYN1MF7fACHoMVJ4udJsv/R4xih3/GWlosMoh37eSJx
+         3cpTEmmsct7tJ6nl5DxT3JaqEvg7xvhbC0vU9/zNkzyNB4fIR1B6+v9Qw+M8rim5C00p
+         qxPPFhsB7nSwmgjsur9KwIhQgTWvjel6Rw01DIZraGwkzI6Gxw9BM2fFg9QrOxgtModu
+         ucZwcl7SfhvBeA1m/rsyTq8H3MBfUKjymVjPN782R09BCEWsa73/aPj2eBXiMlp0as5l
+         ablaKK7Jwt1Zz3b7pY9ZGtf0ypXUCw+wvkuQ+RD7SGtBfVpx27TK5NmxhFmd7fgs2dL0
+         njVg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=5+LGruMmo07z1KI4Z4ngBCWsuhquz8xY2TMOu9SY3mg=;
+        b=ndfYgp4k8WsCxl3S3YmR0nXJcJiSoREg6MxIgJyycl/SkPEzL7UiqjGWQaBlZy1Fyl
+         Qde47iCrLFzTWaRsyE2EBf+KsOCI6dP2R3YeHokorBoOj9Spfu9nMHGQXWbhPkCWFwbm
+         5QkEpUmF+kdTysEKr6q/19+NwEbO2CEA2dGGKys/7iB23WJKcorQ8nggxxkiaqLYvl8t
+         g21X1bq20yPnZZYpAbpaMBQewup5ic+Im4D5t9oAEBGD0PcwXRWPiMXhtACYU+uRr9cZ
+         iGmmOwLOp/dNcEmYPXclKrd3uOiOI7ngcBGjXCbUS2B4g7yFu2xnM9a5PzmVAlfPz8MU
+         CFvg==
+X-Gm-Message-State: AOAM530AxwxoxmG8HIdYW1WRLon6ZaQzoXXHZgJikD0eUw5LJ2zSo+Qe
+        4kXjoS0evspTtdtAQL5uwFiVsj4JfMJjHaRJ
+X-Google-Smtp-Source: ABdhPJzNTcs6xLe10lDnaexrRBc7HQbGA4/3A9sDgLlkJOoPMWtIGYSvP+nHZ99WxxyJg6JdImfhpg==
+X-Received: by 2002:a17:90b:1c8f:: with SMTP id oo15mr3927337pjb.141.1643124251595;
+        Tue, 25 Jan 2022 07:24:11 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s6sm777881pjg.22.2022.01.25.07.24.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 25 Jan 2022 07:24:11 -0800 (PST)
+Message-ID: <61f0161b.1c69fb81.94074.1de4@mx.google.com>
+Date:   Tue, 25 Jan 2022 07:24:11 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.180.168.240]
-X-ClientProxiedBy: SATLEXMB03.amd.com (10.181.40.144) To SATLEXMB04.amd.com
- (10.181.40.145)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 81ce6076-ab35-43da-5709-08d9e01653b0
-X-MS-TrafficTypeDiagnostic: BY5PR12MB4949:EE_
-X-Microsoft-Antispam-PRVS: <BY5PR12MB49498523D80486DEBAC4E2B2E25F9@BY5PR12MB4949.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:1265;
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: nrXzZnyTzAo/j34ouUmdCDq6GZAdQKxEnpaCk7jdx+C+vIKX5ouEsWjnDyfoilCrhspeluZGodreyY5dQHWCJljV0lz11SZ3I+bNxxkOnh016ycvNt9mmBakUuH7lWky84DHiv8ry3Bpv41ETlKLSu49TdYrMM4XxyA0L9gLGMb3hxP5EzVxHtLEmLU7Ry0OR8gR22bw74X2+32xZdyT++hjW/mYJ6zL7W/MsFzyHuEgOd5DPrVH8T80+9yBPBUDRwTosTUzPMhTjau0UjwCPZr89D++VQ7/qQt7pgLSmvDrZw3g9XYTqluYPvZ0zmP6/hEOV99gTyORlVilpGKWC0a1Z+TLFttkbkVZYddPRPBB+yQoexUsRRc8fzCuRdYxN42xHeuWELpvZhzGZEejr200SFnhN0BNftnu+6qPq529pubFmdP0F9pJmXuYxe65TeHut6Uw4NqCioZitNguBK5+35yYOHLScmnCTCIQ3D2w9GFrltLuQ9X28G6/Tl6heVrAKst70847CLv2rI8CvmwXnVa6+dkoojrZlJf/FzjOUP/JH89URn3RNLkwwfCEcGhoOlGEizveulFPedLX7RDdOJM7fUE6wvmRMYteUYcktc6MsNOZsDeAbg4qp+WSecDCsPu0A/KfjbjPNXv702kQTqhoRKUOa260+HFtGIf4kQC7ld3Jz1ReIPfPhrwNnAopnRm9jGJ2pSGoCwaQ5Q==
-X-Forefront-Antispam-Report: CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:SATLEXMB04.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230001)(4636009)(46966006)(36840700001)(40470700004)(83380400001)(508600001)(2616005)(54906003)(36756003)(40460700003)(36860700001)(47076005)(16526019)(186003)(316002)(426003)(336012)(70586007)(1076003)(26005)(6916009)(5660300002)(81166007)(7696005)(356005)(44832011)(8676002)(4326008)(8936002)(70206006)(82310400004)(2906002)(86362001)(36900700001)(20210929001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Jan 2022 15:21:14.6822
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 81ce6076-ab35-43da-5709-08d9e01653b0
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[SATLEXMB04.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT005.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BY5PR12MB4949
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.16.2-1037-gab4517ce4dd3
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.16
+Subject: stable-rc/queue/5.16 baseline: 115 runs,
+ 2 regressions (v5.16.2-1037-gab4517ce4dd3)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-For some reason this file isn't using the appropriate register
-headers for DCN headers, which means that on DCN2 we're getting
-the VIEWPORT_DIMENSION offset wrong.
+stable-rc/queue/5.16 baseline: 115 runs, 2 regressions (v5.16.2-1037-gab451=
+7ce4dd3)
 
-This means that we're not correctly carving out the framebuffer
-memory correctly for a framebuffer allocated by EFI and
-therefore see corruption when loading amdgpu before the display
-driver takes over control of the framebuffer scanout.
+Regressions Summary
+-------------------
 
-Fix this by checking the DCE_HWIP and picking the correct offset
-accordingly.
+platform            | arch  | lab          | compiler | defconfig          =
+ | regressions
+--------------------+-------+--------------+----------+--------------------=
+-+------------
+imx6ul-14x14-evk    | arm   | lab-nxp      | gcc-10   | imx_v6_v7_defconfig=
+ | 1          =
 
-Long-term we should expose this info from DC as GMC shouldn't
-need to know about DCN registers.
+r8a77950-salvator-x | arm64 | lab-baylibre | gcc-10   | defconfig          =
+ | 1          =
 
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-(cherry picked from commit dc5d4aff2e99c312df8abbe1ee9a731d2913bc1b)
----
-This is backported from 5.17-rc1, but doesn't backport cleanly because
-v5.16 changed to IP version harvesting for ASIC detection.  5.15.y doesn't
-have this.
- drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
-index 5551359d5dfd..a4adbbf3acab 100644
---- a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
-@@ -72,6 +72,9 @@
- #define mmDCHUBBUB_SDPIF_MMIO_CNTRL_0                                                                  0x049d
- #define mmDCHUBBUB_SDPIF_MMIO_CNTRL_0_BASE_IDX                                                         2
- 
-+#define mmHUBP0_DCSURF_PRI_VIEWPORT_DIMENSION_DCN2                                                          0x05ea
-+#define mmHUBP0_DCSURF_PRI_VIEWPORT_DIMENSION_DCN2_BASE_IDX                                                 2
-+
- 
- static const char *gfxhub_client_ids[] = {
- 	"CB",
-@@ -1103,6 +1106,8 @@ static unsigned gmc_v9_0_get_vbios_fb_size(struct amdgpu_device *adev)
- 	u32 d1vga_control = RREG32_SOC15(DCE, 0, mmD1VGA_CONTROL);
- 	unsigned size;
- 
-+	/* TODO move to DC so GMC doesn't need to hard-code DCN registers */
-+
- 	if (REG_GET_FIELD(d1vga_control, D1VGA_CONTROL, D1VGA_MODE_ENABLE)) {
- 		size = AMDGPU_VBIOS_VGA_ALLOCATION;
- 	} else {
-@@ -1110,7 +1115,6 @@ static unsigned gmc_v9_0_get_vbios_fb_size(struct amdgpu_device *adev)
- 
- 		switch (adev->asic_type) {
- 		case CHIP_RAVEN:
--		case CHIP_RENOIR:
- 			viewport = RREG32_SOC15(DCE, 0, mmHUBP0_DCSURF_PRI_VIEWPORT_DIMENSION);
- 			size = (REG_GET_FIELD(viewport,
- 					      HUBP0_DCSURF_PRI_VIEWPORT_DIMENSION, PRI_VIEWPORT_HEIGHT) *
-@@ -1118,6 +1122,14 @@ static unsigned gmc_v9_0_get_vbios_fb_size(struct amdgpu_device *adev)
- 					      HUBP0_DCSURF_PRI_VIEWPORT_DIMENSION, PRI_VIEWPORT_WIDTH) *
- 				4);
- 			break;
-+		case CHIP_RENOIR:
-+			viewport = RREG32_SOC15(DCE, 0, mmHUBP0_DCSURF_PRI_VIEWPORT_DIMENSION_DCN2);
-+			size = (REG_GET_FIELD(viewport,
-+					      HUBP0_DCSURF_PRI_VIEWPORT_DIMENSION, PRI_VIEWPORT_HEIGHT) *
-+				REG_GET_FIELD(viewport,
-+					      HUBP0_DCSURF_PRI_VIEWPORT_DIMENSION, PRI_VIEWPORT_WIDTH) *
-+				4);
-+			break;
- 		case CHIP_VEGA10:
- 		case CHIP_VEGA12:
- 		case CHIP_VEGA20:
--- 
-2.25.1
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.16/ker=
+nel/v5.16.2-1037-gab4517ce4dd3/plan/baseline/
 
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.16
+  Describe: v5.16.2-1037-gab4517ce4dd3
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      ab4517ce4dd33fff304a9685d7ce7d966274e331 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform            | arch  | lab          | compiler | defconfig          =
+ | regressions
+--------------------+-------+--------------+----------+--------------------=
+-+------------
+imx6ul-14x14-evk    | arm   | lab-nxp      | gcc-10   | imx_v6_v7_defconfig=
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61efdd09adacaed9b6abbd17
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.2-1=
+037-gab4517ce4dd3/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx6ul-14=
+x14-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.2-1=
+037-gab4517ce4dd3/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx6ul-14=
+x14-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61efdd09adacaed9b6abb=
+d18
+        failing since 1 day (last pass: v5.16-66-ge6abef275919, first fail:=
+ v5.16.2-847-g4e4ea5113e47) =
+
+ =
+
+
+
+platform            | arch  | lab          | compiler | defconfig          =
+ | regressions
+--------------------+-------+--------------+----------+--------------------=
+-+------------
+r8a77950-salvator-x | arm64 | lab-baylibre | gcc-10   | defconfig          =
+ | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61efe16cea0e8a5f22abbd12
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.2-1=
+037-gab4517ce4dd3/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-sal=
+vator-x.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.2-1=
+037-gab4517ce4dd3/arm64/defconfig/gcc-10/lab-baylibre/baseline-r8a77950-sal=
+vator-x.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61efe16cea0e8a5f22abb=
+d13
+        new failure (last pass: v5.16.2-900-gce5c422ee966) =
+
+ =20
