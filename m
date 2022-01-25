@@ -2,243 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C7FF49B07D
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 10:44:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BEBC49B111
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 11:03:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1574000AbiAYJhC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jan 2022 04:37:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52952 "EHLO
+        id S231167AbiAYKBB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jan 2022 05:01:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1574027AbiAYJbg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 04:31:36 -0500
-Received: from mail-yb1-xb2e.google.com (mail-yb1-xb2e.google.com [IPv6:2607:f8b0:4864:20::b2e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9694C061769
-        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 01:31:31 -0800 (PST)
-Received: by mail-yb1-xb2e.google.com with SMTP id k17so4576549ybk.6
-        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 01:31:31 -0800 (PST)
+        with ESMTP id S238249AbiAYJ6o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 04:58:44 -0500
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18CDAC06174E
+        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 01:58:44 -0800 (PST)
+Received: by mail-pl1-x62a.google.com with SMTP id i1so1058795pla.9
+        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 01:58:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=uflDic+3dYMyur+pzOgW0lBnBcKIfn/jxiPD4K5JoUE=;
-        b=PA6ZqysnN4fbZTUiJ88SodYcTzem8FLgBNmsfutc4TtXmCs27IKGren09M5I1coohZ
-         25hbEn8GtFOBmmi+UhG8KlwI14LJcyx9D4X/j+5jM5dZ+xAMT3idZPG3jbU4e/LqscW4
-         YPZlMyldHFiH+MMlUK43yLYRG4I6WVXOxIbSl1fWfNgXhqsbCOFMioi0AqZ/aDEcCDhn
-         8/IoUlJI3fKppUtG+6l9X1OAjAvHlZy9xAoc+Zi9OunmlL8FuG/UsB4SY+Zpby0K6TVw
-         erzlBrM3yL/KdFSlGmV3rw0XLdXrrzM0LE2pJSr/x9bcaug2Sid2cKKxjF01o1AEP/gj
-         6ciw==
+         :cc;
+        bh=Vn0L6RsHRKBCiKCBWNgL0pspPE5cNVNqyAIXzD4B2ac=;
+        b=WCtmK8sexON+JqmlN+yhbvbUSA+hHCBa3kTTazQSI34b1IWbDnw8nUyEvS2ReTPIB0
+         lUeYI0D/neUse7fmGnV7JyyEx9fXrDQKOKiiLbfvPjSVZ+W0cM1brgwrgzgg5rZvScMx
+         GEj2aw4jFbxLZCkJ5ndXOoV/i45sGVG8uIrkAASLErvgitI41Yq56BdeJytdoDqW2K7g
+         I+MrqSNzlpb2QhRnFBsH3zL0ElvdRZrJOoGYMLarZQiai/1xSJ3Y1LQhLETAUq9eMPGm
+         aDwzFniyrzMn+CwOfSlifAkvrcGcaIQ/I2c9Ef4MPHmxO1JoNKdZGNFpFAd2BCk5K3y1
+         1mxg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=uflDic+3dYMyur+pzOgW0lBnBcKIfn/jxiPD4K5JoUE=;
-        b=FB5igpiBiu2vFM/hBGvHYprRCqN2QH5rfYZhy6b3EoHDMAnLLhhMRs8hKAw7XCNwoU
-         E6yDDIlxanWbnqZXsWaygcJ1JnhF7P7wQhtvhEMCN4TeF+DhjvBWvact0TkpaImysOdu
-         7BX3T/8hV7oGHrwITwCCpkyBHWj3KaZocPdVMNh523wJkTy/k4bFiiEuI/JHAmfOp+HR
-         aqFk9uUopPpeDtcdV+fSHCnSy7DO9lGZxTHZxy897NuXQCzv5NxUuYtDqCIvvVkm2LcG
-         2T/ZPaua4ruvCmQ2v5jleAdh0+OkSEVirQ65ez3T9cixk1HuH4rQ/LL3GwZK2r/BsIjU
-         DWRA==
-X-Gm-Message-State: AOAM530Ufs7zf+nqPharSD5JOMlaSc/yPS9r3PY+QA3JfuV3l+BVT23T
-        inKVw6sV6H93Rz8iJriVa1Y5ny2NEJOdZYIwin0dcw==
-X-Google-Smtp-Source: ABdhPJwUIIFYft0BR/NvApj8YkMD7cN4LvSJxgFjUZHQmZRG9BxGzwdumnRwZw4CnLazXBn5AiuDaerh1zdyhOQjT78=
-X-Received: by 2002:a25:838b:: with SMTP id t11mr26489620ybk.146.1643103090974;
- Tue, 25 Jan 2022 01:31:30 -0800 (PST)
+         :message-id:subject:to:cc;
+        bh=Vn0L6RsHRKBCiKCBWNgL0pspPE5cNVNqyAIXzD4B2ac=;
+        b=2sR8CGWFTi6SoFE9MfHL/xl+sWmmxs1v9/lSMNqDdAYsOwfzZIRRLEKkfGJSYVVavn
+         ovmXaiUyfQ03CATx7UUxbvsk5c6mdj8ZAFLO0GrbqIxEP6fErCBgAonsya+KQDMV4Crl
+         zhiW2zJVuXq4OxPx9F/C+J5YkC3uEuhH78bebmiuZpAFUX63Js3J6WqaacfGBCsvR/GQ
+         Ey6lBse/cyx+uddu/F1i5CzpXK7D/xnlWyDnCfXaosSeQn0w0uGL+mwqxrccywtvAO4g
+         4buLTh2oW8cQ3A7asPBzoqP8GSHvmIT1PDg3emofXYv4ZrlbaPfruXpTW3DpCfzFrOYi
+         cHIA==
+X-Gm-Message-State: AOAM533X2j1QYsA526jkgLzjwMfBRWpQFXqOR+mKUDFjHUycSyLZ/CtD
+        A35rvanTnz8cV/bPK4UDjcu4RcNWFfr2nCwS/GQt9Q==
+X-Google-Smtp-Source: ABdhPJy6iq38+iVsvEVuWBX5xlN0nG0obSDju74J6kON/LOkH6qEpvX7weUZ3u4f8T1088Lex+a6kCIupWO6SbhgX4c=
+X-Received: by 2002:a17:90a:53:: with SMTP id 19mr2702386pjb.159.1643104723636;
+ Tue, 25 Jan 2022 01:58:43 -0800 (PST)
 MIME-Version: 1.0
-References: <20220124183943.102762895@linuxfoundation.org>
-In-Reply-To: <20220124183943.102762895@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 25 Jan 2022 15:01:19 +0530
-Message-ID: <CA+G9fYsXmQvQG1VFQLFHXZTQDu4TR1ozgo_4onNzj8OXO_qagA@mail.gmail.com>
-Subject: Re: [PATCH 4.19 000/239] 4.19.226-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, stable@vger.kernel.org
+References: <20220125004046.4058284-1-bryan.odonoghue@linaro.org>
+In-Reply-To: <20220125004046.4058284-1-bryan.odonoghue@linaro.org>
+From:   Loic Poulain <loic.poulain@linaro.org>
+Date:   Tue, 25 Jan 2022 11:10:19 +0100
+Message-ID: <CAMZdPi-1Ts-wuvkBozuPGv5DRxf4wMFTrfGcK32TUFdN8v2CKg@mail.gmail.com>
+Subject: Re: [PATCH] wcn36xx: Differentiate wcn3660 from wcn3620
+To:     "Bryan O'Donoghue" <bryan.odonoghue@linaro.org>
+Cc:     kvalo@codeaurora.org, linux-wireless@vger.kernel.org,
+        wcn36xx@lists.infradead.org, linux-arm-msm@vger.kernel.org,
+        benl@squareup.com, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 25 Jan 2022 at 00:44, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+On Tue, 25 Jan 2022 at 01:40, Bryan O'Donoghue
+<bryan.odonoghue@linaro.org> wrote:
 >
-> This is the start of the stable review cycle for the 4.19.226 release.
-> There are 239 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> The spread of capability between the three WiFi silicon parts wcn36xx
+> supports is:
 >
-> Responses should be made by Wed, 26 Jan 2022 18:39:11 +0000.
-> Anything received after that time might be too late.
+> wcn3620 - 802.11 a/b/g
+> wcn3660 - 802.11 a/b/g/n
+> wcn3680 - 802.11 a/b/g/n/ac
 >
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.226-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
+> We currently treat wcn3660 as wcn3620 thus limiting it to 2GHz channels.
+> Fix this regression by ensuring we differentiate between all three parts.
 >
-> thanks,
->
-> greg k-h
+> Fixes: 8490987bdb9a ("wcn36xx: Hook and identify RF_IRIS_WCN3680")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
-
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-## Build
-* kernel: 4.19.226-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-4.19.y
-* git commit: ebabcfeda281e1c6226b219845d71930c729dae0
-* git describe: v4.19.225-240-gebabcfeda281
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
-.225-240-gebabcfeda281
-
-## Test Regressions (compared to v4.19.225-213-gad801d4f7db5)
-No test regressions found.
-
-## Metric Regressions (compared to v4.19.225-213-gad801d4f7db5)
-No metric regressions found.
-
-## Test Fixes (compared to v4.19.225-213-gad801d4f7db5)
-No test fixes found.
-
-## Metric Fixes (compared to v4.19.225-213-gad801d4f7db5)
-No metric fixes found.
-
-## Test result summary
-total: 85753, pass: 69950, fail: 717, skip: 13259, xfail: 1827
-
-## Build Summary
-* arm: 250 total, 246 passed, 4 failed
-* arm64: 35 total, 35 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 19 total, 19 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 26 total, 26 passed, 0 failed
-* powerpc: 52 total, 48 passed, 4 failed
-* s390: 12 total, 12 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 34 total, 34 passed, 0 failed
-
-## Test suites summary
-* fwts
-* kselftest-android
-* kselftest-arm64
-* kselftest-arm64/arm64.btitest.bti_c_func
-* kselftest-arm64/arm64.btitest.bti_j_func
-* kselftest-arm64/arm64.btitest.bti_jc_func
-* kselftest-arm64/arm64.btitest.bti_none_func
-* kselftest-arm64/arm64.btitest.nohint_func
-* kselftest-arm64/arm64.btitest.paciasp_func
-* kselftest-arm64/arm64.nobtitest.bti_c_func
-* kselftest-arm64/arm64.nobtitest.bti_j_func
-* kselftest-arm64/arm64.nobtitest.bti_jc_func
-* kselftest-arm64/arm64.nobtitest.bti_none_func
-* kselftest-arm64/arm64.nobtitest.nohint_func
-* kselftest-arm64/arm64.nobtitest.paciasp_func
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
+Reviewed-by: Loic Poulain <loic.poulain@linaro.org>
