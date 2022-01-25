@@ -2,129 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5157649BA2C
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 18:22:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65D4849BA57
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 18:29:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355987AbiAYRTc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jan 2022 12:19:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47458 "EHLO
+        id S243310AbiAYR2t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jan 2022 12:28:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1450461AbiAYRQ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 12:16:59 -0500
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CFF4C061775
-        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 09:16:56 -0800 (PST)
-Received: by mail-pj1-x1029.google.com with SMTP id z10-20020a17090acb0a00b001b520826011so2488572pjt.5
-        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 09:16:56 -0800 (PST)
+        with ESMTP id S1379299AbiAYRZV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 12:25:21 -0500
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20791C061751;
+        Tue, 25 Jan 2022 09:25:21 -0800 (PST)
+Received: by mail-pf1-x429.google.com with SMTP id w190so14217574pfw.7;
+        Tue, 25 Jan 2022 09:25:21 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=N5us5rLUmj/vtgUD4Lu24obN9NXCm8RoXiG2J4enXLk=;
-        b=MimT4yGukmxXxkIEHJZYS54upUwS/JtAnNKmgR8P61uXQXA7KZ1OTqgM3B3JhmibHb
-         zvYXCUPzqT+AXW5cXhwd+lu/sqOzIougaLKWU6xHdvB0E9GngmAFroWzcLZdvqDSF/e/
-         ziYmAQaN3vaycSqKqDOU6n0g6PU/LznrzKLIGXvSvZtIhBWcD6yafYMNC2VkP5ue44Ey
-         zFZZWi5+gSIqEUAndIBcelGs3pG/wL2wZgL4u95U+VDYd+ncEH85JYl+ZtavP7SGoT05
-         1xLi5jdRwrLllzlimNNiMDPxVOEI5ln0ojQVHFErqmiLKZ3mIlXyveimpIbcfmG7Ll+S
-         Tcag==
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=ArBnn73lX7kXsDhqA3RAHKvNxpah/qQgV41F/pn/EHQ=;
+        b=IMwfTBx4M1jJDUOC9wpdtjP+1Jfhx9EciOPBb83rkBVluVKZtQM5bABYqh88h16iKd
+         bo00Iv8GHJIn+mjxa3lx02yARS3fGhkuCKZu4QSq8xCdpHCQrGolriDYxjcKpjxKHhXR
+         Y5KarRmcbUoif8oOHcXxCqvmZe5IK0C9Ay0lLLiAg4zhAa+sEwODT447S3o/wJx2VwoL
+         tVI3ytSqcqjCdBWLLm6SWxDoHwIJRHmwyrurF0x5iZx/3MnzsXRhL2Gk9TnAxIPSyCqd
+         9Pd1KrkBgjq+D3DbbnUcqa2+HoKPvhEZHFhD8AotOxvGllwkkROEiDtY6lJ/C3bmxHS3
+         MmDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=N5us5rLUmj/vtgUD4Lu24obN9NXCm8RoXiG2J4enXLk=;
-        b=3FX8P8N62e6tRAXEAjBeY8MsnvKYzxU2qQU7WzvAUf5/QZXBE789Sn/d62JumcL+bj
-         wimog6x4fhTXS/zgdJEhwejHjFa+F6iEtJcYgcm9vwegHIKoqgsva7NdExMX0fdxcHVO
-         B5YTHdSi3YGCLLfM9pSL+bKgl9wRdE59QTyWgGGl4UI1jSl6yotOAtw6W2O47Tsx81HL
-         jsCRnXleIIxuUoz4LKvgZlDqpCftojDbRB0cMeBJfWkGSEbGeOjpbFOEysNhDEHGR0gd
-         3k6tbehpRA8jVWgBNe61i9iOsKA1tXBuMS8xI7tNALR9+h7YMoQmENQiU+Zjaa7Lh7q1
-         UE9Q==
-X-Gm-Message-State: AOAM531febENuOKPUKlbIcf3zZLTkKATv9Pbrw7LSEEvDbI5b3UxY3vJ
-        cONIRuweYtmGnAV/5ZxuTvQcRzdAlmkRAte8
-X-Google-Smtp-Source: ABdhPJwDfnbnwC5AYV3y8x0PqBaFUIWApGp5NEUWpi+7M0Yqfi+T0vvxP9QCVpbqqsuscxj5rSIlQA==
-X-Received: by 2002:a17:90a:34cc:: with SMTP id m12mr4612742pjf.24.1643131015920;
-        Tue, 25 Jan 2022 09:16:55 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id z14sm15312492pgr.34.2022.01.25.09.16.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Jan 2022 09:16:55 -0800 (PST)
-Message-ID: <61f03087.1c69fb81.7a215.996d@mx.google.com>
-Date:   Tue, 25 Jan 2022 09:16:55 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=ArBnn73lX7kXsDhqA3RAHKvNxpah/qQgV41F/pn/EHQ=;
+        b=Uo2OTxp8jmO5niSwbNZjWAQuTClHj+Rwz/C5lArENotUR20/+L2yj+11afEJrPzDNp
+         Q5zikj6Z7sAFdKuJn0jfU1Fta/ft6J6qGaYAfuHJc1mlcK5yoeI9+GmHcPKhAW2oTSfZ
+         jJmlTk6e416+69ZQIFsi9PFgDGdKl4EjCh2YwNuekT1Q/VAEbB6oUutggvrR+svDPeDu
+         SOfupo36XR8y7wGoMUYOw0+/fgawDHFCJRlV6NdwNHb1ME1xBYWkS7HvvNG0gk9dsSzH
+         NJf9bACYNi42sRLkAJ8Bthcpi8L3ocySRk97r4okAOnC0pYCTYT4CZXgp0bweoYRFsh0
+         mMRA==
+X-Gm-Message-State: AOAM532u9b5DYlBkCUrnEsJqKEq57NnRIG2fa+/d2GkalCtnlGnI9IW9
+        PiCjs0GMbuyhsynsJVpzIH0=
+X-Google-Smtp-Source: ABdhPJxj6XNFvCAgoxLH7/rz2PuA8ulsluXKzXhZ/4d7yvVvniaF+BXfDyqhrJB/PVWkZ8SaxzpBOg==
+X-Received: by 2002:a05:6a00:1aca:b0:4c2:8d43:8539 with SMTP id f10-20020a056a001aca00b004c28d438539mr19634554pfv.37.1643131520521;
+        Tue, 25 Jan 2022 09:25:20 -0800 (PST)
+Received: from [192.168.1.3] (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
+        by smtp.gmail.com with ESMTPSA id mh1sm948556pjb.29.2022.01.25.09.25.05
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 25 Jan 2022 09:25:19 -0800 (PST)
+Message-ID: <296f70ea-42e7-9a55-01f3-5720b51479cc@gmail.com>
+Date:   Tue, 25 Jan 2022 09:25:02 -0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.16.2-1035-g1f6012884c09
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.16.y
-Subject: stable-rc/linux-5.16.y baseline: 160 runs,
- 1 regressions (v5.16.2-1035-g1f6012884c09)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH 4.9 000/155] 4.9.298-rc2 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        sudipm.mukherjee@gmail.com, stable@vger.kernel.org
+References: <20220125155253.051565866@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220125155253.051565866@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.16.y baseline: 160 runs, 1 regressions (v5.16.2-1035-g1f6=
-012884c09)
-
-Regressions Summary
--------------------
-
-platform         | arch | lab     | compiler | defconfig           | regres=
-sions
------------------+------+---------+----------+---------------------+-------=
------
-imx6ul-14x14-evk | arm  | lab-nxp | gcc-10   | imx_v6_v7_defconfig | 1     =
-     =
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.16.y/ker=
-nel/v5.16.2-1035-g1f6012884c09/plan/baseline/
+On 1/25/2022 8:31 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.298 release.
+> There are 155 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 27 Jan 2022 15:52:30 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.298-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.16.y
-  Describe: v5.16.2-1035-g1f6012884c09
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      1f6012884c09eddb494a6fd10c42ae1037eaefb0 =
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform         | arch | lab     | compiler | defconfig           | regres=
-sions
------------------+------+---------+----------+---------------------+-------=
------
-imx6ul-14x14-evk | arm  | lab-nxp | gcc-10   | imx_v6_v7_defconfig | 1     =
-     =
-
-
-  Details:     https://kernelci.org/test/plan/id/61eff9890e46a4073babbd98
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.16.y/v5.16.2=
--1035-g1f6012884c09/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx6ul-=
-14x14-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.16.y/v5.16.2=
--1035-g1f6012884c09/arm/imx_v6_v7_defconfig/gcc-10/lab-nxp/baseline-imx6ul-=
-14x14-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61eff9890e46a4073babb=
-d99
-        failing since 0 day (last pass: v5.16.2, first fail: v5.16.2-1041-g=
-bb0f7c24685b) =
-
- =20
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
