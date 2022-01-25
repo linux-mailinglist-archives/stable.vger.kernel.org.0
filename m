@@ -2,150 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7538449BA7D
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 18:38:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FF7F49BA87
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 18:42:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240306AbiAYRiS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jan 2022 12:38:18 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:52060 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353904AbiAYRh2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 12:37:28 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CAA346147F
-        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 17:37:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A81E4C340E0;
-        Tue, 25 Jan 2022 17:37:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643132245;
-        bh=6um7pGtiXt81gBqTp8Y0shzCIjDFWelPKfQh9EpYRCo=;
-        h=Subject:To:From:Date:From;
-        b=g0rB7GFhJXskrcrip0JB5iC98JO2zHtBeGgi6KrR9kVeSygLbooR7mSPsmQuYP3Rs
-         lUB4gzdFD72+BR4LO6je6j6Srz9buv2/mglcsSGY2hvElipI1RVpu6RaBKeLMZ0JDV
-         QuyZzpP/qSFuV/4Yhc23giIMwi64LpPaCgW7dkdY=
-Subject: patch "usb: typec: tcpci: don't touch CC line if it's Vconn source" added to usb-linus
-To:     xu.yang_2@nxp.com, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com, linux@roeck-us.net,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 25 Jan 2022 18:37:22 +0100
-Message-ID: <1643132242252183@kroah.com>
+        id S1383417AbiAYRlD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jan 2022 12:41:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53696 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1383334AbiAYRkN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 12:40:13 -0500
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F11F0C06173B;
+        Tue, 25 Jan 2022 09:40:12 -0800 (PST)
+Received: by mail-pf1-x42b.google.com with SMTP id v74so17201667pfc.1;
+        Tue, 25 Jan 2022 09:40:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=A4i9D5idz/4RqGlidUA5oO1C77kyiF14iIIXmZ6Fhck=;
+        b=SkfW5quf1m7ZKWjE8OnUg+WWDrIBB3Xtiz/5zw6hRPTwTZ+ldd1ubl5n+k59hanx8H
+         VPaD68bDkPZ2iP+VTa4DF+AJB+hF++N3heyGboRSCidjdq3Kgg+YJ4AftWpKuaHmDZp/
+         a11cDsoT6sGE0u5Us7NEWPocmrgJimOHdZRf/u0sL1rsZNrDQr3A5IaDJvB8UjfxHF8P
+         ckOLeHfDbKiMikVvYD1YEwxQK7Jvyza/K50mlHVASbPxIemcckigzGrHP7BZjQgOHNC5
+         mRQOQb5h7aqSb8DEYCg7qCIKOiJEa4eHQcUszkYihPBDHL/nLLCL0fVVTEAOERrFccfe
+         yXeA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=A4i9D5idz/4RqGlidUA5oO1C77kyiF14iIIXmZ6Fhck=;
+        b=2ccMyBBu8fjTsazEAfRXppOLZjhZdcp5XOqW8GaDVsNXmVfMJEKupLHI/2ygwAQ3xq
+         +IU0P3ivMcN/n+URgrPXFKBcbQv9aI/agflR+Vy8xyXd0x96N9Zz2JAoCPecVNpa+1f+
+         7F4FjF/41QWpe3Cy57e69Fe9tu9doe5aUQ3jnse7/p8gkdG43LSqZJzqBAeHCDoerDib
+         9qBoCq538eueZMnem5OEwvXnmJbmU33aCTZ5Cj7L7AF2/myNmVuJ2FIVVI3M4uHDn1m4
+         sqS4TTKdVrqEj1TuMPMKEK4mN4+PgTJ8miRpsX8MCMFPUYLqP8oIL7I7osw+yJGsD69b
+         OKGg==
+X-Gm-Message-State: AOAM530SD/np7cWeU/yeHqqaiJJGRQ9x+BckkFWwRtVj334TKAph91Ls
+        GvI2hOvg9dehk7tqd2d1yKA=
+X-Google-Smtp-Source: ABdhPJxXiMogpmdw9Mu0RlCbeyE+HxHOn5FjP1a1lFw0PxvrBu/QBnkzpceM16E3rjhjR/GPzkfGmQ==
+X-Received: by 2002:a63:6e45:: with SMTP id j66mr8959707pgc.81.1643132412466;
+        Tue, 25 Jan 2022 09:40:12 -0800 (PST)
+Received: from [192.168.1.3] (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
+        by smtp.gmail.com with ESMTPSA id k16sm6486194pgh.45.2022.01.25.09.40.10
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 25 Jan 2022 09:40:11 -0800 (PST)
+Message-ID: <4076304d-19ef-4eb8-f4e3-5bbc218e1d62@gmail.com>
+Date:   Tue, 25 Jan 2022 09:40:10 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH 5.4 000/316] 5.4.174-rc2 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        sudipm.mukherjee@gmail.com, stable@vger.kernel.org
+References: <20220125155315.237374794@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220125155315.237374794@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-This is a note to let you know that I've just added the patch titled
 
-    usb: typec: tcpci: don't touch CC line if it's Vconn source
+On 1/25/2022 8:32 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.174 release.
+> There are 316 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 27 Jan 2022 15:52:30 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.174-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 5638b0dfb6921f69943c705383ff40fb64b987f2 Mon Sep 17 00:00:00 2001
-From: Xu Yang <xu.yang_2@nxp.com>
-Date: Thu, 13 Jan 2022 17:29:43 +0800
-Subject: usb: typec: tcpci: don't touch CC line if it's Vconn source
-
-With the AMS and Collision Avoidance, tcpm often needs to change the CC's
-termination. When one CC line is sourcing Vconn, if we still change its
-termination, the voltage of the another CC line is likely to be fluctuant
-and unstable.
-
-Therefore, we should verify whether a CC line is sourcing Vconn before
-changing its termination and only change the termination that is not
-a Vconn line. This can be done by reading the Vconn Present bit of
-POWER_ STATUS register. To determine the polarity, we can read the
-Plug Orientation bit of TCPC_CONTROL register. Since Vconn can only be
-sourced if Plug Orientation is set.
-
-Fixes: 0908c5aca31e ("usb: typec: tcpm: AMS and Collision Avoidance")
-cc: <stable@vger.kernel.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Xu Yang <xu.yang_2@nxp.com>
-Link: https://lore.kernel.org/r/20220113092943.752372-1-xu.yang_2@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/typec/tcpm/tcpci.c | 26 ++++++++++++++++++++++++++
- drivers/usb/typec/tcpm/tcpci.h |  1 +
- 2 files changed, 27 insertions(+)
-
-diff --git a/drivers/usb/typec/tcpm/tcpci.c b/drivers/usb/typec/tcpm/tcpci.c
-index 35a1307349a2..e07d26a3cd8e 100644
---- a/drivers/usb/typec/tcpm/tcpci.c
-+++ b/drivers/usb/typec/tcpm/tcpci.c
-@@ -75,9 +75,25 @@ static int tcpci_write16(struct tcpci *tcpci, unsigned int reg, u16 val)
- static int tcpci_set_cc(struct tcpc_dev *tcpc, enum typec_cc_status cc)
- {
- 	struct tcpci *tcpci = tcpc_to_tcpci(tcpc);
-+	bool vconn_pres;
-+	enum typec_cc_polarity polarity = TYPEC_POLARITY_CC1;
- 	unsigned int reg;
- 	int ret;
- 
-+	ret = regmap_read(tcpci->regmap, TCPC_POWER_STATUS, &reg);
-+	if (ret < 0)
-+		return ret;
-+
-+	vconn_pres = !!(reg & TCPC_POWER_STATUS_VCONN_PRES);
-+	if (vconn_pres) {
-+		ret = regmap_read(tcpci->regmap, TCPC_TCPC_CTRL, &reg);
-+		if (ret < 0)
-+			return ret;
-+
-+		if (reg & TCPC_TCPC_CTRL_ORIENTATION)
-+			polarity = TYPEC_POLARITY_CC2;
-+	}
-+
- 	switch (cc) {
- 	case TYPEC_CC_RA:
- 		reg = (TCPC_ROLE_CTRL_CC_RA << TCPC_ROLE_CTRL_CC1_SHIFT) |
-@@ -112,6 +128,16 @@ static int tcpci_set_cc(struct tcpc_dev *tcpc, enum typec_cc_status cc)
- 		break;
- 	}
- 
-+	if (vconn_pres) {
-+		if (polarity == TYPEC_POLARITY_CC2) {
-+			reg &= ~(TCPC_ROLE_CTRL_CC1_MASK << TCPC_ROLE_CTRL_CC1_SHIFT);
-+			reg |= (TCPC_ROLE_CTRL_CC_OPEN << TCPC_ROLE_CTRL_CC1_SHIFT);
-+		} else {
-+			reg &= ~(TCPC_ROLE_CTRL_CC2_MASK << TCPC_ROLE_CTRL_CC2_SHIFT);
-+			reg |= (TCPC_ROLE_CTRL_CC_OPEN << TCPC_ROLE_CTRL_CC2_SHIFT);
-+		}
-+	}
-+
- 	ret = regmap_write(tcpci->regmap, TCPC_ROLE_CTRL, reg);
- 	if (ret < 0)
- 		return ret;
-diff --git a/drivers/usb/typec/tcpm/tcpci.h b/drivers/usb/typec/tcpm/tcpci.h
-index 2be7a77d400e..b2edd45f13c6 100644
---- a/drivers/usb/typec/tcpm/tcpci.h
-+++ b/drivers/usb/typec/tcpm/tcpci.h
-@@ -98,6 +98,7 @@
- #define TCPC_POWER_STATUS_SOURCING_VBUS	BIT(4)
- #define TCPC_POWER_STATUS_VBUS_DET	BIT(3)
- #define TCPC_POWER_STATUS_VBUS_PRES	BIT(2)
-+#define TCPC_POWER_STATUS_VCONN_PRES	BIT(1)
- #define TCPC_POWER_STATUS_SINKING_VBUS	BIT(0)
- 
- #define TCPC_FAULT_STATUS		0x1f
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
 -- 
-2.35.0
-
-
+Florian
