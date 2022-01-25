@@ -2,241 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2DCC49B3EB
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 13:26:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39FFC49B412
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 13:38:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1383097AbiAYM0N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jan 2022 07:26:13 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58964 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1448232AbiAYMXb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 07:23:31 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6193FB81625;
-        Tue, 25 Jan 2022 12:23:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CED1FC340E0;
-        Tue, 25 Jan 2022 12:23:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643113406;
-        bh=BGcqT1Hh464xaMuyKTMsKYRn4Nlvv0BL5hEvK5Qz5/o=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:From;
-        b=op0NLFetD4D+ZQ5Ac90Nzpo6BxW9KTBSvwOsN+Z+FNTqqhQ/rmkokq+21VK03Mp9f
-         V9OJM6Y4c8LOEiRlLxv28yw6KjNZ+/q7VUYBuVM+EXcrtH1hszern7lEOD/BpCFBP7
-         x8dLZYiJJR+0OHlvGtRuxT/tCVTPmp27F7Lm6SpdIFGszxZFS38cRgOrXi1xwFjlvJ
-         RRtp51HZH23y5lFxzNJNKYN9Wa8zi5vG5H2vFRA8Pycpw3neHNLyaoBKCY9vllT5q9
-         mCvkr0RmqUX63j+FXiTGcz2WfK6CJvS+1M3DF0xruv4FuqvCgVoJftDKGH3FtL1LWS
-         HLn/AZW933VKA==
-Date:   Tue, 25 Jan 2022 06:23:23 -0600
-From:   Bjorn Helgaas <helgaas@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Theodore Tso <tytso@mit.edu>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Lukas Wunner <lukas@wunner.de>
-Subject: Re: [PATCH 5.16 0873/1039] PCI: pciehp: Use
- down_read/write_nested(reset_lock) to fix lockdep errors
-Message-ID: <20220125122323.GA1597465@bhelgaas>
+        id S1383655AbiAYMiw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jan 2022 07:38:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39376 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1451351AbiAYMej (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 07:34:39 -0500
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACB32C061769;
+        Tue, 25 Jan 2022 04:34:38 -0800 (PST)
+Received: by mail-wr1-x42a.google.com with SMTP id e8so17835987wrc.0;
+        Tue, 25 Jan 2022 04:34:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=XU7BD3ZCwSatg7jSB64inzSJiC7IsFXIbFfu4ywKzMU=;
+        b=HFRXWbjFZwTAqv/NjKXo/nKLZ86h7hbHRecQhkPDbgdfezb/qA9aC4UDfkmKy57f8H
+         CalqE9+XDJ8YD0fjFFKvf8A1RfN5lztuEJjhG/g8kTF5AEnKY01G9C90Iy87d27FIYNQ
+         EZG1ow5Hx5BX9tZMD4E61TUONqjDmrKqIqdblTAeySBNSgHkVorBvHt9CD70TyfPgHXI
+         J2a7ONxPEGi5LMdQ4Od3vi6jYexeQ+jeR26tKNA3CDk+7GNtjERlagGM+6o6rpaa/y+n
+         CAhPNdiQO4qt+zH3V3bX+JAMYOtiaI0Wl44j9YKAVchnOYVSmm7r/gGrFnRYwB7Xg71l
+         r+rQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=XU7BD3ZCwSatg7jSB64inzSJiC7IsFXIbFfu4ywKzMU=;
+        b=pH9lE6dS+tbxt55YvcloUv991cmNY9QJHC1exhI+2vl1Gx1vaJWiVL6Mh+guvroky4
+         njTv0mqF7NN8vfY0JcTIu6zicVxeNmE4J8MtMeWpVyum6xLAQiwiAGmdxGCi4YNFXDSc
+         WFDQjDKmjrOY1ptA18kE9aL2WXjkNmx2ieNwwaNCk4IncN/XefrNj6z1vrqr4GrmoAkq
+         QJqVDfEVArlRIrihELCgns8cAG2YXF5/U+MYNSAtGmwiN55WaiIUysYfgl1ZIn+FzBPE
+         Rl/BnKW+zW/XqeFANEbQJE38DRzBUxYSCsK6yoVP78zAE2CxVDNWRl/+Tppf+R0LjsIy
+         o4CA==
+X-Gm-Message-State: AOAM530emckiLjVt29pq/2OXxdt0VH7A74+ox7sv3fhFwcK57Mc4mOcP
+        cCkQLEkN36Wx+WlMIvqZdiUpSWZOA6Y=
+X-Google-Smtp-Source: ABdhPJwtJj3Putd2RYBejOhKxuX/HNBAXLYwr58mXSXw8ALxLch+seyPNA09653LY7qWWg4gUtuIBg==
+X-Received: by 2002:adf:fc8e:: with SMTP id g14mr18057287wrr.260.1643114077318;
+        Tue, 25 Jan 2022 04:34:37 -0800 (PST)
+Received: from heron.intern.cm-ag (p200300dc6f046a000000000000000fd2.dip0.t-ipconnect.de. [2003:dc:6f04:6a00::fd2])
+        by smtp.gmail.com with ESMTPSA id e10sm1558633wrq.53.2022.01.25.04.34.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 25 Jan 2022 04:34:36 -0800 (PST)
+From:   Max Kellermann <max.kellermann@gmail.com>
+To:     linux-pwm@vger.kernel.org, thierry.reding@gmail.com,
+        u.kleine-koenig@pengutronix.de, lee.jones@linaro.org
+Cc:     linux-kernel@vger.kernel.org, andrey@lebedev.lt,
+        Max Kellermann <max.kellermann@gmail.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/3] pwm-sun4i: convert "next_period" to local variable
+Date:   Tue, 25 Jan 2022 13:34:27 +0100
+Message-Id: <20220125123429.3490883-1-max.kellermann@gmail.com>
+X-Mailer: git-send-email 2.34.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220124184154.642601971@linuxfoundation.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 24, 2022 at 07:44:22PM +0100, Greg Kroah-Hartman wrote:
-> From: Hans de Goede <hdegoede@redhat.com>
-> 
-> commit 085a9f43433f30cbe8a1ade62d9d7827c3217f4d upstream.
+Its value is calculated in sun4i_pwm_apply() and is used only there.
 
-I would hold off on backporting the pciehp changes until we resolve
-this regression in v5.17-rc1:
+Cc: stable@vger.kernel.org
+Signed-off-by: Max Kellermann <max.kellermann@gmail.com>
+---
+ drivers/pwm/pwm-sun4i.c | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
-  https://bugzilla.kernel.org/show_bug.cgi?id=215525
+diff --git a/drivers/pwm/pwm-sun4i.c b/drivers/pwm/pwm-sun4i.c
+index 91ca67651abd..c7c564a6bf36 100644
+--- a/drivers/pwm/pwm-sun4i.c
++++ b/drivers/pwm/pwm-sun4i.c
+@@ -89,7 +89,6 @@ struct sun4i_pwm_chip {
+ 	void __iomem *base;
+ 	spinlock_t ctrl_lock;
+ 	const struct sun4i_pwm_data *data;
+-	unsigned long next_period[2];
+ };
+ 
+ static inline struct sun4i_pwm_chip *to_sun4i_pwm_chip(struct pwm_chip *chip)
+@@ -237,6 +236,7 @@ static int sun4i_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+ 	int ret;
+ 	unsigned int delay_us, prescaler = 0;
+ 	unsigned long now;
++	unsigned long next_period;
+ 	bool bypass;
+ 
+ 	pwm_get_state(pwm, &cstate);
+@@ -284,7 +284,7 @@ static int sun4i_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+ 
+ 	val = (duty & PWM_DTY_MASK) | PWM_PRD(period);
+ 	sun4i_pwm_writel(sun4i_pwm, val, PWM_CH_PRD(pwm->hwpwm));
+-	sun4i_pwm->next_period[pwm->hwpwm] = jiffies +
++	next_period = jiffies +
+ 		nsecs_to_jiffies(cstate.period + 1000);
+ 
+ 	if (state->polarity != PWM_POLARITY_NORMAL)
+@@ -306,9 +306,8 @@ static int sun4i_pwm_apply(struct pwm_chip *chip, struct pwm_device *pwm,
+ 
+ 	/* We need a full period to elapse before disabling the channel. */
+ 	now = jiffies;
+-	if (time_before(now, sun4i_pwm->next_period[pwm->hwpwm])) {
+-		delay_us = jiffies_to_usecs(sun4i_pwm->next_period[pwm->hwpwm] -
+-					   now);
++	if (time_before(now, next_period)) {
++		delay_us = jiffies_to_usecs(next_period - now);
+ 		if ((delay_us / 500) > MAX_UDELAY_MS)
+ 			msleep(delay_us / 1000 + 1);
+ 		else
+-- 
+2.34.0
 
-> Use down_read_nested() and down_write_nested() when taking the
-> ctrl->reset_lock rw-sem, passing the number of PCIe hotplug controllers in
-> the path to the PCI root bus as lock subclass parameter.
-> 
-> This fixes the following false-positive lockdep report when unplugging a
-> Lenovo X1C8 from a Lenovo 2nd gen TB3 dock:
-> 
->   pcieport 0000:06:01.0: pciehp: Slot(1): Link Down
->   pcieport 0000:06:01.0: pciehp: Slot(1): Card not present
->   ============================================
->   WARNING: possible recursive locking detected
->   5.16.0-rc2+ #621 Not tainted
->   --------------------------------------------
->   irq/124-pciehp/86 is trying to acquire lock:
->   ffff8e5ac4299ef8 (&ctrl->reset_lock){.+.+}-{3:3}, at: pciehp_check_presence+0x23/0x80
-> 
->   but task is already holding lock:
->   ffff8e5ac4298af8 (&ctrl->reset_lock){.+.+}-{3:3}, at: pciehp_ist+0xf3/0x180
-> 
->    other info that might help us debug this:
->    Possible unsafe locking scenario:
-> 
-> 	 CPU0
-> 	 ----
->     lock(&ctrl->reset_lock);
->     lock(&ctrl->reset_lock);
-> 
->    *** DEADLOCK ***
-> 
->    May be due to missing lock nesting notation
-> 
->   3 locks held by irq/124-pciehp/86:
->    #0: ffff8e5ac4298af8 (&ctrl->reset_lock){.+.+}-{3:3}, at: pciehp_ist+0xf3/0x180
->    #1: ffffffffa3b024e8 (pci_rescan_remove_lock){+.+.}-{3:3}, at: pciehp_unconfigure_device+0x31/0x110
->    #2: ffff8e5ac1ee2248 (&dev->mutex){....}-{3:3}, at: device_release_driver+0x1c/0x40
-> 
->   stack backtrace:
->   CPU: 4 PID: 86 Comm: irq/124-pciehp Not tainted 5.16.0-rc2+ #621
->   Hardware name: LENOVO 20U90SIT19/20U90SIT19, BIOS N2WET30W (1.20 ) 08/26/2021
->   Call Trace:
->    <TASK>
->    dump_stack_lvl+0x59/0x73
->    __lock_acquire.cold+0xc5/0x2c6
->    lock_acquire+0xb5/0x2b0
->    down_read+0x3e/0x50
->    pciehp_check_presence+0x23/0x80
->    pciehp_runtime_resume+0x5c/0xa0
->    device_for_each_child+0x45/0x70
->    pcie_port_device_runtime_resume+0x20/0x30
->    pci_pm_runtime_resume+0xa7/0xc0
->    __rpm_callback+0x41/0x110
->    rpm_callback+0x59/0x70
->    rpm_resume+0x512/0x7b0
->    __pm_runtime_resume+0x4a/0x90
->    __device_release_driver+0x28/0x240
->    device_release_driver+0x26/0x40
->    pci_stop_bus_device+0x68/0x90
->    pci_stop_bus_device+0x2c/0x90
->    pci_stop_and_remove_bus_device+0xe/0x20
->    pciehp_unconfigure_device+0x6c/0x110
->    pciehp_disable_slot+0x5b/0xe0
->    pciehp_handle_presence_or_link_change+0xc3/0x2f0
->    pciehp_ist+0x179/0x180
-> 
-> This lockdep warning is triggered because with Thunderbolt, hotplug ports
-> are nested. When removing multiple devices in a daisy-chain, each hotplug
-> port's reset_lock may be acquired recursively. It's never the same lock, so
-> the lockdep splat is a false positive.
-> 
-> Because locks at the same hierarchy level are never acquired recursively, a
-> per-level lockdep class is sufficient to fix the lockdep warning.
-> 
-> The choice to use one lockdep subclass per pcie-hotplug controller in the
-> path to the root-bus was made to conserve class keys because their number
-> is limited and the complexity grows quadratically with number of keys
-> according to Documentation/locking/lockdep-design.rst.
-> 
-> Link: https://lore.kernel.org/linux-pci/20190402021933.GA2966@mit.edu/
-> Link: https://lore.kernel.org/linux-pci/de684a28-9038-8fc6-27ca-3f6f2f6400d7@redhat.com/
-> Link: https://lore.kernel.org/r/20211217141709.379663-1-hdegoede@redhat.com
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=208855
-> Reported-by: "Theodore Ts'o" <tytso@mit.edu>
-> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-> Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-> Reviewed-by: Lukas Wunner <lukas@wunner.de>
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
->  drivers/pci/hotplug/pciehp.h      |    3 +++
->  drivers/pci/hotplug/pciehp_core.c |    2 +-
->  drivers/pci/hotplug/pciehp_hpc.c  |   21 ++++++++++++++++++---
->  3 files changed, 22 insertions(+), 4 deletions(-)
-> 
-> --- a/drivers/pci/hotplug/pciehp.h
-> +++ b/drivers/pci/hotplug/pciehp.h
-> @@ -75,6 +75,8 @@ extern int pciehp_poll_time;
->   * @reset_lock: prevents access to the Data Link Layer Link Active bit in the
->   *	Link Status register and to the Presence Detect State bit in the Slot
->   *	Status register during a slot reset which may cause them to flap
-> + * @depth: Number of additional hotplug ports in the path to the root bus,
-> + *	used as lock subclass for @reset_lock
->   * @ist_running: flag to keep user request waiting while IRQ thread is running
->   * @request_result: result of last user request submitted to the IRQ thread
->   * @requester: wait queue to wake up on completion of user request,
-> @@ -106,6 +108,7 @@ struct controller {
->  
->  	struct hotplug_slot hotplug_slot;	/* hotplug core interface */
->  	struct rw_semaphore reset_lock;
-> +	unsigned int depth;
->  	unsigned int ist_running;
->  	int request_result;
->  	wait_queue_head_t requester;
-> --- a/drivers/pci/hotplug/pciehp_core.c
-> +++ b/drivers/pci/hotplug/pciehp_core.c
-> @@ -166,7 +166,7 @@ static void pciehp_check_presence(struct
->  {
->  	int occupied;
->  
-> -	down_read(&ctrl->reset_lock);
-> +	down_read_nested(&ctrl->reset_lock, ctrl->depth);
->  	mutex_lock(&ctrl->state_lock);
->  
->  	occupied = pciehp_card_present_or_link_active(ctrl);
-> --- a/drivers/pci/hotplug/pciehp_hpc.c
-> +++ b/drivers/pci/hotplug/pciehp_hpc.c
-> @@ -583,7 +583,7 @@ static void pciehp_ignore_dpc_link_chang
->  	 * the corresponding link change may have been ignored above.
->  	 * Synthesize it to ensure that it is acted on.
->  	 */
-> -	down_read(&ctrl->reset_lock);
-> +	down_read_nested(&ctrl->reset_lock, ctrl->depth);
->  	if (!pciehp_check_link_active(ctrl))
->  		pciehp_request(ctrl, PCI_EXP_SLTSTA_DLLSC);
->  	up_read(&ctrl->reset_lock);
-> @@ -746,7 +746,7 @@ static irqreturn_t pciehp_ist(int irq, v
->  	 * Disable requests have higher priority than Presence Detect Changed
->  	 * or Data Link Layer State Changed events.
->  	 */
-> -	down_read(&ctrl->reset_lock);
-> +	down_read_nested(&ctrl->reset_lock, ctrl->depth);
->  	if (events & DISABLE_SLOT)
->  		pciehp_handle_disable_request(ctrl);
->  	else if (events & (PCI_EXP_SLTSTA_PDC | PCI_EXP_SLTSTA_DLLSC))
-> @@ -906,7 +906,7 @@ int pciehp_reset_slot(struct hotplug_slo
->  	if (probe)
->  		return 0;
->  
-> -	down_write(&ctrl->reset_lock);
-> +	down_write_nested(&ctrl->reset_lock, ctrl->depth);
->  
->  	if (!ATTN_BUTTN(ctrl)) {
->  		ctrl_mask |= PCI_EXP_SLTCTL_PDCE;
-> @@ -962,6 +962,20 @@ static inline void dbg_ctrl(struct contr
->  
->  #define FLAG(x, y)	(((x) & (y)) ? '+' : '-')
->  
-> +static inline int pcie_hotplug_depth(struct pci_dev *dev)
-> +{
-> +	struct pci_bus *bus = dev->bus;
-> +	int depth = 0;
-> +
-> +	while (bus->parent) {
-> +		bus = bus->parent;
-> +		if (bus->self && bus->self->is_hotplug_bridge)
-> +			depth++;
-> +	}
-> +
-> +	return depth;
-> +}
-> +
->  struct controller *pcie_init(struct pcie_device *dev)
->  {
->  	struct controller *ctrl;
-> @@ -975,6 +989,7 @@ struct controller *pcie_init(struct pcie
->  		return NULL;
->  
->  	ctrl->pcie = dev;
-> +	ctrl->depth = pcie_hotplug_depth(dev->port);
->  	pcie_capability_read_dword(pdev, PCI_EXP_SLTCAP, &slot_cap);
->  
->  	if (pdev->hotplug_user_indicators)
-> 
-> 
