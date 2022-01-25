@@ -2,111 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC2D349BE96
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 23:35:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F36049BEB8
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 23:39:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233909AbiAYWf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jan 2022 17:35:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37068 "EHLO
+        id S233932AbiAYWjR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jan 2022 17:39:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233907AbiAYWf0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 17:35:26 -0500
-Received: from mail-pl1-x629.google.com (mail-pl1-x629.google.com [IPv6:2607:f8b0:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D9CAC06173B
-        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 14:35:26 -0800 (PST)
-Received: by mail-pl1-x629.google.com with SMTP id y17so10379312plg.7
-        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 14:35:26 -0800 (PST)
+        with ESMTP id S233930AbiAYWjR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 17:39:17 -0500
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B7C4C06173B
+        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 14:39:16 -0800 (PST)
+Received: by mail-pf1-x429.google.com with SMTP id i17so3528681pfq.13
+        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 14:39:16 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=0M7owXOq3qZGARwQYEE9e9GWNAqaRqztJrKeOng9vpc=;
-        b=GdXEKlQYElIv9ULr8hBZlH/RH+MXzURiXhviAl2U5C+ney1iy5A/FTp1R85BY5qoQV
-         lq8aGWzcgT10MFDGyQENO04//aWdjb6pwUD7DZuNWjLOwYxTPaxhl4FwEIZzl4FbucGO
-         X6KkemzdlyE/ivuQkzdQlXErA/vQUuBadJcLEXHtdzjUPl0YCUpkusaceoGXhyXMorst
-         IxTLYJv8X8wtNCTrcmpYcT7G8uLlvfI2cSWGvS6go0nP9TVOeZRiBTw7yFyjRqfZsKF8
-         F/noUbGwF2CWwvw8rA2vSvj/c4wKFOpRE1cPPRKq2IQ/E/vEcFeYap6i5oBv8kYqgpws
-         HYTg==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=IvD2hG3oH/JSHYDsC8zviWFYhaXgrEUMQsSDncS7sVk=;
+        b=a5+oGh4MuYLFgXYTuWR1yJxEvYh9OWNW35ejZZpDjl4rVZnwtk6TnBXLqJ+VVhsDm0
+         D6Or7StGwjI1Yzkc1NPw239otPBUjRbZv+7xS7i1iLQYszLKnqgsOGLX/PSGl9yQqgCL
+         IK9GAixrhY6UsFW2RW6Ir9sBLIUzhhgMtP53TL1asLLay3dFcTJoncsG154WZmH2gr0A
+         O0nEpwwbneB22A90wRzIdnXdjnLtH8LuJq5RiKnZXZIXCSATGVoQ9oGPC0nhns2327he
+         +J2M0/6ix+rP85sr+N0yl6cu/h7nXG64K7BXx0KzL1D3/7Lxu5y+SIESmhq/3Cp3mXIS
+         Lq/A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=0M7owXOq3qZGARwQYEE9e9GWNAqaRqztJrKeOng9vpc=;
-        b=NfNVNOy3Z4tJR4laQ3bO9T95my8Zn9XiPxY9ZRINhkxznmaWIW8QBCSKOxAw9ZmUdV
-         kMuhzy2VGomvrsSmQExsN5eZikQXLKt24Trj6MnHKAsZDpFWtJSI/5ogoppPPKaF3xlm
-         Q/dozJx+zbHUq4fvBdXJuq0f8wx0zja9GsnarBQdzwYVoysomejlkETfDk+JOFr1e7tn
-         FMuHL1RGnmIBiMDaicIThovlfSJpJB5D6lyXe5GBA3heddnHi9SfA+efmFXIpSQzc+vQ
-         +9PiydqZH8SswSZf4V95eSmtiCtvJZkygwCbEbaBTscUp1+BxvwmpdO20B4Lp7iQ8SYm
-         vcVQ==
-X-Gm-Message-State: AOAM533rlllm+e1bhLzdaNeEsgABivers4EBZZn4P1V8GNBWSws8qK0S
-        Lr03eQclcoWQA7urzy7Bw/RNuw==
-X-Google-Smtp-Source: ABdhPJzhWRXWvLTvNxTrJFdDr3lGvVUpTgZQOwkQPqZksFF24Yp2wsQ2KSrTP6Vrogw0bqtD+9C+Eg==
-X-Received: by 2002:a17:90b:2243:: with SMTP id hk3mr20891pjb.181.1643150125398;
-        Tue, 25 Jan 2022 14:35:25 -0800 (PST)
-Received: from google.com (157.214.185.35.bc.googleusercontent.com. [35.185.214.157])
-        by smtp.gmail.com with ESMTPSA id e17sm40659pfj.168.2022.01.25.14.35.24
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=IvD2hG3oH/JSHYDsC8zviWFYhaXgrEUMQsSDncS7sVk=;
+        b=cEtxyUuydechFa63SmpWnNCMJqeFW1j22hw6pZODNKwKPYh+F8UJW8XbK/p0MpBG5g
+         xgBVDc0PiYqabWBC1VYRuG/GYEkBKsBpk3LxAp3sM108iLQOKPl1vRJkOT4OR5F3gokw
+         nU4ET1LMejE4c8+czw9qsJUrIwby2UdZ/ih0et/K1NSk37wd6R+ZspKLuOKFH9Ztb0Ok
+         8JZKUvjClF7IajkisB12LdeFUEQYpgWYuluJno9/3aHZitJA7s2eCcnz9ZKGtBp+Jifq
+         x4EDpkTa2VFITZSoHitQScbqAKdzPUgQelGDNvYYhq+JLWmEb3wKLtaQXsm3n6+H39I/
+         a6Uw==
+X-Gm-Message-State: AOAM530AmZeW1xhgySZhFPA2UGKyA6aZFxD3j5W2aLnwhgA5g87Zd5wO
+        skFy72rnJ1iMoiDhqY/wvAEBH3jjkp5a3TO0
+X-Google-Smtp-Source: ABdhPJztMl8AfYmxMcxJnjagHTWDAL1c0pEhxJmzTkVzVLJ9mA+YZadmUqOee79KoBnpPnZcxpar+A==
+X-Received: by 2002:a62:1cd6:0:b0:4c7:f6ae:2257 with SMTP id c205-20020a621cd6000000b004c7f6ae2257mr14658366pfc.59.1643150355909;
+        Tue, 25 Jan 2022 14:39:15 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q19sm44209pfn.159.2022.01.25.14.39.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Jan 2022 14:35:24 -0800 (PST)
-Date:   Tue, 25 Jan 2022 22:35:21 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     Tadeusz Struk <tadeusz.struk@linaro.org>
-Cc:     Paolo Bonzini <pbonzini@redhat.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Jim Mattson <jmattson@google.com>,
-        Joerg Roedel <joro@8bytes.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, kvm@vger.kernel.org,
-        stable@vger.kernel.org,
-        syzbot+6cde2282daa792c49ab8@syzkaller.appspotmail.com
-Subject: Re: [PATCH RESEND] KVM: x86/mmu: fix UAF in
- paging_update_accessed_dirty_bits
-Message-ID: <YfB7KWFNMvo0FkCO@google.com>
-References: <20220124172633.103323-1-tadeusz.struk@linaro.org>
- <6fd96538-b767-41e8-0cca-5b9be1dbb1c9@redhat.com>
- <Ye7wCbRpcbU2G4qH@google.com>
- <a806f5e1-9247-679c-4990-0bbf6c8de9d9@linaro.org>
+        Tue, 25 Jan 2022 14:39:15 -0800 (PST)
+Message-ID: <61f07c13.1c69fb81.d0609.02c9@mx.google.com>
+Date:   Tue, 25 Jan 2022 14:39:15 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <a806f5e1-9247-679c-4990-0bbf6c8de9d9@linaro.org>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.9.297-155-g882382565432
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.9
+Subject: stable-rc/queue/4.9 baseline: 102 runs,
+ 2 regressions (v4.9.297-155-g882382565432)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 24, 2022, Tadeusz Struk wrote:
-> On 1/24/22 10:29, Sean Christopherson wrote:
-> > On Mon, Jan 24, 2022, Paolo Bonzini wrote:
-> > > On 1/24/22 18:26, Tadeusz Struk wrote:
-> > > > Syzbot reported an use-after-free bug in update_accessed_dirty_bits().
-> > > > Fix this by checking if the memremap'ed pointer is still valid.
-> > > access_ok only checks that the pointer is in the userspace range.  Is this
-> > > correct?  And if so, what are the exact circumstances in which access_ok
-> > > returns a non-NULL but also non-userspace address?
-> > I "objected" to this patch in its initial posting[*].  AFAICT adding access_ok()
-> > is just masking a more egregious bug where interpretation of vm_pgoff as a PFN
-> > base is flat out wrong except for select backing stores that use VM_PFNMAP.  In
-> > other words, the vm_pgoff hack works for the /dev/mem use case, but it is wrong
-> > in general.
-> > 
-> 
-> The issue here is not related to /dev/mem, but binder allocated memory, which is
-> yet another special mapping use case. In this case the condition
-> 
-> if (!vma || !(vma->vm_flags & VM_PFNMAP))
-> 
-> doesn't cover this special mappings. Adding the access_ok() was my something
-> that fixed the use-after-free issue for me, and since I didn't have anything
-> better I thought I will send an RFC to start some discussion.
-> After some more debugging I came up with the bellow.
-> Will that be more acceptable?
+stable-rc/queue/4.9 baseline: 102 runs, 2 regressions (v4.9.297-155-g882382=
+565432)
 
-I'm pretty sure anything that keeps the vm_pgoff "logic" is a band-aid.  But I'm 99%
-sure we can simply do cmpxchg directly on the user address, we just need to get
-support for that, which has happily been posted[*].  I'll give that a shot tomorrow,
-I want to convert similar code in the emulator, it'd be very nice to purge all of
-this crud.
+Regressions Summary
+-------------------
 
-[*] https://lore.kernel.org/all/20220120160822.852009966@infradead.org
+platform        | arch  | lab           | compiler | defconfig           | =
+regressions
+----------------+-------+---------------+----------+---------------------+-=
+-----------
+meson-gxbb-p200 | arm64 | lab-baylibre  | gcc-10   | defconfig           | =
+1          =
+
+panda           | arm   | lab-collabora | gcc-10   | omap2plus_defconfig | =
+1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.297-155-g882382565432/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.297-155-g882382565432
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      88238256543276a57af8fe88a724f3ed4c57b13a =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch  | lab           | compiler | defconfig           | =
+regressions
+----------------+-------+---------------+----------+---------------------+-=
+-----------
+meson-gxbb-p200 | arm64 | lab-baylibre  | gcc-10   | defconfig           | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61f04258c2c1722350abbd4e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.297-1=
+55-g882382565432/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p2=
+00.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.297-1=
+55-g882382565432/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxbb-p2=
+00.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61f04258c2c1722350abb=
+d4f
+        failing since 0 day (last pass: v4.9.297-157-g670a9111c52f, first f=
+ail: v4.9.297-157-g84580a31d426) =
+
+ =
+
+
+
+platform        | arch  | lab           | compiler | defconfig           | =
+regressions
+----------------+-------+---------------+----------+---------------------+-=
+-----------
+panda           | arm   | lab-collabora | gcc-10   | omap2plus_defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61f04006d1ef65c82eabbd1a
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.297-1=
+55-g882382565432/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.297-1=
+55-g882382565432/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61f04006d1ef65c=
+82eabbd20
+        failing since 0 day (last pass: v4.9.297-124-g1de5c6722df5, first f=
+ail: v4.9.297-150-g86d4516a7d68)
+        2 lines
+
+    2022-01-25T18:22:44.326552  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/121
+    2022-01-25T18:22:44.335733  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+230 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =20
