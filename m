@@ -2,148 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B72649B6EA
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 15:54:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02A0D49B6EB
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 15:54:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1580650AbiAYOvc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jan 2022 09:51:32 -0500
-Received: from mout.gmx.net ([212.227.15.15]:39231 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1580394AbiAYOtB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jan 2022 09:49:01 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1643122114;
-        bh=32sYEjsZyyUuWa7dxJwt6Mmt68jrPJjcYdpKHSfVi2o=;
-        h=X-UI-Sender-Class:Date:From:To:Cc:Subject:References:In-Reply-To;
-        b=RnByn+2m3/DKZ2YShTKmf3pFYGjIXyftCro1TKATNgX+VC2iB1ZPpTLjrxOwUt7Wp
-         LbKlNR/V3JckUj/qSgmONlotU+wKgojdXUFXpKkwld4fDs5MoRs0Wk3ORWVsKWm5ui
-         egHlUY+/MXyr7KlJphiBQY4rKJ8fY2hStkM6/o34=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from p100 ([92.116.165.229]) by mail.gmx.net (mrgmx005
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1MGQjH-1n2mku3FTJ-00Gnx1; Tue, 25
- Jan 2022 15:48:33 +0100
-Date:   Tue, 25 Jan 2022 15:48:31 +0100
-From:   Helge Deller <deller@gmx.de>
-To:     Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        John David Anglin <dave.anglin@bell.net>,
-        Helge Deller <deller@gmx.de>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, stable@vger.kernel.org,
-        Daniel =?iso-8859-15?Q?D=EDaz?= <daniel.diaz@linaro.org>,
-        Yonghong Song <yhs@fb.com>
-Subject: Re: [PATCH 5.4 000/320] 5.4.174-rc1 review
-Message-ID: <YfANvxrigpCy5spk@p100>
-References: <20220124183953.750177707@linuxfoundation.org>
- <e2c9b01d-0500-645f-b4cc-f8dcb769996e@linaro.org>
- <CA+G9fYsvgQyUNBnySuiOrAXRrh4_ZAnqygZ0A5y7pGO5vrXAYA@mail.gmail.com>
+        id S1580655AbiAYOvd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jan 2022 09:51:33 -0500
+Received: from qproxy5-pub.mail.unifiedlayer.com ([69.89.21.30]:55415 "EHLO
+        qproxy5-pub.mail.unifiedlayer.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1580412AbiAYOt3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 09:49:29 -0500
+Received: from outbound-ss-820.bluehost.com (outbound-ss-820.bluehost.com [69.89.24.241])
+        by qproxy5.mail.unifiedlayer.com (Postfix) with ESMTP id 8CB2280312B0
+        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 14:49:18 +0000 (UTC)
+Received: from cmgw15.mail.unifiedlayer.com (unknown [10.0.90.130])
+        by progateway2.mail.pro1.eigbox.com (Postfix) with ESMTP id 5E0251004E50C
+        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 14:49:11 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id CN8Anty4mikTnCN8BnWVJW; Tue, 25 Jan 2022 14:49:11 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=CeHNWJnl c=1 sm=1 tr=0 ts=61f00de7
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=DghFqjY3_ZEA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=aQAIBmicJCSxrmNyH3iv9LFB+3idbl+44IkGVHzPsZQ=; b=Jx4qh/VKtn/MFl0Ep7ecOLLtGJ
+        cyPjOsoxdZL4ygKDRuJ3Afqak+u+Qp/IsQ7s7uz3Apw+KkURTn4sxBftgwwcR4SoOuOmCTeD6kk3t
+        p0gWR1TqOcyeJQEfmauEEFLj8;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:51644 helo=[10.0.1.23])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <re@w6rz.net>)
+        id 1nCN8A-000lzi-Ew; Tue, 25 Jan 2022 07:49:10 -0700
+Message-ID: <0ea51623-2455-4860-cca7-7e9765e3ae6f@w6rz.net>
+Date:   Tue, 25 Jan 2022 06:49:09 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CA+G9fYsvgQyUNBnySuiOrAXRrh4_ZAnqygZ0A5y7pGO5vrXAYA@mail.gmail.com>
-X-Provags-ID: V03:K1:sVuPM6EQvKj+2Z9eY1Txuq2yocT8d0ywm3M7r8LhNzrGFMZ+NRu
- 9GzxEb1Ne93b7SPl0HqYQ7QzZvk0mt7JSGxcr/YLfqgjujFcqZMQfqiYo6/3ylkN8BTaiQi
- tB24TdfhijMROs3t64ajV7MlqXiv7yH5He9IsLxh1QBbHUCatT34Pjaj6sVVjBixTSMkZkB
- yppOium26dsepweXuRiCQ==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:sWc5+fYLNCs=:IV9arVUOaeNbDnY4DqBHtc
- qrNEUs4b14gy3LhNE8rBj/Hx6dE8EgJttZXh5+03HK4+zPGaRtsgvsoKOt/vi8mWTzCzck8OF
- daFieiXF3cWf4z1Z3nfLBd32XzQNUBj+de77pDGI/cLuV4L9A9y6GBC2dXEm7LLjoKGYVgayP
- dKo7qfXHkCtaVdDTuOr8Sx+KKQFkfaip/wG492k9TrQDMNzZwHzb8ASshGbUXVNiiRaCRuZHg
- PGQQNMZSKs2bMd8Tzrl9G0Gs6zVJr9GVuj98zrjqE31RW1lZu0WjFbpbh6kKT01SImBGGT3Um
- 0D3gF/sUcj6Gj6a8/v8CAfkwwz2UXLi6s5u5Fuo9NYDRRfXKmFtUiA0r2SoKbHs3qszwPV4Wa
- 2QPtoOtmH1tDkEdAoBOXRQypKEJtswTavPoIRI3uWnyJeUkbaYYbjPICnNg2t6DuvfN7I6n6n
- La9FJ2j/XMDPITEmfcKB318n2PPhpJiP29cqTm03ivRFAr9082HL+FNFzm8b2qETFomXUIlS9
- v+YnnsYIiudRpb1ELj2xjxmLUT36td1kUNpMSxALYrr88t+NYzWhwo7C0/ng5G+uti/pP8OrC
- 3yx/aTnRdiojkQXERFO+dNCWmkwiT5u/55pPPPBoh93ukZmc1xtRuBegPdJZ3/Ki8oRUOxbPM
- W+asg6Rbivv/l5hnvyWtxydfLxlLf7EYkGp/rX1x5wPSP0+5uoEWq/y5mqtyv4FQFF/ECW1v3
- ozEy7vwliHpqpejbL7GGCY3ARfRQIME2gTG6ygfcNXsGJtun2hL60Gl8RS7HH0KGbMCoUTxeO
- FsYOBS0bSRI4nxpKmR2iheBQ4ndbX5kjiwbe6OHYliOabsDSxSdONzesOP2kfG5Qi7EfkfP7o
- dpCnX2+z6+nV1vSbFZH3qiIyQq40vkP4+rK52ILNw9whO9AGFffewYBtdJ4zHV8BXL7HiSQjv
- 5lJNHp9t+WfvgaAq/siTPm4B1Em2gVkApgTjv4l8wokh6tWHxWexSY1SdDHKcCPESREhCP6rU
- 82oSuOC40RrVFju6ziBDuWk1Z/LIEesDBHue/Gw2BrojzOuc8V32ZDRvgjbyXqlsAzxRlTlPJ
- 3+GHwAiNdQsy+o=
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH 5.16 0000/1039] 5.16.3-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+References: <20220124184125.121143506@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1nCN8A-000lzi-Ew
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.23]) [73.162.232.9]:51644
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 1
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-* Naresh Kamboju <naresh.kamboju@linaro.org>:
-> > On 1/24/22 12:39, Greg Kroah-Hartman wrote:
-> > > This is the start of the stable review cycle for the 5.4.174 release=
-.
-> > > There are 320 patches in this series, all will be posted as a respon=
-se
-> > > to this one.  If anyone has any issues with these being applied, ple=
-ase
-> > > let me know.
-> > >
-> > > Responses should be made by Wed, 26 Jan 2022 18:39:11 +0000.
-> > > Anything received after that time might be too late.
-> > >
-> > > The whole patch series can be found in one patch at:
-> > >       https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/pat=
-ch-5.4.174-rc1.gz
-> > > or in the git tree and branch at:
-> > >       git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-sta=
-ble-rc.git linux-5.4.y
-> > > and the diffstat can be found below.
-> > >
-> > > thanks,
-> > >
-> > > greg k-h
-> >
+On 1/24/22 10:29, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.16.3 release.
+> There are 1039 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> [...]
+> Responses should be made by Wed, 26 Jan 2022 18:39:11 +0000.
+> Anything received after that time might be too late.
 >
-> This is from PA-RISC with gcc-8, gcc-9, gcc-10, gcc-11:
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.3-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
+> and the diffstat can be found below.
 >
-> >    /builds/linux/drivers/parisc/sba_iommu.c: In function 'sba_io_pdir_=
-entry':
-> >    /builds/linux/arch/parisc/include/asm/special_insns.h:11:3: error: =
-expected ':' or ')' before 'ASM_EXCEPTIONTABLE_ENTRY'
-> >       ASM_EXCEPTIONTABLE_ENTRY(8b, 9b) \
-> >       ^~~~~~~~~~~~~~~~~~~~~~~~
+> thanks,
 >
-> Bisection of the latter points to "parisc: Fix lpa and lpa_user defines"=
-.
->
-> commit 73c8c7ecdc141c20c9dbc8f3ec176e233942b0d9
-> parisc: Fix lpa and lpa_user defines
->     [ commit db19c6f1a2a353cc8dec35b4789733a3cf6e2838 upstream ]
+> greg k-h
 
-Naresh, thanks for noticing and bisecting!
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-The problem is, that in v5.4.x we are missing to include a header file
-which is probably already indirectly included in the other Linux versions.
-
-Greg, can you either drop this commit:
-
-   commit 73c8c7ecdc141c20c9dbc8f3ec176e233942b0d9
-   parisc: Fix lpa and lpa_user defines
-
-or simply add the patch below to the commit?
-
-Either solution which is easier for you is ok.
-
-Thanks,
-Helge
-
-
-diff --git a/drivers/parisc/sba_iommu.c b/drivers/parisc/sba_iommu.c
-index e410033b6df0..e72990c92add 100644
-=2D-- a/drivers/parisc/sba_iommu.c
-+++ b/drivers/parisc/sba_iommu.c
-@@ -31,6 +31,7 @@
- #include <asm/byteorder.h>
- #include <asm/io.h>
- #include <asm/dma.h>		/* for DMA_CHUNK_SIZE */
-+#include <asm/uaccess.h>
-
- #include <asm/hardware.h>	/* for register_parisc_driver() stuff */
+Tested-by: Ron Economos <re@w6rz.net>
 
