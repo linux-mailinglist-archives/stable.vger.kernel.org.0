@@ -2,96 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F93549BAC8
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 18:58:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59ED249BAC9
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 18:58:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1348886AbiAYR5Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jan 2022 12:57:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57354 "EHLO
+        id S1386723AbiAYR5c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jan 2022 12:57:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1385267AbiAYRzh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 12:55:37 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0541C061753;
-        Tue, 25 Jan 2022 09:55:36 -0800 (PST)
-Date:   Tue, 25 Jan 2022 17:55:32 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1643133334;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=XDyWzT40y6W7zz1MmiwXNMh+3a0HubyZ5kxWop7Bb1o=;
-        b=t5ohNN3ixcVkB53gYEyFF0Mg4UaL6z5v9wt3lW+p0XbZ5x0/Z9vJ2BAOUkzXl/LzcB3JRk
-        uNYqMQcmwRHmzn7T0U0conMen7a2qTFxLTgE0PLbNGKfYlnckQbwx/Rtbnn+hd96U7/K6V
-        CogTZ82bDfGOyTmeCRy7D99Vp7o5eIw5BdPrp17LN6lG7Fw3AuVJTIc4pRhyu0gPNmIx1q
-        /dcUUZ4SNCV2qKZisUBR99vvt74mqXqVKSVjAP2ClbJB4V0uL2UlhjT27Q4GF2pjqwlKWZ
-        JjU+5UYHF+tAY7zPh2JwpiYmjrX3nlRXCa+ZYpyRQioY+BqtUpbf17amHAfmKQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1643133334;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=XDyWzT40y6W7zz1MmiwXNMh+3a0HubyZ5kxWop7Bb1o=;
-        b=QQS0FmdAXDaFnKvH1x4TqdaUTckBMb+KbEzJH7hWQj45gInbbV41Ly9XAyGW5tJEr2Y1nS
-        2jkkUhVSR4BgryDw==
-From:   "tip-bot2 for Tony Luck" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/cpu: Add Xeon Icelake-D to list of CPUs that
- support PPIN
-Cc:     Ailin Xu <ailin.xu@intel.com>, Tony Luck <tony.luck@intel.com>,
-        Borislav Petkov <bp@suse.de>, <stable@vger.kernel.org>,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20220121174743.1875294-2-tony.luck@intel.com>
-References: <20220121174743.1875294-2-tony.luck@intel.com>
+        with ESMTP id S1385292AbiAYRzo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 12:55:44 -0500
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B038C061755;
+        Tue, 25 Jan 2022 09:55:39 -0800 (PST)
+Received: by mail-pj1-x102f.google.com with SMTP id z10-20020a17090acb0a00b001b520826011so2558973pjt.5;
+        Tue, 25 Jan 2022 09:55:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=FlyqvnB08PGLUJ0pfNpu3bey0wCWbKYNhle+NC/06i0=;
+        b=WWS4Oc2+3vCEccHKrSF1nkQilE/IrVAKMqGKx3np7yRXsM555tdBVwe0Bd8OMjAO0X
+         KCxz5KM+qUW+GW+qyBDQ2OfTU347UD8MRWOdDo8SPtVYFe1KEuw/JFEVvoDL4or3RjE/
+         ueqV0zH8gDHZdvfK1fJSgReNU6X3GHov+6u8xOW6zQuKRCXEVu7fBfNiqfcAWbYdi2/S
+         3LuuxpXvXInKPI8y8Ocuw4UKJcFC49G7Yp5AeR/AETkeWYpw74ojevwnnO5iiLPkYQPp
+         dFOz/ejadQjXvShf+RrrwdIvfrBZoqt1xnHhLGfgv9TwT0F47BbyPY+prbbySEZimkee
+         Rpeg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=FlyqvnB08PGLUJ0pfNpu3bey0wCWbKYNhle+NC/06i0=;
+        b=Lj8G8ovGPrsXCF84PGKVkbxd5uGaUI2fXIZT5cOwAUE+dgwEAhXBQ1duCKV5F3F6wF
+         q7JGyOIc05cbREOPkKxa/wbqlEmVb4krtkhangXgQP6SPr203lHYa2UifnEBipLZbZq5
+         W693zVdu2H17YRswBy6xnnyYc63ZihtRFjCmxffYbhxQACLXFcPIpcKJAETGXTR/B8Bw
+         FPpxDFy3BLFUJvcE7tD8N9rTM+Qopkn9Sl+mcGSiaKdgPvSSZtjGeQTrAa2RpFhN3ihj
+         wSvymzeMklTKfqmEuS25imM4cJsdW2dmQScjvSnzm/chiIkIbmOKC8ityImQcCp64FPf
+         wJvA==
+X-Gm-Message-State: AOAM530zcQReKg+SAE40ZNOix98/5l49ZXiCsUCTy79HNm7RHJlXn7VC
+        0AsJalcmW5F0456BSrupvXs=
+X-Google-Smtp-Source: ABdhPJykVlAJhwh1hew7Ukkqc4KUk+zyEqpBp1aiuSpkUmQEFnRTpQrhFr/xiFbgFfuGIcmkdEKHSw==
+X-Received: by 2002:a17:90b:3e81:: with SMTP id rj1mr4613757pjb.190.1643133338654;
+        Tue, 25 Jan 2022 09:55:38 -0800 (PST)
+Received: from [192.168.1.3] (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
+        by smtp.gmail.com with ESMTPSA id 4sm15290719pgq.23.2022.01.25.09.55.37
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 25 Jan 2022 09:55:38 -0800 (PST)
+Message-ID: <ee6f5da5-a070-82d5-5aa8-9ae44ee1bb28@gmail.com>
+Date:   Tue, 25 Jan 2022 09:55:36 -0800
 MIME-Version: 1.0
-Message-ID: <164313333280.16921.9365038595618004818.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH 5.10 000/560] 5.10.94-rc2 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        sudipm.mukherjee@gmail.com, stable@vger.kernel.org
+References: <20220125155348.141138434@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20220125155348.141138434@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
 
-Commit-ID:     e464121f2d40eabc7d11823fb26db807ce945df4
-Gitweb:        https://git.kernel.org/tip/e464121f2d40eabc7d11823fb26db807ce945df4
-Author:        Tony Luck <tony.luck@intel.com>
-AuthorDate:    Fri, 21 Jan 2022 09:47:38 -08:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Tue, 25 Jan 2022 18:40:30 +01:00
 
-x86/cpu: Add Xeon Icelake-D to list of CPUs that support PPIN
+On 1/25/2022 8:32 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.94 release.
+> There are 560 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 27 Jan 2022 15:52:30 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.94-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Missed adding the Icelake-D CPU to the list. It uses the same MSRs
-to control and read the inventory number as all the other models.
+On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
 
-Fixes: dc6b025de95b ("x86/mce: Add Xeon Icelake to list of CPUs that support PPIN")
-Reported-by: Ailin Xu <ailin.xu@intel.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20220121174743.1875294-2-tony.luck@intel.com
----
- arch/x86/kernel/cpu/mce/intel.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/arch/x86/kernel/cpu/mce/intel.c b/arch/x86/kernel/cpu/mce/intel.c
-index bb9a46a..baafbb3 100644
---- a/arch/x86/kernel/cpu/mce/intel.c
-+++ b/arch/x86/kernel/cpu/mce/intel.c
-@@ -486,6 +486,7 @@ static void intel_ppin_init(struct cpuinfo_x86 *c)
- 	case INTEL_FAM6_BROADWELL_X:
- 	case INTEL_FAM6_SKYLAKE_X:
- 	case INTEL_FAM6_ICELAKE_X:
-+	case INTEL_FAM6_ICELAKE_D:
- 	case INTEL_FAM6_SAPPHIRERAPIDS_X:
- 	case INTEL_FAM6_XEON_PHI_KNL:
- 	case INTEL_FAM6_XEON_PHI_KNM:
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
