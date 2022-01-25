@@ -2,240 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C14349ACDC
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 08:04:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70E6349ACDF
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 08:04:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1376703AbiAYHE3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jan 2022 02:04:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59828 "EHLO
+        id S1392359AbiAYHEq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jan 2022 02:04:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60312 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S248878AbiAYECo (ORCPT
+        with ESMTP id S248891AbiAYECo (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 23:02:44 -0500
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0085CC0617A7
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 16:40:20 -0800 (PST)
-Received: by mail-pj1-x1035.google.com with SMTP id z10-20020a17090acb0a00b001b520826011so600371pjt.5
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 16:40:20 -0800 (PST)
+Received: from mail-wr1-x430.google.com (mail-wr1-x430.google.com [IPv6:2a00:1450:4864:20::430])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E29AC0617BC
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 16:40:51 -0800 (PST)
+Received: by mail-wr1-x430.google.com with SMTP id v13so16731187wrv.10
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 16:40:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=N8Es+PPrxyrr7mBmb3ZC85ZFQTl/cPjQ8/mvpUd+lPo=;
-        b=c5UNaEpQ6N2elUpicVg73h2ixJwEhRN8AlaMCSHMUgTSyVoKskRs1Oc8teZw0btcxD
-         CPvItTK+LTqhYeGwyK9+J7mxgHnn6+yGaPYo/3FUVsda0JMPt/X/As8CdQjfmuhLbXdk
-         LNmadgNRnAK8WGNI/XaQS4N4wcoPjANP0Z5M+CcUZTVID6VqNTqsejXwwnIdSNPApEja
-         fmaoaobWHDusFgjsKrO4gQezwEOaJoQCycavbD8MWMfoYEuKevgEHgtfzOQlGlOxc/gd
-         lQc6h2UnD+ZtuJgSCMBEYHkM6QGLlaLaxmj5MdfK6VieXbO0eHjO+dJnthQw3+I9+SbJ
-         lzAQ==
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=yaTvwS4/6MDKumF6j26FEM+C3MJi6OQIGg+81nGS/Y4=;
+        b=q6rEdrCpPsyas46bpfBf3wKDbN1TTehfOA2t81hnZkEm10OT8pQT3Fvs/sAV/uv6O+
+         RPSXQUeq6WT0L0CiKmnJfljUf5lwte/eEiZorQ++M1ELx9PWA4i9lJgDqAw1e2V2nOvm
+         K+6FClExzDfzrYPECEdUup7iJ7lTZtVBUY9hJUui2w+yuP8FlOSC1IJEBHwYihVuDBW8
+         N16RI+F9oU5SW6/JbwYW0JyAxkEI2edVHWSC/puHmXIQChmMBqhgi8r2AcxwFtkxh4Ri
+         y2Vfatljj/r7e9+ZyckF3otMHziIneEASqr9gohCfN0FcmsU1IF4jWaVk1E0Ya56GEa9
+         w2rw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=N8Es+PPrxyrr7mBmb3ZC85ZFQTl/cPjQ8/mvpUd+lPo=;
-        b=ZXBFGURlEov/zGoCteW8mnBUGt+UMy/jbYJDewc1TsCBeK8Mu7nXsli51xfoijGIKv
-         UGC4Bu0+ZsC9uaOFtHp6jK1d+yvKn6SXWxcIrxMAe8eClVZPi7zvA+UwkpF7n1qs2AR4
-         FSBD0krLbarSlXYb4Mj3cE/HMLVaUUIPQWTv8Gf1g60WnEXxof6D9zmEeU1ffpURshYm
-         bTm7sSX85iFa3nOQTwkeWsm071tQzvS9ot6ZgNVbdTgRfMOKzKekq7trra0GxiPQAuzL
-         Vumcxsaxo8q+xCjydzgqyp0nbRZ0cijizWywG1F9owVw8kzXH4kKwtDpk88VutcAtFu7
-         TDhQ==
-X-Gm-Message-State: AOAM531esXC3PArTGd+EcSAyU2k4s81V7C6dRJHbsMfG3JuWhQJhYwH6
-        SMLkd4e/FXDp9ABKN0ZJqR0XRrwM4G3KMppe
-X-Google-Smtp-Source: ABdhPJxG3MONcKIh/Y0+YutO+J6bAqorJkGukocKWV8X8CQXcsZ7NxU4ymh2W5qKi35slcrGZUmP9Q==
-X-Received: by 2002:a17:90a:4482:: with SMTP id t2mr855622pjg.133.1643071220327;
-        Mon, 24 Jan 2022 16:40:20 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id l22sm17721255pfc.191.2022.01.24.16.40.19
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=yaTvwS4/6MDKumF6j26FEM+C3MJi6OQIGg+81nGS/Y4=;
+        b=dfuJtD2WTNvFedqMCb9FEjVGu0WGQeSXHNhGKmLUSLc4ylA0ygmhiVbEqjblysMyqr
+         4gaeeGeaaLHBlvPxcRFzONNdBMsQDjrFxCUVuYGpVqtN+CQ9fV04WWwH1Id22ACZ7i5g
+         z96xO/6RZANNzWu+Xx68AjxUUGEPwAzBWEUPa+hLqidRdtUgXmrYVh6rhsStfG0ZgwF5
+         nefbOFKFdn629+FTtuE7F3sSpN8cA9ulACtSe9AbjGHVhfOOepksyOcHYSLwefGwBje1
+         viHN+AkKgomDp3TVlyUUgsZXfdOV4Gvyynpp96PhbJMXf2BpxtcDiOWnqp9o/PMDIoTl
+         Htbg==
+X-Gm-Message-State: AOAM531PDl/y1d0vLSKm6VVN9nwrcuFzjlSUaZJ9QE2WJv8DnHUhJrGu
+        tTg1OY+sV0IDHMElXfU4GHHyoA==
+X-Google-Smtp-Source: ABdhPJzmdxdDuOGxRu6YgNjJI0JTdTY9ShLkZFHrXUFiM7nsFNsWNFs+BrB3LfghX8YDBfCEmwV9hA==
+X-Received: by 2002:a5d:64e7:: with SMTP id g7mr3771269wri.72.1643071250137;
+        Mon, 24 Jan 2022 16:40:50 -0800 (PST)
+Received: from sagittarius-a.chello.ie (188-141-3-169.dynamic.upc.ie. [188.141.3.169])
+        by smtp.gmail.com with ESMTPSA id x4sm16364104wrp.13.2022.01.24.16.40.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Jan 2022 16:40:20 -0800 (PST)
-Message-ID: <61ef46f4.1c69fb81.a0b39.0450@mx.google.com>
-Date:   Mon, 24 Jan 2022 16:40:20 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        Mon, 24 Jan 2022 16:40:49 -0800 (PST)
+From:   Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+To:     kvalo@codeaurora.org, linux-wireless@vger.kernel.org,
+        wcn36xx@lists.infradead.org, linux-arm-msm@vger.kernel.org
+Cc:     loic.poulain@linaro.org, benl@squareup.com,
+        bryan.odonoghue@linaro.org, stable@vger.kernel.org
+Subject: [PATCH] wcn36xx: Differentiate wcn3660 from wcn3620
+Date:   Tue, 25 Jan 2022 00:40:46 +0000
+Message-Id: <20220125004046.4058284-1-bryan.odonoghue@linaro.org>
+X-Mailer: git-send-email 2.33.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.173-320-g8b109ad9c84a
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-Subject: stable-rc/queue/5.4 baseline: 158 runs,
- 4 regressions (v5.4.173-320-g8b109ad9c84a)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 158 runs, 4 regressions (v5.4.173-320-g8b109a=
-d9c84a)
+The spread of capability between the three WiFi silicon parts wcn36xx
+supports is:
 
-Regressions Summary
--------------------
+wcn3620 - 802.11 a/b/g
+wcn3660 - 802.11 a/b/g/n
+wcn3680 - 802.11 a/b/g/n/ac
 
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
+We currently treat wcn3660 as wcn3620 thus limiting it to 2GHz channels.
+Fix this regression by ensuring we differentiate between all three parts.
 
-qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
+Fixes: 8490987bdb9a ("wcn36xx: Hook and identify RF_IRIS_WCN3680")
+Cc: stable@vger.kernel.org
+Signed-off-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
+---
+ drivers/net/wireless/ath/wcn36xx/main.c    | 3 +++
+ drivers/net/wireless/ath/wcn36xx/wcn36xx.h | 1 +
+ 2 files changed, 4 insertions(+)
 
-qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
+diff --git a/drivers/net/wireless/ath/wcn36xx/main.c b/drivers/net/wireless/ath/wcn36xx/main.c
+index 9575d7373bf27..ac2813ed851c4 100644
+--- a/drivers/net/wireless/ath/wcn36xx/main.c
++++ b/drivers/net/wireless/ath/wcn36xx/main.c
+@@ -1513,6 +1513,9 @@ static int wcn36xx_platform_get_resources(struct wcn36xx *wcn,
+ 	if (iris_node) {
+ 		if (of_device_is_compatible(iris_node, "qcom,wcn3620"))
+ 			wcn->rf_id = RF_IRIS_WCN3620;
++		if (of_device_is_compatible(iris_node, "qcom,wcn3660") ||
++		    of_device_is_compatible(iris_node, "qcom,wcn3660b"))
++			wcn->rf_id = RF_IRIS_WCN3660;
+ 		if (of_device_is_compatible(iris_node, "qcom,wcn3680"))
+ 			wcn->rf_id = RF_IRIS_WCN3680;
+ 		of_node_put(iris_node);
+diff --git a/drivers/net/wireless/ath/wcn36xx/wcn36xx.h b/drivers/net/wireless/ath/wcn36xx/wcn36xx.h
+index fbd0558c2c196..5d3f8f56e5681 100644
+--- a/drivers/net/wireless/ath/wcn36xx/wcn36xx.h
++++ b/drivers/net/wireless/ath/wcn36xx/wcn36xx.h
+@@ -97,6 +97,7 @@ enum wcn36xx_ampdu_state {
+ 
+ #define RF_UNKNOWN	0x0000
+ #define RF_IRIS_WCN3620	0x3620
++#define RF_IRIS_WCN3660	0x3660
+ #define RF_IRIS_WCN3680	0x3680
+ 
+ static inline void buff_to_be(u32 *buf, size_t len)
+-- 
+2.33.0
 
-qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.173-320-g8b109ad9c84a/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.173-320-g8b109ad9c84a
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      8b109ad9c84a7fec121f2d2da72901129cc9a715 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61ef0f0beb9c8b65d2abbd11
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.173-3=
-20-g8b109ad9c84a/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_a=
-rm-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.173-3=
-20-g8b109ad9c84a/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_a=
-rm-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61ef0f0beb9c8b65d2abb=
-d12
-        failing since 39 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61ef0ef322c6c45fffabbd16
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.173-3=
-20-g8b109ad9c84a/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_ar=
-m-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.173-3=
-20-g8b109ad9c84a/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_ar=
-m-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61ef0ef322c6c45fffabb=
-d17
-        failing since 39 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61ef0f0a22c6c45fffabbd4d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.173-3=
-20-g8b109ad9c84a/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_a=
-rm-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.173-3=
-20-g8b109ad9c84a/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_a=
-rm-virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61ef0f0a22c6c45fffabb=
-d4e
-        failing since 39 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61ef0ef0d3d4b14740abbd3a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.173-3=
-20-g8b109ad9c84a/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_ar=
-m-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.173-3=
-20-g8b109ad9c84a/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_ar=
-m-virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61ef0ef0d3d4b14740abb=
-d3b
-        failing since 39 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =20
