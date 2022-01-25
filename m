@@ -2,97 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37D5849BB07
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 19:13:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5139749BB32
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 19:23:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237217AbiAYSM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jan 2022 13:12:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33016 "EHLO
+        id S231139AbiAYSXa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jan 2022 13:23:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236942AbiAYSMQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 13:12:16 -0500
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E8D8C06173D;
-        Tue, 25 Jan 2022 10:12:15 -0800 (PST)
-Received: by mail-pl1-x636.google.com with SMTP id d1so20111108plh.10;
-        Tue, 25 Jan 2022 10:12:15 -0800 (PST)
+        with ESMTP id S230431AbiAYSWf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 13:22:35 -0500
+Received: from mail-yb1-xb4a.google.com (mail-yb1-xb4a.google.com [IPv6:2607:f8b0:4864:20::b4a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43635C061759
+        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 10:22:35 -0800 (PST)
+Received: by mail-yb1-xb4a.google.com with SMTP id c76-20020a25c04f000000b00613e2c514e2so38964597ybf.21
+        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 10:22:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=oncvTFBiH1AN1qkgKqjjo5usjPdYcyTNfm6ebR6GGgg=;
-        b=U55+0RvH9Ct33KOJYfC3NT19EgIgJJHI/p9+j3KfYpMa/R2U6tbhwX52hQjM8W4cAR
-         gDox1Lw+iLj3ibZ/nJTyZ/56wvlxdsxb3gJ24OQVe0wsx9ASg3qTh+sJTMRwvGAwsDO8
-         UzXxZKnCYpxdWzrnhWfkwXokfs4E2vzQslt9KC4fdpHssDMDV25FcWX2RPiSZu2Yt6jt
-         4BkMMLShSGEk0MYvaJUqCmFXBR1Qk5S+mtQDIoaNjwDcOQ6b6NfDnbTEeZMtQLxXUi+j
-         6O4Prm5GoKCyztuNRT9fwGouHNM60NXB21+23CkyMkV9P+iCE4xe0wHnoU3RSvGVBsJ6
-         wyKA==
+        d=google.com; s=20210112;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=Lok6oxADWNe/Lq9Bd8BF739UQWqpIq0qYKa/bk6A5N0=;
+        b=Q7l+l0kOp7iAA251LRk5qfU1ONabSuPZAiJwgqqdIvUyhHRq5IpqYE0NG2FjMa8LI3
+         BOf0LsBOrb5++slHn79YerH9uoCp11FPSy6Bk1I2YWasaNbov63mEXtyjagbrQdhbk4u
+         d+ykI49DmoF40J+nuy6z7Uni3moA4qm18Mo2TtKprOXdqOWQIHq+zsvKbQg7QOwlD5MZ
+         2x0eWn+SQcCkXLrY9t+ikn9LW98pTC2sJf36jaM0RVFCl7BKt0YN5QzVBzk660JBKU78
+         OmF/S/Yf/V7V4h6eZhc5o7qKII3l+IRuydkfe4u8z2fWazTlYOqNaDTs5rcXCVUfusb1
+         TAVg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=oncvTFBiH1AN1qkgKqjjo5usjPdYcyTNfm6ebR6GGgg=;
-        b=CnC+jFtx1L+EjyFVmanUDczCTF4/r2rmG6ybBcYudH2dnSdi0cYjdbYbk3+ZsqiZI4
-         fkIHK94EDqsKqOUOUhuR73VVezEJBhGgd+/eQ/kzUINIz1X6dN1ozuciZhh2alxlSYLe
-         U44ZTuU1OGqZzm15uGA0vY36da27iQ5GHNSgNXpIWGRhENk11FcSom2jRV+cVQKo1aAN
-         RBtWaxCpgS+V4ucsgGhxjij/VGRW1z43zidb1ZYeVQxp1nYptxb2hQEVoKmwMymHikem
-         D4TDXjLq3vTg8V/RUCA6hsosWvGA7hU9p9Mzu27UYB6OyEjFszv/o9A0K4rtMuZGEtq5
-         s8lg==
-X-Gm-Message-State: AOAM533vaKS0nAXNQns1wzQoI7JSA7O8s6o3P7NBlshKemm3VGwQ8pTw
-        EbO3XkKfGeY49aVmbaO1ppA=
-X-Google-Smtp-Source: ABdhPJxjnybuFczjajxTOaUK9aAEWMUSJ4x+gaOCBS6OBH/udUgi3+mMcluTSwOAF7N8OZ70JH9bzg==
-X-Received: by 2002:a17:902:dacf:b0:14b:2081:1c20 with SMTP id q15-20020a170902dacf00b0014b20811c20mr17657075plx.13.1643134334658;
-        Tue, 25 Jan 2022 10:12:14 -0800 (PST)
-Received: from [192.168.1.3] (ip72-194-116-95.oc.oc.cox.net. [72.194.116.95])
-        by smtp.gmail.com with ESMTPSA id ha11sm2879550pjb.3.2022.01.25.10.12.12
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 25 Jan 2022 10:12:13 -0800 (PST)
-Message-ID: <79dc2061-e3db-50a0-3cea-cce87abef718@gmail.com>
-Date:   Tue, 25 Jan 2022 10:12:11 -0800
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH 5.15 000/841] 5.15.17-rc2 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        sudipm.mukherjee@gmail.com, stable@vger.kernel.org
-References: <20220125155423.959812122@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20220125155423.959812122@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=Lok6oxADWNe/Lq9Bd8BF739UQWqpIq0qYKa/bk6A5N0=;
+        b=B0P5wHZW1YDkBenAg226CnsWYtuZ1LMm9xzmEVYWJAlVzaoCRbTlZRqzMKePuLqrLU
+         fz86OEvBUKpSTVFWVdGQEdYZEvUrk6hR4cjvNIe51DR68Ey4NEuHDdmB0c/FuoFsa+5F
+         +GjjCj4PTdVaaG84iBYKsB5iq9YVjZ0Vi3PqSUVHCjeg3aCyz1ApyrXv7uOtN9A+4FRe
+         2WXHDbgdDadrS+2JcYkrnUytWM7eAJu/NyL7vWAmGvnTMENwLeafpHfJpJi0hCk5xP/X
+         uOzp8EUgU2CniKflQEZaU+pUuPH2r9Q6p85f75hKVFLoOB6reFNwCv7+tRI8AfVvUi4h
+         AqwA==
+X-Gm-Message-State: AOAM5305XVJWDRLvDVPvV98xgMN0z6TXtPMMWpmEL8BxWBKvJLVbT55Y
+        HtiTNEw5AQFWBAiB20LWrUeS0Zueidjx
+X-Google-Smtp-Source: ABdhPJywOjHqDnkI+4Tt9DzDqL7Nok6BVw+ygf1J/HuOdAqVIIEzVomSL/CnnzfCvbWdHBqUd9wizHquVF9G
+X-Received: from eugenis.svl.corp.google.com ([2620:15c:2ce:200:d947:cd1e:4976:2712])
+ (user=eugenis job=sendgmr) by 2002:a05:6902:47:: with SMTP id
+ m7mr33544786ybh.69.1643134954491; Tue, 25 Jan 2022 10:22:34 -0800 (PST)
+Date:   Tue, 25 Jan 2022 10:22:17 -0800
+Message-Id: <20220125182217.2605202-1-eugenis@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.35.0.rc0.227.g00780c9af4-goog
+Subject: [PATCH v2] arm64: extable: fix load_unaligned_zeropad() reg indices
+From:   Evgenii Stepanov <eugenis@google.com>
+To:     Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Jisheng Zhang <jszhang@kernel.org>
+Cc:     linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        Evgenii Stepanov <eugenis@google.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+In ex_handler_load_unaligned_zeropad() we erroneously extract the data and
+addr register indices from ex->type rather than ex->data. As ex->type will
+contain EX_TYPE_LOAD_UNALIGNED_ZEROPAD (i.e. 4):
+ * We'll always treat X0 as the address register, since EX_DATA_REG_ADDR is
+   extracted from bits [9:5]. Thus, we may attempt to dereference an
+   arbitrary address as X0 may hold an arbitrary value.
+ * We'll always treat X4 as the data register, since EX_DATA_REG_DATA is
+   extracted from bits [4:0]. Thus we will corrupt X4 and cause arbitrary
+   behaviour within load_unaligned_zeropad() and its caller.
 
+Fix this by extracting both values from ex->data as originally intended.
 
-On 1/25/2022 8:32 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.17 release.
-> There are 841 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 27 Jan 2022 15:52:30 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.17-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+On an MTE-enabled QEMU image we are hitting the following crash:
+ Unable to handle kernel NULL pointer dereference at virtual address 0000000000000000
+ Call trace:
+  fixup_exception+0xc4/0x108
+  __do_kernel_fault+0x3c/0x268
+  do_tag_check_fault+0x3c/0x104
+  do_mem_abort+0x44/0xf4
+  el1_abort+0x40/0x64
+  el1h_64_sync_handler+0x60/0xa0
+  el1h_64_sync+0x7c/0x80
+  link_path_walk+0x150/0x344
+  path_openat+0xa0/0x7dc
+  do_filp_open+0xb8/0x168
+  do_sys_openat2+0x88/0x17c
+  __arm64_sys_openat+0x74/0xa0
+  invoke_syscall+0x48/0x148
+  el0_svc_common+0xb8/0xf8
+  do_el0_svc+0x28/0x88
+  el0_svc+0x24/0x84
+  el0t_64_sync_handler+0x88/0xec
+  el0t_64_sync+0x1b4/0x1b8
+ Code: f8695a69 71007d1f 540000e0 927df12a (f940014a)
 
-On ARCH_BRCMSTB using 32-bit and 64-bit ARM kernels:
+Fixes: 753b32368705 ("arm64: extable: add load_unaligned_zeropad() handler")
+Cc: <stable@vger.kernel.org> # 5.16.x
+Reviewed-by: Mark Rutland <mark.rutland@arm.com>
+Signed-off-by: Evgenii Stepanov <eugenis@google.com>
+---
+ arch/arm64/mm/extable.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+diff --git a/arch/arm64/mm/extable.c b/arch/arm64/mm/extable.c
+index c0181e60cc98..489455309695 100644
+--- a/arch/arm64/mm/extable.c
++++ b/arch/arm64/mm/extable.c
+@@ -40,8 +40,8 @@ static bool
+ ex_handler_load_unaligned_zeropad(const struct exception_table_entry *ex,
+ 				  struct pt_regs *regs)
+ {
+-	int reg_data = FIELD_GET(EX_DATA_REG_DATA, ex->type);
+-	int reg_addr = FIELD_GET(EX_DATA_REG_ADDR, ex->type);
++	int reg_data = FIELD_GET(EX_DATA_REG_DATA, ex->data);
++	int reg_addr = FIELD_GET(EX_DATA_REG_ADDR, ex->data);
+ 	unsigned long data, addr, offset;
+ 
+ 	addr = pt_regs_read_reg(regs, reg_addr);
 -- 
-Florian
+2.35.0.rc0.227.g00780c9af4-goog
+
