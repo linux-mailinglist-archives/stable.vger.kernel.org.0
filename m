@@ -2,87 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78A5A49B692
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 15:44:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5993649B694
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 15:44:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1579798AbiAYOjZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jan 2022 09:39:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38828 "EHLO
+        id S1579802AbiAYOj1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jan 2022 09:39:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237434AbiAYOeR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 09:34:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D49B9C061747;
-        Tue, 25 Jan 2022 06:34:14 -0800 (PST)
+        with ESMTP id S1389251AbiAYOfO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 09:35:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B63CCC061756;
+        Tue, 25 Jan 2022 06:34:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95FB8B81810;
-        Tue, 25 Jan 2022 14:34:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E95F7C340E0;
-        Tue, 25 Jan 2022 14:34:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 54677615B4;
+        Tue, 25 Jan 2022 14:34:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04018C340E0;
+        Tue, 25 Jan 2022 14:34:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643121252;
-        bh=d8VDBh4A7aHxWjRMBX25G1hDZ6OaKc2/U1a3PD1bYKs=;
+        s=korg; t=1643121279;
+        bh=1DQnWgHZJKj5ukHqGYmPdLyxXLH9Wa25z3VPX1fMJC8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=n/HxYVR0YVUH6wwMl/WoyoeV8igIEZildvImd/jY4TGPDyiXvszoYlF1uKfGJAJ08
-         nS6ZFMjvAzpGXAA5LQq/qUCMx4C/3MJgCvjSAoE4HhDqOIgjSU88UPTNmbR5qBLvh9
-         Y81G2jYQvnaPcqKqrkzfo9RUXnfGT/XNfhlNJ9Q4=
-Date:   Tue, 25 Jan 2022 15:34:09 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
-Cc:     lkml <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: review for  5.16.3-rc2
-Message-ID: <YfAKYWOMdGJ0NxjE@kroah.com>
-References: <0af17d6952b3677dcd413fefa74b086d5ffb474b.camel@rajagiritech.edu.in>
+        b=kuAIhNpBlHeJepM6g0GgkQjv6J5Qlik6/db2hAuO6vQuTisg77AROUkzA0ld2TXc9
+         oJ+9Skhu+UuT2p5yXaRSpEzyUoooIz4rB+O8zMU2KMZZPZFst40ja4/N27TgP2yG1I
+         DUbp3yyMXwt34UsMCPdmGJ9SGi+Nz2nWuhYhYt/A=
+Date:   Tue, 25 Jan 2022 15:34:37 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 4.9 000/157] 4.9.298-rc1 review
+Message-ID: <YfAKfTtZqb7EIm3T@kroah.com>
+References: <20220124183932.787526760@linuxfoundation.org>
+ <CA+G9fYvzftL7cWFysem9z4AMKFXMRShy6-Ewp74ckP1xeaBCAA@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <0af17d6952b3677dcd413fefa74b086d5ffb474b.camel@rajagiritech.edu.in>
+In-Reply-To: <CA+G9fYvzftL7cWFysem9z4AMKFXMRShy6-Ewp74ckP1xeaBCAA@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 25, 2022 at 06:15:46PM +0530, Jeffrin Jose T wrote:
-> hello greg,
+On Tue, Jan 25, 2022 at 06:24:39PM +0530, Naresh Kamboju wrote:
+> On Tue, 25 Jan 2022 at 00:24, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 4.9.298 release.
+> > There are 157 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Wed, 26 Jan 2022 18:39:11 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.298-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
 > 
-> compile failed for  5.16.3-rc2 related.
-> a relevent file attached.
+> same as 4.14 build error.
+> stable-rc 4.9 build failed.
+> arm (imx_v6_v7_defconfig) with gcc-8, gcc-9, gcc-10 and gcc-11 - FAILED
 > 
-> Tested-by : Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
+>  > Lucas Stach <l.stach@pengutronix.de>
+>  >     drm/etnaviv: limit submit sizes
+> 
+> drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c: In function
+> 'etnaviv_ioctl_gem_submit':
+> drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c:329:37: error: 'struct
+> drm_etnaviv_gem_submit' has no member named 'nr_pmrs'; did you mean
+> 'nr_bos'?
+>       args->nr_bos > SZ_64K || args->nr_pmrs > 128) {
+>                                      ^~~~~~~
+>                                      nr_bos
+> make[5]: *** [scripts/Makefile.build:307:
+> drivers/gpu/drm/etnaviv/etnaviv_gem_submit.o] Error 1
+> 
+> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-But it failed for you, how did you test it?
-
-> 
-> 
-> -- 
-> software engineer
-> rajagiri school of engineering and technology - autonomous
-> 
-> 
-
-> 	char *                     typetab;              /*    24     8 */
-> 
-> 	/* size: 32, cachelines: 1, members: 4 */
-> 	/* sum members: 28, holes: 1, sum holes: 4 */
-> 	/* last cacheline: 32 bytes */
-> };
-> struct klp_modinfo {
-> 	Elf64_Ehdr                 hdr;                  /*     0    64 */
-> 	/* --- cacheline 1 boundary (64 bytes) --- */
-> 	Elf64_Shdr *               sechdrs;              /*    64     8 */
-> 	char *                     secstrings;           /*    72     8 */
-> 	unsigned int               symndx;               /*    80     4 */
-> 
-> 	/* size: 88, cachelines: 2, members: 4 */
-> 	/* padding: 4 */
-> 	/* last cacheline: 24 bytes */
-> };
-> Segmentation fault
-
-What "faulted"?  Look higher up in the log please.
-
-thanks,
+Thanks, already dropped.
 
 greg k-h
