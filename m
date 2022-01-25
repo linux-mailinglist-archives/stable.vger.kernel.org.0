@@ -2,109 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 967DB49B00B
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 10:40:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B281C49B004
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 10:40:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346236AbiAYJZh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jan 2022 04:25:37 -0500
-Received: from mga05.intel.com ([192.55.52.43]:4621 "EHLO mga05.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1455982AbiAYJH5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 Jan 2022 04:07:57 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1643101677; x=1674637677;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=EXHV5EA/AYibvFLmGk7sya8bHLZVSKVgJE8RlOP/3M4=;
-  b=d+Oohpr4xoZ7nJb3hdJ5XGCckgXHLVCVpNvpJQstOIXCcXO2tuYV6ux/
-   FvdxkHFqqeRWDU+fmMqcBaXvg1gFaowSepMeflWsEmp6qQ0/eE4nph6vi
-   /9sjQq0CUhdTEzXYszc5KSKQTj+LmX5gSicEIYV2dIG4L6/KbFFToENOn
-   I8UyXKUPXhcZG6Ry8SlPQTPllx0sTKzR5xFhZgLqyTa8+ya+Q0MRfVEu/
-   cBce8rRe3g7nLFpwBic8JcjmQJVvborErJ6qoA+yGA3937HCkoueQaqet
-   8B+y/ReOHolUQPWl8nVdAmV22/WsxPCaJTa5sMJAVeSOxgWEDz0wPo9DD
-   Q==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10237"; a="332613043"
-X-IronPort-AV: E=Sophos;i="5.88,314,1635231600"; 
-   d="scan'208";a="332613043"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Jan 2022 01:02:30 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.88,314,1635231600"; 
-   d="scan'208";a="673927566"
-Received: from kuha.fi.intel.com ([10.237.72.185])
-  by fmsmga001.fm.intel.com with SMTP; 25 Jan 2022 01:02:26 -0800
-Received: by kuha.fi.intel.com (sSMTP sendmail emulation); Tue, 25 Jan 2022 11:02:25 +0200
-Date:   Tue, 25 Jan 2022 11:02:25 +0200
-From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
-To:     Badhri Jagan Sridharan <badhri@google.com>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Kyle Tso <kyletso@google.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v1 2/2] usb: typec: tcpm: Do not disconnect when
- receiving VSAFE0V
-Message-ID: <Ye+8oRlfz8HS2fsB@kuha.fi.intel.com>
-References: <20220122015520.332507-1-badhri@google.com>
- <20220122015520.332507-2-badhri@google.com>
+        id S1355001AbiAYJZT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jan 2022 04:25:19 -0500
+Received: from smtp-out1.suse.de ([195.135.220.28]:44798 "EHLO
+        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1456724AbiAYJMl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 04:12:41 -0500
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 644412113B;
+        Tue, 25 Jan 2022 09:12:25 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1643101945; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=mmoavMi/ljQQ4OgjarT4CceYyJul5NBm4EuJtWQTphY=;
+        b=nRDn6aPsnQZGLjhFoi6k19QZQ1r1s+HE8uMOQfCLUG+VPzgV6F5wonLEWJgy+9iS2NZlyf
+        8FL4q/IG8C1xBlQAzZP8fI1zG9XyDXUFpKPKBrtltlrr0SLSvOj6Ccro134WU2LWDkGSJj
+        v7ZkQ9wjULPWLrmHNvLwZi0VpVz9ArQ=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1643101945;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=mmoavMi/ljQQ4OgjarT4CceYyJul5NBm4EuJtWQTphY=;
+        b=cl3rGfnG81BtBNfcKoRtoiXU2aM1S5kFkg19noogGPXi2oMqDUQ9khjRcJ2hKnin7swWXH
+        82XBP80w1vTCXqDA==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 1A22A13DA3;
+        Tue, 25 Jan 2022 09:12:25 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id 4M5uBfm+72GGQAAAMHmgww
+        (envelope-from <tzimmermann@suse.de>); Tue, 25 Jan 2022 09:12:25 +0000
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+To:     zackr@vmware.com, javierm@redhat.com, jfalempe@redhat.com,
+        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+        airlied@linux.ie, daniel@ffwll.ch, deller@gmx.de,
+        hdegoede@redhat.com
+Cc:     dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org,
+        Thomas Zimmermann <tzimmermann@suse.de>, stable@vger.kernel.org
+Subject: [PATCH 1/5] fbdev: Hot-unplug firmware fb devices on forced removal
+Date:   Tue, 25 Jan 2022 10:12:18 +0100
+Message-Id: <20220125091222.21457-2-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220125091222.21457-1-tzimmermann@suse.de>
+References: <20220125091222.21457-1-tzimmermann@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220122015520.332507-2-badhri@google.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 21, 2022 at 05:55:20PM -0800, Badhri Jagan Sridharan wrote:
-> With some chargers, vbus might momentarily raise above VSAFE5V and fall
-> back to 0V causing VSAFE0V to be triggered. This will
-> will report a VBUS off event causing TCPM to transition to
-> SNK_UNATTACHED state where it should be waiting in either SNK_ATTACH_WAIT
-> or SNK_DEBOUNCED state. This patch makes TCPM avoid VSAFE0V events
-> while in SNK_ATTACH_WAIT or SNK_DEBOUNCED state.
-> 
-> Stub from the spec:
->     "4.5.2.2.4.2 Exiting from AttachWait.SNK State
->     A Sink shall transition to Unattached.SNK when the state of both
->     the CC1 and CC2 pins is SNK.Open for at least tPDDebounce.
->     A DRP shall transition to Unattached.SRC when the state of both
->     the CC1 and CC2 pins is SNK.Open for at least tPDDebounce."
-> 
-> [23.194131] CC1: 0 -> 0, CC2: 0 -> 5 [state SNK_UNATTACHED, polarity 0, connected]
-> [23.201777] state change SNK_UNATTACHED -> SNK_ATTACH_WAIT [rev3 NONE_AMS]
-> [23.209949] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @ 170 ms [rev3 NONE_AMS]
-> [23.300579] VBUS off
-> [23.300668] state change SNK_ATTACH_WAIT -> SNK_UNATTACHED [rev3 NONE_AMS]
-> [23.301014] VBUS VSAFE0V
-> [23.301111] Start toggling
-> 
-> Fixes: 28b43d3d746b8 ("usb: typec: tcpm: Introduce vsafe0v for vbus")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
+Hot-unplug all firmware-framebuffer devices as part of removing
+them via remove_conflicting_framebuffers() et al. Releases all
+memory regions to be acquired by native drivers.
 
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Firmware, such as EFI, install a framebuffer while posting the
+computer. After removing the firmware-framebuffer device from fbdev,
+a native driver takes over the hardware and the firmware framebuffer
+becomes invalid.
 
-> ---
->  drivers/usb/typec/tcpm/tcpm.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
-> index b8afe3d8c882..5fce795b69c7 100644
-> --- a/drivers/usb/typec/tcpm/tcpm.c
-> +++ b/drivers/usb/typec/tcpm/tcpm.c
-> @@ -5264,6 +5264,10 @@ static void _tcpm_pd_vbus_vsafe0v(struct tcpm_port *port)
->  	case PR_SWAP_SNK_SRC_SOURCE_ON:
->  		/* Do nothing, vsafe0v is expected during transition */
->  		break;
-> +	case SNK_ATTACH_WAIT:
-> +	case SNK_DEBOUNCED:
-> +		/*Do nothing, still waiting for VSAFE5V for connect */
-> +		break;
->  	default:
->  		if (port->pwr_role == TYPEC_SINK && port->auto_vbus_discharge_enabled)
->  			tcpm_set_state(port, SNK_UNATTACHED, 0);
-> -- 
-> 2.35.0.rc0.227.g00780c9af4-goog
+Firmware-framebuffer drivers, specifically simplefb, don't release
+their device from Linux' device hierarchy. It still owns the firmware
+framebuffer and blocks the native drivers from loading. This has been
+observed in the vmwgfx driver. [1]
 
+Initiating a device removal (i.e., hot unplug) as part of
+remove_conflicting_framebuffers() removes the underlying device and
+returns the memory range to the system.
+
+[1] https://lore.kernel.org/dri-devel/20220117180359.18114-1-zack@kde.org/
+
+v2:
+	* rename variable 'dev' to 'device' (Javier)
+
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Reported-by: Zack Rusin <zackr@vmware.com>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Reviewed-by: Zack Rusin <zackr@vmware.com>
+CC: stable@vger.kernel.org # v5.11+
+---
+ drivers/video/fbdev/core/fbmem.c | 29 ++++++++++++++++++++++++++---
+ include/linux/fb.h               |  1 +
+ 2 files changed, 27 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/video/fbdev/core/fbmem.c b/drivers/video/fbdev/core/fbmem.c
+index 0fa7ede94fa6..b585339509b0 100644
+--- a/drivers/video/fbdev/core/fbmem.c
++++ b/drivers/video/fbdev/core/fbmem.c
+@@ -25,6 +25,7 @@
+ #include <linux/init.h>
+ #include <linux/linux_logo.h>
+ #include <linux/proc_fs.h>
++#include <linux/platform_device.h>
+ #include <linux/seq_file.h>
+ #include <linux/console.h>
+ #include <linux/kmod.h>
+@@ -1557,18 +1558,36 @@ static void do_remove_conflicting_framebuffers(struct apertures_struct *a,
+ 	/* check all firmware fbs and kick off if the base addr overlaps */
+ 	for_each_registered_fb(i) {
+ 		struct apertures_struct *gen_aper;
++		struct device *device;
+ 
+ 		if (!(registered_fb[i]->flags & FBINFO_MISC_FIRMWARE))
+ 			continue;
+ 
+ 		gen_aper = registered_fb[i]->apertures;
++		device = registered_fb[i]->device;
+ 		if (fb_do_apertures_overlap(gen_aper, a) ||
+ 			(primary && gen_aper && gen_aper->count &&
+ 			 gen_aper->ranges[0].base == VGA_FB_PHYS)) {
+ 
+ 			printk(KERN_INFO "fb%d: switching to %s from %s\n",
+ 			       i, name, registered_fb[i]->fix.id);
+-			do_unregister_framebuffer(registered_fb[i]);
++
++			/*
++			 * If we kick-out a firmware driver, we also want to remove
++			 * the underlying platform device, such as simple-framebuffer,
++			 * VESA, EFI, etc. A native driver will then be able to
++			 * allocate the memory range.
++			 *
++			 * If it's not a platform device, at least print a warning. A
++			 * fix would add code to remove the device from the system.
++			 */
++			if (dev_is_platform(device)) {
++				registered_fb[i]->forced_out = true;
++				platform_device_unregister(to_platform_device(device));
++			} else {
++				pr_warn("fb%d: cannot remove device\n", i);
++				do_unregister_framebuffer(registered_fb[i]);
++			}
+ 		}
+ 	}
+ }
+@@ -1898,9 +1917,13 @@ EXPORT_SYMBOL(register_framebuffer);
+ void
+ unregister_framebuffer(struct fb_info *fb_info)
+ {
+-	mutex_lock(&registration_lock);
++	bool forced_out = fb_info->forced_out;
++
++	if (!forced_out)
++		mutex_lock(&registration_lock);
+ 	do_unregister_framebuffer(fb_info);
+-	mutex_unlock(&registration_lock);
++	if (!forced_out)
++		mutex_unlock(&registration_lock);
+ }
+ EXPORT_SYMBOL(unregister_framebuffer);
+ 
+diff --git a/include/linux/fb.h b/include/linux/fb.h
+index 3da95842b207..9a14f3f8a329 100644
+--- a/include/linux/fb.h
++++ b/include/linux/fb.h
+@@ -502,6 +502,7 @@ struct fb_info {
+ 	} *apertures;
+ 
+ 	bool skip_vt_switch; /* no VT switch on suspend/resume required */
++	bool forced_out; /* set when being removed by another driver */
+ };
+ 
+ static inline struct apertures_struct *alloc_apertures(unsigned int max_num) {
 -- 
-heikki
+2.34.1
+
