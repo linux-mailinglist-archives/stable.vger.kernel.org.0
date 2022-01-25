@@ -2,151 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B0C649AA07
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:31:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F6AC49AA0B
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:34:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1323979AbiAYDaF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 22:30:05 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58486 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S3415675AbiAYBvC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 20:51:02 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BCB19B81620;
-        Tue, 25 Jan 2022 01:51:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18A9AC340E5;
-        Tue, 25 Jan 2022 01:50:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1643075459;
-        bh=2LoAhyTMCBfipDDQQxKRvq0ZjwMsW4r6jCIjKtYduL0=;
-        h=Date:From:To:Subject:From;
-        b=LGildrqD8lUENW013MNPDfuumhhQkUA2Sc9DN9pRWYPz06U/LqZ5KJJZA3gbfeCj5
-         /Q5wY30HcqIQZnQHUtXpnyqZGekb24PkVdnHXYnwncn6V4iNvzcG2QJg+Kk8bK2RE1
-         fwwSBjW39Vo57dfzHzrYNxOPNrLBak6PmBEoMAzA=
-Date:   Mon, 24 Jan 2022 17:50:58 -0800
-From:   akpm@linux-foundation.org
-To:     adilger.kernel@dilger.ca, gautham.ananthakrishna@oracle.com,
-        gechangwei@live.cn, ghe@suse.com, jlbec@evilplan.org,
-        joseph.qi@linux.alibaba.com, junxiao.bi@oracle.com,
-        mark@fasheh.com, mm-commits@vger.kernel.org, piaojun@huawei.com,
-        saeed.mirzamohammadi@oracle.com, stable@vger.kernel.org,
-        tytso@mit.edu
-Subject:  + ocfs2-fix-a-deadlock-when-commit-trans.patch added to
- -mm tree
-Message-ID: <20220125015058.l3F3fvaVQ%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S1324008AbiAYDaO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 Jan 2022 22:30:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58798 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1349149AbiAYB7K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 20:59:10 -0500
+Received: from mail-io1-xd34.google.com (mail-io1-xd34.google.com [IPv6:2607:f8b0:4864:20::d34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E541C055A81
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 17:51:19 -0800 (PST)
+Received: by mail-io1-xd34.google.com with SMTP id e79so21894171iof.13
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 17:51:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=PLNl1n+ArWj4qgvxdeXOuJ0Go6oqKB8kznJ4QDRWUEM=;
+        b=QMmybs4P4z/N501e17N58Rqmft/exeSOywcpVLntSEwc6z8ZkVkrxP1N1tdrJ4cHRe
+         8Q6ITbn0VT+8vdnaT4dPjcSOO/LssB0Yu/e3s0yb/WxRvqJqhTnoP8CLHkK/zUvpwMOQ
+         a6utyFhOpOb7CfZlcWuFX5m2ml0rmsvTLSTLk=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=PLNl1n+ArWj4qgvxdeXOuJ0Go6oqKB8kznJ4QDRWUEM=;
+        b=V3aC5DMrqoL7QaDDlJOaw6FxmHPGA3Lj/4DYesF2ugDEzKen8Lb1eFbP59vZQjSb60
+         j865arpjk3b6NqR/ZRNgD90EV0XJnWYOXkdXbN7UnlDLh6auBRX28Q08FC81DL32c0gR
+         hVhly3uqrTf7TP9rehpdXXJc7Eq2Xgwgx3PJGL0Rn2cWdBOcsCBu2PYYn1FOpSLraMHy
+         LnFNXECz9wK2x7nNp3RKQXTKDtABS+DpCCi0yn6ZubysvdbkmS1C/AVpgsq9r15/PdWj
+         3wZFfpdLENFQNuIaeOIjbLuA43mr0qwf91BbaQOZZMwqCBAU91N/ZAcJwyEDB3mMPwr8
+         /ZAg==
+X-Gm-Message-State: AOAM530im7y2rk2ypkAdm7nT3M1OkYUs+Gv54pkVTyt2iUYKFKAGupH8
+        GFSA1wQ1t3Z+xgpusrHSf7F8Iw==
+X-Google-Smtp-Source: ABdhPJyG9fWz6ez4vBJUr5NEHb+kDo75RY6fOU8hfE7G7MsCUG9lsjGpnwqG9w7vNUMQof6ki72mXQ==
+X-Received: by 2002:a02:a1d4:: with SMTP id o20mr4716189jah.45.1643075478323;
+        Mon, 24 Jan 2022 17:51:18 -0800 (PST)
+Received: from ?IPv6:2601:282:8200:4c:b48b:eb27:e282:37fe? ([2601:282:8200:4c:b48b:eb27:e282:37fe])
+        by smtp.gmail.com with ESMTPSA id u2sm8346698ilv.1.2022.01.24.17.51.15
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 24 Jan 2022 17:51:18 -0800 (PST)
+Subject: Re: [PATCH 4.4 000/114] 4.4.300-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        stable@vger.kernel.org, Shuah Khan <skhan@linuxfoundation.org>
+References: <20220124183927.095545464@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+Message-ID: <de58657c-71fb-96eb-3dbd-2d99f2507518@linuxfoundation.org>
+Date:   Mon, 24 Jan 2022 18:51:13 -0700
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
+MIME-Version: 1.0
+In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 1/24/22 11:41 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.300 release.
+> There are 114 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 26 Jan 2022 18:39:11 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.300-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-The patch titled
-     Subject: ocfs2: fix a deadlock when commit trans
-has been added to the -mm tree.  Its filename is
-     ocfs2-fix-a-deadlock-when-commit-trans.patch
+Compiled and booted on my test system. No dmesg regressions.
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/ocfs2-fix-a-deadlock-when-commit-trans.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/ocfs2-fix-a-deadlock-when-commit-trans.patch
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
-
-------------------------------------------------------
-From: Joseph Qi <joseph.qi@linux.alibaba.com>
-Subject: ocfs2: fix a deadlock when commit trans
-
-commit 6f1b228529ae introduces a regression which can deadlock as follows:
-
-Task1:                              Task2:
-jbd2_journal_commit_transaction     ocfs2_test_bg_bit_allocatable
-spin_lock(&jh->b_state_lock)        jbd_lock_bh_journal_head
-__jbd2_journal_remove_checkpoint    spin_lock(&jh->b_state_lock)
-jbd2_journal_put_journal_head
-jbd_lock_bh_journal_head
-
-Task1 and Task2 lock bh->b_state and jh->b_state_lock in different
-order, which finally result in a deadlock.
-
-So use jbd2_journal_[grab|put]_journal_head instead in
-ocfs2_test_bg_bit_allocatable() to fix it.
-
-Link: https://lkml.kernel.org/r/20220121071205.100648-3-joseph.qi@linux.alibaba.com
-Fixes: 6f1b228529ae ("ocfs2: fix race between searching chunks and release journal_head from buffer_head")
-Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Reported-by: Gautham Ananthakrishna <gautham.ananthakrishna@oracle.com>
-Reported-by: Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Andreas Dilger <adilger.kernel@dilger.ca>
-Cc: <stable@vger.kernel.org>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- fs/ocfs2/suballoc.c |   25 +++++++++++--------------
- 1 file changed, 11 insertions(+), 14 deletions(-)
-
---- a/fs/ocfs2/suballoc.c~ocfs2-fix-a-deadlock-when-commit-trans
-+++ a/fs/ocfs2/suballoc.c
-@@ -1251,26 +1251,23 @@ static int ocfs2_test_bg_bit_allocatable
- {
- 	struct ocfs2_group_desc *bg = (struct ocfs2_group_desc *) bg_bh->b_data;
- 	struct journal_head *jh;
--	int ret = 1;
-+	int ret;
- 
- 	if (ocfs2_test_bit(nr, (unsigned long *)bg->bg_bitmap))
- 		return 0;
- 
--	if (!buffer_jbd(bg_bh))
-+	jh = jbd2_journal_grab_journal_head(bg_bh);
-+	if (!jh)
- 		return 1;
- 
--	jbd_lock_bh_journal_head(bg_bh);
--	if (buffer_jbd(bg_bh)) {
--		jh = bh2jh(bg_bh);
--		spin_lock(&jh->b_state_lock);
--		bg = (struct ocfs2_group_desc *) jh->b_committed_data;
--		if (bg)
--			ret = !ocfs2_test_bit(nr, (unsigned long *)bg->bg_bitmap);
--		else
--			ret = 1;
--		spin_unlock(&jh->b_state_lock);
--	}
--	jbd_unlock_bh_journal_head(bg_bh);
-+	spin_lock(&jh->b_state_lock);
-+	bg = (struct ocfs2_group_desc *) jh->b_committed_data;
-+	if (bg)
-+		ret = !ocfs2_test_bit(nr, (unsigned long *)bg->bg_bitmap);
-+	else
-+		ret = 1;
-+	spin_unlock(&jh->b_state_lock);
-+	jbd2_journal_put_journal_head(jh);
- 
- 	return ret;
- }
-_
-
-Patches currently in -mm which might be from joseph.qi@linux.alibaba.com are
-
-jbd2-export-jbd2_journal__journal_head.patch
-ocfs2-fix-a-deadlock-when-commit-trans.patch
+thanks,
+-- Shuah
 
