@@ -2,137 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DC2A49AB4F
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 05:49:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B7F049AC38
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 07:18:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1390132AbiAYErn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 Jan 2022 23:47:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41324 "EHLO
+        id S238829AbiAYGSF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jan 2022 01:18:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S3412735AbiAYElh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 23:41:37 -0500
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD5A7C02982E
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 19:18:49 -0800 (PST)
-Received: by mail-pj1-x1032.google.com with SMTP id my12-20020a17090b4c8c00b001b528ba1cd7so1317453pjb.1
-        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 19:18:49 -0800 (PST)
+        with ESMTP id S251780AbiAYEXK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 Jan 2022 23:23:10 -0500
+Received: from mail-il1-x135.google.com (mail-il1-x135.google.com [IPv6:2607:f8b0:4864:20::135])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A4C6C036BC8;
+        Mon, 24 Jan 2022 18:57:19 -0800 (PST)
+Received: by mail-il1-x135.google.com with SMTP id x3so962467ilm.3;
+        Mon, 24 Jan 2022 18:57:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=hSjKOJjx4EnpKwmhtw+q7BjCwi5CilW2PFg943+Mqg4=;
-        b=su4IrDUgVh2Lb79fY6Uro3kBUMF2oABZ0PSf/3PLggq2q/0D6n//rX86UHGJPGhZn1
-         TKNZ6QOkSX+CjH44yRIl55safYMGfilO9f/VSdOF77s4ebbUy6iGUpfxxwxK4DDIJIzI
-         G5Q7rfccyuXp2X0pDw2hr395vjsgwMU/Wbw5BLRU5ScNpVSnP/Em4G/J6IW2w4w3OYuv
-         SyBlsunHO8my68Zl1Yzw47V7gr1ERiH7dG1faa/JbeWFhxcVtataAIJWJbEpvpjq/8kF
-         8yx1B41t2SRXmRZycrfN/bCF+1iQbMQBYm+X7MzhfZKOCPzZQpF3/OMN4ay3BeesPM80
-         xOIA==
+        d=gmail.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=QPv0H6Gq/32jL7217UDBjUXQqrhpURdnYoTd5Oz4t2U=;
+        b=nQfg3Sx5yGHHlzPJzKeLJBw1pU4pJLciq/rHxf7rrCd16hpXH/LVNJ/xVFvkGtWz/t
+         ZMS3lTXrssx0wK0h1xGWgRqUttYHjzpVnC/TvErfqOyh5WBbvO32/Co7ZsXPrfg/p5No
+         8KGFXH1WrZMJquI5lIAriM1U3WuF6E2RYJXxWYZ8f6VASsL1SpPhXHK6KmVjCVFktVv9
+         YrSBsJzesgzWcsMGBD9zqzB/jAWJPpIsQNxiSRwNTa+oLRhIt3YM6omawsZ9Vj91g291
+         L5R/nqUZ+SChXpXaJrMkyUbBfcbhBs2kbaJ01UOYXRRfyja5JSFeTvsrNcNQzR96Ytf5
+         Xmxg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=hSjKOJjx4EnpKwmhtw+q7BjCwi5CilW2PFg943+Mqg4=;
-        b=CoF/hOFY1Wj4frmvKT6DukA0luDLBJ7SKs/xGVhjcNh8zcnuiwN9xjisNauoMl+96n
-         Wjb6T2f/XZShK0P1RxxunRbTNYPMwn/zT8SOlBFfm6FgETbCpglY8rMhTsm+XGEahdv9
-         SRfveFZpETvq/LXHrqIh2C5Rk5mG5UkqN/z+DMLuZ8vdnYX0B1cSSXK7xD2G/JPSkCe7
-         DYnnjbSnks4XCfw9hxTvI2i12ZPYQgPRMnUmFMm8x0CbC1DLmf6+NRj5d2Q/gZ/W/6eE
-         x8IXuo+rlNbDCsxq2MeP8TgqZ6A18cYiUAztaXx/F+DSsdzII/U2fENZ1eSVQ0uv5JbB
-         SD8g==
-X-Gm-Message-State: AOAM530a7JflzDwkQBVNNniWyJda9AX628CWO0E6YZCe2tXRBL4ljDwp
-        Bx4K5UAVNS7H7Awno7ePwKEVtk6Tpk8Fhj61
-X-Google-Smtp-Source: ABdhPJzKL6rDSYtpXEI6fHM2k8EhxKVfDM1WQfTzFUgzWa7KuKyvFn7Fzd5vNCebXXLlTcFY2huUpQ==
-X-Received: by 2002:a17:90a:5e0d:: with SMTP id w13mr1407650pjf.235.1643080728973;
-        Mon, 24 Jan 2022 19:18:48 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id 13sm16741252pfm.161.2022.01.24.19.18.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 Jan 2022 19:18:48 -0800 (PST)
-Message-ID: <61ef6c18.1c69fb81.60688.f160@mx.google.com>
-Date:   Mon, 24 Jan 2022 19:18:48 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=QPv0H6Gq/32jL7217UDBjUXQqrhpURdnYoTd5Oz4t2U=;
+        b=Mpn1nZBAhqrerf836d3YmjAHIoGKq/ByxNU8Q5IysWbLb9egFfYMooQahewHrUMRJH
+         PKG/n2eNWcqcLFziDaXzOt4uNivVPF8c1hZoXuEcAstQiB0SYNCRlrDT6nZPWNkK8cgC
+         Bca0EF253zqw2PYeg/oHu6xEdrzfOXFiYDrTZC3hU/xMymgdmh+NhNvinVpbZrcKGbfq
+         Pct5Q/SoBOOM8wOvk0NLVYK7+xVxBgs17pJKSitq/IjriGjH46yxb/P8TkGmEdFsHrdk
+         mE4TNeRx91AzTypMR5E+c4PXr1Spnb9+migRZ0Qr/z802yrajqCqlS00c6dvs2pX6VaQ
+         sGfw==
+X-Gm-Message-State: AOAM533GZ3iy0j++nFAsQjYVaSk9LfIF0lyY5QrisTM7G5/H59imE8bl
+        uYarDfeRNimhcLJ13WKSrUg=
+X-Google-Smtp-Source: ABdhPJwEwitvfeVHdVQCzyZ9JmrhkAoqCe6S8zQzO/RebBN+NLHzp3GMQlUt6JynkrHZA9xdHL8/FQ==
+X-Received: by 2002:a05:6e02:68c:: with SMTP id o12mr10272160ils.245.1643079438338;
+        Mon, 24 Jan 2022 18:57:18 -0800 (PST)
+Received: from [192.168.1.99] ([71.205.29.0])
+        by smtp.gmail.com with ESMTPSA id o14sm8386746ilq.21.2022.01.24.18.57.17
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 24 Jan 2022 18:57:18 -0800 (PST)
+Message-ID: <89d415a6-7165-b1db-1f04-307f46bd07a4@gmail.com>
+Date:   Mon, 24 Jan 2022 19:57:17 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.9.297-158-g12144c253dc9
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.9.y
-Subject: stable-rc/linux-4.9.y baseline: 113 runs,
- 1 regressions (v4.9.297-158-g12144c253dc9)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.3.1
+Subject: Re: [PATCH 5.16 0000/1039] 5.16.3-rc1 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, zanaziz313@gmail.com
+References: <20220124184125.121143506@linuxfoundation.org>
+From:   Zan Aziz <zanaziz313@gmail.com>
+In-Reply-To: <20220124184125.121143506@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.9.y baseline: 113 runs, 1 regressions (v4.9.297-158-g1214=
-4c253dc9)
+On 1/24/22 11:29, Greg Kroah-Hartman wrote:
+> Hi Greg,
+>
+> Compiled and booted on my test system Lenovo P50s: Intel Core i7
+> No emergency and critical messages in the dmesg
+> I am going to be running perf bench sched from now on and I will
+> report any regressions
+>
+> /perf bench sched all
+> # Running sched/messaging benchmark...
+> # 20 sender and receiver processes per group
+> # 10 groups == 400 processes run
+>
+>       Total time: 0.437 [sec]
+>
+> # Running sched/pipe benchmark...
+> # Executed 1000000 pipe operations between two processes
+>
+>       Total time: 6.919 [sec]
+>
+>         6.919489 usecs/op
+>           144519 ops/sec
+>
+> Tested-by: Zan Aziz <zanaziz313@gmail.com>
+>
+> Thanks
+> -Zan
+> This is the start of the stable review cycle for the 5.16.3 release.
+> There are 1039 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 26 Jan 2022 18:39:11 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.3-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+Hi Greg,
 
-Regressions Summary
--------------------
+Compiled and booted on my test system Lenovo P50s: Intel Core i7
+No emergency and critical messages in the dmesg
+I am going to be running perf bench sched from now on and I will
+report any regressions
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+/perf bench sched all
+# Running sched/messaging benchmark...
+# 20 sender and receiver processes per group
+# 10 groups == 400 processes run
 
+      Total time: 0.437 [sec]
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.9.y/kern=
-el/v4.9.297-158-g12144c253dc9/plan/baseline/
+# Running sched/pipe benchmark...
+# Executed 1000000 pipe operations between two processes
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.9.y
-  Describe: v4.9.297-158-g12144c253dc9
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      12144c253dc9bce0a1f5fbc0969ffab0ad8b5a0f =
+      Total time: 6.919 [sec]
 
+        6.919489 usecs/op
+          144519 ops/sec
 
+Tested-by: Zan Aziz <zanaziz313@gmail.com>
 
-Test Regressions
----------------- =
+Thanks,
+-Zan
 
 
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61ef32d44332f7ff31abbd31
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.297=
--158-g12144c253dc9/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.9.y/v4.9.297=
--158-g12144c253dc9/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
-nda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61ef32d44332f7f=
-f31abbd37
-        failing since 21 days (last pass: v4.9.295, first fail: v4.9.295-14=
--g584e15b1cb05)
-        2 lines
-
-    2022-01-24T23:14:11.210021  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/124
-    2022-01-24T23:14:11.219640  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
-230 [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
-    2022-01-24T23:14:11.236114  [   20.389923] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
-
- =20
