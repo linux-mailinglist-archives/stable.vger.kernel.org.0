@@ -2,107 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF30B49B44A
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 13:50:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5878149B46B
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 14:00:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1356871AbiAYMuF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jan 2022 07:50:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41994 "EHLO
+        id S1574766AbiAYM7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jan 2022 07:59:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1384559AbiAYMpv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 07:45:51 -0500
-Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA8D6C061751
-        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 04:45:50 -0800 (PST)
-Received: by mail-pg1-x52f.google.com with SMTP id e16so8872293pgn.4
-        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 04:45:50 -0800 (PST)
+        with ESMTP id S1457527AbiAYMyw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 07:54:52 -0500
+Received: from mail-yb1-xb2f.google.com (mail-yb1-xb2f.google.com [IPv6:2607:f8b0:4864:20::b2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBBACC06174E
+        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 04:54:51 -0800 (PST)
+Received: by mail-yb1-xb2f.google.com with SMTP id p5so61293792ybd.13
+        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 04:54:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rajagiritech-edu-in.20210112.gappssmtp.com; s=20210112;
-        h=message-id:subject:from:to:cc:date:user-agent:mime-version;
-        bh=g8fPoNFbM2MKGQXuUpmaNAqe4Rt5cBc36ZwCaR5F95o=;
-        b=dNoC//Ti2VpKHGQvJtgZMqrw/3iq4uQWDiYr9hp/8d+aAFgIdA4Y/WO4h/vyweRp4j
-         ch0ZGngJdxi9Xbkq8P2uHRbiXTIkz4bl5Kqc4FAPP5s7l7OdI00x5oQ+iPAqWW7M/Lxn
-         CsMOKyBjl4i6ePan2Aw5SaRn7TajJwL7a3a5PzRqaKnsIewIx7ftfk2BZ041+sRxs+lz
-         ocNr5RdDJPeFYPIBqsnp6veMDZuIkDf5Jy6Q+Eb0MqVWkrm1BUqUOhgjZnpBYMQqq9Tt
-         QD7/exb27ZLiOO4Jg1dow2ZOkAyMvr+ZO2TqvXGEIRX4GIyFQHiuWEfjsIqgAMI5PLPG
-         3Mzg==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=UX+mCL/+3OJClsOKBeEkEvb9NIERuxwgkgzWt1+XqsM=;
+        b=MCfxrIYF6U0/6cGSKJjwW/A47yTN2CaZTRTOMOG2K0WZgWik2SWsZvjQVEGGjUY99V
+         Sx2JU0toFct5kvq8SG4BQoQXuCn9miimZ6o2926HqohYBeRkqTRj15KlZrt9dL9Isf6L
+         9ZfLksc0m9sfMpYNVxEepuYZPZmOMxQ6ZDHmdc1v7qstSTuC2jtroO7GTsRGbgWH37Rf
+         XP+rkoQnNUVmJELWTn+aUD1hhJfCDuBdhUUOviJZHYsE9Iu4qOzo/VrTBNxzpCzBy2oN
+         lNWGfb8aACd3gU8QF9o5sRKzv9UZ8O7vRJc4RX2DnvPdAiRKhurCnVQeYhUapbzbUGCE
+         2GOw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:subject:from:to:cc:date:user-agent
-         :mime-version;
-        bh=g8fPoNFbM2MKGQXuUpmaNAqe4Rt5cBc36ZwCaR5F95o=;
-        b=FJbwfFOWnsQFOCAfs4B34Q0371OlsqC+jGmksm8weItDbaD9K+HleA9EKvjYjUK5GS
-         kLSeeCj1XUsFJmQkjLxr8M/iCmBXjUh2aPDnLydF7wwokfBVAUwjdBQJ/9QhMhF+JmF9
-         ck/44hrNqjIy7prMZO87bFFb4tJXuGHsjBbB42dJU6/xGF2unrHazagu9itHvCGvNUBQ
-         ovKCKNiwiRw3eUyiDwQDduaDjYLYEJXv9Cx4h8e4sFPRKPq7qlXjO+lX6Qyd2NFOiSoC
-         Z2hb+Yafp5H9QL/97f/J1szANPzOohQuWFHUhpE9O99qfPiqxADQ9Qrvc3GmtdA3xH/c
-         VSmw==
-X-Gm-Message-State: AOAM531fwQXcBLHII7m9gFe4ntyklpfmqOOyl5wDQygaLbLTGi/POPdE
-        GybjQmOJtuKjmo+sWgGIe89ROzUy21l86vtr
-X-Google-Smtp-Source: ABdhPJw7vfyggNO09DCqL25gUQwAaCS0IWO8zAjg0K/+L8URMePIy1z5j0CBiq5Y118WTwfgGCvobw==
-X-Received: by 2002:a05:6a00:114d:b0:4c4:3df:edf8 with SMTP id b13-20020a056a00114d00b004c403dfedf8mr18365857pfm.54.1643114750098;
-        Tue, 25 Jan 2022 04:45:50 -0800 (PST)
-Received: from [192.168.1.32] ([122.178.19.178])
-        by smtp.gmail.com with ESMTPSA id s3sm348125pji.31.2022.01.25.04.45.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Jan 2022 04:45:49 -0800 (PST)
-Message-ID: <0af17d6952b3677dcd413fefa74b086d5ffb474b.camel@rajagiritech.edu.in>
-Subject: review for  5.16.3-rc2
-From:   Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        lkml <linux-kernel@vger.kernel.org>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Date:   Tue, 25 Jan 2022 18:15:46 +0530
-Content-Type: multipart/mixed; boundary="=-a4u6oguv8pYyTbmRWk8O"
-User-Agent: Evolution 3.42.3-1 
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=UX+mCL/+3OJClsOKBeEkEvb9NIERuxwgkgzWt1+XqsM=;
+        b=VIOtxuHxn/fF0zkTkNrgD4EZ/r5MjufsOP73iRMAX2Acozvv2KMl3+qmi5wMBClsul
+         kIFyFykIOCDahwJqTe6cPE2SSobU9ZxLeYb6a8ozsuZiJNPF7cQzlqwx6yBtCV2ZUCII
+         JKj1gJ2BQ/wLaqAvF5dbfRX/IzNRHfNMzjYfj5s/WXBfAv0+wbYiwGjor18fCpkSTvcU
+         tuLYD7P0ftWMdrB7+XJuGLD9kxY6qBk/L978aiYcQLCccB7tL0aG9t6OCRwpnkF8USvT
+         l3LK4xIPJ7m6Aj1SZr6PmUkQuDMhcIXmEyQdgmUBLAUouZjJ6GpGACP8WNb7oXHhHQ7A
+         McNg==
+X-Gm-Message-State: AOAM5313hAWZMl6p8C9XZJICwOffuwDcIV+X5X7ddrIlpOB6PPyVBOJr
+        pf27kIREoRjqZn0QjobUgB0Cx+Is/Q16IQqMS5ZQhQ==
+X-Google-Smtp-Source: ABdhPJxy7bKXZE3JuwuIx8BjOw2Sgn8MbTp7tnuKrlmmDX6NQqm0P+KRj1X89r1eunx+bttGoOG/cYEVleuw2ogE1X4=
+X-Received: by 2002:a25:4284:: with SMTP id p126mr30711644yba.108.1643115290841;
+ Tue, 25 Jan 2022 04:54:50 -0800 (PST)
 MIME-Version: 1.0
+References: <20220124183932.787526760@linuxfoundation.org>
+In-Reply-To: <20220124183932.787526760@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 25 Jan 2022 18:24:39 +0530
+Message-ID: <CA+G9fYvzftL7cWFysem9z4AMKFXMRShy6-Ewp74ckP1xeaBCAA@mail.gmail.com>
+Subject: Re: [PATCH 4.9 000/157] 4.9.298-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, 25 Jan 2022 at 00:24, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.9.298 release.
+> There are 157 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 26 Jan 2022 18:39:11 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.298-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
---=-a4u6oguv8pYyTbmRWk8O
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
+same as 4.14 build error.
+stable-rc 4.9 build failed.
+arm (imx_v6_v7_defconfig) with gcc-8, gcc-9, gcc-10 and gcc-11 - FAILED
 
-hello greg,
+ > Lucas Stach <l.stach@pengutronix.de>
+ >     drm/etnaviv: limit submit sizes
 
-compile failed for  5.16.3-rc2 related.
-a relevent file attached.
+drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c: In function
+'etnaviv_ioctl_gem_submit':
+drivers/gpu/drm/etnaviv/etnaviv_gem_submit.c:329:37: error: 'struct
+drm_etnaviv_gem_submit' has no member named 'nr_pmrs'; did you mean
+'nr_bos'?
+      args->nr_bos > SZ_64K || args->nr_pmrs > 128) {
+                                     ^~~~~~~
+                                     nr_bos
+make[5]: *** [scripts/Makefile.build:307:
+drivers/gpu/drm/etnaviv/etnaviv_gem_submit.o] Error 1
 
-Tested-by : Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
-
-
--- 
-software engineer
-rajagiri school of engineering and technology - autonomous
-
-
-
---=-a4u6oguv8pYyTbmRWk8O
-Content-Disposition: attachment; filename="5.16.3-rc2.txt"
-Content-Type: text/plain; name="5.16.3-rc2.txt"; charset="UTF-8"
-Content-Transfer-Encoding: base64
-
-CWNoYXIgKiAgICAgICAgICAgICAgICAgICAgIHR5cGV0YWI7ICAgICAgICAgICAgICAvKiAgICAy
-NCAgICAgOCAqLwoKCS8qIHNpemU6IDMyLCBjYWNoZWxpbmVzOiAxLCBtZW1iZXJzOiA0ICovCgkv
-KiBzdW0gbWVtYmVyczogMjgsIGhvbGVzOiAxLCBzdW0gaG9sZXM6IDQgKi8KCS8qIGxhc3QgY2Fj
-aGVsaW5lOiAzMiBieXRlcyAqLwp9OwpzdHJ1Y3Qga2xwX21vZGluZm8gewoJRWxmNjRfRWhkciAg
-ICAgICAgICAgICAgICAgaGRyOyAgICAgICAgICAgICAgICAgIC8qICAgICAwICAgIDY0ICovCgkv
-KiAtLS0gY2FjaGVsaW5lIDEgYm91bmRhcnkgKDY0IGJ5dGVzKSAtLS0gKi8KCUVsZjY0X1NoZHIg
-KiAgICAgICAgICAgICAgIHNlY2hkcnM7ICAgICAgICAgICAgICAvKiAgICA2NCAgICAgOCAqLwoJ
-Y2hhciAqICAgICAgICAgICAgICAgICAgICAgc2Vjc3RyaW5nczsgICAgICAgICAgIC8qICAgIDcy
-ICAgICA4ICovCgl1bnNpZ25lZCBpbnQgICAgICAgICAgICAgICBzeW1uZHg7ICAgICAgICAgICAg
-ICAgLyogICAgODAgICAgIDQgKi8KCgkvKiBzaXplOiA4OCwgY2FjaGVsaW5lczogMiwgbWVtYmVy
-czogNCAqLwoJLyogcGFkZGluZzogNCAqLwoJLyogbGFzdCBjYWNoZWxpbmU6IDI0IGJ5dGVzICov
-Cn07ClNlZ21lbnRhdGlvbiBmYXVsdAogIExEICAgICAgLnRtcF92bWxpbnV4LmthbGxzeW1zMQog
-IEtTWU1TICAgLnRtcF92bWxpbnV4LmthbGxzeW1zMS5TCiAgQVMgICAgICAudG1wX3ZtbGludXgu
-a2FsbHN5bXMxLlMKICBMRCAgICAgIC50bXBfdm1saW51eC5rYWxsc3ltczIKICBLU1lNUyAgIC50
-bXBfdm1saW51eC5rYWxsc3ltczIuUwogIEFTICAgICAgLnRtcF92bWxpbnV4LmthbGxzeW1zMi5T
-CiAgTEQgICAgICB2bWxpbnV4CiAgQlRGSURTICB2bWxpbnV4CkZBSUxFRDogbG9hZCBCVEYgZnJv
-bSB2bWxpbnV4OiBObyBzdWNoIGZpbGUgb3IgZGlyZWN0b3J5Cm1ha2U6ICoqKiBbTWFrZWZpbGU6
-MTE2MTogdm1saW51eF0gRXJyb3IgMjU1Cm1ha2U6ICoqKiBEZWxldGluZyBmaWxlICd2bWxpbnV4
-JwokCgo=
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
 
---=-a4u6oguv8pYyTbmRWk8O--
+--
+Linaro LKFT
+https://lkft.linaro.org
