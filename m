@@ -2,179 +2,189 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B281C49B004
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 10:40:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 674C849B007
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 10:40:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355001AbiAYJZT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jan 2022 04:25:19 -0500
-Received: from smtp-out1.suse.de ([195.135.220.28]:44798 "EHLO
-        smtp-out1.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1456724AbiAYJMl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 04:12:41 -0500
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out1.suse.de (Postfix) with ESMTPS id 644412113B;
-        Tue, 25 Jan 2022 09:12:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1643101945; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=mmoavMi/ljQQ4OgjarT4CceYyJul5NBm4EuJtWQTphY=;
-        b=nRDn6aPsnQZGLjhFoi6k19QZQ1r1s+HE8uMOQfCLUG+VPzgV6F5wonLEWJgy+9iS2NZlyf
-        8FL4q/IG8C1xBlQAzZP8fI1zG9XyDXUFpKPKBrtltlrr0SLSvOj6Ccro134WU2LWDkGSJj
-        v7ZkQ9wjULPWLrmHNvLwZi0VpVz9ArQ=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1643101945;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=mmoavMi/ljQQ4OgjarT4CceYyJul5NBm4EuJtWQTphY=;
-        b=cl3rGfnG81BtBNfcKoRtoiXU2aM1S5kFkg19noogGPXi2oMqDUQ9khjRcJ2hKnin7swWXH
-        82XBP80w1vTCXqDA==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 1A22A13DA3;
-        Tue, 25 Jan 2022 09:12:25 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id 4M5uBfm+72GGQAAAMHmgww
-        (envelope-from <tzimmermann@suse.de>); Tue, 25 Jan 2022 09:12:25 +0000
-From:   Thomas Zimmermann <tzimmermann@suse.de>
-To:     zackr@vmware.com, javierm@redhat.com, jfalempe@redhat.com,
-        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-        airlied@linux.ie, daniel@ffwll.ch, deller@gmx.de,
-        hdegoede@redhat.com
-Cc:     dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org,
-        Thomas Zimmermann <tzimmermann@suse.de>, stable@vger.kernel.org
-Subject: [PATCH 1/5] fbdev: Hot-unplug firmware fb devices on forced removal
-Date:   Tue, 25 Jan 2022 10:12:18 +0100
-Message-Id: <20220125091222.21457-2-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220125091222.21457-1-tzimmermann@suse.de>
-References: <20220125091222.21457-1-tzimmermann@suse.de>
+        id S244442AbiAYJZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jan 2022 04:25:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49918 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1573005AbiAYJSg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 04:18:36 -0500
+Received: from mail-lj1-x22c.google.com (mail-lj1-x22c.google.com [IPv6:2a00:1450:4864:20::22c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B682C06176A
+        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 01:14:54 -0800 (PST)
+Received: by mail-lj1-x22c.google.com with SMTP id e9so3581915ljq.1
+        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 01:14:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=qrgiZGQ6iDovOpvrU32QRk7eljkxoPWyGy5MexT9X4I=;
+        b=Yz2JeNHhq5XcFshwTR7g5n40VgZtU4lRAtDEj/GojdZK5RxjDf23wQ/pzu5acf+Dy8
+         2Ugx0biQWhmmP2vWA7xGO7oOFi+maeNvwfeVrjg6zFJhNpWMw5y46Pbrvs8pcI7UPkcO
+         mmuYSf03AAL49jlQiQXGb7HK2595dtPejQBGbHBaVmpuN+2sXyWTC3EdB2UMZlOIKtNi
+         aNz9lN7EEAVxXmBlCi4zbmNEJPG+weJ+ejVUm3QStQzw+lzV3u+badZWBTwf+qEtIuxl
+         IxB2VpHQMu/pMR/3KXXRX0UjZ8qsInINtLA4+1c8J0nvMvn02/1Nt5VVEUCBzwuORlDH
+         /PrA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=qrgiZGQ6iDovOpvrU32QRk7eljkxoPWyGy5MexT9X4I=;
+        b=ByjFRxqaCVNxovXKe9lrsqiP7NsNfR5bsL1VH6r47n6SwSPJnQbhxxyCacnQa1iyG+
+         s3+hvgC5eVnjMyWEPDJLL91hSItw189U7xPXwaeGOWS27vaGfkSm7c6922y0ZM8ekCIP
+         8baU1T2R5pX004YW90cdv1BEK+NEZ/WGRQV6mzlxzJK1UlaPjPwR4feyvv+Jkq/edUir
+         vlBs8AywEmjKpq0o6GPOz7+x2HvJ1PCHKTi0sKHJEA58OLbFsSwx+2ty2HAkALcmVIis
+         hvLl7Sc6t15nECdFnxI1VABuZpMh9tcoGJ8KMyEW/oueP4k0WlE/+rALACssycDNZa1v
+         xUDg==
+X-Gm-Message-State: AOAM533ZXj/A65tnUPjRDEVcmkHzya/rlZViMufhu7DvdEB6BofkDdQi
+        tjmBMSsQE83MI/mFx/bbuYhsYUNNPrMcSe1IO11g5g==
+X-Google-Smtp-Source: ABdhPJzeq/FzwGiCeBTJHEg6r95G1ZdhTdmrdSjD6Yutu6gLbJJWNcXh4b7oAOFsB95LEsMJlk6By0jWGzJ/zBOV8kg=
+X-Received: by 2002:a2e:6a13:: with SMTP id f19mr8258334ljc.365.1643102092835;
+ Tue, 25 Jan 2022 01:14:52 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20220120200139.118978-1-tadeusz.struk@linaro.org> <20220125011804.mhlhdenbjluzqkgf@oracle.com>
+In-Reply-To: <20220125011804.mhlhdenbjluzqkgf@oracle.com>
+From:   Vincent Guittot <vincent.guittot@linaro.org>
+Date:   Tue, 25 Jan 2022 10:14:41 +0100
+Message-ID: <CAKfTPtB7UvUG3C_xiHL-V6eDfDOAkpzFWa0_QQeeRAQG7PovXQ@mail.gmail.com>
+Subject: Re: [PATCH v2] sched/fair: Fix fault in reweight_entity
+To:     Daniel Jordan <daniel.m.jordan@oracle.com>
+Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>, peterz@infradead.org,
+        Ingo Molnar <mingo@redhat.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Zhang Qiao <zhangqiao22@huawei.com>, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        syzbot+af7a719bc92395ee41b3@syzkaller.appspotmail.com
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hot-unplug all firmware-framebuffer devices as part of removing
-them via remove_conflicting_framebuffers() et al. Releases all
-memory regions to be acquired by native drivers.
+On Tue, 25 Jan 2022 at 02:18, Daniel Jordan <daniel.m.jordan@oracle.com> wrote:
+>
+> Hi,
+>
+> On Thu, Jan 20, 2022 at 12:01:39PM -0800, Tadeusz Struk wrote:
+> > Syzbot found a GPF in reweight_entity(). This has been bisected to commit
+> > 4ef0c5c6b5ba ("kernel/sched: Fix sched_fork() access an invalid sched_task_group")
+> >
+> > There is a race between sched_post_fork() and setpriority(PRIO_PGRP)
+> > within a thread group that causes a null-ptr-deref in reweight_entity()
+> > in CFS. The scenario is that the main process spawns number of new
+> > threads, which then call setpriority(PRIO_PGRP, 0, prio), wait, and exit.
+> > For each of the new threads the copy_process() gets invoked, which adds
+> > the new task_struct to the group, and eventually calls sched_post_fork() for it.
+> >
+> > In the above scenario there is a possibility that setpriority(PRIO_PGRP)
+> > and set_one_prio() will be called for a thread in the group that is just
+> > being created by copy_process(), and for which the sched_post_fork() has
+> > not been executed yet. This will trigger a null pointer dereference in
+> > reweight_entity(), as it will try to access the run queue pointer, which
+> > hasn't been set.
+>
+> It's kinda strange that p->se.cfs_rq is NULLed in __sched_fork().
+> AFAICT, that lets set_task_rq_fair() distinguish between fork and other
+> paths per ad936d8658fd, but it's causing this problem now and it's not
+> the only way that set_task_rq_fair() could tell the difference.
+>
+> We might be able to get rid of the NULL assignment instead of adding
+> code to detect it.  Maybe something like this, against today's mainline?
+> set_task_rq_fair() would rely on TASK_NEW instead of NULL.
+>
+> Haven't thought it all the way through, so could be missing something.
+> Will think more
 
-Firmware, such as EFI, install a framebuffer while posting the
-computer. After removing the firmware-framebuffer device from fbdev,
-a native driver takes over the hardware and the firmware framebuffer
-becomes invalid.
+Could we use :
+set_load_weight(p, !(p->__state & TASK_NEW));
+instead of
+set_load_weight(p, true);
+in set_user_nice and __setscheduler_params.
 
-Firmware-framebuffer drivers, specifically simplefb, don't release
-their device from Linux' device hierarchy. It still owns the firmware
-framebuffer and blocks the native drivers from loading. This has been
-observed in the vmwgfx driver. [1]
+The current always true value forces the update of the weight of the
+cfs_rq of the task which is not already set in this case
 
-Initiating a device removal (i.e., hot unplug) as part of
-remove_conflicting_framebuffers() removes the underlying device and
-returns the memory range to the system.
-
-[1] https://lore.kernel.org/dri-devel/20220117180359.18114-1-zack@kde.org/
-
-v2:
-	* rename variable 'dev' to 'device' (Javier)
-
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Reported-by: Zack Rusin <zackr@vmware.com>
-Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
-Reviewed-by: Zack Rusin <zackr@vmware.com>
-CC: stable@vger.kernel.org # v5.11+
----
- drivers/video/fbdev/core/fbmem.c | 29 ++++++++++++++++++++++++++---
- include/linux/fb.h               |  1 +
- 2 files changed, 27 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/video/fbdev/core/fbmem.c b/drivers/video/fbdev/core/fbmem.c
-index 0fa7ede94fa6..b585339509b0 100644
---- a/drivers/video/fbdev/core/fbmem.c
-+++ b/drivers/video/fbdev/core/fbmem.c
-@@ -25,6 +25,7 @@
- #include <linux/init.h>
- #include <linux/linux_logo.h>
- #include <linux/proc_fs.h>
-+#include <linux/platform_device.h>
- #include <linux/seq_file.h>
- #include <linux/console.h>
- #include <linux/kmod.h>
-@@ -1557,18 +1558,36 @@ static void do_remove_conflicting_framebuffers(struct apertures_struct *a,
- 	/* check all firmware fbs and kick off if the base addr overlaps */
- 	for_each_registered_fb(i) {
- 		struct apertures_struct *gen_aper;
-+		struct device *device;
- 
- 		if (!(registered_fb[i]->flags & FBINFO_MISC_FIRMWARE))
- 			continue;
- 
- 		gen_aper = registered_fb[i]->apertures;
-+		device = registered_fb[i]->device;
- 		if (fb_do_apertures_overlap(gen_aper, a) ||
- 			(primary && gen_aper && gen_aper->count &&
- 			 gen_aper->ranges[0].base == VGA_FB_PHYS)) {
- 
- 			printk(KERN_INFO "fb%d: switching to %s from %s\n",
- 			       i, name, registered_fb[i]->fix.id);
--			do_unregister_framebuffer(registered_fb[i]);
-+
-+			/*
-+			 * If we kick-out a firmware driver, we also want to remove
-+			 * the underlying platform device, such as simple-framebuffer,
-+			 * VESA, EFI, etc. A native driver will then be able to
-+			 * allocate the memory range.
-+			 *
-+			 * If it's not a platform device, at least print a warning. A
-+			 * fix would add code to remove the device from the system.
-+			 */
-+			if (dev_is_platform(device)) {
-+				registered_fb[i]->forced_out = true;
-+				platform_device_unregister(to_platform_device(device));
-+			} else {
-+				pr_warn("fb%d: cannot remove device\n", i);
-+				do_unregister_framebuffer(registered_fb[i]);
-+			}
- 		}
- 	}
- }
-@@ -1898,9 +1917,13 @@ EXPORT_SYMBOL(register_framebuffer);
- void
- unregister_framebuffer(struct fb_info *fb_info)
- {
--	mutex_lock(&registration_lock);
-+	bool forced_out = fb_info->forced_out;
-+
-+	if (!forced_out)
-+		mutex_lock(&registration_lock);
- 	do_unregister_framebuffer(fb_info);
--	mutex_unlock(&registration_lock);
-+	if (!forced_out)
-+		mutex_unlock(&registration_lock);
- }
- EXPORT_SYMBOL(unregister_framebuffer);
- 
-diff --git a/include/linux/fb.h b/include/linux/fb.h
-index 3da95842b207..9a14f3f8a329 100644
---- a/include/linux/fb.h
-+++ b/include/linux/fb.h
-@@ -502,6 +502,7 @@ struct fb_info {
- 	} *apertures;
- 
- 	bool skip_vt_switch; /* no VT switch on suspend/resume required */
-+	bool forced_out; /* set when being removed by another driver */
- };
- 
- static inline struct apertures_struct *alloc_apertures(unsigned int max_num) {
--- 
-2.34.1
-
+>
+> diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+> index 848eaa0efe0ea..9a5b264c5dc10 100644
+> --- a/kernel/sched/core.c
+> +++ b/kernel/sched/core.c
+> @@ -4241,10 +4241,6 @@ static void __sched_fork(unsigned long clone_flags, struct task_struct *p)
+>         p->se.vruntime                  = 0;
+>         INIT_LIST_HEAD(&p->se.group_node);
+>
+> -#ifdef CONFIG_FAIR_GROUP_SCHED
+> -       p->se.cfs_rq                    = NULL;
+> -#endif
+> -
+>  #ifdef CONFIG_SCHEDSTATS
+>         /* Even if schedstat is disabled, there should not be garbage */
+>         memset(&p->stats, 0, sizeof(p->stats));
+> diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+> index 5146163bfabb9..7aff3b603220d 100644
+> --- a/kernel/sched/fair.c
+> +++ b/kernel/sched/fair.c
+> @@ -3339,15 +3339,19 @@ static inline void update_tg_load_avg(struct cfs_rq *cfs_rq)
+>   * caller only guarantees p->pi_lock is held; no other assumptions,
+>   * including the state of rq->lock, should be made.
+>   */
+> -void set_task_rq_fair(struct sched_entity *se,
+> -                     struct cfs_rq *prev, struct cfs_rq *next)
+> +void set_task_rq_fair(struct task_struct *p, struct cfs_rq *next)
+>  {
+> +       struct sched_entity *se = &p->se;
+> +       struct cfs_rq *prev = se->cfs_rq;
+>         u64 p_last_update_time;
+>         u64 n_last_update_time;
+>
+>         if (!sched_feat(ATTACH_AGE_LOAD))
+>                 return;
+>
+> +       if (p->__state == TASK_NEW)
+> +               return;
+> +
+>         /*
+>          * We are supposed to update the task to "current" time, then its up to
+>          * date and ready to go to new CPU/cfs_rq. But we have difficulty in
+> @@ -3355,7 +3359,7 @@ void set_task_rq_fair(struct sched_entity *se,
+>          * time. This will result in the wakee task is less decayed, but giving
+>          * the wakee more load sounds not bad.
+>          */
+> -       if (!(se->avg.last_update_time && prev))
+> +       if (!se->avg.last_update_time)
+>                 return;
+>
+>  #ifndef CONFIG_64BIT
+> diff --git a/kernel/sched/sched.h b/kernel/sched/sched.h
+> index de53be9057390..a6f749f136ee1 100644
+> --- a/kernel/sched/sched.h
+> +++ b/kernel/sched/sched.h
+> @@ -514,11 +514,10 @@ extern int sched_group_set_shares(struct task_group *tg, unsigned long shares);
+>  extern int sched_group_set_idle(struct task_group *tg, long idle);
+>
+>  #ifdef CONFIG_SMP
+> -extern void set_task_rq_fair(struct sched_entity *se,
+> -                            struct cfs_rq *prev, struct cfs_rq *next);
+> +extern void set_task_rq_fair(struct task_struct *p, struct cfs_rq *next);
+>  #else /* !CONFIG_SMP */
+> -static inline void set_task_rq_fair(struct sched_entity *se,
+> -                            struct cfs_rq *prev, struct cfs_rq *next) { }
+> +static inline void set_task_rq_fair(struct task_struct *p,
+> +                                   struct cfs_rq *next) {}
+>  #endif /* CONFIG_SMP */
+>  #endif /* CONFIG_FAIR_GROUP_SCHED */
+>
+> @@ -1910,7 +1909,7 @@ static inline void set_task_rq(struct task_struct *p, unsigned int cpu)
+>  #endif
+>
+>  #ifdef CONFIG_FAIR_GROUP_SCHED
+> -       set_task_rq_fair(&p->se, p->se.cfs_rq, tg->cfs_rq[cpu]);
+> +       set_task_rq_fair(p, tg->cfs_rq[cpu]);
+>         p->se.cfs_rq = tg->cfs_rq[cpu];
+>         p->se.parent = tg->se[cpu];
+>  #endif
