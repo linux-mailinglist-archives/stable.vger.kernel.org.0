@@ -2,158 +2,240 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E71D49AC6D
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 07:31:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26B7849AC98
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 07:47:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349498AbiAYGbp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jan 2022 01:31:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37276 "EHLO
+        id S1359048AbiAYGrE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jan 2022 01:47:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346490AbiAYG2B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 01:28:01 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2DA3C038AC1;
-        Mon, 24 Jan 2022 20:50:07 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2B3EECE16B3;
-        Tue, 25 Jan 2022 04:50:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFD44C340E0;
-        Tue, 25 Jan 2022 04:50:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1643086204;
-        bh=MstIM0rfaGotgpIRhr3v2d3CRHPSm8jc0mTlrOLcJxo=;
-        h=Date:From:To:Subject:From;
-        b=Lrsh0Q8tGqa0pv7IbmSLB4fvrXfcSh2y3ASf2l1GTuzXuIGsewaT+D4C+eIQBXDIz
-         CiPwR3Ts9+fIKRDmtZGkmJYzb3GezUt9V57jvUdeoEI6VwQK9Oj3RYMS+6+sMxaicr
-         bf6oMYR7+/JmS21zZseT36XuDP3+sqk8y8aJmg/8=
-Date:   Mon, 24 Jan 2022 20:50:03 -0800
-From:   akpm@linux-foundation.org
-To:     aarcange@redhat.com, akpm@linux-foundation.org,
-        alex.williamson@redhat.com, jack@suse.cz, jglisse@redhat.com,
-        jhubbard@nvidia.com, kirill.shutemov@linux.intel.com,
-        mm-commits@vger.kernel.org, peterx@redhat.com,
-        stable@vger.kernel.org
-Subject:  +
- mm-fix-invalid-page-pointer-returned-with-foll_pin-gups.patch added to -mm
- tree
-Message-ID: <20220125045003.H9m6c36XQ%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        with ESMTP id S1358291AbiAYGo4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 01:44:56 -0500
+Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B2F5C055AA5
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 21:04:20 -0800 (PST)
+Received: by mail-pg1-x532.google.com with SMTP id t32so17329457pgm.7
+        for <stable@vger.kernel.org>; Mon, 24 Jan 2022 21:04:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=c0t6doHwBZH6Bw/dBN8fyXc1Gt0YuVi/7gDRszG19fk=;
+        b=uk6Hr42gvSfDBqyonWxEH+PYpKPNzc68tzWyo34jmWiIQ1AUWHXO6DqvTnMSvDNxCT
+         J/qaHsSkuCoDR5vzB6FAST5bw95GkZLqiEmNGWHtRWnx6xTIGLvWQB7Jhp1CMlmlMxf8
+         gC2BFz/NQTMRmCEIuQTxKYqwAM2dFWs3Vet2wV86fxZkHkZiHVjf37hd0+ZElNtFlqLq
+         LbXEp6aVclZ1lJEFAJ2Q53eIDs76Pz5BY5RvkIVMYmiXkV995ciDvk3VJ9R9agM/fcdj
+         DRwe2fiX/T+bDxK1Z8SG+V512OaMJtzixxPl5LmisxtjttR/Nu7iwohS2nlbsqDkCJRB
+         ng6w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=c0t6doHwBZH6Bw/dBN8fyXc1Gt0YuVi/7gDRszG19fk=;
+        b=D8qmFu+6GyV/BCiTWHz0rmp01lcLK+um/gf4HDaX7s2WpaBoa3VKb7lg8RRvQ0oHof
+         dOVxB+S0eB3WBoXmnloBlu4dAiR5WZVoeuyQGDKrcDo00TsaKW/2yyznO9UMBWPhthIM
+         63Wr+8Xp9w3TNkuk9akfmFYMskuKGHmv/nlmZCuEv84vi+Zi8vVeNOeNtHx+TnNeEkuH
+         sXliITQfIvnrdXvyx2+99vipl8uKtZq4N5uO0SXtb+60efcK1yL/Y0FKvHC00MDpIMy8
+         Mqs7J6Mx0A7EmuMtzbiUJJA77ZrQ69OcX4UKekztejqftnE84afc/a+T8zE1EBBBadZ0
+         TY9g==
+X-Gm-Message-State: AOAM530PQxUXRLVe7NX/dgiiRXD3g1sZMWeO6vsg0SAE0s3Spdtxd7QR
+        JXsNM2yhvhpxiETOM6ywnS2tTrziLMJhw4V0
+X-Google-Smtp-Source: ABdhPJyk/1ho0tU6Lk1BS287YV9Qa5HKxUp5+DYEwB3jci/s5JQ14eB8WMCtvelyD9JkJZA9yaAwxg==
+X-Received: by 2002:a63:b545:: with SMTP id u5mr14139499pgo.420.1643087059568;
+        Mon, 24 Jan 2022 21:04:19 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id ga21sm1282395pjb.2.2022.01.24.21.04.19
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 Jan 2022 21:04:19 -0800 (PST)
+Message-ID: <61ef84d3.1c69fb81.f1a6f.5645@mx.google.com>
+Date:   Mon, 24 Jan 2022 21:04:19 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.4.173-320-g99c5782e5eaa
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 153 runs,
+ 4 regressions (v5.4.173-320-g99c5782e5eaa)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.4 baseline: 153 runs, 4 regressions (v5.4.173-320-g99c578=
+2e5eaa)
 
-The patch titled
-     Subject: mm/gup.c: fix invalid page pointer returned with FOLL_PIN gups
-has been added to the -mm tree.  Its filename is
-     mm-fix-invalid-page-pointer-returned-with-foll_pin-gups.patch
+Regressions Summary
+-------------------
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-fix-invalid-page-pointer-r=
-eturned-with-foll_pin-gups.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-fix-invalid-page-pointer-r=
-eturned-with-foll_pin-gups.patch
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing=
- your code ***
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-------------------------------------------------------
-=46rom: Peter Xu <peterx@redhat.com>
-Subject: mm/gup.c: fix invalid page pointer returned with FOLL_PIN gups
 
-Alex reported invalid page pointer returned with pin_user_pages_remote()
-from vfio after upstream commit 4b6c33b32296 ("vfio/type1: Prepare for
-batched pinning with struct vfio_batch").  This problem breaks NVIDIA vfio
-mdev.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.173-320-g99c5782e5eaa/plan/baseline/
 
-It turns out that it's not the fault of the vfio commit; however after
-vfio switches to a full page buffer to store the page pointers it starts
-to expose the problem easier.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.173-320-g99c5782e5eaa
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      99c5782e5eaa72de4b2f92479164a1b0d0304482 =
 
-The problem is for VM_PFNMAP vmas we should normally fail with an -EFAULT
-then vfio will carry on to handle the MMIO regions.  However when the bug
-triggered, follow_page_mask() returned -EEXIST for such a page, which will
-jump over the current page, leaving that entry in **pages untouched.=20
-However the caller is not aware of it, hence the caller will reference the
-page as usual even if the pointer data can be anything.
 
-We had that -EEXIST logic since commit 1027e4436b6a ("mm: make GUP handle
-pfn mapping unless FOLL_GET is requested") which seems very reasonable.=20
-It could be that when we reworked GUP with FOLL_PIN we could have
-overlooked that special path in commit 3faa52c03f44 ("mm/gup: track
-FOLL_PIN pages"), even if that commit rightfully touched up
-follow_devmap_pud() on checking FOLL_PIN when it needs to return an
--EEXIST.
 
-Since at it, add another WARN_ON_ONCE() at the -EEXIST handling to make
-sure we mustn't have **pages set when reaching there, because otherwise it
-means the caller will try to read a garbage right after __get_user_pages()
-returns.
+Test Regressions
+---------------- =
 
-Attaching the Fixes to the FOLL_PIN rework commit, as it happened later
-than 1027e4436b6a.
 
-Link: https://lkml.kernel.org/r/20220125033700.69705-1-peterx@redhat.com
-Fixes: 3faa52c03f44 ("mm/gup: track FOLL_PIN pages")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Reported-by: Alex Williamson <alex.williamson@redhat.com>
-Debugged-by: Alex Williamson <alex.williamson@redhat.com>
-Cc: Andrea Arcangeli <aarcange@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Jan Kara <jack@suse.cz>
-Cc: J=C3=A9r=C3=B4me Glisse <jglisse@redhat.com>
-Cc: John Hubbard <jhubbard@nvidia.com>
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
 
- mm/gup.c |    8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
---- a/mm/gup.c~mm-fix-invalid-page-pointer-returned-with-foll_pin-gups
-+++ a/mm/gup.c
-@@ -440,7 +440,7 @@ static int follow_pfn_pte(struct vm_area
- 		pte_t *pte, unsigned int flags)
- {
- 	/* No page to get reference */
--	if (flags & FOLL_GET)
-+	if (flags & (FOLL_GET | FOLL_PIN))
- 		return -EFAULT;
-=20
- 	if (flags & FOLL_TOUCH) {
-@@ -1181,7 +1181,13 @@ retry:
- 			/*
- 			 * Proper page table entry exists, but no corresponding
- 			 * struct page.
-+			 *
-+			 * Warn if we jumped over even with a valid **pages.
-+			 * It shouldn't trigger in practise, but when there's
-+			 * buggy returns on -EEXIST we'll warn before returning
-+			 * an invalid page pointer in the array.
- 			 */
-+			WARN_ON_ONCE(pages);
- 			goto next_page;
- 		} else if (IS_ERR(page)) {
- 			ret =3D PTR_ERR(page);
-_
 
-Patches currently in -mm which might be from peterx@redhat.com are
+  Details:     https://kernelci.org/test/plan/id/61ef4ec188c0c3209dabbd29
 
-mm-fix-invalid-page-pointer-returned-with-foll_pin-gups.patch
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.173-3=
+20-g99c5782e5eaa/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_a=
+rm-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.173-3=
+20-g99c5782e5eaa/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_a=
+rm-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
 
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61ef4ec188c0c3209dabb=
+d2a
+        failing since 40 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61ef4cdee52e70055cabbd81
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.173-3=
+20-g99c5782e5eaa/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_ar=
+m-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.173-3=
+20-g99c5782e5eaa/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_ar=
+m-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61ef4cdee52e70055cabb=
+d82
+        failing since 40 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61ef4efec4c582b6e7abbd26
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.173-3=
+20-g99c5782e5eaa/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_a=
+rm-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.173-3=
+20-g99c5782e5eaa/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_a=
+rm-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61ef4efec4c582b6e7abb=
+d27
+        failing since 40 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61ef4cf3ea8458c7dbabbd19
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.173-3=
+20-g99c5782e5eaa/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_ar=
+m-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.173-3=
+20-g99c5782e5eaa/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_ar=
+m-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61ef4cf3ea8458c7dbabb=
+d1a
+        failing since 40 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =20
