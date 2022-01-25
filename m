@@ -2,98 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00D4049AE2A
-	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 09:40:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F5FD49AE3F
+	for <lists+stable@lfdr.de>; Tue, 25 Jan 2022 09:41:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1451268AbiAYIgh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jan 2022 03:36:37 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:51162 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1450739AbiAYIdb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 03:33:31 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5AAD6136A;
-        Tue, 25 Jan 2022 08:33:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9417BC340E0;
-        Tue, 25 Jan 2022 08:33:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643099603;
-        bh=TB4aeFeA8ZJrU/9fg/+mfxiQAUKRnEctOkasXiFgvHE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xLXipTOfbUhH4pKbgT33u/cyq34ki+KcuA/Kl8Q5g1ygeMbrdmItJSg3r30OTrzMQ
-         6N2VPog9rIIrsX5wCspJS7xKAiFurmlMi3zLENd3NBYdnEO8iaPC9qe0gxU81NJ3KR
-         X+U4AiDR4UXkoCKD2C6CsLAfxf38XdEYkndHQkhY=
-Date:   Tue, 25 Jan 2022 09:33:20 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Christian =?iso-8859-1?Q?K=F6nig?= <christian.koenig@amd.com>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        David Yat Sin <david.yatsin@amd.com>,
-        Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.16 0702/1039] drm/amdgpu: Dont inherit GEM object VMAs
- in child process
-Message-ID: <Ye+10FecW3Su+9nu@kroah.com>
+        id S1444429AbiAYIk6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jan 2022 03:40:58 -0500
+Received: from frasgout.his.huawei.com ([185.176.79.56]:4490 "EHLO
+        frasgout.his.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1451456AbiAYIis (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 03:38:48 -0500
+Received: from fraeml744-chm.china.huawei.com (unknown [172.18.147.206])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4JjgGr2qtRz6H7cN;
+        Tue, 25 Jan 2022 16:38:12 +0800 (CST)
+Received: from lhreml724-chm.china.huawei.com (10.201.108.75) by
+ fraeml744-chm.china.huawei.com (10.206.15.225) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.21; Tue, 25 Jan 2022 09:38:34 +0100
+Received: from [10.47.84.133] (10.47.84.133) by lhreml724-chm.china.huawei.com
+ (10.201.108.75) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2308.21; Tue, 25 Jan
+ 2022 08:38:33 +0000
+Subject: Re: [PATCH 5.16 1026/1039] blk-mq: fix tag_get wait task cant be
+ awakened
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <stable@vger.kernel.org>, Ming Lei <ming.lei@redhat.com>,
+        Laibin Qiu <qiulaibin@huawei.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jens Axboe <axboe@kernel.dk>, <alex_y_xu@yahoo.ca>
 References: <20220124184125.121143506@linuxfoundation.org>
- <20220124184148.931014095@linuxfoundation.org>
- <e37beeb2-1ec0-9f7f-06f6-ee4df975a956@amd.com>
- <Ye+x0UwhhHWkgsr2@kroah.com>
+ <20220124184159.785093232@linuxfoundation.org>
+From:   John Garry <john.garry@huawei.com>
+Message-ID: <e8558aeb-7343-da56-88bb-14c1a27d099c@huawei.com>
+Date:   Tue, 25 Jan 2022 08:38:01 +0000
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.12.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Ye+x0UwhhHWkgsr2@kroah.com>
+In-Reply-To: <20220124184159.785093232@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.47.84.133]
+X-ClientProxiedBy: lhreml727-chm.china.huawei.com (10.201.108.78) To
+ lhreml724-chm.china.huawei.com (10.201.108.75)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 25, 2022 at 09:16:17AM +0100, Greg Kroah-Hartman wrote:
-> On Tue, Jan 25, 2022 at 08:26:20AM +0100, Christian König wrote:
-> > Hi Greg,
-> > 
-> > Am 24.01.22 um 19:41 schrieb Greg Kroah-Hartman:
-> > > From: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
-> > > 
-> > > [ Upstream commit fbcdbfde87509d523132b59f661a355c731139d0 ]
-> > > 
-> > > When an application having open file access to a node forks, its shared
-> > > mappings also get reflected in the address space of child process even
-> > > though it cannot access them with the object permissions applied. With the
-> > > existing permission checks on the gem objects, it might be reasonable to
-> > > also create the VMAs with VM_DONTCOPY flag so a user space application
-> > > doesn't need to explicitly call the madvise(addr, len, MADV_DONTFORK)
-> > > system call to prevent the pages in the mapped range to appear in the
-> > > address space of the child process. It also prevents the memory leaks
-> > > due to additional reference counts on the mapped BOs in the child
-> > > process that prevented freeing the memory in the parent for which we had
-> > > worked around earlier in the user space inside the thunk library.
-> > > 
-> > > Additionally, we faced this issue when using CRIU to checkpoint restore
-> > > an application that had such inherited mappings in the child which
-> > > confuse CRIU when it mmaps on restore. Having this flag set for the
-> > > render node VMAs helps. VMAs mapped via KFD already take care of this so
-> > > this is needed only for the render nodes.
-> > > 
-> > > To limit the impact of the change to user space consumers such as OpenGL
-> > > etc, limit it to KFD BOs only.
-> > > 
-> > > Acked-by: Felix Kuehling <Felix.Kuehling@amd.com>
-> > > Reviewed-by: Christian König <christian.koenig@amd.com>
-> > > Signed-off-by: David Yat Sin <david.yatsin@amd.com>
-> > > Signed-off-by: Rajneesh Bhardwaj <rajneesh.bhardwaj@amd.com>
-> > > Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > 
-> > Please drop this patch from all stable versions since it was reverted from
-> > upstream later on.
+On 24/01/2022 18:46, Greg Kroah-Hartman wrote:
+> From: Laibin Qiu<qiulaibin@huawei.com>
 > 
-> The revert comes later in the patch series, so all should be ok :)
+> commit 180dccb0dba4f5e84a4a70c1be1d34cbb6528b32 upstream.
+> 
+> In case of shared tags, there might be more than one hctx which
+> allocates from the same tags, and each hctx is limited to allocate at
+> most:
+>          hctx_max_depth = max((bt->sb.depth + users - 1) / users, 4U);
+> 
+> tag idle detection is lazy, and may be delayed for 30sec, so there
+> could be just one real active hctx(queue) but all others are actually
+> idle and still accounted as active because of the lazy idle detection.
+> Then if wake_batch is > hctx_max_depth, driver tag allocation may wait
+> forever on this real active hctx.
+> 
+> Fix this by recalculating wake_batch when inc or dec active_queues.
+> 
+> Fixes: 0d2602ca30e41 ("blk-mq: improve support for shared tags maps")
+> Suggested-by: Ming Lei<ming.lei@redhat.com>
+> Suggested-by: John Garry<john.garry@huawei.com>
+> Signed-off-by: Laibin Qiu<qiulaibin@huawei.com>
+> Reviewed-by: Andy Shevchenko<andriy.shevchenko@linux.intel.com>
+> Link:https://lore.kernel.org/r/20220113025536.1479653-1-qiulaibin@huawei.com
+> Signed-off-by: Jens Axboe<axboe@kernel.dk>
+> Signed-off-by: Greg Kroah-Hartman<gregkh@linuxfoundation.org>
 
-Looks like Sasha dropped this, so I'll go drop the revert as well.
+JFYI, Somebody reported a hang with this commit:
+https://lore.kernel.org/linux-block/78cafe94-a787-e006-8851-69906f0c2128@huawei.com/T/#t
 
-thanks,
-
-greg k-h
+Thanks,
+John
