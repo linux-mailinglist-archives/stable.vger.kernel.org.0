@@ -2,201 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F26E549CB51
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 14:50:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A46F49CB52
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 14:50:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241348AbiAZNuF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 08:50:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49324 "EHLO
+        id S241629AbiAZNuV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 08:50:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235498AbiAZNuE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 08:50:04 -0500
+        with ESMTP id S241631AbiAZNuS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 08:50:18 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19B27C06161C
-        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 05:50:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81ADCC06161C;
+        Wed, 26 Jan 2022 05:50:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ACAE261617
-        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 13:50:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83067C340E3;
-        Wed, 26 Jan 2022 13:50:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EB7F6135E;
+        Wed, 26 Jan 2022 13:50:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC05BC340E3;
+        Wed, 26 Jan 2022 13:50:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643205003;
-        bh=HN2gYy82BYbfqZtANNAPxU/JmnaYAandz3d89STfDrI=;
-        h=Subject:To:From:Date:From;
-        b=zCI7EHO4iFQ+2Wfm5bUJL4vbyDkUjJW/amLGrY/jA0mQUOGk7bBDnTRfZFa9RaDHm
-         SGslritpTyZmo8PRL0bNMUJamGlCZ6cK3jcp009oz40Rm+h4YMu/PczD+99YwldbbY
-         K5DwNNutiuXgQef3axjYQano/R89ExPLcZE3MeIk=
-Subject: patch "tty: Add support for Brainboxes UC cards." added to tty-linus
-To:     cang1@live.co.uk, gregkh@linuxfoundation.org,
+        s=korg; t=1643205017;
+        bh=9mDXCoeqsja8rXJhe52fHHw9XzlnXG7asjLqfZfZcZ4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=taWxoPenqHi5/N2FoZdUABm1Z1CwBtaxeHzAMMuZzVlUoFzlgWwpbCyllHoNeLtXC
+         hsemCiRRI1YHCsuV0C3WAk+ZvS2d3ZDCxxV63in9EWXAA7VjjXRn9Waa8MD0Wx7PxU
+         Qd2Vs0LaylFbY5N3hnuPcy9vI8SMpbgr5jnz49zc=
+Date:   Wed, 26 Jan 2022 14:50:13 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     "Maciej W. Rozycki" <macro@embecosm.com>
+Cc:     Jiri Slaby <jirislaby@kernel.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
         stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 26 Jan 2022 14:50:00 +0100
-Message-ID: <16432050004191@kroah.com>
+Subject: Re: [PATCH v3] tty: Partially revert the removal of the Cyclades
+ public API
+Message-ID: <YfFRlbKw4cV+ISfk@kroah.com>
+References: <alpine.DEB.2.20.2201260733430.11348@tpp.orcam.me.uk>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <alpine.DEB.2.20.2201260733430.11348@tpp.orcam.me.uk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Jan 26, 2022 at 09:22:54AM +0000, Maciej W. Rozycki wrote:
+> Fix a user API regression introduced with commit f76edd8f7ce0 ("tty: 
+> cyclades, remove this orphan"), which removed a part of the API and 
+> caused compilation errors for user programs using said part, such as 
+> GCC 9 in its libsanitizer component[1]:
+> 
+> .../libsanitizer/sanitizer_common/sanitizer_platform_limits_posix.cc:160:10: fatal error: linux/cyclades.h: No such file or directory
+>   160 | #include <linux/cyclades.h>
+>       |          ^~~~~~~~~~~~~~~~~~
+> compilation terminated.
+> make[4]: *** [Makefile:664: sanitizer_platform_limits_posix.lo] Error 1
+> 
+> As the absolute minimum required bring `struct cyclades_monitor' and 
+> ioctl numbers back then so as to make the library build again.  Add a 
+> preprocessor warning as to the obsolescence of the features provided.
+> 
+> References:
+> 
+> [1] GCC PR sanitizer/100379, "cyclades.h is removed from linux kernel 
+>     header files", <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100379>
+> 
+> Signed-off-by: Maciej W. Rozycki <macro@embecosm.com>
+> Fixes: f76edd8f7ce0 ("tty: cyclades, remove this orphan")
+> Cc: stable@vger.kernel.org # v5.13+
+> ---
+> Changes from v2:
+> 
+> - Add #warning directives.
 
-This is a note to let you know that I've just added the patch titled
+Thanks, that looks good, now queued up.
 
-    tty: Add support for Brainboxes UC cards.
-
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 152d1afa834c84530828ee031cf07a00e0fc0b8c Mon Sep 17 00:00:00 2001
-From: Cameron Williams <cang1@live.co.uk>
-Date: Mon, 24 Jan 2022 09:42:23 +0000
-Subject: tty: Add support for Brainboxes UC cards.
-
-This commit adds support for the some of the Brainboxes PCI range of
-cards, including the UC-101, UC-235/246, UC-257, UC-268, UC-275/279,
-UC-302, UC-310, UC-313, UC-320/324, UC-346, UC-357, UC-368
-and UC-420/431.
-
-Signed-off-by: Cameron Williams <cang1@live.co.uk>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/AM5PR0202MB2564688493F7DD9B9C610827C45E9@AM5PR0202MB2564.eurprd02.prod.outlook.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/serial/8250/8250_pci.c | 100 ++++++++++++++++++++++++++++-
- 1 file changed, 98 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
-index e8b5469e9dfa..e17e97ea86fa 100644
---- a/drivers/tty/serial/8250/8250_pci.c
-+++ b/drivers/tty/serial/8250/8250_pci.c
-@@ -4779,8 +4779,30 @@ static const struct pci_device_id serial_pci_tbl[] = {
- 	{	PCI_VENDOR_ID_INTASHIELD, PCI_DEVICE_ID_INTASHIELD_IS400,
- 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,    /* 135a.0dc0 */
- 		pbn_b2_4_115200 },
-+	/* Brainboxes Devices */
- 	/*
--	 * BrainBoxes UC-260
-+	* Brainboxes UC-101
-+	*/
-+	{       PCI_VENDOR_ID_INTASHIELD, 0x0BA1,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_2_115200 },
-+	/*
-+	 * Brainboxes UC-235/246
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0AA1,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_1_115200 },
-+	/*
-+	 * Brainboxes UC-257
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0861,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_2_115200 },
-+	/*
-+	 * Brainboxes UC-260/271/701/756
- 	 */
- 	{	PCI_VENDOR_ID_INTASHIELD, 0x0D21,
- 		PCI_ANY_ID, PCI_ANY_ID,
-@@ -4788,7 +4810,81 @@ static const struct pci_device_id serial_pci_tbl[] = {
- 		pbn_b2_4_115200 },
- 	{	PCI_VENDOR_ID_INTASHIELD, 0x0E34,
- 		PCI_ANY_ID, PCI_ANY_ID,
--		 PCI_CLASS_COMMUNICATION_MULTISERIAL << 8, 0xffff00,
-+		PCI_CLASS_COMMUNICATION_MULTISERIAL << 8, 0xffff00,
-+		pbn_b2_4_115200 },
-+	/*
-+	 * Brainboxes UC-268
-+	 */
-+	{       PCI_VENDOR_ID_INTASHIELD, 0x0841,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_4_115200 },
-+	/*
-+	 * Brainboxes UC-275/279
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0881,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_8_115200 },
-+	/*
-+	 * Brainboxes UC-302
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x08E1,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_2_115200 },
-+	/*
-+	 * Brainboxes UC-310
-+	 */
-+	{       PCI_VENDOR_ID_INTASHIELD, 0x08C1,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_2_115200 },
-+	/*
-+	 * Brainboxes UC-313
-+	 */
-+	{       PCI_VENDOR_ID_INTASHIELD, 0x08A3,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_2_115200 },
-+	/*
-+	 * Brainboxes UC-320/324
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0A61,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_1_115200 },
-+	/*
-+	 * Brainboxes UC-346
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0B02,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_4_115200 },
-+	/*
-+	 * Brainboxes UC-357
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0A81,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_2_115200 },
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0A83,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_2_115200 },
-+	/*
-+	 * Brainboxes UC-368
-+	 */
-+	{	PCI_VENDOR_ID_INTASHIELD, 0x0C41,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
-+		pbn_b2_4_115200 },
-+	/*
-+	 * Brainboxes UC-420/431
-+	 */
-+	{       PCI_VENDOR_ID_INTASHIELD, 0x0921,
-+		PCI_ANY_ID, PCI_ANY_ID,
-+		0, 0,
- 		pbn_b2_4_115200 },
- 	/*
- 	 * Perle PCI-RAS cards
--- 
-2.35.0
-
-
+greg k-h
