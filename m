@@ -2,190 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 208EC49C7D0
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 11:46:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4997B49C7F5
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 11:50:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233048AbiAZKqB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 05:46:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33946 "EHLO
+        id S240210AbiAZKu1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 05:50:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232078AbiAZKqB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 05:46:01 -0500
-Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D47E9C06161C;
-        Wed, 26 Jan 2022 02:46:00 -0800 (PST)
-Received: by mail-wm1-x330.google.com with SMTP id c192so2041955wma.4;
-        Wed, 26 Jan 2022 02:46:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=yRqdOKllno2WTAMKVZS14yrHhw5Xe+r37FBeeO98mgQ=;
-        b=F0BmIlv/Au9mK3wEWC6nrbIc7SzbHgrzGwoIPl5txafX0sGFIqScJvdF5CIU3Kj7VW
-         qF5+HW0iSMKGBPmfFwzMOxa2Isn+mmE0lBQxIOgMdUmXgWcDuGF9OSvC7N61QMUEYAhh
-         c97kjgaaZaaoXexoSsCnJZgFsiHb8iqzGsiLbFep89jZdoa0+GzFOSnxE13abWd9FGt5
-         SpdkCcWb1gF6jYBjwsjneYcY4nakrOprmYF7SSCeUKOdEGfMxOYUoMvN/0p7ZF/mq56T
-         0XAVt+UyttcHfqgLG7NQWq56pHifKtHqvt2dSVG6rNl1/Yz0NcI7cT9TGuOYA1BquIe8
-         UQkw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=yRqdOKllno2WTAMKVZS14yrHhw5Xe+r37FBeeO98mgQ=;
-        b=xFGNUWAQjCCK7l+SqZIUeFYGqsHAQpU+eyablMw+q4bncEfJUAAhg66dM9kP2O6HcF
-         CDyxpWTFSsGhYs7z3BsvJoDzRI6/1UmgC3QlMkT4dy7CiDxyd2LiGkxfzSnxC3zO0MwQ
-         UXYWcwfuB21/5JRMOxXRcav6ZmohIDOt0Rri594I4bI9mbNt+VUTrePhVtEC/g1ybRMQ
-         jTYsNgQkcmG42xchKxZh2N/Q9GMkYlc+jqQz6OTL1YtLQuLO06OvMbk73A/e6RE+CHmw
-         ifCuuPHW3+mhh2q0BX7AXTNDaoQRv/CZ2YyRxJV3LUmvn5GamGp+Twjl5XageCVmjchJ
-         Gvkg==
-X-Gm-Message-State: AOAM530rJSJdEyAucARkdjIWWSUTm0AidUiX9nvIGugkzIS3ER8zUo6q
-        PNflGmOBJVwtQfwNyyOJEs2uqLO4xxq1fA==
-X-Google-Smtp-Source: ABdhPJxtjBHMbtcCtEI1vey0tvuiH8R5Oty/VyEI84awcw8AODNabeOkHG7+8IJ3GNOCZjxqqG1Erg==
-X-Received: by 2002:a1c:6a14:: with SMTP id f20mr6629539wmc.123.1643193959406;
-        Wed, 26 Jan 2022 02:45:59 -0800 (PST)
-Received: from eldamar (80-218-24-251.dclient.hispeed.ch. [80.218.24.251])
-        by smtp.gmail.com with ESMTPSA id m14sm12800014wrp.4.2022.01.26.02.45.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Jan 2022 02:45:58 -0800 (PST)
-Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
-Date:   Wed, 26 Jan 2022 11:45:58 +0100
-From:   Salvatore Bonaccorso <carnil@debian.org>
-To:     Jeffrin Thalakkottoor <jeffrin@rajagiritech.edu.in>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: review for 5.16.3-rc2
-Message-ID: <YfEmZiwkdZlQ3DVb@eldamar.lan>
-References: <0af17d6952b3677dcd413fefa74b086d5ffb474b.camel@rajagiritech.edu.in>
- <YfAKYWOMdGJ0NxjE@kroah.com>
- <CAG=yYwksvQmEsfRyFiQTbSxUL39WGf7ryHaywtAxgdL1Nt67OQ@mail.gmail.com>
- <YfAk90OPjlpjruV5@kroah.com>
- <CAG=yYw=BK1gU0UV8g5_ZT5gOe5P2W2rKHWdFyPi4ZHSy4CGMFw@mail.gmail.com>
+        with ESMTP id S240215AbiAZKu0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 05:50:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96AAEC06161C;
+        Wed, 26 Jan 2022 02:50:26 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5358BB81CA0;
+        Wed, 26 Jan 2022 10:50:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 721E6C340E5;
+        Wed, 26 Jan 2022 10:50:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1643194224;
+        bh=cX3+eyj+6fm+/y5+YWeWLiQ5NWkVyiYkjMkXX08ExYs=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=gTjk03rFKokIWZR1ZM2+rn5lX7QKxtSLvceIMIpcluMNn4q+to7hfk2//E9BKLI2C
+         MSJJmOe8NrUN+Xir7siYqcPeDw+WmeKNUMsX6zMA4dKuh/jondY+DoiFuwC3kwqCWb
+         4Vsvxqxa3tfPeuE7hOpOwcCzMLBDQgB3dB7lijDk=
+Date:   Wed, 26 Jan 2022 11:50:21 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     =?utf-8?B?6LCi5rOT5a6H?= <xiehongyu1@kylinos.cn>
+Cc:     Hongyu Xie <xy521521@gmail.com>, mathias.nyman@intel.com,
+        linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+        125707942@qq.com, stable@vger.kernel.org
+Subject: Re: [PATCH -next] xhci: fix two places when dealing with return
+ value of function xhci_check_args
+Message-ID: <YfEnbRW3oU0ouGqH@kroah.com>
+References: <20220126094126.923798-1-xy521521@gmail.com>
+ <YfEZFtf9K8pFC8Mw@kroah.com>
+ <c7f6a8bb-76b6-cd2d-7551-b599a8276f5c@kylinos.cn>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <CAG=yYw=BK1gU0UV8g5_ZT5gOe5P2W2rKHWdFyPi4ZHSy4CGMFw@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <c7f6a8bb-76b6-cd2d-7551-b599a8276f5c@kylinos.cn>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+A: http://en.wikipedia.org/wiki/Top_post
+Q: Were do I find info about this thing called top-posting?
+A: Because it messes up the order in which people normally read text.
+Q: Why is top-posting such a bad thing?
+A: Top-posting.
+Q: What is the most annoying thing in e-mail?
 
-On Tue, Jan 25, 2022 at 10:32:26PM +0530, Jeffrin Thalakkottoor wrote:
-> On Tue, Jan 25, 2022 at 9:57 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Tue, Jan 25, 2022 at 09:49:00PM +0530, Jeffrin Thalakkottoor wrote:
-> > > On Tue, Jan 25, 2022 at 8:04 PM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > > >
-> > > > On Tue, Jan 25, 2022 at 06:15:46PM +0530, Jeffrin Jose T wrote:
-> > > > > hello greg,
-> > > > >
-> > > > > compile failed for  5.16.3-rc2 related.
-> > > > > a relevent file attached.
-> > > > >
-> > > > > Tested-by : Jeffrin Jose T <jeffrin@rajagiritech.edu.in>
-> > > >
-> > > > But it failed for you, how did you test it?
-> > >
-> > > i compiled  5.16.3-rc2  related to "make localmodconfig" and  "make  -j4"
-> >
-> > So it somehow failed?
-> 
-> Yes i think so
-> 
-> >
-> > > >
-> > > > >
-> > > > >
-> > > >
-> > > > >       char *                     typetab;              /*    24     8 */
-> > > > >
-> > > > >       /* size: 32, cachelines: 1, members: 4 */
-> > > > >       /* sum members: 28, holes: 1, sum holes: 4 */
-> > > > >       /* last cacheline: 32 bytes */
-> > > > > };
-> > > > > struct klp_modinfo {
-> > > > >       Elf64_Ehdr                 hdr;                  /*     0    64 */
-> > > > >       /* --- cacheline 1 boundary (64 bytes) --- */
-> > > > >       Elf64_Shdr *               sechdrs;              /*    64     8 */
-> > > > >       char *                     secstrings;           /*    72     8 */
-> > > > >       unsigned int               symndx;               /*    80     4 */
-> > > > >
-> > > > >       /* size: 88, cachelines: 2, members: 4 */
-> > > > >       /* padding: 4 */
-> > > > >       /* last cacheline: 24 bytes */
-> > > > > };
-> > > > > Segmentation fault
-> > > >
-> > > > What "faulted"?  Look higher up in the log please.
-> > >
-> > > a top view...
-> > >
-> > >   CALL    scripts/atomic/check-atomics.sh
-> > >   CALL    scripts/checksyscalls.sh
-> > >   CHK     include/generated/compile.h
-> > >   GEN     .version
-> > >   CHK     include/generated/compile.h
-> > >   UPD     include/generated/compile.h
-> > >   CC      init/version.o
-> > >   AR      init/built-in.a
-> > >   LD      vmlinux.o
-> > >   MODPOST vmlinux.symvers
-> > >   MODINFO modules.builtin.modinfo
-> > >   GEN     modules.builtin
-> > >   LD      .tmp_vmlinux.btf
-> > >   BTF     .btf.vmlinux.bin.o
-> > > struct list_head {
-> > >     struct list_head *         next;                 /*     0     8 */
-> > >     struct list_head *         prev;                 /*     8     8 */
-> > >
-> > >     /* size: 16, cachelines: 1, members: 2 */
-> > >     /* last cacheline: 16 bytes */
-> > > };
-> > > struct hlist_head {
-> > >     struct hlist_node *        first;                /*     0     8 */
-> > >
-> > >     /* size: 8, cachelines: 1, members: 1 */
-> > >     /* last cacheline: 8 bytes */
-> > > };
-> > > struct hlist_node {
-> > >     struct hlist_node *        next;                 /*     0     8 */
-> > >     struct hlist_node * *      pprev;                /*     8     8 */
-> > >
-> > >     /* size: 16, cachelines: 1, members: 2 */
-> > >     /* last cacheline: 16 bytes */
-> > > };
-> > > struct callback_head {
-> > >     struct callback_head *     next;                 /*     0     8 */
-> > >     void                       (*func)(struct callback_head *); /*
-> > > 8     8 */
-> > > .
-> > > .
-> > > .
-> > > .
-> > > .
-> > > .
-> >
-> > I do not know what is failing, there is no error message here.  Does
-> > 5.16.2 build properly for you?
-> 
-> stderr has  captured  the  following...
-> 
-> 
-> -------------x-----------------x--------------x---
-> FAILED: load BTF from vmlinux: No such file or directory
-> make: *** [Makefile:1161: vmlinux] Error 255
-> make: *** Deleting file 'vmlinux'
-> ------------x----------------x------------x--
-> 5.16.2-rc1 builds for me.
-> 
-> Will the following link help...
-> 
-> https://unix.stackexchange.com/questions/616392/failed-load-btf-from-vmlinux-unknown-error-2make-makefile1162-vmlinu
+A: No.
+Q: Should I include quotations after my reply?
 
-What version of pahole are you using? Are you using Debian
-downstream's 1.22-2? If so please check if it's just the same issue as
-reported in https://bugs.debian.org/1004311
+http://daringfireball.net/2007/07/on_top
 
-Regards,
-Salvatore
+On Wed, Jan 26, 2022 at 06:22:45PM +0800, 谢泓宇 wrote:
+> 1."What problem?
+> r8152_submit_rx needs to detach netdev if -ENODEV happened, but -ENODEV will
+> never happen
+> because xhci_urb_enqueue only returns -EINVAL if the return value of
+> xhci_check_args <= 0. So
+> r8152_submit_rx will will call napi_schedule to re-submit that urb, and this
+> will cause infinite urb
+> submission.
+
+Odd line-wrapping...
+
+Anyway, why is this unique to this one driver?  Why does it not show up
+for any other driver?
+
+> The whole point is, if xhci_check_args returns value A, xhci_urb_enqueque
+> shouldn't return any
+> other value, because that will change some driver's behavior(like r8152.c).
+
+But you are changing how the code currently works.  Are you sure you
+want to have this "succeed" if this is on a root hub?
+
+> 2."So if 0 is returned, you will now return that here, is that ok?
+> That is a change in functionality.
+> But this can only ever be the case for a root hub, is that ok?"
+> 
+> It's the same logic, but now xhci_urb_enqueue can return -ENODEV if xHC is
+> halted.
+> If it happens on a root hub,  xhci_urb_enqueue won't be called.
+> 
+> 3."Again, this means all is good?  Why is this being called for a root hub?"
+> 
+> It is the same logic with the old one, but now xhci_check_streams_endpoint
+> can return -ENODEV if xHC is halted.
+
+This still feels wrong to me, but I'll let the maintainer decide, as I
+don't understand why a root hub is special here.
+
+thanks,
+
+greg k-h
