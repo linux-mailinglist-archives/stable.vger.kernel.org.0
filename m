@@ -2,80 +2,211 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A46F49CB52
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 14:50:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9215549CB56
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 14:51:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241629AbiAZNuV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 08:50:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49378 "EHLO
+        id S241631AbiAZNvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 08:51:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241631AbiAZNuS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 08:50:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81ADCC06161C;
-        Wed, 26 Jan 2022 05:50:18 -0800 (PST)
+        with ESMTP id S234796AbiAZNvI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 08:51:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B110EC06161C
+        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 05:51:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EB7F6135E;
-        Wed, 26 Jan 2022 13:50:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC05BC340E3;
-        Wed, 26 Jan 2022 13:50:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 715A5B81E16
+        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 13:51:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C4EFC340E3;
+        Wed, 26 Jan 2022 13:51:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643205017;
-        bh=9mDXCoeqsja8rXJhe52fHHw9XzlnXG7asjLqfZfZcZ4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=taWxoPenqHi5/N2FoZdUABm1Z1CwBtaxeHzAMMuZzVlUoFzlgWwpbCyllHoNeLtXC
-         hsemCiRRI1YHCsuV0C3WAk+ZvS2d3ZDCxxV63in9EWXAA7VjjXRn9Waa8MD0Wx7PxU
-         Qd2Vs0LaylFbY5N3hnuPcy9vI8SMpbgr5jnz49zc=
-Date:   Wed, 26 Jan 2022 14:50:13 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     "Maciej W. Rozycki" <macro@embecosm.com>
-Cc:     Jiri Slaby <jirislaby@kernel.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
+        s=korg; t=1643205065;
+        bh=77TB8A8iM7yx+hp2kKKFCnsMIXJUN4kpr/1Milo39Kk=;
+        h=Subject:To:From:Date:From;
+        b=r8CCnVEXalxfAyV1/V/hlzbm46RH/D4QAcvBj/a0Qd4rRj1v3xPH7/9Ryr0tEqPSi
+         Keaf9++mVTyBygRvBevgAcu9w8R+fKRChWMx/Zy/16sX2fk5p9UhONEcJ71uKoEven
+         VvqHIjendXZh01BcWGR8AKcr5ys37PmGscVXszFQ=
+Subject: patch "tty: rpmsg: Fix race condition releasing tty port" added to tty-linus
+To:     arnaud.pouliquen@foss.st.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH v3] tty: Partially revert the removal of the Cyclades
- public API
-Message-ID: <YfFRlbKw4cV+ISfk@kroah.com>
-References: <alpine.DEB.2.20.2201260733430.11348@tpp.orcam.me.uk>
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 26 Jan 2022 14:51:02 +0100
+Message-ID: <164320506219429@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.20.2201260733430.11348@tpp.orcam.me.uk>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 26, 2022 at 09:22:54AM +0000, Maciej W. Rozycki wrote:
-> Fix a user API regression introduced with commit f76edd8f7ce0 ("tty: 
-> cyclades, remove this orphan"), which removed a part of the API and 
-> caused compilation errors for user programs using said part, such as 
-> GCC 9 in its libsanitizer component[1]:
-> 
-> .../libsanitizer/sanitizer_common/sanitizer_platform_limits_posix.cc:160:10: fatal error: linux/cyclades.h: No such file or directory
->   160 | #include <linux/cyclades.h>
->       |          ^~~~~~~~~~~~~~~~~~
-> compilation terminated.
-> make[4]: *** [Makefile:664: sanitizer_platform_limits_posix.lo] Error 1
-> 
-> As the absolute minimum required bring `struct cyclades_monitor' and 
-> ioctl numbers back then so as to make the library build again.  Add a 
-> preprocessor warning as to the obsolescence of the features provided.
-> 
-> References:
-> 
-> [1] GCC PR sanitizer/100379, "cyclades.h is removed from linux kernel 
->     header files", <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100379>
-> 
-> Signed-off-by: Maciej W. Rozycki <macro@embecosm.com>
-> Fixes: f76edd8f7ce0 ("tty: cyclades, remove this orphan")
-> Cc: stable@vger.kernel.org # v5.13+
-> ---
-> Changes from v2:
-> 
-> - Add #warning directives.
 
-Thanks, that looks good, now queued up.
+This is a note to let you know that I've just added the patch titled
 
-greg k-h
+    tty: rpmsg: Fix race condition releasing tty port
+
+to my tty git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
+in the tty-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From db7f19c0aa0abcb751ff0ed694a071363f702b1d Mon Sep 17 00:00:00 2001
+From: Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>
+Date: Tue, 4 Jan 2022 17:35:45 +0100
+Subject: tty: rpmsg: Fix race condition releasing tty port
+
+The tty_port struct is part of the rpmsg_tty_port structure.
+The issue is that the rpmsg_tty_port structure is freed on
+rpmsg_tty_remove while it is still referenced in the tty_struct.
+Its release is not predictable due to workqueues.
+
+For instance following ftrace shows that rpmsg_tty_close is called after
+rpmsg_tty_release_cport:
+
+     nr_test.sh-389     [000] .....   212.093752: rpmsg_tty_remove <-rpmsg_dev_
+remove
+             cat-1191    [001] .....   212.095697: tty_release <-__fput
+      nr_test.sh-389     [000] .....   212.099166: rpmsg_tty_release_cport <-rpm
+sg_tty_remove
+             cat-1191    [001] .....   212.115352: rpmsg_tty_close <-tty_release
+             cat-1191    [001] .....   212.115371: release_tty <-tty_release_str
+
+As consequence, the port must be free only when user has released the TTY
+interface.
+
+This path :
+- Introduce the .destruct port tty ops function to release the allocated
+  rpmsg_tty_port structure.
+- Introduce the .hangup tty ops function to call tty_port_hangup.
+- Manages the tty port refcounting to trig the .destruct port ops,
+- Introduces the rpmsg_tty_cleanup function to ensure that the TTY is
+  removed before decreasing the port refcount.
+
+Fixes: 7c0408d80579 ("tty: add rpmsg driver")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Arnaud Pouliquen <arnaud.pouliquen@foss.st.com>
+Link: https://lore.kernel.org/r/20220104163545.34710-1-arnaud.pouliquen@foss.st.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/rpmsg_tty.c | 40 ++++++++++++++++++++++++++--------------
+ 1 file changed, 26 insertions(+), 14 deletions(-)
+
+diff --git a/drivers/tty/rpmsg_tty.c b/drivers/tty/rpmsg_tty.c
+index dae2a4e44f38..29db413bbc03 100644
+--- a/drivers/tty/rpmsg_tty.c
++++ b/drivers/tty/rpmsg_tty.c
+@@ -50,10 +50,17 @@ static int rpmsg_tty_cb(struct rpmsg_device *rpdev, void *data, int len, void *p
+ static int rpmsg_tty_install(struct tty_driver *driver, struct tty_struct *tty)
+ {
+ 	struct rpmsg_tty_port *cport = idr_find(&tty_idr, tty->index);
++	struct tty_port *port;
+ 
+ 	tty->driver_data = cport;
+ 
+-	return tty_port_install(&cport->port, driver, tty);
++	port = tty_port_get(&cport->port);
++	return tty_port_install(port, driver, tty);
++}
++
++static void rpmsg_tty_cleanup(struct tty_struct *tty)
++{
++	tty_port_put(tty->port);
+ }
+ 
+ static int rpmsg_tty_open(struct tty_struct *tty, struct file *filp)
+@@ -106,12 +113,19 @@ static unsigned int rpmsg_tty_write_room(struct tty_struct *tty)
+ 	return size;
+ }
+ 
++static void rpmsg_tty_hangup(struct tty_struct *tty)
++{
++	tty_port_hangup(tty->port);
++}
++
+ static const struct tty_operations rpmsg_tty_ops = {
+ 	.install	= rpmsg_tty_install,
+ 	.open		= rpmsg_tty_open,
+ 	.close		= rpmsg_tty_close,
+ 	.write		= rpmsg_tty_write,
+ 	.write_room	= rpmsg_tty_write_room,
++	.hangup		= rpmsg_tty_hangup,
++	.cleanup	= rpmsg_tty_cleanup,
+ };
+ 
+ static struct rpmsg_tty_port *rpmsg_tty_alloc_cport(void)
+@@ -137,8 +151,10 @@ static struct rpmsg_tty_port *rpmsg_tty_alloc_cport(void)
+ 	return cport;
+ }
+ 
+-static void rpmsg_tty_release_cport(struct rpmsg_tty_port *cport)
++static void rpmsg_tty_destruct_port(struct tty_port *port)
+ {
++	struct rpmsg_tty_port *cport = container_of(port, struct rpmsg_tty_port, port);
++
+ 	mutex_lock(&idr_lock);
+ 	idr_remove(&tty_idr, cport->id);
+ 	mutex_unlock(&idr_lock);
+@@ -146,7 +162,10 @@ static void rpmsg_tty_release_cport(struct rpmsg_tty_port *cport)
+ 	kfree(cport);
+ }
+ 
+-static const struct tty_port_operations rpmsg_tty_port_ops = { };
++static const struct tty_port_operations rpmsg_tty_port_ops = {
++	.destruct = rpmsg_tty_destruct_port,
++};
++
+ 
+ static int rpmsg_tty_probe(struct rpmsg_device *rpdev)
+ {
+@@ -166,7 +185,8 @@ static int rpmsg_tty_probe(struct rpmsg_device *rpdev)
+ 					   cport->id, dev);
+ 	if (IS_ERR(tty_dev)) {
+ 		ret = dev_err_probe(dev, PTR_ERR(tty_dev), "Failed to register tty port\n");
+-		goto err_destroy;
++		tty_port_put(&cport->port);
++		return ret;
+ 	}
+ 
+ 	cport->rpdev = rpdev;
+@@ -177,12 +197,6 @@ static int rpmsg_tty_probe(struct rpmsg_device *rpdev)
+ 		rpdev->src, rpdev->dst, cport->id);
+ 
+ 	return 0;
+-
+-err_destroy:
+-	tty_port_destroy(&cport->port);
+-	rpmsg_tty_release_cport(cport);
+-
+-	return ret;
+ }
+ 
+ static void rpmsg_tty_remove(struct rpmsg_device *rpdev)
+@@ -192,13 +206,11 @@ static void rpmsg_tty_remove(struct rpmsg_device *rpdev)
+ 	dev_dbg(&rpdev->dev, "Removing rpmsg tty device %d\n", cport->id);
+ 
+ 	/* User hang up to release the tty */
+-	if (tty_port_initialized(&cport->port))
+-		tty_port_tty_hangup(&cport->port, false);
++	tty_port_tty_hangup(&cport->port, false);
+ 
+ 	tty_unregister_device(rpmsg_tty_driver, cport->id);
+ 
+-	tty_port_destroy(&cport->port);
+-	rpmsg_tty_release_cport(cport);
++	tty_port_put(&cport->port);
+ }
+ 
+ static struct rpmsg_device_id rpmsg_driver_tty_id_table[] = {
+-- 
+2.35.0
+
+
