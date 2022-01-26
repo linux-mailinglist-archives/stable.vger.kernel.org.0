@@ -2,86 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16F4D49D509
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 23:11:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98EA649D660
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 00:51:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232992AbiAZWLA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 17:11:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53390 "EHLO
+        id S229826AbiAZXvA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 18:51:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229508AbiAZWK6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 17:10:58 -0500
-Received: from mail-oi1-x22f.google.com (mail-oi1-x22f.google.com [IPv6:2607:f8b0:4864:20::22f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 272C2C06173B;
-        Wed, 26 Jan 2022 14:10:58 -0800 (PST)
-Received: by mail-oi1-x22f.google.com with SMTP id v67so2307474oie.9;
-        Wed, 26 Jan 2022 14:10:58 -0800 (PST)
+        with ESMTP id S229451AbiAZXu7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 18:50:59 -0500
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9321AC06173B
+        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 15:50:59 -0800 (PST)
+Received: by mail-pl1-x635.google.com with SMTP id c9so972862plg.11
+        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 15:50:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=21ZfAX7z//yYX98NOI1emY/4VG55lyxDMWDLG9aXmHM=;
-        b=NURkmVW1jvd6P6HsGBe4RRlTS3L8VK4hukdmV9d7DGEWEZt0L84SHI8atfpPRjCNms
-         lkXlEGJ/S8fjcILXMEwhR8yDQuIuOwMF8OzWTOrmk8uNPILDKB+iCg3zML93LXrG+WQY
-         OtZjI3iBUSk2Iends2M3PBZ8dW8x6doZwdojDc7eTbgTfEUQcjbk9m3M45k1QgrAiNS8
-         pGTXyw2qfmvcIQHtompgxTTUsLwDwi5wPB2SLIgGHnXYbh530YA2JU9e9TZvnzHS2Gor
-         h0G4hfsUdZ39iEcYlMDso4/rS6hk1WQmSGaCOVh7J7yzfuOKxmkG9BJS5cxVqpPXyZi9
-         wOTA==
+        d=linaro.org; s=google;
+        h=message-id:date:mime-version:user-agent:content-language:to:cc
+         :references:from:subject:in-reply-to:content-transfer-encoding;
+        bh=cBxJNeicoRzjXh+eEmDsU4Z8ycQDuwzwWKSyLyKYjXU=;
+        b=WDTTt0fddCEhZQRAz+lyxdMB8Et0DAN1Bv3xBNQXrslbekeFaKcxFedz7j7v9I5ObM
+         VgdLgPgxv5ZWO48+/hYqObsjQwiomzjtOveQ5BcOli0h0QH9he40zBt765mxWC0Czy3W
+         g86g/debboCyRaCX18VAlylAtTIs9gKZarTr12u3LjIr/cqAHsF3V6WVBwMg1a92O9hr
+         0BEME9fAn9moT4q7Bg4V0+lFIJExTI8c21dH66vjwtOml+7uRRs8rIsRXQJC2hS3BYhJ
+         CejyYws0tGz/b6cFq6pPPYeKR7gNGzH2wTbbAVDbtJNjOVkHYd8dpPcAwaOXkORXMTRN
+         0AfQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=21ZfAX7z//yYX98NOI1emY/4VG55lyxDMWDLG9aXmHM=;
-        b=j5BKp/jQFflddJrjDj2kMYOkurXS0TUgUnPVFjnB9aPDODG0GO3gByAnFK1bybXtOT
-         EOCtutkuSv/71L6Rs+z1/NrM9jYAR7ZsE0Kpw7joYltBqRWWPxWILIWHcU+x5dZqdAuX
-         lTSVmj4Mc+/BNVCjgeyprt1qFdj+CwWlJH4cdWvMOzwKEjkXmJJkPC9tl/kfFGPnsSGa
-         5CKbd7JdZ4ymH+tbzoa2CI2OkFGrj57TMz4kNVEjcX5yGVJSYIAAk65Wh3T1gYOZ8Dlx
-         JUEiY4dfHt6PttTvhNgB3F6CC7pLHJ95YQxXNWjjaTDPfe6Fwr+yUKB3AtpP66oI+6ha
-         4OCw==
-X-Gm-Message-State: AOAM533y8M4UkE0rrD81RIWgpEdBIhL96/Wwtbpdvk2BBbshQVTvZuSP
-        5Xxang9xQNBah/4cjqg+oBg=
-X-Google-Smtp-Source: ABdhPJxgaSc8/eVC4azfcz1wopvdNHvVvd0s28sQXB/F90K2yk6hRZ/zEF97bOXEODITtiTH5EmqEg==
-X-Received: by 2002:a05:6808:ec6:: with SMTP id q6mr438206oiv.244.1643235057548;
-        Wed, 26 Jan 2022 14:10:57 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id p5sm2940740oou.39.2022.01.26.14.10.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Jan 2022 14:10:56 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Wed, 26 Jan 2022 14:10:55 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.9 000/155] 4.9.298-rc2 review
-Message-ID: <20220126221055.GB3650606@roeck-us.net>
-References: <20220125155253.051565866@linuxfoundation.org>
+        h=x-gm-message-state:message-id:date:mime-version:user-agent
+         :content-language:to:cc:references:from:subject:in-reply-to
+         :content-transfer-encoding;
+        bh=cBxJNeicoRzjXh+eEmDsU4Z8ycQDuwzwWKSyLyKYjXU=;
+        b=sZjPj4ZcB5VCzuYZt8GNwigOWuRm/GKKk0oq3GeXMFXErtM2P2YD0AOz0uC3KADJzq
+         fojr73i152BFiCHtJNTJ19H20jlnggONWMPm8/NBAYcDPn6S91nE9EUH5aU223/P00c/
+         c/h8ZYz8wF66PY4z75UrNkUnLpyFxrccEpLiTy8uSIx9ZTgbsd9n+gEUCTRnsdrMB6l8
+         RINTyGP9wjZ7sNMLpUZh3nQDuKbkRFawacTwFfR0FESCjtMslhCXV2TVdFHFc8gMSErb
+         IG23YqFDGNUk7yD1L1kUj3GtOShzz0sUuCR4qGC/ZGj1HYDjhFujSFeqhpzO+Xdwnr/z
+         Ej+Q==
+X-Gm-Message-State: AOAM532a9AlCtTbOvVZFVgXJYB1jga6+tmS9wT8FLexdJ6zLMD+nRT6G
+        jXVCe3XQNuqZHXsbthWhvT7KLA==
+X-Google-Smtp-Source: ABdhPJykrJ2uOm8OEbe0IzU4Bthtxc99KDRuTVbvLsgTgp6ISyZ9HrqIrN5a+OcWk6ZkhecwMja/zA==
+X-Received: by 2002:a17:902:ea0b:: with SMTP id s11mr1274542plg.133.1643241058942;
+        Wed, 26 Jan 2022 15:50:58 -0800 (PST)
+Received: from [192.168.254.17] ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id s7sm3381389pfu.133.2022.01.26.15.50.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 26 Jan 2022 15:50:58 -0800 (PST)
+Message-ID: <a4eccced-44d9-d5ae-27b3-5b2832d22561@linaro.org>
+Date:   Wed, 26 Jan 2022 15:50:57 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220125155253.051565866@linuxfoundation.org>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Content-Language: en-US
+To:     Dietmar Eggemann <dietmar.eggemann@arm.com>, peterz@infradead.org
+Cc:     Ingo Molnar <mingo@redhat.com>, Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Zhang Qiao <zhangqiao22@huawei.com>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        syzbot+af7a719bc92395ee41b3@syzkaller.appspotmail.com
+References: <20220125193403.778497-1-tadeusz.struk@linaro.org>
+ <bb01425b-0f6a-e69f-c24b-567821c1472f@arm.com>
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+Subject: Re: [PATCH v3] sched/fair: Fix fault in reweight_entity
+In-Reply-To: <bb01425b-0f6a-e69f-c24b-567821c1472f@arm.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 25, 2022 at 05:31:50PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.9.298 release.
-> There are 155 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On 1/26/22 05:53, Dietmar Eggemann wrote:
+> Can we then not get rid of `bool update_load` parameter of
+> set_load_weight() completely?
 > 
-> Responses should be made by Thu, 27 Jan 2022 15:52:30 +0000.
-> Anything received after that time might be too late.
-> 
+> @@ -1214,8 +1214,9 @@ int tg_nop(struct task_group *tg, void *data)
+>   }
+>   #endif
+>   
+> -static void set_load_weight(struct task_struct *p, bool update_load)
+> +static void set_load_weight(struct task_struct *p)
+>   {
+> +       int task_new = READ_ONCE(p->__state) & TASK_NEW;
+>          int prio = p->static_prio - MAX_RT_PRIO;
+>          struct load_weight *load = &p->se.load;
+>   
+> @@ -1232,7 +1233,7 @@ static void set_load_weight(struct task_struct *p, bool update_load)
+>           * SCHED_OTHER tasks have to update their load when changing their
+>           * weight
+>           */
+> -       if (update_load && p->sched_class == &fair_sched_class) {
+> +       if (!task_new && p->sched_class == &fair_sched_class) {
+>                  reweight_task(p, prio);
+>          } else {
+>                  load->weight = scale_load(sched_prio_to_weight[prio]);
 
-Build results:
-	total: 163 pass: 163 fail: 0
-Qemu test results:
-	total: 397 pass: 397 fail: 0
+That will also work. Let's agree on the best way to fix it.
+Peter, what's your preference?
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
-
-Guenter
+-- 
+Thanks,
+Tadeusz
