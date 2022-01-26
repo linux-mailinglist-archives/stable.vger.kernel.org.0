@@ -2,71 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6569C49D1A7
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 19:23:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DEC6149D1E5
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 19:40:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237467AbiAZSXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 13:23:17 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:36920 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237412AbiAZSXR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 13:23:17 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 842FEB81CB2;
-        Wed, 26 Jan 2022 18:23:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC3E3C340E8;
-        Wed, 26 Jan 2022 18:23:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643221395;
-        bh=HaUJ1DIE2otskZQOlUgdgj2w7ZNEAKjxKptjEmihFLk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=l0Zvjnfhui5FMdjtb5lte4QaqQRgx213TGCnt9RHEhogh9jmymcCBifiOvTfnTK25
-         66U3mWzaDsRqsrrQ3wucu5DlhR2PbIRaKpmeHUFf5fQxCyMNckTMJbE1XdQ4Sz8HwX
-         eOB/9AwKDab2jUU7IeZyrXqZJ6+CbbTgUbbFU5/c=
-Date:   Wed, 26 Jan 2022 19:23:12 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 5.16 0000/1033] 5.16.3-rc2 review
-Message-ID: <YfGRkN5fGaVK2ZId@kroah.com>
-References: <20220125155447.179130255@linuxfoundation.org>
- <20220126181346.GA105372@roeck-us.net>
- <YfGRAQ2+liyyljEb@kroah.com>
+        id S231873AbiAZSkq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 13:40:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33514 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229478AbiAZSkq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 13:40:46 -0500
+Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3EDEC06161C;
+        Wed, 26 Jan 2022 10:40:45 -0800 (PST)
+Received: by mail-ed1-x530.google.com with SMTP id u18so439764edt.6;
+        Wed, 26 Jan 2022 10:40:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=8fFcvf4lAvd2vovUI6OCWePCunkkWP1m60p4qpL5aeI=;
+        b=Hx7OS0afiYcRG39Dr04lMGiSxzr6nn2tg9EvSHlTd9089IeTihWdvP4Qg3dNxh4Jem
+         v3kAoCKMgN1AfoVOsOQPAZMWqCqptl8kw5dxIKvSJOYTqsZcSyy6bWZ0jMfutUnRnS/n
+         gDHvNXLiyZsa+t055Ok4O7NlgPEIUUlv8TBR+kPh2VAmC9iFeXBxK6+2MXCT2oDh3hkG
+         cbeitUF6bfktCL5KnM41r+AKjEJpiaU0ikorFFoGPJshe67j87xfbnd5dTyARDUhkmSv
+         b1p3HNyaBN0ELAdiIHSjKkfpr4EgUt2sNs4hSpqBr/ew/O/01uKQCgLcoXzEAZ2lGhDh
+         j1Zw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=8fFcvf4lAvd2vovUI6OCWePCunkkWP1m60p4qpL5aeI=;
+        b=f+tarGJIp//Jmj3C30HnUQKhcivUSxUQTVYc4KdDh8kOJi7yjGfted2PhnIfGhhTuQ
+         Mdg82gY4ZHybRLWmY6bHT4LSIgIE1rf5jG7/W3dCW9vyS8/+rkElBbCQHZBPQdvifSYV
+         1D4nMrzMOzspLaBmRGxxK/R6cAZ3O1VIMW5WsOD999zuTe4YTMUlEnfWwD/4Sre9PXUX
+         pWy/i4c3HMHWL3KOTd05cqnbxy86QgEsikWXZUXCVwkssbrplwJIVwWVGMLcEWo1SxRt
+         IqZw7c5GAiyatApJJHuBT7pkr+zAe3EpzYxkjH2XhLEn6i2LIDNWRw+irioG5GxRmgR3
+         llNg==
+X-Gm-Message-State: AOAM531w5n9fzPTZPecZHlwSxMf/gulGQvSwNRnE0EG96VImPONgzkCF
+        +X+7Il5NWa89kstt5EcriwHP5U6g4SI=
+X-Google-Smtp-Source: ABdhPJxKVNcWAyahjAWolINRwJiEn5XWTbpTdUK4gebOcEqN6NgWLTgEJhMPEqR9rhTGogAt9ALOzg==
+X-Received: by 2002:a05:6402:134f:: with SMTP id y15mr273840edw.317.1643222443894;
+        Wed, 26 Jan 2022 10:40:43 -0800 (PST)
+Received: from 127.0.0.1localhost ([85.255.234.222])
+        by smtp.gmail.com with ESMTPSA id c5sm7751055ejz.88.2022.01.26.10.40.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Jan 2022 10:40:43 -0800 (PST)
+From:   Pavel Begunkov <asml.silence@gmail.com>
+To:     io-uring@vger.kernel.org
+Cc:     Jens Axboe <axboe@kernel.dk>, stable@vger.kernel.org,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Subject: [PATCH stable-5.15] io_uring: fix not released cached task refs
+Date:   Wed, 26 Jan 2022 18:40:42 +0000
+Message-Id: <a4ac202a5bb88dd8060d3e128b86e020d4d69343.1643222350.git.asml.silence@gmail.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YfGRAQ2+liyyljEb@kroah.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 26, 2022 at 07:20:49PM +0100, Greg Kroah-Hartman wrote:
-> On Wed, Jan 26, 2022 at 10:13:46AM -0800, Guenter Roeck wrote:
-> > Hi Greg,
-> > 
-> > On Tue, Jan 25, 2022 at 05:33:08PM +0100, Greg Kroah-Hartman wrote:
-> > > This is the start of the stable review cycle for the 5.16.3 release.
-> > > There are 1033 patches in this series, all will be posted as a response
-> > > to this one.  If anyone has any issues with these being applied, please
-> > > let me know.
-> > > 
-> > > Responses should be made by Thu, 27 Jan 2022 15:52:30 +0000.
-> > > Anything received after that time might be too late.
-> > > 
-> > 
-> > I wasn't copied on this announcement nor on the announcement for v5.16.3-rc1.
-> > Linaro wasn't copied either. I managed to catch it, but it would be great
-> > if you could add me (and Linaro) back to cc.
-> 
-> Ouch, something went wrong, let me go see what changed in my scripts,
-> very sorry about that...
+[ upstream commit 3cc7fdb9f90a25ae92250bf9e6cf3b9556b230e9 ]
 
-Found the problem, this was the first set of -rc releases that we have
-over 999 commits and the script was adding the cc: to "msg.000" not
-"msg.0000".  I'll fix this up.
+tctx_task_work() may get run after io_uring cancellation and so there
+will be no one to put cached in tctx task refs that may have been added
+back by tw handlers using inline completion infra, Call
+io_uring_drop_tctx_refs() at the end of the main tw handler to release
+them.
 
-thanks,
+Cc: stable@vger.kernel.org # 5.15+
+Reported-by: Lukas Bulwahn <lukas.bulwahn@gmail.com>
+Fixes: e98e49b2bbf7 ("io_uring: extend task put optimisations")
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/69f226b35fbdb996ab799a8bbc1c06bf634ccec1.1641688805.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+---
+ fs/io_uring.c | 34 +++++++++++++++++++++-------------
+ 1 file changed, 21 insertions(+), 13 deletions(-)
 
-greg k-h
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index 0006fc7479ca..b27a03219d36 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -1760,6 +1760,18 @@ static inline void io_get_task_refs(int nr)
+ 		io_task_refs_refill(tctx);
+ }
+ 
++static __cold void io_uring_drop_tctx_refs(struct task_struct *task)
++{
++	struct io_uring_task *tctx = task->io_uring;
++	unsigned int refs = tctx->cached_refs;
++
++	if (refs) {
++		tctx->cached_refs = 0;
++		percpu_counter_sub(&tctx->inflight, refs);
++		put_task_struct_many(task, refs);
++	}
++}
++
+ static bool io_cqring_event_overflow(struct io_ring_ctx *ctx, u64 user_data,
+ 				     long res, unsigned int cflags)
+ {
+@@ -2200,6 +2212,10 @@ static void tctx_task_work(struct callback_head *cb)
+ 	}
+ 
+ 	ctx_flush_and_put(ctx, &locked);
++
++	/* relaxed read is enough as only the task itself sets ->in_idle */
++	if (unlikely(atomic_read(&tctx->in_idle)))
++		io_uring_drop_tctx_refs(current);
+ }
+ 
+ static void io_req_task_work_add(struct io_kiocb *req)
+@@ -9765,18 +9781,6 @@ static s64 tctx_inflight(struct io_uring_task *tctx, bool tracked)
+ 	return percpu_counter_sum(&tctx->inflight);
+ }
+ 
+-static void io_uring_drop_tctx_refs(struct task_struct *task)
+-{
+-	struct io_uring_task *tctx = task->io_uring;
+-	unsigned int refs = tctx->cached_refs;
+-
+-	if (refs) {
+-		tctx->cached_refs = 0;
+-		percpu_counter_sub(&tctx->inflight, refs);
+-		put_task_struct_many(task, refs);
+-	}
+-}
+-
+ /*
+  * Find any io_uring ctx that this task has registered or done IO on, and cancel
+  * requests. @sqd should be not-null IFF it's an SQPOLL thread cancellation.
+@@ -9833,10 +9837,14 @@ static void io_uring_cancel_generic(bool cancel_all, struct io_sq_data *sqd)
+ 			schedule();
+ 		finish_wait(&tctx->wait, &wait);
+ 	} while (1);
+-	atomic_dec(&tctx->in_idle);
+ 
+ 	io_uring_clean_tctx(tctx);
+ 	if (cancel_all) {
++		/*
++		 * We shouldn't run task_works after cancel, so just leave
++		 * ->in_idle set for normal exit.
++		 */
++		atomic_dec(&tctx->in_idle);
+ 		/* for exec all current's requests should be gone, kill tctx */
+ 		__io_uring_free(current);
+ 	}
+-- 
+2.34.1
+
