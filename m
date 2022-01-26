@@ -2,112 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A62B849CC62
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 15:32:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DB9F49CC75
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 15:37:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242176AbiAZOcu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 09:32:50 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:52546 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242194AbiAZOcs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 09:32:48 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A4248B81CEB;
-        Wed, 26 Jan 2022 14:32:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE455C340E3;
-        Wed, 26 Jan 2022 14:32:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643207565;
-        bh=gKf9zur6l6kv4MdYfaOpKzS4yNvRurcGXURYpzrdMG0=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=rBnUdQew3vXEXa9GuzBKy2mEi4MS7roxhvTzx/LreGnArMj2bvcSrO3/UDWV91nmK
-         zD7Gz+ooqVokYVDxcWuF63eh3BbIKBIj1td211gAC/P2ej+FOTmuzDmgG1eGI4IhJf
-         XDWZh88RH+3CdSgmCHtVodUNTZcDe6M+0lBFgQSFpKzSuXamoS1tQxcYdPhq+jtX9p
-         ayuldAQic/PPXsWHyDnfd7izDSU5Nrl5WkvMgYppZXRhHWmSxWGA4h1jgEp5yRkEsH
-         PY0cirScc9E3e3/99myFmM+77jaVB7BJ0JpEkuM2S2yuZ0WGlx0xMeuuzaES1MJOyz
-         Dvsc/EXAj0xCg==
-Date:   Wed, 26 Jan 2022 16:32:24 +0200
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Reinette Chatre <reinette.chatre@intel.com>
-Cc:     dave.hansen@linux.intel.com, tglx@linutronix.de, bp@alien8.de,
-        luto@kernel.org, mingo@redhat.com, linux-sgx@vger.kernel.org,
-        x86@kernel.org, vijay.dhanraj@intel.com,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH V2] x86/sgx: Silence softlockup detection when releasing
- large enclaves
-Message-ID: <YfFbeNSuCeANF+UN@iki.fi>
-References: <b5e9f218064aa76e3026f778e1ad0a1d823e3db8.1643133224.git.reinette.chatre@intel.com>
+        id S242216AbiAZOhi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 09:37:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60750 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242212AbiAZOhh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 09:37:37 -0500
+Received: from mail-ua1-x934.google.com (mail-ua1-x934.google.com [IPv6:2607:f8b0:4864:20::934])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A524BC06161C
+        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 06:37:37 -0800 (PST)
+Received: by mail-ua1-x934.google.com with SMTP id 2so43277075uax.10
+        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 06:37:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=rajagiritech-edu-in.20210112.gappssmtp.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=avwJHIRaqXRC/i9e13WL28KHJgoLxfbjcz1VFRenbkU=;
+        b=x1tCF12wi5jFG0bKPzUmsb0PFBzFjATYSjByY8wZ6ICBfLGkKcJeu7Alymq4xVsiOB
+         KYoWYI9sUXfrFv1PFXafFDDY6QRBM52gBFU0EzHv5MgSw5lQGLMcyH9FkuSdoyHRYdVy
+         iiBFhF9DEeWgG6DG34sJ/0GgXKdgPDiQLEAZjZM/FVC/NHS52OcFgFaPz3db8LZmpHe9
+         9vZOZmLbuHXH5hSRBDdTIRVk4tz+ni+A8v7wmx7sSTB2OIgrOKuNd/wszR0SsRKvfvDa
+         xj6r6n80WxBSDq94NXKxre/SH6uS1qbfsFstkqrDNMJMSJjS6kT6Gp6MNokw0DpubAcH
+         mPJQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=avwJHIRaqXRC/i9e13WL28KHJgoLxfbjcz1VFRenbkU=;
+        b=nhwUHn0FJgTnCA36r5JioqD/KsVyfEhEIkRB8joaJLED/QUp/M7r1mt0kyC6CoxaoR
+         Add6Q0weNxi7Qil6K+XSs+kFTweMcNIgSbMhSPwJ8aYhC0RoVQutqjgDwjdHOSHGqAOF
+         hz/Yz++dcRfp5SW1l+i2FMdgSLK9NJ5XKhMAnTnCjHYPXxkNazJ4pWj2Bl8LfvD5ilZQ
+         MmhLYbE28o33CTe/ILN9J2pQ0Tyd+qt0Rs3pzZppQAYZHG/ryJns+rZk9TLXA4UzWBsB
+         WVm5y7D0v9itxWjw5GZx1PuojMUtVrEdxQI9BeivV8cdAbVrD8NoJh4aWJq6RVl5rD0f
+         9c6w==
+X-Gm-Message-State: AOAM53238Ma59S2FcbLGvGaVFAljI8fZLOKNLoSwQjGNEGeGy5VzlX12
+        iQzeVrjetauNysc/QVwdurMz8Id7j1wlLm7P+PBIYw==
+X-Google-Smtp-Source: ABdhPJyKzdarUsh6PeiX6XzMcEB4kanF0P+vXrKo74f9owtvZ3IiqsyxF+4Y66p7BUoOK9lx/1jRYfeImqxCcw6dDfU=
+X-Received: by 2002:ab0:781a:: with SMTP id x26mr9412148uaq.61.1643207856844;
+ Wed, 26 Jan 2022 06:37:36 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <b5e9f218064aa76e3026f778e1ad0a1d823e3db8.1643133224.git.reinette.chatre@intel.com>
+References: <0af17d6952b3677dcd413fefa74b086d5ffb474b.camel@rajagiritech.edu.in>
+ <YfAKYWOMdGJ0NxjE@kroah.com> <CAG=yYwksvQmEsfRyFiQTbSxUL39WGf7ryHaywtAxgdL1Nt67OQ@mail.gmail.com>
+ <YfAk90OPjlpjruV5@kroah.com> <CAG=yYw=BK1gU0UV8g5_ZT5gOe5P2W2rKHWdFyPi4ZHSy4CGMFw@mail.gmail.com>
+ <YfEmZiwkdZlQ3DVb@eldamar.lan> <CAG=yYw==-5tugkdgaA3XeWAOi5ni7waAJ=+qsAecTN=kR8HSnw@mail.gmail.com>
+In-Reply-To: <CAG=yYw==-5tugkdgaA3XeWAOi5ni7waAJ=+qsAecTN=kR8HSnw@mail.gmail.com>
+From:   Jeffrin Thalakkottoor <jeffrin@rajagiritech.edu.in>
+Date:   Wed, 26 Jan 2022 20:07:00 +0530
+Message-ID: <CAG=yYwknUUgL9+zi=rgNZ390ZJdt8Aqv8oYfVJ1X78hf6XwjjQ@mail.gmail.com>
+Subject: Re: review for 5.16.3-rc2
+To:     Salvatore Bonaccorso <carnil@debian.org>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        lkml <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 25, 2022 at 10:22:43AM -0800, Reinette Chatre wrote:
-> Vijay reported that the "unclobbered_vdso_oversubscribed" selftest
-> triggers the softlockup detector.
-> 
-> Actual SGX systems have 128GB of enclave memory or more.  The
-> "unclobbered_vdso_oversubscribed" selftest creates one enclave which
-> consumes all of the enclave memory on the system. Tearing down such a
-> large enclave takes around a minute, most of it in the loop where
-> the EREMOVE instruction is applied to each individual 4k enclave page.
-> 
-> Spending one minute in a loop triggers the softlockup detector.
-> 
-> Add a cond_resched() to give other tasks a chance to run and placate
-> the softlockup detector.
-> 
-> Cc: stable@vger.kernel.org
-> Fixes: 1728ab54b4be ("x86/sgx: Add a page reclaimer")
-> Reported-by: Vijay Dhanraj <vijay.dhanraj@intel.com>
-> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
-> Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
-> ---
-> Softlockup message:
-> 
-> watchdog: BUG: soft lockup - CPU#7 stuck for 22s! [test_sgx:11502]
-> Kernel panic - not syncing: softlockup: hung tasks
-> <snip>
-> sgx_encl_release+0x86/0x1c0
-> sgx_release+0x11c/0x130
-> __fput+0xb0/0x280
-> ____fput+0xe/0x10
-> task_work_run+0x6c/0xc0
-> exit_to_user_mode_prepare+0x1eb/0x1f0
-> syscall_exit_to_user_mode+0x1d/0x50
-> do_syscall_64+0x46/0xb0
-> entry_SYSCALL_64_after_hwframe+0x44/0xae
-> 
-> Changes since V1:
-> - V1: https://lore.kernel.org/lkml/1aa037705e5aa209d8b7a075873c6b4190327436.1642530802.git.reinette.chatre@intel.com/
-> - Add comment provided by Jarkko.
-> 
->  arch/x86/kernel/cpu/sgx/encl.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/arch/x86/kernel/cpu/sgx/encl.c b/arch/x86/kernel/cpu/sgx/encl.c
-> index 001808e3901c..48afe96ae0f0 100644
-> --- a/arch/x86/kernel/cpu/sgx/encl.c
-> +++ b/arch/x86/kernel/cpu/sgx/encl.c
-> @@ -410,6 +410,8 @@ void sgx_encl_release(struct kref *ref)
->  		}
->  
->  		kfree(entry);
-> +		/* Invoke scheduler to prevent soft lockups. */
-> +		cond_resched();
->  	}
->  
->  	xa_destroy(&encl->page_array);
-> -- 
-> 2.25.1
-> 
+On Wed, Jan 26, 2022 at 6:06 PM Jeffrin Thalakkottoor
+<jeffrin@rajagiritech.edu.in> wrote:
+>
+> > What version of pahole are you using? Are you using Debian
+> > downstream's 1.22-2? If so please check if it's just the same issue as
+> > reported in https://bugs.debian.org/1004311
+> >
+> > Regards,
+> > Salvatore
+> i was using 1.22-2.
+> i think it is the  debian  issue as you pointed.anyway thanks
+>
 
-Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
-Tested-by: Jarkko Sakkinen <jarkko@kernel.org>  (kselftest as sanity check)
-
-BR, Jarkko
+i downloaded pahole 1.23  from kernel.org and
+the problem is fixed
+i will test 5.16.3-rc2 and send another mail
+-- 
+software engineer
+rajagiri school of engineering and technology
