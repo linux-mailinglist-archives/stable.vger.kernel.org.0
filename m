@@ -2,86 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2F9A49D094
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 18:21:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E00B49D0CA
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 18:32:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235170AbiAZRV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 12:21:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43046 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231168AbiAZRV1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 12:21:27 -0500
-Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF72BC06161C;
-        Wed, 26 Jan 2022 09:21:26 -0800 (PST)
-Received: by mail-pl1-x636.google.com with SMTP id c3so183124pls.5;
-        Wed, 26 Jan 2022 09:21:26 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=CU635gyEcGUfu9rrYkgOvJLpCDM+lhOsMSeDOwBn7MM=;
-        b=KSFqGNiuh/TLdDei34uKTlnM81BLbvQxXfVKYXWvQZsH31cLBKLmtXQTvkBVUBr9Xo
-         ODp0hbzupm1lz23IXCXOm9bicl7lBhNgjxf3HXY55EiJoK6wKuJ8YPTgfuL4VlVZK8oX
-         VHpJAvyWJ40p3x8vwgetPDJgm5Pq9Eh0UVxTyEIINoWlZ1ysGnmO3nV4CAiYkRzF4IVS
-         ADH6YJQyB6i7b276i6rRggyCEb6bjb3XdUla0+ryRrGj3qe/2GdMkn6lsYyObWQ4YjFq
-         AXSSfICIFARCb90TmhUVy76dVVhFL8/SRZ0UsJLzmAON+kyQ/lAfxK7pCPs7DphDSeu1
-         xuMw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=CU635gyEcGUfu9rrYkgOvJLpCDM+lhOsMSeDOwBn7MM=;
-        b=vSjFvO8TpZ3XvXWl7cUAnNnAsVgDrWTgSUTUrpGah/MBP17KYbQ1WR+0JDvoSI1vPl
-         xi2bG4dirzdh3/AYAnuFQUmt5yPg+KDNNqutDjheQH0WAAFkhYDxRtsFIRNbjlK18VK0
-         J3V3sn056oDMzmu2ESYyzSpsLEJDZ8DZUzOd9z6bnfombStK5zMpKBJIiNh+qDJNKQ5D
-         UjZJAxTol3fK7PaT6KJ7RrT1EUVn3OzyQdfx4K+ypAnE1kmb3FAJ2+GmDLwKO5Ah8gx1
-         H6Yv/0+KrBrw3STSlOiEXrcPctNTxY5XlYu5QPcYJD+5algQBRPvK8SM2QWvKC7Vk1hA
-         jDog==
-X-Gm-Message-State: AOAM532JQfOJjnAX/oknFavAFI7tvsmSIqmdV+Byh/h1uFau8+kRBfUI
-        vjwJb2gZ0VgZutrUivv4Y2cNjktDh+Sb2x3H/dA=
-X-Google-Smtp-Source: ABdhPJx2FFNzmZHhB6RjAqL19W+AmJtdHKn9hhOlueGxXA2t/Qk/5E7TeoMGljFFycDLj0PLwWXL8A==
-X-Received: by 2002:a17:90b:4d8a:: with SMTP id oj10mr9650947pjb.201.1643217685522;
-        Wed, 26 Jan 2022 09:21:25 -0800 (PST)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id q21sm2823250pfj.94.2022.01.26.09.21.24
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Jan 2022 09:21:24 -0800 (PST)
-Message-ID: <61f18314.1c69fb81.95468.804c@mx.google.com>
-Date:   Wed, 26 Jan 2022 09:21:24 -0800 (PST)
-X-Google-Original-Date: Wed, 26 Jan 2022 17:21:23 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20220125155447.179130255@linuxfoundation.org>
-Subject: RE: [PATCH 5.16 0000/1033] 5.16.3-rc2 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
+        id S240391AbiAZRch (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 12:32:37 -0500
+Received: from mout.kundenserver.de ([212.227.126.187]:46939 "EHLO
+        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236899AbiAZRch (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 12:32:37 -0500
+Received: from [192.168.100.1] ([82.142.25.174]) by mrelayeu.kundenserver.de
+ (mreue012 [213.165.67.103]) with ESMTPSA (Nemesis) id
+ 1MjxW4-1mWspV3dLE-00kQMA; Wed, 26 Jan 2022 18:32:10 +0100
+Message-ID: <e4e1995c-4fc2-96b7-c732-93aa67207802@vivier.eu>
+Date:   Wed, 26 Jan 2022 18:32:08 +0100
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Content-Language: fr
+To:     Greg KH <greg@kroah.com>
+Cc:     linux-kernel@vger.kernel.org, linux-rtc@vger.kernel.org,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Jiaxun Yang <jiaxun.yang@flygoat.com>,
+        Geert Uytterhoeven <geert@linux-m68k.org>,
+        linux-m68k@lists.linux-m68k.org, Arnd Bergmann <arnd@arndb.de>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        John Stultz <john.stultz@linaro.org>, stable@vger.kernel.org
+References: <20220121200738.2577697-1-laurent@vivier.eu>
+ <20220121200738.2577697-3-laurent@vivier.eu> <YfFPjOEELiTWr2uj@kroah.com>
+From:   Laurent Vivier <laurent@vivier.eu>
+Subject: Re: [PATCH v12 2/5] tty: goldfish: introduce
+ gf_ioread32()/gf_iowrite32()
+In-Reply-To: <YfFPjOEELiTWr2uj@kroah.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Provags-ID: V03:K1:XvNu/dge3CNEYzBbvj4dsSiUzfG9ERgw/LyTB6b0Aj5yx6+KZ9M
+ QGo8y1Km5kIVpSrPgBY0y6SzagwYAtktnB9GjfykwLFwRi9tZQVpxJ/BnwfUOfBmFpGBIkg
+ cDPFukPmaZ1y9tua0fQ3T6PWrxQW36ZmPU4d0O3wbqDvUsIN2QVlZNqHOi/+3TAWAHnJAkN
+ IjKh9Z5r4mvZQ046C54nA==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:IUz2wLhHtK4=:YErz34dKXUUdhaRFFUq59Y
+ uZ1krhP53qYSUmIzN/tcOXPkwWZ0LLwMu1OnckCFNi6IIeme5aShQRQGwrYn2g8692/Ln2qCr
+ ypxE48BAfl5F/s47vkP+E5TAF291m1LB5YH9r1Kw9DlOxkGhSLFt8yBPLP4uEaeIpDYLZB1+V
+ XSJ0O18w5g4NcRwSdEJiu0MdpZ0csxqvFt4br1QLqAqKscd1Vb6G3upYMtJXPxy+ZPv4QIyOd
+ JAHd8fWgL1721LCPI8C2bIEKt3qSDdSiki21FRXeiaSljk9VWnrfCGi56jqtaZxdfDwgZ4k4U
+ nTK1y/sccw/C1mk1YlhXrTsC4tjK5Nqf9W8vkb8u6/KDJIkRtcquMfyJgCwjidMPGpXfUFIl0
+ KMrqJxwv3EAFIhUb8/QzmO0sSnNC3DVtluwYeIBQOjkUFpXQALToV8uPpX6878B0Yq/deBnkk
+ lcfyTrSzyh9ygeLQIQsJ8UgG78nC4m0ixTWyM6UeT0YsZrLcCq8pGiL3X/q845lDJcJpriEkt
+ pQRcHA7R5gaMDtcYG8A20FHAnVO/h/xfUXnP2imKAQo45PByF+YTwkDq2umrD3eth2o4qCdnL
+ bAN44TFcq+XWvsfadMQofaXA/L4TjwGnWDZU/8Z4rdK+TtNAwR+FqhH/1HC0u8ghaq2T+ZZXS
+ CnnEAo74CA35cOMfMbEJLQiXYUAFB+xRQ3ww9XkX76tEs2QhbB3Lg2QrPN9BL1j8kFCs=
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 25 Jan 2022 17:33:08 +0100, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.16.3 release.
-> There are 1033 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+Le 26/01/2022 à 14:41, Greg KH a écrit :
+> On Fri, Jan 21, 2022 at 09:07:35PM +0100, Laurent Vivier wrote:
+>> Revert
+>> commit da31de35cd2f ("tty: goldfish: use __raw_writel()/__raw_readl()")
 > 
-> Responses should be made by Thu, 27 Jan 2022 15:52:30 +0000.
-> Anything received after that time might be too late.
+> Why?
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.3-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
-> and the diffstat can be found below.
+>> and define gf_ioread32()/gf_iowrite32() to be able to use accessors
+>> defined by the architecture.
 > 
-> thanks,
+> What does this do?
 > 
-> greg k-h
+>>
+>> Cc: stable@vger.kernel.org # v5.11+
+>> Fixes: da31de35cd2f ("tty: goldfish: use __raw_writel()/__raw_readl()")
+>> Signed-off-by: Laurent Vivier <laurent@vivier.eu>
+>> ---
+>>   drivers/tty/goldfish.c   | 20 ++++++++++----------
+>>   include/linux/goldfish.h | 15 +++++++++++----
+>>   2 files changed, 21 insertions(+), 14 deletions(-)
+...
+>> -- 
+>> 2.34.1
+>>
+> 
+> This feels like a step backwards.  Why keep this level of indirection
+> for no good reason?
 > 
 
-5.16.3-rc2 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+It was proposed by Arnd on my previous iteration of the series when I wanted to update goldfish-rtc 
+in the same way:
 
+https://lore.kernel.org/all/CAK8P3a1H6-sd_+FqnOq0Zhj=L51EWuW5VCcYeTENcp3+PkTC4Q@mail.gmail.com/
+
+Keeping __raw_XXX() functions works on most of the cases except if the current CPU endianness can 
+differ from the architecture one (like a ppc64le kernel (little-endian) running a ppc64 machine 
+(big-endian)).
+
+The best solution would be to update QEMU to set the device as a little-endian one, but google 
+didn't merge its implemention in upstream QEMU and this would break all other OSes using goldfish 
+devices on big-endian architectures.
+
+Thanks,
+Laurent
