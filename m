@@ -2,91 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 625F349CBCF
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 15:06:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 751FD49CBD5
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 15:08:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241875AbiAZOGY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 09:06:24 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:39776 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235083AbiAZOGY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 09:06:24 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9D85B81E18;
-        Wed, 26 Jan 2022 14:06:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DED0AC340E3;
-        Wed, 26 Jan 2022 14:06:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643205981;
-        bh=fBo2lZFgwC79lVOAmFUYUrB+mT5nY4lcwlxA8CcRsbk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=E5JedRAuSt2BXKLv1ulUjQUsLn2JcJIdAl/jD7mmMZNI1fn+59RUDTae5Yjl3vorR
-         SVYzC97i4ru3pk11qodYEk+ISVvz75ZwEgtl8g6kik+ZtmH4962M974pikiExoUscu
-         mSjDb62Al1fyqRkrYkWlWWDJE1wY1jCerVE+6YnhV4Co7UQdVZdELCZ6uB+eH+LVGG
-         GSC1dIjaew/HdKYMuijnlyajrQvd8RDjacb+7dFzo4arFnsdE1V499X2ld4ULYQpBy
-         FCNJJkgPiehpqawBLn+8OD5l+w31poawlpoqWM8MttTBNLsAydmDOUNRInooxJFQiK
-         NosvKY9bJC4lQ==
-Date:   Wed, 26 Jan 2022 16:06:01 +0200
-From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     keyrings@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        linux-crypto@vger.kernel.org,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Denis Kenzior <denkenz@gmail.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] KEYS: fix length validation in keyctl_pkey_params_get_2()
-Message-ID: <YfFVSeWAFi8eqjpj@iki.fi>
-References: <20220113200454.72609-1-ebiggers@kernel.org>
- <YeMWLyceg4xcwShF@iki.fi>
- <YeMmPs+gf+q7XUv4@sol.localdomain>
- <YeM7+Nyi2p7Yv7+Q@iki.fi>
- <YedZviVNB2X7yeTX@sol.localdomain>
+        id S238021AbiAZOH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 09:07:59 -0500
+Received: from mga12.intel.com ([192.55.52.136]:18857 "EHLO mga12.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235353AbiAZOH6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jan 2022 09:07:58 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1643206078; x=1674742078;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=ATWiAh5adUik4jh9DAaJE+s1YCh+W1I+c+EDEhALlV0=;
+  b=QRZGS2JA7djqw65FCRjCn/huuSNPto02OUB8Y6UE+VAB3d5+uXxKx/wV
+   yvWriZ2Cy3cCmGQ0qXlrmGmmF5qtrFR9VjNmKhD93nCdTzm+eqgQpwD9i
+   RRH4sCZB7wgYU14dp1bwJ7UWrKxdVAbxMe9F79+fEk6cNgEor7VaZkzS7
+   jStoDckCasxXh3E5sRJIGw+gc9DQ+872EN+fzo+DG4wWWnbma3I0xA5IX
+   3aKclcBTZUyBec0Qq7RPbW12c8hnK/h1tG6yMjPNdKMcVU918ZyCdiJGv
+   8YPabIyMV7/PgcvB6IY4OYDrSombPvqyMMGTzq0ON4FVNNAFiQiTF9B5p
+   A==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10238"; a="226531926"
+X-IronPort-AV: E=Sophos;i="5.88,318,1635231600"; 
+   d="scan'208";a="226531926"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jan 2022 06:07:58 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,318,1635231600"; 
+   d="scan'208";a="628311015"
+Received: from lkp-server01.sh.intel.com (HELO 276f1b88eecb) ([10.239.97.150])
+  by orsmga004.jf.intel.com with ESMTP; 26 Jan 2022 06:07:56 -0800
+Received: from kbuild by 276f1b88eecb with local (Exim 4.92)
+        (envelope-from <lkp@intel.com>)
+        id 1nCixn-000LH9-Df; Wed, 26 Jan 2022 14:07:55 +0000
+Date:   Wed, 26 Jan 2022 22:07:44 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     "Maciej W. Rozycki" <macro@embecosm.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>
+Cc:     kbuild-all@lists.01.org, Christoph Hellwig <hch@infradead.org>,
+        linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v3] tty: Partially revert the removal of the Cyclades
+ public API
+Message-ID: <202201262147.FNYhDmDi-lkp@intel.com>
+References: <alpine.DEB.2.20.2201260733430.11348@tpp.orcam.me.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YedZviVNB2X7yeTX@sol.localdomain>
+In-Reply-To: <alpine.DEB.2.20.2201260733430.11348@tpp.orcam.me.uk>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 18, 2022 at 04:22:22PM -0800, Eric Biggers wrote:
-> On Sat, Jan 15, 2022 at 11:26:16PM +0200, Jarkko Sakkinen wrote:
-> > On Sat, Jan 15, 2022 at 11:53:34AM -0800, Eric Biggers wrote:
-> > > On Sat, Jan 15, 2022 at 08:45:03PM +0200, Jarkko Sakkinen wrote:
-> > > > On Thu, Jan 13, 2022 at 12:04:54PM -0800, Eric Biggers wrote:
-> > > > > From: Eric Biggers <ebiggers@google.com>
-> > > > > 
-> > > > > In many cases, keyctl_pkey_params_get_2() is validating the user buffer
-> > > > > lengths against the wrong algorithm properties.  Fix it to check against
-> > > > > the correct properties.
-> > > > > 
-> > > > > Probably this wasn't noticed before because for all asymmetric keys of
-> > > > > the "public_key" subtype, max_data_size == max_sig_size == max_enc_size
-> > > > > == max_dec_size.  However, this isn't necessarily true for the
-> > > > > "asym_tpm" subtype (it should be, but it's not strictly validated).  Of
-> > > > > course, future key types could have different values as well.
-> > > > 
-> > > > With a quick look, asym_tpm is TPM 1.x only, which only has 2048-bit RSA
-> > > > keys.
-> > > 
-> > > The code allows other lengths, as well as the case where the "RSA key size"
-> > > doesn't match the "public key size".  Probably both are bugs and they should
-> > > both be 256 bytes (2048 bits) only.  Anyway, that would be a separate fix.
-> > > 
-> > > - Eric
-> > 
-> > I'm fine with the current commit message. E.g. I have no idea at this
-> > point whether there should be in future separate asym_tpm2 or all bundled
-> > to asym_tpm.
-> > 
-> > Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
-> > 
-> 
-> Okay, great.  Just to be clear, I'm expecting either you or David
-> (maintainer:KEYS/KEYRINGS) to apply this patch.  Acked-by is usually given by a
-> maintainer when someone else applies a patch.
+Hi "Maciej,
 
-I changed it to reviewed-by and applied.
+I love your patch! Perhaps something to improve:
 
-BR, Jarkko
+[auto build test WARNING on tty/tty-testing]
+[also build test WARNING on linus/master hch-configfs/for-next v5.17-rc1 next-20220125]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch]
+
+url:    https://github.com/0day-ci/linux/commits/Maciej-W-Rozycki/tty-Partially-revert-the-removal-of-the-Cyclades-public-API/20220126-172520
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git tty-testing
+config: i386-buildonly-randconfig-r002-20220124 (https://download.01.org/0day-ci/archive/20220126/202201262147.FNYhDmDi-lkp@intel.com/config)
+compiler: gcc-9 (Debian 9.3.0-22) 9.3.0
+reproduce (this is a W=1 build):
+        # https://github.com/0day-ci/linux/commit/c9e707e313f471adbe057300f4fb163113cf062c
+        git remote add linux-review https://github.com/0day-ci/linux
+        git fetch --no-tags linux-review Maciej-W-Rozycki/tty-Partially-revert-the-removal-of-the-Cyclades-public-API/20220126-172520
+        git checkout c9e707e313f471adbe057300f4fb163113cf062c
+        # save the config file to linux build tree
+        mkdir build_dir
+        make W=1 O=build_dir ARCH=i386 SHELL=/bin/bash
+
+If you fix the issue, kindly add following tag as appropriate
+Reported-by: kernel test robot <lkp@intel.com>
+
+All warnings (new ones prefixed by >>):
+
+   In file included from <command-line>:32:
+>> ./usr/include/linux/cyclades.h:6:2: warning: #warning "Support for features provided by this header has been removed" [-Wcpp]
+       6 | #warning "Support for features provided by this header has been removed"
+         |  ^~~~~~~
+>> ./usr/include/linux/cyclades.h:7:2: warning: #warning "Please consider updating your code" [-Wcpp]
+       7 | #warning "Please consider updating your code"
+         |  ^~~~~~~
+
+---
+0-DAY CI Kernel Test Service, Intel Corporation
+https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
