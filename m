@@ -2,101 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF3FA49CAF1
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 14:35:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F70549CAF7
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 14:37:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240277AbiAZNf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 08:35:57 -0500
-Received: from mga02.intel.com ([134.134.136.20]:59504 "EHLO mga02.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240281AbiAZNfy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jan 2022 08:35:54 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1643204154; x=1674740154;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-id:content-transfer-encoding:
-   mime-version;
-  bh=+PZM1KM/IUF3frVUKPKCem+MNWgsei6zpmLH/f1aIHk=;
-  b=ETGxqGxqSi4Uu5ynVjY/BaMcAO/rLiPI3ebqpPvMN21VQ7eDipS3jWqS
-   lmm7k9g+0D5TddgFGKL8C1fP7hwiqfcjdEe+4iiXnQoRoYcU3Mbpg3EyL
-   IOlFxm5JZg93GZKDUM6raUJT7kxF0hey1FCidYOmXSzS1AUbC3B3GSv01
-   ptCJjjartQtEx6mLKIH9EBV4ZxiTEwe4HFnC9k5zs4IwphmU9VMTwTCkG
-   QIKKIutulpKcTTVZ3M0O645pDabJrKOlNnt2gQuKueErdxEl+n16tPvwJ
-   2OB+z7j1xEKc2sCehj8RyRqfCTpO4pCA1WXyQcdOqX/DhhZJL7Y1l3B9T
-   w==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10238"; a="233924708"
-X-IronPort-AV: E=Sophos;i="5.88,318,1635231600"; 
-   d="scan'208";a="233924708"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jan 2022 05:35:54 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.88,318,1635231600"; 
-   d="scan'208";a="479882689"
-Received: from irsmsx606.ger.corp.intel.com ([163.33.146.139])
-  by orsmga006.jf.intel.com with ESMTP; 26 Jan 2022 05:35:53 -0800
-Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
- IRSMSX606.ger.corp.intel.com (163.33.146.139) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.20; Wed, 26 Jan 2022 13:35:52 +0000
-Received: from orsmsx610.amr.corp.intel.com ([10.22.229.23]) by
- ORSMSX610.amr.corp.intel.com ([10.22.229.23]) with mapi id 15.01.2308.020;
- Wed, 26 Jan 2022 05:35:50 -0800
-From:   "Souza, Jose" <jose.souza@intel.com>
-To:     "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "Deak, Imre" <imre.deak@intel.com>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "acelan.kao@canonical.com" <acelan.kao@canonical.com>
-Subject: Re: [PATCH] drm/i915/adlp: Fix TypeC PHY-ready status readout
-Thread-Topic: [PATCH] drm/i915/adlp: Fix TypeC PHY-ready status readout
-Thread-Index: AQHYEqGheA21HPJYbUmvZh6yllNy96x11J6A
-Date:   Wed, 26 Jan 2022 13:35:50 +0000
-Message-ID: <7208289f7ecfe5328aeffe6d4cd1ee468adfbc97.camel@intel.com>
-References: <20220126104356.2022975-1-imre.deak@intel.com>
-In-Reply-To: <20220126104356.2022975-1-imre.deak@intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.1.200.100]
-Content-Type: text/plain; charset="utf-8"
-Content-ID: <AC37F23564368B48B148D3EA0D929ABC@intel.com>
-Content-Transfer-Encoding: base64
+        id S235148AbiAZNhy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 08:37:54 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:57124 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240486AbiAZNhv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 08:37:51 -0500
+Date:   Wed, 26 Jan 2022 13:37:48 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1643204270;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=qgWC/j9vvHRiJ1aesc9zKJZuMQm1gEs0oXzGNKru0W4=;
+        b=arjDFbaRSKXd1stWtmza7naEckCt1YvzZc+myHg/2Gx7pYSEcm9aUkEFZIKGxb6hMuQlrS
+        sHezDT36D9Eg74Ni/OtnjzNSNxBbIOHEx7Z7PAMwYp8perajZl2hD9Gte3MUmhraBBxWST
+        91h9Ro/jw345pluhtqwuq9Ho0sy3jEeuFWw/I7CipEDza5l0uRd+2eaqqCoR2CweRVDQOK
+        g4Tfu0xNwi2kJspU7RwSpJ3w6M6kdzs7kG033BT80fe9RCEZPTCVvru24ELrKIF+It5GjI
+        RV/admGkKpJjQ5Fi/gifGiigfvRgPicvVsSc4opIY0ePWvb9CjC883SKepROfw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1643204270;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=qgWC/j9vvHRiJ1aesc9zKJZuMQm1gEs0oXzGNKru0W4=;
+        b=T+Yf1LuTPDK6qQWDThdM0j/44vx6GtO9xrkNdU4966m/JXh/cJcJ4TeXBAPfodUsCjhxA8
+        TjJ3WOwnfgHRTgDQ==
+From:   "tip-bot2 for Mathieu Desnoyers" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: sched/urgent] sched/membarrier: Fix membarrier-rseq fence
+ command missing from query bitmask
+Cc:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        <stable@vger.kernel.org>, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20220117203010.30129-1-mathieu.desnoyers@efficios.com>
+References: <20220117203010.30129-1-mathieu.desnoyers@efficios.com>
 MIME-Version: 1.0
+Message-ID: <164320426897.16921.6733520040853654052.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-T24gV2VkLCAyMDIyLTAxLTI2IGF0IDEyOjQzICswMjAwLCBJbXJlIERlYWsgd3JvdGU6DQo+IFRo
-ZSBUQ1NTX0RESV9TVEFUVVMgcmVnaXN0ZXIgaXMgaW5kZXhlZCBieSB0Y19wb3J0IG5vdCBieSB0
-aGUgRklBIHBvcnQNCj4gaW5kZXgsIGZpeCB0aGlzIHVwLiBUaGlzIG9ubHkgY2F1c2VkIGFuIGlz
-c3VlIG9uIFRDIzMvNCBwb3J0cyBpbiBsZWdhY3kNCj4gbW9kZSwgYXMgaW4gYWxsIG90aGVyIGNh
-c2VzIHRoZSB0d28gaW5kaWNlcyBlaXRoZXIgbWF0Y2ggKG9uIFRDIzEvMikgb3INCj4gdGhlIFRD
-U1NfRERJX1NUQVRVU19SRUFEWSBmbGFnIGlzIHNldCByZWdhcmRsZXNzIG9mIHNvbWV0aGluZyBi
-ZWluZw0KPiBjb25uZWN0ZWQgb3Igbm90IChvbiBUQyMxLzIvMy80IGluIGRwLWFsdCBhbmQgdGJ0
-LWFsdCBtb2RlcykuDQo+IA0KDQpSZXZpZXdlZC1ieTogSm9zw6kgUm9iZXJ0byBkZSBTb3V6YSA8
-am9zZS5zb3V6YUBpbnRlbC5jb20+DQoNCj4gUmVwb3J0ZWQtYW5kLXRlc3RlZC1ieTogQ2hpYS1M
-aW4gS2FvIChBY2VMYW4pIDxhY2VsYW4ua2FvQGNhbm9uaWNhbC5jb20+DQo+IEZpeGVzOiA1NWNl
-MzA2YzJhYTEgKCJkcm0vaTkxNS9hZGxfcDogSW1wbGVtZW50IFRDIHNlcXVlbmNlcyIpDQo+IENs
-b3NlczogaHR0cHM6Ly9naXRsYWIuZnJlZWRlc2t0b3Aub3JnL2RybS9pbnRlbC8tL2lzc3Vlcy80
-Njk4DQo+IENjOiBKb3PDqSBSb2JlcnRvIGRlIFNvdXphIDxqb3NlLnNvdXphQGludGVsLmNvbT4N
-Cj4gQ2M6IDxzdGFibGVAdmdlci5rZXJuZWwub3JnPiAjIHY1LjE0Kw0KPiBTaWduZWQtb2ZmLWJ5
-OiBJbXJlIERlYWsgPGltcmUuZGVha0BpbnRlbC5jb20+DQo+IC0tLQ0KPiAgZHJpdmVycy9ncHUv
-ZHJtL2k5MTUvZGlzcGxheS9pbnRlbF90Yy5jIHwgMyArKy0NCj4gIDEgZmlsZSBjaGFuZ2VkLCAy
-IGluc2VydGlvbnMoKyksIDEgZGVsZXRpb24oLSkNCj4gDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJz
-L2dwdS9kcm0vaTkxNS9kaXNwbGF5L2ludGVsX3RjLmMgYi9kcml2ZXJzL2dwdS9kcm0vaTkxNS9k
-aXNwbGF5L2ludGVsX3RjLmMNCj4gaW5kZXggNGVlZmU3YjBiYjI2My4uMzI5MTEyNGE5OWU1YSAx
-MDA2NDQNCj4gLS0tIGEvZHJpdmVycy9ncHUvZHJtL2k5MTUvZGlzcGxheS9pbnRlbF90Yy5jDQo+
-ICsrKyBiL2RyaXZlcnMvZ3B1L2RybS9pOTE1L2Rpc3BsYXkvaW50ZWxfdGMuYw0KPiBAQCAtMzQ2
-LDEwICszNDYsMTEgQEAgc3RhdGljIGJvb2wgaWNsX3RjX3BoeV9zdGF0dXNfY29tcGxldGUoc3Ry
-dWN0IGludGVsX2RpZ2l0YWxfcG9ydCAqZGlnX3BvcnQpDQo+ICBzdGF0aWMgYm9vbCBhZGxfdGNf
-cGh5X3N0YXR1c19jb21wbGV0ZShzdHJ1Y3QgaW50ZWxfZGlnaXRhbF9wb3J0ICpkaWdfcG9ydCkN
-Cj4gIHsNCj4gIAlzdHJ1Y3QgZHJtX2k5MTVfcHJpdmF0ZSAqaTkxNSA9IHRvX2k5MTUoZGlnX3Bv
-cnQtPmJhc2UuYmFzZS5kZXYpOw0KPiArCWVudW0gdGNfcG9ydCB0Y19wb3J0ID0gaW50ZWxfcG9y
-dF90b190YyhpOTE1LCBkaWdfcG9ydC0+YmFzZS5wb3J0KTsNCj4gIAlzdHJ1Y3QgaW50ZWxfdW5j
-b3JlICp1bmNvcmUgPSAmaTkxNS0+dW5jb3JlOw0KPiAgCXUzMiB2YWw7DQo+ICANCj4gLQl2YWwg
-PSBpbnRlbF91bmNvcmVfcmVhZCh1bmNvcmUsIFRDU1NfRERJX1NUQVRVUyhkaWdfcG9ydC0+dGNf
-cGh5X2ZpYV9pZHgpKTsNCj4gKwl2YWwgPSBpbnRlbF91bmNvcmVfcmVhZCh1bmNvcmUsIFRDU1Nf
-RERJX1NUQVRVUyh0Y19wb3J0KSk7DQo+ICAJaWYgKHZhbCA9PSAweGZmZmZmZmZmKSB7DQo+ICAJ
-CWRybV9kYmdfa21zKCZpOTE1LT5kcm0sDQo+ICAJCQkgICAgIlBvcnQgJXM6IFBIWSBpbiBUQ0NP
-TEQsIGFzc3VtaW5nIG5vdCBjb21wbGV0ZVxuIiwNCg0K
+The following commit has been merged into the sched/urgent branch of tip:
+
+Commit-ID:     809232619f5b15e31fb3563985e705454f32621f
+Gitweb:        https://git.kernel.org/tip/809232619f5b15e31fb3563985e705454f32621f
+Author:        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+AuthorDate:    Mon, 17 Jan 2022 15:30:10 -05:00
+Committer:     Peter Zijlstra <peterz@infradead.org>
+CommitterDate: Tue, 25 Jan 2022 22:30:25 +01:00
+
+sched/membarrier: Fix membarrier-rseq fence command missing from query bitmask
+
+The membarrier command MEMBARRIER_CMD_QUERY allows querying the
+available membarrier commands. When the membarrier-rseq fence commands
+were added, a new MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ_BITMASK was
+introduced with the intent to expose them with the MEMBARRIER_CMD_QUERY
+command, the but it was never added to MEMBARRIER_CMD_BITMASK.
+
+The membarrier-rseq fence commands are therefore not wired up with the
+query command.
+
+Rename MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ_BITMASK to
+MEMBARRIER_PRIVATE_EXPEDITED_RSEQ_BITMASK (the bitmask is not a command
+per-se), and change the erroneous
+MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ_BITMASK (which does not
+actually exist) to MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ.
+
+Wire up MEMBARRIER_PRIVATE_EXPEDITED_RSEQ_BITMASK in
+MEMBARRIER_CMD_BITMASK. Fixing this allows discovering availability of
+the membarrier-rseq fence feature.
+
+Fixes: 2a36ab717e8f ("rseq/membarrier: Add MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ")
+Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: <stable@vger.kernel.org> # 5.10+
+Link: https://lkml.kernel.org/r/20220117203010.30129-1-mathieu.desnoyers@efficios.com
+---
+ kernel/sched/membarrier.c |  9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+diff --git a/kernel/sched/membarrier.c b/kernel/sched/membarrier.c
+index b5add64..3d28254 100644
+--- a/kernel/sched/membarrier.c
++++ b/kernel/sched/membarrier.c
+@@ -147,11 +147,11 @@
+ #endif
+ 
+ #ifdef CONFIG_RSEQ
+-#define MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ_BITMASK		\
++#define MEMBARRIER_PRIVATE_EXPEDITED_RSEQ_BITMASK		\
+ 	(MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ			\
+-	| MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ_BITMASK)
++	| MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ)
+ #else
+-#define MEMBARRIER_CMD_PRIVATE_EXPEDITED_RSEQ_BITMASK	0
++#define MEMBARRIER_PRIVATE_EXPEDITED_RSEQ_BITMASK	0
+ #endif
+ 
+ #define MEMBARRIER_CMD_BITMASK						\
+@@ -159,7 +159,8 @@
+ 	| MEMBARRIER_CMD_REGISTER_GLOBAL_EXPEDITED			\
+ 	| MEMBARRIER_CMD_PRIVATE_EXPEDITED				\
+ 	| MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED			\
+-	| MEMBARRIER_PRIVATE_EXPEDITED_SYNC_CORE_BITMASK)
++	| MEMBARRIER_PRIVATE_EXPEDITED_SYNC_CORE_BITMASK		\
++	| MEMBARRIER_PRIVATE_EXPEDITED_RSEQ_BITMASK)
+ 
+ static void ipi_mb(void *info)
+ {
