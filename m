@@ -2,113 +2,253 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CD0449C59D
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 09:56:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C21C549C5AB
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 09:59:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238625AbiAZI4U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 03:56:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36154 "EHLO
+        id S238653AbiAZI75 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 03:59:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232392AbiAZI4T (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 03:56:19 -0500
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADEF4C06161C;
-        Wed, 26 Jan 2022 00:56:19 -0800 (PST)
-Received: by mail-pl1-x62b.google.com with SMTP id j16so11204901plx.4;
-        Wed, 26 Jan 2022 00:56:19 -0800 (PST)
+        with ESMTP id S238663AbiAZI74 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 03:59:56 -0500
+Received: from mail-yb1-xb2b.google.com (mail-yb1-xb2b.google.com [IPv6:2607:f8b0:4864:20::b2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77E8BC061744
+        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 00:59:56 -0800 (PST)
+Received: by mail-yb1-xb2b.google.com with SMTP id 23so69273327ybf.7
+        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 00:59:56 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=4S4SnCn9eD0g7xG9Mm2dDQNDBGBOG83eXlCYQPAFPMo=;
-        b=BbDEwgQg73det4KtLGRLbJfcaV0orlyeGNNbyJk616IVmVqvm1L2GO6wkDJju6tHfv
-         MAYRx7shj7JLtcjWEocPjmdLS1odmSRwyJpEWMV+v+ySCv4dznRZoYMTy+5VfFPB9xZ3
-         0adomHh/vNK9pRdifKuqr4Xrz84N1HkA7m2CkdZ7rr0I1W71ez15OZ4IsIG2+6hHC1/R
-         9wbRZ0if/FyOUqDALupg6fOkA/K8Gsw/G2GFYWqb5Z6/oC/tam/M9FfqmT30UWsE6r6d
-         S718753DU22ldFpAlx6YPS7JsYbTKKB+/jvPmEW4TzKW836VZEQIVvWkXtRMon13L5/t
-         N1sg==
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=T0O2RYBvXI413kf/Ld0KJM8o1ANZb53hZiPPSa3Eb3Q=;
+        b=iNXv+RaDW65wfKxheW2D7b9IfGYHuJxTwB2B68bkmet85Xb1MEEZxyT/ptI0c7wxAL
+         26aZrMDR1GirnHV1w+fTM8PicEFanPRkb2Nw2a0PBYnRj3dtZf/iMHl4csCYjFT3qYHo
+         t3YV8JjPYVwxJkfiWY1CHs/+vBxZVUt/7mVVzlItrGRyhLpF/K75qlrpsTMudDEqMGlz
+         BeCQMtx5dStL0HWGYQXy1gnG2W433GD2PWDunz34j1Fo7Ti4p3MZY/2IEjwPQox5JLcP
+         GOd9YOa56T5SoOWPSZF+9HD7izdiQWf4ULQY5psyTCGIqWHfqRTDWfwLvZCkyQGOst4n
+         M7ow==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=4S4SnCn9eD0g7xG9Mm2dDQNDBGBOG83eXlCYQPAFPMo=;
-        b=sZI+WaE9AevW9hMTSFx3s/q7nNZe/5EwCXbzHyUJjw9Riw/jFD/XYfcOWbcOGh53bA
-         /2NoC1vrR7S2tuwxkkIafHB6bEsWlRsZbw51Xt+eS38jBgl5lGgflWlJsDr+C+8j4nzD
-         6Og8nDlFCq3BvoBxSgaacpTwtz2WCbaJs62w+g46l+xiTH5VYYOw3ARnS3XZanUNyPBy
-         mYw/GO+Yq7w7P0BgxXY4SgwVK0BFP/M7DIRht+okrrhpEqoqMchm4jpz70L7TDzzIb0s
-         HvBe8IT27imdQLkYa0hh3YpRTE12zDSoaPkItcmS4RqwG6/E/0u3ajBfXSDknh8Iqrap
-         OxDQ==
-X-Gm-Message-State: AOAM531869jcC1oVvNKOLnxmn2oZS9dbi6KBx1Mdp3arExg6J2Jfyc49
-        cICpEGavCr2iFZ0UnRbnJxU=
-X-Google-Smtp-Source: ABdhPJwpbeWRvM+2nZ+Pu+ml/h90hyno+84Gtllq3DX3a/THRde9rb53S+zUQyuSArnKHV6f2hD0sg==
-X-Received: by 2002:a17:90a:50f:: with SMTP id h15mr7776060pjh.78.1643187379196;
-        Wed, 26 Jan 2022 00:56:19 -0800 (PST)
-Received: from jason-ThinkPad-T14-Gen-1.lan ([66.187.5.142])
-        by smtp.gmail.com with ESMTPSA id mn2sm2400977pjb.38.2022.01.26.00.56.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Jan 2022 00:56:18 -0800 (PST)
-From:   Hongyu Xie <xy521521@gmail.com>
-To:     mathias.nyman@intel.com, gregkh@linuxfoundation.org,
-        sarah.a.sharp@linux.intel.com
-Cc:     linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-        Hongyu Xie <xiehongyu1@kylinos.cn>, stable@vger.kernel.org
-Subject: [PATCH -next] xhci: fix two places when dealing with return value of function xhci_check_args
-Date:   Wed, 26 Jan 2022 16:56:09 +0800
-Message-Id: <20220126085609.918452-1-xy521521@gmail.com>
-X-Mailer: git-send-email 2.25.1
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=T0O2RYBvXI413kf/Ld0KJM8o1ANZb53hZiPPSa3Eb3Q=;
+        b=DXRa26oFe49dcucbPnXzR7p4nS/B1l1Z5oQ/U5sEzC+oeucwmYzUlDQND4+bsIUb/2
+         R0+7cXohpRZ9cP3zO8rpk64/D8uBC9qHZL5BNlCoYM1qxH+QPUv21IBN3NGm+3gkR/Gl
+         3V25siI6kfHXjJ4VU1oocCOvKTZ3wz1BqtSeLv/H8JbZZeQyZiLlOcCbfbxaJajlnpn8
+         pHdWKo9CSKmhgxxDGMrFNovi6JlELMMtG0GbCCshks4Nk7nm1XvG2kKnLbWKymrfw3E+
+         ISpgntgDSdJqJW82r8e6RGninXyBU8pvsEG17co+3BMKfX6i+X/Ew+50BBt4jATKAT1/
+         5LQw==
+X-Gm-Message-State: AOAM531aoiDU6+n5xA7nogfq5jJTu2oqVnz6N+ngqhDx1+0YAWfU1SmH
+        YQz4fClxUidFtf4oYQmhhvKZqgmtqwVQDX808Wf3cg==
+X-Google-Smtp-Source: ABdhPJx++/1jA2g2gynru6Ctuaw26a/eB5z81sieyhm5ETtWQOf3hqbae5rGoRyaEdc4eOFPDSXX4nZS4w4nkl+KCHg=
+X-Received: by 2002:a25:838b:: with SMTP id t11mr33546069ybk.146.1643187595464;
+ Wed, 26 Jan 2022 00:59:55 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20220125155423.959812122@linuxfoundation.org>
+In-Reply-To: <20220125155423.959812122@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Wed, 26 Jan 2022 14:29:43 +0530
+Message-ID: <CA+G9fYscJ1-KUg-XAaykXNY4-7X7MgUFKgdZWWFB5hD3+SHu+A@mail.gmail.com>
+Subject: Re: [PATCH 5.15 000/841] 5.15.17-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hongyu Xie <xiehongyu1@kylinos.cn>
+On Tue, 25 Jan 2022 at 22:02, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.15.17 release.
+> There are 841 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 27 Jan 2022 15:52:30 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.15.17-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.15.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-xhci_check_args returns 4 types of value, -ENODEV, -EINVAL, 1 and 0.
-xhci_urb_enqueue and xhci_check_streams_endpoint return -EINVAL if
-the return value of xhci_check_args <= 0.
-This will cause a problem.
-For example, r8152_submit_rx calling usb_submit_urb in
-drivers/net/usb/r8152.c.
-r8152_submit_rx will never get -ENODEV after submiting an urb
-when xHC is halted,
-because xhci_urb_enqueue returns -EINVAL in the very beginning.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Fixes: 203a86613fb3 ("xhci: Avoid NULL pointer deref when host dies.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Hongyu Xie <xiehongyu1@kylinos.cn>
----
- drivers/usb/host/xhci.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-index dc357cabb265..a7a55dd206fe 100644
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -1604,9 +1604,12 @@ static int xhci_urb_enqueue(struct usb_hcd *hcd, struct urb *urb, gfp_t mem_flag
- 	struct urb_priv	*urb_priv;
- 	int num_tds;
- 
--	if (!urb || xhci_check_args(hcd, urb->dev, urb->ep,
--					true, true, __func__) <= 0)
-+	if (!urb)
- 		return -EINVAL;
-+	ret = xhci_check_args(hcd, urb->dev, urb->ep,
-+					true, true, __func__);
-+	if (ret <= 0)
-+		return ret;
- 
- 	slot_id = urb->dev->slot_id;
- 	ep_index = xhci_get_endpoint_index(&urb->ep->desc);
-@@ -3323,7 +3326,7 @@ static int xhci_check_streams_endpoint(struct xhci_hcd *xhci,
- 		return -EINVAL;
- 	ret = xhci_check_args(xhci_to_hcd(xhci), udev, ep, 1, true, __func__);
- 	if (ret <= 0)
--		return -EINVAL;
-+		return ret;
- 	if (usb_ss_max_streams(&ep->ss_ep_comp) == 0) {
- 		xhci_warn(xhci, "WARN: SuperSpeed Endpoint Companion"
- 				" descriptor for ep 0x%x does not support streams\n",
--- 
-2.25.1
+## Build
+* kernel: 5.15.17-rc2
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.15.y
+* git commit: 384933ffef76e18b9783e4777881d7aca33c32d1
+* git describe: v5.15.16-842-g384933ffef76
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15=
+.16-842-g384933ffef76
 
+## Test Regressions (compared to v5.15.16-847-g86228f6e03f0)
+No test regressions found.
+
+## Metric Regressions (compared to v5.15.16-847-g86228f6e03f0)
+No metric regressions found.
+
+## Test Fixes (compared to v5.15.16-847-g86228f6e03f0)
+No test fixes found.
+
+## Metric Fixes (compared to v5.15.16-847-g86228f6e03f0)
+No metric fixes found.
+
+## Test result summary
+total: 105489, pass: 90245, fail: 743, skip: 13539, xfail: 962
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 263 total, 261 passed, 2 failed
+* arm64: 42 total, 42 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 40 total, 37 passed, 3 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 37 total, 31 passed, 6 failed
+* parisc: 14 total, 14 passed, 0 failed
+* powerpc: 56 total, 50 passed, 6 failed
+* riscv: 28 total, 24 passed, 4 failed
+* s390: 22 total, 20 passed, 2 failed
+* sh: 26 total, 24 passed, 2 failed
+* sparc: 14 total, 14 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 42 total, 42 passed, 0 failed
+
+## Test suites summary
+* build/gcc-11-https://github.com/raspberrypi/linux/raw/rpi-5.15.y/arch/arm=
+/configs
+* fwts
+* igt-gpu-tools
+* kselftest-
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
