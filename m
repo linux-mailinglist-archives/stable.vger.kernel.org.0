@@ -2,98 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 751FD49CBD5
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 15:08:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7428849CBDC
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 15:09:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238021AbiAZOH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 09:07:59 -0500
-Received: from mga12.intel.com ([192.55.52.136]:18857 "EHLO mga12.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235353AbiAZOH6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jan 2022 09:07:58 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1643206078; x=1674742078;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:in-reply-to;
-  bh=ATWiAh5adUik4jh9DAaJE+s1YCh+W1I+c+EDEhALlV0=;
-  b=QRZGS2JA7djqw65FCRjCn/huuSNPto02OUB8Y6UE+VAB3d5+uXxKx/wV
-   yvWriZ2Cy3cCmGQ0qXlrmGmmF5qtrFR9VjNmKhD93nCdTzm+eqgQpwD9i
-   RRH4sCZB7wgYU14dp1bwJ7UWrKxdVAbxMe9F79+fEk6cNgEor7VaZkzS7
-   jStoDckCasxXh3E5sRJIGw+gc9DQ+872EN+fzo+DG4wWWnbma3I0xA5IX
-   3aKclcBTZUyBec0Qq7RPbW12c8hnK/h1tG6yMjPNdKMcVU918ZyCdiJGv
-   8YPabIyMV7/PgcvB6IY4OYDrSombPvqyMMGTzq0ON4FVNNAFiQiTF9B5p
-   A==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10238"; a="226531926"
-X-IronPort-AV: E=Sophos;i="5.88,318,1635231600"; 
-   d="scan'208";a="226531926"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 26 Jan 2022 06:07:58 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.88,318,1635231600"; 
-   d="scan'208";a="628311015"
-Received: from lkp-server01.sh.intel.com (HELO 276f1b88eecb) ([10.239.97.150])
-  by orsmga004.jf.intel.com with ESMTP; 26 Jan 2022 06:07:56 -0800
-Received: from kbuild by 276f1b88eecb with local (Exim 4.92)
-        (envelope-from <lkp@intel.com>)
-        id 1nCixn-000LH9-Df; Wed, 26 Jan 2022 14:07:55 +0000
-Date:   Wed, 26 Jan 2022 22:07:44 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     "Maciej W. Rozycki" <macro@embecosm.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>
-Cc:     kbuild-all@lists.01.org, Christoph Hellwig <hch@infradead.org>,
-        linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v3] tty: Partially revert the removal of the Cyclades
- public API
-Message-ID: <202201262147.FNYhDmDi-lkp@intel.com>
-References: <alpine.DEB.2.20.2201260733430.11348@tpp.orcam.me.uk>
+        id S235353AbiAZOJi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 09:09:38 -0500
+Received: from qproxy3-pub.mail.unifiedlayer.com ([67.222.38.20]:33208 "EHLO
+        qproxy3-pub.mail.unifiedlayer.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233834AbiAZOJi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 09:09:38 -0500
+Received: from gproxy3-pub.mail.unifiedlayer.com (gproxy3-pub.mail.unifiedlayer.com [69.89.30.42])
+        by qproxy3.mail.unifiedlayer.com (Postfix) with ESMTP id 7F8388031492
+        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 14:09:22 +0000 (UTC)
+Received: from cmgw12.mail.unifiedlayer.com (unknown [10.0.90.127])
+        by progateway5.mail.pro1.eigbox.com (Postfix) with ESMTP id 6F05210047A07
+        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 14:09:21 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id CizAnzLVBXOyfCizBnxCMb; Wed, 26 Jan 2022 14:09:21 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=Ot6Kdwzt c=1 sm=1 tr=0 ts=61f15611
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=DghFqjY3_ZEA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=rYn84FZTEHGl0_Et6-UA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=j4/yqS9m09j2Fw34xarTxmCcAG5W/wLKlEmZ3gHV85U=; b=hyAxCiCKtZSPnHFxQEOALSIk9T
+        9rZ9A6W+owcaYp/BLjcF24ubdMDS6Hmf53OxdQPUpxK0VMGVrnAxJ5rVLORpZ8wssDw/zwxuA69I2
+        RVq1wdIKlC5kThoNwPPZbO6Yb;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:51698 helo=[10.0.1.23])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <re@w6rz.net>)
+        id 1nCizA-002xFH-KO; Wed, 26 Jan 2022 07:09:20 -0700
+Message-ID: <02b07593-6719-5309-08fe-77f3539d90fb@w6rz.net>
+Date:   Wed, 26 Jan 2022 06:09:19 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <alpine.DEB.2.20.2201260733430.11348@tpp.orcam.me.uk>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH 5.16 0000/1033] 5.16.3-rc2 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+References: <20220125155447.179130255@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+In-Reply-To: <20220125155447.179130255@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1nCizA-002xFH-KO
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.23]) [73.162.232.9]:51698
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 1
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi "Maciej,
+On 1/25/22 08:33, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.16.3 release.
+> There are 1033 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 27 Jan 2022 15:52:30 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.3-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-I love your patch! Perhaps something to improve:
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-[auto build test WARNING on tty/tty-testing]
-[also build test WARNING on linus/master hch-configfs/for-next v5.17-rc1 next-20220125]
-[If your patch is applied to the wrong git tree, kindly drop us a note.
-And when submitting patch, we suggest to use '--base' as documented in
-https://git-scm.com/docs/git-format-patch]
+Tested-by: <re@w6rz.net>
 
-url:    https://github.com/0day-ci/linux/commits/Maciej-W-Rozycki/tty-Partially-revert-the-removal-of-the-Cyclades-public-API/20220126-172520
-base:   https://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git tty-testing
-config: i386-buildonly-randconfig-r002-20220124 (https://download.01.org/0day-ci/archive/20220126/202201262147.FNYhDmDi-lkp@intel.com/config)
-compiler: gcc-9 (Debian 9.3.0-22) 9.3.0
-reproduce (this is a W=1 build):
-        # https://github.com/0day-ci/linux/commit/c9e707e313f471adbe057300f4fb163113cf062c
-        git remote add linux-review https://github.com/0day-ci/linux
-        git fetch --no-tags linux-review Maciej-W-Rozycki/tty-Partially-revert-the-removal-of-the-Cyclades-public-API/20220126-172520
-        git checkout c9e707e313f471adbe057300f4fb163113cf062c
-        # save the config file to linux build tree
-        mkdir build_dir
-        make W=1 O=build_dir ARCH=i386 SHELL=/bin/bash
-
-If you fix the issue, kindly add following tag as appropriate
-Reported-by: kernel test robot <lkp@intel.com>
-
-All warnings (new ones prefixed by >>):
-
-   In file included from <command-line>:32:
->> ./usr/include/linux/cyclades.h:6:2: warning: #warning "Support for features provided by this header has been removed" [-Wcpp]
-       6 | #warning "Support for features provided by this header has been removed"
-         |  ^~~~~~~
->> ./usr/include/linux/cyclades.h:7:2: warning: #warning "Please consider updating your code" [-Wcpp]
-       7 | #warning "Please consider updating your code"
-         |  ^~~~~~~
-
----
-0-DAY CI Kernel Test Service, Intel Corporation
-https://lists.01.org/hyperkitty/list/kbuild-all@lists.01.org
