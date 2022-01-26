@@ -2,133 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBC2749C9ED
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 13:43:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C700649CA07
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 13:49:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241443AbiAZMnY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 07:43:24 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:58366 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234178AbiAZMnW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 07:43:22 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1FB87B81CD5
-        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 12:43:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AB5CC340E6;
-        Wed, 26 Jan 2022 12:43:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643200999;
-        bh=uYljL53p37oDAXJUSBAwQO8Fx45TbNChjIWnMJ2/fho=;
-        h=Subject:To:From:Date:From;
-        b=i4C7eXNtUW0ablx3U6tyrq9xnBpOEk0npGQs3YXocBrqPVe5lRW07Qr4nj71Wrh4u
-         vve2Vv/ry1SHIjOOuKRGdHbNpvvKhwNK7APaiazn+cuJDx/oH7HQroQigBsJNbupcA
-         Gcg8w6Pzni1C1aQ7xjjANB7eE3lbMpGQwpLfk6j0=
-Subject: patch "usb: xhci-plat: fix crash when suspend if remote wake enable" added to usb-linus
-To:     Frank.Li@nxp.com, abel.vesa@nxp.com, gregkh@linuxfoundation.org,
-        peter.chen@kernel.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 26 Jan 2022 13:43:07 +0100
-Message-ID: <164320098710840@kroah.com>
+        id S234305AbiAZMt1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 07:49:27 -0500
+Received: from mailgw.kylinos.cn ([123.150.8.42]:24530 "EHLO nksmu.kylinos.cn"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S229551AbiAZMt1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jan 2022 07:49:27 -0500
+X-UUID: b0221adf955c438ab4957d8a102d3e6d-20220126
+X-CPASD-INFO: 17d2329a9048481a95955493be5e55a2@eoeeUmBkZ5FlUHaEg3t8m1lmaWVlYFm
+        CpJ9VlWNljVKVhH5xTWVlZl5UfYBqVWVbZV9ZenRqUmFeaFxTi3akdmpQYIRkXW10d4ambFNiZ5E=
+X-CPASD-FEATURE: 0.0
+X-CLOUD-ID: 17d2329a9048481a95955493be5e55a2
+X-CPASD-SUMMARY: SIP:-1,APTIP:-2.0,KEY:0.0,FROMBLOCK:1,EXT:0.0,OB:0.0,URL:0.5,
+        TVAL:141.0,ESV:0.0,ECOM:0.0,ML:0.0,FD:0.0,CUTS:188.0,IP:-2.0,MAL:0.0,ATTNUM:0
+        .0,PHF:1.0,PHC:0.0,SPF:4.0,EDMS:-3,IPLABEL:-2.0,FROMTO:0,AD:0,FFOB:0.0,CFOB:0
+        .0,SPC:0.0,SIG:-5,AUF:12,DUF:31857,ACD:176,DCD:278,SL:0,AG:0,CFC:0.266,CFSR:0
+        .205,UAT:0,RAF:2,VERSION:2.3.4
+X-CPASD-ID: b0221adf955c438ab4957d8a102d3e6d-20220126
+X-CPASD-BLOCK: 1000
+X-CPASD-STAGE: 1, 1
+X-UUID: b0221adf955c438ab4957d8a102d3e6d-20220126
+X-User: xiehongyu1@kylinos.cn
+Received: from [192.168.0.106] [(120.227.33.40)] by nksmu.kylinos.cn
+        (envelope-from <xiehongyu1@kylinos.cn>)
+        (Generic MTA with TLSv1.2 ECDHE-RSA-AES128-GCM-SHA256 128/128)
+        with ESMTP id 293382729; Wed, 26 Jan 2022 21:02:02 +0800
+Message-ID: <e86972d3-e4a0-ad81-45ea-21137e3bfcb6@kylinos.cn>
+Date:   Wed, 26 Jan 2022 20:49:18 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:91.0)
+ Gecko/20100101 Thunderbird/91.5.1
+Subject: Re: [PATCH -next] xhci: fix two places when dealing with return value
+ of function xhci_check_args
+Content-Language: en-US
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Hongyu Xie <xy521521@gmail.com>, mathias.nyman@intel.com,
+        linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+        125707942@qq.com, stable@vger.kernel.org
+References: <20220126094126.923798-1-xy521521@gmail.com>
+ <YfEZFtf9K8pFC8Mw@kroah.com>
+ <c7f6a8bb-76b6-cd2d-7551-b599a8276f5c@kylinos.cn>
+ <YfEnbRW3oU0ouGqH@kroah.com>
+From:   Hongyu Xie <xiehongyu1@kylinos.cn>
+In-Reply-To: <YfEnbRW3oU0ouGqH@kroah.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Greg,
 
-This is a note to let you know that I've just added the patch titled
+On 2022/1/26 18:50, Greg KH wrote:
+> A: http://en.wikipedia.org/wiki/Top_post
+> Q: Were do I find info about this thing called top-posting?
+> A: Because it messes up the order in which people normally read text.
+> Q: Why is top-posting such a bad thing?
+> A: Top-posting.
+> Q: What is the most annoying thing in e-mail?
+>
+> A: No.
+> Q: Should I include quotations after my reply?
+>
+> http://daringfireball.net/2007/07/on_top
+>
+> On Wed, Jan 26, 2022 at 06:22:45PM +0800, 谢泓宇 wrote:
+>> 1."What problem?
+>> r8152_submit_rx needs to detach netdev if -ENODEV happened, but -ENODEV will
+>> never happen
+>> because xhci_urb_enqueue only returns -EINVAL if the return value of
+>> xhci_check_args <= 0. So
+>> r8152_submit_rx will will call napi_schedule to re-submit that urb, and this
+>> will cause infinite urb
+>> submission.
+> Odd line-wrapping...
+Sorry about my last reply.
+>
+> Anyway, why is this unique to this one driver?  Why does it not show up
+> for any other driver?
+The whole thing is not about a particular driver. The thing is 
+xhci_urb_enqueue shouldn't change the return value of xhci_check_args 
+from -ENODEV to -EINVAL. Many other drivers only check if the return 
+value of xchi_check_args is <= 0.
+>
+>> The whole point is, if xhci_check_args returns value A, xhci_urb_enqueque
+>> shouldn't return any
+>> other value, because that will change some driver's behavior(like r8152.c).
+> But you are changing how the code currently works.  Are you sure you
+> want to have this "succeed" if this is on a root hub?
+Yes, I'm changing how the code currently works but not on a root hub.
+>
+>> 2."So if 0 is returned, you will now return that here, is that ok?
+>> That is a change in functionality.
+>> But this can only ever be the case for a root hub, is that ok?"
+>>
+>> It's the same logic, but now xhci_urb_enqueue can return -ENODEV if xHC is
+>> halted.
+>> If it happens on a root hub,  xhci_urb_enqueue won't be called.
+>>
+>> 3."Again, this means all is good?  Why is this being called for a root hub?"
+>>
+>> It is the same logic with the old one, but now xhci_check_streams_endpoint
+>> can return -ENODEV if xHC is halted.
+> This still feels wrong to me, but I'll let the maintainer decide, as I
+> don't understand why a root hub is special here.
 
-    usb: xhci-plat: fix crash when suspend if remote wake enable
+Thanks please. usb_submit_urb will call usb_hcd_submit_urb. And 
+usb_hcd_submit_urb will call rh_urb_enqueue if it's on a root hub 
+instead of calling hcd->driver->urb_enqueue(which is xhci_urb_enqueue in 
+this case).
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+>
+> thanks,
+>
+> greg k-h
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+thanks,
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 9df478463d9feb90dae24f183383961cf123a0ec Mon Sep 17 00:00:00 2001
-From: Frank Li <Frank.Li@nxp.com>
-Date: Mon, 10 Jan 2022 11:27:38 -0600
-Subject: usb: xhci-plat: fix crash when suspend if remote wake enable
-
-Crashed at i.mx8qm platform when suspend if enable remote wakeup
-
-Internal error: synchronous external abort: 96000210 [#1] PREEMPT SMP
-Modules linked in:
-CPU: 2 PID: 244 Comm: kworker/u12:6 Not tainted 5.15.5-dirty #12
-Hardware name: Freescale i.MX8QM MEK (DT)
-Workqueue: events_unbound async_run_entry_fn
-pstate: 600000c5 (nZCv daIF -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : xhci_disable_hub_port_wake.isra.62+0x60/0xf8
-lr : xhci_disable_hub_port_wake.isra.62+0x34/0xf8
-sp : ffff80001394bbf0
-x29: ffff80001394bbf0 x28: 0000000000000000 x27: ffff00081193b578
-x26: ffff00081193b570 x25: 0000000000000000 x24: 0000000000000000
-x23: ffff00081193a29c x22: 0000000000020001 x21: 0000000000000001
-x20: 0000000000000000 x19: ffff800014e90490 x18: 0000000000000000
-x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000000000
-x14: 0000000000000000 x13: 0000000000000002 x12: 0000000000000000
-x11: 0000000000000000 x10: 0000000000000960 x9 : ffff80001394baa0
-x8 : ffff0008145d1780 x7 : ffff0008f95b8e80 x6 : 000000001853b453
-x5 : 0000000000000496 x4 : 0000000000000000 x3 : ffff00081193a29c
-x2 : 0000000000000001 x1 : 0000000000000000 x0 : ffff000814591620
-Call trace:
- xhci_disable_hub_port_wake.isra.62+0x60/0xf8
- xhci_suspend+0x58/0x510
- xhci_plat_suspend+0x50/0x78
- platform_pm_suspend+0x2c/0x78
- dpm_run_callback.isra.25+0x50/0xe8
- __device_suspend+0x108/0x3c0
-
-The basic flow:
-	1. run time suspend call xhci_suspend, xhci parent devices gate the clock.
-        2. echo mem >/sys/power/state, system _device_suspend call xhci_suspend
-        3. xhci_suspend call xhci_disable_hub_port_wake, which access register,
-	   but clock already gated by run time suspend.
-
-This problem was hidden by power domain driver, which call run time resume before it.
-
-But the below commit remove it and make this issue happen.
-	commit c1df456d0f06e ("PM: domains: Don't runtime resume devices at genpd_prepare()")
-
-This patch call run time resume before suspend to make sure clock is on
-before access register.
-
-Reviewed-by: Peter Chen <peter.chen@kernel.org>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Frank Li <Frank.Li@nxp.com>
-Testeb-by: Abel Vesa <abel.vesa@nxp.com>
-Link: https://lore.kernel.org/r/20220110172738.31686-1-Frank.Li@nxp.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/host/xhci-plat.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/usb/host/xhci-plat.c b/drivers/usb/host/xhci-plat.c
-index c1edcc9b13ce..dc570ce4e831 100644
---- a/drivers/usb/host/xhci-plat.c
-+++ b/drivers/usb/host/xhci-plat.c
-@@ -437,6 +437,9 @@ static int __maybe_unused xhci_plat_suspend(struct device *dev)
- 	struct xhci_hcd	*xhci = hcd_to_xhci(hcd);
- 	int ret;
- 
-+	if (pm_runtime_suspended(dev))
-+		pm_runtime_resume(dev);
-+
- 	ret = xhci_priv_suspend_quirk(hcd);
- 	if (ret)
- 		return ret;
--- 
-2.35.0
-
+Hongyu Xie
 
