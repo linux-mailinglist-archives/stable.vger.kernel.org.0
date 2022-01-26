@@ -2,82 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DB9F49CC75
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 15:37:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8350E49CCC1
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 15:52:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242216AbiAZOhi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 09:37:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60750 "EHLO
+        id S235762AbiAZOwg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 09:52:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242212AbiAZOhh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 09:37:37 -0500
-Received: from mail-ua1-x934.google.com (mail-ua1-x934.google.com [IPv6:2607:f8b0:4864:20::934])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A524BC06161C
-        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 06:37:37 -0800 (PST)
-Received: by mail-ua1-x934.google.com with SMTP id 2so43277075uax.10
-        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 06:37:37 -0800 (PST)
+        with ESMTP id S242382AbiAZOwS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 09:52:18 -0500
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6B03C06173B
+        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 06:52:17 -0800 (PST)
+Received: by mail-pj1-x1034.google.com with SMTP id o64so16389pjo.2
+        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 06:52:17 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=rajagiritech-edu-in.20210112.gappssmtp.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=avwJHIRaqXRC/i9e13WL28KHJgoLxfbjcz1VFRenbkU=;
-        b=x1tCF12wi5jFG0bKPzUmsb0PFBzFjATYSjByY8wZ6ICBfLGkKcJeu7Alymq4xVsiOB
-         KYoWYI9sUXfrFv1PFXafFDDY6QRBM52gBFU0EzHv5MgSw5lQGLMcyH9FkuSdoyHRYdVy
-         iiBFhF9DEeWgG6DG34sJ/0GgXKdgPDiQLEAZjZM/FVC/NHS52OcFgFaPz3db8LZmpHe9
-         9vZOZmLbuHXH5hSRBDdTIRVk4tz+ni+A8v7wmx7sSTB2OIgrOKuNd/wszR0SsRKvfvDa
-         xj6r6n80WxBSDq94NXKxre/SH6uS1qbfsFstkqrDNMJMSJjS6kT6Gp6MNokw0DpubAcH
-         mPJQ==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=IUALqCX+t0VtTLOJHuZfVixHeKru96L9Un3bLN8YILo=;
+        b=PIGKXH1jUYt3QgaCjJJ54OFXYcobygh+0LVgpdkwYWNPsk9sLBUTXVgm3rYPIlPS01
+         mriLZvzKMi7ztlakNRstH5+PNEF+ZNHsSrFjWB/otu8tYnkTiY2Y2APlAzqPsmS1saJm
+         W+h4LT/yLvz+yQIAojH/P/jbcJ16cdMDcv1Zez2O9M6qHFtCP3y51fxgyl90xoxOvuTk
+         Kv0JCTVr35G77JDnGfK7kxt61ND8qmV+ktmeCSBUv5nBRepjxPWfYcfWBhoOD+3+4A4j
+         vla8QZyx2ABSf8MMSeFXGiKTiwAmYCEHlZTG7i5Oe0q9yUOr3MN/hpNqQB0FPiSkNm18
+         YU4Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=avwJHIRaqXRC/i9e13WL28KHJgoLxfbjcz1VFRenbkU=;
-        b=nhwUHn0FJgTnCA36r5JioqD/KsVyfEhEIkRB8joaJLED/QUp/M7r1mt0kyC6CoxaoR
-         Add6Q0weNxi7Qil6K+XSs+kFTweMcNIgSbMhSPwJ8aYhC0RoVQutqjgDwjdHOSHGqAOF
-         hz/Yz++dcRfp5SW1l+i2FMdgSLK9NJ5XKhMAnTnCjHYPXxkNazJ4pWj2Bl8LfvD5ilZQ
-         MmhLYbE28o33CTe/ILN9J2pQ0Tyd+qt0Rs3pzZppQAYZHG/ryJns+rZk9TLXA4UzWBsB
-         WVm5y7D0v9itxWjw5GZx1PuojMUtVrEdxQI9BeivV8cdAbVrD8NoJh4aWJq6RVl5rD0f
-         9c6w==
-X-Gm-Message-State: AOAM53238Ma59S2FcbLGvGaVFAljI8fZLOKNLoSwQjGNEGeGy5VzlX12
-        iQzeVrjetauNysc/QVwdurMz8Id7j1wlLm7P+PBIYw==
-X-Google-Smtp-Source: ABdhPJyKzdarUsh6PeiX6XzMcEB4kanF0P+vXrKo74f9owtvZ3IiqsyxF+4Y66p7BUoOK9lx/1jRYfeImqxCcw6dDfU=
-X-Received: by 2002:ab0:781a:: with SMTP id x26mr9412148uaq.61.1643207856844;
- Wed, 26 Jan 2022 06:37:36 -0800 (PST)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=IUALqCX+t0VtTLOJHuZfVixHeKru96L9Un3bLN8YILo=;
+        b=ZNN6qMSscvmC4Y6imx2C2ynCdxN60c6iIsHaukgcywgVyZS2y9jJH+ycaoBXdW26Gy
+         PY4gIAbBCm6jmH3beyqpCRT8dhhx+WqaKuIwykPxX8e5k0KWtB2q4PowBiqn0v9RuJcu
+         giI8hIlX+FCVR5RgE52oAanfa7SrOogbCGvuGmxULDDY8UNnAN/1olEuoCr+JgMEleSK
+         UwPqbx5pF8Ip+zmkuchaILPHZoOntI17QoXZ1kFPRmd3zzmwjrb5lOFnlijdi6F3f0FI
+         72Vd9OH2mHFgNzz+ilEaK9ydlrvB91vOxdWCDSiNCUFKEVhDTDsxWpBj9aRi7YLm2cHH
+         sRXw==
+X-Gm-Message-State: AOAM531Vcip2fyBzwzOJF3lxmcueBOfNY9UyBhtGC2RNj67sIpTYyk+G
+        3Ddk4yBoeNqaVCM0rqBLfGy7qyvAEPxL9at3
+X-Google-Smtp-Source: ABdhPJxRp75ei8/poT1IcUQGevySrmRXRLd/McmqDX5VquARnCkVcOiZYFRjrNrm+l1UHVZOdrCIdg==
+X-Received: by 2002:a17:902:8494:b0:149:8a72:98bb with SMTP id c20-20020a170902849400b001498a7298bbmr22674738plo.0.1643208737314;
+        Wed, 26 Jan 2022 06:52:17 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s2sm7561564pgq.38.2022.01.26.06.52.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Jan 2022 06:52:17 -0800 (PST)
+Message-ID: <61f16021.1c69fb81.331be.4b60@mx.google.com>
+Date:   Wed, 26 Jan 2022 06:52:17 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <0af17d6952b3677dcd413fefa74b086d5ffb474b.camel@rajagiritech.edu.in>
- <YfAKYWOMdGJ0NxjE@kroah.com> <CAG=yYwksvQmEsfRyFiQTbSxUL39WGf7ryHaywtAxgdL1Nt67OQ@mail.gmail.com>
- <YfAk90OPjlpjruV5@kroah.com> <CAG=yYw=BK1gU0UV8g5_ZT5gOe5P2W2rKHWdFyPi4ZHSy4CGMFw@mail.gmail.com>
- <YfEmZiwkdZlQ3DVb@eldamar.lan> <CAG=yYw==-5tugkdgaA3XeWAOi5ni7waAJ=+qsAecTN=kR8HSnw@mail.gmail.com>
-In-Reply-To: <CAG=yYw==-5tugkdgaA3XeWAOi5ni7waAJ=+qsAecTN=kR8HSnw@mail.gmail.com>
-From:   Jeffrin Thalakkottoor <jeffrin@rajagiritech.edu.in>
-Date:   Wed, 26 Jan 2022 20:07:00 +0530
-Message-ID: <CAG=yYwknUUgL9+zi=rgNZ390ZJdt8Aqv8oYfVJ1X78hf6XwjjQ@mail.gmail.com>
-Subject: Re: review for 5.16.3-rc2
-To:     Salvatore Bonaccorso <carnil@debian.org>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        lkml <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.19.225-237-gef98dd754721
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+Subject: stable-rc/queue/4.19 baseline: 163 runs,
+ 2 regressions (v4.19.225-237-gef98dd754721)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 26, 2022 at 6:06 PM Jeffrin Thalakkottoor
-<jeffrin@rajagiritech.edu.in> wrote:
->
-> > What version of pahole are you using? Are you using Debian
-> > downstream's 1.22-2? If so please check if it's just the same issue as
-> > reported in https://bugs.debian.org/1004311
-> >
-> > Regards,
-> > Salvatore
-> i was using 1.22-2.
-> i think it is the  debian  issue as you pointed.anyway thanks
->
+stable-rc/queue/4.19 baseline: 163 runs, 2 regressions (v4.19.225-237-gef98=
+dd754721)
 
-i downloaded pahole 1.23  from kernel.org and
-the problem is fixed
-i will test 5.16.3-rc2 and send another mail
--- 
-software engineer
-rajagiri school of engineering and technology
+Regressions Summary
+-------------------
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 2       =
+   =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.225-237-gef98dd754721/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.225-237-gef98dd754721
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      ef98dd754721e6d4cad6b7951fa773205625f2af =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 2       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61f129bb09c9641eaaabbd36
+
+  Results:     4 PASS, 2 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.225=
+-237-gef98dd754721/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
+nda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.225=
+-237-gef98dd754721/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
+nda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61f129bb09c9641=
+eaaabbd3c
+        failing since 1 day (last pass: v4.19.225-239-g087a7512e40c, first =
+fail: v4.19.225-239-gdd903a45b8a3)
+        2 lines
+
+    2022-01-26T10:59:57.039347  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/107
+    2022-01-26T10:59:57.048551  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+cfc [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+
+  * baseline.dmesg.alert: https://kernelci.org/test/case/id/61f129bb09c9641=
+eaaabbd3d
+        new failure (last pass: v4.19.225-238-g456be8ad4573)
+        3 lines
+
+    2022-01-26T10:59:56.919407  <8>[   21.879669] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Dcrit RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2022-01-26T10:59:56.975043  kern  :alert : Unhandled fault: imprecise e=
+xternal abort (0x1406) at 0x73f65ef9
+    2022-01-26T10:59:56.975340  kern  :alert : pgd =3D (ptrval)
+    2022-01-26T10:59:56.975504  kern  :alert : [73f65ef9] *pgd=3D00000000
+    2022-01-26T10:59:56.993479  <8>[   21.953735] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Dalert RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D3>   =
+
+ =20
