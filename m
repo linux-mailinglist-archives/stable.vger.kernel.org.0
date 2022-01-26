@@ -2,168 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9641949CB88
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 14:54:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 73E0E49CBA3
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 14:56:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241732AbiAZNyj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 08:54:39 -0500
-Received: from foss.arm.com ([217.140.110.172]:41392 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241745AbiAZNye (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 26 Jan 2022 08:54:34 -0500
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id F007C1FB;
-        Wed, 26 Jan 2022 05:54:32 -0800 (PST)
-Received: from [192.168.178.6] (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id A06E23F793;
-        Wed, 26 Jan 2022 05:54:29 -0800 (PST)
-Subject: Re: [PATCH v3] sched/fair: Fix fault in reweight_entity
-To:     Tadeusz Struk <tadeusz.struk@linaro.org>, peterz@infradead.org
-Cc:     Ingo Molnar <mingo@redhat.com>, Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Zhang Qiao <zhangqiao22@huawei.com>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        syzbot+af7a719bc92395ee41b3@syzkaller.appspotmail.com
-References: <20220125193403.778497-1-tadeusz.struk@linaro.org>
-From:   Dietmar Eggemann <dietmar.eggemann@arm.com>
-Message-ID: <bb01425b-0f6a-e69f-c24b-567821c1472f@arm.com>
-Date:   Wed, 26 Jan 2022 14:53:50 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        id S235410AbiAZN4J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 08:56:09 -0500
+Received: from relay12.mail.gandi.net ([217.70.178.232]:52515 "EHLO
+        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235073AbiAZN4I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 08:56:08 -0500
+Received: (Authenticated sender: alexandre.belloni@bootlin.com)
+        by relay12.mail.gandi.net (Postfix) with ESMTPSA id A6DFF200005;
+        Wed, 26 Jan 2022 13:56:04 +0000 (UTC)
+Date:   Wed, 26 Jan 2022 14:56:04 +0100
+From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
+To:     Mateusz =?utf-8?Q?Jo=C5=84czyk?= <mat.jonczyk@o2.pl>
+Cc:     Greg KH <gregkh@linuxfoundation.org>, a.zummo@towertech.it,
+        tglx@linutronix.de, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] rtc: mc146818-lib: fix RTC presence
+ check" failed to apply to 5.16-stable tree
+Message-ID: <YfFS9PFhQYssAAMj@piout.net>
+References: <164302970310788@kroah.com>
+ <df1a2547-c863-f416-58c9-4f64cce1f522@o2.pl>
+ <Ye69PKB2V/R/NxN8@kroah.com>
+ <23a5748e-55ca-69af-c9ff-d68a413a331d@o2.pl>
 MIME-Version: 1.0
-In-Reply-To: <20220125193403.778497-1-tadeusz.struk@linaro.org>
 Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <23a5748e-55ca-69af-c9ff-d68a413a331d@o2.pl>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 25/01/2022 20:34, Tadeusz Struk wrote:
-> Syzbot found a GPF in reweight_entity. This has been bisected to commit
-> 4ef0c5c6b5ba ("kernel/sched: Fix sched_fork() access an invalid sched_task_group")
+On 24/01/2022 17:27:16+0100, Mateusz Jończyk wrote:
+> W dniu 24.01.2022 o 15:52, Greg KH pisze:
+> > On Mon, Jan 24, 2022 at 03:45:30PM +0100, Mateusz Jończyk wrote:
+> >> W dniu 24.01.2022 o 14:08, gregkh@linuxfoundation.org pisze:
+> >>> The patch below does not apply to the 5.16-stable tree.
+> >>> If someone wants it applied there, or to any other stable or longterm
+> >>> tree, then please email the backport, including the original git commit
+> >>> id to <stable@vger.kernel.org>.
+> >>>
+> >>> thanks,
+> >>>
+> >>> greg k-h
+> >> Wait, this patch was not intended for submission into stable yet, at least not in this form.
+> >> Why did it end up in the stable queue?
+> > Because it was marked with a "Fixes:" tag and I reviewed it and it
+> > looked like it actually fixed an issue.
+> >
+> > Is this not the case?
 > 
-> There is a race between sched_post_fork() and setpriority(PRIO_PGRP)
-> within a thread group that causes a null-ptr-deref in reweight_entity()
-> in CFS. The scenario is that the main process spawns number of new
-> threads, which then call setpriority(PRIO_PGRP, 0, -20), wait, and exit.
-> For each of the new threads the copy_process() gets invoked, which adds
-> the new task_struct and calls sched_post_fork() for it.
+> Yes, that's correct. But I'm afraid that this patch will cause regressions on some systems.
+> (Mr Alexandre Belloni said something similar of my series). So I'd like to wait till at least Linux 5.17 (final) is
+> released to see if it causes any trouble.
 > 
-> In the above scenario there is a possibility that setpriority(PRIO_PGRP)
-> and set_one_prio() will be called for a thread in the group that is just
-> being created by copy_process(), and for which the sched_post_fork() has
-> not been executed yet. This will trigger a null pointer dereference in
-> reweight_entity(), as it will try to access the run queue pointer, which
-> hasn't been set. This results it a crash as shown below:
-> 
-> KASAN: null-ptr-deref in range [0x00000000000000a0-0x00000000000000a7]
-> CPU: 0 PID: 2392 Comm: reduced_repro Not tainted 5.16.0-11201-gb42c5a161ea3
-> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1.fc35 04/01/2014
-> RIP: 0010:reweight_entity+0x15d/0x440
-> RSP: 0018:ffffc900035dfcf8 EFLAGS: 00010006
-> Call Trace:
-> <TASK>
-> reweight_task+0xde/0x1c0
-> set_load_weight+0x21c/0x2b0
-> set_user_nice.part.0+0x2d1/0x519
-> set_user_nice.cold+0x8/0xd
-> set_one_prio+0x24f/0x263
-> __do_sys_setpriority+0x2d3/0x640
-> __x64_sys_setpriority+0x84/0x8b
-> do_syscall_64+0x35/0xb0
-> entry_SYSCALL_64_after_hwframe+0x44/0xae
-> </TASK>
-> ---[ end trace 9dc80a9d378ed00a ]---
-> 
-> Before the mentioned change the cfs_rq pointer for the task  has been
-> set in sched_fork(), which is called much earlier in copy_process(),
-> before the new task is added to the thread_group.
-> Now it is done in the sched_post_fork(), which is called after that.
-> To fix the issue the update_load condition passed to set_load_weight()
-> in set_user_nice() and __sched_setscheduler() has been changed from
-> always true to true if the task->state != TASK_NEW.
-> 
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Peter Zijlstra <peterz@infradead.org>
-> Cc: Juri Lelli <juri.lelli@redhat.com>
-> Cc: Vincent Guittot <vincent.guittot@linaro.org>
-> Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
-> Cc: Steven Rostedt <rostedt@goodmis.org>
-> Cc: Ben Segall <bsegall@google.com>
-> Cc: Mel Gorman <mgorman@suse.de>
-> Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
-> Cc: Zhang Qiao <zhangqiao22@huawei.com>
-> Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
-> Cc: stable@vger.kernel.org
-> Cc: linux-kernel@vger.kernel.org
-> 
-> Link: https://syzkaller.appspot.com/bug?id=9d9c27adc674e3a7932b22b61c79a02da82cbdc1
-> Fixes: 4ef0c5c6b5ba ("kernel/sched: Fix sched_fork() access an invalid sched_task_group")
-> Reported-by: syzbot+af7a719bc92395ee41b3@syzkaller.appspotmail.com
-> Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
-> ---
-> Changes in v3:
-> - Removed the new check and changed the update_load condition from
->   always true to true if p->state != TASK_NEW
-> 
-> Changes in v2:
-> - Added a check in set_user_nice(), and return from there if the task
->   is not fully setup instead of returning from reweight_entity()
-> ---
-> ---
->  kernel/sched/core.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-> index 848eaa0efe0e..3d7ede06b971 100644
-> --- a/kernel/sched/core.c
-> +++ b/kernel/sched/core.c
-> @@ -6921,7 +6921,7 @@ void set_user_nice(struct task_struct *p, long nice)
->  		put_prev_task(rq, p);
->  
->  	p->static_prio = NICE_TO_PRIO(nice);
-> -	set_load_weight(p, true);
-> +	set_load_weight(p, !(READ_ONCE(p->__state) & TASK_NEW));
->  	old_prio = p->prio;
->  	p->prio = effective_prio(p);
->  
-> @@ -7212,7 +7212,7 @@ static void __setscheduler_params(struct task_struct *p,
->  	 */
->  	p->rt_priority = attr->sched_priority;
->  	p->normal_prio = normal_prio(p);
-> -	set_load_weight(p, true);
-> +	set_load_weight(p, !(READ_ONCE(p->__state) & TASK_NEW));
->  }
 
-Can we then not get rid of `bool update_load` parameter of
-set_load_weight() completely?
-
-@@ -1214,8 +1214,9 @@ int tg_nop(struct task_group *tg, void *data)
- }
- #endif
- 
--static void set_load_weight(struct task_struct *p, bool update_load)
-+static void set_load_weight(struct task_struct *p)
- {
-+       int task_new = READ_ONCE(p->__state) & TASK_NEW;
-        int prio = p->static_prio - MAX_RT_PRIO;
-        struct load_weight *load = &p->se.load;
- 
-@@ -1232,7 +1233,7 @@ static void set_load_weight(struct task_struct *p, bool update_load)
-         * SCHED_OTHER tasks have to update their load when changing their
-         * weight
-         */
--       if (update_load && p->sched_class == &fair_sched_class) {
-+       if (!task_new && p->sched_class == &fair_sched_class) {
-                reweight_task(p, prio);
-        } else {
-                load->weight = scale_load(sched_prio_to_weight[prio]);
+Well, it will be in 5.17, any regression it causes will have to be
+fixed and we can then backport the fix.
 
 
-p in sched_fork() would have `p->__state = TASK_NEW` and in sched_init()
-`init_task->sched_class is NULL so != &fair_sched_class`.
+-- 
+Alexandre Belloni, co-owner and COO, Bootlin
+Embedded Linux and Kernel engineering
+https://bootlin.com
