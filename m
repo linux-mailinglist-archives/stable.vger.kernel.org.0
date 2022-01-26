@@ -2,78 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCDDC49C581
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 09:48:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CD0449C59D
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 09:56:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235602AbiAZIsG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 03:48:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34274 "EHLO
+        id S238625AbiAZI4U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 03:56:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230222AbiAZIsF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 03:48:05 -0500
-Received: from mail-pj1-x1043.google.com (mail-pj1-x1043.google.com [IPv6:2607:f8b0:4864:20::1043])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F251DC06161C
-        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 00:48:04 -0800 (PST)
-Received: by mail-pj1-x1043.google.com with SMTP id o64so22638456pjo.2
-        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 00:48:04 -0800 (PST)
+        with ESMTP id S232392AbiAZI4T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 03:56:19 -0500
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADEF4C06161C;
+        Wed, 26 Jan 2022 00:56:19 -0800 (PST)
+Received: by mail-pl1-x62b.google.com with SMTP id j16so11204901plx.4;
+        Wed, 26 Jan 2022 00:56:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
-        bh=rZaqfng8OkiACyJUMaby2nHZimyiiIogJJjFLJiKV20=;
-        b=KfzGql77sFWuJbC3kSgBTcI4vzAbn/uTsMpprcGSYs4n6g2tUHiZ/hJ4VLUDJt8VCi
-         f5cZkFDKwiNFqq7uShQEtPoZPSs/Jb+v2UW9roV3rCDdi9kCmpMAp+CIxpxWF9CrEdu2
-         vd3/6faKwiQX/WacjFwN9MTiqY6RJyabIpSWwGwwbpJIjEHM+7vy/1JKVFq058cP6Ia3
-         zff68bIGLKZSmaAyQa4i/GQ1zcpwxXH+meXEYUq1Wi1WnSDGH6YFGvnEweyuXHHV9690
-         xUnvTVTd0bAv/0XZasn4OXXe7bdzgXZxzAwabLLjHQlfMa5vTOdfUharUv9JRUrY5K31
-         HDlw==
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=4S4SnCn9eD0g7xG9Mm2dDQNDBGBOG83eXlCYQPAFPMo=;
+        b=BbDEwgQg73det4KtLGRLbJfcaV0orlyeGNNbyJk616IVmVqvm1L2GO6wkDJju6tHfv
+         MAYRx7shj7JLtcjWEocPjmdLS1odmSRwyJpEWMV+v+ySCv4dznRZoYMTy+5VfFPB9xZ3
+         0adomHh/vNK9pRdifKuqr4Xrz84N1HkA7m2CkdZ7rr0I1W71ez15OZ4IsIG2+6hHC1/R
+         9wbRZ0if/FyOUqDALupg6fOkA/K8Gsw/G2GFYWqb5Z6/oC/tam/M9FfqmT30UWsE6r6d
+         S718753DU22ldFpAlx6YPS7JsYbTKKB+/jvPmEW4TzKW836VZEQIVvWkXtRMon13L5/t
+         N1sg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to;
-        bh=rZaqfng8OkiACyJUMaby2nHZimyiiIogJJjFLJiKV20=;
-        b=J8RoBk4iVZSe4HNzbG8DB2SUv+96jH/kzjXTqOuvX0r2VsajkpT49mFqqpJkijZHBU
-         E0PBu1ntPlTciIXJI2EfCkntEcLDUQ3oTwILAhWOrj1btAffY3fCOXsbky1oNks6NgyX
-         lbxUWV6uemgt65sFACRv31LmGX++21BIPIFUp7JodTtsw9ybUXShAxBWkdMQnI+Gei85
-         MOYZhDwLxqmMMV8ONWjTu7DI9SAvhgrfZVa8pn19cuPYOYApAk7qI+nr5Xbd1dOr1W7O
-         O4Jn47LSEwaTECdGqy2YyuYnmmblNaw0bahIX4l5UaO39J/iBG5/HW7aeH7m0Krv6Sxf
-         knHA==
-X-Gm-Message-State: AOAM5319rhBcDwH5QQGWtICK/muEj+xnPP8UW7c6zMIdv8a4+VWGqGll
-        hj2gycgXVhJXLmGmkGC2bVuq9grAIDDnrT2MoPw=
-X-Google-Smtp-Source: ABdhPJxfsz0GG0Iu1sUbEY0evLsHW5P8U8sHNk5xdGOsb/rHUaYTVyaRzHXW4JCXmx5ko3ReFkrRr2j/DxECKuwDsEI=
-X-Received: by 2002:a17:903:228d:b0:14b:8f0b:cd5a with SMTP id
- b13-20020a170903228d00b0014b8f0bcd5amr1591540plh.105.1643186884514; Wed, 26
- Jan 2022 00:48:04 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=4S4SnCn9eD0g7xG9Mm2dDQNDBGBOG83eXlCYQPAFPMo=;
+        b=sZI+WaE9AevW9hMTSFx3s/q7nNZe/5EwCXbzHyUJjw9Riw/jFD/XYfcOWbcOGh53bA
+         /2NoC1vrR7S2tuwxkkIafHB6bEsWlRsZbw51Xt+eS38jBgl5lGgflWlJsDr+C+8j4nzD
+         6Og8nDlFCq3BvoBxSgaacpTwtz2WCbaJs62w+g46l+xiTH5VYYOw3ARnS3XZanUNyPBy
+         mYw/GO+Yq7w7P0BgxXY4SgwVK0BFP/M7DIRht+okrrhpEqoqMchm4jpz70L7TDzzIb0s
+         HvBe8IT27imdQLkYa0hh3YpRTE12zDSoaPkItcmS4RqwG6/E/0u3ajBfXSDknh8Iqrap
+         OxDQ==
+X-Gm-Message-State: AOAM531869jcC1oVvNKOLnxmn2oZS9dbi6KBx1Mdp3arExg6J2Jfyc49
+        cICpEGavCr2iFZ0UnRbnJxU=
+X-Google-Smtp-Source: ABdhPJwpbeWRvM+2nZ+Pu+ml/h90hyno+84Gtllq3DX3a/THRde9rb53S+zUQyuSArnKHV6f2hD0sg==
+X-Received: by 2002:a17:90a:50f:: with SMTP id h15mr7776060pjh.78.1643187379196;
+        Wed, 26 Jan 2022 00:56:19 -0800 (PST)
+Received: from jason-ThinkPad-T14-Gen-1.lan ([66.187.5.142])
+        by smtp.gmail.com with ESMTPSA id mn2sm2400977pjb.38.2022.01.26.00.56.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Jan 2022 00:56:18 -0800 (PST)
+From:   Hongyu Xie <xy521521@gmail.com>
+To:     mathias.nyman@intel.com, gregkh@linuxfoundation.org,
+        sarah.a.sharp@linux.intel.com
+Cc:     linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+        Hongyu Xie <xiehongyu1@kylinos.cn>, stable@vger.kernel.org
+Subject: [PATCH -next] xhci: fix two places when dealing with return value of function xhci_check_args
+Date:   Wed, 26 Jan 2022 16:56:09 +0800
+Message-Id: <20220126085609.918452-1-xy521521@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Reply-To: dibsankaraa@gmail.com
-Sender: leexie233@gmail.com
-Received: by 2002:a05:6a20:4c0f:b0:6c:ca1f:53eb with HTTP; Wed, 26 Jan 2022
- 00:48:04 -0800 (PST)
-From:   Mohammed Sankara <dibsankarra@gmail.com>
-Date:   Wed, 26 Jan 2022 08:48:04 +0000
-X-Google-Sender-Auth: OPL2Z4JoGmFWGlROzECGc3ylBl0
-Message-ID: <CAOhjS7QpST0e7dt-OjFj6SUN5MT=_cQXp7S8EUUJujGwbRZ3BA@mail.gmail.com>
-Subject: Re: From Sankara Mohammed.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Good Day,
+From: Hongyu Xie <xiehongyu1@kylinos.cn>
 
-I am Sankara Mohammed, account Manager with an investment bank here in
-Burkina Faso. There is a draft account opened in my firm by a
-long-time client of our bank.I have the opportunity of transferring
-the left over fund (15.8 Million UsDollars ) Fiftheen Million Eight
-Hundred Thousand United States of American Dollars.
+xhci_check_args returns 4 types of value, -ENODEV, -EINVAL, 1 and 0.
+xhci_urb_enqueue and xhci_check_streams_endpoint return -EINVAL if
+the return value of xhci_check_args <= 0.
+This will cause a problem.
+For example, r8152_submit_rx calling usb_submit_urb in
+drivers/net/usb/r8152.c.
+r8152_submit_rx will never get -ENODEV after submiting an urb
+when xHC is halted,
+because xhci_urb_enqueue returns -EINVAL in the very beginning.
 
-I want to invest this funds and introduce you to our bank for this
-deal and this will be executed under a legitimate arrangement that
-will protect us from any breach of the law.We will share the fund 40%
-for you,50% for me while 10% is for establishing of foundation for the
-poor children in your country.If you are really interested in my
-proposal further details of the fund transfer will be forwarded to
-you.
+Fixes: 203a86613fb3 ("xhci: Avoid NULL pointer deref when host dies.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hongyu Xie <xiehongyu1@kylinos.cn>
+---
+ drivers/usb/host/xhci.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-Yours Sincerely,
-Sankara Mohammed.
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index dc357cabb265..a7a55dd206fe 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -1604,9 +1604,12 @@ static int xhci_urb_enqueue(struct usb_hcd *hcd, struct urb *urb, gfp_t mem_flag
+ 	struct urb_priv	*urb_priv;
+ 	int num_tds;
+ 
+-	if (!urb || xhci_check_args(hcd, urb->dev, urb->ep,
+-					true, true, __func__) <= 0)
++	if (!urb)
+ 		return -EINVAL;
++	ret = xhci_check_args(hcd, urb->dev, urb->ep,
++					true, true, __func__);
++	if (ret <= 0)
++		return ret;
+ 
+ 	slot_id = urb->dev->slot_id;
+ 	ep_index = xhci_get_endpoint_index(&urb->ep->desc);
+@@ -3323,7 +3326,7 @@ static int xhci_check_streams_endpoint(struct xhci_hcd *xhci,
+ 		return -EINVAL;
+ 	ret = xhci_check_args(xhci_to_hcd(xhci), udev, ep, 1, true, __func__);
+ 	if (ret <= 0)
+-		return -EINVAL;
++		return ret;
+ 	if (usb_ss_max_streams(&ep->ss_ep_comp) == 0) {
+ 		xhci_warn(xhci, "WARN: SuperSpeed Endpoint Companion"
+ 				" descriptor for ep 0x%x does not support streams\n",
+-- 
+2.25.1
+
