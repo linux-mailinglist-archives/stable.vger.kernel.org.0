@@ -2,68 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73E0E49CBA3
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 14:56:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 625F349CBCF
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 15:06:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235410AbiAZN4J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 08:56:09 -0500
-Received: from relay12.mail.gandi.net ([217.70.178.232]:52515 "EHLO
-        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235073AbiAZN4I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 08:56:08 -0500
-Received: (Authenticated sender: alexandre.belloni@bootlin.com)
-        by relay12.mail.gandi.net (Postfix) with ESMTPSA id A6DFF200005;
-        Wed, 26 Jan 2022 13:56:04 +0000 (UTC)
-Date:   Wed, 26 Jan 2022 14:56:04 +0100
-From:   Alexandre Belloni <alexandre.belloni@bootlin.com>
-To:     Mateusz =?utf-8?Q?Jo=C5=84czyk?= <mat.jonczyk@o2.pl>
-Cc:     Greg KH <gregkh@linuxfoundation.org>, a.zummo@towertech.it,
-        tglx@linutronix.de, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] rtc: mc146818-lib: fix RTC presence
- check" failed to apply to 5.16-stable tree
-Message-ID: <YfFS9PFhQYssAAMj@piout.net>
-References: <164302970310788@kroah.com>
- <df1a2547-c863-f416-58c9-4f64cce1f522@o2.pl>
- <Ye69PKB2V/R/NxN8@kroah.com>
- <23a5748e-55ca-69af-c9ff-d68a413a331d@o2.pl>
+        id S241875AbiAZOGY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 09:06:24 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:39776 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235083AbiAZOGY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 09:06:24 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9D85B81E18;
+        Wed, 26 Jan 2022 14:06:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DED0AC340E3;
+        Wed, 26 Jan 2022 14:06:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1643205981;
+        bh=fBo2lZFgwC79lVOAmFUYUrB+mT5nY4lcwlxA8CcRsbk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=E5JedRAuSt2BXKLv1ulUjQUsLn2JcJIdAl/jD7mmMZNI1fn+59RUDTae5Yjl3vorR
+         SVYzC97i4ru3pk11qodYEk+ISVvz75ZwEgtl8g6kik+ZtmH4962M974pikiExoUscu
+         mSjDb62Al1fyqRkrYkWlWWDJE1wY1jCerVE+6YnhV4Co7UQdVZdELCZ6uB+eH+LVGG
+         GSC1dIjaew/HdKYMuijnlyajrQvd8RDjacb+7dFzo4arFnsdE1V499X2ld4ULYQpBy
+         FCNJJkgPiehpqawBLn+8OD5l+w31poawlpoqWM8MttTBNLsAydmDOUNRInooxJFQiK
+         NosvKY9bJC4lQ==
+Date:   Wed, 26 Jan 2022 16:06:01 +0200
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     keyrings@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        linux-crypto@vger.kernel.org,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Denis Kenzior <denkenz@gmail.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] KEYS: fix length validation in keyctl_pkey_params_get_2()
+Message-ID: <YfFVSeWAFi8eqjpj@iki.fi>
+References: <20220113200454.72609-1-ebiggers@kernel.org>
+ <YeMWLyceg4xcwShF@iki.fi>
+ <YeMmPs+gf+q7XUv4@sol.localdomain>
+ <YeM7+Nyi2p7Yv7+Q@iki.fi>
+ <YedZviVNB2X7yeTX@sol.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <23a5748e-55ca-69af-c9ff-d68a413a331d@o2.pl>
+In-Reply-To: <YedZviVNB2X7yeTX@sol.localdomain>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 24/01/2022 17:27:16+0100, Mateusz Jończyk wrote:
-> W dniu 24.01.2022 o 15:52, Greg KH pisze:
-> > On Mon, Jan 24, 2022 at 03:45:30PM +0100, Mateusz Jończyk wrote:
-> >> W dniu 24.01.2022 o 14:08, gregkh@linuxfoundation.org pisze:
-> >>> The patch below does not apply to the 5.16-stable tree.
-> >>> If someone wants it applied there, or to any other stable or longterm
-> >>> tree, then please email the backport, including the original git commit
-> >>> id to <stable@vger.kernel.org>.
-> >>>
-> >>> thanks,
-> >>>
-> >>> greg k-h
-> >> Wait, this patch was not intended for submission into stable yet, at least not in this form.
-> >> Why did it end up in the stable queue?
-> > Because it was marked with a "Fixes:" tag and I reviewed it and it
-> > looked like it actually fixed an issue.
-> >
-> > Is this not the case?
+On Tue, Jan 18, 2022 at 04:22:22PM -0800, Eric Biggers wrote:
+> On Sat, Jan 15, 2022 at 11:26:16PM +0200, Jarkko Sakkinen wrote:
+> > On Sat, Jan 15, 2022 at 11:53:34AM -0800, Eric Biggers wrote:
+> > > On Sat, Jan 15, 2022 at 08:45:03PM +0200, Jarkko Sakkinen wrote:
+> > > > On Thu, Jan 13, 2022 at 12:04:54PM -0800, Eric Biggers wrote:
+> > > > > From: Eric Biggers <ebiggers@google.com>
+> > > > > 
+> > > > > In many cases, keyctl_pkey_params_get_2() is validating the user buffer
+> > > > > lengths against the wrong algorithm properties.  Fix it to check against
+> > > > > the correct properties.
+> > > > > 
+> > > > > Probably this wasn't noticed before because for all asymmetric keys of
+> > > > > the "public_key" subtype, max_data_size == max_sig_size == max_enc_size
+> > > > > == max_dec_size.  However, this isn't necessarily true for the
+> > > > > "asym_tpm" subtype (it should be, but it's not strictly validated).  Of
+> > > > > course, future key types could have different values as well.
+> > > > 
+> > > > With a quick look, asym_tpm is TPM 1.x only, which only has 2048-bit RSA
+> > > > keys.
+> > > 
+> > > The code allows other lengths, as well as the case where the "RSA key size"
+> > > doesn't match the "public key size".  Probably both are bugs and they should
+> > > both be 256 bytes (2048 bits) only.  Anyway, that would be a separate fix.
+> > > 
+> > > - Eric
+> > 
+> > I'm fine with the current commit message. E.g. I have no idea at this
+> > point whether there should be in future separate asym_tpm2 or all bundled
+> > to asym_tpm.
+> > 
+> > Acked-by: Jarkko Sakkinen <jarkko@kernel.org>
+> > 
 > 
-> Yes, that's correct. But I'm afraid that this patch will cause regressions on some systems.
-> (Mr Alexandre Belloni said something similar of my series). So I'd like to wait till at least Linux 5.17 (final) is
-> released to see if it causes any trouble.
-> 
+> Okay, great.  Just to be clear, I'm expecting either you or David
+> (maintainer:KEYS/KEYRINGS) to apply this patch.  Acked-by is usually given by a
+> maintainer when someone else applies a patch.
 
-Well, it will be in 5.17, any regression it causes will have to be
-fixed and we can then backport the fix.
+I changed it to reviewed-by and applied.
 
-
--- 
-Alexandre Belloni, co-owner and COO, Bootlin
-Embedded Linux and Kernel engineering
-https://bootlin.com
+BR, Jarkko
