@@ -2,181 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7784549C181
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 03:58:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 842F849C228
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 04:34:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236693AbiAZC6A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jan 2022 21:58:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40096 "EHLO
+        id S230391AbiAZDeI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jan 2022 22:34:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236685AbiAZC55 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 21:57:57 -0500
-Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7100C06161C
-        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 18:57:56 -0800 (PST)
-Received: by mail-wm1-x332.google.com with SMTP id c190-20020a1c9ac7000000b0035081bc722dso3054623wme.5
-        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 18:57:56 -0800 (PST)
+        with ESMTP id S229989AbiAZDeH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 22:34:07 -0500
+Received: from mail-oo1-xc34.google.com (mail-oo1-xc34.google.com [IPv6:2607:f8b0:4864:20::c34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79FA4C06161C;
+        Tue, 25 Jan 2022 19:34:07 -0800 (PST)
+Received: by mail-oo1-xc34.google.com with SMTP id v10-20020a4a860a000000b002ddc59f8900so7307559ooh.7;
+        Tue, 25 Jan 2022 19:34:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=from:to:cc:subject:date:message-id:mime-version
+        d=gmail.com; s=20210112;
+        h=sender:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=I3RC1pvj5eN/eY23rSAiJ3humqZ0lwYSWOtpC61NHQI=;
-        b=jNTeFwL67cZoQTfL3CTPUUXmJbZg+PHlJvFqPCm0VSiIy4Ozn/cx9HduX35l3iaCRd
-         Zo+UDxBmr4tJC4w19s5OKN/VJxGN5IjAdBCs4+At9DRJ5GA+UZFeGElYc/4eGUeAizeX
-         hZ1xjYN+Cf7Hb8VWADmJ3foDDldJgAtAWC1vn/drBnOWEdu7ev7wUoDWf2pYO2NDZRGa
-         uBJg3mskxFEhifHLRnm494Lgux5MeV0i2UBE2cziBg2guvSj2CbmANfX5ZaVfCZtRmqG
-         OXoVCnyOl72igibDQKEjwTgIh9bGwFkToE3bOPnznnNsxyeJJgcQYV19e4be+IYkAIo+
-         OXPw==
+        bh=cDDaOn0139gf1d2kxrxu8WODc1op+bzqijVLKsDNz4c=;
+        b=CQP9KxEivo++r8gvNTVrG1sNqRa0kliRlCrPRF5Gunp08I6CX9YDiUJuq2VPrUiIlH
+         7I52YRv1y6PjJ8WH/zmV1d8SeKuovc7Oe7UDZ4TSrFmdjILoINWflgQn/AnfK66IprG5
+         eY2kZC2KFLPuP+EG+GPycrcc0bu1AYWgB9RMDBqnGrGaLU9aEK1/k+kFG/S+Ig3ecQHZ
+         3ZzjzkPidwsUukA81xCL2JdYCnQOu6MUWfL2cU5e16Lhtd7TnKdFKAOVpY8+Qs1Pn1k6
+         zuhmYFYTnxJ76Fc1X4xc9+Vrmbt8yM6yJjpkl13fKSCrtPuJSh7eYMWg8CBP7/0JNVIW
+         n2Pw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:sender:message-id:date:mime-version:user-agent
+         :subject:content-language:to:cc:references:from:in-reply-to
          :content-transfer-encoding;
-        bh=I3RC1pvj5eN/eY23rSAiJ3humqZ0lwYSWOtpC61NHQI=;
-        b=4YACFIH6gZ5f+Su++xPkpSbR1Z7nCbgptCK9t4H+HPPF+ro53vqWcUis4KBfhooRFk
-         KTVlW2mW1/T1IMKAO88Ptpo4b8FrcSC70qum2RlDLbqyl5kA+hSEbgjAsk+4uZ6Fmq9G
-         YuzLPVYsyV3nWEVKO1IXEXimW6Us97DqNjGtKAFPrbYhxgkcdCBPL7iW6TPIULSkZgmo
-         3icQ8BfXeaADjZ9IVpzWDl5tkDaMCN4WUlkBzCfb04M7VIq78yLnL6vN9gCmLZKbHOga
-         X0j09jYAxQmrjCbW9a3LzDOBstqClN3U056mpCQyj5NHnk012eLmBCSQfJvrjSk8Oc9j
-         qBIQ==
-X-Gm-Message-State: AOAM532qVkSPKjcgsu7UHiW/16WJe/5N1SjSGCR5lTm5SGIfW0vhmm6T
-        d59ksB1kbbAR6tJ9gQBzf4gGEg==
-X-Google-Smtp-Source: ABdhPJykvD2mplP3Qu8rxt/N+hGR9ePoALUnM7FwAuu/hTLH32tIjiqmdpOqsVZu/PsqptkEj6gcXw==
-X-Received: by 2002:a05:600c:4101:: with SMTP id j1mr5355624wmi.28.1643165875272;
-        Tue, 25 Jan 2022 18:57:55 -0800 (PST)
-Received: from localhost ([2a02:168:96c5:1:55ed:514f:6ad7:5bcc])
-        by smtp.gmail.com with ESMTPSA id y2sm1797168wmj.13.2022.01.25.18.57.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 Jan 2022 18:57:54 -0800 (PST)
-From:   Jann Horn <jannh@google.com>
-To:     Andrew Morton <akpm@linux-foundation.org>
-Cc:     linux-kernel@vger.kernel.org,
-        Bill Messmer <wmessmer@microsoft.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Jann Horn <jannh@google.com>, stable@vger.kernel.org
-Subject: [PATCH] coredump: Also dump first pages of non-executable ELF libraries
-Date:   Wed, 26 Jan 2022 03:57:39 +0100
-Message-Id: <20220126025739.2014888-1-jannh@google.com>
-X-Mailer: git-send-email 2.35.0.rc0.227.g00780c9af4-goog
+        bh=cDDaOn0139gf1d2kxrxu8WODc1op+bzqijVLKsDNz4c=;
+        b=HU9gKQJIn+ahTydAtUJX2nc+ECvoX/lEGyK4DTTS7INa+O29YA2Zj2DJB1r4bu603P
+         8xFb/8AAlWeZV8F34dS4e2fObR/BZQtmiI9qU1IUTgEH8wsmoLttQ1DZgkBnfkg6tGOw
+         4EV16x+YZW0Jbl+47EjyzbrN+JQdIMsWDpIb1GMiKk9uc4f1S+dnBBL7FfYMIBa7/SZ6
+         78ARbgOvkjqbPi2uht5PvrkUArlP71hHxyq1S3pPspewnuiHsOQE3y8kdFWFPBnBVz0R
+         eCnS7oJrmHKTTPmUvafKcKOw6RkXpW6KER4gAmGuZ4MiCFuPXIjo8dsigVdGcxr/HM52
+         8B1A==
+X-Gm-Message-State: AOAM530eB7ZMjGnT83y5pZgmjEHp4UnunHLWwlbX1W4cYGuSq/gqjxVK
+        oq1/ZsA48Pf4swKvPjZdiXV5sF3zivA=
+X-Google-Smtp-Source: ABdhPJxNPRnYL0Q8Wfxu5ZuLjlVdxIbPNN2/o7Px/pudcHuSVcybRydISukaNtv/vpH3kmQr+j56iQ==
+X-Received: by 2002:a4a:ac0a:: with SMTP id p10mr14605962oon.96.1643168046699;
+        Tue, 25 Jan 2022 19:34:06 -0800 (PST)
+Received: from ?IPV6:2600:1700:e321:62f0:329c:23ff:fee3:9d7c? ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id s12sm2701012ooi.46.2022.01.25.19.34.04
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 25 Jan 2022 19:34:05 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Message-ID: <1c5777ae-d178-d1f7-b7a0-a60a7f58279e@roeck-us.net>
+Date:   Tue, 25 Jan 2022 19:34:03 -0800
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH v2 1/2] usb: typec: tcpm: Do not disconnect while
+ receiving VBUS off
+Content-Language: en-US
+To:     Badhri Jagan Sridharan <badhri@google.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Kyle Tso <kyletso@google.com>, stable@vger.kernel.org
+References: <20220126020016.3159598-1-badhri@google.com>
+From:   Guenter Roeck <linux@roeck-us.net>
+In-Reply-To: <20220126020016.3159598-1-badhri@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When I rewrote the VMA dumping logic for coredumps, I changed it to
-recognize ELF library mappings based on the file being executable instead
-of the mapping having an ELF header. But turns out, distros ship many ELF
-libraries as non-executable, so the heuristic goes wrong...
+On 1/25/22 18:00, Badhri Jagan Sridharan wrote:
+> With some chargers, vbus might momentarily raise above VSAFE5V and fall
+> back to 0V before tcpm gets to read port->tcpc->get_vbus. This will
+> report a VBUS off event causing TCPM to transition to SNK_UNATTACHED
+> where it should be waiting in either SNK_ATTACH_WAIT or SNK_DEBOUNCED
+> state. This patch makes TCPM avoid vbus off events while in
+> SNK_ATTACH_WAIT or SNK_DEBOUNCED state.
+> 
+> Stub from the spec:
+>      "4.5.2.2.4.2 Exiting from AttachWait.SNK State
+>      A Sink shall transition to Unattached.SNK when the state of both
+>      the CC1 and CC2 pins is SNK.Open for at least tPDDebounce.
+>      A DRP shall transition to Unattached.SRC when the state of both
+>      the CC1 and CC2 pins is SNK.Open for at least tPDDebounce."
+> 
+> [23.194131] CC1: 0 -> 0, CC2: 0 -> 5 [state SNK_UNATTACHED, polarity 0, connected]
+> [23.201777] state change SNK_UNATTACHED -> SNK_ATTACH_WAIT [rev3 NONE_AMS]
+> [23.209949] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @ 170 ms [rev3 NONE_AMS]
+> [23.300579] VBUS off
+> [23.300668] state change SNK_ATTACH_WAIT -> SNK_UNATTACHED [rev3 NONE_AMS]
+> [23.301014] VBUS VSAFE0V
+> [23.301111] Start toggling
+> 
+> Fixes: f0690a25a140b8 ("staging: typec: USB Type-C Port Manager (tcpm)")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
 
-Restore the old behavior where FILTER(ELF_HEADERS) dumps the first page of
-any offset-0 readable mapping that starts with the ELF magic.
+Why did you drop the Reviewed-by/Acked-by tags ?
 
-This fix is technically layer-breaking a bit, because it checks for
-something ELF-specific in fs/coredump.c; but since we probably want to
-share this between standard ELF and FDPIC ELF anyway, I guess it's fine?
-And this also keeps the change small for backporting.
+Guenter
 
-Cc: stable@vger.kernel.org
-Fixes: 429a22e776a2 ("coredump: rework elf/elf_fdpic vma_dump_size() into c=
-ommon helper")
-Reported-by: Bill Messmer <wmessmer@microsoft.com>
-Signed-off-by: Jann Horn <jannh@google.com>
----
-
-@Bill: If you happen to have a kernel tree lying around, you could give
-this a try and report back whether this solves your issues?
-But if not, it's also fine, I've tested myself that with this patch
-applied, the first 0x1000 bytes of non-executable libraries are dumped
-into the coredump according to "readelf".
-
- fs/coredump.c | 39 ++++++++++++++++++++++++++++++++++-----
- 1 file changed, 34 insertions(+), 5 deletions(-)
-
-diff --git a/fs/coredump.c b/fs/coredump.c
-index 1c060c0a2d72..b73817712dd2 100644
---- a/fs/coredump.c
-+++ b/fs/coredump.c
-@@ -42,6 +42,7 @@
- #include <linux/path.h>
- #include <linux/timekeeping.h>
- #include <linux/sysctl.h>
-+#include <linux/elf.h>
-=20
- #include <linux/uaccess.h>
- #include <asm/mmu_context.h>
-@@ -980,6 +981,8 @@ static bool always_dump_vma(struct vm_area_struct *vma)
- 	return false;
- }
-=20
-+#define DUMP_SIZE_MAYBE_ELFHDR_PLACEHOLDER 1
-+
- /*
-  * Decide how much of @vma's contents should be included in a core dump.
-  */
-@@ -1039,9 +1042,20 @@ static unsigned long vma_dump_size(struct vm_area_st=
-ruct *vma,
- 	 * dump the first page to aid in determining what was mapped here.
- 	 */
- 	if (FILTER(ELF_HEADERS) &&
--	    vma->vm_pgoff =3D=3D 0 && (vma->vm_flags & VM_READ) &&
--	    (READ_ONCE(file_inode(vma->vm_file)->i_mode) & 0111) !=3D 0)
--		return PAGE_SIZE;
-+	    vma->vm_pgoff =3D=3D 0 && (vma->vm_flags & VM_READ)) {
-+		if ((READ_ONCE(file_inode(vma->vm_file)->i_mode) & 0111) !=3D 0)
-+			return PAGE_SIZE;
-+
-+		/*
-+		 * ELF libraries aren't always executable.
-+		 * We'll want to check whether the mapping starts with the ELF
-+		 * magic, but not now - we're holding the mmap lock,
-+		 * so copy_from_user() doesn't work here.
-+		 * Use a placeholder instead, and fix it up later in
-+		 * dump_vma_snapshot().
-+		 */
-+		return DUMP_SIZE_MAYBE_ELFHDR_PLACEHOLDER;
-+	}
-=20
- #undef	FILTER
-=20
-@@ -1116,8 +1130,6 @@ int dump_vma_snapshot(struct coredump_params *cprm, i=
-nt *vma_count,
- 		m->end =3D vma->vm_end;
- 		m->flags =3D vma->vm_flags;
- 		m->dump_size =3D vma_dump_size(vma, cprm->mm_flags);
--
--		vma_data_size +=3D m->dump_size;
- 	}
-=20
- 	mmap_write_unlock(mm);
-@@ -1127,6 +1139,23 @@ int dump_vma_snapshot(struct coredump_params *cprm, =
-int *vma_count,
- 		return -EFAULT;
- 	}
-=20
-+	for (i =3D 0; i < *vma_count; i++) {
-+		struct core_vma_metadata *m =3D (*vma_meta) + i;
-+
-+		if (m->dump_size =3D=3D DUMP_SIZE_MAYBE_ELFHDR_PLACEHOLDER) {
-+			char elfmag[SELFMAG];
-+
-+			if (copy_from_user(elfmag, (void __user *)m->start, SELFMAG) ||
-+					memcmp(elfmag, ELFMAG, SELFMAG) !=3D 0) {
-+				m->dump_size =3D 0;
-+			} else {
-+				m->dump_size =3D PAGE_SIZE;
-+			}
-+		}
-+
-+		vma_data_size +=3D m->dump_size;
-+	}
-+
- 	*vma_data_size_ptr =3D vma_data_size;
- 	return 0;
- }
-
-base-commit: 0280e3c58f92b2fe0e8fbbdf8d386449168de4a8
---=20
-2.35.0.rc0.227.g00780c9af4-goog
+> ---
+> Changes since v1:
+> - Fix typos stated by Guenter Roeck.
+> ---
+>   drivers/usb/typec/tcpm/tcpm.c | 3 ++-
+>   1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
+> index 59d4fa2443f2..3bf79f52bd34 100644
+> --- a/drivers/usb/typec/tcpm/tcpm.c
+> +++ b/drivers/usb/typec/tcpm/tcpm.c
+> @@ -5156,7 +5156,8 @@ static void _tcpm_pd_vbus_off(struct tcpm_port *port)
+>   	case SNK_TRYWAIT_DEBOUNCE:
+>   		break;
+>   	case SNK_ATTACH_WAIT:
+> -		tcpm_set_state(port, SNK_UNATTACHED, 0);
+> +	case SNK_DEBOUNCED:
+> +		/* Do nothing, as TCPM is still waiting for vbus to reach VSAFE5V to connect */
+>   		break;
+>   
+>   	case SNK_NEGOTIATE_CAPABILITIES:
 
