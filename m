@@ -2,121 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6232A49C27E
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 05:08:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BA0A49C290
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 05:18:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237544AbiAZEIa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 Jan 2022 23:08:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56300 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237543AbiAZEIa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 23:08:30 -0500
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB5F3C061744
-        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 20:08:29 -0800 (PST)
-Received: by mail-ej1-x62c.google.com with SMTP id jx6so35847092ejb.0
-        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 20:08:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=rlsXW9yeDjYLQW3dEtaDwpBR5jtFfvtNfcrowvAf2iE=;
-        b=WBaJKjMJMp3TieYUfUOpFKFuxvycRbffe3njakH1VrBhWkf2N49UEilPpDu2/CZNHu
-         riDpCa0WKVdwBrCdcpaO4dnDlo7ZGhFsT6SaL+IaMCHYbY05E2X4dmm1P+kVDPo2Xfh+
-         HaGlCBBP/1pptEh3cLDRpadRE1cUUM0j5OYjzc6j2TwG4qSKjRiCBJI82yMYMBjKORUF
-         i3NSXM24NsvAV6epcjMIgttadS+e+qnQvyhI3tALxO0Y6oqUI5+Rktqbbod2DNbVPH5T
-         HiVHaHpjdbUQpUtpGDrvA5shp+lm9GqCmzzMgzaKmbrYBAc+JD0A23gerV/+ufDtJ8we
-         I2Dg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=rlsXW9yeDjYLQW3dEtaDwpBR5jtFfvtNfcrowvAf2iE=;
-        b=AUHMjMurJoPO0vHmh8rkyuXgZEdJDS6S+V6S7dP2Y7k+g9VpDIjXG0c0c4eMNiI60d
-         RxQoiDhYv2KwPIwWmZiCaRQctPdsRCXWjds7zvUOna1LBlXqi9PaK9k4dOZFGkffanG0
-         uHcmzgXCk7XQSh4+zzZhPE46tJDyAa67s8+7l/ddUpeUgc+UXYcLaFfA2KdGEmUNuiiS
-         Jb7jHoWK21HU9eCRjus8/DP1e3nlzrG9WKtIMhYOcEFpofSp1SKWA12ag1L49H9nfTlz
-         91oQInbeGRlP9NgzGMTokWKR+JFabDLkbd7+ZIekTH4vuUmxld+Y9EI3rLv91quV4ijs
-         iORw==
-X-Gm-Message-State: AOAM530vFVYwZlDDGbF3C9cnPCApxK0MBXiwTj8y9ZrNr/N25EOMag69
-        socl3pccXRBOpnOV5jJj7uNYay0OZOFqQi74Yn8tZw==
-X-Google-Smtp-Source: ABdhPJxNIoOY3/zX/P4OFwm4zlrGb0Rp9uvybWi0VL071itCijWolP/s3CUdVNupoia9WJBMEnR6qEH/OmwhEvjv+Mg=
-X-Received: by 2002:a17:906:e18:: with SMTP id l24mr18586078eji.514.1643170108168;
- Tue, 25 Jan 2022 20:08:28 -0800 (PST)
+        id S229790AbiAZESC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 Jan 2022 23:18:02 -0500
+Received: from sin.source.kernel.org ([145.40.73.55]:49682 "EHLO
+        sin.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229671AbiAZESB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 Jan 2022 23:18:01 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id CBE00CE1BBF;
+        Wed, 26 Jan 2022 04:17:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61B32C340E3;
+        Wed, 26 Jan 2022 04:17:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1643170678;
+        bh=MaAuNjsFO8On+BGpUOJ4aK1T9MBVNUh+44P2Z4qFPYQ=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=cwQgwPJRdJ0WHqCqAeWadgK+l1IyR8R05fdGOpE3f90v/9Ocq2lw1LDrenpG8/++/
+         0bly1h4lIoY1v8CpsT7bVS4nLTaX4DPGQ6lnpLJKg3G0n0gqM9af7BGFVW94y75Y8n
+         ZuJ7zuNkG5DK7zmOMxT2VCLsxahb9u6jfrgzLybhiWvhxkFjgx2weWPdnrD6i+6Anj
+         d3Zzl0xzlwM0kjCF7uKvK+K6++Rn0uiiivlAX6fVtCZ7nhrdJRU0EsRolboOcSag92
+         NJ8fq7P66AT8IjK0TVB21pjKjmAsa1QskuKMIpB+4MwlFPbwaYYSMRiW+g1pezaYWm
+         vV9d8AgmG3u4Q==
+Date:   Tue, 25 Jan 2022 20:17:56 -0800
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
+Cc:     Giuseppe Cavallaro <peppe.cavallaro@st.com>,
+        Alexandre Torgue <alexandre.torgue@st.com>,
+        Jose Abreu <joabreu@synopsys.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Maxime Coquelin <mcoquelin.stm32@gmail.com>,
+        Ong Boon Leong <boon.leong.ong@intel.com>,
+        Voon Weifeng <weifeng.voon@intel.com>,
+        Wong Vee Khee <vee.khee.wong@intel.com>,
+        Huacai Chen <chenhuacai@kernel.org>,
+        Alexandre Torgue <alexandre.torgue@foss.st.com>,
+        netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
+        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH net v2 2/2] net: stmmac: skip only stmmac_ptp_register
+ when resume from suspend
+Message-ID: <20220125201756.1606e1c4@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
+In-Reply-To: <20220125032324.4055-3-mohammad.athari.ismail@intel.com>
+References: <20220125032324.4055-1-mohammad.athari.ismail@intel.com>
+        <20220125032324.4055-3-mohammad.athari.ismail@intel.com>
 MIME-Version: 1.0
-References: <20220126020016.3159598-1-badhri@google.com> <1c5777ae-d178-d1f7-b7a0-a60a7f58279e@roeck-us.net>
-In-Reply-To: <1c5777ae-d178-d1f7-b7a0-a60a7f58279e@roeck-us.net>
-From:   Badhri Jagan Sridharan <badhri@google.com>
-Date:   Tue, 25 Jan 2022 20:07:51 -0800
-Message-ID: <CAPTae5+hkLXmumQrJhV5PW5oRCGhUQwF1tvMQQ2SKjeUhoWtxw@mail.gmail.com>
-Subject: Re: [PATCH v2 1/2] usb: typec: tcpm: Do not disconnect while
- receiving VBUS off
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        USB <linux-usb@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Kyle Tso <kyletso@google.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-My bad ! Apologies .. fixing it in V3..
+On Tue, 25 Jan 2022 11:23:24 +0800 Mohammad Athari Bin Ismail wrote:
+> diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+> index d7e261768f73..b8e5e19e6f7b 100644
+> --- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+> +++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+> @@ -880,11 +880,12 @@ EXPORT_SYMBOL_GPL(stmmac_init_tstamp_counter);
+>  /**
+>   * stmmac_init_ptp - init PTP
+>   * @priv: driver private structure
+> + * @ptp_register: register PTP if set
+>   * Description: this is to verify if the HW supports the PTPv1 or PTPv2.
+>   * This is done by looking at the HW cap. register.
+>   * This function also registers the ptp driver.
+>   */
+> -static int stmmac_init_ptp(struct stmmac_priv *priv)
+> +static int stmmac_init_ptp(struct stmmac_priv *priv, bool ptp_register)
+>  {
+>  	bool xmac = priv->plat->has_gmac4 || priv->plat->has_xgmac;
+>  	int ret;
+> @@ -914,7 +915,8 @@ static int stmmac_init_ptp(struct stmmac_priv *priv)
+>  	priv->hwts_tx_en = 0;
+>  	priv->hwts_rx_en = 0;
+>  
+> -	stmmac_ptp_register(priv);
+> +	if (ptp_register)
+> +		stmmac_ptp_register(priv);
 
+stmmac_init_ptp() only has one caller, and the registration step is last.
+Wouldn't it be better to move the stmmac_ptp_register() call out to
+stmmac_hw_setup()? That way we don't need to pass extra arguments to init.
 
-On Tue, Jan 25, 2022 at 7:34 PM Guenter Roeck <linux@roeck-us.net> wrote:
->
-> On 1/25/22 18:00, Badhri Jagan Sridharan wrote:
-> > With some chargers, vbus might momentarily raise above VSAFE5V and fall
-> > back to 0V before tcpm gets to read port->tcpc->get_vbus. This will
-> > report a VBUS off event causing TCPM to transition to SNK_UNATTACHED
-> > where it should be waiting in either SNK_ATTACH_WAIT or SNK_DEBOUNCED
-> > state. This patch makes TCPM avoid vbus off events while in
-> > SNK_ATTACH_WAIT or SNK_DEBOUNCED state.
-> >
-> > Stub from the spec:
-> >      "4.5.2.2.4.2 Exiting from AttachWait.SNK State
-> >      A Sink shall transition to Unattached.SNK when the state of both
-> >      the CC1 and CC2 pins is SNK.Open for at least tPDDebounce.
-> >      A DRP shall transition to Unattached.SRC when the state of both
-> >      the CC1 and CC2 pins is SNK.Open for at least tPDDebounce."
-> >
-> > [23.194131] CC1: 0 -> 0, CC2: 0 -> 5 [state SNK_UNATTACHED, polarity 0, connected]
-> > [23.201777] state change SNK_UNATTACHED -> SNK_ATTACH_WAIT [rev3 NONE_AMS]
-> > [23.209949] pending state change SNK_ATTACH_WAIT -> SNK_DEBOUNCED @ 170 ms [rev3 NONE_AMS]
-> > [23.300579] VBUS off
-> > [23.300668] state change SNK_ATTACH_WAIT -> SNK_UNATTACHED [rev3 NONE_AMS]
-> > [23.301014] VBUS VSAFE0V
-> > [23.301111] Start toggling
-> >
-> > Fixes: f0690a25a140b8 ("staging: typec: USB Type-C Port Manager (tcpm)")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
->
-> Why did you drop the Reviewed-by/Acked-by tags ?
->
-> Guenter
->
-> > ---
-> > Changes since v1:
-> > - Fix typos stated by Guenter Roeck.
-> > ---
-> >   drivers/usb/typec/tcpm/tcpm.c | 3 ++-
-> >   1 file changed, 2 insertions(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
-> > index 59d4fa2443f2..3bf79f52bd34 100644
-> > --- a/drivers/usb/typec/tcpm/tcpm.c
-> > +++ b/drivers/usb/typec/tcpm/tcpm.c
-> > @@ -5156,7 +5156,8 @@ static void _tcpm_pd_vbus_off(struct tcpm_port *port)
-> >       case SNK_TRYWAIT_DEBOUNCE:
-> >               break;
-> >       case SNK_ATTACH_WAIT:
-> > -             tcpm_set_state(port, SNK_UNATTACHED, 0);
-> > +     case SNK_DEBOUNCED:
-> > +             /* Do nothing, as TCPM is still waiting for vbus to reach VSAFE5V to connect */
-> >               break;
-> >
-> >       case SNK_NEGOTIATE_CAPABILITIES:
->
+>  	return 0;
+>  }
+> @@ -3241,7 +3243,7 @@ static int stmmac_fpe_start_wq(struct stmmac_priv *priv)
+>  /**
+>   * stmmac_hw_setup - setup mac in a usable state.
+>   *  @dev : pointer to the device structure.
+> - *  @init_ptp: initialize PTP if set
+> + *  @ptp_register: register PTP if set
+>   *  Description:
+>   *  this is the main function to setup the HW in a usable state because the
+>   *  dma engine is reset, the core registers are configured (e.g. AXI,
+> @@ -3251,7 +3253,7 @@ static int stmmac_fpe_start_wq(struct stmmac_priv *priv)
+>   *  0 on success and an appropriate (-)ve integer as defined in errno.h
+>   *  file on failure.
+>   */
+> -static int stmmac_hw_setup(struct net_device *dev, bool init_ptp)
+> +static int stmmac_hw_setup(struct net_device *dev, bool ptp_register)
+>  {
+>  	struct stmmac_priv *priv = netdev_priv(dev);
+>  	u32 rx_cnt = priv->plat->rx_queues_to_use;
+> @@ -3308,13 +3310,11 @@ static int stmmac_hw_setup(struct net_device *dev, bool init_ptp)
+>  
+>  	stmmac_mmc_setup(priv);
+>  
+> -	if (init_ptp) {
+> -		ret = stmmac_init_ptp(priv);
+> -		if (ret == -EOPNOTSUPP)
+> -			netdev_warn(priv->dev, "PTP not supported by HW\n");
+> -		else if (ret)
+> -			netdev_warn(priv->dev, "PTP init failed\n");
+> -	}
+> +	ret = stmmac_init_ptp(priv, ptp_register);
+> +	if (ret == -EOPNOTSUPP)
+> +		netdev_warn(priv->dev, "PTP not supported by HW\n");
+> +	else if (ret)
+> +		netdev_warn(priv->dev, "PTP init failed\n");
