@@ -2,104 +2,82 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E133A49D16C
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 19:07:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F6E949D186
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 19:14:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230376AbiAZSHv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 13:07:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54176 "EHLO
+        id S244008AbiAZSNu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 13:13:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244147AbiAZSHt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 13:07:49 -0500
-Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com [IPv6:2a00:1450:4864:20::22a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F15B8C061748
-        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 10:07:48 -0800 (PST)
-Received: by mail-lj1-x22a.google.com with SMTP id e9so795649ljq.1
-        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 10:07:48 -0800 (PST)
+        with ESMTP id S235901AbiAZSNu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 13:13:50 -0500
+Received: from mail-ot1-x32d.google.com (mail-ot1-x32d.google.com [IPv6:2607:f8b0:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79E10C06161C;
+        Wed, 26 Jan 2022 10:13:50 -0800 (PST)
+Received: by mail-ot1-x32d.google.com with SMTP id b12-20020a9d754c000000b0059eb935359eso108960otl.8;
+        Wed, 26 Jan 2022 10:13:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=e6GlIwf2gQF3ITti5q/SlwCwbOwNxQ4Vmm6ghQbKw6g=;
-        b=Ua1tzA6BRz4Kicy3wWXE4baxIRed4b9N+oLT8SW2I9QdF1CllcC4jq2nAn5zWd10IO
-         NRGiqajhZhjSigz6UU0a1JEOJou2zOPJ12aECIZ9bjc8mfmO0BauwNMsuq04vVIodApe
-         IHoHDZhgNwNhnqgs3I9PsX7XKNZH1bfLcGbAjDEEmBsdWnRJLrk392k4up2kfQWxGBGK
-         ZE4p0xGXNI2SGwMhgAwQMHa42mmsoHGdVIudHFz4d01ODNhzl2n8r9F9WWgY8V6Vrxgp
-         HvvR2P09koQ/4fm1aRPs7B8PGp9XZEqJKfuuPaWHYVph0twQVUqPMaLvRxCGSEexEdlU
-         tOWg==
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=cyJUcSlHkzGQIdTiVpLIZhlkWBHgn2YO+xMrJyYxG7w=;
+        b=K2inkT0vfzHdmDPjKTw4GpjEONBWWElrCyBV+BXKSJHQWjZWuVBl2suASQLNIAVj8t
+         KrmRmQmIxb8/t5ZRFsz3Oa1EUjc7GFcfIEcBQFPgALmKqM7qkYAKcQCea8Jeb6besuAm
+         PF/31fKm0lxJYc8GQNiT0WhcyYZigRJwWEVQftzF0E7/6YljxclsKWuBQIYNwKT505oT
+         cP+LYTasm5/cGJ8QAuh3USJwoTQzxiDv73I398QoB9ZZreIL7fDjCcP5dOoCl/Yx8UoY
+         wc6rzNTCvWqIaCUaPyxx+4R4gPQC2HMEv5wjdyA9HKktqmbsnMkpcR2B/jU8hyZSixLT
+         DQSQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=e6GlIwf2gQF3ITti5q/SlwCwbOwNxQ4Vmm6ghQbKw6g=;
-        b=3CVt695RghUMTzgW2GGZ6ePdrkxFsobFvZ1zD9dq0T48STGjlxXw/JjbLqTa44Jo5x
-         +bQWncv2rHIyysTh3xaZLaxr3jHV0684oYppgeWTux99ZZ4/3NloA1SYuyc/w7Xwqu6R
-         /CPTnwt4NfKuHTF56OkMzz64FAVFFoNrWXerSM72anlVigJ/u/7+V7fcTyLna0IzIcMR
-         69q3yY7vsYPwjixYQZADcmRUnj/9Vq7UobnF/+5SRROTFLNysMQYlpZ/ehNiDK4AkXLn
-         DWwtQ+GqhDHS4sX1U5SwpGba7n14t8jFau5u8wLXQGVfbE6Dus7dR8UukVpXmc7Xf2mX
-         FRXA==
-X-Gm-Message-State: AOAM5304o3d9UwQX6yI16NefpPzcD5yKQkMQD3ru1oMHhLTY5N+3/dOv
-        JGpgSvZ54bh+iwPBjYz9R9wDZ4UDtR8Bu3OrjH3y+Q==
-X-Google-Smtp-Source: ABdhPJzaM9QfYFgak03rWnAuv3xprmvfFYLw+Tw36FXo3pPPNnx5IxgcrSkUkrR/bJPmAwTO2cPPsNjs7CeXngEv/vg=
-X-Received: by 2002:a05:651c:984:: with SMTP id b4mr153763ljq.235.1643220466896;
- Wed, 26 Jan 2022 10:07:46 -0800 (PST)
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=cyJUcSlHkzGQIdTiVpLIZhlkWBHgn2YO+xMrJyYxG7w=;
+        b=J3mjw6lNR54S+0PpBQKw64NRJ6yAOkWjh+sKudRmjkpk0NNNPjahiH4MuE1aBXfqIF
+         59t4hpXb2CcD0IAYH9GsWOGS5Cp50Tl74K5F9D+wJhOv2OpOJny3Oy6+B6cp5FsMNxyA
+         Rw2O8TJHJ4Pzqv0LnStqDtp23ONuXSarqGd5Tqy3Wuw1NpGpIXo1lPgIg9wpZgNCMoAF
+         Wr6ikHNyBGkt44rYt5NMZ4Lfw8tSHtUWlKBl2/f+gT1N/PZrhHu2j9bJaD4cJaapKZ2p
+         MhD+v5OpntcaWqdMaB7h0YDqK52AGA0edlDyMBZp/vbcBGsChE0UCnr0m6dMMC5BPeFx
+         KTTg==
+X-Gm-Message-State: AOAM530PuRpmx4JCFu0wS4SAhqpzsL9i33Z3An6kWerfOWt7hldiq+/l
+        zXoQhAB0a8N4qvgkxQf7G7EnUsN4HdI=
+X-Google-Smtp-Source: ABdhPJyPDX0QRDbIzOsc52/ZmmM1rGVytUGwPzDdiWHcWC18OoS1MgggJ/RtQDEEL2OqPhKDvCxw/Q==
+X-Received: by 2002:a9d:6a42:: with SMTP id h2mr20820otn.269.1643220829856;
+        Wed, 26 Jan 2022 10:13:49 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id v4sm4557340oou.1.2022.01.26.10.13.48
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Jan 2022 10:13:48 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Wed, 26 Jan 2022 10:13:46 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.16 0000/1033] 5.16.3-rc2 review
+Message-ID: <20220126181346.GA105372@roeck-us.net>
+References: <20220125155447.179130255@linuxfoundation.org>
 MIME-Version: 1.0
-References: <20220126175747.3270945-1-keescook@chromium.org>
-In-Reply-To: <20220126175747.3270945-1-keescook@chromium.org>
-From:   Jann Horn <jannh@google.com>
-Date:   Wed, 26 Jan 2022 19:07:20 +0100
-Message-ID: <CAG48ez3hN8+zNCmLVP0yU0A5op6BAS+A-rs05aiLm4RQvzzBpg@mail.gmail.com>
-Subject: Re: [PATCH] fs/binfmt_elf: Add padding NULL when argc == 0
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Ariadne Conill <ariadne@dereferenced.org>,
-        Michael Kerrisk <mtk.manpages@gmail.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Rich Felker <dalias@libc.org>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220125155447.179130255@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 26, 2022 at 6:58 PM Kees Cook <keescook@chromium.org> wrote:
-> Quoting Ariadne Conill:
->
-> "In several other operating systems, it is a hard requirement that the
-> first argument to execve(2) be the name of a program, thus prohibiting
-> a scenario where argc < 1. POSIX 2017 also recommends this behaviour,
-> but it is not an explicit requirement[1]:
->
->     The argument arg0 should point to a filename string that is
->     associated with the process being started by one of the exec
->     functions.
-> ...
-> Interestingly, Michael Kerrisk opened an issue about this in 2008[2],
-> but there was no consensus to support fixing this issue then.
-> Hopefully now that CVE-2021-4034 shows practical exploitative use[3]
-> of this bug in a shellcode, we can reconsider."
->
-> An examination of existing[4] users of execve(..., NULL, NULL) shows
-> mostly test code, or example rootkit code. While rejecting a NULL argv
-> would be preferred, it looks like the main cause of userspace confusion
-> is an assumption that argc >= 1, and buggy programs may skip argv[0]
-> when iterating. To protect against userspace bugs of this nature, insert
-> an extra NULL pointer in argv when argc == 0, so that argv[1] != envp[0].
->
-> Note that this is only done in the argc == 0 case because some userspace
-> programs expect to find envp at exactly argv[argc]. The overlap of these
-> two misguided assumptions is believed to be zero.
+Hi Greg,
 
-Will this result in the executed program being told that argc==0 but
-having an extra NULL pointer on the stack?
-If so, I believe this breaks the x86-64 ABI documented at
-https://refspecs.linuxbase.org/elf/x86_64-abi-0.99.pdf - page 29,
-figure 3.9 describes the layout of the initial process stack.
+On Tue, Jan 25, 2022 at 05:33:08PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.16.3 release.
+> There are 1033 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 27 Jan 2022 15:52:30 +0000.
+> Anything received after that time might be too late.
+> 
 
-Actually, does this even work? Can a program still properly access its
-environment variables when invoked with argc==0 with this patch
-applied? AFAIU the way userspace locates envv on x86-64 is by
-calculating 8*(argc+1)?
+I wasn't copied on this announcement nor on the announcement for v5.16.3-rc1.
+Linaro wasn't copied either. I managed to catch it, but it would be great
+if you could add me (and Linaro) back to cc.
+
+Thanks,
+Guenter
