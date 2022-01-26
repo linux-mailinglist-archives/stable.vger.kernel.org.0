@@ -2,161 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40CB149D420
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 22:08:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AE0049D419
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 22:05:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231658AbiAZVIl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 16:08:41 -0500
-Received: from brightrain.aerifal.cx ([216.12.86.13]:54226 "EHLO
-        brightrain.aerifal.cx" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231680AbiAZVIk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 16:08:40 -0500
-Date:   Wed, 26 Jan 2022 15:52:48 -0500
-From:   Rich Felker <dalias@libc.org>
-To:     Kees Cook <keescook@chromium.org>
-Cc:     Ariadne Conill <ariadne@dereferenced.org>,
-        Michael Kerrisk <mtk.manpages@gmail.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        linux-fsdevel@vger.kernel.org, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
-Subject: Re: [PATCH] fs/binfmt_elf: Add padding NULL when argc == 0
-Message-ID: <20220126205247.GA9263@brightrain.aerifal.cx>
-References: <20220126175747.3270945-1-keescook@chromium.org>
+        id S231764AbiAZVFt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 16:05:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38616 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231694AbiAZVFt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 16:05:49 -0500
+Received: from mail-oi1-x22d.google.com (mail-oi1-x22d.google.com [IPv6:2607:f8b0:4864:20::22d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D598C06161C;
+        Wed, 26 Jan 2022 13:05:49 -0800 (PST)
+Received: by mail-oi1-x22d.google.com with SMTP id p203so2003445oih.10;
+        Wed, 26 Jan 2022 13:05:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=gNQC12hn9F8dVuK4M0QfVja0uPmD/mvPu7aoFuquqys=;
+        b=dQLGqTCj3pHnUzAT6aNm+nbShXkH9hvS96P2BFWxjVznEoqriOCX/e45/awpNgrbuH
+         Cpb7aERrREbi+6D696PcO5qa8J2WCAYVEQp90HbzzKEceHH2VvExQsYc9CceUnQdO1NP
+         WxjwJzNC7NfXLmKtbeskKK5E16vtj2jbpoCm4JhlmzXWYS/srHdPD7rFCXiX17Gn1lzF
+         XJWZfIonLM5x84yfb5F6Nr3vRl/hkGEpDTG71qolp7xDQf5AuhS040uoPUnhmqhFxWe3
+         n3uHhPJfkI/1Ccm4aL41wU/NjtIdcglOz4vVU9rbR9ncZ8DIVQFFrPhovxAHuRxXGbmS
+         2qig==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=gNQC12hn9F8dVuK4M0QfVja0uPmD/mvPu7aoFuquqys=;
+        b=lyRqt872GGDncV7ELPvln6F8rpBnf9LHt/JJndAObE+l6k9XLLBtziOC0MXrOG7YQ4
+         MkZ0ZQFVILSajcn5IshrhWHAx0yb64UYhCsOiktBHWnDUQ+bSO75dAPC5mt5uKwZiips
+         o0Cm0TsMFrCN31HwEyV2mH4sFRf8g2mS2Dijp2ym0zF6SCb/IVLoD5hjX27eNmK7gCMQ
+         HmD0WP4F6EIrMie3qv6w1TVxXEUylyeBF/ajyp13ndlMb5R2ag8Cr7Ajc5EUK8AYn17z
+         GY1cCovT1/FNo+gVkC6hqYBPdl/nzU+PxePA0AIws0icLGlc8k8XVsEqLXcNWAM2U0Js
+         nl3A==
+X-Gm-Message-State: AOAM531wr/iTvXKwdtVcCBhuGpqihua2dM0sZREwGBzXDXGUIMe2ky23
+        qmnB06Y46YaPnQIsV35gYnnZcPVzBPM=
+X-Google-Smtp-Source: ABdhPJxd2XmlmTYvu3V+cerEFa8gxtuZv3N4vthizhbsO5aLxLiyVjKv4O9WbDIHcpka8maTWKCZ9Q==
+X-Received: by 2002:a05:6808:2128:: with SMTP id r40mr34898oiw.96.1643231148628;
+        Wed, 26 Jan 2022 13:05:48 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id b7sm8012217ooq.30.2022.01.26.13.05.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Jan 2022 13:05:47 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Wed, 26 Jan 2022 13:05:46 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 5.16 0000/1033] 5.16.3-rc2 review
+Message-ID: <20220126210546.GA3265892@roeck-us.net>
+References: <20220125155447.179130255@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220126175747.3270945-1-keescook@chromium.org>
-User-Agent: Mutt/1.5.21 (2010-09-15)
+In-Reply-To: <20220125155447.179130255@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 26, 2022 at 09:57:47AM -0800, Kees Cook wrote:
-> Quoting Ariadne Conill:
+On Tue, Jan 25, 2022 at 05:33:08PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.16.3 release.
+> There are 1033 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> "In several other operating systems, it is a hard requirement that the
-> first argument to execve(2) be the name of a program, thus prohibiting
-> a scenario where argc < 1. POSIX 2017 also recommends this behaviour,
-> but it is not an explicit requirement[1]:
+> Responses should be made by Thu, 27 Jan 2022 15:52:30 +0000.
+> Anything received after that time might be too late.
 > 
->     The argument arg0 should point to a filename string that is
->     associated with the process being started by one of the exec
->     functions.
-> ...
-> Interestingly, Michael Kerrisk opened an issue about this in 2008[2],
-> but there was no consensus to support fixing this issue then.
-> Hopefully now that CVE-2021-4034 shows practical exploitative use[3]
-> of this bug in a shellcode, we can reconsider."
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.3-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
+> and the diffstat can be found below.
 > 
-> An examination of existing[4] users of execve(..., NULL, NULL) shows
-> mostly test code, or example rootkit code. While rejecting a NULL argv
-> would be preferred, it looks like the main cause of userspace confusion
-> is an assumption that argc >= 1, and buggy programs may skip argv[0]
-> when iterating. To protect against userspace bugs of this nature, insert
-> an extra NULL pointer in argv when argc == 0, so that argv[1] != envp[0].
+> thanks,
 > 
-> Note that this is only done in the argc == 0 case because some userspace
-> programs expect to find envp at exactly argv[argc]. The overlap of these
-> two misguided assumptions is believed to be zero.
+> greg k-h
 > 
-> [1] https://pubs.opengroup.org/onlinepubs/9699919799/functions/exec.html
-> [2] https://bugzilla.kernel.org/show_bug.cgi?id=8408
-> [3] https://www.qualys.com/2022/01/25/cve-2021-4034/pwnkit.txt
-> [4] https://codesearch.debian.net/search?q=execve%5C+*%5C%28%5B%5E%2C%5D%2B%2C+*NULL&literal=0
+> -------------
+> Pseudo-Shortlog of commits:
 > 
-> Reported-by: Ariadne Conill <ariadne@dereferenced.org>
-> Reported-by: Michael Kerrisk <mtk.manpages@gmail.com>
-> Cc: Matthew Wilcox <willy@infradead.org>
-> Cc: Christian Brauner <brauner@kernel.org>
-> Cc: Rich Felker <dalias@libc.org>
-> Cc: Eric Biederman <ebiederm@xmission.com>
-> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-> Cc: linux-fsdevel@vger.kernel.org
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> ---
->  fs/binfmt_elf.c | 10 +++++++++-
->  fs/exec.c       |  7 ++++++-
->  2 files changed, 15 insertions(+), 2 deletions(-)
 > 
-> diff --git a/fs/binfmt_elf.c b/fs/binfmt_elf.c
-> index 605017eb9349..e456c48658ad 100644
-> --- a/fs/binfmt_elf.c
-> +++ b/fs/binfmt_elf.c
-> @@ -297,7 +297,8 @@ create_elf_tables(struct linux_binprm *bprm, const struct elfhdr *exec,
->  	ei_index = elf_info - (elf_addr_t *)mm->saved_auxv;
->  	sp = STACK_ADD(p, ei_index);
->  
-> -	items = (argc + 1) + (envc + 1) + 1;
-> +	/* Make room for extra pointer when argc == 0. See below. */
-> +	items = (min(argc, 1) + 1) + (envc + 1) + 1;
->  	bprm->p = STACK_ROUND(sp, items);
->  
->  	/* Point sp at the lowest address on the stack */
-> @@ -326,6 +327,13 @@ create_elf_tables(struct linux_binprm *bprm, const struct elfhdr *exec,
->  
->  	/* Populate list of argv pointers back to argv strings. */
->  	p = mm->arg_end = mm->arg_start;
-> +	/*
-> +	 * Include an extra NULL pointer in argv when argc == 0 so
-> +	 * that argv[1] != envp[0] to help userspace programs from
-> +	 * mishandling argc == 0. See fs/exec.c bprm_stack_limits().
-> +	 */
-> +	if (argc == 0 && put_user(0, sp++))
-> +		return -EFAULT;
->  	while (argc-- > 0) {
->  		size_t len;
->  		if (put_user((elf_addr_t)p, sp++))
-> diff --git a/fs/exec.c b/fs/exec.c
-> index 79f2c9483302..0b36384e55b1 100644
-> --- a/fs/exec.c
-> +++ b/fs/exec.c
-> @@ -495,8 +495,13 @@ static int bprm_stack_limits(struct linux_binprm *bprm)
->  	 * the stack. They aren't stored until much later when we can't
->  	 * signal to the parent that the child has run out of stack space.
->  	 * Instead, calculate it here so it's possible to fail gracefully.
-> +	 *
-> +	 * In the case of argc < 1, make sure there is a NULL pointer gap
-> +	 * between argv and envp to ensure confused userspace programs don't
-> +	 * start processing from argv[1], thinking argc can never be 0,
-> +	 * to block them from walking envp by accident. See fs/binfmt_elf.c.
->  	 */
-> -	ptr_size = (bprm->argc + bprm->envc) * sizeof(void *);
-> +	ptr_size = (min(bprm->argc, 1) + bprm->envc) * sizeof(void *);
->  	if (limit <= ptr_size)
->  		return -E2BIG;
->  	limit -= ptr_size;
-> -- 
-> 2.30.2
+[ ... ]
+> 
+> Chen Wandun <chenwandun@huawei.com>
+>     mm/page_isolation: unset migratetype directly for non Buddy page
 > 
 
-This patch is not just wrong, but extremely dangerously wrong, to the
-point that it may make all suid-root binaries exploitable (at least
-dynamic linked ones).
+This patch causes some of my qemu emulations to crash due to lack of memory.
+This is seen both in v5.16.3-rc2 and in the mainline kernel. A request to
+revert this patch is here:
 
-The ELF entry point contract is that argv+argc+1==envp, and in fact
-this is the "preferred" way of computing envp so as to avoid linear
-search over argv. In musl's dynamic linker we do exactly that; I'm not
-sure about glibc's. See:
+https://lore.kernel.org/linux-mm/20220124084151.GA95197@francesco-nb.int.toradex.com/t/
 
-https://git.musl-libc.org/cgit/musl/tree/ldso/dynlink.c?id=v1.2.2#n1740
-
-If argv[argc+1] wrongly contains a null pointer, semantically, that
-means the environment is empty and auxv starts at the next stack slot.
-It's an exercise for the reader to populate the environment in a way
-that this memory wrongly gets interpreted as a meaningful auxv. I'm
-not sure this is possible, but I wouldn't automatically rule it out.
-
-In short: YOU CANNOT CHANGE/BREAK CONTRACTS TO MITIGATE A VULN. Doing
-so just makes new vulns in the programs that were correct before.
-
-Silently replacing argc==0 with argc==1 and argv[0]=="" would be a
-safe variant of this, but I'm really in favor of just erroring out,
-but *only doing it when the exec is a privilege boundary* (suid/etc.)
-to minimize the chance of breaking software dependent on allowing
-argc==0.
-
-Rich
+Guenter
