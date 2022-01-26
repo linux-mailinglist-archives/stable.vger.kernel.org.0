@@ -2,96 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F2E249C3D0
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 07:45:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1546249C3EB
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 07:58:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236837AbiAZGpZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 01:45:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34518 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236886AbiAZGpY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 01:45:24 -0500
-Received: from mail-io1-xd43.google.com (mail-io1-xd43.google.com [IPv6:2607:f8b0:4864:20::d43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9297FC06161C
-        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 22:45:24 -0800 (PST)
-Received: by mail-io1-xd43.google.com with SMTP id c188so4336519iof.6
-        for <stable@vger.kernel.org>; Tue, 25 Jan 2022 22:45:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
-        bh=S5sdFu0RQlZFvupo/qwNdlJ2GO8zZANN1PS6veJLDy8=;
-        b=o55YHxKSCE5OclZAURZSqv+Rt53sq2h+b8YxHA8yNlAD3hpSRNwOGvcDhzFhOoWEHo
-         XF2N/fDy+VzFpHifPbUWXUvcVdRus9Z8qoAS//OmfjWTWIGZsjspj4QIQc2wFB/iaVQ3
-         8hepGK9tuXf5W167D+Dm2kVySBL1VLsW40dfkeGCdSh1Dh+1CAzRqWWreggmvsJBM3NW
-         WhcjHkUAszmWbQjsgCbPFeFUy5XQ1fa2pCzGqXhCi3uQfVUh/Hza7XoHx0xP2NgTsJ2O
-         fEPjT85+5WCqNMG8Hn+/5AZK0/x/n0jBKx45kl+5MzLY0L31s7R/b4zrfxfftG+LfjYZ
-         zvuw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to;
-        bh=S5sdFu0RQlZFvupo/qwNdlJ2GO8zZANN1PS6veJLDy8=;
-        b=FNzGdfoZC2tTiPoiBJZRKRt4uhf+MpTD92J7DGiibbY5X0ff+7cgb46KMoqmcT9xRW
-         aTbmF1iRzYEPLmyNHzAInCUlVLi63N8HiFvpHZF5ovCtOvwDMfbyZleJWwleubQaptXd
-         7VQpihlsRrj9+FRnLdFdz2nuumMNTncbyaBozr3gpmAAmEXDoApZIOFwUItfT94pKXSF
-         WInkHcgBrG0q+rRaylXbAp0fkPysnV6FNw+281clHHCfxMynDTz8MYQZJ858AWOyK2A/
-         Ij77kHsbOXeSio3fWFB3+QyMNBGjKcTHA4xzL/PbRaByRfkZ9H9hlFSDkZfwfUe5zgMS
-         Ahig==
-X-Gm-Message-State: AOAM5335NhUSDsDEw6to/osnTOlBJYunzOLcKQsbl8CrRsumlQeumhQd
-        KxQNj4aCVY9rl5sPVzYQPgtUynXYVt4Nw88lJJc=
-X-Google-Smtp-Source: ABdhPJzCk0zepCaHr+cWV3ZLql/iTgHeNNgIN0EZBgSKyYHHOaK9CViUXSd8J/aTQpTKZZkUYl6MhmN9nNwGqq10iHw=
-X-Received: by 2002:a05:6638:407:: with SMTP id q7mr7009943jap.205.1643179523933;
- Tue, 25 Jan 2022 22:45:23 -0800 (PST)
+        id S237390AbiAZG6d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 01:58:33 -0500
+Received: from qproxy5-pub.mail.unifiedlayer.com ([69.89.21.30]:38765 "EHLO
+        qproxy5-pub.mail.unifiedlayer.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231213AbiAZG6c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 01:58:32 -0500
+Received: from gproxy1-pub.mail.unifiedlayer.com (gproxy1-pub.mail.unifiedlayer.com [69.89.25.95])
+        by qproxy5.mail.unifiedlayer.com (Postfix) with ESMTP id 20E7A80331D0
+        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 06:58:32 +0000 (UTC)
+Received: from cmgw10.mail.unifiedlayer.com (unknown [10.0.90.125])
+        by progateway3.mail.pro1.eigbox.com (Postfix) with ESMTP id 8F65010047DA1
+        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 06:58:31 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id CcGFnOtTunAlUCcGFnH8QF; Wed, 26 Jan 2022 06:58:31 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=QIOt+iHL c=1 sm=1 tr=0 ts=61f0f117
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=DghFqjY3_ZEA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=rYn84FZTEHGl0_Et6-UA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=YBnyJWfNvf5N7aKPcfmhphVrXJu4SPwQNasq8vcZGAk=; b=nmh1+aoeHWKKQYe7IhgjrfsEby
+        vqdfTYZEeCMtOLRiaTenWUdfBn1Z3wqmCWjIWZNHH/ROGOp/iam74lgzaGVtsC8eSrm2e7cXVbUyW
+        oVSEvEDjOf/rjAeNaFNCEd1Ng;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:51682 helo=[10.0.1.23])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <re@w6rz.net>)
+        id 1nCcGE-003qUY-78; Tue, 25 Jan 2022 23:58:30 -0700
+Message-ID: <143c49af-bedb-824b-4c45-2a74f23fbb70@w6rz.net>
+Date:   Tue, 25 Jan 2022 22:58:28 -0800
 MIME-Version: 1.0
-Reply-To: kl621816@gmail.com
-Sender: pet.kelvin1@gmail.com
-Received: by 2002:ac0:9a86:0:0:0:0:0 with HTTP; Tue, 25 Jan 2022 22:45:23
- -0800 (PST)
-From:   "Mr Ali Musa." <hippolytepilabre@gmail.com>
-Date:   Tue, 25 Jan 2022 18:45:23 -1200
-X-Google-Sender-Auth: XeUDZpTjC0qFF4W6v4kFhIoSILY
-Message-ID: <CAJ4RWgZH5cvDHjZ89tc_xpzfHeKNYnhaQ1uX=YUYVVVLJ0td9Q@mail.gmail.com>
-Subject: INTRODUCTION:
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH 5.15 000/841] 5.15.17-rc2 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        stable@vger.kernel.org
+References: <20220125155423.959812122@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+In-Reply-To: <20220125155423.959812122@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1nCcGE-003qUY-78
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.23]) [73.162.232.9]:51682
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 1
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear Friend,
+On 1/25/22 08:32, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.17 release.
+> There are 841 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 27 Jan 2022 15:52:30 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.17-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
- How are you today, Please accept my sincere apologies if my email
-does not meet your business or personal ethics, I really like to have
-a good relationship with you, and I have a special reason why I
-decided to contact you because of the urgency of my situation here.I
-came across your e-mail contact prior to a private search while in
-need of your assistance.
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-INTRODUCTION: Am Mr Ali Musa a Banker and in one way or the other was
-hoping you will cooperate with me as a partner in a project of
-transferring an abandoned fund of a late customer of the bank worth of
+Tested-by: Ron Economos <re@w6rz.net>
 
-$18,000,000 (Eighteen Million Dollars US).
-
-This will be disbursed or shared between the both of us in these
-percentages, 55% for me and 45% for you. Contact me immediately if
-that is alright with you so that we can enter in agreement before we
-start
-
-processing for the transfer of the funds. If you are satisfied with
-this proposal, please provide the below details for the Mutual
-Confidentiality Agreement:
-
-1. Full Name and Address
-
-2. Occupation and Country of Origin
-
-3. Telephone Number
-
-4. A scan copy of your identification
-
-I wait for your response so that we can commence on this transaction
-as soon as possible.
-
-Regards,
-Mr Ali Musa.
