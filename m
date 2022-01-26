@@ -2,144 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1717B49C639
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 10:23:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E292B49C6B5
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 10:42:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239055AbiAZJXB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 04:23:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42510 "EHLO
+        id S231996AbiAZJl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 04:41:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239048AbiAZJXA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 04:23:00 -0500
-Received: from mail-lf1-x12d.google.com (mail-lf1-x12d.google.com [IPv6:2a00:1450:4864:20::12d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBB67C06161C
-        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 01:22:59 -0800 (PST)
-Received: by mail-lf1-x12d.google.com with SMTP id y15so53526691lfa.9
-        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 01:22:59 -0800 (PST)
+        with ESMTP id S230306AbiAZJlm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 04:41:42 -0500
+Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B4D2C06175F;
+        Wed, 26 Jan 2022 01:41:42 -0800 (PST)
+Received: by mail-pj1-x1032.google.com with SMTP id g9-20020a17090a67c900b001b4f1d71e4fso5635294pjm.4;
+        Wed, 26 Jan 2022 01:41:42 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=embecosm.com; s=google;
-        h=date:from:to:cc:subject:message-id:user-agent:mime-version;
-        bh=oxq3ONKXLg1Y/487Gqg3QW4aZf1mljCDJdrAW5I3mhg=;
-        b=cm7I7BsDJFNjJUBKlGv7hAAbHygibT6PoqAhpR6aAYwMTQEBAF1WB7rK8o7oHYXYOU
-         ikD/+UDIO/i5qjfstDYzj/ho0udxh2mzCez+ISQcE6a/RVKm3WcNFRhS2x76NmqtCbEW
-         3EKuZgOR0er4uK1qLbj4qwN+hSRpIVs0tGAV02ei9xC/CcVVSohtoCkMCakQPCOPB8G8
-         1mPRM4I9r6M4H4ZP9VFtNHNfw4/QU410drd0XFyuZu/bT9AbPwAxoPNqbyyHLsbHhNOm
-         fprFGCfiNPjG3bALCA8KT8n118j8KP6n8g9MJvLg1OlQvBGAGY76apf7TzVRnFeMyYvB
-         KbcA==
+        d=gmail.com; s=20210112;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=4S4SnCn9eD0g7xG9Mm2dDQNDBGBOG83eXlCYQPAFPMo=;
+        b=MJMGW9hF6VHtArxCjhSKgW45DdofOq1qTJGtTPsntenbylZgbJ9MDkY73vHVwcpsj2
+         d9gOYmHbM4Nf4t2tMbBMhYzS2GkDsHC4RPncMHuwQKkohVCAcGl+7LUSOtPIM1nUulYB
+         zh2MHHVOGxfD9Rn6Wg5sxFcPd2D7M7Usbw1s+OJKF7J1hWjXOcjoqYUW2aiIg1abfGGy
+         OtWtWov1SnneYODvSF126kTGxGoZIut2I/dRgd7jGQZbE+5fq4nznV7iBzB8WuUH0zXk
+         K9TywWeRaTN08K4z1/gqopRLMy14/Mmsn/jBk1QXv1ESSC5OD6EzeJzaHNxkGMOHMctB
+         HrOw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:user-agent
-         :mime-version;
-        bh=oxq3ONKXLg1Y/487Gqg3QW4aZf1mljCDJdrAW5I3mhg=;
-        b=FtmjxJvx9csnVHYipmyey4kw4eSfdLZG9OveRWT7Ne+I4g2mdo7LL5wLKSZ7gIMnAe
-         t/sKgQ3B/qfAqA9lpYbnKZeP7VB98WVa598KKAoFrxxux+KJv+Qbgn0wx2XhFUf+9av5
-         9F6AGhjNBJun6RPr4SgFmzKoZfy7IyO91o3YK+hVov+wQ4odKZb/DkwwTrMz2YGmNQIC
-         KvmVNdfsZPrtP6z68bPs66IWNf8r/6irIOrw+qNCrfiUfQg/QdczCFh78VQzvKHCSAgy
-         Peclob/nIRhF6zwc2js4hE1+XB4sPbkKL1u5Yq2U/84W7fwzQhCMfbnEUZW8WlVZPVSz
-         DMgw==
-X-Gm-Message-State: AOAM533sKAIMrkP2xk8QSRHM1k53/GaRlRVAXGW0zxVyxsktExqmwPGR
-        nc19B+8tr7YByMMfWfO5pnCPRg==
-X-Google-Smtp-Source: ABdhPJwvPaCPS5CLF98P0Mkrjfe4wx0bAVFGthGkIN7HKtRCzPMNhkIMroK0rCznCe3EahhIVvnW/A==
-X-Received: by 2002:a05:6512:132a:: with SMTP id x42mr3836612lfu.2.1643188978245;
-        Wed, 26 Jan 2022 01:22:58 -0800 (PST)
-Received: from [192.168.219.3] ([78.8.192.131])
-        by smtp.gmail.com with ESMTPSA id b39sm1501589ljr.88.2022.01.26.01.22.56
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Wed, 26 Jan 2022 01:22:57 -0800 (PST)
-Date:   Wed, 26 Jan 2022 09:22:54 +0000 (GMT)
-From:   "Maciej W. Rozycki" <macro@embecosm.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>
-cc:     Christoph Hellwig <hch@infradead.org>,
-        linux-serial@vger.kernel.org, linux-kernel@vger.kernel.org,
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=4S4SnCn9eD0g7xG9Mm2dDQNDBGBOG83eXlCYQPAFPMo=;
+        b=BHhUHsbB7BnjpAGmUDRJ2oFQqq+6AA5Vi5blXWO5m6xUiV1tiCagVRh84Mr7vMIEMd
+         Lb+w7dNzfUCBtyxsTICwdU4+riXYhCjHezo+tF6pw1eLccz2pXWsaVIeYbLdDjE1xw7d
+         aBWJlzuIUqqpinMcg1ra9OZ1wxpxE5G3016iOcPX2HBp1em2tdeTijX6ZTx/18Y/d/VW
+         YMHqlijp2XRNcpikEbp82AkbcZI4J0KrUMouXQ52LDqS3i/4RZmeAZaLjz7Zzc13o712
+         dH/4CYwKyev+qCi10s7145MixG56iAz4zd17mXi8/v85lmwFnoTM9LOWyUSblaPwq0h3
+         XS6w==
+X-Gm-Message-State: AOAM5304zf0wVGEbEJrZ582YqXJYSOtzhb3TOIjTUNGZzhlLSGwOqGq0
+        lP955YHGgmd6aXs4TPfYlXo=
+X-Google-Smtp-Source: ABdhPJykoXtEX3wyHZ0RmV9fSH+ZRSOkMagr1QNuEmJEdTWS5+QBdhrSAOLHvAlgBqpV1cLn3Hb9kw==
+X-Received: by 2002:a17:902:6b87:b0:149:7d3c:124d with SMTP id p7-20020a1709026b8700b001497d3c124dmr22345578plk.57.1643190101978;
+        Wed, 26 Jan 2022 01:41:41 -0800 (PST)
+Received: from jason-ThinkPad-T14-Gen-1.lan ([66.187.5.142])
+        by smtp.gmail.com with ESMTPSA id r9sm16547576pga.2.2022.01.26.01.41.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Jan 2022 01:41:41 -0800 (PST)
+From:   Hongyu Xie <xy521521@gmail.com>
+To:     mathias.nyman@intel.com, gregkh@linuxfoundation.org
+Cc:     linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+        125707942@qq.com, Hongyu Xie <xiehongyu1@kylinos.cn>,
         stable@vger.kernel.org
-Subject: [PATCH v3] tty: Partially revert the removal of the Cyclades public
- API
-Message-ID: <alpine.DEB.2.20.2201260733430.11348@tpp.orcam.me.uk>
-User-Agent: Alpine 2.20 (DEB 67 2015-01-07)
+Subject: [PATCH -next] xhci: fix two places when dealing with return value of function xhci_check_args
+Date:   Wed, 26 Jan 2022 17:41:26 +0800
+Message-Id: <20220126094126.923798-1-xy521521@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Fix a user API regression introduced with commit f76edd8f7ce0 ("tty: 
-cyclades, remove this orphan"), which removed a part of the API and 
-caused compilation errors for user programs using said part, such as 
-GCC 9 in its libsanitizer component[1]:
+From: Hongyu Xie <xiehongyu1@kylinos.cn>
 
-.../libsanitizer/sanitizer_common/sanitizer_platform_limits_posix.cc:160:10: fatal error: linux/cyclades.h: No such file or directory
-  160 | #include <linux/cyclades.h>
-      |          ^~~~~~~~~~~~~~~~~~
-compilation terminated.
-make[4]: *** [Makefile:664: sanitizer_platform_limits_posix.lo] Error 1
+xhci_check_args returns 4 types of value, -ENODEV, -EINVAL, 1 and 0.
+xhci_urb_enqueue and xhci_check_streams_endpoint return -EINVAL if
+the return value of xhci_check_args <= 0.
+This will cause a problem.
+For example, r8152_submit_rx calling usb_submit_urb in
+drivers/net/usb/r8152.c.
+r8152_submit_rx will never get -ENODEV after submiting an urb
+when xHC is halted,
+because xhci_urb_enqueue returns -EINVAL in the very beginning.
 
-As the absolute minimum required bring `struct cyclades_monitor' and 
-ioctl numbers back then so as to make the library build again.  Add a 
-preprocessor warning as to the obsolescence of the features provided.
-
-References:
-
-[1] GCC PR sanitizer/100379, "cyclades.h is removed from linux kernel 
-    header files", <https://gcc.gnu.org/bugzilla/show_bug.cgi?id=100379>
-
-Signed-off-by: Maciej W. Rozycki <macro@embecosm.com>
-Fixes: f76edd8f7ce0 ("tty: cyclades, remove this orphan")
-Cc: stable@vger.kernel.org # v5.13+
+Fixes: 203a86613fb3 ("xhci: Avoid NULL pointer deref when host dies.")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hongyu Xie <xiehongyu1@kylinos.cn>
 ---
-Changes from v2:
+ drivers/usb/host/xhci.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-- Add #warning directives.
+diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
+index dc357cabb265..a7a55dd206fe 100644
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -1604,9 +1604,12 @@ static int xhci_urb_enqueue(struct usb_hcd *hcd, struct urb *urb, gfp_t mem_flag
+ 	struct urb_priv	*urb_priv;
+ 	int num_tds;
+ 
+-	if (!urb || xhci_check_args(hcd, urb->dev, urb->ep,
+-					true, true, __func__) <= 0)
++	if (!urb)
+ 		return -EINVAL;
++	ret = xhci_check_args(hcd, urb->dev, urb->ep,
++					true, true, __func__);
++	if (ret <= 0)
++		return ret;
+ 
+ 	slot_id = urb->dev->slot_id;
+ 	ep_index = xhci_get_endpoint_index(&urb->ep->desc);
+@@ -3323,7 +3326,7 @@ static int xhci_check_streams_endpoint(struct xhci_hcd *xhci,
+ 		return -EINVAL;
+ 	ret = xhci_check_args(xhci_to_hcd(xhci), udev, ep, 1, true, __func__);
+ 	if (ret <= 0)
+-		return -EINVAL;
++		return ret;
+ 	if (usb_ss_max_streams(&ep->ss_ep_comp) == 0) {
+ 		xhci_warn(xhci, "WARN: SuperSpeed Endpoint Companion"
+ 				" descriptor for ep 0x%x does not support streams\n",
+-- 
+2.25.1
 
-Changes from v1:
-
-- Adjust heading from "tty: Revert the removal of the Cyclades public API".
-
-- Only revert `struct cyclades_monitor' and ioctl numbers.
-
-- Properly format the change given that it's not a plain revert anymore.
----
- include/uapi/linux/cyclades.h |   35 +++++++++++++++++++++++++++++++++++
- 1 file changed, 35 insertions(+)
-
-linux-uapi-cyclades.diff
-Index: linux/include/uapi/linux/cyclades.h
-===================================================================
---- /dev/null
-+++ linux/include/uapi/linux/cyclades.h
-@@ -0,0 +1,35 @@
-+/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
-+
-+#ifndef _UAPI_LINUX_CYCLADES_H
-+#define _UAPI_LINUX_CYCLADES_H
-+
-+#warning "Support for features provided by this header has been removed"
-+#warning "Please consider updating your code"
-+
-+struct cyclades_monitor {
-+	unsigned long int_count;
-+	unsigned long char_count;
-+	unsigned long char_max;
-+	unsigned long char_last;
-+};
-+
-+#define CYGETMON		0x435901
-+#define CYGETTHRESH		0x435902
-+#define CYSETTHRESH		0x435903
-+#define CYGETDEFTHRESH		0x435904
-+#define CYSETDEFTHRESH		0x435905
-+#define CYGETTIMEOUT		0x435906
-+#define CYSETTIMEOUT		0x435907
-+#define CYGETDEFTIMEOUT		0x435908
-+#define CYSETDEFTIMEOUT		0x435909
-+#define CYSETRFLOW		0x43590a
-+#define CYGETRFLOW		0x43590b
-+#define CYSETRTSDTR_INV		0x43590c
-+#define CYGETRTSDTR_INV		0x43590d
-+#define CYZSETPOLLCYCLE		0x43590e
-+#define CYZGETPOLLCYCLE		0x43590f
-+#define CYGETCD1400VER		0x435910
-+#define CYSETWAIT		0x435912
-+#define CYGETWAIT		0x435913
-+
-+#endif /* _UAPI_LINUX_CYCLADES_H */
