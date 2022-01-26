@@ -2,96 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A906049CB62
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 14:53:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9641949CB88
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 14:54:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241658AbiAZNxN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 08:53:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50072 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240280AbiAZNxM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 08:53:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD976C06161C
-        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 05:53:12 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B469B81E1C
-        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 13:53:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7AC0C340E3;
-        Wed, 26 Jan 2022 13:53:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643205190;
-        bh=nHISZH64zKYND//NEAL8vb6kkpyGNFsFipv5D0154to=;
-        h=Subject:To:From:Date:From;
-        b=XSqEoLVfnGQGnNubWRyubSc68OpuX9CQTuVFSAjD4eQPTjHHSFXH2XCDadgyAWPEN
-         WsIlHfTIPjgadjLKanXEUE82MQmY+wfGA5Zf+3EY3FfcIzwkMYQh8GYLnE1mUcYP00
-         lfRi1+iLUzIuPeunvsTbK0MSzjL6pfLNhE3PVHOA=
-Subject: patch "serial: stm32: fix software flow control transfer" added to tty-linus
-To:     valentin.caron@foss.st.com, erwan.leray@foss.st.com,
-        gregkh@linuxfoundation.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Wed, 26 Jan 2022 14:52:59 +0100
-Message-ID: <164320517971239@kroah.com>
+        id S241732AbiAZNyj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 08:54:39 -0500
+Received: from foss.arm.com ([217.140.110.172]:41392 "EHLO foss.arm.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S241745AbiAZNye (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jan 2022 08:54:34 -0500
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id F007C1FB;
+        Wed, 26 Jan 2022 05:54:32 -0800 (PST)
+Received: from [192.168.178.6] (unknown [172.31.20.19])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id A06E23F793;
+        Wed, 26 Jan 2022 05:54:29 -0800 (PST)
+Subject: Re: [PATCH v3] sched/fair: Fix fault in reweight_entity
+To:     Tadeusz Struk <tadeusz.struk@linaro.org>, peterz@infradead.org
+Cc:     Ingo Molnar <mingo@redhat.com>, Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Zhang Qiao <zhangqiao22@huawei.com>,
+        Daniel Jordan <daniel.m.jordan@oracle.com>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        syzbot+af7a719bc92395ee41b3@syzkaller.appspotmail.com
+References: <20220125193403.778497-1-tadeusz.struk@linaro.org>
+From:   Dietmar Eggemann <dietmar.eggemann@arm.com>
+Message-ID: <bb01425b-0f6a-e69f-c24b-567821c1472f@arm.com>
+Date:   Wed, 26 Jan 2022 14:53:50 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+In-Reply-To: <20220125193403.778497-1-tadeusz.struk@linaro.org>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 25/01/2022 20:34, Tadeusz Struk wrote:
+> Syzbot found a GPF in reweight_entity. This has been bisected to commit
+> 4ef0c5c6b5ba ("kernel/sched: Fix sched_fork() access an invalid sched_task_group")
+> 
+> There is a race between sched_post_fork() and setpriority(PRIO_PGRP)
+> within a thread group that causes a null-ptr-deref in reweight_entity()
+> in CFS. The scenario is that the main process spawns number of new
+> threads, which then call setpriority(PRIO_PGRP, 0, -20), wait, and exit.
+> For each of the new threads the copy_process() gets invoked, which adds
+> the new task_struct and calls sched_post_fork() for it.
+> 
+> In the above scenario there is a possibility that setpriority(PRIO_PGRP)
+> and set_one_prio() will be called for a thread in the group that is just
+> being created by copy_process(), and for which the sched_post_fork() has
+> not been executed yet. This will trigger a null pointer dereference in
+> reweight_entity(), as it will try to access the run queue pointer, which
+> hasn't been set. This results it a crash as shown below:
+> 
+> KASAN: null-ptr-deref in range [0x00000000000000a0-0x00000000000000a7]
+> CPU: 0 PID: 2392 Comm: reduced_repro Not tainted 5.16.0-11201-gb42c5a161ea3
+> Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1.fc35 04/01/2014
+> RIP: 0010:reweight_entity+0x15d/0x440
+> RSP: 0018:ffffc900035dfcf8 EFLAGS: 00010006
+> Call Trace:
+> <TASK>
+> reweight_task+0xde/0x1c0
+> set_load_weight+0x21c/0x2b0
+> set_user_nice.part.0+0x2d1/0x519
+> set_user_nice.cold+0x8/0xd
+> set_one_prio+0x24f/0x263
+> __do_sys_setpriority+0x2d3/0x640
+> __x64_sys_setpriority+0x84/0x8b
+> do_syscall_64+0x35/0xb0
+> entry_SYSCALL_64_after_hwframe+0x44/0xae
+> </TASK>
+> ---[ end trace 9dc80a9d378ed00a ]---
+> 
+> Before the mentioned change the cfs_rq pointer for the task  has been
+> set in sched_fork(), which is called much earlier in copy_process(),
+> before the new task is added to the thread_group.
+> Now it is done in the sched_post_fork(), which is called after that.
+> To fix the issue the update_load condition passed to set_load_weight()
+> in set_user_nice() and __sched_setscheduler() has been changed from
+> always true to true if the task->state != TASK_NEW.
+> 
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: Peter Zijlstra <peterz@infradead.org>
+> Cc: Juri Lelli <juri.lelli@redhat.com>
+> Cc: Vincent Guittot <vincent.guittot@linaro.org>
+> Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
+> Cc: Steven Rostedt <rostedt@goodmis.org>
+> Cc: Ben Segall <bsegall@google.com>
+> Cc: Mel Gorman <mgorman@suse.de>
+> Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
+> Cc: Zhang Qiao <zhangqiao22@huawei.com>
+> Cc: Daniel Jordan <daniel.m.jordan@oracle.com>
+> Cc: stable@vger.kernel.org
+> Cc: linux-kernel@vger.kernel.org
+> 
+> Link: https://syzkaller.appspot.com/bug?id=9d9c27adc674e3a7932b22b61c79a02da82cbdc1
+> Fixes: 4ef0c5c6b5ba ("kernel/sched: Fix sched_fork() access an invalid sched_task_group")
+> Reported-by: syzbot+af7a719bc92395ee41b3@syzkaller.appspotmail.com
+> Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+> ---
+> Changes in v3:
+> - Removed the new check and changed the update_load condition from
+>   always true to true if p->state != TASK_NEW
+> 
+> Changes in v2:
+> - Added a check in set_user_nice(), and return from there if the task
+>   is not fully setup instead of returning from reweight_entity()
+> ---
+> ---
+>  kernel/sched/core.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+> index 848eaa0efe0e..3d7ede06b971 100644
+> --- a/kernel/sched/core.c
+> +++ b/kernel/sched/core.c
+> @@ -6921,7 +6921,7 @@ void set_user_nice(struct task_struct *p, long nice)
+>  		put_prev_task(rq, p);
+>  
+>  	p->static_prio = NICE_TO_PRIO(nice);
+> -	set_load_weight(p, true);
+> +	set_load_weight(p, !(READ_ONCE(p->__state) & TASK_NEW));
+>  	old_prio = p->prio;
+>  	p->prio = effective_prio(p);
+>  
+> @@ -7212,7 +7212,7 @@ static void __setscheduler_params(struct task_struct *p,
+>  	 */
+>  	p->rt_priority = attr->sched_priority;
+>  	p->normal_prio = normal_prio(p);
+> -	set_load_weight(p, true);
+> +	set_load_weight(p, !(READ_ONCE(p->__state) & TASK_NEW));
+>  }
 
-This is a note to let you know that I've just added the patch titled
+Can we then not get rid of `bool update_load` parameter of
+set_load_weight() completely?
 
-    serial: stm32: fix software flow control transfer
-
-to my tty git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
-in the tty-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 037b91ec7729524107982e36ec4b40f9b174f7a2 Mon Sep 17 00:00:00 2001
-From: Valentin Caron <valentin.caron@foss.st.com>
-Date: Tue, 11 Jan 2022 17:44:41 +0100
-Subject: serial: stm32: fix software flow control transfer
-
-x_char is ignored by stm32_usart_start_tx() when xmit buffer is empty.
-
-Fix start_tx condition to allow x_char to be sent.
-
-Fixes: 48a6092fb41f ("serial: stm32-usart: Add STM32 USART Driver")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Erwan Le Ray <erwan.leray@foss.st.com>
-Signed-off-by: Valentin Caron <valentin.caron@foss.st.com>
-Link: https://lore.kernel.org/r/20220111164441.6178-3-valentin.caron@foss.st.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/serial/stm32-usart.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
-index c1b8828451c8..9570002d07e7 100644
---- a/drivers/tty/serial/stm32-usart.c
-+++ b/drivers/tty/serial/stm32-usart.c
-@@ -742,7 +742,7 @@ static void stm32_usart_start_tx(struct uart_port *port)
- 	struct serial_rs485 *rs485conf = &port->rs485;
- 	struct circ_buf *xmit = &port->state->xmit;
+@@ -1214,8 +1214,9 @@ int tg_nop(struct task_group *tg, void *data)
+ }
+ #endif
  
--	if (uart_circ_empty(xmit))
-+	if (uart_circ_empty(xmit) && !port->x_char)
- 		return;
+-static void set_load_weight(struct task_struct *p, bool update_load)
++static void set_load_weight(struct task_struct *p)
+ {
++       int task_new = READ_ONCE(p->__state) & TASK_NEW;
+        int prio = p->static_prio - MAX_RT_PRIO;
+        struct load_weight *load = &p->se.load;
  
- 	if (rs485conf->flags & SER_RS485_ENABLED) {
--- 
-2.35.0
+@@ -1232,7 +1233,7 @@ static void set_load_weight(struct task_struct *p, bool update_load)
+         * SCHED_OTHER tasks have to update their load when changing their
+         * weight
+         */
+-       if (update_load && p->sched_class == &fair_sched_class) {
++       if (!task_new && p->sched_class == &fair_sched_class) {
+                reweight_task(p, prio);
+        } else {
+                load->weight = scale_load(sched_prio_to_weight[prio]);
 
 
+p in sched_fork() would have `p->__state = TASK_NEW` and in sched_init()
+`init_task->sched_class is NULL so != &fair_sched_class`.
