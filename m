@@ -2,80 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78EC349CC38
-	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 15:23:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37DD349CC53
+	for <lists+stable@lfdr.de>; Wed, 26 Jan 2022 15:29:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241704AbiAZOXP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 09:23:15 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:44662 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S241653AbiAZOXP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 09:23:15 -0500
+        id S235378AbiAZO3g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 09:29:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58856 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235227AbiAZO3f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 09:29:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54B4CC06161C;
+        Wed, 26 Jan 2022 06:29:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BCB2D61748;
-        Wed, 26 Jan 2022 14:23:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA6E8C340E3;
-        Wed, 26 Jan 2022 14:23:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A163B81E66;
+        Wed, 26 Jan 2022 14:29:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EDBFC340E3;
+        Wed, 26 Jan 2022 14:29:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643206994;
-        bh=8DSYXalK5kSrxQ9s1eHHwRmM7s51ea7r7mvSXt3y89A=;
+        s=k20201202; t=1643207372;
+        bh=pWEEutZGmoLYplYAkdgznvxnwOPUR3rQhhgjKa18Waw=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SOAoWeEJ3Sn4QHdSlaXJGXXCQ4kSaz1ykKHSTJMmfzwyS8iAdGFQXSD5PsawDRZ2g
-         FaKhpfJiQkXkgA00pvcMo1EOCT9GhG35Z+R/UInDc90IW24U0yqhybGOC1nDOFinjF
-         S520lHdw23iqwFLvClJQvli37GVrdAz2Dc79NfOZ5U1bH8dMQgfNLF4j5XZm5sOKfg
-         wvJOweV+A5FobZxBYaqBPDfYpd8TfIv1DHs5DXGnSMNZmRLy5n7dKa9R4mkIjjap0g
-         bOqNepPU3uW5ENI6N8oRmITFsirkLEo1ooj4IKdh2yDV+upiDzx/BiklqTQ5EZfPWy
-         SzRN9ik6ZLB5g==
-Date:   Wed, 26 Jan 2022 16:22:53 +0200
+        b=rN73OAcpkdhzmwGpRyhbVsfs0wx0G+AEvN+N2+ahYZTUceIo3Zj5x7crC1Xt4mXKq
+         gbxaZ/nRoJvOsWG+wleKubMpi13rwBRKlPvZteTwOssL+Qu44e+60NaO46fgH+thw6
+         4Hi1EZ9GJKLPrtFKOGFl0U7bXdSicOJY/Te4rBOb7Cl4Y1SonDYQLEKcsui2JpN5Ux
+         7t9bYMlBNdN4FGhMU88CrvJHt04WijzMI932IXS5YLTF+aadROyglqf0gddCLr6ISQ
+         gkjD30wO0I4oUDxmc7QjRDsIrFDTO8bpuAs21In7uacXdDke1aNctkBhDCuWzNbEvd
+         Vo+H5VFTO9/RA==
+Date:   Wed, 26 Jan 2022 16:29:12 +0200
 From:   Jarkko Sakkinen <jarkko@kernel.org>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     keyrings@vger.kernel.org, David Howells <dhowells@redhat.com>,
-        Denis Kenzior <denkenz@gmail.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        James Morris <james.morris@microsoft.com>,
-        linux-crypto@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 1/3] KEYS: asym_tpm: fix buffer overreads in
- extract_key_parameters()
-Message-ID: <YfFZPbKkgYJGWu1Q@iki.fi>
-References: <20220113235440.90439-1-ebiggers@kernel.org>
- <20220113235440.90439-2-ebiggers@kernel.org>
- <YeM/YIUTEwL4jNf3@iki.fi>
- <Yedigyl+WNhB58MO@sol.localdomain>
- <YfFY/trrVl3vse5I@iki.fi>
+To:     Reinette Chatre <reinette.chatre@intel.com>
+Cc:     dave.hansen@linux.intel.com, tglx@linutronix.de, bp@alien8.de,
+        luto@kernel.org, mingo@redhat.com, linux-sgx@vger.kernel.org,
+        x86@kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] x86/sgx: Silence softlockup detection when releasing
+ large enclaves
+Message-ID: <YfFauJSPU5TNetSe@iki.fi>
+References: <1aa037705e5aa209d8b7a075873c6b4190327436.1642530802.git.reinette.chatre@intel.com>
+ <e4e8fbe757860cd24e2f66b25be60d76663935d8.camel@kernel.org>
+ <71032a38-e1ab-ac73-09f7-9eefffd53674@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <YfFY/trrVl3vse5I@iki.fi>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <71032a38-e1ab-ac73-09f7-9eefffd53674@intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 26, 2022 at 04:21:53PM +0200, Jarkko Sakkinen wrote:
-> On Tue, Jan 18, 2022 at 04:59:47PM -0800, Eric Biggers wrote:
-> > On Sat, Jan 15, 2022 at 11:40:48PM +0200, Jarkko Sakkinen wrote:
-> > > > 
-> > > > - Avoid integer overflows when validating size fields; 'sz + 12' and
-> > > >   '4 + sz' overflowed if 'sz' is near U32_MAX.
-> > > 
-> > > So we have a struct tpm_header in include/linux/tpm.h. It would be way
-> > > more informative to use sizeof(struct tpm_header) than number 12, even
-> > > if the patch does not otherwise use the struct. It tells what it is, 12
-> > > does not.
-> > 
-> > I don't think that would be an improvement, given that the code is using
-> > hard-coded offsets.  If it's reading 4 bytes from cur + 8, it's much easier to
-> > understand that it needs 12 bytes than 'sizeof(struct tpm_header)' bytes.
-> > 
-> > I'd certainly encourage whoever is maintaining this code to change it to use
-> > structs instead, but that's not what this patch is meant to do.
+On Thu, Jan 20, 2022 at 08:28:36AM -0800, Reinette Chatre wrote:
+> Hi Jarkko,
 > 
-> I would consider dropping asym_tpm as it has no practical use cases
-> existing.
+> On 1/20/2022 5:01 AM, Jarkko Sakkinen wrote:
+> > On Tue, 2022-01-18 at 11:14 -0800, Reinette Chatre wrote:
+> >> Vijay reported that the "unclobbered_vdso_oversubscribed" selftest
+> >> triggers the softlockup detector.
+> >>
+> >> Actual SGX systems have 128GB of enclave memory or more.  The
+> >> "unclobbered_vdso_oversubscribed" selftest creates one enclave which
+> >> consumes all of the enclave memory on the system. Tearing down such a
+> >> large enclave takes around a minute, most of it in the loop where
+> >> the EREMOVE instruction is applied to each individual 4k enclave
+> >> page.
+> >>
+> >> Spending one minute in a loop triggers the softlockup detector.
+> >>
+> >> Add a cond_resched() to give other tasks a chance to run and placate
+> >> the softlockup detector.
+> >>
+> >> Cc: stable@vger.kernel.org
+> >> Fixes: 1728ab54b4be ("x86/sgx: Add a page reclaimer")
+> >> Reported-by: Vijay Dhanraj <vijay.dhanraj@intel.com>
+> >> Acked-by: Dave Hansen <dave.hansen@linux.intel.com>
+> >> Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
+> >> ---
+> >> Softlockup message:
+> >> watchdog: BUG: soft lockup - CPU#7 stuck for 22s! [test_sgx:11502]
+> >> Kernel panic - not syncing: softlockup: hung tasks
+> >> <snip>
+> >> sgx_encl_release+0x86/0x1c0
+> >> sgx_release+0x11c/0x130
+> >> __fput+0xb0/0x280
+> >> ____fput+0xe/0x10
+> >> task_work_run+0x6c/0xc0
+> >> exit_to_user_mode_prepare+0x1eb/0x1f0
+> >> syscall_exit_to_user_mode+0x1d/0x50
+> >> do_syscall_64+0x46/0xb0
+> >> entry_SYSCALL_64_after_hwframe+0x44/0xae
+> >>
+> >>  arch/x86/kernel/cpu/sgx/encl.c | 1 +
+> >>  1 file changed, 1 insertion(+)
+> >>
+> >> diff --git a/arch/x86/kernel/cpu/sgx/encl.c
+> >> b/arch/x86/kernel/cpu/sgx/encl.c
+> >> index 001808e3901c..ab2b79327a8a 100644
+> >> --- a/arch/x86/kernel/cpu/sgx/encl.c
+> >> +++ b/arch/x86/kernel/cpu/sgx/encl.c
+> >> @@ -410,6 +410,7 @@ void sgx_encl_release(struct kref *ref)
+> >>                 }
+> >>  
+> >>                 kfree(entry);
+> >> +               cond_resched();
+> >>         }
+> >>  
+> >>         xa_destroy(&encl->page_array);
+> > 
+> > I'd add a comment, e.g.
+> > 
+> > /* Invoke scheduler to prevent soft lockups. */
+> 
+> I could do that. I would like to point out though that there are already
+> six other usages of cond_resched() in the driver and it does indeed
+> seem to be the common pattern. When adding this comment to the now
+> seventh usage it would be the first comment documenting the usage of
+> cond_resched() in the driver.
+> 
+> > 
+> > Other than that makes sense.
+> 
+> Thank you very much for taking a look.
 
-At least I have zero motivation to maintain it as it does not meet
-any quality standards and is based on insecure crypto algorithms.
-I neither have participated to its review process.
+Well, I believe in inline comments to evolution. As in here it was missing,
+a reminder makes sense.
 
 /Jarkko
