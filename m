@@ -2,171 +2,208 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 364DC49ECE0
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 21:52:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43F0A49ECE6
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 21:57:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233171AbiA0UwK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jan 2022 15:52:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55078 "EHLO
+        id S245203AbiA0U5C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jan 2022 15:57:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240545AbiA0UwH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 15:52:07 -0500
-Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFE1BC061714;
-        Thu, 27 Jan 2022 12:52:06 -0800 (PST)
-Received: by mail-ej1-x62b.google.com with SMTP id jx6so8864056ejb.0;
-        Thu, 27 Jan 2022 12:52:06 -0800 (PST)
+        with ESMTP id S245158AbiA0U5B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 15:57:01 -0500
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F768C061714
+        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 12:57:01 -0800 (PST)
+Received: by mail-pf1-x429.google.com with SMTP id v74so3961134pfc.1
+        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 12:57:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=WefaG2bZ0HfgJlKTLmXL/u7dspC9BEptghWa9TWCUFU=;
-        b=nJ8DgQZuk1HkU7Go352DihCrB5BbXAWG/CzBlrL6kGx3Cm+anntQpEQry/spExuq/I
-         ZPT4rHs4GdSBFv6Pbyz8sftMRAUmty24FTz/nRkBwGuQVZOEnywGueq5zEcj7ATXc1kq
-         NmwniWMQcoGTUx8pWtPkmt1MefmU3hdCFJAKx25fzuPxwOtSvWtbOrU8EXvtMjdzeWJ4
-         SczEdYpeJPhLEr0083WOfpjlGn8Z1JpHESa6uHAuJtwLmcCIpwYLnyftLS40pt5LN28I
-         ZhPbuPnuT+LysXII2+MAKCDu2Y4RIqH5SaJGNXJVd3SmMAPBuPNOBUlyjmQZADhqblJr
-         kqVA==
+        d=linaro.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=tfXY+yoEkXRjHsPlcj+EE4YfwHLvMltbNM3WmPepjHA=;
+        b=ViP7LO+i4/X8Hza5L1TLV+4t5dn6LsbwwzM+xuF427VZ6hm3nM7jfWCKefjh/+qRTM
+         th0se3ZeJw+d25HTdz0fNd3X4YSWfmfU8XGrU/ru6srSikqzmOuSsbJGU1ZFwyThntYQ
+         TsEJLBtNw151HP+s+5wwC8cvBJw+DXaYIMKYW1BSLHa0zkxLBacK0LkumsvGcjj7l/TU
+         AUpREyLthSnm4F9S0ig/wBzlDRutKae1aZcHVWdW+XL0SJrbQ52Y7TZ5ChmVr6F4yZH3
+         0l4JNZmDqOwjvCppwxH/5b7lOv64dT81vAORBp1kjkP8td+S8uQh28xNhlBZa6n/ru1O
+         m92w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=WefaG2bZ0HfgJlKTLmXL/u7dspC9BEptghWa9TWCUFU=;
-        b=mIXmPhWPdYIKw4d2umgLfXDTVhNhEyhEPVNNaU2UIEYT+n/wFGxeJcebqzhYv2uUJY
-         Cqn1ZZq1HGjJU2q5YUx5nKeaEk0So4E0E5ALY0myC0Z7PLVHtk0T8uNj2pbZqOdhsTZm
-         euxirGKMH1yTNImRRuBXWYGsbO33ZXDA32ND46sxYYPJrZD6c4mOkd3Xy1LK6P+nUPj1
-         22I8nUS7Y2idSaixPj+q8SpGM3b07h6QmKC0teFCFFPdELDuZ6S5G1AU6OT/Gn2baURC
-         e195xscGA9xqOzOio6sgfXAFGVQUEANUPn68UF8Xz206ZgdLda86pN/39xnpl0S8Wde8
-         P7CQ==
-X-Gm-Message-State: AOAM53147sfeQhudtCA8BBEyOXX/4lEj+SUlTS1Hwb1VEtOvvrE7VRjl
-        PufiAkHnbiwpg+o+oyKbyqnZPaly3S1GFADcK7EQuuvwBzNEWA==
-X-Google-Smtp-Source: ABdhPJzAyG2YkQzSpeO+u6eaArLRq/UaVirSQbN6erle/oyEmdFKjVoUtfT/SbprDv/63oA7PQa0I0eFBmnbBnAetgw=
-X-Received: by 2002:a17:907:3d94:: with SMTP id he20mr4344300ejc.637.1643316725323;
- Thu, 27 Jan 2022 12:52:05 -0800 (PST)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=tfXY+yoEkXRjHsPlcj+EE4YfwHLvMltbNM3WmPepjHA=;
+        b=L04B6eJS3AkSv+Gfm1Or+e+vC4X7SG+rS4HRVS69uU8+SVNytEiAFIb/WDeBsCGQp9
+         dvK9XrjdxHkbgynfttwrU78Cx5tBblEhkmFJxLv+xRhmPfADofRyNpZCVSq/LxRvoxNF
+         vkun++9vTyessTlaz5jMX/DhCTkK8e1vd9jsDJqm27Igsj2FR6Tb98n2JSaZG3AfS+bx
+         AMMCHsaMN6FBD9nGVt3NJPnDyFr1+NYxCpkU2wb9hpcZzU3Qwypg+wiOK3w6bQ2c5HGM
+         DDgEwKBxN0yfqg+3aykCg+LwPZIgDXEZxLNPDEmhvWDfE/JJhtUszMTbS2WWxPNAyeZD
+         jCsQ==
+X-Gm-Message-State: AOAM533kvwfsGediwRYHYVEO3hrahyh5qYX7dx+WnThFBDoKoK43YS6d
+        xiPZ1KL41txwUFQDH2e3czX52g==
+X-Google-Smtp-Source: ABdhPJzjNYJyU2lRmm2ARtHfs1fz4x84l4Mv3pZVcHntWHtR8Cec3OXniogqV4YqFbiWauRmgfssHQ==
+X-Received: by 2002:a62:3042:: with SMTP id w63mr4562471pfw.71.1643317020815;
+        Thu, 27 Jan 2022 12:57:00 -0800 (PST)
+Received: from localhost.localdomain ([50.39.160.154])
+        by smtp.gmail.com with ESMTPSA id nv13sm216748pjb.18.2022.01.27.12.57.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 27 Jan 2022 12:57:00 -0800 (PST)
+From:   Tadeusz Struk <tadeusz.struk@linaro.org>
+To:     peterz@infradead.org
+Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>,
+        Ingo Molnar <mingo@redhat.com>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Zhang Qiao <zhangqiao22@huawei.com>, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        syzbot+af7a719bc92395ee41b3@syzkaller.appspotmail.com
+Subject: [PATCH v4] sched/fair: Fix fault in reweight_entity
+Date:   Thu, 27 Jan 2022 12:56:23 -0800
+Message-Id: <20220127205623.1258029-1-tadeusz.struk@linaro.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20220125193403.778497-1-tadeusz.struk@linaro.org>
+References: <20220125193403.778497-1-tadeusz.struk@linaro.org>
 MIME-Version: 1.0
-References: <20220120202805.3369-1-shy828301@gmail.com> <af603cbe-4a38-9947-5e6d-9a9328b473fb@redhat.com>
- <CAG48ez1xuZdELb=5ed1i0ruoFu5kAaWsf0LgRXEGhrDAcHz8fw@mail.gmail.com>
-In-Reply-To: <CAG48ez1xuZdELb=5ed1i0ruoFu5kAaWsf0LgRXEGhrDAcHz8fw@mail.gmail.com>
-From:   Yang Shi <shy828301@gmail.com>
-Date:   Thu, 27 Jan 2022 12:51:53 -0800
-Message-ID: <CAHbLzkqFRXuu95t1n-POn7Je_XVFZEJ3AAc_Cz9KzcDG05DBng@mail.gmail.com>
-Subject: Re: [v2 PATCH] fs/proc: task_mmu.c: don't read mapcount for migration entry
-To:     Jann Horn <jannh@google.com>
-Cc:     David Hildenbrand <david@redhat.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux MM <linux-mm@kvack.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 26, 2022 at 3:29 AM Jann Horn <jannh@google.com> wrote:
->
-> On Wed, Jan 26, 2022 at 11:51 AM David Hildenbrand <david@redhat.com> wrote:
-> > On 20.01.22 21:28, Yang Shi wrote:
-> > > The syzbot reported the below BUG:
-> > >
-> > > kernel BUG at include/linux/page-flags.h:785!
-> > > invalid opcode: 0000 [#1] PREEMPT SMP KASAN
-> > > CPU: 1 PID: 4392 Comm: syz-executor560 Not tainted 5.16.0-rc6-syzkaller #0
-> > > Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-> > > RIP: 0010:PageDoubleMap include/linux/page-flags.h:785 [inline]
-> > > RIP: 0010:__page_mapcount+0x2d2/0x350 mm/util.c:744
-> > > Code: e8 d3 16 d1 ff 48 c7 c6 c0 00 b6 89 48 89 ef e8 94 4e 04 00 0f 0b e8 bd 16 d1 ff 48 c7 c6 60 01 b6 89 48 89 ef e8 7e 4e 04 00 <0f> 0b e8 a7 16 d1 ff 48 c7 c6 a0 01 b6 89 4c 89 f7 e8 68 4e 04 00
-> > > RSP: 0018:ffffc90002b6f7b8 EFLAGS: 00010293
-> > > RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-> > > RDX: ffff888019619d00 RSI: ffffffff81a68c12 RDI: 0000000000000003
-> > > RBP: ffffea0001bdc2c0 R08: 0000000000000029 R09: 00000000ffffffff
-> > > R10: ffffffff8903e29f R11: 00000000ffffffff R12: 00000000ffffffff
-> > > R13: 00000000ffffea00 R14: ffffc90002b6fb30 R15: ffffea0001bd8001
-> > > FS:  00007faa2aefd700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
-> > > CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > > CR2: 00007fff7e663318 CR3: 0000000018c6e000 CR4: 00000000003506e0
-> > > DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> > > DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> > > Call Trace:
-> > >  <TASK>
-> > >  page_mapcount include/linux/mm.h:837 [inline]
-> > >  smaps_account+0x470/0xb10 fs/proc/task_mmu.c:466
-> > >  smaps_pte_entry fs/proc/task_mmu.c:538 [inline]
-> > >  smaps_pte_range+0x611/0x1250 fs/proc/task_mmu.c:601
-> > >  walk_pmd_range mm/pagewalk.c:128 [inline]
-> > >  walk_pud_range mm/pagewalk.c:205 [inline]
-> > >  walk_p4d_range mm/pagewalk.c:240 [inline]
-> > >  walk_pgd_range mm/pagewalk.c:277 [inline]
-> > >  __walk_page_range+0xe23/0x1ea0 mm/pagewalk.c:379
-> > >  walk_page_vma+0x277/0x350 mm/pagewalk.c:530
-> > >  smap_gather_stats.part.0+0x148/0x260 fs/proc/task_mmu.c:768
-> > >  smap_gather_stats fs/proc/task_mmu.c:741 [inline]
-> > >  show_smap+0xc6/0x440 fs/proc/task_mmu.c:822
-> > >  seq_read_iter+0xbb0/0x1240 fs/seq_file.c:272
-> > >  seq_read+0x3e0/0x5b0 fs/seq_file.c:162
-> > >  vfs_read+0x1b5/0x600 fs/read_write.c:479
-> > >  ksys_read+0x12d/0x250 fs/read_write.c:619
-> > >  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-> > >  do_syscall_64+0x35/0xb0 arch/x86/entry/common.c:80
-> > >  entry_SYSCALL_64_after_hwframe+0x44/0xae
-> > > RIP: 0033:0x7faa2af6c969
-> > > Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 11 15 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
-> > > RSP: 002b:00007faa2aefd288 EFLAGS: 00000246 ORIG_RAX: 0000000000000000
-> > > RAX: ffffffffffffffda RBX: 00007faa2aff4418 RCX: 00007faa2af6c969
-> > > RDX: 0000000000002025 RSI: 0000000020000100 RDI: 0000000000000003
-> > > RBP: 00007faa2aff4410 R08: 00007faa2aefd700 R09: 0000000000000000
-> > > R10: 00007faa2aefd700 R11: 0000000000000246 R12: 00007faa2afc20ac
-> > > R13: 00007fff7e6632bf R14: 00007faa2aefd400 R15: 0000000000022000
-> > >  </TASK>
-> > > Modules linked in:
-> > > ---[ end trace 24ec93ff95e4ac3d ]---
-> > > RIP: 0010:PageDoubleMap include/linux/page-flags.h:785 [inline]
-> > > RIP: 0010:__page_mapcount+0x2d2/0x350 mm/util.c:744
-> > > Code: e8 d3 16 d1 ff 48 c7 c6 c0 00 b6 89 48 89 ef e8 94 4e 04 00 0f 0b e8 bd 16 d1 ff 48 c7 c6 60 01 b6 89 48 89 ef e8 7e 4e 04 00 <0f> 0b e8 a7 16 d1 ff 48 c7 c6 a0 01 b6 89 4c 89 f7 e8 68 4e 04 00
-> > > RSP: 0018:ffffc90002b6f7b8 EFLAGS: 00010293
-> > > RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-> > > RDX: ffff888019619d00 RSI: ffffffff81a68c12 RDI: 0000000000000003
-> > > RBP: ffffea0001bdc2c0 R08: 0000000000000029 R09: 00000000ffffffff
-> > > R10: ffffffff8903e29f R11: 00000000ffffffff R12: 00000000ffffffff
-> > > R13: 00000000ffffea00 R14: ffffc90002b6fb30 R15: ffffea0001bd8001
-> > > FS:  00007faa2aefd700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
-> > > CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > > CR2: 00007fff7e663318 CR3: 0000000018c6e000 CR4: 00000000003506e0
-> > > DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-> > > DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-> > >
-> >
-> > Does this point at the bigger issue that reading the mapcount without
-> > having the page locked is completely unstable?
->
-> (See also https://lore.kernel.org/all/CAG48ez0M=iwJu=Q8yUQHD-+eZDg6ZF8QCF86Sb=CN1petP=Y0Q@mail.gmail.com/
-> for context.)
+Syzbot found a GPF in reweight_entity. This has been bisected to commit
+4ef0c5c6b5ba ("kernel/sched: Fix sched_fork() access an invalid sched_task_group")
 
-Thanks for the link. I saw you mentioned that pagemap code may have
-the same issue. I think so too by inspecting the code visually even
-though I didn't see any bug report. I think it could be fixed with the
-same solution by just specializing the migration entry without calling
-page_mapcount().
+There is a race between sched_post_fork() and setpriority(PRIO_PGRP)
+within a thread group that causes a null-ptr-deref in reweight_entity()
+in CFS. The scenario is that the main process spawns number of new
+threads, which then call setpriority(PRIO_PGRP, 0, -20), wait, and exit.
+For each of the new threads the copy_process() gets invoked, which adds
+the new task_struct and calls sched_post_fork() for it.
 
->
-> I'm not sure what you mean by "unstable". Do you mean "the result is
-> not guaranteed to still be valid when the call returns", "the result
-> might not have ever been valid", or "the call might crash because the
-> page's state as a compound page is unstable"?
->
-> In case you mean "the result is not guaranteed to still be valid when
-> the call returns":
-> We're just collecting stats for userspace, and by the time we return
-> to userspace, the numbers will be outdated anyway, so that doesn't
-> matter.
->
-> In case you mean "the result might not have ever been valid":
-> Yes, even with this patch applied, in theory concurrent THP splits
-> could cause us to count some page mappings twice. Arguably that's not
-> entirely correct.
->
-> In case you mean "the call might crash because the page's state as a
-> compound page could concurrently change":
-> As long as we have our own mapping of the page, the page can't be
-> split, so this patch fixes that problem.
+In the above scenario there is a possibility that setpriority(PRIO_PGRP)
+and set_one_prio() will be called for a thread in the group that is just
+being created by copy_process(), and for which the sched_post_fork() has
+not been executed yet. This will trigger a null pointer dereference in
+reweight_entity(), as it will try to access the run queue pointer, which
+hasn't been set. This results it a crash as shown below:
+
+KASAN: null-ptr-deref in range [0x00000000000000a0-0x00000000000000a7]
+CPU: 0 PID: 2392 Comm: reduced_repro Not tainted 5.16.0-11201-gb42c5a161ea3
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1.fc35 04/01/2014
+RIP: 0010:reweight_entity+0x15d/0x440
+RSP: 0018:ffffc900035dfcf8 EFLAGS: 00010006
+Call Trace:
+<TASK>
+reweight_task+0xde/0x1c0
+set_load_weight+0x21c/0x2b0
+set_user_nice.part.0+0x2d1/0x519
+set_user_nice.cold+0x8/0xd
+set_one_prio+0x24f/0x263
+__do_sys_setpriority+0x2d3/0x640
+__x64_sys_setpriority+0x84/0x8b
+do_syscall_64+0x35/0xb0
+entry_SYSCALL_64_after_hwframe+0x44/0xae
+</TASK>
+---[ end trace 9dc80a9d378ed00a ]---
+
+Before the mentioned change the cfs_rq pointer for the task  has been
+set in sched_fork(), which is called much earlier in copy_process(),
+before the new task is added to the thread_group.
+Now it is done in the sched_post_fork(), which is called after that.
+To fix the issue the remove the update_load param from the
+update_load param() function and call reweight_task() only if the task
+flag doesn't have the TASK_NEW flag set.
+
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Juri Lelli <juri.lelli@redhat.com>
+Cc: Vincent Guittot <vincent.guittot@linaro.org>
+Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ben Segall <bsegall@google.com>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
+Cc: Zhang Qiao <zhangqiao22@huawei.com>
+Cc: stable@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+
+Link: https://syzkaller.appspot.com/bug?id=9d9c27adc674e3a7932b22b61c79a02da82cbdc1
+Fixes: 4ef0c5c6b5ba ("kernel/sched: Fix sched_fork() access an invalid sched_task_group")
+Reported-by: syzbot+af7a719bc92395ee41b3@syzkaller.appspotmail.com
+Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
+---
+Changes in v4:
+- Removed the update_load param from set_load_weight() and call
+  reweight_task() based on the TASK_NEW flag
+
+Changes in v3:
+- Removed the new check and changed the update_load condition from
+  always true to true if p->state != TASK_NEW
+
+Changes in v2:
+- Added a check in set_user_nice(), and return from there if the task
+  is not fully setup instead of returning from reweight_entity()
+---
+ kernel/sched/core.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
+
+diff --git a/kernel/sched/core.c b/kernel/sched/core.c
+index 848eaa0efe0e..a0ef4670e695 100644
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -1214,10 +1214,12 @@ int tg_nop(struct task_group *tg, void *data)
+ }
+ #endif
+ 
+-static void set_load_weight(struct task_struct *p, bool update_load)
++static void set_load_weight(struct task_struct *p)
+ {
+ 	int prio = p->static_prio - MAX_RT_PRIO;
+ 	struct load_weight *load = &p->se.load;
++	bool update_load = !(READ_ONCE(p->__state) & TASK_NEW);
++
+ 
+ 	/*
+ 	 * SCHED_IDLE tasks get minimal weight:
+@@ -4406,7 +4408,7 @@ int sched_fork(unsigned long clone_flags, struct task_struct *p)
+ 			p->static_prio = NICE_TO_PRIO(0);
+ 
+ 		p->prio = p->normal_prio = p->static_prio;
+-		set_load_weight(p, false);
++		set_load_weight(p);
+ 
+ 		/*
+ 		 * We don't need the reset flag anymore after the fork. It has
+@@ -6921,7 +6923,7 @@ void set_user_nice(struct task_struct *p, long nice)
+ 		put_prev_task(rq, p);
+ 
+ 	p->static_prio = NICE_TO_PRIO(nice);
+-	set_load_weight(p, true);
++	set_load_weight(p);
+ 	old_prio = p->prio;
+ 	p->prio = effective_prio(p);
+ 
+@@ -7212,7 +7214,7 @@ static void __setscheduler_params(struct task_struct *p,
+ 	 */
+ 	p->rt_priority = attr->sched_priority;
+ 	p->normal_prio = normal_prio(p);
+-	set_load_weight(p, true);
++	set_load_weight(p);
+ }
+ 
+ /*
+@@ -9445,7 +9447,7 @@ void __init sched_init(void)
+ #endif
+ 	}
+ 
+-	set_load_weight(&init_task, false);
++	set_load_weight(&init_task);
+ 
+ 	/*
+ 	 * The boot idle thread does lazy MMU switching as well:
+-- 
+2.34.1
+
