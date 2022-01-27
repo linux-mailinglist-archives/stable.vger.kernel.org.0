@@ -2,99 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A674449E657
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 16:42:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1E6A49E654
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 16:42:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242899AbiA0PmG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jan 2022 10:42:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38536 "EHLO
+        id S237898AbiA0Pl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jan 2022 10:41:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238286AbiA0PmF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 10:42:05 -0500
-Received: from mail-lf1-x131.google.com (mail-lf1-x131.google.com [IPv6:2a00:1450:4864:20::131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82D0AC061714
-        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 07:42:05 -0800 (PST)
-Received: by mail-lf1-x131.google.com with SMTP id z19so6073872lfq.13
-        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 07:42:05 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=MfyhRIJpExvB5oLC8bK80nt6dS7pKQKJ+WzxTeqwLMk=;
-        b=mzVnI9hpBJqoZJb51BXe/CTWQy7ox1o88fNB47TS3//euJpqZI/oivu1J7IB1UFWJP
-         43TYlpPyn5VyOdkq010nfXCa3bNGsn0wh1gCCszlkBJCAVZ3ubVFoOpt3E+r7rn+auaK
-         2w5MnvjQLTtDjGio6q1lBH/9U+4XSff3eG3Pr6MewWoza3mxSjrM8r+e8NvxLKVs7o5a
-         a0Yf3wcXOiUR0rxGU5yqKXXON8ovGUsQhYzKPTuEidVeUKN0/+tQRbr4ELQpUHcqdrVI
-         RFcS7tS0Ezsvz/NHfuBCLFx8X5gUpNhK+yDzqpB2CKAeq8DygU/WUuogLlY0qnnZDNR2
-         eqfw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=MfyhRIJpExvB5oLC8bK80nt6dS7pKQKJ+WzxTeqwLMk=;
-        b=RJEIoDqGHE8o68bKEI0BXSy94q4h7m4mMw4Wm4YaDpSSxvgkB697u6hiu3yMNNbxBf
-         2Zkx/39DZv85UExa7bXg1rzq54ZNq9vunNJwocytYWs5PR5qmn9wZEBWl++D3Ryv6fxX
-         nU/GLZC2oLwZXq8Hyu3X/IT1SRXsokRqijd0s925fQVKU0sq2s8IYQ0VSLt7HD/NTvw0
-         25DM56ycvFdokOudsIsRUomPhtsYkJGt9FXiWoGkBXABrTpEz5QKUCmvyr+BKmAxMzQd
-         Gg/KEFhaFqonVABnRGrsi2QX8C+ovpfY+TWbonpVX3bLnNbQ6P291qVRMJbMeygVLFeJ
-         fy3g==
-X-Gm-Message-State: AOAM531pu2hDZAd/05ajRq676y3gQxJnpsIYjFl5hIBCb14sv8BA1tDH
-        TTT+B0Qdj4W3lwJC8BZ18+wd7HVAoygAiZT5QExZNg==
-X-Google-Smtp-Source: ABdhPJyHf+Jl4G149KcLmKjH0/4FJlFN3TGPnzzUNBugVy4tA4FH9JO8/yGxeymhQL/z3i9e+IhExPFRJaBplGbFCII=
-X-Received: by 2002:ac2:4e66:: with SMTP id y6mr3106759lfs.184.1643298123642;
- Thu, 27 Jan 2022 07:42:03 -0800 (PST)
+        with ESMTP id S231428AbiA0Pl7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 10:41:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B287BC061714;
+        Thu, 27 Jan 2022 07:41:58 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7CCEBB80185;
+        Thu, 27 Jan 2022 15:41:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A325C340E8;
+        Thu, 27 Jan 2022 15:41:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1643298116;
+        bh=lgh5duDb2OaMpb8AC9iwUYMi+3DL9JsLL4D3JVIHU/A=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=s/MeKAArX7Yo0sq/xvZjIZLmYADos2UrxYkG9o/IcvQ0rbbTFN3uCspY3NT93l8Hx
+         ttz5yXfCBzdQZKB8OXwVY/mBNuSJn4zqf+ObhFSRHM3UXntseV/B7q22LDtP67TyYL
+         8/glk3xtjenSpmOWv1wMNTgG6fL/LRhgB82RMfSc=
+Date:   Thu, 27 Jan 2022 16:41:53 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Florian Fainelli <f.fainelli@gmail.com>
+Cc:     stable@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Ray Jui <rjui@broadcom.com>,
+        Scott Branden <sbranden@broadcom.com>,
+        "maintainer:BROADCOM BCM281XX/BCM11XXX/BCM216XX ARM ARCHITE..." 
+        <bcm-kernel-feedback-list@broadcom.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Eric Anholt <eric@anholt.net>,
+        Stefan Wahren <wahrenst@gmx.net>,
+        Nicolas Saenz Julienne <nsaenz@kernel.org>,
+        Phil Elwell <phil@raspberrypi.com>,
+        "open list:OPEN FIRMWARE AND FLATTENED DEVICE TREE BINDINGS" 
+        <devicetree@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        "open list:PIN CONTROL SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        "moderated list:BROADCOM BCM2711/BCM2835 ARM ARCHITECTURE" 
+        <linux-rpi-kernel@lists.infradead.org>,
+        "moderated list:BROADCOM BCM2711/BCM2835 ARM ARCHITECTURE" 
+        <linux-arm-kernel@lists.infradead.org>
+Subject: Re: [PATCH stable 5.4 0/7] pinctrl-bcm2835 gpio-ranges bugfix
+Message-ID: <YfK9QfDm/p7XmgFq@kroah.com>
+References: <20220125194222.12783-1-f.fainelli@gmail.com>
 MIME-Version: 1.0
-References: <CABWYdi28yMU2YbJGKvPb91HR7yYAEyq3Zg6QeeBUk3KwjiyTMg@mail.gmail.com>
- <YfK6gfXZZGNqsnyr@kroah.com>
-In-Reply-To: <YfK6gfXZZGNqsnyr@kroah.com>
-From:   Shakeel Butt <shakeelb@google.com>
-Date:   Thu, 27 Jan 2022 07:41:52 -0800
-Message-ID: <CALvZod76vX94jG0W9f-RJGu9pSYi_uMw5BE6xfL9p30pgLShUQ@mail.gmail.com>
-Subject: Re: Backport memcg flush improvements into 5.15
-To:     Greg KH <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linux MM <linux-mm@kvack.org>
-Cc:     Ivan Babrou <ivan@cloudflare.com>, stable <stable@vger.kernel.org>,
-        kernel-team <kernel-team@cloudflare.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220125194222.12783-1-f.fainelli@gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-+Andrew & linux-mm
+On Tue, Jan 25, 2022 at 11:42:15AM -0800, Florian Fainelli wrote:
+> Hi all,
+> 
+> This patch series is intended to backport the fix from Phil "pinctrl:
+> bcm2835: Change init order for gpio hogs" into the 5.4 tree since the
+> blamed commit:
+> 
+> 73345a18d464b ("pinctrl: bcm2835: Pass irqchip when adding gpiochip")
+> 
+> is in 5.4. To get there, I did backport a number of changes in order for
+> the commit "pinctrl: bcm2835: Change init order for gpio hogs" to apply
+> cleanly with no hunks.
+> 
+> Those should have no functional impact since we do not have support for
+> 7211 or 2711 in the upstream stable 5.4.
+> 
+> Both the pinctrl *and* the DTS changes must be taken in lockstep
+> otherwise the GPIO pins are simply not usable unfortunately.
+> 
+> Thanks!
+> 
+> Florian Fainelli (2):
+>   pinctrl: bcm2835: Match BCM7211 compatible string
+>   pinctrl: bcm2835: Add support for wake-up interrupts
+> 
+> Phil Elwell (2):
+>   pinctrl: bcm2835: Change init order for gpio hogs
+>   ARM: dts: gpio-ranges property is now required
+> 
+> Stefan Wahren (3):
+>   pinctrl: bcm2835: Drop unused define
+>   pinctrl: bcm2835: Refactor platform data
+>   pinctrl: bcm2835: Add support for all GPIOs on BCM2711
+> 
+>  arch/arm/boot/dts/bcm283x.dtsi        |   1 +
+>  drivers/pinctrl/bcm/pinctrl-bcm2835.c | 209 +++++++++++++++++++++-----
+>  2 files changed, 175 insertions(+), 35 deletions(-)
+> 
+> -- 
+> 2.25.1
+> 
 
-On Thu, Jan 27, 2022 at 7:30 AM Greg KH <gregkh@linuxfoundation.org> wrote:
->
-> On Wed, Jan 19, 2022 at 04:15:34PM -0800, Ivan Babrou wrote:
-> > Hello,
-> >
-> > We've seen a significant perf degradation when reading a tmpfs file
-> > swapped into zram between 5.10 and 5.15. The source of the issue is:
-> >
-> > * aa48e47e3906: memcg: infrastructure to flush memcg stats
-> >
-> > There's a couple of commits that helps to bridge the gap in 5.16:
-> >
-> > * 11192d9c124d: memcg: flush stats only if updated
-> > * fd25a9e0e23b: memcg: unify memcg stat flushing
-> >
-> > Both of these apply cleanly and Shakeel (the author) has okayed the
-> > backport from his end. He also suggested backporting the following:
-> >
-> > * 5b3be698a872: memcg: better bounds on the memcg stats updates
-> >
-> > I personally did not test this one, but it applies cleanly, so there's
-> > probably no harm. I cc'd Shakeel in case you want confirmation on
-> > that. It's not a part of any tag yet.
-> >
-> > Please backport all three (or at least the first two) to 5.15 LTS.
->
-> All now queued up, thanks!
+All now queued up, thanks.
 
-Thanks Greg.
-
-Adding Andrew (and linux-mm) in CC to let him know the reason for
-backporting these patches to 5.15 stable tree.
-
->
-> greg k-h
+greg k-h
