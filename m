@@ -2,243 +2,169 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 664C149D9DB
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 06:11:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C85F49DA2B
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 06:29:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235386AbiA0FLu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jan 2022 00:11:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36018 "EHLO
+        id S233433AbiA0F3F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jan 2022 00:29:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234894AbiA0FLt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 00:11:49 -0500
-Received: from mail-ot1-x333.google.com (mail-ot1-x333.google.com [IPv6:2607:f8b0:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C66B7C06161C
-        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 21:11:49 -0800 (PST)
-Received: by mail-ot1-x333.google.com with SMTP id j38-20020a9d1926000000b0059fa6de6c71so1450089ota.10
-        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 21:11:49 -0800 (PST)
+        with ESMTP id S232216AbiA0F3E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 00:29:04 -0500
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B897C06173B
+        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 21:29:04 -0800 (PST)
+Received: by mail-pl1-x62a.google.com with SMTP id c3so1559738pls.5
+        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 21:29:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :cc:references:from:in-reply-to:content-transfer-encoding;
-        bh=0WavDbiXhuA03gYWGSNa5oKNFEZNZYp50LoM1mwUDtY=;
-        b=Zc6MuVhQ+gpE5wvN06j4DMukaENtJlgOJjpGHJvG4HMHePI4RwBB6IxUrCpz5Eqn2C
-         2kZCfjtC1vlSR9obsbby653CW+HBz0Md+1hw5wSB6o2rbss76dYi62BdTiN2coKNSsnx
-         xpNDEphQgMWfVKO9AFO8gAqjTw9cKpjrCGWgm+EQj91jD4XmGukgUZHD9i612Q0rG7Yo
-         l6PaPUYL5mzWeFcAOWtB+6oYFiwyHi1AXXx4NTcgu+KT5jLEc/vf0gqys11jQGhQQG0X
-         A+kUacfP96LCrZ/oTIckExCmXBU7BUz7NYe39Ix6TavgNZ6hXkNvuJ3+MUUFOFx+hfCn
-         fcHw==
+        d=chromium.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=beUbO3aZF/2kD/fftJXd1EMY7Ug/jw5Wb5BLQxmuCc0=;
+        b=Mkb0P6sWcL3VkVCy3yV8rbOVXIel3FZSZaHpdJ8N0lcjYq6zyx4hUi4mBTLMFaZHeJ
+         lQOR0wGzTYdQ3uC9REhaHrWW8kVj+HKmE2/bLDMmx/G+cO0ZRzYvQBxl7fh/1edZVY++
+         1c90ytUDBbGfHOe4ubEL896FjJreV4KMOheIs=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=0WavDbiXhuA03gYWGSNa5oKNFEZNZYp50LoM1mwUDtY=;
-        b=1b+6SDPJFrOZfvuUjqvVD5VZ6uD00PPF2WRRsEKjE+ruNZVF8QhShVoXM9LB7GxA0J
-         xfd6SmMx5Zl8FSA9Jy2CGx8qKGHAhTHhH8D30YBYm9bTKmEJUrtpfeUpHlzElpgcmnda
-         AaAgIQtDhAniDXvtjoue10kSJCMd1F/gwF5QfLWnq0if8V0w3u3Z4ZvlGvddqXWIxpWV
-         eGxNLvAWu9EVGZ5fw2uvln5foTWcPvF3HJNNsp2WSNlz1xAGxVb0dWXg5m2LuYxW9m3g
-         jBEGpPtWq3/aqLeh/Hb5ue4xcAZ9qRc49j1/B0MwC9xhQoZC+LQAujoKbYv80nrEuWcG
-         4ryw==
-X-Gm-Message-State: AOAM531ltNL4umC0d71RCTnspFQFz/brf3jS9BQKYqCUCp4InTNhuaBJ
-        DYsjWH0LkP0mvpQaJ7S3dhs8Aw==
-X-Google-Smtp-Source: ABdhPJx8xBnOvSAnfruFGMB1nrLzSkHHCOYgTXNbPJc8IxD/rELkJfKx7W3wI8haHGPI2z61qY/HYw==
-X-Received: by 2002:a9d:5d12:: with SMTP id b18mr1356048oti.168.1643260309053;
-        Wed, 26 Jan 2022 21:11:49 -0800 (PST)
-Received: from [192.168.17.16] ([189.219.72.83])
-        by smtp.gmail.com with ESMTPSA id g4sm9070849otl.1.2022.01.26.21.11.48
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 26 Jan 2022 21:11:48 -0800 (PST)
-Message-ID: <ddd3f2e1-ed1d-82ce-cc8e-562be2ae5152@linaro.org>
-Date:   Wed, 26 Jan 2022 23:11:47 -0600
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=beUbO3aZF/2kD/fftJXd1EMY7Ug/jw5Wb5BLQxmuCc0=;
+        b=zm8J1SkJUQcKqqnDUsFlwMt4FCkEYEru/jetG+M5J7TPSWkgQys0/9HDMxk06+lbw8
+         PYUcPf0Y4LetzfYmblc6S5sNBlNjTsoML3Au31GzydAzg4uygwJuhKwEQ9+tlK/fUtf3
+         zgnkuaOC2wrbPyxKbmPpUS+8G2rPrvykRK4fgwaB/Gp3WeitC3zveVUnsuNrd0Bd3ooJ
+         iJ1px24yn/fNWBDUchTDFwm4L8kmPr3ZJySmYgnDdkElTo0v3E/UXw1P5XkVqZ3V3G+O
+         ivNCVdpKUDBz2YTRHlYen7g5Q1ToMdN1xuQd+uxM24j8MoMf3AkERWU2wcKTMw3UQNBO
+         1Iew==
+X-Gm-Message-State: AOAM531rKnTct4h3oLtnJ9T5HLsIYdhzQuk5Sa72nyX0Ph9YuwnmqOqU
+        Wml9fur9RRsnzbexLwZhHP6CxA==
+X-Google-Smtp-Source: ABdhPJwXGj2Q6bkytWK59hvGMzK64mkTpY3dYCfOP2HGl0XbWy3r/zGyfAjqVAai7Y4ZsX1k9UxMgw==
+X-Received: by 2002:a17:903:2309:: with SMTP id d9mr1768705plh.149.1643261344044;
+        Wed, 26 Jan 2022 21:29:04 -0800 (PST)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id n4sm6545740pjf.0.2022.01.26.21.29.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 26 Jan 2022 21:29:03 -0800 (PST)
+Date:   Wed, 26 Jan 2022 21:29:02 -0800
+From:   Kees Cook <keescook@chromium.org>
+To:     Ariadne Conill <ariadne@dereferenced.org>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Eric Biederman <ebiederm@xmission.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Michael Kerrisk <mtk.manpages@gmail.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Rich Felker <dalias@libc.org>, linux-mm@kvack.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v3] fs/exec: require argv[0] presence in
+ do_execveat_common()
+Message-ID: <202201262119.105FA8BCA9@keescook>
+References: <20220127000724.15106-1-ariadne@dereferenced.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH 5.16 0000/1033] 5.16.3-rc2 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org, lkft-triage@lists.linaro.org,
-        linux@roeck-us.net
-References: <20220125155447.179130255@linuxfoundation.org>
-From:   =?UTF-8?Q?Daniel_D=c3=adaz?= <daniel.diaz@linaro.org>
-In-Reply-To: <20220125155447.179130255@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20220127000724.15106-1-ariadne@dereferenced.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello!
-
-We didn't get the notification for this release candidate. Thanks for the heads up, Guenter!
-
-On 1/25/22 10:33, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.16.3 release.
-> There are 1033 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Thu, Jan 27, 2022 at 12:07:24AM +0000, Ariadne Conill wrote:
+> In several other operating systems, it is a hard requirement that the
+> second argument to execve(2) be the name of a program, thus prohibiting
+> a scenario where argc < 1.  POSIX 2017 also recommends this behaviour,
+> but it is not an explicit requirement[0]:
 > 
-> Responses should be made by Thu, 27 Jan 2022 15:52:30 +0000.
-> Anything received after that time might be too late.
+>     The argument arg0 should point to a filename string that is
+>     associated with the process being started by one of the exec
+>     functions.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.3-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
-> and the diffstat can be found below.
+> To ensure that execve(2) with argc < 1 is not a useful tool for
+> shellcode to use, we can validate this in do_execveat_common() and
+> fail for this scenario, effectively blocking successful exploitation
+> of CVE-2021-4034 and similar bugs which depend on execve(2) working
+> with argc < 1.
 > 
-> thanks,
+> We use -EINVAL for this case, mirroring recent changes to FreeBSD and
+> OpenBSD.  -EINVAL is also used by QNX for this, while Solaris uses
+> -EFAULT.
 > 
-> greg k-h
+> In earlier versions of the patch, it was proposed that we create a
+> fake argv for applications to use when argc < 1, but it was concluded
+> that it would be better to just fail the execve(2) in these cases, as
+> launching a process with an empty or NULL argv[0] was likely to just
+> cause more problems.
 
-Results from Linaro's test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Let's do it and see what breaks. :)
 
-## Build
-* kernel: 5.16.3-rc2
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.16.y
-* git commit: 39cb7e05eaf4fd55c6445fe8fe9ffa7f8d329205
-* git describe: v5.16.2-1034-g39cb7e05eaf4
-* test details: https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.16.y/build/v5.16.2-1034-g39cb7e05eaf4
+I do see at least tools/testing/selftests/exec/recursion-depth.c will
+need a fix. And maybe testcases/kernel/syscalls/execveat/execveat.h
+in LTP.
 
-## No test Regressions (compared to v5.16.2)
+Acked-by: Kees Cook <keescook@chromium.org>
 
-## No metric Regressions (compared to v5.16.2)
-
-## No test Fixes (compared to v5.16.2)
-
-## No metric Fixes (compared to v5.16.2)
-
-## Test result summary
-total: 105828, pass: 89914, fail: 1186, skip: 13585, xfail: 1143
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 263 total, 261 passed, 2 failed
-* arm64: 42 total, 42 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 40 total, 37 passed, 3 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 37 total, 35 passed, 2 failed
-* parisc: 14 total, 14 passed, 0 failed
-* powerpc: 56 total, 50 passed, 6 failed
-* riscv: 28 total, 24 passed, 4 failed
-* s390: 22 total, 20 passed, 2 failed
-* sh: 26 total, 24 passed, 2 failed
-* sparc: 14 total, 14 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 42 total, 42 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-lockt[
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-
-
-Greetings!
-
-Daniel Díaz
-daniel.diaz@linaro.org
+> 
+> Interestingly, Michael Kerrisk opened an issue about this in 2008[1],
+> but there was no consensus to support fixing this issue then.
+> Hopefully now that CVE-2021-4034 shows practical exploitative use[2]
+> of this bug in a shellcode, we can reconsider.
+> 
+> This issue is being tracked in the KSPP issue tracker[3].
+> 
+> There are a few[4][5] minor edge cases (primarily in test suites) that
+> are caught by this, but we plan to work with the projects to fix those
+> edge cases.
+> 
+> [0]: https://pubs.opengroup.org/onlinepubs/9699919799/functions/exec.html
+> [1]: https://bugzilla.kernel.org/show_bug.cgi?id=8408
+> [2]: https://www.qualys.com/2022/01/25/cve-2021-4034/pwnkit.txt
+> [3]: https://github.com/KSPP/linux/issues/176
+> [4]: https://codesearch.debian.net/search?q=execve%5C+*%5C%28%5B%5E%2C%5D%2B%2C+*NULL&literal=0
+> [5]: https://codesearch.debian.net/search?q=execlp%3F%5Cs*%5C%28%5B%5E%2C%5D%2B%2C%5Cs*NULL&literal=0
+> 
+> Changes from v2:
+> - Switch to using -EINVAL as the error code for this.
+> - Use pr_warn_once() to warn when an execve(2) is rejected due to NULL
+>   argv.
+> 
+> Changes from v1:
+> - Rework commit message significantly.
+> - Make the argv[0] check explicit rather than hijacking the error-check
+>   for count().
+> 
+> Reported-by: Michael Kerrisk <mtk.manpages@gmail.com>
+> To: Andrew Morton <akpm@linux-foundation.org>
+> Cc: Matthew Wilcox <willy@infradead.org>
+> Cc: Christian Brauner <brauner@kernel.org>
+> Cc: Rich Felker <dalias@libc.org>
+> Cc: Eric Biederman <ebiederm@xmission.com>
+> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+> Cc: Kees Cook <keescook@chromium.org>
+> Cc: linux-fsdevel@vger.kernel.org
+> Cc: linux-mm@kvack.org
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Ariadne Conill <ariadne@dereferenced.org>
+> ---
+>  fs/exec.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+> 
+> diff --git a/fs/exec.c b/fs/exec.c
+> index 79f2c9483302..982730cfe3b8 100644
+> --- a/fs/exec.c
+> +++ b/fs/exec.c
+> @@ -1897,6 +1897,10 @@ static int do_execveat_common(int fd, struct filename *filename,
+>  	}
+>  
+>  	retval = count(argv, MAX_ARG_STRINGS);
+> +	if (retval == 0) {
+> +		pr_warn_once("Attempted to run process '%s' with NULL argv\n", bprm->filename);
+> +		retval = -EINVAL;
+> +	}
+>  	if (retval < 0)
+>  		goto out_free;
+>  	bprm->argc = retval;
+> -- 
+> 2.34.1
+> 
 
 -- 
-Linaro LKFT
-https://lkft.linaro.org
+Kees Cook
