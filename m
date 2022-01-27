@@ -2,86 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7339E49D693
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 01:11:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33FF049D6BC
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 01:30:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231857AbiA0ALq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 19:11:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53092 "EHLO
+        id S233905AbiA0Aay (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 19:30:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230265AbiA0ALp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 19:11:45 -0500
-Received: from mail-ot1-x332.google.com (mail-ot1-x332.google.com [IPv6:2607:f8b0:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F0AAC06161C;
-        Wed, 26 Jan 2022 16:11:45 -0800 (PST)
-Received: by mail-ot1-x332.google.com with SMTP id q19-20020a056830441300b0059a54d66106so986319otv.0;
-        Wed, 26 Jan 2022 16:11:45 -0800 (PST)
+        with ESMTP id S233903AbiA0Aax (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 19:30:53 -0500
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F577C06161C
+        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 16:30:53 -0800 (PST)
+Received: by mail-pf1-x429.google.com with SMTP id d187so1147195pfa.10
+        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 16:30:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=R01Ruz4LeNlNh/YHEYTcUp58EClPFOIswB4tZCRStoc=;
-        b=GhXbEACZKZw8Q5AtNL+ZEkKcrOhs5i9vrofrZTDlk6xcMUFZPiCRtwLZfyQj8xPnkx
-         RnHD3GCpd/8pHk/pciRMgJlyyfhYKXRrSa73TqjyNwJMSPT6pZTYMqAtVYPiPH8jAOWy
-         z3jAlxS51eKRseBncMvwxPY14Y2MUxAdtgpHkcQzpTlo8G3BBLv/3faRhEPlOhpu625v
-         JCM4ZnrvuGe0UO3+V2yrekJWN5Q3WHZa9svC3GfM4k5ULlmOrCplUn92bFbWabz12WFf
-         3bdAnRWHjulJ6P77EPf19p7Qflth46iJbWXdGELiuzd67PofbPO5y00qPXW9V/GVI4yJ
-         WpJw==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=7YgkXxCV/9QuxfEpwVZdEfjFBtw0qLshXTwK3g+vTUg=;
+        b=cowGblj3T/kjJ58cltY0irBegHnVl7eHcyk+MzzhPMDUctEdlaVU1hM3aUxOYx8DTF
+         0quz4fOcKxiUIAdjUIli2M0m4uVifZwrPIyhczR9kq1jDSOykZtyy4RF17Vn2LdzlK+p
+         SQnPT27psJOmrg8jeaWB4NSjpO/ErlwVv3s7gmMtl6wpm5s2CKV67pV7piyj3I1ScDBV
+         zwGZVH57l7EC0RB+nZ1pmu9cRjAx7dkOT073LqZ2kRRfyaD//iXFmaFWdzG6YF9Hd5sX
+         cz6pRPzuA4En5/jTtt63jLri9tivfYjdLXlVlwOo0rnVCVK0h/c9iWwNWPXMmNvCm5mB
+         zC+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=R01Ruz4LeNlNh/YHEYTcUp58EClPFOIswB4tZCRStoc=;
-        b=Mh+hm9RMjQ8wMhRNLXp0kyLm+5T9VExmGSZMWXVe/QZSv891om05lelkHQgYbHNUKG
-         QaaIb7Ax6V2mcnGT8LRjfnwZUCLRctIVcYjArvP9RLiP3j/2NgbqrGfp0gcj/8HMxQBd
-         pUXIMJS2e+WcQyVNQfB1B52v1XB8hbDeLLCTjds/UVguYFkBCaDPLYw3cTtBAvwZWUii
-         j1jjp5S2Jqjk/6O7tnQn7FCbgAFncRbfREfex518X6oQvurGSJT4rEu6Ngab9MagASPV
-         etxyWGW9tsBI5hDg7yzyQ8jgSwu+5BEBJ08kOcNjZ2fxleP7AmpS1V1NjO3QY9TX0RuM
-         3fhQ==
-X-Gm-Message-State: AOAM532/WhB24x38rdQreMCxKOHztTVph7awWZQJJB88Cw9MGldF8UgK
-        YID3fLfnzyhf79cXFKEy3Ng=
-X-Google-Smtp-Source: ABdhPJzku5jrfCkKN9XBttkwmXsQzwyZWxaC+5wPIe7dcoapxnJECHmkiunZ8tt4G6iiFREyC1ElRg==
-X-Received: by 2002:a05:6830:3105:: with SMTP id b5mr767593ots.68.1643242304684;
-        Wed, 26 Jan 2022 16:11:44 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id p26sm6136818oth.14.2022.01.26.16.11.43
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=7YgkXxCV/9QuxfEpwVZdEfjFBtw0qLshXTwK3g+vTUg=;
+        b=M7M3+Fa7CTTmbvKvLdHbt7w2ysnDLbK2w2ilFhTpCilZHFur5+JbfyfOSyqHAjmHc+
+         aUxH80QA20YizNdnJAd2SM28gz1ZC7kvtWR7/KW/THktddvCDrqd872KU8RbS3ByLMwL
+         B5cVe+Wv84j6vtcJ7VMWaGBC5AvGw7BClukAzXXvanWMarGa7UpXI7KjjlMunOTSMfob
+         XnUIi8V9icpowLkpwukvg6Ls+xzoRdgDPc1Ga9JbFNl3E9g9s3jzgUrfpfvegV7UVVGx
+         o6h4VQuw2o2q5l5WNv7x7EIQMVLpirsZrgcFvBQCv+tOHdHcvm7dB71WxTgyFSqyimO6
+         9z8g==
+X-Gm-Message-State: AOAM530cQQggsCnEIgcYmbdaG8Kk61wbhxLbynOPgzPmWedBn6/Xt8Tv
+        YmT/u6/LYK8IvjHmVOo47NlW5sAJ+tJOILs18u8=
+X-Google-Smtp-Source: ABdhPJyRYXqyWu5HUu6kmgrj4tLNfMfOqJAH4iod1WVYDueMzOuEhW9yksCiTleRC5dEnFnzMIjPhg==
+X-Received: by 2002:a05:6a00:1c4b:: with SMTP id s11mr1220214pfw.51.1643243452472;
+        Wed, 26 Jan 2022 16:30:52 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id b20sm3332122pfv.134.2022.01.26.16.30.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Jan 2022 16:11:43 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Wed, 26 Jan 2022 16:11:42 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.4 000/114] 4.4.300-rc1 review
-Message-ID: <20220127001142.GA630606@roeck-us.net>
-References: <20220124183927.095545464@linuxfoundation.org>
+        Wed, 26 Jan 2022 16:30:52 -0800 (PST)
+Message-ID: <61f1e7bc.1c69fb81.f300.9c98@mx.google.com>
+Date:   Wed, 26 Jan 2022 16:30:52 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220124183927.095545464@linuxfoundation.org>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.4.299-114-g37c6a274092f
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: linux-4.4.y
+Subject: stable-rc/linux-4.4.y baseline: 149 runs,
+ 1 regressions (v4.4.299-114-g37c6a274092f)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 24, 2022 at 07:41:35PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 4.4.300 release.
-> There are 114 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 26 Jan 2022 18:39:11 +0000.
-> Anything received after that time might be too late.
-> 
+stable-rc/linux-4.4.y baseline: 149 runs, 1 regressions (v4.4.299-114-g37c6=
+a274092f)
 
-Build results:
-	total: 160 pass: 160 fail: 0
-Qemu test results:
-	total: 342 pass: 342 fail: 0
+Regressions Summary
+-------------------
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-Guenter
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
+el/v4.4.299-114-g37c6a274092f/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.4.y
+  Describe: v4.4.299-114-g37c6a274092f
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      37c6a274092f263c8efb44a1eb49fd3ce6cf44c1 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61f1aee755bb405720abbd1b
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.299=
+-114-g37c6a274092f/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
+nda.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.299=
+-114-g37c6a274092f/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pa=
+nda.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61f1aee755bb405=
+720abbd21
+        new failure (last pass: v4.4.299-115-g214b7b038f18)
+        2 lines
+
+    2022-01-26T20:28:05.841444  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/119
+    2022-01-26T20:28:05.850925  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+25c [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0   =
+
+ =20
