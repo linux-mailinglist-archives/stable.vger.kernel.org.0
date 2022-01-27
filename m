@@ -2,138 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C0AD49EA29
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 19:12:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 29BC449E9F9
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 19:11:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245448AbiA0SMh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jan 2022 13:12:37 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:49340 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245621AbiA0SLu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 13:11:50 -0500
+        id S245378AbiA0SLM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jan 2022 13:11:12 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:59078 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245072AbiA0SKr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 13:10:47 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD20961D4D;
-        Thu, 27 Jan 2022 18:11:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 897FDC340E4;
-        Thu, 27 Jan 2022 18:11:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 94025B821DA;
+        Thu, 27 Jan 2022 18:10:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA87CC340E4;
+        Thu, 27 Jan 2022 18:10:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643307109;
-        bh=dltAdKUE+eILIurl2batzAVH6JDWgv6gBvHF05SbzLI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=z2vKXVbXK98F4rJPSKJ+qzdKK/pONLd8aBL26YPFVA3vW1pHqO3YwuiSz0SwsEuup
-         7FcliILOiS9r/fJyywBRF0LAOUA/t4RNNZg2m6DwbCAQk0LbNwRN3UGs1JXnjILiR+
-         vyxEviwHguqbHYAdS9muk6+zDnu9lgxm1cfM7VqM=
+        s=korg; t=1643307045;
+        bh=mCAJxU3jO5M7PSY1plEfvQEcBEGUr0FRugNSXX+uX3U=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=bU3JRDi7XDlKRgCk4myXjpo4yHnbCNB0k83C3pKntxym3hawLNQQVV1cKZPkfs/Bj
+         mZLtWr7cUxgjOU+VtRaqrf2it5j/pV6lJM6QMxRqVNR9lRetkCLH0XsA+4XRD8zC/E
+         rLwPJNoTVImUPXjEkhw1EYNy4oXfT8J0INhq5zKA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com
-Subject: [PATCH 5.16 0/9] 5.16.4-rc1 review
+        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
+        Huang Rui <ray.huang@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>
+Subject: [PATCH 5.15 11/12] drm/amdgpu: Use correct VIEWPORT_DIMENSION for DCN2
 Date:   Thu, 27 Jan 2022 19:09:35 +0100
-Message-Id: <20220127180258.892788582@linuxfoundation.org>
+Message-Id: <20220127180259.458001336@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.0
-MIME-Version: 1.0
+In-Reply-To: <20220127180259.078563735@linuxfoundation.org>
+References: <20220127180259.078563735@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.4-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.16.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.16.4-rc1
-X-KernelTest-Deadline: 2022-01-29T18:02+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.16.4 release.
-There are 9 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Harry Wentland <harry.wentland@amd.com>
 
-Responses should be made by Sat, 29 Jan 2022 18:02:51 +0000.
-Anything received after that time might be too late.
+commit dc5d4aff2e99c312df8abbe1ee9a731d2913bc1b upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.16.4-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.16.y
-and the diffstat can be found below.
+For some reason this file isn't using the appropriate register
+headers for DCN headers, which means that on DCN2 we're getting
+the VIEWPORT_DIMENSION offset wrong.
 
-thanks,
+This means that we're not correctly carving out the framebuffer
+memory correctly for a framebuffer allocated by EFI and
+therefore see corruption when loading amdgpu before the display
+driver takes over control of the framebuffer scanout.
 
-greg k-h
+Fix this by checking the DCE_HWIP and picking the correct offset
+accordingly.
 
--------------
-Pseudo-Shortlog of commits:
+Long-term we should expose this info from DC as GMC shouldn't
+need to know about DCN registers.
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.16.4-rc1
+Cc: stable@vger.kernel.org
+Signed-off-by: Harry Wentland <harry.wentland@amd.com>
+Reviewed-by: Huang Rui <ray.huang@amd.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Russell King <russell.king@oracle.com>
-    arm64/bpf: Remove 128MB limit for BPF JIT programs
+---
+ drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-Jan Kara <jack@suse.cz>
-    select: Fix indefinitely sleeping task in poll_schedule_timeout()
-
-Paul E. McKenney <paulmck@kernel.org>
-    rcu: Tighten rcu_advance_cbs_nowake() checks
-
-Shakeel Butt <shakeelb@google.com>
-    memcg: better bounds on the memcg stats updates
-
-Manish Chopra <manishc@marvell.com>
-    bnx2x: Invalidate fastpath HSI version for VFs
-
-Manish Chopra <manishc@marvell.com>
-    bnx2x: Utilize firmware 7.13.21.0
-
-Pavel Begunkov <asml.silence@gmail.com>
-    io_uring: fix not released cached task refs
-
-Mario Limonciello <mario.limonciello@amd.com>
-    drm/amd/display: reset dcn31 SMU mailbox on failures
-
-Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-    drm/i915: Flush TLBs before releasing backing store
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |   4 +-
- arch/arm64/include/asm/extable.h                   |   9 --
- arch/arm64/include/asm/memory.h                    |   5 +-
- arch/arm64/kernel/traps.c                          |   2 +-
- arch/arm64/mm/ptdump.c                             |   2 -
- arch/arm64/net/bpf_jit_comp.c                      |   7 +-
- .../drm/amd/display/dc/clk_mgr/dcn31/dcn31_smu.c   |   6 ++
- drivers/gpu/drm/i915/gem/i915_gem_object_types.h   |   1 +
- drivers/gpu/drm/i915/gem/i915_gem_pages.c          |  10 ++
- drivers/gpu/drm/i915/gt/intel_gt.c                 | 102 +++++++++++++++++++++
- drivers/gpu/drm/i915/gt/intel_gt.h                 |   2 +
- drivers/gpu/drm/i915/gt/intel_gt_types.h           |   2 +
- drivers/gpu/drm/i915/i915_reg.h                    |  11 +++
- drivers/gpu/drm/i915/i915_vma.c                    |   3 +
- drivers/gpu/drm/i915/intel_uncore.c                |  26 +++++-
- drivers/gpu/drm/i915/intel_uncore.h                |   2 +
- drivers/net/ethernet/broadcom/bnx2x/bnx2x.h        |  11 ++-
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c    |   6 +-
- .../net/ethernet/broadcom/bnx2x/bnx2x_fw_defs.h    |   2 +
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_hsi.h    |   3 +-
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c   |  75 ++++++++++-----
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c  |  13 ++-
- fs/io_uring.c                                      |  34 ++++---
- fs/select.c                                        |  63 +++++++------
- kernel/rcu/tree.c                                  |   7 +-
- mm/memcontrol.c                                    |  20 ++--
- 26 files changed, 318 insertions(+), 110 deletions(-)
+--- a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
+@@ -72,6 +72,9 @@
+ #define mmDCHUBBUB_SDPIF_MMIO_CNTRL_0                                                                  0x049d
+ #define mmDCHUBBUB_SDPIF_MMIO_CNTRL_0_BASE_IDX                                                         2
+ 
++#define mmHUBP0_DCSURF_PRI_VIEWPORT_DIMENSION_DCN2                                                          0x05ea
++#define mmHUBP0_DCSURF_PRI_VIEWPORT_DIMENSION_DCN2_BASE_IDX                                                 2
++
+ 
+ static const char *gfxhub_client_ids[] = {
+ 	"CB",
+@@ -1103,6 +1106,8 @@ static unsigned gmc_v9_0_get_vbios_fb_si
+ 	u32 d1vga_control = RREG32_SOC15(DCE, 0, mmD1VGA_CONTROL);
+ 	unsigned size;
+ 
++	/* TODO move to DC so GMC doesn't need to hard-code DCN registers */
++
+ 	if (REG_GET_FIELD(d1vga_control, D1VGA_CONTROL, D1VGA_MODE_ENABLE)) {
+ 		size = AMDGPU_VBIOS_VGA_ALLOCATION;
+ 	} else {
+@@ -1110,11 +1115,18 @@ static unsigned gmc_v9_0_get_vbios_fb_si
+ 
+ 		switch (adev->asic_type) {
+ 		case CHIP_RAVEN:
+-		case CHIP_RENOIR:
+ 			viewport = RREG32_SOC15(DCE, 0, mmHUBP0_DCSURF_PRI_VIEWPORT_DIMENSION);
+ 			size = (REG_GET_FIELD(viewport,
+ 					      HUBP0_DCSURF_PRI_VIEWPORT_DIMENSION, PRI_VIEWPORT_HEIGHT) *
+ 				REG_GET_FIELD(viewport,
++					      HUBP0_DCSURF_PRI_VIEWPORT_DIMENSION, PRI_VIEWPORT_WIDTH) *
++				4);
++			break;
++		case CHIP_RENOIR:
++			viewport = RREG32_SOC15(DCE, 0, mmHUBP0_DCSURF_PRI_VIEWPORT_DIMENSION_DCN2);
++			size = (REG_GET_FIELD(viewport,
++					      HUBP0_DCSURF_PRI_VIEWPORT_DIMENSION, PRI_VIEWPORT_HEIGHT) *
++				REG_GET_FIELD(viewport,
+ 					      HUBP0_DCSURF_PRI_VIEWPORT_DIMENSION, PRI_VIEWPORT_WIDTH) *
+ 				4);
+ 			break;
 
 
