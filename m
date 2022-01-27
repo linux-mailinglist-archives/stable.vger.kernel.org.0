@@ -2,107 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98EA649D660
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 00:51:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06F0849D688
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 01:07:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229826AbiAZXvA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 18:51:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48368 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229451AbiAZXu7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 18:50:59 -0500
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9321AC06173B
-        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 15:50:59 -0800 (PST)
-Received: by mail-pl1-x635.google.com with SMTP id c9so972862plg.11
-        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 15:50:59 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=message-id:date:mime-version:user-agent:content-language:to:cc
-         :references:from:subject:in-reply-to:content-transfer-encoding;
-        bh=cBxJNeicoRzjXh+eEmDsU4Z8ycQDuwzwWKSyLyKYjXU=;
-        b=WDTTt0fddCEhZQRAz+lyxdMB8Et0DAN1Bv3xBNQXrslbekeFaKcxFedz7j7v9I5ObM
-         VgdLgPgxv5ZWO48+/hYqObsjQwiomzjtOveQ5BcOli0h0QH9he40zBt765mxWC0Czy3W
-         g86g/debboCyRaCX18VAlylAtTIs9gKZarTr12u3LjIr/cqAHsF3V6WVBwMg1a92O9hr
-         0BEME9fAn9moT4q7Bg4V0+lFIJExTI8c21dH66vjwtOml+7uRRs8rIsRXQJC2hS3BYhJ
-         CejyYws0tGz/b6cFq6pPPYeKR7gNGzH2wTbbAVDbtJNjOVkHYd8dpPcAwaOXkORXMTRN
-         0AfQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent
-         :content-language:to:cc:references:from:subject:in-reply-to
-         :content-transfer-encoding;
-        bh=cBxJNeicoRzjXh+eEmDsU4Z8ycQDuwzwWKSyLyKYjXU=;
-        b=sZjPj4ZcB5VCzuYZt8GNwigOWuRm/GKKk0oq3GeXMFXErtM2P2YD0AOz0uC3KADJzq
-         fojr73i152BFiCHtJNTJ19H20jlnggONWMPm8/NBAYcDPn6S91nE9EUH5aU223/P00c/
-         c/h8ZYz8wF66PY4z75UrNkUnLpyFxrccEpLiTy8uSIx9ZTgbsd9n+gEUCTRnsdrMB6l8
-         RINTyGP9wjZ7sNMLpUZh3nQDuKbkRFawacTwFfR0FESCjtMslhCXV2TVdFHFc8gMSErb
-         IG23YqFDGNUk7yD1L1kUj3GtOShzz0sUuCR4qGC/ZGj1HYDjhFujSFeqhpzO+Xdwnr/z
-         Ej+Q==
-X-Gm-Message-State: AOAM532a9AlCtTbOvVZFVgXJYB1jga6+tmS9wT8FLexdJ6zLMD+nRT6G
-        jXVCe3XQNuqZHXsbthWhvT7KLA==
-X-Google-Smtp-Source: ABdhPJykrJ2uOm8OEbe0IzU4Bthtxc99KDRuTVbvLsgTgp6ISyZ9HrqIrN5a+OcWk6ZkhecwMja/zA==
-X-Received: by 2002:a17:902:ea0b:: with SMTP id s11mr1274542plg.133.1643241058942;
-        Wed, 26 Jan 2022 15:50:58 -0800 (PST)
-Received: from [192.168.254.17] ([50.39.160.154])
-        by smtp.gmail.com with ESMTPSA id s7sm3381389pfu.133.2022.01.26.15.50.58
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 26 Jan 2022 15:50:58 -0800 (PST)
-Message-ID: <a4eccced-44d9-d5ae-27b3-5b2832d22561@linaro.org>
-Date:   Wed, 26 Jan 2022 15:50:57 -0800
+        id S232739AbiA0AHb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 19:07:31 -0500
+Received: from mx1.mailbun.net ([170.39.20.100]:42890 "EHLO mx1.mailbun.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229839AbiA0AHb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 26 Jan 2022 19:07:31 -0500
+Received: from localhost.localdomain (unknown [170.39.20.82])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        (Authenticated sender: ariadne@dereferenced.org)
+        by mx1.mailbun.net (Postfix) with ESMTPSA id 1185B11A817;
+        Thu, 27 Jan 2022 00:07:31 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=dereferenced.org;
+        s=mailbun; t=1643242051;
+        bh=KrviaVq2nktezkC2TngWHh7lS7n6CoRmDUx4MPmAHSo=;
+        h=From:To:Cc:Subject:Date;
+        b=jqFlIp7Lw9yFEc4lYI6x1eZQlXDzyYVr4LfXMHNNIWSsXlrZvTnVdOfzD4QofzCoX
+         L0LKOIALzXCOLL3m36vm1aneR45vxryLTfbBz/1WJV+SVhmpyvRBCkS8bbNbBZxWBX
+         o+4QtnrUZEAxmVRJp2xDdOZYjkNjZXC33YpAqU1y/iiv1wfiUz3czf5TkioPgSGPul
+         6OxdrZF60z3uBv3sC0uuMCHpO4tRitNzyjFKGBL++xo/h06vVpMiIAq0l2FYx1T+kB
+         u2e0qbo/vhKIBvK7zF/mPMDp/MLP86Vm/bjzj2+NsZKpCzqBhOIFswilovgKMRJ1FP
+         qnEtSkWD840MA==
+From:   Ariadne Conill <ariadne@dereferenced.org>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Eric Biederman <ebiederm@xmission.com>,
+        Kees Cook <keescook@chromium.org>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Ariadne Conill <ariadne@dereferenced.org>,
+        Michael Kerrisk <mtk.manpages@gmail.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Christian Brauner <brauner@kernel.org>,
+        Rich Felker <dalias@libc.org>, linux-mm@kvack.org,
+        stable@vger.kernel.org
+Subject: [PATCH v3] fs/exec: require argv[0] presence in do_execveat_common()
+Date:   Thu, 27 Jan 2022 00:07:24 +0000
+Message-Id: <20220127000724.15106-1-ariadne@dereferenced.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Content-Language: en-US
-To:     Dietmar Eggemann <dietmar.eggemann@arm.com>, peterz@infradead.org
-Cc:     Ingo Molnar <mingo@redhat.com>, Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Zhang Qiao <zhangqiao22@huawei.com>,
-        Daniel Jordan <daniel.m.jordan@oracle.com>,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
-        syzbot+af7a719bc92395ee41b3@syzkaller.appspotmail.com
-References: <20220125193403.778497-1-tadeusz.struk@linaro.org>
- <bb01425b-0f6a-e69f-c24b-567821c1472f@arm.com>
-From:   Tadeusz Struk <tadeusz.struk@linaro.org>
-Subject: Re: [PATCH v3] sched/fair: Fix fault in reweight_entity
-In-Reply-To: <bb01425b-0f6a-e69f-c24b-567821c1472f@arm.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/26/22 05:53, Dietmar Eggemann wrote:
-> Can we then not get rid of `bool update_load` parameter of
-> set_load_weight() completely?
-> 
-> @@ -1214,8 +1214,9 @@ int tg_nop(struct task_group *tg, void *data)
->   }
->   #endif
->   
-> -static void set_load_weight(struct task_struct *p, bool update_load)
-> +static void set_load_weight(struct task_struct *p)
->   {
-> +       int task_new = READ_ONCE(p->__state) & TASK_NEW;
->          int prio = p->static_prio - MAX_RT_PRIO;
->          struct load_weight *load = &p->se.load;
->   
-> @@ -1232,7 +1233,7 @@ static void set_load_weight(struct task_struct *p, bool update_load)
->           * SCHED_OTHER tasks have to update their load when changing their
->           * weight
->           */
-> -       if (update_load && p->sched_class == &fair_sched_class) {
-> +       if (!task_new && p->sched_class == &fair_sched_class) {
->                  reweight_task(p, prio);
->          } else {
->                  load->weight = scale_load(sched_prio_to_weight[prio]);
+In several other operating systems, it is a hard requirement that the
+second argument to execve(2) be the name of a program, thus prohibiting
+a scenario where argc < 1.  POSIX 2017 also recommends this behaviour,
+but it is not an explicit requirement[0]:
 
-That will also work. Let's agree on the best way to fix it.
-Peter, what's your preference?
+    The argument arg0 should point to a filename string that is
+    associated with the process being started by one of the exec
+    functions.
 
+To ensure that execve(2) with argc < 1 is not a useful tool for
+shellcode to use, we can validate this in do_execveat_common() and
+fail for this scenario, effectively blocking successful exploitation
+of CVE-2021-4034 and similar bugs which depend on execve(2) working
+with argc < 1.
+
+We use -EINVAL for this case, mirroring recent changes to FreeBSD and
+OpenBSD.  -EINVAL is also used by QNX for this, while Solaris uses
+-EFAULT.
+
+In earlier versions of the patch, it was proposed that we create a
+fake argv for applications to use when argc < 1, but it was concluded
+that it would be better to just fail the execve(2) in these cases, as
+launching a process with an empty or NULL argv[0] was likely to just
+cause more problems.
+
+Interestingly, Michael Kerrisk opened an issue about this in 2008[1],
+but there was no consensus to support fixing this issue then.
+Hopefully now that CVE-2021-4034 shows practical exploitative use[2]
+of this bug in a shellcode, we can reconsider.
+
+This issue is being tracked in the KSPP issue tracker[3].
+
+There are a few[4][5] minor edge cases (primarily in test suites) that
+are caught by this, but we plan to work with the projects to fix those
+edge cases.
+
+[0]: https://pubs.opengroup.org/onlinepubs/9699919799/functions/exec.html
+[1]: https://bugzilla.kernel.org/show_bug.cgi?id=8408
+[2]: https://www.qualys.com/2022/01/25/cve-2021-4034/pwnkit.txt
+[3]: https://github.com/KSPP/linux/issues/176
+[4]: https://codesearch.debian.net/search?q=execve%5C+*%5C%28%5B%5E%2C%5D%2B%2C+*NULL&literal=0
+[5]: https://codesearch.debian.net/search?q=execlp%3F%5Cs*%5C%28%5B%5E%2C%5D%2B%2C%5Cs*NULL&literal=0
+
+Changes from v2:
+- Switch to using -EINVAL as the error code for this.
+- Use pr_warn_once() to warn when an execve(2) is rejected due to NULL
+  argv.
+
+Changes from v1:
+- Rework commit message significantly.
+- Make the argv[0] check explicit rather than hijacking the error-check
+  for count().
+
+Reported-by: Michael Kerrisk <mtk.manpages@gmail.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Christian Brauner <brauner@kernel.org>
+Cc: Rich Felker <dalias@libc.org>
+Cc: Eric Biederman <ebiederm@xmission.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: linux-fsdevel@vger.kernel.org
+Cc: linux-mm@kvack.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Ariadne Conill <ariadne@dereferenced.org>
+---
+ fs/exec.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/fs/exec.c b/fs/exec.c
+index 79f2c9483302..982730cfe3b8 100644
+--- a/fs/exec.c
++++ b/fs/exec.c
+@@ -1897,6 +1897,10 @@ static int do_execveat_common(int fd, struct filename *filename,
+ 	}
+ 
+ 	retval = count(argv, MAX_ARG_STRINGS);
++	if (retval == 0) {
++		pr_warn_once("Attempted to run process '%s' with NULL argv\n", bprm->filename);
++		retval = -EINVAL;
++	}
+ 	if (retval < 0)
+ 		goto out_free;
+ 	bprm->argc = retval;
 -- 
-Thanks,
-Tadeusz
+2.34.1
+
