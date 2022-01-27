@@ -2,71 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD13A49DBCF
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 08:45:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D016149DBF5
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 08:51:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232141AbiA0HpT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jan 2022 02:45:19 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38874 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230516AbiA0HpT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 02:45:19 -0500
+        id S237524AbiA0Hv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jan 2022 02:51:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40376 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229949AbiA0Hv3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 02:51:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0F4BC061714
+        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 23:51:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 09B1161A00;
-        Thu, 27 Jan 2022 07:45:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFC32C340E4;
-        Thu, 27 Jan 2022 07:45:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F0E90B821B3
+        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 07:51:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E4B0C340EB;
+        Thu, 27 Jan 2022 07:51:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643269518;
-        bh=Pn6SdFQhWRIFVHlZ099gr5Yj9PEQL6cWl2zcqtxdzXU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=bxVOnLftM90mM4IL9e11P7kFkyhSy8BmhyayYWQVenk5zhWRSRyPU4E6GrZ1PMnkm
-         3I7/WQfOHSJexmCFXxyb/9pKskJEytm1/mrpIrnuNm2kqKTyFGY24r4kXlK+FrxM2A
-         t3s2oshOUGN0VcsZ68qcZZasPeOgqSmpgMsQXdTc=
-Date:   Thu, 27 Jan 2022 08:45:15 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 4.4 000/114] 4.4.300-rc1 review
-Message-ID: <YfJNiyEJNMNwhkpK@kroah.com>
-References: <20220124183927.095545464@linuxfoundation.org>
- <abdecad5-9733-033b-e911-d692fef42ed0@roeck-us.net>
+        s=korg; t=1643269885;
+        bh=6bcZZXpxneQuF8vYKjwhdC5QmHYJWd9af3MPzHxVs20=;
+        h=Subject:To:From:Date:From;
+        b=uVflWFYTf/cd6HvY+68Ztf6Hy1aIIUn/qg5JLCXNDWNhwXsDaGN8oBrHHOB+ti57d
+         Kl4WuI//vTyyDKX4CA050Egm/8hl9f7pORMXO9TjNujCb2jDvqkcE78GJQMg2TD2y9
+         4cnHTlY9h1K7UDv90ApFaJNJEaA4Hf6d4CxKrg3Y=
+Subject: patch "kbuild: remove include/linux/cyclades.h from header file check" added to tty-linus
+To:     gregkh@linuxfoundation.org, lkp@intel.com, macro@embecosm.com,
+        masahiroy@kernel.org, sfr@canb.auug.org.au, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Thu, 27 Jan 2022 08:51:18 +0100
+Message-ID: <164326987844214@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <abdecad5-9733-033b-e911-d692fef42ed0@roeck-us.net>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 26, 2022 at 01:25:29PM -0800, Guenter Roeck wrote:
-> Hi Greg,
-> 
-> On 1/24/22 10:41, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 4.4.300 release.
-> > There are 114 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Wed, 26 Jan 2022 18:39:11 +0000.
-> > Anything received after that time might be too late.
-> > 
-> 
-> A new version of this branch was pushed into the stable-queue git
-> repository around 10:30 PST, AFAICS without any actual changes.
-> This caused all my builders to start from scratch (again).
-> Would it be possible to avoid such dummy pushes ?
 
-I'll try to avoid it, but it is usually easier for me to do "generate
-all -rcs and push them out", than do to them individually, which is why
-this happened.
+This is a note to let you know that I've just added the patch titled
 
-sorry,
+    kbuild: remove include/linux/cyclades.h from header file check
 
-greg k-h
+to my tty git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
+in the tty-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From d1ad2721b1eb05d54e81393a7ebc332d4a35c68f Mon Sep 17 00:00:00 2001
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Date: Thu, 27 Jan 2022 08:33:04 +0100
+Subject: kbuild: remove include/linux/cyclades.h from header file check
+
+The file now rightfully throws up a big warning that it should never be
+included, so remove it from the header_check test.
+
+Fixes: f23653fe6447 ("tty: Partially revert the removal of the Cyclades public API")
+Cc: stable <stable@vger.kernel.org>
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Cc: "Maciej W. Rozycki" <macro@embecosm.com>
+Reported-by: Stephen Rothwell <sfr@canb.auug.org.au>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/r/20220127073304.42399-1-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ usr/include/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/usr/include/Makefile b/usr/include/Makefile
+index 7be7468c177b..83822c33e9e7 100644
+--- a/usr/include/Makefile
++++ b/usr/include/Makefile
+@@ -28,6 +28,7 @@ no-header-test += linux/am437x-vpfe.h
+ no-header-test += linux/android/binder.h
+ no-header-test += linux/android/binderfs.h
+ no-header-test += linux/coda.h
++no-header-test += linux/cyclades.h
+ no-header-test += linux/errqueue.h
+ no-header-test += linux/fsmap.h
+ no-header-test += linux/hdlc/ioctl.h
+-- 
+2.35.0
+
+
