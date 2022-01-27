@@ -2,106 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E476649E66F
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 16:43:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BAD149E67B
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 16:46:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237747AbiA0Pn5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jan 2022 10:43:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39012 "EHLO
+        id S243098AbiA0PqC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jan 2022 10:46:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234341AbiA0Pn4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 10:43:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E80B3C061714
-        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 07:43:55 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B3587B80184
-        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 15:43:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F089DC340E4;
-        Thu, 27 Jan 2022 15:43:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643298233;
-        bh=YtXdrC+uB2Ls8vG7cSTcvucedWbX7juLY4/SfKftYbM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=wk6Trv7t03VXlkg+hTCCYO2kEM77PseUD5YepI9084bS3dDSnF/Nx7XtWETtxe6dA
-         2p+UeSAszfJ5QMofmmEKJC9sAkw381gsH14sriGoEUbIsal2kYM/4q9cGFO6NkH2qY
-         miB79wMypuKpHABj0tUBklmZFNZcJv97Jtnd0gAE=
-Date:   Thu, 27 Jan 2022 16:43:50 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Paolo Bonzini <pbonzini@redhat.com>
-Cc:     David Matlack <dmatlack@google.com>, stable@vger.kernel.org,
-        seanjc@google.com
-Subject: Re: [PATCH 5.10] KVM: x86/mmu: Fix write-protection of PTs mapped by
- the TDP MMU
-Message-ID: <YfK9tmSu0kj4qtWx@kroah.com>
-References: <20220124183302.263017-1-dmatlack@google.com>
- <51961d32-f45f-15d4-b21f-3ed75465c5da@redhat.com>
+        with ESMTP id S243097AbiA0PqC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 10:46:02 -0500
+Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8219C061714
+        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 07:46:01 -0800 (PST)
+Received: by mail-wm1-x32c.google.com with SMTP id f202-20020a1c1fd3000000b0034dd403f4fbso2160513wmf.1
+        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 07:46:01 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=colorfullife-com.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :references:from:in-reply-to:content-transfer-encoding;
+        bh=mD8BsuCJasSkpkxaaqDLPDCI5MsBcn4xIxsCb70RTuM=;
+        b=M6+5QuWsfjE0nxWNyt7LZ2xEMKHfzVGJpRUfyqYBz36uv2uueN7CErKAXyPpUr3Oo/
+         xFGbmTwYvIrK6ikSHqnWqqnlEl8TSddTlZdpnvmH7Yi0Z1uIzfFt3FrBAHuTeBiRbYT/
+         u+TaaklUyDv+RZc3ZtAqehkCXOzs5mbuwIrohFyNH54a7TCgbcShSrZQXJZiSZXWpS2t
+         h0AyWUUrSzfvvD46g/2/wqWKzjbyEgFVRtn0aep4Xpa5u0rRaWBZs4/jvanNxG3lrdAT
+         8HLtFrfUtu3YMtDMUV9EnxBYr9mFVDub8Pp5Ms0z92mw221wKGNMiNKAnJEZ7Xzzx4Iw
+         DVfg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=mD8BsuCJasSkpkxaaqDLPDCI5MsBcn4xIxsCb70RTuM=;
+        b=HkF7DupQmeeH8P/d0UhzHK/HS+pN+qUEhiFiXhhtgbbj7haI48AUx8xl/IRodqT7os
+         +oHmk0kwtUfGC5sxOvOSDTLRRmlhA537JiQlG8D/BY4xG4GQgKimaldkV1LEEZuOc09+
+         WNOuVSvqVyhPC4BdMZeElS0iKTnp3eaJgmz+e68VUQcB9kSSMKWh7vSX3ZBxZgW3Wg+9
+         V0mSvW0/+zSNglQejjK/JJyAekc2relQQAXnZqMXjRQWoGCLcthXPGPJ51CZQ3atWwo1
+         PWbeG/O90L0O4P1SMJjbOppxjaY6ZyKd8xzsNbVWjdLHM65KZxBYn2sjMaTwLthucG3O
+         7Sxg==
+X-Gm-Message-State: AOAM530PLzIbG3NILt0XBcMcHFFuuoha595PcJ9uMS09GIR96psUWMOO
+        KxROOGXmLLX1pkSIuT6fBP4lMA==
+X-Google-Smtp-Source: ABdhPJxND0YwiWRTGwsVdqIY/nCGxAEVWGCOpdIMKYmIqtlS3y76dsdyR7NPE2OSE9SxxGl7vb49Dg==
+X-Received: by 2002:a05:600c:34c2:: with SMTP id d2mr12160612wmq.120.1643298360247;
+        Thu, 27 Jan 2022 07:46:00 -0800 (PST)
+Received: from ?IPV6:2003:d9:9707:d500:f72a:8d22:e3d4:f73? (p200300d99707d500f72a8d22e3d40f73.dip0.t-ipconnect.de. [2003:d9:9707:d500:f72a:8d22:e3d4:f73])
+        by smtp.googlemail.com with ESMTPSA id m6sm2780185wrw.54.2022.01.27.07.45.59
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 27 Jan 2022 07:45:59 -0800 (PST)
+Message-ID: <5ae2873f-527f-9769-a606-4ff6786c0fcc@colorfullife.com>
+Date:   Thu, 27 Jan 2022 16:45:58 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <51961d32-f45f-15d4-b21f-3ed75465c5da@redhat.com>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: +
+ mm-utilc-make-kvfree-safe-for-calling-while-holding-spinlocks.patch added to
+ -mm tree
+Content-Language: en-US
+To:     akpm@linux-foundation.org, 1vier1@web.de, arnd@arndb.de,
+        cgel.zte@gmail.com, chi.minghao@zte.com.cn, dbueso@suse.de,
+        mhocko@kernel.org, mm-commits@vger.kernel.org,
+        rdunlap@infradead.org, shakeelb@google.com, stable@vger.kernel.org,
+        unixbhaskar@gmail.com, urezki@gmail.com, vvs@virtuozzo.com,
+        zealci@zte.com.cn
+References: <20220127025542.F0GTnQlNA%akpm@linux-foundation.org>
+From:   Manfred Spraul <manfred@colorfullife.com>
+In-Reply-To: <20220127025542.F0GTnQlNA%akpm@linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 24, 2022 at 07:34:13PM +0100, Paolo Bonzini wrote:
-> On 1/24/22 19:33, David Matlack wrote:
-> > commit 7c8a4742c4abe205ec9daf416c9d42fd6b406e8e upstream.
-> > 
-> > When the TDP MMU is write-protection GFNs for page table protection (as
-> > opposed to for dirty logging, or due to the HVA not being writable), it
-> > checks if the SPTE is already write-protected and if so skips modifying
-> > the SPTE and the TLB flush.
-> > 
-> > This behavior is incorrect because it fails to check if the SPTE
-> > is write-protected for page table protection, i.e. fails to check
-> > that MMU-writable is '0'.  If the SPTE was write-protected for dirty
-> > logging but not page table protection, the SPTE could locklessly be made
-> > writable, and vCPUs could still be running with writable mappings cached
-> > in their TLB.
-> > 
-> > Fix this by only skipping setting the SPTE if the SPTE is already
-> > write-protected *and* MMU-writable is already clear.  Technically,
-> > checking only MMU-writable would suffice; a SPTE cannot be writable
-> > without MMU-writable being set.  But check both to be paranoid and
-> > because it arguably yields more readable code.
-> > 
-> > Fixes: 46044f72c382 ("kvm: x86/mmu: Support write protection for nesting in tdp MMU")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: David Matlack <dmatlack@google.com>
-> > Message-Id: <20220113233020.3986005-2-dmatlack@google.com>
-> > Reviewed-by: Sean Christopherson <seanjc@google.com>
-> > Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-> > ---
-> >   arch/x86/kvm/mmu/tdp_mmu.c | 6 +++---
-> >   1 file changed, 3 insertions(+), 3 deletions(-)
-> > 
-> > diff --git a/arch/x86/kvm/mmu/tdp_mmu.c b/arch/x86/kvm/mmu/tdp_mmu.c
-> > index f2ddf663e72e..7e08efb06839 100644
-> > --- a/arch/x86/kvm/mmu/tdp_mmu.c
-> > +++ b/arch/x86/kvm/mmu/tdp_mmu.c
-> > @@ -1130,12 +1130,12 @@ static bool write_protect_gfn(struct kvm *kvm, struct kvm_mmu_page *root,
-> >   	bool spte_set = false;
-> >   	tdp_root_for_each_leaf_pte(iter, root, gfn, gfn + 1) {
-> > -		if (!is_writable_pte(iter.old_spte))
-> > -			break;
-> > -
-> >   		new_spte = iter.old_spte &
-> >   			~(PT_WRITABLE_MASK | SPTE_MMU_WRITEABLE);
-> > +		if (new_spte == iter.old_spte)
-> > +			break;
-> > +
-> >   		tdp_mmu_set_spte(kvm, &iter, new_spte);
-> >   		spte_set = true;
-> >   	}
-> > 
-> > base-commit: fd187a4925578f8743d4f266c821c7544d3cddae
-> 
-> Acked-by: Paolo Bonzini <pbonzini@redhat.com>
-> 
+Hi Andrew,
 
-Now queued up, thanks.
+On 1/27/22 03:55, akpm@linux-foundation.org wrote:
+> The patch titled
+>       Subject: mm/util.c: make kvfree() safe for calling while holding spinlocks
+> has been added to the -mm tree.  Its filename is
+>       mm-utilc-make-kvfree-safe-for-calling-while-holding-spinlocks.patch
+>
+> This patch should soon appear at
+>      https://ozlabs.org/~akpm/mmots/broken-out/mm-utilc-make-kvfree-safe-for-calling-while-holding-spinlocks.patch
+> and later at
+>      https://ozlabs.org/~akpm/mmotm/broken-out/mm-utilc-make-kvfree-safe-for-calling-while-holding-spinlocks.patch
 
-greg k-h
+Please drop and replace with
+
+https://marc.info/?l=linux-kernel&m=164132744522325&w=2
+
+If I should rediff/resend, just ping me.
+
+--
+
+     Manfred
+
