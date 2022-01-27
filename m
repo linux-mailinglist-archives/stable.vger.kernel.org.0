@@ -2,116 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 348C349E64A
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 16:39:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FFA149E64C
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 16:40:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237800AbiA0Pjp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jan 2022 10:39:45 -0500
-Received: from new4-smtp.messagingengine.com ([66.111.4.230]:34005 "EHLO
-        new4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237455AbiA0Pjo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 10:39:44 -0500
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailnew.nyi.internal (Postfix) with ESMTP id 26A1A580EB6;
-        Thu, 27 Jan 2022 10:39:44 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute2.internal (MEProxy); Thu, 27 Jan 2022 10:39:44 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm2; bh=WaIfKB6L73BlPeNtlmOZwTQbsqShiIjBr2J2vT
-        exb+o=; b=kjxYAXUPvgtxdi3q7a5Uu7t9LhZ1vnb6czWe6Cr4hHD5TegHDG1Gor
-        GrspqmoX3jRcFlFZwBfcbh/Gp7I29ACZWMweu+DHoT2klDGURHr5gdLcUGwrTfQB
-        Ih5kmBc+DDWRbHO4ANUxga1LbAkU1xYTF/xc1632sgCrCj5qKafP1+wPp6gC6dSq
-        9f3R8z+enlhWkpe3ibSjZzyWo6vRzrQZdg/AeBefZ20quHUH+jyO+qWl9oBj4SwZ
-        qGbBCc4KCswhs/uBw+YX65lwFm7sxYFDF33hHu1SK06lsBK7ekKv7aFi8HTGdCF+
-        chVPF+n+ti/6OkGByQtr99T/sC/aQs2g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:from:from
-        :in-reply-to:in-reply-to:message-id:mime-version:references
-        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; bh=WaIfKB6L73BlPeNtl
-        mOZwTQbsqShiIjBr2J2vTexb+o=; b=iOhqajQZ1Rche6XXQ1tGBzf2007JAojWc
-        3dO+f+Vpj8zAxhPM0r63LPqNXs5DKV5XG9NJFe2xM+R8cJltbHSDpIxiD7OMvXL+
-        PDk3Taykm2iIOAdu4Qgtoo88myMUNShlh/vLBjpQ9QsCw2vsdrcQtXdjnF9YAhJs
-        gacSk9PaWUfhvWofnU7FjXWhJCA59T+JG1U4E2/wI587ad+BGkLU3u2xmcGmirqD
-        mtowlkNdDypNvogW2y07LyjD5icANqBw0tRJ6zrsEDBSMq9+2hZdUFZBQvxc49Ke
-        EWdrO6QiWiCj1Ot7mzNz41wEZ6EaoSVtmqRLwm7UDiLpaXXqiHJJw==
-X-ME-Sender: <xms:v7zyYaI0l6pPq49-jvD7f4HAEPt5dR_ChUF2wv3JR4uzmRDP41oaUQ>
-    <xme:v7zyYSIR-cSmV9GufidZ-ocu-lrlFI9D5q_NonMx76JHDbiT1nfAylCUoDoDgqHaP
-    KLiWAma593TLA>
-X-ME-Received: <xmr:v7zyYasvKeIpWrMBvOnx4NBQc-NFgxt62UFSL_9ilv6uSyAZuVxqp0tlSKJoO1fuvsh58XaRsdn3WLb3837PdhD7m7fDL-9H>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvvddrfeefgdejlecutefuodetggdotefrodftvf
-    curfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfghnecu
-    uegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenuc
-    fjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghgucfm
-    jfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuheejgf
-    ffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:v7zyYfZZ5MwGeKIFoJMnVuF4fcBdWjwMzTXkq-KmpSd19B-Fg_Wgvg>
-    <xmx:v7zyYRYWGeXNO0j0fCM5nDWbuxNQV-RQxbKPwkVKoS1Vj9T5dxlI0w>
-    <xmx:v7zyYbDHtAbGSZFfn1fY-e8AE1pIJUfamHz9pQlF4WTcYeN4eiddwA>
-    <xmx:wLzyYVSBf8TmN9c2eWwPwCJlUY0KcIFZ-e1cOVutDJbu_Zjj2548iA>
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 27 Jan 2022 10:39:42 -0500 (EST)
-Date:   Thu, 27 Jan 2022 16:39:41 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Huang Guobin <huangguobin4@huawei.com>
-Cc:     nikolay@cumulusnetworks.com, roopa@cumulusnetworks.com,
-        davem@davemloft.net, bridge@lists.linux-foundation.org,
-        netdev@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH 4.19 1/1] net: bridge: clear bridge's private skb space
- on xmit
-Message-ID: <YfK8vTvSJAT8i6F4@kroah.com>
-References: <20220126033639.909340-1-huangguobin4@huawei.com>
- <20220126033639.909340-2-huangguobin4@huawei.com>
+        id S237455AbiA0PkD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jan 2022 10:40:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38054 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234206AbiA0PkC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 10:40:02 -0500
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9DDEC061714
+        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 07:40:02 -0800 (PST)
+Received: by mail-pj1-x1033.google.com with SMTP id s2-20020a17090ad48200b001b501977b23so7898985pju.2
+        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 07:40:02 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=T5fl3DIZysKGwdGdi5SUy8+PhFEw22AXKIpWNdh7IQo=;
+        b=GrJ1ebdU3/VeRJpGAvxqpOFPgThYVANhqv8CGalNTkjCact4vsVBbWWVDk8fX9G9Cs
+         cu2D50lFmFxYNuUxUw+O1qwar45SdQQV0IWgvq7hEELNgDuYl+sHSKRq4f4wrqur4XBg
+         9SnKMkb9sfSkeCqI8UeXDWvh+1+JS4829JF4s+kKB0s+VtcNdf8zby0eppke82er/n2q
+         W5gL2TtrKTxvYQXlVAj+E9Hok11K/B9qY/1u1uiBWz7pbvrlzkpletJXLy4odYBJoFDa
+         WmyMeCM30ROesW8QTowXYWrCAgslfCYtGLbbmntIIHuN8lJ8CEZJNV1wuWWx6EdDiu75
+         hVBg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=T5fl3DIZysKGwdGdi5SUy8+PhFEw22AXKIpWNdh7IQo=;
+        b=dckv9vIpcBb/Py/JLwL89rdVlaI7dkUc9+w6VkqRWwvzgIDHZjM4as5OvEllEvXeUc
+         5cwpICZ4TcirWc2ArPR3L0sXniVi91SEWxsgBvIDp+GDxeCGkQ0kkyPxjPPzKDT25nmb
+         eRR2R3n0iqgbmkvXaGBtcIOCyItAIQ//ohdJ9cEL1eBVRwHjMhkkyXMo9J1AQsozro5a
+         zfIG2uXY3E2ylPRxPq3igP6aynl0Iqet9XUxlK/42SkfNgE5GBLfkHz3pcUiodlkWb1T
+         F6mpVDQhpMyyellhsjprYV0DSGvW6qYsLbb//DydlKc32NsCnLSwQS/gibLgIgufRN3u
+         Fwqg==
+X-Gm-Message-State: AOAM5309fTinp441slrbyT2lUXputu7K1WEJdgNiZEduZIkAkK4n1Q3T
+        T5CecA1dwjdNne03disj8Ptn2GYxWhzeb7TxWNg=
+X-Google-Smtp-Source: ABdhPJwgAvcqqDqrl/IGb843ywxmOY1lrVW/UxeUQZf5xmGnZ9jVR2fezeoxan333Fw9LZXGb5MgOQ==
+X-Received: by 2002:a17:902:b089:: with SMTP id p9mr4154441plr.93.1643298002059;
+        Thu, 27 Jan 2022 07:40:02 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id d18sm4000540pfu.127.2022.01.27.07.40.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 27 Jan 2022 07:40:01 -0800 (PST)
+Message-ID: <61f2bcd1.1c69fb81.cf151.aaad@mx.google.com>
+Date:   Thu, 27 Jan 2022 07:40:01 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220126033639.909340-2-huangguobin4@huawei.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.9.297-154-ga1ec7e699381
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.9
+Subject: stable-rc/queue/4.9 baseline: 104 runs,
+ 1 regressions (v4.9.297-154-ga1ec7e699381)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 26, 2022 at 11:36:39AM +0800, Huang Guobin wrote:
-> From: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> 
-> [ Upstream commit fd65e5a95d08389444e8591a20538b3edece0e15 ]
-> 
-> We need to clear all of the bridge private skb variables as they can be
-> stale due to the packet being recirculated through the stack and then
-> transmitted through the bridge device. Similar memset is already done on
-> bridge's input. We've seen cases where proxyarp_replied was 1 on routed
-> multicast packets transmitted through the bridge to ports with neigh
-> suppress which were getting dropped. Same thing can in theory happen with
-> the port isolation bit as well.
-> 
-> Fixes: 821f1b21cabb ("bridge: add new BR_NEIGH_SUPPRESS port flag to suppress arp and nd flood")
-> Signed-off-by: Nikolay Aleksandrov <nikolay@cumulusnetworks.com>
-> Signed-off-by: David S. Miller <davem@davemloft.net>
-> Signed-off-by: Huang Guobin <huangguobin4@huawei.com>
-> ---
->  net/bridge/br_device.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/net/bridge/br_device.c b/net/bridge/br_device.c
-> index a350c05b7ff5..7c6b1024dd4b 100644
-> --- a/net/bridge/br_device.c
-> +++ b/net/bridge/br_device.c
-> @@ -42,6 +42,8 @@ netdev_tx_t br_dev_xmit(struct sk_buff *skb, struct net_device *dev)
->  	struct ethhdr *eth;
->  	u16 vid = 0;
->  
-> +	memset(skb->cb, 0, sizeof(struct br_input_skb_cb));
-> +
->  	rcu_read_lock();
->  	nf_ops = rcu_dereference(nf_br_ops);
->  	if (nf_ops && nf_ops->br_dev_xmit_hook(skb)) {
-> -- 
-> 2.25.1
-> 
+stable-rc/queue/4.9 baseline: 104 runs, 1 regressions (v4.9.297-154-ga1ec7e=
+699381)
 
-Now queued up, thanks.
+Regressions Summary
+-------------------
 
-greg k-h
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.297-154-ga1ec7e699381/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.297-154-ga1ec7e699381
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      a1ec7e699381ad0c9a81a8bcb926eb3a780a2abe =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61f2846a3df10dd3a5abbd12
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.297-1=
+54-ga1ec7e699381/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.297-1=
+54-ga1ec7e699381/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61f2846a3df10dd=
+3a5abbd18
+        failing since 2 days (last pass: v4.9.297-124-g1de5c6722df5, first =
+fail: v4.9.297-150-g86d4516a7d68)
+        2 lines
+
+    2022-01-27T11:39:16.567279  [   20.079559] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2022-01-27T11:39:16.610247  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/121
+    2022-01-27T11:39:16.619242  kern  :emerg :  lock: emif_lock+0x0/0xfffff=
+230 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =20
