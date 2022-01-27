@@ -2,52 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9900E49EA14
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 19:12:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9327049EA01
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 19:11:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245188AbiA0SMD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jan 2022 13:12:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45784 "EHLO
+        id S239535AbiA0SLe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jan 2022 13:11:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244987AbiA0SLV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 13:11:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A111DC061769;
-        Thu, 27 Jan 2022 10:11:21 -0800 (PST)
+        with ESMTP id S239257AbiA0SKw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 13:10:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EF0EC0613EF;
+        Thu, 27 Jan 2022 10:10:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 405C061BC5;
-        Thu, 27 Jan 2022 18:11:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF4CFC340E4;
-        Thu, 27 Jan 2022 18:11:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1D6CB820C4;
+        Thu, 27 Jan 2022 18:10:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21A9BC36AF9;
+        Thu, 27 Jan 2022 18:10:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643307080;
-        bh=GmHWdMrg1KlY0eYJ01CGg+NkmD48j+D6sjmDBvJwFc4=;
+        s=korg; t=1643307048;
+        bh=+dh3RZOUBJys2eS26CJjaYdbREwEpfqi92Y7FfQ0FQM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=piCMjlQxVyD68BrwBbiPWI+7AvBPlLQRQJ94vg2wZb0L6I9+yGtG1mpw6776LbCtq
-         zHPdYKfTkCgeUxPDoyy/X+k/u06gKoU9cZVYc3Pl54hE1N8tM7J5VezymBwS+xZlYe
-         csUU8/mixBfJ1RekLPUIdGeFU/nTaQUVks4Cpo9o=
+        b=Nh+2/YDHLaxyM13ysYtRycCKQw2lCj/QKoy2yrh1fFJTQ/x2i5lfWwHQqH8nNHMhj
+         FOKEiTB2kW29GhPL+PpgYzIaDVFdhXt3ZqoUqpMan/X3Il+xkJs46q17Grtbw4U0Db
+         cbR1XLj5WgcUleMl7ZzPoIht43f36ktGXCQNzQ0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
-        Sushma Venkatesh Reddy <sushma.venkatesh.reddy@intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Dave Airlie <airlied@redhat.com>,
-        Jon Bloomfield <jon.bloomfield@intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.16 1/9] drm/i915: Flush TLBs before releasing backing store
+        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>,
+        Russell King <russell.king@oracle.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alan Maguire <alan.maguire@oracle.com>,
+        Tom Saeger <tom.saeger@oracle.com>
+Subject: [PATCH 5.15 12/12] arm64/bpf: Remove 128MB limit for BPF JIT programs
 Date:   Thu, 27 Jan 2022 19:09:36 +0100
-Message-Id: <20220127180258.939992296@linuxfoundation.org>
+Message-Id: <20220127180259.497850764@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.0
-In-Reply-To: <20220127180258.892788582@linuxfoundation.org>
-References: <20220127180258.892788582@linuxfoundation.org>
+In-Reply-To: <20220127180259.078563735@linuxfoundation.org>
+References: <20220127180259.078563735@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -55,330 +50,144 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+From: Russell King <russell.king@oracle.com>
 
-commit 7938d61591d33394a21bdd7797a245b65428f44c upstream.
+commit b89ddf4cca43f1269093942cf5c4e457fd45c335 upstream.
 
-We need to flush TLBs before releasing backing store otherwise userspace
-is able to encounter stale entries if a) it is not declaring access to
-certain buffers and b) it races with the backing store release from a
-such undeclared execution already executing on the GPU in parallel.
+Commit 91fc957c9b1d ("arm64/bpf: don't allocate BPF JIT programs in module
+memory") restricts BPF JIT program allocation to a 128MB region to ensure
+BPF programs are still in branching range of each other. However this
+restriction should not apply to the aarch64 JIT, since BPF_JMP | BPF_CALL
+are implemented as a 64-bit move into a register and then a BLR instruction -
+which has the effect of being able to call anything without proximity
+limitation.
 
-The approach taken is to mark any buffer objects which were ever bound
-to the GPU and to trigger a serialized TLB flush when their backing
-store is released.
+The practical reason to relax this restriction on JIT memory is that 128MB of
+JIT memory can be quickly exhausted, especially where PAGE_SIZE is 64KB - one
+page is needed per program. In cases where seccomp filters are applied to
+multiple VMs on VM launch - such filters are classic BPF but converted to
+BPF - this can severely limit the number of VMs that can be launched. In a
+world where we support BPF JIT always on, turning off the JIT isn't always an
+option either.
 
-Alternatively the flushing could be done on VMA unbind, at which point
-we would be able to ascertain whether there is potential a parallel GPU
-execution (which could race), but essentially it boils down to paying
-the cost of TLB flushes potentially needlessly at VMA unbind time (when
-the backing store is not known to be going away so not needed for
-safety), versus potentially needlessly at backing store relase time
-(since we at that point cannot tell whether there is anything executing
-on the GPU which uses that object).
-
-Thereforce simplicity of implementation has been chosen for now with
-scope to benchmark and refine later as required.
-
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Reported-by: Sushma Venkatesh Reddy <sushma.venkatesh.reddy@intel.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Acked-by: Dave Airlie <airlied@redhat.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Jon Bloomfield <jon.bloomfield@intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 91fc957c9b1d ("arm64/bpf: don't allocate BPF JIT programs in module memory")
+Suggested-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
+Signed-off-by: Russell King <russell.king@oracle.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Tested-by: Alan Maguire <alan.maguire@oracle.com>
+Link: https://lore.kernel.org/bpf/1636131046-5982-2-git-send-email-alan.maguire@oracle.com
+Reviewed-by: Tom Saeger <tom.saeger@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/gpu/drm/i915/gem/i915_gem_object_types.h |    1 
- drivers/gpu/drm/i915/gem/i915_gem_pages.c        |   10 ++
- drivers/gpu/drm/i915/gt/intel_gt.c               |  102 +++++++++++++++++++++++
- drivers/gpu/drm/i915/gt/intel_gt.h               |    2 
- drivers/gpu/drm/i915/gt/intel_gt_types.h         |    2 
- drivers/gpu/drm/i915/i915_reg.h                  |   11 ++
- drivers/gpu/drm/i915/i915_vma.c                  |    3 
- drivers/gpu/drm/i915/intel_uncore.c              |   26 ++++-
- drivers/gpu/drm/i915/intel_uncore.h              |    2 
- 9 files changed, 155 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
-@@ -305,6 +305,7 @@ struct drm_i915_gem_object {
- #define I915_BO_READONLY          BIT(6)
- #define I915_TILING_QUIRK_BIT     7 /* unknown swizzling; do not release! */
- #define I915_BO_PROTECTED         BIT(8)
-+#define I915_BO_WAS_BOUND_BIT     9
- 	/**
- 	 * @mem_flags - Mutable placement-related flags
- 	 *
---- a/drivers/gpu/drm/i915/gem/i915_gem_pages.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
-@@ -10,6 +10,8 @@
- #include "i915_gem_lmem.h"
- #include "i915_gem_mman.h"
+---
+ arch/arm64/include/asm/extable.h |    9 ---------
+ arch/arm64/include/asm/memory.h  |    5 +----
+ arch/arm64/kernel/traps.c        |    2 +-
+ arch/arm64/mm/extable.c          |   13 +++++++++----
+ arch/arm64/mm/ptdump.c           |    2 --
+ arch/arm64/net/bpf_jit_comp.c    |    7 ++-----
+ 6 files changed, 13 insertions(+), 25 deletions(-)
+
+--- a/arch/arm64/include/asm/extable.h
++++ b/arch/arm64/include/asm/extable.h
+@@ -22,15 +22,6 @@ struct exception_table_entry
  
-+#include "gt/intel_gt.h"
-+
- void __i915_gem_object_set_pages(struct drm_i915_gem_object *obj,
- 				 struct sg_table *pages,
- 				 unsigned int sg_page_sizes)
-@@ -217,6 +219,14 @@ __i915_gem_object_unset_pages(struct drm
- 	__i915_gem_object_reset_page_iter(obj);
- 	obj->mm.page_sizes.phys = obj->mm.page_sizes.sg = 0;
+ #define ARCH_HAS_RELATIVE_EXTABLE
  
-+	if (test_and_clear_bit(I915_BO_WAS_BOUND_BIT, &obj->flags)) {
-+		struct drm_i915_private *i915 = to_i915(obj->base.dev);
-+		intel_wakeref_t wakeref;
-+
-+		with_intel_runtime_pm_if_active(&i915->runtime_pm, wakeref)
-+			intel_gt_invalidate_tlbs(&i915->gt);
-+	}
-+
- 	return pages;
- }
- 
---- a/drivers/gpu/drm/i915/gt/intel_gt.c
-+++ b/drivers/gpu/drm/i915/gt/intel_gt.c
-@@ -30,6 +30,8 @@ void intel_gt_init_early(struct intel_gt
- 
- 	spin_lock_init(&gt->irq_lock);
- 
-+	mutex_init(&gt->tlb_invalidate_lock);
-+
- 	INIT_LIST_HEAD(&gt->closed_vma);
- 	spin_lock_init(&gt->closed_lock);
- 
-@@ -907,3 +909,103 @@ void intel_gt_info_print(const struct in
- 
- 	intel_sseu_dump(&info->sseu, p);
- }
-+
-+struct reg_and_bit {
-+	i915_reg_t reg;
-+	u32 bit;
-+};
-+
-+static struct reg_and_bit
-+get_reg_and_bit(const struct intel_engine_cs *engine, const bool gen8,
-+		const i915_reg_t *regs, const unsigned int num)
-+{
-+	const unsigned int class = engine->class;
-+	struct reg_and_bit rb = { };
-+
-+	if (drm_WARN_ON_ONCE(&engine->i915->drm,
-+			     class >= num || !regs[class].reg))
-+		return rb;
-+
-+	rb.reg = regs[class];
-+	if (gen8 && class == VIDEO_DECODE_CLASS)
-+		rb.reg.reg += 4 * engine->instance; /* GEN8_M2TCR */
-+	else
-+		rb.bit = engine->instance;
-+
-+	rb.bit = BIT(rb.bit);
-+
-+	return rb;
-+}
-+
-+void intel_gt_invalidate_tlbs(struct intel_gt *gt)
-+{
-+	static const i915_reg_t gen8_regs[] = {
-+		[RENDER_CLASS]			= GEN8_RTCR,
-+		[VIDEO_DECODE_CLASS]		= GEN8_M1TCR, /* , GEN8_M2TCR */
-+		[VIDEO_ENHANCEMENT_CLASS]	= GEN8_VTCR,
-+		[COPY_ENGINE_CLASS]		= GEN8_BTCR,
-+	};
-+	static const i915_reg_t gen12_regs[] = {
-+		[RENDER_CLASS]			= GEN12_GFX_TLB_INV_CR,
-+		[VIDEO_DECODE_CLASS]		= GEN12_VD_TLB_INV_CR,
-+		[VIDEO_ENHANCEMENT_CLASS]	= GEN12_VE_TLB_INV_CR,
-+		[COPY_ENGINE_CLASS]		= GEN12_BLT_TLB_INV_CR,
-+	};
-+	struct drm_i915_private *i915 = gt->i915;
-+	struct intel_uncore *uncore = gt->uncore;
-+	struct intel_engine_cs *engine;
-+	enum intel_engine_id id;
-+	const i915_reg_t *regs;
-+	unsigned int num = 0;
-+
-+	if (I915_SELFTEST_ONLY(gt->awake == -ENODEV))
-+		return;
-+
-+	if (GRAPHICS_VER(i915) == 12) {
-+		regs = gen12_regs;
-+		num = ARRAY_SIZE(gen12_regs);
-+	} else if (GRAPHICS_VER(i915) >= 8 && GRAPHICS_VER(i915) <= 11) {
-+		regs = gen8_regs;
-+		num = ARRAY_SIZE(gen8_regs);
-+	} else if (GRAPHICS_VER(i915) < 8) {
-+		return;
-+	}
-+
-+	if (drm_WARN_ONCE(&i915->drm, !num,
-+			  "Platform does not implement TLB invalidation!"))
-+		return;
-+
-+	GEM_TRACE("\n");
-+
-+	assert_rpm_wakelock_held(&i915->runtime_pm);
-+
-+	mutex_lock(&gt->tlb_invalidate_lock);
-+	intel_uncore_forcewake_get(uncore, FORCEWAKE_ALL);
-+
-+	for_each_engine(engine, gt, id) {
-+		/*
-+		 * HW architecture suggest typical invalidation time at 40us,
-+		 * with pessimistic cases up to 100us and a recommendation to
-+		 * cap at 1ms. We go a bit higher just in case.
-+		 */
-+		const unsigned int timeout_us = 100;
-+		const unsigned int timeout_ms = 4;
-+		struct reg_and_bit rb;
-+
-+		rb = get_reg_and_bit(engine, regs == gen8_regs, regs, num);
-+		if (!i915_mmio_reg_offset(rb.reg))
-+			continue;
-+
-+		intel_uncore_write_fw(uncore, rb.reg, rb.bit);
-+		if (__intel_wait_for_register_fw(uncore,
-+						 rb.reg, rb.bit, 0,
-+						 timeout_us, timeout_ms,
-+						 NULL))
-+			drm_err_ratelimited(&gt->i915->drm,
-+					    "%s TLB invalidation did not complete in %ums!\n",
-+					    engine->name, timeout_ms);
-+	}
-+
-+	intel_uncore_forcewake_put_delayed(uncore, FORCEWAKE_ALL);
-+	mutex_unlock(&gt->tlb_invalidate_lock);
-+}
---- a/drivers/gpu/drm/i915/gt/intel_gt.h
-+++ b/drivers/gpu/drm/i915/gt/intel_gt.h
-@@ -90,4 +90,6 @@ void intel_gt_info_print(const struct in
- 
- void intel_gt_watchdog_work(struct work_struct *work);
- 
-+void intel_gt_invalidate_tlbs(struct intel_gt *gt);
-+
- #endif /* __INTEL_GT_H__ */
---- a/drivers/gpu/drm/i915/gt/intel_gt_types.h
-+++ b/drivers/gpu/drm/i915/gt/intel_gt_types.h
-@@ -73,6 +73,8 @@ struct intel_gt {
- 
- 	struct intel_uc uc;
- 
-+	struct mutex tlb_invalidate_lock;
-+
- 	struct i915_wa_list wa_list;
- 
- 	struct intel_gt_timelines {
---- a/drivers/gpu/drm/i915/i915_reg.h
-+++ b/drivers/gpu/drm/i915/i915_reg.h
-@@ -2697,6 +2697,12 @@ static inline bool i915_mmio_reg_valid(i
- #define   GAMT_CHKN_DISABLE_DYNAMIC_CREDIT_SHARING	(1 << 28)
- #define   GAMT_CHKN_DISABLE_I2M_CYCLE_ON_WR_PORT	(1 << 24)
- 
-+#define GEN8_RTCR	_MMIO(0x4260)
-+#define GEN8_M1TCR	_MMIO(0x4264)
-+#define GEN8_M2TCR	_MMIO(0x4268)
-+#define GEN8_BTCR	_MMIO(0x426c)
-+#define GEN8_VTCR	_MMIO(0x4270)
-+
- #if 0
- #define PRB0_TAIL	_MMIO(0x2030)
- #define PRB0_HEAD	_MMIO(0x2034)
-@@ -2792,6 +2798,11 @@ static inline bool i915_mmio_reg_valid(i
- #define   FAULT_VA_HIGH_BITS		(0xf << 0)
- #define   FAULT_GTT_SEL			(1 << 4)
- 
-+#define GEN12_GFX_TLB_INV_CR	_MMIO(0xced8)
-+#define GEN12_VD_TLB_INV_CR	_MMIO(0xcedc)
-+#define GEN12_VE_TLB_INV_CR	_MMIO(0xcee0)
-+#define GEN12_BLT_TLB_INV_CR	_MMIO(0xcee4)
-+
- #define GEN12_AUX_ERR_DBG		_MMIO(0x43f4)
- 
- #define FPGA_DBG		_MMIO(0x42300)
---- a/drivers/gpu/drm/i915/i915_vma.c
-+++ b/drivers/gpu/drm/i915/i915_vma.c
-@@ -431,6 +431,9 @@ int i915_vma_bind(struct i915_vma *vma,
- 		vma->ops->bind_vma(vma->vm, NULL, vma, cache_level, bind_flags);
- 	}
- 
-+	if (vma->obj)
-+		set_bit(I915_BO_WAS_BOUND_BIT, &vma->obj->flags);
-+
- 	atomic_or(bind_flags, &vma->flags);
- 	return 0;
- }
---- a/drivers/gpu/drm/i915/intel_uncore.c
-+++ b/drivers/gpu/drm/i915/intel_uncore.c
-@@ -724,7 +724,8 @@ void intel_uncore_forcewake_get__locked(
- }
- 
- static void __intel_uncore_forcewake_put(struct intel_uncore *uncore,
--					 enum forcewake_domains fw_domains)
-+					 enum forcewake_domains fw_domains,
-+					 bool delayed)
+-static inline bool in_bpf_jit(struct pt_regs *regs)
+-{
+-	if (!IS_ENABLED(CONFIG_BPF_JIT))
+-		return false;
+-
+-	return regs->pc >= BPF_JIT_REGION_START &&
+-	       regs->pc < BPF_JIT_REGION_END;
+-}
+-
+ #ifdef CONFIG_BPF_JIT
+ int arm64_bpf_fixup_exception(const struct exception_table_entry *ex,
+ 			      struct pt_regs *regs);
+--- a/arch/arm64/include/asm/memory.h
++++ b/arch/arm64/include/asm/memory.h
+@@ -44,11 +44,8 @@
+ #define _PAGE_OFFSET(va)	(-(UL(1) << (va)))
+ #define PAGE_OFFSET		(_PAGE_OFFSET(VA_BITS))
+ #define KIMAGE_VADDR		(MODULES_END)
+-#define BPF_JIT_REGION_START	(_PAGE_END(VA_BITS_MIN))
+-#define BPF_JIT_REGION_SIZE	(SZ_128M)
+-#define BPF_JIT_REGION_END	(BPF_JIT_REGION_START + BPF_JIT_REGION_SIZE)
+ #define MODULES_END		(MODULES_VADDR + MODULES_VSIZE)
+-#define MODULES_VADDR		(BPF_JIT_REGION_END)
++#define MODULES_VADDR		(_PAGE_END(VA_BITS_MIN))
+ #define MODULES_VSIZE		(SZ_128M)
+ #define VMEMMAP_START		(-(UL(1) << (VA_BITS - VMEMMAP_SHIFT)))
+ #define VMEMMAP_END		(VMEMMAP_START + VMEMMAP_SIZE)
+--- a/arch/arm64/kernel/traps.c
++++ b/arch/arm64/kernel/traps.c
+@@ -988,7 +988,7 @@ static struct break_hook bug_break_hook
+ static int reserved_fault_handler(struct pt_regs *regs, unsigned int esr)
  {
- 	struct intel_uncore_forcewake_domain *domain;
- 	unsigned int tmp;
-@@ -739,7 +740,11 @@ static void __intel_uncore_forcewake_put
- 			continue;
- 		}
+ 	pr_err("%s generated an invalid instruction at %pS!\n",
+-		in_bpf_jit(regs) ? "BPF JIT" : "Kernel text patching",
++		"Kernel text patching",
+ 		(void *)instruction_pointer(regs));
  
--		fw_domains_put(uncore, domain->mask);
-+		if (delayed &&
-+		    !(domain->uncore->fw_domains_timer & domain->mask))
-+			fw_domain_arm_timer(domain);
-+		else
-+			fw_domains_put(uncore, domain->mask);
- 	}
+ 	/* We cannot handle this */
+--- a/arch/arm64/mm/extable.c
++++ b/arch/arm64/mm/extable.c
+@@ -9,14 +9,19 @@
+ int fixup_exception(struct pt_regs *regs)
+ {
+ 	const struct exception_table_entry *fixup;
++	unsigned long addr;
+ 
+-	fixup = search_exception_tables(instruction_pointer(regs));
+-	if (!fixup)
+-		return 0;
++	addr = instruction_pointer(regs);
+ 
+-	if (in_bpf_jit(regs))
++	/* Search the BPF tables first, these are formatted differently */
++	fixup = search_bpf_extables(addr);
++	if (fixup)
+ 		return arm64_bpf_fixup_exception(fixup, regs);
+ 
++	fixup = search_exception_tables(addr);
++	if (!fixup)
++		return 0;
++
+ 	regs->pc = (unsigned long)&fixup->fixup + fixup->fixup;
+ 	return 1;
+ }
+--- a/arch/arm64/mm/ptdump.c
++++ b/arch/arm64/mm/ptdump.c
+@@ -41,8 +41,6 @@ static struct addr_marker address_marker
+ 	{ 0 /* KASAN_SHADOW_START */,	"Kasan shadow start" },
+ 	{ KASAN_SHADOW_END,		"Kasan shadow end" },
+ #endif
+-	{ BPF_JIT_REGION_START,		"BPF start" },
+-	{ BPF_JIT_REGION_END,		"BPF end" },
+ 	{ MODULES_VADDR,		"Modules start" },
+ 	{ MODULES_END,			"Modules end" },
+ 	{ VMALLOC_START,		"vmalloc() area" },
+--- a/arch/arm64/net/bpf_jit_comp.c
++++ b/arch/arm64/net/bpf_jit_comp.c
+@@ -1138,15 +1138,12 @@ out:
+ 
+ u64 bpf_jit_alloc_exec_limit(void)
+ {
+-	return BPF_JIT_REGION_SIZE;
++	return VMALLOC_END - VMALLOC_START;
  }
  
-@@ -760,7 +765,20 @@ void intel_uncore_forcewake_put(struct i
- 		return;
- 
- 	spin_lock_irqsave(&uncore->lock, irqflags);
--	__intel_uncore_forcewake_put(uncore, fw_domains);
-+	__intel_uncore_forcewake_put(uncore, fw_domains, false);
-+	spin_unlock_irqrestore(&uncore->lock, irqflags);
-+}
-+
-+void intel_uncore_forcewake_put_delayed(struct intel_uncore *uncore,
-+					enum forcewake_domains fw_domains)
-+{
-+	unsigned long irqflags;
-+
-+	if (!uncore->fw_get_funcs)
-+		return;
-+
-+	spin_lock_irqsave(&uncore->lock, irqflags);
-+	__intel_uncore_forcewake_put(uncore, fw_domains, true);
- 	spin_unlock_irqrestore(&uncore->lock, irqflags);
+ void *bpf_jit_alloc_exec(unsigned long size)
+ {
+-	return __vmalloc_node_range(size, PAGE_SIZE, BPF_JIT_REGION_START,
+-				    BPF_JIT_REGION_END, GFP_KERNEL,
+-				    PAGE_KERNEL, 0, NUMA_NO_NODE,
+-				    __builtin_return_address(0));
++	return vmalloc(size);
  }
  
-@@ -802,7 +820,7 @@ void intel_uncore_forcewake_put__locked(
- 	if (!uncore->fw_get_funcs)
- 		return;
- 
--	__intel_uncore_forcewake_put(uncore, fw_domains);
-+	__intel_uncore_forcewake_put(uncore, fw_domains, false);
- }
- 
- void assert_forcewakes_inactive(struct intel_uncore *uncore)
---- a/drivers/gpu/drm/i915/intel_uncore.h
-+++ b/drivers/gpu/drm/i915/intel_uncore.h
-@@ -243,6 +243,8 @@ void intel_uncore_forcewake_get(struct i
- 				enum forcewake_domains domains);
- void intel_uncore_forcewake_put(struct intel_uncore *uncore,
- 				enum forcewake_domains domains);
-+void intel_uncore_forcewake_put_delayed(struct intel_uncore *uncore,
-+					enum forcewake_domains domains);
- void intel_uncore_forcewake_flush(struct intel_uncore *uncore,
- 				  enum forcewake_domains fw_domains);
- 
+ void bpf_jit_free_exec(void *addr)
 
 
