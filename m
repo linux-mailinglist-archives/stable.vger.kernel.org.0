@@ -2,106 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 148B649E697
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 16:48:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D30B449E6A7
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 16:51:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243154AbiA0PsC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jan 2022 10:48:02 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:56770 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243118AbiA0PsB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 10:48:01 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D2D1617FE
-        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 15:48:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40624C340E8;
-        Thu, 27 Jan 2022 15:48:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643298480;
-        bh=RpZ6GZ5XpQD04R5Ydos1Y+RZUXyiT6UujapK2hl/BgM=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=O/J0VJVQZG1Pwo+p+30qgAACtsMgn3Z8ki/5W42elep7YihMxpcDeLlGC2W5E7Q/g
-         bxXgi8NmWAFTDXbSWZA/fZjp3S3jVtZvHOVbv6AiczuiaWqTsDBxlwaS/nr7bV2Zhb
-         zcPcAvJK/2zWjLOY9IiXE7juQlpV66tpqKMqQCI0=
-Date:   Thu, 27 Jan 2022 16:47:57 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Limonciello, Mario" <Mario.Limonciello@amd.com>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Deucher, Alexander" <Alexander.Deucher@amd.com>,
-        "Wentland, Harry" <Harry.Wentland@amd.com>
-Subject: Re: [PATCH] drm/amdgpu: Use correct VIEWPORT_DIMENSION for DCN2
-Message-ID: <YfK+rc4mowKwp4VM@kroah.com>
-References: <20220125152111.22515-1-mario.limonciello@amd.com>
- <YfAcKZALAKAMXs/O@kroah.com>
- <BL1PR12MB5157FC7109F99B0D2DB265B5E25F9@BL1PR12MB5157.namprd12.prod.outlook.com>
+        id S243224AbiA0PvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jan 2022 10:51:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40712 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242857AbiA0PvI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 10:51:08 -0500
+Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04372C061714
+        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 07:51:08 -0800 (PST)
+Received: by mail-pl1-x62a.google.com with SMTP id d7so2799860plr.12
+        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 07:51:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=F+5bt6Hpom0lq5RJeFGvqm968upqf+gUuWdhjwtTbuE=;
+        b=10g7HrLj0lk/ueyHubofETAJKIRPkXWTfdLCJy/SE9WZ0gtrGVmLi8Qx7g6ob7MChl
+         R6UK23GkUxgn9SyHKE5N9FW9QFwEniidgdZcgv2TnN3hshlm2UuBeUuURfvoON3j2FC0
+         2k4d2QDXPJKflec1ndUkRBz8V/39XX2USH+P/E02d5AWAGVUS2xPRNQYBIULHef3fXx0
+         1OQYaUpDEIYn03NMlH++vyCXA2HUBgBJZ6QYsKi5Y2swfmXHwNt8onRmlVF9VmEDpEHw
+         wpTmRJM3jg462luuk2UiIlaZrfAGfv4/KmjVba9jAHgKA8YpGaJzmkBxAWFlcwqTiGbf
+         d+JQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=F+5bt6Hpom0lq5RJeFGvqm968upqf+gUuWdhjwtTbuE=;
+        b=HeXXGt6VXBOBHREyEEBJEeKeO9CDOoBCjePlXCCzl9ywDMGuEADRbPI2UrVn0zNIT0
+         dTIi2HoICpC+G3QZGu05WdCfaNguJjmRhLh6PGzrr+y99JP2CR0ZXVlSy5N281jwd0OZ
+         hxu0KO0iCoZhUIPbtE2C55RsEkDzM3tBUuPaTHPv2+p2rSML4XKGkOZg2qrWEST4vGjY
+         whsTP7ZkGoNmAS+7ZBQsdt8wZFLZofWc3I5rKPr/nb4yS9mOLpLJKtPau22aAW1b0ehd
+         E4Mav7k4x6Ihs6FzE0mbl0K+Qyh9ks/Gsu8ttQMY1LBUZ6vXPPWyUd/icqKbHZRw8apW
+         KJ/A==
+X-Gm-Message-State: AOAM531cJJ71wp+W9McNq1wciQHfWnflJ95aI7vx4Z15U7GaA1oO8wa6
+        1c65qjrUgyhkBHeU7B8gEadNOV7cpogEKjzH2uM=
+X-Google-Smtp-Source: ABdhPJy/pW+bTL+vF4YuiMjB6jBcxOCrnHFvELjiTeAku1jDyIWtMGKjYHWeALkq0iYHyZl/+yab4A==
+X-Received: by 2002:a17:902:cec4:: with SMTP id d4mr3797639plg.56.1643298667207;
+        Thu, 27 Jan 2022 07:51:07 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id lr7sm3956288pjb.42.2022.01.27.07.51.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 27 Jan 2022 07:51:06 -0800 (PST)
+Message-ID: <61f2bf6a.1c69fb81.88575.9397@mx.google.com>
+Date:   Thu, 27 Jan 2022 07:51:06 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BL1PR12MB5157FC7109F99B0D2DB265B5E25F9@BL1PR12MB5157.namprd12.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.16.2-1032-g26156ffc8fad7
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.16
+Subject: stable-rc/queue/5.16 baseline: 189 runs,
+ 1 regressions (v5.16.2-1032-g26156ffc8fad7)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 25, 2022 at 03:52:47PM +0000, Limonciello, Mario wrote:
-> [Public]
-> 
-> > -----Original Message-----
-> > From: Greg KH <gregkh@linuxfoundation.org>
-> > Sent: Tuesday, January 25, 2022 09:50
-> > To: Limonciello, Mario <Mario.Limonciello@amd.com>
-> > Cc: stable@vger.kernel.org; Deucher, Alexander
-> > <Alexander.Deucher@amd.com>; Wentland, Harry
-> > <Harry.Wentland@amd.com>
-> > Subject: Re: [PATCH] drm/amdgpu: Use correct VIEWPORT_DIMENSION for
-> > DCN2
-> > 
-> > On Tue, Jan 25, 2022 at 09:21:11AM -0600, Mario Limonciello wrote:
-> > > For some reason this file isn't using the appropriate register
-> > > headers for DCN headers, which means that on DCN2 we're getting
-> > > the VIEWPORT_DIMENSION offset wrong.
-> > >
-> > > This means that we're not correctly carving out the framebuffer
-> > > memory correctly for a framebuffer allocated by EFI and
-> > > therefore see corruption when loading amdgpu before the display
-> > > driver takes over control of the framebuffer scanout.
-> > >
-> > > Fix this by checking the DCE_HWIP and picking the correct offset
-> > > accordingly.
-> > >
-> > > Long-term we should expose this info from DC as GMC shouldn't
-> > > need to know about DCN registers.
-> > >
-> > > Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-> > > (cherry picked from commit dc5d4aff2e99c312df8abbe1ee9a731d2913bc1b)
-> > > ---
-> > > This is backported from 5.17-rc1, but doesn't backport cleanly because
-> > > v5.16 changed to IP version harvesting for ASIC detection.  5.15.y doesn't
-> > > have this.
-> > >  drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c | 14 +++++++++++++-
-> > >  1 file changed, 13 insertions(+), 1 deletion(-)
-> > 
-> > What stable tree(s) do you want this applied to?
-> > 
-> 
-> The original commit it was cherry-picked from was CC to @stable and it
-> should have applied to 5.16 from that. 
-> 
-> This fixed commit should go into 5.15.y.
+stable-rc/queue/5.16 baseline: 189 runs, 1 regressions (v5.16.2-1032-g26156=
+ffc8fad7)
 
-Thanks, now queued up.
+Regressions Summary
+-------------------
 
-> > And what happened to the original signed-off-by's on the original
-> > commit?
-> 
-> I dropped them because I had to change code to do the backport, it didn't seem reasonable
-> to me to keep all of their ACK's/signed-off-by's on the code still.
-> 
-> If that's incorrect, please let me know and I can re-send with the exact same commit message.
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+rk3288-veyron-jaq | arm  | lab-collabora | gcc-10   | multi_v7_defconfig | =
+1          =
 
-Please keep them.  I've fixed this up for now, so no need for a resend.
 
-thanks,
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.16/ker=
+nel/v5.16.2-1032-g26156ffc8fad7/plan/baseline/
 
-greg k-h
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.16
+  Describe: v5.16.2-1032-g26156ffc8fad7
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      26156ffc8fad757fd8d2c866ba8039212df9f11e =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform          | arch | lab           | compiler | defconfig          | =
+regressions
+------------------+------+---------------+----------+--------------------+-=
+-----------
+rk3288-veyron-jaq | arm  | lab-collabora | gcc-10   | multi_v7_defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61f28c394b3800d43babbd1b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.2-1=
+032-g26156ffc8fad7/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-rk3=
+288-veyron-jaq.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.16/v5.16.2-1=
+032-g26156ffc8fad7/arm/multi_v7_defconfig/gcc-10/lab-collabora/baseline-rk3=
+288-veyron-jaq.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61f28c394b3800d43babb=
+d1c
+        new failure (last pass: v5.16.2-1033-ge4f2c5155f37) =
+
+ =20
