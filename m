@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF50349D7A3
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 02:54:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2D5149D814
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 03:32:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234709AbiA0By2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 20:54:28 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:59586 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232133AbiA0By1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 20:54:27 -0500
+        id S235183AbiA0CcK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 21:32:10 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:40796 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235172AbiA0CcH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 21:32:07 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CFDC61C1A;
-        Thu, 27 Jan 2022 01:54:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA1CAC340E7;
-        Thu, 27 Jan 2022 01:54:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 14836B820FA;
+        Thu, 27 Jan 2022 02:32:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA264C340E7;
+        Thu, 27 Jan 2022 02:32:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1643248467;
-        bh=OPW8zGNwD8UsHs50Ux/JGsuNPeShoa0uo8igMI6BEoI=;
+        s=korg; t=1643250724;
+        bh=YzlRjD2NwJvgx9dl0mMJbAjpAx04oz+MwQOeOlUhor8=;
         h=Date:From:To:Subject:From;
-        b=vNqs9F9LBqtVxQ1iUurBHHM2SXiwmDMkog6LA0UxbTurBtbK1oBk/s9VwIvvTrutk
-         pYvPtDQ+bU8CVhfAwnAn+OhSSQRvN86lfMMq1NpzehZjoVOJVfU75EvWXhSnxbQ5wH
-         CrS+ydXBACUiP/gc+JUSSr2CNu4gt1FaqPv1WvTM=
-Date:   Wed, 26 Jan 2022 17:54:26 -0800
+        b=QJA54a8C01Z6XZd08K+E5O89ChSt6dp5euvREGYksNFxeSXRnVUIppKVLwtV2Vkid
+         yKHWiVcNAM0OgiVhlqL0YgcSqitVEl3QgExt1xLqLZWWT4UWRA9E6w2mEz1uFQiGlI
+         CoHu++xZsBfuUCAEM8G2ApRA2cptFL/a5kb4aa4Y=
+Date:   Wed, 26 Jan 2022 18:32:04 -0800
 From:   akpm@linux-foundation.org
-To:     ebiederm@xmission.com, jannh@google.com,
-        mm-commits@vger.kernel.org, rdunlap@infradead.org,
-        stable@vger.kernel.org, viro@zeniv.linux.org.uk,
-        wmessmer@microsoft.com
+To:     khalid.aziz@oracle.com, mm-commits@vger.kernel.org,
+        rppt@linux.ibm.com, stable@vger.kernel.org, stettberger@dokucode.de
 Subject:  +
- coredump-also-dump-first-pages-of-non-executable-elf-libraries.patch added
- to -mm tree
-Message-ID: <20220127015426.x6Ewcg_BH%akpm@linux-foundation.org>
+ mm-pgtable-define-pte_index-so-that-preprocessor-could-recognize-it.patch
+ added to -mm tree
+Message-ID: <20220127023204.YhI-sD-TA%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -42,14 +40,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: coredump: also dump first pages of non-executable ELF libraries
+     Subject: mm/pgtable: define pte_index so that preprocessor could recognize it
 has been added to the -mm tree.  Its filename is
-     coredump-also-dump-first-pages-of-non-executable-elf-libraries.patch
+     mm-pgtable-define-pte_index-so-that-preprocessor-could-recognize-it.patch
 
 This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/coredump-also-dump-first-pages-of-non-executable-elf-libraries.patch
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-pgtable-define-pte_index-so-that-preprocessor-could-recognize-it.patch
 and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/coredump-also-dump-first-pages-of-non-executable-elf-libraries.patch
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-pgtable-define-pte_index-so-that-preprocessor-could-recognize-it.patch
 
 Before you just go and hit "reply", please:
    a) Consider who else should be cc'ed
@@ -63,116 +61,41 @@ The -mm tree is included into linux-next and is updated
 there every 3-4 working days
 
 ------------------------------------------------------
-From: Jann Horn <jannh@google.com>
-Subject: coredump: also dump first pages of non-executable ELF libraries
+From: Mike Rapoport <rppt@linux.ibm.com>
+Subject: mm/pgtable: define pte_index so that preprocessor could recognize it
 
-When I rewrote the VMA dumping logic for coredumps, I changed it to
-recognize ELF library mappings based on the file being executable instead
-of the mapping having an ELF header.  But turns out, distros ship many ELF
-libraries as non-executable, so the heuristic goes wrong...
+Since commit 974b9b2c68f3 ("mm: consolidate pte_index() and pte_offset_*()
+definitions") pte_index is a static inline and there is no define for it
+that can be recognized by the preprocessor.  As a result,
+vm_insert_pages() uses slower loop over vm_insert_page() instead of
+insert_pages() that amortizes the cost of spinlock operations when
+inserting multiple pages.
 
-Restore the old behavior where FILTER(ELF_HEADERS) dumps the first page of
-any offset-0 readable mapping that starts with the ELF magic.
-
-This fix is technically layer-breaking a bit, because it checks for
-something ELF-specific in fs/coredump.c; but since we probably want to
-share this between standard ELF and FDPIC ELF anyway, I guess it's fine? 
-And this also keeps the change small for backporting.
-
-Link: https://lkml.kernel.org/r/20220126025739.2014888-1-jannh@google.com
-Fixes: 429a22e776a2 ("coredump: rework elf/elf_fdpic vma_dump_size() into c=
-ommon helper")
-Signed-off-by: Jann Horn <jannh@google.com>
-Reported-by: Bill Messmer <wmessmer@microsoft.com>
-Cc: "Eric W . Biederman" <ebiederm@xmission.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Randy Dunlap <rdunlap@infradead.org>
+Link: https://lkml.kernel.org/r/20220111145457.20748-1-rppt@kernel.org
+Fixes: 974b9b2c68f3 ("mm: consolidate pte_index() and pte_offset_*() definitions")
+Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
+Reported-by: Christian Dietrich <stettberger@dokucode.de>
+Reviewed-by: Khalid Aziz <khalid.aziz@oracle.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/coredump.c |   39 ++++++++++++++++++++++++++++++++++-----
- 1 file changed, 34 insertions(+), 5 deletions(-)
+ include/linux/pgtable.h |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/coredump.c~coredump-also-dump-first-pages-of-non-executable-elf-libraries
-+++ a/fs/coredump.c
-@@ -42,6 +42,7 @@
- #include <linux/path.h>
- #include <linux/timekeeping.h>
- #include <linux/sysctl.h>
-+#include <linux/elf.h>
- 
- #include <linux/uaccess.h>
- #include <asm/mmu_context.h>
-@@ -980,6 +981,8 @@ static bool always_dump_vma(struct vm_ar
- 	return false;
+--- a/include/linux/pgtable.h~mm-pgtable-define-pte_index-so-that-preprocessor-could-recognize-it
++++ a/include/linux/pgtable.h
+@@ -62,6 +62,7 @@ static inline unsigned long pte_index(un
+ {
+ 	return (address >> PAGE_SHIFT) & (PTRS_PER_PTE - 1);
  }
++#define pte_index pte_index
  
-+#define DUMP_SIZE_MAYBE_ELFHDR_PLACEHOLDER 1
-+
- /*
-  * Decide how much of @vma's contents should be included in a core dump.
-  */
-@@ -1039,9 +1042,20 @@ static unsigned long vma_dump_size(struc
- 	 * dump the first page to aid in determining what was mapped here.
- 	 */
- 	if (FILTER(ELF_HEADERS) &&
--	    vma->vm_pgoff == 0 && (vma->vm_flags & VM_READ) &&
--	    (READ_ONCE(file_inode(vma->vm_file)->i_mode) & 0111) != 0)
--		return PAGE_SIZE;
-+	    vma->vm_pgoff == 0 && (vma->vm_flags & VM_READ)) {
-+		if ((READ_ONCE(file_inode(vma->vm_file)->i_mode) & 0111) != 0)
-+			return PAGE_SIZE;
-+
-+		/*
-+		 * ELF libraries aren't always executable.
-+		 * We'll want to check whether the mapping starts with the ELF
-+		 * magic, but not now - we're holding the mmap lock,
-+		 * so copy_from_user() doesn't work here.
-+		 * Use a placeholder instead, and fix it up later in
-+		 * dump_vma_snapshot().
-+		 */
-+		return DUMP_SIZE_MAYBE_ELFHDR_PLACEHOLDER;
-+	}
- 
- #undef	FILTER
- 
-@@ -1116,8 +1130,6 @@ int dump_vma_snapshot(struct coredump_pa
- 		m->end = vma->vm_end;
- 		m->flags = vma->vm_flags;
- 		m->dump_size = vma_dump_size(vma, cprm->mm_flags);
--
--		vma_data_size += m->dump_size;
- 	}
- 
- 	mmap_write_unlock(mm);
-@@ -1127,6 +1139,23 @@ int dump_vma_snapshot(struct coredump_pa
- 		return -EFAULT;
- 	}
- 
-+	for (i = 0; i < *vma_count; i++) {
-+		struct core_vma_metadata *m = (*vma_meta) + i;
-+
-+		if (m->dump_size == DUMP_SIZE_MAYBE_ELFHDR_PLACEHOLDER) {
-+			char elfmag[SELFMAG];
-+
-+			if (copy_from_user(elfmag, (void __user *)m->start, SELFMAG) ||
-+					memcmp(elfmag, ELFMAG, SELFMAG) != 0) {
-+				m->dump_size = 0;
-+			} else {
-+				m->dump_size = PAGE_SIZE;
-+			}
-+		}
-+
-+		vma_data_size += m->dump_size;
-+	}
-+
- 	*vma_data_size_ptr = vma_data_size;
- 	return 0;
- }
+ #ifndef pmd_index
+ static inline unsigned long pmd_index(unsigned long address)
 _
 
-Patches currently in -mm which might be from jannh@google.com are
+Patches currently in -mm which might be from rppt@linux.ibm.com are
 
-coredump-also-dump-first-pages-of-non-executable-elf-libraries.patch
+mm-pgtable-define-pte_index-so-that-preprocessor-could-recognize-it.patch
 
