@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9327049EA01
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 19:11:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F188249EA18
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 19:12:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239535AbiA0SLe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jan 2022 13:11:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45646 "EHLO
+        id S245533AbiA0SMK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jan 2022 13:12:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239257AbiA0SKw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 13:10:52 -0500
+        with ESMTP id S245534AbiA0SL1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 13:11:27 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EF0EC0613EF;
-        Thu, 27 Jan 2022 10:10:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02BA2C06176F;
+        Thu, 27 Jan 2022 10:11:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1D6CB820C4;
-        Thu, 27 Jan 2022 18:10:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21A9BC36AF9;
-        Thu, 27 Jan 2022 18:10:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 976B0B820CA;
+        Thu, 27 Jan 2022 18:11:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9C67C340E4;
+        Thu, 27 Jan 2022 18:11:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643307048;
-        bh=+dh3RZOUBJys2eS26CJjaYdbREwEpfqi92Y7FfQ0FQM=;
+        s=korg; t=1643307084;
+        bh=Hcx5t70cbUAEBzlcTN4NFwG/Qeq3pDOJWWGDTDvPBgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nh+2/YDHLaxyM13ysYtRycCKQw2lCj/QKoy2yrh1fFJTQ/x2i5lfWwHQqH8nNHMhj
-         FOKEiTB2kW29GhPL+PpgYzIaDVFdhXt3ZqoUqpMan/X3Il+xkJs46q17Grtbw4U0Db
-         cbR1XLj5WgcUleMl7ZzPoIht43f36ktGXCQNzQ0s=
+        b=TZmmO5cMn4HpFK9VuLg/ZXImB3CbtEmYYpzIvL4ioWqfY4CHpGk97d4GBWE5G+GnT
+         EFiYxtAjdk2L9gtT7GbxMmcrtNClJNClrxhiE1w7d2H6wnnaMTgLr/bcfqTPYGbwVf
+         TI7JiCCgIq/kgnaOXvtmfALpI9wNTEcS1sj3jvgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ard Biesheuvel <ard.biesheuvel@linaro.org>,
-        Russell King <russell.king@oracle.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Alan Maguire <alan.maguire@oracle.com>,
-        Tom Saeger <tom.saeger@oracle.com>
-Subject: [PATCH 5.15 12/12] arm64/bpf: Remove 128MB limit for BPF JIT programs
-Date:   Thu, 27 Jan 2022 19:09:36 +0100
-Message-Id: <20220127180259.497850764@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.16 2/9] drm/amd/display: reset dcn31 SMU mailbox on failures
+Date:   Thu, 27 Jan 2022 19:09:37 +0100
+Message-Id: <20220127180258.972390818@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.0
-In-Reply-To: <20220127180259.078563735@linuxfoundation.org>
-References: <20220127180259.078563735@linuxfoundation.org>
+In-Reply-To: <20220127180258.892788582@linuxfoundation.org>
+References: <20220127180258.892788582@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,144 +49,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King <russell.king@oracle.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-commit b89ddf4cca43f1269093942cf5c4e457fd45c335 upstream.
+commit 83293f7f3d15fc56e86bd5067a2c88b6b233ac3a upstream.
 
-Commit 91fc957c9b1d ("arm64/bpf: don't allocate BPF JIT programs in module
-memory") restricts BPF JIT program allocation to a 128MB region to ensure
-BPF programs are still in branching range of each other. However this
-restriction should not apply to the aarch64 JIT, since BPF_JMP | BPF_CALL
-are implemented as a 64-bit move into a register and then a BLR instruction -
-which has the effect of being able to call anything without proximity
-limitation.
+Otherwise future commands may fail as well leading to downstream
+problems that look like they stemmed from a timeout the first time
+but really didn't.
 
-The practical reason to relax this restriction on JIT memory is that 128MB of
-JIT memory can be quickly exhausted, especially where PAGE_SIZE is 64KB - one
-page is needed per program. In cases where seccomp filters are applied to
-multiple VMs on VM launch - such filters are classic BPF but converted to
-BPF - this can severely limit the number of VMs that can be launched. In a
-world where we support BPF JIT always on, turning off the JIT isn't always an
-option either.
-
-Fixes: 91fc957c9b1d ("arm64/bpf: don't allocate BPF JIT programs in module memory")
-Suggested-by: Ard Biesheuvel <ard.biesheuvel@linaro.org>
-Signed-off-by: Russell King <russell.king@oracle.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Tested-by: Alan Maguire <alan.maguire@oracle.com>
-Link: https://lore.kernel.org/bpf/1636131046-5982-2-git-send-email-alan.maguire@oracle.com
-Reviewed-by: Tom Saeger <tom.saeger@oracle.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- arch/arm64/include/asm/extable.h |    9 ---------
- arch/arm64/include/asm/memory.h  |    5 +----
- arch/arm64/kernel/traps.c        |    2 +-
- arch/arm64/mm/extable.c          |   13 +++++++++----
- arch/arm64/mm/ptdump.c           |    2 --
- arch/arm64/net/bpf_jit_comp.c    |    7 ++-----
- 6 files changed, 13 insertions(+), 25 deletions(-)
+ drivers/gpu/drm/amd/display/dc/clk_mgr/dcn31/dcn31_smu.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/arch/arm64/include/asm/extable.h
-+++ b/arch/arm64/include/asm/extable.h
-@@ -22,15 +22,6 @@ struct exception_table_entry
+--- a/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn31/dcn31_smu.c
++++ b/drivers/gpu/drm/amd/display/dc/clk_mgr/dcn31/dcn31_smu.c
+@@ -119,6 +119,12 @@ int dcn31_smu_send_msg_with_param(
  
- #define ARCH_HAS_RELATIVE_EXTABLE
+ 	result = dcn31_smu_wait_for_response(clk_mgr, 10, 200000);
  
--static inline bool in_bpf_jit(struct pt_regs *regs)
--{
--	if (!IS_ENABLED(CONFIG_BPF_JIT))
--		return false;
--
--	return regs->pc >= BPF_JIT_REGION_START &&
--	       regs->pc < BPF_JIT_REGION_END;
--}
--
- #ifdef CONFIG_BPF_JIT
- int arm64_bpf_fixup_exception(const struct exception_table_entry *ex,
- 			      struct pt_regs *regs);
---- a/arch/arm64/include/asm/memory.h
-+++ b/arch/arm64/include/asm/memory.h
-@@ -44,11 +44,8 @@
- #define _PAGE_OFFSET(va)	(-(UL(1) << (va)))
- #define PAGE_OFFSET		(_PAGE_OFFSET(VA_BITS))
- #define KIMAGE_VADDR		(MODULES_END)
--#define BPF_JIT_REGION_START	(_PAGE_END(VA_BITS_MIN))
--#define BPF_JIT_REGION_SIZE	(SZ_128M)
--#define BPF_JIT_REGION_END	(BPF_JIT_REGION_START + BPF_JIT_REGION_SIZE)
- #define MODULES_END		(MODULES_VADDR + MODULES_VSIZE)
--#define MODULES_VADDR		(BPF_JIT_REGION_END)
-+#define MODULES_VADDR		(_PAGE_END(VA_BITS_MIN))
- #define MODULES_VSIZE		(SZ_128M)
- #define VMEMMAP_START		(-(UL(1) << (VA_BITS - VMEMMAP_SHIFT)))
- #define VMEMMAP_END		(VMEMMAP_START + VMEMMAP_SIZE)
---- a/arch/arm64/kernel/traps.c
-+++ b/arch/arm64/kernel/traps.c
-@@ -988,7 +988,7 @@ static struct break_hook bug_break_hook
- static int reserved_fault_handler(struct pt_regs *regs, unsigned int esr)
- {
- 	pr_err("%s generated an invalid instruction at %pS!\n",
--		in_bpf_jit(regs) ? "BPF JIT" : "Kernel text patching",
-+		"Kernel text patching",
- 		(void *)instruction_pointer(regs));
- 
- 	/* We cannot handle this */
---- a/arch/arm64/mm/extable.c
-+++ b/arch/arm64/mm/extable.c
-@@ -9,14 +9,19 @@
- int fixup_exception(struct pt_regs *regs)
- {
- 	const struct exception_table_entry *fixup;
-+	unsigned long addr;
- 
--	fixup = search_exception_tables(instruction_pointer(regs));
--	if (!fixup)
--		return 0;
-+	addr = instruction_pointer(regs);
- 
--	if (in_bpf_jit(regs))
-+	/* Search the BPF tables first, these are formatted differently */
-+	fixup = search_bpf_extables(addr);
-+	if (fixup)
- 		return arm64_bpf_fixup_exception(fixup, regs);
- 
-+	fixup = search_exception_tables(addr);
-+	if (!fixup)
-+		return 0;
++	if (result == VBIOSSMC_Result_Failed) {
++		ASSERT(0);
++		REG_WRITE(MP1_SMN_C2PMSG_91, VBIOSSMC_Result_OK);
++		return -1;
++	}
 +
- 	regs->pc = (unsigned long)&fixup->fixup + fixup->fixup;
- 	return 1;
- }
---- a/arch/arm64/mm/ptdump.c
-+++ b/arch/arm64/mm/ptdump.c
-@@ -41,8 +41,6 @@ static struct addr_marker address_marker
- 	{ 0 /* KASAN_SHADOW_START */,	"Kasan shadow start" },
- 	{ KASAN_SHADOW_END,		"Kasan shadow end" },
- #endif
--	{ BPF_JIT_REGION_START,		"BPF start" },
--	{ BPF_JIT_REGION_END,		"BPF end" },
- 	{ MODULES_VADDR,		"Modules start" },
- 	{ MODULES_END,			"Modules end" },
- 	{ VMALLOC_START,		"vmalloc() area" },
---- a/arch/arm64/net/bpf_jit_comp.c
-+++ b/arch/arm64/net/bpf_jit_comp.c
-@@ -1138,15 +1138,12 @@ out:
- 
- u64 bpf_jit_alloc_exec_limit(void)
- {
--	return BPF_JIT_REGION_SIZE;
-+	return VMALLOC_END - VMALLOC_START;
- }
- 
- void *bpf_jit_alloc_exec(unsigned long size)
- {
--	return __vmalloc_node_range(size, PAGE_SIZE, BPF_JIT_REGION_START,
--				    BPF_JIT_REGION_END, GFP_KERNEL,
--				    PAGE_KERNEL, 0, NUMA_NO_NODE,
--				    __builtin_return_address(0));
-+	return vmalloc(size);
- }
- 
- void bpf_jit_free_exec(void *addr)
+ 	if (IS_SMU_TIMEOUT(result)) {
+ 		ASSERT(0);
+ 		dm_helpers_smu_timeout(CTX, msg_id, param, 10 * 200000);
 
 
