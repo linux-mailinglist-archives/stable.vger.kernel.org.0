@@ -2,29 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADA8349E9E5
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 19:10:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 043C949E9E6
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 19:10:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245202AbiA0SKr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jan 2022 13:10:47 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:59142 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245230AbiA0SKT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 13:10:19 -0500
+        id S245228AbiA0SKs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jan 2022 13:10:48 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:47680 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S245255AbiA0SKW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 13:10:22 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CD31FB820C8;
-        Thu, 27 Jan 2022 18:10:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05D89C340E8;
-        Thu, 27 Jan 2022 18:10:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7107761BC5;
+        Thu, 27 Jan 2022 18:10:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A988C340E4;
+        Thu, 27 Jan 2022 18:10:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643307017;
-        bh=ZyGRMpxVIlJR6370hZIZvu8bKpjzmIBDhxv/v5Ox6so=;
+        s=korg; t=1643307021;
+        bh=/SpOvRAzSZuL3nSSYY7xGjur0CIUWNo9JKuuksvoas8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tixbjZq4XQJoT7lvAHTaKL0c7q9hShPtEIfsEyoAmPJS6GwvuRPs1d+AgnIE+ZV76
-         nJDofX84sJwXsnFdNbNiPTkUcl2a06KcR2B/oq/khCNVgKz5A/3L6h5bLFelZSb+3r
-         e+tKuOMksZ3mgk4n/U3HMfXGDZwS+7fushCa0M2k=
+        b=FreiJf06OcFR//a41Bjn8oEt0bAKex/WfL7DRWcfUOyZUPxu3DZUYZ4gpuPhnln5u
+         POA5QEdAA/v617/FpvfEk6YKnnE8u++ZpB6AD288um2+6yD+ZyracaCoY5//jipdWt
+         Ku/eV5Cp83Jpay+cvw8+IIdrvPrTI2Luac1ETh/4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -33,9 +33,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alok Prasad <palok@marvell.com>,
         Ariel Elior <aelior@marvell.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 2/6] bnx2x: Utilize firmware 7.13.21.0
-Date:   Thu, 27 Jan 2022 19:09:18 +0100
-Message-Id: <20220127180258.217751375@linuxfoundation.org>
+Subject: [PATCH 5.10 3/6] bnx2x: Invalidate fastpath HSI version for VFs
+Date:   Thu, 27 Jan 2022 19:09:19 +0100
+Message-Id: <20220127180258.247298538@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.0
 In-Reply-To: <20220127180258.131170405@linuxfoundation.org>
 References: <20220127180258.131170405@linuxfoundation.org>
@@ -49,20 +49,19 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Manish Chopra <manishc@marvell.com>
 
-commit b7a49f73059fe6147b6b78e8f674ce0d21237432 upstream
+commit 802d4d207e75d7208ff75adb712b556c1e91cf1c upstream
 
-This new firmware addresses few important issues and enhancements
-as mentioned below -
+Commit 0a6890b9b4df ("bnx2x: Utilize FW 7.13.15.0.")
+added validation for fastpath HSI versions for different
+client init which was not meant for SR-IOV VF clients, which
+resulted in firmware asserts when running VF clients with
+different fastpath HSI version.
 
-- Support direct invalidation of FP HSI Ver per function ID, required for
-  invalidating FP HSI Ver prior to each VF start, as there is no VF start
-- BRB hardware block parity error detection support for the driver
-- Fix the FCOE underrun flow
-- Fix PSOD during FCoE BFS over the NIC ports after preboot driver
-- Maintains backward compatibility
+This patch along with the new firmware support in patch #1
+fixes this behavior in order to not validate fastpath HSI
+version for the VFs.
 
-This patch incorporates this new firmware 7.13.21.0 in bnx2x driver.
-
+Fixes: 0a6890b9b4df ("bnx2x: Utilize FW 7.13.15.0.")
 Signed-off-by: Manish Chopra <manishc@marvell.com>
 Signed-off-by: Prabhakar Kushwaha <pkushwaha@marvell.com>
 Signed-off-by: Alok Prasad <palok@marvell.com>
@@ -70,231 +69,31 @@ Signed-off-by: Ariel Elior <aelior@marvell.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnx2x/bnx2x.h         |   11 ++
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c     |    6 -
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_fw_defs.h |    2 
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_hsi.h     |    3 
- drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c    |   75 ++++++++++++++------
- 5 files changed, 69 insertions(+), 28 deletions(-)
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x.h
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x.h
-@@ -1850,6 +1850,14 @@ struct bnx2x {
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c
+@@ -758,9 +758,18 @@ static void bnx2x_vf_igu_reset(struct bn
  
- 	/* Vxlan/Geneve related information */
- 	u16 udp_tunnel_ports[BNX2X_UDP_PORT_MAX];
-+
-+#define FW_CAP_INVALIDATE_VF_FP_HSI	BIT(0)
-+	u32 fw_cap;
-+
-+	u32 fw_major;
-+	u32 fw_minor;
-+	u32 fw_rev;
-+	u32 fw_eng;
- };
- 
- /* Tx queues may be less or equal to Rx queues */
-@@ -2526,5 +2534,6 @@ void bnx2x_register_phc(struct bnx2x *bp
-  * Meant for implicit re-load flows.
-  */
- int bnx2x_vlan_reconfigure_vid(struct bnx2x *bp);
--
-+int bnx2x_init_firmware(struct bnx2x *bp);
-+void bnx2x_release_firmware(struct bnx2x *bp);
- #endif /* bnx2x.h */
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_cmn.c
-@@ -2364,10 +2364,8 @@ int bnx2x_compare_fw_ver(struct bnx2x *b
- 	if (load_code != FW_MSG_CODE_DRV_LOAD_COMMON_CHIP &&
- 	    load_code != FW_MSG_CODE_DRV_LOAD_COMMON) {
- 		/* build my FW version dword */
--		u32 my_fw = (BCM_5710_FW_MAJOR_VERSION) +
--			(BCM_5710_FW_MINOR_VERSION << 8) +
--			(BCM_5710_FW_REVISION_VERSION << 16) +
--			(BCM_5710_FW_ENGINEERING_VERSION << 24);
-+		u32 my_fw = (bp->fw_major) + (bp->fw_minor << 8) +
-+				(bp->fw_rev << 16) + (bp->fw_eng << 24);
- 
- 		/* read loaded FW from chip */
- 		u32 loaded_fw = REG_RD(bp, XSEM_REG_PRAM);
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_fw_defs.h
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_fw_defs.h
-@@ -241,6 +241,8 @@
- 	IRO[221].m2))
- #define XSTORM_VF_TO_PF_OFFSET(funcId) \
- 	(IRO[48].base + ((funcId) * IRO[48].m1))
-+#define XSTORM_ETH_FUNCTION_INFO_FP_HSI_VALID_E2_OFFSET(fid)	\
-+	(IRO[386].base + ((fid) * IRO[386].m1))
- #define COMMON_ASM_INVALID_ASSERT_OPCODE 0x0
- 
- /* eth hsi version */
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_hsi.h
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_hsi.h
-@@ -3024,7 +3024,8 @@ struct afex_stats {
- 
- #define BCM_5710_FW_MAJOR_VERSION			7
- #define BCM_5710_FW_MINOR_VERSION			13
--#define BCM_5710_FW_REVISION_VERSION		15
-+#define BCM_5710_FW_REVISION_VERSION		21
-+#define BCM_5710_FW_REVISION_VERSION_V15	15
- #define BCM_5710_FW_ENGINEERING_VERSION		0
- #define BCM_5710_FW_COMPILE_FLAGS			1
- 
---- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
-+++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_main.c
-@@ -74,9 +74,19 @@
- 	__stringify(BCM_5710_FW_MINOR_VERSION) "."	\
- 	__stringify(BCM_5710_FW_REVISION_VERSION) "."	\
- 	__stringify(BCM_5710_FW_ENGINEERING_VERSION)
-+
-+#define FW_FILE_VERSION_V15				\
-+	__stringify(BCM_5710_FW_MAJOR_VERSION) "."      \
-+	__stringify(BCM_5710_FW_MINOR_VERSION) "."	\
-+	__stringify(BCM_5710_FW_REVISION_VERSION_V15) "."	\
-+	__stringify(BCM_5710_FW_ENGINEERING_VERSION)
-+
- #define FW_FILE_NAME_E1		"bnx2x/bnx2x-e1-" FW_FILE_VERSION ".fw"
- #define FW_FILE_NAME_E1H	"bnx2x/bnx2x-e1h-" FW_FILE_VERSION ".fw"
- #define FW_FILE_NAME_E2		"bnx2x/bnx2x-e2-" FW_FILE_VERSION ".fw"
-+#define FW_FILE_NAME_E1_V15	"bnx2x/bnx2x-e1-" FW_FILE_VERSION_V15 ".fw"
-+#define FW_FILE_NAME_E1H_V15	"bnx2x/bnx2x-e1h-" FW_FILE_VERSION_V15 ".fw"
-+#define FW_FILE_NAME_E2_V15	"bnx2x/bnx2x-e2-" FW_FILE_VERSION_V15 ".fw"
- 
- /* Time in jiffies before concluding the transmitter is hung */
- #define TX_TIMEOUT		(5*HZ)
-@@ -747,9 +757,7 @@ static int bnx2x_mc_assert(struct bnx2x
- 		  CHIP_IS_E1(bp) ? "everest1" :
- 		  CHIP_IS_E1H(bp) ? "everest1h" :
- 		  CHIP_IS_E2(bp) ? "everest2" : "everest3",
--		  BCM_5710_FW_MAJOR_VERSION,
--		  BCM_5710_FW_MINOR_VERSION,
--		  BCM_5710_FW_REVISION_VERSION);
-+		  bp->fw_major, bp->fw_minor, bp->fw_rev);
- 
- 	return rc;
- }
-@@ -12355,6 +12363,15 @@ static int bnx2x_init_bp(struct bnx2x *b
- 
- 	bnx2x_read_fwinfo(bp);
- 
-+	if (IS_PF(bp)) {
-+		rc = bnx2x_init_firmware(bp);
-+
-+		if (rc) {
-+			bnx2x_free_mem_bp(bp);
-+			return rc;
-+		}
-+	}
-+
- 	func = BP_FUNC(bp);
- 
- 	/* need to reset chip if undi was active */
-@@ -12367,6 +12384,7 @@ static int bnx2x_init_bp(struct bnx2x *b
- 
- 		rc = bnx2x_prev_unload(bp);
- 		if (rc) {
-+			bnx2x_release_firmware(bp);
- 			bnx2x_free_mem_bp(bp);
- 			return rc;
- 		}
-@@ -13366,16 +13384,11 @@ static int bnx2x_check_firmware(struct b
- 	/* Check FW version */
- 	offset = be32_to_cpu(fw_hdr->fw_version.offset);
- 	fw_ver = firmware->data + offset;
--	if ((fw_ver[0] != BCM_5710_FW_MAJOR_VERSION) ||
--	    (fw_ver[1] != BCM_5710_FW_MINOR_VERSION) ||
--	    (fw_ver[2] != BCM_5710_FW_REVISION_VERSION) ||
--	    (fw_ver[3] != BCM_5710_FW_ENGINEERING_VERSION)) {
-+	if (fw_ver[0] != bp->fw_major || fw_ver[1] != bp->fw_minor ||
-+	    fw_ver[2] != bp->fw_rev || fw_ver[3] != bp->fw_eng) {
- 		BNX2X_ERR("Bad FW version:%d.%d.%d.%d. Should be %d.%d.%d.%d\n",
--		       fw_ver[0], fw_ver[1], fw_ver[2], fw_ver[3],
--		       BCM_5710_FW_MAJOR_VERSION,
--		       BCM_5710_FW_MINOR_VERSION,
--		       BCM_5710_FW_REVISION_VERSION,
--		       BCM_5710_FW_ENGINEERING_VERSION);
-+			  fw_ver[0], fw_ver[1], fw_ver[2], fw_ver[3],
-+			  bp->fw_major, bp->fw_minor, bp->fw_rev, bp->fw_eng);
- 		return -EINVAL;
- 	}
- 
-@@ -13453,34 +13466,51 @@ do {									\
- 	     (u8 *)bp->arr, len);					\
- } while (0)
- 
--static int bnx2x_init_firmware(struct bnx2x *bp)
-+int bnx2x_init_firmware(struct bnx2x *bp)
+ void bnx2x_vf_enable_access(struct bnx2x *bp, u8 abs_vfid)
  {
--	const char *fw_file_name;
-+	const char *fw_file_name, *fw_file_name_v15;
- 	struct bnx2x_fw_file_hdr *fw_hdr;
- 	int rc;
- 
- 	if (bp->firmware)
- 		return 0;
- 
--	if (CHIP_IS_E1(bp))
-+	if (CHIP_IS_E1(bp)) {
- 		fw_file_name = FW_FILE_NAME_E1;
--	else if (CHIP_IS_E1H(bp))
-+		fw_file_name_v15 = FW_FILE_NAME_E1_V15;
-+	} else if (CHIP_IS_E1H(bp)) {
- 		fw_file_name = FW_FILE_NAME_E1H;
--	else if (!CHIP_IS_E1x(bp))
-+		fw_file_name_v15 = FW_FILE_NAME_E1H_V15;
-+	} else if (!CHIP_IS_E1x(bp)) {
- 		fw_file_name = FW_FILE_NAME_E2;
--	else {
-+		fw_file_name_v15 = FW_FILE_NAME_E2_V15;
-+	} else {
- 		BNX2X_ERR("Unsupported chip revision\n");
- 		return -EINVAL;
- 	}
++	u16 abs_fid;
 +
- 	BNX2X_DEV_INFO("Loading %s\n", fw_file_name);
- 
- 	rc = request_firmware(&bp->firmware, fw_file_name, &bp->pdev->dev);
- 	if (rc) {
--		BNX2X_ERR("Can't load firmware file %s\n",
--			  fw_file_name);
--		goto request_firmware_exit;
-+		BNX2X_DEV_INFO("Trying to load older fw %s\n", fw_file_name_v15);
++	abs_fid = FW_VF_HANDLE(abs_vfid);
 +
-+		/* try to load prev version */
-+		rc = request_firmware(&bp->firmware, fw_file_name_v15, &bp->pdev->dev);
+ 	/* set the VF-PF association in the FW */
+-	storm_memset_vf_to_pf(bp, FW_VF_HANDLE(abs_vfid), BP_FUNC(bp));
+-	storm_memset_func_en(bp, FW_VF_HANDLE(abs_vfid), 1);
++	storm_memset_vf_to_pf(bp, abs_fid, BP_FUNC(bp));
++	storm_memset_func_en(bp, abs_fid, 1);
 +
-+		if (rc)
-+			goto request_firmware_exit;
-+
-+		bp->fw_rev = BCM_5710_FW_REVISION_VERSION_V15;
-+	} else {
-+		bp->fw_cap |= FW_CAP_INVALIDATE_VF_FP_HSI;
-+		bp->fw_rev = BCM_5710_FW_REVISION_VERSION;
- 	}
++	/* Invalidate fp_hsi version for vfs */
++	if (bp->fw_cap & FW_CAP_INVALIDATE_VF_FP_HSI)
++		REG_WR8(bp, BAR_XSTRORM_INTMEM +
++			    XSTORM_ETH_FUNCTION_INFO_FP_HSI_VALID_E2_OFFSET(abs_fid), 0);
  
-+	bp->fw_major = BCM_5710_FW_MAJOR_VERSION;
-+	bp->fw_minor = BCM_5710_FW_MINOR_VERSION;
-+	bp->fw_eng = BCM_5710_FW_ENGINEERING_VERSION;
-+
- 	rc = bnx2x_check_firmware(bp);
- 	if (rc) {
- 		BNX2X_ERR("Corrupt firmware file %s\n", fw_file_name);
-@@ -13536,7 +13566,7 @@ request_firmware_exit:
- 	return rc;
- }
- 
--static void bnx2x_release_firmware(struct bnx2x *bp)
-+void bnx2x_release_firmware(struct bnx2x *bp)
- {
- 	kfree(bp->init_ops_offsets);
- 	kfree(bp->init_ops);
-@@ -14053,6 +14083,7 @@ static int bnx2x_init_one(struct pci_dev
- 	return 0;
- 
- init_one_freemem:
-+	bnx2x_release_firmware(bp);
- 	bnx2x_free_mem_bp(bp);
- 
- init_one_exit:
+ 	/* clear vf errors*/
+ 	bnx2x_vf_semi_clear_err(bp, abs_vfid);
 
 
