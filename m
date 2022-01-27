@@ -2,208 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43F0A49ECE6
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 21:57:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D35049ED4C
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 22:17:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245203AbiA0U5C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jan 2022 15:57:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56196 "EHLO
+        id S234916AbiA0VRG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jan 2022 16:17:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60728 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245158AbiA0U5B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 15:57:01 -0500
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F768C061714
-        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 12:57:01 -0800 (PST)
-Received: by mail-pf1-x429.google.com with SMTP id v74so3961134pfc.1
-        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 12:57:01 -0800 (PST)
+        with ESMTP id S231293AbiA0VRF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 16:17:05 -0500
+Received: from mail-ej1-x635.google.com (mail-ej1-x635.google.com [IPv6:2a00:1450:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE4D7C061714;
+        Thu, 27 Jan 2022 13:17:04 -0800 (PST)
+Received: by mail-ej1-x635.google.com with SMTP id p15so8834191ejc.7;
+        Thu, 27 Jan 2022 13:17:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=tfXY+yoEkXRjHsPlcj+EE4YfwHLvMltbNM3WmPepjHA=;
-        b=ViP7LO+i4/X8Hza5L1TLV+4t5dn6LsbwwzM+xuF427VZ6hm3nM7jfWCKefjh/+qRTM
-         th0se3ZeJw+d25HTdz0fNd3X4YSWfmfU8XGrU/ru6srSikqzmOuSsbJGU1ZFwyThntYQ
-         TsEJLBtNw151HP+s+5wwC8cvBJw+DXaYIMKYW1BSLHa0zkxLBacK0LkumsvGcjj7l/TU
-         AUpREyLthSnm4F9S0ig/wBzlDRutKae1aZcHVWdW+XL0SJrbQ52Y7TZ5ChmVr6F4yZH3
-         0l4JNZmDqOwjvCppwxH/5b7lOv64dT81vAORBp1kjkP8td+S8uQh28xNhlBZa6n/ru1O
-         m92w==
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=vK3O5xU/kDvpC1TY8wAbZnvb+Z1YDXs3E7FOpCSGFrE=;
+        b=e58gnAgOojyV60UkneFpVxVMsLU4Zov6g4GoK0ybOHVmrN9t/jNQcmtnU7ssHc5I+s
+         vLxK0zG1wbIW7FadS4WnMA5s3bb0Ucu+Ra7WozizPzxJuNdSc8WY4Vxq0aTBGMioxHWq
+         mrMsEtTC56V5TJrFEnzaXtVrVpbLtRY4GO7xn2ygSmlyuA/14102+3guY3/vK/o7man3
+         wzBaTMsDJbKdtgWo/OcqEYtzebzEBmk5AK3JCl38JGBhIjJI4u8L00Cew/qVaMjbWDj3
+         i4O3InHDsHUeEOLkqX8hxRJWC0cdxKn7I1sb1dDOO2en5NEAmZXwiUyra1prtabpF1wx
+         ye+A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=tfXY+yoEkXRjHsPlcj+EE4YfwHLvMltbNM3WmPepjHA=;
-        b=L04B6eJS3AkSv+Gfm1Or+e+vC4X7SG+rS4HRVS69uU8+SVNytEiAFIb/WDeBsCGQp9
-         dvK9XrjdxHkbgynfttwrU78Cx5tBblEhkmFJxLv+xRhmPfADofRyNpZCVSq/LxRvoxNF
-         vkun++9vTyessTlaz5jMX/DhCTkK8e1vd9jsDJqm27Igsj2FR6Tb98n2JSaZG3AfS+bx
-         AMMCHsaMN6FBD9nGVt3NJPnDyFr1+NYxCpkU2wb9hpcZzU3Qwypg+wiOK3w6bQ2c5HGM
-         DDgEwKBxN0yfqg+3aykCg+LwPZIgDXEZxLNPDEmhvWDfE/JJhtUszMTbS2WWxPNAyeZD
-         jCsQ==
-X-Gm-Message-State: AOAM533kvwfsGediwRYHYVEO3hrahyh5qYX7dx+WnThFBDoKoK43YS6d
-        xiPZ1KL41txwUFQDH2e3czX52g==
-X-Google-Smtp-Source: ABdhPJzjNYJyU2lRmm2ARtHfs1fz4x84l4Mv3pZVcHntWHtR8Cec3OXniogqV4YqFbiWauRmgfssHQ==
-X-Received: by 2002:a62:3042:: with SMTP id w63mr4562471pfw.71.1643317020815;
-        Thu, 27 Jan 2022 12:57:00 -0800 (PST)
-Received: from localhost.localdomain ([50.39.160.154])
-        by smtp.gmail.com with ESMTPSA id nv13sm216748pjb.18.2022.01.27.12.57.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 Jan 2022 12:57:00 -0800 (PST)
-From:   Tadeusz Struk <tadeusz.struk@linaro.org>
-To:     peterz@infradead.org
-Cc:     Tadeusz Struk <tadeusz.struk@linaro.org>,
-        Ingo Molnar <mingo@redhat.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Zhang Qiao <zhangqiao22@huawei.com>, stable@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        syzbot+af7a719bc92395ee41b3@syzkaller.appspotmail.com
-Subject: [PATCH v4] sched/fair: Fix fault in reweight_entity
-Date:   Thu, 27 Jan 2022 12:56:23 -0800
-Message-Id: <20220127205623.1258029-1-tadeusz.struk@linaro.org>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220125193403.778497-1-tadeusz.struk@linaro.org>
-References: <20220125193403.778497-1-tadeusz.struk@linaro.org>
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=vK3O5xU/kDvpC1TY8wAbZnvb+Z1YDXs3E7FOpCSGFrE=;
+        b=7mcYP4k2IvdaQ2XZgHLJ6Qq1yqM8h8vtRRE6NgEtUiNaT1ygaJz1saaAwx+vGFVwt5
+         Iulp4YSgNUbkbmp55EQzjfT4IZqCIknV0vzgm30pvlKQqZVQpKaYjVqMKliofewuc/4M
+         +AM2IGHbkoFeMdvI4wsqnXtOovIHEiNhbvo883lriqd+TLa0avJ3u+XOw7myUpAYGQcs
+         L5JVPUYaoO/iaXUEihzxCT0zJ7azXFbMjRnM97Y/prgGzSq2SKSF5rlNd361nsRx1to6
+         DursVg2NdlQwNg5oWmWgRZDYxI98zfjj1jCzF04qVP9Ni7VJO4bO29pvE5/c0ktiLAl+
+         A5pA==
+X-Gm-Message-State: AOAM530IiF7fc6CtTcxx0gdj5mjQycVBsS2CbeojVYICVgyHeBg3h/AR
+        tDCEyRirbb2Bpk0dT7vxTx+CyIOs2lDhYdf27ic=
+X-Google-Smtp-Source: ABdhPJwNpo25p3cIrN5oTAXtkNb4Mi5A68K7YEBZvzb3Dl9MLwx/5LT7nXeEIdTd+aUkUYX7hbk+cIjmisD46+wZ15o=
+X-Received: by 2002:a17:906:4fcd:: with SMTP id i13mr4231891ejw.644.1643318223500;
+ Thu, 27 Jan 2022 13:17:03 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20220120202805.3369-1-shy828301@gmail.com> <af603cbe-4a38-9947-5e6d-9a9328b473fb@redhat.com>
+ <CAG48ez1xuZdELb=5ed1i0ruoFu5kAaWsf0LgRXEGhrDAcHz8fw@mail.gmail.com>
+ <f7f82234-7599-9e39-1108-f8fbe2c1efc9@redhat.com> <CAG48ez17d3p53tSfuDTNCaANyes8RNNU-2i+eFMqkMwuAbRT4Q@mail.gmail.com>
+ <5b4e2c29-8f1a-5a68-d243-a30467cc02d4@redhat.com> <CAHbLzkqLTkVJk+z8wpa03ponf7k30=Sx6qULwsGsvr5cq5d1aw@mail.gmail.com>
+ <5a565d5a-0540-4041-ce63-a8fd5d1bb340@redhat.com> <CAHbLzkqXy-W9sD5HFOK_rm_TR8uSP29b+RjKjA5zOZ+0dkqMbQ@mail.gmail.com>
+ <2a1c5bd2-cb8c-b93b-68af-de620438d19a@redhat.com>
+In-Reply-To: <2a1c5bd2-cb8c-b93b-68af-de620438d19a@redhat.com>
+From:   Yang Shi <shy828301@gmail.com>
+Date:   Thu, 27 Jan 2022 13:16:51 -0800
+Message-ID: <CAHbLzkrQiQyh=36fOtqcODU3RO92jBVxU0o7wU8PyHJ_83LjiQ@mail.gmail.com>
+Subject: Re: [v2 PATCH] fs/proc: task_mmu.c: don't read mapcount for migration entry
+To:     David Hildenbrand <david@redhat.com>
+Cc:     Jann Horn <jannh@google.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux MM <linux-mm@kvack.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Syzbot found a GPF in reweight_entity. This has been bisected to commit
-4ef0c5c6b5ba ("kernel/sched: Fix sched_fork() access an invalid sched_task_group")
+On Wed, Jan 26, 2022 at 10:54 AM David Hildenbrand <david@redhat.com> wrote:
+>
+> >>> Just page lock or elevated page refcount could serialize against THP
+> >>> split AFAIK.
+> >>>
+> >>>>
+> >>>> But yeah, using the mapcount of a page that is not even mapped
+> >>>> (migration entry) is clearly wrong.
+> >>>>
+> >>>> To summarize: reading the mapcount on an unlocked page will easily
+> >>>> return a wrong result and the result should not be relied upon. reading
+> >>>> the mapcount of a migration entry is dangerous and certainly wrong.
+> >>>
+> >>> Depends on your usecase. Some just want to get a snapshot, just like
+> >>> smaps, they don't care.
+> >>
+> >> Right, but as discussed, even the snapshot might be slightly wrong. That
+> >> might be just fine for smaps (and I would have enjoyed a comment in the
+> >> code stating that :) ).
+> >
+> > I think that is documented already, see Documentation/filesystems/proc.rst:
+> >
+> > Note: reading /proc/PID/maps or /proc/PID/smaps is inherently racy (consistent
+> > output can be achieved only in the single read call).
+>
+> Right, but I think there is a difference between
+>
+> * Atomic values that change immediately afterwards ("this value used to
+>   be true at one point in time")
+> * Values that are unstable because we cannot read them atomically ("this
+>   value never used to be true")
+>
+> I'd assume with the documented race we actually talk about the first
+> point, but I might be just wrong.
+>
+> >
+> > Of course, if the extra note is preferred in the code, I could try to
+> > add some in a separate patch.
+>
+> When staring at the (original) code I would have hoped to find something
+> like:
+>
+> /*
+>  * We use page_mapcount() to get a snapshot of the mapcount. Without
+>  * holding the page lock this snapshot can be slightly wrong as we
+>  * cannot always read the mapcount atomically. As long we hold the PT
+>  * lock, the page cannot get unmapped and it's at safe to call
+>  * page_mapcount().
+>  */
+>
+> With the addition of
+>
+> "... For unmapped pages (e.g., migration entries) we cannot guarantee
+> that, so treat the mapcount as being 1."
 
-There is a race between sched_post_fork() and setpriority(PRIO_PGRP)
-within a thread group that causes a null-ptr-deref in reweight_entity()
-in CFS. The scenario is that the main process spawns number of new
-threads, which then call setpriority(PRIO_PGRP, 0, -20), wait, and exit.
-For each of the new threads the copy_process() gets invoked, which adds
-the new task_struct and calls sched_post_fork() for it.
+It seems a little bit confusing to me, it is not safe to call with PTL
+held either, right? I'd like to rephrase the note to:
 
-In the above scenario there is a possibility that setpriority(PRIO_PGRP)
-and set_one_prio() will be called for a thread in the group that is just
-being created by copy_process(), and for which the sched_post_fork() has
-not been executed yet. This will trigger a null pointer dereference in
-reweight_entity(), as it will try to access the run queue pointer, which
-hasn't been set. This results it a crash as shown below:
+/*
+         * The page_mapcount() is called to get a snapshot of the mapcount.
+         * Without holding the page lock this snapshot can be slightly wrong as
+         * we cannot always read the mapcount atomically.  Holding PTL doesn't
+         * guarantee calling page_mapcount() is safe for all cases either, for
+         * example, migration entries.
+         */
 
-KASAN: null-ptr-deref in range [0x00000000000000a0-0x00000000000000a7]
-CPU: 0 PID: 2392 Comm: reduced_repro Not tainted 5.16.0-11201-gb42c5a161ea3
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.15.0-1.fc35 04/01/2014
-RIP: 0010:reweight_entity+0x15d/0x440
-RSP: 0018:ffffc900035dfcf8 EFLAGS: 00010006
-Call Trace:
-<TASK>
-reweight_task+0xde/0x1c0
-set_load_weight+0x21c/0x2b0
-set_user_nice.part.0+0x2d1/0x519
-set_user_nice.cold+0x8/0xd
-set_one_prio+0x24f/0x263
-__do_sys_setpriority+0x2d3/0x640
-__x64_sys_setpriority+0x84/0x8b
-do_syscall_64+0x35/0xb0
-entry_SYSCALL_64_after_hwframe+0x44/0xae
-</TASK>
----[ end trace 9dc80a9d378ed00a ]---
-
-Before the mentioned change the cfs_rq pointer for the task  has been
-set in sched_fork(), which is called much earlier in copy_process(),
-before the new task is added to the thread_group.
-Now it is done in the sched_post_fork(), which is called after that.
-To fix the issue the remove the update_load param from the
-update_load param() function and call reweight_task() only if the task
-flag doesn't have the TASK_NEW flag set.
-
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Juri Lelli <juri.lelli@redhat.com>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ben Segall <bsegall@google.com>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
-Cc: Zhang Qiao <zhangqiao22@huawei.com>
-Cc: stable@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-
-Link: https://syzkaller.appspot.com/bug?id=9d9c27adc674e3a7932b22b61c79a02da82cbdc1
-Fixes: 4ef0c5c6b5ba ("kernel/sched: Fix sched_fork() access an invalid sched_task_group")
-Reported-by: syzbot+af7a719bc92395ee41b3@syzkaller.appspotmail.com
-Signed-off-by: Tadeusz Struk <tadeusz.struk@linaro.org>
----
-Changes in v4:
-- Removed the update_load param from set_load_weight() and call
-  reweight_task() based on the TASK_NEW flag
-
-Changes in v3:
-- Removed the new check and changed the update_load condition from
-  always true to true if p->state != TASK_NEW
-
-Changes in v2:
-- Added a check in set_user_nice(), and return from there if the task
-  is not fully setup instead of returning from reweight_entity()
----
- kernel/sched/core.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
-
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 848eaa0efe0e..a0ef4670e695 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -1214,10 +1214,12 @@ int tg_nop(struct task_group *tg, void *data)
- }
- #endif
- 
--static void set_load_weight(struct task_struct *p, bool update_load)
-+static void set_load_weight(struct task_struct *p)
- {
- 	int prio = p->static_prio - MAX_RT_PRIO;
- 	struct load_weight *load = &p->se.load;
-+	bool update_load = !(READ_ONCE(p->__state) & TASK_NEW);
-+
- 
- 	/*
- 	 * SCHED_IDLE tasks get minimal weight:
-@@ -4406,7 +4408,7 @@ int sched_fork(unsigned long clone_flags, struct task_struct *p)
- 			p->static_prio = NICE_TO_PRIO(0);
- 
- 		p->prio = p->normal_prio = p->static_prio;
--		set_load_weight(p, false);
-+		set_load_weight(p);
- 
- 		/*
- 		 * We don't need the reset flag anymore after the fork. It has
-@@ -6921,7 +6923,7 @@ void set_user_nice(struct task_struct *p, long nice)
- 		put_prev_task(rq, p);
- 
- 	p->static_prio = NICE_TO_PRIO(nice);
--	set_load_weight(p, true);
-+	set_load_weight(p);
- 	old_prio = p->prio;
- 	p->prio = effective_prio(p);
- 
-@@ -7212,7 +7214,7 @@ static void __setscheduler_params(struct task_struct *p,
- 	 */
- 	p->rt_priority = attr->sched_priority;
- 	p->normal_prio = normal_prio(p);
--	set_load_weight(p, true);
-+	set_load_weight(p);
- }
- 
- /*
-@@ -9445,7 +9447,7 @@ void __init sched_init(void)
- #endif
- 	}
- 
--	set_load_weight(&init_task, false);
-+	set_load_weight(&init_task);
- 
- 	/*
- 	 * The boot idle thread does lazy MMU switching as well:
--- 
-2.34.1
-
+>
+> But this is just my personal preference ... :) I do think the patch does
+> the right thing in regard to migration entries.
+>
+> --
+> Thanks,
+>
+> David / dhildenb
+>
