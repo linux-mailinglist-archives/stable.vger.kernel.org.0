@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B2EE49EA11
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 19:12:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F414649E9FF
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 19:11:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245236AbiA0SMC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jan 2022 13:12:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45756 "EHLO
+        id S245540AbiA0SL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jan 2022 13:11:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245262AbiA0SLQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 13:11:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D764C061760;
-        Thu, 27 Jan 2022 10:11:16 -0800 (PST)
+        with ESMTP id S245265AbiA0SKw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 13:10:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04561C061770;
+        Thu, 27 Jan 2022 10:10:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5BBE7B818E1;
-        Thu, 27 Jan 2022 18:11:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84BDAC340E8;
-        Thu, 27 Jan 2022 18:11:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9A1EA61CFF;
+        Thu, 27 Jan 2022 18:10:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 781BAC340E4;
+        Thu, 27 Jan 2022 18:10:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643307074;
-        bh=AekgndfSdlG0v8aUKwB735dCuNWY291e4/xpxww/N4U=;
+        s=korg; t=1643307042;
+        bh=hnC+WHQSB5Y9GOv0QCFpDjFeMVtgDx2Tl+exIvMj6zU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tJDjiqVvRrR6ELnemEZJyJmIQhp58nWQZilRd0YxHRlqMxCvmJfu9TWAFmrZJqLFc
-         +zH1mkzNTJy4AVymU0Qm8YJ05anOcgAjERXakb4d5kdiw2rBQCU9OW3KM5hErpI2x4
-         IkwgDzRH5uviJLVtdbs2dcZ9d6n6S1pqRarlPO2M=
+        b=TWiGXjli1K5Ea4HAZkutb1oOAegblvCULFe+x7EH22dn2VOI5kLs/wdXDTNdb5+u6
+         L0lAupkp8NcNvLR3lEbZNvyLjpws0ivHZIX1w/JjD7Aev8LwQk8PSiff+XIp4yVpnm
+         XFjr9ECSEvAlkoSZ1ZWrDcX+aqWI+beiYkqcTtTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guillaume Morin <guillaume@morinfr.org>,
-        "Paul E. McKenney" <paulmck@kernel.org>
-Subject: [PATCH 5.15 09/12] rcu: Tighten rcu_advance_cbs_nowake() checks
-Date:   Thu, 27 Jan 2022 19:09:33 +0100
-Message-Id: <20220127180259.390018852@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Jan Kara <jack@suse.cz>
+Subject: [PATCH 5.15 10/12] select: Fix indefinitely sleeping task in poll_schedule_timeout()
+Date:   Thu, 27 Jan 2022 19:09:34 +0100
+Message-Id: <20220127180259.429012496@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.0
 In-Reply-To: <20220127180259.078563735@linuxfoundation.org>
 References: <20220127180259.078563735@linuxfoundation.org>
@@ -47,43 +48,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul E. McKenney <paulmck@kernel.org>
+From: Jan Kara <jack@suse.cz>
 
-commit 614ddad17f22a22e035e2ea37a04815f50362017 upstream.
+commit 68514dacf2715d11b91ca50d88de047c086fea9c upstream.
 
-Currently, rcu_advance_cbs_nowake() checks that a grace period is in
-progress, however, that grace period could end just after the check.
-This commit rechecks that a grace period is still in progress while
-holding the rcu_node structure's lock.  The grace period cannot end while
-the current CPU's rcu_node structure's ->lock is held, thus avoiding
-false positives from the WARN_ON_ONCE().
+A task can end up indefinitely sleeping in do_select() ->
+poll_schedule_timeout() when the following race happens:
 
-As Daniel Vacek noted, it is not necessary for the rcu_node structure
-to have a CPU that has not yet passed through its quiescent state.
+  TASK1 (thread1)             TASK2                   TASK1 (thread2)
+  do_select()
+    setup poll_wqueues table
+    with 'fd'
+                              write data to 'fd'
+                                pollwake()
+                                  table->triggered = 1
+                                                      closes 'fd' thread1 is
+                                                        waiting for
+    poll_schedule_timeout()
+      - sees table->triggered
+      table->triggered = 0
+      return -EINTR
+    loop back in do_select()
 
-Tested-by: Guillaume Morin <guillaume@morinfr.org>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+But at this point when TASK1 loops back, the fdget() in the setup of
+poll_wqueues fails.  So now so we never find 'fd' is ready for reading
+and sleep in poll_schedule_timeout() indefinitely.
+
+Treat an fd that got closed as a fd on which some event happened.  This
+makes sure cannot block indefinitely in do_select().
+
+Another option would be to return -EBADF in this case but that has a
+potential of subtly breaking applications that excercise this behavior
+and it happens to work for them.  So returning fd as active seems like a
+safer choice.
+
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+CC: stable@vger.kernel.org
+Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/rcu/tree.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ fs/select.c |   63 +++++++++++++++++++++++++++++++-----------------------------
+ 1 file changed, 33 insertions(+), 30 deletions(-)
 
---- a/kernel/rcu/tree.c
-+++ b/kernel/rcu/tree.c
-@@ -1594,10 +1594,11 @@ static void __maybe_unused rcu_advance_c
- 						  struct rcu_data *rdp)
- {
- 	rcu_lockdep_assert_cblist_protected(rdp);
--	if (!rcu_seq_state(rcu_seq_current(&rnp->gp_seq)) ||
--	    !raw_spin_trylock_rcu_node(rnp))
-+	if (!rcu_seq_state(rcu_seq_current(&rnp->gp_seq)) || !raw_spin_trylock_rcu_node(rnp))
- 		return;
--	WARN_ON_ONCE(rcu_advance_cbs(rnp, rdp));
-+	// The grace period cannot end while we hold the rcu_node lock.
-+	if (rcu_seq_state(rcu_seq_current(&rnp->gp_seq)))
-+		WARN_ON_ONCE(rcu_advance_cbs(rnp, rdp));
- 	raw_spin_unlock_rcu_node(rnp);
+--- a/fs/select.c
++++ b/fs/select.c
+@@ -458,9 +458,11 @@ get_max:
+ 	return max;
  }
  
+-#define POLLIN_SET (EPOLLRDNORM | EPOLLRDBAND | EPOLLIN | EPOLLHUP | EPOLLERR)
+-#define POLLOUT_SET (EPOLLWRBAND | EPOLLWRNORM | EPOLLOUT | EPOLLERR)
+-#define POLLEX_SET (EPOLLPRI)
++#define POLLIN_SET (EPOLLRDNORM | EPOLLRDBAND | EPOLLIN | EPOLLHUP | EPOLLERR |\
++			EPOLLNVAL)
++#define POLLOUT_SET (EPOLLWRBAND | EPOLLWRNORM | EPOLLOUT | EPOLLERR |\
++			 EPOLLNVAL)
++#define POLLEX_SET (EPOLLPRI | EPOLLNVAL)
+ 
+ static inline void wait_key_set(poll_table *wait, unsigned long in,
+ 				unsigned long out, unsigned long bit,
+@@ -527,6 +529,7 @@ static int do_select(int n, fd_set_bits
+ 					break;
+ 				if (!(bit & all_bits))
+ 					continue;
++				mask = EPOLLNVAL;
+ 				f = fdget(i);
+ 				if (f.file) {
+ 					wait_key_set(wait, in, out, bit,
+@@ -534,34 +537,34 @@ static int do_select(int n, fd_set_bits
+ 					mask = vfs_poll(f.file, wait);
+ 
+ 					fdput(f);
+-					if ((mask & POLLIN_SET) && (in & bit)) {
+-						res_in |= bit;
+-						retval++;
+-						wait->_qproc = NULL;
+-					}
+-					if ((mask & POLLOUT_SET) && (out & bit)) {
+-						res_out |= bit;
+-						retval++;
+-						wait->_qproc = NULL;
+-					}
+-					if ((mask & POLLEX_SET) && (ex & bit)) {
+-						res_ex |= bit;
+-						retval++;
+-						wait->_qproc = NULL;
+-					}
+-					/* got something, stop busy polling */
+-					if (retval) {
+-						can_busy_loop = false;
+-						busy_flag = 0;
+-
+-					/*
+-					 * only remember a returned
+-					 * POLL_BUSY_LOOP if we asked for it
+-					 */
+-					} else if (busy_flag & mask)
+-						can_busy_loop = true;
+-
+ 				}
++				if ((mask & POLLIN_SET) && (in & bit)) {
++					res_in |= bit;
++					retval++;
++					wait->_qproc = NULL;
++				}
++				if ((mask & POLLOUT_SET) && (out & bit)) {
++					res_out |= bit;
++					retval++;
++					wait->_qproc = NULL;
++				}
++				if ((mask & POLLEX_SET) && (ex & bit)) {
++					res_ex |= bit;
++					retval++;
++					wait->_qproc = NULL;
++				}
++				/* got something, stop busy polling */
++				if (retval) {
++					can_busy_loop = false;
++					busy_flag = 0;
++
++				/*
++				 * only remember a returned
++				 * POLL_BUSY_LOOP if we asked for it
++				 */
++				} else if (busy_flag & mask)
++					can_busy_loop = true;
++
+ 			}
+ 			if (res_in)
+ 				*rinp = res_in;
 
 
