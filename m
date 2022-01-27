@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA3E849D767
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 02:16:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3187F49D79E
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 02:52:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232234AbiA0BQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 20:16:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39512 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231386AbiA0BQQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 20:16:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F00BC06161C;
-        Wed, 26 Jan 2022 17:16:16 -0800 (PST)
+        id S232321AbiA0Bwb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 20:52:31 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:57406 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232204AbiA0Bwa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 20:52:30 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E899961BA6;
-        Thu, 27 Jan 2022 01:16:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA1E2C340E3;
-        Thu, 27 Jan 2022 01:16:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1A730B820F1;
+        Thu, 27 Jan 2022 01:52:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A417C340E7;
+        Thu, 27 Jan 2022 01:52:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1643246175;
-        bh=uLqWNtUu13fXsRxorO4KmhxNjYRx1qPXQMlnr0nbUQw=;
+        s=korg; t=1643248347;
+        bh=N3uHMf93qUV2UqmDk/3ynkjX/YZ8hIZ9blePZHcu+5M=;
         h=Date:From:To:Subject:From;
-        b=I5CKJnaK29K/JfodIxfnFSElua05wfzrOtn5C6fPw/8QCp1WOkGykkOctgPD9cxcJ
-         I8ZP1c5cY0W1XkzAkwJk03KIxNzw8isXQP/YTqfztVDsayHsS+lHht4FRxsmzRSm26
-         yohwSAJoHpi6QUxUB+2wixaItvD5oDf2+iQ0t/wg=
-Date:   Wed, 26 Jan 2022 17:16:14 -0800
+        b=lM2/FfbKOkwH0hnuWQoXza2IvHs449Ifbu5iTLvjJPput1hwex+rY7Y8SBZLeXUob
+         rzDBWFuIniRQrmzTyQRAhCdIB0Yp9HVwvNpVCPFRvghKnYO4bHk8WVM3VxKIfn/kWK
+         pVWD06GsEXwEJIIB4A8hHx2cGrBEJgbht0hRq2Ss=
+Date:   Wed, 26 Jan 2022 17:52:26 -0800
 From:   akpm@linux-foundation.org
-To:     ariadne@dereferenced.org, brauner@kernel.org, dalias@libc.org,
-        ebiederm@xmission.com, keescook@chromium.org,
-        mm-commits@vger.kernel.org, mtk.manpages@gmail.com,
-        stable@vger.kernel.org, viro@zeniv.linux.org.uk,
-        willy@infradead.org
+To:     aneesh.kumar@linux.ibm.com, anshuman.khandual@arm.com,
+        dave.hansen@linux.intel.com, gthelen@google.com, hpa@zytor.com,
+        hughd@google.com, jirislaby@kernel.org, mingo@redhat.com,
+        mm-commits@vger.kernel.org, pasha.tatashin@soleen.com,
+        pjt@google.com, rientjes@google.com, rppt@kernel.org,
+        songmuchun@bytedance.com, stable@vger.kernel.org,
+        weixugc@google.com, will@kernel.org, ziy@nvidia.com
 Subject:  +
- fs-exec-require-argv-presence-in-do_execveat_common.patch added to -mm tree
-Message-ID: <20220127011614.XRNUP1KGA%akpm@linux-foundation.org>
+ mm-debug_vm_pgtable-remove-pte-entry-from-the-page-table.patch added to -mm
+ tree
+Message-ID: <20220127015226.QSDavwGEn%akpm@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -45,14 +45,14 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The patch titled
-     Subject: fs/exec: require argv[0] presence in do_execveat_common()
+     Subject: mm/debug_vm_pgtable: remove pte entry from the page table
 has been added to the -mm tree.  Its filename is
-     fs-exec-require-argv-presence-in-do_execveat_common.patch
+     mm-debug_vm_pgtable-remove-pte-entry-from-the-page-table.patch
 
 This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/fs-exec-require-argv-presence-in-do_execveat_common.patch
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-debug_vm_pgtable-remove-pte-entry-from-the-page-table.patch
 and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/fs-exec-require-argv-presence-in-do_execveat_common.patch
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-debug_vm_pgtable-remove-pte-entry-from-the-page-table.patch
 
 Before you just go and hit "reply", please:
    a) Consider who else should be cc'ed
@@ -66,83 +66,104 @@ The -mm tree is included into linux-next and is updated
 there every 3-4 working days
 
 ------------------------------------------------------
-From: Ariadne Conill <ariadne@dereferenced.org>
-Subject: fs/exec: require argv[0] presence in do_execveat_common()
+From: Pasha Tatashin <pasha.tatashin@soleen.com>
+Subject: mm/debug_vm_pgtable: remove pte entry from the page table
 
-In several other operating systems, it is a hard requirement that the
-second argument to execve(2) be the name of a program, thus prohibiting a
-scenario where argc < 1.  POSIX 2017 also recommends this behaviour, but
-it is not an explicit requirement[0]:
+Patch series "page table check fixes and cleanups", v4.
 
-    The argument arg0 should point to a filename string that is
-    associated with the process being started by one of the exec
-    functions.
+Two fixes:
 
-To ensure that execve(2) with argc < 1 is not a useful tool for shellcode
-to use, we can validate this in do_execveat_common() and fail for this
-scenario, effectively blocking successful exploitation of CVE-2021-4034
-and similar bugs which depend on execve(2) working with argc < 1.
+  mm/debug_vm_pgtable: remove pte entry from the page table
+	- remove a pte entry from the page table at the end of
+	  debug_vm_pgtable pte test
 
-We use -EINVAL for this case, mirroring recent changes to FreeBSD and
-OpenBSD.  -EINVAL is also used by QNX for this, while Solaris uses
--EFAULT.
+  mm/khugepaged: unify collapse pmd clear, flush and free
+  mm/page_table_check: check entries at pmd levels
+	- check pmd level in page_table_check for PTE regular entries
+	  prior to freeing.
+	  repro.c: https://gist.github.com/soleen/fdcd501d5df103976245fe84e9535087
+	  config: https://gist.github.com/soleen/8a56f923c2fea9ce9c75b4e2517d4162
+	  qemu_script: https://gist.github.com/soleen/f4be4795826b7ab1a51ae659582e179c
+	  base image:
+	  https://storage.googleapis.com/syzkaller/wheezy.img
+	  https://storage.googleapis.com/syzkaller/wheezy.img.key
 
-In earlier versions of the patch, it was proposed that we create a fake
-argv for applications to use when argc < 1, but it was concluded that it
-would be better to just fail the execve(2) in these cases, as launching a
-process with an empty or NULL argv[0] was likely to just cause more
-problems.
+Small cleanup:
+  mm/page_table_check: use unsigned long for page counters and cleanup
 
-Interestingly, Michael Kerrisk opened an issue about this in 2008[1], but
-there was no consensus to support fixing this issue then.  Hopefully now
-that CVE-2021-4034 shows practical exploitative use[2] of this bug in a
-shellcode, we can reconsider.
 
-This issue is being tracked in the KSPP issue tracker[3].
+This patch (of 4):
 
-There are a few[4][5] minor edge cases (primarily in test suites) that are
-caught by this, but we plan to work with the projects to fix those edge
-cases.
+The pte entry that is used in pte_advanced_tests() is never removed from
+the page table at the end of the test.
 
-[0]: https://pubs.opengroup.org/onlinepubs/9699919799/functions/exec.html
-[1]: https://bugzilla.kernel.org/show_bug.cgi?id=8408
-[2]: https://www.qualys.com/2022/01/25/cve-2021-4034/pwnkit.txt
-[3]: https://github.com/KSPP/linux/issues/176
-[4]: https://codesearch.debian.net/search?q=execve%5C+*%5C%28%5B%5E%2C%5D%2B%2C+*NULL&literal=0
-[5]: https://codesearch.debian.net/search?q=execlp%3F%5Cs*%5C%28%5B%5E%2C%5D%2B%2C%5Cs*NULL&literal=0
+The issue is detected by page_table_check, to repro compile kernel with
+the following configs:
 
-Link: https://lkml.kernel.org/r/20220127000724.15106-1-ariadne@dereferenced.org
-Signed-off-by: Ariadne Conill <ariadne@dereferenced.org>
-Reported-by: Michael Kerrisk <mtk.manpages@gmail.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Christian Brauner <brauner@kernel.org>
-Cc: Rich Felker <dalias@libc.org>
-Cc: Eric Biederman <ebiederm@xmission.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: <stable@vger.kernel.org>
+CONFIG_DEBUG_VM_PGTABLE=y
+CONFIG_PAGE_TABLE_CHECK=y
+CONFIG_PAGE_TABLE_CHECK_ENFORCED=y
+
+During the boot the following BUG is printed:
+
+[    2.262821] debug_vm_pgtable: [debug_vm_pgtable         ]: Validating
+               architecture page table helpers
+[    2.276826] ------------[ cut here ]------------
+[    2.280426] kernel BUG at mm/page_table_check.c:162!
+[    2.284118] invalid opcode: 0000 [#1] PREEMPT SMP PTI
+[    2.287787] CPU: 0 PID: 1 Comm: swapper/0 Not tainted
+               5.16.0-11413-g2c271fe77d52 #3
+[    2.293226] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996),
+               BIOS rel-1.15.0-0-g2dd4b9b3f840-prebuilt.qemu.org
+               04/01/2014
+...
+
+The entry should be properly removed from the page table before the page
+is released to the free list.
+
+Link: https://lkml.kernel.org/r/20220126183637.1840960-2-pasha.tatashin@soleen.com
+Fixes: a5c3b9ffb0f4 ("mm/debug_vm_pgtable: add tests validating advanced arch page table helpers")
+Signed-off-by: Pasha Tatashin <pasha.tatashin@soleen.com>
+Reviewed-by: Zi Yan <ziy@nvidia.com>
+Tested-by: Zi Yan <ziy@nvidia.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Cc: Paul Turner <pjt@google.com>
+Cc: Wei Xu <weixugc@google.com>
+Cc: Greg Thelen <gthelen@google.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Mike Rapoport <rppt@kernel.org>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: H. Peter Anvin <hpa@zytor.com>
+Cc: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Hugh Dickins <hughd@google.com>
+Cc: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: <stable@vger.kernel.org>	[5.9+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/exec.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ mm/debug_vm_pgtable.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/exec.c~fs-exec-require-argv-presence-in-do_execveat_common
-+++ a/fs/exec.c
-@@ -1897,6 +1897,10 @@ static int do_execveat_common(int fd, st
- 	}
+--- a/mm/debug_vm_pgtable.c~mm-debug_vm_pgtable-remove-pte-entry-from-the-page-table
++++ a/mm/debug_vm_pgtable.c
+@@ -171,6 +171,8 @@ static void __init pte_advanced_tests(st
+ 	ptep_test_and_clear_young(args->vma, args->vaddr, args->ptep);
+ 	pte = ptep_get(args->ptep);
+ 	WARN_ON(pte_young(pte));
++
++	ptep_get_and_clear_full(args->mm, args->vaddr, args->ptep, 1);
+ }
  
- 	retval = count(argv, MAX_ARG_STRINGS);
-+	if (retval == 0) {
-+		pr_warn_once("Attempted to run process '%s' with NULL argv\n", bprm->filename);
-+		retval = -EINVAL;
-+	}
- 	if (retval < 0)
- 		goto out_free;
- 	bprm->argc = retval;
+ static void __init pte_savedwrite_tests(struct pgtable_debug_args *args)
 _
 
-Patches currently in -mm which might be from ariadne@dereferenced.org are
+Patches currently in -mm which might be from pasha.tatashin@soleen.com are
 
-fs-exec-require-argv-presence-in-do_execveat_common.patch
+mm-debug_vm_pgtable-remove-pte-entry-from-the-page-table.patch
+mm-page_table_check-use-unsigned-long-for-page-counters-and-cleanup.patch
+mm-khugepaged-unify-collapse-pmd-clear-flush-and-free.patch
+mm-page_table_check-check-entries-at-pmd-levels.patch
 
