@@ -2,132 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C92949D88A
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 03:55:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8449B49D91C
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 04:20:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229721AbiA0Czo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 Jan 2022 21:55:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33996 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229484AbiA0Czo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 21:55:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BC2AC06161C;
-        Wed, 26 Jan 2022 18:55:44 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 151AB615CA;
-        Thu, 27 Jan 2022 02:55:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1BF9C340E7;
-        Thu, 27 Jan 2022 02:55:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1643252143;
-        bh=7VT4F78pieYXk3mgorT2C63j+TveepT8ZgpGu3rr5XM=;
-        h=Date:From:To:Subject:From;
-        b=izKtxtJCezIbYbXdDPwF58Dqkbb8mweNSNpOPTh+ggFzSx4bUk8Wx50DMyvEuK2yw
-         lv8oRvgGgBL6lwYxDIXuMGsYysaf049BNA0PISm0IqZIT9OpBf12lBW6VH7lLyG33y
-         BdL7ZVP0jMxaBOzgm/OvL8KLWym8QGsDy5VhQc0A=
-Date:   Wed, 26 Jan 2022 18:55:42 -0800
-From:   akpm@linux-foundation.org
-To:     1vier1@web.de, arnd@arndb.de, cgel.zte@gmail.com,
-        chi.minghao@zte.com.cn, dbueso@suse.de, manfred@colorfullife.com,
-        mhocko@kernel.org, mm-commits@vger.kernel.org,
-        rdunlap@infradead.org, shakeelb@google.com, stable@vger.kernel.org,
-        unixbhaskar@gmail.com, urezki@gmail.com, vvs@virtuozzo.com,
-        zealci@zte.com.cn
-Subject:  +
- mm-utilc-make-kvfree-safe-for-calling-while-holding-spinlocks.patch added
- to -mm tree
-Message-ID: <20220127025542.F0GTnQlNA%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S235683AbiA0DUN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 Jan 2022 22:20:13 -0500
+Received: from szxga02-in.huawei.com ([45.249.212.188]:30311 "EHLO
+        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232984AbiA0DUN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 Jan 2022 22:20:13 -0500
+Received: from kwepemi500011.china.huawei.com (unknown [172.30.72.53])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Jkm5z6vhhzbk3D;
+        Thu, 27 Jan 2022 11:19:19 +0800 (CST)
+Received: from kwepemm600013.china.huawei.com (7.193.23.68) by
+ kwepemi500011.china.huawei.com (7.221.188.124) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.21; Thu, 27 Jan 2022 11:20:10 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ kwepemm600013.china.huawei.com (7.193.23.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.21; Thu, 27 Jan 2022 11:20:09 +0800
+Subject: Re: [PATCH 5.10 000/560] 5.10.94-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <sudipm.mukherjee@gmail.com>, <stable@vger.kernel.org>
+References: <20220125155348.141138434@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <b2f45bd6-e0cb-b233-4e3f-943c653c8e78@huawei.com>
+Date:   Thu, 27 Jan 2022 11:20:09 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
+MIME-Version: 1.0
+In-Reply-To: <20220125155348.141138434@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
+ kwepemm600013.china.huawei.com (7.193.23.68)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: mm/util.c: make kvfree() safe for calling while holding spinlocks
-has been added to the -mm tree.  Its filename is
-     mm-utilc-make-kvfree-safe-for-calling-while-holding-spinlocks.patch
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-utilc-make-kvfree-safe-for-calling-while-holding-spinlocks.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-utilc-make-kvfree-safe-for-calling-while-holding-spinlocks.patch
+On 2022/1/26 0:32, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.94 release.
+> There are 560 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 27 Jan 2022 15:52:30 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.94-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+Tested on arm64 and x86 for 5.10.94-rc2,
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-5.10.y
+Version: 5.10.94-rc2
+Commit: f32eb088b1394f3a0df66e84e55ebdb8132dbe7b
+Compiler: gcc version 7.3.0 (GCC)
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 9018
+passed: 9018
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
-------------------------------------------------------
-From: Manfred Spraul <manfred@colorfullife.com>
-Subject: mm/util.c: make kvfree() safe for calling while holding spinlocks
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 9018
+passed: 9018
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
-One codepath in find_alloc_undo() calls kvfree() while holding a spinlock.
-Since vfree() can sleep this is a bug.
-
-Previously, the code path used kfree(), and kfree() is safe to be called
-while holding a spinlock.
-
-Minghao proposed to fix this by updating find_alloc_undo().
-
-Alternate proposal to fix this: Instead of changing find_alloc_undo(),
-change kvfree() so that the same rules as for kfree() apply: Having
-different rules for kfree() and kvfree() just asks for bugs.
-
-Disadvantage: Releasing vmalloc'ed memory will be delayed a bit.
-
-Link: https://lkml.kernel.org/r/20211222194828.15320-1-manfred@colorfullife.com
-Link: https://lore.kernel.org/all/20211222081026.484058-1-chi.minghao@zte.com.cn/
-Fixes: fc37a3b8b438 ("[PATCH] ipc sem: use kvmalloc for sem_undo allocation")
-Signed-off-by: Manfred Spraul <manfred@colorfullife.com>
-Reported-by: Zeal Robot <zealci@zte.com.cn>
-Reported-by: Minghao Chi <chi.minghao@zte.com.cn>
-Cc: Vasily Averin <vvs@virtuozzo.com>
-Cc: CGEL ZTE <cgel.zte@gmail.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Randy Dunlap <rdunlap@infradead.org>
-Cc: Davidlohr Bueso <dbueso@suse.de>
-Cc: Bhaskar Chowdhury <unixbhaskar@gmail.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Uladzislau Rezki <urezki@gmail.com>
-Cc: Michal Hocko <mhocko@kernel.org>
-Cc: <1vier1@web.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/util.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
---- a/mm/util.c~mm-utilc-make-kvfree-safe-for-calling-while-holding-spinlocks
-+++ a/mm/util.c
-@@ -603,12 +603,12 @@ EXPORT_SYMBOL(kvmalloc_node);
-  * It is slightly more efficient to use kfree() or vfree() if you are certain
-  * that you know which one to use.
-  *
-- * Context: Either preemptible task context or not-NMI interrupt.
-+ * Context: Any context except NMI interrupt.
-  */
- void kvfree(const void *addr)
- {
- 	if (is_vmalloc_addr(addr))
--		vfree(addr);
-+		vfree_atomic(addr);
- 	else
- 		kfree(addr);
- }
-_
-
-Patches currently in -mm which might be from manfred@colorfullife.com are
-
-mm-utilc-make-kvfree-safe-for-calling-while-holding-spinlocks.patch
-
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
