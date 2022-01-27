@@ -2,44 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29BC449E9F9
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 19:11:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9900E49EA14
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 19:12:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245378AbiA0SLM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jan 2022 13:11:12 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:59078 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S245072AbiA0SKr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 13:10:47 -0500
+        id S245188AbiA0SMD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jan 2022 13:12:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45784 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S244987AbiA0SLV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 13:11:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A111DC061769;
+        Thu, 27 Jan 2022 10:11:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 94025B821DA;
-        Thu, 27 Jan 2022 18:10:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA87CC340E4;
-        Thu, 27 Jan 2022 18:10:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 405C061BC5;
+        Thu, 27 Jan 2022 18:11:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF4CFC340E4;
+        Thu, 27 Jan 2022 18:11:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643307045;
-        bh=mCAJxU3jO5M7PSY1plEfvQEcBEGUr0FRugNSXX+uX3U=;
+        s=korg; t=1643307080;
+        bh=GmHWdMrg1KlY0eYJ01CGg+NkmD48j+D6sjmDBvJwFc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bU3JRDi7XDlKRgCk4myXjpo4yHnbCNB0k83C3pKntxym3hawLNQQVV1cKZPkfs/Bj
-         mZLtWr7cUxgjOU+VtRaqrf2it5j/pV6lJM6QMxRqVNR9lRetkCLH0XsA+4XRD8zC/E
-         rLwPJNoTVImUPXjEkhw1EYNy4oXfT8J0INhq5zKA=
+        b=piCMjlQxVyD68BrwBbiPWI+7AvBPlLQRQJ94vg2wZb0L6I9+yGtG1mpw6776LbCtq
+         zHPdYKfTkCgeUxPDoyy/X+k/u06gKoU9cZVYc3Pl54hE1N8tM7J5VezymBwS+xZlYe
+         csUU8/mixBfJ1RekLPUIdGeFU/nTaQUVks4Cpo9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Harry Wentland <harry.wentland@amd.com>,
-        Huang Rui <ray.huang@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>
-Subject: [PATCH 5.15 11/12] drm/amdgpu: Use correct VIEWPORT_DIMENSION for DCN2
-Date:   Thu, 27 Jan 2022 19:09:35 +0100
-Message-Id: <20220127180259.458001336@linuxfoundation.org>
+        stable@vger.kernel.org, Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Sushma Venkatesh Reddy <sushma.venkatesh.reddy@intel.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Dave Airlie <airlied@redhat.com>,
+        Jon Bloomfield <jon.bloomfield@intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.16 1/9] drm/i915: Flush TLBs before releasing backing store
+Date:   Thu, 27 Jan 2022 19:09:36 +0100
+Message-Id: <20220127180258.939992296@linuxfoundation.org>
 X-Mailer: git-send-email 2.35.0
-In-Reply-To: <20220127180259.078563735@linuxfoundation.org>
-References: <20220127180259.078563735@linuxfoundation.org>
+In-Reply-To: <20220127180258.892788582@linuxfoundation.org>
+References: <20220127180258.892788582@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,78 +55,330 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harry Wentland <harry.wentland@amd.com>
+From: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
 
-commit dc5d4aff2e99c312df8abbe1ee9a731d2913bc1b upstream.
+commit 7938d61591d33394a21bdd7797a245b65428f44c upstream.
 
-For some reason this file isn't using the appropriate register
-headers for DCN headers, which means that on DCN2 we're getting
-the VIEWPORT_DIMENSION offset wrong.
+We need to flush TLBs before releasing backing store otherwise userspace
+is able to encounter stale entries if a) it is not declaring access to
+certain buffers and b) it races with the backing store release from a
+such undeclared execution already executing on the GPU in parallel.
 
-This means that we're not correctly carving out the framebuffer
-memory correctly for a framebuffer allocated by EFI and
-therefore see corruption when loading amdgpu before the display
-driver takes over control of the framebuffer scanout.
+The approach taken is to mark any buffer objects which were ever bound
+to the GPU and to trigger a serialized TLB flush when their backing
+store is released.
 
-Fix this by checking the DCE_HWIP and picking the correct offset
-accordingly.
+Alternatively the flushing could be done on VMA unbind, at which point
+we would be able to ascertain whether there is potential a parallel GPU
+execution (which could race), but essentially it boils down to paying
+the cost of TLB flushes potentially needlessly at VMA unbind time (when
+the backing store is not known to be going away so not needed for
+safety), versus potentially needlessly at backing store relase time
+(since we at that point cannot tell whether there is anything executing
+on the GPU which uses that object).
 
-Long-term we should expose this info from DC as GMC shouldn't
-need to know about DCN registers.
+Thereforce simplicity of implementation has been chosen for now with
+scope to benchmark and refine later as required.
 
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Reported-by: Sushma Venkatesh Reddy <sushma.venkatesh.reddy@intel.com>
+Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Acked-by: Dave Airlie <airlied@redhat.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Jon Bloomfield <jon.bloomfield@intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Jani Nikula <jani.nikula@intel.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Harry Wentland <harry.wentland@amd.com>
-Reviewed-by: Huang Rui <ray.huang@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
 ---
- drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/gem/i915_gem_object_types.h |    1 
+ drivers/gpu/drm/i915/gem/i915_gem_pages.c        |   10 ++
+ drivers/gpu/drm/i915/gt/intel_gt.c               |  102 +++++++++++++++++++++++
+ drivers/gpu/drm/i915/gt/intel_gt.h               |    2 
+ drivers/gpu/drm/i915/gt/intel_gt_types.h         |    2 
+ drivers/gpu/drm/i915/i915_reg.h                  |   11 ++
+ drivers/gpu/drm/i915/i915_vma.c                  |    3 
+ drivers/gpu/drm/i915/intel_uncore.c              |   26 ++++-
+ drivers/gpu/drm/i915/intel_uncore.h              |    2 
+ 9 files changed, 155 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c
-@@ -72,6 +72,9 @@
- #define mmDCHUBBUB_SDPIF_MMIO_CNTRL_0                                                                  0x049d
- #define mmDCHUBBUB_SDPIF_MMIO_CNTRL_0_BASE_IDX                                                         2
+--- a/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
++++ b/drivers/gpu/drm/i915/gem/i915_gem_object_types.h
+@@ -305,6 +305,7 @@ struct drm_i915_gem_object {
+ #define I915_BO_READONLY          BIT(6)
+ #define I915_TILING_QUIRK_BIT     7 /* unknown swizzling; do not release! */
+ #define I915_BO_PROTECTED         BIT(8)
++#define I915_BO_WAS_BOUND_BIT     9
+ 	/**
+ 	 * @mem_flags - Mutable placement-related flags
+ 	 *
+--- a/drivers/gpu/drm/i915/gem/i915_gem_pages.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
+@@ -10,6 +10,8 @@
+ #include "i915_gem_lmem.h"
+ #include "i915_gem_mman.h"
  
-+#define mmHUBP0_DCSURF_PRI_VIEWPORT_DIMENSION_DCN2                                                          0x05ea
-+#define mmHUBP0_DCSURF_PRI_VIEWPORT_DIMENSION_DCN2_BASE_IDX                                                 2
++#include "gt/intel_gt.h"
 +
+ void __i915_gem_object_set_pages(struct drm_i915_gem_object *obj,
+ 				 struct sg_table *pages,
+ 				 unsigned int sg_page_sizes)
+@@ -217,6 +219,14 @@ __i915_gem_object_unset_pages(struct drm
+ 	__i915_gem_object_reset_page_iter(obj);
+ 	obj->mm.page_sizes.phys = obj->mm.page_sizes.sg = 0;
  
- static const char *gfxhub_client_ids[] = {
- 	"CB",
-@@ -1103,6 +1106,8 @@ static unsigned gmc_v9_0_get_vbios_fb_si
- 	u32 d1vga_control = RREG32_SOC15(DCE, 0, mmD1VGA_CONTROL);
- 	unsigned size;
- 
-+	/* TODO move to DC so GMC doesn't need to hard-code DCN registers */
++	if (test_and_clear_bit(I915_BO_WAS_BOUND_BIT, &obj->flags)) {
++		struct drm_i915_private *i915 = to_i915(obj->base.dev);
++		intel_wakeref_t wakeref;
 +
- 	if (REG_GET_FIELD(d1vga_control, D1VGA_CONTROL, D1VGA_MODE_ENABLE)) {
- 		size = AMDGPU_VBIOS_VGA_ALLOCATION;
- 	} else {
-@@ -1110,11 +1115,18 @@ static unsigned gmc_v9_0_get_vbios_fb_si
++		with_intel_runtime_pm_if_active(&i915->runtime_pm, wakeref)
++			intel_gt_invalidate_tlbs(&i915->gt);
++	}
++
+ 	return pages;
+ }
  
- 		switch (adev->asic_type) {
- 		case CHIP_RAVEN:
--		case CHIP_RENOIR:
- 			viewport = RREG32_SOC15(DCE, 0, mmHUBP0_DCSURF_PRI_VIEWPORT_DIMENSION);
- 			size = (REG_GET_FIELD(viewport,
- 					      HUBP0_DCSURF_PRI_VIEWPORT_DIMENSION, PRI_VIEWPORT_HEIGHT) *
- 				REG_GET_FIELD(viewport,
-+					      HUBP0_DCSURF_PRI_VIEWPORT_DIMENSION, PRI_VIEWPORT_WIDTH) *
-+				4);
-+			break;
-+		case CHIP_RENOIR:
-+			viewport = RREG32_SOC15(DCE, 0, mmHUBP0_DCSURF_PRI_VIEWPORT_DIMENSION_DCN2);
-+			size = (REG_GET_FIELD(viewport,
-+					      HUBP0_DCSURF_PRI_VIEWPORT_DIMENSION, PRI_VIEWPORT_HEIGHT) *
-+				REG_GET_FIELD(viewport,
- 					      HUBP0_DCSURF_PRI_VIEWPORT_DIMENSION, PRI_VIEWPORT_WIDTH) *
- 				4);
- 			break;
+--- a/drivers/gpu/drm/i915/gt/intel_gt.c
++++ b/drivers/gpu/drm/i915/gt/intel_gt.c
+@@ -30,6 +30,8 @@ void intel_gt_init_early(struct intel_gt
+ 
+ 	spin_lock_init(&gt->irq_lock);
+ 
++	mutex_init(&gt->tlb_invalidate_lock);
++
+ 	INIT_LIST_HEAD(&gt->closed_vma);
+ 	spin_lock_init(&gt->closed_lock);
+ 
+@@ -907,3 +909,103 @@ void intel_gt_info_print(const struct in
+ 
+ 	intel_sseu_dump(&info->sseu, p);
+ }
++
++struct reg_and_bit {
++	i915_reg_t reg;
++	u32 bit;
++};
++
++static struct reg_and_bit
++get_reg_and_bit(const struct intel_engine_cs *engine, const bool gen8,
++		const i915_reg_t *regs, const unsigned int num)
++{
++	const unsigned int class = engine->class;
++	struct reg_and_bit rb = { };
++
++	if (drm_WARN_ON_ONCE(&engine->i915->drm,
++			     class >= num || !regs[class].reg))
++		return rb;
++
++	rb.reg = regs[class];
++	if (gen8 && class == VIDEO_DECODE_CLASS)
++		rb.reg.reg += 4 * engine->instance; /* GEN8_M2TCR */
++	else
++		rb.bit = engine->instance;
++
++	rb.bit = BIT(rb.bit);
++
++	return rb;
++}
++
++void intel_gt_invalidate_tlbs(struct intel_gt *gt)
++{
++	static const i915_reg_t gen8_regs[] = {
++		[RENDER_CLASS]			= GEN8_RTCR,
++		[VIDEO_DECODE_CLASS]		= GEN8_M1TCR, /* , GEN8_M2TCR */
++		[VIDEO_ENHANCEMENT_CLASS]	= GEN8_VTCR,
++		[COPY_ENGINE_CLASS]		= GEN8_BTCR,
++	};
++	static const i915_reg_t gen12_regs[] = {
++		[RENDER_CLASS]			= GEN12_GFX_TLB_INV_CR,
++		[VIDEO_DECODE_CLASS]		= GEN12_VD_TLB_INV_CR,
++		[VIDEO_ENHANCEMENT_CLASS]	= GEN12_VE_TLB_INV_CR,
++		[COPY_ENGINE_CLASS]		= GEN12_BLT_TLB_INV_CR,
++	};
++	struct drm_i915_private *i915 = gt->i915;
++	struct intel_uncore *uncore = gt->uncore;
++	struct intel_engine_cs *engine;
++	enum intel_engine_id id;
++	const i915_reg_t *regs;
++	unsigned int num = 0;
++
++	if (I915_SELFTEST_ONLY(gt->awake == -ENODEV))
++		return;
++
++	if (GRAPHICS_VER(i915) == 12) {
++		regs = gen12_regs;
++		num = ARRAY_SIZE(gen12_regs);
++	} else if (GRAPHICS_VER(i915) >= 8 && GRAPHICS_VER(i915) <= 11) {
++		regs = gen8_regs;
++		num = ARRAY_SIZE(gen8_regs);
++	} else if (GRAPHICS_VER(i915) < 8) {
++		return;
++	}
++
++	if (drm_WARN_ONCE(&i915->drm, !num,
++			  "Platform does not implement TLB invalidation!"))
++		return;
++
++	GEM_TRACE("\n");
++
++	assert_rpm_wakelock_held(&i915->runtime_pm);
++
++	mutex_lock(&gt->tlb_invalidate_lock);
++	intel_uncore_forcewake_get(uncore, FORCEWAKE_ALL);
++
++	for_each_engine(engine, gt, id) {
++		/*
++		 * HW architecture suggest typical invalidation time at 40us,
++		 * with pessimistic cases up to 100us and a recommendation to
++		 * cap at 1ms. We go a bit higher just in case.
++		 */
++		const unsigned int timeout_us = 100;
++		const unsigned int timeout_ms = 4;
++		struct reg_and_bit rb;
++
++		rb = get_reg_and_bit(engine, regs == gen8_regs, regs, num);
++		if (!i915_mmio_reg_offset(rb.reg))
++			continue;
++
++		intel_uncore_write_fw(uncore, rb.reg, rb.bit);
++		if (__intel_wait_for_register_fw(uncore,
++						 rb.reg, rb.bit, 0,
++						 timeout_us, timeout_ms,
++						 NULL))
++			drm_err_ratelimited(&gt->i915->drm,
++					    "%s TLB invalidation did not complete in %ums!\n",
++					    engine->name, timeout_ms);
++	}
++
++	intel_uncore_forcewake_put_delayed(uncore, FORCEWAKE_ALL);
++	mutex_unlock(&gt->tlb_invalidate_lock);
++}
+--- a/drivers/gpu/drm/i915/gt/intel_gt.h
++++ b/drivers/gpu/drm/i915/gt/intel_gt.h
+@@ -90,4 +90,6 @@ void intel_gt_info_print(const struct in
+ 
+ void intel_gt_watchdog_work(struct work_struct *work);
+ 
++void intel_gt_invalidate_tlbs(struct intel_gt *gt);
++
+ #endif /* __INTEL_GT_H__ */
+--- a/drivers/gpu/drm/i915/gt/intel_gt_types.h
++++ b/drivers/gpu/drm/i915/gt/intel_gt_types.h
+@@ -73,6 +73,8 @@ struct intel_gt {
+ 
+ 	struct intel_uc uc;
+ 
++	struct mutex tlb_invalidate_lock;
++
+ 	struct i915_wa_list wa_list;
+ 
+ 	struct intel_gt_timelines {
+--- a/drivers/gpu/drm/i915/i915_reg.h
++++ b/drivers/gpu/drm/i915/i915_reg.h
+@@ -2697,6 +2697,12 @@ static inline bool i915_mmio_reg_valid(i
+ #define   GAMT_CHKN_DISABLE_DYNAMIC_CREDIT_SHARING	(1 << 28)
+ #define   GAMT_CHKN_DISABLE_I2M_CYCLE_ON_WR_PORT	(1 << 24)
+ 
++#define GEN8_RTCR	_MMIO(0x4260)
++#define GEN8_M1TCR	_MMIO(0x4264)
++#define GEN8_M2TCR	_MMIO(0x4268)
++#define GEN8_BTCR	_MMIO(0x426c)
++#define GEN8_VTCR	_MMIO(0x4270)
++
+ #if 0
+ #define PRB0_TAIL	_MMIO(0x2030)
+ #define PRB0_HEAD	_MMIO(0x2034)
+@@ -2792,6 +2798,11 @@ static inline bool i915_mmio_reg_valid(i
+ #define   FAULT_VA_HIGH_BITS		(0xf << 0)
+ #define   FAULT_GTT_SEL			(1 << 4)
+ 
++#define GEN12_GFX_TLB_INV_CR	_MMIO(0xced8)
++#define GEN12_VD_TLB_INV_CR	_MMIO(0xcedc)
++#define GEN12_VE_TLB_INV_CR	_MMIO(0xcee0)
++#define GEN12_BLT_TLB_INV_CR	_MMIO(0xcee4)
++
+ #define GEN12_AUX_ERR_DBG		_MMIO(0x43f4)
+ 
+ #define FPGA_DBG		_MMIO(0x42300)
+--- a/drivers/gpu/drm/i915/i915_vma.c
++++ b/drivers/gpu/drm/i915/i915_vma.c
+@@ -431,6 +431,9 @@ int i915_vma_bind(struct i915_vma *vma,
+ 		vma->ops->bind_vma(vma->vm, NULL, vma, cache_level, bind_flags);
+ 	}
+ 
++	if (vma->obj)
++		set_bit(I915_BO_WAS_BOUND_BIT, &vma->obj->flags);
++
+ 	atomic_or(bind_flags, &vma->flags);
+ 	return 0;
+ }
+--- a/drivers/gpu/drm/i915/intel_uncore.c
++++ b/drivers/gpu/drm/i915/intel_uncore.c
+@@ -724,7 +724,8 @@ void intel_uncore_forcewake_get__locked(
+ }
+ 
+ static void __intel_uncore_forcewake_put(struct intel_uncore *uncore,
+-					 enum forcewake_domains fw_domains)
++					 enum forcewake_domains fw_domains,
++					 bool delayed)
+ {
+ 	struct intel_uncore_forcewake_domain *domain;
+ 	unsigned int tmp;
+@@ -739,7 +740,11 @@ static void __intel_uncore_forcewake_put
+ 			continue;
+ 		}
+ 
+-		fw_domains_put(uncore, domain->mask);
++		if (delayed &&
++		    !(domain->uncore->fw_domains_timer & domain->mask))
++			fw_domain_arm_timer(domain);
++		else
++			fw_domains_put(uncore, domain->mask);
+ 	}
+ }
+ 
+@@ -760,7 +765,20 @@ void intel_uncore_forcewake_put(struct i
+ 		return;
+ 
+ 	spin_lock_irqsave(&uncore->lock, irqflags);
+-	__intel_uncore_forcewake_put(uncore, fw_domains);
++	__intel_uncore_forcewake_put(uncore, fw_domains, false);
++	spin_unlock_irqrestore(&uncore->lock, irqflags);
++}
++
++void intel_uncore_forcewake_put_delayed(struct intel_uncore *uncore,
++					enum forcewake_domains fw_domains)
++{
++	unsigned long irqflags;
++
++	if (!uncore->fw_get_funcs)
++		return;
++
++	spin_lock_irqsave(&uncore->lock, irqflags);
++	__intel_uncore_forcewake_put(uncore, fw_domains, true);
+ 	spin_unlock_irqrestore(&uncore->lock, irqflags);
+ }
+ 
+@@ -802,7 +820,7 @@ void intel_uncore_forcewake_put__locked(
+ 	if (!uncore->fw_get_funcs)
+ 		return;
+ 
+-	__intel_uncore_forcewake_put(uncore, fw_domains);
++	__intel_uncore_forcewake_put(uncore, fw_domains, false);
+ }
+ 
+ void assert_forcewakes_inactive(struct intel_uncore *uncore)
+--- a/drivers/gpu/drm/i915/intel_uncore.h
++++ b/drivers/gpu/drm/i915/intel_uncore.h
+@@ -243,6 +243,8 @@ void intel_uncore_forcewake_get(struct i
+ 				enum forcewake_domains domains);
+ void intel_uncore_forcewake_put(struct intel_uncore *uncore,
+ 				enum forcewake_domains domains);
++void intel_uncore_forcewake_put_delayed(struct intel_uncore *uncore,
++					enum forcewake_domains domains);
+ void intel_uncore_forcewake_flush(struct intel_uncore *uncore,
+ 				  enum forcewake_domains fw_domains);
+ 
 
 
