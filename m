@@ -2,82 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D47C949E3F8
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 15:00:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 765FB49E410
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 15:02:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236884AbiA0OAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jan 2022 09:00:16 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:51540 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S240522AbiA0OAN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 09:00:13 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C3CCB82285;
-        Thu, 27 Jan 2022 14:00:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id CA906C340E4;
-        Thu, 27 Jan 2022 14:00:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643292010;
-        bh=eAQ+ZorpGKfk4YxTRRSwqowyR4Lpeus8/2L3UKJOzZo=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=nSMs0A6NL8HjicXZzgtpULYnN79C9GmBoywO4GZb/wVKQir7e7uBC42ZmI4pkrSMV
-         OcjyQk3iiPu3I38X2Y18Gwlgrk/Gdbuhe/ce452/sWd87j0PWQJEzACKrhIdIV57oq
-         jJZZvwQazUIqveW1TjnMdUiMUXiMxqMp8Ty+TUMcVoyEVF7IYpFKW8Sw9XIAje3D0I
-         CwBdEIeynUwwePlKs5eX/af2Aj3D8WLwv6Mi61ISa3YdULBNl+4OYg7LjAtiCesXFw
-         ov19CjGF59BDENZIGJqsxUbTHP9sQralxSPiZk0+C7cXLbM5bmIbvskTVlLp7ETd82
-         8nJ7D0RjXOjtA==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id B3552E5D07E;
-        Thu, 27 Jan 2022 14:00:10 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        id S242110AbiA0OCk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jan 2022 09:02:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43124 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242170AbiA0OCk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 09:02:40 -0500
+Received: from mail-yb1-xb34.google.com (mail-yb1-xb34.google.com [IPv6:2607:f8b0:4864:20::b34])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDF84C061756
+        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 06:02:39 -0800 (PST)
+Received: by mail-yb1-xb34.google.com with SMTP id k17so8982528ybk.6
+        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 06:02:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:sender:from:date:message-id:subject:to;
+        bh=4hMay+JAuCcxTH5jMZax3EOAyZhyTNJ51MAkVpSdHBs=;
+        b=kpVZma9R6J9c0+P0r7AcgR532LdaKxwRWCZjAThl+o7n34MBKHCkGk4IX4Eoiwj+WS
+         tBkE4lvUkTngDMhr9oRWSLIrwD0Mhf2aVlre0sLTyklPICSvOSgTuP4rRt7f8v22f7zh
+         v73un4SZKiNHQYpvcwloXy4eu2pLaOl6kWWC2a1syrRr9WVzph8stSZFjVY+dz+f1n0c
+         xkNf71DLgexrsyfTUGPzrASf/vujZLE7mAt7Ty9Hb3NAJuZG43nFCy8vdQGUtNE3ggF3
+         M58CLC0cu75S393E2XhW7HJKXlJCWmfrchKaJW8y+x8ntSGU0R7PyFKmvzAC8R7HrbkI
+         bb+w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
+         :to;
+        bh=4hMay+JAuCcxTH5jMZax3EOAyZhyTNJ51MAkVpSdHBs=;
+        b=uCBC1d49RLLo2VVrwRo6hv9a2/sG726b8B+dTuqxSak9vv3oyOvMeHocuUJJLCBicN
+         mxsvZDAG5BqKYBSRqCLtFrmThACbc9SkORqQl4AZnbZ30asHWLdmR3GSsTPq777foVA/
+         dL7Jg+dYZLeQujRoqE//OTwA/2FwNmG5ztKwS6cvECTCYGd5h0nw8Kyf5CEE6fBBGb9o
+         /5GNZU2xZqEOO0GrF5Y32O1jmfh500PCs09Cb0onXYRa/U2vcX4QL0FATZaeO2JasU5q
+         DheMQg4EvrvTVgcMF9IKzRg8zwQuJQqEOt0jxlZPzuo/LfHHcZ73XTbBVaNjlEENAAud
+         BVKA==
+X-Gm-Message-State: AOAM531Q9+KwquGlQKRVngF3nY1tjcmekYu+G+vgOGA+7ZqpWx4TbOJF
+        6jwvLno+WIx8sB9amTp3cUFLMdpx5fNSILh1qmk=
+X-Google-Smtp-Source: ABdhPJylDyO06wHPSrcoEjey+zasSeRYW4/MOBlgK1B91kfjH6wcT9IkHbWnOL0qO6gZFm/zFK7qx9wY81u0tIiAYpM=
+X-Received: by 2002:a05:6902:120e:: with SMTP id s14mr5736215ybu.359.1643292158229;
+ Thu, 27 Jan 2022 06:02:38 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net 0/2] Fix PTP issue in stmmac
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <164329201072.13469.12879802019146922568.git-patchwork-notify@kernel.org>
-Date:   Thu, 27 Jan 2022 14:00:10 +0000
-References: <20220126094723.11849-1-mohammad.athari.ismail@intel.com>
-In-Reply-To: <20220126094723.11849-1-mohammad.athari.ismail@intel.com>
-To:     Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
-Cc:     peppe.cavallaro@st.com, alexandre.torgue@st.com,
-        joabreu@synopsys.com, davem@davemloft.net, kuba@kernel.org,
-        mcoquelin.stm32@gmail.com, boon.leong.ong@intel.com,
-        weifeng.voon@intel.com, vee.khee.wong@intel.com,
-        chenhuacai@kernel.org, alexandre.torgue@foss.st.com,
-        netdev@vger.kernel.org, linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
+Sender: modumaajiyusufari@gmail.com
+Received: by 2002:a81:5689:0:0:0:0:0 with HTTP; Thu, 27 Jan 2022 06:02:37
+ -0800 (PST)
+From:   Lisa Williams <lw2367585@gmail.com>
+Date:   Thu, 27 Jan 2022 14:02:37 +0000
+X-Google-Sender-Auth: 9dYoCKn40RyIGKeIJsx-235-O08
+Message-ID: <CAD5cse2JNgTOC4CJtZ9pA_NuxqX2e4c-yduA81+ENw+sh4i2bA@mail.gmail.com>
+Subject: My name is Lisa Williams
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
+Hi Dear,
 
-This series was applied to netdev/net.git (master)
-by David S. Miller <davem@davemloft.net>:
+My name is Lisa  Williams, I am from the United States of America, Its
+my pleasure to contact you for new and special friendship, I will be
+glad to see your reply for us to know each other better and exchange
+pictures.
 
-On Wed, 26 Jan 2022 17:47:21 +0800 you wrote:
-> This patch series to fix PTP issue in stmmac related to:
-> 1/ PTP clock source configuration during initialization.
-> 2/ PTP initialization during resume from suspend.
-> 
-> Mohammad Athari Bin Ismail (2):
->   net: stmmac: configure PTP clock source prior to PTP initialization
->   net: stmmac: skip only stmmac_ptp_register when resume from suspend
-> 
-> [...]
-
-Here is the summary with links:
-  - [net,1/2] net: stmmac: configure PTP clock source prior to PTP initialization
-    https://git.kernel.org/netdev/net/c/94c82de43e01
-  - [net,v3,2/2] net: stmmac: skip only stmmac_ptp_register when resume from suspend
-    https://git.kernel.org/netdev/net/c/0735e639f129
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Yours
+Lisa
