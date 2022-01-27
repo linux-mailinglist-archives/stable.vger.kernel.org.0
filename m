@@ -2,100 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F87449DAE8
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 07:39:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAF5F49DB1F
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 08:02:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236762AbiA0Gjl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jan 2022 01:39:41 -0500
-Received: from a.mx.secunet.com ([62.96.220.36]:57824 "EHLO a.mx.secunet.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232072AbiA0Gjl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Jan 2022 01:39:41 -0500
-X-Greylist: delayed 397 seconds by postgrey-1.27 at vger.kernel.org; Thu, 27 Jan 2022 01:39:41 EST
-Received: from localhost (localhost [127.0.0.1])
-        by a.mx.secunet.com (Postfix) with ESMTP id B8AA920582;
-        Thu, 27 Jan 2022 07:33:02 +0100 (CET)
-X-Virus-Scanned: by secunet
-Received: from a.mx.secunet.com ([127.0.0.1])
-        by localhost (a.mx.secunet.com [127.0.0.1]) (amavisd-new, port 10024)
-        with ESMTP id RD8ONOuL5xsy; Thu, 27 Jan 2022 07:33:02 +0100 (CET)
-Received: from mailout1.secunet.com (mailout1.secunet.com [62.96.220.44])
+        id S237065AbiA0HCH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jan 2022 02:02:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57390 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237047AbiA0HCH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 02:02:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1262CC061714;
+        Wed, 26 Jan 2022 23:02:07 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by a.mx.secunet.com (Postfix) with ESMTPS id 462F120519;
-        Thu, 27 Jan 2022 07:33:02 +0100 (CET)
-Received: from cas-essen-01.secunet.de (unknown [10.53.40.201])
-        by mailout1.secunet.com (Postfix) with ESMTP id 34F4480004A;
-        Thu, 27 Jan 2022 07:33:02 +0100 (CET)
-Received: from mbx-essen-01.secunet.de (10.53.40.197) by
- cas-essen-01.secunet.de (10.53.40.201) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.17; Thu, 27 Jan 2022 07:33:01 +0100
-Received: from gauss2.secunet.de (10.182.7.193) by mbx-essen-01.secunet.de
- (10.53.40.197) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.17; Thu, 27 Jan
- 2022 07:33:01 +0100
-Received: by gauss2.secunet.de (Postfix, from userid 1000)
-        id 5796131805DC; Thu, 27 Jan 2022 07:33:01 +0100 (CET)
-Date:   Thu, 27 Jan 2022 07:33:01 +0100
-From:   Steffen Klassert <steffen.klassert@secunet.com>
-To:     Pavel Machek <pavel@denx.de>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        Antony Antony <antony.antony@secunet.com>,
-        Eyal Birger <eyal.birger@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 173/563] xfrm: interface with if_id 0 should return
- error
-Message-ID: <20220127063301.GQ1223722@gauss3.secunet.de>
-References: <20220124184024.407936072@linuxfoundation.org>
- <20220124184030.397155595@linuxfoundation.org>
- <20220126215937.GA31158@duo.ucw.cz>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF91561984;
+        Thu, 27 Jan 2022 07:02:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBACEC340E4;
+        Thu, 27 Jan 2022 07:02:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1643266926;
+        bh=FEDscaRYBQwJH6GLsPAmvTFyqeo2iRJEKEQWnaCfndk=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=WU7bHJ1t+MRI1oX3FfPjy+aAdM8u/rg4WpIJqBp1lW6u6U0WTMeKPo+l5OvItZYxi
+         JPQtbYOryH2VacybHpaE49nZQiqtw6kgYb9mrLDz3dRQZhiqVQzNDZzjDpxC6x/oeV
+         deTAk7usORJI65R6cay+1lmUv2h43DZmmX2Mat7JnlBpil2xaC4Okqvxa8HgJxFGSn
+         9FzYynvDIPbqWnpkubyBtbswM/2EFIZhuMy3D/EvEJSaHxGBBXi1hn2ffCxIgnXCVL
+         xqJmjlGMuIV8/StJW6lElW8HpcgQ69YcHfqjt0OeChOyFs8yMyxZYQabZXyvO5POTE
+         DVmk2MDqJ2FGw==
+Date:   Thu, 27 Jan 2022 09:01:43 +0200
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     linux-sgx@vger.kernel.org
+Cc:     Dave Hansen <dave.hansen@linux.intel.com>, stable@vger.kernel.org,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>,
+        Jethro Beekman <jethro@fortanix.com>,
+        Sean Christopherson <seanjc@google.com>
+Subject: Re: [PATCH v3] x86/sgx: Free backing memory after faulting the
+ enclave page
+Message-ID: <YfJDV63oGmWOmO4F@iki.fi>
+References: <20220108140510.76583-1-jarkko@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20220126215937.GA31158@duo.ucw.cz>
-X-ClientProxiedBy: cas-essen-01.secunet.de (10.53.40.201) To
- mbx-essen-01.secunet.de (10.53.40.197)
-X-EXCLAIMER-MD-CONFIG: 2c86f778-e09b-4440-8b15-867914633a10
+In-Reply-To: <20220108140510.76583-1-jarkko@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 26, 2022 at 10:59:37PM +0100, Pavel Machek wrote:
-> Hi!
-> 
-> > [ Upstream commit 8dce43919566f06e865f7e8949f5c10d8c2493f5 ]
-> > 
-> > xfrm interface if_id = 0 would cause xfrm policy lookup errors since
-> > Commit 9f8550e4bd9d.
-> > 
-> > Now explicitly fail to create an xfrm interface when if_id = 0
-> 
-> This will break changelink completely, AFAICT.
-> 
-> > @@ -672,7 +677,12 @@ static int xfrmi_changelink(struct net_device *dev, struct nlattr *tb[],
-> >  {
-> >  	struct xfrm_if *xi = netdev_priv(dev);
-> >  	struct net *net = xi->net;
-> > -	struct xfrm_if_parms p;
-> > +	struct xfrm_if_parms p = {};
-> > +
-> > +	if (!p.if_id) {
-> > +		NL_SET_ERR_MSG(extack, "if_id must be non zero");
-> > +		return -EINVAL;
-> > +	}
-> >  
-> >  	xfrmi_netlink_parms(data, &p);
-> >  	xi = xfrmi_locate(net, &p);
-> 
-> if_id will be always 0, because it was not yet initialized.
-> 
-> Best regards,
-> 									Pavel
-> 
-> Signed-off-by: Pavel Machek <pavel@denx.de>
+On Sat, Jan 08, 2022 at 04:05:10PM +0200, Jarkko Sakkinen wrote:
+> +static inline pgoff_t sgx_encl_get_backing_pcmd_nr(struct sgx_encl *encl, pgoff_t index)
+> +{
+> +	return PFN_DOWN(encl->size) + 1 + (index / sizeof(struct sgx_pcmd));
+> +}
 
-Can you please resend this with proper commit message and 'Fixes:' tag?
+Found it.
 
-Thanks!
+This should be 
+
+static inline pgoff_t sgx_encl_get_backing_pcmd_nr(struct sgx_encl *encl, pgoff_t index)
+{
+	return PFN_DOWN(encl->size) + 1 + (index * PAGE_SIZE) / sizeof(struct sgx_pcmd);
+}
+
+/Jarkko
