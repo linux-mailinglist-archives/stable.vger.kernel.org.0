@@ -2,75 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C925049E1D6
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 13:02:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3B0749E1EE
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 13:05:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234911AbiA0MCK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jan 2022 07:02:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43236 "EHLO
+        id S230043AbiA0MFn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jan 2022 07:05:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231708AbiA0MCK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 07:02:10 -0500
-Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6786C061714
-        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 04:02:09 -0800 (PST)
-Received: by mail-lf1-x136.google.com with SMTP id bu18so4877704lfb.5
-        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 04:02:09 -0800 (PST)
+        with ESMTP id S236304AbiA0MFm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 07:05:42 -0500
+Received: from mail-lf1-x129.google.com (mail-lf1-x129.google.com [IPv6:2a00:1450:4864:20::129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04987C06173B
+        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 04:05:42 -0800 (PST)
+Received: by mail-lf1-x129.google.com with SMTP id p27so4938424lfa.1
+        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 04:05:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=embecosm.com; s=google;
-        h=date:from:to:cc:subject:in-reply-to:message-id:references
-         :user-agent:mime-version;
-        bh=XhtvzHGLBTlHpgrsVt3OxS8UVSEEinBsRKFFK6183gw=;
-        b=IHkYvyCfXxjCcI/B0J026dwMFYf3c1NuWIoEe38pk6d2ACqUDabo0owYPl2fJU4TeY
-         swIDSeuC9cvxhEh1N0D7O3C+9+eLXXadIZFM+VJDVn/2bo+qkdTvkwJ5a1SNy5xl4cJW
-         Daglgp/Z41BMgAzF+nCBQr+FFkZS1RTiP2o/17fs/CzJfTDNveN4n7drY7xEkrnS6SSr
-         gnKRmNY9Hjqz1kRWcSPKAArICMYDFs+YjSne6STSjDbfVX6andi7fZFcboCYZJOX/4LG
-         D4Gi6u1I4nZB64AcFlKLqd0/TBXdffzMye/l75QKVW+aXuuf+It4zwxyvbJve3qmO2oA
-         YXMA==
+        d=gmail.com; s=20210112;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=YOUcemHxUh03jeZl3Fc3dcJaR/JbAfubjjjBMUyE1Qc=;
+        b=WJSFWCGF3U93PVV4x8HuZswOSV0qMPmOln/Pq5RzcZpHcMj05hQ/tu5bOusnKTcDNX
+         teA/q+avPqxzuk3n7IPwJhHIwPQm4FjNROtMRWGuzIwRl+2CC7MpGHygO8gr00rqCwOv
+         /roT0TMz8v6dJ2C+KPNXnLHxGgcz3aR1RYUu4rNuOdWQXbrQWErcdjV+zDNberiYxnbN
+         52Rdekjj+c3h5j/BikfIuOWESMfB0BAV0V6alUcP7gvp+LlUv0oid8LU2zySWH00SiiW
+         5+eMMkQ+i8B16y1PWjEgvlXSWtZkgXbJ/TWffqwTicsU9LTBnNVAZko0QQ8WBWyyKxlx
+         OX4Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:in-reply-to:message-id
-         :references:user-agent:mime-version;
-        bh=XhtvzHGLBTlHpgrsVt3OxS8UVSEEinBsRKFFK6183gw=;
-        b=wEUiUai6pnQjOEpqcPpOeW/xt/T2q3ml7HUWNzoJAOYT0zd/1UCndDABfwsFFoau9b
-         NCkrPlsJezT2Zh5vqh68dO3ZezCJQLyvCuhhOdt1u47xF+1KxetVNByQVoJb8pqIgYh8
-         UqqUB+GjsEDPTwhRtpFIgGyctqn5gglemV6N3B5BxBI04BC43PLcst6IVVBv5FWmxnht
-         lxCG570SFS2X/3M7FRhlk5o13Yb+zZ40EIfK1F+cXDott2u9bXUGQL8Y9xYMHKCGQ2U0
-         iWLtss3fxCJnrWWj7gSNPeG7MhCcsW8421guQMyzPVikLxtFBz51b+qKd48uQ63I02Jf
-         RVgg==
-X-Gm-Message-State: AOAM5317GbHjnDNhjP6YntQAMcOtzfqpi4pIRyoKjeKQ2f1/neDHrae/
-        xUIolBW+W8onp4C4hwyv2pY1IQ==
-X-Google-Smtp-Source: ABdhPJyQHW7VSjqdBiGLJfRPwoDOEyTxeMELd3EAIlBU/fag1qkrSPxfGQ95u+TaDFjU7N8K6tDA6A==
-X-Received: by 2002:a05:6512:238c:: with SMTP id c12mr2612318lfv.333.1643284928123;
-        Thu, 27 Jan 2022 04:02:08 -0800 (PST)
-Received: from [192.168.219.3] ([78.8.192.131])
-        by smtp.gmail.com with ESMTPSA id n20sm835673ljg.136.2022.01.27.04.02.06
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 27 Jan 2022 04:02:07 -0800 (PST)
-Date:   Thu, 27 Jan 2022 12:02:02 +0000 (GMT)
-From:   "Maciej W. Rozycki" <macro@embecosm.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-cc:     linux-kernel@vger.kernel.org, stable <stable@vger.kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Stephen Rothwell <sfr@canb.auug.org.au>,
-        kernel test robot <lkp@intel.com>
-Subject: Re: [PATCH] kbuild: remove include/linux/cyclades.h from header file
- check
-In-Reply-To: <20220127073304.42399-1-gregkh@linuxfoundation.org>
-Message-ID: <alpine.DEB.2.20.2201271201010.11348@tpp.orcam.me.uk>
-References: <20220127073304.42399-1-gregkh@linuxfoundation.org>
-User-Agent: Alpine 2.20 (DEB 67 2015-01-07)
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=YOUcemHxUh03jeZl3Fc3dcJaR/JbAfubjjjBMUyE1Qc=;
+        b=NN65NZUVKuNKeIlOsV5YvEllq3ox0xE6Lepai9rtcCX46W2pYYSa5k3pkNA7YRs6N/
+         BOn08qucHNBPoeaGrLDYcbie9lG10ddsUl+xy9cPTajb3bHniPSJyuaJUjqsN6rwKNjK
+         dDMcv+IHUVOjDuj2qzf1PJ31kH8jnCDwjH5F5wK1m4ocOcM3KG16bJ9hpUOxAd4IyhVB
+         eExoZBw7JJqK4sZ+EC4GLpxN55oc9Dvch9NEF2Qe0oqX6IvHWWmhH2AkTlM2b7LIeNK/
+         iX6iOmnlFAVX0nsJW1OyqkbA2xistXboguDAfZ5AlYUzYO0UlqsevIMec5LlS1v5e6nN
+         4j/Q==
+X-Gm-Message-State: AOAM533U/7u/4l3o3uY+9Qljdbxwn34DhZsiViZs2VVTbK+Q8HT32uU1
+        4yHQZWp5Ki6XGhT8x7mliFVzsdDj4FZYV2PbEbk=
+X-Google-Smtp-Source: ABdhPJzvWb506eVCmjQv5GwIG4h9Gzzx8LUT1H2fWJP9yJg1hMUhcbeOSSRPYIH47SLjLWydVqWEc9JMgvi+3jQqmQQ=
+X-Received: by 2002:a05:6512:3b1e:: with SMTP id f30mr2623906lfv.411.1643285140378;
+ Thu, 27 Jan 2022 04:05:40 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Received: by 2002:a2e:a783:0:0:0:0:0 with HTTP; Thu, 27 Jan 2022 04:05:39
+ -0800 (PST)
+Reply-To: greogebrown@gmail.com
+From:   george brown <barristerlevi@gmail.com>
+Date:   Thu, 27 Jan 2022 13:05:39 +0100
+Message-ID: <CAEJ6ChcvSb0X5zgQ5-bHP1Z5Un2k2Esaw9dG=KTjhZsRkcgqbg@mail.gmail.com>
+Subject: 
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 27 Jan 2022, Greg Kroah-Hartman wrote:
+Hello
 
-> The file now rightfully throws up a big warning that it should never be
-> included, so remove it from the header_check test.
+My name is George Brown I am a lawyer by profession. I wish to offer you
+the next of kin to my client. You will inherit the sum of ($8.5 Million)
+dollars my client left in the bank before his death.
 
- Thanks, I wasn't aware we have this stuff.
+My client is a citizen of your country who died in auto crash with his wife
+and only son. I will be entitled with 50% of the total fund while 50% will
+be for you.
+Please contact my private email here for more details:greogebrown@gmail.com
 
-  Maciej
+Many thanks in advance,
+Mr.George Brown,
