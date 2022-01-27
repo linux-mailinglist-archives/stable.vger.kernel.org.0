@@ -2,96 +2,106 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BAD149E67B
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 16:46:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 148B649E697
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 16:48:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243098AbiA0PqC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jan 2022 10:46:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39508 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243097AbiA0PqC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 10:46:02 -0500
-Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8219C061714
-        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 07:46:01 -0800 (PST)
-Received: by mail-wm1-x32c.google.com with SMTP id f202-20020a1c1fd3000000b0034dd403f4fbso2160513wmf.1
-        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 07:46:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=colorfullife-com.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:subject:content-language:to
-         :references:from:in-reply-to:content-transfer-encoding;
-        bh=mD8BsuCJasSkpkxaaqDLPDCI5MsBcn4xIxsCb70RTuM=;
-        b=M6+5QuWsfjE0nxWNyt7LZ2xEMKHfzVGJpRUfyqYBz36uv2uueN7CErKAXyPpUr3Oo/
-         xFGbmTwYvIrK6ikSHqnWqqnlEl8TSddTlZdpnvmH7Yi0Z1uIzfFt3FrBAHuTeBiRbYT/
-         u+TaaklUyDv+RZc3ZtAqehkCXOzs5mbuwIrohFyNH54a7TCgbcShSrZQXJZiSZXWpS2t
-         h0AyWUUrSzfvvD46g/2/wqWKzjbyEgFVRtn0aep4Xpa5u0rRaWBZs4/jvanNxG3lrdAT
-         8HLtFrfUtu3YMtDMUV9EnxBYr9mFVDub8Pp5Ms0z92mw221wKGNMiNKAnJEZ7Xzzx4Iw
-         DVfg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=mD8BsuCJasSkpkxaaqDLPDCI5MsBcn4xIxsCb70RTuM=;
-        b=HkF7DupQmeeH8P/d0UhzHK/HS+pN+qUEhiFiXhhtgbbj7haI48AUx8xl/IRodqT7os
-         +oHmk0kwtUfGC5sxOvOSDTLRRmlhA537JiQlG8D/BY4xG4GQgKimaldkV1LEEZuOc09+
-         WNOuVSvqVyhPC4BdMZeElS0iKTnp3eaJgmz+e68VUQcB9kSSMKWh7vSX3ZBxZgW3Wg+9
-         V0mSvW0/+zSNglQejjK/JJyAekc2relQQAXnZqMXjRQWoGCLcthXPGPJ51CZQ3atWwo1
-         PWbeG/O90L0O4P1SMJjbOppxjaY6ZyKd8xzsNbVWjdLHM65KZxBYn2sjMaTwLthucG3O
-         7Sxg==
-X-Gm-Message-State: AOAM530PLzIbG3NILt0XBcMcHFFuuoha595PcJ9uMS09GIR96psUWMOO
-        KxROOGXmLLX1pkSIuT6fBP4lMA==
-X-Google-Smtp-Source: ABdhPJxND0YwiWRTGwsVdqIY/nCGxAEVWGCOpdIMKYmIqtlS3y76dsdyR7NPE2OSE9SxxGl7vb49Dg==
-X-Received: by 2002:a05:600c:34c2:: with SMTP id d2mr12160612wmq.120.1643298360247;
-        Thu, 27 Jan 2022 07:46:00 -0800 (PST)
-Received: from ?IPV6:2003:d9:9707:d500:f72a:8d22:e3d4:f73? (p200300d99707d500f72a8d22e3d40f73.dip0.t-ipconnect.de. [2003:d9:9707:d500:f72a:8d22:e3d4:f73])
-        by smtp.googlemail.com with ESMTPSA id m6sm2780185wrw.54.2022.01.27.07.45.59
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 27 Jan 2022 07:45:59 -0800 (PST)
-Message-ID: <5ae2873f-527f-9769-a606-4ff6786c0fcc@colorfullife.com>
-Date:   Thu, 27 Jan 2022 16:45:58 +0100
+        id S243154AbiA0PsC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jan 2022 10:48:02 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:56770 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243118AbiA0PsB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 10:48:01 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D2D1617FE
+        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 15:48:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40624C340E8;
+        Thu, 27 Jan 2022 15:48:00 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1643298480;
+        bh=RpZ6GZ5XpQD04R5Ydos1Y+RZUXyiT6UujapK2hl/BgM=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=O/J0VJVQZG1Pwo+p+30qgAACtsMgn3Z8ki/5W42elep7YihMxpcDeLlGC2W5E7Q/g
+         bxXgi8NmWAFTDXbSWZA/fZjp3S3jVtZvHOVbv6AiczuiaWqTsDBxlwaS/nr7bV2Zhb
+         zcPcAvJK/2zWjLOY9IiXE7juQlpV66tpqKMqQCI0=
+Date:   Thu, 27 Jan 2022 16:47:57 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "Deucher, Alexander" <Alexander.Deucher@amd.com>,
+        "Wentland, Harry" <Harry.Wentland@amd.com>
+Subject: Re: [PATCH] drm/amdgpu: Use correct VIEWPORT_DIMENSION for DCN2
+Message-ID: <YfK+rc4mowKwp4VM@kroah.com>
+References: <20220125152111.22515-1-mario.limonciello@amd.com>
+ <YfAcKZALAKAMXs/O@kroah.com>
+ <BL1PR12MB5157FC7109F99B0D2DB265B5E25F9@BL1PR12MB5157.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: +
- mm-utilc-make-kvfree-safe-for-calling-while-holding-spinlocks.patch added to
- -mm tree
-Content-Language: en-US
-To:     akpm@linux-foundation.org, 1vier1@web.de, arnd@arndb.de,
-        cgel.zte@gmail.com, chi.minghao@zte.com.cn, dbueso@suse.de,
-        mhocko@kernel.org, mm-commits@vger.kernel.org,
-        rdunlap@infradead.org, shakeelb@google.com, stable@vger.kernel.org,
-        unixbhaskar@gmail.com, urezki@gmail.com, vvs@virtuozzo.com,
-        zealci@zte.com.cn
-References: <20220127025542.F0GTnQlNA%akpm@linux-foundation.org>
-From:   Manfred Spraul <manfred@colorfullife.com>
-In-Reply-To: <20220127025542.F0GTnQlNA%akpm@linux-foundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BL1PR12MB5157FC7109F99B0D2DB265B5E25F9@BL1PR12MB5157.namprd12.prod.outlook.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Andrew,
+On Tue, Jan 25, 2022 at 03:52:47PM +0000, Limonciello, Mario wrote:
+> [Public]
+> 
+> > -----Original Message-----
+> > From: Greg KH <gregkh@linuxfoundation.org>
+> > Sent: Tuesday, January 25, 2022 09:50
+> > To: Limonciello, Mario <Mario.Limonciello@amd.com>
+> > Cc: stable@vger.kernel.org; Deucher, Alexander
+> > <Alexander.Deucher@amd.com>; Wentland, Harry
+> > <Harry.Wentland@amd.com>
+> > Subject: Re: [PATCH] drm/amdgpu: Use correct VIEWPORT_DIMENSION for
+> > DCN2
+> > 
+> > On Tue, Jan 25, 2022 at 09:21:11AM -0600, Mario Limonciello wrote:
+> > > For some reason this file isn't using the appropriate register
+> > > headers for DCN headers, which means that on DCN2 we're getting
+> > > the VIEWPORT_DIMENSION offset wrong.
+> > >
+> > > This means that we're not correctly carving out the framebuffer
+> > > memory correctly for a framebuffer allocated by EFI and
+> > > therefore see corruption when loading amdgpu before the display
+> > > driver takes over control of the framebuffer scanout.
+> > >
+> > > Fix this by checking the DCE_HWIP and picking the correct offset
+> > > accordingly.
+> > >
+> > > Long-term we should expose this info from DC as GMC shouldn't
+> > > need to know about DCN registers.
+> > >
+> > > Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+> > > (cherry picked from commit dc5d4aff2e99c312df8abbe1ee9a731d2913bc1b)
+> > > ---
+> > > This is backported from 5.17-rc1, but doesn't backport cleanly because
+> > > v5.16 changed to IP version harvesting for ASIC detection.  5.15.y doesn't
+> > > have this.
+> > >  drivers/gpu/drm/amd/amdgpu/gmc_v9_0.c | 14 +++++++++++++-
+> > >  1 file changed, 13 insertions(+), 1 deletion(-)
+> > 
+> > What stable tree(s) do you want this applied to?
+> > 
+> 
+> The original commit it was cherry-picked from was CC to @stable and it
+> should have applied to 5.16 from that. 
+> 
+> This fixed commit should go into 5.15.y.
 
-On 1/27/22 03:55, akpm@linux-foundation.org wrote:
-> The patch titled
->       Subject: mm/util.c: make kvfree() safe for calling while holding spinlocks
-> has been added to the -mm tree.  Its filename is
->       mm-utilc-make-kvfree-safe-for-calling-while-holding-spinlocks.patch
->
-> This patch should soon appear at
->      https://ozlabs.org/~akpm/mmots/broken-out/mm-utilc-make-kvfree-safe-for-calling-while-holding-spinlocks.patch
-> and later at
->      https://ozlabs.org/~akpm/mmotm/broken-out/mm-utilc-make-kvfree-safe-for-calling-while-holding-spinlocks.patch
+Thanks, now queued up.
 
-Please drop and replace with
+> > And what happened to the original signed-off-by's on the original
+> > commit?
+> 
+> I dropped them because I had to change code to do the backport, it didn't seem reasonable
+> to me to keep all of their ACK's/signed-off-by's on the code still.
+> 
+> If that's incorrect, please let me know and I can re-send with the exact same commit message.
 
-https://marc.info/?l=linux-kernel&m=164132744522325&w=2
+Please keep them.  I've fixed this up for now, so no need for a resend.
 
-If I should rediff/resend, just ping me.
+thanks,
 
---
-
-     Manfred
-
+greg k-h
