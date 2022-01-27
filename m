@@ -2,169 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C85F49DA2B
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 06:29:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7ED2E49DA60
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 06:59:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233433AbiA0F3F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jan 2022 00:29:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39848 "EHLO
+        id S236361AbiA0F7z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jan 2022 00:59:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232216AbiA0F3E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 00:29:04 -0500
-Received: from mail-pl1-x62a.google.com (mail-pl1-x62a.google.com [IPv6:2607:f8b0:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B897C06173B
-        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 21:29:04 -0800 (PST)
-Received: by mail-pl1-x62a.google.com with SMTP id c3so1559738pls.5
-        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 21:29:04 -0800 (PST)
+        with ESMTP id S236357AbiA0F7y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 00:59:54 -0500
+Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4035EC06173B
+        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 21:59:54 -0800 (PST)
+Received: by mail-wr1-x435.google.com with SMTP id h21so2686824wrb.8
+        for <stable@vger.kernel.org>; Wed, 26 Jan 2022 21:59:54 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=beUbO3aZF/2kD/fftJXd1EMY7Ug/jw5Wb5BLQxmuCc0=;
-        b=Mkb0P6sWcL3VkVCy3yV8rbOVXIel3FZSZaHpdJ8N0lcjYq6zyx4hUi4mBTLMFaZHeJ
-         lQOR0wGzTYdQ3uC9REhaHrWW8kVj+HKmE2/bLDMmx/G+cO0ZRzYvQBxl7fh/1edZVY++
-         1c90ytUDBbGfHOe4ubEL896FjJreV4KMOheIs=
+        d=colorfullife-com.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:user-agent:subject:content-language:to
+         :cc:references:from:in-reply-to:content-transfer-encoding;
+        bh=G8p9n+htg/79lkjPBzyjVNa8biwypRxIALTw6/oqEQI=;
+        b=Za26JLsU1BtatOrze/S5zzcABpHZeyndaurLEd67odktXAQRGo4lg7AJTqCVeCifgj
+         aJ304MiWYNo4Po/J1LvQY/iu8I5/lYP3kAQkv9V4ZPJGYTECEjX5+dfNDvOfb5aXXbRs
+         oYDJeI8qAmMAXgiZJqOVby+OgARgJkusd0VSiEWiC1j8/0TQ2wpJ3QV+LUP/HQyfcA+D
+         n7t+ag/Sziw8WcK6/Hb/yhMOB607B8jGqJZsN35izDRDnID6CJ9DVT+E/cueuDOobF90
+         tGLRvllv/SuHEdAw01wQd/wCI8uflQC/PkyQYVBtE6u5hXL8I9BAcTHCvf/IDfR3WfTH
+         RFGA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=beUbO3aZF/2kD/fftJXd1EMY7Ug/jw5Wb5BLQxmuCc0=;
-        b=zm8J1SkJUQcKqqnDUsFlwMt4FCkEYEru/jetG+M5J7TPSWkgQys0/9HDMxk06+lbw8
-         PYUcPf0Y4LetzfYmblc6S5sNBlNjTsoML3Au31GzydAzg4uygwJuhKwEQ9+tlK/fUtf3
-         zgnkuaOC2wrbPyxKbmPpUS+8G2rPrvykRK4fgwaB/Gp3WeitC3zveVUnsuNrd0Bd3ooJ
-         iJ1px24yn/fNWBDUchTDFwm4L8kmPr3ZJySmYgnDdkElTo0v3E/UXw1P5XkVqZ3V3G+O
-         ivNCVdpKUDBz2YTRHlYen7g5Q1ToMdN1xuQd+uxM24j8MoMf3AkERWU2wcKTMw3UQNBO
-         1Iew==
-X-Gm-Message-State: AOAM531rKnTct4h3oLtnJ9T5HLsIYdhzQuk5Sa72nyX0Ph9YuwnmqOqU
-        Wml9fur9RRsnzbexLwZhHP6CxA==
-X-Google-Smtp-Source: ABdhPJwXGj2Q6bkytWK59hvGMzK64mkTpY3dYCfOP2HGl0XbWy3r/zGyfAjqVAai7Y4ZsX1k9UxMgw==
-X-Received: by 2002:a17:903:2309:: with SMTP id d9mr1768705plh.149.1643261344044;
-        Wed, 26 Jan 2022 21:29:04 -0800 (PST)
-Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
-        by smtp.gmail.com with ESMTPSA id n4sm6545740pjf.0.2022.01.26.21.29.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 26 Jan 2022 21:29:03 -0800 (PST)
-Date:   Wed, 26 Jan 2022 21:29:02 -0800
-From:   Kees Cook <keescook@chromium.org>
-To:     Ariadne Conill <ariadne@dereferenced.org>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        Eric Biederman <ebiederm@xmission.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Michael Kerrisk <mtk.manpages@gmail.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Rich Felker <dalias@libc.org>, linux-mm@kvack.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH v3] fs/exec: require argv[0] presence in
- do_execveat_common()
-Message-ID: <202201262119.105FA8BCA9@keescook>
-References: <20220127000724.15106-1-ariadne@dereferenced.org>
+        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
+         :content-language:to:cc:references:from:in-reply-to
+         :content-transfer-encoding;
+        bh=G8p9n+htg/79lkjPBzyjVNa8biwypRxIALTw6/oqEQI=;
+        b=qgfIVsOn6LllivmxAeNzBaXAgQa76yh0eiQ76PQgC/MM9Wxa3KE9eSjvsTMSqssnZd
+         m4gnRCbro5Hp6ebyEtPsxILffT5ghs/WP3JImejy/fcYVRHH/Zeox2WRiPYQhrR8k+cr
+         zetTHcIjEEtsoOlo1D4jpnNqrEgu+fC2fKUusxgYlmnyHTonSXo3STyM8x7DthFVmf6o
+         0sR6de+vYLv8vqCkW1eCrC+c4VVvSrZt9gIQ0YUS8ajtlh314Og13z4BnRDuNgVGbOm6
+         3QGclMGQjniAP573O1vw12W+KfLyTgIiD3BfCEksZpxH1IqAZThsVfqIEjJbA2TLChjB
+         0mIA==
+X-Gm-Message-State: AOAM533ExZ9fWN5DKudp0+D59NOWkjdaZJIDgNlwRNphXLOtpX7nnjWr
+        U5IYAnU3DHEtnE1KVXYvPxQfrA==
+X-Google-Smtp-Source: ABdhPJxpkN+X0z8qoZuuqurO2M6v5ztcgkmZkwhoxudB/VDoodE5ESz0XltB6fblLQcbOpeGeBNIXQ==
+X-Received: by 2002:a5d:584e:: with SMTP id i14mr1540824wrf.197.1643263192768;
+        Wed, 26 Jan 2022 21:59:52 -0800 (PST)
+Received: from ?IPV6:2003:d9:9707:d500:f72a:8d22:e3d4:f73? (p200300d99707d500f72a8d22e3d40f73.dip0.t-ipconnect.de. [2003:d9:9707:d500:f72a:8d22:e3d4:f73])
+        by smtp.googlemail.com with ESMTPSA id n13sm1166998wrv.94.2022.01.26.21.59.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 26 Jan 2022 21:59:52 -0800 (PST)
+Message-ID: <c658f8c5-a808-f2f1-2e1e-cfb68dd19d6a@colorfullife.com>
+Date:   Thu, 27 Jan 2022 06:59:50 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220127000724.15106-1-ariadne@dereferenced.org>
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+Subject: Re: [PATCH] mm/util.c: Make kvfree() safe for calling while holding
+ spinlocks
+Content-Language: en-US
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Vasily Averin <vvs@virtuozzo.com>, cgel.zte@gmail.com,
+        shakeelb@google.com, rdunlap@infradead.org, dbueso@suse.de,
+        unixbhaskar@gmail.com, chi.minghao@zte.com.cn, arnd@arndb.de,
+        Zeal Robot <zealci@zte.com.cn>, linux-mm@kvack.org,
+        1vier1@web.de, stable@vger.kernel.org,
+        Michal Hocko <mhocko@kernel.org>
+References: <20211222194828.15320-1-manfred@colorfullife.com>
+ <20220126185340.58f88e8e1b153b6650c83270@linux-foundation.org>
+From:   Manfred Spraul <manfred@colorfullife.com>
+In-Reply-To: <20220126185340.58f88e8e1b153b6650c83270@linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 27, 2022 at 12:07:24AM +0000, Ariadne Conill wrote:
-> In several other operating systems, it is a hard requirement that the
-> second argument to execve(2) be the name of a program, thus prohibiting
-> a scenario where argc < 1.  POSIX 2017 also recommends this behaviour,
-> but it is not an explicit requirement[0]:
-> 
->     The argument arg0 should point to a filename string that is
->     associated with the process being started by one of the exec
->     functions.
-> 
-> To ensure that execve(2) with argc < 1 is not a useful tool for
-> shellcode to use, we can validate this in do_execveat_common() and
-> fail for this scenario, effectively blocking successful exploitation
-> of CVE-2021-4034 and similar bugs which depend on execve(2) working
-> with argc < 1.
-> 
-> We use -EINVAL for this case, mirroring recent changes to FreeBSD and
-> OpenBSD.  -EINVAL is also used by QNX for this, while Solaris uses
-> -EFAULT.
-> 
-> In earlier versions of the patch, it was proposed that we create a
-> fake argv for applications to use when argc < 1, but it was concluded
-> that it would be better to just fail the execve(2) in these cases, as
-> launching a process with an empty or NULL argv[0] was likely to just
-> cause more problems.
+Hi Andrew,
 
-Let's do it and see what breaks. :)
+On 1/27/22 03:53, Andrew Morton wrote:
+> On Wed, 22 Dec 2021 20:48:28 +0100 Manfred Spraul <manfred@colorfullife.com> wrote:
+>
+>> One codepath in find_alloc_undo() calls kvfree() while holding a spinlock.
+>> Since vfree() can sleep this is a bug.
+>>
+>> Previously, the code path used kfree(), and kfree() is safe to be called
+>> while holding a spinlock.
+>>
+>> Minghao proposed to fix this by updating find_alloc_undo().
+>>
+>> Alternate proposal to fix this: Instead of changing find_alloc_undo(),
+>> change kvfree() so that the same rules as for kfree() apply:
+>> Having different rules for kfree() and kvfree() just asks for bugs.
+>>
+>> Disadvantage: Releasing vmalloc'ed memory will be delayed a bit.
+> I know we've been around this loop a bunch of times and deferring was
+> considered.   But I forget the conclusion.  IIRC, mhocko was involved?
 
-I do see at least tools/testing/selftests/exec/recursion-depth.c will
-need a fix. And maybe testcases/kernel/syscalls/execveat/execveat.h
-in LTP.
+I do not remember a mail from mhocko.
 
-Acked-by: Kees Cook <keescook@chromium.org>
+Shakeel proposed to use the approach from Chi.
 
-> 
-> Interestingly, Michael Kerrisk opened an issue about this in 2008[1],
-> but there was no consensus to support fixing this issue then.
-> Hopefully now that CVE-2021-4034 shows practical exploitative use[2]
-> of this bug in a shellcode, we can reconsider.
-> 
-> This issue is being tracked in the KSPP issue tracker[3].
-> 
-> There are a few[4][5] minor edge cases (primarily in test suites) that
-> are caught by this, but we plan to work with the projects to fix those
-> edge cases.
-> 
-> [0]: https://pubs.opengroup.org/onlinepubs/9699919799/functions/exec.html
-> [1]: https://bugzilla.kernel.org/show_bug.cgi?id=8408
-> [2]: https://www.qualys.com/2022/01/25/cve-2021-4034/pwnkit.txt
-> [3]: https://github.com/KSPP/linux/issues/176
-> [4]: https://codesearch.debian.net/search?q=execve%5C+*%5C%28%5B%5E%2C%5D%2B%2C+*NULL&literal=0
-> [5]: https://codesearch.debian.net/search?q=execlp%3F%5Cs*%5C%28%5B%5E%2C%5D%2B%2C%5Cs*NULL&literal=0
-> 
-> Changes from v2:
-> - Switch to using -EINVAL as the error code for this.
-> - Use pr_warn_once() to warn when an execve(2) is rejected due to NULL
->   argv.
-> 
-> Changes from v1:
-> - Rework commit message significantly.
-> - Make the argv[0] check explicit rather than hijacking the error-check
->   for count().
-> 
-> Reported-by: Michael Kerrisk <mtk.manpages@gmail.com>
-> To: Andrew Morton <akpm@linux-foundation.org>
-> Cc: Matthew Wilcox <willy@infradead.org>
-> Cc: Christian Brauner <brauner@kernel.org>
-> Cc: Rich Felker <dalias@libc.org>
-> Cc: Eric Biederman <ebiederm@xmission.com>
-> Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-> Cc: Kees Cook <keescook@chromium.org>
-> Cc: linux-fsdevel@vger.kernel.org
-> Cc: linux-mm@kvack.org
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Ariadne Conill <ariadne@dereferenced.org>
-> ---
->  fs/exec.c | 4 ++++
->  1 file changed, 4 insertions(+)
-> 
-> diff --git a/fs/exec.c b/fs/exec.c
-> index 79f2c9483302..982730cfe3b8 100644
-> --- a/fs/exec.c
-> +++ b/fs/exec.c
-> @@ -1897,6 +1897,10 @@ static int do_execveat_common(int fd, struct filename *filename,
->  	}
->  
->  	retval = count(argv, MAX_ARG_STRINGS);
-> +	if (retval == 0) {
-> +		pr_warn_once("Attempted to run process '%s' with NULL argv\n", bprm->filename);
-> +		retval = -EINVAL;
-> +	}
->  	if (retval < 0)
->  		goto out_free;
->  	bprm->argc = retval;
-> -- 
-> 2.34.1
-> 
+Decision: https://marc.info/?l=linux-kernel&m=164132032717757&w=2
 
--- 
-Kees Cook
+With Reviewed-by:
+
+https://marc.info/?l=linux-kernel&m=164132744522325&w=2
+>> --- a/mm/util.c
+>> +++ b/mm/util.c
+>> @@ -610,12 +610,12 @@ EXPORT_SYMBOL(kvmalloc_node);
+>>    * It is slightly more efficient to use kfree() or vfree() if you are certain
+>>    * that you know which one to use.
+>>    *
+>> - * Context: Either preemptible task context or not-NMI interrupt.
+>> + * Context: Any context except NMI interrupt.
+>>    */
+>>   void kvfree(const void *addr)
+>>   {
+>>   	if (is_vmalloc_addr(addr))
+>> -		vfree(addr);
+>> +		vfree_atomic(addr);
+>>   	else
+>>   		kfree(addr);
+>>   }
+
+
