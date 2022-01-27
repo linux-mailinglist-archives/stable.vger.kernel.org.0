@@ -2,92 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88D2749E618
-	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 16:31:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 638C749E624
+	for <lists+stable@lfdr.de>; Thu, 27 Jan 2022 16:35:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234952AbiA0PbN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jan 2022 10:31:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35982 "EHLO
+        id S229985AbiA0PfM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jan 2022 10:35:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229985AbiA0PbM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 10:31:12 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A77C1C061714
-        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 07:31:12 -0800 (PST)
+        with ESMTP id S237917AbiA0PfL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 10:35:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B9D5C061714
+        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 07:35:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4555961651
-        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 15:31:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D456C340E4;
-        Thu, 27 Jan 2022 15:31:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6D78DB821C6
+        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 15:35:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58EEAC340E4;
+        Thu, 27 Jan 2022 15:35:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643297471;
-        bh=T8zYoyi5Yz0ZFL0ZoyyFWxFboZwXGjU2QcAO91L3Re8=;
+        s=korg; t=1643297709;
+        bh=KVzat2ekAP5s0/fy93UOT1Isd2nzRWT0I6x8yRwaxGo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=qn1xoVk57VSoxjR4/NLqo0drz3n8bpRVUKhMA0IQjtb945wFTvDQCyK/aeQe4/FG9
-         1UwKfXUWfqCPFs7ZE0XI/L/LAFgI6ZhN6+Hs54JqsUtlXbGNKkX7GgLW1QtwnqII4L
-         FQWSSYUz0Ntc5pXlG1/4zS2U0Dcu8wco879d1jHA=
-Date:   Thu, 27 Jan 2022 16:31:08 +0100
+        b=MEpnOI3hQyEOCN0ttLy1hH3peQ7jMP13sFIP/83fO4L2gfLnpfj58EwPaQahEfhCT
+         qXxV0o5n1zPaLn9SGWuWeFvyxjyRlMf3xWahlhoXpTkdPFHfcKsJq7zcnrsDBDSRJE
+         IbmM+yVA8cbL830VDRD0GwkXpkIXGmHbz0J5n88k=
+Date:   Thu, 27 Jan 2022 16:35:06 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Guillaume Morin <guillaume@morinfr.org>
-Cc:     "Paul E. McKenney" <paulmck@kernel.org>, stable@vger.kernel.org,
-        neelx@redhat.com
-Subject: Re: [PATCH for stable 5.x] rcu: Tighten rcu_advance_cbs_nowake()
- checks
-Message-ID: <YfK6vMMc3ncb3ECC@kroah.com>
-References: <YemwBdpmBeC03JeT@bender.morinfr.org>
- <20220120191600.GP947480@paulmck-ThinkPad-P17-Gen-1>
- <Yem3fsHWahJEvjsk@bender.morinfr.org>
- <20220120205705.GQ947480@paulmck-ThinkPad-P17-Gen-1>
- <YengcErT48sYK0yL@bender.morinfr.org>
- <20220120233331.GS947480@paulmck-ThinkPad-P17-Gen-1>
- <Ye7sJ+7szTW0mKYd@bender.morinfr.org>
- <Ye7tBsN3s+mm3eT4@kroah.com>
+To:     Ben Hutchings <ben@decadent.org.uk>
+Cc:     stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Luo Likang <luolikang@nsfocus.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: Re: [PATCH 4.9] media: firewire: firedtv-avc: fix a buffer overflow
+ in avc_ca_pmt()
+Message-ID: <YfK7qqjRo1tH16/Q@kroah.com>
+References: <Ye7xcRkdnlSW+Oy2@decadent.org.uk>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Ye7tBsN3s+mm3eT4@kroah.com>
+In-Reply-To: <Ye7xcRkdnlSW+Oy2@decadent.org.uk>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 24, 2022 at 07:16:38PM +0100, Greg KH wrote:
-> On Mon, Jan 24, 2022 at 07:12:55PM +0100, Guillaume Morin wrote:
-> > On 20 Jan 15:33, Paul E. McKenney wrote:
-> > > > ---- TREE01 8: Kernel present. Thu 20 Jan 2022 05:03:55 PM EST
-> > > > ---- TREE04 8: Kernel present. Thu 20 Jan 2022 05:03:55 PM EST
-> > > > ---- Starting kernels. Thu 20 Jan 2022 05:03:55 PM EST
-> > > > ---- All kernel runs complete. Thu 20 Jan 2022 05:14:05 PM EST
-> > > > ---- TREE01 8: Build/run results:
-> > > >  --- Thu 20 Jan 2022 05:02:37 PM EST: Starting build
-> > > >  --- Thu 20 Jan 2022 05:03:55 PM EST: Starting kernel
-> > > > CPU-hotplug kernel, adding rcutorture onoff.
-> > > > Monitoring qemu job at pid 46081
-> > > > Grace period for qemu job at pid 46081
-> > > > ---- TREE04 8: Build/run results:
-> > > >  --- Thu 20 Jan 2022 05:03:16 PM EST: Starting build
-> > > > :CONFIG_HOTPLUG_CPU: improperly set
-> > > >  --- Thu 20 Jan 2022 05:03:55 PM EST: Starting kernel
-> > > > CPU-hotplug kernel, adding rcutorture onoff.
-> > > > Monitoring qemu job at pid 45847
-> > > > Grace period for qemu job at pid 45847
-> > > > 
-> > > > 
-> > > >  --- Thu 20 Jan 2022 05:02:37 PM EST Test summary:
-> > > > Results directory: /usr/scratch/kernel/tools/testing/selftests/rcutorture/res/2022.01.20-17:02:37
-> > > > tools/testing/selftests/rcutorture/bin/kvm.sh --cpus 60 --duration 10 --configs TREE01 TREE04
-> > > > TREE01 ------- 12719 GPs (21.1983/s) [rcu: g94609 f0x0 ]
-> > > > TREE04 ------- 3128 GPs (5.21333/s) [rcu: g23621 f0x0 ]
-> > > > :CONFIG_HOTPLUG_CPU: improperly set
-> > > 
-> > > This run was successful, so good!
-> > 
-> > Greg, so could you please queue up
-> > 614ddad17f22a22e035e2ea37a04815f50362017 for 5.4+ stable branches?
+On Mon, Jan 24, 2022 at 07:35:29PM +0100, Ben Hutchings wrote:
+> From: Dan Carpenter <dan.carpenter@oracle.com>
 > 
-> Will do after this next round is out, thanks.
+> commit 35d2969ea3c7d32aee78066b1f3cf61a0d935a4e upstream.
+> 
+> The bounds checking in avc_ca_pmt() is not strict enough.  It should
+> be checking "read_pos + 4" because it's reading 5 bytes.  If the
+> "es_info_length" is non-zero then it reads a 6th byte so there needs to
+> be an additional check for that.
+> 
+> I also added checks for the "write_pos".  I don't think these are
+> required because "read_pos" and "write_pos" are tied together so
+> checking one ought to be enough.  But they make the code easier to
+> understand for me.  The check on write_pos is:
+> 
+> 	if (write_pos + 4 >= sizeof(c->operand) - 4) {
+> 
+> The first "+ 4" is because we're writing 5 bytes and the last " - 4"
+> is to leave space for the CRC.
+> 
+> The other problem is that "length" can be invalid.  It comes from
+> "data_length" in fdtv_ca_pmt().
+> 
+> Cc: stable@vger.kernel.org
+> Reported-by: Luo Likang <luolikang@nsfocus.com>
+> Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+> Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+> Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+> [bwh: Backported to 4.9: adjust context]
+> Signed-off-by: Ben Hutchings <ben@decadent.org.uk>
+> ---
+>  drivers/media/firewire/firedtv-avc.c | 14 +++++++++++---
+>  drivers/media/firewire/firedtv-ci.c  |  2 ++
+>  2 files changed, 13 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/media/firewire/firedtv-avc.c b/drivers/media/firewire/firedtv-avc.c
+> index 280b5ffea592..3a373711f5ad 100644
+> --- a/drivers/media/firewire/firedtv-avc.c
+> +++ b/drivers/media/firewire/firedtv-avc.c
+> @@ -1169,7 +1169,11 @@ int avc_ca_pmt(struct firedtv *fdtv, char *msg, int length)
+>  		read_pos += program_info_length;
+>  		write_pos += program_info_length;
+>  	}
+> -	while (read_pos < length) {
+> +	while (read_pos + 4 < length) {
+> +		if (write_pos + 4 >= sizeof(c->operand) - 4) {
+> +			ret = -EINVAL;
+> +			goto out;
+> +		}
+>  		c->operand[write_pos++] = msg[read_pos++];
+>  		c->operand[write_pos++] = msg[read_pos++];
+>  		c->operand[write_pos++] = msg[read_pos++];
+> @@ -1181,13 +1185,17 @@ int avc_ca_pmt(struct firedtv *fdtv, char *msg, int length)
+>  		c->operand[write_pos++] = es_info_length >> 8;
+>  		c->operand[write_pos++] = es_info_length & 0xff;
+>  		if (es_info_length > 0) {
+> +			if (read_pos >= length) {
+> +				ret = -EINVAL;
+> +				goto out;
+> +			}
+>  			pmt_cmd_id = msg[read_pos++];
+>  			if (pmt_cmd_id != 1 && pmt_cmd_id != 4)
+>  				dev_err(fdtv->device, "invalid pmt_cmd_id %d "
+>  					"at stream level\n", pmt_cmd_id);
+>  
+> -			if (es_info_length > sizeof(c->operand) - 4 -
+> -					     write_pos) {
+> +			if (es_info_length > sizeof(c->operand) - 4 - write_pos ||
+> +			    es_info_length > length - read_pos) {
+>  				ret = -EINVAL;
+>  				goto out;
+>  			}
+> diff --git a/drivers/media/firewire/firedtv-ci.c b/drivers/media/firewire/firedtv-ci.c
+> index edbb30fdd9d9..93fb4b7312af 100644
+> --- a/drivers/media/firewire/firedtv-ci.c
+> +++ b/drivers/media/firewire/firedtv-ci.c
+> @@ -138,6 +138,8 @@ static int fdtv_ca_pmt(struct firedtv *fdtv, void *arg)
+>  	} else {
+>  		data_length = msg->msg[3];
+>  	}
+> +	if (data_length > sizeof(msg->msg) - data_pos)
+> +		return -EINVAL;
+>  
+>  	return avc_ca_pmt(fdtv, &msg->msg[data_pos], data_length);
+>  }
 
-Now queued up,t hanks.
 
-gre gk-h
+
+All of the 4.9 backports now queued up,t hanks.
+
+greg k-h
