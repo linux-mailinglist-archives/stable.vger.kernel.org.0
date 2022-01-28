@@ -2,76 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2794249FD9B
-	for <lists+stable@lfdr.de>; Fri, 28 Jan 2022 17:06:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C7ACB49FDC4
+	for <lists+stable@lfdr.de>; Fri, 28 Jan 2022 17:15:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349923AbiA1QGA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jan 2022 11:06:00 -0500
-Received: from mout.gmx.net ([212.227.15.19]:53215 "EHLO mout.gmx.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234788AbiA1QGA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 28 Jan 2022 11:06:00 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
-        s=badeba3b8450; t=1643385958;
-        bh=4macMQryATn0a9e7Su1UA9Wf+EsDWpQOtJ0zx44KV1E=;
-        h=X-UI-Sender-Class:Date:From:Subject:To:Cc;
-        b=Tc1Oyw+kNwcc3d3euN132DEQXQqbMSoUGANs2E+5kwec9O78D8gzM0q+A3pqNkNKd
-         9/nXyvL30dw6jb2Em6bAkoIVkAq5i0dhSjPCC1fvfBDz/JCTdzR2ah0L8zECrsOPII
-         84jWECsd+erBcGGThrPQfdyFUNNiWA9P0db1oNoI=
-X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
-Received: from [192.168.100.20] ([46.142.35.55]) by mail.gmx.net (mrgmx005
- [212.227.17.190]) with ESMTPSA (Nemesis) id 1MFsUv-1n2EHZ24gJ-00HLRa; Fri, 28
- Jan 2022 17:05:58 +0100
-Message-ID: <47af10ef-c043-88d7-3fed-9a4a39369340@gmx.de>
-Date:   Fri, 28 Jan 2022 17:05:58 +0100
+        id S237858AbiA1QPT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jan 2022 11:15:19 -0500
+Received: from Galois.linutronix.de ([193.142.43.55]:44062 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231809AbiA1QPT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Jan 2022 11:15:19 -0500
+Date:   Fri, 28 Jan 2022 17:15:16 +0100
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1643386518;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=VBViI4uY6fc6A9UyuARwG6HNG03Ob1A8pMIqU4tpHvY=;
+        b=aO4q3d3xLLpgFgFIPUQYAHc4wL+JvN3+E9qIbhBUAviG401Yy7/q/hS3r/4C8DQPI9WbHV
+        2sPWKITrcjs7iThP0gpUuKi8OCi+Ok3G6Bjv1A0Zw7CZbRE4+d/a9Fw22LdK1i+kYYTIZc
+        DeYz5DTwPCvTI4JB5Hxrh1JMoKwLmw832w6xutFVmR89EbT1HZ+9a0DUT9vg1ph3pxMbpx
+        6GWLQSN1jJugvc1Kchx01gEfQenK4cJwC7FiNYzP6gu7gwom0EUIyPEPPwCIwBArI+/mw4
+        a9X+lYo20f/htbWUJczPkC9oqW0kPuVef8l08LuvQzH8SXGJCK+6jJ5T6YZmYA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1643386518;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=VBViI4uY6fc6A9UyuARwG6HNG03Ob1A8pMIqU4tpHvY=;
+        b=2TmNd0GUXxQfSi4Q6BFiM0FDo0GV6ihhfw9o0bWhyXpJrozCYLr7ElZfquWQ6qHYBNh0bH
+        F0pJvpy7iNyv+pCg==
+From:   Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To:     "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc:     Andy Lutomirski <luto@amacapital.net>,
+        Jonathan =?utf-8?Q?Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
+        Theodore Ts'o <tytso@mit.edu>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
+        Waiman Long <longman@redhat.com>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH] random: remove batched entropy locking
+Message-ID: <YfQWlM9b4l2IO43l@linutronix.de>
+References: <CAHmME9pb9A4SN6TTjNvvxKqw1L3gXVOX7KKihfEH4AgKGNGZ2A@mail.gmail.com>
+ <20220128153344.34211-1-Jason@zx2c4.com>
+ <YfQPVp8TULSq3V+l@linutronix.de>
+ <CAHmME9pmdeLBKJbTaVQv-z9J81qKA=R4uoZ1DeXABy6Lt3bXuA@mail.gmail.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-From:   Ronald Warsow <rwarsow@gmx.de>
-Subject: Re: [PATCH 5.16 0/9] 5.16.4-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Content-Language: de-DE
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: V03:K1:ZEWUY2lShNjQXNZlZC2vW1v4ij83Aeho2gSjkN0+2pXPqG9xQfc
- U0kuPxj2DquPQlJYMNFgcGG5PzDDorHRmy/MQWPDgMdeyOyzqLCHzbTazurT2qGWOljKpHl
- VpNx4YxZd0fbd60paoHYdi9aEux7xB3A/2/YfynJ/smW2VOj/LdyGBpbKWgTaP78gQgNq7W
- XSHartLTGe0lE31mNkZMg==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:cq1S47DohJM=:cGqpeGZOayaENC/C1ZOhv9
- sOFPtzJOqD5RTFwD7WzeE3hLV3pT5b+DgCbx+URkanO2ylarYT5jLbZjsU7Mf1s2yR0Aja8/P
- lUtTmJRwAbzj5Txt2jW3FmfehvXLSN36b68VbhcXkBVleZJSa6Wtrq3npZVOw9/BEVdAoO2rV
- N9VifFoK2aWXQ0GmKufQl1YiLpBwP11NFq9S9d0ipvgB5gRTtw2Z05EMlRhGXrdRnyHE40+SG
- OyN375LcqsOUcVYNJUayp5tXt1pCpS1/23hTSM3UsjQP1hiVrzdNeq04ApucCJDnKzhlzvVZ6
- X0htS4aTj1dx6VhNwF539Q/3SfZNYzdwBOnzgxrEap+60CWDre5YGlZIw6hy0U1lK1tDrEG1K
- JZ0X8bAceGDh/sTbUcBsYRVB2p3vMb5rLyE+SVbC2mE3rnRR+SudXTY/cIAy3BTY5O+wgcrBm
- IVcjX2pnaMQnnbiDIb4D6lD1msALsdWREowfaZiry0CpBwzvhXqnjzZ9XiY9Zmkqk89u3TGth
- /yn0nFmINbnV1wdfBm6DKzgQnqnprotyLglrk0SkJ5pj7QE0Tg4iVFCHpnkhvYe2VY2F6RhCY
- YSI5l5UFIEkRRqJvKPbqRzYapt9vSqZeKp6Gheq3dBXRhuN4zqJLckKCCFNMq+V+GtoMj/W9J
- Q+FD4spl4zz8BIUV9MJ9Ovrzye/xRPHqL4rjKZZSU3nBlNFVveHpR8ljUdU7OCfmzdAVKLKDs
- sEuy9t6WuYtoc20xn/agWoSc2/2Uepiolkm6k/JxaSxo8ObyvPKDNOJCFqPh5JXF+Rc5AfEU6
- TALd2+npcGhb+A7onM6C6BXt/jHejDJMEq260uAjQoTD4Bu/UuJx3w+BAAZHEEvuVGnM9J2Df
- iJ61Gy6nGBXmjaFMoF7xTXoNoCxfecmlCqy+KPqwB2UvSA+7wfiBVmt74ikCrGXsjkI7vXD0l
- S8xuMSq9u7so2Ej1FLw+ouDhegXEI3/d1JLd8mEv0PjgMpENYPE4VPckDNbEqXX3WfdyXUeUt
- hKH/WHsfxX2OEo8NrhldkRqaPP0sMYEFvS9V37za6iGT+2IdpGGyr5hnea5b5kSoPzZcdsCsl
- cQAtvLwR2R30rE=
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <CAHmME9pmdeLBKJbTaVQv-z9J81qKA=R4uoZ1DeXABy6Lt3bXuA@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-hallo Greg
+On 2022-01-28 16:54:06 [+0100], Jason A. Donenfeld wrote:
+> Hi Sebastian,
+Hi Jason,
 
-5.16.4-rc1
+> On Fri, Jan 28, 2022 at 4:44 PM Sebastian Andrzej Siewior
+> <bigeasy@linutronix.de> wrote:
+> > NO. Could we please look at my RANDOM patches first?
+> > I can repost my rebased patched if there no objection.
+> 
+> I did, and my reply is here:
+> https://lore.kernel.org/lkml/CAHmME9pzdXyD0oRYyCoVUSqqsA9h03-oR7kcNhJuPEcEMTJYgw@mail.gmail.com/
+> 
+> I was hoping for a series that addresses these issues. As I mentioned
+> before, I'm not super keen on deferring that processing in a
+> conditional case and having multiple entry ways into that same
+> functionality. I don't think that's worth it, especially if your
+> actual concern is just userspace calling RNDADDTOENTCNT too often
+> (which can be safely ratelimited). I don't think that thread needs to
 
-compiles, boots and runs on my x86_64
-(Intel i5-11400, Fedora 35)
+And what do you do in ratelimiting? As I explained, you get 20 that
+"enter" and the following are block. The first 20 are already
+problematic and you need a plan-B for those that can't enter.
+So I suggested a mutex_t around the ioctl() which would act as a rate
+limiting. You did not not follow up on that idea.
 
-Thanks
+> spill over here, though, so feel free to follow up with a v+1 on that
+> series and I'll happily take a look. Alternatively, if you'd like to
+> approach this by providing a patch for Jonathan's issue, that makes
+> sense too. So far, the things in front of me are: 1) your patchset
+> from last month that has unresolved issues, and 2) Andy's thing, which
+> maybe will solve the problem (or it won't?). A third alternative from
+> you would be most welcome too.
 
-Tested-by: Ronald Warsow <rwarsow@gmx.de>
+I made a reply yesterday I think with some numbers yesterday. From my
+point of view it is an in-IRQ context/ code that can be avoided. The
+RNDADDTOENTCNT is a simple way to hammer on the lock and see how bad it
+gets. Things like add_hwgenerator_randomness() don't appear so often so
+it is hard to figure out what the worst case can be.
 
+Please ignore Jonathan report for now. As I tried to explain: This
+lockdep report shows a serious problem on PREEMPT_RT. There is _no_ need
+to be concerned on a non-PREEMPT_RT kernel. But it should be addressed.
+If this gets merged as-is then thanks to the stable tag it will get
+backported (again no change for !RT) and will collide with PREEMPT_RT
+patch. And as I mentioned, the locking is not working on PREEMPT_RT.
 
-regards
-Ronald
+> Jason
 
+Sebastian
