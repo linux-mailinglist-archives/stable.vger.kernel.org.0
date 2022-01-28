@@ -2,93 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE13449FD27
-	for <lists+stable@lfdr.de>; Fri, 28 Jan 2022 16:54:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2794249FD9B
+	for <lists+stable@lfdr.de>; Fri, 28 Jan 2022 17:06:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349705AbiA1PyX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jan 2022 10:54:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34494 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243235AbiA1PyX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Jan 2022 10:54:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDDF2C061714;
-        Fri, 28 Jan 2022 07:54:22 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 802E760EE2;
-        Fri, 28 Jan 2022 15:54:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9402CC340EA;
-        Fri, 28 Jan 2022 15:54:21 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="EKRHKL+b"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1643385259;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=IrsMD9OsKnJJ5L2qqq1WV5CMlphc6Ingdz/kQiF3QcQ=;
-        b=EKRHKL+bbc7MI4YgCyb3InTqglzkXHpilwRMb/jA71BbCD70Izf+VA5yL9jE+xB445nS1p
-        4+zpnSDTATTfRj9nno35fxSKgUf6Or1nY0EAW4lU0de7DdYokzkfe6lq3LmfEgWr1zfwuL
-        JeimoivF/QDg0F3i3ewBtUFLkh/SqOc=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 416aa0ab (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Fri, 28 Jan 2022 15:54:19 +0000 (UTC)
-Received: by mail-yb1-f178.google.com with SMTP id r65so19629923ybc.11;
-        Fri, 28 Jan 2022 07:54:18 -0800 (PST)
-X-Gm-Message-State: AOAM532RgbxPWqXkNTV0V/ZU6LNoshsHoZbOhJVxZ/kFTO9WXgR79kT4
-        e6T9IGz/Lad19yVjcXqa+iB6b2ereOeE9AOrwUU=
-X-Google-Smtp-Source: ABdhPJwQEp72NgKzBtMW8AWhE5kN/yjyXnCzJm7PZHhYkzLlNhnifjowLdZ+skVQ3dDAKPtVT+GCbcsj5iIZNIhTMNc=
-X-Received: by 2002:a25:bd08:: with SMTP id f8mr5998167ybk.121.1643385257209;
- Fri, 28 Jan 2022 07:54:17 -0800 (PST)
+        id S1349923AbiA1QGA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jan 2022 11:06:00 -0500
+Received: from mout.gmx.net ([212.227.15.19]:53215 "EHLO mout.gmx.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S234788AbiA1QGA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 28 Jan 2022 11:06:00 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.net;
+        s=badeba3b8450; t=1643385958;
+        bh=4macMQryATn0a9e7Su1UA9Wf+EsDWpQOtJ0zx44KV1E=;
+        h=X-UI-Sender-Class:Date:From:Subject:To:Cc;
+        b=Tc1Oyw+kNwcc3d3euN132DEQXQqbMSoUGANs2E+5kwec9O78D8gzM0q+A3pqNkNKd
+         9/nXyvL30dw6jb2Em6bAkoIVkAq5i0dhSjPCC1fvfBDz/JCTdzR2ah0L8zECrsOPII
+         84jWECsd+erBcGGThrPQfdyFUNNiWA9P0db1oNoI=
+X-UI-Sender-Class: 01bb95c1-4bf8-414a-932a-4f6e2808ef9c
+Received: from [192.168.100.20] ([46.142.35.55]) by mail.gmx.net (mrgmx005
+ [212.227.17.190]) with ESMTPSA (Nemesis) id 1MFsUv-1n2EHZ24gJ-00HLRa; Fri, 28
+ Jan 2022 17:05:58 +0100
+Message-ID: <47af10ef-c043-88d7-3fed-9a4a39369340@gmx.de>
+Date:   Fri, 28 Jan 2022 17:05:58 +0100
 MIME-Version: 1.0
-References: <CAHmME9pb9A4SN6TTjNvvxKqw1L3gXVOX7KKihfEH4AgKGNGZ2A@mail.gmail.com>
- <20220128153344.34211-1-Jason@zx2c4.com> <YfQPVp8TULSq3V+l@linutronix.de>
-In-Reply-To: <YfQPVp8TULSq3V+l@linutronix.de>
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date:   Fri, 28 Jan 2022 16:54:06 +0100
-X-Gmail-Original-Message-ID: <CAHmME9pmdeLBKJbTaVQv-z9J81qKA=R4uoZ1DeXABy6Lt3bXuA@mail.gmail.com>
-Message-ID: <CAHmME9pmdeLBKJbTaVQv-z9J81qKA=R4uoZ1DeXABy6Lt3bXuA@mail.gmail.com>
-Subject: Re: [PATCH] random: remove batched entropy locking
-To:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc:     Andy Lutomirski <luto@amacapital.net>,
-        =?UTF-8?Q?Jonathan_Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
-        "Theodore Ts'o" <tytso@mit.edu>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
-        Waiman Long <longman@redhat.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.5.0
+From:   Ronald Warsow <rwarsow@gmx.de>
+Subject: Re: [PATCH 5.16 0/9] 5.16.4-rc1 review
+To:     linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Content-Language: de-DE
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: V03:K1:ZEWUY2lShNjQXNZlZC2vW1v4ij83Aeho2gSjkN0+2pXPqG9xQfc
+ U0kuPxj2DquPQlJYMNFgcGG5PzDDorHRmy/MQWPDgMdeyOyzqLCHzbTazurT2qGWOljKpHl
+ VpNx4YxZd0fbd60paoHYdi9aEux7xB3A/2/YfynJ/smW2VOj/LdyGBpbKWgTaP78gQgNq7W
+ XSHartLTGe0lE31mNkZMg==
+X-Spam-Flag: NO
+X-UI-Out-Filterresults: notjunk:1;V03:K0:cq1S47DohJM=:cGqpeGZOayaENC/C1ZOhv9
+ sOFPtzJOqD5RTFwD7WzeE3hLV3pT5b+DgCbx+URkanO2ylarYT5jLbZjsU7Mf1s2yR0Aja8/P
+ lUtTmJRwAbzj5Txt2jW3FmfehvXLSN36b68VbhcXkBVleZJSa6Wtrq3npZVOw9/BEVdAoO2rV
+ N9VifFoK2aWXQ0GmKufQl1YiLpBwP11NFq9S9d0ipvgB5gRTtw2Z05EMlRhGXrdRnyHE40+SG
+ OyN375LcqsOUcVYNJUayp5tXt1pCpS1/23hTSM3UsjQP1hiVrzdNeq04ApucCJDnKzhlzvVZ6
+ X0htS4aTj1dx6VhNwF539Q/3SfZNYzdwBOnzgxrEap+60CWDre5YGlZIw6hy0U1lK1tDrEG1K
+ JZ0X8bAceGDh/sTbUcBsYRVB2p3vMb5rLyE+SVbC2mE3rnRR+SudXTY/cIAy3BTY5O+wgcrBm
+ IVcjX2pnaMQnnbiDIb4D6lD1msALsdWREowfaZiry0CpBwzvhXqnjzZ9XiY9Zmkqk89u3TGth
+ /yn0nFmINbnV1wdfBm6DKzgQnqnprotyLglrk0SkJ5pj7QE0Tg4iVFCHpnkhvYe2VY2F6RhCY
+ YSI5l5UFIEkRRqJvKPbqRzYapt9vSqZeKp6Gheq3dBXRhuN4zqJLckKCCFNMq+V+GtoMj/W9J
+ Q+FD4spl4zz8BIUV9MJ9Ovrzye/xRPHqL4rjKZZSU3nBlNFVveHpR8ljUdU7OCfmzdAVKLKDs
+ sEuy9t6WuYtoc20xn/agWoSc2/2Uepiolkm6k/JxaSxo8ObyvPKDNOJCFqPh5JXF+Rc5AfEU6
+ TALd2+npcGhb+A7onM6C6BXt/jHejDJMEq260uAjQoTD4Bu/UuJx3w+BAAZHEEvuVGnM9J2Df
+ iJ61Gy6nGBXmjaFMoF7xTXoNoCxfecmlCqy+KPqwB2UvSA+7wfiBVmt74ikCrGXsjkI7vXD0l
+ S8xuMSq9u7so2Ej1FLw+ouDhegXEI3/d1JLd8mEv0PjgMpENYPE4VPckDNbEqXX3WfdyXUeUt
+ hKH/WHsfxX2OEo8NrhldkRqaPP0sMYEFvS9V37za6iGT+2IdpGGyr5hnea5b5kSoPzZcdsCsl
+ cQAtvLwR2R30rE=
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sebastian,
+hallo Greg
 
-On Fri, Jan 28, 2022 at 4:44 PM Sebastian Andrzej Siewior
-<bigeasy@linutronix.de> wrote:
-> NO. Could we please look at my RANDOM patches first?
-> I can repost my rebased patched if there no objection.
+5.16.4-rc1
 
-I did, and my reply is here:
-https://lore.kernel.org/lkml/CAHmME9pzdXyD0oRYyCoVUSqqsA9h03-oR7kcNhJuPEcEMTJYgw@mail.gmail.com/
+compiles, boots and runs on my x86_64
+(Intel i5-11400, Fedora 35)
 
-I was hoping for a series that addresses these issues. As I mentioned
-before, I'm not super keen on deferring that processing in a
-conditional case and having multiple entry ways into that same
-functionality. I don't think that's worth it, especially if your
-actual concern is just userspace calling RNDADDTOENTCNT too often
-(which can be safely ratelimited). I don't think that thread needs to
-spill over here, though, so feel free to follow up with a v+1 on that
-series and I'll happily take a look. Alternatively, if you'd like to
-approach this by providing a patch for Jonathan's issue, that makes
-sense too. So far, the things in front of me are: 1) your patchset
-from last month that has unresolved issues, and 2) Andy's thing, which
-maybe will solve the problem (or it won't?). A third alternative from
-you would be most welcome too.
+Thanks
 
-Jason
+Tested-by: Ronald Warsow <rwarsow@gmx.de>
+
+
+regards
+Ronald
+
