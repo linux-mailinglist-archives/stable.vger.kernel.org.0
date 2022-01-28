@@ -2,91 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B31D49F367
-	for <lists+stable@lfdr.de>; Fri, 28 Jan 2022 07:17:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D2AF49F378
+	for <lists+stable@lfdr.de>; Fri, 28 Jan 2022 07:22:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346332AbiA1GRb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jan 2022 01:17:31 -0500
-Received: from smtp-relay-internal-1.canonical.com ([185.125.188.123]:49692
-        "EHLO smtp-relay-internal-1.canonical.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1346317AbiA1GRb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Jan 2022 01:17:31 -0500
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com [209.85.128.72])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-        (No client certificate requested)
-        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id AB3CF3F1D8
-        for <stable@vger.kernel.org>; Fri, 28 Jan 2022 06:17:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
-        s=20210705; t=1643350649;
-        bh=0t1V4zvmNPJT9wYj/Pd8jJat58ip8FOEKuqF28wuRD4=;
-        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-         In-Reply-To:Content-Type;
-        b=ZdRus7QXPg/hqA9G2jvpSG/r/zc6jMY5EGxTTQOBJloYK+B9F0xYEUB53amld8ozu
-         gLFE7WqZqWLkpRwXqq7QFM5GIc/Tl5HrglZ+UZ7FTwVm/F8wsn84pfVgnPZR6q+s9k
-         7CB+M95rKFndO37/H8U4E0Zr1YlS9yms7nONaZKTmgUVDaHQ4IHGw5/0aGw73nZkDY
-         WEJH51NAS+q0WgbBa9QMlVITWzB9HTXFzXfPNgvOhDx7XjORgGWU067KUNLXwrOQhh
-         +7Rfh8m1Q/7YVevZ00nej/oeDGbbAyR09jP++VkcShoH4k+wLgEpavzGnBGyOxgt52
-         QyZg9dEhT2vYg==
-Received: by mail-wm1-f72.google.com with SMTP id q71-20020a1ca74a000000b003507f38e330so5310982wme.9
-        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 22:17:29 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent:subject
-         :content-language:to:cc:references:from:in-reply-to
-         :content-transfer-encoding;
-        bh=0t1V4zvmNPJT9wYj/Pd8jJat58ip8FOEKuqF28wuRD4=;
-        b=ZZBjvgi5N/CwZyInixzWLOrnju3UR8J4rtTXTDOnq8ma/Vt3l7rJKZ6dAEWcwoeOgd
-         WGnoQd4Ryf5v8iAKYvYKq7laGqNqef/KK/NbXSR3NIqYUqBKhAkY/jkuI0NWkF2B3kty
-         mFNQ6gLZ6b3ENbXNwAuvF9nJNsZt2Gl6m5UQXw8c4zX4QfVlCf+hUy/zG5q54jnNdGXC
-         U4fqDwHnyS4f1jcp2yxjy9Y64dShC3lKhDSELja9xETmvf0TDYQQmf6rkGMYHvL4J9qC
-         9IsTceOvDvwP5nJyql7Xd98Yvjp36ZNaa65+hx0LGK0ezFgzxikArwbom6yeasl4hYlo
-         yK6Q==
-X-Gm-Message-State: AOAM5306lQOV/jvJoQu1GQ3OUp21EJDVSSF0aN2B95+0yfwpILcEO2qY
-        ARTHJBREXvGrSJHFi4VEicd5xxqAp45Iz6EU2+/v6y7Tua9EmMlERF53LVEQL3jMDL1Z6SUXOhj
-        3VEbr9Oi25yHJ3MQIUuSRz0arjQXO6HEZSQ==
-X-Received: by 2002:adf:fb05:: with SMTP id c5mr5875241wrr.220.1643350649333;
-        Thu, 27 Jan 2022 22:17:29 -0800 (PST)
-X-Google-Smtp-Source: ABdhPJxnfGoUTSgGUq+FTJ1O5uTS7OjWZEbG246bwyKtGG3BSFUg0GOMLfkbUl4tx/4Z1J+yMAiWqg==
-X-Received: by 2002:adf:fb05:: with SMTP id c5mr5875223wrr.220.1643350649139;
-        Thu, 27 Jan 2022 22:17:29 -0800 (PST)
-Received: from [192.168.123.94] (ip-088-152-144-107.um26.pools.vodafone-ip.de. [88.152.144.107])
-        by smtp.gmail.com with ESMTPSA id m6sm1158698wmq.6.2022.01.27.22.17.27
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 27 Jan 2022 22:17:28 -0800 (PST)
-Message-ID: <6cd57022-6fe3-d065-dbe3-e9487894a94c@canonical.com>
-Date:   Fri, 28 Jan 2022 07:17:27 +0100
+        id S233202AbiA1GWs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jan 2022 01:22:48 -0500
+Received: from szxga01-in.huawei.com ([45.249.212.187]:35880 "EHLO
+        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230048AbiA1GWr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Jan 2022 01:22:47 -0500
+Received: from canpemm500006.china.huawei.com (unknown [172.30.72.56])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4JlS6B3261zcZxc;
+        Fri, 28 Jan 2022 14:21:54 +0800 (CST)
+Received: from localhost.localdomain (10.175.104.82) by
+ canpemm500006.china.huawei.com (7.192.105.130) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2308.21; Fri, 28 Jan 2022 14:22:45 +0800
+From:   Ziyang Xuan <william.xuanziyang@huawei.com>
+To:     <gregkh@linuxfoundation.org>, <socketcan@hartkopp.net>,
+        <mkl@pengutronix.de>, <davem@davemloft.net>,
+        <stable@vger.kernel.org>
+CC:     <netdev@vger.kernel.org>, <linux-can@vger.kernel.org>
+Subject: [PATCH 4.9] can: bcm: fix UAF of bcm op
+Date:   Fri, 28 Jan 2022 14:40:54 +0800
+Message-ID: <20220128064054.2434068-1-william.xuanziyang@huawei.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH] riscv/efi_stub: Fix get_boot_hartid_from_fdt() return
- value
-Content-Language: en-US
-To:     Sunil V L <sunilvl@ventanamicro.com>
-Cc:     linux-efi@vger.kernel.org, linux-riscv@lists.infradead.org,
-        linux-kernel@vger.kernel.org, Anup Patel <apatel@ventanamicro.com>,
-        stable@vger.kernel.org, Albert Ou <aou@eecs.berkeley.edu>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
-        Atish Patra <atishp@atishpatra.org>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Ard Biesheuvel <ardb@kernel.org>
-References: <20220128045004.4843-1-sunilvl@ventanamicro.com>
-From:   Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
-In-Reply-To: <20220128045004.4843-1-sunilvl@ventanamicro.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
+Content-Type:   text/plain; charset=US-ASCII
+X-Originating-IP: [10.175.104.82]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ canpemm500006.china.huawei.com (7.192.105.130)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/28/22 05:50, Sunil V L wrote:
-> The get_boot_hartid_from_fdt() function currently returns U32_MAX
-> for failure case which is not correct because U32_MAX is a valid
-> hartid value. This patch fixes the issue by returning error code.
-> 
-> Fixes: d7071743db31 ("RISC-V: Add EFI stub support.")
-> Cc: stable@vger.kernel.org
-> 
-> Signed-off-by: Sunil V L <sunilvl@ventanamicro.com>
+Stopping tasklet and hrtimer rely on the active state of tasklet and
+hrtimer sequentially in bcm_remove_op(), the op object will be freed
+if they are all unactive. Assume the hrtimer timeout is short, the
+hrtimer cb has been excuted after tasklet conditional judgment which
+must be false after last round tasklet_kill() and before condition
+hrtimer_active(), it is false when execute to hrtimer_active(). Bug
+is triggerd, because the stopping action is end and the op object
+will be freed, but the tasklet is scheduled. The resources of the op
+object will occur UAF bug.
 
-Reviewed-by: Heinrich Schuchardt <heinrich.schuchardt@canonical.com>
+Move hrtimer_cancel() behind tasklet_kill() and switch 'while () {...}'
+to 'do {...} while ()' to fix the op UAF problem.
+
+Fixes: a06393ed0316 ("can: bcm: fix hrtimer/tasklet termination in bcm op removal")
+Reported-by: syzbot+5ca851459ed04c778d1d@syzkaller.appspotmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
+---
+ net/can/bcm.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/net/can/bcm.c b/net/can/bcm.c
+index 369326715b9c..bfb507223468 100644
+--- a/net/can/bcm.c
++++ b/net/can/bcm.c
+@@ -761,21 +761,21 @@ static struct bcm_op *bcm_find_op(struct list_head *ops,
+ static void bcm_remove_op(struct bcm_op *op)
+ {
+ 	if (op->tsklet.func) {
+-		while (test_bit(TASKLET_STATE_SCHED, &op->tsklet.state) ||
+-		       test_bit(TASKLET_STATE_RUN, &op->tsklet.state) ||
+-		       hrtimer_active(&op->timer)) {
+-			hrtimer_cancel(&op->timer);
++		do {
+ 			tasklet_kill(&op->tsklet);
+-		}
++			hrtimer_cancel(&op->timer);
++		} while (test_bit(TASKLET_STATE_SCHED, &op->tsklet.state) ||
++			 test_bit(TASKLET_STATE_RUN, &op->tsklet.state) ||
++			 hrtimer_active(&op->timer));
+ 	}
+ 
+ 	if (op->thrtsklet.func) {
+-		while (test_bit(TASKLET_STATE_SCHED, &op->thrtsklet.state) ||
+-		       test_bit(TASKLET_STATE_RUN, &op->thrtsklet.state) ||
+-		       hrtimer_active(&op->thrtimer)) {
+-			hrtimer_cancel(&op->thrtimer);
++		do {
+ 			tasklet_kill(&op->thrtsklet);
+-		}
++			hrtimer_cancel(&op->thrtimer);
++		} while (test_bit(TASKLET_STATE_SCHED, &op->thrtsklet.state) ||
++			 test_bit(TASKLET_STATE_RUN, &op->thrtsklet.state) ||
++			 hrtimer_active(&op->thrtimer));
+ 	}
+ 
+ 	if ((op->frames) && (op->frames != &op->sframe))
+-- 
+2.25.1
+
