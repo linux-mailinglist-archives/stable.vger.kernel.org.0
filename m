@@ -2,84 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA8BD4A0046
-	for <lists+stable@lfdr.de>; Fri, 28 Jan 2022 19:42:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 323C54A006E
+	for <lists+stable@lfdr.de>; Fri, 28 Jan 2022 19:53:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343613AbiA1Sm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jan 2022 13:42:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45706 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237624AbiA1Smz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Jan 2022 13:42:55 -0500
-Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40991C061714
-        for <stable@vger.kernel.org>; Fri, 28 Jan 2022 10:42:55 -0800 (PST)
-Received: by mail-ej1-x62b.google.com with SMTP id h7so19004990ejf.1
-        for <stable@vger.kernel.org>; Fri, 28 Jan 2022 10:42:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=message-id:date:mime-version:user-agent:content-language:to:from
-         :subject:content-transfer-encoding;
-        bh=BdAVUo9jTeaXUKpBH+a+0gFDzqrn0mNTlBbAlAq9XM4=;
-        b=OBTsZorFhfVUvOSjpS0QbA5buxxdUlL+ZdDzKAoO6coVhoCB+FMoCue0iiWcc0Gp22
-         5ZWxpyGU+6Kzgt+j/qXDDX+cmwKdRKtL3bAwHzlE+G8GXeXhoXWHQRzWPDZ4RSVOclzH
-         okhPOxrFAIF8WcNJryWcw0ACvFQoZpBXQx7t0c4icmwrL8ah6YorHxNgUqcmF3vvnhtf
-         RCoYoePl+E3GfrfVcgyA1G+fNbzqzxZErD0JW+jYNCiIoD1A+rfkBqkUe0shYk0430n2
-         0bVhEOuUX5th7ZE6guzYEn+qLQJ6JOpqbOMi8EDwYWbdnFWBpHc5GbJSOVyRecAhKFF5
-         0DrA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version:user-agent
-         :content-language:to:from:subject:content-transfer-encoding;
-        bh=BdAVUo9jTeaXUKpBH+a+0gFDzqrn0mNTlBbAlAq9XM4=;
-        b=iN9kQK6YO3r0u/JTvANZT1A8nR7WSO998s8nJKBNZ8lVg17+z77/U4Vb9YLYcOC9ak
-         sn2ONMna5JBWD3GrgQ+WO9XB5rzTuSovpdbrsSz7KxPDTzAW8+z1+F+scEkr19dFVWjy
-         OVXZ/o6LYl49eEkDVoQvM0UEgB0j77k2HaXpPCl8zd+eWMoe7b0oRvwjA6iESt5weETf
-         0F2yvNY6YXXn3//x6m740hxcQ6yGcFaCpnKdEJziqL7Sdjh1TnoCnbL/wiqnvkUZdT5r
-         qBoI8bKuLj30ZZhV4/GKVKCO2/gvPZQ6Vf78gVA+0dNyxm1GOJU9nP72nIdahp1RBvWk
-         evIg==
-X-Gm-Message-State: AOAM532H38QPKuYxOuysJksTD2oZ018hdu02YtGvu8S6qmFrtc5PhUi2
-        hPti+Z2eX9QrQ6DMxUpPSU/USF84tHDF3w==
-X-Google-Smtp-Source: ABdhPJzXlPENbaJBzI0MZf0dFnUY7RWh+FKNFalAvyripwwRC24y2OnzdrNxt32bSI8OrXNYs1NHwA==
-X-Received: by 2002:a17:906:f93:: with SMTP id q19mr7880084ejj.413.1643395373826;
-        Fri, 28 Jan 2022 10:42:53 -0800 (PST)
-Received: from ?IPV6:fd01:5ca1:ab1e:88c1:2f31:26d3:625d:98e4? ([2a09:bac0:20::81f:a350])
-        by smtp.gmail.com with ESMTPSA id v14sm10355088ejy.77.2022.01.28.10.42.53
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 28 Jan 2022 10:42:53 -0800 (PST)
-Message-ID: <608b625e-9eb0-8320-c45c-e5671b44e58b@gmail.com>
-Date:   Fri, 28 Jan 2022 19:42:52 +0100
+        id S238714AbiA1SxG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jan 2022 13:53:06 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:57370 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238277AbiA1SxF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Jan 2022 13:53:05 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 833D261D2F
+        for <stable@vger.kernel.org>; Fri, 28 Jan 2022 18:53:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEC80C340EA;
+        Fri, 28 Jan 2022 18:53:03 +0000 (UTC)
+From:   Catalin Marinas <catalin.marinas@arm.com>
+To:     <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     D Scott Phillips <scott@os.amperecomputing.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH stable-5.9] arm64: errata: Fix exec handling in erratum 1418040 workaround
+Date:   Fri, 28 Jan 2022 18:53:01 +0000
+Message-Id: <20220128185301.1729818-1-catalin.marinas@arm.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Content-Language: en-US
-To:     stable@vger.kernel.org
-From:   syphyr <syphyr@gmail.com>
-Subject: Bluetooth regression on 5.10.94 LTS
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit causes a regression in Bluetooth by creating false 
-positives for malicious data:
+From: D Scott Phillips <scott@os.amperecomputing.com>
 
-Bluetooth: stop proccessing malicious adv data
+commit 38e0257e0e6f4fef2aa2966b089b56a8b1cfb75c upstream.
 
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commit/?h=v5.10.94&id=ffc9019bd991707701273c2e5d8aed472229fc4d
+The erratum 1418040 workaround enables CNTVCT_EL1 access trapping in EL0
+when executing compat threads. The workaround is applied when switching
+between tasks, but the need for the workaround could also change at an
+exec(), when a non-compat task execs a compat binary or vice versa. Apply
+the workaround in arch_setup_new_exec().
 
+This leaves a small window of time between SET_PERSONALITY and
+arch_setup_new_exec where preemption could occur and confuse the old
+workaround logic that compares TIF_32BIT between prev and next. Instead, we
+can just read cntkctl to make sure it's in the state that the next task
+needs. I measured cntkctl read time to be about the same as a mov from a
+general-purpose register on N1. Update the workaround logic to examine the
+current value of cntkctl instead of the previous task's compat state.
 
-This commit fixes the issue above:
+Fixes: d49f7d7376d0 ("arm64: Move handling of erratum 1418040 into C code")
+Cc: <stable@vger.kernel.org> # 5.9.x
+Signed-off-by: D Scott Phillips <scott@os.amperecomputing.com>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20211220234114.3926-1-scott@os.amperecomputing.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+---
+ arch/arm64/kernel/process.c | 39 +++++++++++++++----------------------
+ 1 file changed, 16 insertions(+), 23 deletions(-)
 
-Bluetooth: refactor malicious adv data check
-
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?h=v5.17-rc1&id=899663be5e75dc0174dc8bda0b5e6826edf0b29a
-
-
-Please add to the stable release queue.
-
-
-Best Regards.
-
+diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
+index f7c42a7d09b6..c108d96a22db 100644
+--- a/arch/arm64/kernel/process.c
++++ b/arch/arm64/kernel/process.c
+@@ -515,34 +515,26 @@ static void entry_task_switch(struct task_struct *next)
+ 
+ /*
+  * ARM erratum 1418040 handling, affecting the 32bit view of CNTVCT.
+- * Assuming the virtual counter is enabled at the beginning of times:
+- *
+- * - disable access when switching from a 64bit task to a 32bit task
+- * - enable access when switching from a 32bit task to a 64bit task
++ * Ensure access is disabled when switching to a 32bit task, ensure
++ * access is enabled when switching to a 64bit task.
+  */
+-static void erratum_1418040_thread_switch(struct task_struct *prev,
+-					  struct task_struct *next)
++static void erratum_1418040_thread_switch(struct task_struct *next)
+ {
+-	bool prev32, next32;
+-	u64 val;
+-
+-	if (!IS_ENABLED(CONFIG_ARM64_ERRATUM_1418040))
+-		return;
+-
+-	prev32 = is_compat_thread(task_thread_info(prev));
+-	next32 = is_compat_thread(task_thread_info(next));
+-
+-	if (prev32 == next32 || !this_cpu_has_cap(ARM64_WORKAROUND_1418040))
++	if (!IS_ENABLED(CONFIG_ARM64_ERRATUM_1418040) ||
++	    !this_cpu_has_cap(ARM64_WORKAROUND_1418040))
+ 		return;
+ 
+-	val = read_sysreg(cntkctl_el1);
+-
+-	if (!next32)
+-		val |= ARCH_TIMER_USR_VCT_ACCESS_EN;
++	if (is_compat_thread(task_thread_info(next)))
++		sysreg_clear_set(cntkctl_el1, ARCH_TIMER_USR_VCT_ACCESS_EN, 0);
+ 	else
+-		val &= ~ARCH_TIMER_USR_VCT_ACCESS_EN;
++		sysreg_clear_set(cntkctl_el1, 0, ARCH_TIMER_USR_VCT_ACCESS_EN);
++}
+ 
+-	write_sysreg(val, cntkctl_el1);
++static void erratum_1418040_new_exec(void)
++{
++	preempt_disable();
++	erratum_1418040_thread_switch(current);
++	preempt_enable();
+ }
+ 
+ /*
+@@ -560,7 +552,7 @@ __notrace_funcgraph struct task_struct *__switch_to(struct task_struct *prev,
+ 	entry_task_switch(next);
+ 	uao_thread_switch(next);
+ 	ssbs_thread_switch(next);
+-	erratum_1418040_thread_switch(prev, next);
++	erratum_1418040_thread_switch(next);
+ 
+ 	/*
+ 	 * Complete any pending TLB or cache maintenance on this CPU in case
+@@ -619,6 +611,7 @@ void arch_setup_new_exec(void)
+ 	current->mm->context.flags = is_compat_task() ? MMCF_AARCH32 : 0;
+ 
+ 	ptrauth_thread_init_user(current);
++	erratum_1418040_new_exec();
+ }
+ 
+ #ifdef CONFIG_ARM64_TAGGED_ADDR_ABI
