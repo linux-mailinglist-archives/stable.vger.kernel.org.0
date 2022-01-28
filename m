@@ -2,126 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86FCA49F69D
-	for <lists+stable@lfdr.de>; Fri, 28 Jan 2022 10:47:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B09049F6CE
+	for <lists+stable@lfdr.de>; Fri, 28 Jan 2022 11:05:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347707AbiA1Jra (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jan 2022 04:47:30 -0500
-Received: from mga03.intel.com ([134.134.136.65]:15409 "EHLO mga03.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238349AbiA1Jra (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 28 Jan 2022 04:47:30 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1643363250; x=1674899250;
-  h=to:cc:references:from:subject:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=Fq9sQu/cN/lUsmIqrFTexk8KVRNWRRIf2vdhORwEjNA=;
-  b=Qf3oLsjHRAf/su0eHffVmM+qMudN9axNyeuXp7+DAQV+kRHRJqrDie1n
-   sOIjpUUpqFhBPBK37gBj+78iRis4+AUZA8hi8XttIlKnF8tJgXN1B68eu
-   lNLmcBj6zo8aDfC6AidMgdWkRCfYFr+Ju9HgYHDsV21TGddo4CCRk9oDf
-   NE/NSyvhnZjjautVbn17kCmZZAizxh4yVIw6tHNcWKYmgHYy/ZMQHcvEk
-   6iUXZr93l3uw2qfF0OWX79N8JG60Na63Iu02Dc7dy5QGkeHVRsWMC5XGj
-   gZ9k/x+9NAbsHIY8T6t2FVCLlv7idYhs7fhv3Q07IPfjcVWdI6ljY4LYy
-   Q==;
-X-IronPort-AV: E=McAfee;i="6200,9189,10240"; a="247035970"
-X-IronPort-AV: E=Sophos;i="5.88,323,1635231600"; 
-   d="scan'208";a="247035970"
-Received: from orsmga001.jf.intel.com ([10.7.209.18])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2022 01:47:28 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.88,323,1635231600"; 
-   d="scan'208";a="564147519"
-Received: from mattu-haswell.fi.intel.com (HELO [10.237.72.199]) ([10.237.72.199])
-  by orsmga001.jf.intel.com with ESMTP; 28 Jan 2022 01:47:26 -0800
-To:     =?UTF-8?B?6LCi5rOT5a6H?= <xiehongyu1@kylinos.cn>,
-        Greg KH <gregkh@linuxfoundation.org>
-Cc:     Hongyu Xie <xy521521@gmail.com>, mathias.nyman@intel.com,
-        linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-        125707942@qq.com, stable@vger.kernel.org
-References: <20220126094126.923798-1-xy521521@gmail.com>
- <YfEZFtf9K8pFC8Mw@kroah.com>
- <c7f6a8bb-76b6-cd2d-7551-b599a8276f5c@kylinos.cn>
- <YfEnbRW3oU0ouGqH@kroah.com>
- <e86972d3-e4a0-ad81-45ea-21137e3bfcb6@kylinos.cn>
- <7af5b318-b1ac-0c74-1782-04ba50a3b5fa@linux.intel.com>
- <ce40f4cd-a110-80b1-f766-e94dd8cedc7e@kylinos.cn>
-From:   Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: Re: [PATCH -next] xhci: fix two places when dealing with return value
- of function xhci_check_args
-Message-ID: <6da59964-ce0e-c202-8a9c-a753a1908f3e@linux.intel.com>
-Date:   Fri, 28 Jan 2022 11:48:57 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.14.0
+        id S241004AbiA1KFk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jan 2022 05:05:40 -0500
+Received: from smtp-relay-internal-1.canonical.com ([185.125.188.123]:55996
+        "EHLO smtp-relay-internal-1.canonical.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S237493AbiA1KFk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Jan 2022 05:05:40 -0500
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com [209.85.208.72])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by smtp-relay-internal-1.canonical.com (Postfix) with ESMTPS id 5E3713F1A4
+        for <stable@vger.kernel.org>; Fri, 28 Jan 2022 10:05:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1643364338;
+        bh=O2AwCzmYc8oJyRvt38Q3eFdAEi62fT7JJ41T7HDRaZY=;
+        h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+         To:Cc:Content-Type;
+        b=jFynAPC5jS3TuSW0DwBFoBtJMNpyruFX8Ud/SKY65dHlfFes688+9yvc2QTtU+4bn
+         L+fKJrSxitVSAHYJS0Lb+lLPdLNGVSkUQWVAO8AmIXdD9/0T9pXt/nlKX2Dg5JZLvg
+         H8BjAwM5L0VoO7mDKvh7sbWtnRYDMn8tRNFmfzuHyGPOIvRAxcWk6hRGxyfrBa42ly
+         M84OT647Chcd/U3H8T1CzYex/OEjWSKoUMR3kpTmI5/1/LWKK2Sw02hIIZBPuKNear
+         bgOKMy5GSRw6czM5B5u2tVYp4mrImUzZjAYDfSiGZ7rxJNJU0a8OjkiHgfe9iZz7uy
+         cgbx9VXJCrjeg==
+Received: by mail-ed1-f72.google.com with SMTP id w23-20020a50d797000000b00406d33c039dso2819481edi.11
+        for <stable@vger.kernel.org>; Fri, 28 Jan 2022 02:05:38 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=O2AwCzmYc8oJyRvt38Q3eFdAEi62fT7JJ41T7HDRaZY=;
+        b=2m7+Gs8kjlKhCNxWkRk4Suu+CmPTCDS43mEwYRc7oTlQp+yX/GNSOvkcd9RYRlCMuW
+         uW+OBY9T5KOKjl1THB5APmY/Yw6rsZocnaPF5YSIYJzY0BNjNmVUxiJpmSt0mbGKROHp
+         gK6YarFU0m2PS1ulRQ2HGEYatyCvA4M0B3Zp6g/R+MdSw0mSXaWeFnRe5WtUoYGIglik
+         QBAO6uAQHEFh0Wqo0RlIlZCWbAtywt8Ti72HL9KFDqxOkl3XxztaNlOdxh89F8tBnPrD
+         1jJZvwCs+11gunwneFtDsC13P03it1gzxaUCUsiyUQrNvoOY+hvyyplM1EsE3zYklVZ6
+         /YVQ==
+X-Gm-Message-State: AOAM531WjDoUfN7lC4btHHNkRNSTByjh/YXLis214AN51VxhOMCRph0c
+        PIn8UiDD//VN3aiurZkB1CzvRpCHPZoYtVsL2DkaeI6NFkKYkpYcIe5KqtM7Y4mhBFYiqpsyBro
+        lnKwoxRuomZMz6JrQnGEyyzCAc4wF5hseK898GoV8TqmjZDe/Tw==
+X-Received: by 2002:a05:6402:424a:: with SMTP id g10mr7509437edb.309.1643364337995;
+        Fri, 28 Jan 2022 02:05:37 -0800 (PST)
+X-Google-Smtp-Source: ABdhPJzsVnSwgUFr96As1FnWBQoNDpcCVx1aZj6cMWJvV98yVlEvSPf2G1oW4NedbPBIYoEh/UJEBA7P84mQwLL5yCU=
+X-Received: by 2002:a05:6402:424a:: with SMTP id g10mr7509413edb.309.1643364337738;
+ Fri, 28 Jan 2022 02:05:37 -0800 (PST)
 MIME-Version: 1.0
-In-Reply-To: <ce40f4cd-a110-80b1-f766-e94dd8cedc7e@kylinos.cn>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+References: <20220126171442.1338740-1-aurelien@aurel32.net>
+In-Reply-To: <20220126171442.1338740-1-aurelien@aurel32.net>
+From:   Alexandre Ghiti <alexandre.ghiti@canonical.com>
+Date:   Fri, 28 Jan 2022 11:05:26 +0100
+Message-ID: <CA+zEjCvwsM=DaUqB8Hv_=dXRdauz6hjeFE1MK_A6=QjrsW2EyQ@mail.gmail.com>
+Subject: Re: [PATCH] riscv: fix build with binutils 2.38
+To:     Aurelien Jarno <aurelien@aurel32.net>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Kito Cheng <kito.cheng@gmail.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        "open list:RISC-V ARCHITECTURE" <linux-riscv@lists.infradead.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi
+Hi Aurelien,
 
-On 28.1.2022 5.48, 谢泓宇 wrote:
-> Hi Mathias,
-> 
->> xhci_urb_enqueue() shouldn't be called for roothub urbs, but if it is then we
->> should continue to return -EINVAL
-> 
-> xhci_urb_enqueue() won't be called for roothub urbs, only for none roothub urbs(see usb_hcd_submit_urb()).> 
-> So xhci_urb_enqueue() will not get 0 from xhci_check_args().
-> 
-> Still return -EINVAL if xhci_check_args() returns 0 in xhci_urb_enqueue()?
-> 
+On Wed, Jan 26, 2022 at 6:41 PM Aurelien Jarno <aurelien@aurel32.net> wrote:
+>
+> From version 2.38, binutils default to ISA spec version 20191213. This
+> means that the csr read/write (csrr*/csrw*) instructions and fence.i
+> instruction has separated from the `I` extension, become two standalone
+> extensions: Zicsr and Zifencei. As the kernel uses those instruction,
+> this causes the following build failure:
+>
+>   CC      arch/riscv/kernel/vdso/vgettimeofday.o
+>   <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h: Assembler messages:
+>   <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
+>   <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
+>   <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
+>   <<BUILDDIR>>/arch/riscv/include/asm/vdso/gettimeofday.h:71: Error: unrecognized opcode `csrr a5,0xc01'
+>
+> The fix is to specify those extensions explicitely in -march. However as
+> older binutils version do not support this, we first need to detect
+> that.
+>
+> Cc: stable@vger.kernel.org # 4.15+
+> Cc: Kito Cheng <kito.cheng@gmail.com>
+> Signed-off-by: Aurelien Jarno <aurelien@aurel32.net>
+> ---
+>  arch/riscv/Makefile | 6 ++++++
+>  1 file changed, 6 insertions(+)
+>
+> diff --git a/arch/riscv/Makefile b/arch/riscv/Makefile
+> index 8a107ed18b0d..7d81102cffd4 100644
+> --- a/arch/riscv/Makefile
+> +++ b/arch/riscv/Makefile
+> @@ -50,6 +50,12 @@ riscv-march-$(CONFIG_ARCH_RV32I)     := rv32ima
+>  riscv-march-$(CONFIG_ARCH_RV64I)       := rv64ima
+>  riscv-march-$(CONFIG_FPU)              := $(riscv-march-y)fd
+>  riscv-march-$(CONFIG_RISCV_ISA_C)      := $(riscv-march-y)c
+> +
+> +# Newer binutils versions default to ISA spec version 20191213 which moves some
+> +# instructions from the I extension to the Zicsr and Zifencei extensions.
+> +toolchain-need-zicsr-zifencei := $(call cc-option-yn, -march=$(riscv-march-y)_zicsr_zifencei)
+> +riscv-march-$(toolchain-need-zicsr-zifencei) := $(riscv-march-y)_zicsr_zifencei
+> +
+>  KBUILD_CFLAGS += -march=$(subst fd,,$(riscv-march-y))
+>  KBUILD_AFLAGS += -march=$(riscv-march-y)
+>
+> --
+> 2.34.1
+>
+>
 
-Yes. That is what it used to return. 
-This is more about code maintaining practice than this specific patch.
+That fixes our kernel build with the new binutils, so you can add:
 
-Only make the necessary change to fix a bug, especially if the patch is going
-to stable kernels. 
-The change to return success ("0") instead of -EINVAL in xhci_urb_enqueue() for 
-roothub URBs is irrelevant in fixing your issue.
+Tested-by: Alexandre Ghiti <alexandre.ghiti@canonical.com>
 
-Debugging future issues is a lot harder when there are small undocumented
-unrelated functional changes scattered around bugfixing patches.
+Thanks for working on this!
 
-Other reason is that even if you can be almost certain xhci_urb_enqueue() won't
-be called for roothub urbs for this kernel version, it's possible some old stable
-kernel code looks very different, and this change can break that stable version.
+Alex
 
-Seemingly odd checks in code can indicate the old original code was flawed, and
-quickly worked around by adding the odd check.
-That kernel version might still depend on this odd check even if newer versions
-are fixed properly.
-
->>
->> xhci_check_args() should be rewritten later, but first we want a targeted fix
->> that can go to stable.
->>
->> Your original patch would be ok after following modification:
->> if (ret <= 0)
->>     return ret ? ret : -EINVAL;
-> 
-> I have two questions:
-> 
->     1) Why return -EINVAL for roothub urbs?
-
-- For all reasons stated above
-- Because it used to, and changing it doesn't fix anything
-- Because urbs sent to xhci_urb_enqueue() should have a valid urb->dev->parent,
-  if they don't have it then they are INVALID
-
-> 
->     2) Should I change all the return statements about xhci_check_args() in drivers/usb/host/xhci.c?
-> 
->     There are 6 of them.
-
-Only make sure your patch doesn't change the functionality unnecessarily.
-There are two places where we return -EINVAL if xhci_check_args() returns 0:
-xhci_urb_enqueue() and xhci_check_streams_endpoint()
-Keep that functionality.
-
-Thanks
-Mathias
+> _______________________________________________
+> linux-riscv mailing list
+> linux-riscv@lists.infradead.org
+> http://lists.infradead.org/mailman/listinfo/linux-riscv
