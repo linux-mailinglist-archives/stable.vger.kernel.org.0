@@ -2,99 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A487349F22F
-	for <lists+stable@lfdr.de>; Fri, 28 Jan 2022 04:58:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4040249F294
+	for <lists+stable@lfdr.de>; Fri, 28 Jan 2022 05:50:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345945AbiA1D6L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jan 2022 22:58:11 -0500
-Received: from szxga01-in.huawei.com ([45.249.212.187]:16931 "EHLO
-        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236975AbiA1D6L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 22:58:11 -0500
-Received: from canpemm500006.china.huawei.com (unknown [172.30.72.57])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4JlNqm3nbQzZf98;
-        Fri, 28 Jan 2022 11:54:12 +0800 (CST)
-Received: from localhost.localdomain (10.175.104.82) by
- canpemm500006.china.huawei.com (7.192.105.130) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2308.21; Fri, 28 Jan 2022 11:58:09 +0800
-From:   Ziyang Xuan <william.xuanziyang@huawei.com>
-To:     <gregkh@linuxfoundation.org>, <socketcan@hartkopp.net>,
-        <mkl@pengutronix.de>, <davem@davemloft.net>,
-        <stable@vger.kernel.org>
-CC:     <netdev@vger.kernel.org>, <linux-can@vger.kernel.org>
-Subject: [PATCH 4.4] can: bcm: fix UAF of bcm op
-Date:   Fri, 28 Jan 2022 12:16:17 +0800
-Message-ID: <20220128041617.2328561-1-william.xuanziyang@huawei.com>
+        id S1346076AbiA1EuP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jan 2022 23:50:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50158 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237235AbiA1EuO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 23:50:14 -0500
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A99BC06173B
+        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 20:50:14 -0800 (PST)
+Received: by mail-pg1-x52f.google.com with SMTP id t32so4202177pgm.7
+        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 20:50:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=ventanamicro.com; s=google;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=FD5pKwU2Fwdg7X48mCrqr+jAVcD4ZyeHTAqc+k2RM+c=;
+        b=B4CgcY0fEOxqhrw24tg4Q5GH/lXkTLByoWqfd2Mwf8j929EOPzS/1422VapoQYGodH
+         FiWXBWuWdBxfetOk3EkoRKBcrlec3LK1FH+jmYGYDR6hzgHm1lSVh9D6Owdq7QIHpHF4
+         V/Gqkvy0Yvn6ocSksO5aRQxpk6EnOid8UZRNNF/uJwaPk5n8bK+TTWfbz3OVnyLtmtVn
+         BCah28BN9fVtVIbp1qia6BJ9wszMUcpZYRJdsmkyBLeGA00rcQa7DRgqN4fBglwrIFye
+         4It2VtWQcF4fh06KHjEUe/lQ0af2DL76+nzrXJRYxAPuIX8NNJAR+ENw69J6e+sZEzY+
+         nQDg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=FD5pKwU2Fwdg7X48mCrqr+jAVcD4ZyeHTAqc+k2RM+c=;
+        b=nEg5t3xlBjCGTk9AUm3gErl+nzX8TMdRmxbsTYuJ9rqQBu0nD3ffaPJ9v+jN8pRAkH
+         DszQZJj+Sq8x1IUQ4JLRvCmIw+tI1SOBnzmc3b1kg0jXxP38BFX/sFqxKlk34OMBxZno
+         UG1KdJVJSGnh4QXhFezgrNm2QzEhDaIXpfMptlZdMFvyroEdSBiLc2M8bAgywwkWfNAX
+         jmSbTGOvOBOTNJNAuhdg+pc4Y9GiUwrrf8Eh3jFsBMP36WW+E1uZntkC/E2okdvCWBTD
+         y1Y3Fy9GXwzH2Zpw6p6mkZ4SJLTul/ZN8AqRy8WRQKgCw/bZcSVvD588iMT0a6E/Nv3I
+         3p/A==
+X-Gm-Message-State: AOAM530RpJmberFqjZ7cf0g9gPlozPb8KRV1445XvqVJPac3uQzQHZ6b
+        lJlmpzqDgtHcRaDrd4/J/E/l9A==
+X-Google-Smtp-Source: ABdhPJxsk7PAsAbzq8HVim93uXfpup+rKn0o1kD3wHiWk2p7hYt+rlgXyL4Lt/ufFIunBH/WWgYdMA==
+X-Received: by 2002:a63:1d4a:: with SMTP id d10mr5342186pgm.92.1643345413975;
+        Thu, 27 Jan 2022 20:50:13 -0800 (PST)
+Received: from sunil-ThinkPad-T490.dc1.ventanamicro.com ([49.206.3.187])
+        by smtp.gmail.com with ESMTPSA id oa10sm858023pjb.27.2022.01.27.20.50.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 27 Jan 2022 20:50:13 -0800 (PST)
+From:   Sunil V L <sunilvl@ventanamicro.com>
+To:     Ard Biesheuvel <ardb@kernel.org>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Albert Ou <aou@eecs.berkeley.edu>,
+        Atish Patra <atishp@atishpatra.org>
+Cc:     linux-efi@vger.kernel.org, linux-riscv@lists.infradead.org,
+        linux-kernel@vger.kernel.org,
+        Heinrich Schuchardt <xypron.glpk@gmx.de>,
+        Anup Patel <apatel@ventanamicro.com>,
+        Sunil V L <sunilvl@ventanamicro.com>, stable@vger.kernel.org
+Subject: [PATCH] riscv/efi_stub: Fix get_boot_hartid_from_fdt() return value
+Date:   Fri, 28 Jan 2022 10:20:04 +0530
+Message-Id: <20220128045004.4843-1-sunilvl@ventanamicro.com>
 X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [10.175.104.82]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- canpemm500006.china.huawei.com (7.192.105.130)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Stopping tasklet and hrtimer rely on the active state of tasklet and
-hrtimer sequentially in bcm_remove_op(), the op object will be freed
-if they are all unactive. Assume the hrtimer timeout is short, the
-hrtimer cb has been excuted after tasklet conditional judgment which
-must be false after last round tasklet_kill() and before condition
-hrtimer_active(), it is false when execute to hrtimer_active(). Bug
-is triggerd, because the stopping action is end and the op object
-will be freed, but the tasklet is scheduled. The resources of the op
-object will occur UAF bug.
+The get_boot_hartid_from_fdt() function currently returns U32_MAX
+for failure case which is not correct because U32_MAX is a valid
+hartid value. This patch fixes the issue by returning error code.
 
-Move hrtimer_cancel() behind tasklet_kill() and switch 'while () {...}'
-to 'do {...} while ()' to fix the op UAF problem.
-
-Fixes: a06393ed0316 ("can: bcm: fix hrtimer/tasklet termination in bcm op removal")
-Reported-by: syzbot+5ca851459ed04c778d1d@syzkaller.appspotmail.com
+Fixes: d7071743db31 ("RISC-V: Add EFI stub support.")
 Cc: stable@vger.kernel.org
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
----
- net/can/bcm.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/net/can/bcm.c b/net/can/bcm.c
-index 3e131dc5f0e5..549ee0de456f 100644
---- a/net/can/bcm.c
-+++ b/net/can/bcm.c
-@@ -737,21 +737,21 @@ static struct bcm_op *bcm_find_op(struct list_head *ops, canid_t can_id,
- static void bcm_remove_op(struct bcm_op *op)
+Signed-off-by: Sunil V L <sunilvl@ventanamicro.com>
+---
+ drivers/firmware/efi/libstub/riscv-stub.c | 17 ++++++++++-------
+ 1 file changed, 10 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/firmware/efi/libstub/riscv-stub.c b/drivers/firmware/efi/libstub/riscv-stub.c
+index 380e4e251399..9c460843442f 100644
+--- a/drivers/firmware/efi/libstub/riscv-stub.c
++++ b/drivers/firmware/efi/libstub/riscv-stub.c
+@@ -25,7 +25,7 @@ typedef void __noreturn (*jump_kernel_func)(unsigned int, unsigned long);
+ 
+ static u32 hartid;
+ 
+-static u32 get_boot_hartid_from_fdt(void)
++static int get_boot_hartid_from_fdt(void)
  {
- 	if (op->tsklet.func) {
--		while (test_bit(TASKLET_STATE_SCHED, &op->tsklet.state) ||
--		       test_bit(TASKLET_STATE_RUN, &op->tsklet.state) ||
--		       hrtimer_active(&op->timer)) {
--			hrtimer_cancel(&op->timer);
-+		do {
- 			tasklet_kill(&op->tsklet);
--		}
-+			hrtimer_cancel(&op->timer);
-+		} while (test_bit(TASKLET_STATE_SCHED, &op->tsklet.state) ||
-+			 test_bit(TASKLET_STATE_RUN, &op->tsklet.state) ||
-+			 hrtimer_active(&op->timer));
- 	}
+ 	const void *fdt;
+ 	int chosen_node, len;
+@@ -33,23 +33,26 @@ static u32 get_boot_hartid_from_fdt(void)
  
- 	if (op->thrtsklet.func) {
--		while (test_bit(TASKLET_STATE_SCHED, &op->thrtsklet.state) ||
--		       test_bit(TASKLET_STATE_RUN, &op->thrtsklet.state) ||
--		       hrtimer_active(&op->thrtimer)) {
--			hrtimer_cancel(&op->thrtimer);
-+		do {
- 			tasklet_kill(&op->thrtsklet);
--		}
-+			hrtimer_cancel(&op->thrtimer);
-+		} while (test_bit(TASKLET_STATE_SCHED, &op->thrtsklet.state) ||
-+			 test_bit(TASKLET_STATE_RUN, &op->thrtsklet.state) ||
-+			 hrtimer_active(&op->thrtimer));
- 	}
+ 	fdt = get_efi_config_table(DEVICE_TREE_GUID);
+ 	if (!fdt)
+-		return U32_MAX;
++		return -EINVAL;
  
- 	if ((op->frames) && (op->frames != &op->sframe))
+ 	chosen_node = fdt_path_offset(fdt, "/chosen");
+ 	if (chosen_node < 0)
+-		return U32_MAX;
++		return -EINVAL;
+ 
+ 	prop = fdt_getprop((void *)fdt, chosen_node, "boot-hartid", &len);
+ 	if (!prop || len != sizeof(u32))
+-		return U32_MAX;
++		return -EINVAL;
+ 
+-	return fdt32_to_cpu(*prop);
++	hartid = fdt32_to_cpu(*prop);
++	return 0;
+ }
+ 
+ efi_status_t check_platform_features(void)
+ {
+-	hartid = get_boot_hartid_from_fdt();
+-	if (hartid == U32_MAX) {
++	int ret;
++
++	ret = get_boot_hartid_from_fdt();
++	if (ret) {
+ 		efi_err("/chosen/boot-hartid missing or invalid!\n");
+ 		return EFI_UNSUPPORTED;
+ 	}
 -- 
 2.25.1
 
