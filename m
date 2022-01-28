@@ -2,120 +2,240 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA57649F1FE
-	for <lists+stable@lfdr.de>; Fri, 28 Jan 2022 04:49:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3850049F23A
+	for <lists+stable@lfdr.de>; Fri, 28 Jan 2022 05:07:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345823AbiA1DtZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 Jan 2022 22:49:25 -0500
-Received: from mailgw.kylinos.cn ([123.150.8.42]:40173 "EHLO nksmu.kylinos.cn"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S1345802AbiA1DtZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 Jan 2022 22:49:25 -0500
-X-UUID: facb723e0da54eb09d073fef8ee6ec25-20220128
-X-CPASD-INFO: 70958ec4a68e43d3a33cd22ff1ff1fb9
-        @gIBzVWWXkWSNVnqxg3avbYFkY5OUXlK1qGuGll-
-        WjlmVhH5xTWJsXVKBfG5QZWNdYVN_eGpQYl9gZFB5i3-XblBgXoZgUZB3hnJzVWiTkw==
-X-CPASD-FEATURE: 0.0
-X-CLOUD-ID: 70958ec4a68e43d3a33cd22ff1ff1fb9
-X-CPASD-SUMMARY: SIP:-1,APTIP:-2.0,KEY:0.0,FROMBLOCK:1,EXT:0.0,OB:0.0,URL:-5,T
-        VAL:143.0,ESV:0.0,ECOM:-5.0,ML:0.0,FD:0.0,CUTS:198.0,IP:-2.0,MAL:0.0,ATTNUM:0
-        .0,PHF:-5.0,PHC:-5.0,SPF:4.0,EDMS:-3,IPLABEL:4480.0,FROMTO:0,AD:0,FFOB:0.0,CF
-        OB:0.0,SPC:0.0,SIG:-5,AUF:13,DUF:32000,ACD:177,DCD:279,SL:0,AG:0,CFC:0.231,CF
-        SR:0.192,UAT:0,RAF:2,VERSION:2.3.4
-X-CPASD-ID: facb723e0da54eb09d073fef8ee6ec25-20220128
-X-CPASD-BLOCK: 1000
-X-CPASD-STAGE: 1, 1
-X-UUID: facb723e0da54eb09d073fef8ee6ec25-20220128
-X-User: xiehongyu1@kylinos.cn
-Received: from [172.20.4.10] [(116.128.244.169)] by nksmu.kylinos.cn
-        (envelope-from <xiehongyu1@kylinos.cn>)
-        (Generic MTA with TLSv1.2 ECDHE-RSA-AES128-GCM-SHA256 128/128)
-        with ESMTP id 1692616607; Fri, 28 Jan 2022 12:01:59 +0800
-Message-ID: <ce40f4cd-a110-80b1-f766-e94dd8cedc7e@kylinos.cn>
-Date:   Fri, 28 Jan 2022 11:48:34 +0800
+        id S1345873AbiA1EH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 Jan 2022 23:07:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40878 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236975AbiA1EHz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 Jan 2022 23:07:55 -0500
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D045C061714
+        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 20:07:55 -0800 (PST)
+Received: by mail-pf1-x42b.google.com with SMTP id e28so4988351pfj.5
+        for <stable@vger.kernel.org>; Thu, 27 Jan 2022 20:07:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=YzRQvh9TZYGDktZPxcViMqmwfSsvWZRUjGtpdoYDEbs=;
+        b=GEv8OvO/xaMMRJlQyQgdzB6pIm7bSRcyOg0AWUdK/+EDsoo2uMg5ma2gDh+mhIbvOz
+         21woPBk7Re5yplGJoz2xpPRCQmERQtKextv/O0tSJcSF02UfoP4VSjgQ46n/m2B4pgTe
+         NCcXA2+TRRkcblinYrZ2RKmY4M3RmtGbjgFbPYeKfeEEY+oq/748SHA16bKEefyEGT2G
+         ycSZTXBeQ4nEtv9D309r+1tE7HVve6lKHwgH8QwAfSm/zyqcu23BIXO9JHRuxtdIsEmv
+         Ou57l8aQXGX94ZBxvZnaPYIE7iDkvsK1pEqj+3x8R97dIa/XPm8JkiF1ICdZrVChC1tW
+         SsTw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=YzRQvh9TZYGDktZPxcViMqmwfSsvWZRUjGtpdoYDEbs=;
+        b=1HivD8rjgEIzajvUTBaGooZIllzeJlFXNEo58b4dcxqRZ6HHr1vgGSDCot2hVN+yXS
+         qKDoBQNeOcZMgYmvAogikv7wbNqXf9UB9D5U4mPkwrsG/2jT9Wnr5uz7HsEjdzlMJuVH
+         sl3BT0Fx50XvaDwDhpuS4mwPBe97wym7jmVD+lB3NRdrJ1sgzq/lv949qF5DyxqlrOiy
+         iClhyC439j0aFm+UdSzxSN7FM8AYw00yivCQTD0Sen539soRwJgrlP6AIDMtqzRc0wgM
+         ctJ3mbV6vWw6kDzGfeU0bUCtG7qGTejoNuCeC9usrBBI8gQhNIVFT7rVd0AVlvEMNS+5
+         OL7w==
+X-Gm-Message-State: AOAM5312IMuaXdGzUJpS8Lw97R7XW6SboGsZdaRVIbERv61t1+fhU0r3
+        WqIpcysaAlCg3vKa7Yq99LuErXHcYnZmhNrJ
+X-Google-Smtp-Source: ABdhPJw+XOJC0BzaiM1F9NII0q31VPRVJnjzWcaOWSX8J1Vq8hk5MoTvyUvI2+RF9w+TIHjMxPJOZA==
+X-Received: by 2002:a65:63d2:: with SMTP id n18mr5165126pgv.245.1643342874718;
+        Thu, 27 Jan 2022 20:07:54 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y41sm7554116pfa.213.2022.01.27.20.07.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 27 Jan 2022 20:07:54 -0800 (PST)
+Message-ID: <61f36c1a.1c69fb81.6ea5e.5ee5@mx.google.com>
+Date:   Thu, 27 Jan 2022 20:07:54 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.5.0
-Subject: Re: [PATCH -next] xhci: fix two places when dealing with return value
- of function xhci_check_args
-Content-Language: en-US
-To:     Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Greg KH <gregkh@linuxfoundation.org>
-Cc:     Hongyu Xie <xy521521@gmail.com>, mathias.nyman@intel.com,
-        linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-        125707942@qq.com, stable@vger.kernel.org
-References: <20220126094126.923798-1-xy521521@gmail.com>
- <YfEZFtf9K8pFC8Mw@kroah.com>
- <c7f6a8bb-76b6-cd2d-7551-b599a8276f5c@kylinos.cn>
- <YfEnbRW3oU0ouGqH@kroah.com>
- <e86972d3-e4a0-ad81-45ea-21137e3bfcb6@kylinos.cn>
- <7af5b318-b1ac-0c74-1782-04ba50a3b5fa@linux.intel.com>
-From:   =?UTF-8?B?6LCi5rOT5a6H?= <xiehongyu1@kylinos.cn>
-In-Reply-To: <7af5b318-b1ac-0c74-1782-04ba50a3b5fa@linux.intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v5.4.174-11-g7efd6d30182b
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.4
+Subject: stable-rc/queue/5.4 baseline: 126 runs,
+ 4 regressions (v5.4.174-11-g7efd6d30182b)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Mathias,
+stable-rc/queue/5.4 baseline: 126 runs, 4 regressions (v5.4.174-11-g7efd6d3=
+0182b)
 
-On 2022/1/27 17:43, Mathias Nyman wrote:
-> On 26.1.2022 14.49, Hongyu Xie wrote:
->
->>> Anyway, why is this unique to this one driver?  Why does it not show up
->>> for any other driver?
->> The whole thing is not about a particular driver. The thing is xhci_urb_enqueue shouldn't change the return value of xhci_check_args from -ENODEV to -EINVAL. Many other drivers only check if the return value of xchi_check_args is <= 0.
-> Agree, lets return -ENODEV when appropriate.
->
->>>> The whole point is, if xhci_check_args returns value A, xhci_urb_enqueque
->>>> shouldn't return any
->>>> other value, because that will change some driver's behavior(like r8152.c).
->>> But you are changing how the code currently works.  Are you sure you
->>> want to have this "succeed" if this is on a root hub?
->> Yes, I'm changing how the code currently works but not on a root hub.
->>>> 2."So if 0 is returned, you will now return that here, is that ok?
->>>> That is a change in functionality.
->>>> But this can only ever be the case for a root hub, is that ok?"
->>>>
->>>> It's the same logic, but now xhci_urb_enqueue can return -ENODEV if xHC is
->>>> halted.
->>>> If it happens on a root hub,  xhci_urb_enqueue won't be called.
->>>>
->>>> 3."Again, this means all is good?  Why is this being called for a root hub?"
->>>>
->>>> It is the same logic with the old one, but now xhci_check_streams_endpoint
->>>> can return -ENODEV if xHC is halted.
->>> This still feels wrong to me, but I'll let the maintainer decide, as I
->>> don't understand why a root hub is special here.
->> Thanks please. usb_submit_urb will call usb_hcd_submit_urb. And usb_hcd_submit_urb will call rh_urb_enqueue if it's on a root hub instead of calling hcd->driver->urb_enqueue(which is xhci_urb_enqueue in this case).
-> xhci_urb_enqueue() shouldn't be called for roothub urbs, but if it is then we
-> should continue to return -EINVAL
+Regressions Summary
+-------------------
 
-xhci_urb_enqueue() won't be called for roothub urbs, only for none 
-roothub urbs(see usb_hcd_submit_urb()).
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-So xhci_urb_enqueue() will not get 0 from xhci_check_args().
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-Still return -EINVAL if xhci_check_args() returns 0 in xhci_urb_enqueue()?
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
->
-> xhci_check_args() should be rewritten later, but first we want a targeted fix
-> that can go to stable.
->
-> Your original patch would be ok after following modification:
-> if (ret <= 0)
-> 	return ret ? ret : -EINVAL;
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
 
-I have two questions:
 
-     1) Why return -EINVAL for roothub urbs?
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
+el/v5.4.174-11-g7efd6d30182b/plan/baseline/
 
-     2) Should I change all the return statements about 
-xhci_check_args() in drivers/usb/host/xhci.c?
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.4
+  Describe: v5.4.174-11-g7efd6d30182b
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      7efd6d30182bdda3f31066197aa85f17eb181755 =
 
-     There are 6 of them.
 
->
-> Thanks
-> -Mathias
+
+Test Regressions
+---------------- =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61f3349507298a53ffabbd8a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.174-1=
+1-g7efd6d30182b/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.174-1=
+1-g7efd6d30182b/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61f3349507298a53ffabb=
+d8b
+        failing since 43 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61f334bc28224e852babbd23
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.174-1=
+1-g7efd6d30182b/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv2-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.174-1=
+1-g7efd6d30182b/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv2-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61f334bc28224e852babb=
+d24
+        failing since 43 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61f3349407298a53ffabbd87
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.174-1=
+1-g7efd6d30182b/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.174-1=
+1-g7efd6d30182b/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
+m-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61f3349407298a53ffabb=
+d88
+        failing since 43 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =
+
+
+
+platform                 | arch | lab          | compiler | defconfig      =
+    | regressions
+-------------------------+------+--------------+----------+----------------=
+----+------------
+qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/61f334bb28224e852babbd1c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.174-1=
+1-g7efd6d30182b/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv3-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.174-1=
+1-g7efd6d30182b/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
+-virt-gicv3-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/61f334bb28224e852babb=
+d1d
+        failing since 43 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
+ail: v5.4.165-18-ge938927511cb) =
+
+ =20
