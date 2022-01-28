@@ -2,30 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 323C54A006E
-	for <lists+stable@lfdr.de>; Fri, 28 Jan 2022 19:53:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DB7574A0076
+	for <lists+stable@lfdr.de>; Fri, 28 Jan 2022 19:54:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238714AbiA1SxG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jan 2022 13:53:06 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:57370 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238277AbiA1SxF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Jan 2022 13:53:05 -0500
+        id S238277AbiA1SyP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jan 2022 13:54:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48216 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230165AbiA1SyO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Jan 2022 13:54:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD4D6C061714
+        for <stable@vger.kernel.org>; Fri, 28 Jan 2022 10:54:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 833D261D2F
-        for <stable@vger.kernel.org>; Fri, 28 Jan 2022 18:53:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEC80C340EA;
-        Fri, 28 Jan 2022 18:53:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4651B61BF2
+        for <stable@vger.kernel.org>; Fri, 28 Jan 2022 18:54:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 978F8C340E7;
+        Fri, 28 Jan 2022 18:54:12 +0000 (UTC)
 From:   Catalin Marinas <catalin.marinas@arm.com>
 To:     <stable@vger.kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     D Scott Phillips <scott@os.amperecomputing.com>,
         Marc Zyngier <maz@kernel.org>
-Subject: [PATCH stable-5.9] arm64: errata: Fix exec handling in erratum 1418040 workaround
-Date:   Fri, 28 Jan 2022 18:53:01 +0000
-Message-Id: <20220128185301.1729818-1-catalin.marinas@arm.com>
+Subject: [PATCH stable-5.4] arm64: errata: Fix exec handling in erratum 1418040 workaround
+Date:   Fri, 28 Jan 2022 18:54:10 +0000
+Message-Id: <20220128185410.1729965-1-catalin.marinas@arm.com>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -62,10 +65,10 @@ Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
  1 file changed, 16 insertions(+), 23 deletions(-)
 
 diff --git a/arch/arm64/kernel/process.c b/arch/arm64/kernel/process.c
-index f7c42a7d09b6..c108d96a22db 100644
+index f61ef46ebff7..d07fbc21f14c 100644
 --- a/arch/arm64/kernel/process.c
 +++ b/arch/arm64/kernel/process.c
-@@ -515,34 +515,26 @@ static void entry_task_switch(struct task_struct *next)
+@@ -500,34 +500,26 @@ static void entry_task_switch(struct task_struct *next)
  
  /*
   * ARM erratum 1418040 handling, affecting the 32bit view of CNTVCT.
@@ -114,16 +117,16 @@ index f7c42a7d09b6..c108d96a22db 100644
  }
  
  /*
-@@ -560,7 +552,7 @@ __notrace_funcgraph struct task_struct *__switch_to(struct task_struct *prev,
- 	entry_task_switch(next);
+@@ -546,7 +538,7 @@ __notrace_funcgraph struct task_struct *__switch_to(struct task_struct *prev,
  	uao_thread_switch(next);
+ 	ptrauth_thread_switch(next);
  	ssbs_thread_switch(next);
 -	erratum_1418040_thread_switch(prev, next);
 +	erratum_1418040_thread_switch(next);
  
  	/*
  	 * Complete any pending TLB or cache maintenance on this CPU in case
-@@ -619,6 +611,7 @@ void arch_setup_new_exec(void)
+@@ -605,6 +597,7 @@ void arch_setup_new_exec(void)
  	current->mm->context.flags = is_compat_task() ? MMCF_AARCH32 : 0;
  
  	ptrauth_thread_init_user(current);
