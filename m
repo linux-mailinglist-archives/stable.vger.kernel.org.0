@@ -2,240 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08D3449FBDD
-	for <lists+stable@lfdr.de>; Fri, 28 Jan 2022 15:39:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D927149FC04
+	for <lists+stable@lfdr.de>; Fri, 28 Jan 2022 15:46:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245084AbiA1Ojj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jan 2022 09:39:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45440 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S244940AbiA1Ojj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Jan 2022 09:39:39 -0500
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19F9FC061714
-        for <stable@vger.kernel.org>; Fri, 28 Jan 2022 06:39:39 -0800 (PST)
-Received: by mail-pl1-x633.google.com with SMTP id c3so6083090pls.5
-        for <stable@vger.kernel.org>; Fri, 28 Jan 2022 06:39:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=BTixdK0PppQ0GXXSyZHvwqDVSiAMbWPqf47i8YZpbwQ=;
-        b=F7VAwUdQH3z7hoTV0ExPMjB3Cfi+c9/XZ96FjhDlpCF5uQ6h84enHlUnIiY7HXCzk8
-         1sAqEA3kQc5Hc47gAK3Jl0IpW97enjuOddfkCmNYPn38dCaUTZ/ERkrxa0ry1SkqkAb7
-         i4b+WO7WkX68/6GwkxvxxKdrpqB4K6yUaA2U1foFyOibmDW4qmus8gnBZTUs9874Sn4W
-         2lqp71INmynFIHsOn7C77+35UJYY1SnuuSGj9z/gIjj/CcsRa3jFyh71fbDy/KHd18ra
-         At1ulaLaenUbhRIrkXzgC6FasYj1NEM/lwgBtIPDriwhTShu9ra5o2lQLhjN1YNPRmmz
-         rADw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=BTixdK0PppQ0GXXSyZHvwqDVSiAMbWPqf47i8YZpbwQ=;
-        b=dodeQO2yczHE+ubZ4XnRddNN+K1iBAYlbtGqCQqZi1aMVliW6txK2mR6PlNF6WsxXy
-         MeZm2Rjc1iR5bkwlyyrgIxTwWqo7muj3cIFOCU3uYtNZUYduzFAjxbZfcYPqKty9WOFT
-         OyM5uokFPzad8c23DrNm4qsxto8eXzjJ1in3kSpyl5Lnkkar4Zji33riY9iMj6h2fk2I
-         c4m2nXrqakeo6sXnYn1qlxx/s4/xWFwkdnNuKdbLh53enqQljoJGD5M+f24GkreOy/AJ
-         PQuODP+Ojs2OpAadKXx83Xlws6JpRfoLIE0PwE2DSFQsbgq2zvyoyYbcPzxnrAnERkjp
-         rx8A==
-X-Gm-Message-State: AOAM531usN8gX0e5NlRdyvHIYWzL5F4Sdwlv1d6bGQ+xEjhX5j2LWu60
-        FrkauVTKFycBroe0qUfYWHQuZAkIBjIKbTad
-X-Google-Smtp-Source: ABdhPJw52SObJLBYlzsnjKBtYZed+TDnd3/Evk+ns4qHpwwcXW8888pQ4f2lq5xmH2PhyEC/L4rNJQ==
-X-Received: by 2002:a17:902:a3c8:: with SMTP id q8mr8899726plb.20.1643380778000;
-        Fri, 28 Jan 2022 06:39:38 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p22sm10075540pfo.163.2022.01.28.06.39.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 28 Jan 2022 06:39:37 -0800 (PST)
-Message-ID: <61f40029.1c69fb81.20915.ac7d@mx.google.com>
-Date:   Fri, 28 Jan 2022 06:39:37 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        id S1349404AbiA1Op7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jan 2022 09:45:59 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:26305 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1349400AbiA1Op7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Jan 2022 09:45:59 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1643381158;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=HFyK9YSPqzN8UFNpZeb69roURTWWg8qSsNbo2x59knA=;
+        b=d/V8v1bvClSoMbBpuZY4h2QTcquUZey/6mC5tcwWz8vA3TOz0tZdIt20uE7nfepc7LCuV5
+        oT6iZZ3bx5HP5+4BqvjdXn+FY6bhMNCSrfnogvzs5LEGizKQ5gqfP0RxxksYjk3BJ97IZD
+        FwbVHuMZzxQ/cK2ZyB8a/pJiVRcPLCs=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-1-0TLvl7ZXOlOCj-4oqSTr-g-1; Fri, 28 Jan 2022 09:45:55 -0500
+X-MC-Unique: 0TLvl7ZXOlOCj-4oqSTr-g-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id BC69C814246;
+        Fri, 28 Jan 2022 14:45:53 +0000 (UTC)
+Received: from t480s.redhat.com (unknown [10.39.193.182])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id D923C7B9E3;
+        Fri, 28 Jan 2022 14:45:41 +0000 (UTC)
+From:   David Hildenbrand <david@redhat.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     linux-mm@kvack.org, David Hildenbrand <david@redhat.com>,
+        stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Oscar Salvador <osalvador@suse.de>
+Subject: [PATCH v1] drivers/base/memory: add memory block to memory group after registration succeeded
+Date:   Fri, 28 Jan 2022 15:45:40 +0100
+Message-Id: <20220128144540.153902-1-david@redhat.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v5.4.174-12-gf9e7ae34555f
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.4
-Subject: stable-rc/queue/5.4 baseline: 144 runs,
- 4 regressions (v5.4.174-12-gf9e7ae34555f)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 baseline: 144 runs, 4 regressions (v5.4.174-12-gf9e7ae3=
-4555f)
+If register_memory() fails, we freed the memory block but already added
+the memory block to the group list, not good. Let's defer adding the
+block to the memory group to after registering the memory block device.
 
-Regressions Summary
--------------------
+We do handle it properly during unregister_memory(), but that's not
+called when the registration fails.
 
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
+Fixes: 028fc57a1c36 ("drivers/base/memory: introduce "memory groups" to logically group memory blocks")
+Cc: stable@vger.kernel.org # v5.15+
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Signed-off-by: David Hildenbrand <david@redhat.com>
+---
+ drivers/base/memory.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
+diff --git a/drivers/base/memory.c b/drivers/base/memory.c
+index 365cd4a7f239..60c38f9cf1a7 100644
+--- a/drivers/base/memory.c
++++ b/drivers/base/memory.c
+@@ -663,14 +663,16 @@ static int init_memory_block(unsigned long block_id, unsigned long state,
+ 	mem->nr_vmemmap_pages = nr_vmemmap_pages;
+ 	INIT_LIST_HEAD(&mem->group_next);
+ 
++	ret = register_memory(mem);
++	if (ret)
++		return ret;
++
+ 	if (group) {
+ 		mem->group = group;
+ 		list_add(&mem->group_next, &group->memory_blocks);
+ 	}
+ 
+-	ret = register_memory(mem);
+-
+-	return ret;
++	return 0;
+ }
+ 
+ static int add_memory_block(unsigned long base_section_nr)
+-- 
+2.34.1
 
-qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.4/kern=
-el/v5.4.174-12-gf9e7ae34555f/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.4
-  Describe: v5.4.174-12-gf9e7ae34555f
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      f9e7ae34555ff62e17a8d510cd1142529ccd56f5 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61f3ca3eff8b8d8d9cabbd38
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.174-1=
-2-gf9e7ae34555f/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
-m-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.174-1=
-2-gf9e7ae34555f/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
-m-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61f3ca3eff8b8d8d9cabb=
-d39
-        failing since 43 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv2-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61f3ca52facb3a212babbd2d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.174-1=
-2-gf9e7ae34555f/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
--virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.174-1=
-2-gf9e7ae34555f/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
--virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61f3ca52facb3a212babb=
-d2e
-        failing since 43 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv3-uefi | arm  | lab-baylibre | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61f3ca3ffacb3a212babbd1f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.174-1=
-2-gf9e7ae34555f/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
-m-virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.174-1=
-2-gf9e7ae34555f/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-qemu_ar=
-m-virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61f3ca3ffacb3a212babb=
-d20
-        failing since 43 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =
-
-
-
-platform                 | arch | lab          | compiler | defconfig      =
-    | regressions
--------------------------+------+--------------+----------+----------------=
-----+------------
-qemu_arm-virt-gicv3-uefi | arm  | lab-broonie  | gcc-10   | multi_v7_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/61f3ca5343783ea044abbda1
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.174-1=
-2-gf9e7ae34555f/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
--virt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.4/v5.4.174-1=
-2-gf9e7ae34555f/arm/multi_v7_defconfig/gcc-10/lab-broonie/baseline-qemu_arm=
--virt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/61f3ca5343783ea044abb=
-da2
-        failing since 43 days (last pass: v5.4.165-9-g27d736c7bdee, first f=
-ail: v5.4.165-18-ge938927511cb) =
-
- =20
