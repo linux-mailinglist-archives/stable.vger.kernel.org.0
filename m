@@ -2,122 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 346C749FE31
-	for <lists+stable@lfdr.de>; Fri, 28 Jan 2022 17:37:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C2CD49FE72
+	for <lists+stable@lfdr.de>; Fri, 28 Jan 2022 17:53:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239257AbiA1QhW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jan 2022 11:37:22 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38284 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350198AbiA1QhO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Jan 2022 11:37:14 -0500
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B5C1260A37;
-        Fri, 28 Jan 2022 16:37:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3E01C340E7;
-        Fri, 28 Jan 2022 16:37:12 +0000 (UTC)
-Authentication-Results: smtp.kernel.org;
-        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="WPFDHaST"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
-        t=1643387830;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=guMFLMofiqe5xiQ2BRsEVmO5w5+mC76cL6WiryePP2M=;
-        b=WPFDHaSTuo9cwPUupNClF1shvSf/TIevVpkraCRUH76k02rT29m2qByqhBfQEsIyhmcJRl
-        nBLgcMHUwfHVN3F55umgCkvQkOXM01TFoM7VXMDBMGNKo0oMMe/fKeuKKoXhQ2psiO1hEH
-        JOf9xDGK+UQNaBH2GjHFBponi4zHdGw=
-Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 87c3a824 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
-        Fri, 28 Jan 2022 16:37:10 +0000 (UTC)
-Received: by mail-yb1-f182.google.com with SMTP id g14so20060351ybs.8;
-        Fri, 28 Jan 2022 08:37:10 -0800 (PST)
-X-Gm-Message-State: AOAM531G8xB1LijkHOqTguMwtjoViu76odh3lojCVazlBVmtJqWTSqx7
-        e8ePGxirtCwFyzm41++lq0qp7hHK0ldUwUg7cB4=
-X-Google-Smtp-Source: ABdhPJy1iWCC+Hxhg7PgyfiasJi3h1JaHkK5F4sYfUNJqUKwZaOS7KLWZ5w7OUg3uouEzt6KRyGZxjOdxsqI2MakiA4=
-X-Received: by 2002:a05:6902:1501:: with SMTP id q1mr14890230ybu.638.1643387828559;
- Fri, 28 Jan 2022 08:37:08 -0800 (PST)
+        id S1350330AbiA1QxU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jan 2022 11:53:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48494 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1350319AbiA1QxT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Jan 2022 11:53:19 -0500
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07C27C061714;
+        Fri, 28 Jan 2022 08:53:19 -0800 (PST)
+Received: by mail-ej1-x62a.google.com with SMTP id d10so17895482eje.10;
+        Fri, 28 Jan 2022 08:53:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=BLJFT4AhBocD6kHHT+suS0eJkn3pPtgeNyCXLqLIpak=;
+        b=eXWnQezlzjgM85qsZszg2oBXIDeFvSRt24xoZNoEeaT02DL98kW6vYQmfrS77uf+ck
+         73j/FMVrXvBV0t9/NOXyQild2tI4WGX8LDLVemr0lyO49SRXaerhke2s3D69BJNjvCE6
+         EkeqgY43aO97+R6xHwHtbrc9e11d3/+UMkt6snjEgmt0taXrCSuA2GuPd4pHy1hNB7I+
+         JTGxPnrpmZS0GWmVAx+zeXJM22AXimC3Ot09+82+1KRP1Boz6rvwfZKcSeUJ3JefUBHG
+         ODRGdKMPEWfT57hTNdkNbbhNDpIZ4q6j3j//lxvpy07jrisIO7uQj0TNdx6y12/EJM16
+         S38A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=BLJFT4AhBocD6kHHT+suS0eJkn3pPtgeNyCXLqLIpak=;
+        b=X8x8o6T+8UhkbXC5dW4xqqpLRkzPr0pYvoi2/CmWnuPUnMInFvmSm1wU/z2gkcr1SG
+         4BE7+DIxeJs1U2CDuAHKqZl/Ax5cAae4lDCJIY07I4zMPptlhYz/SGa8vEre5ZvkcIAX
+         xNhOCpRKyYHK3GWjp0EwT5GVseJ+5Vb3G/I91sD2hPWglNEmlRQknMp0WpX7xSEfI9NV
+         n20Ov1y+vzNciDevtnk34lEoUQzNor4u8Sx3IyguNXdmSGjxuKiEcTSW5EpHHlFcnHyV
+         OkhxnUns26X51gariCBBDlK98rMLC0RAM3iqachxXjpuFWuYXcFglIRYBzWqApz6NLrD
+         4Ueg==
+X-Gm-Message-State: AOAM5311qG/pzKWZURnCGfyzaxqwWQlHI86QCC8/rElsxcf7mNImnFH8
+        rnnZ7LVVyeP0Osr+UjFTxMOp5EOJETiH5Lt/8p8=
+X-Google-Smtp-Source: ABdhPJyQPlCRIBkgo1TAzlQctDBPEi8rIwNs5vVeYsSwaXGWzQ4dqp3N/HFI29N2DS1PrkdvwWQNnykEMmK1wRcsKK4=
+X-Received: by 2002:a17:907:3d94:: with SMTP id he20mr7753163ejc.637.1643388797473;
+ Fri, 28 Jan 2022 08:53:17 -0800 (PST)
 MIME-Version: 1.0
-References: <CAHmME9pb9A4SN6TTjNvvxKqw1L3gXVOX7KKihfEH4AgKGNGZ2A@mail.gmail.com>
- <20220128153344.34211-1-Jason@zx2c4.com> <YfQPVp8TULSq3V+l@linutronix.de>
- <CAHmME9pmdeLBKJbTaVQv-z9J81qKA=R4uoZ1DeXABy6Lt3bXuA@mail.gmail.com> <YfQWlM9b4l2IO43l@linutronix.de>
-In-Reply-To: <YfQWlM9b4l2IO43l@linutronix.de>
-From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
-Date:   Fri, 28 Jan 2022 17:36:57 +0100
-X-Gmail-Original-Message-ID: <CAHmME9pmGAAsUf4bLABB6oCDqDxVZBcQzADiDoA8ZD2s5n_1LQ@mail.gmail.com>
-Message-ID: <CAHmME9pmGAAsUf4bLABB6oCDqDxVZBcQzADiDoA8ZD2s5n_1LQ@mail.gmail.com>
-Subject: Re: [PATCH] random: remove batched entropy locking
-To:     Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc:     Andy Lutomirski <luto@amacapital.net>,
-        =?UTF-8?Q?Jonathan_Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>,
-        "Theodore Ts'o" <tytso@mit.edu>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
-        Waiman Long <longman@redhat.com>,
-        Boqun Feng <boqun.feng@gmail.com>,
-        Andy Lutomirski <luto@kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>
+References: <20220120202805.3369-1-shy828301@gmail.com> <af603cbe-4a38-9947-5e6d-9a9328b473fb@redhat.com>
+ <CAG48ez1xuZdELb=5ed1i0ruoFu5kAaWsf0LgRXEGhrDAcHz8fw@mail.gmail.com>
+ <f7f82234-7599-9e39-1108-f8fbe2c1efc9@redhat.com> <CAG48ez17d3p53tSfuDTNCaANyes8RNNU-2i+eFMqkMwuAbRT4Q@mail.gmail.com>
+ <5b4e2c29-8f1a-5a68-d243-a30467cc02d4@redhat.com> <CAHbLzkqLTkVJk+z8wpa03ponf7k30=Sx6qULwsGsvr5cq5d1aw@mail.gmail.com>
+ <5a565d5a-0540-4041-ce63-a8fd5d1bb340@redhat.com> <CAHbLzkqXy-W9sD5HFOK_rm_TR8uSP29b+RjKjA5zOZ+0dkqMbQ@mail.gmail.com>
+ <2a1c5bd2-cb8c-b93b-68af-de620438d19a@redhat.com> <CAHbLzkrQiQyh=36fOtqcODU3RO92jBVxU0o7wU8PyHJ_83LjiQ@mail.gmail.com>
+ <8c0430e5-fecb-3eda-3d40-e94caa8cbd78@redhat.com>
+In-Reply-To: <8c0430e5-fecb-3eda-3d40-e94caa8cbd78@redhat.com>
+From:   Yang Shi <shy828301@gmail.com>
+Date:   Fri, 28 Jan 2022 08:53:05 -0800
+Message-ID: <CAHbLzkpyShTYkSfUMsBPohm0eGvBhvmDmRNKUUWJk3wqh+nrkQ@mail.gmail.com>
+Subject: Re: [v2 PATCH] fs/proc: task_mmu.c: don't read mapcount for migration entry
+To:     David Hildenbrand <david@redhat.com>
+Cc:     Jann Horn <jannh@google.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linux MM <linux-mm@kvack.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sebastian,
-
-I wrote in my last message, "I don't think that thread needs to spill
-over here, though," but clearly you disagreed, which is fine I guess.
-Replies inline below:
-
-On Fri, Jan 28, 2022 at 5:15 PM Sebastian Andrzej Siewior
-<bigeasy@linutronix.de> wrote:
-> > I did, and my reply is here:
-> > https://lore.kernel.org/lkml/CAHmME9pzdXyD0oRYyCoVUSqqsA9h03-oR7kcNhJuPEcEMTJYgw@mail.gmail.com/
-> >
-> > I was hoping for a series that addresses these issues. As I mentioned
-> > before, I'm not super keen on deferring that processing in a
-> > conditional case and having multiple entry ways into that same
-> > functionality. I don't think that's worth it, especially if your
-> > actual concern is just userspace calling RNDADDTOENTCNT too often
-> > (which can be safely ratelimited). I don't think that thread needs to
+On Fri, Jan 28, 2022 at 12:02 AM David Hildenbrand <david@redhat.com> wrote:
 >
-> And what do you do in ratelimiting?
+> On 27.01.22 22:16, Yang Shi wrote:
+> > On Wed, Jan 26, 2022 at 10:54 AM David Hildenbrand <david@redhat.com> wrote:
+> >>
+> >>>>> Just page lock or elevated page refcount could serialize against THP
+> >>>>> split AFAIK.
+> >>>>>
+> >>>>>>
+> >>>>>> But yeah, using the mapcount of a page that is not even mapped
+> >>>>>> (migration entry) is clearly wrong.
+> >>>>>>
+> >>>>>> To summarize: reading the mapcount on an unlocked page will easily
+> >>>>>> return a wrong result and the result should not be relied upon. reading
+> >>>>>> the mapcount of a migration entry is dangerous and certainly wrong.
+> >>>>>
+> >>>>> Depends on your usecase. Some just want to get a snapshot, just like
+> >>>>> smaps, they don't care.
+> >>>>
+> >>>> Right, but as discussed, even the snapshot might be slightly wrong. That
+> >>>> might be just fine for smaps (and I would have enjoyed a comment in the
+> >>>> code stating that :) ).
+> >>>
+> >>> I think that is documented already, see Documentation/filesystems/proc.rst:
+> >>>
+> >>> Note: reading /proc/PID/maps or /proc/PID/smaps is inherently racy (consistent
+> >>> output can be achieved only in the single read call).
+> >>
+> >> Right, but I think there is a difference between
+> >>
+> >> * Atomic values that change immediately afterwards ("this value used to
+> >>   be true at one point in time")
+> >> * Values that are unstable because we cannot read them atomically ("this
+> >>   value never used to be true")
+> >>
+> >> I'd assume with the documented race we actually talk about the first
+> >> point, but I might be just wrong.
+> >>
+> >>>
+> >>> Of course, if the extra note is preferred in the code, I could try to
+> >>> add some in a separate patch.
+> >>
+> >> When staring at the (original) code I would have hoped to find something
+> >> like:
+> >>
+> >> /*
+> >>  * We use page_mapcount() to get a snapshot of the mapcount. Without
+> >>  * holding the page lock this snapshot can be slightly wrong as we
+> >>  * cannot always read the mapcount atomically. As long we hold the PT
+> >>  * lock, the page cannot get unmapped and it's at safe to call
+> >>  * page_mapcount().
+> >>  */
+> >>
+> >> With the addition of
+> >>
+> >> "... For unmapped pages (e.g., migration entries) we cannot guarantee
+> >> that, so treat the mapcount as being 1."
+> >
+> > It seems a little bit confusing to me, it is not safe to call with PTL
+> > held either, right? I'd like to rephrase the note to:
+>
+> The implication that could have been spelled out is that only a mapped
+> page can get unmapped. (I know, there are some weird migration entries
+> nowadays ...)
 
-If I'm understanding the RT issue correctly, the problem is that
-userspace can `for (;;) iotl(...);`, and the high frequency of ioctls
-then increases the average latency of interrupts to a level beyond the
-requirements for RT. The idea of ratelimiting the ioctl would be so
-that userspace is throttled from calling it too often, so that the
-average latency isn't increased.
+Yes, I see your point. Just felt "only a mapped page can get unmapped"
+sounds not that straightforward (just my personal feeling). How's
+about "It is not safe to call page_mapcount() even with PTL held if
+the page is not mapped, especially for migration entries".
 
-> As I explained, you get 20 that
-> "enter" and the following are block. The first 20 are already
-> problematic and you need a plan-B for those that can't enter.
-> So I suggested a mutex_t around the ioctl() which would act as a rate
-> limiting. You did not not follow up on that idea.
-
-A mutex_t would be fine I think? I'd like to see what this looks like
-in code, but conceptually I don't see why not.
-
-> Please ignore Jonathan report for now. As I tried to explain: This
-> lockdep report shows a serious problem on PREEMPT_RT. There is _no_ need
-> to be concerned on a non-PREEMPT_RT kernel. But it should be addressed.
-> If this gets merged as-is then thanks to the stable tag it will get
-> backported (again no change for !RT) and will collide with PREEMPT_RT
-> patch. And as I mentioned, the locking is not working on PREEMPT_RT.
-
-Gotcha, okay, that makes sense. It sounds like Andy's patch and your
-patch might both be part of the same non-stable-marked coin for
-cutting down on locks in the IRQ path.
-
-[Relatedly, I've been doing a bit of research on other ways to cut
-down the amount of processing we're doing in the IRQ path, such as
-<https://xn--4db.cc/K4zqXPh8/diff>. This is really not ready to go,
-and I'm not ready to have a discussion on the crypto there (please,
-nobody comment on the crypto there yet; I'll be really annoyed), but
-the general gist is that I think it might be possible to reduce the
-number of cycles spent in IRQ with some nice new tricks.]
-
-Jason
+>
+> /*
+>  * We use page_mapcount() to get a snapshot of the mapcount. Without
+>  * holding the page lock this snapshot can be slightly wrong as we
+>  * cannot always read the mapcount atomically. As long we hold the PT
+>  * lock, a mapped page cannot get unmapped and it's at safe to call
+>  * page_mapcount(). Especially for migration entries, it's not safe to
+>  * call page_mapcount(), so we treat the mapcount as being 1.
+>  */
+>
+>
+>
+> --
+> Thanks,
+>
+> David / dhildenb
+>
