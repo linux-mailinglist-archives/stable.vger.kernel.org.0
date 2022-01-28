@@ -2,214 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 266DF49F747
-	for <lists+stable@lfdr.de>; Fri, 28 Jan 2022 11:27:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86FCA49F69D
+	for <lists+stable@lfdr.de>; Fri, 28 Jan 2022 10:47:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345620AbiA1K1h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jan 2022 05:27:37 -0500
-Received: from www.linuxtv.org ([130.149.80.248]:38332 "EHLO www.linuxtv.org"
+        id S1347707AbiA1Jra (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jan 2022 04:47:30 -0500
+Received: from mga03.intel.com ([134.134.136.65]:15409 "EHLO mga03.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233599AbiA1K1h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 28 Jan 2022 05:27:37 -0500
-Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1nDOHY-00BwyA-15; Fri, 28 Jan 2022 10:15:04 +0000
-From:   Mauro Carvalho Chehab <mchehab@kernel.org>
-Date:   Sun, 23 Jan 2022 20:18:43 +0000
-Subject: [git:media_tree/master] media: davinci: vpif: fix use-after-free on driver unbind
-To:     linuxtv-commits@linuxtv.org
-Cc:     Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Johan Hovold <johan@kernel.org>, stable@vger.kernel.org,
-        Lad Prabhakar <prabhakar.csengg@gmail.com>,
-        Kevin Hilman <khilman@baylibre.com>
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1nDOHY-00BwyA-15@www.linuxtv.org>
+        id S238349AbiA1Jra (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 28 Jan 2022 04:47:30 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1643363250; x=1674899250;
+  h=to:cc:references:from:subject:message-id:date:
+   mime-version:in-reply-to:content-transfer-encoding;
+  bh=Fq9sQu/cN/lUsmIqrFTexk8KVRNWRRIf2vdhORwEjNA=;
+  b=Qf3oLsjHRAf/su0eHffVmM+qMudN9axNyeuXp7+DAQV+kRHRJqrDie1n
+   sOIjpUUpqFhBPBK37gBj+78iRis4+AUZA8hi8XttIlKnF8tJgXN1B68eu
+   lNLmcBj6zo8aDfC6AidMgdWkRCfYFr+Ju9HgYHDsV21TGddo4CCRk9oDf
+   NE/NSyvhnZjjautVbn17kCmZZAizxh4yVIw6tHNcWKYmgHYy/ZMQHcvEk
+   6iUXZr93l3uw2qfF0OWX79N8JG60Na63Iu02Dc7dy5QGkeHVRsWMC5XGj
+   gZ9k/x+9NAbsHIY8T6t2FVCLlv7idYhs7fhv3Q07IPfjcVWdI6ljY4LYy
+   Q==;
+X-IronPort-AV: E=McAfee;i="6200,9189,10240"; a="247035970"
+X-IronPort-AV: E=Sophos;i="5.88,323,1635231600"; 
+   d="scan'208";a="247035970"
+Received: from orsmga001.jf.intel.com ([10.7.209.18])
+  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Jan 2022 01:47:28 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.88,323,1635231600"; 
+   d="scan'208";a="564147519"
+Received: from mattu-haswell.fi.intel.com (HELO [10.237.72.199]) ([10.237.72.199])
+  by orsmga001.jf.intel.com with ESMTP; 28 Jan 2022 01:47:26 -0800
+To:     =?UTF-8?B?6LCi5rOT5a6H?= <xiehongyu1@kylinos.cn>,
+        Greg KH <gregkh@linuxfoundation.org>
+Cc:     Hongyu Xie <xy521521@gmail.com>, mathias.nyman@intel.com,
+        linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+        125707942@qq.com, stable@vger.kernel.org
+References: <20220126094126.923798-1-xy521521@gmail.com>
+ <YfEZFtf9K8pFC8Mw@kroah.com>
+ <c7f6a8bb-76b6-cd2d-7551-b599a8276f5c@kylinos.cn>
+ <YfEnbRW3oU0ouGqH@kroah.com>
+ <e86972d3-e4a0-ad81-45ea-21137e3bfcb6@kylinos.cn>
+ <7af5b318-b1ac-0c74-1782-04ba50a3b5fa@linux.intel.com>
+ <ce40f4cd-a110-80b1-f766-e94dd8cedc7e@kylinos.cn>
+From:   Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: Re: [PATCH -next] xhci: fix two places when dealing with return value
+ of function xhci_check_args
+Message-ID: <6da59964-ce0e-c202-8a9c-a753a1908f3e@linux.intel.com>
+Date:   Fri, 28 Jan 2022 11:48:57 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.14.0
+MIME-Version: 1.0
+In-Reply-To: <ce40f4cd-a110-80b1-f766-e94dd8cedc7e@kylinos.cn>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
+Hi
 
-Subject: media: davinci: vpif: fix use-after-free on driver unbind
-Author:  Johan Hovold <johan@kernel.org>
-Date:    Wed Dec 22 15:20:24 2021 +0100
+On 28.1.2022 5.48, 谢泓宇 wrote:
+> Hi Mathias,
+> 
+>> xhci_urb_enqueue() shouldn't be called for roothub urbs, but if it is then we
+>> should continue to return -EINVAL
+> 
+> xhci_urb_enqueue() won't be called for roothub urbs, only for none roothub urbs(see usb_hcd_submit_urb()).> 
+> So xhci_urb_enqueue() will not get 0 from xhci_check_args().
+> 
+> Still return -EINVAL if xhci_check_args() returns 0 in xhci_urb_enqueue()?
+> 
 
-The driver allocates and registers two platform device structures during
-probe, but the devices were never deregistered on driver unbind.
+Yes. That is what it used to return. 
+This is more about code maintaining practice than this specific patch.
 
-This results in a use-after-free on driver unbind as the device
-structures were allocated using devres and would be freed by driver
-core when remove() returns.
+Only make the necessary change to fix a bug, especially if the patch is going
+to stable kernels. 
+The change to return success ("0") instead of -EINVAL in xhci_urb_enqueue() for 
+roothub URBs is irrelevant in fixing your issue.
 
-Fix this by adding the missing deregistration calls to the remove()
-callback and failing probe on registration errors.
+Debugging future issues is a lot harder when there are small undocumented
+unrelated functional changes scattered around bugfixing patches.
 
-Note that the platform device structures must be freed using a proper
-release callback to avoid leaking associated resources like device
-names.
+Other reason is that even if you can be almost certain xhci_urb_enqueue() won't
+be called for roothub urbs for this kernel version, it's possible some old stable
+kernel code looks very different, and this change can break that stable version.
 
-Fixes: 479f7a118105 ("[media] davinci: vpif: adaptions for DT support")
-Cc: stable@vger.kernel.org      # 4.12
-Cc: Kevin Hilman <khilman@baylibre.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Reviewed-by: Lad Prabhakar <prabhakar.csengg@gmail.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab@kernel.org>
+Seemingly odd checks in code can indicate the old original code was flawed, and
+quickly worked around by adding the odd check.
+That kernel version might still depend on this odd check even if newer versions
+are fixed properly.
 
- drivers/media/platform/davinci/vpif.c | 97 +++++++++++++++++++++++++----------
- 1 file changed, 71 insertions(+), 26 deletions(-)
+>>
+>> xhci_check_args() should be rewritten later, but first we want a targeted fix
+>> that can go to stable.
+>>
+>> Your original patch would be ok after following modification:
+>> if (ret <= 0)
+>>     return ret ? ret : -EINVAL;
+> 
+> I have two questions:
+> 
+>     1) Why return -EINVAL for roothub urbs?
 
----
+- For all reasons stated above
+- Because it used to, and changing it doesn't fix anything
+- Because urbs sent to xhci_urb_enqueue() should have a valid urb->dev->parent,
+  if they don't have it then they are INVALID
 
-diff --git a/drivers/media/platform/davinci/vpif.c b/drivers/media/platform/davinci/vpif.c
-index 1f5eacf48580..4a260f4ed236 100644
---- a/drivers/media/platform/davinci/vpif.c
-+++ b/drivers/media/platform/davinci/vpif.c
-@@ -41,6 +41,11 @@ MODULE_ALIAS("platform:" VPIF_DRIVER_NAME);
- #define VPIF_CH2_MAX_MODES	15
- #define VPIF_CH3_MAX_MODES	2
- 
-+struct vpif_data {
-+	struct platform_device *capture;
-+	struct platform_device *display;
-+};
-+
- DEFINE_SPINLOCK(vpif_lock);
- EXPORT_SYMBOL_GPL(vpif_lock);
- 
-@@ -423,17 +428,31 @@ int vpif_channel_getfid(u8 channel_id)
- }
- EXPORT_SYMBOL(vpif_channel_getfid);
- 
-+static void vpif_pdev_release(struct device *dev)
-+{
-+	struct platform_device *pdev = to_platform_device(dev);
-+
-+	kfree(pdev);
-+}
-+
- static int vpif_probe(struct platform_device *pdev)
- {
- 	static struct resource *res_irq;
- 	struct platform_device *pdev_capture, *pdev_display;
- 	struct device_node *endpoint = NULL;
-+	struct vpif_data *data;
- 	int ret;
- 
- 	vpif_base = devm_platform_ioremap_resource(pdev, 0);
- 	if (IS_ERR(vpif_base))
- 		return PTR_ERR(vpif_base);
- 
-+	data = kzalloc(sizeof(*data), GFP_KERNEL);
-+	if (!data)
-+		return -ENOMEM;
-+
-+	platform_set_drvdata(pdev, data);
-+
- 	pm_runtime_enable(&pdev->dev);
- 	pm_runtime_get(&pdev->dev);
- 
-@@ -461,49 +480,75 @@ static int vpif_probe(struct platform_device *pdev)
- 		goto err_put_rpm;
- 	}
- 
--	pdev_capture = devm_kzalloc(&pdev->dev, sizeof(*pdev_capture),
--				    GFP_KERNEL);
--	if (pdev_capture) {
--		pdev_capture->name = "vpif_capture";
--		pdev_capture->id = -1;
--		pdev_capture->resource = res_irq;
--		pdev_capture->num_resources = 1;
--		pdev_capture->dev.dma_mask = pdev->dev.dma_mask;
--		pdev_capture->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
--		pdev_capture->dev.parent = &pdev->dev;
--		platform_device_register(pdev_capture);
--	} else {
--		dev_warn(&pdev->dev, "Unable to allocate memory for pdev_capture.\n");
-+	pdev_capture = kzalloc(sizeof(*pdev_capture), GFP_KERNEL);
-+	if (!pdev_capture) {
-+		ret = -ENOMEM;
-+		goto err_put_rpm;
- 	}
- 
--	pdev_display = devm_kzalloc(&pdev->dev, sizeof(*pdev_display),
--				    GFP_KERNEL);
--	if (pdev_display) {
--		pdev_display->name = "vpif_display";
--		pdev_display->id = -1;
--		pdev_display->resource = res_irq;
--		pdev_display->num_resources = 1;
--		pdev_display->dev.dma_mask = pdev->dev.dma_mask;
--		pdev_display->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
--		pdev_display->dev.parent = &pdev->dev;
--		platform_device_register(pdev_display);
--	} else {
--		dev_warn(&pdev->dev, "Unable to allocate memory for pdev_display.\n");
-+	pdev_capture->name = "vpif_capture";
-+	pdev_capture->id = -1;
-+	pdev_capture->resource = res_irq;
-+	pdev_capture->num_resources = 1;
-+	pdev_capture->dev.dma_mask = pdev->dev.dma_mask;
-+	pdev_capture->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
-+	pdev_capture->dev.parent = &pdev->dev;
-+	pdev_capture->dev.release = vpif_pdev_release;
-+
-+	ret = platform_device_register(pdev_capture);
-+	if (ret)
-+		goto err_put_pdev_capture;
-+
-+	pdev_display = kzalloc(sizeof(*pdev_display), GFP_KERNEL);
-+	if (!pdev_display) {
-+		ret = -ENOMEM;
-+		goto err_put_pdev_capture;
- 	}
- 
-+	pdev_display->name = "vpif_display";
-+	pdev_display->id = -1;
-+	pdev_display->resource = res_irq;
-+	pdev_display->num_resources = 1;
-+	pdev_display->dev.dma_mask = pdev->dev.dma_mask;
-+	pdev_display->dev.coherent_dma_mask = pdev->dev.coherent_dma_mask;
-+	pdev_display->dev.parent = &pdev->dev;
-+	pdev_display->dev.release = vpif_pdev_release;
-+
-+	ret = platform_device_register(pdev_display);
-+	if (ret)
-+		goto err_put_pdev_display;
-+
-+	data->capture = pdev_capture;
-+	data->display = pdev_display;
-+
- 	return 0;
- 
-+err_put_pdev_display:
-+	platform_device_put(pdev_display);
-+err_put_pdev_capture:
-+	platform_device_put(pdev_capture);
- err_put_rpm:
- 	pm_runtime_put(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
-+	kfree(data);
- 
- 	return ret;
- }
- 
- static int vpif_remove(struct platform_device *pdev)
- {
-+	struct vpif_data *data = platform_get_drvdata(pdev);
-+
-+	if (data->capture)
-+		platform_device_unregister(data->capture);
-+	if (data->display)
-+		platform_device_unregister(data->display);
-+
- 	pm_runtime_put(&pdev->dev);
- 	pm_runtime_disable(&pdev->dev);
-+
-+	kfree(data);
-+
- 	return 0;
- }
- 
+> 
+>     2) Should I change all the return statements about xhci_check_args() in drivers/usb/host/xhci.c?
+> 
+>     There are 6 of them.
+
+Only make sure your patch doesn't change the functionality unnecessarily.
+There are two places where we return -EINVAL if xhci_check_args() returns 0:
+xhci_urb_enqueue() and xhci_check_streams_endpoint()
+Keep that functionality.
+
+Thanks
+Mathias
