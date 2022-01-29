@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4EA34A2EA4
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:01:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F1A3D4A2EA5
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:01:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242649AbiA2MBp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 07:01:45 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:40230 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229989AbiA2MBp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:01:45 -0500
+        id S234049AbiA2MBt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 07:01:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48714 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229989AbiA2MBs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:01:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96E7DC061714
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 04:01:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E9CAC60BBE
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:01:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1F37C340E5;
-        Sat, 29 Jan 2022 12:01:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 379E060BFC
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:01:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00F5CC340E5;
+        Sat, 29 Jan 2022 12:01:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643457704;
-        bh=AfDL7I1RCtdhKtdYdFkWXVbAA7/Jb2HJOUsAdUA8Xko=;
+        s=korg; t=1643457707;
+        bh=jVNg2Sbo480n/uHzVC+HcPlKj9H5nd5QlUw6IvKjfg4=;
         h=Subject:To:Cc:From:Date:From;
-        b=DIpxrUuRdGY0X4fxoufvF18cvDGYzrlkmLmEmgH60TaISvvx5GnPUZhWJot3ozsK5
-         Z7b6xASegkNJLEh86Lau+5pRsffx7YJQhRpCAp51x//eUJaNxec8YzR5AAS+c9yafE
-         TFu9WxfwZOGuyYpnQWV6kqm0Ja86G6VDAeg87Qjg=
-Subject: FAILED: patch "[PATCH] net: stmmac: skip only stmmac_ptp_register when resume from" failed to apply to 5.4-stable tree
+        b=MZGbvfE2pbeK2duOnn0XufxSDOaRD9D8OdxzAqq4Fpejgj3sts0HlJAg+0GMGweGx
+         H3qEAI91oXc94uapjgiqgfhZMB3HRaZXt49KakAMXcB9YO/MR3gVFTdnlPHAp+BkIo
+         9JGb4rsP1KwJ3xm4ldsJf/vsZi1SvRVEVV0//UZQ=
+Subject: FAILED: patch "[PATCH] net: stmmac: skip only stmmac_ptp_register when resume from" failed to apply to 4.19-stable tree
 To:     mohammad.athari.ismail@intel.com, davem@davemloft.net,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 29 Jan 2022 13:01:23 +0100
-Message-ID: <1643457683114251@kroah.com>
+Message-ID: <1643457683203245@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
