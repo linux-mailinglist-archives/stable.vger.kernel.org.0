@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA6484A305C
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 16:56:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39F094A305E
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 16:56:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237137AbiA2P4a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 10:56:30 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:57162 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345961AbiA2P4a (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 10:56:30 -0500
+        id S1347253AbiA2P4w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 10:56:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43702 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345961AbiA2P4w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 10:56:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1229AC061714
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 07:56:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 401CBB8120C
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 15:56:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58AD1C340E5;
-        Sat, 29 Jan 2022 15:56:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A406C60BA9
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 15:56:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A76B7C340E5;
+        Sat, 29 Jan 2022 15:56:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643471788;
-        bh=cA7KfRpjNowsQfj+mrDj2c+Eb9aodOlL/WCsFzkl9qQ=;
+        s=korg; t=1643471811;
+        bh=UdYij4Z3b1iAATjGOsH1C+bh7y9ifF14sInVjSFEYhU=;
         h=Subject:To:Cc:From:Date:From;
-        b=zs/06VQB0QwXYnszZ76A119VuToLAjiBbb28t8J+Ggs6Y5irDUWy2MhgxwythcauF
-         6Z78K+SPQhZFLEqTYJY0ksJ9pY1bCjxLMYVWnLnbvda1Sc155IOYaKe46N2IGU5TYf
-         EfRvcLO8J00ML3YWGJGF11aIYNWdLJnb6YbEJTKY=
-Subject: FAILED: patch "[PATCH] serial: 8250: of: Fix mapped region size when using" failed to apply to 4.4-stable tree
-To:     robert.hancock@calian.com, gregkh@linuxfoundation.org,
+        b=dXaQZHFamqbY8BJZ9NjOPWjF81X5PTV2ScebRgGF0EuQ4gsbxg45Qc4kqBa+fVPRz
+         wxToP92WgiRmsrMW4LKmTo5DKQ5VxpG/SbF6zWD3a38U8WH+yUyA0JRbx5nn8W4c0u
+         tPfPmIBfRGZhOMIz7NNLV8QbHAxpxR2ZMlccs+C8=
+Subject: FAILED: patch "[PATCH] serial: stm32: prevent TDR register overwrite when sending" failed to apply to 5.15-stable tree
+To:     valentin.caron@foss.st.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 29 Jan 2022 16:56:17 +0100
-Message-ID: <1643471777137160@kroah.com>
+Date:   Sat, 29 Jan 2022 16:56:48 +0100
+Message-ID: <16434718084452@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -51,52 +54,52 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d06b1cf28297e27127d3da54753a3a01a2fa2f28 Mon Sep 17 00:00:00 2001
-From: Robert Hancock <robert.hancock@calian.com>
-Date: Wed, 12 Jan 2022 13:42:14 -0600
-Subject: [PATCH] serial: 8250: of: Fix mapped region size when using
- reg-offset property
+From d3d079bde07e1b7deaeb57506dc0b86010121d17 Mon Sep 17 00:00:00 2001
+From: Valentin Caron <valentin.caron@foss.st.com>
+Date: Tue, 11 Jan 2022 17:44:40 +0100
+Subject: [PATCH] serial: stm32: prevent TDR register overwrite when sending
+ x_char
 
-8250_of supports a reg-offset property which is intended to handle
-cases where the device registers start at an offset inside the region
-of memory allocated to the device. The Xilinx 16550 UART, for which this
-support was initially added, requires this. However, the code did not
-adjust the overall size of the mapped region accordingly, causing the
-driver to request an area of memory past the end of the device's
-allocation. For example, if the UART was allocated an address of
-0xb0130000, size of 0x10000 and reg-offset of 0x1000 in the device
-tree, the region of memory reserved was b0131000-b0140fff, which caused
-the driver for the region starting at b0140000 to fail to probe.
+When sending x_char in stm32_usart_transmit_chars(), driver can overwrite
+the value of TDR register by the value of x_char. If this happens, the
+previous value that was present in TDR register will not be sent through
+uart.
 
-Fix this by subtracting reg-offset from the mapped region size.
+This code checks if the previous value in TDR register is sent before
+writing the x_char value into register.
 
-Fixes: b912b5e2cfb3 ([POWERPC] Xilinx: of_serial support for Xilinx uart 16550.)
+Fixes: 48a6092fb41f ("serial: stm32-usart: Add STM32 USART Driver")
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Link: https://lore.kernel.org/r/20220112194214.881844-1-robert.hancock@calian.com
+Signed-off-by: Valentin Caron <valentin.caron@foss.st.com>
+Link: https://lore.kernel.org/r/20220111164441.6178-2-valentin.caron@foss.st.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/tty/serial/8250/8250_of.c b/drivers/tty/serial/8250/8250_of.c
-index bce28729dd7b..be8626234627 100644
---- a/drivers/tty/serial/8250/8250_of.c
-+++ b/drivers/tty/serial/8250/8250_of.c
-@@ -83,8 +83,17 @@ static int of_platform_serial_setup(struct platform_device *ofdev,
- 		port->mapsize = resource_size(&resource);
+diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
+index 1f89ab0e49ac..c1b8828451c8 100644
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -550,11 +550,23 @@ static void stm32_usart_transmit_chars(struct uart_port *port)
+ 	struct stm32_port *stm32_port = to_stm32_port(port);
+ 	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+ 	struct circ_buf *xmit = &port->state->xmit;
++	u32 isr;
++	int ret;
  
- 		/* Check for shifted address mapping */
--		if (of_property_read_u32(np, "reg-offset", &prop) == 0)
-+		if (of_property_read_u32(np, "reg-offset", &prop) == 0) {
-+			if (prop >= port->mapsize) {
-+				dev_warn(&ofdev->dev, "reg-offset %u exceeds region size %pa\n",
-+					 prop, &port->mapsize);
-+				ret = -EINVAL;
-+				goto err_unprepare;
-+			}
+ 	if (port->x_char) {
+ 		if (stm32_usart_tx_dma_started(stm32_port) &&
+ 		    stm32_usart_tx_dma_enabled(stm32_port))
+ 			stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_DMAT);
 +
- 			port->mapbase += prop;
-+			port->mapsize -= prop;
-+		}
- 
- 		port->iotype = UPIO_MEM;
- 		if (of_property_read_u32(np, "reg-io-width", &prop) == 0) {
++		/* Check that TDR is empty before filling FIFO */
++		ret =
++		readl_relaxed_poll_timeout_atomic(port->membase + ofs->isr,
++						  isr,
++						  (isr & USART_SR_TXE),
++						  10, 1000);
++		if (ret)
++			dev_warn(port->dev, "1 character may be erased\n");
++
+ 		writel_relaxed(port->x_char, port->membase + ofs->tdr);
+ 		port->x_char = 0;
+ 		port->icount.tx++;
 
