@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 119254A2FCD
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 14:31:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8C9A4A2FCE
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 14:31:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350842AbiA2NbL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 08:31:11 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:55278 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1346162AbiA2NbL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 08:31:11 -0500
+        id S1346162AbiA2NbW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 08:31:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40366 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239973AbiA2NbV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 08:31:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DAF0C061714
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 05:31:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C967C60C84
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 13:31:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2340C340E5;
-        Sat, 29 Jan 2022 13:31:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C9F860C72
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 13:31:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F3F2C340E5;
+        Sat, 29 Jan 2022 13:31:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643463070;
-        bh=HHXtsE2JbnTOi7EA5o6HpsQK5cimWt1cPCXI1JOHcd4=;
+        s=korg; t=1643463080;
+        bh=cjN6LzwdgLC08ST6IqDLhd8xsYGZQYiFohZCVmifbIs=;
         h=Subject:To:Cc:From:Date:From;
-        b=ntS0j19lTpCxAkFhvYldUH9EY6WACEiy7T3MtANEltRtTNXOawRRm5NevZtU05SrC
-         ak7rIj/ePYW6G4o+OVNFxrJd7K7mhp5XUUAd3mgBoQDYKGic8wHVfCDKoN3RuPuCqB
-         ObiYtLDd3ytOkrc43Tu9XhoqbWdzIV2xx8Z7FG4s=
-Subject: FAILED: patch "[PATCH] arm64: Mark start_backtrace() notrace and NOKPROBE_SYMBOL" failed to apply to 5.15-stable tree
+        b=KSXEvC7QoVTw8ikHhZzBi3hxjWESEK8VdrPFNWc9JG8ZAkLnqqPvodRwkQ3oUVqwv
+         YlJ3Yjrn7aO0vwyCqBvXHvZcH6BpgnjjelcZlSwZTxEI48LvNPBFy+Ba/B8YFwk8yj
+         z3Gp5KkwS3f9jy0ZMBKKynvEXQ55TczQvU+7XduI=
+Subject: FAILED: patch "[PATCH] arm64: Mark start_backtrace() notrace and NOKPROBE_SYMBOL" failed to apply to 5.16-stable tree
 To:     mhiramat@kernel.org, broonie@kernel.org, catalin.marinas@arm.com,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 29 Jan 2022 14:31:07 +0100
-Message-ID: <164346306729246@kroah.com>
+Date:   Sat, 29 Jan 2022 14:31:09 +0100
+Message-ID: <164346306991159@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.16-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
