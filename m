@@ -2,86 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEB4A4A3078
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 17:17:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 615174A3072
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 17:12:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345971AbiA2QR2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 11:17:28 -0500
-Received: from mail.nic.cz ([217.31.204.67]:35078 "EHLO mail.nic.cz"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230389AbiA2QR1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 29 Jan 2022 11:17:27 -0500
-X-Greylist: delayed 460 seconds by postgrey-1.27 at vger.kernel.org; Sat, 29 Jan 2022 11:17:27 EST
-Received: from dellmb.labs.office.nic.cz (unknown [IPv6:2001:1488:fffe:6:8747:7254:5571:3010])
-        by mail.nic.cz (Postfix) with ESMTPSA id 5D0F5140E6F;
-        Sat, 29 Jan 2022 17:09:47 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=nic.cz; s=default;
-        t=1643472587; bh=aUNm+Q/v85IjFc2S1GiiNapGqLz5nUN2KQIelrzx+aE=;
-        h=From:To:Date;
-        b=hZySHg9q3GECRE77nFNbwyWVMMogT1uSJeIWfm/o/Xv0qHHeqT4Ifi82H8u/fvIpx
-         KPQcHm9ksUaKFFHASBHEHBQZHT07y8uqYjCnMsSx8LNexPAmiOi5zLQrfWpdvqSyNe
-         IIuGAMJ0zimq/ceVcVToeEIwJ1VWK+hrXLTD2sQk=
-From:   =?UTF-8?q?Marek=20Beh=C3=BAn?= <marek.behun@nic.cz>
-To:     gregkh@linuxfoundation.org
+        id S235426AbiA2QM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 11:12:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47136 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233274AbiA2QM0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 11:12:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A22AC061714
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 08:12:26 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 64BE6B827C5
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 16:12:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BAC0C340E5;
+        Sat, 29 Jan 2022 16:12:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1643472744;
+        bh=Bs8Ze+45YHgy4vg/Znk8sA0Sj5GQXeKQO4269k5V3Lg=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=wXDEb7oX1lGme2ksqbMTjBpPqp5SGB/ULyVCZgWr8PkPsQxOV9Fr5aJyUbUqi2Sot
+         ewcmKuETGNFQWfNG6beUBRc+Y0G8egTSpup0uwtUKyxIodNnmUGOWjDuqhkYa68Duj
+         K15pF/jcADYN2qKvGD/gJvg41DO1OtS/5ZsMsBTQ=
+Date:   Sat, 29 Jan 2022 17:12:21 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Marek =?iso-8859-1?Q?Beh=FAn?= <marek.behun@nic.cz>
 Cc:     stable@vger.kernel.org, kabel@kernel.org,
         "David S . Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19] net: sfp: ignore disabled SFP node
-Date:   Sat, 29 Jan 2022 17:09:47 +0100
-Message-Id: <20220129160947.11434-1-marek.behun@nic.cz>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <16434576496299@kroah.com>
-References: 
+Subject: Re: [PATCH 5.4] net: sfp: ignore disabled SFP node
+Message-ID: <YfVnZVWeew+nC9EH@kroah.com>
+References: <164345764948199@kroah.com>
+ <20220129160947.11445-1-marek.behun@nic.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-100.0 required=5.9 tests=SHORTCIRCUIT,URIBL_BLOCKED,
-        USER_IN_WELCOMELIST,USER_IN_WHITELIST shortcircuit=ham
-        autolearn=disabled version=3.4.2
-X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on mail.nic.cz
-X-Virus-Scanned: clamav-milter 0.102.4 at mail
-X-Virus-Status: Clean
+In-Reply-To: <20220129160947.11445-1-marek.behun@nic.cz>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek BehÃºn <kabel@kernel.org>
+On Sat, Jan 29, 2022 at 05:09:47PM +0100, Marek Behún wrote:
+> From: Marek Behún <kabel@kernel.org>
+> 
+> commit 2148927e6ed43a1667baf7c2ae3e0e05a44b51a0 upstream.
+> 
+> Commit ce0aa27ff3f6 ("sfp: add sfp-bus to bridge between network devices
+> and sfp cages") added code which finds SFP bus DT node even if the node
+> is disabled with status = "disabled". Because of this, when phylink is
+> created, it ends with non-null .sfp_bus member, even though the SFP
+> module is not probed (because the node is disabled).
+> 
+> We need to ignore disabled SFP bus node.
+> 
+> Fixes: ce0aa27ff3f6 ("sfp: add sfp-bus to bridge between network devices and sfp cages")
+> Signed-off-by: Marek Behún <kabel@kernel.org>
+> Cc: stable@vger.kernel.org # 2203cbf2c8b5 ("net: sfp: move fwnode parsing into sfp-bus layer")
+> Signed-off-by: David S. Miller <davem@davemloft.net>
+> [ backport to 5.4 ]
+> Signed-off-by: Marek Behún <kabel@kernel.org>
+> ---
+>  drivers/net/phy/phylink.c | 5 +++++
+>  1 file changed, 5 insertions(+)
+> 
 
-commit 2148927e6ed43a1667baf7c2ae3e0e05a44b51a0 upstream.
+All now queued up, thanks.
 
-Commit ce0aa27ff3f6 ("sfp: add sfp-bus to bridge between network devices
-and sfp cages") added code which finds SFP bus DT node even if the node
-is disabled with status = "disabled". Because of this, when phylink is
-created, it ends with non-null .sfp_bus member, even though the SFP
-module is not probed (because the node is disabled).
-
-We need to ignore disabled SFP bus node.
-
-Fixes: ce0aa27ff3f6 ("sfp: add sfp-bus to bridge between network devices and sfp cages")
-Signed-off-by: Marek BehÃºn <kabel@kernel.org>
-Cc: stable@vger.kernel.org # 2203cbf2c8b5 ("net: sfp: move fwnode parsing into sfp-bus layer")
-Signed-off-by: David S. Miller <davem@davemloft.net>
-[ backport to 4.19 ]
-Signed-off-by: Marek BehÃºn <kabel@kernel.org>
----
- drivers/net/phy/phylink.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/drivers/net/phy/phylink.c b/drivers/net/phy/phylink.c
-index e808efd76212..e0e175c691d4 100644
---- a/drivers/net/phy/phylink.c
-+++ b/drivers/net/phy/phylink.c
-@@ -554,6 +554,11 @@ static int phylink_register_sfp(struct phylink *pl,
- 		return ret;
- 	}
- 
-+	if (!fwnode_device_is_available(ref.fwnode)) {
-+		fwnode_handle_put(ref.fwnode);
-+		return 0;
-+	}
-+
- 	pl->sfp_bus = sfp_register_upstream(ref.fwnode, pl->netdev, pl,
- 					    &sfp_phylink_ops);
- 	if (!pl->sfp_bus)
--- 
-2.34.1
-
+greg k-h
