@@ -2,89 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47C844A2B3E
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 03:14:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 358DB4A2B3F
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 03:14:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352174AbiA2COa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jan 2022 21:14:30 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:34142 "EHLO
+        id S1352179AbiA2COg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jan 2022 21:14:36 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:34204 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237464AbiA2CO3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Jan 2022 21:14:29 -0500
+        with ESMTP id S237464AbiA2COg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Jan 2022 21:14:36 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9848AB826A5;
-        Sat, 29 Jan 2022 02:14:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18B91C340E7;
-        Sat, 29 Jan 2022 02:14:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3DE9AB826A5;
+        Sat, 29 Jan 2022 02:14:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FF79C340E7;
+        Sat, 29 Jan 2022 02:14:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1643422467;
-        bh=HcQaM4uHbzU5KF8uZ0eERG7hSGsc2MgWgOfJIJw+SN8=;
+        s=korg; t=1643422474;
+        bh=YCQ95KpNsXMz2yuDR/o91c1DP7QgFpHDEveRI7BKWh4=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=zqDzdM8OISLXNKghZjUgtHrG1DJKpCz0zqMSB5ld+PWiVQ4mqkv42zVNen2oIQT+p
-         YJU8qghy5eGvtZuY+f7GxEt66Klem1Nqcl27kTNEAWtVeVAxIGTTuc7fdpGSuCeuXE
-         rxl2K7BZhOXeKlkxVKxQ+AwneotmsK5debUhkuCg=
-Date:   Fri, 28 Jan 2022 18:14:26 -0800
+        b=Nq+4iVdln+CCfld36u863LlNqcOeKWN8RXyR4frz46Tqzj+SxQe6YYPSwPMSv6AcJ
+         GPLv/i0ql/YkoIK/UOgjjeVIdapR6EA1fLkNKcVkIb5ixkZ1BkYUkRf7FLANLJQZHD
+         BysZL3qB4yt4miZW2DABkYC9MEN5VpUBSEC5hML0=
+Date:   Fri, 28 Jan 2022 18:14:32 -0800
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, andreyknvl@gmail.com,
-        linux-mm@kvack.org, mm-commits@vger.kernel.org, pcc@google.com,
-        peterz@infradead.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Subject:  [patch 5/7] mm, kasan: use compare-exchange operation to
- set KASAN page tag
-Message-ID: <20220129021426.fXzRllwUv%akpm@linux-foundation.org>
+To:     adilger.kernel@dilger.ca, akpm@linux-foundation.org,
+        gautham.ananthakrishna@oracle.com, gechangwei@live.cn,
+        ghe@suse.com, jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
+        junxiao.bi@oracle.com, linux-mm@kvack.org, mark@fasheh.com,
+        mm-commits@vger.kernel.org, piaojun@huawei.com,
+        saeed.mirzamohammadi@oracle.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, tytso@mit.edu
+Subject:  [patch 7/7] ocfs2: fix a deadlock when commit trans
+Message-ID: <20220129021432.3qLWGCfFF%akpm@linux-foundation.org>
 In-Reply-To: <20220128181341.2103de95948608a65958ae40@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Collingbourne <pcc@google.com>
-Subject: mm, kasan: use compare-exchange operation to set KASAN page tag
+From: Joseph Qi <joseph.qi@linux.alibaba.com>
+Subject: ocfs2: fix a deadlock when commit trans
 
-It has been reported that the tag setting operation on newly-allocated
-pages can cause the page flags to be corrupted when performed concurrently
-with other flag updates as a result of the use of non-atomic operations. 
-Fix the problem by using a compare-exchange loop to update the tag.
+commit 6f1b228529ae introduces a regression which can deadlock as follows:
 
-Link: https://lkml.kernel.org/r/20220120020148.1632253-1-pcc@google.com
-Link: https://linux-review.googlesource.com/id/I456b24a2b9067d93968d43b4bb3351c0cec63101
-Fixes: 2813b9c02962 ("kasan, mm, arm64: tag non slab memory allocated via pagealloc")
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
+Task1:                              Task2:
+jbd2_journal_commit_transaction     ocfs2_test_bg_bit_allocatable
+spin_lock(&jh->b_state_lock)        jbd_lock_bh_journal_head
+__jbd2_journal_remove_checkpoint    spin_lock(&jh->b_state_lock)
+jbd2_journal_put_journal_head
+jbd_lock_bh_journal_head
+
+Task1 and Task2 lock bh->b_state and jh->b_state_lock in different
+order, which finally result in a deadlock.
+
+So use jbd2_journal_[grab|put]_journal_head instead in
+ocfs2_test_bg_bit_allocatable() to fix it.
+
+Link: https://lkml.kernel.org/r/20220121071205.100648-3-joseph.qi@linux.alibaba.com
+Fixes: 6f1b228529ae ("ocfs2: fix race between searching chunks and release journal_head from buffer_head")
+Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Reported-by: Gautham Ananthakrishna <gautham.ananthakrishna@oracle.com>
+Reported-by: Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>
+Cc: Andreas Dilger <adilger.kernel@dilger.ca>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Mark Fasheh <mark@fasheh.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- include/linux/mm.h |   17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ fs/ocfs2/suballoc.c |   25 +++++++++++--------------
+ 1 file changed, 11 insertions(+), 14 deletions(-)
 
---- a/include/linux/mm.h~mm-use-compare-exchange-operation-to-set-kasan-page-tag
-+++ a/include/linux/mm.h
-@@ -1506,11 +1506,18 @@ static inline u8 page_kasan_tag(const st
- 
- static inline void page_kasan_tag_set(struct page *page, u8 tag)
+--- a/fs/ocfs2/suballoc.c~ocfs2-fix-a-deadlock-when-commit-trans
++++ a/fs/ocfs2/suballoc.c
+@@ -1251,26 +1251,23 @@ static int ocfs2_test_bg_bit_allocatable
  {
--	if (kasan_enabled()) {
--		tag ^= 0xff;
--		page->flags &= ~(KASAN_TAG_MASK << KASAN_TAG_PGSHIFT);
--		page->flags |= (tag & KASAN_TAG_MASK) << KASAN_TAG_PGSHIFT;
--	}
-+	unsigned long old_flags, flags;
-+
-+	if (!kasan_enabled())
-+		return;
-+
-+	tag ^= 0xff;
-+	old_flags = READ_ONCE(page->flags);
-+	do {
-+		flags = old_flags;
-+		flags &= ~(KASAN_TAG_MASK << KASAN_TAG_PGSHIFT);
-+		flags |= (tag & KASAN_TAG_MASK) << KASAN_TAG_PGSHIFT;
-+	} while (unlikely(!try_cmpxchg(&page->flags, &old_flags, flags)));
- }
+ 	struct ocfs2_group_desc *bg = (struct ocfs2_group_desc *) bg_bh->b_data;
+ 	struct journal_head *jh;
+-	int ret = 1;
++	int ret;
  
- static inline void page_kasan_tag_reset(struct page *page)
+ 	if (ocfs2_test_bit(nr, (unsigned long *)bg->bg_bitmap))
+ 		return 0;
+ 
+-	if (!buffer_jbd(bg_bh))
++	jh = jbd2_journal_grab_journal_head(bg_bh);
++	if (!jh)
+ 		return 1;
+ 
+-	jbd_lock_bh_journal_head(bg_bh);
+-	if (buffer_jbd(bg_bh)) {
+-		jh = bh2jh(bg_bh);
+-		spin_lock(&jh->b_state_lock);
+-		bg = (struct ocfs2_group_desc *) jh->b_committed_data;
+-		if (bg)
+-			ret = !ocfs2_test_bit(nr, (unsigned long *)bg->bg_bitmap);
+-		else
+-			ret = 1;
+-		spin_unlock(&jh->b_state_lock);
+-	}
+-	jbd_unlock_bh_journal_head(bg_bh);
++	spin_lock(&jh->b_state_lock);
++	bg = (struct ocfs2_group_desc *) jh->b_committed_data;
++	if (bg)
++		ret = !ocfs2_test_bit(nr, (unsigned long *)bg->bg_bitmap);
++	else
++		ret = 1;
++	spin_unlock(&jh->b_state_lock);
++	jbd2_journal_put_journal_head(jh);
+ 
+ 	return ret;
+ }
 _
