@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EC0D4A305B
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 16:56:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C5F24A305D
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 16:56:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233890AbiA2P4W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 10:56:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43576 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237137AbiA2P4V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 10:56:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDBB5C061714
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 07:56:21 -0800 (PST)
+        id S1346949AbiA2P4c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 10:56:32 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:40140 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345961AbiA2P4c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 10:56:32 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85870B8120C
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 15:56:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6E07C340E5;
-        Sat, 29 Jan 2022 15:56:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C60760EA2
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 15:56:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F98BC340E5;
+        Sat, 29 Jan 2022 15:56:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643471779;
-        bh=gEaz0ggOwWUsJPPIgaiwtnuxz2+vkRhOLSnbTc0OdGU=;
+        s=korg; t=1643471791;
+        bh=GmFINOURJN3vOTKo9q/KUPagycGAsDeGYDX1kgrx59k=;
         h=Subject:To:Cc:From:Date:From;
-        b=yM7uAh6EMG2hYM945PW+o7Ji+tsL+HlHbtWHcHdet9XOLRbWSOTXPk7KBP+Tp9DRP
-         QSWGzs4H2d8mB/L/olY/azxO3+uomUD0vGsG4JGK0mB/6dcOrvO7jlc+tTIPB/WwDM
-         +/1hjvRdoAdm4Hvi+zBKD625icDY/cZUoXpHXgRE=
-Subject: FAILED: patch "[PATCH] serial: 8250: of: Fix mapped region size when using" failed to apply to 4.14-stable tree
+        b=Zh4W02mL6KVLRr0zL59HiPeMgQUYE8uJ8usgil2+P3sBZn3Wx+U6iDH8JahqJMGHX
+         bsxWfnYzzef6Dm+WQ0KCPoMgHkkQ6PotT1be+0iYMzMmY7iIzVKzE0WyeureXWLGPA
+         4nTShnfe9NP0NKWTkFWUte+yHyzZLHSbBsHHiItI=
+Subject: FAILED: patch "[PATCH] serial: 8250: of: Fix mapped region size when using" failed to apply to 4.9-stable tree
 To:     robert.hancock@calian.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 29 Jan 2022 16:56:16 +0100
-Message-ID: <164347177650149@kroah.com>
+Date:   Sat, 29 Jan 2022 16:56:17 +0100
+Message-ID: <16434717774226@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
