@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1A3D4A2EA5
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:01:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD9C74A2EAC
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:02:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234049AbiA2MBt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 07:01:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48714 "EHLO
+        id S243333AbiA2MCz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 07:02:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48968 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229989AbiA2MBs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:01:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96E7DC061714
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 04:01:48 -0800 (PST)
+        with ESMTP id S231668AbiA2MCz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:02:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12AE2C061714
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 04:02:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 379E060BFC
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:01:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00F5CC340E5;
-        Sat, 29 Jan 2022 12:01:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D04E2B822B2
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:02:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1425C340E5;
+        Sat, 29 Jan 2022 12:02:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643457707;
-        bh=jVNg2Sbo480n/uHzVC+HcPlKj9H5nd5QlUw6IvKjfg4=;
+        s=korg; t=1643457772;
+        bh=ZBInDk01bBocxzvhspw/FGM6bwzjwx3Pz0aNQol5ta0=;
         h=Subject:To:Cc:From:Date:From;
-        b=MZGbvfE2pbeK2duOnn0XufxSDOaRD9D8OdxzAqq4Fpejgj3sts0HlJAg+0GMGweGx
-         H3qEAI91oXc94uapjgiqgfhZMB3HRaZXt49KakAMXcB9YO/MR3gVFTdnlPHAp+BkIo
-         9JGb4rsP1KwJ3xm4ldsJf/vsZi1SvRVEVV0//UZQ=
-Subject: FAILED: patch "[PATCH] net: stmmac: skip only stmmac_ptp_register when resume from" failed to apply to 4.19-stable tree
-To:     mohammad.athari.ismail@intel.com, davem@davemloft.net,
-        stable@vger.kernel.org
+        b=gzSW/9LgjXJ8Rp4kXbuIujtbreKdbKqfcLmfa9qiuNMqLRACWoReGlGL+w8PXNkNG
+         5g8wYxFT84OLwrnlgkQYsxoAeccwhKk0qyIbb4//8phH7Gn/nJzcQ5UXliyIwyPkiT
+         iI8F2xNW/nsnvtDF5fJFYZSVZquWeNkDqDEnOvBw=
+Subject: FAILED: patch "[PATCH] s390/module: fix loading modules with a lot of relocations" failed to apply to 4.4-stable tree
+To:     iii@linux.ibm.com, andrea.righi@canonical.com,
+        borntraeger@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 29 Jan 2022 13:01:23 +0100
-Message-ID: <1643457683203245@kroah.com>
+Date:   Sat, 29 Jan 2022 13:02:49 +0100
+Message-ID: <164345776983183@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -54,74 +54,82 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 0735e639f129dff455aeb91da291f5c578cc33db Mon Sep 17 00:00:00 2001
-From: Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
-Date: Wed, 26 Jan 2022 17:47:23 +0800
-Subject: [PATCH] net: stmmac: skip only stmmac_ptp_register when resume from
- suspend
+From f3b7e73b2c6619884351a3a0a7468642f852b8a2 Mon Sep 17 00:00:00 2001
+From: Ilya Leoshkevich <iii@linux.ibm.com>
+Date: Wed, 19 Jan 2022 19:26:37 +0100
+Subject: [PATCH] s390/module: fix loading modules with a lot of relocations
 
-When resume from suspend, besides skipping PTP registration, it also
-skipping PTP HW initialization. This could cause PTP clock not able to
-operate properly when resume from suspend.
+If the size of the PLT entries generated by apply_rela() exceeds
+64KiB, the first ones can no longer reach __jump_r1 with brc. Fix by
+using brcl. An alternative solution is to add a __jump_r1 copy after
+every 64KiB, however, the space savings are quite small and do not
+justify the additional complexity.
 
-To fix this, only stmmac_ptp_register() is skipped when resume from
-suspend.
+Fixes: f19fbd5ed642 ("s390: introduce execute-trampolines for branches")
+Cc: stable@vger.kernel.org
+Reported-by: Andrea Righi <andrea.righi@canonical.com>
+Signed-off-by: Ilya Leoshkevich <iii@linux.ibm.com>
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Cc: Vasily Gorbik <gor@linux.ibm.com>
+Cc: Christian Borntraeger <borntraeger@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 
-Fixes: fe1319291150 ("stmmac: Don't init ptp again when resume from suspend/hibernation")
-Cc: <stable@vger.kernel.org> # 5.15.x
-Signed-off-by: Mohammad Athari Bin Ismail <mohammad.athari.ismail@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 25c802344356..639a753266e6 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -915,8 +915,6 @@ static int stmmac_init_ptp(struct stmmac_priv *priv)
- 	priv->hwts_tx_en = 0;
- 	priv->hwts_rx_en = 0;
+diff --git a/arch/s390/kernel/module.c b/arch/s390/kernel/module.c
+index d52d85367bf7..b032e556eeb7 100644
+--- a/arch/s390/kernel/module.c
++++ b/arch/s390/kernel/module.c
+@@ -33,7 +33,7 @@
+ #define DEBUGP(fmt , ...)
+ #endif
  
--	stmmac_ptp_register(priv);
--
- 	return 0;
- }
+-#define PLT_ENTRY_SIZE 20
++#define PLT_ENTRY_SIZE 22
  
-@@ -3242,7 +3240,7 @@ static int stmmac_fpe_start_wq(struct stmmac_priv *priv)
- /**
-  * stmmac_hw_setup - setup mac in a usable state.
-  *  @dev : pointer to the device structure.
-- *  @init_ptp: initialize PTP if set
-+ *  @ptp_register: register PTP if set
-  *  Description:
-  *  this is the main function to setup the HW in a usable state because the
-  *  dma engine is reset, the core registers are configured (e.g. AXI,
-@@ -3252,7 +3250,7 @@ static int stmmac_fpe_start_wq(struct stmmac_priv *priv)
-  *  0 on success and an appropriate (-)ve integer as defined in errno.h
-  *  file on failure.
-  */
--static int stmmac_hw_setup(struct net_device *dev, bool init_ptp)
-+static int stmmac_hw_setup(struct net_device *dev, bool ptp_register)
+ void *module_alloc(unsigned long size)
  {
- 	struct stmmac_priv *priv = netdev_priv(dev);
- 	u32 rx_cnt = priv->plat->rx_queues_to_use;
-@@ -3309,13 +3307,13 @@ static int stmmac_hw_setup(struct net_device *dev, bool init_ptp)
+@@ -341,27 +341,26 @@ static int apply_rela(Elf_Rela *rela, Elf_Addr base, Elf_Sym *symtab,
+ 	case R_390_PLTOFF32:	/* 32 bit offset from GOT to PLT. */
+ 	case R_390_PLTOFF64:	/* 16 bit offset from GOT to PLT. */
+ 		if (info->plt_initialized == 0) {
+-			unsigned int insn[5];
+-			unsigned int *ip = me->core_layout.base +
+-					   me->arch.plt_offset +
+-					   info->plt_offset;
+-
+-			insn[0] = 0x0d10e310;	/* basr 1,0  */
+-			insn[1] = 0x100a0004;	/* lg	1,10(1) */
++			unsigned char insn[PLT_ENTRY_SIZE];
++			char *plt_base;
++			char *ip;
++
++			plt_base = me->core_layout.base + me->arch.plt_offset;
++			ip = plt_base + info->plt_offset;
++			*(int *)insn = 0x0d10e310;	/* basr 1,0  */
++			*(int *)&insn[4] = 0x100c0004;	/* lg	1,12(1) */
+ 			if (IS_ENABLED(CONFIG_EXPOLINE) && !nospec_disable) {
+-				unsigned int *ij;
+-				ij = me->core_layout.base +
+-					me->arch.plt_offset +
+-					me->arch.plt_size - PLT_ENTRY_SIZE;
+-				insn[2] = 0xa7f40000 +	/* j __jump_r1 */
+-					(unsigned int)(u16)
+-					(((unsigned long) ij - 8 -
+-					  (unsigned long) ip) / 2);
++				char *jump_r1;
++
++				jump_r1 = plt_base + me->arch.plt_size -
++					PLT_ENTRY_SIZE;
++				/* brcl	0xf,__jump_r1 */
++				*(short *)&insn[8] = 0xc0f4;
++				*(int *)&insn[10] = (jump_r1 - (ip + 8)) / 2;
+ 			} else {
+-				insn[2] = 0x07f10000;	/* br %r1 */
++				*(int *)&insn[8] = 0x07f10000;	/* br %r1 */
+ 			}
+-			insn[3] = (unsigned int) (val >> 32);
+-			insn[4] = (unsigned int) val;
++			*(long *)&insn[14] = val;
  
- 	stmmac_mmc_setup(priv);
- 
--	if (init_ptp) {
--		ret = stmmac_init_ptp(priv);
--		if (ret == -EOPNOTSUPP)
--			netdev_warn(priv->dev, "PTP not supported by HW\n");
--		else if (ret)
--			netdev_warn(priv->dev, "PTP init failed\n");
--	}
-+	ret = stmmac_init_ptp(priv);
-+	if (ret == -EOPNOTSUPP)
-+		netdev_warn(priv->dev, "PTP not supported by HW\n");
-+	else if (ret)
-+		netdev_warn(priv->dev, "PTP init failed\n");
-+	else if (ptp_register)
-+		stmmac_ptp_register(priv);
- 
- 	priv->eee_tw_timer = STMMAC_DEFAULT_TWT_LS;
- 
+ 			write(ip, insn, sizeof(insn));
+ 			info->plt_initialized = 1;
 
