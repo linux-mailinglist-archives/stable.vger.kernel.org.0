@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F370D4A2F84
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:50:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C4A94A2F85
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:50:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1346713AbiA2Muk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 07:50:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59552 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345826AbiA2Muj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:50:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A6456C061714
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 04:50:39 -0800 (PST)
+        id S1346757AbiA2Muu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 07:50:50 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:59084 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345826AbiA2Mut (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:50:49 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A80F8608D6
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:50:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C484C340E5;
-        Sat, 29 Jan 2022 12:50:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A892BB827B9
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:50:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4615C340E8;
+        Sat, 29 Jan 2022 12:50:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643460638;
-        bh=kghCYF9lu2jtI+uSfVqmVsfE75gkC4lwQVobFtymmfs=;
+        s=korg; t=1643460647;
+        bh=ksvqbY+XDIFHoDANG/dPCeRr9Fob+bWjrQaCdejyNUw=;
         h=Subject:To:Cc:From:Date:From;
-        b=mE2myvEGM2M0hPe7Ed/SYv8xh/Av+sK+dwaV7HZr+nleJKfxJposbsztS2epwU2/U
-         qHKYdGoOsYgxREIaRfnHpWt876sZOslZCkIi7BFxxr+WpubsptqaRfugw9XnWdALXt
-         rBYyvyqRRhLwUqDeJ1OrToHB35IW9IGecEjg3S5Q=
-Subject: FAILED: patch "[PATCH] powerpc/32s: Fix kasan_init_region() for KASAN" failed to apply to 5.16-stable tree
+        b=MCzTeKDwKDz5sSfHqr0MqoBPUyd2T3L3AD2vIpnBp3vkvrZjhTmQvIaXGNLLKi5cy
+         H6T9c4LdOrdZr807v42WRV/iPaKwRQcXrO6teWmaArwJjUzmRwyco3jTwtwWzW7cW0
+         ITdpU5mNxcV16sLsCtmvhGGAEtKyZwvEpUqfBCRc=
+Subject: FAILED: patch "[PATCH] powerpc/32s: Fix kasan_init_region() for KASAN" failed to apply to 5.15-stable tree
 To:     christophe.leroy@csgroup.eu, mbizon@freebox.fr, mpe@ellerman.id.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 29 Jan 2022 13:50:35 +0100
-Message-ID: <164346063518972@kroah.com>
+Date:   Sat, 29 Jan 2022 13:50:36 +0100
+Message-ID: <16434606364728@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.16-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
