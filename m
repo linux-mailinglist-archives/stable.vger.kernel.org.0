@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3DCF4A2EB5
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:03:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 52E6F4A2EB6
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:03:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242192AbiA2MDm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 07:03:42 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:42570 "EHLO
+        id S243377AbiA2MDp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 07:03:45 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:42600 "EHLO
         ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242213AbiA2MDl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:03:41 -0500
+        with ESMTP id S242213AbiA2MDo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:03:44 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 573F6B827B1
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:03:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75413C340E5;
-        Sat, 29 Jan 2022 12:03:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B51BEB822B2
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:03:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C11C0C340E5;
+        Sat, 29 Jan 2022 12:03:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643457819;
-        bh=lCnc2hYRef+zaG/Gi1VGRyXUoxfovyQfjBNHSe1G4C0=;
+        s=korg; t=1643457822;
+        bh=xB1FXtlvB4P7jrcnZJEpFjdz80zVPrp41r2Yooer3Mk=;
         h=Subject:To:Cc:From:Date:From;
-        b=pxZL6BCYLSlpOp1GtEGBdQF3NICsPig6E7xa/qwEFWHuadURV/g7VBYL3faGj+a22
-         UAFWWtuw5V5guhsy3Smz3ZY15DqYqZV8VQbomVl1a/ECiXuNtcjExzHrg2o5ptQyPa
-         d77c0Zcufz0JU9qTd5Q/TAxLDc0D1HKAq7wh8HQk=
-Subject: FAILED: patch "[PATCH] s390/nmi: handle guarded storage validity failures for KVM" failed to apply to 5.4-stable tree
+        b=IJ/OOAfnAlHpGxxEToh0tt4QsRfLIum7wvFdV2CNqbV/HyB6kF6S82N1yCHMtd8fO
+         C4ZyO6/A+6FH+17x80Wp9SKG0SL+sJ0IzTYqZN4rGEY/DZoElSf2FVjaoZK8P+K1mR
+         JpJCbO+mjRSt8LVCQer4wcgCr9O0wPPT45mugp+g=
+Subject: FAILED: patch "[PATCH] s390/nmi: handle guarded storage validity failures for KVM" failed to apply to 4.14-stable tree
 To:     borntraeger@linux.ibm.com, cotte@de.ibm.com, hca@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 29 Jan 2022 13:03:25 +0100
-Message-ID: <1643457805250179@kroah.com>
+Date:   Sat, 29 Jan 2022 13:03:26 +0100
+Message-ID: <1643457806121125@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
