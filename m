@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18CAC4A3062
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 16:57:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8E9A4A3063
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 16:57:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1351084AbiA2P5H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 10:57:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43758 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350749AbiA2P5E (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 10:57:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F1DEC06173B
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 07:57:04 -0800 (PST)
+        id S1347844AbiA2P5M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 10:57:12 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:40410 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1349493AbiA2P5H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 10:57:07 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F05460EA2
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 15:57:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0513BC340ED;
-        Sat, 29 Jan 2022 15:57:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DA7E60BA9
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 15:57:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3050AC340E5;
+        Sat, 29 Jan 2022 15:57:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643471823;
-        bh=LTjZF5VwICV/jnA/dFqJjs18kdrTzMCwOTdJpP9x+o4=;
+        s=korg; t=1643471826;
+        bh=dw6yBb6s9jSdWVF4zEHAWNJJRk15pfs3eLWTwQPMnjA=;
         h=Subject:To:Cc:From:Date:From;
-        b=upSfXC9+GDIlQMN/WD3cQRK5U9Zm2+nakYtGKwgasdAHhyaUB7OLIkVW8hZn2f0zB
-         8C4AMDQX98l4ua+r5SHfgFKyHRJG0kES0c7Tiy29d4GNeqP1RDKqDplhhL9LyWRdZz
-         BKu6KktvQpN3i396TrOjAD+PLsdaBKNuk9B6y3gE=
-Subject: FAILED: patch "[PATCH] serial: stm32: prevent TDR register overwrite when sending" failed to apply to 5.4-stable tree
+        b=XCtpgiDx+qDkwLFIsjDNm1p56r6v0PZ39C9aCRpxBrddb86hYz+JqHDsszoChI4XK
+         NiBk2DI/SRxB6hV2wtDcjPdmFOd0zSOyjWVSJbYpM/yCLQ4lnpikteRW1WA8Pst3pZ
+         fgMuDbm9hp7DDj3BgVJcK6O9dXJiOG6+r1aUilt8=
+Subject: FAILED: patch "[PATCH] serial: stm32: prevent TDR register overwrite when sending" failed to apply to 4.9-stable tree
 To:     valentin.caron@foss.st.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 29 Jan 2022 16:56:50 +0100
-Message-ID: <164347181011758@kroah.com>
+Date:   Sat, 29 Jan 2022 16:56:51 +0100
+Message-ID: <1643471811245153@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
