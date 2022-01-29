@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 295D04A2E9B
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:01:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69EC74A2E9A
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:00:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242175AbiA2MBE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 07:01:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48534 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233572AbiA2MBD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:01:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F1E5C061714
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 04:01:03 -0800 (PST)
+        id S236379AbiA2MA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 07:00:58 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:39416 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233572AbiA2MA5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:00:57 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D8795B827AA
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:01:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02245C340EB;
-        Sat, 29 Jan 2022 12:00:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CBE960BBE
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:00:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8430FC340E5;
+        Sat, 29 Jan 2022 12:00:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643457660;
-        bh=vy9PEfD7++/42c8XhBfqWWS/6AmOCS70p5qtGioJs1U=;
+        s=korg; t=1643457657;
+        bh=He+ZDa1yv9PilFdBkbPab01ORjImxPFZ673Dby723ZM=;
         h=Subject:To:Cc:From:Date:From;
-        b=S9sp25T7lGlqxgda9bDi+xQ/rLMshCRPiG+QN1FUMLRQS/ecxdq/kgqgdLwKegg7d
-         dDua4reFTWGuy+xdEuRnaif764Wu/a7yEN0gtU9DTlMTJBPB6Y2IopeDMDdo5w9yXR
-         9Uhfy0PwC0sNuY89HbEsilDZuQUCSSO4NmJrN3Kg=
-Subject: FAILED: patch "[PATCH] net: sfp: ignore disabled SFP node" failed to apply to 4.19-stable tree
+        b=13p0dqUQm8IzsKjEGB4bXb8XDWwH4YojG6e4eNILY9T9ClCFzuvx4lPMdRc3qoKP0
+         wnj1/yBlHQ7TcijhbDxvHfxDQ28PNE5tHWd/Qo2F4sBzCkB2lnXTpOh+TcqX04vvSP
+         DBLIDlhpYMY6YDW4ebW2EIa/GzgPlglFzuiRt/aI=
+Subject: FAILED: patch "[PATCH] net: sfp: ignore disabled SFP node" failed to apply to 5.4-stable tree
 To:     kabel@kernel.org, davem@davemloft.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 29 Jan 2022 13:00:49 +0100
-Message-ID: <16434576496299@kroah.com>
+Message-ID: <164345764948199@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
