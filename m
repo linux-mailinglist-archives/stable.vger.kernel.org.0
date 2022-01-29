@@ -2,126 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EBB34A3215
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 22:41:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14E2D4A325C
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 23:30:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353235AbiA2Vle (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 16:41:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34496 "EHLO
+        id S1353378AbiA2Waj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 17:30:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353231AbiA2Vlb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 16:41:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1FD2C061714;
-        Sat, 29 Jan 2022 13:41:30 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 69D27B827EE;
-        Sat, 29 Jan 2022 21:41:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97496C340E8;
-        Sat, 29 Jan 2022 21:41:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1643492488;
-        bh=dQ0cPtF6bx+VAZiB0Z8eKeaDUiYQG145jJc72f+A1jw=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=JcSSRwdbsjpSMqZO2YM9EJBiNUEmCTuzi/lsGebYQaVBR3E0gZ+zVy0Cibd9bxhla
-         OIFao0qkK2pSQd94Q+7ykUOxesnwqHo34nJ8NyWJuEWonPiaYlAimDRUBzhn8oONxI
-         bFTKOrsed34ar0fO7qkJHmdZOcgjNpyo2Kq07eU0=
-Date:   Sat, 29 Jan 2022 13:41:27 -0800
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     adilger.kernel@dilger.ca, akpm@linux-foundation.org,
-        gautham.ananthakrishna@oracle.com, gechangwei@live.cn,
-        ghe@suse.com, jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
-        junxiao.bi@oracle.com, linux-mm@kvack.org, mark@fasheh.com,
-        mm-commits@vger.kernel.org, piaojun@huawei.com,
-        saeed.mirzamohammadi@oracle.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, tytso@mit.edu
-Subject:  [patch 12/12] ocfs2: fix a deadlock when commit trans
-Message-ID: <20220129214127.zeeGfdF7V%akpm@linux-foundation.org>
-In-Reply-To: <20220129134026.8ccf701012f26eb2c2c269c9@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        with ESMTP id S1353350AbiA2Wae (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 17:30:34 -0500
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71FF4C06173B
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 14:30:34 -0800 (PST)
+Received: by mail-pj1-x102a.google.com with SMTP id b1-20020a17090a990100b001b14bd47532so9948603pjp.0
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 14:30:34 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=/FE7PHpPjUd1T3ZN5zPIhLlWAEKsXdhRnakSYpYzyYc=;
+        b=P8QTzoC6Iyf7onjLrdP2Azm0s5J5ab3yWO1Zq1YNTrpjEPHHnXqhdx4H/hvNn3F8eA
+         XNmp7jTXZTCFU4qrXlqsKCkNAgNWQAYReviIFj9wOvkq3v7EsbXUlfLC3MMieUtaNXOj
+         08e44iw+zcCQ1RTWVBN1durtENhOgMl7uVN36LjNfloyTP6bo24RH+Id32qsNvYayWnA
+         w6+2qFwqxmAtob+VYj8U8qz5fTW6P92BEnNauLRH2+SPVrp5qkmkuc5d5F78O9pSu3k/
+         Y+RgRlwDabiDHuowf1y8eyB3JuDGe6hYGeM6UdKLwr0+w4nKndPYxy86//tweHdhhgYi
+         +u1Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=/FE7PHpPjUd1T3ZN5zPIhLlWAEKsXdhRnakSYpYzyYc=;
+        b=1pgHRQmnj0LRiMxRFkuhojcz/QUSNQcRZYOzXtOnUyWmkA2Ct5qV22LEGS1alCLXq/
+         ggUKv3WUg6eDu5PIwUiHkH6zHp0rVGFUSCB4seVhIg66IcSd5WZtEFxYc58quILzH23g
+         V6IFdmifTUQR8KAAiGXIBcyDObhXUBjZsZHMmRdJwiU4fTWsgV4XOOmgS72I82Syv/Qo
+         m4P1GAzBUrzLEuTZjoqXtz3xCpGsoGPdAOnWub3aYjEb1aMwpfJhMKKxQTQjVgTbrYkL
+         dHbfzaINr1BJrebGASGuGNnE4/4dw0wt4kUZmofxozK/GBddspM8UMxfX9pJscnFTyqx
+         X8CA==
+X-Gm-Message-State: AOAM530i0/vWkxA01vqp6m6cMRu2VY39yHanvpLyXcb1CT8aNbMwBpbw
+        dL+aK4BADVDa6tFzhywwa8SB3Ln4sp94x1hd
+X-Google-Smtp-Source: ABdhPJxw+Ta38+lsSXrJjtdXcA265F/zSRol/M2qu5uRlu0YOmmGVQqOUFHPCIAPeTEa0qxjP+2kxw==
+X-Received: by 2002:a17:902:ab43:: with SMTP id ij3mr14810527plb.25.1643495433442;
+        Sat, 29 Jan 2022 14:30:33 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id o4sm23133991pgs.3.2022.01.29.14.30.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 29 Jan 2022 14:30:33 -0800 (PST)
+Message-ID: <61f5c009.1c69fb81.fa865.fc6f@mx.google.com>
+Date:   Sat, 29 Jan 2022 14:30:33 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.14.264-16-gf2d433d52c2f
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.14
+Subject: stable-rc/queue/4.14 baseline: 84 runs,
+ 1 regressions (v4.14.264-16-gf2d433d52c2f)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joseph Qi <joseph.qi@linux.alibaba.com>
-Subject: ocfs2: fix a deadlock when commit trans
+stable-rc/queue/4.14 baseline: 84 runs, 1 regressions (v4.14.264-16-gf2d433=
+d52c2f)
 
-commit 6f1b228529ae introduces a regression which can deadlock as follows:
+Regressions Summary
+-------------------
 
-Task1:                              Task2:
-jbd2_journal_commit_transaction     ocfs2_test_bg_bit_allocatable
-spin_lock(&jh->b_state_lock)        jbd_lock_bh_journal_head
-__jbd2_journal_remove_checkpoint    spin_lock(&jh->b_state_lock)
-jbd2_journal_put_journal_head
-jbd_lock_bh_journal_head
-
-Task1 and Task2 lock bh->b_state and jh->b_state_lock in different
-order, which finally result in a deadlock.
-
-So use jbd2_journal_[grab|put]_journal_head instead in
-ocfs2_test_bg_bit_allocatable() to fix it.
-
-Link: https://lkml.kernel.org/r/20220121071205.100648-3-joseph.qi@linux.alibaba.com
-Fixes: 6f1b228529ae ("ocfs2: fix race between searching chunks and release journal_head from buffer_head")
-Signed-off-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Reported-by: Gautham Ananthakrishna <gautham.ananthakrishna@oracle.com>
-Tested-by: Gautham Ananthakrishna <gautham.ananthakrishna@oracle.com>
-Reported-by: Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Andreas Dilger <adilger.kernel@dilger.ca>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: Junxiao Bi <junxiao.bi@oracle.com>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
 ---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
- fs/ocfs2/suballoc.c |   25 +++++++++++--------------
- 1 file changed, 11 insertions(+), 14 deletions(-)
 
---- a/fs/ocfs2/suballoc.c~ocfs2-fix-a-deadlock-when-commit-trans
-+++ a/fs/ocfs2/suballoc.c
-@@ -1251,26 +1251,23 @@ static int ocfs2_test_bg_bit_allocatable
- {
- 	struct ocfs2_group_desc *bg = (struct ocfs2_group_desc *) bg_bh->b_data;
- 	struct journal_head *jh;
--	int ret = 1;
-+	int ret;
- 
- 	if (ocfs2_test_bit(nr, (unsigned long *)bg->bg_bitmap))
- 		return 0;
- 
--	if (!buffer_jbd(bg_bh))
-+	jh = jbd2_journal_grab_journal_head(bg_bh);
-+	if (!jh)
- 		return 1;
- 
--	jbd_lock_bh_journal_head(bg_bh);
--	if (buffer_jbd(bg_bh)) {
--		jh = bh2jh(bg_bh);
--		spin_lock(&jh->b_state_lock);
--		bg = (struct ocfs2_group_desc *) jh->b_committed_data;
--		if (bg)
--			ret = !ocfs2_test_bit(nr, (unsigned long *)bg->bg_bitmap);
--		else
--			ret = 1;
--		spin_unlock(&jh->b_state_lock);
--	}
--	jbd_unlock_bh_journal_head(bg_bh);
-+	spin_lock(&jh->b_state_lock);
-+	bg = (struct ocfs2_group_desc *) jh->b_committed_data;
-+	if (bg)
-+		ret = !ocfs2_test_bit(nr, (unsigned long *)bg->bg_bitmap);
-+	else
-+		ret = 1;
-+	spin_unlock(&jh->b_state_lock);
-+	jbd2_journal_put_journal_head(jh);
- 
- 	return ret;
- }
-_
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.264-16-gf2d433d52c2f/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.264-16-gf2d433d52c2f
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f2d433d52c2f34220950e0ed142ae962ed8aa354 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61f585f9f9a6778cfcabbd25
+
+  Results:     4 PASS, 1 FAIL, 1 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.264=
+-16-gf2d433d52c2f/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
+da.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.264=
+-16-gf2d433d52c2f/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pan=
+da.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61f585f9f9a6778=
+cfcabbd2b
+        failing since 1 day (last pass: v4.14.262-183-ge251e7983f4f, first =
+fail: v4.14.263-3-ga2d9e2bae197e)
+        2 lines
+
+    2022-01-29T18:22:30.257135  [   19.964752] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2022-01-29T18:22:30.300985  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, mmcqd/0/60
+    2022-01-29T18:22:30.310514  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+d3c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
+
+ =20
