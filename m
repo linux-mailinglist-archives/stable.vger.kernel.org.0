@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 962AC4A2EAF
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:03:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84A174A2EAD
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:03:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243331AbiA2MDH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 07:03:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49018 "EHLO
+        id S233852AbiA2MDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 07:03:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49000 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229989AbiA2MDH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:03:07 -0500
+        with ESMTP id S229989AbiA2MDD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:03:03 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF199C061714
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 04:03:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 889C5C061714
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 04:03:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9F1C3B827B0
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:03:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C393DC340E5;
-        Sat, 29 Jan 2022 12:03:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 55EEFB82699
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:03:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97E32C340E5;
+        Sat, 29 Jan 2022 12:03:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643457784;
-        bh=sPNYzpJ68ere8wL5GW6tSpGIj7GzWwjlUZJOYtIfrts=;
+        s=korg; t=1643457781;
+        bh=ZNGX8c0YV6nu3FjH1e8tHL9jS+Wyl5Voxik0XtqueT4=;
         h=Subject:To:Cc:From:Date:From;
-        b=uu3LLxugT0PWTalzygygF9UIRr5G1RD0Ar/9kFD0nOFJ37UX2CvtbCDodocfmRRxR
-         m5vVFI8RR7Ku8R+qI3WLmmNx7vN2bCSnwcK7g7L4PG5bpA48Osidy+hfRkR7b9EisG
-         bSjUYGd5B3f/N6VfkLvjwOQNptByczoi6EWCgjis=
-Subject: FAILED: patch "[PATCH] s390/module: fix loading modules with a lot of relocations" failed to apply to 4.9-stable tree
+        b=lZXDwYcGo3oXWmCDRqMvmjBRFMV4IpEFxA2t/9b/pmdaaLM/oNyBdX/goxyu4ishY
+         2wfv/URIce/7R+pFr1E8nk+scElhOx29g6R485PocqNWcBJP7pxvcppjMAWiFtunqH
+         lzLvA8jxfqp3RRNB7tH3Za1T6NMvDIe9vwqItpmA=
+Subject: FAILED: patch "[PATCH] s390/module: fix loading modules with a lot of relocations" failed to apply to 4.14-stable tree
 To:     iii@linux.ibm.com, andrea.righi@canonical.com,
         borntraeger@linux.ibm.com, gor@linux.ibm.com, hca@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 29 Jan 2022 13:02:50 +0100
-Message-ID: <164345777015172@kroah.com>
+Message-ID: <164345777025158@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
