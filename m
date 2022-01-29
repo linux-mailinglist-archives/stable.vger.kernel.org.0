@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F7E84A2EB7
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:03:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 656234A2EBA
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:04:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242244AbiA2MD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 07:03:58 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:43300 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242213AbiA2MD6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:03:58 -0500
+        id S242213AbiA2MEF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 07:04:05 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:41738 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243561AbiA2MEF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:04:05 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 55298B82699
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:03:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CD7AC340E5;
-        Sat, 29 Jan 2022 12:03:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 54C3C60C01
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:04:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FCCFC340E5;
+        Sat, 29 Jan 2022 12:04:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643457836;
-        bh=e9oov0LhVdcNM8Qk5kseEXlpWM8YVBh/MaycWvNTHKI=;
+        s=korg; t=1643457844;
+        bh=nsXIDReefCGlO+ZbZ9W4pdJXmK6o+Yw6cb1K5ZYq8jU=;
         h=Subject:To:Cc:From:Date:From;
-        b=w8+5tma9XJEV6jwA1S7qUbS1p6FvVpa2g/VKwfiRDUflteegLtXYPQpnxyKFYX2kD
-         BiakZ4s481uJ3yAzpVwvcM/0xpzgv09cPUnA9DF80fOeXXYSyqobgzXqTXEz0a3zpj
-         i2eNmDYDPUoQh0ffLC4I7unVpOFJTcL/IBJdnFwY=
-Subject: FAILED: patch "[PATCH] s390/nmi: handle vector validity failures for KVM guests" failed to apply to 5.10-stable tree
+        b=IV6vEL7jkhwoJQbaYME4kOqA9xYDODJGTcaUiQ5ym7+QjYYAlUWN8yW2fvWNWHKqY
+         JwEC7zd2w6c4vhlkMPygDuuGifsi8KmF1xPDklNmm4HvOD/h5c3YoneG18kFNzjK8g
+         W6VaYqN4so61iyX5ix61Ju2q9TOgexLdHiI3dmPI=
+Subject: FAILED: patch "[PATCH] s390/nmi: handle vector validity failures for KVM guests" failed to apply to 5.4-stable tree
 To:     borntraeger@linux.ibm.com, hca@linux.ibm.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 29 Jan 2022 13:03:53 +0100
-Message-ID: <164345783346214@kroah.com>
+Message-ID: <16434578331878@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
