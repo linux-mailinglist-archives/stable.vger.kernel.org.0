@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E930E4A2F7D
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:46:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C01804A2F7E
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:46:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345573AbiA2Mqy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 07:46:54 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:33370 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239539AbiA2Mqy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:46:54 -0500
+        id S1345406AbiA2Mq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 07:46:59 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:58072 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S239539AbiA2Mq6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:46:58 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EBBDB60C6C
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:46:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8D80C340E5;
-        Sat, 29 Jan 2022 12:46:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C3986B827B5
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:46:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2181C340E5;
+        Sat, 29 Jan 2022 12:46:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643460413;
-        bh=ZxsaV7t+Sqe/azLpLl0zyefBqe0oUNJMlV1gZ0Oknco=;
+        s=korg; t=1643460416;
+        bh=kBksSSwoDnrDrfQfFj37CAZ/CYeuOYZ6pwfqchpqUdk=;
         h=Subject:To:Cc:From:Date:From;
-        b=1fjwGTDY3b0ViHL8RV6zfr7tTNB30OXvznCSm7oq0Fdnf80TBA/hJZjkuOBimuKLD
-         tRy9Z0lHp2mZpsiEyMQqVmpNLq5kDPmt77zMG8eZbAtKtwDssU/Sgf7SupX8qWrmef
-         +WYaz35o3hkMBvg8k9X1xHP/jbQqLn6WzAtSobCE=
-Subject: FAILED: patch "[PATCH] tracing: Propagate is_signed to expression" failed to apply to 5.4-stable tree
+        b=FkT7Na6uxYn5BU+N0Rjzu+y/Z7yumRu8kA5NhSwqBDuVv90SrYZqAiZvDGUTlgmTF
+         Od/lQtBIKW6fL/jMu7TJ7solMrZud7+gxHoDkAyuhHMA3eJXGfefL1JH1i7SlwDAAn
+         bxu08LkgLVY5jVioMuFbG5/ktNcGX73fBHVaZmZk=
+Subject: FAILED: patch "[PATCH] tracing: Propagate is_signed to expression" failed to apply to 5.15-stable tree
 To:     zanussi@kernel.org, rostedt@goodmis.org, ykaradzhov@vmware.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 29 Jan 2022 13:46:40 +0100
-Message-ID: <164346040080236@kroah.com>
+Message-ID: <16434604001373@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -39,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
