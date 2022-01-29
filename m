@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E7FA4A2F91
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:53:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 974504A2F92
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:53:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1349719AbiA2MxU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 07:53:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60194 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1347906AbiA2MxS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:53:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC7BEC061714
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 04:53:18 -0800 (PST)
+        id S1349859AbiA2Mx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 07:53:29 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:59956 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1347906AbiA2Mx3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:53:29 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B54F60BA0
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:53:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EF36C340E5;
-        Sat, 29 Jan 2022 12:53:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 01296B827B2
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:53:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CF89C340E5;
+        Sat, 29 Jan 2022 12:53:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643460797;
-        bh=gK5AzxxKtRlvhuhJ6371vCuI/4JD2vfBcvRfibwldhM=;
+        s=korg; t=1643460806;
+        bh=vJCVNetS+Q2U7pLbbKReq2h20xyACS+iGMXWTJeUWuc=;
         h=Subject:To:Cc:From:Date:From;
-        b=TEvsNzQhDZ0SwZlHUFEBhuQphMSRn3DoftTyhcmiosINPuVtlXuWaTSXM9RWUV48f
-         2JnvrUJldYYGcIIRV8fxzWkOUhBj7VE9ZL2uPAuFrZFRNcnXtPCdBvwGzAupOgGqTO
-         hwWZHrhkSL1eZc4oynzWWYkLfrCo7kOeE0Zfil1g=
-Subject: FAILED: patch "[PATCH] KVM: SVM: Workaround errata#1096 (insn_len maybe zero on SMAP" failed to apply to 5.4-stable tree
+        b=IXEkSqkLMPCLTsuca4w4e2RcjBCqxTqIsL8BU0rKQxBeaBPMtnr4xjMWibaS0ZxAa
+         aT7bB3u7qN9mTqBP4VVZs5SHHDSZDKrh1nDcRHi/n1Ly8UREuEo/A21ssnvnpkIgJh
+         f1yiKU8BHDD2wzdBJzFPvIe7Picf+41XjUj01dEg=
+Subject: FAILED: patch "[PATCH] KVM: SVM: Workaround errata#1096 (insn_len maybe zero on SMAP" failed to apply to 5.10-stable tree
 To:     brijesh.singh@amd.com, bp@alien8.de, jmattson@google.com,
         joro@8bytes.org, pbonzini@redhat.com, rkrcmar@redhat.com,
         thomas.lendacky@amd.com, venkateshs@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 29 Jan 2022 13:53:15 +0100
-Message-ID: <16434607959496@kroah.com>
+Date:   Sat, 29 Jan 2022 13:53:16 +0100
+Message-ID: <164346079614492@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,7 +41,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
