@@ -2,111 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71BFE4A31F3
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 21:55:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D27B74A31FB
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 22:03:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1353182AbiA2Uzv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 15:55:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52936 "EHLO
+        id S1346327AbiA2VDS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 16:03:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1353175AbiA2Uzu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 15:55:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A8AEC061714;
-        Sat, 29 Jan 2022 12:55:50 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 05870B827EE;
-        Sat, 29 Jan 2022 20:55:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70799C340E5;
-        Sat, 29 Jan 2022 20:55:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1643489747;
-        bh=G7QA3HwNNoYI9kiXeIfPQ93Sb/zPUzr5kXx1E0dhgLk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=R9PVyqGbtp/xs8vsBE3u0q9gmCJ488CGR5zUh2kI8qdeNPDDYneJF94TUBGZGKhjO
-         Cn/kEky5r6evcFCypJgBkw99FwyKJZUiP4lopntkzptCQOsknAUPbDATSGUImfkkFg
-         JCPQtvXt9LOCcKe3w8kWJkQSncE6zM5MhtbE/S+Ij8yuQ37C/u/11PgC0QJ1uAwOdE
-         Q7TtApBV37o57nA5QjGANyg/Sjs0qRXXJxBVDB3+BZLjC70QyEAwumkzZg558r+BkA
-         0h2Pkt9faxJSTCj4rvFH4MiTQahUtx4/LC/G2oriVEF5MJu/RjNEppzoGDj2Xg5fE5
-         o/uTghvVAhYHw==
-Date:   Sat, 29 Jan 2022 13:55:42 -0700
-From:   Nathan Chancellor <nathan@kernel.org>
-To:     Robert Hancock <robert.hancock@calian.com>
-Cc:     linux-usb@vger.kernel.org, balbi@kernel.org,
-        gregkh@linuxfoundation.org, michal.simek@xilinx.com,
-        manish.narani@xilinx.com, sean.anderson@seco.com,
-        robh+dt@kernel.org, devicetree@vger.kernel.org,
-        piyush.mehta@xilinx.com, stable@vger.kernel.org
-Subject: Re: [PATCH] usb: dwc3: xilinx: fix uninitialized return value
-Message-ID: <YfWpznEA95bH1Bvg@dev-arch.archlinux-ax161>
-References: <20220127221500.177021-1-robert.hancock@calian.com>
+        with ESMTP id S1346309AbiA2VDR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 16:03:17 -0500
+Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92B1DC061714
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 13:03:17 -0800 (PST)
+Received: by mail-pl1-x62f.google.com with SMTP id b15so9226517plg.3
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 13:03:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=LeVqAuzIZrg4Fcw2zMhc1rPnxpQb5ck6l47/fYpg5nk=;
+        b=lFBdGJQmacDESH4JvCAnJUqAOdnvQcQCrzxYYLeMLjOi5+rbzMx3cFw5fXntpUatF6
+         0jHxdWaYDZG9TppEqLWKH5OwCiDMvqTH+GC/xRrlCsT7UzgmJLyfZJMXMN4/VOiSaWR3
+         ojkK8p7axtQshrYI/XibUCv172yybfQB5icktrY/gNLYgk2R/2D7MZc6RLzFYG1bZv3+
+         m12puslkHTPeTA4MpvTYIgd4S3GwFJy3HUD1pe1xoiQuHl6wl7U4UofosnTTbdkhPEK0
+         zHUjbQaZ85EBEXC9pIUml3FNiPMMVz+kui31BKpxLFmjfrPZgBYdE9aDzClSKUpZAF1H
+         o7CQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=LeVqAuzIZrg4Fcw2zMhc1rPnxpQb5ck6l47/fYpg5nk=;
+        b=07OJxG/0c7ELmUj4lKzdSbnnWuTDMpxiv/YI/BpaWEkBhstShx5aM9OrXp33dhAjrF
+         DPQO6tmvdviUB/FxQIJPxXLRmzZIFlsDTu9TscWwW0N/Y2NeKk/REKNFXmPw4m/YYwiC
+         ZczNeovjIcWJrgo0HaKfrHfiniMeTDBac05u3Oz4M+30sQtJVgdPkLfVm6td7xYTagta
+         EbwUm32q3WZZxdUYeFD2eaU7p95eQL3QfAPcJHcArC0kP+SVKBWehJwnaSh/ivNbWoi5
+         qDl1Q8jiNODcQ2B88+UkoexPgmL03puKSD74i5cplaMnluNjyR1XH/p7SbMUtYlUF/ug
+         /KRw==
+X-Gm-Message-State: AOAM532W6yW875Yq3r2hpJHhn1XD8rP0bTmrDMMuHZj3uUXmdALvkcVX
+        we2xEN+13r2xvFDKgatNXou/GPUKrnMLmS53
+X-Google-Smtp-Source: ABdhPJzG894n1jWYnpKeoNgJRz2IvAuMZ4MuK8LZ7mUiGrJZSy7Onq00YNOdROYSw340BA8oitoh6Q==
+X-Received: by 2002:a17:902:e88e:: with SMTP id w14mr14376016plg.95.1643490196897;
+        Sat, 29 Jan 2022 13:03:16 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id l2sm13496270pfc.183.2022.01.29.13.03.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 29 Jan 2022 13:03:16 -0800 (PST)
+Message-ID: <61f5ab94.1c69fb81.e3dd7.4367@mx.google.com>
+Date:   Sat, 29 Jan 2022 13:03:16 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220127221500.177021-1-robert.hancock@calian.com>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Report-Type: test
+X-Kernelci-Kernel: v4.19.227-8-g4d2a3fae51c9
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/4.19
+Subject: stable-rc/queue/4.19 baseline: 120 runs,
+ 1 regressions (v4.19.227-8-g4d2a3fae51c9)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 27, 2022 at 04:15:00PM -0600, Robert Hancock wrote:
-> A previous patch to skip part of the initialization when a USB3 PHY was
-> not present could result in the return value being uninitialized in that
-> case, causing spurious probe failures. Initialize ret to 0 to avoid this.
-> 
-> Fixes: 9678f3361afc ("usb: dwc3: xilinx: Skip resets and USB3 register settings for USB2.0 mode")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Robert Hancock <robert.hancock@calian.com>
+stable-rc/queue/4.19 baseline: 120 runs, 1 regressions (v4.19.227-8-g4d2a3f=
+ae51c9)
 
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Regressions Summary
+-------------------
 
-This resolves a clang warning that is now in mainline:
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
 
-$ make -sj"$(nproc)" ARCH=arm64 LLVM=1 allmodconfig drivers/usb/dwc3/dwc3-xilinx.o
-drivers/usb/dwc3/dwc3-xilinx.c:122:6: error: variable 'ret' is used uninitialized whenever 'if' condition is true [-Werror,-Wsometimes-uninitialized]
-        if (!usb3_phy)
-            ^~~~~~~~~
-drivers/usb/dwc3/dwc3-xilinx.c:216:9: note: uninitialized use occurs here
-        return ret;
-               ^~~
-drivers/usb/dwc3/dwc3-xilinx.c:122:2: note: remove the 'if' if its condition is always false
-        if (!usb3_phy)
-        ^~~~~~~~~~~~~~
-drivers/usb/dwc3/dwc3-xilinx.c:102:11: note: initialize the variable 'ret' to silence this warning
-        int                     ret;
-                                   ^
-                                    = 0
-1 error generated.
 
-It might be worth moving the initialization into the if statement
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
+nel/v4.19.227-8-g4d2a3fae51c9/plan/baseline/
 
-    if (!usb3_phy) {
-        ret = 0;
-        goto skip_usb3_phy;
-    }
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.19
+  Describe: v4.19.227-8-g4d2a3fae51c9
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      4d2a3fae51c90d12f44e86013f8e00df98161be5 =
 
-as that will avoid hiding warnings of this nature if someone forgets to
-set ret on an error path but that is ultimately up to the maintainer.
 
-> ---
->  drivers/usb/dwc3/dwc3-xilinx.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/usb/dwc3/dwc3-xilinx.c b/drivers/usb/dwc3/dwc3-xilinx.c
-> index e14ac15e24c3..a6f3a9b38789 100644
-> --- a/drivers/usb/dwc3/dwc3-xilinx.c
-> +++ b/drivers/usb/dwc3/dwc3-xilinx.c
-> @@ -99,7 +99,7 @@ static int dwc3_xlnx_init_zynqmp(struct dwc3_xlnx *priv_data)
->  	struct device		*dev = priv_data->dev;
->  	struct reset_control	*crst, *hibrst, *apbrst;
->  	struct phy		*usb3_phy;
-> -	int			ret;
-> +	int			ret = 0;
->  	u32			reg;
->  
->  	usb3_phy = devm_phy_optional_get(dev, "usb3-phy");
-> -- 
-> 2.31.1
-> 
-> 
+
+Test Regressions
+---------------- =
+
+
+
+platform | arch | lab           | compiler | defconfig           | regressi=
+ons
+---------+------+---------------+----------+---------------------+---------=
+---
+panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/61f57118c4e10e3372abbd11
+
+  Results:     5 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.227=
+-8-g4d2a3fae51c9/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
+a.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.227=
+-8-g4d2a3fae51c9/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-pand=
+a.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20220121.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61f57118c4e10e3=
+372abbd17
+        failing since 0 day (last pass: v4.19.226-4-g38be3b9e94a4, first fa=
+il: v4.19.226-4-g23c81f83e59b)
+        2 lines
+
+    2022-01-29T16:53:27.263948  kern  :emerg : BUG: spinlock bad magic on C=
+PU#0, udevd/106
+    2022-01-29T16:53:27.273219  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
+cfc [emif], .magic: 00000000, .owner: <none>/-1, .owner_cpu: 0
+    2022-01-29T16:53:27.288723  <8>[   21.408233] <LAVA_SIGNAL_TESTCASE TES=
+T_CASE_ID=3Demerg RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D2>   =
+
+ =20
