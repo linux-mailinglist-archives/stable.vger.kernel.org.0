@@ -2,175 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A143B4A2D6C
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 10:38:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AC374A2DAF
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 11:33:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234233AbiA2Jii (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 04:38:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45606 "EHLO
+        id S229833AbiA2Kdn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 05:33:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234227AbiA2Jii (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 04:38:38 -0500
-Received: from mail-yb1-xb31.google.com (mail-yb1-xb31.google.com [IPv6:2607:f8b0:4864:20::b31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09921C06173B
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 01:38:38 -0800 (PST)
-Received: by mail-yb1-xb31.google.com with SMTP id m6so25485146ybc.9
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 01:38:38 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=x8oTHXyVoob250FmOz+GtPBKKlC5Finw/OsEFce6MMs=;
-        b=vHnWZhQ1GIcVvWQL9ktXBM4umWNVRj93nDCaawDMUNc6CAHd9OvNrp9Im580678g3D
-         A8ojea6lJV+WoTN66GkGACURlt5MMjwjM2sy3yZ1hR+CCOU7D59mEILl5uXoe/x/rNlW
-         BqkyJfdWKjs6ykX4J5PvQspxtql6lrqmCsc063fZyxx6IrW+PgNvSc1d1mcnLPaBvYJu
-         mfFUQf5LVVdlacJN9qeYZHTIwRbIoY1bGi+LZeED0h750L9549fw4dk7I9W5vV3G0gld
-         CCiqizMz438r1dWjdLF2Jy8xViR3rtduLfxNBLh3VpokXZwAD0K6MHgXJrt4vx9AUzzm
-         QsqA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=x8oTHXyVoob250FmOz+GtPBKKlC5Finw/OsEFce6MMs=;
-        b=UHq46BXAv2GSwWR3smnGhvM11MRpoyJQes+Qc+I4KwQqgjEAWI+1cI7vlpGjj+Lzho
-         IkdCuQIT9IlLPGg8ijKPBg7rShhMiGc8PlPi79gkrXFvNzdX3EUPKCGJ2Wop2Hq0fXrK
-         Jp5nyBr1WzltmkhIgHQ2PDsBWyr40Ke4XlqamFON2prHDNQwBLWDcmhfbGF/4OGEHpbh
-         2Sx9ANb5euFZuLTlEUAjVB7VGhJez0m9/oMP2vc7V0+iJm0i2RZZVS6xjM6j83m+qvOD
-         y1Scq+Foqx/vt5jZcUKyZLO83iSQpiN4j3Ewfq+c97VnNfWtRfS0oegx82XWnmLzYPPY
-         JtXQ==
-X-Gm-Message-State: AOAM530Nz50185oLYA91uU5w18n+fEd42Y34aAjPYd/Cwrc84SwV8ewJ
-        bJ5nmpos8UI27xt8XYfMZ3frTena6ZNUcRtpbNRQQw==
-X-Google-Smtp-Source: ABdhPJwMb3vOBAmNK/GUt0OhtvjRstXoGlHNhlZw9/5SrdD/uIglcigRMoUGe4wHu9e53sWVyqX1yHIOqMJnGKSLjd4=
-X-Received: by 2002:a25:97c4:: with SMTP id j4mr19123089ybo.108.1643449117114;
- Sat, 29 Jan 2022 01:38:37 -0800 (PST)
+        with ESMTP id S229682AbiA2Kdl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 05:33:41 -0500
+Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 116C8C061714;
+        Sat, 29 Jan 2022 02:33:41 -0800 (PST)
+Received: from zn.tnic (dslb-088-067-221-104.088.067.pools.vodafone-ip.de [88.67.221.104])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 940E61EC0501;
+        Sat, 29 Jan 2022 11:33:35 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1643452415;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=nWuW5Rrkh3ELO0P84pcGinhQ5TcZuFPxDKPwk5ziKUw=;
+        b=qu5+zGxcAw0G6JWIUaU8wpDJ4dpnPD2qasN7Hl1fERehyXFjBI3f/n8v/rMfpGecgjZHp9
+        Pn2clm4UmnJbLBHKhldyHTFQrp7+zmgBxw8KMHtMkMvpyoq+F2GdHRU4hd7jx5lmS7N4Zx
+        MuqRIJO+1Mr97XuKXSsIbIq8K082Bms=
+Date:   Sat, 29 Jan 2022 11:33:35 +0100
+From:   Borislav Petkov <bp@alien8.de>
+To:     Greg KH <greg@kroah.com>
+Cc:     Sergey Shtylyov <s.shtylyov@omp.ru>,
+        stable <stable@vger.kernel.org>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Tony Luck <tony.luck@intel.com>,
+        James Morse <james.morse@arm.com>,
+        Robert Richter <rric@kernel.org>, linux-edac@vger.kernel.org
+Subject: Re: [PATCH 1/2] edac: altera: fix deferred probing
+Message-ID: <YfUX/98NiydSGn9S@zn.tnic>
+References: <20220124185503.6720-1-s.shtylyov@omp.ru>
+ <20220124185503.6720-2-s.shtylyov@omp.ru>
+ <7b964ac0-6356-9330-a745-b43e620d051b@kernel.org>
+ <YfQ3xUpLOPvDu5W+@zn.tnic>
+ <ba83ca78-6a15-caf5-71ba-76d5b2b1b41d@omp.ru>
+ <9f28d2de-5119-a7a6-9da7-08b2ce13f1a0@omp.ru>
+ <YfRBCPRPkf+gD18/@zn.tnic>
+ <5bd9cbc1-12d2-aedc-6d64-ac9eaa2460b1@omp.ru>
+ <YfRB8SSugBDHAcwH@zn.tnic>
+ <YfTjQukS1ad9ZBmK@kroah.com>
 MIME-Version: 1.0
-References: <20220127180256.347004543@linuxfoundation.org>
-In-Reply-To: <20220127180256.347004543@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sat, 29 Jan 2022 15:08:26 +0530
-Message-ID: <CA+G9fYvk5Ye+6Y+Tu0mwYhe9bEL5y+dgAmQKDpQ=2CFtu9Td9Q@mail.gmail.com>
-Subject: Re: [PATCH 4.4 0/1] 4.4.301-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <YfTjQukS1ad9ZBmK@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 27 Jan 2022 at 23:38, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.4.301 release.
-> There are 1 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 29 Jan 2022 18:02:51 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.4.301-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Sat, Jan 29, 2022 at 07:48:34AM +0100, Greg KH wrote:
+> If you know you want a patch in the stable tree, add cc: stable.
+> 
+> Because not all maintainers remember to do so, we do dig through all
+> patches with just the fixes: tag, and try to backport them if needed,
+> but it does not always happen, and there can be long lags as well.
+> 
+> So again, if you know you want it in a stable kernel, add the cc:
+> stable.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Thanks for clarifying. I already did so - I figured having cc:stable
+won't hurt anyway. Besides, it is an explicit statement that "that patch
+is stable material" because Fixes: doesn't always necessarily mean,
+stable material.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Thx.
 
-## Build
-* kernel: 4.4.301-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-4.4.y
-* git commit: 187d7c3b8ca09131c71f6dbb8c8761f7f809402c
-* git describe: v4.4.300-2-g187d7c3b8ca0
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.4.y/build/v4.4.3=
-00-2-g187d7c3b8ca0
+-- 
+Regards/Gruss,
+    Boris.
 
-## Test Regressions (compared to v4.4.299-114-g67ca9c44f63d)
-No test regressions found.
-
-## Metric Regressions (compared to v4.4.299-114-g67ca9c44f63d)
-No metric regressions found.
-
-## Test Fixes (compared to v4.4.299-114-g67ca9c44f63d)
-No test fixes found.
-
-## Metric Fixes (compared to v4.4.299-114-g67ca9c44f63d)
-No metric fixes found.
-
-## Test result summary
-total: 33090, pass: 26341, fail: 104, skip: 5946, xfail: 699
-
-## Build Summary
-* arm: 129 total, 129 passed, 0 failed
-* arm64: 31 total, 31 passed, 0 failed
-* i386: 18 total, 18 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 22 total, 22 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 30 total, 24 passed, 6 failed
-
-## Test suites summary
-* kselftest-bpf
-* kselftest-intel_pstate
-* kselftest-kvm
-* kselftest-livepatch
-* kselftest-ptrace
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-zram
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
+https://people.kernel.org/tglx/notes-about-netiquette
