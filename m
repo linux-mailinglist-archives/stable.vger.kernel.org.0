@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DB984A2F86
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:50:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FB8A4A2F8E
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:52:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347379AbiA2Muv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 07:50:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59596 "EHLO
+        id S1350623AbiA2MwI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 07:52:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1345826AbiA2Muv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:50:51 -0500
+        with ESMTP id S1352555AbiA2MwF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:52:05 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39950C061714
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 04:50:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90948C061756
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 04:52:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CEB9F60BBD
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:50:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5888C340E5;
-        Sat, 29 Jan 2022 12:50:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A07560C7B
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:52:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB3D1C340E5;
+        Sat, 29 Jan 2022 12:52:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643460650;
-        bh=jVdMnOi8uN62XQP/eqxVNA4WCHCDzKKu7fc7LdbBl8s=;
+        s=korg; t=1643460724;
+        bh=p7r2D7mC3cw+/n1dplopnGFz2VhWF2bl5Mza/o+jZWs=;
         h=Subject:To:Cc:From:Date:From;
-        b=pTgMYBRpbAaeMCytp43nkbM39RgAt3IKJwmh0/Rp6oHW8it6FtO+/r4QWNwrlJcZw
-         PdGrujWEWoxWVo/IlpYOxFSaPYoioOcUipgFBV6llHjGl7mFoGzlOHHsooXAp4mgYK
-         lbqjqB7i6dOzmObJc8Jh5nQ1ocZeTgU7Kg8+M2L4=
-Subject: FAILED: patch "[PATCH] powerpc/32s: Fix kasan_init_region() for KASAN" failed to apply to 5.10-stable tree
-To:     christophe.leroy@csgroup.eu, mbizon@freebox.fr, mpe@ellerman.id.au
+        b=t0WLuiivR007NVDKcg/kD0Ynhb0peefCyDiXW0FdnCRIqLLIqtMib568jpIC5m9CQ
+         VKXmaWKKL5rjHioYPcLNaTLCNutVnuEB8sGMs2AZZn86CyC2jSwT11MoeG8l1e59rg
+         cOs6wgmB74sijbFtGtv9TSJ1rGq3cQiuGtb9B7Y8=
+Subject: FAILED: patch "[PATCH] drm/amdgpu/display: Remove t_srx_delay_us." failed to apply to 5.15-stable tree
+To:     bas@basnieuwenhuizen.nl, alexander.deucher@amd.com,
+        harry.wentland@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 29 Jan 2022 13:50:37 +0100
-Message-ID: <1643460637109149@kroah.com>
+Date:   Sat, 29 Jan 2022 13:52:01 +0100
+Message-ID: <164346072136252@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -42,7 +43,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -53,196 +54,126 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From d37823c3528e5e0705fc7746bcbc2afffb619259 Mon Sep 17 00:00:00 2001
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
-Date: Mon, 10 Jan 2022 15:29:25 +0000
-Subject: [PATCH] powerpc/32s: Fix kasan_init_region() for KASAN
+From 2a807341ed1074ab83638f2fab08dffaa373f6b8 Mon Sep 17 00:00:00 2001
+From: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
+Date: Sun, 23 Jan 2022 03:38:28 +0100
+Subject: [PATCH] drm/amdgpu/display: Remove t_srx_delay_us.
 
-It has been reported some configuration where the kernel doesn't
-boot with KASAN enabled.
+Unused. Convert the divisions into asserts on the divisor, to
+debug why it is zero. The divide by zero is suspected of causing
+kernel panics.
 
-This is due to wrong BAT allocation for the KASAN area:
+While I have no idea where the zero is coming from I think this
+patch is a positive either way.
 
-	---[ Data Block Address Translation ]---
-	0: 0xc0000000-0xcfffffff 0x00000000       256M Kernel rw      m
-	1: 0xd0000000-0xdfffffff 0x10000000       256M Kernel rw      m
-	2: 0xe0000000-0xefffffff 0x20000000       256M Kernel rw      m
-	3: 0xf8000000-0xf9ffffff 0x2a000000        32M Kernel rw      m
-	4: 0xfa000000-0xfdffffff 0x2c000000        64M Kernel rw      m
-
-A BAT must have both virtual and physical addresses alignment matching
-the size of the BAT. This is not the case for BAT 4 above.
-
-Fix kasan_init_region() by using block_size() function that is in
-book3s32/mmu.c. To be able to reuse it here, make it non static and
-change its name to bat_block_size() in order to avoid name conflict
-with block_size() defined in <linux/blkdev.h>
-
-Also reuse find_free_bat() to avoid an error message from setbat()
-when no BAT is available.
-
-And allocate memory outside of linear memory mapping to avoid
-wasting that precious space.
-
-With this change we get correct alignment for BATs and KASAN shadow
-memory is allocated outside the linear memory space.
-
-	---[ Data Block Address Translation ]---
-	0: 0xc0000000-0xcfffffff 0x00000000       256M Kernel rw
-	1: 0xd0000000-0xdfffffff 0x10000000       256M Kernel rw
-	2: 0xe0000000-0xefffffff 0x20000000       256M Kernel rw
-	3: 0xf8000000-0xfbffffff 0x7c000000        64M Kernel rw
-	4: 0xfc000000-0xfdffffff 0x7a000000        32M Kernel rw
-
-Fixes: 7974c4732642 ("powerpc/32s: Implement dedicated kasan_init_region()")
 Cc: stable@vger.kernel.org
-Reported-by: Maxime Bizon <mbizon@freebox.fr>
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Tested-by: Maxime Bizon <mbizon@freebox.fr>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/7a50ef902494d1325227d47d33dada01e52e5518.1641818726.git.christophe.leroy@csgroup.eu
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Signed-off-by: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 
-diff --git a/arch/powerpc/include/asm/book3s/32/mmu-hash.h b/arch/powerpc/include/asm/book3s/32/mmu-hash.h
-index 7be27862329f..78c6a5fde1d6 100644
---- a/arch/powerpc/include/asm/book3s/32/mmu-hash.h
-+++ b/arch/powerpc/include/asm/book3s/32/mmu-hash.h
-@@ -223,6 +223,8 @@ static __always_inline void update_user_segments(u32 val)
- 	update_user_segment(15, val);
- }
+diff --git a/drivers/gpu/drm/amd/display/dc/calcs/dcn_calcs.c b/drivers/gpu/drm/amd/display/dc/calcs/dcn_calcs.c
+index ec19678a0702..e447c74be713 100644
+--- a/drivers/gpu/drm/amd/display/dc/calcs/dcn_calcs.c
++++ b/drivers/gpu/drm/amd/display/dc/calcs/dcn_calcs.c
+@@ -503,7 +503,6 @@ static void dcn_bw_calc_rq_dlg_ttu(
+ 	//input[in_idx].dout.output_standard;
  
-+int __init find_free_bat(void);
-+unsigned int bat_block_size(unsigned long base, unsigned long top);
- #endif /* !__ASSEMBLY__ */
+ 	/*todo: soc->sr_enter_plus_exit_time??*/
+-	dlg_sys_param->t_srx_delay_us = dc->dcn_ip->dcfclk_cstate_latency / v->dcf_clk_deep_sleep;
  
- /* We happily ignore the smaller BATs on 601, we don't actually use
-diff --git a/arch/powerpc/mm/book3s32/mmu.c b/arch/powerpc/mm/book3s32/mmu.c
-index 94045b265b6b..203735caf691 100644
---- a/arch/powerpc/mm/book3s32/mmu.c
-+++ b/arch/powerpc/mm/book3s32/mmu.c
-@@ -76,7 +76,7 @@ unsigned long p_block_mapped(phys_addr_t pa)
- 	return 0;
- }
+ 	dml1_rq_dlg_get_rq_params(dml, rq_param, &input->pipe.src);
+ 	dml1_extract_rq_regs(dml, rq_regs, rq_param);
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20.c b/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20.c
+index 246071c72f6b..548cdef8a8ad 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20.c
+@@ -1576,8 +1576,6 @@ void dml20_rq_dlg_get_dlg_reg(struct display_mode_lib *mode_lib,
+ 	dlg_sys_param.total_flip_bytes = get_total_immediate_flip_bytes(mode_lib,
+ 			e2e_pipe_param,
+ 			num_pipes);
+-	dlg_sys_param.t_srx_delay_us = mode_lib->ip.dcfclk_cstate_latency
+-			/ dlg_sys_param.deepsleep_dcfclk_mhz; // TODO: Deprecated
  
--static int __init find_free_bat(void)
-+int __init find_free_bat(void)
- {
- 	int b;
- 	int n = mmu_has_feature(MMU_FTR_USE_HIGH_BATS) ? 8 : 4;
-@@ -100,7 +100,7 @@ static int __init find_free_bat(void)
-  * - block size has to be a power of two. This is calculated by finding the
-  *   highest bit set to 1.
-  */
--static unsigned int block_size(unsigned long base, unsigned long top)
-+unsigned int bat_block_size(unsigned long base, unsigned long top)
- {
- 	unsigned int max_size = SZ_256M;
- 	unsigned int base_shift = (ffs(base) - 1) & 31;
-@@ -145,7 +145,7 @@ static unsigned long __init __mmu_mapin_ram(unsigned long base, unsigned long to
- 	int idx;
+ 	print__dlg_sys_params_st(mode_lib, &dlg_sys_param);
  
- 	while ((idx = find_free_bat()) != -1 && base != top) {
--		unsigned int size = block_size(base, top);
-+		unsigned int size = bat_block_size(base, top);
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20v2.c b/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20v2.c
+index 015e7f2c0b16..0fc9f3e3ffae 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20v2.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20v2.c
+@@ -1577,8 +1577,6 @@ void dml20v2_rq_dlg_get_dlg_reg(struct display_mode_lib *mode_lib,
+ 	dlg_sys_param.total_flip_bytes = get_total_immediate_flip_bytes(mode_lib,
+ 			e2e_pipe_param,
+ 			num_pipes);
+-	dlg_sys_param.t_srx_delay_us = mode_lib->ip.dcfclk_cstate_latency
+-			/ dlg_sys_param.deepsleep_dcfclk_mhz; // TODO: Deprecated
  
- 		if (size < 128 << 10)
- 			break;
-@@ -201,12 +201,12 @@ void mmu_mark_initmem_nx(void)
- 	unsigned long size;
+ 	print__dlg_sys_params_st(mode_lib, &dlg_sys_param);
  
- 	for (i = 0; i < nb - 1 && base < top;) {
--		size = block_size(base, top);
-+		size = bat_block_size(base, top);
- 		setibat(i++, PAGE_OFFSET + base, base, size, PAGE_KERNEL_TEXT);
- 		base += size;
- 	}
- 	if (base < top) {
--		size = block_size(base, top);
-+		size = bat_block_size(base, top);
- 		if ((top - base) > size) {
- 			size <<= 1;
- 			if (strict_kernel_rwx_enabled() && base + size > border)
-diff --git a/arch/powerpc/mm/kasan/book3s_32.c b/arch/powerpc/mm/kasan/book3s_32.c
-index 35b287b0a8da..450a67ef0bbe 100644
---- a/arch/powerpc/mm/kasan/book3s_32.c
-+++ b/arch/powerpc/mm/kasan/book3s_32.c
-@@ -10,48 +10,51 @@ int __init kasan_init_region(void *start, size_t size)
- {
- 	unsigned long k_start = (unsigned long)kasan_mem_to_shadow(start);
- 	unsigned long k_end = (unsigned long)kasan_mem_to_shadow(start + size);
--	unsigned long k_cur = k_start;
--	int k_size = k_end - k_start;
--	int k_size_base = 1 << (ffs(k_size) - 1);
-+	unsigned long k_nobat = k_start;
-+	unsigned long k_cur;
-+	phys_addr_t phys;
- 	int ret;
--	void *block;
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_rq_dlg_calc_21.c b/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_rq_dlg_calc_21.c
+index 8bc27de4c104..618f4b682ab1 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_rq_dlg_calc_21.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_rq_dlg_calc_21.c
+@@ -1688,8 +1688,6 @@ void dml21_rq_dlg_get_dlg_reg(
+ 			mode_lib,
+ 			e2e_pipe_param,
+ 			num_pipes);
+-	dlg_sys_param.t_srx_delay_us = mode_lib->ip.dcfclk_cstate_latency
+-			/ dlg_sys_param.deepsleep_dcfclk_mhz; // TODO: Deprecated
  
--	block = memblock_alloc(k_size, k_size_base);
--
--	if (block && k_size_base >= SZ_128K && k_start == ALIGN(k_start, k_size_base)) {
--		int shift = ffs(k_size - k_size_base);
--		int k_size_more = shift ? 1 << (shift - 1) : 0;
--
--		setbat(-1, k_start, __pa(block), k_size_base, PAGE_KERNEL);
--		if (k_size_more >= SZ_128K)
--			setbat(-1, k_start + k_size_base, __pa(block) + k_size_base,
--			       k_size_more, PAGE_KERNEL);
--		if (v_block_mapped(k_start))
--			k_cur = k_start + k_size_base;
--		if (v_block_mapped(k_start + k_size_base))
--			k_cur = k_start + k_size_base + k_size_more;
--
--		update_bats();
-+	while (k_nobat < k_end) {
-+		unsigned int k_size = bat_block_size(k_nobat, k_end);
-+		int idx = find_free_bat();
-+
-+		if (idx == -1)
-+			break;
-+		if (k_size < SZ_128K)
-+			break;
-+		phys = memblock_phys_alloc_range(k_size, k_size, 0,
-+						 MEMBLOCK_ALLOC_ANYWHERE);
-+		if (!phys)
-+			break;
-+
-+		setbat(idx, k_nobat, phys, k_size, PAGE_KERNEL);
-+		k_nobat += k_size;
- 	}
-+	if (k_nobat != k_start)
-+		update_bats();
+ 	print__dlg_sys_params_st(mode_lib, &dlg_sys_param);
  
--	if (!block)
--		block = memblock_alloc(k_size, PAGE_SIZE);
--	if (!block)
--		return -ENOMEM;
-+	if (k_nobat < k_end) {
-+		phys = memblock_phys_alloc_range(k_end - k_nobat, PAGE_SIZE, 0,
-+						 MEMBLOCK_ALLOC_ANYWHERE);
-+		if (!phys)
-+			return -ENOMEM;
-+	}
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_rq_dlg_calc_30.c b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_rq_dlg_calc_30.c
+index aef854270054..747167083dea 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_rq_dlg_calc_30.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_rq_dlg_calc_30.c
+@@ -1858,8 +1858,6 @@ void dml30_rq_dlg_get_dlg_reg(struct display_mode_lib *mode_lib,
+ 	dlg_sys_param.total_flip_bytes = get_total_immediate_flip_bytes(mode_lib,
+ 		e2e_pipe_param,
+ 		num_pipes);
+-	dlg_sys_param.t_srx_delay_us = mode_lib->ip.dcfclk_cstate_latency
+-		/ dlg_sys_param.deepsleep_dcfclk_mhz; // TODO: Deprecated
  
- 	ret = kasan_init_shadow_page_tables(k_start, k_end);
- 	if (ret)
- 		return ret;
+ 	print__dlg_sys_params_st(mode_lib, &dlg_sys_param);
  
--	kasan_update_early_region(k_start, k_cur, __pte(0));
-+	kasan_update_early_region(k_start, k_nobat, __pte(0));
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/display_mode_structs.h b/drivers/gpu/drm/amd/display/dc/dml/display_mode_structs.h
+index d46a2733024c..8f9f1d607f7c 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/display_mode_structs.h
++++ b/drivers/gpu/drm/amd/display/dc/dml/display_mode_structs.h
+@@ -546,7 +546,6 @@ struct _vcs_dpi_display_dlg_sys_params_st {
+ 	double t_sr_wm_us;
+ 	double t_extra_us;
+ 	double mem_trip_us;
+-	double t_srx_delay_us;
+ 	double deepsleep_dcfclk_mhz;
+ 	double total_flip_bw;
+ 	unsigned int total_flip_bytes;
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/display_rq_dlg_helpers.c b/drivers/gpu/drm/amd/display/dc/dml/display_rq_dlg_helpers.c
+index 71ea503cb32f..412e75eb4704 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/display_rq_dlg_helpers.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/display_rq_dlg_helpers.c
+@@ -141,9 +141,6 @@ void print__dlg_sys_params_st(struct display_mode_lib *mode_lib, const struct _v
+ 	dml_print("DML_RQ_DLG_CALC:    t_urg_wm_us          = %3.2f\n", dlg_sys_param->t_urg_wm_us);
+ 	dml_print("DML_RQ_DLG_CALC:    t_sr_wm_us           = %3.2f\n", dlg_sys_param->t_sr_wm_us);
+ 	dml_print("DML_RQ_DLG_CALC:    t_extra_us           = %3.2f\n", dlg_sys_param->t_extra_us);
+-	dml_print(
+-			"DML_RQ_DLG_CALC:    t_srx_delay_us       = %3.2f\n",
+-			dlg_sys_param->t_srx_delay_us);
+ 	dml_print(
+ 			"DML_RQ_DLG_CALC:    deepsleep_dcfclk_mhz = %3.2f\n",
+ 			dlg_sys_param->deepsleep_dcfclk_mhz);
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dml1_display_rq_dlg_calc.c b/drivers/gpu/drm/amd/display/dc/dml/dml1_display_rq_dlg_calc.c
+index 59dc2c5b58dd..3df559c591f8 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dml1_display_rq_dlg_calc.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dml1_display_rq_dlg_calc.c
+@@ -1331,10 +1331,6 @@ void dml1_rq_dlg_get_dlg_params(
+ 	if (dual_plane)
+ 		DTRACE("DLG: %s: swath_height_c     = %d", __func__, swath_height_c);
  
--	for (; k_cur < k_end; k_cur += PAGE_SIZE) {
-+	for (k_cur = k_nobat; k_cur < k_end; k_cur += PAGE_SIZE) {
- 		pmd_t *pmd = pmd_off_k(k_cur);
--		void *va = block + k_cur - k_start;
--		pte_t pte = pfn_pte(PHYS_PFN(__pa(va)), PAGE_KERNEL);
-+		pte_t pte = pfn_pte(PHYS_PFN(phys + k_cur - k_nobat), PAGE_KERNEL);
- 
- 		__set_pte_at(&init_mm, k_cur, pte_offset_kernel(pmd, k_cur), pte, 0);
- 	}
- 	flush_tlb_kernel_range(k_start, k_end);
-+	memset(kasan_mem_to_shadow(start), 0, k_end - k_start);
-+
- 	return 0;
- }
+-	DTRACE(
+-			"DLG: %s: t_srx_delay_us     = %3.2f",
+-			__func__,
+-			(double) dlg_sys_param->t_srx_delay_us);
+ 	DTRACE("DLG: %s: line_time_in_us    = %3.2f", __func__, (double) line_time_in_us);
+ 	DTRACE("DLG: %s: vupdate_offset     = %d", __func__, vupdate_offset);
+ 	DTRACE("DLG: %s: vupdate_width      = %d", __func__, vupdate_width);
 
