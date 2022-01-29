@@ -2,133 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4370C4A3116
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 18:50:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 515754A3152
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 19:23:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244653AbiA2RuJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 12:50:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40610 "EHLO
+        id S241700AbiA2SXK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 13:23:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235418AbiA2RuI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 12:50:08 -0500
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A3A8C061714
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 09:50:08 -0800 (PST)
-Received: by mail-pj1-x102e.google.com with SMTP id o16-20020a17090aac1000b001b62f629953so6552205pjq.3
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 09:50:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=WnK/6Qk/aUpcR6zudORsmHv79vlEgvJPfG1wXP8qQSk=;
-        b=4ljM9LuVE2QGrkYalaYX18I9w+Cxg+TaWEMEHKHZbtONDK6HCZ/K4yRs9EY+Fhnm6U
-         dkIj9naRv2u2iPMjxtzfMBkbl8yqJCoFsHznVHvSL565hw+Ni2tU1ljU8eJyQfqJ7hTV
-         t1GsQdaqCcV4UX439M0hRn570TFofS22kts+lKyc6zdtOePW5OWRb+d3F4rZFnJgVysk
-         n1Eif6YUro1ksEE/3Q7DU4ICGTElg2XfLteEHQxGTSA74RAz2DobO1N3L4vXJnHjw4PS
-         klodd7WBJ013xzaFtTTKstpex/wfbwi5bbNHTgSlXVC6LzlSCil7gvyDHL/8ecpSWLY6
-         lfqQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=WnK/6Qk/aUpcR6zudORsmHv79vlEgvJPfG1wXP8qQSk=;
-        b=BplCXnOfWl404ksBsqFskiL1ZlSaaDWjjml7LN/FQ/UcS6lGAqUHRgBD0irEdNXaIw
-         6fqPhmg6kDJkbD3PB8reiiW7Gbm4A89A9TBLXQJ1/sWR2505WF4E9MdsH1BilYbBXWaw
-         MFxYlc2KRz4P3YF6y/VGAgX+Juw79GYTj5BWqQNqC3PEfqpMndb7UEVNe6siE10o5oDY
-         OGdNcWYnxLEsVcqL9IEFOWfjH953ZEQwx1uRk9a5pwN2PRNRlxEcAGfHJ0605oyCW+Ln
-         H3XrWMI2gqZ3CK+CXSO57n4dwQ4Qxb9AOq+VenOwXhFupTKaqzcjh4iICH8U1o5jxTkq
-         us5w==
-X-Gm-Message-State: AOAM533duKcUqfEMRSDGLQCMcamDBWMbYnyjr4Wp/LlVnc7lhlPriLes
-        RHSb7ApXzvtsP2HFwFRyfZMEAvSloUj3Mfsw
-X-Google-Smtp-Source: ABdhPJwvXSh8v8HMti4QIgYDI9sxUbpuPCzleH9Ha8TiflCdgX7xmWX60bbn9cem89+03cEBxycfWw==
-X-Received: by 2002:a17:902:cec4:: with SMTP id d4mr13707709plg.56.1643478607659;
-        Sat, 29 Jan 2022 09:50:07 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id lr8sm6390218pjb.11.2022.01.29.09.50.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 29 Jan 2022 09:50:07 -0800 (PST)
-Message-ID: <61f57e4f.1c69fb81.1cfa4.0844@mx.google.com>
-Date:   Sat, 29 Jan 2022 09:50:07 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S233508AbiA2SXJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 13:23:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 558ECC061714;
+        Sat, 29 Jan 2022 10:23:09 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A1A1DB8280F;
+        Sat, 29 Jan 2022 18:23:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1225AC340E5;
+        Sat, 29 Jan 2022 18:23:05 +0000 (UTC)
+Authentication-Results: smtp.kernel.org;
+        dkim=pass (1024-bit key) header.d=zx2c4.com header.i=@zx2c4.com header.b="dTanMXJP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1643480583;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=X/Lx7neWJZLtKH8EwEWLZr1/h9vJrv7+5peMou7nwgY=;
+        b=dTanMXJP9MvbBdmzHtRx6IH6fjViyLLSc07ZQHC2ETRzsNjpidnJTN/ISBSGpdWS+MPx+a
+        7kul3oq9M08zU5jd5JaiRJWhWPXb+Cepm3TuFY7mtnCvbIV/3hL7l/HecRN9q6nyWClW48
+        cN5Nd95UgsWbvyIIM3Sa9kCJQ/nsTsc=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 17a72866 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Sat, 29 Jan 2022 18:23:02 +0000 (UTC)
+Received: by mail-yb1-f182.google.com with SMTP id k17so28067845ybk.6;
+        Sat, 29 Jan 2022 10:23:02 -0800 (PST)
+X-Gm-Message-State: AOAM533O+Y42D5s+ReHGCK+hKY6jq9qYoCKcEYwkRfAldI5fA1ymxbj4
+        g5Xq3ICrFzVswDzNDCOu8BK5upjktUjZ7bTsM7U=
+X-Google-Smtp-Source: ABdhPJzTutGWoKx8b6WfvB/LV4fBK5SPfWA4/hwRJ5c8SZzOAXT/C8ipn/YW681KFz5Gc3tqpZo8BGBgFLbi5aOqm3M=
+X-Received: by 2002:a25:ace0:: with SMTP id x32mr21245069ybd.255.1643480580389;
+ Sat, 29 Jan 2022 10:23:00 -0800 (PST)
 MIME-Version: 1.0
+References: <CAHmME9pb9A4SN6TTjNvvxKqw1L3gXVOX7KKihfEH4AgKGNGZ2A@mail.gmail.com>
+ <20220128153344.34211-1-Jason@zx2c4.com> <YfQwUvyZL05MtEA4@latitude>
+In-Reply-To: <YfQwUvyZL05MtEA4@latitude>
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+Date:   Sat, 29 Jan 2022 19:22:49 +0100
+X-Gmail-Original-Message-ID: <CAHmME9pVbbj-=bU8yU=-X8_bG0D97jAqR2Pi+77P0yrOp-AK4w@mail.gmail.com>
+Message-ID: <CAHmME9pVbbj-=bU8yU=-X8_bG0D97jAqR2Pi+77P0yrOp-AK4w@mail.gmail.com>
+Subject: Re: [PATCH] random: remove batched entropy locking
+To:     =?UTF-8?Q?Jonathan_Neusch=C3=A4fer?= <j.neuschaefer@gmx.net>
+Cc:     Andy Lutomirski <luto@amacapital.net>,
+        "Theodore Ts'o" <tytso@mit.edu>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
+        Waiman Long <longman@redhat.com>,
+        Boqun Feng <boqun.feng@gmail.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Report-Type: test
-X-Kernelci-Kernel: v4.14.264
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-4.14.y
-Subject: stable-rc/linux-4.14.y baseline: 98 runs, 1 regressions (v4.14.264)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 98 runs, 1 regressions (v4.14.264)
+Hey Jonathan,
 
-Regressions Summary
--------------------
+On Fri, Jan 28, 2022 at 7:05 PM Jonathan Neusch=C3=A4fer
+<j.neuschaefer@gmx.net> wrote:
+> FWIW, this does fix the splat on my machine.
+>
+> Tested-by: Jonathan Neusch=C3=A4fer <j.neuschaefer@gmx.net>
 
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
+Thanks for testing. If it's not too much trouble, would you verify v2
+as well? It's substantially different from v1 that it doesn't seem
+right to carry through your Tested-by, and from talking a bit with
+Andy, I think we're more likely to go with a v2-like approach than a
+v1-like one.
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.264/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.264
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      b86ee2b7ae42b6b37a918b66236608e2cc325f59 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform | arch | lab           | compiler | defconfig           | regressi=
-ons
----------+------+---------------+----------+---------------------+---------=
----
-panda    | arm  | lab-collabora | gcc-10   | omap2plus_defconfig | 1       =
-   =
-
-
-  Details:     https://kernelci.org/test/plan/id/61f546512d40e78244abbd2e
-
-  Results:     4 PASS, 1 FAIL, 1 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-64/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-64/arm/omap2plus_defconfig/gcc-10/lab-collabora/baseline-panda.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20220121.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/61f546512d40e78=
-244abbd34
-        failing since 15 days (last pass: v4.14.262, first fail: v4.14.262-=
-9-gcd595a3cc321)
-        2 lines
-
-    2022-01-29T13:50:55.978903  [   20.062499] <LAVA_SIGNAL_TESTCASE TEST_C=
-ASE_ID=3Dalert RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
-    2022-01-29T13:50:56.025476  kern  :emerg : BUG: spinlock bad magic on C=
-PU#0, udevd/106
-    2022-01-29T13:50:56.034831  kern  :emerg :  lock: emif_lock+0x0/0xffffe=
-d3c [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =20
+Jason
