@@ -2,86 +2,89 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 086E64A2B31
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 03:05:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47C844A2B3E
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 03:14:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352162AbiA2CE4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 Jan 2022 21:04:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59868 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352154AbiA2CEs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 Jan 2022 21:04:48 -0500
-Received: from mail-oi1-x231.google.com (mail-oi1-x231.google.com [IPv6:2607:f8b0:4864:20::231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF947C061747;
-        Fri, 28 Jan 2022 18:04:47 -0800 (PST)
-Received: by mail-oi1-x231.google.com with SMTP id q186so15796905oih.8;
-        Fri, 28 Jan 2022 18:04:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=0HHFLAt37bQ+Ld7bLyKXZLTob9ybfeckmNEDmuL1v7g=;
-        b=MCbAKVhsHdaBx0CY7+a1FHUozV9IDSNnaStIst6q3qZEC56tPt0SB/EtEyNwwUJhXU
-         aC+FkCWw9FxxvRIRr3H8qJPmiSFucYbvWlTz8rwaOVcqM/DxUtHXFzIKHyG8yyJq6Z89
-         NbfTFpdLMwK1h0MGxTWtg4tpzQpWymMyZJzGiOsWq2Db8h1BMftHLn1kb9aiy/ldii6Q
-         2jra0zskOYFm9575A0jIETurpMdvHUAZXHhODwcLE6KAQVGDfE022C9xZTKPkfIScwSb
-         epN2juVAOYwEYTkaMttdFWUT0Ls9uVeCpvhmzEDKtV05/ZqRhsuVzyS0ytGqlQ8Su8HR
-         otdQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=0HHFLAt37bQ+Ld7bLyKXZLTob9ybfeckmNEDmuL1v7g=;
-        b=xMISnza4NLmfXBqxuPMFbr5HSLEbr12k6fyD8I4+PEbif6WWoAzBjm1gccmHBuBOJE
-         TbeSUP+Vs2jRheFxOvNTXwpJUKzU24aLPUYsXJJY9EIDRbyTtUSXJbsNyCpSz/wQkEEs
-         /pjkavC1FgIpjdXzK1dVPZOFemNW5KdsrzTMSpYF040XKFzTdDlMHGQVpWItqZjOKs9L
-         EGVAIZXTzX12AaqB2RVF0F8FrjdSpaYm1bCnPUV0KWUpQLlldsmpDvX5jcuHTcyCv1hK
-         qViSxNd8JLI+NqT2rmXJ7wer+ss3yfZUkFJQb1B5kduX7wQngFPY/PsOL3I33H0OVJQ7
-         CKpg==
-X-Gm-Message-State: AOAM531y/GdlTrA5PtKIdormPD1KBGTntr7n2GGhfYE4TkT+uGx5ORvL
-        xHXH4EEgLiY3ivU0/0vQn/M=
-X-Google-Smtp-Source: ABdhPJzT9KnvwZ2sBE8cNRIHlpO+VTJuKWvDO9Wv8b2oJ3tvyaCPW8UUJx/eE+Sz+SGH2tOi8e+xrA==
-X-Received: by 2002:aca:1001:: with SMTP id 1mr7166468oiq.82.1643421887276;
-        Fri, 28 Jan 2022 18:04:47 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id v31sm5885754ott.25.2022.01.28.18.04.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 28 Jan 2022 18:04:45 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Fri, 28 Jan 2022 18:04:44 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com
-Subject: Re: [PATCH 5.16 0/9] 5.16.4-rc1 review
-Message-ID: <20220129020444.GA961158@roeck-us.net>
-References: <20220127180258.892788582@linuxfoundation.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220127180258.892788582@linuxfoundation.org>
+        id S1352174AbiA2COa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 Jan 2022 21:14:30 -0500
+Received: from ams.source.kernel.org ([145.40.68.75]:34142 "EHLO
+        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237464AbiA2CO3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 Jan 2022 21:14:29 -0500
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9848AB826A5;
+        Sat, 29 Jan 2022 02:14:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18B91C340E7;
+        Sat, 29 Jan 2022 02:14:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1643422467;
+        bh=HcQaM4uHbzU5KF8uZ0eERG7hSGsc2MgWgOfJIJw+SN8=;
+        h=Date:From:To:Subject:In-Reply-To:From;
+        b=zqDzdM8OISLXNKghZjUgtHrG1DJKpCz0zqMSB5ld+PWiVQ4mqkv42zVNen2oIQT+p
+         YJU8qghy5eGvtZuY+f7GxEt66Klem1Nqcl27kTNEAWtVeVAxIGTTuc7fdpGSuCeuXE
+         rxl2K7BZhOXeKlkxVKxQ+AwneotmsK5debUhkuCg=
+Date:   Fri, 28 Jan 2022 18:14:26 -0800
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, andreyknvl@gmail.com,
+        linux-mm@kvack.org, mm-commits@vger.kernel.org, pcc@google.com,
+        peterz@infradead.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org
+Subject:  [patch 5/7] mm, kasan: use compare-exchange operation to
+ set KASAN page tag
+Message-ID: <20220129021426.fXzRllwUv%akpm@linux-foundation.org>
+In-Reply-To: <20220128181341.2103de95948608a65958ae40@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 27, 2022 at 07:09:35PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.16.4 release.
-> There are 9 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 29 Jan 2022 18:02:51 +0000.
-> Anything received after that time might be too late.
-> 
+From: Peter Collingbourne <pcc@google.com>
+Subject: mm, kasan: use compare-exchange operation to set KASAN page tag
 
-Build results:
-	total: 153 pass: 153 fail: 0
-Qemu test results:
-	total: 488 pass: 488 fail: 0
+It has been reported that the tag setting operation on newly-allocated
+pages can cause the page flags to be corrupted when performed concurrently
+with other flag updates as a result of the use of non-atomic operations. 
+Fix the problem by using a compare-exchange loop to update the tag.
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lkml.kernel.org/r/20220120020148.1632253-1-pcc@google.com
+Link: https://linux-review.googlesource.com/id/I456b24a2b9067d93968d43b4bb3351c0cec63101
+Fixes: 2813b9c02962 ("kasan, mm, arm64: tag non slab memory allocated via pagealloc")
+Signed-off-by: Peter Collingbourne <pcc@google.com>
+Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-Guenter
+ include/linux/mm.h |   17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
+
+--- a/include/linux/mm.h~mm-use-compare-exchange-operation-to-set-kasan-page-tag
++++ a/include/linux/mm.h
+@@ -1506,11 +1506,18 @@ static inline u8 page_kasan_tag(const st
+ 
+ static inline void page_kasan_tag_set(struct page *page, u8 tag)
+ {
+-	if (kasan_enabled()) {
+-		tag ^= 0xff;
+-		page->flags &= ~(KASAN_TAG_MASK << KASAN_TAG_PGSHIFT);
+-		page->flags |= (tag & KASAN_TAG_MASK) << KASAN_TAG_PGSHIFT;
+-	}
++	unsigned long old_flags, flags;
++
++	if (!kasan_enabled())
++		return;
++
++	tag ^= 0xff;
++	old_flags = READ_ONCE(page->flags);
++	do {
++		flags = old_flags;
++		flags &= ~(KASAN_TAG_MASK << KASAN_TAG_PGSHIFT);
++		flags |= (tag & KASAN_TAG_MASK) << KASAN_TAG_PGSHIFT;
++	} while (unlikely(!try_cmpxchg(&page->flags, &old_flags, flags)));
+ }
+ 
+ static inline void page_kasan_tag_reset(struct page *page)
+_
