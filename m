@@ -2,61 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90FF14A2E91
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 12:58:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 295D04A2E9B
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:01:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243413AbiA2L6a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 06:58:30 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:38256 "EHLO
-        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243290AbiA2L63 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 06:58:29 -0500
+        id S242175AbiA2MBE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 07:01:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48534 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233572AbiA2MBD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:01:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F1E5C061714
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 04:01:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 81B1F60B65
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 11:58:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24B5BC340E5;
-        Sat, 29 Jan 2022 11:58:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D8795B827AA
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:01:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02245C340EB;
+        Sat, 29 Jan 2022 12:00:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643457508;
-        bh=8L4SOKwOWJOB0yh9y8nQmTaTBRWlj7GnNp/7dNgG5QE=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=P5yowya7EoBp5yXhafCrKalk1UD7nsSAzAWjXwTKoHnxJCJ11DHg53gGORq1sSu4p
-         YLtr3qzLw9ufbZxcpFpmdvFKwPbKubpff6Df3+87nm2Iot59mokpo7owiDVboOh47Y
-         3wPhRgoK/74XT4/W8MDWXBybxoV2fELRMNv3w44Y=
-Date:   Sat, 29 Jan 2022 12:58:25 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     David Sterba <dsterba@suse.cz>
-Cc:     stable@vger.kernel.org
-Subject: Re: Btrfs fixes for 5.16.x (from 5.17-rc1)
-Message-ID: <YfUr4fP5Oe6ddbhq@kroah.com>
-References: <20220128143703.GF14046@twin.jikos.cz>
+        s=korg; t=1643457660;
+        bh=vy9PEfD7++/42c8XhBfqWWS/6AmOCS70p5qtGioJs1U=;
+        h=Subject:To:Cc:From:Date:From;
+        b=S9sp25T7lGlqxgda9bDi+xQ/rLMshCRPiG+QN1FUMLRQS/ecxdq/kgqgdLwKegg7d
+         dDua4reFTWGuy+xdEuRnaif764Wu/a7yEN0gtU9DTlMTJBPB6Y2IopeDMDdo5w9yXR
+         9Uhfy0PwC0sNuY89HbEsilDZuQUCSSO4NmJrN3Kg=
+Subject: FAILED: patch "[PATCH] net: sfp: ignore disabled SFP node" failed to apply to 4.19-stable tree
+To:     kabel@kernel.org, davem@davemloft.net
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 29 Jan 2022 13:00:49 +0100
+Message-ID: <16434576496299@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20220128143703.GF14046@twin.jikos.cz>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jan 28, 2022 at 03:37:03PM +0100, David Sterba wrote:
-> Hi,
-> 
-> I'm not sure when patches get picked from Linus' branch, just in case
-> please add the following fixes to 5.16.4. They fix a few user visible
-> bugs in defrag, all apply cleanly. Thanks.
 
-We normally wait until they hit a public release in Linus's tree (i.e. a
--rc release), but if you ask we can always take them sooner.
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-> 6b34cd8e175b btrfs: fix too long loop when defragging a 1 byte file
-> b767c2fc787e btrfs: allow defrag to be interruptible
-> 484167da7773 btrfs: defrag: fix wrong number of defragged sectors
-> c080b4144b9d btrfs: defrag: properly update range->start for autodefrag
-> 0cb5950f3f3b btrfs: fix deadlock when reserving space during defrag
-> 3c9d31c71594 btrfs: add back missing dirty page rate limiting to defrag
-
-I'll go through and queue these up now, thanks.
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 2148927e6ed43a1667baf7c2ae3e0e05a44b51a0 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Marek=20Beh=C3=BAn?= <kabel@kernel.org>
+Date: Wed, 19 Jan 2022 17:44:55 +0100
+Subject: [PATCH] net: sfp: ignore disabled SFP node
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Commit ce0aa27ff3f6 ("sfp: add sfp-bus to bridge between network devices
+and sfp cages") added code which finds SFP bus DT node even if the node
+is disabled with status = "disabled". Because of this, when phylink is
+created, it ends with non-null .sfp_bus member, even though the SFP
+module is not probed (because the node is disabled).
+
+We need to ignore disabled SFP bus node.
+
+Fixes: ce0aa27ff3f6 ("sfp: add sfp-bus to bridge between network devices and sfp cages")
+Signed-off-by: Marek Behún <kabel@kernel.org>
+Cc: stable@vger.kernel.org # 2203cbf2c8b5 ("net: sfp: move fwnode parsing into sfp-bus layer")
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/drivers/net/phy/sfp-bus.c b/drivers/net/phy/sfp-bus.c
+index 0c6c0d1843bc..c1512c9925a6 100644
+--- a/drivers/net/phy/sfp-bus.c
++++ b/drivers/net/phy/sfp-bus.c
+@@ -651,6 +651,11 @@ struct sfp_bus *sfp_bus_find_fwnode(struct fwnode_handle *fwnode)
+ 	else if (ret < 0)
+ 		return ERR_PTR(ret);
+ 
++	if (!fwnode_device_is_available(ref.fwnode)) {
++		fwnode_handle_put(ref.fwnode);
++		return NULL;
++	}
++
+ 	bus = sfp_bus_get(ref.fwnode);
+ 	fwnode_handle_put(ref.fwnode);
+ 	if (!bus)
+
