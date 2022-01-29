@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00A1B4A2F94
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:53:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C859B4A2F95
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:56:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350441AbiA2Mxp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 07:53:45 -0500
-Received: from ams.source.kernel.org ([145.40.68.75]:60052 "EHLO
-        ams.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350355AbiA2Mxp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:53:45 -0500
+        id S1345707AbiA2M4G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 07:56:06 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:37718 "EHLO
+        dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S242211AbiA2M4G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:56:06 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 687C0B827B2
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:53:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9AF83C340E5;
-        Sat, 29 Jan 2022 12:53:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D539860C71
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:56:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEDE4C340E5;
+        Sat, 29 Jan 2022 12:56:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643460823;
-        bh=NBZMW4b2m3/byqYxnmMB/PxOoI/itiD3rGlNx0C1v1Q=;
+        s=korg; t=1643460965;
+        bh=KA1+z9CkTaCQduByDteviPQvHgr3GW3i8hm/vXsY40g=;
         h=Subject:To:Cc:From:Date:From;
-        b=GYVFmN5Mxc44RsiFBJU1N2yO5rvCupNJP4xg6vDQ3pIv7ucyUyDdD7QPTTTtp3TO3
-         AxVoeWlCvaeMDeCIqlITfFVcNv8qhDMms3E2KlM/xw2ccRZS1xf5iY/eXBWm0t3Htl
-         6C6wIipTLoOSUwQgIMYLdq4MMKHbibQGpAH4vmLg=
-Subject: FAILED: patch "[PATCH] KVM: SVM: Don't intercept #GP for SEV guests" failed to apply to 5.4-stable tree
-To:     seanjc@google.com, brijesh.singh@amd.com, liam.merwick@oracle.com,
-        pbonzini@redhat.com, thomas.lendacky@amd.com
+        b=NqHR7P1Aapj/dhOZ7pmkIwH7YVeQLHUvq4NFjjN5UxKvL14ptIjx4hvzvQ/ECTyhu
+         OKw+wocGzyznTNYluiO913RhIyCes76w7eXFCbZUPnvHrjnbD7txGruKywgidICn48
+         a02BGbtvWD/gSVQa23agUaFlRZeO5U4WrB1smmhE=
+Subject: FAILED: patch "[PATCH] fsnotify: invalidate dcache before IN_DELETE event" failed to apply to 5.15-stable tree
+To:     amir73il@gmail.com, colona@arista.com, jack@suse.cz
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 29 Jan 2022 13:53:32 +0100
-Message-ID: <1643460812160107@kroah.com>
+Date:   Sat, 29 Jan 2022 13:56:02 +0100
+Message-ID: <1643460962165139@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +39,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -51,50 +50,175 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 0b0be065b7563ac708aaa9f69dd4941c80b3446d Mon Sep 17 00:00:00 2001
-From: Sean Christopherson <seanjc@google.com>
-Date: Thu, 20 Jan 2022 01:07:13 +0000
-Subject: [PATCH] KVM: SVM: Don't intercept #GP for SEV guests
+From a37d9a17f099072fe4d3a9048b0321978707a918 Mon Sep 17 00:00:00 2001
+From: Amir Goldstein <amir73il@gmail.com>
+Date: Thu, 20 Jan 2022 23:53:04 +0200
+Subject: [PATCH] fsnotify: invalidate dcache before IN_DELETE event
 
-Never intercept #GP for SEV guests as reading SEV guest private memory
-will return cyphertext, i.e. emulating on #GP can't work as intended.
+Apparently, there are some applications that use IN_DELETE event as an
+invalidation mechanism and expect that if they try to open a file with
+the name reported with the delete event, that it should not contain the
+content of the deleted file.
 
-Cc: stable@vger.kernel.org
-Cc: Tom Lendacky <thomas.lendacky@amd.com>
-Cc: Brijesh Singh <brijesh.singh@amd.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Reviewed-by: Liam Merwick <liam.merwick@oracle.com>
-Message-Id: <20220120010719.711476-4-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Commit 49246466a989 ("fsnotify: move fsnotify_nameremove() hook out of
+d_delete()") moved the fsnotify delete hook before d_delete() so fsnotify
+will have access to a positive dentry.
 
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index 37eb3168e0ea..defc91a8c04c 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -312,7 +312,11 @@ int svm_set_efer(struct kvm_vcpu *vcpu, u64 efer)
- 				return ret;
- 			}
+This allowed a race where opening the deleted file via cached dentry
+is now possible after receiving the IN_DELETE event.
+
+To fix the regression, create a new hook fsnotify_delete() that takes
+the unlinked inode as an argument and use a helper d_delete_notify() to
+pin the inode, so we can pass it to fsnotify_delete() after d_delete().
+
+Backporting hint: this regression is from v5.3. Although patch will
+apply with only trivial conflicts to v5.4 and v5.10, it won't build,
+because fsnotify_delete() implementation is different in each of those
+versions (see fsnotify_link()).
+
+A follow up patch will fix the fsnotify_unlink/rmdir() calls in pseudo
+filesystem that do not need to call d_delete().
+
+Link: https://lore.kernel.org/r/20220120215305.282577-1-amir73il@gmail.com
+Reported-by: Ivan Delalande <colona@arista.com>
+Link: https://lore.kernel.org/linux-fsdevel/YeNyzoDM5hP5LtGW@visor/
+Fixes: 49246466a989 ("fsnotify: move fsnotify_nameremove() hook out of d_delete()")
+Cc: stable@vger.kernel.org # v5.3+
+Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Signed-off-by: Jan Kara <jack@suse.cz>
+
+diff --git a/fs/btrfs/ioctl.c b/fs/btrfs/ioctl.c
+index a5bd6926f7ff..7807b28b7892 100644
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -3086,10 +3086,8 @@ static noinline int btrfs_ioctl_snap_destroy(struct file *file,
+ 	btrfs_inode_lock(inode, 0);
+ 	err = btrfs_delete_subvolume(dir, dentry);
+ 	btrfs_inode_unlock(inode, 0);
+-	if (!err) {
+-		fsnotify_rmdir(dir, dentry);
+-		d_delete(dentry);
+-	}
++	if (!err)
++		d_delete_notify(dir, dentry);
  
--			if (svm_gp_erratum_intercept)
-+			/*
-+			 * Never intercept #GP for SEV guests, KVM can't
-+			 * decrypt guest memory to workaround the erratum.
-+			 */
-+			if (svm_gp_erratum_intercept && !sev_guest(vcpu->kvm))
- 				set_exception_intercept(svm, GP_VECTOR);
+ out_dput:
+ 	dput(dentry);
+diff --git a/fs/namei.c b/fs/namei.c
+index d81f04f8d818..4ed0e41feab7 100644
+--- a/fs/namei.c
++++ b/fs/namei.c
+@@ -3974,13 +3974,12 @@ int vfs_rmdir(struct user_namespace *mnt_userns, struct inode *dir,
+ 	dentry->d_inode->i_flags |= S_DEAD;
+ 	dont_mount(dentry);
+ 	detach_mounts(dentry);
+-	fsnotify_rmdir(dir, dentry);
+ 
+ out:
+ 	inode_unlock(dentry->d_inode);
+ 	dput(dentry);
+ 	if (!error)
+-		d_delete(dentry);
++		d_delete_notify(dir, dentry);
+ 	return error;
+ }
+ EXPORT_SYMBOL(vfs_rmdir);
+@@ -4102,7 +4101,6 @@ int vfs_unlink(struct user_namespace *mnt_userns, struct inode *dir,
+ 			if (!error) {
+ 				dont_mount(dentry);
+ 				detach_mounts(dentry);
+-				fsnotify_unlink(dir, dentry);
+ 			}
  		}
  	}
-@@ -1010,9 +1014,10 @@ static void init_vmcb(struct kvm_vcpu *vcpu)
- 	 * Guest access to VMware backdoor ports could legitimately
- 	 * trigger #GP because of TSS I/O permission bitmap.
- 	 * We intercept those #GP and allow access to them anyway
--	 * as VMware does.
-+	 * as VMware does.  Don't intercept #GP for SEV guests as KVM can't
-+	 * decrypt guest memory to decode the faulting instruction.
- 	 */
--	if (enable_vmware_backdoor)
-+	if (enable_vmware_backdoor && !sev_guest(vcpu->kvm))
- 		set_exception_intercept(svm, GP_VECTOR);
+@@ -4110,9 +4108,11 @@ int vfs_unlink(struct user_namespace *mnt_userns, struct inode *dir,
+ 	inode_unlock(target);
  
- 	svm_set_intercept(svm, INTERCEPT_INTR);
+ 	/* We don't d_delete() NFS sillyrenamed files--they still exist. */
+-	if (!error && !(dentry->d_flags & DCACHE_NFSFS_RENAMED)) {
++	if (!error && dentry->d_flags & DCACHE_NFSFS_RENAMED) {
++		fsnotify_unlink(dir, dentry);
++	} else if (!error) {
+ 		fsnotify_link_count(target);
+-		d_delete(dentry);
++		d_delete_notify(dir, dentry);
+ 	}
+ 
+ 	return error;
+diff --git a/include/linux/fsnotify.h b/include/linux/fsnotify.h
+index 3a2d7dc3c607..bb8467cd11ae 100644
+--- a/include/linux/fsnotify.h
++++ b/include/linux/fsnotify.h
+@@ -224,6 +224,43 @@ static inline void fsnotify_link(struct inode *dir, struct inode *inode,
+ 		      dir, &new_dentry->d_name, 0);
+ }
+ 
++/*
++ * fsnotify_delete - @dentry was unlinked and unhashed
++ *
++ * Caller must make sure that dentry->d_name is stable.
++ *
++ * Note: unlike fsnotify_unlink(), we have to pass also the unlinked inode
++ * as this may be called after d_delete() and old_dentry may be negative.
++ */
++static inline void fsnotify_delete(struct inode *dir, struct inode *inode,
++				   struct dentry *dentry)
++{
++	__u32 mask = FS_DELETE;
++
++	if (S_ISDIR(inode->i_mode))
++		mask |= FS_ISDIR;
++
++	fsnotify_name(mask, inode, FSNOTIFY_EVENT_INODE, dir, &dentry->d_name,
++		      0);
++}
++
++/**
++ * d_delete_notify - delete a dentry and call fsnotify_delete()
++ * @dentry: The dentry to delete
++ *
++ * This helper is used to guaranty that the unlinked inode cannot be found
++ * by lookup of this name after fsnotify_delete() event has been delivered.
++ */
++static inline void d_delete_notify(struct inode *dir, struct dentry *dentry)
++{
++	struct inode *inode = d_inode(dentry);
++
++	ihold(inode);
++	d_delete(dentry);
++	fsnotify_delete(dir, inode, dentry);
++	iput(inode);
++}
++
+ /*
+  * fsnotify_unlink - 'name' was unlinked
+  *
+@@ -231,10 +268,10 @@ static inline void fsnotify_link(struct inode *dir, struct inode *inode,
+  */
+ static inline void fsnotify_unlink(struct inode *dir, struct dentry *dentry)
+ {
+-	/* Expected to be called before d_delete() */
+-	WARN_ON_ONCE(d_is_negative(dentry));
++	if (WARN_ON_ONCE(d_is_negative(dentry)))
++		return;
+ 
+-	fsnotify_dirent(dir, dentry, FS_DELETE);
++	fsnotify_delete(dir, d_inode(dentry), dentry);
+ }
+ 
+ /*
+@@ -258,10 +295,10 @@ static inline void fsnotify_mkdir(struct inode *dir, struct dentry *dentry)
+  */
+ static inline void fsnotify_rmdir(struct inode *dir, struct dentry *dentry)
+ {
+-	/* Expected to be called before d_delete() */
+-	WARN_ON_ONCE(d_is_negative(dentry));
++	if (WARN_ON_ONCE(d_is_negative(dentry)))
++		return;
+ 
+-	fsnotify_dirent(dir, dentry, FS_DELETE | FS_ISDIR);
++	fsnotify_delete(dir, d_inode(dentry), dentry);
+ }
+ 
+ /*
 
