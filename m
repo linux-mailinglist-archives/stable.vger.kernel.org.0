@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C02604A304E
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 16:30:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2880A4A304F
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 16:30:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344350AbiA2P37 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 10:29:59 -0500
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:52579 "EHLO
+        id S239029AbiA2PaD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 10:30:03 -0500
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.129.124]:46170 "EHLO
         us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S239029AbiA2P36 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 10:29:58 -0500
+        by vger.kernel.org with ESMTP id S240665AbiA2PaC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 10:30:02 -0500
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1643470197;
+        s=mimecast20190719; t=1643470202;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=q85jtWibPzk/1wfPo2VwBW3KECym7x/h7qS8h9O47bs=;
-        b=AigoFI+MyR6bqffg41BtRoT0qCKFh1672IdL6E++W9finBZvpRo/e341OfKiJEpOnu44ao
-        Bk64Zd4D4AR63uWrpfgNKyVwiSk6mNIf8JpuKbz6fEEpl2ifIeHvZ4nhEoGsOLp8dyf8fc
-        7WZZT6n+vNfSl1Sf3yAX7C8GS6nUoUY=
+        bh=o0+D4Lgsys8t6OVA/NwrJfpAmuhEVAKrxRqT8aJWy7Y=;
+        b=SHQI7+iGK5r/qVzAdQBy0lm9vI9GmT8s1RRYFBmhIvspxVPiIMsrOm08/1SxC2V8qQGfri
+        tdIW3h5NalROEbeThVZOMIo2crckKSutwDjH7XsBJfS90F+8PCXG90boPZ+HJu5Fzi+sqi
+        VV+xbCXZqHt6P+olRtcGs0C/zUCkwA4=
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-86-1tUhRukAPtGTUg7Y3ZKfPw-1; Sat, 29 Jan 2022 10:29:56 -0500
-X-MC-Unique: 1tUhRukAPtGTUg7Y3ZKfPw-1
+ us-mta-15-sVqLyAdLPOur4nXLdI1iLg-1; Sat, 29 Jan 2022 10:29:58 -0500
+X-MC-Unique: sVqLyAdLPOur4nXLdI1iLg-1
 Received: from smtp.corp.redhat.com (int-mx04.intmail.prod.int.phx2.redhat.com [10.5.11.14])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6BB8A1006AA9;
-        Sat, 29 Jan 2022 15:29:55 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 66BE281424A;
+        Sat, 29 Jan 2022 15:29:57 +0000 (UTC)
 Received: from fedora.redhat.com (unknown [10.40.193.77])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 2EE9D519A5;
-        Sat, 29 Jan 2022 15:29:51 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id BA7A47A426;
+        Sat, 29 Jan 2022 15:29:55 +0000 (UTC)
 From:   Vitaly Kuznetsov <vkuznets@redhat.com>
 To:     stable@vger.kernel.org
 Cc:     Paolo Bonzini <pbonzini@redhat.com>,
         Sean Christopherson <seanjc@google.com>,
         gregkh@linuxfoundation.org
-Subject: [PATCH stable 5.16 v1 1/3] KVM: nVMX: Rename vmcs_to_field_offset{,_table}
-Date:   Sat, 29 Jan 2022 16:29:45 +0100
-Message-Id: <20220129152947.3136637-2-vkuznets@redhat.com>
+Subject: [PATCH stable 5.16 v1 2/3] KVM: nVMX: Implement evmcs_field_offset() suitable for handle_vmread()
+Date:   Sat, 29 Jan 2022 16:29:46 +0100
+Message-Id: <20220129152947.3136637-3-vkuznets@redhat.com>
 In-Reply-To: <20220129152947.3136637-1-vkuznets@redhat.com>
 References: <20220129152947.3136637-1-vkuznets@redhat.com>
 MIME-Version: 1.0
@@ -51,103 +51,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 2423a4c0d17418eca1ba1e3f48684cb2ab7523d5 upstream.
+commit 892a42c10ddb945d3a4dcf07dccdf9cb98b21548 upstream.
 
-vmcs_to_field_offset{,_table} may sound misleading as VMCS is an opaque
-blob which is not supposed to be accessed directly. In fact,
-vmcs_to_field_offset{,_table} are related to KVM defined VMCS12 structure.
+In preparation to allowing reads from Enlightened VMCS from
+handle_vmread(), implement evmcs_field_offset() to get the correct
+read offset. get_evmcs_offset(), which is being used by KVM-on-Hyper-V,
+is almost what's needed but a few things need to be adjusted. First,
+WARN_ON() is unacceptable for handle_vmread() as any field can (in
+theory) be supplied by the guest and not all fields are defined in
+eVMCS v1. Second, we need to handle 'holes' in eVMCS (missing fields).
+It also sounds like a good idea to WARN_ON() if such fields are ever
+accessed by KVM-on-Hyper-V.
 
-Rename vmcs_field_to_offset() to get_vmcs12_field_offset() for clarity.
+Implement dedicated evmcs_field_offset() helper.
 
 No functional change intended.
 
-Reviewed-by: Sean Christopherson <seanjc@google.com>
 Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20220112170134.1904308-4-vkuznets@redhat.com>
+Message-Id: <20220112170134.1904308-5-vkuznets@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
 ---
- arch/x86/kvm/vmx/nested.c | 6 +++---
- arch/x86/kvm/vmx/vmcs12.c | 4 ++--
- arch/x86/kvm/vmx/vmcs12.h | 6 +++---
- 3 files changed, 8 insertions(+), 8 deletions(-)
+ arch/x86/kvm/vmx/evmcs.c |  3 +--
+ arch/x86/kvm/vmx/evmcs.h | 32 ++++++++++++++++++++++++--------
+ 2 files changed, 25 insertions(+), 10 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/nested.c b/arch/x86/kvm/vmx/nested.c
-index 9c941535f78c..84cf1d4b3d88 100644
---- a/arch/x86/kvm/vmx/nested.c
-+++ b/arch/x86/kvm/vmx/nested.c
-@@ -5086,7 +5086,7 @@ static int handle_vmread(struct kvm_vcpu *vcpu)
- 	/* Decode instruction info and find the field to read */
- 	field = kvm_register_read(vcpu, (((instr_info) >> 28) & 0xf));
+diff --git a/arch/x86/kvm/vmx/evmcs.c b/arch/x86/kvm/vmx/evmcs.c
+index ba6f99f584ac..09fac0ddac8b 100644
+--- a/arch/x86/kvm/vmx/evmcs.c
++++ b/arch/x86/kvm/vmx/evmcs.c
+@@ -12,8 +12,6 @@
  
--	offset = vmcs_field_to_offset(field);
-+	offset = get_vmcs12_field_offset(field);
- 	if (offset < 0)
- 		return nested_vmx_fail(vcpu, VMXERR_UNSUPPORTED_VMCS_COMPONENT);
+ DEFINE_STATIC_KEY_FALSE(enable_evmcs);
  
-@@ -5189,7 +5189,7 @@ static int handle_vmwrite(struct kvm_vcpu *vcpu)
- 
- 	field = kvm_register_read(vcpu, (((instr_info) >> 28) & 0xf));
- 
--	offset = vmcs_field_to_offset(field);
-+	offset = get_vmcs12_field_offset(field);
- 	if (offset < 0)
- 		return nested_vmx_fail(vcpu, VMXERR_UNSUPPORTED_VMCS_COMPONENT);
- 
-@@ -6435,7 +6435,7 @@ static u64 nested_vmx_calc_vmcs_enum_msr(void)
- 	max_idx = 0;
- 	for (i = 0; i < nr_vmcs12_fields; i++) {
- 		/* The vmcs12 table is very, very sparsely populated. */
--		if (!vmcs_field_to_offset_table[i])
-+		if (!vmcs12_field_offsets[i])
- 			continue;
- 
- 		idx = vmcs_field_index(VMCS12_IDX_TO_ENC(i));
-diff --git a/arch/x86/kvm/vmx/vmcs12.c b/arch/x86/kvm/vmx/vmcs12.c
-index cab6ba7a5005..2251b60920f8 100644
---- a/arch/x86/kvm/vmx/vmcs12.c
-+++ b/arch/x86/kvm/vmx/vmcs12.c
-@@ -8,7 +8,7 @@
- 	FIELD(number, name),						\
- 	[ROL16(number##_HIGH, 6)] = VMCS12_OFFSET(name) + sizeof(u32)
- 
--const unsigned short vmcs_field_to_offset_table[] = {
-+const unsigned short vmcs12_field_offsets[] = {
- 	FIELD(VIRTUAL_PROCESSOR_ID, virtual_processor_id),
- 	FIELD(POSTED_INTR_NV, posted_intr_nv),
- 	FIELD(GUEST_ES_SELECTOR, guest_es_selector),
-@@ -151,4 +151,4 @@ const unsigned short vmcs_field_to_offset_table[] = {
- 	FIELD(HOST_RSP, host_rsp),
- 	FIELD(HOST_RIP, host_rip),
+-#if IS_ENABLED(CONFIG_HYPERV)
+-
+ #define EVMCS1_OFFSET(x) offsetof(struct hv_enlightened_vmcs, x)
+ #define EVMCS1_FIELD(number, name, clean_field)[ROL16(number, 6)] = \
+ 		{EVMCS1_OFFSET(name), clean_field}
+@@ -296,6 +294,7 @@ const struct evmcs_field vmcs_field_to_evmcs_1[] = {
  };
--const unsigned int nr_vmcs12_fields = ARRAY_SIZE(vmcs_field_to_offset_table);
-+const unsigned int nr_vmcs12_fields = ARRAY_SIZE(vmcs12_field_offsets);
-diff --git a/arch/x86/kvm/vmx/vmcs12.h b/arch/x86/kvm/vmx/vmcs12.h
-index 2a45f026ee11..746129ddd5ae 100644
---- a/arch/x86/kvm/vmx/vmcs12.h
-+++ b/arch/x86/kvm/vmx/vmcs12.h
-@@ -361,10 +361,10 @@ static inline void vmx_check_vmcs12_offsets(void)
- 	CHECK_OFFSET(guest_pml_index, 996);
+ const unsigned int nr_evmcs_1_fields = ARRAY_SIZE(vmcs_field_to_evmcs_1);
+ 
++#if IS_ENABLED(CONFIG_HYPERV)
+ __init void evmcs_sanitize_exec_ctrls(struct vmcs_config *vmcs_conf)
+ {
+ 	vmcs_conf->pin_based_exec_ctrl &= ~EVMCS1_UNSUPPORTED_PINCTRL;
+diff --git a/arch/x86/kvm/vmx/evmcs.h b/arch/x86/kvm/vmx/evmcs.h
+index 16731d2cf231..bc14e8429c19 100644
+--- a/arch/x86/kvm/vmx/evmcs.h
++++ b/arch/x86/kvm/vmx/evmcs.h
+@@ -63,8 +63,6 @@ DECLARE_STATIC_KEY_FALSE(enable_evmcs);
+ #define EVMCS1_UNSUPPORTED_VMENTRY_CTRL (VM_ENTRY_LOAD_IA32_PERF_GLOBAL_CTRL)
+ #define EVMCS1_UNSUPPORTED_VMFUNC (VMX_VMFUNC_EPTP_SWITCHING)
+ 
+-#if IS_ENABLED(CONFIG_HYPERV)
+-
+ struct evmcs_field {
+ 	u16 offset;
+ 	u16 clean_field;
+@@ -73,26 +71,44 @@ struct evmcs_field {
+ extern const struct evmcs_field vmcs_field_to_evmcs_1[];
+ extern const unsigned int nr_evmcs_1_fields;
+ 
+-static __always_inline int get_evmcs_offset(unsigned long field,
+-					    u16 *clean_field)
++static __always_inline int evmcs_field_offset(unsigned long field,
++					      u16 *clean_field)
+ {
+ 	unsigned int index = ROL16(field, 6);
+ 	const struct evmcs_field *evmcs_field;
+ 
+-	if (unlikely(index >= nr_evmcs_1_fields)) {
+-		WARN_ONCE(1, "KVM: accessing unsupported EVMCS field %lx\n",
+-			  field);
++	if (unlikely(index >= nr_evmcs_1_fields))
+ 		return -ENOENT;
+-	}
+ 
+ 	evmcs_field = &vmcs_field_to_evmcs_1[index];
+ 
++	/*
++	 * Use offset=0 to detect holes in eVMCS. This offset belongs to
++	 * 'revision_id' but this field has no encoding and is supposed to
++	 * be accessed directly.
++	 */
++	if (unlikely(!evmcs_field->offset))
++		return -ENOENT;
++
+ 	if (clean_field)
+ 		*clean_field = evmcs_field->clean_field;
+ 
+ 	return evmcs_field->offset;
  }
  
--extern const unsigned short vmcs_field_to_offset_table[];
-+extern const unsigned short vmcs12_field_offsets[];
- extern const unsigned int nr_vmcs12_fields;
- 
--static inline short vmcs_field_to_offset(unsigned long field)
-+static inline short get_vmcs12_field_offset(unsigned long field)
++#if IS_ENABLED(CONFIG_HYPERV)
++
++static __always_inline int get_evmcs_offset(unsigned long field,
++					    u16 *clean_field)
++{
++	int offset = evmcs_field_offset(field, clean_field);
++
++	WARN_ONCE(offset < 0, "KVM: accessing unsupported EVMCS field %lx\n",
++		  field);
++
++	return offset;
++}
++
+ static __always_inline void evmcs_write64(unsigned long field, u64 value)
  {
- 	unsigned short offset;
- 	unsigned int index;
-@@ -377,7 +377,7 @@ static inline short vmcs_field_to_offset(unsigned long field)
- 		return -ENOENT;
- 
- 	index = array_index_nospec(index, nr_vmcs12_fields);
--	offset = vmcs_field_to_offset_table[index];
-+	offset = vmcs12_field_offsets[index];
- 	if (offset == 0)
- 		return -ENOENT;
- 	return offset;
+ 	u16 clean_field;
 -- 
 2.34.1
 
