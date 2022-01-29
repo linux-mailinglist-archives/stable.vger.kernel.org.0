@@ -2,114 +2,237 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFFAD4A2D5B
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 10:23:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAD3A4A2D5E
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 10:25:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232529AbiA2JXt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 04:23:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42342 "EHLO
+        id S232630AbiA2JZC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 04:25:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42616 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232483AbiA2JXt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 04:23:49 -0500
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D006C06173B
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 01:23:49 -0800 (PST)
-Received: by mail-pj1-x1032.google.com with SMTP id qe6-20020a17090b4f8600b001b7aaad65b9so2572418pjb.2
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 01:23:49 -0800 (PST)
+        with ESMTP id S232627AbiA2JZB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 04:25:01 -0500
+Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C16DC06173B
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 01:25:01 -0800 (PST)
+Received: by mail-yb1-xb2d.google.com with SMTP id j2so12254168ybu.0
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 01:25:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
+        d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=bqzBoRkDi8kVZLIMHecE3nTUwM1cKHwe7YhWSOKzDP4=;
-        b=s97mGS9tiPyBqXIXKy3aSh/N4MQ9p3JSjfDa3iVBO/Yre+GETk8gTsrVUntRjvG8/m
-         rQrNRXjXcrI0pnn6CapBI1VN2KoFgEQfUybFE0qXREGW7/Ct7OPgPDUzdb0iFQbg5Lok
-         GPiSGiEUkxt5e7FpuZofX6lubQiidNESe0CzO+sgmdijG9oXNeQT3Wh2eIlRUgiBEcNS
-         G1JfC8l3U2YHhQuvDFlTkIcZQskxd0h9YRiuPXbnanlukqx+0Bt105wGtXQkOAA5SpkV
-         pTFHnmpt6XZHRqqG6WQoU6w09u/PM1eStPysheNrb67/4Oj9WUDoVpjQSOb1oF95rTIr
-         zcWQ==
+        bh=HWHYXLII0byMrBeerylNijL1LbJPU23zk0bTGbpZSZw=;
+        b=UUhLUCTGd9HfSLx0F3jmtZtSN5Gbh7g83ZZFQge0TxuO4VPWXCCuf9sj6VC59/ycGY
+         McVivBeNSOvIT+WBA6PWOwXRcah8VwXhSsWsMeNmE12CxIxIX/2UtR58Q9qBgG3+AHqr
+         dFym53Z/KNHw7NUh4TV9RZV3mlZ/rNdXGK2gUsFST6siKWQTKgnlJm3D9dinXL1dhUMP
+         tnKsN9KsFPnjEnjHAPea/uA6kZUmbxqZ9vYQ7xxISA2OiyKs7hn0RO4JKQihkfHVHYkH
+         31j+5ICkbEirIsryJ6kgg0NUfpKZ1o64M4CRINK2LExjkntYVZPraklb67wc0QPIfjMP
+         gNYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=bqzBoRkDi8kVZLIMHecE3nTUwM1cKHwe7YhWSOKzDP4=;
-        b=sqnHeykMGxCTR/ssIGQ4NkKuEG8ePgNvm2CycScR+SPrJXRde9XkM7c/XcVB2Rez7h
-         krq06bid/iKu2K5wtlmSb4VNGqfBfdacdmtf/6zdn94ZAnyXEFnxC91veFudK/Fv6dDC
-         GgqWXAolO/VjLPijzYue4b6gjEx0D0dega46hti8JFOG2DO7VJRp+aVGyiiC2b0Pf2kX
-         X6ka/sWtKEUiqCUTgagsoT7JTwRucHapLLIuqCo/bYmxHrjeR2AJ+3OU1iprPsv/I0qz
-         aXJ9CpbDVI60mdgvjvhUJphGvS3AQQpSBN9PHrlSkoAuccfxrp1FNX63bsuT/Jpmy4Jw
-         elUw==
-X-Gm-Message-State: AOAM531LJv15P8AHugGbSjk3YE7M0nTR9P7M4/xtYE/3UNmlZtIFVtbZ
-        4HlD6sA57GmtTjOLIclr+9iDHdCxLgEeKub+jz61Ow==
-X-Google-Smtp-Source: ABdhPJxkwCr5AJ3CWlNsUJ2kZldTLSWl6JJt6MW+qo5eS2oZPFbsWd6uXO4KRJK6Arlc6JioXfqDrw3X/aq49qkQFHs=
-X-Received: by 2002:a17:90b:1881:: with SMTP id mn1mr23751902pjb.236.1643448228173;
- Sat, 29 Jan 2022 01:23:48 -0800 (PST)
+        bh=HWHYXLII0byMrBeerylNijL1LbJPU23zk0bTGbpZSZw=;
+        b=A4nSb9NDyVeV6fSnVSea1z0/Nh3E+TTKmaOxkGkqJ4PnhHYeFqltg8pdocxcIihdOj
+         rj+gKOcjP4p+3Aa8CH6Ru2p8qUX4ARiHL8n1jNFPjPxMuJsDs9XNTyD6C/NrWToOBy+a
+         t0f/xi1fKedPBGggDhgESwyUQ4VG9UrxUPUUkQoU3iAXc47xYlpEWgCGGDBgw8g1EpDo
+         JHTNvAqBrMgQeIBGyeUifolLfVkoZV27O8AWcQ9d+WeOFOclTeAPWklRmy5XhDKPk6Ro
+         V8wNGic/pqZyXI8Y6oI6Ai3/oGQnSowyu7nubcY4G7b8wM1HJYmFWL8dZKMUTWCIxLZd
+         Ph4Q==
+X-Gm-Message-State: AOAM533Pc9QaKgkbPp8GtME0xi2DTKJut5NbS7juZB1o4fzZq10rNc3j
+        LZQPbQ+w48ziZ0zftPVpfhOwiSH3waNaC1pIXgxTeg==
+X-Google-Smtp-Source: ABdhPJwHdI1tvd5lY0c4v7muMuU4gCvQOaevnaLJ1fK+829QhTAxmgaxD3WLUww9JBS/lDgymEBDmTU88ZyJNP4GAjk=
+X-Received: by 2002:a25:418b:: with SMTP id o133mr18024994yba.704.1643448300586;
+ Sat, 29 Jan 2022 01:25:00 -0800 (PST)
 MIME-Version: 1.0
-References: <20220119064013.1381172-1-pumahsu@google.com> <e2baf3c5-0d80-9143-5fec-98a9e1474068@linux.intel.com>
-In-Reply-To: <e2baf3c5-0d80-9143-5fec-98a9e1474068@linux.intel.com>
-From:   Puma Hsu <pumahsu@google.com>
-Date:   Sat, 29 Jan 2022 17:23:12 +0800
-Message-ID: <CAGCq0LbWSqTJ+M+jxryUmn44FefC7cmS5ouP8BLyFY9z1RePMA@mail.gmail.com>
-Subject: Re: [PATCH v5] xhci: re-initialize the HC during resume if HCE was set
-To:     Mathias Nyman <mathias.nyman@linux.intel.com>
-Cc:     mathias.nyman@intel.com, Greg KH <gregkh@linuxfoundation.org>,
-        Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Albert Wang <albertccwang@google.com>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
+References: <20220127180256.764665162@linuxfoundation.org>
+In-Reply-To: <20220127180256.764665162@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Sat, 29 Jan 2022 14:54:49 +0530
+Message-ID: <CA+G9fYu3ECvC47s7Y-bzhcTu35DnGmQ8p7BC9uaKqJ-hQeUJog@mail.gmail.com>
+Subject: Re: [PATCH 4.14 0/2] 4.14.264-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 27, 2022 at 9:43 PM Mathias Nyman
-<mathias.nyman@linux.intel.com> wrote:
+On Thu, 27 Jan 2022 at 23:39, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
 >
-> On 19.1.2022 8.40, Puma Hsu wrote:
-> > When HCE(Host Controller Error) is set, it means an internal
-> > error condition has been detected. Software needs to re-initialize
-> > the HC, so add this check in xhci resume.
-> >
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Puma Hsu <pumahsu@google.com>
-> > ---
-> > v2: Follow Sergey Shtylyov <s.shtylyov@omp.ru>'s comment.
-> > v3: Add stable@vger.kernel.org for stable release.
-> > v4: Refine the commit message.
-> > v5: Add a debug log. Follow Mathias Nyman <mathias.nyman@linux.intel.co=
-m>'s comment.
-> >
-> >  drivers/usb/host/xhci.c | 6 ++++--
-> >  1 file changed, 4 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/usb/host/xhci.c b/drivers/usb/host/xhci.c
-> > index dc357cabb265..41f594f0f73f 100644
-> > --- a/drivers/usb/host/xhci.c
-> > +++ b/drivers/usb/host/xhci.c
-> > @@ -1146,8 +1146,10 @@ int xhci_resume(struct xhci_hcd *xhci, bool hibe=
-rnated)
-> >               temp =3D readl(&xhci->op_regs->status);
-> >       }
-> >
-> > -     /* If restore operation fails, re-initialize the HC during resume=
- */
-> > -     if ((temp & STS_SRE) || hibernated) {
-> > +     /* If restore operation fails or HC error is detected, re-initial=
-ize the HC during resume */
-> > +     if ((temp & (STS_SRE | STS_HCE)) || hibernated) {
-> > +             xhci_warn(xhci, "re-initialize HC during resume, USBSTS:%=
-s\n",
-> > +                       xhci_decode_usbsts(str, temp));
-> >
-> >               if ((xhci->quirks & XHCI_COMP_MODE_QUIRK) &&
-> >                               !(xhci_all_ports_seen_u0(xhci))) {
-> >
+> This is the start of the stable review cycle for the 4.14.264 release.
+> There are 2 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> Tried to compile, something is missing in this patch:
+> Responses should be made by Sat, 29 Jan 2022 18:02:51 +0000.
+> Anything received after that time might be too late.
 >
-> drivers/usb/host/xhci.c:1152:25: error: =E2=80=98str=E2=80=99 undeclared =
-(first use in this function); did you mean =E2=80=98qstr=E2=80=99?
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.14.264-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.14.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Sorry for missing the declaration, I will fix it.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-> -Mathias
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+## Build
+* kernel: 4.14.264-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-4.14.y
+* git commit: a816c082cb802807f6548940bb78b806ad74ca90
+* git describe: v4.14.263-3-ga816c082cb80
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14=
+.263-3-ga816c082cb80
+
+## Test Regressions (compared to v4.14.262-185-g1cb564222633)
+No test regressions found.
+
+## Metric Regressions (compared to v4.14.262-185-g1cb564222633)
+No metric regressions found.
+
+## Test Fixes (compared to v4.14.262-185-g1cb564222633)
+No test fixes found.
+
+## Metric Fixes (compared to v4.14.262-185-g1cb564222633)
+No metric fixes found.
+
+## Test result summary
+total: 69622, pass: 55697, fail: 666, skip: 11294, xfail: 1965
+
+## Build Summary
+* arm: 250 total, 242 passed, 8 failed
+* arm64: 32 total, 32 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 19 total, 19 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 22 total, 22 passed, 0 failed
+* powerpc: 52 total, 0 passed, 52 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 31 total, 31 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-arm64/arm64.btitest.bti_c_func
+* kselftest-arm64/arm64.btitest.bti_j_func
+* kselftest-arm64/arm64.btitest.bti_jc_func
+* kselftest-arm64/arm64.btitest.bti_none_func
+* kselftest-arm64/arm64.btitest.nohint_func
+* kselftest-arm64/arm64.btitest.paciasp_func
+* kselftest-arm64/arm64.nobtitest.bti_c_func
+* kselftest-arm64/arm64.nobtitest.bti_j_func
+* kselftest-arm64/arm64.nobtitest.bti_jc_func
+* kselftest-arm64/arm64.nobtitest.bti_none_func
+* kselftest-arm64/arm64.nobtitest.nohint_func
+* kselftest-arm64/arm64.nobtitest.paciasp_func
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
