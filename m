@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FB8A4A2F8E
-	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:52:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED1874A2F90
+	for <lists+stable@lfdr.de>; Sat, 29 Jan 2022 13:52:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350623AbiA2MwI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 Jan 2022 07:52:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59918 "EHLO
+        id S1348923AbiA2Mwz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 Jan 2022 07:52:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1352555AbiA2MwF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:52:05 -0500
+        with ESMTP id S1347906AbiA2Mww (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 Jan 2022 07:52:52 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90948C061756
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 04:52:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A452AC061714
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 04:52:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A07560C7B
-        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:52:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB3D1C340E5;
-        Sat, 29 Jan 2022 12:52:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 432D460C09
+        for <stable@vger.kernel.org>; Sat, 29 Jan 2022 12:52:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00B08C340E5;
+        Sat, 29 Jan 2022 12:52:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643460724;
-        bh=p7r2D7mC3cw+/n1dplopnGFz2VhWF2bl5Mza/o+jZWs=;
+        s=korg; t=1643460771;
+        bh=mjgy2BHKIowhmTZNWwX4sDxXD3Xe+YbgrBjoD/4OChQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=t0WLuiivR007NVDKcg/kD0Ynhb0peefCyDiXW0FdnCRIqLLIqtMib568jpIC5m9CQ
-         VKXmaWKKL5rjHioYPcLNaTLCNutVnuEB8sGMs2AZZn86CyC2jSwT11MoeG8l1e59rg
-         cOs6wgmB74sijbFtGtv9TSJ1rGq3cQiuGtb9B7Y8=
-Subject: FAILED: patch "[PATCH] drm/amdgpu/display: Remove t_srx_delay_us." failed to apply to 5.15-stable tree
-To:     bas@basnieuwenhuizen.nl, alexander.deucher@amd.com,
-        harry.wentland@amd.com
+        b=HuEflgSfiViNSm+Njuyw19qPE603Bx8THUmA2Gp7rFJyQuo17OsAdRvf5T5Cc5SWG
+         OWOdy3GqA20u+pwfBO3TLuEfAF+dHJ/Y35WuG9nF9VIC7tUiXZrxH2DEd6fNFXquuh
+         QCnjEXu28mB14ujq/RFX+HL+PKYa7iY1mV6GuyZg=
+Subject: FAILED: patch "[PATCH] KVM: LAPIC: Also cancel preemption timer during SET_LAPIC" failed to apply to 5.10-stable tree
+To:     wanpengli@tencent.com, pbonzini@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 29 Jan 2022 13:52:01 +0100
-Message-ID: <164346072136252@kroah.com>
+Date:   Sat, 29 Jan 2022 13:52:43 +0100
+Message-ID: <1643460763231174@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -43,7 +42,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -54,126 +53,51 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2a807341ed1074ab83638f2fab08dffaa373f6b8 Mon Sep 17 00:00:00 2001
-From: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
-Date: Sun, 23 Jan 2022 03:38:28 +0100
-Subject: [PATCH] drm/amdgpu/display: Remove t_srx_delay_us.
+From 35fe7cfbab2e81f1afb23fc4212210b1de6d9633 Mon Sep 17 00:00:00 2001
+From: Wanpeng Li <wanpengli@tencent.com>
+Date: Tue, 25 Jan 2022 01:17:00 -0800
+Subject: [PATCH] KVM: LAPIC: Also cancel preemption timer during SET_LAPIC
 
-Unused. Convert the divisions into asserts on the divisor, to
-debug why it is zero. The divide by zero is suspected of causing
-kernel panics.
+The below warning is splatting during guest reboot.
 
-While I have no idea where the zero is coming from I think this
-patch is a positive either way.
+  ------------[ cut here ]------------
+  WARNING: CPU: 0 PID: 1931 at arch/x86/kvm/x86.c:10322 kvm_arch_vcpu_ioctl_run+0x874/0x880 [kvm]
+  CPU: 0 PID: 1931 Comm: qemu-system-x86 Tainted: G          I       5.17.0-rc1+ #5
+  RIP: 0010:kvm_arch_vcpu_ioctl_run+0x874/0x880 [kvm]
+  Call Trace:
+   <TASK>
+   kvm_vcpu_ioctl+0x279/0x710 [kvm]
+   __x64_sys_ioctl+0x83/0xb0
+   do_syscall_64+0x3b/0xc0
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+  RIP: 0033:0x7fd39797350b
 
+This can be triggered by not exposing tsc-deadline mode and doing a reboot in
+the guest. The lapic_shutdown() function which is called in sys_reboot path
+will not disarm the flying timer, it just masks LVTT. lapic_shutdown() clears
+APIC state w/ LVT_MASKED and timer-mode bit is 0, this can trigger timer-mode
+switch between tsc-deadline and oneshot/periodic, which can result in preemption
+timer be cancelled in apic_update_lvtt(). However, We can't depend on this when
+not exposing tsc-deadline mode and oneshot/periodic modes emulated by preemption
+timer. Qemu will synchronise states around reset, let's cancel preemption timer
+under KVM_SET_LAPIC.
+
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+Message-Id: <1643102220-35667-1-git-send-email-wanpengli@tencent.com>
 Cc: stable@vger.kernel.org
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Signed-off-by: Bas Nieuwenhuizen <bas@basnieuwenhuizen.nl>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-diff --git a/drivers/gpu/drm/amd/display/dc/calcs/dcn_calcs.c b/drivers/gpu/drm/amd/display/dc/calcs/dcn_calcs.c
-index ec19678a0702..e447c74be713 100644
---- a/drivers/gpu/drm/amd/display/dc/calcs/dcn_calcs.c
-+++ b/drivers/gpu/drm/amd/display/dc/calcs/dcn_calcs.c
-@@ -503,7 +503,6 @@ static void dcn_bw_calc_rq_dlg_ttu(
- 	//input[in_idx].dout.output_standard;
+diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
+index baca9fa37a91..4662469240bc 100644
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -2629,7 +2629,7 @@ int kvm_apic_set_state(struct kvm_vcpu *vcpu, struct kvm_lapic_state *s)
+ 	kvm_apic_set_version(vcpu);
  
- 	/*todo: soc->sr_enter_plus_exit_time??*/
--	dlg_sys_param->t_srx_delay_us = dc->dcn_ip->dcfclk_cstate_latency / v->dcf_clk_deep_sleep;
- 
- 	dml1_rq_dlg_get_rq_params(dml, rq_param, &input->pipe.src);
- 	dml1_extract_rq_regs(dml, rq_regs, rq_param);
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20.c b/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20.c
-index 246071c72f6b..548cdef8a8ad 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20.c
-@@ -1576,8 +1576,6 @@ void dml20_rq_dlg_get_dlg_reg(struct display_mode_lib *mode_lib,
- 	dlg_sys_param.total_flip_bytes = get_total_immediate_flip_bytes(mode_lib,
- 			e2e_pipe_param,
- 			num_pipes);
--	dlg_sys_param.t_srx_delay_us = mode_lib->ip.dcfclk_cstate_latency
--			/ dlg_sys_param.deepsleep_dcfclk_mhz; // TODO: Deprecated
- 
- 	print__dlg_sys_params_st(mode_lib, &dlg_sys_param);
- 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20v2.c b/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20v2.c
-index 015e7f2c0b16..0fc9f3e3ffae 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20v2.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn20/display_rq_dlg_calc_20v2.c
-@@ -1577,8 +1577,6 @@ void dml20v2_rq_dlg_get_dlg_reg(struct display_mode_lib *mode_lib,
- 	dlg_sys_param.total_flip_bytes = get_total_immediate_flip_bytes(mode_lib,
- 			e2e_pipe_param,
- 			num_pipes);
--	dlg_sys_param.t_srx_delay_us = mode_lib->ip.dcfclk_cstate_latency
--			/ dlg_sys_param.deepsleep_dcfclk_mhz; // TODO: Deprecated
- 
- 	print__dlg_sys_params_st(mode_lib, &dlg_sys_param);
- 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_rq_dlg_calc_21.c b/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_rq_dlg_calc_21.c
-index 8bc27de4c104..618f4b682ab1 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_rq_dlg_calc_21.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn21/display_rq_dlg_calc_21.c
-@@ -1688,8 +1688,6 @@ void dml21_rq_dlg_get_dlg_reg(
- 			mode_lib,
- 			e2e_pipe_param,
- 			num_pipes);
--	dlg_sys_param.t_srx_delay_us = mode_lib->ip.dcfclk_cstate_latency
--			/ dlg_sys_param.deepsleep_dcfclk_mhz; // TODO: Deprecated
- 
- 	print__dlg_sys_params_st(mode_lib, &dlg_sys_param);
- 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_rq_dlg_calc_30.c b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_rq_dlg_calc_30.c
-index aef854270054..747167083dea 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_rq_dlg_calc_30.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn30/display_rq_dlg_calc_30.c
-@@ -1858,8 +1858,6 @@ void dml30_rq_dlg_get_dlg_reg(struct display_mode_lib *mode_lib,
- 	dlg_sys_param.total_flip_bytes = get_total_immediate_flip_bytes(mode_lib,
- 		e2e_pipe_param,
- 		num_pipes);
--	dlg_sys_param.t_srx_delay_us = mode_lib->ip.dcfclk_cstate_latency
--		/ dlg_sys_param.deepsleep_dcfclk_mhz; // TODO: Deprecated
- 
- 	print__dlg_sys_params_st(mode_lib, &dlg_sys_param);
- 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/display_mode_structs.h b/drivers/gpu/drm/amd/display/dc/dml/display_mode_structs.h
-index d46a2733024c..8f9f1d607f7c 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/display_mode_structs.h
-+++ b/drivers/gpu/drm/amd/display/dc/dml/display_mode_structs.h
-@@ -546,7 +546,6 @@ struct _vcs_dpi_display_dlg_sys_params_st {
- 	double t_sr_wm_us;
- 	double t_extra_us;
- 	double mem_trip_us;
--	double t_srx_delay_us;
- 	double deepsleep_dcfclk_mhz;
- 	double total_flip_bw;
- 	unsigned int total_flip_bytes;
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/display_rq_dlg_helpers.c b/drivers/gpu/drm/amd/display/dc/dml/display_rq_dlg_helpers.c
-index 71ea503cb32f..412e75eb4704 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/display_rq_dlg_helpers.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/display_rq_dlg_helpers.c
-@@ -141,9 +141,6 @@ void print__dlg_sys_params_st(struct display_mode_lib *mode_lib, const struct _v
- 	dml_print("DML_RQ_DLG_CALC:    t_urg_wm_us          = %3.2f\n", dlg_sys_param->t_urg_wm_us);
- 	dml_print("DML_RQ_DLG_CALC:    t_sr_wm_us           = %3.2f\n", dlg_sys_param->t_sr_wm_us);
- 	dml_print("DML_RQ_DLG_CALC:    t_extra_us           = %3.2f\n", dlg_sys_param->t_extra_us);
--	dml_print(
--			"DML_RQ_DLG_CALC:    t_srx_delay_us       = %3.2f\n",
--			dlg_sys_param->t_srx_delay_us);
- 	dml_print(
- 			"DML_RQ_DLG_CALC:    deepsleep_dcfclk_mhz = %3.2f\n",
- 			dlg_sys_param->deepsleep_dcfclk_mhz);
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dml1_display_rq_dlg_calc.c b/drivers/gpu/drm/amd/display/dc/dml/dml1_display_rq_dlg_calc.c
-index 59dc2c5b58dd..3df559c591f8 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dml1_display_rq_dlg_calc.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dml1_display_rq_dlg_calc.c
-@@ -1331,10 +1331,6 @@ void dml1_rq_dlg_get_dlg_params(
- 	if (dual_plane)
- 		DTRACE("DLG: %s: swath_height_c     = %d", __func__, swath_height_c);
- 
--	DTRACE(
--			"DLG: %s: t_srx_delay_us     = %3.2f",
--			__func__,
--			(double) dlg_sys_param->t_srx_delay_us);
- 	DTRACE("DLG: %s: line_time_in_us    = %3.2f", __func__, (double) line_time_in_us);
- 	DTRACE("DLG: %s: vupdate_offset     = %d", __func__, vupdate_offset);
- 	DTRACE("DLG: %s: vupdate_width      = %d", __func__, vupdate_width);
+ 	apic_update_ppr(apic);
+-	hrtimer_cancel(&apic->lapic_timer.timer);
++	cancel_apic_timer(apic);
+ 	apic->lapic_timer.expired_tscdeadline = 0;
+ 	apic_update_lvtt(apic);
+ 	apic_manage_nmi_watchdog(apic, kvm_lapic_get_reg(apic, APIC_LVT0));
 
