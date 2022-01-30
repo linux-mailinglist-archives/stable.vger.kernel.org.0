@@ -2,197 +2,248 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C0D234A36AF
-	for <lists+stable@lfdr.de>; Sun, 30 Jan 2022 15:33:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BD2B4A36C7
+	for <lists+stable@lfdr.de>; Sun, 30 Jan 2022 15:41:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355003AbiA3Odx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 30 Jan 2022 09:33:53 -0500
-Received: from mout.kundenserver.de ([217.72.192.74]:44575 "EHLO
-        mout.kundenserver.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355011AbiA3Odw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 30 Jan 2022 09:33:52 -0500
-Received: from quad ([82.142.10.94]) by mrelayeu.kundenserver.de (mreue107
- [212.227.15.183]) with ESMTPSA (Nemesis) id 1MJn4B-1mz8IM3nuD-00KBmy; Sun, 30
- Jan 2022 15:33:40 +0100
-From:   Laurent Vivier <laurent@vivier.eu>
-To:     linux-kernel@vger.kernel.org
-Cc:     Arnd Bergmann <arnd@arndb.de>, linux-rtc@vger.kernel.org,
-        Jiaxun Yang <jiaxun.yang@flygoat.com>,
-        Stephen Boyd <sboyd@kernel.org>,
-        John Stultz <john.stultz@linaro.org>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        linux-m68k@lists.linux-m68k.org,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Laurent Vivier <laurent@vivier.eu>, stable@vger.kernel.org
-Subject: [PATCH v14 2/5] tty: goldfish: introduce gf_ioread32()/gf_iowrite32()
-Date:   Sun, 30 Jan 2022 15:33:30 +0100
-Message-Id: <20220130143333.552646-3-laurent@vivier.eu>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20220130143333.552646-1-laurent@vivier.eu>
-References: <20220130143333.552646-1-laurent@vivier.eu>
+        id S1347161AbiA3OlE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 Jan 2022 09:41:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57830 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1345078AbiA3OlD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 30 Jan 2022 09:41:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 12A59C061714
+        for <stable@vger.kernel.org>; Sun, 30 Jan 2022 06:41:03 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C60A9B8294C
+        for <stable@vger.kernel.org>; Sun, 30 Jan 2022 14:41:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0CCEC340E4;
+        Sun, 30 Jan 2022 14:40:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1643553660;
+        bh=+U6RLhYpBWwTeFFWagW5TXgrEf8JtB1qld3KMnifFLo=;
+        h=Subject:To:Cc:From:Date:From;
+        b=meL7gqimKL+y/ZxFAAboo/xuO082phQgsUk1w1pFnSTEAc6fxq6InraBcQYUi85Fq
+         5C+LypSWmJ9k3XL2yKPV8PK+kFd7NXcvQeShMcPPxUDfMdi21QTGQdtG2Mwb0s6QU2
+         7sPPRM6t/BLfsuO5ac8iTDQ8hvMo1l5y9+0R9Z2U=
+Subject: FAILED: patch "[PATCH] i40e: Fix issue when maximum queues is exceeded" failed to apply to 4.4-stable tree
+To:     jedrzej.jagielski@intel.com, anthony.l.nguyen@intel.com,
+        jaroslawx.gawin@intel.com, konrad0.jankowski@intel.com,
+        slawomirx.laba@intel.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 30 Jan 2022 15:40:57 +0100
+Message-ID: <1643553657141106@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Provags-ID: V03:K1:GDMx2XT+d9n7WypZPPYjcEVTVTvlAAyx/oEPSpfs1Ookc5d9ozY
- 2DNxrndeZ05hHdD8VDYG++EeOKJAhxD5X0mZHCj/AL08/geB/O/t6zzlI0wL6qetjQAAZBD
- WCPcbFNSdJHMhHdHibCLlvfseMk0AwJv5+2k9HJfQYnHd7yeiJ16yyjTWkFyJ6R9iAAMZIp
- zmKQZ/KPx4mPXw9Y4KAMA==
-X-Spam-Flag: NO
-X-UI-Out-Filterresults: notjunk:1;V03:K0:SgrEka7cSOU=:Oxcf1mGPW6i3JJSdI0RLvb
- +nM9stW7F0JydnMPXt/3dAEBQAm3PggfP3kJM9XlwaVzxvGt3CrRxZ3JH5pGJTywLaKHkvGKc
- +/XMEtWVqM+C8QC0TLidgfzt30w/6VQevLjFVxO9MaQJHmh4mU2U3xnUVKhIiAerWGQZkDNh4
- 9czT8FJNGU4N35Qfqgwna0X5zPVrBu82HOPsObXDxFWEaA7EmFC35HKBHAjswuY3vXr7y/atH
- NstmjNuhx+pgM0XohOC5/XiTLyun7HUk3HHZIGqXtLd98PA6e3x1JWLARnnabwMz6duir5u71
- CYo6e4YcLIzJ686CMhBgBtjQrc+fEVtXNuQFfjVB7w0UFlGJcOjzFS67Zcm/eb/FRLrAWXb9o
- MX7yGCNkpIkUPK1c3sfr6Dc1HZmvMKmxLbSMebl7gfjKC/7+wf4BJn9bfNLIVxgMPBhFdwQDF
- sfl/ow/liHmZ2bHEE0s6ZLVJJQ+bONVXiUFBGABMStgUPqAuKGVoMG9feGU+w/nkZcYVeRd4n
- mYZZ3Vuff0NuwWV3lbNFUlwdaCKMtUUfzUvQMoGNTYZvQhCiIisTUtampRDHNEu240yYANmrj
- OCFDMT0BQxvnI3/bnUPqjirhLas4VIMyMxkg+ntkvZvIMuPKAk6LBkatAnyi67I/8fr/TOD15
- cObEt7jRwMdgVoCcoEdplefQGNzTNzi3xmeIFqyo2wCbBVkQJk4pxt0dp/LPBMRA4FkI=
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Revert
-commit da31de35cd2f ("tty: goldfish: use __raw_writel()/__raw_readl()")
 
-and define gf_ioread32()/gf_iowrite32() to be able to use accessors
-defined by the architecture.
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Cc: stable@vger.kernel.org # v5.11+
-Fixes: da31de35cd2f ("tty: goldfish: use __raw_writel()/__raw_readl()")
-Signed-off-by: Laurent Vivier <laurent@vivier.eu>
----
- drivers/tty/goldfish.c   | 20 ++++++++++----------
- include/linux/goldfish.h | 15 +++++++++++----
- 2 files changed, 21 insertions(+), 14 deletions(-)
+thanks,
 
-diff --git a/drivers/tty/goldfish.c b/drivers/tty/goldfish.c
-index 5ed19a9857ad..10c13b93ed52 100644
---- a/drivers/tty/goldfish.c
-+++ b/drivers/tty/goldfish.c
-@@ -61,13 +61,13 @@ static void do_rw_io(struct goldfish_tty *qtty,
- 	spin_lock_irqsave(&qtty->lock, irq_flags);
- 	gf_write_ptr((void *)address, base + GOLDFISH_TTY_REG_DATA_PTR,
- 		     base + GOLDFISH_TTY_REG_DATA_PTR_HIGH);
--	__raw_writel(count, base + GOLDFISH_TTY_REG_DATA_LEN);
-+	gf_iowrite32(count, base + GOLDFISH_TTY_REG_DATA_LEN);
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From d701658a50a471591094b3eb3961b4926cc8f104 Mon Sep 17 00:00:00 2001
+From: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+Date: Fri, 5 Nov 2021 11:17:00 +0000
+Subject: [PATCH] i40e: Fix issue when maximum queues is exceeded
+
+Before this patch VF interface vanished when
+maximum queue number was exceeded. Driver tried
+to add next queues even if there was not enough
+space. PF sent incorrect number of queues to
+the VF when there were not enough of them.
+
+Add an additional condition introduced to check
+available space in 'qp_pile' before proceeding.
+This condition makes it impossible to add queues
+if they number is greater than the number resulting
+from available space.
+Also add the search for free space in PF queue
+pair piles.
+
+Without this patch VF interfaces are not seen
+when available space for queues has been
+exceeded and following logs appears permanently
+in dmesg:
+"Unable to get VF config (-32)".
+"VF 62 failed opcode 3, retval: -5"
+"Unable to get VF config due to PF error condition, not retrying"
+
+Fixes: 7daa6bf3294e ("i40e: driver core headers")
+Fixes: 41c445ff0f48 ("i40e: main driver core")
+Signed-off-by: Jaroslaw Gawin <jaroslawx.gawin@intel.com>
+Signed-off-by: Slawomir Laba <slawomirx.laba@intel.com>
+Signed-off-by: Jedrzej Jagielski <jedrzej.jagielski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+
+diff --git a/drivers/net/ethernet/intel/i40e/i40e.h b/drivers/net/ethernet/intel/i40e/i40e.h
+index 4d939af0a626..c8cfe62d5e05 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e.h
++++ b/drivers/net/ethernet/intel/i40e/i40e.h
+@@ -174,7 +174,6 @@ enum i40e_interrupt_policy {
  
- 	if (is_write)
--		__raw_writel(GOLDFISH_TTY_CMD_WRITE_BUFFER,
-+		gf_iowrite32(GOLDFISH_TTY_CMD_WRITE_BUFFER,
- 		       base + GOLDFISH_TTY_REG_CMD);
- 	else
--		__raw_writel(GOLDFISH_TTY_CMD_READ_BUFFER,
-+		gf_iowrite32(GOLDFISH_TTY_CMD_READ_BUFFER,
- 		       base + GOLDFISH_TTY_REG_CMD);
- 
- 	spin_unlock_irqrestore(&qtty->lock, irq_flags);
-@@ -142,7 +142,7 @@ static irqreturn_t goldfish_tty_interrupt(int irq, void *dev_id)
- 	unsigned char *buf;
- 	u32 count;
- 
--	count = __raw_readl(base + GOLDFISH_TTY_REG_BYTES_READY);
-+	count = gf_ioread32(base + GOLDFISH_TTY_REG_BYTES_READY);
- 	if (count == 0)
- 		return IRQ_NONE;
- 
-@@ -159,7 +159,7 @@ static int goldfish_tty_activate(struct tty_port *port, struct tty_struct *tty)
- {
- 	struct goldfish_tty *qtty = container_of(port, struct goldfish_tty,
- 									port);
--	__raw_writel(GOLDFISH_TTY_CMD_INT_ENABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
-+	gf_iowrite32(GOLDFISH_TTY_CMD_INT_ENABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
- 	return 0;
- }
- 
-@@ -167,7 +167,7 @@ static void goldfish_tty_shutdown(struct tty_port *port)
- {
- 	struct goldfish_tty *qtty = container_of(port, struct goldfish_tty,
- 									port);
--	__raw_writel(GOLDFISH_TTY_CMD_INT_DISABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
-+	gf_iowrite32(GOLDFISH_TTY_CMD_INT_DISABLE, qtty->base + GOLDFISH_TTY_REG_CMD);
- }
- 
- static int goldfish_tty_open(struct tty_struct *tty, struct file *filp)
-@@ -202,7 +202,7 @@ static unsigned int goldfish_tty_chars_in_buffer(struct tty_struct *tty)
- {
- 	struct goldfish_tty *qtty = &goldfish_ttys[tty->index];
- 	void __iomem *base = qtty->base;
--	return __raw_readl(base + GOLDFISH_TTY_REG_BYTES_READY);
-+	return gf_ioread32(base + GOLDFISH_TTY_REG_BYTES_READY);
- }
- 
- static void goldfish_tty_console_write(struct console *co, const char *b,
-@@ -355,7 +355,7 @@ static int goldfish_tty_probe(struct platform_device *pdev)
- 	 * on Ranchu emulator (qemu2) returns 1 here and
- 	 * driver will use physical addresses.
- 	 */
--	qtty->version = __raw_readl(base + GOLDFISH_TTY_REG_VERSION);
-+	qtty->version = gf_ioread32(base + GOLDFISH_TTY_REG_VERSION);
- 
- 	/*
- 	 * Goldfish TTY device on Ranchu emulator (qemu2)
-@@ -374,7 +374,7 @@ static int goldfish_tty_probe(struct platform_device *pdev)
- 		}
+ struct i40e_lump_tracking {
+ 	u16 num_entries;
+-	u16 search_hint;
+ 	u16 list[0];
+ #define I40E_PILE_VALID_BIT  0x8000
+ #define I40E_IWARP_IRQ_PILE_ID  (I40E_PILE_VALID_BIT - 2)
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 1b0fd3eacd64..9456641cd24a 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -196,10 +196,6 @@ int i40e_free_virt_mem_d(struct i40e_hw *hw, struct i40e_virt_mem *mem)
+  * @id: an owner id to stick on the items assigned
+  *
+  * Returns the base item index of the lump, or negative for error
+- *
+- * The search_hint trick and lack of advanced fit-finding only work
+- * because we're highly likely to have all the same size lump requests.
+- * Linear search time and any fragmentation should be minimal.
+  **/
+ static int i40e_get_lump(struct i40e_pf *pf, struct i40e_lump_tracking *pile,
+ 			 u16 needed, u16 id)
+@@ -214,8 +210,7 @@ static int i40e_get_lump(struct i40e_pf *pf, struct i40e_lump_tracking *pile,
+ 		return -EINVAL;
  	}
  
--	__raw_writel(GOLDFISH_TTY_CMD_INT_DISABLE, base + GOLDFISH_TTY_REG_CMD);
-+	gf_iowrite32(GOLDFISH_TTY_CMD_INT_DISABLE, base + GOLDFISH_TTY_REG_CMD);
+-	/* start the linear search with an imperfect hint */
+-	i = pile->search_hint;
++	i = 0;
+ 	while (i < pile->num_entries) {
+ 		/* skip already allocated entries */
+ 		if (pile->list[i] & I40E_PILE_VALID_BIT) {
+@@ -234,7 +229,6 @@ static int i40e_get_lump(struct i40e_pf *pf, struct i40e_lump_tracking *pile,
+ 			for (j = 0; j < needed; j++)
+ 				pile->list[i+j] = id | I40E_PILE_VALID_BIT;
+ 			ret = i;
+-			pile->search_hint = i + j;
+ 			break;
+ 		}
  
- 	ret = request_irq(irq, goldfish_tty_interrupt, IRQF_SHARED,
- 			  "goldfish_tty", qtty);
-@@ -436,7 +436,7 @@ static int goldfish_tty_remove(struct platform_device *pdev)
- #ifdef CONFIG_GOLDFISH_TTY_EARLY_CONSOLE
- static void gf_early_console_putchar(struct uart_port *port, int ch)
+@@ -257,7 +251,7 @@ static int i40e_put_lump(struct i40e_lump_tracking *pile, u16 index, u16 id)
  {
--	__raw_writel(ch, port->membase);
-+	gf_iowrite32(ch, port->membase);
+ 	int valid_id = (id | I40E_PILE_VALID_BIT);
+ 	int count = 0;
+-	int i;
++	u16 i;
+ 
+ 	if (!pile || index >= pile->num_entries)
+ 		return -EINVAL;
+@@ -269,8 +263,6 @@ static int i40e_put_lump(struct i40e_lump_tracking *pile, u16 index, u16 id)
+ 		count++;
+ 	}
+ 
+-	if (count && index < pile->search_hint)
+-		pile->search_hint = index;
+ 
+ 	return count;
+ }
+@@ -11786,7 +11778,6 @@ static int i40e_init_interrupt_scheme(struct i40e_pf *pf)
+ 		return -ENOMEM;
+ 
+ 	pf->irq_pile->num_entries = vectors;
+-	pf->irq_pile->search_hint = 0;
+ 
+ 	/* track first vector for misc interrupts, ignore return */
+ 	(void)i40e_get_lump(pf, pf->irq_pile, 1, I40E_PILE_VALID_BIT - 1);
+@@ -12589,7 +12580,6 @@ static int i40e_sw_init(struct i40e_pf *pf)
+ 		goto sw_init_done;
+ 	}
+ 	pf->qp_pile->num_entries = pf->hw.func_caps.num_tx_qp;
+-	pf->qp_pile->search_hint = 0;
+ 
+ 	pf->tx_timeout_recovery_level = 1;
+ 
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+index b785d09c19f8..7dd2a2bab339 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_virtchnl_pf.c
+@@ -2617,6 +2617,59 @@ static int i40e_vc_disable_queues_msg(struct i40e_vf *vf, u8 *msg)
+ 				       aq_ret);
  }
  
- static void gf_early_write(struct console *con, const char *s, unsigned int n)
-diff --git a/include/linux/goldfish.h b/include/linux/goldfish.h
-index 12be1601fd84..bcc17f95b906 100644
---- a/include/linux/goldfish.h
-+++ b/include/linux/goldfish.h
-@@ -8,14 +8,21 @@
- 
- /* Helpers for Goldfish virtual platform */
- 
-+#ifndef gf_ioread32
-+#define gf_ioread32 ioread32
-+#endif
-+#ifndef gf_iowrite32
-+#define gf_iowrite32 iowrite32
-+#endif
++/**
++ * i40e_check_enough_queue - find big enough queue number
++ * @vf: pointer to the VF info
++ * @needed: the number of items needed
++ *
++ * Returns the base item index of the queue, or negative for error
++ **/
++static int i40e_check_enough_queue(struct i40e_vf *vf, u16 needed)
++{
++	unsigned int  i, cur_queues, more, pool_size;
++	struct i40e_lump_tracking *pile;
++	struct i40e_pf *pf = vf->pf;
++	struct i40e_vsi *vsi;
 +
- static inline void gf_write_ptr(const void *ptr, void __iomem *portl,
- 				void __iomem *porth)
- {
- 	const unsigned long addr = (unsigned long)ptr;
- 
--	__raw_writel(lower_32_bits(addr), portl);
-+	gf_iowrite32(lower_32_bits(addr), portl);
- #ifdef CONFIG_64BIT
--	__raw_writel(upper_32_bits(addr), porth);
-+	gf_iowrite32(upper_32_bits(addr), porth);
- #endif
- }
- 
-@@ -23,9 +30,9 @@ static inline void gf_write_dma_addr(const dma_addr_t addr,
- 				     void __iomem *portl,
- 				     void __iomem *porth)
- {
--	__raw_writel(lower_32_bits(addr), portl);
-+	gf_iowrite32(lower_32_bits(addr), portl);
- #ifdef CONFIG_ARCH_DMA_ADDR_T_64BIT
--	__raw_writel(upper_32_bits(addr), porth);
-+	gf_iowrite32(upper_32_bits(addr), porth);
- #endif
- }
- 
--- 
-2.34.1
++	vsi = pf->vsi[vf->lan_vsi_idx];
++	cur_queues = vsi->alloc_queue_pairs;
++
++	/* if current allocated queues are enough for need */
++	if (cur_queues >= needed)
++		return vsi->base_queue;
++
++	pile = pf->qp_pile;
++	if (cur_queues > 0) {
++		/* if the allocated queues are not zero
++		 * just check if there are enough queues for more
++		 * behind the allocated queues.
++		 */
++		more = needed - cur_queues;
++		for (i = vsi->base_queue + cur_queues;
++			i < pile->num_entries; i++) {
++			if (pile->list[i] & I40E_PILE_VALID_BIT)
++				break;
++
++			if (more-- == 1)
++				/* there is enough */
++				return vsi->base_queue;
++		}
++	}
++
++	pool_size = 0;
++	for (i = 0; i < pile->num_entries; i++) {
++		if (pile->list[i] & I40E_PILE_VALID_BIT) {
++			pool_size = 0;
++			continue;
++		}
++		if (needed <= ++pool_size)
++			/* there is enough */
++			return i;
++	}
++
++	return -ENOMEM;
++}
++
+ /**
+  * i40e_vc_request_queues_msg
+  * @vf: pointer to the VF info
+@@ -2651,6 +2704,12 @@ static int i40e_vc_request_queues_msg(struct i40e_vf *vf, u8 *msg)
+ 			 req_pairs - cur_pairs,
+ 			 pf->queues_left);
+ 		vfres->num_queue_pairs = pf->queues_left + cur_pairs;
++	} else if (i40e_check_enough_queue(vf, req_pairs) < 0) {
++		dev_warn(&pf->pdev->dev,
++			 "VF %d requested %d more queues, but there is not enough for it.\n",
++			 vf->vf_id,
++			 req_pairs - cur_pairs);
++		vfres->num_queue_pairs = cur_pairs;
+ 	} else {
+ 		/* successful request */
+ 		vf->num_req_queues = req_pairs;
 
