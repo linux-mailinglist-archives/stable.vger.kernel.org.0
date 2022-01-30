@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 627FB4A36D1
-	for <lists+stable@lfdr.de>; Sun, 30 Jan 2022 15:42:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 174364A36D5
+	for <lists+stable@lfdr.de>; Sun, 30 Jan 2022 15:45:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1355046AbiA3Omv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 30 Jan 2022 09:42:51 -0500
-Received: from dfw.source.kernel.org ([139.178.84.217]:37160 "EHLO
+        id S1355171AbiA3OpL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 Jan 2022 09:45:11 -0500
+Received: from dfw.source.kernel.org ([139.178.84.217]:37848 "EHLO
         dfw.source.kernel.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1355072AbiA3Omr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 30 Jan 2022 09:42:47 -0500
+        with ESMTP id S1355112AbiA3Ooz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 30 Jan 2022 09:44:55 -0500
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C1BB260EC1
-        for <stable@vger.kernel.org>; Sun, 30 Jan 2022 14:42:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84089C340E4;
-        Sun, 30 Jan 2022 14:42:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D53A4611C8
+        for <stable@vger.kernel.org>; Sun, 30 Jan 2022 14:44:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA0D7C340F0;
+        Sun, 30 Jan 2022 14:44:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1643553766;
-        bh=FokdIGW6wCGdeyEFwy41QlDcNnYrXPkACGhnPEuN2sw=;
+        s=korg; t=1643553894;
+        bh=QrBuqJ3ML13nPX2tCk2UDsVzZDZ40WrT4yaF5aK6Zj8=;
         h=Subject:To:Cc:From:Date:From;
-        b=2goQC83LtZbK0Isetl9hv8LZBXvzVb3HmD8S4sbkRtcMwusy25xjNdWDi1WbAKJOb
-         xNbSzXBLC1NfohiNdnFX8fE9Qj3DMKclIfNSFABM+LqJdbk68lbsTMatdlknijSlzf
-         l+GT4vJjxLzNZ4SK1w3f0LSTYWBXVw9u6WPbqhCw=
-Subject: FAILED: patch "[PATCH] i40e: fix unsigned stat widths" failed to apply to 4.9-stable tree
-To:     jdamato@fastly.com, anthony.l.nguyen@intel.com,
-        gurucharanx.g@intel.com, lkp@intel.com
+        b=i3F+gzboWgdDhCLTq87xs8lGQrKBeJq7Ee1rRGCSBiM1KHP6v9g4tcgkfOTqWquZU
+         O9AO+SKf1HvUZ7zW4JU7nhjN8n6hMWaRdfb2SwUJZQSveVyTleqG5N2Zr4Hhob8UPp
+         xzitHI1FQaTTNewuAAS/nxqMF+XT3+7xaP4Wl2VY=
+Subject: FAILED: patch "[PATCH] serial: stm32: prevent TDR register overwrite when sending" failed to apply to 4.4-stable tree
+To:     valentin.caron@foss.st.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 30 Jan 2022 15:42:30 +0100
-Message-ID: <16435537503561@kroah.com>
+Date:   Sun, 30 Jan 2022 15:44:42 +0100
+Message-ID: <16435538821564@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -40,7 +40,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -51,70 +51,52 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3b8428b84539c78fdc8006c17ebd25afd4722d51 Mon Sep 17 00:00:00 2001
-From: Joe Damato <jdamato@fastly.com>
-Date: Wed, 8 Dec 2021 17:56:33 -0800
-Subject: [PATCH] i40e: fix unsigned stat widths
+From d3d079bde07e1b7deaeb57506dc0b86010121d17 Mon Sep 17 00:00:00 2001
+From: Valentin Caron <valentin.caron@foss.st.com>
+Date: Tue, 11 Jan 2022 17:44:40 +0100
+Subject: [PATCH] serial: stm32: prevent TDR register overwrite when sending
+ x_char
 
-Change i40e_update_vsi_stats and struct i40e_vsi to use u64 fields to match
-the width of the stats counters in struct i40e_rx_queue_stats.
+When sending x_char in stm32_usart_transmit_chars(), driver can overwrite
+the value of TDR register by the value of x_char. If this happens, the
+previous value that was present in TDR register will not be sent through
+uart.
 
-Update debugfs code to use the correct format specifier for u64.
+This code checks if the previous value in TDR register is sent before
+writing the x_char value into register.
 
-Fixes: 41c445ff0f48 ("i40e: main driver core")
-Signed-off-by: Joe Damato <jdamato@fastly.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: 48a6092fb41f ("serial: stm32-usart: Add STM32 USART Driver")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Valentin Caron <valentin.caron@foss.st.com>
+Link: https://lore.kernel.org/r/20220111164441.6178-2-valentin.caron@foss.st.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e.h b/drivers/net/ethernet/intel/i40e/i40e.h
-index c8cfe62d5e05..2e02cc68cd3f 100644
---- a/drivers/net/ethernet/intel/i40e/i40e.h
-+++ b/drivers/net/ethernet/intel/i40e/i40e.h
-@@ -847,12 +847,12 @@ struct i40e_vsi {
- 	struct rtnl_link_stats64 net_stats_offsets;
- 	struct i40e_eth_stats eth_stats;
- 	struct i40e_eth_stats eth_stats_offsets;
--	u32 tx_restart;
--	u32 tx_busy;
-+	u64 tx_restart;
-+	u64 tx_busy;
- 	u64 tx_linearize;
- 	u64 tx_force_wb;
--	u32 rx_buf_failed;
--	u32 rx_page_failed;
-+	u64 rx_buf_failed;
-+	u64 rx_page_failed;
+diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
+index 1f89ab0e49ac..c1b8828451c8 100644
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -550,11 +550,23 @@ static void stm32_usart_transmit_chars(struct uart_port *port)
+ 	struct stm32_port *stm32_port = to_stm32_port(port);
+ 	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+ 	struct circ_buf *xmit = &port->state->xmit;
++	u32 isr;
++	int ret;
  
- 	/* These are containers of ring pointers, allocated at run-time */
- 	struct i40e_ring **rx_rings;
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_debugfs.c b/drivers/net/ethernet/intel/i40e/i40e_debugfs.c
-index 2c1b1da1220e..1e57cc8c47d7 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_debugfs.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_debugfs.c
-@@ -240,7 +240,7 @@ static void i40e_dbg_dump_vsi_seid(struct i40e_pf *pf, int seid)
- 		 (unsigned long int)vsi->net_stats_offsets.rx_compressed,
- 		 (unsigned long int)vsi->net_stats_offsets.tx_compressed);
- 	dev_info(&pf->pdev->dev,
--		 "    tx_restart = %d, tx_busy = %d, rx_buf_failed = %d, rx_page_failed = %d\n",
-+		 "    tx_restart = %llu, tx_busy = %llu, rx_buf_failed = %llu, rx_page_failed = %llu\n",
- 		 vsi->tx_restart, vsi->tx_busy,
- 		 vsi->rx_buf_failed, vsi->rx_page_failed);
- 	rcu_read_lock();
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index 9b65cb50282c..f70c478dafdb 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -778,9 +778,9 @@ static void i40e_update_vsi_stats(struct i40e_vsi *vsi)
- 	struct rtnl_link_stats64 *ns;   /* netdev stats */
- 	struct i40e_eth_stats *oes;
- 	struct i40e_eth_stats *es;     /* device's eth stats */
--	u32 tx_restart, tx_busy;
-+	u64 tx_restart, tx_busy;
- 	struct i40e_ring *p;
--	u32 rx_page, rx_buf;
-+	u64 rx_page, rx_buf;
- 	u64 bytes, packets;
- 	unsigned int start;
- 	u64 tx_linearize;
+ 	if (port->x_char) {
+ 		if (stm32_usart_tx_dma_started(stm32_port) &&
+ 		    stm32_usart_tx_dma_enabled(stm32_port))
+ 			stm32_usart_clr_bits(port, ofs->cr3, USART_CR3_DMAT);
++
++		/* Check that TDR is empty before filling FIFO */
++		ret =
++		readl_relaxed_poll_timeout_atomic(port->membase + ofs->isr,
++						  isr,
++						  (isr & USART_SR_TXE),
++						  10, 1000);
++		if (ret)
++			dev_warn(port->dev, "1 character may be erased\n");
++
+ 		writel_relaxed(port->x_char, port->membase + ofs->tdr);
+ 		port->x_char = 0;
+ 		port->icount.tx++;
 
